@@ -1338,7 +1338,7 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
                   <tr>\
                     <td class="key_td"><input type="text" name="new_key" id="new_key" /></td>\
                     <td class="value_td"><input type="text" name="new_value" id="new_value" /></td>\
-                    <td colspan="2" class=""><button id="button_add_value" class="button small secondary">'+tr("Add")+'</button>\</td>\
+                    <td colspan="2" class=""><button type="button" id="button_add_value" class="button small secondary">'+tr("Add")+'</button>\</td>\
                   </tr>' + fromJSONtoHTMLTable(template_json,
                                                resource_type,
                                                resource_id) +

@@ -67,6 +67,9 @@ var images_tab_content = '\
 
 var create_image_tmpl =
 '<div id="img_tabs">\
+  <div class="panel">\
+    <h3><small>'+tr("Create Image")+'</small></h4>\
+  </div>\
         <dl class="tabs">\
         <dd class="active"><a href="#img_easy">'+tr("Wizard")+'</a></dd>\
           <dd><a href="#img_manual">'+tr("Advanced mode")+'</a></dd>\
@@ -74,7 +77,6 @@ var create_image_tmpl =
         <ul class="tabs-content">\
         <li id="img_easyTab" class="active">\
            <form id="create_image_form_easy" action="" class="custom">\
-               <custom class="img_param img_man">\
                   <div class="row vm_param">\
                     <div class="six columns">\
                       <div class="row">\
@@ -137,8 +139,6 @@ var create_image_tmpl =
                  <legend>'+tr("Image location")+':</legend>\
                  <div class="" id="src_path_select">\
                   <div class="row">\
-                    <div class="columns ten centered">\
-                      <div class="row">\
                         <div class="four columns">\
                          <input type="radio" name="src_path" id="path_img" value="path">'+ tr("Provide a path")+'</input> \
                         </div>\
@@ -149,15 +149,12 @@ var create_image_tmpl =
                          <input type="radio" name="src_path" id="datablock_img" value="datablock" /> '+tr("Create an empty datablock")+'\
                         </div>\
                         <div class="one columns">\
-                         <div class="tip">'+tr("Please choose path if you have a file-based image. Otherwise upload or create an empty datablock disk.")+'</div><br />\
+                         <div class="tip">'+tr("Please choose path if you have a file-based image. Otherwise upload or create an empty datablock disk.")+'</div>\
                         </div>\
-                      </div>\
-                    </div>\
                   </div>\
                  </div>\
                  <div class="img_param row">\
                    <div class="eight columns centered">\
-                    <div class=" row">\
                     <div class="two columns">\
                       <label class="right inline" for="img_path">'+tr("Path")+':</label>\
                     </div>\
@@ -169,10 +166,9 @@ var create_image_tmpl =
                     </div>\
                  </div>\
                  </div>\
-                 </div>\
-                 <div class="row">\
+                 <div class="row img_size">\
                    <div class="six columns">\
-                     <div class="row img_size">\
+                    <div class="row">\
                         <div class="four columns">\
                           <label class="right inline" for="img_size">'+tr("Size")+':</label>\
                         </div>\
@@ -185,7 +181,7 @@ var create_image_tmpl =
                     </div>\
                   </div>\
                    <div class="six columns">\
-                     <div class="row img_param">\
+                    <div class="row">\
                         <div class="four columns">\
                           <label class="right inline" for="img_fstype">'+tr("FS type")+':</label>\
                         </div>\
@@ -195,7 +191,7 @@ var create_image_tmpl =
                         <div class="one columns">\
                           <div class="tip">'+tr("Type of file system to be built. This can be any value understood by mkfs unix command.")+'</div>\
                         </div>\
-                      </div>\
+                    </div>\
                     </div>\
                   </div>\
                  <div class="img_param" id="upload_div">\
@@ -265,15 +261,16 @@ var create_image_tmpl =
                   </div>\
                   </div>\
                   <hr>\
-                  <div class="form_buttons">\
-                    <button class="button success radius right" id="create_image_submit" value="user/create">'+tr("Create")+'</button>\
-                    <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
-                  </div>\
             </form>\
+            <div class="form_buttons">\
+              <button class="button success radius right" id="create_image_submit" value="user/create">'+tr("Create")+'</button>\
+              <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
+              <button class="close-reveal-modal button secondary radius" type="close" value="close">' + tr("Close") + '</button>\
+            </div>\
         </li>\
         <li id="img_manualTab">\
             <form id="create_image_form_manual" action="" class="custom">\
-                 <h3 style="margin-bottom:10px;">'+tr("Write the image template here")+'</h3>\
+                 <h4><small>'+tr("Write the image template here")+'</small></h4>\
                  <label for="img_datastores_raw">'+tr("Datastore")+':</label>\
                  <select id="img_datastore_raw" name="img_datastore_raw">\
                  </select>\
@@ -281,6 +278,7 @@ var create_image_tmpl =
                <div class="form_buttons">\
                  <button class="button success radius right" id="create_vn_submit_manual" value="vn/create">'+tr("Create")+'</button>\
                  <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
+                 <button class="close-reveal-modal button secondary radius" type="close" value="close">' + tr("Close") + '</button>\
                </div>\
            </form>\
         </li>\
@@ -813,7 +811,7 @@ function setupCreateImageDialog(){
     //    width: 520,
     //    height: height
     //});
-    dialog.addClass("reveal-modal xlarge");
+    dialog.addClass("reveal-modal large");
 
     $('.advanced',dialog).hide();
 
@@ -1150,17 +1148,20 @@ function setupImageCloneDialog(){
     //Put HTML in place
 
     var html = '<form>\
+    <div class="row">\
+  <h3><small>'+tr("Clone Image")+'</small></h4>\
+  </div>\
 <div class="row">\
-<div class="clone_one">'+tr("Choose a new name for the image")+':</div>\
+<div class="clone_one"></div>\
 <div class="clone_several">'+tr("Several image are selected, please choose prefix to name the new copies")+':</div>\
 <br>\
 </div>\
 <div class="row">\
-  <div class="columns four">\
+  <div class="columns two">\
     <label class="clone_one inline right">'+tr("Name")+':</label>\
     <label class="clone_several inline right">'+tr("Prefix")+':</label>\
   </div>\
-  <div class="columns eight">\
+  <div class="columns ten">\
     <input type="text" name="name"></input>\
   </div>\
 </div>\

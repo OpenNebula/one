@@ -66,7 +66,7 @@ var templates_tab_content = '\
 </form>';
 
   
-var create_template_tmpl = '<div class="row">'+
+var create_template_tmpl = '<div class="panel">'+
   '<h3><small>'+tr("Create VM Template")+'</small></h4>'+
   '</div>'+
   '<div class="row">'+
@@ -81,8 +81,7 @@ var create_template_tmpl = '<div class="row">'+
         '</form>'+
     '</div>'+
   '</div>'+
-  '<br>'+
-  '<div class="row">'+
+  '<div class="">'+
       '<hr>'+
       '<button class="success button radius" id="create_template_form_easy" value="OpenNebula.Template.create" style="float: right">'+tr("Create")+'</button>'+
       '<button class="button hidden radius" id="template_template_update_button" value="Template.update_template" style="float: right">'+tr("Update")+'</button>'+

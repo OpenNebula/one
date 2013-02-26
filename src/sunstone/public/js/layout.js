@@ -162,6 +162,10 @@ $(document).ready(function () {
     ,   center__paneSelector:	".inner-center"
     ,	south__paneSelector:	".inner-south"
     ,   south__size:            dialog_height
+    ,   south__resizable:       true
+    ,   south__spacing_open:      10
+    ,   north__resizable:       true
+    ,   north__spacing_open:      10
     ,	spacing_open:			5  // ALL panes
     ,	spacing_closed:			5 // ALL panes
     });

@@ -73,8 +73,27 @@ var datastore_datatable_table_tmpl='<thead>\
 
 
 var create_cluster_tmpl ='<div id="cluster_create_tabs">\
+  <div class="panel">\
+    <h3 >\
+      <small id="create_cluster_header">'+tr("Create Cluster")+'</small>\
+      <small id="update_cluster_header">'+tr("Update Cluster")+'</small>\
+    </h3>\
+  </div>\
   <form class="custom">\
-  <label for="name">' + tr("Name") + ':</label><input type="text" name="name" id="name" />\
+  <div class="row centered">\
+    <div class="columns eight centered">\
+      <div class="two columns">\
+          <label class="inline right"for="name">' + tr("Name")  + ':</label>\
+      </div>\
+      <div class="nine columns">\
+          <input type="text" name="name" id="name" />\
+      </div>\
+      <div class="one columns">\
+          <div class="tip"></div>\
+      </div>\
+    </div>\
+  </div>\
+  <br>\
     <dl class="tabs">\
         <dd class="active"><a href="#tab-hosts">'+tr("HOSTs")+'</a></dd>\
         <dd><a href="#tab-vnets">'+tr("VIRTUAL NETWORKs")+'</a></dd>\
@@ -82,54 +101,67 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
     </dl>\
     <ul class="tabs-content">\
     <li id="tab-hostsTab" class="active">\
-      <div class="row">\
-        <div class="five columns push-seven">\
+      <div class="row collapse">\
+        <div class="seven columns">\
+            <button id="refresh_host_table_button_class" class="button small radius secondary action_button" value="ClusterHost.list"><i class="icon-refresh" /></button>\
+        </div>\
+        <div class="five columns">\
           <input id="cluster_hosts_search" type="text" placeholder="Search"/>\
         </div>\
       </div>\
       <div id="datatable_cluster_hosts_div">\
-            <h3>' +
-            tr("Select Hosts for this Cluster") +
-            '<button id="refresh_host_table_button_class" class="icon-refresh action_button" value="ClusterHost.list" style="float:right;"></h3>\
-            <hr>\
-            <table id="datatable_cluster_hosts" class="table twelve">' + host_datatable_table_tmpl + '</table></div>\
-      <div id="selected_hosts_div"></div>\
+            <table id="datatable_cluster_hosts" class="datatable twelve">' + host_datatable_table_tmpl + '</table></div>\
+      <br>\
+      <div id="selected_hosts_div">\
+        <span id="select_cluster_hosts" class="radius secondary label">'+tr("Please select one or more hosts from the list")+'</span>\
+        <span id="cluster_hosts_selected" class="radius secondary label hidden">'+tr("You selected the following hosts:")+'</span>\
+      </div>\
     </li>\
     <li id="tab-vnetsTab">\
-      <div class="row">\
-        <div class="five columns push-seven">\
+      <div class="row collapse">\
+        <div class="seven columns">\
+            <button id="refresh_vnet_table_button_class" class="button small radius secondary action_button" value="ClusterVN.list"><i class="icon-refresh" /></button>\
+        </div>\
+        <div class="five columns">\
           <input id="cluster_vnets_search" type="text" placeholder="Search"/>\
         </div>\
       </div>\
       <div id="datatable_cluster_vnets_div">\
-            <h3>' +
-            tr("Select Virtual Networks for this Cluster") +
-            '<button id="refresh_vnet_table_button_class" class="icon-refresh action_button" value="ClusterVN.list" style="float:right;"></h3>\
-            <hr>\
             <table id="datatable_cluster_vnets" class="table twelve">' + vnet_datatable_table_tmpl + '</table></div>\
-      <div id="selected_vnets_div"></div>\
+      <br>\
+      <div id="selected_vnets_div">\
+        <span id="select_cluster_vnets" class="radius secondary label">'+tr("Please select one or more vnets from the list")+'</span>\
+        <span id="cluster_vnets_selected" class="radius secondary label hidden">'+tr("You selected the following vnets:")+'</span>\
+      </div>\
     </li>\
     <li id="tab-datastoresTab">\
-      <div class="row">\
-        <div class="five columns push-seven">\
+      <div class="row collapse">\
+        <div class="seven columns">\
+            <button id="refresh_datastore_table_button_class" class="button small radius secondary action_button" value="ClusterDS.list"><i class="icon-refresh" /></button>\
+        </div>\
+        <div class="five columns">\
           <input id="cluster_datastores_search" type="text" placeholder="Search"/>\
         </div>\
       </div>\
       <div id="datatable_cluster_datastores_div">\
-            <h3>' +
-            tr("Select Datastores for this Cluster") +
-            '<button id="refresh_datastore_table_button_class" class="icon-refresh action_button" value="ClusterDS.list" style="float:right;"></h3>\
-            <hr>\
             <table id="datatable_cluster_datastores" class="table twelve">' + datastore_datatable_table_tmpl + '</table></div>\
-      <div id="selected_datastores_div"></div>\
+      <br>\
+      <div id="selected_datastores_div">\
+        <span id="select_cluster_datastores" class="radius secondary label">'+tr("Please select one or more datastores from the list")+'</span>\
+        <span id="cluster_datastores_selected" class="radius secondary label hidden">'+tr("You selected the following datastores:")+'</span>\
+      </div>\
     </li>\
-    <hr>\
-    <div class="form_buttons">\
-        <button class="button" type="submit" id="create_cluster_submit" value="OpenNebula.Cluster.create">' + tr("Create") + '</button>\
-        <button class="button" type="submit" id="update_cluster_submit">' + tr("Update") + '</button>\
-        <button class="button" type="reset" value="reset">' + tr("Reset") + '</button>\
-    </div>\
+    </ul>\
+    <br>\
   </form>\
+    <hr>\
+    <div class="form_buttons row">\
+        <button class="button success right radius" type="submit" id="create_cluster_submit" value="OpenNebula.Cluster.create">' + tr("Create") + '</button>\
+        <button class="button right radius" type="submit" id="update_cluster_submit">' + tr("Update") + '</button>\
+        <button class="button secondary radius" type="reset" value="reset">' + tr("Reset") + '</button>\
+        <button class="close-reveal-modal button secondary radius" type="close" value="close">' + tr("Close") + '</button>\
+    </div>\
+        <a class="close-reveal-modal">&#215;</a>\
 </div>';
 
 // Common utils for datatatables
@@ -156,14 +188,14 @@ function setupCreateClusterDialog(datatable_filter){
     //    height: height,
     //    width: 'auto'
     //});
-    dialog.addClass("reveal-modal xlarge");
+    dialog.addClass("reveal-modal large");
 
     //Enable tabs
     //$('#cluster_create_tabs',dialog).tabs({});
 
     //  ------- Create the dialog datatables ------------
     dataTable_cluster_hosts = $("#datatable_cluster_hosts", dialog).dataTable({
-        "sDom" :  "<'H'>t<'row'<'six columns'i><'six columns'p>>",
+        "sDom" :  '<"H">t<"F"p>',
         "oColVis": { //exclude checkbox column
             "aiExclude": [ 0 ]
         },
@@ -194,7 +226,7 @@ function setupCreateClusterDialog(datatable_filter){
     //    '','','','','','','','','','','',''],dataTable_cluster_hosts);
 
     dataTable_cluster_vnets = $("#datatable_cluster_vnets", dialog).dataTable({
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
+        "sDom" : '<"H">t<"F"p>',
         "oColVis": {
             "aiExclude": [ 0 ]
         },
@@ -213,7 +245,7 @@ function setupCreateClusterDialog(datatable_filter){
 
 
     $('#cluster_vnets_search', dialog).keyup(function(){
-      dataTable_cluster_hosts.fnFilter( $(this).val() );
+      dataTable_cluster_vnets.fnFilter( $(this).val() );
     })
 
     //preload it
@@ -224,7 +256,7 @@ function setupCreateClusterDialog(datatable_filter){
     //    '','','','','','','','','','','',''],dataTable_cluster_vnets);
 
     dataTable_cluster_datastores = $("#datatable_cluster_datastores", dialog).dataTable({
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
+        "sDom" : '<"H">t<"F"p>',
         "oColVis": {
             "aiExclude": [ 0 ]
         },
@@ -243,7 +275,7 @@ function setupCreateClusterDialog(datatable_filter){
 
 
     $('#cluster_datastores_search', dialog).keyup(function(){
-      dataTable_cluster_hosts.fnFilter( $(this).val() );
+      dataTable_cluster_datastores.fnFilter( $(this).val() );
     })
 
     //preload it
@@ -267,18 +299,28 @@ function setupCreateClusterDialog(datatable_filter){
           var host_id = aData[1];
           var name    = aData[2];
 
+          if ($.isEmptyObject(selected_hosts_list)) {
+            $('#cluster_hosts_selected',  dialog).show();
+            $('#select_cluster_hosts', dialog).hide();
+          }
+
           if(!$("td:first", this).hasClass('markrow'))
           {
             selected_hosts_list[host_id]=1;
             host_row_hash[host_id]=this;
             $(this).children().each(function(){$(this).addClass('markrow');});
-            $('div#selected_hosts_div', dialog).append('<span id="tag_hosts_'+host_id+'"><span class="ui-icon ui-icon-close"></span>'+name+'</span>');
+            $('div#selected_hosts_div', dialog).append('<span id="tag_hosts_'+host_id+'" class="radius label">'+name+' <span class="icon-remove blue"></span></span> ');
           }
           else
           {
             delete selected_hosts_list[host_id];
             $(this).children().each(function(){$(this).removeClass('markrow');});
             $('div#selected_hosts_div span#tag_hosts_'+host_id, dialog).remove();
+          }
+
+          if ($.isEmptyObject(selected_hosts_list)) {
+            $('#cluster_hosts_selected',  dialog).hide();
+            $('#select_cluster_hosts', dialog).show();
           }
 
           return false;
@@ -294,18 +336,28 @@ function setupCreateClusterDialog(datatable_filter){
           var vnet_id = aData[1];
           var name    = aData[4];
 
+          if ($.isEmptyObject(selected_vnets_list)) {
+            $('#cluster_vnets_selected',  dialog).show();
+            $('#select_cluster_vnets', dialog).hide();
+          }
+
           if(!$("td:first", this).hasClass('markrow'))
           {
             selected_vnets_list[vnet_id]=1;
             vnet_row_hash[vnet_id]=this;
             $(this).children().each(function(){$(this).addClass('markrow');});
-            $('div#selected_vnets_div', dialog).append('<span id="tag_vnets_'+vnet_id+'"><span class="ui-icon ui-icon-close"></span>'+name+'</span>');
+            $('div#selected_vnets_div', dialog).append('<span id="tag_vnets_'+vnet_id+'" class="radius label">'+name+' <span class="icon-remove blue"></span></span> ');
           }
           else
           {
             delete selected_vnets_list[vnet_id];
             $(this).children().each(function(){$(this).removeClass('markrow');});
             $('div#selected_vnets_div span#tag_vnets_'+vnet_id, dialog).remove();
+          }
+
+          if ($.isEmptyObject(selected_vnets_list)) {
+            $('#cluster_vnets_selected',  dialog).hide();
+            $('#select_cluster_vnets', dialog).show();
           }
 
           return false;
@@ -321,12 +373,17 @@ function setupCreateClusterDialog(datatable_filter){
           var ds_id = aData[1];
           var name  = aData[4];
 
+          if ($.isEmptyObject(selected_datastore_list)) {
+            $('#cluster_datastores_selected',  dialog).show();
+            $('#select_cluster_datastores', dialog).hide();
+          }
+
           if(!$("td:first", this).hasClass('markrow'))
           {
             selected_datastore_list[ds_id]=1;
             datastore_row_hash[ds_id]=this;
             $(this).children().each(function(){$(this).addClass('markrow');});
-            $('div#selected_datastores_div', dialog).append('<span id="tag_datastores_'+ds_id+'"><span class="ui-icon ui-icon-close"></span>'+name+'</span>');
+            $('div#selected_datastores_div', dialog).append('<span id="tag_datastores_'+ds_id+'" class="radius label">'+name+' <span class="icon-remove blue"></span></span> ');
           }
           else
           {
@@ -335,12 +392,17 @@ function setupCreateClusterDialog(datatable_filter){
             $('div#selected_datastores_div span#tag_datastores_'+ds_id, dialog).remove();
           }
 
+          if ($.isEmptyObject(selected_datastore_list)) {
+            $('#cluster_datastores_selected',  dialog).hide();
+            $('#select_cluster_datastores', dialog).show();
+          }
+
           return false;
       });
 
     // Add tag listeners
-     $( "#cluster_create_tabs span.ui-icon-close",$create_cluster_dialog).die();
-     $( "#cluster_create_tabs span.ui-icon-close" ).live( "click", function() {
+     $( "#cluster_create_tabs span.icon-remove",$create_cluster_dialog).die();
+     $( "#cluster_create_tabs span.icon-remove" ).live( "click", function() {
        // Remove the tag
        $(this).parent().remove();
 
@@ -352,18 +414,34 @@ function setupCreateClusterDialog(datatable_filter){
             var host_id=id.substring(10,id.length);
             delete selected_hosts_list[host_id];
             $("td:first", host_row_hash[host_id]).parent().children().each(function(){$(this).removeClass('markrow');});
+
+            if ($.isEmptyObject(selected_hosts)) {
+              $('#cluster_hosts_selected',  dialog).hide();
+              $('#select_cluster_hosts', dialog).show();
+            }
        }
        else if (id.match(/vnet/g))
        {
             var vnet_id=id.substring(10,id.length);
             delete selected_vnets_list[vnet_id];
             $("td:first", vnet_row_hash[vnet_id]).parent().children().each(function(){$(this).removeClass('markrow');});
+
+            if ($.isEmptyObject(selected_hosts)) {
+              $('#cluster_vnets_selected',  dialog).hide();
+              $('#select_cluster_vnets', dialog).show();
+            }
+
        }
        else if (id.match(/datastore/g))
        {
             var datastore_id=id.substring(15,id.length);
             delete selected_datastore_list[datastore_id];
             $("td:first", datastore_row_hash[datastore_id]).parent().children().each(function(){$(this).removeClass('markrow');});
+
+            if ($.isEmptyObject(selected_hosts)) {
+              $('#cluster_datastores_selected',  dialog).hide();
+              $('#select_cluster_datastores', dialog).show();
+            }
        }
      });
 
@@ -438,6 +516,8 @@ function popUpCreateClusterDialog(){
     // Activate create button
     $('#create_cluster_submit',$create_cluster_dialog).show();
     $('#update_cluster_submit',$create_cluster_dialog).hide();
+    $('#create_cluster_header',$create_cluster_dialog).show();
+    $('#update_cluster_header',$create_cluster_dialog).hide();
 
     Sunstone.runAction("ClusterHost.list");
     Sunstone.runAction("ClusterVN.list");
@@ -523,6 +603,8 @@ function fillPopPup(request,response){
   // Activate update button
   $('#create_cluster_submit',dialog).hide();
   $('#update_cluster_submit',dialog).show();
+  $('#create_cluster_header',dialog).hide();
+  $('#update_cluster_header',dialog).show();
 
   // Fill in the name
   $('#name',dialog).val(name);
@@ -544,10 +626,11 @@ function fillPopPup(request,response){
         {
           if (row_host_id == host_ids[i])
           {
-              selected_hosts_list[row_host_id]=1;
-              host_row_hash[row_host_id]=current_row;
-              current_row.children().each(function(){$(this).addClass('markrow');});
-              $('div#selected_hosts_div', dialog).append('<span id="tag_hosts_'+row_host_id+'"><span class="ui-icon ui-icon-close"></span>'+host_name+'</span>');
+              rows[j].click();
+              //selected_hosts_list[row_host_id]=1;
+              //host_row_hash[row_host_id]=current_row;
+              //current_row.children().each(function(){$(this).addClass('markrow');});
+              //$('div#selected_hosts_div', dialog).append('<span id="tag_hosts_'+row_host_id+'"><span class="ui-icon ui-icon-close"></span>'+host_name+'</span>');
           }
         }
       }
@@ -571,10 +654,11 @@ function fillPopPup(request,response){
         {
           if (row_vnet_id == vnet_ids[i])
           {
-              selected_vnets_list[row_vnet_id]=1;
-              vnet_row_hash[row_vnet_id]=current_row;
-              current_row.children().each(function(){$(this).addClass('markrow');});
-              $('div#selected_vnets_div', dialog).append('<span id="tag_vnets_'+row_vnet_id+'"><span class="ui-icon ui-icon-close"></span>'+vnet_name+'</span>');
+              rows[j].click();
+              //selected_vnets_list[row_vnet_id]=1;
+              //vnet_row_hash[row_vnet_id]=current_row;
+              //current_row.children().each(function(){$(this).addClass('markrow');});
+              //$('div#selected_vnets_div', dialog).append('<span id="tag_vnets_'+row_vnet_id+'"><span class="ui-icon ui-icon-close"></span>'+vnet_name+'</span>');
           }
         }
       }
@@ -598,10 +682,11 @@ function fillPopPup(request,response){
         {
           if (row_datastore_id == ds_ids[i])
           {
-              selected_datastore_list[row_datastore_id]=1;
-              datastore_row_hash[row_datastore_id]=current_row;
-              current_row.children().each(function(){$(this).addClass('markrow');});
-              $('div#selected_datastores_div', dialog).append('<span id="tag_datastores_'+row_datastore_id+'"><span class="ui-icon ui-icon-close"></span>'+datastore_name+'</span>');
+              rows[j].click();
+              //selected_datastore_list[row_datastore_id]=1;
+              //datastore_row_hash[row_datastore_id]=current_row;
+              //current_row.children().each(function(){$(this).addClass('markrow');});
+              //$('div#selected_datastores_div', dialog).append('<span id="tag_datastores_'+row_datastore_id+'"><span class="ui-icon ui-icon-close"></span>'+datastore_name+'</span>');
           }
         }
       }
@@ -839,7 +924,7 @@ var clusters_tab_content = '\
       <th>' + tr("ID") + '</th>\
       <th>' + tr("Name") + '</th>\
       <th>' + tr("Hosts") + '</th>\
-      <th>' + tr("Virtual Networks") + '</th>\
+      <th>' + tr("VNets") + '</th>\
       <th>' + tr("Datastores") + '</th>\
     </tr>\
   </thead>\
@@ -1302,7 +1387,9 @@ function updateClusterInfo(request,cluster){
     var info_tab = {
         title : tr("Information"),
         content :
-        '<table id="info_cluster_table" class="info_table">\
+        '<form class="custom"><div class="row">\
+        <div class="six columns">\
+        <table id="info_cluster_table" class="twelve datatable extended_table">\
             <thead>\
                <tr><th colspan="2">' +
                         tr("Information for Cluster") +
@@ -1318,25 +1405,29 @@ function updateClusterInfo(request,cluster){
                 <td class="value_td">'+cluster_info.NAME+'</td>\
             </tr>\
             </tbody>\
-         </table>' +
-                insert_extended_template_table(cluster_template,
+         </table>\
+        </div>\
+        <div class="six columns">'
+                + insert_extended_template_table(cluster_template,
                                          "Cluster",
-                                         cluster_info.ID)
+                                         cluster_info.ID) +
+         '</div>\
+        </div></form>'
     }
 
     var cluster_host_tab = {
         title: tr("Hosts"),
-        content : '<div id="datatable_cluster_hosts_info_div"><table id="datatable_cluster_hosts_info_panel" class="display">' + host_datatable_table_tmpl + '</table></div>'
+        content : '<div id="datatable_cluster_hosts_info_div"><table id="datatable_cluster_hosts_info_panel" class="table twelve">' + host_datatable_table_tmpl + '</table></div>'
     }
 
     var cluster_vnet_tab = {
         title: tr("Virtual Networks"),
-        content : '<div id="datatable_cluster_vnets_info_div"><table id="datatable_cluster_vnets_info_panel" class="display">' + vnet_datatable_table_tmpl + '</table></div>'
+        content : '<div id="datatable_cluster_vnets_info_div"><table id="datatable_cluster_vnets_info_panel" class="table twelve">' + vnet_datatable_table_tmpl + '</table></div>'
     }
 
     var cluster_datastore_tab = {
         title: tr("Datastores"),
-        content : '<div id="datatable_cluster_datastores_info_div"><table id="datatable_cluster_datastores_info_panel" class="display">' + datastore_datatable_table_tmpl + '</table></div>'
+        content : '<div id="datatable_cluster_datastores_info_div"><table id="datatable_cluster_datastores_info_panel" class="table twelve">' + datastore_datatable_table_tmpl + '</table></div>'
     }
 
     //Sunstone.updateInfoPanelTab(info_panel_name,tab_name, new tab object);
@@ -1350,14 +1441,10 @@ function updateClusterInfo(request,cluster){
     // Hosts datatable
 
     dataTable_cluster_hosts_panel = $("#datatable_cluster_hosts_info_panel").dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": { //exclude checkbox column
             "aiExclude": [ 0 ]
         },
-        "bAutoWidth":false,
-        "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0,4] },
@@ -1381,14 +1468,10 @@ function updateClusterInfo(request,cluster){
     // Virtual networks datatable
 
     dataTable_cluster_vnets_panel = $("#datatable_cluster_vnets_info_panel", dialog).dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "bAutoWidth":false,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
-        "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0,6,7,8] },
@@ -1412,14 +1495,10 @@ function updateClusterInfo(request,cluster){
     // Datastores datatable
 
     dataTable_cluster_datastores_panel = $("#datatable_cluster_datastores_info_panel", dialog).dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
-        "sPaginationType": "full_numbers",
-        "bAutoWidth":false,
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
@@ -1843,7 +1922,7 @@ $(document).ready(function(){
     });
 
     $('#cluster_search').keyup(function(){
-      dataTable_users.fnFilter( $(this).val() );
+      dataTable_clusters.fnFilter( $(this).val() );
     })
 
     //preload it

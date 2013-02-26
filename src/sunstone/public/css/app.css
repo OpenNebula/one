@@ -6322,144 +6322,193 @@ div.button-bar {
 }
 
 /* line 371, ../sass/app.scss */
-.button.tiny {
+.button {
   box-shadow: none;
 }
 
 /* line 375, ../sass/app.scss */
+.button.tiny {
+  box-shadow: none;
+}
+
+/* line 379, ../sass/app.scss */
 .panel {
   padding: 0px;
   background: #f2f2f2;
 }
 
-/* line 380, ../sass/app.scss */
+/* line 384, ../sass/app.scss */
 .tabs.vertical li a {
   padding: 15px 11px;
 }
 
-/* line 384, ../sass/app.scss */
+/* line 388, ../sass/app.scss */
 input[type="text"] {
   height: 28px !important;
-  margin: 0px;
 }
 
-/* line 389, ../sass/app.scss */
+/* line 392, ../sass/app.scss */
 .right {
   float: right;
 }
 
-/* line 393, ../sass/app.scss */
+/* line 396, ../sass/app.scss */
 .ui-layout-pane {
   background: #fdfdfd;
 }
 
-/* line 400, ../sass/app.scss */
+/* line 403, ../sass/app.scss */
 tr.odd:hover td {
   background-color: #2ba6cb !important;
   cursor: pointer;
   color: white !important;
 }
 
-/* line 406, ../sass/app.scss */
+/* line 409, ../sass/app.scss */
 tr.even:hover td {
   background-color: #2ba6cb !important;
   cursor: pointer;
   color: white !important;
 }
 
-/* line 412, ../sass/app.scss */
+/* line 415, ../sass/app.scss */
 tr {
   border-bottom: 1px solid #e6e6e6;
 }
 
-/* line 418, ../sass/app.scss */
+/* line 421, ../sass/app.scss */
 table thead tr th, table tfoot tr td {
   padding: 5px 10px 5px;
   line-height: 16px;
 }
 
-/* line 423, ../sass/app.scss */
+/* line 426, ../sass/app.scss */
 table {
   border-collapse: collapse;
   border-spacing: 0;
 }
 
 /* Growl */
-/* line 429, ../sass/app.scss */
+/* line 432, ../sass/app.scss */
 .jGrowl-notification h1 {
   font-size: 1.2em;
 }
 
-/* line 433, ../sass/app.scss */
+/* line 436, ../sass/app.scss */
 .jGrowl-notification, .jGrowl-notify-submit {
   border: 2px #444444 solid;
   background-color: #F3F3F3!important;
   color: #666666;
 }
 
-/* line 439, ../sass/app.scss */
+/* line 442, ../sass/app.scss */
 .jGrowl-notify-error {
   border: 2px #660000 solid;
   background-color: #F39999!important;
   color: #660000;
 }
 
-/* line 445, ../sass/app.scss */
+/* line 448, ../sass/app.scss */
 .jGrowl-notify-error table td.key_error {
   text-transform: capitalize;
   width: 100%;
   font-weight: bold;
 }
 
-/* line 451, ../sass/app.scss */
+/* line 454, ../sass/app.scss */
 .jGrowl-notify-error table td.key_error:after {
   content: ":";
 }
 
-/* line 458, ../sass/app.scss */
+/* line 461, ../sass/app.scss */
 .markrow {
   background-color: #cdebf5 !important;
 }
 
-/* line 459, ../sass/app.scss */
+/* line 462, ../sass/app.scss */
 .markrowselected {
   background-color: #2ba6cb !important;
   color: #FFF;
 }
 
-/* line 460, ../sass/app.scss */
+/* line 463, ../sass/app.scss */
 .markrowchecked {
   background-color: #cdebf5;
 }
 
-/* line 463, ../sass/app.scss */
+/* line 466, ../sass/app.scss */
 .hidden {
   display: none;
 }
 
-/* line 472, ../sass/app.scss */
+/* line 475, ../sass/app.scss */
 #navigation li.topTab span.plusIcon,
 #navigation li.subTab span.plusIcon {
   display: none;
   float: right;
 }
 
-/* line 477, ../sass/app.scss */
+/* line 480, ../sass/app.scss */
 span.plusIcon {
   color: #d0d0d0;
 }
 
-/* line 481, ../sass/app.scss */
+/* line 484, ../sass/app.scss */
 span.plusIcon:hover {
   color: #555;
 }
 
-/* line 488, ../sass/app.scss */
+/* line 491, ../sass/app.scss */
 table.extended_table tbody tr td {
   padding: 3px 10px;
 }
 
-/* line 492, ../sass/app.scss */
-.reveal-modal .row {
-  margin-bottom: 0px;
+/* line 498, ../sass/app.scss */
+.reveal-modal {
+  top: 50px;
+}
+
+/* line 503, ../sass/app.scss */
+.ui-layout-resizer-open-hover,
+.ui-layout-resizer-dragging {
+  background: #EEE;
+}
+
+/* line 508, ../sass/app.scss */
+.reveal-modal .panel {
+  margin-left: -30px;
+  margin-right: -30px;
+  margin-bottom: 30px;
+}
+
+/* line 514, ../sass/app.scss */
+.reveal-modal.xlarge {
+  padding-top: 0px;
+  width: 80%;
+}
+
+/* line 519, ../sass/app.scss */
+.reveal-modal.large {
+  padding-top: 0px;
+}
+
+/* line 523, ../sass/app.scss */
+.reveal-modal h3 {
+  margin-left: 30px;
+  margin-bottom: 7px !important;
+}
+
+/* line 528, ../sass/app.scss */
+.reveal-modal .close-reveal-modal:not(.button) {
+  top: 13px;
+}
+
+/* line 532, ../sass/app.scss */
+.reveal-modal .close-reveal-modal:not(.button):hover {
+  color: #222;
+}
+
+/* line 536, ../sass/app.scss */
+fieldset {
+  margin: 0px;
 }
