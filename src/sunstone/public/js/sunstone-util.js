@@ -1362,10 +1362,12 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
     $('#button_add_value').live("click", function() {
         if ( $('#new_value').val() != "" && $('#new_key').val() != "" )
         {
-            template_json[$('#new_key').val()] = $('#new_value').val();
-            template_str = convert_template_to_string(template_json,unshown_values);
+            var template_json_bk = $.extend({}, template_json);
+            template_json[$.trim($('#new_key').val())] = $.trim($('#new_value').val());
+            template_str  = convert_template_to_string(template_json,unshown_values);
 
             Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
+            template_json = template_json_bk;
         }
     });
 
@@ -1387,8 +1389,8 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
     // Listener for key,value pair remove action
     $("#div_minus").live("click", function() {
         // Remove div_minus_ from the id
-        field=this.firstElementChild.id.substring(10,this.firstElementChild.id.length);
-        var list_of_classes=this.firstElementChild.className.split(" ");
+        field               = this.firstElementChild.id.substring(10,this.firstElementChild.id.length);
+        var list_of_classes = this.firstElementChild.className.split(" ");
         var ocurrence=null;
 
         if (list_of_classes.length!=1)
@@ -1418,8 +1420,9 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
     });
 
      $(".input_edit_value").live("change", function() {
-        var key_str   = this.id.substring(11,this.id.length);
-        var value_str = this.value;
+        var key_str          = $.trim(this.id.substring(11,this.id.length));
+        var value_str        = $.trim(this.value);
+        var template_json_bk = $.extend({}, template_json);
 
         delete template_json[key_str];
         template_json[key_str]=value_str;
@@ -1428,15 +1431,17 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
 
         // Let OpenNebula know
         Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
+
+        template_json = template_json_bk;
     });
 
     // Listeners for vectorial attributes
     // Listener for key,value pair edit action for subelement of vectorial key
     $("#div_edit_vectorial").live("click", function() {
-        var key_str=this.firstElementChild.id.substring(9,this.firstElementChild.id.length);
-        var list_of_classes=this.firstElementChild.className.split(" ");
-        var ocurrence=" ";
-        var vectorial_key=null;
+        var key_str         = $.trim(this.firstElementChild.id.substring(9,this.firstElementChild.id.length));
+        var list_of_classes = this.firstElementChild.className.split(" ");
+        var ocurrence       = " ";
+        var vectorial_key   = null;
 
         if (list_of_classes.length!=1)
             for (var current_class in list_of_classes)
@@ -1451,25 +1456,26 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
 
         if (ocurrence!=" ")
         {
-           var value_str = $(".value_td_input_"+key_str+"."+ocurrence.substring(1,ocurrence.length-1)+"."+vectorial_key).text();
+           var value_str = $.trim($(".value_td_input_"+key_str+"."+ocurrence.substring(1,ocurrence.length-1)+"."+vectorial_key).text());
            $(".value_td_input_"+key_str+"."+ocurrence.substring(1,ocurrence.length-1)+"."+vectorial_key).html('<input class="input_edit_value_vectorial'+ocurrence+vectorial_key+'" id="input_edit_'+key_str+'" type="text" value="'+value_str+'"/>');
 
         }
         else
         {
-           var value_str = $(".value_td_input_"+key_str+"."+vectorial_key).text();
+           var value_str = $.trim($(".value_td_input_"+key_str+"."+vectorial_key).text());
            $(".value_td_input_"+key_str+"."+vectorial_key).html('<input class="input_edit_value_vectorial'+ocurrence+vectorial_key+'" id="input_edit_'+key_str+'" type="text" value="'+value_str+'"/>');
         }
 
     });
 
      $(".input_edit_value_vectorial").live("change", function() {
-        var key_str   = this.id.substring(11,this.id.length);
-        var value_str = this.value;
+        var key_str          = $.trim(this.id.substring(11,this.id.length));
+        var value_str        = $.trim(this.value);
+        var template_json_bk = $.extend({}, template_json);
 
-        var list_of_classes=this.className.split(" ");
-        var ocurrence=null;
-        var vectorial_key=null;
+        var list_of_classes  = this.className.split(" ");
+        var ocurrence        = null;
+        var vectorial_key    = null;
 
         if (list_of_classes.length!=1)
             for (var current_class in list_of_classes)
@@ -1490,15 +1496,17 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
 
         // Let OpenNebula know
         Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
+
+        template_json = template_json_bk;
     });
 
     // Listener for key,value pair remove action
     $("#div_minus_vectorial").live("click", function() {
         // Remove div_minus_ from the id
-        var field=this.firstElementChild.id.substring(10,this.firstElementChild.id.length);
-        var list_of_classes=this.firstElementChild.className.split(" ");
-        var ocurrence=null;
-        var vectorial_key=null;
+        var field           = this.firstElementChild.id.substring(10,this.firstElementChild.id.length);
+        var list_of_classes = this.firstElementChild.className.split(" ");
+        var ocurrence       = null;
+        var vectorial_key   = null;
 
         if (list_of_classes.length!=1)
             for (var current_class in list_of_classes)
@@ -1522,14 +1530,14 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
         Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
     });
 
-    // Listener for key,value pair remove action
+    // Listener for vectorial key,value pair add action
     $("#div_add_vectorial").live("click", function() {
         if (!$('#button_add_value_vectorial').html())
         {
-            var field=this.firstElementChild.id.substring(18,this.firstElementChild.id.length);
-            var list_of_classes=this.firstElementChild.className.split(" ");
-            var ocurrence=null;
-            var vectorial_key=null;
+            var field           = this.firstElementChild.id.substring(18,this.firstElementChild.id.length);
+            var list_of_classes = this.firstElementChild.className.split(" ");
+            var ocurrence       = null;
+            var vectorial_key   = null;
 
             if (list_of_classes.length!=1)
                 for (var current_class in list_of_classes)
@@ -1554,9 +1562,10 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
     $('#button_add_value_vectorial').live("click", function() {
         if ( $('#new_value_vectorial').val() != "" && $('#new_key_vectorial').val() != "" )
         {
-            var list_of_classes=this.className.split(" ");
-            var ocurrence=null;
-            var vectorial_key=null;
+            var list_of_classes  = this.className.split(" ");
+            var ocurrence        = null;
+            var vectorial_key    = null;
+            var template_json_bk = $.extend({}, template_json);
 
             if (list_of_classes.length!=1)
                 for (var current_class in list_of_classes)
@@ -1573,16 +1582,18 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
             if (ocurrence!=null)
             {
                 ocurrence=ocurrence.substring(10,ocurrence.length);
-                template_json[vectorial_key][ocurrence][$('#new_key_vectorial').val()] = $('#new_value_vectorial').val();
+                template_json[vectorial_key][ocurrence][$('#new_key_vectorial').val()] = $.trim($('#new_value_vectorial').val());
             }
             else
             {
-                template_json[vectorial_key][$('#new_key_vectorial').val()] = $('#new_value_vectorial').val();
+                template_json[vectorial_key][$('#new_key_vectorial').val()] = $.trim($('#new_value_vectorial').val());
             }
 
-            template_str = convert_template_to_string(template_json,unshown_values);
+            template_str  = convert_template_to_string(template_json,unshown_values);
 
             Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
+            // This avoids to get a messed template if the update fails
+            template_json = template_json_bk; 
         }
     });
 
