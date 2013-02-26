@@ -400,7 +400,9 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         if vm.has_elements?("/VM/USER_TEMPLATE")
             puts
 
-            vm.delete_element("/VM/USER_TEMPLATE/SCHED_ACTION")
+            if !options[:all]
+                vm.delete_element("/VM/USER_TEMPLATE/SCHED_ACTION")
+            end
 
             CLIHelper.print_header(str_h1 % "USER TEMPLATE",false)
             puts vm.template_like_str('USER_TEMPLATE')
