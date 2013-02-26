@@ -196,7 +196,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         OpenNebula::VirtualMachinePool.new(@client, user_flag)
     end
 
-    def format_resource(vm)
+    def format_resource(vm, options = {})
         str_h1="%-80s"
         str="%-20s: %-20s"
 

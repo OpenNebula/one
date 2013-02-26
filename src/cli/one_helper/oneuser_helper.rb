@@ -245,7 +245,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         OpenNebula::UserPool.new(@client)
     end
 
-    def format_resource(user)
+    def format_resource(user, options = {})
         system = System.new(@client)
         default_quotas = system.get_user_quotas()
 

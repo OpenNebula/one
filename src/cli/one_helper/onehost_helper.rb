@@ -162,7 +162,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         OpenNebula::HostPool.new(@client)
     end
 
-    def format_resource(host)
+    def format_resource(host, options = {})
         str    = "%-22s: %-20s"
         str_h1 = "%-80s"
 

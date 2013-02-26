@@ -141,7 +141,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
         OpenNebula::GroupPool.new(@client)
     end
 
-    def format_resource(group)
+    def format_resource(group, options = {})
         system = System.new(@client)
         default_quotas = system.get_group_quotas()
 

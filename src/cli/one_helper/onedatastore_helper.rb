@@ -95,7 +95,7 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
         OpenNebula::DatastorePool.new(@client)
     end
 
-    def format_resource(datastore)
+    def format_resource(datastore, options = {})
         str="%-15s: %-20s"
         str_h1="%-80s"
 

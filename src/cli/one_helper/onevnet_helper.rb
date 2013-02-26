@@ -98,7 +98,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         OpenNebula::VirtualNetworkPool.new(@client, user_flag)
     end
 
-    def format_resource(vn)
+    def format_resource(vn, options = {})
         str_h1="%-80s"
         CLIHelper.print_header(str_h1 %
             ["VIRTUAL NETWORK #{vn.id.to_s} INFORMATION"])
