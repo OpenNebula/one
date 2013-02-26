@@ -45,9 +45,7 @@ var users_tab_content = '\
 <form class="custom" id="user_form" action="">\
 <div class="panel">\
 <div class="row">\
-  <div class="twelve columns">\
-    <h4 class="subheader"><i class="icon-user"></i> '+tr("Users")+'</h4>\
-  </div>\
+  <h4 class="subheader"><i class="icon-user"></i> '+tr("Users")+'</h4>\
 </div>\
 <div class="row">\
   <div class="nine columns">\
@@ -57,6 +55,8 @@ var users_tab_content = '\
   <div class="three columns">\
     <input id="user_search" type="text" placeholder="Search" />\
   </div>\
+  <br>\
+  <br>\
 </div>\
 </div>\
   <div class="row">\
@@ -238,7 +238,7 @@ var user_actions = {
                 success: updateUsersView,
                 error: onError
             });
-      }
+        }
     },
 
     "User.update_password" : {
@@ -277,28 +277,6 @@ var user_actions = {
         notify: true
     },
 
-    // "User.addgroup" : {
-    //     type: "multiple",
-    //     call: OpenNebula.User.addgroup,
-    //     callback : function(req){
-    //         Sunstone.runAction("User.show",req.request.data[0]);
-    //     },
-    //     elements : function() {return getSelectedNodes(dataTable_users);},
-    //     error: onError,
-    //     notify: true
-    // },
-
-    // "User.delgroup" : {
-    //     type: "multiple",
-    //     call: OpenNebula.User.delgroup,
-    //     callback : function(req){
-    //         Sunstone.runAction("User.show",req.request.data[0]);
-    //     },
-    //     elements : function() {return getSelectedNodes(dataTable_users);},
-    //     error: onError,
-    //     notify: true
-    // },
-
     "User.show" : {
         type: "single",
         call: OpenNebula.User.show,
@@ -322,34 +300,12 @@ var user_actions = {
         notify: true
     },
 
-    "User.fetch_template" : {
-        type: "single",
-        call: OpenNebula.User.fetch_template,
-        callback: function (request,response) {
-            $('#template_update_dialog #template_update_textarea').val(response.template);
-        },
-        error: onError
-    },
-
-    "User.update_dialog" : {
-        type: "custom",
-        call: function() {
-            popUpTemplateUpdateDialog("User",
-                                      makeSelectOptions(dataTable_users,
-                                                        1,//id_col
-                                                        2,//name_col
-                                                        [],
-                                                        []
-                                                       ),
-                                      getSelectedNodes(dataTable_users));
-        }
-    },
-
-    "User.update" : {
+    "User.update_template" : {
         type: "single",
         call: OpenNebula.User.update,
-        callback: function() {
+        callback: function(request) {
             notifyMessage(tr("Template updated correctly"));
+            Sunstone.runAction('User.showinfo',request.request.data[0]);
         },
         error: onError
     },
@@ -390,7 +346,7 @@ var user_actions = {
         call: OpenNebula.User.accounting,
         callback: function(req,response) {
             var info = req.request.data[0].monitor;
-            plot_graph(response,'#user_acct_tabTab','user_acct_', info);
+            plot_graph(response,'#user_acct_tab','user_acct_', info);
         },
         error: onError
     },
@@ -414,12 +370,6 @@ var user_buttons = {
         type: "create_dialog",
         layout: "create",
         condition: mustBeAdmin
-    },
-    "User.update_dialog" : {
-        type: "action",
-        text: tr("Update properties"),
-        layout: "more_select",
-        alwaysActive: true
     },
     "User.update_password" : {
         type : "action",
@@ -454,32 +404,12 @@ var user_buttons = {
         tip: tr("Please choose the new type of authentication for the selected users")+":",
         condition: mustBeAdmin
     },
-    // "User.addgroup" : {
-    //     type: "confirm_with_select",
-    //     text: "Add to group",
-    //     select: function(){ return groups_select; },
-    //     tip: "Select the new group to add users:",
-    //     condition: True
-    // },
-    // "User.delgroup" : {
-    //     type: "confirm_with_select",
-    //     text: "Delete from group",
-    //     select: function(){ return groups_select; },
-    //     tip: "Select the group from which to delete users:",
-    //     condition: True
-    // },
     "User.delete" : {
         type: "confirm",
         text: tr("Delete"),
         layout: "del",
         condition: mustBeAdmin
     },
-    //"User.help" : {
-    //    type: "action",
-    //    text: '?',
-    //    alwaysActive: true
-    //}
-
 };
 
 var user_info_panel = {
@@ -667,7 +597,9 @@ function updateUserInfo(request,user){
          </table>\
         <table id="user_template_table" class="info_table">\
                 <thead><tr><th colspan="2">' + tr("User template") + '</th></tr></thead>'+
-            prettyPrintJSON(user_info.TEMPLATE)+
+               insert_extended_template_table(user_info.TEMPLATE,
+                                              "User",
+                                              user_info.ID) +
         '</table>'
     };
 
@@ -729,56 +661,56 @@ function updateUserInfo(request,user){
     Sunstone.popUpInfoPanel("user_info_panel");
 
     //Enable datepicker
-    //var info_dialog = $('div#user_acct_tabTab');
-    //$("#user_acct_from", info_dialog).datepicker({
-    //    defaultDate: "-1d",
-    //    changeMonth: true,
-    //    numberOfMonths: 1,
-    //    dateFormat: "dd/mm/yy",
-    //    defaultDate: '-1',
-    //    onSelect: function( selectedDate ) {
-    //        $( "#user_acct_to", info_dialog).datepicker("option",
-    //                                                    "minDate",
-    //                                                    selectedDate );
-    //    }
-    //});
-    //$("#user_acct_from", info_dialog).datepicker('setDate', '-1');
-//
-    //$("#user_acct_to", info_dialog).datepicker({
-    //    defaultDate: "0",
-    //    changeMonth: true,
-    //    numberOfMonths: 1,
-    //    dateFormat: "dd/mm/yy",
-    //    maxDate: '+1',
-    //    onSelect: function( selectedDate ) {
-    //        $( "#user_acct_from", info_dialog).datepicker( "option",
-    //                                                       "maxDate",
-    //                                                       selectedDate );
-    //    }
-    //});
-    //$("#user_acct_to", info_dialog).datepicker('setDate', 'Now');
-//
-    ////Listen to set date button
-    //$('button#user_acct_date_ok', info_dialog).click(function(){
-    //    var from = $("#user_acct_from", info_dialog).val();
-    //    var to = $("#user_acct_to", info_dialog).val();
-//
-    //    var start = $.datepicker.parseDate('dd/mm/yy', from)
-    //    if (start){
-    //        start = start.getTime();
-    //        start = Math.floor(start / 1000);
-    //    }
-//
-    //    var end = $.datepicker.parseDate('dd/mm/yy', to);
-    //    if (end){
-    //        end = end.getTime();
-    //        end = Math.floor(end / 1000);
-    //    }
-//
-    //    loadAccounting('User', user_info.ID, user_acct_graphs,
-    //              { start : start, end: end });
-    //    return false;
-    //});
+    var info_dialog = $('div#user_acct_tab');
+    $("#user_acct_from", info_dialog).datepicker({
+        defaultDate: "-1d",
+        changeMonth: true,
+        numberOfMonths: 1,
+        dateFormat: "dd/mm/yy",
+        defaultDate: '-1',
+        onSelect: function( selectedDate ) {
+            $( "#user_acct_to", info_dialog).datepicker("option",
+                                                        "minDate",
+                                                        selectedDate );
+        }
+    });
+    $("#user_acct_from", info_dialog).datepicker('setDate', '-1');
+
+    $("#user_acct_to", info_dialog).datepicker({
+        defaultDate: "0",
+        changeMonth: true,
+        numberOfMonths: 1,
+        dateFormat: "dd/mm/yy",
+        maxDate: '+1',
+        onSelect: function( selectedDate ) {
+            $( "#user_acct_from", info_dialog).datepicker( "option",
+                                                           "maxDate",
+                                                           selectedDate );
+        }
+    });
+    $("#user_acct_to", info_dialog).datepicker('setDate', 'Now');
+
+    //Listen to set date button
+    $('button#user_acct_date_ok', info_dialog).click(function(){
+        var from = $("#user_acct_from", info_dialog).val();
+        var to = $("#user_acct_to", info_dialog).val();
+
+        var start = $.datepicker.parseDate('dd/mm/yy', from)
+        if (start){
+            start = start.getTime();
+            start = Math.floor(start / 1000);
+        }
+
+        var end = $.datepicker.parseDate('dd/mm/yy', to);
+        if (end){
+            end = end.getTime();
+            end = Math.floor(end / 1000);
+        }
+
+        loadAccounting('User', user_info.ID, user_acct_graphs,
+                  { start : start, end: end });
+        return false;
+    });
 
     //preload acct
     loadAccounting('User', user_info.ID, user_acct_graphs);
@@ -896,7 +828,8 @@ function popUpUpdatePasswordDialog(){
 function setUserAutorefresh(){
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_users);
-        var filter = $("#user_search").attr('value');
+        var filter = $("#datatable_users_filter input",
+                       dataTable_users.parents("#datatable_users_wrapper")).attr('value');
         if (!checked.length && !filter.length){
             Sunstone.runAction("User.autorefresh");
         }
@@ -922,10 +855,6 @@ $(document).ready(function(){
                 sUrl: "locale/"+lang+"/"+datatable_lang
             } : ""
     });
-    //dataTable_users.fnClearTable();
-    //addElement([
-    //    spinner,
-    //    '','','','','','','',''],dataTable_users);
 
     $('#user_search').keyup(function(){
       dataTable_users.fnFilter( $(this).val() );
