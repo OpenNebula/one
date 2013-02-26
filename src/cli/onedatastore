@@ -62,7 +62,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.list_to_id(arg)
     end
 
-    set :format, :clusterid, OpenNebulaHelper.rname_to_id_desc("CLUSTER") do |arg|
+    set :format, :clusterid,
+            OpenNebulaHelper.rname_to_id_desc("CLUSTER") do |arg|
         OpenNebulaHelper.rname_to_id(arg, "CLUSTER")
     end
 
@@ -82,7 +83,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Creates a new Datastore from the given template file
     EOT
 
-    command :create, create_desc, :file, :options=>[OneClusterHelper::CLUSTER] do
+    command :create, create_desc, :file,
+            :options=>[OneClusterHelper::CLUSTER] do
 
         cid = options[:cluster] || ClusterPool::NONE_CLUSTER_ID
 

@@ -69,7 +69,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         OpenNebulaHelper.rname_to_id(arg, "HOST")
     end
 
-    set :format, :datastoreid, OpenNebulaHelper.rname_to_id_desc("DATASTORE") do |arg|
+    set :format, :datastoreid,
+            OpenNebulaHelper.rname_to_id_desc("DATASTORE") do |arg|
         OpenNebulaHelper.rname_to_id(arg, "DATASTORE")
     end
 

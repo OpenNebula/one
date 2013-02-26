@@ -112,8 +112,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ########################################################################
 
     create_desc = <<-EOT.unindent
-        Creates a new VM from the given description instead of using a previously
-        defined template (see 'onetemplate create' and 'onetemplate instantiate').
+        Creates a new VM from the given description instead of using a
+        previously defined template (see 'onetemplate create' and
+        'onetemplate instantiate').
 
         Examples:
 
@@ -189,7 +190,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :update, update_desc, :vmid, [:file, nil] do
         helper.perform_action(args[0],options,"modified") do |vm|
-            str = OpenNebulaHelper.update_template(args[0], vm, args[1],'USER_TEMPLATE')
+            str = OpenNebulaHelper.update_template(args[0], vm, args[1],
+                                                   'USER_TEMPLATE')
             vm.update(str)
         end
     end
@@ -255,7 +257,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         States: ANY
     EOT
 
-    command :saveas, saveas_desc, :vmid, :diskid, :img_name, :options=>[TYPE] do
+    command :saveas, saveas_desc, :vmid, :diskid, :img_name,
+            :options=>[TYPE] do
         disk_id    = args[1].to_i
         image_name = args[2]
         image_type = options[:type] || ""
@@ -352,7 +355,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         States: PENDING
     EOT
 
-    command :deploy, deploy_desc, [:range,:vmid_list], :hostid, :options=>[ENFORCE] do
+    command :deploy, deploy_desc, [:range,:vmid_list], :hostid,
+            :options=>[ENFORCE] do
         host_id = args[1]
         verbose = "deploying in host #{host_id}"
 
@@ -371,7 +375,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         States: RUNNING
     EOT
 
-    command :livemigrate, livemigrate_desc, [:range,:vmid_list], :hostid, :options=>[ENFORCE] do
+    command :livemigrate, livemigrate_desc, [:range,:vmid_list], :hostid,
+            :options=>[ENFORCE] do
         host_id = args[1]
         verbose = "live migrating to #{host_id}"
 
@@ -390,7 +395,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         States: RUNNING
     EOT
 
-    command :migrate, migrate_desc, [:range,:vmid_list], :hostid, :options=>[ENFORCE] do
+    command :migrate, migrate_desc, [:range,:vmid_list], :hostid,
+            :options=>[ENFORCE] do
         host_id = args[1]
         verbose = "migrating to #{host_id}"
 

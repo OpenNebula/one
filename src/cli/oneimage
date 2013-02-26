@@ -81,7 +81,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         if Image::IMAGE_TYPES.include? type
             [0, type]
         else
-            [1, "Image type not supported. Must be #{Image::IMAGE_TYPES.join(", ")}."]
+            [1, "Image type not supported. Must be "<<
+                 Image::IMAGE_TYPES.join(", ")<<"."]
         end
     end
 
