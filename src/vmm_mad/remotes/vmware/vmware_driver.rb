@@ -262,6 +262,42 @@ class VMwareDriver
         undefine_domain(deploy_id)
     end
 
+    # ------------------------------------------------------------------------ #
+    # Creates a new system snapshot                                            #
+    # ------------------------------------------------------------------------ #
+    def snapshot_create(deploy_id, snapshot_id = nil)
+        rc, info = do_action(
+            "virsh -c #{@uri} snapshot-create-as #{deploy_id} #{snapshot_id}")
+
+        exit info if rc == false
+
+        hypervisor_id = info.split[2]
+
+        return hypervisor_id
+    end
+
+    # ------------------------------------------------------------------------ #
+    # Delete a system snapshot                                                 #
+    # ------------------------------------------------------------------------ #
+    def snapshot_delete(deploy_id, snapshot_id)
+        rc, info = do_action(
+            "virsh -c #{@uri} snapshot-delete #{deploy_id} #{snapshot_id}")
+
+        exit info if rc == false
+    end
+
+    # ------------------------------------------------------------------------ #
+    # Revert to a system snapshot                                              #
+    # ------------------------------------------------------------------------ #
+    def snapshot_revert(deploy_id, snapshot_id)
+        action = "virsh -c #{@uri} snapshot-revert " <<
+                 "--force #{deploy_id} #{snapshot_id}")
+
+        rc, info = do_action(action)
+
+        exit info if rc == false
+    end
+
     # ######################################################################## #
     #                          DRIVER HELPER FUNCTIONS                         #
     # ######################################################################## #
