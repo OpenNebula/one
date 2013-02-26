@@ -65,6 +65,12 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         :format     => Time
     }
 
+    ALL_TEMPLATE = {
+        :name       => "all",
+        :large      => "--all",
+        :description => "Show all template data"
+    }
+
     def self.rname
         "VM"
     end
@@ -340,7 +346,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
             while vm.has_elements?("/VM/TEMPLATE/DISK")
                 vm.delete_element("/VM/TEMPLATE/DISK")
-            end
+            end if !options[:all]
 
             puts
         end
