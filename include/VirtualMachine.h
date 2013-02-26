@@ -691,6 +691,13 @@ public:
      */
     int replace_template(const string& tmpl_str, string& error);
 
+    void get_user_template_attribute(
+        const char * name,
+        string&      value) const
+    {
+        user_obj_template->get(name,value);
+    }
+
     // ------------------------------------------------------------------------
     // States
     // ------------------------------------------------------------------------

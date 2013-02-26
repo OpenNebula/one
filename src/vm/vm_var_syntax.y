@@ -304,6 +304,11 @@ void insert_single(VirtualMachine * vm,
     else 
     {
         vm->get_template_attribute(name.c_str(),value);
+
+        if (value.empty())
+        {
+            vm->get_user_template_attribute(name.c_str(),value);
+        }
     }
 
     if (!value.empty())
