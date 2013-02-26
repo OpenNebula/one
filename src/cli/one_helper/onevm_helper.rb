@@ -281,6 +281,52 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             puts
         end
 
+        if vm.has_elements?("/VM/TEMPLATE/DISK")
+            CLIHelper.print_header(str_h1 % "VM DISKS",false)
+            CLIHelper::ShowTable.new(nil, self) do
+                column :ID, "", :size=>3 do |d|
+                    d["DISK_ID"]
+                end
+
+                column :DATASTORE, "", :left, :size=>10 do |d|
+                    d["DATASTORE"]
+                end
+
+                column :TARGET, "", :left, :size=>6 do |d|
+                    d["TARGET"]
+                end
+
+                column :IMAGE, "", :left, :size=>35 do |d|
+                    d["IMAGE"]
+                end
+
+                column :TYPE, "", :left, :size=>4 do |d|
+                    d["TYPE"]
+                end
+
+                column :"R/O", "", :size=>3 do |d|
+                    d["READONLY"]
+                end
+
+                column :"SAVE", "", :size=>4 do |d|
+                    d["SAVE"]
+                end
+
+                column :"CLONE", "", :size=>5 do |d|
+                    d["CLONE"]
+                end
+
+                default :ID, :DATASTORE, :TARGET, :IMAGE, :TYPE, :"R/O",
+                    :SAVE, :CLONE
+            end.show([vm.to_hash['VM']['TEMPLATE']['DISK']].flatten, {})
+
+            while vm.has_elements?("/VM/TEMPLATE/DISK")
+                vm.delete_element("/VM/TEMPLATE/DISK")
+            end
+
+            puts
+        end
+
         CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE TEMPLATE",false)
         puts vm.template_str
 
