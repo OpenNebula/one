@@ -94,6 +94,8 @@ module OpenNebula
             return rc
         end
 
+        alias_method :info!, :info
+
         # Allocates a new Document in OpenNebula
         #
         # @param description [String] The contents of the Document.

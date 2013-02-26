@@ -84,6 +84,8 @@ module OpenNebula
             super(USER_METHODS[:info], 'USER')
         end
 
+        alias_method :info!, :info
+
         # Allocates a new User in OpenNebula
         #
         # +username+ Name of the new user.

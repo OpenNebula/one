@@ -69,6 +69,8 @@ module OpenNebula
             super(TEMPLATE_METHODS[:info], 'VMTEMPLATE')
         end
 
+        alias_method :info!, :info
+
         # Allocates a new Template in OpenNebula
         #
         # @param description [String] The contents of the Template.

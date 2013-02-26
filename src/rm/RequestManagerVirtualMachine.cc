@@ -17,6 +17,7 @@
 #include "RequestManagerVirtualMachine.h"
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
+#include "Quotas.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -1056,3 +1057,329 @@ void VirtualMachineDetach::request_execute(xmlrpc_c::paramList const& paramList,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
+                                           RequestAttributes& att)
+{
+    int   id      = xmlrpc_c::value_int(paramList.getInt(1));
+    float ncpu    = xmlrpc_c::value_double(paramList.getDouble(2));
+    int   nmemory = xmlrpc_c::value_int(paramList.getInt(3));
+    int   nvcpu   = xmlrpc_c::value_int(paramList.getInt(4));
+    bool  enforce_param = xmlrpc_c::value_boolean(paramList.getBoolean(5));
+
+    float ocpu, dcpu;
+    int   omemory, dmemory;
+    int   ovcpu;
+
+    Nebula&    nd    = Nebula::instance();
+    UserPool*  upool = nd.get_upool();
+    GroupPool* gpool = nd.get_gpool();
+    Quotas     dquotas = nd.get_default_user_quota();
+    HostPool * hpool = nd.get_hpool();
+
+    Host * host;
+
+    Template deltas;
+    string   error_str;
+    bool     rc;
+    int      ret;
+    int      hid = -1;
+
+    PoolObjectAuth vm_perms;
+
+    VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
+    VirtualMachine * vm;
+
+    bool enforce = true;
+
+    if (att.uid == UserPool::ONEADMIN_ID || att.gid == GroupPool::ONEADMIN_ID)
+    {
+        enforce = enforce_param;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Authorize the operation                                               */
+    /* ---------------------------------------------------------------------- */
+
+    if ( vm_authorization(id, 0, 0, att, 0, 0, auth_op) == false )
+    {
+        return;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Get the resize values                                                 */
+    /* ---------------------------------------------------------------------- */
+
+    vm = vmpool->get(id, true);
+
+    if (vm == 0)
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::VM),id),
+                att);
+        return;
+    }
+
+    vm->get_permissions(vm_perms);
+
+    vm->get_template_attribute("MEMORY", omemory);
+    vm->get_template_attribute("CPU", ocpu);
+    vm->get_template_attribute("VCPU", ovcpu);
+
+    if (nmemory == 0)
+    {
+        nmemory = omemory;
+    }
+
+    if (ncpu == 0)
+    {
+        ncpu = ocpu;
+    }
+
+    if (nvcpu == 0)
+    {
+        nvcpu = ovcpu;
+    }
+
+    dcpu    = ncpu - ocpu;
+    dmemory = nmemory - omemory;
+
+    deltas.add("MEMORY", dmemory);
+    deltas.add("CPU", dcpu);
+
+    switch (vm->get_state())
+    {
+        case VirtualMachine::POWEROFF: //Only check host capacity in POWEROFF
+            if (vm->hasHistory() == true)
+            {
+                hid = vm->get_hid();
+            }
+        break;
+
+        case VirtualMachine::INIT:
+        case VirtualMachine::PENDING:
+        case VirtualMachine::HOLD:
+        case VirtualMachine::FAILED:
+        break;
+
+        case VirtualMachine::STOPPED:
+        case VirtualMachine::DONE:
+        case VirtualMachine::SUSPENDED:
+        case VirtualMachine::ACTIVE:
+            failure_response(ACTION,
+                     request_error("Wrong state to perform action",""),
+                     att);
+
+            vm->unlock();
+            return;
+    }
+
+    ret = vm->check_resize(ncpu, nmemory, nvcpu, error_str);
+
+    vm->unlock();
+
+    if (ret != 0)
+    {
+        failure_response(INTERNAL,
+                request_error("Could resize the VM", error_str),
+                att);
+        return;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Check quotas                                                          */
+    /* ---------------------------------------------------------------------- */
+
+    if (vm_perms.uid != UserPool::ONEADMIN_ID)
+    {
+        User * user  = upool->get(vm_perms.uid, true);
+
+        if ( user != 0 )
+        {
+            rc = user->quota.quota_update(Quotas::VM, &deltas, dquotas, error_str);
+
+            if (rc == false)
+            {
+                ostringstream oss;
+
+                oss << object_name(PoolObjectSQL::USER)
+                    << " [" << vm_perms.uid << "] "
+                    << error_str;
+
+                failure_response(AUTHORIZATION,
+                        request_error(oss.str(), ""),
+                        att);
+
+                user->unlock();
+
+                return;
+            }
+
+            upool->update(user);
+
+            user->unlock();
+        }
+    }
+
+    if (vm_perms.gid != GroupPool::ONEADMIN_ID)
+    {
+        Group * group  = gpool->get(vm_perms.gid, true);
+
+        if ( group != 0 )
+        {
+            rc = group->quota.quota_update(Quotas::VM, &deltas, dquotas, error_str);
+
+            if (rc == false)
+            {
+                ostringstream oss;
+                RequestAttributes att_tmp(vm_perms.uid, -1, att);
+
+                oss << object_name(PoolObjectSQL::GROUP)
+                    << " [" << vm_perms.gid << "] "
+                    << error_str;
+
+                failure_response(AUTHORIZATION,
+                                 request_error(oss.str(), ""),
+                                 att);
+
+                group->unlock();
+
+                quota_rollback(&deltas, Quotas::VM, att_tmp);
+
+                return;
+            }
+
+            gpool->update(group);
+
+            group->unlock();
+        }
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Check & update host capacity                                          */
+    /* ---------------------------------------------------------------------- */
+
+    if (hid != -1)
+    {
+        int dcpu_host = (int) (dcpu * 100);//now in 100%
+        int dmem_host = dmemory * 1024;    //now in Kilobytes
+
+        host = hpool->get(hid, true);
+
+        if (host == 0)
+        {
+            failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::HOST),hid),
+                att);
+
+            quota_rollback(&deltas, Quotas::VM, att);
+
+            return;
+        }
+
+        if ( enforce && host->test_capacity(dcpu_host, dmem_host, 0) == false)
+        {
+            ostringstream oss;
+
+            oss << object_name(PoolObjectSQL::HOST)
+                << " " << hid << " does not have enough capacity.";
+
+            failure_response(ACTION, request_error(oss.str(),""), att);
+
+            host->unlock();
+
+            quota_rollback(&deltas, Quotas::VM, att);
+
+            return;
+        }
+
+        host->update_capacity(dcpu_host, dmem_host, 0);
+
+        hpool->update(host);
+
+        host->unlock();
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Resize the VM                                                         */
+    /* ---------------------------------------------------------------------- */
+
+    vm = vmpool->get(id, true);
+
+    if (vm == 0)
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::VM),id),
+                att);
+
+        quota_rollback(&deltas, Quotas::VM, att);
+
+        if (hid != -1)
+        {
+            host = hpool->get(hid, true);
+
+            if (host != 0)
+            {
+                host->update_capacity(-dcpu, -dmemory, 0);
+                hpool->update(host);
+
+                host->unlock();
+            }
+        }
+        return;
+    }
+
+    //Check again state as the VM may transit to active (e.g. scheduled)
+    switch (vm->get_state())
+    {
+        case VirtualMachine::INIT:
+        case VirtualMachine::PENDING:
+        case VirtualMachine::HOLD:
+        case VirtualMachine::FAILED:
+        case VirtualMachine::POWEROFF:
+            ret = vm->resize(ncpu, nmemory, nvcpu, error_str);
+
+            if (ret != 0)
+            {
+                vm->unlock();
+
+                failure_response(INTERNAL,
+                        request_error("Could not resize the VM", error_str),
+                        att);
+                return;
+            }
+
+            vmpool->update(vm);
+        break;
+
+        case VirtualMachine::STOPPED:
+        case VirtualMachine::DONE:
+        case VirtualMachine::SUSPENDED:
+        case VirtualMachine::ACTIVE:
+            failure_response(ACTION,
+                     request_error("Wrong state to perform action",""),
+                     att);
+
+            vm->unlock();
+
+            quota_rollback(&deltas, Quotas::VM, att);
+
+            if (hid != -1)
+            {
+                host = hpool->get(hid, true);
+
+                if (host != 0)
+                {
+                    host->update_capacity(ocpu - ncpu, omemory - nmemory, 0);
+                    hpool->update(host);
+
+                    host->unlock();
+                }
+            }
+            return;
+    }
+
+    vm->unlock();
+
+    success_response(id, att);
+}

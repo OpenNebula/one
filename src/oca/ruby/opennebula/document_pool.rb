@@ -90,6 +90,11 @@ module OpenNebula
             return super(DOCUMENT_POOL_METHODS[:info], document_type)
         end
 
+        alias_method :info!, :info
+        alias_method :info_all!, :info_all
+        alias_method :info_mine!, :info_mine
+        alias_method :info_group!, :info_group
+
         def document_type
             self.class::DOCUMENT_TYPE
         end

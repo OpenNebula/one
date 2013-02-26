@@ -112,6 +112,20 @@ protected:
     	const char *  vname,
         string&       value) const;
 
+    /**
+     *  Gets a configuration attr from driver configuration file (vector
+     *  version)
+     *    @param name of config vector attribute for the domain
+     *    @param vname of the attribute
+     *    @param value of the attribute
+     *
+     *    @return true if the attribute was found
+     */
+    bool get_default(
+        const char *  name,
+        const char *  vname,
+        bool&         value) const;
+
 private:
 	/**
 	 *  Configuration file for the driver

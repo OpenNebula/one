@@ -392,6 +392,8 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
 
     parse_graphics();
 
+    parse_well_known_attributes();
+
     // ------------------------------------------------------------------------
     // Insert the VM
     // ------------------------------------------------------------------------
@@ -866,6 +868,47 @@ error_cleanup:
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
+void VirtualMachine::parse_well_known_attributes()
+{
+    /*
+     * List of meaningful attributes, used in other places and expected in
+     * obj_template:
+     *
+     * DISK
+     * NIC
+     * VCPU
+     * MEMORY
+     * CPU
+     * CONTEXT
+     * OS
+     * GRAPHICS
+     *
+     * INPUT
+     * FEATURES
+     * RAW
+     */
+
+    vector<Attribute *>             v_attr;
+    vector<Attribute *>::iterator   it;
+
+    string names[] = {"INPUT", "FEATURES", "RAW"};
+
+    for (int i=0; i<3; i++)
+    {
+        v_attr.clear();
+
+        user_obj_template->remove(names[i], v_attr);
+
+        for (it=v_attr.begin(); it != v_attr.end(); it++)
+        {
+            obj_template->set(*it);
+        }
+    }
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
 static int check_and_set_cluster_id(const char *      id_name,
                                     VectorAttribute * vatt,
                                     string&           cluster_id)
@@ -1258,14 +1301,11 @@ void VirtualMachine::cp_previous_history()
 
 void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
 {
-    string          scpu;
     istringstream   iss;
     float           fcpu;
 
-    get_template_attribute("MEMORY",memory);
-    get_template_attribute("CPU",scpu);
-
-    if ((memory == 0) || (scpu==""))
+    if ((get_template_attribute("MEMORY",memory) == false) ||
+        (get_template_attribute("CPU",fcpu) == false))
     {
         cpu    = 0;
         memory = 0;
@@ -1274,14 +1314,75 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
         return;
     }
 
-    iss.str(scpu);
-    iss >> fcpu;
-
     cpu    = (int) (fcpu * 100);//now in 100%
     memory = memory * 1024;     //now in Kilobytes
     disk   = 0;
 
     return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::check_resize (
+        float cpu, int memory, int vcpu, string& error_str)
+{
+    if (cpu < 0)
+    {
+        error_str = "CPU must be a positive float or integer value.";
+        return -1;
+    }
+
+    if (memory < 0)
+    {
+        error_str = "MEMORY must be a positive integer value.";
+        return -1;
+    }
+
+    if (vcpu < 0)
+    {
+        error_str = "VCPU must be a positive integer value.";
+        return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::resize(float cpu, int memory, int vcpu, string& error_str)
+{
+    ostringstream oss;
+
+    int rc = check_resize(cpu, memory, vcpu, error_str);
+
+    if (rc != 0)
+    {
+        return rc;
+    }
+
+    if (cpu > 0)
+    {
+        oss << cpu;
+        replace_template_attribute("CPU", oss.str());
+        oss.str("");
+    }
+
+    if (memory > 0)
+    {
+        oss << memory;
+        replace_template_attribute("MEMORY", oss.str());
+        oss.str("");
+    }
+
+    if (vcpu > 0)
+    {
+        oss << vcpu;
+        replace_template_attribute("VCPU", oss.str());
+    }
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */

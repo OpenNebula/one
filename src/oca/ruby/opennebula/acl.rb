@@ -126,6 +126,8 @@ module OpenNebula
             return nil
         end
 
+        alias_method :info!, :info
+
         # Parses a rule string, e.g. "#5 HOST+VM/@12 INFO+CREATE+DELETE"
         #
         # @param rule_str [String] an ACL rule in string format

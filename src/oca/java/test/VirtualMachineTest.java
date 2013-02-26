@@ -341,4 +341,14 @@ public class VirtualMachineTest
         res = vm.info();
         assertTrue( res.getErrorMessage(), !res.isError() );
     }
+
+    @Test
+    public void resize()
+    {
+        res = vm.resize(2.5, 512, 0, true);
+        assertTrue( res.getErrorMessage(), !res.isError() );
+
+        res = vm.resize(1, 128, 2, false);
+        assertTrue( res.getErrorMessage(), !res.isError() );
+    }
 }

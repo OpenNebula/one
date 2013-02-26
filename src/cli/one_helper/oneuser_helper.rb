@@ -42,7 +42,8 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         end
 
         if options[:driver] == OpenNebula::User::X509_AUTH
-            password.delete!("\s")
+            require 'opennebula/x509_auth'
+            password = OpenNebula::X509Auth.escape_dn(password)
         end
 
         if options[:sha1] || options[:driver] == OpenNebula::User::CIPHER_AUTH

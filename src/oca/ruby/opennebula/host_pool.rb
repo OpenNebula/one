@@ -53,6 +53,8 @@ module OpenNebula
             super(HOST_POOL_METHODS[:info])
         end
 
+        alias_method :info!, :info
+
         # Retrieves the monitoring data for all the Hosts in the pool
         #
         # @param [Array<String>] xpath_expressions Elements to retrieve.

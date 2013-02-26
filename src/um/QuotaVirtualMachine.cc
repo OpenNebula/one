@@ -117,3 +117,25 @@ int QuotaVirtualMachine::get_default_quota(
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+bool QuotaVirtualMachine::update(Template * tmpl,
+                                 Quotas& default_quotas,
+                                 string& error)
+{
+    map<string, float> vm_request;
+
+    int   delta_memory;
+    float delta_cpu;
+
+    if ( tmpl->get("MEMORY", delta_memory) == true )
+    {
+        vm_request.insert(make_pair("MEMORY", delta_memory));
+    }
+
+    if ( tmpl->get("CPU", delta_cpu) == true )
+    {
+        vm_request.insert(make_pair("CPU", delta_cpu));
+    }
+
+    return check_quota("", vm_request, default_quotas, error);
+}

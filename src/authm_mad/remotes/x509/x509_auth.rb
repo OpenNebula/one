@@ -42,6 +42,14 @@ class OpenNebula::X509Auth
         :ca_dir   => ETC_LOCATION + "/auth/certificates"
     }
 
+    def self.escape_dn(dn)
+        dn.gsub(/\s/) { |s| "\\"+s[0].ord.to_s(16) }
+    end
+
+    def self.unescape_dn(dn)
+        dn.gsub(/\\[0-9a-f]{2}/) { |s| s[1,2].to_i(16).chr }
+    end
+
     ###########################################################################
     # Initialize x509Auth object
     #
@@ -81,7 +89,7 @@ class OpenNebula::X509Auth
     # Returns a valid password string to create a user using this auth driver.
     # In this case the dn of the user certificate.
     def password
-        @cert_chain[0].subject.to_s.delete("\s")
+        self.class.escape_dn(@cert_chain[0].subject.to_s)
     end
 
     # Generates a login token in the form:
@@ -123,7 +131,8 @@ class OpenNebula::X509Auth
 
             # Some DN in the chain must match a DN in the password
             dn_ok = @cert_chain.each do |cert|
-                if pass.split('|').include?(cert.subject.to_s.delete("\s"))
+                if pass.split('|').include?(
+                        self.class.escape_dn(cert.subject.to_s))
                     break true
                 end
             end

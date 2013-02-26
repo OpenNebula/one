@@ -89,8 +89,11 @@ int LibVirtDriver::deployment_description_kvm(
 
     const VectorAttribute * features;
 
-    string     pae     = "";
-    string     acpi    = "";
+    bool pae  = false;
+    bool acpi = false;
+
+    int pae_found;
+    int acpi_found;
 
     const VectorAttribute * raw;
     string default_raw;
@@ -334,7 +337,7 @@ int LibVirtDriver::deployment_description_kvm(
 
         if ( !ro.empty() )
         {
-            transform(ro.begin(),ro.end(),ro.begin(),(int(*)(int))toupper);
+            one_util::toupper(ro);
 
             if ( ro == "YES" )
             {
@@ -344,7 +347,7 @@ int LibVirtDriver::deployment_description_kvm(
 
         // ---- Disk type and source for the image ----
 
-        transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
+        one_util::toupper(type);
 
         if ( type == "BLOCK" )
         {
@@ -582,10 +585,7 @@ int LibVirtDriver::deployment_description_kvm(
             passwd = graphics->vector_value("PASSWD");
             keymap = graphics->vector_value("KEYMAP");
 
-            transform(type.begin(),
-                      type.end(),
-                      type.begin(),
-                      (int(*)(int))tolower);
+            one_util::tolower(type);
 
             if ( type == "vnc" || type == "spice" )
             {
@@ -666,31 +666,31 @@ int LibVirtDriver::deployment_description_kvm(
 
         if ( features != 0 )
         {
-            pae  = features->vector_value("PAE");
-            acpi = features->vector_value("ACPI");
+            pae_found  = features->vector_value("PAE", pae);
+            acpi_found = features->vector_value("ACPI", acpi);
         }
     }
 
-    if ( pae.empty() )
+    if ( pae_found != 0 )
     {
         get_default("FEATURES", "PAE", pae);
     }
 
-    if ( acpi.empty() )
+    if ( acpi_found != 0 )
     {
         get_default("FEATURES", "ACPI", acpi);
     }
 
-    if( acpi == "yes" || pae == "yes" )
+    if( acpi || pae )
     {
         file << "\t<features>" << endl;
 
-        if ( pae == "yes" )
+        if ( pae )
         {
             file << "\t\t<pae/>" << endl;
         }
 
-        if ( acpi == "yes" )
+        if ( acpi )
         {
             file << "\t\t<acpi/>" << endl;
         }
@@ -717,7 +717,7 @@ int LibVirtDriver::deployment_description_kvm(
 
         type = raw->vector_value("TYPE");
 
-        transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
+        one_util::toupper(type);
 
         if ( type == "KVM" )
         {

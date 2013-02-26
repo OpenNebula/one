@@ -50,23 +50,14 @@ DST_HOST=`arg_host $DST`
 DST_DIR=`dirname $DST_PATH`
 
 #-------------------------------------------------------------------------------
-# Get SIZE through XPATH
-#-------------------------------------------------------------------------------
-
-DISK_ID=$(echo $DST_PATH|awk -F. '{print $NF}')
-
-XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
-XPATH="$XPATH /VM/TEMPLATE/DISK[DISK_ID='$DISK_ID']/SIZE"
-
-SIZE=$(onevm show -x $VM_ID | $XPATH )
-[ -z "$SIZE" ] && SIZE=$DEFAULT_SIZE
-
-#-------------------------------------------------------------------------------
 # Get other LVM related fields
 #-------------------------------------------------------------------------------
 
 LV_NAME=`echo $SRC_PATH|cut -d. -f2`
 VG_NAME=`echo $SRC_PATH|cut -d. -f1`
+DEV="/dev/${VG_NAME}/${LV_NAME}"
+
+DISK_ID=$(echo $DST_PATH|awk -F. '{print $NF}')
 
 TARGET_DEV="/dev/$VG_NAME/$LV_NAME"
 LV_CLONE="$LV_NAME-$VM_ID-$DISK_ID"
@@ -79,7 +70,9 @@ LV_CLONE_DEV="/dev/$VG_NAME/$LV_CLONE"
 CLONE_CMD=$(cat <<EOF
     set -e
     mkdir -p $DST_DIR
-    $SUDO $LVCREATE -L$SIZE -n $LV_CLONE $VG_NAME
+    SIZE=\$($SUDO $LVS $DEV --noheadings --nosuffix --units m -o lv_size \
+            | tr -d ' ')
+    $SUDO $LVCREATE -L\${SIZE}M -n $LV_CLONE $VG_NAME
     $SUDO $DD if=$TARGET_DEV of=$LV_CLONE_DEV bs=64k
     ln -s "$LV_CLONE_DEV" "$DST_PATH"
 EOF

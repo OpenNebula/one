@@ -103,6 +103,7 @@ EOT
         }
     ]
 
+    #NOTE: Other options defined using this array, add new options at the end
     TEMPLATE_OPTIONS=[
         {
             :name   => 'cpu',
@@ -211,6 +212,8 @@ EOT
     ]
 
     TEMPLATE_OPTIONS_VM=[TEMPLATE_NAME_VM]+TEMPLATE_OPTIONS+[DRY]
+
+    CAPACITY_OPTIONS_VM=[TEMPLATE_OPTIONS[0],TEMPLATE_OPTIONS[1],TEMPLATE_OPTIONS[3]]
 
     OPTIONS = XML, NUMERIC, KILOBYTES
 

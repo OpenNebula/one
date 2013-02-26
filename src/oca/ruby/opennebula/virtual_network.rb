@@ -76,6 +76,8 @@ module OpenNebula
             super(VN_METHODS[:info], 'VNET')
         end
 
+        alias_method :info!, :info
+
         # Allocates a new VirtualNetwork in OpenNebula
         #
         # @param description [String] The template of the VirtualNetwork.

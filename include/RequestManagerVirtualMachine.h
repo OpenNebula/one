@@ -217,6 +217,21 @@ public:
             RequestAttributes& att);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineResize : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineResize():
+        RequestManagerVirtualMachine("VirtualMachineResize",
+                           "Changes the capacity of the virtual machine",
+                           "A:sidiib"){};
+    ~VirtualMachineResize(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

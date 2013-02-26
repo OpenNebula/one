@@ -85,6 +85,8 @@ module OpenNebula
             super(DATASTORE_METHODS[:info], 'DATASTORE')
         end
 
+        alias_method :info!, :info
+
         # Allocates a new Datastore in OpenNebula
         #
         # @param description [String] The template of the Datastore.

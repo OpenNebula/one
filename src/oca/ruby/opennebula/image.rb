@@ -99,6 +99,8 @@ module OpenNebula
             super(IMAGE_METHODS[:info], 'IMAGE')
         end
 
+        alias_method :info!, :info
+
         # Allocates a new Image in OpenNebula
         #
         # @param description [String] A string containing the template of the Image.

@@ -470,7 +470,7 @@ void Request::quota_rollback(Template *         tmpl,
 
     if ( att.gid != GroupPool::ONEADMIN_ID && att.gid != -1 )
     {
-        group_quota_rollback(tmpl, qtype, att);;
+        group_quota_rollback(tmpl, qtype, att);
     }
 }
 
