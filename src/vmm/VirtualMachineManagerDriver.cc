@@ -19,6 +19,7 @@
 #include "LifeCycleManager.h"
 
 #include "Nebula.h"
+#include "NebulaUtil.h"
 #include <sstream>
 
 VirtualMachineManagerDriver::VirtualMachineManagerDriver(
@@ -96,6 +97,31 @@ void VirtualMachineManagerDriver::get_default(
     {
         value = "";
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool VirtualMachineManagerDriver::get_default(
+    const char *  name,
+    const char *  vname,
+    bool&         value) const
+{
+    string st;
+
+    get_default(name, vname, st);
+
+    if ( st == "" )
+    {
+        value = false;
+        return false;
+    }
+
+    one_util::toupper(st);
+
+    value = ( st == "YES" );
+
+    return true;
 }
 
 /* ************************************************************************** */
