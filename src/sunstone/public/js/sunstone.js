@@ -791,9 +791,10 @@ function setupConfirmDialogs(){
            <br />\
            <div id="question">'+tr("Do you want to proceed?")+'</div>\
            <br />\
+           <hr>\
            <div class="form_buttons">\
-             <button id="confirm_proceed" class="action_button" value="">'+tr("OK")+'</button>\
-             <button class="confirm_cancel" value="">'+tr("Cancel")+'</button>\
+             <button id="confirm_proceed" class="action_button button right" value="">'+tr("OK")+'</button>\
+             <button class="confirm_cancel button secondary" value="">'+tr("Cancel")+'</button>\
           </div>\
         </form>');
 
@@ -812,7 +813,7 @@ function setupConfirmDialogs(){
 
     //if a cancel button is pressed, we close the dialog.
     $('button.confirm_cancel',dialog).click(function(){
-        $(this).parents('div:ui-dialog').trigger('reveal:close');
+        $(this).parents('div#confirm_dialog').trigger('reveal:close');
         return false;
     });
 
@@ -913,11 +914,12 @@ function popUpConfirmWithSelectDialog(target_elem){
     var value = $(target_elem).val();
     var tab_id = $(target_elem).parents('.tab').attr('id');
     var button = Sunstone.getButton(tab_id,value);
+    var tip = tr("You have to confrim this action");
 
-    if (button.tip == undefined)
-        var tip = tr("You have to confrim this action");
-    else
-        var tip = button.tip
+    //if (button.tip == undefined)
+    //    var tip = tr("You have to confrim this action");
+    //else
+    //    var tip = button.tip
 
     var select_var = button.select();
     $('select#confirm_select',dialog).html(select_var);
