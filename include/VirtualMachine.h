@@ -1193,6 +1193,12 @@ private:
     void parse_graphics();
 
     /**
+     * Searches the meaningful attributes and moves them from the user template
+     * to the internal template
+     */
+    void parse_well_known_attributes();
+
+    /**
      *  Function that renders the VM in XML format optinally including
      *  extended information (all history records)
      *  @param xml the resulting XML string

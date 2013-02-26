@@ -392,6 +392,8 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
 
     parse_graphics();
 
+    parse_well_known_attributes();
+
     // ------------------------------------------------------------------------
     // Insert the VM
     // ------------------------------------------------------------------------
@@ -861,6 +863,47 @@ error_cleanup:
     }
 
     return -1;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+void VirtualMachine::parse_well_known_attributes()
+{
+    /*
+     * List of meaningful attributes, used in other places and expected in
+     * obj_template:
+     *
+     * DISK
+     * NIC
+     * VCPU
+     * MEMORY
+     * CPU
+     * CONTEXT
+     * OS
+     * GRAPHICS
+     *
+     * INPUT
+     * FEATURES
+     * RAW
+     */
+
+    vector<Attribute *>             v_attr;
+    vector<Attribute *>::iterator   it;
+
+    string names[] = {"INPUT", "FEATURES", "RAW"};
+
+    for (int i=0; i<3; i++)
+    {
+        v_attr.clear();
+
+        user_obj_template->remove(names[i], v_attr);
+
+        for (it=v_attr.begin(); it != v_attr.end(); it++)
+        {
+            obj_template->set(*it);
+        }
+    }
 }
 
 /* ------------------------------------------------------------------------ */
