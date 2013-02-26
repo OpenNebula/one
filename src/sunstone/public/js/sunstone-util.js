@@ -655,20 +655,34 @@ function generateMonitoringDivs(graphs, id_prefix, options){
     var id="";
     var omit_title = options && options.omit_title;
 
+    var columns = "six";
+    graphs_length = graphs.length;
+    if (graphs_length == 2) {
+        columns = "six";
+    }
+    else if (graphs_length == 4) {
+        columns = "four";
+    }
+
+    str += '<div class="row">'
+
     $.each(graphs,function(){
         label = this.monitor_resources;
         id_suffix=label.replace(/,/g,'_');
         id_suffix=id_suffix.replace(/\//g,'_');
         id = id_prefix+id_suffix;
-        str+='<table class="info_table">'+
+        str += '<div class="columns ' + columns + '">' 
+        str +='<table class="info_table graph_table">'+
             (!omit_title ? '<thead><tr><th colspan="1">'+this.title+'</th></tr></thead>' : '')
              + '<tr><td id="legend_'+id_suffix+'"></td></tr>\
                 <tr><td style="border:0;width:100%;">\
                 <div id="'+id+'" style="width:'+width+'px; height:150px;position:relative;left:0px;margin: 0 auto 10px auto">'+
                   spinner+
                 '</div>\
-              </td></tr></table>';
+              </td></tr></table></div>';
     });
+
+    str += '</div>'
 
     return str;
 }
@@ -1888,7 +1902,7 @@ function insert_cluster_dropdown(resource_type, resource_id, cluster_value, clus
                 <td class="value_td_cluster">'+(cluster_value.length ? cluster_value : "-")+'</td>\
                 <td>\
                   <div id="div_edit_chg_cluster">\
-                     <a id="div_edit_chg_cluster_link" class="edit_e" href="#">e</a>\
+                     <a id="div_edit_chg_cluster_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
                   </div>\
                 </td>';
 

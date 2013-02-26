@@ -516,7 +516,7 @@ table.extended_table tbody tr td {
     width: 80%;
 }
 
-.reveal-modal.large {
+.reveal-modal {
     padding-top: 0px;
 }
 
@@ -535,4 +535,15 @@ table.extended_table tbody tr td {
 
 fieldset {
     margin: 0px;
+}
+
+
+
+.graph_table table {
+    border: 0px;
+    margin: 0px;
+}
+
+.graph_table table tr {
+    border: 0px;
 }

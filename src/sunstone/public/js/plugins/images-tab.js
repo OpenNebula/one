@@ -631,8 +631,7 @@ function updateImageInfo(request,img){
         <div class="six columns">\
         <table id="info_img_table" class="twelve datatable extended_table">\
            <thead>\
-            <tr><th colspan="3">'+tr("Image")+' "'+img_info.NAME+'" '+
-            tr("information")+'</th></tr>\
+            <tr><th colspan="3">'+tr("Image")+' "'+img_info.NAME+'"/th></tr>\
            </thead>\
            <tr>\
               <td class="key_td">'+tr("ID")+'</td>\

@@ -94,15 +94,32 @@ var hosts_tab_content = '\
 </form>';
 
 var create_host_tmpl =
-'<div class="create_form"><form id="create_host_form" action="">\
+'<div class="create_form">\
+  <div class="panel">\
+    <h3 >\
+      <small id="create_cluster_header">'+tr("Create Host")+'</small>\
+    </h3>\
+  </div>\
+  <form id="create_host_form" action="" class="">\
+  <div class="row">\
+      <div class="four columns">\
+          <label class="inline right" for="name">' + tr("Name")  + ':</label>\
+      </div>\
+      <div class="seven columns">\
+          <input type="text" name="name" id="name" />\
+      </div>\
+      <div class="one columns">\
+          <div class="tip"></div>\
+      </div>\
+  </div>\
+  <div class="row">\
   <fieldset>\
-  <legend style="display:none;">' + tr("Host parameters") + '</legend>\
-  <label for="name">' + tr("Name") + ':</label><input type="text" name="name" id="name" />\
-  </fieldset>\
-  <h3>' + tr("Drivers") + '</h3>\
-  <fieldset>\
-    <div class="manager clear" id="vmm_mads">\
-          <label>' + tr("Virtualization Manager") + ':</label>\
+    <legend>'+tr("Drivers")+'</legend>\
+    <div class="manager clear row" id="vmm_mads">\
+      <div class="four columns">\
+          <label class="inline right" for="vmm">' +  tr("Virtualization") + ':</label>\
+      </div>\
+      <div class="seven columns">\
           <select id="vmm_mad" name="vmm">\
                 <option value="kvm">' + tr("KVM") + '</option>\
                 <option value="xen">' + tr("XEN") + '</option>\
@@ -114,10 +131,17 @@ var create_host_tmpl =
           <div>\
           <label>' + tr("Custom VMM_MAD") + ':</label>\
           <input type="text" name="custom_vmm_mad" /></div>\
+      </div>\
+      <div class="one columns">\
+          <div class="tip"></div>\
+      </div>\
     </div>\
-    <div class="manager clear" id="im_mads">\
-      <label>' + tr("Information Manager") + ':</label>\
-      <select id="im_mad" name="im">\
+    <div class="manager clear row" id="im_mads">\
+      <div class="four columns">\
+          <label class="inline right" for="im">' +  tr("Information") + ':</label>\
+      </div>\
+      <div class="seven columns">\
+          <select id="im_mad" name="im">\
                <option value="kvm">' + tr("KVM") + '</option>\
                <option value="xen">' + tr("XEN") + '</option>\
                <option value="vmware">' + tr("VMware") + '</option>\
@@ -125,40 +149,60 @@ var create_host_tmpl =
                <option value="ganglia">' + tr("Ganglia") + '</option>\
                <option value="dummy">' + tr("Dummy") + '</option>\
                <option value="custom">' + tr("Custom") + '</option>\
-      </select>\
-      <div>\
-        <label>' + tr("Custom IM_MAD") + ':</label>\
-        <input type="text" name="custom_im_mad" />\
+          </select>\
+          <div>\
+            <label>' + tr("Custom IM_MAD") + ':</label>\
+            <input type="text" name="custom_im_mad" />\
+          </div>\
+      </div>\
+      <div class="one columns">\
+          <div class="tip"></div>\
       </div>\
     </div>\
-    <div class="manager clear" id="vnm_mads">\
-      <label>Virtual Network Manager:</label>\
-       <select id="vnm_mad" name="vn">\
-         <option value="dummy">' + tr("Default (dummy)") +'</option>\
-         <option value="fw">'+tr("Firewall")+'</option>\
-         <option value="802.1Q">'+tr("802.1Q")+'</option>\
-         <option value="ebtables">'+tr("ebtables")+'</option>\
-         <option value="ovswitch">'+tr("Open vSwitch")+'</option>\
-         <option value="vmware">'+tr("VMware")+'</option>\
-         <option value="custom">' + tr("Custom") + '</option>\
-       </select>\
-       <div>\
-          <label>' + tr("Custom VNM_MAD") + ':</label>\
-          <input type="text" name="custom_vnm_mad" />\
-       </div>\
-    </div>\
-    <div class="manager clear" id="cluster_select">\
-      <label>' + tr("Cluster") + ':</label>\
-       <select id="host_cluster_id" name="host_cluster_id">\
-       </select>\
+    <div class="manager clear row" id="vnm_mads">\
+      <div class="four columns">\
+          <label class="inline right" for="vn">' +  tr("Virtual Network") + ':</label>\
+      </div>\
+      <div class="seven columns">\
+          <select id="vnm_mad" name="vn">\
+             <option value="dummy">' + tr("Default (dummy)") +'</option>\
+             <option value="fw">'+tr("Firewall")+'</option>\
+             <option value="802.1Q">'+tr("802.1Q")+'</option>\
+             <option value="ebtables">'+tr("ebtables")+'</option>\
+             <option value="ovswitch">'+tr("Open vSwitch")+'</option>\
+             <option value="vmware">'+tr("VMware")+'</option>\
+             <option value="custom">' + tr("Custom") + '</option>\
+           </select>\
+           <div>\
+              <label>' + tr("Custom VNM_MAD") + ':</label>\
+              <input type="text" name="custom_vnm_mad" />\
+           </div>\
+      </div>\
+      <div class="one columns">\
+          <div class="tip"></div>\
+      </div>\
     </div>\
     </fieldset>\
-    <fieldset>\
-    <div class="form_buttons">\
-        <div><button class="button" type="submit" id="create_host_submit" value="OpenNebula.Host.create">' + tr("Create") + '</button>\
-        <button class="button" type="reset" value="reset">' + tr("Reset") + '</button></div>\
+  </div>\
+    <div class="manager clear row" id="cluster_select">\
+      <div class="four columns">\
+          <label class="inline right" for="host_cluster_id">' + tr("Cluster") + ':</label>\
+      </div>\
+      <div class="seven columns">\
+          <select id="host_cluster_id" name="host_cluster_id">\
+           </select>\
+      </div>\
+      <div class="one columns">\
+          <div class="tip"></div>\
+      </div>\
     </div>\
-  </fieldset>\
+    <hr>\
+    <div class="form_buttons row">\
+        <button class="button success right radius" type="submit" id="create_host_submit" value="OpenNebula.Host.create">' + tr("Create") + '</button>\
+        <button class="button secondary radius" type="reset" value="reset">' + tr("Reset") + '</button>\
+        <button class="close-reveal-modal button secondary radius" type="close" value="close">' + tr("Close") + '</button>\
+    </div>\
+    <a class="close-reveal-modal">&#215;</a>\
 </form></div>';
 
 var hosts_select="";
@@ -692,70 +736,77 @@ function updateHostInfo(request,host){
     var info_tab = {
         title : tr("Information"),
         content :
-        '<table id="info_host_table" class="info_table">\
+        '<div class="row">\
+        <div class="six columns">\
+        <table id="info_host_table" class="twelve datatable extended_table">\
             <thead>\
-               <tr><th colspan="2">' + tr("Information for Host") + ' - '+host_info.NAME+'</th></tr>\
+               <tr><th colspan="3">' + tr("Host") + ' - '+host_info.NAME+'</th></tr>\
             </thead>\
             <tbody>\
             <tr>\
                 <td class="key_td">' + tr("id") + '</td>\
-                <td class="value_td">'+host_info.ID+'</td>\
+                <td class="value_td" colspan="2">'+host_info.ID+'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">' + tr("Name") + '</td>\
-                <td class="value_td">'+host_info.NAME+'</td>\
+                <td class="value_td" colspan="2">'+host_info.NAME+'</td>\
             </tr>\
             <tr>' +
                 insert_cluster_dropdown("Host",host_info.ID,host_info.CLUSTER,host_info.CLUSTER_ID) +
             '</tr>\
             <tr>\
                 <td class="key_td">' + tr("State") + '</td>\
-                <td class="value_td">'+tr(OpenNebula.Helper.resource_state("host",host_info.STATE))+'</td>\
+                <td class="value_td" colspan="2">'+tr(OpenNebula.Helper.resource_state("host",host_info.STATE))+'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">' + tr("IM MAD") + '</td>\
-                <td class="value_td">'+host_info.IM_MAD+'</td>\
+                <td class="value_td" colspan="2">'+host_info.IM_MAD+'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">' + tr("VM MAD") + '</td>\
-                <td class="value_td">'+host_info.VM_MAD+'</td>\
+                <td class="value_td" colspan="2">'+host_info.VM_MAD+'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">'+ tr("VN MAD") +'</td>\
-                <td class="value_td">'+host_info.VN_MAD+'</td>\
+                <td class="value_td" colspan="2">'+host_info.VN_MAD+'</td>\
             </tr>\
             <tr>\
               <td class="key_td">' + tr("Total Mem") + '</td>\
-              <td class="value_td">'+humanize_size(host_info.HOST_SHARE.MAX_MEM)+'</td>\
+              <td class="value_td" colspan="2">'+humanize_size(host_info.HOST_SHARE.MAX_MEM)+'</td>\
             </tr>\
             <tr>\
               <td class="key_td">' + tr("Used Mem (real)") + '</td>\
-              <td class="value_td">'+humanize_size(host_info.HOST_SHARE.USED_MEM)+'</td>\
+              <td class="value_td" colspan="2">'+humanize_size(host_info.HOST_SHARE.USED_MEM)+'</td>\
             </tr>\
             <tr>\
               <td class="key_td">' + tr("Used Mem (allocated)") + '</td>\
-              <td class="value_td">'+humanize_size(host_info.HOST_SHARE.MEM_USAGE)+'</td>\
+              <td class="value_td" colspan="2">'+humanize_size(host_info.HOST_SHARE.MEM_USAGE)+'</td>\
             </tr>\
             <tr>\
               <td class="key_td">' + tr("Total CPU") + '</td>\
-              <td class="value_td">'+host_info.HOST_SHARE.MAX_CPU+'</td>\
+              <td class="value_td" colspan="2">'+host_info.HOST_SHARE.MAX_CPU+'</td>\
             </tr>\
             <tr>\
               <td class="key_td">' + tr("Used CPU (real)") + '</td>\
-              <td class="value_td">'+host_info.HOST_SHARE.USED_CPU+'</td>\
+              <td class="value_td" colspan="2">'+host_info.HOST_SHARE.USED_CPU+'</td>\
             </tr>\
             <tr>\
               <td class="key_td">' + tr("Used CPU (allocated)") + '</td>\
-              <td class="value_td">'+host_info.HOST_SHARE.CPU_USAGE+'</td>\
+              <td class="value_td" colspan="2">'+host_info.HOST_SHARE.CPU_USAGE+'</td>\
             </tr>\
             <tr>\
               <td class="key_td">' + tr("Running VMs") + '</td>\
-              <td class="value_td">'+host_info.HOST_SHARE.RUNNING_VMS+'</td>\
+              <td class="value_td" colspan="2">'+host_info.HOST_SHARE.RUNNING_VMS+'</td>\
             </tr>\
             </tbody>\
-         </table>' + insert_extended_template_table(host_info.TEMPLATE,
+         </table>\
+        </div>\
+        <div class="six columns">' 
+        + insert_extended_template_table(host_info.TEMPLATE,
                                          "Host",
-                                         host_info.ID)
+                                         host_info.ID) +
+        '</div>\
+      </div>'
     }
 
 
