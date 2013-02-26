@@ -292,16 +292,29 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     d["DATASTORE"]
                 end
 
-                column :TARGET, "", :left, :size=>6 do |d|
+                column :TARGET, "", :size=>6 do |d|
                     d["TARGET"]
                 end
 
                 column :IMAGE, "", :left, :size=>35 do |d|
-                    d["IMAGE"]
+                    if d["IMAGE"]
+                        d["IMAGE"]
+                    else
+                        case d["TYPE"].upcase
+                        when "FS"
+                            "#{d["FORMAT"]} - "<<
+                            OpenNebulaHelper.unit_to_str(d["SIZE"].to_i,
+                                                         {}, "M")
+                        when "SWAP"
+                            OpenNebulaHelper.unit_to_str(d["SIZE"].to_i,
+                                                         {}, "M")
+
+                        end
+                    end
                 end
 
                 column :TYPE, "", :left, :size=>4 do |d|
-                    d["TYPE"]
+                    d["TYPE"].downcase
                 end
 
                 column :"R/O", "", :size=>3 do |d|
@@ -309,15 +322,20 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 end
 
                 column :"SAVE", "", :size=>4 do |d|
-                    d["SAVE"]
+                    d["SAVE"] || "NO"
                 end
 
                 column :"CLONE", "", :size=>5 do |d|
                     d["CLONE"]
                 end
 
-                default :ID, :DATASTORE, :TARGET, :IMAGE, :TYPE, :"R/O",
-                    :SAVE, :CLONE
+                column :"SAVE_AS", "", :size=>7 do |d|
+                    d["SAVE_AS"] || "-"
+                end
+
+
+                default :ID, :TARGET, :IMAGE, :TYPE,
+                    :SAVE, :SAVE_AS
             end.show([vm.to_hash['VM']['TEMPLATE']['DISK']].flatten, {})
 
             while vm.has_elements?("/VM/TEMPLATE/DISK")
