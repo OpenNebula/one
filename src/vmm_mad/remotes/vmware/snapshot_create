@@ -30,12 +30,11 @@ $: << File.dirname(__FILE__)
 require 'vmware_driver'
 
 deploy_id   = ARGV[0]
-snapshot_id = ARGV[1]
 host        = ARGV[3]
 
 vmware_drv = VMwareDriver.new(host)
 
-hypervisor_id = vmware_drv.snapshot_create(deploy_id, snapshot_id)
+hypervisor_id = vmware_drv.snapshot_create(deploy_id)
 
 puts hypervisor_id
 exit 0

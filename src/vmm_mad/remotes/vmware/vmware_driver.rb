@@ -265,9 +265,9 @@ class VMwareDriver
     # ------------------------------------------------------------------------ #
     # Creates a new system snapshot                                            #
     # ------------------------------------------------------------------------ #
-    def snapshot_create(deploy_id, snapshot_id = nil)
+    def snapshot_create(deploy_id)
         rc, info = do_action(
-            "virsh -c #{@uri} snapshot-create-as #{deploy_id} #{snapshot_id}")
+            "virsh -c #{@uri} snapshot-create-as #{deploy_id}")
 
         exit info if rc == false
 
@@ -291,7 +291,7 @@ class VMwareDriver
     # ------------------------------------------------------------------------ #
     def snapshot_revert(deploy_id, snapshot_id)
         action = "virsh -c #{@uri} snapshot-revert " <<
-                 "--force #{deploy_id} #{snapshot_id}")
+                 "--force #{deploy_id} #{snapshot_id}"
 
         rc, info = do_action(action)
 
