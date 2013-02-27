@@ -1102,8 +1102,8 @@ function setupCreateTemplateDialog(){
                       '</div>'+
                       '<div class="two columns">'+
                         '<select id="size_unit" name="SIZE_UNIT">'+
-                            '<option value="MB">'+tr("MB")+'</option>'+
                             '<option value="GB">'+tr("GB")+'</option>'+
+                            '<option value="MB">'+tr("MB")+'</option>'+
                         '</select>'+
                       '</div>'+
                       '<div class="one columns">'+
@@ -1172,40 +1172,84 @@ function setupCreateTemplateDialog(){
           }
         });
 
-          // Define size slider
-          //var size_input = $( "#SIZE",  disk_section );
-          //var size_unit  = $( "#size_unit",  disk_section );
-          //var size_slider = $( "#size_slider",  disk_section ).slider({
-          //    min: 0,
-          //    max: 4096,
-          //    range: "min",
-          //    value: 0,
-          //    step: 128,
-          //    slide: function( event, ui ) {
-          //        size_input.val(ui.value);
-          //    }
-          //});
-          //size_input.change(function() {
-          //    size_slider.slider( "value", this.value );
-          //});
-          //size_unit.change(function() {
-          //    var size_unit_val = $('#size_unit :selected').val();
-          //    if (size_unit_val == 'GB') {
-          //        size_slider.slider( "option", "min", 0 );
-          //        size_slider.slider( "option", "max", 40 );
-          //        size_slider.slider( "option", "step", 0.5 );
-          //        size_slider.slider( "option", "value", 4 );
-          //        size_input.val(4);
-          //    } 
-          //    else if (size_unit_val == 'MB') {
-          //        size_slider.slider( "option", "min", 0 );
-          //        size_slider.slider( "option", "max", 4096 );
-          //        size_slider.slider( "option", "step", 128 );
-          //        size_slider.slider( "option", "value", 512 );
-          //        size_input.val(512);
-          //    }
-          //    
-          //});
+
+        // Define the size slider
+
+        var size_input = $( "#SIZE", disk_section );
+        var size_unit  = $( "#size_unit", disk_section );
+
+        var current_size_unit = size_unit.val();
+
+        var size_slider_change = function(type) {
+            if ( type != "move")
+            {
+                var values = $(this).noUiSlider( 'value' );
+
+                size_input.val(values[1] / 100);
+            }
+        };
+
+        var size_slider = $( "#size_slider").noUiSlider('init', {
+            handles: 1,
+            connect: "lower",
+            scale: [0,5000],
+            step: 50,
+            change: size_slider_change,
+        });
+
+        size_slider.addClass("noUiSlider");
+
+        size_input.change(function() {
+            size_slider.noUiSlider('move',{
+                to: this.value * 100
+            })
+        });
+
+        size_input.val(10);
+
+        // init::start is ignored for some reason
+        size_slider.noUiSlider('move',{to: 1000});
+
+        size_unit.change(function() {
+            var size_unit_val = $('#size_unit :selected').val();
+
+            if (current_size_unit != size_unit_val)
+            {
+                current_size_unit = size_unit_val
+
+                if (size_unit_val == 'GB') {
+
+                    size_slider.empty().noUiSlider('init', {
+                        handles: 1,
+                        connect: "lower",
+                        scale: [0,5000],
+                        step: 50,
+                        change: size_slider_change,
+                    });
+
+                    var new_val = size_input.val() / 1024;
+
+                    size_input.val( new_val );
+                    size_slider.noUiSlider('move',{to: new_val * 100});
+                }
+                else if (size_unit_val == 'MB') {
+
+                    size_slider.empty().noUiSlider('init', {
+                        handles: 1,
+                        connect: "lower",
+                        scale: [0,204800],
+                        step: 12800,
+                        change: size_slider_change,
+                    });
+
+                    var new_val = Math.round( size_input.val() * 1024 );
+
+                    size_input.val( new_val );
+                    size_slider.noUiSlider('move',{to: new_val * 100});
+                }
+            }
+        });
+
 
         var dataTable_template_images = $('#'+str_datatable_id, dialog).dataTable({
             "bSortClasses": false,
