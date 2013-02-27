@@ -506,9 +506,12 @@ function userElementArray(user_json){
     var cpu = "-";
 
     if (!$.isEmptyObject(user.VM_QUOTA)){
-        vms = user.VM_QUOTA.VM.VMS_USED;
-        memory = user.VM_QUOTA.VM.MEMORY_USED+' MB';
-        cpu = user.VM_QUOTA.VM.CPU_USED;
+        vms = user.VM_QUOTA.VM.VMS_USED+' / '
+            +user.VM_QUOTA.VM.VMS;
+        memory = humanize_size(user.VM_QUOTA.VM.MEMORY_USED * 1024)+' / '
+            +humanize_size(user.VM_QUOTA.VM.MEMORY * 1024);
+        cpu = user.VM_QUOTA.VM.CPU_USED+' / '
+            +user.VM_QUOTA.VM.CPU;
     }
 
 
@@ -605,25 +608,127 @@ function updateUserInfo(request,user){
 
     var quotas_tab_html = '';
 
-    if (!$.isEmptyObject(user_info.VM_QUOTA))
-        quotas_tab_html += '<table class="info_table">\
-            <tbody>'+prettyPrintJSON(user_info.VM_QUOTA)+'</tbody>\
-          </table>'
+    if (!$.isEmptyObject(user_info.VM_QUOTA)){
+        quotas_tab_html +=
+        '<table class="twelve">\
+            <thead>\
+                <tr>\
+                    <th>'+tr("VMs")+'</th>\
+                    <th>'+tr("Memory")+'</th>\
+                    <th>'+tr("CPU")+'</th>\
+                </tr>\
+            </thead>\
+            <tbody>\
+                <tr>\
+                    <td>'+user_info.VM_QUOTA.VM.VMS_USED+' / '
+                         +user_info.VM_QUOTA.VM.VMS+'</td>\
+                    <td>'+humanize_size(user_info.VM_QUOTA.VM.MEMORY_USED * 1024)+' / '
+                         +humanize_size(user_info.VM_QUOTA.VM.MEMORY * 1024)+'</td>\
+                    <td>'+user_info.VM_QUOTA.VM.CPU_USED+' / '
+                         +user_info.VM_QUOTA.VM.CPU+'</td>\
+                </tr>\
+            </tbody>\
+        </table>'
+    }
 
-    if (!$.isEmptyObject(user_info.DATASTORE_QUOTA))
-        quotas_tab_html += '<table class="info_table">\
-            <tbody>'+prettyPrintJSON(user_info.DATASTORE_QUOTA)+'</tbody>\
-          </table>'
+    if (!$.isEmptyObject(user_info.DATASTORE_QUOTA)){
+        quotas_tab_html += 
+        '<table class="twelve">\
+            <thead>\
+                <tr>\
+                    <th>'+tr("Datastore ID")+'</th>\
+                    <th>'+tr("Images")+'</th>\
+                    <th>'+tr("Size")+'</th>\
+                </tr>\
+            </thead>\
+            <tbody>';
 
-    if (!$.isEmptyObject(user_info.IMAGE_QUOTA))
-        quotas_tab_html += '<table class="info_table">\
-            <tbody>'+prettyPrintJSON(user_info.IMAGE_QUOTA)+'</tbody>\
-          </table>';
+        var ds_quotas = [];
 
-    if (!$.isEmptyObject(user_info.NETWORK_QUOTA))
-        quotas_tab_html += '<table class="info_table">\
-            <tbody>'+prettyPrintJSON(user_info.NETWORK_QUOTA)+'</tbody>\
-          </table>';
+        if ($.isArray(user_info.DATASTORE_QUOTA.DATASTORE))
+            ds_quotas = user_info.DATASTORE_QUOTA.DATASTORE;
+        else if (user_info.DATASTORE_QUOTA.DATASTORE.ID)
+            ds_quotas = [user_info.DATASTORE_QUOTA.DATASTORE];
+
+        for (var i=0; i < ds_quotas.length; i++){
+            quotas_tab_html +=
+            '<tr>\
+                <td>'+ds_quotas[i].ID+'</td>\
+                <td>'+ds_quotas[i].IMAGES_USED+' / '
+                     +ds_quotas[i].IMAGES+'</td>\
+                <td>'+humanize_size(ds_quotas[i].SIZE_USED * 1024)+' / '
+                     +humanize_size(ds_quotas[i].SIZE * 1024)+'</td>\
+            </tr>';
+        }
+
+        quotas_tab_html +=
+            '</tbody>\
+        </table>';
+    }
+
+    if (!$.isEmptyObject(user_info.IMAGE_QUOTA)){
+        quotas_tab_html += 
+        '<table class="twelve">\
+            <thead>\
+                <tr>\
+                    <th>'+tr("Image ID")+'</th>\
+                    <th>'+tr("Running VMs")+'</th>\
+                </tr>\
+            </thead>\
+            <tbody>';
+
+        var img_quotas = [];
+
+        if ($.isArray(user_info.IMAGE_QUOTA.IMAGE))
+            img_quotas = user_info.IMAGE_QUOTA.IMAGE;
+        else if (user_info.IMAGE_QUOTA.IMAGE.ID)
+            img_quotas = [user_info.IMAGE_QUOTA.IMAGE];
+
+        for (var i=0; i < img_quotas.length; i++){
+            quotas_tab_html +=
+            '<tr>\
+                <td>'+img_quotas[i].ID+'</td>\
+                <td>'+img_quotas[i].RVMS_USED+' / '
+                     +img_quotas[i].RVMS+'</td>\
+            </tr>';
+        }
+
+        quotas_tab_html +=
+            '</tbody>\
+        </table>';
+    }
+
+    if (!$.isEmptyObject(user_info.NETWORK_QUOTA)){
+        quotas_tab_html += 
+        '<table class="twelve">\
+            <thead>\
+                <tr>\
+                    <th>'+tr("Network ID")+'</th>\
+                    <th>'+tr("Leases")+'</th>\
+                </tr>\
+            </thead>\
+            <tbody>';
+
+        var net_quotas = [];
+
+        if ($.isArray(user_info.NETWORK_QUOTA.NETWORK))
+            net_quotas = user_info.NETWORK_QUOTA.NETWORK;
+        else if (user_info.NETWORK_QUOTA.NETWORK.ID)
+            net_quotas = [user_info.NETWORK_QUOTA.NETWORK];
+
+        for (var i=0; i < net_quotas.length; i++){
+            quotas_tab_html +=
+            '<tr>\
+                <td>'+net_quotas[i].ID+'</td>\
+                <td>'+net_quotas[i].LEASES_USED+' / '
+                     +net_quotas[i].LEASES+'</td>\
+            </tr>';
+        }
+
+        quotas_tab_html +=
+            '</tbody>\
+        </table>';
+    }
 
     var quotas_tab = {
         title : tr("User quotas"),
@@ -840,14 +945,16 @@ $(document).ready(function(){
     //if we are not oneadmin, our tab will not even be in the DOM.
     dataTable_users = $("#datatable_users",main_tabs_context).dataTable({
         "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
+//        "bAutoWidth":false,
         "oColVis": {
             "aiExclude": [ 0 ]
         },
         "aoColumnDefs": [
             //{ "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "35px", "aTargets": [1,5,6,7,8] },
+//            { "sWidth": "60px", "aTargets": [0] },
+//            { "sWidth": "35px", "aTargets": [1] },
             { "sWidth": "150px", "aTargets": [4] },
+            { "sWidth": "150px", "aTargets": [5,6,7] },
             { "bVisible": false, "aTargets": [8]}
         ],
         "oLanguage": (datatable_lang != "") ?
