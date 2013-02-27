@@ -631,59 +631,47 @@ function updateDatastoreInfo(request,ds){
         images_str=getImageName(info.IMAGES.ID);
     };
 
-    var info_tab_content = '<table id="info_datastore_table" class="info_table">\
+    var info_tab_content = '<div class="row">\
+        <div class="six columns">\
+        <table id="info_datastore_table" class="twelve datatable extended_table">\
             <thead>\
-              <tr><th colspan="2">'+tr("Information for Datastore")+' - '+info.NAME+'</th></tr>\
+              <tr><th colspan="3">'+tr("Datastore")+' "'+info.NAME+'"</th></tr>\
             </thead>\
             <tbody>\
               <tr>\
                  <td class="key_td">'+tr("ID")+'</td>\
                  <td class="value_td">'+info.ID+'</td>\
+                <td></td>\
               </tr>\
               <tr>\
                  <td class="key_td">'+tr("Name")+'</td>\
                  <td class="value_td">'+info.NAME+'</td>\
-              </tr>\
-              <tr>\
-                 <td class="key_td">'+tr("Owner")+'</td>\
-                 <td class="value_td">'+info.UNAME+'</td>\
-              </tr>\
-              <tr>\
-                 <td class="key_td">'+tr("Group")+'</td>\
-                 <td class="value_td">'+info.GNAME+'</td>\
+                <td></td>\
               </tr>\
               <tr>\
                  <td class="key_td">'+tr("Cluster")+'</td>\
                  <td class="value_td">'+(info.CLUSTER.length ? info.CLUSTER : "-")+'</td>\
               </tr>\
               <tr>\
-                 <td class="key_td">'+tr("DS Mad")+'</td>\
-                 <td class="value_td">'+info.DS_MAD+'</td>\
-              </tr>\
-              <tr>\
-                 <td class="key_td">'+tr("TM Mad")+'</td>\
-              <td class="value_td">'+ info.TM_MAD +'</td>\
-              </tr>\
-              <tr>\
                  <td class="key_td">'+tr("Base path")+'</td>\
                  <td class="value_td">'+info.BASE_PATH+'</td>\
               </tr>\
             </tbody>\
-          </table>';
-
-
-    // Inserts the extended template table to the show info tab (down tab)
-    info_tab_content += insert_extended_template_table(info.TEMPLATE,
+          </table>'
+            + insert_extended_template_table(info.TEMPLATE,
                                          "Datastore",
-                                         info.ID)
+                                         info.ID) + 
+        '</div>\
+        <div class="six columns">'
+            + insert_permissions_table("Datastore",
+                                     info.ID,
+                                     info.UNAME,
+                                     info.GNAME,
+                                     info.UID,
+                                     info.GID)
+        '</div>\
+      </div>'
 
-    // Inserts the change permissions table
-    info_tab_content += insert_permissions_table("Datastore",
-                                                 info.ID,
-                                                 info.UNAME,
-                                                 info.GNAME,
-                                                 info.UID,
-                                                 info.GID);
 
     var info_tab = {
         title : tr("Information"),
@@ -692,7 +680,7 @@ function updateDatastoreInfo(request,ds){
 
     var datastore_info_tab = {
         title: tr("Images"),
-        content : '<div id="datatable_datastore_images_info_div"><table id="datatable_datastore_images_info_panel" class="display">' + datastore_image_table_tmpl + '</table></div>'
+        content : '<div id="datatable_datastore_images_info_div"><table id="datatable_datastore_images_info_panel" class="table twelve">' + datastore_image_table_tmpl + '</table></div>'
     }
 
 
@@ -705,21 +693,18 @@ function updateDatastoreInfo(request,ds){
     // Images datatable
 
     dataTable_datastore_images_panel = $("#datatable_datastore_images_info_panel").dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
         "bAutoWidth":false,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "sDom" : '<"H">t<"F"p>',
         "oColVis": {
             "aiExclude": [ 0 ]
         },
-        "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0,2,3,9,10] },
             { "sWidth": "35px", "aTargets": [1,6,11,12] },
             { "sWidth": "100px", "aTargets": [5,7] },
             { "sWidth": "150px", "aTargets": [8] },
-            { "bVisible": false, "aTargets": [6,8,12]}
+            { "bVisible": false, "aTargets": [0,6,8,12]}
         ],
         "oLanguage": (datatable_lang != "") ?
             {
@@ -809,21 +794,22 @@ function setupCreateDatastoreDialog(){
     });
 
 
-    $('#create_datastore_form',dialog).submit(function(){
-        var name            = $('#name',this).val();
-        var cluster_id      = $('#cluster_id',this).val();
-        var system          = $('#sys_ds',this).is(':checked');
-        var ds_mad          = $('#ds_mad',this).val();
-        var tm_mad          = $('#tm_mad',this).val();
-        var type            = $('#disk_type',this).val();
-        var safe_dirs       = $('#safe_dirs',this).val();
-        var restricted_dirs = $('#restricted_dirs',this).val();
-        var bridge_list     = $('#bridge_list',this).val();
-        var ds_use_ssh      = $('#ds_use_ssh',this).is(':checked');
-        var tm_use_ssh      = $('#tm_use_ssh',this).is(':checked');
-        var host            = $('#host',this).val();
-        var base_iqn        = $('#base_iqn',this).val();
-        var vg_name         = $('#vg_name',this).val();
+    $('#create_datastore_submit',dialog).click(function(){
+        var context = $( "#create_datastore_form", dialog);
+        var name            = $('#name',context).val();
+        var cluster_id      = $('#cluster_id',context).val();
+        var system          = $('#sys_ds',context).is(':checked');
+        var ds_mad          = $('#ds_mad',context).val();
+        var tm_mad          = $('#tm_mad',context).val();
+        var type            = $('#disk_type',context).val();
+        var safe_dirs       = $('#safe_dirs',context).val();
+        var restricted_dirs = $('#restricted_dirs',context).val();
+        var bridge_list     = $('#bridge_list',context).val();
+        var ds_use_ssh      = $('#ds_use_ssh',context).is(':checked');
+        var tm_use_ssh      = $('#tm_use_ssh',context).is(':checked');
+        var host            = $('#host',context).val();
+        var base_iqn        = $('#base_iqn',context).val();
+        var vg_name         = $('#vg_name',context).val();
 
 
 
