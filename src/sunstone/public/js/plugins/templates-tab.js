@@ -75,7 +75,7 @@ var create_template_tmpl = '<div class="panel">'+
         '</dl>'+
     '</div>'+
     '<div class="columns nine">'+
-        '<form class="custom">'+
+        '<form class="custom creation">'+
             '<ul id="template_create_tabs_content" class="tabs-content">'+
             '</ul>'+
         '</form>'+
@@ -86,6 +86,7 @@ var create_template_tmpl = '<div class="panel">'+
       '<button class="success button radius" id="create_template_form_easy" value="OpenNebula.Template.create" style="float: right">'+tr("Create")+'</button>'+
       '<button class="button hidden radius" id="template_template_update_button" value="Template.update_template" style="float: right">'+tr("Update")+'</button>'+
       '<button class="button secondary radius" id="template_template_reset_button" value="">'+tr("Reset")+'</button>'+
+      '<button class="close-reveal-modal button secondary radius" type="close" value="close">' + tr("Close") + '</button>'+
       //'<button class="button secondary radius" id="wizard_next" type="reset" style="float: right">'+tr("Next")+' <span class=" icon-angle-right"></span> </button>'+
       //'<button class="button secondary radius" id="wizard_previous" type="reset" style="float: right"><span class="icon-angle-left"></span> '+tr("Previous")+'</button>'+
   '</div>'+

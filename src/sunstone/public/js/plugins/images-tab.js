@@ -86,9 +86,7 @@ var create_image_tmpl =
                         <div class="seven columns">\
                           <input type="text" name="img_name" id="img_name" />\
                         </div>\
-                        <div class="one columns">\
-                          <div class="tip">'+tr("Name that the Image will get. Every image must have a unique name.")+'</div>\
-                        </div>\
+                        <div class="one columns tip">'+tr("Name that the Image will get. Every image must have a unique name.")+'</div>\
                       </div>\
                       <div class="row">\
                         <div class="four columns">\
@@ -137,12 +135,11 @@ var create_image_tmpl =
                  <div class="row">\
                  <fieldset>\
                  <legend>'+tr("Image location")+':</legend>\
-                 <div class="" id="src_path_select">\
-                  <div class="row">\
+                 <div class="row" id="src_path_select">\
                         <div class="four columns">\
                          <input type="radio" name="src_path" id="path_img" value="path">'+ tr("Provide a path")+'</input> \
                         </div>\
-                        <div class="three columns">\
+                        <div class="four columns">\
                          <input type="radio" name="src_path" id="upload_img" value="upload" /> '+tr("Upload")+'\
                         </div>\
                         <div class="four  columns hidden" id="empty_datablock">\
@@ -151,7 +148,6 @@ var create_image_tmpl =
                         <div class="one columns">\
                          <div class="tip">'+tr("Please choose path if you have a file-based image. Otherwise upload or create an empty datablock disk.")+'</div>\
                         </div>\
-                  </div>\
                  </div>\
                  <div class="img_param row">\
                    <div class="eight columns centered">\

@@ -159,10 +159,11 @@ div.button-bar {
 
 
 #logo {
-    padding-top: 6px;
     font-weight: bold;
     color: white;
     margin:10%;
+    margin-top: 15%;
+    margin-bottom: 15%;
 }
 
 #login-info {
@@ -514,6 +515,7 @@ table.extended_table tbody tr td {
 .reveal-modal.xlarge {
     padding-top: 0px;
     width: 80%;
+    margin-left: -40%
 }
 
 .reveal-modal {
@@ -534,7 +536,7 @@ table.extended_table tbody tr td {
 }
 
 fieldset {
-    margin: 0px;
+    margin: 0px 10px;
 }
 
 
@@ -546,4 +548,25 @@ fieldset {
 
 .graph_table table tr {
     border: 0px;
+}
+
+
+.ui-layout-pane {
+    padding: 0px;
+}
+
+.reveal-modal .columns {
+    padding: 0 8px;
+}
+
+select {
+    width: auto;
+}
+
+
+form.creation {
+    max-height: 450px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 5px;
 }

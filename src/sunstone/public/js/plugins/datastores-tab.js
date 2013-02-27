@@ -66,78 +66,206 @@ var datastores_tab_content = '\
 </form>';
 
 var create_datastore_tmpl =
-'<div class="create_form"><form id="create_datastore_form" action="">\
-  <fieldset>\
-  <label for="name">' + tr("Name") + ':</label>\
-  <input type="text" name="name" id="name" />\
-  <div class="clear"></div>\
-  <label for="cluster">' + tr("Cluster") + ':</label>\
-  <select id="cluster_id" name="cluster_id">\
-  </select><br />\
-  <label for="ds_type">' + tr("Datastore type") + ':</label>\
-  <select id="ds_type" name="ds_type">\
-        <option value="fs">' + tr("Filesystem") + '</option>\
-        <option value="vmware_fs">' + tr("VMware (FS Based)") + '</option>\
-        <option value="vmware_vmfs">' + tr("VMware (VMFS Based)") + '</option>\
-        <option value="iscsi">' + tr("iSCSI") + '</option>\
-        <option value="lvm">' + tr("LVM") + '</option>\
-        <option value="ceph">' + tr("Ceph") + '</option>\
-  </select><br name="ds_type" />\
-  <label for="system">' + tr("System datastore") + ':</label>\
-  <input id="sys_ds" type="checkbox" name="system" value="YES" />\
-  <label for="files_ds">' + tr("Files datastore") + ':</label>\
-  <input id="files_ds" type="checkbox" name="files_ds" value="YES" />\
-  <div class="clear"></div>\
-  <label for="ds_mad">' + tr("Datastore manager") + ':</label>\
-  <select id="ds_mad" name="ds_mad">\
-        <option value="fs">' + tr("Filesystem") + '</option>\
-        <option value="vmware">' + tr("VMware") + '</option>\
-        <option value="iscsi">' + tr("iSCSI") + '</option>\
-        <option value="lvm">' + tr("LVM") + '</option>\
-        <option value="vmfs">' + tr("VMFS") + '</option>\
-        <option value="ceph">' + tr("Ceph") + '</option>\
-  </select><br name="ds_mad" />\
-  <label>' + tr("Transfer manager") + ':</label>\
-  <select id="tm_mad" name="tm_mad">\
-        <option value="shared">' + tr("Shared") + '</option>\
-        <option value="ssh">' + tr("SSH") + '</option>\
-        <option value="qcow2">' + tr("qcow2") + '</option>\
-        <option value="iscsi">' + tr("iSCSI") + '</option>\
-        <option value="dummy">' + tr("Dummy") + '</option>\
-        <option value="lvm">' + tr("LVM") + '</option>\
-        <option value="vmfs">' + tr("VMFS") + '</option>\
-        <option value="ceph">' + tr("Ceph") + '</option>\
-  </select><div class="clear">\
-  <label for="disk_type">' + tr("Disk type") + ':</label>\
-  <select id="disk_type" name="disk_type">\
-        <option value="file">' + tr("File") + '</option>\
-        <option value="block">' + tr("Block") + '</option>\
-        <option value="rbd">' + tr("RBD") + '</option>\
-  </select><br />\
-  <label for="safe_dirs">' + tr("Safe Directories") + ':</label>\
-  <input type="text" name="safe_dirs" id="safe_dirs" />\
-  <label for="restricted_dirs">' + tr("Restricted Directories") + ':</label>\
-  <input type="text" name="restricted_dirs" id="restricted_dirs" />\
-  <label for="bridge_list">' + tr("Host Bridge List") + ':</label>\
-  <input type="text" name="bridge_list" id="bridge_list" />\
-  <label for="ds_use_ssh">' + tr("Use SSH for Datastore Manager") + ':</label>\
-  <input id="ds_use_ssh" type="checkbox" name="ds_use_ssh" value="YES" />\
-  <label for="tm_use_ssh">' + tr("Use SSH for Transfer Manager") + ':</label>\
-  <input id="tm_use_ssh" type="checkbox" name="tm_use_ssh" value="YES" />\
-  <label for="host">' + tr("Storage Server") + ':</label>\
-  <input type="text" name="host" id="host" />\
-  <label for="base_iqn">' + tr("Base IQN") + ':</label>\
-  <input type="text" name="base_iqn" id="base_iqn" />\
-  <label for="vg_name">' + tr("Volume Group Name") + ':</label>\
-  <input type="text" name="vg_name" id="vg_name" />\
-  </fieldset>\
-  <fieldset>\
-    <div class="form_buttons">\
-        <div><button class="button" type="submit" id="create_datastore_submit" value="OpenNebula.Datastore.create">' + tr("Create") + '</button>\
-        <button class="button" type="reset" value="reset">' + tr("Reset") + '</button></div>\
+'<div class="create_form">\
+  <div class="panel">\
+    <h3 >\
+      <small id="create_cluster_header">'+tr("Create Datastore")+'</small>\
+    </h3>\
+  </div>\
+  <form id="create_datastore_form" action="" class="creation">\
+    <div class="row">\
+      <div class="three columns">\
+        <label class="right inline" for="name" >' + tr("Name") + ':</label>\
+      </div>\
+      <div class="eight columns">\
+        <input type="text" name="name" id="name"/>\
+      </div>\
+      <div class="one columns ">\
+      </div>\
     </div>\
-  </fieldset>\
-</form></div>';
+    <div class="row">\
+      <div class="six columns">\
+        <div class="four columns">\
+          <label class="right inline" for="ds_type">' + tr("Presets") + ':</label>\
+        </div>\
+        <div class="seven columns">\
+          <select id="ds_type" name="ds_type">\
+            <option value="fs">' + tr("Filesystem") + '</option>\
+            <option value="vmware_fs">' + tr("VMware (FS Based)") + '</option>\
+            <option value="vmware_vmfs">' + tr("VMware (VMFS Based)") + '</option>\
+            <option value="iscsi">' + tr("iSCSI") + '</option>\
+            <option value="lvm">' + tr("LVM") + '</option>\
+            <option value="ceph">' + tr("Ceph") + '</option>\
+          </select>\
+        </div>\
+        <div class="one columns ">\
+        </div>\
+      </div>\
+      <div class="six columns">\
+        <div class="four columns">\
+          <label class="right inline" for="cluster">' + tr("Cluster") + ':</label>\
+        </div>\
+        <div class="seven columns">\
+          <select id="cluster_id" name="cluster_id">\
+          </select>\
+        </div>\
+        <div class="one columns ">\
+        </div>\
+      </div>\
+    </div>\
+    <div class="row">\
+      <div class="six columns">\
+        <div class="row">\
+          <fieldset>\
+            <legend>' + tr("Type") + '</legend>\
+              <div class="four columns">\
+                <label for="images_ds"><input id="images_ds" type="radio" name="type" value="YES" />' + tr("Images") + '</label>\
+              </div>\
+              <div class="four columns">\
+                <label for="sys_ds"><input id="sys_ds" type="radio" name="type" value="YES" />' + tr("System") + '</label>\
+              </div>\
+              <div class="four columns">\
+                <label for="files_ds"><input id="files_ds" type="radio" name="type" value="YES" />' + tr("Files") + '</label>\
+              </div>\
+          </fieldset>\
+        </div>\
+        <br>\
+        <div class="row">\
+          <div class="four columns">\
+            <label class="right inline" for="disk_type">' + tr("Disk type") + ':</label>\
+          </div>\
+          <div class="seven columns">\
+            <select id="disk_type" name="disk_type">\
+              <option value="file">' + tr("File") + '</option>\
+              <option value="block">' + tr("Block") + '</option>\
+              <option value="rbd">' + tr("RBD") + '</option>\
+            </select>\
+          </div>\
+          <div class="one columns">\
+          </div>\
+        </div>\
+      </div>\
+      <div class="six columns">\
+        <div class="row">\
+          <fieldset>\
+            <legend>' + tr("Managers") + '</legend>\
+            <div class="row">\
+              <div class="four columns">\
+                <label class="right inline" for="ds_mad">' + tr("Datastore") + ':</label>\
+              </div>\
+              <div class="seven columns">\
+                <select id="ds_mad" name="ds_mad">\
+                  <option value="fs">' + tr("Filesystem") + '</option>\
+                  <option value="vmware">' + tr("VMware") + '</option>\
+                  <option value="iscsi">' + tr("iSCSI") + '</option>\
+                  <option value="lvm">' + tr("LVM") + '</option>\
+                  <option value="vmfs">' + tr("VMFS") + '</option>\
+                  <option value="ceph">' + tr("Ceph") + '</option>\
+                </select>\
+              </div>\
+              <div class="one columns ">\
+              </div>\
+            </div>\
+            <div class="row">\
+              <div class="four columns">\
+                <label class="right inline" for="tm_mad">' + tr("Transfer") + ':</label>\
+              </div>\
+              <div class="seven columns">\
+                <select id="tm_mad" name="tm_mad">\
+                  <option value="shared">' + tr("Shared") + '</option>\
+                  <option value="ssh">' + tr("SSH") + '</option>\
+                  <option value="qcow2">' + tr("qcow2") + '</option>\
+                  <option value="iscsi">' + tr("iSCSI") + '</option>\
+                  <option value="dummy">' + tr("Dummy") + '</option>\
+                  <option value="lvm">' + tr("LVM") + '</option>\
+                  <option value="vmfs">' + tr("VMFS") + '</option>\
+                  <option value="ceph">' + tr("Ceph") + '</option>\
+                </select>\
+              </div>\
+              <div class="one columns ">\
+              </div>\
+            </div>\
+          </fieldset>\
+        </div>\
+      </div>\
+    </div>\
+    <div class="twelve columns">\
+      <div class="three columns">\
+        <label class="right inline" for="safe_dirs">' + tr("Safe Directories") + ':</label>\
+      </div>\
+      <div class="eight columns">\
+        <input type="text" name="safe_dirs" id="safe_dirs" />\
+      </div>\
+      <div class="one columns">\
+      </div>\
+    </div>\
+    <div class="twelve columns">\
+      <div class="three columns">\
+        <label class="right inline" for="restricted_dirs">' + tr("Restricted Directories") + ':</label>\
+      </div>\
+      <div class="eight columns">\
+        <input type="text" name="restricted_dirs" id="restricted_dirs" />\
+      </div>\
+      <div class="one columns">\
+      </div>\
+    </div>\
+    <div class="twelve columns">\
+      <div class="three columns">\
+        <label class="right inline" for="bridge_list">' + tr("Host Bridge List") + ':</label>\
+      </div>\
+      <div class="eight columns">\
+        <input type="text" name="bridge_list" id="bridge_list" />\
+      </div>\
+      <div class="one columns">\
+      </div>\
+    </div>\
+    <div class="row">\
+      <div class="six columns">\
+        <label class="right inline" for="ds_use_ssh"><input id="ds_use_ssh" type="checkbox" name="ds_use_ssh" value="YES" />' + tr("Use SSH for Datastore Manager") + ':</label>\
+      </div>\
+      <div class="six columns">\
+        <label class="inline" for="tm_use_ssh"><input id="tm_use_ssh" type="checkbox" name="tm_use_ssh" value="YES" />' + tr("Use SSH for Transfer Manager") + ':</label>\
+      </div>\
+    </div>\
+    <div class="twelve columns">\
+      <div class="three columns">\
+        <label class="right inline" for="host">' + tr("Storage Server") + ':</label>\
+      </div>\
+      <div class="eight columns">\
+        <input type="text" name="host" id="host" />\
+      </div>\
+      <div class="one columns">\
+      </div>\
+    </div>\
+    <div class="twelve columns">\
+      <div class="three columns">\
+        <label class="right inline" for="base_iqn">' + tr("Base IQN") + ':</label>\
+      </div>\
+      <div class="eight columns">\
+        <input type="text" name="base_iqn" id="base_iqn" />\
+      </div>\
+      <div class="one columns">\
+      </div>\
+    </div>\
+    <div class="twelve columns">\
+      <div class="three columns">\
+        <label class="right inline" for="vg_name">' + tr("Volume Group Name") + ':</label>\
+      </div>\
+      <div class="eight columns">\
+        <input type="text" name="vg_name" id="vg_name" />\
+      </div>\
+      <div class="one columns">\
+      </div>\
+    </div>\
+  </form>\
+    <hr>\
+  <div class="form_buttons">\
+      <button class="button radius right success" type="submit" id="create_datastore_submit" value="OpenNebula.Datastore.create">' + tr("Create") + '</button>\
+      <button class="button radius secondary" type="reset" value="reset">' + tr("Reset") + '</button>\
+      <button class="close-reveal-modal button secondary radius" type="close" value="close">' + tr("Close") + '</button>\
+  </div>\
+  <a class="close-reveal-modal">&#215;</a>\
+</div>';
 
 var datastore_image_table_tmpl='<thead>\
     <tr>\
@@ -649,34 +777,10 @@ function setupCreateDatastoreDialog(){
     //    modal: true,
     //    width: 400
     //});
-    dialog.addClass("reveal-modal");
+    dialog.addClass("reveal-modal large");
 
     //$('button',dialog).button();
     setupTips(dialog);
-
-    $('#sys_ds').click(function(){
-        if ($(this).is(':checked'))
-        {
-            $('label[for="ds_mad"],select#ds_mad,br[name="ds_mad"]',$(this).parent()).fadeOut();
-            $('label[for="files_ds"],input#files_ds',$(this).parent()).fadeOut();
-        }
-        else
-        {
-            $('label[for="ds_mad"],select#ds_mad,br[name="ds_mad"]',$(this).parent()).fadeIn();
-            $('label[for="files_ds"],input#files_ds',$(this).parent()).fadeIn();
-        }
-    });
-
-    $('#files_ds').click(function(){
-        if ($(this).is(':checked'))
-        {
-            $('label[for="system"],input#sys_ds',$(this).parent()).fadeOut();
-        }
-        else
-        {
-            $('label[for="system"],input#sys_ds',$(this).parent()).fadeIn();
-        }
-    });
 
     $('#ds_type').change(function(){
         hide_all($(this).parent());
