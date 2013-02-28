@@ -148,10 +148,8 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
     def format_pool(options)
         config_file = self.class.table_conf
 
-        default_quotas = XMLElement.new
-        default_quotas.initialize_xml(
-            @user_pool.element_xml('/USER_POOL/DEFAULT_USER_QUOTAS'),
-            'DEFAULT_USER_QUOTAS')
+        prefix = '/USER_POOL/DEFAULT_USER_QUOTAS/'
+        user_pool = @user_pool
 
         table = CLIHelper::ShowTable.new(config_file, self) do
             column :ID, "ONE identifier for the User", :size=>4 do |d|
@@ -175,7 +173,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                     limit = d['VM_QUOTA']['VM']["VMS"]
 
                     if limit == "-1"
-                        limit = default_quotas['VM_QUOTA/VM/VMS']
+                        limit = user_pool["#{prefix}VM_QUOTA/VM/VMS"]
                         limit = "0" if limit.nil? || limit == ""
                     end
 
@@ -190,7 +188,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                     limit = d['VM_QUOTA']['VM']["MEMORY"]
 
                     if limit == "-1"
-                        limit = default_quotas['VM_QUOTA/VM/MEMORY']
+                        limit = user_pool["#{prefix}VM_QUOTA/VM/MEMORY"]
                         limit = "0" if limit.nil? || limit == ""
                     end
 
@@ -207,7 +205,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                     limit = d['VM_QUOTA']['VM']["CPU"]
 
                     if limit == "-1"
-                        limit = default_quotas['VM_QUOTA/VM/CPU']
+                        limit = user_pool["#{prefix}VM_QUOTA/VM/CPU"]
                         limit = "0" if limit.nil? || limit == ""
                     end
 
@@ -267,10 +265,11 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
         user_hash = user.to_hash
 
-        default_quotas = XMLElement.new
-        default_quotas.initialize_xml(
-            user.element_xml('/USER/DEFAULT_USER_QUOTAS'),
-            'DEFAULT_USER_QUOTAS')
+        default_quotas = nil
+
+        user.each('/USER/DEFAULT_USER_QUOTAS') { |elem|
+            default_quotas = elem
+        }
 
         helper = OneQuotaHelper.new
         helper.format_quota(user_hash['USER'], default_quotas)

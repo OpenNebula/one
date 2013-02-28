@@ -48,10 +48,8 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
     def format_pool(options)
         config_file = self.class.table_conf
 
-        default_quotas = XMLElement.new
-        default_quotas.initialize_xml(
-            @group_pool.element_xml('/GROUP_POOL/DEFAULT_GROUP_QUOTAS'),
-            'DEFAULT_GROUP_QUOTAS')
+        prefix = '/GROUP_POOL/DEFAULT_GROUP_QUOTAS/'
+        group_pool = @group_pool
 
         table = CLIHelper::ShowTable.new(config_file, self) do
             column :ID, "ONE identifier for the Group", :size=>4 do |d|
@@ -75,7 +73,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                     limit = d['VM_QUOTA']['VM']["VMS"]
 
                     if limit == "-1"
-                        limit = default_quotas['VM_QUOTA/VM/VMS']
+                        limit = group_pool["#{prefix}VM_QUOTA/VM/VMS"]
                         limit = "0" if limit.nil? || limit == ""
                     end
 
@@ -90,7 +88,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                     limit = d['VM_QUOTA']['VM']["MEMORY"]
 
                     if limit == "-1"
-                        limit = default_quotas['VM_QUOTA/VM/MEMORY']
+                        limit = group_pool["#{prefix}VM_QUOTA/VM/MEMORY"]
                         limit = "0" if limit.nil? || limit == ""
                     end
 
@@ -107,7 +105,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                     limit = d['VM_QUOTA']['VM']["CPU"]
 
                     if limit == "-1"
-                        limit = default_quotas['VM_QUOTA/VM/CPU']
+                        limit = group_pool["#{prefix}VM_QUOTA/VM/CPU"]
                         limit = "0" if limit.nil? || limit == ""
                     end
 
@@ -159,10 +157,11 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
 
         group_hash = group.to_hash
 
-        default_quotas = XMLElement.new
-        default_quotas.initialize_xml(
-            group.element_xml('/GROUP/DEFAULT_GROUP_QUOTAS'),
-            'DEFAULT_GROUP_QUOTAS')
+        default_quotas = nil
+
+        group.each('/GROUP/DEFAULT_GROUP_QUOTAS') { |elem|
+            default_quotas = elem
+        }
 
         helper = OneQuotaHelper.new
         helper.format_quota(group_hash['GROUP'], default_quotas)
