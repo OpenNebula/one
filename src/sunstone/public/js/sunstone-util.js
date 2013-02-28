@@ -190,7 +190,7 @@ function updateSingleElement(element,dataTable,tag){
     var nodes = dataTable.fnGetNodes();
     var tr = $(tag,nodes).parents('tr')[0];
     var position = dataTable.fnGetPosition(tr);
-    dataTable.fnUpdate(element,position,0,false);
+    dataTable.fnUpdate(element,position,undefined,false);
     recountCheckboxes(dataTable);
 }
 
@@ -1926,7 +1926,10 @@ function insert_cluster_dropdown(resource_type, resource_id, cluster_value, clus
         if(value_str!="")
         {
             // Let OpenNebula know
-            Sunstone.runAction(resource_type+".addtocluster",resource_id,value_str);
+            var resource_struct = new Array();
+            resource_struct[0]  = resource_id;
+            Sunstone.runAction(resource_type+".addtocluster",resource_struct,value_str);
+            Sunstone.runAction(resource_type+".showinfo",resource_id);
         }
     });
 

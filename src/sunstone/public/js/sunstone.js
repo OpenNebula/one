@@ -241,7 +241,7 @@ var Sunstone = {
                 error:err,
                 data: {id:data_arg, monitor: extra_param}});
             break;
-            case "multiple":
+        case "multiple":
             //run on the list of nodes that come on the data
             $.each(data_arg,function(){
                 if (extra_param){

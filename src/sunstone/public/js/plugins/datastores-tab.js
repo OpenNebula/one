@@ -453,21 +453,28 @@ var datastore_actions = {
 
     "Datastore.addtocluster" : {
         type: "multiple",
-        call: function(params){
+        call: function(params, success){
             var cluster = params.data.extra_param;
             var ds = params.data.id;
 
             if (cluster == -1){
                 //get cluster name
-                var current_cluster = getValue(ds,1,5,dataTable_datastores);
+                var current_cluster = getValue(ds,
+                                               1,
+                                               5,
+                                               dataTable_datastores);
                 //get cluster id
                 current_cluster = getValue(current_cluster,
-                                           2,1,dataTable_clusters);
+                                           2,
+                                           1,
+                                           dataTable_clusters);
                 if (!current_cluster) return;
                 Sunstone.runAction("Cluster.deldatastore",current_cluster,ds)
             }
             else
+            {
                 Sunstone.runAction("Cluster.adddatastore",cluster,ds);
+            }
         },
         elements: datastoreElements,
         notify:true
@@ -524,12 +531,6 @@ var datastore_buttons = {
         layout: "del",
         condition: mustBeAdmin
     },
-
-    //"Datastore.help" : {
-    //    type: "action",
-    //    text: '?',
-    //    alwaysActive: true
-    //}
 }
 
 var datastore_info_panel = {
@@ -648,10 +649,9 @@ function updateDatastoreInfo(request,ds){
                  <td class="value_td">'+info.NAME+'</td>\
                 <td></td>\
               </tr>\
-              <tr>\
-                 <td class="key_td">'+tr("Cluster")+'</td>\
-                 <td class="value_td">'+(info.CLUSTER.length ? info.CLUSTER : "-")+'</td>\
-              </tr>\
+              <tr>'+
+                insert_cluster_dropdown("Datastore",info.ID,info.CLUSTER,info.CLUSTER_ID) +
+              '</tr>\
               <tr>\
                  <td class="key_td">'+tr("Base path")+'</td>\
                  <td class="value_td">'+info.BASE_PATH+'</td>\
