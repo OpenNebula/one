@@ -1892,7 +1892,7 @@ int VirtualMachine::set_active_snapshot(int snap_id)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VectorAttribute* VirtualMachine::get_active_snapshot()
+void VirtualMachine::update_snapshot_id(string& hypervisor_id)
 {
     int                  num_snaps;
     vector<Attribute  *> snaps;
@@ -1911,28 +1911,10 @@ VectorAttribute* VirtualMachine::get_active_snapshot()
 
         if ( snap->vector_value("ACTIVE") == "YES" )
         {
-            return snap;
+            snap->replace("HYPERVISOR_ID", hypervisor_id);
+            break;
         }
     }
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachine::update_snapshot_id(string& hypervisor_id)
-{
-    VectorAttribute* snap;
-
-    snap = get_active_snapshot();
-
-    if (snap == 0)
-    {
-        return;
-    }
-
-    snap->replace("HYPERVISOR_ID", hypervisor_id);
 }
 
 /* -------------------------------------------------------------------------- */

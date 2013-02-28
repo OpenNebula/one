@@ -950,13 +950,6 @@ public:
     int set_active_snapshot(int snap_id);
 
     /**
-     * Returns the snapshot with an active operation
-     *
-     * @return the snapshot with an active operation, or 0
-     */
-    VectorAttribute* get_active_snapshot();
-
-    /**
      * Replaces HYPERVISOR_ID for the active SNAPSHOT
      *
      * @param hypervisor_id Id returned by the hypervisor for the newly
