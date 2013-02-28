@@ -89,7 +89,8 @@ public:
         BOOT_POWEROFF       = 20,
         BOOT_SUSPENDED      = 21,
         BOOT_STOPPED        = 22,
-        CLEANUP_DELETE      = 23
+        CLEANUP_DELETE      = 23,
+        HOTPLUG_SNAPSHOT    = 24
     };
 
     // -------------------------------------------------------------------------
@@ -952,6 +953,54 @@ public:
      * @return 0 on success, -1 otherwise
      */
     int detach_failure();
+
+
+    // ------------------------------------------------------------------------
+    // Snapshot related functions
+    // ------------------------------------------------------------------------
+
+    /**
+     * Creates a new Snapshot attribute, and sets it to ACTIVE=YES
+     *
+     * @param name for the new Snapshot. If it is empty, the generated name
+     * will be placed in this param
+     * @param snap_id Id of the new snapshot
+     *
+     * @return 0 on success
+     */
+    int new_snapshot(string& name, int& snap_id);
+
+    /**
+     * Sets the given Snapshot as ACTIVE=YES
+     *
+     * @param snap_id the snapshow ID
+     *
+     * @return 0 on success
+     */
+    int set_active_snapshot(int snap_id);
+
+    /**
+     * Replaces HYPERVISOR_ID for the active SNAPSHOT
+     *
+     * @param hypervisor_id Id returned by the hypervisor for the newly
+     * created snapshot
+     */
+    void update_snapshot_id(string& hypervisor_id);
+
+    /**
+     * Cleans the ACTIVE = YES attribute from the snapshots
+     */
+    void clear_active_snapshot();
+
+    /**
+     * Deletes the SNAPSHOT that was in the process of being created
+     */
+    void delete_active_snapshot();
+
+    /**
+     * Deletes all SNAPSHOT attributes
+     */
+    void delete_snapshots();
 
 private:
 

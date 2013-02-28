@@ -258,35 +258,6 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         }
         puts
 
-        if vm.has_elements?("/VM/USER_TEMPLATE/SCHED_ACTION")
-            CLIHelper.print_header(str_h1 % "SCHEDULED ACTIONS",false)
-
-            CLIHelper::ShowTable.new(nil, self) do
-
-                column :"ID", "", :size=>2 do |d|
-                    d["ID"] if !d.nil?
-                end
-
-                column :"ACTION", "", :left, :size=>10 do |d|
-                    d["ACTION"] if !d.nil?
-                end
-
-                column :"SCHEDULED", "", :size=>12 do |d|
-                    OpenNebulaHelper.time_to_str(d["TIME"], false) if !d.nil?
-                end
-
-                column :"DONE", "", :size=>12 do |d|
-                    OpenNebulaHelper.time_to_str(d["DONE"], false) if !d.nil?
-                end
-
-                column :"MESSAGE", "", :left, :donottruncate, :size=>40 do |d|
-                    d["MESSAGE"] if !d.nil?
-                end
-            end.show([vm.to_hash['VM']['USER_TEMPLATE']['SCHED_ACTION']].flatten, {})
-
-            puts
-        end
-
         if vm.has_elements?("/VM/TEMPLATE/DISK")
             CLIHelper.print_header(str_h1 % "VM DISKS",false)
             CLIHelper::ShowTable.new(nil, self) do
@@ -394,8 +365,69 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             puts
         end
 
-        CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE TEMPLATE",false)
-        puts vm.template_str
+        if vm.has_elements?("/VM/TEMPLATE/SNAPSHOT")
+            CLIHelper.print_header(str_h1 % "SNAPSHOTS",false)
+
+            CLIHelper::ShowTable.new(nil, self) do
+
+                column :"ID", "", :size=>4 do |d|
+                    d["SNAPSHOT_ID"] if !d.nil?
+                end
+
+                column :"TIME", "", :size=>12 do |d|
+                    OpenNebulaHelper.time_to_str(d["TIME"], false) if !d.nil?
+                end
+
+                column :"NAME", "", :left, :size=>46 do |d|
+                    d["NAME"] if !d.nil?
+                end
+
+                column :"HYPERVISOR_ID", "", :left, :size=>15 do |d|
+                    d["HYPERVISOR_ID"] if !d.nil?
+                end
+
+            end.show([vm.to_hash['VM']['TEMPLATE']['SNAPSHOT']].flatten, {})
+
+            vm.delete_element("/VM/TEMPLATE/SNAPSHOT")
+
+            puts
+        end
+
+        if vm.has_elements?("/VM/HISTORY_RECORDS")
+            puts
+
+            CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE HISTORY",false)
+            format_history(vm)
+        end
+
+        if vm.has_elements?("/VM/USER_TEMPLATE/SCHED_ACTION")
+            CLIHelper.print_header(str_h1 % "SCHEDULED ACTIONS",false)
+
+            CLIHelper::ShowTable.new(nil, self) do
+
+                column :"ID", "", :size=>2 do |d|
+                    d["ID"] if !d.nil?
+                end
+
+                column :"ACTION", "", :left, :size=>10 do |d|
+                    d["ACTION"] if !d.nil?
+                end
+
+                column :"SCHEDULED", "", :size=>12 do |d|
+                    OpenNebulaHelper.time_to_str(d["TIME"], false) if !d.nil?
+                end
+
+                column :"DONE", "", :size=>12 do |d|
+                    OpenNebulaHelper.time_to_str(d["DONE"], false) if !d.nil?
+                end
+
+                column :"MESSAGE", "", :left, :donottruncate, :size=>40 do |d|
+                    d["MESSAGE"] if !d.nil?
+                end
+            end.show([vm.to_hash['VM']['USER_TEMPLATE']['SCHED_ACTION']].flatten, {})
+
+            puts
+        end
 
         if vm.has_elements?("/VM/USER_TEMPLATE")
             puts
@@ -408,12 +440,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             puts vm.template_like_str('USER_TEMPLATE')
         end
 
-        if vm.has_elements?("/VM/HISTORY_RECORDS")
-            puts
-
-            CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE HISTORY",false)
-            format_history(vm)
-        end
+        CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE TEMPLATE",false)
+        puts vm.template_str
     end
 
     def format_history(vm)

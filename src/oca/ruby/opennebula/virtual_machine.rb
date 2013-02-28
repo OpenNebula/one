@@ -38,7 +38,10 @@ module OpenNebula
             :detach     => "vm.detach",
             :rename     => "vm.rename",
             :update     => "vm.update",
-            :resize     => "vm.resize"
+            :resize     => "vm.resize",
+            :snapshotcreate => "vm.snapshotcreate",
+            :snapshotrevert => "vm.snapshotrevert",
+            :snapshotdelete => "vm.snapshotdelete"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
@@ -47,7 +50,8 @@ module OpenNebula
         LCM_STATE=%w{LCM_INIT PROLOG BOOT RUNNING MIGRATE SAVE_STOP SAVE_SUSPEND
             SAVE_MIGRATE PROLOG_MIGRATE PROLOG_RESUME EPILOG_STOP EPILOG
             SHUTDOWN CANCEL FAILURE CLEANUP_RESUBMIT UNKNOWN HOTPLUG SHUTDOWN_POWEROFF
-            BOOT_UNKNOWN BOOT_POWEROFF BOOT_SUSPENDED BOOT_STOPPED CLEANUP_DELETE}
+            BOOT_UNKNOWN BOOT_POWEROFF BOOT_SUSPENDED BOOT_STOPPED CLEANUP_DELETE
+            HOTPLUG_SNAPSHOT}
 
         SHORT_VM_STATES={
             "INIT"      => "init",
@@ -84,7 +88,8 @@ module OpenNebula
             "BOOT_POWEROFF"     => "boot",
             "BOOT_SUSPENDED"    => "boot",
             "BOOT_STOPPED"      => "boot",
-            "CLEANUP_DELETE"    => "clea"
+            "CLEANUP_DELETE"    => "clea",
+            "HOTPLUG_SNAPSHOT"  => "snap"
         }
 
         MIGRATE_REASON=%w{NONE ERROR STOP_RESUME USER CANCEL}
@@ -425,6 +430,39 @@ module OpenNebula
         #   otherwise
         def rename(name)
             return call(VM_METHODS[:rename], @pe_id, name)
+        end
+
+        # Creates a new VM snapshot
+        #
+        # @param name [String] Name for the snapshot.
+        #
+        # @return [Integer, OpenNebula::Error] The new snaphost ID in case
+        #   of success, Error otherwise
+        def snapshot_create(name="")
+            return Error.new('ID not defined') if !@pe_id
+
+            name ||= ""
+            return @client.call(VM_METHODS[:snapshotcreate], @pe_id, name)
+        end
+
+        # Reverts to a snapshot
+        #
+        # @param snap_id [Integer] Id of the snapshot
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def snapshot_revert(snap_id)
+            return call(VM_METHODS[:snapshotrevert], @pe_id, snap_id)
+        end
+
+        # Deletes a  VM snapshot
+        #
+        # @param snap_id [Integer] Id of the snapshot
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def snapshot_delete(snap_id)
+            return call(VM_METHODS[:snapshotdelete], @pe_id, snap_id)
         end
 
         #######################################################################
