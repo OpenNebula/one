@@ -376,7 +376,10 @@ var image_actions = {
             Sunstone.runAction("Image.list");
         },
         elements: imageElements,
-        error: onError,
+        error: function (req,error_json) {
+            Sunstone.runAction("Image.showinfo",req.request.data[0]);
+            onError(req,error_json);
+        },
         notify: true
     },
 
@@ -751,6 +754,7 @@ function updateImageInfo(request,img){
     $("#chg_type_select").live("change", function() {
         var new_value=$("option:selected", this).text();
         Sunstone.runAction("Image.chtype", img_info.ID, new_value);
+        Sunstone.runAction("Image.showinfo", img_info.ID);
     });
 
     // Listener for edit link for persistency change

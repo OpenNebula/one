@@ -95,9 +95,9 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
   </div>\
   <br>\
     <dl class="tabs">\
-        <dd class="active"><a href="#tab-hosts">'+tr("HOSTs")+'</a></dd>\
-        <dd><a href="#tab-vnets">'+tr("VIRTUAL NETWORKs")+'</a></dd>\
-        <dd><a href="#tab-datastores">'+tr("DATASTOREs")+'</a></dd>\
+        <dd class="active"><a href="#tab-hosts">'+tr("Hosts")+'</a></dd>\
+        <dd><a href="#tab-vnets">'+tr("Virtual Networks")+'</a></dd>\
+        <dd><a href="#tab-datastores">'+tr("Datastores")+'</a></dd>\
     </dl>\
     <ul class="tabs-content">\
     <li id="tab-hostsTab" class="active">\
@@ -444,9 +444,6 @@ function setupCreateClusterDialog(datatable_filter){
             }
        }
      });
-
-    // Enhance buttons
-    //$('button',dialog).button();
 
     $("#refresh_host_table_button_class", dialog).click( function(){
        Sunstone.runAction("ClusterHost.list");
