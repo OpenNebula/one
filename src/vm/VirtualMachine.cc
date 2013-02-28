@@ -1904,6 +1904,190 @@ void VirtualMachine::release_disk_images()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachine::new_snapshot(string& name, int& snap_id)
+{
+    int num_snaps;
+    int id;
+    int max_id = -1;
+
+    vector<Attribute  *> snaps;
+    VectorAttribute *    snap;
+
+    num_snaps = obj_template->get("SNAPSHOT", snaps);
+
+    for(int i=0; i<num_snaps; i++)
+    {
+        snap = dynamic_cast<VectorAttribute * >(snaps[i]);
+
+        if ( snap == 0 )
+        {
+            continue;
+        }
+
+        snap->vector_value("SNAPSHOT_ID", id);
+
+        if (id > max_id)
+        {
+            max_id = id;
+        }
+    }
+
+    snap_id = max_id + 1;
+
+    if (name.empty())
+    {
+        ostringstream oss;
+
+        oss << "snapshot-" << snap_id;
+
+        name = oss.str();
+    }
+
+    snap = new VectorAttribute("SNAPSHOT");
+    snap->replace("SNAPSHOT_ID", snap_id);
+    snap->replace("NAME", name);
+    snap->replace("TIME", (int)time(0));
+    snap->replace("HYPERVISOR_ID", "");
+
+    snap->replace("ACTIVE", "YES");
+
+    obj_template->set(snap);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::set_active_snapshot(int snap_id)
+{
+    int num_snaps;
+    int s_id;
+
+    vector<Attribute  *> snaps;
+    VectorAttribute *    snap;
+
+    num_snaps = obj_template->get("SNAPSHOT", snaps);
+
+    for(int i=0; i<num_snaps; i++)
+    {
+        snap = dynamic_cast<VectorAttribute * >(snaps[i]);
+
+        if ( snap == 0 )
+        {
+            continue;
+        }
+
+        snap->vector_value("SNAPSHOT_ID", s_id);
+
+        if ( s_id == snap_id )
+        {
+            snap->replace("ACTIVE", "YES");
+            return 0;
+        }
+    }
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::update_snapshot_id(string& hypervisor_id)
+{
+    int                  num_snaps;
+    vector<Attribute  *> snaps;
+    VectorAttribute *    snap;
+
+    num_snaps = obj_template->get("SNAPSHOT", snaps);
+
+    for(int i=0; i<num_snaps; i++)
+    {
+        snap = dynamic_cast<VectorAttribute * >(snaps[i]);
+
+        if ( snap == 0 )
+        {
+            continue;
+        }
+
+        if ( snap->vector_value("ACTIVE") == "YES" )
+        {
+            snap->replace("HYPERVISOR_ID", hypervisor_id);
+            break;
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::clear_active_snapshot()
+{
+    int                  num_snaps;
+    vector<Attribute  *> snaps;
+    VectorAttribute *    snap;
+
+    num_snaps = obj_template->get("SNAPSHOT", snaps);
+
+    for(int i=0; i<num_snaps; i++)
+    {
+        snap = dynamic_cast<VectorAttribute * >(snaps[i]);
+
+        if ( snap == 0 )
+        {
+            continue;
+        }
+
+        if ( snap->vector_value("ACTIVE") == "YES" )
+        {
+            snap->remove("ACTIVE");
+            return;
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::delete_active_snapshot()
+{
+    vector<Attribute  *> snaps;
+    VectorAttribute *    snap;
+
+    int num_snaps = obj_template->get("SNAPSHOT", snaps);
+
+    for(int i=0; i<num_snaps; i++)
+    {
+        snap = dynamic_cast<VectorAttribute * >(snaps[i]);
+
+        if ( snap == 0 )
+        {
+            continue;
+        }
+
+        if ( snap->vector_value("ACTIVE") == "YES" )
+        {
+            if (obj_template->remove(snap) != 0)
+            {
+                delete snap;
+            }
+
+            return;
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::delete_snapshots()
+{
+    obj_template->erase("SNAPSHOT");
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachine::get_network_leases(string& estr)
 {
     int                   num_nics, rc;

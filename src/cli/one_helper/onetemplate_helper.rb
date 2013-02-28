@@ -91,7 +91,7 @@ EOT
         OpenNebula::TemplatePool.new(@client, user_flag)
     end
 
-    def format_resource(template)
+    def format_resource(template, options = {})
         str="%-15s: %-20s"
         str_h1="%-80s"
 

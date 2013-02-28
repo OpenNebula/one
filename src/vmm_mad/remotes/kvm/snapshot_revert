@@ -16,14 +16,14 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-if [ -z "${ONE_LOCATION}" ]; then
-    MAD_LOCATION=/usr/lib/one/mads
-else
-    MAD_LOCATION=$ONE_LOCATION/lib/mads
-fi
+source $(dirname $0)/kvmrc
+source $(dirname $0)/../../scripts_common.sh
 
-LOCAL_ACTIONS="deploy,shutdown,reboot,cancel,save,restore,migrate,poll,pre"
-LOCAL_ACTIONS="${LOCAL_ACTIONS},post,clean"
-LOCAL_ACTIONS="${LOCAL_ACTIONS},snapshotcreate,snapshotrevert,snapshotdelete"
+DOMAIN="$1"
+NAME="$2"
 
-exec $MAD_LOCATION/one_vmm_exec -l $LOCAL_ACTIONS $*
+exec_and_log \
+    "virsh --connect $LIBVIRT_URI snapshot-revert --force $DOMAIN $NAME" \
+    "Could not revert to snapshot $NAME for domain $DOMAIN."
+
+exit 0

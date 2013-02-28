@@ -103,8 +103,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     quota_desc = <<-EOT.unindent
-        Set the quota limits for the group. If a path is not provided the editor 
-        will be launched to modify the current quotas.
+        Set the quota limits for the group. If a path is not provided the
+        editor will be launched to modify the current quotas.
     EOT
 
     command :quota, quota_desc, :groupid, [:file, nil] do
@@ -131,7 +131,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         provided the editor will be launched to create new quotas.
     EOT
 
-    command :batchquota, batchquota_desc, [:range, :groupid_list], [:file, nil] do
+    command :batchquota, batchquota_desc, [:range, :groupid_list],
+            [:file, nil] do
         batch_str = OneQuotaHelper.get_batch_quota(args[1])
 
         helper.perform_actions(args[0], options, "modified") do |group|

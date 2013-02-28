@@ -95,7 +95,7 @@ class OneClusterHelper < OpenNebulaHelper::OneHelper
         OpenNebula::ClusterPool.new(@client)
     end
 
-    def format_resource(cluster)
+    def format_resource(cluster, options = {})
         str="%-18s: %-20s"
         str_h1="%-80s"
 

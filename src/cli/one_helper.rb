@@ -342,7 +342,7 @@ EOT
             if options[:xml]
                 return 0, resource.to_xml(true)
             else
-                format_resource(resource)
+                format_resource(resource, options)
                 return 0
             end
         end

@@ -276,6 +276,50 @@ public:
         int      disk_id,
         string&  error_str);
 
+    /**
+     * Starts the snapshot create action
+     *
+     * @param vid VirtualMachine identification
+     * @param name Name for the new snapshot
+     * @param snap_id Will contain the new snapshot ID
+     * @param error_str Error reason, if any
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int snapshot_create(
+        int         vid,
+        string&     name,
+        int&        snap_id,
+        string&     error_str);
+
+    /**
+     * Starts the snapshot revert action
+     *
+     * @param vid VirtualMachine identification
+     * @param snap_id Snapshot to be restored
+     * @param error_str Error reason, if any
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int snapshot_revert(
+        int         vid,
+        int         snap_id,
+        string&     error_str);
+
+    /**
+     * Starts the snapshot delete action
+     *
+     * @param vid VirtualMachine identification
+     * @param snap_id Snapshot to be deleted
+     * @param error_str Error reason, if any
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int snapshot_delete(
+        int         vid,
+        int         snap_id,
+        string&     error_str);
+
 private:
     /**
      *  Thread id for the Dispatch Manager

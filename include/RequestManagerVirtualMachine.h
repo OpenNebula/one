@@ -232,7 +232,58 @@ public:
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att);
 };
-/* -------------------------------------------------------------------------- */
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineSnapshotCreate: public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineSnapshotCreate():
+        RequestManagerVirtualMachine("VirtualMachineSnapshotCreate",
+                           "Creates a new virtual machine snapshot",
+                           "A:sis"){};
+
+    ~VirtualMachineSnapshotCreate(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineSnapshotRevert: public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineSnapshotRevert():
+        RequestManagerVirtualMachine("VirtualMachineSnapshotRevert",
+                           "Reverts a virtual machine to a snapshot",
+                           "A:sii"){};
+
+    ~VirtualMachineSnapshotRevert(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineSnapshotDelete: public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineSnapshotDelete():
+        RequestManagerVirtualMachine("VirtualMachineSnapshotDelete",
+                           "Deletes a virtual machine snapshot",
+                           "A:sii"){};
+
+    ~VirtualMachineSnapshotDelete(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

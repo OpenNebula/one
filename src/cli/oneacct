@@ -83,7 +83,8 @@ cmd = CommandParser::CmdParser.new(ARGV) do
             order_by[:order_by_1] = 'VM/UID'
             order_by[:order_by_2] = 'VM/ID' if options[:split]
 
-            acct_hash = pool.accounting(filter_flag, common_opts.merge(order_by))
+            acct_hash = pool.accounting(filter_flag,
+                                        common_opts.merge(order_by))
             if OpenNebula.is_error?(acct_hash)
                 puts acct_hash.message
                 exit -1

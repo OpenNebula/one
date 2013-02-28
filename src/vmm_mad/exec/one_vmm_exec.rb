@@ -609,6 +609,66 @@ class ExecDriver < VirtualMachineDriver
     end
 
     #
+    # SNAPSHOTCREATE action, creates a new system snapshot
+    #
+    def snapshot_create(id, drv_message)
+        action   = ACTION[:snapshot_create]
+        xml_data = decode(drv_message)
+
+        host      = xml_data.elements['HOST'].text
+        deploy_id = xml_data.elements['DEPLOY_ID'].text
+
+        snap_id_xpath = "VM/TEMPLATE/SNAPSHOT[ACTIVE='YES']/SNAPSHOT_ID"
+        snap_id       = xml_data.elements[snap_id_xpath].text.to_i
+
+        do_action("#{deploy_id} #{snap_id}",
+                    id,
+                    host,
+                    ACTION[:snapshot_create],
+                    :script_name => "snapshot_create")
+    end
+
+    #
+    # SNAPSHOTREVERT action, reverts to a system snapshot
+    #
+    def snapshot_revert(id, drv_message)
+        action   = ACTION[:snapshot_revert]
+        xml_data = decode(drv_message)
+
+        host      = xml_data.elements['HOST'].text
+        deploy_id = xml_data.elements['DEPLOY_ID'].text
+
+        snap_id_xpath = "VM/TEMPLATE/SNAPSHOT[ACTIVE='YES']/HYPERVISOR_ID"
+        snapshot_name = xml_data.elements[snap_id_xpath].text
+
+        do_action("#{deploy_id} #{snapshot_name}",
+                    id,
+                    host,
+                    ACTION[:snapshot_revert],
+                    :script_name => "snapshot_revert")
+    end
+
+    #
+    # SNAPSHOTDELETE action, deletes a system snapshot
+    #
+    def snapshot_delete(id, drv_message)
+        action   = ACTION[:snapshot_delete]
+        xml_data = decode(drv_message)
+
+        host      = xml_data.elements['HOST'].text
+        deploy_id = xml_data.elements['DEPLOY_ID'].text
+
+        snap_id_xpath = "VM/TEMPLATE/SNAPSHOT[ACTIVE='YES']/HYPERVISOR_ID"
+        snapshot_name = xml_data.elements[snap_id_xpath].text
+
+        do_action("#{deploy_id} #{snapshot_name}",
+                    id,
+                    host,
+                    ACTION[:snapshot_delete],
+                    :script_name => "snapshot_delete")
+    end
+
+    #
     # CLEANUP action, frees resources allocated in a host: VM and disk images
     #
     def cleanup(id, drv_message)

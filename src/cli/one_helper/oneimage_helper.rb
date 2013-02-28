@@ -262,7 +262,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         OpenNebula::ImagePool.new(@client, user_flag)
     end
 
-    def format_resource(image)
+    def format_resource(image, options = {})
         str="%-15s: %-20s"
         str_h1="%-80s"
 

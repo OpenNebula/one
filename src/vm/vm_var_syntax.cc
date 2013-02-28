@@ -362,6 +362,11 @@ void insert_single(VirtualMachine * vm,
     else 
     {
         vm->get_template_attribute(name.c_str(),value);
+
+        if (value.empty())
+        {
+            vm->get_user_template_attribute(name.c_str(),value);
+        }
     }
 
     if (!value.empty())
@@ -464,7 +469,7 @@ void insert_vector(VirtualMachine * vm,
 
 
 /* Line 371 of yacc.c  */
-#line 468 "vm_var_syntax.cc"
+#line 473 "vm_var_syntax.cc"
 
 # ifndef YY_NULL
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -517,7 +522,7 @@ extern int vm_var__debug;
 typedef union YYSTYPE
 {
 /* Line 387 of yacc.c  */
-#line 416 "vm_var_syntax.y"
+#line 421 "vm_var_syntax.y"
 
     char * val_str;
     int    val_int;
@@ -525,7 +530,7 @@ typedef union YYSTYPE
 
 
 /* Line 387 of yacc.c  */
-#line 529 "vm_var_syntax.cc"
+#line 534 "vm_var_syntax.cc"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -565,7 +570,7 @@ int vm_var__parse ();
 /* Copy the second part of user declarations.  */
 
 /* Line 390 of yacc.c  */
-#line 569 "vm_var_syntax.cc"
+#line 574 "vm_var_syntax.cc"
 
 #ifdef short
 # undef short
@@ -856,7 +861,7 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   440,   440,   441,   444,   448,   461,   476
+       0,   445,   445,   446,   449,   453,   466,   481
 };
 #endif
 
@@ -1900,7 +1905,7 @@ yyreduce:
     {
         case 4:
 /* Line 1792 of yacc.c  */
-#line 445 "vm_var_syntax.y"
+#line 450 "vm_var_syntax.y"
     {
         (*parsed) << (yyvsp[(1) - (1)].val_str);
     }
@@ -1908,7 +1913,7 @@ yyreduce:
 
   case 5:
 /* Line 1792 of yacc.c  */
-#line 449 "vm_var_syntax.y"
+#line 454 "vm_var_syntax.y"
     {
         string name((yyvsp[(1) - (2)].val_str));
 
@@ -1925,7 +1930,7 @@ yyreduce:
 
   case 6:
 /* Line 1792 of yacc.c  */
-#line 462 "vm_var_syntax.y"
+#line 467 "vm_var_syntax.y"
     {
         string name((yyvsp[(1) - (5)].val_str));
         string vname((yyvsp[(3) - (5)].val_str));
@@ -1944,7 +1949,7 @@ yyreduce:
 
   case 7:
 /* Line 1792 of yacc.c  */
-#line 477 "vm_var_syntax.y"
+#line 482 "vm_var_syntax.y"
     {
         string name((yyvsp[(1) - (9)].val_str));
         string vname((yyvsp[(3) - (9)].val_str));
@@ -1966,7 +1971,7 @@ yyreduce:
 
 
 /* Line 1792 of yacc.c  */
-#line 1970 "vm_var_syntax.cc"
+#line 1975 "vm_var_syntax.cc"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2205,7 +2210,7 @@ yyreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 495 "vm_var_syntax.y"
+#line 500 "vm_var_syntax.y"
 
 
 extern "C" void vm_var__error(

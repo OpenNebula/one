@@ -1075,3 +1075,198 @@ int DispatchManager::detach(
 
     return 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::snapshot_create(
+    int         vid,
+    string&     name,
+    int&        snap_id,
+    string&     error_str)
+{
+    ostringstream oss;
+
+    Nebula&                 nd  = Nebula::instance();
+    VirtualMachineManager*  vmm = nd.get_vmm();
+
+    VirtualMachine * vm  = vmpool->get(vid, true);
+
+    if ( vm == 0 )
+    {
+        oss << "Could not create a new snapshot for VM " << vid
+            << ", VM does not exist" ;
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        return -1;
+    }
+
+    if ( vm->get_state()     != VirtualMachine::ACTIVE ||
+         vm->get_lcm_state() != VirtualMachine::RUNNING )
+    {
+        oss << "Could not create a new snapshot for VM " << vid
+            << ", wrong state.";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        vm->unlock();
+        return -1;
+    }
+
+    vm->set_state(VirtualMachine::HOTPLUG_SNAPSHOT);
+
+    vm->set_resched(false);
+
+    vm->new_snapshot(name, snap_id);
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    vmm->trigger(VirtualMachineManager::SNAPSHOT_CREATE,vid);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::snapshot_revert(
+    int         vid,
+    int         snap_id,
+    string&     error_str)
+{
+    ostringstream oss;
+
+    int rc;
+
+    Nebula&                 nd  = Nebula::instance();
+    VirtualMachineManager*  vmm = nd.get_vmm();
+
+    VirtualMachine * vm  = vmpool->get(vid, true);
+
+    if ( vm == 0 )
+    {
+        oss << "Could not revert VM " << vid << " to snapshot " << snap_id
+            << ", VM does not exist" ;
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        return -1;
+    }
+
+    if ( vm->get_state()     != VirtualMachine::ACTIVE ||
+         vm->get_lcm_state() != VirtualMachine::RUNNING )
+    {
+        oss << "Could not revert VM " << vid << " to snapshot " << snap_id
+            << ", wrong state.";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        vm->unlock();
+        return -1;
+    }
+
+
+    rc = vm->set_active_snapshot(snap_id);
+
+    if ( rc == -1 )
+    {
+        oss << "Could not revert VM " << vid << " to snapshot " << snap_id
+            << ", it does not exist.";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        vm->unlock();
+        return -1;
+    }
+
+    vm->set_state(VirtualMachine::HOTPLUG_SNAPSHOT);
+
+    vm->set_resched(false);
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    vmm->trigger(VirtualMachineManager::SNAPSHOT_REVERT,vid);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::snapshot_delete(
+    int         vid,
+    int         snap_id,
+    string&     error_str)
+{
+    ostringstream oss;
+
+    int rc;
+
+    Nebula&                 nd  = Nebula::instance();
+    VirtualMachineManager*  vmm = nd.get_vmm();
+
+    VirtualMachine * vm  = vmpool->get(vid, true);
+
+    if ( vm == 0 )
+    {
+        oss << "Could not delete snapshot " << snap_id << " for VM " << vid
+            << ", VM does not exist" ;
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        return -1;
+    }
+
+    if ( vm->get_state()     != VirtualMachine::ACTIVE ||
+         vm->get_lcm_state() != VirtualMachine::RUNNING )
+    {
+        oss << "Could not delete snapshot " << snap_id << " for VM " << vid
+            << ", wrong state.";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        vm->unlock();
+        return -1;
+    }
+
+    rc = vm->set_active_snapshot(snap_id);
+
+    if ( rc == -1 )
+    {
+        oss << "Could not delete snapshot " << snap_id << " for VM " << vid
+            << ", it does not exist.";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        vm->unlock();
+        return -1;
+    }
+
+    vm->set_state(VirtualMachine::HOTPLUG_SNAPSHOT);
+
+    vm->set_resched(false);
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    vmm->trigger(VirtualMachineManager::SNAPSHOT_DELETE,vid);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
