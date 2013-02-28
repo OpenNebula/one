@@ -256,6 +256,14 @@ protected:
              const string&   root_elem_name,
              ostringstream&  sql_query);
 
+    /**
+     * Child classes can add extra elements to the dump xml, right after all the
+     * pool objects
+     *
+     * @param oss The output stream to dump the xml contents
+     */
+    virtual void add_extra_xml(ostringstream&  oss){};
+
     /* ---------------------------------------------------------------------- */
     /* Interface to access the lastOID assigned by the pool                   */
     /* ---------------------------------------------------------------------- */

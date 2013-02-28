@@ -148,12 +148,10 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
     def format_pool(options)
         config_file = self.class.table_conf
 
-        system = System.new(@client)
-        default_quotas = system.get_user_quotas()
-
-        if OpenNebula::is_error?(default_quotas)
-            raise "Error retrieving the default user quotas: #{default_quotas.message}"
-        end
+        default_quotas = XMLElement.new
+        default_quotas.initialize_xml(
+            @user_pool.element_xml('/USER_POOL/DEFAULT_USER_QUOTAS'),
+            'DEFAULT_USER_QUOTAS')
 
         table = CLIHelper::ShowTable.new(config_file, self) do
             column :ID, "ONE identifier for the User", :size=>4 do |d|
@@ -242,16 +240,12 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
     def factory_pool(user_flag=-2)
         #TBD OpenNebula::UserPool.new(@client, user_flag)
-        OpenNebula::UserPool.new(@client)
+        @user_pool = OpenNebula::UserPool.new(@client)
+        return @user_pool
     end
 
     def format_resource(user, options = {})
         system = System.new(@client)
-        default_quotas = system.get_user_quotas()
-
-        if OpenNebula::is_error?(default_quotas)
-            raise "Error retrieving the default user quotas: #{default_quotas.message}"
-        end
 
         str="%-15s: %-20s"
         str_h1="%-80s"
@@ -272,6 +266,11 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         puts user.template_str
 
         user_hash = user.to_hash
+
+        default_quotas = XMLElement.new
+        default_quotas.initialize_xml(
+            user.element_xml('/USER/DEFAULT_USER_QUOTAS'),
+            'DEFAULT_USER_QUOTAS')
 
         helper = OneQuotaHelper.new
         helper.format_quota(user_hash['USER'], default_quotas)

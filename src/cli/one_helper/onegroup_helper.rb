@@ -48,12 +48,10 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
     def format_pool(options)
         config_file = self.class.table_conf
 
-        system = System.new(@client)
-        default_quotas = system.get_group_quotas()
-
-        if OpenNebula::is_error?(default_quotas)
-            raise "Error retrieving the default group quotas: #{default_quotas.message}"
-        end
+        default_quotas = XMLElement.new
+        default_quotas.initialize_xml(
+            @group_pool.element_xml('/GROUP_POOL/DEFAULT_GROUP_QUOTAS'),
+            'DEFAULT_GROUP_QUOTAS')
 
         table = CLIHelper::ShowTable.new(config_file, self) do
             column :ID, "ONE identifier for the Group", :size=>4 do |d|
@@ -138,16 +136,12 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
 
     def factory_pool(user_flag=-2)
         #TBD OpenNebula::UserPool.new(@client, user_flag)
-        OpenNebula::GroupPool.new(@client)
+        @group_pool = OpenNebula::GroupPool.new(@client)
+        return @group_pool
     end
 
     def format_resource(group, options = {})
         system = System.new(@client)
-        default_quotas = system.get_group_quotas()
-
-        if OpenNebula::is_error?(default_quotas)
-            raise "Error retrieving the default group quotas: #{default_quotas.message}"
-        end
 
         str="%-15s: %-20s"
         str_h1="%-80s"
@@ -164,6 +158,11 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
         end
 
         group_hash = group.to_hash
+
+        default_quotas = XMLElement.new
+        default_quotas.initialize_xml(
+            group.element_xml('/GROUP/DEFAULT_GROUP_QUOTAS'),
+            'DEFAULT_GROUP_QUOTAS')
 
         helper = OneQuotaHelper.new
         helper.format_quota(group_hash['GROUP'], default_quotas)

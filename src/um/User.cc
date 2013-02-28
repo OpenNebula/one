@@ -136,6 +136,22 @@ error_common:
 
 string& User::to_xml(string& xml) const
 {
+    return to_xml_extended(xml, false);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& User::to_xml_extended(string& xml) const
+{
+    return to_xml_extended(xml, true);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& User::to_xml_extended(string& xml, bool extended) const
+{
     ostringstream oss;
 
     string template_xml;
@@ -153,8 +169,15 @@ string& User::to_xml(string& xml) const
          "<AUTH_DRIVER>" << auth_driver <<"</AUTH_DRIVER>"<<
          "<ENABLED>"     << enabled_int <<"</ENABLED>"    <<
         obj_template->to_xml(template_xml)                <<
-        quota.to_xml(quota_xml)                           <<
-    "</USER>";
+        quota.to_xml(quota_xml);
+
+    if (extended)
+    {
+        string def_quota_xml;
+        oss << Nebula::instance().get_default_user_quota().to_xml(def_quota_xml);
+    }
+
+    oss << "</USER>";
 
     xml = oss.str();
 

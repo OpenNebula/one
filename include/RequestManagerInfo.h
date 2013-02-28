@@ -168,13 +168,21 @@ public:
     GroupInfo():
         RequestManagerInfo("GroupInfo",
                            "Returns group information")
-    {    
+    {
         Nebula& nd = Nebula::instance();
         pool       = nd.get_gpool();
         auth_object = PoolObjectSQL::GROUP;
     };
 
     ~GroupInfo(){};
+
+    /* -------------------------------------------------------------------- */
+
+    void to_xml(PoolObjectSQL * object, string& str)
+    {
+        Group * group = static_cast<Group*>(object);
+        group->to_xml_extended(str);
+    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -186,13 +194,21 @@ public:
     UserInfo():
         RequestManagerInfo("UserInfo",
                            "Returns user information")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_upool();
         auth_object = PoolObjectSQL::USER;
     };
 
     ~UserInfo(){};
+
+    /* -------------------------------------------------------------------- */
+
+    void to_xml(PoolObjectSQL * object, string& str)
+    {
+        User * user = static_cast<User*>(object);
+        user->to_xml_extended(str);
+    };
 };
 
 /* ------------------------------------------------------------------------- */
