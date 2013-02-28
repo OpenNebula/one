@@ -1116,7 +1116,7 @@ int DispatchManager::snapshot_create(
         return -1;
     }
 
-    vm->set_state(VirtualMachine::HOTPLUG);
+    vm->set_state(VirtualMachine::HOTPLUG_SNAPSHOT);
 
     vm->set_resched(false);
 
@@ -1187,7 +1187,7 @@ int DispatchManager::snapshot_revert(
         return -1;
     }
 
-    vm->set_state(VirtualMachine::HOTPLUG);
+    vm->set_state(VirtualMachine::HOTPLUG_SNAPSHOT);
 
     vm->set_resched(false);
 
@@ -1255,7 +1255,7 @@ int DispatchManager::snapshot_delete(
         return -1;
     }
 
-    vm->set_state(VirtualMachine::HOTPLUG);
+    vm->set_state(VirtualMachine::HOTPLUG_SNAPSHOT);
 
     vm->set_resched(false);
 

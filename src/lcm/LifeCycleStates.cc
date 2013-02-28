@@ -1231,7 +1231,7 @@ void LifeCycleManager::snapshot_create_success(int vid)
         return;
     }
 
-    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_SNAPSHOT )
     {
         vm->clear_active_snapshot();
 
@@ -1261,7 +1261,7 @@ void LifeCycleManager::snapshot_create_failure(int vid)
         return;
     }
 
-    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_SNAPSHOT )
     {
         vm->delete_active_snapshot();
 
@@ -1294,7 +1294,7 @@ void LifeCycleManager::snapshot_revert_success(int vid)
         return;
     }
 
-    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_SNAPSHOT )
     {
         vm->clear_active_snapshot();
 
@@ -1334,7 +1334,7 @@ void LifeCycleManager::snapshot_delete_success(int vid)
         return;
     }
 
-    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_SNAPSHOT )
     {
         vm->delete_active_snapshot();
 
@@ -1364,7 +1364,7 @@ void LifeCycleManager::snapshot_delete_failure(int vid)
         return;
     }
 
-    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_SNAPSHOT )
     {
         vm->clear_active_snapshot();
 

@@ -89,7 +89,8 @@ public:
         BOOT_POWEROFF       = 20,
         BOOT_SUSPENDED      = 21,
         BOOT_STOPPED        = 22,
-        CLEANUP_DELETE      = 23
+        CLEANUP_DELETE      = 23,
+        HOTPLUG_SNAPSHOT    = 24
     };
 
     // -------------------------------------------------------------------------

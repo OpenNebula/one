@@ -738,6 +738,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose)
         case VirtualMachine::SHUTDOWN_POWEROFF:
         case VirtualMachine::CANCEL:
         case VirtualMachine::HOTPLUG:
+        case VirtualMachine::HOTPLUG_SNAPSHOT:
             vm->set_running_etime(the_time);
             vmpool->update_history(vm);
 

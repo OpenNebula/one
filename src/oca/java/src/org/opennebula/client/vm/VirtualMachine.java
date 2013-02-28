@@ -91,7 +91,8 @@ public class VirtualMachine extends PoolElement{
         "BOOT_POWEROFF",
         "BOOT_SUSPENDED",
         "BOOT_STOPPED",
-        "CLEANUP_DELETE" };
+        "CLEANUP_DELETE",
+        "HOTPLUG_SNAPSHOT" };
 
     private static final String[] SHORT_LCM_STATES =
     {
@@ -118,7 +119,8 @@ public class VirtualMachine extends PoolElement{
         "boot",
         "boot",
         "boot",
-        "clea" };
+        "clea",
+        "snap" };
 
     /**
      * Creates a new VM representation.
