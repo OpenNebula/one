@@ -68,7 +68,7 @@ var datastores_tab_content = '\
 var create_datastore_tmpl =
 '<div class="create_form">\
   <div class="panel">\
-    <h3 >\
+    <h3>\
       <small id="create_cluster_header">'+tr("Create Datastore")+'</small>\
     </h3>\
   </div>\
@@ -632,14 +632,13 @@ function updateDatastoreInfo(request,ds){
         images_str=getImageName(info.IMAGES.ID);
     };
 
-
     var cluster_str = '<td class="key_td">Cluster</td><td>-</td>';
     if (info.ID != "0")
     {
         cluster_str = insert_cluster_dropdown("Datastore",info.ID,info.CLUSTER,info.CLUSTER_ID);
     }
 
-    var info_tab_content = '<div class="row">\
+    var info_tab_content = '<div class="">\
         <div class="six columns">\
         <table id="info_datastore_table" class="twelve datatable extended_table">\
             <thead>\

@@ -6548,3 +6548,8 @@ form.creation {
   overflow-x: hidden;
   padding: 5px;
 }
+
+/* line 574, ../sass/app.scss */
+#dialog input {
+  margin: 0px;
+}

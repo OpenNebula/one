@@ -1384,7 +1384,7 @@ function updateClusterInfo(request,cluster){
     var info_tab = {
         title : tr("Information"),
         content :
-        '<form class="custom"><div class="row">\
+        '<form class="custom"><div class="">\
         <div class="six columns">\
         <table id="info_cluster_table" class="twelve datatable extended_table">\
             <thead>\

@@ -66,7 +66,7 @@ var Sunstone = {
         SunstoneCfg["tabs"][tab_id] = tab_obj;
         if (refresh){
             insertTab(tab_id);
-            $(document).foundationCustomForms();
+            //$(document).foundationCustomForms();
         }
     },
 
@@ -786,16 +786,22 @@ function setupConfirmDialogs(){
 
     //add the HTML with the standard question and buttons.
         dialog.html(
-        '<form action="javascript:alert(\'js error!\');">\
+        '<div class="panel">\
+            <h3>\
+              <small>'+tr("Confirm")+'</small>\
+            </h3>\
+          </div>\
+        <form action="javascript:alert(\'js error!\');">\
            <div id="confirm_tip">'+tr("You have to confirm this action.")+'</div>\
            <br />\
            <div id="question">'+tr("Do you want to proceed?")+'</div>\
            <br />\
            <hr>\
            <div class="form_buttons">\
-             <button id="confirm_proceed" class="action_button button right" value="">'+tr("OK")+'</button>\
-             <button class="confirm_cancel button secondary" value="">'+tr("Cancel")+'</button>\
+             <button id="confirm_proceed" class="action_button radius button right" value="">'+tr("OK")+'</button>\
+             <button class="confirm_cancel close-reveal-modal button radius secondary" value="">'+tr("Cancel")+'</button>\
           </div>\
+            <a class="close-reveal-modal">&#215;</a>\
         </form>');
 
     //prepare the jquery dialog

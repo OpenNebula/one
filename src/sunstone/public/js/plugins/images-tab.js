@@ -76,7 +76,7 @@ var create_image_tmpl =
         </dl>\
         <ul class="tabs-content">\
         <li id="img_easyTab" class="active">\
-           <form id="create_image_form_easy" action="" class="custom">\
+           <form id="create_image_form_easy" action="" class="custom creation">\
                   <div class="row vm_param">\
                     <div class="six columns">\
                       <div class="row">\
@@ -626,7 +626,7 @@ function updateImageInfo(request,img){
     var info_tab = {
         title: tr("Information"),
         content:
-        '<form class="custom"><div class="row">\
+        '<form class="custom"><div class="">\
         <div class="six columns">\
         <table id="info_img_table" class="twelve datatable extended_table">\
            <thead>\
