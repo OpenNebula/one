@@ -92,8 +92,8 @@ int LibVirtDriver::deployment_description_kvm(
     bool pae  = false;
     bool acpi = false;
 
-    int pae_found  = 0;
-    int acpi_found = 0;
+    int pae_found  = -1;
+    int acpi_found = -1;
 
     const VectorAttribute * raw;
     string default_raw;
