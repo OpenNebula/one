@@ -131,7 +131,13 @@ int VirtualNetwork::select_leases(SqlDB * db)
 
     string          network_address;
 
-    unsigned int mac_prefix   = VirtualNetworkPool::mac_prefix();
+    unsigned int mac_prefix = VirtualNetworkPool::mac_prefix();
+    unsigned int site_i[2];
+    unsigned int global_i[2];
+
+    Leases::Lease::prefix6_to_number(site, site_i);
+
+    Leases::Lease::prefix6_to_number(global, global_i);
 
     //Get the leases
     if (type == RANGED)
@@ -139,6 +145,8 @@ int VirtualNetwork::select_leases(SqlDB * db)
         leases = new RangedLeases(db,
                                   oid,
                                   mac_prefix,
+                                  global_i,
+                                  site_i,
                                   ip_start,
                                   ip_end);
     }
@@ -146,7 +154,9 @@ int VirtualNetwork::select_leases(SqlDB * db)
     {
         leases = new  FixedLeases(db,
                                   oid,
-                                  mac_prefix);
+                                  mac_prefix,
+                                  global_i,
+                                  site_i);
     }
     else
     {
@@ -182,11 +192,14 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     ostringstream   ose;
     int             rc;
 
-    string          vlan_attr;
-    string          s_type;
-    string          ranged_error_str;
+    string vlan_attr;
+    string s_type;
+    string ranged_error_str;
 
-    unsigned int mac_prefix   = VirtualNetworkPool::mac_prefix();
+    unsigned int mac_prefix = VirtualNetworkPool::mac_prefix();
+
+    unsigned int global_i[2];
+    unsigned int site_i[2];
 
     //--------------------------------------------------------------------------
     // VirtualNetwork Attributes from the template
@@ -254,9 +267,25 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
             ostringstream oss;
 
             oss << "onebr" << oid;
- 
+
             bridge = oss.str();
         }
+    }
+
+    // ------------ IP6 PREFIX ---------------
+
+    erase_template_attribute("GLOBAL_PREFIX", global);
+
+    if (Leases::Lease::prefix6_to_number(global, global_i) != 0)
+    {
+        goto error_global;
+    }
+
+    erase_template_attribute("SITE_PREFIX", site);
+
+    if (Leases::Lease::prefix6_to_number(site, site_i) != 0)
+    {
+        goto error_site;
     }
 
     //--------------------------------------------------------------------------
@@ -278,6 +307,8 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
         leases = new RangedLeases(db,
                                   oid,
                                   mac_prefix,
+                                  global_i,
+                                  site_i,
                                   ip_start,
                                   ip_end);
     }
@@ -290,6 +321,8 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
         leases = new FixedLeases(db,
                                  oid,
                                  mac_prefix,
+                                 global_i,
+                                 site_i,
                                  vector_leases);
 
         remove_template_attribute("LEASES");
@@ -334,6 +367,16 @@ error_update:
 
 error_ranged:
     ose << ranged_error_str;
+    goto error_common;
+
+error_global:
+    ose << global
+        << " does not contain a character string representing a valid prefix";
+    goto error_common;
+
+error_site:
+    ose << site
+        << " does not contain a character string representing a valid prefix";
     goto error_common;
 
 error_null_leases:
@@ -514,6 +557,24 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
         os << "<VLAN_ID/>";
     }
 
+    if (!global.empty())
+    {
+        os << "<GLOBAL_PREFIX>" << global << "</GLOBAL_PREFIX>";
+    }
+    else
+    {
+        os << "<GLOBAL_PREFIX/>";
+    }
+
+    if (!site.empty())
+    {
+        os << "<SITE_PREFIX>" << site << "</SITE_PREFIX>";
+    }
+    else
+    {
+        os << "<SITE_PREFIX/>";
+    }
+
     if ( type == RANGED )
     {
         string st_ip_start;
@@ -586,6 +647,9 @@ int VirtualNetwork::from_xml(const string &xml_str)
     xpath(phydev,  "/VNET/PHYDEV", "");
     xpath(vlan_id, "/VNET/VLAN_ID","");
 
+    xpath(global,  "/VNET/GLOBAL_PREFIX", "");
+    xpath(site, "/VNET/SITE_PREFIX","");
+
     type = static_cast<NetworkType>(int_type);
 
     // Get associated classes
@@ -632,6 +696,9 @@ int VirtualNetwork::nic_attribute(VectorAttribute *nic, int vid)
     string  ip;
     string  mac;
 
+    unsigned int eui64[2];
+    unsigned int prefix[2] = {0, 0};
+
     ostringstream  oss;
 
     ip    = nic->vector_value("IP");
@@ -643,11 +710,11 @@ int VirtualNetwork::nic_attribute(VectorAttribute *nic, int vid)
 
     if (ip.empty())
     {
-        rc = leases->get(vid,ip,mac);
+        rc = leases->get(vid, ip, mac, eui64);
     }
     else
     {
-        rc = leases->set(vid,ip,mac);
+        rc = leases->set(vid,ip,mac, eui64);
     }
 
     if ( rc != 0 )
@@ -659,11 +726,31 @@ int VirtualNetwork::nic_attribute(VectorAttribute *nic, int vid)
     //                       NEW NIC ATTRIBUTES
     //--------------------------------------------------------------------------
 
-    nic->replace("NETWORK"   ,name);
+    nic->replace("NETWORK", name);
     nic->replace("NETWORK_ID",oss.str());
-    nic->replace("BRIDGE"    ,bridge);
-    nic->replace("MAC"       ,mac);
-    nic->replace("IP"        ,ip);
+    nic->replace("BRIDGE", bridge);
+    nic->replace("MAC", mac);
+    nic->replace("IP", ip);
+
+    Leases::Lease::ip6_to_string(eui64, prefix, ip);
+    nic->replace("IP6_LINK", ip);
+
+    if (!global.empty())
+    {
+        Leases::Lease::prefix6_to_number(global, prefix);
+        Leases::Lease::ip6_to_string(eui64, prefix, ip);
+
+        nic->replace("IP6_GLOBAL", ip);
+    }
+
+    if (!site.empty())
+    {
+        Leases::Lease::prefix6_to_number(site, prefix);
+        Leases::Lease::ip6_to_string(eui64, prefix, ip);
+
+        nic->replace("IP6_SITE", ip);
+    }
+
 
     if ( vlan == 1 )
     {
