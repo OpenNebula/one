@@ -421,10 +421,10 @@ var user_info_panel = {
         title: tr("User quotas"),
         content:""
     },
-    "user_acct_tab" : {
-        title: tr("Historical usages"),
-        content: ""
-    }
+    //"user_acct_tab" : {
+    //    title: tr("Historical usages"),
+    //    content: ""
+    //}
 };
 
 var users_tab = {
@@ -800,90 +800,90 @@ function updateUserInfo(request,user){
         content : quotas_tab_html
     };
 
-    var acct_tab = {
-        title : tr("Historical usages"),
-        content : '<div><table class="info_table" style="margin-bottom:0;width:100%">\
-  <tr>\
-    <td class="key_td"><label for="from">'+tr('From / to')+'</label></td>\
-    <td class="value_td">\
-       <input style="width: 7em" type="text" id="user_acct_from" name="from"/>\
-       <input style="width: 7em" type="text" id="user_acct_to" name="to"/>\
-       <button id="user_acct_date_ok">'+tr("Update")+'</button>\
-    </td>\
-  </tr>\
-<!--\
-  <tr>\
-    <td class="key_td"><label for="from">'+tr('Meters')+'</label></td>\
-    <td class="value_td">\
-       <select style="width:173px" id="user_acct_meter1" name="meter1">\
-       </select>\
-       <select style="width:173px" id="user_acct_meter2" name="meter2">\
-       </select>\
-    </td>\
-  </tr>\
--->\
-</table></div>' + generateMonitoringDivs(user_acct_graphs, "user_acct_")
-    };
+//    var acct_tab = {
+//        title : tr("Historical usages"),
+//        content : '<div><table class="info_table" style="margin-bottom:0;width:100%">\
+//  <tr>\
+//    <td class="key_td"><label for="from">'+tr('From / to')+'</label></td>\
+//    <td class="value_td">\
+//       <input style="width: 7em" type="text" id="user_acct_from" name="from"/>\
+//       <input style="width: 7em" type="text" id="user_acct_to" name="to"/>\
+//       <button id="user_acct_date_ok">'+tr("Update")+'</button>\
+//    </td>\
+//  </tr>\
+//<!--\
+//  <tr>\
+//    <td class="key_td"><label for="from">'+tr('Meters')+'</label></td>\
+//    <td class="value_td">\
+//       <select style="width:173px" id="user_acct_meter1" name="meter1">\
+//       </select>\
+//       <select style="width:173px" id="user_acct_meter2" name="meter2">\
+//       </select>\
+//    </td>\
+//  </tr>\
+//-->\
+//</table></div>' + generateMonitoringDivs(user_acct_graphs, "user_acct_")
+//    };
 
     Sunstone.updateInfoPanelTab("user_info_panel","user_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("user_info_panel","user_quotas_tab",quotas_tab);
-    Sunstone.updateInfoPanelTab("user_info_panel","user_acct_tab",acct_tab);
+    //Sunstone.updateInfoPanelTab("user_info_panel","user_acct_tab",acct_tab);
     Sunstone.popUpInfoPanel("user_info_panel");
 
     //Enable datepicker
-    var info_dialog = $('div#user_acct_tab');
-    $("#user_acct_from", info_dialog).datepicker({
-        defaultDate: "-1d",
-        changeMonth: true,
-        numberOfMonths: 1,
-        dateFormat: "dd/mm/yy",
-        defaultDate: '-1',
-        onSelect: function( selectedDate ) {
-            $( "#user_acct_to", info_dialog).datepicker("option",
-                                                        "minDate",
-                                                        selectedDate );
-        }
-    });
-    $("#user_acct_from", info_dialog).datepicker('setDate', '-1');
-
-    $("#user_acct_to", info_dialog).datepicker({
-        defaultDate: "0",
-        changeMonth: true,
-        numberOfMonths: 1,
-        dateFormat: "dd/mm/yy",
-        maxDate: '+1',
-        onSelect: function( selectedDate ) {
-            $( "#user_acct_from", info_dialog).datepicker( "option",
-                                                           "maxDate",
-                                                           selectedDate );
-        }
-    });
-    $("#user_acct_to", info_dialog).datepicker('setDate', 'Now');
-
-    //Listen to set date button
-    $('button#user_acct_date_ok', info_dialog).click(function(){
-        var from = $("#user_acct_from", info_dialog).val();
-        var to = $("#user_acct_to", info_dialog).val();
-
-        var start = $.datepicker.parseDate('dd/mm/yy', from)
-        if (start){
-            start = start.getTime();
-            start = Math.floor(start / 1000);
-        }
-
-        var end = $.datepicker.parseDate('dd/mm/yy', to);
-        if (end){
-            end = end.getTime();
-            end = Math.floor(end / 1000);
-        }
-
-        loadAccounting('User', user_info.ID, user_acct_graphs,
-                  { start : start, end: end });
-        return false;
-    });
-
-    //preload acct
-    loadAccounting('User', user_info.ID, user_acct_graphs);
+    //var info_dialog = $('div#user_acct_tab');
+    //$("#user_acct_from", info_dialog).datepicker({
+    //    defaultDate: "-1d",
+    //    changeMonth: true,
+    //    numberOfMonths: 1,
+    //    dateFormat: "dd/mm/yy",
+    //    defaultDate: '-1',
+    //    onSelect: function( selectedDate ) {
+    //        $( "#user_acct_to", info_dialog).datepicker("option",
+    //                                                    "minDate",
+    //                                                    selectedDate );
+    //    }
+    //});
+    //$("#user_acct_from", info_dialog).datepicker('setDate', '-1');
+//
+    //$("#user_acct_to", info_dialog).datepicker({
+    //    defaultDate: "0",
+    //    changeMonth: true,
+    //    numberOfMonths: 1,
+    //    dateFormat: "dd/mm/yy",
+    //    maxDate: '+1',
+    //    onSelect: function( selectedDate ) {
+    //        $( "#user_acct_from", info_dialog).datepicker( "option",
+    //                                                       "maxDate",
+    //                                                       selectedDate );
+    //    }
+    //});
+    //$("#user_acct_to", info_dialog).datepicker('setDate', 'Now');
+//
+    ////Listen to set date button
+    //$('button#user_acct_date_ok', info_dialog).click(function(){
+    //    var from = $("#user_acct_from", info_dialog).val();
+    //    var to = $("#user_acct_to", info_dialog).val();
+//
+    //    var start = $.datepicker.parseDate('dd/mm/yy', from)
+    //    if (start){
+    //        start = start.getTime();
+    //        start = Math.floor(start / 1000);
+    //    }
+//
+    //    var end = $.datepicker.parseDate('dd/mm/yy', to);
+    //    if (end){
+    //        end = end.getTime();
+    //        end = Math.floor(end / 1000);
+    //    }
+//
+    //    loadAccounting('User', user_info.ID, user_acct_graphs,
+    //              { start : start, end: end });
+    //    return false;
+    //});
+//
+    ////preload acct
+    //loadAccounting('User', user_info.ID, user_acct_graphs);
 };
 
 // Prepare the user creation dialog

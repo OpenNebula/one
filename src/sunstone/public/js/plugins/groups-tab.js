@@ -387,7 +387,7 @@ function groupElementArray(group_json){
     //    users_str=getUserName(group.USERS.ID);
     //};
 
-    var users_str = group.USERS.ID.length;
+    var users_str = group.USERS.ID ? group.USERS.ID.length : 0;
 
     var vms = "-";
     var memory = "-";
