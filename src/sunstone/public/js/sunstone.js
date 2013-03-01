@@ -901,7 +901,7 @@ function popUpConfirmDialog(target_elem){
     var button = Sunstone.getButton(tab_id,value);
 
     if (button.tip == undefined)
-        var tip = tr("You have to confrim this action");
+        var tip = tr("You have to confirm this action");
     else
         var tip = button.tip
 
@@ -920,10 +920,10 @@ function popUpConfirmWithSelectDialog(target_elem){
     var value = $(target_elem).val();
     var tab_id = $(target_elem).parents('.tab').attr('id');
     var button = Sunstone.getButton(tab_id,value);
-    var tip = tr("You have to confrim this action");
+    var tip = tr("You have to confirm this action");
 
     //if (button.tip == undefined)
-    //    var tip = tr("You have to confrim this action");
+    //    var tip = tr("You have to confirm this action");
     //else
     //    var tip = button.tip
 
