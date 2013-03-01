@@ -615,22 +615,14 @@ function hostElementArray(host_json){
     var allocated_cpu = parseInt(host.HOST_SHARE.CPU_USAGE);
     var ratio_allocated_cpu = Math.round((allocated_cpu / max_cpu) * 100);
 
-    var pb_allocated_cpu = progressBar(ratio_allocated_cpu, {
-        label: allocated_cpu + ' / ' + max_cpu + ' (' + ratio_allocated_cpu + '%)',
-        width: '150px',
-        height: '15px',
-        fontSize: '1em' });
-
+    var info_str = allocated_cpu + ' / ' + max_cpu + ' (' + ratio_allocated_cpu + '%)';
+    var pb_allocated_cpu = quotaBarHtml(allocated_cpu, max_cpu, info_str);
 
     var real_cpu = parseInt(host.HOST_SHARE.USED_CPU);
     var ratio_real_cpu = Math.round((real_cpu / max_cpu) * 100);
 
-    var pb_real_cpu      = progressBar(ratio_real_cpu, {
-        label: real_cpu + ' / ' + max_cpu + ' (' + ratio_real_cpu + '%)',
-        width: '150px',
-        height: '15px',
-        fontSize: '1em'});
-
+    var info_str = real_cpu + ' / ' + max_cpu + ' (' + ratio_real_cpu + '%)';
+    var pb_real_cpu = quotaBarHtml(real_cpu, max_cpu, info_str);
 
     // Generate MEM progress bars
     var max_mem = parseInt(host.HOST_SHARE.MAX_MEM);
@@ -641,22 +633,14 @@ function hostElementArray(host_json){
     var allocated_mem = parseInt(host.HOST_SHARE.MEM_USAGE);
     var ratio_allocated_mem = Math.round((allocated_mem / max_mem) * 100);
 
-    var pb_allocated_mem = progressBar(ratio_allocated_mem, {
-        label: humanize_size(allocated_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_allocated_mem + '%)',
-        width: '150px',
-        height: '15px',
-        fontSize: '1em' });
-
+    var info_str = humanize_size(allocated_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_allocated_mem + '%)';
+    var pb_allocated_mem = quotaBarHtml(allocated_mem, max_mem, info_str);
 
     var real_mem = parseInt(host.HOST_SHARE.USED_MEM);
     var ratio_real_mem = Math.round((real_mem / max_mem) * 100);
 
-    var pb_real_mem      = progressBar(ratio_real_mem, {
-        label: humanize_size(real_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_real_mem + '%)',
-        width: '150px',
-        height: '15px',
-        fontSize: '1em' });
-
+    var info_str = humanize_size(real_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_real_mem + '%)';
+    var pb_real_mem = quotaBarHtml(real_mem, max_mem, info_str);
 
     return [
         '<input class="check_item" type="checkbox" id="host_'+host.ID+'" name="selected_items" value="'+host.ID+'"/>',
