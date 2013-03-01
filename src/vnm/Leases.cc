@@ -177,7 +177,7 @@ int Leases::Lease::mac_to_number(const string& _mac, unsigned int i_mac[])
 int Leases::Lease::prefix6_to_number(const string& prefix, unsigned int ip[])
 {
     struct in6_addr s6;
-    ostringstream   oss(prefix);
+    ostringstream   oss;
 
     if (prefix.empty())
     {
@@ -185,7 +185,7 @@ int Leases::Lease::prefix6_to_number(const string& prefix, unsigned int ip[])
         return 0;
     }
 
-    oss << ":0:0:0:1";
+    oss << prefix << ":0:0:0:1";
 
     int rc = inet_pton(AF_INET6, oss.str().c_str(), &s6);
 
@@ -194,8 +194,8 @@ int Leases::Lease::prefix6_to_number(const string& prefix, unsigned int ip[])
         return -1;
     }
 
-    ip[1] = s6.s6_addr32[0];
-    ip[0] = s6.s6_addr32[1];
+    ip[1] = ntohl(s6.s6_addr32[0]);
+    ip[0] = ntohl(s6.s6_addr32[1]);
 
     return 0;
 }
