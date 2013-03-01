@@ -84,19 +84,30 @@ var groups_tab_content = '\
 </form>';
 
 var create_group_tmpl =
-'<form id="create_group_form" action="">\
-  <fieldset style="border:none;">\
-     <div>\
-        <label for="name">'+tr("Group name")+':</label>\
-        <input type="text" name="name" id="name" /><br />\
+'<div class="panel">\
+  <h3>\
+    <small id="create_vnet_header">'+tr("Create Group")+'</small>\
+  </h3>\
+</div>\
+<form id="create_group_form" action="">\
+      <div class="row centered">\
+        <div class="columns eight centered">\
+          <div class="two columns">\
+              <label class="inline right" for="name">'+tr("Name")+':</label>\
+          </div>\
+          <div class="nine columns">\
+              <input type="text" name="name" id="name" /><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
       </div>\
-  </fieldset>\
-  <fieldset>\
+      <hr>\
       <div class="form_buttons">\
-        <button class="button" id="create_group_submit" value="Group.create">'+tr("Create")+'</button>\
-        <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
+        <button class="button radius right success" id="create_group_submit" value="Group.create">'+tr("Create")+'</button>\
+        <button class="close-reveal-modal button secondary radius" type="close" value="close">' + tr("Close") + '</button>\
       </div>\
-  </fieldset>\
   <a class="close-reveal-modal">&#215;</a>\
 </form>';
 
@@ -260,7 +271,7 @@ var group_actions = {
         call: OpenNebula.Group.accounting,
         callback: function(req,response) {
             var info = req.request.data[0].monitor;
-            plot_graph(response,'#group_acct_tabTab','group_acct_', info);
+            //plot_graph(response,'#group_acct_tabTab','group_acct_', info);
         },
         error: onError
     },
@@ -316,10 +327,10 @@ var group_info_panel = {
         title: tr("Group information"),
         content:""
     },
-    "group_acct_tab" : {
-        title: tr("Historical usages"),
-        content: ""
-    }
+//    "group_acct_tab" : {
+//        title: tr("Historical usages"),
+//        content: ""
+//    }
 };
 
 var groups_tab = {
@@ -365,16 +376,18 @@ function groupElements(){
 function groupElementArray(group_json){
     var group = group_json.GROUP;
 
-    var users_str="";
-    if (group.USERS.ID &&
-        group.USERS.ID.constructor == Array){
-        for (var i=0; i<group.USERS.ID.length; i++){
-            users_str+=getUserName(group.USERS.ID[i])+', ';
-        };
-        users_str=users_str.slice(0,-2);
-    } else if (group.USERS.ID) {
-        users_str=getUserName(group.USERS.ID);
-    };
+    //var users_str="";
+    //if (group.USERS.ID &&
+    //    group.USERS.ID.constructor == Array){
+    //    for (var i=0; i<group.USERS.ID.length; i++){
+    //        users_str+=getUserName(group.USERS.ID[i])+', ';
+    //    };
+    //    users_str=users_str.slice(0,-2);
+    //} else if (group.USERS.ID) {
+    //    users_str=getUserName(group.USERS.ID);
+    //};
+
+    var users_str = group.USERS.ID.length;
 
     var vms = "-";
     var memory = "-";
@@ -444,23 +457,30 @@ function updateGroupInfo(request,group){
     var info = group.GROUP;
 
     var info_tab_html = '\
-        <table id="info_group_table" class="info_table" style="width:80%">\
-            <thead>\
-               <tr><th colspan="2">' + tr("Group information") + ' - '+info.NAME+'</th></tr>\
-            </thead>\
-            <tbody>\
-            <tr>\
-                <td class="key_td">' + tr("ID") + '</td>\
-                <td class="value_td">'+info.ID+'</td>\
-            </tr>\
-            </tbody>\
-         </table>\
-         <table class="info_table" style="width:80%;margin-top:0;margin-bottom:0;">\
-            <thead>\
-               <tr><th colspan="2">' + tr("Quota information") +'</th></tr>\
-            </thead>\
-            <tbody><tr><td class="key_td"></td><td class="value_td"></td></tr></tbody>\
-         </table>';
+        <div class="">\
+          <div class="six columns">\
+            <table id="info_group_table" class="twelve datatable extended_table">\
+                <thead>\
+                   <tr><th colspan="3">' + tr("Group information") + ' - '+info.NAME+'</th></tr>\
+                </thead>\
+                <tbody>\
+                <tr>\
+                    <td class="key_td">' + tr("ID") + '</td>\
+                    <td class="value_td">'+info.ID+'</td>\
+                    <td></td>\
+                </tr>\
+                </tbody>\
+             </table>\
+           </div>\
+           <div class="six columns">\
+             <table class="info_table twelve datatable extended_table">\
+                <thead>\
+                   <tr><th colspan="2">' + tr("Quota information") +'</th></tr>\
+                </thead>\
+                <tbody><tr><td class="key_td"></td><td class="value_td"></td></tr></tbody>\
+             </table>\
+           </div>\
+         </div>';
 
     if (!$.isEmptyObject(info.VM_QUOTA))
         info_tab_html += '<table class="info_table" style="width:70%;margin-top:0;margin-left:40px;">\
@@ -488,33 +508,33 @@ function updateGroupInfo(request,group){
     };
 
 
-   var acct_tab = {
-        title : tr("Historical usages"),
-        content : '<div><table class="info_table" style="margin-bottom:0;width:100%;">\
-  <tr>\
-    <td class="key_td"><label for="from">'+tr('From / to')+'</label></td>\
-    <td class="value_td">\
-       <input style="width: 7em" type="text" id="group_acct_from" name="from"/>\
-       <input style="width: 7em" type="text" id="group_acct_to" name="to"/>\
-       <button id="group_acct_date_ok">'+tr("Update")+'</button>\
-    </td>\
-  </tr>\
-<!--\
-  <tr>\
-    <td class="key_td"><label for="from">'+tr('Meters')+'</label></td>\
-    <td class="value_td">\
-       <select style="width:173px" id="group_acct_meter1" name="meter1">\
-       </select>\
-       <select style="width:173px" id="group_acct_meter2" name="meter2">\
-       </select>\
-    </td>\
-  </tr>\
--->\
-</table></div>' + generateMonitoringDivs(group_acct_graphs, "group_acct_")
-    };
+//   var acct_tab = {
+//        title : tr("Historical usages"),
+//        content : '<div><table class="info_table" style="margin-bottom:0;width:100%;">\
+//  <tr>\
+//    <td class="key_td"><label for="from">'+tr('From / to')+'</label></td>\
+//    <td class="value_td">\
+//       <input style="width: 7em" type="text" id="group_acct_from" name="from"/>\
+//       <input style="width: 7em" type="text" id="group_acct_to" name="to"/>\
+//       <button id="group_acct_date_ok">'+tr("Update")+'</button>\
+//    </td>\
+//  </tr>\
+//<!--\
+//  <tr>\
+//    <td class="key_td"><label for="from">'+tr('Meters')+'</label></td>\
+//    <td class="value_td">\
+//       <select style="width:173px" id="group_acct_meter1" name="meter1">\
+//       </select>\
+//       <select style="width:173px" id="group_acct_meter2" name="meter2">\
+//       </select>\
+//    </td>\
+//  </tr>\
+//-->\
+//</table></div>' + generateMonitoringDivs(group_acct_graphs, "group_acct_")
+//    };
 
     Sunstone.updateInfoPanelTab("group_info_panel","group_info_tab",info_tab);
-    Sunstone.updateInfoPanelTab("group_info_panel","group_acct_tab",acct_tab);
+//    Sunstone.updateInfoPanelTab("group_info_panel","group_acct_tab",acct_tab);
     Sunstone.popUpInfoPanel("group_info_panel");
 
 
@@ -603,7 +623,7 @@ function setupCreateGroupDialog(){
 }
 
 function popUpCreateGroupDialog(){
-    $create_group_dialog.trigger("reveal:close")
+    $create_group_dialog.reveal();
     return false;
 }
 
