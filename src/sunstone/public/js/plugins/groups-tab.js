@@ -42,9 +42,7 @@ var groups_tab_content = '\
 <form class="custom" id="group_form" action="">\
 <div class="panel">\
 <div class="row">\
-  <div class="twelve columns">\
-    <h4 class="subheader"><i class="icon-group"></i> '+tr("Groups")+'</h4>\
-  </div>\
+  <h4 class="subheader"><i class="icon-group"></i> '+tr("Groups")+'</h4>\
 </div>\
 <div class="row">\
   <div class="nine columns">\

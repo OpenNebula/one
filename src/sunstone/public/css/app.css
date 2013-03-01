@@ -6137,19 +6137,14 @@ div.button-bar {
   padding: 0;
 }
 
-/* line 149, ../sass/app.scss */
-#dialog div {
-  border: 0;
-}
-
-/* line 153, ../sass/app.scss */
+/* line 150, ../sass/app.scss */
 #header {
   padding: 0 10px 0 10px;
   background-color: #4d4d4d;
   border: 0;
 }
 
-/* line 161, ../sass/app.scss */
+/* line 158, ../sass/app.scss */
 #logo {
   font-weight: bold;
   color: white;
@@ -6158,72 +6153,72 @@ div.button-bar {
   margin-bottom: 15%;
 }
 
-/* line 169, ../sass/app.scss */
+/* line 166, ../sass/app.scss */
 #login-info {
   padding-top: 4px;
   float: right;
   padding-right: 5px;
 }
 
-/* line 175, ../sass/app.scss */
+/* line 172, ../sass/app.scss */
 #links {
   padding-top: 4px;
   margin-right: 40px;
   float: right;
 }
 
-/* line 181, ../sass/app.scss */
+/* line 178, ../sass/app.scss */
 #login-info, #login-info a, #links, #links a {
   color: white;
 }
 
-/* line 185, ../sass/app.scss */
+/* line 182, ../sass/app.scss */
 #login-info, #login-info a {
   font-weight: bold;
 }
 
-/* line 188, ../sass/app.scss */
+/* line 185, ../sass/app.scss */
 .sunstone-color {
   color: #2ba6cb;
 }
 
-/* line 192, ../sass/app.scss */
+/* line 189, ../sass/app.scss */
 #logo-wrapper {
   float: right;
   margin-top: 0px;
   margin-right: 20px;
 }
 
-/* line 198, ../sass/app.scss */
+/* line 195, ../sass/app.scss */
 #menu {
   padding-right: 0;
   padding-left: 0;
   border: 0;
 }
 
-/* line 204, ../sass/app.scss */
+/* line 201, ../sass/app.scss */
 #tabs_content {
   box-shadow: -8px -8px 11px -11px black;
   z-index: 2 !important;
 }
 
-/* line 209, ../sass/app.scss */
+/* line 206, ../sass/app.scss */
 #navigation {
   margin: 8%;
   box-shadow: 0 0 1px 0px black;
 }
 
-/* line 214, ../sass/app.scss */
+/* line 211, ../sass/app.scss */
 .tabs.vertical li {
   border-left: none;
 }
 
-/* line 218, ../sass/app.scss */
+/* line 215, ../sass/app.scss */
 .tabs.vertical li.active {
   border-top: none;
 }
 
-/* line 223, ../sass/app.scss */
+/* line 220, ../sass/app.scss */
 #navigation > li:not(.subTab).navigation-active-li > a,
 #navigation > li:not(.subTab).active > a {
   background: #f2f2f2;
@@ -6231,12 +6226,12 @@ div.button-bar {
   color: #555;
 }
 
-/* line 233, ../sass/app.scss */
+/* line 230, ../sass/app.scss */
 #navigation i {
   margin-right: 3px;
 }
 
-/* line 238, ../sass/app.scss */
+/* line 235, ../sass/app.scss */
 #navigation li.subTab > a {
   background: #fdfdfd;
   color: #555;
@@ -6244,12 +6239,12 @@ div.button-bar {
   padding: 10px 11px 10px 25px;
 }
 
-/* line 245, ../sass/app.scss */
+/* line 242, ../sass/app.scss */
 #navigation li.subsubTab {
   padding-left: 35px;
 }
 
-/* line 250, ../sass/app.scss */
+/* line 247, ../sass/app.scss */
 #navigation li:hover, #navigation .navigation-active-li,
 #navigation li:hover {
   font-weight: bold;
@@ -6257,7 +6252,7 @@ div.button-bar {
 }
 
 /* top menu css */
-/* line 312, ../sass/app.scss */
+/* line 309, ../sass/app.scss */
 #menutop_container {
   margin: 0px 171px;
   color: #FFFFFF;
@@ -6265,14 +6260,14 @@ div.button-bar {
   font-weight: bold;
 }
 
-/* line 318, ../sass/app.scss */
+/* line 315, ../sass/app.scss */
 #menutop_navbar {
   float: left;
   height: 25px;
   font-size: 13px;
 }
 
-/* line 323, ../sass/app.scss */
+/* line 320, ../sass/app.scss */
 #menutop_navbar ul {
   float: left;
   height: 25px;
@@ -6281,12 +6276,12 @@ div.button-bar {
   padding-left: 1px;
 }
 
-/* line 330, ../sass/app.scss */
+/* line 327, ../sass/app.scss */
 #menutop_navbar ul {
   background-color: #4d4d4d;
 }
 
-/* line 333, ../sass/app.scss */
+/* line 330, ../sass/app.scss */
 #menutop_navbar ul li {
   float: left;
   min-width: 72px;
@@ -6303,18 +6298,18 @@ div.button-bar {
   color: white;
 }
 
-/* line 349, ../sass/app.scss */
+/* line 346, ../sass/app.scss */
 #menutop_navbar ul li:hover {
   background-color: #ffffff;
 }
 
 /* end top menu css */
-/* line 360, ../sass/app.scss */
+/* line 357, ../sass/app.scss */
 .ui-layout-pane {
   border: none;
 }
 
-/* line 365, ../sass/app.scss */
+/* line 362, ../sass/app.scss */
 .button.small {
   font-size: 12px;
   padding: 6px 12px 6px;
@@ -6322,226 +6317,226 @@ div.button-bar {
   height: 28px;
 }
 
-/* line 372, ../sass/app.scss */
+/* line 369, ../sass/app.scss */
 .button {
   box-shadow: none;
 }
 
-/* line 376, ../sass/app.scss */
+/* line 373, ../sass/app.scss */
 .button.tiny {
   box-shadow: none;
 }
 
-/* line 380, ../sass/app.scss */
+/* line 377, ../sass/app.scss */
 .panel {
   padding: 0px;
   background: #f2f2f2;
 }
 
-/* line 385, ../sass/app.scss */
+/* line 382, ../sass/app.scss */
 .tabs.vertical li a {
   padding: 15px 11px;
 }
 
-/* line 389, ../sass/app.scss */
+/* line 386, ../sass/app.scss */
 input[type="text"] {
   height: 28px !important;
 }
 
-/* line 393, ../sass/app.scss */
+/* line 390, ../sass/app.scss */
 .right {
   float: right;
 }
 
-/* line 397, ../sass/app.scss */
+/* line 394, ../sass/app.scss */
 .ui-layout-pane {
   background: #fdfdfd;
 }
 
-/* line 404, ../sass/app.scss */
+/* line 401, ../sass/app.scss */
 tr.odd:hover td {
   background-color: #2ba6cb !important;
   cursor: pointer;
   color: white !important;
 }
 
-/* line 410, ../sass/app.scss */
+/* line 407, ../sass/app.scss */
 tr.even:hover td {
   background-color: #2ba6cb !important;
   cursor: pointer;
   color: white !important;
 }
 
-/* line 416, ../sass/app.scss */
+/* line 413, ../sass/app.scss */
 tr {
   border-bottom: 1px solid #e6e6e6;
 }
 
-/* line 422, ../sass/app.scss */
+/* line 419, ../sass/app.scss */
 table thead tr th, table tfoot tr td {
   padding: 5px 10px 5px;
   line-height: 16px;
 }
 
-/* line 427, ../sass/app.scss */
+/* line 424, ../sass/app.scss */
 table {
   border-collapse: collapse;
   border-spacing: 0;
 }
 
 /* Growl */
-/* line 433, ../sass/app.scss */
+/* line 430, ../sass/app.scss */
 .jGrowl-notification h1 {
   font-size: 1.2em;
 }
 
-/* line 437, ../sass/app.scss */
+/* line 434, ../sass/app.scss */
 .jGrowl-notification, .jGrowl-notify-submit {
   border: 2px #444444 solid;
   background-color: #F3F3F3!important;
   color: #666666;
 }
 
-/* line 443, ../sass/app.scss */
+/* line 440, ../sass/app.scss */
 .jGrowl-notify-error {
   border: 2px #660000 solid;
   background-color: #F39999!important;
   color: #660000;
 }
 
-/* line 449, ../sass/app.scss */
+/* line 446, ../sass/app.scss */
 .jGrowl-notify-error table td.key_error {
   text-transform: capitalize;
   width: 100%;
   font-weight: bold;
 }
 
-/* line 455, ../sass/app.scss */
+/* line 452, ../sass/app.scss */
 .jGrowl-notify-error table td.key_error:after {
   content: ":";
 }
 
-/* line 462, ../sass/app.scss */
+/* line 459, ../sass/app.scss */
 .markrow {
   background-color: #cdebf5 !important;
 }
 
-/* line 463, ../sass/app.scss */
+/* line 460, ../sass/app.scss */
 .markrowselected {
   background-color: #2ba6cb !important;
   color: #FFF;
 }
 
-/* line 464, ../sass/app.scss */
+/* line 461, ../sass/app.scss */
 .markrowchecked {
   background-color: #cdebf5;
 }
 
-/* line 467, ../sass/app.scss */
+/* line 464, ../sass/app.scss */
 .hidden {
   display: none;
 }
 
-/* line 476, ../sass/app.scss */
+/* line 473, ../sass/app.scss */
 #navigation li.topTab span.plusIcon,
 #navigation li.subTab span.plusIcon {
   display: none;
   float: right;
 }
 
-/* line 481, ../sass/app.scss */
+/* line 478, ../sass/app.scss */
 span.plusIcon {
   color: #d0d0d0;
 }
 
-/* line 485, ../sass/app.scss */
+/* line 482, ../sass/app.scss */
 span.plusIcon:hover {
   color: #555;
 }
 
-/* line 492, ../sass/app.scss */
+/* line 489, ../sass/app.scss */
 table.extended_table tbody tr td {
   padding: 3px 10px;
 }
 
-/* line 499, ../sass/app.scss */
+/* line 496, ../sass/app.scss */
 .reveal-modal {
   top: 50px;
 }
 
-/* line 504, ../sass/app.scss */
+/* line 501, ../sass/app.scss */
 .ui-layout-resizer-open-hover,
 .ui-layout-resizer-dragging {
   background: #EEE;
 }
 
-/* line 509, ../sass/app.scss */
+/* line 506, ../sass/app.scss */
 .reveal-modal .panel {
   margin-left: -30px;
   margin-right: -30px;
   margin-bottom: 30px;
 }
 
-/* line 515, ../sass/app.scss */
+/* line 512, ../sass/app.scss */
 .reveal-modal.xlarge {
   padding-top: 0px;
   width: 80%;
   margin-left: -40%;
 }
 
-/* line 521, ../sass/app.scss */
+/* line 518, ../sass/app.scss */
 .reveal-modal {
   padding-top: 0px;
 }
 
-/* line 525, ../sass/app.scss */
+/* line 522, ../sass/app.scss */
 .reveal-modal h3 {
   margin-left: 30px;
   margin-bottom: 7px !important;
 }
 
-/* line 530, ../sass/app.scss */
+/* line 527, ../sass/app.scss */
 .reveal-modal .close-reveal-modal:not(.button) {
   top: 13px;
 }
 
-/* line 534, ../sass/app.scss */
+/* line 531, ../sass/app.scss */
 .reveal-modal .close-reveal-modal:not(.button):hover {
   color: #222;
 }
 
-/* line 538, ../sass/app.scss */
+/* line 535, ../sass/app.scss */
 fieldset {
   margin: 0px 10px;
 }
 
-/* line 544, ../sass/app.scss */
+/* line 541, ../sass/app.scss */
 .graph_table table {
   border: 0px;
   margin: 0px;
 }
 
-/* line 549, ../sass/app.scss */
+/* line 546, ../sass/app.scss */
 .graph_table table tr {
   border: 0px;
 }
 
-/* line 554, ../sass/app.scss */
+/* line 551, ../sass/app.scss */
 .ui-layout-pane {
   padding: 0px;
 }
 
-/* line 558, ../sass/app.scss */
+/* line 555, ../sass/app.scss */
 .reveal-modal .columns {
   padding: 0 8px;
 }
 
-/* line 562, ../sass/app.scss */
+/* line 559, ../sass/app.scss */
 select {
   width: auto;
 }
 
-/* line 567, ../sass/app.scss */
+/* line 564, ../sass/app.scss */
 form.creation {
   max-height: 450px;
   overflow-y: auto;
@@ -6549,7 +6544,28 @@ form.creation {
   padding: 5px;
 }
 
-/* line 574, ../sass/app.scss */
+/* line 571, ../sass/app.scss */
 #dialog input {
   margin: 0px;
+}
+
+/* line 576, ../sass/app.scss */
+.progress-container {
+  position: relative;
+  width: 100%;
+  text-align: center;
+}
+
+/* line 582, ../sass/app.scss */
+.progress {
+  position: absolute;
+  width: 100%;
+  height: 19px !important;
+}
+
+/* line 588, ../sass/app.scss */
+.progress-text {
+  position: absolute;
+  width: 100%;
+  font-size: 12px;
 }

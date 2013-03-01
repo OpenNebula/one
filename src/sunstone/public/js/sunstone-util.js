@@ -1975,8 +1975,8 @@ function quotaBarHtml(usage, limit, info_str){
 
     info_str = info_str || ( usage+' / '+((limit > 0) ? limit : '-') );
 
-    html = '<div class="progress"><span class="meter" style="width: '
-        +percentage+'%"></span>'+info_str+'</div>';
+    html = '<div class="progress-container"><div class="progress"><span class="meter" style="width: '
+        +percentage+'%"></span></div><div class="progress-text">'+info_str+'</div></div>';
 
     return html;
 }

@@ -45,7 +45,9 @@ var users_tab_content = '\
 <form class="custom" id="user_form" action="">\
 <div class="panel">\
 <div class="row">\
-  <h4 class="subheader"><i class="icon-user"></i> '+tr("Users")+'</h4>\
+  <div class="twelve columns">\
+    <h4 class="subheader"><i class="icon-user"></i> '+tr("Users")+'</h4>\
+  </div>\
 </div>\
 <div class="row">\
   <div class="nine columns">\
@@ -96,34 +98,60 @@ var users_tab_content = '\
 </form>';
 
 var create_user_tmpl =
-'<form id="create_user_form" action="">\
-  <fieldset>\
-        <div>\
-                <label for="username">'+tr("Username")+':</label>\
-                <input type="text" name="username" id="username" /><br />\
-                <label for="pass">'+tr("Password")+':</label>\
-                <input type="password" name="pass" id="pass" />\
-                <label for="driver">'+tr("Authentication")+':</label>\
-                <select name="driver" id="driver">\
-                     <option value="core" selected="selected">'+tr("Core")+'</option>\
-                     <option value="ssh">'+tr("SSH")+'</option>\
-                     <option value="x509">'+tr("x509")+'</option>\
-                     <option value="public">'+tr("Public")+'</option>\
-                     <option value="custom">'+tr("Custom")+'</option>\
-                </select>\
-                <div>\
-                  <label>'+tr("Custom auth driver")+':</label>\
-                  <input type="text" name="custom_auth" /><br />\
-                </div>\
-        </div>\
-        </fieldset>\
-        <fieldset>\
-        <div class="form_buttons">\
-                <button class="button" id="create_user_submit" value="user/create">'+tr("Create")+'</button>\
-                <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
-        </div>\
-        <a class="close-reveal-modal">&#215;</a>\
-</fieldset>\
+'<div class="panel">\
+  <h3>\
+    <small id="create_vnet_header">'+tr("Create Group")+'</small>\
+  </h3>\
+</div>\
+<form id="create_user_form" action="">\
+      <div class="row centered">\
+          <div class="four columns">\
+              <label class="inline right" for="username">'+tr("Username")+':</label>\
+          </div>\
+          <div class="seven columns">\
+              <input type="text" name="username" id="username" /><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+      </div>\
+      <div class="row centered">\
+          <div class="four columns">\
+              <label class="inline right" for="pass">'+tr("Password")+':</label>\
+          </div>\
+          <div class="seven columns">\
+              <input type="password" name="pass" id="pass" />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+      </div>\
+      <div class="row centered">\
+          <div class="four columns">\
+              <label class="inline right" for="driver">'+tr("Authentication")+':</label>\
+          </div>\
+          <div class="seven columns">\
+            <select name="driver" id="driver">\
+                 <option value="core" selected="selected">'+tr("Core")+'</option>\
+                 <option value="ssh">'+tr("SSH")+'</option>\
+                 <option value="x509">'+tr("x509")+'</option>\
+                 <option value="public">'+tr("Public")+'</option>\
+                 <option value="custom">'+tr("Custom")+'</option>\
+            </select>\
+            <div>\
+              <input type="text" name="custom_auth" /><br />\
+            </div>\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+      </div>\
+      <hr>\
+      <div class="form_buttons">\
+          <button class="button radius right success" id="create_user_submit" value="user/create">'+tr("Create")+'</button>\
+          <button class="close-reveal-modal button secondary radius" type="close" value="close">' + tr("Close") + '</button>\
+      </div>\
+  <a class="close-reveal-modal">&#215;</a>\
 </form>';
 
 var update_pw_tmpl = '<form id="update_user_pw_form" action="">\
@@ -634,7 +662,7 @@ function updateUserInfo(request,user){
             default_user_quotas.VM_QUOTA.VM.CPU);
 
         quotas_tab_html +=
-        '<table class="twelve">\
+        '<table class="twelve datatable extended_table">\
             <thead>\
                 <tr>\
                     <th>'+tr("VMs")+'</th>\
@@ -654,7 +682,7 @@ function updateUserInfo(request,user){
 
     if (!$.isEmptyObject(user_info.DATASTORE_QUOTA)){
         quotas_tab_html += 
-        '<table class="twelve">\
+        '<table class="twelve datatable extended_table">\
             <thead>\
                 <tr>\
                     <th>'+tr("Datastore ID")+'</th>\
@@ -707,7 +735,7 @@ function updateUserInfo(request,user){
 
     if (!$.isEmptyObject(user_info.IMAGE_QUOTA)){
         quotas_tab_html += 
-        '<table class="twelve">\
+        '<table class="twelve datatable extended_table">\
             <thead>\
                 <tr>\
                     <th>'+tr("Image ID")+'</th>\
@@ -752,7 +780,7 @@ function updateUserInfo(request,user){
 
     if (!$.isEmptyObject(user_info.NETWORK_QUOTA)){
         quotas_tab_html += 
-        '<table class="twelve">\
+        '<table class="twelve datatable extended_table">\
             <thead>\
                 <tr>\
                     <th>'+tr("Network ID")+'</th>\

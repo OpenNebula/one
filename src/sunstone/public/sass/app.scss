@@ -146,9 +146,6 @@ div.button-bar {
    padding: 0;
 }
 
-#dialog div {
-    border: 0;
-}
 
 #header {
     padding: 0 10px 0 10px;
@@ -573,4 +570,23 @@ form.creation {
 
 #dialog input {
     margin: 0px;
+}
+
+
+.progress-container {
+    position:relative;
+    width: 100%;
+    text-align: center;
+}
+
+.progress {
+    position:absolute;
+    width: 100%;
+    height: 19px !important;
+}
+
+.progress-text {
+    position:absolute;
+    width: 100%;
+    font-size: 12px;
 }
