@@ -2992,7 +2992,7 @@ function setupCreateTemplateDialog(){
 
         vm_json["DISK"] = [];
 
-        $('div.disk div#disk_type.vm_param ',dialog).each(function(){
+        $('.disk div#disk_type.vm_param ',dialog).each(function(){
           var hash  = {};
           addSectionJSON(hash, this);
           vm_json["DISK"].push(hash);
@@ -3004,7 +3004,7 @@ function setupCreateTemplateDialog(){
 
         vm_json["NIC"] = [];
 
-        $('div.nic',dialog).each(function(){
+        $('.nic',dialog).each(function(){
           var hash  = {};
           addSectionJSON(hash, this);
 

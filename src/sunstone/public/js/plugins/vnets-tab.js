@@ -870,10 +870,8 @@ function printLeases(vn_info){
 
     if (!leases) //empty
     {
-        html+='<tr id="no_leases_tr"><td class="key_td">\
+        html+='<tr id="no_leases_tr"><td colspan="5" class="key_td">\
                    '+tr("No leases to show")+'\
-                   </td>\
-               <td class="value_td">\
                    </td></tr>';
         html += '</tbody></table></div></form>';
         return html;
@@ -1149,7 +1147,7 @@ function setupCreateVNetDialog() {
             break;
         };
 
-        var type = $('input:checked',dialog).val();
+        var type = $('input[name="fixed_ranged"]:checked',dialog).val();
         network_json['type']=type;
         //TODO: Name and bridge provided?!
 
@@ -1159,7 +1157,7 @@ function setupCreateVNetDialog() {
 
             //for each specified lease we prepare the JSON object
             $.each(leases,function(){
-                var lease_str = $(dialog).val().split(",");
+                var lease_str = $(this).val().split(",");
                 if (lease_str[1])
                     leases_obj.push({"ip": lease_str[0],
                                      "mac": lease_str[1]});
@@ -1199,8 +1197,8 @@ function setupCreateVNetDialog() {
 
         //Time to add custom attributes
         $('#custom_var_vnet_box option',$create_vn_dialog).each(function(){
-            var attr_name = $(dialog).attr('name');
-            var attr_value = $(dialog).val();
+            var attr_name = $(this).attr('name');
+            var attr_value = $(this).val();
             network_json[attr_name] = attr_value;
         });
 
@@ -1233,7 +1231,7 @@ function popUpCreateVnetDialog() {
 // extended information panel.
 function setupLeasesOps(){
     $('button#panel_add_lease_button').live("click",function(){
-        var lease = $(this).prev().val();
+        var lease = $('input#panel_add_lease', dialog).val();
         //var mac = $(this).previous().val();
         var id = $(this).parents('form').attr('vnid');
         if (lease.length){
@@ -1245,7 +1243,7 @@ function setupLeasesOps(){
 
     //ranged networks hold lease
     $('button#panel_hold_lease_button').live("click",function(){
-        var lease = $(this).prev().val();
+        var lease = $('input#panel_hold_lease', dialog).val();
         //var mac = $(this).previous().val();
         var id = $(this).parents('form').attr('vnid');
         if (lease.length){

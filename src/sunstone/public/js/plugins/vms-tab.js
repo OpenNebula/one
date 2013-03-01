@@ -114,32 +114,52 @@ var vms_tab_content = '\
 </div>\
 </form>';
 
-var create_vm_tmpl ='<form id="create_vm_form" action="">\
-  <fieldset>\
-        <div>\
-           <div>\
-             <label for="vm_name">'+tr("VM Name")+':</label>\
-             <input type="text" name="vm_name" id="vm_name" />\
-             <div class="tip">'+tr("Defaults to template name when emtpy")+'.</div>\
-           </div>\
-           <div>\
-             <label for="template_id">'+tr("Select template")+':</label>\
-             <select id="template_id">\
-             </select>\
-           </div>\
-           <div>\
-             <label for="vm_n_times">'+tr("Deploy # VMs")+':</label>\
-             <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
-             <div class="tip">'+tr("You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them")+'.</div>\
-           </div>\
+var create_vm_tmpl ='\
+        <div class="panel">\
+          <h3>\
+            <small id="create_vnet_header">'+tr("Create Virtual Network")+'</small>\
+          </h3>\
         </div>\
-        </fieldset>\
-        <fieldset>\
+        <form id="create_vm_form" action="">\
+          <div class="row centered">\
+              <div class="four columns">\
+                  <label class="inline right" for="vm_name">'+tr("VM Name")+':</label>\
+              </div>\
+              <div class="seven columns">\
+                  <input type="text" name="vm_name" id="vm_name" />\
+              </div>\
+              <div class="one columns">\
+                  <div class="tip">'+tr("Defaults to template name when emtpy")+'.</div>\
+              </div>\
+          </div>\
+          <div class="row centered">\
+              <div class="four columns">\
+                  <label class="inline right" for="template_id">'+tr("Select template")+':</label>\
+              </div>\
+              <div class="seven columns">\
+                 <select id="template_id">\
+                 </select>\
+              </div>\
+              <div class="one columns">\
+                  <div class=""></div>\
+              </div>\
+          </div>\
+          <div class="row centered">\
+              <div class="four columns">\
+                  <label class="inline right" for="vm_n_times">'+tr("Deploy # VMs")+':</label>\
+              </div>\
+              <div class="seven columns">\
+                  <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
+              </div>\
+              <div class="one columns">\
+                  <div class="tip">'+tr("You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them")+'.</div>\
+              </div>\
+          </div>\
+          <hr>\
         <div class="form_buttons">\
-           <button class="button" id="create_vm_proceed" value="VM.create">'+tr("Create")+'</button>\
-           <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
+           <button class="button radius right success" id="create_vm_proceed" value="VM.create">'+tr("Create")+'</button>\
+           <button class="close-reveal-modal button secondary radius" type="close" value="close">' + tr("Close") + '</button>\
         </div>\
-</fieldset>\
 <a class="close-reveal-modal">&#215;</a>\
 </form>';
 
@@ -963,58 +983,54 @@ function updateVMInfo(request,vm){
     var info_tab = {
         title : tr("Information"),
         content:
-        '<table id="info_vm_table" class="info_table">\
+        '<div class="">\
+        <div class="six columns">\
+        <table id="info_vm_table" class="twelve datatable extended_table">\
             <thead>\
-              <tr><th colspan="2">'+tr("Virtual Machine information")+' - '+vm_info.NAME+'</th></tr>\
+              <tr><th colspan="3">'+tr("Virtual Machine information")+' - '+vm_info.NAME+'</th></tr>\
             </thead>\
             <tbody>\
               <tr>\
                  <td class="key_td">'+tr("ID")+'</td>\
                  <td class="value_td">'+vm_info.ID+'</td>\
+                 <td></td>\
               </tr>\
             <tr>\
               <td class="key_td">'+tr("Name")+'</td>\
               <td class="value_td_rename">'+vm_info.NAME+'</td>\
               <td><div id="div_edit_rename">\
-                     <a id="div_edit_rename_link" class="edit_e" href="#">e</a>\
+                     <a id="div_edit_rename_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
                   </div>\
               </td>\
             </tr>\
               <tr>\
                  <td class="key_td">'+tr("State")+'</td>\
                  <td class="value_td">'+tr(vm_state)+'</td>\
+                 <td></td>\
               </tr>\
               <tr>\
                  <td class="key_td">'+tr("LCM State")+'</td>\
                  <td class="value_td">'+tr(OpenNebula.Helper.resource_state("vm_lcm",vm_info.LCM_STATE))+'</td>\
+                 <td></td>\
               </tr>\
               <tr>\
                  <td class="key_td">'+tr("Host")+'</td>\
               <td class="value_td">'+ hostname +'</td>\
+                 <td></td>\
               </tr>\
               <tr>\
                  <td class="key_td">'+tr("Start time")+'</td>\
                  <td class="value_td">'+pretty_time(vm_info.STIME)+'</td>\
+                 <td></td>\
               </tr>\
               <tr>\
                  <td class="key_td">'+tr("Deploy ID")+'</td>\
                  <td class="value_td">'+(typeof(vm_info.DEPLOY_ID) == "object" ? "-" : vm_info.DEPLOY_ID)+'</td>\
+                 <td></td>\
               </tr>\
               </tbody>\
-               </table>' +
-
-               insert_extended_template_table(stripped_vm_template,
-                                              "VM",
-                                              vm_info.ID,
-                                              unshown_values) +
-               insert_permissions_table("VM",
-                                        vm_info.ID,
-                                        vm_info.UNAME,
-                                        vm_info.GNAME,
-                                        vm_info.UID,
-                                        vm_info.GID) +
-
-                '<table id="vm_monitoring_table" class="info_table">\
+               </table>\
+               <table id="vm_monitoring_table" class="twelve datatable extended_table">\
                    <thead>\
                      <tr><th colspan="2">'+tr("Monitoring information")+'</th></tr>\
                    </thead>\
@@ -1040,7 +1056,22 @@ function updateVMInfo(request,vm){
                         <td class="value_td">'+vncIcon(vm_info)+'</td>\
                       </tr>\
                     </tbody>\
-                </table>'
+                </table>\
+            </div>\
+            <div class="six columns">' +
+               insert_permissions_table("VM",
+                                        vm_info.ID,
+                                        vm_info.UNAME,
+                                        vm_info.GNAME,
+                                        vm_info.UID,
+                                        vm_info.GID) +
+               insert_extended_template_table(stripped_vm_template,
+                                              "VM",
+                                              vm_info.ID,
+                                              unshown_values) +
+
+            '</div>\
+        </div>'
     };
 
     var hotplugging_tab = {
@@ -1510,10 +1541,10 @@ function vncIcon(vm){
 
     if (graphics && graphics.TYPE == "vnc" && $.inArray(state, VNCstates)!=-1){
         gr_icon = '<a class="vnc" href="#" vm_id="'+vm.ID+'">';
-        gr_icon += '<img src="images/vnc_on.png" alt=\"'+tr("Open VNC Session")+'\" /></a>';
+        gr_icon += '<img style="height:15px" src="images/vnc_on.png" alt=\"'+tr("Open VNC Session")+'\" /></a>';
     }
     else {
-        gr_icon = '<img src="images/vnc_off.png" alt=\"'+tr("VNC Disabled")+'\" />';
+        gr_icon = '<img style="height:15px" src="images/vnc_off.png" alt=\"'+tr("VNC Disabled")+'\" />';
     }
     return gr_icon;
 }

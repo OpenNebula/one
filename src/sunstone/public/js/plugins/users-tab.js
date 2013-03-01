@@ -691,9 +691,9 @@ function updateUserInfo(request,user){
         <table class="twelve datatable extended_table">\
             <thead>\
                 <tr>\
-                    <th>'+tr("Datastore ID")+'</th>\
-                    <th>'+tr("Images")+'</th>\
-                    <th>'+tr("Size")+'</th>\
+                    <th style="width:24%">'+tr("Datastore ID")+'</th>\
+                    <th style="width:38%">'+tr("Images")+'</th>\
+                    <th style="width:38%">'+tr("Size")+'</th>\
                 </tr>\
             </thead>\
             <tbody>';
@@ -1037,8 +1037,7 @@ function popUpUpdatePasswordDialog(){
 function setUserAutorefresh(){
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_users);
-        var filter = $("#datatable_users_filter input",
-                       dataTable_users.parents("#datatable_users_wrapper")).attr('value');
+        var filter = $("#user_search").attr('value');
         if (!checked.length && !filter.length){
             Sunstone.runAction("User.autorefresh");
         }
