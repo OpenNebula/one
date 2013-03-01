@@ -52,11 +52,30 @@ public:
         return (saving.empty() == false);
     }
 
+    bool is_hot()
+    {
+        string snapshot_hot;
+
+        get(snapshot_hot_attribute, snapshot_hot);
+
+        return (snapshot_hot.empty() == false);
+    }
+
     void set_saving()
     {
         SingleAttribute * attr= new SingleAttribute(saving_attribute, "YES");
 
         erase(saving_attribute);
+
+        set(attr);
+    }
+
+    void set_snapshot_hot()
+    {
+        SingleAttribute * attr = new SingleAttribute(
+                                                snapshot_hot_attribute, "YES");
+
+        erase(snapshot_hot_attribute);
 
         set(attr);
     }
@@ -72,6 +91,7 @@ private:
     static vector<string> restricted_attributes;
 
     static string saving_attribute;
+    static string snapshot_hot_attribute;
 
     /**
      * Stores the attributes as restricted, these attributes will be used in

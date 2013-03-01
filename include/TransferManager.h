@@ -153,6 +153,13 @@ public:
                                ostream&        xfr,
                                bool            local,
                                bool            previous);
+
+
+    /**
+     *  This function starts the hot saveas of an image
+     */
+    void saveas_hot_transfer_command(int vid, int disk_id, string& save_source);
+
 private:
     /**
      *  Thread id for the Transfer Manager

@@ -64,6 +64,8 @@ public:
         DETACH_FAILURE,   /**< Sent by the VMM when a detach action fails     */
         CLEANUP_SUCCESS,  /**< Sent by the VMM when a cleanup action succeeds */
         CLEANUP_FAILURE,  /**< Sent by the VMM when a cleanup action fails    */
+        HOTPLUG_SAVEAS_SUCCESS, /**< Sent by the VMM when hot saveas succeeds */
+        HOTPLUG_SAVEAS_FAILURE, /**< Sent by the VMM when hot saveas fails    */
         DEPLOY,           /**< Sent by the DM to deploy a VM on a host        */
         SUSPEND,          /**< Sent by the DM to suspend an running VM        */
         RESTORE,          /**< Sent by the DM to restore a suspended VM       */
@@ -186,6 +188,10 @@ private:
     void detach_success_action(int vid);
 
     void detach_failure_action(int vid);
+
+    void hotplug_saveas_success_action(int vid);
+
+    void hotplug_saveas_failure_action(int vid);
 
     void cleanup_callback_action(int vid);
 

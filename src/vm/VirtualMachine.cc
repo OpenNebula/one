@@ -1854,6 +1854,67 @@ VectorAttribute * VirtualMachine::delete_attach_disk()
 
     return 0;
 }
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::set_hotplug_saveas(int disk_id)
+{
+
+    int num_disks;
+    int d_id;
+
+    vector<Attribute  *> disks;
+    VectorAttribute *    disk;
+
+    num_disks = obj_template->get("DISK", disks);
+
+    for(int i=0; i<num_disks; i++)
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        disk->vector_value("DISK_ID", d_id);
+
+        if ( d_id == disk_id )
+        {
+            disk->replace("HOTPLUG_SAVEAS", "YES");
+            return 0;
+        }
+    }
+
+    return -1;
+}
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::clear_hotplug_saveas()
+{
+    int                  num_disks;
+    vector<Attribute  *> disks;
+    VectorAttribute *    disk;
+
+    num_disks = obj_template->get("DISK", disks);
+
+    for(int i=0; i<num_disks; i++)
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        if ( disk->vector_value("HOTPLUG_SAVEAS") == "YES" )
+        {
+            disk->remove("HOTPLUG_SAVEAS");
+            return;
+        }
+    }
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

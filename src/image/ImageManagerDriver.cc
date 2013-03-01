@@ -319,6 +319,7 @@ static void mkfs_action(istringstream& is,
     string  source;
     Image * image;
     bool    is_saving;
+    bool    is_hot;
 
     string disk_id;
     string vm_id;
@@ -373,6 +374,8 @@ static void mkfs_action(istringstream& is,
 
     is_saving = image->isSaving();    
 
+    is_hot    = image->isHot();
+
     image->set_source(source);
 
     if (is_saving)
@@ -396,8 +399,6 @@ static void mkfs_action(istringstream& is,
         return;
     }
 
-    /* ---------------- Set up information for the Saved Image -------------- */
-
     vm = vmpool->get(vm_id, true);
 
     if ( vm == 0 )
@@ -405,14 +406,50 @@ static void mkfs_action(istringstream& is,
         goto error_save_get;
     }
 
-    rc = vm->save_disk(disk_id, source, id);
-
-    if ( rc == -1 )
+    if ( is_hot )
     {
-        goto error_save_state;
-    }
+        istringstream iss;
+        int           vm_oid;
+        int           disk_oid;
 
-    vmpool->update(vm);
+        /* change state */
+
+        iss.str(vm_id);
+        iss >> vm_oid;
+
+        iss.clear();
+
+        iss.str(disk_id);
+        iss >> disk_oid;
+
+        vm->set_state(VirtualMachine::HOTPLUG_SAVEAS);
+        vm->set_hotplug_saveas(disk_oid);
+
+        vm->set_resched(false);
+
+        vmpool->update(vm);
+
+        vm->log("LCM", Log::INFO, "New VM state is HOTPLUG_SAVEAS");
+
+        /* call tm */
+
+        TransferManager *   tm = nd.get_tm();
+
+        vm->unlock();
+        tm->saveas_hot_transfer_command(vm_oid, disk_oid, source);
+    }
+    else
+    {
+        /* -------------- Set up information for the Saved Image ------------ */
+        rc = vm->save_disk(disk_id, source, id);
+
+        if ( rc == -1 )
+        {
+            goto error_save_state;
+        }
+
+        vmpool->update(vm);
+    }
 
     vm->unlock();
 

@@ -1625,6 +1625,137 @@ void TransferManager::checkpoint_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void TransferManager::saveas_hot_transfer_command(int vid,
+                                                  int disk_id,
+                                                  string& save_source)
+{
+    string save;
+    string tm_mad;
+    string ds_id;
+
+    int num;
+    int disk_id_iter;
+
+    ostringstream os;
+
+    ofstream xfr;
+    string   xfr_name;
+
+    string source;
+
+    const VectorAttribute *   disk;
+    vector<const Attribute *> attrs;
+
+    VirtualMachine * vm;
+    Nebula&          nd = Nebula::instance();
+
+    const TransferManagerDriver * tm_md;
+
+    // ------------------------------------------------------------------------
+    // Setup & Transfer script
+    // ------------------------------------------------------------------------
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+         vm->log("TM", Log::ERROR, "Could not obtain the VM");;
+         goto error_common;
+    }
+
+    if (!vm->hasHistory())
+    {
+        vm->log("TM", Log::ERROR, "The VM has no history");;
+        goto error_common;
+    }
+
+    tm_md = get();
+
+    if (tm_md == 0)
+    {
+        goto error_driver;
+    }
+
+    num = vm->get_template_attribute("DISK",attrs);
+
+    for (int i=0 ; i < num ; i++)
+    {
+        disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        disk->vector_value("DISK_ID", disk_id_iter);
+
+        if (disk_id == disk_id_iter)
+        {
+            tm_mad = disk->vector_value("TM_MAD");
+            ds_id  = disk->vector_value("DATASTORE_ID");
+
+            break;
+        }
+    }
+
+    if ( ds_id.empty() || tm_mad.empty() )
+    {
+        vm->log("TM", Log::ERROR, "No DS_ID or TM_MAD to save disk image");
+        goto error_common;
+    }
+
+    if (save_source.empty())
+    {
+        vm->log("TM", Log::ERROR, "No SOURCE to save disk image");
+        goto error_common;
+    }
+
+    xfr_name = vm->get_transfer_file() + ".saveas_hot";
+    xfr.open(xfr_name.c_str(),ios::out | ios::trunc);
+
+    if (xfr.fail() == true)
+    {
+        goto error_file;
+    }
+
+    //MVDS tm_mad hostname:remote_system_dir/disk.0 <fe:SOURCE|SOURCE> vmid dsid
+    xfr << "CPDS "
+        << tm_mad << " "
+        << vm->get_hostname() << ":"
+        << vm->get_remote_system_dir() << "/disk." << disk_id << " "
+        << save_source << " "
+        << vm->get_oid() << " "
+        << ds_id
+        << endl;
+
+    xfr.close();
+
+    tm_md->transfer(vid, xfr_name);
+
+    vm->unlock();
+
+    return;
+
+error_driver:
+    os << "saveas_hot_transfer, error getting TM driver.";
+    goto error_common;
+
+error_file:
+    os << "saveas_hot_transfer, could not open file: " << xfr_name;
+    os << ". You may need to manually clean hosts (previous & current)";
+    goto error_common;
+
+error_common:
+    vm->log("TM", Log::ERROR, os);
+
+    (nd.get_lcm())->trigger(LifeCycleManager::HOTPLUG_SAVEAS_FAILURE, vid);
+
+    vm->unlock();
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void TransferManager::migrate_transfer_command(
         VirtualMachine *        vm,
         ostream&                xfr)

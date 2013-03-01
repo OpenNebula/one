@@ -89,7 +89,8 @@ public:
         BOOT_POWEROFF       = 20,
         BOOT_SUSPENDED      = 21,
         BOOT_STOPPED        = 22,
-        CLEANUP_DELETE      = 23
+        CLEANUP_DELETE      = 23,
+        HOTPLUG_SAVEAS      = 24
     };
 
     // -------------------------------------------------------------------------
@@ -952,6 +953,18 @@ public:
      * @return 0 on success, -1 otherwise
      */
     int detach_failure();
+
+    /**
+     *  Sets the hotplug_saveas attribute to the given disk
+     *    @param disk_id of the DISK
+     *    @return 0 if the disk_id was found -1 otherwise
+     */
+    int set_hotplug_saveas(int disk_id);
+
+    /**
+     * Cleans the HOTPLUG_SAVEAS = YES attribute from the disks
+     */
+    void clear_hotplug_saveas();
 
 private:
 

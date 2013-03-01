@@ -21,7 +21,8 @@
 
 vector<string> ImageTemplate::restricted_attributes;
 
-string ImageTemplate::saving_attribute = "SAVE_AS";
+string ImageTemplate::saving_attribute       = "SAVE_AS";
+string ImageTemplate::snapshot_hot_attribute = "SNAPSHOT_HOT";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

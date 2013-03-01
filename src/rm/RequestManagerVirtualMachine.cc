@@ -690,6 +690,12 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     int    disk_id  = xmlrpc_c::value_int(paramList.getInt(2));
     string img_name = xmlrpc_c::value_string(paramList.getString(3));
     string img_type = xmlrpc_c::value_string(paramList.getString(4));
+    bool   is_hot   = false; //Optional XML-RPC argument
+
+    if ( paramList.size() > 5 )
+    {
+        is_hot = xmlrpc_c::value_boolean(paramList.getBoolean(5));
+    }
 
     VirtualMachine * vm;
     int              iid;
@@ -828,6 +834,11 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     itemplate->add("SAVED_IMAGE_ID",iid_orig);
     itemplate->add("SAVED_DISK_ID",disk_id);
     itemplate->add("SAVED_VM_ID", id);
+
+    if ( is_hot )
+    {
+        itemplate->set_snapshot_hot();
+    }
 
     if ( img_type.empty() )
     {

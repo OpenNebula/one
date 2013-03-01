@@ -145,6 +145,14 @@ void LifeCycleManager::trigger(Actions action, int _vid)
         aname = "DETACH_FAILURE";
         break;
 
+    case HOTPLUG_SAVEAS_SUCCESS:
+        aname = "HOTPLUG_SAVEAS_SUCCESS";
+        break;
+
+    case HOTPLUG_SAVEAS_FAILURE:
+        aname = "HOTPLUG_SAVEAS_FAILURE";
+        break;
+
     case CLEANUP_SUCCESS:
         aname = "CLEANUP_SUCCESS";
         break;
@@ -305,6 +313,14 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     else if (action == "DETACH_FAILURE")
     {
         detach_failure_action(vid);
+    }
+    else if (action == "HOTPLUG_SAVEAS_SUCCESS")
+    {
+        hotplug_saveas_success_action(vid);
+    }
+    else if (action == "HOTPLUG_SAVEAS_FAILURE")
+    {
+        hotplug_saveas_failure_action(vid);
     }
     else if (action == "CLEANUP_SUCCESS")
     {

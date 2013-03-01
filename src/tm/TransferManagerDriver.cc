@@ -131,6 +131,10 @@ void TransferManagerDriver::protocol(
                     lcm_action = LifeCycleManager::EPILOG_SUCCESS;
                     break;
 
+                case VirtualMachine::HOTPLUG_SAVEAS:
+                    lcm_action = LifeCycleManager::HOTPLUG_SAVEAS_SUCCESS;
+                    break;
+
                 default:
                     goto error_state;
             }
@@ -166,6 +170,10 @@ void TransferManagerDriver::protocol(
                 case VirtualMachine::EPILOG_STOP:
                 case VirtualMachine::CLEANUP_RESUBMIT:
                     lcm_action = LifeCycleManager::EPILOG_FAILURE;
+                    break;
+
+                case VirtualMachine::HOTPLUG_SAVEAS:
+                    lcm_action = LifeCycleManager::HOTPLUG_SAVEAS_FAILURE;
                     break;
 
                 default:
