@@ -506,12 +506,21 @@ function userElementArray(user_json){
     var cpu = "-";
 
     if (!$.isEmptyObject(user.VM_QUOTA)){
-        vms = user.VM_QUOTA.VM.VMS_USED+' / '
-            +user.VM_QUOTA.VM.VMS;
-        memory = humanize_size(user.VM_QUOTA.VM.MEMORY_USED * 1024)+' / '
-            +humanize_size(user.VM_QUOTA.VM.MEMORY * 1024);
-        cpu = user.VM_QUOTA.VM.CPU_USED+' / '
-            +user.VM_QUOTA.VM.CPU;
+
+        var vms = quotaBar(
+            user.VM_QUOTA.VM.VMS_USED,
+            user.VM_QUOTA.VM.VMS,
+            default_user_quotas.VM_QUOTA.VM.VMS);
+
+        var memory = quotaBarMB(
+            user.VM_QUOTA.VM.MEMORY_USED,
+            user.VM_QUOTA.VM.MEMORY,
+            default_user_quotas.VM_QUOTA.VM.MEMORY);
+
+        var cpu = quotaBarFloat(
+            user.VM_QUOTA.VM.CPU_USED,
+            user.VM_QUOTA.VM.CPU,
+            default_user_quotas.VM_QUOTA.VM.CPU);
     }
 
 
@@ -609,6 +618,21 @@ function updateUserInfo(request,user){
     var quotas_tab_html = '';
 
     if (!$.isEmptyObject(user_info.VM_QUOTA)){
+        var vms_bar = quotaBar(
+            user_info.VM_QUOTA.VM.VMS_USED,
+            user_info.VM_QUOTA.VM.VMS,
+            default_user_quotas.VM_QUOTA.VM.VMS);
+
+        var memory_bar = quotaBarMB(
+            user_info.VM_QUOTA.VM.MEMORY_USED,
+            user_info.VM_QUOTA.VM.MEMORY,
+            default_user_quotas.VM_QUOTA.VM.MEMORY);
+
+        var cpu_bar = quotaBarFloat(
+            user_info.VM_QUOTA.VM.CPU_USED,
+            user_info.VM_QUOTA.VM.CPU,
+            default_user_quotas.VM_QUOTA.VM.CPU);
+
         quotas_tab_html +=
         '<table class="twelve">\
             <thead>\
@@ -620,12 +644,9 @@ function updateUserInfo(request,user){
             </thead>\
             <tbody>\
                 <tr>\
-                    <td>'+user_info.VM_QUOTA.VM.VMS_USED+' / '
-                         +user_info.VM_QUOTA.VM.VMS+'</td>\
-                    <td>'+humanize_size(user_info.VM_QUOTA.VM.MEMORY_USED * 1024)+' / '
-                         +humanize_size(user_info.VM_QUOTA.VM.MEMORY * 1024)+'</td>\
-                    <td>'+user_info.VM_QUOTA.VM.CPU_USED+' / '
-                         +user_info.VM_QUOTA.VM.CPU+'</td>\
+                    <td>'+vms_bar+'</td>\
+                    <td>'+memory_bar+'</td>\
+                    <td>'+cpu_bar+'</td>\
                 </tr>\
             </tbody>\
         </table>'
@@ -651,13 +672,31 @@ function updateUserInfo(request,user){
             ds_quotas = [user_info.DATASTORE_QUOTA.DATASTORE];
 
         for (var i=0; i < ds_quotas.length; i++){
+
+            var default_ds_quotas = default_user_quotas.DATASTORE_QUOTA[ds_quotas[i].ID]
+
+            if (default_ds_quotas == undefined){
+                default_ds_quotas = {
+                    "IMAGES"    : "0",
+                    "SIZE"      : "0"
+                }
+            }
+
+            var img_bar = quotaBar(
+                ds_quotas[i].IMAGES_USED,
+                ds_quotas[i].IMAGES,
+                default_ds_quotas.IMAGES);
+
+            var size_bar = quotaBarMB(
+                ds_quotas[i].SIZE_USED,
+                ds_quotas[i].SIZE,
+                default_ds_quotas.SIZE);
+
             quotas_tab_html +=
             '<tr>\
                 <td>'+ds_quotas[i].ID+'</td>\
-                <td>'+ds_quotas[i].IMAGES_USED+' / '
-                     +ds_quotas[i].IMAGES+'</td>\
-                <td>'+humanize_size(ds_quotas[i].SIZE_USED * 1024)+' / '
-                     +humanize_size(ds_quotas[i].SIZE * 1024)+'</td>\
+                <td>'+img_bar+'</td>\
+                <td>'+size_bar+'</td>\
             </tr>';
         }
 
@@ -685,11 +724,24 @@ function updateUserInfo(request,user){
             img_quotas = [user_info.IMAGE_QUOTA.IMAGE];
 
         for (var i=0; i < img_quotas.length; i++){
+
+            var default_img_quotas = default_user_quotas.IMAGE_QUOTA[img_quotas[i].ID]
+
+            if (default_img_quotas == undefined){
+                default_img_quotas = {
+                    "RVMS"  : "0"
+                }
+            }
+
+            var rvms_bar = quotaBar(
+                img_quotas[i].RVMS_USED,
+                img_quotas[i].RVMS,
+                default_img_quotas.RVMS);
+
             quotas_tab_html +=
             '<tr>\
                 <td>'+img_quotas[i].ID+'</td>\
-                <td>'+img_quotas[i].RVMS_USED+' / '
-                     +img_quotas[i].RVMS+'</td>\
+                <td>'+rvms_bar+'</td>\
             </tr>';
         }
 
@@ -717,11 +769,24 @@ function updateUserInfo(request,user){
             net_quotas = [user_info.NETWORK_QUOTA.NETWORK];
 
         for (var i=0; i < net_quotas.length; i++){
+
+            var default_net_quotas = default_user_quotas.NETWORK_QUOTA[net_quotas[i].ID]
+
+            if (default_net_quotas == undefined){
+                default_net_quotas = {
+                    "LEASES" : "0"
+                }
+            }
+
+            var leases_bar = quotaBar(
+                net_quotas[i].LEASES_USED,
+                net_quotas[i].LEASES,
+                default_net_quotas.LEASES);
+
             quotas_tab_html +=
             '<tr>\
                 <td>'+net_quotas[i].ID+'</td>\
-                <td>'+net_quotas[i].LEASES_USED+' / '
-                     +net_quotas[i].LEASES+'</td>\
+                <td>'+leases_bar+'</td>\
             </tr>';
         }
 

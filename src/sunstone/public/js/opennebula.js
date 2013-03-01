@@ -777,7 +777,96 @@ var OpenNebula = {
             OpenNebula.Action.del(params,OpenNebula.User.resource);
         },
         "list": function(params){
-            OpenNebula.Action.list(params,OpenNebula.User.resource);
+
+            var resource = OpenNebula.User.resource
+            var req_path = resource.toLowerCase();
+
+            var callback = params.success;
+            var callback_error = params.error;
+            var timeout = params.timeout || false;
+            var request = OpenNebula.Helper.request(resource,"list");
+
+            $.ajax({
+                url: req_path,
+                type: "GET",
+                data: {timeout: timeout},
+                dataType: "json",
+                success: function(response){
+                    // Get the default user quotas
+                    default_user_quotas = response.USER_POOL.DEFAULT_USER_QUOTAS;
+
+                    // Initialize the VM_QUOTA to unlimited if it does not exist
+                    if ($.isEmptyObject(default_user_quotas.VM_QUOTA)){
+                        default_user_quotas.VM_QUOTA = {
+                            "VM" : {
+                                "VMS"    : "0",
+                                "MEMORY" : "0",
+                                "CPU"    : "0"
+                            }
+                        }
+                    }
+
+                    // Replace the DATASTORE array with a map
+
+                    var ds_quotas = [];
+
+                    if ($.isArray(default_user_quotas.DATASTORE_QUOTA.DATASTORE))
+                        ds_quotas = default_user_quotas.DATASTORE_QUOTA.DATASTORE;
+                    else if (default_user_quotas.DATASTORE_QUOTA.DATASTORE)
+                        ds_quotas = [default_user_quotas.DATASTORE_QUOTA.DATASTORE];
+
+                    delete default_user_quotas.DATASTORE_QUOTA;
+
+                    default_user_quotas.DATASTORE_QUOTA = {};
+
+                    for (var i=0; i < ds_quotas.length; i++){
+                        default_user_quotas.DATASTORE_QUOTA[ds_quotas[i].ID] = ds_quotas[i]
+                    }
+
+                    // Replace the IMAGE array with a map
+
+                    var img_quotas = [];
+
+                    if ($.isArray(default_user_quotas.IMAGE_QUOTA.IMAGE))
+                        img_quotas = default_user_quotas.IMAGE_QUOTA.IMAGE;
+                    else if (default_user_quotas.IMAGE_QUOTA.IMAGE)
+                        img_quotas = [default_user_quotas.IMAGE_QUOTA.IMAGE];
+
+                    delete default_user_quotas.IMAGE_QUOTA;
+
+                    default_user_quotas.IMAGE_QUOTA = {};
+
+                    for (var i=0; i < img_quotas.length; i++){
+                        default_user_quotas.IMAGE_QUOTA[img_quotas[i].ID] = img_quotas[i]
+                    }
+
+                    // Replace the NETWORK array with a map
+
+                    var net_quotas = [];
+
+                    if ($.isArray(default_user_quotas.NETWORK_QUOTA.NETWORK))
+                        net_quotas = default_user_quotas.NETWORK_QUOTA.NETWORK;
+                    else if (default_user_quotas.NETWORK_QUOTA.NETWORK)
+                        net_quotas = [default_user_quotas.NETWORK_QUOTA.NETWORK];
+
+                    delete default_user_quotas.NETWORK_QUOTA;
+
+                    default_user_quotas.NETWORK_QUOTA = {};
+
+                    for (var i=0; i < net_quotas.length; i++){
+                        default_user_quotas.NETWORK_QUOTA[net_quotas[i].ID] = net_quotas[i]
+                    }
+
+                    var list = OpenNebula.Helper.pool(resource,response)
+                    return callback ?
+                        callback(request, list) : null;
+                },
+                error: function(response)
+                {
+                    return callback_error ?
+                        callback_error(request, OpenNebula.Error(response)) : null;
+                }
+            });
         },
         "show" : function(params){
             OpenNebula.Action.show(params,OpenNebula.User.resource);

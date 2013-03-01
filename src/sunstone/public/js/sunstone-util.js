@@ -1937,6 +1937,83 @@ function insert_cluster_dropdown(resource_type, resource_id, cluster_value, clus
 }
 
 /*
+ * Helpers for quotas
+ */
+
+function quotaBar(usage, limit, default_limit){
+    var int_usage = parseInt(usage, 10);
+    var int_limit = quotaIntLimit(limit, default_limit);
+    return quotaBarHtml(int_usage, int_limit);
+}
+
+function quotaBarMB(usage, limit, default_limit){
+    var int_usage = parseInt(usage, 10);
+    var int_limit = quotaIntLimit(limit, default_limit);
+
+    info_str = humanize_size(int_usage * 1024)+' / '
+            +((int_limit > 0) ? humanize_size(int_limit * 1024) : '-')
+
+    return quotaBarHtml(int_usage, int_limit, info_str);
+}
+
+function quotaBarFloat(usage, limit, default_limit){
+    var float_usage = parseFloat(usage, 10);
+    var float_limit = quotaFloatLimit(limit, default_limit);
+    return quotaBarHtml(float_usage, float_limit);
+}
+
+function quotaBarHtml(usage, limit, info_str){
+    percentage = 0;
+
+    if (limit > 0){
+        percentage = (usage / limit) * 100;
+
+        if (percentage > 100){
+            percentage = 100;
+        }
+    }
+
+    info_str = info_str || ( usage+' / '+((limit > 0) ? limit : '-') );
+
+    html = '<div class="progress"><span class="meter" style="width: '
+        +percentage+'%"></span>'+info_str+'</div>';
+
+    return html;
+}
+
+function quotaIntLimit(limit, default_limit){
+    i_limit = parseInt(limit, 10);
+    i_default_limit = parseInt(default_limit, 10);
+
+    if (i_limit == -1){
+        i_limit = i_default_limit;
+    }
+
+    if (isNaN(i_limit))
+    {
+        i_limit = 0;
+    }
+
+    return i_limit
+}
+
+function quotaFloatLimit(limit, default_limit){
+    f_limit = parseFloat(limit, 10);
+    f_default_limit = parseFloat(default_limit, 10);
+
+    if (f_limit == -1){
+        f_limit = f_default_limit;
+    }
+
+    if (isNaN(f_limit))
+    {
+        f_limit = 0;
+    }
+
+    return f_limit
+}
+
+/*
  * jQuery Foundation Tooltips 2.0.2
  * http://foundation.zurb.com
  * Copyright 2012, ZURB
