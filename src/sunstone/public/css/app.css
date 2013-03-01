@@ -6554,18 +6554,25 @@ form.creation {
   position: relative;
   width: 100%;
   text-align: center;
+  background: #FFF;
 }
 
-/* line 582, ../sass/app.scss */
+/* line 583, ../sass/app.scss */
 .progress {
   position: absolute;
   width: 100%;
   height: 19px !important;
+  background: #FFF;
 }
 
-/* line 588, ../sass/app.scss */
+/* line 590, ../sass/app.scss */
 .progress-text {
   position: absolute;
   width: 100%;
   font-size: 12px;
+}
+
+/* line 596, ../sass/app.scss */
+.meter {
+  background: #cdebf5 !important;
 }

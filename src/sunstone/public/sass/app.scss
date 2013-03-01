@@ -577,16 +577,22 @@ form.creation {
     position:relative;
     width: 100%;
     text-align: center;
+    background: #FFF;
 }
 
 .progress {
     position:absolute;
     width: 100%;
     height: 19px !important;
+    background: #FFF;
 }
 
 .progress-text {
     position:absolute;
     width: 100%;
     font-size: 12px;
+}
+
+.meter {
+    background: #cdebf5 !important;
 }
