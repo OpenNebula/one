@@ -42,7 +42,9 @@ var groups_tab_content = '\
 <form class="custom" id="group_form" action="">\
 <div class="panel">\
 <div class="row">\
-  <h4 class="subheader"><i class="icon-group"></i> '+tr("Groups")+'</h4>\
+  <div class="twelve columns">\
+    <h4 class="subheader"><i class="icon-group"></i> '+tr("Groups")+'</h4>\
+  </div>\
 </div>\
 <div class="row">\
   <div class="nine columns">\
@@ -66,8 +68,8 @@ var groups_tab_content = '\
       <th>'+tr("Name")+'</th>\
       <th>'+tr("Users")+'</th>\
       <th>'+tr("VMs")+'</th>\
-      <th>'+tr("Memory")+'</th>\
-      <th>'+tr("CPU")+'</th>\
+      <th>'+tr("UMEM")+'</th>\
+      <th>'+tr("UCPU")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodygroups">\
@@ -392,20 +394,9 @@ function groupElementArray(group_json){
     var cpu = "-";
 
     if (!$.isEmptyObject(group.VM_QUOTA)){
-        var vms = quotaBar(
-            group.VM_QUOTA.VM.VMS_USED,
-            group.VM_QUOTA.VM.VMS,
-            default_group_quotas.VM_QUOTA.VM.VMS);
-
-        var memory = quotaBarMB(
-            group.VM_QUOTA.VM.MEMORY_USED,
-            group.VM_QUOTA.VM.MEMORY,
-            default_group_quotas.VM_QUOTA.VM.MEMORY);
-
-        var cpu = quotaBarFloat(
-            group.VM_QUOTA.VM.CPU_USED,
-            group.VM_QUOTA.VM.CPU,
-            default_group_quotas.VM_QUOTA.VM.CPU);
+        vms = group.VM_QUOTA.VM.VMS_USED;
+        memory = group.VM_QUOTA.VM.MEMORY_USED+' MB';
+        cpu = group.VM_QUOTA.VM.CPU_USED;
     }
 
     return [
@@ -491,184 +482,25 @@ function updateGroupInfo(request,group){
            </div>\
          </div>';
 
-    if (!$.isEmptyObject(info.VM_QUOTA)){
-        var vms_bar = quotaBar(
-            info.VM_QUOTA.VM.VMS_USED,
-            info.VM_QUOTA.VM.VMS,
-            default_group_quotas.VM_QUOTA.VM.VMS);
+    if (!$.isEmptyObject(info.VM_QUOTA))
+        info_tab_html += '<table class="info_table" style="width:70%;margin-top:0;margin-left:40px;">\
+            <tbody>'+prettyPrintJSON(info.VM_QUOTA)+'</tbody>\
+          </table>'
 
-        var memory_bar = quotaBarMB(
-            info.VM_QUOTA.VM.MEMORY_USED,
-            info.VM_QUOTA.VM.MEMORY,
-            default_group_quotas.VM_QUOTA.VM.MEMORY);
+    if (!$.isEmptyObject(info.DATASTORE_QUOTA))
+        info_tab_html += '<table class="info_table" style="width:70%;margin-top:0;margin-left:40px;%">\
+            <tbody>'+prettyPrintJSON(info.DATASTORE_QUOTA)+'</tbody>\
+          </table>'
 
-        var cpu_bar = quotaBarFloat(
-            info.VM_QUOTA.VM.CPU_USED,
-            info.VM_QUOTA.VM.CPU,
-            default_group_quotas.VM_QUOTA.VM.CPU);
+    if (!$.isEmptyObject(info.IMAGE_QUOTA))
+        info_tab_html += '<table class="info_table" style="width:70%;margin-top:0;margin-left:40px;">\
+            <tbody>'+prettyPrintJSON(info.IMAGE_QUOTA)+'</tbody>\
+          </table>';
 
-        info_tab_html +=
-        '<table class="twelve">\
-            <thead>\
-                <tr>\
-                    <th>'+tr("VMs")+'</th>\
-                    <th>'+tr("Memory")+'</th>\
-                    <th>'+tr("CPU")+'</th>\
-                </tr>\
-            </thead>\
-            <tbody>\
-                <tr>\
-                    <td>'+vms_bar+'</td>\
-                    <td>'+memory_bar+'</td>\
-                    <td>'+cpu_bar+'</td>\
-                </tr>\
-            </tbody>\
-        </table>'
-    }
-
-
-    if (!$.isEmptyObject(info.DATASTORE_QUOTA)){
-        info_tab_html += 
-        '<table class="twelve">\
-            <thead>\
-                <tr>\
-                    <th>'+tr("Datastore ID")+'</th>\
-                    <th>'+tr("Images")+'</th>\
-                    <th>'+tr("Size")+'</th>\
-                </tr>\
-            </thead>\
-            <tbody>';
-
-        var ds_quotas = [];
-
-        if ($.isArray(info.DATASTORE_QUOTA.DATASTORE))
-            ds_quotas = info.DATASTORE_QUOTA.DATASTORE;
-        else if (info.DATASTORE_QUOTA.DATASTORE.ID)
-            ds_quotas = [info.DATASTORE_QUOTA.DATASTORE];
-
-        for (var i=0; i < ds_quotas.length; i++){
-
-            var default_ds_quotas = default_group_quotas.DATASTORE_QUOTA[ds_quotas[i].ID]
-
-            if (default_ds_quotas == undefined){
-                default_ds_quotas = {
-                    "IMAGES"    : "0",
-                    "SIZE"      : "0"
-                }
-            }
-
-            var img_bar = quotaBar(
-                ds_quotas[i].IMAGES_USED,
-                ds_quotas[i].IMAGES,
-                default_ds_quotas.IMAGES);
-
-            var size_bar = quotaBarMB(
-                ds_quotas[i].SIZE_USED,
-                ds_quotas[i].SIZE,
-                default_ds_quotas.SIZE);
-
-            info_tab_html +=
-            '<tr>\
-                <td>'+ds_quotas[i].ID+'</td>\
-                <td>'+img_bar+'</td>\
-                <td>'+size_bar+'</td>\
-            </tr>';
-        }
-
-        info_tab_html +=
-            '</tbody>\
-        </table>';
-    }
-
-    if (!$.isEmptyObject(info.IMAGE_QUOTA)){
-        info_tab_html += 
-        '<table class="twelve">\
-            <thead>\
-                <tr>\
-                    <th>'+tr("Image ID")+'</th>\
-                    <th>'+tr("Running VMs")+'</th>\
-                </tr>\
-            </thead>\
-            <tbody>';
-
-        var img_quotas = [];
-
-        if ($.isArray(info.IMAGE_QUOTA.IMAGE))
-            img_quotas = info.IMAGE_QUOTA.IMAGE;
-        else if (info.IMAGE_QUOTA.IMAGE.ID)
-            img_quotas = [info.IMAGE_QUOTA.IMAGE];
-
-        for (var i=0; i < img_quotas.length; i++){
-
-            var default_img_quotas = default_group_quotas.IMAGE_QUOTA[img_quotas[i].ID]
-
-            if (default_img_quotas == undefined){
-                default_img_quotas = {
-                    "RVMS"  : "0"
-                }
-            }
-
-            var rvms_bar = quotaBar(
-                img_quotas[i].RVMS_USED,
-                img_quotas[i].RVMS,
-                default_img_quotas.RVMS);
-
-            info_tab_html +=
-            '<tr>\
-                <td>'+img_quotas[i].ID+'</td>\
-                <td>'+rvms_bar+'</td>\
-            </tr>';
-        }
-
-        info_tab_html +=
-            '</tbody>\
-        </table>';
-    }
-
-    if (!$.isEmptyObject(info.NETWORK_QUOTA)){
-        info_tab_html += 
-        '<table class="twelve">\
-            <thead>\
-                <tr>\
-                    <th>'+tr("Network ID")+'</th>\
-                    <th>'+tr("Leases")+'</th>\
-                </tr>\
-            </thead>\
-            <tbody>';
-
-        var net_quotas = [];
-
-        if ($.isArray(info.NETWORK_QUOTA.NETWORK))
-            net_quotas = info.NETWORK_QUOTA.NETWORK;
-        else if (info.NETWORK_QUOTA.NETWORK.ID)
-            net_quotas = [info.NETWORK_QUOTA.NETWORK];
-
-        for (var i=0; i < net_quotas.length; i++){
-
-            var default_net_quotas = default_group_quotas.NETWORK_QUOTA[net_quotas[i].ID]
-
-            if (default_net_quotas == undefined){
-                default_net_quotas = {
-                    "LEASES" : "0"
-                }
-            }
-
-            var leases_bar = quotaBar(
-                net_quotas[i].LEASES_USED,
-                net_quotas[i].LEASES,
-                default_net_quotas.LEASES);
-
-            info_tab_html +=
-            '<tr>\
-                <td>'+net_quotas[i].ID+'</td>\
-                <td>'+leases_bar+'</td>\
-            </tr>';
-        }
-
-        info_tab_html +=
-            '</tbody>\
-        </table>';
-    }
+    if (!$.isEmptyObject(info.NETWORK_QUOTA))
+        info_tab_html += '<table class="info_table" style="width:70%;margin-top:0;margin-left:40px;">\
+            <tbody>'+prettyPrintJSON(info.NETWORK_QUOTA)+'</tbody>\
+          </table>';
 
     var info_tab = {
         title : tr("Group information"),

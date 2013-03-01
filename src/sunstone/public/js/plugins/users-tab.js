@@ -109,7 +109,7 @@ var create_user_tmpl =
               <label class="inline right" for="username">'+tr("Username")+':</label>\
           </div>\
           <div class="seven columns">\
-              <input type="text" name="username" id="username" /><br />\
+              <input type="text" name="username" id="username" />\
           </div>\
           <div class="one columns">\
               <div class=""></div>\
@@ -139,7 +139,7 @@ var create_user_tmpl =
                  <option value="custom">'+tr("Custom")+'</option>\
             </select>\
             <div>\
-              <input type="text" name="custom_auth" /><br />\
+              <input type="text" name="custom_auth" />\
             </div>\
           </div>\
           <div class="one columns">\
@@ -616,7 +616,9 @@ function updateUserInfo(request,user){
     var info_tab = {
         title : tr("User information"),
         content :
-        '<table id="info_user_table" class="info_table">\
+        '<div class="">\
+          <div class="six columns">\
+          <table id="info_user_table" class="twelve datatable extended_table">\
             <thead>\
                <tr><th colspan="2">' + tr("User information") + ' - '+user_info.NAME+'</th></tr>\
             </thead>\
@@ -635,15 +637,16 @@ function updateUserInfo(request,user){
             </tr>\
             </tbody>\
          </table>\
-        <table id="user_template_table" class="info_table">\
-                <thead><tr><th colspan="2">' + tr("User template") + '</th></tr></thead>'+
+       </div>\
+       <div class="six columns">' +
                insert_extended_template_table(user_info.TEMPLATE,
                                               "User",
                                               user_info.ID) +
-        '</table>'
+       '</div>\
+     </div>'
     };
 
-    var quotas_tab_html = '';
+    var quotas_tab_html = '<div class="">';
 
     if (!$.isEmptyObject(user_info.VM_QUOTA)){
         var vms_bar = quotaBar(
@@ -662,7 +665,8 @@ function updateUserInfo(request,user){
             default_user_quotas.VM_QUOTA.VM.CPU);
 
         quotas_tab_html +=
-        '<table class="twelve datatable extended_table">\
+        '<div class="six columns">\
+        <table class="twelve datatable extended_table">\
             <thead>\
                 <tr>\
                     <th>'+tr("VMs")+'</th>\
@@ -677,12 +681,14 @@ function updateUserInfo(request,user){
                     <td>'+cpu_bar+'</td>\
                 </tr>\
             </tbody>\
-        </table>'
+        </table>\
+     </div>'
     }
 
     if (!$.isEmptyObject(user_info.DATASTORE_QUOTA)){
         quotas_tab_html += 
-        '<table class="twelve datatable extended_table">\
+        '<div class="six columns">\
+        <table class="twelve datatable extended_table">\
             <thead>\
                 <tr>\
                     <th>'+tr("Datastore ID")+'</th>\
@@ -730,12 +736,14 @@ function updateUserInfo(request,user){
 
         quotas_tab_html +=
             '</tbody>\
-        </table>';
+        </table>\
+     </div>';
     }
 
     if (!$.isEmptyObject(user_info.IMAGE_QUOTA)){
         quotas_tab_html += 
-        '<table class="twelve datatable extended_table">\
+        '<div class="six columns">\
+        <table class="twelve datatable extended_table">\
             <thead>\
                 <tr>\
                     <th>'+tr("Image ID")+'</th>\
@@ -775,12 +783,14 @@ function updateUserInfo(request,user){
 
         quotas_tab_html +=
             '</tbody>\
-        </table>';
+        </table>\
+     </div>';
     }
 
     if (!$.isEmptyObject(user_info.NETWORK_QUOTA)){
         quotas_tab_html += 
-        '<table class="twelve datatable extended_table">\
+        '<div class="six columns">\
+        <table class="twelve datatable extended_table">\
             <thead>\
                 <tr>\
                     <th>'+tr("Network ID")+'</th>\
@@ -820,7 +830,8 @@ function updateUserInfo(request,user){
 
         quotas_tab_html +=
             '</tbody>\
-        </table>';
+        </table></div>\
+     </div>';
     }
 
     var quotas_tab = {
