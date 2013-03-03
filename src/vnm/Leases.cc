@@ -270,10 +270,8 @@ string& Leases::Lease::to_xml(string& str,
 
     os <<
         "<LEASE>" <<
-            "<IP>"  << ip_s  << "</IP>"  <<
             "<MAC>" << mac_s << "</MAC>" <<
-            "<USED>"<< used  << "</USED>"<<
-            "<VID>" << vid   << "</VID>" <<
+            "<IP>"  << ip_s  << "</IP>"  <<
             "<IP6_LINK>" << ipl_s << "</IP6_LINK>";
 
     if (site[1] != 0 || site[0] != 0 )
@@ -288,7 +286,9 @@ string& Leases::Lease::to_xml(string& str,
         os << "<IP6_GLOBAL>" << ipg_s << "</IP6_GLOBAL>";
     }
 
-    os << "</LEASE>";
+    os << "<USED>"<< used  << "</USED>"<<
+          "<VID>" << vid   << "</VID>" <<
+        "</LEASE>";
 
     str = os.str();
 

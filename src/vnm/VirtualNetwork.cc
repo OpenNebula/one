@@ -56,6 +56,9 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
     }
 
     set_umask(_umask);
+
+    global_bin[0] = global_bin[1] = 0;
+    site_bin[0] = site_bin[1] = 0;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -132,12 +135,6 @@ int VirtualNetwork::select_leases(SqlDB * db)
     string          network_address;
 
     unsigned int mac_prefix = VirtualNetworkPool::mac_prefix();
-    unsigned int site_i[2];
-    unsigned int global_i[2];
-
-    Leases::Lease::prefix6_to_number(site, site_i);
-
-    Leases::Lease::prefix6_to_number(global, global_i);
 
     //Get the leases
     if (type == RANGED)
@@ -145,8 +142,8 @@ int VirtualNetwork::select_leases(SqlDB * db)
         leases = new RangedLeases(db,
                                   oid,
                                   mac_prefix,
-                                  global_i,
-                                  site_i,
+                                  global_bin,
+                                  site_bin,
                                   ip_start,
                                   ip_end);
     }
@@ -155,8 +152,8 @@ int VirtualNetwork::select_leases(SqlDB * db)
         leases = new  FixedLeases(db,
                                   oid,
                                   mac_prefix,
-                                  global_i,
-                                  site_i);
+                                  global_bin,
+                                  site_bin);
     }
     else
     {
@@ -197,9 +194,6 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     string ranged_error_str;
 
     unsigned int mac_prefix = VirtualNetworkPool::mac_prefix();
-
-    unsigned int global_i[2];
-    unsigned int site_i[2];
 
     //--------------------------------------------------------------------------
     // VirtualNetwork Attributes from the template
@@ -276,14 +270,14 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     erase_template_attribute("GLOBAL_PREFIX", global);
 
-    if (Leases::Lease::prefix6_to_number(global, global_i) != 0)
+    if (Leases::Lease::prefix6_to_number(global, global_bin) != 0)
     {
         goto error_global;
     }
 
     erase_template_attribute("SITE_PREFIX", site);
 
-    if (Leases::Lease::prefix6_to_number(site, site_i) != 0)
+    if (Leases::Lease::prefix6_to_number(site, site_bin) != 0)
     {
         goto error_site;
     }
@@ -307,8 +301,8 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
         leases = new RangedLeases(db,
                                   oid,
                                   mac_prefix,
-                                  global_i,
-                                  site_i,
+                                  global_bin,
+                                  site_bin,
                                   ip_start,
                                   ip_end);
     }
@@ -321,8 +315,8 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
         leases = new FixedLeases(db,
                                  oid,
                                  mac_prefix,
-                                 global_i,
-                                 site_i,
+                                 global_bin,
+                                 site_bin,
                                  vector_leases);
 
         remove_template_attribute("LEASES");
@@ -650,6 +644,9 @@ int VirtualNetwork::from_xml(const string &xml_str)
     xpath(global,  "/VNET/GLOBAL_PREFIX", "");
     xpath(site, "/VNET/SITE_PREFIX","");
 
+    Leases::Lease::prefix6_to_number(site, site_bin);
+    Leases::Lease::prefix6_to_number(global, global_bin);
+
     type = static_cast<NetworkType>(int_type);
 
     // Get associated classes
@@ -699,7 +696,7 @@ int VirtualNetwork::nic_attribute(VectorAttribute *nic, int vid)
     unsigned int eui64[2];
     unsigned int prefix[2] = {0, 0};
 
-    ostringstream  oss;
+    ostringstream oss;
 
     ip    = nic->vector_value("IP");
     oss << oid;
@@ -737,17 +734,13 @@ int VirtualNetwork::nic_attribute(VectorAttribute *nic, int vid)
 
     if (!global.empty())
     {
-        Leases::Lease::prefix6_to_number(global, prefix);
-        Leases::Lease::ip6_to_string(eui64, prefix, ip);
-
+        Leases::Lease::ip6_to_string(eui64, global_bin, ip);
         nic->replace("IP6_GLOBAL", ip);
     }
 
     if (!site.empty())
     {
-        Leases::Lease::prefix6_to_number(site, prefix);
-        Leases::Lease::ip6_to_string(eui64, prefix, ip);
-
+        Leases::Lease::ip6_to_string(eui64, site_bin, ip);
         nic->replace("IP6_SITE", ip);
     }
 

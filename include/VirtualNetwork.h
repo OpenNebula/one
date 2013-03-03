@@ -237,9 +237,19 @@ private:
      string global;
 
     /**
+     *  Binary representation of the IPv6 address global unicast prefix
+     */
+     unsigned int global_bin[2];
+
+    /**
      *  IPv6 address site unicast prefix
      */
      string site;
+
+    /**
+     *  Binary representation of the IPv6 address site unicast prefix
+     */
+     unsigned int site_bin[2];
 
     // -------------------------------------------------------------------------
     // Virtual Network Description
