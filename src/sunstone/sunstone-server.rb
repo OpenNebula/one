@@ -104,10 +104,6 @@ set :cloud_auth, cloud_auth
 configure do
     set :run, false
     set :vnc, OpenNebulaVNC.new(conf, settings.logger)
-    settings.vnc.start()
-    Kernel.at_exit do
-        settings.vnc.stop
-    end
 end
 
 ##############################################################################

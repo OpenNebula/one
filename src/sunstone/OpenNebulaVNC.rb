@@ -27,9 +27,10 @@ class OpenNebulaVNC
 
     attr_reader :proxy_port
 
-    def initialize(config, logger,  opts={
-                       :json_errors => true,
-                       :token_folder_name => 'sunstone_vnc_tokens'})
+    def initialize(config, logger, options = {})
+        opts={ :json_errors => true,
+               :token_folder_name => 'sunstone_vnc_tokens'}.merge(options)
+
         @pipe = nil
         @token_folder = File.join(VAR_LOCATION, opts[:token_folder_name])
         @proxy_path = config[:vnc_proxy_path]
@@ -37,6 +38,8 @@ class OpenNebulaVNC
                       config[:vnc_proxy_base_port] #deprecated
 
         @wss = config[:vnc_proxy_support_wss]
+
+        @lock_file = config[:lock_file] || '/tmp/novnc.lock'
 
         if (@wss == "yes") || (@wss == "only") || (@wss == true)
             @enable_wss = true
@@ -48,20 +51,23 @@ class OpenNebulaVNC
         @options = opts
         @logger = logger
 
-        begin
-            Dir.mkdir(@token_folder)
-        rescue Exception => e
-            @logger.error "Cannot create token folder"
-            @logger.error e.message
-        end
 
     end
 
     def start
-        if @proxy_path == nil || @proxy_path.empty?
-            @logger.info "VNC proxy not configured"
-            return
+        if is_running?
+            message="VNC server already running"
+            STDERR.puts message
+            @logger.info message
+            return false
         end
+
+        if @proxy_path == nil || @proxy_path.empty?
+            @logger.error "VNC proxy not configured"
+            return false
+        end
+
+        create_token_dir
 
         proxy_options = "--target-config=#{@token_folder} "
 
@@ -75,16 +81,31 @@ class OpenNebulaVNC
 
         begin
             @logger.info { "Starting VNC proxy: #{cmd}" }
-            @pipe = IO.popen(cmd,'r')
+            pid=start_daemon(cmd, 'VNC_LOG')
         rescue Exception => e
             @logger.error e.message
-            return
+            return false
         end
+
+        File.write(@lock_file, pid)
+
+        sleep 1
+
+        if !is_running?
+            message="Error starting VNC proxy"
+            STDERR.puts message
+            @logger.error message
+            File.delete(@lock_file) if File.exist?(@lock_file)
+
+            return false
+        end
+
+        true
     end
 
     def proxy(vm_resource)
         # Check configurations and VM attributes
-        if !@pipe
+        if !is_running?
             return error(400, "VNC Proxy is not running")
         end
 
@@ -121,12 +142,6 @@ class OpenNebulaVNC
             :token => random_str,
         }
 
-        # Delete token soon after
-        Thread.new do
-            sleep TOKEN_EXPIRE_SECONDS
-            delete_token(token_file)
-        end
-
         return [200, info.to_json]
     end
 
@@ -140,17 +155,31 @@ class OpenNebulaVNC
         end
     end
 
-    def stop
-        if !@pipe then return end
-        @logger.info "Killing VNC proxy"
-        Process.kill('TERM',@pipe.pid)
-        @pipe.close
-        begin
-            Dir.rmdir(@token_folder)
-        rescue => e
-            @logger.error "Error deleting token folder"
-            @logger.error e.message
+    def stop(force=false)
+        pid=get_pid
+
+        if pid
+            @logger.info "Killing VNC proxy"
+
+            signal=(force ? 'KILL' : 'TERM')
+            Process.kill(signal ,pid)
+
+            sleep 1
+
+            if is_running?
+                message="The server is still running"
+                STDERR.puts message
+                logger.error message
+                return false
+            end
+
+            delete_token_dir
+        else
+            message="The server is not running"
+            @logger.info message
+            STDERR.puts message
         end
+        true
     end
 
     private
@@ -163,4 +192,56 @@ class OpenNebulaVNC
         end
     end
 
+    def create_token_dir
+        delete_token_dir
+        begin
+            Dir.mkdir(@token_folder) if !File.exist?(@token_folder)
+        rescue Exception => e
+            @logger.error "Cannot create token folder"
+            @logger.error e.message
+        end
+    end
+
+    def delete_token_dir
+        if File.exist?(@token_folder)
+            begin
+                Dir.glob("#{@token_folder}/*").each do |file|
+                    File.delete(file)
+                end
+                Dir.rmdir(@token_folder)
+            rescue => e
+                @logger.error "Error deleting token folder"
+                @logger.error e.message
+            end
+        end
+    end
+
+    alias_method :get_pid, :is_running?
+    def is_running?
+        if File.exist?(@lock_file)
+            pid=File.read(@lock_file).strip
+
+            if system("ps #{pid} 1> /dev/null")
+                return pid.to_i
+            end
+
+            @logger.info "Deleting stale lock file"
+            File.delete(@lock_file)
+        end
+
+        false
+    end
+
+    def start_daemon(cmd, log)
+        pid=spawn(*cmd.split(" "),
+            :pgroup => true,
+            :in => :close,
+            [:out, :err] => [log, "a"],
+            :close_others => true )
+
+        Process.detach(pid)
+
+        pid
+    end
 end
+
