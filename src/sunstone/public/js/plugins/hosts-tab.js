@@ -357,7 +357,6 @@ var host_buttons = {
     },
     "Host.create_dialog" : {
         type: "create_dialog",
-        text: tr("+ New"),
         layout: "create",
         condition: mustBeAdmin
     },

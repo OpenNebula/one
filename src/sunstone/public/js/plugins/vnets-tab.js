@@ -593,8 +593,7 @@ var vnet_buttons = {
 
     "Network.create_dialog" : {
         type: "create_dialog",
-        layout: "create",
-        text: tr("+ New")
+        layout: "create"
     },
 
     "Network.addtocluster" : {

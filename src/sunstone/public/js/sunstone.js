@@ -583,7 +583,7 @@ function insertButtonsInTab(tab_name){
                         "</div>"+
                     '</li>'+
                   '</ul>'+
-                  '<ul class="button-group">'+
+                  '<ul class="button-group right">'+
                     '<li>'+
                         "<div id='delete_buttons'>"+
                         "</div>"+
@@ -658,7 +658,7 @@ function insertButtonsInTab(tab_name){
             switch (button.layout) {
             case "create":
                 context = $("#create_buttons", buttons_row);
-                text = '<i class="icon-plus-sign"/>  Create';
+                text = button.text ? '<i class="icon-plus-sign"/>  ' + button.text : '<i class="icon-plus-sign"/>  Create';
                 str_class.push("success", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" value="'+button_name+'">'+text+'</button>';
                 break;
@@ -703,6 +703,14 @@ function insertButtonsInTab(tab_name){
         //$('.top_button',action_block).addClass("secondary small button")
 
         action_block.append(buttons_row);
+
+        if  ($("#more_buttons ul li", action_block).length == 0 ) {
+            $("#more_buttons", action_block).hide()
+        }
+
+        if  ($("#user_buttons ul li", action_block).length == 0 ) {
+            $("#user_buttons", action_block).hide()
+        }
         //action_block.foundationButtons();
 
     }//if tab exists

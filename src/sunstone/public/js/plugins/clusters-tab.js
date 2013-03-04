@@ -1101,8 +1101,7 @@ var cluster_buttons = {
     },
     "Cluster.create_dialog" : {
         type: "create_dialog",
-        layout: "create",
-        text: tr("+ New")
+        layout: "create"
     },
     "Cluster.update_dialog" : {
         type : "action",

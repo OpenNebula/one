@@ -259,7 +259,7 @@ var create_image_tmpl =
                   <hr>\
             </form>\
             <div class="form_buttons">\
-              <button class="button success radius right" id="create_image_submit" value="user/create">'+tr("Create")+'</button>\
+              <button class="button success radius right" id="create_image_submit" value="image/create">'+tr("Create")+'</button>\
               <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
               <button class="close-reveal-modal button secondary radius" type="close" value="close">' + tr("Close") + '</button>\
             </div>\
@@ -272,7 +272,7 @@ var create_image_tmpl =
                  </select>\
                  <textarea id="template" rows="15" style="width:100%;"></textarea>\
                <div class="form_buttons">\
-                 <button class="button success radius right" id="create_vn_submit_manual" value="vn/create">'+tr("Create")+'</button>\
+                 <button class="button success radius right" id="create_image_submit_manual" value="image/create">'+tr("Create")+'</button>\
                  <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
                  <button class="close-reveal-modal button secondary radius" type="close" value="close">' + tr("Close") + '</button>\
                </div>\
@@ -486,8 +486,7 @@ var image_buttons = {
     },
     "Image.create_dialog" : {
         type: "create_dialog",
-        layout: "create",
-        text: tr('+ New')
+        layout: "create"
     },
     "Image.chown" : {
         type: "confirm_with_select",
@@ -670,11 +669,6 @@ function updateImageInfo(request,img){
                    <a id="div_edit_persistency_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
                  </div>\
              </td>\
-           </tr>\
-           <tr>\
-              <td class="key_td">'+tr("Path")+'</td>\
-              <td class="value_td">'+(typeof img_info.PATH === "string" ? img_info.PATH : "--")+'</td>\
-              <td></td>\
            </tr>\
            <tr>\
               <td class="key_td">'+tr("Filesystem type")+'</td>\
@@ -996,7 +990,7 @@ function setupCreateImageDialog(){
          }
     });
 
-    $('#create_image_form_easy',dialog).submit(function(){
+    $('#create_image_submit',dialog).click(function(){
         var exit = false;
         var upload = false;
         $('.img_man',this).each(function(){
@@ -1008,7 +1002,7 @@ function setupCreateImageDialog(){
         });
         if (exit) { return false; }
 
-        var ds_id = $('#img_datastore',this).val();
+        var ds_id = $('#img_datastore',dialog).val();
         if (!ds_id){
             notifyError(tr("Please select a datastore for this image"));
             return false;
@@ -1016,40 +1010,40 @@ function setupCreateImageDialog(){
 
         var img_json = {};
 
-        var name = $('#img_name',this).val();
+        var name = $('#img_name',dialog).val();
         img_json["NAME"] = name;
 
-        var desc = $('#img_desc',this).val();
+        var desc = $('#img_desc',dialog).val();
         if (desc.length){
             img_json["DESCRIPTION"] = desc;
         }
 
-        var type = $('#img_type',this).val();
+        var type = $('#img_type',dialog).val();
         img_json["TYPE"]= type;
 
-        img_json["PERSISTENT"] = $('#img_persistent:checked',this).length ? "YES" : "NO";
+        img_json["PERSISTENT"] = $('#img_persistent:checked',dialog).length ? "YES" : "NO";
 
-        var dev_prefix = $('#img_dev_prefix',this).val();
+        var dev_prefix = $('#img_dev_prefix',dialog).val();
         if (dev_prefix.length){
             img_json["DEV_PREFIX"] = dev_prefix;
         }
 
-        var driver = $('#img_driver',this).val();
+        var driver = $('#img_driver',dialog).val();
         if (driver.length)
             img_json["DRIVER"] = driver;
 
-        var target = $('#img_target',this).val();
+        var target = $('#img_target',dialog).val();
         if (target)
             img_json["TARGET"] = target;
 
-        switch ($('#src_path_select input:checked',this).val()){
+        switch ($('#src_path_select input:checked',dialog).val()){
         case "path":
-            path = $('#img_path',this).val();
+            path = $('#img_path',dialog).val();
             if (path) img_json["PATH"] = path;
             break;
         case "datablock":
-            size = $('#img_size',this).val();
-            fstype = $('#img_fstype',this).val();
+            size = $('#img_size',dialog).val();
+            fstype = $('#img_fstype',dialog).val();
             if (size) img_json["SIZE"] = size;
             if (fstype) img_json["FSTYPE"] = fstype;
             break;
@@ -1081,9 +1075,9 @@ function setupCreateImageDialog(){
         return false;
     });
 
-    $('#create_image_form_manual',dialog).submit(function(){
-        var template=$('#template',this).val();
-        var ds_id = $('#img_datastore_raw',this).val();
+    $('#create_image_submit_manual',dialog).click(function(){
+        var template=$('#template',dialog).val();
+        var ds_id = $('#img_datastore_raw',dialog).val();
 
         if (!ds_id){
             notifyError(tr("Please select a datastore for this image"));

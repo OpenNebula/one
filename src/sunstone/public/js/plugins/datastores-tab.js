@@ -497,7 +497,6 @@ var datastore_buttons = {
     },
     "Datastore.create_dialog" : {
         type: "create_dialog",
-        text: tr("+ New"),
         layout: "create",
         condition: mustBeAdmin
     },

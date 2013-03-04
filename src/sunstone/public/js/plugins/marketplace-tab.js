@@ -92,8 +92,8 @@ var market_buttons = {
     },
     "Marketplace.import" : {
         type: "action",
-        layout: "main",
-        text: tr('Import to local infrastructure')
+        layout: "create",
+        text: tr('Import')
     }
 };
 

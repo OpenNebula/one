@@ -180,8 +180,7 @@ var acl_buttons = {
     },
     "Acl.create_dialog" : {
         type: "create_dialog",
-        layout: "create",
-        text: tr("+ New")
+        layout: "create"
     },
     "Acl.delete" : {
         type: "confirm",

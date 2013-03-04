@@ -310,8 +310,7 @@ var template_buttons = {
     },
     "Template.create_dialog" : {
         type: "create_dialog",
-        layout: "create",
-        text: tr("+ New")
+        layout: "create"
     },
     "Template.update_dialog" : {
         type: "action",

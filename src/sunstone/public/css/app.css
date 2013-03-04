@@ -6345,7 +6345,7 @@ input[type="text"] {
 
 /* line 390, ../sass/app.scss */
 .right {
-  float: right;
+  float: right !important;
 }
 
 /* line 394, ../sass/app.scss */
