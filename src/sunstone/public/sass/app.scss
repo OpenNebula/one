@@ -240,7 +240,7 @@ div.button-bar {
 }
 
 #navigation li.subsubTab {
-    padding-left:       35px;
+    padding-left:       15px;
 }
 
 #navigation li:hover, #navigation .navigation-active-li,
@@ -550,6 +550,7 @@ fieldset {
 
 .ui-layout-pane {
     padding: 0px;
+    overflow: overlay;
 }
 
 .reveal-modal .columns {

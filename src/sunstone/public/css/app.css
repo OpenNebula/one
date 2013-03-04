@@ -6241,7 +6241,7 @@ div.button-bar {
 
 /* line 242, ../sass/app.scss */
 #navigation li.subsubTab {
-  padding-left: 35px;
+  padding-left: 15px;
 }
 
 /* line 247, ../sass/app.scss */
@@ -6524,19 +6524,20 @@ fieldset {
 /* line 551, ../sass/app.scss */
 .ui-layout-pane {
   padding: 0px;
+  overflow: overlay;
 }
 
-/* line 555, ../sass/app.scss */
+/* line 556, ../sass/app.scss */
 .reveal-modal .columns {
   padding: 0 8px;
 }
 
-/* line 559, ../sass/app.scss */
+/* line 560, ../sass/app.scss */
 select {
   width: auto;
 }
 
-/* line 564, ../sass/app.scss */
+/* line 565, ../sass/app.scss */
 form.creation {
   max-height: 450px;
   overflow-y: auto;
@@ -6544,12 +6545,12 @@ form.creation {
   padding: 5px;
 }
 
-/* line 571, ../sass/app.scss */
+/* line 572, ../sass/app.scss */
 #dialog input {
   margin: 0px;
 }
 
-/* line 576, ../sass/app.scss */
+/* line 577, ../sass/app.scss */
 .progress-container {
   position: relative;
   width: 100%;
@@ -6557,7 +6558,7 @@ form.creation {
   background: #FFF;
 }
 
-/* line 583, ../sass/app.scss */
+/* line 584, ../sass/app.scss */
 .progress {
   position: absolute;
   width: 100%;
@@ -6565,7 +6566,7 @@ form.creation {
   background: #FFF;
 }
 
-/* line 590, ../sass/app.scss */
+/* line 591, ../sass/app.scss */
 .progress-text {
   position: absolute;
   width: 100%;
@@ -6573,33 +6574,33 @@ form.creation {
   color: black !important;
 }
 
-/* line 597, ../sass/app.scss */
+/* line 598, ../sass/app.scss */
 .meter {
   background: #cdebf5 !important;
 }
 
-/* line 601, ../sass/app.scss */
+/* line 602, ../sass/app.scss */
 .dashboard .subheader {
   text-align: center;
 }
 
-/* line 605, ../sass/app.scss */
+/* line 606, ../sass/app.scss */
 .dashboard h1.subheader {
   margin-bottom: 0;
   margin-top: 0;
 }
 
-/* line 610, ../sass/app.scss */
+/* line 611, ../sass/app.scss */
 .dashboard h6.subheader {
   margin-top: 0;
 }
 
-/* line 614, ../sass/app.scss */
+/* line 615, ../sass/app.scss */
 ul.button-group {
   margin-bottom: 0;
 }
 
-/* line 618, ../sass/app.scss */
+/* line 619, ../sass/app.scss */
 .value_td {
   text-overflow: ellipsis;
 }
