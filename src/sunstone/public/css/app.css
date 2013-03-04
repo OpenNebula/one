@@ -6570,9 +6570,26 @@ form.creation {
   position: absolute;
   width: 100%;
   font-size: 12px;
+  color: black !important;
 }
 
-/* line 596, ../sass/app.scss */
+/* line 597, ../sass/app.scss */
 .meter {
   background: #cdebf5 !important;
+}
+
+/* line 601, ../sass/app.scss */
+.dashboard .subheader {
+  text-align: center;
+}
+
+/* line 605, ../sass/app.scss */
+.dashboard h1.subheader {
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+/* line 610, ../sass/app.scss */
+.dashboard h6.subheader {
+  margin-top: 0;
 }

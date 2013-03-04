@@ -591,8 +591,22 @@ form.creation {
     position:absolute;
     width: 100%;
     font-size: 12px;
+    color: #000 !important;
 }
 
 .meter {
     background: #cdebf5 !important;
+}
+
+.dashboard .subheader {
+    text-align: center;
+}
+
+.dashboard h1.subheader {
+    margin-bottom: 0;
+    margin-top: 0;
+}
+
+.dashboard h6.subheader {
+    margin-top: 0;
 }

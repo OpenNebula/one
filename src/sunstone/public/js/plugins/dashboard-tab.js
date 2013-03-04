@@ -14,6 +14,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+/*
 var dashboard_tab_content =
 '<table class="dashboard_table">\
 <tr>\
@@ -22,7 +23,7 @@ var dashboard_tab_content =
   <tr>\
     <td>\
       <div class="panel">\
-         <h3>' + tr("Hosts") + '<i class="icon-refresh action_button" value="Host.refresh" style="float:right;cursor:pointer"></i></h3>\
+          <h4 class="subheader">' + tr("Hosts") + '<i class="icon-refresh action_button" value="Host.refresh" style="float:right;cursor:pointer"></i></h4>\
         <div class="panel_info">\
           <table class="info_table">\
 \
@@ -177,6 +178,112 @@ var dashboard_tab_content =
 </table>\
 </td>\
 </tr></table>';
+*/
+
+var dashboard_tab_content = '\
+<div class="dashboard">\
+  <div class="row">\
+  <hr>\
+  </div>\
+  <div class="row">\
+    <div class="six columns">\
+      <div class="panel">\
+        <div class="row">\
+          <h4 class="subheader"><i class="icon-hdd"></i> '+tr("Hosts")+'</h4>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+            <h1 class="subheader">112</h4>\
+            <h6 class="subheader">'+tr("TOTAL")+'</h6>\
+          </div>\
+          <div class="four columns">\
+            <h1 class="subheader">90</h4>\
+            <h6 class="subheader">'+tr("ON")+'</h6>\
+          </div>\
+          <div class="four columns">\
+            <h1 class="subheader">22</h4>\
+            <h6 class="subheader">'+tr("ERROR")+'</h6>\
+          </div>\
+        </div>\
+      </div>\
+    </div>\
+    <div class="six columns">\
+      <div class="panel">\
+        <div class="row">\
+          <h4 class="subheader"><i class="icon-cloud"></i> '+tr("Virtual Machines")+'</h4>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+            <h1 class="subheader">112</h4>\
+            <h6 class="subheader">'+tr("TOTAL")+'</h6>\
+          </div>\
+          <div class="four columns">\
+            <h1 class="subheader">90</h4>\
+            <h6 class="subheader">'+tr("ACTIVE")+'</h6>\
+          </div>\
+          <div class="four columns">\
+            <h1 class="subheader">22</h4>\
+            <h6 class="subheader">'+tr("FAILED")+'</h6>\
+          </div>\
+        </div>\
+      </div>\
+    </div>\
+  </div>\
+  <div class="row">\
+    <div class="four columns">\
+      <div class="panel">\
+        <div class="row">\
+          <h4 class="subheader"><i class="icon-upload"></i> '+tr("Storage")+'</h4>\
+        </div>\
+        <div class="row">\
+          <div class="six columns">\
+            <h1 class="subheader">1254</h4>\
+            <h6 class="subheader">'+tr("IMAGES")+'</h6>\
+          </div>\
+          <div class="six columns">\
+            <h1 class="subheader">7 TB</h4>\
+            <h6 class="subheader">'+tr("SIZE")+'</h6>\
+          </div>\
+        </div>\
+      </div>\
+    </div>\
+    <div class="four columns">\
+      <div class="panel">\
+        <div class="row">\
+          <h4 class="subheader"><i class="icon-user"></i> '+tr("Users")+'</h4>\
+        </div>\
+        <div class="row">\
+          <div class="six columns">\
+            <h1 class="subheader">8343</h4>\
+            <h6 class="subheader">'+tr("USERS")+'</h6>\
+          </div>\
+          <div class="six columns">\
+            <h1 class="subheader">297</h4>\
+            <h6 class="subheader">'+tr("GROUPS")+'</h6>\
+          </div>\
+        </div>\
+      </div>\
+    </div>\
+    <div class="four columns">\
+      <div class="panel">\
+        <div class="row">\
+          <h4 class="subheader"><i class="icon-sitemap"></i> '+tr("Network")+'</h4>\
+        </div>\
+        <div class="row">\
+          <div class="six columns">\
+            <h1 class="subheader">50</h4>\
+            <h6 class="subheader">'+tr("VNETS")+'</h6>\
+          </div>\
+          <div class="six columns">\
+            <h1 class="subheader">1243</h4>\
+            <h6 class="subheader">'+tr("ADDRESSES")+'</h6>\
+          </div>\
+        </div>\
+      </div>\
+    </div>\
+  </div>\
+</div>\
+';
 
 var dashboard_tab = {
     title: '<i class="icon-dashboard"></i>'+tr("Dashboard"),
