@@ -727,6 +727,9 @@ function setupCreateTemplateDialog(){
                 '</div>'+
             '</div>'+ 
             '<div class="row vm_param">'+
+                '<input type="hidden" id="MEMORY" name="memory" />'+
+            '</div>'+
+            '<div>'+
                 '<div class="two columns">'+
                   '<label class="inline right" for="MEMORY">'+tr("MEMORY")+':</label>'+
                 '</div>'+
@@ -734,7 +737,7 @@ function setupCreateTemplateDialog(){
                   '<div id="memory_slider"></div>'+
                 '</div>'+
                 '<div class="two columns">'+
-                  '<input type="text" id="MEMORY" name="memory" size="4" />'+
+                  '<input type="text" id="MEMORY_TMP" name="memory_tmp" size="4" />'+
                 '</div>'+
                 '<div class="two columns">'+
                   '<select id="memory_unit" name="MEMORY_UNIT">'+
@@ -823,10 +826,20 @@ function setupCreateTemplateDialog(){
 
         // Define the memory slider
 
-        var memory_input = $( "#MEMORY", section_capacity );
+        var final_memory_input = $( "#MEMORY", section_capacity );
+        var memory_input = $( "#MEMORY_TMP", section_capacity );
         var memory_unit  = $( "#memory_unit", section_capacity );
 
         var current_memory_unit = memory_unit.val();
+
+        var update_final_memory_input = function() {
+            if (current_memory_unit == 'MB') {
+                final_memory_input.val( Math.floor(memory_input.val()) );
+            }
+            else {
+                final_memory_input.val( Math.floor(memory_input.val() * 1024) );
+            }
+        }
 
         var memory_slider_change = function(type) {
             if ( type != "move")
@@ -834,6 +847,8 @@ function setupCreateTemplateDialog(){
                 var values = $(this).noUiSlider( 'value' );
 
                 memory_input.val(values[1] / 100);
+
+                update_final_memory_input();
             }
         };
 
@@ -851,6 +866,8 @@ function setupCreateTemplateDialog(){
             memory_slider.noUiSlider('move',{
                 to: this.value * 100
             })
+
+            update_final_memory_input();
         });
 
         // init::start is ignored for some reason
@@ -890,11 +907,13 @@ function setupCreateTemplateDialog(){
                         change: memory_slider_change,
                     });
 
-                    var new_val = Math.round( memory_input.val() * 1024 );
+                    var new_val = Math.floor( memory_input.val() * 1024 );
 
                     memory_input.val( new_val );
                     memory_slider.noUiSlider('move',{to: new_val * 100});
                 }
+
+                update_final_memory_input();
             }
         });
 
