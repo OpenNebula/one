@@ -140,6 +140,11 @@ module Migrator
 
         @db.run "DROP TABLE old_host_pool;"
 
+        ########################################################################
+        # Feature #1565: New cid column
+        # Feature #471: IPv6 addresses
+        ########################################################################
+
         @db.run "ALTER TABLE network_pool RENAME TO old_network_pool;"
         @db.run "CREATE TABLE network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name,uid));"
 
@@ -148,10 +153,13 @@ module Migrator
 
             cluster_id = doc.root.get_text('CLUSTER_ID').to_s
 
+            doc.root.add_element("GLOBAL_PREFIX")
+            doc.root.add_element("SITE_PREFIX")
+
             @db[:network_pool].insert(
                 :oid            => row[:oid],
                 :name           => row[:name],
-                :body           => row[:body],
+                :body           => doc.root.to_s,
                 :uid            => row[:uid],
                 :gid            => row[:gid],
                 :owner_u        => row[:owner_u],

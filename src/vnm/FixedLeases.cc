@@ -164,6 +164,7 @@ error_body:
     goto error_common;
 
 error_db:
+    oss.str("");
     oss << "Error inserting lease in database.";
     delete lease;
 
