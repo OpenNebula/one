@@ -86,21 +86,38 @@ var market_actions = {
 var market_buttons = {
     "Marketplace.refresh" : {
         type: "action",
+        layout: "refresh",
         text: '<i class="icon-refresh icon-large">',
         alwaysActive: true
     },
     "Marketplace.import" : {
         type: "action",
+        layout: "main",
         text: tr('Import to local infrastructure')
     }
 };
 
 var marketplace_tab_content = '\
-<h2><i class="icon-shopping-cart"></i> '+tr("OpenNebula Marketplace")+'</h2>\
-<form id="marketplace_form" action="" action="javascript:alert(\'js error!\');">\
-  <div class="action_blocks">\
+<form class="custom" id="marketplace_form" action="">\
+<div class="panel">\
+<div class="row">\
+  <div class="twelve columns">\
+    <h4 class="subheader"><i class="icon-shopping-cart"></i> '+tr("OpenNebula Marketplace")+'</h4>\
   </div>\
-<table id="datatable_marketplace" class="display">\
+</div>\
+<div class="row">\
+  <div class="nine columns">\
+    <div class="action_blocks">\
+    </div>\
+  </div>\
+  <div class="three columns">\
+    <input id="marketplace_search" type="text" placeholder="Search" />\
+  </div>\
+</div>\
+</div>\
+  <div class="row">\
+    <div class="twelve columns">\
+<table id="datatable_marketplace" class="datatable twelve">\
   <thead>\
     <tr>\
       <th class="check"></th>\
@@ -148,11 +165,15 @@ function marketplaceElements(){
 
 function updateMarketInfo(request,app){
     var info_tab = {
-        title : tr("Appliance information"),
+        title : tr("Information"),
         content :
-        '<table id="info_marketplace_table" class="info_table">\
+        '<form class="custom"><div class="">\
+        <div class="six columns">\
+        <table id="info_marketplace_table" class="twelve datatable extended_table">\
             <thead>\
-              <tr><th colspan="2">'+tr("Appliance information")+'</th></tr>\
+              <tr>\
+                <th colspan="2">'+tr("Appliance") + ' - ' + app['name'] + '</th>\
+              </tr>\
             </thead>\
             <tbody>\
               <tr>\
@@ -161,7 +182,7 @@ function updateMarketInfo(request,app){
               </tr>\
               <tr>\
                 <td class="key_td">' + tr("URL") + '</td>\
-                <td class="value_td"><a href="'+config_response.system_config.marketplace_url+'/'+app['_id']["$oid"]+'" target="_blank">'+config_response.system_config.marketplace_url+'/'+app['_id']["$oid"]+'</a></td>\
+                <td class="value_td"><a href="'+config_response.system_config.marketplace_url+'/'+app['_id']["$oid"]+'" target="_blank">'+tr("link")+'</a></td>\
               </tr>\
               <tr>\
                 <td class="key_td">' + tr("Publisher") + '</td>\
@@ -189,7 +210,9 @@ function updateMarketInfo(request,app){
               </tr>\
             </tbody>\
         </table>\
-        <table id="info_marketplace_table2" class="info_table">\
+        </div>\
+        <div class="six columns">\
+        <table id="info_marketplace_table2" class="twelve datatable extended_table">\
            <thead>\
              <tr><th colspan="2">'+tr("Description")+'</th></tr>\
            </thead>\
@@ -204,27 +227,31 @@ function updateMarketInfo(request,app){
     Sunstone.updateInfoPanelTab("marketplace_info_panel", "marketplace_info_tab", info_tab);
     Sunstone.popUpInfoPanel("marketplace_info_panel");
 };
-
-function infoListenerMarket(dataTable){
+ 
+ function infoListenerMarket(dataTable){
     $('tbody tr',dataTable).live("click",function(e){
-        if ($(e.target).is('input')) {return true;}
 
-        var aData = dataTable.fnGetData(this);
-        var id = aData["_id"]["$oid"];
-        if (!id) return true;
+    if ($(e.target).is('input') ||
+        $(e.target).is('select') ||
+        $(e.target).is('option')) return true;
 
-        var count = $('tbody .check_item:checked', dataTable).length;
-
-        //If ctrl is pressed we check the column instead of
-        //doing showinfo()
-        if (e.ctrlKey || count >= 1){
-            $('.check_item',this).trigger('click');
-            return false;
-        }
-
+    var aData = dataTable.fnGetData(this);
+    var id =aData["_id"]["$oid"];
+    if (!id) return true;
         popDialogLoading();
+        Sunstone.runAction("Marketplace.showinfo",id);
 
-        Sunstone.runAction('Marketplace.showinfo',id);
+        // Take care of the coloring business 
+        // (and the checking, do not forget the checking)
+        $('tbody input.check_item',$(this).parents('table')).removeAttr('checked');
+        $('.check_item',this).click();
+        $('td',$(this).parents('table')).removeClass('markrowchecked');
+
+        if(last_selected_row)
+            last_selected_row.children().each(function(){$(this).removeClass('markrowselected');});
+        last_selected_row = $("td:first", this).parent();
+        $("td:first", this).parent().children().each(function(){$(this).addClass('markrowselected');});
+
         return false;
     });
 }
@@ -248,11 +275,8 @@ function onlyOneCheckboxListener(dataTable) {
 
 $(document).ready(function(){
     dataTable_marketplace = $("#datatable_marketplace", main_tabs_context).dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "sPaginationType": "full_numbers",
-        "sDom" : '<"H"lfrC>t<"F"ip>',
-        "bAutoWidth":false,
+        "bSortClasses": true,
+        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "aoColumns": [
             { "bSortable": false,
               "mData": function ( o, val, data ) {
@@ -278,6 +302,10 @@ $(document).ready(function(){
             } : ""
     });
 
+
+    $('#marketplace_search').keyup(function(){
+      dataTable_marketplace.fnFilter( $(this).val() );
+    })
 
     tableCheckboxesListener(dataTable_marketplace);
     onlyOneCheckboxListener(dataTable_marketplace);

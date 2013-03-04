@@ -6593,3 +6593,13 @@ form.creation {
 .dashboard h6.subheader {
   margin-top: 0;
 }
+
+/* line 614, ../sass/app.scss */
+ul.button-group {
+  margin-bottom: 0;
+}
+
+/* line 618, ../sass/app.scss */
+.value_td {
+  text-overflow: ellipsis;
+}
