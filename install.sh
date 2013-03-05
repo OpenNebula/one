@@ -691,7 +691,8 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/vnm_mad/one_vnm.rb \
                 src/mad/ruby/Ganglia.rb \
                 src/oca/ruby/deprecated/OpenNebula.rb \
-                src/oca/ruby/opennebula.rb"
+                src/oca/ruby/opennebula.rb \
+                src/sunstone/OpenNebulaVNC.rb"
 
 #-------------------------------------------------------------------------------
 # Ruby auth library files, to be installed under $LIB_LOCATION/ruby/opennebula
@@ -1390,9 +1391,10 @@ ETC_CLIENT_FILES="src/cli/etc/group.default"
 #-----------------------------------------------------------------------------
 
 SUNSTONE_FILES="src/sunstone/sunstone-server.rb \
-                src/sunstone/OpenNebulaVNC.rb"
+                src/sunstone/config.ru"
 
-SUNSTONE_BIN_FILES="src/sunstone/bin/sunstone-server"
+SUNSTONE_BIN_FILES="src/sunstone/bin/sunstone-server \
+                    src/sunstone/bin/novnc-server"
 
 SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf \
                     src/sunstone/etc/sunstone-plugins.yaml"
