@@ -408,4 +408,5 @@ post '/:resource/:id/action' do
                                    request.body.read)
 end
 
-Sinatra::Application.run!
+Sinatra::Application.run! if(!defined?(WITH_RACKUP))
+
