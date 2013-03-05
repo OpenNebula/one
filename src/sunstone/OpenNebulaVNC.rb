@@ -216,7 +216,6 @@ class OpenNebulaVNC
         end
     end
 
-    alias_method :get_pid, :is_running?
     def is_running?
         if File.exist?(@lock_file)
             pid=File.read(@lock_file).strip
@@ -231,6 +230,7 @@ class OpenNebulaVNC
 
         false
     end
+    alias_method :get_pid, :is_running?
 
     def start_daemon(cmd, log)
         pid=spawn(*cmd.split(" "),
