@@ -182,6 +182,16 @@ class OpenNebulaVNC
         true
     end
 
+    def status
+        if is_running?
+            STDOUT.puts "novnc is running"
+            true
+        else
+            STDOUT.puts "novnc is NOT running"
+            false
+        end
+    end
+
     private
 
     def error(code, msg)
