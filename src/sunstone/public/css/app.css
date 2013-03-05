@@ -6585,7 +6585,7 @@ form.creation {
 }
 
 /* line 606, ../sass/app.scss */
-.dashboard h1.subheader {
+.dashboard h2.subheader {
   margin-bottom: 0;
   margin-top: 0;
 }
@@ -6596,11 +6596,21 @@ form.creation {
 }
 
 /* line 615, ../sass/app.scss */
+.dashboard h3.subheader {
+  margin-top: 0;
+}
+
+/* line 619, ../sass/app.scss */
 ul.button-group {
   margin-bottom: 0;
 }
 
-/* line 619, ../sass/app.scss */
+/* line 623, ../sass/app.scss */
 .value_td {
   text-overflow: ellipsis;
+}
+
+/* line 627, ../sass/app.scss */
+small {
+  color: #b6b6b6 !important;
 }

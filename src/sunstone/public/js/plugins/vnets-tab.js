@@ -20,8 +20,15 @@ var vnets_tab_content = '\
 <form class="custom" id="virtualNetworks_form" action="">\
 <div class="panel">\
 <div class="row">\
-  <div class="twelve columns">\
+  <div class="six columns">\
     <h4 class="subheader"><i class="icon-sitemap"></i> '+tr("Virtual Networks")+'</h4>\
+  </div>\
+  <div class="six columns">\
+    <div class="row dashboard right">\
+      <div class="twelve  columns">\
+        <h4 class="subheader"><span id="total_vnets"/> <small>'+tr("TOTAL")+'</small>&emsp;<span id="addresses_vnets"/> <small>'+tr("ADDRESSES")+'</small></h4>\
+      </div>\
+    </div>\
   </div>\
 </div>\
 <div class="row">\
@@ -672,6 +679,8 @@ function vnShow(req){
 function vNetworkElementArray(vn_json){
     var network = vn_json.VNET;
 
+    addresses_vnets = addresses_vnets + parseInt(network.TOTAL_LEASES);
+
     return [
         '<input class="check_item" type="checkbox" id="vnetwork_'+network.ID+'" name="selected_items" value="'+network.ID+'"/>',
         network.ID,
@@ -711,14 +720,23 @@ function addVNetworkElement(request,vn_json){
 function updateVNetworksView(request, network_list){
     var network_list_array = [];
 
+    addresses_vnets = 0;
+
     $.each(network_list,function(){
         network_list_array.push(vNetworkElementArray(this));
     });
 
     updateView(network_list_array,dataTable_vNetworks);
     //dependency with dashboard
-    updateInfraDashboard("vnets",network_list);
+    //updateInfraDashboard("vnets",network_list);
 
+    $("#total_vnets", $dashboard).text(network_list.length);
+    $("#addresses_vnets", $dashboard).text(addresses_vnets);
+
+    var form = $("#virtualNetworks_form");
+
+    $("#total_vnets", form).text(network_list.length);
+    $("#addresses_vnets", form).text(addresses_vnets);
 }
 
 //updates the information panel tabs and pops the panel up

@@ -45,8 +45,15 @@ var users_tab_content = '\
 <form class="custom" id="user_form" action="">\
 <div class="panel">\
 <div class="row">\
-  <div class="twelve columns">\
+  <div class="six columns">\
     <h4 class="subheader"><i class="icon-user"></i> '+tr("Users")+'</h4>\
+  </div>\
+  <div class="six columns">\
+    <div class="row dashboard right">\
+      <div class="twelve  columns">\
+        <h4 class="subheader"><span id="total_users"/> <small>'+tr("TOTAL")+'</small></h4>\
+      </div>\
+    </div>\
   </div>\
 </div>\
 <div class="row">\
@@ -599,15 +606,21 @@ function updateUsersView(request,users_list){
     var user_list_array = [];
 
     $.each(users_list,function(){
-        if (this.USER.ID == uid)
-            dashboardQuotasHTML(this.USER);
+        //if (this.USER.ID == uid)
+        //    dashboardQuotasHTML(this.USER);
         user_list_array.push(userElementArray(this));
     });
     updateView(user_list_array,dataTable_users);
-    SunstoneMonitoring.monitor('USER', users_list)
-    if (mustBeAdmin())
-        updateSystemDashboard("users",users_list);
+    //SunstoneMonitoring.monitor('USER', users_list)
+    //if (mustBeAdmin())
+    //    updateSystemDashboard("users",users_list);
     updateUserSelect();
+
+    $("#total_users", $dashboard).text(users_list.length);
+
+    var form = $("#user_form");
+
+    $("#total_users", form).text(users_list.length);
 };
 
 function updateUserInfo(request,user){

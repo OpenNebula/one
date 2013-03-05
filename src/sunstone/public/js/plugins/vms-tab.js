@@ -64,8 +64,15 @@ var vms_tab_content = '\
 <form class="custom" id="virtualMachine_list" action="">\
 <div class="panel">\
 <div class="row">\
-  <div class="twelve columns">\
+  <div class="six columns">\
     <h4 class="subheader"><i class="icon-cloud"></i> '+tr("Virtual Machines")+'</h4>\
+  </div>\
+  <div class="six columns">\
+    <div class="row dashboard right">\
+      <div class="twelve  columns">\
+        <h4 class="subheader"><span id="total_vms"/> <small>'+tr("TOTAL")+'</small>&emsp;<span id="active_vms"/> <small>'+tr("ACTIVE")+'</small>&emsp;<span id="off_vms"/> <small>'+tr("OFF")+'</small>&emsp;<span id="pending_vms"/> <small>'+tr("PENDING")+'</small>&emsp;<span id="failed_vms"/> <small>'+tr("FAILED")+'</small></h4>\
+      </div>\
+    </div>\
   </div>\
 </div>\
 <div class="row">\
@@ -829,10 +836,33 @@ function vMachineElementArray(vm_json){
         };
     };
 
+
+    switch (state) {
+      case tr("INIT"):
+      case tr("PENDING"):
+      case tr("HOLD"):
+        pending_vms++;
+        break;
+      case tr("FAILED"):
+        failed_vms++;
+        break;
+      case tr("ACTIVE"):
+        active_vms++;
+        break;
+      case tr("STOPPED"):
+      case tr("SUSPENDED"):
+      case tr("POWEROFF"):
+        off_vms++;
+        break;
+      default:
+        break;
+    } 
+    
     if (state == tr("ACTIVE")) {
         state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
     };
 
+                    
     return [
         '<input class="check_item" type="checkbox" id="vm_'+vm.ID+'" name="selected_items" value="'+vm.ID+'"/>',
         vm.ID,
@@ -879,13 +909,31 @@ function addVMachineElement(request,vm_json){
 function updateVMachinesView(request, vmachine_list){
     var vmachine_list_array = [];
 
+    active_vms = 0;
+    pending_vms = 0;
+    failed_vms = 0;
+    off_vms = 0;
+
     $.each(vmachine_list,function(){
         vmachine_list_array.push( vMachineElementArray(this));
     });
 
     updateView(vmachine_list_array,dataTable_vMachines);
-    SunstoneMonitoring.monitor('VM', vmachine_list)
-    updateVResDashboard("vms",vmachine_list);
+    //SunstoneMonitoring.monitor('VM', vmachine_list)
+    //updateVResDashboard("vms",vmachine_list);
+
+    $("#total_vms", $dashboard).text(vmachine_list.length);
+    $("#active_vms", $dashboard).text(active_vms);
+    $("#pending_vms", $dashboard).text(pending_vms);
+    $("#failed_vms", $dashboard).text(failed_vms);
+
+    var form = $("#virtualMachine_list");
+
+    $("#total_vms", form).text(vmachine_list.length);
+    $("#active_vms", form).text(active_vms);
+    $("#pending_vms", form).text(pending_vms);
+    $("#failed_vms", form).text(failed_vms);
+    $("#off_vms", form).text(off_vms);
 };
 
 

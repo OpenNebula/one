@@ -192,17 +192,21 @@ var dashboard_tab_content = '\
           <h4 class="subheader"><i class="icon-hdd"></i> '+tr("Hosts")+'</h4>\
         </div>\
         <div class="row">\
-          <div class="four columns">\
-            <h1 class="subheader">112</h4>\
-            <h6 class="subheader">'+tr("TOTAL")+'</h6>\
+          <div class="three columns">\
+            <h2 id="total_hosts" class="subheader"></h2>\
+            <h3 class="subheader"><small>'+tr("TOTAL")+'</small></h3>\
           </div>\
-          <div class="four columns">\
-            <h1 class="subheader">90</h4>\
-            <h6 class="subheader">'+tr("ON")+'</h6>\
+          <div class="three columns">\
+            <h2 id="on_hosts" class="subheader"></h2>\
+            <h3 class="subheader"><small>'+tr("ON")+'</small></h3>\
           </div>\
-          <div class="four columns">\
-            <h1 class="subheader">22</h4>\
-            <h6 class="subheader">'+tr("ERROR")+'</h6>\
+          <div class="three columns">\
+            <h2 id="off_hosts" class="subheader"></h2>\
+            <h3 class="subheader"><small>'+tr("OFF")+'</small></h3>\
+          </div>\
+          <div class="three columns">\
+            <h2 id="error_hosts" class="subheader"></h2>\
+            <h3 class="subheader"><small>'+tr("ERROR")+'</small></h3>\
           </div>\
         </div>\
       </div>\
@@ -213,17 +217,21 @@ var dashboard_tab_content = '\
           <h4 class="subheader"><i class="icon-cloud"></i> '+tr("Virtual Machines")+'</h4>\
         </div>\
         <div class="row">\
-          <div class="four columns">\
-            <h1 class="subheader">112</h4>\
-            <h6 class="subheader">'+tr("TOTAL")+'</h6>\
+          <div class="three columns">\
+            <h2 id="total_vms" class="subheader"></h2>\
+            <h3 class="subheader"><small>'+tr("TOTAL")+'</small></h3>\
           </div>\
-          <div class="four columns">\
-            <h1 class="subheader">90</h4>\
-            <h6 class="subheader">'+tr("ACTIVE")+'</h6>\
+          <div class="three columns">\
+            <h2 id="active_vms" class="subheader"></h2>\
+            <h3 class="subheader"><small>'+tr("ACTIVE")+'</small></h3>\
           </div>\
-          <div class="four columns">\
-            <h1 class="subheader">22</h4>\
-            <h6 class="subheader">'+tr("FAILED")+'</h6>\
+          <div class="three columns">\
+            <h2 id="pending_vms" class="subheader"></h2>\
+            <h3 class="subheader"><small>'+tr("PENDING")+'</small></h3>\
+          </div>\
+          <div class="three columns">\
+            <h2 id="failed_vms" class="subheader"></h2>\
+            <h3 class="subheader"><small>'+tr("FAILED")+'</small></h3>\
           </div>\
         </div>\
       </div>\
@@ -237,12 +245,12 @@ var dashboard_tab_content = '\
         </div>\
         <div class="row">\
           <div class="six columns">\
-            <h1 class="subheader">1254</h4>\
-            <h6 class="subheader">'+tr("IMAGES")+'</h6>\
+            <h2 id="total_images" class="subheader"></h2>\
+            <h3 class="subheader"><small>'+tr("IMAGES")+'</small></h3>\
           </div>\
           <div class="six columns">\
-            <h1 class="subheader">7 TB</h4>\
-            <h6 class="subheader">'+tr("SIZE")+'</h6>\
+            <h2 id="size_images" class="subheader"></h2>\
+            <h3 class="subheader"><small>'+tr("SIZE")+'</small></h3>\
           </div>\
         </div>\
       </div>\
@@ -254,12 +262,12 @@ var dashboard_tab_content = '\
         </div>\
         <div class="row">\
           <div class="six columns">\
-            <h1 class="subheader">8343</h4>\
-            <h6 class="subheader">'+tr("USERS")+'</h6>\
+            <h2 id="total_users" class="subheader"></h2>\
+            <h3 class="subheader"><small>'+tr("USERS")+'</small></h3>\
           </div>\
           <div class="six columns">\
-            <h1 class="subheader">297</h4>\
-            <h6 class="subheader">'+tr("GROUPS")+'</h6>\
+            <h2 id="total_groups" class="subheader">297</h2>\
+            <h3 class="subheader"><small>'+tr("GROUPS")+'</small></h3>\
           </div>\
         </div>\
       </div>\
@@ -271,12 +279,12 @@ var dashboard_tab_content = '\
         </div>\
         <div class="row">\
           <div class="six columns">\
-            <h1 class="subheader">50</h4>\
-            <h6 class="subheader">'+tr("VNETS")+'</h6>\
+            <h2 id="total_vnets" class="subheader"></h2>\
+            <h3 class="subheader"><small>'+tr("VNETS")+'</small></h3>\
           </div>\
           <div class="six columns">\
-            <h1 class="subheader">1243</h4>\
-            <h6 class="subheader">'+tr("ADDRESSES")+'</h6>\
+            <h2 id="addresses_vnets" class="subheader"></h2>\
+            <h3 class="subheader"><small>'+tr("ADDRESSES")+'</small></h3>\
           </div>\
         </div>\
       </div>\

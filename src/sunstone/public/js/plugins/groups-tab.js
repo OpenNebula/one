@@ -42,8 +42,15 @@ var groups_tab_content = '\
 <form class="custom" id="group_form" action="">\
 <div class="panel">\
 <div class="row">\
-  <div class="twelve columns">\
+  <div class="six columns">\
     <h4 class="subheader"><i class="icon-group"></i> '+tr("Groups")+'</h4>\
+  </div>\
+  <div class="six columns">\
+    <div class="row dashboard right">\
+      <div class="twelve  columns">\
+        <h4 class="subheader"><span id="total_groups"/> <small>'+tr("TOTAL")+'</small></h4>\
+      </div>\
+    </div>\
   </div>\
 </div>\
 <div class="row">\
@@ -448,9 +455,16 @@ function updateGroupsView(request, group_list){
     });
     updateView(group_list_array,dataTable_groups);
     updateGroupSelect(group_list);
-    SunstoneMonitoring.monitor('GROUP', group_list)
-    if (mustBeAdmin())
-        updateSystemDashboard("groups",group_list);
+    //SunstoneMonitoring.monitor('GROUP', group_list)
+    //if (mustBeAdmin())
+    //    updateSystemDashboard("groups",group_list);
+
+
+    $("#total_groups", $dashboard).text(group_list.length);
+
+    var form = $("#group_form");
+
+    $("#total_groups", form).text(group_list.length);
 }
 
 function updateGroupInfo(request,group){

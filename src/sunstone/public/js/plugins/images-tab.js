@@ -20,8 +20,15 @@ var images_tab_content = '\
 <form class="custom" id="image_form" action="">\
 <div class="panel">\
 <div class="row">\
-  <div class="twelve columns">\
+  <div class="six columns">\
     <h4 class="subheader"><i class="icon-upload"></i> '+tr("Images")+'</h4>\
+  </div>\
+  <div class="six columns">\
+    <div class="row dashboard right">\
+      <div class="twelve  columns">\
+        <h4 class="subheader"><span id="total_images"/> <small>'+tr("TOTAL")+'</small>&emsp;<span id="size_images"/> <small>'+tr("SIZE")+'</small></h4>\
+      </div>\
+    </div>\
   </div>\
 </div>\
 <div class="row">\
@@ -571,6 +578,8 @@ function imageElementArray(image_json){
     //Changing this? It may affect to the is_persistent() functions.
     var image = image_json.IMAGE;
 
+    size_images = size_images + parseInt(image.SIZE);
+
     //add also persistent/non-persistent selects, type select.
     return [
         '<input class="check_item" type="checkbox" id="image_'+image.ID+'" name="selected_items" value="'+image.ID+'"/>',
@@ -611,12 +620,24 @@ function addImageElement(request, image_json){
 function updateImagesView(request, images_list){
     var image_list_array = [];
 
+    size_images = 0;
+
     $.each(images_list,function(){
        image_list_array.push(imageElementArray(this));
     });
 
     updateView(image_list_array,dataTable_images);
     updateVResDashboard("images",images_list);
+
+    var size = humanize_size_from_mb(size_images)
+    
+    $("#total_images", $dashboard).text(images_list.length);
+    $("#size_images", $dashboard).text(size);
+
+    var form = $("#image_form");
+
+    $("#total_images", form).text(images_list.length);
+    $("#size_images", form).text(size);
 }
 
 // Callback to update the information panel tabs and pop it up

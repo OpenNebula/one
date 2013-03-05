@@ -40,8 +40,15 @@ var hosts_tab_content = '\
 <form class="custom" id="form_hosts" action="">\
 <div class="panel">\
 <div class="row">\
-  <div class="twelve columns">\
+  <div class="six columns">\
     <h4 class="subheader"><i class="icon-hdd"></i> '+tr("Hosts")+'</h4>\
+  </div>\
+  <div class="six columns">\
+        <div class="row dashboard right">\
+          <div class="twelve columns">\
+            <h4 class="subheader"><span id="total_hosts"/> <small>'+tr("TOTAL")+'</small>&emsp;<span id="on_hosts"/> <small>'+tr("ON")+'</small>&emsp;<span id="off_hosts"/> <small>'+tr("OFF")+'</small>&emsp;<span id="error_hosts"/> <small>'+tr("ERROR")+'</small></h4>\
+          </div>\
+        </div>\
   </div>\
 </div>\
 <div class="row">\
@@ -641,6 +648,24 @@ function hostElementArray(host_json){
     var info_str = humanize_size(real_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_real_mem + '%)';
     var pb_real_mem = quotaBarHtml(real_mem, max_mem, info_str);
 
+    var state_simple = OpenNebula.Helper.resource_state("host_simple",host.STATE);
+    switch (state_simple) {
+      case tr("INIT"):
+      case tr("UPDATE"):
+      case tr("ON"):
+        on_hosts++;
+        break;
+      case tr("ERROR"):
+      case tr("RETRY"):
+        error_hosts++;
+        break;
+      case tr("OFF"):
+        off_hosts++;
+        break;
+      default:
+        break;
+    } 
+
     return [
         '<input class="check_item" type="checkbox" id="host_'+host.ID+'" name="selected_items" value="'+host.ID+'"/>',
         host.ID,
@@ -651,7 +676,7 @@ function hostElementArray(host_json){
         pb_allocated_cpu,
         pb_real_mem,
         pb_allocated_mem,
-        OpenNebula.Helper.resource_state("host_simple",host.STATE),
+        state_simple,
         host.IM_MAD,
         host.VM_MAD,
         pretty_time(host.LAST_MON_TIME)
@@ -694,21 +719,40 @@ function addHostElement(request,host_json){
 function updateHostsView (request,host_list){
     var host_list_array = [];
 
+    on_hosts = 0;
+    off_hosts = 0;
+    error_hosts = 0;
+
     $.each(host_list,function(){
         //Grab table data from the host_list
         host_list_array.push(hostElementArray(this));
     });
 
-    SunstoneMonitoring.monitor('HOST', host_list)
-
-    //if clusters_sel is there, it means the clusters have arrived.
-    //Otherwise do not attempt to monitor them.
-    if (typeof(monitorClusters) != 'undefined' && clusters_sel())
-        monitorClusters(host_list)
     updateView(host_list_array,dataTable_hosts);
     updateHostSelect();
+
+    $("#total_hosts", $dashboard).text(host_list.length);
+    $("#on_hosts", $dashboard).text(on_hosts);
+    $("#off_hosts", $dashboard).text(off_hosts);
+    $("#error_hosts", $dashboard).text(error_hosts);
+
+    var form_hosts = $("#form_hosts");
+
+    $("#total_hosts", form_hosts).text(host_list.length);
+    $("#on_hosts", form_hosts).text(on_hosts);
+    $("#off_hosts", form_hosts).text(off_hosts);
+    $("#error_hosts", form_hosts).text(error_hosts);
+
+
+    //SunstoneMonitoring.monitor('HOST', host_list)
+//
+    ////if clusters_sel is there, it means the clusters have arrived.
+    ////Otherwise do not attempt to monitor them.
+    //if (typeof(monitorClusters) != 'undefined' && clusters_sel())
+    //    monitorClusters(host_list)
+
     //dependency with the dashboard plugin
-    updateInfraDashboard("hosts",host_list);
+    //updateInfraDashboard("hosts",host_list);
 }
 
 //Updates the host info panel tab content and pops it up
@@ -942,7 +986,7 @@ $(document).ready(function(){
     });
 
     $('#hosts_search').keyup(function(){
-      dataTable_templates.fnFilter( $(this).val() );
+      dataTable_hosts.fnFilter( $(this).val() );
     })
 
     //preload it

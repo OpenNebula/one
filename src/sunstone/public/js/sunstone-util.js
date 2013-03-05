@@ -104,6 +104,26 @@ function humanize_size(value,from_bytes) {
     return st;
 }
 
+function humanize_size_from_mb(value) {
+    if (typeof(value) === "undefined") {
+        value = 0;
+    }
+    var binarySufix =  ["MB", "GB", "TB" ];
+    var i=0;
+    while (value > 1024 && i < 3){
+        value = value / 1024;
+        i++;
+    }
+    value = Math.round(value * 10) / 10;
+
+    if (value - Math.round(value) == 0) {
+        value = Math.round(value);
+    }
+
+    var st = value + binarySufix[i];
+    return st;
+}
+
 //Wrapper to add an element to a dataTable
 function addElement(element,dataTable){
     dataTable.fnAddData(element);

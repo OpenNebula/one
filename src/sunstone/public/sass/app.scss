@@ -603,12 +603,16 @@ form.creation {
     text-align: center;
 }
 
-.dashboard h1.subheader {
+.dashboard h2.subheader {
     margin-bottom: 0;
     margin-top: 0;
 }
 
 .dashboard h6.subheader {
+    margin-top: 0;
+}
+
+.dashboard h3.subheader {
     margin-top: 0;
 }
 
@@ -618,4 +622,8 @@ ul.button-group {
 
 .value_td {
     text-overflow:ellipsis;
+}
+
+small {
+    color: rgb(182, 182, 182) !important;
 }
