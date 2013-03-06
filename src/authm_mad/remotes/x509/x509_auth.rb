@@ -213,6 +213,8 @@ private
             # Validate the proxy certifcates
             signee = @cert_chain[0]
 
+            check_crl(signee)
+
             @cert_chain[1..-1].each do |cert|
                 if !((signee.issuer.to_s == cert.subject.to_s) &&
                      (signee.verify(cert.public_key)))
@@ -245,6 +247,41 @@ private
             end while ca_cert.subject.to_s != ca_cert.issuer.to_s
         rescue
             raise
+        end
+    end
+
+    def check_crl(signee)
+        ca_hash = signee.issuer.hash.to_s(16)
+        ca_path = @options[:ca_dir] + '/' + ca_hash + '.0'
+
+        crl_path = @options[:ca_dir] + '/' + ca_hash + '.r0'
+
+        if !File.exist?(crl_path)
+            if @options[:check_crl]
+                raise failed + "CRL file #{crl_path} does not exist"
+            else
+                return
+            end
+        end
+
+        ca_cert = OpenSSL::X509::Certificate.new( File.read(ca_path) )
+        crl_cert = OpenSSL::X509::CRL.new( File.read(crl_path) )
+
+        # First verify the CRL itself with its signer
+        unless crl_cert.verify( ca_cert.public_key ) then
+            raise failed + "CRL is not verified by its Signer"
+        end
+
+        # Extract the list of revoked certificates from the CRL
+        rc_array = crl_cert.revoked
+
+        # Loop over the list and compare with the target personal
+        # certificate
+        rc_array.each do |e|
+            if e.serial.eql?(signee.serial) then
+                raise failed + "#{signee.subject.to_s} is found in the "<<
+                    "CRL, i.e. it is revoked"
+            end
         end
     end
 end
