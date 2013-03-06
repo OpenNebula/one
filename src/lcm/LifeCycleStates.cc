@@ -1394,7 +1394,7 @@ void LifeCycleManager::attach_nic_success_action(int vid)
         return;
     }
 
-    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC )
     {
         vm->clear_attach_nic();
 
@@ -1429,7 +1429,7 @@ void LifeCycleManager::attach_nic_failure_action(int vid)
         return;
     }
 
-    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC )
     {
         nic = vm->delete_attach_nic();
         uid = vm->get_uid();

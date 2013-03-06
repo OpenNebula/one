@@ -90,7 +90,8 @@ public:
         BOOT_SUSPENDED      = 21,
         BOOT_STOPPED        = 22,
         CLEANUP_DELETE      = 23,
-        HOTPLUG_SNAPSHOT    = 24
+        HOTPLUG_SNAPSHOT    = 24,
+        HOTPLUG_NIC         = 25
     };
 
     // -------------------------------------------------------------------------

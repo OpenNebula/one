@@ -1313,7 +1313,7 @@ int DispatchManager::attach_nic(
 
     vm->get_nic_info(max_nic_id);
 
-    vm->set_state(VirtualMachine::HOTPLUG);
+    vm->set_state(VirtualMachine::HOTPLUG_NIC);
 
     vm->set_resched(false);
 
@@ -1418,7 +1418,7 @@ int DispatchManager::detach_nic(
         return -1;
     }
 
-    vm->set_state(VirtualMachine::HOTPLUG);
+    vm->set_state(VirtualMachine::HOTPLUG_NIC);
 
     vm->set_resched(false);
 

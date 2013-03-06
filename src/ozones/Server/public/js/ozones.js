@@ -103,7 +103,8 @@ var oZones = {
                                "BOOT_SUSPENDED",
                                "BOOT_STOPPED",
                                "CLEANUP_DELETE",
-                               "HOTPLUG_SNAPSHOT"][value]);
+                               "HOTPLUG_SNAPSHOT",
+                               "HOTPLUG_NIC"][value]);
                     break;
                 case "IMAGE":
                 case "image":

@@ -52,7 +52,7 @@ module OpenNebula
             SAVE_MIGRATE PROLOG_MIGRATE PROLOG_RESUME EPILOG_STOP EPILOG
             SHUTDOWN CANCEL FAILURE CLEANUP_RESUBMIT UNKNOWN HOTPLUG SHUTDOWN_POWEROFF
             BOOT_UNKNOWN BOOT_POWEROFF BOOT_SUSPENDED BOOT_STOPPED CLEANUP_DELETE
-            HOTPLUG_SNAPSHOT}
+            HOTPLUG_SNAPSHOT HOTPLUG_NIC}
 
         SHORT_VM_STATES={
             "INIT"      => "init",
@@ -90,7 +90,8 @@ module OpenNebula
             "BOOT_SUSPENDED"    => "boot",
             "BOOT_STOPPED"      => "boot",
             "CLEANUP_DELETE"    => "clea",
-            "HOTPLUG_SNAPSHOT"  => "snap"
+            "HOTPLUG_SNAPSHOT"  => "snap",
+            "HOTPLUG_NIC"       => "hotp"
         }
 
         MIGRATE_REASON=%w{NONE ERROR STOP_RESUME USER CANCEL}
