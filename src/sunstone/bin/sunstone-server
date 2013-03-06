@@ -24,6 +24,7 @@ if [ -z "$ONE_LOCATION" ]; then
     SUNSTONE_LOG=/var/log/one/sunstone.log
     SUNSTONE_LOG_ERROR=/var/log/one/sunstone.error
     SUNSTONE_CONF=/etc/one/sunstone-server.conf
+    NOVNC_SERVER=/usr/bin/novnc-server
 else
     SUNSTONE_PID=$ONE_LOCATION/var/sunstone.pid
     SUNSTONE_SERVER=$ONE_LOCATION/lib/sunstone/sunstone-server.rb
@@ -31,6 +32,7 @@ else
     SUNSTONE_LOG=$ONE_LOCATION/var/sunstone.log
     SUNSTONE_LOG_ERROR=$ONE_LOCATION/var/sunstone.error
     SUNSTONE_CONF=$ONE_LOCATION/etc/sunstone-server.conf
+    NOVNC_SERVER=$ONE_LOCATION/bin/novnc-server
 fi
 
 setup()
@@ -66,7 +68,7 @@ start()
   fi
 
   # Start novnc server
-  novnc-server start
+  $NOVNC_SERVER start
 
   if [ "$?" != "0" ]; then
     echo "Could not start novnc server" 1>&2
@@ -103,7 +105,7 @@ start()
 stop()
 {
   # Stop novnc server
-  novnc-server stop
+  $NOVNC_SERVER stop
 
   if [ ! -f $SUNSTONE_PID ]; then
     echo "Couldn't find sunstone-server process pid."
