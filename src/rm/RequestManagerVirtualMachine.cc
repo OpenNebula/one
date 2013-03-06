@@ -1518,7 +1518,7 @@ void VirtualMachineAttachNic::request_execute(
     Nebula&           nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
 
-    VirtualMachineTemplate * tmpl = new VirtualMachineTemplate();
+    VirtualMachineTemplate tmpl;
     PoolObjectAuth           host_perms;
 
     int    rc;
@@ -1531,37 +1531,50 @@ void VirtualMachineAttachNic::request_execute(
     // Parse NIC template
     // -------------------------------------------------------------------------
 
-    rc = tmpl->parse_str_or_xml(str_tmpl, error_str);
+    rc = tmpl.parse_str_or_xml(str_tmpl, error_str);
 
     if ( rc != 0 )
     {
         failure_response(INTERNAL, error_str, att);
-        delete tmpl;
-
         return;
     }
 
     // -------------------------------------------------------------------------
-    // Authorize the operation & check quotas
+    // Authorize the operation, restricted attributes & check quotas
     // -------------------------------------------------------------------------
 
-    if ( vm_authorization(id, 0, tmpl, att, 0, 0, auth_op) == false )
+    if ( vm_authorization(id, 0, &tmpl, att, 0, 0, auth_op) == false )
     {
-        delete tmpl;
         return;
     }
 
-    if ( quota_authorization(tmpl, Quotas::NETWORK, att) == false )
+    if (att.uid != UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
     {
-        delete tmpl;
+        string aname;
+
+        if (tmpl.check(aname))
+        {
+            ostringstream oss;
+
+            oss << "NIC includes a restricted attribute " << aname;
+
+            failure_response(AUTHORIZATION,
+                    authorization_error(oss.str(), att),
+                    att);
+            return;
+        }
+    }
+
+    if ( quota_authorization(&tmpl, Quotas::NETWORK, att) == false )
+    {
         return;
     }
 
-    rc = dm->attach_nic(id, tmpl, error_str);
+    rc = dm->attach_nic(id, &tmpl, error_str);
 
     if ( rc != 0 )
     {
-        quota_rollback(tmpl, Quotas::NETWORK, att);
+        quota_rollback(&tmpl, Quotas::NETWORK, att);
 
         failure_response(ACTION,
                 request_error(error_str, ""),
@@ -1572,7 +1585,6 @@ void VirtualMachineAttachNic::request_execute(
         success_response(id, att);
     }
 
-    delete tmpl;
     return;
 }
 
