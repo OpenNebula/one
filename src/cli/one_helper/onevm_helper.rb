@@ -323,40 +323,103 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         end
 
         if vm.has_elements?("/VM/TEMPLATE/NIC")
-            CLIHelper.print_header(str_h1 % "VM NICS",false)
+                        CLIHelper.print_header(str_h1 % "VM NICS",false)
 
-            nic_id=0
+            vm_nics = vm.to_hash['VM']['TEMPLATE']['NIC']
+
+            nic_default = {"NETWORK" => "-",
+                           "IP" => "-",
+                           "MAC"=> "-",
+                           "VLAN"=>"no",
+                           "BRIDGE"=>"-"}
+            nic_id   = 0
+            array_id = 0
+
+            vm_nics.each {|nic|
+
+                next if nic.has_key?("NIC_ID")
+
+                nic["NIC_ID"] = nic_id
+
+                if nic.has_key?("IP6_LINK")
+                    ip6_link = {"IP"          => nic.delete("IP6_LINK"),
+                                "NIC_ID"      => nic_id,
+                                "DOUBLE_ENTRY"=> true}
+                    vm_nics.insert(array_id+1,ip6_link)
+
+                    array_id += 1
+                end
+
+                if nic.has_key?("IP6_SITE")
+                    ip6_link = {"IP"          => nic.delete("IP6_SITE"),
+                                "NIC_ID"      => nic_id,
+                                "DOUBLE_ENTRY"=> true}
+                    vm_nics.insert(array_id+1,ip6_link)
+
+                    array_id += 1
+                end
+
+                if nic.has_key?("IP6_GLOBAL")
+                    ip6_link = {"IP"          => nic.delete("IP6_GLOBAL"),
+                                "NIC_ID"      => nic_id,
+                                "DOUBLE_ENTRY"=> true}
+                    vm_nics.insert(array_id+1,ip6_link)
+
+                    array_id += 1
+                end
+
+                nic.merge!(nic_default) {|k,v1,v2| v1}
+
+                nic_id   += 1
+                array_id += 1
+            }
+
             CLIHelper::ShowTable.new(nil, self) do
-                column :ID, "", :size=>3 do |d|
-                    nic_id+=1
-                    nic_id-1
+                column :ID, "", :size=>2 do |d|
+                    if d["DOUBLE_ENTRY"]
+                        ""
+                    else
+                        d["NIC_ID"]
+                    end
                 end
 
-                column :NETWORK, "", :left, :size=>25 do |d|
-                    d["NETWORK"] || "-"
-                end
-
-                column :IP, "", :size=>15 do |d|
-                    d["IP"] || "-"
-                end
-
-                column :MAC, "", :size=>17 do |d|
-                    d["MAC"] || "-"
+                column :NETWORK, "", :left, :size=>12 do |d|
+                    if d["DOUBLE_ENTRY"]
+                        ""
+                    else
+                        d["NETWORK"]
+                    end
                 end
 
                 column :VLAN, "", :size=>4 do |d|
-                    if !d["VLAN"]
-                        "no"
+                    if d["DOUBLE_ENTRY"]
+                        ""
                     else
                         d["VLAN"].downcase
                     end
                 end
 
-                column :BRIDGE, "", :left, :size=>11 do |d|
-                    d["BRIDGE"] || "-"
+                column :BRIDGE, "", :left, :size=>8 do |d|
+                    if d["DOUBLE_ENTRY"]
+                        ""
+                    else
+                        d["BRIDGE"]
+                    end
                 end
 
-            end.show([vm.to_hash['VM']['TEMPLATE']['NIC']].flatten, {})
+                column :IP, "",:left, :donottruncate, :size=>15 do |d|
+                    d["IP"]
+                end
+
+                column :MAC, "", :left, :size=>17 do |d|
+                    if d["DOUBLE_ENTRY"]
+                        ""
+                    else
+                        d["MAC"]
+                    end
+                end
+
+            end.show([vm_nics].flatten,{})
 
             while vm.has_elements?("/VM/TEMPLATE/NIC")
                 vm.delete_element("/VM/TEMPLATE/NIC")
