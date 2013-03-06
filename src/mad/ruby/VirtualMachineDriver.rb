@@ -191,6 +191,7 @@ class VirtualMachineDriver < OpenNebulaDriver
     def detach_nic(id, drv_message)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:detach_nic],RESULT[:failure],id,error)
+    end
 
     def snapshot_create(id, drv_message)
         error = "Action not implemented by driver #{self.class}"
