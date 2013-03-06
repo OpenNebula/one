@@ -1552,6 +1552,7 @@ src/sunstone/public/vendor/flot/jquery.flot.min.js \
 src/sunstone/public/vendor/flot/jquery.flot.navigate.min.js \
 src/sunstone/public/vendor/flot/jquery.flot.pie.min.js \
 src/sunstone/public/vendor/flot/jquery.flot.resize.min.js \
+src/sunstone/public/vendor/flot/jquery.flot.stack.min.js \
 src/sunstone/public/vendor/flot/LICENSE.txt \
 src/sunstone/public/vendor/flot/NOTICE"
 

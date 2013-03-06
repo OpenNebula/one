@@ -311,6 +311,26 @@ var host_actions = {
         error: hostMonitorError
     },
 
+    "Host.pool_monitor" : {
+        type: "monitor_global",
+        call : OpenNebula.Host.pool_monitor,
+        callback: function(req,response) {
+            var info = req.request.data[0].monitor;
+
+            // TODO: Set correct divs, here or in host_graphs attribute
+
+            plot_totals(
+                response,
+                info,
+                "host_monitor_HOST_SHARE_CPU_USAGE_HOST_SHARE_USED_CPU_HOST_SHARE_MAX_CPU",
+                "legend_HOST_SHARE_CPU_USAGE_HOST_SHARE_USED_CPU_HOST_SHARE_MAX_CPU"
+            );
+        },
+
+        // TODO: ignore error, or set message similar to hostMonitorError?
+        error: onError
+    },
+
     "Host.update_template" : {
         type: "single",
         call: OpenNebula.Host.update,
@@ -851,6 +871,9 @@ function updateHostInfo(request,host){
     for (var i=0; i<host_graphs.length; i++){
         Sunstone.runAction("Host.monitor",host_info.ID,host_graphs[i]);
     };
+
+    // TODO: use different host_graphs?
+    Sunstone.runAction("Host.pool_monitor",host_graphs[0]);
 }
 
 //Prepares the host creation dialog

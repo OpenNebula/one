@@ -768,6 +768,113 @@ function plot_graph(data,context,id_prefix,info){
     $.plot($('#'+id, context),series,options); //call to flot lib
 }
 
+
+function plot_totals(response, info, div_graph, div_legend) {
+
+    series = [];
+
+    var attributes = info.monitor_resources.split(',');
+
+    if (info.labels) {
+        labels = info.labels.split(',')
+    }
+
+    var min = Number.MAX_VALUE;
+    var max = Number.MIN_VALUE;
+
+    // Get min and max times, from any resource, using the first attribute
+    for (var id in response) {
+        if(id != "resource") {
+            min = Math.min(min,
+                parseInt(response[id][attributes[0]][0][0]) );
+
+            max = Math.max(max,
+                parseInt(response[id][attributes[0]][ response[id][attributes[0]].length - 1 ][0]) );
+        }
+    }
+
+    // First flot stack hack: Flot will stack values, but only they exist for all
+    // series. Given these two series:
+    //
+    //        [3,x], [4,x], [5,x]
+    // [2,x], [3,x], [4,x]
+    //
+    // Flot will draw values for 3 and 4. That's why we add 0s at the begining
+    // and end of each serie
+    //
+    // [2,0], [2.9,0] [3,x], [4,x], [5,x]
+    // [2,x],         [3,x], [4,x], [4.1,0] [5,0]
+
+    for (var i=0; i<attributes.length; i++)
+    {
+        var attribute = attributes[i];
+
+        for (var id in response) {
+            if(id != "resource") {
+                var data = response[id][attribute];
+
+                var local_min = parseInt( data[0][0] );
+                var local_max = parseInt( data[data.length - 1][0] );
+
+                if(local_min > min) {
+                    data.unshift([local_min-1, 0]);
+                    data.unshift([min, 0]);
+                }
+
+                if(local_max < max) {
+                    data.push([local_max+1, 0]);
+                    data.push([max, 0]);
+                }
+
+                // Invisible line
+                series.push({
+                  color: "rgba(0,0,0,0.0)",
+                  shadowSize: 0,
+                  stack: attribute,
+                  data: data
+                });
+            }
+        }
+
+        // Second flot stack hack: We are not interested in the stacked position
+        // of each line, we only want to draw the totals. To do that, the last
+        // serie to be added is just a line with 0s stacked on top of the
+        // invisible ones
+
+        series.push({
+            stack: attribute,
+            // Turns label TEMPLATE/BLABLA into BLABLA
+            label: labels ? labels[i] : attribute[i].split('/').pop(),
+            data: [[min, 0], [max,0]]
+        });
+    }
+
+    var humanize = info.humanize_figures ?
+        humanize_size : function(val){ return val };
+
+    var options = {
+//        colors: [ "#cdebf5", "#2ba6cb", "#6f6f6f" ]
+        legend : { show : (div_legend != undefined),
+                   noColumns: attributes.length+1,
+                   container: $('#'+div_legend)
+                 },
+        xaxis : {
+            tickFormatter: function(val,axis){
+                return pretty_time_axis(val, info.show_date);
+            }
+        },
+        yaxis : { labelWidth: 40,
+                  tickFormatter: function(val, axis) {
+                      return humanize(val, info.convert_from_bytes);
+                  },
+                  min: 0
+                }
+    };
+
+    $.plot($("#"+div_graph), series, options);
+}
+
+
 //Prepares the dialog used to update the template of an element.
 function setupTemplateUpdateDialog(){
 

@@ -517,6 +517,9 @@ var OpenNebula = {
         },
         "monitor" : function(params){
             OpenNebula.Action.monitor(params,OpenNebula.Host.resource,false);
+        },
+        "pool_monitor" : function(params){
+            OpenNebula.Action.monitor(params,OpenNebula.Host.resource,true);
         }
     },
 
