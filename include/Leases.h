@@ -40,9 +40,17 @@ public:
      * @param _oid the virtual network unique identifier
      * @param _size the max number of leases
      */
-    Leases(SqlDB * _db, int _oid, unsigned long _size, unsigned int _mac_prefix):
-        ObjectSQL(),
-        oid(_oid), size(_size), n_used(0), mac_prefix(_mac_prefix), db(_db){};
+    Leases(SqlDB * _db, int _oid, unsigned long _size, unsigned int _mac_prefix,
+            unsigned int _global[], unsigned int _site[]):
+        ObjectSQL(), oid(_oid), size(_size), n_used(0), mac_prefix(_mac_prefix)
+        , db(_db)
+    {
+        global[1] = _global[1];
+        global[0] = _global[0];
+
+        site[1] = _site[1];
+        site[0] = _site[0];
+    };
 
     virtual ~Leases()
     {
@@ -61,18 +69,20 @@ public:
      *  @param vid identifier of the VM getting this lease
      *  @param ip ip of the returned lease
      *  @param mac mac of  the returned lease
+     *  @param eui64 extended unique identifier
      *  @return 0 if success
      */
-     virtual int get(int vid, string& ip,string& mac) = 0;
+     virtual int get(int vid, string& ip, string& mac, unsigned int *eui64) = 0;
 
      /**
       * Ask for a specific lease in the network
       *  @param vid identifier of the VM getting this lease
       *  @param ip ip of lease requested
       *  @param mac mac of the lease
+      *  @param eui64 extended unique identifier
       *  @return 0 if success
       */
-     virtual int set(int vid, const string&  ip, string&  mac) = 0;
+     virtual int set(int vid, const string&  ip, string&  mac, unsigned int *eui64) = 0;
 
      /**
       * Release an used lease, which becomes unused
@@ -122,9 +132,6 @@ public:
      */
     int free_leases(vector<const Attribute*>& vector_leases, string& error_msg);
 
-    // -------------------------------------------------------------------------
-    // -------------------------------------------------------------------------
-
 protected:
     /**
      *  The Lease class, it represents a pair of IP and MAC assigned to
@@ -134,28 +141,22 @@ protected:
     {
     public:
         /**
-         * Creates a new lease, string form. This constructor throws a runtime
-         * exception if the IP or MAC format is wrong.
-         * @param _ip, the Lease IP in string format
-         * @param _mac, the Lease MAC in string format
-         * @param _vid, the ID of the VM owning the lease
-         * @param _used, the lease is in use
-         */
-        //Lease(const string& _ip, const string& _mac,int _vid, bool _used=true);
-
-        /**
         * Creates a new lease, numeric form.
         * @param _ip, the Lease IP in numeric format
         * @param _mac, the Lease MAC in numeric format
         * @param _vid, the ID of the VM owning the lease
         * @param _used, the lease is in use
         */
-        Lease(unsigned int _ip, unsigned int _mac[], int _vid, bool _used=true)
-            :ObjectXML(),ip(_ip), vid(_vid), used(_used)
+        Lease(unsigned int _ip,
+              unsigned int _mac[],
+              int          _vid,
+              bool         _used)
+                :ObjectXML(),ip(_ip), vid(_vid), used(_used)
         {
-                // TODO check size
-                mac[PREFIX]=_mac[PREFIX];
-                mac[SUFFIX]=_mac[SUFFIX];
+                mac[1]=_mac[1];
+                mac[0]=_mac[0];
+
+                mac_to_eui64(mac, eui64);
         };
 
         /**
@@ -165,13 +166,6 @@ protected:
         Lease():ObjectXML(){};
 
         ~Lease(){};
-
-        /**
-        * Converts this lease's IP and MAC to string
-        * @param ip ip of the lease in string
-        * @param mac mac of the lease in string
-        */
-        void to_string(string& _ip, string& _mac) const;
 
         /**
          * Conversion from string IP to unsigned int IP
@@ -185,10 +179,24 @@ protected:
         static void ip_to_string(const unsigned int i_ip, string& ip);
 
         /**
+         * Generates IPv6 strings based on the modified EUI64 and global and
+         * site network prefixes.
+         */
+        static void ip6_to_string(const unsigned int eui64[],
+                                  const unsigned int prefix[],
+                                  string& ip6s);
+        /**
          * Conversion from string MAC to unsigned int[] MAC
          * @return 0 if success
          */
         static int mac_to_number(const string& mac, unsigned int i_mac[]);
+
+        /**
+         *  Generates the modified extended unique identifier based on MAC
+         *    @param i_mac the MAC address
+         *    @param i_meui64 the modified EUI64
+         */
+        static void mac_to_eui64(const unsigned int mac[], unsigned int eui64[]);
 
         /**
          * Conversion from string IP to unsigned int IP
@@ -196,9 +204,9 @@ protected:
         static void mac_to_string(const unsigned int i_mac[], string& mac);
 
         /**
-         * Prints a Lease in a single line
+         * Conversion from string IP to unsigned int IP
          */
-        friend ostream& operator<<(ostream& os, Lease& _lease);
+        static int prefix6_to_number(const string& prefix, unsigned int ip[]);
 
         /**
          * Function to print the Lease object into a string in
@@ -206,8 +214,9 @@ protected:
          *  @param xml the resulting XML string
          *  @return a reference to the generated string
          */
-        string& to_xml(string& xml) const;
-
+        string& to_xml(string& xml,
+                       const unsigned int global[],
+                       const unsigned int site[]) const;
         /**
          * Function to print the Lease object into a string in
          * XML format. The output contains all the internal attributes,
@@ -225,22 +234,15 @@ protected:
          */
         int from_xml(const string &xml_str);
 
-        /**
-         * Constants to access the array storing the MAC address
-         */
-        enum MACIndex
-        {
-            SUFFIX  = 0,/**< Lower significant 4 bytes */
-            PREFIX  = 1 /**< Higher significant 2 bytes */
-        };
+        unsigned int ip;
 
-        unsigned int    ip;
+        unsigned int mac[2];
 
-        unsigned int    mac [2];
+        unsigned int eui64[2];
 
-        int             vid;
+        int  vid;
 
-        bool            used;
+        bool used;
     };
 
     friend class VirtualNetwork;
@@ -252,12 +254,12 @@ protected:
     /**
      * Leases identifier. Connects it to a Virtual Network
      */
-    int            oid;
+    int oid;
 
     /**
      * Number of possible leases (free + assigned)
      */
-    unsigned int  size;
+    unsigned int size;
 
     /**
      * Hash of leases, indexed by lease.ip
@@ -273,6 +275,16 @@ protected:
      *  The default MAC prefix for the Leases
      */
     unsigned int mac_prefix;
+
+    /**
+     *  Global prefix for IPv6 addresses (64 upper bits)
+     */
+    unsigned int global[2];
+
+    /**
+     *  Global prefix for IPv6 addresses (64 upper bits)
+     */
+    unsigned int site[2];
 
     // -------------------------------------------------------------------------
     // DataBase implementation variables
@@ -307,7 +319,7 @@ protected:
     bool check(unsigned int ip);
 
     /**
-     * Check if a VM is the owner of the ip 
+     * Check if a VM is the owner of the ip
      * @param ip of the lease to be checked
      * @param vid the ID of the VM
      * @return true if the ip was already assigned

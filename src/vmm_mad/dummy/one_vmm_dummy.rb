@@ -128,6 +128,24 @@ class DummyDriver < VirtualMachineDriver
         send_message(ACTION[:detach_disk],result,id)
     end
 
+    def snapshot_create(id, drv_message)
+        result = retrieve_result("snapshot_create")
+
+        send_message(ACTION[:snapshot_create], result, id, "dummy-snap")
+    end
+
+    def snapshot_revert(id, drv_message)
+        result = retrieve_result("snapshot_revert")
+
+        send_message(ACTION[:snapshot_revert], result, id)
+    end
+
+    def snapshot_delete(id, drv_message)
+        result = retrieve_result("snapshot_delete")
+
+        send_message(ACTION[:snapshot_delete], result, id)
+    end
+
     def cleanup(id, drv_message)
         result = retrieve_result("cleanup")
 

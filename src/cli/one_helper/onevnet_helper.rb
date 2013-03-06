@@ -112,8 +112,10 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         puts str % ["TYPE", vn.type_str]
         puts str % ["BRIDGE", vn["BRIDGE"]]
         puts str % ["VLAN", OpenNebulaHelper.boolean_to_str(vn['VLAN'])]
-        puts str % ["PHYSICAL DEVICE", vn["PHYDEV"]] if vn["PHYDEV"]
-        puts str % ["VLAN ID", vn["VLAN_ID"]] if vn["VLAN_ID"]
+        puts str % ["PHYSICAL DEVICE", vn["PHYDEV"]] if !vn["PHYDEV"].empty?
+        puts str % ["VLAN ID", vn["VLAN_ID"]] if !vn["VLAN_ID"].empty?
+        puts str % ["GLOBAL PREFIX", vn["GLOBAL_PREFIX"]] if !vn["GLOBAL_PREFIX"].empty?
+        puts str % ["SITE PREFIX", vn["SITE_PREFIX"]] if !vn["SITE_PREFIX"].empty?
         puts str % ["USED LEASES", vn['TOTAL_LEASES']]
         puts
 

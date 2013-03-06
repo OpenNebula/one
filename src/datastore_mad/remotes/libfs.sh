@@ -124,6 +124,24 @@ function set_downloader_args {
 	echo "$HASHES $5 $6"
 }
 
+#------------------------------------------------------------------------------
+# Gets the size in bytes of a file
+#   @param $1 - Path to the image
+#   @return size of the image in bytes
+#------------------------------------------------------------------------------
+
+function file_size {
+	stat --version &> /dev/null
+
+	if [ $? = 0 ]; then
+		STAT_CMD="stat -c %s"
+	else
+		STAT_CMD="stat -f %z"
+	fi
+
+	$STAT_CMD "$*"
+}
+
 #-------------------------------------------------------------------------------
 # Computes the size of an image
 #   @param $1 - Path to the image
@@ -156,7 +174,7 @@ function fs_size {
 			SIZE=`du -sb "$1" | cut -f1`
 			error=$?
 		else
-			SIZE=`stat -c %s "$1"`
+			SIZE=$(file_size "$1")
 			error=$?
 		fi
 		;;
