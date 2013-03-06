@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -101,6 +101,8 @@ class OpenNebulaNetwork
     end
 
     def initialize(vm_tpl, xpath_filter, deploy_id = nil, hypervisor = nil)
+        @locking = false
+
         if !hypervisor
             @hypervisor = detect_hypervisor
         else
@@ -108,6 +110,20 @@ class OpenNebulaNetwork
         end
 
         @vm = VM.new(REXML::Document.new(vm_tpl).root, xpath_filter, deploy_id, @hypervisor)
+    end
+
+    def lock
+        if @locking
+            driver_name = self.class.name.downcase
+            @locking_file = File.open("/tmp/onevnm-#{driver_name}-lock","w")
+            @locking_file.flock(File::LOCK_EX)
+        end
+    end
+
+    def unlock
+        if @locking
+           @locking_file.close
+        end
     end
 
     def process(&block)

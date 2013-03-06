@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -15,15 +15,20 @@
 #--------------------------------------------------------------------------- #
 
 class OpenNebulaFirewall < OpenNebulaNetwork
+    DRIVER = "fw"
+
     XPATH_FILTER =  "TEMPLATE/NIC[ICMP|WHITE_PORTS_TCP|WHITE_PORTS_UDP|" <<
                     "BLACK_PORTS_TCP|BLACK_PORTS_UDP]"
 
     def initialize(vm, deploy_id = nil, hypervisor = nil)
         super(vm,XPATH_FILTER,deploy_id,hypervisor)
+        @locking = true
     end
 
     def activate
-        vm_id =  @vm['ID']
+        lock
+
+        vm_id = @vm['ID']
         process do |nic|
             #:white_ports_tcp => iptables_range
             #:white_ports_udp => iptables_range
@@ -66,9 +71,13 @@ class OpenNebulaFirewall < OpenNebulaNetwork
                 process_chain(chain, tap, nic_rules)
             end
         end
+
+        unlock
     end
 
     def deactivate
+        lock
+
         vm_id =  @vm['ID']
         process do |nic|
             chain   = "one-#{vm_id}-#{nic[:network_id]}"
@@ -78,6 +87,8 @@ class OpenNebulaFirewall < OpenNebulaNetwork
                 purge_chain(chain, rule_num)
             end
         end
+
+        unlock
     end
 
     def purge_chain(chain, rule_num)

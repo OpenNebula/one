@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,6 +19,7 @@
 #include "XenDriver.h"
 #include "XMLDriver.h"
 #include "LibVirtDriver.h"
+#include "NebulaUtil.h"
 
 #include "Nebula.h"
 
@@ -146,6 +147,18 @@ void VirtualMachineManager::trigger(Actions action, int _vid)
         aname = "CANCEL_PREVIOUS";
         break;
 
+    case CLEANUP:
+        aname = "CLEANUP";
+        break;
+
+    case CLEANUP_BOTH:
+        aname = "CLEANUP_BOTH";
+        break;
+
+    case CLEANUP_PREVIOUS:
+        aname = "CLEANUP_PREVIOUS";
+        break;
+
     case MIGRATE:
         aname = "MIGRATE";
         break;
@@ -176,6 +189,18 @@ void VirtualMachineManager::trigger(Actions action, int _vid)
 
     case DETACH_NIC:
         aname = "DETACH_NIC";
+        break;
+
+    case SNAPSHOT_CREATE:
+        aname = "SNAPSHOT_CREATE";
+        break;
+
+    case SNAPSHOT_REVERT:
+        aname = "SNAPSHOT_REVERT";
+        break;
+
+    case SNAPSHOT_DELETE:
+        aname = "SNAPSHOT_DELETE";
         break;
 
     default:
@@ -242,6 +267,18 @@ void VirtualMachineManager::do_action(const string &action, void * arg)
     {
         cancel_previous_action(vid);
     }
+    else if (action == "CLEANUP")
+    {
+        cleanup_action(vid, false);
+    }
+    else if (action == "CLEANUP_BOTH")
+    {
+        cleanup_action(vid, true);
+    }
+    else if (action == "CLEANUP_PREVIOUS")
+    {
+        cleanup_previous_action(vid);
+    }
     else if (action == "MIGRATE")
     {
         migrate_action(vid);
@@ -269,6 +306,18 @@ void VirtualMachineManager::do_action(const string &action, void * arg)
     else if (action == "DETACH_NIC")
     {
         detach_nic_action(vid);
+    }
+    else if (action == "SNAPSHOT_CREATE")
+    {
+        snapshot_create_action(vid);
+    }
+    else if (action == "SNAPSHOT_REVERT")
+    {
+        snapshot_revert_action(vid);
+    }
+    else if (action == "SNAPSHOT_DELETE")
+    {
+        snapshot_delete_action(vid);
     }
     else if (action == ACTION_TIMER)
     {
@@ -372,7 +421,7 @@ string * VirtualMachineManager::format_message(
     oss << tmpl
         << "</VMM_DRIVER_ACTION_DATA>";
 
-    return SSLTools::base64_encode(oss.str());
+    return one_util::base64_encode(oss.str());
 }
 
 /* -------------------------------------------------------------------------- */
@@ -941,6 +990,183 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VirtualMachineManager::cleanup_action(
+    int vid, bool cancel_previous)
+{
+    int rc;
+
+    VirtualMachine * vm;
+    ostringstream    os;
+
+    string   vm_tmpl;
+    string * drv_msg;
+
+    string m_hostname = "";
+    string m_net_drv  = "";
+
+    const VirtualMachineManagerDriver *   vmd;
+
+    Nebula& nd = Nebula::instance();
+
+    // Get the VM from the pool
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    if (!vm->hasHistory())
+    {
+        goto error_history;
+    }
+
+    // Get the driver for this VM
+    vmd = get(vm->get_vmm_mad());
+
+    if ( vmd == 0 )
+    {
+        goto error_driver;
+    }
+
+    if ( cancel_previous && vm->hasPreviousHistory() )
+    {
+        m_hostname = vm->get_previous_hostname();
+        m_net_drv  = vm->get_previous_vnm_mad();
+    }
+
+    rc = nd.get_tm()->epilog_delete_commands(vm, os, false, false);
+
+    if ( rc != 0 )
+    {
+        goto error_common;
+    }
+
+    // Invoke driver method
+    drv_msg = format_message(
+        vm->get_hostname(),
+        vm->get_vnm_mad(),
+        m_hostname,
+        m_net_drv,
+        vm->get_deploy_id(),
+        "",
+        "",
+        "",
+        os.str(),
+        "",
+        vm->to_xml(vm_tmpl));
+
+    vmd->cleanup(vid, *drv_msg);
+
+    delete drv_msg;
+
+    vm->unlock();
+
+    return;
+
+error_history:
+    os.str("");
+    os << "cleanup_action, VM has no history";
+    goto error_common;
+
+error_driver:
+    os.str("");
+    os << "cleanup_action, error getting driver " << vm->get_vmm_mad();
+
+error_common:
+    (nd.get_lcm())->trigger(LifeCycleManager::CLEANUP_FAILURE, vid);
+
+    vm->unlock();
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineManager::cleanup_previous_action(
+    int vid)
+{
+    int rc;
+
+    VirtualMachine * vm;
+    ostringstream    os;
+
+    string   vm_tmpl;
+    string * drv_msg;
+
+    const VirtualMachineManagerDriver *   vmd;
+
+    Nebula& nd = Nebula::instance();
+
+    // Get the VM from the pool
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    if (!vm->hasHistory() || !vm->hasPreviousHistory())
+    {
+        goto error_history;
+    }
+
+    // Get the driver for this VM
+    vmd = get(vm->get_vmm_mad());
+
+    if ( vmd == 0 )
+    {
+        goto error_driver;
+    }
+
+    rc = nd.get_tm()->epilog_delete_commands(vm, os, false, true);
+
+    if ( rc != 0 )
+    {
+        goto error_common;
+    }
+
+    // Invoke driver method
+    drv_msg = format_message(
+        vm->get_previous_hostname(),
+        vm->get_previous_vnm_mad(),
+        "",
+        "",
+        vm->get_deploy_id(),
+        "",
+        "",
+        "",
+        os.str(),
+        "",
+        vm->to_xml(vm_tmpl));
+
+    vmd->cleanup(vid, *drv_msg);
+
+    delete drv_msg;
+
+    vm->unlock();
+
+    return;
+
+error_history:
+    os.str("");
+    os << "cleanup_previous_action, VM has no history";
+    goto error_common;
+
+error_driver:
+    os.str("");
+    os << "cleanup_previous_action, error getting driver " << vm->get_vmm_mad();
+
+error_common:
+    (nd.get_lcm())->trigger(LifeCycleManager::CLEANUP_FAILURE, vid);
+
+    vm->unlock();
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachineManager::migrate_action(
     int vid)
 {
@@ -1152,8 +1378,6 @@ void VirtualMachineManager::poll_action(
         "",
         vm->to_xml(vm_tmpl));
 
-    vm->set_last_poll(time(0));
-
     vmd->poll(vid, *drv_msg);
 
     delete drv_msg;
@@ -1235,7 +1459,8 @@ error_common:
 
 void VirtualMachineManager::timer_action()
 {
-    static int mark = 0;
+    static int mark        = 0;
+    static int timer_start = time(0);
 
     VirtualMachine *        vm;
     vector<int>             oids;
@@ -1260,6 +1485,13 @@ void VirtualMachineManager::timer_action()
 
     // Clear the expired monitoring records
     vmpool->clean_expired_monitoring();
+
+    // Skip monitoring the first poll_period to allow the Host monitoring to
+    // gather the VM info
+    if ( timer_start + poll_period > thetime )
+    {
+        return;
+    }
 
     // Monitor only VMs that hasn't been monitored for 'poll_period' seconds.
     rc = vmpool->get_running(oids, vm_limit, thetime - poll_period);
@@ -1293,8 +1525,6 @@ void VirtualMachineManager::timer_action()
         os << "Monitoring VM " << *it << ".";
         NebulaLog::log("VMM", Log::INFO, os);
 
-        vm->set_last_poll(thetime);
-
         vmd = get(vm->get_vmm_mad());
 
         if ( vmd == 0 )
@@ -1319,8 +1549,6 @@ void VirtualMachineManager::timer_action()
         vmd->poll(*it, *drv_msg);
 
         delete drv_msg;
-
-        vmpool->update(vm);
 
         vm->unlock();
     }
@@ -1382,7 +1610,7 @@ void VirtualMachineManager::attach_action(
     vm_tm_mad = vm->get_tm_mad();
     opennebula_hostname = nd.get_nebula_hostname();
 
-    rc = Nebula::instance().get_tm()->prolog_transfer_command(
+    rc = nd.get_tm()->prolog_transfer_command(
             vm,
             disk,
             vm_tm_mad,
@@ -1571,6 +1799,237 @@ error_common:
     vm->log("VMM", Log::ERROR, os);
     vm->unlock();
     return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineManager::snapshot_create_action(int vid)
+{
+    VirtualMachine *                    vm;
+    const VirtualMachineManagerDriver * vmd;
+
+    ostringstream os;
+
+    string  vm_tmpl;
+    string* drv_msg;
+
+    // Get the VM from the pool
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    if (!vm->hasHistory())
+    {
+        goto error_history;
+    }
+
+    // Get the driver for this VM
+    vmd = get(vm->get_vmm_mad());
+
+    if ( vmd == 0 )
+    {
+        goto error_driver;
+    }
+
+    drv_msg = format_message(
+        vm->get_hostname(),
+        vm->get_vnm_mad(),
+        "",
+        "",
+        vm->get_deploy_id(),
+        "",
+        "",
+        "",
+        "",
+        "",
+        vm->to_xml(vm_tmpl));
+
+    vmd->snapshot_create(vid, *drv_msg);
+
+    delete drv_msg;
+
+    vm->unlock();
+
+    return;
+
+error_history:
+    os.str("");
+    os << "snapshot_create_action, VM has no history";
+    goto error_common;
+
+error_driver:
+    os.str("");
+    os << "snapshot_create_action, error getting driver " << vm->get_vmm_mad();
+    goto error_common;
+
+error_common:
+    Nebula              &ne = Nebula::instance();
+    LifeCycleManager *  lcm = ne.get_lcm();
+
+    lcm->trigger(LifeCycleManager::SNAPSHOT_CREATE_FAILURE, vid);
+
+    vm->log("VMM", Log::ERROR, os);
+    vm->unlock();
+    return;
+
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineManager::snapshot_revert_action(int vid)
+{
+    VirtualMachine *                    vm;
+    const VirtualMachineManagerDriver * vmd;
+
+    ostringstream os;
+
+    string  vm_tmpl;
+    string* drv_msg;
+
+    // Get the VM from the pool
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    if (!vm->hasHistory())
+    {
+        goto error_history;
+    }
+
+    // Get the driver for this VM
+    vmd = get(vm->get_vmm_mad());
+
+    if ( vmd == 0 )
+    {
+        goto error_driver;
+    }
+
+    drv_msg = format_message(
+        vm->get_hostname(),
+        vm->get_vnm_mad(),
+        "",
+        "",
+        vm->get_deploy_id(),
+        "",
+        "",
+        "",
+        "",
+        "",
+        vm->to_xml(vm_tmpl));
+
+    vmd->snapshot_revert(vid, *drv_msg);
+
+    delete drv_msg;
+
+    vm->unlock();
+
+    return;
+
+error_history:
+    os.str("");
+    os << "snapshot_revert_action, VM has no history";
+    goto error_common;
+
+error_driver:
+    os.str("");
+    os << "snapshot_revert_action, error getting driver " << vm->get_vmm_mad();
+    goto error_common;
+
+error_common:
+    Nebula              &ne = Nebula::instance();
+    LifeCycleManager *  lcm = ne.get_lcm();
+
+    lcm->trigger(LifeCycleManager::SNAPSHOT_REVERT_FAILURE, vid);
+
+    vm->log("VMM", Log::ERROR, os);
+    vm->unlock();
+    return;
+
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineManager::snapshot_delete_action(int vid)
+{
+    VirtualMachine *                    vm;
+    const VirtualMachineManagerDriver * vmd;
+
+    ostringstream os;
+
+    string  vm_tmpl;
+    string* drv_msg;
+
+    // Get the VM from the pool
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    if (!vm->hasHistory())
+    {
+        goto error_history;
+    }
+
+    // Get the driver for this VM
+    vmd = get(vm->get_vmm_mad());
+
+    if ( vmd == 0 )
+    {
+        goto error_driver;
+    }
+
+    drv_msg = format_message(
+        vm->get_hostname(),
+        vm->get_vnm_mad(),
+        "",
+        "",
+        vm->get_deploy_id(),
+        "",
+        "",
+        "",
+        "",
+        "",
+        vm->to_xml(vm_tmpl));
+
+    vmd->snapshot_delete(vid, *drv_msg);
+
+    delete drv_msg;
+
+    vm->unlock();
+
+    return;
+
+error_history:
+    os.str("");
+    os << "snapshot_delete_action, VM has no history";
+    goto error_common;
+
+error_driver:
+    os.str("");
+    os << "snapshot_delete_action, error getting driver " << vm->get_vmm_mad();
+    goto error_common;
+
+error_common:
+    Nebula              &ne = Nebula::instance();
+    LifeCycleManager *  lcm = ne.get_lcm();
+
+    lcm->trigger(LifeCycleManager::SNAPSHOT_DELETE_FAILURE, vid);
+
+    vm->log("VMM", Log::ERROR, os);
+    vm->unlock();
+    return;
+
 }
 
 /* -------------------------------------------------------------------------- */

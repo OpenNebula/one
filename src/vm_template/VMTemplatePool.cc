@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -28,6 +28,7 @@ int VMTemplatePool::allocate (
         int                      gid,
         const string&            uname,
         const string&            gname,
+        int                      umask,
         VirtualMachineTemplate * template_contents,
         int *                    oid,
         string&                  error_str)
@@ -40,7 +41,7 @@ int VMTemplatePool::allocate (
     // ------------------------------------------------------------------------
     // Build a new VMTemplate object
     // ------------------------------------------------------------------------
-    vm_template = new VMTemplate(-1, uid, gid, uname, gname,template_contents);
+    vm_template = new VMTemplate(-1, uid, gid, uname, gname, umask, template_contents);
 
     // Check name
     vm_template->get_template_attribute("NAME", name);

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -28,7 +28,7 @@ end
 
 $: << RUBY_LIB_LOCATION
 
-require 'server_cipher_auth'
+require 'opennebula/server_cipher_auth'
 require 'scripts_common'
 
 user   = ARGV[0] # username as registered in OpenNebula
@@ -38,7 +38,7 @@ secret = ARGV[2] # Base64 encoded secret as obtained from login_token
 #OpenNebula.log_debug("Authenticating #{user}, with password #{pass} (#{secret})")
 
 begin
-    server_auth = ServerCipherAuth.new_driver
+    server_auth = OpenNebula::ServerCipherAuth.new_driver
     rc = server_auth.authenticate(user, pass, secret)
 rescue => e
     OpenNebula.error_message e.message

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)
+ * Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,10 +32,82 @@ public class OneSystem
     private static final String GROUP_QUOTA_INFO    = "groupquota.info";
     private static final String GROUP_QUOTA_UPDATE  = "groupquota.update";
 
+    public static final String VERSION = "3.9.0";
 
     public OneSystem(Client client)
     {
         this.client = client;
+    }
+
+    /**
+     * Calls OpenNebula and retrieves the oned version
+     *
+     * @return The server's xml-rpc response encapsulated
+     */
+    public OneResponse getOnedVersion()
+    {
+        return client.call("system.version");
+    }
+
+    /**
+     * Returns whether of not the oned version is the same as the OCA version
+     *
+     * @return true if oned is the same version
+     */
+    public boolean compatibleVersion()
+    {
+        OneResponse r = getOnedVersion();
+
+        if (r.isError())
+        {
+            return false;
+        }
+
+        String[] ocaVersion =  VERSION.split("\\.", 3);
+        String[] onedVersion = r.getMessage().split("\\.", 3);
+
+        return ocaVersion.length == onedVersion.length &&
+                ocaVersion[0].equals(onedVersion[0]) &&
+                ocaVersion[1].equals(onedVersion[1]);
+    }
+
+    /**
+     * Calls OpenNebula and retrieves oned configuration
+     *
+     * @return The server's xml-rpc response encapsulated
+     */
+    public OneResponse getConfiguration()
+    {
+        return client.call("system.config");
+    }
+
+    /**
+     * Calls OpenNebula and retrieves oned configuration
+     *
+     * @return The xml root node in case of success, null otherwise
+     */
+    public Node getConfigurationXML()
+    {
+        OneResponse r = getConfiguration();
+        Node xml = null;
+
+        if (r.isError())
+        {
+            return null;
+        }
+
+        try
+        {
+            DocumentBuilder builder =
+                DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document doc = builder.parse(
+                new ByteArrayInputStream(r.getMessage().getBytes()));
+
+            xml = doc.getDocumentElement();
+        }
+        catch (Exception e) {}
+
+        return xml;
     }
 
     /**

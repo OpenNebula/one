@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -67,7 +67,7 @@ class CloudAuth
         end
 
         begin
-            require core_auth[0]
+            require "opennebula/#{core_auth[0]}"
             @server_auth = Kernel.const_get(core_auth[1]).new_client
         rescue => e
             raise e.message
@@ -134,9 +134,18 @@ class CloudAuth
     # password:: _String_ the password
     # [return] _Hash_ with the username
     def get_username(password)
-        xpath = "USER[contains(PASSWORD, \"#{password}\")]/NAME"
+        # Trying to match password with each
+        # of the pipe-separated DNs stored in USER/PASSWORD
+        @lock.synchronize do
+            @user_pool.each_with_xpath(
+                    "USER[contains(PASSWORD, \"#{password}\")]") do |user|
+                STDERR.puts user.inspect
+                return user["NAME"] if user["AUTH_DRIVER"] == "x509" &&
+                    user["PASSWORD"].split('|').include?(password)
+            end
+        end
 
-        retrieve_from_userpool(xpath)
+        nil
     end
 
     private

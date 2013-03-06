@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -71,8 +71,9 @@ class InformationManagerDriver < OpenNebulaDriver
                 end
             end
         end
+
         do_action("#{@hypervisor}", number, host, :MONITOR,
-            :script_name => 'run_probes')
+            :script_name => 'run_probes', :base64 => true)
     end
 end
 
@@ -102,7 +103,7 @@ begin
             when '--local'
                 local_actions={ 'MONITOR' => nil }
             when '--force-copy'
-                force_copy=true          
+                force_copy=true
         end
     end
 rescue Exception => e

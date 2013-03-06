@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -159,6 +159,37 @@ void LifeCycleManager::trigger(Actions action, int _vid)
 
     case DETACH_NIC_FAILURE:
         aname = "DETACH_NIC_FAILURE";
+
+    case CLEANUP_SUCCESS:
+        aname = "CLEANUP_SUCCESS";
+        break;
+
+    case CLEANUP_FAILURE:
+        aname = "CLEANUP_FAILURE";
+        break;
+
+    case SNAPSHOT_CREATE_SUCCESS:
+        aname = "SNAPSHOT_CREATE_SUCCESS";
+        break;
+
+    case SNAPSHOT_CREATE_FAILURE:
+        aname = "SNAPSHOT_CREATE_FAILURE";
+        break;
+
+    case SNAPSHOT_REVERT_SUCCESS:
+        aname = "SNAPSHOT_REVERT_SUCCESS";
+        break;
+
+    case SNAPSHOT_REVERT_FAILURE:
+        aname = "SNAPSHOT_REVERT_FAILURE";
+        break;
+
+    case SNAPSHOT_DELETE_SUCCESS:
+        aname = "SNAPSHOT_DELETE_SUCCESS";
+        break;
+
+    case SNAPSHOT_DELETE_FAILURE:
+        aname = "SNAPSHOT_DELETE_FAILURE";
         break;
 
     case DEPLOY:
@@ -329,6 +360,38 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     else if (action == "DETACH_NIC_FAILURE")
     {
         detach_nic_failure_action(vid);
+    }
+    else if (action == "CLEANUP_SUCCESS")
+    {
+        cleanup_callback_action(vid);
+    }
+    else if (action == "CLEANUP_FAILURE")
+    {
+        cleanup_callback_action(vid);
+    }
+    else if (action == "SNAPSHOT_CREATE_SUCCESS")
+    {
+        snapshot_create_success(vid);
+    }
+    else if (action == "SNAPSHOT_CREATE_FAILURE")
+    {
+        snapshot_create_failure(vid);
+    }
+    else if (action == "SNAPSHOT_REVERT_SUCCESS")
+    {
+        snapshot_revert_success(vid);
+    }
+    else if (action == "SNAPSHOT_REVERT_FAILURE")
+    {
+        snapshot_revert_failure(vid);
+    }
+    else if (action == "SNAPSHOT_DELETE_SUCCESS")
+    {
+        snapshot_delete_success(vid);
+    }
+    else if (action == "SNAPSHOT_DELETE_FAILURE")
+    {
+        snapshot_delete_failure(vid);
     }
     else if (action == "DEPLOY")
     {

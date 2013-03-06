@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -141,7 +141,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
         OpenNebula::GroupPool.new(@client)
     end
 
-    def format_resource(group)
+    def format_resource(group, options = {})
         system = System.new(@client)
         default_quotas = system.get_group_quotas()
 

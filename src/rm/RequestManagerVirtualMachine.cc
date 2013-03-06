@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,6 +17,7 @@
 #include "RequestManagerVirtualMachine.h"
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
+#include "Quotas.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -195,6 +196,46 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
     ds->unlock();
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool RequestManagerVirtualMachine::check_host(int     hid,
+                                              int     cpu,
+                                              int     mem,
+                                              int     disk,
+                                              string& error)
+{
+    Nebula&    nd    = Nebula::instance();
+    HostPool * hpool = nd.get_hpool();
+
+    Host * host;
+    bool   test;
+
+    host = hpool->get(hid, true);
+
+    if (host == 0)
+    {
+        error = "Host no longer exists";
+        return false;
+    }
+
+    test = host->test_capacity(cpu, mem, disk);
+
+    if (!test)
+    {
+        ostringstream oss;
+
+        oss << object_name(PoolObjectSQL::HOST)
+            << " " << hid << " does not have enough capacity.";
+
+        error = oss.str();
+    }
+
+    host->unlock();
+
+    return test;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -387,31 +428,43 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     string ds_location;
     int    ds_id;
 
-    int id  = xmlrpc_c::value_int(paramList.getInt(1));
-    int hid = xmlrpc_c::value_int(paramList.getInt(2));
+    int id       = xmlrpc_c::value_int(paramList.getInt(1));
+    int hid      = xmlrpc_c::value_int(paramList.getInt(2));
+    bool enforce = false;
 
     bool auth = false;
 
-    if (get_host_information(
-            hid, hostname, vmm_mad, vnm_mad, tm_mad, ds_location, ds_id, att,
-            host_perms) != 0)
+    if ( paramList.size() > 3 )
+    {
+        enforce = xmlrpc_c::value_boolean(paramList.getBoolean(3));
+    }
+
+    if (get_host_information(hid,
+                             hostname,
+                             vmm_mad,
+                             vnm_mad,
+                             tm_mad,
+                             ds_location,
+                             ds_id,
+                             att,
+                             host_perms) != 0)
     {
         return;
     }
 
     auth = vm_authorization(id, 0, 0, att, &host_perms, 0, auth_op);
 
-    if ( auth == false )
+    if (auth == false)
     {
         return;
     }
 
-    if ( (vm = get_vm(id, att)) == 0 )
+    if ((vm = get_vm(id, att)) == 0)
     {
         return;
     }
 
-    if ( vm->get_state() != VirtualMachine::PENDING )
+    if (vm->get_state() != VirtualMachine::PENDING)
     {
         failure_response(ACTION,
                 request_error("Wrong state to perform action",""),
@@ -421,8 +474,36 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ( add_history(
-            vm,hid,hostname,vmm_mad,vnm_mad,tm_mad,ds_location,ds_id,att) != 0)
+    if (enforce)
+    {
+        int    cpu, mem, disk;
+        string error;
+
+        vm->get_requirements(cpu, mem, disk);
+
+        vm->unlock();
+
+        if (check_host(hid, cpu, mem, disk, error) == false)
+        {
+            failure_response(ACTION, request_error(error,""), att);
+            return;
+        }
+
+        if ((vm = get_vm(id, att)) == 0)
+        {
+            return;
+        }
+    }
+
+    if (add_history(vm,
+                    hid,
+                    hostname,
+                    vmm_mad,
+                    vnm_mad,
+                    tm_mad,
+                    ds_location,
+                    ds_id,
+                    att) != 0)
     {
         vm->unlock();
         return;
@@ -459,27 +540,39 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     string  aux_st;
     int     current_hid;
 
-    int  id   = xmlrpc_c::value_int(paramList.getInt(1));
-    int  hid  = xmlrpc_c::value_int(paramList.getInt(2));
-    bool live = xmlrpc_c::value_boolean(paramList.getBoolean(3));
+    int  id      = xmlrpc_c::value_int(paramList.getInt(1));
+    int  hid     = xmlrpc_c::value_int(paramList.getInt(2));
+    bool live    = xmlrpc_c::value_boolean(paramList.getBoolean(3));
+    bool enforce = false;
+
+    if ( paramList.size() > 4 )
+    {
+        enforce = xmlrpc_c::value_boolean(paramList.getBoolean(4));
+    }
 
     bool auth = false;
 
-    if (get_host_information(
-            hid, hostname, vmm_mad, vnm_mad, tm_mad, ds_location, ds_id, att,
-            host_perms) != 0)
+    if (get_host_information(hid,
+                             hostname,
+                             vmm_mad,
+                             vnm_mad,
+                             tm_mad,
+                             ds_location,
+                             ds_id,
+                             att,
+                             host_perms) != 0)
     {
         return;
     }
 
     auth = vm_authorization(id, 0, 0, att, &host_perms, 0, auth_op);
 
-    if ( auth == false )
+    if (auth == false)
     {
         return;
     }
 
-    if ( (vm = get_vm(id, att)) == 0 )
+    if ((vm = get_vm(id, att)) == 0)
     {
         return;
     }
@@ -498,11 +591,35 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     current_hid = vm->get_hid();
 
-    vm->unlock();
+    if (enforce)
+    {
+        int    cpu, mem, disk;
+        string error;
 
-    if (get_host_information(
-            current_hid, aux_st, aux_st, aux_st, aux_st, aux_st, current_ds_id,
-            att, aux_perms) != 0)
+        vm->get_requirements(cpu, mem, disk);
+
+        vm->unlock();
+
+        if (check_host(hid, cpu, mem, disk, error) == false)
+        {
+            failure_response(ACTION, request_error(error,""), att);
+            return;
+        }
+    }
+    else
+    {
+        vm->unlock();
+    }
+
+    if (get_host_information(current_hid,
+                             aux_st,
+                             aux_st,
+                             aux_st,
+                             aux_st,
+                             aux_st,
+                             current_ds_id,
+                             att,
+                             aux_perms) != 0)
     {
         return;
     }
@@ -529,14 +646,21 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    if ( add_history(vm, hid, hostname, vmm_mad, vnm_mad, tm_mad, ds_location,
-            ds_id, att) != 0)
+    if (add_history(vm,
+                    hid,
+                    hostname,
+                    vmm_mad,
+                    vnm_mad,
+                    tm_mad,
+                    ds_location,
+                    ds_id,
+                    att) != 0)
     {
         vm->unlock();
         return;
     }
 
-    if ( live == true )
+    if (live == true)
     {
         dm->live_migrate(vm);
     }
@@ -558,8 +682,9 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 {
     Nebula& nd  = Nebula::instance();
 
-    ImagePool *      ipool = nd.get_ipool();
-    DatastorePool * dspool = nd.get_dspool();
+    ImagePool *     ipool   = nd.get_ipool();
+    DatastorePool * dspool  = nd.get_dspool();
+    UserPool *      upool   = nd.get_upool();
 
     int    id       = xmlrpc_c::value_int(paramList.getInt(1));
     int    disk_id  = xmlrpc_c::value_int(paramList.getInt(2));
@@ -572,8 +697,10 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     Image         *  img;
     Datastore     *  ds;
+    User          *  user;
     Image::DiskType  ds_disk_type;
 
+    int           umask;
     int           rc;
     string        error_str;
 
@@ -606,6 +733,25 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
                          att);
         return;
     }
+
+    // -------------------------------------------------------------------------
+    // Get user's umask
+    // -------------------------------------------------------------------------
+
+    user = upool->get(att.uid, true);
+
+    if ( user == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::USER), att.uid),
+                att);
+
+        return;
+    }
+
+    umask = user->get_umask();
+
+    user->unlock();
 
     // -------------------------------------------------------------------------
     // Get the data of the Image to be saved
@@ -736,6 +882,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
                          att.gid,
                          att.uname,
                          att.gname,
+                         umask,
                          itemplate,
                          ds_id,
                          ds_name,
@@ -893,6 +1040,459 @@ void VirtualMachineDetach::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     rc = dm->detach(id, disk_id, error_str);
+
+    if ( rc != 0 )
+    {
+        failure_response(ACTION,
+                request_error(error_str, ""),
+                att);
+    }
+    else
+    {
+        success_response(id, att);
+    }
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
+                                           RequestAttributes& att)
+{
+    int   id      = xmlrpc_c::value_int(paramList.getInt(1));
+    float ncpu    = xmlrpc_c::value_double(paramList.getDouble(2));
+    int   nmemory = xmlrpc_c::value_int(paramList.getInt(3));
+    int   nvcpu   = xmlrpc_c::value_int(paramList.getInt(4));
+    bool  enforce_param = xmlrpc_c::value_boolean(paramList.getBoolean(5));
+
+    float ocpu, dcpu;
+    int   omemory, dmemory;
+    int   ovcpu;
+
+    Nebula&    nd    = Nebula::instance();
+    UserPool*  upool = nd.get_upool();
+    GroupPool* gpool = nd.get_gpool();
+    Quotas     dquotas = nd.get_default_user_quota();
+    HostPool * hpool = nd.get_hpool();
+
+    Host * host;
+
+    Template deltas;
+    string   error_str;
+    bool     rc;
+    int      ret;
+    int      hid = -1;
+
+    PoolObjectAuth vm_perms;
+
+    VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
+    VirtualMachine * vm;
+
+    bool enforce = true;
+
+    if (att.uid == UserPool::ONEADMIN_ID || att.gid == GroupPool::ONEADMIN_ID)
+    {
+        enforce = enforce_param;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Authorize the operation                                               */
+    /* ---------------------------------------------------------------------- */
+
+    if ( vm_authorization(id, 0, 0, att, 0, 0, auth_op) == false )
+    {
+        return;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Get the resize values                                                 */
+    /* ---------------------------------------------------------------------- */
+
+    vm = vmpool->get(id, true);
+
+    if (vm == 0)
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::VM),id),
+                att);
+        return;
+    }
+
+    vm->get_permissions(vm_perms);
+
+    vm->get_template_attribute("MEMORY", omemory);
+    vm->get_template_attribute("CPU", ocpu);
+    vm->get_template_attribute("VCPU", ovcpu);
+
+    if (nmemory == 0)
+    {
+        nmemory = omemory;
+    }
+
+    if (ncpu == 0)
+    {
+        ncpu = ocpu;
+    }
+
+    if (nvcpu == 0)
+    {
+        nvcpu = ovcpu;
+    }
+
+    dcpu    = ncpu - ocpu;
+    dmemory = nmemory - omemory;
+
+    deltas.add("MEMORY", dmemory);
+    deltas.add("CPU", dcpu);
+
+    switch (vm->get_state())
+    {
+        case VirtualMachine::POWEROFF: //Only check host capacity in POWEROFF
+            if (vm->hasHistory() == true)
+            {
+                hid = vm->get_hid();
+            }
+        break;
+
+        case VirtualMachine::INIT:
+        case VirtualMachine::PENDING:
+        case VirtualMachine::HOLD:
+        case VirtualMachine::FAILED:
+        break;
+
+        case VirtualMachine::STOPPED:
+        case VirtualMachine::DONE:
+        case VirtualMachine::SUSPENDED:
+        case VirtualMachine::ACTIVE:
+            failure_response(ACTION,
+                     request_error("Wrong state to perform action",""),
+                     att);
+
+            vm->unlock();
+            return;
+    }
+
+    ret = vm->check_resize(ncpu, nmemory, nvcpu, error_str);
+
+    vm->unlock();
+
+    if (ret != 0)
+    {
+        failure_response(INTERNAL,
+                request_error("Could resize the VM", error_str),
+                att);
+        return;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Check quotas                                                          */
+    /* ---------------------------------------------------------------------- */
+
+    if (vm_perms.uid != UserPool::ONEADMIN_ID)
+    {
+        User * user  = upool->get(vm_perms.uid, true);
+
+        if ( user != 0 )
+        {
+            rc = user->quota.quota_update(Quotas::VM, &deltas, dquotas, error_str);
+
+            if (rc == false)
+            {
+                ostringstream oss;
+
+                oss << object_name(PoolObjectSQL::USER)
+                    << " [" << vm_perms.uid << "] "
+                    << error_str;
+
+                failure_response(AUTHORIZATION,
+                        request_error(oss.str(), ""),
+                        att);
+
+                user->unlock();
+
+                return;
+            }
+
+            upool->update(user);
+
+            user->unlock();
+        }
+    }
+
+    if (vm_perms.gid != GroupPool::ONEADMIN_ID)
+    {
+        Group * group  = gpool->get(vm_perms.gid, true);
+
+        if ( group != 0 )
+        {
+            rc = group->quota.quota_update(Quotas::VM, &deltas, dquotas, error_str);
+
+            if (rc == false)
+            {
+                ostringstream oss;
+                RequestAttributes att_tmp(vm_perms.uid, -1, att);
+
+                oss << object_name(PoolObjectSQL::GROUP)
+                    << " [" << vm_perms.gid << "] "
+                    << error_str;
+
+                failure_response(AUTHORIZATION,
+                                 request_error(oss.str(), ""),
+                                 att);
+
+                group->unlock();
+
+                quota_rollback(&deltas, Quotas::VM, att_tmp);
+
+                return;
+            }
+
+            gpool->update(group);
+
+            group->unlock();
+        }
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Check & update host capacity                                          */
+    /* ---------------------------------------------------------------------- */
+
+    if (hid != -1)
+    {
+        int dcpu_host = (int) (dcpu * 100);//now in 100%
+        int dmem_host = dmemory * 1024;    //now in Kilobytes
+
+        host = hpool->get(hid, true);
+
+        if (host == 0)
+        {
+            failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::HOST),hid),
+                att);
+
+            quota_rollback(&deltas, Quotas::VM, att);
+
+            return;
+        }
+
+        if ( enforce && host->test_capacity(dcpu_host, dmem_host, 0) == false)
+        {
+            ostringstream oss;
+
+            oss << object_name(PoolObjectSQL::HOST)
+                << " " << hid << " does not have enough capacity.";
+
+            failure_response(ACTION, request_error(oss.str(),""), att);
+
+            host->unlock();
+
+            quota_rollback(&deltas, Quotas::VM, att);
+
+            return;
+        }
+
+        host->update_capacity(dcpu_host, dmem_host, 0);
+
+        hpool->update(host);
+
+        host->unlock();
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Resize the VM                                                         */
+    /* ---------------------------------------------------------------------- */
+
+    vm = vmpool->get(id, true);
+
+    if (vm == 0)
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::VM),id),
+                att);
+
+        quota_rollback(&deltas, Quotas::VM, att);
+
+        if (hid != -1)
+        {
+            host = hpool->get(hid, true);
+
+            if (host != 0)
+            {
+                host->update_capacity(-dcpu, -dmemory, 0);
+                hpool->update(host);
+
+                host->unlock();
+            }
+        }
+        return;
+    }
+
+    //Check again state as the VM may transit to active (e.g. scheduled)
+    switch (vm->get_state())
+    {
+        case VirtualMachine::INIT:
+        case VirtualMachine::PENDING:
+        case VirtualMachine::HOLD:
+        case VirtualMachine::FAILED:
+        case VirtualMachine::POWEROFF:
+            ret = vm->resize(ncpu, nmemory, nvcpu, error_str);
+
+            if (ret != 0)
+            {
+                vm->unlock();
+
+                failure_response(INTERNAL,
+                        request_error("Could not resize the VM", error_str),
+                        att);
+                return;
+            }
+
+            vmpool->update(vm);
+        break;
+
+        case VirtualMachine::STOPPED:
+        case VirtualMachine::DONE:
+        case VirtualMachine::SUSPENDED:
+        case VirtualMachine::ACTIVE:
+            failure_response(ACTION,
+                     request_error("Wrong state to perform action",""),
+                     att);
+
+            vm->unlock();
+
+            quota_rollback(&deltas, Quotas::VM, att);
+
+            if (hid != -1)
+            {
+                host = hpool->get(hid, true);
+
+                if (host != 0)
+                {
+                    host->update_capacity(ocpu - ncpu, omemory - nmemory, 0);
+                    hpool->update(host);
+
+                    host->unlock();
+                }
+            }
+            return;
+    }
+
+    vm->unlock();
+
+    success_response(id, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineSnapshotCreate::request_execute(
+        xmlrpc_c::paramList const&  paramList,
+        RequestAttributes&          att)
+{
+    Nebula&           nd = Nebula::instance();
+    DispatchManager * dm = nd.get_dm();
+
+    int     rc;
+    int     snap_id;
+    string  error_str;
+
+    int     id   = xmlrpc_c::value_int(paramList.getInt(1));
+    string  name = xmlrpc_c::value_string(paramList.getString(2));
+
+    // -------------------------------------------------------------------------
+    // Authorize the operation
+    // -------------------------------------------------------------------------
+
+    if ( vm_authorization(id, 0, 0, att, 0, 0, auth_op) == false )
+    {
+        return;
+    }
+
+    rc = dm->snapshot_create(id, name, snap_id, error_str);
+
+    if ( rc != 0 )
+    {
+        failure_response(ACTION,
+                request_error(error_str, ""),
+                att);
+    }
+    else
+    {
+        success_response(snap_id, att);
+    }
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineSnapshotRevert::request_execute(
+        xmlrpc_c::paramList const&  paramList,
+        RequestAttributes&          att)
+{
+    Nebula&           nd = Nebula::instance();
+    DispatchManager * dm = nd.get_dm();
+
+    int    rc;
+    string error_str;
+
+    int id      = xmlrpc_c::value_int(paramList.getInt(1));
+    int snap_id = xmlrpc_c::value_int(paramList.getInt(2));
+
+    // -------------------------------------------------------------------------
+    // Authorize the operation
+    // -------------------------------------------------------------------------
+
+    if ( vm_authorization(id, 0, 0, att, 0, 0, auth_op) == false )
+    {
+        return;
+    }
+
+    rc = dm->snapshot_revert(id, snap_id, error_str);
+
+    if ( rc != 0 )
+    {
+        failure_response(ACTION,
+                request_error(error_str, ""),
+                att);
+    }
+    else
+    {
+        success_response(id, att);
+    }
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineSnapshotDelete::request_execute(
+        xmlrpc_c::paramList const&  paramList,
+        RequestAttributes&          att)
+{
+    Nebula&           nd = Nebula::instance();
+    DispatchManager * dm = nd.get_dm();
+
+    int    rc;
+    string error_str;
+
+    int id      = xmlrpc_c::value_int(paramList.getInt(1));
+    int snap_id = xmlrpc_c::value_int(paramList.getInt(2));
+
+    // -------------------------------------------------------------------------
+    // Authorize the operation
+    // -------------------------------------------------------------------------
+
+    if ( vm_authorization(id, 0, 0, att, 0, 0, auth_op) == false )
+    {
+        return;
+    }
+
+    rc = dm->snapshot_delete(id, snap_id, error_str);
 
     if ( rc != 0 )
     {

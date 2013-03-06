@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -57,7 +57,6 @@ HostPool::HostPool(SqlDB*                    db,
     string on;
     string cmd;
     string arg;
-    string rmt;
     bool   remote;
 
     bool state_hook = false;
@@ -70,7 +69,7 @@ HostPool::HostPool(SqlDB*                    db,
         on   = vattr->vector_value("ON");
         cmd  = vattr->vector_value("COMMAND");
         arg  = vattr->vector_value("ARGUMENTS");
-        rmt  = vattr->vector_value("REMOTE");
+        vattr->vector_value("REMOTE", remote);
 
         transform (on.begin(),on.end(),on.begin(),(int(*)(int))toupper);
 
@@ -90,33 +89,21 @@ HostPool::HostPool(SqlDB*                    db,
             name = cmd;
         }
 
-        remote = false;
-
-        if ( !rmt.empty() )
-        {
-            transform(rmt.begin(),rmt.end(),rmt.begin(),(int(*)(int))toupper);
-
-            if ( rmt == "YES" )
-            {
-                remote = true;
-            }
-        }
-
         if (cmd[0] != '/')
         {
             ostringstream cmd_os;
 
             if ( remote )
             {
-                cmd_os << hook_location << "/" << cmd;     
+                cmd_os << hook_location << "/" << cmd;
             }
             else
             {
                 cmd_os << remotes_location << "/hooks/" << cmd;
-            } 
+            }
 
             cmd = cmd_os.str();
-        } 
+        }
 
         if ( on == "CREATE" )
         {
@@ -256,36 +243,32 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int HostPool::discover_cb(void * _map, int num, char **values, char **names)
+int HostPool::discover_cb(void * _set, int num, char **values, char **names)
 {
-    map<int, string> *  discovered_hosts;
-    string              im_mad;
-    int                 hid;
-    int                 rc;
+    set<int> *  discovered_hosts;
+    string      im_mad;
+    int         hid;
 
-    discovered_hosts = static_cast<map<int, string> *>(_map);
+    discovered_hosts = static_cast<set<int> *>(_set);
 
-    if ( (num<2) || (values[0] == 0) || (values[1] == 0) )
+    if ( (num<1) || (values[0] == 0) )
     {
         return -1;
     }
 
     hid = atoi(values[0]);
-    rc  = ObjectXML::xpath_value(im_mad,values[1],"/HOST/IM_MAD");
 
-    if( rc != 0)
-    {
-        return -1;
-    }
-
-    discovered_hosts->insert(make_pair(hid,im_mad));
+    discovered_hosts->insert(hid);
 
     return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 
-int HostPool::discover(map<int, string> * discovered_hosts, int host_limit)
+int HostPool::discover(
+        set<int> *  discovered_hosts,
+        int         host_limit,
+        time_t      target_time)
 {
     ostringstream   sql;
     int             rc;
@@ -293,9 +276,9 @@ int HostPool::discover(map<int, string> * discovered_hosts, int host_limit)
     set_callback(static_cast<Callbackable::Callback>(&HostPool::discover_cb),
                  static_cast<void *>(discovered_hosts));
 
-    sql << "SELECT oid, body FROM "
-        << Host::table << " WHERE state != "
-        << Host::DISABLED << " ORDER BY last_mon_time ASC LIMIT " << host_limit;
+    sql << "SELECT oid FROM " << Host::table
+        << " WHERE last_mon_time <= " << target_time
+        << " ORDER BY last_mon_time ASC LIMIT " << host_limit;
 
     rc = db->exec(sql,this);
 

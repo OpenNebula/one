@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -42,7 +42,8 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         end
 
         if options[:driver] == OpenNebula::User::X509_AUTH
-            password.delete!("\s")
+            require 'opennebula/x509_auth'
+            password = OpenNebula::X509Auth.escape_dn(password)
         end
 
         if options[:sha1] || options[:driver] == OpenNebula::User::CIPHER_AUTH
@@ -60,10 +61,10 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 return -1, "You have to specify the --key option"
             end
 
-            require 'ssh_auth'
+            require 'opennebula/ssh_auth'
 
             begin
-                auth = SshAuth.new(:private_key=>options[:key])
+                auth = OpenNebula::SshAuth.new(:private_key=>options[:key])
             rescue Exception => e
                 return -1, e.message
             end
@@ -74,11 +75,11 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 return -1, "You have to specify the --cert option"
             end
 
-            require 'x509_auth'
+            require 'opennebula/x509_auth'
 
             begin
                 cert = [File.read(options[:cert])]
-                auth = X509Auth.new(:certs_pem=>cert)
+                auth = OpenNebula::X509Auth.new(:certs_pem=>cert)
             rescue Exception => e
                 return -1, e.message
             end
@@ -92,17 +93,17 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
     def self.login(username, options)
         case options[:driver]
         when OpenNebula::User::SSH_AUTH
-            require 'ssh_auth'
+            require 'opennebula/ssh_auth'
 
             options[:key]  ||= ENV['HOME']+'/.ssh/id_rsa'
 
             begin
-                auth = SshAuth.new(:private_key=>options[:key])
+                auth = OpenNebula::SshAuth.new(:private_key=>options[:key])
             rescue Exception => e
                 return -1, e.message
             end
         when OpenNebula::User::X509_AUTH
-            require 'x509_auth'
+            require 'opennebula/x509_auth'
 
             options[:cert] ||= ENV['X509_USER_CERT']
             options[:key]  ||= ENV['X509_USER_KEY']
@@ -111,12 +112,12 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 certs = [File.read(options[:cert])]
                 key   = File.read(options[:key])
 
-                auth = X509Auth.new(:certs_pem=>certs, :key_pem=>key)
+                auth = OpenNebula::X509Auth.new(:certs_pem=>certs, :key_pem=>key)
             rescue Exception => e
                 return -1, e.message
             end
         when OpenNebula::User::X509_PROXY_AUTH
-            require 'x509_auth'
+            require 'opennebula/x509_auth'
 
             options[:proxy] ||= ENV['X509_PROXY_CERT']
 
@@ -129,7 +130,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 rc = proxy.match(/(-+BEGIN RSA PRIVATE KEY-+\n[^-]*\n-+END RSA PRIVATE KEY-+)/)
                 key= rc[1]
 
-                auth = X509Auth.new(:certs_pem=>certs, :key_pem=>key)
+                auth = OpenNebula::X509Auth.new(:certs_pem=>certs, :key_pem=>key)
             rescue => e
                 return -1, e.message
             end
@@ -244,7 +245,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         OpenNebula::UserPool.new(@client)
     end
 
-    def format_resource(user)
+    def format_resource(user, options = {})
         system = System.new(@client)
         default_quotas = system.get_user_quotas()
 

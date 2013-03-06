@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -573,6 +573,7 @@ void  LifeCycleManager::delete_action(int vid)
 
     Nebula&           nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
+    TransferManager * tm = nd.get_tm();
 
     vm = vmpool->get(vid,true);
 
@@ -581,17 +582,41 @@ void  LifeCycleManager::delete_action(int vid)
         return;
     }
 
-    if ( vm->get_state() == VirtualMachine::ACTIVE &&
-        (vm->get_lcm_state() != VirtualMachine::LCM_INIT &&
-         vm->get_lcm_state() != VirtualMachine::CLEANUP))
-    {
-        clean_up_vm(vm);
 
-        dm->trigger(DispatchManager::DONE,vid);
-    }
-    else
+    if ( vm->get_state() != VirtualMachine::ACTIVE )
     {
-        vm->log("LCM", Log::ERROR, "delete_action, VM in a wrong state.");
+        vm->log("LCM", Log::ERROR, "clean_action, VM in a wrong state.");
+        vm->unlock();
+
+        return;
+    }
+
+    switch(vm->get_lcm_state())
+    {
+        case VirtualMachine::LCM_INIT:
+            vm->log("LCM", Log::ERROR, "clean_action, VM in a wrong state.");
+        break;
+
+        case VirtualMachine::CLEANUP_RESUBMIT:
+        case VirtualMachine::CLEANUP_DELETE:
+            vm->set_state(VirtualMachine::CLEANUP_DELETE);
+            vmpool->update(vm);
+
+            dm->trigger(DispatchManager::DONE, vid);
+        break;
+
+        case VirtualMachine::FAILURE:
+            vm->set_state(VirtualMachine::CLEANUP_DELETE);
+            vmpool->update(vm);
+
+            tm->trigger(TransferManager::EPILOG_DELETE,vid);
+            dm->trigger(DispatchManager::DONE, vid);
+        break;
+
+        default:
+            clean_up_vm(vm, true);
+            dm->trigger(DispatchManager::DONE, vid);
+        break;
     }
 
     vm->unlock();
@@ -606,6 +631,10 @@ void  LifeCycleManager::clean_action(int vid)
 {
     VirtualMachine * vm;
 
+    Nebula&           nd = Nebula::instance();
+    DispatchManager * dm = nd.get_dm();
+    TransferManager * tm = nd.get_tm();
+
     vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
@@ -613,16 +642,35 @@ void  LifeCycleManager::clean_action(int vid)
         return;
     }
 
-
-    if ( vm->get_state() == VirtualMachine::ACTIVE &&
-        (vm->get_lcm_state() != VirtualMachine::LCM_INIT &&
-         vm->get_lcm_state() != VirtualMachine::CLEANUP))
-    {
-        clean_up_vm(vm);
-    }
-    else
+    if ( vm->get_state() != VirtualMachine::ACTIVE )
     {
         vm->log("LCM", Log::ERROR, "clean_action, VM in a wrong state.");
+        vm->unlock();
+
+        return;
+    }
+
+    switch(vm->get_lcm_state())
+    {
+        case VirtualMachine::LCM_INIT:
+        case VirtualMachine::CLEANUP_DELETE:
+            vm->log("LCM", Log::ERROR, "clean_action, VM in a wrong state.");
+        break;
+
+        case VirtualMachine::CLEANUP_RESUBMIT:
+            dm->trigger(DispatchManager::RESUBMIT, vid);
+        break;
+
+        case VirtualMachine::FAILURE:
+            vm->set_state(VirtualMachine::CLEANUP_RESUBMIT);
+            vmpool->update(vm);
+
+            tm->trigger(TransferManager::EPILOG_DELETE,vid);
+        break;
+
+        default:
+            clean_up_vm(vm, false);
+        break;
     }
 
     vm->unlock();
@@ -631,7 +679,7 @@ void  LifeCycleManager::clean_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
+void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose)
 {
     int    cpu, mem, disk;
     time_t the_time = time(0);
@@ -646,8 +694,19 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
 
     vm->log("LCM", Log::INFO, "New VM state is CLEANUP.");
 
-    vm->set_state(VirtualMachine::CLEANUP);
+    if (dispose)
+    {
+        vm->set_state(VirtualMachine::CLEANUP_DELETE);
+    }
+    else
+    {
+        vm->set_state(VirtualMachine::CLEANUP_RESUBMIT);
+    }
+
     vm->set_resched(false);
+
+    vm->delete_snapshots();
+
     vmpool->update(vm);
 
     vm->set_etime(the_time);
@@ -679,13 +738,12 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
         case VirtualMachine::SHUTDOWN_POWEROFF:
         case VirtualMachine::CANCEL:
         case VirtualMachine::HOTPLUG:
+        case VirtualMachine::HOTPLUG_SNAPSHOT:
             vm->set_running_etime(the_time);
             vmpool->update_history(vm);
 
             vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
-            vmm->trigger(VirtualMachineManager::CANCEL,vid);
-
-            tm->trigger(TransferManager::EPILOG_DELETE,vid);
+            vmm->trigger(VirtualMachineManager::CLEANUP,vid);
         break;
 
         case VirtualMachine::MIGRATE:
@@ -701,11 +759,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
             hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
 
             vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
-
-            vmm->trigger(VirtualMachineManager::CANCEL,vid);
-            vmm->trigger(VirtualMachineManager::CANCEL_PREVIOUS,vid);
-
-            tm->trigger(TransferManager::EPILOG_DELETE,vid);
+            vmm->trigger(VirtualMachineManager::CLEANUP_BOTH,vid);
         break;
 
         case VirtualMachine::SAVE_STOP:
@@ -714,9 +768,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
             vmpool->update_history(vm);
 
             vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
-            vmm->trigger(VirtualMachineManager::CANCEL,vid);
-
-            tm->trigger(TransferManager::EPILOG_DELETE,vid);
+            vmm->trigger(VirtualMachineManager::CLEANUP,vid);
         break;
 
         case VirtualMachine::SAVE_MIGRATE:
@@ -732,9 +784,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
             hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
 
             vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
-            vmm->trigger(VirtualMachineManager::CANCEL_PREVIOUS,vid);
-
-            tm->trigger(TransferManager::EPILOG_DELETE_PREVIOUS,vid);
+            vmm->trigger(VirtualMachineManager::CLEANUP_PREVIOUS,vid);
         break;
 
         case VirtualMachine::PROLOG_MIGRATE:
@@ -742,8 +792,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
             vmpool->update_history(vm);
 
             tm->trigger(TransferManager::DRIVER_CANCEL,vid);
-            tm->trigger(TransferManager::EPILOG_DELETE,vid);
-            tm->trigger(TransferManager::EPILOG_DELETE_PREVIOUS,vid);
+            tm->trigger(TransferManager::EPILOG_DELETE_BOTH,vid);
         break;
 
         case VirtualMachine::EPILOG_STOP:
@@ -755,12 +804,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
             tm->trigger(TransferManager::EPILOG_DELETE,vid);
         break;
 
-        case VirtualMachine::FAILURE:
-            vmpool->update_history(vm);
-            tm->trigger(TransferManager::EPILOG_DELETE,vid);
-        break;
-
-        default: //LCM_INIT,CLEANUP
+        default: //LCM_INIT,CLEANUP_RESUBMIT, CLEANUP_DELETE, FAILURE
         break;
     }
 }

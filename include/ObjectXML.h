@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -149,6 +149,18 @@ public:
     int get_nodes(const char * xpath_expr, vector<xmlNodePtr>& content);
 
     /**
+     * Adds a copy of the node as a child of the node in the xpath expression.
+     * The source node must be cleaned by the caller.
+     *
+     * @param xpath_expr Path of the parent node
+     * @param node Node copy and add
+     * @param new_name New name for the node copy
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int add_node(const char * xpath_expr, xmlNodePtr node, const char * new_name);
+
+    /**
      *  Frees a vector of XMLNodes, as returned by the get_nodes function
      *    @param content the vector of xmlNodePtr
      */
@@ -183,6 +195,15 @@ public:
      *  @return 0 if the xml validates
      */
     static int validate_xml(const string &xml_doc);
+
+    /**
+     * Renames the nodes given in the xpath expression
+     * @param xpath_expr xpath expression to find the nodes to rename
+     * @param new_name new name for the xml elements
+     *
+     * @return the number of nodes renamed
+     */
+    int rename_nodes(const char * xpath_expr, const char * new_name);
 
     // ---------------------------------------------------------
     //  Lex & bison parser for requirements and rank expressions

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -49,6 +49,9 @@ public:
         SHUTDOWN,
         CANCEL,
         CANCEL_PREVIOUS,
+        CLEANUP,
+        CLEANUP_BOTH,
+        CLEANUP_PREVIOUS,
         MIGRATE,
         RESTORE,
         REBOOT,
@@ -60,7 +63,10 @@ public:
         ATTACH,
         DETACH,
         ATTACH_NIC,
-        DETACH_NIC
+        DETACH_NIC,
+        SNAPSHOT_CREATE,
+        SNAPSHOT_REVERT,
+        SNAPSHOT_DELETE
     };
 
     /**
@@ -260,6 +266,22 @@ private:
         int vid);
 
     /**
+     *  Cleanups a host (cancel VM + delete disk images).
+     *    @param vid the id of the VM.
+     *    @param cancel_previous if true the VM will be canceled in the previous
+     *    host (only relevant to delete VM's in MIGRATE state)
+     */
+    void cleanup_action(
+        int vid, bool cancel_previous);
+
+    /**
+     *  Cleanups the previous host (cancel VM + delete disk images).
+     *    @param vid the id of the VM.
+     */
+    void cleanup_previous_action(
+        int vid);
+
+    /**
      *  Function to migrate (live) a VM (MIGRATE action).
      *    @param vid the id of the VM.
      */
@@ -330,6 +352,30 @@ private:
      */
     void detach_nic_action(
         int vid);
+
+    /**
+     * Creates a new system snapshot. The VM must have a snapshot with the
+     * attribute ACTIVE = YES
+     *
+     * @param vid the id of the VM.
+     */
+    void snapshot_create_action(int vid);
+
+    /**
+     * Reverts to a snapshot. The VM must have a snapshot with the
+     * attribute ACTIVE = YES
+     *
+     * @param vid the id of the VM.
+     */
+    void snapshot_revert_action(int vid);
+
+    /**
+     * Deletes a snapshot. The VM must have a snapshot with the
+     * attribute ACTIVE = YES
+     *
+     * @param vid the id of the VM.
+     */
+    void snapshot_delete_action(int vid);
 
     /**
      *  This function cancels the current driver operation

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -23,7 +23,7 @@ class OneTemplateHelper < OpenNebulaHelper::OneHelper
         :format => String,
         :description =>  <<-EOT.strip
 Name of the new VM or TEMPLATE. When instantiating
-                               multiple VMs you can use the\"%i\" wildcard to produce
+                               multiple VMs you can use the \"%i\" wildcard to produce
                                different names such as vm-0, vm-1...
 EOT
     }
@@ -91,7 +91,7 @@ EOT
         OpenNebula::TemplatePool.new(@client, user_flag)
     end
 
-    def format_resource(template)
+    def format_resource(template, options = {})
         str="%-15s: %-20s"
         str_h1="%-80s"
 

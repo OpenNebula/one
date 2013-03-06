@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -172,6 +172,14 @@ public:
      *  Object quotas, provides set and check interface
      */
     Quotas quota;
+
+    /**
+     * Returns the UMASK template attribute (read as an octal number), or the
+     * default UMASK from oned.conf if it does not exist
+     *
+     * @return the UMASK to create new objects
+     */
+    int get_umask() const;
 
 private:
     // -------------------------------------------------------------------------

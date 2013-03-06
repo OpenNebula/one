@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -23,6 +23,7 @@ module EC2CloudAuth
         signature = case params['SignatureVersion']
             when "1" then signature_v1(params.clone,one_pass)
             when "2" then signature_v2(params.clone,one_pass,env,true,false)
+            else return nil
         end
 
         if params['Signature'] == signature

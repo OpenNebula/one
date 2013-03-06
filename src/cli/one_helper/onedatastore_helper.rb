@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -95,7 +95,7 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
         OpenNebula::DatastorePool.new(@client)
     end
 
-    def format_resource(datastore)
+    def format_resource(datastore, options = {})
         str="%-15s: %-20s"
         str_h1="%-80s"
 
@@ -110,6 +110,7 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
         puts str % ["DS_MAD",   datastore['DS_MAD']]
         puts str % ["TM_MAD",   datastore['TM_MAD']]
         puts str % ["BASE PATH",datastore['BASE_PATH']]
+        puts str % ["DISK_TYPE",Image::DISK_TYPES[datastore['DISK_TYPE'].to_i]]
         puts
 
         CLIHelper.print_header(str_h1 % "PERMISSIONS",false)

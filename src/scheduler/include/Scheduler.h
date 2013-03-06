@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,6 +19,7 @@
 
 #include "Log.h"
 #include "HostPoolXML.h"
+#include "ClusterPoolXML.h"
 #include "VirtualMachinePoolXML.h"
 #include "SchedulerPolicy.h"
 #include "ActionManager.h"
@@ -47,7 +48,9 @@ protected:
 
     Scheduler():
         hpool(0),
+        clpool(0),
         vmpool(0),
+        vmapool(0),
         acls(0),
         timer(0),
         url(""),
@@ -67,9 +70,19 @@ protected:
             delete hpool;
         }
 
+        if ( clpool != 0)
+        {
+            delete clpool;
+        }
+
         if ( vmpool != 0)
         {
             delete vmpool;
+        }
+
+        if ( vmapool != 0)
+        {
+            delete vmapool;
         }
 
         if ( acls != 0)
@@ -87,10 +100,13 @@ protected:
     // Pools
     // ---------------------------------------------------------------
 
-    HostPoolXML *             hpool;
-    VirtualMachinePoolXML *   vmpool;
+    HostPoolXML *    hpool;
+    ClusterPoolXML * clpool;
 
-    AclXML *                  acls;
+    VirtualMachinePoolXML *       vmpool;
+    VirtualMachineActionsPoolXML* vmapool;
+
+    AclXML * acls;
 
     // ---------------------------------------------------------------
     // Scheduler Policies
@@ -116,7 +132,17 @@ protected:
 
     virtual int schedule();
 
+    /**
+     * Retrieves the pools
+     *
+     * @return   0 on success
+     *          -1 on error
+     *          -2 if no VMs need to be scheduled
+     */
     virtual int set_up_pools();
+
+
+    virtual int do_scheduled_actions();
 
 private:
     Scheduler(Scheduler const&){};
@@ -124,7 +150,6 @@ private:
     Scheduler& operator=(Scheduler const&){return *this;};
 
     friend void * scheduler_action_loop(void *arg);
-
 
     // ---------------------------------------------------------------
     // Scheduling Policies

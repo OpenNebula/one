@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)
+ * Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -127,16 +127,6 @@ public class Client{
     public OneResponse get_version()
     {
         return call("system.version");
-    }
-
-    /**
-     * Calls OpenNebula and retrieves oned configuration
-     *
-     * @return The server's xml-rpc response encapsulated
-     */
-    public OneResponse get_config()
-    {
-        return call("system.config");
     }
 
     //--------------------------------------------------------------------------

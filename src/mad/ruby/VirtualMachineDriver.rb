@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -42,8 +42,12 @@ class VirtualMachineDriver < OpenNebulaDriver
         :log         => "LOG",
         :attach_disk => "ATTACHDISK",
         :detach_disk => "DETACHDISK",
+        :snapshot_create => "SNAPSHOTCREATE",
+        :snapshot_revert => "SNAPSHOTREVERT",
+        :snapshot_delete => "SNAPSHOTDELETE",
+        :cleanup         => "CLEANUP",
         :attach_nic  => "ATTACHNIC",
-        :detach_nic  => "DETACHNIC",
+        :detach_nic  => "DETACHNIC"
     }
 
     POLL_ATTRIBUTE = {
@@ -80,17 +84,24 @@ class VirtualMachineDriver < OpenNebulaDriver
 
         @hosts   = Array.new
 
-        register_action(ACTION[:deploy].to_sym,      method("deploy"))
-        register_action(ACTION[:shutdown].to_sym,    method("shutdown"))
-        register_action(ACTION[:reboot].to_sym,      method("reboot"))
-        register_action(ACTION[:reset].to_sym,       method("reset"))
-        register_action(ACTION[:cancel].to_sym,      method("cancel"))
-        register_action(ACTION[:save].to_sym,        method("save"))
-        register_action(ACTION[:restore].to_sym,     method("restore"))
-        register_action(ACTION[:migrate].to_sym,     method("migrate"))
-        register_action(ACTION[:poll].to_sym,        method("poll"))
-        register_action(ACTION[:attach_disk].to_sym, method("attach_disk"))
-        register_action(ACTION[:detach_disk].to_sym, method("detach_disk"))
+        register_action(ACTION[:deploy].to_sym,          method("deploy"))
+        register_action(ACTION[:shutdown].to_sym,        method("shutdown"))
+        register_action(ACTION[:reboot].to_sym,          method("reboot"))
+        register_action(ACTION[:reset].to_sym,           method("reset"))
+        register_action(ACTION[:cancel].to_sym,          method("cancel"))
+        register_action(ACTION[:save].to_sym,            method("save"))
+        register_action(ACTION[:restore].to_sym,         method("restore"))
+        register_action(ACTION[:migrate].to_sym,         method("migrate"))
+        register_action(ACTION[:poll].to_sym,            method("poll"))
+        register_action(ACTION[:attach_disk].to_sym,     method("attach_disk"))
+        register_action(ACTION[:detach_disk].to_sym,     method("detach_disk"))
+        register_action(ACTION[:snapshot_create].to_sym,
+                        method("snapshot_create"))
+        register_action(ACTION[:snapshot_revert].to_sym,
+                        method("snapshot_revert"))
+        register_action(ACTION[:snapshot_delete].to_sym,
+                        method("snapshot_delete"))
+        register_action(ACTION[:cleanup].to_sym,         method("cleanup"))
         register_action(ACTION[:attach_nic].to_sym,  method("attach_nic"))
         register_action(ACTION[:detach_nic].to_sym,  method("detach_nic"))
     end
@@ -180,6 +191,25 @@ class VirtualMachineDriver < OpenNebulaDriver
     def detach_nic(id, drv_message)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:detach_nic],RESULT[:failure],id,error)
+
+    def snapshot_create(id, drv_message)
+        error = "Action not implemented by driver #{self.class}"
+        send_message(ACTION[:snapshot_create],RESULT[:failure],id,error)
+    end
+
+    def snapshot_revert(id, drv_message)
+        error = "Action not implemented by driver #{self.class}"
+        send_message(ACTION[:snapshot_revert],RESULT[:failure],id,error)
+    end
+
+    def snapshot_delete(id, drv_message)
+        error = "Action not implemented by driver #{self.class}"
+        send_message(ACTION[:snapshot_delete],RESULT[:failure],id,error)
+    end
+
+    def cleanup(id, drv_message)
+        error = "Action not implemented by driver #{self.class}"
+        send_message(ACTION[:cleanup],RESULT[:failure],id,error)
     end
 
 private

@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------- #
-# Copyright 2010-2012, C12G Labs S.L                                           #
+# Copyright 2010-2013, C12G Labs S.L                                           #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -17,7 +17,9 @@
 require 'rubygems'
 require 'net/ldap'
 
-class LdapAuth
+module OpenNebula; end
+
+class OpenNebula::LdapAuth
     def initialize(options)
         @options={
             :host => 'localhost',
@@ -41,6 +43,7 @@ class LdapAuth
 
         ops[:host]=@options[:host] if @options[:host]
         ops[:port]=@options[:port].to_i if @options[:port]
+        ops[:encryption]=@options[:encryption] if @options[:encryption]
 
         @ldap=Net::LDAP.new(ops)
     end

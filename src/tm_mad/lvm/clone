@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -50,27 +50,18 @@ DST_HOST=`arg_host $DST`
 DST_DIR=`dirname $DST_PATH`
 
 #-------------------------------------------------------------------------------
-# Get SIZE through XPATH
-#-------------------------------------------------------------------------------
-
-DISK_ID=$(echo $DST_PATH|awk -F. '{print $NF}')
-
-XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
-XPATH="$XPATH /VM/TEMPLATE/DISK[DISK_ID='$DISK_ID']/SIZE"
-
-SIZE=$(onevm show -x $VM_ID | $XPATH )
-[ -z "$SIZE" ] && SIZE=$DEFAULT_SIZE
-
-#-------------------------------------------------------------------------------
 # Get other LVM related fields
 #-------------------------------------------------------------------------------
 
 LV_NAME=`echo $SRC_PATH|cut -d. -f2`
 VG_NAME=`echo $SRC_PATH|cut -d. -f1`
+DEV="/dev/${VG_NAME}/${LV_NAME}"
+
+DISK_ID=$(echo $DST_PATH|awk -F. '{print $NF}')
 
 TARGET_DEV="/dev/$VG_NAME/$LV_NAME"
-LV_SNAPSHOT="$LV_NAME-$VM_ID-$DISK_ID"
-LV_SNAPSHOT_DEV="/dev/$VG_NAME/$LV_SNAPSHOT"
+LV_CLONE="$LV_NAME-$VM_ID-$DISK_ID"
+LV_CLONE_DEV="/dev/$VG_NAME/$LV_CLONE"
 
 #-------------------------------------------------------------------------------
 # Create the snapshot and link it
@@ -79,11 +70,14 @@ LV_SNAPSHOT_DEV="/dev/$VG_NAME/$LV_SNAPSHOT"
 CLONE_CMD=$(cat <<EOF
     set -e
     mkdir -p $DST_DIR
-    $SUDO $LVCREATE -s -L$SIZE -n $LV_SNAPSHOT $TARGET_DEV
-    ln -s "$LV_SNAPSHOT_DEV" "$DST_PATH"
+    SIZE=\$($SUDO $LVS $DEV --noheadings --nosuffix --units m -o lv_size \
+            | tr -d ' ')
+    $SUDO $LVCREATE -L\${SIZE}M -n $LV_CLONE $VG_NAME
+    $SUDO $DD if=$TARGET_DEV of=$LV_CLONE_DEV bs=64k
+    ln -s "$LV_CLONE_DEV" "$DST_PATH"
 EOF
 )
 
 ssh_exec_and_log "$DST_HOST" "$CLONE_CMD" \
-        "Error cloning $TARGET_DEV to $LV_SNAPSHOT_DEV"
+        "Error cloning $TARGET_DEV to $LV_CLONE_DEV"
 exit 0

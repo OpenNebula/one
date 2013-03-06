@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,7 +18,12 @@
 #define _NEBULA_LOG_H_
 
 #include "Log.h"
+
 #include <sstream>
+
+#ifdef SYSLOG_LOG
+#   include <syslog.h>
+#endif /* SYSLOG_LOG */
 
 using namespace std;
 
@@ -31,7 +36,9 @@ public:
     enum LogType {
         FILE       = 0,
         FILE_TS    = 1,
-        CERR       = 2
+        CERR       = 2,
+        SYSLOG     = 3,
+        UNDEFINED  = 4
     };
 
     // ---------------------------------------------------------------
@@ -41,22 +48,46 @@ public:
     static void init_log_system(
         LogType             ltype,
         Log::MessageType    clevel,
-        const char *        filename = 0,
-        ios_base::openmode  mode     = ios_base::trunc)
+        const char *        filename,
+        ios_base::openmode  mode,
+        const string&       daemon)
     {
         switch(ltype)
         {
             case FILE:
-              NebulaLog::logger = new FileLog(filename,clevel,mode);
-              break;
+                NebulaLog::logger = new FileLog(filename,clevel,mode);
+                break;
             case FILE_TS:
-              NebulaLog::logger = new FileLogTS(filename,clevel,mode);
-              break;
+                NebulaLog::logger = new FileLogTS(filename,clevel,mode);
+                break;
+            case SYSLOG:
+                NebulaLog::logger = new SysLog(clevel, daemon);
+                break;
             default:
-              NebulaLog::logger = new CerrLog(clevel);
-              break;
+                NebulaLog::logger = new CerrLog(clevel);
+                break;
         }
     };
+
+    static LogType str_to_type(string& type)
+    {
+        transform(type.begin(), type.end(), type.begin(), (int(*)(int))toupper);
+
+        if (type == "FILE")
+        {
+            return FILE_TS;
+        }
+        else if (type == "SYSLOG")
+        {
+            return SYSLOG;
+        }
+        else if (type == "STDERR")
+        {
+            return CERR;
+        }
+
+        return UNDEFINED;
+    }
 
     static void finalize_log_system()
     {

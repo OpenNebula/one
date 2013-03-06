@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -252,6 +252,9 @@ module CLIHelper
             if @columns[field]
                 minus=( @columns[field][:left] ? "-" : "" )
                 size=@columns[field][:size]
+                if @columns[field][:donottruncate]
+                    return "%#{minus}#{size}s" % [ data.to_s ]
+                end
                 return "%#{minus}#{size}.#{size}s" % [ data.to_s ]
             else
                 exit -1, "Column #{field} not defined."

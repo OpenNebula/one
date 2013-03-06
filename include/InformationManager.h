@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -122,7 +122,7 @@ private:
     friend void * im_action_loop(void *arg);
 
     /**
-     *  Time in seconds to expire a monitoring action (10 minutes)
+     *  Time in seconds to expire a monitoring action (5 minutes)
      */
     static const time_t monitor_expire;
 

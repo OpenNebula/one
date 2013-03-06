@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -25,6 +25,7 @@
 /* -------------------------------------------------------------------------- */
 
 time_t VirtualMachinePool::_monitor_expiration;
+bool   VirtualMachinePool::_submit_on_hold;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -35,7 +36,8 @@ VirtualMachinePool::VirtualMachinePool(
         const string&               hook_location,
         const string&               remotes_location,
         vector<const Attribute *>&  restricted_attrs,
-        time_t                      expire_time)
+        time_t                      expire_time,
+        bool                        on_hold)
     : PoolSQL(db, VirtualMachine::table, false)
 {
     const VectorAttribute * vattr;
@@ -44,12 +46,12 @@ VirtualMachinePool::VirtualMachinePool(
     string on;
     string cmd;
     string arg;
-    string rmt;
     bool   remote;
 
     bool state_hook = false;
 
     _monitor_expiration = expire_time;
+    _submit_on_hold = on_hold;
 
     if ( _monitor_expiration == 0 )
     {
@@ -64,7 +66,7 @@ VirtualMachinePool::VirtualMachinePool(
         on   = vattr->vector_value("ON");
         cmd  = vattr->vector_value("COMMAND");
         arg  = vattr->vector_value("ARGUMENTS");
-        rmt  = vattr->vector_value("REMOTE");
+        vattr->vector_value("REMOTE", remote);
 
         transform (on.begin(),on.end(),on.begin(),(int(*)(int))toupper);
 
@@ -82,18 +84,6 @@ VirtualMachinePool::VirtualMachinePool(
         if ( name.empty() )
         {
             name = cmd;
-        }
-
-        remote = false;
-
-        if ( !rmt.empty() )
-        {
-            transform(rmt.begin(),rmt.end(),rmt.begin(),(int(*)(int))toupper);
-
-            if ( rmt == "YES" )
-            {
-                remote = true;
-            }
         }
 
         if (cmd[0] != '/')
@@ -220,6 +210,7 @@ int VirtualMachinePool::allocate (
     int            gid,
     const string&  uname,
     const string&  gname,
+    int            umask,
     VirtualMachineTemplate * vm_template,
     int *          oid,
     string&        error_str,
@@ -230,9 +221,9 @@ int VirtualMachinePool::allocate (
     // ------------------------------------------------------------------------
     // Build a new Virtual Machine object
     // ------------------------------------------------------------------------
-    vm = new VirtualMachine(-1, uid, gid, uname, gname, vm_template);
+    vm = new VirtualMachine(-1, uid, gid, uname, gname, umask, vm_template);
 
-    if (on_hold == true)
+    if ( _submit_on_hold == true || on_hold )
     {
         vm->state = VirtualMachine::HOLD;
     }

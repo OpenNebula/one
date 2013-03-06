@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -20,12 +20,14 @@ require 'ipaddr'
 require 'set'
 
 module OneDBFsck
+    VERSION = "3.9.0"
+
     def db_version
-        "4.0.0"
+        VERSION
     end
 
     def one_version
-        "OpenNebula 4.0.0"
+        "OpenNebula #{VERSION}"
     end
 
     IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR CLONE DELETE USED_PERS}
@@ -249,6 +251,7 @@ module OneDBFsck
         ########################################################################
         # Clusters
         #
+        # CLUSTER/SYSTEM_DS
         # CLUSTER/HOSTS/ID
         # CLUSTER/DATASTORES/ID
         # CLUSTER/VNETS/ID
@@ -277,6 +280,8 @@ module OneDBFsck
             cluster[row[:oid]][:hosts]      = []
             cluster[row[:oid]][:datastores] = []
             cluster[row[:oid]][:vnets]      = []
+
+            cluster[row[:oid]][:system_ds]  = 0
         end
 
         hosts_fix       = {}
@@ -308,7 +313,7 @@ module OneDBFsck
         end
 
         hosts_fix.each do |id, body|
-            @db[:host_pool].where(:oid => id).update(:body => body)
+            @db[:host_pool].where(:oid => id).update(:body => body, :cid => -1)
         end
 
 
@@ -331,13 +336,32 @@ module OneDBFsck
 
                     datastores_fix[row[:oid]] = doc.to_s
                 else
-                    cluster[cluster_id][:datastores] << row[:oid]
+                    if doc.root.get_text('TYPE').to_s != "1"
+                        cluster[cluster_id][:datastores] << row[:oid]
+                    else
+                        if cluster[cluster_id][:system_ds] == 0
+                            cluster[cluster_id][:datastores] << row[:oid]
+                            cluster[cluster_id][:system_ds] = row[:oid]
+                        else
+                            log_error("System Datastore #{row[:oid]} is in Cluster #{cluster_id}, but it already contains System Datastore #{cluster[cluster_id][:system_ds]}")
+
+                            doc.root.each_element('CLUSTER_ID') do |e|
+                                e.text = "-1"
+                            end
+
+                            doc.root.each_element('CLUSTER') do |e|
+                                e.text = ""
+                            end
+
+                            datastores_fix[row[:oid]] = doc.to_s
+                        end
+                    end
                 end
             end
         end
 
         datastores_fix.each do |id, body|
-            @db[:datastore_pool].where(:oid => id).update(:body => body)
+            @db[:datastore_pool].where(:oid => id).update(:body => body, :cid => -1)
         end
 
 
@@ -366,7 +390,7 @@ module OneDBFsck
         end
 
         vnets_fix.each do |id, body|
-            @db[:network_pool].where(:oid => id).update(:body => body)
+            @db[:network_pool].where(:oid => id).update(:body => body, :cid => -1)
         end
 
 
@@ -400,6 +424,16 @@ module OneDBFsck
             ds_elem = doc.root.elements.delete("DATASTORES")
 
             ds_new_elem = doc.root.add_element("DATASTORES")
+
+            doc.root.each_element("SYSTEM_DS") do |e|
+                system_ds = e.text.to_i
+
+                if system_ds != cluster[cluster_id][:system_ds]
+                    log_error("Cluster #{cluster_id} has System Datastore set to #{system_ds}, but it should be #{cluster[cluster_id][:system_ds]}")
+
+                    e.text = cluster[cluster_id][:system_ds].to_s
+                end
+            end
 
             cluster[cluster_id][:datastores].each do |id|
                 id_elem = ds_elem.elements.delete("ID[.=#{id}]")
@@ -498,7 +532,7 @@ module OneDBFsck
         end
 
 
-        @db.run "CREATE TABLE datastore_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+        @db.run "CREATE TABLE datastore_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name));"
 
         @db.fetch("SELECT * from datastore_pool") do |row|
             ds_id = row[:oid]
@@ -676,7 +710,7 @@ module OneDBFsck
                 "name VARCHAR(128), body TEXT, state INTEGER, " <<
                 "last_mon_time INTEGER, uid INTEGER, gid INTEGER, " <<
                 "owner_u INTEGER, group_u INTEGER, other_u INTEGER, " <<
-                "UNIQUE(name));"
+                "cid INTEGER, UNIQUE(name));"
 
         # Calculate the host's xml and write them to host_pool_new
         @db[:host_pool].each do |row|
@@ -1003,7 +1037,7 @@ module OneDBFsck
         ########################################################################
 
         # Create a new empty table where we will store the new calculated values
-        @db.run "CREATE TABLE network_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid));"
+        @db.run "CREATE TABLE network_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name,uid));"
 
         @db[:network_pool].each do |row|
             doc = Document.new(row[:body])

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -56,6 +56,16 @@ public:
      *    @return true if the operation can be performed
      */
     bool check(Template* tmpl, Quotas& default_quotas, string& error);
+
+    /**
+     *  Check if the resource update (change in MEMORY or CPU) will exceed the
+     *  quota limits. If not the usage counters are updated
+     *    @param tmpl with increments in MEMORY and CPU
+     *    @param default_quotas Quotas that contain the default limits
+     *    @param error string
+     *    @return true if the operation can be performed
+     */
+    bool update(Template * tmpl, Quotas& default_quotas, string& error);
 
     /**
      *  Decrement usage counters when deallocating image

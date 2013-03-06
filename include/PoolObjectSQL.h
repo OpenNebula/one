@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -110,7 +110,7 @@ public:
              other_u(0),
              other_m(0),
              other_a(0),
-             obj_template(0), 
+             obj_template(0),
              table(_table)
     {
         pthread_mutex_init(&mutex,0);
@@ -140,6 +140,11 @@ public:
         return name;
     };
 
+    void set_name(const string& _name)
+    {
+        name = _name;
+    };
+
     int get_uid() const
     {
         return uid;
@@ -159,7 +164,7 @@ public:
     {
         return gname;
     };
-    
+
     /**
      * Changes the object's owner
      * @param _uid New User ID
@@ -345,6 +350,21 @@ public:
     }
 
     /**
+     *  Gets a boolean attribute (single) (YES = true)
+     *    @param name of the attribute
+     *    @param value of the attribute (True if "YES", false otherwise)
+     *
+     *    @return True if the Single attribute was found and is a valid boolean
+     *    value
+     */
+    bool get_template_attribute(
+        const char *    name,
+        bool&           value) const
+    {
+        return obj_template->get(name,value);
+    }
+
+    /**
      *  Adds a new attribute to the template (replacing it if
      *  already defined), the object's mutex SHOULD be locked
      *    @param name of the new attribute
@@ -377,11 +397,45 @@ public:
     }
 
     /**
-     *  Sets an error message for the VM in the template
-     *    @param message
-     *    @return 0 on success
+     *  Sets an error message with timestamp in the template
+     *    @param message Message string
      */
     void set_template_error_message(const string& message);
+
+    /**
+     *  Deletes the error message from the template
+     */
+    void clear_template_error_message();
+
+    /**
+     *  Adds a string attribute
+     *    @param att_name Name for the attribute
+     *    @param att_val Message string
+     */
+    void add_template_attribute(const string& name, const string& value)
+    {
+        obj_template->add(name, value);
+    }
+
+    /**
+     *  Adds an int attribute
+     *    @param att_name Name for the attribute
+     *    @param att_val integer
+     */
+    void add_template_attribute(const string& name, int value)
+    {
+        obj_template->add(name, value);
+    }
+
+    /**
+     *  Adds a float attribute
+     *    @param att_name Name for the attribute
+     *    @param att_val integer
+     */
+    void add_template_attribute(const string& name, float value)
+    {
+        obj_template->add(name, value);
+    }
 
     /**
      *  Factory method for templates, it should be implemented
@@ -497,6 +551,14 @@ protected:
             perm = new_perm;
         }
     };
+
+    /**
+     * Initializes the object's permissions, according to the provided umask.
+     *
+     * @param umask Permission mask, similar to unix umask.
+     * For example a umask of 137 will set the permissions "um- u-- ---"
+     */
+    void set_umask(int umask);
 
     /**
      *  The object's unique ID

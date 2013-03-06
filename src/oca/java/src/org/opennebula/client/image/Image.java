@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)
+ * Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ public class Image extends PoolElement
     private static final String CHMOD       = METHOD_PREFIX + "chmod";
     private static final String CHTYPE      = METHOD_PREFIX + "chtype";
     private static final String CLONE       = METHOD_PREFIX + "clone";
+    private static final String RENAME      = METHOD_PREFIX + "rename";
 
     private static final String[] IMAGE_STATES =
         {"INIT", "READY", "USED", "DISABLED", "LOCKED",
@@ -263,6 +264,19 @@ public class Image extends PoolElement
     public static OneResponse clone(Client client, int id, String name)
     {
         return client.call(CLONE, id, name);
+    }
+
+    /**
+     * Renames this Image
+     *
+     * @param client XML-RPC Client.
+     * @param id The Image id of the target Image.
+     * @param name New name for the Image.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse rename(Client client, int id, String name)
+    {
+        return client.call(RENAME, id, name);
     }
 
     // =================================
@@ -496,6 +510,17 @@ public class Image extends PoolElement
     public OneResponse clone(String name)
     {
         return clone(client, id, name);
+    }
+
+    /**
+     * Renames this Image
+     *
+     * @param name New name for the Image.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse rename(String name)
+    {
+        return rename(client, id, name);
     }
 
     // =================================

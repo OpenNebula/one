@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -226,6 +226,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.perform_action(args[0],options,"modified") do |vnet|
             str = OpenNebulaHelper.update_template(args[0], vnet, args[1])
             vnet.update(str)
+        end
+    end
+
+    rename_desc = <<-EOT.unindent
+        Renames the Virtual Network
+    EOT
+
+    command :rename, rename_desc, :vnetid, :name do
+        helper.perform_action(args[0],options,"renamed") do |o|
+            o.rename(args[1])
         end
     end
 end

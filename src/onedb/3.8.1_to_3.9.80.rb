@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -113,13 +113,73 @@ module Migrator
         @db.run("ALTER TABLE image_pool_new RENAME TO image_pool")
 
         ########################################################################
+        # Feature #1565: New cid column in host, ds and vnet tables
+        ########################################################################
+
+        @db.run "ALTER TABLE host_pool RENAME TO old_host_pool;"
+        @db.run "CREATE TABLE host_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, state INTEGER, last_mon_time INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name));"
+
+        @db.fetch("SELECT * FROM old_host_pool") do |row|
+            doc = Document.new(row[:body])
+
+            cluster_id = doc.root.get_text('CLUSTER_ID').to_s
+
+            @db[:host_pool].insert(
+                :oid            => row[:oid],
+                :name           => row[:name],
+                :body           => row[:body],
+                :state          => row[:state],
+                :last_mon_time  => row[:last_mon_time],
+                :uid            => row[:uid],
+                :gid            => row[:gid],
+                :owner_u        => row[:owner_u],
+                :group_u        => row[:group_u],
+                :other_u        => row[:other_u],
+                :cid            => cluster_id)
+        end
+
+        @db.run "DROP TABLE old_host_pool;"
+
+        ########################################################################
+        # Feature #1565: New cid column
+        # Feature #471: IPv6 addresses
+        ########################################################################
+
+        @db.run "ALTER TABLE network_pool RENAME TO old_network_pool;"
+        @db.run "CREATE TABLE network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name,uid));"
+
+        @db.fetch("SELECT * FROM old_network_pool") do |row|
+            doc = Document.new(row[:body])
+
+            cluster_id = doc.root.get_text('CLUSTER_ID').to_s
+
+            doc.root.add_element("GLOBAL_PREFIX")
+            doc.root.add_element("SITE_PREFIX")
+
+            @db[:network_pool].insert(
+                :oid            => row[:oid],
+                :name           => row[:name],
+                :body           => doc.root.to_s,
+                :uid            => row[:uid],
+                :gid            => row[:gid],
+                :owner_u        => row[:owner_u],
+                :group_u        => row[:group_u],
+                :other_u        => row[:other_u],
+                :cid            => cluster_id)
+        end
+
+        @db.run "DROP TABLE old_network_pool;"
+
+        ########################################################################
         # Feature #1617
         # New datastore, 2 "files"
         # DATASTORE/SYSTEM is now DATASTORE/TYPE
+        #
+        # Feature #1565: New cid column in host, ds and vnet tables
         ########################################################################
 
         @db.run "ALTER TABLE datastore_pool RENAME TO old_datastore_pool;"
-        @db.run "CREATE TABLE datastore_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+        @db.run "CREATE TABLE datastore_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name));"
 
         @db.fetch("SELECT * FROM old_datastore_pool") do |row|
             doc = Document.new(row[:body])
@@ -139,6 +199,8 @@ module Migrator
                 e.add_element("TYPE").text = type == "0" ? "IMAGE_DS" : "SYSTEM_DS"
             end
 
+            cluster_id = doc.root.get_text('CLUSTER_ID').to_s
+
             @db[:datastore_pool].insert(
                 :oid        => row[:oid],
                 :name       => row[:name],
@@ -147,7 +209,8 @@ module Migrator
                 :gid        => row[:gid],
                 :owner_u    => row[:owner_u],
                 :group_u    => row[:group_u],
-                :other_u    => row[:other_u])
+                :other_u    => row[:other_u],
+                :cid        => cluster_id)
         end
 
         @db.run "DROP TABLE old_datastore_pool;"
@@ -176,7 +239,7 @@ module Migrator
             end
         end
 
-        @db.run "INSERT INTO datastore_pool VALUES(2,'files','<DATASTORE><ID>2</ID><UID>0</UID><GID>0</GID><UNAME>#{user_0_name}</UNAME><GNAME>#{group_0_name}</GNAME><NAME>files</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>1</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>1</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><DS_MAD>fs</DS_MAD><TM_MAD>ssh</TM_MAD><BASE_PATH>#{base_path}</BASE_PATH><TYPE>2</TYPE><DISK_TYPE>0</DISK_TYPE><CLUSTER_ID>-1</CLUSTER_ID><CLUSTER></CLUSTER><IMAGES></IMAGES><TEMPLATE><DS_MAD><![CDATA[fs]]></DS_MAD><TM_MAD><![CDATA[ssh]]></TM_MAD><TYPE><![CDATA[FILE_DS]]></TYPE></TEMPLATE></DATASTORE>',0,0,1,1,1);"
+        @db.run "INSERT INTO datastore_pool VALUES(2,'files','<DATASTORE><ID>2</ID><UID>0</UID><GID>0</GID><UNAME>#{user_0_name}</UNAME><GNAME>#{group_0_name}</GNAME><NAME>files</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>1</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>1</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><DS_MAD>fs</DS_MAD><TM_MAD>ssh</TM_MAD><BASE_PATH>#{base_path}</BASE_PATH><TYPE>2</TYPE><DISK_TYPE>0</DISK_TYPE><CLUSTER_ID>-1</CLUSTER_ID><CLUSTER></CLUSTER><IMAGES></IMAGES><TEMPLATE><DS_MAD><![CDATA[fs]]></DS_MAD><TM_MAD><![CDATA[ssh]]></TM_MAD><TYPE><![CDATA[FILE_DS]]></TYPE></TEMPLATE></DATASTORE>',0,0,1,1,1,-1);"
 
 
         ########################################################################
@@ -258,6 +321,184 @@ module Migrator
 
         @db.run "DROP TABLE old_group_pool;"
 
+        ########################################################################
+        # Bug #1694: SYSTEM_DS is now set with the method adddatastore
+        ########################################################################
+
+        @db.run "ALTER TABLE cluster_pool RENAME TO old_cluster_pool;"
+        @db.run "CREATE TABLE cluster_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+
+        @db.fetch("SELECT * FROM old_cluster_pool") do |row|
+            doc = Document.new(row[:body])
+
+            system_ds = 0
+
+            doc.root.each_element("TEMPLATE") do |e|
+                elem = e.delete_element("SYSTEM_DS")
+
+                if !elem.nil?
+                    system_ds = elem.text.to_i
+                end
+            end
+
+            if system_ds != 0
+                updated_body = nil
+
+                @db.fetch("SELECT body FROM datastore_pool WHERE oid=#{system_ds}") do |ds_row|
+                    ds_doc = Document.new(ds_row[:body])
+
+                    type = "0"  # IMAGE_DS
+
+                    ds_doc.root.each_element("TYPE") do |e|
+                        type = e.text
+                    end
+
+                    if type != "1"
+                        puts "    > Cluster #{row[:oid]} has the "<<
+                        "System Datastore set to Datastore #{system_ds}, "<<
+                        "but its type is not SYSTEM_DS. The System Datastore "<<
+                        "for this Cluster will be set to 0"
+
+                        system_ds = 0
+                    else
+                        cluster_id = "-1"
+
+                        ds_doc.root.each_element("CLUSTER_ID") do |e|
+                            cluster_id = e.text
+                        end
+
+                        if row[:oid] != cluster_id.to_i
+                            puts "    > Cluster #{row[:oid]} has the "<<
+                            "System Datastore set to Datastore #{system_ds}, "<<
+                            "but it is not part of the Cluster. It will be added now."
+
+                            ds_doc.root.each_element("CLUSTER_ID") do |e|
+                                e.text = row[:oid]
+                            end
+
+                            ds_doc.root.each_element("CLUSTER") do |e|
+                                e.text = row[:name]
+                            end
+
+                            updated_body = ds_doc.root.to_s
+                        end
+                    end
+                end
+
+                if !updated_body.nil?
+                    @db[:datastore_pool].where(:oid => system_ds).update(
+                        :body => updated_body)
+                end
+            end
+
+            doc.root.add_element("SYSTEM_DS").text = system_ds.to_s
+
+            @db[:cluster_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => row[:uid],
+                :gid        => row[:gid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        @db.run "DROP TABLE old_cluster_pool;"
+
+
+        ########################################################################
+        # Feature #1556: New elem USER_TEMPLATE
+        #
+        # Feature #1483: Move scheduling attributes
+        #   /VM/TEMPLATE/REQUIREMENTS -> USER_TEMPLATE/SCHED_REQUIREMENTS
+        #   /VM/TEMPLATE/RANK -> USER_TEMPLATE/SCHED_RANK
+        ########################################################################
+
+        @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
+        @db.run "CREATE TABLE vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
+
+        @db.fetch("SELECT * FROM old_vm_pool") do |row|
+
+            doc = Document.new(row[:body])
+            user_template = doc.root.add_element("USER_TEMPLATE")
+
+            doc.root.each_element("TEMPLATE") do |e|
+                elem = e.delete_element("REQUIREMENTS")
+
+                if !elem.nil?
+                    user_template.add_element("SCHED_REQUIREMENTS").text = elem.text
+                end
+
+                elem = e.delete_element("RANK")
+
+                if !elem.nil?
+                    user_template.add_element("SCHED_RANK").text = elem.text
+                end
+            end
+
+            @db[:vm_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => row[:uid],
+                :gid        => row[:gid],
+                :last_poll  => row[:last_poll],
+                :state      => row[:state],
+                :lcm_state  => row[:lcm_state],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        @db.run "DROP TABLE old_vm_pool;"
+
+
+        ########################################################################
+        # Feature #1483: Move scheduling attributes
+        #   /VMTEMPLATE/TEMPLATE/REQUIREMENTS -> /VMTEMPLATE/TEMPLATE/SCHED_REQUIREMENTS
+        #   /VMTEMPLATE/TEMPLATE/RANK -> /VMTEMPLATE/TEMPLATE/SCHED_RANK
+        ########################################################################
+
+        @db.run "ALTER TABLE template_pool RENAME TO old_template_pool;"
+        @db.run "CREATE TABLE template_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
+
+        @db.fetch("SELECT * FROM old_template_pool") do |row|
+
+            doc = Document.new(row[:body])
+
+            template = nil
+
+            doc.root.each_element("TEMPLATE") do |e|
+                template = e
+            end
+
+            doc.root.each_element("TEMPLATE") do |e|
+                elem = e.delete_element("REQUIREMENTS")
+
+                if !elem.nil?
+                    template.add_element("SCHED_REQUIREMENTS").text = elem.text
+                end
+
+                elem = e.delete_element("RANK")
+
+                if !elem.nil?
+                    template.add_element("SCHED_RANK").text = elem.text
+                end
+            end
+
+            @db[:template_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => row[:uid],
+                :gid        => row[:gid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        @db.run "DROP TABLE old_template_pool;"
 
         ########################################################################
         # Feature #1691 Add new attribute NIC/NIC_ID
@@ -297,7 +538,6 @@ module Migrator
         end
 
         @db.run "DROP TABLE old_vm_pool;"
-
 
         ########################################################################
         #

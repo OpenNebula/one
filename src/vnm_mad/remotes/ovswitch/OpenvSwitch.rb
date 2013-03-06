@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -17,6 +17,8 @@
 require 'OpenNebulaNetwork'
 
 class OpenvSwitchVLAN < OpenNebulaNetwork
+    DRIVER = "ovswitch"
+
     FIREWALL_PARAMS =  [:black_ports_tcp,
                         :black_ports_udp,
                         :icmp]
@@ -25,9 +27,12 @@ class OpenvSwitchVLAN < OpenNebulaNetwork
 
     def initialize(vm, deploy_id = nil, hypervisor = nil)
         super(vm,XPATH_FILTER,deploy_id,hypervisor)
+        @locking = false
     end
 
     def activate
+        lock
+
         process do |nic|
             @nic = nic
 
@@ -40,16 +45,23 @@ class OpenvSwitchVLAN < OpenNebulaNetwork
             # Apply Firewall
             configure_fw if FIREWALL_PARAMS & @nic.keys != []
         end
+
+        unlock
+
         return 0
     end
 
     def deactivate
+        lock
+
         process do |nic|
             @nic = nic
 
             # Remove flows
             del_flows
         end
+
+        unlock
     end
 
     def tag_vlan

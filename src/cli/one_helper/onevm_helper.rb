@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'one_helper'
+require 'optparse/time'
 
 class OneVMHelper < OpenNebulaHelper::OneHelper
     MULTIPLE={
@@ -60,6 +61,25 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 exit -1
             end
         }
+    }
+
+    HOLD = {
+        :name  => "hold",
+        :large => "--hold",
+        :description => "Creates the new VM on hold state instead of pending"
+    }
+
+    SCHEDULE = {
+        :name       => "schedule",
+        :large      => "--schedule TIME",
+        :description => "Schedules this action to be executed after the given time",
+        :format     => Time
+    }
+
+    ALL_TEMPLATE = {
+        :name       => "all",
+        :large      => "--all",
+        :description => "Show all template data"
     }
 
     def self.rname
@@ -146,6 +166,38 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         table
     end
 
+
+    def schedule_actions(ids,options,action)
+        # Verbose by default
+        options[:verbose] = true
+
+        perform_actions(
+            ids, options,
+            "#{action} scheduled at #{options[:schedule]}") do |vm|
+
+            rc = vm.info
+
+            if OpenNebula.is_error?(rc)
+                puts rc.message
+                exit -1
+            end
+
+            ids = vm.retrieve_elements('USER_TEMPLATE/SCHED_ACTION/ID')
+
+            id = 0
+            if (!ids.nil? && !ids.empty?)
+                ids.map! {|e| e.to_i }
+                id = ids.max + 1
+            end
+
+            tmp_str = vm.user_template_str
+
+            tmp_str << "\nSCHED_ACTION = [ID = #{id}, ACTION = #{action}, TIME = #{options[:schedule].to_i}]"
+
+            vm.update(tmp_str)
+        end
+    end
+
     private
 
     def factory(id=nil)
@@ -161,7 +213,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         OpenNebula::VirtualMachinePool.new(@client, user_flag)
     end
 
-    def format_resource(vm)
+    def format_resource(vm, options = {})
         str_h1="%-80s"
         str="%-20s: %-20s"
 
@@ -217,16 +269,253 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         }
         puts
 
-        CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE TEMPLATE",false)
-        puts vm.template_str
+        if vm.has_elements?("/VM/TEMPLATE/DISK")
+            CLIHelper.print_header(str_h1 % "VM DISKS",false)
+            CLIHelper::ShowTable.new(nil, self) do
+                column :ID, "", :size=>3 do |d|
+                    d["DISK_ID"]
+                end
+
+                column :DATASTORE, "", :left, :size=>10 do |d|
+                    d["DATASTORE"]
+                end
+
+                column :TARGET, "", :size=>6 do |d|
+                    d["TARGET"]
+                end
+
+                column :IMAGE, "", :left, :size=>35 do |d|
+                    if d["IMAGE"]
+                        d["IMAGE"]
+                    else
+                        case d["TYPE"].upcase
+                        when "FS"
+                            "#{d["FORMAT"]} - "<<
+                            OpenNebulaHelper.unit_to_str(d["SIZE"].to_i,
+                                                         {}, "M")
+                        when "SWAP"
+                            OpenNebulaHelper.unit_to_str(d["SIZE"].to_i,
+                                                         {}, "M")
+
+                        end
+                    end
+                end
+
+                column :TYPE, "", :left, :size=>4 do |d|
+                    d["TYPE"].downcase
+                end
+
+                column :"R/O", "", :size=>3 do |d|
+                    d["READONLY"]
+                end
+
+                column :"SAVE", "", :size=>4 do |d|
+                    d["SAVE"] || "NO"
+                end
+
+                column :"CLONE", "", :size=>5 do |d|
+                    d["CLONE"]
+                end
+
+                column :"SAVE_AS", "", :size=>7 do |d|
+                    d["SAVE_AS"] || "-"
+                end
+
+
+                default :ID, :TARGET, :IMAGE, :TYPE,
+                    :SAVE, :SAVE_AS
+            end.show([vm.to_hash['VM']['TEMPLATE']['DISK']].flatten, {})
+
+            while vm.has_elements?("/VM/TEMPLATE/DISK")
+                vm.delete_element("/VM/TEMPLATE/DISK")
+            end if !options[:all]
+
+            puts
+        end
+
+        if vm.has_elements?("/VM/TEMPLATE/NIC")
+                        CLIHelper.print_header(str_h1 % "VM NICS",false)
+
+            vm_nics = vm.to_hash['VM']['TEMPLATE']['NIC']
+
+            nic_default = {"NETWORK" => "-",
+                           "IP" => "-",
+                           "MAC"=> "-",
+                           "VLAN"=>"no",
+                           "BRIDGE"=>"-"}
+            nic_id   = 0
+            array_id = 0
+
+            vm_nics.each {|nic|
+
+                next if nic.has_key?("NIC_ID")
+
+                nic["NIC_ID"] = nic_id
+
+                if nic.has_key?("IP6_LINK")
+                    ip6_link = {"IP"          => nic.delete("IP6_LINK"),
+                                "NIC_ID"      => nic_id,
+                                "DOUBLE_ENTRY"=> true}
+                    vm_nics.insert(array_id+1,ip6_link)
+
+                    array_id += 1
+                end
+
+                if nic.has_key?("IP6_SITE")
+                    ip6_link = {"IP"          => nic.delete("IP6_SITE"),
+                                "NIC_ID"      => nic_id,
+                                "DOUBLE_ENTRY"=> true}
+                    vm_nics.insert(array_id+1,ip6_link)
+
+                    array_id += 1
+                end
+
+                if nic.has_key?("IP6_GLOBAL")
+                    ip6_link = {"IP"          => nic.delete("IP6_GLOBAL"),
+                                "NIC_ID"      => nic_id,
+                                "DOUBLE_ENTRY"=> true}
+                    vm_nics.insert(array_id+1,ip6_link)
+
+                    array_id += 1
+                end
+
+                nic.merge!(nic_default) {|k,v1,v2| v1}
+
+                nic_id   += 1
+                array_id += 1
+            }
+
+            CLIHelper::ShowTable.new(nil, self) do
+                column :ID, "", :size=>2 do |d|
+                    if d["DOUBLE_ENTRY"]
+                        ""
+                    else
+                        d["NIC_ID"]
+                    end
+                end
+
+                column :NETWORK, "", :left, :size=>12 do |d|
+                    if d["DOUBLE_ENTRY"]
+                        ""
+                    else
+                        d["NETWORK"]
+                    end
+                end
+
+                column :VLAN, "", :size=>4 do |d|
+                    if d["DOUBLE_ENTRY"]
+                        ""
+                    else
+                        d["VLAN"].downcase
+                    end
+                end
+
+                column :BRIDGE, "", :left, :size=>8 do |d|
+                    if d["DOUBLE_ENTRY"]
+                        ""
+                    else
+                        d["BRIDGE"]
+                    end
+                end
+
+                column :IP, "",:left, :donottruncate, :size=>15 do |d|
+                    d["IP"]
+                end
+
+                column :MAC, "", :left, :size=>17 do |d|
+                    if d["DOUBLE_ENTRY"]
+                        ""
+                    else
+                        d["MAC"]
+                    end
+                end
+
+            end.show([vm_nics].flatten,{})
+
+            while vm.has_elements?("/VM/TEMPLATE/NIC")
+                vm.delete_element("/VM/TEMPLATE/NIC")
+            end if !options[:all]
+
+            puts
+        end
+
+        if vm.has_elements?("/VM/TEMPLATE/SNAPSHOT")
+            CLIHelper.print_header(str_h1 % "SNAPSHOTS",false)
+
+            CLIHelper::ShowTable.new(nil, self) do
+
+                column :"ID", "", :size=>4 do |d|
+                    d["SNAPSHOT_ID"] if !d.nil?
+                end
+
+                column :"TIME", "", :size=>12 do |d|
+                    OpenNebulaHelper.time_to_str(d["TIME"], false) if !d.nil?
+                end
+
+                column :"NAME", "", :left, :size=>46 do |d|
+                    d["NAME"] if !d.nil?
+                end
+
+                column :"HYPERVISOR_ID", "", :left, :size=>15 do |d|
+                    d["HYPERVISOR_ID"] if !d.nil?
+                end
+
+            end.show([vm.to_hash['VM']['TEMPLATE']['SNAPSHOT']].flatten, {})
+
+            vm.delete_element("/VM/TEMPLATE/SNAPSHOT")
+
+            puts
+        end
 
         if vm.has_elements?("/VM/HISTORY_RECORDS")
             puts
 
-
             CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE HISTORY",false)
             format_history(vm)
         end
+
+        if vm.has_elements?("/VM/USER_TEMPLATE/SCHED_ACTION")
+            CLIHelper.print_header(str_h1 % "SCHEDULED ACTIONS",false)
+
+            CLIHelper::ShowTable.new(nil, self) do
+
+                column :"ID", "", :size=>2 do |d|
+                    d["ID"] if !d.nil?
+                end
+
+                column :"ACTION", "", :left, :size=>10 do |d|
+                    d["ACTION"] if !d.nil?
+                end
+
+                column :"SCHEDULED", "", :size=>12 do |d|
+                    OpenNebulaHelper.time_to_str(d["TIME"], false) if !d.nil?
+                end
+
+                column :"DONE", "", :size=>12 do |d|
+                    OpenNebulaHelper.time_to_str(d["DONE"], false) if !d.nil?
+                end
+
+                column :"MESSAGE", "", :left, :donottruncate, :size=>40 do |d|
+                    d["MESSAGE"] if !d.nil?
+                end
+            end.show([vm.to_hash['VM']['USER_TEMPLATE']['SCHED_ACTION']].flatten, {})
+
+            puts
+        end
+
+        if vm.has_elements?("/VM/USER_TEMPLATE")
+            puts
+
+            if !options[:all]
+                vm.delete_element("/VM/USER_TEMPLATE/SCHED_ACTION")
+            end
+
+            CLIHelper.print_header(str_h1 % "USER TEMPLATE",false)
+            puts vm.template_like_str('USER_TEMPLATE')
+        end
+
+        CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE TEMPLATE",false)
+        puts vm.template_str
     end
 
     def format_history(vm)

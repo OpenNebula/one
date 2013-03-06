@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)
+ * Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -339,6 +339,16 @@ public class VirtualMachineTest
         assertTrue( new_imgid == imgid+1 );
 
         res = vm.info();
+        assertTrue( res.getErrorMessage(), !res.isError() );
+    }
+
+    @Test
+    public void resize()
+    {
+        res = vm.resize(2.5, 512, 0, true);
+        assertTrue( res.getErrorMessage(), !res.isError() );
+
+        res = vm.resize(1, 128, 2, false);
         assertTrue( res.getErrorMessage(), !res.isError() );
     }
 }

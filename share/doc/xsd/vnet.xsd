@@ -32,6 +32,8 @@
         <xs:element name="VLAN" type="xs:integer"/>
         <xs:element name="PHYDEV" type="xs:string"/>
         <xs:element name="VLAN_ID" type="xs:string"/>
+        <xs:element name="GLOBAL_PREFIX" type="xs:string"/>
+        <xs:element name="SITE_PREFIX" type="xs:string"/>
         <xs:element name="RANGE" minOccurs="0" maxOccurs="1">
           <xs:complexType>
             <xs:sequence>

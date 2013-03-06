@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -37,7 +37,8 @@ public:
                        const string&                hook_location,
                        const string&                remotes_location,
                        vector<const Attribute *>&   restricted_attrs,
-                       time_t                       expire_time);
+                       time_t                       expire_time,
+                       bool                         on_hold);
 
     ~VirtualMachinePool(){};
 
@@ -45,10 +46,14 @@ public:
      *  Function to allocate a new VM object
      *    @param uid user id (the owner of the VM)
      *    @param gid the id of the group this object is assigned to
+     *    @param uname user name
+     *    @param gname group name
+     *    @param umask permissions umask
      *    @param vm_template a VM Template object describing the VM
      *    @param oid the id assigned to the VM (output)
      *    @param error_str Returns the error reason, if any
      *    @param on_hold flag to submit on hold
+     *
      *    @return oid on success, -1 error inserting in DB or -2 error parsing
      *  the template
      */
@@ -57,6 +62,7 @@ public:
         int                      gid,
         const string&            uname,
         const string&            gname,
+        int                      umask,
         VirtualMachineTemplate * vm_template,
         int *                    oid,
         string&                  error_str,
@@ -248,13 +254,18 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new VirtualMachine(-1,-1,-1,"","",0);
+        return new VirtualMachine(-1,-1,-1,"","",0,0);
     };
 
     /**
      * Size, in seconds, of the historical monitoring information
      */
     static time_t _monitor_expiration;
+
+    /**
+     * True or false whether to submit new VM on HOLD or not
+     */
+    static bool _submit_on_hold;
 };
 
 #endif /*VIRTUAL_MACHINE_POOL_H_*/

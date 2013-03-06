@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -81,14 +81,10 @@ CLONE_CMD=$(cat <<EOF
     $SUDO $LVCREATE -L\${SIZE} ${VG_NAME} -n ${TARGET_LV_NAME}
 
     # clone lv with dd
-    $SUDO $DD if=$SOURCE_DEV of=$TARGET_DEV bs=64k
+    $SUDO $DD if=$SOURCE_DEV of=$TARGET_DEV bs=2M
 
     # new iscsi target
-    TID=\$($SUDO $(tgtadm_next_tid))
-
-    $SUDO $(tgtadm_target_new "\$TID" "$NEW_IQN")
-    $SUDO $(tgtadm_target_bind_all "\$TID")
-    $SUDO $(tgtadm_logicalunit_new "\$TID" "$TARGET_DEV")
+    $SUDO $(tgt_setup_lun "$NEW_IQN" "$TARGET_DEV")
     $SUDO $(tgt_admin_dump_config "$TARGET_CONF")
 EOF
 )
@@ -96,18 +92,27 @@ EOF
 ssh_exec_and_log "$TARGET_HOST" "$CLONE_CMD" \
         "Error cloning $DST_HOST:$TARGET_DEV"
 
-DISCOVERY_CMD=$(cat <<EOF
+LINK_CMD=$(cat <<EOF
     set -e
+
+    # discover and login
     mkdir -p $DST_DIR
     $SUDO $(iscsiadm_discovery "$TARGET_HOST")
     $SUDO $(iscsiadm_login "$NEW_IQN" "$TARGET_HOST")
-    sleep 2
+
+    # poll
+    while [ ! -L /dev/disk/by-path/*$NEW_IQN-lun-1 ]; do
+	   sleep 1
+    done
+
+    # link
     DISK_BY_PATH=\$(ls /dev/disk/by-path/*$NEW_IQN-lun-1)
     ln -s "\$DISK_BY_PATH" "$DST_PATH"
+    DISK_DEVNAME=\$(readlink -f \$DISK_BY_PATH  | awk -F'/' '{ print \$NF }')
 EOF
 )
 
-ssh_exec_and_log "$DST_HOST" "$DISCOVERY_CMD" \
-        "Error discovering $NEW_IQN in $DST_HOST"
+ssh_exec_and_log "$DST_HOST" "$LINK_CMD" \
+        "Error linking $NEW_IQN in $DST_HOST"
 
 exit 0

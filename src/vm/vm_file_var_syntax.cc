@@ -1,4 +1,4 @@
-/* A Bison parser, made by GNU Bison 2.6.5.  */
+/* A Bison parser, made by GNU Bison 2.7.  */
 
 /* Bison implementation for Yacc-like parsers in C
    
@@ -44,7 +44,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "2.6.5"
+#define YYBISON_VERSION "2.7"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -70,7 +70,7 @@
 #define yylloc          vm_file_var__lloc
 
 /* Copy the first part of user declarations.  */
-/* Line 360 of yacc.c  */
+/* Line 371 of yacc.c  */
 #line 17 "vm_file_var_syntax.y"
 
 #include <iostream>
@@ -217,7 +217,7 @@ int get_image_path(VirtualMachine * vm,
 /* -------------------------------------------------------------------------- */
 
 
-/* Line 360 of yacc.c  */
+/* Line 371 of yacc.c  */
 #line 222 "vm_file_var_syntax.cc"
 
 # ifndef YY_NULL
@@ -270,7 +270,7 @@ extern int vm_file_var__debug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
 {
-/* Line 376 of yacc.c  */
+/* Line 387 of yacc.c  */
 #line 170 "vm_file_var_syntax.y"
 
     char * val_str;
@@ -278,7 +278,7 @@ typedef union YYSTYPE
     char   val_char;
 
 
-/* Line 376 of yacc.c  */
+/* Line 387 of yacc.c  */
 #line 283 "vm_file_var_syntax.cc"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
@@ -318,7 +318,7 @@ int vm_file_var__parse ();
 
 /* Copy the second part of user declarations.  */
 
-/* Line 379 of yacc.c  */
+/* Line 390 of yacc.c  */
 #line 323 "vm_file_var_syntax.cc"
 
 #ifdef short
@@ -789,14 +789,46 @@ while (YYID (0))
 
 #ifndef YY_LOCATION_PRINT
 # if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
-#  define YY_LOCATION_PRINT(File, Loc)                                   \
-  do {                                                                   \
-    fprintf (File, "%d.%d", (Loc).first_line, (Loc).first_column);       \
-    if ((Loc).first_line < (Loc).last_line)                              \
-      fprintf (File, "-%d.%d", (Loc).last_line,  (Loc).last_column - 1); \
-    else if ((Loc).first_column < (Loc).last_column - 1)                 \
-      fprintf (File, "-%d", (Loc).last_column - 1);                      \
-  } while (0)
+
+/* Print *YYLOCP on YYO.  Private, do not rely on its existence. */
+
+__attribute__((__unused__))
+#if (defined __STDC__ || defined __C99__FUNC__ \
+     || defined __cplusplus || defined _MSC_VER)
+static unsigned
+yy_location_print_ (FILE *yyo, YYLTYPE const * const yylocp)
+#else
+static unsigned
+yy_location_print_ (yyo, yylocp)
+    FILE *yyo;
+    YYLTYPE const * const yylocp;
+#endif
+{
+  unsigned res = 0;
+  int end_col = 0 != yylocp->last_column ? yylocp->last_column - 1 : 0;
+  if (0 <= yylocp->first_line)
+    {
+      res += fprintf (yyo, "%d", yylocp->first_line);
+      if (0 <= yylocp->first_column)
+        res += fprintf (yyo, ".%d", yylocp->first_column);
+    }
+  if (0 <= yylocp->last_line)
+    {
+      if (yylocp->first_line < yylocp->last_line)
+        {
+          res += fprintf (yyo, "-%d", yylocp->last_line);
+          if (0 <= end_col)
+            res += fprintf (yyo, ".%d", end_col);
+        }
+      else if (0 <= end_col && yylocp->first_column < end_col)
+        res += fprintf (yyo, "-%d", end_col);
+    }
+  return res;
+ }
+
+#  define YY_LOCATION_PRINT(File, Loc)          \
+  yy_location_print_ (File, &(Loc))
+
 # else
 #  define YY_LOCATION_PRINT(File, Loc) ((void) 0)
 # endif
@@ -876,7 +908,7 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, vm, img_ids,
   switch (yytype)
     {
       default:
-	break;
+        break;
     }
 }
 
@@ -1130,7 +1162,6 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
 {
   YYSIZE_T yysize0 = yytnamerr (YY_NULL, yytname[yytoken]);
   YYSIZE_T yysize = yysize0;
-  YYSIZE_T yysize1;
   enum { YYERROR_VERBOSE_ARGS_MAXIMUM = 5 };
   /* Internationalized format string. */
   const char *yyformat = YY_NULL;
@@ -1193,11 +1224,13 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
                     break;
                   }
                 yyarg[yycount++] = yytname[yyx];
-                yysize1 = yysize + yytnamerr (YY_NULL, yytname[yyx]);
-                if (! (yysize <= yysize1
-                       && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
-                  return 2;
-                yysize = yysize1;
+                {
+                  YYSIZE_T yysize1 = yysize + yytnamerr (YY_NULL, yytname[yyx]);
+                  if (! (yysize <= yysize1
+                         && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
+                    return 2;
+                  yysize = yysize1;
+                }
               }
         }
     }
@@ -1217,10 +1250,12 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
 # undef YYCASE_
     }
 
-  yysize1 = yysize + yystrlen (yyformat);
-  if (! (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
-    return 2;
-  yysize = yysize1;
+  {
+    YYSIZE_T yysize1 = yysize + yystrlen (yyformat);
+    if (! (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
+      return 2;
+    yysize = yysize1;
+  }
 
   if (*yymsg_alloc < yysize)
     {
@@ -1290,7 +1325,7 @@ yydestruct (yymsg, yytype, yyvaluep, yylocationp, mc, vm, img_ids, errmsg)
     {
 
       default:
-	break;
+        break;
     }
 }
 
@@ -1344,6 +1379,11 @@ int yychar;
 static YYSTYPE yyval_default;
 # define YY_INITIAL_VALUE(Value) = Value
 #endif
+static YYLTYPE yyloc_default
+# if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
+  = { 1, 1, 1, 1 }
+# endif
+;
 #ifndef YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
 # define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
 # define YY_IGNORE_MAYBE_UNINITIALIZED_END
@@ -1356,11 +1396,7 @@ static YYSTYPE yyval_default;
 YYSTYPE yylval YY_INITIAL_VALUE(yyval_default);
 
 /* Location data for the lookahead symbol.  */
-YYLTYPE yylloc
-# if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
-  = { 1, 1, 1, 1 }
-# endif
-;
+YYLTYPE yylloc = yyloc_default;
 
 
     /* Number of syntax errors so far.  */
@@ -1617,7 +1653,7 @@ yyreduce:
   switch (yyn)
     {
         case 4:
-/* Line 1778 of yacc.c  */
+/* Line 1792 of yacc.c  */
 #line 200 "vm_file_var_syntax.y"
     {
         string file((yyvsp[(1) - (7)].val_str));
@@ -1639,7 +1675,7 @@ yyreduce:
     break;
 
   case 5:
-/* Line 1778 of yacc.c  */
+/* Line 1792 of yacc.c  */
 #line 218 "vm_file_var_syntax.y"
     {
         string file((yyvsp[(1) - (11)].val_str));
@@ -1664,8 +1700,8 @@ yyreduce:
     break;
 
 
-/* Line 1778 of yacc.c  */
-#line 1669 "vm_file_var_syntax.cc"
+/* Line 1792 of yacc.c  */
+#line 1705 "vm_file_var_syntax.cc"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1903,7 +1939,7 @@ yyreturn:
 }
 
 
-/* Line 2041 of yacc.c  */
+/* Line 2055 of yacc.c  */
 #line 239 "vm_file_var_syntax.y"
 
 

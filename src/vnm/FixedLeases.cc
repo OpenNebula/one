@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -24,8 +24,10 @@ FixedLeases::FixedLeases(
         SqlDB *                     db,
         int                         _oid,
         unsigned int                _mac_prefix,
+        unsigned int                _global[],
+        unsigned int                _site[],
         vector<const Attribute*>&   vector_leases):
-            Leases(db,_oid,0,_mac_prefix),current(leases.begin())
+            Leases(db,_oid,0,_mac_prefix, _global, _site), current(leases.begin())
 {
     const VectorAttribute *	single_attr_lease;
     string _mac;
@@ -68,24 +70,44 @@ int FixedLeases::add(const string& ip, const string& mac, int vid,
 
     int rc;
 
-    if ( Leases::Lease::ip_to_number(ip,_ip) )
+    if (ip.empty() && mac.empty())
     {
-        goto error_ip;
+        goto error_no_ip_mac;
     }
 
-    if ( leases.count(_ip) > 0 )
+    //Set IP & MAC addresses if provided
+    if (!ip.empty())
     {
-        goto error_duplicate;
+        if ( Leases::Lease::ip_to_number(ip,_ip) )
+        {
+            goto error_ip;
+        }
+    }
+
+    if (!mac.empty())
+    {
+        if (Leases::Lease::mac_to_number(mac,_mac))
+        {
+            goto error_mac;
+        }
+    }
+
+    //Generate IP from MAC (or viceversa)
+    if (ip.empty())
+    {
+        _ip = _mac[0];
     }
 
     if (mac.empty())
     {
-        _mac[Lease::PREFIX] = mac_prefix;
-        _mac[Lease::SUFFIX] = _ip;
+        _mac[1] = mac_prefix;
+        _mac[0] = _ip;
     }
-    else if (Leases::Lease::mac_to_number(mac,_mac))
+
+    //Check for duplicates
+    if ( leases.count(_ip) > 0 )
     {
-        goto error_mac;
+        goto error_duplicate;
     }
 
     lease = new Lease(_ip,_mac,vid,used);
@@ -120,23 +142,23 @@ int FixedLeases::add(const string& ip, const string& mac, int vid,
 
     return rc;
 
+error_no_ip_mac:
+    oss << "Both IP and MAC cannot be empty";
+    goto error_common;
+
 error_ip:
-    oss.str("");
     oss << "Error inserting lease, malformed IP = " << ip;
     goto error_common;
 
 error_mac:
-    oss.str("");
     oss << "Error inserting lease, malformed MAC = " << mac;
     goto error_common;
 
 error_duplicate:
-    oss.str("");
     oss << "Error inserting lease, IP " << ip << " already exists";
     goto error_common;
 
 error_body:
-    oss.str("");
     oss << "Error inserting lease, marshall error";
     delete lease;
     goto error_common;
@@ -192,7 +214,7 @@ int FixedLeases::remove(const string& ip, string& error_msg)
     }
 
     delete it->second;
-    
+
     leases.erase(it);
 
     return rc;
@@ -255,7 +277,7 @@ int FixedLeases::unset(const string& ip)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int FixedLeases::get(int vid, string&  ip, string&  mac)
+int FixedLeases::get(int vid, string&  ip, string&  mac, unsigned int eui64[])
 {
     int     rc = -1;
 
@@ -280,7 +302,11 @@ int FixedLeases::get(int vid, string&  ip, string&  mac)
 
             rc = update_lease(current->second);
 
-            current->second->to_string(ip,mac);
+            Leases::Lease::mac_to_string(current->second->mac, mac);
+            Leases::Lease::ip_to_string(current->second->ip, ip);
+
+            eui64[0] = current->second->eui64[0];
+            eui64[1] = current->second->eui64[1];
 
             current++;
             break;
@@ -293,7 +319,7 @@ int FixedLeases::get(int vid, string&  ip, string&  mac)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int FixedLeases::set(int vid, const string&  ip, string&  mac)
+int FixedLeases::set(int vid, const string&  ip, string&  mac, unsigned int eui64[])
 {
     map<unsigned int,Lease *>::iterator it;
 
@@ -322,6 +348,9 @@ int FixedLeases::set(int vid, const string&  ip, string&  mac)
     it->second->vid  = vid;
 
     Leases::Lease::mac_to_string(it->second->mac,mac);
+
+    eui64[0] = it->second->eui64[0];
+    eui64[1] = it->second->eui64[1];
 
     return update_lease(it->second);
 }
@@ -393,7 +422,6 @@ int FixedLeases::add_leases(vector<const Attribute*>&   vector_leases,
     {
         error_msg = "Empty lease description.";
     }
-
 
     return rc;
 }

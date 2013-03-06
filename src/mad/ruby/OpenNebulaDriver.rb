@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -18,6 +18,7 @@ require "ActionManager"
 require "CommandManager"
 
 require "DriverExecHelper"
+require 'base64'
 
 # This class provides basic messaging and logging functionality
 # to implement OpenNebula Drivers. A driver is a program that
@@ -29,7 +30,7 @@ require "DriverExecHelper"
 # with the action name through the register_action function
 class OpenNebulaDriver < ActionManager
     include DriverExecHelper
-     
+
     # @return [String] Base path for scripts
     attr_reader :local_scripts_base_path, :remote_scripts_base_path
     # @return [String] Path for scripts
@@ -57,10 +58,10 @@ class OpenNebulaDriver < ActionManager
 
         super(@options[:concurrency], @options[:threaded])
 
-        @retries = @options[:retries]       
+        @retries = @options[:retries]
 
         #Set default values
-        initialize_helper(directory, @options) 
+        initialize_helper(directory, @options)
 
         register_action(:INIT, method("init"))
     end
@@ -78,13 +79,15 @@ class OpenNebulaDriver < ActionManager
     # @option ops [String] :stdin text to be writen to stdin
     # @option ops [String] :script_name default script name for the action,
     #   action name is used by defaults
-    # @option ops [String] :respond if defined will send result to ONE core
+    # @option ops [Bool] :respond if defined will send result to ONE core
+    # @option ops [Bool] :base64 encode the information sent to ONE core
     def do_action(parameters, id, host, aname, ops={})
         options={
             :stdin       => nil,
             :script_name => nil,
             :respond     => true,
-            :ssh_stream  => nil
+            :ssh_stream  => nil,
+            :base64      => false
         }.merge(ops)
 
         params  = parameters + " #{id} #{host}"
@@ -115,7 +118,8 @@ class OpenNebulaDriver < ActionManager
         result, info = get_info_from_execution(execution)
 
         if options[:respond]
-            send_message(aname,result,id,info)
+            info = Base64::encode64(info).strip.delete("\n") if options[:base64]
+            send_message(aname, result, id, info)
         end
 
         [result, info]

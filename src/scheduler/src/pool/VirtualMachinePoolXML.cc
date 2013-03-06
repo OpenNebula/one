@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -26,6 +26,11 @@ int VirtualMachinePoolXML::set_up()
 
     if ( rc == 0 )
     {
+        if (objects.empty())
+        {
+            return -2;
+        }
+
         oss.str("");
         oss << "Pending and rescheduling VMs:" << endl;
 
@@ -91,7 +96,6 @@ int VirtualMachinePoolXML::load_info(xmlrpc_c::value &result)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-
 int VirtualMachinePoolXML::dispatch(int vid, int hid, bool resched) const
 {
     ostringstream               oss;
@@ -103,7 +107,7 @@ int VirtualMachinePoolXML::dispatch(int vid, int hid, bool resched) const
     }
     else
     {
-        oss << "Dispatching ";   
+        oss << "Dispatching ";
     }
 
     oss << "virtual machine " << vid << " to host " << hid;
@@ -112,27 +116,28 @@ int VirtualMachinePoolXML::dispatch(int vid, int hid, bool resched) const
 
     try
     {
-        //TODO Get live migration from config file
         if (resched == true)
         {
             client->call(client->get_endpoint(),           // serverUrl
                          "one.vm.migrate",                 // methodName
-                         "siib",                           // arguments format
+                         "siibb",                          // arguments format
                          &deploy_result,                   // resultP
                          client->get_oneauth().c_str(),    // argument 0 (AUTH)
                          vid,                              // argument 1 (VM)
                          hid,                              // argument 2 (HOST)
-                         live_resched);                    // argument 3 (LIVE)
+                         live_resched,                     // argument 3 (LIVE)
+                         false);                           // argument 4 (ENFORCE)
         }
         else
         {
             client->call(client->get_endpoint(),           // serverUrl
                          "one.vm.deploy",                  // methodName
-                         "sii",                            // arguments format
+                         "siib",                           // arguments format
                          &deploy_result,                   // resultP
                          client->get_oneauth().c_str(),    // argument 0 (AUTH)
                          vid,                              // argument 1 (VM)
-                         hid);                             // argument 2 (HOST)
+                         hid,                              // argument 2 (HOST)
+                         false);                           // argument 3 (ENFORCE)
         }
     }
     catch (exception const& e)
@@ -161,6 +166,130 @@ int VirtualMachinePoolXML::dispatch(int vid, int hid, bool resched) const
             << " to HID: " << hid << ". Reason: " << message;
 
         NebulaLog::log("VM",Log::ERROR,oss);
+
+        return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachinePoolXML::update(int vid, const string &st) const
+{
+    xmlrpc_c::value result;
+    bool            success;
+
+    try
+    {
+        client->call( client->get_endpoint(),     // serverUrl
+                "one.vm.update",                  // methodName
+                "sis",                            // arguments format
+                &result,                          // resultP
+                client->get_oneauth().c_str(),    // argument
+                vid,                              // VM ID
+                st.c_str()                        // Template
+        );
+    }
+    catch (exception const& e)
+    {
+        return -1;
+    }
+
+    vector<xmlrpc_c::value> values =
+            xmlrpc_c::value_array(result).vectorValueValue();
+
+    success = xmlrpc_c::value_boolean(values[0]);
+
+    if (!success)
+    {
+        return -1;
+    }
+
+    return 0;
+}
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachineActionsPoolXML::set_up()
+{
+    ostringstream   oss;
+    int             rc;
+
+    rc = PoolXML::set_up();
+
+    if ( rc == 0 )
+    {
+        if (objects.empty())
+        {
+            return -2;
+        }
+
+        oss.str("");
+        oss << "VMs with scheduled actions:" << endl;
+
+        map<int,ObjectXML*>::iterator it;
+
+        for (it=objects.begin();it!=objects.end();it++)
+        {
+            oss << " " << it->first;
+        }
+
+        NebulaLog::log("VM",Log::DEBUG,oss);
+    }
+
+    return rc;
+}
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachineActionsPoolXML::action(
+        int             vid,
+        const string&   action,
+        string&         error_msg) const
+{
+    xmlrpc_c::value result;
+    bool            success;
+
+    try
+    {
+        if (action == "snapshot-create")
+        {
+            client->call( client->get_endpoint(), // serverUrl
+                "one.vm.snapshotcreate",          // methodName
+                "sis",                            // arguments format
+                &result,                          // resultP
+                client->get_oneauth().c_str(),    // session
+                vid,                              // VM ID
+                string("").c_str()                // snapshot name
+            );
+        }
+        else
+        {
+            client->call( client->get_endpoint(), // serverUrl
+                "one.vm.action",                  // methodName
+                "ssi",                            // arguments format
+                &result,                          // resultP
+                client->get_oneauth().c_str(),    // session
+                action.c_str(),                   // action
+                vid                               // VM ID
+            );
+        }
+    }
+    catch (exception const& e)
+    {
+        return -1;
+    }
+
+    vector<xmlrpc_c::value> values =
+            xmlrpc_c::value_array(result).vectorValueValue();
+
+    success = xmlrpc_c::value_boolean(values[0]);
+
+    if (!success)
+    {
+        error_msg = xmlrpc_c::value_string(  values[1] );
 
         return -1;
     }

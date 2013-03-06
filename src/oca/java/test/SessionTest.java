@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)
- * 
+ * Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,6 +17,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.opennebula.client.*;
+import org.w3c.dom.Node;
 
 public class SessionTest {
 
@@ -51,7 +52,7 @@ public class SessionTest {
         }
 
         assertNull("Client should complain about misspelled url", oneClient);
-	}	
+	}
 
     @Test
     public void version()
@@ -63,11 +64,24 @@ public class SessionTest {
         }
         catch (Exception e)
         {
-            System.out.println(e.getMessage());
+            assertTrue( e.getMessage(), false );
         }
 
-        OneResponse res = oneClient.get_version();
+        OneSystem system = new OneSystem(oneClient);
 
+        OneResponse res = system.getOnedVersion();
         assertTrue( res.getErrorMessage(), !res.isError() );
+
+        res = system.getConfiguration();
+        assertTrue( res.getErrorMessage(), !res.isError() );
+
+        Node config = system.getConfigurationXML();
+        assertTrue( "XML configuration is null", config != null );
+
+        boolean compatible = system.compatibleVersion();
+        assertTrue(
+                "Incompatible version reported, " +
+                OneSystem.VERSION + ", " + system.getOnedVersion().getMessage(),
+                compatible );
     }
 }

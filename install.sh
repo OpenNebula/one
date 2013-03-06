@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -49,7 +49,13 @@ usage() {
 }
 #-------------------------------------------------------------------------------
 
-TEMP_OPT=`getopt -o hkrlcsou:g:d: -n 'install.sh' -- "$@"`
+PARAMETERS="hkrlcsou:g:d:"
+
+if [ $(getopt --version | tr -d " ") = "--" ]; then
+    TEMP_OPT=`getopt $PARAMETERS "$@"`
+else
+    TEMP_OPT=`getopt -o $PARAMETERS -n 'install.sh' -- "$@"`
+fi
 
 if [ $? != 0 ] ; then
     usage
@@ -183,7 +189,8 @@ else
     CHOWN_DIRS="$ROOT"
 fi
 
-SHARE_DIRS="$SHARE_LOCATION/examples"
+SHARE_DIRS="$SHARE_LOCATION/examples \
+            $SHARE_LOCATION/tgt"
 
 ETC_DIRS="$ETC_LOCATION/im_ec2 \
           $ETC_LOCATION/vmm_ec2 \
@@ -196,7 +203,7 @@ ETC_DIRS="$ETC_LOCATION/im_ec2 \
           $ETC_LOCATION/cli"
 
 LIB_DIRS="$LIB_LOCATION/ruby \
-          $LIB_LOCATION/ruby/OpenNebula \
+          $LIB_LOCATION/ruby/opennebula \
           $LIB_LOCATION/ruby/zona \
           $LIB_LOCATION/ruby/cloud/ \
           $LIB_LOCATION/ruby/cloud/econe \
@@ -218,7 +225,8 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/ganglia.d \
           $VAR_LOCATION/remotes/vmm \
           $VAR_LOCATION/remotes/vmm/kvm \
-          $VAR_LOCATION/remotes/vmm/xen \
+          $VAR_LOCATION/remotes/vmm/xen3 \
+          $VAR_LOCATION/remotes/vmm/xen4 \
           $VAR_LOCATION/remotes/vmm/vmware \
           $VAR_LOCATION/remotes/vnm \
           $VAR_LOCATION/remotes/vnm/802.1Q \
@@ -226,6 +234,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vnm/ebtables \
           $VAR_LOCATION/remotes/vnm/fw \
           $VAR_LOCATION/remotes/vnm/ovswitch \
+          $VAR_LOCATION/remotes/vnm/ovswitch_brcompat \
           $VAR_LOCATION/remotes/vnm/vmware \
           $VAR_LOCATION/remotes/tm/ \
           $VAR_LOCATION/remotes/tm/dummy \
@@ -235,6 +244,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/tm/vmfs \
           $VAR_LOCATION/remotes/tm/iscsi \
           $VAR_LOCATION/remotes/tm/lvm \
+          $VAR_LOCATION/remotes/tm/ceph \
           $VAR_LOCATION/remotes/hooks \
           $VAR_LOCATION/remotes/hooks/ft \
           $VAR_LOCATION/remotes/datastore \
@@ -244,6 +254,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/datastore/vmfs \
           $VAR_LOCATION/remotes/datastore/iscsi \
           $VAR_LOCATION/remotes/datastore/lvm \
+          $VAR_LOCATION/remotes/datastore/ceph \
           $VAR_LOCATION/remotes/auth \
           $VAR_LOCATION/remotes/auth/plain \
           $VAR_LOCATION/remotes/auth/ssh \
@@ -357,26 +368,26 @@ SELF_SERVICE_DIRS="\
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/FontAwesome/font"
 
 OZONES_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/OpenNebula \
+                 $LIB_LOCATION/ruby/opennebula \
                  $LIB_LOCATION/ruby/cli \
                  $LIB_LOCATION/ruby/cli/ozones_helper \
                  $LIB_LOCATION/ruby/zona"
 
 LIB_ECO_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/OpenNebula \
+                 $LIB_LOCATION/ruby/opennebula \
                  $LIB_LOCATION/ruby/cloud/ \
                  $LIB_LOCATION/ruby/cloud/econe"
 
 LIB_OCCI_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/OpenNebula \
+                 $LIB_LOCATION/ruby/opennebula \
                  $LIB_LOCATION/ruby/cloud/occi"
 
 LIB_MARKET_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/OpenNebula \
+                 $LIB_LOCATION/ruby/opennebula \
                  $LIB_LOCATION/ruby/cloud/marketplace"
 
 LIB_OCA_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/OpenNebula"
+                 $LIB_LOCATION/ruby/opennebula"
 
 LIB_CLI_CLIENT_DIRS="$LIB_LOCATION/ruby/cli \
                      $LIB_LOCATION/ruby/cli/one_helper"
@@ -406,7 +417,8 @@ INSTALL_FILES=(
     INCLUDE_FILES:$INCLUDE_LOCATION
     LIB_FILES:$LIB_LOCATION
     RUBY_LIB_FILES:$LIB_LOCATION/ruby
-    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula
+    RUBY_AUTH_LIB_FILES:$LIB_LOCATION/ruby/opennebula
+    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/opennebula
     MAD_RUBY_LIB_FILES:$LIB_LOCATION/ruby
     MAD_RUBY_LIB_FILES:$VAR_LOCATION/remotes
     MAD_SH_LIB_FILES:$LIB_LOCATION/sh
@@ -426,7 +438,8 @@ INSTALL_FILES=(
     AUTH_DUMMY_FILES:$VAR_LOCATION/remotes/auth/dummy
     AUTH_PLAIN_FILES:$VAR_LOCATION/remotes/auth/plain
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
-    VMM_EXEC_XEN_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen
+    VMM_EXEC_XEN3_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen3
+    VMM_EXEC_XEN4_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen4
     VMM_EXEC_VMWARE_SCRIPTS:$VAR_LOCATION/remotes/vmm/vmware
     TM_FILES:$VAR_LOCATION/remotes/tm
     TM_SHARED_FILES:$VAR_LOCATION/remotes/tm/shared
@@ -435,6 +448,7 @@ INSTALL_FILES=(
     TM_VMFS_FILES:$VAR_LOCATION/remotes/tm/vmfs
     TM_ISCSI_FILES:$VAR_LOCATION/remotes/tm/iscsi
     TM_LVM_FILES:$VAR_LOCATION/remotes/tm/lvm
+    TM_CEPH_FILES:$VAR_LOCATION/remotes/tm/ceph
     TM_DUMMY_FILES:$VAR_LOCATION/remotes/tm/dummy
     DATASTORE_DRIVER_COMMON_SCRIPTS:$VAR_LOCATION/remotes/datastore/
     DATASTORE_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/datastore/dummy
@@ -443,14 +457,17 @@ INSTALL_FILES=(
     DATASTORE_DRIVER_VMFS_SCRIPTS:$VAR_LOCATION/remotes/datastore/vmfs
     DATASTORE_DRIVER_ISCSI_SCRIPTS:$VAR_LOCATION/remotes/datastore/iscsi
     DATASTORE_DRIVER_LVM_SCRIPTS:$VAR_LOCATION/remotes/datastore/lvm
+    DATASTORE_DRIVER_CEPH_SCRIPTS:$VAR_LOCATION/remotes/datastore/ceph
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
     NETWORK_8021Q_FILES:$VAR_LOCATION/remotes/vnm/802.1Q
     NETWORK_DUMMY_FILES:$VAR_LOCATION/remotes/vnm/dummy
     NETWORK_EBTABLES_FILES:$VAR_LOCATION/remotes/vnm/ebtables
     NETWORK_FW_FILES:$VAR_LOCATION/remotes/vnm/fw
     NETWORK_OVSWITCH_FILES:$VAR_LOCATION/remotes/vnm/ovswitch
+    NETWORK_OVSWITCH_BRCOMPAT_FILES:$VAR_LOCATION/remotes/vnm/ovswitch_brcompat
     NETWORK_VMWARE_FILES:$VAR_LOCATION/remotes/vnm/vmware
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
+    TGT_SHARE_FILES:$SHARE_LOCATION/tgt
     INSTALL_NOVNC_SHARE_FILE:$SHARE_LOCATION
     INSTALL_GEMS_SHARE_FILE:$SHARE_LOCATION
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
@@ -488,11 +505,11 @@ INSTALL_CLIENT_FILES=(
     OZONES_LIB_API_ZONA_FILES:$LIB_LOCATION/ruby/zona
     CLI_CONF_FILES:$ETC_LOCATION/cli
     OCA_LIB_FILES:$LIB_LOCATION/ruby
-    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula
+    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/opennebula
 )
 
 INSTALL_SUNSTONE_RUBY_FILES=(
-    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula
+    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/opennebula
     OCA_LIB_FILES:$LIB_LOCATION/ruby
 )
 
@@ -541,7 +558,7 @@ INSTALL_SUNSTONE_ETC_FILES=(
 
 INSTALL_OZONES_RUBY_FILES=(
     OZONES_RUBY_LIB_FILES:$LIB_LOCATION/ruby
-    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula
+    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/opennebula
 )
 
 INSTALL_OZONES_FILES=(
@@ -673,8 +690,15 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/mad/ruby/ssh_stream.rb \
                 src/vnm_mad/one_vnm.rb \
                 src/mad/ruby/Ganglia.rb \
-                src/oca/ruby/OpenNebula.rb \
-                src/authm_mad/remotes/ssh/ssh_auth.rb \
+                src/oca/ruby/deprecated/OpenNebula.rb \
+                src/oca/ruby/opennebula.rb \
+                src/sunstone/OpenNebulaVNC.rb"
+
+#-------------------------------------------------------------------------------
+# Ruby auth library files, to be installed under $LIB_LOCATION/ruby/opennebula
+#-------------------------------------------------------------------------------
+
+RUBY_AUTH_LIB_FILES="src/authm_mad/remotes/ssh/ssh_auth.rb \
                 src/authm_mad/remotes/server_x509/server_x509_auth.rb \
                 src/authm_mad/remotes/server_cipher/server_cipher_auth.rb \
                 src/authm_mad/remotes/ldap/ldap_auth.rb \
@@ -735,15 +759,18 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/poll_ganglia \
                     src/vmm_mad/remotes/kvm/attach_disk \
                     src/vmm_mad/remotes/kvm/detach_disk \
+                    src/vmm_mad/remotes/kvm/snapshot_create \
+                    src/vmm_mad/remotes/kvm/snapshot_revert \
+                    src/vmm_mad/remotes/kvm/snapshot_delete \
                     src/vmm_mad/remotes/kvm/shutdown"
 
 #-------------------------------------------------------------------------------
 # VMM SH Driver Xen scripts, to be installed under $REMOTES_LOCATION/vmm/xen
 #-------------------------------------------------------------------------------
 
-VMM_EXEC_XEN_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
+VMM_EXEC_XEN3_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/deploy \
-                    src/vmm_mad/remotes/xen/xenrc \
+                    src/vmm_mad/remotes/xen/xen3/xenrc \
                     src/vmm_mad/remotes/xen/migrate \
                     src/vmm_mad/remotes/xen/restore \
                     src/vmm_mad/remotes/xen/reboot \
@@ -753,8 +780,27 @@ VMM_EXEC_XEN_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/poll_ganglia \
                     src/vmm_mad/remotes/xen/attach_disk \
                     src/vmm_mad/remotes/xen/detach_disk \
+                    src/vmm_mad/remotes/xen/snapshot_create \
+                    src/vmm_mad/remotes/xen/snapshot_revert \
+                    src/vmm_mad/remotes/xen/snapshot_delete \
                     src/vmm_mad/remotes/xen/shutdown"
 
+VMM_EXEC_XEN4_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
+                    src/vmm_mad/remotes/xen/deploy \
+                    src/vmm_mad/remotes/xen/xen4/xenrc \
+                    src/vmm_mad/remotes/xen/migrate \
+                    src/vmm_mad/remotes/xen/restore \
+                    src/vmm_mad/remotes/xen/reboot \
+                    src/vmm_mad/remotes/xen/reset \
+                    src/vmm_mad/remotes/xen/save \
+                    src/vmm_mad/remotes/xen/poll \
+                    src/vmm_mad/remotes/xen/poll_ganglia \
+                    src/vmm_mad/remotes/xen/attach_disk \
+                    src/vmm_mad/remotes/xen/detach_disk \
+                    src/vmm_mad/remotes/xen/snapshot_create \
+                    src/vmm_mad/remotes/xen/snapshot_revert \
+                    src/vmm_mad/remotes/xen/snapshot_delete \
+                    src/vmm_mad/remotes/xen/shutdown"
 #-------------------------------------------------------------------------------
 # VMM Driver VMWARE scripts, to be installed under $REMOTES_LOCATION/vmm/vmware
 #-------------------------------------------------------------------------------
@@ -762,6 +808,9 @@ VMM_EXEC_XEN_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
 VMM_EXEC_VMWARE_SCRIPTS="src/vmm_mad/remotes/vmware/cancel \
                          src/vmm_mad/remotes/vmware/attach_disk \
                          src/vmm_mad/remotes/vmware/detach_disk \
+                         src/vmm_mad/remotes/vmware/snapshot_create \
+                         src/vmm_mad/remotes/vmware/snapshot_revert \
+                         src/vmm_mad/remotes/vmware/snapshot_delete \
                          src/vmm_mad/remotes/vmware/scripts_common_sh.sh \
                          src/vmm_mad/remotes/vmware/deploy \
                          src/vmm_mad/remotes/vmware/migrate \
@@ -783,11 +832,13 @@ IM_PROBES_FILES="src/im_mad/remotes/run_probes"
 IM_PROBES_KVM_FILES="src/im_mad/remotes/kvm.d/kvm.rb \
                      src/im_mad/remotes/kvm.d/architecture.sh \
                      src/im_mad/remotes/kvm.d/cpu.sh \
+                     src/im_mad/remotes/kvm.d/poll.sh \
                      src/im_mad/remotes/kvm.d/name.sh"
 
 IM_PROBES_XEN_FILES="src/im_mad/remotes/xen.d/xen.rb \
                      src/im_mad/remotes/xen.d/architecture.sh \
                      src/im_mad/remotes/xen.d/cpu.sh \
+                     src/im_mad/remotes/xen.d/poll.sh \
                      src/im_mad/remotes/xen.d/name.sh"
 
 IM_PROBES_VMWARE_FILES="src/im_mad/remotes/vmware.d/vmware.rb"
@@ -843,6 +894,11 @@ NETWORK_OVSWITCH_FILES="src/vnm_mad/remotes/ovswitch/clean \
                     src/vnm_mad/remotes/ovswitch/pre \
                     src/vnm_mad/remotes/ovswitch/OpenvSwitch.rb"
 
+NETWORK_OVSWITCH_BRCOMPAT_FILES="src/vnm_mad/remotes/ovswitch_brcompat/clean \
+                    src/vnm_mad/remotes/ovswitch_brcompat/post \
+                    src/vnm_mad/remotes/ovswitch_brcompat/pre \
+                    src/vnm_mad/remotes/ovswitch_brcompat/OpenvSwitch.rb"
+
 NETWORK_VMWARE_FILES="src/vnm_mad/remotes/vmware/clean \
                     src/vnm_mad/remotes/vmware/post \
                     src/vnm_mad/remotes/vmware/pre \
@@ -857,6 +913,7 @@ NETWORK_VMWARE_FILES="src/vnm_mad/remotes/vmware/clean \
 #   - VMWARE TM, $VAR_LOCATION/tm/vmware
 #   - ISCSI TM, $VAR_LOCATION/tm/iscsi
 #   - LVM TM, $VAR_LOCATION/tm/lvm
+#   - CEPH TM, $VAR_LOCATION/tm/ceph
 #-------------------------------------------------------------------------------
 
 TM_FILES="src/tm_mad/tm_common.sh"
@@ -932,6 +989,14 @@ TM_LVM_FILES="src/tm_mad/lvm/clone \
                  src/tm_mad/lvm/postmigrate \
                  src/tm_mad/lvm/delete"
 
+TM_CEPH_FILES="src/tm_mad/ceph/clone \
+                 src/tm_mad/ceph/ln \
+                 src/tm_mad/ceph/mv \
+                 src/tm_mad/ceph/mvds \
+                 src/tm_mad/ceph/premigrate \
+                 src/tm_mad/ceph/postmigrate \
+                 src/tm_mad/ceph/delete"
+
 #-------------------------------------------------------------------------------
 # Datastore drivers, to be installed under $REMOTES_LOCATION/datastore
 #   - Dummy Image Repository, $REMOTES_LOCATION/datastore/dummy
@@ -985,6 +1050,13 @@ DATASTORE_DRIVER_LVM_SCRIPTS="src/datastore_mad/remotes/lvm/cp \
                          src/datastore_mad/remotes/lvm/clone \
                          src/datastore_mad/remotes/lvm/lvm.conf"
 
+DATASTORE_DRIVER_CEPH_SCRIPTS="src/datastore_mad/remotes/ceph/cp \
+                         src/datastore_mad/remotes/ceph/mkfs \
+                         src/datastore_mad/remotes/ceph/stat \
+                         src/datastore_mad/remotes/ceph/rm \
+                         src/datastore_mad/remotes/ceph/clone \
+                         src/datastore_mad/remotes/ceph/ceph.conf"
+
 #-------------------------------------------------------------------------------
 # Migration scripts for onedb command, to be installed under $LIB_LOCATION
 #-------------------------------------------------------------------------------
@@ -1032,7 +1104,8 @@ VMM_EC2_ETC_FILES="src/vmm_mad/ec2/vmm_ec2rc \
 
 VMM_EXEC_ETC_FILES="src/vmm_mad/exec/vmm_execrc \
                   src/vmm_mad/exec/vmm_exec_kvm.conf \
-                  src/vmm_mad/exec/vmm_exec_xen.conf \
+                  src/vmm_mad/exec/vmm_exec_xen3.conf \
+                  src/vmm_mad/exec/vmm_exec_xen4.conf \
                   src/vmm_mad/exec/vmm_exec_vmware.conf"
 
 #-------------------------------------------------------------------------------
@@ -1066,6 +1139,12 @@ EXAMPLE_SHARE_FILES="share/examples/vm.template \
                      share/examples/public.net"
 
 #-------------------------------------------------------------------------------
+# File required to interact with a tgtd server
+#-------------------------------------------------------------------------------
+
+TGT_SHARE_FILES="share/scripts/tgt/tgt-setup-lun-one"
+
+#-------------------------------------------------------------------------------
 # HOOK scripts, to be installed under $VAR_LOCATION/remotes/hooks
 #-------------------------------------------------------------------------------
 
@@ -1081,35 +1160,40 @@ INSTALL_GEMS_SHARE_FILE="share/install_gems/install_gems"
 #-------------------------------------------------------------------------------
 # OCA Files
 #-------------------------------------------------------------------------------
-OCA_LIB_FILES="src/oca/ruby/OpenNebula.rb"
+OCA_LIB_FILES="src/oca/ruby/opennebula.rb"
 
-RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
-                           src/oca/ruby/OpenNebula/HostPool.rb \
-                           src/oca/ruby/OpenNebula/Pool.rb \
-                           src/oca/ruby/OpenNebula/User.rb \
-                           src/oca/ruby/OpenNebula/UserPool.rb \
-                           src/oca/ruby/OpenNebula/VirtualMachine.rb \
-                           src/oca/ruby/OpenNebula/VirtualMachinePool.rb \
-                           src/oca/ruby/OpenNebula/VirtualNetwork.rb \
-                           src/oca/ruby/OpenNebula/VirtualNetworkPool.rb \
-                           src/oca/ruby/OpenNebula/Image.rb \
-                           src/oca/ruby/OpenNebula/ImagePool.rb \
-                           src/oca/ruby/OpenNebula/Template.rb \
-                           src/oca/ruby/OpenNebula/TemplatePool.rb \
-                           src/oca/ruby/OpenNebula/Document.rb \
-                           src/oca/ruby/OpenNebula/DocumentPool.rb \
-                           src/oca/ruby/OpenNebula/DocumentJSON.rb \
-                           src/oca/ruby/OpenNebula/DocumentPoolJSON.rb \
-                           src/oca/ruby/OpenNebula/Group.rb \
-                           src/oca/ruby/OpenNebula/GroupPool.rb \
-                           src/oca/ruby/OpenNebula/Acl.rb \
-                           src/oca/ruby/OpenNebula/AclPool.rb \
-                           src/oca/ruby/OpenNebula/Datastore.rb \
-                           src/oca/ruby/OpenNebula/DatastorePool.rb \
-                           src/oca/ruby/OpenNebula/Cluster.rb \
-                           src/oca/ruby/OpenNebula/ClusterPool.rb \
-                           src/oca/ruby/OpenNebula/XMLUtils.rb \
-                           src/oca/ruby/OpenNebula/System.rb"
+RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/host.rb \
+                           src/oca/ruby/opennebula/host_pool.rb \
+                           src/oca/ruby/opennebula/pool.rb \
+                           src/oca/ruby/opennebula/user.rb \
+                           src/oca/ruby/opennebula/user_pool.rb \
+                           src/oca/ruby/opennebula/virtual_machine.rb \
+                           src/oca/ruby/opennebula/virtual_machine_pool.rb \
+                           src/oca/ruby/opennebula/virtual_network.rb \
+                           src/oca/ruby/opennebula/virtual_network_pool.rb \
+                           src/oca/ruby/opennebula/image.rb \
+                           src/oca/ruby/opennebula/image_pool.rb \
+                           src/oca/ruby/opennebula/template.rb \
+                           src/oca/ruby/opennebula/template_pool.rb \
+                           src/oca/ruby/opennebula/document.rb \
+                           src/oca/ruby/opennebula/document_pool.rb \
+                           src/oca/ruby/opennebula/document_json.rb \
+                           src/oca/ruby/opennebula/document_pool_json.rb \
+                           src/oca/ruby/opennebula/group.rb \
+                           src/oca/ruby/opennebula/group_pool.rb \
+                           src/oca/ruby/opennebula/acl.rb \
+                           src/oca/ruby/opennebula/acl_pool.rb \
+                           src/oca/ruby/opennebula/datastore.rb \
+                           src/oca/ruby/opennebula/datastore_pool.rb \
+                           src/oca/ruby/opennebula/cluster.rb \
+                           src/oca/ruby/opennebula/cluster_pool.rb \
+                           src/oca/ruby/opennebula/xml_utils.rb \
+                           src/oca/ruby/opennebula/client.rb \
+                           src/oca/ruby/opennebula/error.rb \
+                           src/oca/ruby/opennebula/pool_element.rb \
+                           src/oca/ruby/opennebula/xml_element.rb \
+                           src/oca/ruby/opennebula/xml_pool.rb \
+                           src/oca/ruby/opennebula/system.rb"
 
 #-------------------------------------------------------------------------------
 # Common Cloud Files
@@ -1319,9 +1403,10 @@ ETC_CLIENT_FILES="src/cli/etc/group.default"
 #-----------------------------------------------------------------------------
 
 SUNSTONE_FILES="src/sunstone/sunstone-server.rb \
-                src/sunstone/OpenNebulaVNC.rb"
+                src/sunstone/config.ru"
 
-SUNSTONE_BIN_FILES="src/sunstone/bin/sunstone-server"
+SUNSTONE_BIN_FILES="src/sunstone/bin/sunstone-server \
+                    src/sunstone/bin/novnc-server"
 
 SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf \
                     src/sunstone/etc/sunstone-plugins.yaml"

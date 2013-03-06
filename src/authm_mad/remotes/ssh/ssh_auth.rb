@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -20,10 +20,12 @@ require 'openssl'
 require 'base64'
 require 'fileutils'
 
+module OpenNebula; end
+
 # SSH key authentication class. It can be used as a driver for auth_mad
 # as auth method is defined. It also holds some helper methods to be used
 # by oneauth command
-class SshAuth
+class OpenNebula::SshAuth
     LOGIN_PATH = ENV['HOME']+'/.one/one_ssh'
 
     # Initialize SshAuth object

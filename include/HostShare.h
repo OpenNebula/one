@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)           */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs      */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -52,6 +52,19 @@ public:
         disk_usage += disk;
 
         running_vms++;
+    }
+
+    /**
+     *  Updates the capacity of VM in this share
+     *    @param cpu increment
+     *    @param mem increment
+     *    @param disk increment
+     */
+    void update(int cpu, int mem, int disk)
+    {
+        cpu_usage  += cpu;
+        mem_usage  += mem;
+        disk_usage += disk;
     }
 
     /**

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -78,6 +78,7 @@ void OpenNebulaTemplate::set_conf_default()
     SingleAttribute *   attribute;
     VectorAttribute *   vattribute;
     string              value;
+    map<string,string>  vvalue;
 
     // MANAGER_TIMER
     value = "15";
@@ -88,22 +89,22 @@ void OpenNebulaTemplate::set_conf_default()
 #*******************************************************************************
 # Daemon configuration attributes
 #-------------------------------------------------------------------------------
-#  HOST_MONITORING_INTERVAL
+#  MONITORING_INTERVAL
 #  HOST_PER_INTERVAL
 #  HOST_MONITORING_EXPIRATION_TIME
-#  VM_POLLING_INTERVAL
 #  VM_PER_INTERVAL
 #  VM_MONITORING_EXPIRATION_TIME
 #  PORT
 #  DB
 #  VNC_BASE_PORT
 #  SCRIPTS_REMOTE_DIR
+#  VM_SUBMIT_ON_HOLD
 #*******************************************************************************
 */
-    // MONITOR_INTERVAL
-    value = "600";
+    // MONITORING_INTERVAL
+    value = "300";
 
-    attribute = new SingleAttribute("HOST_MONITORING_INTERVAL",value);
+    attribute = new SingleAttribute("MONITORING_INTERVAL",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 
     // HOST_PER_INTERVAL
@@ -116,12 +117,6 @@ void OpenNebulaTemplate::set_conf_default()
     value = "86400";
 
     attribute = new SingleAttribute("HOST_MONITORING_EXPIRATION_TIME",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    // POLL_INTERVAL
-    value = "600";
-
-    attribute = new SingleAttribute("VM_POLLING_INTERVAL",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 
     // VM_PER_INTERVAL
@@ -143,7 +138,6 @@ void OpenNebulaTemplate::set_conf_default()
     conf_default.insert(make_pair(attribute->name(),attribute));
 
     //DB CONFIGURATION
-    map<string,string> vvalue;
     vvalue.insert(make_pair("BACKEND","sqlite"));
 
     vattribute = new VectorAttribute("DB",vvalue);
@@ -167,6 +161,19 @@ void OpenNebulaTemplate::set_conf_default()
     attribute = new SingleAttribute("SCRIPTS_REMOTE_DIR",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 
+    // VM_SUBMIT_ON_HOLD
+    value = "NO";
+
+    attribute = new SingleAttribute("VM_SUBMIT_ON_HOLD",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
+    // LOG CONFIGURATION
+    vvalue.clear();
+    vvalue.insert(make_pair("SYSTEM","file"));
+    vvalue.insert(make_pair("DEBUG_LEVEL","3"));
+
+    vattribute = new VectorAttribute("LOG",vvalue);
+    conf_default.insert(make_pair(vattribute->name(),vattribute));
 /*
 #*******************************************************************************
 # Physical Networks configuration
@@ -218,6 +225,7 @@ void OpenNebulaTemplate::set_conf_default()
 #*******************************************************************************
 # SESSION_EXPIRATION_TIME
 # ENABLE_OTHER_PERMISSIONS
+# DEFAULT_UMASK
 #*******************************************************************************
 */
     // SESSION_EXPIRATION_TIME
@@ -230,6 +238,12 @@ void OpenNebulaTemplate::set_conf_default()
     value = "YES";
 
     attribute = new SingleAttribute("ENABLE_OTHER_PERMISSIONS",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
+    // DEFAULT_UMASK
+    value = "177";
+
+    attribute = new SingleAttribute("DEFAULT_UMASK",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 }
 

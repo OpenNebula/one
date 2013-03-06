@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)           */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs      */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -77,7 +77,8 @@ public:
     {
         FILE   = 0, /** < File-based disk */
         CD_ROM = 1, /** < An ISO9660 disk */
-        BLOCK  = 2  /** < Block-device disk */
+        BLOCK  = 2, /** < Block-device disk */
+        RBD    = 3  /** < CEPH RBD disk */
     };
 
     /**
@@ -92,6 +93,7 @@ public:
             case FILE:   return "FILE" ; break;
             case CD_ROM: return "CDROM" ; break;
             case BLOCK:  return "BLOCK" ; break;
+            case RBD:    return "RBD" ; break;
             default:     return "";
         }
     };
@@ -615,6 +617,7 @@ protected:
           int            gid,
           const string&  uname,
           const string&  gname,
+          int            umask,
           ImageTemplate* img_template);
 
     virtual ~Image();

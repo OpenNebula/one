@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,7 +17,7 @@
 #include "AuthManager.h"
 #include "AuthRequest.h"
 #include "NebulaLog.h"
-#include "SSLTools.h"
+#include "NebulaUtil.h"
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
 
@@ -40,7 +40,7 @@ void AuthRequest::add_auth(Operation             op,
 
     if ( !ob_template.empty() )
     {
-        string * encoded_id = SSLTools::base64_encode(ob_template);
+        string * encoded_id = one_util::base64_encode(ob_template);
 
         if (encoded_id != 0)
         {

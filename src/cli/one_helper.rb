@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,13 +16,13 @@
 
 require 'cli_helper'
 
-require 'OpenNebula'
+require 'opennebula'
 include OpenNebula
 
 module OpenNebulaHelper
     ONE_VERSION=<<-EOT
 OpenNebula #{OpenNebula::VERSION}
-Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)
+Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may
 not use this file except in compliance with the License. You may obtain
@@ -103,6 +103,7 @@ EOT
         }
     ]
 
+    #NOTE: Other options defined using this array, add new options at the end
     TEMPLATE_OPTIONS=[
         {
             :name   => 'cpu',
@@ -212,6 +213,8 @@ EOT
 
     TEMPLATE_OPTIONS_VM=[TEMPLATE_NAME_VM]+TEMPLATE_OPTIONS+[DRY]
 
+    CAPACITY_OPTIONS_VM=[TEMPLATE_OPTIONS[0],TEMPLATE_OPTIONS[1],TEMPLATE_OPTIONS[3]]
+
     OPTIONS = XML, NUMERIC, KILOBYTES
 
     class OneHelper
@@ -315,7 +318,15 @@ EOT
                         pool_to_array(pool)
                     }
                 else
-                    table.show(pool_to_array(pool), options)
+                    array=pool_to_array(pool)
+
+                    if options[:ids]
+                        array=array.select do |element|
+                            options[:ids].include? element['ID'].to_i
+                        end
+                    end
+
+                    table.show(array, options)
                 end
 
                 return 0
@@ -331,7 +342,7 @@ EOT
             if options[:xml]
                 return 0, resource.to_xml(true)
             else
-                format_resource(resource)
+                format_resource(resource, options)
                 return 0
             end
         end
@@ -569,13 +580,19 @@ EOT
         end
     end
 
-    def OpenNebulaHelper.time_to_str(time)
+    def OpenNebulaHelper.time_to_str(time, print_seconds=true)
         value=time.to_i
         if value==0
             value='-'
         else
-            value=Time.at(value).strftime("%m/%d %H:%M:%S")
+            if print_seconds
+                value=Time.at(value).strftime("%m/%d %H:%M:%S")
+            else
+                value=Time.at(value).strftime("%m/%d %H:%M")
+            end
         end
+
+        return value
     end
 
     def OpenNebulaHelper.period_to_str(time, print_seconds=true)
@@ -623,7 +640,7 @@ EOT
         end
     end
 
-    def OpenNebulaHelper.update_template(id, resource, path=nil)
+    def OpenNebulaHelper.update_template(id, resource, path=nil, xpath='TEMPLATE')
         unless path
             require 'tempfile'
 
@@ -637,7 +654,7 @@ EOT
                 exit -1
             end
 
-            tmp << resource.template_str
+            tmp << resource.template_like_str(xpath)
             tmp.flush
 
             editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -14,26 +14,16 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-
 #include "Leases.h"
 #include "NebulaLog.h"
+
+#include <arpa/inet.h>
 
 /* ************************************************************************** */
 /* ************************************************************************** */
 /* Lease class                                                                */
 /* ************************************************************************** */
 /* ************************************************************************** */
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void Leases::Lease::to_string(string &_ip,
-                              string &_mac) const
-{
-    mac_to_string(mac, _mac);
-
-    ip_to_string(ip, _ip);
-}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -108,6 +98,38 @@ void Leases::Lease::ip_to_string(const unsigned int i_ip, string& ip)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void Leases::Lease::ip6_to_string(const unsigned int eui64[],
+                                  const unsigned int prefix[],
+                                  string& ip6s)
+{
+    struct in6_addr ip6;
+    char            dst[INET6_ADDRSTRLEN];
+
+    ip6.s6_addr32[2] = htonl(eui64[1]);
+    ip6.s6_addr32[3] = htonl(eui64[0]);
+
+    // global or site unicast address
+    if (prefix[1] != 0 && prefix[0] != 0 )
+    {
+        ip6.s6_addr32[0] = htonl(prefix[1]);
+        ip6.s6_addr32[1] = htonl(prefix[0]);
+    }
+    else // link local address
+    {
+
+        ip6.s6_addr32[0] = htonl(0xfe800000);
+        ip6.s6_addr32[1] = 0;
+    }
+
+    if ( inet_ntop(AF_INET6, &ip6, dst, INET6_ADDRSTRLEN) != 0 )
+    {
+        ip6s = dst;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int Leases::Lease::mac_to_number(const string& _mac, unsigned int i_mac[])
 {
     istringstream iss;
@@ -130,22 +152,61 @@ int Leases::Lease::mac_to_number(const string& _mac, unsigned int i_mac[])
 
     iss.str(mac);
 
-    i_mac[PREFIX] = 0;
-    i_mac[SUFFIX] = 0;
+    i_mac[1] = 0;
+    i_mac[0] = 0;
 
-    iss >> hex >> i_mac[PREFIX] >> ws >> hex >> tmp >> ws;
-    i_mac[PREFIX] <<= 8;
-    i_mac[PREFIX] += tmp;
+    iss >> hex >> i_mac[1] >> ws >> hex >> tmp >> ws;
+    i_mac[1] <<= 8;
+    i_mac[1] += tmp;
 
     for (int i=0;i<4;i++)
     {
         iss >> hex >> tmp >> ws;
 
-        i_mac[SUFFIX] <<= 8;
-        i_mac[SUFFIX] += tmp;
+        i_mac[0] <<= 8;
+        i_mac[0] += tmp;
     }
 
     return 0;
+
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Leases::Lease::prefix6_to_number(const string& prefix, unsigned int ip[])
+{
+    struct in6_addr s6;
+    ostringstream   oss;
+
+    if (prefix.empty())
+    {
+        ip[1] = ip[0] = 0;
+        return 0;
+    }
+
+    oss << prefix << ":0:0:0:1";
+
+    int rc = inet_pton(AF_INET6, oss.str().c_str(), &s6);
+
+    if ( rc != 1 )
+    {
+        return -1;
+    }
+
+    ip[1] = ntohl(s6.s6_addr32[0]);
+    ip[0] = ntohl(s6.s6_addr32[1]);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Leases::Lease::mac_to_eui64(const unsigned int  i_mac[], unsigned int eui64[])
+{
+    eui64[1] = ((i_mac[1]+512)<<16) + ((i_mac[0] & 0xFF000000)>>16) + 0x000000FF;
+    eui64[0] = 4261412864 + (i_mac[0] & 0x00FFFFFF);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -162,12 +223,12 @@ void Leases::Lease::mac_to_string(const unsigned int i_mac[], string& mac)
     {
         if ( i < 4 )
         {
-            temp_byte =   i_mac[SUFFIX];
+            temp_byte =   i_mac[0];
             temp_byte >>= i*8;
         }
         else
         {
-            temp_byte  = i_mac[PREFIX];
+            temp_byte  = i_mac[1];
             temp_byte  >>= (i%4)*8;
         }
 
@@ -189,33 +250,44 @@ void Leases::Lease::mac_to_string(const unsigned int i_mac[], string& mac)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-ostream& operator<<(ostream& os, Leases::Lease& _lease)
+string& Leases::Lease::to_xml(string& str,
+                              const unsigned int global[],
+                              const unsigned int site[]) const
 {
-	string xml;
+    string ip_s;
+    string ipl_s, ips_s, ipg_s;
+    string mac_s;
 
-    os << _lease.to_xml(xml);
-
-    return os;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string& Leases::Lease::to_xml(string& str) const
-{
-    string ip;
-    string mac;
+    unsigned int tmp_prefix[2] = {0, 0};
 
     ostringstream os;
 
-    to_string(ip,mac);
+    mac_to_string(mac, mac_s);
+
+    ip_to_string(ip, ip_s);
+
+    ip6_to_string(eui64, tmp_prefix, ipl_s);
 
     os <<
         "<LEASE>" <<
-            "<IP>"  << ip   << "</IP>"  <<
-            "<MAC>" << mac  << "</MAC>" <<
-            "<USED>"<< used << "</USED>"<<
-            "<VID>" << vid  << "</VID>" <<
+            "<MAC>" << mac_s << "</MAC>" <<
+            "<IP>"  << ip_s  << "</IP>"  <<
+            "<IP6_LINK>" << ipl_s << "</IP6_LINK>";
+
+    if (site[1] != 0 || site[0] != 0 )
+    {
+        ip6_to_string(eui64, site, ips_s);
+        os << "<IP6_SITE>" << ips_s << "</IP6_SITE>";
+    }
+
+    if (global[1] != 0 || global[0] != 0 )
+    {
+        ip6_to_string(eui64, global, ipg_s);
+        os << "<IP6_GLOBAL>" << ipg_s << "</IP6_GLOBAL>";
+    }
+
+    os << "<USED>"<< used  << "</USED>"<<
+          "<VID>" << vid   << "</VID>" <<
         "</LEASE>";
 
     str = os.str();
@@ -232,11 +304,11 @@ string& Leases::Lease::to_xml_db(string& str) const
 
     os <<
         "<LEASE>" <<
-            "<IP>"          << ip                   << "</IP>"  <<
-            "<MAC_PREFIX>"  << mac[Lease::PREFIX]   << "</MAC_PREFIX>" <<
-            "<MAC_SUFFIX>"  << mac[Lease::SUFFIX]   << "</MAC_SUFFIX>" <<
-            "<USED>"        << used                 << "</USED>"<<
-            "<VID>"         << vid                  << "</VID>" <<
+            "<IP>"         << ip     << "</IP>"  <<
+            "<MAC_PREFIX>" << mac[1] << "</MAC_PREFIX>" <<
+            "<MAC_SUFFIX>" << mac[0] << "</MAC_SUFFIX>" <<
+            "<USED>"       << used   << "</USED>"<<
+            "<VID>"        << vid    << "</VID>" <<
         "</LEASE>";
 
     str = os.str();
@@ -255,11 +327,13 @@ int Leases::Lease::from_xml(const string &xml_str)
     // Initialize the internal XML object
     update_from_str(xml_str);
 
-    rc += xpath(ip                , "/LEASE/IP"         , 0);
-    rc += xpath(mac[Lease::PREFIX], "/LEASE/MAC_PREFIX" , 0);
-    rc += xpath(mac[Lease::SUFFIX], "/LEASE/MAC_SUFFIX" , 0);
-    rc += xpath(int_used          , "/LEASE/USED"       , 0);
-    rc += xpath(vid               , "/LEASE/VID"        , 0);
+    rc += xpath(ip, "/LEASE/IP", 0);
+
+    rc += xpath(mac[1], "/LEASE/MAC_PREFIX", 0);
+    rc += xpath(mac[0], "/LEASE/MAC_SUFFIX", 0);
+
+    rc += xpath(int_used, "/LEASE/USED", 0);
+    rc += xpath(vid, "/LEASE/VID", 0);
 
     used = static_cast<bool>(int_used);
 
@@ -267,6 +341,8 @@ int Leases::Lease::from_xml(const string &xml_str)
     {
         return -1;
     }
+
+    mac_to_eui64(mac, eui64);
 
     return 0;
 }
@@ -446,6 +522,8 @@ int Leases::hold_leases(vector<const Attribute*>&   vector_leases,
     string  ip;
     string  mac;
 
+    unsigned int tmp[2];
+
     if ( vector_leases.size() > 0 )
     {
         single_attr_lease =
@@ -466,7 +544,7 @@ int Leases::hold_leases(vector<const Attribute*>&   vector_leases,
         return -1;
     }
 
-    rc = set(-1, ip, mac);
+    rc = set(-1, ip, mac, tmp);
 
     if ( rc != 0 )
     {
@@ -535,7 +613,7 @@ string& Leases::to_xml(string& xml) const
 
     for(it=leases.begin();it!=leases.end();it++)
     {
-        os << it->second->to_xml(lease_xml);
+        os << it->second->to_xml(lease_xml, global, site);
     }
 
     xml = os.str();

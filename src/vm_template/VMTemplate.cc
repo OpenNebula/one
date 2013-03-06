@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)           */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs      */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -28,6 +28,7 @@ VMTemplate::VMTemplate(int id,
                        int _gid,
                        const string& _uname,
                        const string& _gname,
+                       int umask,
                        VirtualMachineTemplate * _template_contents):
         PoolObjectSQL(id,TEMPLATE,"",_uid,_gid,_uname,_gname,table),
         regtime(time(0))
@@ -40,6 +41,8 @@ VMTemplate::VMTemplate(int id,
     {
         obj_template = new VirtualMachineTemplate;
     }
+
+    set_umask(umask);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -73,22 +76,17 @@ const char * VMTemplate::db_bootstrap =
 int VMTemplate::insert(SqlDB *db, string& error_str)
 {
     int             rc;
-    ostringstream   oss;
 
     // ---------------------------------------------------------------------
     // Check default attributes
     // ---------------------------------------------------------------------
 
-    // ------------ NAME & TEMPLATE_ID --------------------
-    oss << oid;
-
-    replace_template_attribute("TEMPLATE_ID",oss.str()); 
-
     get_template_attribute("NAME", name);
 
     if ( name.empty() == true )
     {
-        oss.str("");
+        ostringstream  oss;
+
         oss << "template-" << oid;
         name = oss.str();
     }
@@ -204,8 +202,8 @@ string& VMTemplate::to_xml(string& xml) const
             << "<ID>"       << oid        << "</ID>"
             << "<UID>"      << uid        << "</UID>"
             << "<GID>"      << gid        << "</GID>"
-            << "<UNAME>"    << uname      << "</UNAME>" 
-            << "<GNAME>"    << gname      << "</GNAME>" 
+            << "<UNAME>"    << uname      << "</UNAME>"
+            << "<GNAME>"    << gname      << "</GNAME>"
             << "<NAME>"     << name       << "</NAME>"
             << perms_to_xml(perm_str)
             << "<REGTIME>"  << regtime    << "</REGTIME>"

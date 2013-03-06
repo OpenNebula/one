@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -62,9 +62,15 @@ protected:
                              string& vnm,
                              string& tm,
                              string& ds_location,
-                             int& ds_id,
+                             int&    ds_id,
                              RequestAttributes& att,
                              PoolObjectAuth& host_perms);
+
+    bool check_host(int     hid,
+                    int     cpu,
+                    int     mem,
+                    int     disk,
+                    string& error);
 
     int add_history(VirtualMachine * vm,
                     int              hid,
@@ -106,7 +112,7 @@ public:
     VirtualMachineDeploy():
         RequestManagerVirtualMachine("VirtualMachineDeploy",
                                      "Deploys a virtual machine",
-                                     "A:sii")
+                                     "A:siib")
     {
          auth_op = AuthRequest::ADMIN;
     };
@@ -126,7 +132,7 @@ public:
     VirtualMachineMigrate():
         RequestManagerVirtualMachine("VirtualMachineMigrate",
                                      "Migrates a virtual machine",
-                                     "A:siib")
+                                     "A:siibb")
     {
          auth_op = AuthRequest::ADMIN;
     };
@@ -170,8 +176,6 @@ public:
     };
 
     ~VirtualMachineMonitoring(){};
-
-    /* -------------------------------------------------------------------- */
 
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att);
@@ -246,6 +250,72 @@ public:
 };
 
 /* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineResize : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineResize():
+        RequestManagerVirtualMachine("VirtualMachineResize",
+                           "Changes the capacity of the virtual machine",
+                           "A:sidiib"){};
+    ~VirtualMachineResize(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineSnapshotCreate: public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineSnapshotCreate():
+        RequestManagerVirtualMachine("VirtualMachineSnapshotCreate",
+                           "Creates a new virtual machine snapshot",
+                           "A:sis"){};
+
+    ~VirtualMachineSnapshotCreate(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineSnapshotRevert: public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineSnapshotRevert():
+        RequestManagerVirtualMachine("VirtualMachineSnapshotRevert",
+                           "Reverts a virtual machine to a snapshot",
+                           "A:sii"){};
+
+    ~VirtualMachineSnapshotRevert(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineSnapshotDelete: public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineSnapshotDelete():
+        RequestManagerVirtualMachine("VirtualMachineSnapshotDelete",
+                           "Deletes a virtual machine snapshot",
+                           "A:sii"){};
+
+    ~VirtualMachineSnapshotDelete(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -81,14 +81,16 @@ public:
         SHUTDOWN            = 12,
         CANCEL              = 13,
         FAILURE             = 14,
-        CLEANUP             = 15,
+        CLEANUP_RESUBMIT    = 15,
         UNKNOWN             = 16,
         HOTPLUG             = 17,
         SHUTDOWN_POWEROFF   = 18,
         BOOT_UNKNOWN        = 19,
         BOOT_POWEROFF       = 20,
         BOOT_SUSPENDED      = 21,
-        BOOT_STOPPED        = 22
+        BOOT_STOPPED        = 22,
+        CLEANUP_DELETE      = 23,
+        HOTPLUG_SNAPSHOT    = 24
     };
 
     // -------------------------------------------------------------------------
@@ -170,7 +172,7 @@ public:
     };
 
     /**
-     *  Updates VM dynamic information (usage counters).
+     *  Updates VM dynamic information (usage counters), and updates last_poll
      *   @param _memory Kilobytes used by the VM (total)
      *   @param _cpu used by the VM (rate)
      *   @param _net_tx transmitted bytes (total)
@@ -180,28 +182,8 @@ public:
         const int _memory,
         const int _cpu,
         const long long _net_tx,
-        const long long _net_rx)
-    {
-        if (_memory != -1)
-        {
-            memory = _memory;
-        }
-
-        if (_cpu != -1)
-        {
-            cpu    = _cpu;
-        }
-
-        if (_net_tx != -1)
-        {
-            net_tx = _net_tx;
-        }
-
-        if (_net_rx != -1)
-        {
-            net_rx = _net_rx;
-        }
-    };
+        const long long _net_rx,
+        const map<string, string> &custom);
 
     /**
      *  Returns the deployment ID
@@ -702,6 +684,20 @@ public:
                 *(static_cast<VirtualMachineTemplate *>(obj_template)));
     };
 
+    /**
+     *  This function replaces the *user template*.
+     *    @param tmpl_str new contents
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     */
+    int replace_template(const string& tmpl_str, string& error);
+
+    void get_user_template_attribute(
+        const char * name,
+        string&      value) const
+    {
+        user_obj_template->get(name,value);
+    }
 
     // ------------------------------------------------------------------------
     // States
@@ -759,7 +755,7 @@ public:
     };
 
     // ------------------------------------------------------------------------
-    // Timers
+    // Timers &
     // ------------------------------------------------------------------------
     /**
      *  Gets time from last information polling.
@@ -771,21 +767,34 @@ public:
     };
 
     /**
-     *  Sets time of last information polling.
-     *    @param poll time in epoch, normally time(0)
-     */
-    void set_last_poll(time_t poll)
-    {
-        last_poll = poll;
-    };
-
-    /**
      *  Get the VM physical requirements for the host.
      *    @param cpu
      *    @param memory
      *    @param disk
      */
     void get_requirements (int& cpu, int& memory, int& disk);
+
+    /**
+     *  Checks if the resize parameters are valid
+     *    @param cpu New CPU. 0 means unchanged.
+     *    @param memory New MEMORY. 0 means unchanged.
+     *    @param vcpu New VCPU. 0 means unchanged.
+     *    @param error_str Error reason, if any
+     *
+     *    @return 0 on success
+     */
+     int check_resize (float cpu, int memory, int vcpu, string& error_str);
+
+    /**
+     *  Resize the VM capacity
+     *    @param cpu
+     *    @param memory
+     *    @param vcpu
+     *    @param error_str Error reason, if any
+     *
+     *    @return 0 on success
+     */
+     int resize (float cpu, int memory, int vcpu, string& error_str);
 
     // ------------------------------------------------------------------------
     // Network Leases & Disk Images
@@ -1001,6 +1010,54 @@ public:
      */
     int set_attach_nic(int nic_id);
 
+
+    // ------------------------------------------------------------------------
+    // Snapshot related functions
+    // ------------------------------------------------------------------------
+
+    /**
+     * Creates a new Snapshot attribute, and sets it to ACTIVE=YES
+     *
+     * @param name for the new Snapshot. If it is empty, the generated name
+     * will be placed in this param
+     * @param snap_id Id of the new snapshot
+     *
+     * @return 0 on success
+     */
+    int new_snapshot(string& name, int& snap_id);
+
+    /**
+     * Sets the given Snapshot as ACTIVE=YES
+     *
+     * @param snap_id the snapshow ID
+     *
+     * @return 0 on success
+     */
+    int set_active_snapshot(int snap_id);
+
+    /**
+     * Replaces HYPERVISOR_ID for the active SNAPSHOT
+     *
+     * @param hypervisor_id Id returned by the hypervisor for the newly
+     * created snapshot
+     */
+    void update_snapshot_id(string& hypervisor_id);
+
+    /**
+     * Cleans the ACTIVE = YES attribute from the snapshots
+     */
+    void clear_active_snapshot();
+
+    /**
+     * Deletes the SNAPSHOT that was in the process of being created
+     */
+    void delete_active_snapshot();
+
+    /**
+     * Deletes all SNAPSHOT attributes
+     */
+    void delete_snapshots();
+
 private:
 
     // -------------------------------------------------------------------------
@@ -1097,8 +1154,15 @@ private:
      *          $ONE_LOCATION/var/$VID/vm.log
      *  or, in case that OpenNebula is installed in root
      *          /var/log/one/$VM_ID.log
+     *  For the syslog... TODO
      */
-    FileLog * _log;
+    Log * _log;
+
+    /**
+     *  User template to store custom metadata. This template can be updated
+     *
+     */
+    Template * user_obj_template;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -1219,7 +1283,7 @@ private:
     int parse_context(string& error_str);
 
     /**
-     *  Parse the "REQUIREMENTS" attribute of the template by substituting
+     *  Parse the "SCHED_REQUIREMENTS" attribute of the template by substituting
      *  $VARIABLE, $VARIABLE[ATTR] and $VARIABLE[ATTR, ATTR = VALUE]
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
@@ -1239,6 +1303,12 @@ private:
      *  defined
      */
     void parse_graphics();
+
+    /**
+     * Searches the meaningful attributes and moves them from the user template
+     * to the internal template
+     */
+    void parse_well_known_attributes();
 
     /**
      *  Function that renders the VM in XML format optinally including
@@ -1263,6 +1333,7 @@ protected:
                    int gid,
                    const string& uname,
                    const string& gname,
+                   int umask,
                    VirtualMachineTemplate * _vm_template);
 
     virtual ~VirtualMachine();

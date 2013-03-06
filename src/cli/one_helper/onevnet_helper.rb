@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'one_helper'
+require 'one_helper/onevm_helper'
 
 class OneVNetHelper < OpenNebulaHelper::OneHelper
     def self.rname
@@ -97,7 +98,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         OpenNebula::VirtualNetworkPool.new(@client, user_flag)
     end
 
-    def format_resource(vn)
+    def format_resource(vn, options = {})
         str_h1="%-80s"
         CLIHelper.print_header(str_h1 %
             ["VIRTUAL NETWORK #{vn.id.to_s} INFORMATION"])
@@ -111,8 +112,10 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         puts str % ["TYPE", vn.type_str]
         puts str % ["BRIDGE", vn["BRIDGE"]]
         puts str % ["VLAN", OpenNebulaHelper.boolean_to_str(vn['VLAN'])]
-        puts str % ["PHYSICAL DEVICE", vn["PHYDEV"]] if vn["PHYDEV"]
-        puts str % ["VLAN ID", vn["VLAN_ID"]] if vn["VLAN_ID"]
+        puts str % ["PHYSICAL DEVICE", vn["PHYDEV"]] if !vn["PHYDEV"].empty?
+        puts str % ["VLAN ID", vn["VLAN_ID"]] if !vn["VLAN_ID"].empty?
+        puts str % ["GLOBAL PREFIX", vn["GLOBAL_PREFIX"]] if !vn["GLOBAL_PREFIX"].empty?
+        puts str % ["SITE PREFIX", vn["SITE_PREFIX"]] if !vn["SITE_PREFIX"].empty?
         puts str % ["USED LEASES", vn['TOTAL_LEASES']]
         puts
 
@@ -152,5 +155,19 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                 puts leases_str
             end
         }
+
+        puts
+        CLIHelper.print_header("VIRTUAL MACHINES", false)
+        puts
+
+        vms=vn.retrieve_elements("LEASES/LEASE/VID")
+
+        if vms
+            vms=vms.delete_if {|vm| vm=="-1" }
+            vms.map!{|e| e.to_i }
+            onevm_helper=OneVMHelper.new
+            onevm_helper.client=@client
+            onevm_helper.list_pool({:ids=>vms}, false)
+        end
     end
 end

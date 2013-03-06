@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -118,6 +118,15 @@ if mysql=='yes':
 else:
     main_env.Append(mysql='no')
 
+# SysLog
+syslog=ARGUMENTS.get('syslog', 'no')
+if syslog=='yes':
+    main_env.Append(syslog='yes')
+    main_env.Append(CPPFLAGS=["-DSYSLOG_LOG"])
+    main_env.Append(LIBS=['pthread','log4cpp'])
+else:
+    main_env.Append(syslog='no')
+
 # xmlrpc
 xmlrpc_dir=ARGUMENTS.get('xmlrpc', 'none')
 if xmlrpc_dir!='none':
@@ -229,7 +238,7 @@ build_scripts=[
     'share/man/SConstruct',
     'src/sunstone/locale/languages/SConstruct',
     'src/cloud/occi/lib/ui/locale/languages/SConstruct',
-    'share/scripts/context-packages/Sconstruct',
+    'share/scripts/context-packages/SConstruct',
     'share/rubygems/SConstruct'
 ]
 

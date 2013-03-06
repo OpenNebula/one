@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -758,8 +758,15 @@ function popUpConfirmDialog(target_elem){
     var value = $(target_elem).val();
     var tab_id = $(target_elem).parents('.tab').attr('id');
     var button = Sunstone.getButton(tab_id,value);
-    var tip = button.tip;
+
+    if (button.tip == undefined)
+        var tip = tr("You have to confrim this action");
+    else
+        var tip = button.tip
+
     $('button#confirm_proceed',dialog).val(value);
+
+
     $('div#confirm_tip',dialog).text(tip);
     dialog.dialog("open");
 }
@@ -772,7 +779,12 @@ function popUpConfirmWithSelectDialog(target_elem){
     var value = $(target_elem).val();
     var tab_id = $(target_elem).parents('.tab').attr('id');
     var button = Sunstone.getButton(tab_id,value);
-    var tip = button.tip;
+
+    if (button.tip == undefined)
+        var tip = tr("You have to confrim this action");
+    else
+        var tip = button.tip
+
     var select_var = button.select();
     $('select#confirm_select',dialog).html(select_var);
     $('div#confirm_with_select_tip',dialog).text(tip);

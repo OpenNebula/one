@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -36,10 +36,12 @@ public:
 
     // ------------------------------------------------------------------------
     static const long long INDIVIDUAL_ID;
-    
+
     static const long long GROUP_ID;
 
     static const long long ALL_ID;
+
+    static const long long CLUSTER_ID;
     // ------------------------------------------------------------------------
 
     /**
@@ -50,9 +52,9 @@ public:
     /**
      *  Main ACL rule constructor
      */
-    AclRule(int       _oid, 
-            long long _user, 
-            long long _resource, 
+    AclRule(int       _oid,
+            long long _user,
+            long long _resource,
             long long _rights):
         oid(_oid), user(_user), resource(_resource), rights(_rights)
     {
@@ -64,8 +66,8 @@ public:
      */
 
      void set(int       _oid,
-              long long _user, 
-              long long _resource, 
+              long long _user,
+              long long _resource,
               long long _rights)
     {
         oid      = _oid;
@@ -189,8 +191,8 @@ private:
     int oid;
 
     /**
-     *  64 bit integer holding a user compound:      
-     * 
+     *  64 bit integer holding a user compound:
+     *
      *           32 bits                 32 bits
      *  +-----------------------+-----------------------+
      *  | Type (user,group,all) | user/group ID         |
@@ -200,7 +202,7 @@ private:
 
     /**
      *  64 bit integer holding a resource compound
-     * 
+     *
      *           32 bits                 32 bits
      *  +-----------------------+-----------------------+
      *  | Type (VM, Host...)    | resource ID           |
@@ -241,6 +243,11 @@ private:
     static const int num_auth_operations;
 
     static const AuthRequest::Operation auth_operations[];
+
+    /**
+     *  Objects that cannot be used with the CLUSTER(%) selector
+     */
+    static const long long INVALID_CLUSTER_OBJECTS;
 };
 
 #endif /*ACL_RULE_H*/

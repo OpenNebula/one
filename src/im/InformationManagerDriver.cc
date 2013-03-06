@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,6 +16,9 @@
 
 #include "InformationManagerDriver.h"
 #include "NebulaLog.h"
+#include "Nebula.h"
+#include "NebulaUtil.h"
+#include "VirtualMachineManagerDriver.h"
 #include <sstream>
 
 
@@ -45,12 +48,17 @@ void InformationManagerDriver::protocol(
     string          action;
     //stores the action result
     string          result;
-    //stores the action id of the asociated HOSR
+    //stores the action id of the associated HOST
     int             id;
 
     ostringstream   ess;
-    string          hinfo;
+
     Host *          host;
+
+    set<int>        vm_ids;
+
+    string  hinfo64;
+    string* hinfo;
 
     // Parse the driver message
 
@@ -87,6 +95,13 @@ void InformationManagerDriver::protocol(
 
     if ( action == "MONITOR" )
     {
+        bool vm_poll;
+
+        set<int>        lost;
+        map<int,string> found;
+
+        int rc;
+
         host = hpool->get(id,true);
 
         if ( host == 0 )
@@ -94,43 +109,72 @@ void InformationManagerDriver::protocol(
             goto error_host;
         }
 
-        if (result == "SUCCESS")
+        getline (is, hinfo64);
+
+        hinfo = one_util::base64_decode(hinfo64);
+
+        if (result != "SUCCESS")
         {
-            size_t  pos;
-            int     rc;
+            set<int> vm_ids;
 
-            ostringstream oss;
+            host->error_info(*hinfo, vm_ids);
 
-            getline (is,hinfo);
+            Nebula           &ne  = Nebula::instance();
+            LifeCycleManager *lcm = ne.get_lcm();
 
-            for (pos=hinfo.find(',');pos!=string::npos;pos=hinfo.find(','))
+            for (set<int>::iterator it = vm_ids.begin(); it != vm_ids.end(); it++)
             {
-                hinfo.replace(pos,1,"\n");
+                lcm->trigger(LifeCycleManager::MONITOR_DONE, *it);
             }
 
-            hinfo += "\n";
+            delete hinfo;
 
-            oss << "Host " << id << " successfully monitored."; 
-            NebulaLog::log("InM",Log::DEBUG,oss);
+            hpool->update(host);
+            host->unlock();
 
-            rc = host->update_info(hinfo);
-
-            if (rc != 0)
-            {
-                goto error_parse_info;
-            }
-        }
-        else
-        {
-        	goto error_driver_info;
+            return;
         }
 
-        host->touch(true);
+        rc = host->update_info(*hinfo, vm_poll, lost, found);
+
+        delete hinfo;
 
         hpool->update(host);
+
+        if (rc != 0)
+        {
+            host->unlock();
+
+            return;
+        }
+
         hpool->update_monitoring(host);
 
+        ess << "Host " << host->get_name() << " (" << host->get_oid() << ")"
+            << " successfully monitored.";
+
+        NebulaLog::log("InM", Log::DEBUG, ess);
+
         host->unlock();
+
+        if (vm_poll)
+        {
+            set<int>::iterator         its;
+            map<int,string>::iterator  itm;
+
+            Nebula           &ne  = Nebula::instance();
+            LifeCycleManager *lcm = ne.get_lcm();
+
+            for (its = lost.begin(); its != lost.end(); its++)
+            {
+                lcm->trigger(LifeCycleManager::MONITOR_DONE, *its);
+            }
+
+            for (itm = found.begin(); itm != found.end(); itm++)
+            {
+                VirtualMachineManagerDriver::process_poll(itm->first, itm->second);
+            }
+        }
     }
     else if (action == "LOG")
     {
@@ -142,27 +186,6 @@ void InformationManagerDriver::protocol(
 
     return;
 
-error_driver_info:
-	ess << "Error monitoring host " << id << " : " << is.str();
-	goto  error_common_info;
-
-error_parse_info:
-    ess << "Error parsing host information: " << hinfo;
-	goto  error_common_info;
-
-error_common_info:
-    NebulaLog::log("InM",Log::ERROR,ess);
-
-    host->set_template_error_message(ess.str());
-
-    host->touch(false);
-
-    hpool->update(host);
-
-    host->unlock();
-
-    return;
-
 error_host:
     ess << "Could not get host " << id;
     NebulaLog::log("InM",Log::ERROR,ess);
@@ -170,7 +193,6 @@ error_host:
     return;
 
 error_parse:
-
     ess << "Error while parsing driver message: " << message;
     NebulaLog::log("InM",Log::ERROR,ess);
 

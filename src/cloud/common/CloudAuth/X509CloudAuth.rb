@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
+
+require 'opennebula/x509_auth'
 
 module X509CloudAuth
     def do_auth(env, params={})
@@ -32,7 +34,8 @@ module X509CloudAuth
             end
 
             # Password should be DN with whitespace removed.
-            username = get_username(cert.subject.to_s.delete("\s"))
+            username = get_username(
+                OpenNebula::X509Auth.escape_dn(cert.subject.to_s))
 
             return username if username
 

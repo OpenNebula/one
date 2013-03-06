@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -36,6 +36,8 @@ public:
     FixedLeases(SqlDB *                     db,
                 int                         _oid,
                 unsigned int                _mac_prefix,
+                unsigned int                _global[],
+                unsigned int                _site[],
                 vector<const Attribute*>&   vector_leases);
     /**
      *  Create a plain FixedLeases, you can populate the lease pool using
@@ -43,8 +45,10 @@ public:
      */
     FixedLeases(SqlDB *                     db,
                 int                         _oid,
-                unsigned int                _mac_prefix):
-                    Leases(db,_oid,0,_mac_prefix),
+                unsigned int                _mac_prefix,
+                unsigned int                _global[],
+                unsigned int                _site[]):
+                    Leases(db,_oid,0,_mac_prefix,_global,_site),
                     current(leases.begin()){};
 
     ~FixedLeases(){};
@@ -56,7 +60,7 @@ public:
      *   @param mac mac of  the returned lease
      *   @return 0 if success
      */
-    int get(int vid, string&  ip, string&  mac);
+    int get(int vid, string&  ip, string&  mac, unsigned int eui64[]);
 
     /**
      * Ask for a specific lease in the network
@@ -65,7 +69,7 @@ public:
      *  @param mac mac of the lease
      *  @return 0 if success
      */
-    int set(int vid, const string&  ip, string&  mac);
+    int set(int vid, const string&  ip, string&  mac, unsigned int eui64[]);
 
     /**
      * Release an used lease, which becomes unused
@@ -110,7 +114,6 @@ public:
     }
 
 private:
-
     /**
      *  Current lease pointer
      */

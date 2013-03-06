@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -259,8 +259,8 @@ public:
      *    @return 0 on success, -1 otherwise
      */
     int attach(
-        int                      vid, 
-        VirtualMachineTemplate * tmpl, 
+        int                      vid,
+        VirtualMachineTemplate * tmpl,
         string&                  error_str);
 
     /**
@@ -301,6 +301,49 @@ public:
         int      id,
         int      nic_id,
         string&  error_str);
+    /**
+     * Starts the snapshot create action
+     *
+     * @param vid VirtualMachine identification
+     * @param name Name for the new snapshot
+     * @param snap_id Will contain the new snapshot ID
+     * @param error_str Error reason, if any
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int snapshot_create(
+        int         vid,
+        string&     name,
+        int&        snap_id,
+        string&     error_str);
+
+    /**
+     * Starts the snapshot revert action
+     *
+     * @param vid VirtualMachine identification
+     * @param snap_id Snapshot to be restored
+     * @param error_str Error reason, if any
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int snapshot_revert(
+        int         vid,
+        int         snap_id,
+        string&     error_str);
+
+    /**
+     * Starts the snapshot delete action
+     *
+     * @param vid VirtualMachine identification
+     * @param snap_id Snapshot to be deleted
+     * @param error_str Error reason, if any
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int snapshot_delete(
+        int         vid,
+        int         snap_id,
+        string&     error_str);
 
 private:
     /**

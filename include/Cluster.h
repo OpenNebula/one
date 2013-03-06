@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)           */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs      */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -32,20 +32,13 @@ class Cluster : public PoolObjectSQL
 public:
 
     /**
-     * Returns the SYSTEM_DS attribute, or the system DS id if it is not defined
+     * Returns the SYSTEM_DS attribute
      *
-     * @return the SYSTEM_DS attribute, or the system DS id if it is not defined
+     * @return the SYSTEM_DS attribute
      */
     int get_ds_id()
     {
-        int ds_id;
-
-        if ( obj_template->get("SYSTEM_DS", ds_id) == false )
-        {
-            ds_id = DatastorePool::SYSTEM_DS_ID;
-        }
-
-        return ds_id;
+        return system_ds;
     }
 
     /**
@@ -100,32 +93,11 @@ public:
     /**
      *  Adds this datastore ID to the set.
      *    @param id to be added to the cluster
+     *    @param ds_type Datastore type
      *    @param error_msg Error message, if any
      *    @return 0 on success
      */
-    int add_datastore(int id, string& error_msg)
-    {
-        // TODO: should fail for any system DS?
-        if ( id == DatastorePool::SYSTEM_DS_ID )
-        {
-            ostringstream oss;
-            oss << "Datastore '"<< DatastorePool::SYSTEM_DS_NAME
-                << "' cannot be added to any cluster.";
-
-            error_msg = oss.str();
-
-            return -1;
-        }
-
-        int rc = datastores.add_collection_id(id);
-
-        if ( rc < 0 )
-        {
-            error_msg = "Datastore ID is already in the cluster set.";
-        }
-
-        return rc;
-    }
+    int add_datastore(int id, Datastore::DatastoreType ds_type, string& error_msg);
 
     /**
      *  Deletes this datastore ID from the set.
@@ -133,17 +105,7 @@ public:
      *    @param error_msg Error message, if any
      *    @return 0 on success
      */
-    int del_datastore(int id, string& error_msg)
-    {
-        int rc = datastores.del_collection_id(id);
-
-        if ( rc < 0 )
-        {
-            error_msg = "Datastore ID is not part of the cluster set.";
-        }
-
-        return rc;
-    }
+    int del_datastore(int id, string& error_msg);
 
     /**
      *  Adds this vnet ID to the set.
@@ -219,12 +181,17 @@ private:
     virtual ~Cluster(){};
 
     // *************************************************************************
-    // Object Collections (Private)
+    // Attributes (Private)
     // *************************************************************************
 
     ObjectCollection hosts;
     ObjectCollection datastores;
     ObjectCollection vnets;
+
+    /**
+     * System datastore id
+     */
+    int system_ds;
 
     // *************************************************************************
     // DataBase implementation (Private)

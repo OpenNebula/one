@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'one_helper'
+require 'one_helper/onevm_helper'
 
 class OneImageHelper < OpenNebulaHelper::OneHelper
     TEMPLATE_OPTIONS=[
@@ -101,14 +102,14 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         {
             :name => "disk_type",
             :large => "--disk_type disk_type",
-            :description => "Type of the image (BLOCK, CDROM or FILE)",
+            :description => "Type of the image (BLOCK, CDROM, RBD or FILE)",
             :format => String,
             :proc => lambda do |o, options|
                 type=o.strip.upcase
-                if %w{BLOCK CDROM FILE}.include? type
+                if %w{BLOCK CDROM FILE RBD}.include? type
                     [0, type]
                 else
-                    [-1, "Disk type must be BLOCK, CDROM or FILE"]
+                    [-1, "Disk type must be BLOCK, CDROM, RBD or FILE"]
                 end
             end
         },
@@ -261,7 +262,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         OpenNebula::ImagePool.new(@client, user_flag)
     end
 
-    def format_resource(image)
+    def format_resource(image, options = {})
         str="%-15s: %-20s"
         str_h1="%-80s"
 
@@ -298,6 +299,19 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
 
         CLIHelper.print_header(str_h1 % "IMAGE TEMPLATE",false)
         puts image.template_str
+
+        puts
+        CLIHelper.print_header("VIRTUAL MACHINES", false)
+        puts
+
+        vms=image.retrieve_elements("VMS/ID")
+
+        if vms
+            vms.map!{|e| e.to_i }
+            onevm_helper=OneVMHelper.new
+            onevm_helper.client=@client
+            onevm_helper.list_pool({:ids=>vms}, false)
+        end
     end
 
     def self.create_image_variables(options, name)
@@ -323,9 +337,12 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         end
 
         template=create_image_variables(
-            options, template_options-[:persistent, :dry])
+            options, template_options-[:persistent, :dry, :prefix])
 
         template<<"PERSISTENT=YES\n" if options[:persistent]
+        if options[:prefix]
+            template<<"DEV_PREFIX=\"#{options[:prefix]}\"\n"
+        end
 
         [0, template]
     end

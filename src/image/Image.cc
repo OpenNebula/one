@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)           */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs      */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -38,6 +38,7 @@ Image::Image(int             _uid,
              int             _gid,
              const string&   _uname,
              const string&   _gname,
+             int             _umask,
              ImageTemplate * _image_template):
         PoolObjectSQL(-1,IMAGE,"",_uid,_gid,_uname,_gname,table),
         type(OS),
@@ -64,6 +65,8 @@ Image::Image(int             _uid,
     {
         obj_template = new ImageTemplate;
     }
+
+    set_umask(_umask);
 }
 
 Image::~Image()
@@ -474,6 +477,8 @@ int Image::disk_attribute(  VectorAttribute * disk,
     string driver;
     string disk_attr_type;
 
+    bool ro;
+
     ostringstream iid;
 
     img_type   = type;
@@ -484,13 +489,17 @@ int Image::disk_attribute(  VectorAttribute * disk,
 
     string template_target;
     string template_driver;
+    string template_ptype;
 
     get_template_attribute("TARGET", template_target);
     get_template_attribute("DRIVER", template_driver);
+    get_template_attribute("PERSISTENT_TYPE", template_ptype);
 
-   //---------------------------------------------------------------------------
-   //                       DEV_PREFIX ATTRIBUTE
-   //---------------------------------------------------------------------------
+    TO_UPPER(template_ptype);
+
+    //---------------------------------------------------------------------------
+    //                       DEV_PREFIX ATTRIBUTE
+    //---------------------------------------------------------------------------
     if ( dev_prefix.empty() ) //DEV_PEFIX not in DISK, check for it in IMAGE
     {
         get_template_attribute("DEV_PREFIX", dev_prefix);
@@ -503,9 +512,9 @@ int Image::disk_attribute(  VectorAttribute * disk,
         disk->replace("DEV_PREFIX", dev_prefix);
     }
 
-   //---------------------------------------------------------------------------
-   //                       BASE DISK ATTRIBUTES
-   //---------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+    //                       BASE DISK ATTRIBUTES
+    //--------------------------------------------------------------------------
     disk->replace("IMAGE",    name);
     disk->replace("IMAGE_ID", iid.str());
     disk->replace("SOURCE",   source);
@@ -515,44 +524,72 @@ int Image::disk_attribute(  VectorAttribute * disk,
         disk->replace("DRIVER",template_driver);
     }
 
-   //---------------------------------------------------------------------------
-   //   TYPE, READONLY, CLONE, and SAVE attributes
-   //---------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+    //   READONLY attribute
+    //--------------------------------------------------------------------------
+    if ( type == CDROM || template_ptype == "IMMUTABLE" )
+    {
+        disk->replace("READONLY", "YES");
+    }
+    else if ( disk->vector_value("READONLY", ro) != 0 )
+    {
+        if ( get_template_attribute("READONLY", ro) )
+        {
+            disk->replace("READONLY", ro);
+        }
+        else
+        {
+            disk->replace("READONLY", "NO");
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    //   CLONE & SAVE attributes
+    //--------------------------------------------------------------------------
     if ( persistent_img )
     {
-        disk->replace("CLONE","NO");
-        disk->replace("SAVE","YES");
-        disk->replace("PERSISTENT","YES");
+        disk->replace("PERSISTENT", "YES");
+        disk->replace("CLONE", "NO");
+
+        if ( template_ptype == "IMMUTABLE" )
+        {
+            disk->replace("SAVE", "NO");
+        }
+        else
+        {
+            disk->replace("SAVE", "YES");
+        }
     }
     else
     {
-        disk->replace("CLONE","YES");
-        disk->replace("SAVE","NO");
+        disk->replace("CLONE", "YES");
+        disk->replace("SAVE", "NO");
     }
 
+    //--------------------------------------------------------------------------
+    //   TYPE attribute
+    //--------------------------------------------------------------------------
     switch(type)
     {
         case OS:
-        case DATABLOCK: //Type is FILE or BLOCK as inherited from the DS
-          disk_attr_type = disk_type_to_str(disk_type);
-          disk->replace("READONLY","NO");
+        case DATABLOCK:
+        case RBD: //Type is FILE or BLOCK as inherited from the DS
+            disk_attr_type = disk_type_to_str(disk_type);
         break;
 
         case CDROM: //Always use CDROM type for these ones
-          disk_attr_type = "CDROM";
-          disk->replace("READONLY","YES");
+            disk_attr_type = "CDROM";
         break;
 
         default: //Other file types should not be never a DISK
         break;
     }
 
-    disk->replace("TYPE",disk_attr_type);
+    disk->replace("TYPE", disk_attr_type);
 
-    //---------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     //   TARGET attribute
-    //---------------------------------------------------------------------------
-
+    //--------------------------------------------------------------------------
     // TARGET defined in the Image template, but not in the DISK attribute
     if ( target.empty() && !template_target.empty() )
     {

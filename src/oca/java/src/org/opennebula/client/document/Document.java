@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)
+ * Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,6 +65,7 @@ public abstract class Document extends PoolElement
     private static final String CHOWN    = METHOD_PREFIX + "chown";
     private static final String CHMOD    = METHOD_PREFIX + "chmod";
     private static final String CLONE    = METHOD_PREFIX + "clone";
+    private static final String RENAME   = METHOD_PREFIX + "rename";
 
     /**
      * Creates a new Document representation.
@@ -213,6 +214,17 @@ public abstract class Document extends PoolElement
     public OneResponse clone(String name)
     {
         return client.call(CLONE, id, name);
+    }
+
+    /**
+     * Renames this document
+     *
+     * @param name New name for the document.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse rename(String name)
+    {
+        return client.call(RENAME, id, name);
     }
 
     // =================================

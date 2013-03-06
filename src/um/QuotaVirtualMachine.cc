@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -117,3 +117,25 @@ int QuotaVirtualMachine::get_default_quota(
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+bool QuotaVirtualMachine::update(Template * tmpl,
+                                 Quotas& default_quotas,
+                                 string& error)
+{
+    map<string, float> vm_request;
+
+    int   delta_memory;
+    float delta_cpu;
+
+    if ( tmpl->get("MEMORY", delta_memory) == true )
+    {
+        vm_request.insert(make_pair("MEMORY", delta_memory));
+    }
+
+    if ( tmpl->get("CPU", delta_cpu) == true )
+    {
+        vm_request.insert(make_pair("CPU", delta_cpu));
+    }
+
+    return check_quota("", vm_request, default_quotas, error);
+}

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -29,4 +29,9 @@ export SHUTDOWN_TIMEOUT=300
 # Uncomment this line to force VM's without ACPI enabled to be destroyed
 # on shutdown
 #CANCEL_NO_ACPI=yes
+
+# This parameter will set the default cache type for new attached disks. It
+# will be used in case the attached disk does not have an specific cache
+# method set (can be set using templates when attaching a disk).
+#DEFAULT_ATTACH_CACHE=none
 

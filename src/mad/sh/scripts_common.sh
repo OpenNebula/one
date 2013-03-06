@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -28,6 +28,7 @@ GREP=grep
 ISCSIADM=iscsiadm
 LVCREATE=lvcreate
 LVREMOVE=lvremove
+LVRENAME=lvrename
 LVS=lvs
 LN=ln
 MD5SUM=md5sum
@@ -35,7 +36,9 @@ MKFS=mkfs
 MKISOFS=genisoimage
 MKSWAP=mkswap
 QEMU_IMG=qemu-img
+RBD=rbd
 READLINK=readlink
+RM=rm
 SCP=scp
 SED=sed
 SSH=ssh
@@ -44,6 +47,7 @@ SYNC=sync
 TAR=tar
 TGTADM=tgtadm
 TGTADMIN=tgt-admin
+TGTSETUPLUN=tgt-setup-lun-one
 VMKFSTOOLS=vmkfstools
 WGET=wget
 
@@ -242,7 +246,7 @@ function mkfs_command {
         "jfs")
             OPTS="-q"
             ;;
-        "raw")
+        "raw"|"")
             echo ""
             return 0
             ;;
@@ -349,12 +353,12 @@ function tgtadm_target_delete {
 
 function tgtadm_get_tid_for_iqn {
     IQN="$1"
-    echo "$TGTADM --lld iscsi --op show --mode target | \
+    echo "$TGTADM --lld iscsi --op show --mode target | strings | \
         grep \"$IQN\" | awk '{split(\$2,tmp,\":\"); print(tmp[1]);}'"
 }
 
 function tgtadm_next_tid {
-    echo "$TGTADM --lld iscsi --op show --mode target | \
+    echo "$TGTADM --lld iscsi --op show --mode target | strings | \
             $GREP \"Target\" | tail -n 1 | \
             $AWK '{split(\$2,tmp,\":\"); print tmp[1]+1;}'"
 }
@@ -402,6 +406,30 @@ function iqn_get_vg_name {
     echo $TARGET|$AWK -F. '{print $(NF-1)}'
 }
 
+function tgt_setup_lun_install {
+    DST_HOST="$1"
+    BASE_PATH="$2"
+
+    CHECK_FILE="$BASE_PATH/.tgt-setup-lun"
+
+    if [ ! -f "$CHECK_FILE" ]; then
+        $SSH "$DST_HOST" "$SUDO $TGTSETUPLUN" 2>&1 | \
+            $GREP -q "command not found"
+        if [ "$?" = "0" ]; then
+            error_message "$TGTSETUPLUN is not installed in $DST_HOST."
+            exit 127
+        else
+            touch "$CHECK_FILE"
+        fi
+    fi
+}
+
+function tgt_setup_lun {
+    IQN="$1"
+    DEV="$2"
+    echo "$TGTSETUPLUN -d $DEV -n $IQN 1>&2"
+}
+
 function iqn_get_host {
     IQN="$1"
     TARGET=`echo "$IQN"|$CUT -d: -f2`
@@ -426,10 +454,10 @@ function vmfs_set_up {
     if [ "$USE_SSH" != "yes" ]; then
         USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3|tr -d '"')`
         PASSWORD=`echo $(cat $VMWARERC |grep ":password:"|cut -d":" -f 3|tr -d '"')`
-        if [ -z $PASSWORD ]; then       
-            VI_PARAMS="--server $DST_HOST --username $USERNAME --password \"\""    
-        else       
-            VI_PARAMS="--server $DST_HOST --username $USERNAME --password $PASSWORD"    
+        if [ -z $PASSWORD ]; then
+            VI_PARAMS="--server $DST_HOST --username $USERNAME --password \"\""
+        else
+            VI_PARAMS="--server $DST_HOST --username $USERNAME --password $PASSWORD"
         fi
     fi
 }

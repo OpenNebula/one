@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -54,6 +54,7 @@ public:
      *    @param gid the id of the group this object is assigned to
      *    @param uname name of the user
      *    @param gname name of the group
+     *    @param umask permissions umask
      *    @param img_template template associated with the image
      *    @param ds_id the id of the datastore
      *    @param ds_name the name of the datastore
@@ -73,6 +74,7 @@ public:
         int                      gid,
         const string&            uname,
         const string&            gname,
+        int                      umask,
         ImageTemplate *          img_template,
         int                      ds_id,
         const string&            ds_name,
@@ -219,7 +221,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new Image(-1,-1,"","",0);
+        return new Image(-1,-1,"","",0,0);
     };
 };
 

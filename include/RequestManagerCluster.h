@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -65,7 +65,24 @@ protected:
             PoolSQL *                   pool,
             PoolObjectSQL::ObjectType   type);
 
-    virtual int add_object(Cluster* cluster, int id, string& error_msg) = 0;
+    virtual Datastore::DatastoreType get_ds_type(PoolObjectSQL *obj)
+    {
+        return Datastore::FILE_DS;
+    };
+
+    /**
+     * Add object to cluster id collection
+     * @param cluster where to add the object
+     * @param id of the object
+     * @param ds_type Datastore type, will be ignored for different objects
+     * @param error_msg Error reason, if any
+     * @return 0 on success
+     */
+    virtual int add_object(
+            Cluster* cluster,
+            int id,
+            Datastore::DatastoreType ds_type,
+            string& error_msg) = 0;
 
     virtual int del_object(Cluster* cluster, int id, string& error_msg) = 0;
 
@@ -86,7 +103,11 @@ public:
 
     ~RequestManagerClusterHost(){};
 
-    virtual int add_object(Cluster* cluster, int id, string& error_msg)
+    virtual int add_object(
+            Cluster* cluster,
+            int id,
+            Datastore::DatastoreType ds_type,
+            string& error_msg)
     {
         return cluster->add_host(id, error_msg);
     };
@@ -169,9 +190,18 @@ public:
 
     ~RequestManagerClusterDatastore(){};
 
-    virtual int add_object(Cluster* cluster, int id, string& error_msg)
+    virtual Datastore::DatastoreType get_ds_type(PoolObjectSQL *obj)
     {
-        return cluster->add_datastore(id, error_msg);
+        return static_cast<Datastore*>(obj)->get_type();
+    };
+
+    virtual int add_object(
+            Cluster* cluster,
+            int id,
+            Datastore::DatastoreType ds_type,
+            string& error_msg)
+    {
+        return cluster->add_datastore(id, ds_type, error_msg);
     };
 
     virtual int del_object(Cluster* cluster, int id, string& error_msg)
@@ -253,7 +283,11 @@ public:
 
     ~RequestManagerClusterVNet(){};
 
-    virtual int add_object(Cluster* cluster, int id, string& error_msg)
+    virtual int add_object(
+            Cluster* cluster,
+            int id,
+            Datastore::DatastoreType ds_type,
+            string& error_msg)
     {
         return cluster->add_vnet(id, error_msg);
     };

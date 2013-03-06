@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -172,23 +172,60 @@ public:
     // --------------------------------------------------------------
 
     /**
-     *  Returns the value of DEBUG_LEVEL in oned.conf file
+     *  Returns the value of LOG->DEBUG_LEVEL in oned.conf file
      *      @return the debug level, to instantiate Log'ers
      */
     Log::MessageType get_debug_level() const
     {
-        Log::MessageType    clevel = Log::ERROR;
-        int                 log_level_int;
+        Log::MessageType            clevel = Log::ERROR;
+        vector<const Attribute *>   logs;
+        int                         rc;
+        int                         log_level_int;
 
-        nebula_configuration->get("DEBUG_LEVEL", log_level_int);
+        rc = nebula_configuration->get("LOG", logs);
 
-        if (0 <= log_level_int && log_level_int <= 3 )
+        if ( rc != 0 )
         {
-            clevel = static_cast<Log::MessageType>(log_level_int);
+            string value;
+            const VectorAttribute * log = static_cast<const VectorAttribute *>
+                                                          (logs[0]);
+            value = log->vector_value("DEBUG_LEVEL");
+
+            log_level_int = atoi(value.c_str());
+
+            if (0 <= log_level_int && log_level_int <= 3 )
+            {
+                clevel = static_cast<Log::MessageType>(log_level_int);
+            }
         }
 
         return clevel;
     }
+
+    /**
+     *  Returns the value of LOG->SYSTEM in oned.conf file
+     *      @return the logging system CERR, FILE_TS or SYSLOG
+     */
+    NebulaLog::LogType get_log_system() const
+    {
+        vector<const Attribute *> logs;
+        int                       rc;
+        NebulaLog::LogType        log_system = NebulaLog::UNDEFINED;
+
+        rc = nebula_configuration->get("LOG", logs);
+
+        if ( rc != 0 )
+        {
+            string value;
+            const VectorAttribute * log = static_cast<const VectorAttribute *>
+                                                          (logs[0]);
+
+            value      = log->vector_value("SYSTEM");
+            log_system = NebulaLog::str_to_type(value);
+        }
+
+        return log_system;
+    };
 
     /**
      *  Returns the value of ONE_LOCATION env variable. When this variable is
@@ -288,11 +325,19 @@ public:
     	return oss.str();
     };
 
+    /**
+     *  Returns the name of the host running oned
+     *    @return the name
+     */
     const string& get_nebula_hostname()
     {
         return hostname;
     };
 
+    /**
+     *  Returns the version of oned
+     *    @return the version
+     */
     static string version()
     {
         return "OpenNebula 3.9.0";
@@ -303,32 +348,74 @@ public:
         return "3.9.0";
     }
 
+    /**
+     *  Starts all the modules and services for OpenNebula
+     */
     void start();
 
+    // -----------------------------------------------------------------------
+    // Configuration attributes (read from oned.conf)
+    // -----------------------------------------------------------------------
+
+    /**
+     *  Gets a configuration attribute for oned
+     *    @param name of the attribute
+     *    @param value of the attribute
+     */
     void get_configuration_attribute(
         const char * name,
         string& value) const
     {
         string _name(name);
 
-        nebula_configuration->Template::get(_name,value);
+        nebula_configuration->Template::get(_name, value);
     };
 
+    /**
+     *  Gets a configuration attribute for oned, bool version
+     */
+    void get_configuration_attribute(
+        const char * name,
+        bool& value) const
+    {
+        string _name(name);
+
+        nebula_configuration->Template::get(_name, value);
+    };
+
+    /**
+     *  Gets an XML document with all of the configuration attributes
+     *    @return the XML
+     */
     string get_configuration_xml() const
     {
         string xml;
         return nebula_configuration->to_xml(xml);
     };
 
+    // -----------------------------------------------------------------------
+    // Default Quotas
+    // -----------------------------------------------------------------------
+
+    /**
+     *  Get the default quotas for OpenNebula users
+     *    @return the default quotas
+     */
     const DefaultQuotas& get_default_user_quota()
     {
         return default_user_quota;
     };
 
+    /**
+     *  Set the default quotas for OpenNebula users
+     *    @param tmpl template with the default quotas
+     *    @param error describes the error if any
+     *
+     *    @return 0 if success
+     */
     int set_default_user_quota(Template *tmpl, string& error)
     {
-        int rc;
-        rc = default_user_quota.set(tmpl, error);
+        int rc = default_user_quota.set(tmpl, error);
 
         if ( rc == 0 )
         {
@@ -338,15 +425,25 @@ public:
         return rc;
     };
 
+    /**
+     *  Get the default quotas for OpenNebula for groups
+     *    @return the default quotas
+     */
     const DefaultQuotas& get_default_group_quota()
     {
         return default_group_quota;
     };
 
+    /**
+     *  Set the default quotas for OpenNebula groups
+     *    @param tmpl template with the default quotas
+     *    @param error describes the error if any
+     *
+     *    @return 0 if success
+     */
     int set_default_group_quota(Template *tmpl, string& error)
     {
-        int rc;
-        rc = default_group_quota.set(tmpl, error);
+        int rc = default_group_quota.set(tmpl, error);
 
         if ( rc == 0 )
         {

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -19,10 +19,12 @@ require 'base64'
 require 'fileutils'
 require 'yaml'
 
+module OpenNebula; end
+
 # X509 authentication class. It can be used as a driver for auth_mad
 # as auth method is defined. It also holds some helper methods to be used
 # by oneauth command
-class X509Auth
+class OpenNebula::X509Auth
     ###########################################################################
     #Constants with paths to relevant files and defaults
     ###########################################################################
@@ -39,6 +41,14 @@ class X509Auth
     X509_DEFAULTS = {
         :ca_dir   => ETC_LOCATION + "/auth/certificates"
     }
+
+    def self.escape_dn(dn)
+        dn.gsub(/\s/) { |s| "\\"+s[0].ord.to_s(16) }
+    end
+
+    def self.unescape_dn(dn)
+        dn.gsub(/\\[0-9a-f]{2}/) { |s| s[1,2].to_i(16).chr }
+    end
 
     ###########################################################################
     # Initialize x509Auth object
@@ -79,7 +89,7 @@ class X509Auth
     # Returns a valid password string to create a user using this auth driver.
     # In this case the dn of the user certificate.
     def password
-        @cert_chain[0].subject.to_s.delete("\s")
+        self.class.escape_dn(@cert_chain[0].subject.to_s)
     end
 
     # Generates a login token in the form:
@@ -121,7 +131,8 @@ class X509Auth
 
             # Some DN in the chain must match a DN in the password
             dn_ok = @cert_chain.each do |cert|
-                if pass.split('|').include?(cert.subject.to_s.delete("\s"))
+                if pass.split('|').include?(
+                        self.class.escape_dn(cert.subject.to_s))
                     break true
                 end
             end

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -56,9 +56,14 @@ int LibVirtDriver::deployment_description_kvm(
     string  ro         = "";
     string  driver     = "";
     string  cache      = "";
+    string  disk_io    = "";
+    string  source     = "";
+    string  clone      = "";
+
     int     disk_id;
-    string  default_driver       = "";
-    string  default_driver_cache = "";
+    string  default_driver          = "";
+    string  default_driver_cache    = "";
+    string  default_driver_disk_io  = "";
     bool    readonly;
 
     const VectorAttribute * nic;
@@ -84,8 +89,11 @@ int LibVirtDriver::deployment_description_kvm(
 
     const VectorAttribute * features;
 
-    string     pae     = "";
-    string     acpi    = "";
+    bool pae  = false;
+    bool acpi = false;
+
+    int pae_found  = -1;
+    int acpi_found = -1;
 
     const VectorAttribute * raw;
     string default_raw;
@@ -295,6 +303,7 @@ int LibVirtDriver::deployment_description_kvm(
        default_driver_cache = "default";
     }
 
+    get_default("DISK","IO",default_driver_disk_io);
     // ------------------------------------------------------------------------
 
     num = vm->get_template_attribute("DISK",attrs);
@@ -305,7 +314,7 @@ int LibVirtDriver::deployment_description_kvm(
 
         if ( disk == 0 )
         {
-         continue;
+            continue;
         }
 
         type   = disk->vector_value("TYPE");
@@ -313,6 +322,10 @@ int LibVirtDriver::deployment_description_kvm(
         ro     = disk->vector_value("READONLY");
         driver = disk->vector_value("DRIVER");
         cache  = disk->vector_value("CACHE");
+        disk_io= disk->vector_value("IO");
+        source = disk->vector_value("SOURCE");
+        clone  = disk->vector_value("CLONE");
+
         disk->vector_value_str("DISK_ID", disk_id);
 
         if (target.empty())
@@ -324,7 +337,7 @@ int LibVirtDriver::deployment_description_kvm(
 
         if ( !ro.empty() )
         {
-            transform(ro.begin(),ro.end(),ro.begin(),(int(*)(int))toupper);
+            one_util::toupper(ro);
 
             if ( ro == "YES" )
             {
@@ -334,13 +347,26 @@ int LibVirtDriver::deployment_description_kvm(
 
         // ---- Disk type and source for the image ----
 
-        transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
+        one_util::toupper(type);
 
         if ( type == "BLOCK" )
         {
             file << "\t\t<disk type='block' device='disk'>" << endl
                  << "\t\t\t<source dev='" << vm->get_remote_system_dir()
                  << "/disk." << disk_id << "'/>" << endl;
+        }
+        else if ( type == "RBD" )
+        {
+            file << "\t\t<disk type='network' device='disk'>" << endl
+                 << "\t\t\t<source protocol='rbd' name='"
+                 << source;
+
+            if ( clone == "YES" )
+            {
+                file << "-" << vm->get_oid() << "-" << disk_id;
+            }
+
+            file << "'/>" << endl;
         }
         else if ( type == "CDROM" )
         {
@@ -387,14 +413,23 @@ int LibVirtDriver::deployment_description_kvm(
 
         if ( !cache.empty() )
         {
-            file << cache << "'/>" << endl;
+            file << cache << "'";
         }
         else
         {
-            file << default_driver_cache << "'/>" << endl;
+            file << default_driver_cache << "'";
         }
 
-        file << "\t\t</disk>" << endl;
+        if ( !disk_io.empty() )
+        {
+            file << " io='" << disk_io << "'";
+        }
+        else if ( !default_driver_disk_io.empty() )
+        {
+            file << " io='" << default_driver_disk_io << "'";
+        }
+
+        file << "/>" << endl << "\t\t</disk>" << endl;
     }
 
     attrs.clear();
@@ -471,6 +506,11 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t\t<source bridge='" << bridge << "'/>" << endl;
         }
 
+        if ( vm->get_vnm_mad() == "ovswitch" )
+        {
+            file << "\t\t\t<virtualport type='openvswitch'/>" << endl;
+        }
+
         if( !mac.empty() )
         {
             file << "\t\t\t<mac address='" << mac << "'/>" << endl;
@@ -545,10 +585,7 @@ int LibVirtDriver::deployment_description_kvm(
             passwd = graphics->vector_value("PASSWD");
             keymap = graphics->vector_value("KEYMAP");
 
-            transform(type.begin(),
-                      type.end(),
-                      type.begin(),
-                      (int(*)(int))tolower);
+            one_util::tolower(type);
 
             if ( type == "vnc" || type == "spice" )
             {
@@ -629,31 +666,31 @@ int LibVirtDriver::deployment_description_kvm(
 
         if ( features != 0 )
         {
-            pae  = features->vector_value("PAE");
-            acpi = features->vector_value("ACPI");
+            pae_found  = features->vector_value("PAE", pae);
+            acpi_found = features->vector_value("ACPI", acpi);
         }
     }
 
-    if ( pae.empty() )
+    if ( pae_found != 0 )
     {
         get_default("FEATURES", "PAE", pae);
     }
 
-    if ( acpi.empty() )
+    if ( acpi_found != 0 )
     {
         get_default("FEATURES", "ACPI", acpi);
     }
 
-    if( acpi == "yes" || pae == "yes" )
+    if( acpi || pae )
     {
         file << "\t<features>" << endl;
 
-        if ( pae == "yes" )
+        if ( pae )
         {
             file << "\t\t<pae/>" << endl;
         }
 
-        if ( acpi == "yes" )
+        if ( acpi )
         {
             file << "\t\t<acpi/>" << endl;
         }
@@ -680,7 +717,7 @@ int LibVirtDriver::deployment_description_kvm(
 
         type = raw->vector_value("TYPE");
 
-        transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
+        one_util::toupper(type);
 
         if ( type == "KVM" )
         {

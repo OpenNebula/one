@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -66,6 +66,14 @@ public:
         ATTACH_NIC_FAILURE,/**< Sent by the VMM when an attach nic action fails    */
         DETACH_NIC_SUCCESS,/**< Sent by the VMM when a detach nic action succeeds  */
         DETACH_NIC_FAILURE,/**< Sent by the VMM when a detach nic action fails     */
+        CLEANUP_SUCCESS,  /**< Sent by the VMM when a cleanup action succeeds */
+        CLEANUP_FAILURE,  /**< Sent by the VMM when a cleanup action fails    */
+        SNAPSHOT_CREATE_SUCCESS, /**< Sent by the VMM on snap. create success */
+        SNAPSHOT_CREATE_FAILURE, /**< Sent by the VMM on snap. create failure */
+        SNAPSHOT_REVERT_SUCCESS, /**< Sent by the VMM on snap. revert success */
+        SNAPSHOT_REVERT_FAILURE, /**< Sent by the VMM on snap. revert failure */
+        SNAPSHOT_DELETE_SUCCESS, /**< Sent by the VMM on snap. revert success */
+        SNAPSHOT_DELETE_FAILURE, /**< Sent by the VMM on snap. revert failure */
         DEPLOY,           /**< Sent by the DM to deploy a VM on a host        */
         SUSPEND,          /**< Sent by the DM to suspend an running VM        */
         RESTORE,          /**< Sent by the DM to restore a suspended VM       */
@@ -149,7 +157,7 @@ private:
      *  the history registers
      *      @param vm with the lock aquired
      */
-    void clean_up_vm (VirtualMachine *vm);
+    void clean_up_vm (VirtualMachine *vm, bool dispose);
 
     void save_success_action(int vid);
 
@@ -196,6 +204,20 @@ private:
     void detach_nic_success_action(int vid);
 
     void detach_nic_failure_action(int vid);
+
+    void cleanup_callback_action(int vid);
+
+    void snapshot_create_success(int vid);
+
+    void snapshot_create_failure(int vid);
+
+    void snapshot_revert_success(int vid);
+
+    void snapshot_revert_failure(int vid);
+
+    void snapshot_delete_success(int vid);
+
+    void snapshot_delete_failure(int vid);
 
     void deploy_action(int vid);
 

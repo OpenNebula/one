@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -141,12 +141,26 @@ public:
      *    @param tmpl template for the VirtualMachine
      *    @param default_quotas Quotas that contain the default limits
      *    @param error_str string describing the error
-     *    @return true if VM can be allocated, false otherwise
+     *    @return true if resource can be allocated, false otherwise
      */
      bool quota_check(QuotaType type,
                      Template *tmpl,
                      Quotas& default_quotas,
                      string& error_str);
+
+    /**
+     *  Update usage of an existing quota (e.g. size of an image), it updates
+     *  the usage counters if quotas are not exceeded.
+     *    @param type the quota to work with
+     *    @param tmpl template for the VirtualMachine
+     *    @param default_quotas Quotas that contain the default limits
+     *    @param error_str string describing the error
+     *    @return true if resource can be updated, false otherwise
+     */
+     bool quota_update(QuotaType type,
+                       Template *tmpl,
+                       Quotas& default_quotas,
+                       string& error_str);
 
     /**
      *  Delete usage from the given quota counters.

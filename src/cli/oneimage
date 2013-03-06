@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -81,7 +81,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         if Image::IMAGE_TYPES.include? type
             [0, type]
         else
-            [1, "Image type not supported. Must be #{Image::IMAGE_TYPES.join(", ")}."]
+            [1, "Image type not supported. Must be "<<
+                 Image::IMAGE_TYPES.join(", ")<<"."]
         end
     end
 
@@ -301,6 +302,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.perform_actions(args[0],options,
                 "Permissions changed") do |image|
             image.chmod_octet(args[1])
+        end
+    end
+
+    rename_desc = <<-EOT.unindent
+        Renames the Image
+    EOT
+
+    command :rename, rename_desc, :imageid, :name do
+        helper.perform_action(args[0],options,"renamed") do |o|
+            o.rename(args[1])
         end
     end
 

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -27,21 +27,21 @@ require 'digest/sha1'
 require 'rexml/document'
 require 'pp'
 
-require 'OpenNebula/XMLUtils'
-require 'OpenNebula/VirtualMachine'
-require 'OpenNebula/VirtualMachinePool'
-require 'OpenNebula/VirtualNetwork'
-require 'OpenNebula/VirtualNetworkPool'
-require 'OpenNebula/Image'
-require 'OpenNebula/ImagePool'
-require 'OpenNebula/User'
-require 'OpenNebula/UserPool'
-require 'OpenNebula/Host'
-require 'OpenNebula/HostPool'
-require 'OpenNebula/Template'
-require 'OpenNebula/TemplatePool'
-require 'OpenNebula/Group'
-require 'OpenNebula/GroupPool'
+require 'opennebula/xml_utils'
+require 'opennebula/virtual_machine'
+require 'opennebula/virtual_machine_pool'
+require 'opennebula/virtual_network'
+require 'opennebula/virtual_network_pool'
+require 'opennebula/image'
+require 'opennebula/image_pool'
+require 'opennebula/user'
+require 'opennebula/user_pool'
+require 'opennebula/host'
+require 'opennebula/host_pool'
+require 'opennebula/template'
+require 'opennebula/template_pool'
+require 'opennebula/group'
+require 'opennebula/group_pool'
 
 module OpenNebula
 

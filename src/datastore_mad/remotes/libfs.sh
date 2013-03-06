@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -61,10 +61,10 @@ function set_up_datastore {
 }
 
 #-------------------------------------------------------------------------------
-# Generates an unique image path. Requires BASE_PATH to be set
-#   @return path for the image (empty if error)
+# Generates an unique image hash. Requires BASE_PATH to be set
+#   @return hash for the image (empty if error)
 #-------------------------------------------------------------------------------
-function generate_image_path {
+function generate_image_hash {
 
 	CANONICAL_STR="`$DATE +%s`:$ID"
 
@@ -80,6 +80,15 @@ EOF
 		exit 1
 	fi
 
+	echo "${IMAGE_HASH}"
+}
+
+#-------------------------------------------------------------------------------
+# Generates an unique image path. Requires BASE_PATH to be set
+#   @return path for the image (empty if error)
+#-------------------------------------------------------------------------------
+function generate_image_path {
+	IMAGE_HASH=`generate_image_hash`
 	echo "${BASE_PATH}/${IMAGE_HASH}"
 }
 
@@ -115,6 +124,24 @@ function set_downloader_args {
 	echo "$HASHES $5 $6"
 }
 
+#------------------------------------------------------------------------------
+# Gets the size in bytes of a file
+#   @param $1 - Path to the image
+#   @return size of the image in bytes
+#------------------------------------------------------------------------------
+
+function file_size {
+	stat --version &> /dev/null
+
+	if [ $? = 0 ]; then
+		STAT_CMD="stat -c %s"
+	else
+		STAT_CMD="stat -f %z"
+	fi
+
+	$STAT_CMD "$*"
+}
+
 #-------------------------------------------------------------------------------
 # Computes the size of an image
 #   @param $1 - Path to the image
@@ -147,7 +174,7 @@ function fs_size {
 			SIZE=`du -sb "$1" | cut -f1`
 			error=$?
 		else
-			SIZE=`stat -c %s "$1"`
+			SIZE=$(file_size "$1")
 			error=$?
 		fi
 		;;

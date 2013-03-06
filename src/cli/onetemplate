@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -29,6 +29,7 @@ $: << RUBY_LIB_LOCATION+"/cli"
 
 require 'command_parser'
 require 'one_helper/onetemplate_helper'
+require 'one_helper/onevm_helper'
 
 cmd=CommandParser::CmdParser.new(ARGV) do
     usage "`onetemplate` <command> [<args>] [<options>]"
@@ -52,7 +53,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     instantiate_options = [
         OneTemplateHelper::VM_NAME,
-        OneTemplateHelper::MULTIPLE
+        OneTemplateHelper::MULTIPLE,
+        OneVMHelper::HOLD
     ]
 
     ########################################################################
@@ -92,12 +94,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
           - new VM Template named "arch vm" with a disk and a nic:
 
-            onetemplate create --name "arch vm" --memory 128 --cpu 1 --disk arch \\
-                         --network private_lan
+            onetemplate create --name "arch vm" --memory 128 --cpu 1 \\
+                               --disk arch --network private_lan
 
           - using two disks:
 
-            onetempate create --name "test vm" --memory 128 --cpu 1 --disk arch,data
+            onetempate create --name "test vm" --memory 128 --cpu 1 \\
+                              --disk arch,data
 
     EOT
 
@@ -170,16 +173,41 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         managed with the 'onevm' command
     EOT
 
-    command :instantiate, instantiate_desc, :templateid,
-            :options=>instantiate_options do
+    command :instantiate, instantiate_desc, :templateid, [:file, nil],
+            :options=>instantiate_options+OpenNebulaHelper::TEMPLATE_OPTIONS do
         exit_code=0
+
+        if args[1] && OpenNebulaHelper.create_template_options_used?(options)
+            STDERR.puts "You cannot use both template file and template"<<
+                " creation options."
+            next -1
+        end
 
         number = options[:multiple] || 1
         number.times do |i|
-            exit_code=helper.perform_action(args[0],options,"instantiated") do |t|
+            exit_code=helper.perform_action(args[0], options,
+                                            "instantiated") do |t|
                 name = options[:name]
                 name = name.gsub("%i",i.to_s) if name
-                res = t.instantiate(name)
+
+                on_hold = options[:hold] != nil
+
+                extra_template = ""
+
+                if args[1]
+                    extra_template = File.read(args[1])
+                else
+                    res = OpenNebulaHelper.create_template(options)
+
+                    if res.first != 0
+                        STDERR.puts res.last
+                        next -1
+                    end
+
+                    extra_template = res.last
+                end
+
+                res = t.instantiate(name, on_hold, extra_template)
 
                 if !OpenNebula.is_error?(res)
                     puts "VM ID: #{res}"
@@ -264,6 +292,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     list_desc = <<-EOT.unindent
         Lists Templates in the pool
     EOT
+
+    rename_desc = <<-EOT.unindent
+        Renames the Template
+    EOT
+
+    command :rename, rename_desc, :templateid, :name do
+        helper.perform_action(args[0],options,"renamed") do |o|
+            o.rename(args[1])
+        end
+    end
 
     command :list, list_desc, [:filterflag, nil], :options=>list_options do
         helper.list_pool(options, false, args[0])

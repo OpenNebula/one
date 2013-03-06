@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,7 +16,9 @@
 
 #include "PoolObjectSQL.h"
 #include "PoolObjectAuth.h"
-#include "SSLTools.h"
+#include "NebulaUtil.h"
+#include "Nebula.h"
+#include "Clusterable.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -24,11 +26,11 @@
 string& PoolObjectSQL::to_xml64(string &xml64)
 {
     string *str64;
-    
+
     to_xml(xml64);
 
-    str64 = SSLTools::base64_encode(xml64);
-   
+    str64 = one_util::base64_encode(xml64);
+
     xml64 = *str64;
 
     delete str64;
@@ -136,31 +138,25 @@ const char * PoolObjectSQL::error_attribute_name = "ERROR";
 
 void PoolObjectSQL::set_template_error_message(const string& message)
 {
-    VectorAttribute *  attr;
-    map<string,string> error_value;
-    
-    char   str[26];
-    time_t the_time;
+    SingleAttribute * attr;
+    ostringstream     error_value;
 
-    the_time = time(NULL);
-
-#ifdef SOLARIS
-    ctime_r(&(the_time),str,sizeof(char)*26);
-#else
-    ctime_r(&(the_time),str);
-#endif
-
-    str[24] = '\0'; // Get rid of final enter character
-
-    error_value.insert(make_pair("TIMESTAMP",str));
-    error_value.insert(make_pair("MESSAGE",message));
+    error_value << one_util::log_time() << " : " << message;
 
     //Replace previous error message and insert the new one
 
-    attr = new VectorAttribute(error_attribute_name,error_value);
+    attr = new SingleAttribute(error_attribute_name, error_value.str());
 
     obj_template->erase(error_attribute_name);
     obj_template->set(attr);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void PoolObjectSQL::clear_template_error_message()
+{
+    remove_template_attribute(error_attribute_name);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -175,18 +171,22 @@ int PoolObjectSQL::replace_template(const string& tmpl_str, string& error)
         error = "Cannot allocate a new template";
         return -1;
     }
-    
+
     if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
     {
+        delete new_tmpl;
         return -1;
     }
 
-    delete obj_template;
+    if ( obj_template != 0 )
+    {
+        delete obj_template;
+    }
 
     obj_template = new_tmpl;
 
     return 0;
-} 
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -256,6 +256,13 @@ void PoolObjectSQL::get_permissions(PoolObjectAuth& auth)
     auth.other_u = other_u;
     auth.other_m = other_m;
     auth.other_a = other_a;
+
+    Clusterable* cl = dynamic_cast<Clusterable*>(this);
+
+    if(cl != 0)
+    {
+        auth.cid = cl->get_cluster_id();
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -297,6 +304,44 @@ int PoolObjectSQL::set_permissions( int _owner_u,
 error_value:
     error_str = "New permission values must be -1, 0 or 1";
     return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void PoolObjectSQL::set_umask(int umask)
+{
+    int perms;
+    bool enable_other;
+
+    Nebula::instance().get_configuration_attribute(
+            "ENABLE_OTHER_PERMISSIONS", enable_other);
+
+    if (uid == 0 || gid == 0)
+    {
+        perms = 0777;
+    }
+    else if (enable_other)
+    {
+        perms = 0666;
+    }
+    else
+    {
+        perms = 0660;
+    }
+
+    perms = perms & ~umask;
+
+    owner_u = ( (perms & 0400) != 0 ) ? 1 : 0;
+    owner_m = ( (perms & 0200) != 0 ) ? 1 : 0;
+    owner_a = ( (perms & 0100) != 0 ) ? 1 : 0;
+    group_u = ( (perms & 0040) != 0 ) ? 1 : 0;
+    group_m = ( (perms & 0020) != 0 ) ? 1 : 0;
+    group_a = ( (perms & 0010) != 0 ) ? 1 : 0;
+    other_u = ( (perms & 0004) != 0 ) ? 1 : 0;
+    other_m = ( (perms & 0002) != 0 ) ? 1 : 0;
+    other_a = ( (perms & 0001) != 0 ) ? 1 : 0;
+
 }
 
 /* -------------------------------------------------------------------------- */

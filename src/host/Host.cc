@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)           */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs      */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -62,12 +62,12 @@ Host::~Host()
 const char * Host::table = "host_pool";
 
 const char * Host::db_names =
-    "oid, name, body, state, last_mon_time, uid, gid, owner_u, group_u, other_u";
+    "oid, name, body, state, last_mon_time, uid, gid, owner_u, group_u, other_u, cid";
 
 const char * Host::db_bootstrap = "CREATE TABLE IF NOT EXISTS host_pool ("
     "oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, state INTEGER, "
     "last_mon_time INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, "
-    "group_u INTEGER, other_u INTEGER, UNIQUE(name))";
+    "group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name))";
 
 
 const char * Host::monit_table = "host_monitoring";
@@ -136,7 +136,8 @@ int Host::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          gid                 << ","
         <<          owner_u             << ","
         <<          group_u             << ","
-        <<          other_u             << ")";
+        <<          other_u             << ","
+        <<          cluster_id          << ")";
 
     rc = db->exec(oss);
 
@@ -169,22 +170,60 @@ error_common:
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Host::update_info(string &parse_str)
+int Host::update_info(string          &parse_str,
+                      bool            &with_vm_info,
+                      set<int>        &lost,
+                      map<int,string> &found)
 {
-    char *  error_msg;
-    int     rc;
-    float   fv;
+    char *    error_msg;
+    Template* tmpl;
 
+    VectorAttribute*             vatt;
+    vector<Attribute*>::iterator it;
+    vector<Attribute*>           vm_att;
+
+    int   rc;
+    int   vmid;
+    float fv;
+
+    ostringstream zombie;
+    ostringstream wild;
+
+    int num_zombies = 0;
+    int num_wilds   = 0;
+
+    //
+    // ---------------------------------------------------------------------- //
+    // Parse Template (twice because of repeated VM values)                   //
+    // ---------------------------------------------------------------------- //
     rc = obj_template->parse(parse_str, &error_msg);
 
     if ( rc != 0 )
     {
-        NebulaLog::log("ONE", Log::ERROR, error_msg);
+        ostringstream ess;
+
+        ess << "Error parsing host information: " << error_msg
+            << ". Monitoring information: " << endl << parse_str;
+
+        NebulaLog::log("ONE", Log::ERROR, ess);
+
+        touch(false);
+
+        set_template_error_message("Error parsing monitor information."
+            " Check oned.log for more details.");
 
         free(error_msg);
+
         return -1;
     }
 
+    tmpl = new Template();
+
+    tmpl->parse(parse_str, &error_msg);
+
+    // ---------------------------------------------------------------------- //
+    // Extract share information                                             //
+    // ---------------------------------------------------------------------- //
     get_template_attribute("TOTALCPU", fv);
     host_share.max_cpu = static_cast<int>(fv);
     get_template_attribute("TOTALMEMORY", fv);
@@ -200,7 +239,108 @@ int Host::update_info(string &parse_str)
     get_template_attribute("USEDMEMORY", fv);
     host_share.used_mem = static_cast<int>(fv);
 
+    // ---------------------------------------------------------------------- //
+    // Remove expired information                                             //
+    // ---------------------------------------------------------------------- //
+    clear_template_error_message();
+
+    remove_template_attribute("ZOMBIES");
+    remove_template_attribute("TOTAL_ZOMBIES");
+
+    remove_template_attribute("WILDS");
+    remove_template_attribute("TOTAL_WILDS");
+
+    remove_template_attribute("VM");
+
+    get_template_attribute("VM_POLL", with_vm_info);
+    remove_template_attribute("VM_POLL");
+
+    // ---------------------------------------------------------------------- //
+    // Correlate VM information with the list of running VMs                  //
+    // ---------------------------------------------------------------------- //
+    tmpl->remove("VM", vm_att);
+
+    lost = vm_collection.get_collection_copy();
+
+    for (it = vm_att.begin(); it != vm_att.end(); it++)
+    {
+        vatt = dynamic_cast<VectorAttribute*>(*it);
+
+        if (vatt == 0)
+        {
+            delete *it;
+            continue;
+        }
+
+        rc = vatt->vector_value("ID", vmid);
+
+        if (rc == 0 && vmid != -1)
+        {
+            if (lost.erase(vmid) == 1) //Good, known
+            {
+                found.insert(make_pair(vmid, vatt->vector_value("POLL")));
+            }
+            else //Bad, known but should not be here
+            {
+                if (num_zombies++ > 0)
+                {
+                    zombie << ", ";
+                }
+
+                zombie << vatt->vector_value("DEPLOY_ID");
+            }
+        }
+        else if (rc == 0) //not ours
+        {
+            if (num_wilds++ > 0)
+            {
+                wild << ", ";
+            }
+
+            wild << vatt->vector_value("DEPLOY_ID");
+        }
+
+        delete *it;
+    }
+
+    if (num_wilds > 0)
+    {
+        add_template_attribute("TOTAL_WILDS", num_wilds);
+        add_template_attribute("WILDS", wild.str());
+    }
+
+    if (num_zombies > 0)
+    {
+        add_template_attribute("TOTAL_ZOMBIES", num_zombies);
+        add_template_attribute("ZOMBIES", zombie.str());
+    }
+
+    delete tmpl;
+
+    // Touch the host to update its last_monitored timestamp and state
+
+    touch(true);
+
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Host::error_info(const string& message, set<int> &vm_ids)
+{
+    ostringstream oss;
+
+    vm_ids = vm_collection.get_collection_copy();
+
+    oss << "Error monitoring Host " << get_name() << " (" << get_oid() << ")"
+        << ": " << message;
+
+    NebulaLog::log("ONE", Log::ERROR, oss);
+
+    touch(false);
+
+    set_template_error_message(oss.str());
 }
 
 /* -------------------------------------------------------------------------- */

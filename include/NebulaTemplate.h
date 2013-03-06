@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -96,6 +96,13 @@ public:
     };    
 
     void get(const char *name, float& value) const
+    {
+        string _name(name);
+
+        Template::get(_name,value);
+    };
+
+    void get(const char *name, bool& value) const
     {
         string _name(name);
 

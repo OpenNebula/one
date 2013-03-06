@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -271,7 +271,7 @@ def select_hypervisor
         case $0
         when %r{/vmm\/kvm/}
             hypervisor=KVM
-        when %r{/vmm\/xen/}
+        when %r{/vmm\/xen\d?/}
             hypervisor=XEN
         end
     end
@@ -343,6 +343,34 @@ def print_all_vm_info(hypervisor)
     puts Base64.encode64(compressed).delete("\n")
 end
 
+def print_all_vm_template(hypervisor)
+    vms=hypervisor.get_all_vm_info
+
+    puts "VM_POLL=YES"
+
+    vms.each do |name, data|
+        number = -1
+
+        if (name =~ /^one-\d*$/)
+            number = name.split('-').last
+        end
+
+        string="VM=[\n"
+        string<<"  ID=#{number},\n"
+        string<<"  DEPLOY_ID=#{name},\n"
+
+        values=data.map do |key, value|
+            print_data(key, value)
+        end
+
+        monitor=values.zip.join(' ')
+
+        string<<"  POLL=\"#{monitor}\" ]"
+
+        puts string
+    end
+end
+
 hypervisor=select_hypervisor
 
 if !hypervisor
@@ -354,7 +382,9 @@ load_vars(hypervisor)
 
 vm_id=ARGV[0]
 
-if vm_id
+if vm_id=='-t'
+    print_all_vm_template(hypervisor)
+elsif vm_id
     print_one_vm_info(hypervisor, vm_id)
 else
     print_all_vm_info(hypervisor)

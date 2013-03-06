@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -22,7 +22,7 @@
 #include "NebulaLog.h"
 #include "Nebula.h"
 #include "AuthManager.h"
-#include "SSLTools.h"
+#include "NebulaUtil.h"
 
 #include <fstream>
 #include <sys/types.h>
@@ -80,14 +80,14 @@ UserPool::UserPool(SqlDB * db,
 
     _session_expiration_time = __session_expiration_time;
 
-    register_hooks(hook_mads, remotes_location);
-
     User * oneadmin_user = get(0, true);
 
     if (oneadmin_user != 0)
     {
         oneadmin_name = oneadmin_user->get_name();
         oneadmin_user->unlock();
+
+        register_hooks(hook_mads, remotes_location);
 
         return;
     }
@@ -145,7 +145,7 @@ UserPool::UserPool(SqlDB * db,
     srand(time(0));
     sstr << rand();
 
-    random = SSLTools::sha1_digest( sstr.str() );
+    random = one_util::sha1_digest(sstr.str());
 
     filenames[0] = nd.get_var_location() + "/.one/sunstone_auth";
     filenames[1] = nd.get_var_location() + "/.one/occi_auth";
@@ -188,7 +188,7 @@ UserPool::UserPool(SqlDB * db,
              GroupPool::ONEADMIN_ID,
              SERVER_NAME,
              GroupPool::ONEADMIN_NAME,
-             SSLTools::sha1_digest(random),
+             one_util::sha1_digest(random),
              "server_cipher",
              true,
              error_str);
@@ -197,6 +197,8 @@ UserPool::UserPool(SqlDB * db,
     {
         goto error_serveradmin;
     }
+
+    register_hooks(hook_mads, remotes_location);
 
     return;
 
@@ -287,7 +289,7 @@ int UserPool::allocate (
 
     if (auth_driver == UserPool::CORE_AUTH)
     {
-        upass = SSLTools::sha1_digest(password);
+        upass = one_util::sha1_digest(password);
     }
 
     // Build a new User object

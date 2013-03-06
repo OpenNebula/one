@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -21,6 +21,8 @@
 #include <sstream>
 #include <cstring>
 #include <cstdio>
+
+#define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -173,6 +175,11 @@ int Template::parse_str_or_xml(const string &parse_str, string& error_msg)
 
             error_msg = oss.str();
         }
+    }
+
+    if(rc == 0)
+    {
+        trim_name();
     }
 
     return rc;
@@ -473,6 +480,37 @@ bool Template::get(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+bool Template::get(
+        const string&   name,
+        bool&           value) const
+{
+    string sval;
+
+    get(name, sval);
+
+    if ( sval == "" )
+    {
+        value = false;
+        return false;
+    }
+
+    TO_UPPER(sval);
+
+    if ( sval == "YES" )
+    {
+        value = true;
+    }
+    else
+    {
+        value = false;
+    }
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 string& Template::to_xml(string& xml) const
 {
     multimap<string,Attribute *>::const_iterator  it;
@@ -516,6 +554,24 @@ string& Template::to_str(string& str) const
 
 	str = os.str();
     return str;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool Template::trim(const string& name)
+{
+    string st;
+    get(name, st);
+
+    if(st.empty())
+    {
+        return false;
+    }
+
+    replace(name, st.substr( 0, st.find_last_not_of(" \f\n\r\t\v") + 1 ) );
+
+    return true;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -628,6 +684,26 @@ int Template::from_xml_node(const xmlNodePtr node)
     }
 
     rebuild_attributes(node);
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Template::merge(const Template * from_tmpl, string& error_str)
+{
+    multimap<string,Attribute *>::const_iterator it;
+
+    for (it = from_tmpl->attributes.begin(); it != from_tmpl->attributes.end(); ++it)
+    {
+        this->erase(it->first);
+    }
+
+    for (it = from_tmpl->attributes.begin(); it != from_tmpl->attributes.end(); ++it)
+    {
+        this->set(it->second->clone());
+    }
 
     return 0;
 }

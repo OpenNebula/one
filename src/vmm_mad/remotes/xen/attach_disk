@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -47,12 +47,18 @@ READONLY="${XPATH_ELEMENTS[2]}"
 BUS="${XPATH_ELEMENTS[3]}"
 CACHE="${XPATH_ELEMENTS[4]}"
 
+DEFAULT_FILE_PREFIX="file"
+
+if [ -n "$IMAGE_PREFIX" ]; then
+    DEFAULT_FILE_PREFIX="$IMAGE_PREFIX"
+fi
+
 case "$TYPE" in
 block)
     FILE_PREFIX="phy"
     ;;
 *)
-    FILE_PREFIX="tap:aio"
+    FILE_PREFIX="$DEFAULT_FILE_PREFIX"
     ;;
 esac
 
@@ -60,7 +66,7 @@ if [ -n "$DRIVER" ]; then
     FILE_PREFIX="$DRIVER"
 fi
 
-FULL_DISK="$FILE_PREFIX:$SOURCE"
+FULL_DISK="${FILE_PREFIX%:}:$SOURCE"
 
 if [ "$READONLY" = "YES" ]; then
     MODE="r"

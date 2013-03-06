@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,6 +20,7 @@
 
 #include "PoolXML.h"
 #include "HostXML.h"
+#include "ClusterPoolXML.h"
 
 using namespace std;
 
@@ -44,6 +45,14 @@ public:
     {
         return static_cast<HostXML *>(PoolXML::get(oid));
     };
+
+    /**
+     * For each Host in a cluster, adds the cluster template as a new
+     * Host xml element
+     *
+     * @param clpool Cluster pool
+     */
+    void merge_clusters(ClusterPoolXML * clpool);
 
 protected:
 

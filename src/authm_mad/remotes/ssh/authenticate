@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -28,7 +28,7 @@ end
 
 $: << RUBY_LIB_LOCATION
 
-require 'ssh_auth'
+require 'opennebula/ssh_auth'
 require 'scripts_common'
 
 user   = ARGV[0]
@@ -37,7 +37,7 @@ secret = ARGV[2]
 
 #OpenNebula.log_debug("Authenticating #{user}, with password #{pass} (#{secret})")
 begin
-    ssh_auth = SshAuth.new(:public_key=>pass)
+    ssh_auth = OpenNebula::SshAuth.new(:public_key=>pass)
 rescue Exception => e
     OpenNebula.error_message e.message
     exit -1

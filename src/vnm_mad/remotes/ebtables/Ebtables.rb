@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -17,10 +17,13 @@
 require 'OpenNebulaNetwork'
 
 class EbtablesVLAN < OpenNebulaNetwork
+    DRIVER = "ebtables"
+
     XPATH_FILTER = "TEMPLATE/NIC[VLAN='YES']"
 
     def initialize(vm, deploy_id = nil, hypervisor = nil)
         super(vm,XPATH_FILTER,deploy_id,hypervisor)
+        @locking = true
     end
 
     def ebtables(rule)
@@ -30,6 +33,8 @@ class EbtablesVLAN < OpenNebulaNetwork
     # Activates ebtables rules
     #
     def activate
+        lock
+
         process do |nic|
             tap = nic[:tap]
             if tap
@@ -49,10 +54,14 @@ class EbtablesVLAN < OpenNebulaNetwork
             end
         end
 
+        unlock
+
         return 0
     end
 
     def deactivate
+        lock
+
         process do |nic|
             mac = nic[:mac]
             # remove 0-padding
@@ -67,6 +76,8 @@ class EbtablesVLAN < OpenNebulaNetwork
             end
             remove_rules(tap)
         end
+
+        unlock
 
         return 0
     end

@@ -1,4 +1,4 @@
-/* A Bison parser, made by GNU Bison 2.6.5.  */
+/* A Bison parser, made by GNU Bison 2.7.  */
 
 /* Bison implementation for Yacc-like parsers in C
    
@@ -44,7 +44,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "2.6.5"
+#define YYBISON_VERSION "2.7"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -70,7 +70,7 @@
 #define yylloc          expr_bool__lloc
 
 /* Copy the first part of user declarations.  */
-/* Line 360 of yacc.c  */
+/* Line 371 of yacc.c  */
 #line 17 "expr_bool.y"
 
 #include <iostream>
@@ -78,6 +78,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <set>
 
 #include <ctype.h>
 #include <string.h>
@@ -123,15 +124,19 @@ extern "C"
     }
 }
 
-void get_xml_attribute(ObjectXML * oxml, const char* attr, int& val);
+int get_xml_attribute(ObjectXML * oxml, const char* attr, int& val);
 
-void get_xml_attribute(ObjectXML * oxml, const char* attr, float& val);
+int get_xml_attribute(ObjectXML * oxml, const char* attr, float& val);
 
-void get_xml_attribute(ObjectXML * oxml, const char* attr, string& val);
+int get_xml_attribute(ObjectXML * oxml, const char* attr, string& val);
+
+void get_xml_values(ObjectXML * oxml, const char* attr, vector<string>& results);
+
+void get_vm_ids(ObjectXML * oxml, set<int>& vm_ids);
 
 
-/* Line 360 of yacc.c  */
-#line 135 "expr_bool.cc"
+/* Line 371 of yacc.c  */
+#line 140 "expr_bool.cc"
 
 # ifndef YY_NULL
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -177,16 +182,16 @@ extern int expr_bool__debug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
 {
-/* Line 376 of yacc.c  */
-#line 83 "expr_bool.y"
+/* Line 387 of yacc.c  */
+#line 88 "expr_bool.y"
 
     char * 	val_str;
     int 	val_int;
     float   val_float;
 
 
-/* Line 376 of yacc.c  */
-#line 190 "expr_bool.cc"
+/* Line 387 of yacc.c  */
+#line 195 "expr_bool.cc"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -225,8 +230,8 @@ int expr_bool__parse ();
 
 /* Copy the second part of user declarations.  */
 
-/* Line 379 of yacc.c  */
-#line 230 "expr_bool.cc"
+/* Line 390 of yacc.c  */
+#line 235 "expr_bool.cc"
 
 #ifdef short
 # undef short
@@ -522,8 +527,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   103,   103,   104,   107,   112,   117,   122,   127,   132,
-     137,   142,   147,   152,   157,   158,   159,   160
+       0,   108,   108,   109,   112,   128,   144,   149,   154,   159,
+     164,   169,   174,   179,   184,   185,   186,   187
 };
 #endif
 
@@ -708,14 +713,46 @@ while (YYID (0))
 
 #ifndef YY_LOCATION_PRINT
 # if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
-#  define YY_LOCATION_PRINT(File, Loc)                                   \
-  do {                                                                   \
-    fprintf (File, "%d.%d", (Loc).first_line, (Loc).first_column);       \
-    if ((Loc).first_line < (Loc).last_line)                              \
-      fprintf (File, "-%d.%d", (Loc).last_line,  (Loc).last_column - 1); \
-    else if ((Loc).first_column < (Loc).last_column - 1)                 \
-      fprintf (File, "-%d", (Loc).last_column - 1);                      \
-  } while (0)
+
+/* Print *YYLOCP on YYO.  Private, do not rely on its existence. */
+
+__attribute__((__unused__))
+#if (defined __STDC__ || defined __C99__FUNC__ \
+     || defined __cplusplus || defined _MSC_VER)
+static unsigned
+yy_location_print_ (FILE *yyo, YYLTYPE const * const yylocp)
+#else
+static unsigned
+yy_location_print_ (yyo, yylocp)
+    FILE *yyo;
+    YYLTYPE const * const yylocp;
+#endif
+{
+  unsigned res = 0;
+  int end_col = 0 != yylocp->last_column ? yylocp->last_column - 1 : 0;
+  if (0 <= yylocp->first_line)
+    {
+      res += fprintf (yyo, "%d", yylocp->first_line);
+      if (0 <= yylocp->first_column)
+        res += fprintf (yyo, ".%d", yylocp->first_column);
+    }
+  if (0 <= yylocp->last_line)
+    {
+      if (yylocp->first_line < yylocp->last_line)
+        {
+          res += fprintf (yyo, "-%d", yylocp->last_line);
+          if (0 <= end_col)
+            res += fprintf (yyo, ".%d", end_col);
+        }
+      else if (0 <= end_col && yylocp->first_column < end_col)
+        res += fprintf (yyo, "-%d", end_col);
+    }
+  return res;
+ }
+
+#  define YY_LOCATION_PRINT(File, Loc)          \
+  yy_location_print_ (File, &(Loc))
+
 # else
 #  define YY_LOCATION_PRINT(File, Loc) ((void) 0)
 # endif
@@ -795,7 +832,7 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, oxml, result
   switch (yytype)
     {
       default:
-	break;
+        break;
     }
 }
 
@@ -1049,7 +1086,6 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
 {
   YYSIZE_T yysize0 = yytnamerr (YY_NULL, yytname[yytoken]);
   YYSIZE_T yysize = yysize0;
-  YYSIZE_T yysize1;
   enum { YYERROR_VERBOSE_ARGS_MAXIMUM = 5 };
   /* Internationalized format string. */
   const char *yyformat = YY_NULL;
@@ -1112,11 +1148,13 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
                     break;
                   }
                 yyarg[yycount++] = yytname[yyx];
-                yysize1 = yysize + yytnamerr (YY_NULL, yytname[yyx]);
-                if (! (yysize <= yysize1
-                       && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
-                  return 2;
-                yysize = yysize1;
+                {
+                  YYSIZE_T yysize1 = yysize + yytnamerr (YY_NULL, yytname[yyx]);
+                  if (! (yysize <= yysize1
+                         && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
+                    return 2;
+                  yysize = yysize1;
+                }
               }
         }
     }
@@ -1136,10 +1174,12 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
 # undef YYCASE_
     }
 
-  yysize1 = yysize + yystrlen (yyformat);
-  if (! (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
-    return 2;
-  yysize = yysize1;
+  {
+    YYSIZE_T yysize1 = yysize + yystrlen (yyformat);
+    if (! (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
+      return 2;
+    yysize = yysize1;
+  }
 
   if (*yymsg_alloc < yysize)
     {
@@ -1209,7 +1249,7 @@ yydestruct (yymsg, yytype, yyvaluep, yylocationp, mc, oxml, result, error_msg)
     {
 
       default:
-	break;
+        break;
     }
 }
 
@@ -1263,6 +1303,11 @@ int yychar;
 static YYSTYPE yyval_default;
 # define YY_INITIAL_VALUE(Value) = Value
 #endif
+static YYLTYPE yyloc_default
+# if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
+  = { 1, 1, 1, 1 }
+# endif
+;
 #ifndef YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
 # define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
 # define YY_IGNORE_MAYBE_UNINITIALIZED_END
@@ -1275,11 +1320,7 @@ static YYSTYPE yyval_default;
 YYSTYPE yylval YY_INITIAL_VALUE(yyval_default);
 
 /* Location data for the lookahead symbol.  */
-YYLTYPE yylloc
-# if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
-  = { 1, 1, 1, 1 }
-# endif
-;
+YYLTYPE yylloc = yyloc_default;
 
 
     /* Number of syntax errors so far.  */
@@ -1536,134 +1577,156 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-/* Line 1778 of yacc.c  */
-#line 103 "expr_bool.y"
+/* Line 1792 of yacc.c  */
+#line 108 "expr_bool.y"
     { result=(yyvsp[(1) - (1)].val_int);   }
     break;
 
   case 3:
-/* Line 1778 of yacc.c  */
-#line 104 "expr_bool.y"
+/* Line 1792 of yacc.c  */
+#line 109 "expr_bool.y"
     { result=true; }
     break;
 
   case 4:
-/* Line 1778 of yacc.c  */
-#line 107 "expr_bool.y"
-    { int val;
+/* Line 1792 of yacc.c  */
+#line 112 "expr_bool.y"
+    { int val, rc;
 
-            get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
-            (yyval.val_int) = val == (yyvsp[(3) - (3)].val_int);}
+            if ((yyvsp[(1) - (3)].val_str) == string("CURRENT_VMS"))
+            {
+                set<int> vm_ids;
+                get_vm_ids(oxml, vm_ids);
+
+                (yyval.val_int) = vm_ids.count((yyvsp[(3) - (3)].val_int)) > 0;
+            }
+            else
+            {
+                rc = get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
+                (yyval.val_int) = (rc == 0 && val == (yyvsp[(3) - (3)].val_int));
+            }
+          }
     break;
 
   case 5:
-/* Line 1778 of yacc.c  */
-#line 112 "expr_bool.y"
-    { int val;
+/* Line 1792 of yacc.c  */
+#line 128 "expr_bool.y"
+    { int val, rc;
 
-            get_xml_attribute(oxml,(yyvsp[(1) - (4)].val_str),val);
-            (yyval.val_int) = val != (yyvsp[(4) - (4)].val_int);}
+            if ((yyvsp[(1) - (4)].val_str) == string("CURRENT_VMS"))
+            {
+                set<int> vm_ids;
+                get_vm_ids(oxml, vm_ids);
+
+                (yyval.val_int) = vm_ids.count((yyvsp[(4) - (4)].val_int)) == 0;
+            }
+            else
+            {
+                rc = get_xml_attribute(oxml,(yyvsp[(1) - (4)].val_str),val);
+                (yyval.val_int) = (rc == 0 && val != (yyvsp[(4) - (4)].val_int));
+            }
+          }
     break;
 
   case 6:
-/* Line 1778 of yacc.c  */
-#line 117 "expr_bool.y"
-    { int val;
+/* Line 1792 of yacc.c  */
+#line 144 "expr_bool.y"
+    { int val, rc;
 
-            get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
-            (yyval.val_int) = val > (yyvsp[(3) - (3)].val_int);}
+            rc = get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
+            (yyval.val_int) = (rc == 0 && val > (yyvsp[(3) - (3)].val_int));}
     break;
 
   case 7:
-/* Line 1778 of yacc.c  */
-#line 122 "expr_bool.y"
-    { int val;
+/* Line 1792 of yacc.c  */
+#line 149 "expr_bool.y"
+    { int val, rc;
 
-            get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
-            (yyval.val_int) = val < (yyvsp[(3) - (3)].val_int);}
+            rc = get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
+            (yyval.val_int) = (rc == 0 && val < (yyvsp[(3) - (3)].val_int));}
     break;
 
   case 8:
-/* Line 1778 of yacc.c  */
-#line 127 "expr_bool.y"
-    { float val;
+/* Line 1792 of yacc.c  */
+#line 154 "expr_bool.y"
+    { float val, rc;
 
-            get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
-            (yyval.val_int) = val == (yyvsp[(3) - (3)].val_float);}
+            rc = get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
+            (yyval.val_int) = (rc == 0 && val == (yyvsp[(3) - (3)].val_float));}
     break;
 
   case 9:
-/* Line 1778 of yacc.c  */
-#line 132 "expr_bool.y"
-    { float val;
+/* Line 1792 of yacc.c  */
+#line 159 "expr_bool.y"
+    { float val, rc;
 
-            get_xml_attribute(oxml,(yyvsp[(1) - (4)].val_str),val);
-            (yyval.val_int) = val != (yyvsp[(4) - (4)].val_float);}
+            rc = get_xml_attribute(oxml,(yyvsp[(1) - (4)].val_str),val);
+            (yyval.val_int) = (rc == 0 && val != (yyvsp[(4) - (4)].val_float));}
     break;
 
   case 10:
-/* Line 1778 of yacc.c  */
-#line 137 "expr_bool.y"
-    { float val;
+/* Line 1792 of yacc.c  */
+#line 164 "expr_bool.y"
+    { float val, rc;
 
-            get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
-            (yyval.val_int) = val > (yyvsp[(3) - (3)].val_float);}
+            rc = get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
+            (yyval.val_int) = (rc == 0 && val > (yyvsp[(3) - (3)].val_float));}
     break;
 
   case 11:
-/* Line 1778 of yacc.c  */
-#line 142 "expr_bool.y"
-    { float val;
+/* Line 1792 of yacc.c  */
+#line 169 "expr_bool.y"
+    { float val, rc;
 
-            get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
-            (yyval.val_int) = val < (yyvsp[(3) - (3)].val_float);}
+            rc = get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
+            (yyval.val_int) = (rc == 0 && val < (yyvsp[(3) - (3)].val_float));}
     break;
 
   case 12:
-/* Line 1778 of yacc.c  */
-#line 147 "expr_bool.y"
-    { string val;
+/* Line 1792 of yacc.c  */
+#line 174 "expr_bool.y"
+    { string val; int rc;
 
-            get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
-            (yyval.val_int) = (val.empty() || (yyvsp[(3) - (3)].val_str)==0) ? false : fnmatch((yyvsp[(3) - (3)].val_str),val.c_str(),0)==0;}
+            rc = get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
+            (yyval.val_int) = (rc != 0 || (yyvsp[(3) - (3)].val_str)==0) ? false : fnmatch((yyvsp[(3) - (3)].val_str),val.c_str(),0)==0;}
     break;
 
   case 13:
-/* Line 1778 of yacc.c  */
-#line 152 "expr_bool.y"
-    { string val;
+/* Line 1792 of yacc.c  */
+#line 179 "expr_bool.y"
+    { string val; int rc;
 
-            get_xml_attribute(oxml,(yyvsp[(1) - (4)].val_str),val);
-            (yyval.val_int) = (val.empty() || (yyvsp[(4) - (4)].val_str)==0) ? false : fnmatch((yyvsp[(4) - (4)].val_str),val.c_str(),0)!=0;}
+            rc = get_xml_attribute(oxml,(yyvsp[(1) - (4)].val_str),val);
+            (yyval.val_int) = (rc != 0 || (yyvsp[(4) - (4)].val_str)==0) ? false : fnmatch((yyvsp[(4) - (4)].val_str),val.c_str(),0)!=0;}
     break;
 
   case 14:
-/* Line 1778 of yacc.c  */
-#line 157 "expr_bool.y"
+/* Line 1792 of yacc.c  */
+#line 184 "expr_bool.y"
     { (yyval.val_int) = (yyvsp[(1) - (3)].val_int) && (yyvsp[(3) - (3)].val_int); }
     break;
 
   case 15:
-/* Line 1778 of yacc.c  */
-#line 158 "expr_bool.y"
+/* Line 1792 of yacc.c  */
+#line 185 "expr_bool.y"
     { (yyval.val_int) = (yyvsp[(1) - (3)].val_int) || (yyvsp[(3) - (3)].val_int); }
     break;
 
   case 16:
-/* Line 1778 of yacc.c  */
-#line 159 "expr_bool.y"
+/* Line 1792 of yacc.c  */
+#line 186 "expr_bool.y"
     { (yyval.val_int) = ! (yyvsp[(2) - (2)].val_int); }
     break;
 
   case 17:
-/* Line 1778 of yacc.c  */
-#line 160 "expr_bool.y"
+/* Line 1792 of yacc.c  */
+#line 187 "expr_bool.y"
     { (yyval.val_int) =   (yyvsp[(2) - (3)].val_int); }
     break;
 
 
-/* Line 1778 of yacc.c  */
-#line 1667 "expr_bool.cc"
+/* Line 1792 of yacc.c  */
+#line 1730 "expr_bool.cc"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1901,8 +1964,8 @@ yyreturn:
 }
 
 
-/* Line 2041 of yacc.c  */
-#line 163 "expr_bool.y"
+/* Line 2055 of yacc.c  */
+#line 190 "expr_bool.y"
 
 
 extern "C" void expr_bool__error(
@@ -1933,103 +1996,110 @@ extern "C" void expr_bool__error(
     result = false;
 }
 
-void get_xml_attribute(ObjectXML * oxml, const char* attr, int& val)
+void get_xml_values(ObjectXML * oxml, const char* attr, vector<string> &results)
+{
+    if (attr[0] == '/')
+    {
+        results = (*oxml)[attr];
+    }
+    else
+    {
+        ostringstream  xpath;
+
+        xpath << "/HOST/TEMPLATE/" << attr
+            << "|/HOST/HOST_SHARE/" << attr
+            << "|/HOST/" << attr
+            << "|/HOST/CLUSTER_TEMPLATE/" << attr;
+
+        results = (*oxml)[xpath.str().c_str()];
+    }
+}
+
+int get_xml_attribute(ObjectXML * oxml, const char* attr, int& val)
 {
     val = 0;
 
-    //TODO: pass xpath base
     vector<string> results;
-    ostringstream  xpath_t;
-
-    xpath_t << "/HOST/TEMPLATE/" << attr;
-    results = (*oxml)[xpath_t.str().c_str()];
-
-    if (results.size() == 0)
-    {
-        ostringstream  xpath_s;
-
-        xpath_s << "/HOST/HOST_SHARE/" << attr;
-        results = (*oxml)[xpath_s.str().c_str()];
-
-        if (results.size() == 0)
-        {
-            ostringstream  xpath_h;
-
-            xpath_h << "/HOST/" << attr;
-            results = (*oxml)[xpath_h.str().c_str()];
-        }
-    }
+    get_xml_values(oxml, attr, results);
 
     if (results.size() != 0)
     {
         istringstream iss(results[0]);
         iss >> val;
+
+        if (iss.fail())
+        {
+            val = 0;
+
+            return -1;
+        }
+
+        return 0;
     }
+
+    return -1;
 }
 
-void get_xml_attribute(ObjectXML * oxml, const char* attr, float& val)
+int get_xml_attribute(ObjectXML * oxml, const char* attr, float& val)
 {
     val = 0.0;
 
-    //TODO: pass xpath base
-    ostringstream  xpath_t;
     vector<string> results;
-
-    xpath_t << "/HOST/TEMPLATE/" << attr;
-    results = (*oxml)[xpath_t.str().c_str()];
-
-    if (results.size() == 0)
-    {
-        ostringstream  xpath_s;
-
-        xpath_s << "/HOST/HOST_SHARE/" << attr;
-        results = (*oxml)[xpath_s.str().c_str()];
-
-        if (results.size() == 0)
-        {
-            ostringstream  xpath_h;
-
-            xpath_h << "/HOST/" << attr;
-            results = (*oxml)[xpath_h.str().c_str()];
-        }
-    }
+    get_xml_values(oxml, attr, results);
 
     if (results.size() != 0)
     {
         istringstream iss(results[0]);
         iss >> val;
+
+        if (iss.fail())
+        {
+            val = 0;
+
+            return -1;
+        }
+
+        return 0;
     }
+
+    return -1;
 }
 
-void get_xml_attribute(ObjectXML * oxml, const char* attr, string& val)
+int get_xml_attribute(ObjectXML * oxml, const char* attr, string& val)
 {
     val = "";
 
-    //TODO: pass xpath base
-    ostringstream  xpath_t;
     vector<string> results;
-
-    xpath_t << "/HOST/TEMPLATE/" << attr;
-    results = (*oxml)[xpath_t.str().c_str()];
-
-    if (results.size() == 0)
-    {
-        ostringstream  xpath_s;
-
-        xpath_s << "/HOST/HOST_SHARE/" << attr;
-        results = (*oxml)[xpath_s.str().c_str()];
-
-        if (results.size() == 0)
-        {
-            ostringstream  xpath_h;
-
-            xpath_h << "/HOST/" << attr;
-            results = (*oxml)[xpath_h.str().c_str()];
-        }
-    }
+    get_xml_values(oxml, attr, results);
 
     if (results.size() != 0)
     {
         val = results[0];
+
+        return 0;
+    }
+
+    return -1;
+}
+
+void get_vm_ids(ObjectXML * oxml, set<int>& vm_ids)
+{
+    istringstream  iss;
+    vector<string> results;
+    int id;
+
+    get_xml_values(oxml, "/HOST/VMS/ID", results);
+
+    for (vector<string>::iterator it=results.begin(); it!=results.end(); it++)
+    {
+        iss.clear();
+        iss.str(*it);
+
+        iss >> id;
+
+        if (!iss.fail())
+        {
+            vm_ids.insert(id);
+        }
     }
 }

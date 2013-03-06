@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -498,15 +498,9 @@ module CommandParser
                 else
                     puts "one parameter to run"
                 end
-                puts
-                puts "Usage:"
 
-                if @main
-                    print "    #{@usage}\n"
-                else
-                    print "    #{name} "
-                    print_command(@commands[name])
-                end
+                print_command_help(name)
+
                 exit -1
             else
                 id=0
@@ -641,14 +635,20 @@ module CommandParser
         end
 
         def print_option(o)
-            opt_format = "#{' '*5}%-25s %s"
+            opt_format = "#{' '*5}%-25s"
 
             str = ""
             str << o[:short].split(' ').first << ', ' if o[:short]
             str << o[:large]
 
-            printf opt_format, str, o[:description]
-            puts
+            params=sprintf(opt_format, str)
+
+            first_line=80-params.length
+
+            description=word_wrap(80-32, o[:description], first_line).
+                join(("\n"+" "*31))
+
+            puts "#{params} #{description}"
         end
 
         def print_commands
@@ -711,6 +711,30 @@ module CommandParser
 
                 puts
             }
+        end
+
+        def word_wrap(size, text, first_size=nil)
+            output=[]
+            line=""
+            if first_size
+                line_size=first_size
+            else
+                line_size=size
+            end
+
+            text.scan(/[^\s]+/) do |word|
+                if line.length+word.length+1<=line_size
+                    line+=" #{word}"
+                else
+                    output<<line
+                    line=word
+                    line_size=size
+                end
+            end
+
+            output<<line
+            output[0].strip!
+            output
         end
 
         ########################################################################

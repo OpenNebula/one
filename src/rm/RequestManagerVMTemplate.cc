@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -26,20 +26,62 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 {
     int    id   = xmlrpc_c::value_int(paramList.getInt(1));
     string name = xmlrpc_c::value_string(paramList.getString(2));
+    bool   on_hold = false; //Optional XML-RPC argument
+    string str_uattrs;      //Optional XML-RPC argument
 
-    int rc, vid;
+    int  rc;
+    int  vid;
+    int  umask;
+
+    ostringstream sid;
 
     PoolObjectAuth perms;
 
     Nebula& nd = Nebula::instance();
-    VirtualMachinePool* vmpool = nd.get_vmpool();
-    VMTemplatePool * tpool     = static_cast<VMTemplatePool *>(pool);
+
+    VirtualMachinePool* vmpool  = nd.get_vmpool();
+    VMTemplatePool *    tpool   = static_cast<VMTemplatePool *>(pool);
+    UserPool *          upool   = nd.get_upool();
 
     VirtualMachineTemplate * tmpl;
+    VirtualMachineTemplate   uattrs;
     VMTemplate *             rtmpl;
+    User *                   user;
 
     string error_str;
     string aname;
+
+    string tmpl_name;
+
+    if ( paramList.size() > 3 )
+    {
+        on_hold = xmlrpc_c::value_boolean(paramList.getBoolean(3));
+
+        str_uattrs = xmlrpc_c::value_string(paramList.getString(4));
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Get user's umask                                                       */
+    /* ---------------------------------------------------------------------- */
+
+    user = upool->get(att.uid, true);
+
+    if ( user == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::USER), att.uid),
+                att);
+
+        return;
+    }
+
+    umask = user->get_umask();
+
+    user->unlock();
+
+    /* ---------------------------------------------------------------------- */
+    /* Get, check and clone the template                                      */
+    /* ---------------------------------------------------------------------- */
 
     rtmpl = tpool->get(id,true);
 
@@ -52,16 +94,15 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    tmpl  = rtmpl->clone_template();
+    tmpl_name = rtmpl->get_name();
+    tmpl      = rtmpl->clone_template();
 
     rtmpl->get_permissions(perms);
 
     rtmpl->unlock();
 
-    // Check template for restricted attributes, but only if the Template owner
-    // is not oneadmin
-
-    if ( perms.uid != UserPool::ONEADMIN_ID && perms.gid != GroupPool::ONEADMIN_ID )
+    // Check template for restricted attributes, only if owner is not oneadmin
+    if (perms.uid!=UserPool::ONEADMIN_ID && perms.gid!=GroupPool::ONEADMIN_ID)
     {
         if (tmpl->check(aname))
         {
@@ -78,14 +119,76 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         }
     }
 
+    // Parse & merge user attributes (check if the request user is not oneadmin)
+    if (!str_uattrs.empty())
+    {
+        rc = uattrs.parse_str_or_xml(str_uattrs, error_str);
+
+        if ( rc != 0 )
+        {
+            failure_response(INTERNAL, error_str, att);
+            delete tmpl;
+            return;
+        }
+
+        if (att.uid!=UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
+        {
+            if (uattrs.check(aname))
+            {
+                ostringstream oss;
+
+                oss << "User Template includes a restricted attribute "<< aname;
+
+                failure_response(AUTHORIZATION,
+                        authorization_error(oss.str(), att),
+                        att);
+
+                delete tmpl;
+                return;
+            }
+        }
+
+        rc = tmpl->merge(&uattrs, error_str);
+
+        if ( rc != 0 )
+        {
+            failure_response(INTERNAL, error_str, att);
+            delete tmpl;
+            return;
+        }
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Store the template attributes in the VM                                */
+    /* ---------------------------------------------------------------------- */
     tmpl->erase("NAME");
-    tmpl->set(new SingleAttribute("NAME",name));
+    tmpl->erase("TEMPLATE_NAME");
+    tmpl->erase("TEMPLATE_ID");
+
+    sid << id;
+
+    tmpl->set(new SingleAttribute("TEMPLATE_NAME", tmpl_name));
+    tmpl->set(new SingleAttribute("TEMPLATE_ID", sid.str()));
+
+    if (!name.empty())
+    {
+        tmpl->set(new SingleAttribute("NAME",name));
+    }
 
     if ( att.uid != 0 )
     {
         AuthRequest ar(att.uid, att.gid);
 
         ar.add_auth(auth_op, perms); //USE TEMPLATE
+
+        if (!str_uattrs.empty())
+        {
+            string tmpl_str;
+
+            tmpl->to_xml(tmpl_str);
+
+            ar.add_create_auth(auth_object, tmpl_str); // CREATE TEMPLATE
+        }
 
         VirtualMachine::set_auth_request(att.uid, ar, tmpl);
 
@@ -108,8 +211,8 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     Template tmpl_back(*tmpl);
 
-    rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, tmpl, &vid,
-            error_str, false);
+    rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, umask,
+            tmpl, &vid, error_str, on_hold);
 
     if ( rc < 0 )
     {
@@ -118,10 +221,10 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
                 att);
 
         quota_rollback(&tmpl_back, Quotas::VIRTUALMACHINE, att);
-        
+
         return;
     }
-    
+
     success_response(vid, att);
 }
 

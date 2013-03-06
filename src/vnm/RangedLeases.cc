@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -28,9 +28,11 @@ RangedLeases::RangedLeases(
     SqlDB *        db,
     int           _oid,
     unsigned int  _mac_prefix,
+    unsigned int  _global[],
+    unsigned int  _site[],
     unsigned int  _ip_start,
     unsigned int  _ip_end):
-        Leases(db,_oid,0,_mac_prefix),
+        Leases(db, _oid, 0, _mac_prefix, _global, _site),
         ip_start(_ip_start),ip_end(_ip_end),current(0)
 {
     size = ip_end - ip_start + 1;
@@ -39,31 +41,123 @@ RangedLeases::RangedLeases(
 /* ************************************************************************** */
 /* Ranged Leases :: Methods                                                   */
 /* ************************************************************************** */
+
+static int get_template_size(VirtualNetwork* vn,
+                             unsigned int&   host_bits,
+                             unsigned int&   size)
+{
+    string st_size  = "";
+
+    vn->erase_template_attribute("NETWORK_SIZE", st_size);
+
+    if ( st_size == "C" || st_size == "c" )
+    {
+        host_bits = 8;
+        size      = 256;
+    }
+    else if ( st_size == "B" || st_size == "b" )
+    {
+        host_bits = 16;
+        size      = 65536;
+    }
+    else if ( st_size == "A" || st_size == "a" )
+    {
+        host_bits = 24;
+        size      = 16777216;
+    }
+    else
+    {
+        if (!st_size.empty())//Assume it's a number
+        {
+            istringstream iss(st_size);
+
+            iss >> size;
+
+            if (iss.fail())
+            {
+                return -1;
+            }
+        }
+        else
+        {
+            size = VirtualNetworkPool::default_size();
+        }
+
+        host_bits = (int) ceil(log(size+2)/log(2));
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
 int RangedLeases::process_template(VirtualNetwork* vn,
             unsigned int& ip_start, unsigned int& ip_end, string& error_str)
 {
     ostringstream   oss;
 
-    string st_size  = "";
     string st_addr  = "";
     string st_mask  = "";
 
     string st_ip_start  = "";
     string st_ip_end    = "";
+    string st_mac_start = "";
 
-    unsigned int host_bits;
+    unsigned int host_bits = 0;
     unsigned int network_bits;
+    unsigned int size;
 
     unsigned int net_addr;
     unsigned int net_mask;
     size_t       pos;
 
+    unsigned int mac[2];
+
+    // -------------------------------------------------------------------------
+    // Pure IPv6 network definition based on MAC_START and NETWORK_SIZE
+    // -------------------------------------------------------------------------
+
+    vn->erase_template_attribute("MAC_START", st_mac_start);
+
+    if (!st_mac_start.empty())
+    {
+        if ( Leases::Lease::mac_to_number(st_mac_start, mac) != 0 )
+        {
+            goto error_mac_start;
+        }
+
+        ip_start = mac[0];
+
+        if (get_template_size(vn, host_bits, size) != 0)
+        {
+            goto error_size;
+        }
+
+        ip_end = ip_start + size;
+
+        if ( ip_end < ip_start )
+        {
+            goto error_greater_mac;
+        }
+
+        vn->remove_template_attribute("IP_START");
+        vn->remove_template_attribute("IP_END");
+        vn->remove_template_attribute("NETWORK_ADDRESS");
+        vn->remove_template_attribute("NETWORK_MASK");
+        vn->remove_template_attribute("NETWORK_SIZE");
+
+        return 0;
+    }
+
+    // -------------------------------------------------------------------------
+    // Initialize IP_START and IP_END to limit the IP range
+    // -------------------------------------------------------------------------
+
     ip_start = 0;
     ip_end   = 0;
 
-    // retrieve specific information from template
     vn->erase_template_attribute("IP_START", st_ip_start);
-    vn->erase_template_attribute("IP_END",   st_ip_end);
+    vn->erase_template_attribute("IP_END", st_ip_end);
 
     if ( !st_ip_start.empty() )
     {
@@ -81,11 +175,15 @@ int RangedLeases::process_template(VirtualNetwork* vn,
         }
     }
 
+    // -------------------------------------------------------------------------
+    // Check for NETWORK_ADDRESS
+    // -------------------------------------------------------------------------
+
     vn->erase_template_attribute("NETWORK_ADDRESS", st_addr);
 
     if (st_addr.empty())
     {
-        if ( ip_start != 0 && ip_end != 0 )
+        if ( ip_start != 0 && ip_end != 0 ) //Manually range, exit
         {
             if ( ip_end < ip_start )
             {
@@ -100,10 +198,13 @@ int RangedLeases::process_template(VirtualNetwork* vn,
         }
     }
 
-    // Check if the IP has a network prefix
+    // -------------------------------------------------------------------------
+    // Check for NETWORK_SIZE or NETWORK_ADDRESS
+    // -------------------------------------------------------------------------
+
     pos = st_addr.find("/");
 
-    if ( pos != string::npos )
+    if ( pos != string::npos ) // Check for CIDR network address
     {
         string st_network_bits;
 
@@ -120,7 +221,7 @@ int RangedLeases::process_template(VirtualNetwork* vn,
 
         host_bits = 32 - network_bits;
     }
-    else
+    else // Check for network mask in decimal-dot notation
     {
         vn->erase_template_attribute("NETWORK_MASK", st_mask);
 
@@ -142,50 +243,29 @@ int RangedLeases::process_template(VirtualNetwork* vn,
                 host_bits++;
             }
         }
-        else
+        else //No network mask, get NETWORK_SIZE
         {
-            vn->erase_template_attribute("NETWORK_SIZE",st_size);
-
-            if ( st_size == "C" || st_size == "c" )
+            if (get_template_size(vn, host_bits, size) != 0)
             {
-                host_bits = 8;
-            }
-            else if ( st_size == "B" || st_size == "b" )
-            {
-                host_bits = 16;
-            }
-            else if ( st_size == "A" || st_size == "a" )
-            {
-                host_bits = 24;
-            }
-            else
-            {
-                unsigned int size;
-                 
-                if (!st_size.empty())//Assume it's a number
-                {
-                    istringstream iss(st_size);
-
-                    iss >> size;
-                }
-                else
-                {
-                    size = VirtualNetworkPool::default_size();
-                }
-
-                host_bits = (int) ceil(log(size+2)/log(2));
+                goto error_size;
             }
         }
     }
 
     vn->remove_template_attribute("NETWORK_SIZE");
 
-    // Set the network mask
+    // -------------------------------------------------------------------------
+    // Generate NETWORK_MASK
+    // -------------------------------------------------------------------------
+
     net_mask = 0xFFFFFFFF << host_bits;
     Lease::ip_to_string(net_mask, st_mask);
-    
+
     vn->replace_template_attribute("NETWORK_MASK", st_mask);
 
+    // -------------------------------------------------------------------------
+    // Consistency Checks based on the network address, and range
+    // -------------------------------------------------------------------------
     if ( Leases::Lease::ip_to_number(st_addr,net_addr) != 0 )
     {
         goto error_net_addr;
@@ -225,6 +305,9 @@ int RangedLeases::process_template(VirtualNetwork* vn,
 
     return 0;
 
+error_mac_start:
+    oss << "MAC_START " << st_mac_start << " is not a valid MAC.";
+    goto error_common;
 
 error_ip_start:
     oss << "IP_START " << st_ip_start << " is not a valid IP.";
@@ -260,6 +343,10 @@ error_range_ip_start:
         << st_addr << "/" << 32-host_bits << ".";
     goto error_common;
 
+error_size:
+    oss << "NETWORK_SIZE is not an integer number.";
+    goto error_common;
+
 error_range_ip_end:
     oss << "IP_END " << st_ip_end << " is not part of the network "
         << st_addr << "/" << 32-host_bits << ".";
@@ -273,6 +360,9 @@ error_greater:
         << st_ip_end << ".";
     goto error_common;
 
+error_greater_mac:
+    oss << "Size too big, it will overflow MAC address space.";
+    goto error_common;
 
 error_common:
     error_str = oss.str();
@@ -282,7 +372,7 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int RangedLeases::get(int vid, string&  ip, string&  mac)
+int RangedLeases::get(int vid, string&  ip, string&  mac, unsigned int eui64[])
 {
     unsigned int num_ip;
     int          rc = -1;
@@ -295,8 +385,10 @@ int RangedLeases::get(int vid, string&  ip, string&  mac)
         {
             unsigned int num_mac[2];
 
-            num_mac[Lease::PREFIX] = mac_prefix;
-            num_mac[Lease::SUFFIX] = num_ip;
+            num_mac[1] = mac_prefix;
+            num_mac[0] = num_ip;
+
+            Leases::Lease::mac_to_eui64(num_mac, eui64);
 
             rc = add(num_ip,num_mac,vid);
 
@@ -316,7 +408,7 @@ int RangedLeases::get(int vid, string&  ip, string&  mac)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int RangedLeases::set(int vid, const string&  ip, string&  mac)
+int RangedLeases::set(int vid, const string&  ip, string&  mac, unsigned int eui64[])
 {
     unsigned int num_ip;
     unsigned int num_mac[2];
@@ -339,8 +431,10 @@ int RangedLeases::set(int vid, const string&  ip, string&  mac)
         return -1;
     }
 
-    num_mac[Lease::PREFIX] = mac_prefix;
-    num_mac[Lease::SUFFIX] = num_ip;
+    num_mac[1] = mac_prefix;
+    num_mac[0] = num_ip;
+
+    Leases::Lease::mac_to_eui64(num_mac, eui64);
 
     rc = add(num_ip,num_mac,vid);
 

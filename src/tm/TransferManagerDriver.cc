@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -127,7 +127,7 @@ void TransferManagerDriver::protocol(
 
                 case VirtualMachine::EPILOG:
                 case VirtualMachine::EPILOG_STOP:
-                case VirtualMachine::CLEANUP:
+                case VirtualMachine::CLEANUP_RESUBMIT:
                     lcm_action = LifeCycleManager::EPILOG_SUCCESS;
                     break;
 
@@ -164,7 +164,7 @@ void TransferManagerDriver::protocol(
 
                 case VirtualMachine::EPILOG:
                 case VirtualMachine::EPILOG_STOP:
-                case VirtualMachine::CLEANUP:
+                case VirtualMachine::CLEANUP_RESUBMIT:
                     lcm_action = LifeCycleManager::EPILOG_FAILURE;
                     break;
 

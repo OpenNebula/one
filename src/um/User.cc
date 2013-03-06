@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -197,8 +197,8 @@ int User::from_xml(const string& xml)
     rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
-   
-    rc += quota.from_xml(this); 
+
+    rc += quota.from_xml(this);
 
     if (rc != 0)
     {
@@ -283,6 +283,30 @@ bool User::pass_is_valid(const string& pass, string& error_str)
 
     return true;
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int User::get_umask() const
+{
+    string umask_st;
+    int umask;
+
+    istringstream iss;
+
+    get_template_attribute("UMASK", umask_st);
+
+    if(umask_st.empty())
+    {
+        Nebula::instance().get_configuration_attribute("DEFAULT_UMASK",umask_st);
+    }
+
+    iss.str(umask_st);
+
+    iss >> oct >> umask;
+
+    return (umask & 0777);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
