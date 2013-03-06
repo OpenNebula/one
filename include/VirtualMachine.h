@@ -955,11 +955,20 @@ public:
     int detach_failure();
 
     /**
+     *  Get the IMAGE_ID of the image that's being saved as hot
+     *    @param disk_id of the DISK
+     *    @param image_id id of the image being saved
+     *    @return IMAGE_ID on success, -1 otherwise
+     */
+    int get_hotplug_saveas_image_id();
+
+    /**
      *  Sets the hotplug_saveas attribute to the given disk
      *    @param disk_id of the DISK
+     *    @param image_id id of the image being saved
      *    @return 0 if the disk_id was found -1 otherwise
      */
-    int set_hotplug_saveas(int disk_id);
+    int set_hotplug_saveas(int disk_id, int image_id);
 
     /**
      * Cleans the HOTPLUG_SAVEAS = YES attribute from the disks

@@ -385,7 +385,10 @@ static void mkfs_action(istringstream& is,
     }
     else
     {
-        image->set_state(Image::READY);
+        if ( !is_hot )
+        {
+            image->set_state(Image::READY);
+        }
 
         NebulaLog::log("ImM", Log::INFO, "Image created and ready to use");
     }
@@ -423,7 +426,7 @@ static void mkfs_action(istringstream& is,
         iss >> disk_oid;
 
         vm->set_state(VirtualMachine::HOTPLUG_SAVEAS);
-        vm->set_hotplug_saveas(disk_oid);
+        vm->set_hotplug_saveas(disk_oid, id);
 
         vm->set_resched(false);
 

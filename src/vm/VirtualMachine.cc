@@ -1854,10 +1854,51 @@ VectorAttribute * VirtualMachine::delete_attach_disk()
 
     return 0;
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::set_hotplug_saveas(int disk_id)
+int VirtualMachine::get_hotplug_saveas_image_id()
+{
+    int                  num_disks;
+    vector<Attribute  *> disks;
+    VectorAttribute *    disk;
+
+    istringstream iss;
+    string image_id_str;
+    int    image_id;
+
+    num_disks = obj_template->get("DISK", disks);
+
+    for(int i=0; i<num_disks; i++)
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        if ( !disk->vector_value("HOTPLUG_SAVEAS_IMAGE_ID").empty() )
+        {
+            image_id_str = disk->vector_value("HOTPLUG_SAVEAS_IMAGE_ID");
+            iss.str(image_id_str);
+
+            iss >> image_id;
+
+            if ( !iss.fail() )
+            {
+                return image_id;
+            }
+        }
+    }
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::set_hotplug_saveas(int disk_id, int img_id)
 {
 
     int num_disks;
@@ -1882,12 +1923,15 @@ int VirtualMachine::set_hotplug_saveas(int disk_id)
         if ( d_id == disk_id )
         {
             disk->replace("HOTPLUG_SAVEAS", "YES");
+            disk->replace("HOTPLUG_SAVEAS_IMAGE_ID", img_id);
+
             return 0;
         }
     }
 
     return -1;
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -1911,6 +1955,7 @@ void VirtualMachine::clear_hotplug_saveas()
         if ( disk->vector_value("HOTPLUG_SAVEAS") == "YES" )
         {
             disk->remove("HOTPLUG_SAVEAS");
+            disk->remove("HOTPLUG_SAVEAS_IMAGE_ID");
             return;
         }
     }

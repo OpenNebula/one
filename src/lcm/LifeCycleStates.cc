@@ -1200,7 +1200,14 @@ void LifeCycleManager::detach_failure_action(int vid)
 
 void LifeCycleManager::hotplug_saveas_success_action(int vid)
 {
+    Nebula&             nd = Nebula::instance();
+
+    ImagePool * ipool = nd.get_ipool();
+
     VirtualMachine *    vm;
+    Image * image;
+
+    int image_id;
 
     vm = vmpool->get(vid,true);
 
@@ -1211,7 +1218,9 @@ void LifeCycleManager::hotplug_saveas_success_action(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_SAVEAS)
     {
-        vm->clear_attach_disk();
+        image_id = vm->get_hotplug_saveas_image_id();
+
+        vm->clear_hotplug_saveas();
 
         vm->set_state(VirtualMachine::RUNNING);
 
@@ -1224,6 +1233,22 @@ void LifeCycleManager::hotplug_saveas_success_action(int vid)
     }
 
     vm->unlock();
+
+
+    ostringstream oss;
+
+    image = ipool->get(image_id, true);
+
+    if ( image == 0 )
+    {
+        return;
+    }
+
+    image->set_state(Image::READY);
+
+    ipool->update(image);
+
+    image->unlock();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1231,5 +1256,53 @@ void LifeCycleManager::hotplug_saveas_success_action(int vid)
 
 void LifeCycleManager::hotplug_saveas_failure_action(int vid)
 {
-    hotplug_saveas_success_action(vid);
+    Nebula&             nd = Nebula::instance();
+
+    ImagePool * ipool = nd.get_ipool();
+
+    VirtualMachine *    vm;
+    Image * image;
+
+    int image_id;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_SAVEAS)
+    {
+        image_id = vm->get_hotplug_saveas_image_id();
+
+        vm->clear_hotplug_saveas();
+
+        vm->set_state(VirtualMachine::RUNNING);
+
+        vmpool->update(vm);
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"hotplug_saveas_success_action,"
+                                 " VM in a wrong state");
+    }
+
+    vm->unlock();
+
+
+    ostringstream oss;
+
+    image = ipool->get(image_id, true);
+
+    if ( image == 0 )
+    {
+        return;
+    }
+
+    image->set_state(Image::ERROR);
+
+    ipool->update(image);
+
+    image->unlock();
 }
