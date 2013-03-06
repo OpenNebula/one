@@ -167,7 +167,7 @@ class OpenNebulaVNC
             sleep 1
 
             if is_running?
-                message="The server is still running"
+                message="VNC server is still running"
                 STDERR.puts message
                 logger.error message
                 return false
@@ -175,7 +175,7 @@ class OpenNebulaVNC
 
             delete_token_dir
         else
-            message="The server is not running"
+            message="VNC server is not running"
             @logger.info message
             STDERR.puts message
         end
@@ -184,10 +184,10 @@ class OpenNebulaVNC
 
     def status
         if is_running?
-            STDOUT.puts "novnc is running"
+            STDOUT.puts "VNC is running"
             true
         else
-            STDOUT.puts "novnc is NOT running"
+            STDOUT.puts "VNC is NOT running"
             false
         end
     end

@@ -65,6 +65,13 @@ start()
     exit 1
   fi
 
+  # Start novnc server
+  novnc-server start
+
+  if [ "$?" != "0" ]; then
+    echo "Could not start novnc server" 1>&2
+  fi
+
   # Start the sunstone daemon
   touch $SUNSTONE_LOCK_FILE
   ruby $SUNSTONE_SERVER > $SUNSTONE_LOG 2>$SUNSTONE_LOG_ERROR &
@@ -95,6 +102,9 @@ start()
 #
 stop()
 {
+  # Stop novnc server
+  novnc-server stop
+
   if [ ! -f $SUNSTONE_PID ]; then
     echo "Couldn't find sunstone-server process pid."
     exit 1
