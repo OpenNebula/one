@@ -148,7 +148,7 @@ function recountCheckboxes(dataTable){
 
     if (checked_length) { //at least 1 element checked
         //enable action buttons
-        $('.top_button, .list_button',context).prop('disabled', false);
+        $('.top_button, .list_button',context).removeAttr('disabled');
         //check if the last_action_button should be enabled
         if (last_action_b.length && last_action_b.val().length){
             last_action_b.prop('disabled', false);
@@ -162,7 +162,7 @@ function recountCheckboxes(dataTable){
     } else { //no elements cheked
         //disable action buttons, uncheck checkAll
         $('.check_all',dataTable).removeAttr('checked');
-        $('.top_button, .list_button',context).prop('disabled', true);
+        $('.top_button, .list_button',context).attr('disabled', true);
         last_action_b.prop('disabled', true);
     };
 

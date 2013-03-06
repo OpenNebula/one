@@ -564,22 +564,21 @@ function insertButtonsInTab(tab_name){
                     '</li>'+
                     '<li>'+
                         "<div id='more_buttons'>"+
-                            "<button href='#' class='top_button small button secondary dropdown radius'>"+
-                                "More"+
+                            "<div href='#' class='top_button small button secondary dropdown radius'>More "+
                                 "<ul>"+
                                 "</ul>"+
-                            "</button>"+
+                            "</div>"+
                         "</div>"+
                     '</li>'+
                   '</ul>'+
                   '<ul class="button-group">'+
                     '<li>'+
                         "<div id='user_buttons'>"+
-                            "<button href='#' class='top_button small button dropdown radius'>"+
+                            "<div href='#' class='top_button small secondary button dropdown radius'>"+
                                 "<i class='icon-user'/>"+
                                 "<ul>"+
                                 "</ul>"+
-                            "</button>"+
+                            "</div>"+
                         "</div>"+
                     '</li>'+
                   '</ul>'+

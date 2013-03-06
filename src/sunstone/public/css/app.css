@@ -612,18 +612,18 @@ fieldset legend {
 /* Errors */
 /* line 49, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/common/_forms.scss */
 .error input, input.error, .error textarea, textarea.error, .error input:focus, input.error:focus, .error textarea:focus, textarea.error:focus {
-  border-color: #c60f13;
-  background-color: rgba(198, 15, 19, 0.1);
+  border-color: #c0392b;
+  background-color: rgba(192, 57, 43, 0.1);
 }
 
 /* line 50, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/common/_forms.scss */
 .error input:focus, input.error:focus, .error textarea:focus, textarea.error:focus {
-  outline-color: #f5797c;
+  outline-color: #e9a39b;
 }
 
 /* line 51, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/common/_forms.scss */
 .error label, label.error {
-  color: #c60f13;
+  color: #c0392b;
 }
 
 /* line 52, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/common/_forms.scss */
@@ -632,7 +632,7 @@ fieldset legend {
   padding: 6px 4px;
   margin-top: -13px;
   margin-bottom: 12px;
-  background: #c60f13;
+  background: #c0392b;
   color: #fff;
   font-size: 12px;
   font-weight: bold;
@@ -1428,21 +1428,21 @@ that IE7/8 do not support :nth-child.
 }
 /* line 20, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_buttons.scss */
 .button.success {
-  background-color: #5da423;
-  border: 1px solid #396516;
+  background-color: #27ae60;
+  border: 1px solid #19703e;
 }
 /* line 21, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_buttons.scss */
 .button.success:hover, .button.success:focus {
-  background-color: #457a1a;
+  background-color: #1e8449;
 }
 /* line 23, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_buttons.scss */
 .button.alert {
-  background-color: #c60f13;
-  border: 1px solid #7f0a0c;
+  background-color: #c0392b;
+  border: 1px solid #81261d;
 }
 /* line 24, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_buttons.scss */
 .button.alert:hover, .button.alert:focus {
-  background-color: #970b0e;
+  background-color: #962d22;
 }
 /* line 26, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_buttons.scss */
 .button.secondary {
@@ -1497,20 +1497,20 @@ that IE7/8 do not support :nth-child.
 }
 /* line 42, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_buttons.scss */
 .button.disabled.success, .button[disabled].success {
-  background-color: #5da423;
+  background-color: #27ae60;
 }
 /* line 43, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_buttons.scss */
 .button.disabled.success:hover, .button.disabled.success:focus, .button[disabled].success:hover, .button[disabled].success:focus {
-  background-color: #5da423;
+  background-color: #27ae60;
   outline: none;
 }
 /* line 45, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_buttons.scss */
 .button.disabled.alert, .button[disabled].alert {
-  background-color: #c60f13;
+  background-color: #c0392b;
 }
 /* line 46, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_buttons.scss */
 .button.disabled.alert:hover, .button.disabled.alert:focus, .button[disabled].alert:hover, .button[disabled].alert:focus {
-  background-color: #c60f13;
+  background-color: #c0392b;
   outline: none;
 }
 /* line 48, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_buttons.scss */
@@ -1717,11 +1717,11 @@ input[type=submit].button, button.button {
 }
 /* line 106, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_buttons.scss */
 .button.dropdown.split.alert:hover, .button.dropdown.split.alert:focus {
-  background-color: #c60f13;
+  background-color: #c0392b;
 }
 /* line 107, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_buttons.scss */
 .button.dropdown.split.success:hover, .button.dropdown.split.success:focus {
-  background-color: #5da423;
+  background-color: #27ae60;
 }
 /* line 108, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_buttons.scss */
 .button.dropdown.split.secondary:hover, .button.dropdown.split.secondary:focus {
@@ -1855,13 +1855,13 @@ input[type=submit].button, button.button {
 }
 /* line 134, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_buttons.scss */
 .button.dropdown.split.alert > span {
-  background-color: #c60f13;
-  border-left-color: #7f0a0c;
+  background-color: #c0392b;
+  border-left-color: #81261d;
 }
 /* line 135, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_buttons.scss */
 .button.dropdown.split.success > span {
-  background-color: #5da423;
-  border-left-color: #396516;
+  background-color: #27ae60;
+  border-left-color: #19703e;
 }
 /* line 136, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_buttons.scss */
 .button.dropdown.split.secondary > span {
@@ -1874,11 +1874,11 @@ input[type=submit].button, button.button {
 }
 /* line 139, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_buttons.scss */
 .button.dropdown.split.alert > a:hover, .button.dropdown.split.alert > span:hover, .button.dropdown.split.alert > a:focus, .button.dropdown.split.alert > span:focus {
-  background-color: #970b0e;
+  background-color: #962d22;
 }
 /* line 140, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_buttons.scss */
 .button.dropdown.split.success > a:hover, .button.dropdown.split.success > span:hover, .button.dropdown.split.success > a:focus, .button.dropdown.split.success > span:focus {
-  background-color: #457a1a;
+  background-color: #1e8449;
 }
 /* line 141, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_buttons.scss */
 .button.dropdown.split.secondary > a:hover, .button.dropdown.split.secondary > span:hover, .button.dropdown.split.secondary > a:focus, .button.dropdown.split.secondary > span:focus {
@@ -3750,13 +3750,13 @@ div.alert-box {
 }
 /* line 29, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_ui.scss */
 div.alert-box.success {
-  background-color: #5da423;
+  background-color: #27ae60;
   color: #fff;
   text-shadow: 0 -1px rgba(0, 0, 0, 0.3);
 }
 /* line 30, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_ui.scss */
 div.alert-box.alert {
-  background-color: #c60f13;
+  background-color: #c0392b;
   color: #fff;
   text-shadow: 0 -1px rgba(0, 0, 0, 0.3);
 }
@@ -3816,11 +3816,11 @@ div.alert-box a.close:hover, div.alert-box a.close:focus {
 }
 /* line 46, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_ui.scss */
 .label.alert {
-  background-color: #c60f13;
+  background-color: #c0392b;
 }
 /* line 47, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_ui.scss */
 .label.success {
-  background-color: #5da423;
+  background-color: #27ae60;
 }
 /* line 48, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_ui.scss */
 .label.secondary {
@@ -4466,11 +4466,11 @@ div.progress.secondary .meter {
 }
 /* line 271, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_ui.scss */
 div.progress.success .meter {
-  background: #5da423;
+  background: #27ae60;
 }
 /* line 272, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_ui.scss */
 div.progress.alert .meter {
-  background: #c60f13;
+  background: #c0392b;
 }
 /* line 275, ../../../../../../../../../var/lib/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_ui.scss */
 div.progress.radius {
@@ -6109,7 +6109,7 @@ table.dataTable td {
 ----------------------------------------- */
 /* line 118, ../sass/app.scss */
 .remove-tab:hover {
-  color: #c60f13;
+  color: #c0392b;
 }
 
 /* line 122, ../sass/app.scss */
@@ -6312,232 +6312,231 @@ div.button-bar {
 /* line 362, ../sass/app.scss */
 .button.small {
   font-size: 12px;
-  padding: 6px 12px 6px;
   box-shadow: none;
   height: 28px;
 }
 
-/* line 369, ../sass/app.scss */
+/* line 368, ../sass/app.scss */
 .button {
   box-shadow: none;
 }
 
-/* line 373, ../sass/app.scss */
+/* line 372, ../sass/app.scss */
 .button.tiny {
   box-shadow: none;
 }
 
-/* line 377, ../sass/app.scss */
+/* line 376, ../sass/app.scss */
 .panel {
   padding: 0px;
   background: #f2f2f2;
 }
 
-/* line 382, ../sass/app.scss */
+/* line 381, ../sass/app.scss */
 .tabs.vertical li a {
   padding: 15px 11px;
 }
 
-/* line 386, ../sass/app.scss */
+/* line 385, ../sass/app.scss */
 input[type="text"] {
   height: 28px !important;
 }
 
-/* line 390, ../sass/app.scss */
+/* line 389, ../sass/app.scss */
 .right {
   float: right !important;
 }
 
-/* line 394, ../sass/app.scss */
+/* line 393, ../sass/app.scss */
 .ui-layout-pane {
   background: #fdfdfd;
 }
 
-/* line 401, ../sass/app.scss */
+/* line 400, ../sass/app.scss */
 tr.odd:hover td {
   background-color: #2ba6cb !important;
   cursor: pointer;
   color: white !important;
 }
 
-/* line 407, ../sass/app.scss */
+/* line 406, ../sass/app.scss */
 tr.even:hover td {
   background-color: #2ba6cb !important;
   cursor: pointer;
   color: white !important;
 }
 
-/* line 413, ../sass/app.scss */
+/* line 412, ../sass/app.scss */
 tr {
   border-bottom: 1px solid #e6e6e6;
 }
 
-/* line 419, ../sass/app.scss */
+/* line 418, ../sass/app.scss */
 table thead tr th, table tfoot tr td {
   padding: 5px 10px 5px;
   line-height: 16px;
 }
 
-/* line 424, ../sass/app.scss */
+/* line 423, ../sass/app.scss */
 table {
   border-collapse: collapse;
   border-spacing: 0;
 }
 
 /* Growl */
-/* line 430, ../sass/app.scss */
+/* line 429, ../sass/app.scss */
 .jGrowl-notification h1 {
   font-size: 1.2em;
 }
 
-/* line 434, ../sass/app.scss */
+/* line 433, ../sass/app.scss */
 .jGrowl-notification, .jGrowl-notify-submit {
   border: 2px #444444 solid;
   background-color: #F3F3F3!important;
   color: #666666;
 }
 
-/* line 440, ../sass/app.scss */
+/* line 439, ../sass/app.scss */
 .jGrowl-notify-error {
   border: 2px #660000 solid;
   background-color: #F39999!important;
   color: #660000;
 }
 
-/* line 446, ../sass/app.scss */
+/* line 445, ../sass/app.scss */
 .jGrowl-notify-error table td.key_error {
   text-transform: capitalize;
   width: 100%;
   font-weight: bold;
 }
 
-/* line 452, ../sass/app.scss */
+/* line 451, ../sass/app.scss */
 .jGrowl-notify-error table td.key_error:after {
   content: ":";
 }
 
-/* line 459, ../sass/app.scss */
+/* line 458, ../sass/app.scss */
 .markrow {
   background-color: #cdebf5 !important;
 }
 
-/* line 460, ../sass/app.scss */
+/* line 459, ../sass/app.scss */
 .markrowselected {
   background-color: #2ba6cb !important;
   color: #FFF;
 }
 
-/* line 461, ../sass/app.scss */
+/* line 460, ../sass/app.scss */
 .markrowchecked {
   background-color: #cdebf5;
 }
 
-/* line 464, ../sass/app.scss */
+/* line 463, ../sass/app.scss */
 .hidden {
   display: none;
 }
 
-/* line 473, ../sass/app.scss */
+/* line 472, ../sass/app.scss */
 #navigation li.topTab span.plusIcon,
 #navigation li.subTab span.plusIcon {
   display: none;
   float: right;
 }
 
-/* line 478, ../sass/app.scss */
+/* line 477, ../sass/app.scss */
 span.plusIcon {
   color: #d0d0d0;
 }
 
-/* line 482, ../sass/app.scss */
+/* line 481, ../sass/app.scss */
 span.plusIcon:hover {
   color: #555;
 }
 
-/* line 489, ../sass/app.scss */
+/* line 488, ../sass/app.scss */
 table.extended_table tbody tr td {
   padding: 3px 10px;
 }
 
-/* line 496, ../sass/app.scss */
+/* line 495, ../sass/app.scss */
 .reveal-modal {
   top: 50px;
 }
 
-/* line 501, ../sass/app.scss */
+/* line 500, ../sass/app.scss */
 .ui-layout-resizer-open-hover,
 .ui-layout-resizer-dragging {
   background: #EEE;
 }
 
-/* line 506, ../sass/app.scss */
+/* line 505, ../sass/app.scss */
 .reveal-modal .panel {
   margin-left: -30px;
   margin-right: -30px;
   margin-bottom: 30px;
 }
 
-/* line 512, ../sass/app.scss */
+/* line 511, ../sass/app.scss */
 .reveal-modal.xlarge {
   padding-top: 0px;
   width: 80%;
   margin-left: -40%;
 }
 
-/* line 518, ../sass/app.scss */
+/* line 517, ../sass/app.scss */
 .reveal-modal {
   padding-top: 0px;
 }
 
-/* line 522, ../sass/app.scss */
+/* line 521, ../sass/app.scss */
 .reveal-modal h3 {
   margin-left: 30px;
   margin-bottom: 7px !important;
 }
 
-/* line 527, ../sass/app.scss */
+/* line 526, ../sass/app.scss */
 .reveal-modal .close-reveal-modal:not(.button) {
   top: 13px;
 }
 
-/* line 531, ../sass/app.scss */
+/* line 530, ../sass/app.scss */
 .reveal-modal .close-reveal-modal:not(.button):hover {
   color: #222;
 }
 
-/* line 535, ../sass/app.scss */
+/* line 534, ../sass/app.scss */
 fieldset {
   margin: 0px 10px;
 }
 
-/* line 541, ../sass/app.scss */
+/* line 540, ../sass/app.scss */
 .graph_table table {
   border: 0px;
   margin: 0px;
 }
 
-/* line 546, ../sass/app.scss */
+/* line 545, ../sass/app.scss */
 .graph_table table tr {
   border: 0px;
 }
 
-/* line 551, ../sass/app.scss */
+/* line 550, ../sass/app.scss */
 .ui-layout-pane {
   padding: 0px;
   overflow: overlay;
 }
 
-/* line 556, ../sass/app.scss */
+/* line 555, ../sass/app.scss */
 .reveal-modal .columns {
   padding: 0 8px;
 }
 
-/* line 560, ../sass/app.scss */
+/* line 559, ../sass/app.scss */
 select {
   width: auto;
 }
 
-/* line 565, ../sass/app.scss */
+/* line 564, ../sass/app.scss */
 form.creation {
   max-height: 450px;
   overflow-y: auto;
@@ -6545,12 +6544,12 @@ form.creation {
   padding: 5px;
 }
 
-/* line 572, ../sass/app.scss */
+/* line 571, ../sass/app.scss */
 #dialog input {
   margin: 0px;
 }
 
-/* line 577, ../sass/app.scss */
+/* line 576, ../sass/app.scss */
 .progress-container {
   position: relative;
   width: 100%;
@@ -6558,7 +6557,7 @@ form.creation {
   background: #FFF;
 }
 
-/* line 584, ../sass/app.scss */
+/* line 583, ../sass/app.scss */
 .progress {
   position: absolute;
   width: 100%;
@@ -6566,7 +6565,7 @@ form.creation {
   background: #FFF;
 }
 
-/* line 591, ../sass/app.scss */
+/* line 590, ../sass/app.scss */
 .progress-text {
   position: absolute;
   width: 100%;
@@ -6574,43 +6573,66 @@ form.creation {
   color: black !important;
 }
 
-/* line 598, ../sass/app.scss */
+/* line 597, ../sass/app.scss */
 .meter {
   background: #cdebf5 !important;
 }
 
-/* line 602, ../sass/app.scss */
+/* line 601, ../sass/app.scss */
 .dashboard .subheader {
   text-align: center;
 }
 
-/* line 606, ../sass/app.scss */
+/* line 605, ../sass/app.scss */
 .dashboard h2.subheader {
   margin-bottom: 0;
   margin-top: 0;
 }
 
-/* line 611, ../sass/app.scss */
+/* line 610, ../sass/app.scss */
 .dashboard h6.subheader {
   margin-top: 0;
 }
 
-/* line 615, ../sass/app.scss */
+/* line 614, ../sass/app.scss */
 .dashboard h3.subheader {
   margin-top: 0;
 }
 
-/* line 619, ../sass/app.scss */
+/* line 618, ../sass/app.scss */
 ul.button-group {
   margin-bottom: 0;
 }
 
-/* line 623, ../sass/app.scss */
+/* line 622, ../sass/app.scss */
 .value_td {
   text-overflow: ellipsis;
 }
 
-/* line 627, ../sass/app.scss */
+/* line 626, ../sass/app.scss */
 small {
   color: #b6b6b6 !important;
+}
+
+/* line 630, ../sass/app.scss */
+.header-dashboard {
+  margin-top: -5px;
+}
+
+/* line 634, ../sass/app.scss */
+.span-dashboard {
+  background: #fcfcfc;
+  color: #6f6f6f;
+  padding: 5px 25px;
+  box-shadow: 0 0 2px 0px #6f6f6f;
+}
+
+/* line 641, ../sass/app.scss */
+.button.secondary {
+  color: #2f2f2f;
+}
+
+/* line 645, ../sass/app.scss */
+.button.dropdown.small::after {
+  border-color: #2f2f2f transparent transparent transparent;
 }

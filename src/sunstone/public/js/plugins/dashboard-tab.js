@@ -189,7 +189,7 @@ var dashboard_tab_content = '\
     <div class="six columns">\
       <div class="panel">\
         <div class="row">\
-          <h4 class="subheader"><i class="icon-hdd"></i> '+tr("Hosts")+'</h4>\
+          <h4 class="subheader header-dashboard"><span class="span-dashboard"><i class="icon-hdd"></i> '+tr("Hosts")+'</span></h4>\
         </div>\
         <div class="row">\
           <div class="three columns">\
@@ -214,7 +214,7 @@ var dashboard_tab_content = '\
     <div class="six columns">\
       <div class="panel">\
         <div class="row">\
-          <h4 class="subheader"><i class="icon-cloud"></i> '+tr("Virtual Machines")+'</h4>\
+          <h4 class="subheader header-dashboard"><span class="span-dashboard"><i class="icon-cloud"></i> '+tr("Virtual Machines")+'</span></h4>\
         </div>\
         <div class="row">\
           <div class="three columns">\
@@ -241,7 +241,7 @@ var dashboard_tab_content = '\
     <div class="four columns">\
       <div class="panel">\
         <div class="row">\
-          <h4 class="subheader"><i class="icon-upload"></i> '+tr("Storage")+'</h4>\
+          <h4 class="subheader header-dashboard"><span class="span-dashboard"><i class="icon-upload"></i> '+tr("Storage")+'</span></h4>\
         </div>\
         <div class="row">\
           <div class="six columns">\
@@ -258,7 +258,7 @@ var dashboard_tab_content = '\
     <div class="four columns">\
       <div class="panel">\
         <div class="row">\
-          <h4 class="subheader"><i class="icon-user"></i> '+tr("Users")+'</h4>\
+          <h4 class="subheader header-dashboard"><span class="span-dashboard"><i class="icon-user"></i> '+tr("Users")+'</span></h4>\
         </div>\
         <div class="row">\
           <div class="six columns">\
@@ -275,7 +275,7 @@ var dashboard_tab_content = '\
     <div class="four columns">\
       <div class="panel">\
         <div class="row">\
-          <h4 class="subheader"><i class="icon-sitemap"></i> '+tr("Network")+'</h4>\
+          <h4 class="subheader header-dashboard"><span class="span-dashboard"><i class="icon-sitemap"></i> '+tr("Network")+'</span></h4>\
         </div>\
         <div class="row">\
           <div class="six columns">\

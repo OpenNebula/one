@@ -96,7 +96,7 @@ table.dataTable tr {
 }
 
 table thead, table tfoot {
-background: #f2f2f2;
+    background: #f2f2f2;
 }
 
 
@@ -361,7 +361,6 @@ div.button-bar {
 
 .button.small {
     font-size: 12px;
-    padding: 6px 12px 6px;
     box-shadow: none;
     height:28px;
 }
@@ -626,4 +625,23 @@ ul.button-group {
 
 small {
     color: rgb(182, 182, 182) !important;
+}
+
+.header-dashboard {
+    margin-top: -5px;
+}
+
+.span-dashboard {
+    background: rgb(252,252,252);
+    color: #6f6f6f;
+    padding: 5px 25px;
+    box-shadow: 0 0 2px 0px #6f6f6f;
+}
+
+.button.secondary {
+    color: #2f2f2f;
+}
+
+.button.dropdown.small::after {
+    border-color: #2f2f2f transparent transparent transparent;
 }
