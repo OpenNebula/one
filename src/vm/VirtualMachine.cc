@@ -1924,7 +1924,7 @@ VectorAttribute * VirtualMachine::set_up_attach_nic(
 
     int rc = vnpool->nic_attribute(new_nic, max_nic_id+1, uid, vm_id, error_str);
 
-    if ( rc != 0 )
+    if ( rc != -1 ) //-2 is not using a pre-defined network
     {
         delete new_nic;
         return 0;
