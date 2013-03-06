@@ -26,6 +26,8 @@ import org.w3c.dom.Node;
  * It also offers static XML-RPC call wrappers.
  */
 public class VirtualMachine extends PoolElement{
+    private static final String METHOD_PREFIX = "vm.";
+
     private static final String ALLOCATE = METHOD_PREFIX + "allocate";
     private static final String INFO     = METHOD_PREFIX + "info";
     private static final String DEPLOY   = METHOD_PREFIX + "deploy";
