@@ -93,7 +93,8 @@ function setupTabs(){
         //toggle subtabs only when clicking on the icon or when clicking on an
         //already selected menu
         if ($(e.target).is('span') ||
-            $(this).hasClass("navigation-active-li")){
+            $(this).hasClass("navigation-active-li") ||
+            $(this).hasClass("tab_with_no_content")){
             //for each subtab, we hide the subsubtabs
             subtabs.each(function(){
                 //for each subtab, hide its subtabs
@@ -110,12 +111,16 @@ function setupTabs(){
             $('span',subtabs).addClass(' icon-caret-left');
             //toggle icon on this tab
             $('span',this).toggleClass(' icon-caret-left  icon-caret-down');
-        };
+            return false;
+        }
+        else {
+            showTab(tab);
+            return false;
+        }
         //if we are clicking on the icon only, do not show the tab
         if ($(e.target).is('span')) return false;
 
-        showTab(tab);
-        return false;
+
     });
 
 };

@@ -243,10 +243,20 @@ div.button-bar {
     padding-left:       15px;
 }
 
-#navigation li:hover, #navigation .navigation-active-li,
-#navigation li:hover, {
+#navigation li:not(subTab) {
+    border-left: 5px solid #f2f2f2 !important;
+}
+
+#navigation li.subTab:not(.navigation-active-li) {
+    border-left: 5px solid #fdfdfd !important;
+}
+
+#navigation li:hover { 
     font-weight: bold;
-    border-left: 3px solid #555 !important;
+}
+
+#navigation .navigation-active-li {
+    border-left: 5px solid #555 !important;
 }
 
 //ul.nav-bar {

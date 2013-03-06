@@ -89,8 +89,8 @@ var infra_tab_content =
 </tr></table>';
 
 var infra_tab = {
-    title: '<i class="icon-sitemap"></i>'+tr("Infrastructure"),
-    content: infra_tab_content
+    title: '<i class="icon-sitemap"></i>'+tr("Infrastructure")
+    //content: infra_tab_content
 }
 
 Sunstone.addMainTab('infra_tab',infra_tab);

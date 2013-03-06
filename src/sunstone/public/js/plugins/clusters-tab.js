@@ -1121,7 +1121,7 @@ var clusters_tab = {
     content: clusters_tab_content,
     buttons: cluster_buttons,
     showOnTopMenu: false,
-    tabClass: "topTab subTab",
+    tabClass: "subTab",
     parentTab: "infra_tab"
 };
 
@@ -1364,8 +1364,8 @@ function updateClustersView (request,list){
     });
 
     //Remove the menus as we recreate them again.
-    removeClusterMenus();
-    newClusterMenu(list);
+    //removeClusterMenus();
+    //newClusterMenu(list);
 
     updateView(list_array,dataTable_clusters);
     updateClusterSelect();
@@ -1770,60 +1770,60 @@ function clusterTabContent(cluster_json) {
     return html_code;
 };
 
-//Removes the clusters from the submenu
-function removeClusterMenus(){
-    var data = dataTable_clusters.fnGetData();
-
-    Sunstone.removeMainTab('cluster_tab_-',true);
-
-    for (var i=0; i < data.length; i++){
-        var id = data[i][1];
-        Sunstone.removeMainTab('cluster_tab_'+id,true);
-    };
-};
-
-// Creates new cluster submenus
-// insert cluster none manually
-function newClusterMenu(list){
-    var cluster_none = {
-        'CLUSTER' : {
-            'NAME' : 'None',
-            'ID' : '-',
-            'DATASTORES' : [],
-            'HOSTS' : [],
-            'VNETS' : []
-        }
-    };
-
-    newClusterMenuElement(cluster_none);
-
-    for (var i=0; i < list.length; i++){
-        newClusterMenuElement(list[i]);
-    };
-    $('div#menu li#li_clusters_tab span').removeClass('ui-icon-circle-minus');
-    $('div#menu li#li_clusters_tab span').addClass('ui-icon-circle-plus');
-};
-
-// Create new cluster menu
-function newClusterMenuElement(element){
-    var cluster = element.CLUSTER;
-
-    //trim long cluster names
-    var menu_name = cluster.NAME.length > 10 ?
-        cluster.NAME.substring(0,9)+'...' : cluster.NAME;
-
-    // Menu object
-    var menu_cluster = {
-        title: menu_name + ' (id ' + cluster.ID + ')',
-        content: clusterTabContent(element),
-        tabClass: 'subTab subsubTab',
-        parentTab: 'clusters_tab'
-
-    };
-
-    // Add to sunstone
-    Sunstone.addMainTab('cluster_tab_'+cluster.ID,menu_cluster,true);
-};
+////Removes the clusters from the submenu
+//function removeClusterMenus(){
+//    var data = dataTable_clusters.fnGetData();
+//
+//    Sunstone.removeMainTab('cluster_tab_-',true);
+//
+//    for (var i=0; i < data.length; i++){
+//        var id = data[i][1];
+//        Sunstone.removeMainTab('cluster_tab_'+id,true);
+//    };
+//};
+//
+//// Creates new cluster submenus
+//// insert cluster none manually
+//function newClusterMenu(list){
+//    var cluster_none = {
+//        'CLUSTER' : {
+//            'NAME' : 'None',
+//            'ID' : '-',
+//            'DATASTORES' : [],
+//            'HOSTS' : [],
+//            'VNETS' : []
+//        }
+//    };
+//
+//    newClusterMenuElement(cluster_none);
+//
+//    for (var i=0; i < list.length; i++){
+//        newClusterMenuElement(list[i]);
+//    };
+//    $('div#menu li#li_clusters_tab span').removeClass('ui-icon-circle-minus');
+//    $('div#menu li#li_clusters_tab span').addClass('ui-icon-circle-plus');
+//};
+//
+//// Create new cluster menu
+//function newClusterMenuElement(element){
+//    var cluster = element.CLUSTER;
+//
+//    //trim long cluster names
+//    var menu_name = cluster.NAME.length > 10 ?
+//        cluster.NAME.substring(0,9)+'...' : cluster.NAME;
+//
+//    // Menu object
+//    var menu_cluster = {
+//        title: menu_name + ' (id ' + cluster.ID + ')',
+//        content: clusterTabContent(element),
+//        tabClass: 'subTab subsubTab',
+//        parentTab: 'clusters_tab'
+//
+//    };
+//
+//    // Add to sunstone
+//    Sunstone.addMainTab('cluster_tab_'+cluster.ID,menu_cluster,true);
+//};
 
 // Basicly, we show the hosts/datastore/vnets tab, but before we set
 // a filter on the cluster column, so it only shows the cluster we want.

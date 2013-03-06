@@ -477,7 +477,12 @@ function insertTab(tab_name){
 
     main_tabs_context.append('<div id="'+tab_name+'" class="tab" style="display:none;"></div>');
 
-    $('div#'+tab_name,main_tabs_context).html(tab_info.content);
+    if (tab_info.content) {
+        $('div#'+tab_name,main_tabs_context).html(tab_info.content);
+    }
+    else {
+        tabClass += " tab_with_no_content"
+    }
 
     var li_item = '<li id="li_'+tab_name+'" class="'+tabClass+' '+parent+'"><a href="#">'+tab_info.title+'<span class="icon-caret-left icon-large plusIcon right"></span></a></li>';
 

@@ -85,8 +85,8 @@ var system_tab_content = '\
 </tr></table>';
 
 var system_tab = {
-    title: '<i class="icon-cogs"></i>'+tr("System"),
-    content: system_tab_content
+    title: '<i class="icon-cogs"></i>'+tr("System")
+    //content: system_tab_content
 }
 
 Sunstone.addMainTab('system_tab',system_tab);
