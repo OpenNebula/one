@@ -336,7 +336,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         if vm.has_elements?("/VM/TEMPLATE/NIC")
                         CLIHelper.print_header(str_h1 % "VM NICS",false)
 
-            vm_nics = vm.to_hash['VM']['TEMPLATE']['NIC']
+            vm_nics = [vm.to_hash['VM']['TEMPLATE']['NIC']].flatten
 
             nic_default = {"NETWORK" => "-",
                            "IP" => "-",
@@ -348,9 +348,9 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
             vm_nics.each {|nic|
 
-                next if nic.has_key?("NIC_ID")
+                next if nic.has_key?("NIC_ID_RENDER")
 
-                nic["NIC_ID"] = nic_id
+                nic["NIC_ID_RENDER"] = nic_id
 
                 if nic.has_key?("IP6_LINK")
                     ip6_link = {"IP"          => nic.delete("IP6_LINK"),
@@ -430,7 +430,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     end
                 end
 
-            end.show([vm_nics].flatten,{})
+            end.show(vm_nics,{})
 
             while vm.has_elements?("/VM/TEMPLATE/NIC")
                 vm.delete_element("/VM/TEMPLATE/NIC")
