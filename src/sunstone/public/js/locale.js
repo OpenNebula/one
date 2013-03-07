@@ -89,6 +89,6 @@ $(document).ready(function(){
     $('#doc_link').html(tr("Documentation"));
     $('#support_link').html(tr("Support"));
     $('#community_link').html(tr("Community"));
-    $('#welcome').html(tr("Welcome"));
-    $('#logout').html(tr("Sign out"));
+    //$('#welcome').html(tr("Welcome"));
+    //$('#logout').html(tr("Sign out"));
 });

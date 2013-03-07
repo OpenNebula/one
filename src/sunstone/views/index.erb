@@ -21,7 +21,7 @@
     <script type="text/javascript" src="vendor/4.0/foundation/modernizr.foundation.js"></script>
 
     <script type="text/javascript" src="vendor/4.0/datatables/jquery.dataTables.min.js"></script>
-    
+
     <script type="text/javascript" src="vendor/4.0/foundation_datatables/responsive-tables.js"></script>
     <script type="text/javascript" src="vendor/4.0/foundation_datatables/datatables.foundation.js"></script>
 
@@ -46,7 +46,7 @@
     <!--Languages-->
     <script type="text/javascript" src="js/locale.js"></script>
 <%if session[:lang]%>
-    <script type="text/javascript" src="locale/<%=session[:lang]%>/<%=session[:lang]%>.js"></script> 
+    <script type="text/javascript" src="locale/<%=session[:lang]%>/<%=session[:lang]%>.js"></script>
 <%end%>
     <!--endLanguages-->
 
@@ -86,14 +86,18 @@
     <div id="logo">
         <img src="images/opennebula-sunstone-v4.0.png"/>
     </div>
+    <div class="menu-navZ">
     <ul id="navigation" class="tabs vertical">
+
     </ul>
 </div>
+    <div id="login-info" class="centered">
+        <i class="icon-user"></i> <span id="user"></span><br>
+        <a href="#" class="button tiny secondary footer" id="logout">Sign out</a><br>
+        <span class="footer-opennebula"><a href="http://opennebula.org" target="_blank">OpenNebula 3.9.0</a> by <a href="http://c12g.com" target="_blank">C12G Labs</a>.</span>
+    </div>
+</div>
 
-
-<!--<div id="footer" style="overflow:visible;" class="ui-layout-south">
-    <a href="http://opennebula.org" target="_blank">OpenNebula 3.9.0</a> by <a href="http://c12g.com" target="_blank">C12G Labs</a>.
-</div>-->
 
 
 <div id="dialogs">

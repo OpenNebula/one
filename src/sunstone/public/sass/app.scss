@@ -112,7 +112,7 @@ padding: 3px 10px;
 }
 
 /* -----------------------------------------
-   Tabs remove icon 
+   Tabs remove icon
 ----------------------------------------- */
 
 .remove-tab:hover {
@@ -157,17 +157,31 @@ div.button-bar {
 
 #logo {
     font-weight: bold;
-    color: white;
     margin:10%;
     margin-top: 15%;
-    margin-bottom: 15%;
+    margin-bottom: 10%;
 }
 
 #login-info {
-    padding-top: 4px;
-    float: right;
-    padding-right: 5px;
+//    padding-top: 4px;
+//    float: center;
+//    padding-right: 5px;
+//    width:100%;
+    text-align:center;
+    overflow: visible;
+    position: absolute;
+    margin: 0px;
+    top: auto;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    width: auto;
+    z-index: 0;
+    height: 70px;
+    display: block;
+    visibility: visible;
 }
+
 
 #links {
     padding-top: 4px;
@@ -176,7 +190,7 @@ div.button-bar {
 }
 
 #login-info, #login-info a, #links, #links a {
-    color: white;
+    color: #555;
 }
 
 #login-info, #login-info a {
@@ -192,10 +206,16 @@ div.button-bar {
     margin-right: 20px;
 }
 
+.menu-nav {
+    height: 70%;
+    overflow: overlay;
+}
+
 #menu {
     padding-right:  0;
     padding-left:   0;
     border:0;
+    overflow:hidden;
 }
 
 #tabs_content {
@@ -236,7 +256,7 @@ div.button-bar {
     background: #fdfdfd;
     color: #555;
     border:none;
-    padding: 10px 11px 10px 25px;
+    padding: 7px 11px 7px 25px;
 }
 
 #navigation li.subsubTab {
@@ -251,7 +271,7 @@ div.button-bar {
     border-left: 5px solid #fdfdfd !important;
 }
 
-#navigation li:hover { 
+#navigation li:hover {
     font-weight: bold;
 }
 
@@ -654,4 +674,13 @@ small {
 
 .button.dropdown.small::after {
     border-color: #2f2f2f transparent transparent transparent;
+}
+
+.footer-opennebula {
+    font-size: 10px;
+    color: #b6b6b6 !important;
+}
+
+a.footer.button {
+    margin: 5px;
 }

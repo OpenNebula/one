@@ -423,9 +423,9 @@ function setLogin(){
     };
 
 
-    $("div#header span#user").html(username);
+    $("div#menu span#user").html(username);
 
-    $("div#header a#logout").click(function(){
+    $("div#menu a#logout").click(function(){
         redirect = function(){window.location.href = "login";};
         switch(whichUI()){
         case "sunstone":
