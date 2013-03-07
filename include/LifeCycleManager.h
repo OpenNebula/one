@@ -62,10 +62,20 @@ public:
         ATTACH_FAILURE,   /**< Sent by the VMM when an attach action fails    */
         DETACH_SUCCESS,   /**< Sent by the VMM when a detach action succeeds  */
         DETACH_FAILURE,   /**< Sent by the VMM when a detach action fails     */
+        ATTACH_NIC_SUCCESS,/**< Sent by the VMM when an attach nic action succeeds */
+        ATTACH_NIC_FAILURE,/**< Sent by the VMM when an attach nic action fails    */
+        DETACH_NIC_SUCCESS,/**< Sent by the VMM when a detach nic action succeeds  */
+        DETACH_NIC_FAILURE,/**< Sent by the VMM when a detach nic action fails     */
         CLEANUP_SUCCESS,  /**< Sent by the VMM when a cleanup action succeeds */
         CLEANUP_FAILURE,  /**< Sent by the VMM when a cleanup action fails    */
         SAVEAS_HOT_SUCCESS,/**< Sent by the VMM when hot saveas succeeds      */
         SAVEAS_HOT_FAILURE,/**< Sent by the VMM when hot saveas fails         */
+        SNAPSHOT_CREATE_SUCCESS, /**< Sent by the VMM on snap. create success */
+        SNAPSHOT_CREATE_FAILURE, /**< Sent by the VMM on snap. create failure */
+        SNAPSHOT_REVERT_SUCCESS, /**< Sent by the VMM on snap. revert success */
+        SNAPSHOT_REVERT_FAILURE, /**< Sent by the VMM on snap. revert failure */
+        SNAPSHOT_DELETE_SUCCESS, /**< Sent by the VMM on snap. revert success */
+        SNAPSHOT_DELETE_FAILURE, /**< Sent by the VMM on snap. revert failure */
         DEPLOY,           /**< Sent by the DM to deploy a VM on a host        */
         SUSPEND,          /**< Sent by the DM to suspend an running VM        */
         RESTORE,          /**< Sent by the DM to restore a suspended VM       */
@@ -193,7 +203,27 @@ private:
 
     void saveas_hot_failure_action(int vid);
 
+    void attach_nic_success_action(int vid);
+
+    void attach_nic_failure_action(int vid);
+
+    void detach_nic_success_action(int vid);
+
+    void detach_nic_failure_action(int vid);
+
     void cleanup_callback_action(int vid);
+
+    void snapshot_create_success(int vid);
+
+    void snapshot_create_failure(int vid);
+
+    void snapshot_revert_success(int vid);
+
+    void snapshot_revert_failure(int vid);
+
+    void snapshot_delete_success(int vid);
+
+    void snapshot_delete_failure(int vid);
 
     void deploy_action(int vid);
 

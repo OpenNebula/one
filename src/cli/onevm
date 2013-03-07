@@ -56,6 +56,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Device where the image will be attached"
     }
 
+    IP={
+        :name => "ip",
+        :short => "-i ip",
+        :large => "--ip ip",
+        :format => String,
+        :description => "IP address for the new NIC"
+    }
+
     CACHE={
         :name => "cache",
         :large => "--cache cache_mode",
@@ -575,6 +583,53 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    attachnic_desc = <<-EOT.unindent
+        Attaches a NIC to a running VM
+
+        States: RUNNING
+    EOT
+
+    command :attachnic, attachnic_desc, :vmid,
+            :options => [OneVMHelper::FILE, OneVMHelper::NETWORK, IP] do
+
+        if options[:file].nil? and options[:network].nil?
+            STDERR.puts "Provide a template file or a network:"
+            STDERR.puts "\t--file    <file>"
+            STDERR.puts "\t--network <network>"
+            exit -1
+        end
+
+        if options[:file]
+            template = File.read(options[:file])
+        else
+            network_id = options[:network]
+            ip = options[:ip]
+            if ip
+                template = "NIC = [ NETWORK_ID = #{network_id}, IP = #{ip} ]"
+            else
+                template = "NIC = [ NETWORK_ID = #{network_id} ]"
+            end
+        end
+
+        helper.perform_action(args[0],options,"Attach NIC") do |vm|
+            vm.attachnic(template)
+        end
+    end
+
+    detachnic_desc = <<-EOT.unindent
+        Detaches a NIC from a running VM
+
+        States: RUNNING
+    EOT
+
+    command :detachnic, detachnic_desc, :vmid, :nicid do
+        nicid = args[1].to_i
+
+        helper.perform_action(args[0],options,"Detach NIC") do |vm|
+            vm.detachnic(nicid)
+        end
+    end
+
     chgrp_desc = <<-EOT.unindent
         Changes the VM group
     EOT
@@ -631,10 +686,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    list_desc = <<-EOT.unindent
-        Lists VMs in the pool
-    EOT
-
     rename_desc = <<-EOT.unindent
         Renames the VM
     EOT
@@ -644,6 +695,52 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             o.rename(args[1])
         end
     end
+
+    # TODO: Write a more complete description:
+    # what is a snapshot (system snapshot)
+    # how to revert to a snapshot
+    snapshot_create_desc = <<-EOT.unindent
+        Creates a new VM snapshot
+    EOT
+
+    command :"snapshot-create", snapshot_create_desc, [:range,:vmid_list],
+        [:name, nil], :options => [OneVMHelper::SCHEDULE] do
+
+        if (!options[:schedule].nil?)
+            helper.schedule_actions(args[0], options, @comm_name)
+        else
+            helper.perform_actions(args[0],options,"snapshot created") do |o|
+                o.snapshot_create(args[1])
+            end
+        end
+    end
+
+    # TODO: Write a more complete description:
+    snapshot_revert_desc = <<-EOT.unindent
+        Reverts a VM to a saved snapshot
+    EOT
+
+    command :"snapshot-revert", snapshot_revert_desc, :vmid, :snapshot_id do
+
+        helper.perform_action(args[0],options,"snapshot reverted") do |o|
+            o.snapshot_revert(args[1].to_i)
+        end
+    end
+
+    # TODO: Write a more complete description:
+    snapshot_delete_desc = <<-EOT.unindent
+        Delets a snapshot of a VM
+    EOT
+
+    command :"snapshot-delete", snapshot_delete_desc, :vmid, :snapshot_id do
+        helper.perform_action(args[0],options,"snapshot deleted") do |o|
+            o.snapshot_delete(args[1].to_i)
+        end
+    end
+
+    list_desc = <<-EOT.unindent
+        Lists VMs in the pool
+    EOT
 
     command :list, list_desc, [:filterflag, nil],
             :options=>CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS+

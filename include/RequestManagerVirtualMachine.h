@@ -177,8 +177,6 @@ public:
 
     ~VirtualMachineMonitoring(){};
 
-    /* -------------------------------------------------------------------- */
-
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att);
 };
@@ -220,6 +218,40 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+class VirtualMachineAttachNic : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineAttachNic():
+        RequestManagerVirtualMachine("VirtualMachineAttachNic",
+                           "Attaches a new NIC to the virtual machine",
+                           "A:sis"){};
+
+    ~VirtualMachineAttachNic(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineDetachNic : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineDetachNic():
+        RequestManagerVirtualMachine("VirtualMachineDetachNic",
+                           "Detaches a NIC from a virtual machine",
+                           "A:sii"){};
+
+    ~VirtualMachineDetachNic(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 class VirtualMachineResize : public RequestManagerVirtualMachine
 {
 public:
@@ -232,7 +264,58 @@ public:
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att);
 };
-/* -------------------------------------------------------------------------- */
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineSnapshotCreate: public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineSnapshotCreate():
+        RequestManagerVirtualMachine("VirtualMachineSnapshotCreate",
+                           "Creates a new virtual machine snapshot",
+                           "A:sis"){};
+
+    ~VirtualMachineSnapshotCreate(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineSnapshotRevert: public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineSnapshotRevert():
+        RequestManagerVirtualMachine("VirtualMachineSnapshotRevert",
+                           "Reverts a virtual machine to a snapshot",
+                           "A:sii"){};
+
+    ~VirtualMachineSnapshotRevert(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineSnapshotDelete: public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineSnapshotDelete():
+        RequestManagerVirtualMachine("VirtualMachineSnapshotDelete",
+                           "Deletes a virtual machine snapshot",
+                           "A:sii"){};
+
+    ~VirtualMachineSnapshotDelete(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

@@ -49,7 +49,13 @@ usage() {
 }
 #-------------------------------------------------------------------------------
 
-TEMP_OPT=`getopt -o hkrlcsou:g:d: -n 'install.sh' -- "$@"`
+PARAMETERS="hkrlcsou:g:d:"
+
+if [ $(getopt --version | tr -d " ") = "--" ]; then
+    TEMP_OPT=`getopt $PARAMETERS "$@"`
+else
+    TEMP_OPT=`getopt -o $PARAMETERS -n 'install.sh' -- "$@"`
+fi
 
 if [ $? != 0 ] ; then
     usage
@@ -685,7 +691,8 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/vnm_mad/one_vnm.rb \
                 src/mad/ruby/Ganglia.rb \
                 src/oca/ruby/deprecated/OpenNebula.rb \
-                src/oca/ruby/opennebula.rb"
+                src/oca/ruby/opennebula.rb \
+                src/sunstone/OpenNebulaVNC.rb"
 
 #-------------------------------------------------------------------------------
 # Ruby auth library files, to be installed under $LIB_LOCATION/ruby/opennebula
@@ -752,6 +759,11 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/poll_ganglia \
                     src/vmm_mad/remotes/kvm/attach_disk \
                     src/vmm_mad/remotes/kvm/detach_disk \
+                    src/vmm_mad/remotes/kvm/attach_nic \
+                    src/vmm_mad/remotes/kvm/detach_nic \
+                    src/vmm_mad/remotes/kvm/snapshot_create \
+                    src/vmm_mad/remotes/kvm/snapshot_revert \
+                    src/vmm_mad/remotes/kvm/snapshot_delete \
                     src/vmm_mad/remotes/kvm/shutdown"
 
 #-------------------------------------------------------------------------------
@@ -770,6 +782,11 @@ VMM_EXEC_XEN3_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/poll_ganglia \
                     src/vmm_mad/remotes/xen/attach_disk \
                     src/vmm_mad/remotes/xen/detach_disk \
+                    src/vmm_mad/remotes/xen/attach_nic \
+                    src/vmm_mad/remotes/xen/detach_nic \
+                    src/vmm_mad/remotes/xen/snapshot_create \
+                    src/vmm_mad/remotes/xen/snapshot_revert \
+                    src/vmm_mad/remotes/xen/snapshot_delete \
                     src/vmm_mad/remotes/xen/shutdown"
 
 VMM_EXEC_XEN4_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
@@ -784,6 +801,11 @@ VMM_EXEC_XEN4_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/poll_ganglia \
                     src/vmm_mad/remotes/xen/attach_disk \
                     src/vmm_mad/remotes/xen/detach_disk \
+                    src/vmm_mad/remotes/xen/attach_nic \
+                    src/vmm_mad/remotes/xen/detach_nic \
+                    src/vmm_mad/remotes/xen/snapshot_create \
+                    src/vmm_mad/remotes/xen/snapshot_revert \
+                    src/vmm_mad/remotes/xen/snapshot_delete \
                     src/vmm_mad/remotes/xen/shutdown"
 #-------------------------------------------------------------------------------
 # VMM Driver VMWARE scripts, to be installed under $REMOTES_LOCATION/vmm/vmware
@@ -792,6 +814,11 @@ VMM_EXEC_XEN4_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
 VMM_EXEC_VMWARE_SCRIPTS="src/vmm_mad/remotes/vmware/cancel \
                          src/vmm_mad/remotes/vmware/attach_disk \
                          src/vmm_mad/remotes/vmware/detach_disk \
+                         src/vmm_mad/remotes/vmware/attach_nic \
+                         src/vmm_mad/remotes/vmware/detach_nic \
+                         src/vmm_mad/remotes/vmware/snapshot_create \
+                         src/vmm_mad/remotes/vmware/snapshot_revert \
+                         src/vmm_mad/remotes/vmware/snapshot_delete \
                          src/vmm_mad/remotes/vmware/scripts_common_sh.sh \
                          src/vmm_mad/remotes/vmware/deploy \
                          src/vmm_mad/remotes/vmware/migrate \
@@ -1384,9 +1411,10 @@ ETC_CLIENT_FILES="src/cli/etc/group.default"
 #-----------------------------------------------------------------------------
 
 SUNSTONE_FILES="src/sunstone/sunstone-server.rb \
-                src/sunstone/OpenNebulaVNC.rb"
+                src/sunstone/config.ru"
 
-SUNSTONE_BIN_FILES="src/sunstone/bin/sunstone-server"
+SUNSTONE_BIN_FILES="src/sunstone/bin/sunstone-server \
+                    src/sunstone/bin/novnc-server"
 
 SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf \
                     src/sunstone/etc/sunstone-plugins.yaml"

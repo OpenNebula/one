@@ -312,7 +312,8 @@ int VirtualMachineXML::parse_action_name(string& action_st)
         && action_st != "reboot"
         && action_st != "reset"
         && action_st != "poweroff"
-        && action_st != "finalize")
+        && action_st != "finalize"
+        && action_st != "snapshot-create")
     {
         return -1;
     }

@@ -702,6 +702,9 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose)
     }
 
     vm->set_resched(false);
+
+    vm->delete_snapshots();
+
     vmpool->update(vm);
 
     vm->set_etime(the_time);
@@ -736,6 +739,8 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose)
         case VirtualMachine::HOTPLUG_SAVEAS:
         case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
         case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
+        case VirtualMachine::HOTPLUG_SNAPSHOT:
+        case VirtualMachine::HOTPLUG_NIC:
             vm->set_running_etime(the_time);
             vmpool->update_history(vm);
 

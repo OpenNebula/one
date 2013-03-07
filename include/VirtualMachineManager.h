@@ -61,7 +61,12 @@ public:
         DRIVER_CANCEL,
         FINALIZE,
         ATTACH,
-        DETACH
+        DETACH,
+        ATTACH_NIC,
+        DETACH_NIC,
+        SNAPSHOT_CREATE,
+        SNAPSHOT_REVERT,
+        SNAPSHOT_DELETE
     };
 
     /**
@@ -331,6 +336,46 @@ private:
      */
     void detach_action(
         int vid);
+
+    /**
+     * Attaches a new NIC to a VM. The VM must have a NIC with the
+     * attribute ATTACH = YES
+     *    @param vid the id of the VM.
+     */
+    void attach_nic_action(
+        int vid);
+
+    /**
+     * Detaches a NIC from a VM. The VM must have a NIC with the
+     * attribute ATTACH = YES
+     *    @param vid the id of the VM.
+     */
+    void detach_nic_action(
+        int vid);
+
+    /**
+     * Creates a new system snapshot. The VM must have a snapshot with the
+     * attribute ACTIVE = YES
+     *
+     * @param vid the id of the VM.
+     */
+    void snapshot_create_action(int vid);
+
+    /**
+     * Reverts to a snapshot. The VM must have a snapshot with the
+     * attribute ACTIVE = YES
+     *
+     * @param vid the id of the VM.
+     */
+    void snapshot_revert_action(int vid);
+
+    /**
+     * Deletes a snapshot. The VM must have a snapshot with the
+     * attribute ACTIVE = YES
+     *
+     * @param vid the id of the VM.
+     */
+    void snapshot_delete_action(int vid);
 
     /**
      *  This function cancels the current driver operation

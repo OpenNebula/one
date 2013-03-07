@@ -101,13 +101,20 @@ public:
      *  Generates a NIC attribute for VM templates using the VirtualNetwork
      *  metadata
      *    @param nic the nic attribute to be generated
+     *    @param nic_id the id for this NIC
+     *    @param uid of the VM owner
      *    @param vid of the VM requesting the lease
      *    @param error_str string describing the error
      *    @return 0 on success,
      *            -1 error,
      *            -2 not using the pool
      */
-    int nic_attribute(VectorAttribute * nic, int uid, int vid, string& error_str);
+    int nic_attribute(
+            VectorAttribute*    nic,
+            int                 nic_id,
+            int                 uid,
+            int                 vid,
+            string&             error_str);
 
     /**
      *  Generates an Authorization token for a NIC attribute

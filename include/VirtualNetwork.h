@@ -117,8 +117,10 @@ public:
      */
     int get_lease(int vid, string& _ip, string& _mac, string& _bridge)
     {
+        unsigned int eui64[2];
+
         _bridge = bridge;
-        return leases->get(vid,_ip,_mac);
+        return leases->get(vid, _ip, _mac, eui64);
     };
 
     /**
@@ -131,8 +133,10 @@ public:
      */
     int set_lease(int vid, const string& _ip, string& _mac, string& _bridge)
     {
+        unsigned int eui64[2];
+
         _bridge = bridge;
-        return leases->set(vid,_ip,_mac);
+        return leases->set(vid, _ip, _mac, eui64);
     };
 
     /**
@@ -226,6 +230,26 @@ private:
      *  Whether or not to isolate this network with the vnm driver
      */
     int     vlan;
+
+    /**
+     *  IPv6 address global unicast prefix
+     */
+     string global;
+
+    /**
+     *  Binary representation of the IPv6 address global unicast prefix
+     */
+     unsigned int global_bin[2];
+
+    /**
+     *  IPv6 address site unicast prefix
+     */
+     string site;
+
+    /**
+     *  Binary representation of the IPv6 address site unicast prefix
+     */
+     unsigned int site_bin[2];
 
     // -------------------------------------------------------------------------
     // Virtual Network Description

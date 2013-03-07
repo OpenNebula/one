@@ -63,7 +63,7 @@ extern int vm_var__debug;
 typedef union YYSTYPE
 {
 /* Line 2058 of yacc.c  */
-#line 416 "vm_var_syntax.y"
+#line 421 "vm_var_syntax.y"
 
     char * val_str;
     int    val_int;

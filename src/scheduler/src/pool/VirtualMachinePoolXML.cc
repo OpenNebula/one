@@ -254,14 +254,28 @@ int VirtualMachineActionsPoolXML::action(
 
     try
     {
-        client->call( client->get_endpoint(),     // serverUrl
+        if (action == "snapshot-create")
+        {
+            client->call( client->get_endpoint(), // serverUrl
+                "one.vm.snapshotcreate",          // methodName
+                "sis",                            // arguments format
+                &result,                          // resultP
+                client->get_oneauth().c_str(),    // session
+                vid,                              // VM ID
+                string("").c_str()                // snapshot name
+            );
+        }
+        else
+        {
+            client->call( client->get_endpoint(), // serverUrl
                 "one.vm.action",                  // methodName
                 "ssi",                            // arguments format
                 &result,                          // resultP
                 client->get_oneauth().c_str(),    // session
                 action.c_str(),                   // action
                 vid                               // VM ID
-        );
+            );
+        }
     }
     catch (exception const& e)
     {

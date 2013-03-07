@@ -609,6 +609,66 @@ class ExecDriver < VirtualMachineDriver
     end
 
     #
+    # SNAPSHOTCREATE action, creates a new system snapshot
+    #
+    def snapshot_create(id, drv_message)
+        action   = ACTION[:snapshot_create]
+        xml_data = decode(drv_message)
+
+        host      = xml_data.elements['HOST'].text
+        deploy_id = xml_data.elements['DEPLOY_ID'].text
+
+        snap_id_xpath = "VM/TEMPLATE/SNAPSHOT[ACTIVE='YES']/SNAPSHOT_ID"
+        snap_id       = xml_data.elements[snap_id_xpath].text.to_i
+
+        do_action("#{deploy_id} #{snap_id}",
+                    id,
+                    host,
+                    ACTION[:snapshot_create],
+                    :script_name => "snapshot_create")
+    end
+
+    #
+    # SNAPSHOTREVERT action, reverts to a system snapshot
+    #
+    def snapshot_revert(id, drv_message)
+        action   = ACTION[:snapshot_revert]
+        xml_data = decode(drv_message)
+
+        host      = xml_data.elements['HOST'].text
+        deploy_id = xml_data.elements['DEPLOY_ID'].text
+
+        snap_id_xpath = "VM/TEMPLATE/SNAPSHOT[ACTIVE='YES']/HYPERVISOR_ID"
+        snapshot_name = xml_data.elements[snap_id_xpath].text
+
+        do_action("#{deploy_id} #{snapshot_name}",
+                    id,
+                    host,
+                    ACTION[:snapshot_revert],
+                    :script_name => "snapshot_revert")
+    end
+
+    #
+    # SNAPSHOTDELETE action, deletes a system snapshot
+    #
+    def snapshot_delete(id, drv_message)
+        action   = ACTION[:snapshot_delete]
+        xml_data = decode(drv_message)
+
+        host      = xml_data.elements['HOST'].text
+        deploy_id = xml_data.elements['DEPLOY_ID'].text
+
+        snap_id_xpath = "VM/TEMPLATE/SNAPSHOT[ACTIVE='YES']/HYPERVISOR_ID"
+        snapshot_name = xml_data.elements[snap_id_xpath].text
+
+        do_action("#{deploy_id} #{snapshot_name}",
+                    id,
+                    host,
+                    ACTION[:snapshot_delete],
+                    :script_name => "snapshot_delete")
+    end
+
+    #
     # CLEANUP action, frees resources allocated in a host: VM and disk images
     #
     def cleanup(id, drv_message)
@@ -670,6 +730,96 @@ class ExecDriver < VirtualMachineDriver
                 :no_fail    => true
             } if !tc.empty?
         } if tm_command
+
+        action.run(steps)
+    end
+
+    #
+    #  ATTACHNIC action to attach a new nic interface
+    #
+    def attach_nic(id, drv_message)
+        xml_data = decode(drv_message)
+
+        begin
+            source = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/BRIDGE"]
+            mac    = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/MAC"]
+
+            source = source.text.strip
+            mac    = mac.text.strip
+        rescue
+            send_message(action, RESULT[:failure], id,
+                "Error in #{ACTION[:attach_nic]}, BRIDGE and MAC needed in NIC")
+            return
+        end
+
+        model = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/MODEL"]
+
+        model = model.text if !model.nil?
+        model = model.strip if !model.nil?
+        model = "-" if model.nil?
+
+        action = VmmAction.new(self, id, :attach_nic, drv_message)
+
+        steps=[
+            # Execute pre-attach networking setup
+            {
+                :driver   => :vnm,
+                :action   => :pre
+            },
+            # Attach the new NIC
+            {
+                :driver     => :vmm,
+                :action     => :attach_nic,
+                :parameters => [:deploy_id, mac, source, model]
+            },
+            # Execute post-boot networking setup
+            {
+                :driver       => :vnm,
+                :action       => :post,
+                :parameters   => [:deploy_info],
+                :fail_actions => [
+                    {
+                        :driver     => :vmm,
+                        :action     => :detach_nic,
+                        :parameters => [:deploy_id, mac]
+                    }
+                ]
+            }
+        ]
+
+        action.run(steps)
+    end
+
+    #
+    #  DETACHNIC action to detach a nic interface
+    #
+    def detach_nic(id, drv_message)
+        xml_data = decode(drv_message)
+
+        begin
+            mac = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/MAC"]
+            mac = mac.text.strip
+        rescue
+            send_message(action, RESULT[:failure], id,
+                "Error in #{ACTION[:detach_nic]}, MAC needed in NIC")
+            return
+        end
+
+        action = VmmAction.new(self, id, :detach_nic, drv_message)
+
+        steps=[
+            # Detach the NIC
+            {
+                :driver     => :vmm,
+                :action     => :detach_nic,
+                :parameters => [:deploy_id, mac]
+            },
+            # Clean networking setup
+            {
+                :driver       => :vnm,
+                :action       => :clean
+            }
+        ]
 
         action.run(steps)
     end

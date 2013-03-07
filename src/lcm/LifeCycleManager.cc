@@ -153,12 +153,51 @@ void LifeCycleManager::trigger(Actions action, int _vid)
         aname = "SAVEAS_HOT_FAILURE";
         break;
 
+    case ATTACH_NIC_SUCCESS:
+        aname = "ATTACH_NIC_SUCCESS";
+        break;
+
+    case ATTACH_NIC_FAILURE:
+        aname = "ATTACH_NIC_FAILURE";
+        break;
+
+    case DETACH_NIC_SUCCESS:
+        aname = "DETACH_NIC_SUCCESS";
+        break;
+
+    case DETACH_NIC_FAILURE:
+        aname = "DETACH_NIC_FAILURE";
+
     case CLEANUP_SUCCESS:
         aname = "CLEANUP_SUCCESS";
         break;
 
     case CLEANUP_FAILURE:
         aname = "CLEANUP_FAILURE";
+        break;
+
+    case SNAPSHOT_CREATE_SUCCESS:
+        aname = "SNAPSHOT_CREATE_SUCCESS";
+        break;
+
+    case SNAPSHOT_CREATE_FAILURE:
+        aname = "SNAPSHOT_CREATE_FAILURE";
+        break;
+
+    case SNAPSHOT_REVERT_SUCCESS:
+        aname = "SNAPSHOT_REVERT_SUCCESS";
+        break;
+
+    case SNAPSHOT_REVERT_FAILURE:
+        aname = "SNAPSHOT_REVERT_FAILURE";
+        break;
+
+    case SNAPSHOT_DELETE_SUCCESS:
+        aname = "SNAPSHOT_DELETE_SUCCESS";
+        break;
+
+    case SNAPSHOT_DELETE_FAILURE:
+        aname = "SNAPSHOT_DELETE_FAILURE";
         break;
 
     case DEPLOY:
@@ -322,6 +361,22 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     {
         saveas_hot_failure_action(vid);
     }
+    else if (action == "ATTACH_NIC_SUCCESS")
+    {
+        attach_nic_success_action(vid);
+    }
+    else if (action == "ATTACH_NIC_FAILURE")
+    {
+        attach_nic_failure_action(vid);
+    }
+    else if (action == "DETACH_NIC_SUCCESS")
+    {
+        detach_nic_success_action(vid);
+    }
+    else if (action == "DETACH_NIC_FAILURE")
+    {
+        detach_nic_failure_action(vid);
+    }
     else if (action == "CLEANUP_SUCCESS")
     {
         cleanup_callback_action(vid);
@@ -329,6 +384,30 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     else if (action == "CLEANUP_FAILURE")
     {
         cleanup_callback_action(vid);
+    }
+    else if (action == "SNAPSHOT_CREATE_SUCCESS")
+    {
+        snapshot_create_success(vid);
+    }
+    else if (action == "SNAPSHOT_CREATE_FAILURE")
+    {
+        snapshot_create_failure(vid);
+    }
+    else if (action == "SNAPSHOT_REVERT_SUCCESS")
+    {
+        snapshot_revert_success(vid);
+    }
+    else if (action == "SNAPSHOT_REVERT_FAILURE")
+    {
+        snapshot_revert_failure(vid);
+    }
+    else if (action == "SNAPSHOT_DELETE_SUCCESS")
+    {
+        snapshot_delete_success(vid);
+    }
+    else if (action == "SNAPSHOT_DELETE_FAILURE")
+    {
+        snapshot_delete_failure(vid);
     }
     else if (action == "DEPLOY")
     {

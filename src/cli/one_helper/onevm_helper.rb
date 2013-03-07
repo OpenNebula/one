@@ -37,6 +37,17 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         }
     }
 
+    NETWORK = {
+        :name   => "network",
+        :short  => "-n id|name",
+        :large  => "--network id|name" ,
+        :description => "Selects the virtual network",
+        :format => String,
+        :proc   => lambda { |o, options|
+            OpenNebulaHelper.rname_to_id(o, "VNET")
+        }
+    }
+
     FILE = {
         :name   => "file",
         :short  => "-f file",
@@ -258,35 +269,6 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         }
         puts
 
-        if vm.has_elements?("/VM/USER_TEMPLATE/SCHED_ACTION")
-            CLIHelper.print_header(str_h1 % "SCHEDULED ACTIONS",false)
-
-            CLIHelper::ShowTable.new(nil, self) do
-
-                column :"ID", "", :size=>2 do |d|
-                    d["ID"] if !d.nil?
-                end
-
-                column :"ACTION", "", :left, :size=>10 do |d|
-                    d["ACTION"] if !d.nil?
-                end
-
-                column :"SCHEDULED", "", :size=>12 do |d|
-                    OpenNebulaHelper.time_to_str(d["TIME"], false) if !d.nil?
-                end
-
-                column :"DONE", "", :size=>12 do |d|
-                    OpenNebulaHelper.time_to_str(d["DONE"], false) if !d.nil?
-                end
-
-                column :"MESSAGE", "", :left, :donottruncate, :size=>40 do |d|
-                    d["MESSAGE"] if !d.nil?
-                end
-            end.show([vm.to_hash['VM']['USER_TEMPLATE']['SCHED_ACTION']].flatten, {})
-
-            puts
-        end
-
         if vm.has_elements?("/VM/TEMPLATE/DISK")
             CLIHelper.print_header(str_h1 % "VM DISKS",false)
             CLIHelper::ShowTable.new(nil, self) do
@@ -352,40 +334,99 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         end
 
         if vm.has_elements?("/VM/TEMPLATE/NIC")
-            CLIHelper.print_header(str_h1 % "VM NICS",false)
+                        CLIHelper.print_header(str_h1 % "VM NICS",false)
 
-            nic_id=0
+            vm_nics = [vm.to_hash['VM']['TEMPLATE']['NIC']].flatten
+
+            nic_default = {"NETWORK" => "-",
+                           "IP" => "-",
+                           "MAC"=> "-",
+                           "VLAN"=>"no",
+                           "BRIDGE"=>"-"}
+
+            array_id = 0
+
+            vm_nics.each {|nic|
+
+                next if nic.has_key?("CLI_DONE")
+
+                if nic.has_key?("IP6_LINK")
+                    ip6_link = {"IP"           => nic.delete("IP6_LINK"),
+                                "CLI_DONE"     => true,
+                                "DOUBLE_ENTRY" => true}
+                    vm_nics.insert(array_id+1,ip6_link)
+
+                    array_id += 1
+                end
+
+                if nic.has_key?("IP6_SITE")
+                    ip6_link = {"IP"           => nic.delete("IP6_SITE"),
+                                "CLI_DONE"     => true,
+                                "DOUBLE_ENTRY" => true}
+                    vm_nics.insert(array_id+1,ip6_link)
+
+                    array_id += 1
+                end
+
+                if nic.has_key?("IP6_GLOBAL")
+                    ip6_link = {"IP"           => nic.delete("IP6_GLOBAL"),
+                                "CLI_DONE"     => true,
+                                "DOUBLE_ENTRY" => true}
+                    vm_nics.insert(array_id+1,ip6_link)
+
+                    array_id += 1
+                end
+
+                nic.merge!(nic_default) {|k,v1,v2| v1}
+                array_id += 1
+            }
+
             CLIHelper::ShowTable.new(nil, self) do
-                column :ID, "", :size=>3 do |d|
-                    nic_id+=1
-                    nic_id-1
+                column :ID, "", :size=>2 do |d|
+                    if d["DOUBLE_ENTRY"]
+                        ""
+                    else
+                        d["NIC_ID"]
+                    end
                 end
 
-                column :NETWORK, "", :left, :size=>25 do |d|
-                    d["NETWORK"] || "-"
-                end
-
-                column :IP, "", :size=>15 do |d|
-                    d["IP"] || "-"
-                end
-
-                column :MAC, "", :size=>17 do |d|
-                    d["MAC"] || "-"
+                column :NETWORK, "", :left, :size=>12 do |d|
+                    if d["DOUBLE_ENTRY"]
+                        ""
+                    else
+                        d["NETWORK"]
+                    end
                 end
 
                 column :VLAN, "", :size=>4 do |d|
-                    if !d["VLAN"]
-                        "no"
+                    if d["DOUBLE_ENTRY"]
+                        ""
                     else
                         d["VLAN"].downcase
                     end
                 end
 
-                column :BRIDGE, "", :left, :size=>11 do |d|
-                    d["BRIDGE"] || "-"
+                column :BRIDGE, "", :left, :size=>8 do |d|
+                    if d["DOUBLE_ENTRY"]
+                        ""
+                    else
+                        d["BRIDGE"]
+                    end
                 end
 
-            end.show([vm.to_hash['VM']['TEMPLATE']['NIC']].flatten, {})
+                column :IP, "",:left, :donottruncate, :size=>15 do |d|
+                    d["IP"]
+                end
+
+                column :MAC, "", :left, :size=>17 do |d|
+                    if d["DOUBLE_ENTRY"]
+                        ""
+                    else
+                        d["MAC"]
+                    end
+                end
+
+            end.show(vm_nics,{})
 
             while vm.has_elements?("/VM/TEMPLATE/NIC")
                 vm.delete_element("/VM/TEMPLATE/NIC")
@@ -394,8 +435,69 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             puts
         end
 
-        CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE TEMPLATE",false)
-        puts vm.template_str
+        if vm.has_elements?("/VM/TEMPLATE/SNAPSHOT")
+            CLIHelper.print_header(str_h1 % "SNAPSHOTS",false)
+
+            CLIHelper::ShowTable.new(nil, self) do
+
+                column :"ID", "", :size=>4 do |d|
+                    d["SNAPSHOT_ID"] if !d.nil?
+                end
+
+                column :"TIME", "", :size=>12 do |d|
+                    OpenNebulaHelper.time_to_str(d["TIME"], false) if !d.nil?
+                end
+
+                column :"NAME", "", :left, :size=>46 do |d|
+                    d["NAME"] if !d.nil?
+                end
+
+                column :"HYPERVISOR_ID", "", :left, :size=>15 do |d|
+                    d["HYPERVISOR_ID"] if !d.nil?
+                end
+
+            end.show([vm.to_hash['VM']['TEMPLATE']['SNAPSHOT']].flatten, {})
+
+            vm.delete_element("/VM/TEMPLATE/SNAPSHOT")
+
+            puts
+        end
+
+        if vm.has_elements?("/VM/HISTORY_RECORDS")
+            puts
+
+            CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE HISTORY",false)
+            format_history(vm)
+        end
+
+        if vm.has_elements?("/VM/USER_TEMPLATE/SCHED_ACTION")
+            CLIHelper.print_header(str_h1 % "SCHEDULED ACTIONS",false)
+
+            CLIHelper::ShowTable.new(nil, self) do
+
+                column :"ID", "", :size=>2 do |d|
+                    d["ID"] if !d.nil?
+                end
+
+                column :"ACTION", "", :left, :size=>10 do |d|
+                    d["ACTION"] if !d.nil?
+                end
+
+                column :"SCHEDULED", "", :size=>12 do |d|
+                    OpenNebulaHelper.time_to_str(d["TIME"], false) if !d.nil?
+                end
+
+                column :"DONE", "", :size=>12 do |d|
+                    OpenNebulaHelper.time_to_str(d["DONE"], false) if !d.nil?
+                end
+
+                column :"MESSAGE", "", :left, :donottruncate, :size=>40 do |d|
+                    d["MESSAGE"] if !d.nil?
+                end
+            end.show([vm.to_hash['VM']['USER_TEMPLATE']['SCHED_ACTION']].flatten, {})
+
+            puts
+        end
 
         if vm.has_elements?("/VM/USER_TEMPLATE")
             puts
@@ -408,12 +510,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             puts vm.template_like_str('USER_TEMPLATE')
         end
 
-        if vm.has_elements?("/VM/HISTORY_RECORDS")
-            puts
-
-            CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE HISTORY",false)
-            format_history(vm)
-        end
+        CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE TEMPLATE",false)
+        puts vm.template_str
     end
 
     def format_history(vm)

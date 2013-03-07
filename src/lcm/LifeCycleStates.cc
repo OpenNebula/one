@@ -45,6 +45,8 @@ void  LifeCycleManager::save_success_action(int vid)
 
         vm->set_state(VirtualMachine::PROLOG_MIGRATE);
 
+        vm->delete_snapshots();
+
         vmpool->update(vm);
 
         vm->set_previous_etime(the_time);
@@ -81,6 +83,10 @@ void  LifeCycleManager::save_success_action(int vid)
         //                SUSPENDED STATE
         //----------------------------------------------------
 
+        vm->delete_snapshots();
+
+        vmpool->update(vm);
+
         vm->set_running_etime(the_time);
 
         vm->set_etime(the_time);
@@ -106,6 +112,8 @@ void  LifeCycleManager::save_success_action(int vid)
         //----------------------------------------------------
 
         vm->set_state(VirtualMachine::EPILOG_STOP);
+
+        vm->delete_snapshots();
 
         vmpool->update(vm);
 
@@ -271,6 +279,8 @@ void  LifeCycleManager::deploy_success_action(int vid)
         hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
 
         vm->set_state(VirtualMachine::RUNNING);
+
+        vm->delete_snapshots();
 
         vmpool->update(vm);
 
@@ -464,6 +474,8 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         vm->set_state(VirtualMachine::EPILOG);
 
+        vm->delete_snapshots();
+
         vmpool->update(vm);
 
         vm->set_epilog_stime(the_time);
@@ -483,6 +495,10 @@ void  LifeCycleManager::shutdown_success_action(int vid)
         //----------------------------------------------------
         //                POWEROFF STATE
         //----------------------------------------------------
+
+        vm->delete_snapshots();
+
+        vmpool->update(vm);
 
         vm->set_running_etime(the_time);
 
@@ -859,6 +875,8 @@ void  LifeCycleManager::cancel_success_action(int vid)
 
         vm->set_state(VirtualMachine::EPILOG);
 
+        vm->delete_snapshots();
+
         vmpool->update(vm);
 
         vm->set_reason(History::CANCEL);
@@ -987,6 +1005,8 @@ void  LifeCycleManager::monitor_suspend_action(int vid)
 
         vm->set_resched(false);
 
+        vm->delete_snapshots();
+
         vmpool->update(vm);
 
         vm->set_running_etime(the_time);
@@ -1072,6 +1092,8 @@ void  LifeCycleManager::failure_action(VirtualMachine * vm)
     vm->set_state(VirtualMachine::FAILURE);
 
     vm->set_resched(false);
+
+    vm->delete_snapshots();
 
     vmpool->update(vm);
 
@@ -1198,6 +1220,265 @@ void LifeCycleManager::detach_failure_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void LifeCycleManager::snapshot_create_success(int vid)
+{
+    VirtualMachine *    vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_SNAPSHOT )
+    {
+        vm->clear_active_snapshot();
+
+        vm->set_state(VirtualMachine::RUNNING);
+
+        vmpool->update(vm);
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"snapshot_create_success, VM in a wrong state");
+    }
+
+    vm->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::snapshot_create_failure(int vid)
+{
+    VirtualMachine *  vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_SNAPSHOT )
+    {
+        vm->delete_active_snapshot();
+
+        vm->set_state(VirtualMachine::RUNNING);
+
+        vmpool->update(vm);
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"snapshot_create_failure, VM in a wrong state");
+    }
+
+    vm->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::snapshot_revert_success(int vid)
+{
+    // TODO: snapshot list may be inconsistent with hypervisor info
+    // after a revert operation
+
+    VirtualMachine *  vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_SNAPSHOT )
+    {
+        vm->clear_active_snapshot();
+
+        vm->set_state(VirtualMachine::RUNNING);
+
+        vmpool->update(vm);
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"snapshot_revert_success, VM in a wrong state");
+    }
+
+    vm->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::snapshot_revert_failure(int vid)
+{
+    // TODO: for now, it is the same code
+
+    snapshot_revert_success(vid);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::snapshot_delete_success(int vid)
+{
+    VirtualMachine *  vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_SNAPSHOT )
+    {
+        vm->delete_active_snapshot();
+
+        vm->set_state(VirtualMachine::RUNNING);
+
+        vmpool->update(vm);
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"snapshot_delete_success, VM in a wrong state");
+    }
+
+    vm->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::snapshot_delete_failure(int vid)
+{
+    VirtualMachine *  vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_SNAPSHOT )
+    {
+        vm->clear_active_snapshot();
+
+        vm->set_state(VirtualMachine::RUNNING);
+
+        vmpool->update(vm);
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"snapshot_delete_failure, VM in a wrong state");
+    }
+
+    vm->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::attach_nic_success_action(int vid)
+{
+    VirtualMachine * vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC )
+    {
+        vm->clear_attach_nic();
+
+        vm->set_state(VirtualMachine::RUNNING);
+
+        vmpool->update(vm);
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"attach_nic_success_action, VM in a wrong state");
+    }
+
+    vm->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::attach_nic_failure_action(int vid)
+{
+    VirtualMachine *  vm;
+    VectorAttribute * nic;
+
+    int uid;
+    int gid;
+    int oid;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC )
+    {
+        nic = vm->delete_attach_nic();
+        uid = vm->get_uid();
+        gid = vm->get_gid();
+        oid = vm->get_oid();
+
+        vm->set_state(VirtualMachine::RUNNING);
+
+        vmpool->update(vm);
+
+        vm->unlock();
+
+        if ( nic != 0 )
+        {
+            Template tmpl;
+
+            tmpl.set(nic);
+
+            Quotas::quota_del(Quotas::NETWORK, uid, gid, &tmpl);
+
+            VirtualMachine::release_network_leases(nic, oid);
+        }
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"attach_nic_failure_action, VM in a wrong state");
+        vm->unlock();
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::detach_nic_success_action(int vid)
+{
+    attach_nic_failure_action(vid);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::detach_nic_failure_action(int vid)
+{
+    attach_nic_success_action(vid);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void LifeCycleManager::saveas_hot_success_action(int vid)
 {
     Nebula&        nd = Nebula::instance();
@@ -1308,3 +1589,6 @@ void LifeCycleManager::saveas_hot_failure_action(int vid)
 
     image->unlock();
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

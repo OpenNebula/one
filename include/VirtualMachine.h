@@ -66,33 +66,35 @@ public:
      */
     enum LcmState
     {
-        LCM_INIT                 = 0,
-        PROLOG                   = 1,
-        BOOT                     = 2,
-        RUNNING                  = 3,
-        MIGRATE                  = 4,
-        SAVE_STOP                = 5,
-        SAVE_SUSPEND             = 6,
-        SAVE_MIGRATE             = 7,
-        PROLOG_MIGRATE           = 8,
-        PROLOG_RESUME            = 9,
-        EPILOG_STOP              = 10,
-        EPILOG                   = 11,
-        SHUTDOWN                 = 12,
-        CANCEL                   = 13,
-        FAILURE                  = 14,
-        CLEANUP_RESUBMIT         = 15,
-        UNKNOWN                  = 16,
-        HOTPLUG                  = 17,
-        SHUTDOWN_POWEROFF        = 18,
-        BOOT_UNKNOWN             = 19,
-        BOOT_POWEROFF            = 20,
-        BOOT_SUSPENDED           = 21,
-        BOOT_STOPPED             = 22,
-        CLEANUP_DELETE           = 23,
-        HOTPLUG_SAVEAS           = 24,
-        HOTPLUG_SAVEAS_POWEROFF  = 25,
-        HOTPLUG_SAVEAS_SUSPENDED = 26
+        LCM_INIT            = 0,
+        PROLOG              = 1,
+        BOOT                = 2,
+        RUNNING             = 3,
+        MIGRATE             = 4,
+        SAVE_STOP           = 5,
+        SAVE_SUSPEND        = 6,
+        SAVE_MIGRATE        = 7,
+        PROLOG_MIGRATE      = 8,
+        PROLOG_RESUME       = 9,
+        EPILOG_STOP         = 10,
+        EPILOG              = 11,
+        SHUTDOWN            = 12,
+        CANCEL              = 13,
+        FAILURE             = 14,
+        CLEANUP_RESUBMIT    = 15,
+        UNKNOWN             = 16,
+        HOTPLUG             = 17,
+        SHUTDOWN_POWEROFF   = 18,
+        BOOT_UNKNOWN        = 19,
+        BOOT_POWEROFF       = 20,
+        BOOT_SUSPENDED      = 21,
+        BOOT_STOPPED        = 22,
+        CLEANUP_DELETE      = 23,
+        HOTPLUG_SNAPSHOT    = 24,
+        HOTPLUG_NIC         = 25,
+        HOTPLUG_SAVEAS           = 26,
+        HOTPLUG_SAVEAS_POWEROFF  = 27,
+        HOTPLUG_SAVEAS_SUSPENDED = 28
     };
 
     // -------------------------------------------------------------------------
@@ -813,6 +815,16 @@ public:
     void release_network_leases();
 
     /**
+     * Releases the network lease taken by this NIC
+     *
+     * @param nic NIC to be released
+     * @param vmid Virtual Machine oid
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    static int release_network_leases(VectorAttribute const * nic, int vmid);
+
+    /**
      *  Get all disk images for this Virtual Machine
      *  @param error_str Returns the error reason, if any
      *  @return 0 if success
@@ -910,7 +922,6 @@ public:
     // -------------------------------------------------------------------------
     // Hotplug related functions
     // -------------------------------------------------------------------------
-
     /**
      *  Collects information about VM DISKS
      *    @param max_disk_id of the VM
@@ -927,15 +938,15 @@ public:
     int get_disk_hot_info(int& image_id, int& disk_id, string& source);
 
     /**
-     * Generate a DISK attributed to be attached to the VM.
+     * Generate a DISK attribute to be attached to the VM.
      *   @param tmpl Template containing a single DISK vector attribute.
      *   @param used_targets targets in use by current DISKS
      *   @param max_disk_id Max DISK/DISK_ID of the VM
      *   @param uid of the VM owner
-     *   @param image_id returns the id of the aquired image
+     *   @param image_id returns the id of the acquired image
      *   @param error_str describes the error
      *
-     *   @return a new vectorattribute with the DISK (should be freed if not
+     *   @return a new VectorAttribute with the DISK (should be freed if not
      *   added to the template), 0 in case of error;
      */
     static VectorAttribute * set_up_attach_disk(
@@ -984,19 +995,113 @@ public:
      */
     int set_attach_disk(int disk_id);
 
-    /**
-     * Cleans the ATTACH = YES attribute from the disks
-     *
-     * @return 0 on success, -1 otherwise
-     */
-    int detach_success();
+    // ------------------------------------------------------------------------
+    // NIC Hotplug related functions
+    // ------------------------------------------------------------------------
 
     /**
-     * Cleans the ATTACH = YES attribute from the disks
-     *
-     * @return 0 on success, -1 otherwise
+     *  Collects information about VM DISKS
+     *    @param max_disk_id of the VM
      */
-    int detach_failure();
+    void get_nic_info(int& max_nic_id);
+
+    /**
+     * Generates a NIC attribute to be attached to the VM.
+     *   @param tmpl Template containing a single NIC vector attribute.
+     *   @param max_nic_id Max NIC/NIC_ID of the VM
+     *   @param uid of the VM owner
+     *   @param network_id returns the id of the acquired network
+     *   @param error_str describes the error
+     *
+     *   @return a new VectorAttribute with the DISK (should be freed if not
+     *   added to the template), 0 in case of error
+     */
+    static VectorAttribute * set_up_attach_nic(
+                            int                      vm_id,
+                            VirtualMachineTemplate * tmpl,
+                            int                      max_nic_id,
+                            int                      uid,
+                            int&                     network_id,
+                            string&                  error_str);
+
+    /**
+     * Cleans the ATTACH = YES attribute from the NICs
+     */
+    void clear_attach_nic();
+
+    /**
+     * Deletes the NIC that was in the process of being attached
+     *
+     * @return the deleted NIC or 0 if none was deleted
+     */
+    VectorAttribute * delete_attach_nic();
+
+    /**
+     *  Adds a new NIC to the virtual machine template. The NIC should be
+     *  generated by the build_attach_nic
+     *    @param new_nic must be allocated in the heap
+     */
+    void set_attach_nic(VectorAttribute * new_nic)
+    {
+        new_nic->replace("ATTACH", "YES");
+
+        obj_template->set(new_nic);
+    }
+
+    /**
+     *  Sets the attach attribute to the given NIC
+     *    @param nic_id of the NIC
+     *    @return 0 if the nic_id was found, -1 otherwise
+     */
+    int set_attach_nic(int nic_id);
+
+
+    // ------------------------------------------------------------------------
+    // Snapshot related functions
+    // ------------------------------------------------------------------------
+
+    /**
+     * Creates a new Snapshot attribute, and sets it to ACTIVE=YES
+     *
+     * @param name for the new Snapshot. If it is empty, the generated name
+     * will be placed in this param
+     * @param snap_id Id of the new snapshot
+     *
+     * @return 0 on success
+     */
+    int new_snapshot(string& name, int& snap_id);
+
+    /**
+     * Sets the given Snapshot as ACTIVE=YES
+     *
+     * @param snap_id the snapshow ID
+     *
+     * @return 0 on success
+     */
+    int set_active_snapshot(int snap_id);
+
+    /**
+     * Replaces HYPERVISOR_ID for the active SNAPSHOT
+     *
+     * @param hypervisor_id Id returned by the hypervisor for the newly
+     * created snapshot
+     */
+    void update_snapshot_id(string& hypervisor_id);
+
+    /**
+     * Cleans the ACTIVE = YES attribute from the snapshots
+     */
+    void clear_active_snapshot();
+
+    /**
+     * Deletes the SNAPSHOT that was in the process of being created
+     */
+    void delete_active_snapshot();
+
+    /**
+     * Deletes all SNAPSHOT attributes
+     */
+    void delete_snapshots();
 
 private:
 

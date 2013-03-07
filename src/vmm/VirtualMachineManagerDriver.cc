@@ -364,7 +364,7 @@ void VirtualMachineManagerDriver::protocol(
         LifeCycleManager *lcm = ne.get_lcm();
 
         if ( result == "SUCCESS" )
-       {
+        {
             vm->log("VMM", Log::INFO, "VM Disk successfully attached.");
 
             lcm->trigger(LifeCycleManager::ATTACH_SUCCESS, id);
@@ -394,6 +394,109 @@ void VirtualMachineManagerDriver::protocol(
             vmpool->update(vm);
 
             lcm->trigger(LifeCycleManager::DETACH_FAILURE, id);
+        }
+    }
+    else if ( action == "ATTACHNIC" )
+    {
+        Nebula           &ne  = Nebula::instance();
+        LifeCycleManager *lcm = ne.get_lcm();
+
+        if ( result == "SUCCESS" )
+        {
+            vm->log("VMM", Log::ERROR, "VM NIC Successfully attached.");
+
+            lcm->trigger(LifeCycleManager::ATTACH_NIC_SUCCESS, id);
+        }
+        else
+        {
+            log_error(vm, os, is, "Error attaching new VM NIC");
+            vmpool->update(vm);
+
+            lcm->trigger(LifeCycleManager::ATTACH_NIC_FAILURE, id);
+        }
+    }
+    else if ( action == "DETACHNIC" )
+    {
+        Nebula              &ne  = Nebula::instance();
+        LifeCycleManager    *lcm = ne.get_lcm();
+
+        if ( result == "SUCCESS" )
+        {
+            vm->log("VMM",Log::ERROR,"VM NIC Successfully detached.");
+
+            lcm->trigger(LifeCycleManager::DETACH_NIC_SUCCESS, id);
+        }
+        else
+        {
+            log_error(vm,os,is,"Error detaching VM NIC");
+            vmpool->update(vm);
+
+            lcm->trigger(LifeCycleManager::DETACH_NIC_FAILURE, id);
+        }
+    }
+    else if ( action == "SNAPSHOTCREATE" )
+    {
+        Nebula           &ne  = Nebula::instance();
+        LifeCycleManager *lcm = ne.get_lcm();
+
+        if ( result == "SUCCESS" )
+        {
+            string hypervisor_id;
+
+            is >> hypervisor_id;
+
+            vm->update_snapshot_id(hypervisor_id);
+
+            vmpool->update(vm);
+
+            vm->log("VMM", Log::INFO, "VM Snapshot successfully created.");
+
+            lcm->trigger(LifeCycleManager::SNAPSHOT_CREATE_SUCCESS, id);
+        }
+        else
+        {
+            log_error(vm, os, is, "Error creating new VM Snapshot");
+            vmpool->update(vm);
+
+            lcm->trigger(LifeCycleManager::SNAPSHOT_CREATE_FAILURE, id);
+        }
+    }
+    else if ( action == "SNAPSHOTREVERT" )
+    {
+        Nebula              &ne  = Nebula::instance();
+        LifeCycleManager    *lcm = ne.get_lcm();
+
+        if ( result == "SUCCESS" )
+        {
+            vm->log("VMM",Log::INFO,"VM Snapshot successfully reverted.");
+
+            lcm->trigger(LifeCycleManager::SNAPSHOT_REVERT_SUCCESS, id);
+        }
+        else
+        {
+            log_error(vm,os,is,"Error reverting VM Snapshot");
+            vmpool->update(vm);
+
+            lcm->trigger(LifeCycleManager::SNAPSHOT_REVERT_FAILURE, id);
+        }
+    }
+    else if ( action == "SNAPSHOTDELETE" )
+    {
+        Nebula              &ne  = Nebula::instance();
+        LifeCycleManager    *lcm = ne.get_lcm();
+
+        if ( result == "SUCCESS" )
+        {
+            vm->log("VMM",Log::INFO,"VM Snapshot successfully deleted.");
+
+            lcm->trigger(LifeCycleManager::SNAPSHOT_DELETE_SUCCESS, id);
+        }
+        else
+        {
+            log_error(vm,os,is,"Error deleting VM Snapshot");
+            vmpool->update(vm);
+
+            lcm->trigger(LifeCycleManager::SNAPSHOT_DELETE_FAILURE, id);
         }
     }
     else if ( action == "CLEANUP" )

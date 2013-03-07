@@ -80,7 +80,23 @@ set :config, conf
 set :bind, settings.config[:host]
 set :port, settings.config[:port]
 
-use Rack::Session::Pool, :key => 'sunstone'
+case settings.config[:sessions]
+when 'memory'
+    use Rack::Session::Pool, :key => 'sunstone'
+when 'memcache'
+    memcache_server=settings.config[:memcache_host]+':'<<
+        settings.config[:memcache_port].to_s
+
+    STDERR.puts memcache_server
+
+    use Rack::Session::Memcache,
+        :memcache_server => memcache_server,
+        :namespace => settings.config[:memcache_namespace]
+
+else
+    STDERR.puts "Wrong value for :sessions in configuration file"
+    exit(-1)
+end
 
 # Enable logger
 
@@ -104,10 +120,6 @@ set :cloud_auth, cloud_auth
 configure do
     set :run, false
     set :vnc, OpenNebulaVNC.new(conf, settings.logger)
-    settings.vnc.start()
-    Kernel.at_exit do
-        settings.vnc.stop
-    end
 end
 
 ##############################################################################
@@ -396,4 +408,5 @@ post '/:resource/:id/action' do
                                    request.body.read)
 end
 
-Sinatra::Application.run!
+Sinatra::Application.run! if(!defined?(WITH_RACKUP))
+
