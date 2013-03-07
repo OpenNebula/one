@@ -62,6 +62,10 @@ public:
         ATTACH_FAILURE,   /**< Sent by the VMM when an attach action fails    */
         DETACH_SUCCESS,   /**< Sent by the VMM when a detach action succeeds  */
         DETACH_FAILURE,   /**< Sent by the VMM when a detach action fails     */
+        ATTACH_NIC_SUCCESS,/**< Sent by the VMM when an attach nic action succeeds */
+        ATTACH_NIC_FAILURE,/**< Sent by the VMM when an attach nic action fails    */
+        DETACH_NIC_SUCCESS,/**< Sent by the VMM when a detach nic action succeeds  */
+        DETACH_NIC_FAILURE,/**< Sent by the VMM when a detach nic action fails     */
         CLEANUP_SUCCESS,  /**< Sent by the VMM when a cleanup action succeeds */
         CLEANUP_FAILURE,  /**< Sent by the VMM when a cleanup action fails    */
         SNAPSHOT_CREATE_SUCCESS, /**< Sent by the VMM on snap. create success */
@@ -192,6 +196,14 @@ private:
     void detach_success_action(int vid);
 
     void detach_failure_action(int vid);
+
+    void attach_nic_success_action(int vid);
+
+    void attach_nic_failure_action(int vid);
+
+    void detach_nic_success_action(int vid);
+
+    void detach_nic_failure_action(int vid);
 
     void cleanup_callback_action(int vid);
 

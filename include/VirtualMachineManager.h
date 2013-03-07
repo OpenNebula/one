@@ -62,6 +62,8 @@ public:
         FINALIZE,
         ATTACH,
         DETACH,
+        ATTACH_NIC,
+        DETACH_NIC,
         SNAPSHOT_CREATE,
         SNAPSHOT_REVERT,
         SNAPSHOT_DELETE
@@ -333,6 +335,22 @@ private:
      *    @param vid the id of the VM.
      */
     void detach_action(
+        int vid);
+
+    /**
+     * Attaches a new NIC to a VM. The VM must have a NIC with the
+     * attribute ATTACH = YES
+     *    @param vid the id of the VM.
+     */
+    void attach_nic_action(
+        int vid);
+
+    /**
+     * Detaches a NIC from a VM. The VM must have a NIC with the
+     * attribute ATTACH = YES
+     *    @param vid the id of the VM.
+     */
+    void detach_nic_action(
         int vid);
 
     /**

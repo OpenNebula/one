@@ -30,22 +30,24 @@ class VirtualMachineDriver < OpenNebulaDriver
 
     # Virtual Machine Driver Protocol constants
     ACTION = {
-        :deploy          => "DEPLOY",
-        :shutdown        => "SHUTDOWN",
-        :reboot          => "REBOOT",
-        :reset           => "RESET",
-        :cancel          => "CANCEL",
-        :save            => "SAVE",
-        :restore         => "RESTORE",
-        :migrate         => "MIGRATE",
-        :poll            => "POLL",
-        :log             => "LOG",
-        :attach_disk     => "ATTACHDISK",
-        :detach_disk     => "DETACHDISK",
+        :deploy      => "DEPLOY",
+        :shutdown    => "SHUTDOWN",
+        :reboot      => "REBOOT",
+        :reset       => "RESET",
+        :cancel      => "CANCEL",
+        :save        => "SAVE",
+        :restore     => "RESTORE",
+        :migrate     => "MIGRATE",
+        :poll        => "POLL",
+        :log         => "LOG",
+        :attach_disk => "ATTACHDISK",
+        :detach_disk => "DETACHDISK",
         :snapshot_create => "SNAPSHOTCREATE",
         :snapshot_revert => "SNAPSHOTREVERT",
         :snapshot_delete => "SNAPSHOTDELETE",
-        :cleanup         => "CLEANUP"
+        :cleanup         => "CLEANUP",
+        :attach_nic  => "ATTACHNIC",
+        :detach_nic  => "DETACHNIC"
     }
 
     POLL_ATTRIBUTE = {
@@ -100,6 +102,8 @@ class VirtualMachineDriver < OpenNebulaDriver
         register_action(ACTION[:snapshot_delete].to_sym,
                         method("snapshot_delete"))
         register_action(ACTION[:cleanup].to_sym,         method("cleanup"))
+        register_action(ACTION[:attach_nic].to_sym,  method("attach_nic"))
+        register_action(ACTION[:detach_nic].to_sym,  method("detach_nic"))
     end
 
     # Decodes the encoded XML driver message received from the core
@@ -177,6 +181,16 @@ class VirtualMachineDriver < OpenNebulaDriver
     def detach_disk(id, drv_message)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:detach_disk],RESULT[:failure],id,error)
+    end
+
+    def attach_nic(id, drv_message)
+        error = "Action not implemented by driver #{self.class}"
+        send_message(ACTION[:attach_nic],RESULT[:failure],id,error)
+    end
+
+    def detach_nic(id, drv_message)
+        error = "Action not implemented by driver #{self.class}"
+        send_message(ACTION[:detach_nic],RESULT[:failure],id,error)
     end
 
     def snapshot_create(id, drv_message)
