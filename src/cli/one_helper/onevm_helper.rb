@@ -343,45 +343,41 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                            "MAC"=> "-",
                            "VLAN"=>"no",
                            "BRIDGE"=>"-"}
-            nic_id   = 0
+
             array_id = 0
 
             vm_nics.each {|nic|
 
-                next if nic.has_key?("NIC_ID_RENDER")
-
-                nic["NIC_ID_RENDER"] = nic_id
+                next if nic.has_key?("CLI_DONE")
 
                 if nic.has_key?("IP6_LINK")
-                    ip6_link = {"IP"          => nic.delete("IP6_LINK"),
-                                "NIC_ID"      => nic_id,
-                                "DOUBLE_ENTRY"=> true}
+                    ip6_link = {"IP"           => nic.delete("IP6_LINK"),
+                                "CLI_DONE"     => true,
+                                "DOUBLE_ENTRY" => true}
                     vm_nics.insert(array_id+1,ip6_link)
 
                     array_id += 1
                 end
 
                 if nic.has_key?("IP6_SITE")
-                    ip6_link = {"IP"          => nic.delete("IP6_SITE"),
-                                "NIC_ID"      => nic_id,
-                                "DOUBLE_ENTRY"=> true}
+                    ip6_link = {"IP"           => nic.delete("IP6_SITE"),
+                                "CLI_DONE"     => true,
+                                "DOUBLE_ENTRY" => true}
                     vm_nics.insert(array_id+1,ip6_link)
 
                     array_id += 1
                 end
 
                 if nic.has_key?("IP6_GLOBAL")
-                    ip6_link = {"IP"          => nic.delete("IP6_GLOBAL"),
-                                "NIC_ID"      => nic_id,
-                                "DOUBLE_ENTRY"=> true}
+                    ip6_link = {"IP"           => nic.delete("IP6_GLOBAL"),
+                                "CLI_DONE"     => true,
+                                "DOUBLE_ENTRY" => true}
                     vm_nics.insert(array_id+1,ip6_link)
 
                     array_id += 1
                 end
 
                 nic.merge!(nic_default) {|k,v1,v2| v1}
-
-                nic_id   += 1
                 array_id += 1
             }
 
