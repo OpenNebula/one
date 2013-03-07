@@ -275,7 +275,7 @@ private:
     }
 
     /**
-     *  Sends an attach request to the MAD: "ATTACH ID XML_DRV_MSG"
+     *  Sends an attach request to the MAD: "ATTACHDISK ID XML_DRV_MSG"
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation
      */
@@ -287,7 +287,7 @@ private:
     }
 
     /**
-     *  Sends a detach request to the MAD: "DETACH ID XML_DRV_MSG"
+     *  Sends a detach request to the MAD: "DETACHDISK ID XML_DRV_MSG"
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation
      */
@@ -296,6 +296,30 @@ private:
         const string& drv_msg) const
     {
         write_drv("DETACHDISK", oid, drv_msg);
+    }
+
+    /**
+     *  Sends an attach NIC request to the MAD: "ATTACHNIC ID XML_DRV_MSG"
+     *    @param oid the virtual machine id.
+     *    @param drv_msg xml data for the mad operation
+     */
+    void attach_nic (
+        const int     oid,
+        const string& drv_msg) const
+    {
+        write_drv("ATTACHNIC", oid, drv_msg);
+    }
+
+    /**
+     *  Sends a detach request to the MAD: "DETACHNIC ID XML_DRV_MSG"
+     *    @param oid the virtual machine id.
+     *    @param drv_msg xml data for the mad operation
+     */
+    void detach_nic (
+        const int     oid,
+        const string& drv_msg) const
+    {
+        write_drv("DETACHNIC", oid, drv_msg);
     }
 
     /**
@@ -337,15 +361,6 @@ private:
         write_drv("SNAPSHOTDELETE", oid, drv_msg);
     }
 
-    void write_drv(const char * aname, const int oid, const string& msg) const
-    {
-        ostringstream os;
-
-        os << aname << " " << oid << " " << msg << endl;
-
-        write(os);
-    }
-
     /**
      *  Gets VM information from the driver answer
      *    @param monitor_str from the driver
@@ -364,10 +379,21 @@ private:
         long long          &net_rx,
         char               &state,
         map<string,string> &custom);
+
+    /**
+     *
+     */
+    void write_drv(const char * aname, const int oid, const string& msg) const
+    {
+        ostringstream os;
+
+        os << aname << " " << oid << " " << msg << endl;
+
+        write(os);
+    }
 };
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 #endif /*VIRTUAL_MACHINE_MANAGER_DRIVER_H_*/
-

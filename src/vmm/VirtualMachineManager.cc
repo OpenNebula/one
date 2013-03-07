@@ -183,6 +183,14 @@ void VirtualMachineManager::trigger(Actions action, int _vid)
         aname = "DETACH";
         break;
 
+    case ATTACH_NIC:
+        aname = "ATTACH_NIC";
+        break;
+
+    case DETACH_NIC:
+        aname = "DETACH_NIC";
+        break;
+
     case SNAPSHOT_CREATE:
         aname = "SNAPSHOT_CREATE";
         break;
@@ -194,6 +202,7 @@ void VirtualMachineManager::trigger(Actions action, int _vid)
     case SNAPSHOT_DELETE:
         aname = "SNAPSHOT_DELETE";
         break;
+
     default:
         delete vid;
         return;
@@ -289,6 +298,14 @@ void VirtualMachineManager::do_action(const string &action, void * arg)
     else if (action == "DETACH")
     {
         detach_action(vid);
+    }
+    else if (action == "ATTACH_NIC")
+    {
+        attach_nic_action(vid);
+    }
+    else if (action == "DETACH_NIC")
+    {
+        detach_nic_action(vid);
     }
     else if (action == "SNAPSHOT_CREATE")
     {
@@ -2013,6 +2030,163 @@ error_common:
     vm->unlock();
     return;
 
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineManager::attach_nic_action(
+    int vid)
+{
+    VirtualMachine *                    vm;
+    const VirtualMachineManagerDriver * vmd;
+
+    ostringstream os, error_os;
+
+    string  vm_tmpl;
+    string* drv_msg;
+
+    // Get the VM from the pool
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    if (!vm->hasHistory())
+    {
+        goto error_history;
+    }
+
+    // Get the driver for this VM
+    vmd = get(vm->get_vmm_mad());
+
+    if ( vmd == 0 )
+    {
+        goto error_driver;
+    }
+
+    // Invoke driver method
+    drv_msg = format_message(
+        vm->get_hostname(),
+        vm->get_vnm_mad(),
+        "",
+        "",
+        vm->get_deploy_id(),
+        "",
+        "",
+        "",
+        "",
+        "",
+        vm->to_xml(vm_tmpl));
+
+    vmd->attach_nic(vid, *drv_msg);
+
+    delete drv_msg;
+
+    vm->unlock();
+
+    return;
+
+error_history:
+    os.str("");
+    os << "attach_nic_action, VM has no history";
+    goto error_common;
+
+error_driver:
+    os.str("");
+    os << "attach_nic_action, error getting driver " << vm->get_vmm_mad();
+    goto error_common;
+
+error_common:
+    Nebula              &ne = Nebula::instance();
+    LifeCycleManager *  lcm = ne.get_lcm();
+
+    lcm->trigger(LifeCycleManager::ATTACH_NIC_FAILURE, vid);
+
+    vm->log("VMM", Log::ERROR, os);
+    vm->unlock();
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineManager::detach_nic_action(
+    int vid)
+{
+    VirtualMachine *                    vm;
+    const VirtualMachineManagerDriver * vmd;
+
+    ostringstream os;
+    string        vm_tmpl;
+    string *      drv_msg;
+    string        opennebula_hostname;
+    string        error_str;
+
+    // Get the VM from the pool
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    if (!vm->hasHistory())
+    {
+        goto error_history;
+    }
+
+    // Get the driver for this VM
+    vmd = get(vm->get_vmm_mad());
+
+    if ( vmd == 0 )
+    {
+        goto error_driver;
+    }
+
+    // Invoke driver method
+    drv_msg = format_message(
+        vm->get_hostname(),
+        vm->get_vnm_mad(),
+        "",
+        "",
+        vm->get_deploy_id(),
+        "",
+        "",
+        "",
+        "",
+        "",
+        vm->to_xml(vm_tmpl));
+
+    vmd->detach_nic(vid, *drv_msg);
+
+    delete drv_msg;
+
+    vm->unlock();
+
+    return;
+
+error_history:
+    os.str("");
+    os << "detach_nic_action, VM has no history";
+    goto error_common;
+
+error_driver:
+    os.str("");
+    os << "detach_nic_action, error getting driver " << vm->get_vmm_mad();
+    goto error_common;
+
+error_common:
+    Nebula              &ne = Nebula::instance();
+    LifeCycleManager *  lcm = ne.get_lcm();
+
+    lcm->trigger(LifeCycleManager::DETACH_NIC_FAILURE, vid);
+
+    vm->log("VMM", Log::ERROR, os);
+    vm->unlock();
+    return;
 }
 
 /* ************************************************************************** */

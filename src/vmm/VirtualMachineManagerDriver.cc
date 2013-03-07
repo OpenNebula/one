@@ -396,6 +396,44 @@ void VirtualMachineManagerDriver::protocol(
             lcm->trigger(LifeCycleManager::DETACH_FAILURE, id);
         }
     }
+    else if ( action == "ATTACHNIC" )
+    {
+        Nebula           &ne  = Nebula::instance();
+        LifeCycleManager *lcm = ne.get_lcm();
+
+        if ( result == "SUCCESS" )
+        {
+            vm->log("VMM", Log::ERROR, "VM NIC Successfully attached.");
+
+            lcm->trigger(LifeCycleManager::ATTACH_NIC_SUCCESS, id);
+        }
+        else
+        {
+            log_error(vm, os, is, "Error attaching new VM NIC");
+            vmpool->update(vm);
+
+            lcm->trigger(LifeCycleManager::ATTACH_NIC_FAILURE, id);
+        }
+    }
+    else if ( action == "DETACHNIC" )
+    {
+        Nebula              &ne  = Nebula::instance();
+        LifeCycleManager    *lcm = ne.get_lcm();
+
+        if ( result == "SUCCESS" )
+        {
+            vm->log("VMM",Log::ERROR,"VM NIC Successfully detached.");
+
+            lcm->trigger(LifeCycleManager::DETACH_NIC_SUCCESS, id);
+        }
+        else
+        {
+            log_error(vm,os,is,"Error detaching VM NIC");
+            vmpool->update(vm);
+
+            lcm->trigger(LifeCycleManager::DETACH_NIC_FAILURE, id);
+        }
+    }
     else if ( action == "SNAPSHOTCREATE" )
     {
         Nebula           &ne  = Nebula::instance();

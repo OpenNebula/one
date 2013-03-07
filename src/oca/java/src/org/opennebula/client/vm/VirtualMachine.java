@@ -26,8 +26,8 @@ import org.w3c.dom.Node;
  * It also offers static XML-RPC call wrappers.
  */
 public class VirtualMachine extends PoolElement{
-
     private static final String METHOD_PREFIX = "vm.";
+
     private static final String ALLOCATE = METHOD_PREFIX + "allocate";
     private static final String INFO     = METHOD_PREFIX + "info";
     private static final String DEPLOY   = METHOD_PREFIX + "deploy";
@@ -42,6 +42,8 @@ public class VirtualMachine extends PoolElement{
     private static final String RENAME  = METHOD_PREFIX + "rename";
     private static final String UPDATE  = METHOD_PREFIX + "update";
     private static final String RESIZE  = METHOD_PREFIX + "resize";
+    private static final String ATTACHNIC = METHOD_PREFIX + "attachnic";
+    private static final String DETACHNIC = METHOD_PREFIX + "detachnic";
 
     private static final String[] VM_STATES =
     {
@@ -93,7 +95,8 @@ public class VirtualMachine extends PoolElement{
         "BOOT_SUSPENDED",
         "BOOT_STOPPED",
         "CLEANUP_DELETE",
-        "HOTPLUG_SNAPSHOT" };
+        "HOTPLUG_SNAPSHOT",
+        "HOTPLUG_NIC" };
 
     private static final String[] SHORT_LCM_STATES =
     {
@@ -314,7 +317,7 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
-     * Detaches a disk to a running VM
+     * Detaches a disk from a running VM
      *
      * @param client XML-RPC Client.
      * @param id The virtual machine id (vid) of the target instance.
@@ -325,6 +328,34 @@ public class VirtualMachine extends PoolElement{
             int diskId)
     {
         return client.call(DETACH, id, diskId);
+    }
+
+    /**
+     * Attaches a NIC to a running VM
+     *
+     * @param client XML-RPC Client.
+     * @param id The virtual machine id (vid) of the target instance.
+     * @param nicTemplate Template containing the new NIC definition
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse attachnic(Client client, int id,
+            String nicTemplate)
+    {
+        return client.call(ATTACHNIC, id, nicTemplate);
+    }
+
+    /**
+     * Detaches a NIC from a running VM
+     *
+     * @param client XML-RPC Client.
+     * @param id The virtual machine id (vid) of the target instance.
+     * @param nicId The NIC_ID of the NIC to detach
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse detachnic(Client client, int id,
+            int nicId)
+    {
+        return client.call(DETACHNIC, id, nicId);
     }
 
     /**
@@ -561,7 +592,7 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
-     * Detaches a disk to a running VM
+     * Detaches a disk from a running VM
      *
      * @param diskId The DISK_ID of the disk to detach
      * @return If an error occurs the error message contains the reason.
@@ -569,6 +600,28 @@ public class VirtualMachine extends PoolElement{
     public OneResponse detachdisk(int diskId)
     {
         return detachdisk(client, id, diskId);
+    }
+
+    /**
+     * Attaches a NIC to a running VM
+     *
+     * @param nicTemplate Template containing the new NIC definition
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse attachnic(String nicTemplate)
+    {
+        return attachnic(client, id, nicTemplate);
+    }
+
+    /**
+     * Detaches a NIC from a running VM
+     *
+     * @param nicId The NIC_ID of the NIC to detach
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse detachnic(int nicId)
+    {
+        return detachnic(client, id, nicId);
     }
 
     /**

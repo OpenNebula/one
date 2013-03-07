@@ -734,6 +734,96 @@ class ExecDriver < VirtualMachineDriver
         action.run(steps)
     end
 
+    #
+    #  ATTACHNIC action to attach a new nic interface
+    #
+    def attach_nic(id, drv_message)
+        xml_data = decode(drv_message)
+
+        begin
+            source = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/BRIDGE"]
+            mac    = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/MAC"]
+
+            source = source.text.strip
+            mac    = mac.text.strip
+        rescue
+            send_message(action, RESULT[:failure], id,
+                "Error in #{ACTION[:attach_nic]}, BRIDGE and MAC needed in NIC")
+            return
+        end
+
+        model = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/MODEL"]
+
+        model = model.text if !model.nil?
+        model = model.strip if !model.nil?
+        model = "-" if model.nil?
+
+        action = VmmAction.new(self, id, :attach_nic, drv_message)
+
+        steps=[
+            # Execute pre-attach networking setup
+            {
+                :driver   => :vnm,
+                :action   => :pre
+            },
+            # Attach the new NIC
+            {
+                :driver     => :vmm,
+                :action     => :attach_nic,
+                :parameters => [:deploy_id, mac, source, model]
+            },
+            # Execute post-boot networking setup
+            {
+                :driver       => :vnm,
+                :action       => :post,
+                :parameters   => [:deploy_info],
+                :fail_actions => [
+                    {
+                        :driver     => :vmm,
+                        :action     => :detach_nic,
+                        :parameters => [:deploy_id, mac]
+                    }
+                ]
+            }
+        ]
+
+        action.run(steps)
+    end
+
+    #
+    #  DETACHNIC action to detach a nic interface
+    #
+    def detach_nic(id, drv_message)
+        xml_data = decode(drv_message)
+
+        begin
+            mac = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/MAC"]
+            mac = mac.text.strip
+        rescue
+            send_message(action, RESULT[:failure], id,
+                "Error in #{ACTION[:detach_nic]}, MAC needed in NIC")
+            return
+        end
+
+        action = VmmAction.new(self, id, :detach_nic, drv_message)
+
+        steps=[
+            # Detach the NIC
+            {
+                :driver     => :vmm,
+                :action     => :detach_nic,
+                :parameters => [:deploy_id, mac]
+            },
+            # Clean networking setup
+            {
+                :driver       => :vnm,
+                :action       => :clean
+            }
+        ]
+
+        action.run(steps)
+    end
+
 private
 
     def ensure_xpath(xml_data, id, action, xpath)

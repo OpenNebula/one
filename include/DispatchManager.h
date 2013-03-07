@@ -259,8 +259,8 @@ public:
      *    @return 0 on success, -1 otherwise
      */
     int attach(
-        int                      vid, 
-        VirtualMachineTemplate * tmpl, 
+        int                      vid,
+        VirtualMachineTemplate * tmpl,
         string&                  error_str);
 
     /**
@@ -276,6 +276,31 @@ public:
         int      disk_id,
         string&  error_str);
 
+    /**
+     *  Starts the attach NIC action.
+     *    @param vid VirtualMachine identification
+     *    @param tmpl Template containing the new NIC attribute.
+     *    @param error_str Error reason, if any
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int attach_nic(
+        int                      vid,
+        VirtualMachineTemplate * tmpl,
+        string&                  error_str);
+
+    /**
+     * Starts the detach NIC action.
+     *    @param vid VirtualMachine identification
+     *    @param nic_id NIC to detach
+     *    @param error_str Error reason, if any
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int detach_nic(
+        int      id,
+        int      nic_id,
+        string&  error_str);
     /**
      * Starts the snapshot create action
      *

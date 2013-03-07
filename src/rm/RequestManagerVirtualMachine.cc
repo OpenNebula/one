@@ -1510,3 +1510,124 @@ void VirtualMachineSnapshotDelete::request_execute(
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void VirtualMachineAttachNic::request_execute(
+        xmlrpc_c::paramList const&  paramList,
+        RequestAttributes&          att)
+{
+    Nebula&           nd = Nebula::instance();
+    DispatchManager * dm = nd.get_dm();
+
+    VirtualMachineTemplate tmpl;
+    PoolObjectAuth           host_perms;
+
+    int    rc;
+    string error_str;
+
+    int     id       = xmlrpc_c::value_int(paramList.getInt(1));
+    string  str_tmpl = xmlrpc_c::value_string(paramList.getString(2));
+
+    // -------------------------------------------------------------------------
+    // Parse NIC template
+    // -------------------------------------------------------------------------
+
+    rc = tmpl.parse_str_or_xml(str_tmpl, error_str);
+
+    if ( rc != 0 )
+    {
+        failure_response(INTERNAL, error_str, att);
+        return;
+    }
+
+    // -------------------------------------------------------------------------
+    // Authorize the operation, restricted attributes & check quotas
+    // -------------------------------------------------------------------------
+
+    if ( vm_authorization(id, 0, &tmpl, att, 0, 0, auth_op) == false )
+    {
+        return;
+    }
+
+    if (att.uid != UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
+    {
+        string aname;
+
+        if (tmpl.check(aname))
+        {
+            ostringstream oss;
+
+            oss << "NIC includes a restricted attribute " << aname;
+
+            failure_response(AUTHORIZATION,
+                    authorization_error(oss.str(), att),
+                    att);
+            return;
+        }
+    }
+
+    if ( quota_authorization(&tmpl, Quotas::NETWORK, att) == false )
+    {
+        return;
+    }
+
+    rc = dm->attach_nic(id, &tmpl, error_str);
+
+    if ( rc != 0 )
+    {
+        quota_rollback(&tmpl, Quotas::NETWORK, att);
+
+        failure_response(ACTION,
+                request_error(error_str, ""),
+                att);
+    }
+    else
+    {
+        success_response(id, att);
+    }
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineDetachNic::request_execute(
+        xmlrpc_c::paramList const&  paramList,
+        RequestAttributes&          att)
+{
+    Nebula&             nd = Nebula::instance();
+    DispatchManager *   dm = nd.get_dm();
+
+    int rc;
+    string error_str;
+
+    int id      = xmlrpc_c::value_int(paramList.getInt(1));
+    int nic_id  = xmlrpc_c::value_int(paramList.getInt(2));
+
+    // -------------------------------------------------------------------------
+    // Authorize the operation
+    // -------------------------------------------------------------------------
+
+    if ( vm_authorization(id, 0, 0, att, 0, 0, auth_op) == false )
+    {
+        return;
+    }
+
+    rc = dm->detach_nic(id, nic_id, error_str);
+
+    if ( rc != 0 )
+    {
+        failure_response(ACTION,
+                request_error(error_str, ""),
+                att);
+    }
+    else
+    {
+        success_response(id, att);
+    }
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
