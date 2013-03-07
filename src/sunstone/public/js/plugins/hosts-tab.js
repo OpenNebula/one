@@ -35,6 +35,9 @@ var host_graphs = [
     }
 ]
 
+var host_monitoring_args = {
+    monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU,HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM"
+};
 
 var hosts_tab_content = '\
 <form class="custom" id="form_hosts" action="">\
@@ -315,16 +318,31 @@ var host_actions = {
         type: "monitor_global",
         call : OpenNebula.Host.pool_monitor,
         callback: function(req,response) {
-            var info = req.request.data[0].monitor;
+            var host_dashboard_graphs = [
+            {
+                monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU",
+                labels : "Allocated CPU,Real CPU,Total CPU",
+                humanize_figures : false,
+                div_graph : $("#dash_host_cpu_graph", $dashboard),
+                div_legend : $("#dash_host_cpu_legend", $dashboard)
+            },
+            {
+                monitor_resources : "HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM",
+                labels : "Allocated MEM,Real MEM,Total MEM",
+                humanize_figures : true,
+                div_graph : $("#dash_host_mem_graph", $dashboard),
+                div_legend : $("#dash_host_mem_legend", $dashboard)
+            }
+            ];
 
-            // TODO: Set correct divs, here or in host_graphs attribute
+            for(var i=0; i<host_dashboard_graphs.length; i++) {
+                plot_totals(
+                    response,
+                    host_dashboard_graphs[i]
+                );
+            }
 
-            plot_totals(
-                response,
-                info,
-                "host_monitor_HOST_SHARE_CPU_USAGE_HOST_SHARE_USED_CPU_HOST_SHARE_MAX_CPU",
-                "legend_HOST_SHARE_CPU_USAGE_HOST_SHARE_USED_CPU_HOST_SHARE_MAX_CPU"
-            );
+            // TODO: refresh individual info panel graphs with this new data?
         },
 
         // TODO: ignore error, or set message similar to hostMonitorError?
@@ -763,6 +781,8 @@ function updateHostsView (request,host_list){
     $("#off_hosts", form_hosts).text(off_hosts);
     $("#error_hosts", form_hosts).text(error_hosts);
 
+    // Update the dashboard graphs with monitoring information
+    Sunstone.runAction("Host.pool_monitor",host_monitoring_args);
 
     //SunstoneMonitoring.monitor('HOST', host_list)
 //
@@ -867,13 +887,14 @@ function updateHostInfo(request,host){
     Sunstone.updateInfoPanelTab("host_info_panel","host_monitoring_tab",monitor_tab);
 
     Sunstone.popUpInfoPanel("host_info_panel");
+
+    // TODO: do not call Host.monitor for each graph
+    // TODO: re-use Host.pool_monitor data?
+
     //pop up panel while we retrieve the graphs
     for (var i=0; i<host_graphs.length; i++){
         Sunstone.runAction("Host.monitor",host_info.ID,host_graphs[i]);
     };
-
-    // TODO: use different host_graphs?
-    Sunstone.runAction("Host.pool_monitor",host_graphs[0]);
 }
 
 //Prepares the host creation dialog

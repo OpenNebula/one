@@ -769,7 +769,7 @@ function plot_graph(data,context,id_prefix,info){
 }
 
 
-function plot_totals(response, info, div_graph, div_legend) {
+function plot_totals(response, info) {
 
     series = [];
 
@@ -854,9 +854,9 @@ function plot_totals(response, info, div_graph, div_legend) {
 
     var options = {
 //        colors: [ "#cdebf5", "#2ba6cb", "#6f6f6f" ]
-        legend : { show : (div_legend != undefined),
+        legend : { show : (info.div_legend != undefined),
                    noColumns: attributes.length+1,
-                   container: $('#'+div_legend)
+                   container: info.div_legend
                  },
         xaxis : {
             tickFormatter: function(val,axis){
@@ -871,7 +871,7 @@ function plot_totals(response, info, div_graph, div_legend) {
                 }
     };
 
-    $.plot($("#"+div_graph), series, options);
+    $.plot(info.div_graph, series, options);
 }
 
 

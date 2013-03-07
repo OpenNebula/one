@@ -209,6 +209,22 @@ var dashboard_tab_content = '\
             <h3 class="subheader"><small>'+tr("ERROR")+'</small></h3>\
           </div>\
         </div>\
+        <div class="row">\
+          <div class="ten columns" id="dash_host_cpu_legend" style="width:60%;height: 100px;margin: 50px;">\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="ten columns" id="dash_host_cpu_graph" style="width:60%;height: 200px;margin: 50px;">\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="ten columns" id="dash_host_mem_legend" style="width:60%;height: 100px;margin: 50px;">\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="ten columns" id="dash_host_mem_graph" style="width:60%;height: 200px;margin: 50px;">\
+          </div>\
+        </div>\
       </div>\
     </div>\
     <div class="six columns">\
