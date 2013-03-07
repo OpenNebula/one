@@ -759,6 +759,8 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/poll_ganglia \
                     src/vmm_mad/remotes/kvm/attach_disk \
                     src/vmm_mad/remotes/kvm/detach_disk \
+                    src/vmm_mad/remotes/kvm/attach_nic \
+                    src/vmm_mad/remotes/kvm/detach_nic \
                     src/vmm_mad/remotes/kvm/snapshot_create \
                     src/vmm_mad/remotes/kvm/snapshot_revert \
                     src/vmm_mad/remotes/kvm/snapshot_delete \
