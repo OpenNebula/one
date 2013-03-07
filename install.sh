@@ -782,6 +782,8 @@ VMM_EXEC_XEN3_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/poll_ganglia \
                     src/vmm_mad/remotes/xen/attach_disk \
                     src/vmm_mad/remotes/xen/detach_disk \
+                    src/vmm_mad/remotes/xen/attach_nic \
+                    src/vmm_mad/remotes/xen/detach_nic \
                     src/vmm_mad/remotes/xen/snapshot_create \
                     src/vmm_mad/remotes/xen/snapshot_revert \
                     src/vmm_mad/remotes/xen/snapshot_delete \
@@ -799,6 +801,8 @@ VMM_EXEC_XEN4_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/poll_ganglia \
                     src/vmm_mad/remotes/xen/attach_disk \
                     src/vmm_mad/remotes/xen/detach_disk \
+                    src/vmm_mad/remotes/xen/attach_nic \
+                    src/vmm_mad/remotes/xen/detach_nic \
                     src/vmm_mad/remotes/xen/snapshot_create \
                     src/vmm_mad/remotes/xen/snapshot_revert \
                     src/vmm_mad/remotes/xen/snapshot_delete \
