@@ -123,6 +123,10 @@ void TransferManager::trigger(Actions action, int _vid)
         aname = "CHECKPOINT";
         break;
 
+    case SAVEAS_HOT:
+        aname = "DRIVER_CANCEL";
+        break;
+
     case DRIVER_CANCEL:
         aname = "DRIVER_CANCEL";
         break;
@@ -194,6 +198,10 @@ void TransferManager::do_action(const string &action, void * arg)
     else if (action == "CHECKPOINT")
     {
         checkpoint_action(vid);
+    }
+    else if (action == "SAVEAS_HOT")
+    {
+        saveas_hot_action(vid);
     }
     else if (action == "DRIVER_CANCEL")
     {
@@ -1625,10 +1633,12 @@ void TransferManager::checkpoint_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void TransferManager::saveas_hot_transfer_command(int vid,
-                                                  int disk_id,
-                                                  string& save_source)
+void TransferManager::saveas_hot_action(int vid)
 {
+    int    disk_id;
+    int    image_id;
+    string save_source;
+
     string save;
     string tm_mad;
     string ds_id;
@@ -1658,13 +1668,19 @@ void TransferManager::saveas_hot_transfer_command(int vid,
 
     if (vm == 0)
     {
-         vm->log("TM", Log::ERROR, "Could not obtain the VM");;
+         vm->log("TM", Log::ERROR, "Could not obtain the VM");
          goto error_common;
     }
 
     if (!vm->hasHistory())
     {
-        vm->log("TM", Log::ERROR, "The VM has no history");;
+        vm->log("TM", Log::ERROR, "The VM has no history");
+        goto error_common;
+    }
+
+    if (vm->get_saveas_disk_hot(disk_id, save_source, image_id) == -1)
+    {
+        vm->log("TM", Log::ERROR, "Could not get disk information to saveas it");
         goto error_common;
     }
 
@@ -1747,7 +1763,7 @@ error_file:
 error_common:
     vm->log("TM", Log::ERROR, os);
 
-    (nd.get_lcm())->trigger(LifeCycleManager::HOTPLUG_SAVEAS_FAILURE, vid);
+    (nd.get_lcm())->trigger(LifeCycleManager::SAVEAS_HOT_FAILURE, vid);
 
     vm->unlock();
     return;

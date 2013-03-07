@@ -682,9 +682,9 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 {
     Nebula& nd  = Nebula::instance();
 
-    ImagePool *     ipool   = nd.get_ipool();
-    DatastorePool * dspool  = nd.get_dspool();
-    UserPool *      upool   = nd.get_upool();
+    ImagePool *     ipool  = nd.get_ipool();
+    DatastorePool * dspool = nd.get_dspool();
+    UserPool *      upool  = nd.get_upool();
 
     int    id       = xmlrpc_c::value_int(paramList.getInt(1));
     int    disk_id  = xmlrpc_c::value_int(paramList.getInt(2));
@@ -699,51 +699,45 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
     VirtualMachine * vm;
+    Datastore      * ds;
     int              iid;
-    int              iid_orig;
 
-    Image         *  img;
-    Datastore     *  ds;
-    User          *  user;
-    Image::DiskType  ds_disk_type;
-
-    int           umask;
-    int           rc;
-    string        error_str;
+    string error_str;
 
     string driver;
     string target;
     string dev_prefix;
 
     // -------------------------------------------------------------------------
-    // Prepare and check the VM/DISK to be saved_as
+    // Get user's umask
     // -------------------------------------------------------------------------
+    User * user = upool->get(att.uid, true);
 
-    if ( (vm = get_vm(id, att)) == 0 )
+    if ( user == 0 )
     {
         failure_response(NO_EXISTS,
-                         get_error(object_name(PoolObjectSQL::VM), id),
-                         att);
-        return;
-    }
-
-    if (!(  (vm->get_state() == VirtualMachine::POWEROFF) ||
-            (vm->get_state() == VirtualMachine::SUSPENDED) ||
-            (vm->get_state() == VirtualMachine::ACTIVE &&
-             vm->get_lcm_state() == VirtualMachine::RUNNING)))
-    {
-        failure_response(ACTION,
-                request_error("Wrong state to perform action",""),
+                get_error(object_name(PoolObjectSQL::USER), att.uid),
                 att);
 
-        vm->unlock();
         return;
     }
 
-    iid_orig = vm->get_image_from_disk(disk_id, error_str);
+    int umask = user->get_umask();
 
-    // TODO: remove this update?
-    pool->update(vm);
+    user->unlock();
+
+    // -------------------------------------------------------------------------
+    // Prepare and check the VM/DISK to be saved_as
+    // -------------------------------------------------------------------------
+    if ((vm = get_vm(id, att)) == 0)
+    {
+        return;
+    }
+
+    int rc       = vm->set_saveas_state();
+    int iid_orig = vm->get_image_from_disk(disk_id, is_hot, error_str);
+
+    vmpool->update(vm);
 
     vm->unlock();
 
@@ -755,36 +749,32 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         return;
     }
 
-    // -------------------------------------------------------------------------
-    // Get user's umask
-    // -------------------------------------------------------------------------
-
-    user = upool->get(att.uid, true);
-
-    if ( user == 0 )
+    if ( rc != 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(PoolObjectSQL::USER), att.uid),
-                att);
-
+        failure_response(INTERNAL,
+                         request_error("VM has to be RUNNING, POWEROFF or"
+                         " SUSPENDED to saveas disks.",""), att);
         return;
     }
-
-    umask = user->get_umask();
-
-    user->unlock();
 
     // -------------------------------------------------------------------------
     // Get the data of the Image to be saved
     // -------------------------------------------------------------------------
-
-    img = ipool->get(iid_orig, true);
+    Image * img = ipool->get(iid_orig, true);
 
     if ( img == 0 )
     {
         failure_response(NO_EXISTS,
                          get_error(object_name(PoolObjectSQL::IMAGE), iid_orig),
                          att);
+
+        if ((vm = vmpool->get(id, true)) != 0)
+        {
+            vm->clear_saveas_state();
+            vmpool->update(vm);
+            vm->unlock();
+        }
+
         return;
     }
 
@@ -800,11 +790,22 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     img->unlock();
 
+    // -------------------------------------------------------------------------
+    // Get the data of the DataStore for the new image
+    // -------------------------------------------------------------------------
     if ((ds = dspool->get(ds_id, true)) == 0 )
     {
         failure_response(NO_EXISTS,
                 get_error(object_name(PoolObjectSQL::DATASTORE), ds_id),
                 att);
+
+        if ((vm = vmpool->get(id, true)) != 0)
+        {
+            vm->clear_saveas_state();
+            vmpool->update(vm);
+            vm->unlock();
+        }
+
         return;
     }
 
@@ -819,70 +820,18 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         case Image::RAMDISK:
         case Image::CONTEXT:
             failure_response(INTERNAL,
-                    request_error("Cannot save_as image of type " + Image::type_to_str(type), ""),
-                    att);
+                    request_error("Cannot save_as image of type " +
+                    Image::type_to_str(type), ""), att);
         return;
     }
 
-    // -------------------------------------------------------------------------
-    // Change to one of the HOTPLUG_SAVEAS states if it's a hot saveas
-    // -------------------------------------------------------------------------
-
-    if ( is_hot )
-    {
-        vm = vmpool->get(id,true);
-
-        if ( vm == 0 )
-        {
-            failure_response(NO_EXISTS,
-                         get_error(object_name(PoolObjectSQL::VM), id),
-                         att);
-            return;
-        }
-
-        if ( vm->get_state() == VirtualMachine::ACTIVE &&
-             vm->get_lcm_state() == VirtualMachine::RUNNING)
-        {
-            vm->set_state(VirtualMachine::HOTPLUG_SAVEAS);
-        }
-        else if (vm->get_state() == VirtualMachine::POWEROFF)
-        {
-            vm->set_state(VirtualMachine::ACTIVE);
-            vm->set_state(VirtualMachine::HOTPLUG_SAVEAS_POWEROFF);
-        }
-        else if (vm->get_state() == VirtualMachine::SUSPENDED)
-        {
-            vm->set_state(VirtualMachine::ACTIVE);
-            vm->set_state(VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED);
-        }
-        else
-        {
-            failure_response(ACTION,
-                request_error("Wrong state to perform action",""),
-                att);
-
-            vm->unlock();
-            return;
-        }
-
-        vm->log("RM", Log::INFO, "New VM state is HOTPLUG_SAVEAS");
-
-        vm->set_resched(false);
-        vmpool->update(vm);
-
-        vm->unlock();
-    }
-
-    // -------------------------------------------------------------------------
-    // Get the data of the DataStore for the new image
-    // -------------------------------------------------------------------------
     string         ds_data;
     PoolObjectAuth ds_perms;
 
     ds->get_permissions(ds_perms);
     ds->to_xml(ds_data);
 
-    ds_disk_type = ds->get_disk_type();
+    Image::DiskType ds_disk_type = ds->get_disk_type();
 
     ds->unlock();
 
@@ -899,9 +848,11 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     itemplate->add("SAVED_DISK_ID",disk_id);
     itemplate->add("SAVED_VM_ID", id);
 
+    itemplate->set_saving();
+
     if ( is_hot )
     {
-        itemplate->set_snapshot_hot();
+        itemplate->set_saving_hot();
     }
 
     if ( img_type.empty() )
@@ -928,31 +879,36 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         itemplate->add("DEV_PREFIX", dev_prefix);
     }
 
-    itemplate->set_saving();
-
     img_usage.add("SIZE",      size);
     img_usage.add("DATASTORE", ds_id);
 
     // -------------------------------------------------------------------------
     // Authorize the operation & check quotas
     // -------------------------------------------------------------------------
+    bool rc_auth = vm_authorization(id, itemplate, 0, att, 0,&ds_perms,auth_op);
 
-    if ( vm_authorization(id, itemplate, 0, att, 0, &ds_perms, auth_op) == false )
+    if ( rc_auth == true )
     {
-        delete itemplate;
-        return;
+        rc_auth = quota_authorization(&img_usage, Quotas::DATASTORE, att);
     }
 
-    if ( quota_authorization(&img_usage, Quotas::DATASTORE, att) == false )
+    if ( rc_auth == false)
     {
         delete itemplate;
+
+        if ((vm = vmpool->get(id, true)) != 0)
+        {
+            vm->clear_saveas_state();
+            vmpool->update(vm);
+            vm->unlock();
+        }
+
         return;
     }
 
     // -------------------------------------------------------------------------
     // Create the image
     // -------------------------------------------------------------------------
-
     rc = ipool->allocate(att.uid,
                          att.gid,
                          att.uname,
@@ -970,6 +926,13 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     if (rc < 0)
     {
         quota_rollback(&img_usage, Quotas::DATASTORE, att);
+
+        if ((vm = vmpool->get(id, true)) != 0)
+        {
+            vm->clear_saveas_state();
+            vmpool->update(vm);
+            vm->unlock();
+        }
 
         failure_response(INTERNAL,
                 allocate_error(PoolObjectSQL::IMAGE, error_str), att);

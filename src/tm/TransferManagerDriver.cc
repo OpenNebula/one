@@ -134,7 +134,7 @@ void TransferManagerDriver::protocol(
                 case VirtualMachine::HOTPLUG_SAVEAS:
                 case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
                 case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
-                    lcm_action = LifeCycleManager::HOTPLUG_SAVEAS_SUCCESS;
+                    lcm_action = LifeCycleManager::SAVEAS_HOT_SUCCESS;
                     break;
 
                 default:
@@ -177,7 +177,7 @@ void TransferManagerDriver::protocol(
                 case VirtualMachine::HOTPLUG_SAVEAS:
                 case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
                 case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
-                    lcm_action = LifeCycleManager::HOTPLUG_SAVEAS_FAILURE;
+                    lcm_action = LifeCycleManager::SAVEAS_HOT_FAILURE;
                     break;
 
                 default:

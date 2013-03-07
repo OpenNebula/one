@@ -1198,16 +1198,17 @@ void LifeCycleManager::detach_failure_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void LifeCycleManager::hotplug_saveas_success_action(int vid)
+void LifeCycleManager::saveas_hot_success_action(int vid)
 {
-    Nebula&             nd = Nebula::instance();
-
+    Nebula&        nd = Nebula::instance();
     ImagePool * ipool = nd.get_ipool();
 
-    VirtualMachine *    vm;
+    VirtualMachine * vm;
     Image * image;
 
     int image_id;
+    int disk_id;
+    string source;
 
     vm = vmpool->get(vid,true);
 
@@ -1216,47 +1217,26 @@ void LifeCycleManager::hotplug_saveas_success_action(int vid)
         return;
     }
 
-    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_SAVEAS)
+    if (vm->clear_saveas_state() == -1)
     {
-        image_id = vm->get_hotplug_saveas_image_id();
+        vm->log("LCM", Log::ERROR, "saveas_hot_success_action, VM in a wrong state");
+        vm->unlock();
 
-        vm->clear_hotplug_saveas();
-
-        vm->set_state(VirtualMachine::RUNNING);
-
-        vmpool->update(vm);
+        return;
     }
-    else if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_SAVEAS_POWEROFF)
-    {
-        image_id = vm->get_hotplug_saveas_image_id();
 
-        vm->clear_hotplug_saveas();
+    int rc = vm->get_saveas_disk_hot(disk_id, source, image_id);
 
-        vm->set_state(VirtualMachine::POWEROFF);
-        vm->set_state(VirtualMachine::LCM_INIT);
+    vm->clear_saveas_disk_hot();
 
-        vmpool->update(vm);
-    }
-    else if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED)
-    {
-        image_id = vm->get_hotplug_saveas_image_id();
-
-        vm->clear_hotplug_saveas();
-
-        vm->set_state(VirtualMachine::SUSPENDED);
-        vm->set_state(VirtualMachine::LCM_INIT);
-
-        vmpool->update(vm);
-    }
-    else
-    {
-        vm->log("LCM",Log::ERROR,"hotplug_saveas_success_action,"
-                                 " VM in a wrong state");
-    }
+    vmpool->update(vm);
 
     vm->unlock();
 
-    ostringstream oss;
+    if ( rc != 0 )
+    {
+        return;
+    }
 
     image = ipool->get(image_id, true);
 
@@ -1275,16 +1255,17 @@ void LifeCycleManager::hotplug_saveas_success_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void LifeCycleManager::hotplug_saveas_failure_action(int vid)
+void LifeCycleManager::saveas_hot_failure_action(int vid)
 {
-    Nebula&             nd = Nebula::instance();
-
+    Nebula&        nd = Nebula::instance();
     ImagePool * ipool = nd.get_ipool();
 
-    VirtualMachine *    vm;
+    VirtualMachine * vm;
     Image * image;
 
     int image_id;
+    int disk_id;
+    string source;
 
     vm = vmpool->get(vid,true);
 
@@ -1293,47 +1274,26 @@ void LifeCycleManager::hotplug_saveas_failure_action(int vid)
         return;
     }
 
-    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_SAVEAS)
+    if (vm->clear_saveas_state() == -1)
     {
-        image_id = vm->get_hotplug_saveas_image_id();
+        vm->log("LCM", Log::ERROR, "saveas_hot_success_action, VM in a wrong state");
+        vm->unlock();
 
-        vm->clear_hotplug_saveas();
-
-        vm->set_state(VirtualMachine::RUNNING);
-
-        vmpool->update(vm);
+        return;
     }
-    else if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_SAVEAS_POWEROFF)
-    {
-        image_id = vm->get_hotplug_saveas_image_id();
 
-        vm->clear_hotplug_saveas();
+    int rc = vm->get_saveas_disk_hot(disk_id, source, image_id);
 
-        vm->set_state(VirtualMachine::POWEROFF);
-        vm->set_state(VirtualMachine::LCM_INIT);
+    vm->clear_saveas_disk_hot();
 
-        vmpool->update(vm);
-    }
-    else if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED)
-    {
-        image_id = vm->get_hotplug_saveas_image_id();
-
-        vm->clear_hotplug_saveas();
-
-        vm->set_state(VirtualMachine::SUSPENDED);
-        vm->set_state(VirtualMachine::LCM_INIT);
-
-        vmpool->update(vm);
-    }
-    else
-    {
-        vm->log("LCM",Log::ERROR,"hotplug_saveas_success_action,"
-                                 " VM in a wrong state");
-    }
+    vmpool->update(vm);
 
     vm->unlock();
 
-    ostringstream oss;
+    if ( rc != 0 )
+    {
+        return;
+    }
 
     image = ipool->get(image_id, true);
 

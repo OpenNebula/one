@@ -356,9 +356,8 @@ public:
     {
         ImageTemplate * it = static_cast<ImageTemplate *>(obj_template);
 
-        return it->is_hot();
+        return it->is_saving_hot();
     }
-
 
     /**
      *  Set permissions for the Image. Extends the PoolSQLObject method

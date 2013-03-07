@@ -52,13 +52,13 @@ public:
         return (saving.empty() == false);
     }
 
-    bool is_hot()
+    bool is_saving_hot()
     {
-        string snapshot_hot;
+        string save_as_hot;
 
-        get(snapshot_hot_attribute, snapshot_hot);
+        get(saving_hot_attribute, save_as_hot);
 
-        return (snapshot_hot.empty() == false);
+        return (save_as_hot.empty() == false);
     }
 
     void set_saving()
@@ -70,12 +70,11 @@ public:
         set(attr);
     }
 
-    void set_snapshot_hot()
+    void set_saving_hot()
     {
-        SingleAttribute * attr = new SingleAttribute(
-                                                snapshot_hot_attribute, "YES");
+        SingleAttribute * attr = new SingleAttribute(saving_hot_attribute,"YES");
 
-        erase(snapshot_hot_attribute);
+        erase(saving_hot_attribute);
 
         set(attr);
     }
@@ -91,7 +90,7 @@ private:
     static vector<string> restricted_attributes;
 
     static string saving_attribute;
-    static string snapshot_hot_attribute;
+    static string saving_hot_attribute;
 
     /**
      * Stores the attributes as restricted, these attributes will be used in
@@ -103,7 +102,7 @@ private:
         Template::set_restricted_attributes(rattrs, restricted_attributes);
     };
 };
-    
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

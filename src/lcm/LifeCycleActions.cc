@@ -550,8 +550,6 @@ void  LifeCycleManager::restart_action(int vid)
             vm->log("LCM", Log::INFO, "New VM state is BOOT_POWEROFF");
         }
 
-        //----------------------------------------------------
-
         vmm->trigger(VirtualMachineManager::DEPLOY,vid);
     }
     else
