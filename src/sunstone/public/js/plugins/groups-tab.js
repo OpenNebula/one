@@ -118,10 +118,14 @@ var create_group_tmpl =
   <a class="close-reveal-modal">&#215;</a>\
 </form>';
 
-var group_quotas_tmpl = '<form id="group_quotas_form" action="">\
-   <fieldset>\
-     <div>'+tr("Please add/edit/remove quotas and click on the apply changes button. Note that if several items are selected, changes will be applied to each of them")+'.</div>\
-     <div>'+tr("Add quota")+':</div>\
+var group_quotas_tmpl = '<div class="panel">\
+  <h3>\
+    <small id="create_vnet_header">'+tr("Update Quota")+'</small>\
+  </h3>\
+</div>\
+<form id="group_quotas_form" action="">\
+  <div class="row">\
+    <div class="six columns">\
      <div id="quota_types">\
            <label>'+tr("Quota type")+':</label>\
            <input type="radio" name="quota_type" value="vm">'+tr("Virtual Machine")+'</input>\
@@ -129,50 +133,147 @@ var group_quotas_tmpl = '<form id="group_quotas_form" action="">\
            <input type="radio" name="quota_type" value="image">'+tr("Image")+'</input>\
            <input type="radio" name="quota_type" value="network">'+tr("Network")+'</input>\
       </div>\
+      <hr>\
       <div id="vm_quota">\
-          <label>'+tr("Max VMs")+':</label>\
-          <input type="text" name="VMS"></input><br />\
-          <label>'+tr("Max Memory (MB)")+':</label>\
-          <input type="text" name="MEMORY"></input><br />\
-          <label>'+tr("Max CPU")+':</label>\
-          <input type="text" name="CPU"></input>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max VMs")+':</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="VMS"></input><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max Memory (MB)")+':</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="MEMORY"></input><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max CPU")+':</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="CPU"></input>\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
       </div>\
       <div id="datastore_quota">\
-          <label>'+tr("Datastore")+'</label>\
-          <select name="ID"></select><br />\
-          <label>'+tr("Max size (MB)")+':</label>\
-          <input type="text" name="SIZE"></input><br />\
-          <label>'+tr("Max images")+':</label>\
-          <input type="text" name="IMAGES"></input>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Datastore")+'</label>\
+          </div>\
+          <div class="seven columns">\
+            <select name="ID"></select><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max size (MB)")+':</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="SIZE"></input><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max images")+':</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="IMAGES"></input>\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
       </div>\
       <div id="image_quota">\
-          <label>'+tr("Image")+'</label>\
-          <select name="ID"></select><br />\
-          <label>'+tr("Max RVMs")+'</label>\
-          <input type="text" name="RVMS"></input>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Image")+'</label>\
+          </div>\
+          <div class="seven columns">\
+            <select name="ID"></select><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max RVMs")+'</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="RVMS"></input>\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
       </div>\
       <div id="network_quota">\
-          <label>'+tr("Network")+'</label>\
-          <select name="ID"></select><br />\
-          <label>'+tr("Max leases")+'</label>\
-          <input type="text" name="LEASES"></input>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Network")+'</label>\
+          </div>\
+          <div class="seven columns">\
+            <select name="ID"></select><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max leases")+'</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="LEASES"></input>\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
       </div>\
-      <button style="width:100px!important;" class="add_remove_button add_button" id="add_quota_button" value="add_quota">'+tr("Add/edit quota")+'</button>\
-      <div class="clear"></div>\
-      <div class="clear"></div>\
+      <br>\
+      <button class="button right small radius" id="add_quota_button" value="add_quota">'+tr("Add/edit quota")+'</button>\
+    </div>\
+    <div class="six columns">\
       <div class="current_quotas">\
-         <table class="info_table" style="width:640px;margin-top:0;">\
+         <table class="datatable twelve extended_table">\
             <thead><tr>\
                  <th>'+tr("Type")+'</th>\
-                 <th style="width:100%;">'+tr("Quota")+'</th>\
+                 <th>'+tr("Quota")+'</th>\
                  <th>'+tr("Edit")+'</th></tr></thead>\
             <tbody>\
             </tbody>\
          </table>\
-      <div class="form_buttons">\
-           <button class="button" type="submit" value="Group.set_quota">'+tr("Apply changes")+'</button>\
       </div>\
-</fieldset>\
+    </div>\
+  </div>\
+      <hr>\
+      <div class="form_buttons">\
+          <button class="button radius right success" id="create_user_submit" type="submit" value="Group.set_quota">'+tr("Apply changes")+'</button>\
+          <button class="close-reveal-modal button secondary radius" type="close" value="close">' + tr("Close") + '</button>\
+      </div>\
+  <a class="close-reveal-modal">&#215;</a>\
 </form>';
 
 
@@ -487,40 +588,210 @@ function updateGroupInfo(request,group){
              </table>\
            </div>\
            <div class="six columns">\
-             <table class="info_table twelve datatable extended_table">\
-                <thead>\
-                   <tr><th colspan="2">' + tr("Quota information") +'</th></tr>\
-                </thead>\
-                <tbody><tr><td class="key_td"></td><td class="value_td"></td></tr></tbody>\
-             </table>\
            </div>\
          </div>';
 
-    if (!$.isEmptyObject(info.VM_QUOTA))
-        info_tab_html += '<table class="info_table" style="width:70%;margin-top:0;margin-left:40px;">\
-            <tbody>'+prettyPrintJSON(info.VM_QUOTA)+'</tbody>\
-          </table>'
-
-    if (!$.isEmptyObject(info.DATASTORE_QUOTA))
-        info_tab_html += '<table class="info_table" style="width:70%;margin-top:0;margin-left:40px;%">\
-            <tbody>'+prettyPrintJSON(info.DATASTORE_QUOTA)+'</tbody>\
-          </table>'
-
-    if (!$.isEmptyObject(info.IMAGE_QUOTA))
-        info_tab_html += '<table class="info_table" style="width:70%;margin-top:0;margin-left:40px;">\
-            <tbody>'+prettyPrintJSON(info.IMAGE_QUOTA)+'</tbody>\
-          </table>';
-
-    if (!$.isEmptyObject(info.NETWORK_QUOTA))
-        info_tab_html += '<table class="info_table" style="width:70%;margin-top:0;margin-left:40px;">\
-            <tbody>'+prettyPrintJSON(info.NETWORK_QUOTA)+'</tbody>\
-          </table>';
 
     var info_tab = {
-        title : tr("Group information"),
+        title : tr("Information"),
         content : info_tab_html
     };
 
+
+    var quotas_tab_html = '<div class="">';
+
+    if (!$.isEmptyObject(info.VM_QUOTA)){
+        var vms_bar = quotaBar(
+            info.VM_QUOTA.VM.VMS_USED,
+            info.VM_QUOTA.VM.VMS,
+            default_user_quotas.VM_QUOTA.VM.VMS);
+
+        var memory_bar = quotaBarMB(
+            info.VM_QUOTA.VM.MEMORY_USED,
+            info.VM_QUOTA.VM.MEMORY,
+            default_user_quotas.VM_QUOTA.VM.MEMORY);
+
+        var cpu_bar = quotaBarFloat(
+            info.VM_QUOTA.VM.CPU_USED,
+            info.VM_QUOTA.VM.CPU,
+            default_user_quotas.VM_QUOTA.VM.CPU);
+
+        quotas_tab_html +=
+        '<div class="six columns">\
+        <table class="twelve extended_table">\
+            <thead>\
+                <tr>\
+                    <th>'+tr("VMs")+'</th>\
+                    <th>'+tr("Memory")+'</th>\
+                    <th>'+tr("CPU")+'</th>\
+                </tr>\
+            </thead>\
+            <tbody>\
+                <tr>\
+                    <td>'+vms_bar+'</td>\
+                    <td>'+memory_bar+'</td>\
+                    <td>'+cpu_bar+'</td>\
+                </tr>\
+            </tbody>\
+        </table>\
+     </div>'
+    }
+
+    if (!$.isEmptyObject(info.DATASTORE_QUOTA)){
+        quotas_tab_html +=
+        '<div class="six columns">\
+        <table class="twelve datatable extended_table">\
+            <thead>\
+                <tr>\
+                    <th style="width:24%">'+tr("Datastore ID")+'</th>\
+                    <th style="width:38%">'+tr("Images")+'</th>\
+                    <th style="width:38%">'+tr("Size")+'</th>\
+                </tr>\
+            </thead>\
+            <tbody>';
+
+        var ds_quotas = [];
+
+        if ($.isArray(info.DATASTORE_QUOTA.DATASTORE))
+            ds_quotas = info.DATASTORE_QUOTA.DATASTORE;
+        else if (info.DATASTORE_QUOTA.DATASTORE.ID)
+            ds_quotas = [info.DATASTORE_QUOTA.DATASTORE];
+
+        for (var i=0; i < ds_quotas.length; i++){
+
+            var default_ds_quotas = default_user_quotas.DATASTORE_QUOTA[ds_quotas[i].ID]
+
+            if (default_ds_quotas == undefined){
+                default_ds_quotas = {
+                    "IMAGES"    : "0",
+                    "SIZE"      : "0"
+                }
+            }
+
+            var img_bar = quotaBar(
+                ds_quotas[i].IMAGES_USED,
+                ds_quotas[i].IMAGES,
+                default_ds_quotas.IMAGES);
+
+            var size_bar = quotaBarMB(
+                ds_quotas[i].SIZE_USED,
+                ds_quotas[i].SIZE,
+                default_ds_quotas.SIZE);
+
+            quotas_tab_html +=
+            '<tr>\
+                <td>'+ds_quotas[i].ID+'</td>\
+                <td>'+img_bar+'</td>\
+                <td>'+size_bar+'</td>\
+            </tr>';
+        }
+
+        quotas_tab_html +=
+            '</tbody>\
+        </table>\
+     </div>';
+    }
+
+    if (!$.isEmptyObject(info.IMAGE_QUOTA)){
+        quotas_tab_html +=
+        '<div class="six columns">\
+        <table class="twelve datatable extended_table">\
+            <thead>\
+                <tr>\
+                    <th>'+tr("Image ID")+'</th>\
+                    <th>'+tr("Running VMs")+'</th>\
+                </tr>\
+            </thead>\
+            <tbody>';
+
+        var img_quotas = [];
+
+        if ($.isArray(info.IMAGE_QUOTA.IMAGE))
+            img_quotas = info.IMAGE_QUOTA.IMAGE;
+        else if (info.IMAGE_QUOTA.IMAGE.ID)
+            img_quotas = [info.IMAGE_QUOTA.IMAGE];
+
+        for (var i=0; i < img_quotas.length; i++){
+
+            var default_img_quotas = default_user_quotas.IMAGE_QUOTA[img_quotas[i].ID]
+
+            if (default_img_quotas == undefined){
+                default_img_quotas = {
+                    "RVMS"  : "0"
+                }
+            }
+
+            var rvms_bar = quotaBar(
+                img_quotas[i].RVMS_USED,
+                img_quotas[i].RVMS,
+                default_img_quotas.RVMS);
+
+            quotas_tab_html +=
+            '<tr>\
+                <td>'+img_quotas[i].ID+'</td>\
+                <td>'+rvms_bar+'</td>\
+            </tr>';
+        }
+
+        quotas_tab_html +=
+            '</tbody>\
+        </table>\
+     </div>';
+    }
+
+    if (!$.isEmptyObject(info.NETWORK_QUOTA)){
+        quotas_tab_html +=
+        '<div class="six columns">\
+        <table class="twelve datatable extended_table">\
+            <thead>\
+                <tr>\
+                    <th>'+tr("Network ID")+'</th>\
+                    <th>'+tr("Leases")+'</th>\
+                </tr>\
+            </thead>\
+            <tbody>';
+
+        var net_quotas = [];
+
+        if ($.isArray(info.NETWORK_QUOTA.NETWORK))
+            net_quotas = info.NETWORK_QUOTA.NETWORK;
+        else if (info.NETWORK_QUOTA.NETWORK.ID)
+            net_quotas = [info.NETWORK_QUOTA.NETWORK];
+
+        for (var i=0; i < net_quotas.length; i++){
+
+            var default_net_quotas = default_user_quotas.NETWORK_QUOTA[net_quotas[i].ID]
+
+            if (default_net_quotas == undefined){
+                default_net_quotas = {
+                    "LEASES" : "0"
+                }
+            }
+
+            var leases_bar = quotaBar(
+                net_quotas[i].LEASES_USED,
+                net_quotas[i].LEASES,
+                default_net_quotas.LEASES);
+
+            quotas_tab_html +=
+            '<tr>\
+                <td>'+net_quotas[i].ID+'</td>\
+                <td>'+leases_bar+'</td>\
+            </tr>';
+        }
+
+        quotas_tab_html +=
+            '</tbody>\
+        </table></div>\
+     </div>';
+    }
+
+    var quotas_tab = {
+        title : tr("Quotas"),
+        content : quotas_tab_html
+    };
+
+    Sunstone.updateInfoPanelTab("group_info_panel","group_quotas_tab",quotas_tab);
 
 //   var acct_tab = {
 //        title : tr("Historical usages"),

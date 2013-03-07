@@ -177,10 +177,14 @@ var update_pw_tmpl = '<form id="update_user_pw_form" action="">\
 </fieldset>\
 </form>';
 
-var user_quotas_tmpl = '<form id="user_quotas_form" action="">\
-   <fieldset>\
-     <div>'+tr("Please add/edit/remove quotas and click on the apply changes button. Note that if several items are selected, changes will be applied to each of them")+'.</div>\
-     <div>'+tr("Add quota")+':</div>\
+var user_quotas_tmpl = '<div class="panel">\
+  <h3>\
+    <small id="create_vnet_header">'+tr("Update Quota")+'</small>\
+  </h3>\
+</div>\
+<form id="user_quotas_form" action="">\
+  <div class="row">\
+    <div class="six columns">\
      <div id="quota_types">\
            <label>'+tr("Quota type")+':</label>\
            <input type="radio" name="quota_type" value="vm">'+tr("Virtual Machine")+'</input>\
@@ -188,51 +192,147 @@ var user_quotas_tmpl = '<form id="user_quotas_form" action="">\
            <input type="radio" name="quota_type" value="image">'+tr("Image")+'</input>\
            <input type="radio" name="quota_type" value="network">'+tr("Network")+'</input>\
       </div>\
+      <hr>\
       <div id="vm_quota">\
-          <label>'+tr("Max VMs")+':</label>\
-          <input type="text" name="VMS"></input><br />\
-          <label>'+tr("Max Memory (MB)")+':</label>\
-          <input type="text" name="MEMORY"></input><br />\
-          <label>'+tr("Max CPU")+':</label>\
-          <input type="text" name="CPU"></input>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max VMs")+':</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="VMS"></input><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max Memory (MB)")+':</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="MEMORY"></input><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max CPU")+':</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="CPU"></input>\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
       </div>\
       <div id="datastore_quota">\
-          <label>'+tr("Datastore")+'</label>\
-          <select name="ID"></select><br />\
-          <label>'+tr("Max size (MB)")+':</label>\
-          <input type="text" name="SIZE"></input><br />\
-          <label>'+tr("Max images")+':</label>\
-          <input type="text" name="IMAGES"></input>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Datastore")+'</label>\
+          </div>\
+          <div class="seven columns">\
+            <select name="ID"></select><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max size (MB)")+':</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="SIZE"></input><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max images")+':</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="IMAGES"></input>\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
       </div>\
       <div id="image_quota">\
-          <label>'+tr("Image")+'</label>\
-          <select name="ID"></select><br />\
-          <label>'+tr("Max RVMs")+'</label>\
-          <input type="text" name="RVMS"></input>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Image")+'</label>\
+          </div>\
+          <div class="seven columns">\
+            <select name="ID"></select><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max RVMs")+'</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="RVMS"></input>\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
       </div>\
       <div id="network_quota">\
-          <label>'+tr("Network")+'</label>\
-          <select name="ID"></select><br />\
-          <label>'+tr("Max leases")+'</label>\
-          <input type="text" name="LEASES"></input>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Network")+'</label>\
+          </div>\
+          <div class="seven columns">\
+            <select name="ID"></select><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max leases")+'</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="LEASES"></input>\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
       </div>\
-      <button style="width:100px!important;" class="add_remove_button add_button" id="add_quota_button" value="add_quota">'+tr("Add/edit quota")+'</button>\
-      <div class="clear"></div>\
-      <div class="clear"></div>\
+      <br>\
+      <button class="button right small radius" id="add_quota_button" value="add_quota">'+tr("Add/edit quota")+'</button>\
+    </div>\
+    <div class="six columns">\
       <div class="current_quotas">\
-         <table class="info_table" style="width:640px;margin-top:0;">\
+         <table class="datatable twelve extended_table">\
             <thead><tr>\
                  <th>'+tr("Type")+'</th>\
-                 <th style="width:100%;">'+tr("Quota")+'</th>\
+                 <th>'+tr("Quota")+'</th>\
                  <th>'+tr("Edit")+'</th></tr></thead>\
             <tbody>\
             </tbody>\
          </table>\
       </div>\
+    </div>\
+  </div>\
+      <hr>\
       <div class="form_buttons">\
-           <button class="button" type="submit" value="User.set_quota">'+tr("Apply changes")+'</button>\
+          <button class="button radius right success" id="create_user_submit" type="submit" value="User.set_quota">'+tr("Apply changes")+'</button>\
+          <button class="close-reveal-modal button secondary radius" type="close" value="close">' + tr("Close") + '</button>\
       </div>\
-</fieldset>\
+  <a class="close-reveal-modal">&#215;</a>\
 </form>';
 
 
@@ -699,7 +799,7 @@ function updateUserInfo(request,user){
     }
 
     if (!$.isEmptyObject(user_info.DATASTORE_QUOTA)){
-        quotas_tab_html += 
+        quotas_tab_html +=
         '<div class="six columns">\
         <table class="twelve datatable extended_table">\
             <thead>\
@@ -754,7 +854,7 @@ function updateUserInfo(request,user){
     }
 
     if (!$.isEmptyObject(user_info.IMAGE_QUOTA)){
-        quotas_tab_html += 
+        quotas_tab_html +=
         '<div class="six columns">\
         <table class="twelve datatable extended_table">\
             <thead>\
@@ -801,7 +901,7 @@ function updateUserInfo(request,user){
     }
 
     if (!$.isEmptyObject(user_info.NETWORK_QUOTA)){
-        quotas_tab_html += 
+        quotas_tab_html +=
         '<div class="six columns">\
         <table class="twelve datatable extended_table">\
             <thead>\
@@ -848,7 +948,7 @@ function updateUserInfo(request,user){
     }
 
     var quotas_tab = {
-        title : tr("User quotas"),
+        title : tr("Quotas"),
         content : quotas_tab_html
     };
 

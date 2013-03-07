@@ -691,7 +691,7 @@ function generateMonitoringDivs(graphs, id_prefix, options){
         id_suffix=label.replace(/,/g,'_');
         id_suffix=id_suffix.replace(/\//g,'_');
         id = id_prefix+id_suffix;
-        str += '<div class="columns ' + columns + '">' 
+        str += '<div class="columns ' + columns + '">'
         str +='<table class="info_table graph_table">'+
             (!omit_title ? '<thead><tr><th colspan="1">'+this.title+'</th></tr></thead>' : '')
              + '<tr><td id="legend_'+id_suffix+'"></td></tr>\
@@ -909,7 +909,7 @@ function setupTemplateUpdateDialog(){
     //    height:430,
     //    resizable:false
     //});
-    
+
     dialog.addClass("reveal-modal")
     //$('button',dialog).button();
 
@@ -1000,7 +1000,7 @@ function infoListener(dataTable, info_action){
                 popDialogLoading();
                 Sunstone.runAction(info_action,id);
 
-                // Take care of the coloring business 
+                // Take care of the coloring business
                 // (and the checking, do not forget the checking)
                 $('tbody input.check_item',$(this).parents('table')).removeAttr('checked');
                 $('.check_item',this).click();
@@ -1140,7 +1140,7 @@ function setupQuotasDialog(dialog){
     //    width: 740,
     //    height: height
     //});
-    dialog.addClass("reveal-modal")
+    dialog.addClass("reveal-modal xlarge")
 
     //$('button',dialog).button();
     $('#vm_quota,#datastore_quota,#image_quota,#network_quota',dialog).hide();
@@ -1214,6 +1214,8 @@ function popUpQuotasDialog(dialog, resource, sel_elems){
         var id = sel_elems[0];
         Sunstone.runAction(resource + '.fetch_quotas',id);
     };
+
+    $('input[value="vm"]', dialog).click();
 
     dialog.reveal();
 }
@@ -1322,21 +1324,21 @@ function quotaListItem(quota_json){
         '</td><td style="width:100%;"><pre style="margin:0;">';
     switch(quota_json.TYPE){
     case "VM":
-        str +=  'VMs: ' + quota_json.VMS + (quota_json.VMS_USED ? ' (' + quota_json.VMS_USED + '). ' : ". ") +
-               'Memory: ' + quota_json.MEMORY + (quota_json.MEMORY_USED ? ' MB (' + quota_json.MEMORY_USED + ' MB). ' : " MB. ") +
+        str +=  'VMs: ' + quota_json.VMS + (quota_json.VMS_USED ? ' (' + quota_json.VMS_USED + '). ' : ". ") + '<br>' +
+               'Memory: ' + quota_json.MEMORY + (quota_json.MEMORY_USED ? ' MB (' + quota_json.MEMORY_USED + ' MB). ' : " MB. ") + '<br>' +
                'CPU: ' + quota_json.CPU +  (quota_json.CPU_USED ? ' (' + quota_json.CPU_USED + '). ' : ". ");
         break;
     case "DATASTORE":
-        str +=  'ID/Name: ' + getDatastoreName(quota_json.ID) + '. ' +
-               'Size: ' + quota_json.SIZE +  (quota_json.SIZE_USED ? ' MB (' + quota_json.SIZE_USED + ' MB). ' : " MB. ") +
+        str +=  'ID/Name: ' + getDatastoreName(quota_json.ID) + '. ' + '<br>' +
+               'Size: ' + quota_json.SIZE +  (quota_json.SIZE_USED ? ' MB (' + quota_json.SIZE_USED + ' MB). ' : " MB. ") + '<br>' +
                'Images: ' + quota_json.IMAGES +  (quota_json.IMAGES_USED ? ' (' + quota_json.IMAGES_USED + '). ' : ".");
         break;
     case "IMAGE":
-        str +=  'ID/Name: ' + getImageName(quota_json.ID) + '. ' +
+        str +=  'ID/Name: ' + getImageName(quota_json.ID) + '. ' + '<br>' +
                'RVMs: ' + quota_json.RVMS +  (quota_json.RVMS_USED ? ' (' + quota_json.RVMS_USED + '). ' : ". ");
         break;
     case "NETWORK":
-        str +=  'ID/Name: ' + getVNetName(quota_json.ID) + '. ' +
+        str +=  'ID/Name: ' + getVNetName(quota_json.ID) + '. ' + '<br>' +
                'Leases: ' + quota_json.LEASES +  (quota_json.LEASES_USED ? ' (' + quota_json.LEASES_USED + '). ': ". ");
         break;
     }
@@ -1721,7 +1723,7 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
 
             Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
             // This avoids to get a messed template if the update fails
-            template_json = template_json_bk; 
+            template_json = template_json_bk;
         }
     });
 
