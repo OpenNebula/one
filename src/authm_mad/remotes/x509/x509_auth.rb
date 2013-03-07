@@ -199,7 +199,6 @@ private
     ###########################################################################
     def validate
         now    = Time.now
-        failed = "Could not validate user credentials: "
 
         # Check start time and end time of certificates
         @cert_chain.each do |cert|
@@ -251,6 +250,8 @@ private
     end
 
     def check_crl(signee)
+        failed = "Could not validate user credentials: "
+
         ca_hash = signee.issuer.hash.to_s(16)
         ca_path = @options[:ca_dir] + '/' + ca_hash + '.0'
 
