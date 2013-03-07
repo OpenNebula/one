@@ -810,6 +810,8 @@ VMM_EXEC_XEN4_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
 VMM_EXEC_VMWARE_SCRIPTS="src/vmm_mad/remotes/vmware/cancel \
                          src/vmm_mad/remotes/vmware/attach_disk \
                          src/vmm_mad/remotes/vmware/detach_disk \
+                         src/vmm_mad/remotes/vmware/attach_nic \
+                         src/vmm_mad/remotes/vmware/detach_nic \
                          src/vmm_mad/remotes/vmware/snapshot_create \
                          src/vmm_mad/remotes/vmware/snapshot_revert \
                          src/vmm_mad/remotes/vmware/snapshot_delete \
