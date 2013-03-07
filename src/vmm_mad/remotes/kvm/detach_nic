@@ -25,4 +25,4 @@ MAC=$2
 DETACH_ARGS="--domain $DOMAIN --type bridge --mac $MAC"
 
 exec_and_log "virsh --connect $LIBVIRT_URI detach-interface $DETACH_ARGS" \
-    "Could not attach NIC ($MAC) to $DOMAIN"
+    "Could not detach NIC ($MAC) to $DOMAIN"
