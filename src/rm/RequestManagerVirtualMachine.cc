@@ -697,6 +697,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         is_hot = xmlrpc_c::value_boolean(paramList.getBoolean(5));
     }
 
+    VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
     VirtualMachine * vm;
     int              iid;
     int              iid_orig;
@@ -726,8 +727,22 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         return;
     }
 
+    if (!(  (vm->get_state() == VirtualMachine::POWEROFF) ||
+            (vm->get_state() == VirtualMachine::SUSPENDED) ||
+            (vm->get_state() == VirtualMachine::ACTIVE &&
+             vm->get_lcm_state() == VirtualMachine::RUNNING)))
+    {
+        failure_response(ACTION,
+                request_error("Wrong state to perform action",""),
+                att);
+
+        vm->unlock();
+        return;
+    }
+
     iid_orig = vm->get_image_from_disk(disk_id, error_str);
 
+    // TODO: remove this update?
     pool->update(vm);
 
     vm->unlock();
@@ -807,6 +822,55 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
                     request_error("Cannot save_as image of type " + Image::type_to_str(type), ""),
                     att);
         return;
+    }
+
+    // -------------------------------------------------------------------------
+    // Change to one of the HOTPLUG_SAVEAS states if it's a hot saveas
+    // -------------------------------------------------------------------------
+
+    if ( is_hot )
+    {
+        vm = vmpool->get(id,true);
+
+        if ( vm == 0 )
+        {
+            failure_response(NO_EXISTS,
+                         get_error(object_name(PoolObjectSQL::VM), id),
+                         att);
+            return;
+        }
+
+        if ( vm->get_state() == VirtualMachine::ACTIVE &&
+             vm->get_lcm_state() == VirtualMachine::RUNNING)
+        {
+            vm->set_state(VirtualMachine::HOTPLUG_SAVEAS);
+        }
+        else if (vm->get_state() == VirtualMachine::POWEROFF)
+        {
+            vm->set_state(VirtualMachine::ACTIVE);
+            vm->set_state(VirtualMachine::HOTPLUG_SAVEAS_POWEROFF);
+        }
+        else if (vm->get_state() == VirtualMachine::SUSPENDED)
+        {
+            vm->set_state(VirtualMachine::ACTIVE);
+            vm->set_state(VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED);
+        }
+        else
+        {
+            failure_response(ACTION,
+                request_error("Wrong state to perform action",""),
+                att);
+
+            vm->unlock();
+            return;
+        }
+
+        vm->log("RM", Log::INFO, "New VM state is HOTPLUG_SAVEAS");
+
+        vm->set_resched(false);
+        vmpool->update(vm);
+
+        vm->unlock();
     }
 
     // -------------------------------------------------------------------------

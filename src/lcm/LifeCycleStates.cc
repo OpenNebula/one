@@ -1226,6 +1226,28 @@ void LifeCycleManager::hotplug_saveas_success_action(int vid)
 
         vmpool->update(vm);
     }
+    else if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_SAVEAS_POWEROFF)
+    {
+        image_id = vm->get_hotplug_saveas_image_id();
+
+        vm->clear_hotplug_saveas();
+
+        vm->set_state(VirtualMachine::POWEROFF);
+        vm->set_state(VirtualMachine::LCM_INIT);
+
+        vmpool->update(vm);
+    }
+    else if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED)
+    {
+        image_id = vm->get_hotplug_saveas_image_id();
+
+        vm->clear_hotplug_saveas();
+
+        vm->set_state(VirtualMachine::SUSPENDED);
+        vm->set_state(VirtualMachine::LCM_INIT);
+
+        vmpool->update(vm);
+    }
     else
     {
         vm->log("LCM",Log::ERROR,"hotplug_saveas_success_action,"
@@ -1233,7 +1255,6 @@ void LifeCycleManager::hotplug_saveas_success_action(int vid)
     }
 
     vm->unlock();
-
 
     ostringstream oss;
 
@@ -1282,6 +1303,28 @@ void LifeCycleManager::hotplug_saveas_failure_action(int vid)
 
         vmpool->update(vm);
     }
+    else if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_SAVEAS_POWEROFF)
+    {
+        image_id = vm->get_hotplug_saveas_image_id();
+
+        vm->clear_hotplug_saveas();
+
+        vm->set_state(VirtualMachine::POWEROFF);
+        vm->set_state(VirtualMachine::LCM_INIT);
+
+        vmpool->update(vm);
+    }
+    else if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED)
+    {
+        image_id = vm->get_hotplug_saveas_image_id();
+
+        vm->clear_hotplug_saveas();
+
+        vm->set_state(VirtualMachine::SUSPENDED);
+        vm->set_state(VirtualMachine::LCM_INIT);
+
+        vmpool->update(vm);
+    }
     else
     {
         vm->log("LCM",Log::ERROR,"hotplug_saveas_success_action,"
@@ -1289,7 +1332,6 @@ void LifeCycleManager::hotplug_saveas_failure_action(int vid)
     }
 
     vm->unlock();
-
 
     ostringstream oss;
 

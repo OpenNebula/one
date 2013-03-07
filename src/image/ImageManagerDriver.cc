@@ -326,6 +326,10 @@ static void mkfs_action(istringstream& is,
     string info;
     int    rc;
 
+    istringstream iss;
+    int           vm_oid;
+    int           disk_oid;
+
     VirtualMachine * vm;
     ostringstream    oss;
 
@@ -357,9 +361,35 @@ static void mkfs_action(istringstream& is,
         return;
     }
 
+    is_saving = image->isSaving();
+    is_hot = image->isHot();
+
+    if ( is_saving )
+    {
+        image->get_template_attribute("SAVED_DISK_ID", disk_id);
+        image->get_template_attribute("SAVED_VM_ID", vm_id);
+
+        iss.str(vm_id);
+        iss >> vm_oid;
+
+        iss.clear();
+
+        iss.str(disk_id);
+        iss >> disk_oid;
+    }
+
     if ( result == "FAILURE" )
     {
-       goto error_img; 
+        if ( is_hot )
+        {
+            LifeCycleManager *  lcm = nd.get_lcm();
+            lcm->trigger(LifeCycleManager::HOTPLUG_SAVEAS_FAILURE, vm_oid);
+            goto error_img_hot;
+        }
+        else
+        {
+            goto error_img;
+        }
     }
 
     if ( is.good() )
@@ -372,32 +402,20 @@ static void mkfs_action(istringstream& is,
         goto error_img;
     }
 
-    is_saving = image->isSaving();    
-
-    is_hot    = image->isHot();
-
     image->set_source(source);
 
-    if (is_saving)
+    if ( !is_saving && !is_hot )
     {
-        image->get_template_attribute("SAVED_DISK_ID", disk_id);
-        image->get_template_attribute("SAVED_VM_ID",   vm_id);
+        image->set_state(Image::READY);
     }
-    else
-    {
-        if ( !is_hot )
-        {
-            image->set_state(Image::READY);
-        }
 
-        NebulaLog::log("ImM", Log::INFO, "Image created and ready to use");
-    }
+    NebulaLog::log("ImM", Log::INFO, "Image created and ready to use");
 
     ipool->update(image);
 
     image->unlock();
 
-    if ( ! is_saving )
+    if ( !is_saving )
     {
         return;
     }
@@ -411,34 +429,12 @@ static void mkfs_action(istringstream& is,
 
     if ( is_hot )
     {
-        istringstream iss;
-        int           vm_oid;
-        int           disk_oid;
-
-        /* change state */
-
-        iss.str(vm_id);
-        iss >> vm_oid;
-
-        iss.clear();
-
-        iss.str(disk_id);
-        iss >> disk_oid;
-
-        vm->set_state(VirtualMachine::HOTPLUG_SAVEAS);
         vm->set_hotplug_saveas(disk_oid, id);
 
-        vm->set_resched(false);
-
-        vmpool->update(vm);
-
-        vm->log("LCM", Log::INFO, "New VM state is HOTPLUG_SAVEAS");
-
-        /* call tm */
-
-        TransferManager *   tm = nd.get_tm();
+        TransferManager * tm = nd.get_tm();
 
         vm->unlock();
+
         tm->saveas_hot_transfer_command(vm_oid, disk_oid, source);
     }
     else
@@ -458,6 +454,7 @@ static void mkfs_action(istringstream& is,
 
     return;
 
+error_img_hot:
 error_img:
     oss << "Error creating datablock";
     goto error;
