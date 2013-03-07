@@ -63,7 +63,7 @@ class OpenNebulaVNC
         end
 
         if @proxy_path == nil || @proxy_path.empty?
-            @logger.error "VNC proxy not configured"
+            @logger.error "VNC proxy not configured. Try #{SHARE_LOCATION}/install_novnc.sh"
             return false
         end
 

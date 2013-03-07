@@ -81,7 +81,7 @@ set :bind, settings.config[:host]
 set :port, settings.config[:port]
 
 case settings.config[:sessions]
-when 'memory'
+when 'memory', nil
     use Rack::Session::Pool, :key => 'sunstone'
 when 'memcache'
     memcache_server=settings.config[:memcache_host]+':'<<
@@ -92,7 +92,6 @@ when 'memcache'
     use Rack::Session::Memcache,
         :memcache_server => memcache_server,
         :namespace => settings.config[:memcache_namespace]
-
 else
     STDERR.puts "Wrong value for :sessions in configuration file"
     exit(-1)
