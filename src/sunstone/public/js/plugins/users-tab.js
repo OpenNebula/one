@@ -161,20 +161,29 @@ var create_user_tmpl =
   <a class="close-reveal-modal">&#215;</a>\
 </form>';
 
-var update_pw_tmpl = '<form id="update_user_pw_form" action="">\
-  <fieldset>\
-        <div>\
-                <div>'+tr("This will change the password for the selected users")+':</div>\
-                <label for="new_password">'+tr("New password")+':</label>\
-                <input type="password" name="new_password" id="new_password" />\
-        </div>\
-        </fieldset>\
-        <fieldset>\
-        <div class="form_buttons">\
-                <button class="button" id="update_pw_submit" value="User.update">'+tr("Change")+'</button>\
-                <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
-        </div>\
-</fieldset>\
+var update_pw_tmpl = '<div class="panel">\
+  <h3>\
+    <small id="create_vnet_header">'+tr("Update Password")+'</small>\
+  </h3>\
+</div>\
+<form id="update_user_pw_form" action="">\
+      <div class="row centered">\
+          <div class="four columns">\
+              <label class="inline right" for="new_password">'+tr("New password")+':</label>\
+          </div>\
+          <div class="seven columns">\
+              <input type="password" name="new_password" id="new_password" />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+      </div>\
+      <hr>\
+      <div class="form_buttons">\
+          <button class="button radius right success" id="update_pw_submit" type="submit" value="User.update">'+tr("Change")+'</button>\
+          <button class="close-reveal-modal button secondary radius" type="close" value="close">' + tr("Close") + '</button>\
+      </div>\
+  <a class="close-reveal-modal">&#215;</a>\
 </form>';
 
 var user_quotas_tmpl = '<div class="panel">\

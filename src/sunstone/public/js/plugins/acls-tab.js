@@ -64,52 +64,95 @@ var acls_tab_content = '\
 </form>';
 
 var create_acl_tmpl =
-'<form id="create_acl_form" action="">\
-  <fieldset>\
-        <div>\
-                <label for="applies">'+tr("This rule applies to")+':</label>\
-                <select name="applies" id="applies"></select>\
-                <div class="clear"></div>\
-                <label style="height:11em">'+tr("Affected resources")+':</label>\
+'<div class="panel">\
+  <h3>\
+    <small id="create_vnet_header">'+tr("Create ACL")+'</small>\
+  </h3>\
+</div>\
+<form id="create_acl_form" action="">\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" for="applies">'+tr("This rule applies to")+':</label>\
+          </div>\
+          <div class="seven columns">\
+              <select name="applies" id="applies"></select>\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+         </div>\
+        <div class="row">\
+            <fieldset>\
+            <legend>'+tr("Affected resources")+'</legend>\
+            <div class="six columns">\
                 <input type="checkbox" name="res_host" class="resource_cb" value="HOST">'+tr("Hosts")+'</input><br />\
                 <input type="checkbox" name="res_cluster" class="resource_cb" value="CLUSTER">'+tr("Clusters")+'</input><br />\
                 <input type="checkbox" name="res_datastore" class="resource_cb" value="DATASTORE">'+tr("Datastores")+'</input><br />\
                 <input type="checkbox" name="res_vm" class="resource_cb" value="VM">'+tr("Virtual Machines")+'</input><br />\
                 <input type="checkbox" name="res_net" class="resource_cb" value="NET">'+tr("Virtual Networks")+'</input><br />\
+            </div>\
+            <div class="six columns">\
                 <input type="checkbox" name="res_image" class="resource_cb" value="IMAGE">'+tr("Images")+'</input><br />\
                 <input type="checkbox" name="res_template" class="resource_cb" value="TEMPLATE">'+tr("Templates")+'</input><br />\
                 <input type="checkbox" name="res_user" class="resource_cb" value="USER">'+tr("Users")+'</input><br />\
                 <input type="checkbox" name="res_group" class="resource_cb" value="GROUP">'+tr("Groups")+'</input><br />\
                 <input type="checkbox" name="res_document" class="resource_cb" value="DOCUMENT">'+tr("Documents")+'</input><br />\
-                <div class="clear"></div>\
-                <label for="mode_select" style="height:3em;">'+tr("Resource subset")+':</label>\
+            </div>\
+            </fieldset>\
+        </div>\
+        <div class="row">\
+            <fieldset>\
+            <legend>'+tr("Resource subset")+'</legend>\
+            <div class="six columns">\
                 <input type="radio" class="res_subgroup" name="mode_select" value="*" id="res_subgroup_all">'+tr("All")+'</input><br />\
                 <input type="radio" class="res_subgroup" name="mode_select" value="res_id" id="res_subgroup_id">'+tr("Specific ID")+'</input><br />\
                 <input type="radio" class="res_subgroup" name="mode_select" value="belonging_to" id="res_subgroup_group">'+tr("Owned by group")+'</input><br />\
-                <div class="clear"></div>\
-                <label for="res_id">'+tr("Resource ID")+':</label>\
-                <input type="text" name="res_id" id="res_id"></input>\
-                <div class="clear"></div>\
-                <label for="belonging_to">'+tr("Group")+':</label>\
-                <select name="belonging_to" id="belonging_to"></select>\
-                <div class="clear"></div>\
-                <label style="height:5em;">'+tr("Allowed operations")+':</label>\
-                <input type="checkbox" name="right_delete" class="right_cb" value="USE">'+tr("Use")+'</input><br />\
-                <input type="checkbox" name="right_use" class="right_cb" value="MANAGE">'+tr("Manage")+'</input><br />\
-                <input type="checkbox" name="right_manage" class="right_cb" value="ADMIN">'+tr("Administrate")+'</input><br />\
-                <input type="checkbox" name="right_create" class="right_cb" value="CREATE">'+tr("Create")+'</input><br />\
-                <div class="clear"></div>\
-                <label for="acl_preview">'+tr("ACL String preview")+':</label>\
-                <input type="text" name="acl_preview" id="acl_preview" style="width:400px;"></input>\
+                <input type="radio" class="res_subgroup" name="mode_select" value="in_cluster" id="res_subgroup_group">'+tr("Assigned to cluster")+'</input><br />\
+            </div>\
+            <div class="six columns">\
+                <div class="res_id">\
+                    <label for="res_id">'+tr("Resource ID")+':</label>\
+                    <input type="text" name="res_id" id="res_id"></input>\
+                </div>\
+                <div class="belonging_to">\
+                    <label for="belonging_to">'+tr("Group")+':</label>\
+                    <select name="belonging_to" id="belonging_to"></select>\
+                </div>\
+                <div class="in_cluster">\
+                    <label for="in_cluster">'+tr("Cluster")+':</label>\
+                    <select name="in_cluster" id="in_cluster"></select>\
+                </div>\
+            </div>\
+            </fieldset>\
         </div>\
-        </fieldset>\
-        <fieldset>\
+        <div class="row">\
+            <fieldset>\
+            <legend>'+tr("Allowed operations")+'</legend>\
+                <input type="checkbox" name="right_delete" class="right_cb" value="USE">'+tr("Use")+'</input>\
+                <input type="checkbox" name="right_use" class="right_cb" value="MANAGE">'+tr("Manage")+'</input>\
+                <input type="checkbox" name="right_manage" class="right_cb" value="ADMIN">'+tr("Administrate")+'</input>\
+                <input type="checkbox" name="right_create" class="right_cb" value="CREATE">'+tr("Create")+'</input>\
+            </div>\
+            </fieldset>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" for="acl_preview">'+tr("ACL String preview")+':</label>\
+          </div>\
+          <div class="seven columns">\
+              <input type="text" name="acl_preview" id="acl_preview"></input>\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <hr>\
         <div class="form_buttons">\
-                <button class="button" id="create_acl_submit" value="Acl.create">'+tr("Create")+'</button>\
-                <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
+          <button class="button radius right success" id="create_acl_submit" type="submit" value="Acl.create">'+tr("Create")+'</button>\
+          <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
+          <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
         </div>\
-</fieldset>\
-<a class="close-reveal-modal">&#215;</a>\
+    <a class="close-reveal-modal">&#215;</a>\
 </form>';
 
 var acl_actions = {
@@ -259,6 +302,10 @@ function parseResourceAcl(user){
         else if (user[0] == '@'){
             user_str=tr("Group")+" ";
             user_str+= getGroupName(user.substring(1));
+        }
+        else if (user[0] == '%'){
+            user_str=tr("Cluster ID")+" ";
+            user_str+= user.substring(1);
         };
     };
     return user_str;
@@ -383,27 +430,36 @@ function setupCreateAclDialog(){
 
     //Default selected options
     $('#res_subgroup_all',dialog).attr('checked','checked');
-    $('#res_id',dialog).attr('disabled','disabled');
-    $('#belonging_to',dialog).attr('disabled','disabled');
+    $('.res_id',dialog).hide();
+    $('.belonging_to',dialog).hide();
+    $('.in_cluster',dialog).hide();
 
     //$('button',dialog).button();
 
     //Resource subset radio buttons
     $('.res_subgroup',dialog).click(function(){
         var value = $(this).val();
-        var context = $(this).parent();
+        var context = $(this).closest('fieldset')
         switch (value) {
         case "*":
-            $('#res_id',context).attr('disabled','disabled');
-            $('#belonging_to',context).attr('disabled','disabled');
+            $('.res_id',context).hide();
+            $('.belonging_to',context).hide();
+            $('.in_cluster',context).hide();
             break;
         case "res_id":
-            $('#res_id',context).removeAttr('disabled');
-            $('#belonging_to').attr('disabled','disabled');
+            $('.res_id',context).show();
+            $('.belonging_to').hide();
+            $('.in_cluster',context).hide();
             break;
         case "belonging_to":
-            $('#res_id',context).attr('disabled','disabled');
-            $('#belonging_to',context).removeAttr('disabled');
+            $('.res_id',context).hide();
+            $('.belonging_to',context).show();
+            $('.in_cluster',context).hide();
+            break;
+        case "in_cluster":
+            $('.res_id',context).hide();
+            $('.belonging_to',context).hide();
+            $('.in_cluster',context).show();
             break;
         };
     });
@@ -441,6 +497,9 @@ function setupCreateAclDialog(){
             break;
         case "belonging_to":
             belonging="@"+$('#belonging_to',context).val();
+            break;
+        case "in_cluster":
+            belonging="%"+$('#in_cluster',context).val();
             break;
         }
 
@@ -485,6 +544,13 @@ function setupCreateAclDialog(){
                 return false;
             }
             break;
+        case "in_cluster":
+            var l=$('#in_cluster',this).val().length;
+            if (!l){
+                notifyError("Please select a cluster to which the selected resources belong to");
+                return false;
+            }
+            break;
         }
 
         var rights = $('.right_cb:checked',this).length;
@@ -520,6 +586,7 @@ function popUpCreateAclDialog(){
     $('#applies',dialog).html('<option value="*">'+tr("All")+'</option>'+
                                           users.html()+groups.html());
     $('#belonging_to',dialog).html(groups_select);
+    $('#in_cluster',dialog).html(clusters_select);
 
     $('#applies',dialog).trigger("change");
     dialog.reveal();
