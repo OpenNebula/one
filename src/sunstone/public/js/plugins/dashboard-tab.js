@@ -249,6 +249,22 @@ var dashboard_tab_content = '\
             <h2 id="failed_vms" class="subheader"></h2>\
             <h3 class="subheader"><small>'+tr("FAILED")+'</small></h3>\
           </div>\
+          <div class="row">\
+            <div class="ten columns" id="dash_vm_net_tx_legend" style="width:60%;height: 100px;margin: 50px;">\
+            </div>\
+          </div>\
+          <div class="row">\
+            <div class="ten columns" id="dash_vm_net_tx_graph" style="width:60%;height: 200px;margin: 50px;">\
+            </div>\
+          </div>\
+          <div class="row">\
+            <div class="ten columns" id="dash_vm_net_rx_legend" style="width:60%;height: 100px;margin: 50px;">\
+            </div>\
+          </div>\
+          <div class="row">\
+            <div class="ten columns" id="dash_vm_net_rx_graph" style="width:60%;height: 200px;margin: 50px;">\
+            </div>\
+          </div>\
         </div>\
       </div>\
     </div>\

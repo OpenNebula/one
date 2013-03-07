@@ -424,6 +424,43 @@ var vm_actions = {
         error: vmMonitorError
     },
 
+    "VM.pool_monitor" : {
+        type: "monitor_global",
+        call : OpenNebula.VM.pool_monitor,
+        callback: function(req,response) {
+            var vm_dashboard_graphs = [
+                { labels : "Network transmission",
+                  monitor_resources : "NET_TX",
+                  humanize_figures : true,
+                  convert_from_bytes : true,
+                  derivative : true,
+                  div_graph : $("#dash_vm_net_tx_graph", $dashboard),
+                  div_legend : $("#dash_vm_net_tx_legend", $dashboard)
+                },
+                { labels : "Network reception",
+                  monitor_resources : "NET_RX",
+                  humanize_figures : true,
+                  convert_from_bytes : true,
+                  derivative : true,
+                  div_graph : $("#dash_vm_net_rx_graph", $dashboard),
+                  div_legend : $("#dash_vm_net_rx_legend", $dashboard)
+                }
+            ];
+
+            for(var i=0; i<vm_dashboard_graphs.length; i++) {
+                plot_totals(
+                    response,
+                    vm_dashboard_graphs[i]
+                );
+            }
+
+            // TODO: refresh individual info panel graphs with this new data?
+        },
+
+        // TODO: ignore error, or set message similar to hostMonitorError?
+        error: onError
+    },
+
     "VM.chown" : {
         type: "multiple",
         call: OpenNebula.VM.chown,
@@ -934,6 +971,9 @@ function updateVMachinesView(request, vmachine_list){
     $("#pending_vms", form).text(pending_vms);
     $("#failed_vms", form).text(failed_vms);
     $("#off_vms", form).text(off_vms);
+
+    // Update the dashboard graphs with monitoring information
+    Sunstone.runAction("VM.pool_monitor",{ monitor_resources : "NET_TX,NET_RX"});
 };
 
 
@@ -1176,6 +1216,9 @@ function updateVMInfo(request,vm){
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_log_tab",log_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_history_tab",history_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_monitoring_tab",monitoring_tab);
+
+    // TODO: do not call monitor for each graph
+    // TODO: re-use pool_monitor data?
 
     //Pop up the info panel and asynchronously get vm_log and stats
     Sunstone.popUpInfoPanel("vm_info_panel");

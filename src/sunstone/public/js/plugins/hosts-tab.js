@@ -35,10 +35,6 @@ var host_graphs = [
     }
 ]
 
-var host_monitoring_args = {
-    monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU,HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM"
-};
-
 var hosts_tab_content = '\
 <form class="custom" id="form_hosts" action="">\
 <div class="panel">\
@@ -782,7 +778,11 @@ function updateHostsView (request,host_list){
     $("#error_hosts", form_hosts).text(error_hosts);
 
     // Update the dashboard graphs with monitoring information
-    Sunstone.runAction("Host.pool_monitor",host_monitoring_args);
+    Sunstone.runAction(
+        "Host.pool_monitor",
+        {
+            monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU,HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM"
+        });
 
     //SunstoneMonitoring.monitor('HOST', host_list)
 //
