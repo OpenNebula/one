@@ -57,6 +57,7 @@ public:
         EPILOG_DELETE_BOTH,
         CHECKPOINT,
         DRIVER_CANCEL,
+        SAVEAS_HOT,
         FINALIZE
     };
 
@@ -307,6 +308,11 @@ private:
      * This function cancels the operation being performed by the driver
      */
     void driver_cancel_action(int vid);
+
+    /**
+     * This function starts the saveas of the given disk
+     */
+    void saveas_hot_action(int vid);
 };
 
 #endif /*TRANSFER_MANAGER_H*/

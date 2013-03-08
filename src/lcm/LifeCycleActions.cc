@@ -550,8 +550,6 @@ void  LifeCycleManager::restart_action(int vid)
             vm->log("LCM", Log::INFO, "New VM state is BOOT_POWEROFF");
         }
 
-        //----------------------------------------------------
-
         vmm->trigger(VirtualMachineManager::DEPLOY,vid);
     }
     else
@@ -738,6 +736,9 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose)
         case VirtualMachine::SHUTDOWN_POWEROFF:
         case VirtualMachine::CANCEL:
         case VirtualMachine::HOTPLUG:
+        case VirtualMachine::HOTPLUG_SAVEAS:
+        case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
+        case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
         case VirtualMachine::HOTPLUG_SNAPSHOT:
         case VirtualMachine::HOTPLUG_NIC:
             vm->set_running_etime(the_time);

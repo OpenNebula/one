@@ -70,7 +70,10 @@
           BOOT_STOPPED        = 22,
           CLEANUP_DELETE      = 23,
           HOTPLUG_SNAPSHOT    = 24,
-          HOTPLUG_NIC         = 25
+          HOTPLUG_NIC         = 25,
+          HOTPLUG_SAVEAS           = 26,
+          HOTPLUG_SAVEAS_POWEROFF  = 27,
+          HOTPLUG_SAVEAS_SUSPENDED = 28
         -->
         <xs:element name="LCM_STATE" type="xs:integer"/>
         <xs:element name="RESCHED" type="xs:integer"/>

@@ -349,6 +349,17 @@ public:
     }
 
     /**
+     *  Check if the image is a hot snapshot
+     *  @return true if image is a hot snapshot
+     */
+    bool isHot()
+    {
+        ImageTemplate * it = static_cast<ImageTemplate *>(obj_template);
+
+        return it->is_saving_hot();
+    }
+
+    /**
      *  Set permissions for the Image. Extends the PoolSQLObject method
      *  by checking the persistent state of the image.
      */

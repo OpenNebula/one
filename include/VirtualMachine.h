@@ -91,7 +91,10 @@ public:
         BOOT_STOPPED        = 22,
         CLEANUP_DELETE      = 23,
         HOTPLUG_SNAPSHOT    = 24,
-        HOTPLUG_NIC         = 25
+        HOTPLUG_NIC         = 25,
+        HOTPLUG_SAVEAS           = 26,
+        HOTPLUG_SAVEAS_POWEROFF  = 27,
+        HOTPLUG_SAVEAS_SUSPENDED = 28
     };
 
     // -------------------------------------------------------------------------
@@ -845,20 +848,49 @@ public:
      */
     int  generate_context(string &files, int &disk_id);
 
-    // ------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // Datastore related functions
-    // ------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
+    /**
+     *  Gest the associated image to the given disk_id
+     *    @param disk_id of the VM
+     *    @param hot is this a save_as hot operation
+     *    @param err_str describing the error
+     *    @return -1 if the image cannot saveas
+     */
+    int get_image_from_disk(int disk_id, bool hot, string& err_str);
+
+    /**
+     *  Sets the corresponding SAVE_AS state.
+     *    @return 0 if the VM can be saved as
+     */
+     int set_saveas_state();
+
+    /**
+     *  Clears the SAVE_AS state, moving the VM to the original state.
+     *    @return 0 if the VM was in a SAVE_AS state
+     */
+     int clear_saveas_state();
+
     /**
      *  Set the SAVE_AS attribute for the "disk_id"th disk.
      *    @param  disk_id Index of the disk to save
      *    @param  source to save the disk (SAVE_AS_SOURCE)
      *    @param  img_id ID of the image this disk will be saved to (SAVE_AS).
-     *    @return 0 if success
      */
     int save_disk(const string& disk_id,
                   const string& source,
                   int img_id);
 
+    /**
+     *  Set the SAVE_AS attribute for the "disk_id"th disk.
+     *    @param  disk_id Index of the disk to save
+     *    @param  source to save the disk (SAVE_AS_SOURCE)
+     *    @param  img_id ID of the image this disk will be saved to (SAVE_AS).
+     */
+    int save_disk_hot(const string& disk_id,
+                      const string& source,
+                      int img_id);
     /**
      * Get the original image id of the disk. It also checks that the disk can
      * be saved_as.
@@ -866,7 +898,12 @@ public:
      *    @param  error_str describes the error
      *    @return -1 if failure
      */
-    int get_image_from_disk(int disk_id, string& error_str);
+    int get_saveas_disk_hot(int& disk_id, string& source, int& image_id);
+
+    /**
+     * Cleans the HOTPLUG_SAVEAS = YES attribute from the disks
+     */
+    void clear_saveas_disk_hot();
 
     // ------------------------------------------------------------------------
     // Authorization related functions
@@ -882,16 +919,23 @@ public:
                                  AuthRequest& ar,
                                  VirtualMachineTemplate *tmpl);
 
-    // ------------------------------------------------------------------------
-    // Disk Hotplug related functions
-    // ------------------------------------------------------------------------
-
+    // -------------------------------------------------------------------------
+    // Hotplug related functions
+    // -------------------------------------------------------------------------
     /**
      *  Collects information about VM DISKS
      *    @param max_disk_id of the VM
      *    @param used_targets by the DISKS of the VM
      */
     void get_disk_info(int& max_disk_id, set<string>& used_targets);
+
+    /**
+     *  Get the IMAGE_ID of the image that's being saved as hot
+     *    @param disk_id of the DISK
+     *    @param image_id id of the image being saved
+     *    @return IMAGE_ID on success, -1 otherwise
+     */
+    int get_disk_hot_info(int& image_id, int& disk_id, string& source);
 
     /**
      * Generate a DISK attribute to be attached to the VM.

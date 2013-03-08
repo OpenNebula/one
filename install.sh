@@ -935,7 +935,8 @@ TM_SHARED_FILES="src/tm_mad/shared/clone \
                  src/tm_mad/shared/context \
                  src/tm_mad/shared/premigrate \
                  src/tm_mad/shared/postmigrate \
-                 src/tm_mad/shared/mvds"
+                 src/tm_mad/shared/mvds \
+                 src/tm_mad/shared/cpds"
 
 TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
                  src/tm_mad/qcow2/delete \
@@ -946,7 +947,8 @@ TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
                  src/tm_mad/qcow2/context \
                  src/tm_mad/qcow2/premigrate \
                  src/tm_mad/qcow2/postmigrate \
-                 src/tm_mad/qcow2/mvds"
+                 src/tm_mad/qcow2/mvds \
+                 src/tm_mad/qcow2/cpds"
 
 TM_SSH_FILES="src/tm_mad/ssh/clone \
               src/tm_mad/ssh/delete \
@@ -957,7 +959,8 @@ TM_SSH_FILES="src/tm_mad/ssh/clone \
               src/tm_mad/ssh/context \
               src/tm_mad/ssh/premigrate \
               src/tm_mad/ssh/postmigrate \
-              src/tm_mad/ssh/mvds"
+              src/tm_mad/ssh/mvds \
+              src/tm_mad/ssh/cpds"
 
 TM_DUMMY_FILES="src/tm_mad/dummy/clone \
               src/tm_mad/dummy/delete \
@@ -968,7 +971,8 @@ TM_DUMMY_FILES="src/tm_mad/dummy/clone \
               src/tm_mad/dummy/context \
               src/tm_mad/dummy/premigrate \
               src/tm_mad/dummy/postmigrate \
-              src/tm_mad/dummy/mvds"
+              src/tm_mad/dummy/mvds \
+              src/tm_mad/dummy/cpds"
 
 TM_VMFS_FILES="src/tm_mad/vmfs/clone \
                  src/tm_mad/vmfs/delete
@@ -978,6 +982,7 @@ TM_VMFS_FILES="src/tm_mad/vmfs/clone \
                  src/tm_mad/vmfs/mv \
                  src/tm_mad/vmfs/context \
                  src/tm_mad/vmfs/mvds \
+                 src/tm_mad/vmfs/cpds \
                  src/tm_mad/vmfs/postmigrate \
                  src/tm_mad/vmfs/premigrate"
 
@@ -985,6 +990,7 @@ TM_ISCSI_FILES="src/tm_mad/iscsi/clone \
                  src/tm_mad/iscsi/ln \
                  src/tm_mad/iscsi/mv \
                  src/tm_mad/iscsi/mvds \
+                 src/tm_mad/iscsi/cpds \
                  src/tm_mad/iscsi/premigrate \
                  src/tm_mad/iscsi/postmigrate \
                  src/tm_mad/iscsi/delete"
@@ -993,6 +999,7 @@ TM_LVM_FILES="src/tm_mad/lvm/clone \
                  src/tm_mad/lvm/ln \
                  src/tm_mad/lvm/mv \
                  src/tm_mad/lvm/mvds \
+                 src/tm_mad/lvm/cpds \
                  src/tm_mad/lvm/premigrate \
                  src/tm_mad/lvm/postmigrate \
                  src/tm_mad/lvm/delete"
@@ -1001,6 +1008,7 @@ TM_CEPH_FILES="src/tm_mad/ceph/clone \
                  src/tm_mad/ceph/ln \
                  src/tm_mad/ceph/mv \
                  src/tm_mad/ceph/mvds \
+                 src/tm_mad/ceph/cpds \
                  src/tm_mad/ceph/premigrate \
                  src/tm_mad/ceph/postmigrate \
                  src/tm_mad/ceph/delete"

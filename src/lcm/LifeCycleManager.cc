@@ -145,6 +145,14 @@ void LifeCycleManager::trigger(Actions action, int _vid)
         aname = "DETACH_FAILURE";
         break;
 
+    case SAVEAS_HOT_SUCCESS:
+        aname = "SAVEAS_HOT_SUCCESS";
+        break;
+
+    case SAVEAS_HOT_FAILURE:
+        aname = "SAVEAS_HOT_FAILURE";
+        break;
+
     case ATTACH_NIC_SUCCESS:
         aname = "ATTACH_NIC_SUCCESS";
         break;
@@ -344,6 +352,14 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     else if (action == "DETACH_FAILURE")
     {
         detach_failure_action(vid);
+    }
+    else if (action == "SAVEAS_HOT_SUCCESS")
+    {
+        saveas_hot_success_action(vid);
+    }
+    else if (action == "SAVEAS_HOT_FAILURE")
+    {
+        saveas_hot_failure_action(vid);
     }
     else if (action == "ATTACH_NIC_SUCCESS")
     {

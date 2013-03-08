@@ -96,7 +96,10 @@ public class VirtualMachine extends PoolElement{
         "BOOT_STOPPED",
         "CLEANUP_DELETE",
         "HOTPLUG_SNAPSHOT",
-        "HOTPLUG_NIC" };
+        "HOTPLUG_NIC",
+        "HOTPLUG_SAVEAS",
+        "HOTPLUG_SAVEAS_POWEROFF",
+        "HOTPLUG_SAVEAS_SUSPENDED" };
 
     private static final String[] SHORT_LCM_STATES =
     {
@@ -124,7 +127,11 @@ public class VirtualMachine extends PoolElement{
         "boot",
         "boot",
         "clea",
-        "snap" };
+        "snap",
+        "hotp",
+        "hotp",
+        "hotp",
+        "hotp" };
 
     /**
      * Creates a new VM representation.
@@ -468,9 +475,9 @@ public class VirtualMachine extends PoolElement{
      * @param imageName Name of the new Image that will be created.
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse savedisk(int diskId, String imageName)
+    public OneResponse savedisk(int diskId, String imageName, boolean hot = false)
     {
-        return savedisk(diskId, imageName, "");
+        return savedisk(diskId, imageName, "", hot);
     }
 
     /**
@@ -481,11 +488,13 @@ public class VirtualMachine extends PoolElement{
      * @param imageName Name of the new Image that will be created.
      * @param imageType Type of the new image. Set to empty string to use
      * the default type
+     * @param hot do not defer saveas operation
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse savedisk(int diskId, String imageName, String imageType)
+    public OneResponse savedisk(int diskId, String imageName, String imageType,
+        boolean hot)
     {
-        return client.call(SAVEDISK, id ,diskId, imageName, imageType);
+        return client.call(SAVEDISK, id ,diskId, imageName, imageType, hot);
     }
 
     /**

@@ -26,7 +26,7 @@
 /* Driver ASCII Protocol Implementation                                       */
 /* ************************************************************************** */
 
-void ImageManagerDriver::cp(int           oid, 
+void ImageManagerDriver::cp(int           oid,
                             const string& drv_msg) const
 {
     ostringstream os;
@@ -38,7 +38,7 @@ void ImageManagerDriver::cp(int           oid,
 
 /* -------------------------------------------------------------------------- */
 
-void ImageManagerDriver::clone(int           oid, 
+void ImageManagerDriver::clone(int           oid,
                                const string& drv_msg) const
 {
     ostringstream os;
@@ -49,7 +49,7 @@ void ImageManagerDriver::clone(int           oid,
 }
 
 /* -------------------------------------------------------------------------- */
-void ImageManagerDriver::stat(int           oid, 
+void ImageManagerDriver::stat(int           oid,
                               const string& drv_msg) const
 {
     ostringstream os;
@@ -61,13 +61,13 @@ void ImageManagerDriver::stat(int           oid,
 
 /* -------------------------------------------------------------------------- */
 
-void ImageManagerDriver::mkfs(int           oid, 
+void ImageManagerDriver::mkfs(int           oid,
                               const string& drv_msg) const
 {
     ostringstream os;
 
     os << "MKFS " << oid << " " << drv_msg << endl;
-    
+
     write(os);
 }
 
@@ -121,9 +121,9 @@ static void stat_action(istringstream& is, int id, const string& result)
 
 /* -------------------------------------------------------------------------- */
 
-static void cp_action(istringstream& is, 
-                      ImagePool*     ipool, 
-                      int            id, 
+static void cp_action(istringstream& is,
+                      ImagePool*     ipool,
+                      int            id,
                       const string&  result)
 {
     string  source;
@@ -143,7 +143,7 @@ static void cp_action(istringstream& is,
 
             if ( is.good())
             {
-                is >> source >> ws;    
+                is >> source >> ws;
             }
 
             if (!source.empty())
@@ -151,7 +151,7 @@ static void cp_action(istringstream& is,
                 oss << "CP operation succeeded but image no longer exists."
                     << " Source image: " << source << ", may be left in datastore";
 
-                NebulaLog::log("ImM", Log::ERROR, oss);                
+                NebulaLog::log("ImM", Log::ERROR, oss);
             }
         }
 
@@ -160,7 +160,7 @@ static void cp_action(istringstream& is,
 
     if ( result == "FAILURE" )
     {
-       goto error; 
+       goto error;
     }
 
     if ( is.good() )
@@ -172,7 +172,7 @@ static void cp_action(istringstream& is,
     {
         goto error;
     }
-    
+
     image->set_source(source);
 
     image->set_state(Image::READY);
@@ -194,7 +194,7 @@ error:
     {
         oss << ": " << info;
     }
-    
+
     NebulaLog::log("ImM", Log::ERROR, oss);
 
     image->set_template_error_message(oss.str());
@@ -209,9 +209,9 @@ error:
 
 /* -------------------------------------------------------------------------- */
 
-static void clone_action(istringstream& is, 
-                         ImagePool*     ipool, 
-                         int            id, 
+static void clone_action(istringstream& is,
+                         ImagePool*     ipool,
+                         int            id,
                          const string&  result)
 {
     int     cloning_id;
@@ -235,7 +235,7 @@ static void clone_action(istringstream& is,
 
             if ( is.good())
             {
-                is >> source >> ws;    
+                is >> source >> ws;
             }
 
             if (!source.empty())
@@ -243,7 +243,7 @@ static void clone_action(istringstream& is,
                 oss << "CLONE operation succeeded but image no longer exists."
                     << " Source image: " << source << ", may be left in datastore";
 
-                NebulaLog::log("ImM", Log::ERROR, oss);                
+                NebulaLog::log("ImM", Log::ERROR, oss);
             }
         }
 
@@ -254,7 +254,7 @@ static void clone_action(istringstream& is,
 
     if ( result == "FAILURE" )
     {
-       goto error; 
+       goto error;
     }
 
     if ( is.good() )
@@ -266,7 +266,7 @@ static void clone_action(istringstream& is,
     {
         goto error;
     }
-    
+
     image->set_source(source);
 
     image->set_state(Image::READY);
@@ -292,7 +292,7 @@ error:
     {
         oss << ": " << info;
     }
-    
+
     NebulaLog::log("ImM", Log::ERROR, oss);
 
     image->set_template_error_message(oss.str());
@@ -311,25 +311,28 @@ error:
 
 /* -------------------------------------------------------------------------- */
 
-static void mkfs_action(istringstream& is, 
-                        ImagePool*     ipool, 
-                        int            id, 
+static void mkfs_action(istringstream& is,
+                        ImagePool*     ipool,
+                        int            id,
                         const string&  result)
 {
     string  source;
     Image * image;
-    bool    is_saving;
+    bool    is_saving = false;
+    bool    is_hot    = false;
 
-    string disk_id;
-    string vm_id;
     string info;
     int    rc;
+
+    int    vm_id = -1;
+    string disk_id;
 
     VirtualMachine * vm;
     ostringstream    oss;
 
     Nebula& nd                  = Nebula::instance();
     VirtualMachinePool * vmpool = nd.get_vmpool();
+    TransferManager *  tm       = nd.get_tm();
 
     image = ipool->get(id, true);
 
@@ -341,7 +344,7 @@ static void mkfs_action(istringstream& is,
 
             if ( is.good())
             {
-                is >> source >> ws;    
+                is >> source >> ws;
             }
 
             if (!source.empty())
@@ -349,54 +352,53 @@ static void mkfs_action(istringstream& is,
                 oss << "MkFS operation succeeded but image no longer exists."
                     << " Source image: " << source << ", may be left in datastore";
 
-                NebulaLog::log("ImM", Log::ERROR, oss);                
+                NebulaLog::log("ImM", Log::ERROR, oss);
             }
         }
-        
+
         return;
+    }
+
+    is_saving = image->isSaving();
+    is_hot    = image->isHot();
+
+    if ( is_saving )
+    {
+        image->get_template_attribute("SAVED_VM_ID", vm_id);
+        image->get_template_attribute("SAVED_DISK_ID", disk_id);
     }
 
     if ( result == "FAILURE" )
     {
-       goto error_img; 
+        goto error_img;
     }
 
-    if ( is.good() )
+    if ( !is.fail() )
     {
         is >> source >> ws;
     }
-
-    if ( is.fail() )
+    else
     {
         goto error_img;
     }
 
-    is_saving = image->isSaving();    
-
     image->set_source(source);
 
-    if (is_saving)
-    {
-        image->get_template_attribute("SAVED_DISK_ID", disk_id);
-        image->get_template_attribute("SAVED_VM_ID",   vm_id);
-    }
-    else
+    if (!is_saving)
     {
         image->set_state(Image::READY);
-
-        NebulaLog::log("ImM", Log::INFO, "Image created and ready to use");
     }
+
+    NebulaLog::log("ImM", Log::INFO, "Image created and ready to use");
 
     ipool->update(image);
 
     image->unlock();
 
-    if ( ! is_saving )
+    if ( !is_saving )
     {
         return;
     }
-
-    /* ---------------- Set up information for the Saved Image -------------- */
 
     vm = vmpool->get(vm_id, true);
 
@@ -405,11 +407,27 @@ static void mkfs_action(istringstream& is,
         goto error_save_get;
     }
 
-    rc = vm->save_disk(disk_id, source, id);
-
-    if ( rc == -1 )
+    if ( is_hot ) //Saveas hot, trigger disk copy
     {
-        goto error_save_state;
+        rc = vm->save_disk_hot(disk_id, source, id);
+
+        if ( rc == -1 )
+        {
+            goto error_save_state;
+        }
+
+        tm->trigger(TransferManager::SAVEAS_HOT, vm_id);
+    }
+    else //setup disk information
+    {
+        rc = vm->save_disk(disk_id, source, id);
+
+        if ( rc == -1 )
+        {
+            goto error_save_state;
+        }
+
+        vm->clear_saveas_state();
     }
 
     vmpool->update(vm);
@@ -446,7 +464,7 @@ error:
     {
         oss << ": " << info;
     }
-    
+
     NebulaLog::log("ImM", Log::ERROR, oss);
 
     image->set_template_error_message(oss.str());
@@ -456,14 +474,25 @@ error:
 
     image->unlock();
 
+    if (is_saving && vm_id != -1)
+    {
+        if ((vm = vmpool->get(vm_id, true)) != 0)
+        {
+            vm->clear_saveas_state();
+            vmpool->update(vm);
+
+            vm->unlock();
+        }
+    }
+
     return ;
 }
 
 /* -------------------------------------------------------------------------- */
 
-static void rm_action(istringstream& is, 
-                      ImagePool*     ipool, 
-                      int            id, 
+static void rm_action(istringstream& is,
+                      ImagePool*     ipool,
+                      int            id,
                       const string&  result)
 {
     int     rc;
@@ -489,7 +518,7 @@ static void rm_action(istringstream& is,
 
     if ( result == "FAILURE" )
     {
-       goto error; 
+       goto error;
     }
     else if ( rc < 0 )
     {
@@ -501,7 +530,7 @@ static void rm_action(istringstream& is,
     return;
 
 error_drop:
-    oss << "Error removing image from DB: " << tmp_error 
+    oss << "Error removing image from DB: " << tmp_error
         << ". Remove image source " << source << " to completely delete image.";
 
     NebulaLog::log("ImM", Log::ERROR, oss);
@@ -517,7 +546,7 @@ error:
     {
         oss << ": " << info;
     }
-    
+
     NebulaLog::log("ImM", Log::ERROR, oss);
 
     return;
@@ -535,9 +564,9 @@ void ImageManagerDriver::protocol(
     string action;
     string result;
     string source;
-    string info; 
+    string info;
     int    id;
-    
+
     oss << "Message received: " << message;
     NebulaLog::log("ImG", Log::DEBUG, oss);
 
@@ -584,7 +613,7 @@ void ImageManagerDriver::protocol(
     else if ( action == "CLONE" )
     {
         clone_action(is, ipool, id, result);
-    }    
+    }
     else if ( action == "MKFS" )
     {
         mkfs_action(is, ipool, id, result);
