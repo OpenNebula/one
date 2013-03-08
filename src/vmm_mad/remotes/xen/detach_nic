@@ -16,7 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source $(dirname $0)/kvmrc
+source $(dirname $0)/xenrc
 source $(dirname $0)/../../scripts_common.sh
 
 DOMAIN=$1
