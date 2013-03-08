@@ -68,6 +68,8 @@ public:
         DETACH_NIC_FAILURE,/**< Sent by the VMM when a detach nic action fails     */
         CLEANUP_SUCCESS,  /**< Sent by the VMM when a cleanup action succeeds */
         CLEANUP_FAILURE,  /**< Sent by the VMM when a cleanup action fails    */
+        SAVEAS_HOT_SUCCESS,/**< Sent by the VMM when hot saveas succeeds      */
+        SAVEAS_HOT_FAILURE,/**< Sent by the VMM when hot saveas fails         */
         SNAPSHOT_CREATE_SUCCESS, /**< Sent by the VMM on snap. create success */
         SNAPSHOT_CREATE_FAILURE, /**< Sent by the VMM on snap. create failure */
         SNAPSHOT_REVERT_SUCCESS, /**< Sent by the VMM on snap. revert success */
@@ -196,6 +198,10 @@ private:
     void detach_success_action(int vid);
 
     void detach_failure_action(int vid);
+
+    void saveas_hot_success_action(int vid);
+
+    void saveas_hot_failure_action(int vid);
 
     void attach_nic_success_action(int vid);
 

@@ -16,13 +16,32 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source $(dirname $0)/xenrc
-source $(dirname $0)/../../scripts_common.sh
+# cpds host:remote_system_ds/disk.i fe:SOURCE vmid dsid
+#   - fe is the front-end hostname
+#   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
+#   - host is the target host to deploy the VM
+#   - remote_system_ds is the path for the system datastore in the host
+#   - vmid is the id of the VM
+#   - dsid is the target datastore (0 is the system datastore)
 
-DOMAIN=$1
-MAC=$2
+SRC=$1
+DST=$2
 
-ID=`$XM_NETWORK_LIST $DOMAIN | grep -i $MAC | cut -d' ' -f1`
+VMID=$3
+DSID=$4
 
-exec_and_log "$XM_DETACH_NIC $DOMAIN $ID" \
-    "Could not detach NIC ($MAC) from $DOMAIN"
+if [ -z "${ONE_LOCATION}" ]; then
+    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+else
+    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+fi
+
+. $TMCOMMON
+
+#-------------------------------------------------------------------------------
+# Move the image back to the datastore
+#-------------------------------------------------------------------------------
+log "Moving $SRC to datastore as $DST"
+exec_and_log "$SCP -r $SRC $DST" "Error copying $SRC to $DST"
+
+exit 0

@@ -81,7 +81,7 @@ int VMTemplate::insert(SqlDB *db, string& error_str)
     // Check default attributes
     // ---------------------------------------------------------------------
 
-    get_template_attribute("NAME", name);
+    erase_template_attribute("NAME", name);
 
     if ( name.empty() == true )
     {

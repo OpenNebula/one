@@ -112,7 +112,10 @@ var OpenNebula = {
                                "BOOT_STOPPED",
                                "CLEANUP_DELETE",
                                "HOTPLUG_SNAPSHOT",
-                               "HOTPLUG_NIC"][value]);
+                               "HOTPLUG_NIC",
+                               "HOTPLUG_SAVEAS",
+                               "HOTPLUG_SAVEAS_POWEROFF",
+                               "HOTPLUG_SAVEAS_SUSPENDED"][value]);
                     break;
                 case "IMAGE":
                 case "image":
