@@ -6738,24 +6738,39 @@ a.footer.button {
 }
 
 /* line 740, ../sass/app.scss */
+.graph_legend {
+  text-align: center;
+}
+
+/* line 744, ../sass/app.scss */
 .graph_legend table {
-  background: #f2f2f2;
+  background: inherit;
   border: 0px;
   width: 100%;
 }
 
-/* line 746, ../sass/app.scss */
+/* line 750, ../sass/app.scss */
+.graph_legend h3 {
+  margin-top: 0px;
+}
+
+/* line 754, ../sass/app.scss */
 .graph_legend .subheader {
   margin-bottom: 5px;
 }
 
-/* line 750, ../sass/app.scss */
+/* line 758, ../sass/app.scss */
 .dashboard hr {
   margin: 0;
   margin-bottom: 8px;
 }
 
-/* line 755, ../sass/app.scss */
+/* line 763, ../sass/app.scss */
 .graph {
   margin-bottom: 15px !important;
+}
+
+/* line 767, ../sass/app.scss */
+.dashboard-panel {
+  height: 517px;
 }

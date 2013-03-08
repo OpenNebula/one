@@ -200,7 +200,7 @@ var dashboard_tab_content = '\
 </div>\
   <div class="row">\
     <div class="six columns">\
-      <div class="panel">\
+      <div class="panel dashboard-panel">\
         <div class="row">\
           <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="icon-hdd"></i> '+tr("Hosts")+'</span></h5>\
         </div>\
@@ -218,7 +218,7 @@ var dashboard_tab_content = '\
             </h3>\
           </div>\
         </div>\
-        <hr>\
+        <br>\
         <div class="row graph_legend">\
           <h3 class="subheader"><small>'+tr("CPU")+'</small></h3>\
         </div>\
@@ -243,7 +243,7 @@ var dashboard_tab_content = '\
       </div>\
     </div>\
     <div class="six columns">\
-      <div class="panel">\
+      <div class="panel dashboard-panel">\
         <div class="row">\
           <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="icon-cloud"></i> '+tr("Virtual Machines")+'</span></h5>\
         </div>\
@@ -269,9 +269,9 @@ var dashboard_tab_content = '\
             </h3>\
           </div>\
         </div>\
-        <hr>\
+        <br>\
         <div class="row  graph_legend">\
-          <h3 class="subheader"><small>'+tr("NET DOWNLOAD SLEEP")+'</small></h3>\
+          <h3 class="subheader"><small>'+tr("NET DOWNLOAD SPEED")+'</small></h3>\
           <div class="ten columns " id="dash_vm_net_rx_legend">\
           </div>\
         </div>\
@@ -281,7 +281,7 @@ var dashboard_tab_content = '\
         </div>\
         <br>\
         <div class="row graph_legend">\
-          <h3 class="subheader"><small>'+tr("NET UPLOAD SLEEP")+'</small></h3>\
+          <h3 class="subheader"><small>'+tr("NET UPLOAD SPEED")+'</small></h3>\
           <div class="ten columns" id="dash_vm_net_tx_legend">\
           </div>\
         </div>\

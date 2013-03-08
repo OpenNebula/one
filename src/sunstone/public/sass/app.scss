@@ -737,10 +737,18 @@ a.footer.button {
     top: 34px !important;
 }
 
+.graph_legend{
+    text-align: center;
+}
+
 .graph_legend table {
-    background: #f2f2f2;
+    background: inherit;
     border: 0px;
     width: 100%;
+}
+
+.graph_legend h3 {
+    margin-top: 0px;
 }
 
 .graph_legend .subheader {
@@ -754,4 +762,8 @@ a.footer.button {
 
 .graph {
     margin-bottom: 15px !important;
+}
+
+.dashboard-panel {
+    height: 517px;
 }

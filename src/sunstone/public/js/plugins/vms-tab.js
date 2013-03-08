@@ -402,29 +402,25 @@ var vm_actions = {
                     monitor_resources : "CPU",
                     labels : "Real CPU",
                     humanize_figures : false,
-                    div_graph : $("#vm_cpu_graph"),
-                    div_legend : $("#vm_cpu_legend")
+                    div_graph : $("#vm_cpu_graph")
                 },
                 {
                     monitor_resources : "MEMORY",
                     labels : "Real MEM",
                     humanize_figures : true,
-                    div_graph : $("#vm_memory_graph"),
-                    div_legend : $("#vm_memory_legend")
+                    div_graph : $("#vm_memory_graph")
                 },
                 { labels : "Network reception",
                   monitor_resources : "NET_RX",
                   humanize_figures : true,
                   convert_from_bytes : true,
-                  div_graph : $("#vm_net_rx_graph"),
-                  div_legend : $("#vm_net_rx_legend")
+                  div_graph : $("#vm_net_rx_graph")
                 },
                 { labels : "Network transmission",
                   monitor_resources : "NET_TX",
                   humanize_figures : true,
                   convert_from_bytes : true,
-                  div_graph : $("#vm_net_tx_graph"),
-                  div_legend : $("#vm_net_tx_legend")
+                  div_graph : $("#vm_net_tx_graph")
                 },
                 { labels : "Network reception speed",
                   monitor_resources : "NET_RX",
@@ -432,8 +428,7 @@ var vm_actions = {
                   convert_from_bytes : true,
                   y_sufix : "B/s",
                   derivative : true,
-                  div_graph : $("#vm_net_rx_speed_graph"),
-                  div_legend : $("#vm_net_rx_speed_legend")
+                  div_graph : $("#vm_net_rx_speed_graph")
                 },
                 { labels : "Network transmission speed",
                   monitor_resources : "NET_TX",
@@ -441,8 +436,7 @@ var vm_actions = {
                   convert_from_bytes : true,
                   y_sufix : "B/s",
                   derivative : true,
-                  div_graph : $("#vm_net_tx_speed_graph"),
-                  div_legend : $("#vm_net_tx_speed_legend")
+                  div_graph : $("#vm_net_tx_speed_graph")
                 }
             ];
 
@@ -471,8 +465,7 @@ var vm_actions = {
                   convert_from_bytes : true,
                   y_sufix : "B/s",
                   derivative : true,
-                  div_graph : $("#dash_vm_net_tx_graph", $dashboard),
-                  div_legend : $("#dash_vm_net_tx_legend", $dashboard)
+                  div_graph : $("#dash_vm_net_tx_graph", $dashboard)
                 },
                 { labels : "Network reception",
                   monitor_resources : "NET_RX",
@@ -480,8 +473,7 @@ var vm_actions = {
                   convert_from_bytes : true,
                   y_sufix : "B/s",
                   derivative : true,
-                  div_graph : $("#dash_vm_net_rx_graph", $dashboard),
-                  div_legend : $("#dash_vm_net_rx_legend", $dashboard)
+                  div_graph : $("#dash_vm_net_rx_graph", $dashboard)
                 }
             ];
 
@@ -1222,67 +1214,86 @@ function updateVMInfo(request,vm){
 
     var monitoring_tab = {
         title: tr("Graphs"),
-        content: 
-        '<div class="">\
+        content:
+        '\
+        <div class="">\
             <div class="six columns">\
-                <div class="row">\
-                    <div class="ten columns" id="vm_cpu_legend" style="width:60%;height: 100px;margin: 50px;">\
-                    </div>\
+              <div class="row graph_legend">\
+                <h3 class="subheader"><small>'+tr("CPU")+'</small></h3>\
+              </div>\
+              <div class="row">\
+                <div class="ten columns centered graph" id="vm_cpu_graph" style="height: 100px;">\
                 </div>\
-                <div class="row">\
-                    <div class="ten columns" id="vm_cpu_graph" style="width:60%;height: 200px;margin: 50px;">\
-                    </div>\
+              </div>\
+              <div class="row graph_legend">\
+                <div class="ten columns centered" id="vm_cpu_legend">\
                 </div>\
+              </div>\
             </div>\
             <div class="six columns">\
-                <div class="row">\
-                    <div class="ten columns" id="vm_memory_legend" style="width:60%;height: 100px;margin: 50px;">\
-                    </div>\
+              <div class="row graph_legend">\
+                <h3 class="subheader"><small>'+tr("MEMORY")+'</small></h3>\
+              </div>\
+              <div class="row">\
+                <div class="ten columns centered graph" id="vm_memory_graph" style="height: 100px;">\
                 </div>\
-                <div class="row">\
-                    <div class="ten columns" id="vm_memory_graph" style="width:60%;height: 200px;margin: 50px;">\
-                    </div>\
+              </div>\
+              <div class="row graph_legend">\
+                <div class="ten columns centered" id="vm_memory_legend">\
                 </div>\
+              </div>\
             </div>\
             <div class="six columns">\
-                <div class="row">\
-                    <div class="ten columns" id="vm_net_rx_legend" style="width:60%;height: 100px;margin: 50px;">\
-                    </div>\
+              <div class="row graph_legend">\
+                <h3 class="subheader"><small>'+tr("NET RX")+'</small></h3>\
+              </div>\
+              <div class="row">\
+                <div class="ten columns centered graph" id="vm_net_rx_graph" style="height: 100px;">\
                 </div>\
-                <div class="row">\
-                    <div class="ten columns" id="vm_net_rx_graph" style="width:60%;height: 200px;margin: 50px;">\
-                    </div>\
+              </div>\
+              <div class="row graph_legend">\
+                <div class="ten columns centered" id="vm_net_rx_legend">\
                 </div>\
+              </div>\
             </div>\
             <div class="six columns">\
-                <div class="row">\
-                    <div class="ten columns" id="vm_net_tx_legend" style="width:60%;height: 100px;margin: 50px;">\
-                    </div>\
+              <div class="row graph_legend">\
+                <h3 class="subheader"><small>'+tr("NET TX")+'</small></h3>\
+              </div>\
+              <div class="row">\
+                <div class="ten columns centered graph" id="vm_net_tx_graph" style="height: 100px;">\
                 </div>\
-                <div class="row">\
-                    <div class="ten columns" id="vm_net_tx_graph" style="width:60%;height: 200px;margin: 50px;">\
-                    </div>\
+              </div>\
+              <div class="row graph_legend">\
+                <div class="ten columns centered" id="vm_net_tx_legend">\
                 </div>\
+              </div>\
             </div>\
             <div class="six columns">\
-                <div class="row">\
-                    <div class="ten columns" id="vm_net_rx_speed_legend" style="width:60%;height: 100px;margin: 50px;">\
-                    </div>\
+              <div class="row graph_legend">\
+                <h3 class="subheader"><small>'+tr("NET DOWNLOAD SPEED")+'</small></h3>\
+              </div>\
+              <div class="row">\
+                <div class="ten columns centered graph" id="vm_net_rx_speed_graph" style="height: 100px;">\
                 </div>\
-                <div class="row">\
-                    <div class="ten columns" id="vm_net_rx_speed_graph" style="width:60%;height: 200px;margin: 50px;">\
-                    </div>\
+              </div>\
+              <div class="row graph_legend">\
+                <div class="ten columns centered" id="vm_net_rx_speed_legend">\
                 </div>\
+              </div>\
             </div>\
             <div class="six columns">\
-                <div class="row">\
-                    <div class="ten columns" id="vm_net_tx_speed_legend" style="width:60%;height: 100px;margin: 50px;">\
-                    </div>\
+              <div class="row graph_legend">\
+                <h3 class="subheader"><small>'+tr("NET UPLOAD SPEED")+'</small></h3>\
+              </div>\
+              <div class="row">\
+                <div class="ten columns centered graph" id="vm_net_tx_speed_graph" style="height: 100px;">\
                 </div>\
-                <div class="row">\
-                    <div class="ten columns" id="vm_net_tx_speed_graph" style="width:60%;height: 200px;margin: 50px;">\
-                    </div>\
+              </div>\
+              <div class="row graph_legend">\
+                <div class="ten columns centered" id="vm_net_tx_speed_legend">\
                 </div>\
+              </div>\
             </div>\
         </div>'
     };

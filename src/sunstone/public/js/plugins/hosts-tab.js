@@ -294,14 +294,14 @@ var host_actions = {
             var host_graphs = [
             {
                 monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU",
-                labels : "Allocated CPU,Real CPU,Total CPU",
+                labels : "Allocated,Real,Total",
                 humanize_figures : false,
                 div_graph : $("#host_cpu_graph"),
                 div_legend : $("#host_cpu_legend")
             },
             {
                 monitor_resources : "HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM",
-                labels : "Allocated MEM,Real MEM,Total MEM",
+                labels : "Allocated,Real,Total",
                 humanize_figures : true,
                 div_graph : $("#host_mem_graph"),
                 div_legend : $("#host_mem_legend")
@@ -890,24 +890,30 @@ function updateHostInfo(request,host){
         content:
         '<div class="">\
             <div class="six columns">\
-                <div class="row">\
-                    <div class="ten columns" id="host_cpu_legend" style="width:60%;height: 100px;margin: 50px;">\
-                    </div>\
+              <div class="row graph_legend">\
+                <h3 class="subheader"><small>'+tr("CPU")+'</small></h3>\
+              </div>\
+              <div class="row">\
+                <div class="ten columns centered graph" id="host_cpu_graph" style="height: 100px;">\
                 </div>\
-                <div class="row">\
-                    <div class="ten columns" id="host_cpu_graph" style="width:60%;height: 200px;margin: 50px;">\
-                    </div>\
+              </div>\
+              <div class="row graph_legend">\
+                <div class="ten columns centered" id="host_cpu_legend">\
                 </div>\
+              </div>\
             </div>\
             <div class="six columns">\
-                <div class="row">\
-                    <div class="ten columns" id="host_mem_legend" style="width:60%;height: 100px;margin: 50px;">\
-                    </div>\
+              <div class="row graph_legend">\
+                <h3 class="subheader"><small>'+tr("MEMORY")+'</small></h3>\
+              </div>\
+              <div class="row">\
+                <div class="ten columns centered graph" id="host_mem_graph" style="height: 100px;">\
                 </div>\
-                <div class="row">\
-                    <div class="ten columns" id="host_mem_graph" style="width:60%;height: 200px;margin: 50px;">\
-                    </div>\
+              </div>\
+              <div class="row graph_legend">\
+                <div class="ten columns centered" id="host_mem_legend">\
                 </div>\
+              </div>\
             </div>\
         </div>'
     }

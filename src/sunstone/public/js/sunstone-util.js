@@ -716,6 +716,7 @@ function plot_graph(response, info) {
 
     var options = {
 //        colors: [ "#cdebf5", "#2ba6cb", "#6f6f6f" ]
+        colors: [ "#2ba6cb", "#707D85", "#AC5A62" ],
         legend : { show : (info.div_legend != undefined),
                    noColumns: attributes.length+1,
                    container: info.div_legend
@@ -725,7 +726,7 @@ function plot_graph(response, info) {
                 return pretty_time_axis(val, info.show_date);
             }
         },
-        yaxis : { labelWidth: 40,
+        yaxis : { labelWidth: 50,
                   tickFormatter: function(val, axis) {
                       return humanize(val, info.convert_from_bytes, info.y_sufix);
                   },
@@ -826,7 +827,7 @@ function plot_totals(response, info) {
 
     var options = {
         //colors: [ "#2ba6cb", "#cdebf5", "#6f6f6f" ],
-        colors: [ "#8DDAE4", "#707D85", "#AC5A62" ],
+        colors: [ "#2ba6cb", "#707D85", "#AC5A62" ],
         legend : { show : (info.div_legend != undefined),
                    noColumns: attributes.length,
                    backgroundColor: "black",
@@ -837,7 +838,7 @@ function plot_totals(response, info) {
                 return pretty_time_axis(val, info.show_date);
             }
         },
-        yaxis : { labelWidth: 40,
+        yaxis : { labelWidth: 50,
                   tickFormatter: function(val, axis) {
                       return humanize(val, info.convert_from_bytes, info.y_sufix);
                   },
