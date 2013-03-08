@@ -79,7 +79,7 @@ int Document::insert(SqlDB *db, string& error_str)
     // Check default attributes
     // ---------------------------------------------------------------------
 
-    get_template_attribute("NAME", name);
+    erase_template_attribute("NAME", name);
 
     if ( name.empty() == true )
     {
@@ -199,8 +199,8 @@ string& Document::to_xml(string& xml) const
             << "<ID>"       << oid        << "</ID>"
             << "<UID>"      << uid        << "</UID>"
             << "<GID>"      << gid        << "</GID>"
-            << "<UNAME>"    << uname      << "</UNAME>" 
-            << "<GNAME>"    << gname      << "</GNAME>" 
+            << "<UNAME>"    << uname      << "</UNAME>"
+            << "<GNAME>"    << gname      << "</GNAME>"
             << "<NAME>"     << name       << "</NAME>"
             << "<TYPE>"     << type       << "</TYPE>"
             << perms_to_xml(perm_str)
