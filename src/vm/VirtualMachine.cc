@@ -2589,8 +2589,8 @@ int VirtualMachine::save_disk(const string& disk_id,
 
     int num_disks  = obj_template->get("DISK",disks);
 
-    if (lcm_state != HOTPLUG_SAVEAS || lcm_state != HOTPLUG_SAVEAS_SUSPENDED
-        || lcm_state != HOTPLUG_SAVEAS_POWEROFF )
+    if (lcm_state != HOTPLUG_SAVEAS && lcm_state != HOTPLUG_SAVEAS_SUSPENDED
+        && lcm_state != HOTPLUG_SAVEAS_POWEROFF )
     {
         return -1;
     }
