@@ -373,12 +373,11 @@ static void mkfs_action(istringstream& is,
         goto error_img;
     }
 
-    if ( is.good() )
+    if ( is.fail() )
     {
         is >> source >> ws;
     }
-
-    if ( is.fail() )
+    else
     {
         goto error_img;
     }

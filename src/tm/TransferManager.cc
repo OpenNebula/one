@@ -124,7 +124,7 @@ void TransferManager::trigger(Actions action, int _vid)
         break;
 
     case SAVEAS_HOT:
-        aname = "DRIVER_CANCEL";
+        aname = "SAVEAS_HOT";
         break;
 
     case DRIVER_CANCEL:
