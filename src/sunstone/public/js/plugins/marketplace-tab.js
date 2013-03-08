@@ -102,7 +102,16 @@ var marketplace_tab_content = '\
 <div class="panel">\
 <div class="row">\
   <div class="twelve columns">\
-    <h4 class="subheader"><i class="icon-shopping-cart"></i> '+tr("OpenNebula Marketplace")+'</h4>\
+    <h4 class="subheader header">\
+      <span class="header-resource">\
+        <i class="icon-shopping-cart"></i> '+tr("OpenNebula Marketplace")+'\
+      </span>\
+      <span class="header-info">\
+        <span/> <small></small>&emsp;\
+      </span>\
+      <span class="user-login">\
+      </span>\
+    </h4>\
   </div>\
 </div>\
 <div class="row">\
@@ -227,7 +236,7 @@ function updateMarketInfo(request,app){
     Sunstone.updateInfoPanelTab("marketplace_info_panel", "marketplace_info_tab", info_tab);
     Sunstone.popUpInfoPanel("marketplace_info_panel");
 };
- 
+
  function infoListenerMarket(dataTable){
     $('tbody tr',dataTable).live("click",function(e){
 
@@ -241,7 +250,7 @@ function updateMarketInfo(request,app){
         popDialogLoading();
         Sunstone.runAction("Marketplace.showinfo",id);
 
-        // Take care of the coloring business 
+        // Take care of the coloring business
         // (and the checking, do not forget the checking)
         $('tbody input.check_item',$(this).parents('table')).removeAttr('checked');
         $('.check_item',this).click();

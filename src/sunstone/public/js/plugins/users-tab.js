@@ -45,15 +45,17 @@ var users_tab_content = '\
 <form class="custom" id="user_form" action="">\
 <div class="panel">\
 <div class="row">\
-  <div class="six columns">\
-    <h4 class="subheader"><i class="icon-user"></i> '+tr("Users")+'</h4>\
-  </div>\
-  <div class="six columns">\
-    <div class="row dashboard right">\
-      <div class="twelve  columns">\
-        <h4 class="subheader"><span id="total_users"/> <small>'+tr("TOTAL")+'</small></h4>\
-      </div>\
-    </div>\
+  <div class="twelve columns">\
+    <h4 class="subheader header">\
+      <span class="header-resource">\
+        <i class="icon-user"></i> '+tr("Users")+'\
+      </span>\
+      <span class="header-info">\
+        <span id="total_users"/> <small>'+tr("TOTAL")+'</small>\
+      </span>\
+      <span class="user-login">\
+      </span>\
+    </h4>\
   </div>\
 </div>\
 <div class="row">\

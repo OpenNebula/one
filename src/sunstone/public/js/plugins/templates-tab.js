@@ -21,7 +21,16 @@ var templates_tab_content = '\
 <div class="panel">\
 <div class="row">\
   <div class="twelve columns">\
-    <h4 class="subheader"><i class="icon-file-alt"></i> '+tr("Templates")+'</h4>\
+    <h4 class="subheader header">\
+      <span class="header-resource">\
+        <i class="icon-file-alt"></i> '+tr("Templates")+'\
+      </span>\
+      <span class="header-info">\
+        <span/> <small></small>&emsp;\
+      </span>\
+      <span class="user-login">\
+      </span>\
+    </h4>\
   </div>\
 </div>\
 <div class="row">\
@@ -65,7 +74,7 @@ var templates_tab_content = '\
 </div>\
 </form>';
 
-  
+
 var create_template_tmpl = '<div class="panel">'+
   '<h3><small>'+tr("Create VM Template")+'</small></h4>'+
   '</div>'+
@@ -622,7 +631,7 @@ function setupCreateTemplateDialog(){
                     remove = true;
                 else if (value.length > 0)
                 {
-                  value = jQuery.grep(value, function (n) { 
+                  value = jQuery.grep(value, function (n) {
                     var obj_length = 0;
                     for (e in n)
                         obj_length += 1;
@@ -724,7 +733,7 @@ function setupCreateTemplateDialog(){
                 '<div class="one columns">'+
                   '<div class="tip">'+tr("Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5.")+'</div>'+
                 '</div>'+
-            '</div>'+ 
+            '</div>'+
             '<div class="row vm_param">'+
                 '<input type="hidden" id="MEMORY" name="memory" />'+
             '</div>'+
@@ -747,7 +756,7 @@ function setupCreateTemplateDialog(){
                 '<div class="one columns">'+
                   '<div class="tip">'+tr("Amount of RAM required for the VM, in Megabytes.")+'</div>'+
                 '</div>'+
-            '</div>'+      
+            '</div>'+
             '<div class="show_hide" id="advanced_capacity">'+
                  '<h4><small><i class=" icon-plus-sign-alt"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
             '</div>'+
@@ -765,7 +774,7 @@ function setupCreateTemplateDialog(){
                   '<div class="one columns">'+
                     '<div class="tip">'+tr("Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU.")+'</div>'+
                   '</div>'+
-              '</div>'+ 
+              '</div>'+
             '</div>'+
         '</li>'
 
@@ -1005,7 +1014,7 @@ function setupCreateTemplateDialog(){
               '<div class="three columns pull-three">'+
                 '<input id="'+str_disk_tab_id+'radioVolatile" type="radio" name="'+str_disk_tab_id+'" value="volatile"> Volatile Disk '+
               '</div>'+
-            '</div>'+     
+            '</div>'+
             '<hr>'+
               '<div id="disk_type" class="vm_param image">'+
                 '<div class="row collapse ">'+
@@ -1084,7 +1093,7 @@ function setupCreateTemplateDialog(){
                         '<div class="four columns">'+
                           '<label class="right inline" for="TYPE">'+tr("TYPE")+':</label>'+
                         '</div>'+
-                        '<div class="six columns">'+                    
+                        '<div class="six columns">'+
                           '<select id="TYPE" name="type">'+
                             '<option value="fs">'+tr("FS")+'</option>'+
                             '<option value="swap">'+tr("Swap")+'</option>'+
@@ -1108,7 +1117,7 @@ function setupCreateTemplateDialog(){
                         '</div>'+
                       '</div>'+
                     '</div>'+
-                  '</div>'+        
+                  '</div>'+
                   '<div class="row vm_param">'+
                       '<div class="two columns">'+
                         '<label class="inline right" for="SIZE">'+tr("SIZE")+':</label>'+
@@ -1171,10 +1180,10 @@ function setupCreateTemplateDialog(){
 
         $(document).foundationTabs("set_tab", a);
 
-                
+
         var disk_section = $('li#' + str_disk_tab_id+'Tab', dialog);
 
-        // Select Image or Volatile disk. The div is hidden depending on the selection, and the 
+        // Select Image or Volatile disk. The div is hidden depending on the selection, and the
         // vm_param class is included to be computed when the template is generated.
         $("input[name='"+str_disk_tab_id+"']", disk_section).change(function(){
           if ($("input[name='"+str_disk_tab_id+"']:checked", disk_section).val() == "image") {
@@ -1296,7 +1305,7 @@ function setupCreateTemplateDialog(){
 
         // Retrieve the images to fill the datatable
         OpenNebula.Image.list({
-          timeout: true, 
+          timeout: true,
           success: function (request, images_list){
               var image_list_array = [];
 
@@ -1306,7 +1315,7 @@ function setupCreateTemplateDialog(){
 
               updateView(image_list_array, dataTable_template_images);
               dataTable_template_images.fnFilter("OS|DATABLOCK|CDROM", 7, true)
-          }, 
+          },
           error: onError
         });
 
@@ -1322,7 +1331,7 @@ function setupCreateTemplateDialog(){
         if (typeof previous_row === 'undefined') {
             var previous_row = 0;
         }
-        
+
         $('#'+str_datatable_id + '  tbody', dialog).delegate("tr", "click", function(e){
             if ($(e.target).is('input') ||
                 $(e.target).is('select') ||
@@ -1342,7 +1351,7 @@ function setupCreateTemplateDialog(){
 
             previous_row = this;
             $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
-            
+
             $('#IMAGE', disk_section).text(aData[4]);
             $('#IMAGE_ID', disk_section).val(aData[1]);
             return false;
@@ -1373,7 +1382,7 @@ function setupCreateTemplateDialog(){
 
     /**************************************************************************
         NETWORK TAB
-        
+
     **************************************************************************/
 
     var number_of_nics = 0;
@@ -1454,7 +1463,7 @@ function setupCreateTemplateDialog(){
           '<div class="show_hide" id="advanced">'+
                 '<h4><small><i class=" icon-plus-sign-alt"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
           '</div>'+
-          '<div class="advanced">'+     
+          '<div class="advanced">'+
             '<div class="row">'+
               '<div class="six columns">'+
                 '<div class="row">'+
@@ -1482,7 +1491,7 @@ function setupCreateTemplateDialog(){
                   '</div>'+
                 '</div>'+
               '</div>'+
-            '</div>'+     
+            '</div>'+
           '<div class="row">'+
           '<div class="six columns">'+
             '<fieldset>'+
@@ -1560,7 +1569,7 @@ function setupCreateTemplateDialog(){
 
 
         var nic_section = $('li#' + str_nic_tab_id + 'Tab', dialog);
-        
+
         var dataTable_template_networks = $('#'+str_datatable_id, dialog).dataTable({
           "bSortClasses": false,
           "bAutoWidth":false,
@@ -1580,22 +1589,22 @@ function setupCreateTemplateDialog(){
               {
                   sUrl: "locale/"+lang+"/"+datatable_lang
               } : ""
-        });  
+        });
 
-        //addElement([spinner,'','','','','','','',''],dataTable_template_networks);  
+        //addElement([spinner,'','','','','','','',''],dataTable_template_networks);
 
         // Retrieve the networks to fill the datatable
         OpenNebula.Network.list({
-          timeout: true, 
+          timeout: true,
           success: function (request, networks_list){
-              var network_list_array = [];  
+              var network_list_array = [];
 
               $.each(networks_list,function(){
                  network_list_array.push(vNetworkElementArray(this));
-              });  
+              });
 
               updateView(network_list_array, dataTable_template_networks);
-          }, 
+          },
           error: onError
         });
 
@@ -1613,7 +1622,7 @@ function setupCreateTemplateDialog(){
       if (typeof previous_row === 'undefined') {
           var previous_row = 0;
       }
-      
+
       $('#'+str_datatable_id + '  tbody', dialog).delegate("tr", "click", function(e){
           if ($(e.target).is('input') ||
               $(e.target).is('select') ||
@@ -1627,13 +1636,13 @@ function setupCreateTemplateDialog(){
         else {
             $('#network_selected',  nic_section).toggle();
             $('#select_network',  nic_section).hide();
-        }   
+        }
 
             $('.alert-box', nic_section).hide();
 
           previous_row = this;
           $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
-          
+
           $('#NETWORK', nic_section).text(aData[4]);
           $('#NETWORK_ID', nic_section).val(aData[1]);
           return false;
@@ -1656,11 +1665,11 @@ function setupCreateTemplateDialog(){
 
     /**************************************************************************
         OS TAB
-        
+
     **************************************************************************/
 
     var add_osTab = function() {
-      var html_tab_content = '<li id="osTab" class="wizard_tab">'+     
+      var html_tab_content = '<li id="osTab" class="wizard_tab">'+
       '<form>'+
         '<div id="tabs-bootos">'+
           '<dl class="tabs">'+
@@ -1670,7 +1679,7 @@ function setupCreateTemplateDialog(){
           '</dl>'+
           '<ul class="tabs-content">'+
           '<li class="wizard_internal_tab vm_param active" id="bootTab">'+
-            '<div class="six columns">'+ 
+            '<div class="six columns">'+
                 '<div class="row">'+
                   '<div class="four columns">'+
                     '<label class="right inline" for="ARCH">'+tr("Arch")+':</label>'+
@@ -1715,7 +1724,7 @@ function setupCreateTemplateDialog(){
                   '</div>'+
                 '</div>'+
             '</div>'+
-            '<div class="six columns">'+ 
+            '<div class="six columns">'+
                 '<div class="row">'+
                   '<div class="four columns">'+
                     '<label class="right inline" for="KERNEL_CMD">'+tr("Kernel cmd")+':</label>'+
@@ -1854,7 +1863,7 @@ function setupCreateTemplateDialog(){
                   '</div>'+
                 '</div>'+
             '</li>'+
-            '</ul>'+  
+            '</ul>'+
       '</form>'+
         '</li>'
 
@@ -1866,7 +1875,7 @@ function setupCreateTemplateDialog(){
 
       //$('#tabs-bootos', os_section).tabs();
 
-        // Select Image or Volatile disk. The div is hidden depending on the selection, and the 
+        // Select Image or Volatile disk. The div is hidden depending on the selection, and the
         // vm_param class is included to be computed when the template is generated.
         $("input[name='kernel_type']").change(function(){
           if ($("input[name='kernel_type']:checked").val() == "kernel_ds") {
@@ -1925,7 +1934,7 @@ function setupCreateTemplateDialog(){
 
         // Retrieve the images to fill the datatable
         OpenNebula.Image.list({
-          timeout: true, 
+          timeout: true,
           success: function (request, images_list){
               var image_list_array = [];
 
@@ -1935,7 +1944,7 @@ function setupCreateTemplateDialog(){
 
               updateView(image_list_array, dataTable_template_kernel);
               dataTable_template_kernel.fnFilter("KERNEL", 7)
-          }, 
+          },
           error: onError
         });
 
@@ -1947,7 +1956,7 @@ function setupCreateTemplateDialog(){
         if (typeof previous_kernel_row === 'undefined') {
             var previous_kernel_row = 0;
         }
-        
+
         $('#datatable_kernel tbody', dialog).delegate("tr", "click", function(e){
             if ($(e.target).is('input') ||
                 $(e.target).is('select') ||
@@ -1959,7 +1968,7 @@ function setupCreateTemplateDialog(){
                 $("td:first", previous_kernel_row).parent().children().each(function(){$(this).removeClass('markrow');});
             previous_kernel_row = this;
             $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
-            
+
             $('.kernel_ds .alert-box', os_section).hide();
 
             $('#KERNEL', os_section).text(aData[4]);
@@ -1997,7 +2006,7 @@ function setupCreateTemplateDialog(){
 
         // Retrieve the images to fill the datatable
         OpenNebula.Image.list({
-          timeout: true, 
+          timeout: true,
           success: function (request, images_list){
               var image_list_array = [];
 
@@ -2007,7 +2016,7 @@ function setupCreateTemplateDialog(){
 
               updateView(image_list_array, datTable_template_initrd);
               datTable_template_initrd.fnFilter("RAMDISK", 7)
-          }, 
+          },
           error: onError
         });
 
@@ -2023,7 +2032,7 @@ function setupCreateTemplateDialog(){
         if (typeof previous_initrd_row === 'undefined') {
             var previous_initrd_row = 0;
         }
-        
+
         $('#datatable_initrd tbody', dialog).delegate("tr", "click", function(e){
             if ($(e.target).is('input') ||
                 $(e.target).is('select') ||
@@ -2217,7 +2226,7 @@ function setupCreateTemplateDialog(){
 
     /**************************************************************************
         CONTEXT TAB
-        
+
     **************************************************************************/
 
     var add_contextTab = function() {
@@ -2251,7 +2260,7 @@ function setupCreateTemplateDialog(){
                             '</div>'+
                           '</div>'+
                         '</fieldset>'+
-                    '</div>'+ 
+                    '</div>'+
                     '<div class="six columns">'+
                         '<fieldset>'+
                             '<legend>'+tr("Network")+'</legend>'+
@@ -2262,9 +2271,9 @@ function setupCreateTemplateDialog(){
                           '</div>'+
                           '<br>'+
                         '</fieldset>'+
-                    '</div>'+ 
-                  '</div>'+  
-                    '</li>'+ 
+                    '</div>'+
+                  '</div>'+
+                    '</li>'+
                 '<li class="wizard_internal_tab vm_param" id="filesTab">'+
                         '<div class="row collapse ">'+
                           '<div class="five columns push-seven">'+
@@ -2389,38 +2398,38 @@ function setupCreateTemplateDialog(){
               {
                   sUrl: "locale/"+lang+"/"+datatable_lang
               } : ""
-      });   
+      });
 
-      //addElement([spinner,'','','','','','','','','','','',''],datTable_template_context);   
+      //addElement([spinner,'','','','','','','','','','','',''],datTable_template_context);
 
       // Retrieve the images to fill the datatable
       OpenNebula.Image.list({
-      timeout: true, 
+      timeout: true,
       success: function (request, images_list){
-          var image_list_array = [];    
+          var image_list_array = [];
           $.each(images_list,function(){
               image_list_array.push(imageElementArray(this));
-          });   
+          });
 
           updateView(image_list_array, datTable_template_context);
           datTable_template_context.fnFilter("CONTEXT", 7)
-      }, 
+      },
       error: onError
-      });   
+      });
 
       $('#files_search', dialog).keyup(function(){
         datTable_template_context.fnFilter( $(this).val() );
       })
 
       // TBD More than one file
-      
-      // TBD Add refresh button for the datatable   
+
+      // TBD Add refresh button for the datatable
       // When a row is selected the background color is updated. If a previous row
       // was selected (previous_row) the background color is removed.
       // #IMAGE and #IMAGE_ID inputs are updated using the row information
       if (typeof previous_context_row === 'undefined') {
           var previous_context_row = 0;
-      }         
+      }
 
       var selected_files = {};
       var file_row_hash = {};
@@ -2458,7 +2467,7 @@ function setupCreateTemplateDialog(){
           }
 
           $('.alert-box', $('li#contextTab')).hide();
-          
+
           generate_context_files();
 
           return false;
@@ -2483,7 +2492,7 @@ function setupCreateTemplateDialog(){
       var generate_context_files = function() {
         var req_string=[];
 
-        $.each(selected_files, function(key, value) { 
+        $.each(selected_files, function(key, value) {
           req_string.push("$FILE[IMAGE_ID="+ key +"]");
         });
 
@@ -2495,7 +2504,7 @@ function setupCreateTemplateDialog(){
 
     /**************************************************************************
         PLACEMENT TAB
-        
+
     **************************************************************************/
 
     var add_schedulingTab = function() {
@@ -2514,8 +2523,8 @@ function setupCreateTemplateDialog(){
                   '<div class="three columns pull-three">'+
                       '<input type="radio" id="clusters_req"  name="req_select" value="cluster_select"> Select Clusters '+
                   '</div>'+
-                '</div>'+    
-                '<hr>'+     
+                '</div>'+
+                '<hr>'+
                 '<div id="req_type" class="host_select row">'+
                     '<div class="row collapse ">'+
                       '<div class="five columns push-seven">'+
@@ -2610,7 +2619,7 @@ function setupCreateTemplateDialog(){
                     '<div class="two columns">'+
                       '<div class="tip">'+tr("Maximize the resources available to VMs in a node")+'</div>'+
                     '</div>'+
-                  '</div>'+  
+                  '</div>'+
                   '<hr>'+
                 '<div class="row vm_param">'+
                   '<div class="two columns">'+
@@ -2662,7 +2671,7 @@ function setupCreateTemplateDialog(){
       //addElement([spinner,'','','','','','','','','','','',''],dataTable_template_hosts);
 
       OpenNebula.Host.list({
-        timeout: true, 
+        timeout: true,
         success: function (request, host_list){
             var host_list_array = [];
 
@@ -2672,7 +2681,7 @@ function setupCreateTemplateDialog(){
             });
 
             updateView(host_list_array, dataTable_template_hosts);
-        }, 
+        },
         error: onError
       });
 
@@ -2764,7 +2773,7 @@ function setupCreateTemplateDialog(){
       //addElement([spinner,'','','','',''],dataTable_template_clusters);
 
       OpenNebula.Cluster.list({
-        timeout: true, 
+        timeout: true,
         success: function (request, cluster_list){
           var list_array = [];
 
@@ -2774,7 +2783,7 @@ function setupCreateTemplateDialog(){
           });
 
           updateView(list_array,dataTable_template_clusters);
-        }, 
+        },
         error: onError
       });
 
@@ -2842,7 +2851,7 @@ function setupCreateTemplateDialog(){
          generate_requirements();
       });
 
-      // Select Image or Volatile disk. The div is hidden depending on the selection, and the 
+      // Select Image or Volatile disk. The div is hidden depending on the selection, and the
       // vm_param class is included to be computed when the template is generated.
       $("input[name='req_select']").change(function(){
         if ($("input[name='req_select']:checked").val() == "host_select") {
@@ -2866,11 +2875,11 @@ function setupCreateTemplateDialog(){
       var generate_requirements = function() {
         var req_string=[];
 
-        $.each(selected_hosts, function(key, value) { 
+        $.each(selected_hosts, function(key, value) {
           req_string.push('ID=\\"'+key+'\\"');
         });
 
-        $.each(selected_clusters, function(key, value) { 
+        $.each(selected_clusters, function(key, value) {
           req_string.push('CLUSTER_ID=\\"'+key+'\\"');
         });
 
@@ -2881,7 +2890,7 @@ function setupCreateTemplateDialog(){
 
     /**************************************************************************
         OTHER TAB
-        
+
     **************************************************************************/
 
     var add_otherTab = function() {
@@ -2926,17 +2935,17 @@ function setupCreateTemplateDialog(){
     var tabs = $( "#template_create_tabs", dialog)//.tabs().addClass("ui-tabs-vertical");
 
 
-    //$('#wizard_next').click(function(){ 
+    //$('#wizard_next').click(function(){
     //  var selected = tabs.tabs('option', 'active');
     //  tabs.tabs("option", "active", selected+1);
     //});
 //
-    //$('#wizard_previous').click(function(){ 
+    //$('#wizard_previous').click(function(){
     //  var selected = tabs.tabs('option', 'active');
     //  tabs.tabs("option", "active", selected-1);
     //});
 
-    $('#template_template_reset_button').click(function(){ 
+    $('#template_template_reset_button').click(function(){
         $create_template_dialog.trigger("reveal:close")
         $create_template_dialog.empty();
         setupCreateTemplateDialog();
@@ -3159,7 +3168,7 @@ function setupCreateTemplateDialog(){
 
     //Reset form - empty boxes
     $('button#reset_vm_form',dialog).click(function(){
-        $('select#disks_box option',section_disks).remove(); 
+        $('select#disks_box option',section_disks).remove();
        $('select#nics_box option',section_networks).remove();
         $('select#inputs_box option',section_inputs).remove();
         $('select#custom_var_box option',section_custom_var).remove();
@@ -3177,7 +3186,7 @@ function popUpUpdateTemplateDialog(){
 function popUpCreateTemplateDialog(){
     $('button#create_template_form_easy', $create_template_dialog).show();
     $('button#template_template_update_button', $create_template_dialog).hide();
-    
+
     $create_template_dialog.reveal();
 };
 
@@ -3247,13 +3256,13 @@ function setupTemplateTemplateUpdateDialog(){
 
 function popUpTemplateTemplateUpdateDialog(){
     var selected_nodes = getSelectedNodes(dataTable_templates);
- 
+
     if ( selected_nodes.length != 1 )
     {
       notifyMessage("Please select one (and just one) template to update.");
       return false;
     }
- 
+
     // Get proper cluster_id
     var template_id   = ""+selected_nodes[0];
 
@@ -3324,7 +3333,7 @@ function fillTemplatePopUp(request, response){
     //
     // GENERAL
     //
-   
+
     var capacity_section = $('li#capacityTab', $create_template_dialog);
     autoFillInputs(template, capacity_section);
 
@@ -3332,7 +3341,7 @@ function fillTemplatePopUp(request, response){
     //
     // DISKS
     //
-    
+
     var number_of_disks = 0;
 
     function fillDiskTab(disk) {
@@ -3347,7 +3356,7 @@ function fillTemplatePopUp(request, response){
             // TODO updateView should not be required. Currently the dataTable
             //  is filled twice.
             OpenNebula.Image.list({
-                timeout: true, 
+                timeout: true,
                 success: function (request, images_list){
                     var image_list_array = [];
 
@@ -3375,10 +3384,10 @@ function fillTemplatePopUp(request, response){
 'IMAGE: '+ disk.IMAGE_ID + tr(" does not exists any more") +
 '  <a href="" class="close">&times;</a>'+
 '</div>';
-                    
-                        $(".dataTables_wrapper", disk_section).append(alert);   
+
+                        $(".dataTables_wrapper", disk_section).append(alert);
                     }
-              }, 
+              },
               error: onError
             });
 
@@ -3412,7 +3421,7 @@ function fillTemplatePopUp(request, response){
     //
     // NICS
     //
-    
+
     var number_of_nics = 0;
 
     function fillNicTab(nic) {
@@ -3424,7 +3433,7 @@ function fillTemplatePopUp(request, response){
         // TODO updateView should not be required. Currently the dataTable
         //  is filled twice.
         OpenNebula.Network.list({
-            timeout: true, 
+            timeout: true,
             success: function (request, networks_list){
                 var network_list_array = [];
 
@@ -3451,11 +3460,11 @@ function fillTemplatePopUp(request, response){
 'NETWORK: '+ nic.NETWORK_ID + tr(" does not exists any more") +
 '  <a href="" class="close">&times;</a>'+
 '</div>';
-                    
-                        $(".dataTables_wrapper", nic_section).append(alert);   
+
+                        $(".dataTables_wrapper", nic_section).append(alert);
                     }
                 }
-          }, 
+          },
           error: onError
         });
 
@@ -3484,7 +3493,7 @@ function fillTemplatePopUp(request, response){
     //
     // OS
     //
-    
+
     var os = template.OS;
     var os_section = $('li#osTab', $create_template_dialog);
 
@@ -3498,7 +3507,7 @@ function fillTemplatePopUp(request, response){
             // TODO updateView should not be required. Currently the dataTable
             //  is filled twice.
             OpenNebula.Image.list({
-                timeout: true, 
+                timeout: true,
                 success: function (request, list){
                     var list_array = [];
 
@@ -3527,10 +3536,10 @@ function fillTemplatePopUp(request, response){
 'KERNEL: '+ match[1] + tr(" does not exists any more") +
 '  <a href="" class="close">&times;</a>'+
 '</div>';
-                    
-                        $("#tabs-kernel .dataTables_wrapper", os_section).append(alert);   
+
+                        $("#tabs-kernel .dataTables_wrapper", os_section).append(alert);
                     }
-              }, 
+              },
               error: onError
             });
         }
@@ -3547,7 +3556,7 @@ function fillTemplatePopUp(request, response){
             // TODO updateView should not be required. Currently the dataTable
             //  is filled twice.
             OpenNebula.Image.list({
-                timeout: true, 
+                timeout: true,
                 success: function (request, list){
                     var list_array = [];
 
@@ -3576,10 +3585,10 @@ function fillTemplatePopUp(request, response){
 'RAMDISK: '+ match[1] + tr(" does not exists any more") +
 '  <a href="" class="close">&times;</a>'+
 '</div>';
-                    
-                        $("#tabs-ramdisk .dataTables_wrapper", os_section).append(alert);   
+
+                        $("#tabs-ramdisk .dataTables_wrapper", os_section).append(alert);
                     }
-              }, 
+              },
               error: onError
             });
         }
@@ -3614,7 +3623,7 @@ function fillTemplatePopUp(request, response){
             inputs = [inputs];
         }
 
-        $.each(inputs, function(){ 
+        $.each(inputs, function(){
             var table = $('#input_table', inputs_section)[0];
             var rowCount = table.rows.length;
             var row = table.insertRow(rowCount);
@@ -3656,14 +3665,14 @@ function fillTemplatePopUp(request, response){
         var net_flag = false;
         var files = [];
 
-        $.each(context, function(key, value){ 
+        $.each(context, function(key, value){
             if (ssh_regexp.test(key)) {
                 $("#ssh_context", context_section).click();
 
                 if (!publickey_regexp.test(value)) {
                     $("input#ssh_puclic_key").val(value);
                 }
-                
+
             }
             else if (net_regexp.test(key)) {
                 if (!net_flag) {
@@ -3682,7 +3691,7 @@ function fillTemplatePopUp(request, response){
                 // TODO updateView should not be required. Currently the dataTable
                 //  is filled twice.
                 OpenNebula.Image.list({
-                    timeout: true, 
+                    timeout: true,
                     success: function (request, list){
                         var list_array = [];
 
@@ -3712,11 +3721,11 @@ function fillTemplatePopUp(request, response){
     tr('The following FILES: ') + files.join(', ') + tr(" do not exist any more") +
     '  <a href="" class="close">&times;</a>'+
     '</div>';
-                        
-                            $(".dataTables_wrapper", context_section).append(alert);   
+
+                            $(".dataTables_wrapper", context_section).append(alert);
                         }
 
-                  }, 
+                  },
                   error: onError
                 });
             }
@@ -3773,7 +3782,7 @@ function fillTemplatePopUp(request, response){
             var dataTable_template_hosts = $("#datatable_template_hosts").dataTable();
 
             OpenNebula.Host.list({
-                timeout: true, 
+                timeout: true,
                 success: function (request, host_list){
                     var host_list_array = [];
 
@@ -3803,10 +3812,10 @@ function fillTemplatePopUp(request, response){
 tr('The following HOSTs: [') + hosts.join(', ') + '] ' + tr(" do not exist any more") +
 '  <a href="" class="close">&times;</a>'+
 '</div>';
-                    
-                        $("#datatable_template_hosts_wrapper", req_section).append(alert);   
+
+                        $("#datatable_template_hosts_wrapper", req_section).append(alert);
                     }
-                }, 
+                },
                 error: onError
             });
         }
@@ -3817,7 +3826,7 @@ tr('The following HOSTs: [') + hosts.join(', ') + '] ' + tr(" do not exist any m
             var dataTable_template_clusters = $("#datatable_template_clusters").dataTable();
 
             OpenNebula.Cluster.list({
-                timeout: true, 
+                timeout: true,
                 success: function (request, cluster_list){
                     var cluster_list_array = [];
 
@@ -3847,10 +3856,10 @@ tr('The following HOSTs: [') + hosts.join(', ') + '] ' + tr(" do not exist any m
 tr('The following CLUSTERs: [') + clusters.join(', ') + '] ' + tr("do not exist any more") +
 '  <a href="" class="close">&times;</a>'+
 '</div>';
-                    
-                        $("#datatable_template_clusters_wrapper", req_section).append(alert);   
+
+                        $("#datatable_template_clusters_wrapper", req_section).append(alert);
                     }
-                }, 
+                },
                 error: onError
             });
         }

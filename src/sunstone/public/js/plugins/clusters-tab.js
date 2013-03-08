@@ -899,7 +899,16 @@ var clusters_tab_content = '\
 <div class="panel">\
 <div class="row">\
   <div class="twelve columns">\
-    <h4 class="subheader"><i class="icon-copy"></i> '+tr("Clusters")+'</h4>\
+    <h4 class="subheader header">\
+      <span class="header-resource">\
+        <i class="icon-copy"></i> '+tr("Clusters")+'\
+      </span>\
+      <span class="header-info">\
+        <span/> <small></small>&emsp;\
+      </span>\
+      <span class="user-login">\
+      </span>\
+    </h4>\
   </div>\
 </div>\
 <div class="row">\

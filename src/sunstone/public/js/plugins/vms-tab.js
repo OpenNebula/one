@@ -38,15 +38,21 @@ var vms_tab_content = '\
 <form class="custom" id="virtualMachine_list" action="">\
 <div class="panel">\
 <div class="row">\
-  <div class="six columns">\
-    <h4 class="subheader"><i class="icon-cloud"></i> '+tr("Virtual Machines")+'</h4>\
-  </div>\
-  <div class="six columns">\
-    <div class="row dashboard right">\
-      <div class="twelve  columns">\
-        <h4 class="subheader"><span id="total_vms"/> <small>'+tr("TOTAL")+'</small>&emsp;<span id="active_vms"/> <small>'+tr("ACTIVE")+'</small>&emsp;<span id="off_vms"/> <small>'+tr("OFF")+'</small>&emsp;<span id="pending_vms"/> <small>'+tr("PENDING")+'</small>&emsp;<span id="failed_vms"/> <small>'+tr("FAILED")+'</small></h4>\
-      </div>\
-    </div>\
+  <div class="twelve columns">\
+    <h4 class="subheader header">\
+      <span class="header-resource">\
+        <i class="icon-cloud"></i> '+tr("Virtual Machines")+'\
+      </span>\
+      <span class="header-info">\
+        <span id="total_vms"/> <small>'+tr("TOTAL")+'</small>&emsp;\
+        <span id="active_vms"/> <small>'+tr("ACTIVE")+'</small>&emsp;\
+        <span id="off_vms"/> <small>'+tr("OFF")+'</small>&emsp;\
+        <span id="pending_vms"/> <small>'+tr("PENDING")+'</small>&emsp;\
+        <span id="failed_vms"/> <small>'+tr("FAILED")+'</small>\
+      </span>\
+      <span class="user-login">\
+      </span>\
+    </h4>\
   </div>\
 </div>\
 <div class="row">\
@@ -925,13 +931,13 @@ function vMachineElementArray(vm_json){
         break;
       default:
         break;
-    } 
-    
+    }
+
     if (state == tr("ACTIVE")) {
         state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
     };
 
-                    
+
     return [
         '<input class="check_item" type="checkbox" id="vm_'+vm.ID+'" name="selected_items" value="'+vm.ID+'"/>',
         vm.ID,
@@ -995,6 +1001,7 @@ function updateVMachinesView(request, vmachine_list){
     $("#active_vms", $dashboard).text(active_vms);
     $("#pending_vms", $dashboard).text(pending_vms);
     $("#failed_vms", $dashboard).text(failed_vms);
+    $("#off_vms", $dashboard).text(off_vms);
 
     var form = $("#virtualMachine_list");
 

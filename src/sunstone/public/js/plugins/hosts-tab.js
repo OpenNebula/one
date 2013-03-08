@@ -22,15 +22,20 @@ var hosts_tab_content = '\
 <form class="custom" id="form_hosts" action="">\
 <div class="panel">\
 <div class="row">\
-  <div class="six columns">\
-    <h4 class="subheader"><i class="icon-hdd"></i> '+tr("Hosts")+'</h4>\
-  </div>\
-  <div class="six columns">\
-        <div class="row dashboard right">\
-          <div class="twelve columns">\
-            <h4 class="subheader"><span id="total_hosts"/> <small>'+tr("TOTAL")+'</small>&emsp;<span id="on_hosts"/> <small>'+tr("ON")+'</small>&emsp;<span id="off_hosts"/> <small>'+tr("OFF")+'</small>&emsp;<span id="error_hosts"/> <small>'+tr("ERROR")+'</small></h4>\
-          </div>\
-        </div>\
+  <div class="twelve columns">\
+    <h4 class="subheader header">\
+      <span class="header-resource">\
+        <i class="icon-hdd "></i> '+tr("Hosts")+'\
+      </span>\
+      <span class="header-info">\
+        <span id="total_hosts"/> <small>'+tr("TOTAL")+'</small>&emsp;\
+        <span id="on_hosts"/> <small>'+tr("ON")+'</small>&emsp;\
+        <span id="off_hosts"/> <small>'+tr("OFF")+'</small>&emsp;\
+        <span id="error_hosts"/> <small>'+tr("ERROR")+'</small>\
+      </span>\
+      <span class="user-login">\
+      </span>\
+    </h4>\
   </div>\
 </div>\
 <div class="row">\
@@ -320,14 +325,14 @@ var host_actions = {
             var host_dashboard_graphs = [
             {
                 monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU",
-                labels : "Allocated CPU,Real CPU,Total CPU",
+                labels : "Allocated,Real,Total",
                 humanize_figures : false,
                 div_graph : $("#dash_host_cpu_graph", $dashboard),
                 div_legend : $("#dash_host_cpu_legend", $dashboard)
             },
             {
                 monitor_resources : "HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM",
-                labels : "Allocated MEM,Real MEM,Total MEM",
+                labels : "Allocated,Real,Total",
                 humanize_figures : true,
                 div_graph : $("#dash_host_mem_graph", $dashboard),
                 div_legend : $("#dash_host_mem_legend", $dashboard)
@@ -701,7 +706,7 @@ function hostElementArray(host_json){
         break;
       default:
         break;
-    } 
+    }
 
     return [
         '<input class="check_item" type="checkbox" id="host_'+host.ID+'" name="selected_items" value="'+host.ID+'"/>',
@@ -871,7 +876,7 @@ function updateHostInfo(request,host){
             </tbody>\
          </table>\
         </div>\
-        <div class="six columns">' 
+        <div class="six columns">'
         + insert_extended_template_table(host_info.TEMPLATE,
                                          "Host",
                                          host_info.ID) +

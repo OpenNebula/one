@@ -6676,3 +6676,86 @@ small {
 a.footer.button {
   margin: 5px;
 }
+
+/* line 689, ../sass/app.scss */
+.user-login {
+  float: right;
+}
+
+/* line 693, ../sass/app.scss */
+.user-login i.header-icon {
+  color: #6f6f6f;
+  font-weight: 300;
+  font-size: 23px;
+}
+
+/* line 699, ../sass/app.scss */
+.user-login .button {
+  color: #6f6f6f;
+  font-size: 60%;
+  line-height: 0;
+}
+
+/* line 705, ../sass/app.scss */
+.user-login .button.secondary {
+  background: #f2f2f2;
+  border: 0px;
+  margin-right: 0px;
+  font-weight: 300;
+}
+
+/* line 713, ../sass/app.scss */
+.user-login .button.secondary:hover, .user-login .button.secondary:focus {
+  background-color: #d0d0d0;
+  color: #6f6f6f;
+}
+
+/* line 718, ../sass/app.scss */
+.user-login .button.dropdown.tiny::after {
+  border: solid 5px;
+  border-color: #b6b6b6 transparent transparent transparent;
+  right: 7px;
+}
+
+/* line 724, ../sass/app.scss */
+.header-resource {
+  text-align: center;
+}
+
+/* line 728, ../sass/app.scss */
+.header-resource {
+  float: left;
+}
+
+/* line 732, ../sass/app.scss */
+.header {
+  text-align: center;
+}
+
+/* line 736, ../sass/app.scss */
+.button.dropdown.tiny ul.no-hover.show-dropdown {
+  top: 34px !important;
+}
+
+/* line 740, ../sass/app.scss */
+.graph_legend table {
+  background: #f2f2f2;
+  border: 0px;
+  width: 100%;
+}
+
+/* line 746, ../sass/app.scss */
+.graph_legend .subheader {
+  margin-bottom: 5px;
+}
+
+/* line 750, ../sass/app.scss */
+.dashboard hr {
+  margin: 0;
+  margin-bottom: 8px;
+}
+
+/* line 755, ../sass/app.scss */
+.graph {
+  margin-bottom: 15px !important;
+}

@@ -22,7 +22,16 @@ var datastores_tab_content = '\
 <div class="panel">\
 <div class="row">\
   <div class="twelve columns">\
-    <h4 class="subheader"><i class="icon-folder-open"></i> '+tr("Datastores")+'</h4>\
+    <h4 class="subheader header">\
+      <span class="header-resource">\
+        <i class="icon-folder-open"></i> '+tr("Datastores")+'\
+      </span>\
+      <span class="header-info">\
+        <span/> <small></small>&emsp;\
+      </span>\
+      <span class="user-login">\
+      </span>\
+    </h4>\
   </div>\
 </div>\
 <div class="row">\
@@ -665,7 +674,7 @@ function updateDatastoreInfo(request,ds){
           </table>'
             + insert_extended_template_table(info.TEMPLATE,
                                          "Datastore",
-                                         info.ID) + 
+                                         info.ID) +
         '</div>\
         <div class="six columns">'
             + insert_permissions_table("Datastore",

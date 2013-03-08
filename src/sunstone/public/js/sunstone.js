@@ -302,8 +302,7 @@ $(document).ready(function(){
     plots_context = $('div#plots');
     info_panels_context = $('div#info_panels');
 
-    readCookie();
-    setLogin();
+
 
     //Insert the tabs in the DOM and their buttons.
     insertTabs();
@@ -318,6 +317,9 @@ $(document).ready(function(){
 
     //This dialog is shared to update templates
     setupTemplateUpdateDialog();
+
+    readCookie();
+    setLogin();
 
     //Listen for .action_buttons
     //An action buttons runs a predefined action. If it has type
@@ -422,10 +424,19 @@ function setLogin(){
         break;
     };
 
+    var user_login_content =  '<div href="#" class="button tiny secondary dropdown" id="logout">\
+      <i class="icon-user header-icon"></i> '+ username + '\
+      <ul>\
+        <li><a href="#"><i class="icon-cog"></i> Configuration</a></li>\
+        <li><a href="#" class="logout"><i class="icon-off"></i> Sign Out</a></li>\
+      </ul>\
+    </div>';
 
-    $("div#menu span#user").html(username);
 
-    $("div#menu a#logout").click(function(){
+
+    $("span.user-login").html(user_login_content);
+
+    $("span.user-login a.logout").click(function(){
         redirect = function(){window.location.href = "login";};
         switch(whichUI()){
         case "sunstone":
@@ -559,8 +570,8 @@ function insertButtonsInTab(tab_name){
                 "</div>"+
             "</div>"+
             "<div class='eight columns'>"+
-                '<div class="button-bar right">'+
-                  '<ul class="button-group">'+
+                '<div class="button-bar">'+
+                  '<ul class="button-group right">'+
                     '<li>'+
                         "<div id='main_buttons'>"+
                             "<ul class='button-group radius'>"+
@@ -576,7 +587,7 @@ function insertButtonsInTab(tab_name){
                         "</div>"+
                     '</li>'+
                   '</ul>'+
-                  '<ul class="button-group">'+
+                  '<ul class="button-group right">'+
                     '<li>'+
                         "<div id='user_buttons'>"+
                             "<div href='#' class='top_button small secondary button dropdown radius'>"+

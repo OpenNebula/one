@@ -20,15 +20,18 @@ var images_tab_content = '\
 <form class="custom" id="image_form" action="">\
 <div class="panel">\
 <div class="row">\
-  <div class="six columns">\
-    <h4 class="subheader"><i class="icon-upload"></i> '+tr("Images")+'</h4>\
-  </div>\
-  <div class="six columns">\
-    <div class="row dashboard right">\
-      <div class="twelve  columns">\
-        <h4 class="subheader"><span id="total_images"/> <small>'+tr("TOTAL")+'</small>&emsp;<span id="size_images"/> <small>'+tr("SIZE")+'</small></h4>\
-      </div>\
-    </div>\
+  <div class="twelve columns">\
+    <h4 class="subheader header">\
+      <span class="header-resource">\
+        <i class="icon-upload"></i> '+tr("Images")+'\
+      </span>\
+      <span class="header-info">\
+        <span id="total_images"/> <small>'+tr("TOTAL")+'</small>&emsp;\
+        <span id="size_images"/> <small>'+tr("SIZE")+'</small>\
+      </span>\
+      <span class="user-login">\
+      </span>\
+    </h4>\
   </div>\
 </div>\
 <div class="row">\
@@ -630,7 +633,7 @@ function updateImagesView(request, images_list){
     updateVResDashboard("images",images_list);
 
     var size = humanize_size_from_mb(size_images)
-    
+
     $("#total_images", $dashboard).text(images_list.length);
     $("#size_images", $dashboard).text(size);
 
@@ -722,7 +725,7 @@ function updateImageInfo(request,img){
                                    img_info.GID) +
             insert_extended_template_table(img_info.TEMPLATE,
                                                "Image",
-                                               img_info.ID) + 
+                                               img_info.ID) +
         '</div>\
       </div></form>'
     }

@@ -825,9 +825,11 @@ function plot_totals(response, info) {
         humanize_size : function(val){ return val };
 
     var options = {
-//        colors: [ "#cdebf5", "#2ba6cb", "#6f6f6f" ]
+        //colors: [ "#2ba6cb", "#cdebf5", "#6f6f6f" ],
+        colors: [ "#8DDAE4", "#707D85", "#AC5A62" ],
         legend : { show : (info.div_legend != undefined),
-                   noColumns: attributes.length+1,
+                   noColumns: attributes.length,
+                   backgroundColor: "black",
                    container: info.div_legend
                  },
         xaxis : {

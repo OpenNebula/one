@@ -20,15 +20,18 @@ var vnets_tab_content = '\
 <form class="custom" id="virtualNetworks_form" action="">\
 <div class="panel">\
 <div class="row">\
-  <div class="six columns">\
-    <h4 class="subheader"><i class="icon-sitemap"></i> '+tr("Virtual Networks")+'</h4>\
-  </div>\
-  <div class="six columns">\
-    <div class="row dashboard right">\
-      <div class="twelve  columns">\
-        <h4 class="subheader"><span id="total_vnets"/> <small>'+tr("TOTAL")+'</small>&emsp;<span id="addresses_vnets"/> <small>'+tr("ADDRESSES")+'</small></h4>\
-      </div>\
-    </div>\
+  <div class="twelve columns">\
+    <h4 class="subheader header">\
+      <span class="header-resource">\
+        <i class="icon-sitemap"></i> '+tr("Virtual Networks")+'\
+      </span>\
+      <span class="header-info">\
+        <span id="total_vnets"/> <small>'+tr("TOTAL")+'</small>&emsp;\
+        <span id="addresses_vnets"/> <small>'+tr("ADDRESSES")+'</small>\
+      </span>\
+      <span class="user-login">\
+      </span>\
+    </h4>\
   </div>\
 </div>\
 <div class="row">\

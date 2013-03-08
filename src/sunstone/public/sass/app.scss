@@ -684,3 +684,74 @@ small {
 a.footer.button {
     margin: 5px;
 }
+
+
+.user-login {
+    float: right;
+}
+
+.user-login i.header-icon {
+    color: #6f6f6f;
+    font-weight: 300;
+    font-size: 23px;
+}
+
+.user-login .button {
+    color: #6f6f6f;
+    font-size: 60%;
+    line-height: 0;
+}
+
+.user-login .button.secondary {
+    background: #f2f2f2;
+    border: 0px;
+    margin-right: 0px;
+    font-weight: 300;
+
+}
+
+.user-login .button.secondary:hover, .user-login .button.secondary:focus {
+    background-color: #d0d0d0;
+    color: #6f6f6f;
+}
+
+.user-login .button.dropdown.tiny::after {
+    border: solid 5px;
+    border-color: #b6b6b6 transparent transparent transparent;
+    right: 7px;
+}
+
+.header-resource {
+    text-align: center;
+}
+
+.header-resource {
+    float: left;
+}
+
+.header {
+    text-align: center;
+}
+
+.button.dropdown.tiny ul.no-hover.show-dropdown {
+    top: 34px !important;
+}
+
+.graph_legend table {
+    background: #f2f2f2;
+    border: 0px;
+    width: 100%;
+}
+
+.graph_legend .subheader {
+    margin-bottom: 5px;
+}
+
+.dashboard hr {
+    margin: 0;
+    margin-bottom: 8px;
+}
+
+.graph {
+    margin-bottom: 15px !important;
+}
