@@ -36,12 +36,16 @@ function showTab(tabname,highlight_tab){
     //we no longer expect #tab_id here, but simply tab_id
     //So safety check - remove # from #tab_id if present to ensure compatibility
 
-    if (last_selected_row)
-    {
-        last_selected_row.children().each(function(){$(this).removeClass('markrowselected');});
-        $('.check_item',last_selected_row).removeAttr('checked');
-        last_select_row = null;
-    }
+    $('tbody input.check_item:checked').click();
+    $('td').removeClass('markrowchecked markrowselected');
+    last_select_row = null;
+
+    //if (last_selected_row)
+    //{
+    //    last_selected_row.children().each(function(){$(this).removeClass('markrowselected');});
+    //    $('.check_item',last_selected_row).removeAttr('checked');
+    //    last_select_row = null;
+    //}
 
     if (tabname.indexOf('#') == 0)
         tabname = tabname.substring(1);
