@@ -52,7 +52,8 @@ module OpenNebula
             SAVE_MIGRATE PROLOG_MIGRATE PROLOG_RESUME EPILOG_STOP EPILOG
             SHUTDOWN CANCEL FAILURE CLEANUP_RESUBMIT UNKNOWN HOTPLUG SHUTDOWN_POWEROFF
             BOOT_UNKNOWN BOOT_POWEROFF BOOT_SUSPENDED BOOT_STOPPED CLEANUP_DELETE
-            HOTPLUG_SNAPSHOT HOTPLUG_NIC}
+            HOTPLUG_SNAPSHOT HOTPLUG_NIC HOTPLUG_SAVEAS HOTPLUG_SAVEAS_POWEROFF
+            HOTPLUG_SAVEAS_SUSPENDED}
 
         SHORT_VM_STATES={
             "INIT"      => "init",
@@ -91,7 +92,10 @@ module OpenNebula
             "BOOT_STOPPED"      => "boot",
             "CLEANUP_DELETE"    => "clea",
             "HOTPLUG_SNAPSHOT"  => "snap",
-            "HOTPLUG_NIC"       => "hotp"
+            "HOTPLUG_NIC"       => "hotp",
+            "HOTPLUG_SAVEAS"           => "hotp",
+            "HOTPLUG_SAVEAS_POWEROFF"  => "hotp",
+            "HOTPLUG_SAVEAS_SUSPENDED" => "hotp"
         }
 
         MIGRATE_REASON=%w{NONE ERROR STOP_RESUME USER CANCEL}
@@ -350,14 +354,15 @@ module OpenNebula
         #
         # @return [Integer, OpenNebula::Error] the new Image ID in case of
         #   success, error otherwise
-        def save_as(disk_id, image_name, image_type="")
+        def save_as(disk_id, image_name, image_type="", hot=false)
             return Error.new('ID not defined') if !@pe_id
 
             rc = @client.call(VM_METHODS[:savedisk],
                               @pe_id,
                               disk_id,
                               image_name,
-                              image_type)
+                              image_type,
+                              hot)
 
             return rc
         end
