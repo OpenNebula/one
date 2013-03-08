@@ -433,6 +433,7 @@ var vm_actions = {
                   monitor_resources : "NET_TX",
                   humanize_figures : true,
                   convert_from_bytes : true,
+                  y_sufix : "B/s",
                   derivative : true,
                   div_graph : $("#dash_vm_net_tx_graph", $dashboard),
                   div_legend : $("#dash_vm_net_tx_legend", $dashboard)
@@ -441,6 +442,7 @@ var vm_actions = {
                   monitor_resources : "NET_RX",
                   humanize_figures : true,
                   convert_from_bytes : true,
+                  y_sufix : "B/s",
                   derivative : true,
                   div_graph : $("#dash_vm_net_rx_graph", $dashboard),
                   div_legend : $("#dash_vm_net_rx_legend", $dashboard)

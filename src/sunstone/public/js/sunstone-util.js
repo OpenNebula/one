@@ -83,14 +83,14 @@ function pretty_time_runtime(time){
 
 //returns a human readable size in Kilo, Mega, Giga or Tera bytes
 //if no from_bytes, assumes value comes in Ks
-function humanize_size(value,from_bytes) {
+function humanize_size(value,from_bytes,sufix) {
     if (typeof(value) === "undefined") {
         value = 0;
     }
-    var binarySufix = from_bytes ?
-        ["", "K", "M", "G", "T" ] : ["K", "M", "G", "T" ];
-    var i=0;
-    while (value > 1024 && i < 3){
+    var binarySufix = ["", "K", "M", "G", "T" ];
+
+    var i = from_bytes ? 0 : 1;
+    while (value >= 1024 && i < 4){
         value = value / 1024;
         i++;
     }
@@ -100,7 +100,11 @@ function humanize_size(value,from_bytes) {
         value = Math.round(value);
     }
 
-    var st = value + binarySufix[i];
+    if(sufix == undefined) {
+        sufix = "B";
+    }
+
+    var st = value + binarySufix[i] + sufix;
     return st;
 }
 
@@ -110,7 +114,7 @@ function humanize_size_from_mb(value) {
     }
     var binarySufix =  ["MB", "GB", "TB" ];
     var i=0;
-    while (value > 1024 && i < 3){
+    while (value >= 1024 && i < 2){
         value = value / 1024;
         i++;
     }
@@ -883,7 +887,7 @@ function plot_totals(response, info) {
         },
         yaxis : { labelWidth: 40,
                   tickFormatter: function(val, axis) {
-                      return humanize(val, info.convert_from_bytes);
+                      return humanize(val, info.convert_from_bytes, info.y_sufix);
                   },
                   min: 0
                 }
