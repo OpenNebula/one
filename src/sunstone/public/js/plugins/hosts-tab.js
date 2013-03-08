@@ -17,23 +17,6 @@
 /*Host tab plugin*/
 /* HOST_HISTORY_LENGTH is ignored by server */
 var HOST_HISTORY_LENGTH = 40;
-// Configuration object for historical graphs of individual hosts
-var host_graphs = [
-    {
-        title : tr("CPU Monitoring information"),
-        monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU",
-        labels : "Allocated CPU,Real CPU,Total CPU",
-        humanize_figures : false,
-        history_length : HOST_HISTORY_LENGTH
-    },
-    {
-        title: tr("Memory monitoring information"),
-        monitor_resources : "HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM",
-        labels : "Allocated MEM,Real MEM,Total MEM",
-        humanize_figures : true,
-        history_length : HOST_HISTORY_LENGTH
-    }
-]
 
 var hosts_tab_content = '\
 <form class="custom" id="form_hosts" action="">\
@@ -303,9 +286,29 @@ var host_actions = {
         type: "monitor",
         call : OpenNebula.Host.monitor,
         callback: function(req,response) {
-            var info = req.request.data[0].monitor;
-            plot_graph(response,'#host_monitoring_tabTab',
-                       'host_monitor_',info);
+            var host_graphs = [
+            {
+                monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU",
+                labels : "Allocated CPU,Real CPU,Total CPU",
+                humanize_figures : false,
+                div_graph : $("#host_cpu_graph"),
+                div_legend : $("#host_cpu_legend")
+            },
+            {
+                monitor_resources : "HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM",
+                labels : "Allocated MEM,Real MEM,Total MEM",
+                humanize_figures : true,
+                div_graph : $("#host_mem_graph"),
+                div_legend : $("#host_mem_legend")
+            }
+            ];
+
+            for(var i=0; i<host_graphs.length; i++) {
+                plot_graph(
+                    response,
+                    host_graphs[i]
+                );
+            }
         },
         error: hostMonitorError
     },
@@ -879,7 +882,29 @@ function updateHostInfo(request,host){
 
     var monitor_tab = {
         title: tr("Graphs"),
-        content : generateMonitoringDivs(host_graphs,"host_monitor_")
+        content:
+        '<div class="">\
+            <div class="six columns">\
+                <div class="row">\
+                    <div class="ten columns" id="host_cpu_legend" style="width:60%;height: 100px;margin: 50px;">\
+                    </div>\
+                </div>\
+                <div class="row">\
+                    <div class="ten columns" id="host_cpu_graph" style="width:60%;height: 200px;margin: 50px;">\
+                    </div>\
+                </div>\
+            </div>\
+            <div class="six columns">\
+                <div class="row">\
+                    <div class="ten columns" id="host_mem_legend" style="width:60%;height: 100px;margin: 50px;">\
+                    </div>\
+                </div>\
+                <div class="row">\
+                    <div class="ten columns" id="host_mem_graph" style="width:60%;height: 200px;margin: 50px;">\
+                    </div>\
+                </div>\
+            </div>\
+        </div>'
     }
 
     //Sunstone.updateInfoPanelTab(info_panel_name,tab_name, new tab object);
@@ -888,13 +913,12 @@ function updateHostInfo(request,host){
 
     Sunstone.popUpInfoPanel("host_info_panel");
 
-    // TODO: do not call Host.monitor for each graph
     // TODO: re-use Host.pool_monitor data?
 
     //pop up panel while we retrieve the graphs
-    for (var i=0; i<host_graphs.length; i++){
-        Sunstone.runAction("Host.monitor",host_info.ID,host_graphs[i]);
-    };
+
+    Sunstone.runAction("Host.monitor",host_info.ID,
+        {monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU,HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM"});
 }
 
 //Prepares the host creation dialog

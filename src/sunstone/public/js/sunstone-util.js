@@ -665,111 +665,75 @@ function escapeDoubleQuotes(string){
     return string.replace(/"/g,'\\"');
 }
 
-//Generate the div elements in which the monitoring graphs
-//will be contained. They have some elements which ids are
-//determined by the graphs configuration, so when the time
-//of plotting comes, we can put the data in the right place.
-function generateMonitoringDivs(graphs, id_prefix, options){
-    var str = "";
-    //40% of the width of the screen minus
-    //200px (left menu size)
-    var width = ($(window).width()-200)*39/100;
-    var id_suffix="";
-    var label="";
-    var id="";
-    var omit_title = options && options.omit_title;
+function derivative(data) {
+    for(var i=0; i<data.length-1; i++)
+    {
+        // Each elem is [timestamp, cumulative value]
+        var first = data[i];
+        var second = data[i+1];
 
-    var columns = "six";
-    graphs_length = graphs.length;
-    if (graphs_length == 2) {
-        columns = "six";
-    }
-    else if (graphs_length == 4) {
-        columns = "four";
+        // value now - value before / seconds
+        var speed = (second[1] - first[1]) / (second[0] - first[0]);
+
+        // The first element is replaced with the second one
+        data[i] = [first[0], speed];
     }
 
-    str += '<div class="row">'
-
-    $.each(graphs,function(){
-        label = this.monitor_resources;
-        id_suffix=label.replace(/,/g,'_');
-        id_suffix=id_suffix.replace(/\//g,'_');
-        id = id_prefix+id_suffix;
-        str += '<div class="columns ' + columns + '">'
-        str +='<table class="info_table graph_table">'+
-            (!omit_title ? '<thead><tr><th colspan="1">'+this.title+'</th></tr></thead>' : '')
-             + '<tr><td id="legend_'+id_suffix+'"></td></tr>\
-                <tr><td style="border:0;width:100%;">\
-                <div id="'+id+'" style="width:'+width+'px; height:150px;position:relative;left:0px;margin: 0 auto 10px auto">'+
-                  spinner+
-                '</div>\
-              </td></tr></table></div>';
-    });
-
-    str += '</div>'
-
-    return str;
+    // The last elem must be removed
+    data.pop();
 }
 
-//Draws data for plotting. It will find the correct
-//div for doing it in the context with an id
-//formed by a prefix (i.e. "hosts") and a suffix
-//determined by the graph configuration: "info".
-function plot_graph(data,context,id_prefix,info){
-    var monitoring_resources = info.monitor_resources;
-    var labels  = info.labels
-    var humanize = info.humanize_figures ?
-        humanize_size : function(val){ return val };
-    var convert_from_bytes = info.convert_from_bytes;
-    var id_suffix = monitoring_resources.replace(/,/g,'_');
-    id_suffix = id_suffix.replace(/\//g,'_');
-    var monitoring_resources_array = monitoring_resources.split(',');
+function plot_graph(response, info) {
 
-    if (labels) {
-        labels_array = labels.split(',')
+    series = [];
+
+    var attributes = info.monitor_resources.split(',');
+
+    if (info.labels) {
+        labels = info.labels.split(',')
     }
 
-    var monitoring = data.monitoring
-    var series = [];
-    var serie;
-    var mon_count = 0;
-    var show_date = info.show_date;
+    for (var i=0; i<attributes.length; i++)
+    {
+        var attribute = attributes[i];
 
-    //make sure series are painted in the order of the
-    //monitoring_resources array.
-    for (var i=0; i<monitoring_resources_array.length; i++) {
-        serie = {
-            //Turns label TEMPLATE/BLABLA into BLABLA
-            label: labels ? labels_array[i] : monitoring_resources_array[i].split('/').pop(),
-            data: monitoring[monitoring_resources_array[i]]
-        };
-        series.push(serie);
-        mon_count++;
-    };
+        var data = response.monitoring[attribute];
 
-    //Set options for the plots:
-    // * Where the legend goes
-    // * Axis options: print time and sizes correctly
+        if(info.derivative) {
+            derivative(data);
+        }
+
+        series.push({
+            stack: attribute,
+            // Turns label TEMPLATE/BLABLA into BLABLA
+            label: labels ? labels[i] : attribute[i].split('/').pop(),
+            data: data
+        });
+    }
+
+    var humanize = info.humanize_figures ?
+        humanize_size : function(val){ return val };
+
     var options = {
-        legend : { show : true,
-                   noColumns: mon_count+1,
-                   container: $('#legend_'+id_suffix)
+//        colors: [ "#cdebf5", "#2ba6cb", "#6f6f6f" ]
+        legend : { show : (info.div_legend != undefined),
+                   noColumns: attributes.length+1,
+                   container: info.div_legend
                  },
         xaxis : {
             tickFormatter: function(val,axis){
-                return pretty_time_axis(val, show_date);
+                return pretty_time_axis(val, info.show_date);
             }
         },
         yaxis : { labelWidth: 40,
                   tickFormatter: function(val, axis) {
-                      return humanize(val, convert_from_bytes);
+                      return humanize(val, info.convert_from_bytes, info.y_sufix);
                   },
                   min: 0
                 }
     };
 
-    id = id_prefix + id_suffix;
-    $.plot($('#'+id, context),series,options); //call to flot lib
+    $.plot(info.div_graph, series, options);
 }
 
 
@@ -818,21 +782,7 @@ function plot_totals(response, info) {
                 var data = response[id][attribute];
 
                 if(info.derivative) {
-                    for(var i=0; i<data.length-1; i++)
-                    {
-                        // Each elem is [timestamp, cumulative value]
-                        var first = data[i];
-                        var second = data[i+1];
-
-                        // value now - value before / seconds
-                        var speed = (second[1] - first[1]) / (second[0] - first[0]);
-
-                        // The first element is replaced with the second one
-                        data[i] = [first[0], speed];
-                    }
-
-                    // The last elem must be removed
-                    data.pop();
+                    derivative(data);
                 }
 
                 var local_min = parseInt( data[0][0] );

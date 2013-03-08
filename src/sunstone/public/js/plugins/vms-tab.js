@@ -24,32 +24,6 @@ function loadVNC(){
 }
 loadVNC();
 
-var vm_graphs = [
-    { title : tr("CPU"),
-      monitor_resources : "CPU",
-      humanize_figures : false,
-      history_length : VM_HISTORY_LENGTH
-    },
-    { title : tr("Memory"),
-      monitor_resources : "MEMORY",
-      humanize_figures : true,
-      history_length : VM_HISTORY_LENGTH
-    },
-    { title : tr("Network transmission"),
-      monitor_resources : "NET_TX",
-      humanize_figures : true,
-      convert_from_bytes : true,
-      history_length : VM_HISTORY_LENGTH
-    },
-    { title : tr("Network reception"),
-      monitor_resources : "NET_RX",
-      humanize_figures : true,
-      convert_from_bytes : true,
-      history_length : VM_HISTORY_LENGTH
-    }
-];
-
-
 var VNCstates=["RUNNING","SHUTDOWN","SHUTDOWN_POWEROFF","UNKNOWN","HOTPLUG","CANCEL","MIGRATE", "HOTPLUG_SNAPSHOT", "HOTPLUG_NIC"];
 
 //Permanent storage for last value of aggregated network usage
@@ -417,9 +391,65 @@ var vm_actions = {
         type: "monitor",
         call : OpenNebula.VM.monitor,
         callback: function(req,response) {
-            var info = req.request.data[0].monitor;
-            plot_graph(response,'#vm_monitoring_tabTab',
-                       'vm_monitor_',info);
+            var vm_graphs = [
+                {
+                    monitor_resources : "CPU",
+                    labels : "Real CPU",
+                    humanize_figures : false,
+                    div_graph : $("#vm_cpu_graph"),
+                    div_legend : $("#vm_cpu_legend")
+                },
+                {
+                    monitor_resources : "MEMORY",
+                    labels : "Real MEM",
+                    humanize_figures : true,
+                    div_graph : $("#vm_memory_graph"),
+                    div_legend : $("#vm_memory_legend")
+                },
+                { labels : "Network reception",
+                  monitor_resources : "NET_RX",
+                  humanize_figures : true,
+                  convert_from_bytes : true,
+                  div_graph : $("#vm_net_rx_graph"),
+                  div_legend : $("#vm_net_rx_legend")
+                },
+                { labels : "Network transmission",
+                  monitor_resources : "NET_TX",
+                  humanize_figures : true,
+                  convert_from_bytes : true,
+                  div_graph : $("#vm_net_tx_graph"),
+                  div_legend : $("#vm_net_tx_legend")
+                },
+                { labels : "Network reception speed",
+                  monitor_resources : "NET_RX",
+                  humanize_figures : true,
+                  convert_from_bytes : true,
+                  y_sufix : "B/s",
+                  derivative : true,
+                  div_graph : $("#vm_net_rx_speed_graph"),
+                  div_legend : $("#vm_net_rx_speed_legend")
+                },
+                { labels : "Network transmission speed",
+                  monitor_resources : "NET_TX",
+                  humanize_figures : true,
+                  convert_from_bytes : true,
+                  y_sufix : "B/s",
+                  derivative : true,
+                  div_graph : $("#vm_net_tx_speed_graph"),
+                  div_legend : $("#vm_net_tx_speed_legend")
+                }
+            ];
+
+            // The network speed graphs require the derivative of the data,
+            // and this process is done in place. They must be the last
+            // graphs to be processed
+
+            for(var i=0; i<vm_graphs.length; i++) {
+                plot_graph(
+                    response,
+                    vm_graphs[i]
+                );
+            }
         },
         error: vmMonitorError
     },
@@ -1185,7 +1215,69 @@ function updateVMInfo(request,vm){
 
     var monitoring_tab = {
         title: tr("Graphs"),
-        content: generateMonitoringDivs(vm_graphs,"vm_monitor_")
+        content: 
+        '<div class="">\
+            <div class="six columns">\
+                <div class="row">\
+                    <div class="ten columns" id="vm_cpu_legend" style="width:60%;height: 100px;margin: 50px;">\
+                    </div>\
+                </div>\
+                <div class="row">\
+                    <div class="ten columns" id="vm_cpu_graph" style="width:60%;height: 200px;margin: 50px;">\
+                    </div>\
+                </div>\
+            </div>\
+            <div class="six columns">\
+                <div class="row">\
+                    <div class="ten columns" id="vm_memory_legend" style="width:60%;height: 100px;margin: 50px;">\
+                    </div>\
+                </div>\
+                <div class="row">\
+                    <div class="ten columns" id="vm_memory_graph" style="width:60%;height: 200px;margin: 50px;">\
+                    </div>\
+                </div>\
+            </div>\
+            <div class="six columns">\
+                <div class="row">\
+                    <div class="ten columns" id="vm_net_rx_legend" style="width:60%;height: 100px;margin: 50px;">\
+                    </div>\
+                </div>\
+                <div class="row">\
+                    <div class="ten columns" id="vm_net_rx_graph" style="width:60%;height: 200px;margin: 50px;">\
+                    </div>\
+                </div>\
+            </div>\
+            <div class="six columns">\
+                <div class="row">\
+                    <div class="ten columns" id="vm_net_tx_legend" style="width:60%;height: 100px;margin: 50px;">\
+                    </div>\
+                </div>\
+                <div class="row">\
+                    <div class="ten columns" id="vm_net_tx_graph" style="width:60%;height: 200px;margin: 50px;">\
+                    </div>\
+                </div>\
+            </div>\
+            <div class="six columns">\
+                <div class="row">\
+                    <div class="ten columns" id="vm_net_rx_speed_legend" style="width:60%;height: 100px;margin: 50px;">\
+                    </div>\
+                </div>\
+                <div class="row">\
+                    <div class="ten columns" id="vm_net_rx_speed_graph" style="width:60%;height: 200px;margin: 50px;">\
+                    </div>\
+                </div>\
+            </div>\
+            <div class="six columns">\
+                <div class="row">\
+                    <div class="ten columns" id="vm_net_tx_speed_legend" style="width:60%;height: 100px;margin: 50px;">\
+                    </div>\
+                </div>\
+                <div class="row">\
+                    <div class="ten columns" id="vm_net_tx_speed_graph" style="width:60%;height: 200px;margin: 50px;">\
+                    </div>\
+                </div>\
+            </div>\
+        </div>'
     };
 
     var history_tab = {
@@ -1219,15 +1311,13 @@ function updateVMInfo(request,vm){
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_history_tab",history_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_monitoring_tab",monitoring_tab);
 
-    // TODO: do not call monitor for each graph
     // TODO: re-use pool_monitor data?
 
     //Pop up the info panel and asynchronously get vm_log and stats
     Sunstone.popUpInfoPanel("vm_info_panel");
     Sunstone.runAction("VM.log",vm_info.ID);
-    for (var i=0; i<vm_graphs.length; i++){
-        Sunstone.runAction("VM.monitor",vm_info.ID,vm_graphs[i]);
-    };
+    Sunstone.runAction("VM.monitor",vm_info.ID,
+        { monitor_resources : "CPU,MEMORY,NET_TX,NET_RX"});
 
     var $info_panel = $('div#vm_info_panel');
     var $hotplugging_tab = $('div#vm_hotplugging_tab', $info_panel);
