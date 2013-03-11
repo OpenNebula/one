@@ -273,7 +273,10 @@ int VirtualNetworkPool::nic_attribute(VectorAttribute * nic,
     }
     else
     {
-        error = "Cannot get IP/MAC lease from virtual network.";
+        ostringstream oss;
+        oss << "Cannot get IP/MAC lease from virtual network " << vnet->get_oid() << ".";
+
+        error = oss.str();
     }
 
     vnet->unlock();

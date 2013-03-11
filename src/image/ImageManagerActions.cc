@@ -87,6 +87,8 @@ int ImageManager::acquire_image(int vm_id, Image *img, string& error)
 {
     int rc = 0;
 
+    ostringstream oss;
+
     switch(img->get_type())
     {
         case Image::OS:
@@ -97,8 +99,6 @@ int ImageManager::acquire_image(int vm_id, Image *img, string& error)
         case Image::KERNEL:
         case Image::RAMDISK:
         case Image::CONTEXT:
-            ostringstream oss;
-
             oss << "Image " << img->get_oid() << " (" << img->get_name() << ") "
                 << "of type " << Image::type_to_str(img->get_type())
                 << " cannot be used as DISK.";
@@ -125,7 +125,10 @@ int ImageManager::acquire_image(int vm_id, Image *img, string& error)
         break;
 
         case Image::USED_PERS:
-            error = "Cannot acquire persistent image, it is already in use";
+            oss << "Cannot acquire image " << img->get_oid()
+                << ", it is persistent and already in use";
+
+            error = oss.str();
             rc    = -1;
         break;
 
@@ -140,9 +143,8 @@ int ImageManager::acquire_image(int vm_id, Image *img, string& error)
         case Image::ERROR:
         case Image::DELETE:
         case Image::CLONE:
-           ostringstream oss;
-           oss << "Cannot acquire image in state: "
-               << Image::state_to_str(img->get_state());
+           oss << "Cannot acquire image " << img->get_oid()
+               <<", it is in state: " << Image::state_to_str(img->get_state());
 
            error = oss.str();
            rc    = -1;
