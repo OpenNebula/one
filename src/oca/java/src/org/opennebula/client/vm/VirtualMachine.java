@@ -121,7 +121,7 @@ public class VirtualMachine extends PoolElement{
         "clea",
         "unkn",
         "hotp",
-        "poff",
+        "shut",
         "boot",
         "boot",
         "boot",
@@ -202,18 +202,18 @@ public class VirtualMachine extends PoolElement{
      *
      * @param client XML-RPC Client.
      * @param id The id of the target vm.
-     * @param cpu the new CPU value
-     * @param memory the new MEMORY value
-     * @param vcpu the new VCPU value
+     * @param capacityTemplate Template containing the new capacity
+     *   elements CPU, VCPU, MEMORY. If one of them is not present, or its
+     *   value is 0, it will not be resized
      * @param enforce If it is set to true, the host capacity
      *   will be checked. This will only affect oneadmin requests, regular users
      *   resize requests will always be enforced
      * @return If an error occurs the error message contains the reason.
      */
     public static OneResponse resize(Client client, int id,
-        double cpu, int memory, int vcpu, boolean enforce)
+        String capacityTemplate, boolean enforce)
     {
-        return client.call(RESIZE, id, cpu, memory, vcpu, enforce);
+        return client.call(RESIZE, id, capacityTemplate, enforce);
     }
 
     /**
@@ -469,26 +469,40 @@ public class VirtualMachine extends PoolElement{
 
     /**
      * Sets the specified vm's disk to be saved in a new image when the
-     * VirtualMachine shutdowns.
+     * VirtualMachine shuts down.
      *
      * @param diskId ID of the disk to be saved.
      * @param imageName Name of the new Image that will be created.
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse savedisk(int diskId, String imageName, boolean hot = false)
+    public OneResponse savedisk(int diskId, String imageName)
+    {
+        return savedisk(diskId, imageName, "", false);
+    }
+
+    /**
+     * Sets the specified vm's disk to be saved in a new image.
+     *
+     * @param diskId ID of the disk to be saved.
+     * @param imageName Name of the new Image that will be created.
+     * @param hot True to save the disk immediately, false will perform
+     * the operation when the VM shuts down
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse savedisk(int diskId, String imageName, boolean hot)
     {
         return savedisk(diskId, imageName, "", hot);
     }
 
     /**
-     * Sets the specified vm's disk to be saved in a new image when the
-     * VirtualMachine shutdowns.
+     * Sets the specified vm's disk to be saved in a new image.
      *
      * @param diskId ID of the disk to be saved.
      * @param imageName Name of the new Image that will be created.
      * @param imageType Type of the new image. Set to empty string to use
      * the default type
-     * @param hot do not defer saveas operation
+     * @param hot True to save the disk immediately, false will perform
+     * the operation when the VM shuts down
      * @return If an error occurs the error message contains the reason.
      */
     public OneResponse savedisk(int diskId, String imageName, String imageType,
@@ -658,17 +672,17 @@ public class VirtualMachine extends PoolElement{
     /**
      * Resizes this VM's capacity
      *
-     * @param cpu the new CPU value
-     * @param memory the new MEMORY value
-     * @param vcpu the new VCPU value
+     * @param capacityTemplate Template containing the new capacity
+     *   elements CPU, VCPU, MEMORY. If one of them is not present, or its
+     *   value is 0, it will not be resized
      * @param enforce If it is set to true, the host capacity
      *   will be checked. This will only affect oneadmin requests, regular users
      *   resize requests will always be enforced
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse resize(double cpu, int memory, int vcpu, boolean enforce)
+    public OneResponse resize(String capacityTemplate, boolean enforce)
     {
-        return client.call(RESIZE, id, cpu, memory, vcpu, enforce);
+        return client.call(RESIZE, id, capacityTemplate, enforce);
     }
 
     // =================================

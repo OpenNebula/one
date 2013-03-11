@@ -345,10 +345,10 @@ public class VirtualMachineTest
     @Test
     public void resize()
     {
-        res = vm.resize(2.5, 512, 0, true);
+        res = vm.resize("CPU = 2.5\nMEMORY = 512\nVCPU = 0", true);
         assertTrue( res.getErrorMessage(), !res.isError() );
 
-        res = vm.resize(1, 128, 2, false);
+        res = vm.resize("CPU = 1\nMEMORY = 128\nVCPU = 2", false);
         assertTrue( res.getErrorMessage(), !res.isError() );
     }
 }

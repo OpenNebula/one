@@ -351,6 +351,8 @@ module OpenNebula
         #   disk will be saved
         # @param image_type [String] Type of the new image. Set to empty string
         #   to use the default type
+        # @param hot [true|false] True to save the disk immediately, false will
+        #   perform the operation when the VM shuts down
         #
         # @return [Integer, OpenNebula::Error] the new Image ID in case of
         #   success, error otherwise
@@ -369,17 +371,17 @@ module OpenNebula
 
         # Resize the VM
         #
-        # @param cpu [Float] the new CPU value
-        # @param memory [Integer] the new MEMORY value
-        # @param vcpu [Integer] the new VCPU value
+        # @param capacity_template [String] Template containing the new capacity
+        #   elements CPU, VCPU, MEMORY. If one of them is not present, or its
+        #   value is 0, it will not be resized
         # @param enforce [true|false] If it is set to true, the host capacity
         #   will be checked. This will only affect oneadmin requests, regular users
         #   resize requests will always be enforced
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def resize(cpu, memory, vcpu, enforce)
-            return call(VM_METHODS[:resize], @pe_id, cpu, memory, vcpu, enforce)
+        def resize(capacity_template, enforce)
+            return call(VM_METHODS[:resize], @pe_id, capacity_template, enforce)
         end
 
         # Changes the owner/group

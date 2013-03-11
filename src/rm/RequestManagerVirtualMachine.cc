@@ -1099,15 +1099,13 @@ void VirtualMachineDetach::request_execute(xmlrpc_c::paramList const& paramList,
 void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
                                            RequestAttributes& att)
 {
-    int   id      = xmlrpc_c::value_int(paramList.getInt(1));
-    float ncpu    = xmlrpc_c::value_double(paramList.getDouble(2));
-    int   nmemory = xmlrpc_c::value_int(paramList.getInt(3));
-    int   nvcpu   = xmlrpc_c::value_int(paramList.getInt(4));
-    bool  enforce_param = xmlrpc_c::value_boolean(paramList.getBoolean(5));
+    int     id              = xmlrpc_c::value_int(paramList.getInt(1));
+    string  str_tmpl        = xmlrpc_c::value_string(paramList.getString(2));
+    bool    enforce_param   = xmlrpc_c::value_boolean(paramList.getBoolean(3));
 
-    float ocpu, dcpu;
-    int   omemory, dmemory;
-    int   ovcpu;
+    float ncpu, ocpu, dcpu;
+    int   nmemory, omemory, dmemory;
+    int   nvcpu, ovcpu;
 
     Nebula&    nd    = Nebula::instance();
     UserPool*  upool = nd.get_upool();
@@ -1127,6 +1125,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
 
     VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
     VirtualMachine * vm;
+    VirtualMachineTemplate tmpl;
 
     bool enforce = true;
 
@@ -1135,8 +1134,20 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         enforce = enforce_param;
     }
 
+    // -------------------------------------------------------------------------
+    // Parse template
+    // -------------------------------------------------------------------------
+
+    rc = tmpl.parse_str_or_xml(str_tmpl, error_str);
+
+    if ( rc != 0 )
+    {
+        failure_response(INTERNAL, error_str, att);
+        return;
+    }
+
     /* ---------------------------------------------------------------------- */
-    /*  Authorize the operation                                               */
+    /*  Authorize the operation & restricted attributes                       */
     /* ---------------------------------------------------------------------- */
 
     if ( vm_authorization(id, 0, 0, att, 0, 0, auth_op) == false )
@@ -1144,9 +1155,30 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
+    if (att.uid != UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
+    {
+        string aname;
+
+        if (tmpl.check(aname))
+        {
+            ostringstream oss;
+
+            oss << "Template includes a restricted attribute " << aname;
+
+            failure_response(AUTHORIZATION,
+                    authorization_error(oss.str(), att),
+                    att);
+            return;
+        }
+    }
+
     /* ---------------------------------------------------------------------- */
     /*  Get the resize values                                                 */
     /* ---------------------------------------------------------------------- */
+
+    tmpl.get("CPU", ncpu);
+    tmpl.get("VCPU", nvcpu);
+    tmpl.get("MEMORY", nmemory);
 
     vm = vmpool->get(id, true);
 
