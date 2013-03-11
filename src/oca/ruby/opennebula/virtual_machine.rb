@@ -351,6 +351,8 @@ module OpenNebula
         #   disk will be saved
         # @param image_type [String] Type of the new image. Set to empty string
         #   to use the default type
+        # @param hot [true|false] True to save the disk immediately, false will
+        #   perform the operation when the VM shuts down
         #
         # @return [Integer, OpenNebula::Error] the new Image ID in case of
         #   success, error otherwise
