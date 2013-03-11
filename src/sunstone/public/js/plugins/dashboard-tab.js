@@ -199,6 +199,59 @@ var dashboard_tab_content = '\
 </div>\
 </div>\
   <div class="row">\
+    <div class="four columns">\
+      <div class="panel">\
+        <div class="row">\
+          <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="icon-upload"></i> '+tr("Storage")+'</span></h5>\
+        </div>\
+        <div class="row">\
+          <div class="twelve columns centered">\
+            <h3 class="subheader">\
+              <span id="total_images" class="subheader"/>\
+              <small>'+tr("IMAGES")+'</small>&emsp;\
+              <span id="size_images" class="subheader"/>\
+              <small>'+tr("USED")+'</small>\
+            </h3>\
+          </div>\
+        </div>\
+      </div>\
+    </div>\
+    <div class="four columns">\
+      <div class="panel">\
+        <div class="row">\
+          <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="icon-user"></i> '+tr("Users")+'</span></h5>\
+        </div>\
+        <div class="row">\
+          <div class="twelve columns centered">\
+            <h3 class="subheader">\
+              <span id="total_users" class="subheader"/>\
+              <small>'+tr("USERS")+'</small>&emsp;\
+              <span id="total_groups" class="subheader"/>\
+              <small>'+tr("GROUPS")+'</small>\
+            </h3>\
+          </div>\
+        </div>\
+      </div>\
+    </div>\
+    <div class="four columns">\
+      <div class="panel">\
+        <div class="row">\
+          <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="icon-sitemap"></i> '+tr("Network")+'</span></h5>\
+        </div>\
+        <div class="row">\
+          <div class="twelve columns centered">\
+            <h3 class="subheader">\
+              <span id="total_vnets" class="subheader"/>\
+              <small>'+tr("VNETS")+'</small>&emsp;\
+              <span id="addresses_vnets" class="subheader"/>\
+              <small>'+tr("ADDRESSES")+'</small>\
+            </h3>\
+          </div>\
+        </div>\
+      </div>\
+    </div>\
+  </div>\
+  <div class="row">\
     <div class="six columns">\
       <div class="panel dashboard-panel">\
         <div class="row">\
@@ -287,59 +340,6 @@ var dashboard_tab_content = '\
         </div>\
         <div class="row">\
           <div class="ten columns centered graph" id="dash_vm_net_tx_graph" style="height: 100px;">\
-          </div>\
-        </div>\
-      </div>\
-    </div>\
-  </div>\
-  <div class="row">\
-    <div class="four columns">\
-      <div class="panel">\
-        <div class="row">\
-          <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="icon-upload"></i> '+tr("Storage")+'</span></h5>\
-        </div>\
-        <div class="row">\
-          <div class="twelve columns centered">\
-            <h3 class="subheader">\
-              <span id="total_images" class="subheader"/>\
-              <small>'+tr("IMAGES")+'</small>&emsp;\
-              <span id="size_images" class="subheader"/>\
-              <small>'+tr("USED")+'</small>\
-            </h3>\
-          </div>\
-        </div>\
-      </div>\
-    </div>\
-    <div class="four columns">\
-      <div class="panel">\
-        <div class="row">\
-          <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="icon-user"></i> '+tr("Users")+'</span></h5>\
-        </div>\
-        <div class="row">\
-          <div class="twelve columns centered">\
-            <h3 class="subheader">\
-              <span id="total_users" class="subheader"/>\
-              <small>'+tr("USERS")+'</small>&emsp;\
-              <span id="total_groups" class="subheader"/>\
-              <small>'+tr("GROUPS")+'</small>\
-            </h3>\
-          </div>\
-        </div>\
-      </div>\
-    </div>\
-    <div class="four columns">\
-      <div class="panel">\
-        <div class="row">\
-          <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="icon-sitemap"></i> '+tr("Network")+'</span></h5>\
-        </div>\
-        <div class="row">\
-          <div class="twelve columns centered">\
-            <h3 class="subheader">\
-              <span id="total_vnets" class="subheader"/>\
-              <small>'+tr("VNETS")+'</small>&emsp;\
-              <span id="addresses_vnets" class="subheader"/>\
-              <small>'+tr("ADDRESSES")+'</small>\
-            </h3>\
           </div>\
         </div>\
       </div>\
