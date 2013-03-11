@@ -656,12 +656,12 @@ function updateDatastoreInfo(request,ds){
               <tr>\
                  <td class="key_td">'+tr("ID")+'</td>\
                  <td class="value_td">'+info.ID+'</td>\
-                <td></td>\
+                 <td></td>\
               </tr>\
               <tr>\
                  <td class="key_td">'+tr("Name")+'</td>\
                  <td class="value_td">'+info.NAME+'</td>\
-                <td></td>\
+                 <td></td>\
               </tr>\
               <tr>'+
               cluster_str  +
@@ -669,6 +669,7 @@ function updateDatastoreInfo(request,ds){
               <tr>\
                  <td class="key_td">'+tr("Base path")+'</td>\
                  <td class="value_td">'+info.BASE_PATH+'</td>\
+                 <td></td>\
               </tr>\
             </tbody>\
           </table>'
