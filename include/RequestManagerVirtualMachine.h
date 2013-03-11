@@ -258,7 +258,7 @@ public:
     VirtualMachineResize():
         RequestManagerVirtualMachine("VirtualMachineResize",
                            "Changes the capacity of the virtual machine",
-                           "A:sidiib"){};
+                           "A:sisb"){};
     ~VirtualMachineResize(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,

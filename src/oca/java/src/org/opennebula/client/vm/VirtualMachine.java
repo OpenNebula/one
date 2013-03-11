@@ -202,18 +202,18 @@ public class VirtualMachine extends PoolElement{
      *
      * @param client XML-RPC Client.
      * @param id The id of the target vm.
-     * @param cpu the new CPU value
-     * @param memory the new MEMORY value
-     * @param vcpu the new VCPU value
+     * @param capacityTemplate Template containing the new capacity
+     *   elements CPU, VCPU, MEMORY. If one of them is not present, or its
+     *   value is 0, it will not be resized
      * @param enforce If it is set to true, the host capacity
      *   will be checked. This will only affect oneadmin requests, regular users
      *   resize requests will always be enforced
      * @return If an error occurs the error message contains the reason.
      */
     public static OneResponse resize(Client client, int id,
-        double cpu, int memory, int vcpu, boolean enforce)
+        String capacityTemplate, boolean enforce)
     {
-        return client.call(RESIZE, id, cpu, memory, vcpu, enforce);
+        return client.call(RESIZE, id, capacityTemplate, enforce);
     }
 
     /**
@@ -672,17 +672,17 @@ public class VirtualMachine extends PoolElement{
     /**
      * Resizes this VM's capacity
      *
-     * @param cpu the new CPU value
-     * @param memory the new MEMORY value
-     * @param vcpu the new VCPU value
+     * @param capacityTemplate Template containing the new capacity
+     *   elements CPU, VCPU, MEMORY. If one of them is not present, or its
+     *   value is 0, it will not be resized
      * @param enforce If it is set to true, the host capacity
      *   will be checked. This will only affect oneadmin requests, regular users
      *   resize requests will always be enforced
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse resize(double cpu, int memory, int vcpu, boolean enforce)
+    public OneResponse resize(String capacityTemplate, boolean enforce)
     {
-        return client.call(RESIZE, id, cpu, memory, vcpu, enforce);
+        return client.call(RESIZE, id, capacityTemplate, enforce);
     }
 
     // =================================
