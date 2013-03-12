@@ -2461,11 +2461,6 @@ int VirtualMachine::get_image_from_disk(int disk_id, bool hot, string& err_str)
 
     num_disks = obj_template->get("DISK",disks);
 
-    if ( state == DONE || state == FAILED )
-    {
-        goto error_state;
-    }
-
     for(int i=0; i<num_disks; i++)
     {
         disk = dynamic_cast<VectorAttribute * >(disks[i]);
@@ -2506,10 +2501,6 @@ int VirtualMachine::get_image_from_disk(int disk_id, bool hot, string& err_str)
     }
 
     goto error_not_found;
-
-error_state:
-    oss << "VM cannot be in DONE or FAILED state.";
-    goto error_common;
 
 error_persistent:
     oss << "Source image for DISK " << disk_id << " is persistent.";
