@@ -927,7 +927,6 @@ void  LifeCycleManager::monitor_suspend_action(int vid)
 {
     VirtualMachine *    vm;
 
-    int     cpu,mem,disk;
     time_t  the_time = time(0);
 
     Nebula&             nd = Nebula::instance();
@@ -962,10 +961,6 @@ void  LifeCycleManager::monitor_suspend_action(int vid)
         vm->set_reason(History::STOP_RESUME);
 
         vmpool->update_history(vm);
-
-        vm->get_requirements(cpu,mem,disk);
-
-        hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
 
         vm->log("LCM", Log::INFO, "VM is suspended.");
 
