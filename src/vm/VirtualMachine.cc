@@ -1924,7 +1924,15 @@ VectorAttribute * VirtualMachine::set_up_attach_nic(
         return 0;
     }
 
-    new_nic = new VectorAttribute(*(dynamic_cast<VectorAttribute * >(nics[0])));
+    new_nic = dynamic_cast<VectorAttribute * >(nics[0]);
+
+    if ( new_nic == 0 )
+    {
+        error_str = "Internal error parsing NIC attribute";
+        return 0;
+    }
+
+    new_nic = new_nic->clone();
 
     // -------------------------------------------------------------------------
     // Acquire the new network lease
