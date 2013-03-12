@@ -509,29 +509,48 @@ void TransferManager::prolog_action(int vid)
 
     if ( num > 0 )
     {
+        string kernel;
+        string initrd;
+
+        bool update = false;
+
         const VectorAttribute * os_attr;
 
         os_attr = dynamic_cast<const VectorAttribute *>(attrs[0]);
 
-        string kernel = prolog_os_transfer_commands(vm,
-                                                    os_attr,
-                                                    "KERNEL",
-                                                    opennebula_hostname,
-                                                    xfr);
+        if (os_attr != 0 )
+        {
+            kernel = prolog_os_transfer_commands(
+                        vm,
+                        os_attr,
+                        "KERNEL",
+                        opennebula_hostname,
+                        xfr);
+
+            initrd = prolog_os_transfer_commands(
+                        vm,
+                        os_attr,
+                        "initrd",
+                        opennebula_hostname,
+                        xfr);
+        }
+
         if ( !kernel.empty() )
         {
             vm->set_kernel(kernel);
-            vmpool->update(vm);
+
+            update = true;
         }
 
-        string initrd = prolog_os_transfer_commands(vm,
-                                                    os_attr,
-                                                    "initrd",
-                                                    opennebula_hostname,
-                                                    xfr);
         if ( !initrd.empty() )
         {
             vm->set_initrd(initrd);
+
+            update = true;
+        }
+
+        if ( update )
+        {
             vmpool->update(vm);
         }
     }
