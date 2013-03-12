@@ -282,7 +282,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                   "the image #{image_name}"
 
         helper.perform_action(args[0],options,verbose) do |vm|
-            res = vm.save_as(disk_id, image_name, image_type, options[:hot])
+            res = vm.save_as(disk_id, image_name, image_type,
+                options[:hot]==true)
 
             if !OpenNebula.is_error?(res)
                 puts "Image ID: #{res}"
