@@ -327,7 +327,11 @@ $(document).ready(function(){
     $('.action_button').live("click",function(){
         var error = 0;
         var table = null;
-        var value = $(this).attr('value');
+        var value = $(this).val()
+        if ($.isEmptyObject(value)) {
+            value = $(this).attr('href');
+        }
+
         var action = SunstoneCfg["actions"][value];
         if (!action) {
             notifyError("Action "+value+" not defined.");
@@ -346,6 +350,7 @@ $(document).ready(function(){
             //proceed to close confirm dialog in
             //case it was open
             $('div#confirm_dialog').trigger('reveal:close');
+            $('.button.dropdown').find('ul').removeClass('show-dropdown');
         };
 
         return false;
@@ -675,41 +680,41 @@ function insertButtonsInTab(tab_name){
                 context = $("#create_buttons", buttons_row);
                 text = button.text ? '<i class="icon-plus-sign"/>  ' + button.text : '<i class="icon-plus-sign"/>  Create';
                 str_class.push("success", "button", "small", "radius");
-                button_code = '<button class="'+str_class.join(' ')+'" value="'+button_name+'">'+text+'</button>';
+                button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
             case "refresh":
                 context = $("#refresh_buttons", buttons_row);
                 text = '<i class="icon-refresh"/>';
                 str_class.push("secondary", "button", "small", "radius");
-                button_code = '<button class="'+str_class.join(' ')+'" value="'+button_name+'">'+text+'</button>';
+                button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
             case "main":
                 context = $("#main_buttons ul", buttons_row);
                 text = button.text;
                 str_class.push("secondary", "button", "small", "radius");
-                button_code = '<li><button type"button" class="'+str_class.join(' ')+'" value="'+button_name+'">'+text+'</button></li>';
+                button_code = '<li><button type"button" class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button></li>';
                 break;
             case "more_select":
                 context = $("#more_buttons ul", buttons_row);
                 text = button.text;
-                button_code = '<li><a class="'+str_class.join(' ')+'" value="'+button_name+'">'+text+'</a></li>';
+                button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "user_select":
                 context = $("#user_buttons ul", buttons_row);
                 text = button.text;
-                button_code = '<li><a class="'+str_class.join(' ')+'" value="'+button_name+'">'+text+'</a></li>';
+                button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "del":
                 context = $("#delete_buttons", buttons_row);
                 text = '<i class=" icon-trash"/>  Delete';
                 str_class.push("alert", "button", "small", "radius");
-                button_code = '<button class="'+str_class.join(' ')+'" value="'+button_name+'">'+text+'</button>';
+                button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
             default:
                 context = $("#main_buttons", buttons_row);
                 text = button.text;
                 str_class.push("secondary", "button", "small", "radius");
-                button_code = '<button class="'+str_class.join(' ')+'" value="'+button_name+'">'+text+'</button>';
+                button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
             }
 
             context.append(button_code);
@@ -840,24 +845,31 @@ function setupConfirmDialogs(){
     //enhace the button look
     //$('button',dialog).button();
 
-    //if a cancel button is pressed, we close the dialog.
-    $('button.confirm_cancel',dialog).click(function(){
-        $(this).parents('div#confirm_dialog').trigger('reveal:close');
-        return false;
-    });
 
     dialogs_context.append('<div id="confirm_with_select_dialog" title=\"'+tr("Confirmation of action")+'\"></div>');
     dialog = $('div#confirm_with_select_dialog',dialogs_context);
 
     dialog.html(
-        '<form action="javascript:alert(\'js error!\');">\
-           <div id="confirm_with_select_tip">'+tr("You need to select something.")+'</div>\
-           <select style="margin: 10px 0;" id="confirm_select">\
-           </select>\
+        '<div class="panel">\
+            <h3>\
+              <small>'+tr("Confirm")+'</small>\
+            </h3>\
+          </div>\
+          <form action="javascript:alert(\'js error!\');">\
+            <div class="row">\
+                <div id="confirm_with_select_tip">'+tr("You need to select something.")+'</div>\
+            </div>\
+            <div class="row">\
+                <select style="margin: 10px 0;" id="confirm_select">\
+                </select>\
+            </div>\
+            </div>\
+            <hr>\
            <div class="form_buttons">\
-              <button id="confirm_with_select_proceed" class="" value="">'+tr("OK")+'</button>\
-              <button class="confirm_cancel" value="">'+tr("Cancel")+'</button>\
+              <button id="confirm_with_select_proceed" class="action_button radius button right" value="">'+tr("OK")+'</button>\
+              <button class="confirm_cancel close-reveal-modal button radius secondary" value="">'+tr("Cancel")+'</button>\
            </div>\
+            <a class="close-reveal-modal">&#215;</a>\
          </form>');
 
     //prepare the jquery dialog
@@ -868,21 +880,15 @@ function setupConfirmDialogs(){
     //    heigth:300,
     //    autoOpen:false
     //});
-    dialog.addClass("reaveal-modal")
+    dialog.addClass("reveal-modal")
 
     //$('button',dialog).button();
-
-    //if a cancel button is pressed, we close the dialog.
-    $('button.confirm_cancel',dialog).click(function(){
-        $(this).parents('div:ui-dialog').trigger("reveal:close")
-        return false;
-    });
 
     //when we proceed with a "confirm with select" we need to
     //find out if we are running an action with a parametre on a datatable
     //items or if its just an action
     $('button#confirm_with_select_proceed',dialog).click(function(){
-        var context = $(this).parents('div:ui-dialog');
+        var context = $(this).parents('div.reveal-modal');
         var error = 0;
         var value = $(this).val();
         var action = SunstoneCfg["actions"][value];
@@ -906,6 +912,7 @@ function setupConfirmDialogs(){
 
         if (!error){
             context.trigger("reveal:close")
+            $('.button.dropdown').find('ul').removeClass('show-dropdown');
         }
 
         return false;
@@ -919,7 +926,7 @@ function setupConfirmDialogs(){
 //and with the value of the clicked element.
 function popUpConfirmDialog(target_elem){
     var dialog = $('div#confirm_dialog');
-    var value = $(target_elem).val();
+    var value = $(target_elem).attr('href');
     var tab_id = $(target_elem).parents('.tab').attr('id');
     var button = Sunstone.getButton(tab_id,value);
 
@@ -940,15 +947,15 @@ function popUpConfirmDialog(target_elem){
 //config of the button (a function returning the select options).
 function popUpConfirmWithSelectDialog(target_elem){
     var dialog = $('div#confirm_with_select_dialog');
-    var value = $(target_elem).val();
+    var value = $(target_elem).attr('href');
     var tab_id = $(target_elem).parents('.tab').attr('id');
     var button = Sunstone.getButton(tab_id,value);
     var tip = tr("You have to confirm this action");
 
-    //if (button.tip == undefined)
-    //    var tip = tr("You have to confirm this action");
-    //else
-    //    var tip = button.tip
+    if (button.tip == undefined)
+        var tip = tr("You have to confirm this action");
+    else
+        var tip = button.tip
 
     var select_var = button.select();
     $('select#confirm_select',dialog).html(select_var);
