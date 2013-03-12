@@ -1430,13 +1430,13 @@ function convert_template_to_string(template_json,unshown_values)
 }
 
 // Create the extended template table (with listeners)
-function insert_extended_template_table(template_json,resource_type,resource_id,unshown_values)
+function insert_extended_template_table(template_json,resource_type,resource_id,table_name,unshown_values)
 {
     var str = '<table id="'+resource_type.toLowerCase()+'_template_table" class="info_table twelve datatable extended_table">\
                  <thead>\
                    <tr>\
                      <th colspan="4">' +
-                      tr("Extended Template") +
+                      table_name +
                      '</th>\
                    </tr>\
                   </thead>\
@@ -1961,7 +1961,10 @@ function insert_permissions_table(resource_type,resource_id, owner, group, vm_ui
             if(value_str!="")
             {
                 // Let OpenNebula know
-                Sunstone.runAction(resource_type+".chown",resource_id,value_str);
+                var resource_struct = new Array();
+                resource_struct[0]  = resource_id;
+                Sunstone.runAction(resource_type+".chown",resource_struct,value_str);
+                Sunstone.runAction(resource_type+".showinfo",resource_id);
             }
         });
 
@@ -1984,7 +1987,10 @@ function insert_permissions_table(resource_type,resource_id, owner, group, vm_ui
             if(value_str!="")
             {
                 // Let OpenNebula know
-                Sunstone.runAction(resource_type+".chgrp",resource_id,value_str);
+                var resource_struct = new Array();
+                resource_struct[0]  = resource_id;
+                Sunstone.runAction(resource_type+".chgrp",resource_struct,value_str);
+                Sunstone.runAction(resource_type+".showinfo",resource_id);
             }
         });
     }
@@ -2033,6 +2039,44 @@ function insert_cluster_dropdown(resource_type, resource_id, cluster_value, clus
             var resource_struct = new Array();
             resource_struct[0]  = resource_id;
             Sunstone.runAction(resource_type+".addtocluster",resource_struct,value_str);
+            Sunstone.runAction(resource_type+".showinfo",resource_id);
+        }
+    });
+
+    return str;
+}
+
+function insert_group_dropdown(resource_type, resource_id, group_value, group_id){
+    var str =  '<td class="key_td">' + tr("Group") + '</td>\
+                <td class="value_td_group">'+ group_value +'</td>\
+                <td>\
+                  <div id="div_edit_chg_group">\
+                     <a id="div_edit_chg_group_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                  </div>\
+                </td>';
+
+    $("#div_edit_chg_group_link").die();
+    $("#group_confirm_select").die();
+
+
+    // Listener for key,value pair edit action
+    $("#div_edit_chg_group_link").live("click", function() {
+        var value_str = $(".value_td_group").text();
+        var select_str='<select style="margin: 10px 0;" id="group_confirm_select">';
+        select_str += makeSelectOptions(dataTable_groups,1,2,[],[],true);
+        select_str+="</select>";
+        $(".value_td_group").html(select_str);
+        $("select#group_confirm_select").val(group_id);
+    });
+
+    $("#group_confirm_select").live("change", function() {
+        var value_str = $('select#group_confirm_select').val();
+        if(value_str!="")
+        {
+            // Let OpenNebula know
+            var resource_struct = new Array();
+            resource_struct[0]  = resource_id;
+            Sunstone.runAction(resource_type+".chgrp",resource_struct,value_str);
             Sunstone.runAction(resource_type+".showinfo",resource_id);
         }
     });

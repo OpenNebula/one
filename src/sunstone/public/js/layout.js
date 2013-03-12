@@ -40,13 +40,6 @@ function showTab(tabname,highlight_tab){
     $('td').removeClass('markrowchecked markrowselected');
     last_select_row = null;
 
-    //if (last_selected_row)
-    //{
-    //    last_selected_row.children().each(function(){$(this).removeClass('markrowselected');});
-    //    $('.check_item',last_selected_row).removeAttr('checked');
-    //    last_select_row = null;
-    //}
-
     if (tabname.indexOf('#') == 0)
         tabname = tabname.substring(1);
     if (highlight_tab && highlight_tab.indexOf('#') == 0)

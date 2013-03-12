@@ -744,20 +744,21 @@ function updateUserInfo(request,user){
           <div class="six columns">\
           <table id="info_user_table" class="twelve datatable extended_table">\
             <thead>\
-               <tr><th colspan="2">' + tr("User information") + ' - '+user_info.NAME+'</th></tr>\
+               <tr><th colspan="2">' + tr("User information") + ' - '+user_info.NAME+'</th><th></th></tr>\
             </thead>\
             <tbody>\
             <tr>\
                 <td class="key_td">' + tr("ID") + '</td>\
                 <td class="value_td">'+user_info.ID+'</td>\
+                <td></td>\
             </tr>\
-            <tr>\
-                <td class="key_td">' + tr("Group") + '</td>\
-                <td class="value_td">'+user_info.GNAME+'</td>\
-            </tr>\
+            <tr>' +
+                insert_group_dropdown("User",user_info.ID,user_info.GNAME,user_info.GID) +
+            '</tr>\
             <tr>\
                 <td class="key_td">' + tr("Authentication driver") + '</td>\
                 <td class="value_td">'+user_info.AUTH_DRIVER+'</td>\
+                <td></td>\
             </tr>\
             </tbody>\
          </table>\
@@ -765,7 +766,8 @@ function updateUserInfo(request,user){
        <div class="six columns">' +
                insert_extended_template_table(user_info.TEMPLATE,
                                               "User",
-                                              user_info.ID) +
+                                              user_info.ID,
+                                              tr("Configuration Attributes")) +
        '</div>\
      </div>'
     };
