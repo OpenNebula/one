@@ -113,10 +113,12 @@ public:
 
     /**
      *  Enables the image
+     *    @param iid Image id
      *    @param to_enable true will enable the image.
+     *    @param error_str Error reason, if any
      *    @return 0 on success
      */
-    int enable_image(int iid, bool to_enable);
+    int enable_image(int iid, bool to_enable, string& error_str);
 
     /**
      *  Adds a new image to the repository copying or creating it as needed
@@ -155,9 +157,10 @@ public:
     /**
      *  Deletes an image from the repository and the DB
      *    @param iid id of image
+     *    @param error_str Error reason, if any
      *    @return 0 on success
      */
-    int delete_image(int iid, const string& ds_data);
+    int delete_image(int iid, const string& ds_data, string& error_str);
 
     /**
      *  Gets the size of an image by calling the STAT action of the associated

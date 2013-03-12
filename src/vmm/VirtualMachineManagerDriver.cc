@@ -403,7 +403,7 @@ void VirtualMachineManagerDriver::protocol(
 
         if ( result == "SUCCESS" )
         {
-            vm->log("VMM", Log::ERROR, "VM NIC Successfully attached.");
+            vm->log("VMM", Log::INFO, "VM NIC Successfully attached.");
 
             lcm->trigger(LifeCycleManager::ATTACH_NIC_SUCCESS, id);
         }
@@ -422,7 +422,7 @@ void VirtualMachineManagerDriver::protocol(
 
         if ( result == "SUCCESS" )
         {
-            vm->log("VMM",Log::ERROR,"VM NIC Successfully detached.");
+            vm->log("VMM",Log::INFO, "VM NIC Successfully detached.");
 
             lcm->trigger(LifeCycleManager::DETACH_NIC_SUCCESS, id);
         }

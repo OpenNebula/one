@@ -174,7 +174,7 @@ int ImageDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 
     ds->unlock();
 
-    rc = imagem->delete_image(oid, ds_data);
+    rc = imagem->delete_image(oid, ds_data, error_msg);
 
     if ( rc == 0 )
     {

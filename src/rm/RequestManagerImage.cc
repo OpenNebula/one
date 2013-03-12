@@ -38,17 +38,17 @@ void ImageEnable::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    rc = imagem->enable_image(id,enable_flag);
+    rc = imagem->enable_image(id,enable_flag, err_msg);
 
     if( rc < 0 )
     {
         if (enable_flag == true)
         {
-            err_msg = "Could not enable image.";
+            err_msg = "Could not enable image: " + err_msg;
         }
         else
         {
-            err_msg = "Could not disable image.";
+            err_msg = "Could not disable image: " + err_msg;
         }
 
         failure_response(INTERNAL, request_error(err_msg,""), att);
