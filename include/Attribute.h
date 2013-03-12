@@ -393,7 +393,7 @@ public:
     /**
      *  Clones the current attribute
      */
-    Attribute* clone() const
+    VectorAttribute* clone() const
     {
         return new VectorAttribute(*this);
     };
