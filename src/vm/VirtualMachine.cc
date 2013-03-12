@@ -1260,7 +1260,15 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
         return 0;
     }
 
-    new_disk = new VectorAttribute(*(dynamic_cast<VectorAttribute * >(disks[0])));
+    new_disk = dynamic_cast<VectorAttribute * >(disks[0]);
+
+    if ( new_disk == 0 )
+    {
+        error_str = "Internal error parsing DISK attribute";
+        return 0;
+    }
+
+    new_disk = new_disk->clone();
 
     // -------------------------------------------------------------------------
     // Acquire the new disk image
