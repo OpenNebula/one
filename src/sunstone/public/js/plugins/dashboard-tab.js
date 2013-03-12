@@ -198,6 +198,7 @@ var dashboard_tab_content = '\
   </div>\
 </div>\
 </div>\
+<br>\
   <div class="row">\
     <div class="four columns">\
       <div class="panel">\
@@ -251,6 +252,7 @@ var dashboard_tab_content = '\
       </div>\
     </div>\
   </div>\
+  <br>\
   <div class="row">\
     <div class="six columns">\
       <div class="panel dashboard-panel">\
@@ -271,16 +273,12 @@ var dashboard_tab_content = '\
             </h3>\
           </div>\
         </div>\
-        <br>\
         <div class="row graph_legend">\
           <h3 class="subheader"><small>'+tr("CPU")+'</small></h3>\
         </div>\
         <div class="row">\
           <div class="ten columns centered graph" id="dash_host_cpu_graph" style="height: 100px;">\
           </div>\
-        </div>\
-        <div class="row graph_legend">\
-          <div class="ten columns centered" id="dash_host_cpu_legend" ></div>\
         </div>\
         <div class="row graph_legend">\
           <h3 class="subheader"><small>'+tr("MEMORY")+'</small></h3>\
@@ -309,20 +307,11 @@ var dashboard_tab_content = '\
               <small>'+tr("ACTIVE")+'</small>&emsp;\
               <span id="pending_vms" class="subheader"/>\
               <small>'+tr("PENDING")+'</small>&emsp;\
-            </h3>\
-          </div>\
-        </div>\
-        <div class="row">\
-          <div class="twelve columns centered">\
-            <h3 class="subheader">\
-              <span id="off_vms" class="subheader"/>\
-              <small>'+tr("STOPPED")+'</small>&emsp;\
               <span id="failed_vms" class="subheader"/>\
               <small>'+tr("FAILED")+'</small>\
             </h3>\
           </div>\
         </div>\
-        <br>\
         <div class="row  graph_legend">\
           <h3 class="subheader"><small>'+tr("NET DOWNLOAD SPEED")+'</small></h3>\
           <div class="ten columns " id="dash_vm_net_rx_legend">\
@@ -332,7 +321,6 @@ var dashboard_tab_content = '\
           <div class="ten columns centered graph" id="dash_vm_net_rx_graph"  style="height: 100px;">\
           </div>\
         </div>\
-        <br>\
         <div class="row graph_legend">\
           <h3 class="subheader"><small>'+tr("NET UPLOAD SPEED")+'</small></h3>\
           <div class="ten columns" id="dash_vm_net_tx_legend">\

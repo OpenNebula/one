@@ -271,7 +271,7 @@ var create_datastore_tmpl =
   <div class="form_buttons">\
       <button class="button radius right success" type="submit" id="create_datastore_submit" value="OpenNebula.Datastore.create">' + tr("Create") + '</button>\
       <button class="button radius secondary" type="reset" value="reset">' + tr("Reset") + '</button>\
-      <button class="close-reveal-modal button secondary radius" type="close" value="close">' + tr("Close") + '</button>\
+      <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
   </div>\
   <a class="close-reveal-modal">&#215;</a>\
 </div>';

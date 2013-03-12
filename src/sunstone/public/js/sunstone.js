@@ -819,7 +819,7 @@ function setupConfirmDialogs(){
               <small>'+tr("Confirm")+'</small>\
             </h3>\
           </div>\
-        <form action="javascript:alert(\'js error!\');">\
+        <form action="">\
            <div id="confirm_tip">'+tr("You have to confirm this action.")+'</div>\
            <br />\
            <div id="question">'+tr("Do you want to proceed?")+'</div>\
@@ -855,7 +855,7 @@ function setupConfirmDialogs(){
               <small>'+tr("Confirm")+'</small>\
             </h3>\
           </div>\
-          <form action="javascript:alert(\'js error!\');">\
+          <form action="">\
             <div class="row">\
                 <div id="confirm_with_select_tip">'+tr("You need to select something.")+'</div>\
             </div>\

@@ -159,7 +159,7 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
         <button class="button success right radius" type="submit" id="create_cluster_submit" value="OpenNebula.Cluster.create">' + tr("Create") + '</button>\
         <button class="button right radius" type="submit" id="update_cluster_submit">' + tr("Update") + '</button>\
         <button class="button secondary radius" type="reset" value="reset">' + tr("Reset") + '</button>\
-        <button class="close-reveal-modal button secondary radius" type="close" value="close">' + tr("Close") + '</button>\
+        <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
     </div>\
         <a class="close-reveal-modal">&#215;</a>\
 </div>';

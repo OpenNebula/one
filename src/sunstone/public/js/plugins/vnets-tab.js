@@ -328,7 +328,7 @@ var create_vn_tmpl =
              '+tr("Create")+'\
           </button>\
           <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
-          <button class="close-reveal-modal button secondary radius" type="close" value="close">' + tr("Close") + '</button>\
+          <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
         </div>\
       </li>\
       <li id="manualTab">\
@@ -341,7 +341,7 @@ var create_vn_tmpl =
                    '+tr("Create")+'\
                 </button>\
                 <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
-                <button class="close-reveal-modal button secondary radius" type="close" value="close">' + tr("Close") + '</button>\
+                <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
                 </div>\
         </li>\
     </ul>\

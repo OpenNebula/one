@@ -115,7 +115,7 @@ var create_group_tmpl =
       <hr>\
       <div class="form_buttons">\
         <button class="button radius right success" id="create_group_submit" value="Group.create">'+tr("Create")+'</button>\
-        <button class="close-reveal-modal button secondary radius" type="close" value="close">' + tr("Close") + '</button>\
+        <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
       </div>\
   <a class="close-reveal-modal">&#215;</a>\
 </form>';
@@ -273,7 +273,7 @@ var group_quotas_tmpl = '<div class="panel">\
       <hr>\
       <div class="form_buttons">\
           <button class="button radius right success" id="create_user_submit" type="submit" value="Group.set_quota">'+tr("Apply changes")+'</button>\
-          <button class="close-reveal-modal button secondary radius" type="close" value="close">' + tr("Close") + '</button>\
+          <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
       </div>\
   <a class="close-reveal-modal">&#215;</a>\
 </form>';
