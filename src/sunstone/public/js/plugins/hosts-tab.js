@@ -811,7 +811,7 @@ function updateHostInfo(request,host){
     var info_tab = {
         title : tr("Information"),
         content :
-        '<div class="row">\
+        '<div class="">\
         <div class="six columns">\
         <table id="info_host_table" class="twelve datatable extended_table">\
             <thead>\

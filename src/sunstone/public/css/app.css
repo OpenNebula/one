@@ -6769,3 +6769,8 @@ a.footer.button {
 .dashboard-panel {
   height: 517px;
 }
+
+/* line 769, ../sass/app.scss */
+.vm_log_error {
+  color: #c0392b;
+}

@@ -374,10 +374,10 @@ var vm_actions = {
                 if (line.match(/\[E\]/)){
                     line = '<span class="vm_log_error">'+line+'</span>';
                 }
-                colored_log += line + "\n";
+                colored_log += line + "<br>";
             }
 
-            $('#vm_log_tab').html('<pre>'+colored_log+'</pre>')
+            $('#vm_log_tabTab').html('<div class=""><div class="twelve columns">'+colored_log+'</div></div>')
         },
         error: function(request,error_json){
             $("#vm_log pre").html('');
