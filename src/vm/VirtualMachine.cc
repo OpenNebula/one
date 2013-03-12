@@ -70,7 +70,7 @@ VirtualMachine::VirtualMachine(int           id,
     }
     else
     {
-        user_obj_template = new Template(false,'=',"USER_TEMPLATE");
+        user_obj_template = new VirtualMachineTemplate(false,'=',"USER_TEMPLATE");
     }
 
     obj_template = new VirtualMachineTemplate;
@@ -3143,9 +3143,13 @@ void VirtualMachine::update_info(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::replace_template(const string& tmpl_str, string& error)
+int VirtualMachine::replace_template(
+        const string&   tmpl_str,
+        bool            keep_restricted,
+        string&         error)
 {
-    Template * new_tmpl  = new Template(false,'=',"USER_TEMPLATE");
+    VirtualMachineTemplate * new_tmpl =
+            new VirtualMachineTemplate(false,'=',"USER_TEMPLATE");
 
     if ( new_tmpl == 0 )
     {
@@ -3159,10 +3163,20 @@ int VirtualMachine::replace_template(const string& tmpl_str, string& error)
         return -1;
     }
 
-    if (user_obj_template != 0)
+    if (keep_restricted)
     {
-        delete user_obj_template;
+        new_tmpl->remove_restricted();
+
+        if (user_obj_template != 0)
+        {
+            user_obj_template->remove_all_except_restricted();
+
+            string aux_error;
+            new_tmpl->merge(user_obj_template, aux_error);
+        }
     }
+
+    delete user_obj_template;
 
     user_obj_template = new_tmpl;
 

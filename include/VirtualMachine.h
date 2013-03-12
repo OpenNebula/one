@@ -691,10 +691,12 @@ public:
     /**
      *  This function replaces the *user template*.
      *    @param tmpl_str new contents
+     *    @param keep_restricted If true, the restricted attributes of the
+     *    current template will override the new template
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int replace_template(const string& tmpl_str, string& error);
+    int replace_template(const string& tmpl_str, bool keep_restricted, string& error);
 
     void get_user_template_attribute(
         const char * name,
@@ -1207,7 +1209,7 @@ private:
      *  User template to store custom metadata. This template can be updated
      *
      */
-    Template * user_obj_template;
+    VirtualMachineTemplate * user_obj_template;
 
     // *************************************************************************
     // DataBase implementation (Private)

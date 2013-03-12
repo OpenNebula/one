@@ -32,6 +32,12 @@ public:
     VirtualMachineTemplate():
         Template(false,'=',"TEMPLATE"){};
 
+    VirtualMachineTemplate(
+            bool _replace_mode,
+            const char   _separator,
+            const char * _xml_root):
+        Template(_replace_mode, _separator, _xml_root){};
+
     ~VirtualMachineTemplate(){};
 
     VirtualMachineTemplate(VirtualMachineTemplate& vmt):Template(vmt){};
@@ -50,6 +56,16 @@ public:
     {
         Template::set_xml_root(_xml_root);
     };
+
+    /**
+     * Deletes all restricted attributes
+     */
+    void remove_restricted();
+
+    /**
+     * Deletes all the attributes, excepts the restricted ones
+     */
+    void remove_all_except_restricted();
 
 private:
 
