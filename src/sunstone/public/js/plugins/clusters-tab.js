@@ -1422,17 +1422,35 @@ function updateClusterInfo(request,cluster){
 
     var cluster_host_tab = {
         title: tr("Hosts"),
-        content : '<div id="datatable_cluster_hosts_info_div"><table id="datatable_cluster_hosts_info_panel" class="table twelve">' + host_datatable_table_tmpl + '</table></div>'
+        content : '<div class="">\
+          <div id="datatable_cluster_hosts_info_div columns twelve">\
+            <table id="datatable_cluster_hosts_info_panel" class="table twelve">' + 
+              host_datatable_table_tmpl + 
+            '</table>\
+          </div>\
+        </div>'
     }
 
     var cluster_vnet_tab = {
         title: tr("Virtual Networks"),
-        content : '<div id="datatable_cluster_vnets_info_div"><table id="datatable_cluster_vnets_info_panel" class="table twelve">' + vnet_datatable_table_tmpl + '</table></div>'
+        content : '<div class="">\
+          <div id="datatable_cluster_vnets_info_div columns twelve">\
+            <table id="datatable_cluster_vnets_info_panel" class="table twelve">' + 
+              vnet_datatable_table_tmpl + 
+            '</table>\
+          </div>\
+        </div>'
     }
 
     var cluster_datastore_tab = {
         title: tr("Datastores"),
-        content : '<div id="datatable_cluster_datastores_info_div"><table id="datatable_cluster_datastores_info_panel" class="table twelve">' + datastore_datatable_table_tmpl + '</table></div>'
+        content : '<div class="">\
+          <div id="datatable_cluster_datastores_info_div columns twelve">\
+            <table id="datatable_cluster_datastores_info_panel" class="table twelve">' + 
+              datastore_datatable_table_tmpl + 
+            '</table>\
+          </div>\
+        </div>'
     }
 
     //Sunstone.updateInfoPanelTab(info_panel_name,tab_name, new tab object);

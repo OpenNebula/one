@@ -1012,7 +1012,9 @@ function updateVMachinesView(request, vmachine_list){
 // Some calculations are performed, inspired from what is done
 // in the CLI
 function generateHistoryTable(vm){
-    var html = ' <table id="vm_history_table" class="info_table" style="width:80%">\
+    var html = ' <div class="">\
+          <div id="datatable_cluster_vnets_info_div columns twelve">\
+          <table id="vm_history_table" class="extended_table twelve">\
                    <thead>\
                      <tr>\
                          <th>'+tr("Sequence")+'</th>\
@@ -1069,7 +1071,9 @@ function generateHistoryTable(vm){
                       </tr>'
     };
     html += '</tbody>\
-                </table>';
+                </table>\
+          </div>\
+        </div>';
     return html;
 
 };
