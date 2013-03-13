@@ -1375,17 +1375,21 @@ function printDisks(vm_info){
    var html ='\
      <div class="">\
         <div id="datatable_cluster_vnets_info_div columns twelve">\
-           <form id="hotplugging_form" vmid="'+vm_info.ID+'" >'
+           <form id="hotplugging_form" vmid="'+vm_info.ID+'" >\
+              <div class="twelve columns">\
+                <div id="refresh_disk" class="button small secondary radius" ><i class="icon-refresh"/></div>\
+                  '
 
     // If VM is not RUNNING, then we forget about the attach disk form.
     if (vm_info.STATE == "3"){
       html += '\
-        <div class="twelve columns">\
-         <div id="attach_disk" class="button small secondary radius" >' + tr("Attach new disk") +'</div>\
-        </div>\
-        <br>\
-        <br>'
+         <div id="attach_disk" class="button small secondary radius" >' + tr("Attach new disk") +'</div>'
     }
+
+    html += '\
+      </div>\
+      <br>\
+      <br>'
 
     html += '\
       <div class="twelve columns">\
@@ -1419,13 +1423,21 @@ function printDisks(vm_info){
 
         for (var i = 0; i < disks.length; i++){
             var disk = disks[i];
+
+            var save_as;
+            if (vm_info.STATE == "3" && vm_info.LCM_STATE == "26") {
+              save_as = "in progress";
+            } else {
+              save_as = (disk.SAVE_AS ? disk.SAVE_AS : '-');
+            }
+
             html += '\
               <tr disk_id="'+(disk.DISK_ID)+'">\
                 <td>' + disk.DISK_ID + '</td>\
                 <td>' + disk.TARGET + '</td>\
                 <td>' + (disk.IMAGE ? disk.IMAGE : (disk.FORMAT ? (disk.FORMAT + ' - ') : + humanize_size_from_mb(disk.SIZE))) + '</td>\
                 <td>' + ((disk.SAVE && disk.SAVE == 'YES' )? tr('YES') : tr('NO')) + '</td>\
-                <td>' + (disk.SAVE_AS ? disk.SAVE_AS : '-') + '</td>\
+                <td>' + save_as + '</td>\
                 <td>\
                   <a href="VM.saveas" class="saveas" ><i class="icon-save"/>'+tr("Snapshot")+'</a> &emsp;\
                   <a href="VM.detachdisk" class="detachdisk" ><i class="icon-remove"/>'+tr("Detach")+'</a>\
@@ -1481,7 +1493,7 @@ function setupSaveAsDialog(){
               <label class="inline right" for="image_name">'+tr("Image name")+':</label>\
           </div>\
           <div class="seven columns">\
-              <input type="password" name="image_name" id="image_name" />\
+              <input type="text" name="image_name" id="image_name" />\
           </div>\
           <div class="one columns">\
               <div class=""></div>\
@@ -1493,8 +1505,8 @@ function setupSaveAsDialog(){
           </div>\
           <div class="seven columns">\
             <select name="snapshot_type" id="snapshot_type">\
-                 <option value="VM.saveas" selected="selected">'+tr("Life")+'</option>\
-                 <option value="VM.saveas">'+tr("Deferred")+'</option>\
+                 <option value="false" selected="selected">'+tr("Deferred")+'</option>\
+                 <option value="true">'+tr("Hot")+'</option>\
             </select>\
           </div>\
           <div class="one columns">\
@@ -1517,6 +1529,7 @@ function setupSaveAsDialog(){
     $('#save_as_form',dialog).submit(function(){
         var vm_id = $('#vm_id', this).val();
         var image_name = $('#image_name', this).val();
+        var snapshot_type = $('#snapshot_type', this).val();
 
         if (!image_name.length){
             notifyError('Please provide a name for the new image');
@@ -1526,7 +1539,8 @@ function setupSaveAsDialog(){
         var obj = {
             disk_id : $('#disk_id', this).val(),
             image_name : image_name,
-            type: ""
+            type: "",
+            hot: (snapshot_type == "true" ? true : false)
         };
 
         Sunstone.runAction('VM.saveas', vm_id, obj);
@@ -1638,6 +1652,14 @@ function hotpluggingOps(){
         popUpAttachDiskDialog(vm_id);
 
         //b.html(spinner);
+        return false;
+    }); 
+
+    $('#refresh_disk').live('click', function(){
+        var b = $(this);
+        var vm_id = b.parents('form').attr('vmid');
+        Sunstone.runAction("VM.showdisks", vm_id);
+
         return false;
     }); 
 
