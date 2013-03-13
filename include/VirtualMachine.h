@@ -1436,6 +1436,14 @@ protected:
         NebulaLog::log("ONE",Log::ERROR, "VM Drop not implemented!");
         return -1;
     }
+
+    // *************************************************************************
+    // Helpers
+    // *************************************************************************
+
+    VectorAttribute* get_disk(const string& disk_id);
+
+    VectorAttribute* get_disk(int disk_id);
 };
 
 #endif /*VIRTUAL_MACHINE_H_*/
