@@ -2528,11 +2528,11 @@ int VirtualMachine::set_saveas_state(int disk_id, bool hot)
     {
         if (hot)
         {
-            disk->replace("SAVE_AS_ACTIVE", "YES");
+            disk->replace("HOTPLUG_SAVE_AS_ACTIVE", "YES");
         }
         else
         {
-            disk->replace("HOTPLUG_SAVE_AS_ACTIVE", "YES");
+            disk->replace("SAVE_AS_ACTIVE", "YES");
         }
     }
 
