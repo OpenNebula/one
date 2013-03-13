@@ -1493,17 +1493,15 @@ void LifeCycleManager::saveas_hot_success_action(int vid)
         return;
     }
 
-    if (vm->clear_saveas_state() == -1)
+    int rc = vm->get_saveas_disk_hot(disk_id, source, image_id);
+
+    if (vm->clear_saveas_state(disk_id, true) == -1)
     {
         vm->log("LCM", Log::ERROR, "saveas_hot_success_action, VM in a wrong state");
         vm->unlock();
 
         return;
     }
-
-    int rc = vm->get_saveas_disk_hot(disk_id, source, image_id);
-
-    vm->clear_saveas_disk_hot();
 
     vmpool->update(vm);
 
@@ -1550,17 +1548,15 @@ void LifeCycleManager::saveas_hot_failure_action(int vid)
         return;
     }
 
-    if (vm->clear_saveas_state() == -1)
+    int rc = vm->get_saveas_disk_hot(disk_id, source, image_id);
+
+    if (vm->clear_saveas_state(disk_id, true) == -1)
     {
         vm->log("LCM", Log::ERROR, "saveas_hot_success_action, VM in a wrong state");
         vm->unlock();
 
         return;
     }
-
-    int rc = vm->get_saveas_disk_hot(disk_id, source, image_id);
-
-    vm->clear_saveas_disk_hot();
 
     vmpool->update(vm);
 

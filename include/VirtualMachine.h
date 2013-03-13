@@ -876,7 +876,7 @@ public:
      *    @param hot is this a save_as hot operation
      *    @return 0 if the VM was in a SAVE_AS state
      */
-     int clear_saveas_state();
+     int clear_saveas_state(int disk_id, bool hot);
 
     /**
      *  Set the SAVE_AS attribute for the "disk_id"th disk.
@@ -884,7 +884,7 @@ public:
      *    @param  source to save the disk (SAVE_AS_SOURCE)
      *    @param  img_id ID of the image this disk will be saved to (SAVE_AS).
      */
-    int save_disk(const string& disk_id,
+    int save_disk(int disk_id,
                   const string& source,
                   int img_id);
 
@@ -894,7 +894,7 @@ public:
      *    @param  source to save the disk (SAVE_AS_SOURCE)
      *    @param  img_id ID of the image this disk will be saved to (SAVE_AS).
      */
-    int save_disk_hot(const string& disk_id,
+    int save_disk_hot(int disk_id,
                       const string& source,
                       int img_id);
     /**
@@ -905,28 +905,6 @@ public:
      *    @return -1 if failure
      */
     int get_saveas_disk_hot(int& disk_id, string& source, int& image_id);
-
-    /**
-     * Cleans the HOTPLUG_SAVE_AS_ACTIVE = YES attribute from the disks
-     */
-    void clear_saveas_disk_hot();
-
-    /**
-     * Cleans the SAVE_AS_ACTIVE = YES attribute from the disks
-     */
-    void clear_saveas_disk();
-
-    void clear_saveas_disk(bool hot)
-    {
-        if (hot)
-        {
-            clear_saveas_disk_hot();
-        }
-        else
-        {
-            clear_saveas_disk();
-        }
-    }
 
     // ------------------------------------------------------------------------
     // Authorization related functions
@@ -1461,8 +1439,6 @@ protected:
     // *************************************************************************
     // Helpers
     // *************************************************************************
-
-    VectorAttribute* get_disk(const string& disk_id);
 
     VectorAttribute* get_disk(int disk_id);
 };

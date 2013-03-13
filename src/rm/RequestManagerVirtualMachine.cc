@@ -748,8 +748,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     if ( iid_orig == -1 )
     {
-        vm->clear_saveas_state();
-        vm->clear_saveas_disk(is_hot);
+        vm->clear_saveas_state(disk_id, is_hot);
 
         vm->unlock();
 
@@ -776,8 +775,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
         if ((vm = vmpool->get(id, true)) != 0)
         {
-            vm->clear_saveas_state();
-            vm->clear_saveas_disk(is_hot);
+            vm->clear_saveas_state(disk_id, is_hot);
 
             vmpool->update(vm);
             vm->unlock();
@@ -809,8 +807,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
         if ((vm = vmpool->get(id, true)) != 0)
         {
-            vm->clear_saveas_state();
-            vm->clear_saveas_disk(is_hot);
+            vm->clear_saveas_state(disk_id, is_hot);
 
             vmpool->update(vm);
             vm->unlock();
@@ -908,8 +905,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
         if ((vm = vmpool->get(id, true)) != 0)
         {
-            vm->clear_saveas_state();
-            vm->clear_saveas_disk(is_hot);
+            vm->clear_saveas_state(disk_id, is_hot);
 
             vmpool->update(vm);
             vm->unlock();
@@ -941,8 +937,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
         if ((vm = vmpool->get(id, true)) != 0)
         {
-            vm->clear_saveas_state();
-            vm->clear_saveas_disk(is_hot);
+            vm->clear_saveas_state(disk_id, is_hot);
 
             vmpool->update(vm);
             vm->unlock();
