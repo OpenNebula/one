@@ -824,45 +824,42 @@ function updateTemplateInfo(request,template){
     var info_tab = {
         title: tr("Information"),
         content:
-        '<table id="info_template_table" class="info_table" style="width:80%">\
-           <thead>\
-             <tr><th colspan="2">'+tr("Template")+' \"'+template_info.NAME+'\" '+
-            tr("information")+'</th></tr>\
-           </thead>\
-           <tr>\
-             <td class="key_td">'+tr("ID")+'</td>\
-             <td class="value_td">'+template_info.ID+'</td>\
-           </tr>\
-           <tr>\
-             <td class="key_td">'+tr("Name")+'</td>\
-             <td class="value_td">'+template_info.NAME+'</td>\
-           </tr>\
-           <tr>\
-             <td class="key_td">'+tr("Owner")+'</td>\
-             <td class="value_td">'+template_info.UNAME+'</td>\
-           </tr>\
-           <tr>\
-             <td class="key_td">'+tr("Group")+'</td>\
-             <td class="value_td">'+template_info.GNAME+'</td>\
-           </tr>\
-           <tr>\
-             <td class="key_td">'+tr("Register time")+'</td>\
-             <td class="value_td">'+pretty_time(template_info.REGTIME)+'</td>\
-           </tr>\
-           <tr><td class="key_td">'+tr("Permissions")+'</td><td></td></tr>\
-           <tr>\
-             <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Owner")+'</td>\
-             <td class="value_td" style="font-family:monospace;">'+ownerPermStr(template_info)+'</td>\
-           </tr>\
-           <tr>\
-             <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Group")+'</td>\
-             <td class="value_td" style="font-family:monospace;">'+groupPermStr(template_info)+'</td>\
-           </tr>\
-           <tr>\
-             <td class="key_td"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Other")+'</td>\
-             <td class="value_td" style="font-family:monospace;">'+otherPermStr(template_info)+'</td>\
-           </tr>\
-         </table>'
+        '<div class="six columns">\
+          <table id="info_template_table" class="info_table" style="width:80%">\
+             <thead>\
+               <tr><th colspan="2">'+tr("Template")+' \"'+template_info.NAME+'\" '+
+              tr("information")+'</th></tr>\
+             </thead>\
+             <tr>\
+               <td class="key_td">'+tr("ID")+'</td>\
+               <td class="value_td">'+template_info.ID+'</td>\
+             </tr>\
+             <tr>\
+               <td class="key_td">'+tr("Name")+'</td>\
+               <td class="value_td">'+template_info.NAME+'</td>\
+             </tr>\
+             <tr>\
+               <td class="key_td">'+tr("Owner")+'</td>\
+               <td class="value_td">'+template_info.UNAME+'</td>\
+             </tr>\
+             <tr>\
+               <td class="key_td">'+tr("Group")+'</td>\
+               <td class="value_td">'+template_info.GNAME+'</td>\
+             </tr>\
+             <tr>\
+               <td class="key_td">'+tr("Register time")+'</td>\
+               <td class="value_td">'+pretty_time(template_info.REGTIME)+'</td>\
+             </tr>\
+            </table>\
+        </div>\
+        <div class="six columns">' + insert_permissions_table("Template",
+                                                              template_info.ID,
+                                                              template_info.UNAME,
+                                                              template_info.GNAME,
+                                                              template_info.UID,
+                                                              template_info.GID) +
+        '</div>\
+      </div>'
     };
     var template_tab = {
         title: tr("Template"),

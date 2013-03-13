@@ -1500,9 +1500,12 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
         var ocurrence=null;
 
         if (list_of_classes.length!=1)
-            for (var current_class in list_of_classes)
-                if (list_of_classes[current_class].match(/^ocurrence_/))
-                    ocurrence=list_of_classes[current_class].substring(10,list_of_classes[current_class].length);
+        {
+                $.each(list_of_classes, function(index, value) {
+                    if (value.match(/^ocurrence_/))
+                        ocurrence=value.substring(10,value.length);;
+                });
+        }
 
         // Erase the value from the template
         if(ocurrence!=null)
@@ -1550,14 +1553,20 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
         var vectorial_key   = null;
 
         if (list_of_classes.length!=1)
-            for (var current_class in list_of_classes)
-                if (list_of_classes[current_class].match(/^ocurrence_/))
-                    ocurrence+=list_of_classes[current_class]+" ";
+        {
+                $.each(list_of_classes, function(index, value) {
+                    if (value.match(/^ocurrence_/))
+                        ocurrence+=value+" ";
+                });
+        }
 
         if (list_of_classes.length!=1)
-            for (var current_class in list_of_classes)
-                if (list_of_classes[current_class].match(/^vectorial_key_/))
-                    vectorial_key=list_of_classes[current_class];
+        {
+                $.each(list_of_classes, function(index, value) {
+                    if (value.match(/^vectorial_key_/))
+                        vectorial_key=value;
+                });
+        }
 
 
         if (ocurrence!=" ")
@@ -1584,14 +1593,20 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
         var vectorial_key    = null;
 
         if (list_of_classes.length!=1)
-            for (var current_class in list_of_classes)
-                if (list_of_classes[current_class].match(/^ocurrence_/))
-                    ocurrence=list_of_classes[current_class].substring(10,list_of_classes[current_class].length);
+        {
+                $.each(list_of_classes, function(index, value) {
+                    if (value.match(/^ocurrence_/))
+                        ocurrence=value.substring(10,value.length);
+                });
+        }
 
         if (list_of_classes.length!=1)
-            for (var current_class in list_of_classes)
-                if (list_of_classes[current_class].match(/^vectorial_key_/))
-                    vectorial_key=list_of_classes[current_class].substring(14,list_of_classes[current_class].length);
+        {
+                $.each(list_of_classes, function(index, value) {
+                    if (value.match(/^vectorial_key_/))
+                        vectorial_key=value.substring(14,value.length);
+                });
+        }
 
         if (ocurrence!=null)
             template_json[vectorial_key][ocurrence][key_str]=value_str;
@@ -1615,14 +1630,20 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
         var vectorial_key   = null;
 
         if (list_of_classes.length!=1)
-            for (var current_class in list_of_classes)
-                if (list_of_classes[current_class].match(/^ocurrence_/))
-                    ocurrence=list_of_classes[current_class].substring(10,list_of_classes[current_class].length);
+        {
+                $.each(list_of_classes, function(index, value) {
+                    if (value.match(/^ocurrence_/))
+                        ocurrence=value.substring(10,value.length);
+                });
+        }
 
         if (list_of_classes.length!=1)
-            for (var current_class in list_of_classes)
-                if (list_of_classes[current_class].match(/^vectorial_key_/))
-                    vectorial_key=list_of_classes[current_class].substring(14,list_of_classes[current_class].length);
+        {
+                $.each(list_of_classes, function(index, value) {
+                    if (value.match(/^vectorial_key_/))
+                        vectorial_key=value.substring(14,value.length);
+                });
+        }
 
         // Erase the value from the template
         if(ocurrence!=null)
@@ -1646,14 +1667,20 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
             var vectorial_key   = null;
 
             if (list_of_classes.length!=1)
-                for (var current_class in list_of_classes)
-                    if (list_of_classes[current_class].match(/^ocurrence_/))
-                        ocurrence=list_of_classes[current_class];
+            {
+                $.each(list_of_classes, function(index, value) {
+                    if (value.match(/^ocurrence_/))
+                        ocurrence=value;
+                });
+            }
 
             if (list_of_classes.length!=1)
-                for (var current_class in list_of_classes)
-                    if (list_of_classes[current_class].match(/^vectorial_key_/))
-                        vectorial_key=list_of_classes[current_class];
+            {
+                $.each(list_of_classes, function(index, value) {
+                    if (value.match(/^vectorial_key_/))
+                        vectorial_key=value;
+                });
+            }
 
 
             $(this).parent().parent().after('<tr>\
@@ -1674,14 +1701,20 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
             var template_json_bk = $.extend({}, template_json);
 
             if (list_of_classes.length!=1)
-                for (var current_class in list_of_classes)
-                    if (list_of_classes[current_class].match(/^vectorial_key_/))
-                        vectorial_key=list_of_classes[current_class];
+            {
+                $.each(list_of_classes, function(index, value) {
+                    if (value.match(/^vectorial_key_/))
+                        vectorial_key=value;
+                });
+            }
 
             if (list_of_classes.length!=1)
-               for (var current_class in list_of_classes)
-                   if (list_of_classes[current_class].match(/^ocurrence_/))
-                       ocurrence=list_of_classes[current_class];
+            {
+                $.each(list_of_classes, function(index, value) {
+                    if (value.match(/^ocurrence_/))
+                        ocurrence=value;
+                });
+            }
 
             vectorial_key=vectorial_key.substring(14,vectorial_key.length);
 
