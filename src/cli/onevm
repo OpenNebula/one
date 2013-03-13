@@ -385,42 +385,26 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    livemigrate_desc = <<-EOT.unindent
-        Migrates the given running VM to another Host without downtime
-
-        States: RUNNING
-    EOT
-
-    command :livemigrate, livemigrate_desc, [:range,:vmid_list], :hostid,
-            :options=>[ENFORCE] do
-        host_id = args[1]
-        verbose = "live migrating to #{host_id}"
-
-        helper.perform_actions(args[0],options,verbose) do |vm|
-            if !options[:enforce].nil?
-                vm.live_migrate(host_id, options[:enforce])
-            else
-                vm.live_migrate(host_id)
-            end
-        end
-    end
-
     migrate_desc = <<-EOT.unindent
-        Saves the given running VM and starts it again in the specified Host
+        Migrates the given running VM to another Host. If used with --live
+        parameter the miration is done without downtime.
 
         States: RUNNING
     EOT
 
     command :migrate, migrate_desc, [:range,:vmid_list], :hostid,
-            :options=>[ENFORCE] do
+            :options=>[ENFORCE, OneVMHelper::LIVE] do
         host_id = args[1]
         verbose = "migrating to #{host_id}"
 
+        params  = [host_id]
+        params << options[:enforce] if !options[:enforce].nil?
+
         helper.perform_actions(args[0],options,verbose) do |vm|
-            if !options[:enforce].nil?
-                vm.migrate(host_id, options[:enforce])
+            if options[:live]
+                vm.live_migrate(*params)
             else
-                vm.migrate(host_id)
+                vm.migrate(*params)
             end
         end
     end

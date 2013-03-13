@@ -85,7 +85,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
     LIVE = {
         :name        =>"live",
         :large       => "--live",
-        :description => "The Image will be saved immediately"
+        :description => "Do the action with the VM running"
     }
 
     def self.rname
