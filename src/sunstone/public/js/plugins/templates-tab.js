@@ -835,11 +835,11 @@ function updateTemplateInfo(request,template){
     var info_tab = {
         title: tr("Information"),
         content:
-        '<div class="six columns">\
-          <table id="info_template_table" class="info_table" style="width:80%">\
+        '<div class="">\
+         <div class="six columns">\
+         <table id="info_template_table" class="twelve datatable extended_table">\
              <thead>\
-               <tr><th colspan="2">'+tr("Template")+' \"'+template_info.NAME+'\" '+
-              tr("information")+'</th><th></th></tr>\
+               <tr><th colspan="2">'+tr("Template")+" - "+template_info.NAME+'</th><th></th></tr>\
              </thead>\
              <tr>\
                <td class="key_td">'+tr("ID")+'</td>\

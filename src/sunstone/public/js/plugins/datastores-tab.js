@@ -650,7 +650,7 @@ function updateDatastoreInfo(request,ds){
         <div class="six columns">\
         <table id="info_datastore_table" class="twelve datatable extended_table">\
             <thead>\
-              <tr><th colspan="3">'+tr("Datastore")+' "'+info.NAME+'"</th></tr>\
+              <tr><th colspan="3">'+tr("Datastore")+' - '+info.NAME+'</th></tr>\
             </thead>\
             <tbody>\
               <tr>\

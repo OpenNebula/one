@@ -725,7 +725,8 @@ function updateImageInfo(request,img){
                                    img_info.GID) +
             insert_extended_template_table(img_info.TEMPLATE,
                                                "Image",
-                                               img_info.ID) +
+                                               img_info.ID,
+                                               "Configuration & Tags") +
         '</div>\
       </div></form>'
     }

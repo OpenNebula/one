@@ -339,15 +339,6 @@ var group_actions = {
         notify:true
     },
 
-    // "Group.chown" : {
-    //     type: "multiple",
-    //     call : OpenNebula.Group.chown,
-    //     callback : updateGroupElement,
-    //     elements: function() { return getSelectedNodes(dataTable_groups); },
-    //     error : onError,
-    //     notify:true
-    // },
-
     "Group.fetch_quotas" : {
         type: "single",
         call: OpenNebula.Group.show,
@@ -406,13 +397,6 @@ var group_buttons = {
         layout: "create",
         condition: mustBeAdmin
     },
-    // "Group.chown" : {
-    //     type: "confirm_with_select",
-    //     text: "Change group owner",
-    //     select: function(){return users_select},
-    //     tip: "Select the new group owner:",
-    //     condition : True
-    // },
     "Group.quotas_dialog" : {
         type : "action",
         text : tr("Update quotas"),
@@ -424,12 +408,7 @@ var group_buttons = {
         text: tr("Delete"),
         layout: "del",
         condition: mustBeAdmin
-    },
-    //"Group.help" : {
-    //    type: "action",
-    //    text: '?',
-    //    alwaysActive: true
-    //}
+    }
 };
 
 var group_info_panel = {
@@ -775,14 +754,7 @@ function setupCreateGroupDialog(){
     var dialog = $create_group_dialog;
 
     dialog.html(create_group_tmpl);
-    //dialog.dialog({
-    //    autoOpen: false,
-    //    modal: true,
-    //    width: 400
-    //});
     dialog.addClass("reveal-modal");
-
-    //$('button',dialog).button();
 
     $('#create_group_form',dialog).submit(function(){
         var name=$('#name',this).val();

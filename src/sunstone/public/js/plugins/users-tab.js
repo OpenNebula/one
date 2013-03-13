@@ -744,7 +744,7 @@ function updateUserInfo(request,user){
           <div class="six columns">\
           <table id="info_user_table" class="twelve datatable extended_table">\
             <thead>\
-               <tr><th colspan="2">' + tr("User information") + ' - '+user_info.NAME+'</th><th></th></tr>\
+               <tr><th colspan="2">' + tr("User") + ' - '+user_info.NAME+'</th><th></th></tr>\
             </thead>\
             <tbody>\
             <tr>\
@@ -1108,16 +1108,7 @@ function setupUpdatePasswordDialog(){
     var dialog = $update_pw_dialog;
     dialog.html(update_pw_tmpl);
 
-    //Prepare jquery dialog
-    //dialog.dialog({
-    //    autoOpen: false,
-    //    modal:true,
-    //    width: 400
-    //});
-
     dialog.addClass("reveal-modal");
-
-    //$('button',dialog).button();
 
     $('#update_user_pw_form',dialog).submit(function(){
         var pw=$('#new_password',this).val();
