@@ -65,7 +65,7 @@ module OpenNebulaJSON
                  when "attachdisk"   then self.attachdisk(action_hash['params'])
                  when "detachdisk"   then self.detachdisk(action_hash['params'])
                  when "update"       then self.update(action_hash['params'])
-                 when "rename"    then self.rename(action_hash['params'])
+                 when "rename"       then self.rename(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"

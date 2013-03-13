@@ -215,6 +215,17 @@ var template_actions = {
         call: popUpTemplateTemplateUpdateDialog
     },
 
+    "Template.rename" : {
+        type: "single",
+        call: OpenNebula.Template.rename,
+        callback: function(request) {
+            Sunstone.runAction('Template.showinfo',request.request.data[0]);
+            Sunstone.runAction("Template.show",request.request.data[0]);
+        },
+        error: onError,
+        notify: true
+    },
+
     "Template.update" : {
         type: "single",
         call: OpenNebula.Template.update,
@@ -828,27 +839,25 @@ function updateTemplateInfo(request,template){
           <table id="info_template_table" class="info_table" style="width:80%">\
              <thead>\
                <tr><th colspan="2">'+tr("Template")+' \"'+template_info.NAME+'\" '+
-              tr("information")+'</th></tr>\
+              tr("information")+'</th><th></th></tr>\
              </thead>\
              <tr>\
                <td class="key_td">'+tr("ID")+'</td>\
                <td class="value_td">'+template_info.ID+'</td>\
+               <td>\
              </tr>\
              <tr>\
                <td class="key_td">'+tr("Name")+'</td>\
-               <td class="value_td">'+template_info.NAME+'</td>\
-             </tr>\
-             <tr>\
-               <td class="key_td">'+tr("Owner")+'</td>\
-               <td class="value_td">'+template_info.UNAME+'</td>\
-             </tr>\
-             <tr>\
-               <td class="key_td">'+tr("Group")+'</td>\
-               <td class="value_td">'+template_info.GNAME+'</td>\
+               <td class="value_td_rename">'+template_info.NAME+'</td>\
+               <td><div id="div_edit_rename">\
+                      <a id="div_edit_rename_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                   </div>\
+               </td>\
              </tr>\
              <tr>\
                <td class="key_td">'+tr("Register time")+'</td>\
                <td class="value_td">'+pretty_time(template_info.REGTIME)+'</td>\
+               <td></td>\
              </tr>\
             </table>\
         </div>\
@@ -868,6 +877,25 @@ function updateTemplateInfo(request,template){
         prettyPrintJSON(template_info.TEMPLATE)+
         '</table>'
     };
+
+    $("#div_edit_rename_link").die();
+    $(".input_edit_value_rename").die();
+
+    // Listener for key,value pair edit action
+    $("#div_edit_rename_link").live("click", function() {
+        var value_str = $(".value_td_rename").text();
+        $(".value_td_rename").html('<input class="input_edit_value_rename" type="text" value="'+value_str+'"/>');
+    });
+
+    $(".input_edit_value_rename").live("change", function() {
+        var value_str = $(".input_edit_value_rename").val();
+        if(value_str!="")
+        {
+            // Let OpenNebula know
+            var name_template = {"name": value_str};
+            Sunstone.runAction("Template.rename",template_info.ID,name_template);
+        }
+    });
 
 
     Sunstone.updateInfoPanelTab("template_info_panel","template_info_tab",info_tab);
