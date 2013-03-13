@@ -272,7 +272,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         States: ANY
     EOT
 
-    command :saveas, saveas_desc, :vmid, :diskid, :img_name,
+    command :saveas, disk_snapshot_desc, :vmid, :diskid, :img_name,
             :options=>[TYPE, OneVMHelper::LIVE] do
         disk_id    = args[1].to_i
         image_name = args[2]
