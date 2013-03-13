@@ -82,9 +82,9 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         :description => "Show all template data"
     }
 
-    HOT = {
-        :name        =>"hot",
-        :large       => "--hot",
+    LIVE = {
+        :name        =>"live",
+        :large       => "--live",
         :description => "The Image will be saved immediately"
     }
 
