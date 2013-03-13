@@ -193,6 +193,16 @@ var vm_actions = {
         error: onError
     },
 
+    "VM.showdisks" : {
+        type: "single",
+        call: OpenNebula.VM.show,
+        callback: function(request, vm){
+          updateVMachineElement(request, vm);
+          updateVMDisksInfo(request, vm);
+        },
+        error: onError
+    },
+
     "VM.refresh" : {
         type: "custom",
         call : function (){
@@ -328,7 +338,9 @@ var vm_actions = {
     "VM.saveas" : {
         type: "single",
         call: OpenNebula.VM.saveas,
-        callback: vmShow,
+        callback: function(request) {
+            Sunstone.runAction("VM.showdisks", request.request.data[0]);
+        },
         error:onError,
         notify: true
     },
@@ -523,17 +535,18 @@ var vm_actions = {
     "VM.attachdisk" : {
         type: "single",
         call: OpenNebula.VM.attachdisk,
-        callback: vmShow,
+        callback: function(request) {
+            Sunstone.runAction("VM.showdisks", request.request.data[0]);
+        },
         error: onError,
         notify: true
     },
     "VM.detachdisk" : {
         type: "single",
         call: OpenNebula.VM.detachdisk,
-        //callback: function(req,res){
-        //    setTimeout(vmShow,1000,req);
-        //},
-        callback: vmShow,
+        callback: function(request) {
+            Sunstone.runAction("VM.showdisks", request.request.data[0]);
+        },
         error: onError,
         notify: true
     },
@@ -1351,38 +1364,43 @@ function updateVMInfo(request,vm){
     setPermissionsTable(vm_info,'');
 }
 
+function updateVMDisksInfo(request,vm){
+  $("li#vm_hotplugging_tabTab").html(printDisks(vm.VM));
+}
+
 // Generates the HTML for the hotplugging tab
 // This is a list of disks with the save_as, detach options.
 // And a form to attach a new disk to the VM, if it is running.
 function printDisks(vm_info){
-    //var im_sel = makeSelectOptions(dataTable_images,
-    //                               1, //id col - trick -> reference by name!
-    //                               4, //name col
-    //                               [10,10,10],
-    //                               [tr("DISABLED"),tr("LOCKED"),tr("ERROR")]
-    //                              );
    var html ='\
-   <div class="">\
-      <div id="datatable_cluster_vnets_info_div columns twelve">\
-         <form id="hotplugging_form" vmid="'+vm_info.ID+'" >\
-          <div class="twelve columns">\
-           <div id="attach_disk" class="button small secondary radius" >' + tr("Attach new disk") +'</div>\
-          </div>\
-          <br>\
-          <br>\
-          <div class="twelve columns">\
-           <table class="info_table twelve extended_table">\
-             <thead>\
-               <tr>\
-                  <th>'+tr("ID")+'</th>\
-                  <th>'+tr("Target")+'</th>\
-                  <th>'+tr("Image / Format-Size")+'</th>\
-                  <th>'+tr("Persistent")+'</th>\
-                  <th>'+tr("Save as")+'</th>\
-                  <th colspan="">'+tr("Actions")+'</th>\
-                </tr>\
-             </thead>\
-             <tbody>';
+     <div class="">\
+        <div id="datatable_cluster_vnets_info_div columns twelve">\
+           <form id="hotplugging_form" vmid="'+vm_info.ID+'" >'
+
+    // If VM is not RUNNING, then we forget about the attach disk form.
+    if (vm_info.STATE == "3"){
+      html += '\
+        <div class="twelve columns">\
+         <div id="attach_disk" class="button small secondary radius" >' + tr("Attach new disk") +'</div>\
+        </div>\
+        <br>\
+        <br>'
+    }
+
+    html += '\
+      <div class="twelve columns">\
+         <table class="info_table twelve extended_table">\
+           <thead>\
+             <tr>\
+                <th>'+tr("ID")+'</th>\
+                <th>'+tr("Target")+'</th>\
+                <th>'+tr("Image / Format-Size")+'</th>\
+                <th>'+tr("Persistent")+'</th>\
+                <th>'+tr("Save as")+'</th>\
+                <th colspan="">'+tr("Actions")+'</th>\
+              </tr>\
+           </thead>\
+           <tbody>';
 
 
     var disks = []
@@ -1392,9 +1410,10 @@ function printDisks(vm_info){
         disks = [vm_info.TEMPLATE.DISK]
 
     if (!disks.length){
-        html += '<tr id="no_disks_tr"><td colspan="6">\
-                   '+tr("No disks to show")+'\
-                   </td></tr>';
+        html += '\
+          <tr id="no_disks_tr">\
+            <td colspan="6">' + tr("No disks to show") + '</td>\
+          </tr>';
     }
     else {
 
@@ -1412,109 +1431,16 @@ function printDisks(vm_info){
                   <a href="VM.detachdisk" class="detachdisk" ><i class="icon-remove"/>'+tr("Detach")+'</a>\
                 </td>\
             </tr>';
-            
-    //            html += '<tr disk_id="'+(disk.DISK_ID)+'"><td class="key_td">';
-    //            html += disk.DISK_ID + ' - ' +
-    //                (disk.IMAGE ? disk.IMAGE : "Volatile") + '</td>';
-    //            html += '<td class="value_td">\
-    //'+(vm_info.STATE == "3" ? '\
-    //                       <button value="VM.detachdisk" class="detachdisk" style="float:right;color:#555555;height:26px;">'+tr("Detach")+' <i class="icon-remove icon-large"></i></button>\
-    //' : '')+'\
-    //                       <button value="VM.saveas" class="saveas" style="float:right;margin-right:10px;color:#555555;height:26px;">'+tr("Save")+' <i class="icon-download icon-large"></i></button>\
-    //                       <input style="float:right;width:9em;margin-right:10px;margin-top:3px;" type="text" value="saveas_'+vm_info.ID+'_'+disk.DISK_ID+'" name="saveas_name"></input>\
-    //            <label style="float:right;margin-top:4px;">'+tr("Save_as name")+':</label>'
-    //                +'\
-    //</td>';
         }
     }
 
-    html += '</tbody>\
+    html += '\
+            </tbody>\
           </table>\
-          </div>';
-
-    // If VM is not RUNNING, then we forget about the attach disk form.
-    if (vm_info.STATE != "3"){
-        html +='</form>';
-        return html;
-    }
-//
-//    // Attach disk form
-//    html += '<table class="info_table">\
-//       <thead>\
-//         <tr><th colspan="2">'+tr("Attach disk to running VM")+'</th></tr>\
-//       </thead>\
-//       <tbody>\
-//         <tr><td class="key_td"><label>'+tr("Type")+':</label></td>\
-//             <td class="value_td">\
-//                 <select id="attach_disk_type" style="width:12em;">\
-//                    <option value="image">'+tr("Existing image")+'</option>\
-//                    <option value="volatile">'+tr("Volatile disk")+'</option>\
-//                 </select>\
-//             </td>\
-//        </tr>\
-//         <tr class="at_image"><td class="key_td"><label>'+tr("Select image")+':</label></td>\
-//             <td class="value_td">\
-//                   <select name="IMAGE_ID" style="width:12em;">\
-//                   '+im_sel+'\
-//                   </select>\
-//             </td>\
-//         </tr>\
-//         <tr class="at_volatile"><td class="key_td"><label>'+tr("Size")+' (MB):</label></td>\
-//             <td class="value_td">\
-//                <input type="text" name="SIZE" style="width:8em;"></input>\
-//             </td>\
-//         </tr>\
-//         <tr class="at_volatile"><td class="key_td"><label>'+tr("Format")+':</label></td>\
-//             <td class="value_td">\
-//                <input type="text" name="FORMAT" style="width:8em;"></input>\
-//             </td>\
-//         </tr>\
-//         <tr class="at_volatile"><td class="key_td"><label>'+tr("Type")+':</label></td>\
-//             <td class="value_td">\
-//                   <select name="TYPE" style="width:12em;">\
-//                       <option value="swap">'+tr("swap")+'</option>\
-//                       <option value="fs">'+tr("fs")+'</option>\
-//                   </select>\
-//             </td>\
-//         </tr>\
-//         <tr class="at_volatile at_image"><td class="key_td"><label>'+tr("Device prefix")+':</label></td>\
-//             <td class="value_td">\
-//                <input type="text" name="DEV_PREFIX" value="sd" style="width:8em;"></input>\
-//             </td>\
-//         </tr>\
-//<!--\
-//         <tr class="at_volatile"><td class="key_td"><label>'+tr("Readonly")+':</label></td>\
-//             <td class="value_td">\
-//                   <select name="READONLY" style="width:12em;">\
-//                       <option value="NO">'+tr("No")+'</option>\
-//                       <option value="YES">'+tr("Yes")+'</option>\
-//                   </select>\
-//             </td>\
-//        </tr>\
-//        <tr class="at_volatile"><td class="key_td"><label>'+tr("Save")+':</label></td>\
-//             <td class="value_td">\
-//                   <select name="SAVE" style="width:12em;">\
-//                       <option value="NO">'+tr("No")+'</option>\
-//                       <option value="YES">'+tr("Yes")+'</option>\
-//                   </select>\
-//             </td>\
-//        </tr>\
-//-->\
-//        <tr><td class="key_td"></td>\
-//             <td class="value_td">\
-//                   <button type="submit" value="VM.attachdisk">'+tr("Attach")+'</button>\
-//             </td>\
-//        </tr>\
-//       </tbody>\
-//     </table></form>';
+        </div>\
+      </form>';
 
     return html;
-}
-
-function popUpSaveAsDialog(vm_id, disk_id){
-    $('#vm_id',$save_as_dialog).val(vm_id);
-    $('#disk_id',$save_as_dialog).val(disk_id);
-    $save_as_dialog.reveal();
 }
 
 function setupSaveAsDialog(){
@@ -1585,17 +1511,8 @@ function setupSaveAsDialog(){
   <a class="close-reveal-modal">&#215;</a>\
 </form>')
 
-    //Prepare jquery dialog
-    //dialog.dialog({
-    //    autoOpen: false,
-    //    modal:true,
-    //    width: 400
-    //});
-
     dialog.addClass("reveal-modal");
     setupTips(dialog);
-
-    //$('button',dialog).button();
 
     $('#save_as_form',dialog).submit(function(){
         var vm_id = $('#vm_id', this).val();
@@ -1619,17 +1536,16 @@ function setupSaveAsDialog(){
     });
 };
 
-
-
-
-
-
-
-
-function popUpAttachDiskDialog(vm_id){
-    $('#vm_id',$attach_disk_dialog).val(vm_id);
-    $attach_disk_dialog.reveal();
+function popUpSaveAsDialog(vm_id, disk_id){
+    $('#vm_id',$save_as_dialog).val(vm_id);
+    $('#disk_id',$save_as_dialog).val(disk_id);
+    $save_as_dialog.reveal();
 }
+
+
+
+
+
 
 function setupAttachDiskDialog(){
     dialogs_context.append('<div id="attach_disk_dialog"></div>');
@@ -1662,19 +1578,10 @@ function setupAttachDiskDialog(){
       <a class="close-reveal-modal">&#215;</a>\
     </form>')
 
-    //Prepare jquery dialog
-    //dialog.dialog({
-    //    autoOpen: false,
-    //    modal:true,
-    //    width: 400
-    //});
-
     dialog.addClass("reveal-modal large");
     setupTips(dialog);
 
     setup_disk_tab_content(dialog, "attach_disk", "attach_disk")
-
-    //$('button',dialog).button();
 
     $('#attach_disk_form',dialog).submit(function(){
         var vm_id = $('#vm_id', this).val();
@@ -1689,6 +1596,12 @@ function setupAttachDiskDialog(){
         return false;
     });
 };
+
+function popUpAttachDiskDialog(vm_id){
+    $('#vm_id',$attach_disk_dialog).val(vm_id);
+    $attach_disk_dialog.reveal();
+}
+
 
 // Listeners to the disks operations (detach, saveas, attach)
 function hotpluggingOps(){
