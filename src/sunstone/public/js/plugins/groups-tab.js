@@ -433,14 +433,6 @@ var group_buttons = {
 };
 
 var group_info_panel = {
-    "group_info_tab" : {
-        title: tr("Group information"),
-        content:""
-    },
-//    "group_acct_tab" : {
-//        title: tr("Historical usages"),
-//        content: ""
-//    }
 };
 
 var groups_tab = {
@@ -572,33 +564,6 @@ function updateGroupsView(request, group_list){
 
 function updateGroupInfo(request,group){
     var info = group.GROUP;
-
-    var info_tab_html = '\
-        <div class="">\
-          <div class="six columns">\
-            <table id="info_group_table" class="twelve datatable extended_table">\
-                <thead>\
-                   <tr><th colspan="3">' + tr("Group information") + ' - '+info.NAME+'</th></tr>\
-                </thead>\
-                <tbody>\
-                <tr>\
-                    <td class="key_td">' + tr("ID") + '</td>\
-                    <td class="value_td">'+info.ID+'</td>\
-                    <td></td>\
-                </tr>\
-                </tbody>\
-             </table>\
-           </div>\
-           <div class="six columns">\
-           </div>\
-         </div>';
-
-
-    var info_tab = {
-        title : tr("Information"),
-        content : info_tab_html
-    };
-
 
     var quotas_tab_html = '<div class="">';
 
@@ -794,88 +759,7 @@ function updateGroupInfo(request,group){
     };
 
     Sunstone.updateInfoPanelTab("group_info_panel","group_quotas_tab",quotas_tab);
-
-//   var acct_tab = {
-//        title : tr("Historical usages"),
-//        content : '<div><table class="info_table" style="margin-bottom:0;width:100%;">\
-//  <tr>\
-//    <td class="key_td"><label for="from">'+tr('From / to')+'</label></td>\
-//    <td class="value_td">\
-//       <input style="width: 7em" type="text" id="group_acct_from" name="from"/>\
-//       <input style="width: 7em" type="text" id="group_acct_to" name="to"/>\
-//       <button id="group_acct_date_ok">'+tr("Update")+'</button>\
-//    </td>\
-//  </tr>\
-//<!--\
-//  <tr>\
-//    <td class="key_td"><label for="from">'+tr('Meters')+'</label></td>\
-//    <td class="value_td">\
-//       <select style="width:173px" id="group_acct_meter1" name="meter1">\
-//       </select>\
-//       <select style="width:173px" id="group_acct_meter2" name="meter2">\
-//       </select>\
-//    </td>\
-//  </tr>\
-//-->\
-//</table></div>' + generateMonitoringDivs(group_acct_graphs, "group_acct_")
-//    };
-
-    Sunstone.updateInfoPanelTab("group_info_panel","group_info_tab",info_tab);
-//    Sunstone.updateInfoPanelTab("group_info_panel","group_acct_tab",acct_tab);
     Sunstone.popUpInfoPanel("group_info_panel");
-
-
-    //Enable datepicker
-    //var info_dialog = $('div#group_acct_tabTab');
-    //$("#group_acct_from", info_dialog).datepicker({
-    //    defaultDate: "-1d",
-    //    changeMonth: true,
-    //    numberOfMonths: 1,
-    //    dateFormat: "dd/mm/yy",
-    //    defaultDate: '-1',
-    //    onSelect: function( selectedDate ) {
-    //        $( "#group_acct_to", info_dialog).datepicker("option",
-    //                                                     "minDate",
-    //                                                     selectedDate );
-    //    }
-    //});
-    //$("#group_acct_from", info_dialog).datepicker('setDate', '-1');
-//
-    //$("#group_acct_to", info_dialog).datepicker({
-    //    defaultDate: "0",
-    //    changeMonth: true,
-    //    numberOfMonths: 1,
-    //    dateFormat: "dd/mm/yy",
-    //    maxDate: '+1',
-    //    onSelect: function( selectedDate ) {
-    //        $( "#group_acct_from", info_dialog).datepicker( "option",
-    //                                                        "maxDate",
-    //                                                        selectedDate );
-    //    }
-    //});
-    //$("#group_acct_to", info_dialog).datepicker('setDate', 'Now');
-//
-    ////Listen to set date button
-    //$('button#group_acct_date_ok', info_dialog).click(function(){
-    //    var from = $("#group_acct_from", info_dialog).val();
-    //    var to = $("#group_acct_to", info_dialog).val();
-//
-    //    var start = $.datepicker.parseDate('dd/mm/yy', from)
-    //    if (start){
-    //        start = start.getTime();
-    //        start = Math.floor(start / 1000);
-    //    }
-//
-    //    var end = $.datepicker.parseDate('dd/mm/yy', to);
-    //    if (end){
-    //        end = end.getTime();
-    //        end = Math.floor(end / 1000);
-    //    }
-//
-    //    loadAccounting('Group', info.ID, group_acct_graphs,
-    //                   { start : start, end: end });
-    //    return false;
-    //});
 
     //preload acct
     loadAccounting('Group', info.ID, group_acct_graphs);

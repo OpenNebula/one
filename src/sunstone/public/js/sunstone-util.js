@@ -451,6 +451,7 @@ function onError(request,error_json) {
 //Used when refreshing elements of a datatable.
 function waitingNodes(dataTable){
     $('tr input.check_item:visible',dataTable).replaceWith(spinner);
+    recountCheckboxes(dataTable);
 }
 
 
