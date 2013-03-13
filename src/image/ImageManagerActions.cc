@@ -87,6 +87,8 @@ int ImageManager::acquire_image(int vm_id, Image *img, string& error)
 {
     int rc = 0;
 
+    ostringstream oss;
+
     switch(img->get_type())
     {
         case Image::OS:
@@ -97,8 +99,6 @@ int ImageManager::acquire_image(int vm_id, Image *img, string& error)
         case Image::KERNEL:
         case Image::RAMDISK:
         case Image::CONTEXT:
-            ostringstream oss;
-
             oss << "Image " << img->get_oid() << " (" << img->get_name() << ") "
                 << "of type " << Image::type_to_str(img->get_type())
                 << " cannot be used as DISK.";
@@ -125,7 +125,10 @@ int ImageManager::acquire_image(int vm_id, Image *img, string& error)
         break;
 
         case Image::USED_PERS:
-            error = "Cannot acquire persistent image, it is already in use";
+            oss << "Cannot acquire image " << img->get_oid()
+                << ", it is persistent and already in use";
+
+            error = oss.str();
             rc    = -1;
         break;
 
@@ -140,9 +143,8 @@ int ImageManager::acquire_image(int vm_id, Image *img, string& error)
         case Image::ERROR:
         case Image::DELETE:
         case Image::CLONE:
-           ostringstream oss;
-           oss << "Cannot acquire image in state: "
-               << Image::state_to_str(img->get_state());
+           oss << "Cannot acquire image " << img->get_oid()
+               <<", it is in state: " << Image::state_to_str(img->get_state());
 
            error = oss.str();
            rc    = -1;
@@ -326,10 +328,12 @@ void ImageManager::release_cloning_image(int iid, int clone_img_id)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ImageManager::enable_image(int iid, bool to_enable)
+int ImageManager::enable_image(int iid, bool to_enable, string& error_str)
 {
     int rc = 0;
     Image * img;
+
+    ostringstream oss;
 
     img = ipool->get(iid,true);
 
@@ -349,6 +353,10 @@ int ImageManager::enable_image(int iid, bool to_enable)
             case Image::READY:
             break;
             default:
+                oss << "Image cannot be in state "
+                    << Image::state_to_str(img->get_state()) << ".";
+                error_str = oss.str();
+
                 rc = -1;
             break;
         }
@@ -364,6 +372,10 @@ int ImageManager::enable_image(int iid, bool to_enable)
             case Image::DISABLED:
             break;
             default:
+                oss << "Image cannot be in state "
+                    << Image::state_to_str(img->get_state()) << ".";
+                error_str = oss.str();
+
                 rc = -1;
             break;
         }
@@ -377,7 +389,7 @@ int ImageManager::enable_image(int iid, bool to_enable)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ImageManager::delete_image(int iid, const string& ds_data)
+int ImageManager::delete_image(int iid, const string& ds_data, string& error_str)
 {
     Image * img;
 
@@ -392,6 +404,8 @@ int ImageManager::delete_image(int iid, const string& ds_data)
     int gid;
     int cloning_id = -1;
 
+    ostringstream oss;
+
     img = ipool->get(iid,true);
 
     if ( img == 0 )
@@ -404,14 +418,27 @@ int ImageManager::delete_image(int iid, const string& ds_data)
         case Image::READY:
             if ( img->get_running() != 0 )
             {
+                oss << "There are " << img->get_running() << " VMs using it.";
+                error_str = oss.str();
+
                 img->unlock();
                 return -1; //Cannot remove images in use
             }
         break;
 
+        case Image::CLONE:
+            oss << "There are " << img->get_cloning() << " active clone operations.";
+            error_str = oss.str();
+
+            img->unlock();
+            return -1; //Cannot remove images in use
+        break;
+
         case Image::USED:
         case Image::USED_PERS:
-        case Image::CLONE:
+            oss << "There are " << img->get_running() << " VMs using it.";
+            error_str = oss.str();
+
             img->unlock();
             return -1; //Cannot remove images in use
         break;
@@ -434,6 +461,8 @@ int ImageManager::delete_image(int iid, const string& ds_data)
 
     if ( imd == 0 )
     {
+        error_str = "Error getting ImageManagerDriver";
+
         img->unlock();
         return -1;
     }

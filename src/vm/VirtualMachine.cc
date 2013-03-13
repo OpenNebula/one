@@ -70,7 +70,7 @@ VirtualMachine::VirtualMachine(int           id,
     }
     else
     {
-        user_obj_template = new Template(false,'=',"USER_TEMPLATE");
+        user_obj_template = new VirtualMachineTemplate(false,'=',"USER_TEMPLATE");
     }
 
     obj_template = new VirtualMachineTemplate;
@@ -1686,7 +1686,15 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
         return 0;
     }
 
-    new_disk = new VectorAttribute(*(dynamic_cast<VectorAttribute * >(disks[0])));
+    new_disk = dynamic_cast<VectorAttribute * >(disks[0]);
+
+    if ( new_disk == 0 )
+    {
+        error_str = "Internal error parsing DISK attribute";
+        return 0;
+    }
+
+    new_disk = new_disk->clone();
 
     // -------------------------------------------------------------------------
     // Acquire the new disk image
@@ -1740,30 +1748,14 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
 
 int VirtualMachine::set_attach_disk(int disk_id)
 {
-    int num_disks;
-    int d_id;
+    VectorAttribute * disk;
 
-    vector<Attribute  *> disks;
-    VectorAttribute *    disk;
+    disk = get_disk(disk_id);
 
-    num_disks = obj_template->get("DISK", disks);
-
-    for(int i=0; i<num_disks; i++)
+    if ( disk != 0 )
     {
-        disk = dynamic_cast<VectorAttribute * >(disks[i]);
-
-        if ( disk == 0 )
-        {
-            continue;
-        }
-
-        disk->vector_value("DISK_ID", d_id);
-
-        if ( d_id == disk_id )
-        {
-            disk->replace("ATTACH", "YES");
-            return 0;
-        }
+        disk->replace("ATTACH", "YES");
+        return 0;
     }
 
     return -1;
@@ -1916,7 +1908,15 @@ VectorAttribute * VirtualMachine::set_up_attach_nic(
         return 0;
     }
 
-    new_nic = new VectorAttribute(*(dynamic_cast<VectorAttribute * >(nics[0])));
+    new_nic = dynamic_cast<VectorAttribute * >(nics[0]);
+
+    if ( new_nic == 0 )
+    {
+        error_str = "Internal error parsing NIC attribute";
+        return 0;
+    }
+
+    new_nic = new_nic->clone();
 
     // -------------------------------------------------------------------------
     // Acquire the new network lease
@@ -2433,67 +2433,38 @@ int VirtualMachine::generate_context(string &files, int &disk_id)
 
 int VirtualMachine::get_image_from_disk(int disk_id, bool hot, string& err_str)
 {
-    int num_disks;
-    int tid;
     int iid = -1;
     int rc;
 
-    vector<Attribute  * > disks;
     VectorAttribute *     disk;
 
     ostringstream oss;
 
-    num_disks = obj_template->get("DISK",disks);
+    disk = get_disk(disk_id);
 
-    if ( state == DONE || state == FAILED )
+    if ( disk == 0 )
     {
-        goto error_state;
+        goto error_not_found;
     }
 
-    for(int i=0; i<num_disks; i++)
+    if(!((disk->vector_value("SAVE_AS")).empty()))
     {
-        disk = dynamic_cast<VectorAttribute * >(disks[i]);
-
-        if ( disk == 0 )
-        {
-            continue;
-        }
-
-        rc = disk->vector_value("DISK_ID", tid);
-
-        if ( rc != 0 )
-        {
-            continue;
-        }
-
-        if ( disk_id == tid )
-        {
-            if(!((disk->vector_value("SAVE_AS")).empty()))
-            {
-                goto error_saved;
-            }
-
-            if(!(disk->vector_value("PERSISTENT").empty()) && !hot)
-            {
-                goto error_persistent;
-            }
-
-            rc = disk->vector_value("IMAGE_ID", iid);
-
-            if ( rc != 0 )
-            {
-                goto error_image_id;
-            }
-
-            return iid;
-        }
+        goto error_saved;
     }
 
-    goto error_not_found;
+    if(!(disk->vector_value("PERSISTENT").empty()) && !hot)
+    {
+        goto error_persistent;
+    }
 
-error_state:
-    oss << "VM cannot be in DONE or FAILED state.";
-    goto error_common;
+    rc = disk->vector_value("IMAGE_ID", iid);
+
+    if ( rc != 0 )
+    {
+        goto error_image_id;
+    }
+
+    return iid;
 
 error_persistent:
     oss << "Source image for DISK " << disk_id << " is persistent.";
@@ -2519,8 +2490,10 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::set_saveas_state()
+int VirtualMachine::set_saveas_state(int disk_id, bool hot)
 {
+    VectorAttribute* disk;
+
     switch (state)
     {
         case ACTIVE:
@@ -2528,7 +2501,8 @@ int VirtualMachine::set_saveas_state()
             {
                 case RUNNING:
                     lcm_state = HOTPLUG_SAVEAS;
-                    return 0;
+                break;
+
                 default:
                     return -1;
             }
@@ -2537,84 +2511,28 @@ int VirtualMachine::set_saveas_state()
         case POWEROFF:
             state     = ACTIVE;
             lcm_state = HOTPLUG_SAVEAS_POWEROFF;
-            return 0;
+        break;
 
         case SUSPENDED:
             state     = ACTIVE;
             lcm_state = HOTPLUG_SAVEAS_SUSPENDED;
-            return 0;
+        break;
 
         default:
             return -1;
     }
-}
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+    disk = get_disk(disk_id);
 
-int VirtualMachine::clear_saveas_state()
- {
-    switch (lcm_state)
+    if ( disk != 0 )
     {
-        case HOTPLUG_SAVEAS:
-            lcm_state = RUNNING;
-            return 0;
-
-        case HOTPLUG_SAVEAS_POWEROFF:
-            state     = POWEROFF;
-            lcm_state = LCM_INIT;
-            return 0;
-
-        case HOTPLUG_SAVEAS_SUSPENDED:
-            state     = SUSPENDED;
-            lcm_state = LCM_INIT;
-            return 0;
-
-        default:
-            return -1;
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::save_disk(const string& disk_id,
-                              const string& source,
-                              int           img_id)
-{
-    vector<Attribute  * > disks;
-    VectorAttribute *     disk;
-
-    string tdisk_id;
-
-    int num_disks  = obj_template->get("DISK",disks);
-
-    if (lcm_state != HOTPLUG_SAVEAS && lcm_state != HOTPLUG_SAVEAS_SUSPENDED
-        && lcm_state != HOTPLUG_SAVEAS_POWEROFF )
-    {
-        return -1;
-    }
-
-    for(int i=0; i<num_disks; i++)
-    {
-        disk = dynamic_cast<VectorAttribute * >(disks[i]);
-
-        if ( disk == 0 )
+        if (hot)
         {
-            continue;
+            disk->replace("HOTPLUG_SAVE_AS_ACTIVE", "YES");
         }
-
-        tdisk_id = disk->vector_value("DISK_ID");
-
-        if ( tdisk_id == disk_id )
+        else
         {
-            disk->replace("SAVE_AS_SOURCE", source);
-
-            disk->replace("SAVE_AS", img_id);
-
-            disk->replace("SAVE", "YES");
-
-            break;
+            disk->replace("SAVE_AS_ACTIVE", "YES");
         }
     }
 
@@ -2624,24 +2542,62 @@ int VirtualMachine::save_disk(const string& disk_id,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::save_disk_hot(const string& disk_id,
-                                   const string& source,
-                                   int           img_id)
+int VirtualMachine::clear_saveas_state(int disk_id, bool hot)
+{
+    VectorAttribute * disk;
+
+    disk = get_disk(disk_id);
+
+    if (disk != 0)
+    {
+        if (hot)
+        {
+            disk->remove("HOTPLUG_SAVE_AS_ACTIVE");
+            disk->remove("HOTPLUG_SAVE_AS");
+            disk->remove("HOTPLUG_SAVE_AS_SOURCE");
+        }
+        else
+        {
+            disk->remove("SAVE_AS_ACTIVE");
+        }
+    }
+
+    switch (lcm_state)
+    {
+        case HOTPLUG_SAVEAS:
+            lcm_state = RUNNING;
+        break;
+
+        case HOTPLUG_SAVEAS_POWEROFF:
+            state     = POWEROFF;
+            lcm_state = LCM_INIT;
+        break;
+
+        case HOTPLUG_SAVEAS_SUSPENDED:
+            state     = SUSPENDED;
+            lcm_state = LCM_INIT;
+        break;
+
+        default:
+            return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+VectorAttribute* VirtualMachine::get_disk(int disk_id)
 {
     int num_disks;
-    string tdisk_id;
+    int tdisk_id;
 
     vector<Attribute  *> disks;
     VectorAttribute *    disk;
 
     num_disks = obj_template->get("DISK", disks);
 
-    if (lcm_state != HOTPLUG_SAVEAS && lcm_state != HOTPLUG_SAVEAS_SUSPENDED
-        && lcm_state != HOTPLUG_SAVEAS_POWEROFF )
-    {
-        return -1;
-    }
-
     for(int i=0; i<num_disks; i++)
     {
         disk = dynamic_cast<VectorAttribute * >(disks[i]);
@@ -2651,20 +2607,71 @@ int VirtualMachine::save_disk_hot(const string& disk_id,
             continue;
         }
 
-        tdisk_id = disk->vector_value("DISK_ID");
+        disk->vector_value("DISK_ID", tdisk_id);
 
         if ( tdisk_id == disk_id )
         {
-            disk->replace("HOTPLUG_SAVEAS", "YES");
-            disk->replace("HOTPLUG_SAVEAS_IMAGE_ID", img_id);
-            disk->replace("HOTPLUG_SAVEAS_SOURCE", source);
-            break;
+            return disk;
         }
     }
 
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::save_disk(int           disk_id,
+                              const string& source,
+                              int           img_id)
+{
+    VectorAttribute * disk;
+
+    if (lcm_state != HOTPLUG_SAVEAS && lcm_state != HOTPLUG_SAVEAS_SUSPENDED
+        && lcm_state != HOTPLUG_SAVEAS_POWEROFF )
+    {
+        return -1;
+    }
+
+    disk = get_disk(disk_id);
+
+    if ( disk != 0 )
+    {
+        disk->replace("SAVE_AS_SOURCE", source);
+
+        disk->replace("SAVE_AS", img_id);
+
+        disk->replace("SAVE", "YES");
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::save_disk_hot(int           disk_id,
+                                  const string& source,
+                                  int           img_id)
+{
+    VectorAttribute * disk;
+
+    if (lcm_state != HOTPLUG_SAVEAS && lcm_state != HOTPLUG_SAVEAS_SUSPENDED
+        && lcm_state != HOTPLUG_SAVEAS_POWEROFF )
+    {
+        return -1;
+    }
+
+    disk = get_disk(disk_id);
+
+    if ( disk != 0 )
+    {
+        disk->replace("HOTPLUG_SAVE_AS", img_id);
+        disk->replace("HOTPLUG_SAVE_AS_SOURCE", source);
+    }
+
+    return 0;
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -2688,11 +2695,11 @@ int VirtualMachine::get_saveas_disk_hot(int& disk_id, string& source, int& image
             continue;
         }
 
-        if ( disk->vector_value("HOTPLUG_SAVEAS") == "YES" )
+        if ( disk->vector_value("HOTPLUG_SAVE_AS_ACTIVE") == "YES" )
         {
-            source = disk->vector_value("HOTPLUG_SAVEAS_SOURCE");
+            source = disk->vector_value("HOTPLUG_SAVE_AS_SOURCE");
 
-            rc =  disk->vector_value("HOTPLUG_SAVEAS_IMAGE_ID", image_id);
+            rc =  disk->vector_value("HOTPLUG_SAVE_AS", image_id);
             rc += disk->vector_value("DISK_ID",  disk_id);
 
             if ( rc != 0 || source.empty() )
@@ -2705,37 +2712,6 @@ int VirtualMachine::get_saveas_disk_hot(int& disk_id, string& source, int& image
     }
 
     return -1;
-}
-
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachine::clear_saveas_disk_hot()
-{
-    int                  num_disks;
-    vector<Attribute  *> disks;
-    VectorAttribute *    disk;
-
-    num_disks = obj_template->get("DISK", disks);
-
-    for(int i=0; i<num_disks; i++)
-    {
-        disk = dynamic_cast<VectorAttribute * >(disks[i]);
-
-        if ( disk == 0 )
-        {
-            continue;
-        }
-
-        if ( disk->vector_value("HOTPLUG_SAVEAS") == "YES" )
-        {
-            disk->remove("HOTPLUG_SAVEAS");
-            disk->remove("HOTPLUG_SAVEAS_IMAGE_ID");
-            disk->remove("HOTPLUG_SAVEAS_SOURCE");
-            return;
-        }
-    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -3143,9 +3119,13 @@ void VirtualMachine::update_info(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::replace_template(const string& tmpl_str, string& error)
+int VirtualMachine::replace_template(
+        const string&   tmpl_str,
+        bool            keep_restricted,
+        string&         error)
 {
-    Template * new_tmpl  = new Template(false,'=',"USER_TEMPLATE");
+    VirtualMachineTemplate * new_tmpl =
+            new VirtualMachineTemplate(false,'=',"USER_TEMPLATE");
 
     if ( new_tmpl == 0 )
     {
@@ -3159,10 +3139,20 @@ int VirtualMachine::replace_template(const string& tmpl_str, string& error)
         return -1;
     }
 
-    if (user_obj_template != 0)
+    if (keep_restricted)
     {
-        delete user_obj_template;
+        new_tmpl->remove_restricted();
+
+        if (user_obj_template != 0)
+        {
+            user_obj_template->remove_all_except_restricted();
+
+            string aux_error;
+            new_tmpl->merge(user_obj_template, aux_error);
+        }
     }
+
+    delete user_obj_template;
 
     user_obj_template = new_tmpl;
 

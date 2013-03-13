@@ -691,10 +691,12 @@ public:
     /**
      *  This function replaces the *user template*.
      *    @param tmpl_str new contents
+     *    @param keep_restricted If true, the restricted attributes of the
+     *    current template will override the new template
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int replace_template(const string& tmpl_str, string& error);
+    int replace_template(const string& tmpl_str, bool keep_restricted, string& error);
 
     void get_user_template_attribute(
         const char * name,
@@ -862,15 +864,19 @@ public:
 
     /**
      *  Sets the corresponding SAVE_AS state.
+     *    @param  disk_id Index of the disk to save
+     *    @param hot is this a save_as hot operation
      *    @return 0 if the VM can be saved as
      */
-     int set_saveas_state();
+     int set_saveas_state(int disk_id, bool hot);
 
     /**
      *  Clears the SAVE_AS state, moving the VM to the original state.
+     *    @param  disk_id Index of the disk to save
+     *    @param hot is this a save_as hot operation
      *    @return 0 if the VM was in a SAVE_AS state
      */
-     int clear_saveas_state();
+     int clear_saveas_state(int disk_id, bool hot);
 
     /**
      *  Set the SAVE_AS attribute for the "disk_id"th disk.
@@ -878,7 +884,7 @@ public:
      *    @param  source to save the disk (SAVE_AS_SOURCE)
      *    @param  img_id ID of the image this disk will be saved to (SAVE_AS).
      */
-    int save_disk(const string& disk_id,
+    int save_disk(int disk_id,
                   const string& source,
                   int img_id);
 
@@ -888,7 +894,7 @@ public:
      *    @param  source to save the disk (SAVE_AS_SOURCE)
      *    @param  img_id ID of the image this disk will be saved to (SAVE_AS).
      */
-    int save_disk_hot(const string& disk_id,
+    int save_disk_hot(int disk_id,
                       const string& source,
                       int img_id);
     /**
@@ -899,11 +905,6 @@ public:
      *    @return -1 if failure
      */
     int get_saveas_disk_hot(int& disk_id, string& source, int& image_id);
-
-    /**
-     * Cleans the HOTPLUG_SAVEAS = YES attribute from the disks
-     */
-    void clear_saveas_disk_hot();
 
     // ------------------------------------------------------------------------
     // Authorization related functions
@@ -1207,7 +1208,7 @@ private:
      *  User template to store custom metadata. This template can be updated
      *
      */
-    Template * user_obj_template;
+    VirtualMachineTemplate * user_obj_template;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -1434,6 +1435,12 @@ protected:
         NebulaLog::log("ONE",Log::ERROR, "VM Drop not implemented!");
         return -1;
     }
+
+    // *************************************************************************
+    // Helpers
+    // *************************************************************************
+
+    VectorAttribute* get_disk(int disk_id);
 };
 
 #endif /*VIRTUAL_MACHINE_H_*/

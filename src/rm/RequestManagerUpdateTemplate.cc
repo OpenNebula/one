@@ -21,6 +21,40 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+int RequestManagerUpdateTemplate::replace_template(
+        PoolObjectSQL * object,
+        const string & tmpl,
+        const RequestAttributes &att,
+        string &error_str)
+{
+    return object->replace_template(tmpl, error_str);
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+int VirtualMachineUpdateTemplate::replace_template(
+        PoolObjectSQL * object,
+        const string & tmpl,
+        const RequestAttributes & att,
+        string & error_str)
+{
+    VirtualMachine* vm = static_cast<VirtualMachine*>(object);
+
+    if (att.uid!=UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
+    {
+        return vm->replace_template(tmpl, true, error_str);
+    }
+    else
+    {
+        return vm->replace_template(tmpl, false, error_str);
+    }
+
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 void RequestManagerUpdateTemplate::request_execute(
         xmlrpc_c::paramList const& paramList,
         RequestAttributes& att)
@@ -49,7 +83,9 @@ void RequestManagerUpdateTemplate::request_execute(
         return;
     }
 
-    rc = object->replace_template(tmpl, error_str);
+    rc = replace_template(object, tmpl, att, error_str);
+
+//    rc = object->replace_template(tmpl, error_str);
 
     if ( rc != 0 )
     {

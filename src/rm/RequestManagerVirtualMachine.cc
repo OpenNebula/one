@@ -734,28 +734,33 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         return;
     }
 
-    int rc       = vm->set_saveas_state();
+    if ( vm->set_saveas_state(disk_id, is_hot) != 0 )
+    {
+        vm->unlock();
+
+        failure_response(INTERNAL,
+                         request_error("VM has to be RUNNING, POWEROFF or"
+                         " SUSPENDED to saveas disks.",""), att);
+        return;
+    }
+
     int iid_orig = vm->get_image_from_disk(disk_id, is_hot, error_str);
-
-    vmpool->update(vm);
-
-    vm->unlock();
 
     if ( iid_orig == -1 )
     {
+        vm->clear_saveas_state(disk_id, is_hot);
+
+        vm->unlock();
+
         failure_response(INTERNAL,
                          request_error("Cannot use selected DISK", error_str),
                          att);
         return;
     }
 
-    if ( rc != 0 )
-    {
-        failure_response(INTERNAL,
-                         request_error("VM has to be RUNNING, POWEROFF or"
-                         " SUSPENDED to saveas disks.",""), att);
-        return;
-    }
+    vmpool->update(vm);
+
+    vm->unlock();
 
     // -------------------------------------------------------------------------
     // Get the data of the Image to be saved
@@ -770,7 +775,8 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
         if ((vm = vmpool->get(id, true)) != 0)
         {
-            vm->clear_saveas_state();
+            vm->clear_saveas_state(disk_id, is_hot);
+
             vmpool->update(vm);
             vm->unlock();
         }
@@ -801,7 +807,8 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
         if ((vm = vmpool->get(id, true)) != 0)
         {
-            vm->clear_saveas_state();
+            vm->clear_saveas_state(disk_id, is_hot);
+
             vmpool->update(vm);
             vm->unlock();
         }
@@ -898,7 +905,8 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
         if ((vm = vmpool->get(id, true)) != 0)
         {
-            vm->clear_saveas_state();
+            vm->clear_saveas_state(disk_id, is_hot);
+
             vmpool->update(vm);
             vm->unlock();
         }
@@ -909,27 +917,28 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     // -------------------------------------------------------------------------
     // Create the image
     // -------------------------------------------------------------------------
-    rc = ipool->allocate(att.uid,
-                         att.gid,
-                         att.uname,
-                         att.gname,
-                         umask,
-                         itemplate,
-                         ds_id,
-                         ds_name,
-                         ds_disk_type,
-                         ds_data,
-                         Datastore::IMAGE_DS,
-                         -1,
-                         &iid,
-                         error_str);
+    int rc = ipool->allocate(att.uid,
+                             att.gid,
+                             att.uname,
+                             att.gname,
+                             umask,
+                             itemplate,
+                             ds_id,
+                             ds_name,
+                             ds_disk_type,
+                             ds_data,
+                             Datastore::IMAGE_DS,
+                             -1,
+                             &iid,
+                             error_str);
     if (rc < 0)
     {
         quota_rollback(&img_usage, Quotas::DATASTORE, att);
 
         if ((vm = vmpool->get(id, true)) != 0)
         {
-            vm->clear_saveas_state();
+            vm->clear_saveas_state(disk_id, is_hot);
+
             vmpool->update(vm);
             vm->unlock();
         }

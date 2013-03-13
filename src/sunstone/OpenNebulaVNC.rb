@@ -18,6 +18,7 @@
 # This class provides support for launching and stopping a websockify proxy
 #
 
+require 'rubygems'
 require 'json'
 require 'opennebula'
 
@@ -81,13 +82,15 @@ class OpenNebulaVNC
 
         begin
             @logger.info { "Starting VNC proxy: #{cmd}" }
-            pid=start_daemon(cmd, 'VNC_LOG')
+            pid=start_daemon(cmd, VNC_LOG)
         rescue Exception => e
             @logger.error e.message
             return false
         end
 
-        File.write(@lock_file, pid)
+        File.open(@lock_file, "w") do |f|
+            f.write(pid.to_s)
+        end
 
         sleep 1
 
@@ -242,12 +245,33 @@ class OpenNebulaVNC
     end
     alias_method :get_pid, :is_running?
 
+if RUBY_VERSION<'1.9'
+    def spawn(*args)
+        fork {
+            command=args[0..-2]
+
+            # Close stdin and point out and err to log file
+            $stdin.close
+            $stdout.reopen(VNC_LOG, "a")
+            $stderr.reopen(VNC_LOG, "a")
+
+            # Detach process from the parent
+            Process.setsid
+
+            exec(*command)
+        }
+    end
+end
+
     def start_daemon(cmd, log)
-        pid=spawn(*cmd.split(" "),
+        options={
             :pgroup => true,
             :in => :close,
             [:out, :err] => [log, "a"],
-            :close_others => true )
+            :close_others => true }
+
+        params=cmd.split(" ")+[options]
+        pid=spawn( *params )
 
         Process.detach(pid)
 

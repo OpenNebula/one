@@ -981,7 +981,6 @@ void  LifeCycleManager::monitor_suspend_action(int vid)
 {
     VirtualMachine *    vm;
 
-    int     cpu,mem,disk;
     time_t  the_time = time(0);
 
     Nebula&             nd = Nebula::instance();
@@ -1018,10 +1017,6 @@ void  LifeCycleManager::monitor_suspend_action(int vid)
         vm->set_reason(History::STOP_RESUME);
 
         vmpool->update_history(vm);
-
-        vm->get_requirements(cpu,mem,disk);
-
-        hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
 
         vm->log("LCM", Log::INFO, "VM is suspended.");
 
@@ -1498,17 +1493,15 @@ void LifeCycleManager::saveas_hot_success_action(int vid)
         return;
     }
 
-    if (vm->clear_saveas_state() == -1)
+    int rc = vm->get_saveas_disk_hot(disk_id, source, image_id);
+
+    if (vm->clear_saveas_state(disk_id, true) == -1)
     {
         vm->log("LCM", Log::ERROR, "saveas_hot_success_action, VM in a wrong state");
         vm->unlock();
 
         return;
     }
-
-    int rc = vm->get_saveas_disk_hot(disk_id, source, image_id);
-
-    vm->clear_saveas_disk_hot();
 
     vmpool->update(vm);
 
@@ -1555,17 +1548,15 @@ void LifeCycleManager::saveas_hot_failure_action(int vid)
         return;
     }
 
-    if (vm->clear_saveas_state() == -1)
+    int rc = vm->get_saveas_disk_hot(disk_id, source, image_id);
+
+    if (vm->clear_saveas_state(disk_id, true) == -1)
     {
         vm->log("LCM", Log::ERROR, "saveas_hot_success_action, VM in a wrong state");
         vm->unlock();
 
         return;
     }
-
-    int rc = vm->get_saveas_disk_hot(disk_id, source, image_id);
-
-    vm->clear_saveas_disk_hot();
 
     vmpool->update(vm);
 

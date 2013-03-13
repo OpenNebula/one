@@ -324,8 +324,8 @@ static void mkfs_action(istringstream& is,
     string info;
     int    rc;
 
-    int    vm_id = -1;
-    string disk_id;
+    int vm_id = -1;
+    int disk_id;
 
     VirtualMachine * vm;
     ostringstream    oss;
@@ -427,7 +427,7 @@ static void mkfs_action(istringstream& is,
             goto error_save_state;
         }
 
-        vm->clear_saveas_state();
+        vm->clear_saveas_state(disk_id, is_hot);
     }
 
     vmpool->update(vm);
@@ -478,7 +478,7 @@ error:
     {
         if ((vm = vmpool->get(vm_id, true)) != 0)
         {
-            vm->clear_saveas_state();
+            vm->clear_saveas_state(disk_id, is_hot);
             vmpool->update(vm);
 
             vm->unlock();
