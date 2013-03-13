@@ -273,9 +273,9 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
             puts str % [e,  mask]
         }
-        puts
 
         if vm.has_elements?("/VM/TEMPLATE/DISK")
+            puts
             CLIHelper.print_header(str_h1 % "VM DISKS",false)
             CLIHelper::ShowTable.new(nil, self) do
                 column :ID, "", :size=>3 do |d|
@@ -286,7 +286,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     d["DATASTORE"]
                 end
 
-                column :TARGET, "", :size=>6 do |d|
+                column :TARGET, "", :left, :size=>6 do |d|
                     d["TARGET"]
                 end
 
@@ -335,12 +335,11 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             while vm.has_elements?("/VM/TEMPLATE/DISK")
                 vm.delete_element("/VM/TEMPLATE/DISK")
             end if !options[:all]
-
-            puts
         end
 
         if vm.has_elements?("/VM/TEMPLATE/NIC")
-                        CLIHelper.print_header(str_h1 % "VM NICS",false)
+            puts
+            CLIHelper.print_header(str_h1 % "VM NICS",false)
 
             vm_nics = [vm.to_hash['VM']['TEMPLATE']['NIC']].flatten
 
@@ -388,7 +387,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             }
 
             CLIHelper::ShowTable.new(nil, self) do
-                column :ID, "", :size=>2 do |d|
+                column :ID, "", :size=>3 do |d|
                     if d["DOUBLE_ENTRY"]
                         ""
                     else
@@ -396,7 +395,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     end
                 end
 
-                column :NETWORK, "", :left, :size=>12 do |d|
+                column :NETWORK, "", :left, :size=>20 do |d|
                     if d["DOUBLE_ENTRY"]
                         ""
                     else
@@ -412,7 +411,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     end
                 end
 
-                column :BRIDGE, "", :left, :size=>8 do |d|
+                column :BRIDGE, "", :left, :size=>12 do |d|
                     if d["DOUBLE_ENTRY"]
                         ""
                     else
@@ -437,11 +436,10 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             while vm.has_elements?("/VM/TEMPLATE/NIC")
                 vm.delete_element("/VM/TEMPLATE/NIC")
             end if !options[:all]
-
-            puts
         end
 
         if vm.has_elements?("/VM/TEMPLATE/SNAPSHOT")
+            puts
             CLIHelper.print_header(str_h1 % "SNAPSHOTS",false)
 
             CLIHelper::ShowTable.new(nil, self) do
@@ -465,8 +463,6 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end.show([vm.to_hash['VM']['TEMPLATE']['SNAPSHOT']].flatten, {})
 
             vm.delete_element("/VM/TEMPLATE/SNAPSHOT")
-
-            puts
         end
 
         if vm.has_elements?("/VM/HISTORY_RECORDS")
@@ -477,6 +473,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         end
 
         if vm.has_elements?("/VM/USER_TEMPLATE/SCHED_ACTION")
+            puts
             CLIHelper.print_header(str_h1 % "SCHEDULED ACTIONS",false)
 
             CLIHelper::ShowTable.new(nil, self) do
@@ -485,7 +482,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     d["ID"] if !d.nil?
                 end
 
-                column :"ACTION", "", :left, :size=>10 do |d|
+                column :"ACTION", "", :left, :size=>15 do |d|
                     d["ACTION"] if !d.nil?
                 end
 
@@ -497,12 +494,10 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     OpenNebulaHelper.time_to_str(d["DONE"], false) if !d.nil?
                 end
 
-                column :"MESSAGE", "", :left, :donottruncate, :size=>40 do |d|
+                column :"MESSAGE", "", :left, :donottruncate, :size=>35 do |d|
                     d["MESSAGE"] if !d.nil?
                 end
             end.show([vm.to_hash['VM']['USER_TEMPLATE']['SCHED_ACTION']].flatten, {})
-
-            puts
         end
 
         if vm.has_elements?("/VM/USER_TEMPLATE")
@@ -516,6 +511,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             puts vm.template_like_str('USER_TEMPLATE')
         end
 
+        puts
         CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE TEMPLATE",false)
         puts vm.template_str
     end
@@ -526,7 +522,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 d["SEQ"]
             end
 
-            column :HOST, "Host name of the VM container", :left, :size=>15 do |d|
+            column :HOST, "Host name of the VM container", :left, :size=>20 do |d|
                 d["HOSTNAME"]
             end
 
