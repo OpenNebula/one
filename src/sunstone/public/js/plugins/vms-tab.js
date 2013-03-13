@@ -203,6 +203,15 @@ var vm_actions = {
         error: onError
     },
 
+    "VM.shownics" : {
+        type: "single",
+        call: OpenNebula.VM.show,
+        callback: function(request, vm){
+          updateVMachineElement(request, vm);
+          updateVMNicsInfo(request, vm);
+        },
+        error: onError
+    },
     "VM.refresh" : {
         type: "custom",
         call : function (){
@@ -546,6 +555,24 @@ var vm_actions = {
         call: OpenNebula.VM.detachdisk,
         callback: function(request) {
             Sunstone.runAction("VM.showdisks", request.request.data[0]);
+        },
+        error: onError,
+        notify: true
+    },
+    "VM.attachnic" : {
+        type: "single",
+        call: OpenNebula.VM.attachnic,
+        callback: function(request) {
+            Sunstone.runAction("VM.shownics", request.request.data[0]);
+        },
+        error: onError,
+        notify: true
+    },
+    "VM.detachnic" : {
+        type: "single",
+        call: OpenNebula.VM.detachnic,
+        callback: function(request) {
+            Sunstone.runAction("VM.shownics", request.request.data[0]);
         },
         error: onError,
         notify: true
@@ -966,11 +993,6 @@ function updateVMachineElement(request, vm_json){
     var id = vm_json.VM.ID;
     var element = vMachineElementArray(vm_json);
     updateSingleElement(element,dataTable_vMachines,'#vm_'+id)
-
-    //we update this too, even if it is not shown.
-    var $hotplugging_tab = $('div#vm_info_panel div#vm_hotplugging_tab');
-    $('#hotplugging_form',$hotplugging_tab).replaceWith(printDisks(vm_json.VM));
-    $('tr.at_volatile',$hotplugging_tab).hide();
 }
 
 // Callback to delete a single element from the list
@@ -1217,6 +1239,11 @@ function updateVMInfo(request,vm){
         content: printDisks(vm_info)
     };
 
+    var network_tab = {
+        title: tr("Network"),
+        content: printNics(vm_info)
+    };
+
     var template_tab = {
         title: tr("VM Template"),
         content:
@@ -1343,6 +1370,7 @@ function updateVMInfo(request,vm){
 
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_hotplugging_tab",hotplugging_tab);
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_network_tab",network_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_template_tab",template_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_log_tab",log_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_history_tab",history_tab);
@@ -1378,11 +1406,10 @@ function printDisks(vm_info){
         <div id="datatable_cluster_vnets_info_div columns twelve">\
            <form id="hotplugging_form" vmid="'+vm_info.ID+'" >\
               <div class="twelve columns">\
-                <div id="refresh_disk" class="button small secondary radius" ><i class="icon-refresh"/></div>\
-                  '
+                <div id="refresh_disk" class="button small secondary radius" ><i class="icon-refresh"/></div>'
 
     // If VM is not RUNNING, then we forget about the attach disk form.
-    if (vm_info.STATE == "3"){
+    if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
       html += '\
          <div id="attach_disk" class="button small secondary radius" >' + tr("Attach new disk") +'</div>'
     }
@@ -1426,23 +1453,64 @@ function printDisks(vm_info){
             var disk = disks[i];
 
             var save_as;
-            if (vm_info.STATE == "3" && vm_info.LCM_STATE == "26") {
+            // Snapshot deferred
+            if ( 
+               ( // ACTIVE
+                vm_info.STATE == "3") && 
+               ( // HOTPLUG_SAVEAS HOTPLUG_SAVEAS_POWEROFF HOTPLUG_SAVEAS_SUSPENDED
+                vm_info.LCM_STATE == "26" || vm_info.LCM_STATE == "27" || vm_info.LCM_STATE == "28") && 
+               ( // 
+                disk.SAVE_AS_ACTIVE == "YES")
+               ) {
               save_as = "in progress";
-            } else {
+              actions = 'deferred snapshot in progress'
+            } 
+            // Snapshot Hot
+            else if ( 
+               ( // ACTIVE
+                vm_info.STATE == "3") && 
+               ( // HOTPLUG_SAVEAS HOTPLUG_SAVEAS_POWEROFF HOTPLUG_SAVEAS_SUSPENDED
+                vm_info.LCM_STATE == "26" || vm_info.LCM_STATE == "27" || vm_info.LCM_STATE == "28") && 
+               ( // 
+                disk.HOTPLUG_SAVE_AS_ACTIVE == "YES")
+               ) {
               save_as = (disk.SAVE_AS ? disk.SAVE_AS : '-');
+              actions = 'hot snapshot in progress'
+            }
+            // Attach / Detach
+            else if ( 
+               ( // ACTIVE
+                vm_info.STATE == "3") && 
+               ( // HOTPLUG_SAVEAS HOTPLUG_SAVEAS_POWEROFF HOTPLUG_SAVEAS_SUSPENDED
+                vm_info.LCM_STATE == "17") && 
+               ( // 
+                disk.ATTACH = "YES")
+               ) { 
+              save_as = (disk.SAVE_AS ? disk.SAVE_AS : '-');
+              actions = 'attach/detach in progress'
+            }
+            else {
+              save_as = (disk.SAVE_AS ? disk.SAVE_AS : '-');
+
+              actions = '';
+              
+              if ((vm_info.STATE == "3" && vm_info.LCM_STATE == "3") || vm_info.STATE == "5" || vm_info.STATE == "8") {
+                actions += '<a href="VM.saveas" class="saveas" ><i class="icon-save"/>'+tr("Snapshot")+'</a> &emsp;'
+              }
+
+              if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3") {
+                actions += '<a href="VM.detachdisk" class="detachdisk" ><i class="icon-remove"/>'+tr("Detach")+'</a>'
+              }
             }
 
             html += '\
               <tr disk_id="'+(disk.DISK_ID)+'">\
                 <td>' + disk.DISK_ID + '</td>\
                 <td>' + disk.TARGET + '</td>\
-                <td>' + (disk.IMAGE ? disk.IMAGE : (disk.FORMAT ? (disk.FORMAT + ' - ') : + humanize_size_from_mb(disk.SIZE))) + '</td>\
+                <td>' + (disk.IMAGE ? disk.IMAGE : (humanize_size_from_mb(disk.SIZE) + (disk.FORMAT ? (' - ' + disk.FORMAT) : '') )) + '</td>\
                 <td>' + ((disk.SAVE && disk.SAVE == 'YES' )? tr('YES') : tr('NO')) + '</td>\
                 <td>' + save_as + '</td>\
-                <td>\
-                  <a href="VM.saveas" class="saveas" ><i class="icon-save"/>'+tr("Snapshot")+'</a> &emsp;\
-                  <a href="VM.detachdisk" class="detachdisk" ><i class="icon-remove"/>'+tr("Detach")+'</a>\
-                </td>\
+                <td>' + actions + '</td>\
             </tr>';
         }
     }
@@ -1663,49 +1731,253 @@ function hotpluggingOps(){
 
         return false;
     }); 
+}
 
-    $('select#attach_disk_type').live('change',function(){
-        var context = $(this).parents('form');
-        switch ($(this).val()){
-        case "image":
-            $('tr.at_volatile',context).hide();
-            $('tr.at_image',context).show();
-            break;
-        case "volatile":
-            $('tr.at_image',context).hide();
-            $('tr.at_volatile',context).show();
-            break;
-        };
-    });
 
-    $('#hotplugging_form').live('submit',function(){
-        var vm_id = $(this).attr('vmid');
-        var disk_obj = {};
-        switch($('select#attach_disk_type',this).val()){
-        case "image":
-            var im_id = $('select[name="IMAGE_ID"]',this).val();
-            if (!im_id) {
-                notifyError(tr("Please select an image to attach"));
-                return false;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function updateVMNicsInfo(request,vm){
+  $("li#vm_network_tabTab").html(printNics(vm.VM));
+}
+
+function printNics(vm_info){
+   var html ='\
+     <div class="">\
+        <div>\
+           <form id="tab_network_form" vmid="'+vm_info.ID+'" >\
+              <div class="twelve columns">\
+                <div id="refresh_nic" class="button small secondary radius" ><i class="icon-refresh"/></div>'
+
+    // If VM is not RUNNING, then we forget about the attach nic form.
+    if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
+      html += '\
+         <div id="attach_nic" class="button small secondary radius" >' + tr("Attach new nic") +'</div>'
+    }
+
+    html += '\
+      </div>\
+      <br>\
+      <br>'
+
+    html += '\
+      <div class="twelve columns">\
+         <table class="info_table twelve extended_table">\
+           <thead>\
+             <tr>\
+                <th>'+tr("ID")+'</th>\
+                <th>'+tr("Network")+'</th>\
+                <th>'+tr("VLAN")+'</th>\
+                <th>'+tr("Bridge")+'</th>\
+                <th>'+tr("IP")+'</th>\
+                <th>'+tr("MAC")+'</th>\
+                <th colspan="">'+tr("Actions")+'</th>\
+              </tr>\
+           </thead>\
+           <tbody>';
+
+
+    var nics = []
+    if ($.isArray(vm_info.TEMPLATE.NIC))
+        nics = vm_info.TEMPLATE.NIC
+    else if (!$.isEmptyObject(vm_info.TEMPLATE.NIC))
+        nics = [vm_info.TEMPLATE.NIC]
+
+    if (!nics.length){
+        html += '\
+          <tr id="no_nics_tr">\
+            <td colspan="6">' + tr("No nics to show") + '</td>\
+          </tr>';
+    }
+    else {
+
+        for (var i = 0; i < nics.length; i++){
+            var nic = nics[i];
+
+            var save_as;
+            // Attach / Detach
+            if ( 
+               ( // ACTIVE
+                vm_info.STATE == "3") && 
+               ( // HOTPLUG_NIC
+                vm_info.LCM_STATE == "25") && 
+               ( // 
+                nic.ATTACH == "YES")
+               ) {
+              actions = 'attach/detach in progress'
             }
-            disk_obj.IMAGE_ID = $('select[name="IMAGE_ID"]',this).val();
-            disk_obj.DEV_PREFIX = $('input[name="DEV_PREFIX"]',this).val();
-            break;
-        case "volatile":
-            disk_obj.SIZE = $('input[name="SIZE"]',this).val();
-            disk_obj.FORMAT = $('input[name="FORMAT"]',this).val();
-            disk_obj.TYPE = $('select[name="TYPE"]',this).val();
-            disk_obj.DEV_PREFIX = $('input[name="DEV_PREFIX"]',this).val();
-//            disk_obj.READONLY = $('select[name="READONLY"]',this).val();
-//            disk_obj.SAVE = $('save[name="SAVE"]',this).val();
-            break;
-        }
+            else {
+              actions = '';
 
-        var obj = { DISK : disk_obj };
-        Sunstone.runAction("VM.attachdisk", vm_id, obj);
+              if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3") {
+                actions += '<a href="VM.detachnic" class="detachnic" ><i class="icon-remove"/>'+tr("Detach")+'</a>'
+              }
+            }
+
+            html += '\
+              <tr nic_id="'+(nic.NIC_ID)+'">\
+                <td>' + nic.NIC_ID + '</td>\
+                <td>' + nic.NETWORK + '</td>\
+                <td>' + nic.VLAN + '</td>\
+                <td>' + nic.BRIDGE + '</td>\
+                <td>' + nic.IP + '</td>\
+                <td>' + nic.MAC + '</td>\
+                <td>' + actions + '</td>\
+            </tr>';
+        }
+    }
+
+    html += '\
+            </tbody>\
+          </table>\
+        </div>\
+      </form>';
+
+    return html;
+}
+
+function setupAttachNicDialog(){
+    dialogs_context.append('<div id="attach_nic_dialog"></div>');
+    $attach_nic_dialog = $('#attach_nic_dialog',dialogs_context);
+    var dialog = $attach_nic_dialog;
+
+    dialog.html('<div class="panel">\
+      <h3>\
+        <small id="">'+tr("Attach new nic")+'</small>\
+      </h3>\
+    </div>\
+    <form id="attach_nic_form" action="">\
+          <div class="row centered">\
+              <div class="four columns">\
+                  <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
+              </div>\
+              <div class="seven columns">\
+                  <input type="text" name="vm_id" id="vm_id" disabled/>\
+              </div>\
+              <div class="one columns">\
+                  <div class=""></div>\
+              </div>\
+          </div>' +
+          generate_nic_tab_content("attach_nic", "attach_nic") +
+          '<hr>\
+          <div class="form_buttons">\
+              <button class="button radius right success" id="attach_nic_button" type="submit" value="VM.attachnic">'+tr("Attach")+'</button>\
+              <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+          </div>\
+      <a class="close-reveal-modal">&#215;</a>\
+    </form>')
+
+    dialog.addClass("reveal-modal large");
+    setupTips(dialog);
+
+    setup_nic_tab_content(dialog, "attach_nic", "attach_nic")
+
+    $('#attach_nic_form',dialog).submit(function(){
+        var vm_id = $('#vm_id', this).val();
+
+        var data  = {};
+        addSectionJSON(data, this);
+
+        var obj = {NIC: data}
+        Sunstone.runAction('VM.attachnic', vm_id, obj);
+
+        $attach_nic_dialog.trigger("reveal:close")
         return false;
     });
+};
+
+function popUpAttachNicDialog(vm_id){
+    $('#vm_id',$attach_nic_dialog).val(vm_id);
+    $attach_nic_dialog.reveal();
 }
+
+
+// Listeners to the nics operations (detach, saveas, attach)
+function setup_vm_network_tab(){
+    //setupSaveAsDialog();
+    setupAttachNicDialog();
+
+    $('a.detachnic').live('click', function(){
+        var b = $(this);
+        var vm_id = b.parents('form').attr('vmid');
+        var nic_id = b.parents('tr').attr('nic_id');
+
+        Sunstone.runAction('VM.detachnic', vm_id, nic_id);
+
+        //b.html(spinner);
+        return false;
+    });
+
+    $('#attach_nic').live('click', function(){
+        var b = $(this);
+        var vm_id = b.parents('form').attr('vmid');
+
+        popUpAttachNicDialog(vm_id);
+
+        //b.html(spinner);
+        return false;
+    }); 
+
+    $('#refresh_nic').live('click', function(){
+        var b = $(this);
+        var vm_id = b.parents('form').attr('vmid');
+        Sunstone.runAction("VM.shownics", vm_id);
+
+        return false;
+    }); 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Sets up the create-template dialog and all the processing associated to it,
 // which is a lot.
@@ -1946,8 +2218,8 @@ $(document).ready(function(){
     setVMAutorefresh();
     setupVNC();
     hotpluggingOps();
+    setup_vm_network_tab();
 
-    setupSaveAsDialog
 
     initCheckAllBoxes(dataTable_vMachines);
     tableCheckboxesListener(dataTable_vMachines);

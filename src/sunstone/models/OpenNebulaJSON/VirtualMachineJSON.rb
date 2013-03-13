@@ -64,6 +64,8 @@ module OpenNebulaJSON
                  when "chmod"        then self.chmod_octet(action_hash['params'])
                  when "attachdisk"   then self.attachdisk(action_hash['params'])
                  when "detachdisk"   then self.detachdisk(action_hash['params'])
+                 when "attachnic"    then self.attachnic(action_hash['params'])
+                 when "detachnic"    then self.detachnic(action_hash['params'])
                  when "update"       then self.update(action_hash['params'])
                  when "rename"       then self.rename(action_hash['params'])
                  else
@@ -109,6 +111,16 @@ module OpenNebulaJSON
 
         def detachdisk(params=Hash.new)
             super(params['disk_id'].to_i)
+        end
+
+        def attachnic(params=Hash.new)
+            template_json = params['nic_template']
+            template = template_to_str(template_json)
+            super(template)
+        end
+
+        def detachnic(params=Hash.new)
+            super(params['nic_id'].to_i)
         end
 
         def update(params=Hash.new)

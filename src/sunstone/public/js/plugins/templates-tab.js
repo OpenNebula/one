@@ -829,6 +829,242 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
     //$('button',disk_section).button();
 }
 
+
+
+
+
+
+
+
+function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
+  var html = '<div class="row">'+
+    '<div class="five columns push-seven">'+
+      '<input id="'+str_nic_tab_id+'_search" type="text" placeholder="Search"/>'+
+    '</div>'+
+  '</div>'+
+    '<table id="'+str_datatable_id+'" class="datatable twelve">'+
+      '<thead>'+
+        '<tr>'+
+          '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
+          '<th>'+tr("ID")+'</th>'+
+          '<th>'+tr("Owner")+'</th>'+
+          '<th>'+tr("Group")+'</th>'+
+          '<th>'+tr("Name")+'</th>'+
+          '<th>'+tr("Cluster")+'</th>'+
+          '<th>'+tr("Type")+'</th>'+
+          '<th>'+tr("Bridge")+'</th>'+
+          '<th>'+tr("Leases")+'</th>'+
+        '</tr>'+
+      '</thead>'+
+      '<tbody id="tbodynetworks">'+
+      '</tbody>'+
+    '</table>'+
+    '<br>'+
+    '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
+      '<span id="select_network" class="radius secondary label">'+tr("Please select an network from the list")+'</span>'+
+      '<span id="network_selected" class="radius secondary label hidden">You selected the following image: '+
+      '</span>'+
+      '<span class="radius label" type="text" id="NETWORK" name="network"></span>'+
+      '<input type="hidden" id="NETWORK_ID" name="network_id" size="2"/>'+
+    '</div>'+
+  '<hr>'+
+    '<div class="show_hide" id="advanced">'+
+          '<h4><small><i class=" icon-plus-sign-alt"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
+    '</div>'+
+    '<div class="advanced">'+
+      '<div class="row">'+
+        '<div class="six columns">'+
+          '<div class="row">'+
+            '<div class="four columns">'+
+              '<label class="right inline" for="IP">'+tr("IP")+':</label>'+
+            '</div>'+
+            '<div class="six columns">'+
+              '<input type="text" id="IP" name="IP" size="3" />'+
+            '</div>'+
+            '<div class="two columns">'+
+              '<div class="tip">'+tr("Request an specific IP from the Network")+'</div>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="six columns">'+
+          '<div class="row">'+
+            '<div class="four columns">'+
+                '<label class="right inline" for="MODEL">'+tr("MODEL")+':</label>'+
+            '</div>'+
+            '<div class="six columns">'+
+              '<input type="text" id="MODEL" name="MODEL" />'+
+            '</div>'+
+            '<div class="two columns">'+
+              '<div class="tip">'+tr("Hardware that will emulate this network interface. With Xen this is the type attribute of the vif.")+'</div>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+    '<div class="row">'+
+    '<div class="six columns">'+
+      '<fieldset>'+
+        '<legend>'+tr("TCP Firewall")+'</legend>'+
+        '<div class="row">'+
+          '<div class="four columns push-two">'+
+            '<input type="radio" name="tcp_type" id="tcp_type" value="WHITE_PORTS_TCP"> Whitelist '+
+          '</div>'+
+          '<div class="four columns pull-two">'+
+            '<input type="radio" name="tcp_type" id="tcp_type" value="BLACK_PORTS_TCP"> Blacklist'+
+          '</div>'+
+        '</div>'+
+        '<br>'+
+        '<div class="row">'+
+          '<div class="four columns">'+
+            '<label class="right inline" for="TCP_PORTS">'+tr("PORTS")+':</label>'+
+          '</div>'+
+          '<div class="six columns">'+
+              '<input type="text" id="TCP_PORTS" name="ports" />'+
+          '</div>'+
+          '<div class="two columns">'+
+              '<div class="tip">'+tr("A list of ports separated by commas or a ranges separated by semilocolons, e.g.: 22,80,5900:6000")+'</div>'+
+          '</div>'+
+        '</div>'+
+      '</fieldset>'+
+    '</div>'+
+    '<div class="six columns">'+
+      '<fieldset>'+
+        '<legend>'+tr("UDP Firewall")+'</legend>'+
+        '<div class="row">'+
+          '<div class="four columns push-two">'+
+            '<input type="radio" name="udp_type" id="udp_type" value="WHITE_PORTS_UDP"> Whitelist '+
+          '</div>'+
+          '<div class="four columns pull-two">'+
+            '<input type="radio" name="udp_type" id="udp_type" value="BLACK_PORTS_UDP"> Blacklist'+
+          '</div>'+
+        '</div>'+
+        '<br>'+
+        '<div class="row">'+
+          '<div class="four columns">'+
+            '<label class="right inline" for="UDP_PORTS">'+tr("PORTS")+':</label>'+
+          '</div>'+
+          '<div class="six columns">'+
+              '<input type="text" id="UDP_PORTS" name="ports" />'+
+          '</div>'+
+          '<div class="two columns">'+
+              '<div class="tip">'+tr("A list of ports separated by commas or a ranges separated by semilocolons, e.g.: 22,80,5900:6000")+'</div>'+
+          '</div>'+
+        '</div>'+
+      '</fieldset>'+
+    '</div>'+
+    '</div>'+
+      '<div class="row">'+
+        '<div class="six columns">'+
+          '<div class="row">'+
+            '<div class="four columns">'+
+            '</div>'+
+            '<div class="six columns">'+
+              '<label for="icmp_type"><input type="checkbox" name="icmp_type" value="ICMP" id="icmp_type"> '+ tr("Drop ICMP")+'</label>'+
+            '</div>'+
+            '<div class="two columns">'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+
+    return html;
+}
+
+function setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id) {
+    var dataTable_template_networks = $('#'+str_datatable_id, nic_section).dataTable({
+              "bSortClasses": false,
+              "bAutoWidth":false,
+              "iDisplayLength": 4,
+              "sDom" : '<"H">t<"F"p>',
+              "oColVis": {
+                  "aiExclude": [ 0 ]
+              },
+              "aoColumnDefs": [
+                  { "bSortable": false, "aTargets": ["check"] },
+                  { "sWidth": "60px", "aTargets": [0,6,7,8] },
+                  { "sWidth": "35px", "aTargets": [1] },
+                  { "sWidth": "100px", "aTargets": [2,3,5] },
+                  { "bVisible": false, "aTargets": [0, 7]}
+              ],
+              "oLanguage": (datatable_lang != "") ?
+                  {
+                      sUrl: "locale/"+lang+"/"+datatable_lang
+                  } : ""
+            });
+
+    //addElement([spinner,'','','','','','','',''],dataTable_template_networks);
+
+    // Retrieve the networks to fill the datatable
+    OpenNebula.Network.list({
+      timeout: true,
+      success: function (request, networks_list){
+          var network_list_array = [];
+
+          $.each(networks_list,function(){
+             network_list_array.push(vNetworkElementArray(this));
+          });
+
+          updateView(network_list_array, dataTable_template_networks);
+      },
+      error: onError
+    });
+
+
+
+    $('#'+str_nic_tab_id+'_search', nic_section).keyup(function(){
+      dataTable_template_networks.fnFilter( $(this).val() );
+    })
+
+  // TBD Add refresh button for the datatable
+
+  // When a row is selected the background color is updated. If a previous row
+  // was selected (previous_row) the background color is removed.
+  // #IMAGE and #IMAGE_ID inputs are updated using the row information
+  if (typeof previous_row === 'undefined') {
+      var previous_row = 0;
+  }
+
+  $('#'+str_datatable_id + '  tbody', nic_section).delegate("tr", "click", function(e){
+      if ($(e.target).is('input') ||
+          $(e.target).is('select') ||
+          $(e.target).is('option')) return true;
+
+      var aData = dataTable_template_networks.fnGetData(this);
+
+    if (previous_row) {
+        $("td:first", previous_row).parent().children().each(function(){$(this).removeClass('markrow');});
+    }
+    else {
+        $('#network_selected',  nic_section).toggle();
+        $('#select_network',  nic_section).hide();
+    }
+
+        $('.alert-box', nic_section).hide();
+
+      previous_row = this;
+      $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
+
+      $('#NETWORK', nic_section).text(aData[4]);
+      $('#NETWORK_ID', nic_section).val(aData[1]);
+      return false;
+  });
+
+
+  $('.advanced', nic_section).hide();
+
+  $('#advanced', nic_section).click(function(){
+      $('.advanced', nic_section).toggle();
+      return false;
+  });
+
+  setupTips(nic_section);
+}
+
+
+
+
+
+
 // Callback to update the information panel tabs and pop it up
 function updateTemplateInfo(request,template){
     var template_info = template.VMTEMPLATE;
@@ -1463,234 +1699,19 @@ function setupCreateTemplateDialog(){
       var str_datatable_id = 'datatable_template_networks' + number_of_nics;
 
       var html_tab_content = '<li id="'+str_nic_tab_id+'Tab" class="nic wizard_internal_tab">'+
-        '<div class="row">'+
-          '<div class="five columns push-seven">'+
-            '<input id="'+str_nic_tab_id+'_search" type="text" placeholder="Search"/>'+
-          '</div>'+
-        '</div>'+
-          '<table id="'+str_datatable_id+'" class="datatable twelve">'+
-            '<thead>'+
-              '<tr>'+
-                '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
-                '<th>'+tr("ID")+'</th>'+
-                '<th>'+tr("Owner")+'</th>'+
-                '<th>'+tr("Group")+'</th>'+
-                '<th>'+tr("Name")+'</th>'+
-                '<th>'+tr("Cluster")+'</th>'+
-                '<th>'+tr("Type")+'</th>'+
-                '<th>'+tr("Bridge")+'</th>'+
-                '<th>'+tr("Leases")+'</th>'+
-              '</tr>'+
-            '</thead>'+
-            '<tbody id="tbodynetworks">'+
-            '</tbody>'+
-          '</table>'+
-          '<br>'+
-          '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
-            '<span id="select_network" class="radius secondary label">'+tr("Please select an network from the list")+'</span>'+
-            '<span id="network_selected" class="radius secondary label hidden">You selected the following image: '+
-            '</span>'+
-            '<span class="radius label" type="text" id="NETWORK" name="network"></span>'+
-            '<input type="hidden" id="NETWORK_ID" name="network_id" size="2"/>'+
-          '</div>'+
-        '<hr>'+
-          '<div class="show_hide" id="advanced">'+
-                '<h4><small><i class=" icon-plus-sign-alt"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
-          '</div>'+
-          '<div class="advanced">'+
-            '<div class="row">'+
-              '<div class="six columns">'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="IP">'+tr("IP")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<input type="text" id="IP" name="IP" size="3" />'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Request an specific IP from the Network")+'</div>'+
-                  '</div>'+
-                '</div>'+
-              '</div>'+
-              '<div class="six columns">'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                      '<label class="right inline" for="MODEL">'+tr("MODEL")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<input type="text" id="MODEL" name="MODEL" />'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Hardware that will emulate this network interface. With Xen this is the type attribute of the vif.")+'</div>'+
-                  '</div>'+
-                '</div>'+
-              '</div>'+
-            '</div>'+
-          '<div class="row">'+
-          '<div class="six columns">'+
-            '<fieldset>'+
-              '<legend>'+tr("TCP Firewall")+'</legend>'+
-              '<div class="row">'+
-                '<div class="four columns push-two">'+
-                  '<input type="radio" name="tcp_type" id="tcp_type" value="WHITE_PORTS_TCP"> Whitelist '+
-                '</div>'+
-                '<div class="four columns pull-two">'+
-                  '<input type="radio" name="tcp_type" id="tcp_type" value="BLACK_PORTS_TCP"> Blacklist'+
-                '</div>'+
-              '</div>'+
-              '<br>'+
-              '<div class="row">'+
-                '<div class="four columns">'+
-                  '<label class="right inline" for="TCP_PORTS">'+tr("PORTS")+':</label>'+
-                '</div>'+
-                '<div class="six columns">'+
-                    '<input type="text" id="TCP_PORTS" name="ports" />'+
-                '</div>'+
-                '<div class="two columns">'+
-                    '<div class="tip">'+tr("A list of ports separated by commas or a ranges separated by semilocolons, e.g.: 22,80,5900:6000")+'</div>'+
-                '</div>'+
-              '</div>'+
-            '</fieldset>'+
-          '</div>'+
-          '<div class="six columns">'+
-            '<fieldset>'+
-              '<legend>'+tr("UDP Firewall")+'</legend>'+
-              '<div class="row">'+
-                '<div class="four columns push-two">'+
-                  '<input type="radio" name="udp_type" id="udp_type" value="WHITE_PORTS_UDP"> Whitelist '+
-                '</div>'+
-                '<div class="four columns pull-two">'+
-                  '<input type="radio" name="udp_type" id="udp_type" value="BLACK_PORTS_UDP"> Blacklist'+
-                '</div>'+
-              '</div>'+
-              '<br>'+
-              '<div class="row">'+
-                '<div class="four columns">'+
-                  '<label class="right inline" for="UDP_PORTS">'+tr("PORTS")+':</label>'+
-                '</div>'+
-                '<div class="six columns">'+
-                    '<input type="text" id="UDP_PORTS" name="ports" />'+
-                '</div>'+
-                '<div class="two columns">'+
-                    '<div class="tip">'+tr("A list of ports separated by commas or a ranges separated by semilocolons, e.g.: 22,80,5900:6000")+'</div>'+
-                '</div>'+
-              '</div>'+
-            '</fieldset>'+
-          '</div>'+
-          '</div>'+
-            '<div class="row">'+
-              '<div class="six columns">'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<label for="icmp_type"><input type="checkbox" name="icmp_type" value="ICMP" id="icmp_type"> '+ tr("Drop ICMP")+'</label>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                  '</div>'+
-                '</div>'+
-              '</div>'+
-            '</div>'+
-          '</div>'+
+          generate_nic_tab_content(str_nic_tab_id, str_datatable_id) + 
         '</li>'
 
-        // Append the new div containing the tab and add the tab to the list
-        var a = $("<dd><a href='#"+str_nic_tab_id+"'>NIC <i class='icon-remove-sign remove-tab'></i></a></dd>").appendTo($("dl#template_create_network_tabs"));
+      // Append the new div containing the tab and add the tab to the list
+      var a = $("<dd><a href='#"+str_nic_tab_id+"'>NIC <i class='icon-remove-sign remove-tab'></i></a></dd>").appendTo($("dl#template_create_network_tabs"));
 
-        $(html_tab_content).appendTo($("ul#template_create_network_tabs_content"));
+      $(html_tab_content).appendTo($("ul#template_create_network_tabs_content"));
 
-        $(document).foundationTabs("set_tab", a);
-
-
-        var nic_section = $('li#' + str_nic_tab_id + 'Tab', dialog);
-
-        var dataTable_template_networks = $('#'+str_datatable_id, dialog).dataTable({
-          "bSortClasses": false,
-          "bAutoWidth":false,
-          "iDisplayLength": 4,
-          "sDom" : '<"H">t<"F"p>',
-          "oColVis": {
-              "aiExclude": [ 0 ]
-          },
-          "aoColumnDefs": [
-              { "bSortable": false, "aTargets": ["check"] },
-              { "sWidth": "60px", "aTargets": [0,6,7,8] },
-              { "sWidth": "35px", "aTargets": [1] },
-              { "sWidth": "100px", "aTargets": [2,3,5] },
-              { "bVisible": false, "aTargets": [0, 7]}
-          ],
-          "oLanguage": (datatable_lang != "") ?
-              {
-                  sUrl: "locale/"+lang+"/"+datatable_lang
-              } : ""
-        });
-
-        //addElement([spinner,'','','','','','','',''],dataTable_template_networks);
-
-        // Retrieve the networks to fill the datatable
-        OpenNebula.Network.list({
-          timeout: true,
-          success: function (request, networks_list){
-              var network_list_array = [];
-
-              $.each(networks_list,function(){
-                 network_list_array.push(vNetworkElementArray(this));
-              });
-
-              updateView(network_list_array, dataTable_template_networks);
-          },
-          error: onError
-        });
+      $(document).foundationTabs("set_tab", a);
 
 
-
-        $('#'+str_nic_tab_id+'_search', nic_section).keyup(function(){
-          dataTable_template_networks.fnFilter( $(this).val() );
-        })
-
-      // TBD Add refresh button for the datatable
-
-      // When a row is selected the background color is updated. If a previous row
-      // was selected (previous_row) the background color is removed.
-      // #IMAGE and #IMAGE_ID inputs are updated using the row information
-      if (typeof previous_row === 'undefined') {
-          var previous_row = 0;
-      }
-
-      $('#'+str_datatable_id + '  tbody', dialog).delegate("tr", "click", function(e){
-          if ($(e.target).is('input') ||
-              $(e.target).is('select') ||
-              $(e.target).is('option')) return true;
-
-          var aData = dataTable_template_networks.fnGetData(this);
-
-        if (previous_row) {
-            $("td:first", previous_row).parent().children().each(function(){$(this).removeClass('markrow');});
-        }
-        else {
-            $('#network_selected',  nic_section).toggle();
-            $('#select_network',  nic_section).hide();
-        }
-
-            $('.alert-box', nic_section).hide();
-
-          previous_row = this;
-          $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
-
-          $('#NETWORK', nic_section).text(aData[4]);
-          $('#NETWORK_ID', nic_section).val(aData[1]);
-          return false;
-      });
-
-
-      $('.advanced', nic_section).hide();
-
-      $('#advanced', nic_section).click(function(){
-          $('.advanced', nic_section).toggle();
-          return false;
-      });
-
-      setupTips(nic_section);
+      var nic_section = $('li#' + str_nic_tab_id + 'Tab', dialog);
+      setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id)
 
       number_of_nics++;
       nics_index++;

@@ -744,6 +744,16 @@ var OpenNebula = {
             OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
                                             "detachdisk",action_obj);
         },
+        "attachnic" : function(params){
+            var action_obj = {"nic_template": params.data.extra_param};
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
+                                            "attachnic",action_obj);
+        },
+        "detachnic" : function(params){
+            var action_obj = {"nic_id": params.data.extra_param};
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
+                                            "detachnic",action_obj);
+        },
         "rename" : function(params){
             var action_obj = params.data.extra_param;
             OpenNebula.Action.simple_action(params,
