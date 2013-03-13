@@ -428,6 +428,7 @@ static void mkfs_action(istringstream& is,
         }
 
         vm->clear_saveas_state();
+        vm->clear_saveas_disk();
     }
 
     vmpool->update(vm);
@@ -478,6 +479,15 @@ error:
     {
         if ((vm = vmpool->get(vm_id, true)) != 0)
         {
+            if(is_hot)
+            {
+                vm->clear_saveas_disk_hot();
+            }
+            else
+            {
+                vm->clear_saveas_disk();
+            }
+
             vm->clear_saveas_state();
             vmpool->update(vm);
 

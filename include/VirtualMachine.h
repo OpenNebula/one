@@ -864,12 +864,16 @@ public:
 
     /**
      *  Sets the corresponding SAVE_AS state.
+     *    @param  disk_id Index of the disk to save
+     *    @param hot is this a save_as hot operation
      *    @return 0 if the VM can be saved as
      */
-     int set_saveas_state();
+     int set_saveas_state(int disk_id, bool hot);
 
     /**
      *  Clears the SAVE_AS state, moving the VM to the original state.
+     *    @param  disk_id Index of the disk to save
+     *    @param hot is this a save_as hot operation
      *    @return 0 if the VM was in a SAVE_AS state
      */
      int clear_saveas_state();
@@ -903,9 +907,26 @@ public:
     int get_saveas_disk_hot(int& disk_id, string& source, int& image_id);
 
     /**
-     * Cleans the HOTPLUG_SAVEAS = YES attribute from the disks
+     * Cleans the HOTPLUG_SAVE_AS_ACTIVE = YES attribute from the disks
      */
     void clear_saveas_disk_hot();
+
+    /**
+     * Cleans the SAVE_AS_ACTIVE = YES attribute from the disks
+     */
+    void clear_saveas_disk();
+
+    void clear_saveas_disk(bool hot)
+    {
+        if (hot)
+        {
+            clear_saveas_disk_hot();
+        }
+        else
+        {
+            clear_saveas_disk();
+        }
+    }
 
     // ------------------------------------------------------------------------
     // Authorization related functions

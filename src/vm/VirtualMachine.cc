@@ -2490,8 +2490,10 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::set_saveas_state()
+int VirtualMachine::set_saveas_state(int disk_id, bool hot)
 {
+    VectorAttribute* disk;
+
     switch (state)
     {
         case ACTIVE:
@@ -2499,7 +2501,8 @@ int VirtualMachine::set_saveas_state()
             {
                 case RUNNING:
                     lcm_state = HOTPLUG_SAVEAS;
-                    return 0;
+                break;
+
                 default:
                     return -1;
             }
@@ -2508,16 +2511,32 @@ int VirtualMachine::set_saveas_state()
         case POWEROFF:
             state     = ACTIVE;
             lcm_state = HOTPLUG_SAVEAS_POWEROFF;
-            return 0;
+        break;
 
         case SUSPENDED:
             state     = ACTIVE;
             lcm_state = HOTPLUG_SAVEAS_SUSPENDED;
-            return 0;
+        break;
 
         default:
             return -1;
     }
+
+    disk = get_disk(disk_id);
+
+    if ( disk != 0 )
+    {
+        if (hot)
+        {
+            disk->replace("SAVE_AS_ACTIVE", "YES");
+        }
+        else
+        {
+            disk->replace("HOTPLUG_SAVE_AS_ACTIVE", "YES");
+        }
+    }
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2640,14 +2659,12 @@ int VirtualMachine::save_disk_hot(const string& disk_id,
 
     if ( disk != 0 )
     {
-        disk->replace("HOTPLUG_SAVEAS", "YES");
-        disk->replace("HOTPLUG_SAVEAS_IMAGE_ID", img_id);
-        disk->replace("HOTPLUG_SAVEAS_SOURCE", source);
+        disk->replace("HOTPLUG_SAVE_AS", img_id);
+        disk->replace("HOTPLUG_SAVE_AS_SOURCE", source);
     }
 
     return 0;
 }
-
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -2671,11 +2688,11 @@ int VirtualMachine::get_saveas_disk_hot(int& disk_id, string& source, int& image
             continue;
         }
 
-        if ( disk->vector_value("HOTPLUG_SAVEAS") == "YES" )
+        if ( disk->vector_value("HOTPLUG_SAVE_AS_ACTIVE") == "YES" )
         {
-            source = disk->vector_value("HOTPLUG_SAVEAS_SOURCE");
+            source = disk->vector_value("HOTPLUG_SAVE_AS_SOURCE");
 
-            rc =  disk->vector_value("HOTPLUG_SAVEAS_IMAGE_ID", image_id);
+            rc =  disk->vector_value("HOTPLUG_SAVE_AS", image_id);
             rc += disk->vector_value("DISK_ID",  disk_id);
 
             if ( rc != 0 || source.empty() )
@@ -2689,7 +2706,6 @@ int VirtualMachine::get_saveas_disk_hot(int& disk_id, string& source, int& image
 
     return -1;
 }
-
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -2711,11 +2727,40 @@ void VirtualMachine::clear_saveas_disk_hot()
             continue;
         }
 
-        if ( disk->vector_value("HOTPLUG_SAVEAS") == "YES" )
+        if ( disk->vector_value("HOTPLUG_SAVE_AS_ACTIVE") == "YES" )
         {
-            disk->remove("HOTPLUG_SAVEAS");
-            disk->remove("HOTPLUG_SAVEAS_IMAGE_ID");
-            disk->remove("HOTPLUG_SAVEAS_SOURCE");
+            disk->remove("HOTPLUG_SAVE_AS_ACTIVE");
+            disk->remove("HOTPLUG_SAVE_AS");
+            disk->remove("HOTPLUG_SAVE_AS_SOURCE");
+            return;
+        }
+    }
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::clear_saveas_disk()
+{
+    int                  num_disks;
+    vector<Attribute  *> disks;
+    VectorAttribute *    disk;
+
+    num_disks = obj_template->get("DISK", disks);
+
+    for(int i=0; i<num_disks; i++)
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        if ( disk->vector_value("SAVE_AS_ACTIVE") == "YES" )
+        {
+            disk->remove("SAVE_AS_ACTIVE");
             return;
         }
     }
