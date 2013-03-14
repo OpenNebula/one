@@ -293,9 +293,11 @@ module OpenNebula
         end
 
         # Forces a re-deployment of a VM in UNKNOWN or BOOT state
-        def restart
-            action('restart')
+        def boot
+            action('boot')
         end
+
+        alias_method :restart, :boot
 
         # Resubmits a VM to PENDING state
         def resubmit

@@ -398,19 +398,19 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    restart_desc = <<-EOT.unindent
+    boot_desc = <<-EOT.unindent
         Boots the given VM.
 
         States: UNKNOWN, BOOT, POWEROFF
     EOT
 
-    command :restart, restart_desc, [:range,:vmid_list],
+    command :boot, boot_desc, [:range,:vmid_list],
         :options => [OneVMHelper::SCHEDULE] do
         if (!options[:schedule].nil?)
             helper.schedule_actions(args[0], options, @comm_name)
         else
-            helper.perform_actions(args[0],options,"restarting") do |vm|
-                vm.restart
+            helper.perform_actions(args[0],options,"booting") do |vm|
+                vm.boot
             end
         end
     end
