@@ -734,6 +734,11 @@ var OpenNebula = {
         "pool_monitor" : function(params){
             OpenNebula.Action.monitor(params,OpenNebula.VM.resource,true);
         },
+        "resize" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
+                                            "resize",action_obj);
+        },
         "attachdisk" : function(params){
             var action_obj = {"disk_template": params.data.extra_param};
             OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,

@@ -62,6 +62,7 @@ module OpenNebulaJSON
                  when "resubmit"     then self.resubmit
                  when "chown"        then self.chown(action_hash['params'])
                  when "chmod"        then self.chmod_octet(action_hash['params'])
+                 when "resize"       then self.resize(action_hash['params'])
                  when "attachdisk"   then self.attachdisk(action_hash['params'])
                  when "detachdisk"   then self.detachdisk(action_hash['params'])
                  when "attachnic"    then self.attachnic(action_hash['params'])
@@ -101,6 +102,12 @@ module OpenNebulaJSON
 
         def chmod_octet(params=Hash.new)
             super(params['octet'])
+        end
+
+        def resize(params=Hash.new)
+            template_json = params['vm_template']
+            template = template_to_str(template_json)
+            super(template, params['enforce'])
         end
 
         def attachdisk(params=Hash.new)

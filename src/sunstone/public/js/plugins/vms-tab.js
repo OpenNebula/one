@@ -212,6 +212,15 @@ var vm_actions = {
         },
         error: onError
     },
+    "VM.showcapacity" : {
+        type: "single",
+        call: OpenNebula.VM.show,
+        callback: function(request, vm){
+          updateVMachineElement(request, vm);
+          updateVMCapacityInfo(request, vm);
+        },
+        error: onError
+    },
     "VM.refresh" : {
         type: "custom",
         call : function (){
@@ -568,6 +577,15 @@ var vm_actions = {
         error: onError,
         notify: true
     },
+    "VM.resize" : {
+        type: "single",
+        call: OpenNebula.VM.resize,
+        callback: function(request) {
+            Sunstone.runAction("VM.showcapacity", request.request.data[0]);
+        },
+        error: onError,
+        notify: true
+    },
     "VM.detachnic" : {
         type: "single",
         call: OpenNebula.VM.detachnic,
@@ -752,30 +770,7 @@ var vm_buttons = {
 }
 
 var vm_info_panel = {
-    "vm_info_tab" : {
-        title: tr("Virtual Machine information"),
-        content: ""
-    },
-    "vm_hotplugging_tab" : {
-        title: tr("Disks & Hotplugging"),
-        content: ""
-    },
-    "vm_template_tab" : {
-        title: tr("VM template"),
-        content: ""
-    },
-    "vm_log_tab" : {
-        title: tr("VM log"),
-        content: ""
-    },
-    "vm_history_tab" : {
-        title: tr("History information"),
-        content: ""
-    },
-    "vm_monitoring_tab" : {
-        title: tr("Graphs"),
-        content: ""
-    }
+
 };
 
 var vms_tab = {
@@ -1244,6 +1239,11 @@ function updateVMInfo(request,vm){
         content: printNics(vm_info)
     };
 
+    var capacity_tab = {
+        title: tr("Capacity"),
+        content: printCapacity(vm_info)
+    };
+
     var template_tab = {
         title: tr("VM Template"),
         content:
@@ -1263,32 +1263,6 @@ function updateVMInfo(request,vm){
         content:
         '\
         <div class="">\
-            <div class="six columns">\
-              <div class="row graph_legend">\
-                <h3 class="subheader"><small>'+tr("CPU")+'</small></h3>\
-              </div>\
-              <div class="row">\
-                <div class="ten columns centered graph" id="vm_cpu_graph" style="height: 100px;">\
-                </div>\
-              </div>\
-              <div class="row graph_legend">\
-                <div class="ten columns centered" id="vm_cpu_legend">\
-                </div>\
-              </div>\
-            </div>\
-            <div class="six columns">\
-              <div class="row graph_legend">\
-                <h3 class="subheader"><small>'+tr("MEMORY")+'</small></h3>\
-              </div>\
-              <div class="row">\
-                <div class="ten columns centered graph" id="vm_memory_graph" style="height: 100px;">\
-                </div>\
-              </div>\
-              <div class="row graph_legend">\
-                <div class="ten columns centered" id="vm_memory_legend">\
-                </div>\
-              </div>\
-            </div>\
             <div class="six columns">\
               <div class="row graph_legend">\
                 <h3 class="subheader"><small>'+tr("NET RX")+'</small></h3>\
@@ -1369,6 +1343,7 @@ function updateVMInfo(request,vm){
     });
 
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_info_tab",info_tab);
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_capacity_tab",capacity_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_hotplugging_tab",hotplugging_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_network_tab",network_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_template_tab",template_tab);
@@ -1475,7 +1450,7 @@ function printDisks(vm_info){
                 disk.HOTPLUG_SAVE_AS_ACTIVE == "YES")
                ) {
               save_as = (disk.SAVE_AS ? disk.SAVE_AS : '-');
-              actions = 'hot snapshot in progress'
+              actions = 'hot snapshot in progress' 
             }
             // Attach / Detach
             else if ( 
@@ -1739,33 +1714,6 @@ function hotpluggingOps(){
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function updateVMNicsInfo(request,vm){
   $("li#vm_network_tabTab").html(printNics(vm.VM));
 }
@@ -1961,6 +1909,197 @@ function setup_vm_network_tab(){
 
 
 
+
+
+
+
+
+
+function updateVMCapacityInfo(request,vm){
+  $("li#vm_capacity_tabTab").html(printCapacity(vm.VM));
+  Sunstone.runAction("VM.monitor",vm.VM.ID,
+        { monitor_resources : "CPU,MEMORY,NET_TX,NET_RX"});
+}
+
+function printCapacity(vm_info){
+   var html ='\
+     <div class="">\
+        <div>\
+           <form id="tab_capacity_form" vmid="'+vm_info.ID+'" >\
+              <div class="twelve columns">\
+                <div id="refresh_capacity" class="button small secondary radius" ><i class="icon-refresh"/></div>'
+
+    // If VM is not RUNNING, then we forget about the attach nic form.
+    if (vm_info.STATE == "0" || vm_info.STATE == "1" || vm_info.STATE == "2" || vm_info.STATE == "7" || vm_info.STATE == "8"){
+      html += '\
+        <button id="resize_capacity" class="button small secondary radius" >' + tr("Resize VM capacity") +'</button>'
+    } else {
+      html += '\
+        <button id="resize_capacity" class="button small secondary radius" disabled="disabled">' + tr("Resize VM capacity") +'</button>'
+    }
+
+    html += '\
+      </div>\
+      <br>\
+      <br>'
+
+    html += '\
+      <div class="twelve columns">\
+         <table class="info_table twelve extended_table">\
+           <thead>\
+             <tr>\
+                <th>'+tr("CPU")+'</th>\
+                <th>'+tr("VCPU")+'</th>\
+                <th>'+tr("MEMORY")+'</th>\
+              </tr>\
+           </thead>\
+           <tbody>\
+              <tr>\
+                <td>' + vm_info.TEMPLATE.CPU + '</td>\
+                <td>' + (vm_info.TEMPLATE.VCPU ? vm_info.TEMPLATE.VCPU : '-') + '</td>\
+                <td>' + humanize_size_from_mb(vm_info.TEMPLATE.MEMORY) + '</td>\
+            </tr>\
+            </tbody>\
+          </table>\
+        </div>\
+            <div class="six columns">\
+              <div class="row graph_legend">\
+                <h3 class="subheader"><small>'+tr("CPU")+'</small></h3>\
+              </div>\
+              <div class="row">\
+                <div class="ten columns centered graph" id="vm_cpu_graph" style="height: 100px;">\
+                </div>\
+              </div>\
+              <div class="row graph_legend">\
+                <div class="ten columns centered" id="vm_cpu_legend">\
+                </div>\
+              </div>\
+            </div>\
+            <div class="six columns">\
+              <div class="row graph_legend">\
+                <h3 class="subheader"><small>'+tr("MEMORY")+'</small></h3>\
+              </div>\
+              <div class="row">\
+                <div class="ten columns centered graph" id="vm_memory_graph" style="height: 100px;">\
+                </div>\
+              </div>\
+              <div class="row graph_legend">\
+                <div class="ten columns centered" id="vm_memory_legend">\
+                </div>\
+              </div>\
+            </div>\
+      </form>';
+
+    return html;
+}
+
+function setupResizeCapacityDialog(){
+    dialogs_context.append('<div id="resize_capacity_dialog"></div>');
+    $resize_capacity_dialog = $('#resize_capacity_dialog',dialogs_context);
+    var dialog = $resize_capacity_dialog;
+
+    dialog.html('<div class="panel">\
+      <h3>\
+        <small id="">'+tr("Resize VM capacity")+'</small>\
+      </h3>\
+    </div>\
+    <form id="resize_capacity_form" action="">\
+          <div class="row centered">\
+          <div class="eight columns">\
+              <div class="four columns">\
+                  <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
+              </div>\
+              <div class="seven columns">\
+                  <input type="text" name="vm_id" id="vm_id" disabled/>\
+              </div>\
+              <div class="one columns">\
+              </div>\
+          </div>\
+          <div class="four columns">\
+              <div class="four columns">\
+                  <label class="inline right" for="vm_id">'+tr("Enforce")+':</label>\
+              </div>\
+              <div class="two columns">\
+                  <input type="checkbox" name="enforce" id="enforce"/>\
+              </div>\
+              <div class="one columns pull-five">\
+                  <div class="tip">'
+                    + tr("If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced") +
+                  '</div>\
+              </div>\
+          </div>\
+          </div>' +
+          generate_capacity_tab_content() +
+          '<hr>\
+          <div class="form_buttons">\
+              <button class="button radius right success" id="resize_capacity_button" type="submit" value="VM.resize">'+tr("Resize")+'</button>\
+              <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+          </div>\
+      <a class="close-reveal-modal">&#215;</a>\
+    </form>')
+
+    dialog.addClass("reveal-modal large");
+    setupTips(dialog);
+
+    $("#template_name_form", dialog).hide();
+
+    setup_capacity_tab_content(dialog);
+
+    $('#resize_capacity_form',dialog).submit(function(){
+        var vm_id = $('#vm_id', this).val();
+
+        var enforce = false;
+        if ($("#enforce", this).is(":checked")) {
+          enforce = true;
+        }
+
+        var data  = {};
+        addSectionJSON(data, this);
+
+        var obj = {
+          "vm_template": data,
+          "enforce": (enforce == "on" ? true : false),
+        }
+        console.log(enforce)
+        console.log(obj)
+
+        Sunstone.runAction('VM.resize', vm_id, obj);
+
+        $resize_capacity_dialog.trigger("reveal:close")
+        return false;
+    });
+};
+
+function popUpResizeCapacityDialog(vm_id){
+    $('#vm_id',$resize_capacity_dialog).val(vm_id);
+    $resize_capacity_dialog.reveal();
+}
+
+
+// Listeners to the nics operations (detach, saveas, attach)
+function setup_vm_capacity_tab(){
+    //setupSaveAsDialog();
+    setupResizeCapacityDialog();
+
+
+    $('#resize_capacity').live('click', function(){
+        var b = $(this);
+        var vm_id = b.parents('form').attr('vmid');
+
+        popUpResizeCapacityDialog(vm_id);
+
+        //b.html(spinner);
+        return false;
+    }); 
+
+    $('#refresh_capacity').live('click', function(){
+        var b = $(this);
+        var vm_id = b.parents('form').attr('vmid');
+        Sunstone.runAction("VM.showcapacity", vm_id);
+
+        return false;
+    }); 
+}
 
 
 
@@ -2219,6 +2358,7 @@ $(document).ready(function(){
     setupVNC();
     hotpluggingOps();
     setup_vm_network_tab();
+    setup_vm_capacity_tab();
 
 
     initCheckAllBoxes(dataTable_vMachines);

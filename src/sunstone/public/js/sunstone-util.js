@@ -152,10 +152,10 @@ function recountCheckboxes(dataTable){
 
     if (checked_length) { //at least 1 element checked
         //enable action buttons
-        $('.top_button, .list_button',context).removeAttr('disabled');
+        $('.top_button, .list_button',context).attr('disabled', false);
         //check if the last_action_button should be enabled
         if (last_action_b.length && last_action_b.val().length){
-            last_action_b.prop('disabled', false);
+            last_action_b.attr('disabled', false);
         };
         //enable checkall box
         if (total_length == checked_length){
@@ -167,12 +167,12 @@ function recountCheckboxes(dataTable){
         //disable action buttons, uncheck checkAll
         $('.check_all',dataTable).removeAttr('checked');
         $('.top_button, .list_button',context).attr('disabled', true);
-        last_action_b.prop('disabled', true);
+        last_action_b.attr('disabled', true);
     };
 
     //any case the create dialog buttons should always be enabled.
-    $('.create_dialog_button',context).prop('disabled', false);
-    $('.alwaysActive',context).prop('disabled', false);
+    $('.create_dialog_button',context).attr('disabled', false);
+    $('.alwaysActive',context).attr('disabled', false);
 }
 
 //Init action buttons and checkboxes listeners
@@ -180,11 +180,11 @@ function tableCheckboxesListener(dataTable){
     //Initialization - disable all buttons
     var context = dataTable.parents('form');
 
-    $('.last_action_button',context).prop('disabled', true);
+    $('.last_action_button',context).attr('disabled', true);
     $('.top_button, .list_button',context).attr('disabled', true);
     //These are always enabled
-    $('.create_dialog_button',context).prop('disabled', false);
-    $('.alwaysActive',context).prop('disabled', false);
+    $('.create_dialog_button',context).attr('disabled', false);
+    $('.alwaysActive',context).attr('disabled', false);
 
     //listen to changes in the visible inputs
     $('tbody input.check_item',dataTable).live("change",function(){
@@ -700,7 +700,7 @@ function plot_graph(response, info) {
 
         var data = response.monitoring[attribute];
 
-        if(info.derivative) {
+        if(info.derivative == true) {
             derivative(data);
         }
 
@@ -783,7 +783,7 @@ function plot_totals(response, info) {
             if(id != "resource") {
                 var data = response[id][attribute];
 
-                if(info.derivative) {
+                if(info.derivative == true) {
                     derivative(data);
                 }
 

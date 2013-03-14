@@ -6774,3 +6774,8 @@ a.footer.button {
 .vm_log_error {
   color: #c0392b;
 }
+
+/* line 773, ../sass/app.scss */
+.noUiSlider {
+  margin: 10px;
+}
