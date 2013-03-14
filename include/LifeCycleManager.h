@@ -157,9 +157,13 @@ private:
     /**
      *  Cleans up a VM, canceling any pending or ongoing action and closing
      *  the history registers
-     *      @param vm with the lock aquired
+     *
+     * @param vm with the lock acquired
+     * @param dispose true if the vm will end in DONE, false to resubmit to PENDING
+     * @param image_id If the VM is in the middle of a save as operation, an
+     * image may need to be set to error state.
      */
-    void clean_up_vm (VirtualMachine *vm, bool dispose);
+    void clean_up_vm (VirtualMachine *vm, bool dispose, int& image_id);
 
     void save_success_action(int vid);
 
