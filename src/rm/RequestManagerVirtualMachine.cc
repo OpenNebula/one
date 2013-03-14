@@ -335,7 +335,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     {
         rc = dm->stop(id);
     }
-    else if (action == "cancel")
+    else if (action == "shutdown-hard" || action == "cancel")
     {
         rc = dm->cancel(id);
     }
@@ -347,15 +347,15 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     {
         rc = dm->resume(id);
     }
-    else if (action == "restart")
+    else if (action == "boot" || action == "restart")
     {
         rc = dm->restart(id);
     }
-    else if (action == "finalize")
+    else if (action == "destroy" || action == "finalize")
     {
         rc = dm->finalize(id);
     }
-    else if (action == "resubmit")
+    else if (action == "destroy-recreate" || action == "resubmit")
     {
         rc = dm->resubmit(id);
     }
@@ -371,7 +371,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     {
         rc = dm->resched(id, false);
     }
-    else if (action == "reset")
+    else if (action == "reboot-hard" || action == "reset")
     {
         rc = dm->reset(id);
     }
