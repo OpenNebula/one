@@ -687,6 +687,8 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose)
     TransferManager *       tm  = nd.get_tm();
     VirtualMachineManager * vmm = nd.get_vmm();
 
+    ImagePool*              ipool = nd.get_ipool();
+
     VirtualMachine::LcmState state = vm->get_lcm_state();
     int                      vid   = vm->get_oid();
 
@@ -735,12 +737,58 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose)
         case VirtualMachine::SHUTDOWN:
         case VirtualMachine::SHUTDOWN_POWEROFF:
         case VirtualMachine::CANCEL:
+        case VirtualMachine::HOTPLUG_SNAPSHOT:
+            vm->set_running_etime(the_time);
+            vmpool->update_history(vm);
+
+            vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
+            vmm->trigger(VirtualMachineManager::CLEANUP,vid);
+        break;
+
         case VirtualMachine::HOTPLUG:
+            vm->clear_attach_disk();
+
+            vm->set_running_etime(the_time);
+            vmpool->update_history(vm);
+
+            vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
+            vmm->trigger(VirtualMachineManager::CLEANUP,vid);
+        break;
+
+        case VirtualMachine::HOTPLUG_NIC:
+            vm->clear_attach_nic();
+
+            vm->set_running_etime(the_time);
+            vmpool->update_history(vm);
+
+            vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
+            vmm->trigger(VirtualMachineManager::CLEANUP,vid);
+        break;
+
         case VirtualMachine::HOTPLUG_SAVEAS:
         case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
         case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
-        case VirtualMachine::HOTPLUG_SNAPSHOT:
-        case VirtualMachine::HOTPLUG_NIC:
+            tm->trigger(TransferManager::DRIVER_CANCEL, vid);
+
+            int image_id;
+            vm->cancel_saveas_disk(image_id);
+
+            // TODO: Remove potential deadlock, vm is locked and we shouldn't
+            // unlock it. Maybe we could add a trigger to ImageManager
+
+            Image* image;
+
+            image = ipool->get(image_id, true);
+
+            if ( image != 0 )
+            {
+                image->set_state(Image::ERROR);
+
+                ipool->update(image);
+
+                image->unlock();
+            }
+
             vm->set_running_etime(the_time);
             vmpool->update_history(vm);
 

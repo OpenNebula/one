@@ -2717,6 +2717,62 @@ int VirtualMachine::get_saveas_disk_hot(int& disk_id, string& source, int& image
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachine::cancel_saveas_disk(int& image_id)
+{
+    vector<Attribute  *> disks;
+    VectorAttribute *    disk;
+
+    int num_disks;
+
+    num_disks = obj_template->get("DISK", disks);
+
+    bool active, hot_active;
+
+    image_id = -1;
+
+    for(int i=0; i<num_disks; i++)
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        disk->vector_value("SAVE_AS_ACTIVE", active);
+        disk->vector_value("HOTPLUG_SAVE_AS_ACTIVE", hot_active);
+
+        if (active)
+        {
+            disk->vector_value("SAVE_AS", image_id);
+
+            disk->remove("SAVE_AS_ACTIVE");
+            disk->remove("SAVE_AS_SOURCE");
+            disk->remove("SAVE_AS");
+
+            disk->replace("SAVE", "NO");
+
+            return 0;
+        }
+
+        if (hot_active)
+        {
+            disk->vector_value("HOTPLUG_SAVE_AS", image_id);
+
+            disk->remove("HOTPLUG_SAVE_AS_ACTIVE");
+            disk->remove("HOTPLUG_SAVE_AS");
+            disk->remove("HOTPLUG_SAVE_AS_SOURCE");
+
+            return 0;
+        }
+    }
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachine::set_auth_request(int uid,
                                       AuthRequest& ar,
                                       VirtualMachineTemplate *tmpl)

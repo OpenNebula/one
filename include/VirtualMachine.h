@@ -906,6 +906,15 @@ public:
      */
     int get_saveas_disk_hot(int& disk_id, string& source, int& image_id);
 
+    /**
+     * Clears the save_as attributes of the disk being (hot) saved as
+     *
+     *    @param  img_id ID of the image this disk will be saved to. Can be
+     *    -1 if it is not found
+     *    @return 0 if a disk with (HOTPLUG_)SAVE_AS was cleaned
+     */
+    int cancel_saveas_disk(int& image_id);
+
     // ------------------------------------------------------------------------
     // Authorization related functions
     // ------------------------------------------------------------------------
