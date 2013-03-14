@@ -307,6 +307,8 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     Nebula& nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
 
+    ostringstream oss;
+
     AuthRequest::Operation op = auth_op;
 
     if (action == "resched" || action == "unresched")
@@ -391,13 +393,18 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
                     att);
             break;
         case -2:
-             failure_response(ACTION,
-                     request_error("Wrong state to perform action",""),
-                     att);
+            oss << "Wrong state to perform action \"" << action << "\"";
+
+            failure_response(ACTION,
+                    request_error(oss.str(),""),
+                    att);
              break;
         case -3:
+            oss << "Virtual machine action \"" << action
+                << "\" is not supported";
+
             failure_response(ACTION,
-                    request_error("Virtual machine action not supported",""),
+                    request_error(oss.str(),""),
                     att);
             break;
         default:
