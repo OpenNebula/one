@@ -6779,3 +6779,11 @@ a.footer.button {
 .noUiSlider {
   margin: 10px;
 }
+
+/* line 777, ../sass/app.scss */
+.log-tab {
+  background: #6f6f6f;
+  color: #f2f2f2;
+  font-weight: bold;
+  padding: 20px;
+}
