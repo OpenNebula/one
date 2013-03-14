@@ -219,7 +219,10 @@ module OpenNebula
             action(hard ? 'reboot-hard' : 'reboot')
         end
 
-        alias_method :reset, :reboot
+        # @deprecated use {#reboot}
+        def reset
+            reboot(true)
+        end
 
         # Cancels a running VM
         def cancel
