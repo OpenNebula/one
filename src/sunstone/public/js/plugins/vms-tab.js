@@ -1258,65 +1258,6 @@ function updateVMInfo(request,vm){
         content: '<div>'+spinner+'</div>'
     };
 
-    var monitoring_tab = {
-        title: tr("Graphs"),
-        content:
-        '\
-        <div class="">\
-            <div class="six columns">\
-              <div class="row graph_legend">\
-                <h3 class="subheader"><small>'+tr("NET RX")+'</small></h3>\
-              </div>\
-              <div class="row">\
-                <div class="ten columns centered graph" id="vm_net_rx_graph" style="height: 100px;">\
-                </div>\
-              </div>\
-              <div class="row graph_legend">\
-                <div class="ten columns centered" id="vm_net_rx_legend">\
-                </div>\
-              </div>\
-            </div>\
-            <div class="six columns">\
-              <div class="row graph_legend">\
-                <h3 class="subheader"><small>'+tr("NET TX")+'</small></h3>\
-              </div>\
-              <div class="row">\
-                <div class="ten columns centered graph" id="vm_net_tx_graph" style="height: 100px;">\
-                </div>\
-              </div>\
-              <div class="row graph_legend">\
-                <div class="ten columns centered" id="vm_net_tx_legend">\
-                </div>\
-              </div>\
-            </div>\
-            <div class="six columns">\
-              <div class="row graph_legend">\
-                <h3 class="subheader"><small>'+tr("NET DOWNLOAD SPEED")+'</small></h3>\
-              </div>\
-              <div class="row">\
-                <div class="ten columns centered graph" id="vm_net_rx_speed_graph" style="height: 100px;">\
-                </div>\
-              </div>\
-              <div class="row graph_legend">\
-                <div class="ten columns centered" id="vm_net_rx_speed_legend">\
-                </div>\
-              </div>\
-            </div>\
-            <div class="six columns">\
-              <div class="row graph_legend">\
-                <h3 class="subheader"><small>'+tr("NET UPLOAD SPEED")+'</small></h3>\
-              </div>\
-              <div class="row">\
-                <div class="ten columns centered graph" id="vm_net_tx_speed_graph" style="height: 100px;">\
-                </div>\
-              </div>\
-              <div class="row graph_legend">\
-                <div class="ten columns centered" id="vm_net_tx_speed_legend">\
-                </div>\
-              </div>\
-            </div>\
-        </div>'
-    };
 
     var history_tab = {
         title: tr("History information"),
@@ -1349,7 +1290,6 @@ function updateVMInfo(request,vm){
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_template_tab",template_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_log_tab",log_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_history_tab",history_tab);
-    Sunstone.updateInfoPanelTab("vm_info_panel","vm_monitoring_tab",monitoring_tab);
 
     // TODO: re-use pool_monitor data?
 
@@ -1387,6 +1327,9 @@ function printDisks(vm_info){
     if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
       html += '\
          <div id="attach_disk" class="button small secondary radius" >' + tr("Attach new disk") +'</div>'
+    } else {
+      html += '\
+         <div id="attach_disk" class="button small secondary radius" disabled="disabled">' + tr("Attach new disk") +'</div>'
     }
 
     html += '\
@@ -1730,6 +1673,9 @@ function printNics(vm_info){
     if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
       html += '\
          <div id="attach_nic" class="button small secondary radius" >' + tr("Attach new nic") +'</div>'
+    } else {
+      html += '\
+         <div id="attach_nic" class="button small secondary radius" disabled="disabled">' + tr("Attach new nic") +'</div>'
     }
 
     html += '\
@@ -1807,6 +1753,60 @@ function printNics(vm_info){
     html += '\
             </tbody>\
           </table>\
+        </div>\
+        <div class="">\
+            <div class="six columns">\
+              <div class="row graph_legend">\
+                <h3 class="subheader"><small>'+tr("NET RX")+'</small></h3>\
+              </div>\
+              <div class="row">\
+                <div class="ten columns centered graph" id="vm_net_rx_graph" style="height: 100px;">\
+                </div>\
+              </div>\
+              <div class="row graph_legend">\
+                <div class="ten columns centered" id="vm_net_rx_legend">\
+                </div>\
+              </div>\
+            </div>\
+            <div class="six columns">\
+              <div class="row graph_legend">\
+                <h3 class="subheader"><small>'+tr("NET TX")+'</small></h3>\
+              </div>\
+              <div class="row">\
+                <div class="ten columns centered graph" id="vm_net_tx_graph" style="height: 100px;">\
+                </div>\
+              </div>\
+              <div class="row graph_legend">\
+                <div class="ten columns centered" id="vm_net_tx_legend">\
+                </div>\
+              </div>\
+            </div>\
+            <div class="six columns">\
+              <div class="row graph_legend">\
+                <h3 class="subheader"><small>'+tr("NET DOWNLOAD SPEED")+'</small></h3>\
+              </div>\
+              <div class="row">\
+                <div class="ten columns centered graph" id="vm_net_rx_speed_graph" style="height: 100px;">\
+                </div>\
+              </div>\
+              <div class="row graph_legend">\
+                <div class="ten columns centered" id="vm_net_rx_speed_legend">\
+                </div>\
+              </div>\
+            </div>\
+            <div class="six columns">\
+              <div class="row graph_legend">\
+                <h3 class="subheader"><small>'+tr("NET UPLOAD SPEED")+'</small></h3>\
+              </div>\
+              <div class="row">\
+                <div class="ten columns centered graph" id="vm_net_tx_speed_graph" style="height: 100px;">\
+                </div>\
+              </div>\
+              <div class="row graph_legend">\
+                <div class="ten columns centered" id="vm_net_tx_speed_legend">\
+                </div>\
+              </div>\
+            </div>\
         </div>\
       </form>';
 
@@ -1964,7 +1964,7 @@ function printCapacity(vm_info){
         </div>\
             <div class="six columns">\
               <div class="row graph_legend">\
-                <h3 class="subheader"><small>'+tr("CPU")+'</small></h3>\
+                <h3 class="subheader"><small>'+tr("REAL CPU")+'</small></h3>\
               </div>\
               <div class="row">\
                 <div class="ten columns centered graph" id="vm_cpu_graph" style="height: 100px;">\
@@ -1977,7 +1977,7 @@ function printCapacity(vm_info){
             </div>\
             <div class="six columns">\
               <div class="row graph_legend">\
-                <h3 class="subheader"><small>'+tr("MEMORY")+'</small></h3>\
+                <h3 class="subheader"><small>'+tr("REAL MEMORY")+'</small></h3>\
               </div>\
               <div class="row">\
                 <div class="ten columns centered graph" id="vm_memory_graph" style="height: 100px;">\
