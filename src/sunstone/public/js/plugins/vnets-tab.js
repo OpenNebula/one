@@ -793,14 +793,15 @@ function updateVNetworkInfo(request,vn){
         </div>\
         <div class="six columns">'
             + insert_permissions_table("Network",
-                                                 vn_info.ID,
-                                                 vn_info.UNAME,
-                                                 vn_info.GNAME,
-                                                 vn_info.UID,
-                                                 vn_info.GID)
+                                       vn_info.ID,
+                                       vn_info.UNAME,
+                                       vn_info.GNAME,
+                                       vn_info.UID,
+                                       vn_info.GID)
             + insert_extended_template_table(vn_info.TEMPLATE,
                                                        "Network",
-                                                       vn_info.ID) +
+                                                       vn_info.ID,
+                                                       "Configuration Attributes") +
         '</div>\
       </div>';
 

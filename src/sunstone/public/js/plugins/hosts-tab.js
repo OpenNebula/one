@@ -879,7 +879,8 @@ function updateHostInfo(request,host){
         <div class="six columns">'
         + insert_extended_template_table(host_info.TEMPLATE,
                                          "Host",
-                                         host_info.ID) +
+                                         host_info.ID,
+                                         "Monitoring Attributes") +
         '</div>\
       </div>'
     }

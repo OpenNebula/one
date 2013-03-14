@@ -105,6 +105,7 @@ var create_datastore_tmpl =
             <option value="iscsi">' + tr("iSCSI") + '</option>\
             <option value="lvm">' + tr("LVM") + '</option>\
             <option value="ceph">' + tr("Ceph") + '</option>\
+            <option value="custom">' + tr("Custom") + '</option>\
           </select>\
         </div>\
         <div class="one columns ">\
@@ -319,7 +320,7 @@ function updateDatastoreImagesInfoView (request,image_list){
     var image_list_array = [];
 
     $.each(image_list,function(){
-        //Grab table data from the image_list
+      if (this.IMAGE.DATASTORE==datastore_name)
         image_list_array.push(imageElementArray(this));
     });
 
@@ -571,7 +572,9 @@ function datastoreElementArray(element_json){
     var element = element_json.DATASTORE;
 
     return [
-        '<input class="check_item" type="checkbox" id="datastore_'+element.ID+'" name="selected_items" value="'+element.ID+'"/>',
+        '<input class="check_item" type="checkbox" id="datastore_'+
+                             element.ID+'" name="selected_items" value="'+
+                             element.ID+'"/>',
         element.ID,
         element.UNAME,
         element.GNAME,
@@ -622,13 +625,14 @@ function updateDatastoresView(request, list){
     });
 
     updateView(list_array,dataTable_datastores);
-    updateDatastoreSelect();
-    updateInfraDashboard("datastores",list);
 }
 
 
 function updateDatastoreInfo(request,ds){
     var info = ds.DATASTORE;
+
+    datastore_name = info.NAME;
+
     var images_str = "";
     if (info.IMAGES.ID &&
         info.IMAGES.ID.constructor == Array){
@@ -675,7 +679,8 @@ function updateDatastoreInfo(request,ds){
           </table>'
             + insert_extended_template_table(info.TEMPLATE,
                                          "Datastore",
-                                         info.ID) +
+                                         info.ID,
+                                         "Configuration Attributes") +
         '</div>\
         <div class="six columns">'
             + insert_permissions_table("Datastore",
@@ -727,16 +732,8 @@ function updateDatastoreInfo(request,ds){
             } : ""
     });
 
-    //preload it
-
-    //addElement([
-    //    spinner,
-    //    '','','','','','','','','','','',''],dataTable_datastore_images_panel);
-
-
     // initialize datatables values
     Sunstone.runAction("DatastoreImageInfo.list");
-
     Sunstone.runAction("Datastore.fetch_permissions",info.ID);
 
 }
@@ -771,15 +768,8 @@ function setupCreateDatastoreDialog(){
     var dialog = $create_datastore_dialog;
     dialog.html(create_datastore_tmpl);
 
-    //Prepare jquery dialog
-    //dialog.dialog({
-    //    autoOpen: false,
-    //    modal: true,
-    //    width: 400
-    //});
     dialog.addClass("reveal-modal large");
 
-    //$('button',dialog).button();
     setupTips(dialog);
 
     $('#ds_type').change(function(){
@@ -805,12 +795,15 @@ function setupCreateDatastoreDialog(){
           case 'ceph':
             select_ceph();
             break;
+          case 'custom':
+            select_custom();
+            break;
         }
     });
 
 
     $('#create_datastore_submit',dialog).click(function(){
-        var context = $( "#create_datastore_form", dialog);
+        var context         = $( "#create_datastore_form", dialog);
         var name            = $('#name',context).val();
         var cluster_id      = $('#cluster_id',context).val();
         var system          = $('#sys_ds',context).is(':checked');
@@ -825,8 +818,6 @@ function setupCreateDatastoreDialog(){
         var host            = $('#host',context).val();
         var base_iqn        = $('#base_iqn',context).val();
         var vg_name         = $('#vg_name',context).val();
-
-
 
         if (!name){
             notifyError("Please provide a name");
@@ -882,6 +873,7 @@ function setupCreateDatastoreDialog(){
 
 function select_filesystem(){
     $('select#ds_mad').val('fs');
+    $('select#tm_mad').val('shared');
     $('select#ds_mad').attr('disabled', 'disabled');
     $('select#tm_mad').children('option').each(function() {
       var value_str = $(this).val();
@@ -901,6 +893,7 @@ function select_filesystem(){
 function select_vmware_fs(){
     $('select#ds_mad').val('vmware');
     $('select#ds_mad').attr('disabled', 'disabled');
+    $('select#tm_mad').val('shared');
     $('select#tm_mad').children('option').each(function() {
       var value_str = $(this).val();
       $(this).attr('disabled', 'disabled');
@@ -927,6 +920,10 @@ function select_vmware_vmfs(){
 }
 
 function select_iscsi(){
+    $('select#ds_mad').val('iscsi');
+    $('select#ds_mad').attr('disabled', 'disabled');
+    $('select#tm_mad').val('iscsi');
+    $('select#tm_mad').attr('disabled', 'disabled');
     $('label[for="host"],input#host').fadeIn();
     $('label[for="base_iqn"],input#base_iqn').fadeIn();
     $('label[for="vg_name"],input#vg_name').fadeIn();
@@ -965,6 +962,12 @@ function select_lvm(){
            $(this).removeAttr('disabled');
       }
     });
+}
+
+function select_custom(){
+    hide_all(dialog);
+    $('select#ds_mad').val('fs');
+    $('select#tm_mad').val('shared');
 }
 
 function popUpCreateDatastoreDialog(){
@@ -1009,10 +1012,6 @@ $(document).ready(function(){
       dataTable_datastores.fnFilter( $(this).val() );
     })
 
-    //dataTable_datastores.fnClearTable();
-    //addElement([
-    //    spinner,
-    //    '','','','','','','','',''],dataTable_datastores);
     Sunstone.runAction("Datastore.list");
 
     setupCreateDatastoreDialog();

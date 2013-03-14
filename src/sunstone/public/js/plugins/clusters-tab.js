@@ -1093,7 +1093,7 @@ var cluster_buttons = {
     },
     "Cluster.update_dialog" : {
         type : "action",
-        layout: "more_select",
+        layout: "main",
         text : tr("Update"),
         alwaysActive: true
     },
