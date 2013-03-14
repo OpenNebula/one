@@ -83,9 +83,15 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
     }
 
     LIVE = {
-        :name        =>"live",
+        :name        => "live",
         :large       => "--live",
         :description => "Do the action with the VM running"
+    }
+
+    HARD = {
+        :name       => "hard",
+        :large      => "--hard",
+        :description=> "Does not communicate with the guest OS"
     }
 
     def self.rname

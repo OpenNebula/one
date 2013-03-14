@@ -332,33 +332,22 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Reboots the given VM, this is equivalent to execute the reboot command
         from the VM console.
 
+        The VM will be ungracefully rebooted if --hard is used.
+
         States: RUNNING
     EOT
 
     command :reboot, reboot_desc, [:range,:vmid_list],
-        :options => [OneVMHelper::SCHEDULE] do
+        :options => [OneVMHelper::SCHEDULE, OneVMHelper::HARD] do
+
+        command_name='reboot'
+        command_name<<'-hard' if options[:hard]
+
         if (!options[:schedule].nil?)
-            helper.schedule_actions(args[0], options, @comm_name)
+            helper.schedule_actions(args[0], options, command_name)
         else
             helper.perform_actions(args[0],options,"rebooting") do |vm|
-                vm.reboot
-            end
-        end
-    end
-
-    reset_desc = <<-EOT.unindent
-        Resets the given VM
-
-        States: RUNNING
-    EOT
-
-    command :reset, reset_desc, [:range,:vmid_list],
-        :options => [OneVMHelper::SCHEDULE] do
-        if (!options[:schedule].nil?)
-            helper.schedule_actions(args[0], options, @comm_name)
-        else
-            helper.perform_actions(args[0],options,"resetting") do |vm|
-                vm.reset
+                vm.reboot(options[:hard])
             end
         end
     end

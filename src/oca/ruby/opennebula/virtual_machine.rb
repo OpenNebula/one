@@ -215,14 +215,11 @@ module OpenNebula
         end
 
         # Reboots an already deployed VM
-        def reboot
-            action('reboot')
+        def reboot(hard=false)
+            action(hard ? 'reboot-hard' : 'reboot')
         end
 
-        # Resets an already deployed VM
-        def reset
-            action('reset')
-        end
+        alias_method :reset, :reboot
 
         # Cancels a running VM
         def cancel
