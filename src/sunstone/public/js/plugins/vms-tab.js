@@ -221,6 +221,15 @@ var vm_actions = {
         },
         error: onError
     },
+    "VM.showsnapshots" : {
+        type: "single",
+        call: OpenNebula.VM.show,
+        callback: function(request, vm){
+          updateVMachineElement(request, vm);
+          updateVMSnapshotsInfo(request, vm);
+        },
+        error: onError
+    },
     "VM.refresh" : {
         type: "custom",
         call : function (){
@@ -358,6 +367,34 @@ var vm_actions = {
         call: OpenNebula.VM.saveas,
         callback: function(request) {
             Sunstone.runAction("VM.showdisks", request.request.data[0]);
+        },
+        error:onError,
+        notify: true
+    },
+
+    "VM.snapshot_create" : {
+        type: "single",
+        call: OpenNebula.VM.snapshot_create,
+        callback: function(request) {
+            Sunstone.runAction("VM.showsnapshots", request.request.data[0]);
+        },
+        error:onError,
+        notify: true
+    },
+    "VM.snapshot_revert" : {
+        type: "single",
+        call: OpenNebula.VM.snapshot_revert,
+        callback: function(request) {
+            Sunstone.runAction("VM.showsnapshots", request.request.data[0]);
+        },
+        error:onError,
+        notify: true
+    },
+    "VM.snapshot_delete" : {
+        type: "single",
+        call: OpenNebula.VM.snapshot_delete,
+        callback: function(request) {
+            Sunstone.runAction("VM.showsnapshots", request.request.data[0]);
         },
         error:onError,
         notify: true
@@ -1244,8 +1281,13 @@ function updateVMInfo(request,vm){
         content: printCapacity(vm_info)
     };
 
+    var snapshot_tab = {
+        title: tr("Snapshots"),
+        content: printSnapshots(vm_info)
+    };
+
     var template_tab = {
-        title: tr("VM Template"),
+        title: tr("Template"),
         content:
         '<table id="vm_template_table" class="info_table" style="width:80%">\
                <thead><tr><th colspan="2">'+tr("VM template")+'</th></tr></thead>'+
@@ -1254,13 +1296,13 @@ function updateVMInfo(request,vm){
     };
 
     var log_tab = {
-        title: tr("VM log"),
+        title: tr("Log"),
         content: '<div>'+spinner+'</div>'
     };
 
 
     var history_tab = {
-        title: tr("History information"),
+        title: tr("History"),
         content: generateHistoryTable(vm_info)
     };
 
@@ -1287,9 +1329,10 @@ function updateVMInfo(request,vm){
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_capacity_tab",capacity_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_hotplugging_tab",hotplugging_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_network_tab",network_tab);
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_snapshot_tab",snapshot_tab);
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_history_tab",history_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_template_tab",template_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_log_tab",log_tab);
-    Sunstone.updateInfoPanelTab("vm_info_panel","vm_history_tab",history_tab);
 
     // TODO: re-use pool_monitor data?
 
@@ -1542,8 +1585,6 @@ function popUpSaveAsDialog(vm_id, disk_id){
     $('#disk_id',$save_as_dialog).val(disk_id);
     $save_as_dialog.reveal();
 }
-
-
 
 
 
@@ -2105,6 +2146,224 @@ function setup_vm_capacity_tab(){
 
 
 
+function updateVMSnapshotsInfo(request,vm){
+  $("li#vm_snapshot_tabTab").html(printSnapshots(vm.VM));
+}
+
+// Generates the HTML for the snapshot tab
+// This is a list of disks with the save_as, detach options.
+// And a form to attach a new disk to the VM, if it is running.
+function printSnapshots(vm_info){
+   var html ='\
+     <div class="">\
+        <div id="columns twelve">\
+           <form id="snapshot_form" vmid="'+vm_info.ID+'" >\
+              <div class="twelve columns">\
+                <div id="refresh_disk" class="button small secondary radius" ><i class="icon-refresh"/></div>'
+
+    // If VM is not RUNNING, then we forget about the attach disk form.
+    if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
+      html += '\
+         <div id="take_snapshot" class="button small secondary radius" >' + tr("Take snapshot") +'</div>'
+    } else {
+      html += '\
+         <div id="take_snapshot" class="button small secondary radius" disabled="disabled">' + tr("Take snapshot") +'</div>'
+    }
+
+    html += '\
+      </div>\
+      <br>\
+      <br>'
+
+    html += '\
+      <div class="twelve columns">\
+         <table class="info_table twelve extended_table">\
+           <thead>\
+             <tr>\
+                <th>'+tr("ID")+'</th>\
+                <th>'+tr("Name")+'</th>\
+                <th>'+tr("Timestamp")+'</th>\
+                <th>'+tr("Actions")+'</th>\
+              </tr>\
+           </thead>\
+           <tbody>';
+
+
+    var snapshots = []
+    if ($.isArray(vm_info.TEMPLATE.SNAPSHOT))
+        snapshots = vm_info.TEMPLATE.SNAPSHOT
+    else if (!$.isEmptyObject(vm_info.TEMPLATE.SNAPSHOT))
+        snapshots = [vm_info.TEMPLATE.SNAPSHOT]
+
+    if (!snapshots.length){
+        html += '\
+          <tr id="no_snapshots_tr">\
+            <td colspan="6">' + tr("No snapshots to show") + '</td>\
+          </tr>';
+    }
+    else {
+
+        for (var i = 0; i < snapshots.length; i++){
+            var snapshot = snapshots[i];
+
+            if ( 
+               ( // ACTIVE
+                vm_info.STATE == "3") && 
+               ( // HOTPLUG_SNAPSHOT
+                vm_info.LCM_STATE == "24"))  {
+              actions = 'snapshot in progress' 
+            }
+            else {
+              actions = '';
+              
+              if ((vm_info.STATE == "3" && vm_info.LCM_STATE == "3")) {
+                actions += '<a href="VM.snapshot_revert" class="snapshot_revert" ><i class="icon-reply"/>'+tr("Revert")+'</a> &emsp;'
+                actions += '<a href="VM.snapshot_delete" class="snapshot_delete" ><i class="icon-remove"/>'+tr("Delete")+'</a>'
+              }
+            }
+
+            html += '\
+              <tr snapshot_id="'+(snapshot.SNAPSHOT_ID)+'">\
+                <td>' + snapshot.SNAPSHOT_ID + '</td>\
+                <td>' + snapshot.NAME + '</td>\
+                <td>' + pretty_time(snapshot.TIME) + '</td>\
+                <td>' + actions + '</td>\
+            </tr>';
+        }
+    }
+
+    html += '\
+            </tbody>\
+          </table>\
+        </div>\
+      </form>';
+
+    return html;
+}
+
+function setupSaveAsDialog(){
+    dialogs_context.append('<div id="save_as_dialog"></div>');
+    $save_as_dialog = $('#save_as_dialog',dialogs_context);
+    var dialog = $save_as_dialog;
+
+    dialog.html('<div class="panel">\
+  <h3>\
+    <small id="">'+tr("Snapshot")+'</small>\
+  </h3>\
+</div>\
+<form id="save_as_form" action="">\
+      <div class="row centered">\
+          <div class="four columns">\
+              <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
+          </div>\
+          <div class="seven columns">\
+              <input type="text" name="vm_id" id="vm_id" disabled/>\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+      </div>\
+      <div class="row centered">\
+          <div class="four columns">\
+              <label class="inline right" for="snapshot_name">'+tr("Snapshot name")+':</label>\
+          </div>\
+          <div class="seven columns">\
+              <input type="text" name="snapshot_name" id="snapshot_name" />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+      </div>\
+      <hr>\
+      <div class="form_buttons">\
+          <button class="button radius right success" id="snapshot_live_button" type="submit" value="VM.saveas">'+tr("Take snapshot")+'</button>\
+          <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+      </div>\
+  <a class="close-reveal-modal">&#215;</a>\
+</form>')
+
+    dialog.addClass("reveal-modal");
+    setupTips(dialog);
+
+    $('#save_as_form',dialog).submit(function(){
+        var vm_id = $('#vm_id', this).val();
+        var snapshot_name = $('#snapshot_name', this).val();
+
+        var obj = {
+            snapshot_name : snapshot_name
+        };
+
+        Sunstone.runAction('VM.snapshot_create', vm_id, obj);
+
+        $save_as_dialog.trigger("reveal:close")
+        return false;
+    });
+};
+
+function popUpSnapshotDialog(vm_id){
+    $('#vm_id',$save_as_dialog).val(vm_id);
+    $save_as_dialog.reveal();
+}
+
+
+
+
+// Listeners to the disks operations (detach, saveas, attach)
+function setup_vm_snapshot_tab(){
+    setupSaveAsDialog();
+
+    $('a.snapshot_revert').live('click', function(){
+      console.log("asdfasd")
+        var b = $(this);
+        var vm_id = b.parents('form').attr('vmid');
+        var snapshot_id = b.parents('tr').attr('snapshot_id');
+
+        Sunstone.runAction('VM.snapshot_revert', vm_id, {"snapshot_id": snapshot_id});
+
+        //b.html(spinner);
+        return false;
+    });
+
+    $('a.snapshot_delete').live('click', function(){
+        var b = $(this);
+        var vm_id = b.parents('form').attr('vmid');
+        var snapshot_id = b.parents('tr').attr('snapshot_id');
+
+        Sunstone.runAction('VM.snapshot_delete', vm_id, {"snapshot_id": snapshot_id});
+
+        //b.html(spinner);
+        return false;
+    });
+
+    $('#take_snapshot').live('click', function(){
+        var b = $(this);
+        var vm_id = b.parents('form').attr('vmid');
+
+        popUpSnapshotDialog(vm_id);
+
+        //b.html(spinner);
+        return false;
+    }); 
+
+    $('#refresh_snapshot').live('click', function(){
+        var b = $(this);
+        var vm_id = b.parents('form').attr('vmid');
+        Sunstone.runAction("VM.showsnapshots", vm_id);
+
+        return false;
+    }); 
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2359,6 +2618,7 @@ $(document).ready(function(){
     hotpluggingOps();
     setup_vm_network_tab();
     setup_vm_capacity_tab();
+    setup_vm_snapshot_tab();
 
 
     initCheckAllBoxes(dataTable_vMachines);

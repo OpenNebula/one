@@ -696,6 +696,21 @@ var OpenNebula = {
             OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
                                             "saveas",action_obj);
         },
+        "snapshot_create": function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
+                                            "snapshot_create",action_obj);
+        },
+        "snapshot_revert": function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
+                                            "snapshot_revert",action_obj);
+        },
+        "snapshot_delete": function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
+                                            "snapshot_delete",action_obj);
+        },
         "vnc" : function(params,startstop){
             var callback = params.success;
             var callback_error = params.error;
