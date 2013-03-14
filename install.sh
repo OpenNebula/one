@@ -311,6 +311,7 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/public/vendor/4.0/jgrowl \
                $SUNSTONE_LOCATION/public/vendor/4.0/foundation \
                $SUNSTONE_LOCATION/public/vendor/4.0/nouislider \
+               $SUNSTONE_LOCATION/public/vendor/4.0/datetimepicker \
                $SUNSTONE_LOCATION/public/images \
                $SUNSTONE_LOCATION/views"
 
@@ -546,6 +547,7 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_NEW_VENDOR_FONTAWESOME_FONT:$SUNSTONE_LOCATION/public/vendor/4.0/fontawesome/font
     SUNSTONE_PUBLIC_NEW_VENDOR_FONTAWESOME_CSS:$SUNSTONE_LOCATION/public/vendor/4.0/fontawesome/css
     SUNSTONE_PUBLIC_NEW_VENDOR_NOUISLIDER:$SUNSTONE_LOCATION/public/vendor/4.0/nouislider
+    SUNSTONE_PUBLIC_NEW_VENDOR_DATETIMEPICKER:$SUNSTONE_LOCATION/public/vendor/4.0/datetimepicker    
     SUNSTONE_PUBLIC_IMAGES_FILES:$SUNSTONE_LOCATION/public/images
     SUNSTONE_PUBLIC_LOCALE_CA:$SUNSTONE_LOCATION/public/locale/ca
     SUNSTONE_PUBLIC_LOCALE_CS_CZ:$SUNSTONE_LOCATION/public/locale/cs_CZ
@@ -1663,9 +1665,15 @@ SUNSTONE_PUBLIC_NEW_VENDOR_NOUISLIDER="\
                 src/sunstone/public/vendor/4.0/nouislider/jquery.nouislider.min.js \
                 src/sunstone/public/vendor/4.0/nouislider/nouislider.css"
 
-
-
-
+SUNSTONE_PUBLIC_NEW_VENDOR_DATETIMEPICKER="\
+                src/sunstone/public/vendor/4.0/datetimepicker/LICENSE.txt \
+                src/sunstone/public/vendor/4.0/datetimepicker/README.md \
+                src/sunstone/public/vendor/4.0/datetimepicker/design/dtpicker_mock.png \
+                src/sunstone/public/vendor/4.0/datetimepicker/design/dtpicker_mock.svg \
+                src/sunstone/public/vendor/4.0/datetimepicker/jquery.simple-dtpicker.css \
+                src/sunstone/public/vendor/4.0/datetimepicker/jquery.simple-dtpicker.html \
+                src/sunstone/public/vendor/4.0/datetimepicker/jquery.simple-dtpicker.js \
+                src/sunstone/public/vendor/4.0/datetimepicker/simple-dtpicker.jquery.json" 
 
 SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/favicon.ico \
