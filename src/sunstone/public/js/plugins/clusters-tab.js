@@ -166,13 +166,13 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
 
 // Common utils for datatatables
   // Holds the selected items
-var selected_hosts_list     = {};
-var selected_vnets_list     = {};
-var selected_datastore_list = {};
+selected_hosts_list     = {};
+selected_vnets_list     = {};
+selected_datastore_list = {};
 
-var host_row_hash           = {};
-var vnet_row_hash           = {};
-var datastore_row_hash      = {};
+host_row_hash           = {};
+vnet_row_hash           = {};
+datastore_row_hash      = {};
 
 // Prepares the cluster creation dialog
 function setupCreateClusterDialog(){
@@ -706,8 +706,9 @@ function fillPopPup(request,response){
       }
 
       $create_cluster_dialog.trigger("reveal:close")
+
       Sunstone.runAction('Cluster.list');
-      updateClustersView();
+
       return false;
   });
 }
@@ -819,7 +820,8 @@ var cluster_datastore_actions = {
         callback: function(request,ds_list){
           updateClusterDatastoresView(request,ds_list);
           dataTable_cluster_datastores.fnFilter( filter_expr, 5, true);
-          Sunstone.runAction("Cluster.show_to_update", cluster_id);
+          if(filter_expr!="-")
+            Sunstone.runAction("Cluster.show_to_update", cluster_id);
         },      
         error: onError
     },
@@ -917,6 +919,8 @@ var cluster_actions = {
         type: "create",
         call: OpenNebula.Cluster.create,
         callback: function(request, response){
+            Sunstone.runAction('Cluster.list');
+
             for (var host in request.request.data[0].cluster.hosts)
                 if (request.request.data[0].cluster.hosts[host])
                     Sunstone.runAction("Cluster.addhost",response.CLUSTER.ID,host);
@@ -927,12 +931,8 @@ var cluster_actions = {
                 if (request.request.data[0].cluster.datastores[datastore])
                     Sunstone.runAction("Cluster.adddatastore",response.CLUSTER.ID,datastore);
 
-            Sunstone.runAction('Cluster.list');
-            updateClustersView();
-
-            setTimeout(Sunstone.runAction('Cluster.list'),5000);
-            setTimeout(updateClustersView(),5000);
-
+            //Sunstone.runAction('Cluster.list');
+           // Sunstone.runAction('Cluster.show',response.CLUSTER.ID);
         },
         error: onError,
         notify: true
@@ -947,6 +947,13 @@ var cluster_actions = {
         type: "list",
         call: OpenNebula.Cluster.list,
         callback: updateClustersView,
+        error: onError
+    },
+
+    "Cluster.show" : {
+        type: "single",
+        call: OpenNebula.Cluster.show,
+        callback: updateClusterElement,
         error: onError
     },
 
@@ -985,6 +992,7 @@ var cluster_actions = {
         call : OpenNebula.Cluster.addhost,
         callback : function (req) {
             Sunstone.runAction("Host.show",req.request.data[0][1].host_id);
+            Sunstone.runAction('Cluster.show',req.request.data[0][0]);
         },
         error : onError
     },
@@ -994,6 +1002,7 @@ var cluster_actions = {
         call : OpenNebula.Cluster.delhost,
         callback : function (req) {
             Sunstone.runAction("Host.show",req.request.data[0][1].host_id);
+            Sunstone.runAction('Cluster.show',req.request.data[0][0]);
         },
         error : onError
     },
@@ -1003,6 +1012,7 @@ var cluster_actions = {
         call : OpenNebula.Cluster.adddatastore,
         callback : function (req) {
             Sunstone.runAction("Datastore.show",req.request.data[0][1].ds_id);
+            Sunstone.runAction('Cluster.show',req.request.data[0][0]);
         },
         error : onError
     },
@@ -1012,6 +1022,7 @@ var cluster_actions = {
         call : OpenNebula.Cluster.deldatastore,
         callback : function (req) {
             Sunstone.runAction("Datastore.show",req.request.data[0][1].ds_id);
+            Sunstone.runAction('Cluster.show',req.request.data[0][0]);
         },
         error : onError
     },
@@ -1021,6 +1032,7 @@ var cluster_actions = {
         call : OpenNebula.Cluster.addvnet,
         callback : function (req) {
             Sunstone.runAction("Network.show",req.request.data[0][1].vnet_id);
+            Sunstone.runAction('Cluster.show',req.request.data[0][0]);
         },
         error : onError
     },
@@ -1030,6 +1042,7 @@ var cluster_actions = {
         call : OpenNebula.Cluster.delvnet,
         callback : function (req) {
             Sunstone.runAction("Network.show",req.request.data[0][1].vnet_id);
+            Sunstone.runAction('Cluster.show',req.request.data[0][0]);
         },
         error : onError
     },
@@ -1047,8 +1060,8 @@ var cluster_actions = {
         type: "single",
         call: OpenNebula.Cluster.update,
         callback: function(request,response){
-           notifyMessage(tr("Template updated correctly"));
-           Sunstone.runAction('Cluster.showinfo',request.request.data[0]);
+           notifyMessage(tr("Cluster updated correctly"));
+           Sunstone.runAction('Cluster.show',response.CLUSTER.ID);
         },
         error: onError
     },
@@ -1377,7 +1390,8 @@ function updateClusterInfo(request,cluster){
         <div class="six columns">'
                 + insert_extended_template_table(cluster_template,
                                          "Cluster",
-                                         cluster_info.ID) +
+                                         cluster_info.ID,
+                                         "Tags") +
          '</div>\
         </div></form>'
     }

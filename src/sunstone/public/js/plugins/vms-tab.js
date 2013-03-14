@@ -1205,6 +1205,7 @@ function updateVMInfo(request,vm){
                insert_extended_template_table(stripped_vm_template,
                                               "VM",
                                               vm_info.ID,
+                                              "Tags",
                                               unshown_values) +
 
             '</div>\
