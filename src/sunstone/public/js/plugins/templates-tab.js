@@ -3954,19 +3954,37 @@ function setupTemplateCloneDialog(){
 
     //Put HTML in place
 
-    var html = '<form><fieldset>\
-<div class="clone_one">'+tr("Choose a new name for the template")+':</div>\
+    var html = '<div class="panel">\
+          <h3>\
+            <small id="create_vnet_header">'+tr("Clone Template")+'</small>\
+          </h3>\
+        </div>\
+        <form>\
+<div class="row">\
+<div class="clone_one"></div>\
 <div class="clone_several">'+tr("Several templates are selected, please choose prefix to name the new copies")+':</div>\
-<br />\
-<label class="clone_one">'+tr("Name")+':</label>\
-<label class="clone_several">'+tr("Prefix")+':</label>\
-<input type="text" name="name"></input>\
-<div class="form_buttons">\
-  <button class="button" id="template_clone_button" value="Template.clone">\
+<br>\
+</div>\
+<div class="row">\
+  <div class="columns two">\
+    <label class="clone_one inline right">'+tr("Name")+':</label>\
+    <label class="clone_several inline right">'+tr("Prefix")+':</label>\
+  </div>\
+  <div class="columns ten">\
+    <input type="text" name="name"></input>\
+  </div>\
+</div>\
+<hr>\
+<div class="form_buttons row">\
+  <button class="button radius right" id="template_clone_button" value="Template.clone">\
 '+tr("Clone")+'\
   </button>\
-</div></fieldset></form>\
+           <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+        </div>\
+<a class="close-reveal-modal">&#215;</a>\
+</form>\
 ';
+
 
     dialog.html(html);
 

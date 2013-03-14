@@ -1165,10 +1165,12 @@ function setupImageCloneDialog(){
 
     //Put HTML in place
 
-    var html = '<form>\
-    <div class="row">\
-  <h3><small>'+tr("Clone Image")+'</small></h4>\
-  </div>\
+    var html = '<div class="panel">\
+          <h3>\
+            <small id="create_vnet_header">'+tr("Clone Image")+'</small>\
+          </h3>\
+        </div>\
+        <form>\
 <div class="row">\
 <div class="clone_one"></div>\
 <div class="clone_several">'+tr("Several image are selected, please choose prefix to name the new copies")+':</div>\
@@ -1188,7 +1190,10 @@ function setupImageCloneDialog(){
   <button class="button radius right" id="image_clone_button" value="Image.clone">\
 '+tr("Clone")+'\
   </button>\
-</div></form>\
+           <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+        </div>\
+<a class="close-reveal-modal">&#215;</a>\
+</form>\
 ';
 
     dialog.html(html);
