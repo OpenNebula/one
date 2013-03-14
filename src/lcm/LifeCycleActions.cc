@@ -573,10 +573,7 @@ void LifeCycleManager::delete_action(int vid)
     DispatchManager * dm = nd.get_dm();
     TransferManager * tm = nd.get_tm();
 
-    ImagePool*        ipool = nd.get_ipool();
-    Image*            image;
-
-    int image_id;
+    int image_id = -1;
 
     vm = vmpool->get(vid,true);
 
@@ -624,15 +621,19 @@ void LifeCycleManager::delete_action(int vid)
 
     vm->unlock();
 
-    image = ipool->get(image_id, true);
-
-    if ( image != 0 )
+    if ( image_id != -1 )
     {
-        image->set_state(Image::ERROR);
+        ImagePool* ipool = nd.get_ipool();
+        Image*     image = ipool->get(image_id, true);
 
-        ipool->update(image);
+        if ( image != 0 )
+        {
+            image->set_state(Image::ERROR);
 
-        image->unlock();
+            ipool->update(image);
+
+            image->unlock();
+        }
     }
 }
 
@@ -647,10 +648,7 @@ void  LifeCycleManager::clean_action(int vid)
     DispatchManager * dm = nd.get_dm();
     TransferManager * tm = nd.get_tm();
 
-    ImagePool*        ipool = nd.get_ipool();
-    Image*            image;
-
-    int image_id;
+    int image_id = -1;
 
     vm = vmpool->get(vid,true);
 
@@ -692,15 +690,19 @@ void  LifeCycleManager::clean_action(int vid)
 
     vm->unlock();
 
-    image = ipool->get(image_id, true);
-
-    if ( image != 0 )
+    if ( image_id != -1 )
     {
-        image->set_state(Image::ERROR);
+        ImagePool* ipool = nd.get_ipool();
+        Image*     image = ipool->get(image_id, true);
 
-        ipool->update(image);
+        if ( image != 0 )
+        {
+            image->set_state(Image::ERROR);
 
-        image->unlock();
+            ipool->update(image);
+
+            image->unlock();
+        }
     }
 }
 
