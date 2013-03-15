@@ -61,7 +61,7 @@ const char * Document::db_names =
 
 const char * Document::db_bootstrap =
     "CREATE TABLE IF NOT EXISTS document_pool (oid INTEGER PRIMARY KEY, "
-    "name VARCHAR(128), body TEXT, type INTEGER, uid INTEGER, gid INTEGER, "
+    "name VARCHAR(128), body MEDIUMTEXT, type INTEGER, uid INTEGER, gid INTEGER, "
     "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
 
 /* ------------------------------------------------------------------------ */

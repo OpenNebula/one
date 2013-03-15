@@ -282,7 +282,7 @@ const char * Leases::table        = "leases";
 const char * Leases::db_names     = "oid, ip, body";
 
 const char * Leases::db_bootstrap = "CREATE TABLE IF NOT EXISTS leases ("
-                "oid INTEGER, ip BIGINT, body TEXT, PRIMARY KEY(oid,ip))";
+                "oid INTEGER, ip BIGINT, body MEDIUMTEXT, PRIMARY KEY(oid,ip))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

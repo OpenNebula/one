@@ -99,7 +99,7 @@ const char * VirtualMachine::db_names =
     "owner_u, group_u, other_u";
 
 const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
-    "vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, "
+    "vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
     "gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, "
     "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
 
@@ -109,7 +109,7 @@ const char * VirtualMachine::monit_table = "vm_monitoring";
 const char * VirtualMachine::monit_db_names = "vmid, last_poll, body";
 
 const char * VirtualMachine::monit_db_bootstrap = "CREATE TABLE IF NOT EXISTS "
-    "vm_monitoring (vmid INTEGER, last_poll INTEGER, body TEXT, "
+    "vm_monitoring (vmid INTEGER, last_poll INTEGER, body MEDIUMTEXT, "
     "PRIMARY KEY(vmid, last_poll))";
 
 /* -------------------------------------------------------------------------- */

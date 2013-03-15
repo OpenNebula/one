@@ -65,7 +65,7 @@ const char * Host::db_names =
     "oid, name, body, state, last_mon_time, uid, gid, owner_u, group_u, other_u";
 
 const char * Host::db_bootstrap = "CREATE TABLE IF NOT EXISTS host_pool ("
-    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, state INTEGER, "
+    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, state INTEGER, "
     "last_mon_time INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, "
     "group_u INTEGER, other_u INTEGER, UNIQUE(name))";
 
@@ -75,7 +75,7 @@ const char * Host::monit_table = "host_monitoring";
 const char * Host::monit_db_names = "hid, last_mon_time, body";
 
 const char * Host::monit_db_bootstrap = "CREATE TABLE IF NOT EXISTS "
-    "host_monitoring (hid INTEGER, last_mon_time INTEGER, body TEXT, "
+    "host_monitoring (hid INTEGER, last_mon_time INTEGER, body MEDIUMTEXT, "
     "PRIMARY KEY(hid, last_mon_time))";
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */

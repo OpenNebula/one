@@ -28,7 +28,7 @@ const char * History::table = "history";
 const char * History::db_names = "vid, seq, body, stime, etime";
 
 const char * History::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
-    "history (vid INTEGER, seq INTEGER, body TEXT, "
+    "history (vid INTEGER, seq INTEGER, body MEDIUMTEXT, "
     "stime INTEGER, etime INTEGER,PRIMARY KEY(vid,seq))";
 
 /* -------------------------------------------------------------------------- */

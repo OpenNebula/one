@@ -28,7 +28,7 @@ const char * Datastore::db_names =
 
 const char * Datastore::db_bootstrap =
     "CREATE TABLE IF NOT EXISTS datastore_pool ("
-    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, "
+    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
     "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
     "UNIQUE(name))";
 
