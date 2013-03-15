@@ -565,13 +565,15 @@ void  LifeCycleManager::restart_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::delete_action(int vid)
+void LifeCycleManager::delete_action(int vid)
 {
     VirtualMachine * vm;
 
     Nebula&           nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
     TransferManager * tm = nd.get_tm();
+
+    int image_id = -1;
 
     vm = vmpool->get(vid,true);
 
@@ -612,14 +614,27 @@ void  LifeCycleManager::delete_action(int vid)
         break;
 
         default:
-            clean_up_vm(vm, true);
+            clean_up_vm(vm, true, image_id);
             dm->trigger(DispatchManager::DONE, vid);
         break;
     }
 
     vm->unlock();
 
-    return;
+    if ( image_id != -1 )
+    {
+        ImagePool* ipool = nd.get_ipool();
+        Image*     image = ipool->get(image_id, true);
+
+        if ( image != 0 )
+        {
+            image->set_state(Image::ERROR);
+
+            ipool->update(image);
+
+            image->unlock();
+        }
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -632,6 +647,8 @@ void  LifeCycleManager::clean_action(int vid)
     Nebula&           nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
     TransferManager * tm = nd.get_tm();
+
+    int image_id = -1;
 
     vm = vmpool->get(vid,true);
 
@@ -667,17 +684,32 @@ void  LifeCycleManager::clean_action(int vid)
         break;
 
         default:
-            clean_up_vm(vm, false);
+            clean_up_vm(vm, false, image_id);
         break;
     }
 
     vm->unlock();
+
+    if ( image_id != -1 )
+    {
+        ImagePool* ipool = nd.get_ipool();
+        Image*     image = ipool->get(image_id, true);
+
+        if ( image != 0 )
+        {
+            image->set_state(Image::ERROR);
+
+            ipool->update(image);
+
+            image->unlock();
+        }
+    }
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose)
+void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& image_id)
 {
     int    cpu, mem, disk;
     time_t the_time = time(0);
@@ -686,8 +718,6 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose)
 
     TransferManager *       tm  = nd.get_tm();
     VirtualMachineManager * vmm = nd.get_vmm();
-
-    ImagePool*              ipool = nd.get_ipool();
 
     VirtualMachine::LcmState state = vm->get_lcm_state();
     int                      vid   = vm->get_oid();
@@ -770,24 +800,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose)
         case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
             tm->trigger(TransferManager::DRIVER_CANCEL, vid);
 
-            int image_id;
             vm->cancel_saveas_disk(image_id);
-
-            // TODO: Remove potential deadlock, vm is locked and we shouldn't
-            // unlock it. Maybe we could add a trigger to ImageManager
-
-            Image* image;
-
-            image = ipool->get(image_id, true);
-
-            if ( image != 0 )
-            {
-                image->set_state(Image::ERROR);
-
-                ipool->update(image);
-
-                image->unlock();
-            }
 
             vm->set_running_etime(the_time);
             vmpool->update_history(vm);
