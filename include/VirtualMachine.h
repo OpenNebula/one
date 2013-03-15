@@ -698,12 +698,27 @@ public:
      */
     int replace_template(const string& tmpl_str, bool keep_restricted, string& error);
 
-    void get_user_template_attribute(
-        const char * name,
-        string&      value) const
+    /**
+     *  This function gets an attribute from the user template
+     *    @param name of the attribute
+     *    @param value of the attribute
+     */
+    void get_user_template_attribute(const char * name, string& value) const
     {
         user_obj_template->get(name,value);
     }
+
+    /**
+     *  Sets an error message with timestamp in the template (ERROR_MONITOR)
+     *    @param message Message string
+     */
+    void set_template_monitor_error(const string& message);
+
+    /**
+     *  Deletes the error message from the template (ERROR_MONITOR)
+     *    @param message Message string
+     */
+    void clear_template_monitor_error();
 
     // ------------------------------------------------------------------------
     // States
@@ -761,7 +776,7 @@ public:
     };
 
     // ------------------------------------------------------------------------
-    // Timers &
+    // Timers & Requirements
     // ------------------------------------------------------------------------
     /**
      *  Gets time from last information polling.
@@ -770,6 +785,15 @@ public:
     time_t get_last_poll() const
     {
         return last_poll;
+    };
+
+    /**
+     *  Sets time of last information polling.
+     *    @param poll time in epoch, normally time(0)
+     */
+    void set_last_poll(time_t poll)
+    {
+        last_poll = poll;
     };
 
     /**

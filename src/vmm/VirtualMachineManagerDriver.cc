@@ -154,6 +154,29 @@ static void log_error(VirtualMachine* vm,
 }
 
 /* -------------------------------------------------------------------------- */
+
+static void log_monitor_error(VirtualMachine* vm,
+                      ostringstream&  os,
+                      istringstream&  is,
+                      const char *    msg)
+{
+    string info;
+
+    getline(is,info);
+
+    os.str("");
+    os << msg;
+
+    if (!info.empty() && info[0] != '-')
+    {
+        os << ": " << info;
+        vm->set_template_monitor_error(os.str());
+    }
+
+    vm->log("VMM",Log::ERROR,os);
+}
+
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineManagerDriver::protocol(
@@ -532,7 +555,7 @@ void VirtualMachineManagerDriver::protocol(
             Nebula            &ne = Nebula::instance();
             LifeCycleManager* lcm = ne.get_lcm();
 
-            log_error(vm, os, is, "Error monitoring VM");
+            log_monitor_error(vm, os, is, "Error monitoring VM");
 
             lcm->trigger(LifeCycleManager::MONITOR_DONE, vm->get_oid());
         }
