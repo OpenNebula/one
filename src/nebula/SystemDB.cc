@@ -43,7 +43,7 @@ const char * SystemDB::sys_table = "system_attributes";
 const char * SystemDB::sys_names = "name, body";
 
 const char * SystemDB::sys_bootstrap =  "CREATE TABLE IF NOT EXISTS"
-        " system_attributes (name VARCHAR(128) PRIMARY KEY, body TEXT)";
+        " system_attributes (name VARCHAR(128) PRIMARY KEY, body MEDIUMTEXT)";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
