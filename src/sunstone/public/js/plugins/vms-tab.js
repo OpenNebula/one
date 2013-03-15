@@ -656,8 +656,9 @@ var vm_actions = {
         type: "single",
         call: OpenNebula.VM.update,
         callback: function(request,response){
-           notifyMessage(tr("Template updated correctly"));
+           notifyMessage(tr("VirtualMachine updated correctly"));
            Sunstone.runAction('VM.showinfo',request.request.data[0]);
+           Sunstone.runAction("VM.show",request.request.data[0]);
         },
         error: onError
     },
@@ -798,12 +799,6 @@ var vm_buttons = {
         layout: "more_select",
         tip: tr("This will delete the selected VMs from the database")
     },
-
-    //"VM.help" : {
-    //    type: "action",
-    //    text: '?',
-    //    alwaysActive: true
-    //}
 }
 
 var vm_info_panel = {
@@ -1300,6 +1295,11 @@ function updateVMInfo(request,vm){
         content: '<div>'+spinner+'</div>'
     };
 
+    var scheduling_tab = {
+        title: tr("Scheduling"),
+        content: printSchedulingTable(vm_info)
+    };
+
 
     var history_tab = {
         title: tr("History"),
@@ -1333,6 +1333,8 @@ function updateVMInfo(request,vm){
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_history_tab",history_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_template_tab",template_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_log_tab",log_tab);
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_scheduling_tab",scheduling_tab);
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_history_tab",history_tab);
 
     // TODO: re-use pool_monitor data?
 
@@ -1349,11 +1351,248 @@ function updateVMInfo(request,vm){
 
     // Populate permissions grid
     setPermissionsTable(vm_info,'');
+
+     $('input#scheduling_date').appendDtpicker();
 }
 
 function updateVMDisksInfo(request,vm){
   $("li#vm_hotplugging_tabTab").html(printDisks(vm.VM));
 }
+
+// Create the scheduling actions table (with listeners)
+function printSchedulingTable(vm_info)
+{
+
+    var str = '<div class="twelve columns">\
+                <table id="scheduling_actions_table" class="info_table twelve datatable extended_table">\
+                 <thead>\
+                   <tr>\
+                      <th>'+tr("ID")+'</th>\
+                      <th>'+tr("ACTION")+'</th>\
+                      <th>'+tr("TIME")+'</th>\
+                      <th>'+tr("DONE")+'</th>\
+                      <th>'+tr("MESSAGE")+'</th>\
+                      <th colspan="">'+tr("Actions")+'</th>\
+                   </tr>\
+                  </thead>' + 
+                    fromJSONtoSchedulingActionTable(
+                                      vm_info.USER_TEMPLATE.SCHED_ACTION) +
+                 '</table>\
+                </div>'
+
+    // Remove previous listeners
+    $(".remove_x").die();
+    $(".edit_e").die();
+
+
+    // Add listener for add key and add value for Extended Template
+    $('#button_add_value').live("click", function() {
+        if ( $('#new_value').val() != "" && $('#new_key').val() != "" )
+        {
+            var template_json_bk = $.extend({}, template_json);
+            template_json[$.trim($('#new_key').val())] = $.trim($('#new_value').val());
+            template_str  = convert_template_to_string(template_json,unshown_values);
+
+            Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
+            template_json = template_json_bk;
+        }
+    });
+
+    // Capture the enter key
+    $('#new_value').live("keypress", function(e) {
+          var ev = e || window.event;
+          var key = ev.keyCode;
+
+          if (key == 13)
+          {
+             //Get the button the user wants to have clicked
+             $('#button_add_value').click();
+             ev.preventDefault();
+          }
+    })
+
+    // Listener for single values
+
+    // Listener for key,value pair remove action
+    $(".remove_x").live("click", function() {
+        // Remove div_minus_ from the id
+        var index = this.id.substring(6,this.id.length);
+        var tmp_tmpl = new Array();
+
+        $.each(vm_info.USER_TEMPLATE.SCHED_ACTION, function(i,element){
+            if(element.ID!=index)
+              tmp_tmpl[i] = element
+        })
+
+        vm_info.USER_TEMPLATE.SCHED_ACTION = tmp_tmpl;
+        var template_str = convert_template_to_string(vm_info.USER_TEMPLATE);
+
+        // Let OpenNebula know
+        Sunstone.runAction("VM.update_template",vm_info.ID,template_str);
+    });
+
+    // Listener for key,value pair edit action
+    $(".edit_e").live("click", function() {
+
+        // Action
+        var index=this.id.substring(5,this.id.length);
+
+        var value_str = $(".tr_action_"+index+" .action_row").text();
+        $(".tr_action_"+index+" .action_row").html('<select id="select_action_'+index+'" class="select_action" name="select_action">\
+                                <option value="shutdown">' + tr("shutdown") + '</option>\
+                                <option value="hold">' + tr("hold") + '</option>\
+                                <option value="release">' + tr("release") + '</option>\
+                                <option value="stop">' + tr("stop") + '</option>\
+                                <option value="cancel">' + tr("cancel") + '</option>\
+                                <option value="suspend">' + tr("suspend") + '</option>\
+                                <option value="resume">' + tr("shutdown") + '</option>\
+                                <option value="restart">' + tr("hold") + '</option>\
+                                <option value="resubmit">' + tr("release") + '</option>\
+                                <option value="reboot">' + tr("stop") + '</option>\
+                                <option value="reset">' + tr("cancel") + '</option>\
+                                <option value="poweroff">' + tr("suspend") + '</option>\
+                                <option value="snapshot-create">' + tr("snapshot-create") + '</option>\
+                              </select>')
+        $(".select_action").val(value_str);
+
+        // Time
+        var time_value_str = $(".tr_action_"+index+" .time_row").text();
+        $(".tr_action_"+index+" .time_row").html('<input class="input_edit_time" id="input_edit_time_'+index+'" type="text" value="'+time_value_str+'"/>')
+    });
+
+     $(".select_action").live("change", function() {
+        var index     = $.trim(this.id.substring(14,this.id.length));
+        var tmp_tmpl  = new Array();
+        var value_str = $(this).val();
+
+        $.each(vm_info.USER_TEMPLATE.SCHED_ACTION, function(i,element){
+            tmp_tmpl[i] = element;
+            if(element.ID==index)
+              tmp_tmpl[i].ACTION = value_str;
+        })
+
+        vm_info.USER_TEMPLATE.SCHED_ACTION = tmp_tmpl;
+        var template_str = convert_template_to_string(vm_info.USER_TEMPLATE);
+
+        // Let OpenNebula know
+        Sunstone.runAction("VM.update_template",vm_info.ID,template_str);
+    });
+
+    $(".input_edit_time").live("change", function() {
+        var index     = $.trim(this.id.substring(16,this.id.length));
+        var tmp_tmpl  = new Array();
+        var value_str = $(this).val();
+
+        $.each(vm_info.USER_TEMPLATE.SCHED_ACTION, function(i,element){
+            tmp_tmpl[i] = element;
+            if(element.ID==index)
+            {
+              var epoch_str    = new Date(value_str);
+              tmp_tmpl[i].TIME = parseInt(epoch_str.getTime())/1000;
+            }
+        })
+
+        vm_info.USER_TEMPLATE.SCHED_ACTION = tmp_tmpl;
+        var template_str = convert_template_to_string(vm_info.USER_TEMPLATE);
+
+        // Let OpenNebula know
+        Sunstone.runAction("VM.update_template",vm_info.ID,template_str);
+    });
+
+    return str;
+}
+
+// Returns an HTML string with the json keys and values
+function fromJSONtoSchedulingActionTable(actions_array){
+    var str = ""
+    if (!actions_array){ return "";}
+    if (!$.isArray(actions_array))
+    { 
+      var tmp_array = new Array();
+      tmp_array[0]  = actions_array;
+      actions_array = tmp_array;
+    }
+
+    $.each(actions_array, function(index, scheduling_action){
+       str += fromJSONtoSchedulingActionRow(scheduling_action);
+    });
+
+    return str;
+}
+
+
+// Helper for fromJSONtoHTMLTable function
+function fromJSONtoSchedulingActionRow(scheduling_action){
+    var str = "";
+
+    var done_str    = scheduling_action.DONE ? scheduling_action.DONE : "";
+    var message_str = scheduling_action.MESSAGE ? scheduling_action.MESSAGE : "";
+    var time_str    = new Date(scheduling_action.TIME*1000).toLocaleString();
+
+    str += '<tr class="tr_action_'+scheduling_action.ID+'">\
+             <td class="id_row">'+scheduling_action.ID+'</td>\
+             <td class="action_row">'+scheduling_action.ACTION+'</td>\
+             <td class="time_row">'+time_str+'</td>\
+             <td class="done_row">'+done_str+'</td>\
+             <td class="message_row">'+message_str+'</td>\
+             <td>\
+               <div>\
+                 <a id="edit_'+scheduling_action.ID+'" class="edit_e" href="#"><i class="icon-edit"/></a>\
+                 &nbsp;&nbsp;\
+                 <a id="minus_'+scheduling_action.ID+'" class="remove_x" href="#"><i class="icon-trash"/></a>\
+               </div>\
+             </td>\
+           </tr>';
+
+    return str;
+}
+
+function setupDateTimePicker(time_str){
+    dialogs_context.append('<div id="date_time_picker_dialog"></div>');
+    $date_time_picker_dialog = $('#date_time_picker_dialog',dialogs_context);
+    var dialog = $date_time_picker_dialog;
+
+    dialog.html( '<div class="panel">\
+                  <h3>\
+                    <small id="">'+tr("Date Time Picker")+'</small>\
+                  </h3>\
+                  </div>\
+                  <input type="text" name="date" value="2012/01/01 10:00">\
+                  <script type="text/javascript">\
+                    $(function(){\
+                      $("*[name=date]").appendDtpicker({"inline": true, "current": '+time_str+'});\
+                    });\
+                  </script>')
+
+    dialog.addClass("reveal-modal large");
+
+
+    $('#date_time_picker_dialog',dialog).submit(function(){
+        var date_str = $('*[name=date]').val();
+        alert(date_str);
+        return false;
+
+        var enforce = false;
+        if ($("#enforce", this).is(":checked")) {
+          enforce = true;
+        }
+
+        var data  = {};
+        addSectionJSON(data, this);
+
+        var obj = {
+          "vm_template": data,
+          "enforce": (enforce == "on" ? true : false),
+        }
+        console.log(enforce)
+        console.log(obj)
+
+        Sunstone.runAction('VM.resize', vm_id, obj);
+
+        $resize_capacity_dialog.trigger("reveal:close")
+        return false;
+    });
+};
 
 // Generates the HTML for the hotplugging tab
 // This is a list of disks with the save_as, detach options.
@@ -1944,15 +2183,6 @@ function setup_vm_network_tab(){
         return false;
     }); 
 }
-
-
-
-
-
-
-
-
-
 
 
 

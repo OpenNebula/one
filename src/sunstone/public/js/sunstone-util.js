@@ -1381,31 +1381,32 @@ function convert_template_to_string(template_json,unshown_values)
 
 
     var template_str = "\n";
-    for(var key in template_json)
+    $.each(template_json, function(key, value)       
     {
-        var value = template_json[key];
         // value can be an array
+        if (!value) return true;
         if (value.constructor == Array)
         {
             var it=null;
-            for (it = 0; it < value.length; ++it)
+            $.each(value, function(index, element) 
             {
+                if (!element) return true;
                // current value can be an object
-               if (typeof value[it] == 'object')
+               if (typeof element == 'object')
                {
                     template_str+=key+"=[";
-                    for(var current_key in value[it])
+                    for(var current_key in element)
                     {
-                        template_str+=current_key+"=\""+value[it][current_key]+"\",";
+                        template_str+=current_key+"=\""+element[current_key]+"\",";
                     }
                     template_str=template_str.substring(0,template_str.length-1);
                     template_str+="]\n";
                }
                else // or a string
                {
-                 template_str=template_str+key+"=\""+ value[it]+"\"\n";
+                 template_str=template_str+key+"=\""+ element +"\"\n";
                }
-            }
+            })
         }
         else // or a single value
         {
@@ -1425,7 +1426,7 @@ function convert_template_to_string(template_json,unshown_values)
                   template_str=template_str+key+"=\""+ value+"\"\n";
                }
         }
-    }
+    })
 
     return template_str;
 }
