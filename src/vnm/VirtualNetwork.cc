@@ -88,7 +88,7 @@ const char * VirtualNetwork::db_names =
 
 const char * VirtualNetwork::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
     " network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128),"
-    " body TEXT, uid INTEGER, gid INTEGER,"
+    " body MEDIUMTEXT, uid INTEGER, gid INTEGER,"
     " owner_u INTEGER, group_u INTEGER, other_u INTEGER,"
     " cid INTEGER, UNIQUE(name,uid))";
 
