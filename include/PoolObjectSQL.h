@@ -561,6 +561,13 @@ protected:
     void set_umask(int umask);
 
     /**
+     *  Sets an error message with timestamp in the template
+     *    @param name of the error attribute
+     *    @param message Message string
+     */
+    void set_template_error_message(const string& name, const string& message);
+
+    /**
      *  The object's unique ID
      */
     int     oid;
@@ -643,11 +650,6 @@ private:
      *  Pointer to the SQL table for the PoolObjectSQL
      */
     const char * table;
-
-    /**
-     *  Name for the error messages attribute
-     */
-    static const char * error_attribute_name;
 };
 
 #endif /*POOL_OBJECT_SQL_H_*/

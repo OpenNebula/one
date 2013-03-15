@@ -134,29 +134,32 @@ int PoolObjectSQL::drop(SqlDB *db)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const char * PoolObjectSQL::error_attribute_name = "ERROR";
-
 void PoolObjectSQL::set_template_error_message(const string& message)
+{
+    set_template_error_message("ERROR", message);
+}
+
+/* -------------------------------------------------------------------------- */
+
+void PoolObjectSQL::set_template_error_message(const string& name,
+                                               const string& message)
 {
     SingleAttribute * attr;
     ostringstream     error_value;
 
     error_value << one_util::log_time() << " : " << message;
 
-    //Replace previous error message and insert the new one
+    attr = new SingleAttribute(name, error_value.str());
 
-    attr = new SingleAttribute(error_attribute_name, error_value.str());
-
-    obj_template->erase(error_attribute_name);
+    obj_template->erase(name);
     obj_template->set(attr);
 }
 
 /* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
 void PoolObjectSQL::clear_template_error_message()
 {
-    remove_template_attribute(error_attribute_name);
+    remove_template_attribute("ERROR");
 }
 
 /* -------------------------------------------------------------------------- */

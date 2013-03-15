@@ -78,7 +78,7 @@ module Migrator
         # IMAGE/CLONES/ID
         ########################################################################
 
-        @db.run "CREATE TABLE image_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid) );"
+        @db.run "CREATE TABLE image_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid) );"
 
         @db[:image_pool].each do |row|
             doc = Document.new(row[:body])
@@ -117,7 +117,7 @@ module Migrator
         ########################################################################
 
         @db.run "ALTER TABLE host_pool RENAME TO old_host_pool;"
-        @db.run "CREATE TABLE host_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, state INTEGER, last_mon_time INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name));"
+        @db.run "CREATE TABLE host_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, state INTEGER, last_mon_time INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name));"
 
         @db.fetch("SELECT * FROM old_host_pool") do |row|
             doc = Document.new(row[:body])
@@ -146,7 +146,7 @@ module Migrator
         ########################################################################
 
         @db.run "ALTER TABLE network_pool RENAME TO old_network_pool;"
-        @db.run "CREATE TABLE network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name,uid));"
+        @db.run "CREATE TABLE network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name,uid));"
 
         @db.fetch("SELECT * FROM old_network_pool") do |row|
             doc = Document.new(row[:body])
@@ -179,7 +179,7 @@ module Migrator
         ########################################################################
 
         @db.run "ALTER TABLE datastore_pool RENAME TO old_datastore_pool;"
-        @db.run "CREATE TABLE datastore_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name));"
+        @db.run "CREATE TABLE datastore_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name));"
 
         @db.fetch("SELECT * FROM old_datastore_pool") do |row|
             doc = Document.new(row[:body])
@@ -246,13 +246,13 @@ module Migrator
         # Feature #1611: Default quotas
         ########################################################################
 
-        @db.run("CREATE TABLE IF NOT EXISTS system_attributes (name VARCHAR(128) PRIMARY KEY, body TEXT)")
+        @db.run("CREATE TABLE IF NOT EXISTS system_attributes (name VARCHAR(128) PRIMARY KEY, body MEDIUMTEXT)")
         @db.run("INSERT INTO system_attributes VALUES('DEFAULT_GROUP_QUOTAS','<DEFAULT_GROUP_QUOTAS><DATASTORE_QUOTA></DATASTORE_QUOTA><NETWORK_QUOTA></NETWORK_QUOTA><VM_QUOTA></VM_QUOTA><IMAGE_QUOTA></IMAGE_QUOTA></DEFAULT_GROUP_QUOTAS>');")
         @db.run("INSERT INTO system_attributes VALUES('DEFAULT_USER_QUOTAS','<DEFAULT_USER_QUOTAS><DATASTORE_QUOTA></DATASTORE_QUOTA><NETWORK_QUOTA></NETWORK_QUOTA><VM_QUOTA></VM_QUOTA><IMAGE_QUOTA></IMAGE_QUOTA></DEFAULT_USER_QUOTAS>');")
 
 
         @db.run "ALTER TABLE user_pool RENAME TO old_user_pool;"
-        @db.run "CREATE TABLE user_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+        @db.run "CREATE TABLE user_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
 
         # oneadmin does not have quotas
         @db.fetch("SELECT * FROM old_user_pool WHERE oid=0") do |row|
@@ -287,7 +287,7 @@ module Migrator
 
 
         @db.run "ALTER TABLE group_pool RENAME TO old_group_pool;"
-        @db.run "CREATE TABLE group_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+        @db.run "CREATE TABLE group_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
 
 
         # oneadmin group does not have quotas
@@ -326,7 +326,7 @@ module Migrator
         ########################################################################
 
         @db.run "ALTER TABLE cluster_pool RENAME TO old_cluster_pool;"
-        @db.run "CREATE TABLE cluster_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+        @db.run "CREATE TABLE cluster_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
 
         @db.fetch("SELECT * FROM old_cluster_pool") do |row|
             doc = Document.new(row[:body])
@@ -416,7 +416,7 @@ module Migrator
         ########################################################################
 
         @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
-        @db.run "CREATE TABLE vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
+        @db.run "CREATE TABLE vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
 
         @db.fetch("SELECT * FROM old_vm_pool") do |row|
 
@@ -461,7 +461,7 @@ module Migrator
         ########################################################################
 
         @db.run "ALTER TABLE template_pool RENAME TO old_template_pool;"
-        @db.run "CREATE TABLE template_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
+        @db.run "CREATE TABLE template_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
 
         @db.fetch("SELECT * FROM old_template_pool") do |row|
 
@@ -505,7 +505,7 @@ module Migrator
         ########################################################################
 
         @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
-        @db.run "CREATE TABLE vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
+        @db.run "CREATE TABLE vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
 
         @db.fetch("SELECT * FROM old_vm_pool") do |row|
             if ( row[:state] != 6 )     # DONE

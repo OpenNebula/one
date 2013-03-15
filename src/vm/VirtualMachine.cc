@@ -3169,7 +3169,7 @@ void VirtualMachine::update_info(
 
     set_vm_info();
 
-    clear_template_error_message();
+    clear_template_monitor_error();
 };
 
 /* -------------------------------------------------------------------------- */
@@ -3213,4 +3213,17 @@ int VirtualMachine::replace_template(
     user_obj_template = new_tmpl;
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::set_template_monitor_error(const string& message)
+{
+    set_template_error_message("ERROR_MONITOR", message);
+}
+
+void VirtualMachine::clear_template_monitor_error()
+{
+    remove_template_attribute("ERROR_MONITOR");
 }

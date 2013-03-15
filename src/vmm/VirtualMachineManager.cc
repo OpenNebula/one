@@ -1550,6 +1550,10 @@ void VirtualMachineManager::timer_action()
 
         delete drv_msg;
 
+        vm->set_last_poll(thetime);
+
+        vmpool->update(vm);
+
         vm->unlock();
     }
 }
