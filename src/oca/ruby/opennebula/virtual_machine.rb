@@ -291,8 +291,17 @@ module OpenNebula
         end
 
         # Deletes a VM from the pool
-        def finalize
-            action('finalize')
+        def destroy(recreate=false)
+            if recreate
+                action('destroy-recreate')
+            else
+                action('destroy')
+            end
+        end
+
+        # @deprecated use {#destroy} instead
+        def finalize(recreate=false)
+            destroy(recreate)
         end
 
         # Forces a re-deployment of a VM in UNKNOWN or BOOT state
@@ -302,9 +311,9 @@ module OpenNebula
 
         alias_method :restart, :boot
 
-        # Resubmits a VM to PENDING state
+        # @deprecated use {#destroy} instead
         def resubmit
-            action('resubmit')
+            action('resubmit-recreate')
         end
 
         # Sets the re-scheduling flag for the VM

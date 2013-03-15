@@ -204,19 +204,27 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    delete_desc = <<-EOT.unindent
-        Deletes the given VM
+    destroy_desc = <<-EOT.unindent
+        Deletes the given VM. Using --recreate resubmits the VM.
+
+        Resubmits the VM to PENDING state. This is intended for VMs stuck in a
+        transient state. To re-deploy a fresh copy of the same VM, create a
+        Template and instantiate it, see 'onetemplate instantiate'
 
         States: ANY
     EOT
 
-    command :delete, delete_desc, [:range, :vmid_list],
-        :options => [OneVMHelper::SCHEDULE] do
+    command :destroy, destroy_desc, [:range, :vmid_list],
+        :options => [OneVMHelper::SCHEDULE, OneVMHelper::RECREATE] do
+
+        command_name="destroy"
+        command_name<<"-recreate" if options[:recreate]
+
         if (!options[:schedule].nil?)
-            helper.schedule_actions(args[0], options, @comm_name)
+            helper.schedule_actions(args[0], options, command_name)
         else
             helper.perform_actions(args[0],options,"deleted") do |vm|
-                vm.finalize
+                vm.destroy(options[:recreate]==true)
             end
         end
     end
@@ -411,25 +419,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         else
             helper.perform_actions(args[0],options,"booting") do |vm|
                 vm.boot
-            end
-        end
-    end
-
-    resubmit_desc = <<-EOT.unindent
-        Resubmits the VM to PENDING state. This is intended for VMs stuck in a
-        transient state. To re-deploy a fresh copy of the same VM, create a
-        Template and instantiate it, see 'onetemplate instantiate'
-
-        States: ANY, except SUSPENDED or DONE
-    EOT
-
-    command :resubmit, resubmit_desc, [:range,:vmid_list],
-        :options => [OneVMHelper::SCHEDULE] do
-        if (!options[:schedule].nil?)
-            helper.schedule_actions(args[0], options, @comm_name)
-        else
-            helper.perform_actions(args[0],options,"resubmiting") do |vm|
-                vm.resubmit
             end
         end
     end

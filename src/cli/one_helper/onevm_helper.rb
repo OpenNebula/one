@@ -94,6 +94,12 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         :description=> "Does not communicate with the guest OS"
     }
 
+    RECREATE = {
+        :name       => "recreate",
+        :large      => "--recreate",
+        :description=> "Resubmits a fresh VM"
+    }
+
     def self.rname
         "VM"
     end
