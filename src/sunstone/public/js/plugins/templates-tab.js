@@ -3402,7 +3402,7 @@ function fillTemplatePopUp(request, response){
 
     function fillDiskTab(disk) {
         var str_disk_tab_id = 'disk' + number_of_disks;
-        var disk_section  = $('div#' + str_disk_tab_id, $create_template_dialog);
+        var disk_section  = $('li#' + str_disk_tab_id + 'Tab', $create_template_dialog);
 
         if (disk.IMAGE_ID) {
             $('input#'+str_disk_tab_id+'radioImage', disk_section).click();
@@ -3482,7 +3482,7 @@ function fillTemplatePopUp(request, response){
 
     function fillNicTab(nic) {
         var str_nic_tab_id = 'nic' + number_of_nics;
-        var nic_section  = $('div#' + str_nic_tab_id, $create_template_dialog);
+        var nic_section  = $('li#' + str_nic_tab_id + 'Tab', $create_template_dialog);
 
         var dataTable_template_networks = $("#datatable_template_networks" + number_of_nics).dataTable();
 
@@ -3504,7 +3504,7 @@ function fillTemplatePopUp(request, response){
                 var clicked = false;
                 for (var j=0;j<rows.length;j++) {
                     var current_row = $(rows[j]);
-                    var row_network_id = $(rows[j]).find("td:eq(1)").html();
+                    var row_network_id = $(rows[j]).find("td:eq(0)").html();
 
                     if (row_network_id == nic.NETWORK_ID) {
                         rows[j].click();
