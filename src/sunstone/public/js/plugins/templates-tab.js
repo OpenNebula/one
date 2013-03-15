@@ -553,18 +553,19 @@ function setup_capacity_tab_content(capacity_section) {
 
     var cpu_input = $( "#CPU", capacity_section);
 
-    var cpu_slider = $( "#cpu_slider", capacity_section).noUiSlider('init', {
+    var cpu_slider = $( "#cpu_slider", capacity_section).noUiSlider({
         handles: 1,
         connect: "lower",
-        scale: [0,800],
+        range: [0,800],
 //            start: 100,
         step: 50,
-        change: function(type) {
+        start: 1,
+        slide: function(type) {
             if ( type != "move")
             {
-                var values = $(this).noUiSlider( 'value' );
+                var values = $(this).val();
 
-                cpu_input.val(values[1] / 100);
+                cpu_input.val(values / 100);
             }
         },
     });
@@ -572,15 +573,13 @@ function setup_capacity_tab_content(capacity_section) {
     cpu_slider.addClass("noUiSlider");
 
     cpu_input.change(function() {
-        cpu_slider.noUiSlider('move',{
-            to: this.value * 100
-        })
+        cpu_slider.val(this.value * 100)
     });
 
     cpu_input.val(1);
 
     // init::start is ignored for some reason
-    $( "#cpu_slider", capacity_section).noUiSlider('move',{to: 100});
+    cpu_slider.val(100);
 
 
     // Define the memory slider
@@ -603,36 +602,33 @@ function setup_capacity_tab_content(capacity_section) {
     var memory_slider_change = function(type) {
         if ( type != "move")
         {
-            var values = $(this).noUiSlider( 'value' );
+            var values = $(this).val();
 
-            memory_input.val(values[1] / 100);
+            memory_input.val(values / 100);
 
             update_final_memory_input();
         }
     };
 
-    var memory_slider = $( "#memory_slider", capacity_section).noUiSlider('init', {
+    var memory_slider = $( "#memory_slider", capacity_section).noUiSlider({
         handles: 1,
         connect: "lower",
-        scale: [0,409600],
+        range: [0,409600],
         step: 12800,
-        change: memory_slider_change,
+        start: 1,
+        slide: memory_slider_change,
     });
 
     memory_slider.addClass("noUiSlider");
 
     memory_input.change(function() {
-        memory_slider.noUiSlider('move',{
-            to: this.value * 100
-        })
+        memory_slider.val(this.value * 100)
 
         update_final_memory_input();
     });
 
     // init::start is ignored for some reason
-    memory_slider.noUiSlider('move',{
-        to: 0
-    });
+    memory_slider.val(0);
 
     memory_unit.change(function() {
         var memory_unit_val = $('#memory_unit :selected', capacity_section).val();
@@ -643,33 +639,35 @@ function setup_capacity_tab_content(capacity_section) {
 
             if (memory_unit_val == 'GB') {
 
-                memory_slider.empty().noUiSlider('init', {
+                memory_slider.empty().noUiSlider({
                     handles: 1,
                     connect: "lower",
-                    scale: [0,1600],
+                    range: [0,1600],
+                    start: 1,
                     step: 50,
-                    change: memory_slider_change,
+                    slide: memory_slider_change,
                 });
 
                 var new_val = memory_input.val() / 1024;
 
                 memory_input.val( new_val );
-                memory_slider.noUiSlider('move',{to: new_val * 100});
+                memory_slider.val(new_val * 100);
             }
             else if (memory_unit_val == 'MB') {
 
-                memory_slider.empty().noUiSlider('init', {
+                memory_slider.empty().noUiSlider({
                     handles: 1,
                     connect: "lower",
-                    scale: [0,409600],
+                    range: [0,409600],
+                    start: 1,
                     step: 12800,
-                    change: memory_slider_change,
+                    slide: memory_slider_change,
                 });
 
                 var new_val = Math.floor( memory_input.val() * 1024 );
 
                 memory_input.val( new_val );
-                memory_slider.noUiSlider('move',{to: new_val * 100});
+                memory_slider.val(new_val * 100);
             }
 
             update_final_memory_input();
@@ -681,17 +679,18 @@ function setup_capacity_tab_content(capacity_section) {
 
     var vcpu_input = $( "#VCPU", capacity_section );
 
-    var vcpu_slider = $( "#vcpu_slider", capacity_section).noUiSlider('init', {
+    var vcpu_slider = $( "#vcpu_slider", capacity_section).noUiSlider({
         handles: 1,
         connect: "lower",
-        scale: [0,8],
+        range: [0,8],
+        start: 0,
         step: 1,
-        change: function(type) {
+        slide: function(type) {
             if ( type != "move")
             {
-                var values = $(this).noUiSlider( 'value' );
+                var values = $(this).val();
 
-                vcpu_input.val(values[1]);
+                vcpu_input.val(values);
             }
         },
     });
@@ -699,13 +698,11 @@ function setup_capacity_tab_content(capacity_section) {
     vcpu_slider.addClass("noUiSlider");
 
     vcpu_input.change(function() {
-        vcpu_slider.noUiSlider('move',{
-            to: this.value
-        })
+        vcpu_slider.val(this.value)
     });
 
     // init::start is ignored for some reason
-    vcpu_slider.noUiSlider('move',{to: 0});
+    vcpu_slider.val(0);
 }
 
 function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
@@ -903,32 +900,31 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
     var size_slider_change = function(type) {
         if ( type != "move")
         {
-            var values = $(this).noUiSlider( 'value' );
+            var values = $(this).val();
 
-            size_input.val(values[1] / 100);
+            size_input.val(values / 100);
         }
     };
 
-    var size_slider = $( "#size_slider", disk_section).noUiSlider('init', {
+    var size_slider = $( "#size_slider", disk_section).noUiSlider({
         handles: 1,
         connect: "lower",
-        scale: [0,5000],
+        range: [0,5000],
+        start: 1,
         step: 50,
-        change: size_slider_change,
+        slide: size_slider_change,
     });
 
     size_slider.addClass("noUiSlider");
 
     size_input.change(function() {
-        size_slider.noUiSlider('move',{
-            to: this.value * 100
-        })
+        size_slider.val(this.value * 100)
     });
 
     size_input.val(10);
 
     // init::start is ignored for some reason
-    size_slider.noUiSlider('move',{to: 1000});
+    size_slider.val(1000);
 
     size_unit.change(function() {
         var size_unit_val = $('#size_unit :selected').val();
@@ -939,33 +935,35 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
 
             if (size_unit_val == 'GB') {
 
-                size_slider.empty().noUiSlider('init', {
+                size_slider.empty().noUiSlider({
                     handles: 1,
                     connect: "lower",
-                    scale: [0,5000],
+                    range: [0,5000],
+                    start: 1,
                     step: 50,
-                    change: size_slider_change,
+                    slide: size_slider_change,
                 });
 
                 var new_val = size_input.val() / 1024;
 
                 size_input.val( new_val );
-                size_slider.noUiSlider('move',{to: new_val * 100});
+                size_slider.val(new_val * 100);
             }
             else if (size_unit_val == 'MB') {
 
-                size_slider.empty().noUiSlider('init', {
+                size_slider.empty().noUiSlider({
                     handles: 1,
                     connect: "lower",
-                    scale: [0,204800],
+                    range: [0,204800],
+                    start: 1,
                     step: 12800,
-                    change: size_slider_change,
+                    slide: size_slider_change,
                 });
 
                 var new_val = Math.round( size_input.val() * 1024 );
 
                 size_input.val( new_val );
-                size_slider.noUiSlider('move',{to: new_val * 100});
+                size_slider.val(new_val * 100);
             }
         }
     });
