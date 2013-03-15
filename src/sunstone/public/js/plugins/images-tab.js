@@ -146,17 +146,10 @@ var create_image_tmpl =
                  <fieldset>\
                  <legend>'+tr("Image location")+':</legend>\
                  <div class="row" id="src_path_select">\
-                        <div class="four columns">\
-                         <input type="radio" name="src_path" id="path_img" value="path">'+ tr("Provide a path")+'</input> \
-                        </div>\
-                        <div class="four columns">\
-                         <input type="radio" name="src_path" id="upload_img" value="upload" /> '+tr("Upload")+'\
-                        </div>\
-                        <div class="four  columns hidden" id="empty_datablock">\
-                         <input type="radio" name="src_path" id="datablock_img" value="datablock" /> '+tr("Create an empty datablock")+'\
-                        </div>\
-                        <div class="one columns">\
-                         <div class="tip">'+tr("Please choose path if you have a file-based image. Otherwise upload or create an empty datablock disk.")+'</div>\
+                        <div class="seven columns centered">\
+                         <input type="radio" name="src_path" id="path_img" value="path">'+ tr("Provide a path")+'&emsp;</input> \
+                         <input type="radio" name="src_path" id="upload_img" value="upload"> '+tr("Upload")+'</input> &emsp;\
+                         <input type="radio" name="src_path" id="datablock_img" value="datablock" disabled> '+tr("Empty datablock")+'</input> &emsp;\
                         </div>\
                  </div>\
                  <div class="img_param row">\
@@ -172,7 +165,7 @@ var create_image_tmpl =
                     </div>\
                  </div>\
                  </div>\
-                 <div class="row img_size">\
+                 <div class="img_size">\
                    <div class="six columns">\
                     <div class="row">\
                         <div class="four columns">\
@@ -848,12 +841,12 @@ function setupCreateImageDialog(){
         var context = $create_image_dialog;
         switch (value){
         case "DATABLOCK":
-            //$('#datablock_img',context).removeAttr("disabled");
-            $('#empty_datablock', context).show();
+            $('#datablock_img',context).removeAttr("disabled");
+            //$('#empty_datablock', context).show();
             break;
         default:
-            //$('#datablock_img',context).attr('disabled','disabled');
-            $('#empty_datablock', context).hide();
+            $('#datablock_img',context).attr('disabled','disabled');
+            //$('#empty_datablock', context).hide();
             $('#path_img',context).click();
 
         }
