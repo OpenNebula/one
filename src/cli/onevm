@@ -400,15 +400,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         host_id = args[1]
         verbose = "migrating to #{host_id}"
 
-        params  = [host_id]
-        params << options[:enforce] if !options[:enforce].nil?
-
         helper.perform_actions(args[0],options,verbose) do |vm|
-            if options[:live]
-                vm.live_migrate(*params)
-            else
-                vm.migrate(*params)
-            end
+            vm.migrate( host_id,
+                        options[:live]==true,
+                        options[:enforce]==true)
         end
     end
 
