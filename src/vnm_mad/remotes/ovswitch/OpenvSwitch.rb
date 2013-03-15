@@ -52,13 +52,15 @@ class OpenvSwitchVLAN < OpenNebulaNetwork
         end
     end
 
-    def tag_vlan
+    def vlan
         if @nic[:vlan_id]
-            vlan = @nic[:vlan_id]
+            return @nic[:vlan_id]
         else
-            vlan = CONF[:start_vlan] + @nic[:network_id].to_i
+            return CONF[:start_vlan] + @nic[:network_id].to_i
         end
+    end
 
+    def tag_vlan
         cmd =  "#{COMMANDS[:ovs_vsctl]} set Port #{@nic[:tap]} "
         cmd << "tag=#{vlan}"
 
@@ -75,7 +77,10 @@ class OpenvSwitchVLAN < OpenNebulaNetwork
         if range = @nic[:black_ports_tcp]
             if range? range
                 range.split(",").each do |p|
-                    add_flow("tcp,dl_dst=#{@nic[:mac]},tp_dst=#{p}",:drop)
+                    base_rule = "tcp,dl_dst=#{@nic[:mac]},tp_dst=#{p}"
+                    base_rule << ",dl_vlan=#{vlan}" if @nic[:vlan] == "YES"
+
+                    add_flow(base_rule,:drop)
                 end
             end
         end
@@ -84,7 +89,10 @@ class OpenvSwitchVLAN < OpenNebulaNetwork
         if range = @nic[:black_ports_udp]
             if range? range
                 range.split(",").each do |p|
-                    add_flow("udp,dl_dst=#{@nic[:mac]},tp_dst=#{p}",:drop)
+                    base_rule = "udp,dl_dst=#{@nic[:mac]},tp_dst=#{p}"
+                    base_rule << ",dl_vlan=#{vlan}" if @nic[:vlan] == "YES"
+
+                    add_flow(base_rule,:drop)
                 end
             end
         end
@@ -92,7 +100,10 @@ class OpenvSwitchVLAN < OpenNebulaNetwork
         # ICMP
         if @nic[:icmp]
             if %w(no drop).include? @nic[:icmp].downcase
-                add_flow("icmp,dl_dst=#{@nic[:mac]}",:drop)
+                base_rule = "icmp,dl_dst=#{@nic[:mac]}"
+                base_rule << ",dl_vlan=#{vlan}" if @nic[:vlan] == "YES"
+
+                add_flow(base_rule,:drop)
             end
         end
     end
