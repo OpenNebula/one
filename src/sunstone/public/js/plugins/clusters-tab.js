@@ -1354,7 +1354,7 @@ function updateClustersView (request,list){
     updateView(list_array,dataTable_clusters);
     updateClusterSelect();
     //dependency with the infraestructure dashboard plugin
-    updateInfraDashboard("clusters",list);
+    //updateInfraDashboard("clusters",list);
 };
 
 

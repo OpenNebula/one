@@ -625,6 +625,7 @@ function updateDatastoresView(request, list){
     });
 
     updateView(list_array,dataTable_datastores);
+    updateDatastoreSelect();
 }
 
 
