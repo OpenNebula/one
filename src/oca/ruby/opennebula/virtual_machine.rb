@@ -205,8 +205,8 @@ module OpenNebula
         end
 
         # Shutdowns an already deployed VM
-        def shutdown
-            action('shutdown')
+        def shutdown(hard=false)
+            action(hard ? 'shutdown-hard' : 'shutdown')
         end
 
         # Powers off a running VM
@@ -224,9 +224,9 @@ module OpenNebula
             reboot(true)
         end
 
-        # Cancels a running VM
+        # @deprecated use {#shutdown}
         def cancel
-            action('cancel')
+            shutdown(true)
         end
 
         # Sets a VM to hold state, scheduler will not deploy it
