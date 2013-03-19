@@ -582,8 +582,8 @@ function insertButtonsInTab(tab_name){
             "<div class='eight columns'>"+
                 '<div class="button-bar">'+
                   '<ul class="button-group right">'+
-                    '<li>'+
-                        "<div id='vmsstopresume_buttons'>"+
+                    '<li id="vmsstopresume_buttons">'+
+                        "<div>"+
                             "<div href='#' class='top_button small button secondary dropdown radius'>"+
                                 "<i class='icon-play'/> / <i class='icon-pause'/>"+
                                 "<ul>"+
@@ -591,8 +591,8 @@ function insertButtonsInTab(tab_name){
                             "</div>"+
                         "</div>"+
                     '</li>'+
-                    '<li>'+
-                        "<div id='vmsoneoff_buttons'>"+
+                    '<li id="vmsoneoff_buttons">'+
+                        "<div>"+
                             "<div href='#' class='top_button small button secondary dropdown radius'>"+
                                 "<i class='icon-off'/>"+
                                 "<ul>"+
@@ -600,8 +600,8 @@ function insertButtonsInTab(tab_name){
                             "</div>"+
                         "</div>"+
                     '</li>'+
-                    '<li>'+
-                        "<div id='vmsdelete_buttons'>"+
+                    '<li id="vmsdelete_buttons">'+
+                        "<div>"+
                             "<div href='#' class='top_button small button secondary dropdown radius'>"+
                                 "<i class='icon-trash'/>"+
                                 "<ul>"+
@@ -609,8 +609,8 @@ function insertButtonsInTab(tab_name){
                             "</div>"+
                         "</div>"+
                     '</li>'+
-                    '<li>'+
-                        "<div id='vmsplanification_buttons'>"+
+                    '<li id="vmsplanification_buttons">'+
+                        "<div>"+
                             "<div href='#' class='top_button small button secondary dropdown radius'>"+
                                 "<i class='icon-th-list'/>"+
                                 "<ul>"+
@@ -754,31 +754,31 @@ function insertButtonsInTab(tab_name){
         action_block.append(buttons_row);
 
         if  ($("#more_buttons ul li", action_block).length == 0 ) {
-            $("#more_buttons", action_block).hide()
+            $("#more_buttons", action_block).remove()
         }
 
         if  ($("#user_buttons ul li", action_block).length == 0 ) {
-            $("#user_buttons", action_block).hide()
+            $("#user_buttons", action_block).remove()
         }
 
         if  ($("#vmsplanification_buttons ul li", action_block).length == 0 ) {
-            $("#vmsplanification_buttons", action_block).hide()
+            $("#vmsplanification_buttons", action_block).remove()
         }
 
         if  ($("#vmsdelete_buttons ul li", action_block).length == 0 ) {
-            $("#vmsdelete_buttons", action_block).hide()
+            $("#vmsdelete_buttons", action_block).remove()
         }
 
         if  ($("#vmsoneoff_buttons ul li", action_block).length == 0 ) {
-            $("#vmsoneoff_buttons", action_block).hide()
+            $("#vmsoneoff_buttons", action_block).remove()
         }
 
         if  ($("#vmsstopresume_buttons ul li", action_block).length == 0 ) {
-            $("#vmsstopresume_buttons", action_block).hide()
+            $("#vmsstopresume_buttons", action_block).remove()
         }
 
         if  ($("#user_buttons ul li", action_block).length == 0 ) {
-            $("#user_buttons", action_block).hide()
+            $("#user_buttons", action_block).remove()
         }
         //action_block.foundationButtons();
 
