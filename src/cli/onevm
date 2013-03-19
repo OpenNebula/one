@@ -269,18 +269,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         created immediately, but the contents are saved only if the VM is
         shut down gracefully (i.e., using 'onevm shutdown' and not
         'onevm delete')
-        Sets the specified VM disk to be saved in a new Image.
-
-        The Image is created immediately, but the contents are saved only if the
-        VM is shut down gracefully (i.e., using 'onevm shutdown' and not 'onevm
-        delete')
 
         If '--live' is specified, the Image will be saved immediately.
 
         States: ANY
     EOT
 
-    command :saveas, disk_snapshot_desc, :vmid, :diskid, :img_name,
+    command :"disk-snapshot", disk_snapshot_desc, :vmid, :diskid, :img_name,
             :options=>[TYPE, OneVMHelper::LIVE] do
         disk_id    = args[1].to_i
         image_name = args[2]
@@ -535,13 +530,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    attachnic_desc = <<-EOT.unindent
+    nic_attach_desc = <<-EOT.unindent
         Attaches a NIC to a running VM
 
         States: RUNNING
     EOT
 
-    command :attachnic, attachnic_desc, :vmid,
+    command :"nic-attach", nic_attach_desc, :vmid,
             :options => [OneVMHelper::FILE, OneVMHelper::NETWORK, IP] do
 
         if options[:file].nil? and options[:network].nil?
@@ -568,13 +563,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    detachnic_desc = <<-EOT.unindent
+    nic_detach_desc = <<-EOT.unindent
         Detaches a NIC from a running VM
 
         States: RUNNING
     EOT
 
-    command :detachnic, detachnic_desc, :vmid, :nicid do
+    command :"nic-detach", nic_detach_desc, :vmid, :nicid do
         nicid = args[1].to_i
 
         helper.perform_action(args[0],options,"Detach NIC") do |vm|
