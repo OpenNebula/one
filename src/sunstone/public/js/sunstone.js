@@ -432,7 +432,7 @@ function setLogin(){
     var user_login_content =  '<div href="#" class="button tiny secondary dropdown" id="logout">\
       <i class="icon-user header-icon"></i> '+ username + '\
       <ul>\
-        <li><a href="#"><i class="icon-cog"></i> Configuration</a></li>\
+        <li><a href="#" class="configuration"><i class="icon-cog"></i> Configuration</a></li>\
         <li><a href="#" class="logout"><i class="icon-off"></i> Sign Out</a></li>\
       </ul>\
     </div>';
@@ -456,6 +456,11 @@ function setLogin(){
         }
         return false;
     });
+
+    $("span.user-login a.configuration").click(function(){
+        $config_dialog.reveal();
+    });
+    
 }
 
 //returns whether we are Sunstone, or oZones

@@ -17,21 +17,10 @@
 var config_response = {};
 var config_tab_content =
 '<div class="panel">\
-<div class="row">\
-  <div class="twelve columns">\
-    <h4 class="subheader header">\
-      <span class="header-resource">\
-        <i class="icon-cog"></i> '+tr("Configuration")+'\
-      </span>\
-      <span class="header-info">\
-        <span/> <small></small>&emsp;\
-      </span>\
-      <span class="user-login">\
-      </span>\
-    </h4>\
+    <h3>\
+      <small id="configuration_dialog">'+tr("Configuration")+'</small>\
+    </h3>\
   </div>\
-</div>\
-</div>\
 <br>\
   <div class="row">\
     <div class="six columns">\
@@ -67,7 +56,12 @@ var config_tab_content =
       </div>\
       </div>\
     </div>\
-  </div>';
+  </div>\
+    <hr>\
+  <div class="form_buttons">\
+      <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+  </div>\
+  <a class="close-reveal-modal">&#215;</a>';
 
 var config_actions = {
     "Config.list" : {
@@ -78,15 +72,32 @@ var config_actions = {
     }
 };
 
-var config_tab = {
-    title: tr("Configuration"),
-    content: config_tab_content,
-    tabClass: "subTab",
-    parentTab: "dashboard_tab"
-};
+
+function setupConfigDialog() {
+    dialogs_context.append('<div title=\"'+tr("Configuration")+'\" id="config_dialog"></div>');
+    //Insert HTML in place
+    $config_dialog = $('#config_dialog')
+    var dialog = $config_dialog;
+    dialog.html(config_tab_content);
+
+    dialog.addClass("reveal-modal large");
+
+    setupTips(dialog);
+
+    //Set the language select to correct value
+    if (lang)
+        $('#lang_sel option[value="'+lang+'"]', dialog).attr('selected','selected');
+
+    //Listener to change language. setLang in locale.js
+    $('#lang_sel', dialog).change(function(){
+        setLang($(this).val());
+    });
+
+    //Listener to wss change
+    $('#wss_checkbox', dialog).change(updateWss);
+}
 
 Sunstone.addActions(config_actions);
-Sunstone.addMainTab('config_tab',config_tab);
 
 // Callback when configuration list is received
 function updateConfig(request,response){
@@ -135,17 +146,7 @@ function updateWss(){
 };
 
 $(document).ready(function(){
-    Sunstone.runAction('Config.list');
+  Sunstone.runAction('Config.list');
 
-    //Set the language select to correct value
-    if (lang)
-        $('#lang_sel option[value="'+lang+'"]').attr('selected','selected');
-
-    //Listener to change language. setLang in locale.js
-    $('#lang_sel').change(function(){
-        setLang($(this).val());
-    });
-
-    //Listener to wss change
-    $('#wss_checkbox').change(updateWss);
+  setupConfigDialog();
 });
