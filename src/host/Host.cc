@@ -222,22 +222,30 @@ int Host::update_info(string          &parse_str,
     tmpl->parse(parse_str, &error_msg);
 
     // ---------------------------------------------------------------------- //
-    // Extract share information                                             //
+    // Extract share information                                              //
     // ---------------------------------------------------------------------- //
-    get_template_attribute("TOTALCPU", fv);
-    host_share.max_cpu = static_cast<int>(fv);
-    get_template_attribute("TOTALMEMORY", fv);
-    host_share.max_mem = static_cast<int>(fv);
 
-    get_template_attribute("FREECPU", fv);
-    host_share.free_cpu = static_cast<int>(fv);
-    get_template_attribute("FREEMEMORY", fv);
-    host_share.free_mem = static_cast<int>(fv);
+    if (state == Host::DISABLED)
+    {
+        reset_share_monitoring();
+    }
+    else
+    {
+        get_template_attribute("TOTALCPU", fv);
+        host_share.max_cpu = static_cast<int>(fv);
+        get_template_attribute("TOTALMEMORY", fv);
+        host_share.max_mem = static_cast<int>(fv);
 
-    get_template_attribute("USEDCPU", fv);
-    host_share.used_cpu = static_cast<int>(fv);
-    get_template_attribute("USEDMEMORY", fv);
-    host_share.used_mem = static_cast<int>(fv);
+        get_template_attribute("FREECPU", fv);
+        host_share.free_cpu = static_cast<int>(fv);
+        get_template_attribute("FREEMEMORY", fv);
+        host_share.free_mem = static_cast<int>(fv);
+
+        get_template_attribute("USEDCPU", fv);
+        host_share.used_cpu = static_cast<int>(fv);
+        get_template_attribute("USEDMEMORY", fv);
+        host_share.used_mem = static_cast<int>(fv);
+    }
 
     // ---------------------------------------------------------------------- //
     // Remove expired information                                             //
@@ -322,6 +330,31 @@ int Host::update_info(string          &parse_str,
     touch(true);
 
     return 0;
+}
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Host::reset_share_monitoring()
+{
+    host_share.max_cpu = 0;
+    host_share.max_mem = 0;
+
+    host_share.free_cpu = 0;
+    host_share.free_mem = 0;
+
+    host_share.used_cpu = 0;
+    host_share.used_mem = 0;
+
+    remove_template_attribute("TOTALCPU");
+    remove_template_attribute("TOTALMEMORY");
+
+    remove_template_attribute("FREECPU");
+    remove_template_attribute("FREEMEMORY");
+
+    remove_template_attribute("USEDCPU");
+    remove_template_attribute("USEDMEMORY");
+
+    touch(true);
 }
 
 /* -------------------------------------------------------------------------- */

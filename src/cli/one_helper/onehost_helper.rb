@@ -102,13 +102,19 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
             column :ALLOCATED_CPU, "Allocated CPU)", :size=>18 do |d|
                 max_cpu  = d["HOST_SHARE"]["MAX_CPU"].to_i
+                cpu_usage = d["HOST_SHARE"]["CPU_USAGE"].to_i
 
-                if max_cpu != 0
-                    cpu_usage = d["HOST_SHARE"]["CPU_USAGE"].to_i
-                    ratio    = (cpu_usage*100) / max_cpu
-                    "#{cpu_usage} / #{max_cpu} (#{ratio}%)"
-                else
+                if max_cpu == 0 && cpu_usage == 0
                     '-'
+                else
+                    cpu_usage = d["HOST_SHARE"]["CPU_USAGE"].to_i
+
+                    if max_cpu != 0
+                        ratio    = (cpu_usage*100) / max_cpu
+                        "#{cpu_usage} / #{max_cpu} (#{ratio}%)"
+                    else
+                        "#{cpu_usage} / -"
+                    end                    
                 end
             end
 
@@ -126,13 +132,17 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
             column :ALLOCATED_MEM, "Allocated MEM", :size=>18 do |d|
                 max_mem  = d["HOST_SHARE"]["MAX_MEM"].to_i
+                mem_usage = d["HOST_SHARE"]["MEM_USAGE"].to_i
 
-                if max_mem != 0
-                    mem_usage = d["HOST_SHARE"]["MEM_USAGE"].to_i
-                    ratio    = (mem_usage*100) / max_mem
-                    "#{OpenNebulaHelper.unit_to_str(mem_usage,options)} / #{OpenNebulaHelper.unit_to_str(max_mem,options)} (#{ratio}%)"
-                else
+                if max_mem == 0 && mem_usage == 0
                     '-'
+                else
+                    if max_mem != 0
+                        ratio    = (mem_usage*100) / max_mem
+                        "#{OpenNebulaHelper.unit_to_str(mem_usage,options)} / #{OpenNebulaHelper.unit_to_str(max_mem,options)} (#{ratio}%)"
+                    else
+                        "#{OpenNebulaHelper.unit_to_str(mem_usage,options)} / -"
+                    end
                 end
             end
 
