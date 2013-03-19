@@ -44,6 +44,9 @@ public class VirtualMachine extends PoolElement{
     private static final String RESIZE  = METHOD_PREFIX + "resize";
     private static final String ATTACHNIC = METHOD_PREFIX + "attachnic";
     private static final String DETACHNIC = METHOD_PREFIX + "detachnic";
+    private static final String SNAPSHOTCREATE = METHOD_PREFIX + "snapshotcreate";
+    private static final String SNAPSHOTREVERT = METHOD_PREFIX + "snapshotrevert";
+    private static final String SNAPSHOTDELETE = METHOD_PREFIX + "snapshotdelete";
 
     private static final String[] VM_STATES =
     {
@@ -378,6 +381,45 @@ public class VirtualMachine extends PoolElement{
         return client.call(RENAME, id, name);
     }
 
+    /**
+     * Creates a new VM snapshot
+     *
+     * @param client XML-RPC Client.
+     * @param id The VM id of the target VM.
+     * @param name Name for the snapshot.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse snapshotcreate(Client client, int id, String name)
+    {
+        return client.call(SNAPSHOTCREATE, id, name);
+    }
+
+    /**
+     * Reverts to a snapshot
+     *
+     * @param client XML-RPC Client.
+     * @param id The VM id of the target VM.
+     * @param snapId Id of the snapshot
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse snapshotrevert(Client client, int id, int snapId)
+    {
+        return client.call(SNAPSHOTREVERT, id, snapId);
+    }
+
+    /**
+     * Deletes a VM snapshot
+     *
+     * @param client XML-RPC Client.
+     * @param id The VM id of the target VM.
+     * @param snapId Id of the snapshot
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse snapshotdelete(Client client, int id, int snapId)
+    {
+        return client.call(SNAPSHOTDELETE, id, snapId);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -683,6 +725,39 @@ public class VirtualMachine extends PoolElement{
     public OneResponse resize(String capacityTemplate, boolean enforce)
     {
         return client.call(RESIZE, id, capacityTemplate, enforce);
+    }
+
+    /**
+     * Creates a new VM snapshot
+     *
+     * @param name Name for the snapshot.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse snapshotcreate(String name)
+    {
+        return snapshotcreate(client, id, name);
+    }
+
+    /**
+     * Reverts to a snapshot
+     *
+     * @param snapId Id of the snapshot
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse snapshotrevert(int snapId)
+    {
+        return snapshotrevert(client, id, snapId);
+    }
+
+    /**
+     * Deletes a VM snapshot
+     *
+     * @param snapId Id of the snapshot
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse snapshotdelete(int snapId)
+    {
+        return client.call(SNAPSHOTDELETE, id, snapId);
     }
 
     // =================================
