@@ -16,59 +16,58 @@
 
 var config_response = {};
 var config_tab_content =
-'<form>\
-<table id="config_table" style="width:100%">\
-  <tr>\
-    <td>\
-      <div class="panel">\
-<h3>' + tr("Sunstone UI Configuration") + '</h3>\
-        <div class="panel_info">\
-\
-          <table class="info_table">\
-            <tr>\
-              <td class="key_td">' + tr("Language") + '</td>\
-              <td class="value_td">\
-                   <select id="lang_sel" style="width:20em;">\
-                       <option value="ca">'+tr("Catalan")+'</option>\
-                       <option value="zh_TW">'+tr("Chinese (TW)")+'</option>\
-                       <option value="cs_CZ">'+tr("Czech (CZ)")+'</option>\
-                       <option value="en_US">'+tr("English (US)")+'</option>\
-                       <option value="fr_FR">'+tr("French (FR)")+'</option>\
-                       <option value="de">'+tr("German")+'</option>\
-                       <option value="el_GR">'+tr("Greek (GR)")+'</option>\
-                       <option value="it_IT">'+tr("Italian (IT)")+'</option>\
-                       <option value="fa_IR">'+tr("Persian (IR)")+'</option>\
-                       <option value="pt_BR">'+tr("Portuguese (BR)")+'</option>\
-                       <option value="pt_PT">'+tr("Portuguese (PT)")+'</option>\
-                       <option value="ru_RU">'+tr("Russian (RU)")+'</option>\
-                       <option value="sk_SK">'+tr("Slovak (SK)")+'</option>\
-                       <option value="es_ES">'+tr("Spanish (SP)")+'</option>\
-                   </select>\
-              </td>\
-            </tr>\
-            <tr>\
-              <td class="key_td">' + tr("Secure websockets connection") + '</td>\
-              <td class="value_td">\
-                   <input id="wss_checkbox" type="checkbox" value="yes" />\
-              </td>\
-            </tr>\
-          </table>\
-\
-        </div>\
-      </div>\
-    </td>\
-  </tr>\
-</table>\
-<div class="legend_div" style="position:relative;left:13px;bottom:5px;">\
-  <span>?</span>\
-  <p class="legend_p">\
-'+tr("These options are stored in your OpenNebula user template.")+'\
-  </p>\
-  <p class="legend_p">\
-'+tr("WSS connection requires additional configuration of Sunstone Server and that the SSL certificate is considered valid by your browser.")+'\
-  </p>\
+'<div class="panel">\
+<div class="row">\
+  <div class="twelve columns">\
+    <h4 class="subheader header">\
+      <span class="header-resource">\
+        <i class="icon-cog"></i> '+tr("Configuration")+'\
+      </span>\
+      <span class="header-info">\
+        <span/> <small></small>&emsp;\
+      </span>\
+      <span class="user-login">\
+      </span>\
+    </h4>\
+  </div>\
 </div>\
-</form>';
+</div>\
+<br>\
+  <div class="row">\
+    <div class="six columns">\
+  <div class="row">\
+      <div class="eight columns">\
+        <label class="right inline" for="lang_sel" >' + tr("Language") + ':</label>\
+      </div>\
+      <div class="four columns">\
+         <select id="lang_sel">\
+             <option value="ca">'+tr("Catalan")+'</option>\
+             <option value="zh_TW">'+tr("Chinese (TW)")+'</option>\
+             <option value="cs_CZ">'+tr("Czech (CZ)")+'</option>\
+             <option value="en_US">'+tr("English (US)")+'</option>\
+             <option value="fr_FR">'+tr("French (FR)")+'</option>\
+             <option value="de">'+tr("German")+'</option>\
+             <option value="el_GR">'+tr("Greek (GR)")+'</option>\
+             <option value="it_IT">'+tr("Italian (IT)")+'</option>\
+             <option value="fa_IR">'+tr("Persian (IR)")+'</option>\
+             <option value="pt_BR">'+tr("Portuguese (BR)")+'</option>\
+             <option value="pt_PT">'+tr("Portuguese (PT)")+'</option>\
+             <option value="ru_RU">'+tr("Russian (RU)")+'</option>\
+             <option value="sk_SK">'+tr("Slovak (SK)")+'</option>\
+             <option value="es_ES">'+tr("Spanish (SP)")+'</option>\
+         </select>\
+      </div>\
+      </div>\
+  <div class="row">\
+      <div class="eight columns">\
+        <label class="right inline" for="wss_checkbox" >' + tr("Secure websockets connection") + ':</label>\
+      </div>\
+      <div class="four columns">\
+        <input id="wss_checkbox" type="checkbox" value="yes" />\
+      </div>\
+      </div>\
+    </div>\
+  </div>';
 
 var config_actions = {
     "Config.list" : {
@@ -95,7 +94,7 @@ function updateConfig(request,response){
 
     //Set wss checkbox to correct value
     if (config_response['user_config']["wss"] == "yes"){
-        $('table#config_table input#wss_checkbox').attr('checked','checked');
+        $('input#wss_checkbox').attr('checked','checked');
     };
 };
 
@@ -115,7 +114,7 @@ function updateWss(){
             var template = user_json.USER.TEMPLATE;
             var template_str="";
             template['VNC_WSS']=
-                $('#config_table #wss_checkbox').is(':checked') ? "yes" : "no";
+                $('#input#wss_checkbox').is(':checked') ? "yes" : "no";
             //convert json to ONE template format - simple conversion
             $.each(template,function(key,value){
                 template_str += (key + '=' + '"' + value + '"\n');
@@ -132,7 +131,7 @@ function updateWss(){
         }
     };
     OpenNebula.User.show(user_info_req);
-    $.post('config',JSON.stringify({wss : ($('#config_table #wss_checkbox').is(':checked') ? "yes" : "no")}));
+    $.post('config',JSON.stringify({wss : ($('input#wss_checkbox').is(':checked') ? "yes" : "no")}));
 };
 
 $(document).ready(function(){
@@ -140,13 +139,13 @@ $(document).ready(function(){
 
     //Set the language select to correct value
     if (lang)
-        $('table#config_table #lang_sel option[value="'+lang+'"]').attr('selected','selected');
+        $('#lang_sel option[value="'+lang+'"]').attr('selected','selected');
 
     //Listener to change language. setLang in locale.js
-    $('table#config_table #lang_sel').change(function(){
+    $('#lang_sel').change(function(){
         setLang($(this).val());
     });
 
     //Listener to wss change
-    $('table#config_table #wss_checkbox').change(updateWss);
+    $('#wss_checkbox').change(updateWss);
 });
