@@ -230,6 +230,15 @@ var vm_actions = {
         },
         error: onError
     },
+    "VM.showscheduling" : {
+        type: "single",
+        call: OpenNebula.VM.show,
+        callback: function(request, vm){
+          updateVMachineElement(request, vm);
+          updateSchedulingInfo(request, vm);
+        },
+        error: onError
+    },
     "VM.refresh" : {
         type: "custom",
         call : function (){
@@ -657,8 +666,7 @@ var vm_actions = {
         call: OpenNebula.VM.update,
         callback: function(request,response){
            notifyMessage(tr("VirtualMachine updated correctly"));
-           Sunstone.runAction('VM.showinfo',request.request.data[0]);
-           Sunstone.runAction("VM.show",request.request.data[0]);
+           Sunstone.runAction("VM.showscheduling", request.request.data[0]);
         },
         error: onError
     },
@@ -1302,7 +1310,7 @@ function updateVMInfo(request,vm){
     };
 
     var scheduling_tab = {
-        title: tr("Scheduling"),
+        title: tr("Actions"),
         content: printSchedulingTable(vm_info)
     };
 
@@ -1369,7 +1377,8 @@ function updateVMDisksInfo(request,vm){
 function printSchedulingTable(vm_info)
 {
 
-    var str = '<div class="twelve columns">\
+    var str = '<button id="add_scheduling_action" class="button small secondary radius" >' + tr("Add scheduling action") +'</button>\
+                <div class="twelve columns">\
                 <table id="scheduling_actions_table" class="info_table twelve datatable extended_table">\
                  <thead>\
                    <tr>\
@@ -1389,35 +1398,88 @@ function printSchedulingTable(vm_info)
     // Remove previous listeners
     $(".remove_x").die();
     $(".edit_e").die();
+    $('#add_scheduling_action').die();
+    $("#submit_scheduling_action").die();
+    $(".select_action").die();
+    $(".input_edit_time").die();
 
 
-    // Add listener for add key and add value for Extended Template
-    $('#button_add_value').live("click", function() {
-        if ( $('#new_value').val() != "" && $('#new_key').val() != "" )
+    $('#add_scheduling_action').live('click', function(){
+        // Create a new row with add button
+        // Change focus
+        $("#add_scheduling_action").attr("disabled", "disabled");
+
+        // 
+        $("#scheduling_actions_table").append('<tr><td></td>\
+             <td class="action_row"><select id="select_new_action" class="select_new_action" name="select_action">\
+                                <option value="shutdown">' + tr("shutdown") + '</option>\
+                                <option value="hold">' + tr("hold") + '</option>\
+                                <option value="release">' + tr("release") + '</option>\
+                                <option value="stop">' + tr("stop") + '</option>\
+                                <option value="cancel">' + tr("cancel") + '</option>\
+                                <option value="suspend">' + tr("suspend") + '</option>\
+                                <option value="resume">' + tr("shutdown") + '</option>\
+                                <option value="restart">' + tr("hold") + '</option>\
+                                <option value="resubmit">' + tr("release") + '</option>\
+                                <option value="reboot">' + tr("stop") + '</option>\
+                                <option value="reset">' + tr("cancel") + '</option>\
+                                <option value="poweroff">' + tr("suspend") + '</option>\
+                                <option value="snapshot-create">' + tr("snapshot-create") + '</option>\
+                              </select>\
+              </td>\
+             <td class="time_row"><input id="date_time_input"></td>\
+             <td>\
+                <button id="submit_scheduling_action" class="button small secondary radius" >' + tr("Add") +'</button>\
+             </td>\
+           </tr>');
+
+        return false;
+    }); 
+
+    $("#submit_scheduling_action").live("click", function() { 
+        var date_input_value = $("#date_time_input").val();
+
+        if (date_input_value=="") 
+          return false;
+
+        // Calculate MAX_ID
+        var max_id = -1;
+
+        if (vm_info.USER_TEMPLATE.SCHED_ACTION)
         {
-            var template_json_bk = $.extend({}, template_json);
-            template_json[$.trim($('#new_key').val())] = $.trim($('#new_value').val());
-            template_str  = convert_template_to_string(template_json,unshown_values);
-
-            Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
-            template_json = template_json_bk;
-        }
-    });
-
-    // Capture the enter key
-    $('#new_value').live("keypress", function(e) {
-          var ev = e || window.event;
-          var key = ev.keyCode;
-
-          if (key == 13)
+          if (!vm_info.USER_TEMPLATE.SCHED_ACTION.length)
           {
-             //Get the button the user wants to have clicked
-             $('#button_add_value').click();
-             ev.preventDefault();
+            var tmp_element = vm_info.USER_TEMPLATE.SCHED_ACTION;
+            vm_info.USER_TEMPLATE.SCHED_ACTION = new Array();
+            vm_info.USER_TEMPLATE.SCHED_ACTION.push(tmp_element);
           }
-    })
 
-    // Listener for single values
+          $.each(vm_info.USER_TEMPLATE.SCHED_ACTION, function(i,element){
+              if (max_id<element.ID)
+                max_id=element.ID
+          })
+        }
+        else
+        {
+          vm_info.USER_TEMPLATE.SCHED_ACTION = new Array();
+        }
+
+
+        var new_action = {};
+        new_action.ID  = parseInt(max_id) + 1;
+        new_action.ACTION = $("#select_new_action").val();
+        var epoch_str   = new Date(date_input_value);
+        new_action.TIME = parseInt(epoch_str.getTime())/1000;
+
+        vm_info.USER_TEMPLATE.SCHED_ACTION.push(new_action);
+
+        // Let OpenNebula know
+        var template_str = convert_template_to_string(vm_info.USER_TEMPLATE);
+        Sunstone.runAction("VM.update_template",vm_info.ID,template_str);        
+
+        $("#add_scheduling_action").removeAttr("disabled");
+        return false;
+    });
 
     // Listener for key,value pair remove action
     $(".remove_x").live("click", function() {
@@ -1451,12 +1513,12 @@ function printSchedulingTable(vm_info)
                                 <option value="stop">' + tr("stop") + '</option>\
                                 <option value="cancel">' + tr("cancel") + '</option>\
                                 <option value="suspend">' + tr("suspend") + '</option>\
-                                <option value="resume">' + tr("shutdown") + '</option>\
-                                <option value="restart">' + tr("hold") + '</option>\
-                                <option value="resubmit">' + tr("release") + '</option>\
-                                <option value="reboot">' + tr("stop") + '</option>\
-                                <option value="reset">' + tr("cancel") + '</option>\
-                                <option value="poweroff">' + tr("suspend") + '</option>\
+                                <option value="resume">' + tr("resume") + '</option>\
+                                <option value="restart">' + tr("restart") + '</option>\
+                                <option value="resubmit">' + tr("resubmit") + '</option>\
+                                <option value="reboot">' + tr("reboot") + '</option>\
+                                <option value="reset">' + tr("reset") + '</option>\
+                                <option value="poweroff">' + tr("poweroff") + '</option>\
                                 <option value="snapshot-create">' + tr("snapshot-create") + '</option>\
                               </select>')
         $(".select_action").val(value_str);
@@ -1490,12 +1552,12 @@ function printSchedulingTable(vm_info)
         var value_str = $(this).val();
 
         $.each(vm_info.USER_TEMPLATE.SCHED_ACTION, function(i,element){
-            tmp_tmpl[i] = element;
             if(element.ID==index)
             {
               var epoch_str    = new Date(value_str);
-              tmp_tmpl[i].TIME = parseInt(epoch_str.getTime())/1000;
+              element.TIME = parseInt(epoch_str.getTime())/1000;
             }
+            tmp_tmpl.push(element);
         })
 
         vm_info.USER_TEMPLATE.SCHED_ACTION = tmp_tmpl;
@@ -1553,7 +1615,7 @@ function fromJSONtoSchedulingActionRow(scheduling_action){
     return str;
 }
 
-function setupDateTimePicker(time_str){
+function setupDateTimePicker(input_to_fill, time_str){
     dialogs_context.append('<div id="date_time_picker_dialog"></div>');
     $date_time_picker_dialog = $('#date_time_picker_dialog',dialogs_context);
     var dialog = $date_time_picker_dialog;
@@ -1599,6 +1661,10 @@ function setupDateTimePicker(time_str){
         return false;
     });
 };
+
+function updateSchedulingInfo(request,vm){
+  $("li#vm_scheduling_tabTab").html(printSchedulingTable(vm.VM));
+}
 
 // Generates the HTML for the hotplugging tab
 // This is a list of disks with the save_as, detach options.
@@ -1936,9 +2002,6 @@ function hotpluggingOps(){
         return false;
     }); 
 }
-
-
-
 
 
 
@@ -2379,9 +2442,6 @@ function setup_vm_capacity_tab(){
 }
 
 
-
-
-
 function updateVMSnapshotsInfo(request,vm){
   $("li#vm_snapshot_tabTab").html(printSnapshots(vm.VM));
 }
@@ -2589,28 +2649,6 @@ function setup_vm_snapshot_tab(){
         return false;
     }); 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // Sets up the create-template dialog and all the processing associated to it,
@@ -2855,7 +2893,6 @@ $(document).ready(function(){
     setup_vm_network_tab();
     setup_vm_capacity_tab();
     setup_vm_snapshot_tab();
-
 
     initCheckAllBoxes(dataTable_vMachines);
     tableCheckboxesListener(dataTable_vMachines);
