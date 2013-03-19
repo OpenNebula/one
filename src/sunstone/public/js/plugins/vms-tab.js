@@ -777,13 +777,13 @@ var vm_buttons = {
     "VM.shutdown" : {
         type: "confirm",
         text: tr("Shutdown"),
-        layout: "vmsoneoff_buttons",
+        layout: "vmsdelete_buttons",
         tip: tr("This will initiate the shutdown process in the selected VMs")
     },
     "VM.cancel" : {
         type: "confirm",
         text: tr("Shutdown") + ' <span class="label secondary radius">hard</span>',
-        layout: "vmsoneoff_buttons",
+        layout: "vmsdelete_buttons",
         tip: tr("This will cancel selected VMs")
     },
 
