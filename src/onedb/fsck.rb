@@ -213,7 +213,7 @@ module OneDBFsck
 
 
 
-        @db.run "CREATE TABLE group_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+        @db.run "CREATE TABLE group_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
 
         @db.fetch("SELECT * from group_pool") do |row|
             gid = row[:oid]
@@ -372,7 +372,7 @@ module OneDBFsck
         end
 
 
-        @db.run "CREATE TABLE cluster_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+        @db.run "CREATE TABLE cluster_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
 
         @db.fetch("SELECT * from cluster_pool") do |row|
             cluster_id = row[:oid]
@@ -500,7 +500,7 @@ module OneDBFsck
         end
 
 
-        @db.run "CREATE TABLE datastore_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+        @db.run "CREATE TABLE datastore_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
 
         @db.fetch("SELECT * from datastore_pool") do |row|
             ds_id = row[:oid]
@@ -669,7 +669,7 @@ module OneDBFsck
 
         # Create a new empty table where we will store the new calculated values
         @db.run "CREATE TABLE host_pool_new (oid INTEGER PRIMARY KEY, " <<
-                "name VARCHAR(128), body TEXT, state INTEGER, " <<
+                "name VARCHAR(128), body MEDIUMTEXT, state INTEGER, " <<
                 "last_mon_time INTEGER, uid INTEGER, gid INTEGER, " <<
                 "owner_u INTEGER, group_u INTEGER, other_u INTEGER, " <<
                 "UNIQUE(name));"
@@ -753,7 +753,7 @@ module OneDBFsck
         ########################################################################
 
         # Create a new empty table where we will store the new calculated values
-        @db.run "CREATE TABLE image_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid) );"
+        @db.run "CREATE TABLE image_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid) );"
 
         # Calculate the host's xml and write them to host_pool_new
         @db[:image_pool].each do |row|
@@ -857,7 +857,7 @@ module OneDBFsck
         # LEASES
         ########################################################################
 
-        @db.run "CREATE TABLE leases_new (oid INTEGER, ip BIGINT, body TEXT, PRIMARY KEY(oid,ip));"
+        @db.run "CREATE TABLE leases_new (oid INTEGER, ip BIGINT, body MEDIUMTEXT, PRIMARY KEY(oid,ip));"
 
         @db[:leases].each do |row|
             doc = Document.new(row[:body])
@@ -976,7 +976,7 @@ module OneDBFsck
         ########################################################################
 
         # Create a new empty table where we will store the new calculated values
-        @db.run "CREATE TABLE network_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid));"
+        @db.run "CREATE TABLE network_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid));"
 
         @db[:network_pool].each do |row|
             doc = Document.new(row[:body])
@@ -1011,7 +1011,7 @@ module OneDBFsck
         ########################################################################
 
         @db.run "ALTER TABLE user_pool RENAME TO old_user_pool;"
-        @db.run "CREATE TABLE user_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+        @db.run "CREATE TABLE user_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
 
         # oneadmin does not have quotas
         @db.fetch("SELECT * FROM old_user_pool WHERE oid=0") do |row|
@@ -1044,7 +1044,7 @@ module OneDBFsck
         ########################################################################
 
         @db.run "ALTER TABLE group_pool RENAME TO old_group_pool;"
-        @db.run "CREATE TABLE group_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+        @db.run "CREATE TABLE group_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
 
         # oneadmin group does not have quotas
         @db.fetch("SELECT * FROM old_group_pool WHERE oid=0") do |row|
