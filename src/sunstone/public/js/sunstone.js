@@ -583,6 +583,42 @@ function insertButtonsInTab(tab_name){
                 '<div class="button-bar">'+
                   '<ul class="button-group right">'+
                     '<li>'+
+                        "<div id='vmsstopresume_buttons'>"+
+                            "<div href='#' class='top_button small button secondary dropdown radius'>"+
+                                "<i class='icon-play'/> / <i class='icon-pause'/>"+
+                                "<ul>"+
+                                "</ul>"+
+                            "</div>"+
+                        "</div>"+
+                    '</li>'+
+                    '<li>'+
+                        "<div id='vmsoneoff_buttons'>"+
+                            "<div href='#' class='top_button small button secondary dropdown radius'>"+
+                                "<i class='icon-off'/>"+
+                                "<ul>"+
+                                "</ul>"+
+                            "</div>"+
+                        "</div>"+
+                    '</li>'+
+                    '<li>'+
+                        "<div id='vmsdelete_buttons'>"+
+                            "<div href='#' class='top_button small button secondary dropdown radius'>"+
+                                "<i class='icon-trash'/>"+
+                                "<ul>"+
+                                "</ul>"+
+                            "</div>"+
+                        "</div>"+
+                    '</li>'+
+                    '<li>'+
+                        "<div id='vmsplanification_buttons'>"+
+                            "<div href='#' class='top_button small button secondary dropdown radius'>"+
+                                "<i class='icon-th-list'/>"+
+                                "<ul>"+
+                                "</ul>"+
+                            "</div>"+
+                        "</div>"+
+                    '</li>'+
+                    '<li>'+
                         "<div id='main_buttons'>"+
                             "<ul class='button-group radius'>"+
                             "</ul>"+
@@ -626,38 +662,6 @@ function insertButtonsInTab(tab_name){
             //if we meet the condition we proceed. Otherwise we skip it.
             if (condition && !condition()) { continue; }
 
-            //depending on the type of button we generate different
-            //code. There are 4 possible types:
-            /*
-             * select: We need to create a select element with actions inside.
-             * image: a button consisting of a link with an image inside.
-             * create: we make sure they have the "action_button" class.
-             * default: generally buttons have the "<type>_button" class.
-             */
-            //switch (button.type) {
-            //case "select":
-            //    button_code = '<select class="multi_action_slct">';
-            //    //for each subbutton in the list we add an option to the select.
-            //    for (sel_name in button.actions){
-            //        sel_obj = button["actions"][sel_name];
-            //        condition = sel_obj.condition;
-            //        //only add if we meet the condition
-            //        if (condition && !condition()){ continue; };
-            //        button_code += '<option class="'+sel_obj.type+'_button" value="'+sel_name+'">'+sel_obj.text+'</option>';
-            //    };
-            //    button_code += '</select>';
-            //    break;
-            //case "image":
-            //    button_code = '<a href="#" class="action_button" value="'+button_name+'"><img class="image_button" src="'+button.img+'" alt="'+button.text+'" /></a>';
-            //    break;
-            //case "create_dialog":
-            //    button_code = '<button class="'+button.type+'_button action_button top_button" value="'+button_name+'">'+button.text+'</button>';
-            //    break;
-            //default:
-            //    button_code = '<button class="'+button.type+'_button top_button" value="'+button_name+'">'+button.text+'</button>';
-//
-            //}
-
             var type = button.type+'_button';
             var str_class = [type]
             switch (button.type) {
@@ -699,6 +703,26 @@ function insertButtonsInTab(tab_name){
                 str_class.push("secondary", "button", "small", "radius");
                 button_code = '<li><button type"button" class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button></li>';
                 break;
+            case "vmsstopresume_buttons":
+                context = $("#vmsstopresume_buttons ul", buttons_row);
+                text = button.text;
+                button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
+                break;
+            case "vmsplanification_buttons":
+                context = $("#vmsplanification_buttons ul", buttons_row);
+                text = button.text;
+                button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
+                break;
+            case "vmsdelete_buttons":
+                context = $("#vmsdelete_buttons ul", buttons_row);
+                text = button.text;
+                button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
+                break;
+            case "vmsoneoff_buttons":
+                context = $("#vmsoneoff_buttons ul", buttons_row);
+                text = button.text;
+                button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
+                break;
             case "more_select":
                 context = $("#more_buttons ul", buttons_row);
                 text = button.text;
@@ -731,6 +755,26 @@ function insertButtonsInTab(tab_name){
 
         if  ($("#more_buttons ul li", action_block).length == 0 ) {
             $("#more_buttons", action_block).hide()
+        }
+
+        if  ($("#user_buttons ul li", action_block).length == 0 ) {
+            $("#user_buttons", action_block).hide()
+        }
+
+        if  ($("#vmsplanification_buttons ul li", action_block).length == 0 ) {
+            $("#vmsplanification_buttons", action_block).hide()
+        }
+
+        if  ($("#vmsdelete_buttons ul li", action_block).length == 0 ) {
+            $("#vmsdelete_buttons", action_block).hide()
+        }
+
+        if  ($("#vmsoneoff_buttons ul li", action_block).length == 0 ) {
+            $("#vmsoneoff_buttons", action_block).hide()
+        }
+
+        if  ($("#vmsstopresume_buttons ul li", action_block).length == 0 ) {
+            $("#vmsstopresume_buttons", action_block).hide()
         }
 
         if  ($("#user_buttons ul li", action_block).length == 0 ) {

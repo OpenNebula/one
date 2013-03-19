@@ -678,12 +678,6 @@ var vm_buttons = {
         layout: "create",
         alwaysActive: true
     },
-    "VM.shutdown" : {
-        type: "confirm",
-        text: tr("Shutdown"),
-        layout: "main",
-        tip: tr("This will initiate the shutdown process in the selected VMs")
-    },
     "VM.chown" : {
         type: "confirm_with_select",
         text: tr("Change owner"),
@@ -705,7 +699,7 @@ var vm_buttons = {
         type: "confirm_with_select",
         text: tr("Deploy"),
         tip: tr("This will deploy the selected VMs on the chosen host"),
-        layout: "more_select",
+        layout: "vmsplanification_buttons",
         select: hosts_sel,
         condition: mustBeAdmin
     },
@@ -713,16 +707,16 @@ var vm_buttons = {
         type: "confirm_with_select",
         text: tr("Migrate"),
         tip: tr("This will migrate the selected VMs to the chosen host"),
-        layout: "more_select",
+        layout: "vmsplanification_buttons",
         select: hosts_sel,
         condition: mustBeAdmin
 
     },
     "VM.livemigrate" : {
         type: "confirm_with_select",
-        text: tr("Live migrate"),
+        text: tr("Migrate") + ' <span class="label secondary radius">live</span>',
         tip: tr("This will live-migrate the selected VMs to the chosen host"),
-        layout: "more_select",
+        layout: "vmsplanification_buttons",
         select: hosts_sel,
         condition: mustBeAdmin
     },
@@ -730,75 +724,87 @@ var vm_buttons = {
         type: "confirm",
         text: tr("Hold"),
         tip: tr("This will hold selected pending VMs from being deployed"),
-        layout: "more_select",
+        layout: "vmsplanification_buttons",
     },
     "VM.release" : {
         type: "confirm",
         text: tr("Release"),
-        layout: "more_select",
+        layout: "vmsplanification_buttons",
         tip: tr("This will release held machines")
     },
     "VM.suspend" : {
         type: "confirm",
         text: tr("Suspend"),
-        layout: "more_select",
+        layout: "vmsstopresume_buttons",
         tip: tr("This will suspend selected machines")
     },
     "VM.resume" : {
         type: "confirm",
         text: tr("Resume"),
-        layout: "main",
+        layout: "vmsstopresume_buttons",
         tip: tr("This will resume selected stopped or suspended VMs")
     },
     "VM.stop" : {
         type: "confirm",
         text: tr("Stop"),
-        layout: "main",
+        layout: "vmsstopresume_buttons",
         tip: tr("This will stop selected VMs")
     },
     "VM.restart" : {
         type: "confirm",
-        text: tr("Restart"),
-        layout: "more_select",
+        text: tr("Boot"),
+        layout: "vmsoneoff_buttons",
         tip: tr("This will redeploy selected VMs (in UNKNOWN or BOOT state)")
-    },
-    "VM.resubmit" : {
-        type: "confirm",
-        text: tr("Resubmit"),
-        layout: "more_select",
-        tip: tr("This will resubmits VMs to PENDING state")
-    },
-    "VM.poweroff" : {
-        type : "confirm",
-        text: tr("Power Off"),
-        layout: "more_select",
-        tip: tr("This will send a power off signal to running VMs. They can be restarted later.")
     },
     "VM.reboot" : {
         type : "confirm",
         text: tr("Reboot"),
-        layout: "more_select",
+        layout: "vmsoneoff_buttons",
         tip: tr("This will send a reboot action to running VMs")
     },
     "VM.reset" : {
         type: "confirm",
-        text: tr("Reset"),
-        layout: "more_select",
+        text: tr("Reboot") + ' <span class="label secondary radius">hard</span>',
+        layout: "vmsoneoff_buttons",
         tip: tr("This will perform a hard reboot on selected VMs")
+    },
+    "VM.poweroff" : {
+        type : "confirm",
+        text: tr("Power Off"),
+        layout: "vmsoneoff_buttons",
+        tip: tr("This will send a power off signal to running VMs. They can be restarted later.")
+    },
+    "VM.shutdown" : {
+        type: "confirm",
+        text: tr("Shutdown"),
+        layout: "vmsoneoff_buttons",
+        tip: tr("This will initiate the shutdown process in the selected VMs")
     },
     "VM.cancel" : {
         type: "confirm",
-        text: tr("Cancel"),
-        layout: "more_select",
+        text: tr("Shutdown") + ' <span class="label secondary radius">hard</span>',
+        layout: "vmsoneoff_buttons",
         tip: tr("This will cancel selected VMs")
     },
 
     "VM.delete" : {
         type: "confirm",
-        text: tr("Delete"),
-        layout: "more_select",
+        text: tr("Destroy"),
+        layout: "vmsdelete_buttons",
         tip: tr("This will delete the selected VMs from the database")
     },
+    "VM.resubmit" : {
+        type: "confirm",
+        text: tr("Destroy") + ' <span class="label secondary radius">recreate</span>',
+        layout: "vmsdelete_buttons",
+        tip: tr("This will resubmits VMs to PENDING state")
+    },
+
+    //"VM.help" : {
+    //    type: "action",
+    //    text: '?',
+    //    alwaysActive: true
+    //}
 }
 
 var vm_info_panel = {
