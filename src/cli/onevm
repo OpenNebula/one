@@ -268,7 +268,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Sets the specified VM disk to be saved in a new Image. The Image is
         created immediately, but the contents are saved only if the VM is
         shut down gracefully (i.e., using 'onevm shutdown' and not
-        'onevm delete')
+        'onevm destroy')
 
         If '--live' is specified, the Image will be saved immediately.
 
@@ -321,7 +321,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     poweroff_desc = <<-EOT.unindent
         Powers off the given VM. The VM will remain in the poweroff state, and
-        can be powered on with the 'onevm restart' command.
+        can be powered on with the 'onevm boot' command.
 
         States: RUNNING
     EOT
