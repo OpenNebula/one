@@ -19,7 +19,7 @@
 ####################################################
 # Script to implement host failure tolerance
 #   It can be set to
-#           -r resubmit VMs running in the host
+#           -r recreate VMs running in the host
 #           -d delete VMs running in the host
 #   Additional flags
 #           -f force resubmission of suspended VMs
@@ -50,13 +50,13 @@ if !(host_id=ARGV[0])
     exit -1
 end
 
-mode   = "-r" # By default, resubmit VMs
-force  = "n"  # By default, don't resubmit/finalize suspended VMs
+mode   = "-r" # By default, recreate VMs
+force  = "n"  # By default, don't recreate/destroy suspended VMs
 repeat = nil  # By default, don't wait fo monitorization cycles"
 
 opts = GetoptLong.new(
             ['--delete',   '-d',GetoptLong::NO_ARGUMENT],
-            ['--resubmit', '-r',GetoptLong::NO_ARGUMENT],
+            ['--recreate', '-r',GetoptLong::NO_ARGUMENT],
             ['--force',    '-f',GetoptLong::NO_ARGUMENT],
             ['--pause',    '-p',GetoptLong::REQUIRED_ARGUMENT]
         )
@@ -66,7 +66,7 @@ begin
         case opt
             when '--delete'
                 mode="-d"
-            when '--resubmit'
+            when '--recreate'
                 mode="-r"
             when '--force'
                 force  = "y"
@@ -121,9 +121,9 @@ if vm_ids_array
         vm.info
 
         if mode == "-r"
-            vm.resubmit
+            vm.destroy(true)
         elsif mode == "-d"
-            vm.finalize
+            vm.destroy
         end
     end
 end

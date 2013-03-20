@@ -469,22 +469,24 @@ public class VirtualMachine extends PoolElement{
      * <br/>
      * It is recommended to use the helper methods instead:
      * <ul>
-     * <li>{@link VirtualMachine#shutdown()}</li>
-     * <li>{@link VirtualMachine#reboot()}</li>
-     * <li>{@link VirtualMachine#cancel()}</li>
+     * <li>{@link VirtualMachine#shutdown(boolean)}</li>
+     * <li>{@link VirtualMachine#reboot(boolean)}</li>
      * <li>{@link VirtualMachine#hold()}</li>
      * <li>{@link VirtualMachine#release()}</li>
      * <li>{@link VirtualMachine#stop()}</li>
      * <li>{@link VirtualMachine#suspend()}</li>
      * <li>{@link VirtualMachine#resume()}</li>
-     * <li>{@link VirtualMachine#finalizeVM()}</li>
-     * <li>{@link VirtualMachine#restart()}</li>
+     * <li>{@link VirtualMachine#destroy(boolean)}</li>
+     * <li>{@link VirtualMachine#boot()}</li>
      * <li>{@link VirtualMachine#poweroff()}</li>
+     * <li>{@link VirtualMachine#resched()}</li>
+     * <li>{@link VirtualMachine#unresched()}</li>
      * </ul>
      *
      * @param action The action name to be performed, can be:<br/>
-     * "shutdown", "reboot", "hold", "release", "stop", "cancel", "suspend",
-     * "resume", "restart", "finalize","poweroff".
+     * "shutdown", "hold", "release", "stop", "shutdown-hard", "suspend",
+     * "resume", "boot", "destroy", "destroy-recreate", "reboot", "resched",
+     * "unresched", "reboot-hard", "poweroff"
      * @return If an error occurs the error message contains the reason.
      */
     protected OneResponse action(String action)
@@ -765,12 +767,36 @@ public class VirtualMachine extends PoolElement{
     // =================================
 
     /**
-     * Shuts down the already deployed VM.
+     * Gracefully shuts down the already deployed VM.
      * @return If an error occurs the error message contains the reason.
      */
     public OneResponse shutdown()
     {
-        return action("shutdown");
+        return shutdown(false);
+    }
+
+    /**
+     * Shuts down the already deployed VM.
+     * @param hard True to perform a hard (no acpi) shutdown, false for a
+     * graceful shutdown
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse shutdown(boolean hard)
+    {
+        String actionSt = hard ? "shutdown-hard" : "shutdown";
+
+        return action(actionSt);
+    }
+
+    /**
+     * Cancels the running VM.
+     * @return If an error occurs the error message contains the reason.
+     *
+     * @deprecated  Replaced by hard shutdown {@link #shutdown(boolean)}
+     */
+    @Deprecated public OneResponse cancel()
+    {
+        return action("cancel");
     }
 
     /**
@@ -792,21 +818,27 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
-     * Resets a running VM.
+     * Reboots a running VM.
+     * @param hard True to perform a hard (no acpi) reboot, false for a
+     * graceful reboot
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse reset()
+    public OneResponse reboot(boolean hard)
     {
-        return action("reset");
+        String actionSt = hard ? "reboot-hard" : "reboot";
+
+        return action(actionSt);
     }
 
     /**
-     * Cancels the running VM.
+     * Resets a running VM.
      * @return If an error occurs the error message contains the reason.
+     *
+     * @deprecated  Replaced by hard reboot {@link #reboot(boolean)}
      */
-    public OneResponse cancel()
+    @Deprecated public OneResponse reset()
     {
-        return action("cancel");
+        return action("reset");
     }
 
     /**
@@ -861,27 +893,63 @@ public class VirtualMachine extends PoolElement{
      * Deletes the VM from the pool and database.
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse finalizeVM()
+    public OneResponse destroy()
+    {
+        return destroy(false);
+    }
+
+    /**
+     * Deletes the VM from the pool and database.
+     * @param recreate True to recreate the VM in the pending state.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse destroy(boolean recreate)
+    {
+        String actionSt = recreate ? "destroy-recreate" : "destroy";
+
+        return action(actionSt);
+    }
+
+    /**
+     * Deletes the VM from the pool and database.
+     * @return If an error occurs the error message contains the reason.
+     *
+     * @deprecated  Replaced by {@link #destroy}
+     */
+    @Deprecated public OneResponse finalizeVM()
     {
         return action("finalize");
+    }
+
+    /**
+     * Resubmits a VM to PENDING state.
+     * @return If an error occurs the error message contains the reason.
+     *
+     * @deprecated  Replaced by destroy and recreate {@link #destroy(boolean)}
+     */
+    @Deprecated public OneResponse resubmit()
+    {
+        return action("resubmit");
     }
 
     /**
      * Forces a re-deployment of a VM in UNKNOWN or BOOT states.
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse restart()
+    public OneResponse boot()
     {
-        return action("restart");
+        return action("boot");
     }
 
     /**
-     * Resubmits a VM to PENDING state.
+     * Forces a re-deployment of a VM in UNKNOWN or BOOT states.
      * @return If an error occurs the error message contains the reason.
+     *
+     * @deprecated  Replaced by {@link #boot}
      */
-    public OneResponse resubmit()
+    @Deprecated public OneResponse restart()
     {
-        return action("resubmit");
+        return action("restart");
     }
 
     /**

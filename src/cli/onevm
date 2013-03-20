@@ -204,19 +204,27 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    delete_desc = <<-EOT.unindent
-        Deletes the given VM
+    destroy_desc = <<-EOT.unindent
+        Deletes the given VM. Using --recreate resubmits the VM.
+
+        Resubmits the VM to PENDING state. This is intended for VMs stuck in a
+        transient state. To re-deploy a fresh copy of the same VM, create a
+        Template and instantiate it, see 'onetemplate instantiate'
 
         States: ANY
     EOT
 
-    command :delete, delete_desc, [:range, :vmid_list],
-        :options => [OneVMHelper::SCHEDULE] do
+    command :destroy, destroy_desc, [:range, :vmid_list],
+        :options => [OneVMHelper::SCHEDULE, OneVMHelper::RECREATE] do
+
+        command_name="destroy"
+        command_name<<"-recreate" if options[:recreate]
+
         if (!options[:schedule].nil?)
-            helper.schedule_actions(args[0], options, @comm_name)
+            helper.schedule_actions(args[0], options, command_name)
         else
             helper.perform_actions(args[0],options,"deleted") do |vm|
-                vm.finalize
+                vm.destroy(options[:recreate]==true)
             end
         end
     end
@@ -256,24 +264,19 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    saveas_desc = <<-EOT.unindent
+    disk_snapshot_desc = <<-EOT.unindent
         Sets the specified VM disk to be saved in a new Image. The Image is
         created immediately, but the contents are saved only if the VM is
         shut down gracefully (i.e., using 'onevm shutdown' and not
-        'onevm delete')
-        Sets the specified VM disk to be saved in a new Image.
+        'onevm destroy')
 
-        The Image is created immediately, but the contents are saved only if the
-        VM is shut down gracefully (i.e., using 'onevm shutdown' and not 'onevm
-        delete')
-
-        If '--hot' is specified, the Image will be saved immediately.
+        If '--live' is specified, the Image will be saved immediately.
 
         States: ANY
     EOT
 
-    command :saveas, saveas_desc, :vmid, :diskid, :img_name,
-            :options=>[TYPE, OneVMHelper::HOT] do
+    command :"disk-snapshot", disk_snapshot_desc, :vmid, :diskid, :img_name,
+            :options=>[TYPE, OneVMHelper::LIVE] do
         disk_id    = args[1].to_i
         image_name = args[2]
         image_type = options[:type] || ""
@@ -283,7 +286,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         helper.perform_action(args[0],options,verbose) do |vm|
             res = vm.save_as(disk_id, image_name, image_type,
-                options[:hot]==true)
+                options[:live]==true)
 
             if !OpenNebula.is_error?(res)
                 puts "Image ID: #{res}"
@@ -296,23 +299,29 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     shutdown_desc = <<-EOT.unindent
         Shuts down the given VM. The VM life cycle will end.
 
+        With --hard it unplugs the VM.
+
         States: RUNNING
     EOT
 
     command :shutdown, shutdown_desc, [:range,:vmid_list],
-        :options => [OneVMHelper::SCHEDULE] do
+        :options => [OneVMHelper::SCHEDULE, OneVMHelper::HARD] do
+
+        command_name='shutdown'
+        command_name<<'-hard' if options[:hard]
+
         if (!options[:schedule].nil?)
-            helper.schedule_actions(args[0], options, @comm_name)
+            helper.schedule_actions(args[0], options, command_name)
         else
             helper.perform_actions(args[0],options,"shutting down") do |vm|
-                vm.shutdown
+                vm.shutdown(options[:hard]==true)
             end
         end
     end
 
     poweroff_desc = <<-EOT.unindent
         Powers off the given VM. The VM will remain in the poweroff state, and
-        can be powered on with the 'onevm restart' command.
+        can be powered on with the 'onevm boot' command.
 
         States: RUNNING
     EOT
@@ -332,33 +341,22 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Reboots the given VM, this is equivalent to execute the reboot command
         from the VM console.
 
+        The VM will be ungracefully rebooted if --hard is used.
+
         States: RUNNING
     EOT
 
     command :reboot, reboot_desc, [:range,:vmid_list],
-        :options => [OneVMHelper::SCHEDULE] do
+        :options => [OneVMHelper::SCHEDULE, OneVMHelper::HARD] do
+
+        command_name='reboot'
+        command_name<<'-hard' if options[:hard]
+
         if (!options[:schedule].nil?)
-            helper.schedule_actions(args[0], options, @comm_name)
+            helper.schedule_actions(args[0], options, command_name)
         else
             helper.perform_actions(args[0],options,"rebooting") do |vm|
-                vm.reboot
-            end
-        end
-    end
-
-    reset_desc = <<-EOT.unindent
-        Resets the given VM
-
-        States: RUNNING
-    EOT
-
-    command :reset, reset_desc, [:range,:vmid_list],
-        :options => [OneVMHelper::SCHEDULE] do
-        if (!options[:schedule].nil?)
-            helper.schedule_actions(args[0], options, @comm_name)
-        else
-            helper.perform_actions(args[0],options,"resetting") do |vm|
-                vm.reset
+                vm.reboot(options[:hard])
             end
         end
     end
@@ -385,97 +383,38 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    livemigrate_desc = <<-EOT.unindent
-        Migrates the given running VM to another Host without downtime
-
-        States: RUNNING
-    EOT
-
-    command :livemigrate, livemigrate_desc, [:range,:vmid_list], :hostid,
-            :options=>[ENFORCE] do
-        host_id = args[1]
-        verbose = "live migrating to #{host_id}"
-
-        helper.perform_actions(args[0],options,verbose) do |vm|
-            if !options[:enforce].nil?
-                vm.live_migrate(host_id, options[:enforce])
-            else
-                vm.live_migrate(host_id)
-            end
-        end
-    end
-
     migrate_desc = <<-EOT.unindent
-        Saves the given running VM and starts it again in the specified Host
+        Migrates the given running VM to another Host. If used with --live
+        parameter the miration is done without downtime.
 
         States: RUNNING
     EOT
 
     command :migrate, migrate_desc, [:range,:vmid_list], :hostid,
-            :options=>[ENFORCE] do
+            :options=>[ENFORCE, OneVMHelper::LIVE] do
         host_id = args[1]
         verbose = "migrating to #{host_id}"
 
         helper.perform_actions(args[0],options,verbose) do |vm|
-            if !options[:enforce].nil?
-                vm.migrate(host_id, options[:enforce])
-            else
-                vm.migrate(host_id)
-            end
+            vm.migrate( host_id,
+                        options[:live]==true,
+                        options[:enforce]==true)
         end
     end
 
-    restart_desc = <<-EOT.unindent
+    boot_desc = <<-EOT.unindent
         Boots the given VM.
 
         States: UNKNOWN, BOOT, POWEROFF
     EOT
 
-    command :restart, restart_desc, [:range,:vmid_list],
+    command :boot, boot_desc, [:range,:vmid_list],
         :options => [OneVMHelper::SCHEDULE] do
         if (!options[:schedule].nil?)
             helper.schedule_actions(args[0], options, @comm_name)
         else
-            helper.perform_actions(args[0],options,"restarting") do |vm|
-                vm.restart
-            end
-        end
-    end
-
-    resubmit_desc = <<-EOT.unindent
-        Resubmits the VM to PENDING state. This is intended for VMs stuck in a
-        transient state. To re-deploy a fresh copy of the same VM, create a
-        Template and instantiate it, see 'onetemplate instantiate'
-
-        States: ANY, except SUSPENDED or DONE
-    EOT
-
-    command :resubmit, resubmit_desc, [:range,:vmid_list],
-        :options => [OneVMHelper::SCHEDULE] do
-        if (!options[:schedule].nil?)
-            helper.schedule_actions(args[0], options, @comm_name)
-        else
-            helper.perform_actions(args[0],options,"resubmiting") do |vm|
-                vm.resubmit
-            end
-        end
-    end
-
-    cancel_desc = <<-EOT.unindent
-        Cancels the given VM. The process is checked by OpenNebula, so
-        if the process fails the VM remains in running state. If the action
-        succeeds the VMDIR in the remote machine is not deleted
-
-        States: RUNNING
-    EOT
-
-    command :cancel, cancel_desc, [:range,:vmid_list],
-        :options => [OneVMHelper::SCHEDULE] do
-        if (!options[:schedule].nil?)
-            helper.schedule_actions(args[0], options, @comm_name)
-        else
-            helper.perform_actions(args[0],options,"canceling") do |vm|
-                vm.cancel
+            helper.perform_actions(args[0],options,"booting") do |vm|
+                vm.boot
             end
         end
     end
@@ -535,13 +474,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    attachdisk_desc = <<-EOT.unindent
+    disk_attach_desc = <<-EOT.unindent
         Attaches a disk to a running VM
 
         States: RUNNING
     EOT
 
-    command :attachdisk, attachdisk_desc, :vmid,
+    command :"disk-attach", disk_attach_desc, :vmid,
             :options => [OneVMHelper::FILE, OneVMHelper::IMAGE,
                          TARGET, CACHE] do
 
@@ -577,13 +516,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    detachdisk_desc = <<-EOT.unindent
+    disk_detach_desc = <<-EOT.unindent
         Detaches a disk from a running VM
 
         States: RUNNING
     EOT
 
-    command :detachdisk, detachdisk_desc, :vmid, :diskid do
+    command :"disk-detach", disk_detach_desc, :vmid, :diskid do
         diskid = args[1].to_i
 
         helper.perform_action(args[0],options,"Detach disk") do |vm|
@@ -591,13 +530,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    attachnic_desc = <<-EOT.unindent
+    nic_attach_desc = <<-EOT.unindent
         Attaches a NIC to a running VM
 
         States: RUNNING
     EOT
 
-    command :attachnic, attachnic_desc, :vmid,
+    command :"nic-attach", nic_attach_desc, :vmid,
             :options => [OneVMHelper::FILE, OneVMHelper::NETWORK, IP] do
 
         if options[:file].nil? and options[:network].nil?
@@ -624,13 +563,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    detachnic_desc = <<-EOT.unindent
+    nic_detach_desc = <<-EOT.unindent
         Detaches a NIC from a running VM
 
         States: RUNNING
     EOT
 
-    command :detachnic, detachnic_desc, :vmid, :nicid do
+    command :"nic-detach", nic_detach_desc, :vmid, :nicid do
         nicid = args[1].to_i
 
         helper.perform_action(args[0],options,"Detach NIC") do |vm|

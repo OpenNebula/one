@@ -82,10 +82,22 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         :description => "Show all template data"
     }
 
-    HOT = {
-        :name        =>"hot",
-        :large       => "--hot",
-        :description => "The Image will be saved immediately"
+    LIVE = {
+        :name        => "live",
+        :large       => "--live",
+        :description => "Do the action with the VM running"
+    }
+
+    HARD = {
+        :name       => "hard",
+        :large      => "--hard",
+        :description=> "Does not communicate with the guest OS"
+    }
+
+    RECREATE = {
+        :name       => "recreate",
+        :large      => "--recreate",
+        :description=> "Resubmits a fresh VM"
     }
 
     def self.rname

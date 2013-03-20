@@ -205,8 +205,8 @@ module OpenNebula
         end
 
         # Shutdowns an already deployed VM
-        def shutdown
-            action('shutdown')
+        def shutdown(hard=false)
+            action(hard ? 'shutdown-hard' : 'shutdown')
         end
 
         # Powers off a running VM
@@ -215,18 +215,18 @@ module OpenNebula
         end
 
         # Reboots an already deployed VM
-        def reboot
-            action('reboot')
+        def reboot(hard=false)
+            action(hard ? 'reboot-hard' : 'reboot')
         end
 
-        # Resets an already deployed VM
+        # @deprecated use {#reboot}
         def reset
-            action('reset')
+            reboot(true)
         end
 
-        # Cancels a running VM
+        # @deprecated use {#shutdown}
         def cancel
-            action('cancel')
+            shutdown(true)
         end
 
         # Sets a VM to hold state, scheduler will not deploy it
@@ -291,18 +291,29 @@ module OpenNebula
         end
 
         # Deletes a VM from the pool
-        def finalize
-            action('finalize')
+        def destroy(recreate=false)
+            if recreate
+                action('destroy-recreate')
+            else
+                action('destroy')
+            end
+        end
+
+        # @deprecated use {#destroy} instead
+        def finalize(recreate=false)
+            destroy(recreate)
         end
 
         # Forces a re-deployment of a VM in UNKNOWN or BOOT state
-        def restart
-            action('restart')
+        def boot
+            action('boot')
         end
 
-        # Resubmits a VM to PENDING state
+        alias_method :restart, :boot
+
+        # @deprecated use {#destroy} instead
         def resubmit
-            action('resubmit')
+            action('resubmit-recreate')
         end
 
         # Sets the re-scheduling flag for the VM
@@ -315,32 +326,27 @@ module OpenNebula
             action('unresched')
         end
 
-        # Saves a running VM and starts it again in the specified host
+        # Moves a running VM to the specified host. With live=true the
+        # migration is done withdout downtime.
         #
         # @param host_id [Interger] The host id (hid) of the target host where
         #   the VM will be migrated.
+        # @param live [true|false] If true the migration is done without
+        #   downtime. Defaults to false
         # @param enforce [true|false] If it is set to true, the host capacity
         #   will be checked, and the deployment will fail if the host is
         #   overcommited. Defaults to false
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def migrate(host_id, enforce=false)
-            return call(VM_METHODS[:migrate], @pe_id, host_id.to_i, false, enforce)
+        def migrate(host_id, live=false, enforce=false)
+            call(VM_METHODS[:migrate], @pe_id, host_id.to_i, live==true,
+                enforce)
         end
 
-        # Migrates a running VM to another host without downtime
-        #
-        # @param host_id [Interger] The host id (hid) of the target host where
-        #   the VM will be migrated.
-        # @param enforce [true|false] If it is set to true, the host capacity
-        #   will be checked, and the deployment will fail if the host is
-        #   overcommited. Defaults to false
-        #
-        # @return [nil, OpenNebula::Error] nil in case of success, Error
-        #   otherwise
+        # @deprecated use {#migrate} instead
         def live_migrate(host_id, enforce=false)
-            return call(VM_METHODS[:migrate], @pe_id, host_id.to_i, true, enforce)
+            migrate(host_id, true, enforce)
         end
 
         # Set the specified vm's disk to be saved in a new image

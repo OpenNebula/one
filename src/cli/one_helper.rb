@@ -153,16 +153,16 @@ EOT
         },
         {
             :name   => 'disk',
-            :large  => '--disk disk0,disk1',
-            :description => "Disks to attach. To use a disk owned by other\n"<<
-                            " "*31<<"user use user[disk]",
+            :large  => '--disk image0,image1',
+            :description => "Disks to attach. To use a network owned by"<<
+                            " other user use user[disk]",
             :format => Array
         },
         {
-            :name   => 'network',
-            :large  => '--network network0,network1',
-            :description => "Networks to attach. To use a network owned by\n"<<
-                            " "*31<<"other user use user[network]",
+            :name   => 'nic',
+            :large  => '--nic network0,network1',
+            :description => "Networks to attach. To use a network owned by"<<
+                            " other user use user[network]",
             :format => Array
         },
         {
