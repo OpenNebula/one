@@ -154,7 +154,7 @@ EOT
         {
             :name   => 'disk',
             :large  => '--disk image0,image1',
-            :description => "Disks to attach. To use a network owned by"<<
+            :description => "Disks to attach. To use an image owned by"<<
                             " other user use user[disk]",
             :format => Array
         },
