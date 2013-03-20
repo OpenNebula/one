@@ -294,25 +294,19 @@ int VirtualMachineXML::parse_action_name(string& action_st)
 {
     one_util::tolower(action_st);
 
-    // onevm delete command uses the xml-rpc finalize action
-    if (action_st == "delete")
-    {
-        action_st = "finalize";
-    }
-
     if (   action_st != "shutdown"
         && action_st != "hold"
         && action_st != "release"
         && action_st != "stop"
-        && action_st != "cancel"
+        && action_st != "shutdown-hard"
         && action_st != "suspend"
         && action_st != "resume"
-        && action_st != "restart"
-        && action_st != "resubmit"
+        && action_st != "boot"
+        && action_st != "destroy"
+        && action_st != "destroy-recreate"
         && action_st != "reboot"
-        && action_st != "reset"
+        && action_st != "reboot-hard"
         && action_st != "poweroff"
-        && action_st != "finalize"
         && action_st != "snapshot-create")
     {
         return -1;
