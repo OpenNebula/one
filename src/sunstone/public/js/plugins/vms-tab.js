@@ -1365,8 +1365,6 @@ function updateVMInfo(request,vm){
 
     // Populate permissions grid
     setPermissionsTable(vm_info,'');
-
-     $('input#scheduling_date').appendDtpicker();
 }
 
 function updateVMDisksInfo(request,vm){
@@ -1405,11 +1403,9 @@ function printSchedulingTable(vm_info)
 
 
     $('#add_scheduling_action').live('click', function(){
-        // Create a new row with add button
-        // Change focus
+
         $("#add_scheduling_action").attr("disabled", "disabled");
 
-        // 
         $("#scheduling_actions_table").append('<tr><td></td>\
              <td class="action_row"><select id="select_new_action" class="select_new_action" name="select_action">\
                                 <option value="shutdown">' + tr("shutdown") + '</option>\
@@ -1427,11 +1423,16 @@ function printSchedulingTable(vm_info)
                                 <option value="snapshot-create">' + tr("snapshot-create") + '</option>\
                               </select>\
               </td>\
-             <td class="time_row"><input id="date_time_input"></td>\
+             <td class="time_row"><input id="date_time_input"><a class="date_time_picker_add_link">t</a></td>\
              <td>\
                 <button id="submit_scheduling_action" class="button small secondary radius" >' + tr("Add") +'</button>\
              </td>\
            </tr>');
+
+        $(".date_time_picker_add_link").die();
+        $(".date_time_picker_add_link").live("click", function() {
+            setupDateTimePicker('#date_time_input', "");
+        });
 
         return false;
     }); 
@@ -1501,8 +1502,9 @@ function printSchedulingTable(vm_info)
 
     // Listener for key,value pair edit action
     $(".edit_e").live("click", function() {
-
         // Action
+        $("#add_scheduling_action").attr("disabled", "disabled");
+
         var index=this.id.substring(5,this.id.length);
 
         var value_str = $(".tr_action_"+index+" .action_row").text();
@@ -1525,7 +1527,14 @@ function printSchedulingTable(vm_info)
 
         // Time
         var time_value_str = $(".tr_action_"+index+" .time_row").text();
-        $(".tr_action_"+index+" .time_row").html('<input class="input_edit_time" id="input_edit_time_'+index+'" type="text" value="'+time_value_str+'"/>')
+        $(".tr_action_"+index+" .time_row").html('<div><input style="width:90%;" class="input_edit_time" id="input_edit_time_'+ 
+                        index+'" type="text" value="'+time_value_str+'">\
+                        <a class="date_time_picker_link">t</a></div>');
+
+        $(".date_time_picker_link").die();
+        $(".date_time_picker_link").live("click", function() {
+            setupDateTimePicker('#input_edit_time_'+index, time_value_str);
+        });
     });
 
      $(".select_action").live("change", function() {
@@ -1544,6 +1553,7 @@ function printSchedulingTable(vm_info)
 
         // Let OpenNebula know
         Sunstone.runAction("VM.update_template",vm_info.ID,template_str);
+        $("#add_scheduling_action").removeAttr("disabled");
     });
 
     $(".input_edit_time").live("change", function() {
@@ -1565,6 +1575,7 @@ function printSchedulingTable(vm_info)
 
         // Let OpenNebula know
         Sunstone.runAction("VM.update_template",vm_info.ID,template_str);
+        $("#add_scheduling_action").removeAttr("disabled");
     });
 
     return str;
@@ -1600,7 +1611,7 @@ function fromJSONtoSchedulingActionRow(scheduling_action){
     str += '<tr class="tr_action_'+scheduling_action.ID+'">\
              <td class="id_row">'+scheduling_action.ID+'</td>\
              <td class="action_row">'+scheduling_action.ACTION+'</td>\
-             <td class="time_row">'+time_str+'</td>\
+             <td nowrap class="time_row">'+time_str+'</td>\
              <td class="done_row">'+done_str+'</td>\
              <td class="message_row">'+message_str+'</td>\
              <td>\
@@ -1624,40 +1635,33 @@ function setupDateTimePicker(input_to_fill, time_str){
                   <h3>\
                     <small id="">'+tr("Date Time Picker")+'</small>\
                   </h3>\
-                  </div>\
-                  <input type="text" name="date" value="2012/01/01 10:00">\
-                  <script type="text/javascript">\
-                    $(function(){\
-                      $("*[name=date]").appendDtpicker({"inline": true, "current": '+time_str+'});\
-                    });\
-                  </script>')
+                  <form id="date_time_form" action="">\
+                    </div>\
+                    <input type="text" name="date" value="2012/01/01 10:00">\
+                    <script type="text/javascript">\
+                      $(function(){\
+                        $("*[name=date]").appendDtpicker({"inline": true, "current": "'+time_str+'"});\
+                      });\
+                    </script>\
+                    <div class="form_buttons">\
+                      <button class="button radius right success" id="date_time_form" type="submit">'+tr("Done")+'</button>\
+                    </div>\
+                    <a class="close-reveal-modal">&#215;</a>\
+                  </form>');
 
     dialog.addClass("reveal-modal large");
+    dialog.reveal();
 
+    $("*[name=date]").val(time_str)
+    $('#date_time_form',dialog).die();
 
-    $('#date_time_picker_dialog',dialog).submit(function(){
+    $('#date_time_form',dialog).live('click', function(){
         var date_str = $('*[name=date]').val();
-        alert(date_str);
-        return false;
+        console.log(input_to_fill);
+        $(input_to_fill).val(date_str);
+        $(input_to_fill).trigger("change");
 
-        var enforce = false;
-        if ($("#enforce", this).is(":checked")) {
-          enforce = true;
-        }
-
-        var data  = {};
-        addSectionJSON(data, this);
-
-        var obj = {
-          "vm_template": data,
-          "enforce": (enforce == "on" ? true : false),
-        }
-        console.log(enforce)
-        console.log(obj)
-
-        Sunstone.runAction('VM.resize', vm_id, obj);
-
-        $resize_capacity_dialog.trigger("reveal:close")
+        $date_time_picker_dialog.trigger("reveal:close")
         return false;
     });
 };
