@@ -17,14 +17,39 @@
 /*Images tab plugin*/
 
 var images_tab_content = '\
-<h2><i class="icon-upload"></i> '+tr("Images")+'</h2>\
-<form id="image_form" action="" action="javascript:alert(\'js error!\');">\
-  <div class="action_blocks">\
+<form class="custom" id="image_form" action="">\
+<div class="panel">\
+<div class="row">\
+  <div class="twelve columns">\
+    <h4 class="subheader header">\
+      <span class="header-resource">\
+        <i class="icon-upload"></i> '+tr("Images")+'\
+      </span>\
+      <span class="header-info">\
+        <span id="total_images"/> <small>'+tr("TOTAL")+'</small>&emsp;\
+        <span id="size_images"/> <small>'+tr("SIZE")+'</small>\
+      </span>\
+      <span class="user-login">\
+      </span>\
+    </h4>\
   </div>\
-<table id="datatable_images" class="display">\
+</div>\
+<div class="row">\
+  <div class="nine columns">\
+    <div class="action_blocks">\
+    </div>\
+  </div>\
+  <div class="three columns">\
+    <input id="image_search" type="text" placeholder="Search" />\
+  </div>\
+</div>\
+</div>\
+  <div class="row">\
+    <div class="twelve columns">\
+<table id="datatable_images" class="datatable twelve">\
   <thead>\
     <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
+      <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
       <th>'+tr("ID")+'</th>\
       <th>'+tr("Owner")+'</th>\
       <th>'+tr("Group")+'</th>\
@@ -52,191 +77,213 @@ var images_tab_content = '\
 
 var create_image_tmpl =
 '<div id="img_tabs">\
-        <ul><li><a href="#img_easy">'+tr("Wizard")+'</a></li>\
-                <li><a href="#img_manual">'+tr("Advanced mode")+'</a></li>\
-        </ul>\
-        <div id="img_easy">\
-           <form id="create_image_form_easy" action="">\
-             <p style="font-size:0.8em;text-align:right;"><i>'+
-    tr("Fields marked with")+' <span style="display:inline-block;" class="ui-icon ui-icon-alert" /> '+
-    tr("are mandatory")+'</i><br />\
-             <fieldset>\
-               <div class="img_param img_man">\
-               <label for="img_name">'+tr("Name")+':</label>\
-               <input type="text" name="img_name" id="img_name" />\
-               <div class="tip">'+tr("Name that the Image will get. Every image must have a unique name.")+'</div>\
-               </div>\
-               <div class="img_param">\
-                 <label for="img_desc">'+tr("Description")+':</label>\
-                 <textarea name="img_desc" id="img_desc" style="height:4em"></textarea>\
-               <div class="tip">'+tr("Human readable description of the image for other users.")+'</div>\
-               </div>\
-               <div class="img_param">\
-                 <label for="img_datastore">'+tr("Datastore")+':</label>\
-                 <select id="img_datastore" name="img_datastore">\
-                 </select>\
-                 <div class="tip">'+tr("Select the datastore for this image")+'</div>\
-               </div>\
-             </fieldset>\
-             <fieldset>\
-               <div class="img_param">\
-                 <label for="img_type">'+tr("Type")+':</label>\
-                 <select name="img_type" id="img_type">\
-                      <option value="OS">'+tr("OS")+'</option>\
-                      <option value="CDROM">'+tr("CD-ROM")+'</option>\
-                      <option value="DATABLOCK">'+tr("Datablock")+'</option>\
-                 </select>\
-                 <div class="tip">'+tr("Type of the image, explained in detail in the following section. If omitted, the default value is the one defined in oned.conf (install default is OS).")+'</div>\
-               </div>\
-               <div class="img_param">\
-                 <label for="img_persistent">'+tr("Persistent")+':</label>\
-                 <input type="checkbox" id="img_persistent" name="img_persistent" value="YES" />\
-                 <div class="tip">'+tr("Persistence of the image")+'</div>\
-               </div>\
-               <div class="img_param">\
-                  <label for="img_dev_prefix">'+tr("Device prefix")+':</label>\
-                  <input type="text" name="img_dev_prefix" id="img_dev_prefix" />\
-                  <div class="tip">'+tr("Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”. If omitted, the default value is the one defined in oned.conf (installation default is “hd”).")+'</div>\
-               </div>\
-               <div class="img_param">\
-                  <label for="img_driver">'+tr("Driver")+':</label>\
-                  <input type="text" name="img_driver" id="img_driver" />\
-                  <div class="tip">'+tr("Specific image mapping driver. KVM: raw, qcow2. XEN: tap:aio, file:")+'</div>\
-               </div>\
-               <div class="img_param">\
-                  <label for="img_target">'+tr("Target")+':</label>\
-                  <input type="text" name="img_target" id="img_target" />\
-                  <div class="tip">'+tr("Target on which the image will be mounted at. For example: hda, sdb...")+'</div>\
-               </div>\
-              </fieldset>\
-              <fieldset>\
-                 <div class="" id="src_path_select">\
-                   <label style="height:5em;">'+tr("Image location")+':</label>\
-\
-                   <input type="radio" name="src_path" id="path_img" value="path" />\
-                   <label style="float:none">'+tr("Provide a path")+'</label><br />\
-\
-                   <input type="radio" name="src_path" id="upload_img" value="upload" />\
-                   <label style="float:none">'+tr("Upload")+'</label><br />\
-\
-                   <input type="radio" name="src_path" id="datablock_img" value="datablock" />\
-                   <label style="float:none;vertical-align:top">'+tr("Create an empty datablock")+'</label>\
-                   <div class="tip">'+tr("Please choose path if you have a file-based image. Otherwise upload or create an empty datablock disk.")+'</div><br />\
-\
+  <div class="panel">\
+    <h3><small>'+tr("Create Image")+'</small></h4>\
+  </div>\
+        <dl class="tabs">\
+        <dd class="active"><a href="#img_easy">'+tr("Wizard")+'</a></dd>\
+          <dd><a href="#img_manual">'+tr("Advanced mode")+'</a></dd>\
+        </dl>\
+        <ul class="tabs-content">\
+        <li id="img_easyTab" class="active">\
+           <form id="create_image_form_easy" action="" class="custom creation">\
+                  <div class="row vm_param">\
+                    <div class="six columns">\
+                      <div class="row">\
+                        <div class="four columns">\
+                          <label class="right inline" for="img_name">'+tr("Name")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                          <input type="text" name="img_name" id="img_name" />\
+                        </div>\
+                        <div class="one columns tip">'+tr("Name that the Image will get. Every image must have a unique name.")+'</div>\
+                      </div>\
+                      <div class="row">\
+                        <div class="four columns">\
+                          <label class="right inline" for="img_desc">'+tr("Description")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                          <textarea name="img_desc" id="img_desc" style="height:4em"></textarea>\
+                        </div>\
+                        <div class="one columns">\
+                          <div class="tip">'+tr("Human readable description of the image for other users.")+'</div>\
+                        </div>\
+                      </div>\
+                    </div>\
+                    <div class="six columns">\
+                      <div class="row">\
+                        <div class="four columns">\
+                          <label class="right inline" for="img_type">'+tr("Type")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                         <select name="img_type" id="img_type">\
+                              <option value="OS">'+tr("OS")+'</option>\
+                              <option value="CDROM">'+tr("CDROM")+'</option>\
+                              <option value="DATABLOCK">'+tr("DATABLOCK")+'</option>\
+                              <option value="KERNEL">'+tr("Kernel")+'</option>\
+                              <option value="RAMDISK">'+tr("Ramdisk")+'</option>\
+                              <option value="CONTEXT">'+tr("Context")+'</option>\
+                         </select>\
+                        </div>\
+                        <div class="one columns">\
+                          <div class="tip">'+tr("Type of the image, explained in detail in the following section. If omitted, the default value is the one defined in oned.conf (install default is OS).")+'</div>\
+                        </div>\
+                      </div>\
+                      <div class="row">\
+                        <div class="four columns">\
+                          <label class="right inline" for="img_persistent">'+tr("Persistent")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                         <input type="checkbox" id="img_persistent" name="img_persistent" value="YES" />\
+                        </div>\
+                        <div class="one columns">\
+                          <div class="tip">'+tr("Persistence of the image")+'</div>\
+                        </div>\
+                      </div>\
+                    </div>\
+                  </div>\
+                 <div class="row">\
+                 <fieldset>\
+                 <legend>'+tr("Image location")+':</legend>\
+                 <div class="row" id="src_path_select">\
+                        <div class="seven columns centered">\
+                         <input type="radio" name="src_path" id="path_img" value="path">'+ tr("Provide a path")+'&emsp;</input> \
+                         <input type="radio" name="src_path" id="upload_img" value="upload"> '+tr("Upload")+'</input> &emsp;\
+                         <input type="radio" name="src_path" id="datablock_img" value="datablock" disabled> '+tr("Empty datablock")+'</input> &emsp;\
+                        </div>\
                  </div>\
-                 <div class="img_param">\
-                    <label for="img_path">'+tr("Path")+':</label>\
-                    <input type="text" name="img_path" id="img_path" />\
-                    <div class="tip">'+tr("Path to the original file that will be copied to the image repository. If not specified for a DATABLOCK type image, an empty image will be created.")+'</div>\
+                 <div class="img_param row">\
+                   <div class="eight columns centered">\
+                    <div class="two columns">\
+                      <label class="right inline" for="img_path">'+tr("Path")+':</label>\
+                    </div>\
+                    <div class="nine columns">\
+                     <input type="text" name="img_path" id="img_path" />\
+                    </div>\
+                    <div class="one columns">\
+                      <div class="tip">'+tr("Path to the original file that will be copied to the image repository. If not specified for a DATABLOCK type image, an empty image will be created.")+'</div>\
+                    </div>\
+                 </div>\
                  </div>\
                  <div class="img_size">\
-                    <label for="img_size">'+tr("Size")+':</label>\
-                     <input type="text" name="img_size" id="img_size" />\
-                      <div class="tip">'+tr("Size of the datablock in MB.")+'</div>\
-                      </div>\
-                 <div class="img_param">\
-                    <label for="img_fstype">'+tr("FS type")+':</label>\
-                    <input type="text" name="img_fstype" id="img_fstype" />\
-                    <div class="tip">'+tr("Type of file system to be built. This can be any value understood by mkfs unix command.")+'</div>\
-                 </div>\
+                   <div class="six columns">\
+                    <div class="row">\
+                        <div class="four columns">\
+                          <label class="right inline" for="img_size">'+tr("Size")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                         <input type="text" name="img_size" id="img_size" />\
+                        </div>\
+                        <div class="one columns">\
+                          <div class="tip">'+tr("Size of the datablock in MB.")+'</div>\
+                        </div>\
+                    </div>\
+                  </div>\
+                   <div class="six columns">\
+                    <div class="row">\
+                        <div class="four columns">\
+                          <label class="right inline" for="img_fstype">'+tr("FS type")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                         <input type="text" name="img_fstype" id="img_fstype" />\
+                        </div>\
+                        <div class="one columns">\
+                          <div class="tip">'+tr("Type of file system to be built. This can be any value understood by mkfs unix command.")+'</div>\
+                        </div>\
+                    </div>\
+                    </div>\
+                  </div>\
                  <div class="img_param" id="upload_div">\
-                   <label for="file-uploader" >'+tr("Upload file")+':</label>\
+                 <div class="row centered">\
+                 <div class="columns eight">\
                    <div id="file-uploader">\
                    </div><div class="clear" />\
                  </div>\
-               </fieldset>\
-               <fieldset>\
-                  <div class="">\
-                    <label for="custom_var_image_name">'+tr("Name")+':</label>\
-                    <input type="text" id="custom_var_image_name" name="custom_var_image_name" />\
-                    <label for="custom_var_image_value">'+tr("Value")+':</label>\
-                    <input type="text" id="custom_var_image_value" name="custom_var_image_value" />\
-                    <button class="add_remove_button add_button" id="add_custom_var_image_button" value="add_custom_image_var">'+tr("Add")+'</button>\
-                    <button class="add_remove_button" id="remove_custom_var_image_button" value="remove_custom_image_var">'+tr("Remove selected")+'</button>\
-                    <div class="clear"></div>\
-                    <label for="custom_var_image_box">'+tr("Custom attributes")+':</label>\
-                    <select id="custom_var_image_box" name="custom_var_image_box" style="height:100px;" multiple>\
-                    </select>\
                  </div>\
-               </fieldset>\
-               <fieldset>\
-                  <div class="form_buttons">\
-                    <button class="button" id="create_image_submit" value="user/create">'+tr("Create")+'</button>\
-                    <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
+                 </div>\
+                 </fieldset>\
+                 </div>\
+                <div class="show_hide" id="advanced_image_create">\
+                     <h4><small><i class=" icon-plus-sign-alt"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>\
+                </div>\
+                <div class="advanced">\
+                  <div class="row">\
+                    <div class="six columns">\
+                      <div class="row">\
+                        <div class="four columns">\
+                          <label class="right inline" for="img_dev_prefix">'+tr("Device prefix")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                          <input type="text" name="img_dev_prefix" id="img_dev_prefix" />\
+                        </div>\
+                        <div class="one columns">\
+                          <div class="tip">'+tr("Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”. If omitted, the default value is the one defined in oned.conf (installation default is “hd”).")+'</div>\
+                        </div>\
+                      </div>\
+                      <div class="row">\
+                        <div class="four columns">\
+                          <label class="right inline" for="img_driver">'+tr("Driver")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                          <input type="text" name="img_driver" id="img_driver" />\
+                        </div>\
+                        <div class="one columns">\
+                          <div class="tip">'+tr("Specific image mapping driver. KVM: raw, qcow2. XEN: tap:aio, file:")+'</div>\
+                        </div>\
+                      </div>\
                     </div>\
-                    </fieldset>\
+                    <div class="six columns">\
+                      <div class="row">\
+                        <div class="four columns">\
+                          <label class="right inline" for="img_target">'+tr("Target")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                          <input type="text" name="img_target" id="img_target" />\
+                        </div>\
+                        <div class="one columns">\
+                          <div class="tip">'+tr("Target on which the image will be mounted at. For example: hda, sdb...")+'</div>\
+                        </div>\
+                      </div>\
+                      <div class="row">\
+                        <div class="four columns">\
+                          <label class="right inline" for="img_datastore">'+tr("Datastore")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                         <select id="img_datastore" name="img_datastore">\
+                         </select>\
+                        </div>\
+                        <div class="one columns">\
+                          <div class="tip">'+tr("Select the datastore for this image")+'</div>\
+                        </div>\
+                      </div>\
+                    </div>\
+                  </div>\
+                  </div>\
+                  <hr>\
             </form>\
-        </div>\
-        <div id="img_manual">\
-            <form id="create_image_form_manual" action="">\
-               <fieldset style="border-top:none;">\
-                 <h3 style="margin-bottom:10px;">'+tr("Write the image template here")+'</h3>\
+            <div class="form_buttons">\
+              <button class="button success radius right" id="create_image_submit" value="image/create">'+tr("Create")+'</button>\
+              <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
+              <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+            </div>\
+        </li>\
+        <li id="img_manualTab">\
+            <form id="create_image_form_manual" action="" class="custom">\
+                 <h4><small>'+tr("Write the image template here")+'</small></h4>\
                  <label for="img_datastores_raw">'+tr("Datastore")+':</label>\
                  <select id="img_datastore_raw" name="img_datastore_raw">\
                  </select>\
                  <textarea id="template" rows="15" style="width:100%;"></textarea>\
-               </fieldset>\
-               <fieldset>\
                <div class="form_buttons">\
-                 <button class="button" id="create_vn_submit_manual" value="vn/create">\
-                    '+tr("Create")+'\
-                 </button>\
-                 <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
+                 <button class="button success radius right" id="create_image_submit_manual" value="image/create">'+tr("Create")+'</button>\
+                 <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
+                 <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
                </div>\
-             </fieldset>\
            </form>\
-        </div>\
+        </li>\
+        </ul>\
+        <a class="close-reveal-modal">&#215;</a>\
 </div>';
-
-var update_image_tmpl =
-   '<form action="javascript:alert(\'js error!\');">\
-         <h3 style="margin-bottom:10px;">'+tr("Please, choose and modify the image you want to update")+':</h3>\
-            <fieldset style="border-top:none;">\
-                 <label for="image_template_update_select">'+tr("Select an image")+':</label>\
-                 <select id="image_template_update_select" name="image_template_update_select"></select>\
-                 <div class="clear"></div>\
-                 <div>\
-                   <label for="image_template_update_persistent">'+tr("Persistent")+':</label>\
-                   <input type="checkbox" name="image_template_update_persistent" id="image_template_update_persistent" />\
-                 </div>\
-                 <div>\
-                   <table class="permissions_table" style="padding:0 10px;">\
-                     <thead><tr>\
-                         <td style="width:130px">'+tr("Permissions")+':</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Use")+'</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Manage")+'</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Admin")+'</td></tr></thead>\
-                     <tr>\
-                         <td>'+tr("Owner")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_u" class="owner_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_m" class="owner_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_a" class="owner_a" /></td>\
-                     </tr>\
-                     <tr>\
-                         <td>'+tr("Group")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_group_u" class="group_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_group_m" class="group_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_group_a" class="group_a" /></td>\
-                     </tr>\
-                     <tr>\
-                         <td>'+tr("Other")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_other_u" class="other_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_other_m" class="other_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_other_a" class="other_a" /></td>\
-                     </tr>\
-                   </table>\
-                 </div>\
-                 <label for="image_template_update_textarea">'+tr("Template")+':</label>\
-                 <div class="clear"></div>\
-                 <textarea id="image_template_update_textarea" style="width:100%; height:14em;"></textarea>\
-            </fieldset>\
-            <fieldset>\
-                 <div class="form_buttons">\
-                    <button class="button" id="image_template_update_button" value="Image.update_template">'+tr("Update")+'\
-                    </button>\
-                 </div>\
-            </fieldset>\
-</form>';
 
 var dataTable_images;
 var $create_image_dialog;
@@ -292,36 +339,12 @@ var image_actions = {
         }
     },
 
-    "Image.fetch_template" : {
-        type: "single",
-        call: OpenNebula.Image.fetch_template,
-        callback: function (request,response) {
-            $('#image_template_update_dialog #image_template_update_textarea').val(response.template);
-        },
-        error: onError
-    },
-
-    "Image.fetch_permissions" : {
-        type: "single",
-        call: OpenNebula.Image.show,
-        callback: function(request,image_json){
-            var dialog = $('#image_template_update_dialog form');
-            var image = image_json.IMAGE;
-            setPermissionsTable(image,dialog);
-        },
-        error: onError
-    },
-
-    "Image.update_dialog" : {
-        type: "custom",
-        call: popUpImageTemplateUpdateDialog
-    },
-
-    "Image.update" : {
+    "Image.update_template" : {
         type: "single",
         call: OpenNebula.Image.update,
-        callback: function() {
-            notifyMessage(tr("Image updated correctly"));
+        callback: function(request) {
+            notifyMessage("Template updated correctly");
+            Sunstone.runAction('Image.showinfo',request.request.data[0]);
         },
         error: onError
     },
@@ -353,9 +376,13 @@ var image_actions = {
         call: OpenNebula.Image.persistent,
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0]);
+            Sunstone.runAction("Image.list");
         },
         elements: imageElements,
-        error: onError,
+        error: function (req,error_json) {
+            Sunstone.runAction("Image.showinfo",req.request.data[0]);
+            onError(req,error_json);
+        },
         notify: true
     },
 
@@ -364,6 +391,7 @@ var image_actions = {
         call: OpenNebula.Image.nonpersistent,
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0]);
+            Sunstone.runAction("Image.list");
         },
         elements: imageElements,
         error: onError,
@@ -384,6 +412,7 @@ var image_actions = {
         call: OpenNebula.Image.chown,
         callback:  function (req) {
             Sunstone.runAction("Image.show",req.request.data[0][0]);
+            Sunstone.runAction('Image.showinfo',request.request.data[0]);
         },
         elements: imageElements,
         error: onError,
@@ -395,6 +424,7 @@ var image_actions = {
         call: OpenNebula.Image.chgrp,
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0][0]);
+            Sunstone.runAction('Image.showinfo',request.request.data[0]);
         },
         elements: imageElements,
         error: onError,
@@ -414,6 +444,7 @@ var image_actions = {
         call: OpenNebula.Image.chtype,
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0][0]);
+            Sunstone.runAction("Image.list");
         },
         elements: imageElements,
         error: onError,
@@ -435,28 +466,35 @@ var image_actions = {
             hideDialog();
             $('div#images_tab div.legend_div').slideToggle();
         }
-    }
+    },
+    "Image.rename" : {
+        type: "single",
+        call: OpenNebula.Image.rename,
+        callback: function(request) {
+            notifyMessage("Image renamed correctly");
+            Sunstone.runAction('Image.showinfo',request.request.data[0]);
+            Sunstone.runAction('Image.list');
+        },
+        error: onError,
+        notify: true
+    },
 };
 
 
 var image_buttons = {
     "Image.refresh" : {
         type: "action",
-        text: '<i class="icon-refresh icon-large">',
+        layout: "refresh",
         alwaysActive: true
     },
     "Image.create_dialog" : {
         type: "create_dialog",
-        text: tr('+ New')
-    },
-    "Image.update_dialog" : {
-        type: "action",
-        text: tr("Update properties"),
-        alwaysActive: true
+        layout: "create"
     },
     "Image.chown" : {
         type: "confirm_with_select",
         text: tr("Change owner"),
+        layout: "user_select",
         select: users_sel,
         tip: tr("Select the new owner")+":",
         condition: mustBeAdmin
@@ -464,57 +502,53 @@ var image_buttons = {
     "Image.chgrp" : {
         type: "confirm_with_select",
         text: tr("Change group"),
+        layout: "user_select",
         select: groups_sel,
         tip: tr("Select the new group")+":",
         condition: mustBeAdmin
     },
-    "action_list" : {
-        type: "select",
-        actions: {
-            "Image.enable" : {
-                type: "action",
-                text: tr("Enable")
-            },
-            "Image.disable" : {
-                type: "action",
-                text: tr("Disable")
-            },
-            "Image.persistent" : {
-                type: "action",
-                text: tr("Make persistent")
-            },
-            "Image.nonpersistent" : {
-                type: "action",
-                text: tr("Make non persistent")
-            }
-        }
+    "Image.enable" : {
+        type: "action",
+        layout: "more_select",
+        text: tr("Enable")
+    },
+    "Image.disable" : {
+        type: "action",
+        layout: "more_select",
+        text: tr("Disable")
+    },
+    "Image.persistent" : {
+        type: "action",
+        layout: "more_select",
+        text: tr("Make persistent")
+    },
+    "Image.nonpersistent" : {
+        type: "action",
+        layout: "more_select",
+        text: tr("Make non persistent")
     },
     "Image.clone_dialog" : {
         type: "action",
+        layout: "main",
         text: tr("Clone")
     },
     "Image.delete" : {
         type: "confirm",
+        layout: "del",
         text: tr("Delete")
     },
-    "Image.help" : {
-        type: "action",
-        text: '?',
-        alwaysActive: true
-    }
+    //"Image.help" : {
+    //    type: "action",
+    //    text: '?',
+    //    alwaysActive: true
+    //}
 }
 
 var image_info_panel = {
     "image_info_tab" : {
-        title: tr("Image information"),
-        content: ""
-    },
-
-    "image_template_tab" : {
-        title: tr("Image template"),
+        title: tr("Information"),
         content: ""
     }
-
 }
 
 var images_tab = {
@@ -540,14 +574,7 @@ function imageElementArray(image_json){
     //Changing this? It may affect to the is_persistent() functions.
     var image = image_json.IMAGE;
 
-    var type = $('<select>\
-                      <option value="OS">'+tr("OS")+'</option>\
-                      <option value="CDROM">'+tr("CD-ROM")+'</option>\
-                      <option value="DATABLOCK">'+tr("Datablock")+'</option>\
-                 </select>');
-
-    var value = OpenNebula.Helper.image_type(image.TYPE);
-    $('option[value="'+value+'"]',type).replaceWith('<option value="'+value+'" selected="selected">'+tr(value)+'</option>');
+    size_images = size_images + parseInt(image.SIZE);
 
     //add also persistent/non-persistent selects, type select.
     return [
@@ -558,10 +585,9 @@ function imageElementArray(image_json){
         image.NAME,
         image.DATASTORE,
         image.SIZE,
-        '<select class="action_cb" id="select_chtype_image" elem_id="'+image.ID+'" style="width:100px">'+type.html()+'</select>',
+        OpenNebula.Helper.image_type(image.TYPE),
         pretty_time(image.REGTIME),
-        parseInt(image.PERSISTENT) ? '<input class="action_cb" id="cb_persistent_image" type="checkbox" elem_id="'+image.ID+'" checked="checked"/>'
-            : '<input class="action_cb" id="cb_persistent_image" type="checkbox" elem_id="'+image.ID+'"/>',
+        parseInt(image.PERSISTENT) ? "yes" : "no",
         OpenNebula.Helper.resource_state("image",image.STATE),
         image.RUNNING_VMS,
         image.TEMPLATE.TARGET ? image.TEMPLATE.TARGET : '--'
@@ -590,110 +616,193 @@ function addImageElement(request, image_json){
 function updateImagesView(request, images_list){
     var image_list_array = [];
 
+    size_images = 0;
+
     $.each(images_list,function(){
        image_list_array.push(imageElementArray(this));
     });
 
     updateView(image_list_array,dataTable_images);
     updateVResDashboard("images",images_list);
+
+    var size = humanize_size_from_mb(size_images)
+
+    $("#total_images", $dashboard).text(images_list.length);
+    $("#size_images", $dashboard).text(size);
+
+    var form = $("#image_form");
+
+    $("#total_images", form).text(images_list.length);
+    $("#size_images", form).text(size);
 }
 
 // Callback to update the information panel tabs and pop it up
 function updateImageInfo(request,img){
     var img_info = img.IMAGE;
     var info_tab = {
-        title: tr("Image information"),
+        title: tr("Information"),
         content:
-        '<table id="info_img_table" class="info_table" style="width:80%;">\
+        '<form class="custom"><div class="">\
+        <div class="six columns">\
+        <table id="info_img_table" class="twelve datatable extended_table">\
            <thead>\
-            <tr><th colspan="2">'+tr("Image")+' "'+img_info.NAME+'" '+
-            tr("information")+'</th></tr>\
+            <tr><th colspan="3">'+tr("Image")+' - '+img_info.NAME+'</th></tr>\
            </thead>\
            <tr>\
               <td class="key_td">'+tr("ID")+'</td>\
               <td class="value_td">'+img_info.ID+'</td>\
+              <td></td>\
            </tr>\
            <tr>\
-              <td class="key_td">'+tr("Name")+'</td>\
-              <td class="value_td">'+img_info.NAME+'</td>\
-           </tr>\
+            <td class="key_td">'+tr("Name")+'</td>\
+            <td class="value_td_rename">'+img_info.NAME+'</td>\
+            <td><div id="div_edit_rename">\
+                   <a id="div_edit_rename_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                </div>\
+            </td>\
+          </tr>\
            <tr>\
               <td class="key_td">'+tr("Datastore")+'</td>\
               <td class="value_td">'+img_info.DATASTORE+'</td>\
-           </tr>\
-           <tr>\
-              <td class="key_td">'+tr("Owner")+'</td>\
-              <td class="value_td">'+img_info.UNAME+'</td>\
-           </tr>\
-           <tr>\
-              <td class="key_td">'+tr("Group")+'</td>\
-              <td class="value_td">'+img_info.GNAME+'</td>\
+              <td></td>\
            </tr>\
            <tr>\
              <td class="key_td">'+tr("Type")+'</td>\
-             <td class="value_td">'+OpenNebula.Helper.image_type(img_info.TYPE)+'</td>\
+             <td class="value_td_type">'+OpenNebula.Helper.image_type(img_info.TYPE)+'</td>\
+             <td><div id="div_edit_chg_type">\
+                   <a id="div_edit_chg_type_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                 </div>\
+             </td>\
            </tr>\
            <tr>\
              <td class="key_td">'+tr("Register time")+'</td>\
              <td class="value_td">'+pretty_time(img_info.REGTIME)+'</td>\
+              <td></td>\
            </tr>\
            <tr>\
              <td class="key_td">'+tr("Persistent")+'</td>\
-             <td class="value_td">'+(parseInt(img_info.PERSISTENT) ? tr("yes") : tr("no"))+'</td>\
-           </tr>\
-           <tr>\
-              <td class="key_td">'+tr("Source")+'</td>\
-              <td class="value_td">'+(typeof img_info.SOURCE === "string" ? img_info.SOURCE : "--")+'</td>\
-           </tr>\
-           <tr>\
-              <td class="key_td">'+tr("Path")+'</td>\
-              <td class="value_td">'+(typeof img_info.PATH === "string" ? img_info.PATH : "--")+'</td>\
+             <td class="value_td_persistency">'+(parseInt(img_info.PERSISTENT) ? tr("yes") : tr("no"))+'</td>\
+             <td><div id="div_edit_persistency">\
+                   <a id="div_edit_persistency_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                 </div>\
+             </td>\
            </tr>\
            <tr>\
               <td class="key_td">'+tr("Filesystem type")+'</td>\
               <td class="value_td">'+(typeof img_info.FSTYPE === "string" ? img_info.FSTYPE : "--")+'</td>\
+              <td></td>\
            </tr>\
            <tr>\
-              <td class="key_td">'+tr("Size (Mb)")+'</td>\
+              <td class="key_td">'+tr("Size (MB)")+'</td>\
               <td class="value_td">'+img_info.SIZE+'</td>\
+              <td></td>\
            </tr>\
            <tr>\
               <td class="key_td">'+tr("State")+'</td>\
               <td class="value_td">'+OpenNebula.Helper.resource_state("image",img_info.STATE)+'</td>\
+              <td></td>\
            </tr>\
            <tr>\
-              <td class="key_td">'+tr("Running #VMS")+'</td>\
+              <td class="key_td">'+tr("Running VMS")+'</td>\
               <td class="value_td">'+img_info.RUNNING_VMS+'</td>\
+              <td></td>\
            </tr>\
-           <tr><td class="key_td">'+tr("Permissions")+'</td><td></td></tr>\
-           <tr>\
-             <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Owner")+'</td>\
-             <td class="value_td" style="font-family:monospace;">'+ownerPermStr(img_info)+'</td>\
-           </tr>\
-           <tr>\
-             <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Group")+'</td>\
-             <td class="value_td" style="font-family:monospace;">'+groupPermStr(img_info)+'</td>\
-           </tr>\
-           <tr>\
-             <td class="key_td"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Other")+'</td>\
-             <td class="value_td" style="font-family:monospace;">'+otherPermStr(img_info)+'</td>\
-           </tr>\
-        </table>'
+        </table>\
+        </div>\
+        <div class="six columns">'
+           + insert_permissions_table("Image",
+                                   img_info.ID,
+                                   img_info.UNAME,
+                                   img_info.GNAME,
+                                   img_info.UID,
+                                   img_info.GID) +
+            insert_extended_template_table(img_info.TEMPLATE,
+                                               "Image",
+                                               img_info.ID,
+                                               "Configuration & Tags") +
+        '</div>\
+      </div></form>'
     }
 
-    var template_tab = {
-        title: tr("Image template"),
-        content: '<table id="img_template_table" class="info_table" style="width:80%;">\
-            <thead><tr><th colspan="2">'+tr("Image template")+'</th></tr></thead>'+
-            prettyPrintJSON(img_info.TEMPLATE)+
-            '</table>'
-    }
+    $("#div_edit_rename_link").die();
+    $(".input_edit_value_rename").die();
+    $("#div_edit_chg_type_link").die();
+    $("#chg_type_select").die();
+    $("#div_edit_persistency").die();
+    $("#persistency_select").die();
+
+
+    // Listener for edit link for rename
+    $("#div_edit_rename_link").live("click", function() {
+        var value_str = $(".value_td_rename").text();
+        $(".value_td_rename").html('<input class="input_edit_value_rename" id="input_edit_rename" type="text" value="'+value_str+'"/>');
+    });
+
+    $(".input_edit_value_rename").live("change", function() {
+        var value_str = $(".input_edit_value_rename").val();
+        if(value_str!="")
+        {
+            // Let OpenNebula know
+            var name_template = {"name": value_str};
+            Sunstone.runAction("Image.rename",img_info.ID,name_template);
+        }
+    });
+
+    // Listener for edit link for type change
+    $("#div_edit_chg_type_link").live("click", function() {
+        var value_str = $(".value_td_type").text();
+        $(".value_td_type").html(
+                  '<select id="chg_type_select">\
+                      <option value="OS">'+tr("OS")+'</option>\
+                      <option value="CDROM">'+tr("CDROM")+'</option>\
+                      <option value="DATABLOCK">'+tr("Datablock")+'</option>\
+                      <option value="KERNEL">'+tr("Kernel")+'</option>\
+                      <option value="RAMDISK">'+tr("Ramdisk")+'</option>\
+                      <option value="CONTEXT">'+tr("Context")+'</option>\
+                  </select>');
+       $('option[value="'+value_str+'"]').replaceWith('<option value="'+value_str+'" selected="selected">'+tr(value_str)+'</option>');
+    });
+
+    $("#chg_type_select").live("change", function() {
+        var new_value=$("option:selected", this).text();
+        Sunstone.runAction("Image.chtype", img_info.ID, new_value);
+        Sunstone.runAction("Image.showinfo", img_info.ID);
+    });
+
+    // Listener for edit link for persistency change
+    $("#div_edit_persistency").live("click", function() {
+        var value_str = $(".value_td_persistency").text();
+        $(".value_td_persistency").html(
+                  '<select id="persistency_select">\
+                      <option value="yes">'+tr("yes")+'</option>\
+                      <option value="no">'+tr("no")+'</option>\
+                  </select>');
+       $('option[value="'+value_str+'"]').replaceWith('<option value="'+value_str+'" selected="selected">'+tr(value_str)+'</option>');
+    });
+
+    $("#persistency_select").live("change", function() {
+        var new_value=$("option:selected", this).text();
+
+        if (new_value=="yes")
+            Sunstone.runAction("Image.persistent",[img_info.ID]);
+        else
+            Sunstone.runAction("Image.nonpersistent",[img_info.ID]);
+
+    });
 
     Sunstone.updateInfoPanelTab("image_info_panel","image_info_tab",info_tab);
-    Sunstone.updateInfoPanelTab("image_info_panel","image_template_tab",template_tab);
-
     Sunstone.popUpInfoPanel("image_info_panel");
 
+    setPermissionsTable(img_info,'');
+
+}
+
+function enable_all_datastores()
+{
+
+    $('select#disk_type').children('option').each(function() {
+      $(this).removeAttr('disabled');
+    });
 }
 
 // Prepare the image creation dialog
@@ -707,17 +816,24 @@ function setupCreateImageDialog(){
     var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
 
     //Prepare jquery dialog
-    dialog.dialog({
-        autoOpen: false,
-        modal:true,
-        width: 520,
-        height: height
+    //dialog.dialog({
+    //    autoOpen: false,
+    //    modal:true,
+    //    width: 520,
+    //    height: height
+    //});
+    dialog.addClass("reveal-modal large");
+
+    $('.advanced',dialog).hide();
+
+    $('#advanced_image_create',dialog).click(function(){
+        $('.advanced',dialog).toggle();
+        return false;
     });
 
-    $('#img_tabs',dialog).tabs();
-    $('button',dialog).button();
-    $('#img_type option',dialog).first().attr('selected','selected');
-    $('#datablock_img',dialog).attr('disabled','disabled');
+    //$('#img_tabs',dialog).tabs();
+    //$('button',dialog).button();
+    //$('#datablock_img',dialog).attr('disabled','disabled');
 
 
     $('select#img_type',dialog).change(function(){
@@ -726,35 +842,40 @@ function setupCreateImageDialog(){
         switch (value){
         case "DATABLOCK":
             $('#datablock_img',context).removeAttr("disabled");
+            //$('#empty_datablock', context).show();
             break;
         default:
             $('#datablock_img',context).attr('disabled','disabled');
-            $('#path_img',context).attr('checked','checked');
-            $('#img_fstype,#img_size,#file-uploader',context).parent().hide();
-            $('#img_path',context).parent().show();
+            //$('#empty_datablock', context).hide();
+            $('#path_img',context).click();
+
         }
     });
 
-    $('#img_path,#img_fstype,#img_size,#file-uploader',dialog).parent().hide();
 
-    $('#src_path_select input').click(function(){
+    $('#img_path,#img_fstype,#img_size,#file-uploader',dialog).closest('.row').hide();
+
+    $("input[name='src_path']", dialog).change(function(){
         var context = $create_image_dialog;
         var value = $(this).val();
         switch (value){
         case "path":
-            $('#img_fstype,#img_size,#file-uploader',context).parent().hide();
-            $('#img_path',context).parent().show();
+            $('#img_fstype,#img_size,#file-uploader',context).closest('.row').hide();
+            $('#img_path',context).closest('.row').show();
             break;
         case "datablock":
-            $('#img_path,#file-uploader',context).parent().hide();
-            $('#img_fstype,#img_size',context).parent().show();
+            $('#img_path,#file-uploader',context).closest('.row').hide();
+            $('#img_fstype,#img_size',context).closest('.row').show();
             break;
         case "upload":
-            $('#img_path,#img_fstype,#img_size',context).parent().hide();
-            $('#file-uploader',context).parent().show();
+            $('#img_path,#img_fstype,#img_size',context).closest('.row').hide();
+            $('#file-uploader',context).closest('.row').show();
             break;
         };
     });
+
+
+    $('#path_img',dialog).click();
 
 
     $('#add_custom_var_image_button', dialog).click(
@@ -814,29 +935,35 @@ function setupCreateImageDialog(){
             //we pop up an upload progress dialog
             var pos_top = $(window).height() - 120;
             var pos_left = 220;
+            //var pb_dialog = $('<div id="pb_dialog" title="'+
+            //                  tr("Uploading...")+'">'+
+            //                  '<div id="upload-progress"></div>'+
+            //                  '</div>').dialog({
+            //                      draggable:true,
+            //                      modal:false,
+            //                      resizable:false,
+            //                      buttons:{},
+            //                      width: 460,
+            //                      minHeight: 50,
+            //                      position: [pos_left, pos_top]
+            //                  });
+
             var pb_dialog = $('<div id="pb_dialog" title="'+
                               tr("Uploading...")+'">'+
                               '<div id="upload-progress"></div>'+
-                              '</div>').dialog({
-                                  draggable:true,
-                                  modal:false,
-                                  resizable:false,
-                                  buttons:{},
-                                  width: 460,
-                                  minHeight: 50,
-                                  position: [pos_left, pos_top]
-                              });
+                              '</div>').addClass("reveal-modal");
 
-            $('#upload-progress',pb_dialog).progressbar({value:0});
+            //$('#upload-progress',pb_dialog).progressbar({value:0});
         },
         onProgress: function(id, fileName, loaded, total){
             //update upload dialog with current progress
-            $('div#pb_dialog #upload-progress').progressbar("option","value",Math.floor(loaded*100/total));
+            //$('div#pb_dialog #upload-progress').progressbar("option","value",Math.floor(loaded*100/total));
         },
         onComplete: function(id, fileName, responseJSON){
             //Inform complete upload, destroy upload dialog, refresh img list
             notifyMessage("Image uploaded correctly");
-            $('div#pb_dialog').dialog('destroy');
+            //$('div#pb_dialog').dialog('destroy');
+            $('div#pb_dialog').trigger("reveal:close")
             Sunstone.runAction("Image.list");
             return false;
         },
@@ -849,7 +976,39 @@ function setupCreateImageDialog(){
         file_input = input;  return false;
     };
 
-    $('#create_image_form_easy',dialog).submit(function(){
+    $('#img_type').change(function(){
+        enable_all_datastores();
+        var choice_str = $(this).val();
+        switch(choice_str)
+        {
+          case 'OS':
+          case 'CDROM':
+          case 'DATABLOCK':
+            $('select#img_datastore').children('option').each(function() {
+              $(this).removeAttr('disabled');
+              if ($(this).val() == "2")
+              {
+                $(this).attr('disabled', 'disabled');
+              }
+            });
+            $('select#img_datastore').val("1");
+            break;
+          case 'KERNEL':
+          case 'RAMDISK':
+          case 'CONTEXT':
+            $('select#img_datastore').children('option').each(function() {
+              $(this).attr('disabled', 'disabled');
+              if ($(this).val() == "2")
+              {
+                  $(this).removeAttr('disabled');
+              }
+            });
+            $('select#img_datastore').val("2");
+            break;
+         }
+    });
+
+    $('#create_image_submit',dialog).click(function(){
         var exit = false;
         var upload = false;
         $('.img_man',this).each(function(){
@@ -861,7 +1020,7 @@ function setupCreateImageDialog(){
         });
         if (exit) { return false; }
 
-        var ds_id = $('#img_datastore',this).val();
+        var ds_id = $('#img_datastore',dialog).val();
         if (!ds_id){
             notifyError(tr("Please select a datastore for this image"));
             return false;
@@ -869,40 +1028,40 @@ function setupCreateImageDialog(){
 
         var img_json = {};
 
-        var name = $('#img_name',this).val();
+        var name = $('#img_name',dialog).val();
         img_json["NAME"] = name;
 
-        var desc = $('#img_desc',this).val();
+        var desc = $('#img_desc',dialog).val();
         if (desc.length){
             img_json["DESCRIPTION"] = desc;
         }
 
-        var type = $('#img_type',this).val();
+        var type = $('#img_type',dialog).val();
         img_json["TYPE"]= type;
 
-        img_json["PERSISTENT"] = $('#img_persistent:checked',this).length ? "YES" : "NO";
+        img_json["PERSISTENT"] = $('#img_persistent:checked',dialog).length ? "YES" : "NO";
 
-        var dev_prefix = $('#img_dev_prefix',this).val();
+        var dev_prefix = $('#img_dev_prefix',dialog).val();
         if (dev_prefix.length){
             img_json["DEV_PREFIX"] = dev_prefix;
         }
 
-        var driver = $('#img_driver',this).val();
+        var driver = $('#img_driver',dialog).val();
         if (driver.length)
             img_json["DRIVER"] = driver;
 
-        var target = $('#img_target',this).val();
+        var target = $('#img_target',dialog).val();
         if (target)
             img_json["TARGET"] = target;
 
-        switch ($('#src_path_select input:checked',this).val()){
+        switch ($('#src_path_select input:checked',dialog).val()){
         case "path":
-            path = $('#img_path',this).val();
+            path = $('#img_path',dialog).val();
             if (path) img_json["PATH"] = path;
             break;
         case "datablock":
-            size = $('#img_size',this).val();
-            fstype = $('#img_fstype',this).val();
+            size = $('#img_size',dialog).val();
+            fstype = $('#img_fstype',dialog).val();
             if (size) img_json["SIZE"] = size;
             if (fstype) img_json["FSTYPE"] = fstype;
             break;
@@ -930,13 +1089,13 @@ function setupCreateImageDialog(){
             Sunstone.runAction("Image.create", img_obj);
         };
 
-        $create_image_dialog.dialog('close');
+        $create_image_dialog.trigger("reveal:close")
         return false;
     });
 
-    $('#create_image_form_manual',dialog).submit(function(){
-        var template=$('#template',this).val();
-        var ds_id = $('#img_datastore_raw',this).val();
+    $('#create_image_submit_manual',dialog).click(function(){
+        var template=$('#template',dialog).val();
+        var ds_id = $('#img_datastore_raw',dialog).val();
 
         if (!ds_id){
             notifyError(tr("Please select a datastore for this image"));
@@ -950,7 +1109,7 @@ function setupCreateImageDialog(){
             "ds_id" : ds_id
         };
         Sunstone.runAction("Image.create",img_obj);
-        $create_image_dialog.dialog('close');
+        $create_image_dialog.trigger("reveal:close")
         return false;
     });
 }
@@ -959,138 +1118,28 @@ function popUpCreateImageDialog(){
     $('#file-uploader input',$create_image_dialog).removeAttr("style");
     $('#file-uploader input',$create_image_dialog).attr('style','margin:0;width:256px!important');
 
-    $('#img_datastore',$create_image_dialog).html(datastores_sel());
-    $('#img_datastore_raw',$create_image_dialog).html(datastores_sel());
+    var datastores_str = datastores_sel();
+    // Get rid of default datastore (51 characters in string)
+    datastores_str     = datastores_str.substring(51,datastores_str.length);
 
-    $create_image_dialog.dialog('open');
+    $('#img_datastore',$create_image_dialog).html(datastores_str);
+    $('#img_datastore_raw',$create_image_dialog).html(datastores_str);
+
+    $create_image_dialog.reveal();
+
+    $('select#img_datastore').children('option').each(function() {
+      if ($(this).val() == "2")
+      {
+          $(this).attr('disabled', 'disabled');
+      }
+    });
 }
-
-
-
-function setupImageTemplateUpdateDialog(){
-
-    //Append to DOM
-    dialogs_context.append('<div id="image_template_update_dialog" title="'+tr("Update image properties")+'"></div>');
-    var dialog = $('#image_template_update_dialog',dialogs_context);
-
-    //Put HTML in place
-    dialog.html(update_image_tmpl);
-
-    var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
-    //Convert into jQuery
-    dialog.dialog({
-        autoOpen:false,
-        width:700,
-        modal:true,
-        height:height,
-        resizable:false
-    });
-
-    $('button',dialog).button();
-
-    $('#image_template_update_select',dialog).change(function(){
-        var id = $(this).val();
-        $('.permissions_table input',dialog).removeAttr('checked')
-        $('.permissions_table',dialog).removeAttr('update');
-        if (id && id.length){
-            var dialog = $('#image_template_update_dialog');
-            $('#image_template_update_textarea',dialog).val(tr("Loading")+
-                                                            "...");
-
-            var img_persistent = is_persistent_image(id);
-
-            if (img_persistent){
-                $('#image_template_update_persistent',dialog).attr('checked','checked')
-            } else {
-                $('#image_template_update_persistent',dialog).removeAttr('checked')
-            };
-
-            Sunstone.runAction("Image.fetch_permissions",id);
-            Sunstone.runAction("Image.fetch_template",id);
-        } else {
-            $('#image_template_update_textarea',dialog).val("");
-        };
-    });
-
-    $('.permissions_table input',dialog).change(function(){
-        $(this).parents('table').attr('update','update');
-    });
-
-    $('form',dialog).submit(function(){
-        var dialog = $(this);
-        var new_template = $('#image_template_update_textarea',dialog).val();
-        var id = $('#image_template_update_select',dialog).val();
-        if (!id || !id.length) {
-            $(this).parents('#image_template_update_dialog').dialog('close');
-            return false;
-        };
-
-        var old_persistent = is_persistent_image(id);
-        var new_persistent = $('#image_template_update_persistent',dialog).is(':checked');
-        if (old_persistent != new_persistent){
-            if (new_persistent) Sunstone.runAction("Image.persistent",[id]);
-            else Sunstone.runAction("Image.nonpersistent",[id]);
-        };
-
-        var permissions = $('.permissions_table',dialog);
-        if (permissions.attr('update')){
-            var perms = {
-                octet : buildOctet(permissions)
-            };
-            Sunstone.runAction("Image.chmod",id,perms);
-        };
-
-        Sunstone.runAction("Image.update",id,new_template);
-        $(this).parents('#image_template_update_dialog').dialog('close');
-        return false;
-    });
-};
-
-
-function popUpImageTemplateUpdateDialog(){
-    var select = makeSelectOptions(dataTable_images,
-                                   1,//id_col
-                                   4,//name_col
-                                   [],
-                                   []
-                                  );
-    var sel_elems = getSelectedNodes(dataTable_images);
-
-
-    var dialog =  $('#image_template_update_dialog');
-    $('#image_template_update_select',dialog).html(select);
-    $('#image_template_update_textarea',dialog).val("");
-    $('#image_template_update_persistent',dialog).removeAttr('checked');
-    $('.permissions_table input',dialog).removeAttr('checked');
-    $('.permissions_table',dialog).removeAttr('update');
-
-
-    if (sel_elems.length >= 1){ //several items in the list are selected
-        //grep them
-        var new_select= sel_elems.length > 1? '<option value="">'+tr("Please select")+'</option>' : "";
-        $('option','<select>'+select+'</select>').each(function(){
-            var val = $(this).val();
-            if ($.inArray(val,sel_elems) >= 0){
-                new_select+='<option value="'+val+'">'+$(this).text()+'</option>';
-            };
-        });
-        $('#image_template_update_select',dialog).html(new_select);
-        if (sel_elems.length == 1) {
-            $('#image_template_update_select option',dialog).attr('selected','selected');
-            $('#image_template_update_select',dialog).trigger("change");
-        };
-    };
-
-    dialog.dialog('open');
-    return false;
-};
 
 // Set the autorefresh interval for the datatable
 function setImageAutorefresh() {
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_images);
-        var filter = $("#datatable_images_filter input",
-                       dataTable_images.parents("#datatable_images_wrapper")).attr('value');
+        var filter = $("#image_search").attr('value');
         if (!checked.length && !filter.length){
             Sunstone.runAction("Image.autorefresh");
         }
@@ -1102,28 +1151,6 @@ function is_persistent_image(id){
     return $(data).is(':checked');
 };
 
-function setupImageActionCheckboxes(){
-    $('input.action_cb#cb_persistent_image',dataTable_images).live("click",function(){
-        var $this = $(this)
-        var id=$this.attr('elem_id');
-        if ($this.attr('checked'))
-            Sunstone.runAction("Image.persistent",[id]);
-        else
-            Sunstone.runAction("Image.nonpersistent",[id]);
-
-        return true;
-    });
-
-    $('select.action_cb#select_chtype_image', dataTable_images).live("change",function(){
-        var $this = $(this);
-        var value = $this.val();
-        var id = $this.attr('elem_id');
-
-        Sunstone.runAction("Image.chtype", id, value);
-    });
-
-}
-
 function setupImageCloneDialog(){
     //Append to DOM
     dialogs_context.append('<div id="image_clone_dialog" title="'+tr("Clone an image")+'"></div>');
@@ -1131,31 +1158,49 @@ function setupImageCloneDialog(){
 
     //Put HTML in place
 
-    var html = '<form><fieldset>\
-<div class="clone_one">'+tr("Choose a new name for the image")+':</div>\
+    var html = '<div class="panel">\
+          <h3>\
+            <small id="create_vnet_header">'+tr("Clone Image")+'</small>\
+          </h3>\
+        </div>\
+        <form>\
+<div class="row">\
+<div class="clone_one"></div>\
 <div class="clone_several">'+tr("Several image are selected, please choose prefix to name the new copies")+':</div>\
-<br />\
-<label class="clone_one">'+tr("Name")+':</label>\
-<label class="clone_several">'+tr("Prefix")+':</label>\
-<input type="text" name="name"></input>\
-<div class="form_buttons">\
-  <button class="button" id="image_clone_button" value="Image.clone">\
+<br>\
+</div>\
+<div class="row">\
+  <div class="columns two">\
+    <label class="clone_one inline right">'+tr("Name")+':</label>\
+    <label class="clone_several inline right">'+tr("Prefix")+':</label>\
+  </div>\
+  <div class="columns ten">\
+    <input type="text" name="name"></input>\
+  </div>\
+</div>\
+<hr>\
+<div class="form_buttons row">\
+  <button class="button radius right" id="image_clone_button" value="Image.clone">\
 '+tr("Clone")+'\
   </button>\
-</div></fieldset></form>\
+           <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+        </div>\
+<a class="close-reveal-modal">&#215;</a>\
+</form>\
 ';
 
     dialog.html(html);
 
     //Convert into jQuery
-    dialog.dialog({
-        autoOpen:false,
-        width:375,
-        modal:true,
-        resizable:false
-    });
+    //dialog.dialog({
+    //    autoOpen:false,
+    //    width:375,
+    //    modal:true,
+    //    resizable:false
+    //});
+    dialog.addClass("reveal-modal");
 
-    $('button',dialog).button();
+    //$('button',dialog).button();
 
     $('form',dialog).submit(function(){
         var name = $('input', this).val();
@@ -1172,7 +1217,7 @@ function setupImageCloneDialog(){
         } else {
             Sunstone.runAction('Image.clone',sel_elems[0],name)
         };
-        dialog.dialog('close');
+        dialog.trigger("reveal:close")
         setTimeout(function(){
             Sunstone.runAction('Image.refresh');
         }, 1500);
@@ -1195,21 +1240,17 @@ function popUpImageCloneDialog(){
         $('input',dialog).val('Copy of '+getImageName(sel_elems[0]));
     };
 
-    $(dialog).dialog('open');
+    $(dialog).reveal();
 }
 
 //The DOM is ready at this point
 $(document).ready(function(){
 
     dataTable_images = $("#datatable_images",main_tabs_context).dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "bAutoWidth":false,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
-        "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0,2,3,9,10] },
@@ -1224,16 +1265,17 @@ $(document).ready(function(){
             } : ""
     });
 
-    dataTable_images.fnClearTable();
-    addElement([
-        spinner,
-        '','','','','','','','','','','',''],dataTable_images);
+    $('#image_search').keyup(function(){
+      dataTable_images.fnFilter( $(this).val() );
+    })
+
+    //addElement([
+    //    spinner,
+    //    '','','','','','','','','','','',''],dataTable_images);
     Sunstone.runAction("Image.list");
 
     setupCreateImageDialog();
-    setupImageTemplateUpdateDialog();
     setupTips($create_image_dialog);
-    setupImageActionCheckboxes();
     setupImageCloneDialog();
     setImageAutorefresh();
 

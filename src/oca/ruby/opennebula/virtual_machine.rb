@@ -42,7 +42,8 @@ module OpenNebula
             :snapshotrevert => "vm.snapshotrevert",
             :snapshotdelete => "vm.snapshotdelete",
             :attachnic  => "vm.attachnic",
-            :detachnic  => "vm.detachnic"
+            :detachnic  => "vm.detachnic",
+            :resize     => "vm.resize"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED

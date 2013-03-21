@@ -520,6 +520,8 @@ int PoolSQL::dump(ostringstream&  oss,
 
     rc = db->exec(sql_query, this);
 
+    add_extra_xml(oss);
+
     oss << "</" << root_elem_name << ">";
 
     unset_callback();

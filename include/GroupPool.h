@@ -155,6 +155,16 @@ public:
         return PoolSQL::dump(oss, "GROUP_POOL", Group::table, where);
     };
 
+protected:
+
+    /**
+     * Adds the default quotas xml element, right after all the
+     * pool objects
+     *
+     * @param oss The output stream to dump the xml contents
+     */
+    virtual void add_extra_xml(ostringstream&  oss);
+
 private:
 
     /**

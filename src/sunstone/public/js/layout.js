@@ -35,6 +35,11 @@ function showTab(tabname,highlight_tab){
     //Since menu items no longer have an <a> element
     //we no longer expect #tab_id here, but simply tab_id
     //So safety check - remove # from #tab_id if present to ensure compatibility
+
+    $('tbody input.check_item:checked').click();
+    $('td').removeClass('markrowchecked markrowselected');
+    last_select_row = null;
+
     if (tabname.indexOf('#') == 0)
         tabname = tabname.substring(1);
     if (highlight_tab && highlight_tab.indexOf('#') == 0)
@@ -60,6 +65,9 @@ function showTab(tabname,highlight_tab){
     //show tab
     $(".tab").hide();
     $('#'+activeTab).show();
+
+    $("#refresh_buttons button", $('#'+activeTab)).click()
+
     innerLayout.close("south");
 }
 
@@ -85,7 +93,8 @@ function setupTabs(){
         //toggle subtabs only when clicking on the icon or when clicking on an
         //already selected menu
         if ($(e.target).is('span') ||
-            $(this).hasClass("navigation-active-li")){
+            $(this).hasClass("navigation-active-li") ||
+            $(this).hasClass("tab_with_no_content")){
             //for each subtab, we hide the subsubtabs
             subtabs.each(function(){
                 //for each subtab, hide its subtabs
@@ -97,16 +106,21 @@ function setupTabs(){
             //hide subtabs and reset icon to + position, since all subsubtabs
             //are hidden
             subtabs.fadeToggle('fast');
-            $('span',subtabs).removeClass('ui-icon-circle-minus');
-            $('span',subtabs).addClass('ui-icon-circle-plus');
+            $(this).removeClass('active');
+            $('span',subtabs).removeClass(' icon-caret-down');
+            $('span',subtabs).addClass(' icon-caret-left');
             //toggle icon on this tab
-            $('span',this).toggleClass('ui-icon-circle-plus ui-icon-circle-minus');
-        };
+            $('span',this).toggleClass(' icon-caret-left  icon-caret-down');
+            return false;
+        }
+        else {
+            showTab(tab);
+            return false;
+        }
         //if we are clicking on the icon only, do not show the tab
         if ($(e.target).is('span')) return false;
 
-        showTab(tab);
-        return false;
+
     });
 
 };
@@ -128,7 +142,7 @@ $(document).ready(function () {
         applyDefaultStyles:       false
     ,   center__paneSelector:	".outer-center"
     ,	west__paneSelector:		".outer-west"
-    ,	west__size:				210
+    ,	west__size:				245
     ,	north__size:			26
     ,   south__size:            26
     ,	spacing_open:			0 // ALL panes
@@ -154,6 +168,10 @@ $(document).ready(function () {
     ,   center__paneSelector:	".inner-center"
     ,	south__paneSelector:	".inner-south"
     ,   south__size:            dialog_height
+    ,   south__resizable:       true
+    ,   south__spacing_open:      10
+    ,   north__resizable:       true
+    ,   north__spacing_open:      10
     ,	spacing_open:			5  // ALL panes
     ,	spacing_closed:			5 // ALL panes
     });

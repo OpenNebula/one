@@ -30,9 +30,7 @@ body {
 
 #footer {
     padding: 9px 10px 10px 10px;
-    color: white;
     text-align: center;
-    background-color: #353735;
     border:0;
     width: 100%;
     height: 9px;
@@ -42,8 +40,10 @@ body {
 }
 
 #footer a {
-    color: white;
-    text-decoration: underline;
+  color: #2ba6cb;
+  text-decoration: none;
+  line-height: inherit;
+    font-size:      13px;
 }
 
 #logo {
@@ -65,12 +65,12 @@ body {
 
 div#logo_sunstone {
     position: relative;
-    height: 100px;
-    width: 600px;
-    top: 80px;
+    height: 200px;
+    width: 800px;
+    top: 20px;
     margin-left: auto;
     margin-right: auto;
-    background: url(../images/opennebula-sunstone-big.png) no-repeat center;
+    background: url(../images/opennebula-sunstone-v4.0.png) no-repeat center;
     vertical-align: center;
 }
 
@@ -81,7 +81,7 @@ div#login {
 
     margin-left: auto;
     margin-right: auto;
-    top: 90px;
+    top: 30px;
     padding-left: 80px;
     padding-right: 80px;
     background: url(../images/panel.png) no-repeat center ;
@@ -161,7 +161,7 @@ div#login input#login_btn:hover {
 }
 
 #login_spinner {
-    left: 44px;
+    left: 22px;
     position: relative;
     top: 2px;
 }

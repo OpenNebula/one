@@ -42,27 +42,55 @@ var user_acct_graphs = [
 
 
 var users_tab_content = '\
-<h2><i class="icon-user"></i> '+tr("Users")+'</h2>\
-<form id="user_form" action="" action="javascript:alert(\'js error!\');">\
-  <div class="action_blocks">\
+<form class="custom" id="user_form" action="">\
+<div class="panel">\
+<div class="row">\
+  <div class="twelve columns">\
+    <h4 class="subheader header">\
+      <span class="header-resource">\
+        <i class="icon-user"></i> '+tr("Users")+'\
+      </span>\
+      <span class="header-info">\
+        <span id="total_users"/> <small>'+tr("TOTAL")+'</small>\
+      </span>\
+      <span class="user-login">\
+      </span>\
+    </h4>\
   </div>\
-<table id="datatable_users" class="display">\
+</div>\
+<div class="row">\
+  <div class="nine columns">\
+    <div class="action_blocks">\
+    </div>\
+  </div>\
+  <div class="three columns">\
+    <input id="user_search" type="text" placeholder="Search" />\
+  </div>\
+  <br>\
+  <br>\
+</div>\
+</div>\
+  <div class="row">\
+    <div class="twelve columns">\
+<table id="datatable_users" class="datatable twelve">\
   <thead>\
     <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
+      <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
       <th>'+tr("ID")+'</th>\
       <th>'+tr("Name")+'</th>\
       <th>'+tr("Group")+'</th>\
-      <th>'+tr("Authentication driver")+'</th>\
+      <th>'+tr("Auth driver")+'</th>\
       <th>'+tr("VMs")+'</th>\
-      <th>'+tr("Used memory")+'</th>\
-      <th>'+tr("Used CPU")+'</th>\
+      <th>'+tr("Memory")+'</th>\
+      <th>'+tr("CPU")+'</th>\
       <th>'+tr("Group ID")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyusers">\
   </tbody>\
 </table>\
+  </div>\
+  </div>\
 <div class="legend_div">\
 <span>?</span>\
 <p class="legend_p">\
@@ -79,55 +107,95 @@ var users_tab_content = '\
 </form>';
 
 var create_user_tmpl =
-'<form id="create_user_form" action="">\
-  <fieldset>\
-        <div>\
-                <label for="username">'+tr("Username")+':</label>\
-                <input type="text" name="username" id="username" /><br />\
-                <label for="pass">'+tr("Password")+':</label>\
-                <input type="password" name="pass" id="pass" />\
-                <label for="driver">'+tr("Authentication")+':</label>\
-                <select name="driver" id="driver">\
-                     <option value="core" selected="selected">'+tr("Core")+'</option>\
-                     <option value="ssh">'+tr("SSH")+'</option>\
-                     <option value="x509">'+tr("x509")+'</option>\
-                     <option value="public">'+tr("Public")+'</option>\
-                     <option value="custom">'+tr("Custom")+'</option>\
-                </select>\
-                <div>\
-                  <label>'+tr("Custom auth driver")+':</label>\
-                  <input type="text" name="custom_auth" /><br />\
-                </div>\
-        </div>\
-        </fieldset>\
-        <fieldset>\
-        <div class="form_buttons">\
-                <button class="button" id="create_user_submit" value="user/create">'+tr("Create")+'</button>\
-                <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
-        </div>\
-</fieldset>\
+'<div class="panel">\
+  <h3>\
+    <small id="create_vnet_header">'+tr("Create User")+'</small>\
+  </h3>\
+</div>\
+<form id="create_user_form" action="">\
+      <div class="row centered">\
+          <div class="four columns">\
+              <label class="inline right" for="username">'+tr("Username")+':</label>\
+          </div>\
+          <div class="seven columns">\
+              <input type="text" name="username" id="username" />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+      </div>\
+      <div class="row centered">\
+          <div class="four columns">\
+              <label class="inline right" for="pass">'+tr("Password")+':</label>\
+          </div>\
+          <div class="seven columns">\
+              <input type="password" name="pass" id="pass" />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+      </div>\
+      <div class="row centered">\
+          <div class="four columns">\
+              <label class="inline right" for="driver">'+tr("Authentication")+':</label>\
+          </div>\
+          <div class="seven columns">\
+            <select name="driver" id="driver">\
+                 <option value="core" selected="selected">'+tr("Core")+'</option>\
+                 <option value="ssh">'+tr("SSH")+'</option>\
+                 <option value="x509">'+tr("x509")+'</option>\
+                 <option value="public">'+tr("Public")+'</option>\
+                 <option value="custom">'+tr("Custom")+'</option>\
+            </select>\
+            <div>\
+              <input type="text" name="custom_auth" />\
+            </div>\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+      </div>\
+      <hr>\
+      <div class="form_buttons">\
+          <button class="button radius right success" id="create_user_submit" value="user/create">'+tr("Create")+'</button>\
+          <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+      </div>\
+  <a class="close-reveal-modal">&#215;</a>\
 </form>';
 
-var update_pw_tmpl = '<form id="update_user_pw_form" action="">\
-  <fieldset>\
-        <div>\
-                <div>'+tr("This will change the password for the selected users")+':</div>\
-                <label for="new_password">'+tr("New password")+':</label>\
-                <input type="password" name="new_password" id="new_password" />\
-        </div>\
-        </fieldset>\
-        <fieldset>\
-        <div class="form_buttons">\
-                <button class="button" id="update_pw_submit" value="User.update">'+tr("Change")+'</button>\
-                <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
-        </div>\
-</fieldset>\
+var update_pw_tmpl = '<div class="panel">\
+  <h3>\
+    <small id="create_vnet_header">'+tr("Update Password")+'</small>\
+  </h3>\
+</div>\
+<form id="update_user_pw_form" action="">\
+      <div class="row centered">\
+          <div class="four columns">\
+              <label class="inline right" for="new_password">'+tr("New password")+':</label>\
+          </div>\
+          <div class="seven columns">\
+              <input type="password" name="new_password" id="new_password" />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+      </div>\
+      <hr>\
+      <div class="form_buttons">\
+          <button class="button radius right success" id="update_pw_submit" type="submit" value="User.update">'+tr("Change")+'</button>\
+          <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+      </div>\
+  <a class="close-reveal-modal">&#215;</a>\
 </form>';
 
-var user_quotas_tmpl = '<form id="user_quotas_form" action="">\
-   <fieldset>\
-     <div>'+tr("Please add/edit/remove quotas and click on the apply changes button. Note that if several items are selected, changes will be applied to each of them")+'.</div>\
-     <div>'+tr("Add quota")+':</div>\
+var user_quotas_tmpl = '<div class="panel">\
+  <h3>\
+    <small id="create_vnet_header">'+tr("Update Quota")+'</small>\
+  </h3>\
+</div>\
+<form id="user_quotas_form" action="">\
+  <div class="row">\
+    <div class="six columns">\
      <div id="quota_types">\
            <label>'+tr("Quota type")+':</label>\
            <input type="radio" name="quota_type" value="vm">'+tr("Virtual Machine")+'</input>\
@@ -135,51 +203,147 @@ var user_quotas_tmpl = '<form id="user_quotas_form" action="">\
            <input type="radio" name="quota_type" value="image">'+tr("Image")+'</input>\
            <input type="radio" name="quota_type" value="network">'+tr("Network")+'</input>\
       </div>\
+      <hr>\
       <div id="vm_quota">\
-          <label>'+tr("Max VMs")+':</label>\
-          <input type="text" name="VMS"></input><br />\
-          <label>'+tr("Max Memory (MB)")+':</label>\
-          <input type="text" name="MEMORY"></input><br />\
-          <label>'+tr("Max CPU")+':</label>\
-          <input type="text" name="CPU"></input>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max VMs")+':</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="VMS"></input><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max Memory (MB)")+':</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="MEMORY"></input><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max CPU")+':</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="CPU"></input>\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
       </div>\
       <div id="datastore_quota">\
-          <label>'+tr("Datastore")+'</label>\
-          <select name="ID"></select><br />\
-          <label>'+tr("Max size (MB)")+':</label>\
-          <input type="text" name="SIZE"></input><br />\
-          <label>'+tr("Max images")+':</label>\
-          <input type="text" name="IMAGES"></input>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Datastore")+'</label>\
+          </div>\
+          <div class="seven columns">\
+            <select name="ID"></select><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max size (MB)")+':</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="SIZE"></input><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max images")+':</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="IMAGES"></input>\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
       </div>\
       <div id="image_quota">\
-          <label>'+tr("Image")+'</label>\
-          <select name="ID"></select><br />\
-          <label>'+tr("Max RVMs")+'</label>\
-          <input type="text" name="RVMS"></input>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Image")+'</label>\
+          </div>\
+          <div class="seven columns">\
+            <select name="ID"></select><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max RVMs")+'</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="RVMS"></input>\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
       </div>\
       <div id="network_quota">\
-          <label>'+tr("Network")+'</label>\
-          <select name="ID"></select><br />\
-          <label>'+tr("Max leases")+'</label>\
-          <input type="text" name="LEASES"></input>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Network")+'</label>\
+          </div>\
+          <div class="seven columns">\
+            <select name="ID"></select><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max leases")+'</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="LEASES"></input>\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
       </div>\
-      <button style="width:100px!important;" class="add_remove_button add_button" id="add_quota_button" value="add_quota">'+tr("Add/edit quota")+'</button>\
-      <div class="clear"></div>\
-      <div class="clear"></div>\
+      <br>\
+      <button class="button right small radius" id="add_quota_button" value="add_quota">'+tr("Add/edit quota")+'</button>\
+    </div>\
+    <div class="six columns">\
       <div class="current_quotas">\
-         <table class="info_table" style="width:640px;margin-top:0;">\
+         <table class="datatable twelve extended_table">\
             <thead><tr>\
                  <th>'+tr("Type")+'</th>\
-                 <th style="width:100%;">'+tr("Quota")+'</th>\
+                 <th>'+tr("Quota")+'</th>\
                  <th>'+tr("Edit")+'</th></tr></thead>\
             <tbody>\
             </tbody>\
          </table>\
       </div>\
+    </div>\
+  </div>\
+      <hr>\
       <div class="form_buttons">\
-           <button class="button" type="submit" value="User.set_quota">'+tr("Apply changes")+'</button>\
+          <button class="button radius right success" id="create_user_submit" type="submit" value="User.set_quota">'+tr("Apply changes")+'</button>\
+          <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
       </div>\
-</fieldset>\
+  <a class="close-reveal-modal">&#215;</a>\
 </form>';
 
 
@@ -259,28 +423,6 @@ var user_actions = {
         notify: true
     },
 
-    // "User.addgroup" : {
-    //     type: "multiple",
-    //     call: OpenNebula.User.addgroup,
-    //     callback : function(req){
-    //         Sunstone.runAction("User.show",req.request.data[0]);
-    //     },
-    //     elements : function() {return getSelectedNodes(dataTable_users);},
-    //     error: onError,
-    //     notify: true
-    // },
-
-    // "User.delgroup" : {
-    //     type: "multiple",
-    //     call: OpenNebula.User.delgroup,
-    //     callback : function(req){
-    //         Sunstone.runAction("User.show",req.request.data[0]);
-    //     },
-    //     elements : function() {return getSelectedNodes(dataTable_users);},
-    //     error: onError,
-    //     notify: true
-    // },
-
     "User.show" : {
         type: "single",
         call: OpenNebula.User.show,
@@ -304,34 +446,12 @@ var user_actions = {
         notify: true
     },
 
-    "User.fetch_template" : {
-        type: "single",
-        call: OpenNebula.User.fetch_template,
-        callback: function (request,response) {
-            $('#template_update_dialog #template_update_textarea').val(response.template);
-        },
-        error: onError
-    },
-
-    "User.update_dialog" : {
-        type: "custom",
-        call: function() {
-            popUpTemplateUpdateDialog("User",
-                                      makeSelectOptions(dataTable_users,
-                                                        1,//id_col
-                                                        2,//name_col
-                                                        [],
-                                                        []
-                                                       ),
-                                      getSelectedNodes(dataTable_users));
-        }
-    },
-
-    "User.update" : {
+    "User.update_template" : {
         type: "single",
         call: OpenNebula.User.update,
-        callback: function() {
+        callback: function(request) {
             notifyMessage(tr("Template updated correctly"));
+            Sunstone.runAction('User.showinfo',request.request.data[0]);
         },
         error: onError
     },
@@ -389,31 +509,29 @@ var user_actions = {
 var user_buttons = {
     "User.refresh" : {
         type: "action",
-        text: '<i class="icon-refresh icon-large">',
+        layout: "refresh",
         alwaysActive: true
     },
     "User.create_dialog" : {
         type: "create_dialog",
-        text: tr("+ New"),
+        layout: "create",
         condition: mustBeAdmin
-    },
-    "User.update_dialog" : {
-        type: "action",
-        text: tr("Update properties"),
-        alwaysActive: true
     },
     "User.update_password" : {
         type : "action",
+        layout: "more_select",
         text : tr("Change password")
     },
     "User.quotas_dialog" : {
         type : "action",
+        layout: "more_select",
         text : tr("Update quotas"),
         condition: mustBeAdmin
     },
     "User.chgrp" : {
         type: "confirm_with_select",
         text: tr("Change group"),
+        layout: "user_select",
         select: groups_sel,
         tip: tr("This will change the main group of the selected users. Select the new group")+":",
         condition: mustBeAdmin
@@ -421,6 +539,7 @@ var user_buttons = {
     "User.chauth" : {
         type: "confirm_with_select",
         text: tr("Change authentication"),
+        layout: "user_select",
         //We insert our custom select there.
         select: function() {
             return   '<option value="core" selected="selected">'+tr("Core")+'</option>\
@@ -431,31 +550,12 @@ var user_buttons = {
         tip: tr("Please choose the new type of authentication for the selected users")+":",
         condition: mustBeAdmin
     },
-    // "User.addgroup" : {
-    //     type: "confirm_with_select",
-    //     text: "Add to group",
-    //     select: function(){ return groups_select; },
-    //     tip: "Select the new group to add users:",
-    //     condition: True
-    // },
-    // "User.delgroup" : {
-    //     type: "confirm_with_select",
-    //     text: "Delete from group",
-    //     select: function(){ return groups_select; },
-    //     tip: "Select the group from which to delete users:",
-    //     condition: True
-    // },
     "User.delete" : {
         type: "confirm",
         text: tr("Delete"),
+        layout: "del",
         condition: mustBeAdmin
     },
-    "User.help" : {
-        type: "action",
-        text: '?',
-        alwaysActive: true
-    }
-
 };
 
 var user_info_panel = {
@@ -467,10 +567,10 @@ var user_info_panel = {
         title: tr("User quotas"),
         content:""
     },
-    "user_acct_tab" : {
-        title: tr("Historical usages"),
-        content: ""
-    }
+    //"user_acct_tab" : {
+    //    title: tr("Historical usages"),
+    //    content: ""
+    //}
 };
 
 var users_tab = {
@@ -552,9 +652,21 @@ function userElementArray(user_json){
     var cpu = "-";
 
     if (!$.isEmptyObject(user.VM_QUOTA)){
-        vms = user.VM_QUOTA.VM.VMS_USED;
-        memory = user.VM_QUOTA.VM.MEMORY_USED+' MB';
-        cpu = user.VM_QUOTA.VM.CPU_USED;
+
+        var vms = quotaBar(
+            user.VM_QUOTA.VM.VMS_USED,
+            user.VM_QUOTA.VM.VMS,
+            default_user_quotas.VM_QUOTA.VM.VMS);
+
+        var memory = quotaBarMB(
+            user.VM_QUOTA.VM.MEMORY_USED,
+            user.VM_QUOTA.VM.MEMORY,
+            default_user_quotas.VM_QUOTA.VM.MEMORY);
+
+        var cpu = quotaBarFloat(
+            user.VM_QUOTA.VM.CPU_USED,
+            user.VM_QUOTA.VM.CPU,
+            default_user_quotas.VM_QUOTA.VM.CPU);
     }
 
 
@@ -605,15 +717,21 @@ function updateUsersView(request,users_list){
     var user_list_array = [];
 
     $.each(users_list,function(){
-        if (this.USER.ID == uid)
-            dashboardQuotasHTML(this.USER);
+        //if (this.USER.ID == uid)
+        //    dashboardQuotasHTML(this.USER);
         user_list_array.push(userElementArray(this));
     });
     updateView(user_list_array,dataTable_users);
-    SunstoneMonitoring.monitor('USER', users_list)
-    if (mustBeAdmin())
-        updateSystemDashboard("users",users_list);
+    //SunstoneMonitoring.monitor('USER', users_list)
+    //if (mustBeAdmin())
+    //    updateSystemDashboard("users",users_list);
     updateUserSelect();
+
+    $("#total_users", $dashboard).text(users_list.length);
+
+    var form = $("#user_form");
+
+    $("#total_users", form).text(users_list.length);
 };
 
 function updateUserInfo(request,user){
@@ -622,142 +740,315 @@ function updateUserInfo(request,user){
     var info_tab = {
         title : tr("User information"),
         content :
-        '<table id="info_user_table" class="info_table">\
+        '<div class="">\
+          <div class="six columns">\
+          <table id="info_user_table" class="twelve datatable extended_table">\
             <thead>\
-               <tr><th colspan="2">' + tr("User information") + ' - '+user_info.NAME+'</th></tr>\
+               <tr><th colspan="2">' + tr("User") + ' - '+user_info.NAME+'</th><th></th></tr>\
             </thead>\
             <tbody>\
             <tr>\
                 <td class="key_td">' + tr("ID") + '</td>\
                 <td class="value_td">'+user_info.ID+'</td>\
+                <td></td>\
             </tr>\
-            <tr>\
-                <td class="key_td">' + tr("Group") + '</td>\
-                <td class="value_td">'+user_info.GNAME+'</td>\
-            </tr>\
+            <tr>' +
+                insert_group_dropdown("User",user_info.ID,user_info.GNAME,user_info.GID) +
+            '</tr>\
             <tr>\
                 <td class="key_td">' + tr("Authentication driver") + '</td>\
                 <td class="value_td">'+user_info.AUTH_DRIVER+'</td>\
+                <td></td>\
             </tr>\
             </tbody>\
          </table>\
-        <table id="user_template_table" class="info_table">\
-                <thead><tr><th colspan="2">' + tr("User template") + '</th></tr></thead>'+
-            prettyPrintJSON(user_info.TEMPLATE)+
-        '</table>'
+       </div>\
+       <div class="six columns">' +
+               insert_extended_template_table(user_info.TEMPLATE,
+                                              "User",
+                                              user_info.ID,
+                                              tr("Configuration Attributes")) +
+       '</div>\
+     </div>'
     };
 
-    var quotas_tab_html = '';
+    var quotas_tab_html = '<div class="">';
 
-    if (!$.isEmptyObject(user_info.VM_QUOTA))
-        quotas_tab_html += '<table class="info_table">\
-            <tbody>'+prettyPrintJSON(user_info.VM_QUOTA)+'</tbody>\
-          </table>'
+    if (!$.isEmptyObject(user_info.VM_QUOTA)){
+        var vms_bar = quotaBar(
+            user_info.VM_QUOTA.VM.VMS_USED,
+            user_info.VM_QUOTA.VM.VMS,
+            default_user_quotas.VM_QUOTA.VM.VMS);
 
-    if (!$.isEmptyObject(user_info.DATASTORE_QUOTA))
-        quotas_tab_html += '<table class="info_table">\
-            <tbody>'+prettyPrintJSON(user_info.DATASTORE_QUOTA)+'</tbody>\
-          </table>'
+        var memory_bar = quotaBarMB(
+            user_info.VM_QUOTA.VM.MEMORY_USED,
+            user_info.VM_QUOTA.VM.MEMORY,
+            default_user_quotas.VM_QUOTA.VM.MEMORY);
 
-    if (!$.isEmptyObject(user_info.IMAGE_QUOTA))
-        quotas_tab_html += '<table class="info_table">\
-            <tbody>'+prettyPrintJSON(user_info.IMAGE_QUOTA)+'</tbody>\
-          </table>';
+        var cpu_bar = quotaBarFloat(
+            user_info.VM_QUOTA.VM.CPU_USED,
+            user_info.VM_QUOTA.VM.CPU,
+            default_user_quotas.VM_QUOTA.VM.CPU);
 
-    if (!$.isEmptyObject(user_info.NETWORK_QUOTA))
-        quotas_tab_html += '<table class="info_table">\
-            <tbody>'+prettyPrintJSON(user_info.NETWORK_QUOTA)+'</tbody>\
-          </table>';
+        quotas_tab_html +=
+        '<div class="six columns">\
+        <table class="twelve datatable extended_table">\
+            <thead>\
+                <tr>\
+                    <th>'+tr("VMs")+'</th>\
+                    <th>'+tr("Memory")+'</th>\
+                    <th>'+tr("CPU")+'</th>\
+                </tr>\
+            </thead>\
+            <tbody>\
+                <tr>\
+                    <td>'+vms_bar+'</td>\
+                    <td>'+memory_bar+'</td>\
+                    <td>'+cpu_bar+'</td>\
+                </tr>\
+            </tbody>\
+        </table>\
+     </div>'
+    }
+
+    if (!$.isEmptyObject(user_info.DATASTORE_QUOTA)){
+        quotas_tab_html +=
+        '<div class="six columns">\
+        <table class="twelve datatable extended_table">\
+            <thead>\
+                <tr>\
+                    <th style="width:24%">'+tr("Datastore ID")+'</th>\
+                    <th style="width:38%">'+tr("Images")+'</th>\
+                    <th style="width:38%">'+tr("Size")+'</th>\
+                </tr>\
+            </thead>\
+            <tbody>';
+
+        var ds_quotas = [];
+
+        if ($.isArray(user_info.DATASTORE_QUOTA.DATASTORE))
+            ds_quotas = user_info.DATASTORE_QUOTA.DATASTORE;
+        else if (user_info.DATASTORE_QUOTA.DATASTORE.ID)
+            ds_quotas = [user_info.DATASTORE_QUOTA.DATASTORE];
+
+        for (var i=0; i < ds_quotas.length; i++){
+
+            var default_ds_quotas = default_user_quotas.DATASTORE_QUOTA[ds_quotas[i].ID]
+
+            if (default_ds_quotas == undefined){
+                default_ds_quotas = {
+                    "IMAGES"    : "0",
+                    "SIZE"      : "0"
+                }
+            }
+
+            var img_bar = quotaBar(
+                ds_quotas[i].IMAGES_USED,
+                ds_quotas[i].IMAGES,
+                default_ds_quotas.IMAGES);
+
+            var size_bar = quotaBarMB(
+                ds_quotas[i].SIZE_USED,
+                ds_quotas[i].SIZE,
+                default_ds_quotas.SIZE);
+
+            quotas_tab_html +=
+            '<tr>\
+                <td>'+ds_quotas[i].ID+'</td>\
+                <td>'+img_bar+'</td>\
+                <td>'+size_bar+'</td>\
+            </tr>';
+        }
+
+        quotas_tab_html +=
+            '</tbody>\
+        </table>\
+     </div>';
+    }
+
+    if (!$.isEmptyObject(user_info.IMAGE_QUOTA)){
+        quotas_tab_html +=
+        '<div class="six columns">\
+        <table class="twelve datatable extended_table">\
+            <thead>\
+                <tr>\
+                    <th>'+tr("Image ID")+'</th>\
+                    <th>'+tr("Running VMs")+'</th>\
+                </tr>\
+            </thead>\
+            <tbody>';
+
+        var img_quotas = [];
+
+        if ($.isArray(user_info.IMAGE_QUOTA.IMAGE))
+            img_quotas = user_info.IMAGE_QUOTA.IMAGE;
+        else if (user_info.IMAGE_QUOTA.IMAGE.ID)
+            img_quotas = [user_info.IMAGE_QUOTA.IMAGE];
+
+        for (var i=0; i < img_quotas.length; i++){
+
+            var default_img_quotas = default_user_quotas.IMAGE_QUOTA[img_quotas[i].ID]
+
+            if (default_img_quotas == undefined){
+                default_img_quotas = {
+                    "RVMS"  : "0"
+                }
+            }
+
+            var rvms_bar = quotaBar(
+                img_quotas[i].RVMS_USED,
+                img_quotas[i].RVMS,
+                default_img_quotas.RVMS);
+
+            quotas_tab_html +=
+            '<tr>\
+                <td>'+img_quotas[i].ID+'</td>\
+                <td>'+rvms_bar+'</td>\
+            </tr>';
+        }
+
+        quotas_tab_html +=
+            '</tbody>\
+        </table>\
+     </div>';
+    }
+
+    if (!$.isEmptyObject(user_info.NETWORK_QUOTA)){
+        quotas_tab_html +=
+        '<div class="six columns">\
+        <table class="twelve datatable extended_table">\
+            <thead>\
+                <tr>\
+                    <th>'+tr("Network ID")+'</th>\
+                    <th>'+tr("Leases")+'</th>\
+                </tr>\
+            </thead>\
+            <tbody>';
+
+        var net_quotas = [];
+
+        if ($.isArray(user_info.NETWORK_QUOTA.NETWORK))
+            net_quotas = user_info.NETWORK_QUOTA.NETWORK;
+        else if (user_info.NETWORK_QUOTA.NETWORK.ID)
+            net_quotas = [user_info.NETWORK_QUOTA.NETWORK];
+
+        for (var i=0; i < net_quotas.length; i++){
+
+            var default_net_quotas = default_user_quotas.NETWORK_QUOTA[net_quotas[i].ID]
+
+            if (default_net_quotas == undefined){
+                default_net_quotas = {
+                    "LEASES" : "0"
+                }
+            }
+
+            var leases_bar = quotaBar(
+                net_quotas[i].LEASES_USED,
+                net_quotas[i].LEASES,
+                default_net_quotas.LEASES);
+
+            quotas_tab_html +=
+            '<tr>\
+                <td>'+net_quotas[i].ID+'</td>\
+                <td>'+leases_bar+'</td>\
+            </tr>';
+        }
+
+        quotas_tab_html +=
+            '</tbody>\
+        </table></div>\
+     </div>';
+    }
 
     var quotas_tab = {
-        title : tr("User quotas"),
+        title : tr("Quotas"),
         content : quotas_tab_html
     };
 
-    var acct_tab = {
-        title : tr("Historical usages"),
-        content : '<div><table class="info_table" style="margin-bottom:0;width:100%">\
-  <tr>\
-    <td class="key_td"><label for="from">'+tr('From / to')+'</label></td>\
-    <td class="value_td">\
-       <input style="width: 7em" type="text" id="user_acct_from" name="from"/>\
-       <input style="width: 7em" type="text" id="user_acct_to" name="to"/>\
-       <button id="user_acct_date_ok">'+tr("Update")+'</button>\
-    </td>\
-  </tr>\
-<!--\
-  <tr>\
-    <td class="key_td"><label for="from">'+tr('Meters')+'</label></td>\
-    <td class="value_td">\
-       <select style="width:173px" id="user_acct_meter1" name="meter1">\
-       </select>\
-       <select style="width:173px" id="user_acct_meter2" name="meter2">\
-       </select>\
-    </td>\
-  </tr>\
--->\
-</table></div>' + generateMonitoringDivs(user_acct_graphs, "user_acct_")
-    };
+//    var acct_tab = {
+//        title : tr("Historical usages"),
+//        content : '<div><table class="info_table" style="margin-bottom:0;width:100%">\
+//  <tr>\
+//    <td class="key_td"><label for="from">'+tr('From / to')+'</label></td>\
+//    <td class="value_td">\
+//       <input style="width: 7em" type="text" id="user_acct_from" name="from"/>\
+//       <input style="width: 7em" type="text" id="user_acct_to" name="to"/>\
+//       <button id="user_acct_date_ok">'+tr("Update")+'</button>\
+//    </td>\
+//  </tr>\
+//<!--\
+//  <tr>\
+//    <td class="key_td"><label for="from">'+tr('Meters')+'</label></td>\
+//    <td class="value_td">\
+//       <select style="width:173px" id="user_acct_meter1" name="meter1">\
+//       </select>\
+//       <select style="width:173px" id="user_acct_meter2" name="meter2">\
+//       </select>\
+//    </td>\
+//  </tr>\
+//-->\
+//</table></div>' + generateMonitoringDivs(user_acct_graphs, "user_acct_")
+//    };
 
     Sunstone.updateInfoPanelTab("user_info_panel","user_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("user_info_panel","user_quotas_tab",quotas_tab);
-    Sunstone.updateInfoPanelTab("user_info_panel","user_acct_tab",acct_tab);
+    //Sunstone.updateInfoPanelTab("user_info_panel","user_acct_tab",acct_tab);
     Sunstone.popUpInfoPanel("user_info_panel");
 
     //Enable datepicker
-    var info_dialog = $('div#user_acct_tab');
-    $("#user_acct_from", info_dialog).datepicker({
-        defaultDate: "-1d",
-        changeMonth: true,
-        numberOfMonths: 1,
-        dateFormat: "dd/mm/yy",
-        defaultDate: '-1',
-        onSelect: function( selectedDate ) {
-            $( "#user_acct_to", info_dialog).datepicker("option",
-                                                        "minDate",
-                                                        selectedDate );
-        }
-    });
-    $("#user_acct_from", info_dialog).datepicker('setDate', '-1');
-
-    $("#user_acct_to", info_dialog).datepicker({
-        defaultDate: "0",
-        changeMonth: true,
-        numberOfMonths: 1,
-        dateFormat: "dd/mm/yy",
-        maxDate: '+1',
-        onSelect: function( selectedDate ) {
-            $( "#user_acct_from", info_dialog).datepicker( "option",
-                                                           "maxDate",
-                                                           selectedDate );
-        }
-    });
-    $("#user_acct_to", info_dialog).datepicker('setDate', 'Now');
-
-    //Listen to set date button
-    $('button#user_acct_date_ok', info_dialog).click(function(){
-        var from = $("#user_acct_from", info_dialog).val();
-        var to = $("#user_acct_to", info_dialog).val();
-
-        var start = $.datepicker.parseDate('dd/mm/yy', from)
-        if (start){
-            start = start.getTime();
-            start = Math.floor(start / 1000);
-        }
-
-        var end = $.datepicker.parseDate('dd/mm/yy', to);
-        if (end){
-            end = end.getTime();
-            end = Math.floor(end / 1000);
-        }
-
-        loadAccounting('User', user_info.ID, user_acct_graphs,
-                  { start : start, end: end });
-        return false;
-    });
-
-    //preload acct
-    loadAccounting('User', user_info.ID, user_acct_graphs);
+    //var info_dialog = $('div#user_acct_tab');
+    //$("#user_acct_from", info_dialog).datepicker({
+    //    defaultDate: "-1d",
+    //    changeMonth: true,
+    //    numberOfMonths: 1,
+    //    dateFormat: "dd/mm/yy",
+    //    defaultDate: '-1',
+    //    onSelect: function( selectedDate ) {
+    //        $( "#user_acct_to", info_dialog).datepicker("option",
+    //                                                    "minDate",
+    //                                                    selectedDate );
+    //    }
+    //});
+    //$("#user_acct_from", info_dialog).datepicker('setDate', '-1');
+//
+    //$("#user_acct_to", info_dialog).datepicker({
+    //    defaultDate: "0",
+    //    changeMonth: true,
+    //    numberOfMonths: 1,
+    //    dateFormat: "dd/mm/yy",
+    //    maxDate: '+1',
+    //    onSelect: function( selectedDate ) {
+    //        $( "#user_acct_from", info_dialog).datepicker( "option",
+    //                                                       "maxDate",
+    //                                                       selectedDate );
+    //    }
+    //});
+    //$("#user_acct_to", info_dialog).datepicker('setDate', 'Now');
+//
+    ////Listen to set date button
+    //$('button#user_acct_date_ok', info_dialog).click(function(){
+    //    var from = $("#user_acct_from", info_dialog).val();
+    //    var to = $("#user_acct_to", info_dialog).val();
+//
+    //    var start = $.datepicker.parseDate('dd/mm/yy', from)
+    //    if (start){
+    //        start = start.getTime();
+    //        start = Math.floor(start / 1000);
+    //    }
+//
+    //    var end = $.datepicker.parseDate('dd/mm/yy', to);
+    //    if (end){
+    //        end = end.getTime();
+    //        end = Math.floor(end / 1000);
+    //    }
+//
+    //    loadAccounting('User', user_info.ID, user_acct_graphs,
+    //              { start : start, end: end });
+    //    return false;
+    //});
+//
+    ////preload acct
+    //loadAccounting('User', user_info.ID, user_acct_graphs);
 };
 
 // Prepare the user creation dialog
@@ -768,13 +1059,15 @@ function setupCreateUserDialog(){
     dialog.html(create_user_tmpl);
 
     //Prepare jquery dialog
-    dialog.dialog({
-        autoOpen: false,
-        modal:true,
-        width: 400
-    });
+    //dialog.dialog({
+    //    autoOpen: false,
+    //    modal:true,
+    //    width: 400
+    //});
 
-    $('button',dialog).button();
+    dialog.addClass("reveal-modal");
+
+    //$('button',dialog).button();
 
     $('input[name="custom_auth"]',dialog).parent().hide();
     $('select#driver').change(function(){
@@ -804,7 +1097,7 @@ function setupCreateUserDialog(){
                           }
                         };
         Sunstone.runAction("User.create",user_json);
-        $create_user_dialog.dialog('close');
+        $create_user_dialog.trigger("reveal:close")
         return false;
     });
 }
@@ -815,14 +1108,7 @@ function setupUpdatePasswordDialog(){
     var dialog = $update_pw_dialog;
     dialog.html(update_pw_tmpl);
 
-    //Prepare jquery dialog
-    dialog.dialog({
-        autoOpen: false,
-        modal:true,
-        width: 400
-    });
-
-    $('button',dialog).button();
+    dialog.addClass("reveal-modal");
 
     $('#update_user_pw_form',dialog).submit(function(){
         var pw=$('#new_password',this).val();
@@ -833,7 +1119,7 @@ function setupUpdatePasswordDialog(){
         }
 
         Sunstone.runAction("User.passwd",getSelectedNodes(dataTable_users),pw);
-        $update_pw_dialog.dialog('close');
+        $update_pw_dialog.trigger("reveal:close")
         return false;
     });
 };
@@ -854,22 +1140,21 @@ function popUpUserQuotasDialog(){
 }
 
 function popUpCreateUserDialog(){
-    $create_user_dialog.dialog('open');
+    $create_user_dialog.reveal();
 
 }
 
 
 function popUpUpdatePasswordDialog(){
     $('#new_password',$update_pw_dialog).val("");
-    $update_pw_dialog.dialog('open');
+    $update_pw_dialog.reveal();
 }
 
 // Prepare the autorefresh of the list
 function setUserAutorefresh(){
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_users);
-        var filter = $("#datatable_users_filter input",
-                       dataTable_users.parents("#datatable_users_wrapper")).attr('value');
+        var filter = $("#user_search").attr('value');
         if (!checked.length && !filter.length){
             Sunstone.runAction("User.autorefresh");
         }
@@ -879,19 +1164,17 @@ function setUserAutorefresh(){
 $(document).ready(function(){
     //if we are not oneadmin, our tab will not even be in the DOM.
     dataTable_users = $("#datatable_users",main_tabs_context).dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "sPaginationType": "full_numbers",
-        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
+//        "bAutoWidth":false,
         "oColVis": {
             "aiExclude": [ 0 ]
         },
-        "bAutoWidth":false,
         "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "35px", "aTargets": [1,5,6,7,8] },
+            //{ "bSortable": false, "aTargets": ["check"] },
+//            { "sWidth": "60px", "aTargets": [0] },
+//            { "sWidth": "35px", "aTargets": [1] },
             { "sWidth": "150px", "aTargets": [4] },
+            { "sWidth": "150px", "aTargets": [5,6,7] },
             { "bVisible": false, "aTargets": [8]}
         ],
         "oLanguage": (datatable_lang != "") ?
@@ -899,10 +1182,10 @@ $(document).ready(function(){
                 sUrl: "locale/"+lang+"/"+datatable_lang
             } : ""
     });
-    dataTable_users.fnClearTable();
-    addElement([
-        spinner,
-        '','','','','','','',''],dataTable_users);
+
+    $('#user_search').keyup(function(){
+      dataTable_users.fnFilter( $(this).val() );
+    })
 
     Sunstone.runAction("User.list");
 
@@ -914,11 +1197,8 @@ $(document).ready(function(){
     //Also for group tab
     setupQuotaIcons();
 
-
-
     initCheckAllBoxes(dataTable_users);
     tableCheckboxesListener(dataTable_users);
-    //shortenedInfoFields('#datatable_users');
     infoListener(dataTable_users,'User.showinfo');
 
     $('div#users_tab div.legend_div').hide();

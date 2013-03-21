@@ -18,6 +18,8 @@
 /* Some useful functions for Sunstone default plugins */
 var INTERVAL=60000; //milisecs
 
+var last_selected_row = null;
+
 function someTime(){ //some time under 30secs
     return Math.floor(Math.random()*30000);
 }
@@ -81,14 +83,38 @@ function pretty_time_runtime(time){
 
 //returns a human readable size in Kilo, Mega, Giga or Tera bytes
 //if no from_bytes, assumes value comes in Ks
-function humanize_size(value,from_bytes) {
+function humanize_size(value,from_bytes,sufix) {
     if (typeof(value) === "undefined") {
         value = 0;
     }
-    var binarySufix = from_bytes ?
-        ["", "K", "M", "G", "T" ] : ["K", "M", "G", "T" ];
+    var binarySufix = ["", "K", "M", "G", "T" ];
+
+    var i = from_bytes ? 0 : 1;
+    while (value >= 1024 && i < 4){
+        value = value / 1024;
+        i++;
+    }
+    value = Math.round(value * 10) / 10;
+
+    if (value - Math.round(value) == 0) {
+        value = Math.round(value);
+    }
+
+    if(sufix == undefined) {
+        sufix = "B";
+    }
+
+    var st = value + binarySufix[i] + sufix;
+    return st;
+}
+
+function humanize_size_from_mb(value) {
+    if (typeof(value) === "undefined") {
+        value = 0;
+    }
+    var binarySufix =  ["MB", "GB", "TB" ];
     var i=0;
-    while (value > 1024 && i < 3){
+    while (value >= 1024 && i < 2){
         value = value / 1024;
         i++;
     }
@@ -126,10 +152,10 @@ function recountCheckboxes(dataTable){
 
     if (checked_length) { //at least 1 element checked
         //enable action buttons
-        $('.top_button, .list_button',context).button("enable");
+        $('.top_button, .list_button',context).attr('disabled', false);
         //check if the last_action_button should be enabled
         if (last_action_b.length && last_action_b.val().length){
-            last_action_b.button("enable");
+            last_action_b.attr('disabled', false);
         };
         //enable checkall box
         if (total_length == checked_length){
@@ -140,13 +166,13 @@ function recountCheckboxes(dataTable){
     } else { //no elements cheked
         //disable action buttons, uncheck checkAll
         $('.check_all',dataTable).removeAttr('checked');
-        $('.top_button, .list_button',context).button("disable");
-        last_action_b.button("disable");
+        $('.top_button, .list_button',context).attr('disabled', true);
+        last_action_b.attr('disabled', true);
     };
 
     //any case the create dialog buttons should always be enabled.
-    $('.create_dialog_button',context).button("enable");
-    $('.alwaysActive',context).button("enable");
+    $('.create_dialog_button',context).attr('disabled', false);
+    $('.alwaysActive',context).attr('disabled', false);
 }
 
 //Init action buttons and checkboxes listeners
@@ -154,15 +180,21 @@ function tableCheckboxesListener(dataTable){
     //Initialization - disable all buttons
     var context = dataTable.parents('form');
 
-    $('.last_action_button',context).button("disable");
-    $('.top_button, .list_button',context).button("disable");
+    $('.last_action_button',context).attr('disabled', true);
+    $('.top_button, .list_button',context).attr('disabled', true);
     //These are always enabled
-    $('.create_dialog_button',context).button("enable");
-    $('.alwaysActive',context).button("enable");
+    $('.create_dialog_button',context).attr('disabled', false);
+    $('.alwaysActive',context).attr('disabled', false);
 
     //listen to changes in the visible inputs
     $('tbody input.check_item',dataTable).live("change",function(){
         var datatable = $(this).parents('table');
+
+        if($(this).is(":checked"))
+            $(this).parents('tr').children().each(function(){$(this).addClass('markrowchecked');});
+        else
+            $(this).parents('tr').children().each(function(){$(this).removeClass('markrowchecked');});
+
         recountCheckboxes(datatable);
     });
 }
@@ -182,7 +214,7 @@ function updateSingleElement(element,dataTable,tag){
     var nodes = dataTable.fnGetNodes();
     var tr = $(tag,nodes).parents('tr')[0];
     var position = dataTable.fnGetPosition(tr);
-    dataTable.fnUpdate(element,position,0,false);
+    dataTable.fnUpdate(element,position,undefined,false);
     recountCheckboxes(dataTable);
 }
 
@@ -237,7 +269,7 @@ function notifyMessage(msg){
 // Returns an HTML string with the json keys and values
 // Attempts to css format output, giving different values to
 // margins etc. according to depth level etc.
-// See exapmle of use in plugins.
+// See example of use in plugins.
 function prettyPrintJSON(template_json,padding,weight, border_bottom,padding_top_bottom){
     var str = ""
     if (!template_json){ return "Not defined";}
@@ -323,8 +355,10 @@ function initCheckAllBoxes(datatable){
         var checked = $(this).attr('checked');
         if (checked) { //check all
             $('tbody input.check_item',table).attr('checked','checked');
+            $('td',table).addClass('markrowchecked');
         } else { //uncheck all
             $('tbody input.check_item',table).removeAttr('checked');
+            $('td',table).removeClass('markrowchecked');
         };
         recountCheckboxes(table);
     });
@@ -417,6 +451,7 @@ function onError(request,error_json) {
 //Used when refreshing elements of a datatable.
 function waitingNodes(dataTable){
     $('tr input.check_item:visible',dataTable).replaceWith(spinner);
+    recountCheckboxes(dataTable);
 }
 
 
@@ -519,38 +554,52 @@ function getValue(filter_str,filter_col,value_col,dataTable){
 //displays the tip information on mouseover.
 function setupTips(context){
 
+    $('ui-dialog').css('z-index', '1000')
     //For each tip in this context
     $('div.tip',context).each(function(){
+       // //store the text
+       // var obj = $(this);
+       // var tip = obj.html();
+       // //replace the text with an icon and spans
+       // obj.html('<span class="ui-icon ui-icon-info info_icon"></span>');
+       // obj.append('<span class="tipspan"></span>');
+//
+       // obj.append('<span class="ui-icon ui-icon-alert man_icon" />');
+//
+       // //add the text to .tipspan
+       // $('span.tipspan',obj).html(tip);
+       // //make sure it is not floating in the wrong place
+       // obj.parent().append('<div class="clear"></div>');
+       // //hide the text
+       // $('span.tipspan',obj).hide();
+//
+       // //When the mouse is hovering on the icon we fadein/out
+       // //the tip text
+       // $('span.info_icon',obj).hover(function(e){
+       //     var icon = $(this);
+       //     var top, left;
+       //     top = e.pageY - 15;// - $(this).parents('#create_vm_dialog').offset().top - 15;
+       //     left = e.pageX + 15;// - $(this).parents('#create_vm_dialog').offset().left;
+       //     icon.next().css(
+       //         {"top":top+"px",
+       //          "left":left+"px"});
+       //     icon.next().fadeIn();
+       // },function(){
+       //     $(this).next().fadeOut();
+       // });
         //store the text
         var obj = $(this);
+        obj.removeClass('tip');
         var tip = obj.html();
         //replace the text with an icon and spans
-        obj.html('<span class="ui-icon ui-icon-info info_icon"></span>');
-        obj.append('<span class="tipspan"></span>');
+        obj.html('<span class="has-tip" data-width="210" title="'+tip+'"><i class="icon-info-sign"></i></span>');
 
-        obj.append('<span class="ui-icon ui-icon-alert man_icon" />');
+        //obj.append('<span class="ui-icon ui-icon-alert man_icon" />');
 
         //add the text to .tipspan
-        $('span.tipspan',obj).html(tip);
-        //make sure it is not floating in the wrong place
-        obj.parent().append('<div class="clear"></div>');
-        //hide the text
-        $('span.tipspan',obj).hide();
+        //$('span.has-tip',obj).html(tip);
 
-        //When the mouse is hovering on the icon we fadein/out
-        //the tip text
-        $('span.info_icon',obj).hover(function(e){
-            var icon = $(this);
-            var top, left;
-            top = e.pageY - 15;// - $(this).parents('#create_vm_dialog').offset().top - 15;
-            left = e.pageX + 15;// - $(this).parents('#create_vm_dialog').offset().left;
-            icon.next().css(
-                {"top":top+"px",
-                 "left":left+"px"});
-            icon.next().fadeIn();
-        },function(){
-            $(this).next().fadeOut();
-        });
+
     });
 }
 
@@ -617,117 +666,194 @@ function escapeDoubleQuotes(string){
     return string.replace(/"/g,'\\"');
 }
 
-//Generate the div elements in which the monitoring graphs
-//will be contained. They have some elements which ids are
-//determined by the graphs configuration, so when the time
-//of plotting comes, we can put the data in the right place.
-function generateMonitoringDivs(graphs, id_prefix, options){
-    var str = "";
-    //40% of the width of the screen minus
-    //200px (left menu size)
-    var width = ($(window).width()-200)*39/100;
-    var id_suffix="";
-    var label="";
-    var id="";
-    var omit_title = options && options.omit_title;
+function derivative(data) {
+    for(var i=0; i<data.length-1; i++)
+    {
+        // Each elem is [timestamp, cumulative value]
+        var first = data[i];
+        var second = data[i+1];
 
-    $.each(graphs,function(){
-        label = this.monitor_resources;
-        id_suffix=label.replace(/,/g,'_');
-        id_suffix=id_suffix.replace(/\//g,'_');
-        id = id_prefix+id_suffix;
-        str+='<table class="info_table">'+
-            (!omit_title ? '<thead><tr><th colspan="1">'+this.title+'</th></tr></thead>' : '')
-             + '<tr><td id="legend_'+id_suffix+'"></td></tr>\
-                <tr><td style="border:0;width:100%;">\
-                <div id="'+id+'" style="width:'+width+'px; height:150px;position:relative;left:0px;margin: 0 auto 10px auto">'+
-                  spinner+
-                '</div>\
-              </td></tr></table>';
-    });
+        // value now - value before / seconds
+        var speed = (second[1] - first[1]) / (second[0] - first[0]);
 
-    return str;
-}
-
-//Draws data for plotting. It will find the correct
-//div for doing it in the context with an id
-//formed by a prefix (i.e. "hosts") and a suffix
-//determined by the graph configuration: "info".
-function plot_graph(data,context,id_prefix,info){
-    var monitoring_resources = info.monitor_resources;
-    var labels  = info.labels
-    var humanize = info.humanize_figures ?
-        humanize_size : function(val){ return val };
-    var convert_from_bytes = info.convert_from_bytes;
-    var id_suffix = monitoring_resources.replace(/,/g,'_');
-    id_suffix = id_suffix.replace(/\//g,'_');
-    var monitoring_resources_array = monitoring_resources.split(',');
-
-    if (labels) {
-        labels_array = labels.split(',')
+        // The first element is replaced with the second one
+        data[i] = [first[0], speed];
     }
 
-    var monitoring = data.monitoring
-    var series = [];
-    var serie;
-    var mon_count = 0;
-    var show_date = info.show_date;
+    // The last elem must be removed
+    data.pop();
+}
 
-    //make sure series are painted in the order of the
-    //monitoring_resources array.
-    for (var i=0; i<monitoring_resources_array.length; i++) {
-        serie = {
-            //Turns label TEMPLATE/BLABLA into BLABLA
-            label: labels ? labels_array[i] : monitoring_resources_array[i].split('/').pop(),
-            data: monitoring[monitoring_resources_array[i]]
-        };
-        series.push(serie);
-        mon_count++;
-    };
+function plot_graph(response, info) {
 
-    //Set options for the plots:
-    // * Where the legend goes
-    // * Axis options: print time and sizes correctly
+    series = [];
+
+    var attributes = info.monitor_resources.split(',');
+
+    if (info.labels) {
+        labels = info.labels.split(',')
+    }
+
+    for (var i=0; i<attributes.length; i++)
+    {
+        var attribute = attributes[i];
+
+        var data = response.monitoring[attribute];
+
+        if(info.derivative == true) {
+            derivative(data);
+        }
+
+        series.push({
+            stack: attribute,
+            // Turns label TEMPLATE/BLABLA into BLABLA
+            label: labels ? labels[i] : attribute[i].split('/').pop(),
+            data: data
+        });
+    }
+
+    var humanize = info.humanize_figures ?
+        humanize_size : function(val){ return val };
+
     var options = {
-        legend : { show : true,
-                   noColumns: mon_count+1,
-                   container: $('#legend_'+id_suffix)
+//        colors: [ "#cdebf5", "#2ba6cb", "#6f6f6f" ]
+        colors: [ "#2ba6cb", "#707D85", "#AC5A62" ],
+        legend : { show : (info.div_legend != undefined),
+                   noColumns: attributes.length+1,
+                   container: info.div_legend
                  },
         xaxis : {
             tickFormatter: function(val,axis){
-                return pretty_time_axis(val, show_date);
+                return pretty_time_axis(val, info.show_date);
             }
         },
-        yaxis : { labelWidth: 40,
+        yaxis : { labelWidth: 50,
                   tickFormatter: function(val, axis) {
-                      return humanize(val, convert_from_bytes);
+                      return humanize(val, info.convert_from_bytes, info.y_sufix);
                   },
                   min: 0
                 }
     };
 
-    id = id_prefix + id_suffix;
-    $.plot($('#'+id, context),series,options); //call to flot lib
+    $.plot(info.div_graph, series, options);
 }
 
-//Enables showing full information on this type of fields on
-//mouse hover
-//Really nice for a user with many groups. Unused.
-/*
-function shortenedInfoFields(context){
-    $('.shortened_info',context).live("mouseenter",function(e){
-        var full_info = $(this).next();
-        var top,left;
-        top = (e.pageY-15)+"px";
-        left = (e.pageX+15)+"px";
-        full_info.css({"top":top,"left":left});
-        full_info.fadeIn();
-    });
 
-    $('.shortened_info',context).live("mouseleave",function(e){
-        $(this).next().fadeOut();
-    });
-}*/
+function plot_totals(response, info) {
+
+    series = [];
+
+    var attributes = info.monitor_resources.split(',');
+
+    if (info.labels) {
+        labels = info.labels.split(',')
+    }
+
+    var min = Number.MAX_VALUE;
+    var max = Number.MIN_VALUE;
+
+    // Get min and max times, from any resource, using the first attribute
+    for (var id in response) {
+        if(id != "resource") {
+            min = Math.min(min,
+                parseInt(response[id][attributes[0]][0][0]) );
+
+            max = Math.max(max,
+                parseInt(response[id][attributes[0]][ response[id][attributes[0]].length - 1 ][0]) );
+        }
+    }
+
+    // First flot stack hack: Flot will stack values, but only they exist for all
+    // series. Given these two series:
+    //
+    //        [3,x], [4,x], [5,x]
+    // [2,x], [3,x], [4,x]
+    //
+    // Flot will draw values for 3 and 4. That's why we add 0s at the begining
+    // and end of each serie
+    //
+    // [2,0], [2.9,0] [3,x], [4,x], [5,x]
+    // [2,x],         [3,x], [4,x], [4.1,0] [5,0]
+
+    for (var i=0; i<attributes.length; i++)
+    {
+        var attribute = attributes[i];
+
+        for (var id in response) {
+            if(id != "resource") {
+                var data = response[id][attribute];
+
+                if(info.derivative == true) {
+                    derivative(data);
+                }
+
+                if(data.length == 0) {
+                    continue;
+                }
+
+                var local_min = parseInt( data[0][0] );
+                var local_max = parseInt( data[data.length - 1][0] );
+
+                if(local_min > min) {
+                    data.unshift([local_min-1, 0]);
+                    data.unshift([min, 0]);
+                }
+
+                if(local_max < max) {
+                    data.push([local_max+1, 0]);
+                    data.push([max, 0]);
+                }
+
+                // Invisible line
+                series.push({
+                  color: "rgba(0,0,0,0.0)",
+                  shadowSize: 0,
+                  stack: attribute,
+                  data: data
+                });
+            }
+        }
+
+        // Second flot stack hack: We are not interested in the stacked position
+        // of each line, we only want to draw the totals. To do that, the last
+        // serie to be added is just a line with 0s stacked on top of the
+        // invisible ones
+
+        series.push({
+            stack: attribute,
+            // Turns label TEMPLATE/BLABLA into BLABLA
+            label: labels ? labels[i] : attribute[i].split('/').pop(),
+            data: [[min, 0], [max,0]]
+        });
+    }
+
+    var humanize = info.humanize_figures ?
+        humanize_size : function(val){ return val };
+
+    var options = {
+        //colors: [ "#2ba6cb", "#cdebf5", "#6f6f6f" ],
+        colors: [ "#2ba6cb", "#707D85", "#AC5A62" ],
+        legend : { show : (info.div_legend != undefined),
+                   noColumns: attributes.length+1,
+                   backgroundColor: "black",
+                   container: info.div_legend
+                 },
+        xaxis : {
+            tickFormatter: function(val,axis){
+                return pretty_time_axis(val, info.show_date);
+            }
+        },
+        yaxis : { labelWidth: 50,
+                  tickFormatter: function(val, axis) {
+                      return humanize(val, info.convert_from_bytes, info.y_sufix);
+                  },
+                  min: 0
+                }
+    };
+
+    $.plot(info.div_graph, series, options);
+}
+
 
 //Prepares the dialog used to update the template of an element.
 function setupTemplateUpdateDialog(){
@@ -756,15 +882,16 @@ function setupTemplateUpdateDialog(){
         </form>');
 
     //Convert into jQuery
-    dialog.dialog({
-        autoOpen:false,
-        width:700,
-        modal:true,
-        height:430,
-        resizable:false
-    });
+    //dialog.dialog({
+    //    autoOpen:false,
+    //    width:700,
+    //    modal:true,
+    //    height:430,
+    //    resizable:false
+    //});
 
-    $('button',dialog).button();
+    dialog.addClass("reveal-modal")
+    //$('button',dialog).button();
 
     $('#template_update_select',dialog).change(function(){
         var id = $(this).val();
@@ -784,7 +911,7 @@ function setupTemplateUpdateDialog(){
         var id = $('#template_update_select',dialog).val();
 
         if (!id || !id.length) {
-            dialog.dialog('close');
+            dialog.trigger('reveal:close');
             return false;
         };
 
@@ -793,7 +920,7 @@ function setupTemplateUpdateDialog(){
 
         var resource = $(this).val();
         Sunstone.runAction(resource+".update",id,new_template);
-        dialog.dialog('close');
+        dialog.trigger('reveal:close');
         return false;
     });
 }
@@ -824,7 +951,7 @@ function popUpTemplateUpdateDialog(elem_str,select_items,sel_elems){
         }
     };
 
-    dialog.dialog('open');
+    dialog.reveal();
     return false;
 }
 
@@ -832,6 +959,7 @@ function popUpTemplateUpdateDialog(elem_str,select_items,sel_elems){
 //Shows run a custom action when clicking on rows.
 function infoListener(dataTable, info_action){
     $('tbody tr',dataTable).live("click",function(e){
+
         if ($(e.target).is('input') ||
             $(e.target).is('select') ||
             $(e.target).is('option')) return true;
@@ -840,18 +968,32 @@ function infoListener(dataTable, info_action){
         var id = $(aData[0]).val();
         if (!id) return true;
 
-        var count = $('tbody .check_item:checked', dataTable).length;
-
-        //If ctrl is hold down or there is already some item selected
-        //then just select.
-        if (info_action){
-            if (e.ctrlKey || count >= 1)
+        if (info_action)
+        {
+            //If ctrl is hold down, make check_box click
+            if (e.ctrlKey || e.metaKey || $(e.target).is('input'))
+            {
                 $('.check_item',this).trigger('click');
-            else {
+            }
+            else
+            {
                 popDialogLoading();
-                Sunstone.runAction(info_action,id)
+                Sunstone.runAction(info_action,id);
+
+                // Take care of the coloring business
+                // (and the checking, do not forget the checking)
+                $('tbody input.check_item',$(this).parents('table')).removeAttr('checked');
+                $('.check_item',this).click();
+                $('td',$(this).parents('table')).removeClass('markrowchecked');
+
+                if(last_selected_row)
+                    last_selected_row.children().each(function(){$(this).removeClass('markrowselected');});
+                last_selected_row = $("td:first", this).parent();
+                $("td:first", this).parent().children().each(function(){$(this).addClass('markrowselected');});
             };
-        } else {
+        }
+        else
+        {
             $('.check_item',this).trigger('click');
         };
 
@@ -965,37 +1107,6 @@ function setPermissionsTable(resource,context){
         $('.other_a',context).attr('checked','checked');
 };
 
-//Returns an octet given a permission table with checkboxes
-function buildOctet(permTable){
-    var owner=0;
-    var group=0;
-    var other=0;
-
-    if ($('.owner_u',permTable).is(':checked'))
-        owner+=4;
-    if ($('.owner_m',permTable).is(':checked'))
-        owner+=2;
-    if ($('.owner_a',permTable).is(':checked'))
-        owner+=1;
-
-    if ($('.group_u',permTable).is(':checked'))
-        group+=4;
-    if ($('.group_m',permTable).is(':checked'))
-        group+=2;
-    if ($('.group_a',permTable).is(':checked'))
-        group+=1;
-
-    if ($('.other_u',permTable).is(':checked'))
-        other+=4;
-    if ($('.other_m',permTable).is(':checked'))
-        other+=2;
-    if ($('.other_a',permTable).is(':checked'))
-        other+=1;
-
-    return ""+owner+group+other;
-};
-
-
 // Sets up a dialog to edit and update user and group quotas
 // Called from user/group plugins
 function setupQuotasDialog(dialog){
@@ -1003,14 +1114,15 @@ function setupQuotasDialog(dialog){
     var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
 
     //Prepare jquery dialog
-    dialog.dialog({
-        autoOpen: false,
-        modal:true,
-        width: 740,
-        height: height
-    });
+    //dialog.dialog({
+    //    autoOpen: false,
+    //    modal:true,
+    //    width: 740,
+    //    height: height
+    //});
+    dialog.addClass("reveal-modal xlarge")
 
-    $('button',dialog).button();
+    //$('button',dialog).button();
     $('#vm_quota,#datastore_quota,#image_quota,#network_quota',dialog).hide();
 
     $('#quota_types input',dialog).click(function(){
@@ -1064,7 +1176,7 @@ function setupQuotasDialog(dialog){
         var action = $('div.form_buttons button',this).val();
         var sel_elems = SunstoneCfg["actions"][action].elements();
         Sunstone.runAction(action,sel_elems,obj);
-        dialog.dialog('close');
+        dialog.trigger('reveal:close');
         return false;
     });
 }
@@ -1083,7 +1195,9 @@ function popUpQuotasDialog(dialog, resource, sel_elems){
         Sunstone.runAction(resource + '.fetch_quotas',id);
     };
 
-    dialog.dialog('open');
+    $('input[value="vm"]', dialog).click();
+
+    dialog.reveal();
 }
 
 
@@ -1190,21 +1304,21 @@ function quotaListItem(quota_json){
         '</td><td style="width:100%;"><pre style="margin:0;">';
     switch(quota_json.TYPE){
     case "VM":
-        str +=  'VMs: ' + quota_json.VMS + (quota_json.VMS_USED ? ' (' + quota_json.VMS_USED + '). ' : ". ") +
-               'Memory: ' + quota_json.MEMORY + (quota_json.MEMORY_USED ? ' MB (' + quota_json.MEMORY_USED + ' MB). ' : " MB. ") +
+        str +=  'VMs: ' + quota_json.VMS + (quota_json.VMS_USED ? ' (' + quota_json.VMS_USED + '). ' : ". ") + '<br>' +
+               'Memory: ' + quota_json.MEMORY + (quota_json.MEMORY_USED ? ' MB (' + quota_json.MEMORY_USED + ' MB). ' : " MB. ") + '<br>' +
                'CPU: ' + quota_json.CPU +  (quota_json.CPU_USED ? ' (' + quota_json.CPU_USED + '). ' : ". ");
         break;
     case "DATASTORE":
-        str +=  'ID/Name: ' + getDatastoreName(quota_json.ID) + '. ' +
-               'Size: ' + quota_json.SIZE +  (quota_json.SIZE_USED ? ' MB (' + quota_json.SIZE_USED + ' MB). ' : " MB. ") +
+        str +=  'ID/Name: ' + getDatastoreName(quota_json.ID) + '. ' + '<br>' +
+               'Size: ' + quota_json.SIZE +  (quota_json.SIZE_USED ? ' MB (' + quota_json.SIZE_USED + ' MB). ' : " MB. ") + '<br>' +
                'Images: ' + quota_json.IMAGES +  (quota_json.IMAGES_USED ? ' (' + quota_json.IMAGES_USED + '). ' : ".");
         break;
     case "IMAGE":
-        str +=  'ID/Name: ' + getImageName(quota_json.ID) + '. ' +
+        str +=  'ID/Name: ' + getImageName(quota_json.ID) + '. ' + '<br>' +
                'RVMs: ' + quota_json.RVMS +  (quota_json.RVMS_USED ? ' (' + quota_json.RVMS_USED + '). ' : ". ");
         break;
     case "NETWORK":
-        str +=  'ID/Name: ' + getVNetName(quota_json.ID) + '. ' +
+        str +=  'ID/Name: ' + getVNetName(quota_json.ID) + '. ' + '<br>' +
                'Leases: ' + quota_json.LEASES +  (quota_json.LEASES_USED ? ' (' + quota_json.LEASES_USED + '). ': ". ");
         break;
     }
@@ -1217,7 +1331,7 @@ function quotaListItem(quota_json){
 */
 function progressBar(value, opts){
     if (value > 100) value = 100;
-    
+
     if (!opts) opts = {};
 
     if (!opts.width) opts.width = 'auto';
@@ -1262,3 +1376,1037 @@ function loadAccounting(resource, id, graphs, options){
         Sunstone.runAction(resource+".accounting", id, graph_cfg);
     };
 }
+
+// Convert from hash to string
+function convert_template_to_string(template_json,unshown_values)
+{
+    if (unshown_values)
+       template_json = $.extend({}, template_json, unshown_values);
+
+
+    var template_str = "\n";
+    $.each(template_json, function(key, value)       
+    {
+        // value can be an array
+        if (!value) return true;
+        if (value.constructor == Array)
+        {
+            var it=null;
+            $.each(value, function(index, element) 
+            {
+                if (!element) return true;
+               // current value can be an object
+               if (typeof element == 'object')
+               {
+                    template_str+=key+"=[";
+                    for(var current_key in element)
+                    {
+                        template_str+=current_key+"=\""+element[current_key]+"\",";
+                    }
+                    template_str=template_str.substring(0,template_str.length-1);
+                    template_str+="]\n";
+               }
+               else // or a string
+               {
+                 template_str=template_str+key+"=\""+ element +"\"\n";
+               }
+            })
+        }
+        else // or a single value
+        {
+            // which in turn can be an object
+               if (typeof value == 'object')
+               {
+                    template_str+=key+"=[";
+                    for(var current_key in value)
+                    {
+                        template_str+=current_key+"=\""+value[current_key]+"\",";
+                    }
+                    template_str=template_str.substring(0,template_str.length-1);
+                    template_str+="]\n";
+               }
+               else // or a string
+               {
+                  template_str=template_str+key+"=\""+ value+"\"\n";
+               }
+        }
+    })
+
+    return template_str;
+}
+
+// Create the extended template table (with listeners)
+function insert_extended_template_table(template_json,resource_type,resource_id,table_name,unshown_values)
+{
+    var str = '<table id="'+resource_type.toLowerCase()+'_template_table" class="info_table twelve datatable extended_table">\
+                 <thead>\
+                   <tr>\
+                     <th colspan="4">' +
+                      table_name +
+                     '</th>\
+                   </tr>\
+                  </thead>\
+                  <tr>\
+                    <td class="key_td"><input type="text" name="new_key" id="new_key" /></td>\
+                    <td class="value_td"><input type="text" name="new_value" id="new_value" /></td>\
+                    <td colspan="2" class=""><button type="button" id="button_add_value" class="button small secondary">'+tr("Add")+'</button>\</td>\
+                  </tr>' + fromJSONtoHTMLTable(template_json,
+                                               resource_type,
+                                               resource_id) +
+                 '</table>'
+
+    // Remove previous listeners
+    $("#new_key").die();
+    $("#new_value").die();
+    $("#new_value_vectorial").die();
+    $("#div_minus").die();
+    $("#div_edit").die();
+    $(".input_edit_value").die();
+    $("#div_edit_vectorial").die();
+    $(".input_edit_value_vectorial").die();
+    $("#div_minus_vectorial").die();
+    $("#button_add_value").die();
+    $("#button_add_value_vectorial").die();
+    $("#div_add_vectorial").die();
+
+    // Add listener for add key and add value for Extended Template
+    $('#button_add_value').live("click", function() {
+        if ( $('#new_value').val() != "" && $('#new_key').val() != "" )
+        {
+            var template_json_bk = $.extend({}, template_json);
+            template_json[$.trim($('#new_key').val())] = $.trim($('#new_value').val());
+            template_str  = convert_template_to_string(template_json,unshown_values);
+
+            Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
+            template_json = template_json_bk;
+        }
+    });
+
+    // Capture the enter key
+    $('#new_value').live("keypress", function(e) {
+          var ev = e || window.event;
+          var key = ev.keyCode;
+
+          if (key == 13)
+          {
+             //Get the button the user wants to have clicked
+             $('#button_add_value').click();
+             ev.preventDefault();
+          }
+    })
+
+    // Listener for single values
+
+    // Listener for key,value pair remove action
+    $("#div_minus").live("click", function() {
+        // Remove div_minus_ from the id
+        field               = this.firstElementChild.id.substring(10,this.firstElementChild.id.length);
+        var list_of_classes = this.firstElementChild.className.split(" ");
+        var ocurrence=null;
+
+        if (list_of_classes.length!=1)
+        {
+                $.each(list_of_classes, function(index, value) {
+                    if (value.match(/^ocurrence_/))
+                        ocurrence=value.substring(10,value.length);;
+                });
+        }
+
+        // Erase the value from the template
+        if(ocurrence!=null)
+            template_json[field].splice(ocurrence,1);
+        else
+            delete template_json[field];
+
+        template_str = convert_template_to_string(template_json,unshown_values);
+
+        // Let OpenNebula know
+        Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
+    });
+
+    // Listener for key,value pair edit action
+    $("#div_edit").live("click", function() {
+        var key_str=this.firstElementChild.id.substring(9,this.firstElementChild.id.length);
+
+        var value_str = $("#value_td_input_"+key_str).text();
+        $("#value_td_input_"+key_str).html('<input class="input_edit_value" id="input_edit_'+key_str+'" type="text" value="'+value_str+'"/>');
+
+    });
+
+     $(".input_edit_value").live("change", function() {
+        var key_str          = $.trim(this.id.substring(11,this.id.length));
+        var value_str        = $.trim(this.value);
+        var template_json_bk = $.extend({}, template_json);
+
+        delete template_json[key_str];
+        template_json[key_str]=value_str;
+
+        template_str = convert_template_to_string(template_json,unshown_values);
+
+        // Let OpenNebula know
+        Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
+
+        template_json = template_json_bk;
+    });
+
+    // Listeners for vectorial attributes
+    // Listener for key,value pair edit action for subelement of vectorial key
+    $("#div_edit_vectorial").live("click", function() {
+        var key_str         = $.trim(this.firstElementChild.id.substring(9,this.firstElementChild.id.length));
+        var list_of_classes = this.firstElementChild.className.split(" ");
+        var ocurrence       = " ";
+        var vectorial_key   = null;
+
+        if (list_of_classes.length!=1)
+        {
+                $.each(list_of_classes, function(index, value) {
+                    if (value.match(/^ocurrence_/))
+                        ocurrence+=value+" ";
+                });
+        }
+
+        if (list_of_classes.length!=1)
+        {
+                $.each(list_of_classes, function(index, value) {
+                    if (value.match(/^vectorial_key_/))
+                        vectorial_key=value;
+                });
+        }
+
+
+        if (ocurrence!=" ")
+        {
+           var value_str = $.trim($(".value_td_input_"+key_str+"."+ocurrence.substring(1,ocurrence.length-1)+"."+vectorial_key).text());
+           $(".value_td_input_"+key_str+"."+ocurrence.substring(1,ocurrence.length-1)+"."+vectorial_key).html('<input class="input_edit_value_vectorial'+ocurrence+vectorial_key+'" id="input_edit_'+key_str+'" type="text" value="'+value_str+'"/>');
+
+        }
+        else
+        {
+           var value_str = $.trim($(".value_td_input_"+key_str+"."+vectorial_key).text());
+           $(".value_td_input_"+key_str+"."+vectorial_key).html('<input class="input_edit_value_vectorial'+ocurrence+vectorial_key+'" id="input_edit_'+key_str+'" type="text" value="'+value_str+'"/>');
+        }
+
+    });
+
+     $(".input_edit_value_vectorial").live("change", function() {
+        var key_str          = $.trim(this.id.substring(11,this.id.length));
+        var value_str        = $.trim(this.value);
+        var template_json_bk = $.extend({}, template_json);
+
+        var list_of_classes  = this.className.split(" ");
+        var ocurrence        = null;
+        var vectorial_key    = null;
+
+        if (list_of_classes.length!=1)
+        {
+                $.each(list_of_classes, function(index, value) {
+                    if (value.match(/^ocurrence_/))
+                        ocurrence=value.substring(10,value.length);
+                });
+        }
+
+        if (list_of_classes.length!=1)
+        {
+                $.each(list_of_classes, function(index, value) {
+                    if (value.match(/^vectorial_key_/))
+                        vectorial_key=value.substring(14,value.length);
+                });
+        }
+
+        if (ocurrence!=null)
+            template_json[vectorial_key][ocurrence][key_str]=value_str;
+        else
+            template_json[vectorial_key][key_str]=value_str;
+
+        template_str = convert_template_to_string(template_json,unshown_values);
+
+        // Let OpenNebula know
+        Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
+
+        template_json = template_json_bk;
+    });
+
+    // Listener for key,value pair remove action
+    $("#div_minus_vectorial").live("click", function() {
+        // Remove div_minus_ from the id
+        var field           = this.firstElementChild.id.substring(10,this.firstElementChild.id.length);
+        var list_of_classes = this.firstElementChild.className.split(" ");
+        var ocurrence       = null;
+        var vectorial_key   = null;
+
+        if (list_of_classes.length!=1)
+        {
+                $.each(list_of_classes, function(index, value) {
+                    if (value.match(/^ocurrence_/))
+                        ocurrence=value.substring(10,value.length);
+                });
+        }
+
+        if (list_of_classes.length!=1)
+        {
+                $.each(list_of_classes, function(index, value) {
+                    if (value.match(/^vectorial_key_/))
+                        vectorial_key=value.substring(14,value.length);
+                });
+        }
+
+        // Erase the value from the template
+        if(ocurrence!=null)
+            delete template_json[vectorial_key][ocurrence][field];
+        else
+            delete template_json[vectorial_key][field];
+
+        template_str = convert_template_to_string(template_json,unshown_values);
+
+        // Let OpenNebula know
+        Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
+    });
+
+    // Listener for vectorial key,value pair add action
+    $("#div_add_vectorial").live("click", function() {
+        if (!$('#button_add_value_vectorial').html())
+        {
+            var field           = this.firstElementChild.id.substring(18,this.firstElementChild.id.length);
+            var list_of_classes = this.firstElementChild.className.split(" ");
+            var ocurrence       = null;
+            var vectorial_key   = null;
+
+            if (list_of_classes.length!=1)
+            {
+                $.each(list_of_classes, function(index, value) {
+                    if (value.match(/^ocurrence_/))
+                        ocurrence=value;
+                });
+            }
+
+            if (list_of_classes.length!=1)
+            {
+                $.each(list_of_classes, function(index, value) {
+                    if (value.match(/^vectorial_key_/))
+                        vectorial_key=value;
+                });
+            }
+
+
+            $(this).parent().parent().after('<tr>\
+                                              <td class="key_td"><input type="text" style="text-align:center" name="new_key_vectorial" id="new_key_vectorial" /></td>\
+                                              <td class="value_td"><input type="text" name="new_value" id="new_value_vectorial" /></td>\
+                                              <td class=""><button class="'+vectorial_key+" "+ocurrence+'" id="button_add_value_vectorial">'+tr("Add")+'</button>\</td>\
+                                             </tr>');
+        }
+    });
+
+    // Add listener for add key and add value for Extended Template
+    $('#button_add_value_vectorial').live("click", function() {
+        if ( $('#new_value_vectorial').val() != "" && $('#new_key_vectorial').val() != "" )
+        {
+            var list_of_classes  = this.className.split(" ");
+            var ocurrence        = null;
+            var vectorial_key    = null;
+            var template_json_bk = $.extend({}, template_json);
+
+            if (list_of_classes.length!=1)
+            {
+                $.each(list_of_classes, function(index, value) {
+                    if (value.match(/^vectorial_key_/))
+                        vectorial_key=value;
+                });
+            }
+
+            if (list_of_classes.length!=1)
+            {
+                $.each(list_of_classes, function(index, value) {
+                    if (value.match(/^ocurrence_/))
+                        ocurrence=value;
+                });
+            }
+
+            vectorial_key=vectorial_key.substring(14,vectorial_key.length);
+
+            if (ocurrence!=null)
+            {
+                ocurrence=ocurrence.substring(10,ocurrence.length);
+                template_json[vectorial_key][ocurrence][$('#new_key_vectorial').val()] = $.trim($('#new_value_vectorial').val());
+            }
+            else
+            {
+                template_json[vectorial_key][$('#new_key_vectorial').val()] = $.trim($('#new_value_vectorial').val());
+            }
+
+            template_str  = convert_template_to_string(template_json,unshown_values);
+
+            Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
+            // This avoids to get a messed template if the update fails
+            template_json = template_json_bk;
+        }
+    });
+
+    // Capture the enter key
+    $('#new_value_vectorial').live("keypress", function(e) {
+          var ev = e || window.event;
+          var key = ev.keyCode;
+
+          if (key == 13)
+          {
+             //Get the button the user wants to have clicked
+             $('#button_add_value_vectorial').click();
+             ev.preventDefault();
+          }
+    })
+
+
+
+    return str;
+}
+
+// Returns an HTML string with the json keys and values
+function fromJSONtoHTMLTable(template_json,resource_type,resource_id,vectorial,ocurrence){
+    var str = ""
+    if (!template_json){ return "Not defined";}
+    var field = null;
+
+    // Iterate for each value in the JSON object
+    for (field in template_json)
+    {
+        str += fromJSONtoHTMLRow(field,
+                                 template_json[field],
+                                 resource_type,
+                                 resource_id,
+                                 vectorial,
+                                 ocurrence);
+    }
+
+    return str;
+}
+
+
+// Helper for fromJSONtoHTMLTable function
+function fromJSONtoHTMLRow(field,value,resource_type,resource_id, vectorial_key,ocurrence){
+    var str = "";
+
+    // value can be an array
+    if (value.constructor == Array)
+    {
+        var it=null;
+
+        for (it = 0; it < value.length; ++it)
+        {
+           var current_value = value[it];
+
+           // if value is object, we are dealing with a vectorial value
+           if (typeof current_value == 'object')
+           {
+               str += '<tr id="'+resource_type.toLowerCase()+'_template_table_'+field+'">\
+                           <td class="key_td key_vectorial_td">'+tr(field)+'</td>\
+                           <td class="value_vectorial_td"></td>\
+                           <td>\
+                           <div id="div_add_vectorial">\
+                             <a id="div_add_vectorial_'+field+'" class="add_vectorial_a ocurrence_'+it+' vectorial_key_'+field+'" href="#"><i class="icon-plus-sign"/></a>\
+                           </div>\
+                         </td>\
+                           <td>\
+                           <div id="div_minus">\
+                             <a id="div_minus_'+field+'" class="remove_vectorial_x ocurrence_'+it+'" href="#"><i class="icon-edit"/><i class="icon-trash"/></a>\
+                           </div>\
+                         </td>'
+
+
+               str += fromJSONtoHTMLTable(current_value,
+                                          resource_type,
+                                          resource_id,
+                                          field,
+                                          it);
+           }
+           else
+           {
+               // if it is a single value, create the row for this occurence of the key
+               str += fromJSONtoHTMLRow(field,
+                                        current_value,
+                                        resource_type,
+                                        resource_id,
+                                        false,
+                                        it);
+           }
+        }
+    }
+    else // or value can be a string
+    {
+        var ocurrence_str="";
+        if (ocurrence!=null)
+            ocurrence_str=" ocurrence_"+ocurrence;
+
+        // If it comes from a vectorial daddy key, then reflect so in the html
+        if (vectorial_key)
+        {
+            str += '<tr>\
+                     <td class="key_td key_vectorial_td" style="text-align:center">'+tr(field)+'</td>\
+                     <td class="value_td value_vectorial_td value_td_input_'+field+ocurrence_str+' vectorial_key_'+vectorial_key+'" id="value_td_input_'+field+'">'+value+'</td>\
+                     <td>\
+                       <div id="div_edit_vectorial">\
+                         <a id="div_edit_'+field+'" class="edit_e'+ocurrence_str+' vectorial_key_'+vectorial_key+'" href="#"><i class="icon-edit"/></a>\
+                       </div>\
+                     </td>\
+                     <td>\
+                       <div id="div_minus_vectorial">\
+                         <a id="div_minus_'+field+'" class="remove_x'+ocurrence_str+' vectorial_key_'+vectorial_key+'" href="#"><i class="icon-trash"/></a>\
+                       </div>\
+                     </td>\
+                   </tr>';
+        }
+        else
+        {
+           // If it is not comming from a vectorial daddy key, it can still vectorial itself
+           if (typeof value == 'object')
+           {
+               str += '<tr id="'+resource_type.toLowerCase()+'_template_table_'+field+'">\
+                           <td class="key_td key_vectorial_td">'+tr(field)+'</td>\
+                           <td class="value_vectorial_td"></td>\
+                           <td>\
+                           <div id="div_add_vectorial">\
+                             <a id="div_add_vectorial_'+field+'" class="add_vectorial_a'+ocurrence_str+' vectorial_key_'+field+'" href="#"><i class="icon-plus-sign"/></a>\
+                           </div>\
+                         </td>\
+                           <td>\
+                           <div id="div_minus">\
+                             <a id="div_minus_'+field+'" class="remove_vectorial_x'+ocurrence_str+'" href="#"><i class="icon-trash"/></a>\
+                           </div>\
+                         </td>'
+               str += fromJSONtoHTMLTable(value,
+                          resource_type,
+                          resource_id,
+                          field,
+                          ocurrence);
+           }
+           else // or, just a single value
+           {
+                str += '<tr>\
+                         <td class="key_td">'+tr(field)+'</td>\
+                         <td class="value_td" id="value_td_input_'+field+'">'+value+'</td>\
+                         <td>\
+                           <div id="div_edit">\
+                             <a id="div_edit_'+field+'" class="edit_e'+ocurrence_str+'" href="#"><i class="icon-edit"/></a>\
+                           </div>\
+                         </td>\
+                         <td>\
+                           <div id="div_minus">\
+                             <a id="div_minus_'+field+'" class="remove_x'+ocurrence_str+'" href="#"><i class="icon-trash"/></a>\
+                           </div>\
+                         </td>\
+                       </tr>';
+            }
+        }
+
+    }
+
+
+    return str;
+}
+
+//Returns an octet given a permission table with checkboxes
+function buildOctet(permTable){
+    var owner=0;
+    var group=0;
+    var other=0;
+
+    if ($('.owner_u',permTable).is(':checked'))
+        owner+=4;
+    if ($('.owner_m',permTable).is(':checked'))
+        owner+=2;
+    if ($('.owner_a',permTable).is(':checked'))
+        owner+=1;
+
+    if ($('.group_u',permTable).is(':checked'))
+        group+=4;
+    if ($('.group_m',permTable).is(':checked'))
+        group+=2;
+    if ($('.group_a',permTable).is(':checked'))
+        group+=1;
+
+    if ($('.other_u',permTable).is(':checked'))
+        other+=4;
+    if ($('.other_m',permTable).is(':checked'))
+        other+=2;
+    if ($('.other_a',permTable).is(':checked'))
+        other+=1;
+
+    return ""+owner+group+other;
+};
+
+
+// Returns HTML with listeners to control permissions
+function insert_permissions_table(resource_type,resource_id, owner, group, vm_uid, vm_gid){
+     var str ='<table class="'+resource_type.toLowerCase()+'_permissions_table twelve datatable extended_table">\
+                     <thead><tr>\
+                         <th style="width:130px">'+tr("Permissions")+':</th>\
+                         <th style="width:40px;text-align:center;">'+tr("Use")+'</th>\
+                         <th style="width:40px;text-align:center;">'+tr("Manage")+'</th>\
+                         <th style="width:40px;text-align:center;">'+tr("Admin")+'</th></tr></thead>\
+                     <tr>\
+                         <td>'+tr("Owner")+'</td>\
+                         <td style="text-align:center"><input type="checkbox" class="permission_check owner_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" class="permission_check owner_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" class="permission_check owner_a" /></td>\
+                     </tr>\
+                     <tr>\
+                         <td>'+tr("Group")+'</td>\
+                         <td style="text-align:center"><input type="checkbox" class="permission_check group_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" class="permission_check group_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" class="permission_check group_a" /></td>\
+                     </tr>\
+                     <tr>\
+                         <td>'+tr("Other")+'</td>\
+                         <td style="text-align:center"><input type="checkbox" class="permission_check other_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" class="permission_check other_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" class="permission_check other_a" /></td>\
+                     </tr>'
+
+     if (mustBeAdmin())
+     {
+        str += '<thead><tr><th colspan="4" style="width:130px">'+tr("Ownership")+'</th>\</tr></thead>\
+                     <tr>\
+                         <td>'+tr("Owner")+'</td>\
+                         <td colspan="2" id="value_td_owner">'+owner+'</td>\
+                          <td><div id="div_edit_chg_owner">\
+                                 <a id="div_edit_chg_owner_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                              </div>\
+                          </td>\
+                     </tr>\
+                     <tr>\
+                         <td>'+tr("Group")+'</td>\
+                         <td colspan="2" id="value_td_group">'+group+'</td>\
+                          <td><div id="div_edit_chg_group">\
+                                 <a id="div_edit_chg_group_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                              </div>\
+                          </td>\
+                     </tr>\
+                   </table>'
+
+        // Handlers for chown
+        $("#div_edit_chg_owner_link").die();
+        $("#user_confirm_select").die();
+
+        // Listener for key,value pair edit action
+        $("#div_edit_chg_owner_link").live("click", function() {
+            var value_str = $("#value_td_owner").text();
+            var select_str='<select id="user_confirm_select">';
+            select_str += makeSelectOptions(dataTable_users,1,2,[],[],true);
+            select_str+="</select>";
+            $("#value_td_owner").html(select_str);
+            $("select#user_confirm_select").val(vm_uid);
+        });
+
+        $("#user_confirm_select").live("change", function() {
+            var value_str = $('select#user_confirm_select').val();
+            if(value_str!="")
+            {
+                // Let OpenNebula know
+                var resource_struct = new Array();
+                resource_struct[0]  = resource_id;
+                Sunstone.runAction(resource_type+".chown",resource_struct,value_str);
+                Sunstone.runAction(resource_type+".showinfo",resource_id);
+            }
+        });
+
+        // Handlers for chgrp
+        $("#div_edit_chg_group_link").die();
+        $("#group_confirm_select").die();
+
+        // Listener for key,value pair edit action
+        $("#div_edit_chg_group_link").live("click", function() {
+            var value_str = $("#value_td_group").text();
+            var select_str='<select id="group_confirm_select">';
+            select_str += makeSelectOptions(dataTable_groups,1,2,[],[],true);
+            select_str+="</select>";
+            $("#value_td_group").html(select_str);
+            $("select#group_confirm_select").val(vm_gid);
+        });
+
+        $("#group_confirm_select").live("change", function() {
+            var value_str = $('select#group_confirm_select').val();
+            if(value_str!="")
+            {
+                // Let OpenNebula know
+                var resource_struct = new Array();
+                resource_struct[0]  = resource_id;
+                Sunstone.runAction(resource_type+".chgrp",resource_struct,value_str);
+                Sunstone.runAction(resource_type+".showinfo",resource_id);
+            }
+        });
+    }
+
+    $(".permission_check").die();
+    $(".permission_check").live('change',function(){
+        var permissions_table  = $("."+resource_type.toLowerCase()+"_permissions_table");
+        var permissions_octect = { octet : buildOctet(permissions_table) };
+
+        Sunstone.runAction(resource_type+".chmod",resource_id,permissions_octect);
+    });
+
+    return str;
+
+}
+
+function insert_cluster_dropdown(resource_type, resource_id, cluster_value, cluster_id){
+    var str =  '<td class="key_td">' + tr("Cluster") + '</td>\
+                <td class="value_td_cluster">'+(cluster_value.length ? cluster_value : "-")+'</td>\
+                <td>\
+                  <div id="div_edit_chg_cluster">\
+                     <a id="div_edit_chg_cluster_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                  </div>\
+                </td>';
+
+    $("#div_edit_chg_cluster_link").die();
+    $("#cluster_confirm_select").die();
+
+
+    // Listener for key,value pair edit action
+    $("#div_edit_chg_cluster_link").live("click", function() {
+        var value_str = $(".value_td_cluster").text();
+        var select_str='<select style="margin: 10px 0;" id="cluster_confirm_select">';
+        select_str+='<option elem_id="-" value="-1">none (id:-)</option>';
+        select_str += makeSelectOptions(dataTable_clusters,1,2,[],[],true);
+        select_str+="</select>";
+        $(".value_td_cluster").html(select_str);
+        $("select#cluster_confirm_select").val(cluster_id);
+    });
+
+    $("#cluster_confirm_select").live("change", function() {
+        var value_str = $('select#cluster_confirm_select').val();
+        if(value_str!="")
+        {
+            // Let OpenNebula know
+            var resource_struct = new Array();
+            resource_struct[0]  = resource_id;
+            Sunstone.runAction(resource_type+".addtocluster",resource_struct,value_str);
+            Sunstone.runAction(resource_type+".showinfo",resource_id);
+        }
+    });
+
+    return str;
+}
+
+function insert_group_dropdown(resource_type, resource_id, group_value, group_id){
+    var str =  '<td class="key_td">' + tr("Group") + '</td>\
+                <td class="value_td_group">'+ group_value +'</td>\
+                <td>\
+                  <div id="div_edit_chg_group">\
+                     <a id="div_edit_chg_group_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                  </div>\
+                </td>';
+
+    $("#div_edit_chg_group_link").die();
+    $("#group_confirm_select").die();
+
+
+    // Listener for key,value pair edit action
+    $("#div_edit_chg_group_link").live("click", function() {
+        var value_str = $(".value_td_group").text();
+        var select_str='<select style="margin: 10px 0;" id="group_confirm_select">';
+        select_str += makeSelectOptions(dataTable_groups,1,2,[],[],true);
+        select_str+="</select>";
+        $(".value_td_group").html(select_str);
+        $("select#group_confirm_select").val(group_id);
+    });
+
+    $("#group_confirm_select").live("change", function() {
+        var value_str = $('select#group_confirm_select').val();
+        if(value_str!="")
+        {
+            // Let OpenNebula know
+            var resource_struct = new Array();
+            resource_struct[0]  = resource_id;
+            Sunstone.runAction(resource_type+".chgrp",resource_struct,value_str);
+            Sunstone.runAction(resource_type+".showinfo",resource_id);
+        }
+    });
+
+    return str;
+}
+
+/*
+ * Helpers for quotas
+ */
+
+function quotaBar(usage, limit, default_limit){
+    var int_usage = parseInt(usage, 10);
+    var int_limit = quotaIntLimit(limit, default_limit);
+    return quotaBarHtml(int_usage, int_limit);
+}
+
+function quotaBarMB(usage, limit, default_limit){
+    var int_usage = parseInt(usage, 10);
+    var int_limit = quotaIntLimit(limit, default_limit);
+
+    info_str = humanize_size(int_usage * 1024)+' / '
+            +((int_limit > 0) ? humanize_size(int_limit * 1024) : '-')
+
+    return quotaBarHtml(int_usage, int_limit, info_str);
+}
+
+function quotaBarFloat(usage, limit, default_limit){
+    var float_usage = parseFloat(usage, 10);
+    var float_limit = quotaFloatLimit(limit, default_limit);
+    return quotaBarHtml(float_usage, float_limit);
+}
+
+function quotaBarHtml(usage, limit, info_str){
+    percentage = 0;
+
+    if (limit > 0){
+        percentage = (usage / limit) * 100;
+
+        if (percentage > 100){
+            percentage = 100;
+        }
+    }
+
+    info_str = info_str || ( usage+' / '+((limit > 0) ? limit : '-') );
+
+    html = '<div class="progress-container"><div class="progress secondary radius"><span class="meter" style="width: '
+        +percentage+'%"></span></div><div class="progress-text">'+info_str+'</div></div>';
+
+    return html;
+}
+
+function quotaIntLimit(limit, default_limit){
+    i_limit = parseInt(limit, 10);
+    i_default_limit = parseInt(default_limit, 10);
+
+    if (i_limit == -1){
+        i_limit = i_default_limit;
+    }
+
+    if (isNaN(i_limit))
+    {
+        i_limit = 0;
+    }
+
+    return i_limit
+}
+
+function quotaFloatLimit(limit, default_limit){
+    f_limit = parseFloat(limit, 10);
+    f_default_limit = parseFloat(default_limit, 10);
+
+    if (f_limit == -1){
+        f_limit = f_default_limit;
+    }
+
+    if (isNaN(f_limit))
+    {
+        f_limit = 0;
+    }
+
+    return f_limit
+}
+
+/*
+ * jQuery Foundation Tooltips 2.0.2
+ * http://foundation.zurb.com
+ * Copyright 2012, ZURB
+ * Free to use under the MIT license.
+ * http://www.opensource.org/licenses/mit-license.php
+*/
+
+/*jslint unparam: true, browser: true, indent: 2 */
+
+;(function ($, window, undefined) {
+  'use strict';
+
+  var settings = {
+      bodyHeight : 0,
+      selector : '.has-tip',
+      additionalInheritableClasses : [],
+      tooltipClass : '.tooltip',
+      tipTemplate : function (selector, content) {
+        return '<span data-selector="' + selector + '" class="' + settings.tooltipClass.substring(1) + '">' + content + '<span class="nub"></span></span>';
+      }
+    },
+    methods = {
+      init : function (options) {
+        settings = $.extend(settings, options);
+
+        // alias the old targetClass option
+        settings.selector = settings.targetClass ? settings.targetClass : settings.selector;
+
+        return this.each(function () {
+          var $body = $('body');
+
+
+            $body.on('mouseenter.tooltip mouseleave.tooltip', settings.selector, function (e) {
+              var $this = $(this);
+
+              if (e.type === 'mouseenter') {
+                methods.showOrCreateTip($this);
+              } else if (e.type === 'mouseleave') {
+                methods.hide($this);
+              }
+            });
+
+          $(this).data('tooltips', true);
+
+        });
+      },
+      showOrCreateTip : function ($target, content) {
+        var $tip = methods.getTip($target);
+
+        if ($tip && $tip.length > 0) {
+          methods.show($target);
+        } else {
+          methods.create($target, content);
+        }
+      },
+      getTip : function ($target) {
+        var selector = methods.selector($target),
+          tip = null;
+
+        if (selector) {
+          tip = $('span[data-selector=' + selector + ']' + settings.tooltipClass);
+        }
+        return (tip.length > 0) ? tip : false;
+      },
+      selector : function ($target) {
+        var id = $target.attr('id'),
+          dataSelector = $target.data('selector');
+
+        if (id === undefined && dataSelector === undefined) {
+          dataSelector = 'tooltip' + Math.random().toString(36).substring(7);
+          $target.attr('data-selector', dataSelector);
+        }
+        return (id) ? id : dataSelector;
+      },
+      create : function ($target, content) {
+        var $tip = $(settings.tipTemplate(methods.selector($target),
+          $('<div>').html(content ? content : $target.attr('title')).html())),
+          classes = methods.inheritable_classes($target);
+
+        $tip.addClass(classes).appendTo('body');
+        $target.removeAttr('title');
+        methods.show($target);
+      },
+      reposition : function (target, tip, classes) {
+        var width, nub, nubHeight, nubWidth, column, objPos;
+
+        tip.css('visibility', 'hidden').show();
+
+        width = target.data('width');
+        nub = tip.children('.nub');
+        nubHeight = nub.outerHeight();
+        nubWidth = nub.outerWidth();
+
+        objPos = function (obj, top, right, bottom, left, width) {
+          return obj.css({
+            'top' : top,
+            'bottom' : bottom,
+            'left' : left,
+            'right' : right,
+            'max-width' : (width) ? width : 'auto'
+          }).end();
+        };
+
+        objPos(tip, (target.offset().top + target.outerHeight() + 10), 'auto', 'auto', target.offset().left, width);
+        objPos(nub, -nubHeight, 'auto', 'auto', 10);
+
+        if ($(window).width() < 767) {
+          column = target.closest('.columns');
+
+          if (column.length < 0) {
+            // if not using Foundation
+            column = $('body');
+          }
+          tip.width(column.outerWidth() - 25).css('left', 15).addClass('tip-override');
+          objPos(nub, -nubHeight, 'auto', 'auto', target.offset().left);
+        } else {
+          if (classes && classes.indexOf('tip-top') > -1) {
+            objPos(tip, (target.offset().top - tip.outerHeight() - nubHeight), 'auto', 'auto', target.offset().left, width)
+              .removeClass('tip-override');
+            objPos(nub, 'auto', 'auto', -nubHeight, 'auto');
+          } else if (classes && classes.indexOf('tip-left') > -1) {
+            objPos(tip, (target.offset().top + (target.outerHeight() / 2) - nubHeight), 'auto', 'auto', (target.offset().left - tip.outerWidth() - 10), width)
+              .removeClass('tip-override');
+            objPos(nub, (tip.outerHeight() / 2) - (nubHeight / 2), -nubHeight, 'auto', 'auto');
+          } else if (classes && classes.indexOf('tip-right') > -1) {
+            objPos(tip, (target.offset().top + (target.outerHeight() / 2) - nubHeight), 'auto', 'auto', (target.offset().left + target.outerWidth() + 10), width)
+              .removeClass('tip-override');
+            objPos(nub, (tip.outerHeight() / 2) - (nubHeight / 2), 'auto', 'auto', -nubHeight);
+          } else if (classes && classes.indexOf('tip-centered-top') > -1) {
+            objPos(tip, (target.offset().top - tip.outerHeight() - nubHeight), 'auto', 'auto', (target.offset().left + ((target.outerWidth() - tip.outerWidth()) / 2) ), width)
+              .removeClass('tip-override');
+            objPos(nub, 'auto', ((tip.outerWidth() / 2) -(nubHeight / 2)), -nubHeight, 'auto');
+          } else if (classes && classes.indexOf('tip-centered-bottom') > -1) {
+            objPos(tip, (target.offset().top + target.outerHeight() + 10), 'auto', 'auto', (target.offset().left + ((target.outerWidth() - tip.outerWidth()) / 2) ), width)
+              .removeClass('tip-override');
+            objPos(nub, -nubHeight, ((tip.outerWidth() / 2) -(nubHeight / 2)), 'auto', 'auto');
+          }
+        }
+        tip.css('visibility', 'visible').hide();
+      },
+      inheritable_classes : function (target) {
+        var inheritables = ['tip-top', 'tip-left', 'tip-bottom', 'tip-right', 'tip-centered-top', 'tip-centered-bottom', 'noradius'].concat(settings.additionalInheritableClasses),
+          classes = target.attr('class'),
+          filtered = classes ? $.map(classes.split(' '), function (el, i) {
+              if ($.inArray(el, inheritables) !== -1) {
+                return el;
+              }
+          }).join(' ') : '';
+
+        return $.trim(filtered);
+      },
+      show : function ($target) {
+        var $tip = methods.getTip($target);
+
+        methods.reposition($target, $tip, $target.attr('class'));
+        $tip.fadeIn(150);
+      },
+      hide : function ($target) {
+        var $tip = methods.getTip($target);
+
+        $tip.fadeOut(150);
+      },
+      reload : function () {
+        var $self = $(this);
+
+        return ($self.data('tooltips')) ? $self.foundationTooltips('destroy').foundationTooltips('init') : $self.foundationTooltips('init');
+      },
+      destroy : function () {
+        return this.each(function () {
+          $(window).off('.tooltip');
+          $(settings.selector).off('.tooltip');
+          $(settings.tooltipClass).each(function (i) {
+            $($(settings.selector).get(i)).attr('title', $(this).text());
+          }).remove();
+        });
+      }
+    };
+
+  $.fn.foundationTooltips = function (method) {
+    if (methods[method]) {
+      return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
+    } else if (typeof method === 'object' || !method) {
+      return methods.init.apply(this, arguments);
+    } else {
+      $.error('Method ' +  method + ' does not exist on jQuery.foundationTooltips');
+    }
+  };
+}(jQuery, this));
+
+;(function ($, window, undefined) {
+  'use strict';
+
+  $.fn.foundationAlerts = function (options) {
+    var settings = $.extend({
+      callback: $.noop
+    }, options);
+
+    $(document).on("click", ".alert-box a.close", function (e) {
+      e.preventDefault();
+      $(this).closest(".alert-box").fadeOut(function () {
+        $(this).remove();
+        // Do something else after the alert closes
+        settings.callback();
+      });
+    });
+
+  };
+
+})(jQuery, this);

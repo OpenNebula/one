@@ -24,31 +24,6 @@ function loadVNC(){
 }
 loadVNC();
 
-var vm_graphs = [
-    { title : tr("CPU"),
-      monitor_resources : "CPU",
-      humanize_figures : false,
-      history_length : VM_HISTORY_LENGTH
-    },
-    { title : tr("Memory"),
-      monitor_resources : "MEMORY",
-      humanize_figures : true,
-      history_length : VM_HISTORY_LENGTH
-    },
-    { title : tr("Network transmission"),
-      monitor_resources : "NET_TX",
-      humanize_figures : true,
-      convert_from_bytes : true,
-      history_length : VM_HISTORY_LENGTH
-    },
-    { title : tr("Network reception"),
-      monitor_resources : "NET_RX",
-      humanize_figures : true,
-      convert_from_bytes : true,
-      history_length : VM_HISTORY_LENGTH
-    }
-];
-
 var VNCstates=["RUNNING","SHUTDOWN","SHUTDOWN_POWEROFF","UNKNOWN","HOTPLUG","CANCEL","MIGRATE", "HOTPLUG_SNAPSHOT", "HOTPLUG_NIC", "HOTPLUG_SAVEAS", "HOTPLUG_SAVEAS_POWEROFF", "HOTPLUG_SAVEAS_SUSPENDED"];
 
 //Permanent storage for last value of aggregated network usage
@@ -60,14 +35,42 @@ var netUsage = {
 }
 
 var vms_tab_content = '\
-<h2><i class="icon-cloud"></i> '+tr("Virtual Machines")+'</h2>\
-<form id="virtualMachine_list" action="javascript:alert(\'js error!\');">\
-  <div class="action_blocks">\
+<form class="custom" id="virtualMachine_list" action="">\
+<div class="panel">\
+<div class="row">\
+  <div class="twelve columns">\
+    <h4 class="subheader header">\
+      <span class="header-resource">\
+        <i class="icon-cloud"></i> '+tr("Virtual Machines")+'\
+      </span>\
+      <span class="header-info">\
+        <span id="total_vms"/> <small>'+tr("TOTAL")+'</small>&emsp;\
+        <span id="active_vms"/> <small>'+tr("ACTIVE")+'</small>&emsp;\
+        <span id="off_vms"/> <small>'+tr("OFF")+'</small>&emsp;\
+        <span id="pending_vms"/> <small>'+tr("PENDING")+'</small>&emsp;\
+        <span id="failed_vms"/> <small>'+tr("FAILED")+'</small>\
+      </span>\
+      <span class="user-login">\
+      </span>\
+    </h4>\
   </div>\
-<table id="datatable_vmachines" class="display">\
+</div>\
+<div class="row">\
+  <div class="nine columns">\
+    <div class="action_blocks">\
+    </div>\
+  </div>\
+  <div class="three columns">\
+    <input id="vms_search" type="text" placeholder="Search" />\
+  </div>\
+</div>\
+</div>\
+  <div class="row">\
+    <div class="twelve columns">\
+<table id="datatable_vmachines" class="datatable twelve">\
   <thead>\
     <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
+      <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
       <th>'+tr("ID")+'</th>\
       <th>'+tr("Owner")+'</th>\
       <th>'+tr("Group")+'</th>\
@@ -78,7 +81,7 @@ var vms_tab_content = '\
       <th>'+tr("Host")+'</th>\
       <th>'+tr("IPs")+'</th>\
       <th>'+tr("Start Time")+'</th>\
-      <th>'+tr("VNC Access")+'</th>\
+      <th>'+tr("VNC")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyvmachines">\
@@ -98,80 +101,53 @@ var vms_tab_content = '\
 </div>\
 </form>';
 
-var create_vm_tmpl ='<form id="create_vm_form" action="">\
-  <fieldset>\
-        <div>\
-           <div>\
-             <label for="vm_name">'+tr("VM Name")+':</label>\
-             <input type="text" name="vm_name" id="vm_name" />\
-             <div class="tip">'+tr("Defaults to template name when emtpy")+'.</div>\
-           </div>\
-           <div>\
-             <label for="template_id">'+tr("Select template")+':</label>\
-             <select id="template_id">\
-             </select>\
-           </div>\
-           <div>\
-             <label for="vm_n_times">'+tr("Deploy # VMs")+':</label>\
-             <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
-             <div class="tip">'+tr("You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them")+'.</div>\
-           </div>\
+var create_vm_tmpl ='\
+        <div class="panel">\
+          <h3>\
+            <small id="create_vnet_header">'+tr("Create Virtual Network")+'</small>\
+          </h3>\
         </div>\
-        </fieldset>\
-        <fieldset>\
+        <form id="create_vm_form" action="">\
+          <div class="row centered">\
+              <div class="four columns">\
+                  <label class="inline right" for="vm_name">'+tr("VM Name")+':</label>\
+              </div>\
+              <div class="seven columns">\
+                  <input type="text" name="vm_name" id="vm_name" />\
+              </div>\
+              <div class="one columns">\
+                  <div class="tip">'+tr("Defaults to template name when emtpy")+'.</div>\
+              </div>\
+          </div>\
+          <div class="row centered">\
+              <div class="four columns">\
+                  <label class="inline right" for="template_id">'+tr("Select template")+':</label>\
+              </div>\
+              <div class="seven columns">\
+                 <select id="template_id">\
+                 </select>\
+              </div>\
+              <div class="one columns">\
+                  <div class=""></div>\
+              </div>\
+          </div>\
+          <div class="row centered">\
+              <div class="four columns">\
+                  <label class="inline right" for="vm_n_times">'+tr("Deploy # VMs")+':</label>\
+              </div>\
+              <div class="seven columns">\
+                  <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
+              </div>\
+              <div class="one columns">\
+                  <div class="tip">'+tr("You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them")+'.</div>\
+              </div>\
+          </div>\
+          <hr>\
         <div class="form_buttons">\
-           <button class="button" id="create_vm_proceed" value="VM.create">'+tr("Create")+'</button>\
-           <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
+           <button class="button radius right success" id="create_vm_proceed" value="VM.create">'+tr("Create")+'</button>\
+           <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
         </div>\
-</fieldset>\
-</form>';
-
-var update_vm_tmpl =
-   '<form action="javascript:alert(\'js error!\');">\
-         <h3 style="margin-bottom:10px;">'+tr("Please, choose and modify the virtual machine you want to update")+':</h3>\
-            <fieldset style="border-top:none;">\
-                 <label for="vm_template_update_select">'+tr("Select a VM")+':</label>\
-                 <select id="vm_template_update_select" name="vm_template_update_select"></select>\
-                 <div class="clear"></div>\
-                 <div>\
-                   <table class="permissions_table" style="padding:0 10px;">\
-                     <thead><tr>\
-                         <td style="width:130px">'+tr("Permissions")+':</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Use")+'</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Manage")+'</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Admin")+'</td></tr></thead>\
-                     <tr>\
-                         <td>'+tr("Owner")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="vm_owner_u" class="owner_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vm_owner_m" class="owner_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vm_owner_a" class="owner_a" /></td>\
-                     </tr>\
-                     <tr>\
-                         <td>'+tr("Group")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="vm_group_u" class="group_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vm_group_m" class="group_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vm_group_a" class="group_a" /></td>\
-                     </tr>\
-                     <tr>\
-                         <td>'+tr("Other")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="vm_other_u" class="other_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vm_other_m" class="other_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vm_other_a" class="other_a" /></td>\
-                     </tr>\
-                   </table>\
-                 </div>\
-<!--                 <label for="vnet_template_update_textarea">'+tr("Template")+':</label>\
-                 <div class="clear"></div>\
-                 <textarea id="vnet_template_update_textarea" style="width:100%; height:14em;"></textarea>\
--->\
-            </fieldset>\
-            <fieldset>\
-                 <div class="form_buttons">\
-                    <button class="button" id="vm_template_update_button" value="VM.update_template">\
-                       '+tr("Update")+'\
-                    </button>\
-                 </div>\
-            </fieldset>\
+<a class="close-reveal-modal">&#215;</a>\
 </form>';
 
 var vmachine_list_json = {};
@@ -196,11 +172,6 @@ var vm_actions = {
         call: popUpCreateVMDialog
     },
 
-    "VM.update_dialog" : {
-        type: "custom",
-        call: popUpVMTemplateUpdateDialog
-    },
-
     "VM.list" : {
         type: "list",
         call: OpenNebula.VM.list,
@@ -222,6 +193,52 @@ var vm_actions = {
         error: onError
     },
 
+    "VM.showdisks" : {
+        type: "single",
+        call: OpenNebula.VM.show,
+        callback: function(request, vm){
+          updateVMachineElement(request, vm);
+          updateVMDisksInfo(request, vm);
+        },
+        error: onError
+    },
+
+    "VM.shownics" : {
+        type: "single",
+        call: OpenNebula.VM.show,
+        callback: function(request, vm){
+          updateVMachineElement(request, vm);
+          updateVMNicsInfo(request, vm);
+        },
+        error: onError
+    },
+    "VM.showcapacity" : {
+        type: "single",
+        call: OpenNebula.VM.show,
+        callback: function(request, vm){
+          updateVMachineElement(request, vm);
+          updateVMCapacityInfo(request, vm);
+        },
+        error: onError
+    },
+    "VM.showsnapshots" : {
+        type: "single",
+        call: OpenNebula.VM.show,
+        callback: function(request, vm){
+          updateVMachineElement(request, vm);
+          updateVMSnapshotsInfo(request, vm);
+        },
+        error: onError
+    },
+    "VM.showscheduling" : {
+        type: "single",
+        call: OpenNebula.VM.show,
+        callback: function(request, vm){
+          updateVMachineElement(request, vm);
+          updateSchedulingInfo(request, vm);
+        },
+        error: onError
+    },
     "VM.refresh" : {
         type: "custom",
         call : function (){
@@ -357,7 +374,37 @@ var vm_actions = {
     "VM.saveas" : {
         type: "single",
         call: OpenNebula.VM.saveas,
-        callback: vmShow,
+        callback: function(request) {
+            Sunstone.runAction("VM.showdisks", request.request.data[0]);
+        },
+        error:onError,
+        notify: true
+    },
+
+    "VM.snapshot_create" : {
+        type: "single",
+        call: OpenNebula.VM.snapshot_create,
+        callback: function(request) {
+            Sunstone.runAction("VM.showsnapshots", request.request.data[0]);
+        },
+        error:onError,
+        notify: true
+    },
+    "VM.snapshot_revert" : {
+        type: "single",
+        call: OpenNebula.VM.snapshot_revert,
+        callback: function(request) {
+            Sunstone.runAction("VM.showsnapshots", request.request.data[0]);
+        },
+        error:onError,
+        notify: true
+    },
+    "VM.snapshot_delete" : {
+        type: "single",
+        call: OpenNebula.VM.snapshot_delete,
+        callback: function(request) {
+            Sunstone.runAction("VM.showsnapshots", request.request.data[0]);
+        },
         error:onError,
         notify: true
     },
@@ -403,10 +450,10 @@ var vm_actions = {
                 if (line.match(/\[E\]/)){
                     line = '<span class="vm_log_error">'+line+'</span>';
                 }
-                colored_log += line + "\n";
+                colored_log += line + "<br>";
             }
 
-            $('#vm_log_tab').html('<pre>'+colored_log+'</pre>')
+            $('#vm_log_tabTab').html('<div class=""><div class="log-tab centered eleven columns">'+colored_log+'</div></div>')
         },
         error: function(request,error_json){
             $("#vm_log pre").html('');
@@ -426,17 +473,107 @@ var vm_actions = {
         type: "monitor",
         call : OpenNebula.VM.monitor,
         callback: function(req,response) {
-            var info = req.request.data[0].monitor;
-            plot_graph(response,'#vm_monitoring_tab',
-                       'vm_monitor_',info);
+            var vm_graphs = [
+                {
+                    monitor_resources : "CPU",
+                    labels : "Real CPU",
+                    humanize_figures : false,
+                    div_graph : $("#vm_cpu_graph")
+                },
+                {
+                    monitor_resources : "MEMORY",
+                    labels : "Real MEM",
+                    humanize_figures : true,
+                    div_graph : $("#vm_memory_graph")
+                },
+                { labels : "Network reception",
+                  monitor_resources : "NET_RX",
+                  humanize_figures : true,
+                  convert_from_bytes : true,
+                  div_graph : $("#vm_net_rx_graph")
+                },
+                { labels : "Network transmission",
+                  monitor_resources : "NET_TX",
+                  humanize_figures : true,
+                  convert_from_bytes : true,
+                  div_graph : $("#vm_net_tx_graph")
+                },
+                { labels : "Network reception speed",
+                  monitor_resources : "NET_RX",
+                  humanize_figures : true,
+                  convert_from_bytes : true,
+                  y_sufix : "B/s",
+                  derivative : true,
+                  div_graph : $("#vm_net_rx_speed_graph")
+                },
+                { labels : "Network transmission speed",
+                  monitor_resources : "NET_TX",
+                  humanize_figures : true,
+                  convert_from_bytes : true,
+                  y_sufix : "B/s",
+                  derivative : true,
+                  div_graph : $("#vm_net_tx_speed_graph")
+                }
+            ];
+
+            // The network speed graphs require the derivative of the data,
+            // and this process is done in place. They must be the last
+            // graphs to be processed
+
+            for(var i=0; i<vm_graphs.length; i++) {
+                plot_graph(
+                    response,
+                    vm_graphs[i]
+                );
+            }
         },
         error: vmMonitorError
+    },
+
+    "VM.pool_monitor" : {
+        type: "monitor_global",
+        call : OpenNebula.VM.pool_monitor,
+        callback: function(req,response) {
+            var vm_dashboard_graphs = [
+                { labels : "Network transmission",
+                  monitor_resources : "NET_TX",
+                  humanize_figures : true,
+                  convert_from_bytes : true,
+                  y_sufix : "B/s",
+                  derivative : true,
+                  div_graph : $("#dash_vm_net_tx_graph", $dashboard)
+                },
+                { labels : "Network reception",
+                  monitor_resources : "NET_RX",
+                  humanize_figures : true,
+                  convert_from_bytes : true,
+                  y_sufix : "B/s",
+                  derivative : true,
+                  div_graph : $("#dash_vm_net_rx_graph", $dashboard)
+                }
+            ];
+
+            for(var i=0; i<vm_dashboard_graphs.length; i++) {
+                plot_totals(
+                    response,
+                    vm_dashboard_graphs[i]
+                );
+            }
+
+            // TODO: refresh individual info panel graphs with this new data?
+        },
+
+        // TODO: ignore error, or set message similar to hostMonitorError?
+        error: onError
     },
 
     "VM.chown" : {
         type: "multiple",
         call: OpenNebula.VM.chown,
-        callback: vmShow,
+        callback: function(request) {
+            Sunstone.runAction('VM.showinfo',request.request.data[0]);
+            Sunstone.runAction("VM.show",request.request.data[0]);
+        },
         elements: vmElements,
         error: onError,
         notify: true
@@ -444,21 +581,15 @@ var vm_actions = {
     "VM.chgrp" : {
         type: "multiple",
         call: OpenNebula.VM.chgrp,
-        callback: vmShow,
+        callback: function(request) {
+            Sunstone.runAction('VM.showinfo',request.request.data[0]);
+            Sunstone.runAction("VM.show",request.request.data[0]);
+        },
         elements: vmElements,
         error: onError,
         notify: true
     },
-    "VM.fetch_permissions" : {
-        type: "single",
-        call: OpenNebula.VM.show,
-        callback : function(request, vm_json){
-            var dialog = $('#vm_template_update_dialog form');
-            var vm = vm_json.VM;
-            setPermissionsTable(vm,dialog);
-        },
-        error: onError
-    },
+
     "VM.chmod" : {
         type: "single",
         call: OpenNebula.VM.chmod,
@@ -468,15 +599,44 @@ var vm_actions = {
     "VM.attachdisk" : {
         type: "single",
         call: OpenNebula.VM.attachdisk,
-        callback: vmShow,
+        callback: function(request) {
+            Sunstone.runAction("VM.showdisks", request.request.data[0]);
+        },
         error: onError,
         notify: true
     },
     "VM.detachdisk" : {
         type: "single",
         call: OpenNebula.VM.detachdisk,
-        callback: function(req,res){
-            setTimeout(vmShow,1000,req);
+        callback: function(request) {
+            Sunstone.runAction("VM.showdisks", request.request.data[0]);
+        },
+        error: onError,
+        notify: true
+    },
+    "VM.attachnic" : {
+        type: "single",
+        call: OpenNebula.VM.attachnic,
+        callback: function(request) {
+            Sunstone.runAction("VM.shownics", request.request.data[0]);
+        },
+        error: onError,
+        notify: true
+    },
+    "VM.resize" : {
+        type: "single",
+        call: OpenNebula.VM.resize,
+        callback: function(request) {
+            Sunstone.runAction("VM.showcapacity", request.request.data[0]);
+        },
+        error: onError,
+        notify: true
+    },
+    "VM.detachnic" : {
+        type: "single",
+        call: OpenNebula.VM.detachnic,
+        callback: function(request) {
+            Sunstone.runAction("VM.shownics", request.request.data[0]);
         },
         error: onError,
         notify: true
@@ -487,7 +647,29 @@ var vm_actions = {
             hideDialog();
             $('div#vms_tab div.legend_div').slideToggle();
         }
-    }
+    },
+
+    "VM.rename" : {
+        type: "single",
+        call: OpenNebula.VM.rename,
+        callback: function(request) {
+            notifyMessage("VirtualMachine renamed correctly");
+            Sunstone.runAction('VM.showinfo',request.request.data[0]);
+            Sunstone.runAction("VM.list");
+        },
+        error: onError,
+        notify: true
+    },
+
+    "VM.update_template" : {  // Update template
+        type: "single",
+        call: OpenNebula.VM.update,
+        callback: function(request,response){
+           notifyMessage(tr("VirtualMachine updated correctly"));
+           Sunstone.runAction("VM.showscheduling", request.request.data[0]);
+        },
+        error: onError
+    },
 };
 
 
@@ -495,26 +677,20 @@ var vm_actions = {
 var vm_buttons = {
     "VM.refresh" : {
         type: "action",
-        text: '<i class="icon-refresh icon-large">',
+        layout: "refresh",
         alwaysActive: true
     },
 
     "VM.create_dialog" : {
         type: "action",
-        text: tr("+ New"),
+        layout: "create",
         alwaysActive: true
     },
-
-    "VM.update_dialog" : {
-        type: "action",
-        text: tr("Update properties"),
-        alwaysActive: true
-    },
-
     "VM.chown" : {
         type: "confirm_with_select",
         text: tr("Change owner"),
         select: users_sel,
+        layout: "user_select",
         tip: tr("Select the new owner")+":",
         condition: mustBeAdmin
     },
@@ -523,137 +699,124 @@ var vm_buttons = {
         type: "confirm_with_select",
         text: tr("Change group"),
         select: groups_sel,
+        layout: "user_select",
         tip: tr("Select the new group")+":",
         condition: mustBeAdmin
     },
+    "VM.deploy" : {
+        type: "confirm_with_select",
+        text: tr("Deploy"),
+        tip: tr("This will deploy the selected VMs on the chosen host"),
+        layout: "vmsplanification_buttons",
+        select: hosts_sel,
+        condition: mustBeAdmin
+    },
+    "VM.migrate" : {
+        type: "confirm_with_select",
+        text: tr("Migrate"),
+        tip: tr("This will migrate the selected VMs to the chosen host"),
+        layout: "vmsplanification_buttons",
+        select: hosts_sel,
+        condition: mustBeAdmin
 
+    },
+    "VM.livemigrate" : {
+        type: "confirm_with_select",
+        text: tr("Migrate") + ' <span class="label secondary radius">live</span>',
+        tip: tr("This will live-migrate the selected VMs to the chosen host"),
+        layout: "vmsplanification_buttons",
+        select: hosts_sel,
+        condition: mustBeAdmin
+    },
+    "VM.hold" : {
+        type: "confirm",
+        text: tr("Hold"),
+        tip: tr("This will hold selected pending VMs from being deployed"),
+        layout: "vmsplanification_buttons",
+    },
+    "VM.release" : {
+        type: "confirm",
+        text: tr("Release"),
+        layout: "vmsplanification_buttons",
+        tip: tr("This will release held machines")
+    },
+    "VM.suspend" : {
+        type: "confirm",
+        text: tr("Suspend"),
+        layout: "vmsstopresume_buttons",
+        tip: tr("This will suspend selected machines")
+    },
+    "VM.resume" : {
+        type: "confirm",
+        text: tr("Resume"),
+        layout: "vmsstopresume_buttons",
+        tip: tr("This will resume selected stopped or suspended VMs")
+    },
+    "VM.stop" : {
+        type: "confirm",
+        text: tr("Stop"),
+        layout: "vmsstopresume_buttons",
+        tip: tr("This will stop selected VMs")
+    },
+    "VM.restart" : {
+        type: "confirm",
+        text: tr("Boot"),
+        layout: "vmsoneoff_buttons",
+        tip: tr("This will redeploy selected VMs (in UNKNOWN or BOOT state)")
+    },
+    "VM.reboot" : {
+        type : "confirm",
+        text: tr("Reboot"),
+        layout: "vmsoneoff_buttons",
+        tip: tr("This will send a reboot action to running VMs")
+    },
+    "VM.reset" : {
+        type: "confirm",
+        text: tr("Reboot") + ' <span class="label secondary radius">hard</span>',
+        layout: "vmsoneoff_buttons",
+        tip: tr("This will perform a hard reboot on selected VMs")
+    },
+    "VM.poweroff" : {
+        type : "confirm",
+        text: tr("Power Off"),
+        layout: "vmsoneoff_buttons",
+        tip: tr("This will send a power off signal to running VMs. They can be restarted later.")
+    },
     "VM.shutdown" : {
         type: "confirm",
         text: tr("Shutdown"),
+        layout: "vmsdelete_buttons",
         tip: tr("This will initiate the shutdown process in the selected VMs")
     },
-
-    "action_list" : {
-        type: "select",
-        actions: {
-            "VM.deploy" : {
-                type: "confirm_with_select",
-                text: tr("Deploy"),
-                tip: tr("This will deploy the selected VMs on the chosen host"),
-                select: hosts_sel,
-                condition: mustBeAdmin
-            },
-            "VM.migrate" : {
-                type: "confirm_with_select",
-                text: tr("Migrate"),
-                tip: tr("This will migrate the selected VMs to the chosen host"),
-                select: hosts_sel,
-                condition: mustBeAdmin
-
-            },
-            "VM.livemigrate" : {
-                type: "confirm_with_select",
-                text: tr("Live migrate"),
-                tip: tr("This will live-migrate the selected VMs to the chosen host"),
-                select: hosts_sel,
-                condition: mustBeAdmin
-            },
-            "VM.hold" : {
-                type: "confirm",
-                text: tr("Hold"),
-                tip: tr("This will hold selected pending VMs from being deployed")
-            },
-            "VM.release" : {
-                type: "confirm",
-                text: tr("Release"),
-                tip: tr("This will release held machines")
-            },
-            "VM.suspend" : {
-                type: "confirm",
-                text: tr("Suspend"),
-                tip: tr("This will suspend selected machines")
-            },
-            "VM.resume" : {
-                type: "confirm",
-                text: tr("Resume"),
-                tip: tr("This will resume selected stopped or suspended VMs")
-            },
-            "VM.stop" : {
-                type: "confirm",
-                text: tr("Stop"),
-                tip: tr("This will stop selected VMs")
-            },
-            "VM.restart" : {
-                type: "confirm",
-                text: tr("Restart"),
-                tip: tr("This will redeploy selected VMs (in UNKNOWN or BOOT state)")
-            },
-            "VM.resubmit" : {
-                type: "confirm",
-                text: tr("Resubmit"),
-                tip: tr("This will resubmits VMs to PENDING state")
-            },
-            "VM.poweroff" : {
-                type : "confirm",
-                text: tr("Power Off"),
-                tip: tr("This will send a power off signal to running VMs. They can be restarted later.")
-            },
-            "VM.reboot" : {
-                type : "confirm",
-                text: tr("Reboot"),
-                tip: tr("This will send a reboot action to running VMs")
-            },
-            "VM.reset" : {
-                type: "confirm",
-                text: tr("Reset"),
-                tip: tr("This will perform a hard reboot on selected VMs")
-            },
-            "VM.cancel" : {
-                type: "confirm",
-                text: tr("Cancel"),
-                tip: tr("This will cancel selected VMs")
-            }
-        }
+    "VM.cancel" : {
+        type: "confirm",
+        text: tr("Shutdown") + ' <span class="label secondary radius">hard</span>',
+        layout: "vmsdelete_buttons",
+        tip: tr("This will cancel selected VMs")
     },
 
     "VM.delete" : {
         type: "confirm",
-        text: tr("Delete"),
+        text: tr("Destroy"),
+        layout: "vmsdelete_buttons",
         tip: tr("This will delete the selected VMs from the database")
     },
+    "VM.resubmit" : {
+        type: "confirm",
+        text: tr("Destroy") + ' <span class="label secondary radius">recreate</span>',
+        layout: "vmsdelete_buttons",
+        tip: tr("This will resubmits VMs to PENDING state")
+    },
 
-    "VM.help" : {
-        type: "action",
-        text: '?',
-        alwaysActive: true
-    }
+    //"VM.help" : {
+    //    type: "action",
+    //    text: '?',
+    //    alwaysActive: true
+    //}
 }
 
 var vm_info_panel = {
-    "vm_info_tab" : {
-        title: tr("Virtual Machine information"),
-        content: ""
-    },
-    "vm_hotplugging_tab" : {
-        title: tr("Disks & Hotplugging"),
-        content: ""
-    },
-    "vm_template_tab" : {
-        title: tr("VM template"),
-        content: ""
-    },
-    "vm_log_tab" : {
-        title: tr("VM log"),
-        content: ""
-    },
-    "vm_history_tab" : {
-        title: tr("History information"),
-        content: ""
-    },
-    "vm_monitoring_tab" : {
-        title: tr("Monitoring information"),
-        content: ""
-    }
+
 };
 
 var vms_tab = {
@@ -822,9 +985,32 @@ function vMachineElementArray(vm_json){
         };
     };
 
+
+    switch (state) {
+      case tr("INIT"):
+      case tr("PENDING"):
+      case tr("HOLD"):
+        pending_vms++;
+        break;
+      case tr("FAILED"):
+        failed_vms++;
+        break;
+      case tr("ACTIVE"):
+        active_vms++;
+        break;
+      case tr("STOPPED"):
+      case tr("SUSPENDED"):
+      case tr("POWEROFF"):
+        off_vms++;
+        break;
+      default:
+        break;
+    }
+
     if (state == tr("ACTIVE")) {
         state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
     };
+
 
     return [
         '<input class="check_item" type="checkbox" id="vm_'+vm.ID+'" name="selected_items" value="'+vm.ID+'"/>',
@@ -848,11 +1034,6 @@ function updateVMachineElement(request, vm_json){
     var id = vm_json.VM.ID;
     var element = vMachineElementArray(vm_json);
     updateSingleElement(element,dataTable_vMachines,'#vm_'+id)
-
-    //we update this too, even if it is not shown.
-    var $hotplugging_tab = $('div#vm_info_panel div#vm_hotplugging_tab');
-    $('#hotplugging_form',$hotplugging_tab).replaceWith(printDisks(vm_json.VM));
-    $('tr.at_volatile',$hotplugging_tab).hide();
 }
 
 // Callback to delete a single element from the list
@@ -872,13 +1053,35 @@ function addVMachineElement(request,vm_json){
 function updateVMachinesView(request, vmachine_list){
     var vmachine_list_array = [];
 
+    active_vms = 0;
+    pending_vms = 0;
+    failed_vms = 0;
+    off_vms = 0;
+
     $.each(vmachine_list,function(){
         vmachine_list_array.push( vMachineElementArray(this));
     });
 
     updateView(vmachine_list_array,dataTable_vMachines);
-    SunstoneMonitoring.monitor('VM', vmachine_list)
-    updateVResDashboard("vms",vmachine_list);
+    //SunstoneMonitoring.monitor('VM', vmachine_list)
+    //updateVResDashboard("vms",vmachine_list);
+
+    $("#total_vms", $dashboard).text(vmachine_list.length);
+    $("#active_vms", $dashboard).text(active_vms);
+    $("#pending_vms", $dashboard).text(pending_vms);
+    $("#failed_vms", $dashboard).text(failed_vms);
+    $("#off_vms", $dashboard).text(off_vms);
+
+    var form = $("#virtualMachine_list");
+
+    $("#total_vms", form).text(vmachine_list.length);
+    $("#active_vms", form).text(active_vms);
+    $("#pending_vms", form).text(pending_vms);
+    $("#failed_vms", form).text(failed_vms);
+    $("#off_vms", form).text(off_vms);
+
+    // Update the dashboard graphs with monitoring information
+    Sunstone.runAction("VM.pool_monitor",{ monitor_resources : "NET_TX,NET_RX"});
 };
 
 
@@ -886,7 +1089,9 @@ function updateVMachinesView(request, vmachine_list){
 // Some calculations are performed, inspired from what is done
 // in the CLI
 function generateHistoryTable(vm){
-    var html = ' <table id="vm_history_table" class="info_table" style="width:80%">\
+    var html = ' <div class="">\
+          <div id="datatable_cluster_vnets_info_div columns twelve">\
+          <table id="vm_history_table" class="extended_table twelve">\
                    <thead>\
                      <tr>\
                          <th>'+tr("Sequence")+'</th>\
@@ -943,7 +1148,9 @@ function generateHistoryTable(vm){
                       </tr>'
     };
     html += '</tbody>\
-                </table>';
+                </table>\
+          </div>\
+        </div>';
     return html;
 
 };
@@ -962,66 +1169,68 @@ function updateVMInfo(request,vm){
         };
     };
 
+    // Get rid of the unwanted (for show) SCHED_* keys
+    var stripped_vm_template = {};
+    var unshown_values       = {};
+
+    for (key in vm_info.USER_TEMPLATE)
+        if(!key.match(/^SCHED_*/))
+            stripped_vm_template[key]=vm_info.USER_TEMPLATE[key];
+        else
+            unshown_values[key]=vm_info.USER_TEMPLATE[key];
+
+
     var info_tab = {
-        title : tr("VM information"),
+        title : tr("Information"),
         content:
-        '<table id="info_vm_table" class="info_table">\
+        '<div class="">\
+        <div class="six columns">\
+        <table id="info_vm_table" class="twelve datatable extended_table">\
             <thead>\
-              <tr><th colspan="2">'+tr("Virtual Machine information")+' - '+vm_info.NAME+'</th></tr>\
+              <tr><th colspan="3">'+tr("Virtual Machine")+' - '+vm_info.NAME+'</th></tr>\
             </thead>\
             <tbody>\
               <tr>\
                  <td class="key_td">'+tr("ID")+'</td>\
                  <td class="value_td">'+vm_info.ID+'</td>\
+                 <td></td>\
               </tr>\
-              <tr>\
-                 <td class="key_td">'+tr("Name")+'</td>\
-                 <td class="value_td">'+vm_info.NAME+'</td>\
-              </tr>\
-              <tr>\
-                 <td class="key_td">'+tr("Owner")+'</td>\
-                 <td class="value_td">'+vm_info.UNAME+'</td>\
-              </tr>\
-              <tr>\
-                 <td class="key_td">'+tr("Group")+'</td>\
-                 <td class="value_td">'+vm_info.GNAME+'</td>\
-              </tr>\
+            <tr>\
+              <td class="key_td">'+tr("Name")+'</td>\
+              <td class="value_td_rename">'+vm_info.NAME+'</td>\
+              <td><div id="div_edit_rename">\
+                     <a id="div_edit_rename_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                  </div>\
+              </td>\
+            </tr>\
               <tr>\
                  <td class="key_td">'+tr("State")+'</td>\
                  <td class="value_td">'+tr(vm_state)+'</td>\
+                 <td></td>\
               </tr>\
               <tr>\
                  <td class="key_td">'+tr("LCM State")+'</td>\
                  <td class="value_td">'+tr(OpenNebula.Helper.resource_state("vm_lcm",vm_info.LCM_STATE))+'</td>\
+                 <td></td>\
               </tr>\
               <tr>\
                  <td class="key_td">'+tr("Host")+'</td>\
               <td class="value_td">'+ hostname +'</td>\
+                 <td></td>\
               </tr>\
               <tr>\
                  <td class="key_td">'+tr("Start time")+'</td>\
                  <td class="value_td">'+pretty_time(vm_info.STIME)+'</td>\
+                 <td></td>\
               </tr>\
               <tr>\
                  <td class="key_td">'+tr("Deploy ID")+'</td>\
                  <td class="value_td">'+(typeof(vm_info.DEPLOY_ID) == "object" ? "-" : vm_info.DEPLOY_ID)+'</td>\
+                 <td></td>\
               </tr>\
-              <tr><td class="key_td">Permissions</td><td></td></tr>\
-              <tr>\
-                <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Owner")+'</td>\
-                <td class="value_td" style="font-family:monospace;">'+ownerPermStr(vm_info)+'</td>\
-              </tr>\
-              <tr>\
-                <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Group")+'</td>\
-                <td class="value_td" style="font-family:monospace;">'+groupPermStr(vm_info)+'</td>\
-              </tr>\
-              <tr>\
-                <td class="key_td"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Other")+'</td>\
-                <td class="value_td" style="font-family:monospace;">'+otherPermStr(vm_info)+'</td>\
-              </tr>\
-                 </tbody>\
-                </table>\
-                <table id="vm_monitoring_table" class="info_table">\
+              </tbody>\
+               </table>\
+               <table id="vm_monitoring_table" class="twelve datatable extended_table">\
                    <thead>\
                      <tr><th colspan="2">'+tr("Monitoring information")+'</th></tr>\
                    </thead>\
@@ -1047,16 +1256,47 @@ function updateVMInfo(request,vm){
                         <td class="value_td">'+vncIcon(vm_info)+'</td>\
                       </tr>\
                     </tbody>\
-                </table>'
+                </table>\
+            </div>\
+            <div class="six columns">' +
+               insert_permissions_table("VM",
+                                        vm_info.ID,
+                                        vm_info.UNAME,
+                                        vm_info.GNAME,
+                                        vm_info.UID,
+                                        vm_info.GID) +
+               insert_extended_template_table(stripped_vm_template,
+                                              "VM",
+                                              vm_info.ID,
+                                              "Tags",
+                                              unshown_values) +
+
+            '</div>\
+        </div>'
     };
 
     var hotplugging_tab = {
-        title: tr("Disks & Hotplugging"),
+        title: tr("Storage"),
         content: printDisks(vm_info)
     };
 
+    var network_tab = {
+        title: tr("Network"),
+        content: printNics(vm_info)
+    };
+
+    var capacity_tab = {
+        title: tr("Capacity"),
+        content: printCapacity(vm_info)
+    };
+
+    var snapshot_tab = {
+        title: tr("Snapshots"),
+        content: printSnapshots(vm_info)
+    };
+
     var template_tab = {
-        title: tr("VM Template"),
+        title: tr("Template"),
         content:
         '<table id="vm_template_table" class="info_table" style="width:80%">\
                <thead><tr><th colspan="2">'+tr("VM template")+'</th></tr></thead>'+
@@ -1065,58 +1305,410 @@ function updateVMInfo(request,vm){
     };
 
     var log_tab = {
-        title: tr("VM log"),
+        title: tr("Log"),
         content: '<div>'+spinner+'</div>'
     };
 
-    var monitoring_tab = {
-        title: tr("Monitoring information"),
-        content: generateMonitoringDivs(vm_graphs,"vm_monitor_")
+    var scheduling_tab = {
+        title: tr("Actions"),
+        content: printSchedulingTable(vm_info)
     };
 
+
     var history_tab = {
-        title: tr("History information"),
+        title: tr("History"),
         content: generateHistoryTable(vm_info)
     };
 
+    $("#div_edit_rename_link").die();
+    $(".input_edit_value_rename").die();
+
+    // Listener for key,value pair edit action
+    $("#div_edit_rename_link").live("click", function() {
+        var value_str = $(".value_td_rename").text();
+        $(".value_td_rename").html('<input class="input_edit_value_rename" type="text" value="'+value_str+'"/>');
+    });
+
+    $(".input_edit_value_rename").live("change", function() {
+        var value_str = $(".input_edit_value_rename").val();
+        if(value_str!="")
+        {
+            // Let OpenNebula know
+            var name_template = {"name": value_str};
+            Sunstone.runAction("VM.rename",vm_info.ID,name_template);
+        }
+    });
+
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_info_tab",info_tab);
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_capacity_tab",capacity_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_hotplugging_tab",hotplugging_tab);
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_network_tab",network_tab);
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_snapshot_tab",snapshot_tab);
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_history_tab",history_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_template_tab",template_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_log_tab",log_tab);
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_scheduling_tab",scheduling_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_history_tab",history_tab);
-    Sunstone.updateInfoPanelTab("vm_info_panel","vm_monitoring_tab",monitoring_tab);
+
+    // TODO: re-use pool_monitor data?
 
     //Pop up the info panel and asynchronously get vm_log and stats
     Sunstone.popUpInfoPanel("vm_info_panel");
     Sunstone.runAction("VM.log",vm_info.ID);
-    for (var i=0; i<vm_graphs.length; i++){
-        Sunstone.runAction("VM.monitor",vm_info.ID,vm_graphs[i]);
-    };
+    Sunstone.runAction("VM.monitor",vm_info.ID,
+        { monitor_resources : "CPU,MEMORY,NET_TX,NET_RX"});
 
     var $info_panel = $('div#vm_info_panel');
     var $hotplugging_tab = $('div#vm_hotplugging_tab', $info_panel);
     $('tr.at_volatile',$hotplugging_tab).hide();
     $('tr.at_image',$hotplugging_tab).show();
+
+    // Populate permissions grid
+    setPermissionsTable(vm_info,'');
+}
+
+function updateVMDisksInfo(request,vm){
+  $("li#vm_hotplugging_tabTab").html(printDisks(vm.VM));
+}
+
+// Create the scheduling actions table (with listeners)
+function printSchedulingTable(vm_info)
+{
+
+    var str = '<button id="add_scheduling_action" class="button small secondary radius" >' + tr("Add scheduling action") +'</button>\
+                <div class="twelve columns">\
+                <table id="scheduling_actions_table" class="info_table twelve datatable extended_table">\
+                 <thead>\
+                   <tr>\
+                      <th>'+tr("ID")+'</th>\
+                      <th>'+tr("ACTION")+'</th>\
+                      <th>'+tr("TIME")+'</th>\
+                      <th>'+tr("DONE")+'</th>\
+                      <th>'+tr("MESSAGE")+'</th>\
+                      <th colspan="">'+tr("Actions")+'</th>\
+                   </tr>\
+                  </thead>' + 
+                    fromJSONtoSchedulingActionTable(
+                                      vm_info.USER_TEMPLATE.SCHED_ACTION) +
+                 '</table>\
+                </div>'
+
+    // Remove previous listeners
+    $(".remove_x").die();
+    $(".edit_e").die();
+    $('#add_scheduling_action').die();
+    $("#submit_scheduling_action").die();
+    $(".select_action").die();
+    $(".input_edit_time").die();
+
+
+    $('#add_scheduling_action').live('click', function(){
+
+        $("#add_scheduling_action").attr("disabled", "disabled");
+
+        $("#scheduling_actions_table").append('<tr><td></td>\
+             <td class="action_row"><select id="select_new_action" class="select_new_action" name="select_action">\
+                                <option value="shutdown">' + tr("shutdown") + '</option>\
+                                <option value="hold">' + tr("hold") + '</option>\
+                                <option value="release">' + tr("release") + '</option>\
+                                <option value="stop">' + tr("stop") + '</option>\
+                                <option value="cancel">' + tr("cancel") + '</option>\
+                                <option value="suspend">' + tr("suspend") + '</option>\
+                                <option value="resume">' + tr("shutdown") + '</option>\
+                                <option value="restart">' + tr("hold") + '</option>\
+                                <option value="resubmit">' + tr("release") + '</option>\
+                                <option value="reboot">' + tr("stop") + '</option>\
+                                <option value="reset">' + tr("cancel") + '</option>\
+                                <option value="poweroff">' + tr("suspend") + '</option>\
+                                <option value="snapshot-create">' + tr("snapshot-create") + '</option>\
+                              </select>\
+              </td>\
+             <td class="time_row"><input id="date_time_input"><a class="date_time_picker_add_link">t</a></td>\
+             <td>\
+                <button id="submit_scheduling_action" class="button small secondary radius" >' + tr("Add") +'</button>\
+             </td>\
+           </tr>');
+
+        $(".date_time_picker_add_link").die();
+        $(".date_time_picker_add_link").live("click", function() {
+            setupDateTimePicker('#date_time_input', "");
+        });
+
+        return false;
+    }); 
+
+    $("#submit_scheduling_action").live("click", function() { 
+        var date_input_value = $("#date_time_input").val();
+
+        if (date_input_value=="") 
+          return false;
+
+        // Calculate MAX_ID
+        var max_id = -1;
+
+        if (vm_info.USER_TEMPLATE.SCHED_ACTION)
+        {
+          if (!vm_info.USER_TEMPLATE.SCHED_ACTION.length)
+          {
+            var tmp_element = vm_info.USER_TEMPLATE.SCHED_ACTION;
+            vm_info.USER_TEMPLATE.SCHED_ACTION = new Array();
+            vm_info.USER_TEMPLATE.SCHED_ACTION.push(tmp_element);
+          }
+
+          $.each(vm_info.USER_TEMPLATE.SCHED_ACTION, function(i,element){
+              if (max_id<element.ID)
+                max_id=element.ID
+          })
+        }
+        else
+        {
+          vm_info.USER_TEMPLATE.SCHED_ACTION = new Array();
+        }
+
+
+        var new_action = {};
+        new_action.ID  = parseInt(max_id) + 1;
+        new_action.ACTION = $("#select_new_action").val();
+        var epoch_str   = new Date(date_input_value);
+        new_action.TIME = parseInt(epoch_str.getTime())/1000;
+
+        vm_info.USER_TEMPLATE.SCHED_ACTION.push(new_action);
+
+        // Let OpenNebula know
+        var template_str = convert_template_to_string(vm_info.USER_TEMPLATE);
+        Sunstone.runAction("VM.update_template",vm_info.ID,template_str);        
+
+        $("#add_scheduling_action").removeAttr("disabled");
+        return false;
+    });
+
+    // Listener for key,value pair remove action
+    $(".remove_x").live("click", function() {
+        // Remove div_minus_ from the id
+        var index = this.id.substring(6,this.id.length);
+        var tmp_tmpl = new Array();
+
+        $.each(vm_info.USER_TEMPLATE.SCHED_ACTION, function(i,element){
+            if(element.ID!=index)
+              tmp_tmpl[i] = element
+        })
+
+        vm_info.USER_TEMPLATE.SCHED_ACTION = tmp_tmpl;
+        var template_str = convert_template_to_string(vm_info.USER_TEMPLATE);
+
+        // Let OpenNebula know
+        Sunstone.runAction("VM.update_template",vm_info.ID,template_str);
+    });
+
+    // Listener for key,value pair edit action
+    $(".edit_e").live("click", function() {
+        // Action
+        $("#add_scheduling_action").attr("disabled", "disabled");
+
+        var index=this.id.substring(5,this.id.length);
+
+        var value_str = $(".tr_action_"+index+" .action_row").text();
+        $(".tr_action_"+index+" .action_row").html('<select id="select_action_'+index+'" class="select_action" name="select_action">\
+                                <option value="shutdown">' + tr("shutdown") + '</option>\
+                                <option value="hold">' + tr("hold") + '</option>\
+                                <option value="release">' + tr("release") + '</option>\
+                                <option value="stop">' + tr("stop") + '</option>\
+                                <option value="cancel">' + tr("cancel") + '</option>\
+                                <option value="suspend">' + tr("suspend") + '</option>\
+                                <option value="resume">' + tr("resume") + '</option>\
+                                <option value="restart">' + tr("restart") + '</option>\
+                                <option value="resubmit">' + tr("resubmit") + '</option>\
+                                <option value="reboot">' + tr("reboot") + '</option>\
+                                <option value="reset">' + tr("reset") + '</option>\
+                                <option value="poweroff">' + tr("poweroff") + '</option>\
+                                <option value="snapshot-create">' + tr("snapshot-create") + '</option>\
+                              </select>')
+        $(".select_action").val(value_str);
+
+        // Time
+        var time_value_str = $(".tr_action_"+index+" .time_row").text();
+        $(".tr_action_"+index+" .time_row").html('<div><input style="width:90%;" class="input_edit_time" id="input_edit_time_'+ 
+                        index+'" type="text" value="'+time_value_str+'">\
+                        <a class="date_time_picker_link">t</a></div>');
+
+        $(".date_time_picker_link").die();
+        $(".date_time_picker_link").live("click", function() {
+            setupDateTimePicker('#input_edit_time_'+index, time_value_str);
+        });
+    });
+
+     $(".select_action").live("change", function() {
+        var index     = $.trim(this.id.substring(14,this.id.length));
+        var tmp_tmpl  = new Array();
+        var value_str = $(this).val();
+
+        $.each(vm_info.USER_TEMPLATE.SCHED_ACTION, function(i,element){
+            tmp_tmpl[i] = element;
+            if(element.ID==index)
+              tmp_tmpl[i].ACTION = value_str;
+        })
+
+        vm_info.USER_TEMPLATE.SCHED_ACTION = tmp_tmpl;
+        var template_str = convert_template_to_string(vm_info.USER_TEMPLATE);
+
+        // Let OpenNebula know
+        Sunstone.runAction("VM.update_template",vm_info.ID,template_str);
+        $("#add_scheduling_action").removeAttr("disabled");
+    });
+
+    $(".input_edit_time").live("change", function() {
+        var index     = $.trim(this.id.substring(16,this.id.length));
+        var tmp_tmpl  = new Array();
+        var value_str = $(this).val();
+
+        $.each(vm_info.USER_TEMPLATE.SCHED_ACTION, function(i,element){
+            if(element.ID==index)
+            {
+              var epoch_str    = new Date(value_str);
+              element.TIME = parseInt(epoch_str.getTime())/1000;
+            }
+            tmp_tmpl.push(element);
+        })
+
+        vm_info.USER_TEMPLATE.SCHED_ACTION = tmp_tmpl;
+        var template_str = convert_template_to_string(vm_info.USER_TEMPLATE);
+
+        // Let OpenNebula know
+        Sunstone.runAction("VM.update_template",vm_info.ID,template_str);
+        $("#add_scheduling_action").removeAttr("disabled");
+    });
+
+    return str;
+}
+
+// Returns an HTML string with the json keys and values
+function fromJSONtoSchedulingActionTable(actions_array){
+    var str = ""
+    if (!actions_array){ return "";}
+    if (!$.isArray(actions_array))
+    { 
+      var tmp_array = new Array();
+      tmp_array[0]  = actions_array;
+      actions_array = tmp_array;
+    }
+
+    $.each(actions_array, function(index, scheduling_action){
+       str += fromJSONtoSchedulingActionRow(scheduling_action);
+    });
+
+    return str;
+}
+
+
+// Helper for fromJSONtoHTMLTable function
+function fromJSONtoSchedulingActionRow(scheduling_action){
+    var str = "";
+
+    var done_str    = scheduling_action.DONE ? scheduling_action.DONE : "";
+    var message_str = scheduling_action.MESSAGE ? scheduling_action.MESSAGE : "";
+    var time_str    = new Date(scheduling_action.TIME*1000).toLocaleString();
+
+    str += '<tr class="tr_action_'+scheduling_action.ID+'">\
+             <td class="id_row">'+scheduling_action.ID+'</td>\
+             <td class="action_row">'+scheduling_action.ACTION+'</td>\
+             <td nowrap class="time_row">'+time_str+'</td>\
+             <td class="done_row">'+done_str+'</td>\
+             <td class="message_row">'+message_str+'</td>\
+             <td>\
+               <div>\
+                 <a id="edit_'+scheduling_action.ID+'" class="edit_e" href="#"><i class="icon-edit"/></a>\
+                 &nbsp;&nbsp;\
+                 <a id="minus_'+scheduling_action.ID+'" class="remove_x" href="#"><i class="icon-trash"/></a>\
+               </div>\
+             </td>\
+           </tr>';
+
+    return str;
+}
+
+function setupDateTimePicker(input_to_fill, time_str){
+    dialogs_context.append('<div id="date_time_picker_dialog"></div>');
+    $date_time_picker_dialog = $('#date_time_picker_dialog',dialogs_context);
+    var dialog = $date_time_picker_dialog;
+
+    dialog.html( '<div class="panel">\
+                  <h3>\
+                    <small id="">'+tr("Date Time Picker")+'</small>\
+                  </h3>\
+                  <form id="date_time_form" action="">\
+                    </div>\
+                    <input type="text" name="date" value="2012/01/01 10:00">\
+                    <script type="text/javascript">\
+                      $(function(){\
+                        $("*[name=date]").appendDtpicker({"inline": true, "current": "'+time_str+'"});\
+                      });\
+                    </script>\
+                    <div class="form_buttons">\
+                      <button class="button radius right success" id="date_time_form" type="submit">'+tr("Done")+'</button>\
+                    </div>\
+                    <a class="close-reveal-modal">&#215;</a>\
+                  </form>');
+
+    dialog.addClass("reveal-modal large");
+    dialog.reveal();
+
+    $("*[name=date]").val(time_str)
+    $('#date_time_form',dialog).die();
+
+    $('#date_time_form',dialog).live('click', function(){
+        var date_str = $('*[name=date]').val();
+        console.log(input_to_fill);
+        $(input_to_fill).val(date_str);
+        $(input_to_fill).trigger("change");
+
+        $date_time_picker_dialog.trigger("reveal:close")
+        return false;
+    });
+};
+
+function updateSchedulingInfo(request,vm){
+  $("li#vm_scheduling_tabTab").html(printSchedulingTable(vm.VM));
 }
 
 // Generates the HTML for the hotplugging tab
 // This is a list of disks with the save_as, detach options.
 // And a form to attach a new disk to the VM, if it is running.
 function printDisks(vm_info){
-    var im_sel = makeSelectOptions(dataTable_images,
-                                   1, //id col - trick -> reference by name!
-                                   4, //name col
-                                   [10,10,10],
-                                   [tr("DISABLED"),tr("LOCKED"),tr("ERROR")]
-                                  );
    var html ='\
-   <form style="display:inline-block;width:100%" id="hotplugging_form" vmid="'+vm_info.ID+'">\
-     <table class="info_table">\
-       <thead>\
-         <tr><th colspan="2">'+tr("Disks information - Save As and Detach")+'</th></tr>\
-       </thead>\
-       <tbody>\
-       ';
+     <div class="">\
+        <div id="datatable_cluster_vnets_info_div columns twelve">\
+           <form id="hotplugging_form" vmid="'+vm_info.ID+'" >\
+              <div class="twelve columns">\
+                <div id="refresh_disk" class="button small secondary radius" ><i class="icon-refresh"/></div>'
+
+    // If VM is not RUNNING, then we forget about the attach disk form.
+    if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
+      html += '\
+         <div id="attach_disk" class="button small secondary radius" >' + tr("Attach new disk") +'</div>'
+    } else {
+      html += '\
+         <div id="attach_disk" class="button small secondary radius" disabled="disabled">' + tr("Attach new disk") +'</div>'
+    }
+
+    html += '\
+      </div>\
+      <br>\
+      <br>'
+
+    html += '\
+      <div class="twelve columns">\
+         <table class="info_table twelve extended_table">\
+           <thead>\
+             <tr>\
+                <th>'+tr("ID")+'</th>\
+                <th>'+tr("Target")+'</th>\
+                <th>'+tr("Image / Format-Size")+'</th>\
+                <th>'+tr("Persistent")+'</th>\
+                <th>'+tr("Save as")+'</th>\
+                <th colspan="">'+tr("Actions")+'</th>\
+              </tr>\
+           </thead>\
+           <tbody>';
 
 
     var disks = []
@@ -1126,189 +1718,942 @@ function printDisks(vm_info){
         disks = [vm_info.TEMPLATE.DISK]
 
     if (!disks.length){
-        html += '<tr id="no_disks_tr"><td class="key_td">\
-                   '+tr("No disks to show")+'\
-                   </td><td class="value_td"></td></tr>';
+        html += '\
+          <tr id="no_disks_tr">\
+            <td colspan="6">' + tr("No disks to show") + '</td>\
+          </tr>';
     }
     else {
 
         for (var i = 0; i < disks.length; i++){
             var disk = disks[i];
-            html += '<tr disk_id="'+(disk.DISK_ID)+'"><td class="key_td">';
-            html += disk.DISK_ID + ' - ' +
-                (disk.IMAGE ? disk.IMAGE : "Volatile") + '</td>';
-            html += '<td class="value_td">\
-'+(vm_info.STATE == "3" ? '\
-                       <button value="VM.detachdisk" class="detachdisk" style="float:right;color:#555555;height:26px;">'+tr("Detach")+' <i class="icon-remove icon-large"></i></button>\
-' : '')+'\
-                       <button value="VM.saveas" class="saveas" style="float:right;margin-right:10px;color:#555555;height:26px;">'+tr("Save")+' <i class="icon-download icon-large"></i></button>\
-                       <input style="float:right;width:9em;margin-right:10px;margin-top:3px;" type="text" value="saveas_'+vm_info.ID+'_'+disk.DISK_ID+'" name="saveas_name"></input>\
-            <label style="float:right;margin-top:4px;">'+tr("Save_as name")+':</label>'
-                +'\
-</td>';
+
+            var save_as;
+            // Snapshot deferred
+            if ( 
+               ( // ACTIVE
+                vm_info.STATE == "3") && 
+               ( // HOTPLUG_SAVEAS HOTPLUG_SAVEAS_POWEROFF HOTPLUG_SAVEAS_SUSPENDED
+                vm_info.LCM_STATE == "26" || vm_info.LCM_STATE == "27" || vm_info.LCM_STATE == "28") && 
+               ( // 
+                disk.SAVE_AS_ACTIVE == "YES")
+               ) {
+              save_as = "in progress";
+              actions = 'deferred snapshot in progress'
+            } 
+            // Snapshot Hot
+            else if ( 
+               ( // ACTIVE
+                vm_info.STATE == "3") && 
+               ( // HOTPLUG_SAVEAS HOTPLUG_SAVEAS_POWEROFF HOTPLUG_SAVEAS_SUSPENDED
+                vm_info.LCM_STATE == "26" || vm_info.LCM_STATE == "27" || vm_info.LCM_STATE == "28") && 
+               ( // 
+                disk.HOTPLUG_SAVE_AS_ACTIVE == "YES")
+               ) {
+              save_as = (disk.SAVE_AS ? disk.SAVE_AS : '-');
+              actions = 'hot snapshot in progress' 
+            }
+            // Attach / Detach
+            else if ( 
+               ( // ACTIVE
+                vm_info.STATE == "3") && 
+               ( // HOTPLUG_SAVEAS HOTPLUG_SAVEAS_POWEROFF HOTPLUG_SAVEAS_SUSPENDED
+                vm_info.LCM_STATE == "17") && 
+               ( // 
+                disk.ATTACH = "YES")
+               ) { 
+              save_as = (disk.SAVE_AS ? disk.SAVE_AS : '-');
+              actions = 'attach/detach in progress'
+            }
+            else {
+              save_as = (disk.SAVE_AS ? disk.SAVE_AS : '-');
+
+              actions = '';
+              
+              if ((vm_info.STATE == "3" && vm_info.LCM_STATE == "3") || vm_info.STATE == "5" || vm_info.STATE == "8") {
+                actions += '<a href="VM.saveas" class="saveas" ><i class="icon-save"/>'+tr("Snapshot")+'</a> &emsp;'
+              }
+
+              if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3") {
+                actions += '<a href="VM.detachdisk" class="detachdisk" ><i class="icon-remove"/>'+tr("Detach")+'</a>'
+              }
+            }
+
+            html += '\
+              <tr disk_id="'+(disk.DISK_ID)+'">\
+                <td>' + disk.DISK_ID + '</td>\
+                <td>' + disk.TARGET + '</td>\
+                <td>' + (disk.IMAGE ? disk.IMAGE : (humanize_size_from_mb(disk.SIZE) + (disk.FORMAT ? (' - ' + disk.FORMAT) : '') )) + '</td>\
+                <td>' + ((disk.SAVE && disk.SAVE == 'YES' )? tr('YES') : tr('NO')) + '</td>\
+                <td>' + save_as + '</td>\
+                <td>' + actions + '</td>\
+            </tr>';
         }
     }
 
-    html += '</tbody>\
-          </table>';
-
-    // If VM is not RUNNING, then we forget about the attach disk form.
-    if (vm_info.STATE != "3"){
-        html +='</form>';
-        return html;
-    }
-
-    // Attach disk form
-    html += '<table class="info_table">\
-       <thead>\
-         <tr><th colspan="2">'+tr("Attach disk to running VM")+'</th></tr>\
-       </thead>\
-       <tbody>\
-         <tr><td class="key_td"><label>'+tr("Type")+':</label></td>\
-             <td class="value_td">\
-                 <select id="attach_disk_type" style="width:12em;">\
-                    <option value="image">'+tr("Existing image")+'</option>\
-                    <option value="volatile">'+tr("Volatile disk")+'</option>\
-                 </select>\
-             </td>\
-        </tr>\
-         <tr class="at_image"><td class="key_td"><label>'+tr("Select image")+':</label></td>\
-             <td class="value_td">\
-                   <select name="IMAGE_ID" style="width:12em;">\
-                   '+im_sel+'\
-                   </select>\
-             </td>\
-         </tr>\
-         <tr class="at_volatile"><td class="key_td"><label>'+tr("Size")+' (MB):</label></td>\
-             <td class="value_td">\
-                <input type="text" name="SIZE" style="width:8em;"></input>\
-             </td>\
-         </tr>\
-         <tr class="at_volatile"><td class="key_td"><label>'+tr("Format")+':</label></td>\
-             <td class="value_td">\
-                <input type="text" name="FORMAT" style="width:8em;"></input>\
-             </td>\
-         </tr>\
-         <tr class="at_volatile"><td class="key_td"><label>'+tr("Type")+':</label></td>\
-             <td class="value_td">\
-                   <select name="TYPE" style="width:12em;">\
-                       <option value="swap">'+tr("swap")+'</option>\
-                       <option value="fs">'+tr("fs")+'</option>\
-                   </select>\
-             </td>\
-         </tr>\
-         <tr class="at_volatile at_image"><td class="key_td"><label>'+tr("Device prefix")+':</label></td>\
-             <td class="value_td">\
-                <input type="text" name="DEV_PREFIX" value="sd" style="width:8em;"></input>\
-             </td>\
-         </tr>\
-<!--\
-         <tr class="at_volatile"><td class="key_td"><label>'+tr("Readonly")+':</label></td>\
-             <td class="value_td">\
-                   <select name="READONLY" style="width:12em;">\
-                       <option value="NO">'+tr("No")+'</option>\
-                       <option value="YES">'+tr("Yes")+'</option>\
-                   </select>\
-             </td>\
-        </tr>\
-        <tr class="at_volatile"><td class="key_td"><label>'+tr("Save")+':</label></td>\
-             <td class="value_td">\
-                   <select name="SAVE" style="width:12em;">\
-                       <option value="NO">'+tr("No")+'</option>\
-                       <option value="YES">'+tr("Yes")+'</option>\
-                   </select>\
-             </td>\
-        </tr>\
--->\
-        <tr><td class="key_td"></td>\
-             <td class="value_td">\
-                   <button type="submit" value="VM.attachdisk">'+tr("Attach")+'</button>\
-             </td>\
-        </tr>\
-       </tbody>\
-     </table></form>';
+    html += '\
+            </tbody>\
+          </table>\
+        </div>\
+      </form>';
 
     return html;
 }
 
+function setupSaveAsDialog(){
+    dialogs_context.append('<div id="save_as_dialog"></div>');
+    $save_as_dialog = $('#save_as_dialog',dialogs_context);
+    var dialog = $save_as_dialog;
+
+    dialog.html('<div class="panel">\
+  <h3>\
+    <small id="">'+tr("Snapshot")+'</small>\
+  </h3>\
+</div>\
+<form id="save_as_form" action="">\
+      <div class="row centered">\
+          <div class="four columns">\
+              <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
+          </div>\
+          <div class="seven columns">\
+              <input type="text" name="vm_id" id="vm_id" disabled/>\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+      </div>\
+      <div class="row centered">\
+          <div class="four columns">\
+              <label class="inline right" for="disk_id">'+tr("Disk ID")+':</label>\
+          </div>\
+          <div class="seven columns">\
+              <input type="text" name="disk_id" id="disk_id" disabled/>\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+      </div>\
+      <div class="row centered">\
+          <div class="four columns">\
+              <label class="inline right" for="image_name">'+tr("Image name")+':</label>\
+          </div>\
+          <div class="seven columns">\
+              <input type="text" name="image_name" id="image_name" />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+      </div>\
+      <div class="row centered">\
+          <div class="four columns">\
+              <label class="inline right" for="snapshot_type">'+tr("Snapshot type")+':</label>\
+          </div>\
+          <div class="seven columns">\
+            <select name="snapshot_type" id="snapshot_type">\
+                 <option value="false" selected="selected">'+tr("Deferred")+'</option>\
+                 <option value="true">'+tr("Hot")+'</option>\
+            </select>\
+          </div>\
+          <div class="one columns">\
+              <div class="tip">Sets the specified VM disk to be saved in a new Image.<br><br>\
+        Deferred: The Image is created immediately, but the contents are saved only if the VM is shut down gracefully (i.e., using Shutdown or Cancel; not Delete)<br><br>\
+        Life: The Image will be saved immediately.</div>\
+          </div>\
+      </div>\
+      <hr>\
+      <div class="form_buttons">\
+          <button class="button radius right success" id="snapshot_live_button" type="submit" value="VM.saveas">'+tr("Take snapshot")+'</button>\
+          <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+      </div>\
+  <a class="close-reveal-modal">&#215;</a>\
+</form>')
+
+    dialog.addClass("reveal-modal");
+    setupTips(dialog);
+
+    $('#save_as_form',dialog).submit(function(){
+        var vm_id = $('#vm_id', this).val();
+        var image_name = $('#image_name', this).val();
+        var snapshot_type = $('#snapshot_type', this).val();
+
+        if (!image_name.length){
+            notifyError('Please provide a name for the new image');
+            return false;
+        }
+
+        var obj = {
+            disk_id : $('#disk_id', this).val(),
+            image_name : image_name,
+            type: "",
+            hot: (snapshot_type == "true" ? true : false)
+        };
+
+        Sunstone.runAction('VM.saveas', vm_id, obj);
+
+        $save_as_dialog.trigger("reveal:close")
+        return false;
+    });
+};
+
+function popUpSaveAsDialog(vm_id, disk_id){
+    $('#vm_id',$save_as_dialog).val(vm_id);
+    $('#disk_id',$save_as_dialog).val(disk_id);
+    $save_as_dialog.reveal();
+}
+
+
+
+
+function setupAttachDiskDialog(){
+    dialogs_context.append('<div id="attach_disk_dialog"></div>');
+    $attach_disk_dialog = $('#attach_disk_dialog',dialogs_context);
+    var dialog = $attach_disk_dialog;
+
+    dialog.html('<div class="panel">\
+      <h3>\
+        <small id="">'+tr("Attach new disk")+'</small>\
+      </h3>\
+    </div>\
+    <form id="attach_disk_form" action="">\
+          <div class="row centered">\
+              <div class="four columns">\
+                  <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
+              </div>\
+              <div class="seven columns">\
+                  <input type="text" name="vm_id" id="vm_id" disabled/>\
+              </div>\
+              <div class="one columns">\
+                  <div class=""></div>\
+              </div>\
+          </div>' +
+          generate_disk_tab_content("attach_disk", "attach_disk") +
+          '<hr>\
+          <div class="form_buttons">\
+              <button class="button radius right success" id="attach_disk_button" type="submit" value="VM.attachdisk">'+tr("Attach")+'</button>\
+              <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+          </div>\
+      <a class="close-reveal-modal">&#215;</a>\
+    </form>')
+
+    dialog.addClass("reveal-modal large");
+    setupTips(dialog);
+
+    setup_disk_tab_content(dialog, "attach_disk", "attach_disk")
+
+    $('#attach_disk_form',dialog).submit(function(){
+        var vm_id = $('#vm_id', this).val();
+
+        var data  = {};
+        addSectionJSON(data, this);
+
+        var obj = {DISK: data}
+        Sunstone.runAction('VM.attachdisk', vm_id, obj);
+
+        $attach_disk_dialog.trigger("reveal:close")
+        return false;
+    });
+};
+
+function popUpAttachDiskDialog(vm_id){
+    $('#vm_id',$attach_disk_dialog).val(vm_id);
+    $attach_disk_dialog.reveal();
+}
+
+
 // Listeners to the disks operations (detach, saveas, attach)
 function hotpluggingOps(){
-    $('button.detachdisk').live('click', function(){
+    setupSaveAsDialog();
+    setupAttachDiskDialog();
+
+    $('a.detachdisk').live('click', function(){
+      console.log("asdfasd")
         var b = $(this);
         var vm_id = b.parents('form').attr('vmid');
         var disk_id = b.parents('tr').attr('disk_id');
 
         Sunstone.runAction('VM.detachdisk', vm_id, disk_id);
 
-        b.html(spinner);
+        //b.html(spinner);
         return false;
     });
 
-    $('button.saveas').live('click', function(){
+    $('a.saveas').live('click', function(){
         var b = $(this);
         var vm_id = b.parents('form').attr('vmid');
         var disk_id = b.parents('tr').attr('disk_id');
-        var parent = b.parent();
-        var image_name = $('input[name="saveas_name"]',parent).val();
-        if (!image_name){
-            notifyError('Please provide a name for the new image');
-            return false;
+
+        popUpSaveAsDialog(vm_id, disk_id);
+
+        //b.html(spinner);
+        return false;
+    });
+
+    $('#attach_disk').live('click', function(){
+        var b = $(this);
+        var vm_id = b.parents('form').attr('vmid');
+
+        popUpAttachDiskDialog(vm_id);
+
+        //b.html(spinner);
+        return false;
+    }); 
+
+    $('#refresh_disk').live('click', function(){
+        var b = $(this);
+        var vm_id = b.parents('form').attr('vmid');
+        Sunstone.runAction("VM.showdisks", vm_id);
+
+        return false;
+    }); 
+}
+
+
+
+
+function updateVMNicsInfo(request,vm){
+  $("li#vm_network_tabTab").html(printNics(vm.VM));
+}
+
+function printNics(vm_info){
+   var html ='\
+     <div class="">\
+        <div>\
+           <form id="tab_network_form" vmid="'+vm_info.ID+'" >\
+              <div class="twelve columns">\
+                <div id="refresh_nic" class="button small secondary radius" ><i class="icon-refresh"/></div>'
+
+    // If VM is not RUNNING, then we forget about the attach nic form.
+    if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
+      html += '\
+         <div id="attach_nic" class="button small secondary radius" >' + tr("Attach new nic") +'</div>'
+    } else {
+      html += '\
+         <div id="attach_nic" class="button small secondary radius" disabled="disabled">' + tr("Attach new nic") +'</div>'
+    }
+
+    html += '\
+      </div>\
+      <br>\
+      <br>'
+
+    html += '\
+      <div class="twelve columns">\
+         <table class="info_table twelve extended_table">\
+           <thead>\
+             <tr>\
+                <th>'+tr("ID")+'</th>\
+                <th>'+tr("Network")+'</th>\
+                <th>'+tr("VLAN")+'</th>\
+                <th>'+tr("Bridge")+'</th>\
+                <th>'+tr("IP")+'</th>\
+                <th>'+tr("MAC")+'</th>\
+                <th colspan="">'+tr("Actions")+'</th>\
+              </tr>\
+           </thead>\
+           <tbody>';
+
+
+    var nics = []
+    if ($.isArray(vm_info.TEMPLATE.NIC))
+        nics = vm_info.TEMPLATE.NIC
+    else if (!$.isEmptyObject(vm_info.TEMPLATE.NIC))
+        nics = [vm_info.TEMPLATE.NIC]
+
+    if (!nics.length){
+        html += '\
+          <tr id="no_nics_tr">\
+            <td colspan="6">' + tr("No nics to show") + '</td>\
+          </tr>';
+    }
+    else {
+
+        for (var i = 0; i < nics.length; i++){
+            var nic = nics[i];
+
+            var save_as;
+            // Attach / Detach
+            if ( 
+               ( // ACTIVE
+                vm_info.STATE == "3") && 
+               ( // HOTPLUG_NIC
+                vm_info.LCM_STATE == "25") && 
+               ( // 
+                nic.ATTACH == "YES")
+               ) {
+              actions = 'attach/detach in progress'
+            }
+            else {
+              actions = '';
+
+              if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3") {
+                actions += '<a href="VM.detachnic" class="detachnic" ><i class="icon-remove"/>'+tr("Detach")+'</a>'
+              }
+            }
+
+            html += '\
+              <tr nic_id="'+(nic.NIC_ID)+'">\
+                <td>' + nic.NIC_ID + '</td>\
+                <td>' + nic.NETWORK + '</td>\
+                <td>' + nic.VLAN + '</td>\
+                <td>' + nic.BRIDGE + '</td>\
+                <td>' + nic.IP + '</td>\
+                <td>' + nic.MAC + '</td>\
+                <td>' + actions + '</td>\
+            </tr>';
         }
+    }
+
+    html += '\
+            </tbody>\
+          </table>\
+        </div>\
+        <div class="">\
+            <div class="six columns">\
+              <div class="row graph_legend">\
+                <h3 class="subheader"><small>'+tr("NET RX")+'</small></h3>\
+              </div>\
+              <div class="row">\
+                <div class="ten columns centered graph" id="vm_net_rx_graph" style="height: 100px;">\
+                </div>\
+              </div>\
+              <div class="row graph_legend">\
+                <div class="ten columns centered" id="vm_net_rx_legend">\
+                </div>\
+              </div>\
+            </div>\
+            <div class="six columns">\
+              <div class="row graph_legend">\
+                <h3 class="subheader"><small>'+tr("NET TX")+'</small></h3>\
+              </div>\
+              <div class="row">\
+                <div class="ten columns centered graph" id="vm_net_tx_graph" style="height: 100px;">\
+                </div>\
+              </div>\
+              <div class="row graph_legend">\
+                <div class="ten columns centered" id="vm_net_tx_legend">\
+                </div>\
+              </div>\
+            </div>\
+            <div class="six columns">\
+              <div class="row graph_legend">\
+                <h3 class="subheader"><small>'+tr("NET DOWNLOAD SPEED")+'</small></h3>\
+              </div>\
+              <div class="row">\
+                <div class="ten columns centered graph" id="vm_net_rx_speed_graph" style="height: 100px;">\
+                </div>\
+              </div>\
+              <div class="row graph_legend">\
+                <div class="ten columns centered" id="vm_net_rx_speed_legend">\
+                </div>\
+              </div>\
+            </div>\
+            <div class="six columns">\
+              <div class="row graph_legend">\
+                <h3 class="subheader"><small>'+tr("NET UPLOAD SPEED")+'</small></h3>\
+              </div>\
+              <div class="row">\
+                <div class="ten columns centered graph" id="vm_net_tx_speed_graph" style="height: 100px;">\
+                </div>\
+              </div>\
+              <div class="row graph_legend">\
+                <div class="ten columns centered" id="vm_net_tx_speed_legend">\
+                </div>\
+              </div>\
+            </div>\
+        </div>\
+      </form>';
+
+    return html;
+}
+
+function setupAttachNicDialog(){
+    dialogs_context.append('<div id="attach_nic_dialog"></div>');
+    $attach_nic_dialog = $('#attach_nic_dialog',dialogs_context);
+    var dialog = $attach_nic_dialog;
+
+    dialog.html('<div class="panel">\
+      <h3>\
+        <small id="">'+tr("Attach new nic")+'</small>\
+      </h3>\
+    </div>\
+    <form id="attach_nic_form" action="">\
+          <div class="row centered">\
+              <div class="four columns">\
+                  <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
+              </div>\
+              <div class="seven columns">\
+                  <input type="text" name="vm_id" id="vm_id" disabled/>\
+              </div>\
+              <div class="one columns">\
+                  <div class=""></div>\
+              </div>\
+          </div>' +
+          generate_nic_tab_content("attach_nic", "attach_nic") +
+          '<hr>\
+          <div class="form_buttons">\
+              <button class="button radius right success" id="attach_nic_button" type="submit" value="VM.attachnic">'+tr("Attach")+'</button>\
+              <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+          </div>\
+      <a class="close-reveal-modal">&#215;</a>\
+    </form>')
+
+    dialog.addClass("reveal-modal large");
+    setupTips(dialog);
+
+    setup_nic_tab_content(dialog, "attach_nic", "attach_nic")
+
+    $('#attach_nic_form',dialog).submit(function(){
+        var vm_id = $('#vm_id', this).val();
+
+        var data  = {};
+        addSectionJSON(data, this);
+
+        var obj = {NIC: data}
+        Sunstone.runAction('VM.attachnic', vm_id, obj);
+
+        $attach_nic_dialog.trigger("reveal:close")
+        return false;
+    });
+};
+
+function popUpAttachNicDialog(vm_id){
+    $('#vm_id',$attach_nic_dialog).val(vm_id);
+    $attach_nic_dialog.reveal();
+}
+
+
+// Listeners to the nics operations (detach, saveas, attach)
+function setup_vm_network_tab(){
+    //setupSaveAsDialog();
+    setupAttachNicDialog();
+
+    $('a.detachnic').live('click', function(){
+        var b = $(this);
+        var vm_id = b.parents('form').attr('vmid');
+        var nic_id = b.parents('tr').attr('nic_id');
+
+        Sunstone.runAction('VM.detachnic', vm_id, nic_id);
+
+        //b.html(spinner);
+        return false;
+    });
+
+    $('#attach_nic').live('click', function(){
+        var b = $(this);
+        var vm_id = b.parents('form').attr('vmid');
+
+        popUpAttachNicDialog(vm_id);
+
+        //b.html(spinner);
+        return false;
+    }); 
+
+    $('#refresh_nic').live('click', function(){
+        var b = $(this);
+        var vm_id = b.parents('form').attr('vmid');
+        Sunstone.runAction("VM.shownics", vm_id);
+
+        return false;
+    }); 
+}
+
+
+
+function updateVMCapacityInfo(request,vm){
+  $("li#vm_capacity_tabTab").html(printCapacity(vm.VM));
+  Sunstone.runAction("VM.monitor",vm.VM.ID,
+        { monitor_resources : "CPU,MEMORY,NET_TX,NET_RX"});
+}
+
+function printCapacity(vm_info){
+   var html ='\
+     <div class="">\
+        <div>\
+           <form id="tab_capacity_form" vmid="'+vm_info.ID+'" >\
+              <div class="twelve columns">\
+                <div id="refresh_capacity" class="button small secondary radius" ><i class="icon-refresh"/></div>'
+
+    // If VM is not RUNNING, then we forget about the attach nic form.
+    if (vm_info.STATE == "0" || vm_info.STATE == "1" || vm_info.STATE == "2" || vm_info.STATE == "7" || vm_info.STATE == "8"){
+      html += '\
+        <button id="resize_capacity" class="button small secondary radius" >' + tr("Resize VM capacity") +'</button>'
+    } else {
+      html += '\
+        <button id="resize_capacity" class="button small secondary radius" disabled="disabled">' + tr("Resize VM capacity") +'</button>'
+    }
+
+    html += '\
+      </div>\
+      <br>\
+      <br>'
+
+    html += '\
+      <div class="twelve columns">\
+         <table class="info_table twelve extended_table">\
+           <thead>\
+             <tr>\
+                <th>'+tr("CPU")+'</th>\
+                <th>'+tr("VCPU")+'</th>\
+                <th>'+tr("MEMORY")+'</th>\
+              </tr>\
+           </thead>\
+           <tbody>\
+              <tr>\
+                <td>' + vm_info.TEMPLATE.CPU + '</td>\
+                <td>' + (vm_info.TEMPLATE.VCPU ? vm_info.TEMPLATE.VCPU : '-') + '</td>\
+                <td>' + humanize_size_from_mb(vm_info.TEMPLATE.MEMORY) + '</td>\
+            </tr>\
+            </tbody>\
+          </table>\
+        </div>\
+            <div class="six columns">\
+              <div class="row graph_legend">\
+                <h3 class="subheader"><small>'+tr("REAL CPU")+'</small></h3>\
+              </div>\
+              <div class="row">\
+                <div class="ten columns centered graph" id="vm_cpu_graph" style="height: 100px;">\
+                </div>\
+              </div>\
+              <div class="row graph_legend">\
+                <div class="ten columns centered" id="vm_cpu_legend">\
+                </div>\
+              </div>\
+            </div>\
+            <div class="six columns">\
+              <div class="row graph_legend">\
+                <h3 class="subheader"><small>'+tr("REAL MEMORY")+'</small></h3>\
+              </div>\
+              <div class="row">\
+                <div class="ten columns centered graph" id="vm_memory_graph" style="height: 100px;">\
+                </div>\
+              </div>\
+              <div class="row graph_legend">\
+                <div class="ten columns centered" id="vm_memory_legend">\
+                </div>\
+              </div>\
+            </div>\
+      </form>';
+
+    return html;
+}
+
+function setupResizeCapacityDialog(){
+    dialogs_context.append('<div id="resize_capacity_dialog"></div>');
+    $resize_capacity_dialog = $('#resize_capacity_dialog',dialogs_context);
+    var dialog = $resize_capacity_dialog;
+
+    dialog.html('<div class="panel">\
+      <h3>\
+        <small id="">'+tr("Resize VM capacity")+'</small>\
+      </h3>\
+    </div>\
+    <form id="resize_capacity_form" action="">\
+          <div class="row centered">\
+          <div class="eight columns">\
+              <div class="four columns">\
+                  <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
+              </div>\
+              <div class="seven columns">\
+                  <input type="text" name="vm_id" id="vm_id" disabled/>\
+              </div>\
+              <div class="one columns">\
+              </div>\
+          </div>\
+          <div class="four columns">\
+              <div class="four columns">\
+                  <label class="inline right" for="vm_id">'+tr("Enforce")+':</label>\
+              </div>\
+              <div class="two columns">\
+                  <input type="checkbox" name="enforce" id="enforce"/>\
+              </div>\
+              <div class="one columns pull-five">\
+                  <div class="tip">'
+                    + tr("If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced") +
+                  '</div>\
+              </div>\
+          </div>\
+          </div>' +
+          generate_capacity_tab_content() +
+          '<hr>\
+          <div class="form_buttons">\
+              <button class="button radius right success" id="resize_capacity_button" type="submit" value="VM.resize">'+tr("Resize")+'</button>\
+              <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+          </div>\
+      <a class="close-reveal-modal">&#215;</a>\
+    </form>')
+
+    dialog.addClass("reveal-modal large");
+    setupTips(dialog);
+
+    $("#template_name_form", dialog).hide();
+
+    setup_capacity_tab_content(dialog);
+
+    $('#resize_capacity_form',dialog).submit(function(){
+        var vm_id = $('#vm_id', this).val();
+
+        var enforce = false;
+        if ($("#enforce", this).is(":checked")) {
+          enforce = true;
+        }
+
+        var data  = {};
+        addSectionJSON(data, this);
 
         var obj = {
-            disk_id : disk_id,
-            image_name : image_name,
-            type: ""
-        };
-
-        Sunstone.runAction('VM.saveas', vm_id, obj);
-
-        b.html(spinner);
-        return false;
-    });
-
-    $('select#attach_disk_type').live('change',function(){
-        var context = $(this).parents('form');
-        switch ($(this).val()){
-        case "image":
-            $('tr.at_volatile',context).hide();
-            $('tr.at_image',context).show();
-            break;
-        case "volatile":
-            $('tr.at_image',context).hide();
-            $('tr.at_volatile',context).show();
-            break;
-        };
-    });
-
-    $('#hotplugging_form').live('submit',function(){
-        var vm_id = $(this).attr('vmid');
-        var disk_obj = {};
-        switch($('select#attach_disk_type',this).val()){
-        case "image":
-            var im_id = $('select[name="IMAGE_ID"]',this).val();
-            if (!im_id) {
-                notifyError(tr("Please select an image to attach"));
-                return false;
-            }
-            disk_obj.IMAGE_ID = $('select[name="IMAGE_ID"]',this).val();
-            disk_obj.DEV_PREFIX = $('input[name="DEV_PREFIX"]',this).val();
-            break;
-        case "volatile":
-            disk_obj.SIZE = $('input[name="SIZE"]',this).val();
-            disk_obj.FORMAT = $('input[name="FORMAT"]',this).val();
-            disk_obj.TYPE = $('select[name="TYPE"]',this).val();
-            disk_obj.DEV_PREFIX = $('input[name="DEV_PREFIX"]',this).val();
-//            disk_obj.READONLY = $('select[name="READONLY"]',this).val();
-//            disk_obj.SAVE = $('save[name="SAVE"]',this).val();
-            break;
+          "vm_template": data,
+          "enforce": (enforce == "on" ? true : false),
         }
+        console.log(enforce)
+        console.log(obj)
 
-        var obj = { DISK : disk_obj };
-        Sunstone.runAction("VM.attachdisk", vm_id, obj);
+        Sunstone.runAction('VM.resize', vm_id, obj);
+
+        $resize_capacity_dialog.trigger("reveal:close")
         return false;
     });
+};
+
+function popUpResizeCapacityDialog(vm_id){
+    $('#vm_id',$resize_capacity_dialog).val(vm_id);
+    $resize_capacity_dialog.reveal();
 }
+
+
+// Listeners to the nics operations (detach, saveas, attach)
+function setup_vm_capacity_tab(){
+    //setupSaveAsDialog();
+    setupResizeCapacityDialog();
+
+
+    $('#resize_capacity').live('click', function(){
+        var b = $(this);
+        var vm_id = b.parents('form').attr('vmid');
+
+        popUpResizeCapacityDialog(vm_id);
+
+        //b.html(spinner);
+        return false;
+    }); 
+
+    $('#refresh_capacity').live('click', function(){
+        var b = $(this);
+        var vm_id = b.parents('form').attr('vmid');
+        Sunstone.runAction("VM.showcapacity", vm_id);
+
+        return false;
+    }); 
+}
+
+
+function updateVMSnapshotsInfo(request,vm){
+  $("li#vm_snapshot_tabTab").html(printSnapshots(vm.VM));
+}
+
+// Generates the HTML for the snapshot tab
+// This is a list of disks with the save_as, detach options.
+// And a form to attach a new disk to the VM, if it is running.
+function printSnapshots(vm_info){
+   var html ='\
+     <div class="">\
+        <div id="columns twelve">\
+           <form id="snapshot_form" vmid="'+vm_info.ID+'" >\
+              <div class="twelve columns">\
+                <div id="refresh_disk" class="button small secondary radius" ><i class="icon-refresh"/></div>'
+
+    // If VM is not RUNNING, then we forget about the attach disk form.
+    if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
+      html += '\
+         <div id="take_snapshot" class="button small secondary radius" >' + tr("Take snapshot") +'</div>'
+    } else {
+      html += '\
+         <div id="take_snapshot" class="button small secondary radius" disabled="disabled">' + tr("Take snapshot") +'</div>'
+    }
+
+    html += '\
+      </div>\
+      <br>\
+      <br>'
+
+    html += '\
+      <div class="twelve columns">\
+         <table class="info_table twelve extended_table">\
+           <thead>\
+             <tr>\
+                <th>'+tr("ID")+'</th>\
+                <th>'+tr("Name")+'</th>\
+                <th>'+tr("Timestamp")+'</th>\
+                <th>'+tr("Actions")+'</th>\
+              </tr>\
+           </thead>\
+           <tbody>';
+
+
+    var snapshots = []
+    if ($.isArray(vm_info.TEMPLATE.SNAPSHOT))
+        snapshots = vm_info.TEMPLATE.SNAPSHOT
+    else if (!$.isEmptyObject(vm_info.TEMPLATE.SNAPSHOT))
+        snapshots = [vm_info.TEMPLATE.SNAPSHOT]
+
+    if (!snapshots.length){
+        html += '\
+          <tr id="no_snapshots_tr">\
+            <td colspan="6">' + tr("No snapshots to show") + '</td>\
+          </tr>';
+    }
+    else {
+
+        for (var i = 0; i < snapshots.length; i++){
+            var snapshot = snapshots[i];
+
+            if ( 
+               ( // ACTIVE
+                vm_info.STATE == "3") && 
+               ( // HOTPLUG_SNAPSHOT
+                vm_info.LCM_STATE == "24"))  {
+              actions = 'snapshot in progress' 
+            }
+            else {
+              actions = '';
+              
+              if ((vm_info.STATE == "3" && vm_info.LCM_STATE == "3")) {
+                actions += '<a href="VM.snapshot_revert" class="snapshot_revert" ><i class="icon-reply"/>'+tr("Revert")+'</a> &emsp;'
+                actions += '<a href="VM.snapshot_delete" class="snapshot_delete" ><i class="icon-remove"/>'+tr("Delete")+'</a>'
+              }
+            }
+
+            html += '\
+              <tr snapshot_id="'+(snapshot.SNAPSHOT_ID)+'">\
+                <td>' + snapshot.SNAPSHOT_ID + '</td>\
+                <td>' + snapshot.NAME + '</td>\
+                <td>' + pretty_time(snapshot.TIME) + '</td>\
+                <td>' + actions + '</td>\
+            </tr>';
+        }
+    }
+
+    html += '\
+            </tbody>\
+          </table>\
+        </div>\
+      </form>';
+
+    return html;
+}
+
+function setupSaveAsDialog(){
+    dialogs_context.append('<div id="save_as_dialog"></div>');
+    $save_as_dialog = $('#save_as_dialog',dialogs_context);
+    var dialog = $save_as_dialog;
+
+    dialog.html('<div class="panel">\
+  <h3>\
+    <small id="">'+tr("Snapshot")+'</small>\
+  </h3>\
+</div>\
+<form id="save_as_form" action="">\
+      <div class="row centered">\
+          <div class="four columns">\
+              <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
+          </div>\
+          <div class="seven columns">\
+              <input type="text" name="vm_id" id="vm_id" disabled/>\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+      </div>\
+      <div class="row centered">\
+          <div class="four columns">\
+              <label class="inline right" for="snapshot_name">'+tr("Snapshot name")+':</label>\
+          </div>\
+          <div class="seven columns">\
+              <input type="text" name="snapshot_name" id="snapshot_name" />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+      </div>\
+      <hr>\
+      <div class="form_buttons">\
+          <button class="button radius right success" id="snapshot_live_button" type="submit" value="VM.saveas">'+tr("Take snapshot")+'</button>\
+          <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+      </div>\
+  <a class="close-reveal-modal">&#215;</a>\
+</form>')
+
+    dialog.addClass("reveal-modal");
+    setupTips(dialog);
+
+    $('#save_as_form',dialog).submit(function(){
+        var vm_id = $('#vm_id', this).val();
+        var snapshot_name = $('#snapshot_name', this).val();
+
+        var obj = {
+            snapshot_name : snapshot_name
+        };
+
+        Sunstone.runAction('VM.snapshot_create', vm_id, obj);
+
+        $save_as_dialog.trigger("reveal:close")
+        return false;
+    });
+};
+
+function popUpSnapshotDialog(vm_id){
+    $('#vm_id',$save_as_dialog).val(vm_id);
+    $save_as_dialog.reveal();
+}
+
+
+
+
+// Listeners to the disks operations (detach, saveas, attach)
+function setup_vm_snapshot_tab(){
+    setupSaveAsDialog();
+
+    $('a.snapshot_revert').live('click', function(){
+      console.log("asdfasd")
+        var b = $(this);
+        var vm_id = b.parents('form').attr('vmid');
+        var snapshot_id = b.parents('tr').attr('snapshot_id');
+
+        Sunstone.runAction('VM.snapshot_revert', vm_id, {"snapshot_id": snapshot_id});
+
+        //b.html(spinner);
+        return false;
+    });
+
+    $('a.snapshot_delete').live('click', function(){
+        var b = $(this);
+        var vm_id = b.parents('form').attr('vmid');
+        var snapshot_id = b.parents('tr').attr('snapshot_id');
+
+        Sunstone.runAction('VM.snapshot_delete', vm_id, {"snapshot_id": snapshot_id});
+
+        //b.html(spinner);
+        return false;
+    });
+
+    $('#take_snapshot').live('click', function(){
+        var b = $(this);
+        var vm_id = b.parents('form').attr('vmid');
+
+        popUpSnapshotDialog(vm_id);
+
+        //b.html(spinner);
+        return false;
+    }); 
+
+    $('#refresh_snapshot').live('click', function(){
+        var b = $(this);
+        var vm_id = b.parents('form').attr('vmid');
+        Sunstone.runAction("VM.showsnapshots", vm_id);
+
+        return false;
+    }); 
+}
+
 
 // Sets up the create-template dialog and all the processing associated to it,
 // which is a lot.
@@ -1321,13 +2666,14 @@ function setupCreateVMDialog(){
     dialog.html(create_vm_tmpl);
 
     //Prepare jquery dialog
-    dialog.dialog({
-        autoOpen: false,
-        modal: true,
-        width: 400
-    });
+    //dialog.dialog({
+    //    autoOpen: false,
+    //    modal: true,
+    //    width: 400
+    //});
+    dialog.addClass("reveal-modal");
 
-    $('button',dialog).button();
+    //$('button',dialog).button();
     setupTips(dialog);
 
     $('#create_vm_form',dialog).submit(function(){
@@ -1364,114 +2710,21 @@ function setupCreateVMDialog(){
         setTimeout(function(){
             Sunstone.runAction("VM.list");
         },1500);
-        $create_vm_dialog.dialog('close');
+        $create_vm_dialog.trigger("reveal:close")
         return false;
     });
 }
 
 // Open creation dialog
 function popUpCreateVMDialog(){
-    $create_vm_dialog.dialog('open');
+    $create_vm_dialog.reveal();
 }
-
-function setupVMTemplateUpdateDialog(){
-    //Append to DOM
-    dialogs_context.append('<div id="vm_template_update_dialog" title="'+tr("Update VM properties")+'"></div>');
-    var dialog = $('#vm_template_update_dialog',dialogs_context);
-
-    //Put HTML in place
-    dialog.html(update_vm_tmpl);
-
-    var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
-
-    //Convert into jQuery
-    dialog.dialog({
-        autoOpen:false,
-        width:500,
-        modal:true,
-        height:height,
-        resizable:true
-    });
-
-    $('button',dialog).button();
-
-    $('#vm_template_update_select',dialog).change(function(){
-        var id = $(this).val();
-        $('.permissions_table input',dialog).removeAttr('checked');
-        $('.permissions_table',dialog).removeAttr('update');
-        if (id && id.length){
-            var dialog = $('#vm_template_update_dialog');
-            Sunstone.runAction("VM.fetch_permissions",id);
-        };
-    });
-
-    $('.permissions_table input',dialog).change(function(){
-        $(this).parents('table').attr('update','update');
-    });
-
-    $('form',dialog).submit(function(){
-        var dialog = $(this);
-        var id = $('#vm_template_update_select',dialog).val();
-        if (!id || !id.length) {
-            $(this).parents('#vm_template_update_dialog').dialog('close');
-            return false;
-        };
-
-        var permissions = $('.permissions_table',dialog);
-        if (permissions.attr('update')){
-            var perms = {
-                octet : buildOctet(permissions)
-            };
-            Sunstone.runAction("VM.chmod",id,perms);
-        };
-
-        $(this).parents('#vm_template_update_dialog').dialog('close');
-        return false;
-    });
-};
-
-function popUpVMTemplateUpdateDialog(){
-    var select = makeSelectOptions(dataTable_vMachines,
-                                   1,//id_col
-                                   4,//name_col
-                                   [],
-                                   []
-                                  );
-    var sel_elems = getSelectedNodes(dataTable_vMachines);
-
-
-    var dialog =  $('#vm_template_update_dialog');
-    $('#vm_template_update_select',dialog).html(select);
-    $('#vm_template_update_textarea',dialog).val("");
-    $('.permissions_table input',dialog).removeAttr('checked');
-    $('.permissions_table',dialog).removeAttr('update');
-
-    if (sel_elems.length >= 1){ //several items in the list are selected
-        //grep them
-        var new_select= sel_elems.length > 1? '<option value="">Please select</option>' : "";
-        $('option','<select>'+select+'</select>').each(function(){
-            var val = $(this).val();
-            if ($.inArray(val,sel_elems) >= 0){
-                new_select+='<option value="'+val+'">'+$(this).text()+'</option>';
-            };
-        });
-        $('#vm_template_update_select',dialog).html(new_select);
-        if (sel_elems.length == 1) {
-            $('#vm_template_update_select option',dialog).attr('selected','selected');
-            $('#vm_template_update_select',dialog).trigger("change");
-        };
-    };
-
-    dialog.dialog('open');
-    return false;
-};
 
 //Prepares autorefresh
 function setVMAutorefresh(){
      setInterval(function(){
          var checked = $('input.check_item:checked',dataTable_vMachines);
-         var filter = $("#datatable_vmachines_filter input",
-                        dataTable_vMachines.parents('#datatable_vmachines_wrapper')).attr('value');
+         var filter = $("#vms_search").attr('value');
          if (!checked.length && !filter.length){
              Sunstone.runAction("VM.autorefresh");
          };
@@ -1535,14 +2788,15 @@ function setupVNC(){
         </canvas>\
 ');
 
-    dialog.dialog({
-        autoOpen:false,
-        width:750,
-        modal:true,
-        height:500,
-        resizable:true,
-        closeOnEscape: false
-    });
+    //dialog.dialog({
+    //    autoOpen:false,
+    //    width:750,
+    //    modal:true,
+    //    height:500,
+    //    resizable:true,
+    //    closeOnEscape: false
+    //});
+    dialog.addClass("reveal-modal");
 
     $('#sendCtrlAltDelButton',dialog).click(function(){
         rfb.sendCtrlAltDel();
@@ -1576,7 +2830,7 @@ function vncCallback(request,response){
     var token = response["token"];
     var path = '?token='+token;
     rfb.connect(proxy_host, proxy_port, pw, path);
-    $vnc_dialog.dialog('open');
+    $vnc_dialog.reveal();
 }
 
 function vncIcon(vm){
@@ -1584,12 +2838,12 @@ function vncIcon(vm){
     var state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
     var gr_icon;
 
-    if (graphics && graphics.TYPE == "vnc" && $.inArray(state, VNCstates)!=-1){
+    if (graphics && graphics.TYPE.toLowerCase() == "vnc" && $.inArray(state, VNCstates)!=-1){
         gr_icon = '<a class="vnc" href="#" vm_id="'+vm.ID+'">';
-        gr_icon += '<img src="images/vnc_on.png" alt=\"'+tr("Open VNC Session")+'\" /></a>';
+        gr_icon += '<img style="height:15px" src="images/vnc_on.png" alt=\"'+tr("Open VNC Session")+'\" /></a>';
     }
     else {
-        gr_icon = '<img src="images/vnc_off.png" alt=\"'+tr("VNC Disabled")+'\" />';
+        gr_icon = '<img style="height:15px" src="images/vnc_off.png" alt=\"'+tr("VNC Disabled")+'\" />';
     }
     return gr_icon;
 }
@@ -1609,14 +2863,10 @@ function vmMonitorError(req,error_json){
 $(document).ready(function(){
 
     dataTable_vMachines = $("#datatable_vmachines",main_tabs_context).dataTable({
-        "bJQueryUI": true,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
-        "bSortClasses": false,
-        "sPaginationType": "full_numbers",
-        "bAutoWidth":false,
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0,6,7] },
@@ -1631,17 +2881,22 @@ $(document).ready(function(){
             } : ""
     });
 
-    dataTable_vMachines.fnClearTable();
-    addElement([
-        spinner,
-        '','','','','','','','','','',''],dataTable_vMachines);
+    $('#vms_search').keyup(function(){
+      dataTable_templates.fnFilter( $(this).val() );
+    })
+
+    //addElement([
+    //    spinner,
+    //    '','','','','','','','','','',''],dataTable_vMachines);
     Sunstone.runAction("VM.list");
 
     setupCreateVMDialog();
-    setupVMTemplateUpdateDialog();
     setVMAutorefresh();
     setupVNC();
     hotpluggingOps();
+    setup_vm_network_tab();
+    setup_vm_capacity_tab();
+    setup_vm_snapshot_tab();
 
     initCheckAllBoxes(dataTable_vMachines);
     tableCheckboxesListener(dataTable_vMachines);

@@ -146,7 +146,7 @@ var OpenNebula = {
 
         "image_type": function(value)
         {
-            return ["OS", "CDROM", "DATABLOCK"][value];
+            return ["OS", "CDROM", "DATABLOCK", "KERNEL", "RAMDISK", "CONTEXT"][value];
         },
 
         "action": function(action, params)
@@ -521,6 +521,9 @@ var OpenNebula = {
         },
         "monitor" : function(params){
             OpenNebula.Action.monitor(params,OpenNebula.Host.resource,false);
+        },
+        "pool_monitor" : function(params){
+            OpenNebula.Action.monitor(params,OpenNebula.Host.resource,true);
         }
     },
 
@@ -595,6 +598,13 @@ var OpenNebula = {
         },
         "fetch_template" : function(params){
             OpenNebula.Action.show(params,OpenNebula.Network.resource,"template");
+        },
+        "rename" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.Network.resource,
+                                            "rename",
+                                            action_obj);
         }
     },
 
@@ -686,6 +696,21 @@ var OpenNebula = {
             OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
                                             "saveas",action_obj);
         },
+        "snapshot_create": function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
+                                            "snapshot_create",action_obj);
+        },
+        "snapshot_revert": function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
+                                            "snapshot_revert",action_obj);
+        },
+        "snapshot_delete": function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
+                                            "snapshot_delete",action_obj);
+        },
         "vnc" : function(params,startstop){
             var callback = params.success;
             var callback_error = params.error;
@@ -711,8 +736,23 @@ var OpenNebula = {
         "startvnc" : function(params){
             OpenNebula.VM.vnc(params,"startvnc");
         },
+        "update": function(params){
+            var action_obj = {"template_raw" : params.data.extra_param };
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.VM.resource,
+                                            "update",
+                                            action_obj);
+        },
         "monitor" : function(params){
             OpenNebula.Action.monitor(params,OpenNebula.VM.resource,false);
+        },
+        "pool_monitor" : function(params){
+            OpenNebula.Action.monitor(params,OpenNebula.VM.resource,true);
+        },
+        "resize" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
+                                            "resize",action_obj);
         },
         "attachdisk" : function(params){
             var action_obj = {"disk_template": params.data.extra_param};
@@ -723,6 +763,23 @@ var OpenNebula = {
             var action_obj = {"disk_id": params.data.extra_param};
             OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
                                             "detachdisk",action_obj);
+        },
+        "attachnic" : function(params){
+            var action_obj = {"nic_template": params.data.extra_param};
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
+                                            "attachnic",action_obj);
+        },
+        "detachnic" : function(params){
+            var action_obj = {"nic_id": params.data.extra_param};
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
+                                            "detachnic",action_obj);
+        },
+        "rename" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.VM.resource,
+                                            "rename",
+                                            action_obj);
         }
     },
 
@@ -736,7 +793,96 @@ var OpenNebula = {
             OpenNebula.Action.del(params,OpenNebula.Group.resource);
         },
         "list": function(params){
-            OpenNebula.Action.list(params,OpenNebula.Group.resource);
+
+            var resource = OpenNebula.Group.resource
+            var req_path = resource.toLowerCase();
+
+            var callback = params.success;
+            var callback_error = params.error;
+            var timeout = params.timeout || false;
+            var request = OpenNebula.Helper.request(resource,"list");
+
+            $.ajax({
+                url: req_path,
+                type: "GET",
+                data: {timeout: timeout},
+                dataType: "json",
+                success: function(response){
+                    // Get the default group quotas
+                    default_group_quotas = response.GROUP_POOL.DEFAULT_GROUP_QUOTAS;
+
+                    // Initialize the VM_QUOTA to unlimited if it does not exist
+                    if ($.isEmptyObject(default_group_quotas.VM_QUOTA)){
+                        default_group_quotas.VM_QUOTA = {
+                            "VM" : {
+                                "VMS"    : "0",
+                                "MEMORY" : "0",
+                                "CPU"    : "0"
+                            }
+                        }
+                    }
+
+                    // Replace the DATASTORE array with a map
+
+                    var ds_quotas = [];
+
+                    if ($.isArray(default_group_quotas.DATASTORE_QUOTA.DATASTORE))
+                        ds_quotas = default_group_quotas.DATASTORE_QUOTA.DATASTORE;
+                    else if (default_group_quotas.DATASTORE_QUOTA.DATASTORE)
+                        ds_quotas = [default_group_quotas.DATASTORE_QUOTA.DATASTORE];
+
+                    delete default_group_quotas.DATASTORE_QUOTA;
+
+                    default_group_quotas.DATASTORE_QUOTA = {};
+
+                    for (var i=0; i < ds_quotas.length; i++){
+                        default_group_quotas.DATASTORE_QUOTA[ds_quotas[i].ID] = ds_quotas[i]
+                    }
+
+                    // Replace the IMAGE array with a map
+
+                    var img_quotas = [];
+
+                    if ($.isArray(default_group_quotas.IMAGE_QUOTA.IMAGE))
+                        img_quotas = default_group_quotas.IMAGE_QUOTA.IMAGE;
+                    else if (default_group_quotas.IMAGE_QUOTA.IMAGE)
+                        img_quotas = [default_group_quotas.IMAGE_QUOTA.IMAGE];
+
+                    delete default_group_quotas.IMAGE_QUOTA;
+
+                    default_group_quotas.IMAGE_QUOTA = {};
+
+                    for (var i=0; i < img_quotas.length; i++){
+                        default_group_quotas.IMAGE_QUOTA[img_quotas[i].ID] = img_quotas[i]
+                    }
+
+                    // Replace the NETWORK array with a map
+
+                    var net_quotas = [];
+
+                    if ($.isArray(default_group_quotas.NETWORK_QUOTA.NETWORK))
+                        net_quotas = default_group_quotas.NETWORK_QUOTA.NETWORK;
+                    else if (default_group_quotas.NETWORK_QUOTA.NETWORK)
+                        net_quotas = [default_group_quotas.NETWORK_QUOTA.NETWORK];
+
+                    delete default_group_quotas.NETWORK_QUOTA;
+
+                    default_group_quotas.NETWORK_QUOTA = {};
+
+                    for (var i=0; i < net_quotas.length; i++){
+                        default_group_quotas.NETWORK_QUOTA[net_quotas[i].ID] = net_quotas[i]
+                    }
+
+                    var list = OpenNebula.Helper.pool(resource,response)
+                    return callback ?
+                        callback(request, list) : null;
+                },
+                error: function(response)
+                {
+                    return callback_error ?
+                        callback_error(request, OpenNebula.Error(response)) : null;
+                }
+            });
         },
         "set_quota" : function(params){
             var action_obj = { quotas :  params.data.extra_param };
@@ -760,7 +906,96 @@ var OpenNebula = {
             OpenNebula.Action.del(params,OpenNebula.User.resource);
         },
         "list": function(params){
-            OpenNebula.Action.list(params,OpenNebula.User.resource);
+
+            var resource = OpenNebula.User.resource
+            var req_path = resource.toLowerCase();
+
+            var callback = params.success;
+            var callback_error = params.error;
+            var timeout = params.timeout || false;
+            var request = OpenNebula.Helper.request(resource,"list");
+
+            $.ajax({
+                url: req_path,
+                type: "GET",
+                data: {timeout: timeout},
+                dataType: "json",
+                success: function(response){
+                    // Get the default user quotas
+                    default_user_quotas = response.USER_POOL.DEFAULT_USER_QUOTAS;
+
+                    // Initialize the VM_QUOTA to unlimited if it does not exist
+                    if ($.isEmptyObject(default_user_quotas.VM_QUOTA)){
+                        default_user_quotas.VM_QUOTA = {
+                            "VM" : {
+                                "VMS"    : "0",
+                                "MEMORY" : "0",
+                                "CPU"    : "0"
+                            }
+                        }
+                    }
+
+                    // Replace the DATASTORE array with a map
+
+                    var ds_quotas = [];
+
+                    if ($.isArray(default_user_quotas.DATASTORE_QUOTA.DATASTORE))
+                        ds_quotas = default_user_quotas.DATASTORE_QUOTA.DATASTORE;
+                    else if (default_user_quotas.DATASTORE_QUOTA.DATASTORE)
+                        ds_quotas = [default_user_quotas.DATASTORE_QUOTA.DATASTORE];
+
+                    delete default_user_quotas.DATASTORE_QUOTA;
+
+                    default_user_quotas.DATASTORE_QUOTA = {};
+
+                    for (var i=0; i < ds_quotas.length; i++){
+                        default_user_quotas.DATASTORE_QUOTA[ds_quotas[i].ID] = ds_quotas[i]
+                    }
+
+                    // Replace the IMAGE array with a map
+
+                    var img_quotas = [];
+
+                    if ($.isArray(default_user_quotas.IMAGE_QUOTA.IMAGE))
+                        img_quotas = default_user_quotas.IMAGE_QUOTA.IMAGE;
+                    else if (default_user_quotas.IMAGE_QUOTA.IMAGE)
+                        img_quotas = [default_user_quotas.IMAGE_QUOTA.IMAGE];
+
+                    delete default_user_quotas.IMAGE_QUOTA;
+
+                    default_user_quotas.IMAGE_QUOTA = {};
+
+                    for (var i=0; i < img_quotas.length; i++){
+                        default_user_quotas.IMAGE_QUOTA[img_quotas[i].ID] = img_quotas[i]
+                    }
+
+                    // Replace the NETWORK array with a map
+
+                    var net_quotas = [];
+
+                    if ($.isArray(default_user_quotas.NETWORK_QUOTA.NETWORK))
+                        net_quotas = default_user_quotas.NETWORK_QUOTA.NETWORK;
+                    else if (default_user_quotas.NETWORK_QUOTA.NETWORK)
+                        net_quotas = [default_user_quotas.NETWORK_QUOTA.NETWORK];
+
+                    delete default_user_quotas.NETWORK_QUOTA;
+
+                    default_user_quotas.NETWORK_QUOTA = {};
+
+                    for (var i=0; i < net_quotas.length; i++){
+                        default_user_quotas.NETWORK_QUOTA[net_quotas[i].ID] = net_quotas[i]
+                    }
+
+                    var list = OpenNebula.Helper.pool(resource,response)
+                    return callback ?
+                        callback(request, list) : null;
+                },
+                error: function(response)
+                {
+                    return callback_error ?
+                        callback_error(request, OpenNebula.Error(response)) : null;
+                }
+            });
         },
         "show" : function(params){
             OpenNebula.Action.show(params,OpenNebula.User.resource);
@@ -871,6 +1106,13 @@ var OpenNebula = {
             var name = params.data.extra_param ? params.data.extra_param : "";
             var action_obj = { "name" : name };
             OpenNebula.Action.simple_action(params,OpenNebula.Image.resource, "clone", action_obj);
+        },
+        "rename" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.Image.resource,
+                                            "rename",
+                                            action_obj);
         }
     },
 
@@ -903,7 +1145,7 @@ var OpenNebula = {
                                             action_obj);
         },
         "update" : function(params){
-            var action_obj = {"template_raw" : params.data.extra_param };
+            var action_obj = params.data.extra_param;
             OpenNebula.Action.simple_action(params,
                                      OpenNebula.Template.resource,
                                      "update",
@@ -928,6 +1170,13 @@ var OpenNebula = {
             var name = params.data.extra_param ? params.data.extra_param : "";
             var action_obj = { "name" : name };
             OpenNebula.Action.simple_action(params,OpenNebula.Template.resource, "clone", action_obj);
+        },
+        "rename" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.Template.resource,
+                                            "rename",
+                                            action_obj);
         }
     },
 

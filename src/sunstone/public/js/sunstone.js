@@ -66,6 +66,7 @@ var Sunstone = {
         SunstoneCfg["tabs"][tab_id] = tab_obj;
         if (refresh){
             insertTab(tab_id);
+            //$(document).foundationCustomForms();
         }
     },
 
@@ -73,7 +74,7 @@ var Sunstone = {
     "updateMainTabContent" : function(tab_id,content_arg,refresh){
         SunstoneCfg["tabs"][tab_id]["content"]=content_arg;
         //if not present it will not be updated
-        if (refresh){ 
+        if (refresh){
             $('div#'+tab_id, main_tabs_context).html(content_arg);
         }
     },
@@ -119,18 +120,27 @@ var Sunstone = {
     //Generates and returns the HTML div element for an info panel, with
     //Jquery tabs.
     "getInfoPanelHTML" : function(panel_name,selected_tab){
-        var info_panel = $('<div id="'+panel_name+'"><ul></ul></div>');
+        var dl_tabs = $('<br><div id="'+panel_name+'" class="row"><dl class="tabs"></dl><ul class="tabs-content"></ul></div>');
         var tabs = SunstoneCfg["info_panels"][panel_name];
         var tab=null;
+        var active=false;
         for (tab_name in tabs){
             tab=tabs[tab_name];
-            $('ul',info_panel).append('<li><a href="#'+tab_name+'">'+tab.title+'</a></li>');
-            info_panel.append('<div id="'+tab_name+'">'+tab.content+'</div>');
+            var dd = $('<dd><a href="#'+tab_name+'">'+tab.title+'</a></dd>').appendTo($('dl',dl_tabs));
+            //$('ul', dl_tabs).append('<div id="'+tab_name+'"><li id="'+tab_name+'Tab">'+tab.content+'</li></div>');
+            var li = $('<li id="'+tab_name+'Tab">'+tab.content+'</li>').appendTo($('ul', dl_tabs));
+
+            if (!active) {
+                dd.addClass('active');
+                li.addClass('active');
+                active = true;
+            }
         }
         if (selected_tab){
-            return info_panel.tabs({selected: selected_tab});
+            // TODO select tab
+            return dl_tabs
         }
-        return info_panel.tabs({selected: 0});
+        return dl_tabs
 
     },
 
@@ -231,7 +241,7 @@ var Sunstone = {
                 error:err,
                 data: {id:data_arg, monitor: extra_param}});
             break;
-            case "multiple":
+        case "multiple":
             //run on the list of nodes that come on the data
             $.each(data_arg,function(){
                 if (extra_param){
@@ -292,8 +302,7 @@ $(document).ready(function(){
     plots_context = $('div#plots');
     info_panels_context = $('div#info_panels');
 
-    readCookie();
-    setLogin();
+
 
     //Insert the tabs in the DOM and their buttons.
     insertTabs();
@@ -309,13 +318,20 @@ $(document).ready(function(){
     //This dialog is shared to update templates
     setupTemplateUpdateDialog();
 
+    readCookie();
+    setLogin();
+
     //Listen for .action_buttons
     //An action buttons runs a predefined action. If it has type
     //"multiple" it runs that action on the elements of a datatable.
     $('.action_button').live("click",function(){
         var error = 0;
         var table = null;
-        var value = $(this).attr('value');
+        var value = $(this).val()
+        if ($.isEmptyObject(value)) {
+            value = $(this).attr('href');
+        }
+
         var action = SunstoneCfg["actions"][value];
         if (!action) {
             notifyError("Action "+value+" not defined.");
@@ -333,7 +349,8 @@ $(document).ready(function(){
         if (!error){
             //proceed to close confirm dialog in
             //case it was open
-            $('div#confirm_dialog').dialog("close");
+            $('div#confirm_dialog').trigger('reveal:close');
+            $('.button.dropdown').find('ul').removeClass('show-dropdown');
         };
 
         return false;
@@ -355,11 +372,11 @@ $(document).ready(function(){
     });
 
     //Jquery-enhace the buttons in the DOM
-    $('button').button();
+    //$('button').button();
 
     //Close overlay dialogs when clicking outside of them.
     $(".ui-widget-overlay").live("click", function (){
-        $("div:ui-dialog:visible").dialog("close");
+        $("div:ui-dialog:visible").trigger("reveal:close");
     });
 
     //Close select lists when clicking somewhere else.
@@ -393,7 +410,7 @@ function readCookie(){
     });
 }
 
-//sets the user info in the top bar and creates a listner in the
+//sets the user info in the top bar and creates a listener in the
 //signout button
 function setLogin(){
     //This variables can be used anywhere
@@ -412,10 +429,19 @@ function setLogin(){
         break;
     };
 
+    var user_login_content =  '<div href="#" class="button tiny secondary dropdown" id="logout">\
+      <i class="icon-user header-icon"></i> '+ username + '\
+      <ul>\
+        <li><a href="#" class="configuration"><i class="icon-cog"></i> Configuration</a></li>\
+        <li><a href="#" class="logout"><i class="icon-off"></i> Sign Out</a></li>\
+      </ul>\
+    </div>';
 
-    $("div#header span#user").html(username);
 
-    $("div#header a#logout").click(function(){
+
+    $("span.user-login").html(user_login_content);
+
+    $("span.user-login a.logout").click(function(){
         redirect = function(){window.location.href = "login";};
         switch(whichUI()){
         case "sunstone":
@@ -430,6 +456,11 @@ function setLogin(){
         }
         return false;
     });
+
+    $("span.user-login a.configuration").click(function(){
+        $config_dialog.reveal();
+    });
+    
 }
 
 //returns whether we are Sunstone, or oZones
@@ -467,9 +498,14 @@ function insertTab(tab_name){
 
     main_tabs_context.append('<div id="'+tab_name+'" class="tab" style="display:none;"></div>');
 
-    $('div#'+tab_name,main_tabs_context).html(tab_info.content);
+    if (tab_info.content) {
+        $('div#'+tab_name,main_tabs_context).html(tab_info.content);
+    }
+    else {
+        tabClass += " tab_with_no_content"
+    }
 
-    var li_item = '<li id="li_'+tab_name+'" class="'+tabClass+' '+parent+'">'+tab_info.title+'<span class="ui-icon ui-icon-circle-plus plusIcon"></span></li>';
+    var li_item = '<li id="li_'+tab_name+'" class="'+tabClass+' '+parent+'"><a href="#">'+tab_info.title+'<span class="icon-caret-left icon-large plusIcon right"></span></a></li>';
 
     //if this is a submenu...
     if (parent.length) {
@@ -526,6 +562,98 @@ function insertButtonsInTab(tab_name){
 
     if (action_block.length){
 
+        var buttons_row = $("<div class='row'>"+
+            "<div class='four columns'>"+
+                '<div class="button-bar">'+
+                  '<ul class="button-group">'+
+                    '<li>'+
+                        "<div id='refresh_buttons'>"+
+                        "</div>"+
+                    '</li>'+
+                  '</ul>'+
+                  '<ul class="button-group">'+
+                    '<li>'+
+                        "<div id='create_buttons'>"+
+                        "</div>"+
+                    '</li>'+
+                  '</ul>'+
+                "</div>"+
+            "</div>"+
+            "<div class='eight columns'>"+
+                '<div class="button-bar">'+
+                  '<ul class="button-group right">'+
+                    '<li id="vmsstopresume_buttons">'+
+                        "<div>"+
+                            "<div href='#' class='top_button small button secondary dropdown radius'>"+
+                                "<i class='icon-play'/> / <i class='icon-pause'/>"+
+                                "<ul>"+
+                                "</ul>"+
+                            "</div>"+
+                        "</div>"+
+                    '</li>'+
+                    '<li id="vmsoneoff_buttons">'+
+                        "<div>"+
+                            "<div href='#' class='top_button small button secondary dropdown radius'>"+
+                                "<i class='icon-off'/>"+
+                                "<ul>"+
+                                "</ul>"+
+                            "</div>"+
+                        "</div>"+
+                    '</li>'+
+                    '<li id="vmsdelete_buttons">'+
+                        "<div>"+
+                            "<div href='#' class='top_button small button secondary dropdown radius'>"+
+                                "<i class='icon-trash'/>"+
+                                "<ul>"+
+                                "</ul>"+
+                            "</div>"+
+                        "</div>"+
+                    '</li>'+
+                    '<li id="vmsplanification_buttons">'+
+                        "<div>"+
+                            "<div href='#' class='top_button small button secondary dropdown radius'>"+
+                                "<i class='icon-th-list'/>"+
+                                "<ul>"+
+                                "</ul>"+
+                            "</div>"+
+                        "</div>"+
+                    '</li>'+
+                    '<li>'+
+                        "<div id='main_buttons'>"+
+                            "<ul class='button-group radius'>"+
+                            "</ul>"+
+                        "</div>"+
+                    '</li>'+
+                    '<li>'+
+                        "<div id='more_buttons'>"+
+                            "<div href='#' class='top_button small button secondary dropdown radius'>More "+
+                                "<ul>"+
+                                "</ul>"+
+                            "</div>"+
+                        "</div>"+
+                    '</li>'+
+                  '</ul>'+
+                  '<ul class="button-group right">'+
+                    '<li>'+
+                        "<div id='user_buttons'>"+
+                            "<div href='#' class='top_button small secondary button dropdown radius'>"+
+                                "<i class='icon-user'/>"+
+                                "<ul>"+
+                                "</ul>"+
+                            "</div>"+
+                        "</div>"+
+                    '</li>'+
+                  '</ul>'+
+                  '<ul class="button-group right">'+
+                    '<li>'+
+                        "<div id='delete_buttons'>"+
+                        "</div>"+
+                    '</li>'+
+                  '</ul>'+
+                "</div>"+
+            "</div>"+
+        "</div>");
+
         //for every button defined for this tab...
         for (button_name in buttons){
             button_code = "";
@@ -534,46 +662,126 @@ function insertButtonsInTab(tab_name){
             //if we meet the condition we proceed. Otherwise we skip it.
             if (condition && !condition()) { continue; }
 
-            //depending on the type of button we generate different
-            //code. There are 4 possible types:
-            /*
-             * select: We need to create a select element with actions inside.
-             * image: a button consisting of a link with an image inside.
-             * create: we make sure they have the "action_button" class.
-             * default: generally buttons have the "<type>_button" class.
-             */
+            var type = button.type+'_button';
+            var str_class = [type]
             switch (button.type) {
             case "select":
-                button_code = '<select class="multi_action_slct">';
-                //for each subbutton in the list we add an option to the select.
-                for (sel_name in button.actions){
-                    sel_obj = button["actions"][sel_name];
-                    condition = sel_obj.condition;
-                    //only add if we meet the condition
-                    if (condition && !condition()){ continue; };
-                    button_code += '<option class="'+sel_obj.type+'_button" value="'+sel_name+'">'+sel_obj.text+'</option>';
-                };
-                button_code += '</select>';
                 break;
             case "image":
-                button_code = '<a href="#" class="action_button" value="'+button_name+'"><img class="image_button" src="'+button.img+'" alt="'+button.text+'" /></a>';
+                str_class.push("action_button")
                 break;
             case "create_dialog":
-                button_code = '<button class="'+button.type+'_button action_button top_button" value="'+button_name+'">'+button.text+'</button>';
+                str_class.push("action_button")
+                str_class.push("top_button")
                 break;
             default:
-                button_code = '<button class="'+button.type+'_button top_button" value="'+button_name+'">'+button.text+'</button>';
-
+                str_class.push("top_button")
             }
 
             if (button.alwaysActive) {
-                button_code = $(button_code).addClass("alwaysActive");
+                str_class.push("alwaysActive");
             }
 
-            action_block.append(button_code);
+            var context;
+            var text;
+            switch (button.layout) {
+            case "create":
+                context = $("#create_buttons", buttons_row);
+                text = button.text ? '<i class="icon-plus-sign"/>  ' + button.text : '<i class="icon-plus-sign"/>  Create';
+                str_class.push("success", "button", "small", "radius");
+                button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
+                break;
+            case "refresh":
+                context = $("#refresh_buttons", buttons_row);
+                text = '<i class="icon-refresh"/>';
+                str_class.push("secondary", "button", "small", "radius");
+                button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
+                break;
+            case "main":
+                context = $("#main_buttons ul", buttons_row);
+                text = button.text;
+                str_class.push("secondary", "button", "small", "radius");
+                button_code = '<li><button type"button" class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button></li>';
+                break;
+            case "vmsstopresume_buttons":
+                context = $("#vmsstopresume_buttons ul", buttons_row);
+                text = button.text;
+                button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
+                break;
+            case "vmsplanification_buttons":
+                context = $("#vmsplanification_buttons ul", buttons_row);
+                text = button.text;
+                button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
+                break;
+            case "vmsdelete_buttons":
+                context = $("#vmsdelete_buttons ul", buttons_row);
+                text = button.text;
+                button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
+                break;
+            case "vmsoneoff_buttons":
+                context = $("#vmsoneoff_buttons ul", buttons_row);
+                text = button.text;
+                button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
+                break;
+            case "more_select":
+                context = $("#more_buttons ul", buttons_row);
+                text = button.text;
+                button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
+                break;
+            case "user_select":
+                context = $("#user_buttons ul", buttons_row);
+                text = button.text;
+                button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
+                break;
+            case "del":
+                context = $("#delete_buttons", buttons_row);
+                text = '<i class=" icon-trash"/>  Delete';
+                str_class.push("alert", "button", "small", "radius");
+                button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
+                break;
+            default:
+                context = $("#main_buttons", buttons_row);
+                text = button.text;
+                str_class.push("secondary", "button", "small", "radius");
+                button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
+            }
 
+            context.append(button_code);
         }//for each button in tab
-        $('.top_button',action_block).button();
+        //$('.top_button',action_block).button();
+        //$('.top_button',action_block).addClass("secondary small button")
+
+        action_block.append(buttons_row);
+
+        if  ($("#more_buttons ul li", action_block).length == 0 ) {
+            $("#more_buttons", action_block).remove()
+        }
+
+        if  ($("#user_buttons ul li", action_block).length == 0 ) {
+            $("#user_buttons", action_block).remove()
+        }
+
+        if  ($("#vmsplanification_buttons ul li", action_block).length == 0 ) {
+            $("#vmsplanification_buttons", action_block).remove()
+        }
+
+        if  ($("#vmsdelete_buttons ul li", action_block).length == 0 ) {
+            $("#vmsdelete_buttons", action_block).remove()
+        }
+
+        if  ($("#vmsoneoff_buttons ul li", action_block).length == 0 ) {
+            $("#vmsoneoff_buttons", action_block).remove()
+        }
+
+        if  ($("#vmsstopresume_buttons ul li", action_block).length == 0 ) {
+            $("#vmsstopresume_buttons", action_block).remove()
+        }
+
+        if  ($("#user_buttons ul li", action_block).length == 0 ) {
+            $("#user_buttons", action_block).remove()
+        }
+        //action_block.foundationButtons();
+
     }//if tab exists
 }
 
@@ -582,69 +790,70 @@ function insertButtonsInTab(tab_name){
 //another containing a list of actions that can be folded/unfolded.
 function initListButtons(){
 
-    //for each multi_action select
-    $('.multi_action_slct',main_tabs_context).each(function(){
-        //prepare replacement buttons
-        var buttonset = $('<div style="display:inline-block;" class="top_button"></div');
-        var button1 = $('<button class="last_action_button action_button confirm_button confirm_with_select_button" value="">'+tr("Previous action")+'</button>').button();
-        button1.attr('disabled','disabled');
-        var button2 = $('<button class="list_button" value="">See more</button>').button({
-            text:false,
-            icons: { primary: "ui-icon-triangle-1-s" }
-        });
-        buttonset.append(button1);
-        buttonset.append(button2);
-        buttonset.buttonset();
-
-        //prepare list
-        var options = $('option', $(this));
-        var list = $('<ul class="action_list"></ul>');
-        $.each(options,function(){
-            var classes = $(this).attr('class');
-            var item = $('<li></li>');
-            var a = $('<a href="#" class="'+classes+'" value="'+$(this).val()+'">'+$(this).text()+'</a>');
-            a.val($(this).val());
-            item.html(a);
-            list.append(item);
-        });
-        list.css({
-            "display":"none"
-        });
-
-        $(this).before(buttonset);
-        $(this).parents('.action_blocks').append(list);
-        $(this).remove();
-
-    });
-
-    //below the listeners for events on these buttons and list
-
-    //enable run the last action button
-    $('.action_list li a',main_tabs_context).click(function(){
-        //enable run last action button
-        var prev_action_button = $('.last_action_button',$(this).parents('.action_blocks'));
-        prev_action_button.val($(this).val());
-        prev_action_button.removeClass("confirm_with_select_button");
-        prev_action_button.removeClass("confirm_button");
-        prev_action_button.removeClass("action_button");
-        prev_action_button.addClass($(this).attr('class'));
-        prev_action_button.button("option","label",$(this).text());
-        prev_action_button.button("enable");
-        $(this).parents('ul').hide("blind",100);
-        //return false;
-    });
-
-    //Show the list of actions in place
-    $('.list_button',main_tabs_context).click(function(){
-        $('.action_list',$(this).parents('.action_blocks')).css({
-            "left": $(this).prev().position().left,
-            "top": $(this).prev().position().top+13,
-            "width": $(this).parent().outerWidth()-11
-        });
-        //100ms animation time
-        $('.action_list',$(this).parents('.action_blocks')).toggle("blind",100);
-        return false;
-    });
+   // //for each multi_action select
+   // $('.multi_action_slct',main_tabs_context).each(function(){
+   //     //prepare replacement buttons
+   //     var buttonset = $('<div style="display:inline-block;" class="top_button"></div');
+   //     var button1 = $('<button class="last_action_button action_button confirm_button confirm_with_select_button" value="">'+tr("Previous action")+'</button>')//.button();
+   //     button1.attr('disabled','disabled');
+   //     var button2 = $('<button class="list_button" value="">See more</button>')
+   //     //.button({
+   //     //    text:false,
+   //     //    icons: { primary: "ui-icon-triangle-1-s" }
+   //     //});
+   //    // buttonset.append(button1);
+   //    // buttonset.append(button2);
+   //    // buttonset.buttonset();
+////
+   //     //prepare list
+   //     var options = $('option', $(this));
+   //     var list = $('<ul class="action_list"></ul>');
+   //     $.each(options,function(){
+   //         var classes = $(this).attr('class');
+   //         var item = $('<li></li>');
+   //         var a = $('<a href="#" class="'+classes+'" value="'+$(this).val()+'">'+$(this).text()+'</a>');
+   //         a.val($(this).val());
+   //         item.html(a);
+   //         list.append(item);
+   //     });
+   //     list.css({
+   //         "display":"none"
+   //     });
+//
+   //     $(this).before(buttonset);
+   //     $(this).parents('.action_blocks').append(list);
+   //     $(this).remove();
+//
+   // });
+//
+   // //below the listeners for events on these buttons and list
+//
+   // //enable run the last action button
+   // //$('.action_list li a',main_tabs_context).click(function(){
+   // //    //enable run last action button
+   // //    var prev_action_button = $('.last_action_button',$(this).parents('.action_blocks'));
+   // //    prev_action_button.val($(this).val());
+   // //    prev_action_button.removeClass("confirm_with_select_button");
+   // //    prev_action_button.removeClass("confirm_button");
+   // //    prev_action_button.removeClass("action_button");
+   // //    prev_action_button.addClass($(this).attr('class'));
+   // //    prev_action_button.button("option","label",$(this).text());
+   // //    prev_action_button.button("enable");
+   // //    $(this).parents('ul').hide("blind",100);
+   // //    //return false;
+   // //});
+//
+   // //Show the list of actions in place
+   // $('.list_button',main_tabs_context).click(function(){
+   //     $('.action_list',$(this).parents('.action_blocks')).css({
+   //         "left": $(this).prev().position().left,
+   //         "top": $(this).prev().position().top+13,
+   //         "width": $(this).parent().outerWidth()-11
+   //     });
+   //     //100ms animation time
+   //     $('.action_list',$(this).parents('.action_blocks')).toggle("blind",100);
+   //     return false;
+   // });
 }
 
 //Prepares the standard confirm dialogs
@@ -654,71 +863,81 @@ function setupConfirmDialogs(){
 
     //add the HTML with the standard question and buttons.
         dialog.html(
-        '<form action="javascript:alert(\'js error!\');">\
+        '<div class="panel">\
+            <h3>\
+              <small>'+tr("Confirm")+'</small>\
+            </h3>\
+          </div>\
+        <form action="">\
            <div id="confirm_tip">'+tr("You have to confirm this action.")+'</div>\
            <br />\
            <div id="question">'+tr("Do you want to proceed?")+'</div>\
            <br />\
+           <hr>\
            <div class="form_buttons">\
-             <button id="confirm_proceed" class="action_button" value="">'+tr("OK")+'</button>\
-             <button class="confirm_cancel" value="">'+tr("Cancel")+'</button>\
+             <button id="confirm_proceed" class="action_button radius button right" value="">'+tr("OK")+'</button>\
+             <button class="confirm_cancel close-reveal-modal button radius secondary" value="">'+tr("Cancel")+'</button>\
           </div>\
+            <a class="close-reveal-modal">&#215;</a>\
         </form>');
 
     //prepare the jquery dialog
-    dialog.dialog({
-        resizable:false,
-        modal:true,
-        width:300,
-        heigth:200,
-        autoOpen:false
-    });
+    //dialog.dialog({
+    //    resizable:false,
+    //    modal:true,
+    //    width:300,
+    //    heigth:200,
+    //    autoOpen:false
+    //});
+    dialog.addClass("reveal-modal");
 
     //enhace the button look
-    $('button',dialog).button();
+    //$('button',dialog).button();
 
-    //if a cancel button is pressed, we close the dialog.
-    $('button.confirm_cancel',dialog).click(function(){
-        $(this).parents('div:ui-dialog').dialog("close");
-        return false;
-    });
 
     dialogs_context.append('<div id="confirm_with_select_dialog" title=\"'+tr("Confirmation of action")+'\"></div>');
     dialog = $('div#confirm_with_select_dialog',dialogs_context);
 
     dialog.html(
-        '<form action="javascript:alert(\'js error!\');">\
-           <div id="confirm_with_select_tip">'+tr("You need to select something.")+'</div>\
-           <select style="margin: 10px 0;" id="confirm_select">\
-           </select>\
+        '<div class="panel">\
+            <h3>\
+              <small>'+tr("Confirm")+'</small>\
+            </h3>\
+          </div>\
+          <form action="">\
+            <div class="row">\
+                <div id="confirm_with_select_tip">'+tr("You need to select something.")+'</div>\
+            </div>\
+            <div class="row">\
+                <select style="margin: 10px 0;" id="confirm_select">\
+                </select>\
+            </div>\
+            </div>\
+            <hr>\
            <div class="form_buttons">\
-              <button id="confirm_with_select_proceed" class="" value="">'+tr("OK")+'</button>\
-              <button class="confirm_cancel" value="">'+tr("Cancel")+'</button>\
+              <button id="confirm_with_select_proceed" class="action_button radius button right" value="">'+tr("OK")+'</button>\
+              <button class="confirm_cancel close-reveal-modal button radius secondary" value="">'+tr("Cancel")+'</button>\
            </div>\
+            <a class="close-reveal-modal">&#215;</a>\
          </form>');
 
     //prepare the jquery dialog
-    dialog.dialog({
-        resizable:false,
-        modal:true,
-        width:300,
-        heigth:300,
-        autoOpen:false
-    });
+    //dialog.dialog({
+    //    resizable:false,
+    //    modal:true,
+    //    width:300,
+    //    heigth:300,
+    //    autoOpen:false
+    //});
+    dialog.addClass("reveal-modal")
 
-    $('button',dialog).button();
-
-    //if a cancel button is pressed, we close the dialog.
-    $('button.confirm_cancel',dialog).click(function(){
-        $(this).parents('div:ui-dialog').dialog("close");
-        return false;
-    });
+    //$('button',dialog).button();
 
     //when we proceed with a "confirm with select" we need to
     //find out if we are running an action with a parametre on a datatable
     //items or if its just an action
     $('button#confirm_with_select_proceed',dialog).click(function(){
-        var context = $(this).parents('div:ui-dialog');
+        var context = $(this).parents('div.reveal-modal');
         var error = 0;
         var value = $(this).val();
         var action = SunstoneCfg["actions"][value];
@@ -741,7 +960,8 @@ function setupConfirmDialogs(){
         }
 
         if (!error){
-            context.dialog("close");
+            context.trigger("reveal:close")
+            $('.button.dropdown').find('ul').removeClass('show-dropdown');
         }
 
         return false;
@@ -755,12 +975,12 @@ function setupConfirmDialogs(){
 //and with the value of the clicked element.
 function popUpConfirmDialog(target_elem){
     var dialog = $('div#confirm_dialog');
-    var value = $(target_elem).val();
+    var value = $(target_elem).attr('href');
     var tab_id = $(target_elem).parents('.tab').attr('id');
     var button = Sunstone.getButton(tab_id,value);
 
     if (button.tip == undefined)
-        var tip = tr("You have to confrim this action");
+        var tip = tr("You have to confirm this action");
     else
         var tip = button.tip
 
@@ -768,7 +988,7 @@ function popUpConfirmDialog(target_elem){
 
 
     $('div#confirm_tip',dialog).text(tip);
-    dialog.dialog("open");
+    dialog.reveal();
 }
 
 //Same as previous. This time we need as well to access the updated
@@ -776,12 +996,13 @@ function popUpConfirmDialog(target_elem){
 //config of the button (a function returning the select options).
 function popUpConfirmWithSelectDialog(target_elem){
     var dialog = $('div#confirm_with_select_dialog');
-    var value = $(target_elem).val();
+    var value = $(target_elem).attr('href');
     var tab_id = $(target_elem).parents('.tab').attr('id');
     var button = Sunstone.getButton(tab_id,value);
+    var tip = tr("You have to confirm this action");
 
     if (button.tip == undefined)
-        var tip = tr("You have to confrim this action");
+        var tip = tr("You have to confirm this action");
     else
         var tip = button.tip
 
@@ -790,5 +1011,5 @@ function popUpConfirmWithSelectDialog(target_elem){
     $('div#confirm_with_select_tip',dialog).text(tip);
 
     $('button#confirm_with_select_proceed',dialog).val(value);
-    dialog.dialog("open");
+    dialog.reveal();
 }

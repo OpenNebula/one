@@ -18,14 +18,40 @@
 
 
 var datastores_tab_content = '\
-<h2><i class="icon-folder-open"></i> '+tr("Datastores")+'</h2>\
-<form id="form_datastores" action="javascript:alert(\'js errors?!\')">\
-  <div class="action_blocks">\
+<form class="custom" id="form_datastores" action="">\
+<div class="panel">\
+<div class="row">\
+  <div class="twelve columns">\
+    <h4 class="subheader header">\
+      <span class="header-resource">\
+        <i class="icon-folder-open"></i> '+tr("Datastores")+'\
+      </span>\
+      <span class="header-info">\
+        <span/> <small></small>&emsp;\
+      </span>\
+      <span class="user-login">\
+      </span>\
+    </h4>\
   </div>\
-<table id="datatable_datastores" class="display">\
+</div>\
+<div class="row">\
+  <div class="nine columns">\
+    <div class="action_blocks">\
+    </div>\
+  </div>\
+  <div class="three columns">\
+    <input id="datastore_search" type="text" placeholder="Search" />\
+  </div>\
+  <br>\
+  <br>\
+</div>\
+</div>\
+  <div class="row">\
+    <div class="twelve columns">\
+<table id="datatable_datastores" class="datatable twelve">\
   <thead>\
     <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">' + tr("All") + '</input></th>\
+      <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
       <th>'+tr("ID")+'</th>\
       <th>'+tr("Owner")+'</th>\
       <th>'+tr("Group")+'</th>\
@@ -49,97 +75,270 @@ var datastores_tab_content = '\
 </form>';
 
 var create_datastore_tmpl =
-'<div class="create_form"><form id="create_datastore_form" action="">\
-  <fieldset>\
-  <label for="name">' + tr("Name") + ':</label>\
-  <input type="text" name="name" id="name" />\
-  <div class="clear"></div>\
-  <label for="system">' + tr("System datastore") + ':</label>\
-  <input id="sys_ds" type="checkbox" name="system" value="YES" />\
-  <div class="clear"></div>\
-  <label for="cluster">' + tr("Cluster") + ':</label>\
-  <select id="cluster_id" name="cluster_id">\
-  </select><br />\
-  <label for="ds_mad">' + tr("Datastore manager") + ':</label>\
-  <select id="ds_mad" name="ds_mad">\
-        <option value="fs">' + tr("Filesystem") + '</option>\
-        <option value="vmware">' + tr("VMware") + '</option>\
-        <option value="iscsi">' + tr("iSCSI") + '</option>\
-        <option value="lvm">' + tr("LVM") + '</option>\
-        <option value="vmfs">' + tr("VMFS") + '</option>\
-  </select><br name="ds_mad" />\
-  <label>' + tr("Transfer manager") + ':</label>\
-  <select id="tm_mad" name="tm_mad">\
-        <option value="shared">' + tr("Shared") + '</option>\
-        <option value="ssh">' + tr("SSH") + '</option>\
-        <option value="iscsi">' + tr("iSCSI") + '</option>\
-        <option value="dummy">' + tr("Dummy") + '</option>\
-        <option value="vmfs">' + tr("VMFS") + '</option>\
-  </select><div class="clear">\
-  <label for="disk_type">' + tr("Disk type") + ':</label>\
-  <select id="disk_type" name="disk_type">\
-        <option value="file">' + tr("File") + '</option>\
-        <option value="block">' + tr("Block") + '</option>\
-  </select><br />\
-  </fieldset>\
-  <fieldset>\
-    <div class="form_buttons">\
-        <div><button class="button" type="submit" id="create_datastore_submit" value="OpenNebula.Datastore.create">' + tr("Create") + '</button>\
-        <button class="button" type="reset" value="reset">' + tr("Reset") + '</button></div>\
+'<div class="create_form">\
+  <div class="panel">\
+    <h3>\
+      <small id="create_cluster_header">'+tr("Create Datastore")+'</small>\
+    </h3>\
+  </div>\
+  <form id="create_datastore_form" action="" class="creation">\
+    <div class="row">\
+      <div class="three columns">\
+        <label class="right inline" for="name" >' + tr("Name") + ':</label>\
+      </div>\
+      <div class="eight columns">\
+        <input type="text" name="name" id="name"/>\
+      </div>\
+      <div class="one columns ">\
+      </div>\
     </div>\
-  </fieldset>\
-</form></div>';
+    <div class="row">\
+      <div class="six columns">\
+        <div class="four columns">\
+          <label class="right inline" for="ds_type">' + tr("Presets") + ':</label>\
+        </div>\
+        <div class="seven columns">\
+          <select id="ds_type" name="ds_type">\
+            <option value="fs">' + tr("Filesystem") + '</option>\
+            <option value="vmware_fs">' + tr("VMware (FS Based)") + '</option>\
+            <option value="vmware_vmfs">' + tr("VMware (VMFS Based)") + '</option>\
+            <option value="iscsi">' + tr("iSCSI") + '</option>\
+            <option value="lvm">' + tr("LVM") + '</option>\
+            <option value="ceph">' + tr("Ceph") + '</option>\
+            <option value="custom">' + tr("Custom") + '</option>\
+          </select>\
+        </div>\
+        <div class="one columns ">\
+        </div>\
+      </div>\
+      <div class="six columns">\
+        <div class="four columns">\
+          <label class="right inline" for="cluster">' + tr("Cluster") + ':</label>\
+        </div>\
+        <div class="seven columns">\
+          <select id="cluster_id" name="cluster_id">\
+          </select>\
+        </div>\
+        <div class="one columns ">\
+        </div>\
+      </div>\
+    </div>\
+    <div class="row">\
+      <div class="six columns">\
+        <div class="row">\
+          <fieldset>\
+            <legend>' + tr("Type") + '</legend>\
+              <div class="four columns">\
+                <label for="images_ds"><input id="images_ds" type="radio" name="type" value="YES" />' + tr("Images") + '</label>\
+              </div>\
+              <div class="four columns">\
+                <label for="sys_ds"><input id="sys_ds" type="radio" name="type" value="YES" />' + tr("System") + '</label>\
+              </div>\
+              <div class="four columns">\
+                <label for="files_ds"><input id="files_ds" type="radio" name="type" value="YES" />' + tr("Files") + '</label>\
+              </div>\
+          </fieldset>\
+        </div>\
+        <br>\
+        <div class="row">\
+          <div class="four columns">\
+            <label class="right inline" for="disk_type">' + tr("Disk type") + ':</label>\
+          </div>\
+          <div class="seven columns">\
+            <select id="disk_type" name="disk_type">\
+              <option value="file">' + tr("File") + '</option>\
+              <option value="block">' + tr("Block") + '</option>\
+              <option value="rbd">' + tr("RBD") + '</option>\
+            </select>\
+          </div>\
+          <div class="one columns">\
+          </div>\
+        </div>\
+      </div>\
+      <div class="six columns">\
+        <div class="row">\
+          <fieldset>\
+            <legend>' + tr("Managers") + '</legend>\
+            <div class="row">\
+              <div class="four columns">\
+                <label class="right inline" for="ds_mad">' + tr("Datastore") + ':</label>\
+              </div>\
+              <div class="seven columns">\
+                <select id="ds_mad" name="ds_mad">\
+                  <option value="fs">' + tr("Filesystem") + '</option>\
+                  <option value="vmware">' + tr("VMware") + '</option>\
+                  <option value="iscsi">' + tr("iSCSI") + '</option>\
+                  <option value="lvm">' + tr("LVM") + '</option>\
+                  <option value="vmfs">' + tr("VMFS") + '</option>\
+                  <option value="ceph">' + tr("Ceph") + '</option>\
+                </select>\
+              </div>\
+              <div class="one columns ">\
+              </div>\
+            </div>\
+            <div class="row">\
+              <div class="four columns">\
+                <label class="right inline" for="tm_mad">' + tr("Transfer") + ':</label>\
+              </div>\
+              <div class="seven columns">\
+                <select id="tm_mad" name="tm_mad">\
+                  <option value="shared">' + tr("Shared") + '</option>\
+                  <option value="ssh">' + tr("SSH") + '</option>\
+                  <option value="qcow2">' + tr("qcow2") + '</option>\
+                  <option value="iscsi">' + tr("iSCSI") + '</option>\
+                  <option value="dummy">' + tr("Dummy") + '</option>\
+                  <option value="lvm">' + tr("LVM") + '</option>\
+                  <option value="vmfs">' + tr("VMFS") + '</option>\
+                  <option value="ceph">' + tr("Ceph") + '</option>\
+                </select>\
+              </div>\
+              <div class="one columns ">\
+              </div>\
+            </div>\
+          </fieldset>\
+        </div>\
+      </div>\
+    </div>\
+    <div class="twelve columns">\
+      <div class="three columns">\
+        <label class="right inline" for="safe_dirs">' + tr("Safe Directories") + ':</label>\
+      </div>\
+      <div class="eight columns">\
+        <input type="text" name="safe_dirs" id="safe_dirs" />\
+      </div>\
+      <div class="one columns">\
+      </div>\
+    </div>\
+    <div class="twelve columns">\
+      <div class="three columns">\
+        <label class="right inline" for="restricted_dirs">' + tr("Restricted Directories") + ':</label>\
+      </div>\
+      <div class="eight columns">\
+        <input type="text" name="restricted_dirs" id="restricted_dirs" />\
+      </div>\
+      <div class="one columns">\
+      </div>\
+    </div>\
+    <div class="twelve columns">\
+      <div class="three columns">\
+        <label class="right inline" for="bridge_list">' + tr("Host Bridge List") + ':</label>\
+      </div>\
+      <div class="eight columns">\
+        <input type="text" name="bridge_list" id="bridge_list" />\
+      </div>\
+      <div class="one columns">\
+      </div>\
+    </div>\
+    <div class="row">\
+      <div class="six columns">\
+        <label class="right inline" for="ds_use_ssh"><input id="ds_use_ssh" type="checkbox" name="ds_use_ssh" value="YES" />' + tr("Use SSH for Datastore Manager") + ':</label>\
+      </div>\
+      <div class="six columns">\
+        <label class="inline" for="tm_use_ssh"><input id="tm_use_ssh" type="checkbox" name="tm_use_ssh" value="YES" />' + tr("Use SSH for Transfer Manager") + ':</label>\
+      </div>\
+    </div>\
+    <div class="twelve columns">\
+      <div class="three columns">\
+        <label class="right inline" for="host">' + tr("Storage Server") + ':</label>\
+      </div>\
+      <div class="eight columns">\
+        <input type="text" name="host" id="host" />\
+      </div>\
+      <div class="one columns">\
+      </div>\
+    </div>\
+    <div class="twelve columns">\
+      <div class="three columns">\
+        <label class="right inline" for="base_iqn">' + tr("Base IQN") + ':</label>\
+      </div>\
+      <div class="eight columns">\
+        <input type="text" name="base_iqn" id="base_iqn" />\
+      </div>\
+      <div class="one columns">\
+      </div>\
+    </div>\
+    <div class="twelve columns">\
+      <div class="three columns">\
+        <label class="right inline" for="vg_name">' + tr("Volume Group Name") + ':</label>\
+      </div>\
+      <div class="eight columns">\
+        <input type="text" name="vg_name" id="vg_name" />\
+      </div>\
+      <div class="one columns">\
+      </div>\
+    </div>\
+  </form>\
+    <hr>\
+  <div class="form_buttons">\
+      <button class="button radius right success" type="submit" id="create_datastore_submit" value="OpenNebula.Datastore.create">' + tr("Create") + '</button>\
+      <button class="button radius secondary" type="reset" value="reset">' + tr("Reset") + '</button>\
+      <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+  </div>\
+  <a class="close-reveal-modal">&#215;</a>\
+</div>';
 
-var update_datastore_tmpl =
-   '<form action="javascript:alert(\'js error!\');">\
-         <h3 style="margin-bottom:10px;">'+tr("Please, choose and modify the datastore you want to update")+':</h3>\
-            <fieldset style="border-top:none;">\
-                 <label for="datastore_template_update_select">'+tr("Select a datastore")+':</label>\
-                 <select id="datastore_template_update_select" name="datastore_template_update_select"></select>\
-                 <div class="clear"></div>\
-                 <div>\
-                   <table class="permissions_table" style="padding:0 10px;">\
-                     <thead><tr>\
-                         <td style="width:130px">'+tr("Permissions")+':</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Use")+'</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Manage")+'</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Admin")+'</td></tr></thead>\
-                     <tr>\
-                         <td>'+tr("Owner")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="datastore_owner_u" class="owner_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="datastore_owner_m" class="owner_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="datastore_owner_a" class="owner_a" /></td>\
-                     </tr>\
-                     <tr>\
-                         <td>'+tr("Group")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="datastore_group_u" class="group_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="datastore_group_m" class="group_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="datastore_group_a" class="group_a" /></td>\
-                     </tr>\
-                     <tr>\
-                         <td>'+tr("Other")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="datastore_other_u" class="other_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="datastore_other_m" class="other_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="datastore_other_a" class="other_a" /></td>\
-                     </tr>\
-                   </table>\
-                 </div>\
-                 <label for="datastore_template_update_textarea">'+tr("Datastore")+':</label>\
-                 <div class="clear"></div>\
-                 <textarea id="datastore_template_update_textarea" style="width:100%; height:14em;"></textarea>\
-            </fieldset>\
-            <fieldset>\
-                 <div class="form_buttons">\
-                    <button class="button" id="datastore_template_update_button" value="Datastore.update_template">\
-                       '+tr("Update")+'\
-                    </button>\
-                 </div>\
-            </fieldset>\
-</form>';
+var datastore_image_table_tmpl='<thead>\
+    <tr>\
+      <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
+      <th>'+tr("ID")+'</th>\
+      <th>'+tr("Owner")+'</th>\
+      <th>'+tr("Group")+'</th>\
+      <th>'+tr("Name")+'</th>\
+      <th>'+tr("Datastore")+'</th>\
+      <th>'+tr("Size")+'</th>\
+      <th>'+tr("Type")+'</th>\
+      <th>'+tr("Registration time")+'</th>\
+      <th>'+tr("Persistent")+'</th>\
+      <th>'+tr("Status")+'</th>\
+      <th>'+tr("#VMS")+'</th>\
+      <th>'+tr("Target")+'</th>\
+    </tr>\
+  </thead>\
+  <tbody id="tbodyimages">\
+  </tbody>'
 
 var datastores_select="";
 var dataTable_datastores;
 var $create_datastore_dialog;
+
+
+/* -------- Image datatable -------- */
+
+//Setup actions
+var datastore_image_actions = {
+
+    "DatastoreImageInfo.list" : {
+        type:     "list",
+        call:     OpenNebula.Image.list,
+        callback: updateDatastoreImagesInfoView,
+        error:    onError
+    }
+}
+
+//callback to update the list of images for Create dialog
+function updateDatastoreImagesInfoView (request,image_list){
+    var image_list_array = [];
+
+    $.each(image_list,function(){
+      if (this.IMAGE.DATASTORE==datastore_name)
+        image_list_array.push(imageElementArray(this));
+    });
+
+    updateView(image_list_array,dataTable_datastore_images_panel);
+}
+
+//callback to update the list of images for info panel
+function updateDatastoreimagesInfoView (request,image_list){
+    var image_list_array = [];
+
+    $.each(image_list,function(){
+        if(this.IMAGE.DATASTORE_ID == datastore_info.ID)
+          image_list_array.push(imageElementArray(this));
+    });
+
+    updateView(image_list_array,dataTable_datastore_images_panel);
+}
+
 
 //Setup actions
 var datastore_actions = {
@@ -187,29 +386,25 @@ var datastore_actions = {
         error: onError
     },
 
-    "Datastore.fetch_template" : {
-        type: "single",
-        call: OpenNebula.Datastore.fetch_template,
-        callback: function (request,response) {
-            $('#datastore_template_update_dialog #datastore_template_update_textarea').val(response.template);
-        },
-        error: onError
-    },
 
     "Datastore.fetch_permissions" : {
         type: "single",
         call: OpenNebula.Datastore.show,
         callback: function(request,element_json){
-            var dialog = $('#datastore_template_update_dialog form');
             var ds = element_json.DATASTORE;
-            setPermissionsTable(ds,dialog);
+            setPermissionsTable(ds,$(".datastore_permissions_table"));
         },
         error: onError
     },
 
-    "Datastore.update_dialog" : {
-        type: "custom",
-        call: popUpDatastoreTemplateUpdateDialog
+    "Datastore.update_template" : {
+        type: "single",
+        call: OpenNebula.Datastore.update,
+        callback: function(request) {
+            notifyMessage("Template updated correctly");
+            Sunstone.runAction('Datastore.showinfo',request.request.data[0]);
+        },
+        error: onError
     },
 
     "Datastore.update" : {
@@ -262,28 +457,34 @@ var datastore_actions = {
     "Datastore.chmod" : {
         type: "single",
         call: OpenNebula.Datastore.chmod,
-//        callback
         error: onError,
         notify: true
     },
 
     "Datastore.addtocluster" : {
         type: "multiple",
-        call: function(params){
+        call: function(params, success){
             var cluster = params.data.extra_param;
             var ds = params.data.id;
 
             if (cluster == -1){
                 //get cluster name
-                var current_cluster = getValue(ds,1,5,dataTable_datastores);
+                var current_cluster = getValue(ds,
+                                               1,
+                                               5,
+                                               dataTable_datastores);
                 //get cluster id
                 current_cluster = getValue(current_cluster,
-                                           2,1,dataTable_clusters);
+                                           2,
+                                           1,
+                                           dataTable_clusters);
                 if (!current_cluster) return;
                 Sunstone.runAction("Cluster.deldatastore",current_cluster,ds)
             }
             else
+            {
                 Sunstone.runAction("Cluster.adddatastore",cluster,ds);
+            }
         },
         elements: datastoreElements,
         notify:true
@@ -301,24 +502,19 @@ var datastore_actions = {
 var datastore_buttons = {
     "Datastore.refresh" : {
         type: "action",
-        text: '<i class="icon-refresh icon-large">',
+        layout: "refresh",
         alwaysActive: true
     },
     "Datastore.create_dialog" : {
         type: "create_dialog",
-        text: tr("+ New"),
-        condition: mustBeAdmin
-    },
-    "Datastore.update_dialog" : {
-        type: "action",
-        text: tr("Update properties"),
-        alwaysActive: true,
+        layout: "create",
         condition: mustBeAdmin
     },
     "Datastore.addtocluster" : {
         type: "confirm_with_select",
         text: tr("Select cluster"),
         select: clusters_sel,
+        layout: "more_select",
         tip: tr("Select the destination cluster:"),
         condition: mustBeAdmin
     },
@@ -326,6 +522,7 @@ var datastore_buttons = {
         type: "confirm_with_select",
         text: tr("Change owner"),
         select: users_sel,
+        layout: "user_select",
         tip: tr("Select the new owner")+":",
         condition: mustBeAdmin
     },
@@ -333,29 +530,21 @@ var datastore_buttons = {
         type: "confirm_with_select",
         text: tr("Change group"),
         select: groups_sel,
+        layout: "user_select",
         tip: tr("Select the new group")+":",
         condition: mustBeAdmin
     },
     "Datastore.delete" : {
         type: "confirm",
         text: tr("Delete"),
+        layout: "del",
         condition: mustBeAdmin
     },
-
-    "Datastore.help" : {
-        type: "action",
-        text: '?',
-        alwaysActive: true
-    }
 }
 
 var datastore_info_panel = {
     "datastore_info_tab" : {
-        title: tr("Datastore information"),
-        content: ""
-    },
-    "datastore_template_tab" : {
-        title: tr("Datastore template"),
+        title: tr("Information"),
         content: ""
     }
 }
@@ -370,6 +559,7 @@ var datastores_tab = {
 }
 
 Sunstone.addActions(datastore_actions);
+Sunstone.addActions(datastore_image_actions);
 Sunstone.addMainTab('datastores_tab',datastores_tab);
 Sunstone.addInfoPanel('datastore_info_panel',datastore_info_panel);
 
@@ -382,7 +572,9 @@ function datastoreElementArray(element_json){
     var element = element_json.DATASTORE;
 
     return [
-        '<input class="check_item" type="checkbox" id="datastore_'+element.ID+'" name="selected_items" value="'+element.ID+'"/>',
+        '<input class="check_item" type="checkbox" id="datastore_'+
+                             element.ID+'" name="selected_items" value="'+
+                             element.ID+'"/>',
         element.ID,
         element.UNAME,
         element.GNAME,
@@ -434,12 +626,14 @@ function updateDatastoresView(request, list){
 
     updateView(list_array,dataTable_datastores);
     updateDatastoreSelect();
-    updateInfraDashboard("datastores",list);
 }
 
 
 function updateDatastoreInfo(request,ds){
     var info = ds.DATASTORE;
+
+    datastore_name = info.NAME;
+
     var images_str = "";
     if (info.IMAGES.ID &&
         info.IMAGES.ID.constructor == Array){
@@ -451,79 +645,119 @@ function updateDatastoreInfo(request,ds){
         images_str=getImageName(info.IMAGES.ID);
     };
 
-    var info_tab = {
-        title : tr("Datastore information"),
-        content:
-        '<table id="info_datastore_table" class="info_table" style="width:80%">\
+    var cluster_str = '<td class="key_td">Cluster</td><td>-</td>';
+    if (info.ID != "0")
+    {
+        cluster_str = insert_cluster_dropdown("Datastore",info.ID,info.CLUSTER,info.CLUSTER_ID);
+    }
+
+    var info_tab_content = '<div class="">\
+        <div class="six columns">\
+        <table id="info_datastore_table" class="twelve datatable extended_table">\
             <thead>\
-              <tr><th colspan="2">'+tr("Datastore information")+' - '+info.NAME+'</th></tr>\
+              <tr><th colspan="3">'+tr("Datastore")+' - '+info.NAME+'</th></tr>\
             </thead>\
             <tbody>\
               <tr>\
                  <td class="key_td">'+tr("ID")+'</td>\
                  <td class="value_td">'+info.ID+'</td>\
+                 <td></td>\
               </tr>\
               <tr>\
                  <td class="key_td">'+tr("Name")+'</td>\
                  <td class="value_td">'+info.NAME+'</td>\
+                 <td></td>\
               </tr>\
-              <tr>\
-                 <td class="key_td">'+tr("Owner")+'</td>\
-                 <td class="value_td">'+info.UNAME+'</td>\
-              </tr>\
-              <tr>\
-                 <td class="key_td">'+tr("Group")+'</td>\
-                 <td class="value_td">'+info.GNAME+'</td>\
-              </tr>\
-              <tr>\
-                 <td class="key_td">'+tr("Cluster")+'</td>\
-                 <td class="value_td">'+(info.CLUSTER.length ? info.CLUSTER : "-")+'</td>\
-              </tr>\
-              <tr>\
-                 <td class="key_td">'+tr("DS Mad")+'</td>\
-                 <td class="value_td">'+info.DS_MAD+'</td>\
-              </tr>\
-              <tr>\
-                 <td class="key_td">'+tr("TM Mad")+'</td>\
-              <td class="value_td">'+ info.TM_MAD +'</td>\
-              </tr>\
+              <tr>'+
+              cluster_str  +
+              '</tr>\
               <tr>\
                  <td class="key_td">'+tr("Base path")+'</td>\
                  <td class="value_td">'+info.BASE_PATH+'</td>\
-              </tr>\
-              <tr>\
-                 <td class="key_td">'+tr("Images")+'</td>\
-                 <td class="value_td">'+images_str+'</td>\
-              </tr>\
-              <tr><td class="key_td">'+tr("Permissions")+'</td><td></td></tr>\
-              <tr>\
-                <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Owner")+'</td>\
-                <td class="value_td" style="font-family:monospace;">'+ownerPermStr(info)+'</td>\
-              </tr>\
-              <tr>\
-                <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Group")+'</td>\
-                <td class="value_td" style="font-family:monospace;">'+groupPermStr(info)+'</td>\
-              </tr>\
-              <tr>\
-                <td class="key_td"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Other")+'</td>\
-                <td class="value_td" style="font-family:monospace;">'+otherPermStr(info)+'</td>\
+                 <td></td>\
               </tr>\
             </tbody>\
           </table>'
+            + insert_extended_template_table(info.TEMPLATE,
+                                         "Datastore",
+                                         info.ID,
+                                         "Configuration Attributes") +
+        '</div>\
+        <div class="six columns">'
+            + insert_permissions_table("Datastore",
+                                     info.ID,
+                                     info.UNAME,
+                                     info.GNAME,
+                                     info.UID,
+                                     info.GID)
+        '</div>\
+      </div>'
+
+
+    var info_tab = {
+        title : tr("Information"),
+        content: info_tab_content
     }
 
-    var template_tab = {
-        title: tr("Datastore Template"),
-        content:
-        '<table id="datastore_template_table" class="info_table" style="width:80%">\
-               <thead><tr><th colspan="2">'+tr("Datastore template")+'</th></tr></thead>'+
-                prettyPrintJSON(info.TEMPLATE)+
-            '</table>'
+    var datastore_info_tab = {
+        title: tr("Images"),
+        content : '<div id="datatable_datastore_images_info_div"><table id="datatable_datastore_images_info_panel" class="table twelve">' + datastore_image_table_tmpl + '</table></div>'
     }
 
+
+    // Add tabs
     Sunstone.updateInfoPanelTab("datastore_info_panel","datastore_info_tab",info_tab);
-    Sunstone.updateInfoPanelTab("datastore_info_panel","datastore_template_tab",template_tab);
+    Sunstone.updateInfoPanelTab("datastore_info_panel","datastore_image_tab",datastore_info_tab);
     Sunstone.popUpInfoPanel("datastore_info_panel");
+
+    // Define datatables
+    // Images datatable
+
+    dataTable_datastore_images_panel = $("#datatable_datastore_images_info_panel").dataTable({
+        "bAutoWidth":false,
+        "sDom" : '<"H">t<"F"p>',
+        "oColVis": {
+            "aiExclude": [ 0 ]
+        },
+        "aoColumnDefs": [
+            { "bSortable": false, "aTargets": ["check"] },
+            { "sWidth": "60px", "aTargets": [0,2,3,9,10] },
+            { "sWidth": "35px", "aTargets": [1,6,11,12] },
+            { "sWidth": "100px", "aTargets": [5,7] },
+            { "sWidth": "150px", "aTargets": [8] },
+            { "bVisible": false, "aTargets": [0,6,8,12]}
+        ],
+        "oLanguage": (datatable_lang != "") ?
+            {
+                sUrl: "locale/"+lang+"/"+datatable_lang
+            } : ""
+    });
+
+    // initialize datatables values
+    Sunstone.runAction("DatastoreImageInfo.list");
+    Sunstone.runAction("Datastore.fetch_permissions",info.ID);
+
+}
+
+function hide_all(context)
+{
+    // Hide all the options that depends on datastore type
+    // and reset the selects
+    $('label[for="bridge_list"],input#bridge_list',context).hide();
+    $('label[for="ds_use_ssh"],input#ds_use_ssh',context).hide();
+    $('label[for="tm_use_ssh"],input#tm_use_ssh',context).hide();
+    $('label[for="host"],input#host',context).hide();
+    $('label[for="base_iqn"],input#base_iqn',context).hide();
+    $('label[for="vg_name"],input#vg_name',context).hide();
+    $('select#ds_mad').removeAttr('disabled');
+    $('select#tm_mad').removeAttr('disabled');
+    $('select#tm_mad').children('option').each(function() {
+      $(this).removeAttr('disabled');
+    });
+    $('select#disk_type').removeAttr('disabled');
+    $('select#disk_type').children('option').each(function() {
+      $(this).removeAttr('disabled');
+    });
 }
 
 // Set up the create datastore dialog
@@ -535,30 +769,56 @@ function setupCreateDatastoreDialog(){
     var dialog = $create_datastore_dialog;
     dialog.html(create_datastore_tmpl);
 
-    //Prepare jquery dialog
-    dialog.dialog({
-        autoOpen: false,
-        modal: true,
-        width: 400
-    });
+    dialog.addClass("reveal-modal large");
 
-    $('button',dialog).button();
     setupTips(dialog);
 
-    $('#sys_ds').click(function(){
-        if ($(this).is(':checked'))
-            $('label[for="ds_mad"],select#ds_mad,br[name="ds_mad"]',$(this).parent()).fadeOut();
-        else
-            $('label[for="ds_mad"],select#ds_mad,br[name="ds_mad"]',$(this).parent()).fadeIn();
+    $('#ds_type').change(function(){
+        hide_all($(this).parent());
+        var choice_str = $(this).val();
+        switch(choice_str)
+        {
+          case 'fs':
+            select_filesystem();
+            break;
+          case 'vmware_fs':
+            select_vmware_fs();
+            break;
+          case 'vmware_vmfs':
+            select_vmware_vmfs();
+            break;
+          case 'lvm':
+            select_lvm();
+            break;
+          case 'iscsi':
+            select_iscsi();
+            break;
+          case 'ceph':
+            select_ceph();
+            break;
+          case 'custom':
+            select_custom();
+            break;
+        }
     });
 
-    $('#create_datastore_form',dialog).submit(function(){
-        var name = $('#name',this).val();
-        var cluster_id = $('#cluster_id',this).val();
-        var system = $('#sys_ds',this).is(':checked');
-        var ds_mad = $('#ds_mad',this).val();
-        var tm_mad = $('#tm_mad',this).val();
-        var type = $('#disk_type',this).val();
+
+    $('#create_datastore_submit',dialog).click(function(){
+        var context         = $( "#create_datastore_form", dialog);
+        var name            = $('#name',context).val();
+        var cluster_id      = $('#cluster_id',context).val();
+        var system          = $('#sys_ds',context).is(':checked');
+        var ds_mad          = $('#ds_mad',context).val();
+        var tm_mad          = $('#tm_mad',context).val();
+        var type            = $('#disk_type',context).val();
+        var safe_dirs       = $('#safe_dirs',context).val();
+        var restricted_dirs = $('#restricted_dirs',context).val();
+        var bridge_list     = $('#bridge_list',context).val();
+        var ds_use_ssh      = $('#ds_use_ssh',context).is(':checked');
+        var tm_use_ssh      = $('#tm_use_ssh',context).is(':checked');
+        var host            = $('#host',context).val();
+        var base_iqn        = $('#base_iqn',context).val();
+        var vg_name         = $('#vg_name',context).val();
 
         if (!name){
             notifyError("Please provide a name");
@@ -581,143 +841,161 @@ function setupCreateDatastoreDialog(){
         else
             ds_obj.datastore.ds_mad = ds_mad;
 
+        if (safe_dirs)
+            ds_obj.datastore.safe_dirs = safe_dirs;
+
+        if (restricted_dirs)
+            ds_obj.datastore.restricted_dirs = restricted_dirs;
+
+        if (bridge_list)
+            ds_obj.datastore.bridge_list = bridge_list;
+
+        if (ds_use_ssh)
+            ds_obj.datastore.ds_use_ssh = "YES";
+
+        if (tm_use_ssh)
+            ds_obj.datastore.tm_use_ssh = "YES";
+
+        if (host)
+            ds_obj.datastore.host = host;
+
+        if (base_iqn)
+            ds_obj.datastore.base_iqn = base_iqn;
+
+        if (vg_name)
+            ds_obj.vg_name.bridge_list = vg_name;
+
         Sunstone.runAction("Datastore.create",ds_obj);
 
-        $create_datastore_dialog.dialog('close');
+        $create_datastore_dialog.trigger("reveal:close")
         return false;
     });
+}
+
+function select_filesystem(){
+    $('select#ds_mad').val('fs');
+    $('select#tm_mad').val('shared');
+    $('select#ds_mad').attr('disabled', 'disabled');
+    $('select#tm_mad').children('option').each(function() {
+      var value_str = $(this).val();
+      $(this).attr('disabled', 'disabled');
+      if (value_str == "qcow2"  ||
+          value_str == "shared" ||
+          value_str == "ssh"    ||
+          value_str == "dummy")
+      {
+           $(this).removeAttr('disabled');
+      }
+    });
+    $('select#disk_type').val('file');
+    $('select#disk_type').attr('disabled', 'disabled');
+}
+
+function select_vmware_fs(){
+    $('select#ds_mad').val('vmware');
+    $('select#ds_mad').attr('disabled', 'disabled');
+    $('select#tm_mad').val('shared');
+    $('select#tm_mad').children('option').each(function() {
+      var value_str = $(this).val();
+      $(this).attr('disabled', 'disabled');
+      if (value_str == "shared"  ||
+          value_str == "ssh")
+      {
+           $(this).removeAttr('disabled');
+      }
+    });
+    $('select#disk_type').val('file');
+    $('select#disk_type').attr('disabled', 'disabled');
+}
+
+function select_vmware_vmfs(){
+    $('label[for="bridge_list"],input#bridge_list').fadeIn();
+    $('label[for="ds_use_ssh"],input#ds_use_ssh').fadeIn();
+    $('label[for="tm_use_ssh"],input#tm_use_ssh').fadeIn();
+    $('select#ds_mad').val('vmfs');
+    $('select#ds_mad').attr('disabled', 'disabled');
+    $('select#tm_mad').val('vmfs');
+    $('select#tm_mad').attr('disabled', 'disabled');
+    $('select#disk_type').val('file');
+    $('select#disk_type').attr('disabled', 'disabled');
+}
+
+function select_iscsi(){
+    $('select#ds_mad').val('iscsi');
+    $('select#ds_mad').attr('disabled', 'disabled');
+    $('select#tm_mad').val('iscsi');
+    $('select#tm_mad').attr('disabled', 'disabled');
+    $('label[for="host"],input#host').fadeIn();
+    $('label[for="base_iqn"],input#base_iqn').fadeIn();
+    $('label[for="vg_name"],input#vg_name').fadeIn();
+    $('select#disk_type').children('option').each(function() {
+      var value_str = $(this).val();
+      $(this).attr('disabled', 'disabled');
+      if (value_str == "file"  ||
+          value_str == "block")
+      {
+           $(this).removeAttr('disabled');
+      }
+    });
+}
+
+function select_ceph(){
+    $('select#ds_mad').val('ceph');
+    $('select#ds_mad').attr('disabled', 'disabled');
+    $('select#tm_mad').val('ceph');
+    $('select#tm_mad').attr('disabled', 'disabled');
+    $('select#ds_type').val('rbd');
+}
+
+function select_lvm(){
+    $('select#ds_mad').val('lvm');
+    $('select#ds_mad').attr('disabled', 'disabled');
+    $('select#tm_mad').val('lvm');
+    $('select#tm_mad').attr('disabled', 'disabled');
+    $('label[for="host"],input#host').fadeIn();
+    $('label[for="vg_name"],input#vg_name').fadeIn();
+    $('select#disk_type').children('option').each(function() {
+      var value_str = $(this).val();
+      $(this).attr('disabled', 'disabled');
+      if (value_str == "file"  ||
+          value_str == "block")
+      {
+           $(this).removeAttr('disabled');
+      }
+    });
+}
+
+function select_custom(){
+    hide_all(dialog);
+    $('select#ds_mad').val('fs');
+    $('select#tm_mad').val('shared');
 }
 
 function popUpCreateDatastoreDialog(){
     $('select#cluster_id',$create_datastore_dialog).html(clusters_sel());
-    $create_datastore_dialog.dialog('open');
+    $create_datastore_dialog.reveal();
+    hide_all($create_datastore_dialog);
+    select_filesystem();
 }
-
-function setupDatastoreTemplateUpdateDialog(){
-    //Append to DOM
-    dialogs_context.append('<div id="datastore_template_update_dialog" title="'+tr("Update Datastore properties")+'"></div>');
-    var dialog = $('#datastore_template_update_dialog',dialogs_context);
-
-    //Put HTML in place
-    dialog.html(update_datastore_tmpl);
-
-    var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
-
-    //Convert into jQuery
-    dialog.dialog({
-        autoOpen:false,
-        width:500,
-        modal:true,
-        height:height,
-        resizable:true
-    });
-
-    $('button',dialog).button();
-
-    $('#datastore_template_update_select',dialog).change(function(){
-        var id = $(this).val();
-        $('.permissions_table input',dialog).removeAttr('checked');
-        $('.permissions_table',dialog).removeAttr('update');
-        if (id && id.length){
-            var dialog = $('#datastore_template_update_dialog');
-            $('#template_template_update_textarea',dialog).val(tr("Loading")+"...");
-            Sunstone.runAction("Datastore.fetch_template",id);
-            Sunstone.runAction("Datastore.fetch_permissions",id);
-        } else {
-            $('#datastore_template_update_textarea',dialog).val("");
-        };
-    });
-
-    $('.permissions_table input',dialog).change(function(){
-        $(this).parents('table').attr('update','update');
-    });
-
-    $('form',dialog).submit(function(){
-        var dialog = $(this);
-        var new_template = $('#datastore_template_update_textarea',dialog).val();
-        var id = $('#datastore_template_update_select',dialog).val();
-        if (!id || !id.length) {
-            $(this).parents('#datastore_template_update_dialog').dialog('close');
-            return false;
-        };
-
-        var permissions = $('.permissions_table',dialog);
-        if (permissions.attr('update')){
-            var perms = {
-                octet : buildOctet(permissions)
-            };
-            Sunstone.runAction("Datastore.chmod",id,perms);
-        };
-
-        Sunstone.runAction("Datastore.update",id,new_template);
-        $(this).parents('#datastore_template_update_dialog').dialog('close');
-        return false;
-    });
-};
-
-// Standard template edition dialog
-// If one element is selected auto fecth template
-// otherwise let user select
-function popUpDatastoreTemplateUpdateDialog(){
-    var select = makeSelectOptions(dataTable_datastores,
-                                   1,//id_col
-                                   4,//name_col
-                                   [],
-                                   []
-                                  );
-    var sel_elems = getSelectedNodes(dataTable_datastores);
-
-
-    var dialog =  $('#datastore_template_update_dialog');
-    $('#datastore_template_update_select',dialog).html(select);
-    $('#datastore_template_update_textarea',dialog).val("");
-    $('.permissions_table input',dialog).removeAttr('checked');
-    $('.permissions_table',dialog).removeAttr('update');
-
-    if (sel_elems.length >= 1){ //several items in the list are selected
-        //grep them
-        var new_select= sel_elems.length > 1? '<option value="">Please select</option>' : "";
-        $('option','<select>'+select+'</select>').each(function(){
-            var val = $(this).val();
-            if ($.inArray(val,sel_elems) >= 0){
-                new_select+='<option value="'+val+'">'+$(this).text()+'</option>';
-            };
-        });
-        $('#datastore_template_update_select',dialog).html(new_select);
-        if (sel_elems.length == 1) {
-            $('#datastore_template_update_select option',dialog).attr('selected','selected');
-            $('#datastore_template_update_select',dialog).trigger("change");
-        };
-    };
-
-    dialog.dialog('open');
-    return false;
-};
 
 //Prepares autorefresh
 function setDatastoreAutorefresh(){
      setInterval(function(){
          var checked = $('input.check_item:checked',dataTable_datastores);
-         var filter = $("#datatable_datastores_filter input",
-                        dataTable_datastores.parents('#datatable_datastores_wrapper')).attr('value');
+         var filter = $("#datastore_search").attr('value');
          if (!checked.length && !filter.length){
              Sunstone.runAction("Datastore.autorefresh");
          };
      },INTERVAL+someTime());
 }
 
-
 $(document).ready(function(){
 
     dataTable_datastores = $("#datatable_datastores",main_tabs_context).dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
-        "sPaginationType": "full_numbers",
-        "bAutoWidth":false,
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
@@ -731,14 +1009,13 @@ $(document).ready(function(){
             } : ""
     });
 
-    dataTable_datastores.fnClearTable();
-    addElement([
-        spinner,
-        '','','','','','','','',''],dataTable_datastores);
+    $('#datastore_search').keyup(function(){
+      dataTable_datastores.fnFilter( $(this).val() );
+    })
+
     Sunstone.runAction("Datastore.list");
 
     setupCreateDatastoreDialog();
-    setupDatastoreTemplateUpdateDialog();
     setDatastoreAutorefresh();
 
     initCheckAllBoxes(dataTable_datastores);

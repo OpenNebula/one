@@ -148,12 +148,8 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
     def format_pool(options)
         config_file = self.class.table_conf
 
-        system = System.new(@client)
-        default_quotas = system.get_user_quotas()
-
-        if OpenNebula::is_error?(default_quotas)
-            raise "Error retrieving the default user quotas: #{default_quotas.message}"
-        end
+        prefix = '/USER_POOL/DEFAULT_USER_QUOTAS/'
+        user_pool = @user_pool
 
         table = CLIHelper::ShowTable.new(config_file, self) do
             column :ID, "ONE identifier for the User", :size=>4 do |d|
@@ -177,7 +173,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                     limit = d['VM_QUOTA']['VM']["VMS"]
 
                     if limit == "-1"
-                        limit = default_quotas['VM_QUOTA/VM/VMS']
+                        limit = user_pool["#{prefix}VM_QUOTA/VM/VMS"]
                         limit = "0" if limit.nil? || limit == ""
                     end
 
@@ -192,7 +188,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                     limit = d['VM_QUOTA']['VM']["MEMORY"]
 
                     if limit == "-1"
-                        limit = default_quotas['VM_QUOTA/VM/MEMORY']
+                        limit = user_pool["#{prefix}VM_QUOTA/VM/MEMORY"]
                         limit = "0" if limit.nil? || limit == ""
                     end
 
@@ -209,7 +205,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                     limit = d['VM_QUOTA']['VM']["CPU"]
 
                     if limit == "-1"
-                        limit = default_quotas['VM_QUOTA/VM/CPU']
+                        limit = user_pool["#{prefix}VM_QUOTA/VM/CPU"]
                         limit = "0" if limit.nil? || limit == ""
                     end
 
@@ -242,16 +238,12 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
     def factory_pool(user_flag=-2)
         #TBD OpenNebula::UserPool.new(@client, user_flag)
-        OpenNebula::UserPool.new(@client)
+        @user_pool = OpenNebula::UserPool.new(@client)
+        return @user_pool
     end
 
     def format_resource(user, options = {})
         system = System.new(@client)
-        default_quotas = system.get_user_quotas()
-
-        if OpenNebula::is_error?(default_quotas)
-            raise "Error retrieving the default user quotas: #{default_quotas.message}"
-        end
 
         str="%-15s: %-20s"
         str_h1="%-80s"
@@ -272,6 +264,12 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         puts user.template_str
 
         user_hash = user.to_hash
+
+        default_quotas = nil
+
+        user.each('/USER/DEFAULT_USER_QUOTAS') { |elem|
+            default_quotas = elem
+        }
 
         helper = OneQuotaHelper.new
         helper.format_quota(user_hash['USER'], default_quotas)

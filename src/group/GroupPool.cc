@@ -176,3 +176,15 @@ int GroupPool::drop(PoolObjectSQL * objsql, string& error_msg)
 
     return rc;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void GroupPool::add_extra_xml(ostringstream&  oss)
+{
+    string def_quota_xml;
+    oss << Nebula::instance().get_default_group_quota().to_xml(def_quota_xml);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

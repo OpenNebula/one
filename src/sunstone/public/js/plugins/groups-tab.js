@@ -39,20 +39,46 @@ var group_acct_graphs = [
 ];
 
 var groups_tab_content = '\
-<h2><i class="icon-group"></i> '+tr("Groups")+'</h2>\
-<form id="group_form" action="" action="javascript:alert(\'js error!\');">\
-  <div class="action_blocks">\
+<form class="custom" id="group_form" action="">\
+<div class="panel">\
+<div class="row">\
+  <div class="twelve columns">\
+    <h4 class="subheader header">\
+      <span class="header-resource">\
+        <i class="icon-group"></i> '+tr("Groups")+'\
+      </span>\
+      <span class="header-info">\
+        <span id="total_groups"/> <small>'+tr("TOTAL")+'</small>\
+      </span>\
+      <span class="user-login">\
+      </span>\
+    </h4>\
   </div>\
-<table id="datatable_groups" class="display">\
+</div>\
+<div class="row">\
+  <div class="nine columns">\
+    <div class="action_blocks">\
+    </div>\
+  </div>\
+  <div class="three columns">\
+    <input id="group_search" type="text" placeholder="Search" />\
+  </div>\
+  <br>\
+  <br>\
+</div>\
+</div>\
+  <div class="row">\
+    <div class="twelve columns">\
+<table id="datatable_groups" class="datatable twelve">\
   <thead>\
     <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
+      <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
       <th>'+tr("ID")+'</th>\
       <th>'+tr("Name")+'</th>\
       <th>'+tr("Users")+'</th>\
       <th>'+tr("VMs")+'</th>\
-      <th>'+tr("Used memory")+'</th>\
-      <th>'+tr("Used CPU")+'</th>\
+      <th>'+tr("UMEM")+'</th>\
+      <th>'+tr("UCPU")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodygroups">\
@@ -67,25 +93,41 @@ var groups_tab_content = '\
 </form>';
 
 var create_group_tmpl =
-'<form id="create_group_form" action="">\
-  <fieldset style="border:none;">\
-     <div>\
-        <label for="name">'+tr("Group name")+':</label>\
-        <input type="text" name="name" id="name" /><br />\
+'<div class="panel">\
+  <h3>\
+    <small id="create_vnet_header">'+tr("Create Group")+'</small>\
+  </h3>\
+</div>\
+<form id="create_group_form" action="">\
+      <div class="row centered">\
+        <div class="columns eight centered">\
+          <div class="two columns">\
+              <label class="inline right" for="name">'+tr("Name")+':</label>\
+          </div>\
+          <div class="nine columns">\
+              <input type="text" name="name" id="name" /><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
       </div>\
-  </fieldset>\
-  <fieldset>\
+      <hr>\
       <div class="form_buttons">\
-        <button class="button" id="create_group_submit" value="Group.create">'+tr("Create")+'</button>\
-        <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
+        <button class="button radius right success" id="create_group_submit" value="Group.create">'+tr("Create")+'</button>\
+        <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
       </div>\
-  </fieldset>\
+  <a class="close-reveal-modal">&#215;</a>\
 </form>';
 
-var group_quotas_tmpl = '<form id="group_quotas_form" action="">\
-   <fieldset>\
-     <div>'+tr("Please add/edit/remove quotas and click on the apply changes button. Note that if several items are selected, changes will be applied to each of them")+'.</div>\
-     <div>'+tr("Add quota")+':</div>\
+var group_quotas_tmpl = '<div class="panel">\
+  <h3>\
+    <small id="create_vnet_header">'+tr("Update Quota")+'</small>\
+  </h3>\
+</div>\
+<form id="group_quotas_form" action="">\
+  <div class="row">\
+    <div class="six columns">\
      <div id="quota_types">\
            <label>'+tr("Quota type")+':</label>\
            <input type="radio" name="quota_type" value="vm">'+tr("Virtual Machine")+'</input>\
@@ -93,50 +135,147 @@ var group_quotas_tmpl = '<form id="group_quotas_form" action="">\
            <input type="radio" name="quota_type" value="image">'+tr("Image")+'</input>\
            <input type="radio" name="quota_type" value="network">'+tr("Network")+'</input>\
       </div>\
+      <hr>\
       <div id="vm_quota">\
-          <label>'+tr("Max VMs")+':</label>\
-          <input type="text" name="VMS"></input><br />\
-          <label>'+tr("Max Memory (MB)")+':</label>\
-          <input type="text" name="MEMORY"></input><br />\
-          <label>'+tr("Max CPU")+':</label>\
-          <input type="text" name="CPU"></input>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max VMs")+':</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="VMS"></input><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max Memory (MB)")+':</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="MEMORY"></input><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max CPU")+':</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="CPU"></input>\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
       </div>\
       <div id="datastore_quota">\
-          <label>'+tr("Datastore")+'</label>\
-          <select name="ID"></select><br />\
-          <label>'+tr("Max size (MB)")+':</label>\
-          <input type="text" name="SIZE"></input><br />\
-          <label>'+tr("Max images")+':</label>\
-          <input type="text" name="IMAGES"></input>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Datastore")+'</label>\
+          </div>\
+          <div class="seven columns">\
+            <select name="ID"></select><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max size (MB)")+':</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="SIZE"></input><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max images")+':</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="IMAGES"></input>\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
       </div>\
       <div id="image_quota">\
-          <label>'+tr("Image")+'</label>\
-          <select name="ID"></select><br />\
-          <label>'+tr("Max RVMs")+'</label>\
-          <input type="text" name="RVMS"></input>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Image")+'</label>\
+          </div>\
+          <div class="seven columns">\
+            <select name="ID"></select><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max RVMs")+'</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="RVMS"></input>\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
       </div>\
       <div id="network_quota">\
-          <label>'+tr("Network")+'</label>\
-          <select name="ID"></select><br />\
-          <label>'+tr("Max leases")+'</label>\
-          <input type="text" name="LEASES"></input>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Network")+'</label>\
+          </div>\
+          <div class="seven columns">\
+            <select name="ID"></select><br />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="four columns">\
+              <label class="inline right" >'+tr("Max leases")+'</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="LEASES"></input>\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
       </div>\
-      <button style="width:100px!important;" class="add_remove_button add_button" id="add_quota_button" value="add_quota">'+tr("Add/edit quota")+'</button>\
-      <div class="clear"></div>\
-      <div class="clear"></div>\
+      <br>\
+      <button class="button right small radius" id="add_quota_button" value="add_quota">'+tr("Add/edit quota")+'</button>\
+    </div>\
+    <div class="six columns">\
       <div class="current_quotas">\
-         <table class="info_table" style="width:640px;margin-top:0;">\
+         <table class="datatable twelve extended_table">\
             <thead><tr>\
                  <th>'+tr("Type")+'</th>\
-                 <th style="width:100%;">'+tr("Quota")+'</th>\
+                 <th>'+tr("Quota")+'</th>\
                  <th>'+tr("Edit")+'</th></tr></thead>\
             <tbody>\
             </tbody>\
          </table>\
-      <div class="form_buttons">\
-           <button class="button" type="submit" value="Group.set_quota">'+tr("Apply changes")+'</button>\
       </div>\
-</fieldset>\
+    </div>\
+  </div>\
+      <hr>\
+      <div class="form_buttons">\
+          <button class="button radius right success" id="create_user_submit" type="submit" value="Group.set_quota">'+tr("Apply changes")+'</button>\
+          <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+      </div>\
+  <a class="close-reveal-modal">&#215;</a>\
 </form>';
 
 
@@ -200,15 +339,6 @@ var group_actions = {
         notify:true
     },
 
-    // "Group.chown" : {
-    //     type: "multiple",
-    //     call : OpenNebula.Group.chown,
-    //     callback : updateGroupElement,
-    //     elements: function() { return getSelectedNodes(dataTable_groups); },
-    //     error : onError,
-    //     notify:true
-    // },
-
     "Group.fetch_quotas" : {
         type: "single",
         call: OpenNebula.Group.show,
@@ -242,7 +372,7 @@ var group_actions = {
         call: OpenNebula.Group.accounting,
         callback: function(req,response) {
             var info = req.request.data[0].monitor;
-            plot_graph(response,'#group_acct_tab','group_acct_', info);
+            //plot_graph(response,'#group_acct_tabTab','group_acct_', info);
         },
         error: onError
     },
@@ -259,47 +389,29 @@ var group_actions = {
 var group_buttons = {
     "Group.refresh" : {
         type: "action",
-        text: '<i class="icon-refresh icon-large">',
+        layout: "refresh",
         alwaysActive: true
     },
     "Group.create_dialog" : {
         type: "create_dialog",
-        text: tr("+ New Group"),
+        layout: "create",
         condition: mustBeAdmin
     },
-    // "Group.chown" : {
-    //     type: "confirm_with_select",
-    //     text: "Change group owner",
-    //     select: function(){return users_select},
-    //     tip: "Select the new group owner:",
-    //     condition : True
-    // },
     "Group.quotas_dialog" : {
         type : "action",
         text : tr("Update quotas"),
+        layout: "more_select",
         condition: mustBeAdmin
     },
     "Group.delete" : {
         type: "confirm",
         text: tr("Delete"),
+        layout: "del",
         condition: mustBeAdmin
-    },
-    "Group.help" : {
-        type: "action",
-        text: '?',
-        alwaysActive: true
     }
 };
 
 var group_info_panel = {
-    "group_info_tab" : {
-        title: tr("Group information"),
-        content:""
-    },
-    "group_acct_tab" : {
-        title: tr("Historical usages"),
-        content: ""
-    }
 };
 
 var groups_tab = {
@@ -345,16 +457,18 @@ function groupElements(){
 function groupElementArray(group_json){
     var group = group_json.GROUP;
 
-    var users_str="";
-    if (group.USERS.ID &&
-        group.USERS.ID.constructor == Array){
-        for (var i=0; i<group.USERS.ID.length; i++){
-            users_str+=getUserName(group.USERS.ID[i])+', ';
-        };
-        users_str=users_str.slice(0,-2);
-    } else if (group.USERS.ID) {
-        users_str=getUserName(group.USERS.ID);
-    };
+    //var users_str="";
+    //if (group.USERS.ID &&
+    //    group.USERS.ID.constructor == Array){
+    //    for (var i=0; i<group.USERS.ID.length; i++){
+    //        users_str+=getUserName(group.USERS.ID[i])+', ';
+    //    };
+    //    users_str=users_str.slice(0,-2);
+    //} else if (group.USERS.ID) {
+    //    users_str=getUserName(group.USERS.ID);
+    //};
+
+    var users_str = group.USERS.ID ? group.USERS.ID.length : 0;
 
     var vms = "-";
     var memory = "-";
@@ -415,140 +529,216 @@ function updateGroupsView(request, group_list){
     });
     updateView(group_list_array,dataTable_groups);
     updateGroupSelect(group_list);
-    SunstoneMonitoring.monitor('GROUP', group_list)
-    if (mustBeAdmin())
-        updateSystemDashboard("groups",group_list);
+    //SunstoneMonitoring.monitor('GROUP', group_list)
+    //if (mustBeAdmin())
+    //    updateSystemDashboard("groups",group_list);
+
+
+    $("#total_groups", $dashboard).text(group_list.length);
+
+    var form = $("#group_form");
+
+    $("#total_groups", form).text(group_list.length);
 }
 
 function updateGroupInfo(request,group){
     var info = group.GROUP;
 
-    var info_tab_html = '\
-        <table id="info_group_table" class="info_table" style="width:80%">\
+    var quotas_tab_html = '<div class="">';
+
+    if (!$.isEmptyObject(info.VM_QUOTA)){
+        var vms_bar = quotaBar(
+            info.VM_QUOTA.VM.VMS_USED,
+            info.VM_QUOTA.VM.VMS,
+            default_user_quotas.VM_QUOTA.VM.VMS);
+
+        var memory_bar = quotaBarMB(
+            info.VM_QUOTA.VM.MEMORY_USED,
+            info.VM_QUOTA.VM.MEMORY,
+            default_user_quotas.VM_QUOTA.VM.MEMORY);
+
+        var cpu_bar = quotaBarFloat(
+            info.VM_QUOTA.VM.CPU_USED,
+            info.VM_QUOTA.VM.CPU,
+            default_user_quotas.VM_QUOTA.VM.CPU);
+
+        quotas_tab_html +=
+        '<div class="six columns">\
+        <table class="twelve extended_table">\
             <thead>\
-               <tr><th colspan="2">' + tr("Group information") + ' - '+info.NAME+'</th></tr>\
+                <tr>\
+                    <th>'+tr("VMs")+'</th>\
+                    <th>'+tr("Memory")+'</th>\
+                    <th>'+tr("CPU")+'</th>\
+                </tr>\
             </thead>\
             <tbody>\
-            <tr>\
-                <td class="key_td">' + tr("ID") + '</td>\
-                <td class="value_td">'+info.ID+'</td>\
-            </tr>\
+                <tr>\
+                    <td>'+vms_bar+'</td>\
+                    <td>'+memory_bar+'</td>\
+                    <td>'+cpu_bar+'</td>\
+                </tr>\
             </tbody>\
-         </table>\
-         <table class="info_table" style="width:80%;margin-top:0;margin-bottom:0;">\
+        </table>\
+     </div>'
+    }
+
+    if (!$.isEmptyObject(info.DATASTORE_QUOTA)){
+        quotas_tab_html +=
+        '<div class="six columns">\
+        <table class="twelve datatable extended_table">\
             <thead>\
-               <tr><th colspan="2">' + tr("Quota information") +'</th></tr>\
+                <tr>\
+                    <th style="width:24%">'+tr("Datastore ID")+'</th>\
+                    <th style="width:38%">'+tr("Images")+'</th>\
+                    <th style="width:38%">'+tr("Size")+'</th>\
+                </tr>\
             </thead>\
-            <tbody><tr><td class="key_td"></td><td class="value_td"></td></tr></tbody>\
-         </table>';
+            <tbody>';
 
-    if (!$.isEmptyObject(info.VM_QUOTA))
-        info_tab_html += '<table class="info_table" style="width:70%;margin-top:0;margin-left:40px;">\
-            <tbody>'+prettyPrintJSON(info.VM_QUOTA)+'</tbody>\
-          </table>'
+        var ds_quotas = [];
 
-    if (!$.isEmptyObject(info.DATASTORE_QUOTA))
-        info_tab_html += '<table class="info_table" style="width:70%;margin-top:0;margin-left:40px;%">\
-            <tbody>'+prettyPrintJSON(info.DATASTORE_QUOTA)+'</tbody>\
-          </table>'
+        if ($.isArray(info.DATASTORE_QUOTA.DATASTORE))
+            ds_quotas = info.DATASTORE_QUOTA.DATASTORE;
+        else if (info.DATASTORE_QUOTA.DATASTORE.ID)
+            ds_quotas = [info.DATASTORE_QUOTA.DATASTORE];
 
-    if (!$.isEmptyObject(info.IMAGE_QUOTA))
-        info_tab_html += '<table class="info_table" style="width:70%;margin-top:0;margin-left:40px;">\
-            <tbody>'+prettyPrintJSON(info.IMAGE_QUOTA)+'</tbody>\
-          </table>';
+        for (var i=0; i < ds_quotas.length; i++){
 
-    if (!$.isEmptyObject(info.NETWORK_QUOTA))
-        info_tab_html += '<table class="info_table" style="width:70%;margin-top:0;margin-left:40px;">\
-            <tbody>'+prettyPrintJSON(info.NETWORK_QUOTA)+'</tbody>\
-          </table>';
+            var default_ds_quotas = default_user_quotas.DATASTORE_QUOTA[ds_quotas[i].ID]
 
-    var info_tab = {
-        title : tr("Group information"),
-        content : info_tab_html
+            if (default_ds_quotas == undefined){
+                default_ds_quotas = {
+                    "IMAGES"    : "0",
+                    "SIZE"      : "0"
+                }
+            }
+
+            var img_bar = quotaBar(
+                ds_quotas[i].IMAGES_USED,
+                ds_quotas[i].IMAGES,
+                default_ds_quotas.IMAGES);
+
+            var size_bar = quotaBarMB(
+                ds_quotas[i].SIZE_USED,
+                ds_quotas[i].SIZE,
+                default_ds_quotas.SIZE);
+
+            quotas_tab_html +=
+            '<tr>\
+                <td>'+ds_quotas[i].ID+'</td>\
+                <td>'+img_bar+'</td>\
+                <td>'+size_bar+'</td>\
+            </tr>';
+        }
+
+        quotas_tab_html +=
+            '</tbody>\
+        </table>\
+     </div>';
+    }
+
+    if (!$.isEmptyObject(info.IMAGE_QUOTA)){
+        quotas_tab_html +=
+        '<div class="six columns">\
+        <table class="twelve datatable extended_table">\
+            <thead>\
+                <tr>\
+                    <th>'+tr("Image ID")+'</th>\
+                    <th>'+tr("Running VMs")+'</th>\
+                </tr>\
+            </thead>\
+            <tbody>';
+
+        var img_quotas = [];
+
+        if ($.isArray(info.IMAGE_QUOTA.IMAGE))
+            img_quotas = info.IMAGE_QUOTA.IMAGE;
+        else if (info.IMAGE_QUOTA.IMAGE.ID)
+            img_quotas = [info.IMAGE_QUOTA.IMAGE];
+
+        for (var i=0; i < img_quotas.length; i++){
+
+            var default_img_quotas = default_user_quotas.IMAGE_QUOTA[img_quotas[i].ID]
+
+            if (default_img_quotas == undefined){
+                default_img_quotas = {
+                    "RVMS"  : "0"
+                }
+            }
+
+            var rvms_bar = quotaBar(
+                img_quotas[i].RVMS_USED,
+                img_quotas[i].RVMS,
+                default_img_quotas.RVMS);
+
+            quotas_tab_html +=
+            '<tr>\
+                <td>'+img_quotas[i].ID+'</td>\
+                <td>'+rvms_bar+'</td>\
+            </tr>';
+        }
+
+        quotas_tab_html +=
+            '</tbody>\
+        </table>\
+     </div>';
+    }
+
+    if (!$.isEmptyObject(info.NETWORK_QUOTA)){
+        quotas_tab_html +=
+        '<div class="six columns">\
+        <table class="twelve datatable extended_table">\
+            <thead>\
+                <tr>\
+                    <th>'+tr("Network ID")+'</th>\
+                    <th>'+tr("Leases")+'</th>\
+                </tr>\
+            </thead>\
+            <tbody>';
+
+        var net_quotas = [];
+
+        if ($.isArray(info.NETWORK_QUOTA.NETWORK))
+            net_quotas = info.NETWORK_QUOTA.NETWORK;
+        else if (info.NETWORK_QUOTA.NETWORK.ID)
+            net_quotas = [info.NETWORK_QUOTA.NETWORK];
+
+        for (var i=0; i < net_quotas.length; i++){
+
+            var default_net_quotas = default_user_quotas.NETWORK_QUOTA[net_quotas[i].ID]
+
+            if (default_net_quotas == undefined){
+                default_net_quotas = {
+                    "LEASES" : "0"
+                }
+            }
+
+            var leases_bar = quotaBar(
+                net_quotas[i].LEASES_USED,
+                net_quotas[i].LEASES,
+                default_net_quotas.LEASES);
+
+            quotas_tab_html +=
+            '<tr>\
+                <td>'+net_quotas[i].ID+'</td>\
+                <td>'+leases_bar+'</td>\
+            </tr>';
+        }
+
+        quotas_tab_html +=
+            '</tbody>\
+        </table></div>\
+     </div>';
+    }
+
+    var quotas_tab = {
+        title : tr("Quotas"),
+        content : quotas_tab_html
     };
 
-
-   var acct_tab = {
-        title : tr("Historical usages"),
-        content : '<div><table class="info_table" style="margin-bottom:0;width:100%;">\
-  <tr>\
-    <td class="key_td"><label for="from">'+tr('From / to')+'</label></td>\
-    <td class="value_td">\
-       <input style="width: 7em" type="text" id="group_acct_from" name="from"/>\
-       <input style="width: 7em" type="text" id="group_acct_to" name="to"/>\
-       <button id="group_acct_date_ok">'+tr("Update")+'</button>\
-    </td>\
-  </tr>\
-<!--\
-  <tr>\
-    <td class="key_td"><label for="from">'+tr('Meters')+'</label></td>\
-    <td class="value_td">\
-       <select style="width:173px" id="group_acct_meter1" name="meter1">\
-       </select>\
-       <select style="width:173px" id="group_acct_meter2" name="meter2">\
-       </select>\
-    </td>\
-  </tr>\
--->\
-</table></div>' + generateMonitoringDivs(group_acct_graphs, "group_acct_")
-    };
-
-    Sunstone.updateInfoPanelTab("group_info_panel","group_info_tab",info_tab);
-    Sunstone.updateInfoPanelTab("group_info_panel","group_acct_tab",acct_tab);
+    Sunstone.updateInfoPanelTab("group_info_panel","group_quotas_tab",quotas_tab);
     Sunstone.popUpInfoPanel("group_info_panel");
-
-
-    //Enable datepicker
-    var info_dialog = $('div#group_acct_tab');
-    $("#group_acct_from", info_dialog).datepicker({
-        defaultDate: "-1d",
-        changeMonth: true,
-        numberOfMonths: 1,
-        dateFormat: "dd/mm/yy",
-        defaultDate: '-1',
-        onSelect: function( selectedDate ) {
-            $( "#group_acct_to", info_dialog).datepicker("option",
-                                                         "minDate",
-                                                         selectedDate );
-        }
-    });
-    $("#group_acct_from", info_dialog).datepicker('setDate', '-1');
-
-    $("#group_acct_to", info_dialog).datepicker({
-        defaultDate: "0",
-        changeMonth: true,
-        numberOfMonths: 1,
-        dateFormat: "dd/mm/yy",
-        maxDate: '+1',
-        onSelect: function( selectedDate ) {
-            $( "#group_acct_from", info_dialog).datepicker( "option",
-                                                            "maxDate",
-                                                            selectedDate );
-        }
-    });
-    $("#group_acct_to", info_dialog).datepicker('setDate', 'Now');
-
-    //Listen to set date button
-    $('button#group_acct_date_ok', info_dialog).click(function(){
-        var from = $("#group_acct_from", info_dialog).val();
-        var to = $("#group_acct_to", info_dialog).val();
-
-        var start = $.datepicker.parseDate('dd/mm/yy', from)
-        if (start){
-            start = start.getTime();
-            start = Math.floor(start / 1000);
-        }
-
-        var end = $.datepicker.parseDate('dd/mm/yy', to);
-        if (end){
-            end = end.getTime();
-            end = Math.floor(end / 1000);
-        }
-
-        loadAccounting('Group', info.ID, group_acct_graphs,
-                       { start : start, end: end });
-        return false;
-    });
 
     //preload acct
     loadAccounting('Group', info.ID, group_acct_graphs);
@@ -564,25 +754,19 @@ function setupCreateGroupDialog(){
     var dialog = $create_group_dialog;
 
     dialog.html(create_group_tmpl);
-    dialog.dialog({
-        autoOpen: false,
-        modal: true,
-        width: 400
-    });
-
-    $('button',dialog).button();
+    dialog.addClass("reveal-modal");
 
     $('#create_group_form',dialog).submit(function(){
         var name=$('#name',this).val();
         var group_json = { "group" : { "name" : name }};
         Sunstone.runAction("Group.create",group_json);
-        $create_group_dialog.dialog('close');
+        $create_group_dialog.trigger("reveal:close");
         return false;
     });
 }
 
 function popUpCreateGroupDialog(){
-    $create_group_dialog.dialog('open');
+    $create_group_dialog.reveal();
     return false;
 }
 
@@ -604,7 +788,7 @@ function popUpGroupQuotasDialog(){
 function setGroupAutorefresh(){
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_groups);
-        var  filter = $("#datatable_groups_filter input",dataTable_groups.parents("#datatable_groups_wrapper")).attr('value');
+        var  filter = $("#group_search").attr('value');
         if (!checked.length && !filter.length){
             Sunstone.runAction("Group.autorefresh");
         }
@@ -613,11 +797,7 @@ function setGroupAutorefresh(){
 
 $(document).ready(function(){
     dataTable_groups = $("#datatable_groups",main_tabs_context).dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
-        "sPaginationType": "full_numbers",
-        "bAutoWidth":false,
+        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
@@ -629,10 +809,12 @@ $(document).ready(function(){
             } : ""
     });
 
-    dataTable_groups.fnClearTable();
-    addElement([
-        spinner,
-        '','','','','',''],dataTable_groups);
+    //addElement([
+    //    spinner,
+    //    '','','','','',''],dataTable_groups);
+    $('#group_search').keyup(function(){
+      dataTable_groups.fnFilter( $(this).val() );
+    })
 
     Sunstone.runAction("Group.list");
     setupCreateGroupDialog();

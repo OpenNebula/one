@@ -301,6 +301,17 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/public/vendor/FontAwesome \
                $SUNSTONE_LOCATION/public/vendor/FontAwesome/css \
                $SUNSTONE_LOCATION/public/vendor/FontAwesome/font \
+               $SUNSTONE_LOCATION/public/vendor/4.0 \
+               $SUNSTONE_LOCATION/public/vendor/4.0/datatables \
+               $SUNSTONE_LOCATION/public/vendor/4.0/foundation_datatables \
+               $SUNSTONE_LOCATION/public/vendor/4.0/jquery_layout \
+               $SUNSTONE_LOCATION/public/vendor/4.0/fontawesome \
+               $SUNSTONE_LOCATION/public/vendor/4.0/fontawesome/css \
+               $SUNSTONE_LOCATION/public/vendor/4.0/fontawesome/font \
+               $SUNSTONE_LOCATION/public/vendor/4.0/jgrowl \
+               $SUNSTONE_LOCATION/public/vendor/4.0/foundation \
+               $SUNSTONE_LOCATION/public/vendor/4.0/nouislider \
+               $SUNSTONE_LOCATION/public/vendor/4.0/datetimepicker \
                $SUNSTONE_LOCATION/public/images \
                $SUNSTONE_LOCATION/views"
 
@@ -524,17 +535,19 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_CSS_FILES:$SUNSTONE_LOCATION/public/css
     SUNSTONE_PUBLIC_VENDOR_CRYPTOJS:$SUNSTONE_LOCATION/public/vendor/crypto-js
     SUNSTONE_PUBLIC_VENDOR_EXPLORERCANVAS:$SUNSTONE_LOCATION/public/vendor/explorercanvas
-    SUNSTONE_PUBLIC_VENDOR_DATATABLES:$SUNSTONE_LOCATION/public/vendor/dataTables
-    SUNSTONE_PUBLIC_VENDOR_JGROWL:$SUNSTONE_LOCATION/public/vendor/jGrowl
-    SUNSTONE_PUBLIC_VENDOR_JQUERY:$SUNSTONE_LOCATION/public/vendor/jQuery
-    SUNSTONE_PUBLIC_VENDOR_JQUERYUI:$SUNSTONE_LOCATION/public/vendor/jQueryUI
-    SUNSTONE_PUBLIC_VENDOR_JQUERYUIIMAGES:$SUNSTONE_LOCATION/public/vendor/jQueryUI/images
-    SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT:$SUNSTONE_LOCATION/public/vendor/jQueryLayout
     SUNSTONE_PUBLIC_VENDOR_FLOT:$SUNSTONE_LOCATION/public/vendor/flot
     SUNSTONE_PUBLIC_VENDOR_FILEUPLOADER:$SUNSTONE_LOCATION/public/vendor/fileuploader
-    SUNSTONE_PUBLIC_VENDOR_FONTAWESOME:$SUNSTONE_LOCATION/public/vendor/FontAwesome
-    SUNSTONE_PUBLIC_VENDOR_FONTAWESOME_FONT:$SUNSTONE_LOCATION/public/vendor/FontAwesome/font
-    SUNSTONE_PUBLIC_VENDOR_FONTAWESOME_CSS:$SUNSTONE_LOCATION/public/vendor/FontAwesome/css
+    SUNSTONE_PUBLIC_NEW_VENDOR_DATATABLES:$SUNSTONE_LOCATION/public/vendor/4.0/datatables
+    SUNSTONE_PUBLIC_NEW_VENDOR_FOUNDATION_DATATABLES:$SUNSTONE_LOCATION/public/vendor/4.0/foundation_datatables
+    SUNSTONE_PUBLIC_NEW_VENDOR_JGROWL:$SUNSTONE_LOCATION/public/vendor/4.0/jgrowl
+    SUNSTONE_PUBLIC_NEW_VENDOR_JQUERY:$SUNSTONE_LOCATION/public/vendor/4.0/
+    SUNSTONE_PUBLIC_NEW_VENDOR_FOUNDATION:$SUNSTONE_LOCATION/public/vendor/4.0/foundation
+    SUNSTONE_PUBLIC_NEW_VENDOR_JQUERYLAYOUT:$SUNSTONE_LOCATION/public/vendor/4.0/jquery_layout
+    SUNSTONE_PUBLIC_NEW_VENDOR_FONTAWESOME:$SUNSTONE_LOCATION/public/vendor/4.0/fontawesome
+    SUNSTONE_PUBLIC_NEW_VENDOR_FONTAWESOME_FONT:$SUNSTONE_LOCATION/public/vendor/4.0/fontawesome/font
+    SUNSTONE_PUBLIC_NEW_VENDOR_FONTAWESOME_CSS:$SUNSTONE_LOCATION/public/vendor/4.0/fontawesome/css
+    SUNSTONE_PUBLIC_NEW_VENDOR_NOUISLIDER:$SUNSTONE_LOCATION/public/vendor/4.0/nouislider
+    SUNSTONE_PUBLIC_NEW_VENDOR_DATETIMEPICKER:$SUNSTONE_LOCATION/public/vendor/4.0/datetimepicker    
     SUNSTONE_PUBLIC_IMAGES_FILES:$SUNSTONE_LOCATION/public/images
     SUNSTONE_PUBLIC_LOCALE_CA:$SUNSTONE_LOCATION/public/locale/ca
     SUNSTONE_PUBLIC_LOCALE_CS_CZ:$SUNSTONE_LOCATION/public/locale/cs_CZ
@@ -1480,9 +1493,8 @@ SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
                         src/sunstone/public/js/plugins/marketplace-tab.js \
                         src/sunstone/public/js/plugins/config-tab.js"
 
-SUNSTONE_PUBLIC_CSS_FILES="src/sunstone/public/css/application.css \
-                           src/sunstone/public/css/layout.css \
-                           src/sunstone/public/css/login.css"
+SUNSTONE_PUBLIC_CSS_FILES="src/sunstone/public/css/app.css \
+                src/sunstone/public/css/login.css"
 
 SUNSTONE_PUBLIC_VENDOR_DATATABLES="\
                 src/sunstone/public/vendor/dataTables/jquery.dataTables.min.js \
@@ -1505,26 +1517,51 @@ SUNSTONE_PUBLIC_VENDOR_JQUERY="\
 
 SUNSTONE_PUBLIC_VENDOR_JQUERYUI="\
 src/sunstone/public/vendor/jQueryUI/jquery-ui-1.8.16.custom.css \
+src/sunstone/public/vendor/jQueryUI/jquery-ui-1.9.2.custom.min.css \
 src/sunstone/public/vendor/jQueryUI/MIT-LICENSE.txt \
 src/sunstone/public/vendor/jQueryUI/jquery-ui-1.8.16.custom.min.js \
 src/sunstone/public/vendor/jQueryUI/NOTICE \
 "
 
 SUNSTONE_PUBLIC_VENDOR_JQUERYUIIMAGES="\
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_0_aaaaaa_40x100.png  \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_75_ffffff_40x100.png  \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_55_fbf9ee_1x400.png  \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_65_ffffff_1x400.png  \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_75_dadada_1x400.png  \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_75_e6e6e6_1x400.png  \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_95_fef1ec_1x400.png  \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_75_cccccc_1x100.png  \
-src/sunstone/public/vendor/jQueryUI/images/ui-icons_222222_256x240.png  \
-src/sunstone/public/vendor/jQueryUI/images/ui-icons_2e83ff_256x240.png  \
-src/sunstone/public/vendor/jQueryUI/images/ui-icons_454545_256x240.png  \
-src/sunstone/public/vendor/jQueryUI/images/ui-icons_888888_256x240.png  \
-src/sunstone/public/vendor/jQueryUI/images/ui-icons_cd0a0a_256x240.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_0_353735_40x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_0_aaaaaa_40x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_0_eeeeee_40x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_0_f2f2f2_40x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_0_ffffff_40x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_100_f6f6f6_40x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_25_f6f6f6_40x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_55_ffffff_40x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_65_353735_40x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_75_ffffff_40x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_55_fbf9ee_1x400.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_65_ffffff_1x400.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_75_dadada_1x400.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_75_e6e6e6_1x400.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_95_fef1ec_1x400.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_100_f6f6f6_1x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_25_0073ea_1x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_25_0098c3_1x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_25_353735_1x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_25_f6f6f6_1x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_50_dddddd_1x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_50_ffffff_1x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_75_cccccc_1x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_0073ea_256x240.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_0098c3_256x240.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_222222_256x240.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_2e83ff_256x240.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_353735_256x240.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_454545_256x240.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_666666_256x240.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_888888_256x240.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_cd0a0a_256x240.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_d10300_256x240.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_ff0084_256x240.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_ffffff_256x240.png \
 "
+
+
 
 SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT="\
             src/sunstone/public/vendor/jQueryLayout/layout-default-latest.css \
@@ -1536,6 +1573,7 @@ src/sunstone/public/vendor/flot/jquery.flot.min.js \
 src/sunstone/public/vendor/flot/jquery.flot.navigate.min.js \
 src/sunstone/public/vendor/flot/jquery.flot.pie.min.js \
 src/sunstone/public/vendor/flot/jquery.flot.resize.min.js \
+src/sunstone/public/vendor/flot/jquery.flot.stack.min.js \
 src/sunstone/public/vendor/flot/LICENSE.txt \
 src/sunstone/public/vendor/flot/NOTICE"
 
@@ -1574,12 +1612,77 @@ src/sunstone/public/vendor/FontAwesome/font/fontawesome-webfont.ttf \
 src/sunstone/public/vendor/FontAwesome/font/fontawesome-webfont.svg \
 "
 
+
+
+
+
+SUNSTONE_PUBLIC_NEW_VENDOR_DATATABLES="\
+                src/sunstone/public/vendor/4.0/datatables/media/js/jquery.dataTables.min.js \
+                src/sunstone/public/vendor/4.0/datatables/license-bsd.txt"
+
+SUNSTONE_PUBLIC_NEW_VENDOR_FOUNDATION_DATATABLES="\
+                src/sunstone/public/vendor/4.0/foundation_datatables/javascripts/datatables.foundation.js \
+                src/sunstone/public/vendor/4.0/foundation_datatables/javascripts/responsive-tables.js"
+
+SUNSTONE_PUBLIC_NEW_VENDOR_JGROWL="\
+                src/sunstone/public/vendor/4.0/jgrowl/jquery.jgrowl.js \
+                src/sunstone/public/vendor/4.0/jgrowl/jquery.jgrowl.css \
+                src/sunstone/public/vendor/4.0/jgrowl/LICENSE"
+
+SUNSTONE_PUBLIC_NEW_VENDOR_FOUNDATION="\
+  src/sunstone/public/vendor/4.0/foundation/modernizr.foundation.js \
+  src/sunstone/public/vendor/4.0/foundation/jquery.foundation.reveal.js \
+  src/sunstone/public/vendor/4.0/foundation/jquery.foundation.orbit.js \
+  src/sunstone/public/vendor/4.0/foundation/jquery.foundation.forms.js \
+  src/sunstone/public/vendor/4.0/foundation/jquery.placeholder.js \
+  src/sunstone/public/vendor/4.0/foundation/jquery.foundation.tooltips.js \
+  src/sunstone/public/vendor/4.0/foundation/jquery.foundation.alerts.js \
+  src/sunstone/public/vendor/4.0/foundation/jquery.foundation.buttons.js \
+  src/sunstone/public/vendor/4.0/foundation/jquery.foundation.accordion.js \
+  src/sunstone/public/vendor/4.0/foundation/jquery.foundation.navigation.js \
+  src/sunstone/public/vendor/4.0/foundation/jquery.foundation.mediaQueryToggle.js \
+  src/sunstone/public/vendor/4.0/foundation/jquery.foundation.tabs.js \
+  src/sunstone/public/vendor/4.0/foundation/app.js "
+
+SUNSTONE_PUBLIC_NEW_VENDOR_JQUERY="\
+                        src/sunstone/public/vendor/4.0/jquery-1.9.1.min.js"
+
+SUNSTONE_PUBLIC_NEW_VENDOR_JQUERYLAYOUT="\
+            src/sunstone/public/vendor/4.0/jquery_layout/layout-default-latest.css \
+            src/sunstone/public/vendor/4.0/jquery_layout/jquery.layout-latest.min.js"
+
+
+SUNSTONE_PUBLIC_NEW_VENDOR_FONTAWESOME_CSS="\
+  src/sunstone/public/vendor/4.0/fontawesome/css/font-awesome.min.css"
+
+SUNSTONE_PUBLIC_NEW_VENDOR_FONTAWESOME_FONT="\
+src/sunstone/public/vendor/4.0/fontawesome/font/fontawesome-webfont.eot \
+src/sunstone/public/vendor/4.0/fontawesome/font/fontawesome-webfont.woff \
+src/sunstone/public/vendor/4.0/fontawesome/font/fontawesome-webfont.ttf \
+src/sunstone/public/vendor/4.0/fontawesome/font/fontawesome-webfont.svg \
+"
+
+SUNSTONE_PUBLIC_NEW_VENDOR_NOUISLIDER="\
+                src/sunstone/public/vendor/4.0/nouislider/jquery.nouislider.min.js \
+                src/sunstone/public/vendor/4.0/nouislider/nouislider.css"
+
+SUNSTONE_PUBLIC_NEW_VENDOR_DATETIMEPICKER="\
+                src/sunstone/public/vendor/4.0/datetimepicker/LICENSE.txt \
+                src/sunstone/public/vendor/4.0/datetimepicker/README.md \
+                src/sunstone/public/vendor/4.0/datetimepicker/design/dtpicker_mock.png \
+                src/sunstone/public/vendor/4.0/datetimepicker/design/dtpicker_mock.svg \
+                src/sunstone/public/vendor/4.0/datetimepicker/jquery.simple-dtpicker.css \
+                src/sunstone/public/vendor/4.0/datetimepicker/jquery.simple-dtpicker.html \
+                src/sunstone/public/vendor/4.0/datetimepicker/jquery.simple-dtpicker.js \
+                src/sunstone/public/vendor/4.0/datetimepicker/simple-dtpicker.jquery.json" 
+
 SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/favicon.ico \
                         src/sunstone/public/images/login_over.png \
                         src/sunstone/public/images/login.png \
                         src/sunstone/public/images/opennebula-sunstone-big.png \
                         src/sunstone/public/images/opennebula-sunstone-small.png \
+                        src/sunstone/public/images/opennebula-sunstone-v4.0.png \
                         src/sunstone/public/images/panel.png \
                         src/sunstone/public/images/panel_short.png \
                         src/sunstone/public/images/pbar.gif \

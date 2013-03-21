@@ -17,38 +17,49 @@
 /*Host tab plugin*/
 /* HOST_HISTORY_LENGTH is ignored by server */
 var HOST_HISTORY_LENGTH = 40;
-// Configuration object for historical graphs of individual hosts
-var host_graphs = [
-    {
-        title : tr("CPU Monitoring information"),
-        monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU",
-        labels : "Allocated CPU,Real CPU,Total CPU",
-        humanize_figures : false,
-        history_length : HOST_HISTORY_LENGTH
-    },
-    {
-        title: tr("Memory monitoring information"),
-        monitor_resources : "HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM",
-        labels : "Allocated MEM,Real MEM,Total MEM",
-        humanize_figures : true,
-        history_length : HOST_HISTORY_LENGTH
-    }
-]
-
 
 var hosts_tab_content = '\
-<h2><i class="icon-hdd"></i> '+tr("Hosts")+'</h2>\
-<form id="form_hosts" action="javascript:alert(\'js errors?!\')">\
-  <div class="action_blocks">\
+<form class="custom" id="form_hosts" action="">\
+<div class="panel">\
+<div class="row">\
+  <div class="twelve columns">\
+    <h4 class="subheader header">\
+      <span class="header-resource">\
+        <i class="icon-hdd "></i> '+tr("Hosts")+'\
+      </span>\
+      <span class="header-info">\
+        <span id="total_hosts"/> <small>'+tr("TOTAL")+'</small>&emsp;\
+        <span id="on_hosts"/> <small>'+tr("ON")+'</small>&emsp;\
+        <span id="off_hosts"/> <small>'+tr("OFF")+'</small>&emsp;\
+        <span id="error_hosts"/> <small>'+tr("ERROR")+'</small>\
+      </span>\
+      <span class="user-login">\
+      </span>\
+    </h4>\
   </div>\
-<table id="datatable_hosts" class="display">\
+</div>\
+<div class="row">\
+  <div class="nine columns">\
+    <div class="action_blocks">\
+    </div>\
+  </div>\
+  <div class="three columns">\
+    <input id="hosts_search" type="text" placeholder="Search" />\
+  </div>\
+  <br>\
+  <br>\
+</div>\
+</div>\
+  <div class="row">\
+    <div class="twelve columns">\
+<table id="datatable_hosts" class="datatable twelve">\
   <thead>\
     <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">' + tr("All") + '</input></th>\
+      <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
       <th>' + tr("ID") + '</th>\
       <th>' + tr("Name") + '</th>\
       <th>' + tr("Cluster") + '</th>\
-      <th>' + tr("Running VMs") + '</th>\
+      <th>' + tr("RVMs") + '</th>\
       <th>' + tr("Real CPU") + '</th>\
       <th>' + tr("Allocated CPU") + '</th>\
       <th>' + tr("Real MEM") + '</th>\
@@ -77,71 +88,115 @@ var hosts_tab_content = '\
 </form>';
 
 var create_host_tmpl =
-'<div class="create_form"><form id="create_host_form" action="">\
+'<div class="create_form">\
+  <div class="panel">\
+    <h3 >\
+      <small id="create_cluster_header">'+tr("Create Host")+'</small>\
+    </h3>\
+  </div>\
+  <form id="create_host_form" action="" class="">\
+  <div class="row">\
+      <div class="four columns">\
+          <label class="inline right" for="name">' + tr("Name")  + ':</label>\
+      </div>\
+      <div class="seven columns">\
+          <input type="text" name="name" id="name" />\
+      </div>\
+      <div class="one columns">\
+          <div class="tip"></div>\
+      </div>\
+  </div>\
+  <div class="row">\
   <fieldset>\
-  <legend style="display:none;">' + tr("Host parameters") + '</legend>\
-  <label for="name">' + tr("Name") + ':</label><input type="text" name="name" id="name" />\
-  </fieldset>\
-  <h3>' + tr("Drivers") + '</h3>\
-  <fieldset>\
-    <div class="manager clear" id="vmm_mads">\
-          <label>' + tr("Virtualization Manager") + ':</label>\
+    <legend>'+tr("Drivers")+'</legend>\
+    <div class="manager clear row" id="vmm_mads">\
+      <div class="four columns">\
+          <label class="inline right" for="vmm">' +  tr("Virtualization") + ':</label>\
+      </div>\
+      <div class="seven columns">\
           <select id="vmm_mad" name="vmm">\
-                <option value="vmm_kvm">' + tr("KVM") + '</option>\
-                <option value="vmm_xen">' + tr("XEN") + '</option>\
-                <option value="vmm_vmware">' + tr("VMware") + '</option>\
-                <option value="vmm_ec2">' + tr("EC2") + '</option>\
-                <option value="vmm_dummy">' + tr("Dummy") + '</option>\
+                <option value="kvm">' + tr("KVM") + '</option>\
+                <option value="xen">' + tr("XEN") + '</option>\
+                <option value="vmware">' + tr("VMware") + '</option>\
+                <option value="ec2">' + tr("EC2") + '</option>\
+                <option value="dummy">' + tr("Dummy") + '</option>\
                 <option value="custom">' + tr("Custom") + '</option>\
           </select>\
           <div>\
           <label>' + tr("Custom VMM_MAD") + ':</label>\
           <input type="text" name="custom_vmm_mad" /></div>\
-    </div>\
-    <div class="manager clear" id="im_mads">\
-      <label>' + tr("Information Manager") + ':</label>\
-      <select id="im_mad" name="im">\
-               <option value="im_kvm">' + tr("KVM") + '</option>\
-               <option value="im_xen">' + tr("XEN") + '</option>\
-               <option value="im_vmware">' + tr("VMware") + '</option>\
-               <option value="im_ec2">' + tr("EC2") + '</option>\
-               <option value="im_ganglia">' + tr("Ganglia") + '</option>\
-               <option value="im_dummy">' + tr("Dummy") + '</option>\
-               <option value="custom">' + tr("Custom") + '</option>\
-      </select>\
-      <div>\
-        <label>' + tr("Custom IM_MAD") + ':</label>\
-        <input type="text" name="custom_im_mad" />\
+      </div>\
+      <div class="one columns">\
+          <div class="tip"></div>\
       </div>\
     </div>\
-    <div class="manager clear" id="vnm_mads">\
-      <label>Virtual Network Manager:</label>\
-       <select id="vnm_mad" name="vn">\
-         <option value="dummy">' + tr("Default (dummy)") +'</option>\
-         <option value="fw">'+tr("Firewall")+'</option>\
-         <option value="802.1Q">'+tr("802.1Q")+'</option>\
-         <option value="ebtables">'+tr("ebtables")+'</option>\
-         <option value="ovswitch">'+tr("Open vSwitch")+'</option>\
-         <option value="vmware">'+tr("VMware")+'</option>\
-         <option value="custom">' + tr("Custom") + '</option>\
-       </select>\
-       <div>\
-          <label>' + tr("Custom VNM_MAD") + ':</label>\
-          <input type="text" name="custom_vnm_mad" />\
-       </div>\
+    <div class="manager clear row" id="im_mads">\
+      <div class="four columns">\
+          <label class="inline right" for="im">' +  tr("Information") + ':</label>\
+      </div>\
+      <div class="seven columns">\
+          <select id="im_mad" name="im">\
+               <option value="kvm">' + tr("KVM") + '</option>\
+               <option value="xen">' + tr("XEN") + '</option>\
+               <option value="vmware">' + tr("VMware") + '</option>\
+               <option value="ec2">' + tr("EC2") + '</option>\
+               <option value="ganglia">' + tr("Ganglia") + '</option>\
+               <option value="dummy">' + tr("Dummy") + '</option>\
+               <option value="custom">' + tr("Custom") + '</option>\
+          </select>\
+          <div>\
+            <label>' + tr("Custom IM_MAD") + ':</label>\
+            <input type="text" name="custom_im_mad" />\
+          </div>\
+      </div>\
+      <div class="one columns">\
+          <div class="tip"></div>\
+      </div>\
     </div>\
-    <div class="manager clear" id="cluster_select">\
-      <label>' + tr("Cluster") + ':</label>\
-       <select id="host_cluster_id" name="host_cluster_id">\
-       </select>\
+    <div class="manager clear row" id="vnm_mads">\
+      <div class="four columns">\
+          <label class="inline right" for="vn">' +  tr("Virtual Network") + ':</label>\
+      </div>\
+      <div class="seven columns">\
+          <select id="vnm_mad" name="vn">\
+             <option value="dummy">' + tr("Default (dummy)") +'</option>\
+             <option value="fw">'+tr("Firewall")+'</option>\
+             <option value="802.1Q">'+tr("802.1Q")+'</option>\
+             <option value="ebtables">'+tr("ebtables")+'</option>\
+             <option value="ovswitch">'+tr("Open vSwitch")+'</option>\
+             <option value="vmware">'+tr("VMware")+'</option>\
+             <option value="custom">' + tr("Custom") + '</option>\
+           </select>\
+           <div>\
+              <label>' + tr("Custom VNM_MAD") + ':</label>\
+              <input type="text" name="custom_vnm_mad" />\
+           </div>\
+      </div>\
+      <div class="one columns">\
+          <div class="tip"></div>\
+      </div>\
     </div>\
     </fieldset>\
-    <fieldset>\
-    <div class="form_buttons">\
-        <div><button class="button" type="submit" id="create_host_submit" value="OpenNebula.Host.create">' + tr("Create") + '</button>\
-        <button class="button" type="reset" value="reset">' + tr("Reset") + '</button></div>\
+  </div>\
+    <div class="manager clear row" id="cluster_select">\
+      <div class="four columns">\
+          <label class="inline right" for="host_cluster_id">' + tr("Cluster") + ':</label>\
+      </div>\
+      <div class="seven columns">\
+          <select id="host_cluster_id" name="host_cluster_id">\
+           </select>\
+      </div>\
+      <div class="one columns">\
+          <div class="tip"></div>\
+      </div>\
     </div>\
-  </fieldset>\
+    <hr>\
+    <div class="form_buttons row">\
+        <button class="button success right radius" type="submit" id="create_host_submit" value="OpenNebula.Host.create">' + tr("Create") + '</button>\
+        <button class="button secondary radius" type="reset" value="reset">' + tr("Reset") + '</button>\
+        <button class="close-reveal-modal button secondary radius" action="" type="button" value="close">' + tr("Close") + '</button>\
+    </div>\
+    <a class="close-reveal-modal">&#215;</a>\
 </form></div>';
 
 var hosts_select="";
@@ -236,41 +291,74 @@ var host_actions = {
         type: "monitor",
         call : OpenNebula.Host.monitor,
         callback: function(req,response) {
-            var info = req.request.data[0].monitor;
-            plot_graph(response,'#host_monitoring_tab',
-                       'host_monitor_',info);
+            var host_graphs = [
+            {
+                monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU",
+                labels : "Allocated,Real,Total",
+                humanize_figures : false,
+                div_graph : $("#host_cpu_graph"),
+                div_legend : $("#host_cpu_legend")
+            },
+            {
+                monitor_resources : "HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM",
+                labels : "Allocated,Real,Total",
+                humanize_figures : true,
+                div_graph : $("#host_mem_graph"),
+                div_legend : $("#host_mem_legend")
+            }
+            ];
+
+            for(var i=0; i<host_graphs.length; i++) {
+                plot_graph(
+                    response,
+                    host_graphs[i]
+                );
+            }
         },
         error: hostMonitorError
     },
 
-    "Host.fetch_template" : {
-        type: "single",
-        call: OpenNebula.Host.fetch_template,
-        callback: function (request,response) {
-            $('#template_update_dialog #template_update_textarea').val(response.template);
+    "Host.pool_monitor" : {
+        type: "monitor_global",
+        call : OpenNebula.Host.pool_monitor,
+        callback: function(req,response) {
+            var host_dashboard_graphs = [
+            {
+                monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU",
+                labels : "Allocated,Real,Total",
+                humanize_figures : false,
+                div_graph : $("#dash_host_cpu_graph", $dashboard)
+                //div_legend : $("#dash_host_cpu_legend", $dashboard)
+            },
+            {
+                monitor_resources : "HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM",
+                labels : "Allocated,Real,Total",
+                humanize_figures : true,
+                div_graph : $("#dash_host_mem_graph", $dashboard),
+                div_legend : $("#dash_host_mem_legend", $dashboard)
+            }
+            ];
+
+            for(var i=0; i<host_dashboard_graphs.length; i++) {
+                plot_totals(
+                    response,
+                    host_dashboard_graphs[i]
+                );
+            }
+
+            // TODO: refresh individual info panel graphs with this new data?
         },
+
+        // TODO: ignore error, or set message similar to hostMonitorError?
         error: onError
     },
 
-    "Host.update_dialog" : {
-        type: "custom",
-        call: function() {
-            popUpTemplateUpdateDialog("Host",
-                                      makeSelectOptions(dataTable_hosts,
-                                                        1,//id_col
-                                                        2,//name_col
-                                                        [],
-                                                        []
-                                                       ),
-                                      getSelectedNodes(dataTable_hosts));
-        }
-    },
-
-    "Host.update" : {
+    "Host.update_template" : {
         type: "single",
         call: OpenNebula.Host.update,
-        callback: function() {
+        callback: function(request) {
             notifyMessage(tr("Template updated correctly"));
+            Sunstone.runAction('Host.showinfo',request.request.data[0]);
         },
         error: onError
     },
@@ -293,7 +381,9 @@ var host_actions = {
             else
                 Sunstone.runAction("Cluster.addhost",cluster,host);
         },
-        callback: null,
+        callback: function(request) {
+            Sunstone.runAction('Host.showinfo',request.request.data[0]);
+        },
         elements: hostElements,
         notify:true
     },
@@ -311,61 +401,56 @@ var host_actions = {
 var host_buttons = {
     "Host.refresh" : {
         type: "action",
-        text: '<i class="icon-refresh icon-large">',
+        layout: "refresh",
         alwaysActive: true
     },
     "Host.create_dialog" : {
         type: "create_dialog",
-        text: tr("+ New"),
+        layout: "create",
         condition: mustBeAdmin
     },
-    "Host.update_dialog" : {
-        type: "action",
-        text: tr("Update a template"),
-        alwaysActive: true,
-        condition: mustBeAdmin
-    },
+
     "Host.addtocluster" : {
         type: "confirm_with_select",
         text: tr("Select cluster"),
         select: clusters_sel,
         tip: tr("Select the destination cluster:"),
+        layout: "more_select",
         condition: mustBeAdmin
     },
     "Host.enable" : {
         type: "action",
         text: tr("Enable"),
+        layout: "more_select",
         condition: mustBeAdmin
     },
     "Host.disable" : {
         type: "action",
         text: tr("Disable"),
+        layout: "more_select",
         condition: mustBeAdmin
     },
     "Host.delete" : {
         type: "confirm",
         text: tr("Delete host"),
+        layout: "del",
         condition: mustBeAdmin
     },
-    "Host.help" : {
-        type: "action",
-        text: '?',
-        alwaysActive: true
-    }
+    //"Host.help" : {
+    //    type: "action",
+    //    text: '?',
+    //    alwaysActive: true
+    //}
 };
 
 var host_info_panel = {
     "host_info_tab" : {
-        title: tr("Host information"),
+        title: tr("Information"),
         content:""
     },
 
-    "host_template_tab" : {
-        title: tr("Host template"),
-        content: ""
-    },
     "host_monitoring_tab": {
-        title: tr("Monitoring information"),
+        title: tr("Graphs"),
         content: ""
     }
 };
@@ -571,55 +656,57 @@ function hostElementArray(host_json){
 
     // Generate CPU progress bars
     var max_cpu = parseInt(host.HOST_SHARE.MAX_CPU);
-    if (!max_cpu) { 
+    if (!max_cpu) {
         max_cpu = 100
     }
 
     var allocated_cpu = parseInt(host.HOST_SHARE.CPU_USAGE);
     var ratio_allocated_cpu = Math.round((allocated_cpu / max_cpu) * 100);
 
-    var pb_allocated_cpu = progressBar(ratio_allocated_cpu, { 
-        label: allocated_cpu + ' / ' + max_cpu + ' (' + ratio_allocated_cpu + '%)',
-        width: '150px', 
-        height: '15px', 
-        fontSize: '1em' });
-
+    var info_str = allocated_cpu + ' / ' + max_cpu + ' (' + ratio_allocated_cpu + '%)';
+    var pb_allocated_cpu = quotaBarHtml(allocated_cpu, max_cpu, info_str);
 
     var real_cpu = parseInt(host.HOST_SHARE.USED_CPU);
     var ratio_real_cpu = Math.round((real_cpu / max_cpu) * 100);
 
-    var pb_real_cpu      = progressBar(ratio_real_cpu, { 
-        label: real_cpu + ' / ' + max_cpu + ' (' + ratio_real_cpu + '%)',
-        width: '150px', 
-        height: '15px', 
-        fontSize: '1em'});
-
+    var info_str = real_cpu + ' / ' + max_cpu + ' (' + ratio_real_cpu + '%)';
+    var pb_real_cpu = quotaBarHtml(real_cpu, max_cpu, info_str);
 
     // Generate MEM progress bars
     var max_mem = parseInt(host.HOST_SHARE.MAX_MEM);
-    if (!max_mem) { 
+    if (!max_mem) {
         max_mem = 100
     }
 
     var allocated_mem = parseInt(host.HOST_SHARE.MEM_USAGE);
     var ratio_allocated_mem = Math.round((allocated_mem / max_mem) * 100);
 
-    var pb_allocated_mem = progressBar(ratio_allocated_mem, { 
-        label: humanize_size(allocated_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_allocated_mem + '%)',
-        width: '150px', 
-        height: '15px', 
-        fontSize: '1em' });
-
+    var info_str = humanize_size(allocated_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_allocated_mem + '%)';
+    var pb_allocated_mem = quotaBarHtml(allocated_mem, max_mem, info_str);
 
     var real_mem = parseInt(host.HOST_SHARE.USED_MEM);
     var ratio_real_mem = Math.round((real_mem / max_mem) * 100);
 
-    var pb_real_mem      = progressBar(ratio_real_mem, { 
-        label: humanize_size(real_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_real_mem + '%)',
-        width: '150px', 
-        height: '15px', 
-        fontSize: '1em' });
+    var info_str = humanize_size(real_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_real_mem + '%)';
+    var pb_real_mem = quotaBarHtml(real_mem, max_mem, info_str);
 
+    var state_simple = OpenNebula.Helper.resource_state("host_simple",host.STATE);
+    switch (state_simple) {
+      case tr("INIT"):
+      case tr("UPDATE"):
+      case tr("ON"):
+        on_hosts++;
+        break;
+      case tr("ERROR"):
+      case tr("RETRY"):
+        error_hosts++;
+        break;
+      case tr("OFF"):
+        off_hosts++;
+        break;
+      default:
+        break;
+    }
 
     return [
         '<input class="check_item" type="checkbox" id="host_'+host.ID+'" name="selected_items" value="'+host.ID+'"/>',
@@ -631,7 +718,7 @@ function hostElementArray(host_json){
         pb_allocated_cpu,
         pb_real_mem,
         pb_allocated_mem,
-        OpenNebula.Helper.resource_state("host_simple",host.STATE),
+        state_simple,
         host.IM_MAD,
         host.VM_MAD,
         pretty_time(host.LAST_MON_TIME)
@@ -674,21 +761,46 @@ function addHostElement(request,host_json){
 function updateHostsView (request,host_list){
     var host_list_array = [];
 
+    on_hosts = 0;
+    off_hosts = 0;
+    error_hosts = 0;
+
     $.each(host_list,function(){
         //Grab table data from the host_list
         host_list_array.push(hostElementArray(this));
     });
 
-    SunstoneMonitoring.monitor('HOST', host_list)
-
-    //if clusters_sel is there, it means the clusters have arrived.
-    //Otherwise do not attempt to monitor them.
-    if (typeof(monitorClusters) != 'undefined' && clusters_sel())
-        monitorClusters(host_list)
     updateView(host_list_array,dataTable_hosts);
     updateHostSelect();
+
+    $("#total_hosts", $dashboard).text(host_list.length);
+    $("#on_hosts", $dashboard).text(on_hosts);
+    $("#off_hosts", $dashboard).text(off_hosts);
+    $("#error_hosts", $dashboard).text(error_hosts);
+
+    var form_hosts = $("#form_hosts");
+
+    $("#total_hosts", form_hosts).text(host_list.length);
+    $("#on_hosts", form_hosts).text(on_hosts);
+    $("#off_hosts", form_hosts).text(off_hosts);
+    $("#error_hosts", form_hosts).text(error_hosts);
+
+    // Update the dashboard graphs with monitoring information
+    Sunstone.runAction(
+        "Host.pool_monitor",
+        {
+            monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU,HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM"
+        });
+
+    //SunstoneMonitoring.monitor('HOST', host_list)
+//
+    ////if clusters_sel is there, it means the clusters have arrived.
+    ////Otherwise do not attempt to monitor them.
+    //if (typeof(monitorClusters) != 'undefined' && clusters_sel())
+    //    monitorClusters(host_list)
+
     //dependency with the dashboard plugin
-    updateInfraDashboard("hosts",host_list);
+    //updateInfraDashboard("hosts",host_list);
 }
 
 //Updates the host info panel tab content and pops it up
@@ -697,107 +809,128 @@ function updateHostInfo(request,host){
 
     //Information tab
     var info_tab = {
-        title : tr("Host information"),
+        title : tr("Information"),
         content :
-        '<table id="info_host_table" class="info_table">\
+        '<div class="">\
+        <div class="six columns">\
+        <table id="info_host_table" class="twelve datatable extended_table">\
             <thead>\
-               <tr><th colspan="2">' + tr("Host information") + ' - '+host_info.NAME+'</th></tr>\
+               <tr><th colspan="3">' + tr("Host") + ' - '+host_info.NAME+'</th></tr>\
             </thead>\
             <tbody>\
             <tr>\
                 <td class="key_td">' + tr("id") + '</td>\
-                <td class="value_td">'+host_info.ID+'</td>\
+                <td class="value_td" colspan="2">'+host_info.ID+'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">' + tr("Name") + '</td>\
-                <td class="value_td">'+host_info.NAME+'</td>\
+                <td class="value_td" colspan="2">'+host_info.NAME+'</td>\
             </tr>\
-            <tr>\
-                <td class="key_td">' + tr("Cluster") + '</td>\
-                <td class="value_td">'+(host_info.CLUSTER.length ? host_info.CLUSTER : "-")+'</td>\
-            </tr>\
+            <tr>' +
+                insert_cluster_dropdown("Host",host_info.ID,host_info.CLUSTER,host_info.CLUSTER_ID) +
+            '</tr>\
             <tr>\
                 <td class="key_td">' + tr("State") + '</td>\
-                <td class="value_td">'+tr(OpenNebula.Helper.resource_state("host",host_info.STATE))+'</td>\
+                <td class="value_td" colspan="2">'+tr(OpenNebula.Helper.resource_state("host",host_info.STATE))+'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">' + tr("IM MAD") + '</td>\
-                <td class="value_td">'+host_info.IM_MAD+'</td>\
+                <td class="value_td" colspan="2">'+host_info.IM_MAD+'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">' + tr("VM MAD") + '</td>\
-                <td class="value_td">'+host_info.VM_MAD+'</td>\
+                <td class="value_td" colspan="2">'+host_info.VM_MAD+'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">'+ tr("VN MAD") +'</td>\
-                <td class="value_td">'+host_info.VN_MAD+'</td>\
+                <td class="value_td" colspan="2">'+host_info.VN_MAD+'</td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">' + tr("Total Mem") + '</td>\
+              <td class="value_td" colspan="2">'+humanize_size(host_info.HOST_SHARE.MAX_MEM)+'</td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">' + tr("Used Mem (real)") + '</td>\
+              <td class="value_td" colspan="2">'+humanize_size(host_info.HOST_SHARE.USED_MEM)+'</td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">' + tr("Used Mem (allocated)") + '</td>\
+              <td class="value_td" colspan="2">'+humanize_size(host_info.HOST_SHARE.MEM_USAGE)+'</td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">' + tr("Total CPU") + '</td>\
+              <td class="value_td" colspan="2">'+host_info.HOST_SHARE.MAX_CPU+'</td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">' + tr("Used CPU (real)") + '</td>\
+              <td class="value_td" colspan="2">'+host_info.HOST_SHARE.USED_CPU+'</td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">' + tr("Used CPU (allocated)") + '</td>\
+              <td class="value_td" colspan="2">'+host_info.HOST_SHARE.CPU_USAGE+'</td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">' + tr("Running VMs") + '</td>\
+              <td class="value_td" colspan="2">'+host_info.HOST_SHARE.RUNNING_VMS+'</td>\
             </tr>\
             </tbody>\
          </table>\
-         <table id="host_shares_table" class="info_table">\
-            <thead>\
-               <tr><th colspan="2">' + tr("Host shares") + '</th></tr>\
-            </thead>\
-            <tbody>\
-               <tr>\
-                  <td class="key_td">' + tr("Total Mem") + '</td>\
-                  <td class="value_td">'+humanize_size(host_info.HOST_SHARE.MAX_MEM)+'</td>\
-               </tr>\
-               <tr>\
-                  <td class="key_td">' + tr("Used Mem (real)") + '</td>\
-                  <td class="value_td">'+humanize_size(host_info.HOST_SHARE.USED_MEM)+'</td>\
-               </tr>\
-               <tr>\
-                  <td class="key_td">' + tr("Used Mem (allocated)") + '</td>\
-                  <td class="value_td">'+humanize_size(host_info.HOST_SHARE.MEM_USAGE)+'</td>\
-               </tr>\
-               <tr>\
-                  <td class="key_td">' + tr("Total CPU") + '</td>\
-                  <td class="value_td">'+host_info.HOST_SHARE.MAX_CPU+'</td>\
-               </tr>\
-               <tr>\
-                  <td class="key_td">' + tr("Used CPU (real)") + '</td>\
-                  <td class="value_td">'+host_info.HOST_SHARE.USED_CPU+'</td>\
-               </tr>\
-               <tr>\
-                  <td class="key_td">' + tr("Used CPU (allocated)") + '</td>\
-                  <td class="value_td">'+host_info.HOST_SHARE.CPU_USAGE+'</td>\
-               </tr>\
-               <tr>\
-                  <td class="key_td">' + tr("Running VMs") + '</td>\
-                  <td class="value_td">'+host_info.HOST_SHARE.RUNNING_VMS+'</td>\
-               </tr>\
-            </tbody>\
-          </table>'
+        </div>\
+        <div class="six columns">'
+        + insert_extended_template_table(host_info.TEMPLATE,
+                                         "Host",
+                                         host_info.ID,
+                                         "Monitoring Attributes") +
+        '</div>\
+      </div>'
     }
 
-    //Template tab
-    var template_tab = {
-        title : tr("Host template"),
-        content :
-        '<table id="host_template_table" class="info_table" style="width:80%">\
-                <thead><tr><th colspan="2">' + tr("Host template") + '</th></tr></thead>'+
-                prettyPrintJSON(host_info.TEMPLATE)+
-                '</table>'
-    }
 
     var monitor_tab = {
-        title: tr("Monitoring information"),
-        content : generateMonitoringDivs(host_graphs,"host_monitor_")
+        title: tr("Graphs"),
+        content:
+        '<div class="">\
+            <div class="six columns">\
+              <div class="row graph_legend">\
+                <h3 class="subheader"><small>'+tr("CPU")+'</small></h3>\
+              </div>\
+              <div class="row">\
+                <div class="ten columns centered graph" id="host_cpu_graph" style="height: 100px;">\
+                </div>\
+              </div>\
+              <div class="row graph_legend">\
+                <div class="ten columns centered" id="host_cpu_legend">\
+                </div>\
+              </div>\
+            </div>\
+            <div class="six columns">\
+              <div class="row graph_legend">\
+                <h3 class="subheader"><small>'+tr("MEMORY")+'</small></h3>\
+              </div>\
+              <div class="row">\
+                <div class="ten columns centered graph" id="host_mem_graph" style="height: 100px;">\
+                </div>\
+              </div>\
+              <div class="row graph_legend">\
+                <div class="ten columns centered" id="host_mem_legend">\
+                </div>\
+              </div>\
+            </div>\
+        </div>'
     }
 
     //Sunstone.updateInfoPanelTab(info_panel_name,tab_name, new tab object);
     Sunstone.updateInfoPanelTab("host_info_panel","host_info_tab",info_tab);
-    Sunstone.updateInfoPanelTab("host_info_panel","host_template_tab",template_tab);
     Sunstone.updateInfoPanelTab("host_info_panel","host_monitoring_tab",monitor_tab);
 
     Sunstone.popUpInfoPanel("host_info_panel");
+
+    // TODO: re-use Host.pool_monitor data?
+
     //pop up panel while we retrieve the graphs
-    for (var i=0; i<host_graphs.length; i++){
-        Sunstone.runAction("Host.monitor",host_info.ID,host_graphs[i]);
-    };
 
-
+    Sunstone.runAction("Host.monitor",host_info.ID,
+        {monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU,HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM"});
 }
 
 //Prepares the host creation dialog
@@ -807,13 +940,14 @@ function setupCreateHostDialog(){
     var dialog = $create_host_dialog;
 
     dialog.html(create_host_tmpl);
-    dialog.dialog({
-        autoOpen: false,
-        modal: true,
-        width: 500
-    });
+    //dialog.dialog({
+    //    autoOpen: false,
+    //    modal: true,
+    //    width: 500
+    //});
+    dialog.addClass("reveal-modal");
 
-    $('button',dialog).button();
+    //$('button',dialog).button();
 
 
     // Show custom driver input only when custom is selected in selects
@@ -873,7 +1007,7 @@ function setupCreateHostDialog(){
         //Create the OpenNebula.Host.
         //If it is successfull we refresh the list.
         Sunstone.runAction("Host.create",host_json);
-        $create_host_dialog.dialog('close');
+        $create_host_dialog.trigger("reveal:close")
         return false;
     });
 }
@@ -881,7 +1015,7 @@ function setupCreateHostDialog(){
 //Open creation dialogs
 function popUpCreateHostDialog(){
     $('#host_cluster_id',$create_host_dialog).html(clusters_sel());
-    $create_host_dialog.dialog('open');
+    $create_host_dialog.reveal();
     return false;
 }
 
@@ -889,7 +1023,7 @@ function popUpCreateHostDialog(){
 function setHostAutorefresh() {
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_hosts);
-        var  filter = $("#datatable_hosts_filter input",dataTable_hosts.parents('#datatable_hosts_wrapper')).attr('value');
+        var  filter = $("#hosts_search").attr('value');
         if (!checked.length && !filter.length){
             Sunstone.runAction("Host.autorefresh");
         }
@@ -913,14 +1047,10 @@ $(document).ready(function(){
 
     //prepare host datatable
     dataTable_hosts = $("#datatable_hosts",main_tabs_context).dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": { //exclude checkbox column
             "aiExclude": [ 0 ]
         },
-        "bAutoWidth":false,
-        "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0,4] },
@@ -935,11 +1065,14 @@ $(document).ready(function(){
             } : ""
     });
 
+    $('#hosts_search').keyup(function(){
+      dataTable_hosts.fnFilter( $(this).val() );
+    })
+
     //preload it
-    dataTable_hosts.fnClearTable();
-    addElement([
-        spinner,
-        '','','','','','','','','','','',''],dataTable_hosts);
+    //addElement([
+    //    spinner,
+    //    '','','','','','','','','','','',''],dataTable_hosts);
     Sunstone.runAction("Host.list");
 
     setupCreateHostDialog();

@@ -49,6 +49,7 @@ module OpenNebulaJSON
                  when "chmod"       then self.chmod_octet(action_hash['params'])
                  when "instantiate" then self.instantiate(action_hash['params'])
                  when "clone"       then self.clone(action_hash['params'])
+                 when "rename"      then self.rename(action_hash['params'])                    
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -57,7 +58,15 @@ module OpenNebulaJSON
         end
 
         def update(params=Hash.new)
-            super(params['template_raw'])
+            STDERR.puts params
+            template_hash = parse_json(params, 'vmtemplate')
+            if template_hash['template_raw']
+                template = template_hash['template_raw']
+            else
+                template = template_to_str(template_hash)
+            end
+
+            super(template)
         end
 
         def chown(params=Hash.new)
@@ -76,5 +85,8 @@ module OpenNebulaJSON
             super(params['name'])
         end
 
+        def rename(params=Hash.new)
+            super(params['name'])
+        end
     end
 end

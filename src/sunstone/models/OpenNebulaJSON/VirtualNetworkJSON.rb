@@ -51,6 +51,7 @@ module OpenNebulaJSON
                  when "chmod"     then self.chmod_octet(action_hash['params'])
                  when "hold"      then self.hold(action_hash['params'])
                  when "release"   then self.release(action_hash['params'])
+                 when "rename"    then self.rename(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                                 " available for this resource"
@@ -84,6 +85,10 @@ module OpenNebulaJSON
 
         def release(params=Hash.new)
             super(params['ip'])
+        end
+
+        def rename(params=Hash.new)
+            super(params['name'])
         end
     end
 end

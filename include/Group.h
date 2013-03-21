@@ -39,6 +39,14 @@ public:
     string& to_xml(string& xml) const;
 
     /**
+     * Function to print the Group object into a string in
+     * XML format. The extended XML includes the default quotas
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    string& to_xml_extended(string& xml) const;
+
+    /**
      *  Rebuilds the object from an xml formatted string
      *    @param xml_str The xml-formatted string
      *
@@ -147,6 +155,15 @@ private:
         string error_str;
         return insert_replace(db, true, error_str);
     }
+
+    /**
+     * Function to print the Group object into a string in
+     * XML format
+     *  @param xml the resulting XML string
+     *  @param extended If true, default quotas are included
+     *  @return a reference to the generated string
+     */
+    string& to_xml_extended(string& xml, bool extended) const;
 };
 
 #endif /*GROUP_H_*/

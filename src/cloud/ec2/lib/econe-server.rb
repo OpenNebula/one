@@ -90,7 +90,7 @@ if CloudServer.is_port_open?(settings.config[:host],
                              settings.config[:port])
     settings.logger.error {
         "Port #{settings.config[:port]} busy, please shutdown " <<
-        "the service or move occi server port."
+        "the service or move econe server port."
     }
     exit -1
 end

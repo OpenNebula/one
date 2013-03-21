@@ -21,6 +21,7 @@
 #include <sstream>
 
 #include "Group.h"
+#include "Nebula.h"
 
 const char * Group::table = "group_pool";
 
@@ -128,12 +129,28 @@ error_common:
 
 string& Group::to_xml(string& xml) const
 {
+    return to_xml_extended(xml, false);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& Group::to_xml_extended(string& xml) const
+{
+    return to_xml_extended(xml, true);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& Group::to_xml_extended(string& xml, bool extended) const
+{
     ostringstream   oss;
     string          collection_xml;
     string          quota_xml;
 
     ObjectCollection::to_xml(collection_xml);
-    
+
     quota.to_xml(quota_xml);
 
     oss <<
@@ -141,8 +158,15 @@ string& Group::to_xml(string& xml) const
         "<ID>"   << oid  << "</ID>"   <<
         "<NAME>" << name << "</NAME>" <<
         collection_xml <<
-        quota_xml <<
-    "</GROUP>";
+        quota_xml;
+
+    if (extended)
+    {
+        string def_quota_xml;
+        oss << Nebula::instance().get_default_group_quota().to_xml(def_quota_xml);
+    }
+
+    oss << "</GROUP>";
 
     xml = oss.str();
 
