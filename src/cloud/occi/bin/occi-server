@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
@@ -100,9 +100,12 @@ stop()
     exit 1
   fi
 
-  # Kill the occi-server daemon
+  PID=`cat $OCCI_PID`
+  # Kill the occi-server daemon. Thin seems to require this twice
 
-  kill -INT `cat $OCCI_PID` > /dev/null 2>&1
+  kill -INT $PID > /dev/null 2>&1
+  sleep 1
+  kill -INT $PID > /dev/null 2>&1
 
   # Remove pid files
   rm -f $OCCI_PID > /dev/null 2>&1
