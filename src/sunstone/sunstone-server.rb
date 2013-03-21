@@ -64,34 +64,34 @@ require 'SunstonePlugins'
 ##############################################################################
 
 begin
-    conf = YAML.load_file(CONFIGURATION_FILE)
+    $conf = YAML.load_file(CONFIGURATION_FILE)
 rescue Exception => e
     STDERR.puts "Error parsing config file #{CONFIGURATION_FILE}: #{e.message}"
     exit 1
 end
 
-conf[:debug_level] ||= 3
+$conf[:debug_level] ||= 3
 
-CloudServer.print_configuration(conf)
+CloudServer.print_configuration($conf)
 
 #Sinatra configuration
 
-set :config, conf
-set :bind, settings.config[:host]
-set :port, settings.config[:port]
+set :config, $conf
+set :bind, $conf[:host]
+set :port, $conf[:port]
 
-case settings.config[:sessions]
+case $conf[:sessions]
 when 'memory', nil
     use Rack::Session::Pool, :key => 'sunstone'
 when 'memcache'
-    memcache_server=settings.config[:memcache_host]+':'<<
-        settings.config[:memcache_port].to_s
+    memcache_server=$conf[:memcache_host]+':'<<
+        $conf[:memcache_port].to_s
 
     STDERR.puts memcache_server
 
     use Rack::Session::Memcache,
         :memcache_server => memcache_server,
-        :namespace => settings.config[:memcache_namespace]
+        :namespace => $conf[:memcache_namespace]
 else
     STDERR.puts "Wrong value for :sessions in configuration file"
     exit(-1)
@@ -100,25 +100,27 @@ end
 # Enable logger
 
 include CloudLogger
-enable_logging SUNSTONE_LOG, settings.config[:debug_level].to_i
+logger=enable_logging(SUNSTONE_LOG, $conf[:debug_level].to_i)
 
 begin
     ENV["ONE_CIPHER_AUTH"] = SUNSTONE_AUTH
-    cloud_auth = CloudAuth.new(settings.config, settings.logger)
+    $cloud_auth = CloudAuth.new($conf, logger)
 rescue => e
-    settings.logger.error {
+    logger.error {
         "Error initializing authentication system" }
-    settings.logger.error { e.message }
+    logger.error { e.message }
     exit -1
 end
 
-set :cloud_auth, cloud_auth
+set :cloud_auth, $cloud_auth
 
 #start VNC proxy
 
+$vnc = OpenNebulaVNC.new($conf, logger)
+
 configure do
     set :run, false
-    set :vnc, OpenNebulaVNC.new(conf, settings.logger)
+    set :vnc, $vnc
 end
 
 ##############################################################################
@@ -131,7 +133,7 @@ helpers do
 
     def build_session
         begin
-            result = settings.cloud_auth.auth(request.env, params)
+            result = $cloud_auth.auth(request.env, params)
         rescue Exception => e
             logger.error { e.message }
             return [500, ""]
@@ -141,7 +143,7 @@ helpers do
             logger.info { "Unauthorized login attempt" }
             return [401, ""]
         else
-            client  = settings.cloud_auth.client(result)
+            client  = $cloud_auth.client(result)
             user_id = OpenNebula::User::SELF
 
             user    = OpenNebula::User.new_with_id(user_id, client)
@@ -166,13 +168,13 @@ helpers do
             if user['TEMPLATE/LANG']
                 session[:lang] = user['TEMPLATE/LANG']
             else
-                session[:lang] = settings.config[:lang]
+                session[:lang] = $conf[:lang]
             end
 
             if user['TEMPLATE/VNC_WSS']
                 session[:wss] = user['TEMPLATE/VNC_WSS']
             else
-                wss = settings.config[:vnc_proxy_support_wss]
+                wss = $conf[:vnc_proxy_support_wss]
                 #limit to yes,no options
                 session[:wss] = (wss == true || wss == "yes" || wss == "only" ?
                                  "yes" : "no")
@@ -201,9 +203,9 @@ before do
         halt 401 unless authorized?
 
         @SunstoneServer = SunstoneServer.new(
-                              settings.cloud_auth.client(session[:user]),
-                              settings.config,
-                              settings.logger)
+                              $cloud_auth.client(session[:user]),
+                              $conf,
+                              logger)
     end
 end
 
@@ -222,8 +224,8 @@ end
 ##############################################################################
 # Custom routes
 ##############################################################################
-if settings.config[:routes]
-    settings.config[:routes].each { |route|
+if $conf[:routes]
+    $conf[:routes].each { |route|
         require "routes/#{route}"
     }
 end
@@ -282,8 +284,8 @@ get '/config' do
             :wss  => session[:wss],
         },
         :system_config => {
-            :marketplace_url => settings.config[:marketplace_url],
-            :vnc_proxy_port => settings.vnc.proxy_port
+            :marketplace_url => $conf[:marketplace_url],
+            :vnc_proxy_port => $vnc.proxy_port
         }
     }
 
@@ -395,7 +397,7 @@ end
 ##############################################################################
 post '/vm/:id/startvnc' do
     vm_id = params[:id]
-    @SunstoneServer.startvnc(vm_id, settings.vnc)
+    @SunstoneServer.startvnc(vm_id, $vnc)
 end
 
 ##############################################################################
