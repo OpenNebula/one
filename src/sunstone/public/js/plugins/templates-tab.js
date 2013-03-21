@@ -2942,28 +2942,6 @@ function setupCreateTemplateDialog(){
     }
 
 
-    /**************************************************************************
-        OTHER TAB
-
-    **************************************************************************/
-
-    var add_otherTab = function() {
-      var html_tab_content = '<li id="otherTab" class="wizard_tab">'+
-          '<fieldset>'+
-            '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
-              '<p>You selected the following image: '+
-                '<span type="text" id="NETWORK" name="network"></span>'+
-                '</p>'+
-              '<input type="hidden" id="NETWORK_ID" name="network_id" size="2"/>'+
-              '</div>'+
-          '</fieldset>'+
-        '</li>'
-
-        $("<dd><a href='#other'>Other</a></dd>").appendTo($("dl#template_create_tabs"));
-        $(html_tab_content).appendTo($("ul#template_create_tabs_content"));
-    }
-
-
     //***CREATE VM DIALOG MAIN BODY***
 
     dialogs_context.append('<div id="create_template_dialog"></div>');
@@ -3013,7 +2991,6 @@ function setupCreateTemplateDialog(){
     add_ioTab();
     add_contextTab();
     add_schedulingTab();
-    add_otherTab();
 
     //tabs.tabs("option", "active", 0);
     $(".ui-tabs-vertical .ui-tabs-nav", dialog).first().removeClass("ui-tabs-nav").addClass("ui-tabs-nav-vert")
