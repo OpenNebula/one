@@ -787,6 +787,10 @@ function plot_totals(response, info) {
                     derivative(data);
                 }
 
+                if(data.length == 0) {
+                    continue;
+                }
+
                 var local_min = parseInt( data[0][0] );
                 var local_max = parseInt( data[data.length - 1][0] );
 
