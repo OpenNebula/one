@@ -325,48 +325,6 @@ OZONES_DIRS="$OZONES_LOCATION/lib \
              $OZONES_LOCATION/public/images \
              $OZONES_LOCATION/public/css"
 
-SELF_SERVICE_DIRS="\
-                 $LIB_LOCATION/ruby/cloud/occi/ui \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/templates \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/views \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/css \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/customize \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/images \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/js \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/js/plugins \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/cs_CZ \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/de \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/el_GR \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/en_US \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/es_ES \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fa_IR \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fr_CA \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fr_FR \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/gl \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/it_IT \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/nl_NL \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/pt_BR \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/pt_PT \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/ru_RU \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/sk_SK \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/zh_TW \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/jQueryLayout \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/dataTables \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/jQueryUI \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/jQueryUI/images \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/jQuery \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/jGrowl \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/flot \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/crypto-js \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/fileuploader \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/xml2json \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/FontAwesome \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/FontAwesome/css \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/FontAwesome/font"
-
 OZONES_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/opennebula \
                  $LIB_LOCATION/ruby/cli \
@@ -397,14 +355,14 @@ CONF_CLI_DIRS="$ETC_LOCATION/cli"
 if [ "$CLIENT" = "yes" ]; then
     MAKE_DIRS="$MAKE_DIRS $LIB_ECO_CLIENT_DIRS $LIB_OCCI_CLIENT_DIRS $LIB_MARKET_CLIENT_DIRS \
                $LIB_OCA_CLIENT_DIRS $LIB_CLI_CLIENT_DIRS $CONF_CLI_DIRS \
-               $ETC_LOCATION $OZONES_CLIENT_DIRS $SELF_SERVICE_DIRS"
+               $ETC_LOCATION $OZONES_CLIENT_DIRS"
 elif [ "$SUNSTONE" = "yes" ]; then
     MAKE_DIRS="$MAKE_DIRS $SUNSTONE_DIRS $LIB_OCA_CLIENT_DIRS"
 elif [ "$OZONES" = "yes" ]; then
     MAKE_DIRS="$MAKE_DIRS $OZONES_DIRS $OZONES_CLIENT_DIRS $LIB_OCA_CLIENT_DIRS"
 else
     MAKE_DIRS="$MAKE_DIRS $SHARE_DIRS $ETC_DIRS $LIB_DIRS $VAR_DIRS \
-                $OZONES_DIRS $OZONES_CLIENT_DIRS $SUNSTONE_DIRS $SELF_SERVICE_DIRS"
+                $OZONES_DIRS $OZONES_CLIENT_DIRS $SUNSTONE_DIRS"
 fi
 
 #-------------------------------------------------------------------------------
@@ -593,44 +551,6 @@ INSTALL_OZONES_ETC_FILES=(
     OZONES_ETC_FILES:$ETC_LOCATION
 )
 
-INSTALL_SELF_SERVICE_FILES=(
-    SELF_SERVICE_TEMPLATE_FILES:$LIB_LOCATION/ruby/cloud/occi/ui/templates
-    SELF_SERVICE_VIEWS_FILES:$LIB_LOCATION/ruby/cloud/occi/ui/views
-    SELF_SERVICE_PUBLIC_JS_FILES:$LIB_LOCATION/ruby/cloud/occi/ui/public/js
-    SELF_SERVICE_PUBLIC_JS_PLUGINS_FILES:$LIB_LOCATION/ruby/cloud/occi/ui/public/js/plugins
-    SELF_SERVICE_PUBLIC_CSS_FILES:$LIB_LOCATION/ruby/cloud/occi/ui/public/css
-    SELF_SERVICE_PUBLIC_CUSTOMIZE_FILES:$LIB_LOCATION/ruby/cloud/occi/ui/public/customize
-    SELF_SERVICE_PUBLIC_VENDOR_DATATABLES:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/dataTables
-    SELF_SERVICE_PUBLIC_VENDOR_JGROWL:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/jGrowl
-    SELF_SERVICE_PUBLIC_VENDOR_JQUERY:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/jQuery
-    SELF_SERVICE_PUBLIC_VENDOR_JQUERYUI:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/jQueryUI
-    SELF_SERVICE_PUBLIC_VENDOR_JQUERYUIIMAGES:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/jQueryUI/images
-    SELF_SERVICE_PUBLIC_VENDOR_JQUERYLAYOUT:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/jQueryLayout
-    SELF_SERVICE_PUBLIC_VENDOR_FLOT:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/flot
-    SELF_SERVICE_PUBLIC_VENDOR_CRYPTOJS:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/crypto-js
-    SELF_SERVICE_PUBLIC_VENDOR_FILEUPLOADER:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/fileuploader
-    SELF_SERVICE_PUBLIC_VENDOR_XML2JSON:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/xml2json
-    SELF_SERVICE_PUBLIC_VENDOR_FONTAWESOME:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/FontAwesome
-    SELF_SERVICE_PUBLIC_VENDOR_FONTAWESOME_CSS:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/FontAwesome/css
-    SELF_SERVICE_PUBLIC_VENDOR_FONTAWESOME_FONT:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/FontAwesome/font
-    SELF_SERVICE_PUBLIC_IMAGES_FILES:$LIB_LOCATION/ruby/cloud/occi/ui/public/images
-    SELF_SERVICE_PUBLIC_LOCALE_CS_CZ:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/cs_CZ
-    SELF_SERVICE_PUBLIC_LOCALE_DE:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/de
-    SELF_SERVICE_PUBLIC_LOCALE_EL_GR:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/el_GR
-    SELF_SERVICE_PUBLIC_LOCALE_EN_US:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/en_US
-    SELF_SERVICE_PUBLIC_LOCALE_ES_ES:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/es_ES
-    SELF_SERVICE_PUBLIC_LOCALE_FA_IR:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fa_IR
-    SELF_SERVICE_PUBLIC_LOCALE_FR_CA:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fr_CA
-    SELF_SERVICE_PUBLIC_LOCALE_FR_FR:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fr_FR
-    SELF_SERVICE_PUBLIC_LOCALE_GL:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/gl
-    SELF_SERVICE_PUBLIC_LOCALE_IT_IT:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/it_IT
-    SELF_SERVICE_PUBLIC_LOCALE_NL_NL:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/nl_NL
-    SELF_SERVICE_PUBLIC_LOCALE_PT_BR:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/pt_BR
-    SELF_SERVICE_PUBLIC_LOCALE_PT_PT:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/pt_PT
-    SELF_SERVICE_PUBLIC_LOCALE_RU_RU:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/ru_RU
-    SELF_SERVICE_PUBLIC_LOCALE_SK_SK:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/sk_SK
-    SELF_SERVICE_PUBLIC_LOCALE_ZH_TW:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/zh_TW
-)
 
 INSTALL_ETC_FILES=(
     ETC_FILES:$ETC_LOCATION
@@ -1753,119 +1673,6 @@ OZONES_BIN_CLIENT_FILES="src/ozones/Client/bin/onevdc \
 OZONES_RUBY_LIB_FILES="src/oca/ruby/OpenNebula.rb"
 
 #-----------------------------------------------------------------------------
-# Self-Service files
-#-----------------------------------------------------------------------------
-
-SELF_SERVICE_TEMPLATE_FILES="src/cloud/occi/lib/ui/templates/login.html"
-SELF_SERVICE_VIEWS_FILES="src/cloud/occi/lib/ui/views/index.erb"
-SELF_SERVICE_PUBLIC_JS_FILES="src/cloud/occi/lib/ui/public/js/layout.js \
-                    src/cloud/occi/lib/ui/public/js/occi.js \
-                    src/cloud/occi/lib/ui/public/js/locale.js \
-                    src/cloud/occi/lib/ui/public/js/login.js \
-                    src/sunstone/public/js/sunstone.js \
-                    src/sunstone/public/js/sunstone-util.js"
-
-SELF_SERVICE_PUBLIC_JS_PLUGINS_FILES="src/cloud/occi/lib/ui/public/js/plugins/compute.js \
-                    src/cloud/occi/lib/ui/public/js/plugins/configuration.js \
-                    src/cloud/occi/lib/ui/public/js/plugins/dashboard.js \
-                    src/cloud/occi/lib/ui/public/js/plugins/network.js \
-                    src/cloud/occi/lib/ui/public/js/plugins/storage.js"
-
-
-SELF_SERVICE_PUBLIC_CSS_FILES="src/cloud/occi/lib/ui/public/css/application.css \
-                    src/cloud/occi/lib/ui/public/css/layout.css \
-                    src/cloud/occi/lib/ui/public/css/login.css"
-
-SELF_SERVICE_PUBLIC_CUSTOMIZE_FILES="src/cloud/occi/lib/ui/public/customize/custom.js"
-
-
-SELF_SERVICE_PUBLIC_VENDOR_DATATABLES=$SUNSTONE_PUBLIC_VENDOR_DATATABLES
-SELF_SERVICE_PUBLIC_VENDOR_JGROWL=$SUNSTONE_PUBLIC_VENDOR_JGROWL
-SELF_SERVICE_PUBLIC_VENDOR_JQUERY=$SUNSTONE_PUBLIC_VENDOR_JQUERY
-SELF_SERVICE_PUBLIC_VENDOR_JQUERYUI=$SUNSTONE_PUBLIC_VENDOR_JQUERYUI
-SELF_SERVICE_PUBLIC_VENDOR_JQUERYUIIMAGES=$SUNSTONE_PUBLIC_VENDOR_JQUERYUIIMAGES
-SELF_SERVICE_PUBLIC_VENDOR_JQUERYLAYOUT=$SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT
-SELF_SERVICE_PUBLIC_VENDOR_FLOT=$SUNSTONE_PUBLIC_VENDOR_FLOT
-SELF_SERVICE_PUBLIC_VENDOR_CRYPTOJS=$SUNSTONE_PUBLIC_VENDOR_CRYPTOJS
-SELF_SERVICE_PUBLIC_VENDOR_FILEUPLOADER=$SUNSTONE_PUBLIC_VENDOR_FILEUPLOADER
-SELF_SERVICE_PUBLIC_VENDOR_XML2JSON=$SUNSTONE_PUBLIC_VENDOR_XML2JSON
-SELF_SERVICE_PUBLIC_VENDOR_FONTAWESOME=$SUNSTONE_PUBLIC_VENDOR_FONTAWESOME
-SELF_SERVICE_PUBLIC_VENDOR_FONTAWESOME_FONT=$SUNSTONE_PUBLIC_VENDOR_FONTAWESOME_FONT
-SELF_SERVICE_PUBLIC_VENDOR_FONTAWESOME_CSS=$SUNSTONE_PUBLIC_VENDOR_FONTAWESOME_CSS
-
-SELF_SERVICE_PUBLIC_IMAGES_FILES="\
-src/cloud/occi/lib/ui/public/images/ajax-loader.gif \
-src/cloud/occi/lib/ui/public/images/favicon.ico \
-src/cloud/occi/lib/ui/public/images/green_bullet.png \
-src/cloud/occi/lib/ui/public/images/login_over.png \
-src/cloud/occi/lib/ui/public/images/login.png \
-src/cloud/occi/lib/ui/public/images/network_icon.png \
-src/cloud/occi/lib/ui/public/images/one-compute.png \
-src/cloud/occi/lib/ui/public/images/one-network.png \
-src/cloud/occi/lib/ui/public/images/one-storage.png \
-src/cloud/occi/lib/ui/public/images/opennebula-selfservice-big.png \
-src/cloud/occi/lib/ui/public/images/opennebula-selfservice-icon.png \
-src/cloud/occi/lib/ui/public/images/opennebula-selfservice-small.png \
-src/cloud/occi/lib/ui/public/images/panel.png \
-src/cloud/occi/lib/ui/public/images/panel_short.png \
-src/cloud/occi/lib/ui/public/images/pbar.gif \
-src/cloud/occi/lib/ui/public/images/red_bullet.png \
-src/cloud/occi/lib/ui/public/images/Refresh-icon.png \
-src/cloud/occi/lib/ui/public/images/server_icon.png \
-src/cloud/occi/lib/ui/public/images/storage_icon.png \
-src/cloud/occi/lib/ui/public/images/vnc_off.png \
-src/cloud/occi/lib/ui/public/images/vnc_on.png \
-src/cloud/occi/lib/ui/public/images/yellow_bullet.png"
-
-SELF_SERVICE_PUBLIC_LOCALE_CS_CZ="src/cloud/occi/lib/ui/locale/languages/cs_CZ.js \
-                                  src/cloud/occi/lib/ui/locale/languages/cs_datatable.txt"
-
-SELF_SERVICE_PUBLIC_LOCALE_DE="src/cloud/occi/lib/ui/locale/languages/de.js \
-                                  src/cloud/occi/lib/ui/locale/languages/de_datatable.txt"
-
-SELF_SERVICE_PUBLIC_LOCALE_EL_GR="src/cloud/occi/lib/ui/locale/languages/el_GR.js \
-                                  src/cloud/occi/lib/ui/locale/languages/el_datatable.txt"
-
-SELF_SERVICE_PUBLIC_LOCALE_EN_US="src/cloud/occi/lib/ui/locale/languages/en_US.js \
-                                  src/cloud/occi/lib/ui/locale/languages/en_datatable.txt"
-
-SELF_SERVICE_PUBLIC_LOCALE_ES_ES="src/cloud/occi/lib/ui/locale/languages/es_ES.js \
-                                  src/cloud/occi/lib/ui/locale/languages/es_datatable.txt"
-
-SELF_SERVICE_PUBLIC_LOCALE_FA_IR="src/cloud/occi/lib/ui/locale/languages/fa_IR.js \
-                                  src/cloud/occi/lib/ui/locale/languages/fa_datatable.txt"
-
-SELF_SERVICE_PUBLIC_LOCALE_FR_CA="src/cloud/occi/lib/ui/locale/languages/fr_CA.js \
-                                  src/cloud/occi/lib/ui/locale/languages/fr_datatable.txt"
-
-SELF_SERVICE_PUBLIC_LOCALE_FR_FR="src/cloud/occi/lib/ui/locale/languages/fr_FR.js \
-                                  src/cloud/occi/lib/ui/locale/languages/fr_datatable.txt"
-
-SELF_SERVICE_PUBLIC_LOCALE_GL="src/cloud/occi/lib/ui/locale/languages/gl.js \
-                                  src/cloud/occi/lib/ui/locale/languages/gl_datatable.txt"
-
-SELF_SERVICE_PUBLIC_LOCALE_IT_IT="src/cloud/occi/lib/ui/locale/languages/it_IT.js \
-                                  src/cloud/occi/lib/ui/locale/languages/it_datatable.txt"
-
-SELF_SERVICE_PUBLIC_LOCALE_NL_NL="src/cloud/occi/lib/ui/locale/languages/nl_NL.js \
-                                  src/cloud/occi/lib/ui/locale/languages/nl_datatable.txt"
-
-SELF_SERVICE_PUBLIC_LOCALE_PT_BR="src/cloud/occi/lib/ui/locale/languages/pt_BR.js \
-                                  src/cloud/occi/lib/ui/locale/languages/pt_datatable.txt"
-
-SELF_SERVICE_PUBLIC_LOCALE_PT_PT="src/cloud/occi/lib/ui/locale/languages/pt_PT.js \
-                                  src/cloud/occi/lib/ui/locale/languages/pt_datatable.txt"
-
-SELF_SERVICE_PUBLIC_LOCALE_RU_RU="src/cloud/occi/lib/ui/locale/languages/ru_RU.js \
-                                  src/cloud/occi/lib/ui/locale/languages/ru_datatable.txt"
-
-SELF_SERVICE_PUBLIC_LOCALE_SK_SK="src/cloud/occi/lib/ui/locale/languages/sk_SK.js \
-                                  src/cloud/occi/lib/ui/locale/languages/sk_datatable.txt"
-
-SELF_SERVICE_PUBLIC_LOCALE_ZH_TW="src/cloud/occi/lib/ui/locale/languages/zh_TW.js \
-                                  src/cloud/occi/lib/ui/locale/languages/zh_datatable.txt"
-
-#-----------------------------------------------------------------------------
 # MAN files
 #-----------------------------------------------------------------------------
 
@@ -1947,7 +1754,7 @@ elif [ "$OZONES" = "yes" ]; then
     INSTALL_SET="${INSTALL_OZONES_RUBY_FILES[@]} ${INSTALL_OZONES_FILES[@]}"
 else
     INSTALL_SET="${INSTALL_FILES[@]} ${INSTALL_OZONES_FILES[@]} \
-                 ${INSTALL_SUNSTONE_FILES[@]} ${INSTALL_SELF_SERVICE_FILES[@]}"
+                 ${INSTALL_SUNSTONE_FILES[@]}"
 fi
 
 for i in ${INSTALL_SET[@]}; do

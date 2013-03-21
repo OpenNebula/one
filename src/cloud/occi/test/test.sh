@@ -25,7 +25,7 @@ VAR_LOCATION="$ONE_LOCATION/var"
 
 if [ "$(ls -A $VAR_LOCATION)" ]; then
     echo "$VAR_LOCATION is not empty."
-    exit -1
+#    exit -1
 fi
 
 for j in `ls ./spec/*_spec.rb` ; do

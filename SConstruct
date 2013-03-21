@@ -237,7 +237,6 @@ build_scripts=[
     'src/document/SConstruct',
     'share/man/SConstruct',
     'src/sunstone/locale/languages/SConstruct',
-    'src/cloud/occi/lib/ui/locale/languages/SConstruct',
     'share/scripts/context-packages/SConstruct',
     'share/rubygems/SConstruct'
 ]
