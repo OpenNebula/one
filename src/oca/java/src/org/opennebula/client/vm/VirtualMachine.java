@@ -327,21 +327,6 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
-     * Attaches a disk to a running VM
-     *
-     * @param client XML-RPC Client.
-     * @param id The virtual machine id (vid) of the target instance.
-     * @param diskTemplate Template containing the new DISK definition
-     * @return If an error occurs the error message contains the reason.
-     * @deprecated  Replaced by {@link #diskAttach}
-     */
-    @Deprecated public static OneResponse attachdisk(Client client, int id,
-            String diskTemplate)
-    {
-        return diskAttach(client, id, diskTemplate);
-    }
-
-    /**
      * Detaches a disk from a running VM
      *
      * @param client XML-RPC Client.
@@ -355,19 +340,24 @@ public class VirtualMachine extends PoolElement{
         return client.call(DETACH, id, diskId);
     }
 
+
     /**
-     * Detaches a disk from a running VM
+     * Sets the specified vm's disk to be saved in a new image.
      *
      * @param client XML-RPC Client.
      * @param id The virtual machine id (vid) of the target instance.
-     * @param diskId The DISK_ID of the disk to detach
+     * @param diskId ID of the disk to be saved.
+     * @param imageName Name of the new Image that will be created.
+     * @param imageType Type of the new image. Set to empty string to use
+     * the default type
+     * @param hot True to save the disk immediately, false will perform
+     * the operation when the VM shuts down
      * @return If an error occurs the error message contains the reason.
-     * @deprecated  Replaced by {@link #diskDetach}
      */
-    @Deprecated public static OneResponse detachdisk(Client client, int id,
-            int diskId)
+    public static OneResponse diskSnapshot(Client client, int id,
+        int diskId, String imageName, String imageType, boolean hot)
     {
-        return diskDetach(client, id, diskId);
+        return client.call(SAVEDISK, id ,diskId, imageName, imageType, hot);
     }
 
     /**
@@ -419,7 +409,7 @@ public class VirtualMachine extends PoolElement{
      * @param name Name for the snapshot.
      * @return If an error occurs the error message contains the reason.
      */
-    public static OneResponse snapshotcreate(Client client, int id, String name)
+    public static OneResponse snapshotCreate(Client client, int id, String name)
     {
         return client.call(SNAPSHOTCREATE, id, name);
     }
@@ -432,7 +422,7 @@ public class VirtualMachine extends PoolElement{
      * @param snapId Id of the snapshot
      * @return If an error occurs the error message contains the reason.
      */
-    public static OneResponse snapshotrevert(Client client, int id, int snapId)
+    public static OneResponse snapshotRevert(Client client, int id, int snapId)
     {
         return client.call(SNAPSHOTREVERT, id, snapId);
     }
@@ -445,7 +435,7 @@ public class VirtualMachine extends PoolElement{
      * @param snapId Id of the snapshot
      * @return If an error occurs the error message contains the reason.
      */
-    public static OneResponse snapshotdelete(Client client, int id, int snapId)
+    public static OneResponse snapshotDelete(Client client, int id, int snapId)
     {
         return client.call(SNAPSHOTDELETE, id, snapId);
     }
@@ -542,63 +532,28 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
-     * Sets the specified vm's disk to be saved in a new image when the
-     * VirtualMachine shuts down.
+     * Migrates the virtual machine to the target host (hid).
      *
-     * @param diskId ID of the disk to be saved.
-     * @param imageName Name of the new Image that will be created.
+     * @param hostId The target host id (hid) where we want to migrate
+     * the vm.
+     * @param live If true the migration is done without downtime.
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse diskSnapshot(int diskId, String imageName)
+    public OneResponse migrate(int hostId, boolean live)
     {
-        return diskSnapshot(diskId, imageName, "", false);
+        return migrate(hostId, live, false);
     }
 
     /**
-     * Sets the specified vm's disk to be saved in a new image.
+     * Migrates the virtual machine to the target host (hid).
      *
-     * @param diskId ID of the disk to be saved.
-     * @param imageName Name of the new Image that will be created.
-     * @param hot True to save the disk immediately, false will perform
-     * the operation when the VM shuts down
+     * @param hostId The target host id (hid) where we want to migrate
+     * the vm.
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse diskSnapshot(int diskId, String imageName, boolean hot)
+    public OneResponse migrate(int hostId)
     {
-        return diskSnapshot(diskId, imageName, "", hot);
-    }
-
-    /**
-     * Sets the specified vm's disk to be saved in a new image.
-     *
-     * @param diskId ID of the disk to be saved.
-     * @param imageName Name of the new Image that will be created.
-     * @param imageType Type of the new image. Set to empty string to use
-     * the default type
-     * @param hot True to save the disk immediately, false will perform
-     * the operation when the VM shuts down
-     * @return If an error occurs the error message contains the reason.
-     */
-    public OneResponse diskSnapshot(int diskId, String imageName,
-        String imageType, boolean hot)
-    {
-        return client.call(SAVEDISK, id ,diskId, imageName, imageType, hot);
-    }
-
-    /**
-     * @deprecated  Replaced by {@link #diskSnapshot(int,String)}
-     */
-    @Deprecated public OneResponse savedisk(int diskId, String imageName)
-    {
-        return diskSnapshot(diskId, imageName);
-    }
-
-    /**
-     * @deprecated  Replaced by {@link #diskSnapshot(int,String,String,boolean)}
-     */
-    public OneResponse savedisk(int diskId, String imageName, String imageType)
-    {
-        return diskSnapshot(diskId, imageName, imageType, false);
+        return migrate(hostId, false, false);
     }
 
     /**
@@ -634,7 +589,6 @@ public class VirtualMachine extends PoolElement{
     {
         return chown(-1, gid);
     }
-
 
     /**
      * Changes the VM permissions
@@ -705,14 +659,6 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
-     * @deprecated  Replaced by {@link #diskAttach(String)}
-     */
-    @Deprecated public OneResponse attachdisk(String diskTemplate)
-    {
-        return diskAttach(diskTemplate);
-    }
-
-    /**
      * Detaches a disk from a running VM
      *
      * @param diskId The DISK_ID of the disk to detach
@@ -723,9 +669,48 @@ public class VirtualMachine extends PoolElement{
         return detachdisk(client, id, diskId);
     }
 
-    @Deprecated public OneResponse detachdisk(int diskId)
+    /**
+     * Sets the specified vm's disk to be saved in a new image.
+     *
+     * @param diskId ID of the disk to be saved.
+     * @param imageName Name of the new Image that will be created.
+     * @param imageType Type of the new image. Set to empty string to use
+     * the default type
+     * @param hot True to save the disk immediately, false will perform
+     * the operation when the VM shuts down
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse diskSnapshot(int diskId, String imageName,
+        String imageType, boolean hot)
     {
-        return diskDetach(diskId);
+        return diskSnapshot(client, id, diskId, imageName, imageType, hot);
+    }
+
+    /**
+     * Sets the specified vm's disk to be saved in a new image when the
+     * VirtualMachine shuts down.
+     *
+     * @param diskId ID of the disk to be saved.
+     * @param imageName Name of the new Image that will be created.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse diskSnapshot(int diskId, String imageName)
+    {
+        return diskSnapshot(diskId, imageName, "", false);
+    }
+
+    /**
+     * Sets the specified vm's disk to be saved in a new image.
+     *
+     * @param diskId ID of the disk to be saved.
+     * @param imageName Name of the new Image that will be created.
+     * @param hot True to save the disk immediately, false will perform
+     * the operation when the VM shuts down
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse diskSnapshot(int diskId, String imageName, boolean hot)
+    {
+        return diskSnapshot(diskId, imageName, "", hot);
     }
 
     /**
@@ -769,7 +754,7 @@ public class VirtualMachine extends PoolElement{
      */
     public OneResponse update(String new_template)
     {
-        return client.call(UPDATE, id, new_template);
+        return update(client, id, new_template);
     }
 
     /**
@@ -785,7 +770,7 @@ public class VirtualMachine extends PoolElement{
      */
     public OneResponse resize(String capacityTemplate, boolean enforce)
     {
-        return client.call(RESIZE, id, capacityTemplate, enforce);
+        return resize(client, id, capacityTemplate, enforce);
     }
 
     /**
@@ -794,9 +779,9 @@ public class VirtualMachine extends PoolElement{
      * @param name Name for the snapshot.
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse snapshotcreate(String name)
+    public OneResponse snapshotCreate(String name)
     {
-        return snapshotcreate(client, id, name);
+        return snapshotCreate(client, id, name);
     }
 
     /**
@@ -805,9 +790,9 @@ public class VirtualMachine extends PoolElement{
      * @param snapId Id of the snapshot
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse snapshotrevert(int snapId)
+    public OneResponse snapshotRevert(int snapId)
     {
-        return snapshotrevert(client, id, snapId);
+        return snapshotRevert(client, id, snapId);
     }
 
     /**
@@ -816,9 +801,9 @@ public class VirtualMachine extends PoolElement{
      * @param snapId Id of the snapshot
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse snapshotdelete(int snapId)
+    public OneResponse snapshotDelete(int snapId)
     {
-        return client.call(SNAPSHOTDELETE, id, snapId);
+        return snapshotDelete(client, id, snapId);
     }
 
     // =================================
@@ -845,17 +830,6 @@ public class VirtualMachine extends PoolElement{
         String actionSt = hard ? "shutdown-hard" : "shutdown";
 
         return action(actionSt);
-    }
-
-    /**
-     * Cancels the running VM.
-     * @return If an error occurs the error message contains the reason.
-     *
-     * @deprecated  Replaced by hard shutdown {@link #shutdown(boolean)}
-     */
-    @Deprecated public OneResponse cancel()
-    {
-        return action("cancel");
     }
 
     /**
@@ -887,17 +861,6 @@ public class VirtualMachine extends PoolElement{
         String actionSt = hard ? "reboot-hard" : "reboot";
 
         return action(actionSt);
-    }
-
-    /**
-     * Resets a running VM.
-     * @return If an error occurs the error message contains the reason.
-     *
-     * @deprecated  Replaced by hard reboot {@link #reboot(boolean)}
-     */
-    @Deprecated public OneResponse reset()
-    {
-        return action("reset");
     }
 
     /**
@@ -970,45 +933,12 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
-     * Deletes the VM from the pool and database.
-     * @return If an error occurs the error message contains the reason.
-     *
-     * @deprecated  Replaced by {@link #destroy}
-     */
-    @Deprecated public OneResponse finalizeVM()
-    {
-        return action("finalize");
-    }
-
-    /**
-     * Resubmits a VM to PENDING state.
-     * @return If an error occurs the error message contains the reason.
-     *
-     * @deprecated  Replaced by destroy and recreate {@link #destroy(boolean)}
-     */
-    @Deprecated public OneResponse resubmit()
-    {
-        return action("resubmit");
-    }
-
-    /**
      * Forces a re-deployment of a VM in UNKNOWN or BOOT states.
      * @return If an error occurs the error message contains the reason.
      */
     public OneResponse boot()
     {
         return action("boot");
-    }
-
-    /**
-     * Forces a re-deployment of a VM in UNKNOWN or BOOT states.
-     * @return If an error occurs the error message contains the reason.
-     *
-     * @deprecated  Replaced by {@link #boot}
-     */
-    @Deprecated public OneResponse restart()
-    {
-        return action("restart");
     }
 
     /**
@@ -1027,74 +957,6 @@ public class VirtualMachine extends PoolElement{
     public OneResponse unresched()
     {
         return action("unresched");
-    }
-
-    /**
-     * Migrates the virtual machine to the target host (hid).
-     * <br/>
-     * It does the same as {@link VirtualMachine#migrate(int, boolean)}
-     * with live set to false.
-     *
-     * @param hostId The target host id (hid) where we want to migrate
-     * the vm.
-     * @param enforce If it is set to true, the host capacity
-     * will be checked, and the deployment will fail if the host is
-     * overcommited. Defaults to false
-     * @return If an error occurs the error message contains the reason.
-     */
-    public OneResponse migrate(int hostId, boolean enforce)
-    {
-        return migrate(hostId, false, enforce);
-    }
-
-    /**
-     * Migrates the virtual machine to the target host (hid).
-     * <br/>
-     * It does the same as {@link VirtualMachine#migrate(int, boolean)}
-     * with live set to false.
-     *
-     * @param hostId The target host id (hid) where we want to migrate
-     * the vm.
-     * @return If an error occurs the error message contains the reason.
-     */
-    public OneResponse migrate(int hostId)
-    {
-        return migrate(hostId, false);
-    }
-
-    /**
-     * Performs a live migration of the virtual machine to the
-     * target host (hid).
-     * <br/>
-     * It does the same as {@link VirtualMachine#migrate(int, boolean)}
-     * with live set to true.
-     *
-     * @param hostId The target host id (hid) where we want to migrate
-     * the vm.
-     * @param enforce If it is set to true, the host capacity
-     * will be checked, and the deployment will fail if the host is
-     * overcommited. Defaults to false
-     * @return If an error occurs the error message contains the reason.
-     */
-    public OneResponse liveMigrate(int hostId, boolean enforce)
-    {
-        return migrate(hostId, true, enforce);
-    }
-
-    /**
-     * Performs a live migration of the virtual machine to the
-     * target host (hid).
-     * <br/>
-     * It does the same as {@link VirtualMachine#migrate(int, boolean)}
-     * with live set to true.
-     *
-     * @param hostId The target host id (hid) where we want to migrate
-     * the vm.
-     * @return If an error occurs the error message contains the reason.
-     */
-    public OneResponse liveMigrate(int hostId)
-    {
-        return liveMigrate(hostId, false);
     }
 
     public int state()
@@ -1153,4 +1015,139 @@ public class VirtualMachine extends PoolElement{
         return shortStateStr;
     }
 
+    // =================================
+    // Deprecated methods
+    // =================================
+
+    /**
+     * Attaches a disk to a running VM
+     *
+     * @param client XML-RPC Client.
+     * @param id The virtual machine id (vid) of the target instance.
+     * @param diskTemplate Template containing the new DISK definition
+     * @return If an error occurs the error message contains the reason.
+     * @deprecated  Replaced by {@link #diskAttach}
+     */
+    @Deprecated public static OneResponse attachdisk(Client client, int id,
+            String diskTemplate)
+    {
+        return diskAttach(client, id, diskTemplate);
+    }
+
+    /**
+     * Detaches a disk from a running VM
+     *
+     * @param client XML-RPC Client.
+     * @param id The virtual machine id (vid) of the target instance.
+     * @param diskId The DISK_ID of the disk to detach
+     * @return If an error occurs the error message contains the reason.
+     * @deprecated  Replaced by {@link #diskDetach}
+     */
+    @Deprecated public static OneResponse detachdisk(Client client, int id,
+            int diskId)
+    {
+        return diskDetach(client, id, diskId);
+    }
+
+    /**
+     * @deprecated  Replaced by {@link #diskSnapshot(int,String)}
+     */
+    @Deprecated public OneResponse savedisk(int diskId, String imageName)
+    {
+        return diskSnapshot(diskId, imageName);
+    }
+
+    /**
+     * @deprecated  Replaced by {@link #diskSnapshot(int,String,String,boolean)}
+     */
+    public OneResponse savedisk(int diskId, String imageName, String imageType)
+    {
+        return diskSnapshot(diskId, imageName, imageType, false);
+    }
+
+    /**
+     * @deprecated  Replaced by {@link #diskAttach(String)}
+     */
+    @Deprecated public OneResponse attachdisk(String diskTemplate)
+    {
+        return diskAttach(diskTemplate);
+    }
+
+    @Deprecated public OneResponse detachdisk(int diskId)
+    {
+        return diskDetach(diskId);
+    }
+
+    /**
+     * Cancels the running VM.
+     * @return If an error occurs the error message contains the reason.
+     *
+     * @deprecated  Replaced by hard shutdown {@link #shutdown(boolean)}
+     */
+    @Deprecated public OneResponse cancel()
+    {
+        return action("cancel");
+    }
+
+    /**
+     * Resets a running VM.
+     * @return If an error occurs the error message contains the reason.
+     *
+     * @deprecated  Replaced by hard reboot {@link #reboot(boolean)}
+     */
+    @Deprecated public OneResponse reset()
+    {
+        return action("reset");
+    }
+
+    /**
+     * Deletes the VM from the pool and database.
+     * @return If an error occurs the error message contains the reason.
+     *
+     * @deprecated  Replaced by {@link #destroy}
+     */
+    @Deprecated public OneResponse finalizeVM()
+    {
+        return action("finalize");
+    }
+
+    /**
+     * Resubmits a VM to PENDING state.
+     * @return If an error occurs the error message contains the reason.
+     *
+     * @deprecated  Replaced by destroy and recreate {@link #destroy(boolean)}
+     */
+    @Deprecated public OneResponse resubmit()
+    {
+        return action("resubmit");
+    }
+
+    /**
+     * Forces a re-deployment of a VM in UNKNOWN or BOOT states.
+     * @return If an error occurs the error message contains the reason.
+     *
+     * @deprecated  Replaced by {@link #boot}
+     */
+    @Deprecated public OneResponse restart()
+    {
+        return action("restart");
+    }
+
+    /**
+     * Performs a live migration of the virtual machine to the
+     * target host (hid).
+     * <br/>
+     * It does the same as {@link VirtualMachine#migrate(int, boolean)}
+     * with live set to true.
+     *
+     * @param hostId The target host id (hid) where we want to migrate
+     * the vm.
+     * @return If an error occurs the error message contains the reason.
+     *
+     * @deprecated  Replaced by {@link #migrate}
+     */
+    @Deprecated public OneResponse liveMigrate(int hostId)
+    {
+        return migrate(hostId, false);
+    }
 }
