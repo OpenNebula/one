@@ -259,25 +259,29 @@ module OpenNebula
         # @param disk_template [String] Template containing a DISK element
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def attachdisk(disk_template)
+        def disk_attach(disk_template)
             return call(VM_METHODS[:attach], @pe_id, disk_template)
         end
+
+        alias_method :attachdisk, :disk_attach
 
         # Detaches a disk from a running VM
         #
         # @param disk_id [Integer] Id of the disk to be detached
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def detachdisk(disk_id)
+        def disk_detach(disk_id)
             return call(VM_METHODS[:detach], @pe_id, disk_id)
         end
+
+        alias_method :detachdisk, :disk_detach
 
         # Attaches a NIC to a running VM
         #
         # @param nic_template [String] Template containing a NIC element
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def attachnic(nic_template)
+        def nic_attach(nic_template)
             return call(VM_METHODS[:attachnic], @pe_id, nic_template)
         end
 
@@ -286,7 +290,7 @@ module OpenNebula
         # @param disk_id [Integer] Id of the NIC to be detached
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def detachnic(nic_id)
+        def nic_detach(nic_id)
             return call(VM_METHODS[:detachnic], @pe_id, nic_id)
         end
 
@@ -362,7 +366,7 @@ module OpenNebula
         #
         # @return [Integer, OpenNebula::Error] the new Image ID in case of
         #   success, error otherwise
-        def save_as(disk_id, image_name, image_type="", hot=false)
+        def disk_snapshot(disk_id, image_name, image_type="", hot=false)
             return Error.new('ID not defined') if !@pe_id
 
             rc = @client.call(VM_METHODS[:savedisk],
@@ -373,6 +377,11 @@ module OpenNebula
                               hot)
 
             return rc
+        end
+
+        # @deprecated use {#disk_snapshot}
+        def save_as(disk_id, image_name, image_type="", hot=false)
+            return disk_snapshot(disk_id, image_name, image_type, hot)
         end
 
         # Resize the VM

@@ -320,10 +320,25 @@ public class VirtualMachine extends PoolElement{
      * @param diskTemplate Template containing the new DISK definition
      * @return If an error occurs the error message contains the reason.
      */
-    public static OneResponse attachdisk(Client client, int id,
+    public static OneResponse diskAttach(Client client, int id,
             String diskTemplate)
     {
         return client.call(ATTACH, id, diskTemplate);
+    }
+
+    /**
+     * Attaches a disk to a running VM
+     *
+     * @param client XML-RPC Client.
+     * @param id The virtual machine id (vid) of the target instance.
+     * @param diskTemplate Template containing the new DISK definition
+     * @return If an error occurs the error message contains the reason.
+     * @deprecated  Replaced by {@link #diskAttach}
+     */
+    @Deprecated public static OneResponse attachdisk(Client client, int id,
+            String diskTemplate)
+    {
+        return diskAttach(client, id, diskTemplate);
     }
 
     /**
@@ -334,10 +349,25 @@ public class VirtualMachine extends PoolElement{
      * @param diskId The DISK_ID of the disk to detach
      * @return If an error occurs the error message contains the reason.
      */
-    public static OneResponse detachdisk(Client client, int id,
+    public static OneResponse diskDetach(Client client, int id,
             int diskId)
     {
         return client.call(DETACH, id, diskId);
+    }
+
+    /**
+     * Detaches a disk from a running VM
+     *
+     * @param client XML-RPC Client.
+     * @param id The virtual machine id (vid) of the target instance.
+     * @param diskId The DISK_ID of the disk to detach
+     * @return If an error occurs the error message contains the reason.
+     * @deprecated  Replaced by {@link #diskDetach}
+     */
+    @Deprecated public static OneResponse detachdisk(Client client, int id,
+            int diskId)
+    {
+        return diskDetach(client, id, diskId);
     }
 
     /**
@@ -348,7 +378,7 @@ public class VirtualMachine extends PoolElement{
      * @param nicTemplate Template containing the new NIC definition
      * @return If an error occurs the error message contains the reason.
      */
-    public static OneResponse attachnic(Client client, int id,
+    public static OneResponse nicAttach(Client client, int id,
             String nicTemplate)
     {
         return client.call(ATTACHNIC, id, nicTemplate);
@@ -362,7 +392,7 @@ public class VirtualMachine extends PoolElement{
      * @param nicId The NIC_ID of the NIC to detach
      * @return If an error occurs the error message contains the reason.
      */
-    public static OneResponse detachnic(Client client, int id,
+    public static OneResponse nicDetach(Client client, int id,
             int nicId)
     {
         return client.call(DETACHNIC, id, nicId);
@@ -519,9 +549,9 @@ public class VirtualMachine extends PoolElement{
      * @param imageName Name of the new Image that will be created.
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse savedisk(int diskId, String imageName)
+    public OneResponse diskSnapshot(int diskId, String imageName)
     {
-        return savedisk(diskId, imageName, "", false);
+        return diskSnapshot(diskId, imageName, "", false);
     }
 
     /**
@@ -533,9 +563,9 @@ public class VirtualMachine extends PoolElement{
      * the operation when the VM shuts down
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse savedisk(int diskId, String imageName, boolean hot)
+    public OneResponse diskSnapshot(int diskId, String imageName, boolean hot)
     {
-        return savedisk(diskId, imageName, "", hot);
+        return diskSnapshot(diskId, imageName, "", hot);
     }
 
     /**
@@ -549,10 +579,26 @@ public class VirtualMachine extends PoolElement{
      * the operation when the VM shuts down
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse savedisk(int diskId, String imageName, String imageType,
-        boolean hot)
+    public OneResponse diskSnapshot(int diskId, String imageName,
+        String imageType, boolean hot)
     {
         return client.call(SAVEDISK, id ,diskId, imageName, imageType, hot);
+    }
+
+    /**
+     * @deprecated  Replaced by {@link #diskSnapshot(int,String)}
+     */
+    @Deprecated public OneResponse savedisk(int diskId, String imageName)
+    {
+        return diskSnapshot(diskId, imageName);
+    }
+
+    /**
+     * @deprecated  Replaced by {@link #diskSnapshot(int,String,String,boolean)}
+     */
+    public OneResponse savedisk(int diskId, String imageName, String imageType)
+    {
+        return diskSnapshot(diskId, imageName, imageType, false);
     }
 
     /**
@@ -653,9 +699,17 @@ public class VirtualMachine extends PoolElement{
      * @param diskTemplate Template containing the new DISK definition
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse attachdisk(String diskTemplate)
+    public OneResponse diskAttach(String diskTemplate)
     {
-        return attachdisk(client, id, diskTemplate);
+        return diskAttach(client, id, diskTemplate);
+    }
+
+    /**
+     * @deprecated  Replaced by {@link #diskAttach(String)}
+     */
+    @Deprecated public OneResponse attachdisk(String diskTemplate)
+    {
+        return diskAttach(diskTemplate);
     }
 
     /**
@@ -664,9 +718,14 @@ public class VirtualMachine extends PoolElement{
      * @param diskId The DISK_ID of the disk to detach
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse detachdisk(int diskId)
+    public OneResponse diskDetach(int diskId)
     {
         return detachdisk(client, id, diskId);
+    }
+
+    @Deprecated public OneResponse detachdisk(int diskId)
+    {
+        return diskDetach(diskId);
     }
 
     /**
@@ -675,9 +734,9 @@ public class VirtualMachine extends PoolElement{
      * @param nicTemplate Template containing the new NIC definition
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse attachnic(String nicTemplate)
+    public OneResponse nicAttach(String nicTemplate)
     {
-        return attachnic(client, id, nicTemplate);
+        return nicAttach(client, id, nicTemplate);
     }
 
     /**
@@ -686,9 +745,9 @@ public class VirtualMachine extends PoolElement{
      * @param nicId The NIC_ID of the NIC to detach
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse detachnic(int nicId)
+    public OneResponse nicDetach(int nicId)
     {
-        return detachnic(client, id, nicId);
+        return nicDetach(client, id, nicId);
     }
 
     /**
