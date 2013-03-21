@@ -65,6 +65,9 @@ function showTab(tabname,highlight_tab){
     //show tab
     $(".tab").hide();
     $('#'+activeTab).show();
+
+    $("#refresh_buttons button", $('#'+activeTab)).click()
+
     innerLayout.close("south");
 }
 
