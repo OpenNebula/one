@@ -701,7 +701,7 @@ function updateDatastoreInfo(request,ds){
 
     var datastore_info_tab = {
         title: tr("Images"),
-        content : '<div id="datatable_datastore_images_info_div"><table id="datatable_datastore_images_info_panel" class="table twelve">' + datastore_image_table_tmpl + '</table></div>'
+        content : '<div id="datatable_datastore_images_info_div"><table id="datatable_datastore_images_info_panel" class="table eleven">' + datastore_image_table_tmpl + '</table></div>'
     }
 
 
@@ -721,7 +721,7 @@ function updateDatastoreInfo(request,ds){
         },
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [1] },
-            { "bVisible": false, "aTargets": [0,6,8,12]}
+            { "bVisible": false, "aTargets": [0,5,6,8,12]}
         ],
         "oLanguage": (datatable_lang != "") ?
             {

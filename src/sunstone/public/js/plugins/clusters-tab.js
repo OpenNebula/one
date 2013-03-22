@@ -1390,7 +1390,7 @@ function updateClusterInfo(request,cluster){
         title: tr("Hosts"),
         content : '<div class="">\
           <div id="datatable_cluster_hosts_info_div columns twelve">\
-            <table id="datatable_cluster_hosts_info_panel" class="table twelve">' +
+            <table id="datatable_cluster_hosts_info_panel" class="table six">' +
               host_datatable_table_tmpl +
             '</table>\
           </div>\
@@ -1401,7 +1401,7 @@ function updateClusterInfo(request,cluster){
         title: tr("Virtual Networks"),
         content : '<div class="">\
           <div id="datatable_cluster_vnets_info_div columns twelve">\
-            <table id="datatable_cluster_vnets_info_panel" class="table twelve">' +
+            <table id="datatable_cluster_vnets_info_panel" class="table six">' +
               vnet_datatable_table_tmpl +
             '</table>\
           </div>\
@@ -1412,7 +1412,7 @@ function updateClusterInfo(request,cluster){
         title: tr("Datastores"),
         content : '<div class="">\
           <div id="datatable_cluster_datastores_info_div columns twelve">\
-            <table id="datatable_cluster_datastores_info_panel" class="table twelve">' +
+            <table id="datatable_cluster_datastores_info_panel" class="table six">' +
               datastore_datatable_table_tmpl +
             '</table>\
           </div>\
@@ -1436,6 +1436,7 @@ function updateClusterInfo(request,cluster){
         },
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [1] },
+            { "sWidth": "35px", "aTargets": [9] },
             { "bVisible": false, "aTargets": [0,3,5,6,7,8,10,11,12]}
         ],
         "oLanguage": (datatable_lang != "") ?
@@ -1453,7 +1454,7 @@ function updateClusterInfo(request,cluster){
         },
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [1] },
-            { "bVisible": false, "aTargets": [0,5,7]}
+            { "bVisible": false, "aTargets": [0,5,6,7]}
         ],
         "oLanguage": (datatable_lang != "") ?
             {
