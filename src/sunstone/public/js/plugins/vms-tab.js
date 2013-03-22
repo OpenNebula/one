@@ -1387,7 +1387,7 @@ function printActionsTable(vm_info)
                       <th>'+tr("MESSAGE")+'</th>\
                       <th colspan="">'+tr("Actions")+'</th>\
                    </tr>\
-                  </thead>' + 
+                  </thead>' +
                     fromJSONtoActionsTable(
                                       vm_info.USER_TEMPLATE.SCHED_ACTION) +
                  '</table>\
@@ -1435,12 +1435,12 @@ function printActionsTable(vm_info)
         });
 
         return false;
-    }); 
+    });
 
-    $("#submit_scheduling_action").live("click", function() { 
+    $("#submit_scheduling_action").live("click", function() {
         var date_input_value = $("#date_time_input").val();
 
-        if (date_input_value=="") 
+        if (date_input_value=="")
           return false;
 
         // Calculate MAX_ID
@@ -1476,7 +1476,7 @@ function printActionsTable(vm_info)
 
         // Let OpenNebula know
         var template_str = convert_template_to_string(vm_info.USER_TEMPLATE);
-        Sunstone.runAction("VM.update_template",vm_info.ID,template_str);        
+        Sunstone.runAction("VM.update_template",vm_info.ID,template_str);
 
         $("#add_scheduling_action").removeAttr("disabled");
         return false;
@@ -1527,7 +1527,7 @@ function printActionsTable(vm_info)
 
         // Time
         var time_value_str = $(".tr_action_"+index+" .time_row").text();
-        $(".tr_action_"+index+" .time_row").html('<div><input style="width:90%;" class="input_edit_time" id="input_edit_time_'+ 
+        $(".tr_action_"+index+" .time_row").html('<div><input style="width:90%;" class="input_edit_time" id="input_edit_time_'+
                         index+'" type="text" value="'+time_value_str+'">\
                         <a class="date_time_picker_link">t</a></div>');
 
@@ -1599,7 +1599,7 @@ function fromJSONtoActionsTable(actions_array){
     var str = ""
     if (!actions_array){ return "";}
     if (!$.isArray(actions_array))
-    { 
+    {
       var tmp_array = new Array();
       tmp_array[0]  = actions_array;
       actions_array = tmp_array;
@@ -1742,38 +1742,38 @@ function printDisks(vm_info){
 
             var save_as;
             // Snapshot deferred
-            if ( 
+            if (
                ( // ACTIVE
-                vm_info.STATE == "3") && 
+                vm_info.STATE == "3") &&
                ( // HOTPLUG_SAVEAS HOTPLUG_SAVEAS_POWEROFF HOTPLUG_SAVEAS_SUSPENDED
-                vm_info.LCM_STATE == "26" || vm_info.LCM_STATE == "27" || vm_info.LCM_STATE == "28") && 
-               ( // 
+                vm_info.LCM_STATE == "26" || vm_info.LCM_STATE == "27" || vm_info.LCM_STATE == "28") &&
+               ( //
                 disk.SAVE_AS_ACTIVE == "YES")
                ) {
               save_as = "in progress";
               actions = 'deferred snapshot in progress'
-            } 
+            }
             // Snapshot Hot
-            else if ( 
+            else if (
                ( // ACTIVE
-                vm_info.STATE == "3") && 
+                vm_info.STATE == "3") &&
                ( // HOTPLUG_SAVEAS HOTPLUG_SAVEAS_POWEROFF HOTPLUG_SAVEAS_SUSPENDED
-                vm_info.LCM_STATE == "26" || vm_info.LCM_STATE == "27" || vm_info.LCM_STATE == "28") && 
-               ( // 
+                vm_info.LCM_STATE == "26" || vm_info.LCM_STATE == "27" || vm_info.LCM_STATE == "28") &&
+               ( //
                 disk.HOTPLUG_SAVE_AS_ACTIVE == "YES")
                ) {
               save_as = (disk.SAVE_AS ? disk.SAVE_AS : '-');
-              actions = 'hot snapshot in progress' 
+              actions = 'hot snapshot in progress'
             }
             // Attach / Detach
-            else if ( 
+            else if (
                ( // ACTIVE
-                vm_info.STATE == "3") && 
+                vm_info.STATE == "3") &&
                ( // HOTPLUG_SAVEAS HOTPLUG_SAVEAS_POWEROFF HOTPLUG_SAVEAS_SUSPENDED
-                vm_info.LCM_STATE == "17") && 
-               ( // 
+                vm_info.LCM_STATE == "17") &&
+               ( //
                 disk.ATTACH = "YES")
-               ) { 
+               ) {
               save_as = (disk.SAVE_AS ? disk.SAVE_AS : '-');
               actions = 'attach/detach in progress'
             }
@@ -1781,7 +1781,7 @@ function printDisks(vm_info){
               save_as = (disk.SAVE_AS ? disk.SAVE_AS : '-');
 
               actions = '';
-              
+
               if ((vm_info.STATE == "3" && vm_info.LCM_STATE == "3") || vm_info.STATE == "5" || vm_info.STATE == "8") {
                 actions += '<a href="VM.saveas" class="saveas" ><i class="icon-save"/>'+tr("Snapshot")+'</a> &emsp;'
               }
@@ -2008,7 +2008,7 @@ function hotpluggingOps(){
 
         //b.html(spinner);
         return false;
-    }); 
+    });
 
     $('#refresh_disk').live('click', function(){
         var b = $(this);
@@ -2016,7 +2016,7 @@ function hotpluggingOps(){
         Sunstone.runAction("VM.showdisks", vm_id);
 
         return false;
-    }); 
+    });
 }
 
 
@@ -2084,12 +2084,12 @@ function printNics(vm_info){
 
             var save_as;
             // Attach / Detach
-            if ( 
+            if (
                ( // ACTIVE
-                vm_info.STATE == "3") && 
+                vm_info.STATE == "3") &&
                ( // HOTPLUG_NIC
-                vm_info.LCM_STATE == "25") && 
-               ( // 
+                vm_info.LCM_STATE == "25") &&
+               ( //
                 nic.ATTACH == "YES")
                ) {
               actions = 'attach/detach in progress'
@@ -2258,7 +2258,7 @@ function setup_vm_network_tab(){
 
         //b.html(spinner);
         return false;
-    }); 
+    });
 
     $('#refresh_nic').live('click', function(){
         var b = $(this);
@@ -2266,7 +2266,7 @@ function setup_vm_network_tab(){
         Sunstone.runAction("VM.shownics", vm_id);
 
         return false;
-    }); 
+    });
 }
 
 
@@ -2446,7 +2446,7 @@ function setup_vm_capacity_tab(){
 
         //b.html(spinner);
         return false;
-    }); 
+    });
 
     $('#refresh_capacity').live('click', function(){
         var b = $(this);
@@ -2454,7 +2454,7 @@ function setup_vm_capacity_tab(){
         Sunstone.runAction("VM.showcapacity", vm_id);
 
         return false;
-    }); 
+    });
 }
 
 
@@ -2518,16 +2518,16 @@ function printSnapshots(vm_info){
         for (var i = 0; i < snapshots.length; i++){
             var snapshot = snapshots[i];
 
-            if ( 
+            if (
                ( // ACTIVE
-                vm_info.STATE == "3") && 
+                vm_info.STATE == "3") &&
                ( // HOTPLUG_SNAPSHOT
                 vm_info.LCM_STATE == "24"))  {
-              actions = 'snapshot in progress' 
+              actions = 'snapshot in progress'
             }
             else {
               actions = '';
-              
+
               if ((vm_info.STATE == "3" && vm_info.LCM_STATE == "3")) {
                 actions += '<a href="VM.snapshot_revert" class="snapshot_revert" ><i class="icon-reply"/>'+tr("Revert")+'</a> &emsp;'
                 actions += '<a href="VM.snapshot_delete" class="snapshot_delete" ><i class="icon-remove"/>'+tr("Delete")+'</a>'
@@ -2655,7 +2655,7 @@ function setup_vm_snapshot_tab(){
 
         //b.html(spinner);
         return false;
-    }); 
+    });
 
     $('#refresh_snapshot').live('click', function(){
         var b = $(this);
@@ -2663,7 +2663,7 @@ function setup_vm_snapshot_tab(){
         Sunstone.runAction("VM.showsnapshots", vm_id);
 
         return false;
-    }); 
+    });
 }
 
 
@@ -2884,10 +2884,7 @@ $(document).ready(function(){
         },
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0,6,7] },
-            { "sWidth": "35px", "aTargets": [1,11] },
-            { "sWidth": "150px", "aTargets": [5,10] },
-            { "sWidth": "100px", "aTargets": [2,3,9] },
+            { "sWidth": "35px", "aTargets": [0,1] },
             { "bVisible": false, "aTargets": [6,7,10]}
         ],
         "oLanguage": (datatable_lang != "") ?

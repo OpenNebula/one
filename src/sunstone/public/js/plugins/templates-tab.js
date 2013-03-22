@@ -317,7 +317,7 @@ var template_actions = {
                popUpInstantiateVMTemplateDialog();
              }
              else
-             {             
+             {
                $.each(nodes,function(){
                  Sunstone.runAction("Template.instantiate",this,"");
                });
@@ -1023,11 +1023,7 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
             "aiExclude": [ 0 ]
         },
         "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0,2,3,9,10] },
-            { "sWidth": "35px", "aTargets": [1,6,11,12] },
-            { "sWidth": "100px", "aTargets": [5,7] },
-            { "sWidth": "150px", "aTargets": [8] },
+            { "sWidth": "35px", "aTargets": [0,1] },
             { "bVisible": false, "aTargets": [0,2,3,6,9,8,12]}
         ],
         "oLanguage": (datatable_lang != "") ?
@@ -1263,10 +1259,7 @@ function setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id) {
                   "aiExclude": [ 0 ]
               },
               "aoColumnDefs": [
-                  { "bSortable": false, "aTargets": ["check"] },
-                  { "sWidth": "60px", "aTargets": [0,6,7,8] },
-                  { "sWidth": "35px", "aTargets": [1] },
-                  { "sWidth": "100px", "aTargets": [2,3,5] },
+                  { "sWidth": "35px", "aTargets": [0,1] },
                   { "bVisible": false, "aTargets": [0, 7]}
               ],
               "oLanguage": (datatable_lang != "") ?
@@ -1676,7 +1669,7 @@ function setupCreateTemplateDialog(){
 
         // Append the new div containing the tab and add the tab to the list
         var html_tab_content = '<li id="'+str_disk_tab_id+'Tab" class="disk wizard_internal_tab">'+
-          generate_disk_tab_content(str_disk_tab_id, str_datatable_id) + 
+          generate_disk_tab_content(str_disk_tab_id, str_datatable_id) +
         '</li>'
         $(html_tab_content).appendTo($("ul#template_create_storage_tabs_content"));
 
@@ -1743,7 +1736,7 @@ function setupCreateTemplateDialog(){
       var str_datatable_id = 'datatable_template_networks' + number_of_nics;
 
       var html_tab_content = '<li id="'+str_nic_tab_id+'Tab" class="nic wizard_internal_tab">'+
-          generate_nic_tab_content(str_nic_tab_id, str_datatable_id) + 
+          generate_nic_tab_content(str_nic_tab_id, str_datatable_id) +
         '</li>'
 
       // Append the new div containing the tab and add the tab to the list
@@ -2015,11 +2008,7 @@ function setupCreateTemplateDialog(){
                 "aiExclude": [ 0 ]
             },
             "aoColumnDefs": [
-                { "bSortable": false, "aTargets": ["check"] },
-                { "sWidth": "60px", "aTargets": [0,2,3,9,10] },
-                { "sWidth": "35px", "aTargets": [1,6,11,12] },
-                { "sWidth": "100px", "aTargets": [5,7] },
-                { "sWidth": "150px", "aTargets": [8] },
+                { "sWidth": "35px", "aTargets": [0,1] },
                 { "bVisible": false, "aTargets": [0,3,2,5,6,7,9,8,11,12,10]}
             ],
             "oLanguage": (datatable_lang != "") ?
@@ -2088,11 +2077,7 @@ function setupCreateTemplateDialog(){
                 "aiExclude": [ 0 ]
             },
             "aoColumnDefs": [
-                { "bSortable": false, "aTargets": ["check"] },
-                { "sWidth": "60px", "aTargets": [0,2,3,9,10] },
-                { "sWidth": "35px", "aTargets": [1,6,11,12] },
-                { "sWidth": "100px", "aTargets": [5,7] },
-                { "sWidth": "150px", "aTargets": [8] },
+                { "sWidth": "35px", "aTargets": [0,1] },
                 { "bVisible": false, "aTargets": [0,2,3,5,6,7,9,8,10,11,12]}
             ],
             "oLanguage": (datatable_lang != "") ?
@@ -2487,10 +2472,7 @@ function setupCreateTemplateDialog(){
           },
           "aoColumnDefs": [
               { "bSortable": false, "aTargets": ["check"] },
-              { "sWidth": "60px", "aTargets": [0,2,3,9,10] },
-              { "sWidth": "35px", "aTargets": [1,6,11,12] },
-              { "sWidth": "100px", "aTargets": [5,7] },
-              { "sWidth": "150px", "aTargets": [8] },
+              { "sWidth": "35px", "aTargets": [0,1] },
               { "bVisible": false, "aTargets": [0,2,3,5,6,7,9,8,10,11,12]}
           ],
           "oLanguage": (datatable_lang != "") ?
@@ -2752,11 +2734,7 @@ function setupCreateTemplateDialog(){
           },
           "bAutoWidth":false,
           "aoColumnDefs": [
-              { "bSortable": false, "aTargets": ["check"] },
-              { "sWidth": "60px", "aTargets": [0,4] },
-              { "sWidth": "35px", "aTargets": [1] },
-              { "sWidth": "100px", "aTargets": [9,3,10,11,12] },
-              { "sWidth": "150", "aTargets": [5,6,7,8] },
+              { "sWidth": "35px", "aTargets": [0,1] },
               { "bVisible": false, "aTargets": [0,3,5,7,10,11,12]}
           ],
           "oLanguage": (datatable_lang != "") ?
@@ -2856,9 +2834,7 @@ function setupCreateTemplateDialog(){
           },
           "bAutoWidth":false,
           "aoColumnDefs": [
-              { "bSortable": false, "aTargets": ["check"] },
-              { "sWidth": "60px", "aTargets": [0] },
-              { "sWidth": "35px", "aTargets": [1,3,4,5] },
+              { "sWidth": "35px", "aTargets": [0,1] },
               { "bVisible": false, "aTargets": [0]}
           ],
           "oLanguage": (datatable_lang != "") ?
@@ -4070,7 +4046,7 @@ function setTemplateAutorefresh() {
     },INTERVAL+someTime());
 };
 
-// Instantiate dialog 
+// Instantiate dialog
 // Sets up the instiantiate template dialog and all the processing associated to it
 function setupInstantiateTemplateDialog(){
 
@@ -4130,8 +4106,7 @@ $(document).ready(function(){
         "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "35px", "aTargets": [1] },
+            { "sWidth": "35px", "aTargets": [0,1] },
             { "sWidth": "150px", "aTargets": [5] },
             { "sWidth": "100px", "aTargets": [2,3] }
         ]
