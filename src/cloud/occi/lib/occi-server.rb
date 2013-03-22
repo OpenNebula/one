@@ -59,90 +59,31 @@ require 'json'
 
 require 'OCCIServer'
 require 'CloudAuth'
+require 'occi_application'
 
 include OpenNebula
 
-##############################################################################
+################################################################################
 # Configuration
-##############################################################################
-# Set Configuration settings
+################################################################################
+
 begin
-    conf = YAML.load_file(CONFIGURATION_FILE)
+    $occi_app = OCCIApplication.new
 rescue Exception => e
-    STDERR.puts "Error parsing config file #{CONFIGURATION_FILE}: #{e.message}"
-    exit 1
-end
-
-conf[:template_location] = TEMPLATE_LOCATION
-conf[:debug_level] ||= 3
-
-CloudServer.print_configuration(conf)
-
-set :config, conf
-
-
-# Enable Logger
-include CloudLogger
-enable_logging OCCI_LOG, settings.config[:debug_level].to_i
-
-
-# Set Sinatra configuration
-use Rack::Session::Pool, :key => 'occi'
-
-set :public_folder, Proc.new { File.join(root, "ui/public") }
-set :views, settings.root + '/ui/views'
-
-if settings.config[:server]
-    settings.config[:host] ||= settings.config[:server]
-    warning = "Warning: :server: configuration parameter has been deprecated."
-    warning << " Use :host: instead."
-    settings.logger.warn warning
-end
-
-if CloudServer.is_port_open?(settings.config[:host],
-                             settings.config[:port])
-    settings.logger.error {
-        "Port #{settings.config[:port]} busy, please shutdown " <<
-        "the service or move occi server port."
-    }
+    STDERR.puts e.message
     exit -1
 end
 
-set :bind, settings.config[:host]
-set :port, settings.config[:port]
+# The logging will be configured in Rack, not in Sinatra
+disable :logging
 
+use Rack::CommonLogger, $occi_app.logger
 
-# Create CloudAuth
-begin
-    ENV["ONE_CIPHER_AUTH"] = OCCI_AUTH
-    cloud_auth = CloudAuth.new(settings.config, settings.logger)
-rescue => e
-    settings.logger.error {"Error initializing authentication system"}
-    settings.logger.error {e.message}
-    exit -1
-end
+# Set the host and port
+set :bind, $occi_app.conf[:host]
+set :port, $occi_app.conf[:port]
 
-set :cloud_auth, cloud_auth
-
-#start VNC proxy
-
-configure do
-    set :run, false
-
-    if settings.config[:vnc_enable]
-        opts = {
-            :json_errors => false,
-            :token_folder_name => 'selfservice_vnc_tokens'
-        }
-        set :vnc, OpenNebulaVNC.new(settings.config,
-                                    settings.logger,
-                                    opts)
-        settings.vnc.start()
-        Kernel.at_exit do
-            settings.vnc.stop
-        end
-    end
-end
+set :run, false
 
 ##############################################################################
 # Helpers
@@ -151,99 +92,29 @@ end
 before do
     cache_control :no_store
     content_type 'application/xml', :charset => 'utf-8'
-    unless request.path=='/ui/login' || request.path=='/ui'
-        if !authorized?
-            begin
-                username = settings.cloud_auth.auth(request.env, params)
-            rescue Exception => e
-                logger.error {e.message}
-                error 500, ""
-            end
-        else
-            username = session[:user]
-        end
 
-        if username.nil? #unable to authenticate
-            logger.error {"User not authorized"}
-            error 401, ""
-        else
-            client  = settings.cloud_auth.client(username)
-            @occi_server = OCCIServer.new(client,
-                                          settings.config,
-                                          settings.logger)
-        end
+    begin
+        username = $occi_app.cloud_auth.auth(request.env, params)
+    rescue Exception => e
+        $occi_app.logger.error {e.message}
+        error 500, ""
     end
-end
 
-after do
-    unless request.path=='/ui/login' || request.path=='/ui'
-        unless session[:remember]
-            if params[:timeout] == true
-                env['rack.session.options'][:defer] = true
-            else
-                env['rack.session.options'][:expire_after] = 60*10
-            end
-        end
+    if username.nil? #unable to authenticate
+        $occi_app.logger.error {"User not authorized"}
+        error 401, ""
+    else
+        @occi_server = $occi_app.new_occi_server(username)
     end
 end
 
 # Response treatment
 helpers do
-    def authorized?
-        session[:ip] && session[:ip]==request.ip ? true : false
+    def logger
+        $occi_app.logger
     end
 
-    def build_session
-        begin
-            username = settings.cloud_auth.auth(request.env, params)
-        rescue Exception => e
-            logger.error {e.message}
-            error 500, ""
-        end
-
-        if username.nil?
-            logger.error {"User not authorized"}
-            error 401, ""
-        else
-            client  = settings.cloud_auth.client(username)
-            @occi_server = OCCIServer.new(client,
-                                          settings.config,
-                                          settings.logger)
-
-            user_id = OpenNebula::User::SELF
-            user    = OpenNebula::User.new_with_id(user_id, client)
-            rc = user.info
-            if OpenNebula.is_error?(rc)
-                logger.error {rc.message}
-                return [500, ""]
-            end
-
-            session[:ip] = request.ip
-            session[:user] = username
-            session[:user_id] = user['ID']
-            session[:remember] = params[:remember]
-
-            if params[:remember]
-                env['rack.session.options'][:expire_after] = 30*60*60*24
-            end
-
-            if params[:lang]
-                session[:lang] = params[:lang]
-            else
-                session[:lang] = settings.config[:lang]
-            end
-
-            return [204, ""]
-        end
-    end
-
-    def destroy_session
-        session.clear
-        return [204, ""]
-    end
-
-
-    def treat_response(result,rc)
+    def treat_response(result, rc)
         if OpenNebula::is_error?(result)
             logger.error {result.message}
             content_type 'text/plain', :charset => 'utf-8'
@@ -396,93 +267,6 @@ end
 get '/instance_type/:id' do
     result,rc = @occi_server.get_instance_type(request, params)
     treat_response(result,rc)
-end
-
-##############################################
-## OCCI UI (Self-Service)
-##############################################
-
-get '/ui/config' do
-    wss = settings.config[:vnc_proxy_support_wss]
-    wss = (wss == true || wss == "yes" || wss == "only" ? "yes" : "no")
-
-    vnc = settings.config[:vnc_enable] ? "yes" : "no"
-
-    config =  "<UI_CONFIGURARION>"
-    config << "  <LANG>#{session[:lang]}</LANG>"
-    config << "  <WSS>#{wss}</WSS>"
-    config << "  <VNC>#{vnc}</VNC>"
-    if vnc == "yes"
-        config << "  <VNC_PROXY_PORT>#{settings.vnc.proxy_port}</VNC_PROXY_PORT>"
-    end
-    config << "</UI_CONFIGURARION>"
-
-    return [200, config]
-end
-
-post '/ui/config' do
-    begin
-        body = JSON.parse(request.body.read)
-    rescue
-        content_type 'text/plain', :charset => 'utf-8'
-        [500, "POST Config: Error parsing configuration JSON"]
-    end
-
-    body.each do | key,value |
-        case key
-        when "lang" then session[:lang]=value
-        end
-    end
-
-    return 200
-end
-
-get '/ui/login' do
-    redirect to('ui')
-end
-
-post '/ui/login' do
-    build_session
-end
-
-post '/ui/logout' do
-    destroy_session
-end
-
-get '/ui' do
-    content_type 'text/html', :charset => 'utf-8'
-    if !authorized?
-        return File.read(File.dirname(__FILE__)+'/ui/templates/login.html')
-    end
-
-    time = Time.now + 60*10
-    response.set_cookie("occi-user",
-                        :value=>"#{session[:user]}",
-                        :expires=>time)
-    response.set_cookie("occi-user-id",
-                        :value=>"#{session[:user_id]}",
-                        :expires=>time)
-
-    erb :index
-end
-
-post '/ui/upload' do
-    content_type 'application/json', :charset => 'utf-8'
-    #so we can re-use occi post_storage()
-    request.params['file'] = {:tempfile => request.env['rack.input']}
-    result,rc = @occi_server.post_storage(request)
-    treat_response(result,rc)
-end
-
-post '/ui/startvnc/:id' do
-    content_type 'application/json', :charset => 'utf-8'
-    vm_id    = params[:id]
-    @occi_server.startvnc(vm_id, settings.vnc)
-end
-
-get '/ui/accounting' do
-    content_type 'application/json', :charset => 'utf-8'
-    @occi_server.get_user_accounting(params)
 end
 
 Sinatra::Application.run!

@@ -9,8 +9,8 @@
   <STATE>DONE</STATE>
   <DISK id="0">
     <STORAGE href="http://localhost:4567/storage/1" name="Storage2"/>
-    <TYPE>DISK</TYPE>
-    <TARGET>hde</TARGET>
+    <TYPE>FILE</TYPE>
+    <TARGET>hda</TARGET>
   </DISK>
   <NIC>
     <NETWORK href="http://localhost:4567/network/1" name="Network2"/>

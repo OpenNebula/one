@@ -51,78 +51,30 @@ require 'yaml'
 require 'uri'
 
 require 'EC2QueryServer'
+require 'econe_application'
 require 'CloudAuth'
 
 include OpenNebula
 
-##############################################################################
-# Parse Configuration file
-##############################################################################
 begin
-    conf = YAML.load_file(CONFIGURATION_FILE)
+    $ec2_app = EC2Application.new
 rescue Exception => e
-    STDERR.puts "Error parsing config file #{CONFIGURATION_FILE}: #{e.message}"
-    exit 1
+    STDERR.puts e.message
+    exit -1
 end
-
-conf[:template_location] = TEMPLATE_LOCATION
-conf[:views] = VIEWS_LOCATION
-conf[:debug_level] ||= 3
-
-CloudServer.print_configuration(conf)
 
 ##############################################################################
 # Sinatra Configuration
 ##############################################################################
-set :config, conf
 
-include CloudLogger
-enable_logging EC2_LOG, settings.config[:debug_level].to_i
+disable :logging
 
-if settings.config[:server]
-    settings.config[:host] ||= settings.config[:server]
-    warning = "Warning: :server: configuration parameter has been deprecated."
-    warning << " Use :host: instead."
-    settings.logger.warn warning
-end
+use Rack::CommonLogger, $ec2_app.logger
 
-if CloudServer.is_port_open?(settings.config[:host],
-                             settings.config[:port])
-    settings.logger.error {
-        "Port #{settings.config[:port]} busy, please shutdown " <<
-        "the service or move econe server port."
-    }
-    exit -1
-end
+set :bind, $ec2_app.conf[:host]
+set :port, $ec2_app.conf[:port]
 
-set :bind, settings.config[:host]
-set :port, settings.config[:port]
-
-begin
-    ENV["ONE_CIPHER_AUTH"] = EC2_AUTH
-    cloud_auth = CloudAuth.new(settings.config, settings.logger)
-rescue => e
-    settings.logger.error {"Error initializing authentication system"}
-    settings.logger.error {e.message}
-    exit -1
-end
-
-set :cloud_auth, cloud_auth
-
-if conf[:ssl_server]
-    uri = URI.parse(conf[:ssl_server])
-    econe_host = uri.host
-    econe_port = uri.port
-    econe_path = uri.path
-else
-    econe_host = settings.config[:host]
-    econe_port = settings.config[:port]
-    econe_path = '/'
-end
-
-set :econe_host, econe_host
-set :econe_port, econe_port
-set :econe_path, econe_path
+set :run, false
 
 ##############################################################################
 # Actions
@@ -130,108 +82,61 @@ set :econe_path, econe_path
 
 before do
     begin
-        params['econe_host'] = settings.econe_host
-        params['econe_port'] = settings.econe_port
-        params['econe_path'] = settings.econe_path
-        username = settings.cloud_auth.auth(request.env, params)
+        params['econe_host'] = $ec2_app.econe_host
+        params['econe_port'] = $ec2_app.econe_port
+        params['econe_path'] = $ec2_app.econe_path
+
+        username = $ec2_app.authenticate(request.env, params)
     rescue Exception => e
-        logger.error {e.message}
+        $ec2_app.logger.error {e.message}
+
         rc = OpenNebula::Error.new(e.message)
         rc.ec2_code = "AuthFailure"
+
         error 401, rc.to_ec2
     end
 
     if username.nil?
         rc = OpenNebula::Error.new("The username or password is not correct")
         rc.ec2_code = "AuthFailure"
+
         error 401, rc.to_ec2
     else
-        client          = settings.cloud_auth.client(username)
-        oneadmin_client = settings.cloud_auth.client
-        @econe_server   = EC2QueryServer.new(
-                            client,
-                            oneadmin_client,
-                            settings.config,
-                            settings.logger)
+        params['econe_username'] = username
+    end
+end
+
+# Response treatment
+helpers do
+    def logger
+        $ec2_app.logger
+    end
+
+    def treat_response(result, rc)
+        if OpenNebula::is_error?(result)
+            logger.error(result.message)
+            error CloudServer::HTTP_ERROR_CODE[result.errno],
+                  result.to_ec2.gsub(/\n\s*/,'')
+        end
+
+        headers['Content-Type'] = 'application/xml'
+
+        status rc if rc
+
+        logger.error { params['Action'] }
+
+        result.gsub(/\n\s*/,'')
     end
 end
 
 post '/' do
-    do_http_request(params)
+    result, rc = $ec2_app.do_http_request(params)
+    treat_response(result, rc)
 end
 
 get '/' do
-    do_http_request(params)
+    result, rc = $ec2_app.do_http_request(params)
+    treat_response(result, rc)
 end
 
-def do_http_request(params)
-    case params['Action']
-        when 'UploadImage'
-            result,rc = @econe_server.upload_image(params)
-        when 'RegisterImage'
-            result,rc = @econe_server.register_image(params)
-        when 'DescribeImages'
-            result,rc = @econe_server.describe_images(params)
-        when 'RunInstances'
-            result,rc = @econe_server.run_instances(params)
-        when 'DescribeInstances'
-            result,rc = @econe_server.describe_instances(params)
-        when 'TerminateInstances'
-            result,rc = @econe_server.terminate_instances(params)
-        when 'StartInstances'
-            result,rc = @econe_server.start_instances(params)
-        when 'StopInstances'
-            result,rc = @econe_server.stop_instances(params)
-        when 'RebootInstances'
-            result,rc = @econe_server.reboot_instances(params)
-        when 'AllocateAddress'
-            result,rc = @econe_server.allocate_address(params)
-        when 'AssociateAddress'
-            result,rc = @econe_server.associate_address(params)
-        when 'DisassociateAddress'
-            result,rc = @econe_server.disassociate_address(params)
-        when 'ReleaseAddress'
-            result,rc = @econe_server.release_address(params)
-        when 'DescribeAddresses'
-            result,rc = @econe_server.describe_addresses(params)
-        when 'DescribeRegions'
-            result,rc = @econe_server.describe_regions(params)
-        when 'DescribeAvailabilityZones'
-            result,rc = @econe_server.describe_availability_zones(params)
-        when 'CreateVolume'
-            result,rc = @econe_server.create_volume(params)
-        when 'DescribeVolumes'
-            result,rc = @econe_server.describe_volumes(params)
-        when 'AttachVolume'
-            result,rc = @econe_server.attach_volume(params)
-        when 'DetachVolume'
-            result,rc = @econe_server.detach_volume(params)
-        when 'DeleteVolume'
-            result,rc = @econe_server.delete_volume(params)
-        when 'DescribeKeyPairs'
-            result,rc = @econe_server.describe_keypairs(params)
-        when 'CreateKeyPair'
-            result,rc = @econe_server.create_keypair(params)
-        when 'DeleteKeyPair'
-            result,rc = @econe_server.delete_keypair(params)
-        else
-            result = OpenNebula::Error.new(
-                "#{params['Action']} feature is not supported",
-                OpenNebula::Error::ENO_EXISTS)
-    end
-
-    if OpenNebula::is_error?(result)
-        logger.error(result.message)
-        error CloudServer::HTTP_ERROR_CODE[result.errno], result.to_ec2.gsub(/\n\s*/,'')
-    end
-
-    headers['Content-Type'] = 'application/xml'
-
-    if rc
-        status rc
-    end
-
-    logger.error { params['Action'] }
-
-    result.gsub(/\n\s*/,'')
-end
+Sinatra::Application.run!

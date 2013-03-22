@@ -67,6 +67,8 @@ class CloudServer
         puts "         Server configuration         "
         puts "--------------------------------------"
         pp config
+        puts "--------------------------------------"
+        puts
 
         STDOUT.flush
     end

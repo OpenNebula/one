@@ -28,8 +28,8 @@ class VirtualMachineOCCI < VirtualMachine
             <CPU><%= self['TEMPLATE/CPU'] %></CPU>
             <MEMORY><%= self['TEMPLATE/MEMORY'] %></MEMORY>
             <NAME><%= self.name%></NAME>
-            <% if self['TEMPLATE/INSTANCE_TYPE'] %>
-            <INSTANCE_TYPE href="<%= base_url %>/instance_type/<%= self['TEMPLATE/INSTANCE_TYPE'] %>"><%= self['TEMPLATE/INSTANCE_TYPE'] %></INSTANCE_TYPE>
+            <% if self['USER_TEMPLATE/INSTANCE_TYPE'] %>
+            <INSTANCE_TYPE href="<%= base_url %>/instance_type/<%= self['USER_TEMPLATE/INSTANCE_TYPE'] %>"><%= self['USER_TEMPLATE/INSTANCE_TYPE'] %></INSTANCE_TYPE>
             <% end %>
             <STATE><%= self.state_str %></STATE>
             <% self.each('TEMPLATE/DISK') do |disk| %>
