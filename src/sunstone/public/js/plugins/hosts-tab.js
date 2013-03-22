@@ -1053,9 +1053,7 @@ $(document).ready(function(){
         },
         "aoColumnDefs": [
             //{ "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "35px", "aTargets": [0,1,4] }, //check, ID, RVMS
-            { "sWidth": "150px","aTargets": [2,3] }, //Name, Cluster
-            { "sWidth": "35px", "aTargets": [0,4] }, //Status
+            { "sWidth": "35px", "aTargets": [0,1,4,9] }, //check, ID, RVMS, Status
             { "bVisible": false, "aTargets": [5,7,10,11,12]}
         ],
         "oLanguage": (datatable_lang != "") ?

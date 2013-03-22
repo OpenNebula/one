@@ -720,11 +720,7 @@ function updateDatastoreInfo(request,ds){
             "aiExclude": [ 0 ]
         },
         "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0,2,3,9,10] },
-            { "sWidth": "35px", "aTargets": [1,6,11,12] },
-            { "sWidth": "100px", "aTargets": [5,7] },
-            { "sWidth": "150px", "aTargets": [8] },
+            { "sWidth": "35px", "aTargets": [1] },
             { "bVisible": false, "aTargets": [0,6,8,12]}
         ],
         "oLanguage": (datatable_lang != "") ?
@@ -997,10 +993,7 @@ $(document).ready(function(){
             "aiExclude": [ 0 ]
         },
         "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "35px", "aTargets": [1,9] },
-            { "sWidth": "100px", "aTargets": [2,3,5,7,8] },
+            { "sWidth": "35px", "aTargets": [0,1] },
             { "bVisible": false, "aTargets": [6,7,8,9] }
         ],
         "oLanguage": (datatable_lang != "") ?

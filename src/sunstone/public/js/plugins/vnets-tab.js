@@ -1326,10 +1326,7 @@ $(document).ready(function(){
             "aiExclude": [ 0 ]
         },
         "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0,6,7,8] },
-            { "sWidth": "35px", "aTargets": [1] },
-            { "sWidth": "100px", "aTargets": [2,3,5] },
+            { "sWidth": "35px", "aTargets": [0,1] },
             { "bVisible": false, "aTargets": [7]}
         ],
         "oLanguage": (datatable_lang != "") ?

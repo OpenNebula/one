@@ -192,11 +192,7 @@ function setupCreateClusterDialog(){
             "aiExclude": [ 0 ]
         },
         "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0,4] },
             { "sWidth": "35px", "aTargets": [1] },
-            { "sWidth": "100px", "aTargets": [9,3,10,11,12] },
-            { "sWidth": "150", "aTargets": [5,6,7,8] },
             { "bVisible": false, "aTargets": [0,5,6,7,8,10,11,12]} // 3 = cluster
         ],
         "oLanguage": (datatable_lang != "") ?
@@ -215,10 +211,7 @@ function setupCreateClusterDialog(){
             "aiExclude": [ 0 ]
         },
         "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0,6,7,8] },
             { "sWidth": "35px", "aTargets": [1] },
-            { "sWidth": "100px", "aTargets": [2,3,5] },
             { "bVisible": false, "aTargets": [0,7]} // 5 = cluster
         ],
         "oLanguage": (datatable_lang != "") ?
@@ -238,10 +231,7 @@ function setupCreateClusterDialog(){
             "aiExclude": [ 0 ]
         },
         "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "35px", "aTargets": [1,9] },
-            { "sWidth": "100px", "aTargets": [2,3,5,7,8] },
+            { "sWidth": "35px", "aTargets": [1] },
             { "bVisible": false, "aTargets": [0,6,7,8,9] } // 5 = cluster
         ],
         "oLanguage": (datatable_lang != "") ?
@@ -822,7 +812,7 @@ var cluster_datastore_actions = {
           dataTable_cluster_datastores.fnFilter( filter_expr, 5, true);
           if(filter_expr!="-")
             Sunstone.runAction("Cluster.show_to_update", cluster_id);
-        },      
+        },
         error: onError
     },
 
@@ -1400,8 +1390,8 @@ function updateClusterInfo(request,cluster){
         title: tr("Hosts"),
         content : '<div class="">\
           <div id="datatable_cluster_hosts_info_div columns twelve">\
-            <table id="datatable_cluster_hosts_info_panel" class="table twelve">' + 
-              host_datatable_table_tmpl + 
+            <table id="datatable_cluster_hosts_info_panel" class="table twelve">' +
+              host_datatable_table_tmpl +
             '</table>\
           </div>\
         </div>'
@@ -1411,8 +1401,8 @@ function updateClusterInfo(request,cluster){
         title: tr("Virtual Networks"),
         content : '<div class="">\
           <div id="datatable_cluster_vnets_info_div columns twelve">\
-            <table id="datatable_cluster_vnets_info_panel" class="table twelve">' + 
-              vnet_datatable_table_tmpl + 
+            <table id="datatable_cluster_vnets_info_panel" class="table twelve">' +
+              vnet_datatable_table_tmpl +
             '</table>\
           </div>\
         </div>'
@@ -1422,8 +1412,8 @@ function updateClusterInfo(request,cluster){
         title: tr("Datastores"),
         content : '<div class="">\
           <div id="datatable_cluster_datastores_info_div columns twelve">\
-            <table id="datatable_cluster_datastores_info_panel" class="table twelve">' + 
-              datastore_datatable_table_tmpl + 
+            <table id="datatable_cluster_datastores_info_panel" class="table twelve">' +
+              datastore_datatable_table_tmpl +
             '</table>\
           </div>\
         </div>'
@@ -1445,11 +1435,7 @@ function updateClusterInfo(request,cluster){
             "aiExclude": [ 0 ]
         },
         "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0,4] },
             { "sWidth": "35px", "aTargets": [1] },
-            { "sWidth": "100px", "aTargets": [9,3,10,11,12] },
-            { "sWidth": "150", "aTargets": [5,6,7,8] },
             { "bVisible": false, "aTargets": [0,3,5,6,7,8,10,11,12]}
         ],
         "oLanguage": (datatable_lang != "") ?
@@ -1466,10 +1452,7 @@ function updateClusterInfo(request,cluster){
             "aiExclude": [ 0 ]
         },
         "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0,6,7,8] },
             { "sWidth": "35px", "aTargets": [1] },
-            { "sWidth": "100px", "aTargets": [2,3,5] },
             { "bVisible": false, "aTargets": [0,5,7]}
         ],
         "oLanguage": (datatable_lang != "") ?
@@ -1487,10 +1470,7 @@ function updateClusterInfo(request,cluster){
             "aiExclude": [ 0 ]
         },
         "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "35px", "aTargets": [1,9] },
-            { "sWidth": "100px", "aTargets": [2,3,5,7,8] },
+            { "sWidth": "35px", "aTargets": [1] },
             { "bVisible": false, "aTargets": [0,5,6,7,8,9] }
         ],
         "oLanguage": (datatable_lang != "") ?
@@ -1838,8 +1818,7 @@ $(document).ready(function(){
         },
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "35px", "aTargets": [1,3,4,5] }
+            { "sWidth": "35px", "aTargets": [0,1] },
         ],
         "oLanguage": (datatable_lang != "") ?
             {
