@@ -235,7 +235,7 @@ var vm_actions = {
         call: OpenNebula.VM.show,
         callback: function(request, vm){
           updateVMachineElement(request, vm);
-          updateSchedulingInfo(request, vm);
+          updateActionsInfo(request, vm);
         },
         error: onError
     },
@@ -1309,9 +1309,9 @@ function updateVMInfo(request,vm){
         content: '<div>'+spinner+'</div>'
     };
 
-    var scheduling_tab = {
+    var actions_tab = {
         title: tr("Actions"),
-        content: printSchedulingTable(vm_info)
+        content: printActionsTable(vm_info)
     };
 
 
@@ -1347,7 +1347,7 @@ function updateVMInfo(request,vm){
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_history_tab",history_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_template_tab",template_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_log_tab",log_tab);
-    Sunstone.updateInfoPanelTab("vm_info_panel","vm_scheduling_tab",scheduling_tab);
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_actions_tab",actions_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_history_tab",history_tab);
 
     // TODO: re-use pool_monitor data?
@@ -1371,11 +1371,11 @@ function updateVMDisksInfo(request,vm){
   $("li#vm_hotplugging_tabTab").html(printDisks(vm.VM));
 }
 
-// Create the scheduling actions table (with listeners)
-function printSchedulingTable(vm_info)
+// Create the  actions table (with listeners)
+function printActionsTable(vm_info)
 {
 
-    var str = '<button id="add_scheduling_action" class="button small secondary radius" >' + tr("Add scheduling action") +'</button>\
+    var str = '<button id="add_scheduling_action" class="button small secondary radius" >' + tr("Schedule action") +'</button>\
                 <div class="twelve columns">\
                 <table id="scheduling_actions_table" class="info_table twelve datatable extended_table">\
                  <thead>\
@@ -1388,7 +1388,7 @@ function printSchedulingTable(vm_info)
                       <th colspan="">'+tr("Actions")+'</th>\
                    </tr>\
                   </thead>' + 
-                    fromJSONtoSchedulingActionTable(
+                    fromJSONtoActionsTable(
                                       vm_info.USER_TEMPLATE.SCHED_ACTION) +
                  '</table>\
                 </div>'
@@ -1542,13 +1542,20 @@ function printSchedulingTable(vm_info)
         var tmp_tmpl  = new Array();
         var value_str = $(this).val();
 
-        $.each(vm_info.USER_TEMPLATE.SCHED_ACTION, function(i,element){
-            tmp_tmpl[i] = element;
-            if(element.ID==index)
-              tmp_tmpl[i].ACTION = value_str;
-        })
+        if(vm_info.USER_TEMPLATE.SCHED_ACTION.length)
+        {
+          $.each(vm_info.USER_TEMPLATE.SCHED_ACTION, function(i,element){
+              tmp_tmpl[i] = element;
+              if(element.ID==index)
+                tmp_tmpl[i].ACTION = value_str;
+          })
+          vm_info.USER_TEMPLATE.SCHED_ACTION = tmp_tmpl;
+        }
+        else
+        {
+            vm_info.USER_TEMPLATE.SCHED_ACTION.ACTION = value_str;
+        }
 
-        vm_info.USER_TEMPLATE.SCHED_ACTION = tmp_tmpl;
         var template_str = convert_template_to_string(vm_info.USER_TEMPLATE);
 
         // Let OpenNebula know
@@ -1559,18 +1566,24 @@ function printSchedulingTable(vm_info)
     $(".input_edit_time").live("change", function() {
         var index     = $.trim(this.id.substring(16,this.id.length));
         var tmp_tmpl  = new Array();
-        var value_str = $(this).val();
+        var epoch_str  = new Date($(this).val());
 
-        $.each(vm_info.USER_TEMPLATE.SCHED_ACTION, function(i,element){
-            if(element.ID==index)
-            {
-              var epoch_str    = new Date(value_str);
-              element.TIME = parseInt(epoch_str.getTime())/1000;
-            }
-            tmp_tmpl.push(element);
-        })
+        if(vm_info.USER_TEMPLATE.SCHED_ACTION.length)
+        {
+          $.each(vm_info.USER_TEMPLATE.SCHED_ACTION, function(i,element){
+              if(element.ID==index)
+              {
+                element.TIME = parseInt(epoch_str.getTime())/1000;
+              }
+              tmp_tmpl.push(element);
+          })
+          vm_info.USER_TEMPLATE.SCHED_ACTION = tmp_tmpl;
+        }
+        else
+        {
+            vm_info.USER_TEMPLATE.SCHED_ACTION.TIME = parseInt(epoch_str.getTime())/1000;
+        }
 
-        vm_info.USER_TEMPLATE.SCHED_ACTION = tmp_tmpl;
         var template_str = convert_template_to_string(vm_info.USER_TEMPLATE);
 
         // Let OpenNebula know
@@ -1582,7 +1595,7 @@ function printSchedulingTable(vm_info)
 }
 
 // Returns an HTML string with the json keys and values
-function fromJSONtoSchedulingActionTable(actions_array){
+function fromJSONtoActionsTable(actions_array){
     var str = ""
     if (!actions_array){ return "";}
     if (!$.isArray(actions_array))
@@ -1593,7 +1606,7 @@ function fromJSONtoSchedulingActionTable(actions_array){
     }
 
     $.each(actions_array, function(index, scheduling_action){
-       str += fromJSONtoSchedulingActionRow(scheduling_action);
+       str += fromJSONtoActionRow(scheduling_action);
     });
 
     return str;
@@ -1601,7 +1614,7 @@ function fromJSONtoSchedulingActionTable(actions_array){
 
 
 // Helper for fromJSONtoHTMLTable function
-function fromJSONtoSchedulingActionRow(scheduling_action){
+function fromJSONtoActionRow(scheduling_action){
     var str = "";
 
     var done_str    = scheduling_action.DONE ? scheduling_action.DONE : "";
@@ -1657,7 +1670,6 @@ function setupDateTimePicker(input_to_fill, time_str){
 
     $('#date_time_form',dialog).live('click', function(){
         var date_str = $('*[name=date]').val();
-        console.log(input_to_fill);
         $(input_to_fill).val(date_str);
         $(input_to_fill).trigger("change");
 
@@ -1666,8 +1678,8 @@ function setupDateTimePicker(input_to_fill, time_str){
     });
 };
 
-function updateSchedulingInfo(request,vm){
-  $("li#vm_scheduling_tabTab").html(printSchedulingTable(vm.VM));
+function updateActionsInfo(request,vm){
+  $("li#vm_actions_tabTab").html(printActionsTable(vm.VM));
 }
 
 // Generates the HTML for the hotplugging tab
