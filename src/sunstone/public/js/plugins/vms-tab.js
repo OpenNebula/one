@@ -104,7 +104,7 @@ var vms_tab_content = '\
 var create_vm_tmpl ='\
         <div class="panel">\
           <h3>\
-            <small id="create_vnet_header">'+tr("Create Virtual Network")+'</small>\
+            <small id="create_vnet_header">'+tr("Create Virtual Machine")+'</small>\
           </h3>\
         </div>\
         <form id="create_vm_form" action="">\

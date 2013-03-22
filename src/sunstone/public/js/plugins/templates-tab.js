@@ -66,7 +66,7 @@ var templates_tab_content = '\
 <div class="legend_div">\
   <span>?</span>\
   <p class="legend_p">\
-'+tr("Clicking `instantiate` will instantly create new Virtual Machines from the selected templates and name one-id. If you want to assign a specific name to a new VM, or launch several instances at once, use Virtual Machines->New button.")+'\
+'+tr("Clicking `instantiate` will  create new Virtual Machines from the selected templates and name one-id. You will be able to assign a specific name to a new VM, or launch several instances at once if the template doesn't reference any persistent image.")+'\
   </p>\
   <p class="legend_p">\
 '+tr("You can clone a template to obtain a copy from an existing template. This copy will be owned by you.")+'\
@@ -147,6 +147,43 @@ var update_template_tmpl =
                     </button>\
                  </div>\
             </fieldset>\
+</form>';
+
+var instantiate_vm_template_tmpl ='\
+        <div class="panel">\
+          <h3>\
+            <small id="create_vnet_header">'+tr("Instantiate VM Template")+'</small>\
+          </h3>\
+        </div>\
+        <form id="instantiate_vm_template_form" action="">\
+          <div class="row centered">\
+              <div class="four columns">\
+                  <label class="inline right" for="vm_name">'+tr("VM Name")+':</label>\
+              </div>\
+              <div class="seven columns">\
+                  <input type="text" name="vm_name" id="vm_name" />\
+              </div>\
+              <div class="one columns">\
+                  <div class="tip">'+tr("Defaults to template name when emtpy")+'.</div>\
+              </div>\
+          </div>\
+          <div class="row centered">\
+              <div class="four columns">\
+                  <label class="inline right" for="vm_n_times">'+tr("Deploy # VMs")+':</label>\
+              </div>\
+              <div class="seven columns">\
+                  <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
+              </div>\
+              <div class="one columns">\
+                  <div class="tip">'+tr("You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them")+'.</div>\
+              </div>\
+          </div>\
+          <hr>\
+        <div class="form_buttons">\
+           <button class="button radius right success" id="instantiate_vm_tenplate_proceed" value="Template.instantiate_vms">'+tr("Instantiate")+'</button>\
+           <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+        </div>\
+<a class="close-reveal-modal">&#215;</a>\
 </form>';
 
 var dataTable_templates;
@@ -275,9 +312,17 @@ var template_actions = {
          type: "custom",
          call: function(){
              nodes = getSelectedNodes(dataTable_templates);
-             $.each(nodes,function(){
+             if (nodes.length == 1)
+             {
+               popUpInstantiateVMTemplateDialog();
+             }
+             else
+             {             
+               $.each(nodes,function(){
                  Sunstone.runAction("Template.instantiate",this,"");
-             });
+               });
+             }
+
              Sunstone.runAction("VM.refresh");
          }
      },
@@ -4025,6 +4070,56 @@ function setTemplateAutorefresh() {
     },INTERVAL+someTime());
 };
 
+// Instantiate dialog 
+// Sets up the instiantiate template dialog and all the processing associated to it
+function setupInstantiateTemplateDialog(){
+
+    dialogs_context.append('<div title=\"'+tr("Instantiate VM Template")+'\" id="instantiate_vm_template_dialog"></div>');
+    //Insert HTML in place
+    $instantiate_vm_template_dialog = $('#instantiate_vm_template_dialog')
+    var dialog = $instantiate_vm_template_dialog;
+    dialog.html(instantiate_vm_template_tmpl);
+
+
+    dialog.addClass("reveal-modal");
+
+    setupTips(dialog);
+
+    $('#instantiate_vm_template_form',dialog).submit(function(){
+        var vm_name = $('#vm_name',this).val();
+        var n_times = $('#vm_n_times',this).val();
+        var n_times_int=1;
+
+        if (n_times.length){
+            n_times_int=parseInt(n_times,10);
+        };
+
+        if (!vm_name.length){
+            vm_name = getTemplateName(template_id);
+        };
+
+        if (vm_name.indexOf("%i") == -1){ //no wildcard
+            for (var i=0; i< n_times_int; i++){
+                Sunstone.runAction("Template.instantiate",template_id,vm_name);
+            };
+        } else { //wildcard present: replace wildcard
+            var name = "";
+            for (var i=0; i< n_times_int; i++){
+                name = vm_name.replace(/%i/gi,i);
+                Sunstone.runAction("Template.instantiate",template_id,name);
+            };
+        };
+
+        $instantiate_vm_template_dialog.trigger("reveal:close")
+        return false;
+    });
+}
+
+// Open creation dialog
+function popUpInstantiateVMTemplateDialog(){
+    $instantiate_vm_template_dialog.reveal();
+}
+
 //The DOM is ready at this point
 $(document).ready(function(){
 
@@ -4051,7 +4146,7 @@ $(document).ready(function(){
     //    spinner,
     //    '','','','',''],dataTable_templates);
     Sunstone.runAction("Template.list");
-
+    setupInstantiateTemplateDialog();
     setupCreateTemplateDialog();
     setupTemplateTemplateUpdateDialog();
     setupTemplateCloneDialog();
