@@ -14,7 +14,7 @@
         <% vmpool.each do |vm| %>
         <item>
           <%= render_instance_id(vm) %>
-          <imageId><%= vm['TEMPLATE/IMAGE_ID'] %></imageId>
+          <imageId><%= vm['USER_TEMPLATE/IMAGE_ID'] %></imageId>
           <instanceState>
               <%= render_state(vm) %>
           </instanceState>
@@ -30,7 +30,7 @@
           <keyName><%= vm['TEMPLATE/CONTEXT/EC2_KEYNAME'] %></keyName>
           <% end %>
           <productCodes/>
-          <instanceType><%= vm['TEMPLATE/INSTANCE_TYPE'] %></instanceType>
+          <instanceType><%= vm['USER_TEMPLATE/INSTANCE_TYPE'] %></instanceType>
           <%= render_launch_time(vm) %>
           <placement>
             <availabilityZone>default</availabilityZone>

@@ -1162,6 +1162,7 @@ ECO_LIB_FILES="src/cloud/ec2/lib/EC2QueryClient.rb \
                src/cloud/ec2/lib/instance.rb \
                src/cloud/ec2/lib/keypair.rb \
                src/cloud/ec2/lib/net_ssh_replacement.rb \
+               src/cloud/ec2/lib/econe_application.rb \
                src/cloud/ec2/lib/econe-server.rb"
 
 ECO_LIB_CLIENT_FILES="src/cloud/ec2/lib/EC2QueryClient.rb"

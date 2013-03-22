@@ -17,9 +17,6 @@
 require 'CloudServer'
 
 class OCCIApplication
-
-#    include CloudLogger
-
     #Configuration constants
     OCCI_AUTH  = VAR_LOCATION + "/.one/occi_auth"
     OCCI_LOG   = LOG_LOCATION + "/occi-server.log"

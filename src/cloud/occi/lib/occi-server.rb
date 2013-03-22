@@ -81,7 +81,6 @@ use Rack::CommonLogger, $occi_app.logger
 
 # Set the host and port
 set :bind, $occi_app.conf[:host]
-
 set :port, $occi_app.conf[:port]
 
 set :run, false
