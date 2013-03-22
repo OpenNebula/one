@@ -318,7 +318,7 @@ module OpenNebula
 
         # @deprecated use {#destroy} instead
         def resubmit
-            action('resubmit-recreate')
+            action('destroy-recreate')
         end
 
         # Sets the re-scheduling flag for the VM
