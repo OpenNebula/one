@@ -574,7 +574,7 @@ function updateGroupInfo(request,group){
             </thead>\
             <tbody>\
                 <tr>\
-                    <td>'+vms_bar+'</td>\
+                    <td style="height:25px">'+vms_bar+'</td>\
                     <td>'+memory_bar+'</td>\
                     <td>'+cpu_bar+'</td>\
                 </tr>\
@@ -800,8 +800,7 @@ $(document).ready(function(){
         "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "35px", "aTargets": [1,4,5,6] }
+            { "sWidth": "35px", "aTargets": [0,1] }
         ],
         "oLanguage": (datatable_lang != "") ?
             {

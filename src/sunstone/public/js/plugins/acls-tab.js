@@ -622,8 +622,7 @@ $(document).ready(function(){
         },
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "35px", "aTargets": [1] },
+            { "sWidth": "35px", "aTargets": [0,1] },
             { "bVisible": false, "aTargets": [6]}
         ],
         "oLanguage": (datatable_lang != "") ?

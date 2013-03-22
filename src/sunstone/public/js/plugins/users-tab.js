@@ -802,7 +802,7 @@ function updateUserInfo(request,user){
             </thead>\
             <tbody>\
                 <tr>\
-                    <td>'+vms_bar+'</td>\
+                    <td style="height:25px">'+vms_bar+'</td>\
                     <td>'+memory_bar+'</td>\
                     <td>'+cpu_bar+'</td>\
                 </tr>\
@@ -1165,16 +1165,12 @@ $(document).ready(function(){
     //if we are not oneadmin, our tab will not even be in the DOM.
     dataTable_users = $("#datatable_users",main_tabs_context).dataTable({
         "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
-//        "bAutoWidth":false,
         "oColVis": {
             "aiExclude": [ 0 ]
         },
         "aoColumnDefs": [
-            //{ "bSortable": false, "aTargets": ["check"] },
-//            { "sWidth": "60px", "aTargets": [0] },
-//            { "sWidth": "35px", "aTargets": [1] },
-            { "sWidth": "150px", "aTargets": [4] },
-            { "sWidth": "150px", "aTargets": [5,6,7] },
+            { "bSortable": false, "aTargets": ["check"] },
+            { "sWidth": "35px", "aTargets": [0,1] },
             { "bVisible": false, "aTargets": [8]}
         ],
         "oLanguage": (datatable_lang != "") ?
