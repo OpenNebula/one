@@ -116,7 +116,8 @@ class OpenNebulaVNC
             return error(400,"VM is not running")
         end
 
-        if vm_resource['TEMPLATE/GRAPHICS/TYPE'] != "vnc"
+        if vm_resource['TEMPLATE/GRAPHICS/TYPE'].nil? || 
+           vm_resource['TEMPLATE/GRAPHICS/TYPE'].downcase != "vnc"
             return error(400,"VM has no VNC configured")
         end
 

@@ -15,11 +15,11 @@
 /* -------------------------------------------------------------------------- */
 
 /*Virtual Machines tab plugin*/
-var INCLUDE_URI = "vendor/noVNC/include/";
+var INCLUDE_URI = "vendor/noVNC/";
 var VM_HISTORY_LENGTH = 40;
 
 function loadVNC(){
-    var script = '<script src="vendor/noVNC/include/vnc.js"></script>';
+    var script = '<script src="vendor/noVNC/vnc.js"></script>';
     document.write(script);
 }
 loadVNC();
@@ -2786,18 +2786,22 @@ function setupVNC(){
     var dialog = $vnc_dialog;
 
     dialog.html('\
-      <div id="VNC_status_bar" class="VNC_status_bar" style="margin-top: 0px;">\
-         <table border=0 width="100%"><tr>\
-            <td><div id="VNC_status">'+tr("Loading")+'</div></td>\
-            <td width="1%"><div id="VNC_buttons">\
-            <input type=button value="Send CtrlAltDel"\
-                   id="sendCtrlAltDelButton">\
-            </div></td>\
-          </tr></table>\
-        </div>\
-        <canvas id="VNC_canvas" width="640px" height="20px">\
-            '+tr("Canvas not supported.")+'\
-        </canvas>\
+<div id="VNC_status_bar" class="VNC_status_bar">\
+  <div class="panel">\
+    <h3>\
+      <small id="vnc_dialog">'+tr("VNC")+' \
+        <span id="VNC_status">'+tr("Loading")+'</span>\
+        <span id="VNC_buttons">\
+          <input type=button value="Send CtrlAltDel" id="sendCtrlAltDelButton">\
+        </span>\
+      </small>\
+    </h3>\
+  </div>\
+  <canvas id="VNC_canvas" width="640px" height="20px">\
+      '+tr("Canvas not supported.")+'\
+  </canvas>\
+  <a class="close-reveal-modal">&#215;</a>\
+</div>\
 ');
 
     //dialog.dialog({
@@ -2808,16 +2812,13 @@ function setupVNC(){
     //    resizable:true,
     //    closeOnEscape: false
     //});
-    dialog.addClass("reveal-modal");
+    dialog.addClass("reveal-modal large");
 
     $('#sendCtrlAltDelButton',dialog).click(function(){
         rfb.sendCtrlAltDel();
         return false;
     });
 
-    dialog.bind( "dialogclose", function(event, ui) {
-        rfb.disconnect();
-    });
 
     $('.vnc').live("click",function(){
         var id = $(this).attr('vm_id');
@@ -2842,7 +2843,9 @@ function vncCallback(request,response){
     var token = response["token"];
     var path = '?token='+token;
     rfb.connect(proxy_host, proxy_port, pw, path);
-    $vnc_dialog.reveal();
+    $vnc_dialog.reveal({"closed": function () {
+      rfb.disconnect();
+    }});
 }
 
 function vncIcon(vm){
