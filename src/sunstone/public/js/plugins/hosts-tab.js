@@ -1052,11 +1052,10 @@ $(document).ready(function(){
             "aiExclude": [ 0 ]
         },
         "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0,4] },
-            { "sWidth": "35px", "aTargets": [1] },
-            { "sWidth": "100px", "aTargets": [9,3,10,11,12] },
-            { "sWidth": "150", "aTargets": [5,6,7,8] },
+            //{ "bSortable": false, "aTargets": ["check"] },
+            { "sWidth": "35px", "aTargets": [0,1,4] }, //check, ID, RVMS
+            { "sWidth": "150px","aTargets": [2,3] }, //Name, Cluster
+            { "sWidth": "35px", "aTargets": [0,4] }, //Status
             { "bVisible": false, "aTargets": [5,7,10,11,12]}
         ],
         "oLanguage": (datatable_lang != "") ?
