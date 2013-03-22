@@ -1620,90 +1620,90 @@ OZONES_LIB_API_ZONA_FILES="src/ozones/Client/lib/zona/ZoneElement.rb \
                 src/ozones/Client/lib/zona/ZonePool.rb"
 
 OZONES_PUBLIC_VENDOR_JQUERY="\
-                        src/sunstone/public/vendor/jQuery/jquery-1.7.2.min.js \
-                        src/sunstone/public/vendor/jQuery/MIT-LICENSE.txt \
-                        src/sunstone/public/vendor/jQuery/NOTICE"
+                        src/ozones/Server/public/vendor/jQuery/jquery-1.7.2.min.js \
+                        src/ozones/Server/public/vendor/jQuery/MIT-LICENSE.txt \
+                        src/ozones/Server/public/vendor/jQuery/NOTICE"
 
 OZONES_PUBLIC_VENDOR_CRYPTOJS=$SUNSTONE_PUBLIC_VENDOR_CRYPTOJS
 
 OZONES_PUBLIC_VENDOR_DATATABLES="\
-                src/sunstone/public/vendor/dataTables/jquery.dataTables.min.js \
-                src/sunstone/public/vendor/dataTables/ColVis.min.js \
-                src/sunstone/public/vendor/dataTables/ColReorderWithResize.js \
-                src/sunstone/public/vendor/dataTables/demo_table_jui.css \
-                src/sunstone/public/vendor/dataTables/ColVis.css \
-                src/sunstone/public/vendor/dataTables/BSD-LICENSE.txt \
-                src/sunstone/public/vendor/dataTables/NOTICE"
+                src/ozones/Server/public/vendor/dataTables/jquery.dataTables.min.js \
+                src/ozones/Server/public/vendor/dataTables/ColVis.min.js \
+                src/ozones/Server/public/vendor/dataTables/ColReorderWithResize.js \
+                src/ozones/Server/public/vendor/dataTables/demo_table_jui.css \
+                src/ozones/Server/public/vendor/dataTables/ColVis.css \
+                src/ozones/Server/public/vendor/dataTables/BSD-LICENSE.txt \
+                src/ozones/Server/public/vendor/dataTables/NOTICE"
 
 OZONES_PUBLIC_VENDOR_JGROWL="\
-                src/sunstone/public/vendor/jGrowl/jquery.jgrowl_minimized.js \
-                src/sunstone/public/vendor/jGrowl/jquery.jgrowl.css \
-                src/sunstone/public/vendor/jGrowl/NOTICE"
+                src/ozones/Server/public/vendor/jGrowl/jquery.jgrowl_minimized.js \
+                src/ozones/Server/public/vendor/jGrowl/jquery.jgrowl.css \
+                src/ozones/Server/public/vendor/jGrowl/NOTICE"
 
 OZONES_PUBLIC_VENDOR_JQUERYUI="\
-src/sunstone/public/vendor/jQueryUI/jquery-ui-1.8.16.custom.css \
-src/sunstone/public/vendor/jQueryUI/jquery-ui-1.9.2.custom.min.css \
-src/sunstone/public/vendor/jQueryUI/MIT-LICENSE.txt \
-src/sunstone/public/vendor/jQueryUI/jquery-ui-1.8.16.custom.min.js \
-src/sunstone/public/vendor/jQueryUI/NOTICE \
+src/ozones/Server/public/vendor/jQueryUI/jquery-ui-1.8.16.custom.css \
+src/ozones/Server/public/vendor/jQueryUI/jquery-ui-1.9.2.custom.min.css \
+src/ozones/Server/public/vendor/jQueryUI/MIT-LICENSE.txt \
+src/ozones/Server/public/vendor/jQueryUI/jquery-ui-1.8.16.custom.min.js \
+src/ozones/Server/public/vendor/jQueryUI/NOTICE \
 "
 
 OZONES_PUBLIC_VENDOR_JQUERYUIIMAGES="\
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_0_353735_40x100.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_0_aaaaaa_40x100.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_0_eeeeee_40x100.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_0_f2f2f2_40x100.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_0_ffffff_40x100.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_100_f6f6f6_40x100.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_25_f6f6f6_40x100.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_55_ffffff_40x100.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_65_353735_40x100.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_75_ffffff_40x100.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_55_fbf9ee_1x400.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_65_ffffff_1x400.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_75_dadada_1x400.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_75_e6e6e6_1x400.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_95_fef1ec_1x400.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_100_f6f6f6_1x100.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_25_0073ea_1x100.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_25_0098c3_1x100.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_25_353735_1x100.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_25_f6f6f6_1x100.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_50_dddddd_1x100.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_50_ffffff_1x100.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_75_cccccc_1x100.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-icons_0073ea_256x240.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-icons_0098c3_256x240.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-icons_222222_256x240.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-icons_2e83ff_256x240.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-icons_353735_256x240.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-icons_454545_256x240.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-icons_666666_256x240.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-icons_888888_256x240.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-icons_cd0a0a_256x240.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-icons_d10300_256x240.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-icons_ff0084_256x240.png \
-src/sunstone/public/vendor/jQueryUI/images/ui-icons_ffffff_256x240.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_flat_0_353735_40x100.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_flat_0_aaaaaa_40x100.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_flat_0_eeeeee_40x100.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_flat_0_f2f2f2_40x100.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_flat_0_ffffff_40x100.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_flat_100_f6f6f6_40x100.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_flat_25_f6f6f6_40x100.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_flat_55_ffffff_40x100.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_flat_65_353735_40x100.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_flat_75_ffffff_40x100.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_glass_55_fbf9ee_1x400.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_glass_65_ffffff_1x400.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_glass_75_dadada_1x400.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_glass_75_e6e6e6_1x400.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_glass_95_fef1ec_1x400.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_highlight-soft_100_f6f6f6_1x100.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_highlight-soft_25_0073ea_1x100.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_highlight-soft_25_0098c3_1x100.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_highlight-soft_25_353735_1x100.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_highlight-soft_25_f6f6f6_1x100.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_highlight-soft_50_dddddd_1x100.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_highlight-soft_50_ffffff_1x100.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_highlight-soft_75_cccccc_1x100.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-icons_0073ea_256x240.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-icons_0098c3_256x240.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-icons_222222_256x240.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-icons_2e83ff_256x240.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-icons_353735_256x240.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-icons_454545_256x240.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-icons_666666_256x240.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-icons_888888_256x240.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-icons_cd0a0a_256x240.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-icons_d10300_256x240.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-icons_ff0084_256x240.png \
+src/ozones/Server/public/vendor/jQueryUI/images/ui-icons_ffffff_256x240.png \
 "
 
 OZONES_PUBLIC_VENDOR_JQUERYLAYOUT="\
-          src/sunstone/public/vendor/jQueryLayout/layout-default-latest.css \
-          src/sunstone/public/vendor/jQueryLayout/jquery.layout-latest.min.js \
-          src/sunstone/public/vendor/jQueryLayout/NOTICE"
+          src/ozones/Server/public/vendor/jQueryLayout/layout-default-latest.css \
+          src/ozones/Server/public/vendor/jQueryLayout/jquery.layout-latest.min.js \
+          src/ozones/Server/public/vendor/jQueryLayout/NOTICE"
 
 OZONES_PUBLIC_VENDOR_FONTAWESOME="\
-src/sunstone/public/vendor/FontAwesome/NOTICE \
+src/ozones/Server/public/vendor/FontAwesome/NOTICE \
 "
 
 OZONES_PUBLIC_VENDOR_FONTAWESOME_FONT="\
-src/sunstone/public/vendor/FontAwesome/font/fontawesome-webfont.eot \
-src/sunstone/public/vendor/FontAwesome/font/fontawesome-webfont.woff \
-src/sunstone/public/vendor/FontAwesome/font/fontawesome-webfont.ttf \
-src/sunstone/public/vendor/FontAwesome/font/fontawesome-webfont.svg \
+src/ozones/Server/public/vendor/FontAwesome/font/fontawesome-webfont.eot \
+src/ozones/Server/public/vendor/FontAwesome/font/fontawesome-webfont.woff \
+src/ozones/Server/public/vendor/FontAwesome/font/fontawesome-webfont.ttf \
+src/ozones/Server/public/vendor/FontAwesome/font/fontawesome-webfont.svg \
 "
 
 OZONES_PUBLIC_VENDOR_FONTAWESOME_CSS="\
-src/sunstone/public/vendor/FontAwesome/css/font-awesome.css \
+src/ozones/Server/public/vendor/FontAwesome/css/font-awesome.css \
 "
 
 OZONES_PUBLIC_JS_FILES="src/ozones/Server/public/js/ozones.js \
