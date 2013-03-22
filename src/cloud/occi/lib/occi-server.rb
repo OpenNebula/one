@@ -59,66 +59,32 @@ require 'json'
 
 require 'OCCIServer'
 require 'CloudAuth'
+require 'occi_application'
 
 include OpenNebula
 
-##############################################################################
+################################################################################
 # Configuration
-##############################################################################
-# Set Configuration settings
+################################################################################
+
 begin
-    conf = YAML.load_file(CONFIGURATION_FILE)
+    $occi_app = OCCIApplication.new
 rescue Exception => e
-    STDERR.puts "Error parsing config file #{CONFIGURATION_FILE}: #{e.message}"
-    exit 1
-end
-
-conf[:template_location] = TEMPLATE_LOCATION
-conf[:debug_level] ||= 3
-
-CloudServer.print_configuration(conf)
-
-set :config, conf
-
-
-# Enable Logger
-include CloudLogger
-enable_logging OCCI_LOG, settings.config[:debug_level].to_i
-
-
-# Set Sinatra configuration
-use Rack::Session::Pool, :key => 'occi'
-
-if settings.config[:server]
-    settings.config[:host] ||= settings.config[:server]
-    warning = "Warning: :server: configuration parameter has been deprecated."
-    warning << " Use :host: instead."
-    settings.logger.warn warning
-end
-
-if CloudServer.is_port_open?(settings.config[:host],
-                             settings.config[:port])
-    settings.logger.error {
-        "Port #{settings.config[:port]} busy, please shutdown " <<
-        "the service or move occi server port."
-    }
+    STDERR.puts e.message
     exit -1
 end
 
-set :bind, settings.config[:host]
-set :port, settings.config[:port]
+# The logging will be configured in Rack, not in Sinatra
+disable :logging
 
-# Create CloudAuth
-begin
-    ENV["ONE_CIPHER_AUTH"] = OCCI_AUTH
-    cloud_auth = CloudAuth.new(settings.config, settings.logger)
-rescue => e
-    settings.logger.error {"Error initializing authentication system"}
-    settings.logger.error {e.message}
-    exit -1
-end
+use Rack::CommonLogger, $occi_app.logger
 
-set :cloud_auth, cloud_auth
+# Set the host and port
+set :bind, $occi_app.conf[:host]
+
+set :port, $occi_app.conf[:port]
+
+set :run, false
 
 ##############################################################################
 # Helpers
@@ -129,26 +95,27 @@ before do
     content_type 'application/xml', :charset => 'utf-8'
 
     begin
-        username = settings.cloud_auth.auth(request.env, params)
+        username = $occi_app.cloud_auth.auth(request.env, params)
     rescue Exception => e
-        logger.error {e.message}
+        $occi_app.logger.error {e.message}
         error 500, ""
     end
 
     if username.nil? #unable to authenticate
-        logger.error {"User not authorized"}
+        $occi_app.logger.error {"User not authorized"}
         error 401, ""
     else
-        client       = settings.cloud_auth.client(username)
-        @occi_server = OCCIServer.new(client,
-                                      settings.config,
-                                      settings.logger)
+        @occi_server = $occi_app.new_occi_server(username)
     end
 end
 
 # Response treatment
 helpers do
-    def treat_response(result,rc)
+    def logger
+        $occi_app.logger
+    end
+
+    def treat_response(result, rc)
         if OpenNebula::is_error?(result)
             logger.error {result.message}
             content_type 'text/plain', :charset => 'utf-8'

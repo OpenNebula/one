@@ -100,11 +100,9 @@ stop()
     exit 1
   fi
 
-  PID=`cat $OCCI_PID`
   # Kill the occi-server daemon. Thin seems to require this twice
+  PID=`cat $OCCI_PID`
 
-  kill -INT $PID > /dev/null 2>&1
-  sleep 1
   kill -INT $PID > /dev/null 2>&1
 
   # Remove pid files
