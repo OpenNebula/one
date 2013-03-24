@@ -313,15 +313,7 @@ function prettyPrintRowJSON(field,value,padding,weight, border_bottom,padding_to
                 </tr>';
         //attributes rows
         //empty row - prettyprint - empty row
-        str += '<tr>\
-                  <td class="key_td" style="border-bottom:0"></td>\
-                  <td class="value_td" style="border-bottom:0"></td>\
-                </tr>' +
-                     prettyPrintJSON(value,padding+25,"normal","0",1) +
-               '<tr>\
-                  <td class="key_td"></td>\
-                  <td class="value_td"></td>\
-               </tr>';
+        str += prettyPrintJSON(value,padding+25,"normal","0",1);
     } else {
         str += '<tr>\
                     <td class="key_td" style="\
@@ -1385,14 +1377,14 @@ function convert_template_to_string(template_json,unshown_values)
 
 
     var template_str = "\n";
-    $.each(template_json, function(key, value)       
+    $.each(template_json, function(key, value)
     {
         // value can be an array
         if (!value) return true;
         if (value.constructor == Array)
         {
             var it=null;
-            $.each(value, function(index, element) 
+            $.each(value, function(index, element)
             {
                 if (!element) return true;
                // current value can be an object
