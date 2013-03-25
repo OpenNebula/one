@@ -6797,3 +6797,60 @@ a.footer.button {
   overflow-x: hidden;
   padding: 5px;
 }
+
+/* line 741, ../sass/app.scss */
+div.time-picker {
+  position: absolute;
+  height: 191px;
+  width: 4em;
+  /* needed for IE */
+  overflow: auto;
+  background: #fff;
+  border: 1px solid #aaa;
+  z-index: 99;
+  margin: 0;
+}
+
+/* line 751, ../sass/app.scss */
+div.time-picker-12hours {
+  width: 6em;
+  /* needed for IE */
+}
+
+/* line 755, ../sass/app.scss */
+div.time-picker ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* line 760, ../sass/app.scss */
+div.time-picker li {
+  cursor: pointer;
+  height: 20px;
+  font: 12px/1 Helvetica, Arial, sans-serif;
+  padding: 4px 3px;
+}
+
+/* line 766, ../sass/app.scss */
+div.time-picker li.selected {
+  background: #0063CE;
+  color: #fff;
+}
+
+/* line 772, ../sass/app.scss */
+.timepicker {
+  float: left;
+  width: 50px !important;
+}
+
+/* line 777, ../sass/app.scss */
+.jdpicker {
+  float: left;
+  width: 90px !important;
+}
+
+/* line 782, ../sass/app.scss */
+.columns {
+  line-height: 2;
+}

@@ -1386,10 +1386,18 @@ function updateVMInfo(request,vm){
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_hotplugging_tab",hotplugging_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_network_tab",network_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_snapshot_tab",snapshot_tab);
+<<<<<<< HEAD
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_placement_tab",placement_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_template_tab",template_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_log_tab",log_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_actions_tab",actions_tab);
+=======
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_history_tab",history_tab);
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_actions_tab",actions_tab);
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_template_tab",template_tab);
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_log_tab",log_tab);
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_history_tab",history_tab);
+>>>>>>> feature #1664: Fix datepicker in Actions tab
 
     // TODO: re-use pool_monitor data?
 
@@ -1416,7 +1424,9 @@ function updateVMDisksInfo(request,vm){
 function printActionsTable(vm_info)
 {
 
-    var str = '<button id="add_scheduling_action" class="button small secondary radius" >' + tr("Schedule action") +'</button>\
+    var str = '<div class="twelve columns">\
+                  <button id="add_scheduling_action" class="button small secondary radius" >' + tr("Schedule action") +'</button>\
+                </div><br><br>\
                 <div class="twelve columns">\
                 <table id="scheduling_actions_table" class="info_table twelve datatable extended_table">\
                  <thead>\
@@ -1447,8 +1457,31 @@ function printActionsTable(vm_info)
 
         $("#add_scheduling_action").attr("disabled", "disabled");
 
+        //$("#scheduling_actions_table").append('<tr><td></td>\
+        //     <td class="action_row"><select id="select_new_action" class="select_new_action" name="select_action">\
+        //                        <option value="shutdown">' + tr("shutdown") + '</option>\
+        //                        <option value="hold">' + tr("hold") + '</option>\
+        //                        <option value="release">' + tr("release") + '</option>\
+        //                        <option value="stop">' + tr("stop") + '</option>\
+        //                        <option value="cancel">' + tr("cancel") + '</option>\
+        //                        <option value="suspend">' + tr("suspend") + '</option>\
+        //                        <option value="resume">' + tr("resume") + '</option>\
+        //                        <option value="restart">' + tr("restart") + '</option>\
+        //                        <option value="resubmit">' + tr("resubmit") + '</option>\
+        //                        <option value="reboot">' + tr("reboot") + '</option>\
+        //                        <option value="reset">' + tr("reset") + '</option>\
+        //                        <option value="poweroff">' + tr("poweroff") + '</option>\
+        //                        <option value="snapshot-create">' + tr("snapshot-create") + '</option>\
+        //                      </select>\
+        //      </td>\
+        //     <td class="time_row"><input id="date_time_input"><a class="date_time_picker_add_link">t</a></td>\
+        //     <td>\
+        //        <button id="submit_scheduling_action" class="button small secondary radius" >' + tr("Add") +'</button>\
+        //     </td>\
+        //   </tr>');
+
         $("#scheduling_actions_table").append('<tr><td></td>\
-             <td class="action_row"><select id="select_new_action" class="select_new_action" name="select_action">\
+             <td class="columns"><select id="select_new_action" class="select_new_action" name="select_action">\
                                 <option value="shutdown">' + tr("shutdown") + '</option>\
                                 <option value="hold">' + tr("hold") + '</option>\
                                 <option value="release">' + tr("release") + '</option>\
@@ -1464,25 +1497,31 @@ function printActionsTable(vm_info)
                                 <option value="snapshot-create">' + tr("snapshot-create") + '</option>\
                               </select>\
               </td>\
-             <td class="time_row"><input id="date_time_input"><a class="date_time_picker_add_link">t</a></td>\
+             <td>\
+                <input id="date_input" class="jdpicker" type="text" placeholder="2013/12/30"/>\
+                <input id="time_input" class="timepicker" type="text" placeholder="12:30"/>\
+             </td>\
              <td>\
                 <button id="submit_scheduling_action" class="button small secondary radius" >' + tr("Add") +'</button>\
              </td>\
+             <td colspan=2></td>\
            </tr>');
 
-        $(".date_time_picker_add_link").die();
-        $(".date_time_picker_add_link").live("click", function() {
-            setupDateTimePicker('#date_time_input', "");
-        });
+        $("#date_input").jdPicker();
+        $("#time_input").timePicker();
 
         return false;
     });
 
     $("#submit_scheduling_action").live("click", function() {
-        var date_input_value = $("#date_time_input").val();
+        var date_input_value = $("#date_input").val();
+        var time_input_value = $("#time_input").val();
 
-        if (date_input_value=="")
+        if (date_input_value=="" || time_input_value=="")
           return false;
+
+        var time_value = date_input_value + ' ' + time_input_value
+
 
         // Calculate MAX_ID
         var max_id = -1;
@@ -1510,7 +1549,8 @@ function printActionsTable(vm_info)
         var new_action = {};
         new_action.ID  = parseInt(max_id) + 1;
         new_action.ACTION = $("#select_new_action").val();
-        var epoch_str   = new Date(date_input_value);
+        var epoch_str   = new Date(time_value);
+        console.log(epoch_str)
         new_action.TIME = parseInt(epoch_str.getTime())/1000;
 
         vm_info.USER_TEMPLATE.SCHED_ACTION.push(new_action);
@@ -1540,96 +1580,96 @@ function printActionsTable(vm_info)
         Sunstone.runAction("VM.update_actions",vm_info.ID,template_str);
     });
 
-    // Listener for key,value pair edit action
-    $(".edit_action_e").live("click", function() {
-        // Action
-        $("#add_scheduling_action").attr("disabled", "disabled");
-
-        var index=this.id.substring(5,this.id.length);
-
-        var value_str = $(".tr_action_"+index+" .action_row").text();
-        $(".tr_action_"+index+" .action_row").html('<select id="select_action_'+index+'" class="select_action" name="select_action">\
-                                <option value="shutdown">' + tr("shutdown") + '</option>\
-                                <option value="hold">' + tr("hold") + '</option>\
-                                <option value="release">' + tr("release") + '</option>\
-                                <option value="stop">' + tr("stop") + '</option>\
-                                <option value="cancel">' + tr("cancel") + '</option>\
-                                <option value="suspend">' + tr("suspend") + '</option>\
-                                <option value="resume">' + tr("resume") + '</option>\
-                                <option value="restart">' + tr("restart") + '</option>\
-                                <option value="resubmit">' + tr("resubmit") + '</option>\
-                                <option value="reboot">' + tr("reboot") + '</option>\
-                                <option value="reset">' + tr("reset") + '</option>\
-                                <option value="poweroff">' + tr("poweroff") + '</option>\
-                                <option value="snapshot-create">' + tr("snapshot-create") + '</option>\
-                              </select>')
-        $(".select_action").val(value_str);
-
-        // Time
-        var time_value_str = $(".tr_action_"+index+" .time_row").text();
-        $(".tr_action_"+index+" .time_row").html('<div><input style="width:90%;" class="input_edit_time" id="input_edit_time_'+
-                        index+'" type="text" value="'+time_value_str+'">\
-                        <a class="date_time_picker_link">t</a></div>');
-
-        $(".date_time_picker_link").die();
-        $(".date_time_picker_link").live("click", function() {
-            setupDateTimePicker('#input_edit_time_'+index, time_value_str);
-        });
-    });
-
-     $(".select_action").live("change", function() {
-        var index     = $.trim(this.id.substring(14,this.id.length));
-        var tmp_tmpl  = new Array();
-        var value_str = $(this).val();
-
-        if(vm_info.USER_TEMPLATE.SCHED_ACTION.length)
-        {
-          $.each(vm_info.USER_TEMPLATE.SCHED_ACTION, function(i,element){
-              tmp_tmpl[i] = element;
-              if(element.ID==index)
-                tmp_tmpl[i].ACTION = value_str;
-          })
-          vm_info.USER_TEMPLATE.SCHED_ACTION = tmp_tmpl;
-        }
-        else
-        {
-            vm_info.USER_TEMPLATE.SCHED_ACTION.ACTION = value_str;
-        }
-
-        var template_str = convert_template_to_string(vm_info.USER_TEMPLATE);
-
-        // Let OpenNebula know
-        Sunstone.runAction("VM.update_actions",vm_info.ID,template_str);
-        $("#add_scheduling_action").removeAttr("disabled");
-    });
-
-    $(".input_edit_time").live("change", function() {
-        var index     = $.trim(this.id.substring(16,this.id.length));
-        var tmp_tmpl  = new Array();
-        var epoch_str  = new Date($(this).val());
-
-        if(vm_info.USER_TEMPLATE.SCHED_ACTION.length)
-        {
-          $.each(vm_info.USER_TEMPLATE.SCHED_ACTION, function(i,element){
-              if(element.ID==index)
-              {
-                element.TIME = parseInt(epoch_str.getTime())/1000;
-              }
-              tmp_tmpl.push(element);
-          })
-          vm_info.USER_TEMPLATE.SCHED_ACTION = tmp_tmpl;
-        }
-        else
-        {
-            vm_info.USER_TEMPLATE.SCHED_ACTION.TIME = parseInt(epoch_str.getTime())/1000;
-        }
-
-        var template_str = convert_template_to_string(vm_info.USER_TEMPLATE);
-
-        // Let OpenNebula know
-        Sunstone.runAction("VM.update_actions",vm_info.ID,template_str);
-        $("#add_scheduling_action").removeAttr("disabled");
-    });
+    //// Listener for key,value pair edit action
+    //$(".edit_e").live("click", function() {
+    //    // Action
+    //    $("#add_scheduling_action").attr("disabled", "disabled");
+//
+    //    var index=this.id.substring(5,this.id.length);
+//
+    //    var value_str = $(".tr_action_"+index+" .action_row").text();
+    //    $(".tr_action_"+index+" .action_row").html('<select id="select_action_'+index+'" class="select_action" name="select_action">\
+    //                            <option value="shutdown">' + tr("shutdown") + '</option>\
+    //                            <option value="hold">' + tr("hold") + '</option>\
+    //                            <option value="release">' + tr("release") + '</option>\
+    //                            <option value="stop">' + tr("stop") + '</option>\
+    //                            <option value="cancel">' + tr("cancel") + '</option>\
+    //                            <option value="suspend">' + tr("suspend") + '</option>\
+    //                            <option value="resume">' + tr("resume") + '</option>\
+    //                            <option value="restart">' + tr("restart") + '</option>\
+    //                            <option value="resubmit">' + tr("resubmit") + '</option>\
+    //                            <option value="reboot">' + tr("reboot") + '</option>\
+    //                            <option value="reset">' + tr("reset") + '</option>\
+    //                            <option value="poweroff">' + tr("poweroff") + '</option>\
+    //                            <option value="snapshot-create">' + tr("snapshot-create") + '</option>\
+    //                          </select>')
+    //    $(".select_action").val(value_str);
+//
+    //    // Time
+    //    var time_value_str = $(".tr_action_"+index+" .time_row").text();
+    //    $(".tr_action_"+index+" .time_row").html('<div><input style="width:90%;" class="input_edit_time" id="input_edit_time_'+
+    //                    index+'" type="text" value="'+time_value_str+'">\
+    //                    <a class="date_time_picker_link">t</a></div>');
+//
+    //    $(".date_time_picker_link").die();
+    //    $(".date_time_picker_link").live("click", function() {
+    //        setupDateTimePicker('#input_edit_time_'+index, time_value_str);
+    //    });
+    //});
+//
+    // $(".select_action").live("change", function() {
+    //    var index     = $.trim(this.id.substring(14,this.id.length));
+    //    var tmp_tmpl  = new Array();
+    //    var value_str = $(this).val();
+//
+    //    if(vm_info.USER_TEMPLATE.SCHED_ACTION.length)
+    //    {
+    //      $.each(vm_info.USER_TEMPLATE.SCHED_ACTION, function(i,element){
+    //          tmp_tmpl[i] = element;
+    //          if(element.ID==index)
+    //            tmp_tmpl[i].ACTION = value_str;
+    //      })
+    //      vm_info.USER_TEMPLATE.SCHED_ACTION = tmp_tmpl;
+    //    }
+    //    else
+    //    {
+    //        vm_info.USER_TEMPLATE.SCHED_ACTION.ACTION = value_str;
+    //    }
+//
+    //    var template_str = convert_template_to_string(vm_info.USER_TEMPLATE);
+//
+    //    // Let OpenNebula know
+    //    Sunstone.runAction("VM.update_template",vm_info.ID,template_str);
+    //    $("#add_scheduling_action").removeAttr("disabled");
+    //});
+//
+    //$(".input_edit_time").live("change", function() {
+    //    var index     = $.trim(this.id.substring(16,this.id.length));
+    //    var tmp_tmpl  = new Array();
+    //    var epoch_str  = new Date($(this).val());
+//
+    //    if(vm_info.USER_TEMPLATE.SCHED_ACTION.length)
+    //    {
+    //      $.each(vm_info.USER_TEMPLATE.SCHED_ACTION, function(i,element){
+    //          if(element.ID==index)
+    //          {
+    //            element.TIME = parseInt(epoch_str.getTime())/1000;
+    //          }
+    //          tmp_tmpl.push(element);
+    //      })
+    //      vm_info.USER_TEMPLATE.SCHED_ACTION = tmp_tmpl;
+    //    }
+    //    else
+    //    {
+    //        vm_info.USER_TEMPLATE.SCHED_ACTION.TIME = parseInt(epoch_str.getTime())/1000;
+    //    }
+//
+    //    var template_str = convert_template_to_string(vm_info.USER_TEMPLATE);
+//
+    //    // Let OpenNebula know
+    //    Sunstone.runAction("VM.update_template",vm_info.ID,template_str);
+    //    $("#add_scheduling_action").removeAttr("disabled");
+    //});
 
     return str;
 }
@@ -1669,9 +1709,13 @@ function fromJSONtoActionRow(scheduling_action){
              <td class="message_row">'+message_str+'</td>\
              <td>\
                <div>\
+<<<<<<< HEAD
                  <a id="edit_'+scheduling_action.ID+'" class="edit_action_e" href="#"><i class="icon-edit"/></a>\
                  &nbsp;&nbsp;\
                  <a id="minus_'+scheduling_action.ID+'" class="remove_action_x" href="#"><i class="icon-trash"/></a>\
+=======
+                 <a id="minus_'+scheduling_action.ID+'" class="remove_x" href="#"><i class="icon-trash"/></a>\
+>>>>>>> feature #1664: Fix datepicker in Actions tab
                </div>\
              </td>\
            </tr>';

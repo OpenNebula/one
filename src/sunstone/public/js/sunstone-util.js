@@ -711,7 +711,7 @@ function plot_graph(response, info) {
 //        colors: [ "#cdebf5", "#2ba6cb", "#6f6f6f" ]
         colors: [ "#2ba6cb", "#707D85", "#AC5A62" ],
         legend : { show : (info.div_legend != undefined),
-                   noColumns: attributes.length+1,
+                   noColumns: attributes.length,
                    container: info.div_legend
                  },
         xaxis : {
@@ -826,7 +826,7 @@ function plot_totals(response, info) {
         //colors: [ "#2ba6cb", "#cdebf5", "#6f6f6f" ],
         colors: [ "#2ba6cb", "#707D85", "#AC5A62" ],
         legend : { show : (info.div_legend != undefined),
-                   noColumns: attributes.length+1,
+                   noColumns: attributes.length,
                    backgroundColor: "black",
                    container: info.div_legend
                  },

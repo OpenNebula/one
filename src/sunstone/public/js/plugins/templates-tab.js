@@ -2636,7 +2636,7 @@ function setupCreateTemplateDialog(){
                         '</tbody>'+
                     '</table>'+
                     '<br>'+
-                    '<div class="vm_param kvm_opt xen_opt vmware_opt" id="selected_hosts_template">'+
+                    '<div class="kvm_opt xen_opt vmware_opt" id="selected_hosts_template">'+
                       '<span id="select_hosts" class="radius secondary label">'+tr("Please select one or more hosts from the list")+'</span> '+
                       '<span id="hosts_selected" class="radius secondary label hidden">You selected the following hosts:</span> '+
                     '</div>'+
@@ -2663,7 +2663,7 @@ function setupCreateTemplateDialog(){
                         '</tbody>'+
                     '</table>'+
                     '<br>'+
-                    '<div class="vm_param kvm_opt xen_opt vmware_opt" id="selected_clusters_template">'+
+                    '<div class="kvm_opt xen_opt vmware_opt" id="selected_clusters_template">'+
                       '<span id="select_clusters" class="radius secondary label">'+tr("Please select one or more clusters from the list")+'</span> '+
                       '<span id="clusters_selected" class="radius secondary label hidden">You selected the following clusters:</span> '+
                     '</div>'+
