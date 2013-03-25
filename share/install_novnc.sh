@@ -9,14 +9,10 @@ if [ -z "$ONE_LOCATION" ]; then
     ONE_SHARE=/usr/share/one
     ONE_PUBLIC_SUNSTONE=/usr/lib/one/sunstone/public
     SUNSTONE_CONF=/etc/one/sunstone-server.conf
-    ONE_PUBLIC_SELFSERVICE=/usr/lib/one/ruby/cloud/occi/ui/public
-    SELFSERVICE_CONF=/etc/one/occi-server.conf
 else
     ONE_SHARE=$ONE_LOCATION/share
     ONE_PUBLIC_SUNSTONE=$ONE_LOCATION/lib/sunstone/public
     SUNSTONE_CONF=$ONE_LOCATION/etc/sunstone-server.conf
-    ONE_PUBLIC_SELFSERVICE=$ONE_LOCATION/lib/ruby/cloud/occi/ui/public
-    SELFSERVICE_CONF=$ONE_LOCATION/etc/occi-server.conf
 fi
 
 echo "Downloading noVNC latest version..."
@@ -40,12 +36,7 @@ fi
 echo "Installing Sunstone client libraries in $ONE_PUBLIC_SUNSTONE..."
 rm -rf $ONE_PUBLIC_SUNSTONE/vendor/noVNC/
 mkdir -p $ONE_PUBLIC_SUNSTONE/vendor/noVNC
-cp -r $NOVNC_TMP/*novnc*/include/ $ONE_PUBLIC_SUNSTONE/vendor/noVNC/
-
-echo "Installing SelfService client libraries in $ONE_PUBLIC_SELFSERVICE..."
-rm -rf $ONE_PUBLIC_SELFSERVICE/vendor/noVNC/
-mkdir -p $ONE_PUBLIC_SELFSERVICE/vendor/noVNC
-cp -r $NOVNC_TMP/*novnc*/include/ $ONE_PUBLIC_SELFSERVICE/vendor/noVNC/
+cp -r $NOVNC_TMP/*novnc*/include/* $ONE_PUBLIC_SUNSTONE/vendor/noVNC/
 
 cd $ONE_SHARE
 rm -rf $NOVNC_TMP
@@ -68,7 +59,5 @@ ln -s websocketproxy.py websockify
 
 echo "Backing up and updating $SUNSTONE_CONF with new VNC proxy path..."
 sed -i.bck "s%^\(:vnc_proxy_path:\).*$%\1 $ONE_SHARE/$PROXY_PATH%" $SUNSTONE_CONF
-echo "Backing up and updating $SELFSERVICE_CONF with new VNC proxy path..."
-sed -i.bck "s%^\(:vnc_proxy_path:\).*$%\1 $ONE_SHARE/$PROXY_PATH%" $SELFSERVICE_CONF
 
 echo "Installation successful"
