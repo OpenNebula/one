@@ -666,6 +666,17 @@ var vm_actions = {
         call: OpenNebula.VM.update,
         callback: function(request,response){
            notifyMessage(tr("VirtualMachine updated correctly"));
+           Sunstone.runAction('VM.showinfo',request.request.data[0]);
+           Sunstone.runAction("VM.list");
+        },
+        error: onError
+    },
+
+    "VM.update_actions" : {  // Update template
+        type: "single",
+        call: OpenNebula.VM.update,
+        callback: function(request,response){
+           notifyMessage(tr("VirtualMachine updated correctly"));
            Sunstone.runAction("VM.showscheduling", request.request.data[0]);
         },
         error: onError
@@ -1088,16 +1099,47 @@ function updateVMachinesView(request, vmachine_list){
 // Returns the html code for a nice formatted VM history
 // Some calculations are performed, inspired from what is done
 // in the CLI
-function generateHistoryTable(vm){
-    var html = ' <div class="">\
-          <div id="datatable_cluster_vnets_info_div columns twelve">\
+function generatePlacementTable(vm){
+   var requirements_str = "-";
+   var rank_str         = "-";
+
+   if (vm.USER_TEMPLATE.SCHED_REQUIREMENTS)
+   {
+     requirements_str = vm.USER_TEMPLATE.SCHED_REQUIREMENTS;
+   }
+
+  if (vm.USER_TEMPLATE.SCHED_RANK)
+   {
+     rank_str         = vm.USER_TEMPLATE.SCHED_RANK;
+   }
+
+    var html = '<div class="six columns">\
+          <table id="vm_placement_table" class="extended_table twelve">\
+                   <thead>\
+                     <tr>\
+                         <th colspan="2" align="center">'+tr("Placement")+'</th>\
+                     </tr>\
+                   </thead>\
+                   <tbody>\
+                      <tr>\
+                       <td>REQUIREMENTS</td>\
+                       <td>'+requirements_str+'</td>\
+                     </tr>\
+                      <tr>\
+                       <td>RANK</td>\
+                       <td>'+rank_str+'</td>\
+                     </tr>\
+                   </tbody>\
+          </table>\
+          </div>\
+          <div class="six columns">\
           <table id="vm_history_table" class="extended_table twelve">\
                    <thead>\
                      <tr>\
-                         <th>'+tr("Sequence")+'</th>\
+                         <th>'+tr("#")+'</th>\
                          <th>'+tr("Host")+'</th>\
                          <th>'+tr("Reason")+'</th>\
-                         <th>'+tr("State change time")+'</th>\
+                         <th>'+tr("Chg time")+'</th>\
                          <th>'+tr("Total time")+'</th>\
                          <th colspan="2">'+tr("Prolog time")+'</th>\
                      </tr>\
@@ -1315,9 +1357,9 @@ function updateVMInfo(request,vm){
     };
 
 
-    var history_tab = {
-        title: tr("History"),
-        content: generateHistoryTable(vm_info)
+    var placement_tab = {
+        title: tr("Placement"),
+        content: generatePlacementTable(vm_info)
     };
 
     $("#div_edit_rename_link").die();
@@ -1344,11 +1386,10 @@ function updateVMInfo(request,vm){
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_hotplugging_tab",hotplugging_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_network_tab",network_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_snapshot_tab",snapshot_tab);
-    Sunstone.updateInfoPanelTab("vm_info_panel","vm_history_tab",history_tab);
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_placement_tab",placement_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_template_tab",template_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_log_tab",log_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_actions_tab",actions_tab);
-    Sunstone.updateInfoPanelTab("vm_info_panel","vm_history_tab",history_tab);
 
     // TODO: re-use pool_monitor data?
 
@@ -1394,8 +1435,8 @@ function printActionsTable(vm_info)
                 </div>'
 
     // Remove previous listeners
-    $(".remove_x").die();
-    $(".edit_e").die();
+    $(".remove_action_x").die();
+    $(".edit_action_e").die();
     $('#add_scheduling_action').die();
     $("#submit_scheduling_action").die();
     $(".select_action").die();
@@ -1477,15 +1518,14 @@ function printActionsTable(vm_info)
         // Let OpenNebula know
         var template_str = convert_template_to_string(vm_info.USER_TEMPLATE);
         console.log(template_str)
-        Sunstone.runAction("VM.update_template",vm_info.ID,template_str);
+        Sunstone.runAction("VM.update_actions",vm_info.ID,template_str);
 
         $("#add_scheduling_action").removeAttr("disabled");
         return false;
     });
 
     // Listener for key,value pair remove action
-    $(".remove_x").live("click", function() {
-        // Remove div_minus_ from the id
+    $(".remove_action_x").live("click", function() {
         var index = this.id.substring(6,this.id.length);
         var tmp_tmpl = new Array();
 
@@ -1498,11 +1538,11 @@ function printActionsTable(vm_info)
         var template_str = convert_template_to_string(vm_info.USER_TEMPLATE);
 
         // Let OpenNebula know
-        Sunstone.runAction("VM.update_template",vm_info.ID,template_str);
+        Sunstone.runAction("VM.update_actions",vm_info.ID,template_str);
     });
 
     // Listener for key,value pair edit action
-    $(".edit_e").live("click", function() {
+    $(".edit_action_e").live("click", function() {
         // Action
         $("#add_scheduling_action").attr("disabled", "disabled");
 
@@ -1560,7 +1600,7 @@ function printActionsTable(vm_info)
         var template_str = convert_template_to_string(vm_info.USER_TEMPLATE);
 
         // Let OpenNebula know
-        Sunstone.runAction("VM.update_template",vm_info.ID,template_str);
+        Sunstone.runAction("VM.update_actions",vm_info.ID,template_str);
         $("#add_scheduling_action").removeAttr("disabled");
     });
 
@@ -1588,7 +1628,7 @@ function printActionsTable(vm_info)
         var template_str = convert_template_to_string(vm_info.USER_TEMPLATE);
 
         // Let OpenNebula know
-        Sunstone.runAction("VM.update_template",vm_info.ID,template_str);
+        Sunstone.runAction("VM.update_actions",vm_info.ID,template_str);
         $("#add_scheduling_action").removeAttr("disabled");
     });
 
@@ -1630,9 +1670,9 @@ function fromJSONtoActionRow(scheduling_action){
              <td class="message_row">'+message_str+'</td>\
              <td>\
                <div>\
-                 <a id="edit_'+scheduling_action.ID+'" class="edit_e" href="#"><i class="icon-edit"/></a>\
+                 <a id="edit_'+scheduling_action.ID+'" class="edit_action_e" href="#"><i class="icon-edit"/></a>\
                  &nbsp;&nbsp;\
-                 <a id="minus_'+scheduling_action.ID+'" class="remove_x" href="#"><i class="icon-trash"/></a>\
+                 <a id="minus_'+scheduling_action.ID+'" class="remove_action_x" href="#"><i class="icon-trash"/></a>\
                </div>\
              </td>\
            </tr>';
