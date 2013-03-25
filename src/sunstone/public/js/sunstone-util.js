@@ -1393,14 +1393,14 @@ function convert_template_to_string(template_json,unshown_values)
                     template_str+=key+"=[";
                     for(var current_key in element)
                     {
-                        template_str+=current_key+"=\""+element[current_key]+"\",";
+                        template_str+=current_key+"=\""+element[current_key].toString().replace(/"/g,"\\\"")+"\",";
                     }
                     template_str=template_str.substring(0,template_str.length-1);
                     template_str+="]\n";
                }
                else // or a string
                {
-                 template_str=template_str+key+"=\""+ element +"\"\n";
+                 template_str=template_str+key+"=\""+ element.toString().replace(/"/g,"\\\"") +"\"\n";
                }
             })
         }
@@ -1412,14 +1412,14 @@ function convert_template_to_string(template_json,unshown_values)
                     template_str+=key+"=[";
                     for(var current_key in value)
                     {
-                        template_str+=current_key+"=\""+value[current_key]+"\",";
+                        template_str+=current_key+"=\""+value[current_key].toString().replace(/"/g,"\\\"")+"\",";
                     }
                     template_str=template_str.substring(0,template_str.length-1);
                     template_str+="]\n";
                }
                else // or a string
                {
-                  template_str=template_str+key+"=\""+ value+"\"\n";
+                  template_str=template_str+key+"=\""+ value.toString().replace(/"/g,"\\\"")+"\"\n";
                }
         }
     })
