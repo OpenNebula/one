@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONETEMPLATE" "1" "January 2013" "" "onetemplate(1) -- manages OpenNebula templates"
+.TH "ONETEMPLATE" "1" "March 2013" "" "onetemplate(1) -- manages OpenNebula templates"
 .
 .SH "NAME"
 \fBonetemplate\fR
@@ -13,30 +13,32 @@
 .
 .nf
 
- \-\-name name               Name of the new VM or TEMPLATE\. When instantiating
-                           multiple VMs you can use the"%i" wildcard to produce
-                           different names such as vm\-0, vm\-1\.\.\.
+ \-\-name name               Name of the new VM or TEMPLATE\. When
+                           instantiating multiple VMs you can use the "%i"
+                           wildcard to produce different names such as
+                           vm\-0, vm\-1\.\.\.
  \-\-cpu cpu                 CPU percentage reserved for the VM (1=100% one
                            CPU)
  \-\-vcpu vcpu               Number of virtualized CPUs
  \-\-arch arch               Architecture of the VM, e\.g\.: i386 or x86_64
  \-\-memory memory           Memory ammount given to the VM
- \-\-disk disk0,disk1        Disks to attach\. To use a disk owned by other
+ \-\-disk image0,image1      Disks to attach\. To use an image owned by other
                            user use user[disk]
- \-\-network network0,network1 Networks to attach\. To use a network owned by
+ \-\-nic network0,network1   Networks to attach\. To use a network owned by
                            other user use user[network]
  \-\-raw string              Raw string to add to the template\. Not to be
                            confused with the RAW attribute
  \-\-vnc                     Add VNC server to the VM
- \-\-ssh [file]              Add an ssh public key to the context\. If the
-                           file is omited then the user variable
-                           SSH_PUBLIC_KEY will be used\.
+ \-\-ssh [file]              Add an ssh public key to the context\. If the file
+                           is omited then the user variable SSH_PUBLIC_KEY
+                           will be used\.
  \-\-net_context             Add network contextualization parameters
  \-\-context line1,line2,line3 Lines to add to the context section
  \-\-boot device             Select boot device (hd|fd|cdrom|network)
  \-\-dry                     Just print the template
  \-m, \-\-multiple x          Instance multiple VMs
- \-\-hold                    Creates the new VM on hold state instead of pending
+ \-\-hold                    Creates the new VM on hold state instead of
+                           pending
  \-l, \-\-list x,y,z          Selects columns to display with list command
  \-d, \-\-delay x             Sets the delay in seconds for top command
  \-f, \-\-filter x,y,z        Filter data\. An array is specified with
@@ -56,13 +58,11 @@
 .SH "COMMANDS"
 .
 .IP "\(bu" 4
-create [\fIfile\fR]
+create [\fIfile\fR] Creates a new VM Template from the given description
 .
 .IP "" 4
 .
 .nf
-
-Creates a new VM Template from the given description
 
 Examples:
   \- using a VM Template description file:
@@ -71,13 +71,14 @@ Examples:
 
   \- new VM Template named "arch vm" with a disk and a nic:
 
-    onetemplate create \-\-name "arch vm" \-\-memory 128 \-\-cpu 1 \-\-disk arch \e
-                 \-\-network private_lan
+    onetemplate create \-\-name "arch vm" \-\-memory 128 \-\-cpu 1 \e
+                       \-\-disk arch \-\-network private_lan
 
   \- using two disks:
 
-    onetempate create \-\-name "test vm" \-\-memory 128 \-\-cpu 1 \-\-disk arch,data
-valid options: name, cpu, vcpu, arch, memory, disk, network, raw, vnc, ssh, net_context, context, boot, dry
+    onetempate create \-\-name "test vm" \-\-memory 128 \-\-cpu 1 \e
+                      \-\-disk arch,data
+valid options: name, cpu, vcpu, arch, memory, disk, nic, raw, vnc, ssh, net_context, context, boot, dry
 .
 .fi
 .
@@ -85,321 +86,76 @@ valid options: name, cpu, vcpu, arch, memory, disk, network, raw, vnc, ssh, net_
 
 .
 .IP "\(bu" 4
-clone \fItemplateid\fR \fIname\fR
-.
-.IP "" 4
-.
-.nf
-
-Creates a new Template from an existing one
-.
-.fi
-.
-.IP "" 0
-
+clone \fItemplateid\fR \fIname\fR Creates a new Template from an existing one
 .
 .IP "\(bu" 4
-delete \fIrange|templateid_list\fR
-.
-.IP "" 4
-.
-.nf
-
-Deletes the given Image
-.
-.fi
-.
-.IP "" 0
-
+delete \fIrange|templateid_list\fR Deletes the given Image
 .
 .IP "\(bu" 4
-instantiate \fItemplateid\fR
-.
-.IP "" 4
-.
-.nf
-
-Creates a new VM instance from the given Template\. This VM can be
-managed with the \'onevm\' command
-valid options: name, multiple, hold
-.
-.fi
-.
-.IP "" 0
-
+instantiate \fItemplateid\fR [\fIfile\fR] Creates a new VM instance from the given Template\. This VM can be managed with the \'onevm\' command valid options: name, multiple, hold, cpu, vcpu, arch, memory, disk, nic, raw, vnc, ssh, net_context, context, boot
 .
 .IP "\(bu" 4
-publish \fIrange|templateid_list\fR
-.
-.IP "" 4
-.
-.nf
-
-DEPRECATED, use chmod instead\. Publishes the given Template\. A public
-Template can be seen and instantiated by other users in the Template\'s
-group\.
-.
-.fi
-.
-.IP "" 0
-
+publish \fIrange|templateid_list\fR DEPRECATED, use chmod instead\. Publishes the given Template\. A public Template can be seen and instantiated by other users in the Template\'s group\.
 .
 .IP "\(bu" 4
-unpublish \fIrange|templateid_list\fR
-.
-.IP "" 4
-.
-.nf
-
-DEPRECATED, use chmod instead\. Unpublishes the given Template\. A private
-Template can\'t be instantiated by any other user\.
-.
-.fi
-.
-.IP "" 0
-
+unpublish \fIrange|templateid_list\fR DEPRECATED, use chmod instead\. Unpublishes the given Template\. A private Template can\'t be instantiated by any other user\.
 .
 .IP "\(bu" 4
-chgrp \fIrange|templateid_list\fR \fIgroupid\fR
-.
-.IP "" 4
-.
-.nf
-
-Changes the Template group
-.
-.fi
-.
-.IP "" 0
-
+chgrp \fIrange|templateid_list\fR \fIgroupid\fR Changes the Template group
 .
 .IP "\(bu" 4
-chown \fIrange|templateid_list\fR \fIuserid\fR [\fIgroupid\fR]
-.
-.IP "" 4
-.
-.nf
-
-Changes the Template owner and group
-.
-.fi
-.
-.IP "" 0
-
+chown \fIrange|templateid_list\fR \fIuserid\fR [\fIgroupid\fR] Changes the Template owner and group
 .
 .IP "\(bu" 4
-chmod \fIrange|templateid_list\fR \fIoctet\fR
-.
-.IP "" 4
-.
-.nf
-
-Changes the Template permissions
-.
-.fi
-.
-.IP "" 0
-
+chmod \fIrange|templateid_list\fR \fIoctet\fR Changes the Template permissions
 .
 .IP "\(bu" 4
-update \fItemplateid\fR [\fIfile\fR]
-.
-.IP "" 4
-.
-.nf
-
-Update the template contents\. If a path is not provided the editor will
-be launched to modify the current content\.
-.
-.fi
-.
-.IP "" 0
-
+update \fItemplateid\fR [\fIfile\fR] Update the template contents\. If a path is not provided the editor will be launched to modify the current content\.
 .
 .IP "\(bu" 4
-rename \fItemplateid\fR \fIname\fR
-.
-.IP "" 4
-.
-.nf
-
-Renames the Template
-.
-.fi
-.
-.IP "" 0
-
+rename \fItemplateid\fR \fIname\fR Renames the Template
 .
 .IP "\(bu" 4
-list [\fIfilterflag\fR]
-.
-.IP "" 4
-.
-.nf
-
-Lists Templates in the pool
-valid options: list, delay, filter, xml, numeric, describe
-.
-.fi
-.
-.IP "" 0
-
+list [\fIfilterflag\fR] Lists Templates in the pool valid options: list, delay, filter, xml, numeric, describe
 .
 .IP "\(bu" 4
-show \fItemplateid\fR
-.
-.IP "" 4
-.
-.nf
-
-Shows information for the given Template
-valid options: xml
-.
-.fi
-.
-.IP "" 0
-
+show \fItemplateid\fR Shows information for the given Template valid options: xml
 .
 .IP "\(bu" 4
-top [\fIfilterflag\fR]
-.
-.IP "" 4
-.
-.nf
-
-Lists Templates continuously
-valid options: list, delay, filter, xml, numeric, describe
-.
-.fi
-.
-.IP "" 0
-
+top [\fIfilterflag\fR] Lists Templates continuously valid options: list, delay, filter, xml, numeric, describe
 .
 .IP "" 0
 .
 .SH "ARGUMENT FORMATS"
 .
 .IP "\(bu" 4
-file
-.
-.IP "" 4
-.
-.nf
-
-Path to a file
-.
-.fi
-.
-.IP "" 0
-
+file Path to a file
 .
 .IP "\(bu" 4
-range
-.
-.IP "" 4
-.
-.nf
-
-List of id\'s in the form 1,8\.\.15
-.
-.fi
-.
-.IP "" 0
-
+range List of id\'s in the form 1,8\.\.15
 .
 .IP "\(bu" 4
-text
-.
-.IP "" 4
-.
-.nf
-
-String
-.
-.fi
-.
-.IP "" 0
-
+text String
 .
 .IP "\(bu" 4
-groupid
-.
-.IP "" 4
-.
-.nf
-
-OpenNebula GROUP name or id
-.
-.fi
-.
-.IP "" 0
-
+groupid OpenNebula GROUP name or id
 .
 .IP "\(bu" 4
-userid
-.
-.IP "" 4
-.
-.nf
-
-OpenNebula USER name or id
-.
-.fi
-.
-.IP "" 0
-
+userid OpenNebula USER name or id
 .
 .IP "\(bu" 4
-templateid
-.
-.IP "" 4
-.
-.nf
-
-OpenNebula VMTEMPLATE name or id
-.
-.fi
-.
-.IP "" 0
-
+templateid OpenNebula VMTEMPLATE name or id
 .
 .IP "\(bu" 4
-templateid_list
-.
-.IP "" 4
-.
-.nf
-
-Comma\-separated list of OpenNebula VMTEMPLATE names or ids
-.
-.fi
-.
-.IP "" 0
-
+templateid_list Comma\-separated list of OpenNebula VMTEMPLATE names or ids
 .
 .IP "\(bu" 4
-filterflag
-.
-.IP "" 4
-.
-.nf
-
-a, all       all the known VMTEMPLATEs
-m, mine      the VMTEMPLATE belonging to the user in ONE_AUTH
-g, group     \'mine\' plus the VMTEMPLATE belonging to the groups
-             the user is member of
-uid          VMTEMPLATE of the user identified by this uid
-user         VMTEMPLATE of the user identified by the username
-.
-.fi
-.
-.IP "" 0
-
+filterflag a, all all the known VMTEMPLATEs m, mine the VMTEMPLATE belonging to the user in ONE_AUTH g, group \'mine\' plus the VMTEMPLATE belonging to the groups the user is member of uid VMTEMPLATE of the user identified by this uid user VMTEMPLATE of the user identified by the username
 .
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 3\.9\.0 Copyright 2002\-2013, OpenNebula Project (OpenNebula\.org), C12G Labs
+OpenNebula 3\.9\.80 Copyright 2002\-2013, OpenNebula Project (OpenNebula\.org), C12G Labs
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0
