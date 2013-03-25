@@ -1113,7 +1113,7 @@ function generatePlacementTable(vm){
      rank_str         = vm.USER_TEMPLATE.SCHED_RANK;
    }
 
-    var html = '<div class="six columns">\
+    var html = '<div class=""><div class="six columns">\
           <table id="vm_placement_table" class="extended_table twelve">\
                    <thead>\
                      <tr>\
@@ -1131,8 +1131,8 @@ function generatePlacementTable(vm){
                      </tr>\
                    </tbody>\
           </table>\
-          </div>\
-          <div class="six columns">\
+          </div></div>\
+          <div class="twelve columns">\
           <table id="vm_history_table" class="extended_table twelve">\
                    <thead>\
                      <tr>\
