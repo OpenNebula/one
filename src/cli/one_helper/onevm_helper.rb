@@ -72,7 +72,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
     SCHEDULE = {
         :name       => "schedule",
         :large      => "--schedule TIME",
-        :description => "Schedules this action to be executed after the given time",
+        :description => "Schedules this action to be executed after" \
+        "the given time. For example: onevm resume 0 --schedule \"09/23 14:15\"",
         :format     => Time
     }
 
