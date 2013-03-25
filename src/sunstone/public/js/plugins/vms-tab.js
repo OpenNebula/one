@@ -1386,18 +1386,10 @@ function updateVMInfo(request,vm){
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_hotplugging_tab",hotplugging_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_network_tab",network_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_snapshot_tab",snapshot_tab);
-<<<<<<< HEAD
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_placement_tab",placement_tab);
-    Sunstone.updateInfoPanelTab("vm_info_panel","vm_template_tab",template_tab);
-    Sunstone.updateInfoPanelTab("vm_info_panel","vm_log_tab",log_tab);
-    Sunstone.updateInfoPanelTab("vm_info_panel","vm_actions_tab",actions_tab);
-=======
-    Sunstone.updateInfoPanelTab("vm_info_panel","vm_history_tab",history_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_actions_tab",actions_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_template_tab",template_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_log_tab",log_tab);
-    Sunstone.updateInfoPanelTab("vm_info_panel","vm_history_tab",history_tab);
->>>>>>> feature #1664: Fix datepicker in Actions tab
 
     // TODO: re-use pool_monitor data?
 
@@ -1709,13 +1701,7 @@ function fromJSONtoActionRow(scheduling_action){
              <td class="message_row">'+message_str+'</td>\
              <td>\
                <div>\
-<<<<<<< HEAD
-                 <a id="edit_'+scheduling_action.ID+'" class="edit_action_e" href="#"><i class="icon-edit"/></a>\
-                 &nbsp;&nbsp;\
-                 <a id="minus_'+scheduling_action.ID+'" class="remove_action_x" href="#"><i class="icon-trash"/></a>\
-=======
                  <a id="minus_'+scheduling_action.ID+'" class="remove_x" href="#"><i class="icon-trash"/></a>\
->>>>>>> feature #1664: Fix datepicker in Actions tab
                </div>\
              </td>\
            </tr>';
