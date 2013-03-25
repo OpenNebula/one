@@ -983,7 +983,6 @@ function setupCreateVNetDialog() {
     //$('#vn_tabs',dialog).tabs();
     $('div#ranged',dialog).hide();
     $('input[name="fixed_ranged"]',dialog).change(function(){
-      console.log("pepe")
       if (this.id == 'fixed_check') {
         $('div#fixed',$create_vn_dialog).show();
         $('div#ranged',$create_vn_dialog).hide();

@@ -1517,7 +1517,6 @@ function printActionsTable(vm_info)
 
         // Let OpenNebula know
         var template_str = convert_template_to_string(vm_info.USER_TEMPLATE);
-        console.log(template_str)
         Sunstone.runAction("VM.update_actions",vm_info.ID,template_str);
 
         $("#add_scheduling_action").removeAttr("disabled");
@@ -2019,7 +2018,6 @@ function hotpluggingOps(){
     setupAttachDiskDialog();
 
     $('a.detachdisk').live('click', function(){
-      console.log("asdfasd")
         var b = $(this);
         var vm_id = b.parents('form').attr('vmid');
         var disk_id = b.parents('tr').attr('disk_id');
@@ -2457,8 +2455,6 @@ function setupResizeCapacityDialog(){
           "vm_template": data,
           "enforce": (enforce == "on" ? true : false),
         }
-        console.log(enforce)
-        console.log(obj)
 
         Sunstone.runAction('VM.resize', vm_id, obj);
 
@@ -2666,7 +2662,6 @@ function setup_vm_snapshot_tab(){
     setupSaveAsDialog();
 
     $('a.snapshot_revert').live('click', function(){
-      console.log("asdfasd")
         var b = $(this);
         var vm_id = b.parents('form').attr('vmid');
         var snapshot_id = b.parents('tr').attr('snapshot_id');
