@@ -78,6 +78,7 @@ var create_acl_tmpl =
     <small id="create_vnet_header">'+tr("Create ACL")+'</small>\
   </h3>\
 </div>\
+<div class="reveal-body">\
 <form id="create_acl_form" action="">\
         <div class="row">\
           <div class="four columns">\
@@ -141,7 +142,6 @@ var create_acl_tmpl =
                 <input type="checkbox" name="right_use" class="right_cb" value="MANAGE">'+tr("Manage")+'</input>\
                 <input type="checkbox" name="right_manage" class="right_cb" value="ADMIN">'+tr("Administrate")+'</input>\
                 <input type="checkbox" name="right_create" class="right_cb" value="CREATE">'+tr("Create")+'</input>\
-            </div>\
             </fieldset>\
         </div>\
         <div class="row">\
@@ -154,6 +154,7 @@ var create_acl_tmpl =
           <div class="one columns">\
               <div class=""></div>\
           </div>\
+        </div>\
         </div>\
         <hr>\
         <div class="form_buttons">\
@@ -435,7 +436,7 @@ function setupCreateAclDialog(){
     //    width: 650,
     //    height: height
     //});
-    dialog.addClass("reveal-modal");
+    dialog.addClass("reveal-modal large");
 
     //Default selected options
     $('#res_subgroup_all',dialog).attr('checked','checked');

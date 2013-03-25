@@ -1476,6 +1476,7 @@ function printActionsTable(vm_info)
 
         // Let OpenNebula know
         var template_str = convert_template_to_string(vm_info.USER_TEMPLATE);
+        console.log(template_str)
         Sunstone.runAction("VM.update_template",vm_info.ID,template_str);
 
         $("#add_scheduling_action").removeAttr("disabled");

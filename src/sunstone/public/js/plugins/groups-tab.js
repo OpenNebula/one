@@ -125,6 +125,7 @@ var group_quotas_tmpl = '<div class="panel">\
     <small id="create_vnet_header">'+tr("Update Quota")+'</small>\
   </h3>\
 </div>\
+        <div class="reveal-body">\
 <form id="group_quotas_form" action="">\
   <div class="row">\
     <div class="six columns">\
@@ -269,6 +270,7 @@ var group_quotas_tmpl = '<div class="panel">\
          </table>\
       </div>\
     </div>\
+  </div>\
   </div>\
       <hr>\
       <div class="form_buttons">\

@@ -79,6 +79,7 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
       <small id="update_cluster_header">'+tr("Update Cluster")+'</small>\
     </h3>\
   </div>\
+  <div class="reveal-body">\
   <form class="custom">\
   <div class="row centered">\
     <div class="columns eight centered">\
@@ -154,6 +155,7 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
     </ul>\
     <br>\
   </form>\
+  </div>\
     <hr>\
     <div class="form_buttons row">\
         <button class="button success right radius" type="submit" id="create_cluster_submit" value="OpenNebula.Cluster.create">' + tr("Create") + '</button>\

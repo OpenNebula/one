@@ -279,60 +279,6 @@ div.button-bar {
     border-left: 5px solid #555 !important;
 }
 
-//ul.nav-bar {
-//  background: -webkit-linear-gradient(left, #4d4d4d 95%, #000000 100%);
-//  margin-top: 10%;
-//    margin-left: 10%;
-//}
-//
-//ul.nav-bar.vertical {
-//  margin-top: 10%;
-//}
-
-//#navigation li {
-//    color:  #ffffff !important;
-//    cursor: pointer;
-//}
-//
-//#navigation li:hover, .navigation-active-li {
-//    border: none !important;
-//    background: #2ba6cb; /* Old browsers */
-//    background: -moz-linear-gradient(left, #2ba6cb 95%, #4d4d4d 100%); /* FF3.6+ */
-//    background: -webkit-gradient(linear, left top, right top, color-stop(95%,#2ba6cb), color-stop(100%,#4d4d4d)); /* //Chrome,Safari4+ */
-//    background: -webkit-linear-gradient(left, #2ba6cb 95%,#4d4d4d 100%); /* Chrome10+,Safari5.1+ */
-//    background: -o-linear-gradient(left, #2ba6cb 95%,#4d4d4d 100%); /* Opera 11.10+ */
-//    background: -ms-linear-gradient(left, #2ba6cb 95%,#4d4d4d 100%); /* IE10+ */
-//    background: linear-gradient(left, #2ba6cb 95%,#4d4d4d 100%); /* W3C */
-//    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2ba6cb', endColorstr='#4d4d4d',GradientType=1 ); /* IE6-9 //*/;
-//    margin-left: -5% !important;
-//}
-//
-//
-//.navigation-active-li {
-//    font-weight: bold;
-//}
-//
-//#navigation li:hover {
-//    color: #ffffff !important;
-//}
-//
-//.subTab:not(.navigation-active-li) {
-//    margin-left: 5%;
-//    background: #919191; /* Old browsers */
-//    background: -moz-linear-gradient(left, #919191 95%, black 100%); /* FF3.6+ */
-//    background: -webkit-gradient(linear, left top, right top, color-stop(95%,#919191), color-stop(100%,black)); /* //Chrome,Safari4+ */
-//    background: -webkit-linear-gradient(left, #919191 95%,black 100%); /* Chrome10+,Safari5.1+ */
-//    background: -o-linear-gradient(left, #919191 95%,black 100%); /* Opera 11.10+ */
-//    background: -ms-linear-gradient(left, #919191 95%,black 100%); /* IE10+ */
-//    background: linear-gradient(left, #919191 95%,black 100%); /* W3C */
-//    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#919191', endColorstr='black',GradientType=1 ); /* IE6-9 */
-//}
-
-//#navigation li.subsubTab {
-//    padding-left:       25px;
-//}
-//
-
 
 
 /* top menu css */
@@ -535,7 +481,7 @@ table.extended_table tbody tr td {
 .reveal-modal .panel {
     margin-left: -30px;
     margin-right: -30px;
-    margin-bottom: 30px;
+    margin-bottom: 15px;
 }
 
 .reveal-modal.xlarge {
@@ -592,9 +538,6 @@ select {
 
 
 form.creation {
-    max-height: 450px;
-    overflow-y: auto;
-    overflow-x: hidden;
     padding: 5px;
 }
 
@@ -779,4 +722,15 @@ a.footer.button {
     color: #f2f2f2;
     font-weight: bold;
     padding: 20px;
+}
+
+.reveal-modal ul.tabs-content {
+    margin: 0 0 0px;
+}
+
+.reveal-body {
+    max-height: 360px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 5px;
 }

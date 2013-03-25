@@ -81,6 +81,7 @@ var create_datastore_tmpl =
       <small id="create_cluster_header">'+tr("Create Datastore")+'</small>\
     </h3>\
   </div>\
+  <div class="reveal-body">\
   <form id="create_datastore_form" action="" class="creation">\
     <div class="row">\
       <div class="three columns">\
@@ -268,6 +269,7 @@ var create_datastore_tmpl =
       </div>\
     </div>\
   </form>\
+  </div>\
     <hr>\
   <div class="form_buttons">\
       <button class="button radius right success" type="submit" id="create_datastore_submit" value="OpenNebula.Datastore.create">' + tr("Create") + '</button>\

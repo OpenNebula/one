@@ -84,10 +84,12 @@ var create_template_tmpl = '<div class="panel">'+
         '</dl>'+
     '</div>'+
     '<div class="columns nine">'+
+        '<div class="reveal-body">'+
         '<form class="custom creation">'+
             '<ul id="template_create_tabs_content" class="tabs-content">'+
             '</ul>'+
         '</form>'+
+        '</div>'+
     '</div>'+
   '</div>'+
   '<div class="">'+

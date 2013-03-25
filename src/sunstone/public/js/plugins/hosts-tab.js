@@ -94,6 +94,7 @@ var create_host_tmpl =
       <small id="create_cluster_header">'+tr("Create Host")+'</small>\
     </h3>\
   </div>\
+        <div class="reveal-body">\
   <form id="create_host_form" action="" class="">\
   <div class="row">\
       <div class="four columns">\
@@ -189,6 +190,7 @@ var create_host_tmpl =
       <div class="one columns">\
           <div class="tip"></div>\
       </div>\
+    </div>\
     </div>\
     <hr>\
     <div class="form_buttons row">\

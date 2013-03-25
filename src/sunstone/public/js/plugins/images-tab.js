@@ -86,6 +86,7 @@ var create_image_tmpl =
         </dl>\
         <ul class="tabs-content">\
         <li id="img_easyTab" class="active">\
+        <div class="reveal-body">\
            <form id="create_image_form_easy" action="" class="custom creation">\
                   <div class="row vm_param">\
                     <div class="six columns">\
@@ -259,6 +260,7 @@ var create_image_tmpl =
                     </div>\
                   </div>\
                   </div>\
+                  </div>\
                   <hr>\
             </form>\
             <div class="form_buttons">\
@@ -268,12 +270,15 @@ var create_image_tmpl =
             </div>\
         </li>\
         <li id="img_manualTab">\
+        <div class="reveal-body">\
             <form id="create_image_form_manual" action="" class="custom">\
                  <h4><small>'+tr("Write the image template here")+'</small></h4>\
                  <label for="img_datastores_raw">'+tr("Datastore")+':</label>\
                  <select id="img_datastore_raw" name="img_datastore_raw">\
                  </select>\
                  <textarea id="template" rows="15" style="width:100%;"></textarea>\
+                 </div>\
+                 <hr>\
                <div class="form_buttons">\
                  <button class="button success radius right" id="create_image_submit_manual" value="image/create">'+tr("Create")+'</button>\
                  <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\

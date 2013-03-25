@@ -2792,7 +2792,7 @@ ul.flyout li.active a, .nav-bar li ul li.active a {
   position: absolute;
   top: 0;
   left: -20px;
-  background: url('/images/foundation/orbit/rotator-black.png?1363002350') no-repeat;
+  background: url('/images/foundation/orbit/rotator-black.png?1363948066') no-repeat;
   z-index: 3;
 }
 /* line 27, ../../../../../../../.rbenv/versions/1.9.3-p392/lib/ruby/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_orbit.scss */
@@ -2814,7 +2814,7 @@ ul.flyout li.active a, .nav-bar li ul li.active a {
 .orbit-wrapper span.mask.move {
   width: 40px;
   left: 0;
-  background: url('/images/foundation/orbit/timer-black.png?1363002350') repeat 0 0;
+  background: url('/images/foundation/orbit/timer-black.png?1363948066') repeat 0 0;
 }
 /* line 32, ../../../../../../../.rbenv/versions/1.9.3-p392/lib/ruby/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_orbit.scss */
 .orbit-wrapper span.pause {
@@ -2824,13 +2824,13 @@ ul.flyout li.active a, .nav-bar li ul li.active a {
   position: absolute;
   top: 0;
   left: 0;
-  background: url('/images/foundation/orbit/pause-black.png?1363002350') no-repeat;
+  background: url('/images/foundation/orbit/pause-black.png?1363948066') no-repeat;
   z-index: 4;
   opacity: 0;
 }
 /* line 33, ../../../../../../../.rbenv/versions/1.9.3-p392/lib/ruby/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_orbit.scss */
 .orbit-wrapper span.pause.active {
-  background: url('/images/foundation/orbit/pause-black.png?1363002350') no-repeat 0 -40px;
+  background: url('/images/foundation/orbit/pause-black.png?1363948066') no-repeat 0 -40px;
 }
 /* line 35, ../../../../../../../.rbenv/versions/1.9.3-p392/lib/ruby/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_orbit.scss */
 .orbit-wrapper .timer:hover span.pause, .orbit-wrapper .timer:focus span.pause, .orbit-wrapper span.pause.active {
@@ -2877,24 +2877,24 @@ ul.flyout li.active a, .nav-bar li ul li.active a {
 }
 /* line 48, ../../../../../../../.rbenv/versions/1.9.3-p392/lib/ruby/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_orbit.scss */
 .orbit-wrapper .slider-nav span.right {
-  background: url('/images/foundation/orbit/right-arrow.png?1363002350');
+  background: url('/images/foundation/orbit/right-arrow.png?1363948066');
   background-size: 100%;
   right: 0;
 }
 /* line 49, ../../../../../../../.rbenv/versions/1.9.3-p392/lib/ruby/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_orbit.scss */
 .orbit-wrapper .slider-nav span.left {
-  background: url('/images/foundation/orbit/left-arrow.png?1363002350');
+  background: url('/images/foundation/orbit/left-arrow.png?1363948066');
   background-size: 100%;
   left: 0;
 }
 
 /* line 54, ../../../../../../../.rbenv/versions/1.9.3-p392/lib/ruby/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_orbit.scss */
 .lt-ie9 .orbit-wrapper .slider-nav span.right {
-  background: url('/images/foundation/orbit/right-arrow-small.png?1363002350');
+  background: url('/images/foundation/orbit/right-arrow-small.png?1363948066');
 }
 /* line 55, ../../../../../../../.rbenv/versions/1.9.3-p392/lib/ruby/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_orbit.scss */
 .lt-ie9 .orbit-wrapper .slider-nav span.left {
-  background: url('/images/foundation/orbit/left-arrow-small.png?1363002350');
+  background: url('/images/foundation/orbit/left-arrow-small.png?1363948066');
 }
 
 /* Bullet Nav ---------------------- */
@@ -2915,7 +2915,7 @@ ul.orbit-bullets li {
   cursor: pointer;
   color: #999999;
   text-indent: -9999px;
-  background: url('/images/foundation/orbit/bullets.jpg?1363002350') no-repeat 4px 0;
+  background: url('/images/foundation/orbit/bullets.jpg?1363948066') no-repeat 4px 0;
   width: 13px;
   height: 12px;
   overflow: hidden;
@@ -6281,7 +6281,7 @@ div.button-bar {
 }
 
 /* top menu css */
-/* line 339, ../sass/app.scss */
+/* line 285, ../sass/app.scss */
 #menutop_container {
   margin: 0px 171px;
   color: #FFFFFF;
@@ -6289,14 +6289,14 @@ div.button-bar {
   font-weight: bold;
 }
 
-/* line 345, ../sass/app.scss */
+/* line 291, ../sass/app.scss */
 #menutop_navbar {
   float: left;
   height: 25px;
   font-size: 13px;
 }
 
-/* line 350, ../sass/app.scss */
+/* line 296, ../sass/app.scss */
 #menutop_navbar ul {
   float: left;
   height: 25px;
@@ -6305,12 +6305,12 @@ div.button-bar {
   padding-left: 1px;
 }
 
-/* line 357, ../sass/app.scss */
+/* line 303, ../sass/app.scss */
 #menutop_navbar ul {
   background-color: #4d4d4d;
 }
 
-/* line 360, ../sass/app.scss */
+/* line 306, ../sass/app.scss */
 #menutop_navbar ul li {
   float: left;
   min-width: 72px;
@@ -6327,258 +6327,255 @@ div.button-bar {
   color: white;
 }
 
-/* line 376, ../sass/app.scss */
+/* line 322, ../sass/app.scss */
 #menutop_navbar ul li:hover {
   background-color: #ffffff;
 }
 
 /* end top menu css */
-/* line 387, ../sass/app.scss */
+/* line 333, ../sass/app.scss */
 .ui-layout-pane {
   border: none;
 }
 
-/* line 392, ../sass/app.scss */
+/* line 338, ../sass/app.scss */
 .button.small {
   font-size: 12px;
   box-shadow: none;
   height: 28px;
 }
 
-/* line 398, ../sass/app.scss */
+/* line 344, ../sass/app.scss */
 .button {
   box-shadow: none;
 }
 
-/* line 402, ../sass/app.scss */
+/* line 348, ../sass/app.scss */
 .button.tiny {
   box-shadow: none;
 }
 
-/* line 406, ../sass/app.scss */
+/* line 352, ../sass/app.scss */
 .panel {
   padding: 0px;
   background: #f2f2f2;
 }
 
-/* line 411, ../sass/app.scss */
+/* line 357, ../sass/app.scss */
 .tabs.vertical li a {
   padding: 15px 11px;
 }
 
-/* line 415, ../sass/app.scss */
+/* line 361, ../sass/app.scss */
 input[type="text"] {
   height: 28px !important;
 }
 
-/* line 419, ../sass/app.scss */
+/* line 365, ../sass/app.scss */
 .right {
   float: right !important;
 }
 
-/* line 423, ../sass/app.scss */
+/* line 369, ../sass/app.scss */
 .ui-layout-pane {
   background: #fdfdfd;
 }
 
-/* line 430, ../sass/app.scss */
+/* line 376, ../sass/app.scss */
 tr.odd:hover td {
   background-color: #2ba6cb !important;
   cursor: pointer;
   color: #FFF !important;
 }
 
-/* line 436, ../sass/app.scss */
+/* line 382, ../sass/app.scss */
 tr.even:hover td {
   background-color: #2ba6cb !important;
   cursor: pointer;
   color: #FFF !important;
 }
 
-/* line 442, ../sass/app.scss */
+/* line 388, ../sass/app.scss */
 tr {
   border-bottom: 1px solid #e6e6e6;
 }
 
-/* line 448, ../sass/app.scss */
+/* line 394, ../sass/app.scss */
 table thead tr th, table tfoot tr td {
   padding: 5px 10px 5px;
   line-height: 16px;
 }
 
-/* line 453, ../sass/app.scss */
+/* line 399, ../sass/app.scss */
 table {
   border-collapse: collapse;
   border-spacing: 0;
 }
 
 /* Growl */
-/* line 459, ../sass/app.scss */
+/* line 405, ../sass/app.scss */
 .jGrowl-notification h1 {
   font-size: 1.2em;
 }
 
-/* line 463, ../sass/app.scss */
+/* line 409, ../sass/app.scss */
 .jGrowl-notification, .jGrowl-notify-submit {
   border: 2px #444444 solid;
   background-color: #f3f3f3 !important;
   color: #666666;
 }
 
-/* line 469, ../sass/app.scss */
+/* line 415, ../sass/app.scss */
 .jGrowl-notify-error {
   border: 2px #660000 solid;
   background-color: #f39999 !important;
   color: #660000;
 }
 
-/* line 475, ../sass/app.scss */
+/* line 421, ../sass/app.scss */
 .jGrowl-notify-error table td.key_error {
   text-transform: capitalize;
   width: 100%;
   font-weight: bold;
 }
 
-/* line 481, ../sass/app.scss */
+/* line 427, ../sass/app.scss */
 .jGrowl-notify-error table td.key_error:after {
   content: ":";
 }
 
-/* line 488, ../sass/app.scss */
+/* line 434, ../sass/app.scss */
 .markrow {
   background-color: #cdebf5 !important;
 }
 
-/* line 489, ../sass/app.scss */
+/* line 435, ../sass/app.scss */
 .markrowselected {
   background-color: #2ba6cb !important;
   color: #FFF;
 }
 
-/* line 490, ../sass/app.scss */
+/* line 436, ../sass/app.scss */
 .markrowchecked {
   background-color: #cdebf5;
 }
 
-/* line 493, ../sass/app.scss */
+/* line 439, ../sass/app.scss */
 .hidden {
   display: none;
 }
 
-/* line 502, ../sass/app.scss */
+/* line 448, ../sass/app.scss */
 #navigation li.topTab span.plusIcon,
 #navigation li.subTab span.plusIcon {
   display: none;
   float: right;
 }
 
-/* line 507, ../sass/app.scss */
+/* line 453, ../sass/app.scss */
 span.plusIcon {
   color: #d0d0d0;
 }
 
-/* line 511, ../sass/app.scss */
+/* line 457, ../sass/app.scss */
 span.plusIcon:hover {
   color: #555;
 }
 
-/* line 518, ../sass/app.scss */
+/* line 464, ../sass/app.scss */
 table.extended_table tbody tr td {
   padding: 3px 10px;
 }
 
-/* line 525, ../sass/app.scss */
+/* line 471, ../sass/app.scss */
 .reveal-modal {
   top: 50px;
 }
 
-/* line 530, ../sass/app.scss */
+/* line 476, ../sass/app.scss */
 .ui-layout-resizer-open-hover,
 .ui-layout-resizer-dragging {
   background: #EEE;
 }
 
-/* line 535, ../sass/app.scss */
+/* line 481, ../sass/app.scss */
 .reveal-modal .panel {
   margin-left: -30px;
   margin-right: -30px;
-  margin-bottom: 30px;
+  margin-bottom: 15px;
 }
 
-/* line 541, ../sass/app.scss */
+/* line 487, ../sass/app.scss */
 .reveal-modal.xlarge {
   padding-top: 0px;
   width: 80%;
   margin-left: -40%;
 }
 
-/* line 547, ../sass/app.scss */
+/* line 493, ../sass/app.scss */
 .reveal-modal {
   padding-top: 0px;
 }
 
-/* line 551, ../sass/app.scss */
+/* line 497, ../sass/app.scss */
 .reveal-modal h3 {
   margin-left: 30px;
   margin-bottom: 7px !important;
 }
 
-/* line 556, ../sass/app.scss */
+/* line 502, ../sass/app.scss */
 .reveal-modal .close-reveal-modal:not(.button) {
   top: 13px;
 }
 
-/* line 560, ../sass/app.scss */
+/* line 506, ../sass/app.scss */
 .reveal-modal .close-reveal-modal:not(.button):hover {
   color: #222;
 }
 
-/* line 564, ../sass/app.scss */
+/* line 510, ../sass/app.scss */
 fieldset {
   margin: 0px 10px;
 }
 
-/* line 570, ../sass/app.scss */
+/* line 516, ../sass/app.scss */
 .graph_table table {
   border: 0px;
   margin: 0px;
 }
 
-/* line 575, ../sass/app.scss */
+/* line 521, ../sass/app.scss */
 .graph_table table tr {
   border: 0px;
 }
 
-/* line 580, ../sass/app.scss */
+/* line 526, ../sass/app.scss */
 .ui-layout-pane {
   padding: 0px;
   overflow: overlay;
 }
 
-/* line 585, ../sass/app.scss */
+/* line 531, ../sass/app.scss */
 .reveal-modal .columns {
   padding: 0 8px;
 }
 
-/* line 589, ../sass/app.scss */
+/* line 535, ../sass/app.scss */
 select {
   width: auto;
 }
 
-/* line 594, ../sass/app.scss */
+/* line 540, ../sass/app.scss */
 form.creation {
-  max-height: 450px;
-  overflow-y: auto;
-  overflow-x: hidden;
   padding: 5px;
 }
 
-/* line 601, ../sass/app.scss */
+/* line 544, ../sass/app.scss */
 #dialog input {
   margin: 0px;
 }
 
-/* line 606, ../sass/app.scss */
+/* line 549, ../sass/app.scss */
 .progress-container {
   position: relative;
   width: 100%;
@@ -6586,7 +6583,7 @@ form.creation {
   background: #FFF;
 }
 
-/* line 613, ../sass/app.scss */
+/* line 556, ../sass/app.scss */
 .progress {
   position: absolute;
   width: 100%;
@@ -6594,7 +6591,7 @@ form.creation {
   background: #FFF;
 }
 
-/* line 620, ../sass/app.scss */
+/* line 563, ../sass/app.scss */
 .progress-text {
   position: absolute;
   width: 100%;
@@ -6602,53 +6599,53 @@ form.creation {
   color: #000 !important;
 }
 
-/* line 627, ../sass/app.scss */
+/* line 570, ../sass/app.scss */
 .meter {
   background: #cdebf5 !important;
 }
 
-/* line 631, ../sass/app.scss */
+/* line 574, ../sass/app.scss */
 .dashboard .subheader {
   text-align: center;
 }
 
-/* line 635, ../sass/app.scss */
+/* line 578, ../sass/app.scss */
 .dashboard h2.subheader {
   margin-bottom: 0;
   margin-top: 0;
 }
 
-/* line 640, ../sass/app.scss */
+/* line 583, ../sass/app.scss */
 .dashboard h6.subheader {
   margin-top: 0;
 }
 
-/* line 644, ../sass/app.scss */
+/* line 587, ../sass/app.scss */
 .dashboard h3.subheader {
   margin-top: 0;
 }
 
-/* line 648, ../sass/app.scss */
+/* line 591, ../sass/app.scss */
 ul.button-group {
   margin-bottom: 0;
 }
 
-/* line 652, ../sass/app.scss */
+/* line 595, ../sass/app.scss */
 .value_td {
   text-overflow: ellipsis;
 }
 
-/* line 656, ../sass/app.scss */
+/* line 599, ../sass/app.scss */
 small {
   color: #b6b6b6 !important;
 }
 
-/* line 660, ../sass/app.scss */
+/* line 603, ../sass/app.scss */
 .header-dashboard {
   margin-top: -5px;
 }
 
-/* line 664, ../sass/app.scss */
+/* line 607, ../sass/app.scss */
 .span-dashboard {
   background: #fcfcfc;
   color: #6f6f6f;
@@ -6656,42 +6653,42 @@ small {
   box-shadow: 0 0 2px 0px #6f6f6f;
 }
 
-/* line 673, ../sass/app.scss */
+/* line 616, ../sass/app.scss */
 .button.dropdown.small::after {
   border-color: #2f2f2f transparent transparent transparent;
 }
 
-/* line 677, ../sass/app.scss */
+/* line 620, ../sass/app.scss */
 .footer-opennebula {
   font-size: 10px;
   color: #b6b6b6 !important;
 }
 
-/* line 682, ../sass/app.scss */
+/* line 625, ../sass/app.scss */
 a.footer.button {
   margin: 5px;
 }
 
-/* line 687, ../sass/app.scss */
+/* line 630, ../sass/app.scss */
 .user-login {
   float: right;
 }
 
-/* line 691, ../sass/app.scss */
+/* line 634, ../sass/app.scss */
 .user-login i.header-icon {
   color: #6f6f6f;
   font-weight: 300;
   font-size: 23px;
 }
 
-/* line 697, ../sass/app.scss */
+/* line 640, ../sass/app.scss */
 .user-login .button {
   color: #6f6f6f;
   font-size: 60%;
   line-height: 0;
 }
 
-/* line 703, ../sass/app.scss */
+/* line 646, ../sass/app.scss */
 .user-login .button.secondary {
   background: #f2f2f2;
   border: 0px;
@@ -6699,91 +6696,104 @@ a.footer.button {
   font-weight: 300;
 }
 
-/* line 711, ../sass/app.scss */
+/* line 654, ../sass/app.scss */
 .user-login .button.secondary:hover, .user-login .button.secondary:focus {
   background-color: #d0d0d0;
   color: #6f6f6f;
 }
 
-/* line 716, ../sass/app.scss */
+/* line 659, ../sass/app.scss */
 .user-login .button.dropdown.tiny::after {
   border: solid 5px;
   border-color: #b6b6b6 transparent transparent transparent;
   right: 7px;
 }
 
-/* line 722, ../sass/app.scss */
+/* line 665, ../sass/app.scss */
 .header-resource {
   text-align: center;
 }
 
-/* line 726, ../sass/app.scss */
+/* line 669, ../sass/app.scss */
 .header-resource {
   float: left;
 }
 
-/* line 730, ../sass/app.scss */
+/* line 673, ../sass/app.scss */
 .header {
   text-align: center;
 }
 
-/* line 734, ../sass/app.scss */
+/* line 677, ../sass/app.scss */
 .button.dropdown.tiny ul.no-hover.show-dropdown {
   top: 34px !important;
 }
 
-/* line 738, ../sass/app.scss */
+/* line 681, ../sass/app.scss */
 .graph_legend {
   text-align: center;
 }
 
-/* line 742, ../sass/app.scss */
+/* line 685, ../sass/app.scss */
 .graph_legend table {
   background: inherit;
   border: 0px;
   width: 100%;
 }
 
-/* line 748, ../sass/app.scss */
+/* line 691, ../sass/app.scss */
 .graph_legend h3 {
   margin-top: 0px;
 }
 
-/* line 752, ../sass/app.scss */
+/* line 695, ../sass/app.scss */
 .graph_legend .subheader {
   margin-bottom: 5px;
 }
 
-/* line 756, ../sass/app.scss */
+/* line 699, ../sass/app.scss */
 .dashboard hr {
   margin: 0;
   margin-bottom: 8px;
 }
 
-/* line 761, ../sass/app.scss */
+/* line 704, ../sass/app.scss */
 .graph {
   margin-bottom: 15px !important;
 }
 
-/* line 765, ../sass/app.scss */
+/* line 708, ../sass/app.scss */
 .dashboard-panel {
   height: 450px;
 }
 
-/* line 769, ../sass/app.scss */
+/* line 712, ../sass/app.scss */
 .vm_log_error {
   color: #ff8d81;
 }
 
-/* line 773, ../sass/app.scss */
+/* line 716, ../sass/app.scss */
 .noUiSlider {
   margin: 10px;
 }
 
-/* line 777, ../sass/app.scss */
+/* line 720, ../sass/app.scss */
 .log-tab {
   background: #6f6f6f;
   color: #f2f2f2;
   font-weight: bold;
   padding: 20px;
+}
+
+/* line 727, ../sass/app.scss */
+.reveal-modal ul.tabs-content {
+  margin: 0 0 0px;
+}
+
+/* line 731, ../sass/app.scss */
+.reveal-body {
+  max-height: 360px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 5px;
 }

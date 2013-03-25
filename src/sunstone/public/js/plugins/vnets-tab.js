@@ -84,6 +84,7 @@ var create_vn_tmpl =
         </dl>\
         <ul class="tabs-content">\
         <li class="active" id="easyTab">\
+        <div class="reveal-body">\
            <form id="create_vn_form_easy" action="" class="creation">\
             <div class="row">\
               <div class="three columns">\
@@ -322,6 +323,7 @@ var create_vn_tmpl =
               </fieldset>\
             </div>\
         </form>\
+        </div>\
         <hr>\
         <div class="form_buttons">\
           <button class="button success radius right" id="create_vn_submit_easy" value="vn/create">\
@@ -332,10 +334,13 @@ var create_vn_tmpl =
         </div>\
       </li>\
       <li id="manualTab">\
+        <div class="reveal-body">\
         <form id="create_vn_form_manual" action="">\
            <h4><small>'+tr("Write the Virtual Network template here")+'</small></h4>\
                <textarea id="template" rows="15" style="width:100%;"></textarea>\
           </form>\
+          </div>\
+          <hr>\
                 <div class="form_buttons">\
                 <button class="button success right radius" id="create_vn_submit_manual" value="vn/create">\
                    '+tr("Create")+'\
