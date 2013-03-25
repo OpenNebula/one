@@ -1412,13 +1412,13 @@ function printActionsTable(vm_info)
                                 <option value="hold">' + tr("hold") + '</option>\
                                 <option value="release">' + tr("release") + '</option>\
                                 <option value="stop">' + tr("stop") + '</option>\
-                                <option value="cancel">' + tr("cancel") + '</option>\
+                                <option value="shutdown-hard">' + tr("shutdown-hard") + '</option>\
                                 <option value="suspend">' + tr("suspend") + '</option>\
                                 <option value="resume">' + tr("resume") + '</option>\
-                                <option value="restart">' + tr("restart") + '</option>\
-                                <option value="resubmit">' + tr("resubmit") + '</option>\
+                                <option value="boot">' + tr("boot") + '</option>\
+                                <option value="destroy-recreate">' + tr("destroy-recreate") + '</option>\
                                 <option value="reboot">' + tr("reboot") + '</option>\
-                                <option value="reset">' + tr("reset") + '</option>\
+                                <option value="reboot-hard">' + tr("reboot-hard") + '</option>\
                                 <option value="poweroff">' + tr("poweroff") + '</option>\
                                 <option value="snapshot-create">' + tr("snapshot-create") + '</option>\
                               </select>\
