@@ -1701,7 +1701,7 @@ function fromJSONtoActionRow(scheduling_action){
              <td class="message_row">'+message_str+'</td>\
              <td>\
                <div>\
-                 <a id="minus_'+scheduling_action.ID+'" class="remove_x" href="#"><i class="icon-trash"/></a>\
+                 <a id="minus_'+scheduling_action.ID+'" class="remove_action_x" href="#"><i class="icon-trash"/></a>\
                </div>\
              </td>\
            </tr>';
