@@ -639,12 +639,12 @@ function updateImagesView(request, images_list){
 
     var size = humanize_size_from_mb(size_images)
 
-    $("#total_images", $dashboard).text(images_list.length);
+    $("#total_images", $dashboard).text(image_list_array.length);
     $("#size_images", $dashboard).text(size);
 
     var form = $("#image_form");
 
-    $("#total_images", form).text(images_list.length);
+    $("#total_images", form).text(image_list_array.length);
     $("#size_images", form).text(size);
 }
 

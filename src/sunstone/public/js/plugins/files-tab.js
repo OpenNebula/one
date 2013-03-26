@@ -500,12 +500,12 @@ function updateFilesView(request, files_list){
 
     var size = humanize_size_from_mb(size_files)
 
-    $("#total_files", $dashboard).text(files_list.length);
+    $("#total_files", $dashboard).text(file_list_array.length);
     $("#size_files", $dashboard).text(size);
 
     var form = $("#file_form");
 
-    $("#total_files", form).text(files_list.length);
+    $("#total_files", form).text(file_list_array.length);
     $("#size_files", form).text(size);
 }
 
