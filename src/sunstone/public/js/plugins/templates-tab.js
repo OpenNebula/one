@@ -4058,7 +4058,6 @@ function setupInstantiateTemplateDialog(){
     var dialog = $instantiate_vm_template_dialog;
     dialog.html(instantiate_vm_template_tmpl);
 
-
     dialog.addClass("reveal-modal");
 
     setupTips(dialog);
@@ -4067,6 +4066,9 @@ function setupInstantiateTemplateDialog(){
         var vm_name = $('#vm_name',this).val();
         var n_times = $('#vm_n_times',this).val();
         var n_times_int=1;
+
+        var selected_nodes = getSelectedNodes(dataTable_templates);
+        var template_id    = ""+selected_nodes[0];
 
         if (n_times.length){
             n_times_int=parseInt(n_times,10);
