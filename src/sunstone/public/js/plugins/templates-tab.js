@@ -1043,11 +1043,12 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
           var image_list_array = [];
 
           $.each(images_list,function(){
-             image_list_array.push(imageElementArray(this));
+            var image = imageElementArray(this);
+            if (image)
+              image_list_array.push(image);
           });
 
           updateView(image_list_array, dataTable_template_images);
-          dataTable_template_images.fnFilter("OS|DATABLOCK|CDROM", 7, true)
       },
       error: onError
     });
@@ -2029,7 +2030,9 @@ function setupCreateTemplateDialog(){
               var image_list_array = [];
 
               $.each(images_list,function(){
-                 image_list_array.push(imageElementArray(this));
+                var file = fileElementArray(this);
+                if (file)
+                  image_list_array.push(file);
               });
 
               updateView(image_list_array, dataTable_template_kernel);
@@ -2097,7 +2100,9 @@ function setupCreateTemplateDialog(){
               var image_list_array = [];
 
               $.each(images_list,function(){
-                 image_list_array.push(imageElementArray(this));
+                var file = fileElementArray(this);
+                if (file)
+                  image_list_array.push(file);
               });
 
               updateView(image_list_array, datTable_template_initrd);
@@ -2491,7 +2496,9 @@ function setupCreateTemplateDialog(){
       success: function (request, images_list){
           var image_list_array = [];
           $.each(images_list,function(){
-              image_list_array.push(imageElementArray(this));
+            var image = fileElementArray(this);
+            if (image)
+              image_list_array.push(image);
           });
 
           updateView(image_list_array, datTable_template_context);

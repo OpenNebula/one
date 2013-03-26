@@ -47,6 +47,10 @@
     :ALL: true
     :user:
     :group:
+- plugins/files-tab.js:
+    :ALL: true
+    :user:
+    :group:
 - plugins/infra-tab.js:
     :ALL: true
     :user:

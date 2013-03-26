@@ -579,6 +579,11 @@ function imageElementArray(image_json){
     //Changing this? It may affect to the is_persistent() functions.
     var image = image_json.IMAGE;
 
+    // KERNEL || RAMDISK || CONTEXT
+    if (image.TYPE == "3" ||  image.TYPE == "4" || image.TYPE == "5") {
+      return false;
+    }
+
     size_images = size_images + parseInt(image.SIZE);
 
     //add also persistent/non-persistent selects, type select.
@@ -624,7 +629,9 @@ function updateImagesView(request, images_list){
     size_images = 0;
 
     $.each(images_list,function(){
-       image_list_array.push(imageElementArray(this));
+      var image = imageElementArray(this);
+      if (image)
+        image_list_array.push(image);
     });
 
     updateView(image_list_array,dataTable_images);
