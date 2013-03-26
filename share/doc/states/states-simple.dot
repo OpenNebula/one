@@ -21,7 +21,7 @@ digraph OpenNebula {
     subgraph { rank = min; user}
 #    subgraph { rank = same; pending; hold; color="white"}
     subgraph { rank = same; prolog; boot; color="white" }
-    subgraph { rank = same; migrate; save; shutdown; unknown; hotplug; 
+    subgraph { rank = same; migrate; save; shutdown; unknown; hotplug; snapshot;
         color="white" }
     subgraph { rank = max; suspended; done; failure; stopped; poweroff; color="white" }
 
@@ -43,8 +43,8 @@ digraph OpenNebula {
     shutdown    -> poweroff [label="poweroff", style="dashed"];
 
 #   livemigrate
-    running     -> migrate [label="livemigrate"];
-    migrate     -> running [label="livemigrate", style="dashed"];
+    running     -> migrate [label="migrate\n--live"];
+    migrate     -> running [label="migrate\n--live", style="dashed"];
 
 #   migrate
     running     -> save [label="migrate"];
@@ -62,9 +62,6 @@ digraph OpenNebula {
     save        -> epilog [label="stop", style="dashed"];
     epilog      -> stopped [label="stop", style="dashed"];
 
-#   cancel
-    running     -> shutdown [label="cancel"];
-
 #   suspend
     running     -> save [label="suspend"];
     save        -> suspended [label="suspend", style="dashed"];
@@ -74,22 +71,27 @@ digraph OpenNebula {
     suspended   -> boot [label="resume"];
 
 #   delete
-    ANY         -> done [label="delete"];
+    ANY         -> done [label="destroy"];
 
 #   restart
-    unknown     -> boot [label="restart"];
-    boot        -> boot [label="restart"];
-    poweroff    -> boot [label="restart"];
+    unknown     -> boot [label="boot"];
+    boot        -> boot [label="boot"];
+    poweroff    -> boot [label="boot"];
 
-#   reboot, reset
-    running     -> running [label="reboot / reset"];
+#   reboot
+    running     -> running [label="reboot"];
 
-#   attachdisk
-    running     -> hotplug [label="attachdisk / detachdisk"]
+#   disk-attach nic-attach
+#    running     -> hotplug [label="disk / nic -\n attach / detach"]
+    running     -> hotplug [label="disk / nic\nattach"]
     hotplug     -> running [style="dashed"];
 
+#   snapshot
+    running     -> snapshot [label="snapshot-*"]
+    snapshot    -> running [style="dashed"];
+
 #   resubmit
-    "ANY \\ {suspended,done}" -> pending [label="resubmit"];
+    "ANY \\ {suspended,poweroff,done}" -> pending [label="destroy --recreate"];
 
 #   failures and misc.
     ANY         -> failure [style="dotted"];
