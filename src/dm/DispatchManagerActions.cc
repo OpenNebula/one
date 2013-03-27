@@ -210,7 +210,8 @@ error:
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::poweroff (
-    int vid)
+    int vid,
+    bool hard)
 {
     ostringstream       oss;
     VirtualMachine *    vm;
@@ -231,7 +232,14 @@ int DispatchManager::poweroff (
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();
 
-        lcm->trigger(LifeCycleManager::POWEROFF,vid);
+        if (hard)
+        {
+            lcm->trigger(LifeCycleManager::POWEROFF_HARD,vid);
+        }
+        else
+        {
+            lcm->trigger(LifeCycleManager::POWEROFF,vid);
+        }
     }
     else
     {

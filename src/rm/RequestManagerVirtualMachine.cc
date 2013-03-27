@@ -379,7 +379,11 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     }
     else if (action == "poweroff")
     {
-        rc = dm->poweroff(id);
+        rc = dm->poweroff(id, false);
+    }
+    else if (action == "poweroff-hard")
+    {
+        rc = dm->poweroff(id, true);
     }
 
     switch (rc)

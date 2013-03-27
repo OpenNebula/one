@@ -902,7 +902,8 @@ error_driver:
     os << "cancel_action, error getting driver " << vm->get_vmm_mad();
 
 error_common:
-    if ( vm->get_lcm_state() == VirtualMachine::CANCEL ) //not in DELETE
+    if ( vm->get_lcm_state() == VirtualMachine::CANCEL ||
+         vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF ) //not in DELETE
     {
         Nebula              &ne = Nebula::instance();
         LifeCycleManager *  lcm = ne.get_lcm();

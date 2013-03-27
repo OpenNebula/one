@@ -133,11 +133,13 @@ public:
     /**
      *  Powers off a VM.
      *    @param vid VirtualMachine identification
+     *    @param hard True to force the poweroff (cancel instead of shutdown)
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
     int poweroff (
-        int vid);
+        int vid,
+        bool hard);
 
     /**
      *  Holds a VM.
