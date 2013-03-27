@@ -77,6 +77,10 @@ void DispatchManager::trigger(Actions action, int _vid)
         aname = "STOP_SUCCESS";
         break;
 
+    case SHUTDOWN_SAVE_SUCCESS:
+        aname = "SHUTDOWN_SAVE_SUCCESS";
+        break;
+
     case POWEROFF_SUCCESS:
         aname = "POWEROFF_SUCCESS";
         break;
@@ -129,6 +133,10 @@ void DispatchManager::do_action(const string &action, void * arg)
     else if (action == "STOP_SUCCESS")
     {
         stop_success_action(vid);
+    }
+    else if (action == "SHUTDOWN_SAVE_SUCCESS")
+    {
+        shutdown_save_success_action(vid);
     }
     else if (action == "POWEROFF_SUCCESS")
     {

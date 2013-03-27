@@ -514,6 +514,32 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         dm->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
     }
+    else if (vm->get_lcm_state() == VirtualMachine::SHUTDOWN_SAVE)
+    {
+        //----------------------------------------------------
+        //            EPILOG_SHUTDOWN_SAVE STATE
+        //----------------------------------------------------
+
+        vm->set_state(VirtualMachine::EPILOG_SHUTDOWN_SAVE);
+
+        vm->delete_snapshots();
+
+        vmpool->update(vm);
+
+        vm->set_epilog_stime(the_time);
+
+        vm->set_running_etime(the_time);
+
+        vm->set_reason(History::STOP_RESUME);
+
+        vmpool->update_history(vm);
+
+        vm->log("LCM", Log::INFO, "New VM state is EPILOG_SHUTDOWN_SAVE");
+
+        //----------------------------------------------------
+
+        tm->trigger(TransferManager::EPILOG_STOP,vid);
+    }
     else
     {
         vm->log("LCM",Log::ERROR,"shutdown_success_action, VM in a wrong state");
@@ -540,7 +566,8 @@ void  LifeCycleManager::shutdown_failure_action(int vid)
     }
 
     if ( vm->get_lcm_state() == VirtualMachine::SHUTDOWN ||
-         vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF )
+         vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF ||
+         vm->get_lcm_state() == VirtualMachine::SHUTDOWN_SAVE )
     {
         //----------------------------------------------------
         //    RUNNING STATE FROM SHUTDOWN
@@ -734,6 +761,10 @@ void  LifeCycleManager::epilog_success_action(int vid)
     {
         action = DispatchManager::STOP_SUCCESS;
     }
+    else if ( state == VirtualMachine::EPILOG_SHUTDOWN_SAVE )
+    {
+        action = DispatchManager::SHUTDOWN_SAVE_SUCCESS;
+    }
     else if ( state == VirtualMachine::EPILOG )
     {
         action = DispatchManager::DONE;
@@ -834,6 +865,7 @@ void  LifeCycleManager::epilog_failure_action(int vid)
         dm->trigger(DispatchManager::RESUBMIT, vid);
     }
     else if ( vm->get_lcm_state() == VirtualMachine::EPILOG_STOP ||
+              vm->get_lcm_state() == VirtualMachine::EPILOG_SHUTDOWN_SAVE ||
               vm->get_lcm_state() == VirtualMachine::EPILOG )
     {
         vm->set_epilog_etime(the_time);
@@ -893,6 +925,32 @@ void  LifeCycleManager::cancel_success_action(int vid)
 
         tm->trigger(TransferManager::EPILOG,vid);
     }
+    else if (vm->get_lcm_state() == VirtualMachine::SHUTDOWN_SAVE)
+    {
+        //----------------------------------------------------
+        //            EPILOG_SHUTDOWN_SAVE STATE
+        //----------------------------------------------------
+
+        vm->set_state(VirtualMachine::EPILOG_SHUTDOWN_SAVE);
+
+        vm->delete_snapshots();
+
+        vmpool->update(vm);
+
+        vm->set_epilog_stime(the_time);
+
+        vm->set_running_etime(the_time);
+
+        vm->set_reason(History::STOP_RESUME);
+
+        vmpool->update_history(vm);
+
+        vm->log("LCM", Log::INFO, "New VM state is EPILOG_SHUTDOWN_SAVE");
+
+        //----------------------------------------------------
+
+        tm->trigger(TransferManager::EPILOG_STOP,vid);
+    }
     else
     {
         vm->log("LCM",Log::ERROR,"cancel_success_action, VM in a wrong state");
@@ -918,7 +976,8 @@ void  LifeCycleManager::cancel_failure_action(int vid)
         return;
     }
 
-    if ( vm->get_lcm_state() == VirtualMachine::CANCEL )
+    if ( vm->get_lcm_state() == VirtualMachine::CANCEL ||
+         vm->get_lcm_state() == VirtualMachine::SHUTDOWN_SAVE )
     {
         //----------------------------------------------------
         //    RUNNING STATE FROM CANCEL

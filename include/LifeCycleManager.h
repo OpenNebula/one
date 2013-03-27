@@ -84,6 +84,8 @@ public:
         MIGRATE,          /**< Sent by the DM to migrate a VM to other host   */
         LIVE_MIGRATE,     /**< Sent by the DM to live-migrate a VM            */
         SHUTDOWN,         /**< Sent by the DM to shutdown a running VM        */
+        SHUTDOWN_SAVE,      /**< Sent by the DM to shutdown a running VM      */
+        SHUTDOWN_SAVE_HARD, /**< Sent by the DM to shutdown a running VM      */
         POWEROFF,         /**< Sent by the DM to power off a running VM       */
         RESTART,          /**< Sent by the DM to restart a deployed VM        */
         DELETE,           /**< Sent by the DM to delete a VM                  */
@@ -246,6 +248,8 @@ private:
     void live_migrate_action(int vid);
 
     void shutdown_action(int vid);
+
+    void shutdown_save_action(int vid, bool hard);
 
     void poweroff_action(int vid);
 

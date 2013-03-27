@@ -337,6 +337,60 @@ void  LifeCycleManager::shutdown_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void  LifeCycleManager::shutdown_save_action(int vid, bool hard)
+{
+    VirtualMachine *    vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if (vm->get_state()     == VirtualMachine::ACTIVE &&
+        vm->get_lcm_state() == VirtualMachine::RUNNING)
+    {
+        Nebula&                 nd = Nebula::instance();
+        VirtualMachineManager * vmm = nd.get_vmm();
+
+        //----------------------------------------------------
+        //             SHUTDOWN_SAVE STATE
+        //----------------------------------------------------
+
+        vm->set_state(VirtualMachine::SHUTDOWN_SAVE);
+
+        vm->set_resched(false);
+
+        vmpool->update(vm);
+
+        vm->log("LCM",Log::INFO,"New VM state is SHUTDOWN_SAVE");
+
+        //----------------------------------------------------
+
+        if (hard)
+        {
+            vmm->trigger(VirtualMachineManager::CANCEL,vid);
+        }
+        else
+        {
+            vmm->trigger(VirtualMachineManager::SHUTDOWN,vid);
+        }
+    }
+    else
+    {
+        vm->log("LCM", Log::ERROR, "shutdown_save_action, VM in a wrong state.");
+    }
+
+    vm->unlock();
+
+    return;
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void  LifeCycleManager::poweroff_action(int vid)
 {
     VirtualMachine *    vm;
