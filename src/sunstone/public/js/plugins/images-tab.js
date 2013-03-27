@@ -40,7 +40,7 @@ var images_tab_content = '\
     </div>\
   </div>\
   <div class="three columns">\
-    <input id="image_search" type="text" placeholder="Search" />\
+    <input id="image_search" type="text" placeholder="'+tr("Search")+'" />\
   </div>\
 </div>\
 </div>\
@@ -67,12 +67,6 @@ var images_tab_content = '\
   <tbody id="tbodyimages">\
   </tbody>\
 </table>\
-<div class="legend_div">\
-  <span>?</span>\
-<p class="legend_p">\
-'+tr("Size and registration time are hidden colums. Note that persistent images can only be used by 1 VM. To change image datastore, please re-register the image.")+'\
-</p>\
-</div>\
 </form>';
 
 var create_image_tmpl =

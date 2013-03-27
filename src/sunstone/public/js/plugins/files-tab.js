@@ -40,7 +40,7 @@ var files_tab_content = '\
     </div>\
   </div>\
   <div class="three columns">\
-    <input id="file_search" type="text" placeholder="Search" />\
+    <input id="file_search" type="text" placeholder="'+tr("Search")+'" />\
   </div>\
 </div>\
 </div>\
@@ -67,12 +67,6 @@ var files_tab_content = '\
   <tbody id="tbodyfiles">\
   </tbody>\
 </table>\
-<div class="legend_div">\
-  <span>?</span>\
-<p class="legend_p">\
-'+tr("Size and registration time are hidden colums. Note that persistent files can only be used by 1 VM. To change file datastore, please re-register the file.")+'\
-</p>\
-</div>\
 </form>';
 
 var create_file_tmpl =

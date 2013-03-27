@@ -61,7 +61,7 @@ var vms_tab_content = '\
     </div>\
   </div>\
   <div class="three columns">\
-    <input id="vms_search" type="text" placeholder="Search" />\
+    <input id="vms_search" type="text" placeholder="'+tr("Search")+'" />\
   </div>\
 </div>\
 </div>\
@@ -1820,8 +1820,8 @@ function printDisks(vm_info){
                ( //
                 disk.SAVE_AS_ACTIVE == "YES")
                ) {
-              save_as = "in progress";
-              actions = 'deferred snapshot in progress'
+              save_as = tr("in progress");
+              actions = tr('deferred snapshot in progress');
             }
             // Snapshot Hot
             else if (
@@ -1833,7 +1833,7 @@ function printDisks(vm_info){
                 disk.HOTPLUG_SAVE_AS_ACTIVE == "YES")
                ) {
               save_as = (disk.SAVE_AS ? disk.SAVE_AS : '-');
-              actions = 'hot snapshot in progress'
+              actions = tr('hot snapshot in progress');
             }
             // Attach / Detach
             else if (
@@ -1845,7 +1845,7 @@ function printDisks(vm_info){
                 disk.ATTACH = "YES")
                ) {
               save_as = (disk.SAVE_AS ? disk.SAVE_AS : '-');
-              actions = 'attach/detach in progress'
+              actions = tr('attach/detach in progress');
             }
             else {
               save_as = (disk.SAVE_AS ? disk.SAVE_AS : '-');
@@ -1937,9 +1937,9 @@ function setupSaveAsDialog(){
             </select>\
           </div>\
           <div class="one columns">\
-              <div class="tip">Sets the specified VM disk to be saved in a new Image.<br><br>\
-        Deferred: The Image is created immediately, but the contents are saved only if the VM is shut down gracefully (i.e., using Shutdown or Cancel; not Delete)<br><br>\
-        Life: The Image will be saved immediately.</div>\
+              <div class="tip">'+tr("Sets the specified VM disk to be saved in a new Image.")+'<br><br>\
+        '+tr("Deferred: The Image is created immediately, but the contents are saved only if the VM is shut down gracefully (i.e., using Shutdown or Cancel; not Delete)")+'<br><br>\
+        '+tr("Hot: The Image will be saved immediately.")+'</div>\
           </div>\
       </div>\
       <hr>\
@@ -1959,7 +1959,7 @@ function setupSaveAsDialog(){
         var snapshot_type = $('#snapshot_type', this).val();
 
         if (!image_name.length){
-            notifyError('Please provide a name for the new image');
+            notifyError(tr('Please provide a name for the new image'));
             return false;
         }
 

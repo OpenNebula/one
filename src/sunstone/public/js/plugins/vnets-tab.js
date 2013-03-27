@@ -40,7 +40,7 @@ var vnets_tab_content = '\
     </div>\
   </div>\
   <div class="three columns">\
-    <input id="vnet_search" type="text" placeholder="Search" />\
+    <input id="vnet_search" type="text" placeholder="'+tr("Search")+'" />\
   </div>\
 </div>\
 </div>\
@@ -63,12 +63,6 @@ var vnets_tab_content = '\
   <tbody id="tbodyvnetworks">\
   </tbody>\
 </table>\
-<div class="legend_div">\
-  <span>?</span>\
-  <p class="legend_p">\
-'+tr("Tip: edit the leases of a network by clicking on one and going to the lease management tab.")+'\
-  </p>\
-</div>\
 </form>';
 
 var create_vn_tmpl =

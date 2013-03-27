@@ -41,7 +41,7 @@ var acls_tab_content = '\
     </div>\
   </div>\
   <div class="three columns">\
-    <input id="acl_search" type="text" placeholder="Search" />\
+    <input id="acl_search" type="text" placeholder="'+tr("Search")+'" />\
   </div>\
   <br>\
   <br>\
@@ -64,12 +64,6 @@ var acls_tab_content = '\
   <tbody id="tbodyaclss">\
   </tbody>\
 </table>\
-<div class="legend_div">\
-  <span>?</span>\
-  <p class="legend_p">\
-'+tr("This table shows the ACLs rules broken down to easier the reading and meaning of each one. You can show the ACL original string by clicking on Show/Hide columns.")+'\
-  </p>\
-</div>\
 </form>';
 
 var create_acl_tmpl =

@@ -107,7 +107,7 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
             <button id="refresh_host_table_button_class" class="button small radius secondary action_button" value="ClusterHost.list"><i class="icon-refresh" /></button>\
         </div>\
         <div class="five columns">\
-          <input id="cluster_hosts_search" type="text" placeholder="Search"/>\
+          <input id="cluster_hosts_search" type="text" placeholder="'+tr("Search")+'"/>\
         </div>\
       </div>\
       <div id="datatable_cluster_hosts_div">\
@@ -124,7 +124,7 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
             <button id="refresh_vnet_table_button_class" class="button small radius secondary action_button" value="ClusterVN.list"><i class="icon-refresh" /></button>\
         </div>\
         <div class="five columns">\
-          <input id="cluster_vnets_search" type="text" placeholder="Search"/>\
+          <input id="cluster_vnets_search" type="text" placeholder="'+tr("Search")+'"/>\
         </div>\
       </div>\
       <div id="datatable_cluster_vnets_div">\
@@ -141,7 +141,7 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
             <button id="refresh_datastore_table_button_class" class="button small radius secondary action_button" value="ClusterDS.list"><i class="icon-refresh" /></button>\
         </div>\
         <div class="five columns">\
-          <input id="cluster_datastores_search" type="text" placeholder="Search"/>\
+          <input id="cluster_datastores_search" type="text" placeholder="'+tr("Search")+'"/>\
         </div>\
       </div>\
       <div id="datatable_cluster_datastores_div">\
@@ -506,7 +506,7 @@ function popUpUpdateClusterDialog(){
 
     if ( selected_nodes.length != 1 )
     {
-      alert("Please select one (and just one) cluster to update.");
+      notifyError(tr("Please select one (and just one) cluster to update."));
       return false;
     }
 
@@ -877,7 +877,7 @@ var clusters_tab_content = '\
     </div>\
   </div>\
   <div class="three columns">\
-    <input id="cluster_search" type="text" placeholder="Search" />\
+    <input id="cluster_search" type="text" placeholder="'+tr("Search")+'" />\
   </div>\
 </div>\
 </div>\
@@ -1345,8 +1345,6 @@ function updateClustersView (request,list){
 
     updateView(list_array,dataTable_clusters);
     updateClusterSelect();
-    //dependency with the infraestructure dashboard plugin
-    //updateInfraDashboard("clusters",list);
 };
 
 
