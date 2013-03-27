@@ -211,8 +211,8 @@ module OpenNebula
         end
 
         # Powers off a running VM
-        def poweroff
-            action('poweroff')
+        def poweroff(hard=false)
+            action(hard ? 'poweroff-hard' : 'poweroff')
         end
 
         # Reboots an already deployed VM
