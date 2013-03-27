@@ -763,8 +763,11 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
       '</div>'+
       '<hr>'+
         '<div id="disk_type" class="vm_param image">'+
-          '<div class="row collapse ">'+
-            '<div class="five columns push-seven">'+
+          '<div class="row collapse">'+
+            '<div id="refresh_template_images_table_div_class'+str_disk_tab_id+'" class="seven columns">' +
+               '<button id="refresh_template_images_table_button_class'+str_disk_tab_id+'" class="button small radius secondary"><i class="icon-refresh" /></button>' +
+            '</div>' + 
+            '<div class="five columns">'+
               '<input id="'+str_disk_tab_id+'_search" type="text" placeholder="Search"/>'+
             '</div>'+
           '</div>'+
@@ -914,6 +917,27 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
           '</div>'+
       '</div>'+
     '</div>';
+
+    $("#refresh_template_images_table_div_class"+str_disk_tab_id).die();
+
+    $("#refresh_template_images_table_div_class"+str_disk_tab_id).live('click', function(){
+        // Retrieve the images to fill the datatable
+        OpenNebula.Image.list({
+          timeout: true,
+          success: function (request, images_list){
+          var image_list_array = [];
+
+          $.each(images_list,function(){
+           image_list_array.push(imageElementArray(this));
+          });
+          
+          var dataTable_template_images = $("#datatable_template_images" + str_disk_tab_id.substring(4,str_disk_tab_id.length)).dataTable();
+          updateView(image_list_array, dataTable_template_images);
+          dataTable_template_images.fnFilter("OS|DATABLOCK|CDROM", 7, true);
+          }
+        });
+      }
+    );
 
     return html;
 }
@@ -1108,18 +1132,14 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
     });
 
     setupTips(disk_section);
-    //$('button',disk_section).button();
 }
-
-
-
-
-
-
 
 
 function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
   var html = '<div class="row">'+
+    '<div class="seven columns">' +
+       '<button id="refresh_template_nic_table_button_class'+str_nic_tab_id+'" class="button small radius secondary"><i class="icon-refresh" /></button>' +
+    '</div>' + 
     '<div class="five columns push-seven">'+
       '<input id="'+str_nic_tab_id+'_search" type="text" placeholder="Search"/>'+
     '</div>'+
@@ -1755,6 +1775,26 @@ function setupCreateTemplateDialog(){
 
       number_of_nics++;
       nics_index++;
+
+      $("refresh_template_nic_table_button_class"+str_nic_tab_id).die();
+
+      $("refresh_template_nic_table_button_class"+str_nic_tab_id).live('click', function(){
+          // Retrieve the images to fill the datatable
+          OpenNebula.Network.list({
+            timeout: true,
+            success: function (request, images_list){
+            var network_list_array = [];
+
+            $.each(networks_list,function(){
+               network_list_array.push(vNetworkElementArray(this));
+            });
+            
+            var dataTable_template_networks = $("#datatable_template_networks"+str_nic_tab_id.substring(3,str_nic_tab_id.length)).dataTable();
+            updateView(network_list_array, dataTable_template_networks);
+            }
+          });
+        }
+      );
     }
 
 
