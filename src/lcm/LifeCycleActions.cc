@@ -53,6 +53,11 @@ void  LifeCycleManager::deploy_action(int vid)
                 vm_state  = VirtualMachine::PROLOG_RESUME;
                 tm_action = TransferManager::PROLOG_RESUME;
             }
+            else if (vm->get_previous_reason() == History::NONE)
+            {
+                vm_state  = VirtualMachine::PROLOG_SHUTDOWN_SAVE;
+                tm_action = TransferManager::PROLOG_RESUME;
+            }
         }
 
         vm->set_state(vm_state);
@@ -804,6 +809,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
     {
         case VirtualMachine::PROLOG:
         case VirtualMachine::PROLOG_RESUME:
+        case VirtualMachine::PROLOG_SHUTDOWN_SAVE:
             vm->set_prolog_etime(the_time);
             vmpool->update_history(vm);
 

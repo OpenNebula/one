@@ -97,7 +97,8 @@ public:
         HOTPLUG_SAVEAS_POWEROFF  = 27,
         HOTPLUG_SAVEAS_SUSPENDED = 28,
         SHUTDOWN_SAVE           = 29,
-        EPILOG_SHUTDOWN_SAVE    = 30
+        EPILOG_SHUTDOWN_SAVE    = 30,
+        PROLOG_SHUTDOWN_SAVE    = 31
     };
 
     // -------------------------------------------------------------------------

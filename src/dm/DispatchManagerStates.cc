@@ -109,11 +109,9 @@ void  DispatchManager::shutdown_save_success_action(int vid)
         return;
     }
 
-    // TODO: prolog_resume, or new prolog?
-
     if ((vm->get_state() == VirtualMachine::ACTIVE) &&
         (vm->get_lcm_state() == VirtualMachine::EPILOG_SHUTDOWN_SAVE ||
-        vm->get_lcm_state() == VirtualMachine::PROLOG_RESUME))
+         vm->get_lcm_state() == VirtualMachine::PROLOG_SHUTDOWN_SAVE))
     {
         vm->set_state(VirtualMachine::SHUTDOWN_SAVED);
 

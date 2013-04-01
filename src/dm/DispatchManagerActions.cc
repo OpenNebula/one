@@ -550,7 +550,8 @@ int DispatchManager::resume(
     oss << "Resuming VM " << vid;
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
-    if (vm->get_state() == VirtualMachine::STOPPED )
+    if (vm->get_state() == VirtualMachine::STOPPED ||
+        vm->get_state() == VirtualMachine::SHUTDOWN_SAVED )
     {
         vm->set_state(VirtualMachine::PENDING);
 

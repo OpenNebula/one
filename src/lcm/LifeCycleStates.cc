@@ -530,7 +530,7 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         vm->set_running_etime(the_time);
 
-        vm->set_reason(History::STOP_RESUME);
+        vm->set_reason(History::NONE);
 
         vmpool->update_history(vm);
 
@@ -615,7 +615,8 @@ void  LifeCycleManager::prolog_success_action(int vid)
 
     lcm_state = vm->get_lcm_state();
 
-    if (lcm_state == VirtualMachine::PROLOG)
+    if (lcm_state == VirtualMachine::PROLOG ||
+        lcm_state == VirtualMachine::PROLOG_SHUTDOWN_SAVE )
     {
         action = VirtualMachineManager::DEPLOY;
     }
@@ -722,6 +723,39 @@ void  LifeCycleManager::prolog_failure_action(int vid)
         //----------------------------------------------------
 
         dm->trigger(DispatchManager::STOP_SUCCESS,vid);
+    }
+    else if ( state == VirtualMachine::PROLOG_SHUTDOWN_SAVE )
+    {
+        //----------------------------------------------------
+        //    SHUTDOWN_SAVE STATE FROM PROLOG_RESUME
+        //----------------------------------------------------
+
+        Nebula&             nd = Nebula::instance();
+        DispatchManager *   dm = nd.get_dm();
+
+        int                 cpu,mem,disk;
+
+        vm->set_prolog_etime(the_time);
+
+        vm->set_resched(false);
+
+        vmpool->update(vm);
+
+        vm->set_etime(the_time);
+
+        vm->set_vm_info();
+
+        vm->set_reason(History::NONE);
+
+        vmpool->update_history(vm);
+
+        vm->get_requirements(cpu,mem,disk);
+
+        hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+
+        //----------------------------------------------------
+
+        dm->trigger(DispatchManager::SHUTDOWN_SAVE_SUCCESS,vid);
     }
     else
     {
@@ -941,7 +975,7 @@ void  LifeCycleManager::cancel_success_action(int vid)
 
         vm->set_running_etime(the_time);
 
-        vm->set_reason(History::STOP_RESUME);
+        vm->set_reason(History::NONE);
 
         vmpool->update_history(vm);
 
