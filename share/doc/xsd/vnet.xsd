@@ -50,8 +50,11 @@
               <xs:element name="LEASE" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                   <xs:sequence>
-                    <xs:element name="IP" type="xs:string"/>
                     <xs:element name="MAC" type="xs:string"/>
+                    <xs:element name="IP" type="xs:string"/>
+                    <xs:element name="IP6_LINK" type="xs:string"/>
+                    <xs:element name="IP6_SITE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="IP6_GLOBAL" type="xs:string" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="USED" type="xs:integer"/>
                     <xs:element name="VID" type="xs:integer"/>
                   </xs:sequence>
