@@ -24,7 +24,13 @@ usage() {
  echo "-h: prints this help"
 }
 
-TEMP_OPT=`getopt -o hlu:g:d: -n 'install.sh' -- "$@"`
+PARAMETERS="hlu:g:d:"
+
+if [ $(getopt --version | tr -d " ") = "--" ]; then
+    TEMP_OPT=`getopt $PARAMETERS "$@"`
+else
+    TEMP_OPT=`getopt -o $PARAMETERS -n 'install.sh' -- "$@"`
+fi
 
 if [ $? != 0 ] ; then
     usage
