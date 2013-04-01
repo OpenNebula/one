@@ -6,6 +6,7 @@
       <xs:sequence>
         <xs:element name="ID" type="xs:integer"/>
         <xs:element name="NAME" type="xs:string"/>
+        <xs:element name="SYSTEM_DS" type="xs:integer"/>
         <xs:element name="HOSTS">
               <xs:complexType>
                 <xs:sequence>
