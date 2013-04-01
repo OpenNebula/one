@@ -47,14 +47,15 @@ module OpenNebula
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
-            POWEROFF}
+            POWEROFF SHUTDOWN_SAVED}
 
         LCM_STATE=%w{LCM_INIT PROLOG BOOT RUNNING MIGRATE SAVE_STOP SAVE_SUSPEND
             SAVE_MIGRATE PROLOG_MIGRATE PROLOG_RESUME EPILOG_STOP EPILOG
             SHUTDOWN CANCEL FAILURE CLEANUP_RESUBMIT UNKNOWN HOTPLUG SHUTDOWN_POWEROFF
             BOOT_UNKNOWN BOOT_POWEROFF BOOT_SUSPENDED BOOT_STOPPED CLEANUP_DELETE
             HOTPLUG_SNAPSHOT HOTPLUG_NIC HOTPLUG_SAVEAS HOTPLUG_SAVEAS_POWEROFF
-            HOTPLUG_SAVEAS_SUSPENDED}
+            HOTPLUG_SAVEAS_SUSPENDED SHUTDOWN_SAVE EPILOG_SHUTDOWN_SAVE
+            PROLOG_SHUTDOWN_SAVE}
 
         SHORT_VM_STATES={
             "INIT"      => "init",
@@ -65,7 +66,8 @@ module OpenNebula
             "SUSPENDED" => "susp",
             "DONE"      => "done",
             "FAILED"    => "fail",
-            "POWEROFF"  => "poff"
+            "POWEROFF"  => "poff",
+            "SHUTDOWN_SAVED"  => "shut"
         }
 
         SHORT_LCM_STATES={
@@ -96,7 +98,10 @@ module OpenNebula
             "HOTPLUG_NIC"       => "hotp",
             "HOTPLUG_SAVEAS"           => "hotp",
             "HOTPLUG_SAVEAS_POWEROFF"  => "hotp",
-            "HOTPLUG_SAVEAS_SUSPENDED" => "hotp"
+            "HOTPLUG_SAVEAS_SUSPENDED" => "hotp",
+            "SHUTDOWN_SAVE"            => "shut",
+            "EPILOG_SHUTDOWN_SAVE"     => "epil",
+            "PROLOG_SHUTDOWN_SAVE"     => "prol"
         }
 
         MIGRATE_REASON=%w{NONE ERROR STOP_RESUME USER CANCEL}
@@ -209,6 +214,12 @@ module OpenNebula
         def shutdown(hard=false)
             action(hard ? 'shutdown-hard' : 'shutdown')
         end
+
+        # Shutdowns an already deployed VM
+        def shutdown_save(hard=false)
+            action(hard ? 'shutdown-save-hard' : 'shutdown-save')
+        end
+
 
         # Powers off a running VM
         def poweroff
