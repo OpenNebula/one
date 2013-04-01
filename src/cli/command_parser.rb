@@ -56,6 +56,7 @@ module CommandParser
         def initialize(args=[], &block)
             @available_options = Array.new
             @commands = Hash.new
+            @command_list = Array.new
             @formats = Hash.new
 
             @main = nil
@@ -288,6 +289,7 @@ module CommandParser
                 end
             }
             cmd[:proc] = block
+            @command_list << name.to_sym
             @commands[name.to_sym] = cmd
         end
 
@@ -617,7 +619,9 @@ module CommandParser
             puts "## OPTIONS"
 
             shown_opts = Array.new
-            @commands.each do |key,value|
+            @command_list.each do |key|
+                value = @commands[key]
+
                 value[:options].flatten.each do |o|
                     if shown_opts.include?(o[:name])
                         next
@@ -659,11 +663,12 @@ module CommandParser
             else
                 puts "## COMMANDS"
 
-                @commands.each{ |key,value|
+                @command_list.each do |key|
+                    value = @commands[key]
                     printf cmd_format5, "* #{key} "
 
                     print_command(value)
-                }
+                end
             end
         end
 
