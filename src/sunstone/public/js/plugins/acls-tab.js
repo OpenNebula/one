@@ -72,8 +72,8 @@ var create_acl_tmpl =
     <small id="create_vnet_header">'+tr("Create ACL")+'</small>\
   </h3>\
 </div>\
-<div class="reveal-body">\
 <form id="create_acl_form" action="">\
+<div class="reveal-body">\
         <div class="row">\
           <div class="four columns">\
               <label class="inline right" for="applies">'+tr("This rule applies to")+':</label>\
