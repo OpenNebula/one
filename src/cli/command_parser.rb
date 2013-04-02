@@ -293,6 +293,20 @@ module CommandParser
             @commands[name.to_sym] = cmd
         end
 
+        def deprecated_command(name, new_command)
+            cmd = Hash.new
+            cmd[:desc] = "Deprecated, use #{new_command} instead"
+            cmd[:arity] = 0
+            cmd[:options] = []
+            cmd[:args_format] = [[:string, nil]] * 20
+            cmd[:deprecated] = new_command
+            cmd[:proc] = lambda do
+                print_deprecated(new_command)
+            end
+
+            @commands[name.to_sym] = cmd
+        end
+
         # Defines a new action for the command, several actions can be defined
         # for a command. For example: create, delete, list.
         # The options and args variables can be used inside the block, and
@@ -418,6 +432,10 @@ module CommandParser
             if comm.nil?
                 print_help
                 exit -1
+            end
+
+            if comm[:deprecated]
+                print_deprecated(comm[:deprecated])
             end
 
             extra_options = comm[:options] if comm
@@ -716,6 +734,12 @@ module CommandParser
 
                 puts
             }
+        end
+
+        def print_deprecated(new_command)
+            puts "This command is deprecated, use instead:"
+            puts "  $ #{File.basename $0} #{new_command}"
+            exit(-1)
         end
 
         def word_wrap(size, text, first_size=nil)
