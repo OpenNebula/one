@@ -782,3 +782,8 @@ div.time-picker li.selected {
 .columns {
     line-height: 2;
 }
+
+.transparent_table, .transparent_table tr {
+    background: none !important;
+    border: 0px !important;
+}

@@ -273,7 +273,7 @@ function notifyMessage(msg){
 function prettyPrintJSON(template_json,padding,weight, border_bottom,padding_top_bottom){
     var str = ""
     if (!template_json){ return "Not defined";}
-    if (!padding) {padding=0};
+    if (!padding) {padding=10};
     if (!weight) {weight="bold";}
     if (!border_bottom) {border_bottom = "1px solid #CCCCCC";}
     if (!padding_top_bottom) {padding_top_bottom=6;}

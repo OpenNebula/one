@@ -6854,3 +6854,9 @@ div.time-picker li.selected {
 .columns {
   line-height: 2;
 }
+
+/* line 786, ../sass/app.scss */
+.transparent_table, .transparent_table tr {
+  background: none !important;
+  border: 0px !important;
+}

@@ -751,7 +751,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
         '</div>'+
       '</div>'+
       '<hr>'+
-        '<div id="disk_type" class="vm_param image">'+
+        '<div id="disk_type" class="image">'+
           '<div class="row collapse ">'+
             '<div class="five columns push-seven">'+
               '<input id="'+str_disk_tab_id+'_search" type="text" placeholder="'+tr("Search")+'"/>'+
@@ -1376,10 +1376,13 @@ function updateTemplateInfo(request,template){
     };
     var template_tab = {
         title: tr("Template"),
-        content: '<table id="template_template_table" class="info_table" style="width:80%">\
-        <thead><tr><th colspan="2">'+tr("Template")+'</th></tr></thead>'+
-        prettyPrintJSON(template_info.TEMPLATE)+
-        '</table>'
+        content: '<div class="">\
+         <div class="eight columns">\
+          <table id="template_template_table" class="transparent_table twelve">'+
+            prettyPrintJSON(template_info.TEMPLATE)+'\
+          </table>\
+         </div>\
+        </div>'
     };
 
     $("#div_edit_rename_link").die();
@@ -1515,42 +1518,49 @@ function setupCreateTemplateDialog(){
     var removeEmptyObjects = function(obj){
         for (elem in obj){
             var remove = false;
-            var value = obj[elem];
-            if (value instanceof Array)
-            {
-                if (value.length == 0)
-                    remove = true;
-                else if (value.length > 0)
-                {
-                  value = jQuery.grep(value, function (n) {
-                    var obj_length = 0;
-                    for (e in n)
-                        obj_length += 1;
 
-                    if (obj_length == 0)
-                        return false;
-
-                    return true;
-                   });
-
+            if (elem == 'undefined') {
+              remove = true;
+            }
+            else {
+              var value = obj[elem];
+              if (value instanceof Array)
+              {
                   if (value.length == 0)
-                    remove = true;
-                }
+                      remove = true;
+                  else if (value.length > 0)
+                  {
+                    value = jQuery.grep(value, function (n) {
+                      var obj_length = 0;
+                      for (e in n)
+                          obj_length += 1;
+
+                      if (obj_length == 0)
+                          return false;
+
+                      return true;
+                     });
+
+                    if (value.length == 0)
+                      remove = true;
+                  }
+              }
+              else if (value instanceof Object)
+              {
+                  var obj_length = 0;
+                  for (e in value)
+                      obj_length += 1;
+                  if (obj_length == 0)
+                      remove = true;
+              }
+              else
+              {
+                  value = String(value);
+                  if (value.length == 0)
+                      remove = true;
+              }
             }
-            else if (value instanceof Object)
-            {
-                var obj_length = 0;
-                for (e in value)
-                    obj_length += 1;
-                if (obj_length == 0)
-                    remove = true;
-            }
-            else
-            {
-                value = String(value);
-                if (value.length == 0)
-                    remove = true;
-            }
+            
             if (remove)
                 delete obj[elem];
         }
@@ -2324,37 +2334,45 @@ function setupCreateTemplateDialog(){
                         '<fieldset>'+
                           '<legend>'+tr("SSH")+'</legend>'+
                           '<div class="row">'+
-                            '<div class="columns eight centered">'+
-                                '<label for="ssh_context"><input type="checkbox" name="ssh_context" id="ssh_context"> '+ tr("  Add SSH contextualization")+'</label>'+
+                            '<div class="columns one">'+
+                                '<input type="checkbox" name="ssh_context" id="ssh_context"  checked>'+
+                            '</div>'+
+                            '<div class="columns ten">'+
+                                '<label class="inline" for="ssh_context">'+ tr("  Add SSH contextualization")+'</label>'+
+                            '</div>'+
+                            '<div class="columns one">'+
+                                '<div class="tip">'+tr("Add an ssh public key to the context. If the Public Key textarea is empty then the user variable SSH_PUBLIC_KEY will be used.")+'</div>'+
                             '</div>'+
                           '</div>'+
-                          '<br>'+
                           '<div class="row">'+
-                            '<div class="four columns">'+
-                                '<label class="right inline" for="ssh_puclic_key"> '+tr("Public Key")+':</label>'+
+                            '<div class="ten columns">'+
+                                '<label for="ssh_puclic_key"> '+tr("Public Key")+':</label>'+
                             '</div>'+
-                            '<div class="six columns">'+
-                              '<input type="text" id="ssh_puclic_key" name="ssh_puclic_key" />'+
-                            '</div>'+
-                            '<div class="two columns">'+
-                            '</div>'+
+                          '</div>'+
+                          '<div class="row">'+
+                            '<textarea rows="4" type="text" id="ssh_puclic_key" name="ssh_puclic_key" />'+
                           '</div>'+
                         '</fieldset>'+
                     '</div>'+
                     '<div class="six columns">'+
                         '<fieldset>'+
                             '<legend>'+tr("Network")+'</legend>'+
-                          '<div class="row">'+
-                            '<div class="columns nine centered">'+
-                              '<label for="network_context"><input type="checkbox" name="network_context" id="network_context">'+ tr("  Add Network contextualization")+'</label>'+
+                            '<div class="row">'+
+                              '<div class="columns one">'+
+                                  '<input type="checkbox" name="network_context" id="network_context" checked>'+
+                              '</div>'+
+                              '<div class="columns ten">'+
+                                  '<label class="inline" for="network_context">'+ tr("  Add Network contextualization")+'</label>'+
+                              '</div>'+
+                              '<div class="columns one">'+
+                                  '<div class="tip">'+tr("Add network contextualization parameters. For each NIC defined in the NETWORK section, ETH%i_IP, ETH%i_NETWORK... parameters will be included in the CONTEXT section and will be available in the Virtual Machine")+'</div>'+
+                              '</div>'+
                             '</div>'+
-                          '</div>'+
-                          '<br>'+
                         '</fieldset>'+
                     '</div>'+
                   '</div>'+
                     '</li>'+
-                '<li class="wizard_internal_tab vm_param" id="filesTab">'+
+                '<li class="wizard_internal_tab" id="filesTab">'+
                         '<div class="row collapse ">'+
                           '<div class="five columns push-seven">'+
                             '<input id="files_search" type="text" placeholder="'+tr("Search")+'"/>'+
@@ -3044,7 +3062,7 @@ function setupCreateTemplateDialog(){
     var build_template = function(){
         var vm_json = {};
         var name,value,boot_method;
-
+console.log(vm_json)
         //
         // CAPACITY
         //
@@ -3055,13 +3073,14 @@ function setupCreateTemplateDialog(){
 //            return false;
 //        };
         addSectionJSON(vm_json,$('li#capacityTab',dialog));
-
+console.log(vm_json)
         //
         // OS
         //
 
         vm_json["OS"] = {};
         addSectionJSON(vm_json["OS"],$('li#osTab',dialog));
+console.log(vm_json)
 
         //
         // DISK
@@ -3074,6 +3093,7 @@ function setupCreateTemplateDialog(){
           addSectionJSON(hash, this);
           vm_json["DISK"].push(hash);
         });
+console.log(vm_json)
 
         //
         // NIC
@@ -3103,6 +3123,7 @@ function setupCreateTemplateDialog(){
               vm_json["NIC"].push(hash);
           }
         });
+console.log(vm_json)
 
         //
         // GRAPHICS
@@ -3111,6 +3132,7 @@ function setupCreateTemplateDialog(){
         vm_json["GRAPHICS"] = {};
         addSectionJSON(vm_json["GRAPHICS"],$('li#ioTab .graphics',dialog));
 
+console.log(vm_json)
         //
         // INPUT
         //
@@ -3124,6 +3146,7 @@ function setupCreateTemplateDialog(){
             vm_json["INPUT"].push(hash);
           }
         });
+console.log(vm_json)
 
         //
         // CONTEXT
@@ -3135,6 +3158,7 @@ function setupCreateTemplateDialog(){
             vm_json["CONTEXT"][$('#KEY', $(this)).val()] = $('#VALUE', $(this)).val()
           }
         });
+console.log(vm_json)
 
         if ($("#ssh_context", $('li#contextTab')).is(":checked")) {
           var public_key = $("#ssh_puclic_key", $('li#contextTab')).val();
@@ -3145,6 +3169,7 @@ function setupCreateTemplateDialog(){
             vm_json["CONTEXT"]["SSH_PUBLIC_KEY"] = '$USER[SSH_PUBLIC_KEY]';
           }
         };
+console.log(vm_json)
 
         if ($("#network_context", $('li#contextTab')).is(":checked")) {
           var nic_id = 0;
@@ -3164,14 +3189,17 @@ function setupCreateTemplateDialog(){
           });
         };
 
+console.log(vm_json)
         addSectionJSON(vm_json["CONTEXT"],$('li#contextTab',dialog));
 
+console.log(vm_json)
         //
         // PLACEMENT
         //
 
         addSectionJSON(vm_json,$('li#schedulingTab',dialog));
 
+console.log(vm_json)
         // remove empty elements
         vm_json = removeEmptyObjects(vm_json);
         return vm_json;
