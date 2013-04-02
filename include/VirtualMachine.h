@@ -59,7 +59,7 @@ public:
         DONE      = 6,
         FAILED    = 7,
         POWEROFF  = 8,
-        SHUTDOWN_SAVED = 9
+        UNDEPLOYED = 9
     };
 
     /**
@@ -96,9 +96,9 @@ public:
         HOTPLUG_SAVEAS           = 26,
         HOTPLUG_SAVEAS_POWEROFF  = 27,
         HOTPLUG_SAVEAS_SUSPENDED = 28,
-        SHUTDOWN_SAVE           = 29,
-        EPILOG_SHUTDOWN_SAVE    = 30,
-        PROLOG_SHUTDOWN_SAVE    = 31
+        UNDEPLOYING         = 29,
+        EPILOG_UNDEPLOY     = 30,
+        PROLOG_UNDEPLOY     = 31
     };
 
     // -------------------------------------------------------------------------

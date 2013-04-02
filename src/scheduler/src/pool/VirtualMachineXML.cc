@@ -296,8 +296,8 @@ int VirtualMachineXML::parse_action_name(string& action_st)
 
     if (   action_st != "shutdown"
         && action_st != "shutdown-hard"
-        && action_st != "shutdown-save"
-        && action_st != "shutdown-save-hard"
+        && action_st != "undeploy"
+        && action_st != "undeploy-hard"
         && action_st != "hold"
         && action_st != "release"
         && action_st != "stop"

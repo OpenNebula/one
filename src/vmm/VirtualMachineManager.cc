@@ -903,7 +903,7 @@ error_driver:
 
 error_common:
     if ( vm->get_lcm_state() == VirtualMachine::CANCEL ||
-         vm->get_lcm_state() == VirtualMachine::SHUTDOWN_SAVE ) //not in DELETE
+         vm->get_lcm_state() == VirtualMachine::UNDEPLOYING ) //not in DELETE
     {
         Nebula              &ne = Nebula::instance();
         LifeCycleManager *  lcm = ne.get_lcm();

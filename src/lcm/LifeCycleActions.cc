@@ -55,7 +55,7 @@ void  LifeCycleManager::deploy_action(int vid)
             }
             else if (vm->get_previous_reason() == History::NONE)
             {
-                vm_state  = VirtualMachine::PROLOG_SHUTDOWN_SAVE;
+                vm_state  = VirtualMachine::PROLOG_UNDEPLOY;
                 tm_action = TransferManager::PROLOG_RESUME;
             }
         }
@@ -342,7 +342,7 @@ void  LifeCycleManager::shutdown_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::shutdown_save_action(int vid, bool hard)
+void  LifeCycleManager::undeploy_action(int vid, bool hard)
 {
     VirtualMachine *    vm;
 
@@ -360,16 +360,16 @@ void  LifeCycleManager::shutdown_save_action(int vid, bool hard)
         VirtualMachineManager * vmm = nd.get_vmm();
 
         //----------------------------------------------------
-        //             SHUTDOWN_SAVE STATE
+        //             UNDEPLOYING STATE
         //----------------------------------------------------
 
-        vm->set_state(VirtualMachine::SHUTDOWN_SAVE);
+        vm->set_state(VirtualMachine::UNDEPLOYING);
 
         vm->set_resched(false);
 
         vmpool->update(vm);
 
-        vm->log("LCM",Log::INFO,"New VM state is SHUTDOWN_SAVE");
+        vm->log("LCM",Log::INFO,"New VM state is UNDEPLOYING");
 
         //----------------------------------------------------
 
@@ -384,7 +384,7 @@ void  LifeCycleManager::shutdown_save_action(int vid, bool hard)
     }
     else
     {
-        vm->log("LCM", Log::ERROR, "shutdown_save_action, VM in a wrong state.");
+        vm->log("LCM", Log::ERROR, "undeploy_action, VM in a wrong state.");
     }
 
     vm->unlock();
@@ -809,7 +809,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
     {
         case VirtualMachine::PROLOG:
         case VirtualMachine::PROLOG_RESUME:
-        case VirtualMachine::PROLOG_SHUTDOWN_SAVE:
+        case VirtualMachine::PROLOG_UNDEPLOY:
             vm->set_prolog_etime(the_time);
             vmpool->update_history(vm);
 

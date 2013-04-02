@@ -209,7 +209,7 @@ error:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int DispatchManager::shutdown_save(
+int DispatchManager::undeploy(
     int vid,
     bool hard)
 {
@@ -234,11 +234,11 @@ int DispatchManager::shutdown_save(
 
         if (hard)
         {
-            lcm->trigger(LifeCycleManager::SHUTDOWN_SAVE_HARD,vid);
+            lcm->trigger(LifeCycleManager::UNDEPLOY_HARD,vid);
         }
         else
         {
-            lcm->trigger(LifeCycleManager::SHUTDOWN_SAVE,vid);
+            lcm->trigger(LifeCycleManager::UNDEPLOY,vid);
         }
     }
     else
@@ -551,7 +551,7 @@ int DispatchManager::resume(
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
     if (vm->get_state() == VirtualMachine::STOPPED ||
-        vm->get_state() == VirtualMachine::SHUTDOWN_SAVED )
+        vm->get_state() == VirtualMachine::UNDEPLOYED )
     {
         vm->set_state(VirtualMachine::PENDING);
 
@@ -858,7 +858,7 @@ int DispatchManager::finalize(
         break;
 
         case VirtualMachine::STOPPED:
-        case VirtualMachine::SHUTDOWN_SAVED:
+        case VirtualMachine::UNDEPLOYED:
             tm->trigger(TransferManager::EPILOG_DELETE_STOP,vid);
             finalize_cleanup(vm);
         break;
@@ -933,7 +933,7 @@ int DispatchManager::resubmit(int vid)
 
         case VirtualMachine::HOLD: // Move the VM to PENDING in any of these
         case VirtualMachine::STOPPED:
-        case VirtualMachine::SHUTDOWN_SAVED:
+        case VirtualMachine::UNDEPLOYED:
             vm->set_state(VirtualMachine::LCM_INIT);
             vm->set_state(VirtualMachine::PENDING);
 

@@ -98,7 +98,7 @@ void  DispatchManager::stop_success_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  DispatchManager::shutdown_save_success_action(int vid)
+void  DispatchManager::undeploy_success_action(int vid)
 {
     VirtualMachine *    vm;
 
@@ -110,22 +110,22 @@ void  DispatchManager::shutdown_save_success_action(int vid)
     }
 
     if ((vm->get_state() == VirtualMachine::ACTIVE) &&
-        (vm->get_lcm_state() == VirtualMachine::EPILOG_SHUTDOWN_SAVE ||
-         vm->get_lcm_state() == VirtualMachine::PROLOG_SHUTDOWN_SAVE))
+        (vm->get_lcm_state() == VirtualMachine::EPILOG_UNDEPLOY ||
+         vm->get_lcm_state() == VirtualMachine::PROLOG_UNDEPLOY))
     {
-        vm->set_state(VirtualMachine::SHUTDOWN_SAVED);
+        vm->set_state(VirtualMachine::UNDEPLOYED);
 
         vm->set_state(VirtualMachine::LCM_INIT);
 
         vmpool->update(vm);
 
-        vm->log("DiM", Log::INFO, "New VM state is SHUTDOWN_SAVED");
+        vm->log("DiM", Log::INFO, "New VM state is UNDEPLOYED");
     }
     else
     {
         ostringstream oss;
 
-        oss << "shutdown_save_success action received but VM " << vid
+        oss << "undeploy_success action received but VM " << vid
             << " not in ACTIVE state";
         NebulaLog::log("DiM",Log::ERROR,oss);
     }

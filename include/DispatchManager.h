@@ -46,7 +46,7 @@ public:
     {
         SUSPEND_SUCCESS,/**< Send by LCM when a VM is suspended*/
         STOP_SUCCESS,   /**< Send by LCM when a VM is stopped*/
-        SHUTDOWN_SAVE_SUCCESS,  /**< Send by LCM when a VM is shut down and saved*/
+        UNDEPLOY_SUCCESS,  /**< Send by LCM when a VM is undeployed and saved*/
         POWEROFF_SUCCESS, /**< Send by LCM when a VM is powered off */
         DONE,           /**< Send by LCM when a VM is shut down*/
         FAILED,         /**< Send by LCM when one of the execution steps fails*/
@@ -138,7 +138,7 @@ public:
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
-    int shutdown_save(
+    int undeploy (
         int vid,
         bool hard);
 
@@ -408,7 +408,7 @@ private:
 
     void  stop_success_action(int vid);
 
-    void  shutdown_save_success_action(int vid);
+    void  undeploy_success_action(int vid);
 
     void  poweroff_success_action(int vid);
 

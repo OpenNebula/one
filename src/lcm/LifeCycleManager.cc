@@ -232,12 +232,12 @@ void LifeCycleManager::trigger(Actions action, int _vid)
         aname = "SHUTDOWN";
         break;
 
-    case SHUTDOWN_SAVE:
-        aname = "SHUTDOWN_SAVE";
+    case UNDEPLOY:
+        aname = "UNDEPLOY";
         break;
 
-    case SHUTDOWN_SAVE_HARD:
-        aname = "SHUTDOWN_SAVE_HARD";
+    case UNDEPLOY_HARD:
+        aname = "UNDEPLOY_HARD";
         break;
 
     case RESTART:
@@ -449,13 +449,13 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     {
         shutdown_action(vid);
     }
-    else if (action == "SHUTDOWN_SAVE")
+    else if (action == "UNDEPLOY")
     {
-        shutdown_save_action(vid, false);
+        undeploy_action(vid, false);
     }
-    else if (action == "SHUTDOWN_SAVE_HARD")
+    else if (action == "UNDEPLOY_HARD")
     {
-        shutdown_save_action(vid, true);
+        undeploy_action(vid, true);
     }
     else if (action == "RESTART")
     {

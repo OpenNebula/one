@@ -381,13 +381,13 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     {
         rc = dm->poweroff(id);
     }
-    else if (action == "shutdown-save")
+    else if (action == "undeploy")
     {
-        rc = dm->shutdown_save(id, false);
+        rc = dm->undeploy(id, false);
     }
-    else if (action == "shutdown-save-hard")
+    else if (action == "undeploy-hard")
     {
-        rc = dm->shutdown_save(id, true);
+        rc = dm->undeploy(id, true);
     }
 
     switch (rc)
@@ -1254,7 +1254,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         case VirtualMachine::PENDING:
         case VirtualMachine::HOLD:
         case VirtualMachine::FAILED:
-        case VirtualMachine::SHUTDOWN_SAVED:
+        case VirtualMachine::UNDEPLOYED:
         break;
 
         case VirtualMachine::STOPPED:
@@ -1432,7 +1432,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         case VirtualMachine::HOLD:
         case VirtualMachine::FAILED:
         case VirtualMachine::POWEROFF:
-        case VirtualMachine::SHUTDOWN_SAVED:
+        case VirtualMachine::UNDEPLOYED:
             ret = vm->resize(ncpu, nmemory, nvcpu, error_str);
 
             if (ret != 0)
