@@ -746,4 +746,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             vm.resize(template, enforce)
         end
     end
+
+    # Deprecated commands
+
+    deprecated_command(:attachdisk, 'disk-attach')
+    deprecated_command(:detachdisk, 'disk-detach')
+    deprecated_command(:saveas, 'disk-snapshot')
+    deprecated_command(:livemigrate, 'migrate --live')
+    deprecated_command(:cancel, 'shutdown --hard')
+    deprecated_command(:reset, 'reboot --hard')
+    deprecated_command(:restart, 'boot')
+    deprecated_command(:delete, 'destroy')
+    deprecated_command(:resubmit, 'destroy --recreate')
 end
