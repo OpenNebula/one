@@ -517,13 +517,13 @@ function generate_capacity_tab_content() {
     '</div>'+
     '<hr>'+
     '<br>'+
-    '<div class="row vm_param">'+
+    '<div class="row">'+
         '<div class="two columns">'+
           '<label class="inline right" for="CPU">'+tr("CPU")+':</label>'+
         '</div>'+
         '<div id="cpu_slider" class="seven columns">'+
         '</div>'+
-        '<div class="one columns">'+
+        '<div class="one columns vm_param">'+
           '<input type="text" id="CPU" name="cpu" size="2"/>'+
         '</div>'+
         '<div class="one right columns">'+
@@ -556,13 +556,13 @@ function generate_capacity_tab_content() {
          '<h4><small><i class=" icon-plus-sign-alt"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
     '</div>'+
     '<div class="advanced">'+
-      '<div class="row vm_param">'+
+      '<div class="row">'+
           '<div class="two columns">'+
             '<label class="inline right" for="VCPU">'+tr("VCPU")+':</label>'+
           '</div>'+
           '<div id="vcpu_slider" class="seven columns">'+
           '</div>'+
-          '<div class="one  columns">'+
+          '<div class="one  columns vm_param">'+
             '<input type="text" id="VCPU" name="vcpu" size="3" />'+
           '</div>'+
           '<div class="one right columns">'+
@@ -751,7 +751,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
         '</div>'+
       '</div>'+
       '<hr>'+
-        '<div id="disk_type" class="image">'+
+        '<div id="disk_type" class="image vm_param">'+
           '<div class="row collapse ">'+
             '<div class="five columns push-seven">'+
               '<input id="'+str_disk_tab_id+'_search" type="text" placeholder="'+tr("Search")+'"/>'+
@@ -852,13 +852,13 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
                 '</div>'+
               '</div>'+
             '</div>'+
-            '<div class="row vm_param">'+
+            '<div class="row">'+
                 '<div class="two columns">'+
                   '<label class="inline right" for="SIZE">'+tr("SIZE")+':</label>'+
                 '</div>'+
                 '<div id="size_slider" class="five columns">'+
                 '</div>'+
-                '<div class="two columns">'+
+                '<div class="two columns vm_param">'+
                   '<input type="text" id="SIZE" name="size"/>'+
                 '</div>'+
                 '<div class="two columns">'+
@@ -1225,15 +1225,19 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
     '</div>'+
       '<div class="row">'+
         '<div class="six columns">'+
+      '<fieldset>'+
+        '<legend>'+tr("ICMP")+'</legend>'+
           '<div class="row">'+
-            '<div class="four columns">'+
+            '<div class="one columns">'+
+              '<input type="checkbox" name="icmp_type" value="ICMP" id="icmp_type">'+
             '</div>'+
-            '<div class="six columns">'+
-              '<label for="icmp_type"><input type="checkbox" name="icmp_type" value="ICMP" id="icmp_type"> '+ tr("Drop ICMP")+'</label>'+
+            '<div class="nine columns">'+
+              '<label for="icmp_type">'+ tr("Drop")+'</label>'+
             '</div>'+
             '<div class="two columns">'+
             '</div>'+
           '</div>'+
+      '</fieldset>'+
         '</div>'+
       '</div>'+
     '</div>';
@@ -1518,47 +1522,41 @@ function setupCreateTemplateDialog(){
     var removeEmptyObjects = function(obj){
         for (elem in obj){
             var remove = false;
+            var value = obj[elem];
+            if (value instanceof Array)
+            {
+                if (value.length == 0)
+                    remove = true;
+                else if (value.length > 0)
+                {
+                  value = jQuery.grep(value, function (n) {
+                    var obj_length = 0;
+                    for (e in n)
+                        obj_length += 1;
 
-            if (elem == 'undefined') {
-              remove = true;
+                    if (obj_length == 0)
+                        return false;
+
+                    return true;
+                   });
+
+                  if (value.length == 0)
+                    remove = true;
+                }
             }
-            else {
-              var value = obj[elem];
-              if (value instanceof Array)
-              {
-                  if (value.length == 0)
-                      remove = true;
-                  else if (value.length > 0)
-                  {
-                    value = jQuery.grep(value, function (n) {
-                      var obj_length = 0;
-                      for (e in n)
-                          obj_length += 1;
-
-                      if (obj_length == 0)
-                          return false;
-
-                      return true;
-                     });
-
-                    if (value.length == 0)
-                      remove = true;
-                  }
-              }
-              else if (value instanceof Object)
-              {
-                  var obj_length = 0;
-                  for (e in value)
-                      obj_length += 1;
-                  if (obj_length == 0)
-                      remove = true;
-              }
-              else
-              {
-                  value = String(value);
-                  if (value.length == 0)
-                      remove = true;
-              }
+            else if (value instanceof Object)
+            {
+                var obj_length = 0;
+                for (e in value)
+                    obj_length += 1;
+                if (obj_length == 0)
+                    remove = true;
+            }
+            else
+            {
+                value = String(value);
+                if (value.length == 0)
+                    remove = true;
             }
             
             if (remove)
@@ -3062,7 +3060,6 @@ function setupCreateTemplateDialog(){
     var build_template = function(){
         var vm_json = {};
         var name,value,boot_method;
-console.log(vm_json)
         //
         // CAPACITY
         //
@@ -3073,14 +3070,12 @@ console.log(vm_json)
 //            return false;
 //        };
         addSectionJSON(vm_json,$('li#capacityTab',dialog));
-console.log(vm_json)
         //
         // OS
         //
 
         vm_json["OS"] = {};
         addSectionJSON(vm_json["OS"],$('li#osTab',dialog));
-console.log(vm_json)
 
         //
         // DISK
@@ -3093,7 +3088,6 @@ console.log(vm_json)
           addSectionJSON(hash, this);
           vm_json["DISK"].push(hash);
         });
-console.log(vm_json)
 
         //
         // NIC
@@ -3123,7 +3117,6 @@ console.log(vm_json)
               vm_json["NIC"].push(hash);
           }
         });
-console.log(vm_json)
 
         //
         // GRAPHICS
@@ -3132,7 +3125,6 @@ console.log(vm_json)
         vm_json["GRAPHICS"] = {};
         addSectionJSON(vm_json["GRAPHICS"],$('li#ioTab .graphics',dialog));
 
-console.log(vm_json)
         //
         // INPUT
         //
@@ -3146,7 +3138,6 @@ console.log(vm_json)
             vm_json["INPUT"].push(hash);
           }
         });
-console.log(vm_json)
 
         //
         // CONTEXT
@@ -3158,7 +3149,6 @@ console.log(vm_json)
             vm_json["CONTEXT"][$('#KEY', $(this)).val()] = $('#VALUE', $(this)).val()
           }
         });
-console.log(vm_json)
 
         if ($("#ssh_context", $('li#contextTab')).is(":checked")) {
           var public_key = $("#ssh_puclic_key", $('li#contextTab')).val();
@@ -3169,7 +3159,6 @@ console.log(vm_json)
             vm_json["CONTEXT"]["SSH_PUBLIC_KEY"] = '$USER[SSH_PUBLIC_KEY]';
           }
         };
-console.log(vm_json)
 
         if ($("#network_context", $('li#contextTab')).is(":checked")) {
           var nic_id = 0;
@@ -3189,17 +3178,14 @@ console.log(vm_json)
           });
         };
 
-console.log(vm_json)
         addSectionJSON(vm_json["CONTEXT"],$('li#contextTab',dialog));
 
-console.log(vm_json)
         //
         // PLACEMENT
         //
 
         addSectionJSON(vm_json,$('li#schedulingTab',dialog));
 
-console.log(vm_json)
         // remove empty elements
         vm_json = removeEmptyObjects(vm_json);
         return vm_json;
