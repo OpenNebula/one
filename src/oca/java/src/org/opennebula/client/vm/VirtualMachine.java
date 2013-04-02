@@ -58,7 +58,8 @@ public class VirtualMachine extends PoolElement{
         "SUSPENDED",
         "DONE",
         "FAILED",
-        "POWEROFF" };
+        "POWEROFF",
+        "UNDEPLOYED" };
 
     private static final String[] SHORT_VM_STATES =
     {
@@ -70,7 +71,8 @@ public class VirtualMachine extends PoolElement{
         "susp",
         "done",
         "fail",
-        "poff" };
+        "poff",
+        "unde" };
 
     private static final String[] LCM_STATE =
     {
@@ -102,7 +104,10 @@ public class VirtualMachine extends PoolElement{
         "HOTPLUG_NIC",
         "HOTPLUG_SAVEAS",
         "HOTPLUG_SAVEAS_POWEROFF",
-        "HOTPLUG_SAVEAS_SUSPENDED" };
+        "HOTPLUG_SAVEAS_SUSPENDED",
+        "SHUTDOWN_UNDEPLOY",
+        "EPILOG_UNDEPLOY",
+        "PROLOG_UNDEPLOY" };
 
     private static final String[] SHORT_LCM_STATES =
     {
@@ -501,12 +506,13 @@ public class VirtualMachine extends PoolElement{
      * <li>{@link VirtualMachine#poweroff()}</li>
      * <li>{@link VirtualMachine#resched()}</li>
      * <li>{@link VirtualMachine#unresched()}</li>
+     * <li>{@link VirtualMachine#undeploy(boolean)}</li>
      * </ul>
      *
      * @param action The action name to be performed, can be:<br/>
      * "shutdown", "hold", "release", "stop", "shutdown-hard", "suspend",
      * "resume", "boot", "destroy", "destroy-recreate", "reboot", "resched",
-     * "unresched", "reboot-hard", "poweroff"
+     * "unresched", "reboot-hard", "poweroff", "undeploy", "undeploy-hard"
      * @return If an error occurs the error message contains the reason.
      */
     protected OneResponse action(String action)
@@ -828,6 +834,19 @@ public class VirtualMachine extends PoolElement{
     public OneResponse shutdown(boolean hard)
     {
         String actionSt = hard ? "shutdown-hard" : "shutdown";
+
+        return action(actionSt);
+    }
+
+    /**
+     * Undeploy a running VM, it preserve its resources and disk modifications.
+     * @param hard True to perform a hard (no acpi) shutdown, false for a
+     * graceful shutdown
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse undeploy(boolean hard)
+    {
+        String actionSt = hard ? "undeploy-hard" : "undeploy";
 
         return action(actionSt);
     }

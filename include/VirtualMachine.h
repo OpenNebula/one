@@ -96,7 +96,7 @@ public:
         HOTPLUG_SAVEAS           = 26,
         HOTPLUG_SAVEAS_POWEROFF  = 27,
         HOTPLUG_SAVEAS_SUSPENDED = 28,
-        UNDEPLOYING         = 29,
+        SHUTDOWN_UNDEPLOY   = 29,
         EPILOG_UNDEPLOY     = 30,
         PROLOG_UNDEPLOY     = 31
     };

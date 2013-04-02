@@ -360,16 +360,16 @@ void  LifeCycleManager::undeploy_action(int vid, bool hard)
         VirtualMachineManager * vmm = nd.get_vmm();
 
         //----------------------------------------------------
-        //             UNDEPLOYING STATE
+        //             SHUTDOWN_UNDEPLOY STATE
         //----------------------------------------------------
 
-        vm->set_state(VirtualMachine::UNDEPLOYING);
+        vm->set_state(VirtualMachine::SHUTDOWN_UNDEPLOY);
 
         vm->set_resched(false);
 
         vmpool->update(vm);
 
-        vm->log("LCM",Log::INFO,"New VM state is UNDEPLOYING");
+        vm->log("LCM",Log::INFO,"New VM state is SHUTDOWN_UNDEPLOY");
 
         //----------------------------------------------------
 

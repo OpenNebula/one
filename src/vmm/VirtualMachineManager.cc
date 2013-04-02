@@ -901,15 +901,11 @@ error_driver:
     os.str("");
     os << "cancel_action, error getting driver " << vm->get_vmm_mad();
 
-error_common:
-    if ( vm->get_lcm_state() == VirtualMachine::CANCEL ||
-         vm->get_lcm_state() == VirtualMachine::UNDEPLOYING ) //not in DELETE
-    {
-        Nebula              &ne = Nebula::instance();
-        LifeCycleManager *  lcm = ne.get_lcm();
+error_common://LifeCycleManager::cancel_failure_action will check state
+    Nebula              &ne = Nebula::instance();
+    LifeCycleManager *  lcm = ne.get_lcm();
 
-        lcm->trigger(LifeCycleManager::CANCEL_FAILURE, vid);
-    }
+    lcm->trigger(LifeCycleManager::CANCEL_FAILURE, vid);
 
     vm->log("VMM", Log::ERROR, os);
     vm->unlock();

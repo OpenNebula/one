@@ -54,7 +54,7 @@ module OpenNebula
             SHUTDOWN CANCEL FAILURE CLEANUP_RESUBMIT UNKNOWN HOTPLUG SHUTDOWN_POWEROFF
             BOOT_UNKNOWN BOOT_POWEROFF BOOT_SUSPENDED BOOT_STOPPED CLEANUP_DELETE
             HOTPLUG_SNAPSHOT HOTPLUG_NIC HOTPLUG_SAVEAS HOTPLUG_SAVEAS_POWEROFF
-            HOTPLUG_SAVEAS_SUSPENDED UNDEPLOYING EPILOG_UNDEPLOY PROLOG_UNDEPLOY}
+            HOTPLUG_SAVEAS_SUSPENDED SHUTDOWN_UNDEPLOY EPILOG_UNDEPLOY PROLOG_UNDEPLOY}
 
         SHORT_VM_STATES={
             "INIT"      => "init",
@@ -66,7 +66,7 @@ module OpenNebula
             "DONE"      => "done",
             "FAILED"    => "fail",
             "POWEROFF"  => "poff",
-            "UNDEPLOYING"  => "unde"
+            "UNDEPLOYED"=> "unde"
         }
 
         SHORT_LCM_STATES={
@@ -98,7 +98,7 @@ module OpenNebula
             "HOTPLUG_SAVEAS"           => "hotp",
             "HOTPLUG_SAVEAS_POWEROFF"  => "hotp",
             "HOTPLUG_SAVEAS_SUSPENDED" => "hotp",
-            "UNDEPLOYING"       => "unde",
+            "SHUTDOWN_UNDEPLOY" => "shut",
             "EPILOG_UNDEPLOY"   => "epil",
             "PROLOG_UNDEPLOY"   => "prol"
         }

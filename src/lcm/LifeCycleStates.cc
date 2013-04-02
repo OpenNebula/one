@@ -514,7 +514,7 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         dm->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
     }
-    else if (vm->get_lcm_state() == VirtualMachine::UNDEPLOYING)
+    else if (vm->get_lcm_state() == VirtualMachine::SHUTDOWN_UNDEPLOY)
     {
         //----------------------------------------------------
         //            EPILOG_UNDEPLOY STATE
@@ -567,7 +567,7 @@ void  LifeCycleManager::shutdown_failure_action(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::SHUTDOWN ||
          vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF ||
-         vm->get_lcm_state() == VirtualMachine::UNDEPLOYING )
+         vm->get_lcm_state() == VirtualMachine::SHUTDOWN_UNDEPLOY )
     {
         //----------------------------------------------------
         //    RUNNING STATE FROM SHUTDOWN
@@ -959,7 +959,7 @@ void  LifeCycleManager::cancel_success_action(int vid)
 
         tm->trigger(TransferManager::EPILOG,vid);
     }
-    else if (vm->get_lcm_state() == VirtualMachine::UNDEPLOYING)
+    else if (vm->get_lcm_state() == VirtualMachine::SHUTDOWN_UNDEPLOY)
     {
         //----------------------------------------------------
         //            EPILOG_UNDEPLOY STATE
@@ -1011,7 +1011,7 @@ void  LifeCycleManager::cancel_failure_action(int vid)
     }
 
     if ( vm->get_lcm_state() == VirtualMachine::CANCEL ||
-         vm->get_lcm_state() == VirtualMachine::UNDEPLOYING )
+         vm->get_lcm_state() == VirtualMachine::SHUTDOWN_UNDEPLOY )
     {
         //----------------------------------------------------
         //    RUNNING STATE FROM CANCEL
