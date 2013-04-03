@@ -319,6 +319,29 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    undeploy_desc = <<-EOT.unindent
+        Shuts down the given VM. The VM is saved in the system Datastore.
+
+        With --hard it unplugs the VM.
+
+        States: RUNNING
+    EOT
+
+    command :undeploy, undeploy_desc, [:range,:vmid_list],
+        :options => [OneVMHelper::SCHEDULE, OneVMHelper::HARD] do
+
+        command_name='undeploy'
+        command_name<<'-hard' if options[:hard]
+
+        if (!options[:schedule].nil?)
+            helper.schedule_actions(args[0], options, command_name)
+        else
+            helper.perform_actions(args[0],options,"shutting down") do |vm|
+                vm.undeploy(options[:hard]==true)
+            end
+        end
+    end
+
     poweroff_desc = <<-EOT.unindent
         Powers off the given VM. The VM will remain in the poweroff state, and
         can be powered on with the 'onevm boot' command.

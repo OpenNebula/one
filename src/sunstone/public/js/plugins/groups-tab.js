@@ -61,7 +61,7 @@ var groups_tab_content = '\
     </div>\
   </div>\
   <div class="three columns">\
-    <input id="group_search" type="text" placeholder="Search" />\
+    <input id="group_search" type="text" placeholder="'+tr("Search")+'" />\
   </div>\
   <br>\
   <br>\
@@ -84,12 +84,6 @@ var groups_tab_content = '\
   <tbody id="tbodygroups">\
   </tbody>\
 </table>\
-<div class="legend_div">\
-  <span>?</span>\
-<p class="legend_p">\
-'+tr("Tip: Refresh the list if it only shows user ids in the Users column.")+'\
-</p>\
-</div>\
 </form>';
 
 var create_group_tmpl =

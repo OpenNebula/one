@@ -514,6 +514,32 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         dm->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
     }
+    else if (vm->get_lcm_state() == VirtualMachine::SHUTDOWN_UNDEPLOY)
+    {
+        //----------------------------------------------------
+        //            EPILOG_UNDEPLOY STATE
+        //----------------------------------------------------
+
+        vm->set_state(VirtualMachine::EPILOG_UNDEPLOY);
+
+        vm->delete_snapshots();
+
+        vmpool->update(vm);
+
+        vm->set_epilog_stime(the_time);
+
+        vm->set_running_etime(the_time);
+
+        vm->set_reason(History::NONE);
+
+        vmpool->update_history(vm);
+
+        vm->log("LCM", Log::INFO, "New VM state is EPILOG_UNDEPLOY");
+
+        //----------------------------------------------------
+
+        tm->trigger(TransferManager::EPILOG_STOP,vid);
+    }
     else
     {
         vm->log("LCM",Log::ERROR,"shutdown_success_action, VM in a wrong state");
@@ -540,7 +566,8 @@ void  LifeCycleManager::shutdown_failure_action(int vid)
     }
 
     if ( vm->get_lcm_state() == VirtualMachine::SHUTDOWN ||
-         vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF )
+         vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF ||
+         vm->get_lcm_state() == VirtualMachine::SHUTDOWN_UNDEPLOY )
     {
         //----------------------------------------------------
         //    RUNNING STATE FROM SHUTDOWN
@@ -588,7 +615,8 @@ void  LifeCycleManager::prolog_success_action(int vid)
 
     lcm_state = vm->get_lcm_state();
 
-    if (lcm_state == VirtualMachine::PROLOG)
+    if (lcm_state == VirtualMachine::PROLOG ||
+        lcm_state == VirtualMachine::PROLOG_UNDEPLOY )
     {
         action = VirtualMachineManager::DEPLOY;
     }
@@ -696,6 +724,39 @@ void  LifeCycleManager::prolog_failure_action(int vid)
 
         dm->trigger(DispatchManager::STOP_SUCCESS,vid);
     }
+    else if ( state == VirtualMachine::PROLOG_UNDEPLOY )
+    {
+        //----------------------------------------------------
+        //    UNDEPLOY STATE FROM PROLOG_UNDEPLOY
+        //----------------------------------------------------
+
+        Nebula&             nd = Nebula::instance();
+        DispatchManager *   dm = nd.get_dm();
+
+        int                 cpu,mem,disk;
+
+        vm->set_prolog_etime(the_time);
+
+        vm->set_resched(false);
+
+        vmpool->update(vm);
+
+        vm->set_etime(the_time);
+
+        vm->set_vm_info();
+
+        vm->set_reason(History::NONE);
+
+        vmpool->update_history(vm);
+
+        vm->get_requirements(cpu,mem,disk);
+
+        hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+
+        //----------------------------------------------------
+
+        dm->trigger(DispatchManager::UNDEPLOY_SUCCESS,vid);
+    }
     else
     {
         vm->log("LCM",Log::ERROR,"prolog_failure_action, VM in a wrong state");
@@ -733,6 +794,10 @@ void  LifeCycleManager::epilog_success_action(int vid)
     if ( state == VirtualMachine::EPILOG_STOP )
     {
         action = DispatchManager::STOP_SUCCESS;
+    }
+    else if ( state == VirtualMachine::EPILOG_UNDEPLOY )
+    {
+        action = DispatchManager::UNDEPLOY_SUCCESS;
     }
     else if ( state == VirtualMachine::EPILOG )
     {
@@ -834,6 +899,7 @@ void  LifeCycleManager::epilog_failure_action(int vid)
         dm->trigger(DispatchManager::RESUBMIT, vid);
     }
     else if ( vm->get_lcm_state() == VirtualMachine::EPILOG_STOP ||
+              vm->get_lcm_state() == VirtualMachine::EPILOG_UNDEPLOY ||
               vm->get_lcm_state() == VirtualMachine::EPILOG )
     {
         vm->set_epilog_etime(the_time);
@@ -893,6 +959,32 @@ void  LifeCycleManager::cancel_success_action(int vid)
 
         tm->trigger(TransferManager::EPILOG,vid);
     }
+    else if (vm->get_lcm_state() == VirtualMachine::SHUTDOWN_UNDEPLOY)
+    {
+        //----------------------------------------------------
+        //            EPILOG_UNDEPLOY STATE
+        //----------------------------------------------------
+
+        vm->set_state(VirtualMachine::EPILOG_UNDEPLOY);
+
+        vm->delete_snapshots();
+
+        vmpool->update(vm);
+
+        vm->set_epilog_stime(the_time);
+
+        vm->set_running_etime(the_time);
+
+        vm->set_reason(History::NONE);
+
+        vmpool->update_history(vm);
+
+        vm->log("LCM", Log::INFO, "New VM state is EPILOG_UNDEPLOY");
+
+        //----------------------------------------------------
+
+        tm->trigger(TransferManager::EPILOG_STOP,vid);
+    }
     else
     {
         vm->log("LCM",Log::ERROR,"cancel_success_action, VM in a wrong state");
@@ -918,7 +1010,8 @@ void  LifeCycleManager::cancel_failure_action(int vid)
         return;
     }
 
-    if ( vm->get_lcm_state() == VirtualMachine::CANCEL )
+    if ( vm->get_lcm_state() == VirtualMachine::CANCEL ||
+         vm->get_lcm_state() == VirtualMachine::SHUTDOWN_UNDEPLOY )
     {
         //----------------------------------------------------
         //    RUNNING STATE FROM CANCEL

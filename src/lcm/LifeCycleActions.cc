@@ -53,6 +53,11 @@ void  LifeCycleManager::deploy_action(int vid)
                 vm_state  = VirtualMachine::PROLOG_RESUME;
                 tm_action = TransferManager::PROLOG_RESUME;
             }
+            else if (vm->get_previous_reason() == History::NONE)
+            {
+                vm_state  = VirtualMachine::PROLOG_UNDEPLOY;
+                tm_action = TransferManager::PROLOG_RESUME;
+            }
         }
 
         vm->set_state(vm_state);
@@ -333,6 +338,60 @@ void  LifeCycleManager::shutdown_action(int vid)
 
     return;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void  LifeCycleManager::undeploy_action(int vid, bool hard)
+{
+    VirtualMachine *    vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if (vm->get_state()     == VirtualMachine::ACTIVE &&
+        vm->get_lcm_state() == VirtualMachine::RUNNING)
+    {
+        Nebula&                 nd = Nebula::instance();
+        VirtualMachineManager * vmm = nd.get_vmm();
+
+        //----------------------------------------------------
+        //             SHUTDOWN_UNDEPLOY STATE
+        //----------------------------------------------------
+
+        vm->set_state(VirtualMachine::SHUTDOWN_UNDEPLOY);
+
+        vm->set_resched(false);
+
+        vmpool->update(vm);
+
+        vm->log("LCM",Log::INFO,"New VM state is SHUTDOWN_UNDEPLOY");
+
+        //----------------------------------------------------
+
+        if (hard)
+        {
+            vmm->trigger(VirtualMachineManager::CANCEL,vid);
+        }
+        else
+        {
+            vmm->trigger(VirtualMachineManager::SHUTDOWN,vid);
+        }
+    }
+    else
+    {
+        vm->log("LCM", Log::ERROR, "undeploy_action, VM in a wrong state.");
+    }
+
+    vm->unlock();
+
+    return;
+}
+
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -750,6 +809,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
     {
         case VirtualMachine::PROLOG:
         case VirtualMachine::PROLOG_RESUME:
+        case VirtualMachine::PROLOG_UNDEPLOY:
             vm->set_prolog_etime(the_time);
             vmpool->update_history(vm);
 
@@ -859,6 +919,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
         break;
 
         case VirtualMachine::EPILOG_STOP:
+        case VirtualMachine::EPILOG_UNDEPLOY:
         case VirtualMachine::EPILOG:
             vm->set_epilog_etime(the_time);
             vmpool->update_history(vm);

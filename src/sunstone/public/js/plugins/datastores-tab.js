@@ -40,7 +40,7 @@ var datastores_tab_content = '\
     </div>\
   </div>\
   <div class="three columns">\
-    <input id="datastore_search" type="text" placeholder="Search" />\
+    <input id="datastore_search" type="text" placeholder="'+tr("Search")+'" />\
   </div>\
   <br>\
   <br>\
@@ -66,12 +66,6 @@ var datastores_tab_content = '\
   <tbody id="tbodydatastores">\
   </tbody>\
 </table>\
-<div class="legend_div">\
-  <span>?</span>\
-  <p class="legend_p">\
-'+tr("Datatables are sets of images which share a common transfer driver. i.e. Images in a SSH datastore will be copied to the hosts using SSH when deploying a Virtual Machine.")+'\
-  </p>\
-</div>\
 </form>';
 
 var create_datastore_tmpl =

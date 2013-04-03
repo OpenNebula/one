@@ -64,7 +64,7 @@ var users_tab_content = '\
     </div>\
   </div>\
   <div class="three columns">\
-    <input id="user_search" type="text" placeholder="Search" />\
+    <input id="user_search" type="text" placeholder="'+tr("Search")+'" />\
   </div>\
   <br>\
   <br>\

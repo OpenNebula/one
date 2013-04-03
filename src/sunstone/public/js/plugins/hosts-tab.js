@@ -44,7 +44,7 @@ var hosts_tab_content = '\
     </div>\
   </div>\
   <div class="three columns">\
-    <input id="hosts_search" type="text" placeholder="Search" />\
+    <input id="hosts_search" type="text" placeholder="'+tr("Search")+'" />\
   </div>\
   <br>\
   <br>\
@@ -73,18 +73,6 @@ var hosts_tab_content = '\
   <tbody id="tbodyhosts">\
   </tbody>\
 </table>\
-<div class="legend_div">\
-  <span>?</span>\
-  <p class="legend_p">\
-'+tr("CPU Use is calculated as the minimum between (total CPU - real CPU usage) and (allocated CPU). Real CPU usage is provided by the hosts monitoring driver. Available CPU is calculated using the information from the CPU setting of the VMs running on that host (allocated CPU)")+'\
-  </p>\
-  <p class="legend_p">\
-'+tr("Memory use is calculated according to the information provided by the host monitoring driver.")+'\
-  </p>\
-  <p class="legend_p">\
-'+tr("You can get monitoring graphs by clicking in the desired host and visiting the monitoring information tab. Note that oneacctd must be running for this information to be updated/available.")+'\
-  </p>\
-</div>\
 </form>';
 
 var create_host_tmpl =
@@ -296,14 +284,14 @@ var host_actions = {
             var host_graphs = [
             {
                 monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU",
-                labels : "Allocated,Real,Total",
+                labels : tr("Allocated")+","+tr("Real")+","+tr("Total"),
                 humanize_figures : false,
                 div_graph : $("#host_cpu_graph"),
                 div_legend : $("#host_cpu_legend")
             },
             {
                 monitor_resources : "HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM",
-                labels : "Allocated,Real,Total",
+                labels : tr("Allocated")+","+tr("Real")+","+tr("Total"),
                 humanize_figures : true,
                 div_graph : $("#host_mem_graph"),
                 div_legend : $("#host_mem_legend")
@@ -327,14 +315,14 @@ var host_actions = {
             var host_dashboard_graphs = [
             {
                 monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU",
-                labels : "Allocated,Real,Total",
+                labels : tr("Allocated")+","+tr("Real")+","+tr("Total"),
                 humanize_figures : false,
                 div_graph : $("#dash_host_cpu_graph", $dashboard)
                 //div_legend : $("#dash_host_cpu_legend", $dashboard)
             },
             {
                 monitor_resources : "HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM",
-                labels : "Allocated,Real,Total",
+                labels : tr("Allocated")+","+tr("Real")+","+tr("Total"),
                 humanize_figures : true,
                 div_graph : $("#dash_host_mem_graph", $dashboard),
                 div_legend : $("#dash_host_mem_legend", $dashboard)

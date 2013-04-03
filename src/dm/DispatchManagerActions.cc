@@ -209,6 +209,59 @@ error:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int DispatchManager::undeploy(
+    int vid,
+    bool hard)
+{
+    VirtualMachine *    vm;
+    ostringstream       oss;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return -1;
+    }
+
+    oss << "Undeploying VM " << vid;
+    NebulaLog::log("DiM",Log::DEBUG,oss);
+
+    if (vm->get_state()     == VirtualMachine::ACTIVE &&
+        vm->get_lcm_state() == VirtualMachine::RUNNING )
+    {
+        Nebula&             nd  = Nebula::instance();
+        LifeCycleManager *  lcm = nd.get_lcm();
+
+        if (hard)
+        {
+            lcm->trigger(LifeCycleManager::UNDEPLOY_HARD,vid);
+        }
+        else
+        {
+            lcm->trigger(LifeCycleManager::UNDEPLOY,vid);
+        }
+    }
+    else
+    {
+        goto error;
+    }
+
+    vm->unlock();
+
+    return 0;
+
+error:
+    oss.str("");
+    oss << "Could not undeploy VM " << vid << ", wrong state.";
+    NebulaLog::log("DiM",Log::ERROR,oss);
+
+    vm->unlock();
+    return -2;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int DispatchManager::poweroff (
     int vid)
 {
@@ -497,7 +550,8 @@ int DispatchManager::resume(
     oss << "Resuming VM " << vid;
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
-    if (vm->get_state() == VirtualMachine::STOPPED )
+    if (vm->get_state() == VirtualMachine::STOPPED ||
+        vm->get_state() == VirtualMachine::UNDEPLOYED )
     {
         vm->set_state(VirtualMachine::PENDING);
 
@@ -804,6 +858,7 @@ int DispatchManager::finalize(
         break;
 
         case VirtualMachine::STOPPED:
+        case VirtualMachine::UNDEPLOYED:
             tm->trigger(TransferManager::EPILOG_DELETE_STOP,vid);
             finalize_cleanup(vm);
         break;
@@ -878,6 +933,7 @@ int DispatchManager::resubmit(int vid)
 
         case VirtualMachine::HOLD: // Move the VM to PENDING in any of these
         case VirtualMachine::STOPPED:
+        case VirtualMachine::UNDEPLOYED:
             vm->set_state(VirtualMachine::LCM_INIT);
             vm->set_state(VirtualMachine::PENDING);
 

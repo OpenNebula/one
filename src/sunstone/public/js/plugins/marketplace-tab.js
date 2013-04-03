@@ -120,7 +120,7 @@ var marketplace_tab_content = '\
     </div>\
   </div>\
   <div class="three columns">\
-    <input id="marketplace_search" type="text" placeholder="Search" />\
+    <input id="marketplace_search" type="text" placeholder="'+tr("Search")+'" />\
   </div>\
 </div>\
 </div>\

@@ -39,7 +39,7 @@ var templates_tab_content = '\
     </div>\
   </div>\
   <div class="three columns">\
-    <input id="template_search" type="text" placeholder="Search" />\
+    <input id="template_search" type="text" placeholder="'+tr("Search")+'" />\
   </div>\
   <br>\
   <br>\
@@ -63,15 +63,6 @@ var templates_tab_content = '\
 </table>\
   </div>\
   </div>\
-<div class="legend_div">\
-  <span>?</span>\
-  <p class="legend_p">\
-'+tr("Clicking `instantiate` will  create new Virtual Machines from the selected templates and name one-id. You will be able to assign a specific name to a new VM, or launch several instances at once if the template doesn't reference any persistent image.")+'\
-  </p>\
-  <p class="legend_p">\
-'+tr("You can clone a template to obtain a copy from an existing template. This copy will be owned by you.")+'\
-  </p>\
-</div>\
 </form>';
 
 
@@ -98,8 +89,6 @@ var create_template_tmpl = '<div class="panel">'+
       '<button class="button hidden radius" id="template_template_update_button" value="Template.update_template" style="float: right">'+tr("Update")+'</button>'+
       '<button class="button secondary radius" id="template_template_reset_button" value="">'+tr("Reset")+'</button>'+
       '<button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>'+
-      //'<button class="button secondary radius" id="wizard_next" type="reset" style="float: right">'+tr("Next")+' <span class=" icon-angle-right"></span> </button>'+
-      //'<button class="button secondary radius" id="wizard_previous" type="reset" style="float: right"><span class="icon-angle-left"></span> '+tr("Previous")+'</button>'+
   '</div>'+
   '<a class="close-reveal-modal">&#215;</a>';
 
@@ -755,17 +744,17 @@ function setup_capacity_tab_content(capacity_section) {
 function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
   var html = '<div class="row">'+
         '<div class="three columns push-three">'+
-          '<input id="'+str_disk_tab_id+'radioImage" type="radio" name="'+str_disk_tab_id+'" value="image" checked> Image '+
+          '<input id="'+str_disk_tab_id+'radioImage" type="radio" name="'+str_disk_tab_id+'" value="image" checked> '+tr("Image")+
         '</div>'+
         '<div class="three columns pull-three">'+
-          '<input id="'+str_disk_tab_id+'radioVolatile" type="radio" name="'+str_disk_tab_id+'" value="volatile"> Volatile Disk '+
+          '<input id="'+str_disk_tab_id+'radioVolatile" type="radio" name="'+str_disk_tab_id+'" value="volatile"> '+tr("Volatile Disk")+
         '</div>'+
       '</div>'+
       '<hr>'+
         '<div id="disk_type" class="vm_param image">'+
           '<div class="row collapse ">'+
             '<div class="five columns push-seven">'+
-              '<input id="'+str_disk_tab_id+'_search" type="text" placeholder="Search"/>'+
+              '<input id="'+str_disk_tab_id+'_search" type="text" placeholder="'+tr("Search")+'"/>'+
             '</div>'+
           '</div>'+
           '<table id="'+str_datatable_id+'" class="datatable twelve">'+
@@ -792,7 +781,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
           '<br>'+
           '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
             '<span id="select_image" class="radius secondary label">'+tr("Please select an image from the list")+'</span>'+
-            '<span id="image_selected" class="radius secondary label hidden">You selected the following image: '+
+            '<span id="image_selected" class="radius secondary label hidden">'+tr("You selected the following image: ")+
             '</span>'+
             '<span class="radius label" type="text" id="IMAGE" name="image"></span>'+
             '<input type="hidden" id="IMAGE_ID" name="image_id" size="2"/>'+
@@ -1121,7 +1110,7 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
 function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
   var html = '<div class="row">'+
     '<div class="five columns push-seven">'+
-      '<input id="'+str_nic_tab_id+'_search" type="text" placeholder="Search"/>'+
+      '<input id="'+str_nic_tab_id+'_search" type="text" placeholder="'+tr("Search")+'"/>'+
     '</div>'+
   '</div>'+
     '<table id="'+str_datatable_id+'" class="datatable twelve">'+
@@ -1144,7 +1133,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
     '<br>'+
     '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
       '<span id="select_network" class="radius secondary label">'+tr("Please select an network from the list")+'</span>'+
-      '<span id="network_selected" class="radius secondary label hidden">You selected the following image: '+
+      '<span id="network_selected" class="radius secondary label hidden">'+tr("You selected the following image:")+
       '</span>'+
       '<span class="radius label" type="text" id="NETWORK" name="network"></span>'+
       '<input type="hidden" id="NETWORK_ID" name="network_id" size="2"/>'+
@@ -1213,10 +1202,10 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
         '<legend>'+tr("UDP Firewall")+'</legend>'+
         '<div class="row">'+
           '<div class="four columns push-two">'+
-            '<input type="radio" name="udp_type" id="udp_type" value="WHITE_PORTS_UDP"> Whitelist '+
+            '<input type="radio" name="udp_type" id="udp_type" value="WHITE_PORTS_UDP"> '+tr("Whitelist")+
           '</div>'+
           '<div class="four columns pull-two">'+
-            '<input type="radio" name="udp_type" id="udp_type" value="BLACK_PORTS_UDP"> Blacklist'+
+            '<input type="radio" name="udp_type" id="udp_type" value="BLACK_PORTS_UDP"> '+tr("Blacklist")+
           '</div>'+
         '</div>'+
         '<br>'+
@@ -1632,13 +1621,13 @@ function setupCreateTemplateDialog(){
     var add_disks_tab = function() {
         var html_tab_content = '<li id="storageTab" class="wizard_tab">'+
           '<dl class="tabs" id="template_create_storage_tabs">'+
-            '<dt><button type="button" class="button tiny radius" id="tf_btn_disks"><span class="icon-plus"></span> Add another disk</button></dt>'+
+            '<dt><button type="button" class="button tiny radius" id="tf_btn_disks"><span class="icon-plus"></span>'+tr("Add another disk")+'</button></dt>'+
           '</dl>'+
           '<ul class="tabs-content" id="template_create_storage_tabs_content">'+
           '</ul>'+
         '</li>';
 
-        $("<dd><a href='#storage'>Storage</a></dd>").appendTo($("dl#template_create_tabs"));
+        $("<dd><a href='#storage'>"+tr("Storage")+"</a></dd>").appendTo($("dl#template_create_tabs"));
         $(html_tab_content).appendTo($("ul#template_create_tabs_content"));
 
 
@@ -1677,7 +1666,7 @@ function setupCreateTemplateDialog(){
         $(html_tab_content).appendTo($("ul#template_create_storage_tabs_content"));
 
         var a = $("<dd>\
-          <a href='#"+str_disk_tab_id+"'>DISK <i class='icon-remove-sign remove-tab'></i></a>\
+          <a href='#"+str_disk_tab_id+"'>"+tr("DISK")+" <i class='icon-remove-sign remove-tab'></i></a>\
         </dd>").appendTo($("dl#template_create_storage_tabs"));
 
         $(document).foundationTabs("set_tab", a);
@@ -1701,13 +1690,13 @@ function setupCreateTemplateDialog(){
     var add_nics_tab = function() {
         var html_tab_content = '<li id="networkTab" class="wizard_tab">'+
           '<dl class="tabs" id="template_create_network_tabs">'+
-            '<dt><button type="button" class="button tiny radius" id="tf_btn_nics"><span class="icon-plus"></span> Add another nic</button></dt>'+
+            '<dt><button type="button" class="button tiny radius" id="tf_btn_nics"><span class="icon-plus"></span> '+tr("Add another nic")+'</button></dt>'+
           '</dl>'+
           '<ul class="tabs-content" id="template_create_network_tabs_content">'+
           '</ul>'+
         '</li>';
 
-        $("<dd><a href='#network'>Network</a></dd>").appendTo($("dl#template_create_tabs"));
+        $("<dd><a href='#network'>"+tr("Network")+"</a></dd>").appendTo($("dl#template_create_tabs"));
         $(html_tab_content).appendTo($("ul#template_create_tabs_content"));
 
         // close icon: removing the tab on click
@@ -1743,7 +1732,7 @@ function setupCreateTemplateDialog(){
         '</li>'
 
       // Append the new div containing the tab and add the tab to the list
-      var a = $("<dd><a href='#"+str_nic_tab_id+"'>NIC <i class='icon-remove-sign remove-tab'></i></a></dd>").appendTo($("dl#template_create_network_tabs"));
+      var a = $("<dd><a href='#"+str_nic_tab_id+"'>"+tr("NIC")+" <i class='icon-remove-sign remove-tab'></i></a></dd>").appendTo($("dl#template_create_network_tabs"));
 
       $(html_tab_content).appendTo($("ul#template_create_network_tabs_content"));
 
@@ -1847,17 +1836,17 @@ function setupCreateTemplateDialog(){
           '<li id="kernelTab" class="wizard_internal_tab">'+
                 '<div class="row">'+
                   '<div class="three columns push-three">'+
-                    '<input id="radioKernelDs" type="radio" name="kernel_type" value="kernel_ds" checked> Registered Image'+
+                    '<input id="radioKernelDs" type="radio" name="kernel_type" value="kernel_ds" checked> '+tr("Registered Image")+
                   '</div>'+
                   '<div class="three columns pull-three">'+
-                    '<input id="radioKernelPath" type="radio" name="kernel_type" value="kernel_path"> Remote PATH'+
+                    '<input id="radioKernelPath" type="radio" name="kernel_type" value="kernel_path"> '+tr("Remote PATH")+
                   '</div>'+
                 '</div>'+
                 '<hr>'+
                 '<div class="row kernel_ds">'+
                   '<div class="row collapse ">'+
                     '<div class="five columns push-seven">'+
-                      '<input id="kernel_search" type="text" placeholder="Search"/>'+
+                      '<input id="kernel_search" type="text" placeholder="'+tr("Search")+'"/>'+
                     '</div>'+
                   '</div>'+
                   '<table id="datatable_kernel" class="datatable twelve">'+
@@ -1883,7 +1872,7 @@ function setupCreateTemplateDialog(){
                   '</table>'+
                   '<div id="kernel_ds_inputs"  class="vm_param kvm_opt xen_opt vmware_opt">'+
                     '<span id="select_image" class="radius secondary label">'+tr("Please select a Kernel from the list")+'</span>'+
-                    '<span id="image_selected" class="radius secondary label hidden">You selected the following Kernel: '+
+                    '<span id="image_selected" class="radius secondary label hidden">'+tr("You selected the following Kernel: ")+
                     '</span>'+
                     '<span class="radius label" type="text"  id="KERNEL" name="kernel""></span>'+
                     '<input type="hidden" id="KERNEL_DS" name="kernel_ds" s size="2"/>'+
@@ -1904,17 +1893,17 @@ function setupCreateTemplateDialog(){
             '<li id="ramdiskTab" class="wizard_internal_tab">'+
                 '<div class="row">'+
                   '<div class="three columns push-three">'+
-                    '<input id="radioInintrdDs" type="radio" name="initrd_type" value="initrd_ds" checked> Registered Image '+
+                    '<input id="radioInintrdDs" type="radio" name="initrd_type" value="initrd_ds" checked> '+tr("Registered Image ") +
                   '</div>'+
                   '<div class="three columns pull-three">'+
-                    '<input id="radioInitrdPath" type="radio" name="initrd_type" value="initrd_path"> Remote PATH'+
+                    '<input id="radioInitrdPath" type="radio" name="initrd_type" value="initrd_path"> '+tr("Remote PATH")+
                   '</div>'+
                 '</div>'+
                 '<hr>'+
                 '<div class="row initrd_ds">'+
                   '<div class="row collapse ">'+
                     '<div class="five columns push-seven">'+
-                      '<input id="initrd_search" type="text" placeholder="Search"/>'+
+                      '<input id="initrd_search" type="text" placeholder="'+tr("Search")+'"/>'+
                     '</div>'+
                   '</div>'+
                   '<table id="datatable_initrd" class="datatable twelve">'+
@@ -1940,7 +1929,7 @@ function setupCreateTemplateDialog(){
                   '</table>'+
                   '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
                     '<span id="select_image" class="radius secondary label">'+tr("Please select a Ramdisk from the list")+'</span>'+
-                    '<span id="image_selected" class="radius secondary label hidden">You selected the following Ramdisk: '+
+                    '<span id="image_selected" class="radius secondary label hidden">'+tr("You selected the following Ramdisk: ")+
                     '</span>'+
                     '<span class="radius label" type="text" id="INITRD" name="initrd"></span>'+
                     '<input type="hidden"id="INITRD_DS" name="initrd_id" size="2"/>'+
@@ -2368,7 +2357,7 @@ function setupCreateTemplateDialog(){
                 '<li class="wizard_internal_tab vm_param" id="filesTab">'+
                         '<div class="row collapse ">'+
                           '<div class="five columns push-seven">'+
-                            '<input id="files_search" type="text" placeholder="Search"/>'+
+                            '<input id="files_search" type="text" placeholder="'+tr("Search")+'"/>'+
                           '</div>'+
                         '</div>'+
                           '<table id="datatable_context" class="datatable twelve">'+
@@ -2394,7 +2383,7 @@ function setupCreateTemplateDialog(){
                           '</table>'+
                       '<div class="vm_param kvm_opt xen_opt vmware_opt row" id="selected_files_spans">'+
                         '<span id="select_files" class="radius secondary label">'+tr("Please select files from the list")+'</span> '+
-                        '<span id="files_selected" class="radius secondary label hidden">You selected the following files:</span> '+
+                        '<span id="files_selected" class="radius secondary label hidden">'+tr("You selected the following files:")+'</span> '+
                         '<input type="hidden" id="FILES_DS" name="files_ds" size="2"/>'+
                       '</div>'+
                     '</li>'+
@@ -2608,17 +2597,17 @@ function setupCreateTemplateDialog(){
             '<li class="requirements wizard_internal_tab active" id="placementTab">'+
                 '<div class="row">'+
                   '<div class="three columns push-three">'+
-                      '<input type="radio" id="hosts_req" name="req_select" value="host_select" checked> Select Hosts '+
+                      '<input type="radio" id="hosts_req" name="req_select" value="host_select" checked> '+tr("Select Hosts ")+
                   '</div>'+
                   '<div class="three columns pull-three">'+
-                      '<input type="radio" id="clusters_req"  name="req_select" value="cluster_select"> Select Clusters '+
+                      '<input type="radio" id="clusters_req"  name="req_select" value="cluster_select"> '+tr("Select Clusters ")+
                   '</div>'+
                 '</div>'+
                 '<hr>'+
                 '<div id="req_type" class="host_select row">'+
                     '<div class="row collapse ">'+
                       '<div class="five columns push-seven">'+
-                        '<input id="hosts_search" type="text" placeholder="Search"/>'+
+                        '<input id="hosts_search" type="text" placeholder="'+tr("Search")+'"/>'+
                       '</div>'+
                     '</div>'+
                     '<table id="datatable_template_hosts" class="datatable twelve">'+
@@ -2645,14 +2634,14 @@ function setupCreateTemplateDialog(){
                     '<br>'+
                     '<div class="kvm_opt xen_opt vmware_opt" id="selected_hosts_template">'+
                       '<span id="select_hosts" class="radius secondary label">'+tr("Please select one or more hosts from the list")+'</span> '+
-                      '<span id="hosts_selected" class="radius secondary label hidden">You selected the following hosts:</span> '+
+                      '<span id="hosts_selected" class="radius secondary label hidden">'+tr("You selected the following hosts:")+'</span> '+
                     '</div>'+
                     '<br>'+
                 '</div>'+
                 '<div id="req_type" class="cluster_select hidden row">'+
                     '<div class="row collapse ">'+
                       '<div class="five columns push-seven">'+
-                        '<input id="clusters_search" type="text" placeholder="Search"/>'+
+                        '<input id="clusters_search" type="text" placeholder="'+tr("Search")+'"/>'+
                       '</div>'+
                     '</div>'+
                     '<table id="datatable_template_clusters" class="datatable twelve">'+
@@ -2672,7 +2661,7 @@ function setupCreateTemplateDialog(){
                     '<br>'+
                     '<div class="kvm_opt xen_opt vmware_opt" id="selected_clusters_template">'+
                       '<span id="select_clusters" class="radius secondary label">'+tr("Please select one or more clusters from the list")+'</span> '+
-                      '<span id="clusters_selected" class="radius secondary label hidden">You selected the following clusters:</span> '+
+                      '<span id="clusters_selected" class="radius secondary label hidden">'+tr("You selected the following clusters:")+'</span> '+
                     '</div>'+
                     '<br>'+
                 '</div>'+
@@ -2692,19 +2681,19 @@ function setupCreateTemplateDialog(){
             '<li id="policyTab" class="wizard_internal_tab">'+
                   '<div class="row">'+
                     '<div class="two columns push-two">'+
-                      '<input type="radio" id="packingRadio" name="rank_select" value="RUNNING_VMS"> Packing '+
+                      '<input type="radio" id="packingRadio" name="rank_select" value="RUNNING_VMS"> '+tr("Packing")+
                     '</div>'+
                     '<div class="one columns push-two">'+
                       '<div class="tip">'+tr("Pack the VMs in the cluster nodes to reduce VM fragmentation")+'</div>'+
                     '</div>'+
                     '<div class="two columns push-two">'+
-                      '<input type="radio"  id="stripingRadio" name="rank_select" value="-RUNNING_VMS"> Stripping '+
+                      '<input type="radio"  id="stripingRadio" name="rank_select" value="-RUNNING_VMS"> '+tr("Stripping")+
                     '</div>'+
                     '<div class="one columns push-two">'+
                       '<div class="tip">'+tr("Spread the VMs in the cluster nodes")+'</div>'+
                     '</div>'+
                     '<div class="two columns push-two">'+
-                      '<input type="radio"  id="loadawareRadio" name="rank_select" value="FREECPU"> Load-aware'+
+                      '<input type="radio"  id="loadawareRadio" name="rank_select" value="FREECPU"> '+tr("Load-aware")+
                     '</div>'+
                     '<div class="two columns">'+
                       '<div class="tip">'+tr("Maximize the resources available to VMs in a node")+'</div>'+
