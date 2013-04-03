@@ -781,6 +781,10 @@ function insertButtonsInTab(tab_name){
             $("#user_buttons", action_block).remove()
         }
         //action_block.foundationButtons();
+        $('.top_button, .list_button',action_block).attr('disabled', false);
+        $('.top_button, .list_button',action_block).attr('disabled', true);
+        $('.create_dialog_button',action_block).attr('disabled', false);
+        $('.alwaysActive',action_block).attr('disabled', false);
 
     }//if tab exists
 }
