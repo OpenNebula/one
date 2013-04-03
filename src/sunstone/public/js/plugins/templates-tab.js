@@ -67,30 +67,31 @@ var templates_tab_content = '\
 
 
 var create_template_tmpl = '<div class="panel">'+
-  '<h3><small>'+tr("Create VM Template")+'</small></h4>'+
+  '<h3><small id="create_template_header">'+tr("Create VM Template")+'</small><small id="update_template_header" class="hidden">'+tr("Update VM Template")+'</small></h3>'+
   '</div>'+
+  '<form class="custom creation">'+
+        '<div class="reveal-body">'+
   '<div class="row">'+
     '<div class="columns three">'+
         '<dl id="template_create_tabs" class="tabs vertical">'+
         '</dl>'+
     '</div>'+
     '<div class="columns nine">'+
-        '<div class="reveal-body">'+
-        '<form class="custom creation">'+
             '<ul id="template_create_tabs_content" class="tabs-content">'+
             '</ul>'+
-        '</form>'+
-        '</div>'+
     '</div>'+
   '</div>'+
+        '</div>'+
   '<div class="">'+
       '<hr>'+
       '<button class="success button radius" id="create_template_form_easy" value="OpenNebula.Template.create" style="float: right">'+tr("Create")+'</button>'+
       '<button class="button hidden radius" id="template_template_update_button" value="Template.update_template" style="float: right">'+tr("Update")+'</button>'+
-      '<button class="button secondary radius" id="template_template_reset_button" value="">'+tr("Reset")+'</button>'+
+      '<button class="button secondary radius" id="template_template_reset_button" value="reset" type="reset">'+tr("Reset")+'</button>'+
+      '<button class="button secondary hidden radius" id="template_template_reset_button_update" value="reset" type="reset">'+tr("Reset")+'</button>'+
       '<button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>'+
   '</div>'+
-  '<a class="close-reveal-modal">&#215;</a>';
+  '<a class="close-reveal-modal">&#215;</a>'+
+  '</form>';
 
 
 var update_template_tmpl =
@@ -3012,11 +3013,32 @@ function setupCreateTemplateDialog(){
     //  tabs.tabs("option", "active", selected-1);
     //});
 
+
     $('#template_template_reset_button').click(function(){
-        $create_template_dialog.trigger("reveal:close")
         $create_template_dialog.empty();
         setupCreateTemplateDialog();
-        $create_template_dialog.reveal();
+
+        $('button#create_template_form_easy', $create_template_dialog).show();
+        $('button#template_template_update_button', $create_template_dialog).hide();
+        $('button#template_template_reset_button', $create_template_dialog).show();
+        $('button#template_template_reset_button_update', $create_template_dialog).hide();
+
+        $('#create_template_header', $create_template_dialog).show();
+        $('#update_template_header', $create_template_dialog).hide();
+
+    });
+
+    $('#template_template_reset_button_update').click(function(){
+        $create_template_dialog.empty();
+        setupCreateTemplateDialog();
+
+        $('button#create_template_form_easy', $create_template_dialog).hide();
+        $('button#template_template_update_button', $create_template_dialog).show();
+        $('button#template_template_reset_button', $create_template_dialog).hide();
+        $('button#template_template_reset_button_update', $create_template_dialog).show();
+
+        $('#create_template_header', $create_template_dialog).hide();
+        $('#update_template_header', $create_template_dialog).show();
     });
 
     add_capacityTab();
@@ -3231,18 +3253,23 @@ function setupCreateTemplateDialog(){
     });
 
     //Reset form - empty boxes
-    $('button#reset_vm_form',dialog).click(function(){
-        $('select#disks_box option',section_disks).remove();
-       $('select#nics_box option',section_networks).remove();
-        $('select#inputs_box option',section_inputs).remove();
-        $('select#custom_var_box option',section_custom_var).remove();
-        return true;
-    });
+    //$('button#reset_vm_form',dialog).click(function(){
+    //    $('select#disks_box option',section_disks).remove();
+    //   $('select#nics_box option',section_networks).remove();
+    //    $('select#inputs_box option',section_inputs).remove();
+    //    $('select#custom_var_box option',section_custom_var).remove();
+    //    return true;
+    //});
 }
 
 function popUpUpdateTemplateDialog(){
     $('button#create_template_form_easy', $create_template_dialog).hide();
     $('button#template_template_update_button', $create_template_dialog).show();
+    $('button#template_template_reset_button', $create_template_dialog).hide();
+    $('button#template_template_reset_button_update', $create_template_dialog).show();
+
+    $('#create_template_header', $create_template_dialog).hide();
+    $('#update_template_header', $create_template_dialog).show();
 
     $create_template_dialog.reveal();
 };
@@ -3250,6 +3277,11 @@ function popUpUpdateTemplateDialog(){
 function popUpCreateTemplateDialog(){
     $('button#create_template_form_easy', $create_template_dialog).show();
     $('button#template_template_update_button', $create_template_dialog).hide();
+    $('button#template_template_reset_button', $create_template_dialog).show();
+    $('button#template_template_reset_button_update', $create_template_dialog).hide();
+
+    $('#create_template_header', $create_template_dialog).show();
+    $('#update_template_header', $create_template_dialog).hide();
 
     $create_template_dialog.reveal();
 };

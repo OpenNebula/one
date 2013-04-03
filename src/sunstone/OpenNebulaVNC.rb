@@ -24,6 +24,41 @@ require 'opennebula'
 
 TOKEN_EXPIRE_SECONDS = 4
 
+VNC_STATES = [
+        #0,  #LCM_INIT            
+        #1,  #PROLOG              
+        #2,  #BOOT                
+        3,  #RUNNING             
+        4,  #MIGRATE             
+        #5,  #SAVE_STOP           
+        #6,  #SAVE_SUSPEND        
+        #7,  #SAVE_MIGRATE        
+        #8,  #PROLOG_MIGRATE      
+        #9,  #PROLOG_RESUME       
+        #10, #EPILOG_STOP         
+        #11, #EPILOG              
+        12, #SHUTDOWN            
+        13, #CANCEL              
+        #14, #FAILURE             
+        #15, #CLEANUP_RESUBMIT    
+        16, #UNKNOWN             
+        17, #HOTPLUG             
+        18, #SHUTDOWN_POWEROFF   
+        #19, #BOOT_UNKNOWN        
+        #20, #BOOT_POWEROFF       
+        #21, #BOOT_SUSPENDED      
+        #22, #BOOT_STOPPED        
+        #23, #CLEANUP_DELETE      
+        24, #HOTPLUG_SNAPSHOT    
+        25, #HOTPLUG_NIC         
+        26, #HOTPLUG_SAVEAS           
+        27, #HOTPLUG_SAVEAS_POWEROFF  
+        28, #HOTPLUG_SAVEAS_SUSPENDED 
+        29  #SHUTDOWN_UNDEPLOY   
+        #30, #EPILOG_UNDEPLOY     
+        #31  #PROLOG_UNDEPLOY     
+]
+
 class OpenNebulaVNC
 
     attr_reader :proxy_port

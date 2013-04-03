@@ -74,8 +74,8 @@ var create_file_tmpl =
   <div class="panel">\
     <h3><small>'+tr("Create File")+'</small></h4>\
   </div>\
-  <div class="reveal-body">\
      <form id="create_file_form_easy" action="" class="custom creation">\
+  <div class="reveal-body">\
             <div class="row vm_param">\
               <div class="six columns">\
                 <div class="row">\
@@ -172,13 +172,13 @@ var create_file_tmpl =
             </div>\
             </div>\
             <hr>\
-      </form>\
       <div class="form_buttons">\
         <button class="button success radius right" id="create_file_submit" value="file/create">'+tr("Create")+'</button>\
         <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
         <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
       </div>\
   <a class="close-reveal-modal">&#215;</a>\
+      </form>\
 </div>';
 
 var dataTable_files;

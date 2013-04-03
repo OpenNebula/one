@@ -309,6 +309,7 @@ int VirtualMachineXML::parse_action_name(string& action_st)
         && action_st != "reboot"
         && action_st != "reboot-hard"
         && action_st != "poweroff"
+        && action_st != "poweroff-hard"
         && action_st != "snapshot-create")
     {
         return -1;
