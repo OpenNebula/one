@@ -56,6 +56,7 @@ public:
         RESCHED_ACTION,
         UNRESCHED_ACTION,
         POWEROFF_ACTION,
+        POWEROFF_HARD_ACTION,
         NONE_ACTION
     };
 
@@ -121,6 +122,9 @@ public:
             break;
             case POWEROFF_ACTION:
                 st = "poweroff";
+            break;
+            case POWEROFF_HARD_ACTION:
+                st = "poweroff-hard";
             break;
             case NONE_ACTION:
                 st = "none";
@@ -207,6 +211,10 @@ public:
         else if (st == "poweroff")
         {
             action = POWEROFF_ACTION;
+        }
+        else if (st == "poweroff-hard")
+        {
+            action = POWEROFF_HARD_ACTION;
         }
         else
         {

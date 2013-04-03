@@ -463,22 +463,24 @@ void  LifeCycleManager::poweroff_action(int vid, bool hard)
 
         vmpool->update(vm);
 
-        vm->set_history_action(History::POWEROFF_ACTION);
-
-        vmpool->update_history(vm);
-
         vm->log("LCM",Log::INFO,"New VM state is SHUTDOWN_POWEROFF");
 
         //----------------------------------------------------
 
         if (hard)
         {
+            vm->set_history_action(History::POWEROFF_HARD_ACTION);
+
             vmm->trigger(VirtualMachineManager::CANCEL,vid);
         }
         else
         {
+            vm->set_history_action(History::POWEROFF_ACTION);
+
             vmm->trigger(VirtualMachineManager::SHUTDOWN,vid);
         }
+
+        vmpool->update_history(vm);
     }
     else
     {

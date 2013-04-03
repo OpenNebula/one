@@ -1010,7 +1010,7 @@ void  LifeCycleManager::cancel_success_action(int vid)
 
         vm->set_vm_info();
 
-        vm->set_reason(History::STOP_RESUME);
+        vm->set_reason(History::NONE);
 
         vmpool->update_history(vm);
 

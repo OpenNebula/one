@@ -391,7 +391,10 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
             rc = dm->reset(id);
             break;
         case History::POWEROFF_ACTION:
-            rc = dm->poweroff(id);
+            rc = dm->poweroff(id, false);
+            break;
+        case History::POWEROFF_HARD_ACTION:
+            rc = dm->poweroff(id, true);
             break;
         case History::UNDEPLOY_ACTION:
             rc = dm->undeploy(id, false);
