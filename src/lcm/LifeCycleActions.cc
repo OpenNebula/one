@@ -48,12 +48,14 @@ void  LifeCycleManager::deploy_action(int vid)
 
         if (vm->hasPreviousHistory())
         {
-            if (vm->get_previous_reason() == History::STOP_RESUME)
+            if (vm->get_previous_history_action() == History::STOP_ACTION)
             {
                 vm_state  = VirtualMachine::PROLOG_RESUME;
                 tm_action = TransferManager::PROLOG_RESUME;
             }
-            else if (vm->get_previous_reason() == History::NONE)
+            else if (
+                vm->get_previous_history_action() == History::UNDEPLOY_ACTION ||
+                vm->get_previous_history_action() == History::UNDEPLOY_HARD_ACTION)
             {
                 vm_state  = VirtualMachine::PROLOG_UNDEPLOY;
                 tm_action = TransferManager::PROLOG_RESUME;

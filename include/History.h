@@ -28,15 +28,12 @@ using namespace std;
 class History:public ObjectSQL, public ObjectXML
 {
 public:
-    enum MigrationReason
+    enum EndReason
     {
-        NONE,       /** < Normal termination in host */
-        ERROR,      /** < The VM was migrated because of an error */
-        STOP_RESUME,/** < The VM was migrated because of a stop/resume request*/
-        USER,       /** < The VM was migrated because of an explicit request */
-        CANCEL      /** < The VM was migrated because of an explicit cancel */
+        NONE,       /** < History record is not closed yet */
+        ERROR,      /** < History record was closed because of an error */
+        USER        /** < History record was closed because of a user action */
     };
-
 
     enum VMAction
     {
@@ -292,7 +289,7 @@ private:
     time_t  epilog_stime;
     time_t  epilog_etime;
 
-    MigrationReason reason;
+    EndReason reason;
 
     VMAction action;
 

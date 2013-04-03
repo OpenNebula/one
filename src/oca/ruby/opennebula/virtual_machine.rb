@@ -103,14 +103,12 @@ module OpenNebula
             "PROLOG_UNDEPLOY"   => "prol"
         }
 
-        MIGRATE_REASON=%w{NONE ERROR STOP_RESUME USER CANCEL}
+        MIGRATE_REASON=%w{NONE ERROR USER}
 
         SHORT_MIGRATE_REASON={
             "NONE"          => "none",
             "ERROR"         => "erro",
-            "STOP_RESUME"   => "stop",
-            "USER"          => "user",
-            "CANCEL"        => "canc"
+            "USER"          => "user"
         }
 
         # Creates a VirtualMachine description with just its identifier

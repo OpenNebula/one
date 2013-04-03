@@ -500,7 +500,7 @@ public:
      *  Returns the reason that closed the history record in the previous host
      *    @return the reason to close the history record in the previous host
      */
-    const History::MigrationReason get_previous_reason() const
+    const History::EndReason get_previous_reason() const
     {
         return previous_history->reason;
     };
@@ -642,7 +642,7 @@ public:
      *  Sets the reason that closed the history record
      *    @param _reason reason to close the history record
      */
-    void set_reason(History::MigrationReason _reason)
+    void set_reason(History::EndReason _reason)
     {
         history->reason=_reason;
     };
@@ -651,7 +651,7 @@ public:
      *  Sets the reason that closed the history record in the previous host
      *    @param _reason reason to close the history record in the previous host
      */
-    void set_previous_reason(History::MigrationReason _reason)
+    void set_previous_reason(History::EndReason _reason)
     {
         previous_history->reason=_reason;
     };

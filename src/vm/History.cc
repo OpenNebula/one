@@ -352,7 +352,7 @@ int History::rebuild_attributes()
     rc += xpath(int_reason       , "/HISTORY/REASON",      0);
     rc += xpath(int_action       , "/HISTORY/ACTION",      0);
 
-    reason = static_cast<MigrationReason>(int_reason);
+    reason = static_cast<EndReason>(int_reason);
     action = static_cast<VMAction>(int_action);
 
     non_persistent_data();
