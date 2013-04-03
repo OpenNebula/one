@@ -226,7 +226,7 @@ module CLIHelper
 
                         str
                     }.join(' ')
-                }.join("\n")
+                }.join("\n").gsub(/ *$/, '')
             rescue Errno::EPIPE
             end
 
