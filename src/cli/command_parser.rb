@@ -56,6 +56,7 @@ module CommandParser
         def initialize(args=[], &block)
             @available_options = Array.new
             @commands = Hash.new
+            @command_list = Array.new
             @formats = Hash.new
 
             @main = nil
@@ -288,6 +289,21 @@ module CommandParser
                 end
             }
             cmd[:proc] = block
+            @command_list << name.to_sym
+            @commands[name.to_sym] = cmd
+        end
+
+        def deprecated_command(name, new_command)
+            cmd = Hash.new
+            cmd[:desc] = "Deprecated, use #{new_command} instead"
+            cmd[:arity] = 0
+            cmd[:options] = []
+            cmd[:args_format] = [[:string, nil]] * 20
+            cmd[:deprecated] = new_command
+            cmd[:proc] = lambda do
+                print_deprecated(new_command)
+            end
+
             @commands[name.to_sym] = cmd
         end
 
@@ -416,6 +432,10 @@ module CommandParser
             if comm.nil?
                 print_help
                 exit -1
+            end
+
+            if comm[:deprecated]
+                print_deprecated(comm[:deprecated])
             end
 
             extra_options = comm[:options] if comm
@@ -617,7 +637,9 @@ module CommandParser
             puts "## OPTIONS"
 
             shown_opts = Array.new
-            @commands.each do |key,value|
+            @command_list.each do |key|
+                value = @commands[key]
+
                 value[:options].flatten.each do |o|
                     if shown_opts.include?(o[:name])
                         next
@@ -659,11 +681,12 @@ module CommandParser
             else
                 puts "## COMMANDS"
 
-                @commands.each{ |key,value|
+                @command_list.each do |key|
+                    value = @commands[key]
                     printf cmd_format5, "* #{key} "
 
                     print_command(value)
-                }
+                end
             end
         end
 
@@ -711,6 +734,12 @@ module CommandParser
 
                 puts
             }
+        end
+
+        def print_deprecated(new_command)
+            puts "This command is deprecated, use instead:"
+            puts "  $ #{File.basename $0} #{new_command}"
+            exit(-1)
         end
 
         def word_wrap(size, text, first_size=nil)

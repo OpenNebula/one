@@ -517,13 +517,13 @@ function generate_capacity_tab_content() {
     '</div>'+
     '<hr>'+
     '<br>'+
-    '<div class="row vm_param">'+
+    '<div class="row">'+
         '<div class="two columns">'+
           '<label class="inline right" for="CPU">'+tr("CPU")+':</label>'+
         '</div>'+
         '<div id="cpu_slider" class="seven columns">'+
         '</div>'+
-        '<div class="one columns">'+
+        '<div class="one columns vm_param">'+
           '<input type="text" id="CPU" name="cpu" size="2"/>'+
         '</div>'+
         '<div class="one right columns">'+
@@ -556,13 +556,13 @@ function generate_capacity_tab_content() {
          '<h4><small><i class=" icon-plus-sign-alt"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
     '</div>'+
     '<div class="advanced">'+
-      '<div class="row vm_param">'+
+      '<div class="row">'+
           '<div class="two columns">'+
             '<label class="inline right" for="VCPU">'+tr("VCPU")+':</label>'+
           '</div>'+
           '<div id="vcpu_slider" class="seven columns">'+
           '</div>'+
-          '<div class="one  columns">'+
+          '<div class="one  columns vm_param">'+
             '<input type="text" id="VCPU" name="vcpu" size="3" />'+
           '</div>'+
           '<div class="one right columns">'+
@@ -751,7 +751,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
         '</div>'+
       '</div>'+
       '<hr>'+
-        '<div id="disk_type" class="vm_param image">'+
+        '<div id="disk_type" class="image vm_param">'+
           '<div class="row collapse ">'+
             '<div class="five columns push-seven">'+
               '<input id="'+str_disk_tab_id+'_search" type="text" placeholder="'+tr("Search")+'"/>'+
@@ -852,13 +852,13 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
                 '</div>'+
               '</div>'+
             '</div>'+
-            '<div class="row vm_param">'+
+            '<div class="row">'+
                 '<div class="two columns">'+
                   '<label class="inline right" for="SIZE">'+tr("SIZE")+':</label>'+
                 '</div>'+
                 '<div id="size_slider" class="five columns">'+
                 '</div>'+
-                '<div class="two columns">'+
+                '<div class="two columns vm_param">'+
                   '<input type="text" id="SIZE" name="size"/>'+
                 '</div>'+
                 '<div class="two columns">'+
@@ -1225,15 +1225,19 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
     '</div>'+
       '<div class="row">'+
         '<div class="six columns">'+
+      '<fieldset>'+
+        '<legend>'+tr("ICMP")+'</legend>'+
           '<div class="row">'+
-            '<div class="four columns">'+
+            '<div class="one columns">'+
+              '<input type="checkbox" name="icmp_type" value="ICMP" id="icmp_type">'+
             '</div>'+
-            '<div class="six columns">'+
-              '<label for="icmp_type"><input type="checkbox" name="icmp_type" value="ICMP" id="icmp_type"> '+ tr("Drop ICMP")+'</label>'+
+            '<div class="nine columns">'+
+              '<label for="icmp_type">'+ tr("Drop")+'</label>'+
             '</div>'+
             '<div class="two columns">'+
             '</div>'+
           '</div>'+
+      '</fieldset>'+
         '</div>'+
       '</div>'+
     '</div>';
@@ -1376,10 +1380,13 @@ function updateTemplateInfo(request,template){
     };
     var template_tab = {
         title: tr("Template"),
-        content: '<table id="template_template_table" class="info_table" style="width:80%">\
-        <thead><tr><th colspan="2">'+tr("Template")+'</th></tr></thead>'+
-        prettyPrintJSON(template_info.TEMPLATE)+
-        '</table>'
+        content: '<div class="">\
+         <div class="eight columns">\
+          <table id="template_template_table" class="transparent_table twelve">'+
+            prettyPrintJSON(template_info.TEMPLATE)+'\
+          </table>\
+         </div>\
+        </div>'
     };
 
     $("#div_edit_rename_link").die();
@@ -1551,6 +1558,7 @@ function setupCreateTemplateDialog(){
                 if (value.length == 0)
                     remove = true;
             }
+            
             if (remove)
                 delete obj[elem];
         }
@@ -2324,37 +2332,45 @@ function setupCreateTemplateDialog(){
                         '<fieldset>'+
                           '<legend>'+tr("SSH")+'</legend>'+
                           '<div class="row">'+
-                            '<div class="columns eight centered">'+
-                                '<label for="ssh_context"><input type="checkbox" name="ssh_context" id="ssh_context"> '+ tr("  Add SSH contextualization")+'</label>'+
+                            '<div class="columns one">'+
+                                '<input type="checkbox" name="ssh_context" id="ssh_context"  checked>'+
+                            '</div>'+
+                            '<div class="columns ten">'+
+                                '<label class="inline" for="ssh_context">'+ tr("  Add SSH contextualization")+'</label>'+
+                            '</div>'+
+                            '<div class="columns one">'+
+                                '<div class="tip">'+tr("Add an ssh public key to the context. If the Public Key textarea is empty then the user variable SSH_PUBLIC_KEY will be used.")+'</div>'+
                             '</div>'+
                           '</div>'+
-                          '<br>'+
                           '<div class="row">'+
-                            '<div class="four columns">'+
-                                '<label class="right inline" for="ssh_puclic_key"> '+tr("Public Key")+':</label>'+
+                            '<div class="ten columns">'+
+                                '<label for="ssh_puclic_key"> '+tr("Public Key")+':</label>'+
                             '</div>'+
-                            '<div class="six columns">'+
-                              '<input type="text" id="ssh_puclic_key" name="ssh_puclic_key" />'+
-                            '</div>'+
-                            '<div class="two columns">'+
-                            '</div>'+
+                          '</div>'+
+                          '<div class="row">'+
+                            '<textarea rows="4" type="text" id="ssh_puclic_key" name="ssh_puclic_key" />'+
                           '</div>'+
                         '</fieldset>'+
                     '</div>'+
                     '<div class="six columns">'+
                         '<fieldset>'+
                             '<legend>'+tr("Network")+'</legend>'+
-                          '<div class="row">'+
-                            '<div class="columns nine centered">'+
-                              '<label for="network_context"><input type="checkbox" name="network_context" id="network_context">'+ tr("  Add Network contextualization")+'</label>'+
+                            '<div class="row">'+
+                              '<div class="columns one">'+
+                                  '<input type="checkbox" name="network_context" id="network_context" checked>'+
+                              '</div>'+
+                              '<div class="columns ten">'+
+                                  '<label class="inline" for="network_context">'+ tr("  Add Network contextualization")+'</label>'+
+                              '</div>'+
+                              '<div class="columns one">'+
+                                  '<div class="tip">'+tr("Add network contextualization parameters. For each NIC defined in the NETWORK section, ETH%i_IP, ETH%i_NETWORK... parameters will be included in the CONTEXT section and will be available in the Virtual Machine")+'</div>'+
+                              '</div>'+
                             '</div>'+
-                          '</div>'+
-                          '<br>'+
                         '</fieldset>'+
                     '</div>'+
                   '</div>'+
                     '</li>'+
-                '<li class="wizard_internal_tab vm_param" id="filesTab">'+
+                '<li class="wizard_internal_tab" id="filesTab">'+
                         '<div class="row collapse ">'+
                           '<div class="five columns push-seven">'+
                             '<input id="files_search" type="text" placeholder="'+tr("Search")+'"/>'+
@@ -3044,7 +3060,6 @@ function setupCreateTemplateDialog(){
     var build_template = function(){
         var vm_json = {};
         var name,value,boot_method;
-
         //
         // CAPACITY
         //
@@ -3055,7 +3070,6 @@ function setupCreateTemplateDialog(){
 //            return false;
 //        };
         addSectionJSON(vm_json,$('li#capacityTab',dialog));
-
         //
         // OS
         //

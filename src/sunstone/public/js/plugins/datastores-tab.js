@@ -75,8 +75,8 @@ var create_datastore_tmpl =
       <small id="create_cluster_header">'+tr("Create Datastore")+'</small>\
     </h3>\
   </div>\
-  <div class="reveal-body">\
   <form id="create_datastore_form" action="" class="creation">\
+  <div class="reveal-body">\
     <div class="row">\
       <div class="three columns">\
         <label class="right inline" for="name" >' + tr("Name") + ':</label>\
@@ -143,7 +143,7 @@ var create_datastore_tmpl =
             <select id="disk_type" name="disk_type">\
               <option value="file">' + tr("File") + '</option>\
               <option value="block">' + tr("Block") + '</option>\
-              <option value="rbd">' + tr("RBD") + '</option>\
+              <option value="RBD">' + tr("RBD") + '</option>\
             </select>\
           </div>\
           <div class="one columns">\
@@ -195,30 +195,30 @@ var create_datastore_tmpl =
       </div>\
     </div>\
     <div class="twelve columns">\
-      <div class="three columns">\
+      <div class="four columns">\
         <label class="right inline" for="safe_dirs">' + tr("Safe Directories") + ':</label>\
       </div>\
-      <div class="eight columns">\
+      <div class="seven columns">\
         <input type="text" name="safe_dirs" id="safe_dirs" />\
       </div>\
       <div class="one columns">\
       </div>\
     </div>\
     <div class="twelve columns">\
-      <div class="three columns">\
+      <div class="four columns">\
         <label class="right inline" for="restricted_dirs">' + tr("Restricted Directories") + ':</label>\
       </div>\
-      <div class="eight columns">\
+      <div class="seven columns">\
         <input type="text" name="restricted_dirs" id="restricted_dirs" />\
       </div>\
       <div class="one columns">\
       </div>\
     </div>\
     <div class="twelve columns">\
-      <div class="three columns">\
+      <div class="four columns">\
         <label class="right inline" for="bridge_list">' + tr("Host Bridge List") + ':</label>\
       </div>\
-      <div class="eight columns">\
+      <div class="seven columns">\
         <input type="text" name="bridge_list" id="bridge_list" />\
       </div>\
       <div class="one columns">\
@@ -226,43 +226,42 @@ var create_datastore_tmpl =
     </div>\
     <div class="row">\
       <div class="six columns">\
-        <label class="right inline" for="ds_use_ssh"><input id="ds_use_ssh" type="checkbox" name="ds_use_ssh" value="YES" />' + tr("Use SSH for Datastore Manager") + ':</label>\
+        <label class="right inline" for="ds_use_ssh"><input id="ds_use_ssh" type="checkbox" name="ds_use_ssh" value="YES" />' + tr("Use SSH for Datastore Manager") + '</label>\
       </div>\
       <div class="six columns">\
-        <label class="inline" for="tm_use_ssh"><input id="tm_use_ssh" type="checkbox" name="tm_use_ssh" value="YES" />' + tr("Use SSH for Transfer Manager") + ':</label>\
+        <label class="inline" for="tm_use_ssh"><input id="tm_use_ssh" type="checkbox" name="tm_use_ssh" value="YES" />' + tr("Use SSH for Transfer Manager") + '</label>\
       </div>\
     </div>\
     <div class="twelve columns">\
-      <div class="three columns">\
+      <div class="four columns">\
         <label class="right inline" for="host">' + tr("Storage Server") + ':</label>\
       </div>\
-      <div class="eight columns">\
+      <div class="seven columns">\
         <input type="text" name="host" id="host" />\
       </div>\
       <div class="one columns">\
       </div>\
     </div>\
     <div class="twelve columns">\
-      <div class="three columns">\
+      <div class="four columns">\
         <label class="right inline" for="base_iqn">' + tr("Base IQN") + ':</label>\
       </div>\
-      <div class="eight columns">\
+      <div class="seven columns">\
         <input type="text" name="base_iqn" id="base_iqn" />\
       </div>\
       <div class="one columns">\
       </div>\
     </div>\
     <div class="twelve columns">\
-      <div class="three columns">\
+      <div class="four columns">\
         <label class="right inline" for="vg_name">' + tr("Volume Group Name") + ':</label>\
       </div>\
-      <div class="eight columns">\
+      <div class="seven columns">\
         <input type="text" name="vg_name" id="vg_name" />\
       </div>\
       <div class="one columns">\
       </div>\
     </div>\
-  </form>\
   </div>\
     <hr>\
   <div class="form_buttons">\
@@ -271,6 +270,7 @@ var create_datastore_tmpl =
       <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
   </div>\
   <a class="close-reveal-modal">&#215;</a>\
+  </form>\
 </div>';
 
 var datastore_image_table_tmpl='<thead>\
@@ -936,7 +936,7 @@ function select_ceph(){
     $('select#ds_mad').attr('disabled', 'disabled');
     $('select#tm_mad').val('ceph');
     $('select#tm_mad').attr('disabled', 'disabled');
-    $('select#ds_type').val('rbd');
+    $('select#disk_type').val('RBD');
 }
 
 function select_lvm(){

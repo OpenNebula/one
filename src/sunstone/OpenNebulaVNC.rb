@@ -103,6 +103,8 @@ class OpenNebulaVNC
             return false
         end
 
+        STDOUT.puts "VNC proxy started"
+
         true
     end
 

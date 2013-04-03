@@ -47,8 +47,8 @@ module OpenNebulaJSON
                  when "deploy"       then self.deploy(action_hash['params'])
                  when "finalize"     then self.finalize
                  when "hold"         then self.hold
-                 when "livemigrate"  then self.live_migrate(action_hash['params'])
-                 when "migrate"      then self.migrate(action_hash['params'])
+                 when "livemigrate"  then self.migrate(action_hash['params'], true)
+                 when "migrate"      then self.migrate(action_hash['params'], false)
                  when "resume"       then self.resume
                  when "release"      then self.release
                  when "stop"         then self.stop
@@ -87,12 +87,9 @@ module OpenNebulaJSON
             super(params['host_id'])
         end
 
-        def live_migrate(params=Hash.new)
-            super(params['host_id'])
-        end
-
-        def migrate(params=Hash.new)
-            super(params['host_id'])
+        def migrate(params=Hash.new, live=false, enforce=false)
+            # TODO add enforce parameter
+            super(params['host_id'], live)
         end
 
         def save_as(params=Hash.new)

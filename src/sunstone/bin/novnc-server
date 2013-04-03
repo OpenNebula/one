@@ -70,9 +70,9 @@ if ARGV[0]
     when :start
         vnc.start
     when :stop
-        vnc.stop(ARGV[1]=='--force')
+        vnc.stop(true)
     when :restart
-        vnc.stop
+        vnc.stop(true)
         sleep 1
         vnc.start
     when :status
