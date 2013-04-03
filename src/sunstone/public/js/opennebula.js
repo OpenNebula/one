@@ -83,7 +83,8 @@ var OpenNebula = {
                                "SUSPENDED",
                                "DONE",
                                "FAILED",
-                               "POWEROFF"][value]);
+                               "POWEROFF",
+                               "UNDEPLOYED"][value]);
                     break;
                 case "VM_LCM":
                 case "vm_lcm":
@@ -115,7 +116,10 @@ var OpenNebula = {
                                "HOTPLUG_NIC",
                                "HOTPLUG_SAVEAS",
                                "HOTPLUG_SAVEAS_POWEROFF",
-                               "HOTPLUG_SAVEAS_SUSPENDED"][value]);
+                               "HOTPLUG_SAVEAS_SUSPENDED",
+                               "SHUTDOWN_UNDEPLOY",
+                               "EPILOG_UNDEPLOY",  
+                               "PROLOG_UNDEPLOY"][value]);
                     break;
                 case "IMAGE":
                 case "image":
@@ -664,7 +668,20 @@ var OpenNebula = {
             OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"resubmit");
         },
         "poweroff" : function(params){
-            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"poweroff");
+            var action_obj = {"hard": false};
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"poweroff", action_obj);
+        },
+        "poweroff_hard" : function(params){
+            var action_obj = {"hard": true};
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"poweroff", action_obj);
+        },
+        "undeploy" : function(params){
+            var action_obj = {"hard": false};
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"undeploy", action_obj);
+        },
+        "undeploy_hard" : function(params){
+            var action_obj = {"hard": true};
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"undeploy", action_obj);
         },
         "reboot" : function(params){
             OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"reboot");

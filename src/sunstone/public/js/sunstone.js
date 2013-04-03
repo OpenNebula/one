@@ -582,19 +582,21 @@ function insertButtonsInTab(tab_name){
             "<div class='eight columns'>"+
                 '<div class="button-bar">'+
                   '<ul class="button-group right">'+
-                    '<li id="vmsstopresume_buttons">'+
+                    '<li id="vmsplanification_buttons">'+
                         "<div>"+
                             "<div href='#' class='top_button small button secondary dropdown radius'>"+
-                                "<i class='icon-play'/> / <i class='icon-pause'/>"+
+                                "<i class='icon-th-list'/>"+
                                 "<ul>"+
                                 "</ul>"+
                             "</div>"+
                         "</div>"+
                     '</li>'+
-                    '<li id="vmsoneoff_buttons">'+
+                  '</ul>'+
+                  '<ul class="button-group right">'+
+                    '<li id="vmsrepeat_buttons">'+
                         "<div>"+
                             "<div href='#' class='top_button small button secondary dropdown radius'>"+
-                                "<i class='icon-off'/>"+
+                                "<i class='icon-repeat'/>"+
                                 "<ul>"+
                                 "</ul>"+
                             "</div>"+
@@ -609,15 +611,34 @@ function insertButtonsInTab(tab_name){
                             "</div>"+
                         "</div>"+
                     '</li>'+
-                    '<li id="vmsplanification_buttons">'+
+                  '</ul>'+
+                  '<ul class="button-group right">'+
+                    '<li>'+
+                        "<div>"+
+                            "<div id='vmsplay_buttons'>"+
+                            "</div>"+
+                        "</div>"+
+                    '</li>'+
+                    '<li id="vmspause_buttons">'+
                         "<div>"+
                             "<div href='#' class='top_button small button secondary dropdown radius'>"+
-                                "<i class='icon-th-list'/>"+
+                                "<i class='icon-pause'/>"+
                                 "<ul>"+
                                 "</ul>"+
                             "</div>"+
                         "</div>"+
                     '</li>'+
+                    '<li id="vmsstop_buttons">'+
+                        "<div>"+
+                            "<div href='#' class='top_button small button secondary dropdown radius'>"+
+                                "<i class='icon-stop'/>"+
+                                "<ul>"+
+                                "</ul>"+
+                            "</div>"+
+                        "</div>"+
+                    '</li>'+
+                  '</ul>'+
+                  '<ul class="button-group right">'+
                     '<li>'+
                         "<div id='main_buttons'>"+
                             "<ul class='button-group radius'>"+
@@ -703,13 +724,24 @@ function insertButtonsInTab(tab_name){
                 str_class.push("secondary", "button", "small", "radius");
                 button_code = '<li><button type"button" class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button></li>';
                 break;
-            case "vmsstopresume_buttons":
-                context = $("#vmsstopresume_buttons ul", buttons_row);
+            case "vmsplay_buttons":
+                context = $("#vmsplay_buttons", buttons_row);
+                text = button.text;
+                str_class.push("secondary", "button", "small", "radius");
+                button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
+                break;
+            case "vmspause_buttons":
+                context = $("#vmspause_buttons ul", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
-            case "vmsplanification_buttons":
-                context = $("#vmsplanification_buttons ul", buttons_row);
+            case "vmsstop_buttons":
+                context = $("#vmsstop_buttons ul", buttons_row);
+                text = button.text;
+                button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
+                break;
+            case "vmsrepeat_buttons":
+                context = $("#vmsrepeat_buttons ul", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
@@ -718,8 +750,8 @@ function insertButtonsInTab(tab_name){
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
-            case "vmsoneoff_buttons":
-                context = $("#vmsoneoff_buttons ul", buttons_row);
+            case "vmsplanification_buttons":
+                context = $("#vmsplanification_buttons ul", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
@@ -769,12 +801,16 @@ function insertButtonsInTab(tab_name){
             $("#vmsdelete_buttons", action_block).remove()
         }
 
-        if  ($("#vmsoneoff_buttons ul li", action_block).length == 0 ) {
-            $("#vmsoneoff_buttons", action_block).remove()
+        if  ($("#vmsstop_buttons ul li", action_block).length == 0 ) {
+            $("#vmsstop_buttons", action_block).remove()
         }
 
-        if  ($("#vmsstopresume_buttons ul li", action_block).length == 0 ) {
-            $("#vmsstopresume_buttons", action_block).remove()
+        if  ($("#vmspause_buttons ul li", action_block).length == 0 ) {
+            $("#vmspause_buttons", action_block).remove()
+        }
+
+        if  ($("#vmsrepeat_buttons ul li", action_block).length == 0 ) {
+            $("#vmsrepeat_buttons", action_block).remove()
         }
 
         if  ($("#user_buttons ul li", action_block).length == 0 ) {

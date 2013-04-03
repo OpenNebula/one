@@ -371,6 +371,33 @@ var vm_actions = {
         notify: true
     },
 
+    "VM.poweroff_hard" : {
+        type: "multiple",
+        call: OpenNebula.VM.poweroff_hard,
+        callback: vmShow,
+        elements: vmElements,
+        error: onError,
+        notify: true
+    },
+
+    "VM.undeploy" : {
+        type: "multiple",
+        call: OpenNebula.VM.undeploy,
+        callback: vmShow,
+        elements: vmElements,
+        error: onError,
+        notify: true
+    },
+
+    "VM.undeploy_hard" : {
+        type: "multiple",
+        call: OpenNebula.VM.undeploy_hard,
+        callback: vmShow,
+        elements: vmElements,
+        error: onError,
+        notify: true
+    },
+
     "VM.saveas" : {
         type: "single",
         call: OpenNebula.VM.saveas,
@@ -754,44 +781,62 @@ var vm_buttons = {
     "VM.suspend" : {
         type: "confirm",
         text: tr("Suspend"),
-        layout: "vmsstopresume_buttons",
+        layout: "vmspause_buttons",
         tip: tr("This will suspend selected machines")
     },
     "VM.resume" : {
         type: "confirm",
-        text: tr("Resume"),
-        layout: "vmsstopresume_buttons",
+        text: '<i class="icon-play"/>',
+        layout: "vmsplay_buttons",
         tip: tr("This will resume selected stopped or suspended VMs")
     },
     "VM.stop" : {
         type: "confirm",
         text: tr("Stop"),
-        layout: "vmsstopresume_buttons",
+        layout: "vmsstop_buttons",
         tip: tr("This will stop selected VMs")
     },
     "VM.restart" : {
         type: "confirm",
         text: tr("Boot"),
-        layout: "vmsoneoff_buttons",
+        layout: "vmsplanification_buttons",
         tip: tr("This will redeploy selected VMs (in UNKNOWN or BOOT state)")
     },
     "VM.reboot" : {
         type : "confirm",
         text: tr("Reboot"),
-        layout: "vmsoneoff_buttons",
+        layout: "vmsrepeat_buttons",
         tip: tr("This will send a reboot action to running VMs")
     },
     "VM.reset" : {
         type: "confirm",
         text: tr("Reboot") + ' <span class="label secondary radius">hard</span>',
-        layout: "vmsoneoff_buttons",
+        layout: "vmsrepeat_buttons",
         tip: tr("This will perform a hard reboot on selected VMs")
     },
     "VM.poweroff" : {
         type : "confirm",
         text: tr("Power Off"),
-        layout: "vmsoneoff_buttons",
+        layout: "vmspause_buttons",
         tip: tr("This will send a power off signal to running VMs. They can be restarted later.")
+    },
+    "VM.poweroff_hard" : {
+        type : "confirm",
+        text: tr("Power Off") + ' <span class="label secondary radius">hard</span>',
+        layout: "vmspause_buttons",
+        tip: tr("This will send a power off signal to running VMs. They can be restarted later.")
+    },
+    "VM.undeploy" : {
+        type : "confirm",
+        text: tr("Undeploy"),
+        layout: "vmsstop_buttons",
+        tip: tr("Shuts down the given VM. The VM is saved in the system Datastore.")
+    },
+    "VM.undeploy_hard" : {
+        type : "confirm",
+        text: tr("Undeploy") + ' <span class="label secondary radius">hard</span>',
+        layout: "vmsstop_buttons",
+        tip: tr("Shuts down the given VM. The VM is saved in the system Datastore.")
     },
     "VM.shutdown" : {
         type: "confirm",
@@ -815,7 +860,7 @@ var vm_buttons = {
     "VM.resubmit" : {
         type: "confirm",
         text: tr("Destroy") + ' <span class="label secondary radius">recreate</span>',
-        layout: "vmsdelete_buttons",
+        layout: "vmsrepeat_buttons",
         tip: tr("This will resubmits VMs to PENDING state")
     },
 
@@ -1459,6 +1504,9 @@ function printActionsTable(vm_info)
                                 <option value="reboot">' + tr("reboot") + '</option>\
                                 <option value="reboot-hard">' + tr("reboot-hard") + '</option>\
                                 <option value="poweroff">' + tr("poweroff") + '</option>\
+                                <option value="poweroff-hard">' + tr("poweroff-hard") + '</option>\
+                                <option value="undeploy">' + tr("undeploy") + '</option>\
+                                <option value="undeploy-hard">' + tr("undeploy-hard") + '</option>\
                                 <option value="snapshot-create">' + tr("snapshot-create") + '</option>\
                               </select>\
               </td>\
