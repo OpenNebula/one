@@ -24,7 +24,7 @@ function loadVNC(){
 }
 loadVNC();
 
-var VNCstates=["RUNNING","SHUTDOWN","SHUTDOWN_POWEROFF","UNKNOWN","HOTPLUG","CANCEL","MIGRATE", "HOTPLUG_SNAPSHOT", "HOTPLUG_NIC", "HOTPLUG_SAVEAS", "HOTPLUG_SAVEAS_POWEROFF", "HOTPLUG_SAVEAS_SUSPENDED"];
+var VNCstates=["RUNNING","SHUTDOWN","SHUTDOWN_POWEROFF","UNKNOWN","HOTPLUG","CANCEL","MIGRATE", "HOTPLUG_SNAPSHOT", "HOTPLUG_NIC", "HOTPLUG_SAVEAS", "HOTPLUG_SAVEAS_POWEROFF", "HOTPLUG_SAVEAS_SUSPENDED", "SHUTDOWN_UNDEPLOY"];
 
 //Permanent storage for last value of aggregated network usage
 //Used to calculate bandwidth
@@ -1970,6 +1970,7 @@ function setupAttachDiskDialog(){
       </h3>\
     </div>\
     <form id="attach_disk_form" action="">\
+        <div class="reveal-body">\
           <div class="row centered">\
               <div class="four columns">\
                   <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
@@ -1982,7 +1983,8 @@ function setupAttachDiskDialog(){
               </div>\
           </div>' +
           generate_disk_tab_content("attach_disk", "attach_disk") +
-          '<hr>\
+          '</div>\
+          <hr>\
           <div class="form_buttons">\
               <button class="button radius right success" id="attach_disk_button" type="submit" value="VM.attachdisk">'+tr("Attach")+'</button>\
               <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
@@ -2231,6 +2233,7 @@ function setupAttachNicDialog(){
       </h3>\
     </div>\
     <form id="attach_nic_form" action="">\
+        <div class="reveal-body">\
           <div class="row centered">\
               <div class="four columns">\
                   <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
@@ -2243,7 +2246,8 @@ function setupAttachNicDialog(){
               </div>\
           </div>' +
           generate_nic_tab_content("attach_nic", "attach_nic") +
-          '<hr>\
+          '</div>\
+          <hr>\
           <div class="form_buttons">\
               <button class="button radius right success" id="attach_nic_button" type="submit" value="VM.attachnic">'+tr("Attach")+'</button>\
               <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
