@@ -2620,17 +2620,17 @@ function printSnapshots(vm_info){
     return html;
 }
 
-function setupSaveAsDialog(){
-    dialogs_context.append('<div id="save_as_dialog"></div>');
-    $save_as_dialog = $('#save_as_dialog',dialogs_context);
-    var dialog = $save_as_dialog;
+function setupSnapshotDialog(){
+    dialogs_context.append('<div id="snapshot_dialog"></div>');
+    $snapshot_dialog = $('#snapshot_dialog',dialogs_context);
+    var dialog = $snapshot_dialog;
 
     dialog.html('<div class="panel">\
   <h3>\
     <small id="">'+tr("Snapshot")+'</small>\
   </h3>\
 </div>\
-<form id="save_as_form" action="">\
+<form id="snapshot_form" action="">\
       <div class="row centered">\
           <div class="four columns">\
               <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
@@ -2664,7 +2664,7 @@ function setupSaveAsDialog(){
     dialog.addClass("reveal-modal");
     setupTips(dialog);
 
-    $('#save_as_form',dialog).submit(function(){
+    $('#snapshot_form',dialog).submit(function(){
         var vm_id = $('#vm_id', this).val();
         var snapshot_name = $('#snapshot_name', this).val();
 
@@ -2674,14 +2674,14 @@ function setupSaveAsDialog(){
 
         Sunstone.runAction('VM.snapshot_create', vm_id, obj);
 
-        $save_as_dialog.trigger("reveal:close")
+        $snapshot_dialog.trigger("reveal:close")
         return false;
     });
 };
 
 function popUpSnapshotDialog(vm_id){
-    $('#vm_id',$save_as_dialog).val(vm_id);
-    $save_as_dialog.reveal();
+    $('#vm_id',$snapshot_dialog).val(vm_id);
+    $snapshot_dialog.reveal();
 }
 
 
@@ -2689,7 +2689,7 @@ function popUpSnapshotDialog(vm_id){
 
 // Listeners to the disks operations (detach, saveas, attach)
 function setup_vm_snapshot_tab(){
-    setupSaveAsDialog();
+    setupSnapshotDialog();
 
     $('a.snapshot_revert').live('click', function(){
         var b = $(this);
