@@ -919,6 +919,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
         break;
 
         case VirtualMachine::EPILOG_STOP:
+        case VirtualMachine::EPILOG_UNDEPLOY:
         case VirtualMachine::EPILOG:
             vm->set_epilog_etime(the_time);
             vmpool->update_history(vm);

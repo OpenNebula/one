@@ -223,7 +223,7 @@ int DispatchManager::undeploy(
         return -1;
     }
 
-    oss << "Shutting down VM " << vid;
+    oss << "Undeploying VM " << vid;
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
@@ -252,7 +252,7 @@ int DispatchManager::undeploy(
 
 error:
     oss.str("");
-    oss << "Could not shutdown VM " << vid << ", wrong state.";
+    oss << "Could not undeploy VM " << vid << ", wrong state.";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
     vm->unlock();
