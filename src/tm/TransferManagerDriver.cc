@@ -122,11 +122,13 @@ void TransferManagerDriver::protocol(
                 case VirtualMachine::PROLOG:
                 case VirtualMachine::PROLOG_MIGRATE:
                 case VirtualMachine::PROLOG_RESUME:
+                case VirtualMachine::PROLOG_UNDEPLOY:
                     lcm_action = LifeCycleManager::PROLOG_SUCCESS;
                     break;
 
                 case VirtualMachine::EPILOG:
                 case VirtualMachine::EPILOG_STOP:
+                case VirtualMachine::EPILOG_UNDEPLOY:
                 case VirtualMachine::CLEANUP_RESUBMIT:
                     lcm_action = LifeCycleManager::EPILOG_SUCCESS;
                     break;
@@ -165,11 +167,13 @@ void TransferManagerDriver::protocol(
                 case VirtualMachine::PROLOG:
                 case VirtualMachine::PROLOG_MIGRATE:
                 case VirtualMachine::PROLOG_RESUME:
+                case VirtualMachine::PROLOG_UNDEPLOY:
                     lcm_action = LifeCycleManager::PROLOG_FAILURE;
                     break;
 
                 case VirtualMachine::EPILOG:
                 case VirtualMachine::EPILOG_STOP:
+                case VirtualMachine::EPILOG_UNDEPLOY:
                 case VirtualMachine::CLEANUP_RESUBMIT:
                     lcm_action = LifeCycleManager::EPILOG_FAILURE;
                     break;

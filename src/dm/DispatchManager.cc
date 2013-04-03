@@ -77,6 +77,10 @@ void DispatchManager::trigger(Actions action, int _vid)
         aname = "STOP_SUCCESS";
         break;
 
+    case UNDEPLOY_SUCCESS:
+        aname = "UNDEPLOY_SUCCESS";
+        break;
+
     case POWEROFF_SUCCESS:
         aname = "POWEROFF_SUCCESS";
         break;
@@ -129,6 +133,10 @@ void DispatchManager::do_action(const string &action, void * arg)
     else if (action == "STOP_SUCCESS")
     {
         stop_success_action(vid);
+    }
+    else if (action == "UNDEPLOY_SUCCESS")
+    {
+        undeploy_success_action(vid);
     }
     else if (action == "POWEROFF_SUCCESS")
     {

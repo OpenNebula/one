@@ -58,7 +58,8 @@ public:
         SUSPENDED = 5,
         DONE      = 6,
         FAILED    = 7,
-        POWEROFF  = 8
+        POWEROFF  = 8,
+        UNDEPLOYED = 9
     };
 
     /**
@@ -94,7 +95,10 @@ public:
         HOTPLUG_NIC         = 25,
         HOTPLUG_SAVEAS           = 26,
         HOTPLUG_SAVEAS_POWEROFF  = 27,
-        HOTPLUG_SAVEAS_SUSPENDED = 28
+        HOTPLUG_SAVEAS_SUSPENDED = 28,
+        SHUTDOWN_UNDEPLOY   = 29,
+        EPILOG_UNDEPLOY     = 30,
+        PROLOG_UNDEPLOY     = 31
     };
 
     // -------------------------------------------------------------------------
