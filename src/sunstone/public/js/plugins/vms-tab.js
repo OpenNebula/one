@@ -1272,33 +1272,6 @@ function updateVMInfo(request,vm){
               </tr>\
               </tbody>\
                </table>\
-               <table id="vm_monitoring_table" class="twelve datatable extended_table">\
-                   <thead>\
-                     <tr><th colspan="2">'+tr("Monitoring information")+'</th></tr>\
-                   </thead>\
-                   <tbody>\
-                      <tr>\
-                        <td class="key_td">'+tr("Net_TX")+'</td>\
-                        <td class="value_td">'+vm_info.NET_TX+'</td>\
-                      </tr>\
-                      <tr>\
-                        <td class="key_td">'+tr("Net_RX")+'</td>\
-                        <td class="value_td">'+vm_info.NET_RX+'</td>\
-                      </tr>\
-                      <tr>\
-                        <td class="key_td">'+tr("Used Memory")+'</td>\
-                        <td class="value_td">'+humanize_size(vm_info.MEMORY)+'</td>\
-                      </tr>\
-                      <tr>\
-                        <td class="key_td">'+tr("Used CPU")+'</td>\
-                        <td class="value_td">'+vm_info.CPU+'</td>\
-                      </tr>\
-                      <tr>\
-                        <td class="key_td">'+tr("VNC Session")+'</td>\
-                        <td class="value_td">'+vncIcon(vm_info)+'</td>\
-                      </tr>\
-                    </tbody>\
-                </table>\
             </div>\
             <div class="six columns">' +
                insert_permissions_table("VM",
