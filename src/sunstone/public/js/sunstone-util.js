@@ -1293,7 +1293,7 @@ function quotaListItem(quota_json){
 
     str += '><td>'+
         quota_json.TYPE+
-        '</td><td style="width:100%;"><pre style="margin:0;">';
+        '</td><td style="width:100%;">';
     switch(quota_json.TYPE){
     case "VM":
         str +=  'VMs: ' + quota_json.VMS + (quota_json.VMS_USED ? ' (' + quota_json.VMS_USED + '). ' : ". ") + '<br>' +
@@ -1314,7 +1314,7 @@ function quotaListItem(quota_json){
                'Leases: ' + quota_json.LEASES +  (quota_json.LEASES_USED ? ' (' + quota_json.LEASES_USED + '). ': ". ");
         break;
     }
-    str += '</td><td><button class="quota_edit_icon"><i class="icon-pencil"></i></button></pre></td></tr>';
+    str += '</td><td><button class="quota_edit_icon"><i class="icon-pencil"></i></button></td></tr>';
     return str;
 }
 

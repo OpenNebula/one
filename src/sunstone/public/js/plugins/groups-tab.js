@@ -137,7 +137,7 @@ var group_quotas_tmpl = '<div class="panel">\
               <label class="inline right" >'+tr("Max VMs")+':</label>\
           </div>\
           <div class="seven columns">\
-            <input type="text" name="VMS"></input><br />\
+            <input type="text" name="VMS"></input>\
           </div>\
           <div class="one columns">\
               <div class=""></div>\
@@ -148,7 +148,7 @@ var group_quotas_tmpl = '<div class="panel">\
               <label class="inline right" >'+tr("Max Memory (MB)")+':</label>\
           </div>\
           <div class="seven columns">\
-            <input type="text" name="MEMORY"></input><br />\
+            <input type="text" name="MEMORY"></input>\
           </div>\
           <div class="one columns">\
               <div class=""></div>\
@@ -172,7 +172,7 @@ var group_quotas_tmpl = '<div class="panel">\
               <label class="inline right" >'+tr("Datastore")+'</label>\
           </div>\
           <div class="seven columns">\
-            <select name="ID"></select><br />\
+            <select name="ID"></select>\
           </div>\
           <div class="one columns">\
               <div class=""></div>\
@@ -183,7 +183,7 @@ var group_quotas_tmpl = '<div class="panel">\
               <label class="inline right" >'+tr("Max size (MB)")+':</label>\
           </div>\
           <div class="seven columns">\
-            <input type="text" name="SIZE"></input><br />\
+            <input type="text" name="SIZE"></input>\
           </div>\
           <div class="one columns">\
               <div class=""></div>\
@@ -207,7 +207,7 @@ var group_quotas_tmpl = '<div class="panel">\
               <label class="inline right" >'+tr("Image")+'</label>\
           </div>\
           <div class="seven columns">\
-            <select name="ID"></select><br />\
+            <select name="ID"></select>\
           </div>\
           <div class="one columns">\
               <div class=""></div>\
@@ -231,7 +231,7 @@ var group_quotas_tmpl = '<div class="panel">\
               <label class="inline right" >'+tr("Network")+'</label>\
           </div>\
           <div class="seven columns">\
-            <select name="ID"></select><br />\
+            <select name="ID"></select>\
           </div>\
           <div class="one columns">\
               <div class=""></div>\
