@@ -299,10 +299,10 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
 void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
                                            RequestAttributes& att)
 {
-    string action = xmlrpc_c::value_string(paramList.getString(1));
-    int    id     = xmlrpc_c::value_int(paramList.getInt(2));
+    string action_st = xmlrpc_c::value_string(paramList.getString(1));
+    int    id        = xmlrpc_c::value_int(paramList.getInt(2));
 
-    int    rc = -3;
+    int    rc;
 
     Nebula& nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
@@ -310,8 +310,33 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     ostringstream oss;
 
     AuthRequest::Operation op = auth_op;
+    History::VMAction action;
 
-    if (action == "resched" || action == "unresched")
+    // Compatibility with 3.8
+    if (action_st == "cancel")
+    {
+        action_st = "shutdown-hard";
+    }
+    else if (action_st == "restart")
+    {
+        action_st = "boot";
+    }
+    else if (action_st == "finalize")
+    {
+        action_st = "destroy";
+    }
+    else if (action_st == "resubmit")
+    {
+        action_st = "destroy-recreate";
+    }
+    else if (action_st == "reset")
+    {
+        action_st = "reboot-hard";
+    }
+
+    History::action_from_str(action_st, action);
+
+    if (action == History::RESCHED_ACTION || action == History::UNRESCHED_ACTION)
     {
         op = AuthRequest::ADMIN;
     }
@@ -321,73 +346,62 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if (action == "shutdown")
+    switch (action)
     {
-        rc = dm->shutdown(id);
-    }
-    else if (action == "hold")
-    {
-        rc = dm->hold(id);
-    }
-    else if (action == "release")
-    {
-        rc = dm->release(id);
-    }
-    else if (action == "stop")
-    {
-        rc = dm->stop(id);
-    }
-    else if (action == "shutdown-hard" || action == "cancel")
-    {
-        rc = dm->cancel(id);
-    }
-    else if (action == "suspend")
-    {
-        rc = dm->suspend(id);
-    }
-    else if (action == "resume")
-    {
-        rc = dm->resume(id);
-    }
-    else if (action == "boot" || action == "restart")
-    {
-        rc = dm->restart(id);
-    }
-    else if (action == "destroy" || action == "finalize")
-    {
-        rc = dm->finalize(id);
-    }
-    else if (action == "destroy-recreate" || action == "resubmit")
-    {
-        rc = dm->resubmit(id);
-    }
-    else if (action == "reboot")
-    {
-        rc = dm->reboot(id);
-    }
-    else if (action == "resched")
-    {
-        rc = dm->resched(id, true);
-    }
-    else if (action == "unresched")
-    {
-        rc = dm->resched(id, false);
-    }
-    else if (action == "reboot-hard" || action == "reset")
-    {
-        rc = dm->reset(id);
-    }
-    else if (action == "poweroff")
-    {
-        rc = dm->poweroff(id);
-    }
-    else if (action == "undeploy")
-    {
-        rc = dm->undeploy(id, false);
-    }
-    else if (action == "undeploy-hard")
-    {
-        rc = dm->undeploy(id, true);
+        case History::SHUTDOWN_ACTION:
+            rc = dm->shutdown(id);
+            break;
+        case History::HOLD_ACTION:
+            rc = dm->hold(id);
+            break;
+        case History::RELEASE_ACTION:
+            rc = dm->release(id);
+            break;
+        case History::STOP_ACTION:
+            rc = dm->stop(id);
+            break;
+        case History::SHUTDOWN_HARD_ACTION:
+            rc = dm->cancel(id);
+            break;
+        case History::SUSPEND_ACTION:
+            rc = dm->suspend(id);
+            break;
+        case History::RESUME_ACTION:
+            rc = dm->resume(id);
+            break;
+        case History::BOOT_ACTION:
+            rc = dm->restart(id);
+            break;
+        case History::DESTROY_ACTION:
+            rc = dm->finalize(id);
+            break;
+        case History::DESTROY_RECREATE_ACTION:
+            rc = dm->resubmit(id);
+            break;
+        case History::REBOOT_ACTION:
+            rc = dm->reboot(id);
+            break;
+        case History::RESCHED_ACTION:
+            rc = dm->resched(id, true);
+            break;
+        case History::UNRESCHED_ACTION:
+            rc = dm->resched(id, false);
+            break;
+        case History::REBOOT_HARD_ACTION:
+            rc = dm->reset(id);
+            break;
+        case History::POWEROFF_ACTION:
+            rc = dm->poweroff(id);
+            break;
+        case History::UNDEPLOY_ACTION:
+            rc = dm->undeploy(id, false);
+            break;
+        case History::UNDEPLOY_HARD_ACTION:
+            rc = dm->undeploy(id, true);
+            break;
+        default:
+            rc = -3;
+            break;
     }
 
     switch (rc)
@@ -401,14 +415,14 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
                     att);
             break;
         case -2:
-            oss << "Wrong state to perform action \"" << action << "\"";
+            oss << "Wrong state to perform action \"" << action_st << "\"";
 
             failure_response(ACTION,
                     request_error(oss.str(),""),
                     att);
              break;
         case -3:
-            oss << "Virtual machine action \"" << action
+            oss << "Virtual machine action \"" << action_st
                 << "\" is not supported";
 
             failure_response(ACTION,

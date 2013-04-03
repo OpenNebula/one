@@ -62,7 +62,7 @@ public:
         NONE_ACTION
     };
 
-    string action_to_str(VMAction action)
+    static string action_to_str(VMAction action)
     {
         string st;
 
@@ -133,7 +133,7 @@ public:
         return st;
     };
 
-    int action_from_str(string& st, VMAction& action)
+    static int action_from_str(string& st, VMAction& action)
     {
         if (st == "migrate")
         {
