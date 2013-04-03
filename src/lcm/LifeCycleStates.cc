@@ -222,6 +222,10 @@ void  LifeCycleManager::save_failure_action(int vid)
 
         vmpool->update(vm);
 
+        vm->set_history_action(History::NONE_ACTION);
+
+        vmpool->update_history(vm);
+
         vm->log("LCM", Log::INFO, "Fail to save VM state."
                 " Assuming that the VM is still RUNNING (will poll VM).");
 
@@ -576,6 +580,10 @@ void  LifeCycleManager::shutdown_failure_action(int vid)
         vm->set_state(VirtualMachine::RUNNING);
 
         vmpool->update(vm);
+
+        vm->set_history_action(History::NONE_ACTION);
+
+        vmpool->update_history(vm);
 
         vm->log("LCM", Log::INFO, "Fail to shutdown VM."
                 " Assuming that the VM is still RUNNING (will poll VM).");
@@ -1020,6 +1028,10 @@ void  LifeCycleManager::cancel_failure_action(int vid)
         vm->set_state(VirtualMachine::RUNNING);
 
         vmpool->update(vm);
+
+        vm->set_history_action(History::NONE_ACTION);
+
+        vmpool->update_history(vm);
 
         vm->log("LCM", Log::INFO, "Fail to cancel VM."
                 " Assuming that the VM is still RUNNING (will poll VM).");

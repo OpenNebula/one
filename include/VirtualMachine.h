@@ -497,12 +497,21 @@ public:
     };
 
     /**
-     *  Returns the reason that originated the VM migration in the previous host
-     *    @return the migration reason to leave this host
+     *  Returns the reason that closed the history record in the previous host
+     *    @return the reason to close the history record in the previous host
      */
     const History::MigrationReason get_previous_reason() const
     {
         return previous_history->reason;
+    };
+
+    /**
+     *  Returns the action that closed the history record in the previous host
+     *    @return the action that closed the history record in the previous host
+     */
+    const History::VMAction get_previous_history_action() const
+    {
+        return previous_history->action;
     };
 
     /**
@@ -630,8 +639,8 @@ public:
     };
 
     /**
-     *  Sets the reason that originated the VM migration
-     *    @param _reason migration reason to leave this host
+     *  Sets the reason that closed the history record
+     *    @param _reason reason to close the history record
      */
     void set_reason(History::MigrationReason _reason)
     {
@@ -639,14 +648,33 @@ public:
     };
 
     /**
-     *  Sets the reason that originated the VM migration in the previous host
-     *    @param _reason migration reason to leave this host
+     *  Sets the reason that closed the history record in the previous host
+     *    @param _reason reason to close the history record in the previous host
      */
     void set_previous_reason(History::MigrationReason _reason)
     {
         previous_history->reason=_reason;
     };
 
+    /**
+     *  Sets the action that closed the history record
+     *    @param action that closed the history record
+     */
+    void set_history_action(History::VMAction action)
+    {
+        history->action = action;
+    };
+
+    /**
+     *  Sets the action that closed the history record in the previous host
+     *    @param action that closed the history record in the previous host
+     */
+/*
+    void set_previous_history_action(History::VMAction action)
+    {
+        previous_history->action = action;
+    };
+*/
     // ------------------------------------------------------------------------
     // Template
     // ------------------------------------------------------------------------
