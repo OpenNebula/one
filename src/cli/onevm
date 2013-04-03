@@ -350,12 +350,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :poweroff, poweroff_desc, [:range,:vmid_list],
-        :options => [OneVMHelper::SCHEDULE] do
+        :options => [OneVMHelper::SCHEDULE, OneVMHelper::HARD] do
+
+        command_name='poweroff'
+        command_name<<'-hard' if options[:hard]
+
         if (!options[:schedule].nil?)
             helper.schedule_actions(args[0], options, @comm_name)
         else
             helper.perform_actions(args[0],options,"shutting down") do |vm|
-                vm.poweroff
+                vm.poweroff(options[:hard]==true)
             end
         end
     end

@@ -422,6 +422,22 @@ void  LifeCycleManager::undeploy_action(int vid, bool hard)
 
 void  LifeCycleManager::poweroff_action(int vid)
 {
+    poweroff_action(vid, false);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void  LifeCycleManager::poweroff_hard_action(int vid)
+{
+    poweroff_action(vid, true);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void  LifeCycleManager::poweroff_action(int vid, bool hard)
+{
     VirtualMachine *    vm;
 
     vm = vmpool->get(vid,true);
@@ -455,7 +471,14 @@ void  LifeCycleManager::poweroff_action(int vid)
 
         //----------------------------------------------------
 
-        vmm->trigger(VirtualMachineManager::SHUTDOWN,vid);
+        if (hard)
+        {
+            vmm->trigger(VirtualMachineManager::CANCEL,vid);
+        }
+        else
+        {
+            vmm->trigger(VirtualMachineManager::SHUTDOWN,vid);
+        }
     }
     else
     {

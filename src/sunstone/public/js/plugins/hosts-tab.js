@@ -86,7 +86,7 @@ var create_host_tmpl =
   <div class="reveal-body">\
   <div class="row">\
       <div class="four columns">\
-          <label class="inline right" for="name">' + tr("Name")  + ':</label>\
+          <label class="inline right" for="name">' + tr("Hostname")  + ':</label>\
       </div>\
       <div class="seven columns">\
           <input type="text" name="name" id="name" />\

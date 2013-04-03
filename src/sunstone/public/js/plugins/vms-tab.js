@@ -24,7 +24,7 @@ function loadVNC(){
 }
 loadVNC();
 
-var VNCstates=["RUNNING","SHUTDOWN","SHUTDOWN_POWEROFF","UNKNOWN","HOTPLUG","CANCEL","MIGRATE", "HOTPLUG_SNAPSHOT", "HOTPLUG_NIC", "HOTPLUG_SAVEAS", "HOTPLUG_SAVEAS_POWEROFF", "HOTPLUG_SAVEAS_SUSPENDED"];
+var VNCstates=["RUNNING","SHUTDOWN","SHUTDOWN_POWEROFF","UNKNOWN","HOTPLUG","CANCEL","MIGRATE", "HOTPLUG_SNAPSHOT", "HOTPLUG_NIC", "HOTPLUG_SAVEAS", "HOTPLUG_SAVEAS_POWEROFF", "HOTPLUG_SAVEAS_SUSPENDED", "SHUTDOWN_UNDEPLOY"];
 
 //Permanent storage for last value of aggregated network usage
 //Used to calculate bandwidth
@@ -1272,33 +1272,6 @@ function updateVMInfo(request,vm){
               </tr>\
               </tbody>\
                </table>\
-               <table id="vm_monitoring_table" class="twelve datatable extended_table">\
-                   <thead>\
-                     <tr><th colspan="2">'+tr("Monitoring information")+'</th></tr>\
-                   </thead>\
-                   <tbody>\
-                      <tr>\
-                        <td class="key_td">'+tr("Net_TX")+'</td>\
-                        <td class="value_td">'+vm_info.NET_TX+'</td>\
-                      </tr>\
-                      <tr>\
-                        <td class="key_td">'+tr("Net_RX")+'</td>\
-                        <td class="value_td">'+vm_info.NET_RX+'</td>\
-                      </tr>\
-                      <tr>\
-                        <td class="key_td">'+tr("Used Memory")+'</td>\
-                        <td class="value_td">'+humanize_size(vm_info.MEMORY)+'</td>\
-                      </tr>\
-                      <tr>\
-                        <td class="key_td">'+tr("Used CPU")+'</td>\
-                        <td class="value_td">'+vm_info.CPU+'</td>\
-                      </tr>\
-                      <tr>\
-                        <td class="key_td">'+tr("VNC Session")+'</td>\
-                        <td class="value_td">'+vncIcon(vm_info)+'</td>\
-                      </tr>\
-                    </tbody>\
-                </table>\
             </div>\
             <div class="six columns">' +
                insert_permissions_table("VM",
@@ -1997,6 +1970,7 @@ function setupAttachDiskDialog(){
       </h3>\
     </div>\
     <form id="attach_disk_form" action="">\
+        <div class="reveal-body">\
           <div class="row centered">\
               <div class="four columns">\
                   <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
@@ -2009,7 +1983,8 @@ function setupAttachDiskDialog(){
               </div>\
           </div>' +
           generate_disk_tab_content("attach_disk", "attach_disk") +
-          '<hr>\
+          '</div>\
+          <hr>\
           <div class="form_buttons">\
               <button class="button radius right success" id="attach_disk_button" type="submit" value="VM.attachdisk">'+tr("Attach")+'</button>\
               <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
@@ -2258,6 +2233,7 @@ function setupAttachNicDialog(){
       </h3>\
     </div>\
     <form id="attach_nic_form" action="">\
+        <div class="reveal-body">\
           <div class="row centered">\
               <div class="four columns">\
                   <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
@@ -2270,7 +2246,8 @@ function setupAttachNicDialog(){
               </div>\
           </div>' +
           generate_nic_tab_content("attach_nic", "attach_nic") +
-          '<hr>\
+          '</div>\
+          <hr>\
           <div class="form_buttons">\
               <button class="button radius right success" id="attach_nic_button" type="submit" value="VM.attachnic">'+tr("Attach")+'</button>\
               <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
@@ -2620,17 +2597,17 @@ function printSnapshots(vm_info){
     return html;
 }
 
-function setupSaveAsDialog(){
-    dialogs_context.append('<div id="save_as_dialog"></div>');
-    $save_as_dialog = $('#save_as_dialog',dialogs_context);
-    var dialog = $save_as_dialog;
+function setupSnapshotDialog(){
+    dialogs_context.append('<div id="snapshot_dialog"></div>');
+    $snapshot_dialog = $('#snapshot_dialog',dialogs_context);
+    var dialog = $snapshot_dialog;
 
     dialog.html('<div class="panel">\
   <h3>\
     <small id="">'+tr("Snapshot")+'</small>\
   </h3>\
 </div>\
-<form id="save_as_form" action="">\
+<form id="snapshot_form" action="">\
       <div class="row centered">\
           <div class="four columns">\
               <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
@@ -2664,7 +2641,7 @@ function setupSaveAsDialog(){
     dialog.addClass("reveal-modal");
     setupTips(dialog);
 
-    $('#save_as_form',dialog).submit(function(){
+    $('#snapshot_form',dialog).submit(function(){
         var vm_id = $('#vm_id', this).val();
         var snapshot_name = $('#snapshot_name', this).val();
 
@@ -2674,14 +2651,14 @@ function setupSaveAsDialog(){
 
         Sunstone.runAction('VM.snapshot_create', vm_id, obj);
 
-        $save_as_dialog.trigger("reveal:close")
+        $snapshot_dialog.trigger("reveal:close")
         return false;
     });
 };
 
 function popUpSnapshotDialog(vm_id){
-    $('#vm_id',$save_as_dialog).val(vm_id);
-    $save_as_dialog.reveal();
+    $('#vm_id',$snapshot_dialog).val(vm_id);
+    $snapshot_dialog.reveal();
 }
 
 
@@ -2689,7 +2666,7 @@ function popUpSnapshotDialog(vm_id){
 
 // Listeners to the disks operations (detach, saveas, attach)
 function setup_vm_snapshot_tab(){
-    setupSaveAsDialog();
+    setupSnapshotDialog();
 
     $('a.snapshot_revert').live('click', function(){
         var b = $(this);

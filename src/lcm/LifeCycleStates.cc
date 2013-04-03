@@ -931,6 +931,7 @@ void  LifeCycleManager::cancel_success_action(int vid)
 {
     Nebula&             nd = Nebula::instance();
     TransferManager *   tm = nd.get_tm();
+    DispatchManager *   dm = nd.get_dm();
     VirtualMachine *    vm;
     time_t              the_time = time(0);
 
@@ -993,6 +994,30 @@ void  LifeCycleManager::cancel_success_action(int vid)
 
         tm->trigger(TransferManager::EPILOG_STOP,vid);
     }
+    else if (vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF)
+    {
+        //----------------------------------------------------
+        //                POWEROFF STATE
+        //----------------------------------------------------
+
+        vm->delete_snapshots();
+
+        vmpool->update(vm);
+
+        vm->set_running_etime(the_time);
+
+        vm->set_etime(the_time);
+
+        vm->set_vm_info();
+
+        vm->set_reason(History::STOP_RESUME);
+
+        vmpool->update_history(vm);
+
+        //----------------------------------------------------
+
+        dm->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
+    }
     else
     {
         vm->log("LCM",Log::ERROR,"cancel_success_action, VM in a wrong state");
@@ -1019,11 +1044,12 @@ void  LifeCycleManager::cancel_failure_action(int vid)
     }
 
     if ( vm->get_lcm_state() == VirtualMachine::CANCEL ||
-         vm->get_lcm_state() == VirtualMachine::SHUTDOWN_UNDEPLOY )
+         vm->get_lcm_state() == VirtualMachine::SHUTDOWN_UNDEPLOY ||
+         vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF)
     {
-        //----------------------------------------------------
-        //    RUNNING STATE FROM CANCEL
-        //----------------------------------------------------
+        //------------------------------------------------------------------
+        // RUNNING STATE FROM CANCEL, SHUTDOWN_POWEROFF OR SHUTDOWN_UNDEPLOY
+        //------------------------------------------------------------------
 
         vm->set_state(VirtualMachine::RUNNING);
 
