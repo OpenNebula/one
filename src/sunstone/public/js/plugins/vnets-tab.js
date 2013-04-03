@@ -78,8 +78,8 @@ var create_vn_tmpl =
         </dl>\
         <ul class="tabs-content">\
         <li class="active" id="easyTab">\
-        <div class="reveal-body">\
            <form id="create_vn_form_easy" action="" class="creation">\
+        <div class="reveal-body">\
             <div class="row">\
               <div class="three columns">\
                 <label class="right inline" for="name" >' + tr("Name") + ':</label>\
@@ -240,7 +240,8 @@ var create_vn_tmpl =
                   <div class="one columns">\
                   </div>\
                 </div>\
-              </div>\<div class="six columns">\
+              </div>\
+              <div class="six columns">\
                 <div class="row">\
                   <div class="four columns">\
                     <label class="right inline" for="vlan">'+tr("VLAN")+':</label>\
@@ -316,7 +317,6 @@ var create_vn_tmpl =
                  </div>\
               </fieldset>\
             </div>\
-        </form>\
         </div>\
         <hr>\
         <div class="form_buttons">\
@@ -326,13 +326,13 @@ var create_vn_tmpl =
           <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
           <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
         </div>\
+        </form>\
       </li>\
       <li id="manualTab">\
-        <div class="reveal-body">\
         <form id="create_vn_form_manual" action="">\
+        <div class="reveal-body">\
            <h4><small>'+tr("Write the Virtual Network template here")+'</small></h4>\
                <textarea id="template" rows="15" style="width:100%;"></textarea>\
-          </form>\
           </div>\
           <hr>\
                 <div class="form_buttons">\
@@ -342,6 +342,7 @@ var create_vn_tmpl =
                 <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
                 <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
                 </div>\
+          </form>\
         </li>\
     </ul>\
     <a class="close-reveal-modal">&#215;</a>\

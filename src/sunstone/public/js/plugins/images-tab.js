@@ -74,6 +74,7 @@ var create_image_tmpl =
   <div class="panel">\
     <h3><small>'+tr("Create Image")+'</small></h4>\
   </div>\
+  <form id="create_image" action="" class="custom creation">\
         <dl class="tabs">\
         <dd class="active"><a href="#img_easy">'+tr("Wizard")+'</a></dd>\
           <dd><a href="#img_manual">'+tr("Advanced mode")+'</a></dd>\
@@ -81,7 +82,6 @@ var create_image_tmpl =
         <ul class="tabs-content">\
         <li id="img_easyTab" class="active">\
         <div class="reveal-body">\
-           <form id="create_image_form_easy" action="" class="custom creation">\
                   <div class="row vm_param">\
                     <div class="six columns">\
                       <div class="row">\
@@ -256,7 +256,6 @@ var create_image_tmpl =
                   </div>\
                   </div>\
                   <hr>\
-            </form>\
             <div class="form_buttons">\
               <button class="button success radius right" id="create_image_submit" value="image/create">'+tr("Create")+'</button>\
               <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
@@ -265,7 +264,6 @@ var create_image_tmpl =
         </li>\
         <li id="img_manualTab">\
         <div class="reveal-body">\
-            <form id="create_image_form_manual" action="" class="custom">\
                  <h4><small>'+tr("Write the image template here")+'</small></h4>\
                  <label for="img_datastores_raw">'+tr("Datastore")+':</label>\
                  <select id="img_datastore_raw" name="img_datastore_raw">\
@@ -278,10 +276,10 @@ var create_image_tmpl =
                  <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
                  <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
                </div>\
-           </form>\
         </li>\
         </ul>\
         <a class="close-reveal-modal">&#215;</a>\
+           </form>\
 </div>';
 
 var dataTable_images;
