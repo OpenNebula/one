@@ -87,6 +87,7 @@ public:
         UNDEPLOY,         /**< Sent by the DM to undeploy a running VM        */
         UNDEPLOY_HARD,    /**< Sent by the DM to force undeploy a running VM  */
         POWEROFF,         /**< Sent by the DM to power off a running VM       */
+        POWEROFF_HARD,    /**< Sent by the DM to power off hard a running VM  */
         RESTART,          /**< Sent by the DM to restart a deployed VM        */
         DELETE,           /**< Sent by the DM to delete a VM                  */
         CLEAN,            /**< Sent by the DM to cleanup a VM for resubmission*/
@@ -252,6 +253,10 @@ private:
     void undeploy_action(int vid, bool hard);
 
     void poweroff_action(int vid);
+
+    void poweroff_hard_action(int vid);
+
+    void poweroff_action(int vid, bool hard);
 
     void failure_action(VirtualMachine * vm);
 

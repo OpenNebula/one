@@ -857,7 +857,20 @@ public class VirtualMachine extends PoolElement{
      */
     public OneResponse poweroff()
     {
-        return action("poweroff");
+        return poweroff(false);
+    }
+
+    /**
+     * Powers off a running VM.
+     * @param hard True to perform a hard (no acpi) shutdown, false for a
+     * graceful shutdown
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse poweroff(boolean hard)
+    {
+        String actionSt = hard ? "poweroff-hard" : "poweroff";
+
+        return action(actionSt);
     }
 
     /**
