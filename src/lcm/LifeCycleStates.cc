@@ -534,7 +534,7 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         vm->set_running_etime(the_time);
 
-        vm->set_reason(History::NONE);
+        vm->set_reason(History::USER);
 
         vmpool->update_history(vm);
 
@@ -753,7 +753,7 @@ void  LifeCycleManager::prolog_failure_action(int vid)
 
         vm->set_vm_info();
 
-        vm->set_reason(History::NONE);
+        vm->set_reason(History::ERROR);
 
         vmpool->update_history(vm);
 
@@ -984,7 +984,7 @@ void  LifeCycleManager::cancel_success_action(int vid)
 
         vm->set_running_etime(the_time);
 
-        vm->set_reason(History::NONE);
+        vm->set_reason(History::USER);
 
         vmpool->update_history(vm);
 
@@ -1010,7 +1010,7 @@ void  LifeCycleManager::cancel_success_action(int vid)
 
         vm->set_vm_info();
 
-        vm->set_reason(History::NONE);
+        vm->set_reason(History::USER);
 
         vmpool->update_history(vm);
 
