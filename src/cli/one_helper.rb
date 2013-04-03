@@ -729,8 +729,8 @@ EOT
                 end
             end
 
-            if options[:net_context] && options[:network]
-                nets=options[:network].map {|n| parse_user_object(n).last }
+            if options[:net_context] && options[:nic]
+                nets=options[:nic].map {|n| parse_user_object(n).last }
 
                 if nets!=nets.uniq
                     STDERR.puts "Network context generation from command "<<
@@ -789,8 +789,8 @@ EOT
             template<<res.last
         end
 
-        if options[:network]
-            res=create_disk_net(options[:network], 'NIC', 'NETWORK')
+        if options[:nic]
+            res=create_disk_net(options[:nic], 'NIC', 'NETWORK')
             return res if res.first!=0
 
             template<<res.last
