@@ -140,7 +140,11 @@ public class VirtualMachine extends PoolElement{
         "hotp",
         "hotp",
         "hotp",
-        "hotp" };
+        "hotp",
+        "shut",
+        "epil",
+        "prol",
+        "boot" };
 
     /**
      * Creates a new VM representation.
