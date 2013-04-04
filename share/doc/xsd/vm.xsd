@@ -125,27 +125,27 @@
                     <xs:element name="REASON" type="xs:integer"/>
 
                     <!-- ACTION values:
-                      MIGRATE_ACTION          = 0
-                      LIVE_MIGRATE_ACTION     = 1
-                      SHUTDOWN_ACTION         = 2
-                      SHUTDOWN_HARD_ACTION    = 3
-                      UNDEPLOY_ACTION         = 4
-                      UNDEPLOY_HARD_ACTION    = 5
-                      HOLD_ACTION             = 6
-                      RELEASE_ACTION          = 7
-                      STOP_ACTION             = 8
-                      SUSPEND_ACTION          = 9
-                      RESUME_ACTION           = 10
-                      BOOT_ACTION             = 11
-                      DESTROY_ACTION          = 12
-                      DESTROY_RECREATE_ACTION = 13
-                      REBOOT_ACTION           = 14
-                      REBOOT_HARD_ACTION      = 15
-                      RESCHED_ACTION          = 16
-                      UNRESCHED_ACTION        = 17
-                      POWEROFF_ACTION         = 18
-                      POWEROFF_HARD_ACTION    = 19
-                      NONE_ACTION             = 20
+                      NONE_ACTION             = 0
+                      MIGRATE_ACTION          = 1
+                      LIVE_MIGRATE_ACTION     = 2
+                      SHUTDOWN_ACTION         = 3
+                      SHUTDOWN_HARD_ACTION    = 4
+                      UNDEPLOY_ACTION         = 5
+                      UNDEPLOY_HARD_ACTION    = 6
+                      HOLD_ACTION             = 7
+                      RELEASE_ACTION          = 8
+                      STOP_ACTION             = 9
+                      SUSPEND_ACTION          = 10
+                      RESUME_ACTION           = 11
+                      BOOT_ACTION             = 12
+                      DESTROY_ACTION          = 13
+                      DESTROY_RECREATE_ACTION = 14
+                      REBOOT_ACTION           = 15
+                      REBOOT_HARD_ACTION      = 16
+                      RESCHED_ACTION          = 17
+                      UNRESCHED_ACTION        = 18
+                      POWEROFF_ACTION         = 19
+                      POWEROFF_HARD_ACTION    = 20
                     -->
                     <xs:element name="ACTION" type="xs:integer"/>
                   </xs:sequence>

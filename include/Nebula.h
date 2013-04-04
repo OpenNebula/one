@@ -345,7 +345,7 @@ public:
 
     static string db_version()
     {
-        return "3.9.80";
+        return "4.0.0";
     }
 
     /**

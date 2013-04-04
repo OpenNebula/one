@@ -83,7 +83,7 @@ module Migrator
     end
 
     def update_history(history_elem)
-        history_elem.add_element("ACTION").text = "20" # NONE_ACTION
+        history_elem.add_element("ACTION").text = "0" # NONE_ACTION
 
         # History reason enum has changed from
         # NONE, ERROR, STOP_RESUME, USER, CANCEL   to

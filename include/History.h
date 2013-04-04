@@ -37,6 +37,7 @@ public:
 
     enum VMAction
     {
+        NONE_ACTION,
         MIGRATE_ACTION,
         LIVE_MIGRATE_ACTION,
         SHUTDOWN_ACTION,
@@ -56,8 +57,7 @@ public:
         RESCHED_ACTION,
         UNRESCHED_ACTION,
         POWEROFF_ACTION,
-        POWEROFF_HARD_ACTION,
-        NONE_ACTION
+        POWEROFF_HARD_ACTION
     };
 
     static string action_to_str(VMAction action)

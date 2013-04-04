@@ -111,10 +111,10 @@ module OpenNebula
             "USER"          => "user"
         }
 
-        HISTORY_ACTION=%w{migrate migrate-live shutdown shutdown-hard undeploy
-            undeploy-hard hold release stop suspend resume boot destroy
+        HISTORY_ACTION=%w{none migrate migrate-live shutdown shutdown-hard
+            undeploy undeploy-hard hold release stop suspend resume boot destroy
             destroy-recreate reboot reboot-hard resched unresched poweroff
-            poweroff-hard none}
+            poweroff-hard}
 
         # Creates a VirtualMachine description with just its identifier
         # this method should be used to create plain VirtualMachine objects.
