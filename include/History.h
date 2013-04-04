@@ -70,7 +70,7 @@ public:
                 st = "migrate";
             break;
             case LIVE_MIGRATE_ACTION:
-                st = "migrate-live";
+                st = "live-migrate";
             break;
             case SHUTDOWN_ACTION:
                 st = "shutdown";
@@ -140,7 +140,7 @@ public:
         {
             action = MIGRATE_ACTION;
         }
-        else if (st == "migrate-live")
+        else if (st == "live-migrate")
         {
             action = LIVE_MIGRATE_ACTION;
         }

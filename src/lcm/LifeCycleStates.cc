@@ -222,7 +222,7 @@ void  LifeCycleManager::save_failure_action(int vid)
 
         vmpool->update(vm);
 
-        vm->set_history_action(History::NONE_ACTION);
+        vm->set_action(History::NONE_ACTION);
 
         vmpool->update_history(vm);
 
@@ -581,7 +581,7 @@ void  LifeCycleManager::shutdown_failure_action(int vid)
 
         vmpool->update(vm);
 
-        vm->set_history_action(History::NONE_ACTION);
+        vm->set_action(History::NONE_ACTION);
 
         vmpool->update_history(vm);
 
@@ -1055,7 +1055,7 @@ void  LifeCycleManager::cancel_failure_action(int vid)
 
         vmpool->update(vm);
 
-        vm->set_history_action(History::NONE_ACTION);
+        vm->set_action(History::NONE_ACTION);
 
         vmpool->update_history(vm);
 

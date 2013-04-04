@@ -48,14 +48,13 @@ void  LifeCycleManager::deploy_action(int vid)
 
         if (vm->hasPreviousHistory())
         {
-            if (vm->get_previous_history_action() == History::STOP_ACTION)
+            if (vm->get_previous_action() == History::STOP_ACTION)
             {
                 vm_state  = VirtualMachine::PROLOG_RESUME;
                 tm_action = TransferManager::PROLOG_RESUME;
             }
-            else if (
-                vm->get_previous_history_action() == History::UNDEPLOY_ACTION ||
-                vm->get_previous_history_action() == History::UNDEPLOY_HARD_ACTION)
+            else if (vm->get_previous_action() == History::UNDEPLOY_ACTION ||
+                     vm->get_previous_action() == History::UNDEPLOY_HARD_ACTION)
             {
                 vm_state  = VirtualMachine::PROLOG_UNDEPLOY;
                 tm_action = TransferManager::PROLOG_RESUME;
@@ -122,7 +121,7 @@ void  LifeCycleManager::suspend_action(int vid)
 
         vmpool->update(vm);
 
-        vm->set_history_action(History::SUSPEND_ACTION);
+        vm->set_action(History::SUSPEND_ACTION);
 
         vmpool->update_history(vm);
 
@@ -172,7 +171,7 @@ void  LifeCycleManager::stop_action(int vid)
 
         vmpool->update(vm);
 
-        vm->set_history_action(History::STOP_ACTION);
+        vm->set_action(History::STOP_ACTION);
 
         vmpool->update_history(vm);
 
@@ -225,7 +224,7 @@ void  LifeCycleManager::migrate_action(int vid)
 
         vm->set_stime(time(0));
 
-        vm->set_previous_history_action(History::MIGRATE_ACTION);
+        vm->set_previous_action(History::MIGRATE_ACTION);
 
         vmpool->update_history(vm);
 
@@ -283,7 +282,7 @@ void  LifeCycleManager::live_migrate_action(int vid)
 
         vm->set_stime(time(0));
 
-        vm->set_history_action(History::LIVE_MIGRATE_ACTION);
+        vm->set_action(History::LIVE_MIGRATE_ACTION);
 
         vmpool->update_history(vm);
 
@@ -337,7 +336,7 @@ void  LifeCycleManager::shutdown_action(int vid)
 
         vmpool->update(vm);
 
-        vm->set_history_action(History::SHUTDOWN_ACTION);
+        vm->set_action(History::SHUTDOWN_ACTION);
 
         vmpool->update_history(vm);
 
@@ -393,13 +392,13 @@ void  LifeCycleManager::undeploy_action(int vid, bool hard)
 
         if (hard)
         {
-            vm->set_history_action(History::UNDEPLOY_HARD_ACTION);
+            vm->set_action(History::UNDEPLOY_HARD_ACTION);
 
             vmm->trigger(VirtualMachineManager::CANCEL,vid);
         }
         else
         {
-            vm->set_history_action(History::UNDEPLOY_ACTION);
+            vm->set_action(History::UNDEPLOY_ACTION);
 
             vmm->trigger(VirtualMachineManager::SHUTDOWN,vid);
         }
@@ -469,13 +468,13 @@ void  LifeCycleManager::poweroff_action(int vid, bool hard)
 
         if (hard)
         {
-            vm->set_history_action(History::POWEROFF_HARD_ACTION);
+            vm->set_action(History::POWEROFF_HARD_ACTION);
 
             vmm->trigger(VirtualMachineManager::CANCEL,vid);
         }
         else
         {
-            vm->set_history_action(History::POWEROFF_ACTION);
+            vm->set_action(History::POWEROFF_ACTION);
 
             vmm->trigger(VirtualMachineManager::SHUTDOWN,vid);
         }
@@ -578,7 +577,7 @@ void  LifeCycleManager::cancel_action(int vid)
 
         vmpool->update(vm);
 
-        vm->set_history_action(History::SHUTDOWN_HARD_ACTION);
+        vm->set_action(History::SHUTDOWN_HARD_ACTION);
 
         vmpool->update_history(vm);
 
@@ -843,12 +842,12 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
     if (dispose)
     {
         vm->set_state(VirtualMachine::CLEANUP_DELETE);
-        vm->set_history_action(History::DESTROY_ACTION);
+        vm->set_action(History::DESTROY_ACTION);
     }
     else
     {
         vm->set_state(VirtualMachine::CLEANUP_RESUBMIT);
-        vm->set_history_action(History::DESTROY_RECREATE_ACTION);
+        vm->set_action(History::DESTROY_RECREATE_ACTION);
     }
 
     vm->set_resched(false);

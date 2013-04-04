@@ -509,7 +509,7 @@ public:
      *  Returns the action that closed the history record in the previous host
      *    @return the action that closed the history record in the previous host
      */
-    const History::VMAction get_previous_history_action() const
+    const History::VMAction get_previous_action() const
     {
         return previous_history->action;
     };
@@ -660,7 +660,7 @@ public:
      *  Sets the action that closed the history record
      *    @param action that closed the history record
      */
-    void set_history_action(History::VMAction action)
+    void set_action(History::VMAction action)
     {
         history->action = action;
     };
@@ -669,7 +669,7 @@ public:
      *  Sets the action that closed the history record in the previous host
      *    @param action that closed the history record in the previous host
      */
-    void set_previous_history_action(History::VMAction action)
+    void set_previous_action(History::VMAction action)
     {
         previous_history->action = action;
     };
