@@ -118,13 +118,36 @@
                     <xs:element name="EETIME" type="xs:integer"/>
 
                     <!-- REASON values:
-                      NONE        = 0  Normal termination
-                      ERROR       = 1  The VM ended in error
-                      STOP_RESUME = 2  Stop/resume request
-                      USER        = 3  Migration request
-                      CANCEL      = 4  Cancel request
+                      NONE  = 0 History record is not closed yet
+                      ERROR = 1 History record was closed because of an error
+                      USER  = 2 History record was closed because of a user action
                     -->
                     <xs:element name="REASON" type="xs:integer"/>
+
+                    <!-- ACTION values:
+                      MIGRATE_ACTION          = 0
+                      LIVE_MIGRATE_ACTION     = 1
+                      SHUTDOWN_ACTION         = 2
+                      SHUTDOWN_HARD_ACTION    = 3
+                      UNDEPLOY_ACTION         = 4
+                      UNDEPLOY_HARD_ACTION    = 5
+                      HOLD_ACTION             = 6
+                      RELEASE_ACTION          = 7
+                      STOP_ACTION             = 8
+                      SUSPEND_ACTION          = 9
+                      RESUME_ACTION           = 10
+                      BOOT_ACTION             = 11
+                      DESTROY_ACTION          = 12
+                      DESTROY_RECREATE_ACTION = 13
+                      REBOOT_ACTION           = 14
+                      REBOOT_HARD_ACTION      = 15
+                      RESCHED_ACTION          = 16
+                      UNRESCHED_ACTION        = 17
+                      POWEROFF_ACTION         = 18
+                      POWEROFF_HARD_ACTION    = 19
+                      NONE_ACTION             = 20
+                    -->
+                    <xs:element name="ACTION" type="xs:integer"/>
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
