@@ -247,7 +247,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         puts str % ["RESCHED", OpenNebulaHelper.boolean_to_str(vm['RESCHED'])]
         puts str % ["HOST",
             vm['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']] if
-                %w{ACTIVE SUSPENDED}.include? vm.state_str
+                %w{ACTIVE SUSPENDED POWEROFF}.include? vm.state_str
         puts str % ["START TIME",
             OpenNebulaHelper.time_to_str(vm['/VM/STIME'])]
         puts str % ["END TIME",
