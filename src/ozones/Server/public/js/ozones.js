@@ -125,9 +125,7 @@ var oZones = {
                 case "vm_migrate_reason":
                     state = tr(["NONE",
                                "ERROR",
-                               "STOP_RESUME",
-                               "USER",
-                               "CANCEL"][value]);
+                               "USER"][value]);
                     break;
                 default:
                     return value;

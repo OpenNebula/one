@@ -105,15 +105,18 @@ module OpenNebula
             "BOOT_UNDEPLOY"     => "boot"
         }
 
-        MIGRATE_REASON=%w{NONE ERROR STOP_RESUME USER CANCEL}
+        MIGRATE_REASON=%w{NONE ERROR USER}
 
         SHORT_MIGRATE_REASON={
             "NONE"          => "none",
             "ERROR"         => "erro",
-            "STOP_RESUME"   => "stop",
-            "USER"          => "user",
-            "CANCEL"        => "canc"
+            "USER"          => "user"
         }
+
+        HISTORY_ACTION=%w{none migrate migrate-live shutdown shutdown-hard
+            undeploy undeploy-hard hold release stop suspend resume boot destroy
+            destroy-recreate reboot reboot-hard resched unresched poweroff
+            poweroff-hard}
 
         # Creates a VirtualMachine description with just its identifier
         # this method should be used to create plain VirtualMachine objects.
@@ -137,6 +140,10 @@ module OpenNebula
             reason_str=SHORT_MIGRATE_REASON[reason]
 
             reason_str
+        end
+
+        def VirtualMachine.get_history_action(action)
+            return HISTORY_ACTION[action.to_i]
         end
 
         # Class constructor

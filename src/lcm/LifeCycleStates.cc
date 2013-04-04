@@ -93,7 +93,7 @@ void  LifeCycleManager::save_success_action(int vid)
 
         vm->set_vm_info();
 
-        vm->set_reason(History::STOP_RESUME);
+        vm->set_reason(History::USER);
 
         vmpool->update_history(vm);
 
@@ -121,7 +121,7 @@ void  LifeCycleManager::save_success_action(int vid)
 
         vm->set_running_etime(the_time);
 
-        vm->set_reason(History::STOP_RESUME);
+        vm->set_reason(History::USER);
 
         vmpool->update_history(vm);
 
@@ -221,6 +221,10 @@ void  LifeCycleManager::save_failure_action(int vid)
         vm->set_state(VirtualMachine::RUNNING);
 
         vmpool->update(vm);
+
+        vm->set_action(History::NONE_ACTION);
+
+        vmpool->update_history(vm);
 
         vm->log("LCM", Log::INFO, "Fail to save VM state."
                 " Assuming that the VM is still RUNNING (will poll VM).");
@@ -431,7 +435,7 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         vm->set_running_etime(the_time);
 
-        vm->set_reason(History::STOP_RESUME);
+        vm->set_reason(History::ERROR);
 
         vmpool->update_history(vm);
 
@@ -535,7 +539,7 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         vm->set_vm_info();
 
-        vm->set_reason(History::STOP_RESUME);
+        vm->set_reason(History::USER);
 
         vmpool->update_history(vm);
 
@@ -559,7 +563,7 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         vm->set_running_etime(the_time);
 
-        vm->set_reason(History::NONE);
+        vm->set_reason(History::USER);
 
         vmpool->update_history(vm);
 
@@ -605,6 +609,10 @@ void  LifeCycleManager::shutdown_failure_action(int vid)
         vm->set_state(VirtualMachine::RUNNING);
 
         vmpool->update(vm);
+
+        vm->set_action(History::NONE_ACTION);
+
+        vmpool->update_history(vm);
 
         vm->log("LCM", Log::INFO, "Fail to shutdown VM."
                 " Assuming that the VM is still RUNNING (will poll VM).");
@@ -745,7 +753,7 @@ void  LifeCycleManager::prolog_failure_action(int vid)
 
         vm->set_vm_info();
 
-        vm->set_reason(History::STOP_RESUME);
+        vm->set_reason(History::ERROR);
 
         vmpool->update_history(vm);
 
@@ -778,7 +786,7 @@ void  LifeCycleManager::prolog_failure_action(int vid)
 
         vm->set_vm_info();
 
-        vm->set_reason(History::NONE);
+        vm->set_reason(History::ERROR);
 
         vmpool->update_history(vm);
 
@@ -979,7 +987,7 @@ void  LifeCycleManager::cancel_success_action(int vid)
 
         vmpool->update(vm);
 
-        vm->set_reason(History::CANCEL);
+        vm->set_reason(History::USER);
 
         vm->set_epilog_stime(the_time);
 
@@ -1009,7 +1017,7 @@ void  LifeCycleManager::cancel_success_action(int vid)
 
         vm->set_running_etime(the_time);
 
-        vm->set_reason(History::NONE);
+        vm->set_reason(History::USER);
 
         vmpool->update_history(vm);
 
@@ -1035,7 +1043,7 @@ void  LifeCycleManager::cancel_success_action(int vid)
 
         vm->set_vm_info();
 
-        vm->set_reason(History::STOP_RESUME);
+        vm->set_reason(History::USER);
 
         vmpool->update_history(vm);
 
@@ -1079,6 +1087,10 @@ void  LifeCycleManager::cancel_failure_action(int vid)
         vm->set_state(VirtualMachine::RUNNING);
 
         vmpool->update(vm);
+
+        vm->set_action(History::NONE_ACTION);
+
+        vmpool->update_history(vm);
 
         vm->log("LCM", Log::INFO, "Fail to cancel VM."
                 " Assuming that the VM is still RUNNING (will poll VM).");
@@ -1166,7 +1178,7 @@ void  LifeCycleManager::monitor_suspend_action(int vid)
 
         vm->set_vm_info();
 
-        vm->set_reason(History::STOP_RESUME);
+        vm->set_reason(History::ERROR);
 
         vmpool->update_history(vm);
 

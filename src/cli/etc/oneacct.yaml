@@ -12,6 +12,11 @@
   :size: 15
   :left: true
 
+:ACTION:
+  :desc: VM state change action
+  :size: 16
+  :left: true
+
 :REASON:
   :desc: VM state change reason
   :size: 4
