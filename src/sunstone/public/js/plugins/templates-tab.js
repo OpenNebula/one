@@ -1150,7 +1150,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
             '<div class="four columns">'+
               '<label class="right inline" for="IP">'+tr("IP")+':</label>'+
             '</div>'+
-            '<div class="six columns">'+
+            '<div class="six columns vm_param">'+
               '<input type="text" id="IP" name="IP" size="3" />'+
             '</div>'+
             '<div class="two columns">'+
@@ -1163,7 +1163,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
             '<div class="four columns">'+
                 '<label class="right inline" for="MODEL">'+tr("MODEL")+':</label>'+
             '</div>'+
-            '<div class="six columns">'+
+            '<div class="six columns vm_param">'+
               '<input type="text" id="MODEL" name="MODEL" />'+
             '</div>'+
             '<div class="two columns">'+
@@ -1193,7 +1193,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
               '<input type="text" id="TCP_PORTS" name="ports" />'+
           '</div>'+
           '<div class="two columns">'+
-              '<div class="tip">'+tr("A list of ports separated by commas or a ranges separated by semilocolons, e.g.: 22,80,5900:6000")+'</div>'+
+              '<div class="tip">'+tr("A list of ports separated by commas or a ranges separated by semicolons, e.g.: 22,80,5900:6000")+'</div>'+
           '</div>'+
         '</div>'+
       '</fieldset>'+
@@ -1218,7 +1218,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
               '<input type="text" id="UDP_PORTS" name="ports" />'+
           '</div>'+
           '<div class="two columns">'+
-              '<div class="tip">'+tr("A list of ports separated by commas or a ranges separated by semilocolons, e.g.: 22,80,5900:6000")+'</div>'+
+              '<div class="tip">'+tr("A list of ports separated by commas or a ranges separated by semicolons, e.g.: 22,80,5900:6000")+'</div>'+
           '</div>'+
         '</div>'+
       '</fieldset>'+

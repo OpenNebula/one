@@ -916,7 +916,7 @@ function setupConfirmDialogs(){
            <hr>\
            <div class="form_buttons">\
              <button id="confirm_proceed" class="action_button radius button right" value="">'+tr("OK")+'</button>\
-             <button class="confirm_cancel close-reveal-modal button radius secondary" value="">'+tr("Cancel")+'</button>\
+             <button class="confirm_cancel close-reveal-modal button radius secondary" type="button" value="">'+tr("Cancel")+'</button>\
           </div>\
             <a class="close-reveal-modal">&#215;</a>\
         </form>');
@@ -956,7 +956,7 @@ function setupConfirmDialogs(){
             <hr>\
            <div class="form_buttons">\
               <button id="confirm_with_select_proceed" class="action_button radius button right" value="">'+tr("OK")+'</button>\
-              <button class="confirm_cancel close-reveal-modal button radius secondary" value="">'+tr("Cancel")+'</button>\
+              <button class="confirm_cancel close-reveal-modal button radius secondary" type="button" value="">'+tr("Cancel")+'</button>\
            </div>\
             <a class="close-reveal-modal">&#215;</a>\
          </form>');
