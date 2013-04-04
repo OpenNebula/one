@@ -745,6 +745,9 @@ EOT
                     lines<<"ETH#{index}_MASK = \"$NETWORK[NETWORK_MASK, NETWORK=\\\"#{name}\\\"]\""
                     lines<<"ETH#{index}_GATEWAY = \"$NETWORK[GATEWAY, NETWORK=\\\"#{name}\\\"]\""
                     lines<<"ETH#{index}_DNS = \"$NETWORK[DNS, NETWORK=\\\"#{name}\\\"]\""
+                    lines<<"ETH#{index}_IPV6 = \"$NIC[IP6_GLOBAL, NETWORK=\\\"#{name}\\\"]\""
+                    lines<<"ETH#{index}_GATEWAY6 = \"$NETWORK[GATEWAY6, NETWORK=\\\"#{name}\\\"]\""
+                    lines<<"ETH#{index}_CONTEXT_FORCE_IPV4 = \"$NETWORK[CONTEXT_FORCE_IPV4, NETWORK=\\\"#{name}\\\"]\""
                 end
             end
 
