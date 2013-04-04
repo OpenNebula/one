@@ -75,6 +75,13 @@ setup()
 #------------------------------------------------------------------------------
 stop()
 {
+    stop_oned
+
+    stop_sched
+}
+
+stop_oned()
+{
     if [ -f $ONE_PID ]; then
         PID=$(cat $ONE_PID)
         kill $PID > /dev/null 2>&1
@@ -91,7 +98,10 @@ stop()
 
         rm -f $ONE_PID > /dev/null 2>&1
     fi
+}
 
+stop_sched()
+{
     if [ -f $ONE_SCHEDPID ]; then
         kill `cat $ONE_SCHEDPID` > /dev/null 2>&1
         rm -f $ONE_SCHEDPID > /dev/null 2>&1
@@ -130,30 +140,10 @@ start()
     fi
 
     # Start the one daemon
-    $ONED -f 2>&1 &
-
-    LASTRC=$?
-    LASTPID=$!
-
-    if [ $LASTRC -ne 0 ]; then
-        echo "Error executing $ONED"
-        exit 1
-    else
-        echo $LASTPID > $ONE_PID
-    fi
+    start_oned
 
     # Start the scheduler
-    $ONE_SCHEDULER&
-
-    LASTRC=$?
-    LASTPID=$!
-
-    if [ $LASTRC -ne 0 ]; then
-        echo "Error executing $ONE_SCHEDULER"
-        exit 1
-    else
-        echo $LASTPID > $ONE_SCHEDPID
-    fi
+    start_sched
 
     # Wait for the daemons to warm up
     sleep 2
@@ -180,6 +170,36 @@ start()
     fi
 }
 
+start_oned()
+{
+    $ONED -f 2>&1 &
+
+    LASTRC=$?
+    LASTPID=$!
+
+    if [ $LASTRC -ne 0 ]; then
+        echo "Error executing $ONED"
+        exit 1
+    else
+        echo $LASTPID > $ONE_PID
+    fi
+}
+
+start_sched()
+{
+    $ONE_SCHEDULER&
+
+    LASTRC=$?
+    LASTPID=$!
+
+    if [ $LASTRC -ne 0 ]; then
+        echo "Error executing $ONE_SCHEDULER"
+        exit 1
+    else
+        echo $LASTPID > $ONE_SCHEDPID
+    fi
+}
+
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 
@@ -196,6 +216,17 @@ case "$1" in
     stop)
         stop
         echo "oned and scheduler stopped"
+        ;;
+    start-sched)
+        start_sched
+        ;;
+    stop-sched)
+        stop_sched
+        ;;
+    restart-sched)
+        stop_sched
+        sleep 1
+        start_sched
         ;;
     *)
         echo "Usage: one [-f] {start|stop}" >&2
