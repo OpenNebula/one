@@ -119,7 +119,8 @@ var OpenNebula = {
                                "HOTPLUG_SAVEAS_SUSPENDED",
                                "SHUTDOWN_UNDEPLOY",
                                "EPILOG_UNDEPLOY",  
-                               "PROLOG_UNDEPLOY"][value]);
+                               "PROLOG_UNDEPLOY",
+                               "BOOT_UNDEPLOY"][value]);
                     break;
                 case "IMAGE":
                 case "image":

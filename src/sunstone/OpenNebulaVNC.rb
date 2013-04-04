@@ -56,7 +56,8 @@ VNC_STATES = [
         28, #HOTPLUG_SAVEAS_SUSPENDED 
         29  #SHUTDOWN_UNDEPLOY   
         #30, #EPILOG_UNDEPLOY     
-        #31  #PROLOG_UNDEPLOY     
+        #31, #PROLOG_UNDEPLOY
+        #32  #BOOT_UNDEPLOY
 ]
 
 class OpenNebulaVNC

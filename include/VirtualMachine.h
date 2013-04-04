@@ -98,7 +98,8 @@ public:
         HOTPLUG_SAVEAS_SUSPENDED = 28,
         SHUTDOWN_UNDEPLOY   = 29,
         EPILOG_UNDEPLOY     = 30,
-        PROLOG_UNDEPLOY     = 31
+        PROLOG_UNDEPLOY     = 31,
+        BOOT_UNDEPLOY       = 32
     };
 
     // -------------------------------------------------------------------------

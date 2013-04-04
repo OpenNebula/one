@@ -290,7 +290,8 @@ void  LifeCycleManager::deploy_success_action(int vid)
               vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF ||
               vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN  ||
               vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED||
-              vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED  )
+              vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED ||
+              vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY )
     {
         vm->set_state(VirtualMachine::RUNNING);
 
@@ -435,6 +436,34 @@ void  LifeCycleManager::deploy_failure_action(int vid)
         vmpool->update_history(vm);
 
         vm->log("LCM", Log::INFO, "Fail to boot VM. New VM state is EPILOG_STOP");
+
+        //----------------------------------------------------
+
+        tm->trigger(TransferManager::EPILOG_STOP,vid);
+    }
+    else if (vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY)
+    {
+        Nebula&             nd = Nebula::instance();
+        TransferManager *   tm = nd.get_tm();
+        time_t              the_time = time(0);
+
+        //----------------------------------------------------
+        //            EPILOG_UNDEPLOY STATE FROM BOOT
+        //----------------------------------------------------
+
+        vm->set_state(VirtualMachine::EPILOG_UNDEPLOY);
+
+        vmpool->update(vm);
+
+        vm->set_epilog_stime(the_time);
+
+        vm->set_running_etime(the_time);
+
+        vm->set_reason(History::ERROR);
+
+        vmpool->update_history(vm);
+
+        vm->log("LCM", Log::INFO, "Fail to boot VM. New VM state is EPILOG_UNDEPLOY");
 
         //----------------------------------------------------
 
@@ -640,6 +669,10 @@ void  LifeCycleManager::prolog_success_action(int vid)
     if ( lcm_state == VirtualMachine::PROLOG_RESUME )
     {
         vm->set_state(VirtualMachine::BOOT_STOPPED);
+    }
+    else if ( lcm_state == VirtualMachine::PROLOG_UNDEPLOY )
+    {
+        vm->set_state(VirtualMachine::BOOT_UNDEPLOY);
     }
     else // PROLOG || PROLOG_MIGRATE
     {
