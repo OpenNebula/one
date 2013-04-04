@@ -110,7 +110,7 @@ http://*|https://*)
     ;;
 esac
 
-exec_and_log "eval $DUMP | $SSH $DST_HOST $SUDO $DD of=$TMP_DST bs=64k" \
+exec_and_log "eval $DUMP | $SSH $DST_HOST $DD of=$TMP_DST bs=64k" \
     "Error dumping $SRC to $DST_HOST:$TMP_DST"
 
 REGISTER_CMD=$(cat <<EOF
