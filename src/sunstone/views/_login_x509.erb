@@ -2,13 +2,6 @@
       <div id="logo_sunstone">
       </div>
 
-      <div id="auth_error" class="error_message">
-          Invalid username or password
-      </div>
-      <div id="one_error" class="error_message">
-          OpenNebula is not running
-      </div>
-
       <form id="login_form">
         <div class="border" id="login" style='height:169px;background:url("../images/panel_short.png") no-repeat scroll center transparent'>
             <div class="content">
@@ -17,6 +10,10 @@
                 <label id="label_remember" for="check_remember">Keep me logged in</label>
 
             </div>
+        <div id="error_box" class="hidden alert-box alert" style="display: none">
+          <span id="auth_error"></span>
+          <span id="one_error"></span>
+        </div>
         </div>
       </form>
 </div>
