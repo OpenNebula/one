@@ -531,15 +531,19 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
     def format_history(vm)
         table=CLIHelper::ShowTable.new(nil, self) do
-            column :SEQ, "Sequence number", :size=>4 do |d|
+            column :SEQ, "Sequence number", :size=>3 do |d|
                 d["SEQ"]
             end
 
-            column :HOST, "Host name of the VM container", :left, :size=>20 do |d|
+            column :HOST, "Host name of the VM container", :left, :size=>15 do |d|
                 d["HOSTNAME"]
             end
 
-            column :REASON, "VM state change reason", :left, :size=>6 do |d|
+            column :"ACTION", "VM state change action", :left, :size=>16 do |d|
+                VirtualMachine.get_history_action d["ACTION"]
+            end
+
+            column :REASON, "VM state change reason", :left, :size=>4 do |d|
                 VirtualMachine.get_reason d["REASON"]
             end
 
@@ -547,14 +551,14 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.time_to_str(d['STIME'])
             end
 
-            column :TIME, "Total time in this state", :size=>15 do |d|
+            column :TIME, "Total time in this state", :size=>11 do |d|
                 stime = d["STIME"].to_i
                 etime = d["ETIME"]=="0" ? Time.now.to_i : d["ETIME"].to_i
                 dtime = etime-stime
-                OpenNebulaHelper.period_to_str(dtime)
+                OpenNebulaHelper.period_to_str(dtime, false)
             end
 
-            column :PROLOG_TIME, "Prolog time for this state", :size=>15 do |d|
+            column :PROLOG, "Prolog time for this state", :size=>10 do |d|
                 stime = d["PSTIME"].to_i
                 if d["PSTIME"]=="0"
                     etime=0
@@ -562,10 +566,10 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     etime = d["PETIME"]=="0" ? Time.now.to_i: d["PETIME"].to_i
                 end
                 dtime = etime-stime
-                OpenNebulaHelper.period_to_str(dtime)
+                OpenNebulaHelper.short_period_to_str(dtime)
             end
 
-            default :SEQ, :HOST, :REASON, :START, :TIME, :PROLOG_TIME
+            default :SEQ, :HOST, :ACTION, :REASON, :START, :TIME, :PROLOG
         end
 
         vm_hash=vm.to_hash

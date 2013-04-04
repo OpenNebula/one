@@ -608,6 +608,18 @@ EOT
         end
     end
 
+    def OpenNebulaHelper.short_period_to_str(time, print_seconds=true)
+        seconds=time.to_i
+        minutes, seconds=seconds.divmod(60)
+        hours, minutes=minutes.divmod(60)
+
+        if print_seconds
+            "%3dh%02dm%02ds" % [hours, minutes, seconds]
+        else
+            "%3dh%02dm" % [hours, minutes]
+        end
+    end
+
     BinarySufix = ["K", "M", "G", "T" ]
 
     def OpenNebulaHelper.unit_to_str(value, options, unit="K")
