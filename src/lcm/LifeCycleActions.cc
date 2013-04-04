@@ -225,7 +225,7 @@ void  LifeCycleManager::migrate_action(int vid)
 
         vm->set_stime(time(0));
 
-        vm->set_history_action(History::MIGRATE_ACTION);
+        vm->set_previous_history_action(History::MIGRATE_ACTION);
 
         vmpool->update_history(vm);
 

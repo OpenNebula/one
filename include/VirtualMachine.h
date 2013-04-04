@@ -669,12 +669,11 @@ public:
      *  Sets the action that closed the history record in the previous host
      *    @param action that closed the history record in the previous host
      */
-/*
     void set_previous_history_action(History::VMAction action)
     {
         previous_history->action = action;
     };
-*/
+
     // ------------------------------------------------------------------------
     // Template
     // ------------------------------------------------------------------------
