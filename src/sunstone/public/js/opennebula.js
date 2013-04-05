@@ -140,6 +140,30 @@ var OpenNebula = {
                                "ERROR",
                                "USER"][value]);
                     break;
+                case "VM_MIGRATE_ACTION":
+                case "vm_migrate_action":
+                    state = tr(["none",
+                                "migrate",
+                                "live-migrate",
+                                "shutdown",
+                                "shutdown-hard",
+                                "undeploy",
+                                "undeploy-hard",
+                                "hold",
+                                "release",
+                                "stop",
+                                "suspend",
+                                "resume",
+                                "boot",
+                                "destroy",
+                                "destroy-recreate",
+                                "reboot",
+                                "reboot-hard",
+                                "resched",
+                                "unresched",
+                                "poweroff",
+                                "poweroff-hard"][value]);
+                    break;
                 default:
                     return value;
             }
