@@ -213,8 +213,8 @@ function updateView(item_list,dataTable){
     $.each($(dataTable.fnGetNodes()), function(){ 
        if($('td.markrowchecked',this).length!=0)
        {
-        checked_row_ids.push($($('td',$(this))[1]).html());
-        }
+         checked_row_ids.push($($('td',$(this))[1]).html());
+       }
     });
 
     if (dataTable) {
