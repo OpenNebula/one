@@ -191,9 +191,14 @@ function tableCheckboxesListener(dataTable){
         var datatable = $(this).parents('table');
 
         if($(this).is(":checked"))
+        {
             $(this).parents('tr').children().each(function(){$(this).addClass('markrowchecked');});
+        }
         else
-            $(this).parents('tr').children().each(function(){$(this).removeClass('markrowchecked');});
+        {
+            $(this).parents('tr').children().removeClass('markrowchecked'); 
+            $(this).parents('tr').children().removeClass('markrowselected');
+        }
 
         recountCheckboxes(datatable);
     });
@@ -202,11 +207,46 @@ function tableCheckboxesListener(dataTable){
 // Updates a data_table, with a 2D array containing the new values
 // Does a partial redraw, so the filter and pagination are kept
 function updateView(item_list,dataTable){
+    var selected_row_id = $($('td.markrowselected',dataTable.fnGetNodes())[1]).html();
+    var checked_row_ids = new Array();
+
+    $.each($(dataTable.fnGetNodes()), function(){ 
+       if($('td.markrowchecked',this).length!=0)
+       {
+        checked_row_ids.push($($('td',$(this))[1]).html());
+        }
+    });
+
     if (dataTable) {
         dataTable.fnClearTable();
         dataTable.fnAddData(item_list);
         dataTable.fnDraw(false);
     };
+
+    if(selected_row_id)
+    {
+        $.each($(dataTable.fnGetNodes()),function(){
+            if($($('td',this)[1]).html()==selected_row_id)
+            {
+                $('td',this)[2].click();
+            }
+        });
+    }
+
+    if(checked_row_ids.length!=0)
+    {
+        $.each($(dataTable.fnGetNodes()),function(){
+            var current_id = $($('td',this)[1]).html();
+            if (current_id)
+            {
+                if(jQuery.inArray(current_id, checked_row_ids)!=-1)
+                {
+                    $('input.check_item',this).first().click();
+                    $('td',this).addClass('markrowchecked');
+                }
+            }
+        });
+    }
 }
 
 //replaces an element with id 'tag' in a dataTable with a new one
