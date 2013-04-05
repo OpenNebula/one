@@ -986,18 +986,13 @@ function setDatastoreAutorefresh(){
 $(document).ready(function(){
 
     dataTable_datastores = $("#datatable_datastores",main_tabs_context).dataTable({
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [0,1] },
             { "bVisible": false, "aTargets": [6,7,8,9] }
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        ]
     });
 
     $('#datastore_search').keyup(function(){

@@ -4153,7 +4153,6 @@ $(document).ready(function(){
         "oColVis": {
             "aiExclude": [ 0 ]
         },
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0,1] },

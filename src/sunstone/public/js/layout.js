@@ -36,8 +36,8 @@ function showTab(tabname,highlight_tab){
     //we no longer expect #tab_id here, but simply tab_id
     //So safety check - remove # from #tab_id if present to ensure compatibility
 
-    $('tbody input.check_item:checked').click();
-    $('td').removeClass('markrowchecked markrowselected');
+    //$('tbody input.check_item:checked').click();
+    //$('td').removeClass('markrowchecked markrowselected');
     last_select_row = null;
 
     if (tabname.indexOf('#') == 0)

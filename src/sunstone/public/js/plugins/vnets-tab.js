@@ -1320,18 +1320,13 @@ function setVNetAutorefresh() {
 $(document).ready(function(){
 
     dataTable_vNetworks = $("#datatable_vnetworks",main_tabs_context).dataTable({
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [0,1] },
             { "bVisible": false, "aTargets": [7]}
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        ]
     });
 
     $('#vnet_search').keyup(function(){

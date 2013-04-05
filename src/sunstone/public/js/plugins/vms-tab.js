@@ -2981,7 +2981,6 @@ function vmMonitorError(req,error_json){
 $(document).ready(function(){
 
     dataTable_vMachines = $("#datatable_vmachines",main_tabs_context).dataTable({
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
@@ -2989,16 +2988,14 @@ $(document).ready(function(){
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0,1] },
             { "bVisible": false, "aTargets": [6,7,10]}
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        ]
     });
 
     $('#vms_search').keyup(function(){
       dataTable_vMachines.fnFilter( $(this).val() );
     })
+
+
 
     //addElement([
     //    spinner,

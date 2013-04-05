@@ -1,11 +1,12 @@
 /* Set the defaults for DataTables initialisation */
 $.extend( true, $.fn.dataTable.defaults, {
-    "sDom": "<'row'<'six columns'l><'six columns'f>r><'row'<'twelve columns't>><'row'<'six columns'i><'six columns'p>>",
+    "sDom": "<'H'>t<'row'<'four columns'l><'six columns'p>>",
     "sPaginationType": "foundation",
     "oLanguage": {
-        "sLengthMenu": 'Show <form class="custom dataTables"><select><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select></form> entries'
+        "sLengthMenu": '<select><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> rows'
     }
 } );
+
 
 /* API method to get paging information */
 $.fn.dataTableExt.oApi.fnPagingInfo = function ( oSettings )
@@ -34,14 +35,18 @@ $.extend( $.fn.dataTableExt.oPagination, {
             };
  
             $(nPaging).addClass('pagination').append(
-                '<ul class="pagination">'+
-                    '<li class="arrow unavailable"><a href="#">&laquo; '+oLang.sPrevious+'</a></li>'+
-                    '<li class="arrow unavailable"><a href="#">'+oLang.sNext+' &raquo; </a></li>'+
+                '<ul class="pagination">' +
+                    '<li class="prev unavailable"><a href="#"><i class="icon-double-angle-left"/></a></li>' +
+                    '<li class="prev unavailable"><a href="#"><i class="icon-angle-left"/></a></li>'+
+                    '<li class="next unavailable"><a href="#"><i class="icon-angle-right"/></a></li>' +
+                    '<li class="next unavailable"><a href="#"><i class="icon-double-angle-right"/></a></li>' +
                 '</ul>'
             );
             var els = $('a', nPaging);
-            $(els[0]).bind( 'click.DT', { action: "previous" }, fnClickHandler );
-            $(els[1]).bind( 'click.DT', { action: "next" }, fnClickHandler );
+            $(els[0]).bind('click.DT', { action: "first" }, fnClickHandler);
+            $(els[1]).bind( 'click.DT', { action: "previous" }, fnClickHandler );
+            $(els[2]).bind('click.DT', { action: "next" }, fnClickHandler);
+            $(els[3]).bind('click.DT', { action: "last" }, fnClickHandler);
         },
  
         "fnUpdate": function ( oSettings, fnDraw ) {
@@ -67,31 +72,31 @@ $.extend( $.fn.dataTableExt.oPagination, {
  
             for ( i=0, iLen=an.length ; i<iLen ; i++ ) {
                 // Remove the middle elements
-                $('li:gt(0)', an[i]).filter(':not(:last)').remove();
- 
+                $('li:gt(1)', an[i]).filter(':not(.next)').remove();
+
                 // Add the new list items and their event handlers
                 for ( j=iStart ; j<=iEnd ; j++ ) {
                     sClass = (j==oPaging.iPage+1) ? 'class="current"' : '';
                     $('<li '+sClass+'><a href="#">'+j+'</a></li>')
-                        .insertBefore( $('li:last', an[i])[0] )
+                        .insertBefore( $('li.next:first', an[i])[0] )
                         .bind('click', function (e) {
                             e.preventDefault();
                             oSettings._iDisplayStart = (parseInt($('a', this).text(),10)-1) * oPaging.iLength;
                             fnDraw( oSettings );
                         });
                 }
- 
+
                 // Add / remove disabled classes from the static elements
                 if ( oPaging.iPage === 0 ) {
-                    $('li:first', an[i]).addClass('unavailable');
+                    $('li.prev', an[i]).addClass('unavailable');
                 } else {
-                    $('li:first', an[i]).removeClass('unavailable');
+                    $('li.prev', an[i]).removeClass('unavailable');
                 }
  
                 if ( oPaging.iPage === oPaging.iTotalPages-1 || oPaging.iTotalPages === 0 ) {
-                    $('li:last', an[i]).addClass('unavailable');
+                    $('li.next', an[i]).addClass('unavailable');
                 } else {
-                    $('li:last', an[i]).removeClass('unavailable');
+                    $('li.next', an[i]).removeClass('unavailable');
                 }
             }
         }

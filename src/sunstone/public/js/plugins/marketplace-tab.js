@@ -285,7 +285,6 @@ function onlyOneCheckboxListener(dataTable) {
 $(document).ready(function(){
     dataTable_marketplace = $("#datatable_marketplace", main_tabs_context).dataTable({
         "bSortClasses": true,
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "aoColumns": [
             { "bSortable": false,
               "mData": function ( o, val, data ) {
@@ -304,11 +303,7 @@ $(document).ready(function(){
             { "mDataProp": "files.0.os-arch", "sWidth" : "100px"},
             { "mDataProp": "files.0.format", "sWidth" : "100px"},
             { "mDataProp": "tags", "bVisible": false}
-          ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+          ]
     });
 
 

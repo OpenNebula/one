@@ -614,7 +614,6 @@ function setAclAutorefresh(){
 $(document).ready(function(){
     //if we are not oneadmin, our tab will not even be in the DOM.
     dataTable_acls = $("#datatable_acls",main_tabs_context).dataTable({
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
@@ -622,11 +621,7 @@ $(document).ready(function(){
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0,1] },
             { "bVisible": false, "aTargets": [6]}
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        ]
     });
 
 

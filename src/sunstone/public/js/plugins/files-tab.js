@@ -1042,7 +1042,6 @@ function popUpFileCloneDialog(){
 $(document).ready(function(){
 
     dataTable_files = $("#datatable_files",main_tabs_context).dataTable({
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
@@ -1053,11 +1052,7 @@ $(document).ready(function(){
             { "sWidth": "100px", "aTargets": [5,7] },
             { "sWidth": "150px", "aTargets": [8] },
             { "bVisible": false, "aTargets": [6,8,9,11,12]}
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        ]
     });
 
     $('#file_search').keyup(function(){

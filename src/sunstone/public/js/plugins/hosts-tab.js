@@ -1038,7 +1038,6 @@ $(document).ready(function(){
 
     //prepare host datatable
     dataTable_hosts = $("#datatable_hosts",main_tabs_context).dataTable({
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": { //exclude checkbox column
             "aiExclude": [ 0 ]
         },
@@ -1046,11 +1045,7 @@ $(document).ready(function(){
             //{ "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0,1,4,9] }, //check, ID, RVMS, Status
             { "bVisible": false, "aTargets": [5,7,10,11,12]}
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        ]
     });
 
     $('#hosts_search').keyup(function(){
