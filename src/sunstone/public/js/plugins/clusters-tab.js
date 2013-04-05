@@ -72,15 +72,14 @@ var datastore_datatable_table_tmpl='<thead>\
     </tbody>'
 
 
-var create_cluster_tmpl ='<div id="cluster_create_tabs">\
-  <div class="panel">\
+var create_cluster_tmpl ='<div class="panel">\
     <h3 >\
       <small id="create_cluster_header">'+tr("Create Cluster")+'</small>\
       <small id="update_cluster_header">'+tr("Update Cluster")+'</small>\
     </h3>\
   </div>\
   <div class="reveal-body">\
-  <form class="custom">\
+  <form id="cluster_create_tabs" class="custom">\
   <div class="row centered">\
     <div class="columns eight centered">\
       <div class="two columns">\
@@ -153,17 +152,17 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
       </div>\
     </li>\
     </ul>\
-    <br>\
   </form>\
   </div>\
+    <div class="reveal-footer">\
     <hr>\
     <div class="form_buttons row">\
         <button class="button success right radius" type="submit" id="create_cluster_submit" value="OpenNebula.Cluster.create">' + tr("Create") + '</button>\
         <button class="button right radius" type="submit" id="update_cluster_submit">' + tr("Update") + '</button>\
         <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
     </div>\
-        <a class="close-reveal-modal">&#215;</a>\
-</div>';
+    </div>\
+        <a class="close-reveal-modal">&#215;</a>';
 
 // Common utils for datatatables
   // Holds the selected items
@@ -184,7 +183,7 @@ function setupCreateClusterDialog(){
     dialog.html(create_cluster_tmpl);
     var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
 
-    dialog.addClass("reveal-modal large");
+    dialog.addClass("reveal-modal large max-height");
 
     //  ------- Create the dialog datatables ------------
     dataTable_cluster_hosts = $("#datatable_cluster_hosts", dialog).dataTable({

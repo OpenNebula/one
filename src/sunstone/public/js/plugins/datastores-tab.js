@@ -69,14 +69,13 @@ var datastores_tab_content = '\
 </form>';
 
 var create_datastore_tmpl =
-'<div class="create_form">\
-  <div class="panel">\
+'<div class="panel">\
     <h3>\
       <small id="create_cluster_header">'+tr("Create Datastore")+'</small>\
     </h3>\
   </div>\
-  <form id="create_datastore_form" action="" class="creation">\
   <div class="reveal-body">\
+  <form id="create_datastore_form" action="" class="creation">\
     <div class="row">\
       <div class="three columns">\
         <label class="right inline" for="name" >' + tr("Name") + ':</label>\
@@ -265,15 +264,16 @@ var create_datastore_tmpl =
       </div>\
     </div>\
   </div>\
+  <div class="reveal-footer">\
     <hr>\
   <div class="form_buttons">\
       <button class="button radius right success" type="submit" id="create_datastore_submit" value="OpenNebula.Datastore.create">' + tr("Create") + '</button>\
       <button class="button radius secondary" type="reset" value="reset">' + tr("Reset") + '</button>\
       <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
   </div>\
+  </div>\
   <a class="close-reveal-modal">&#215;</a>\
-  </form>\
-</div>';
+  </form>';
 
 var datastore_image_table_tmpl='<thead>\
     <tr>\
@@ -763,7 +763,7 @@ function setupCreateDatastoreDialog(){
     var dialog = $create_datastore_dialog;
     dialog.html(create_datastore_tmpl);
 
-    dialog.addClass("reveal-modal large");
+    dialog.addClass("reveal-modal large max-height");
 
     setupTips(dialog);
 

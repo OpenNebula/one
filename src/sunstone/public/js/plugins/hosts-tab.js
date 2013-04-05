@@ -76,14 +76,13 @@ var hosts_tab_content = '\
 </form>';
 
 var create_host_tmpl =
-'<div class="create_form">\
-  <div class="panel">\
+'<div class="panel">\
     <h3 >\
       <small id="create_cluster_header">'+tr("Create Host")+'</small>\
     </h3>\
   </div>\
-  <form id="create_host_form" action="" class="">\
   <div class="reveal-body">\
+  <form id="create_host_form" action="" class="">\
   <div class="row">\
       <div class="four columns">\
           <label class="inline right" for="name">' + tr("Hostname")  + ':</label>\
@@ -180,14 +179,16 @@ var create_host_tmpl =
       </div>\
     </div>\
     </div>\
+    <div class="reveal-footer">\
     <hr>\
     <div class="form_buttons row">\
         <button class="button success right radius" type="submit" id="create_host_submit" value="OpenNebula.Host.create">' + tr("Create") + '</button>\
         <button class="button secondary radius" type="reset" value="reset">' + tr("Reset") + '</button>\
         <button class="close-reveal-modal button secondary radius" action="" type="button" value="close">' + tr("Close") + '</button>\
     </div>\
+    </div>\
     <a class="close-reveal-modal">&#215;</a>\
-</form></div>';
+</form>';
 
 var hosts_select="";
 var dataTable_hosts;
@@ -935,7 +936,7 @@ function setupCreateHostDialog(){
     //    modal: true,
     //    width: 500
     //});
-    dialog.addClass("reveal-modal");
+    dialog.addClass("reveal-modal max-height");
 
     //$('button',dialog).button();
 

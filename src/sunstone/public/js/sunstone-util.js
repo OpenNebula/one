@@ -1112,7 +1112,7 @@ function setupQuotasDialog(dialog){
     //    width: 740,
     //    height: height
     //});
-    dialog.addClass("reveal-modal xlarge")
+    dialog.addClass("reveal-modal xlarge max-height")
 
     //$('button',dialog).button();
     $('#vm_quota,#datastore_quota,#image_quota,#network_quota',dialog).hide();

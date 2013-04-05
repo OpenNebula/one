@@ -1360,8 +1360,7 @@ function updateVMInfo(request,vm){
     var template_tab = {
         title: tr("Template"),
         content:
-        '<table id="vm_template_table" class="info_table" style="width:80%">\
-               <thead><tr><th colspan="2">'+tr("VM template")+'</th></tr></thead>'+
+        '<table id="vm_template_table" class="info_table transparent_table" style="width:80%">'+
                 prettyPrintJSON(vm_info.TEMPLATE)+
             '</table>'
     };
@@ -2019,8 +2018,8 @@ function setupAttachDiskDialog(){
         <small id="">'+tr("Attach new disk")+'</small>\
       </h3>\
     </div>\
-    <form id="attach_disk_form" action="">\
         <div class="reveal-body">\
+    <form id="attach_disk_form" action="">\
           <div class="row centered">\
               <div class="four columns">\
                   <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
@@ -2033,16 +2032,17 @@ function setupAttachDiskDialog(){
               </div>\
           </div>' +
           generate_disk_tab_content("attach_disk", "attach_disk") +
-          '</div>\
+          '<div class="reveal-footer">\
           <hr>\
           <div class="form_buttons">\
               <button class="button radius right success" id="attach_disk_button" type="submit" value="VM.attachdisk">'+tr("Attach")+'</button>\
               <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
           </div>\
+          </div>\
       <a class="close-reveal-modal">&#215;</a>\
-    </form>')
+    </form></div>')
 
-    dialog.addClass("reveal-modal large");
+    dialog.addClass("reveal-modal large max-height");
     setupTips(dialog);
 
     setup_disk_tab_content(dialog, "attach_disk", "attach_disk")
@@ -2282,8 +2282,8 @@ function setupAttachNicDialog(){
         <small id="">'+tr("Attach new nic")+'</small>\
       </h3>\
     </div>\
-    <form id="attach_nic_form" action="">\
         <div class="reveal-body">\
+    <form id="attach_nic_form" action="">\
           <div class="row centered">\
               <div class="four columns">\
                   <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
@@ -2296,16 +2296,17 @@ function setupAttachNicDialog(){
               </div>\
           </div>' +
           generate_nic_tab_content("attach_nic", "attach_nic") +
-          '</div>\
+          '<div class="reveal-footer">\
           <hr>\
           <div class="form_buttons">\
               <button class="button radius right success" id="attach_nic_button" type="submit" value="VM.attachnic">'+tr("Attach")+'</button>\
               <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
           </div>\
+          </div>\
       <a class="close-reveal-modal">&#215;</a>\
-    </form>')
+    </form></div>')
 
-    dialog.addClass("reveal-modal large");
+    dialog.addClass("reveal-modal large max-height");
     setupTips(dialog);
 
     setup_nic_tab_content(dialog, "attach_nic", "attach_nic")
@@ -2455,6 +2456,7 @@ function setupResizeCapacityDialog(){
         <small id="">'+tr("Resize VM capacity")+'</small>\
       </h3>\
     </div>\
+    <div class="reveal-body">\
     <form id="resize_capacity_form" action="">\
           <div class="row centered">\
           <div class="eight columns">\
@@ -2482,15 +2484,17 @@ function setupResizeCapacityDialog(){
           </div>\
           </div>' +
           generate_capacity_tab_content() +
-          '<hr>\
+          '<div class="reveal-footer">\
+          <hr>\
           <div class="form_buttons">\
               <button class="button radius right success" id="resize_capacity_button" type="submit" value="VM.resize">'+tr("Resize")+'</button>\
               <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
           </div>\
+          </div>\
       <a class="close-reveal-modal">&#215;</a>\
-    </form>')
+    </form></div>')
 
-    dialog.addClass("reveal-modal large");
+    dialog.addClass("reveal-modal large max-height");
     setupTips(dialog);
 
     $("#template_name_form", dialog).hide();
@@ -2894,9 +2898,11 @@ function setupVNC(){
       </small>\
     </h3>\
   </div>\
+  <div class="reveal-body">\
   <canvas id="VNC_canvas" width="640px" height="20px">\
       '+tr("Canvas not supported.")+'\
   </canvas>\
+  </div>\
   <a class="close-reveal-modal">&#215;</a>\
 </div>\
 ');
@@ -2909,7 +2915,7 @@ function setupVNC(){
     //    resizable:true,
     //    closeOnEscape: false
     //});
-    dialog.addClass("reveal-modal large");
+    dialog.addClass("reveal-modal large max-height");
 
     $('#sendCtrlAltDelButton',dialog).click(function(){
         rfb.sendCtrlAltDel();
@@ -2991,7 +2997,7 @@ $(document).ready(function(){
     });
 
     $('#vms_search').keyup(function(){
-      dataTable_templates.fnFilter( $(this).val() );
+      dataTable_vMachines.fnFilter( $(this).val() );
     })
 
     //addElement([

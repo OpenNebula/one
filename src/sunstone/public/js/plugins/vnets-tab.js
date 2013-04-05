@@ -66,12 +66,12 @@ var vnets_tab_content = '\
 </form>';
 
 var create_vn_tmpl =
-'<div id="vn_tabs">\
-        <div class="panel">\
+'<div class="panel">\
           <h3>\
             <small id="create_vnet_header">'+tr("Create Virtual Network")+'</small>\
           </h3>\
         </div>\
+        <div class="reveal-body">\
         <dl class="tabs">\
           <dd class="active"><a href="#easy">'+tr("Wizard")+'</a></dd>\
           <dd><a href="#manual">'+tr("Advanced mode")+'</a></dd>\
@@ -79,7 +79,6 @@ var create_vn_tmpl =
         <ul class="tabs-content">\
         <li class="active" id="easyTab">\
            <form id="create_vn_form_easy" action="" class="creation">\
-        <div class="reveal-body">\
             <div class="row">\
               <div class="three columns">\
                 <label class="right inline" for="name" >' + tr("Name") + ':</label>\
@@ -317,7 +316,7 @@ var create_vn_tmpl =
                  </div>\
               </fieldset>\
             </div>\
-        </div>\
+        <div class="reveal-footer">\
         <hr>\
         <div class="form_buttons">\
           <button class="button success radius right" id="create_vn_submit_easy" value="vn/create">\
@@ -326,14 +325,14 @@ var create_vn_tmpl =
           <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
           <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
         </div>\
+         </div>\
         </form>\
       </li>\
       <li id="manualTab">\
         <form id="create_vn_form_manual" action="">\
-        <div class="reveal-body">\
            <h4><small>'+tr("Write the Virtual Network template here")+'</small></h4>\
                <textarea id="template" rows="15" style="width:100%;"></textarea>\
-          </div>\
+                <div class="reveal-footer">\
           <hr>\
                 <div class="form_buttons">\
                 <button class="button success right radius" id="create_vn_submit_manual" value="vn/create">\
@@ -342,11 +341,12 @@ var create_vn_tmpl =
                 <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
                 <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
                 </div>\
+                </div>\
           </form>\
         </li>\
     </ul>\
-    <a class="close-reveal-modal">&#215;</a>\
-</div>';
+    </div>\
+    <a class="close-reveal-modal">&#215;</a>';
 
 var update_vnet_tmpl =
    '<form action="javascript:alert(\'js error!\');">\
@@ -972,7 +972,7 @@ function setupCreateVNetDialog() {
     //    width: 475,
     //    height: height
     //});
-    dialog.addClass("reveal-modal large");
+    dialog.addClass("reveal-modal large max-height");
 
     //Make the tabs look nice for the creation mode
     //$('#vn_tabs',dialog).tabs();

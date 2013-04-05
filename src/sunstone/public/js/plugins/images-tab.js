@@ -70,10 +70,10 @@ var images_tab_content = '\
 </form>';
 
 var create_image_tmpl =
-'<div id="img_tabs">\
-  <div class="panel">\
+  '<div class="panel">\
     <h3><small>'+tr("Create Image")+'</small></h4>\
   </div>\
+        <div class="reveal-body">\
   <form id="create_image" action="" class="custom creation">\
         <dl class="tabs">\
         <dd class="active"><a href="#img_easy">'+tr("Wizard")+'</a></dd>\
@@ -81,7 +81,6 @@ var create_image_tmpl =
         </dl>\
         <ul class="tabs-content">\
         <li id="img_easyTab" class="active">\
-        <div class="reveal-body">\
                   <div class="row vm_param">\
                     <div class="six columns">\
                       <div class="row">\
@@ -254,13 +253,14 @@ var create_image_tmpl =
                     </div>\
                   </div>\
                   </div>\
-                  </div>\
-                  <hr>\
+          <div class="reveal-footer">\
+            <hr>\
             <div class="form_buttons">\
               <button class="button success radius right" id="create_image_submit" value="image/create">'+tr("Create")+'</button>\
               <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
               <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
             </div>\
+          </div>\
         </li>\
         <li id="img_manualTab">\
         <div class="reveal-body">\
@@ -270,12 +270,14 @@ var create_image_tmpl =
                  </select>\
                  <textarea id="template" rows="15" style="width:100%;"></textarea>\
                  </div>\
+          <div class="reveal-footer">\
                  <hr>\
                <div class="form_buttons">\
                  <button class="button success radius right" id="create_image_submit_manual" value="image/create">'+tr("Create")+'</button>\
                  <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
                  <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
                </div>\
+          </div>\
         </li>\
         </ul>\
         <a class="close-reveal-modal">&#215;</a>\
@@ -826,7 +828,7 @@ function setupCreateImageDialog(){
     //    width: 520,
     //    height: height
     //});
-    dialog.addClass("reveal-modal large");
+    dialog.addClass("reveal-modal large max-height");
 
     $('.advanced',dialog).hide();
 

@@ -69,9 +69,9 @@ var templates_tab_content = '\
 var create_template_tmpl = '<div class="panel">'+
   '<h3><small id="create_template_header">'+tr("Create VM Template")+'</small><small id="update_template_header" class="hidden">'+tr("Update VM Template")+'</small></h3>'+
   '</div>'+
+  '<div class="reveal-body">'+
   '<form class="custom creation">'+
-        '<div class="reveal-body">'+
-  '<div class="row">'+
+  '<div class="">'+
     '<div class="columns three">'+
         '<dl id="template_create_tabs" class="tabs vertical">'+
         '</dl>'+
@@ -81,8 +81,7 @@ var create_template_tmpl = '<div class="panel">'+
             '</ul>'+
     '</div>'+
   '</div>'+
-        '</div>'+
-  '<div class="">'+
+  '<div class="reveal-footer">'+
       '<hr>'+
       '<button class="success button radius" id="create_template_form_easy" value="OpenNebula.Template.create" style="float: right">'+tr("Create")+'</button>'+
       '<button class="button hidden radius" id="template_template_update_button" value="Template.update_template" style="float: right">'+tr("Update")+'</button>'+
@@ -91,7 +90,8 @@ var create_template_tmpl = '<div class="panel">'+
       '<button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>'+
   '</div>'+
   '<a class="close-reveal-modal">&#215;</a>'+
-  '</form>';
+  '</form>'+
+  '</div>';
 
 
 var update_template_tmpl =
@@ -2997,7 +2997,7 @@ function setupCreateTemplateDialog(){
     //    width: 'auto',
     //    height: height
     //});
-    dialog.addClass("reveal-modal xlarge")
+    dialog.addClass("reveal-modal xlarge max-height")
 
 
     var tabs = $( "#template_create_tabs", dialog)//.tabs().addClass("ui-tabs-vertical");
@@ -4157,8 +4157,6 @@ $(document).ready(function(){
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0,1] },
-            { "sWidth": "150px", "aTargets": [5] },
-            { "sWidth": "100px", "aTargets": [2,3] }
         ]
     });
 
