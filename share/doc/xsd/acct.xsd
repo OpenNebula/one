@@ -22,6 +22,7 @@
         <xs:element name="VMMMAD" type="xs:string"/>
         <xs:element name="VNMMAD" type="xs:string"/>
         <xs:element name="TMMAD" type="xs:string"/>
+        <xs:element name="DS_LOCATION" type="xs:string"/>
         <xs:element name="DS_ID" type="xs:integer"/>
         <xs:element name="PSTIME" type="xs:integer"/>
         <xs:element name="PETIME" type="xs:integer"/>
@@ -159,6 +160,7 @@
               <!-- NET_RX: Received bytes from the network -->
               <xs:element name="NET_RX" type="xs:integer"/>
               <xs:element name="TEMPLATE" type="xs:anyType"/>
+              <xs:element name="USER_TEMPLATE" type="xs:anyType"/>
               <xs:element name="HISTORY_RECORDS">
               </xs:element>
             </xs:sequence>
