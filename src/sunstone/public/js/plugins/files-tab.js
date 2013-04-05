@@ -150,7 +150,7 @@ var create_file_tmpl =
            </fieldset>\
            </div>\
           <div class="show_hide" id="advanced_file_create">\
-               <h4><small><i class=" icon-plus-sign-alt"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>\
+               <h4><small><i class=" icon-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>\
           </div>\
           <div class="advanced">\
             <div class="row">\

@@ -830,3 +830,10 @@ form {
     margin-top: -3px;
 }
 
+.show_hide {
+    cursor: pointer;
+}
+
+.show_hide:hover > h4 > small {
+    color: #6f6f6f !important;
+}

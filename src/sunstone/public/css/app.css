@@ -6910,3 +6910,13 @@ form {
 .dataTables_scrollBody {
   margin-top: -3px;
 }
+
+/* line 833, ../sass/app.scss */
+.show_hide {
+  cursor: pointer;
+}
+
+/* line 837, ../sass/app.scss */
+.show_hide:hover > h4 > small {
+  color: #6f6f6f !important;
+}

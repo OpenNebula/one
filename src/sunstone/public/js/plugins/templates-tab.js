@@ -554,7 +554,7 @@ function generate_capacity_tab_content() {
         '</div>'+
     '</div>'+
     '<div class="show_hide" id="advanced_capacity">'+
-         '<h4><small><i class=" icon-plus-sign-alt"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
+         '<h4><small><i class=" icon-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
     '</div>'+
     '<div class="advanced">'+
       '<div class="row">'+
@@ -789,7 +789,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
           '</div>'+
           '<hr>'+
         '<div class="show_hide" id="advanced_image">'+
-          '<h4><small><i class=" icon-plus-sign-alt"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
+          '<h4><small><i class=" icon-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
         '</div>'+
         '<div class="row advanced vm_param">'+
           '<div class="six columns">'+
@@ -873,7 +873,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
                 '</div>'+
             '</div>'+
         '<div class="show_hide" id="advanced_volatile">'+
-          '<h4><small><i class=" icon-plus-sign-alt"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small</h4>'+
+          '<h4><small><i class=" icon-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small</h4>'+
         '</div>'+
         '<div class="row advanced vm_param">'+
           '<div class="six columns">'+
@@ -1141,7 +1141,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
     '</div>'+
   '<hr>'+
     '<div class="show_hide" id="advanced">'+
-          '<h4><small><i class=" icon-plus-sign-alt"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
+          '<h4><small><i class=" icon-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
     '</div>'+
     '<div class="advanced">'+
       '<div class="row">'+
