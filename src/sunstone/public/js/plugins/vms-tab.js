@@ -2958,11 +2958,13 @@ function vncIcon(vm){
 
     if (graphics && graphics.TYPE.toLowerCase() == "vnc" && $.inArray(state, VNCstates)!=-1){
         gr_icon = '<a class="vnc" href="#" vm_id="'+vm.ID+'">';
-        gr_icon += '<img style="height:15px" src="images/vnc_on.png" alt=\"'+tr("Open VNC Session")+'\" /></a>';
+        gr_icon += '<i class="icon-desktop" style="color: rgb(29, 29, 29)"/>';
     }
     else {
-        gr_icon = '<img style="height:15px" src="images/vnc_off.png" alt=\"'+tr("VNC Disabled")+'\" />';
+        gr_icon = '';
     }
+
+    gr_icon += '</a>'
     return gr_icon;
 }
 

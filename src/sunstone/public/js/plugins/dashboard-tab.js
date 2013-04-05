@@ -79,7 +79,7 @@ var dashboard_tab_content = '\
               <span id="total_vnets" class="subheader"/>\
               <small>'+tr("VNETS")+'</small>&emsp;\
               <span id="addresses_vnets" class="subheader"/>\
-              <small>'+tr("ADDRESSES")+'</small>\
+              <small>'+tr("USED IPs")+'</small>\
             </h3>\
           </div>\
         </div>\

@@ -27,7 +27,7 @@ var images_tab_content = '\
       </span>\
       <span class="header-info">\
         <span id="total_images"/> <small>'+tr("TOTAL")+'</small>&emsp;\
-        <span id="size_images"/> <small>'+tr("SIZE")+'</small>\
+        <span id="size_images"/> <small>'+tr("USED")+'</small>\
       </span>\
       <span class="user-login">\
       </span>\

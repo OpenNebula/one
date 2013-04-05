@@ -27,7 +27,7 @@ var vnets_tab_content = '\
       </span>\
       <span class="header-info">\
         <span id="total_vnets"/> <small>'+tr("TOTAL")+'</small>&emsp;\
-        <span id="addresses_vnets"/> <small>'+tr("ADDRESSES")+'</small>\
+        <span id="addresses_vnets"/> <small>'+tr("USED IPs")+'</small>\
       </span>\
       <span class="user-login">\
       </span>\
