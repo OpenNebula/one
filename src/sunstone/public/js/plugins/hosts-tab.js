@@ -178,7 +178,6 @@ var create_host_tmpl =
           <div class="tip"></div>\
       </div>\
     </div>\
-    </div>\
     <div class="reveal-footer">\
     <hr>\
     <div class="form_buttons row">\
@@ -188,7 +187,8 @@ var create_host_tmpl =
     </div>\
     </div>\
     <a class="close-reveal-modal">&#215;</a>\
-</form>';
+</form>\
+    </div>';
 
 var hosts_select="";
 var dataTable_hosts;
