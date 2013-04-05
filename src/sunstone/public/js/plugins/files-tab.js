@@ -319,16 +319,6 @@ var file_actions = {
         error: onError,
         notify: true
     },
-    "File.clone_dialog" : {
-        type: "custom",
-        call: popUpFileCloneDialog
-    },
-    "File.clone" : {
-        type: "single",
-        call: OpenNebula.Image.clone,
-        error: onError,
-        notify: true
-    },
     "File.help" : {
         type: "custom",
         call: function() {
@@ -385,11 +375,6 @@ var file_buttons = {
         type: "action",
         layout: "more_select",
         text: tr("Disable")
-    },
-    "File.clone_dialog" : {
-        type: "action",
-        layout: "main",
-        text: tr("Clone")
     },
     "File.delete" : {
         type: "confirm",
@@ -547,14 +532,6 @@ function updateFileInfo(request,img){
               <td></td>\
            </tr>\
            <tr>\
-             <td class="key_td">'+tr("Persistent")+'</td>\
-             <td class="value_td_persistency">'+(parseInt(img_info.PERSISTENT) ? tr("yes") : tr("no"))+'</td>\
-             <td><div id="div_edit_persistency">\
-                   <a id="div_edit_persistency_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
-                 </div>\
-             </td>\
-           </tr>\
-           <tr>\
               <td class="key_td">'+tr("Filesystem type")+'</td>\
               <td class="value_td">'+(typeof img_info.FSTYPE === "string" ? img_info.FSTYPE : "--")+'</td>\
               <td></td>\
@@ -633,26 +610,6 @@ function updateFileInfo(request,img){
         Sunstone.runAction("File.showinfo", img_info.ID);
     });
 
-    // Listener for edit link for persistency change
-    $("#div_edit_persistency").live("click", function() {
-        var value_str = $(".value_td_persistency").text();
-        $(".value_td_persistency").html(
-                  '<select id="persistency_select">\
-                      <option value="yes">'+tr("yes")+'</option>\
-                      <option value="no">'+tr("no")+'</option>\
-                  </select>');
-       $('option[value="'+value_str+'"]').replaceWith('<option value="'+value_str+'" selected="selected">'+tr(value_str)+'</option>');
-    });
-
-    $("#persistency_select").live("change", function() {
-        var new_value=$("option:selected", this).text();
-
-        if (new_value=="yes")
-            Sunstone.runAction("File.persistent",[img_info.ID]);
-        else
-            Sunstone.runAction("File.nonpersistent",[img_info.ID]);
-
-    });
 
     Sunstone.updateInfoPanelTab("file_info_panel","file_info_tab",info_tab);
     Sunstone.popUpInfoPanel("file_info_panel");
@@ -946,98 +903,6 @@ function is_persistent_file(id){
     return $(data).is(':checked');
 };
 
-function setupFileCloneDialog(){
-    //Append to DOM
-    dialogs_context.append('<div id="file_clone_dialog" title="'+tr("Clone an file")+'"></div>');
-    var dialog = $('#file_clone_dialog',dialogs_context);
-
-    //Put HTML in place
-
-    var html = '<div class="panel">\
-          <h3>\
-            <small id="create_vnet_header">'+tr("Clone File")+'</small>\
-          </h3>\
-        </div>\
-        <form>\
-<div class="row">\
-<div class="clone_one"></div>\
-<div class="clone_several">'+tr("Several file are selected, please choose prefix to name the new copies")+':</div>\
-<br>\
-</div>\
-<div class="row">\
-  <div class="columns two">\
-    <label class="clone_one inline right">'+tr("Name")+':</label>\
-    <label class="clone_several inline right">'+tr("Prefix")+':</label>\
-  </div>\
-  <div class="columns ten">\
-    <input type="text" name="name"></input>\
-  </div>\
-</div>\
-<hr>\
-<div class="form_buttons row">\
-  <button class="button radius right" id="file_clone_button" value="File.clone">\
-'+tr("Clone")+'\
-  </button>\
-           <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
-        </div>\
-<a class="close-reveal-modal">&#215;</a>\
-</form>\
-';
-
-    dialog.html(html);
-
-    //Convert into jQuery
-    //dialog.dialog({
-    //    autoOpen:false,
-    //    width:375,
-    //    modal:true,
-    //    resizable:false
-    //});
-    dialog.addClass("reveal-modal");
-
-    //$('button',dialog).button();
-
-    $('form',dialog).submit(function(){
-        var name = $('input', this).val();
-        var sel_elems = fileElements();
-        if (!name || !sel_elems.length)
-            notifyError('A name or prefix is needed!');
-        if (sel_elems.length > 1){
-            for (var i=0; i< sel_elems.length; i++)
-                //If we are cloning several files we
-                //use the name as prefix
-                Sunstone.runAction('Image.clone',
-                                   sel_elems[i],
-                                   name+getFileName(sel_elems[i]));
-        } else {
-            Sunstone.runAction('Image.clone',sel_elems[0],name)
-        };
-        dialog.trigger("reveal:close")
-        setTimeout(function(){
-            Sunstone.runAction('Image.refresh');
-        }, 1500);
-        return false;
-    });
-}
-
-function popUpFileCloneDialog(){
-    var dialog = $('#file_clone_dialog');
-    var sel_elems = fileElements();
-    //show different text depending on how many elements are selected
-    if (sel_elems.length > 1){
-        $('.clone_one',dialog).hide();
-        $('.clone_several',dialog).show();
-        $('input',dialog).val('Copy of ');
-    }
-    else {
-        $('.clone_one',dialog).show();
-        $('.clone_several',dialog).hide();
-        $('input',dialog).val('Copy of '+getFileName(sel_elems[0]));
-    };
-
-    $(dialog).reveal();
-}
-
 //The DOM is ready at this point
 $(document).ready(function(){
 
@@ -1066,7 +931,6 @@ $(document).ready(function(){
 
     setupCreateFileDialog();
     setupTips($create_file_dialog);
-    setupFileCloneDialog();
     setFileAutorefresh();
 
     initCheckAllBoxes(dataTable_files);
