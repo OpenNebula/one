@@ -281,10 +281,6 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     {
         prefix = "one";
     }
-    else
-    {
-        obj_template->add("TEMPLATE_NAME", prefix);
-    }
 
     if (name.empty() == true)
     {
