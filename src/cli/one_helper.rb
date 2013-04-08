@@ -130,7 +130,9 @@ EOT
         {
             :name   => 'memory',
             :large  => '--memory memory',
-            :description => 'Memory ammount given to the VM',
+            :description => 'Memory amount given to the VM. By default the '<<
+                "unit is megabytes. To use gigabytes add a 'g', floats "<<
+                "can be used: 8g=8192, 0.5g=512",
             :format => String,
             :proc   => lambda do |o,options|
                 m=o.strip.match(/^(\d+(?:\.\d+)?)(m|mb|g|gb)?$/i)
@@ -608,6 +610,18 @@ EOT
         end
     end
 
+    def OpenNebulaHelper.short_period_to_str(time, print_seconds=true)
+        seconds=time.to_i
+        minutes, seconds=seconds.divmod(60)
+        hours, minutes=minutes.divmod(60)
+
+        if print_seconds
+            "%3dh%02dm%02ds" % [hours, minutes, seconds]
+        else
+            "%3dh%02dm" % [hours, minutes]
+        end
+    end
+
     BinarySufix = ["K", "M", "G", "T" ]
 
     def OpenNebulaHelper.unit_to_str(value, options, unit="K")
@@ -729,8 +743,8 @@ EOT
                 end
             end
 
-            if options[:net_context] && options[:network]
-                nets=options[:network].map {|n| parse_user_object(n).last }
+            if options[:net_context] && options[:nic]
+                nets=options[:nic].map {|n| parse_user_object(n).last }
 
                 if nets!=nets.uniq
                     STDERR.puts "Network context generation from command "<<
@@ -745,6 +759,9 @@ EOT
                     lines<<"ETH#{index}_MASK = \"$NETWORK[NETWORK_MASK, NETWORK=\\\"#{name}\\\"]\""
                     lines<<"ETH#{index}_GATEWAY = \"$NETWORK[GATEWAY, NETWORK=\\\"#{name}\\\"]\""
                     lines<<"ETH#{index}_DNS = \"$NETWORK[DNS, NETWORK=\\\"#{name}\\\"]\""
+                    lines<<"ETH#{index}_IPV6 = \"$NIC[IP6_GLOBAL, NETWORK=\\\"#{name}\\\"]\""
+                    lines<<"ETH#{index}_GATEWAY6 = \"$NETWORK[GATEWAY6, NETWORK=\\\"#{name}\\\"]\""
+                    lines<<"ETH#{index}_CONTEXT_FORCE_IPV4 = \"$NETWORK[CONTEXT_FORCE_IPV4, NETWORK=\\\"#{name}\\\"]\""
                 end
             end
 
@@ -789,8 +806,8 @@ EOT
             template<<res.last
         end
 
-        if options[:network]
-            res=create_disk_net(options[:network], 'NIC', 'NETWORK')
+        if options[:nic]
+            res=create_disk_net(options[:nic], 'NIC', 'NETWORK')
             return res if res.first!=0
 
             template<<res.last

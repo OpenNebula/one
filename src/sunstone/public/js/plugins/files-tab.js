@@ -40,7 +40,7 @@ var files_tab_content = '\
     </div>\
   </div>\
   <div class="three columns">\
-    <input id="file_search" type="text" placeholder="Search" />\
+    <input id="file_search" type="text" placeholder="'+tr("Search")+'" />\
   </div>\
 </div>\
 </div>\
@@ -67,12 +67,6 @@ var files_tab_content = '\
   <tbody id="tbodyfiles">\
   </tbody>\
 </table>\
-<div class="legend_div">\
-  <span>?</span>\
-<p class="legend_p">\
-'+tr("Size and registration time are hidden colums. Note that persistent files can only be used by 1 VM. To change file datastore, please re-register the file.")+'\
-</p>\
-</div>\
 </form>';
 
 var create_file_tmpl =
@@ -80,8 +74,8 @@ var create_file_tmpl =
   <div class="panel">\
     <h3><small>'+tr("Create File")+'</small></h4>\
   </div>\
-  <div class="reveal-body">\
      <form id="create_file_form_easy" action="" class="custom creation">\
+  <div class="reveal-body">\
             <div class="row vm_param">\
               <div class="six columns">\
                 <div class="row">\
@@ -156,7 +150,7 @@ var create_file_tmpl =
            </fieldset>\
            </div>\
           <div class="show_hide" id="advanced_file_create">\
-               <h4><small><i class=" icon-plus-sign-alt"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>\
+               <h4><small><i class=" icon-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>\
           </div>\
           <div class="advanced">\
             <div class="row">\
@@ -178,13 +172,13 @@ var create_file_tmpl =
             </div>\
             </div>\
             <hr>\
-      </form>\
       <div class="form_buttons">\
         <button class="button success radius right" id="create_file_submit" value="file/create">'+tr("Create")+'</button>\
         <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
         <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
       </div>\
   <a class="close-reveal-modal">&#215;</a>\
+      </form>\
 </div>';
 
 var dataTable_files;
@@ -325,16 +319,6 @@ var file_actions = {
         error: onError,
         notify: true
     },
-    "File.clone_dialog" : {
-        type: "custom",
-        call: popUpFileCloneDialog
-    },
-    "File.clone" : {
-        type: "single",
-        call: OpenNebula.Image.clone,
-        error: onError,
-        notify: true
-    },
     "File.help" : {
         type: "custom",
         call: function() {
@@ -391,11 +375,6 @@ var file_buttons = {
         type: "action",
         layout: "more_select",
         text: tr("Disable")
-    },
-    "File.clone_dialog" : {
-        type: "action",
-        layout: "main",
-        text: tr("Clone")
     },
     "File.delete" : {
         type: "confirm",
@@ -553,14 +532,6 @@ function updateFileInfo(request,img){
               <td></td>\
            </tr>\
            <tr>\
-             <td class="key_td">'+tr("Persistent")+'</td>\
-             <td class="value_td_persistency">'+(parseInt(img_info.PERSISTENT) ? tr("yes") : tr("no"))+'</td>\
-             <td><div id="div_edit_persistency_files">\
-                   <a id="div_edit_persistency_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
-                 </div>\
-             </td>\
-           </tr>\
-           <tr>\
               <td class="key_td">'+tr("Filesystem type")+'</td>\
               <td class="value_td">'+(typeof img_info.FSTYPE === "string" ? img_info.FSTYPE : "--")+'</td>\
               <td></td>\
@@ -639,26 +610,6 @@ function updateFileInfo(request,img){
         Sunstone.runAction("File.showinfo", img_info.ID);
     });
 
-    // Listener for edit link for persistency change
-    $("#div_edit_persistency_files").live("click", function() {
-        var value_str = $(".value_td_persistency").text();
-        $(".value_td_persistency").html(
-                  '<select id="persistency_select_files">\
-                      <option value="yes">'+tr("yes")+'</option>\
-                      <option value="no">'+tr("no")+'</option>\
-                  </select>');
-       $('option[value="'+value_str+'"]').replaceWith('<option value="'+value_str+'" selected="selected">'+tr(value_str)+'</option>');
-    });
-
-    $("#persistency_select_files").live("change", function() {
-        var new_value=$("option:selected", this).text();
-
-        if (new_value=="yes")
-            Sunstone.runAction("File.persistent",[img_info.ID]);
-        else
-            Sunstone.runAction("File.nonpersistent",[img_info.ID]);
-
-    });
 
     Sunstone.updateInfoPanelTab("file_info_panel","file_info_tab",info_tab);
     Sunstone.popUpInfoPanel("file_info_panel");
@@ -952,12 +903,10 @@ function is_persistent_file(id){
     return $(data).is(':checked');
 };
 
-
 //The DOM is ready at this point
 $(document).ready(function(){
 
     dataTable_files = $("#datatable_files",main_tabs_context).dataTable({
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
@@ -968,11 +917,7 @@ $(document).ready(function(){
             { "sWidth": "100px", "aTargets": [5,7] },
             { "sWidth": "150px", "aTargets": [8] },
             { "bVisible": false, "aTargets": [6,8,9,11,12]}
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        ]
     });
 
     $('#file_search').keyup(function(){
@@ -986,7 +931,6 @@ $(document).ready(function(){
 
     setupCreateFileDialog();
     setupTips($create_file_dialog);
-    setupFileCloneDialog();
     setFileAutorefresh();
 
     initCheckAllBoxes(dataTable_files);

@@ -24,7 +24,7 @@ function loadVNC(){
 }
 loadVNC();
 
-var VNCstates=["RUNNING","SHUTDOWN","SHUTDOWN_POWEROFF","UNKNOWN","HOTPLUG","CANCEL","MIGRATE", "HOTPLUG_SNAPSHOT", "HOTPLUG_NIC", "HOTPLUG_SAVEAS", "HOTPLUG_SAVEAS_POWEROFF", "HOTPLUG_SAVEAS_SUSPENDED"];
+var VNCstates=["RUNNING","SHUTDOWN","SHUTDOWN_POWEROFF","UNKNOWN","HOTPLUG","CANCEL","MIGRATE", "HOTPLUG_SNAPSHOT", "HOTPLUG_NIC", "HOTPLUG_SAVEAS", "HOTPLUG_SAVEAS_POWEROFF", "HOTPLUG_SAVEAS_SUSPENDED", "SHUTDOWN_UNDEPLOY"];
 
 //Permanent storage for last value of aggregated network usage
 //Used to calculate bandwidth
@@ -61,7 +61,7 @@ var vms_tab_content = '\
     </div>\
   </div>\
   <div class="three columns">\
-    <input id="vms_search" type="text" placeholder="Search" />\
+    <input id="vms_search" type="text" placeholder="'+tr("Search")+'" />\
   </div>\
 </div>\
 </div>\
@@ -365,6 +365,33 @@ var vm_actions = {
     "VM.poweroff" : {
         type: "multiple",
         call: OpenNebula.VM.poweroff,
+        callback: vmShow,
+        elements: vmElements,
+        error: onError,
+        notify: true
+    },
+
+    "VM.poweroff_hard" : {
+        type: "multiple",
+        call: OpenNebula.VM.poweroff_hard,
+        callback: vmShow,
+        elements: vmElements,
+        error: onError,
+        notify: true
+    },
+
+    "VM.undeploy" : {
+        type: "multiple",
+        call: OpenNebula.VM.undeploy,
+        callback: vmShow,
+        elements: vmElements,
+        error: onError,
+        notify: true
+    },
+
+    "VM.undeploy_hard" : {
+        type: "multiple",
+        call: OpenNebula.VM.undeploy_hard,
         callback: vmShow,
         elements: vmElements,
         error: onError,
@@ -754,44 +781,62 @@ var vm_buttons = {
     "VM.suspend" : {
         type: "confirm",
         text: tr("Suspend"),
-        layout: "vmsstopresume_buttons",
+        layout: "vmspause_buttons",
         tip: tr("This will suspend selected machines")
     },
     "VM.resume" : {
         type: "confirm",
-        text: tr("Resume"),
-        layout: "vmsstopresume_buttons",
+        text: '<i class="icon-play"/>',
+        layout: "vmsplay_buttons",
         tip: tr("This will resume selected stopped or suspended VMs")
     },
     "VM.stop" : {
         type: "confirm",
         text: tr("Stop"),
-        layout: "vmsstopresume_buttons",
+        layout: "vmsstop_buttons",
         tip: tr("This will stop selected VMs")
     },
     "VM.restart" : {
         type: "confirm",
         text: tr("Boot"),
-        layout: "vmsoneoff_buttons",
+        layout: "vmsplanification_buttons",
         tip: tr("This will redeploy selected VMs (in UNKNOWN or BOOT state)")
     },
     "VM.reboot" : {
         type : "confirm",
         text: tr("Reboot"),
-        layout: "vmsoneoff_buttons",
+        layout: "vmsrepeat_buttons",
         tip: tr("This will send a reboot action to running VMs")
     },
     "VM.reset" : {
         type: "confirm",
         text: tr("Reboot") + ' <span class="label secondary radius">hard</span>',
-        layout: "vmsoneoff_buttons",
+        layout: "vmsrepeat_buttons",
         tip: tr("This will perform a hard reboot on selected VMs")
     },
     "VM.poweroff" : {
         type : "confirm",
         text: tr("Power Off"),
-        layout: "vmsoneoff_buttons",
+        layout: "vmspause_buttons",
         tip: tr("This will send a power off signal to running VMs. They can be restarted later.")
+    },
+    "VM.poweroff_hard" : {
+        type : "confirm",
+        text: tr("Power Off") + ' <span class="label secondary radius">hard</span>',
+        layout: "vmspause_buttons",
+        tip: tr("This will send a power off signal to running VMs. They can be restarted later.")
+    },
+    "VM.undeploy" : {
+        type : "confirm",
+        text: tr("Undeploy"),
+        layout: "vmsstop_buttons",
+        tip: tr("Shuts down the given VM. The VM is saved in the system Datastore.")
+    },
+    "VM.undeploy_hard" : {
+        type : "confirm",
+        text: tr("Undeploy") + ' <span class="label secondary radius">hard</span>',
+        layout: "vmsstop_buttons",
+        tip: tr("Shuts down the given VM. The VM is saved in the system Datastore.")
     },
     "VM.shutdown" : {
         type: "confirm",
@@ -815,7 +860,7 @@ var vm_buttons = {
     "VM.resubmit" : {
         type: "confirm",
         text: tr("Destroy") + ' <span class="label secondary radius">recreate</span>',
-        layout: "vmsdelete_buttons",
+        layout: "vmsrepeat_buttons",
         tip: tr("This will resubmits VMs to PENDING state")
     },
 
@@ -1138,6 +1183,7 @@ function generatePlacementTable(vm){
                      <tr>\
                          <th>'+tr("#")+'</th>\
                          <th>'+tr("Host")+'</th>\
+                         <th>'+tr("Action")+'</th>\
                          <th>'+tr("Reason")+'</th>\
                          <th>'+tr("Chg time")+'</th>\
                          <th>'+tr("Total time")+'</th>\
@@ -1180,9 +1226,10 @@ function generatePlacementTable(vm){
 
 
         html += '     <tr>\
-                       <td style="width:20%">'+history[i].SEQ+'</td>\
+                       <td style="width:5%">'+history[i].SEQ+'</td>\
                        <td style="width:20%">'+history[i].HOSTNAME+'</td>\
-                       <td style="width:16%">'+OpenNebula.Helper.resource_state("VM_MIGRATE_REASON",parseInt(history[i].REASON, 10))+'</td>\
+                       <td style="width:16%">'+OpenNebula.Helper.resource_state("VM_MIGRATE_ACTION",parseInt(history[i].ACTION, 10))+'</td>\
+                       <td style="width:10%">'+OpenNebula.Helper.resource_state("VM_MIGRATE_REASON",parseInt(history[i].REASON, 10))+'</td>\
                        <td style="width:16%">'+pretty_time(history[i].STIME)+'</td>\
                        <td style="width:16%">'+pretty_time_runtime(dtime)+'</td>\
                        <td style="width:16%">'+pretty_time_runtime(dtime2)+'</td>\
@@ -1272,33 +1319,6 @@ function updateVMInfo(request,vm){
               </tr>\
               </tbody>\
                </table>\
-               <table id="vm_monitoring_table" class="twelve datatable extended_table">\
-                   <thead>\
-                     <tr><th colspan="2">'+tr("Monitoring information")+'</th></tr>\
-                   </thead>\
-                   <tbody>\
-                      <tr>\
-                        <td class="key_td">'+tr("Net_TX")+'</td>\
-                        <td class="value_td">'+vm_info.NET_TX+'</td>\
-                      </tr>\
-                      <tr>\
-                        <td class="key_td">'+tr("Net_RX")+'</td>\
-                        <td class="value_td">'+vm_info.NET_RX+'</td>\
-                      </tr>\
-                      <tr>\
-                        <td class="key_td">'+tr("Used Memory")+'</td>\
-                        <td class="value_td">'+humanize_size(vm_info.MEMORY)+'</td>\
-                      </tr>\
-                      <tr>\
-                        <td class="key_td">'+tr("Used CPU")+'</td>\
-                        <td class="value_td">'+vm_info.CPU+'</td>\
-                      </tr>\
-                      <tr>\
-                        <td class="key_td">'+tr("VNC Session")+'</td>\
-                        <td class="value_td">'+vncIcon(vm_info)+'</td>\
-                      </tr>\
-                    </tbody>\
-                </table>\
             </div>\
             <div class="six columns">' +
                insert_permissions_table("VM",
@@ -1340,8 +1360,7 @@ function updateVMInfo(request,vm){
     var template_tab = {
         title: tr("Template"),
         content:
-        '<table id="vm_template_table" class="info_table" style="width:80%">\
-               <thead><tr><th colspan="2">'+tr("VM template")+'</th></tr></thead>'+
+        '<table id="vm_template_table" class="info_table transparent_table" style="width:80%">'+
                 prettyPrintJSON(vm_info.TEMPLATE)+
             '</table>'
     };
@@ -1486,6 +1505,9 @@ function printActionsTable(vm_info)
                                 <option value="reboot">' + tr("reboot") + '</option>\
                                 <option value="reboot-hard">' + tr("reboot-hard") + '</option>\
                                 <option value="poweroff">' + tr("poweroff") + '</option>\
+                                <option value="poweroff-hard">' + tr("poweroff-hard") + '</option>\
+                                <option value="undeploy">' + tr("undeploy") + '</option>\
+                                <option value="undeploy-hard">' + tr("undeploy-hard") + '</option>\
                                 <option value="snapshot-create">' + tr("snapshot-create") + '</option>\
                               </select>\
               </td>\
@@ -1820,8 +1842,8 @@ function printDisks(vm_info){
                ( //
                 disk.SAVE_AS_ACTIVE == "YES")
                ) {
-              save_as = "in progress";
-              actions = 'deferred snapshot in progress'
+              save_as = tr("in progress");
+              actions = tr('deferred snapshot in progress');
             }
             // Snapshot Hot
             else if (
@@ -1833,7 +1855,7 @@ function printDisks(vm_info){
                 disk.HOTPLUG_SAVE_AS_ACTIVE == "YES")
                ) {
               save_as = (disk.SAVE_AS ? disk.SAVE_AS : '-');
-              actions = 'hot snapshot in progress'
+              actions = tr('hot snapshot in progress');
             }
             // Attach / Detach
             else if (
@@ -1845,7 +1867,7 @@ function printDisks(vm_info){
                 disk.ATTACH = "YES")
                ) {
               save_as = (disk.SAVE_AS ? disk.SAVE_AS : '-');
-              actions = 'attach/detach in progress'
+              actions = tr('attach/detach in progress');
             }
             else {
               save_as = (disk.SAVE_AS ? disk.SAVE_AS : '-');
@@ -1937,9 +1959,9 @@ function setupSaveAsDialog(){
             </select>\
           </div>\
           <div class="one columns">\
-              <div class="tip">Sets the specified VM disk to be saved in a new Image.<br><br>\
-        Deferred: The Image is created immediately, but the contents are saved only if the VM is shut down gracefully (i.e., using Shutdown or Cancel; not Delete)<br><br>\
-        Life: The Image will be saved immediately.</div>\
+              <div class="tip">'+tr("Sets the specified VM disk to be saved in a new Image.")+'<br><br>\
+        '+tr("Deferred: The Image is created immediately, but the contents are saved only if the VM is shut down gracefully (i.e., using Shutdown or Cancel; not Delete)")+'<br><br>\
+        '+tr("Hot: The Image will be saved immediately.")+'</div>\
           </div>\
       </div>\
       <hr>\
@@ -1959,7 +1981,7 @@ function setupSaveAsDialog(){
         var snapshot_type = $('#snapshot_type', this).val();
 
         if (!image_name.length){
-            notifyError('Please provide a name for the new image');
+            notifyError(tr('Please provide a name for the new image'));
             return false;
         }
 
@@ -1996,6 +2018,7 @@ function setupAttachDiskDialog(){
         <small id="">'+tr("Attach new disk")+'</small>\
       </h3>\
     </div>\
+        <div class="reveal-body">\
     <form id="attach_disk_form" action="">\
           <div class="row centered">\
               <div class="four columns">\
@@ -2009,15 +2032,17 @@ function setupAttachDiskDialog(){
               </div>\
           </div>' +
           generate_disk_tab_content("attach_disk", "attach_disk") +
-          '<hr>\
+          '<div class="reveal-footer">\
+          <hr>\
           <div class="form_buttons">\
               <button class="button radius right success" id="attach_disk_button" type="submit" value="VM.attachdisk">'+tr("Attach")+'</button>\
               <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
           </div>\
+          </div>\
       <a class="close-reveal-modal">&#215;</a>\
-    </form>')
+    </form></div>')
 
-    dialog.addClass("reveal-modal large");
+    dialog.addClass("reveal-modal large max-height");
     setupTips(dialog);
 
     setup_disk_tab_content(dialog, "attach_disk", "attach_disk")
@@ -2257,6 +2282,7 @@ function setupAttachNicDialog(){
         <small id="">'+tr("Attach new nic")+'</small>\
       </h3>\
     </div>\
+        <div class="reveal-body">\
     <form id="attach_nic_form" action="">\
           <div class="row centered">\
               <div class="four columns">\
@@ -2270,15 +2296,17 @@ function setupAttachNicDialog(){
               </div>\
           </div>' +
           generate_nic_tab_content("attach_nic", "attach_nic") +
-          '<hr>\
+          '<div class="reveal-footer">\
+          <hr>\
           <div class="form_buttons">\
               <button class="button radius right success" id="attach_nic_button" type="submit" value="VM.attachnic">'+tr("Attach")+'</button>\
               <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
           </div>\
+          </div>\
       <a class="close-reveal-modal">&#215;</a>\
-    </form>')
+    </form></div>')
 
-    dialog.addClass("reveal-modal large");
+    dialog.addClass("reveal-modal large max-height");
     setupTips(dialog);
 
     setup_nic_tab_content(dialog, "attach_nic", "attach_nic")
@@ -2428,6 +2456,7 @@ function setupResizeCapacityDialog(){
         <small id="">'+tr("Resize VM capacity")+'</small>\
       </h3>\
     </div>\
+    <div class="reveal-body">\
     <form id="resize_capacity_form" action="">\
           <div class="row centered">\
           <div class="eight columns">\
@@ -2455,15 +2484,17 @@ function setupResizeCapacityDialog(){
           </div>\
           </div>' +
           generate_capacity_tab_content() +
-          '<hr>\
+          '<div class="reveal-footer">\
+          <hr>\
           <div class="form_buttons">\
               <button class="button radius right success" id="resize_capacity_button" type="submit" value="VM.resize">'+tr("Resize")+'</button>\
               <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
           </div>\
+          </div>\
       <a class="close-reveal-modal">&#215;</a>\
-    </form>')
+    </form></div>')
 
-    dialog.addClass("reveal-modal large");
+    dialog.addClass("reveal-modal large max-height");
     setupTips(dialog);
 
     $("#template_name_form", dialog).hide();
@@ -2620,17 +2651,17 @@ function printSnapshots(vm_info){
     return html;
 }
 
-function setupSaveAsDialog(){
-    dialogs_context.append('<div id="save_as_dialog"></div>');
-    $save_as_dialog = $('#save_as_dialog',dialogs_context);
-    var dialog = $save_as_dialog;
+function setupSnapshotDialog(){
+    dialogs_context.append('<div id="snapshot_dialog"></div>');
+    $snapshot_dialog = $('#snapshot_dialog',dialogs_context);
+    var dialog = $snapshot_dialog;
 
     dialog.html('<div class="panel">\
   <h3>\
     <small id="">'+tr("Snapshot")+'</small>\
   </h3>\
 </div>\
-<form id="save_as_form" action="">\
+<form id="snapshot_form" action="">\
       <div class="row centered">\
           <div class="four columns">\
               <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
@@ -2664,7 +2695,7 @@ function setupSaveAsDialog(){
     dialog.addClass("reveal-modal");
     setupTips(dialog);
 
-    $('#save_as_form',dialog).submit(function(){
+    $('#snapshot_form',dialog).submit(function(){
         var vm_id = $('#vm_id', this).val();
         var snapshot_name = $('#snapshot_name', this).val();
 
@@ -2674,14 +2705,14 @@ function setupSaveAsDialog(){
 
         Sunstone.runAction('VM.snapshot_create', vm_id, obj);
 
-        $save_as_dialog.trigger("reveal:close")
+        $snapshot_dialog.trigger("reveal:close")
         return false;
     });
 };
 
 function popUpSnapshotDialog(vm_id){
-    $('#vm_id',$save_as_dialog).val(vm_id);
-    $save_as_dialog.reveal();
+    $('#vm_id',$snapshot_dialog).val(vm_id);
+    $snapshot_dialog.reveal();
 }
 
 
@@ -2689,7 +2720,7 @@ function popUpSnapshotDialog(vm_id){
 
 // Listeners to the disks operations (detach, saveas, attach)
 function setup_vm_snapshot_tab(){
-    setupSaveAsDialog();
+    setupSnapshotDialog();
 
     $('a.snapshot_revert').live('click', function(){
         var b = $(this);
@@ -2867,9 +2898,11 @@ function setupVNC(){
       </small>\
     </h3>\
   </div>\
+  <div class="reveal-body">\
   <canvas id="VNC_canvas" width="640px" height="20px">\
       '+tr("Canvas not supported.")+'\
   </canvas>\
+  </div>\
   <a class="close-reveal-modal">&#215;</a>\
 </div>\
 ');
@@ -2882,7 +2915,7 @@ function setupVNC(){
     //    resizable:true,
     //    closeOnEscape: false
     //});
-    dialog.addClass("reveal-modal large");
+    dialog.addClass("reveal-modal large max-height");
 
     $('#sendCtrlAltDelButton',dialog).click(function(){
         rfb.sendCtrlAltDel();
@@ -2925,11 +2958,13 @@ function vncIcon(vm){
 
     if (graphics && graphics.TYPE.toLowerCase() == "vnc" && $.inArray(state, VNCstates)!=-1){
         gr_icon = '<a class="vnc" href="#" vm_id="'+vm.ID+'">';
-        gr_icon += '<img style="height:15px" src="images/vnc_on.png" alt=\"'+tr("Open VNC Session")+'\" /></a>';
+        gr_icon += '<i class="icon-desktop" style="color: rgb(29, 29, 29)"/>';
     }
     else {
-        gr_icon = '<img style="height:15px" src="images/vnc_off.png" alt=\"'+tr("VNC Disabled")+'\" />';
+        gr_icon = '';
     }
+
+    gr_icon += '</a>'
     return gr_icon;
 }
 
@@ -2948,7 +2983,6 @@ function vmMonitorError(req,error_json){
 $(document).ready(function(){
 
     dataTable_vMachines = $("#datatable_vmachines",main_tabs_context).dataTable({
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
@@ -2956,16 +2990,14 @@ $(document).ready(function(){
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0,1] },
             { "bVisible": false, "aTargets": [6,7,10]}
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        ]
     });
 
     $('#vms_search').keyup(function(){
-      dataTable_templates.fnFilter( $(this).val() );
+      dataTable_vMachines.fnFilter( $(this).val() );
     })
+
+
 
     //addElement([
     //    spinner,

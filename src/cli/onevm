@@ -319,20 +319,47 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    undeploy_desc = <<-EOT.unindent
+        Shuts down the given VM. The VM is saved in the system Datastore.
+
+        With --hard it unplugs the VM.
+
+        States: RUNNING
+    EOT
+
+    command :undeploy, undeploy_desc, [:range,:vmid_list],
+        :options => [OneVMHelper::SCHEDULE, OneVMHelper::HARD] do
+
+        command_name='undeploy'
+        command_name<<'-hard' if options[:hard]
+
+        if (!options[:schedule].nil?)
+            helper.schedule_actions(args[0], options, command_name)
+        else
+            helper.perform_actions(args[0],options,"shutting down") do |vm|
+                vm.undeploy(options[:hard]==true)
+            end
+        end
+    end
+
     poweroff_desc = <<-EOT.unindent
         Powers off the given VM. The VM will remain in the poweroff state, and
-        can be powered on with the 'onevm boot' command.
+        can be powered on with the 'onevm resume' command.
 
         States: RUNNING
     EOT
 
     command :poweroff, poweroff_desc, [:range,:vmid_list],
-        :options => [OneVMHelper::SCHEDULE] do
+        :options => [OneVMHelper::SCHEDULE, OneVMHelper::HARD] do
+
+        command_name='poweroff'
+        command_name<<'-hard' if options[:hard]
+
         if (!options[:schedule].nil?)
             helper.schedule_actions(args[0], options, @comm_name)
         else
             helper.perform_actions(args[0],options,"shutting down") do |vm|
-                vm.poweroff
+                vm.poweroff(options[:hard]==true)
             end
         end
     end
@@ -405,7 +432,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     boot_desc = <<-EOT.unindent
         Boots the given VM.
 
-        States: UNKNOWN, BOOT, POWEROFF
+        States: UNKNOWN, BOOT
     EOT
 
     command :boot, boot_desc, [:range,:vmid_list],
@@ -460,7 +487,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     resume_desc = <<-EOT.unindent
         Resumes the execution of the a saved VM
 
-        States: STOPPED, SUSPENDED
+        States: STOPPED, SUSPENDED, UNDEPLOYED, POWEROFF
     EOT
 
     command :resume, resume_desc, [:range,:vmid_list],
@@ -746,4 +773,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             vm.resize(template, enforce)
         end
     end
+
+    # Deprecated commands
+
+    deprecated_command(:attachdisk, 'disk-attach')
+    deprecated_command(:detachdisk, 'disk-detach')
+    deprecated_command(:saveas, 'disk-snapshot')
+    deprecated_command(:livemigrate, 'migrate --live')
+    deprecated_command(:cancel, 'shutdown --hard')
+    deprecated_command(:reset, 'reboot --hard')
+    deprecated_command(:restart, 'boot')
+    deprecated_command(:delete, 'destroy')
+    deprecated_command(:resubmit, 'destroy --recreate')
 end

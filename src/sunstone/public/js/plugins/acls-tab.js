@@ -41,7 +41,7 @@ var acls_tab_content = '\
     </div>\
   </div>\
   <div class="three columns">\
-    <input id="acl_search" type="text" placeholder="Search" />\
+    <input id="acl_search" type="text" placeholder="'+tr("Search")+'" />\
   </div>\
   <br>\
   <br>\
@@ -64,12 +64,6 @@ var acls_tab_content = '\
   <tbody id="tbodyaclss">\
   </tbody>\
 </table>\
-<div class="legend_div">\
-  <span>?</span>\
-  <p class="legend_p">\
-'+tr("This table shows the ACLs rules broken down to easier the reading and meaning of each one. You can show the ACL original string by clicking on Show/Hide columns.")+'\
-  </p>\
-</div>\
 </form>';
 
 var create_acl_tmpl =
@@ -155,15 +149,17 @@ var create_acl_tmpl =
               <div class=""></div>\
           </div>\
         </div>\
-        </div>\
+        <div class="reveal-footer">\
         <hr>\
         <div class="form_buttons">\
           <button class="button radius right success" id="create_acl_submit" type="submit" value="Acl.create">'+tr("Create")+'</button>\
           <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
           <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
         </div>\
+        </div>\
     <a class="close-reveal-modal">&#215;</a>\
-</form>';
+</form>\
+        </div>';
 
 var acl_actions = {
     "Acl.create" : {
@@ -436,7 +432,7 @@ function setupCreateAclDialog(){
     //    width: 650,
     //    height: height
     //});
-    dialog.addClass("reveal-modal large");
+    dialog.addClass("reveal-modal large max-height");
 
     //Default selected options
     $('#res_subgroup_all',dialog).attr('checked','checked');
@@ -617,7 +613,6 @@ function setAclAutorefresh(){
 $(document).ready(function(){
     //if we are not oneadmin, our tab will not even be in the DOM.
     dataTable_acls = $("#datatable_acls",main_tabs_context).dataTable({
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
@@ -625,11 +620,7 @@ $(document).ready(function(){
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0,1] },
             { "bVisible": false, "aTargets": [6]}
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        ]
     });
 
 

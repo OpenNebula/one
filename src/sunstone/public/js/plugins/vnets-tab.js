@@ -27,7 +27,7 @@ var vnets_tab_content = '\
       </span>\
       <span class="header-info">\
         <span id="total_vnets"/> <small>'+tr("TOTAL")+'</small>&emsp;\
-        <span id="addresses_vnets"/> <small>'+tr("ADDRESSES")+'</small>\
+        <span id="addresses_vnets"/> <small>'+tr("USED IPs")+'</small>\
       </span>\
       <span class="user-login">\
       </span>\
@@ -40,7 +40,7 @@ var vnets_tab_content = '\
     </div>\
   </div>\
   <div class="three columns">\
-    <input id="vnet_search" type="text" placeholder="Search" />\
+    <input id="vnet_search" type="text" placeholder="'+tr("Search")+'" />\
   </div>\
 </div>\
 </div>\
@@ -63,28 +63,21 @@ var vnets_tab_content = '\
   <tbody id="tbodyvnetworks">\
   </tbody>\
 </table>\
-<div class="legend_div">\
-  <span>?</span>\
-  <p class="legend_p">\
-'+tr("Tip: edit the leases of a network by clicking on one and going to the lease management tab.")+'\
-  </p>\
-</div>\
 </form>';
 
 var create_vn_tmpl =
-'<div id="vn_tabs">\
-        <div class="panel">\
+'<div class="panel">\
           <h3>\
             <small id="create_vnet_header">'+tr("Create Virtual Network")+'</small>\
           </h3>\
         </div>\
+        <div class="reveal-body">\
         <dl class="tabs">\
           <dd class="active"><a href="#easy">'+tr("Wizard")+'</a></dd>\
           <dd><a href="#manual">'+tr("Advanced mode")+'</a></dd>\
         </dl>\
         <ul class="tabs-content">\
         <li class="active" id="easyTab">\
-        <div class="reveal-body">\
            <form id="create_vn_form_easy" action="" class="creation">\
             <div class="row">\
               <div class="three columns">\
@@ -246,7 +239,8 @@ var create_vn_tmpl =
                   <div class="one columns">\
                   </div>\
                 </div>\
-              </div>\<div class="six columns">\
+              </div>\
+              <div class="six columns">\
                 <div class="row">\
                   <div class="four columns">\
                     <label class="right inline" for="vlan">'+tr("VLAN")+':</label>\
@@ -322,8 +316,7 @@ var create_vn_tmpl =
                  </div>\
               </fieldset>\
             </div>\
-        </form>\
-        </div>\
+        <div class="reveal-footer">\
         <hr>\
         <div class="form_buttons">\
           <button class="button success radius right" id="create_vn_submit_easy" value="vn/create">\
@@ -332,14 +325,14 @@ var create_vn_tmpl =
           <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
           <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
         </div>\
+         </div>\
+        </form>\
       </li>\
       <li id="manualTab">\
-        <div class="reveal-body">\
         <form id="create_vn_form_manual" action="">\
            <h4><small>'+tr("Write the Virtual Network template here")+'</small></h4>\
                <textarea id="template" rows="15" style="width:100%;"></textarea>\
-          </form>\
-          </div>\
+                <div class="reveal-footer">\
           <hr>\
                 <div class="form_buttons">\
                 <button class="button success right radius" id="create_vn_submit_manual" value="vn/create">\
@@ -348,10 +341,12 @@ var create_vn_tmpl =
                 <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
                 <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
                 </div>\
+                </div>\
+          </form>\
         </li>\
     </ul>\
-    <a class="close-reveal-modal">&#215;</a>\
-</div>';
+    </div>\
+    <a class="close-reveal-modal">&#215;</a>';
 
 var update_vnet_tmpl =
    '<form action="javascript:alert(\'js error!\');">\
@@ -977,7 +972,7 @@ function setupCreateVNetDialog() {
     //    width: 475,
     //    height: height
     //});
-    dialog.addClass("reveal-modal large");
+    dialog.addClass("reveal-modal large max-height");
 
     //Make the tabs look nice for the creation mode
     //$('#vn_tabs',dialog).tabs();
@@ -1325,18 +1320,13 @@ function setVNetAutorefresh() {
 $(document).ready(function(){
 
     dataTable_vNetworks = $("#datatable_vnetworks",main_tabs_context).dataTable({
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [0,1] },
             { "bVisible": false, "aTargets": [7]}
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        ]
     });
 
     $('#vnet_search').keyup(function(){

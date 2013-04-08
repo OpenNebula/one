@@ -72,15 +72,14 @@ var datastore_datatable_table_tmpl='<thead>\
     </tbody>'
 
 
-var create_cluster_tmpl ='<div id="cluster_create_tabs">\
-  <div class="panel">\
+var create_cluster_tmpl ='<div class="panel">\
     <h3 >\
       <small id="create_cluster_header">'+tr("Create Cluster")+'</small>\
       <small id="update_cluster_header">'+tr("Update Cluster")+'</small>\
     </h3>\
   </div>\
   <div class="reveal-body">\
-  <form class="custom">\
+  <form id="cluster_create_tabs" class="custom">\
   <div class="row centered">\
     <div class="columns eight centered">\
       <div class="two columns">\
@@ -107,7 +106,7 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
             <button id="refresh_host_table_button_class" class="button small radius secondary action_button" value="ClusterHost.list"><i class="icon-refresh" /></button>\
         </div>\
         <div class="five columns">\
-          <input id="cluster_hosts_search" type="text" placeholder="Search"/>\
+          <input id="cluster_hosts_search" type="text" placeholder="'+tr("Search")+'"/>\
         </div>\
       </div>\
       <div id="datatable_cluster_hosts_div">\
@@ -124,7 +123,7 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
             <button id="refresh_vnet_table_button_class" class="button small radius secondary action_button" value="ClusterVN.list"><i class="icon-refresh" /></button>\
         </div>\
         <div class="five columns">\
-          <input id="cluster_vnets_search" type="text" placeholder="Search"/>\
+          <input id="cluster_vnets_search" type="text" placeholder="'+tr("Search")+'"/>\
         </div>\
       </div>\
       <div id="datatable_cluster_vnets_div">\
@@ -141,7 +140,7 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
             <button id="refresh_datastore_table_button_class" class="button small radius secondary action_button" value="ClusterDS.list"><i class="icon-refresh" /></button>\
         </div>\
         <div class="five columns">\
-          <input id="cluster_datastores_search" type="text" placeholder="Search"/>\
+          <input id="cluster_datastores_search" type="text" placeholder="'+tr("Search")+'"/>\
         </div>\
       </div>\
       <div id="datatable_cluster_datastores_div">\
@@ -153,18 +152,17 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
       </div>\
     </li>\
     </ul>\
-    <br>\
   </form>\
   </div>\
+    <div class="reveal-footer">\
     <hr>\
     <div class="form_buttons row">\
         <button class="button success right radius" type="submit" id="create_cluster_submit" value="OpenNebula.Cluster.create">' + tr("Create") + '</button>\
         <button class="button right radius" type="submit" id="update_cluster_submit">' + tr("Update") + '</button>\
-        <button class="button secondary radius" type="reset" value="reset">' + tr("Reset") + '</button>\
         <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
     </div>\
-        <a class="close-reveal-modal">&#215;</a>\
-</div>';
+    </div>\
+        <a class="close-reveal-modal">&#215;</a>';
 
 // Common utils for datatatables
   // Holds the selected items
@@ -185,7 +183,7 @@ function setupCreateClusterDialog(){
     dialog.html(create_cluster_tmpl);
     var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
 
-    dialog.addClass("reveal-modal large");
+    dialog.addClass("reveal-modal large max-height");
 
     //  ------- Create the dialog datatables ------------
     dataTable_cluster_hosts = $("#datatable_cluster_hosts", dialog).dataTable({
@@ -506,7 +504,7 @@ function popUpUpdateClusterDialog(){
 
     if ( selected_nodes.length != 1 )
     {
-      alert("Please select one (and just one) cluster to update.");
+      notifyError(tr("Please select one (and just one) cluster to update."));
       return false;
     }
 
@@ -877,7 +875,7 @@ var clusters_tab_content = '\
     </div>\
   </div>\
   <div class="three columns">\
-    <input id="cluster_search" type="text" placeholder="Search" />\
+    <input id="cluster_search" type="text" placeholder="'+tr("Search")+'" />\
   </div>\
 </div>\
 </div>\
@@ -1345,8 +1343,6 @@ function updateClustersView (request,list){
 
     updateView(list_array,dataTable_clusters);
     updateClusterSelect();
-    //dependency with the infraestructure dashboard plugin
-    //updateInfraDashboard("clusters",list);
 };
 
 
@@ -1815,18 +1811,13 @@ $(document).ready(function(){
 
     //prepare host datatable
     dataTable_clusters = $("#datatable_clusters",main_tabs_context).dataTable({
-        "sDom" :"<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0,1] },
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        ]
     });
 
     $('#cluster_search').keyup(function(){

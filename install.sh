@@ -1026,6 +1026,7 @@ ONEDB_MIGRATOR_FILES="src/onedb/2.0_to_2.9.80.rb \
                       src/onedb/3.8.2_to_3.8.3.rb \
                       src/onedb/3.8.3_to_3.8.4.rb \
                       src/onedb/3.8.4_to_3.9.80.rb \
+                      src/onedb/3.9.80_to_4.0.0.rb \
                       src/onedb/fsck.rb \
                       src/onedb/onedb.rb \
                       src/onedb/onedb_backend.rb"
@@ -1523,6 +1524,7 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/opennebula-sunstone-big.png \
                         src/sunstone/public/images/opennebula-sunstone-small.png \
                         src/sunstone/public/images/opennebula-sunstone-v4.0.png \
+                        src/sunstone/public/images/opennebula-sunstone-v4.0-small.png \
                         src/sunstone/public/images/panel.png \
                         src/sunstone/public/images/panel_short.png \
                         src/sunstone/public/images/pbar.gif \

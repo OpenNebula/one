@@ -209,8 +209,62 @@ error:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int DispatchManager::undeploy(
+    int vid,
+    bool hard)
+{
+    VirtualMachine *    vm;
+    ostringstream       oss;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return -1;
+    }
+
+    oss << "Undeploying VM " << vid;
+    NebulaLog::log("DiM",Log::DEBUG,oss);
+
+    if (vm->get_state()     == VirtualMachine::ACTIVE &&
+        vm->get_lcm_state() == VirtualMachine::RUNNING )
+    {
+        Nebula&             nd  = Nebula::instance();
+        LifeCycleManager *  lcm = nd.get_lcm();
+
+        if (hard)
+        {
+            lcm->trigger(LifeCycleManager::UNDEPLOY_HARD,vid);
+        }
+        else
+        {
+            lcm->trigger(LifeCycleManager::UNDEPLOY,vid);
+        }
+    }
+    else
+    {
+        goto error;
+    }
+
+    vm->unlock();
+
+    return 0;
+
+error:
+    oss.str("");
+    oss << "Could not undeploy VM " << vid << ", wrong state.";
+    NebulaLog::log("DiM",Log::ERROR,oss);
+
+    vm->unlock();
+    return -2;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int DispatchManager::poweroff (
-    int vid)
+    int vid,
+    bool hard)
 {
     ostringstream       oss;
     VirtualMachine *    vm;
@@ -231,7 +285,14 @@ int DispatchManager::poweroff (
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();
 
-        lcm->trigger(LifeCycleManager::POWEROFF,vid);
+        if (hard)
+        {
+            lcm->trigger(LifeCycleManager::POWEROFF_HARD,vid);
+        }
+        else
+        {
+            lcm->trigger(LifeCycleManager::POWEROFF,vid);
+        }
     }
     else
     {
@@ -497,7 +558,8 @@ int DispatchManager::resume(
     oss << "Resuming VM " << vid;
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
-    if (vm->get_state() == VirtualMachine::STOPPED )
+    if (vm->get_state() == VirtualMachine::STOPPED ||
+        vm->get_state() == VirtualMachine::UNDEPLOYED )
     {
         vm->set_state(VirtualMachine::PENDING);
 
@@ -510,11 +572,18 @@ int DispatchManager::resume(
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();
 
-        vmpool->update(vm);
-
         vm->log("DiM", Log::INFO, "New VM state is ACTIVE.");
 
         lcm->trigger(LifeCycleManager::RESTORE,vid);
+    }
+    else if (vm->get_state() == VirtualMachine::POWEROFF)
+    {
+        Nebula&             nd  = Nebula::instance();
+        LifeCycleManager *  lcm = nd.get_lcm();
+
+        vm->log("DiM", Log::INFO, "New VM state is ACTIVE.");
+
+        lcm->trigger(LifeCycleManager::RESTART,vid);
     }
     else
     {
@@ -552,14 +621,14 @@ int DispatchManager::restart(int vid)
     oss << "Restarting VM " << vid;
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
-    if ((vm->get_state() == VirtualMachine::ACTIVE &&
+    if (vm->get_state() == VirtualMachine::ACTIVE &&
         (vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
          vm->get_lcm_state() == VirtualMachine::BOOT ||
          vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN ||
          vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF ||
          vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED))
-        || vm->get_state() == VirtualMachine::POWEROFF )
+         vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED ||
+         vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY))
     {
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();
@@ -804,6 +873,7 @@ int DispatchManager::finalize(
         break;
 
         case VirtualMachine::STOPPED:
+        case VirtualMachine::UNDEPLOYED:
             tm->trigger(TransferManager::EPILOG_DELETE_STOP,vid);
             finalize_cleanup(vm);
         break;
@@ -851,7 +921,7 @@ int DispatchManager::resubmit(int vid)
     {
         case VirtualMachine::POWEROFF:
             NebulaLog::log("DiM",Log::ERROR,
-                "Cannot resubmit a powered off VM. Restart it first");
+                "Cannot resubmit a powered off VM. Resume it first");
             rc = -2;
         break;
 
@@ -878,6 +948,7 @@ int DispatchManager::resubmit(int vid)
 
         case VirtualMachine::HOLD: // Move the VM to PENDING in any of these
         case VirtualMachine::STOPPED:
+        case VirtualMachine::UNDEPLOYED:
             vm->set_state(VirtualMachine::LCM_INIT);
             vm->set_state(VirtualMachine::PENDING);
 

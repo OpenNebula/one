@@ -21,7 +21,7 @@ var config_tab_content =
       <small id="configuration_dialog">'+tr("Configuration")+'</small>\
     </h3>\
   </div>\
-<br>\
+  <div class="reveal-body">\
   <div class="row">\
     <div class="six columns">\
   <div class="row">\
@@ -57,9 +57,12 @@ var config_tab_content =
       </div>\
     </div>\
   </div>\
+  </div>\
+  <div class="reveal-footer">\
     <hr>\
   <div class="form_buttons">\
       <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+  </div>\
   </div>\
   <a class="close-reveal-modal">&#215;</a>';
 
@@ -80,7 +83,7 @@ function setupConfigDialog() {
     var dialog = $config_dialog;
     dialog.html(config_tab_content);
 
-    dialog.addClass("reveal-modal large");
+    dialog.addClass("reveal-modal large max-height");
 
     setupTips(dialog);
 

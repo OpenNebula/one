@@ -48,9 +48,15 @@ void  LifeCycleManager::deploy_action(int vid)
 
         if (vm->hasPreviousHistory())
         {
-            if (vm->get_previous_reason() == History::STOP_RESUME)
+            if (vm->get_previous_action() == History::STOP_ACTION)
             {
                 vm_state  = VirtualMachine::PROLOG_RESUME;
+                tm_action = TransferManager::PROLOG_RESUME;
+            }
+            else if (vm->get_previous_action() == History::UNDEPLOY_ACTION ||
+                     vm->get_previous_action() == History::UNDEPLOY_HARD_ACTION)
+            {
+                vm_state  = VirtualMachine::PROLOG_UNDEPLOY;
                 tm_action = TransferManager::PROLOG_RESUME;
             }
         }
@@ -115,6 +121,10 @@ void  LifeCycleManager::suspend_action(int vid)
 
         vmpool->update(vm);
 
+        vm->set_action(History::SUSPEND_ACTION);
+
+        vmpool->update_history(vm);
+
         vm->log("LCM", Log::INFO, "New VM state is SAVE_SUSPEND");
 
         //----------------------------------------------------
@@ -160,6 +170,10 @@ void  LifeCycleManager::stop_action(int vid)
         vm->set_resched(false);
 
         vmpool->update(vm);
+
+        vm->set_action(History::STOP_ACTION);
+
+        vmpool->update_history(vm);
 
         vm->log("LCM", Log::INFO, "New VM state is SAVE_STOP");
 
@@ -209,6 +223,8 @@ void  LifeCycleManager::migrate_action(int vid)
         vmpool->update(vm);
 
         vm->set_stime(time(0));
+
+        vm->set_previous_action(History::MIGRATE_ACTION);
 
         vmpool->update_history(vm);
 
@@ -266,6 +282,8 @@ void  LifeCycleManager::live_migrate_action(int vid)
 
         vm->set_stime(time(0));
 
+        vm->set_previous_action(History::LIVE_MIGRATE_ACTION);
+
         vmpool->update_history(vm);
 
         vm->get_requirements(cpu,mem,disk);
@@ -318,6 +336,10 @@ void  LifeCycleManager::shutdown_action(int vid)
 
         vmpool->update(vm);
 
+        vm->set_action(History::SHUTDOWN_ACTION);
+
+        vmpool->update_history(vm);
+
         vm->log("LCM",Log::INFO,"New VM state is SHUTDOWN");
 
         //----------------------------------------------------
@@ -337,7 +359,83 @@ void  LifeCycleManager::shutdown_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void  LifeCycleManager::undeploy_action(int vid, bool hard)
+{
+    VirtualMachine *    vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if (vm->get_state()     == VirtualMachine::ACTIVE &&
+        vm->get_lcm_state() == VirtualMachine::RUNNING)
+    {
+        Nebula&                 nd = Nebula::instance();
+        VirtualMachineManager * vmm = nd.get_vmm();
+
+        //----------------------------------------------------
+        //             SHUTDOWN_UNDEPLOY STATE
+        //----------------------------------------------------
+
+        vm->set_state(VirtualMachine::SHUTDOWN_UNDEPLOY);
+
+        vm->set_resched(false);
+
+        vmpool->update(vm);
+
+        vm->log("LCM",Log::INFO,"New VM state is SHUTDOWN_UNDEPLOY");
+
+        //----------------------------------------------------
+
+        if (hard)
+        {
+            vm->set_action(History::UNDEPLOY_HARD_ACTION);
+
+            vmm->trigger(VirtualMachineManager::CANCEL,vid);
+        }
+        else
+        {
+            vm->set_action(History::UNDEPLOY_ACTION);
+
+            vmm->trigger(VirtualMachineManager::SHUTDOWN,vid);
+        }
+
+        vmpool->update_history(vm);
+    }
+    else
+    {
+        vm->log("LCM", Log::ERROR, "undeploy_action, VM in a wrong state.");
+    }
+
+    vm->unlock();
+
+    return;
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void  LifeCycleManager::poweroff_action(int vid)
+{
+    poweroff_action(vid, false);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void  LifeCycleManager::poweroff_hard_action(int vid)
+{
+    poweroff_action(vid, true);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void  LifeCycleManager::poweroff_action(int vid, bool hard)
 {
     VirtualMachine *    vm;
 
@@ -368,7 +466,20 @@ void  LifeCycleManager::poweroff_action(int vid)
 
         //----------------------------------------------------
 
-        vmm->trigger(VirtualMachineManager::SHUTDOWN,vid);
+        if (hard)
+        {
+            vm->set_action(History::POWEROFF_HARD_ACTION);
+
+            vmm->trigger(VirtualMachineManager::CANCEL,vid);
+        }
+        else
+        {
+            vm->set_action(History::POWEROFF_ACTION);
+
+            vmm->trigger(VirtualMachineManager::SHUTDOWN,vid);
+        }
+
+        vmpool->update_history(vm);
     }
     else
     {
@@ -466,6 +577,10 @@ void  LifeCycleManager::cancel_action(int vid)
 
         vmpool->update(vm);
 
+        vm->set_action(History::SHUTDOWN_HARD_ACTION);
+
+        vmpool->update_history(vm);
+
         vm->log("LCM", Log::INFO, "New state is CANCEL");
 
         //----------------------------------------------------
@@ -502,7 +617,8 @@ void  LifeCycleManager::restart_action(int vid)
          vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN ||
          vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF ||
          vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED))
+         vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED ||
+         vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY))
        ||vm->get_state() == VirtualMachine::POWEROFF)
     {
         Nebula&                 nd = Nebula::instance();
@@ -517,7 +633,8 @@ void  LifeCycleManager::restart_action(int vid)
              vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN ||
              vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF ||
              vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED ||
-             vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED))
+             vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED ||
+             vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY))
         {
             vm->log("LCM", Log::INFO, "Sending BOOT command to VM again");
         }
@@ -727,10 +844,12 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
     if (dispose)
     {
         vm->set_state(VirtualMachine::CLEANUP_DELETE);
+        vm->set_action(History::DESTROY_ACTION);
     }
     else
     {
         vm->set_state(VirtualMachine::CLEANUP_RESUBMIT);
+        vm->set_action(History::DESTROY_RECREATE_ACTION);
     }
 
     vm->set_resched(false);
@@ -750,6 +869,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
     {
         case VirtualMachine::PROLOG:
         case VirtualMachine::PROLOG_RESUME:
+        case VirtualMachine::PROLOG_UNDEPLOY:
             vm->set_prolog_etime(the_time);
             vmpool->update_history(vm);
 
@@ -762,6 +882,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
         case VirtualMachine::BOOT_POWEROFF:
         case VirtualMachine::BOOT_SUSPENDED:
         case VirtualMachine::BOOT_STOPPED:
+        case VirtualMachine::BOOT_UNDEPLOY:
         case VirtualMachine::RUNNING:
         case VirtualMachine::UNKNOWN:
         case VirtualMachine::SHUTDOWN:
@@ -859,6 +980,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
         break;
 
         case VirtualMachine::EPILOG_STOP:
+        case VirtualMachine::EPILOG_UNDEPLOY:
         case VirtualMachine::EPILOG:
             vm->set_epilog_etime(the_time);
             vmpool->update_history(vm);

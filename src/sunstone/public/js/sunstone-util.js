@@ -313,7 +313,7 @@ function notifyMessage(msg){
 function prettyPrintJSON(template_json,padding,weight, border_bottom,padding_top_bottom){
     var str = ""
     if (!template_json){ return "Not defined";}
-    if (!padding) {padding=0};
+    if (!padding) {padding=10};
     if (!weight) {weight="bold";}
     if (!border_bottom) {border_bottom = "1px solid #CCCCCC";}
     if (!padding_top_bottom) {padding_top_bottom=6;}
@@ -381,9 +381,9 @@ function prettyPrintRowJSON(field,value,padding,weight, border_bottom,padding_to
 function initCheckAllBoxes(datatable){
 
     //small css hack
-    $('input.check_all',datatable).css({"border":"2px"});
-    $('input.check_all',datatable).live("change",function(){
-        var table = $(this).parents('table');
+    $('input.check_all').css({"border":"2px"});
+    $('input.check_all').live("change",function(){
+        var table = $(this).closest('.dataTables_wrapper');
         var checked = $(this).attr('checked');
         if (checked) { //check all
             $('tbody input.check_item',table).attr('checked','checked');
@@ -483,7 +483,7 @@ function onError(request,error_json) {
 //Used when refreshing elements of a datatable.
 function waitingNodes(dataTable){
     $('tr input.check_item:visible',dataTable).replaceWith(spinner);
-    recountCheckboxes(dataTable);
+    //recountCheckboxes(dataTable);
 }
 
 
@@ -1152,7 +1152,7 @@ function setupQuotasDialog(dialog){
     //    width: 740,
     //    height: height
     //});
-    dialog.addClass("reveal-modal xlarge")
+    dialog.addClass("reveal-modal xlarge max-height")
 
     //$('button',dialog).button();
     $('#vm_quota,#datastore_quota,#image_quota,#network_quota',dialog).hide();
@@ -1333,7 +1333,7 @@ function quotaListItem(quota_json){
 
     str += '><td>'+
         quota_json.TYPE+
-        '</td><td style="width:100%;"><pre style="margin:0;">';
+        '</td><td style="width:100%;">';
     switch(quota_json.TYPE){
     case "VM":
         str +=  'VMs: ' + quota_json.VMS + (quota_json.VMS_USED ? ' (' + quota_json.VMS_USED + '). ' : ". ") + '<br>' +
@@ -1354,7 +1354,7 @@ function quotaListItem(quota_json){
                'Leases: ' + quota_json.LEASES +  (quota_json.LEASES_USED ? ' (' + quota_json.LEASES_USED + '). ': ". ");
         break;
     }
-    str += '</td><td><button class="quota_edit_icon"><i class="icon-pencil"></i></button></pre></td></tr>';
+    str += '</td><td><button class="quota_edit_icon"><i class="icon-pencil"></i></button></td></tr>';
     return str;
 }
 

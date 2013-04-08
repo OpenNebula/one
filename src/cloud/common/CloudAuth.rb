@@ -72,11 +72,6 @@ class CloudAuth
         rescue => e
             raise e.message
         end
-
-        @user_pool = OpenNebula::UserPool.new(client)
-
-        rc = @user_pool.info
-        raise rc.message if OpenNebula.is_error?(rc)
     end
 
     # Generate a new OpenNebula client for the target User, if the username
@@ -103,7 +98,10 @@ class CloudAuth
     #
     #
     def auth(env, params={})
-        username = do_auth(env, params)
+        begin
+            username = do_auth(env, params)
+        rescue
+        end
 
         if username.nil?
             update_userpool_cache

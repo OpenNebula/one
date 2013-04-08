@@ -28,13 +28,201 @@ using namespace std;
 class History:public ObjectSQL, public ObjectXML
 {
 public:
-    enum MigrationReason
+    enum EndReason
     {
-        NONE,       /** < Normal termination in host */
-        ERROR,      /** < The VM was migrated because of an error */
-        STOP_RESUME,/** < The VM was migrated because of a stop/resume request*/
-        USER,       /** < The VM was migrated because of an explicit request */
-        CANCEL      /** < The VM was migrated because of an explicit cancel */
+        NONE,       /** < History record is not closed yet */
+        ERROR,      /** < History record was closed because of an error */
+        USER        /** < History record was closed because of a user action */
+    };
+
+    enum VMAction
+    {
+        NONE_ACTION,
+        MIGRATE_ACTION,
+        LIVE_MIGRATE_ACTION,
+        SHUTDOWN_ACTION,
+        SHUTDOWN_HARD_ACTION,
+        UNDEPLOY_ACTION,
+        UNDEPLOY_HARD_ACTION,
+        HOLD_ACTION,
+        RELEASE_ACTION,
+        STOP_ACTION,
+        SUSPEND_ACTION,
+        RESUME_ACTION,
+        BOOT_ACTION,
+        DESTROY_ACTION,
+        DESTROY_RECREATE_ACTION,
+        REBOOT_ACTION,
+        REBOOT_HARD_ACTION,
+        RESCHED_ACTION,
+        UNRESCHED_ACTION,
+        POWEROFF_ACTION,
+        POWEROFF_HARD_ACTION
+    };
+
+    static string action_to_str(VMAction action)
+    {
+        string st;
+
+        switch (action)
+        {
+            case MIGRATE_ACTION:
+                st = "migrate";
+            break;
+            case LIVE_MIGRATE_ACTION:
+                st = "live-migrate";
+            break;
+            case SHUTDOWN_ACTION:
+                st = "shutdown";
+            break;
+            case SHUTDOWN_HARD_ACTION:
+                st = "shutdown-hard";
+            break;
+            case UNDEPLOY_ACTION:
+                st = "undeploy";
+            break;
+            case UNDEPLOY_HARD_ACTION:
+                st = "undeploy-hard";
+            break;
+            case HOLD_ACTION:
+                st = "hold";
+            break;
+            case RELEASE_ACTION:
+                st = "release";
+            break;
+            case STOP_ACTION:
+                st = "stop";
+            break;
+            case SUSPEND_ACTION:
+                st = "suspend";
+            break;
+            case RESUME_ACTION:
+                st = "resume";
+            break;
+            case BOOT_ACTION:
+                st = "boot";
+            break;
+            case DESTROY_ACTION:
+                st = "destroy";
+            break;
+            case DESTROY_RECREATE_ACTION:
+                st = "destroy-recreate";
+            break;
+            case REBOOT_ACTION:
+                st = "reboot";
+            break;
+            case REBOOT_HARD_ACTION:
+                st = "reboot-hard";
+            break;
+            case RESCHED_ACTION:
+                st = "resched";
+            break;
+            case UNRESCHED_ACTION:
+                st = "unresched";
+            break;
+            case POWEROFF_ACTION:
+                st = "poweroff";
+            break;
+            case POWEROFF_HARD_ACTION:
+                st = "poweroff-hard";
+            break;
+            case NONE_ACTION:
+                st = "none";
+            break;
+        }
+
+        return st;
+    };
+
+    static int action_from_str(string& st, VMAction& action)
+    {
+        if (st == "migrate")
+        {
+            action = MIGRATE_ACTION;
+        }
+        else if (st == "live-migrate")
+        {
+            action = LIVE_MIGRATE_ACTION;
+        }
+        else if (st == "shutdown")
+        {
+            action = SHUTDOWN_ACTION;
+        }
+        else if (st == "shutdown-hard")
+        {
+            action = SHUTDOWN_HARD_ACTION;
+        }
+        else if (st == "undeploy")
+        {
+            action = UNDEPLOY_ACTION;
+        }
+        else if (st == "undeploy-hard")
+        {
+            action = UNDEPLOY_HARD_ACTION;
+        }
+        else if (st == "hold")
+        {
+            action = HOLD_ACTION;
+        }
+        else if (st == "release")
+        {
+            action = RELEASE_ACTION;
+        }
+        else if (st == "stop")
+        {
+            action = STOP_ACTION;
+        }
+        else if (st == "suspend")
+        {
+            action = SUSPEND_ACTION;
+        }
+        else if (st == "resume")
+        {
+            action = RESUME_ACTION;
+        }
+        else if (st == "boot")
+        {
+            action = BOOT_ACTION;
+        }
+        else if (st == "destroy")
+        {
+            action = DESTROY_ACTION;
+        }
+        else if (st == "destroy-recreate")
+        {
+            action = DESTROY_RECREATE_ACTION;
+        }
+        else if (st == "reboot")
+        {
+            action = REBOOT_ACTION;
+        }
+        else if (st == "reboot-hard")
+        {
+            action = REBOOT_HARD_ACTION;
+        }
+        else if (st == "resched")
+        {
+            action = RESCHED_ACTION;
+        }
+        else if (st == "unresched")
+        {
+            action = UNRESCHED_ACTION;
+        }
+        else if (st == "poweroff")
+        {
+            action = POWEROFF_ACTION;
+        }
+        else if (st == "poweroff-hard")
+        {
+            action = POWEROFF_HARD_ACTION;
+        }
+        else
+        {
+            action = NONE_ACTION;
+            return -1;
+        }
+
+        return 0;
     };
 
     History(int oid, int _seq = -1);
@@ -109,7 +297,9 @@ private:
     time_t  epilog_stime;
     time_t  epilog_etime;
 
-    MigrationReason reason;
+    EndReason reason;
+
+    VMAction action;
 
     string  vm_info;
 

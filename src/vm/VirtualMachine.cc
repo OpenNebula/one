@@ -274,16 +274,16 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     user_obj_template->get("NAME",name);
     user_obj_template->erase("NAME");
 
+    user_obj_template->get("TEMPLATE_NAME", prefix);
+    user_obj_template->erase("TEMPLATE_NAME");
+
+    if (prefix.empty())
+    {
+        prefix = "one";
+    }
+
     if (name.empty() == true)
     {
-        user_obj_template->get("TEMPLATE_NAME", prefix);
-        user_obj_template->erase("TEMPLATE_NAME");
-
-        if (prefix.empty())
-        {
-            prefix = "one";
-        }
-
         oss.str("");
         oss << prefix << "-" << oid;
         name = oss.str();

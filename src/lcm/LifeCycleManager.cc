@@ -232,6 +232,14 @@ void LifeCycleManager::trigger(Actions action, int _vid)
         aname = "SHUTDOWN";
         break;
 
+    case UNDEPLOY:
+        aname = "UNDEPLOY";
+        break;
+
+    case UNDEPLOY_HARD:
+        aname = "UNDEPLOY_HARD";
+        break;
+
     case RESTART:
         aname = "RESTART";
         break;
@@ -250,6 +258,10 @@ void LifeCycleManager::trigger(Actions action, int _vid)
 
     case POWEROFF:
         aname = "POWEROFF";
+        break;
+
+    case POWEROFF_HARD:
+        aname = "POWEROFF_HARD";
         break;
 
     default:
@@ -441,6 +453,14 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     {
         shutdown_action(vid);
     }
+    else if (action == "UNDEPLOY")
+    {
+        undeploy_action(vid, false);
+    }
+    else if (action == "UNDEPLOY_HARD")
+    {
+        undeploy_action(vid, true);
+    }
     else if (action == "RESTART")
     {
         restart_action(vid);
@@ -456,6 +476,10 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     else if (action == "POWEROFF")
     {
         poweroff_action(vid);
+    }
+    else if (action == "POWEROFF_HARD")
+    {
+        poweroff_hard_action(vid);
     }
     else if (action == ACTION_FINALIZE)
     {

@@ -27,7 +27,7 @@ var images_tab_content = '\
       </span>\
       <span class="header-info">\
         <span id="total_images"/> <small>'+tr("TOTAL")+'</small>&emsp;\
-        <span id="size_images"/> <small>'+tr("SIZE")+'</small>\
+        <span id="size_images"/> <small>'+tr("USED")+'</small>\
       </span>\
       <span class="user-login">\
       </span>\
@@ -40,7 +40,7 @@ var images_tab_content = '\
     </div>\
   </div>\
   <div class="three columns">\
-    <input id="image_search" type="text" placeholder="Search" />\
+    <input id="image_search" type="text" placeholder="'+tr("Search")+'" />\
   </div>\
 </div>\
 </div>\
@@ -67,27 +67,20 @@ var images_tab_content = '\
   <tbody id="tbodyimages">\
   </tbody>\
 </table>\
-<div class="legend_div">\
-  <span>?</span>\
-<p class="legend_p">\
-'+tr("Size and registration time are hidden colums. Note that persistent images can only be used by 1 VM. To change image datastore, please re-register the image.")+'\
-</p>\
-</div>\
 </form>';
 
 var create_image_tmpl =
-'<div id="img_tabs">\
-  <div class="panel">\
+  '<div class="panel">\
     <h3><small>'+tr("Create Image")+'</small></h4>\
   </div>\
+        <div class="reveal-body">\
+  <form id="create_image" action="" class="custom creation">\
         <dl class="tabs">\
         <dd class="active"><a href="#img_easy">'+tr("Wizard")+'</a></dd>\
           <dd><a href="#img_manual">'+tr("Advanced mode")+'</a></dd>\
         </dl>\
         <ul class="tabs-content">\
         <li id="img_easyTab" class="active">\
-        <div class="reveal-body">\
-           <form id="create_image_form_easy" action="" class="custom creation">\
                   <div class="row vm_param">\
                     <div class="six columns">\
                       <div class="row">\
@@ -202,7 +195,7 @@ var create_image_tmpl =
                  </fieldset>\
                  </div>\
                 <div class="show_hide" id="advanced_image_create">\
-                     <h4><small><i class=" icon-plus-sign-alt"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>\
+                     <h4><small><i class=" icon-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>\
                 </div>\
                 <div class="advanced">\
                   <div class="row">\
@@ -257,34 +250,35 @@ var create_image_tmpl =
                     </div>\
                   </div>\
                   </div>\
-                  </div>\
-                  <hr>\
-            </form>\
+          <div class="reveal-footer">\
+            <hr>\
             <div class="form_buttons">\
               <button class="button success radius right" id="create_image_submit" value="image/create">'+tr("Create")+'</button>\
               <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
               <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
             </div>\
+          </div>\
         </li>\
         <li id="img_manualTab">\
         <div class="reveal-body">\
-            <form id="create_image_form_manual" action="" class="custom">\
                  <h4><small>'+tr("Write the image template here")+'</small></h4>\
                  <label for="img_datastores_raw">'+tr("Datastore")+':</label>\
                  <select id="img_datastore_raw" name="img_datastore_raw">\
                  </select>\
                  <textarea id="template" rows="15" style="width:100%;"></textarea>\
                  </div>\
+          <div class="reveal-footer">\
                  <hr>\
                <div class="form_buttons">\
                  <button class="button success radius right" id="create_image_submit_manual" value="image/create">'+tr("Create")+'</button>\
                  <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
                  <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
                </div>\
-           </form>\
+          </div>\
         </li>\
         </ul>\
         <a class="close-reveal-modal">&#215;</a>\
+           </form>\
 </div>';
 
 var dataTable_images;
@@ -828,7 +822,7 @@ function setupCreateImageDialog(){
     //    width: 520,
     //    height: height
     //});
-    dialog.addClass("reveal-modal large");
+    dialog.addClass("reveal-modal large max-height");
 
     $('.advanced',dialog).hide();
 
@@ -1253,7 +1247,6 @@ function popUpImageCloneDialog(){
 $(document).ready(function(){
 
     dataTable_images = $("#datatable_images",main_tabs_context).dataTable({
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
@@ -1264,11 +1257,7 @@ $(document).ready(function(){
             { "sWidth": "100px", "aTargets": [5,7] },
             { "sWidth": "150px", "aTargets": [8] },
             { "bVisible": false, "aTargets": [6,8,12]}
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        ]
     });
 
     $('#image_search').keyup(function(){

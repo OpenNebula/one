@@ -47,14 +47,15 @@ module OpenNebula
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
-            POWEROFF}
+            POWEROFF UNDEPLOYED}
 
         LCM_STATE=%w{LCM_INIT PROLOG BOOT RUNNING MIGRATE SAVE_STOP SAVE_SUSPEND
             SAVE_MIGRATE PROLOG_MIGRATE PROLOG_RESUME EPILOG_STOP EPILOG
             SHUTDOWN CANCEL FAILURE CLEANUP_RESUBMIT UNKNOWN HOTPLUG SHUTDOWN_POWEROFF
             BOOT_UNKNOWN BOOT_POWEROFF BOOT_SUSPENDED BOOT_STOPPED CLEANUP_DELETE
             HOTPLUG_SNAPSHOT HOTPLUG_NIC HOTPLUG_SAVEAS HOTPLUG_SAVEAS_POWEROFF
-            HOTPLUG_SAVEAS_SUSPENDED}
+            HOTPLUG_SAVEAS_SUSPENDED SHUTDOWN_UNDEPLOY EPILOG_UNDEPLOY
+            PROLOG_UNDEPLOY BOOT_UNDEPLOY}
 
         SHORT_VM_STATES={
             "INIT"      => "init",
@@ -65,7 +66,8 @@ module OpenNebula
             "SUSPENDED" => "susp",
             "DONE"      => "done",
             "FAILED"    => "fail",
-            "POWEROFF"  => "poff"
+            "POWEROFF"  => "poff",
+            "UNDEPLOYED"=> "unde"
         }
 
         SHORT_LCM_STATES={
@@ -96,18 +98,25 @@ module OpenNebula
             "HOTPLUG_NIC"       => "hotp",
             "HOTPLUG_SAVEAS"           => "hotp",
             "HOTPLUG_SAVEAS_POWEROFF"  => "hotp",
-            "HOTPLUG_SAVEAS_SUSPENDED" => "hotp"
+            "HOTPLUG_SAVEAS_SUSPENDED" => "hotp",
+            "SHUTDOWN_UNDEPLOY" => "shut",
+            "EPILOG_UNDEPLOY"   => "epil",
+            "PROLOG_UNDEPLOY"   => "prol",
+            "BOOT_UNDEPLOY"     => "boot"
         }
 
-        MIGRATE_REASON=%w{NONE ERROR STOP_RESUME USER CANCEL}
+        MIGRATE_REASON=%w{NONE ERROR USER}
 
         SHORT_MIGRATE_REASON={
             "NONE"          => "none",
             "ERROR"         => "erro",
-            "STOP_RESUME"   => "stop",
-            "USER"          => "user",
-            "CANCEL"        => "canc"
+            "USER"          => "user"
         }
+
+        HISTORY_ACTION=%w{none migrate live-migrate shutdown shutdown-hard
+            undeploy undeploy-hard hold release stop suspend resume boot destroy
+            destroy-recreate reboot reboot-hard resched unresched poweroff
+            poweroff-hard}
 
         # Creates a VirtualMachine description with just its identifier
         # this method should be used to create plain VirtualMachine objects.
@@ -131,6 +140,10 @@ module OpenNebula
             reason_str=SHORT_MIGRATE_REASON[reason]
 
             reason_str
+        end
+
+        def VirtualMachine.get_history_action(action)
+            return HISTORY_ACTION[action.to_i]
         end
 
         # Class constructor
@@ -210,9 +223,14 @@ module OpenNebula
             action(hard ? 'shutdown-hard' : 'shutdown')
         end
 
+        # Shuts down an already deployed VM, saving its state in the system DS
+        def undeploy(hard=false)
+            action(hard ? 'undeploy-hard' : 'undeploy')
+        end
+
         # Powers off a running VM
-        def poweroff
-            action('poweroff')
+        def poweroff(hard=false)
+            action(hard ? 'poweroff-hard' : 'poweroff')
         end
 
         # Reboots an already deployed VM

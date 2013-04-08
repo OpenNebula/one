@@ -47,6 +47,16 @@ do_stop()
     su oneadmin -s /bin/sh -c 'one stop'
 }
 
+do_start_sched()
+{
+    su oneadmin -s /bin/sh -c 'one start-sched'
+}
+
+do_stop_sched()
+{
+    su oneadmin -s /bin/sh -c 'one stop-sched'
+}
+
 case "$1" in
   start)
     [ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME"
@@ -74,6 +84,22 @@ case "$1" in
     #
     log_daemon_msg "Restarting $DESC" "$NAME"
     do_stop
+    case "$?" in
+      0|1)
+        do_start
+        case "$?" in
+            0) log_end_msg 0 ;;
+            1) log_end_msg 1 ;; # Old process is still running
+            *) log_end_msg 1 ;; # Failed to start
+        esac
+        ;;
+      *)
+          # Failed to stop
+        log_end_msg 1
+        ;;
+  restart-sched)
+    log_daemon_msg "Restarting scheduler"
+    do_stop_sched
     case "$?" in
       0|1)
         do_start

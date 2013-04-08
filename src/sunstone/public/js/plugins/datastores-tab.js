@@ -40,7 +40,7 @@ var datastores_tab_content = '\
     </div>\
   </div>\
   <div class="three columns">\
-    <input id="datastore_search" type="text" placeholder="Search" />\
+    <input id="datastore_search" type="text" placeholder="'+tr("Search")+'" />\
   </div>\
   <br>\
   <br>\
@@ -66,17 +66,10 @@ var datastores_tab_content = '\
   <tbody id="tbodydatastores">\
   </tbody>\
 </table>\
-<div class="legend_div">\
-  <span>?</span>\
-  <p class="legend_p">\
-'+tr("Datatables are sets of images which share a common transfer driver. i.e. Images in a SSH datastore will be copied to the hosts using SSH when deploying a Virtual Machine.")+'\
-  </p>\
-</div>\
 </form>';
 
 var create_datastore_tmpl =
-'<div class="create_form">\
-  <div class="panel">\
+'<div class="panel">\
     <h3>\
       <small id="create_cluster_header">'+tr("Create Datastore")+'</small>\
     </h3>\
@@ -149,7 +142,7 @@ var create_datastore_tmpl =
             <select id="disk_type" name="disk_type">\
               <option value="file">' + tr("File") + '</option>\
               <option value="block">' + tr("Block") + '</option>\
-              <option value="rbd">' + tr("RBD") + '</option>\
+              <option value="RBD">' + tr("RBD") + '</option>\
             </select>\
           </div>\
           <div class="one columns">\
@@ -201,30 +194,32 @@ var create_datastore_tmpl =
       </div>\
     </div>\
     <div class="twelve columns">\
-      <div class="three columns">\
+      <div class="four columns">\
         <label class="right inline" for="safe_dirs">' + tr("Safe Directories") + ':</label>\
       </div>\
-      <div class="eight columns">\
+      <div class="seven columns">\
         <input type="text" name="safe_dirs" id="safe_dirs" />\
       </div>\
       <div class="one columns">\
+        <div class="tip">'+tr("Paths that can not be used to register images. A space separated list of paths. This will prevent users registering important files as VM images and accessing them thourgh their VMs. OpenNebula will automatically add its configuration directories: /var/lib/one, /etc/one and oneadmin's home ($HOME).")+'</div>\
       </div>\
     </div>\
     <div class="twelve columns">\
-      <div class="three columns">\
+      <div class="four columns">\
         <label class="right inline" for="restricted_dirs">' + tr("Restricted Directories") + ':</label>\
       </div>\
-      <div class="eight columns">\
+      <div class="seven columns">\
         <input type="text" name="restricted_dirs" id="restricted_dirs" />\
       </div>\
       <div class="one columns">\
+        <div class="tip">'+tr("If you need to un-block a directory under one of the RESTRICTED_DIRS")+'</div>\
       </div>\
     </div>\
     <div class="twelve columns">\
-      <div class="three columns">\
+      <div class="four columns">\
         <label class="right inline" for="bridge_list">' + tr("Host Bridge List") + ':</label>\
       </div>\
-      <div class="eight columns">\
+      <div class="seven columns">\
         <input type="text" name="bridge_list" id="bridge_list" />\
       </div>\
       <div class="one columns">\
@@ -232,52 +227,53 @@ var create_datastore_tmpl =
     </div>\
     <div class="row">\
       <div class="six columns">\
-        <label class="right inline" for="ds_use_ssh"><input id="ds_use_ssh" type="checkbox" name="ds_use_ssh" value="YES" />' + tr("Use SSH for Datastore Manager") + ':</label>\
+        <label class="right inline" for="ds_use_ssh"><input id="ds_use_ssh" type="checkbox" name="ds_use_ssh" value="YES" />' + tr("Use SSH for Datastore Manager") + '</label>\
       </div>\
       <div class="six columns">\
-        <label class="inline" for="tm_use_ssh"><input id="tm_use_ssh" type="checkbox" name="tm_use_ssh" value="YES" />' + tr("Use SSH for Transfer Manager") + ':</label>\
+        <label class="inline" for="tm_use_ssh"><input id="tm_use_ssh" type="checkbox" name="tm_use_ssh" value="YES" />' + tr("Use SSH for Transfer Manager") + '</label>\
       </div>\
     </div>\
     <div class="twelve columns">\
-      <div class="three columns">\
+      <div class="four columns">\
         <label class="right inline" for="host">' + tr("Storage Server") + ':</label>\
       </div>\
-      <div class="eight columns">\
+      <div class="seven columns">\
         <input type="text" name="host" id="host" />\
       </div>\
       <div class="one columns">\
       </div>\
     </div>\
     <div class="twelve columns">\
-      <div class="three columns">\
+      <div class="four columns">\
         <label class="right inline" for="base_iqn">' + tr("Base IQN") + ':</label>\
       </div>\
-      <div class="eight columns">\
+      <div class="seven columns">\
         <input type="text" name="base_iqn" id="base_iqn" />\
       </div>\
       <div class="one columns">\
       </div>\
     </div>\
     <div class="twelve columns">\
-      <div class="three columns">\
+      <div class="four columns">\
         <label class="right inline" for="vg_name">' + tr("Volume Group Name") + ':</label>\
       </div>\
-      <div class="eight columns">\
+      <div class="seven columns">\
         <input type="text" name="vg_name" id="vg_name" />\
       </div>\
       <div class="one columns">\
       </div>\
     </div>\
-  </form>\
   </div>\
+  <div class="reveal-footer">\
     <hr>\
   <div class="form_buttons">\
       <button class="button radius right success" type="submit" id="create_datastore_submit" value="OpenNebula.Datastore.create">' + tr("Create") + '</button>\
       <button class="button radius secondary" type="reset" value="reset">' + tr("Reset") + '</button>\
       <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
   </div>\
+  </div>\
   <a class="close-reveal-modal">&#215;</a>\
-</div>';
+  </form>';
 
 var datastore_image_table_tmpl='<thead>\
     <tr>\
@@ -761,13 +757,13 @@ function hide_all(context)
 // Set up the create datastore dialog
 function setupCreateDatastoreDialog(){
 
-    dialogs_context.append('<div title=\"'+tr("Create Datastore")+'\" id="create_datastore_dialog"></div>');
+    dialogs_context.append('<div id="create_datastore_dialog"></div>');
     //Insert HTML in place
     $create_datastore_dialog = $('#create_datastore_dialog')
     var dialog = $create_datastore_dialog;
     dialog.html(create_datastore_tmpl);
 
-    dialog.addClass("reveal-modal large");
+    dialog.addClass("reveal-modal large max-height");
 
     setupTips(dialog);
 
@@ -942,7 +938,7 @@ function select_ceph(){
     $('select#ds_mad').attr('disabled', 'disabled');
     $('select#tm_mad').val('ceph');
     $('select#tm_mad').attr('disabled', 'disabled');
-    $('select#ds_type').val('rbd');
+    $('select#disk_type').val('RBD');
 }
 
 function select_lvm(){
@@ -990,18 +986,13 @@ function setDatastoreAutorefresh(){
 $(document).ready(function(){
 
     dataTable_datastores = $("#datatable_datastores",main_tabs_context).dataTable({
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [0,1] },
             { "bVisible": false, "aTargets": [6,7,8,9] }
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        ]
     });
 
     $('#datastore_search').keyup(function(){

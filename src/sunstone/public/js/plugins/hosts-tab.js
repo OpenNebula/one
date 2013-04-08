@@ -44,7 +44,7 @@ var hosts_tab_content = '\
     </div>\
   </div>\
   <div class="three columns">\
-    <input id="hosts_search" type="text" placeholder="Search" />\
+    <input id="hosts_search" type="text" placeholder="'+tr("Search")+'" />\
   </div>\
   <br>\
   <br>\
@@ -73,32 +73,19 @@ var hosts_tab_content = '\
   <tbody id="tbodyhosts">\
   </tbody>\
 </table>\
-<div class="legend_div">\
-  <span>?</span>\
-  <p class="legend_p">\
-'+tr("CPU Use is calculated as the minimum between (total CPU - real CPU usage) and (allocated CPU). Real CPU usage is provided by the hosts monitoring driver. Available CPU is calculated using the information from the CPU setting of the VMs running on that host (allocated CPU)")+'\
-  </p>\
-  <p class="legend_p">\
-'+tr("Memory use is calculated according to the information provided by the host monitoring driver.")+'\
-  </p>\
-  <p class="legend_p">\
-'+tr("You can get monitoring graphs by clicking in the desired host and visiting the monitoring information tab. Note that oneacctd must be running for this information to be updated/available.")+'\
-  </p>\
-</div>\
 </form>';
 
 var create_host_tmpl =
-'<div class="create_form">\
-  <div class="panel">\
+'<div class="panel">\
     <h3 >\
       <small id="create_cluster_header">'+tr("Create Host")+'</small>\
     </h3>\
   </div>\
-        <div class="reveal-body">\
+  <div class="reveal-body">\
   <form id="create_host_form" action="" class="">\
   <div class="row">\
       <div class="four columns">\
-          <label class="inline right" for="name">' + tr("Name")  + ':</label>\
+          <label class="inline right" for="name">' + tr("Hostname")  + ':</label>\
       </div>\
       <div class="seven columns">\
           <input type="text" name="name" id="name" />\
@@ -191,15 +178,17 @@ var create_host_tmpl =
           <div class="tip"></div>\
       </div>\
     </div>\
-    </div>\
+    <div class="reveal-footer">\
     <hr>\
     <div class="form_buttons row">\
         <button class="button success right radius" type="submit" id="create_host_submit" value="OpenNebula.Host.create">' + tr("Create") + '</button>\
         <button class="button secondary radius" type="reset" value="reset">' + tr("Reset") + '</button>\
         <button class="close-reveal-modal button secondary radius" action="" type="button" value="close">' + tr("Close") + '</button>\
     </div>\
+    </div>\
     <a class="close-reveal-modal">&#215;</a>\
-</form></div>';
+</form>\
+    </div>';
 
 var hosts_select="";
 var dataTable_hosts;
@@ -296,14 +285,14 @@ var host_actions = {
             var host_graphs = [
             {
                 monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU",
-                labels : "Allocated,Real,Total",
+                labels : tr("Allocated")+","+tr("Real")+","+tr("Total"),
                 humanize_figures : false,
                 div_graph : $("#host_cpu_graph"),
                 div_legend : $("#host_cpu_legend")
             },
             {
                 monitor_resources : "HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM",
-                labels : "Allocated,Real,Total",
+                labels : tr("Allocated")+","+tr("Real")+","+tr("Total"),
                 humanize_figures : true,
                 div_graph : $("#host_mem_graph"),
                 div_legend : $("#host_mem_legend")
@@ -327,14 +316,14 @@ var host_actions = {
             var host_dashboard_graphs = [
             {
                 monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU",
-                labels : "Allocated,Real,Total",
+                labels : tr("Allocated")+","+tr("Real")+","+tr("Total"),
                 humanize_figures : false,
                 div_graph : $("#dash_host_cpu_graph", $dashboard)
                 //div_legend : $("#dash_host_cpu_legend", $dashboard)
             },
             {
                 monitor_resources : "HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM",
-                labels : "Allocated,Real,Total",
+                labels : tr("Allocated")+","+tr("Real")+","+tr("Total"),
                 humanize_figures : true,
                 div_graph : $("#dash_host_mem_graph", $dashboard),
                 div_legend : $("#dash_host_mem_legend", $dashboard)
@@ -947,7 +936,7 @@ function setupCreateHostDialog(){
     //    modal: true,
     //    width: 500
     //});
-    dialog.addClass("reveal-modal");
+    dialog.addClass("reveal-modal max-height");
 
     //$('button',dialog).button();
 
@@ -1049,7 +1038,6 @@ $(document).ready(function(){
 
     //prepare host datatable
     dataTable_hosts = $("#datatable_hosts",main_tabs_context).dataTable({
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": { //exclude checkbox column
             "aiExclude": [ 0 ]
         },
@@ -1057,11 +1045,7 @@ $(document).ready(function(){
             //{ "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0,1,4,9] }, //check, ID, RVMS, Status
             { "bVisible": false, "aTargets": [5,7,10,11,12]}
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        ]
     });
 
     $('#hosts_search').keyup(function(){

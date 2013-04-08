@@ -142,7 +142,7 @@ $(document).ready(function () {
         applyDefaultStyles:       false
     ,   center__paneSelector:	".outer-center"
     ,	west__paneSelector:		".outer-west"
-    ,	west__size:				245
+    ,	west__size:				260
     ,	north__size:			26
     ,   south__size:            26
     ,	spacing_open:			0 // ALL panes
@@ -159,7 +159,7 @@ $(document).ready(function () {
     ,   west__resizable:        false
     });
 
-    var factor = 0.6;
+    var factor = 0.5;
     var dialog_height = Math.floor($(".outer-center").height()*factor);
 
     innerLayout = $('div.outer-center').layout({

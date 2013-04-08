@@ -61,7 +61,7 @@ var groups_tab_content = '\
     </div>\
   </div>\
   <div class="three columns">\
-    <input id="group_search" type="text" placeholder="Search" />\
+    <input id="group_search" type="text" placeholder="'+tr("Search")+'" />\
   </div>\
   <br>\
   <br>\
@@ -77,19 +77,13 @@ var groups_tab_content = '\
       <th>'+tr("Name")+'</th>\
       <th>'+tr("Users")+'</th>\
       <th>'+tr("VMs")+'</th>\
-      <th>'+tr("UMEM")+'</th>\
-      <th>'+tr("UCPU")+'</th>\
+      <th>'+tr("Memory")+'</th>\
+      <th>'+tr("CPU")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodygroups">\
   </tbody>\
 </table>\
-<div class="legend_div">\
-  <span>?</span>\
-<p class="legend_p">\
-'+tr("Tip: Refresh the list if it only shows user ids in the Users column.")+'\
-</p>\
-</div>\
 </form>';
 
 var create_group_tmpl =
@@ -143,7 +137,7 @@ var group_quotas_tmpl = '<div class="panel">\
               <label class="inline right" >'+tr("Max VMs")+':</label>\
           </div>\
           <div class="seven columns">\
-            <input type="text" name="VMS"></input><br />\
+            <input type="text" name="VMS"></input>\
           </div>\
           <div class="one columns">\
               <div class=""></div>\
@@ -154,7 +148,7 @@ var group_quotas_tmpl = '<div class="panel">\
               <label class="inline right" >'+tr("Max Memory (MB)")+':</label>\
           </div>\
           <div class="seven columns">\
-            <input type="text" name="MEMORY"></input><br />\
+            <input type="text" name="MEMORY"></input>\
           </div>\
           <div class="one columns">\
               <div class=""></div>\
@@ -178,7 +172,7 @@ var group_quotas_tmpl = '<div class="panel">\
               <label class="inline right" >'+tr("Datastore")+'</label>\
           </div>\
           <div class="seven columns">\
-            <select name="ID"></select><br />\
+            <select name="ID"></select>\
           </div>\
           <div class="one columns">\
               <div class=""></div>\
@@ -189,7 +183,7 @@ var group_quotas_tmpl = '<div class="panel">\
               <label class="inline right" >'+tr("Max size (MB)")+':</label>\
           </div>\
           <div class="seven columns">\
-            <input type="text" name="SIZE"></input><br />\
+            <input type="text" name="SIZE"></input>\
           </div>\
           <div class="one columns">\
               <div class=""></div>\
@@ -213,7 +207,7 @@ var group_quotas_tmpl = '<div class="panel">\
               <label class="inline right" >'+tr("Image")+'</label>\
           </div>\
           <div class="seven columns">\
-            <select name="ID"></select><br />\
+            <select name="ID"></select>\
           </div>\
           <div class="one columns">\
               <div class=""></div>\
@@ -237,7 +231,7 @@ var group_quotas_tmpl = '<div class="panel">\
               <label class="inline right" >'+tr("Network")+'</label>\
           </div>\
           <div class="seven columns">\
-            <select name="ID"></select><br />\
+            <select name="ID"></select>\
           </div>\
           <div class="one columns">\
               <div class=""></div>\
@@ -271,14 +265,16 @@ var group_quotas_tmpl = '<div class="panel">\
       </div>\
     </div>\
   </div>\
-  </div>\
+      <div class="reveal-footer">\
       <hr>\
       <div class="form_buttons">\
           <button class="button radius right success" id="create_user_submit" type="submit" value="Group.set_quota">'+tr("Apply changes")+'</button>\
           <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
       </div>\
+      </div>\
   <a class="close-reveal-modal">&#215;</a>\
-</form>';
+</form>\
+  </div>';
 
 
 var group_actions = {
@@ -799,15 +795,10 @@ function setGroupAutorefresh(){
 
 $(document).ready(function(){
     dataTable_groups = $("#datatable_groups",main_tabs_context).dataTable({
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0,1] }
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        ]
     });
 
     //addElement([

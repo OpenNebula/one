@@ -47,8 +47,8 @@ module OpenNebulaJSON
                  when "deploy"       then self.deploy(action_hash['params'])
                  when "finalize"     then self.finalize
                  when "hold"         then self.hold
-                 when "livemigrate"  then self.live_migrate(action_hash['params'])
-                 when "migrate"      then self.migrate(action_hash['params'])
+                 when "livemigrate"  then self.migrate(action_hash['params'], true)
+                 when "migrate"      then self.migrate(action_hash['params'], false)
                  when "resume"       then self.resume
                  when "release"      then self.release
                  when "stop"         then self.stop
@@ -61,7 +61,7 @@ module OpenNebulaJSON
                  when "snapshot_delete"       then self.snapshot_delete(action_hash['params'])
                  when "shutdown"     then self.shutdown
                  when "reboot"       then self.reboot
-                 when "poweroff"     then self.poweroff
+                 when "poweroff"     then self.poweroff(action_hash['params'])
                  when "resubmit"     then self.resubmit
                  when "chown"        then self.chown(action_hash['params'])
                  when "chmod"        then self.chmod_octet(action_hash['params'])
@@ -72,6 +72,7 @@ module OpenNebulaJSON
                  when "detachnic"    then self.detachnic(action_hash['params'])
                  when "update"       then self.update(action_hash['params'])
                  when "rename"       then self.rename(action_hash['params'])
+                 when "undeploy"     then self.undeploy(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -87,12 +88,17 @@ module OpenNebulaJSON
             super(params['host_id'])
         end
 
-        def live_migrate(params=Hash.new)
-            super(params['host_id'])
+        def undeploy(params=Hash.new)
+            super(params['hard'])
         end
 
-        def migrate(params=Hash.new)
-            super(params['host_id'])
+        def poweroff(params=Hash.new)
+            super(params['hard'])
+        end
+
+        def migrate(params=Hash.new, live=false, enforce=false)
+            # TODO add enforce parameter
+            super(params['host_id'], live)
         end
 
         def save_as(params=Hash.new)

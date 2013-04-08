@@ -112,6 +112,10 @@ class AcctHelper < OpenNebulaHelper::OneHelper
             d["HOSTNAME"]
         end
 
+        column :"ACTION", "VM state change action", :left, :size=>16 do |d|
+            VirtualMachine.get_history_action d["ACTION"]
+        end
+
         column :REASON, "VM state change reason", :left, :size=>4 do |d|
             VirtualMachine.get_reason d["REASON"]
         end
@@ -142,7 +146,7 @@ class AcctHelper < OpenNebulaHelper::OneHelper
             OpenNebulaHelper.unit_to_str(d["VM"]["NET_TX"].to_i / 1024.0, {})
         end
 
-        default :VID, :HOSTNAME, :REASON, :START_TIME, :END_TIME, :MEMORY, :CPU, :NET_RX, :NET_TX
+        default :VID, :HOSTNAME, :ACTION, :REASON, :START_TIME, :END_TIME, :MEMORY, :CPU, :NET_RX, :NET_TX
     end
 
     def self.print_start_end_time_header(start_time, end_time)

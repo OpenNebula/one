@@ -19,11 +19,11 @@ digraph OpenNebula {
     "ANY \\ {suspended,poweroff,done}" [ shape="box" ];
 
     subgraph { rank = min; user}
-#    subgraph { rank = same; pending; hold; color="white"}
-    subgraph { rank = same; prolog; boot; color="white" }
+    subgraph { rank = same; pending; hold; color="white"}
+#    subgraph { rank = same; prolog; boot; color="white" }
     subgraph { rank = same; migrate; save; shutdown; unknown; hotplug; snapshot;
         color="white" }
-    subgraph { rank = max; suspended; done; failure; stopped; poweroff; color="white" }
+    subgraph { rank = max; suspended; done; failure; stopped; poweroff; undeployed; color="white" }
 
 #   create
     user -> pending [label="create"];
@@ -36,7 +36,7 @@ digraph OpenNebula {
 #   shutdown
     running     -> shutdown [label="shutdown"];
     shutdown    -> epilog [label="shutdown", style="dashed"];
-    epilog      -> done [style="dashed"];
+    epilog      -> done [label="shutdown", style="dashed"];
 
 #   poweroff
     running     -> shutdown [label="poweroff"];
@@ -62,13 +62,20 @@ digraph OpenNebula {
     save        -> epilog [label="stop", style="dashed"];
     epilog      -> stopped [label="stop", style="dashed"];
 
+#   undeploy
+    running     -> shutdown [label="undeploy"];
+    shutdown    -> epilog [label="undeploy", style="dashed"];
+    epilog      -> undeployed [label="undeploy", style="dashed"];
+
 #   suspend
     running     -> save [label="suspend"];
     save        -> suspended [label="suspend", style="dashed"];
 
 #   resume
     stopped     -> pending [label="resume"];
+    undeployed  -> pending [label="resume"];
     suspended   -> boot [label="resume"];
+    poweroff    -> boot [label="resume"];
 
 #   delete
     ANY         -> done [label="destroy"];
@@ -76,7 +83,6 @@ digraph OpenNebula {
 #   restart
     unknown     -> boot [label="boot"];
     boot        -> boot [label="boot"];
-    poweroff    -> boot [label="boot"];
 
 #   reboot
     running     -> running [label="reboot"];

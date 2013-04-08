@@ -19,14 +19,13 @@ digraph OpenNebula {
     "ANY \\ {suspended,poweroff,done}" [ shape="box" ];
 
     subgraph { rank = min; user}
-    subgraph { rank = same; boot; boot_stopped boot_suspended; boot_unknown; boot_poweroff; unknown; color="white"}
+    subgraph { rank = same; boot; boot_stopped; boot_undeploy; boot_suspended; boot_unknown; boot_poweroff; unknown; color="white"}
     subgraph { rank = same; pending; hold; color="white"}
     subgraph { rank = same; prolog; prolog_resume; prolog_migrate; color="white" }
 //    subgraph { rank = same; prolog; prolog_resume; prolog_migrate; save_migrate; color="white" }
 
     subgraph { rank = max; suspended; done; failure;
-    stopped; poweroff; ANY; color="white" }
-//    stopped; poweroff; color="white" }
+    stopped; undeployed; poweroff; ANY; color="white" }
 
 #   create
     user -> pending [label="create"];
@@ -34,6 +33,9 @@ digraph OpenNebula {
 #   deploy
     pending     -> prolog_resume [label="deploy\n(from stopped)"];
     prolog_resume -> boot_stopped [style="dashed"];
+
+    pending         -> prolog_undeploy [label="deploy\n(from undeployed)"];
+    prolog_undeploy -> boot_undeploy [style="dashed"];
 
     pending     -> prolog [label="deploy"];
     prolog      -> boot [style="dashed"];
@@ -46,14 +48,19 @@ digraph OpenNebula {
 
     shutdown    -> running [style="dotted"];
 
+#   shutdown --hard
+    running     -> cancel [label="shutdown --hard"];
+    cancel      -> epilog [style="dashed"];
+    cancel      -> running [style="dotted"];
+
 #   poweroff
-    running             -> shutdown_poweroff [label="poweroff"];
+    running             -> shutdown_poweroff [label="poweroff [--hard]"];
     shutdown_poweroff   -> poweroff [style="dashed"];
 
     shutdown_poweroff   -> running [style="dotted"];
 
 #   livemigrate
-    running     -> migrate [label="livemigrate"];
+    running     -> migrate [label="migrate --live"];
     migrate     -> running [style="dashed"];
 
 #   migrate
@@ -74,10 +81,11 @@ digraph OpenNebula {
     save_stop   -> running [style="dotted"];
     epilog_stop -> stopped [style="dashed"];
 
-#   cancel
-    running     -> cancel [label="cancel"];
-    cancel      -> epilog [style="dashed"];
-    cancel      -> running [style="dotted"];
+#   undeploy
+    running             -> shutdown_undeploy [label="undeploy [--hard]"];
+    shutdown_undeploy   -> epilog_undeploy [style="dashed"];
+    shutdown_undeploy   -> running [style="dotted"];
+    epilog_undeploy     -> undeployed [style="dashed"];
 
 #   suspend
     running         -> save_suspend [label="suspend"];
@@ -88,48 +96,73 @@ digraph OpenNebula {
     stopped         -> pending [label="resume"];
     boot_stopped    -> running [style="dashed"];
 
+    undeployed      -> pending [label="resume"];
+    boot_undeploy   -> running [style="dashed"];
+
     suspended       -> boot_suspended [label="resume"];
     boot_suspended  -> running [style="dashed"];
 
-#   delete
-    ANY         -> done [label="delete"];
-
-#   restart
-    boot            -> boot [label="restart"];
-    boot_suspended  -> boot_suspended [label="restart"];
-    boot_stopped    -> boot_stopped [label="restart"];
-
-    poweroff        -> boot_poweroff [label="restart"];
-    boot_poweroff   -> boot_poweroff [label="restart"];
+    poweroff        -> boot_poweroff [label="resume"];
     boot_poweroff   -> running [style="dashed"];
 
-    unknown         -> boot_unknown [label="restart"];
-    boot_unknown    -> boot_unknown [label="restart"];
-    boot_unknown    -> running [style="dashed"];
-
-#   reboot, reset
-    running     -> running [label="reboot / reset"];
-
-#   attachdisk
-    running     -> hotplug [label="attachdisk /\ndetachdisk"]
-    hotplug     -> running [style="dashed"];
+#   destroy
+    ANY         -> done [label="destroy"];
 
 #   resubmit
-    "ANY \\ {suspended,poweroff,done}" -> pending [label="resubmit"];
+    "ANY \\ {suspended,poweroff,done}" -> pending [label="destroy --recreate"];
+
+#   boot
+    boot            -> boot [label="boot"];
+    boot_suspended  -> boot_suspended [label="boot"];
+    boot_stopped    -> boot_stopped [label="boot"];
+    boot_poweroff   -> boot_poweroff [label="boot"];
+    boot_undeploy   -> boot_undeploy [label="boot"];
+
+    unknown         -> boot_unknown [label="boot"];
+    boot_unknown    -> boot_unknown [label="boot"];
+    boot_unknown    -> running [style="dashed"];
+
+#   reboot
+    running     -> running [label="reboot"];
+
+#   disk-attach
+    running     -> hotplug [label="disk-attach /\n-detach"]
+    hotplug     -> running [style="dashed"];
+
+#   nic-attach
+    running     -> hotplug_nic [label="nic-attach /\n-detach"]
+    hotplug_nic -> running [style="dashed"];
+
+#   snapshot
+    running             -> hotplug_snapshot [label="snapshot-create /\n-revert /\n-delete"]
+    hotplug_snapshot    -> running [style="dashed"];
+
+#   disk-snapshot
+    running         -> hotplug_saveas [label="disk-snapshot"]
+    hotplug_saveas  -> running [style="dashed"];
+
+    poweroff                -> hotplug_saveas_poweroff [label="disk-snapshot"]
+    hotplug_saveas_poweroff -> poweroff [style="dashed"];
+
+    suspended                -> hotplug_saveas_suspended [label="disk-snapshot"]
+    hotplug_saveas_suspended -> suspended [style="dashed"];
 
 #   failures and misc.
     epilog_stop     -> failure [style="dotted"];
     epilog          -> failure [style="dotted"];
+    epilog_undeploy -> failure [style="dotted"];
 
     prolog          -> failure [style="dotted"];
     prolog_migrate  -> failure [style="dotted"];
     prolog_resume   -> stopped [style="dotted"];
+    prolog_undeploy -> undeployed [style="dotted"];
 
     boot            -> failure [style="dotted"];
     boot_poweroff   -> poweroff [style="dotted"];
     boot_unknown    -> unknown [style="dotted"];
     boot_suspended  -> suspended [style="dotted"];
     boot_stopped    -> epilog_stop [style="dotted"];
+    boot_undeploy   -> epilog_undeploy [style="dotted"];
 
     running -> failure [style="dotted"];
     unknown -> failure [style="dotted"];
