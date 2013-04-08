@@ -149,7 +149,6 @@ var create_acl_tmpl =
               <div class=""></div>\
           </div>\
         </div>\
-        </div>\
         <div class="reveal-footer">\
         <hr>\
         <div class="form_buttons">\
