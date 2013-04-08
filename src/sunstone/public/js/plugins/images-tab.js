@@ -121,9 +121,6 @@ var create_image_tmpl =
                               <option value="OS">'+tr("OS")+'</option>\
                               <option value="CDROM">'+tr("CDROM")+'</option>\
                               <option value="DATABLOCK">'+tr("DATABLOCK")+'</option>\
-                              <option value="KERNEL">'+tr("Kernel")+'</option>\
-                              <option value="RAMDISK">'+tr("Ramdisk")+'</option>\
-                              <option value="CONTEXT">'+tr("Context")+'</option>\
                          </select>\
                         </div>\
                         <div class="one columns">\
@@ -768,9 +765,6 @@ function updateImageInfo(request,img){
                       <option value="OS">'+tr("OS")+'</option>\
                       <option value="CDROM">'+tr("CDROM")+'</option>\
                       <option value="DATABLOCK">'+tr("Datablock")+'</option>\
-                      <option value="KERNEL">'+tr("Kernel")+'</option>\
-                      <option value="RAMDISK">'+tr("Ramdisk")+'</option>\
-                      <option value="CONTEXT">'+tr("Context")+'</option>\
                   </select>');
        $('option[value="'+value_str+'"]').replaceWith('<option value="'+value_str+'" selected="selected">'+tr(value_str)+'</option>');
     });

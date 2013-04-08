@@ -530,7 +530,7 @@ function updateFileInfo(request,img){
             <td class="key_td">'+tr("Name")+'</td>\
             <td class="value_td_rename">'+img_info.NAME+'</td>\
             <td><div id="div_edit_rename">\
-                   <a id="div_edit_rename_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                   <a id="div_edit_rename_link_files" class="edit_e" href="#"><i class="icon-edit right"/></a>\
                 </div>\
             </td>\
           </tr>\
@@ -542,8 +542,8 @@ function updateFileInfo(request,img){
            <tr>\
              <td class="key_td">'+tr("Type")+'</td>\
              <td class="value_td_type">'+OpenNebula.Helper.image_type(img_info.TYPE)+'</td>\
-             <td><div id="div_edit_chg_type">\
-                   <a id="div_edit_chg_type_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+             <td><div id="div_edit_chg_type_files">\
+                   <a id="div_edit_chg_type_files_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
                  </div>\
              </td>\
            </tr>\
@@ -555,7 +555,7 @@ function updateFileInfo(request,img){
            <tr>\
              <td class="key_td">'+tr("Persistent")+'</td>\
              <td class="value_td_persistency">'+(parseInt(img_info.PERSISTENT) ? tr("yes") : tr("no"))+'</td>\
-             <td><div id="div_edit_persistency">\
+             <td><div id="div_edit_persistency_files">\
                    <a id="div_edit_persistency_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
                  </div>\
              </td>\
@@ -597,22 +597,22 @@ function updateFileInfo(request,img){
       </div></form>'
     }
 
-    $("#div_edit_rename_link").die();
-    $(".input_edit_value_rename").die();
-    $("#div_edit_chg_type_link").die();
-    $("#chg_type_select").die();
-    $("#div_edit_persistency").die();
-    $("#persistency_select").die();
+    $("#div_edit_rename_link_files").die();
+    $(".input_edit_value_rename_files").die();
+    $("#div_edit_chg_type_files_link").die();
+    $("#chg_type_select_files").die();
+    $("#div_edit_persistency_files").die();
+    $("#persistency_select_files").die();
 
 
     // Listener for edit link for rename
-    $("#div_edit_rename_link").live("click", function() {
+    $("#div_edit_rename_link_files").live("click", function() {
         var value_str = $(".value_td_rename").text();
-        $(".value_td_rename").html('<input class="input_edit_value_rename" id="input_edit_rename" type="text" value="'+value_str+'"/>');
+        $(".value_td_rename").html('<input class="input_edit_value_rename_files" id="input_edit_rename" type="text" value="'+value_str+'"/>');
     });
 
-    $(".input_edit_value_rename").live("change", function() {
-        var value_str = $(".input_edit_value_rename").val();
+    $(".input_edit_value_rename_files").live("change", function() {
+        var value_str = $(".input_edit_value_rename_files").val();
         if(value_str!="")
         {
             // Let OpenNebula know
@@ -622,10 +622,10 @@ function updateFileInfo(request,img){
     });
 
     // Listener for edit link for type change
-    $("#div_edit_chg_type_link").live("click", function() {
+    $("#div_edit_chg_type_files_link").live("click", function() {
         var value_str = $(".value_td_type").text();
         $(".value_td_type").html(
-                  '<select id="chg_type_select">\
+                  '<select id="chg_type_select_files">\
                       <option value="KERNEL">'+tr("Kernel")+'</option>\
                       <option value="RAMDISK">'+tr("Ramdisk")+'</option>\
                       <option value="CONTEXT">'+tr("Context")+'</option>\
@@ -633,24 +633,24 @@ function updateFileInfo(request,img){
        $('option[value="'+value_str+'"]').replaceWith('<option value="'+value_str+'" selected="selected">'+tr(value_str)+'</option>');
     });
 
-    $("#chg_type_select").live("change", function() {
+    $("#chg_type_select_files").live("change", function() {
         var new_value=$("option:selected", this).text();
         Sunstone.runAction("File.chtype", img_info.ID, new_value);
         Sunstone.runAction("File.showinfo", img_info.ID);
     });
 
     // Listener for edit link for persistency change
-    $("#div_edit_persistency").live("click", function() {
+    $("#div_edit_persistency_files").live("click", function() {
         var value_str = $(".value_td_persistency").text();
         $(".value_td_persistency").html(
-                  '<select id="persistency_select">\
+                  '<select id="persistency_select_files">\
                       <option value="yes">'+tr("yes")+'</option>\
                       <option value="no">'+tr("no")+'</option>\
                   </select>');
        $('option[value="'+value_str+'"]').replaceWith('<option value="'+value_str+'" selected="selected">'+tr(value_str)+'</option>');
     });
 
-    $("#persistency_select").live("change", function() {
+    $("#persistency_select_files").live("change", function() {
         var new_value=$("option:selected", this).text();
 
         if (new_value=="yes")
@@ -952,97 +952,6 @@ function is_persistent_file(id){
     return $(data).is(':checked');
 };
 
-function setupFileCloneDialog(){
-    //Append to DOM
-    dialogs_context.append('<div id="file_clone_dialog" title="'+tr("Clone an file")+'"></div>');
-    var dialog = $('#file_clone_dialog',dialogs_context);
-
-    //Put HTML in place
-
-    var html = '<div class="panel">\
-          <h3>\
-            <small id="create_vnet_header">'+tr("Clone File")+'</small>\
-          </h3>\
-        </div>\
-        <form>\
-<div class="row">\
-<div class="clone_one"></div>\
-<div class="clone_several">'+tr("Several file are selected, please choose prefix to name the new copies")+':</div>\
-<br>\
-</div>\
-<div class="row">\
-  <div class="columns two">\
-    <label class="clone_one inline right">'+tr("Name")+':</label>\
-    <label class="clone_several inline right">'+tr("Prefix")+':</label>\
-  </div>\
-  <div class="columns ten">\
-    <input type="text" name="name"></input>\
-  </div>\
-</div>\
-<hr>\
-<div class="form_buttons row">\
-  <button class="button radius right" id="file_clone_button" value="File.clone">\
-'+tr("Clone")+'\
-  </button>\
-           <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
-        </div>\
-<a class="close-reveal-modal">&#215;</a>\
-</form>\
-';
-
-    dialog.html(html);
-
-    //Convert into jQuery
-    //dialog.dialog({
-    //    autoOpen:false,
-    //    width:375,
-    //    modal:true,
-    //    resizable:false
-    //});
-    dialog.addClass("reveal-modal");
-
-    //$('button',dialog).button();
-
-    $('form',dialog).submit(function(){
-        var name = $('input', this).val();
-        var sel_elems = fileElements();
-        if (!name || !sel_elems.length)
-            notifyError('A name or prefix is needed!');
-        if (sel_elems.length > 1){
-            for (var i=0; i< sel_elems.length; i++)
-                //If we are cloning several files we
-                //use the name as prefix
-                Sunstone.runAction('Image.clone',
-                                   sel_elems[i],
-                                   name+getFileName(sel_elems[i]));
-        } else {
-            Sunstone.runAction('Image.clone',sel_elems[0],name)
-        };
-        dialog.trigger("reveal:close")
-        setTimeout(function(){
-            Sunstone.runAction('Image.refresh');
-        }, 1500);
-        return false;
-    });
-}
-
-function popUpFileCloneDialog(){
-    var dialog = $('#file_clone_dialog');
-    var sel_elems = fileElements();
-    //show different text depending on how many elements are selected
-    if (sel_elems.length > 1){
-        $('.clone_one',dialog).hide();
-        $('.clone_several',dialog).show();
-        $('input',dialog).val('Copy of ');
-    }
-    else {
-        $('.clone_one',dialog).show();
-        $('.clone_several',dialog).hide();
-        $('input',dialog).val('Copy of '+getFileName(sel_elems[0]));
-    };
-
-    $(dialog).reveal();
-}
 
 //The DOM is ready at this point
 $(document).ready(function(){
@@ -1082,7 +991,7 @@ $(document).ready(function(){
 
     initCheckAllBoxes(dataTable_files);
     tableCheckboxesListener(dataTable_files);
-    infoListener(dataTable_files,'Image.showinfo');
+    infoListener(dataTable_files,'File.showinfo');
 
     $('div#files_tab div.legend_div').hide();
 });
