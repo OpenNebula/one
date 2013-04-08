@@ -56,6 +56,7 @@ History::History(
         epilog_stime(0),
         epilog_etime(0),
         reason(NONE),
+        action(NONE_ACTION),
         vm_info("<VM/>"){};
 
 /* -------------------------------------------------------------------------- */
@@ -89,6 +90,7 @@ History::History(
         epilog_stime(0),
         epilog_etime(0),
         reason(NONE),
+        action(NONE_ACTION),
         vm_info(_vm_info)
 {
     non_persistent_data();
@@ -307,7 +309,8 @@ string& History::to_xml(string& xml, bool database) const
           "<RETIME>"            << running_etime     << "</RETIME>"<<
           "<ESTIME>"            << epilog_stime      << "</ESTIME>"<<
           "<EETIME>"            << epilog_etime      << "</EETIME>"<<
-          "<REASON>"            << reason            << "</REASON>";
+          "<REASON>"            << reason            << "</REASON>"<<
+          "<ACTION>"            << action            << "</ACTION>";
 
     if ( database )
     {
@@ -327,7 +330,7 @@ string& History::to_xml(string& xml, bool database) const
 
 int History::rebuild_attributes()
 {
-    int int_reason;
+    int int_reason, int_action;
     int rc = 0;
 
     rc += xpath(seq              , "/HISTORY/SEQ",         -1);
@@ -347,8 +350,10 @@ int History::rebuild_attributes()
     rc += xpath(epilog_stime     , "/HISTORY/ESTIME",      0);
     rc += xpath(epilog_etime     , "/HISTORY/EETIME",      0);
     rc += xpath(int_reason       , "/HISTORY/REASON",      0);
+    rc += xpath(int_action       , "/HISTORY/ACTION",      0);
 
-    reason = static_cast<MigrationReason>(int_reason);
+    reason = static_cast<EndReason>(int_reason);
+    action = static_cast<VMAction>(int_action);
 
     non_persistent_data();
 

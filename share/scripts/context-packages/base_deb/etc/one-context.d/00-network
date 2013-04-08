@@ -103,7 +103,6 @@ upcase() {
 
 gen_iface_conf() {
     cat <<EOT
-auto $DEV
 iface $DEV inet static
   address $IP
   network $NETWORK
@@ -112,6 +111,20 @@ EOT
 
     if [ -n "$GATEWAY" ]; then
       echo "  gateway $GATEWAY"
+    fi
+
+    echo ""
+}
+
+gen_iface6_conf() {
+    cat <<EOT
+iface $DEV inet6 static
+  address $IPV6
+  netmask 64
+EOT
+
+    if [ -n "$GATEWAY6" ]; then
+      echo "  gateway $GATEWAY6"
     fi
 
     echo ""
@@ -137,7 +150,14 @@ EOT
         MASK=$(get_mask)
         GATEWAY=$(get_gateway)
 
-        gen_iface_conf
+        IPV6=$(get_iface_var "IPV6")
+        GATEWAY6=$(get_iface_var "GATEWAY6")
+        CONTEXT_FORCE_IPV4=$(get_iface_var "CONTEXT_FORCE_IPV4")
+
+        echo "auto $DEV"
+
+        [[ -z $IPV6 || -n $CONTEXT_FORCE_IPV4 ]] && gen_iface_conf
+        [[ -n $IPV6 ]] && gen_iface6_conf
 
     done
 }

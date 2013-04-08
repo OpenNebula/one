@@ -25,6 +25,7 @@ mkdir -p samples/vmtemplate samples/vmtemplate_pool
 mkdir -p samples/user       samples/user_pool
 mkdir -p samples/vm         samples/vm_pool
 mkdir -p samples/vnet       samples/vnet_pool
+mkdir -p samples/vnet       samples/acct
 
 
 
@@ -79,7 +80,25 @@ onetemplate list -x > samples/vmtemplate_pool/2.xml
 
 
 # VM
-onetemplate instantiate 0
+onetemplate instantiate 0 -m 2
+onetemplate instantiate 1 -m 2
+
+for i in `onevm list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
+    onevm deploy $i host01
+done
+
+sleep 5
+
+onevm migrate --live 0 0
+onevm destroy 1
+onevm poweroff 2
+
+sleep 5
+
+onevm suspend 0
+onevm resume 2
+
+sleep 5
 
 for i in `onevm list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
     onevm show $i -x > samples/vm/$i.xml
@@ -144,8 +163,6 @@ done
 
 onegroup list -x > samples/group_pool/0.xml
 
-
-
 for i in  cluster datastore group host image vmtemplate user vm vnet
 do
     POOL_NAME="$i""_pool"
@@ -157,5 +174,13 @@ do
     xmllint --noout --schema $i.xsd samples/$i/*
     xmllint --noout --schema $POOL_NAME.xsd samples/$POOL_NAME/*
 done
+
+
+# Accounting
+oneacct -x > samples/acct/0.xml
+
+sed -i "s%<HISTORY_RECORDS>%<HISTORY_RECORDS xmlns='http://opennebula.org/XMLSchema' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://opennebula.org/XMLSchema ../../acct.xsd'>%" samples/acct/*.xml
+
+xmllint --noout --schema acct.xsd samples/acct/*
 
 exit 0

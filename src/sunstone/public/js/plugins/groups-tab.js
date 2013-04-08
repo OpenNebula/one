@@ -265,14 +265,16 @@ var group_quotas_tmpl = '<div class="panel">\
       </div>\
     </div>\
   </div>\
-  </div>\
+      <div class="reveal-footer">\
       <hr>\
       <div class="form_buttons">\
           <button class="button radius right success" id="create_user_submit" type="submit" value="Group.set_quota">'+tr("Apply changes")+'</button>\
           <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
       </div>\
+      </div>\
   <a class="close-reveal-modal">&#215;</a>\
-</form>';
+</form>\
+  </div>';
 
 
 var group_actions = {
@@ -793,15 +795,10 @@ function setGroupAutorefresh(){
 
 $(document).ready(function(){
     dataTable_groups = $("#datatable_groups",main_tabs_context).dataTable({
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0,1] }
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        ]
     });
 
     //addElement([

@@ -157,7 +157,6 @@ div.button-bar {
 
 #logo {
     font-weight: bold;
-    margin:10%;
     margin-top: 15%;
     margin-bottom: 10%;
 }
@@ -224,7 +223,7 @@ div.button-bar {
 }
 
 #navigation {
-    margin: 8%;;
+    margin: 0 8%;
     box-shadow: 0 0 1px 0px black;
 }
 
@@ -264,20 +263,29 @@ div.button-bar {
 }
 
 #navigation li:not(subTab) {
-    border-left: 5px solid #f2f2f2 !important;
+    border-left: 5px solid #f2f2f2;
+}
+
+#navigation li:not(subTab):hover {
+    border-left: 5px solid #e2e2e2 ;
 }
 
 #navigation li.subTab:not(.navigation-active-li) {
-    border-left: 5px solid #fdfdfd !important;
+    border-left: 5px solid #fdfdfd;
 }
 
-#navigation li:hover {
-    font-weight: bold;
+#navigation li.subTab:not(.navigation-active-li):hover {
+    border-left: 5px solid #e2e2e2 ;
+}
+
+#navigation a:hover {
+    background: #e2e2e2 !important;
 }
 
 #navigation .navigation-active-li {
     border-left: 5px solid #555 !important;
 }
+
 
 
 
@@ -614,7 +622,8 @@ small {
 
 
 .button.dropdown.small::after {
-    border-color: #2f2f2f transparent transparent transparent;
+    border-color: #9f9f9f transparent transparent transparent;
+    border-width: 4px;
 }
 
 .footer-opennebula {
@@ -729,12 +738,28 @@ a.footer.button {
 }
 
 .reveal-body {
-    max-height: 360px;
-    overflow-y: auto;
+    height:80%;
+    overflow-y: overlay;
     overflow-x: hidden;
-    padding: 5px;
+    padding: 5px 20px;
 }
 
+.reveal-footer {
+    position: absolute;
+    bottom: 20px;
+    width: 90%;
+}
+
+.max-height{
+    max-height: 85%;
+    position: absolute;
+    height: 100%;
+}
+
+.ui-layout-content {
+    overflow-y: overlay;
+    overflow-x: hidden;
+}
 
 
 // time-picker
@@ -790,4 +815,25 @@ div.time-picker li.selected {
 
 form {
     margin: 0 !important;
+}
+
+#template_create_tabs {
+    //position: fixed;
+    width: 180px;
+}
+
+.dataTables_scrollHead {
+    height: 30px;
+}
+
+.dataTables_scrollBody {
+    margin-top: -3px;
+}
+
+.show_hide {
+    cursor: pointer;
+}
+
+.show_hide:hover > h4 > small {
+    color: #6f6f6f !important;
 }

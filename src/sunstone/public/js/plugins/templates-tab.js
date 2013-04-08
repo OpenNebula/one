@@ -69,9 +69,9 @@ var templates_tab_content = '\
 var create_template_tmpl = '<div class="panel">'+
   '<h3><small id="create_template_header">'+tr("Create VM Template")+'</small><small id="update_template_header" class="hidden">'+tr("Update VM Template")+'</small></h3>'+
   '</div>'+
+  '<div class="reveal-body">'+
   '<form class="custom creation">'+
-        '<div class="reveal-body">'+
-  '<div class="row">'+
+  '<div class="">'+
     '<div class="columns three">'+
         '<dl id="template_create_tabs" class="tabs vertical">'+
         '</dl>'+
@@ -81,8 +81,7 @@ var create_template_tmpl = '<div class="panel">'+
             '</ul>'+
     '</div>'+
   '</div>'+
-        '</div>'+
-  '<div class="">'+
+  '<div class="reveal-footer">'+
       '<hr>'+
       '<button class="success button radius" id="create_template_form_easy" value="OpenNebula.Template.create" style="float: right">'+tr("Create")+'</button>'+
       '<button class="button hidden radius" id="template_template_update_button" value="Template.update_template" style="float: right">'+tr("Update")+'</button>'+
@@ -91,7 +90,8 @@ var create_template_tmpl = '<div class="panel">'+
       '<button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>'+
   '</div>'+
   '<a class="close-reveal-modal">&#215;</a>'+
-  '</form>';
+  '</form>'+
+  '</div>';
 
 
 var update_template_tmpl =
@@ -554,7 +554,7 @@ function generate_capacity_tab_content() {
         '</div>'+
     '</div>'+
     '<div class="show_hide" id="advanced_capacity">'+
-         '<h4><small><i class=" icon-plus-sign-alt"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
+         '<h4><small><i class=" icon-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
     '</div>'+
     '<div class="advanced">'+
       '<div class="row">'+
@@ -789,7 +789,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
           '</div>'+
           '<hr>'+
         '<div class="show_hide" id="advanced_image">'+
-          '<h4><small><i class=" icon-plus-sign-alt"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
+          '<h4><small><i class=" icon-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
         '</div>'+
         '<div class="row advanced vm_param">'+
           '<div class="six columns">'+
@@ -873,7 +873,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
                 '</div>'+
             '</div>'+
         '<div class="show_hide" id="advanced_volatile">'+
-          '<h4><small><i class=" icon-plus-sign-alt"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small</h4>'+
+          '<h4><small><i class=" icon-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small</h4>'+
         '</div>'+
         '<div class="row advanced vm_param">'+
           '<div class="six columns">'+
@@ -1141,7 +1141,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
     '</div>'+
   '<hr>'+
     '<div class="show_hide" id="advanced">'+
-          '<h4><small><i class=" icon-plus-sign-alt"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
+          '<h4><small><i class=" icon-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
     '</div>'+
     '<div class="advanced">'+
       '<div class="row">'+
@@ -1150,7 +1150,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
             '<div class="four columns">'+
               '<label class="right inline" for="IP">'+tr("IP")+':</label>'+
             '</div>'+
-            '<div class="six columns">'+
+            '<div class="six columns vm_param">'+
               '<input type="text" id="IP" name="IP" size="3" />'+
             '</div>'+
             '<div class="two columns">'+
@@ -1163,7 +1163,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
             '<div class="four columns">'+
                 '<label class="right inline" for="MODEL">'+tr("MODEL")+':</label>'+
             '</div>'+
-            '<div class="six columns">'+
+            '<div class="six columns vm_param">'+
               '<input type="text" id="MODEL" name="MODEL" />'+
             '</div>'+
             '<div class="two columns">'+
@@ -1193,7 +1193,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
               '<input type="text" id="TCP_PORTS" name="ports" />'+
           '</div>'+
           '<div class="two columns">'+
-              '<div class="tip">'+tr("A list of ports separated by commas or a ranges separated by semilocolons, e.g.: 22,80,5900:6000")+'</div>'+
+              '<div class="tip">'+tr("A list of ports separated by commas or a ranges separated by semicolons, e.g.: 22,80,5900:6000")+'</div>'+
           '</div>'+
         '</div>'+
       '</fieldset>'+
@@ -1218,7 +1218,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
               '<input type="text" id="UDP_PORTS" name="ports" />'+
           '</div>'+
           '<div class="two columns">'+
-              '<div class="tip">'+tr("A list of ports separated by commas or a ranges separated by semilocolons, e.g.: 22,80,5900:6000")+'</div>'+
+              '<div class="tip">'+tr("A list of ports separated by commas or a ranges separated by semicolons, e.g.: 22,80,5900:6000")+'</div>'+
           '</div>'+
         '</div>'+
       '</fieldset>'+
@@ -2997,7 +2997,7 @@ function setupCreateTemplateDialog(){
     //    width: 'auto',
     //    height: height
     //});
-    dialog.addClass("reveal-modal xlarge")
+    dialog.addClass("reveal-modal xlarge max-height")
 
 
     var tabs = $( "#template_create_tabs", dialog)//.tabs().addClass("ui-tabs-vertical");
@@ -4153,12 +4153,9 @@ $(document).ready(function(){
         "oColVis": {
             "aiExclude": [ 0 ]
         },
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0,1] },
-            { "sWidth": "150px", "aTargets": [5] },
-            { "sWidth": "100px", "aTargets": [2,3] }
         ]
     });
 

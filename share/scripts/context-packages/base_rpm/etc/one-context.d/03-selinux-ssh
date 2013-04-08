@@ -1,0 +1,1 @@
+restorecon -R -v /root/.ssh

@@ -72,8 +72,8 @@ var create_acl_tmpl =
     <small id="create_vnet_header">'+tr("Create ACL")+'</small>\
   </h3>\
 </div>\
-<form id="create_acl_form" action="">\
 <div class="reveal-body">\
+<form id="create_acl_form" action="">\
         <div class="row">\
           <div class="four columns">\
               <label class="inline right" for="applies">'+tr("This rule applies to")+':</label>\
@@ -149,15 +149,17 @@ var create_acl_tmpl =
               <div class=""></div>\
           </div>\
         </div>\
-        </div>\
+        <div class="reveal-footer">\
         <hr>\
         <div class="form_buttons">\
           <button class="button radius right success" id="create_acl_submit" type="submit" value="Acl.create">'+tr("Create")+'</button>\
           <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
           <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
         </div>\
+        </div>\
     <a class="close-reveal-modal">&#215;</a>\
-</form>';
+</form>\
+        </div>';
 
 var acl_actions = {
     "Acl.create" : {
@@ -430,7 +432,7 @@ function setupCreateAclDialog(){
     //    width: 650,
     //    height: height
     //});
-    dialog.addClass("reveal-modal large");
+    dialog.addClass("reveal-modal large max-height");
 
     //Default selected options
     $('#res_subgroup_all',dialog).attr('checked','checked');
@@ -611,7 +613,6 @@ function setAclAutorefresh(){
 $(document).ready(function(){
     //if we are not oneadmin, our tab will not even be in the DOM.
     dataTable_acls = $("#datatable_acls",main_tabs_context).dataTable({
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
@@ -619,11 +620,7 @@ $(document).ready(function(){
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0,1] },
             { "bVisible": false, "aTargets": [6]}
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        ]
     });
 
 

@@ -341,9 +341,9 @@ function prettyPrintRowJSON(field,value,padding,weight, border_bottom,padding_to
 function initCheckAllBoxes(datatable){
 
     //small css hack
-    $('input.check_all',datatable).css({"border":"2px"});
-    $('input.check_all',datatable).live("change",function(){
-        var table = $(this).parents('table');
+    $('input.check_all').css({"border":"2px"});
+    $('input.check_all').live("change",function(){
+        var table = $(this).closest('.dataTables_wrapper');
         var checked = $(this).attr('checked');
         if (checked) { //check all
             $('tbody input.check_item',table).attr('checked','checked');
@@ -443,7 +443,7 @@ function onError(request,error_json) {
 //Used when refreshing elements of a datatable.
 function waitingNodes(dataTable){
     $('tr input.check_item:visible',dataTable).replaceWith(spinner);
-    recountCheckboxes(dataTable);
+    //recountCheckboxes(dataTable);
 }
 
 
@@ -1112,7 +1112,7 @@ function setupQuotasDialog(dialog){
     //    width: 740,
     //    height: height
     //});
-    dialog.addClass("reveal-modal xlarge")
+    dialog.addClass("reveal-modal xlarge max-height")
 
     //$('button',dialog).button();
     $('#vm_quota,#datastore_quota,#image_quota,#network_quota',dialog).hide();

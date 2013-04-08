@@ -63,9 +63,39 @@ stop() {
     return $RETVAL
 }
 
+start-sched() {
+    echo -n $"Starting OpenNebula scheduler: "
+    daemon --user oneadmin $ONE_BIN start-sched
+    RETVAL=$?
+
+    [ $RETVAL -eq 0 ] && success || failure
+    echo
+    [ $RETVAL -eq 0 ] && rm -f $LOCKFILE
+
+    return $RETVAL
+}
+
+stop-sched() {
+    echo -n $"Stopping OpenNebula scheduler: "
+    daemon --user oneadmin $ONE_BIN stop-sched
+    RETVAL=$?
+
+    [ $RETVAL -eq 0 ] && success || failure
+    echo
+    [ $RETVAL -eq 0 ] && rm -f $LOCKFILE
+
+    return $RETVAL
+}
+
 restart() {
     stop
     start
+}
+
+restart-sched() {
+    stop-sched
+    sleep 1
+    start-sched
 }
 
 
@@ -78,6 +108,9 @@ stop)
     ;;
 restart)
     restart
+    ;;
+restart-sched)
+    restart-sched
     ;;
 status)
     status $prog

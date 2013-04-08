@@ -24,16 +24,16 @@ function auth_error(req, error){
 
     switch (status){
     case 401:
-        $("#error_box").text("Invalid username or password");
+        $("#error_message").text("Invalid username or password");
         break;
     case 500:
-        $("#error_box").text("OpenNebula is not running or there was a server exception. Please check the server logs.");
+        $("#error_message").text("OpenNebula is not running or there was a server exception. Please check the server logs.");
         break;
     case 0:
-        $("#error_box").text("No answer from server. Is it running?");
+        $("#error_message").text("No answer from server. Is it running?");
         break;
     default:
-        $("#error_box").text("Unexpected error. Status "+status+". Check the server logs.");
+        $("#error_message").text("Unexpected error. Status "+status+". Check the server logs.");
     };
     $("#error_box").fadeIn("slow");
     $("#login_spinner").hide();

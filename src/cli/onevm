@@ -344,7 +344,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     poweroff_desc = <<-EOT.unindent
         Powers off the given VM. The VM will remain in the poweroff state, and
-        can be powered on with the 'onevm boot' command.
+        can be powered on with the 'onevm resume' command.
 
         States: RUNNING
     EOT
@@ -432,7 +432,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     boot_desc = <<-EOT.unindent
         Boots the given VM.
 
-        States: UNKNOWN, BOOT, POWEROFF
+        States: UNKNOWN, BOOT
     EOT
 
     command :boot, boot_desc, [:range,:vmid_list],
@@ -487,7 +487,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     resume_desc = <<-EOT.unindent
         Resumes the execution of the a saved VM
 
-        States: STOPPED, SUSPENDED
+        States: STOPPED, SUSPENDED, UNDEPLOYED, POWEROFF
     EOT
 
     command :resume, resume_desc, [:range,:vmid_list],

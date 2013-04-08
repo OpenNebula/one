@@ -83,7 +83,8 @@ var OpenNebula = {
                                "SUSPENDED",
                                "DONE",
                                "FAILED",
-                               "POWEROFF"][value]);
+                               "POWEROFF",
+                               "UNDEPLOYED"][value]);
                     break;
                 case "VM_LCM":
                 case "vm_lcm":
@@ -92,30 +93,34 @@ var OpenNebula = {
                                "BOOT",
                                "RUNNING",
                                "MIGRATE",
-                               "SAVE_STOP",
-                               "SAVE_SUSPEND",
-                               "SAVE_MIGRATE",
-                               "PROLOG_MIGRATE",
-                               "PROLOG_RESUME",
-                               "EPILOG_STOP",
+                               "SAVE",
+                               "SAVE",
+                               "SAVE",
+                               "MIGRATE",
+                               "PROLOG",
+                               "EPILOG",
                                "EPILOG",
                                "SHUTDOWN",
-                               "CANCEL",
+                               "SHUTDOWN",
                                "FAILURE",
-                               "CLEANUP_RESUBMIT",
+                               "CLEANUP",
                                "UNKNOWN",
                                "HOTPLUG",
-                               "SHUTDOWN_POWEROFF",
-                               "BOOT_UNKNOWN",
-                               "BOOT_POWEROFF",
-                               "BOOT_SUSPENDED",
-                               "BOOT_STOPPED",
-                               "CLEANUP_DELETE",
-                               "HOTPLUG_SNAPSHOT",
-                               "HOTPLUG_NIC",
-                               "HOTPLUG_SAVEAS",
-                               "HOTPLUG_SAVEAS_POWEROFF",
-                               "HOTPLUG_SAVEAS_SUSPENDED"][value]);
+                               "SHUTDOWN",
+                               "BOOT",
+                               "BOOT",
+                               "BOOT",
+                               "BOOT",
+                               "CLEANUP",
+                               "SNAPSHOT",
+                               "HOTPLUG",
+                               "HOTPLUG",
+                               "HOTPLUG",
+                               "HOTPLUG",
+                               "SHUTDOWN",
+                               "EPILOG",
+                               "PROLOG",
+                               "BOOT"][value]);
                     break;
                 case "IMAGE":
                 case "image":
@@ -133,9 +138,31 @@ var OpenNebula = {
                 case "vm_migrate_reason":
                     state = tr(["NONE",
                                "ERROR",
-                               "STOP_RESUME",
-                               "USER",
-                               "CANCEL"][value]);
+                               "USER"][value]);
+                    break;
+                case "VM_MIGRATE_ACTION":
+                case "vm_migrate_action":
+                    state = tr(["none",
+                                "migrate",
+                                "live-migrate",
+                                "shutdown",
+                                "shutdown-hard",
+                                "undeploy",
+                                "undeploy-hard",
+                                "hold",
+                                "release",
+                                "stop",
+                                "suspend",
+                                "resume",
+                                "boot",
+                                "destroy",
+                                "destroy-recreate",
+                                "reboot",
+                                "reboot-hard",
+                                "resched",
+                                "unresched",
+                                "poweroff",
+                                "poweroff-hard"][value]);
                     break;
                 default:
                     return value;
@@ -664,7 +691,20 @@ var OpenNebula = {
             OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"resubmit");
         },
         "poweroff" : function(params){
-            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"poweroff");
+            var action_obj = {"hard": false};
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"poweroff", action_obj);
+        },
+        "poweroff_hard" : function(params){
+            var action_obj = {"hard": true};
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"poweroff", action_obj);
+        },
+        "undeploy" : function(params){
+            var action_obj = {"hard": false};
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"undeploy", action_obj);
+        },
+        "undeploy_hard" : function(params){
+            var action_obj = {"hard": true};
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"undeploy", action_obj);
         },
         "reboot" : function(params){
             OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"reboot");

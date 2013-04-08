@@ -150,16 +150,6 @@ div#login input#login_btn:hover {
   background:  url(../images/login_over.png) no-repeat center ;
 }
 
-.error_message {
-  display: none;
-  position: relative;
-  width:400px;
-  margin-left: auto;
-  margin-right: auto;
-  top: 80px;
-  font-size:1.0em;
-  padding: 2px 15px;
-}
 
 #login_spinner {
     left: 22px;
@@ -186,4 +176,46 @@ div#login input#login_btn:hover {
 
   margin-top: 35px;
   margin-left:0px;
+}
+
+div.alert-box {
+  display: block;
+  padding: 6px 7px 7px;
+  font-size: 14px;
+  color: white;
+  background-color: #2ba6cb;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  margin-bottom: 12px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -o-border-radius: 3px;
+  border-radius: 3px;
+  text-shadow: 0 -1px rgba(0, 0, 0, 0.3);
+  position: relative;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+div.alert-box.alert {
+  background-color: #c0392b;
+  color: #fff;
+  text-shadow: 0 -1px rgba(0, 0, 0, 0.3);
+}
+
+div.alert-box a.close {
+  color: #333;
+  position: absolute;
+  right: 4px;
+  top: -1px;
+  font-size: 17px;
+  opacity: 0.2;
+  padding: 4px;
+}
+/* line 34, ../../../../../../../.rbenv/versions/1.9.3-p392/lib/ruby/gems/1.9.1/gems/zurb-foundation-3.2.5/scss/foundation/components/modules/_ui.scss */
+div.alert-box a.close:hover, div.alert-box a.close:focus {
+  opacity: 0.4;
+}
+
+#error_box {
+  margin-top:70px;
 }
