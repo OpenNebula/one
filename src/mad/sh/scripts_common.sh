@@ -273,7 +273,7 @@ function mkfs_command {
             return 0
             ;;
         "swap")
-            echo "$MKSWAP $DST"
+            echo "$MKSWAP -L swap $DST"
             return 0
             ;;
         "qcow2")
