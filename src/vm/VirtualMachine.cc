@@ -702,7 +702,9 @@ int VirtualMachine::parse_context(string& error_str)
 
                 if ( img != 0 )
                 {
-                    oss_parsed << img->get_source() << " ";
+                    oss_parsed << img->get_source() << ":\""
+                               << img->get_name() << "\" ";
+
                     type = img->get_type();
 
                     img->unlock();
