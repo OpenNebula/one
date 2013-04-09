@@ -1119,8 +1119,6 @@ function popUpCreateImageDialog(){
     $('#file-uploader input',$create_image_dialog).attr('style','margin:0;width:256px!important');
 
     var datastores_str = datastores_sel();
-    // Get rid of default datastore (51 characters in string)
-    datastores_str     = datastores_str.substring(51,datastores_str.length);
 
     $('#img_datastore',$create_image_dialog).html(datastores_str);
     $('#img_datastore_raw',$create_image_dialog).html(datastores_str);
