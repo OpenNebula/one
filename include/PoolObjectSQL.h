@@ -135,6 +135,26 @@ public:
         return obj_type;
     };
 
+    /**
+     *  Check if the object name contains invalid characters or exceed the max.
+     *  length. By Default these are not allowed "&|:\;/'#{}()$
+     *    @param obj_name for this object
+     *    @param extra_chars aditional invalid characters to test
+     *    @param error_str describing the error
+     *    @return true if the name is valid
+     */
+    static bool name_is_valid(const string& obj_name, const string& extra_chars,
+                              string& error_str);
+
+    /**
+     *  Check if the object name is valid, no extra characters needed to be
+     *  tested.
+     */
+    static bool name_is_valid(const string& obj_name, string& error_str)
+    {
+        return name_is_valid(obj_name, "", error_str);
+    }
+
     const string& get_name() const
     {
         return name;
@@ -634,6 +654,10 @@ protected:
     Template * obj_template;
 
 private:
+    /**
+     *  Characters that can not be in a name
+     */
+    static const string INVALID_NAME_CHARS;
 
     /**
      *  The PoolSQL, friend to easily manipulate its Objects

@@ -254,37 +254,6 @@ int User::split_secret(const string secret, string& user, string& pass)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool User::name_is_valid(const string& uname, string& error_str)
-{
-    if ( uname.empty() )
-    {
-        error_str = "Invalid NAME, it cannot be empty";
-        return false;
-    }
-
-    size_t pos = uname.find_first_of(INVALID_NAME_CHARS);
-
-    if ( pos != string::npos )
-    {
-        ostringstream oss;
-        oss << "Invalid NAME, character '" << uname.at(pos) << "' is not allowed";
-
-        error_str = oss.str();
-        return false;
-    }
-
-    if ( uname.length() > 128 )
-    {
-        error_str = "Invalid NAME, max length is 128 chars";
-        return false;
-    }
-
-    return true;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 bool User::pass_is_valid(const string& pass, string& error_str)
 {
     if ( pass.empty() )
