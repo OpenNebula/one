@@ -150,7 +150,7 @@ function exec_and_set_error
 {
     message=$2
 
-    EXEC_LOG_ERR=`$1 2>&1 1>/dev/null`
+    EXEC_LOG_ERR=$(bash -c "$1" 2>&1 1>/dev/null)
     EXEC_LOG_RC=$?
 
     export ERROR=""

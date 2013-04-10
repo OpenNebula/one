@@ -30,8 +30,6 @@ VM_ID="${ARGV[$(($#-2))]}"
 DST="${ARGV[$(($#-3))]}"
 SRC=("${ARGV[@]:0:$(($#-3))}")
 
-INVALID_CHARS="/ "
-
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
 else
@@ -75,13 +73,16 @@ for f in "${SRC[@]}"; do
         exec_and_set_error "$WGET -P $ISO_DIR $f" "Error downloading $f"
         ;;
     *)
-        if echo "$f" | grep -q ':'; target
-            then=$(echo "$f"|cut -d':' -f2-|tr "$INVALID_CHARS" "_")
+        if echo "$f" | grep -q ':'; then
+            target=$(echo "$f"|cut -d':' -f2-)
+            target="'$target'"
             f=$(echo "$f"|cut -d':' -f1)
         else
             target=""
         fi
-        exec_and_set_error "cp -R $f $ISO_DIR/$target" "Error copying $f to $ISO_DIR"
+
+        exec_and_set_error "cp -R $f $ISO_DIR/$target" \
+            "Error copying $f to $ISO_DIR"
         ;;
     esac
 
