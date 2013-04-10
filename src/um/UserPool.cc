@@ -268,7 +268,7 @@ int UserPool::allocate (
         goto error_pass;
     }
 
-    if ( !User::name_is_valid(uname, error_str) )
+    if (!PoolObjectSQL::name_is_valid(uname,User::INVALID_NAME_CHARS,error_str))
     {
         goto error_name;
     }

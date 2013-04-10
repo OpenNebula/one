@@ -20,6 +20,8 @@
 #include "Nebula.h"
 #include "Clusterable.h"
 
+const string PoolObjectSQL::INVALID_NAME_CHARS = "&|:\\\";/'#{}()$";
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -349,3 +351,43 @@ void PoolObjectSQL::set_umask(int umask)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+bool PoolObjectSQL::name_is_valid(const string& obj_name,
+                                  const string& extra_chars,
+                                  string& error_str)
+{
+    size_t pos;
+
+    if ( obj_name.empty() )
+    {
+        error_str = "Invalid NAME, it cannot be empty";
+        return false;
+    }
+
+    if (extra_chars.empty())
+    {
+        pos = obj_name.find_first_of(INVALID_NAME_CHARS);
+    }
+    else
+    {
+        string invalid_chars = INVALID_NAME_CHARS + extra_chars;
+        pos = obj_name.find_first_of(invalid_chars);
+    }
+
+    if ( pos != string::npos )
+    {
+        ostringstream oss;
+        oss << "Invalid NAME, char '" << obj_name.at(pos) << "' is not allowed";
+
+        error_str = oss.str();
+        return false;
+    }
+
+    if ( obj_name.length() > 128 )
+    {
+        error_str = "Invalid NAME, max length is 128 chars";
+        return false;
+    }
+
+    return true;
+}
