@@ -787,11 +787,24 @@ function plot_totals(response, info) {
     // Get min and max times, from any resource, using the first attribute
     for (var id in response) {
         if(id != "resource") {
-            min = Math.min(min,
-                parseInt(response[id][attributes[0]][0][0]) );
+            if(info.derivative == true) {
+                for (var i=0; i<attributes.length; i++)
+                {
+                    var attribute = attributes[i];
 
-            max = Math.max(max,
-                parseInt(response[id][attributes[0]][ response[id][attributes[0]].length - 1 ][0]) );
+                    var data = response[id][attribute];
+
+                    derivative(data);
+                }
+            }
+
+            if (response[id][attributes[0]].length > 0) {
+                min = Math.min(min,
+                    parseInt(response[id][attributes[0]][0][0]) );
+
+                max = Math.max(max,
+                    parseInt(response[id][attributes[0]][ response[id][attributes[0]].length - 1 ][0]) );
+            }
         }
     }
 
@@ -814,10 +827,6 @@ function plot_totals(response, info) {
         for (var id in response) {
             if(id != "resource") {
                 var data = response[id][attribute];
-
-                if(info.derivative == true) {
-                    derivative(data);
-                }
 
                 if(data.length == 0) {
                     continue;

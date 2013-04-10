@@ -308,7 +308,7 @@ var host_actions = {
         },
         error: hostMonitorError
     },
-
+/*
     "Host.pool_monitor" : {
         type: "monitor_global",
         call : OpenNebula.Host.pool_monitor,
@@ -343,7 +343,7 @@ var host_actions = {
         // TODO: ignore error, or set message similar to hostMonitorError?
         error: onError
     },
-
+*/
     "Host.update_template" : {
         type: "single",
         call: OpenNebula.Host.update,
@@ -756,9 +756,41 @@ function updateHostsView (request,host_list){
     off_hosts = 0;
     error_hosts = 0;
 
+    var empty = false;
+
+    if (typeof (host_monitoring_data) == 'undefined'){
+        host_monitoring_data = {};
+        empty = true;
+    }
+
+    var metrics = ["CPU_USAGE", "USED_CPU", "MAX_CPU", "MEM_USAGE", "USED_MEM", "MAX_MEM"];
+
+    // TODO: ms to s, sunstone-util probably does s to ms
+    var now = new Date().getTime() / 1000;
+
     $.each(host_list,function(){
         //Grab table data from the host_list
         host_list_array.push(hostElementArray(this));
+
+        // Grab monitoring data
+        if (host_monitoring_data[this.HOST.ID] === undefined){
+            host_monitoring_data[this.HOST.ID] = {};
+
+            for (var i=0; i<metrics.length; i++) {
+                host_monitoring_data[this.HOST.ID][metrics[i]] = [];
+            }
+        }
+
+        for (var i=0; i<metrics.length; i++) {
+
+            if (empty){
+                host_monitoring_data[this.HOST.ID][metrics[i]].push(
+                    [now - 60, this.HOST.HOST_SHARE[metrics[i]]] );                
+            }
+
+            host_monitoring_data[this.HOST.ID][metrics[i]].push(
+                [now, this.HOST.HOST_SHARE[metrics[i]]] );
+        }
     });
 
     updateView(host_list_array,dataTable_hosts);
@@ -776,12 +808,30 @@ function updateHostsView (request,host_list){
     $("#off_hosts", form_hosts).text(off_hosts);
     $("#error_hosts", form_hosts).text(error_hosts);
 
-    // Update the dashboard graphs with monitoring information
-    Sunstone.runAction(
-        "Host.pool_monitor",
-        {
-            monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU,HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM"
-        });
+    var host_dashboard_graphs = [
+    {
+        monitor_resources : "CPU_USAGE,USED_CPU,MAX_CPU",
+        labels : tr("Allocated")+","+tr("Real")+","+tr("Total"),
+        humanize_figures : false,
+        div_graph : $("#dash_host_cpu_graph", $dashboard)
+        //div_legend : $("#dash_host_cpu_legend", $dashboard)
+    },
+    {
+        monitor_resources : "MEM_USAGE,USED_MEM,MAX_MEM",
+        labels : tr("Allocated")+","+tr("Real")+","+tr("Total"),
+        humanize_figures : true,
+        div_graph : $("#dash_host_mem_graph", $dashboard),
+        div_legend : $("#dash_host_mem_legend", $dashboard)
+    }
+    ];
+
+    // TODO: plot only when the dashboard is visible
+    for(var i=0; i<host_dashboard_graphs.length; i++) {
+        plot_totals(
+            host_monitoring_data,
+            host_dashboard_graphs[i]
+        );
+    }
 
     //SunstoneMonitoring.monitor('HOST', host_list)
 //
