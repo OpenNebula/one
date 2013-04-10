@@ -719,7 +719,7 @@ a.footer.button {
 }
 
 .vm_log_error {
-    color: rgb(255, 141, 129);   
+    color: rgb(255, 141, 129);
 }
 
 .noUiSlider {
@@ -836,4 +836,14 @@ form {
 
 .show_hide:hover > h4 > small {
     color: #6f6f6f !important;
+}
+
+.label.allocated {
+  background-color: rgb(43,166,203);
+}
+.label.real {
+  background-color: rgb(112,125,133);
+}
+.label.total {
+  background-color: rgb(172,90,98);
 }

@@ -124,7 +124,12 @@ var Sunstone = {
         var tabs = SunstoneCfg["info_panels"][panel_name];
         var tab=null;
         var active=false;
+        console.log(selected_tab)
         for (tab_name in tabs){
+            if (config['view']['tabs'][selected_tab]['tabs_panel'][tab_name] == false) {
+                continue;
+            }
+
             tab=tabs[tab_name];
             var dd = $('<dd><a href="#'+tab_name+'">'+tab.title+'</a></dd>').appendTo($('dl',dl_tabs));
             //$('ul', dl_tabs).append('<div id="'+tab_name+'"><li id="'+tab_name+'Tab">'+tab.content+'</li></div>');
@@ -393,7 +398,7 @@ $(document).ready(function(){
 
 
     //Start with the dashboard (supposing we have one).
-    showTab('dashboard_tab');
+    showTab('dashboard-tab');
 
 });
 
@@ -460,7 +465,7 @@ function setLogin(){
     $("span.user-login a.configuration").click(function(){
         $config_dialog.reveal();
     });
-    
+
 }
 
 //returns whether we are Sunstone, or oZones
@@ -679,9 +684,11 @@ function insertButtonsInTab(tab_name){
         for (button_name in buttons){
             button_code = "";
             button = buttons[button_name];
-            condition = button.condition;
+
             //if we meet the condition we proceed. Otherwise we skip it.
-            if (condition && !condition()) { continue; }
+            if (config['view']['tabs'][tab_name]['actions'][button_name] == false) {
+                continue;
+            }
 
             var type = button.type+'_button';
             var str_class = [type]

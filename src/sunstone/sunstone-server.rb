@@ -52,11 +52,13 @@ SESSION_EXPIRE_TIME = 60*60
 require 'rubygems'
 require 'sinatra'
 require 'erb'
+require 'haml'
 require 'yaml'
 
 require 'CloudAuth'
 require 'SunstoneServer'
 require 'SunstonePlugins'
+require 'SunstoneViews'
 
 
 ##############################################################################
@@ -113,6 +115,9 @@ rescue => e
 end
 
 set :cloud_auth, $cloud_auth
+
+
+$views_config = SunstoneViews.new
 
 #start VNC proxy
 
@@ -172,12 +177,18 @@ helpers do
             end
 
             if user['TEMPLATE/VNC_WSS']
-                session[:wss] = user['TEMPLATE/VNC_WSS']
+                session[:vnc_wss] = user['TEMPLATE/VNC_WSS']
             else
                 wss = $conf[:vnc_proxy_support_wss]
                 #limit to yes,no options
-                session[:wss] = (wss == true || wss == "yes" || wss == "only" ?
+                session[:vnc_wss] = (wss == true || wss == "yes" || wss == "only" ?
                                  "yes" : "no")
+            end
+
+            if user['TEMPLATE/DEFAULT_VIEW']
+                session[:default_view] = user['TEMPLATE/DEFAULT_VIEW']
+            else
+                session[:default_view] = $views_config.available_views(session['user'], session['user_gname']).first
             end
 
             #end user options
@@ -252,7 +263,7 @@ get '/' do
     p = SunstonePlugins.new
     @plugins = p.authorized_plugins(session[:user], session[:user_gname])
 
-    erb :index
+    haml :index
 end
 
 get '/login' do
@@ -293,22 +304,25 @@ get '/config' do
 end
 
 post '/config' do
-    begin
-        body = JSON.parse(request.body.read)
-    rescue Exception => e
-        msg = "Error parsing configuration JSON"
-        logger.error { msg }
-        logger.error { e.message }
-        [500, OpenNebula::Error.new(msg).to_json]
+    @SunstoneServer.perform_action('user',
+                               OpenNebula::User::SELF,
+                               request.body.read)
+
+    user = OpenNebula::User.new_with_id(
+                OpenNebula::User::SELF,
+                $cloud_auth.client(session[:user]))
+
+    rc = user.info
+    if OpenNebula.is_error?(rc)
+        logger.error { rc.message }
+        error 500, ""
     end
 
-    body.each do | key,value |
-        case key
-            when "lang" then session[:lang]= value
-            when "wss"  then session[:wss] = value
-        end
-    end
-    [204,""]
+    session[:lang] = user['TEMPLATE/LANG']
+    session[:vnc_wss] = user['TEMPLATE/VNC_WSS']
+    session[:default_view] = user['TEMPLATE/DEFAULT_VIEW']
+
+    [200, ""]
 end
 
 get '/vm/:id/log' do

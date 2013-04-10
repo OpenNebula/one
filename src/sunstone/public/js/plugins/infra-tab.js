@@ -93,7 +93,7 @@ var infra_tab = {
     //content: infra_tab_content
 }
 
-Sunstone.addMainTab('infra_tab',infra_tab);
+Sunstone.addMainTab('infra-tab',infra_tab);
 
 function updateInfraDashboard(what,json_info){
     var db = $('#infra_tab',main_tabs_context);

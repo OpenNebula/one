@@ -1100,7 +1100,7 @@ var clusters_tab = {
     buttons: cluster_buttons,
     showOnTopMenu: false,
     tabClass: "subTab",
-    parentTab: "infra_tab"
+    parentTab: "infra-tab"
 };
 
 var cluster_info_panel = {
@@ -1255,7 +1255,7 @@ Sunstone.addActions(cluster_host_actions);
 Sunstone.addActions(cluster_vnet_actions);
 Sunstone.addActions(cluster_datastore_actions);
 Sunstone.addActions(cluster_actions);
-Sunstone.addMainTab('clusters_tab',clusters_tab);
+Sunstone.addMainTab('clusters-tab',clusters_tab);
 Sunstone.addInfoPanel("cluster_info_panel",cluster_info_panel);
 
 //return lists of selected elements in cluster list
@@ -1423,7 +1423,7 @@ function updateClusterInfo(request,cluster){
     Sunstone.updateInfoPanelTab("cluster_info_panel","cluster_vnet_tab",cluster_vnet_tab);
     Sunstone.updateInfoPanelTab("cluster_info_panel","cluster_datastore_tab",cluster_datastore_tab);
 
-    Sunstone.popUpInfoPanel("cluster_info_panel");
+    Sunstone.popUpInfoPanel("cluster_info_panel", "clusters-tab");
 
     // Hosts datatable
 
@@ -1811,12 +1811,11 @@ $(document).ready(function(){
 
     //prepare host datatable
     dataTable_clusters = $("#datatable_clusters",main_tabs_context).dataTable({
-        "oColVis": {
-            "aiExclude": [ 0 ]
-        },
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0,1] },
+            { "bVisible": true, "aTargets": config['view']['tabs']['clusters-tab']['table_columns']},
+            { "bVisible": false, "aTargets": ['_all']}
         ]
     });
 

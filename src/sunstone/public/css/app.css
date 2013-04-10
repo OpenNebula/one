@@ -6920,3 +6920,18 @@ form {
 .show_hide:hover > h4 > small {
   color: #6f6f6f !important;
 }
+
+/* line 841, ../sass/app.scss */
+.label.allocated {
+  background-color: #2ba6cb;
+}
+
+/* line 844, ../sass/app.scss */
+.label.real {
+  background-color: #707d85;
+}
+
+/* line 847, ../sass/app.scss */
+.label.total {
+  background-color: #ac5a62;
+}

@@ -417,7 +417,7 @@ var groups_tab = {
     content: groups_tab_content,
     buttons: group_buttons,
     tabClass: 'subTab',
-    parentTab: 'system_tab',
+    parentTab: 'system-tab',
     condition: mustBeAdmin
 };
 
@@ -444,7 +444,7 @@ SunstoneMonitoringConfig['GROUP'] = {
 }
 
 Sunstone.addActions(group_actions);
-Sunstone.addMainTab('groups_tab',groups_tab);
+Sunstone.addMainTab('groups-tab',groups_tab);
 Sunstone.addMainTab('groups_tab_non_admin',groups_tab_non_admin);
 Sunstone.addInfoPanel("group_info_panel",group_info_panel);
 
@@ -736,7 +736,7 @@ function updateGroupInfo(request,group){
     };
 
     Sunstone.updateInfoPanelTab("group_info_panel","group_quotas_tab",quotas_tab);
-    Sunstone.popUpInfoPanel("group_info_panel");
+    Sunstone.popUpInfoPanel("group_info_panel", 'groups-tab');
 
     //preload acct
     loadAccounting('Group', info.ID, group_acct_graphs);
@@ -797,7 +797,9 @@ $(document).ready(function(){
     dataTable_groups = $("#datatable_groups",main_tabs_context).dataTable({
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "35px", "aTargets": [0,1] }
+            { "sWidth": "35px", "aTargets": [0,1] },
+            { "bVisible": true, "aTargets": config['view']['tabs']['groups-tab']['table_columns']},
+            { "bVisible": false, "aTargets": ['_all']}
         ]
     });
 

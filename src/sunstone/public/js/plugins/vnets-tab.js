@@ -661,12 +661,12 @@ var vnets_tab = {
     content: vnets_tab_content,
     buttons: vnet_buttons,
     tabClass: "subTab",
-    parentTab: "infra_tab",
+    parentTab: "infra-tab",
     showOnTopMenu: false
 }
 
 Sunstone.addActions(vnet_actions);
-Sunstone.addMainTab('vnets_tab',vnets_tab);
+Sunstone.addMainTab('vnets-tab',vnets_tab);
 Sunstone.addInfoPanel('vnet_info_panel',vnet_info_panel);
 
 // return list of selected elements in list
@@ -838,7 +838,7 @@ function updateVNetworkInfo(request,vn){
     Sunstone.updateInfoPanelTab("vnet_info_panel","vnet_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("vnet_info_panel","vnet_leases_tab",leases_tab);
 
-    Sunstone.popUpInfoPanel("vnet_info_panel");
+    Sunstone.popUpInfoPanel("vnet_info_panel", "vnets-tab");
 
     setPermissionsTable(vn_info,'');
 
@@ -1325,7 +1325,8 @@ $(document).ready(function(){
         },
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [0,1] },
-            { "bVisible": false, "aTargets": [7]}
+            { "bVisible": true, "aTargets": config['view']['tabs']['vnets-tab']['table_columns']},
+            { "bVisible": false, "aTargets": ['_all']}
         ]
     });
 

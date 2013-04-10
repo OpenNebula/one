@@ -248,7 +248,7 @@ var acls_tab = {
     content: acls_tab_content,
     buttons: acl_buttons,
     tabClass: 'subTab',
-    parentTab: 'system_tab'
+    parentTab: 'system-tab'
 }
 
 //Monitoring for ACLs - just count how many
@@ -265,7 +265,7 @@ SunstoneMonitoringConfig['ACL'] = {
 
 
 Sunstone.addActions(acl_actions);
-Sunstone.addMainTab('acls_tab',acls_tab);
+Sunstone.addMainTab('acls-tab',acls_tab);
 
 //Returns selected elements on the acl datatable
 function aclElements(){
@@ -613,13 +613,11 @@ function setAclAutorefresh(){
 $(document).ready(function(){
     //if we are not oneadmin, our tab will not even be in the DOM.
     dataTable_acls = $("#datatable_acls",main_tabs_context).dataTable({
-        "oColVis": {
-            "aiExclude": [ 0 ]
-        },
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0,1] },
-            { "bVisible": false, "aTargets": [6]}
+            { "bVisible": true, "aTargets": config['view']['tabs']['acls-tab']['table_columns']},
+            { "bVisible": false, "aTargets": ['_all']}
         ]
     });
 

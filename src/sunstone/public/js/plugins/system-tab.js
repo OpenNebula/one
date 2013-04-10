@@ -89,7 +89,7 @@ var system_tab = {
     //content: system_tab_content
 }
 
-Sunstone.addMainTab('system_tab',system_tab);
+Sunstone.addMainTab('system-tab',system_tab);
 
 function updateSystemDashboard(what, json_info){
     var db = $('#system_tab',main_tabs_context);

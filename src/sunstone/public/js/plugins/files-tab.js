@@ -400,11 +400,11 @@ var files_tab = {
     content: files_tab_content,
     buttons: file_buttons,
     tabClass: 'subTab',
-    parentTab: 'vres_tab'
+    parentTab: 'vresources-tab'
 }
 
 Sunstone.addActions(file_actions);
-Sunstone.addMainTab('files_tab',files_tab);
+Sunstone.addMainTab('files-tab',files_tab);
 Sunstone.addInfoPanel('file_info_panel',file_info_panel);
 
 
@@ -422,7 +422,7 @@ function fileElementArray(file_json){
     if (file.TYPE == "0" ||  file.TYPE == "1" || file.TYPE == "2") {
       return false;
     }
-      
+
 
     size_files = size_files + parseInt(file.SIZE);
 
@@ -612,7 +612,7 @@ function updateFileInfo(request,img){
 
 
     Sunstone.updateInfoPanelTab("file_info_panel","file_info_tab",info_tab);
-    Sunstone.popUpInfoPanel("file_info_panel");
+    Sunstone.popUpInfoPanel("file_info_panel", "files-tab");
 
     setPermissionsTable(img_info,'');
 
@@ -863,7 +863,7 @@ function setupCreateFileDialog(){
         $create_file_dialog.trigger("reveal:close")
         return false;
     });
-  
+
 }
 
 function popUpCreateFileDialog(){
@@ -916,7 +916,8 @@ $(document).ready(function(){
             { "sWidth": "35px", "aTargets": [1,6,11,12] },
             { "sWidth": "100px", "aTargets": [5,7] },
             { "sWidth": "150px", "aTargets": [8] },
-            { "bVisible": false, "aTargets": [6,8,9,11,12]}
+            { "bVisible": true, "aTargets": config['view']['tabs']['files-tab']['table_columns']},
+            { "bVisible": false, "aTargets": ['_all']}
         ]
     });
 

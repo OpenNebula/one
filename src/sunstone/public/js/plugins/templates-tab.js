@@ -425,11 +425,11 @@ var templates_tab = {
     content: templates_tab_content,
     buttons: template_buttons,
     tabClass: 'subTab',
-    parentTab: 'vres_tab'
+    parentTab: 'vresources-tab'
 }
 
 Sunstone.addActions(template_actions);
-Sunstone.addMainTab('templates_tab',templates_tab);
+Sunstone.addMainTab('templates-tab',templates_tab);
 Sunstone.addInfoPanel('template_info_panel',template_info_panel);
 
 //Returns selected elements in the template table
@@ -1413,7 +1413,7 @@ function updateTemplateInfo(request,template){
     Sunstone.updateInfoPanelTab("template_info_panel","template_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("template_info_panel","template_template_tab",template_tab);
 
-    Sunstone.popUpInfoPanel("template_info_panel");
+    Sunstone.popUpInfoPanel("template_info_panel", "templates-tab");
 }
 
 //Given the JSON of a VM template (or of a section of it), it crawls
@@ -1559,7 +1559,7 @@ function setupCreateTemplateDialog(){
                 if (value.length == 0)
                     remove = true;
             }
-            
+
             if (remove)
                 delete obj[elem];
         }
@@ -4156,6 +4156,8 @@ $(document).ready(function(){
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0,1] },
+            { "bVisible": true, "aTargets": config['view']['tabs']['templates-tab']['table_columns']},
+            { "bVisible": false, "aTargets": ['_all']}
         ]
     });
 

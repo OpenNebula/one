@@ -121,9 +121,10 @@ var dashboard_tab_content = '\
           <div class="ten columns centered graph" id="dash_host_mem_graph" style="height: 100px;">\
           </div>\
         </div>\
-        <div class="row graph_legend">\
-          <div class="ten columns centered" id="dash_host_mem_legend">\
-          </div>\
+        <div class="row graph_legend" style="text-align:centered">\
+            <span class="label allocated radius">'+tr("Allocated")+'</span>&emsp;\
+            <span class="label real radius">'+tr("Real")+'</span>&emsp;\
+            <span class="label total radius">'+tr("Total")+'</span>\
         </div>\
       </div>\
     </div>\
@@ -176,7 +177,7 @@ var dashboard_tab = {
     showOnTopMenu: false
 }
 
-Sunstone.addMainTab('dashboard_tab',dashboard_tab);
+Sunstone.addMainTab('dashboard-tab',dashboard_tab);
 
 var $dashboard;
 
@@ -185,5 +186,5 @@ var $dashboard;
 function dashboardQuotasHTML(){}
 
 $(document).ready(function(){
-        $dashboard = $('#dashboard_tab', main_tabs_context);
+        $dashboard = $('#dashboard-tab', main_tabs_context);
 });

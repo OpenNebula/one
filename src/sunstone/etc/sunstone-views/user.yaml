@@ -1,0 +1,35 @@
+:tabs:
+	:plugins/dashboard-tab.js:
+		:enabled: false
+	:plugins/dashboard-users-tab.js:
+		:enabled: true
+	:plugins/system-tab.js:
+		:enabled: false
+	:plugins/users-tab.js:
+		:enabled: false
+	:plugins/groups-tab.js:
+		:enabled: false
+	:plugins/acls-tab.js:
+		:enabled: false
+	:plugins/vresources-tab.js:
+		:enabled: true
+	:plugins/vms-tab.js:
+		:enabled: true
+	:plugins/templates-tab.js:
+		:enabled: true
+	:plugins/images-tab.js:
+		:enabled: true
+	:plugins/files-tab.js:
+		:enabled: true
+	:plugins/infra-tab.js:
+		:enabled: false
+	:plugins/clusters-tab.js:
+		:enabled: false
+	:plugins/hosts-tab.js:
+		:enabled: false
+	:plugins/datastores-tab.js:
+		:enabled: false
+	:plugins/vnets-tab.js:
+		:enabled: false
+	:plugins/marketplace-tab.js:
+		:enabled: true

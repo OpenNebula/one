@@ -87,18 +87,6 @@ var vms_tab_content = '\
   <tbody id="tbodyvmachines">\
   </tbody>\
 </table>\
-<div class="legend_div">\
-  <span>?</span>\
-  <p class="legend_p">\
-'+tr("CPU, Memory and Start time are hidden columns by default. You can get monitoring graphs by clicking on the desired VM and visiting the monitoring information tab.")+'\
-  </p>\
-  <p class="legend_p">\
-'+tr("VNC console requires previous install of the noVNC addon. Check Sunstone documentation for more information.")+'\
-  </p>\
-  <p class="legend_p">\
-'+tr("You can hotplug and detach existing disks from running VMs from the Disks & Hotplugging tab in the VM information dialog.")+'\
-  </p>\
-</div>\
 </form>';
 
 var create_vm_tmpl ='\
@@ -272,7 +260,7 @@ var vm_actions = {
         notify: true
     },
 
-    "VM.livemigrate" : {
+    "VM.migrate_live" : {
         type: "multiple",
         call: OpenNebula.VM.livemigrate,
         callback: vmShow,
@@ -326,7 +314,7 @@ var vm_actions = {
         notify: true
     },
 
-    "VM.restart" : {
+    "VM.boot" : {
         type: "multiple",
         call: OpenNebula.VM.restart,
         callback: vmShow,
@@ -335,7 +323,7 @@ var vm_actions = {
         notify: true
     },
 
-    "VM.reset" : {
+    "VM.reboot_hard" : {
         type: "multiple",
         call: OpenNebula.VM.reset,
         callback: vmShow,
@@ -344,7 +332,7 @@ var vm_actions = {
         notify: true
     },
 
-    "VM.resubmit" : {
+    "VM.destroy_recreate" : {
         type: "multiple",
         call: OpenNebula.VM.resubmit,
         callback: vmShow,
@@ -445,7 +433,7 @@ var vm_actions = {
         notify: true
     },
 
-    "VM.cancel" : {
+    "VM.shutdown_hard" : {
         type: "multiple",
         call: OpenNebula.VM.cancel,
         callback: vmShow,
@@ -454,7 +442,7 @@ var vm_actions = {
         notify: true
     },
 
-    "VM.delete" : {
+    "VM.destroy" : {
         type: "multiple",
         call: OpenNebula.VM.del,
         callback: deleteVMachineElement,
@@ -758,7 +746,7 @@ var vm_buttons = {
         condition: mustBeAdmin
 
     },
-    "VM.livemigrate" : {
+    "VM.migrate_live" : {
         type: "confirm_with_select",
         text: tr("Migrate") + ' <span class="label secondary radius">live</span>',
         tip: tr("This will live-migrate the selected VMs to the chosen host"),
@@ -796,7 +784,7 @@ var vm_buttons = {
         layout: "vmsstop_buttons",
         tip: tr("This will stop selected VMs")
     },
-    "VM.restart" : {
+    "VM.boot" : {
         type: "confirm",
         text: tr("Boot"),
         layout: "vmsplanification_buttons",
@@ -808,7 +796,7 @@ var vm_buttons = {
         layout: "vmsrepeat_buttons",
         tip: tr("This will send a reboot action to running VMs")
     },
-    "VM.reset" : {
+    "VM.reboot_hard" : {
         type: "confirm",
         text: tr("Reboot") + ' <span class="label secondary radius">hard</span>',
         layout: "vmsrepeat_buttons",
@@ -844,20 +832,20 @@ var vm_buttons = {
         layout: "vmsdelete_buttons",
         tip: tr("This will initiate the shutdown process in the selected VMs")
     },
-    "VM.cancel" : {
+    "VM.shutdown_hard" : {
         type: "confirm",
         text: tr("Shutdown") + ' <span class="label secondary radius">hard</span>',
         layout: "vmsdelete_buttons",
         tip: tr("This will cancel selected VMs")
     },
 
-    "VM.delete" : {
+    "VM.destroy" : {
         type: "confirm",
         text: tr("Destroy"),
         layout: "vmsdelete_buttons",
         tip: tr("This will delete the selected VMs from the database")
     },
-    "VM.resubmit" : {
+    "VM.destroy_recreate" : {
         type: "confirm",
         text: tr("Destroy") + ' <span class="label secondary radius">recreate</span>',
         layout: "vmsrepeat_buttons",
@@ -880,7 +868,7 @@ var vms_tab = {
     content: vms_tab_content,
     buttons: vm_buttons,
     tabClass: 'subTab',
-    parentTab: 'vres_tab'
+    parentTab: 'vresources-tab'
 };
 
 SunstoneMonitoringConfig['VM'] = {
@@ -993,7 +981,7 @@ SunstoneMonitoringConfig['VM'] = {
 
 
 Sunstone.addActions(vm_actions);
-Sunstone.addMainTab('vms_tab',vms_tab);
+Sunstone.addMainTab('vms-tab',vms_tab);
 Sunstone.addInfoPanel('vm_info_panel',vm_info_panel);
 
 
@@ -1413,7 +1401,7 @@ function updateVMInfo(request,vm){
     // TODO: re-use pool_monitor data?
 
     //Pop up the info panel and asynchronously get vm_log and stats
-    Sunstone.popUpInfoPanel("vm_info_panel");
+    Sunstone.popUpInfoPanel("vm_info_panel", "vms-tab");
     Sunstone.runAction("VM.log",vm_info.ID);
     Sunstone.runAction("VM.monitor",vm_info.ID,
         { monitor_resources : "CPU,MEMORY,NET_TX,NET_RX"});
@@ -2989,7 +2977,8 @@ $(document).ready(function(){
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0,1] },
-            { "bVisible": false, "aTargets": [6,7,10]}
+            { "bVisible": true, "aTargets": config['view']['tabs']['vms-tab']['table_columns']},
+            { "bVisible": false, "aTargets": ['_all']}
         ]
     });
 

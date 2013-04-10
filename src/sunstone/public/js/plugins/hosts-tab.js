@@ -325,8 +325,7 @@ var host_actions = {
                 monitor_resources : "HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM",
                 labels : tr("Allocated")+","+tr("Real")+","+tr("Total"),
                 humanize_figures : true,
-                div_graph : $("#dash_host_mem_graph", $dashboard),
-                div_legend : $("#dash_host_mem_legend", $dashboard)
+                div_graph : $("#dash_host_mem_graph", $dashboard)
             }
             ];
 
@@ -452,7 +451,7 @@ var hosts_tab = {
     content: hosts_tab_content,
     buttons: host_buttons,
     tabClass: "subTab",
-    parentTab: "infra_tab",
+    parentTab: "infra-tab",
     showOnTopMenu: false
 };
 
@@ -633,7 +632,7 @@ SunstoneMonitoringConfig['HOST'] = {
 
 
 Sunstone.addActions(host_actions);
-Sunstone.addMainTab('hosts_tab',hosts_tab);
+Sunstone.addMainTab('hosts-tab',hosts_tab);
 Sunstone.addInfoPanel("host_info_panel",host_info_panel);
 
 // return selected elements from hosts datatable
@@ -914,7 +913,7 @@ function updateHostInfo(request,host){
     Sunstone.updateInfoPanelTab("host_info_panel","host_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("host_info_panel","host_monitoring_tab",monitor_tab);
 
-    Sunstone.popUpInfoPanel("host_info_panel");
+    Sunstone.popUpInfoPanel("host_info_panel", "hosts-tab");
 
     // TODO: re-use Host.pool_monitor data?
 
@@ -1043,8 +1042,9 @@ $(document).ready(function(){
         },
         "aoColumnDefs": [
             //{ "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "35px", "aTargets": [0,1,4,9] }, //check, ID, RVMS, Status
-            { "bVisible": false, "aTargets": [5,7,10,11,12]}
+            { "sWidth": "35px", "aTargets": [0,1,4,9] }, //check, ID, RVMS, Status,
+            { "bVisible": true, "aTargets": config['view']['tabs']['hosts-tab']['table_columns']},
+            { "bVisible": false, "aTargets": ['_all']}
         ]
     });
 

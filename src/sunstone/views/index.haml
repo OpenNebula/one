@@ -1,0 +1,102 @@
+!!! 5
+%html
+  %head
+    %tittle OpenNebula Sunstone: Cloud Operations Center
+    %meta{:"http-equiv" => 'Content-Type', :content => 'text/html'}
+    %link{:rel => "shortcut icon", :href => "images/favicon.ico"}
+
+
+    %script{:type=>"text/javascript", :src=>"vendor/4.0/jquery-1.9.1.min.js"}
+    %script{:type=>"text/javascript", :src=>"vendor/4.0/jquery-migrate-1.1.0.js"}
+    %script{:type=>"text/javascript", :src=>"vendor/4.0/jgrowl/jquery.jgrowl.js"}
+    %script{:type=>"text/javascript", :src=>"vendor/4.0/jquery_layout/jquery.layout-latest.min.js"}
+    %script{:type=>"text/javascript", :src=>"vendor/4.0/foundation/modernizr.foundation.js"}
+    %script{:type=>"text/javascript", :src=>"vendor/4.0/datatables/jquery.dataTables.min.js"}
+    %script{:type=>"text/javascript", :src=>"vendor/4.0/foundation_datatables/responsive-tables.js"}
+    %script{:type=>"text/javascript", :src=>"vendor/4.0/foundation_datatables/datatables.foundation.js"}
+    %script{:type=>"text/javascript", :src=>"vendor/flot/jquery.flot.min.js"}
+    %script{:type=>"text/javascript", :src=>"vendor/flot/jquery.flot.pie.min.js"}
+    %script{:type=>"text/javascript", :src=>"vendor/flot/jquery.flot.resize.min.js"}
+    %script{:type=>"text/javascript", :src=>"vendor/flot/jquery.flot.stack.min.js"}
+    %script{:type=>"text/javascript", :src=>"vendor/fileuploader/fileuploader.js"}
+    %script{:type=>"text/javascript", :src=>"vendor/4.0/nouislider/jquery.nouislider.min.js"}
+    %script{:type=>"text/javascript", :src=>"vendor/4.0/jdpicker_1.1/jquery.jdpicker.js"}
+    %script{:type=>"text/javascript", :src=>"vendor/4.0/jquery.timePicker.min.js"}
+
+    %link{:rel=>"stylesheet", :type=>"text/css", :href=>"vendor/4.0/jgrowl/jquery.jgrowl.css"}
+    %link{:rel=>"stylesheet", :type=>"text/css", :href=>"vendor/4.0/fontawesome/css/font-awesome.min.css"}
+    %link{:rel=>"stylesheet", :type=>"text/css", :href=>"vendor/4.0/jquery_layout/layout-default-latest.css"}
+    %link{:rel=>"stylesheet", :type=>"text/css", :href=>"vendor/4.0/nouislider/nouislider.css"}
+    %link{:rel=>"stylesheet", :type=>"text/css", :href=>"vendor/4.0/jdpicker_1.1/jdpicker.css"}
+
+    %link{:href=>'http://fonts.googleapis.com/css?family=Open+Sans', :rel=>'stylesheet', :type=>'text/css'}
+
+    /[if lte IE 8]
+      %script{:type=>"text/javascript", :src=>"vendor/explorercanvas/excanvas.compiled.js"}
+
+    - if session[:lang]
+      %script{:type=>"text/javascript", :src=>"locale/#{session[:lang]}/#{session[:lang]}.js"}
+
+
+    %link{:href=>"css/app.css", :media=>"screen, projector, print", :rel=>"stylesheet", :type=>"text/css"}
+
+    %script{:type=>"text/javascript", :src=>"js/opennebula.js"}
+    %script{:type=>"text/javascript", :src=>"js/layout.js"}
+    %script{:type=>"text/javascript", :src=>"js/sunstone.js"}
+    %script{:type=>"text/javascript", :src=>"js/sunstone-util.js"}
+    %script{:type=>"text/javascript", :src=>"js/monitoring.js"}
+
+    - view = $views_config.view(session['user'], session['user_gname'], session['view_name'])
+
+    :javascript
+      var view = JSON.parse('#{view.to_json}')
+      var available_views = JSON.parse('#{$views_config.available_views(session['user'], session['user_gname'])}')
+
+      config = {
+        'user_config' : {
+            'lang' : '#{session['lang']}',
+            'vnc_wss' : '#{session['vnc_wss']}',
+            'default_view' : '#{session['default_view']}'
+        },
+        'view' : view,
+        'available_views' : available_views
+      };
+
+    %script{:type=>"text/javascript", :src=>"js/plugins/config-tab.js"}
+    - view['tabs'].each do |tab_name, tab_config|
+      - if tab_config['enabled']
+        %script{:type=>"text/javascript", :src=>"js/plugins/#{tab_name}.js"}
+
+  %body
+    #tabs_content.outer-center
+      .inner-center
+      #dialog.inner-south
+
+    #menu.outer-west
+      .ui-layout-content
+        #logo.header
+          %img{:src=>"images/opennebula-sunstone-v4.0-small.png"}
+        .menu-navZ
+          %ul#navigation.tabs.vertical
+
+    #dialogs
+
+    #plots
+
+    #info_panels
+
+
+    %script{:type=>"text/javascript",  :src=>"vendor/4.0/foundation/jquery.foundation.reveal.js"}
+    %script{:type=>"text/javascript",  :src=>"vendor/4.0/foundation/jquery.foundation.orbit.js"}
+    %script{:type=>"text/javascript",  :src=>"vendor/4.0/foundation/jquery.foundation.forms.js"}
+    %script{:type=>"text/javascript",  :src=>"vendor/4.0/foundation/jquery.placeholder.js"}
+    %script{:type=>"text/javascript",  :src=>"vendor/4.0/foundation/jquery.foundation.tooltips.js"}
+    %script{:type=>"text/javascript",  :src=>"vendor/4.0/foundation/jquery.foundation.alerts.js"}
+    %script{:type=>"text/javascript",  :src=>"vendor/4.0/foundation/jquery.foundation.buttons.js"}
+    %script{:type=>"text/javascript",  :src=>"vendor/4.0/foundation/jquery.foundation.accordion.js"}
+    %script{:type=>"text/javascript",  :src=>"vendor/4.0/foundation/jquery.foundation.navigation.js"}
+    %script{:type=>"text/javascript",  :src=>"vendor/4.0/foundation/jquery.foundation.mediaQueryToggle.js"}
+    %script{:type=>"text/javascript",  :src=>"vendor/4.0/foundation/jquery.foundation.tabs.js"}
+    %script{:type=>"text/javascript",  :src=>"vendor/4.0/foundation/app.js"}
+
+

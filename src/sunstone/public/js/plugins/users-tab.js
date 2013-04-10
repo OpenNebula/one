@@ -91,19 +91,6 @@ var users_tab_content = '\
 </table>\
   </div>\
   </div>\
-<div class="legend_div">\
-<span>?</span>\
-<p class="legend_p">\
-'+
-    tr("Tip: You can save any information in the user template, in the form of VAR=VAL.")+
-'\
-</p>\
-<p class="legend_p">\
-'+
-    tr("Tip: SSH authentication method is not available for web UI access.")+
-'\
-</p>\
-</div>\
 </form>';
 
 var create_user_tmpl =
@@ -564,11 +551,11 @@ var user_buttons = {
 
 var user_info_panel = {
     "user_info_tab" : {
-        title: tr("User information"),
+        title: tr("Information"),
         content:""
     },
     "user_quotas_tab" : {
-        title: tr("User quotas"),
+        title: tr("Quotas"),
         content:""
     },
     //"user_acct_tab" : {
@@ -582,7 +569,7 @@ var users_tab = {
     content: users_tab_content,
     buttons: user_buttons,
     tabClass: 'subTab',
-    parentTab: 'system_tab',
+    parentTab: 'system-tab',
     condition: mustBeAdmin
 };
 
@@ -591,7 +578,7 @@ var users_tab_non_admin = {
     content: users_tab_content,
     buttons: user_buttons,
     tabClass: 'subTab',
-    parentTab: 'dashboard_tab',
+    parentTab: 'dashboard-tab',
     condition: mustNotBeAdmin
 }
 
@@ -638,7 +625,7 @@ SunstoneMonitoringConfig['USER'] = {
 
 
 Sunstone.addActions(user_actions);
-Sunstone.addMainTab('users_tab',users_tab);
+Sunstone.addMainTab('users-tab',users_tab);
 Sunstone.addMainTab('users_tab_non_admin',users_tab_non_admin);
 Sunstone.addInfoPanel("user_info_panel",user_info_panel);
 
@@ -997,7 +984,7 @@ function updateUserInfo(request,user){
     Sunstone.updateInfoPanelTab("user_info_panel","user_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("user_info_panel","user_quotas_tab",quotas_tab);
     //Sunstone.updateInfoPanelTab("user_info_panel","user_acct_tab",acct_tab);
-    Sunstone.popUpInfoPanel("user_info_panel");
+    Sunstone.popUpInfoPanel("user_info_panel", 'users-tab');
 
     //Enable datepicker
     //var info_dialog = $('div#user_acct_tab');
@@ -1174,7 +1161,8 @@ $(document).ready(function(){
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0,1] },
-            { "bVisible": false, "aTargets": [8]}
+            { "bVisible": true, "aTargets": config['view']['tabs']['users-tab']['table_columns']},
+            { "bVisible": false, "aTargets": ['_all']}
         ]
     });
 

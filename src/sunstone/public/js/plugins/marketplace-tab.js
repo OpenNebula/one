@@ -151,7 +151,7 @@ var marketplace_tab = {
     buttons: market_buttons
 };
 
-Sunstone.addMainTab('marketplace_tab', marketplace_tab);
+Sunstone.addMainTab('marketplace-tab', marketplace_tab);
 Sunstone.addActions(market_actions);
 
 
@@ -234,7 +234,7 @@ function updateMarketInfo(request,app){
     };
 
     Sunstone.updateInfoPanelTab("marketplace_info_panel", "marketplace_info_tab", info_tab);
-    Sunstone.popUpInfoPanel("marketplace_info_panel");
+    Sunstone.popUpInfoPanel("marketplace_info_panel", "marketplace-tab");
 };
 
  function infoListenerMarket(dataTable){
@@ -296,14 +296,18 @@ $(document).ready(function(){
               },
               "sWidth" : "60px"
             },
-            { "mDataProp": "_id.$oid", "bVisible": false, "sWidth" : "200px" },
+            { "mDataProp": "_id.$oid", "sWidth" : "200px" },
             { "mDataProp": "name" },
             { "mDataProp": "publisher" },
             { "mDataProp": "files.0.hypervisor", "sWidth" : "100px"},
             { "mDataProp": "files.0.os-arch", "sWidth" : "100px"},
             { "mDataProp": "files.0.format", "sWidth" : "100px"},
-            { "mDataProp": "tags", "bVisible": false}
-          ]
+            { "mDataProp": "tags"}
+          ],
+          "aoColumnDefs": [
+            { "bVisible": true, "aTargets": config['view']['tabs']['marketplace-tab']['table_columns']},
+            { "bVisible": false, "aTargets": ['_all']}
+        ]
     });
 
 

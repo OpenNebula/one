@@ -200,6 +200,7 @@ ETC_DIRS="$ETC_LOCATION/im_ec2 \
           $ETC_LOCATION/auth/certificates \
           $ETC_LOCATION/ec2query_templates \
           $ETC_LOCATION/occi_templates \
+          $ETC_LOCATION/sunstone-views \
           $ETC_LOCATION/cli"
 
 LIB_DIRS="$LIB_LOCATION/ruby \
@@ -521,6 +522,7 @@ INSTALL_SUNSTONE_FILES=(
 
 INSTALL_SUNSTONE_ETC_FILES=(
     SUNSTONE_ETC_FILES:$ETC_LOCATION
+    SUNSTONE_ETC_VIEW_FILES:$ETC_LOCATION/sunstone-views
 )
 
 INSTALL_OZONES_RUBY_FILES=(
@@ -1360,11 +1362,15 @@ SUNSTONE_BIN_FILES="src/sunstone/bin/sunstone-server \
                     src/sunstone/bin/novnc-server"
 
 SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf \
-                    src/sunstone/etc/sunstone-plugins.yaml"
+                    src/sunstone/etc/sunstone-plugins.yaml\
+                    src/sunstone/etc/sunstone-views.yaml"
+
+SUNSTONE_ETC_VIEW_FILES="src/sunstone/etc/sunstone-views/admin.yaml"
 
 SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
                        src/sunstone/models/SunstoneServer.rb \
                        src/sunstone/models/SunstoneMarketplace.rb \
+                       src/sunstone/models/SunstoneViews.rb \
                        src/sunstone/models/SunstonePlugins.rb"
 
 SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
@@ -1380,7 +1386,7 @@ SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/DatastoreJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/VirtualNetworkJSON.rb"
 
-SUNSTONE_VIEWS_FILES="src/sunstone/views/index.erb \
+SUNSTONE_VIEWS_FILES="src/sunstone/views/index.haml \
                       src/sunstone/views/login.erb \
                       src/sunstone/views/_login_standard.erb \
                       src/sunstone/views/_login_x509.erb"

@@ -552,13 +552,13 @@ var datastores_tab = {
     content: datastores_tab_content,
     buttons: datastore_buttons,
     tabClass: "subTab",
-    parentTab: "infra_tab",
+    parentTab: "infra-tab",
     showOnTopMenu: false
 }
 
 Sunstone.addActions(datastore_actions);
 Sunstone.addActions(datastore_image_actions);
-Sunstone.addMainTab('datastores_tab',datastores_tab);
+Sunstone.addMainTab('datastores-tab',datastores_tab);
 Sunstone.addInfoPanel('datastore_info_panel',datastore_info_panel);
 
 
@@ -706,7 +706,7 @@ function updateDatastoreInfo(request,ds){
     // Add tabs
     Sunstone.updateInfoPanelTab("datastore_info_panel","datastore_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("datastore_info_panel","datastore_image_tab",datastore_info_tab);
-    Sunstone.popUpInfoPanel("datastore_info_panel");
+    Sunstone.popUpInfoPanel("datastore_info_panel", "datastores-tab");
 
     // Define datatables
     // Images datatable
@@ -986,12 +986,10 @@ function setDatastoreAutorefresh(){
 $(document).ready(function(){
 
     dataTable_datastores = $("#datatable_datastores",main_tabs_context).dataTable({
-        "oColVis": {
-            "aiExclude": [ 0 ]
-        },
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [0,1] },
-            { "bVisible": false, "aTargets": [6,7,8,9] }
+            { "bVisible": true, "aTargets": config['view']['tabs']['datastores-tab']['table_columns']},
+            { "bVisible": false, "aTargets": ['_all']}
         ]
     });
 

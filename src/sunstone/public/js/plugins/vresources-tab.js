@@ -32,9 +32,9 @@ var vres_tab_content = '\
             </tr>\
             <tr>\
               <td class="key_td">' +
-    tr("VM Instances")+ ' (' + 
+    tr("VM Instances")+ ' (' +
     tr("total") + '/<span class="green">' +
-    tr("running") + '</span>/<span class="red">' + 
+    tr("running") + '</span>/<span class="red">' +
     tr("failed") + '</span>)</td>\
               <td class="value_td"><span id="vres_total_vms"></span><span id="vres_running_vms" class="green"></span><span id="vres_failed_vms" class="red"></span></td>\
             </tr>\
@@ -97,7 +97,7 @@ var vres_tab = {
     //content: vres_tab_content
 }
 
-Sunstone.addMainTab('vres_tab',vres_tab);
+Sunstone.addMainTab('vresources-tab',vres_tab);
 
 function updateVResDashboard(what,json_info){
     var db = $('#vres_tab',main_tabs_context);

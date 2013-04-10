@@ -555,11 +555,11 @@ var images_tab = {
     content: images_tab_content,
     buttons: image_buttons,
     tabClass: 'subTab',
-    parentTab: 'vres_tab'
+    parentTab: 'vresources-tab'
 }
 
 Sunstone.addActions(image_actions);
-Sunstone.addMainTab('images_tab',images_tab);
+Sunstone.addMainTab('images-tab',images_tab);
 Sunstone.addInfoPanel('image_info_panel',image_info_panel);
 
 
@@ -797,7 +797,7 @@ function updateImageInfo(request,img){
     });
 
     Sunstone.updateInfoPanelTab("image_info_panel","image_info_tab",info_tab);
-    Sunstone.popUpInfoPanel("image_info_panel");
+    Sunstone.popUpInfoPanel("image_info_panel", "images-tab");
 
     setPermissionsTable(img_info,'');
 
@@ -1262,7 +1262,8 @@ $(document).ready(function(){
             { "sWidth": "35px", "aTargets": [1,6,11,12] },
             { "sWidth": "100px", "aTargets": [5,7] },
             { "sWidth": "150px", "aTargets": [8] },
-            { "bVisible": false, "aTargets": [6,8,12]}
+            { "bVisible": true, "aTargets": config['view']['tabs']['images-tab']['table_columns']},
+            { "bVisible": false, "aTargets": ['_all']}
         ]
     });
 

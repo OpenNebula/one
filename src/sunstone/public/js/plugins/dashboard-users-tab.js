@@ -88,7 +88,7 @@ var dashboard_tab = {
     showOnTopMenu: false
 }
 
-Sunstone.addMainTab('dashboard_tab',dashboard_tab);
+Sunstone.addMainTab('dashboard-users-tab',dashboard_tab);
 
 var $dashboard;
 
