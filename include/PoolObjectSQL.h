@@ -160,9 +160,23 @@ public:
         return name;
     };
 
-    void set_name(const string& _name)
+    /**
+     *  Set the name of the object and check if it is valid.
+     *    @param _name the new name
+     *    @param error_str describing the error if any
+     *
+     *    @return 0 if the name was changed
+     */
+    int set_name(const string& _name, string& error_str)
     {
+        if (!name_is_valid(_name, error_str))
+        {
+            return -1;
+        }
+
         name = _name;
+
+        return 0;
     };
 
     int get_uid() const

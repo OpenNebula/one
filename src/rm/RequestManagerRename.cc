@@ -31,6 +31,7 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
 
     int    rc;
     string old_name;
+    string error_str;
 
     PoolObjectAuth  operms;
     PoolObjectSQL * object;
@@ -83,7 +84,7 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
             << PoolObjectSQL::type_to_str(auth_object) << " "
             << id;
 
-        failure_response(INTERNAL, request_error(oss.str(), ""), att);
+        failure_response(ACTION, request_error(oss.str(), ""), att);
         return;
     }
 
@@ -98,7 +99,13 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
                          att);
     }
 
-    object->set_name(new_name);
+    if ( object->set_name(new_name, error_str) != 0 )
+    {
+        object->unlock();
+
+        failure_response(ACTION, request_error(error_str, ""), att);
+        return;
+    }
 
     pool->update(object);
 
