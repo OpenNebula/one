@@ -70,12 +70,17 @@ var files_tab_content = '\
 </form>';
 
 var create_file_tmpl =
-'<div id="img_tabs">\
-  <div class="panel">\
-    <h3><small>'+tr("Create File")+'</small></h4>\
-  </div>\
-     <form id="create_file_form_easy" action="" class="custom creation">\
-  <div class="reveal-body">\
+  '<div class="panel">\
+    <h3><small>'+tr("Create File")+'</small></h3>\
+   </div>\
+   <div class="reveal-body">\
+   <form id="create_file_form_easy" action="" class="custom creation">\
+      <dl class="tabs">\
+          <dd class="active"><a href="#file_easy">'+tr("Wizard")+'</a></dd>\
+          <dd><a href="#file_manual">'+tr("Advanced mode")+'</a></dd>\
+      </dl>\
+      <ul class="tabs-content">\
+        <li id="file_easyTab" class="active">\
             <div class="row vm_param">\
               <div class="six columns">\
                 <div class="row">\
@@ -157,10 +162,10 @@ var create_file_tmpl =
               <div class="six columns">\
                 <div class="row">\
                   <div class="four columns">\
-                    <label class="right inline" for="file_datastore">'+tr("Datastore")+':</label>\
+                    <label class="right inline" for="file_datastore_raw">'+tr("Datastore")+':</label>\
                   </div>\
                   <div class="seven columns">\
-                   <select id="file_datastore" name="file_datastore">\
+                   <select id="file_datastore_raw" name="file_datastore_">\
                    </select>\
                   </div>\
                   <div class="one columns">\
@@ -170,16 +175,38 @@ var create_file_tmpl =
               </div>\
             </div>\
             </div>\
-            </div>\
+      <div class="reveal-footer">\
             <hr>\
       <div class="form_buttons">\
         <button class="button success radius right" id="create_file_submit" value="file/create">'+tr("Create")+'</button>\
         <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
         <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+          </div>\
       </div>\
-  <a class="close-reveal-modal">&#215;</a>\
-      </form>\
-</div>';
+        </li>\
+        <li id="file_manualTab">\
+        <div class="reveal-body">\
+                 <div class="columns three">\
+                   <label class="inline left" for="files_datastores_raw">'+tr("Datastore")+':</label>\
+                 </div>\
+                 <div class="columns nine">\
+                   <select id="files_datastore_raw" name="files_datastore_raw"></select>\
+                 </div>\
+                 <textarea id="template" rows="15" style="width:100%;"></textarea>\
+          </div>\
+          <div class="reveal-footer">\
+               <hr>\
+               <div class="form_buttons">\
+                 <button class="button success radius right" id="create_file_submit_manual" value="file/create">'+tr("Create")+'</button>\
+                 <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
+                 <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+               </div>\
+          </div>\
+        </li>\
+        </ul>\
+   <a class="close-reveal-modal">&#215;</a>\
+   </form>\
+  </div>';
 
 var dataTable_files;
 var $create_file_dialog;
@@ -643,7 +670,7 @@ function setupCreateFileDialog(){
     //    width: 520,
     //    height: height
     //});
-    dialog.addClass("reveal-modal large");
+    dialog.addClass("reveal-modal large max-height");
 
     $('.advanced',dialog).hide();
 
@@ -863,6 +890,26 @@ function setupCreateFileDialog(){
         $create_file_dialog.trigger("reveal:close")
         return false;
     });
+
+    $('#create_file_submit_manual',dialog).click(function(){
+        var template=$('#template',dialog).val();
+        var ds_id = $('#file_datastore_raw',dialog).val();
+
+        if (!ds_id){
+            notifyError(tr("Please select a datastore for this file"));
+            return false;
+        };
+
+        var img_obj = {
+            "image" : {
+                "image_raw" : template
+            },
+            "ds_id" : ds_id
+        };
+        Sunstone.runAction("File.create",img_obj);
+        $create_image_dialog.trigger("reveal:close")
+        return false;
+    });
   
 }
 
@@ -871,8 +918,6 @@ function popUpCreateFileDialog(){
     $('#file-uploader input',$create_file_dialog).attr('style','margin:0;width:256px!important');
 
     var datastores_str = datastores_sel();
-    // Get rid of default datastore (51 characters in string)
-    datastores_str     = datastores_str.substring(51,datastores_str.length);
 
     $('#file_datastore',$create_file_dialog).html(datastores_str);
     $('#file_datastore_raw',$create_file_dialog).html(datastores_str);

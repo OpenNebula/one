@@ -70,6 +70,12 @@ var create_template_tmpl = '<div class="panel">'+
   '<h3><small id="create_template_header">'+tr("Create VM Template")+'</small><small id="update_template_header" class="hidden">'+tr("Update VM Template")+'</small></h3>'+
   '</div>'+
   '<div class="reveal-body">'+
+  '<dl class="tabs">' + 
+    '<dd class="active"><a href="#easy">'+tr("Wizard")+'</a></dd>' +
+    '<dd><a href="#manual">'+tr("Advanced mode")+'</a></dd>' +
+  '</dl>' +
+  '<ul class="tabs-content">' +
+  '<li class="active" id="easyTab">' +
   '<form class="custom creation">'+
   '<div class="">'+
     '<div class="columns three">'+
@@ -88,6 +94,22 @@ var create_template_tmpl = '<div class="panel">'+
       '<button class="button secondary radius" id="template_template_reset_button" value="reset" type="reset">'+tr("Reset")+'</button>'+
       '<button class="button secondary hidden radius" id="template_template_reset_button_update" value="reset" type="reset">'+tr("Reset")+'</button>'+
       '<button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>'+
+    '</li>' +
+    '<li id="manualTab">' + 
+     '<form id="create_template_form_manual" action="">' +
+     '<h4><small>'+tr("Write the Virtual Machine template here")+'</small></h4>' +
+       '<textarea id="template" rows="15" style="width:100%;"></textarea>' + 
+        '<div class="reveal-footer">' +
+        '<hr>' + 
+        '<div class="form_buttons">' + 
+         '<button class="button success right radius" id="create_template_submit_manual" value="template/create">'+tr("Create")+'</button>' + 
+                 '<button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>' +
+                '<button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>' +
+            '</div>' +
+          '</div>' +
+          '</form>' +
+        '</li>' +
+    '</ul>' +
   '</div>'+
   '<a class="close-reveal-modal">&#215;</a>'+
   '</form>'+
@@ -3411,8 +3433,8 @@ function setupCreateTemplateDialog(){
         return false;
     });
     //Handle manual forms
-    $('button#create_template_form_manual',$create_template_dialog).click(function(){
-        var template = $('textarea#textarea_vm_template',$create_template_dialog).val();
+    $('button#create_template_submit_manual',$create_template_dialog).click(function(){
+        var template = $('textarea#template',$create_template_dialog).val();
 
         //wrap it in the "vm" object
         template = {"vmtemplate": {"template_raw": template}};

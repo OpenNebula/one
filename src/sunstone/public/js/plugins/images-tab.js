@@ -73,7 +73,7 @@ var create_image_tmpl =
   '<div class="panel">\
     <h3><small>'+tr("Create Image")+'</small></h4>\
   </div>\
-        <div class="reveal-body">\
+  <div class="reveal-body">\
   <form id="create_image" action="" class="custom creation">\
         <dl class="tabs">\
         <dd class="active"><a href="#img_easy">'+tr("Wizard")+'</a></dd>\
@@ -261,10 +261,12 @@ var create_image_tmpl =
         </li>\
         <li id="img_manualTab">\
         <div class="reveal-body">\
-                 <h4><small>'+tr("Write the image template here")+'</small></h4>\
-                 <label for="img_datastores_raw">'+tr("Datastore")+':</label>\
-                 <select id="img_datastore_raw" name="img_datastore_raw">\
-                 </select>\
+                 <div class="columns three">\
+                   <label class="inline left" for="img_datastores_raw">'+tr("Datastore")+':</label>\
+                 </div>\
+                 <div class="columns nine">\
+                   <select id="img_datastore_raw" name="img_datastore_raw"></select>\
+                 </div>\
                  <textarea id="template" rows="15" style="width:100%;"></textarea>\
                  </div>\
           <div class="reveal-footer">\
