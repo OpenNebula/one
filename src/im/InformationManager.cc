@@ -206,41 +206,50 @@ void InformationManager::timer_action()
             hpool->update(host);
         }
 
-        if ( !(host->isMonitoring()) &&
-             (host->isEnabled() || host->get_share_running_vms() != 0) )
+        if ( !(host->isMonitoring()) )
         {
-            oss.str("");
-            oss << "Monitoring host " << host->get_name()
-                << " (" << host->get_oid() << ")";
-
-            NebulaLog::log("InM",Log::INFO,oss);
-
-            imd = get(host->get_im_mad());
-
-            if (imd == 0)
+            if (!host->isEnabled() && host->get_share_running_vms() == 0 )
             {
-                oss.str("");
-                oss << "Could not find information driver " << host->get_im_mad();
-                NebulaLog::log("InM",Log::ERROR,oss);
+                host->reset_share_monitoring();
 
-                host->set_state(Host::ERROR);
+                hpool->update(host);
+                hpool->update_monitoring(host);
             }
             else
             {
-                bool update_remotes = false;
+                oss.str("");
+                oss << "Monitoring host " << host->get_name()
+                    << " (" << host->get_oid() << ")";
 
-                if ((sb.st_mtime != 0) &&
-                    (sb.st_mtime > host->get_last_monitored()))
+                NebulaLog::log("InM",Log::INFO,oss);
+
+                imd = get(host->get_im_mad());
+
+                if (imd == 0)
                 {
-                    update_remotes = true;
+                    oss.str("");
+                    oss << "Could not find information driver " << host->get_im_mad();
+                    NebulaLog::log("InM",Log::ERROR,oss);
+
+                    host->set_state(Host::ERROR);
+                }
+                else
+                {
+                    bool update_remotes = false;
+
+                    if ((sb.st_mtime != 0) &&
+                        (sb.st_mtime > host->get_last_monitored()))
+                    {
+                        update_remotes = true;
+                    }
+
+                    imd->monitor(host->get_oid(),host->get_name(),update_remotes);
+
+                    host->set_monitoring_state();
                 }
 
-                imd->monitor(host->get_oid(),host->get_name(),update_remotes);
-
-            	host->set_monitoring_state();
+                hpool->update(host);
             }
-
-            hpool->update(host);
         }
 
         host->unlock();
