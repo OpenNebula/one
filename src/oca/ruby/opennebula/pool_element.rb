@@ -266,4 +266,29 @@ module OpenNebula
 
         return hash
     end
+
+
+    # Alternative method with better performance for huge number of timestamps.
+    # For reasonable amounts of data, the current method is quicker
+=begin
+    def self.process_monitoring(xmldoc, root_elem, timestamp_elem, oid, xpath_expressions)
+        hash = {}
+
+        xpath_expressions.each { |xpath|
+            hash[xpath] = []
+        }
+
+        xmldoc.each("#{root_elem}[ID=#{oid}]") do |elem|
+            timestamp = elem[timestamp_elem]
+
+            xpath_expressions.each { |xpath|
+                xpath_value = elem[xpath]
+
+                hash[xpath] << [timestamp, xpath_value] if !xpath_value.nil?
+            }
+        end
+
+        return hash
+    end
+=end
 end
