@@ -33,10 +33,12 @@ int VMTemplatePool::allocate (
         int *                    oid,
         string&                  error_str)
 {
-    VMTemplate *    vm_template;
-    VMTemplate *    vm_template_aux = 0;
-    string          name;
-    ostringstream   oss;
+    VMTemplate *  vm_template;
+    VMTemplate *  aux = 0;
+
+    string  name;
+
+    ostringstream oss;
 
     // ------------------------------------------------------------------------
     // Build a new VMTemplate object
@@ -46,15 +48,17 @@ int VMTemplatePool::allocate (
     // Check name
     vm_template->get_template_attribute("NAME", name);
 
-    if ( !name.empty() )
+    if ( !PoolObjectSQL::name_is_valid(name, error_str) )
     {
-        // Check for duplicates
-        vm_template_aux = get(name,uid,false);
+        goto error_name;
+    }
 
-        if( vm_template_aux != 0 )
-        {
+    // Check for duplicates
+    aux = get(name, uid, false);
+
+    if( aux != 0 )
+    {
             goto error_duplicated;
-        }
     }
 
     // ------------------------------------------------------------------------
@@ -67,13 +71,12 @@ int VMTemplatePool::allocate (
 
 
 error_duplicated:
-    oss << "NAME is already taken by TEMPLATE "
-        << vm_template_aux->get_oid() << ".";
-
-    delete vm_template;
-
-    *oid = -1;
+    oss << "NAME is already taken by TEMPLATE " << aux->get_oid() << ".";
     error_str = oss.str();
+
+error_name:
+    delete vm_template;
+    *oid = -1;
 
     return *oid;
 }

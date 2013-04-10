@@ -161,14 +161,9 @@ int HostPool::allocate (
     Host *        host;
     ostringstream oss;
 
-    if ( hostname.empty() )
+    if ( !PoolObjectSQL::name_is_valid(hostname, error_str) )
     {
         goto error_name;
-    }
-
-    if ( hostname.length() > 128 )
-    {
-        goto error_name_length;
     }
 
     if ( im_mad_name.empty() )
@@ -210,32 +205,25 @@ int HostPool::allocate (
 
     return *oid;
 
-error_name:
-    oss << "NAME cannot be empty.";
-    goto error_common;
-
-error_name_length:
-    oss << "NAME is too long; max length is 128 chars.";
-    goto error_common;
-
 error_im:
-    oss << "IM_MAD_NAME cannot be empty.";
+    error_str = "IM_MAD_NAME cannot be empty.";
     goto error_common;
 
 error_vmm:
-    oss << "VMM_MAD_NAME cannot be empty.";
+    error_str = "VMM_MAD_NAME cannot be empty.";
     goto error_common;
 
 error_vnm:
-    oss << "VNM_MAD_NAME cannot be empty.";
+    error_str = "VNM_MAD_NAME cannot be empty.";
     goto error_common;
 
 error_duplicated:
     oss << "NAME is already taken by HOST " << host->get_oid() << ".";
+    error_str = oss.str();
 
+error_name:
 error_common:
     *oid = -1;
-    error_str = oss.str();
 
     return *oid;
 }
