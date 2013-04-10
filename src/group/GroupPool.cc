@@ -119,7 +119,6 @@ error_duplicated:
     error_str = oss.str();
 
 error_name:
-error_common:
     *oid = -1;
 
     return *oid;

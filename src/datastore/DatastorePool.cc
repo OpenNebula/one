@@ -216,7 +216,6 @@ error_duplicated:
     error_str = oss.str();
 
 error_name:
-error_common:
     delete ds;
     *oid = -1;
 
