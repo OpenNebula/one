@@ -647,38 +647,54 @@ function hostElementArray(host_json){
 
     // Generate CPU progress bars
     var max_cpu = parseInt(host.HOST_SHARE.MAX_CPU);
-    if (!max_cpu) {
-        max_cpu = 100
-    }
+
+    var info_str;
 
     var allocated_cpu = parseInt(host.HOST_SHARE.CPU_USAGE);
-    var ratio_allocated_cpu = Math.round((allocated_cpu / max_cpu) * 100);
 
-    var info_str = allocated_cpu + ' / ' + max_cpu + ' (' + ratio_allocated_cpu + '%)';
+    if (max_cpu > 0) {
+        var ratio_allocated_cpu = Math.round((allocated_cpu / max_cpu) * 100);
+        info_str = allocated_cpu + ' / ' + max_cpu + ' (' + ratio_allocated_cpu + '%)';
+    } else {
+        info_str = "";
+    }
+
     var pb_allocated_cpu = quotaBarHtml(allocated_cpu, max_cpu, info_str);
 
     var real_cpu = parseInt(host.HOST_SHARE.USED_CPU);
-    var ratio_real_cpu = Math.round((real_cpu / max_cpu) * 100);
 
-    var info_str = real_cpu + ' / ' + max_cpu + ' (' + ratio_real_cpu + '%)';
+    if (max_cpu > 0) {
+        var ratio_real_cpu = Math.round((real_cpu / max_cpu) * 100);
+        info_str = real_cpu + ' / ' + max_cpu + ' (' + ratio_real_cpu + '%)';
+    } else {
+        info_str = "";
+    }
+
     var pb_real_cpu = quotaBarHtml(real_cpu, max_cpu, info_str);
 
     // Generate MEM progress bars
     var max_mem = parseInt(host.HOST_SHARE.MAX_MEM);
-    if (!max_mem) {
-        max_mem = 100
-    }
 
     var allocated_mem = parseInt(host.HOST_SHARE.MEM_USAGE);
-    var ratio_allocated_mem = Math.round((allocated_mem / max_mem) * 100);
 
-    var info_str = humanize_size(allocated_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_allocated_mem + '%)';
+    if (max_mem > 0) {
+        var ratio_allocated_mem = Math.round((allocated_mem / max_mem) * 100);
+        info_str = humanize_size(allocated_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_allocated_mem + '%)';
+    } else {
+        info_str = humanize_size(allocated_mem) + ' / -';
+    }
+
     var pb_allocated_mem = quotaBarHtml(allocated_mem, max_mem, info_str);
 
     var real_mem = parseInt(host.HOST_SHARE.USED_MEM);
-    var ratio_real_mem = Math.round((real_mem / max_mem) * 100);
 
-    var info_str = humanize_size(real_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_real_mem + '%)';
+    if (max_mem > 0) {
+        var ratio_real_mem = Math.round((real_mem / max_mem) * 100);
+        info_str = humanize_size(real_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_real_mem + '%)';
+    } else {
+        info_str = humanize_size(real_mem) + ' / -';
+    }
+
     var pb_real_mem = quotaBarHtml(real_mem, max_mem, info_str);
 
     var state_simple = OpenNebula.Helper.resource_state("host_simple",host.STATE);
