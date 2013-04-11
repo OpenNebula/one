@@ -569,11 +569,6 @@ function datastoreElements() {
 function datastoreElementArray(element_json){
     var element = element_json.DATASTORE;
 
-    var type = "No";
-
-    if (element.TEMPLATE.TYPE)
-      type = element.TEMPLATE.TYPE.toUpperCase() == 'SYSTEM_DS' ? 'Yes' : 'No'
-
     return [
         '<input class="check_item" type="checkbox" id="datastore_'+
                              element.ID+'" name="selected_items" value="'+
@@ -586,7 +581,7 @@ function datastoreElementArray(element_json){
         element.BASE_PATH,
         element.TM_MAD,
         element.DS_MAD,
-        type
+        element.TEMPLATE.TYPE.toUpperCase()
     ];
 }
 
@@ -595,7 +590,7 @@ function updateDatastoreSelect(){
                                           1,
                                           4,
                                           [9],//system ds
-                                          ['Yes'], //filter sys datastores
+                                          ['SYSTEM_DS'], //filter out sys datastores
                                           true
                                          );
 };
