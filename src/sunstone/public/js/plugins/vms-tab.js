@@ -1114,45 +1114,56 @@ function updateVMachinesView(request, vmachine_list){
     failed_vms = 0;
     off_vms = 0;
 
-    if (typeof (vm_monitoring_data) == 'undefined'){
-        vm_monitoring_data = {};
-        
-    }
 
-    var metrics = ["NET_TX", "NET_RX"];
+    var do_vm_monitoring_graphs = true;
 
-    $.each(vmachine_list,function(){
-        vmachine_list_array.push( vMachineElementArray(this));
+    if (!do_vm_monitoring_graphs){
 
-        var empty = false;
-        var time = this.VM.LAST_POLL;
+        $.each(vmachine_list,function(){
+            vmachine_list_array.push( vMachineElementArray(this));
+        });
 
-        if (time != "0"){
+    } else {
+        if (typeof (vm_monitoring_data) == 'undefined'){
+            vm_monitoring_data = {};
+        }
 
-            if (vm_monitoring_data[this.VM.ID] === undefined){
-                empty = true;
+        var metrics = ["NET_TX", "NET_RX"];
 
-                vm_monitoring_data[this.VM.ID] = {};
+        $.each(vmachine_list,function(){
+            vmachine_list_array.push( vMachineElementArray(this));
+
+            var empty = false;
+            var time = this.VM.LAST_POLL;
+
+            if (time != "0"){
+
+                if (vm_monitoring_data[this.VM.ID] === undefined){
+                    empty = true;
+
+                    vm_monitoring_data[this.VM.ID] = {};
+
+                    for (var i=0; i<metrics.length; i++) {
+                        vm_monitoring_data[this.VM.ID][metrics[i]] = [];
+                    }
+                }
 
                 for (var i=0; i<metrics.length; i++) {
-                    vm_monitoring_data[this.VM.ID][metrics[i]] = [];
+                    var last_time = "0";
+
+                    var mon_data = vm_monitoring_data[this.VM.ID][metrics[i]];
+
+                    if (!empty){
+                        last_time = mon_data[ mon_data.length-1 ][0];
+                    }
+
+                    if (last_time != time){
+                        mon_data.push( [time, this.VM[metrics[i]]] );
+                    }
                 }
             }
-
-            for (var i=0; i<metrics.length; i++) {
-                var last_time = "0";
-
-                if (!empty){
-                    last_time = vm_monitoring_data[this.VM.ID][metrics[i]][ vm_monitoring_data[this.VM.ID][metrics[i]].length-1 ][0];
-                }
-
-                if (last_time != time){
-                    vm_monitoring_data[this.VM.ID][metrics[i]].push(
-                        [time, this.VM[metrics[i]]] );
-                }
-            }
-        }
-    });
+        });
+    }
 
     updateView(vmachine_list_array,dataTable_vMachines);
     //SunstoneMonitoring.monitor('VM', vmachine_list)
@@ -1173,33 +1184,35 @@ function updateVMachinesView(request, vmachine_list){
     $("#off_vms", form).text(off_vms);
 
 
-    var vm_dashboard_graphs = [
-        { labels : "Network transmission",
-          monitor_resources : "NET_TX",
-          humanize_figures : true,
-          convert_from_bytes : true,
-          y_sufix : "B/s",
-          derivative : true,
-          div_graph : $("#dash_vm_net_tx_graph", $dashboard)
-        },
-        { labels : "Network reception",
-          monitor_resources : "NET_RX",
-          humanize_figures : true,
-          convert_from_bytes : true,
-          y_sufix : "B/s",
-          derivative : true,
-          div_graph : $("#dash_vm_net_rx_graph", $dashboard)
+    if (do_vm_monitoring_graphs){
+        var vm_dashboard_graphs = [
+            { labels : "Network transmission",
+              monitor_resources : "NET_TX",
+              humanize_figures : true,
+              convert_from_bytes : true,
+              y_sufix : "B/s",
+              derivative : true,
+              div_graph : $("#dash_vm_net_tx_graph", $dashboard)
+            },
+            { labels : "Network reception",
+              monitor_resources : "NET_RX",
+              humanize_figures : true,
+              convert_from_bytes : true,
+              y_sufix : "B/s",
+              derivative : true,
+              div_graph : $("#dash_vm_net_rx_graph", $dashboard)
+            }
+        ];
+
+        var vm_monitoring_data_copy = jQuery.extend(true, {}, vm_monitoring_data);
+
+        // TODO: plot only when the dashboard is visible
+        for(var i=0; i<vm_dashboard_graphs.length; i++) {
+            plot_totals(
+                vm_monitoring_data_copy,
+                vm_dashboard_graphs[i]
+            );
         }
-    ];
-
-    var vm_monitoring_data_copy = jQuery.extend(true, {}, vm_monitoring_data);
-
-    // TODO: plot only when the dashboard is visible
-    for(var i=0; i<vm_dashboard_graphs.length; i++) {
-        plot_totals(
-            vm_monitoring_data_copy,
-            vm_dashboard_graphs[i]
-        );
     }
 };
 
