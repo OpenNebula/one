@@ -761,6 +761,15 @@ function updateHostsView (request,host_list){
 
     var do_host_monitoring_graphs = true;
 
+    if (typeof (last_host_monitoring_time) == 'undefined'){
+        last_host_monitoring_time = 0;
+    }
+
+    // If the refresh is too frecuent, ignore it. In seconds
+    if (now < last_host_monitoring_time + 60){
+        do_host_monitoring_graphs = false;
+    }
+
     if (!do_host_monitoring_graphs){
 
         $.each(host_list,function(){
@@ -775,6 +784,8 @@ function updateHostsView (request,host_list){
             host_monitoring_data = {};
             empty = true;
         }
+
+        last_host_monitoring_time = now;
 
         var metrics = ["CPU_USAGE", "USED_CPU", "MAX_CPU", "MEM_USAGE", "USED_MEM", "MAX_MEM"];
 
@@ -793,28 +804,19 @@ function updateHostsView (request,host_list){
 
             for (var i=0; i<metrics.length; i++) {
 
-                var last_time = "0";
-
                 var mon_data = host_monitoring_data[this.HOST.ID][metrics[i]];
 
-                if (mon_data.length > 0){
-                    last_time = mon_data[ mon_data.length-1 ][0];
-                }
-
-                // If the refresh is too frecuent, ignore it. In seconds
-                if (now > last_time + 59){
-
-                    // The first time the pool is retrieved we add another point
-                    // to show something in the dashboard as soon as the user
-                    // logs in
-                    if (empty){
-                        mon_data.push(
-                            [now - 60, this.HOST.HOST_SHARE[metrics[i]]] );
-                    }
-
+                // The first time the pool is retrieved we add another point
+                // to show something in the dashboard as soon as the user
+                // logs in
+                if (empty){
                     mon_data.push(
-                        [now, this.HOST.HOST_SHARE[metrics[i]]] );
+                        [now - 60, this.HOST.HOST_SHARE[metrics[i]]] );
                 }
+
+                mon_data.push(
+                    [now, this.HOST.HOST_SHARE[metrics[i]]] );
+            
             }
         });
     }
