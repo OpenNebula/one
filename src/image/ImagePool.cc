@@ -94,14 +94,9 @@ int ImagePool::allocate (
     // -------------------------------------------------------------------------
     img->get_template_attribute("NAME", name);
 
-    if ( name.empty() )
+    if ( !PoolObjectSQL::name_is_valid(name, error_str) )
     {
         goto error_name;
-    }
-
-    if ( name.length() > 128 )
-    {
-        goto error_name_length;
     }
 
     img->get_template_attribute("TYPE", type);
@@ -198,37 +193,27 @@ int ImagePool::allocate (
 
     return *oid;
 
-error_name:
-    oss << "NAME cannot be empty.";
-    goto error_common;
-
-error_name_length:
-    oss << "NAME is too long; max length is 128 chars.";
-    goto error_common;
-
 error_types_missmatch_file:
-    oss << "Only IMAGES of type KERNEL, RAMDISK and CONTEXT can be registered"
-        " in a FILE_DS datastore";
+    error_str = "Only IMAGES of type KERNEL, RAMDISK and CONTEXT can be"
+                " registered in a FILE_DS datastore";
     goto error_common;
 
 error_types_missmatch_image:
-    oss << "IMAGES of type KERNEL, RAMDISK and CONTEXT cannot be registered"
-        " in an IMAGE_DS datastore";
+    error_str = "IMAGES of type KERNEL, RAMDISK and CONTEXT cannot be registered"
+                " in an IMAGE_DS datastore";
     goto error_common;
 
 error_duplicated:
-    oss << "NAME is already taken by IMAGE "
-        << img_aux->get_oid() << ".";
+    oss << "NAME is already taken by IMAGE " << img_aux->get_oid() << ".";
+    error_str = oss.str();
+
     goto error_common;
 
+error_name:
 error_clone_state:
-    goto error_common;
-
 error_common:
     delete img;
-
     *oid = -1;
-    error_str = oss.str();
 
     return *oid;
 }

@@ -70,6 +70,12 @@ var create_template_tmpl = '<div class="panel">'+
   '<h3><small id="create_template_header">'+tr("Create VM Template")+'</small><small id="update_template_header" class="hidden">'+tr("Update VM Template")+'</small></h3>'+
   '</div>'+
   '<div class="reveal-body">'+
+  '<dl class="tabs">' + 
+    '<dd class="active"><a href="#easy">'+tr("Wizard")+'</a></dd>' +
+    '<dd><a href="#manual">'+tr("Advanced mode")+'</a></dd>' +
+  '</dl>' +
+  '<ul class="tabs-content">' +
+  '<li class="active" id="easyTab">' +
   '<form class="custom creation">'+
   '<div class="">'+
     '<div class="columns three">'+
@@ -88,6 +94,22 @@ var create_template_tmpl = '<div class="panel">'+
       '<button class="button secondary radius" id="template_template_reset_button" value="reset" type="reset">'+tr("Reset")+'</button>'+
       '<button class="button secondary hidden radius" id="template_template_reset_button_update" value="reset" type="reset">'+tr("Reset")+'</button>'+
       '<button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>'+
+    '</li>' +
+    '<li id="manualTab">' + 
+     '<form id="create_template_form_manual" action="">' +
+     '<h4><small>'+tr("Write the Virtual Machine template here")+'</small></h4>' +
+       '<textarea id="template" rows="15" style="width:100%;"></textarea>' + 
+        '<div class="reveal-footer">' +
+        '<hr>' + 
+        '<div class="form_buttons">' + 
+         '<button class="button success right radius" id="create_template_submit_manual" value="template/create">'+tr("Create")+'</button>' + 
+                 '<button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>' +
+                '<button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>' +
+            '</div>' +
+          '</div>' +
+          '</form>' +
+        '</li>' +
+    '</ul>' +
   '</div>'+
   '<a class="close-reveal-modal">&#215;</a>'+
   '</form>'+
@@ -752,9 +774,12 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
         '</div>'+
       '</div>'+
       '<hr>'+
-        '<div id="disk_type" class="image vm_param">'+
-          '<div class="row collapse ">'+
-            '<div class="five columns push-seven">'+
+        '<div id="disk_type" class="vm_param image">'+
+          '<div class="row collapse">'+
+            '<div class="seven columns">' +
+               '<button id="refresh_template_images_table_button_class'+str_disk_tab_id+'" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
+            '</div>' + 
+            '<div class="five columns">'+
               '<input id="'+str_disk_tab_id+'_search" type="text" placeholder="'+tr("Search")+'"/>'+
             '</div>'+
           '</div>'+
@@ -904,6 +929,26 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
           '</div>'+
       '</div>'+
     '</div>';
+
+    $("#refresh_template_images_table_button_class"+str_disk_tab_id).die();
+
+    $("#refresh_template_images_table_button_class"+str_disk_tab_id).live('click', function(){
+        // Retrieve the images to fill the datatable
+        OpenNebula.Image.list({
+          timeout: true,
+          success: function (request, images_list){
+            var image_list_array = [];
+
+            $.each(images_list,function(){
+             image_list_array.push(imageElementArray(this));
+            });
+            
+            var dataTable_template_images = $('table[id='+str_datatable_id+']').dataTable();
+            updateView(image_list_array, dataTable_template_images);
+            }
+        });
+      }
+    );
 
     return html;
 }
@@ -1098,18 +1143,14 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
     });
 
     setupTips(disk_section);
-    //$('button',disk_section).button();
 }
-
-
-
-
-
-
 
 
 function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
   var html = '<div class="row">'+
+    '<div class="seven columns">' +
+       '<button id="refresh_template_nic_table_button_class'+str_nic_tab_id+'" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
+    '</div>' + 
     '<div class="five columns push-seven">'+
       '<input id="'+str_nic_tab_id+'_search" type="text" placeholder="'+tr("Search")+'"/>'+
     '</div>'+
@@ -1243,6 +1284,25 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
       '</div>'+
     '</div>';
 
+    $("#refresh_template_nic_table_button_class"+str_nic_tab_id).die();
+
+    $("#refresh_template_nic_table_button_class"+str_nic_tab_id).live('click', function(){
+        // Retrieve the nics to fill the datatable
+        OpenNebula.Network.list({
+          timeout: true,
+          success: function (request, networks_list){
+          var network_list_array = [];
+
+          $.each(networks_list,function(){
+             network_list_array.push(vNetworkElementArray(this));
+          });
+          var dataTable_template_networks = $('table[id='+str_datatable_id+']').dataTable();
+          updateView(network_list_array, dataTable_template_networks);
+          }
+        });
+      }
+    );
+
     return html;
 }
 
@@ -1281,7 +1341,6 @@ function setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id) {
       },
       error: onError
     });
-
 
 
     $('#'+str_nic_tab_id+'_search', nic_section).keyup(function(){
@@ -1675,10 +1734,14 @@ function setupCreateTemplateDialog(){
         $(html_tab_content).appendTo($("ul#template_create_storage_tabs_content"));
 
         var a = $("<dd>\
-          <a href='#"+str_disk_tab_id+"'>"+tr("DISK")+" <i class='icon-remove-sign remove-tab'></i></a>\
+          <a id='disk_tab"+str_disk_tab_id+"' href='#"+str_disk_tab_id+"'>"+tr("DISK")+" <i class='icon-remove-sign remove-tab'></i></a>\
         </dd>").appendTo($("dl#template_create_storage_tabs"));
 
         $(document).foundationTabs("set_tab", a);
+
+        $("#disk_tab"+str_disk_tab_id).live('click', function(){
+          $("#refresh_template_images_table_button_class"+str_disk_tab_id).click();
+        });
 
 
         var disk_section = $('li#' +str_disk_tab_id+'Tab', dialog);
@@ -1741,12 +1804,15 @@ function setupCreateTemplateDialog(){
         '</li>'
 
       // Append the new div containing the tab and add the tab to the list
-      var a = $("<dd><a href='#"+str_nic_tab_id+"'>"+tr("NIC")+" <i class='icon-remove-sign remove-tab'></i></a></dd>").appendTo($("dl#template_create_network_tabs"));
+      var a = $("<dd><a id='nic_tab"+str_nic_tab_id+"' href='#"+str_nic_tab_id+"'>"+tr("NIC")+" <i class='icon-remove-sign remove-tab'></i></a></dd>").appendTo($("dl#template_create_network_tabs"));
 
       $(html_tab_content).appendTo($("ul#template_create_network_tabs_content"));
 
       $(document).foundationTabs("set_tab", a);
 
+      $('#nic_tab'+str_nic_tab_id).live('click', function(){
+           $("#refresh_template_nic_table_button_class"+str_nic_tab_id).click();
+      });
 
       var nic_section = $('li#' + str_nic_tab_id + 'Tab', dialog);
       setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id)
@@ -1854,6 +1920,9 @@ function setupCreateTemplateDialog(){
                 '<hr>'+
                 '<div class="row kernel_ds">'+
                   '<div class="row collapse ">'+
+                      '<div class="seven columns">' +
+                         '<button id="refresh_kernel_table" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
+                      '</div>' + 
                     '<div class="five columns push-seven">'+
                       '<input id="kernel_search" type="text" placeholder="'+tr("Search")+'"/>'+
                     '</div>'+
@@ -1911,6 +1980,9 @@ function setupCreateTemplateDialog(){
                 '<hr>'+
                 '<div class="row initrd_ds">'+
                   '<div class="row collapse ">'+
+                      '<div class="seven columns">' +
+                         '<button id="refresh_ramdisk_table" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
+                      '</div>' + 
                     '<div class="five columns push-seven">'+
                       '<input id="initrd_search" type="text" placeholder="'+tr("Search")+'"/>'+
                     '</div>'+
@@ -1959,6 +2031,52 @@ function setupCreateTemplateDialog(){
             '</ul>'+
       '</form>'+
         '</li>'
+
+      $("#refresh_kernel_table").die();
+
+      $("#refresh_kernel_table").live('click', function(){
+
+          OpenNebula.Image.list({
+          timeout: true,
+          success: function (request, images_list){
+              var image_list_array = [];
+
+              $.each(images_list,function(){
+                var file = fileElementArray(this);
+                if (file)
+                  image_list_array.push(file);
+              });
+
+              var dataTable_template_kernel = $('#datatable_kernel').dataTable();
+              updateView(image_list_array, dataTable_template_kernel);
+              dataTable_template_kernel.fnFilter("KERNEL", 7)
+          },
+          error: onError
+        });
+        });
+
+      $("#refresh_ramdisk_table").die();
+
+      $("#refresh_ramdisk_table").live('click', function(){
+
+           OpenNebula.Image.list({
+            timeout: true,
+            success: function (request, images_list){
+                var image_list_array = [];
+
+                $.each(images_list,function(){
+                  var file = fileElementArray(this);
+                  if (file)
+                    image_list_array.push(file);
+                });
+
+                var datTable_template_initrd = $('#datatable_initrd').dataTable();
+                updateView(image_list_array, datTable_template_initrd);
+                datTable_template_initrd.fnFilter("RAMDISK", 7)
+            },
+            error: onError
+           });
+        });
 
 
         $("<dd><a href='#os'>OS Booting</a></dd>").appendTo($("dl#template_create_tabs"));
@@ -2373,6 +2491,9 @@ function setupCreateTemplateDialog(){
                     '</li>'+
                 '<li class="wizard_internal_tab" id="filesTab">'+
                         '<div class="row collapse ">'+
+                          '<div class="seven columns">' +
+                             '<button id="refresh_context_table" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
+                          '</div>' + 
                           '<div class="five columns push-seven">'+
                             '<input id="files_search" type="text" placeholder="'+tr("Search")+'"/>'+
                           '</div>'+
@@ -2440,6 +2561,26 @@ function setupCreateTemplateDialog(){
         '</form>'+
       '</li>'
 
+      $("#refresh_context_table").die();
+
+      $("#refresh_context_table").live('click', function(){
+          // Retrieve the nics to fill the datatable
+          OpenNebula.Image.list({
+            timeout: true,
+            success: function (request, files_list){
+              var files_list_array = [];
+
+              $.each(files_list,function(){
+                var image = fileElementArray(this);
+                if (image)
+                  files_list_array.push(image);
+              });
+              var datTable_template_context = $('table[id="datatable_context"]').dataTable();
+              updateView(files_list_array, datTable_template_context);
+            },
+            error: onError
+          });
+        });
 
         $("<dd><a href='#context'>Context</a></dd>").appendTo($("dl#template_create_tabs"));
         $(html_tab_content).appendTo($("ul#template_create_tabs_content"));
@@ -2623,6 +2764,9 @@ function setupCreateTemplateDialog(){
                 '<hr>'+
                 '<div id="req_type" class="host_select row">'+
                     '<div class="row collapse ">'+
+                      '<div class="seven columns">' +
+                         '<button id="refresh_hosts_placement" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
+                      '</div>' + 
                       '<div class="five columns push-seven">'+
                         '<input id="hosts_search" type="text" placeholder="'+tr("Search")+'"/>'+
                       '</div>'+
@@ -2657,6 +2801,9 @@ function setupCreateTemplateDialog(){
                 '</div>'+
                 '<div id="req_type" class="cluster_select hidden row">'+
                     '<div class="row collapse ">'+
+                      '<div class="seven columns">' +
+                         '<button id="refresh_clusters_placement" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
+                      '</div>' + 
                       '<div class="five columns push-seven">'+
                         '<input id="clusters_search" type="text" placeholder="'+tr("Search")+'"/>'+
                       '</div>'+
@@ -2732,6 +2879,28 @@ function setupCreateTemplateDialog(){
           '</ul>'+
       '</form>'+
     '</li>'
+
+    $("#refresh_hosts_placement").die();
+
+    $("#refresh_hosts_placement").live('click', function(){
+        // Retrieve the hosts to fill the datatable
+        OpenNebula.Host.list({
+        timeout: true,
+        success: function (request, host_list){
+            var host_list_array = [];
+
+            $.each(host_list,function(){
+                //Grab table data from the host_list
+                host_list_array.push(hostElementArray(this));
+            });
+
+            var dataTable_template_hosts = $("#datatable_template_hosts",dialog).dataTable();
+            updateView(host_list_array, dataTable_template_hosts);
+        },
+        error: onError
+      });
+      }
+    );
 
 
         $("<dd><a href='#scheduling'>Scheduling</a></dd>").appendTo($("dl#template_create_tabs"));
@@ -2838,6 +3007,29 @@ function setupCreateTemplateDialog(){
 
          generate_requirements();
       });
+
+    $("#refresh_clusters_placement").die();
+
+    $("#refresh_clusters_placement").live('click', function(){
+        // Retrieve the clusters to fill the datatable
+
+        OpenNebula.Cluster.list({
+          timeout: true,
+          success: function (request, cluster_list){
+            var list_array = [];
+
+            $.each(cluster_list,function(){
+                //Grab table data from the list
+                list_array.push(clusterElementArray(this));
+            });
+
+            var dataTable_template_clusters = $("#datatable_template_clusters",dialog).dataTable();
+            updateView(list_array,dataTable_template_clusters);
+          },
+          error: onError
+        });
+      }
+    );
 
       // Clusters TABLE
       dataTable_template_clusters = $("#datatable_template_clusters", dialog).dataTable({
@@ -3241,8 +3433,8 @@ function setupCreateTemplateDialog(){
         return false;
     });
     //Handle manual forms
-    $('button#create_template_form_manual',$create_template_dialog).click(function(){
-        var template = $('textarea#textarea_vm_template',$create_template_dialog).val();
+    $('button#create_template_submit_manual',$create_template_dialog).click(function(){
+        var template = $('textarea#template',$create_template_dialog).val();
 
         //wrap it in the "vm" object
         template = {"vmtemplate": {"template_raw": template}};

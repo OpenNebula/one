@@ -264,17 +264,17 @@ function setupCreateClusterDialog(){
             $('#select_cluster_hosts', dialog).hide();
           }
 
-          if(!$("td:first", this).hasClass('markrow'))
+          if(!$("td:first", this).hasClass('markrowchecked'))
           {
             selected_hosts_list[host_id]=1;
             host_row_hash[host_id]=this;
-            $(this).children().each(function(){$(this).addClass('markrow');});
+            $(this).children().each(function(){$(this).addClass('markrowchecked');});
             $('div#selected_hosts_div', dialog).append('<span id="tag_hosts_'+host_id+'" class="radius label">'+name+' <span class="icon-remove blue"></span></span> ');
           }
           else
           {
             delete selected_hosts_list[host_id];
-            $(this).children().each(function(){$(this).removeClass('markrow');});
+            $(this).children().each(function(){$(this).removeClass('markrowchecked');});
             $('div#selected_hosts_div span#tag_hosts_'+host_id, dialog).remove();
           }
 
@@ -301,17 +301,17 @@ function setupCreateClusterDialog(){
             $('#select_cluster_vnets', dialog).hide();
           }
 
-          if(!$("td:first", this).hasClass('markrow'))
+          if(!$("td:first", this).hasClass('markrowchecked'))
           {
             selected_vnets_list[vnet_id]=1;
             vnet_row_hash[vnet_id]=this;
-            $(this).children().each(function(){$(this).addClass('markrow');});
+            $(this).children().each(function(){$(this).addClass('markrowchecked');});
             $('div#selected_vnets_div', dialog).append('<span id="tag_vnets_'+vnet_id+'" class="radius label">'+name+' <span class="icon-remove blue"></span></span> ');
           }
           else
           {
             delete selected_vnets_list[vnet_id];
-            $(this).children().each(function(){$(this).removeClass('markrow');});
+            $(this).children().each(function(){$(this).removeClass('markrowchecked');});
             $('div#selected_vnets_div span#tag_vnets_'+vnet_id, dialog).remove();
           }
 
@@ -338,17 +338,17 @@ function setupCreateClusterDialog(){
             $('#select_cluster_datastores', dialog).hide();
           }
 
-          if(!$("td:first", this).hasClass('markrow'))
+          if(!$("td:first", this).hasClass('markrowchecked'))
           {
             selected_datastore_list[ds_id]=1;
             datastore_row_hash[ds_id]=this;
-            $(this).children().each(function(){$(this).addClass('markrow');});
+            $(this).children().each(function(){$(this).addClass('markrowchecked');});
             $('div#selected_datastores_div', dialog).append('<span id="tag_datastores_'+ds_id+'" class="radius label">'+name+' <span class="icon-remove blue"></span></span> ');
           }
           else
           {
             delete selected_datastore_list[ds_id];
-            $(this).children().each(function(){$(this).removeClass('markrow');});
+            $(this).children().each(function(){$(this).removeClass('markrowchecked');});
             $('div#selected_datastores_div span#tag_datastores_'+ds_id, dialog).remove();
           }
 
@@ -373,7 +373,7 @@ function setupCreateClusterDialog(){
        {
             var host_id=id.substring(10,id.length);
             delete selected_hosts_list[host_id];
-            $("td:first", host_row_hash[host_id]).parent().children().each(function(){$(this).removeClass('markrow');});
+            $("td:first", host_row_hash[host_id]).parent().children().each(function(){$(this).removeClass('markrowchecked');});
 
             if ($.isEmptyObject(selected_hosts)) {
               $('#cluster_hosts_selected',  dialog).hide();
@@ -384,7 +384,7 @@ function setupCreateClusterDialog(){
        {
             var vnet_id=id.substring(10,id.length);
             delete selected_vnets_list[vnet_id];
-            $("td:first", vnet_row_hash[vnet_id]).parent().children().each(function(){$(this).removeClass('markrow');});
+            $("td:first", vnet_row_hash[vnet_id]).parent().children().each(function(){$(this).removeClass('markrowchecked');});
 
             if ($.isEmptyObject(selected_hosts)) {
               $('#cluster_vnets_selected',  dialog).hide();
@@ -396,7 +396,7 @@ function setupCreateClusterDialog(){
        {
             var datastore_id=id.substring(15,id.length);
             delete selected_datastore_list[datastore_id];
-            $("td:first", datastore_row_hash[datastore_id]).parent().children().each(function(){$(this).removeClass('markrow');});
+            $("td:first", datastore_row_hash[datastore_id]).parent().children().each(function(){$(this).removeClass('markrowchecked');});
 
             if ($.isEmptyObject(selected_hosts)) {
               $('#cluster_datastores_selected',  dialog).hide();

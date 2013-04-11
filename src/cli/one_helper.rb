@@ -130,7 +130,9 @@ EOT
         {
             :name   => 'memory',
             :large  => '--memory memory',
-            :description => 'Memory ammount given to the VM',
+            :description => 'Memory amount given to the VM. By default the '<<
+                "unit is megabytes. To use gigabytes add a 'g', floats "<<
+                "can be used: 8g=8192, 0.5g=512",
             :format => String,
             :proc   => lambda do |o,options|
                 m=o.strip.match(/^(\d+(?:\.\d+)?)(m|mb|g|gb)?$/i)

@@ -1224,7 +1224,9 @@ void  LifeCycleManager::monitor_done_action(int vid)
 
         vm->log("LCM", Log::INFO, "New VM state is UNKNOWN");
     }
-    else if ( vm->get_lcm_state() != VirtualMachine::UNKNOWN )
+    else if ( vm->get_lcm_state() != VirtualMachine::UNKNOWN &&
+              vm->get_state() != VirtualMachine::POWEROFF &&
+              vm->get_state() != VirtualMachine::SUSPENDED )
     {
         vm->log("LCM",Log::ERROR,"monitor_done_action, VM in a wrong state");
     }

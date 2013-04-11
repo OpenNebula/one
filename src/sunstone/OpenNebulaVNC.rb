@@ -208,6 +208,13 @@ class OpenNebulaVNC
 
             sleep 1
 
+            begin
+                Process.getpgid(pid)
+
+                Process.kill('KILL', pid)
+            rescue
+            end
+
             if is_running?
                 message="VNC server is still running"
                 STDERR.puts message

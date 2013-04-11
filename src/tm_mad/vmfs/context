@@ -28,7 +28,7 @@ ARGV=("$@")
 DS_ID="${ARGV[$(($#-1))]}"
 VM_ID="${ARGV[$(($#-2))]}"
 DST="${ARGV[$(($#-3))]}"
-SRC="${ARGV[@]:0:$(($#-3))}"
+SRC=("${ARGV[@]:0:$(($#-3))}")
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
@@ -84,13 +84,22 @@ exec_and_set_error "mkdir -p $ISO_DIR" \
     "Could not create tmp dir to make context dev"
 [ -n "$ERROR" ] && exit_error
 
-for f in $SRC; do
-    case $f in
+for f in "${SRC[@]}"; do
+    case "$f" in
     http://*)
         exec_and_set_error "$WGET -P $ISO_DIR $f" "Error downloading $f"
         ;;
     *)
-        exec_and_set_error "cp -R $f $ISO_DIR" "Error copying $f to $ISO_DIR"
+        if echo "$f" | grep -q ':'; then
+            target=$(echo "$f"|cut -d':' -f2-)
+            target="'$target'"
+            f=$(echo "$f"|cut -d':' -f1)
+        else
+            target=""
+        fi
+
+        exec_and_set_error "cp -R $f $ISO_DIR/$target" \
+            "Error copying $f to $ISO_DIR"
         ;;
     esac
 

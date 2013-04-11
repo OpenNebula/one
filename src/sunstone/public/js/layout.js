@@ -38,7 +38,7 @@ function showTab(tabname,highlight_tab){
 
     //$('tbody input.check_item:checked').click();
     //$('td').removeClass('markrowchecked markrowselected');
-    last_select_row = null;
+    last_selected_row = null;
 
     if (tabname.indexOf('#') == 0)
         tabname = tabname.substring(1);

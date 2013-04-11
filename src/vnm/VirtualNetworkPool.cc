@@ -88,10 +88,12 @@ int VirtualNetworkPool::allocate (
     const string&  cluster_name,
     string&        error_str)
 {
-    VirtualNetwork *         vn;
-    VirtualNetwork *         vn_aux = 0;
-    string          name;
-    ostringstream   oss;
+    VirtualNetwork * vn;
+    VirtualNetwork * vn_aux = 0;
+
+    string name;
+
+    ostringstream oss;
 
     vn = new VirtualNetwork(uid, gid, uname, gname, umask,
                             cluster_id, cluster_name, vn_template);
@@ -99,14 +101,9 @@ int VirtualNetworkPool::allocate (
     // Check name
     vn->get_template_attribute("NAME", name);
 
-    if ( name.empty() )
+    if ( !PoolObjectSQL::name_is_valid(name, error_str) )
     {
         goto error_name;
-    }
-
-    if ( name.length() > 128 )
-    {
-        goto error_name_length;
     }
 
     // Check for duplicates
@@ -121,24 +118,14 @@ int VirtualNetworkPool::allocate (
 
     return *oid;
 
-error_name:
-    oss << "NAME cannot be empty.";
-
-    goto error_common;
-
-error_name_length:
-    oss << "NAME is too long; max length is 128 chars.";
-    goto error_common;
 
 error_duplicated:
-    oss << "NAME is already taken by NET "
-        << vn_aux->get_oid() << ".";
-
-error_common:
-    delete vn;
-
-    *oid = -1;
+    oss << "NAME is already taken by NET " << vn_aux->get_oid() << ".";
     error_str = oss.str();
+
+error_name:
+    delete vn;
+    *oid = -1;
 
     return *oid;
 }

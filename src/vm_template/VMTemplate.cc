@@ -75,34 +75,17 @@ const char * VMTemplate::db_bootstrap =
 
 int VMTemplate::insert(SqlDB *db, string& error_str)
 {
-    int             rc;
-
     // ---------------------------------------------------------------------
     // Check default attributes
     // ---------------------------------------------------------------------
 
     erase_template_attribute("NAME", name);
 
-    if ( name.empty() == true )
-    {
-        ostringstream  oss;
-
-        oss << "template-" << oid;
-        name = oss.str();
-    }
-    else if ( name.length() > 128 )
-    {
-        error_str = "NAME is too long; max length is 128 chars.";
-        return -1;
-    }
-
     // ------------------------------------------------------------------------
     // Insert the Template
     // ------------------------------------------------------------------------
 
-    rc = insert_replace(db, false, error_str);
-
-    return rc;
+    return insert_replace(db, false, error_str);
 }
 
 /* ------------------------------------------------------------------------ */

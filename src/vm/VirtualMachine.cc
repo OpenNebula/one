@@ -281,10 +281,6 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     {
         prefix = "one";
     }
-    else
-    {
-        obj_template->add("TEMPLATE_NAME", prefix);
-    }
 
     if (name.empty() == true)
     {
@@ -292,9 +288,10 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         oss << prefix << "-" << oid;
         name = oss.str();
     }
-    else if (name.length() > 128)
+
+    if ( !PoolObjectSQL::name_is_valid(name, error_str) )
     {
-        goto error_name_length;
+        goto error_name;
     }
 
     this->name = name;
@@ -427,9 +424,6 @@ error_leases_rollback:
     release_network_leases();
     goto error_common;
 
-error_os:
-    goto error_common;
-
 error_cpu:
     error_str = "CPU attribute must be a positive float or integer value.";
     goto error_common;
@@ -442,10 +436,8 @@ error_memory:
     error_str = "MEMORY attribute must be a positive integer value.";
     goto error_common;
 
-error_name_length:
-    error_str = "NAME is too long; max length is 128 chars.";
-    goto error_common;
-
+error_os:
+error_name:
 error_common:
     NebulaLog::log("ONE",Log::ERROR, error_str);
 
@@ -706,7 +698,9 @@ int VirtualMachine::parse_context(string& error_str)
 
                 if ( img != 0 )
                 {
-                    oss_parsed << img->get_source() << " ";
+                    oss_parsed << img->get_source() << ":'"
+                               << img->get_name() << "' ";
+
                     type = img->get_type();
 
                     img->unlock();
