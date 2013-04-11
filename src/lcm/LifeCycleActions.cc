@@ -844,12 +844,12 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
     if (dispose)
     {
         vm->set_state(VirtualMachine::CLEANUP_DELETE);
-        vm->set_action(History::DESTROY_ACTION);
+        vm->set_action(History::DELETE_ACTION);
     }
     else
     {
         vm->set_state(VirtualMachine::CLEANUP_RESUBMIT);
-        vm->set_action(History::DESTROY_RECREATE_ACTION);
+        vm->set_action(History::DELETE_RECREATE_ACTION);
     }
 
     vm->set_resched(false);

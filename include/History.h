@@ -50,8 +50,8 @@ public:
         SUSPEND_ACTION,
         RESUME_ACTION,
         BOOT_ACTION,
-        DESTROY_ACTION,
-        DESTROY_RECREATE_ACTION,
+        DELETE_ACTION,
+        DELETE_RECREATE_ACTION,
         REBOOT_ACTION,
         REBOOT_HARD_ACTION,
         RESCHED_ACTION,
@@ -102,11 +102,11 @@ public:
             case BOOT_ACTION:
                 st = "boot";
             break;
-            case DESTROY_ACTION:
-                st = "destroy";
+            case DELETE_ACTION:
+                st = "delete";
             break;
-            case DESTROY_RECREATE_ACTION:
-                st = "destroy-recreate";
+            case DELETE_RECREATE_ACTION:
+                st = "delete-recreate";
             break;
             case REBOOT_ACTION:
                 st = "reboot";
@@ -184,13 +184,13 @@ public:
         {
             action = BOOT_ACTION;
         }
-        else if (st == "destroy")
+        else if (st == "delete")
         {
-            action = DESTROY_ACTION;
+            action = DELETE_ACTION;
         }
-        else if (st == "destroy-recreate")
+        else if (st == "delete-recreate")
         {
-            action = DESTROY_RECREATE_ACTION;
+            action = DELETE_RECREATE_ACTION;
         }
         else if (st == "reboot")
         {

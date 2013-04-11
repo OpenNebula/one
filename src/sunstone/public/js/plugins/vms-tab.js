@@ -853,13 +853,13 @@ var vm_buttons = {
 
     "VM.delete" : {
         type: "confirm",
-        text: tr("Destroy"),
+        text: tr("Delete"),
         layout: "vmsdelete_buttons",
         tip: tr("This will delete the selected VMs from the database")
     },
     "VM.resubmit" : {
         type: "confirm",
-        text: tr("Destroy") + ' <span class="label secondary radius">recreate</span>',
+        text: tr("Delete") + ' <span class="label secondary radius">recreate</span>',
         layout: "vmsrepeat_buttons",
         tip: tr("This will resubmits VMs to PENDING state")
     },
@@ -1577,7 +1577,7 @@ function printActionsTable(vm_info)
                                 <option value="suspend">' + tr("suspend") + '</option>\
                                 <option value="resume">' + tr("resume") + '</option>\
                                 <option value="boot">' + tr("boot") + '</option>\
-                                <option value="destroy-recreate">' + tr("destroy-recreate") + '</option>\
+                                <option value="delete-recreate">' + tr("delete-recreate") + '</option>\
                                 <option value="reboot">' + tr("reboot") + '</option>\
                                 <option value="reboot-hard">' + tr("reboot-hard") + '</option>\
                                 <option value="poweroff">' + tr("poweroff") + '</option>\

@@ -90,7 +90,7 @@ done
 sleep 5
 
 onevm migrate --live 0 0
-onevm destroy 1
+onevm delete 1
 onevm poweroff 2
 
 sleep 5
