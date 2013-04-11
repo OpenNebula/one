@@ -1186,11 +1186,6 @@ module OneDBFsck
             end
         }
 
-        if ( cpu_used == 0.0 && mem_used == 0 && vms_used == 0 )
-            doc.root.delete_element("VM_QUOTA")
-            doc.root.add_element("VM_QUOTA")
-        end
-
 
         # VNet quotas
 
