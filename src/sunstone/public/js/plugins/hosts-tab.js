@@ -783,13 +783,28 @@ function updateHostsView (request,host_list){
 
         for (var i=0; i<metrics.length; i++) {
 
-            if (empty){
-                host_monitoring_data[this.HOST.ID][metrics[i]].push(
-                    [now - 60, this.HOST.HOST_SHARE[metrics[i]]] );                
+            var last_time = "0";
+
+            var mon_data = host_monitoring_data[this.HOST.ID][metrics[i]];
+
+            if (mon_data.length > 0){
+                last_time = mon_data[ mon_data.length-1 ][0];
             }
 
-            host_monitoring_data[this.HOST.ID][metrics[i]].push(
-                [now, this.HOST.HOST_SHARE[metrics[i]]] );
+            // If the refresh is too frecuent, ignore it
+            if (now > last_time + 59){
+
+                // The first time the pool is retrieved we add another point
+                // to show something in the dashboard as soon as the user
+                // logs in
+                if (empty){
+                    mon_data.push(
+                        [now - 60, this.HOST.HOST_SHARE[metrics[i]]] );
+                }
+
+                mon_data.push(
+                    [now, this.HOST.HOST_SHARE[metrics[i]]] );
+            }
         }
     });
 
