@@ -1370,7 +1370,8 @@ function updateTemplateInfo(request,template){
              </tr>\
             </table>\
         </div>\
-        <div class="six columns">' + insert_permissions_table("Template",
+        <div class="six columns">' + insert_permissions_table('templates-tab',
+                                                              "Template",
                                                               template_info.ID,
                                                               template_info.UNAME,
                                                               template_info.GNAME,
@@ -2250,7 +2251,7 @@ function setupCreateTemplateDialog(){
                 '</div>'+
               '</div>'+
               '<hr>'+
-              '<div class="row">'+
+              '<div class="">'+
               '<table id="input_table" class="twelve">'+
                  '<thead>'+
                    '<tr>'+
@@ -2332,7 +2333,7 @@ function setupCreateTemplateDialog(){
                     '<div class="six columns">'+
                         '<fieldset>'+
                           '<legend>'+tr("SSH")+'</legend>'+
-                          '<div class="row">'+
+                          '<div class="">'+
                             '<div class="columns one">'+
                                 '<input type="checkbox" name="ssh_context" id="ssh_context"  checked>'+
                             '</div>'+
@@ -2343,20 +2344,22 @@ function setupCreateTemplateDialog(){
                                 '<div class="tip">'+tr("Add an ssh public key to the context. If the Public Key textarea is empty then the user variable SSH_PUBLIC_KEY will be used.")+'</div>'+
                             '</div>'+
                           '</div>'+
-                          '<div class="row">'+
-                            '<div class="ten columns">'+
+                          '<div class="">'+
+                            '<div class="twelve columns">'+
                                 '<label for="ssh_puclic_key"> '+tr("Public Key")+':</label>'+
                             '</div>'+
                           '</div>'+
-                          '<div class="row">'+
+                          '<div class="">'+
+                            '<div class="twelve columns">'+
                             '<textarea rows="4" type="text" id="ssh_puclic_key" name="ssh_puclic_key" />'+
+                            '</div>'+
                           '</div>'+
                         '</fieldset>'+
                     '</div>'+
                     '<div class="six columns">'+
                         '<fieldset>'+
                             '<legend>'+tr("Network")+'</legend>'+
-                            '<div class="row">'+
+                            '<div class="">'+
                               '<div class="columns one">'+
                                   '<input type="checkbox" name="network_context" id="network_context" checked>'+
                               '</div>'+
@@ -3041,13 +3044,33 @@ function setupCreateTemplateDialog(){
         $('#update_template_header', $create_template_dialog).show();
     });
 
-    add_capacityTab();
-    add_disks_tab();
-    add_nics_tab();
-    add_osTab();
-    add_ioTab();
-    add_contextTab();
-    add_schedulingTab();
+    if (Config.isTemplateCreationTabEnabled('general')){
+      add_capacityTab();
+    }
+
+    if (Config.isTemplateCreationTabEnabled('storage')){
+      add_disks_tab();
+    }
+
+    if (Config.isTemplateCreationTabEnabled('network')){
+      add_nics_tab();
+    }
+
+    if (Config.isTemplateCreationTabEnabled('os_booting')){
+      add_osTab();
+    }
+
+    if (Config.isTemplateCreationTabEnabled('input_output')){
+      add_ioTab();
+    }
+
+    if (Config.isTemplateCreationTabEnabled('context')){
+      add_contextTab();
+    }
+
+    if (Config.isTemplateCreationTabEnabled('scheduling')){
+      add_schedulingTab();
+    }
 
     //tabs.tabs("option", "active", 0);
     $(".ui-tabs-vertical .ui-tabs-nav", dialog).first().removeClass("ui-tabs-nav").addClass("ui-tabs-nav-vert")
@@ -4148,15 +4171,13 @@ function popUpInstantiateVMTemplateDialog(){
 
 //The DOM is ready at this point
 $(document).ready(function(){
+    var tab_name = 'templates-tab';
 
     dataTable_templates = $("#datatable_templates",main_tabs_context).dataTable({
-        "oColVis": {
-            "aiExclude": [ 0 ]
-        },
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0,1] },
-            { "bVisible": true, "aTargets": config['view']['tabs']['templates-tab']['table_columns']},
+            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
             { "bVisible": false, "aTargets": ['_all']}
         ]
     });

@@ -716,7 +716,8 @@ function updateImageInfo(request,img){
         </table>\
         </div>\
         <div class="six columns">'
-           + insert_permissions_table("Image",
+           + insert_permissions_table('images-tab',
+                                   "Image",
                                    img_info.ID,
                                    img_info.UNAME,
                                    img_info.GNAME,
@@ -1251,18 +1252,16 @@ function popUpImageCloneDialog(){
 
 //The DOM is ready at this point
 $(document).ready(function(){
+    var tab_name = 'images-tab';
 
     dataTable_images = $("#datatable_images",main_tabs_context).dataTable({
-        "oColVis": {
-            "aiExclude": [ 0 ]
-        },
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0,2,3,9,10] },
             { "sWidth": "35px", "aTargets": [1,6,11,12] },
             { "sWidth": "100px", "aTargets": [5,7] },
             { "sWidth": "150px", "aTargets": [8] },
-            { "bVisible": true, "aTargets": config['view']['tabs']['images-tab']['table_columns']},
+            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
             { "bVisible": false, "aTargets": ['_all']}
         ]
     });

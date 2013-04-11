@@ -554,7 +554,8 @@ function updateFileInfo(request,img){
         </table>\
         </div>\
         <div class="six columns">'
-           + insert_permissions_table("File",
+           + insert_permissions_table('files-tab',
+                                   "File",
                                    img_info.ID,
                                    img_info.UNAME,
                                    img_info.GNAME,
@@ -905,18 +906,16 @@ function is_persistent_file(id){
 
 //The DOM is ready at this point
 $(document).ready(function(){
+    var tab_name = 'files-tab';
 
     dataTable_files = $("#datatable_files",main_tabs_context).dataTable({
-        "oColVis": {
-            "aiExclude": [ 0 ]
-        },
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0,2,3,9,10] },
             { "sWidth": "35px", "aTargets": [1,6,11,12] },
             { "sWidth": "100px", "aTargets": [5,7] },
             { "sWidth": "150px", "aTargets": [8] },
-            { "bVisible": true, "aTargets": config['view']['tabs']['files-tab']['table_columns']},
+            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
             { "bVisible": false, "aTargets": ['_all']}
         ]
     });

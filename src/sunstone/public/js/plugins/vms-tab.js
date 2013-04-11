@@ -1309,7 +1309,8 @@ function updateVMInfo(request,vm){
                </table>\
             </div>\
             <div class="six columns">' +
-               insert_permissions_table("VM",
+               insert_permissions_table('vms-tab',
+                                        "VM",
                                         vm_info.ID,
                                         vm_info.UNAME,
                                         vm_info.GNAME,
@@ -1773,13 +1774,15 @@ function printDisks(vm_info){
               <div class="twelve columns">\
                 <div id="refresh_disk" class="button small secondary radius" ><i class="icon-refresh"/></div>'
 
-    // If VM is not RUNNING, then we forget about the attach disk form.
-    if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
-      html += '\
-         <div id="attach_disk" class="button small secondary radius" >' + tr("Attach new disk") +'</div>'
-    } else {
-      html += '\
-         <div id="attach_disk" class="button small secondary radius" disabled="disabled">' + tr("Attach new disk") +'</div>'
+    if (Config.isTabActionEnabled("vms-tab", "VM.attachdisk")) {
+      // If VM is not RUNNING, then we forget about the attach disk form.
+      if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
+        html += '\
+           <div id="attach_disk" class="button small secondary radius" >' + tr("Attach new disk") +'</div>'
+      } else {
+        html += '\
+           <div id="attach_disk" class="button small secondary radius" disabled="disabled">' + tr("Attach new disk") +'</div>'
+      }
     }
 
     html += '\
@@ -1862,12 +1865,16 @@ function printDisks(vm_info){
 
               actions = '';
 
-              if ((vm_info.STATE == "3" && vm_info.LCM_STATE == "3") || vm_info.STATE == "5" || vm_info.STATE == "8") {
-                actions += '<a href="VM.saveas" class="saveas" ><i class="icon-save"/>'+tr("Snapshot")+'</a> &emsp;'
+              if (Config.isTabActionEnabled("vms-tab", "VM.saveas")) {
+                if ((vm_info.STATE == "3" && vm_info.LCM_STATE == "3") || vm_info.STATE == "5" || vm_info.STATE == "8") {
+                  actions += '<a href="VM.saveas" class="saveas" ><i class="icon-save"/>'+tr("Snapshot")+'</a> &emsp;'
+                }
               }
 
-              if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3") {
-                actions += '<a href="VM.detachdisk" class="detachdisk" ><i class="icon-remove"/>'+tr("Detach")+'</a>'
+              if (Config.isTabActionEnabled("vms-tab", "VM.detachdisk")) {
+                if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3") {
+                  actions += '<a href="VM.detachdisk" class="detachdisk" ><i class="icon-remove"/>'+tr("Detach")+'</a>'
+                }
               }
             }
 
@@ -2057,40 +2064,47 @@ function popUpAttachDiskDialog(vm_id){
 
 // Listeners to the disks operations (detach, saveas, attach)
 function hotpluggingOps(){
-    setupSaveAsDialog();
-    setupAttachDiskDialog();
+    if (Config.isTabActionEnabled("vms-tab", "VM.saveas")) {
+      setupSaveAsDialog();
 
-    $('a.detachdisk').live('click', function(){
-        var b = $(this);
-        var vm_id = b.parents('form').attr('vmid');
-        var disk_id = b.parents('tr').attr('disk_id');
+      $('a.saveas').live('click', function(){
+          var b = $(this);
+          var vm_id = b.parents('form').attr('vmid');
+          var disk_id = b.parents('tr').attr('disk_id');
 
-        Sunstone.runAction('VM.detachdisk', vm_id, disk_id);
+          popUpSaveAsDialog(vm_id, disk_id);
 
-        //b.html(spinner);
-        return false;
-    });
+          //b.html(spinner);
+          return false;
+      });
+    }
 
-    $('a.saveas').live('click', function(){
-        var b = $(this);
-        var vm_id = b.parents('form').attr('vmid');
-        var disk_id = b.parents('tr').attr('disk_id');
+    if (Config.isTabActionEnabled("vms-tab", "VM.attachdisk")) {
+      setupAttachDiskDialog();
 
-        popUpSaveAsDialog(vm_id, disk_id);
+      $('#attach_disk').live('click', function(){
+          var b = $(this);
+          var vm_id = b.parents('form').attr('vmid');
 
-        //b.html(spinner);
-        return false;
-    });
+          popUpAttachDiskDialog(vm_id);
 
-    $('#attach_disk').live('click', function(){
-        var b = $(this);
-        var vm_id = b.parents('form').attr('vmid');
+          //b.html(spinner);
+          return false;
+      });
+    }
 
-        popUpAttachDiskDialog(vm_id);
+    if (Config.isTabActionEnabled("vms-tab", "VM.detachdisk")) {
+      $('a.detachdisk').live('click', function(){
+          var b = $(this);
+          var vm_id = b.parents('form').attr('vmid');
+          var disk_id = b.parents('tr').attr('disk_id');
 
-        //b.html(spinner);
-        return false;
-    });
+          Sunstone.runAction('VM.detachdisk', vm_id, disk_id);
+
+          //b.html(spinner);
+          return false;
+      });
+    }
 
     $('#refresh_disk').live('click', function(){
         var b = $(this);
@@ -2116,13 +2130,15 @@ function printNics(vm_info){
               <div class="twelve columns">\
                 <div id="refresh_nic" class="button small secondary radius" ><i class="icon-refresh"/></div>'
 
-    // If VM is not RUNNING, then we forget about the attach nic form.
-    if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
-      html += '\
-         <div id="attach_nic" class="button small secondary radius" >' + tr("Attach new nic") +'</div>'
-    } else {
-      html += '\
-         <div id="attach_nic" class="button small secondary radius" disabled="disabled">' + tr("Attach new nic") +'</div>'
+    if (Config.isTabActionEnabled("vms-tab", "VM.attachnic")) {
+      // If VM is not RUNNING, then we forget about the attach nic form.
+      if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
+        html += '\
+           <div id="attach_nic" class="button small secondary radius" >' + tr("Attach new nic") +'</div>'
+      } else {
+        html += '\
+           <div id="attach_nic" class="button small secondary radius" disabled="disabled">' + tr("Attach new nic") +'</div>'
+      }
     }
 
     html += '\
@@ -2179,8 +2195,10 @@ function printNics(vm_info){
             else {
               actions = '';
 
-              if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3") {
-                actions += '<a href="VM.detachnic" class="detachnic" ><i class="icon-remove"/>'+tr("Detach")+'</a>'
+              if (Config.isTabActionEnabled("vms-tab", "VM.detachnic")) {
+                if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3") {
+                  actions += '<a href="VM.detachnic" class="detachnic" ><i class="icon-remove"/>'+tr("Detach")+'</a>'
+                }
               }
             }
 
@@ -2321,29 +2339,32 @@ function popUpAttachNicDialog(vm_id){
 
 // Listeners to the nics operations (detach, saveas, attach)
 function setup_vm_network_tab(){
-    //setupSaveAsDialog();
-    setupAttachNicDialog();
+    if (Config.isTabActionEnabled("vms-tab", "VM.attachnic")) {
+      setupAttachNicDialog();
 
-    $('a.detachnic').live('click', function(){
-        var b = $(this);
-        var vm_id = b.parents('form').attr('vmid');
-        var nic_id = b.parents('tr').attr('nic_id');
+      $('#attach_nic').live('click', function(){
+          var b = $(this);
+          var vm_id = b.parents('form').attr('vmid');
 
-        Sunstone.runAction('VM.detachnic', vm_id, nic_id);
+          popUpAttachNicDialog(vm_id);
 
-        //b.html(spinner);
-        return false;
-    });
+          //b.html(spinner);
+          return false;
+      });
+    }
 
-    $('#attach_nic').live('click', function(){
-        var b = $(this);
-        var vm_id = b.parents('form').attr('vmid');
+    if (Config.isTabActionEnabled("vms-tab", "VM.detachnic")) {
+      $('a.detachnic').live('click', function(){
+          var b = $(this);
+          var vm_id = b.parents('form').attr('vmid');
+          var nic_id = b.parents('tr').attr('nic_id');
 
-        popUpAttachNicDialog(vm_id);
+          Sunstone.runAction('VM.detachnic', vm_id, nic_id);
 
-        //b.html(spinner);
-        return false;
-    });
+          //b.html(spinner);
+          return false;
+      });
+    }
 
     $('#refresh_nic').live('click', function(){
         var b = $(this);
@@ -2370,13 +2391,15 @@ function printCapacity(vm_info){
               <div class="twelve columns">\
                 <div id="refresh_capacity" class="button small secondary radius" ><i class="icon-refresh"/></div>'
 
-    // If VM is not RUNNING, then we forget about the attach nic form.
-    if (vm_info.STATE == "0" || vm_info.STATE == "1" || vm_info.STATE == "2" || vm_info.STATE == "7" || vm_info.STATE == "8"){
-      html += '\
-        <button id="resize_capacity" class="button small secondary radius" >' + tr("Resize VM capacity") +'</button>'
-    } else {
-      html += '\
-        <button id="resize_capacity" class="button small secondary radius" disabled="disabled">' + tr("Resize VM capacity") +'</button>'
+    if (Config.isTabActionEnabled("vms-tab", "VM.resize")) {
+      // If VM is not RUNNING, then we forget about the attach nic form.
+      if (vm_info.STATE == "0" || vm_info.STATE == "1" || vm_info.STATE == "2" || vm_info.STATE == "7" || vm_info.STATE == "8"){
+        html += '\
+          <button id="resize_capacity" class="button small secondary radius" >' + tr("Resize VM capacity") +'</button>'
+      } else {
+        html += '\
+          <button id="resize_capacity" class="button small secondary radius" disabled="disabled">' + tr("Resize VM capacity") +'</button>'
+      }
     }
 
     html += '\
@@ -2521,18 +2544,20 @@ function popUpResizeCapacityDialog(vm_id){
 // Listeners to the nics operations (detach, saveas, attach)
 function setup_vm_capacity_tab(){
     //setupSaveAsDialog();
-    setupResizeCapacityDialog();
+    if (Config.isTabActionEnabled("vms-tab", "VM.resize")) {
+      setupResizeCapacityDialog();
 
 
-    $('#resize_capacity').live('click', function(){
-        var b = $(this);
-        var vm_id = b.parents('form').attr('vmid');
+      $('#resize_capacity').live('click', function(){
+          var b = $(this);
+          var vm_id = b.parents('form').attr('vmid');
 
-        popUpResizeCapacityDialog(vm_id);
+          popUpResizeCapacityDialog(vm_id);
 
-        //b.html(spinner);
-        return false;
-    });
+          //b.html(spinner);
+          return false;
+      });
+    }
 
     $('#refresh_capacity').live('click', function(){
         var b = $(this);
@@ -2559,13 +2584,15 @@ function printSnapshots(vm_info){
               <div class="twelve columns">\
                 <div id="refresh_disk" class="button small secondary radius" ><i class="icon-refresh"/></div>'
 
-    // If VM is not RUNNING, then we forget about the attach disk form.
-    if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
-      html += '\
-         <div id="take_snapshot" class="button small secondary radius" >' + tr("Take snapshot") +'</div>'
-    } else {
-      html += '\
-         <div id="take_snapshot" class="button small secondary radius" disabled="disabled">' + tr("Take snapshot") +'</div>'
+    if (Config.isTabActionEnabled("vms-tab", "VM.snapshot_create")) {
+      // If VM is not RUNNING, then we forget about the attach disk form.
+      if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
+        html += '\
+           <div id="take_snapshot" class="button small secondary radius" >' + tr("Take snapshot") +'</div>'
+      } else {
+        html += '\
+           <div id="take_snapshot" class="button small secondary radius" disabled="disabled">' + tr("Take snapshot") +'</div>'
+      }
     }
 
     html += '\
@@ -2615,8 +2642,13 @@ function printSnapshots(vm_info){
               actions = '';
 
               if ((vm_info.STATE == "3" && vm_info.LCM_STATE == "3")) {
-                actions += '<a href="VM.snapshot_revert" class="snapshot_revert" ><i class="icon-reply"/>'+tr("Revert")+'</a> &emsp;'
-                actions += '<a href="VM.snapshot_delete" class="snapshot_delete" ><i class="icon-remove"/>'+tr("Delete")+'</a>'
+                if (Config.isTabActionEnabled("vms-tab", "VM.snapshot_revert")) {
+                  actions += '<a href="VM.snapshot_revert" class="snapshot_revert" ><i class="icon-reply"/>'+tr("Revert")+'</a> &emsp;'
+                }
+
+                if (Config.isTabActionEnabled("vms-tab", "VM.snapshot_delete")) {
+                  actions += '<a href="VM.snapshot_delete" class="snapshot_delete" ><i class="icon-remove"/>'+tr("Delete")+'</a>'
+                }
               }
             }
 
@@ -2708,39 +2740,46 @@ function popUpSnapshotDialog(vm_id){
 
 // Listeners to the disks operations (detach, saveas, attach)
 function setup_vm_snapshot_tab(){
-    setupSnapshotDialog();
+    if (Config.isTabActionEnabled("vms-tab", "VM.snapshot_create")) {
+      setupSnapshotDialog();
 
-    $('a.snapshot_revert').live('click', function(){
-        var b = $(this);
-        var vm_id = b.parents('form').attr('vmid');
-        var snapshot_id = b.parents('tr').attr('snapshot_id');
+      $('#take_snapshot').live('click', function(){
+          var b = $(this);
+          var vm_id = b.parents('form').attr('vmid');
 
-        Sunstone.runAction('VM.snapshot_revert', vm_id, {"snapshot_id": snapshot_id});
+          popUpSnapshotDialog(vm_id);
 
-        //b.html(spinner);
-        return false;
-    });
+          //b.html(spinner);
+          return false;
+      });
+    }
 
-    $('a.snapshot_delete').live('click', function(){
-        var b = $(this);
-        var vm_id = b.parents('form').attr('vmid');
-        var snapshot_id = b.parents('tr').attr('snapshot_id');
+    if (Config.isTabActionEnabled("vms-tab", "VM.snapshot_revert")) {
+      $('a.snapshot_revert').live('click', function(){
+          var b = $(this);
+          var vm_id = b.parents('form').attr('vmid');
+          var snapshot_id = b.parents('tr').attr('snapshot_id');
 
-        Sunstone.runAction('VM.snapshot_delete', vm_id, {"snapshot_id": snapshot_id});
+          Sunstone.runAction('VM.snapshot_revert', vm_id, {"snapshot_id": snapshot_id});
 
-        //b.html(spinner);
-        return false;
-    });
+          //b.html(spinner);
+          return false;
+      });
+    }
 
-    $('#take_snapshot').live('click', function(){
-        var b = $(this);
-        var vm_id = b.parents('form').attr('vmid');
 
-        popUpSnapshotDialog(vm_id);
+    if (Config.isTabActionEnabled("vms-tab", "VM.snapshot_delete")) {
+      $('a.snapshot_delete').live('click', function(){
+          var b = $(this);
+          var vm_id = b.parents('form').attr('vmid');
+          var snapshot_id = b.parents('tr').attr('snapshot_id');
 
-        //b.html(spinner);
-        return false;
-    });
+          Sunstone.runAction('VM.snapshot_delete', vm_id, {"snapshot_id": snapshot_id});
+
+          //b.html(spinner);
+          return false;
+      });
+    }
 
     $('#refresh_snapshot').live('click', function(){
         var b = $(this);
@@ -2969,15 +3008,13 @@ function vmMonitorError(req,error_json){
 
 // At this point the DOM is ready and the sunstone.js ready() has been run.
 $(document).ready(function(){
+    var tab_name = 'vms-tab';
 
     dataTable_vMachines = $("#datatable_vmachines",main_tabs_context).dataTable({
-        "oColVis": {
-            "aiExclude": [ 0 ]
-        },
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0,1] },
-            { "bVisible": true, "aTargets": config['view']['tabs']['vms-tab']['table_columns']},
+            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
             { "bVisible": false, "aTargets": ['_all']}
         ]
     });

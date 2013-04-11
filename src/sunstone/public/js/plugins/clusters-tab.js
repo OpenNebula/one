@@ -1807,14 +1807,14 @@ function clusters_sel() {
 //Here we can basicly init the host datatable, preload it
 //and add specific listeners
 $(document).ready(function(){
-
+    var tab_name = "clusters-tab"
 
     //prepare host datatable
     dataTable_clusters = $("#datatable_clusters",main_tabs_context).dataTable({
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0,1] },
-            { "bVisible": true, "aTargets": config['view']['tabs']['clusters-tab']['table_columns']},
+            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
             { "bVisible": false, "aTargets": ['_all']}
         ]
     });

@@ -502,7 +502,7 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_NEW_VENDOR_JDPICKER:$SUNSTONE_LOCATION/public/vendor/4.0/jdpicker_1.1
     SUNSTONE_PUBLIC_NEW_VENDOR_JDPICKER_IMAGES:$SUNSTONE_LOCATION/public/vendor/4.0/jdpicker_1.1/images
     SUNSTONE_PUBLIC_NEW_VENDOR_TIMEPICKER:$SUNSTONE_LOCATION/public/vendor/4.0/
-    SUNSTONE_PUBLIC_NEW_VENDOR_DATETIMEPICKER:$SUNSTONE_LOCATION/public/vendor/4.0/datetimepicker    
+    SUNSTONE_PUBLIC_NEW_VENDOR_DATETIMEPICKER:$SUNSTONE_LOCATION/public/vendor/4.0/datetimepicker
     SUNSTONE_PUBLIC_IMAGES_FILES:$SUNSTONE_LOCATION/public/images
     SUNSTONE_PUBLIC_LOCALE_CA:$SUNSTONE_LOCATION/public/locale/ca
     SUNSTONE_PUBLIC_LOCALE_CS_CZ:$SUNSTONE_LOCATION/public/locale/cs_CZ
@@ -1365,7 +1365,8 @@ SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf \
                     src/sunstone/etc/sunstone-plugins.yaml\
                     src/sunstone/etc/sunstone-views.yaml"
 
-SUNSTONE_ETC_VIEW_FILES="src/sunstone/etc/sunstone-views/admin.yaml"
+SUNSTONE_ETC_VIEW_FILES="src/sunstone/etc/sunstone-views/admin.yaml \
+                    src/sunstone/etc/sunstone-views/user.yaml"
 
 SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
                        src/sunstone/models/SunstoneServer.rb \
@@ -1521,7 +1522,7 @@ SUNSTONE_PUBLIC_NEW_VENDOR_DATETIMEPICKER="\
                 src/sunstone/public/vendor/4.0/datetimepicker/jquery.simple-dtpicker.css \
                 src/sunstone/public/vendor/4.0/datetimepicker/jquery.simple-dtpicker.html \
                 src/sunstone/public/vendor/4.0/datetimepicker/jquery.simple-dtpicker.js \
-                src/sunstone/public/vendor/4.0/datetimepicker/simple-dtpicker.jquery.json" 
+                src/sunstone/public/vendor/4.0/datetimepicker/simple-dtpicker.jquery.json"
 
 SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/favicon.ico \

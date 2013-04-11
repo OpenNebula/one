@@ -1,7 +1,10 @@
 ---
 users:
+    pepe:
+        - user
 groups:
     oneadmin:
         - admin
+        - user
 default:
     - admin

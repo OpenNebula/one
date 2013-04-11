@@ -125,15 +125,15 @@ var Sunstone = {
         var tab=null;
         var active=false;
         console.log(selected_tab)
-        for (tab_name in tabs){
-            if (config['view']['tabs'][selected_tab]['tabs_panel'][tab_name] == false) {
+        for (panel_tab_name in tabs){
+            if (Config.isTabPanelEnabled(selected_tab, panel_tab_name) == false) {
                 continue;
             }
 
-            tab=tabs[tab_name];
-            var dd = $('<dd><a href="#'+tab_name+'">'+tab.title+'</a></dd>').appendTo($('dl',dl_tabs));
-            //$('ul', dl_tabs).append('<div id="'+tab_name+'"><li id="'+tab_name+'Tab">'+tab.content+'</li></div>');
-            var li = $('<li id="'+tab_name+'Tab">'+tab.content+'</li>').appendTo($('ul', dl_tabs));
+            tab=tabs[panel_tab_name];
+            var dd = $('<dd><a href="#'+panel_tab_name+'">'+tab.title+'</a></dd>').appendTo($('dl',dl_tabs));
+            //$('ul', dl_tabs).append('<div id="'+panel_tab_name+'"><li id="'+panel_tab_name+'Tab">'+tab.content+'</li></div>');
+            var li = $('<li id="'+panel_tab_name+'Tab">'+tab.content+'</li>').appendTo($('ul', dl_tabs));
 
             if (!active) {
                 dd.addClass('active');
@@ -686,7 +686,7 @@ function insertButtonsInTab(tab_name){
             button = buttons[button_name];
 
             //if we meet the condition we proceed. Otherwise we skip it.
-            if (config['view']['tabs'][tab_name]['actions'][button_name] == false) {
+            if (Config.isTabActionEnabled(tab_name, button_name) == false) {
                 continue;
             }
 

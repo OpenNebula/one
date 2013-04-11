@@ -33,9 +33,17 @@ var dashboard_tab_content = '\
 </div>\
 </div>\
 <br>\
-  <div class="row">\
-    <div class="four columns">\
-      <div class="panel">\
+  <div id="three_per_row" class="row">\
+  </div>\
+  <div id="two_per_row" class="row">\
+  </div>\
+  <div id="one_per_row" class="row">\
+  </div>\
+</div>\
+';
+
+var widgets = {
+  "storage" : '<div class="panel">\
         <div class="row">\
           <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="icon-upload"></i> '+tr("Storage")+'</span></h5>\
         </div>\
@@ -49,10 +57,8 @@ var dashboard_tab_content = '\
             </h3>\
           </div>\
         </div>\
-      </div>\
-    </div>\
-    <div class="four columns">\
-      <div class="panel">\
+      </div>',
+  "users" : '<div class="panel">\
         <div class="row">\
           <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="icon-user"></i> '+tr("Users")+'</span></h5>\
         </div>\
@@ -66,10 +72,8 @@ var dashboard_tab_content = '\
             </h3>\
           </div>\
         </div>\
-      </div>\
-    </div>\
-    <div class="four columns">\
-      <div class="panel">\
+      </div>',
+  "network" : '<div class="panel">\
         <div class="row">\
           <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="icon-sitemap"></i> '+tr("Network")+'</span></h5>\
         </div>\
@@ -83,13 +87,8 @@ var dashboard_tab_content = '\
             </h3>\
           </div>\
         </div>\
-      </div>\
-    </div>\
-  </div>\
-  <br>\
-  <div class="row">\
-    <div class="six columns">\
-      <div class="panel dashboard-panel">\
+      </div>',
+  "hosts" : '<div class="panel dashboard-panel">\
         <div class="row">\
           <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="icon-hdd"></i> '+tr("Hosts")+'</span></h5>\
         </div>\
@@ -126,10 +125,8 @@ var dashboard_tab_content = '\
             <span class="label real radius">'+tr("Real")+'</span>&emsp;\
             <span class="label total radius">'+tr("Total")+'</span>\
         </div>\
-      </div>\
-    </div>\
-    <div class="six columns">\
-      <div class="panel dashboard-panel">\
+      </div>',
+  "vms" : '<div class="panel dashboard-panel">\
         <div class="row">\
           <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="icon-cloud"></i> '+tr("Virtual Machines")+'</span></h5>\
         </div>\
@@ -165,11 +162,8 @@ var dashboard_tab_content = '\
           <div class="ten columns centered graph" id="dash_vm_net_tx_graph" style="height: 100px;">\
           </div>\
         </div>\
-      </div>\
-    </div>\
-  </div>\
-</div>\
-';
+      </div>'
+}
 
 var dashboard_tab = {
     title: '<i class="icon-dashboard"></i>'+tr("Dashboard"),
@@ -186,5 +180,20 @@ var $dashboard;
 function dashboardQuotasHTML(){}
 
 $(document).ready(function(){
-        $dashboard = $('#dashboard-tab', main_tabs_context);
+    $dashboard = $('#dashboard-tab', main_tabs_context);
+
+    $.each(Config.dashboardWidgets('widgets_three_per_row'), function(id, widget){
+      var html = '<div class="four columns">'+widgets[widget]+'</div>';
+      $('#three_per_row', $dashboard).append(html);
+    })
+
+    $.each(Config.dashboardWidgets('widgets_two_per_row'), function(id, widget){
+      var html = '<div class="six columns">'+widgets[widget]+'</div>';
+      $('#two_per_row', $dashboard).append(html);
+    })
+
+    $.each(Config.dashboardWidgets('widgets_one_per_row'), function(id, widget){
+      var html = '<div class="twelve columns">'+widgets[widget]+'</div>';
+      $('#one_per_row', $dashboard).append(html);
+    })
 });

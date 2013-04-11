@@ -489,31 +489,6 @@ var OpenNebula = {
         }
     },
 
-    "Config": {
-        "resource": "CONFIG",
-
-        "list": function(params)
-        {
-            var callback = params.success;
-            var callback_error = params.error;
-
-            var resource = OpenNebula.Config.resource;
-            var request = OpenNebula.Helper.request(resource,"list");
-
-            $.ajax({
-                url: "config",
-                type: "GET",
-                dataType: "json",
-                success: function(response){
-                    return callback ? callback(request, response) : null;
-                },
-                error: function(response){
-                    return callback_error ?
-                        callback_error(request, OpenNebula.Error(response)) : null;
-                }
-            });
-        }
-    },
 
     "Host": {
         "resource": "HOST",

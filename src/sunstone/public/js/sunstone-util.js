@@ -1926,116 +1926,124 @@ function buildOctet(permTable){
 
 
 // Returns HTML with listeners to control permissions
-function insert_permissions_table(resource_type,resource_id, owner, group, vm_uid, vm_gid){
-     var str ='<table class="'+resource_type.toLowerCase()+'_permissions_table twelve datatable extended_table">\
-                     <thead><tr>\
-                         <th style="width:130px">'+tr("Permissions")+':</th>\
-                         <th style="width:40px;text-align:center;">'+tr("Use")+'</th>\
-                         <th style="width:40px;text-align:center;">'+tr("Manage")+'</th>\
-                         <th style="width:40px;text-align:center;">'+tr("Admin")+'</th></tr></thead>\
-                     <tr>\
-                         <td>'+tr("Owner")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" class="permission_check owner_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" class="permission_check owner_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" class="permission_check owner_a" /></td>\
-                     </tr>\
-                     <tr>\
-                         <td>'+tr("Group")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" class="permission_check group_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" class="permission_check group_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" class="permission_check group_a" /></td>\
-                     </tr>\
-                     <tr>\
-                         <td>'+tr("Other")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" class="permission_check other_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" class="permission_check other_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" class="permission_check other_a" /></td>\
-                     </tr>'
+function insert_permissions_table(tab_name, resource_type, resource_id, owner, group, vm_uid, vm_gid){
+     var str ='<table class="'+resource_type.toLowerCase()+'_permissions_table twelve datatable extended_table">'
 
-     if (mustBeAdmin())
-     {
-        str += '<thead><tr><th colspan="4" style="width:130px">'+tr("Ownership")+'</th>\</tr></thead>\
-                     <tr>\
-                         <td>'+tr("Owner")+'</td>\
-                         <td colspan="2" id="value_td_owner">'+owner+'</td>\
-                          <td><div id="div_edit_chg_owner">\
-                                 <a id="div_edit_chg_owner_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
-                              </div>\
-                          </td>\
-                     </tr>\
-                     <tr>\
-                         <td>'+tr("Group")+'</td>\
-                         <td colspan="2" id="value_td_group">'+group+'</td>\
-                          <td><div id="div_edit_chg_group">\
-                                 <a id="div_edit_chg_group_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
-                              </div>\
-                          </td>\
-                     </tr>\
-                   </table>'
+     if (Config.isTabActionEnabled(tab_name, resource_type+'.chmod')) {
+        str += '<thead><tr>\
+             <th style="width:130px">'+tr("Permissions")+':</th>\
+             <th style="width:40px;text-align:center;">'+tr("Use")+'</th>\
+             <th style="width:40px;text-align:center;">'+tr("Manage")+'</th>\
+             <th style="width:40px;text-align:center;">'+tr("Admin")+'</th></tr></thead>\
+         <tr>\
+             <td>'+tr("Owner")+'</td>\
+             <td style="text-align:center"><input type="checkbox" class="permission_check owner_u" /></td>\
+             <td style="text-align:center"><input type="checkbox" class="permission_check owner_m" /></td>\
+             <td style="text-align:center"><input type="checkbox" class="permission_check owner_a" /></td>\
+         </tr>\
+         <tr>\
+             <td>'+tr("Group")+'</td>\
+             <td style="text-align:center"><input type="checkbox" class="permission_check group_u" /></td>\
+             <td style="text-align:center"><input type="checkbox" class="permission_check group_m" /></td>\
+             <td style="text-align:center"><input type="checkbox" class="permission_check group_a" /></td>\
+         </tr>\
+         <tr>\
+             <td>'+tr("Other")+'</td>\
+             <td style="text-align:center"><input type="checkbox" class="permission_check other_u" /></td>\
+             <td style="text-align:center"><input type="checkbox" class="permission_check other_m" /></td>\
+             <td style="text-align:center"><input type="checkbox" class="permission_check other_a" /></td>\
+         </tr>'
 
-        // Handlers for chown
-        $("#div_edit_chg_owner_link").die();
-        $("#user_confirm_select").die();
+        $(".permission_check").die();
+        $(".permission_check").live('change',function(){
+            var permissions_table  = $("."+resource_type.toLowerCase()+"_permissions_table");
+            var permissions_octect = { octet : buildOctet(permissions_table) };
 
-        // Listener for key,value pair edit action
-        $("#div_edit_chg_owner_link").live("click", function() {
-            var value_str = $("#value_td_owner").text();
-            var select_str='<select id="user_confirm_select">';
-            select_str += makeSelectOptions(dataTable_users,1,2,[],[],true);
-            select_str+="</select>";
-            $("#value_td_owner").html(select_str);
-            $("select#user_confirm_select").val(vm_uid);
-        });
-
-        $("#user_confirm_select").live("change", function() {
-            var value_str = $('select#user_confirm_select').val();
-            if(value_str!="")
-            {
-                // Let OpenNebula know
-                var resource_struct = new Array();
-                resource_struct[0]  = resource_id;
-                Sunstone.runAction(resource_type+".chown",resource_struct,value_str);
-                Sunstone.runAction(resource_type+".showinfo",resource_id);
-            }
-        });
-
-        // Handlers for chgrp
-        $("#div_edit_chg_group_link").die();
-        $("#group_confirm_select").die();
-
-        // Listener for key,value pair edit action
-        $("#div_edit_chg_group_link").live("click", function() {
-            var value_str = $("#value_td_group").text();
-            var select_str='<select id="group_confirm_select">';
-            select_str += makeSelectOptions(dataTable_groups,1,2,[],[],true);
-            select_str+="</select>";
-            $("#value_td_group").html(select_str);
-            $("select#group_confirm_select").val(vm_gid);
-        });
-
-        $("#group_confirm_select").live("change", function() {
-            var value_str = $('select#group_confirm_select').val();
-            if(value_str!="")
-            {
-                // Let OpenNebula know
-                var resource_struct = new Array();
-                resource_struct[0]  = resource_id;
-                Sunstone.runAction(resource_type+".chgrp",resource_struct,value_str);
-                Sunstone.runAction(resource_type+".showinfo",resource_id);
-            }
+            Sunstone.runAction(resource_type+".chmod",resource_id,permissions_octect);
         });
     }
 
-    $(".permission_check").die();
-    $(".permission_check").live('change',function(){
-        var permissions_table  = $("."+resource_type.toLowerCase()+"_permissions_table");
-        var permissions_octect = { octet : buildOctet(permissions_table) };
+    if (Config.isTabActionEnabled(tab_name, resource_type+'.chgrp') || Config.isTabActionEnabled(tab_name, resource_type+'.chown')) {
+        str += '<thead><tr><th colspan="4" style="width:130px">'+tr("Ownership")+'</th>\</tr></thead>'
 
-        Sunstone.runAction(resource_type+".chmod",resource_id,permissions_octect);
-    });
+        if (Config.isTabActionEnabled(tab_name, resource_type+'.chown')) {
+            str += '<tr>\
+                <td>'+tr("Owner")+'</td>\
+                <td colspan="2" id="value_td_owner">'+owner+'</td>\
+                 <td><div id="div_edit_chg_owner">\
+                        <a id="div_edit_chg_owner_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                     </div>\
+                 </td>\
+            </tr>'
+
+            // Handlers for chown
+            $("#div_edit_chg_owner_link").die();
+            $("#user_confirm_select").die();
+
+            // Listener for key,value pair edit action
+            $("#div_edit_chg_owner_link").live("click", function() {
+                var value_str = $("#value_td_owner").text();
+                var select_str='<select id="user_confirm_select">';
+                select_str += makeSelectOptions(dataTable_users,1,2,[],[],true);
+                select_str+="</select>";
+                $("#value_td_owner").html(select_str);
+                $("select#user_confirm_select").val(vm_uid);
+            });
+
+            $("#user_confirm_select").live("change", function() {
+                var value_str = $('select#user_confirm_select').val();
+                if(value_str!="")
+                {
+                    // Let OpenNebula know
+                    var resource_struct = new Array();
+                    resource_struct[0]  = resource_id;
+                    Sunstone.runAction(resource_type+".chown",resource_struct,value_str);
+                    Sunstone.runAction(resource_type+".showinfo",resource_id);
+                }
+            });
+        }
+
+        if (Config.isTabActionEnabled(tab_name, resource_type+'.chgrp')) {
+           str += '<tr>\
+                <td>'+tr("Group")+'</td>\
+                <td colspan="2" id="value_td_group">'+group+'</td>\
+                 <td><div id="div_edit_chg_group">\
+                        <a id="div_edit_chg_group_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                     </div>\
+                 </td>\
+            </tr>'
+
+            // Handlers for chgrp
+            $("#div_edit_chg_group_link").die();
+            $("#group_confirm_select").die();
+
+            // Listener for key,value pair edit action
+            $("#div_edit_chg_group_link").live("click", function() {
+                var value_str = $("#value_td_group").text();
+                var select_str='<select id="group_confirm_select">';
+                select_str += makeSelectOptions(dataTable_groups,1,2,[],[],true);
+                select_str+="</select>";
+                $("#value_td_group").html(select_str);
+                $("select#group_confirm_select").val(vm_gid);
+            });
+
+            $("#group_confirm_select").live("change", function() {
+                var value_str = $('select#group_confirm_select').val();
+                if(value_str!="")
+                {
+                    // Let OpenNebula know
+                    var resource_struct = new Array();
+                    resource_struct[0]  = resource_id;
+                    Sunstone.runAction(resource_type+".chgrp",resource_struct,value_str);
+                    Sunstone.runAction(resource_type+".showinfo",resource_id);
+                }
+            });
+        }
+    }
+
+    str += '</table>'
 
     return str;
-
 }
 
 function insert_cluster_dropdown(resource_type, resource_id, cluster_value, cluster_id){

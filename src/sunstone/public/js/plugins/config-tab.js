@@ -14,6 +14,50 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+
+Config = {
+    "isTabEnabled": function(tab_name){
+      var enabled = config['view']['tabs'][tab_name]['enabled'];
+      return enabled;
+    },
+    "isTabActionEnabled": function(tab_name, action_name){
+      var enabled = config['view']['tabs'][tab_name]['actions'][action_name];
+      return enabled;
+    },
+
+    "isTabPanelEnabled": function(tab_name, panel_tab_name){
+      var enabled = config['view']['tabs'][tab_name]['panel_tabs'][panel_tab_name];
+      return enabled;
+    },
+
+    "tabTableColumns": function(tab_name){
+      var columns = config['view']['tabs'][tab_name]['table_columns'];
+
+      if (columns) {
+        return columns;
+      }
+      else {
+        return [];
+      }
+    },
+
+    "isTemplateCreationTabEnabled": function(template_tab_name){
+      var enabled = config['view']['tabs']['templates-tab']['template_creation_tabs'][template_tab_name];
+      return enabled;
+    },
+
+    "dashboardWidgets": function(per_row){
+      var widgets = config['view']['tabs']['dashboard-tab'][per_row];
+
+      if (widgets) {
+        return widgets;
+      }
+      else {
+        return [];
+      }
+    }
+}
+
 var config_response = {};
 var config_tab_content =
 '<div class="panel">\

@@ -794,11 +794,13 @@ function setGroupAutorefresh(){
 }
 
 $(document).ready(function(){
+    var tab_name = 'groups-tab';
+
     dataTable_groups = $("#datatable_groups",main_tabs_context).dataTable({
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0,1] },
-            { "bVisible": true, "aTargets": config['view']['tabs']['groups-tab']['table_columns']},
+            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
             { "bVisible": false, "aTargets": ['_all']}
         ]
     });

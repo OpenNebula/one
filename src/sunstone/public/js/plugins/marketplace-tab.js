@@ -283,6 +283,8 @@ function onlyOneCheckboxListener(dataTable) {
  */
 
 $(document).ready(function(){
+    var tab_name = 'marketplace-tab';
+
     dataTable_marketplace = $("#datatable_marketplace", main_tabs_context).dataTable({
         "bSortClasses": true,
         "aoColumns": [
@@ -305,7 +307,7 @@ $(document).ready(function(){
             { "mDataProp": "tags"}
           ],
           "aoColumnDefs": [
-            { "bVisible": true, "aTargets": config['view']['tabs']['marketplace-tab']['table_columns']},
+            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
             { "bVisible": false, "aTargets": ['_all']}
         ]
     });

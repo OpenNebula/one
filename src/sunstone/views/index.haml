@@ -46,7 +46,7 @@
     %script{:type=>"text/javascript", :src=>"js/sunstone-util.js"}
     %script{:type=>"text/javascript", :src=>"js/monitoring.js"}
 
-    - view = $views_config.view(session['user'], session['user_gname'], session['view_name'])
+    - view = $views_config.view(session['user'], session['user_gname'], session['default_view'])
 
     :javascript
       var view = JSON.parse('#{view.to_json}')

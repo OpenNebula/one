@@ -792,7 +792,8 @@ function updateVNetworkInfo(request,vn){
         </table>\
         </div>\
         <div class="six columns">'
-            + insert_permissions_table("Network",
+            + insert_permissions_table('vnets-tab',
+                                       "Network",
                                        vn_info.ID,
                                        vn_info.UNAME,
                                        vn_info.GNAME,
@@ -866,25 +867,29 @@ function printLeases(vn_info){
                    <td class="value_td">'+vn_info.RANGE.IP_END+'</td>\
                   <td></td>\
                   <td></td>\
-                 </tr\>\
+                 </tr>\
                  <tr>\
                    <td  colspan="2" class="key_td">'+tr("Network mask")+'</td>\
                    <td class="value_td">'+( vn_info.TEMPLATE.NETWORK_MASK ? vn_info.TEMPLATE.NETWORK_MASK : "--" )+'</td>\
                   <td></td>\
                   <td></td>\
-                 </tr\>\
-                 <tr>\
+                 </tr>';
+          if (Config.isTabActionEnabled("vnets-tab", "Network.hold_lease")) {
+              html += '<tr>\
                     <td></td>\
                    <td class="value_td"><input type="text" id="panel_hold_lease" style="width:9em;"/></td>\
-                  <td colspan="3"><button class="button small secondary radius" id="panel_hold_lease_button">'+tr("Hold lease")+'</button></td>\
-             </tr>';
+                  <td colspan="3"><button class="button small secondary radius" id="panel_hold_lease_button">'+tr("Hold IP")+'</button></td>\
+                </tr>';
+          }
     } else {
+      if (Config.isTabActionEnabled("vnets-tab", "Network.addleases")) {
         html += '<tr>\
                   <td></td>\
                   <td class="value_td"><input type="text" id="panel_add_lease"/></td>\
-                  <td colspan="2"><button id="panel_add_lease_button" class="button small secondary radius">'+tr("Add")+'</button></td>\
+                  <td colspan="2"><button id="panel_add_lease_button" class="button small secondary radius">'+tr("Add IP")+'</button></td>\
                   <td></td>\
              </tr>';
+      }
     };
 
     var leases = vn_info.LEASES.LEASE;
@@ -938,13 +943,26 @@ function printLeases(vn_info){
 
         switch (state){
         case 0:
-            html += '<td><a class="hold_lease" href="#"><i class="icon-pause"/></a></td><td><a class="delete_lease" href="#"><i class="icon-trash"/></a>';
+            html += '<td>';
+            if (Config.isTabActionEnabled("vnets-tab", "Network.hold_lease")) {
+              html += '<a class="hold_lease" href="#"><i class="icon-pause"/></a>';
+            }
+            html += '</td>'
+            html += '<td>'
+            if (Config.isTabActionEnabled("vnets-tab", "Network.remove_lease")) {
+              html += '<a class="delete_lease" href="#"><i class="icon-trash"/></a>';
+            }
             break;
         case 1:
             html += '<td colspan="2">' + tr("VM:") + lease.VID+''
             break;
         case 2:
-            html += '<td><a class="release_lease" href="#"><i class="icon-play"/></a></td><td>';
+            html += '<td>';
+            if (Config.isTabActionEnabled("vnets-tab", "Network.release_lease")) {
+              html += '<a class="release_lease" href="#"><i class="icon-play"/></a>';
+            }
+            html += '</td>'
+            html += '<td>'
             break;
         };
         html += '</td>'
@@ -1250,6 +1268,7 @@ function popUpCreateVnetDialog() {
 // Listeners to the add, hold, release, delete leases operations in the
 // extended information panel.
 function setupLeasesOps(){
+  if (Config.isTabActionEnabled("vnets-tab", "Network.addleases")) {
     $('button#panel_add_lease_button').live("click",function(){
         var lease = $('input#panel_add_lease', dialog).val();
         //var mac = $(this).previous().val();
@@ -1260,7 +1279,9 @@ function setupLeasesOps(){
         }
         return false;
     });
+  }
 
+  if (Config.isTabActionEnabled("vnets-tab", "Network.hold_lease")) {
     //ranged networks hold lease
     $('button#panel_hold_lease_button').live("click",function(){
         var lease = $('input#panel_hold_lease', dialog).val();
@@ -1270,16 +1291,6 @@ function setupLeasesOps(){
             var obj = {ip: lease};
             Sunstone.runAction('Network.hold',id,obj);
         }
-        return false;
-    });
-
-    $('form#leases_form a.delete_lease').live("click",function(){
-        var lease = $(this).parents('tr').attr('ip');
-        var id = $(this).parents('form').attr('vnid');
-        var obj = { ip: lease};
-        Sunstone.runAction('Network.rmleases',id,obj);
-        //Set spinner
-        $(this).parents('tr').html('<td class="key_td">'+spinner+'</td><td class="value_td"></td>');
         return false;
     });
 
@@ -1293,7 +1304,23 @@ function setupLeasesOps(){
         $(this).parents('tr').html('<td class="key_td">'+spinner+'</td><td class="value_td"></td>');
         return false;
     });
+  }
 
+  if (Config.isTabActionEnabled("vnets-tab", "Network.remove_lease")) {
+    $('form#leases_form a.delete_lease').live("click",function(){
+        var lease = $(this).parents('tr').attr('ip');
+        var id = $(this).parents('form').attr('vnid');
+        var obj = { ip: lease};
+        Sunstone.runAction('Network.rmleases',id,obj);
+        //Set spinner
+        $(this).parents('tr').html('<td class="key_td">'+spinner+'</td><td class="value_td"></td>');
+        return false;
+    });
+  }
+
+
+
+  if (Config.isTabActionEnabled("vnets-tab", "Network.release_lease")) {
     $('a.release_lease').live("click",function(){
         var lease = $(this).parents('tr').attr('ip');
         var id = $(this).parents('form').attr('vnid');
@@ -1303,6 +1330,7 @@ function setupLeasesOps(){
         $(this).parents('tr').html('<td class="key_td">'+spinner+'</td><td class="value_td"></td>');
         return false;
     });
+  }
 }
 
 function setVNetAutorefresh() {
@@ -1318,14 +1346,12 @@ function setVNetAutorefresh() {
 //The DOM is ready and the ready() from sunstone.js
 //has been executed at this point.
 $(document).ready(function(){
+    var tab_name = 'vnets-tab';
 
     dataTable_vNetworks = $("#datatable_vnetworks",main_tabs_context).dataTable({
-        "oColVis": {
-            "aiExclude": [ 0 ]
-        },
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [0,1] },
-            { "bVisible": true, "aTargets": config['view']['tabs']['vnets-tab']['table_columns']},
+            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
             { "bVisible": false, "aTargets": ['_all']}
         ]
     });

@@ -1034,16 +1034,14 @@ function hostMonitorError(req,error_json){
 //Here we can basicly init the host datatable, preload it
 //and add specific listeners
 $(document).ready(function(){
+    var tab_name = 'hosts-tab';
 
     //prepare host datatable
     dataTable_hosts = $("#datatable_hosts",main_tabs_context).dataTable({
-        "oColVis": { //exclude checkbox column
-            "aiExclude": [ 0 ]
-        },
         "aoColumnDefs": [
             //{ "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0,1,4,9] }, //check, ID, RVMS, Status,
-            { "bVisible": true, "aTargets": config['view']['tabs']['hosts-tab']['table_columns']},
+            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
             { "bVisible": false, "aTargets": ['_all']}
         ]
     });

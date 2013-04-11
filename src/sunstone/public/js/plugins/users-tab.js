@@ -1153,15 +1153,14 @@ function setUserAutorefresh(){
 }
 
 $(document).ready(function(){
+    var tab_name = 'users-tab';
+
     //if we are not oneadmin, our tab will not even be in the DOM.
     dataTable_users = $("#datatable_users",main_tabs_context).dataTable({
-        "oColVis": {
-            "aiExclude": [ 0 ]
-        },
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0,1] },
-            { "bVisible": true, "aTargets": config['view']['tabs']['users-tab']['table_columns']},
+            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
             { "bVisible": false, "aTargets": ['_all']}
         ]
     });

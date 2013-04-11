@@ -611,12 +611,14 @@ function setAclAutorefresh(){
 }
 
 $(document).ready(function(){
+    var tab_name = 'acls-tab';
+
     //if we are not oneadmin, our tab will not even be in the DOM.
     dataTable_acls = $("#datatable_acls",main_tabs_context).dataTable({
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0,1] },
-            { "bVisible": true, "aTargets": config['view']['tabs']['acls-tab']['table_columns']},
+            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
             { "bVisible": false, "aTargets": ['_all']}
         ]
     });

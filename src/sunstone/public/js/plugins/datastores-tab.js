@@ -682,7 +682,8 @@ function updateDatastoreInfo(request,ds){
                                          "Configuration Attributes") +
         '</div>\
         <div class="six columns">'
-            + insert_permissions_table("Datastore",
+            + insert_permissions_table('datastores-tab',
+                                     "Datastore",
                                      info.ID,
                                      info.UNAME,
                                      info.GNAME,
