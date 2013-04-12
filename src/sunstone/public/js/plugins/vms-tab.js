@@ -3044,7 +3044,7 @@ function vncCallback(request,response){
                    'updateState':  updateVNCState});
 
     var proxy_host = window.location.hostname;
-    var proxy_port = config_response['system_config']['vnc_proxy_port'];
+    var proxy_port = config['system_config']['vnc_proxy_port'];
     var pw = response["password"];
     var token = response["token"];
     var path = '?token='+token;
