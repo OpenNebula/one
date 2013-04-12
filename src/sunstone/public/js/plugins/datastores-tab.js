@@ -343,7 +343,12 @@ function updateDatastoreImagesInfoView (request,image_list){
 
     $.each(image_list,function(){
       if (this.IMAGE.DATASTORE==datastore_name)
-        image_list_array.push(imageElementArray(this));
+      {
+        if(datastore_type=="IMAGE_DS"||datastore_type=="SYSTEM_DS")
+          image_list_array.push(imageElementArray(this));
+        else
+          image_list_array.push(fileElementArray(this));
+      }
     });
 
     updateView(image_list_array,dataTable_datastore_images_panel);
