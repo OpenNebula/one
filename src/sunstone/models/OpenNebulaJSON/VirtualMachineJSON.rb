@@ -66,10 +66,10 @@ module OpenNebulaJSON
                  when "chown"        then self.chown(action_hash['params'])
                  when "chmod"        then self.chmod_octet(action_hash['params'])
                  when "resize"       then self.resize(action_hash['params'])
-                 when "attachdisk"   then self.attachdisk(action_hash['params'])
-                 when "detachdisk"   then self.detachdisk(action_hash['params'])
-                 when "attachnic"    then self.attachnic(action_hash['params'])
-                 when "detachnic"    then self.detachnic(action_hash['params'])
+                 when "attachdisk"   then self.disk_attach(action_hash['params'])
+                 when "detachdisk"   then self.disk_detach(action_hash['params'])
+                 when "attachnic"    then self.nic_attach(action_hash['params'])
+                 when "detachnic"    then self.nic_detach(action_hash['params'])
                  when "update"       then self.update(action_hash['params'])
                  when "rename"       then self.rename(action_hash['params'])
                  when "undeploy"     then self.undeploy(action_hash['params'])
@@ -131,23 +131,23 @@ module OpenNebulaJSON
             super(template, params['enforce'])
         end
 
-        def attachdisk(params=Hash.new)
+        def disk_attach(params=Hash.new)
             template_json = params['disk_template']
             template = template_to_str(template_json)
             super(template)
         end
 
-        def detachdisk(params=Hash.new)
+        def disk_detach(params=Hash.new)
             super(params['disk_id'].to_i)
         end
 
-        def attachnic(params=Hash.new)
+        def nic_attach(params=Hash.new)
             template_json = params['nic_template']
             template = template_to_str(template_json)
             super(template)
         end
 
-        def detachnic(params=Hash.new)
+        def nic_detach(params=Hash.new)
             super(params['nic_id'].to_i)
         end
 
