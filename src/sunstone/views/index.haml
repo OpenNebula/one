@@ -58,6 +58,10 @@
             'vnc_wss' : '#{session['vnc_wss']}',
             'default_view' : '#{session['default_view']}'
         },
+        'system_config' : {
+            'marketplace_url' : '#{$conf[:marketplace_url]}',
+            'vnc_proxy_port' : '#{$vnc.proxy_port}'
+        },
         'view' : view,
         'available_views' : available_views
       };
