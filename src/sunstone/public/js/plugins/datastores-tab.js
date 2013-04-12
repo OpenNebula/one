@@ -656,6 +656,19 @@ function updateDatastoreInfo(request,ds){
     datastore_name = info.NAME;
     datastore_type = info.TYPE;
 
+    switch(info.TYPE)
+        {
+          case '0':
+            datastore_type = "SYSTEM_DS";
+            break;
+          case '1':
+            datastore_type = "IMAGE_DS";
+            break;
+          case '2':
+            datastore_type = "FILE_DS";
+            break;
+    }
+
     var images_str = "";
     if (info.IMAGES.ID &&
         info.IMAGES.ID.constructor == Array){

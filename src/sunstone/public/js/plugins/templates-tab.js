@@ -940,7 +940,9 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
             var image_list_array = [];
 
             $.each(images_list,function(){
-             image_list_array.push(imageElementArray(this));
+              var image_element_array = imageElementArray(this);
+              if (image_element_array)
+                    image_list_array.push(image_element_array);
             });
             
             var dataTable_template_images = $('table[id='+str_datatable_id+']').dataTable();
@@ -3638,6 +3640,8 @@ function fillTemplatePopUp(request, response){
     };
 
     var template = response.VMTEMPLATE.TEMPLATE;
+
+    $('#template',$create_template_dialog).val(convert_template_to_string(template).replace(/^[\r\n]+|\.|[\r\n]+$/g, ""));
 
     template_to_update_id = response.VMTEMPLATE.ID
 
