@@ -1559,13 +1559,14 @@ function printActionsTable(vm_info)
         $("#scheduling_actions_table").append('<tr><td></td>\
              <td class="columns"><select id="select_new_action" class="select_new_action" name="select_action">\
                                 <option value="shutdown">' + tr("shutdown") + '</option>\
+                                <option value="shutdown-hard">' + tr("shutdown-hard") + '</option>\
                                 <option value="hold">' + tr("hold") + '</option>\
                                 <option value="release">' + tr("release") + '</option>\
                                 <option value="stop">' + tr("stop") + '</option>\
-                                <option value="shutdown-hard">' + tr("shutdown-hard") + '</option>\
                                 <option value="suspend">' + tr("suspend") + '</option>\
                                 <option value="resume">' + tr("resume") + '</option>\
                                 <option value="boot">' + tr("boot") + '</option>\
+                                <option value="delete">' + tr("delete") + '</option>\
                                 <option value="delete-recreate">' + tr("delete-recreate") + '</option>\
                                 <option value="reboot">' + tr("reboot") + '</option>\
                                 <option value="reboot-hard">' + tr("reboot-hard") + '</option>\
