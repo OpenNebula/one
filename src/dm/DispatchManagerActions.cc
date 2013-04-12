@@ -38,7 +38,8 @@ int DispatchManager::deploy (
     oss << "Deploying VM " << vid;
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
-    if ( vm->get_state() == VirtualMachine::PENDING )
+    if ( vm->get_state() == VirtualMachine::PENDING ||
+         vm->get_state() == VirtualMachine::HOLD )
     {
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();

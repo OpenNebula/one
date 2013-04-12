@@ -496,7 +496,8 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if (vm->get_state() != VirtualMachine::PENDING)
+    if (vm->get_state() != VirtualMachine::PENDING &&
+        vm->get_state() != VirtualMachine::HOLD)
     {
         failure_response(ACTION,
                 request_error("Wrong state to perform action",""),
