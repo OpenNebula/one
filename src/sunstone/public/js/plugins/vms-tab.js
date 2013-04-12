@@ -1629,7 +1629,7 @@ function printActionsTable(vm_info)
         new_action.ID  = parseInt(max_id) + 1;
         new_action.ACTION = $("#select_new_action").val();
         var epoch_str   = new Date(time_value);
-        console.log(epoch_str)
+
         new_action.TIME = parseInt(epoch_str.getTime())/1000;
 
         vm_info.USER_TEMPLATE.SCHED_ACTION.push(new_action);

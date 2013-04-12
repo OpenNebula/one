@@ -196,7 +196,7 @@ function tableCheckboxesListener(dataTable){
         }
         else
         {
-            $(this).parents('tr').children().removeClass('markrowchecked'); 
+            $(this).parents('tr').children().removeClass('markrowchecked');
             $(this).parents('tr').children().removeClass('markrowselected');
         }
 
@@ -210,7 +210,7 @@ function updateView(item_list,dataTable){
     var selected_row_id = $($('td.markrowselected',dataTable.fnGetNodes())[1]).html();
     var checked_row_ids = new Array();
 
-    $.each($(dataTable.fnGetNodes()), function(){ 
+    $.each($(dataTable.fnGetNodes()), function(){
        if($('td.markrowchecked',this).length!=0)
        {
          checked_row_ids.push($($('td',$(this))[1]).html());
@@ -1148,6 +1148,310 @@ function setPermissionsTable(resource,context){
         $('.other_a',context).attr('checked','checked');
 };
 
+
+var Quotas = {
+    "vms" : function(info, default_quotas){
+        if (!$.isEmptyObject(info.VM_QUOTA)){
+            var vms_bar = quotaBar(
+                info.VM_QUOTA.VM.VMS_USED,
+                info.VM_QUOTA.VM.VMS,
+                default_quotas.VM_QUOTA.VM.VMS);
+
+            var quotas_tab_html =
+            '<table class="twelve datatable extended_table">\
+                <thead>\
+                    <tr>\
+                        <th>'+tr("VMs")+'</th>\
+                    </tr>\
+                </thead>\
+                <tbody>\
+                    <tr>\
+                        <td style="height:25px">'+vms_bar+'</td>\
+                    </tr>\
+                </tbody>\
+            </table>'
+
+            return quotas_tab_html;
+        } else {
+            return '';
+        }
+    },
+    "cpu" : function(info, default_quotas){
+        if (!$.isEmptyObject(info.VM_QUOTA)){
+            var cpu_bar = quotaBarFloat(
+                info.VM_QUOTA.VM.CPU_USED,
+                info.VM_QUOTA.VM.CPU,
+                default_quotas.VM_QUOTA.VM.CPU);
+
+            var quotas_tab_html =
+            '<table class="twelve datatable extended_table">\
+                <thead>\
+                    <tr>\
+                        <th>'+tr("CPU")+'</th>\
+                    </tr>\
+                </thead>\
+                <tbody>\
+                    <tr>\
+                        <td style="height:25px">'+cpu_bar+'</td>\
+                    </tr>\
+                </tbody>\
+            </table>'
+
+            return quotas_tab_html;
+        } else {
+            return '';
+        }
+    },
+    "memory" : function(info, default_quotas){
+        if (!$.isEmptyObject(info.VM_QUOTA)){
+            var memory_bar = quotaBarMB(
+                info.VM_QUOTA.VM.MEMORY_USED,
+                info.VM_QUOTA.VM.MEMORY,
+                default_quotas.VM_QUOTA.VM.MEMORY);
+
+            var quotas_tab_html =
+            '<table class="twelve datatable extended_table">\
+                <thead>\
+                    <tr>\
+                        <th>'+tr("Memory")+'</th>\
+                    </tr>\
+                </thead>\
+                <tbody>\
+                    <tr>\
+                        <td style="height:25px">'+memory_bar+'</td>\
+                    </tr>\
+                </tbody>\
+            </table>'
+
+            return quotas_tab_html;
+        } else {
+            return '';
+        }
+    },
+    "datastore" : function(info, default_quotas) {
+        if (!$.isEmptyObject(info.DATASTORE_QUOTA)){
+            var quotas_tab_html =
+            '<table class="twelve datatable extended_table">\
+                <thead>\
+                    <tr>\
+                        <th style="width:26%">'+tr("Datastore ID")+'</th>\
+                        <th style="width:37%">'+tr("Images")+'</th>\
+                        <th style="width:37%">'+tr("Size")+'</th>\
+                    </tr>\
+                </thead>\
+                <tbody>';
+
+            var ds_quotas = [];
+
+            if ($.isArray(info.DATASTORE_QUOTA.DATASTORE))
+                ds_quotas = info.DATASTORE_QUOTA.DATASTORE;
+            else if (info.DATASTORE_QUOTA.DATASTORE.ID)
+                ds_quotas = [info.DATASTORE_QUOTA.DATASTORE];
+
+            for (var i=0; i < ds_quotas.length; i++){
+
+                var default_ds_quotas = default_quotas.DATASTORE_QUOTA[ds_quotas[i].ID]
+
+                if (default_ds_quotas == undefined){
+                    default_ds_quotas = {
+                        "IMAGES"    : "0",
+                        "SIZE"      : "0"
+                    }
+                }
+
+                var img_bar = quotaBar(
+                    ds_quotas[i].IMAGES_USED,
+                    ds_quotas[i].IMAGES,
+                    default_ds_quotas.IMAGES);
+
+                var size_bar = quotaBarMB(
+                    ds_quotas[i].SIZE_USED,
+                    ds_quotas[i].SIZE,
+                    default_ds_quotas.SIZE);
+
+                quotas_tab_html +=
+                '<tr>\
+                    <td>'+ds_quotas[i].ID+'</td>\
+                    <td>'+img_bar+'</td>\
+                    <td>'+size_bar+'</td>\
+                </tr>';
+            }
+
+            quotas_tab_html +=
+                '</tbody>\
+            </table>';
+
+            return quotas_tab_html;
+        } else {
+            return '';
+        }
+    },
+    "image" : function(info, default_quotas) {
+        if (!$.isEmptyObject(info.IMAGE_QUOTA)){
+            var quotas_tab_html =
+            '<table class="twelve datatable extended_table">\
+                <thead>\
+                    <tr>\
+                        <th style="width:26%">'+tr("Image ID")+'</th>\
+                        <th style="width:74%">'+tr("Running VMs")+'</th>\
+                    </tr>\
+                </thead>\
+                <tbody>';
+
+            var img_quotas = [];
+
+            if ($.isArray(info.IMAGE_QUOTA.IMAGE))
+                img_quotas = info.IMAGE_QUOTA.IMAGE;
+            else if (info.IMAGE_QUOTA.IMAGE.ID)
+                img_quotas = [info.IMAGE_QUOTA.IMAGE];
+
+            for (var i=0; i < img_quotas.length; i++){
+
+                var default_img_quotas = default_quotas.IMAGE_QUOTA[img_quotas[i].ID]
+
+                if (default_img_quotas == undefined){
+                    default_img_quotas = {
+                        "RVMS"  : "0"
+                    }
+                }
+
+                var rvms_bar = quotaBar(
+                    img_quotas[i].RVMS_USED,
+                    img_quotas[i].RVMS,
+                    default_img_quotas.RVMS);
+
+                quotas_tab_html +=
+                '<tr>\
+                    <td>'+img_quotas[i].ID+'</td>\
+                    <td>'+rvms_bar+'</td>\
+                </tr>';
+            }
+
+            quotas_tab_html +=
+                '</tbody>\
+            </table>';
+
+            return quotas_tab_html;
+        } else {
+            return '';
+        }
+    },
+    "network" : function(info, default_quotas){
+        if (!$.isEmptyObject(info.NETWORK_QUOTA)){
+            var quotas_tab_html =
+            '<table class="twelve datatable extended_table">\
+                <thead>\
+                    <tr>\
+                        <th style="width:26%">'+tr("Network ID")+'</th>\
+                        <th style="width:74%">'+tr("Leases")+'</th>\
+                    </tr>\
+                </thead>\
+                <tbody>';
+
+            var net_quotas = [];
+
+            if ($.isArray(info.NETWORK_QUOTA.NETWORK))
+                net_quotas = info.NETWORK_QUOTA.NETWORK;
+            else if (info.NETWORK_QUOTA.NETWORK.ID)
+                net_quotas = [info.NETWORK_QUOTA.NETWORK];
+
+            for (var i=0; i < net_quotas.length; i++){
+
+                var default_net_quotas = default_quotas.NETWORK_QUOTA[net_quotas[i].ID]
+
+                if (default_net_quotas == undefined){
+                    default_net_quotas = {
+                        "LEASES" : "0"
+                    }
+                }
+
+                var leases_bar = quotaBar(
+                    net_quotas[i].LEASES_USED,
+                    net_quotas[i].LEASES,
+                    default_net_quotas.LEASES);
+
+                quotas_tab_html +=
+                '<tr>\
+                    <td>'+net_quotas[i].ID+'</td>\
+                    <td>'+leases_bar+'</td>\
+                </tr>';
+            }
+
+            quotas_tab_html +=
+                '</tbody>\
+            </table></div>';
+
+            return quotas_tab_html;
+        } else {
+            return '';
+        }
+    },
+    "default_quotas" : function(default_quotas){
+        // Initialize the VM_QUOTA to unlimited if it does not exist
+        if ($.isEmptyObject(default_quotas.VM_QUOTA)){
+            default_quotas.VM_QUOTA = {
+                "VM" : {
+                    "VMS"    : "0",
+                    "MEMORY" : "0",
+                    "CPU"    : "0"
+                }
+            }
+        }
+
+        // Replace the DATASTORE array with a map
+
+        var ds_quotas = [];
+
+        if ($.isArray(default_quotas.DATASTORE_QUOTA.DATASTORE))
+            ds_quotas = default_quotas.DATASTORE_QUOTA.DATASTORE;
+        else if (default_quotas.DATASTORE_QUOTA.DATASTORE)
+            ds_quotas = [default_quotas.DATASTORE_QUOTA.DATASTORE];
+
+        delete default_quotas.DATASTORE_QUOTA;
+
+        default_quotas.DATASTORE_QUOTA = {};
+
+        for (var i=0; i < ds_quotas.length; i++){
+            default_quotas.DATASTORE_QUOTA[ds_quotas[i].ID] = ds_quotas[i]
+        }
+
+        // Replace the IMAGE array with a map
+
+        var img_quotas = [];
+
+        if ($.isArray(default_quotas.IMAGE_QUOTA.IMAGE))
+            img_quotas = default_quotas.IMAGE_QUOTA.IMAGE;
+        else if (default_quotas.IMAGE_QUOTA.IMAGE)
+            img_quotas = [default_quotas.IMAGE_QUOTA.IMAGE];
+
+        delete default_quotas.IMAGE_QUOTA;
+
+        default_quotas.IMAGE_QUOTA = {};
+
+        for (var i=0; i < img_quotas.length; i++){
+            default_quotas.IMAGE_QUOTA[img_quotas[i].ID] = img_quotas[i]
+        }
+
+        // Replace the NETWORK array with a map
+
+        var net_quotas = [];
+
+        if ($.isArray(default_quotas.NETWORK_QUOTA.NETWORK))
+            net_quotas = default_quotas.NETWORK_QUOTA.NETWORK;
+        else if (default_quotas.NETWORK_QUOTA.NETWORK)
+            net_quotas = [default_quotas.NETWORK_QUOTA.NETWORK];
+
+        delete default_quotas.NETWORK_QUOTA;
+
+        default_quotas.NETWORK_QUOTA = {};
+
+        for (var i=0; i < net_quotas.length; i++){
+            default_quotas.NETWORK_QUOTA[net_quotas[i].ID] = net_quotas[i]
+        }
+
+        return default_quotas;
+    }
+}
 // Sets up a dialog to edit and update user and group quotas
 // Called from user/group plugins
 function setupQuotasDialog(dialog){

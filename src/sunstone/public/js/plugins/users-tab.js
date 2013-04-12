@@ -726,7 +726,7 @@ function updateUsersView(request,users_list){
 };
 
 function updateUserInfo(request,user){
-    var user_info = user.USER;
+    var info = user.USER;
 
     var info_tab = {
         title : tr("User information"),
@@ -735,331 +735,52 @@ function updateUserInfo(request,user){
           <div class="six columns">\
           <table id="info_user_table" class="twelve datatable extended_table">\
             <thead>\
-               <tr><th colspan="2">' + tr("User") + ' - '+user_info.NAME+'</th><th></th></tr>\
+               <tr><th colspan="2">' + tr("User") + ' - '+info.NAME+'</th><th></th></tr>\
             </thead>\
             <tbody>\
             <tr>\
                 <td class="key_td">' + tr("ID") + '</td>\
-                <td class="value_td">'+user_info.ID+'</td>\
+                <td class="value_td">'+info.ID+'</td>\
                 <td></td>\
             </tr>\
             <tr>' +
-                insert_group_dropdown("User",user_info.ID,user_info.GNAME,user_info.GID) +
+                insert_group_dropdown("User",info.ID,info.GNAME,info.GID) +
             '</tr>\
             <tr>\
                 <td class="key_td">' + tr("Authentication driver") + '</td>\
-                <td class="value_td">'+user_info.AUTH_DRIVER+'</td>\
+                <td class="value_td">'+info.AUTH_DRIVER+'</td>\
                 <td></td>\
             </tr>\
             </tbody>\
          </table>\
        </div>\
        <div class="six columns">' +
-               insert_extended_template_table(user_info.TEMPLATE,
+               insert_extended_template_table(info.TEMPLATE,
                                               "User",
-                                              user_info.ID,
+                                              info.ID,
                                               tr("Configuration Attributes")) +
        '</div>\
      </div>'
     };
 
-    var quotas_tab_html = '<div class="">';
-
-    quotas_tab_html += '<div class="six columns">'
-
-    if (!$.isEmptyObject(user_info.VM_QUOTA)){
-        var vms_bar = quotaBar(
-            user_info.VM_QUOTA.VM.VMS_USED,
-            user_info.VM_QUOTA.VM.VMS,
-            default_user_quotas.VM_QUOTA.VM.VMS);
-
-        var memory_bar = quotaBarMB(
-            user_info.VM_QUOTA.VM.MEMORY_USED,
-            user_info.VM_QUOTA.VM.MEMORY,
-            default_user_quotas.VM_QUOTA.VM.MEMORY);
-
-        var cpu_bar = quotaBarFloat(
-            user_info.VM_QUOTA.VM.CPU_USED,
-            user_info.VM_QUOTA.VM.CPU,
-            default_user_quotas.VM_QUOTA.VM.CPU);
-
-        quotas_tab_html +=
-        '<table class="twelve datatable extended_table">\
-            <thead>\
-                <tr>\
-                    <th>'+tr("VMs")+'</th>\
-                </tr>\
-            </thead>\
-            <tbody>\
-                <tr>\
-                    <td style="height:25px">'+vms_bar+'</td>\
-                </tr>\
-            </tbody>\
-        </table>\
-        <table class="twelve datatable extended_table">\
-            <thead>\
-                <tr>\
-                    <th>'+tr("CPU")+'</th>\
-                </tr>\
-            </thead>\
-            <tbody>\
-                <tr>\
-                    <td style="height:25px">'+cpu_bar+'</td>\
-                </tr>\
-            </tbody>\
-        </table>\
-        <table class="twelve datatable extended_table">\
-            <thead>\
-                <tr>\
-                    <th>'+tr("Memory")+'</th>\
-                </tr>\
-            </thead>\
-            <tbody>\
-                <tr>\
-                    <td style="height:25px">'+memory_bar+'</td>\
-                </tr>\
-            </tbody>\
-        </table>'
-    }
-
-    if (!$.isEmptyObject(user_info.DATASTORE_QUOTA)){
-        quotas_tab_html +=
-        '<table class="twelve datatable extended_table">\
-            <thead>\
-                <tr>\
-                    <th style="width:26%">'+tr("Datastore ID")+'</th>\
-                    <th style="width:37%">'+tr("Images")+'</th>\
-                    <th style="width:37%">'+tr("Size")+'</th>\
-                </tr>\
-            </thead>\
-            <tbody>';
-
-        var ds_quotas = [];
-
-        if ($.isArray(user_info.DATASTORE_QUOTA.DATASTORE))
-            ds_quotas = user_info.DATASTORE_QUOTA.DATASTORE;
-        else if (user_info.DATASTORE_QUOTA.DATASTORE.ID)
-            ds_quotas = [user_info.DATASTORE_QUOTA.DATASTORE];
-
-        for (var i=0; i < ds_quotas.length; i++){
-
-            var default_ds_quotas = default_user_quotas.DATASTORE_QUOTA[ds_quotas[i].ID]
-
-            if (default_ds_quotas == undefined){
-                default_ds_quotas = {
-                    "IMAGES"    : "0",
-                    "SIZE"      : "0"
-                }
-            }
-
-            var img_bar = quotaBar(
-                ds_quotas[i].IMAGES_USED,
-                ds_quotas[i].IMAGES,
-                default_ds_quotas.IMAGES);
-
-            var size_bar = quotaBarMB(
-                ds_quotas[i].SIZE_USED,
-                ds_quotas[i].SIZE,
-                default_ds_quotas.SIZE);
-
-            quotas_tab_html +=
-            '<tr>\
-                <td>'+ds_quotas[i].ID+'</td>\
-                <td>'+img_bar+'</td>\
-                <td>'+size_bar+'</td>\
-            </tr>';
-        }
-
-        quotas_tab_html +=
-            '</tbody>\
-        </table>';
-    }
-
-    quotas_tab_html += '</div>'
-    quotas_tab_html += '<div class="six columns">'
-
-
-    if (!$.isEmptyObject(user_info.IMAGE_QUOTA)){
-        quotas_tab_html +=
-        '<table class="twelve datatable extended_table">\
-            <thead>\
-                <tr>\
-                    <th style="width:26%">'+tr("Image ID")+'</th>\
-                    <th style="width:74%">'+tr("Running VMs")+'</th>\
-                </tr>\
-            </thead>\
-            <tbody>';
-
-        var img_quotas = [];
-
-        if ($.isArray(user_info.IMAGE_QUOTA.IMAGE))
-            img_quotas = user_info.IMAGE_QUOTA.IMAGE;
-        else if (user_info.IMAGE_QUOTA.IMAGE.ID)
-            img_quotas = [user_info.IMAGE_QUOTA.IMAGE];
-
-        for (var i=0; i < img_quotas.length; i++){
-
-            var default_img_quotas = default_user_quotas.IMAGE_QUOTA[img_quotas[i].ID]
-
-            if (default_img_quotas == undefined){
-                default_img_quotas = {
-                    "RVMS"  : "0"
-                }
-            }
-
-            var rvms_bar = quotaBar(
-                img_quotas[i].RVMS_USED,
-                img_quotas[i].RVMS,
-                default_img_quotas.RVMS);
-
-            quotas_tab_html +=
-            '<tr>\
-                <td>'+img_quotas[i].ID+'</td>\
-                <td>'+rvms_bar+'</td>\
-            </tr>';
-        }
-
-        quotas_tab_html +=
-            '</tbody>\
-        </table>';
-    }
-
-    if (!$.isEmptyObject(user_info.NETWORK_QUOTA)){
-        quotas_tab_html +=
-        '<table class="twelve datatable extended_table">\
-            <thead>\
-                <tr>\
-                    <th style="width:26%">'+tr("Network ID")+'</th>\
-                    <th style="width:74%">'+tr("Leases")+'</th>\
-                </tr>\
-            </thead>\
-            <tbody>';
-
-        var net_quotas = [];
-
-        if ($.isArray(user_info.NETWORK_QUOTA.NETWORK))
-            net_quotas = user_info.NETWORK_QUOTA.NETWORK;
-        else if (user_info.NETWORK_QUOTA.NETWORK.ID)
-            net_quotas = [user_info.NETWORK_QUOTA.NETWORK];
-
-        for (var i=0; i < net_quotas.length; i++){
-
-            var default_net_quotas = default_user_quotas.NETWORK_QUOTA[net_quotas[i].ID]
-
-            if (default_net_quotas == undefined){
-                default_net_quotas = {
-                    "LEASES" : "0"
-                }
-            }
-
-            var leases_bar = quotaBar(
-                net_quotas[i].LEASES_USED,
-                net_quotas[i].LEASES,
-                default_net_quotas.LEASES);
-
-            quotas_tab_html +=
-            '<tr>\
-                <td>'+net_quotas[i].ID+'</td>\
-                <td>'+leases_bar+'</td>\
-            </tr>';
-        }
-
-        quotas_tab_html +=
-            '</tbody>\
-        </table></div>';
-    }
-
-    quotas_tab_html += '</div>'
-
+    var default_user_quotas = Quotas.default_quotas(info.DEFAULT_USER_QUOTAS)
+    var quotas_tab_html = '<div class="four columns">' + Quotas.vms(info, default_user_quotas) + '</div>';
+    quotas_tab_html += '<div class="four columns">' + Quotas.cpu(info, default_user_quotas) + '</div>';
+    quotas_tab_html += '<div class="four columns">' + Quotas.memory(info, default_user_quotas) + '</div>';
+    quotas_tab_html += '<br><br>';
+    quotas_tab_html += '<div class="six columns">' + Quotas.image(info, default_user_quotas) + '</div>';
+    quotas_tab_html += '<div class="six columns">' + Quotas.network(info, default_user_quotas) + '</div>';
+    quotas_tab_html += '<br><br>';
+    quotas_tab_html += '<div class="twelve columns">' + Quotas.datastore(info, default_user_quotas) + '</div>';
     var quotas_tab = {
         title : tr("Quotas"),
         content : quotas_tab_html
     };
 
-//    var acct_tab = {
-//        title : tr("Historical usages"),
-//        content : '<div><table class="info_table" style="margin-bottom:0;width:100%">\
-//  <tr>\
-//    <td class="key_td"><label for="from">'+tr('From / to')+'</label></td>\
-//    <td class="value_td">\
-//       <input style="width: 7em" type="text" id="user_acct_from" name="from"/>\
-//       <input style="width: 7em" type="text" id="user_acct_to" name="to"/>\
-//       <button id="user_acct_date_ok">'+tr("Update")+'</button>\
-//    </td>\
-//  </tr>\
-//<!--\
-//  <tr>\
-//    <td class="key_td"><label for="from">'+tr('Meters')+'</label></td>\
-//    <td class="value_td">\
-//       <select style="width:173px" id="user_acct_meter1" name="meter1">\
-//       </select>\
-//       <select style="width:173px" id="user_acct_meter2" name="meter2">\
-//       </select>\
-//    </td>\
-//  </tr>\
-//-->\
-//</table></div>' + generateMonitoringDivs(user_acct_graphs, "user_acct_")
-//    };
-
     Sunstone.updateInfoPanelTab("user_info_panel","user_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("user_info_panel","user_quotas_tab",quotas_tab);
     //Sunstone.updateInfoPanelTab("user_info_panel","user_acct_tab",acct_tab);
     Sunstone.popUpInfoPanel("user_info_panel", 'users-tab');
-
-    //Enable datepicker
-    //var info_dialog = $('div#user_acct_tab');
-    //$("#user_acct_from", info_dialog).datepicker({
-    //    defaultDate: "-1d",
-    //    changeMonth: true,
-    //    numberOfMonths: 1,
-    //    dateFormat: "dd/mm/yy",
-    //    defaultDate: '-1',
-    //    onSelect: function( selectedDate ) {
-    //        $( "#user_acct_to", info_dialog).datepicker("option",
-    //                                                    "minDate",
-    //                                                    selectedDate );
-    //    }
-    //});
-    //$("#user_acct_from", info_dialog).datepicker('setDate', '-1');
-//
-    //$("#user_acct_to", info_dialog).datepicker({
-    //    defaultDate: "0",
-    //    changeMonth: true,
-    //    numberOfMonths: 1,
-    //    dateFormat: "dd/mm/yy",
-    //    maxDate: '+1',
-    //    onSelect: function( selectedDate ) {
-    //        $( "#user_acct_from", info_dialog).datepicker( "option",
-    //                                                       "maxDate",
-    //                                                       selectedDate );
-    //    }
-    //});
-    //$("#user_acct_to", info_dialog).datepicker('setDate', 'Now');
-//
-    ////Listen to set date button
-    //$('button#user_acct_date_ok', info_dialog).click(function(){
-    //    var from = $("#user_acct_from", info_dialog).val();
-    //    var to = $("#user_acct_to", info_dialog).val();
-//
-    //    var start = $.datepicker.parseDate('dd/mm/yy', from)
-    //    if (start){
-    //        start = start.getTime();
-    //        start = Math.floor(start / 1000);
-    //    }
-//
-    //    var end = $.datepicker.parseDate('dd/mm/yy', to);
-    //    if (end){
-    //        end = end.getTime();
-    //        end = Math.floor(end / 1000);
-    //    }
-//
-    //    loadAccounting('User', user_info.ID, user_acct_graphs,
-    //              { start : start, end: end });
-    //    return false;
-    //});
-//
-    ////preload acct
-    //loadAccounting('User', user_info.ID, user_acct_graphs);
 };
 
 // Prepare the user creation dialog

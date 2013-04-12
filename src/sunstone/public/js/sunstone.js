@@ -124,7 +124,7 @@ var Sunstone = {
         var tabs = SunstoneCfg["info_panels"][panel_name];
         var tab=null;
         var active=false;
-        console.log(selected_tab)
+
         for (panel_tab_name in tabs){
             if (Config.isTabPanelEnabled(selected_tab, panel_tab_name) == false) {
                 continue;
@@ -461,11 +461,6 @@ function setLogin(){
         }
         return false;
     });
-
-    $("span.user-login a.configuration").click(function(){
-        $config_dialog.reveal();
-    });
-
 }
 
 //returns whether we are Sunstone, or oZones
