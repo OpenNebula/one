@@ -1824,7 +1824,6 @@ function setupCreateTemplateDialog(){
       nics_index++;
     }
 
-
     /**************************************************************************
         OS TAB
 
@@ -1838,10 +1837,11 @@ function setupCreateTemplateDialog(){
             '<dd class="active"><a href="#boot">'+tr("Boot")+'</a></dd>'+
             '<dd><a href="#kernel">'+tr("Kernel")+'</a></dd>'+
             '<dd><a href="#ramdisk">'+tr("Ramdisk")+'</a></dd>'+
+            '<dd><a href="#features">'+tr("Features")+'</a></dd>'+
           '</dl>'+
           '<ul class="tabs-content">'+
-          '<li class="wizard_internal_tab vm_param active" id="bootTab">'+
-            '<div class="six columns">'+
+          '<li class="wizard_internal_tab active" id="bootTab">'+
+            '<div class="six columns vm_param">'+
                 '<div class="row">'+
                   '<div class="four columns">'+
                     '<label class="right inline" for="ARCH">'+tr("Arch")+':</label>'+
@@ -1886,7 +1886,7 @@ function setupCreateTemplateDialog(){
                   '</div>'+
                 '</div>'+
             '</div>'+
-            '<div class="six columns">'+
+            '<div class="six columns vm_param">'+
                 '<div class="row">'+
                   '<div class="four columns">'+
                     '<label class="right inline" for="KERNEL_CMD">'+tr("Kernel cmd")+':</label>'+
@@ -2031,6 +2031,39 @@ function setupCreateTemplateDialog(){
                   '</div>'+
                 '</div>'+
             '</li>'+
+          '<li class="wizard_internal_tab active" id="featuresTab">'+
+            '<div class="six columns vm_param">'+
+                '<div class="row">'+
+                  '<div class="four columns">'+
+                    '<label class="right inline" for="ACPI">'+tr("ACPI")+':</label>'+
+                  '</div>'+
+                  '<div class="six columns">'+
+                    '<select id="ACPI" name="acpi">'+
+                        '<option id="no_apci" name="no_apci" value=""></option>'+
+                        '<option value="yes">'+tr("Yes")+'</option>'+
+                        '<option value="no">'+tr("No")+'</option>'+
+                    '</select>'+
+                  '</div>'+
+                  '<div class="two columns">'+
+                    '<div class="tip">'+tr("Add support in the VM for Advanced Configuration and Power Interface (ACPI)")+'</div>'+
+                  '</div>'+
+                '</div>'+
+                '<div class="row">'+
+                  '<div class="four columns">'+
+                    '<label class="right inline" for="PAE">'+tr("PAE")+':</label>'+
+                  '</div>'+
+                  '<div class="six columns">'+
+                    '<select id="PAE" name="pae">'+
+                      '<option id="no_pae" name="no_pae" value=""></option>'+
+                        '<option value="yes">'+tr("Yes")+'</option>'+
+                        '<option value="no">'+tr("No")+'</option>'+
+                    '</select>'+
+                  '</div>'+
+                  '<div class="two columns">'+
+                    '<div class="tip">'+tr("Add support in the VM for Physical Address Extension (PAE)")+'</div>'+
+                  '</div>'+
+                '</div>'+
+          '</li>'+            
             '</ul>'+
       '</form>'+
         '</li>'
@@ -3277,7 +3310,6 @@ function setupCreateTemplateDialog(){
     //Sections, used to stay within their scope
     var section_capacity = $('li#capacityTab',dialog);
     var section_os_boot = $('div#os_boot_opts',dialog);
-    var section_features = $('div#features',dialog);
     var section_disks = $('div#disk1',dialog);
     var section_networks = $('div#networks',dialog);
     var section_inputs = $('div#inputs',dialog);
@@ -3314,7 +3346,16 @@ function setupCreateTemplateDialog(){
         //
 
         vm_json["OS"] = {};
-        addSectionJSON(vm_json["OS"],$('li#osTab',dialog));
+        addSectionJSON(vm_json["OS"],$('li#osTab li#bootTab',dialog));
+        addSectionJSON(vm_json["OS"],$('li#osTab li#kernelTab',dialog));
+        addSectionJSON(vm_json["OS"],$('li#osTab li#ramdiskTab',dialog));
+
+        //
+        // FEATURES
+        //
+
+        vm_json['FEATURES'] = {};
+        addSectionJSON(vm_json["FEATURES"],$('li#osTab li#featuresTab',dialog));
 
         //
         // DISK

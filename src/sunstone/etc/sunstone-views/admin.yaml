@@ -164,6 +164,7 @@ tabs:
             storage: true
             network: true
             os_booting: true
+            features: true
             input_output: true
             context: true
             scheduling: true
