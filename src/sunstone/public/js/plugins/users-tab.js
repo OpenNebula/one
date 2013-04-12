@@ -765,6 +765,8 @@ function updateUserInfo(request,user){
 
     var quotas_tab_html = '<div class="">';
 
+    quotas_tab_html += '<div class="six columns">'
+
     if (!$.isEmptyObject(user_info.VM_QUOTA)){
         var vms_bar = quotaBar(
             user_info.VM_QUOTA.VM.VMS_USED,
@@ -782,35 +784,52 @@ function updateUserInfo(request,user){
             default_user_quotas.VM_QUOTA.VM.CPU);
 
         quotas_tab_html +=
-        '<div class="six columns">\
-        <table class="twelve datatable extended_table">\
+        '<table class="twelve datatable extended_table">\
             <thead>\
                 <tr>\
                     <th>'+tr("VMs")+'</th>\
-                    <th>'+tr("Memory")+'</th>\
-                    <th>'+tr("CPU")+'</th>\
                 </tr>\
             </thead>\
             <tbody>\
                 <tr>\
                     <td style="height:25px">'+vms_bar+'</td>\
-                    <td>'+memory_bar+'</td>\
-                    <td>'+cpu_bar+'</td>\
                 </tr>\
             </tbody>\
         </table>\
-     </div>'
+        <table class="twelve datatable extended_table">\
+            <thead>\
+                <tr>\
+                    <th>'+tr("CPU")+'</th>\
+                </tr>\
+            </thead>\
+            <tbody>\
+                <tr>\
+                    <td style="height:25px">'+cpu_bar+'</td>\
+                </tr>\
+            </tbody>\
+        </table>\
+        <table class="twelve datatable extended_table">\
+            <thead>\
+                <tr>\
+                    <th>'+tr("Memory")+'</th>\
+                </tr>\
+            </thead>\
+            <tbody>\
+                <tr>\
+                    <td style="height:25px">'+memory_bar+'</td>\
+                </tr>\
+            </tbody>\
+        </table>'
     }
 
     if (!$.isEmptyObject(user_info.DATASTORE_QUOTA)){
         quotas_tab_html +=
-        '<div class="six columns">\
-        <table class="twelve datatable extended_table">\
+        '<table class="twelve datatable extended_table">\
             <thead>\
                 <tr>\
-                    <th style="width:24%">'+tr("Datastore ID")+'</th>\
-                    <th style="width:38%">'+tr("Images")+'</th>\
-                    <th style="width:38%">'+tr("Size")+'</th>\
+                    <th style="width:26%">'+tr("Datastore ID")+'</th>\
+                    <th style="width:37%">'+tr("Images")+'</th>\
+                    <th style="width:37%">'+tr("Size")+'</th>\
                 </tr>\
             </thead>\
             <tbody>';
@@ -853,18 +872,20 @@ function updateUserInfo(request,user){
 
         quotas_tab_html +=
             '</tbody>\
-        </table>\
-     </div>';
+        </table>';
     }
+
+    quotas_tab_html += '</div>'
+    quotas_tab_html += '<div class="six columns">'
+
 
     if (!$.isEmptyObject(user_info.IMAGE_QUOTA)){
         quotas_tab_html +=
-        '<div class="six columns">\
-        <table class="twelve datatable extended_table">\
+        '<table class="twelve datatable extended_table">\
             <thead>\
                 <tr>\
-                    <th>'+tr("Image ID")+'</th>\
-                    <th>'+tr("Running VMs")+'</th>\
+                    <th style="width:26%">'+tr("Image ID")+'</th>\
+                    <th style="width:74%">'+tr("Running VMs")+'</th>\
                 </tr>\
             </thead>\
             <tbody>';
@@ -900,18 +921,16 @@ function updateUserInfo(request,user){
 
         quotas_tab_html +=
             '</tbody>\
-        </table>\
-     </div>';
+        </table>';
     }
 
     if (!$.isEmptyObject(user_info.NETWORK_QUOTA)){
         quotas_tab_html +=
-        '<div class="six columns">\
-        <table class="twelve datatable extended_table">\
+        '<table class="twelve datatable extended_table">\
             <thead>\
                 <tr>\
-                    <th>'+tr("Network ID")+'</th>\
-                    <th>'+tr("Leases")+'</th>\
+                    <th style="width:26%">'+tr("Network ID")+'</th>\
+                    <th style="width:74%">'+tr("Leases")+'</th>\
                 </tr>\
             </thead>\
             <tbody>';
@@ -947,9 +966,10 @@ function updateUserInfo(request,user){
 
         quotas_tab_html +=
             '</tbody>\
-        </table></div>\
-     </div>';
+        </table></div>';
     }
+
+    quotas_tab_html += '</div>'
 
     var quotas_tab = {
         title : tr("Quotas"),

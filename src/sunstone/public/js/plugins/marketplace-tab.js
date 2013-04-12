@@ -191,7 +191,7 @@ function updateMarketInfo(request,app){
               </tr>\
               <tr>\
                 <td class="key_td">' + tr("URL") + '</td>\
-                <td class="value_td"><a href="'+config_response.system_config.marketplace_url+'/'+app['_id']["$oid"]+'" target="_blank">'+tr("link")+'</a></td>\
+                <td class="value_td"><a href="'+config.system_config.marketplace_url+'/'+app['_id']["$oid"]+'" target="_blank">'+tr("link")+'</a></td>\
               </tr>\
               <tr>\
                 <td class="key_td">' + tr("Publisher") + '</td>\
