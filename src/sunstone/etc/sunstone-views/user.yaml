@@ -12,10 +12,6 @@ tabs:
             #- vms
         widgets_one_per_row:
             - vms
-    dashboard-users-tab:
-        panel_tabs:
-        enabled: false
-        actions:
     system-tab:
         enabled: false
         panel_tabs:

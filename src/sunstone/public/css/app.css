@@ -6590,9 +6590,10 @@ form.creation {
   width: 100%;
   text-align: center;
   background: #FFF;
+  line-height: 18px;
 }
 
-/* line 564, ../sass/app.scss */
+/* line 565, ../sass/app.scss */
 .progress {
   position: absolute;
   width: 100%;
@@ -6600,7 +6601,7 @@ form.creation {
   background: #FFF;
 }
 
-/* line 571, ../sass/app.scss */
+/* line 572, ../sass/app.scss */
 .progress-text {
   position: absolute;
   width: 100%;
@@ -6608,53 +6609,53 @@ form.creation {
   color: #000 !important;
 }
 
-/* line 578, ../sass/app.scss */
+/* line 579, ../sass/app.scss */
 .meter {
   background: #cdebf5 !important;
 }
 
-/* line 582, ../sass/app.scss */
+/* line 583, ../sass/app.scss */
 .dashboard .subheader {
   text-align: center;
 }
 
-/* line 586, ../sass/app.scss */
+/* line 587, ../sass/app.scss */
 .dashboard h2.subheader {
   margin-bottom: 0;
   margin-top: 0;
 }
 
-/* line 591, ../sass/app.scss */
+/* line 592, ../sass/app.scss */
 .dashboard h6.subheader {
   margin-top: 0;
 }
 
-/* line 595, ../sass/app.scss */
+/* line 596, ../sass/app.scss */
 .dashboard h3.subheader {
   margin-top: 0;
 }
 
-/* line 599, ../sass/app.scss */
+/* line 600, ../sass/app.scss */
 ul.button-group {
   margin-bottom: 0;
 }
 
-/* line 603, ../sass/app.scss */
+/* line 604, ../sass/app.scss */
 .value_td {
   text-overflow: ellipsis;
 }
 
-/* line 607, ../sass/app.scss */
+/* line 608, ../sass/app.scss */
 small {
   color: #b6b6b6 !important;
 }
 
-/* line 611, ../sass/app.scss */
+/* line 612, ../sass/app.scss */
 .header-dashboard {
   margin-top: -5px;
 }
 
-/* line 615, ../sass/app.scss */
+/* line 616, ../sass/app.scss */
 .span-dashboard {
   background: #fcfcfc;
   color: #6f6f6f;
@@ -6662,43 +6663,43 @@ small {
   box-shadow: 0 0 2px 0px #6f6f6f;
 }
 
-/* line 624, ../sass/app.scss */
+/* line 625, ../sass/app.scss */
 .button.dropdown.small::after {
   border-color: #9f9f9f transparent transparent transparent;
   border-width: 4px;
 }
 
-/* line 629, ../sass/app.scss */
+/* line 630, ../sass/app.scss */
 .footer-opennebula {
   font-size: 10px;
   color: #b6b6b6 !important;
 }
 
-/* line 634, ../sass/app.scss */
+/* line 635, ../sass/app.scss */
 a.footer.button {
   margin: 5px;
 }
 
-/* line 639, ../sass/app.scss */
+/* line 640, ../sass/app.scss */
 .user-login {
   float: right;
 }
 
-/* line 643, ../sass/app.scss */
+/* line 644, ../sass/app.scss */
 .user-login i.header-icon {
   color: #6f6f6f;
   font-weight: 300;
   font-size: 23px;
 }
 
-/* line 649, ../sass/app.scss */
+/* line 650, ../sass/app.scss */
 .user-login .button {
   color: #6f6f6f;
   font-size: 60%;
   line-height: 0;
 }
 
-/* line 655, ../sass/app.scss */
+/* line 656, ../sass/app.scss */
 .user-login .button.secondary {
   background: #f2f2f2;
   border: 0px;
@@ -6706,88 +6707,88 @@ a.footer.button {
   font-weight: 300;
 }
 
-/* line 663, ../sass/app.scss */
+/* line 664, ../sass/app.scss */
 .user-login .button.secondary:hover, .user-login .button.secondary:focus {
   background-color: #d0d0d0;
   color: #6f6f6f;
 }
 
-/* line 668, ../sass/app.scss */
+/* line 669, ../sass/app.scss */
 .user-login .button.dropdown.tiny::after {
   border: solid 5px;
   border-color: #b6b6b6 transparent transparent transparent;
   right: 7px;
 }
 
-/* line 674, ../sass/app.scss */
+/* line 675, ../sass/app.scss */
 .header-resource {
   text-align: center;
 }
 
-/* line 678, ../sass/app.scss */
+/* line 679, ../sass/app.scss */
 .header-resource {
   float: left;
 }
 
-/* line 682, ../sass/app.scss */
+/* line 683, ../sass/app.scss */
 .header {
   text-align: center;
 }
 
-/* line 686, ../sass/app.scss */
+/* line 687, ../sass/app.scss */
 .button.dropdown.tiny ul.no-hover.show-dropdown {
   top: 34px !important;
 }
 
-/* line 690, ../sass/app.scss */
+/* line 691, ../sass/app.scss */
 .graph_legend {
   text-align: center;
 }
 
-/* line 694, ../sass/app.scss */
+/* line 695, ../sass/app.scss */
 .graph_legend table {
   background: inherit;
   border: 0px;
   width: 100%;
 }
 
-/* line 700, ../sass/app.scss */
+/* line 701, ../sass/app.scss */
 .graph_legend h3 {
   margin-top: 0px;
 }
 
-/* line 704, ../sass/app.scss */
+/* line 705, ../sass/app.scss */
 .graph_legend .subheader {
   margin-bottom: 5px;
 }
 
-/* line 708, ../sass/app.scss */
+/* line 709, ../sass/app.scss */
 .dashboard hr {
   margin: 0;
   margin-bottom: 8px;
 }
 
-/* line 713, ../sass/app.scss */
+/* line 714, ../sass/app.scss */
 .graph {
   margin-bottom: 15px !important;
 }
 
-/* line 717, ../sass/app.scss */
+/* line 718, ../sass/app.scss */
 .dashboard-panel {
   height: 450px;
 }
 
-/* line 721, ../sass/app.scss */
+/* line 722, ../sass/app.scss */
 .vm_log_error {
   color: #ff8d81;
 }
 
-/* line 725, ../sass/app.scss */
+/* line 726, ../sass/app.scss */
 .noUiSlider {
   margin: 10px;
 }
 
-/* line 729, ../sass/app.scss */
+/* line 730, ../sass/app.scss */
 .log-tab {
   background: #6f6f6f;
   color: #f2f2f2;
@@ -6795,12 +6796,12 @@ a.footer.button {
   padding: 20px;
 }
 
-/* line 736, ../sass/app.scss */
+/* line 737, ../sass/app.scss */
 .reveal-modal ul.tabs-content {
   margin: 0 0 0px;
 }
 
-/* line 740, ../sass/app.scss */
+/* line 741, ../sass/app.scss */
 .reveal-body {
   height: 80%;
   overflow-y: overlay;
@@ -6808,27 +6809,27 @@ a.footer.button {
   padding: 5px 20px;
 }
 
-/* line 747, ../sass/app.scss */
+/* line 748, ../sass/app.scss */
 .reveal-footer {
   position: absolute;
   bottom: 20px;
   width: 90%;
 }
 
-/* line 753, ../sass/app.scss */
+/* line 754, ../sass/app.scss */
 .max-height {
   max-height: 85%;
   position: absolute;
   height: 100%;
 }
 
-/* line 759, ../sass/app.scss */
+/* line 760, ../sass/app.scss */
 .ui-layout-content {
   overflow-y: overlay;
   overflow-x: hidden;
 }
 
-/* line 766, ../sass/app.scss */
+/* line 767, ../sass/app.scss */
 div.time-picker {
   position: absolute;
   height: 191px;
@@ -6841,20 +6842,20 @@ div.time-picker {
   margin: 0;
 }
 
-/* line 776, ../sass/app.scss */
+/* line 777, ../sass/app.scss */
 div.time-picker-12hours {
   width: 6em;
   /* needed for IE */
 }
 
-/* line 780, ../sass/app.scss */
+/* line 781, ../sass/app.scss */
 div.time-picker ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
 }
 
-/* line 785, ../sass/app.scss */
+/* line 786, ../sass/app.scss */
 div.time-picker li {
   cursor: pointer;
   height: 20px;
@@ -6862,76 +6863,76 @@ div.time-picker li {
   padding: 4px 3px;
 }
 
-/* line 791, ../sass/app.scss */
+/* line 792, ../sass/app.scss */
 div.time-picker li.selected {
   background: #0063CE;
   color: #fff;
 }
 
-/* line 797, ../sass/app.scss */
+/* line 798, ../sass/app.scss */
 .timepicker {
   float: left;
   width: 50px !important;
 }
 
-/* line 802, ../sass/app.scss */
+/* line 803, ../sass/app.scss */
 .jdpicker {
   float: left;
   width: 90px !important;
 }
 
-/* line 807, ../sass/app.scss */
+/* line 808, ../sass/app.scss */
 .columns {
   line-height: 2;
 }
 
-/* line 811, ../sass/app.scss */
+/* line 812, ../sass/app.scss */
 .transparent_table, .transparent_table tr {
   background: none !important;
   border: 0px !important;
 }
 
-/* line 816, ../sass/app.scss */
+/* line 817, ../sass/app.scss */
 form {
   margin: 0 !important;
 }
 
-/* line 820, ../sass/app.scss */
+/* line 821, ../sass/app.scss */
 #template_create_tabs {
   width: 180px;
 }
 
-/* line 825, ../sass/app.scss */
+/* line 826, ../sass/app.scss */
 .dataTables_scrollHead {
   height: 30px;
 }
 
-/* line 829, ../sass/app.scss */
+/* line 830, ../sass/app.scss */
 .dataTables_scrollBody {
   margin-top: -3px;
 }
 
-/* line 833, ../sass/app.scss */
+/* line 834, ../sass/app.scss */
 .show_hide {
   cursor: pointer;
 }
 
-/* line 837, ../sass/app.scss */
+/* line 838, ../sass/app.scss */
 .show_hide:hover > h4 > small {
   color: #6f6f6f !important;
 }
 
-/* line 841, ../sass/app.scss */
+/* line 842, ../sass/app.scss */
 .label.allocated {
   background-color: #2ba6cb;
 }
 
-/* line 844, ../sass/app.scss */
+/* line 845, ../sass/app.scss */
 .label.real {
   background-color: #707d85;
 }
 
-/* line 847, ../sass/app.scss */
+/* line 848, ../sass/app.scss */
 .label.total {
   background-color: #ac5a62;
 }

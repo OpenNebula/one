@@ -1158,18 +1158,7 @@ var Quotas = {
                 default_quotas.VM_QUOTA.VM.VMS);
 
             var quotas_tab_html =
-            '<table class="twelve datatable extended_table">\
-                <thead>\
-                    <tr>\
-                        <th>'+tr("VMs")+'</th>\
-                    </tr>\
-                </thead>\
-                <tbody>\
-                    <tr>\
-                        <td style="height:25px">'+vms_bar+'</td>\
-                    </tr>\
-                </tbody>\
-            </table>'
+            '<fieldset><legend>' + tr("VMs") + '</legend><div>'+vms_bar+'</div><br></fieldset>'
 
             return quotas_tab_html;
         } else {
@@ -1184,18 +1173,7 @@ var Quotas = {
                 default_quotas.VM_QUOTA.VM.CPU);
 
             var quotas_tab_html =
-            '<table class="twelve datatable extended_table">\
-                <thead>\
-                    <tr>\
-                        <th>'+tr("CPU")+'</th>\
-                    </tr>\
-                </thead>\
-                <tbody>\
-                    <tr>\
-                        <td style="height:25px">'+cpu_bar+'</td>\
-                    </tr>\
-                </tbody>\
-            </table>'
+            '<fieldset><legend>' + tr("CPU") + '</legend><div>'+cpu_bar+'</div><br></fieldset>'
 
             return quotas_tab_html;
         } else {
@@ -1210,18 +1188,7 @@ var Quotas = {
                 default_quotas.VM_QUOTA.VM.MEMORY);
 
             var quotas_tab_html =
-            '<table class="twelve datatable extended_table">\
-                <thead>\
-                    <tr>\
-                        <th>'+tr("Memory")+'</th>\
-                    </tr>\
-                </thead>\
-                <tbody>\
-                    <tr>\
-                        <td style="height:25px">'+memory_bar+'</td>\
-                    </tr>\
-                </tbody>\
-            </table>'
+            '<fieldset><legend>' + tr("Memory") + '</legend><div>'+memory_bar+'</div><br></fieldset>'
 
             return quotas_tab_html;
         } else {
@@ -1231,12 +1198,14 @@ var Quotas = {
     "datastore" : function(info, default_quotas) {
         if (!$.isEmptyObject(info.DATASTORE_QUOTA)){
             var quotas_tab_html =
-            '<table class="twelve datatable extended_table">\
+            '<fieldset>\
+                <legend>'+tr("Datastore")+'</legend>\
+                <table class="twelve datatable extended_table">\
                 <thead>\
                     <tr>\
-                        <th style="width:26%">'+tr("Datastore ID")+'</th>\
-                        <th style="width:37%">'+tr("Images")+'</th>\
-                        <th style="width:37%">'+tr("Size")+'</th>\
+                        <th style="width:16%">'+tr("ID")+'</th>\
+                        <th style="width:42%">'+tr("Images")+'</th>\
+                        <th style="width:42%">'+tr("Size")+'</th>\
                     </tr>\
                 </thead>\
                 <tbody>';
@@ -1278,8 +1247,9 @@ var Quotas = {
             }
 
             quotas_tab_html +=
-                '</tbody>\
-            </table>';
+                    '</tbody>\
+                </table>\
+            </fieldset>';
 
             return quotas_tab_html;
         } else {
@@ -1289,11 +1259,13 @@ var Quotas = {
     "image" : function(info, default_quotas) {
         if (!$.isEmptyObject(info.IMAGE_QUOTA)){
             var quotas_tab_html =
-            '<table class="twelve datatable extended_table">\
+            '<fieldset>\
+                <legend>'+tr("Image")+'</legend>\
+                <table class="twelve datatable extended_table">\
                 <thead>\
                     <tr>\
-                        <th style="width:26%">'+tr("Image ID")+'</th>\
-                        <th style="width:74%">'+tr("Running VMs")+'</th>\
+                        <th style="width:16%">'+tr("ID")+'</th>\
+                        <th style="width:84%">'+tr("Running VMs")+'</th>\
                     </tr>\
                 </thead>\
                 <tbody>';
@@ -1328,8 +1300,9 @@ var Quotas = {
             }
 
             quotas_tab_html +=
-                '</tbody>\
-            </table>';
+                    '</tbody>\
+                </table>\
+            </fieldset>';
 
             return quotas_tab_html;
         } else {
@@ -1339,14 +1312,16 @@ var Quotas = {
     "network" : function(info, default_quotas){
         if (!$.isEmptyObject(info.NETWORK_QUOTA)){
             var quotas_tab_html =
-            '<table class="twelve datatable extended_table">\
-                <thead>\
-                    <tr>\
-                        <th style="width:26%">'+tr("Network ID")+'</th>\
-                        <th style="width:74%">'+tr("Leases")+'</th>\
-                    </tr>\
-                </thead>\
-                <tbody>';
+            '<fieldset>\
+                <legend>'+tr("Network")+'</legend>\
+                <table class="twelve datatable extended_table">\
+                    <thead>\
+                        <tr>\
+                            <th style="width:16%">'+tr("ID")+'</th>\
+                            <th style="width:84%">'+tr("Leases")+'</th>\
+                        </tr>\
+                    </thead>\
+                    <tbody>';
 
             var net_quotas = [];
 
@@ -1378,8 +1353,9 @@ var Quotas = {
             }
 
             quotas_tab_html +=
-                '</tbody>\
-            </table></div>';
+                    '</tbody>\
+                </table>\
+            </fieldset>';
 
             return quotas_tab_html;
         } else {

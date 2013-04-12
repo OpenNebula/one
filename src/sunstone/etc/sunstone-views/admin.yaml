@@ -11,10 +11,6 @@ tabs:
             - hosts
             - vms
         widgets_one_per_row:
-    dashboard-users-tab:
-        panel_tabs:
-        enabled: false
-        actions:
     system-tab:
         enabled: true
         panel_tabs:
