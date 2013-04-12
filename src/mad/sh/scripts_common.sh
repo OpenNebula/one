@@ -144,6 +144,28 @@ function exec_and_log
     fi
 }
 
+# Like exec_and_log but does not exit on failure. Just sets the variable
+# ERROR to the error message.
+function exec_and_set_error
+{
+    message=$2
+
+    EXEC_LOG_ERR=$(bash -c "$1" 2>&1 1>/dev/null)
+    EXEC_LOG_RC=$?
+
+    export ERROR=""
+
+    if [ $EXEC_LOG_RC -ne 0 ]; then
+        log_error "Command \"$1\" failed: $EXEC_LOG_ERR"
+
+        if [ -n "$2" ]; then
+            export ERROR="$2"
+        else
+            export ERROR="Error executing $1: $EXEC_LOG_ERR"
+        fi
+    fi
+}
+
 # Like exec_and_log but the first argument is the number of seconds
 # before here is timeout and kills the command
 #
@@ -251,7 +273,7 @@ function mkfs_command {
             return 0
             ;;
         "swap")
-            echo "$MKSWAP $DST"
+            echo "$MKSWAP -L swap $DST"
             return 0
             ;;
         "qcow2")

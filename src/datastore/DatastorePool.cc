@@ -179,10 +179,12 @@ int DatastorePool::allocate(
         const string&       cluster_name,
         string&             error_str)
 {
-    Datastore *     ds;
-    Datastore *     ds_aux = 0;
-    string          name;
-    ostringstream   oss;
+    Datastore * ds;
+    Datastore * ds_aux = 0;
+
+    string name;
+
+    ostringstream oss;
 
     ds = new Datastore(uid, gid, uname, gname, umask,
             ds_template, cluster_id, cluster_name);
@@ -193,14 +195,9 @@ int DatastorePool::allocate(
 
     ds->get_template_attribute("NAME", name);
 
-    if ( name.empty() )
+    if ( !PoolObjectSQL::name_is_valid(name, error_str) )
     {
         goto error_name;
-    }
-
-    if ( name.length() > 128 )
-    {
-        goto error_name_length;
     }
 
     ds_aux = get(name,false);
@@ -214,22 +211,13 @@ int DatastorePool::allocate(
 
     return *oid;
 
-error_name:
-    oss << "NAME cannot be empty.";
-    goto error_common;
-
-error_name_length:
-    oss << "NAME is too long; max length is 128 chars.";
-    goto error_common;
-
 error_duplicated:
     oss << "NAME is already taken by DATASTORE " << ds_aux->get_oid() << ".";
-
-error_common:
-    delete ds;
-
-    *oid = -1;
     error_str = oss.str();
+
+error_name:
+    delete ds;
+    *oid = -1;
 
     return *oid;
 }

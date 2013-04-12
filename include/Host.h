@@ -113,6 +113,11 @@ public:
                     map<int,string> &found);
 
     /**
+     * Sets the host_share monitoring values to 0
+     */
+    void reset_share_monitoring();
+
+    /**
      * Update host after a failed monitor. It state
      * and template attributes
      *    @param message from the driver

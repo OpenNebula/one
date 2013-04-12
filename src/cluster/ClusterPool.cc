@@ -50,17 +50,15 @@ ClusterPool::ClusterPool(SqlDB * db):PoolSQL(db, Cluster::table, true)
 
 int ClusterPool::allocate(string name, int * oid, string& error_str)
 {
-    Cluster *       cluster;
-    ostringstream   oss;
+    Cluster * cluster;
+    string    error;
 
-    if ( name.empty() )
+    ostringstream oss;
+
+    // Check name
+    if ( !PoolObjectSQL::name_is_valid(name, error_str) )
     {
         goto error_name;
-    }
-
-    if ( name.length() > 128 )
-    {
-        goto error_name_length;
     }
 
     // Check for duplicates
@@ -79,20 +77,13 @@ int ClusterPool::allocate(string name, int * oid, string& error_str)
 
     return *oid;
 
-error_name:
-    oss << "NAME cannot be empty.";
-    goto error_common;
-
-error_name_length:
-    oss << "NAME is too long; max length is 128 chars.";
-    goto error_common;
 
 error_duplicated:
     oss << "NAME is already taken by CLUSTER " << cluster->get_oid() << ".";
-
-error_common:
-    *oid = -1;
     error_str = oss.str();
+
+error_name:
+    *oid = -1;
 
     return *oid;
 }

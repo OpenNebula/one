@@ -544,7 +544,7 @@ var vm_actions = {
         },
         error: vmMonitorError
     },
-
+/*
     "VM.pool_monitor" : {
         type: "monitor_global",
         call : OpenNebula.VM.pool_monitor,
@@ -581,7 +581,7 @@ var vm_actions = {
         // TODO: ignore error, or set message similar to hostMonitorError?
         error: onError
     },
-
+*/
     "VM.chown" : {
         type: "multiple",
         call: OpenNebula.VM.chown,
@@ -841,13 +841,13 @@ var vm_buttons = {
 
     "VM.destroy" : {
         type: "confirm",
-        text: tr("Destroy"),
+        text: tr("Delete"),
         layout: "vmsdelete_buttons",
         tip: tr("This will delete the selected VMs from the database")
     },
     "VM.destroy_recreate" : {
         type: "confirm",
-        text: tr("Destroy") + ' <span class="label secondary radius">recreate</span>',
+        text: tr("Delete") + ' <span class="label secondary radius">recreate</span>',
         layout: "vmsrepeat_buttons",
         tip: tr("This will resubmits VMs to PENDING state")
     },
@@ -1102,9 +1102,56 @@ function updateVMachinesView(request, vmachine_list){
     failed_vms = 0;
     off_vms = 0;
 
-    $.each(vmachine_list,function(){
-        vmachine_list_array.push( vMachineElementArray(this));
-    });
+
+    var do_vm_monitoring_graphs = true;
+
+    if (!do_vm_monitoring_graphs){
+
+        $.each(vmachine_list,function(){
+            vmachine_list_array.push( vMachineElementArray(this));
+        });
+
+    } else {
+        if (typeof (vm_monitoring_data) == 'undefined'){
+            vm_monitoring_data = {};
+        }
+
+        var metrics = ["NET_TX", "NET_RX"];
+
+        $.each(vmachine_list,function(){
+            vmachine_list_array.push( vMachineElementArray(this));
+
+            var empty = false;
+            var time = this.VM.LAST_POLL;
+
+            if (time != "0"){
+
+                if (vm_monitoring_data[this.VM.ID] === undefined){
+                    empty = true;
+
+                    vm_monitoring_data[this.VM.ID] = {};
+
+                    for (var i=0; i<metrics.length; i++) {
+                        vm_monitoring_data[this.VM.ID][metrics[i]] = [];
+                    }
+                }
+
+                for (var i=0; i<metrics.length; i++) {
+                    var last_time = "0";
+
+                    var mon_data = vm_monitoring_data[this.VM.ID][metrics[i]];
+
+                    if (!empty){
+                        last_time = mon_data[ mon_data.length-1 ][0];
+                    }
+
+                    if (last_time != time){
+                        mon_data.push( [time, this.VM[metrics[i]]] );
+                    }
+                }
+            }
+        });
+    }
 
     updateView(vmachine_list_array,dataTable_vMachines);
     //SunstoneMonitoring.monitor('VM', vmachine_list)
@@ -1124,8 +1171,37 @@ function updateVMachinesView(request, vmachine_list){
     $("#failed_vms", form).text(failed_vms);
     $("#off_vms", form).text(off_vms);
 
-    // Update the dashboard graphs with monitoring information
-    Sunstone.runAction("VM.pool_monitor",{ monitor_resources : "NET_TX,NET_RX"});
+
+    if (do_vm_monitoring_graphs){
+        var vm_dashboard_graphs = [
+            { labels : "Network transmission",
+              monitor_resources : "NET_TX",
+              humanize_figures : true,
+              convert_from_bytes : true,
+              y_sufix : "B/s",
+              derivative : true,
+              div_graph : $("#dash_vm_net_tx_graph", $dashboard)
+            },
+            { labels : "Network reception",
+              monitor_resources : "NET_RX",
+              humanize_figures : true,
+              convert_from_bytes : true,
+              y_sufix : "B/s",
+              derivative : true,
+              div_graph : $("#dash_vm_net_rx_graph", $dashboard)
+            }
+        ];
+
+        var vm_monitoring_data_copy = jQuery.extend(true, {}, vm_monitoring_data);
+
+        // TODO: plot only when the dashboard is visible
+        for(var i=0; i<vm_dashboard_graphs.length; i++) {
+            plot_totals(
+                vm_monitoring_data_copy,
+                vm_dashboard_graphs[i]
+            );
+        }
+    }
 };
 
 
@@ -1490,7 +1566,7 @@ function printActionsTable(vm_info)
                                 <option value="suspend">' + tr("suspend") + '</option>\
                                 <option value="resume">' + tr("resume") + '</option>\
                                 <option value="boot">' + tr("boot") + '</option>\
-                                <option value="destroy-recreate">' + tr("destroy-recreate") + '</option>\
+                                <option value="delete-recreate">' + tr("delete-recreate") + '</option>\
                                 <option value="reboot">' + tr("reboot") + '</option>\
                                 <option value="reboot-hard">' + tr("reboot-hard") + '</option>\
                                 <option value="poweroff">' + tr("poweroff") + '</option>\

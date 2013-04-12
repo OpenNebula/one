@@ -455,17 +455,6 @@ function groupElements(){
 function groupElementArray(group_json){
     var group = group_json.GROUP;
 
-    //var users_str="";
-    //if (group.USERS.ID &&
-    //    group.USERS.ID.constructor == Array){
-    //    for (var i=0; i<group.USERS.ID.length; i++){
-    //        users_str+=getUserName(group.USERS.ID[i])+', ';
-    //    };
-    //    users_str=users_str.slice(0,-2);
-    //} else if (group.USERS.ID) {
-    //    users_str=getUserName(group.USERS.ID);
-    //};
-
     var users_str = group.USERS.ID ? group.USERS.ID.length : 0;
 
     var vms = "-";
@@ -473,9 +462,21 @@ function groupElementArray(group_json){
     var cpu = "-";
 
     if (!$.isEmptyObject(group.VM_QUOTA)){
-        vms = group.VM_QUOTA.VM.VMS_USED;
-        memory = group.VM_QUOTA.VM.MEMORY_USED+' MB';
-        cpu = group.VM_QUOTA.VM.CPU_USED;
+
+        var vms = quotaBar(
+            group.VM_QUOTA.VM.VMS_USED,
+            group.VM_QUOTA.VM.VMS,
+            default_group_quotas.VM_QUOTA.VM.VMS);
+
+        var memory = quotaBarMB(
+            group.VM_QUOTA.VM.MEMORY_USED,
+            group.VM_QUOTA.VM.MEMORY,
+            default_group_quotas.VM_QUOTA.VM.MEMORY);
+
+        var cpu = quotaBarFloat(
+            group.VM_QUOTA.VM.CPU_USED,
+            group.VM_QUOTA.VM.CPU,
+            default_group_quotas.VM_QUOTA.VM.CPU);
     }
 
     return [

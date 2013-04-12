@@ -94,15 +94,6 @@ public:
     };
 
     /**
-     *  Checks if a name is valid, i.e. it is not empty and does not
-     *  contain invalid characters.
-     *    @param uname Name to be checked
-     *    @param error_str Returns the error reason, if any
-     *    @return true if the string is valid
-     */
-    static bool name_is_valid(const string& uname, string& error_str);
-
-    /**
      *  Checks if a password is valid, i.e. it is not empty and does not
      *  contain invalid characters.
      *    @param pass Password to be checked
@@ -123,7 +114,7 @@ public:
         int rc = 0;
 
         if (pass_is_valid(passwd, error_str))
-        { 
+        {
             password = passwd;
             invalidate_session();
         }
@@ -311,9 +302,9 @@ protected:
     // Constructor
     // *************************************************************************
 
-    User(int           id, 
-         int           _gid, 
-         const string& _uname, 
+    User(int           id,
+         int           _gid,
+         const string& _uname,
          const string& _gname,
          const string& _password,
          const string& _auth_driver,

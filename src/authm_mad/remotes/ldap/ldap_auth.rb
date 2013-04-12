@@ -28,7 +28,8 @@ class OpenNebula::LdapAuth
             :password => nil,
             :base => nil,
             :auth_method => :simple,
-            :user_field => 'cn'
+            :user_field => 'cn',
+            :group_field => 'member'
         }.merge(options)
 
         ops={}
@@ -71,7 +72,8 @@ class OpenNebula::LdapAuth
     end
 
     def is_in_group?(user, group)
-        result=@ldap.search(:base => group, :filter => "(member=#{user})")
+        result=@ldap.search(:base => group,
+                            :filter => "(#{@options[:group_field]}=#{user})")
 
         if result && result.first
             true

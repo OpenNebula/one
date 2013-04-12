@@ -144,8 +144,8 @@
                       SUSPEND_ACTION          = 10
                       RESUME_ACTION           = 11
                       BOOT_ACTION             = 12
-                      DESTROY_ACTION          = 13
-                      DESTROY_RECREATE_ACTION = 14
+                      DELETE_ACTION           = 13
+                      DELETE_RECREATE_ACTION  = 14
                       REBOOT_ACTION           = 15
                       REBOOT_HARD_ACTION      = 16
                       RESCHED_ACTION          = 17

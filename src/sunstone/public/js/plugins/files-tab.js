@@ -70,12 +70,17 @@ var files_tab_content = '\
 </form>';
 
 var create_file_tmpl =
-'<div id="img_tabs">\
-  <div class="panel">\
-    <h3><small>'+tr("Create File")+'</small></h4>\
-  </div>\
-     <form id="create_file_form_easy" action="" class="custom creation">\
-  <div class="reveal-body">\
+  '<div class="panel">\
+    <h3><small>'+tr("Create File")+'</small></h3>\
+   </div>\
+   <div class="reveal-body">\
+   <form id="create_file_form_easy" action="" class="custom creation">\
+      <dl class="tabs">\
+          <dd class="active"><a href="#file_easy">'+tr("Wizard")+'</a></dd>\
+          <dd><a href="#file_manual">'+tr("Advanced mode")+'</a></dd>\
+      </dl>\
+      <ul class="tabs-content">\
+        <li id="file_easyTab" class="active">\
             <div class="row vm_param">\
               <div class="six columns">\
                 <div class="row">\
@@ -170,16 +175,38 @@ var create_file_tmpl =
               </div>\
             </div>\
             </div>\
-            </div>\
+      <div class="reveal-footer">\
             <hr>\
       <div class="form_buttons">\
         <button class="button success radius right" id="create_file_submit" value="file/create">'+tr("Create")+'</button>\
         <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
         <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+          </div>\
       </div>\
-  <a class="close-reveal-modal">&#215;</a>\
-      </form>\
-</div>';
+        </li>\
+        <li id="file_manualTab">\
+        <div class="reveal-body">\
+                 <div class="columns three">\
+                   <label class="inline left" for="file_datastores_raw">'+tr("Datastore")+':</label>\
+                 </div>\
+                 <div class="columns nine">\
+                   <select id="file_datastore_raw" name="file_datastore_raw"></select>\
+                 </div>\
+                 <textarea id="template" rows="15" style="width:100%;"></textarea>\
+          </div>\
+          <div class="reveal-footer">\
+               <hr>\
+               <div class="form_buttons">\
+                 <button class="button success radius right" id="create_file_submit_manual" value="file/create">'+tr("Create")+'</button>\
+                 <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
+                 <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+               </div>\
+          </div>\
+        </li>\
+        </ul>\
+   <a class="close-reveal-modal">&#215;</a>\
+   </form>\
+  </div>';
 
 var dataTable_files;
 var $create_file_dialog;
@@ -509,7 +536,7 @@ function updateFileInfo(request,img){
             <td class="key_td">'+tr("Name")+'</td>\
             <td class="value_td_rename">'+img_info.NAME+'</td>\
             <td><div id="div_edit_rename">\
-                   <a id="div_edit_rename_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                   <a id="div_edit_rename_link_files" class="edit_e" href="#"><i class="icon-edit right"/></a>\
                 </div>\
             </td>\
           </tr>\
@@ -521,8 +548,8 @@ function updateFileInfo(request,img){
            <tr>\
              <td class="key_td">'+tr("Type")+'</td>\
              <td class="value_td_type">'+OpenNebula.Helper.image_type(img_info.TYPE)+'</td>\
-             <td><div id="div_edit_chg_type">\
-                   <a id="div_edit_chg_type_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+             <td><div id="div_edit_chg_type_files">\
+                   <a id="div_edit_chg_type_files_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
                  </div>\
              </td>\
            </tr>\
@@ -569,22 +596,22 @@ function updateFileInfo(request,img){
       </div></form>'
     }
 
-    $("#div_edit_rename_link").die();
-    $(".input_edit_value_rename").die();
-    $("#div_edit_chg_type_link").die();
-    $("#chg_type_select").die();
-    $("#div_edit_persistency").die();
-    $("#persistency_select").die();
+    $("#div_edit_rename_link_files").die();
+    $(".input_edit_value_rename_files").die();
+    $("#div_edit_chg_type_files_link").die();
+    $("#chg_type_select_files").die();
+    $("#div_edit_persistency_files").die();
+    $("#persistency_select_files").die();
 
 
     // Listener for edit link for rename
-    $("#div_edit_rename_link").live("click", function() {
+    $("#div_edit_rename_link_files").live("click", function() {
         var value_str = $(".value_td_rename").text();
-        $(".value_td_rename").html('<input class="input_edit_value_rename" id="input_edit_rename" type="text" value="'+value_str+'"/>');
+        $(".value_td_rename").html('<input class="input_edit_value_rename_files" id="input_edit_rename" type="text" value="'+value_str+'"/>');
     });
 
-    $(".input_edit_value_rename").live("change", function() {
-        var value_str = $(".input_edit_value_rename").val();
+    $(".input_edit_value_rename_files").live("change", function() {
+        var value_str = $(".input_edit_value_rename_files").val();
         if(value_str!="")
         {
             // Let OpenNebula know
@@ -594,10 +621,10 @@ function updateFileInfo(request,img){
     });
 
     // Listener for edit link for type change
-    $("#div_edit_chg_type_link").live("click", function() {
+    $("#div_edit_chg_type_files_link").live("click", function() {
         var value_str = $(".value_td_type").text();
         $(".value_td_type").html(
-                  '<select id="chg_type_select">\
+                  '<select id="chg_type_select_files">\
                       <option value="KERNEL">'+tr("Kernel")+'</option>\
                       <option value="RAMDISK">'+tr("Ramdisk")+'</option>\
                       <option value="CONTEXT">'+tr("Context")+'</option>\
@@ -605,7 +632,7 @@ function updateFileInfo(request,img){
        $('option[value="'+value_str+'"]').replaceWith('<option value="'+value_str+'" selected="selected">'+tr(value_str)+'</option>');
     });
 
-    $("#chg_type_select").live("change", function() {
+    $("#chg_type_select_files").live("change", function() {
         var new_value=$("option:selected", this).text();
         Sunstone.runAction("File.chtype", img_info.ID, new_value);
         Sunstone.runAction("File.showinfo", img_info.ID);
@@ -644,7 +671,7 @@ function setupCreateFileDialog(){
     //    width: 520,
     //    height: height
     //});
-    dialog.addClass("reveal-modal large");
+    dialog.addClass("reveal-modal large max-height");
 
     $('.advanced',dialog).hide();
 
@@ -865,27 +892,44 @@ function setupCreateFileDialog(){
         return false;
     });
 
+    $('#create_file_submit_manual',dialog).click(function(){
+        var template=$('#template',dialog).val();
+        var ds_id = $('#file_datastore_raw',dialog).val();
+
+        if (!ds_id){
+            notifyError(tr("Please select a datastore for this file"));
+            return false;
+        };
+
+        var img_obj = {
+            "image" : {
+                "image_raw" : template
+            },
+            "ds_id" : ds_id
+        };
+        Sunstone.runAction("File.create",img_obj);
+        $create_file_dialog.trigger("reveal:close")
+        return false;
+    });
+
 }
 
 function popUpCreateFileDialog(){
     $('#file-uploader input',$create_file_dialog).removeAttr("style");
     $('#file-uploader input',$create_file_dialog).attr('style','margin:0;width:256px!important');
 
-    var datastores_str = datastores_sel();
-    // Get rid of default datastore (51 characters in string)
-    datastores_str     = datastores_str.substring(51,datastores_str.length);
+    datastores_str = makeSelectOptions(dataTable_datastores,
+                                          1,
+                                          4,
+                                          [9,9],//system ds
+                                          ['IMAGE_DS','SYSTEM_DS'], //filter sys datastores
+                                          true
+                                         );
 
     $('#file_datastore',$create_file_dialog).html(datastores_str);
     $('#file_datastore_raw',$create_file_dialog).html(datastores_str);
 
     $create_file_dialog.reveal();
-
-    $('select#file_datastore').children('option').each(function() {
-      if ($(this).val() != "2")
-      {
-          $(this).attr('disabled', 'disabled');
-      }
-    });
 }
 
 // Set the autorefresh interval for the datatable
@@ -935,7 +979,7 @@ $(document).ready(function(){
 
     initCheckAllBoxes(dataTable_files);
     tableCheckboxesListener(dataTable_files);
-    infoListener(dataTable_files,'Image.showinfo');
+    infoListener(dataTable_files,'File.showinfo');
 
     $('div#files_tab div.legend_div').hide();
 });

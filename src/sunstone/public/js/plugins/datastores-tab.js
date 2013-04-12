@@ -581,7 +581,7 @@ function datastoreElementArray(element_json){
         element.BASE_PATH,
         element.TM_MAD,
         element.DS_MAD,
-        element.SYSTEM == '1' ? 'Yes' : 'No'
+        element.TEMPLATE.TYPE.toUpperCase()
     ];
 }
 
@@ -590,7 +590,7 @@ function updateDatastoreSelect(){
                                           1,
                                           4,
                                           [9],//system ds
-                                          ['Yes'], //filter sys datastores
+                                          ['SYSTEM_DS'], //filter out sys datastores
                                           true
                                          );
 };

@@ -78,7 +78,7 @@ digraph OpenNebula {
     poweroff    -> boot [label="resume"];
 
 #   delete
-    ANY         -> done [label="destroy"];
+    ANY         -> done [label="delete"];
 
 #   restart
     unknown     -> boot [label="boot"];
@@ -97,7 +97,7 @@ digraph OpenNebula {
     snapshot    -> running [style="dashed"];
 
 #   resubmit
-    "ANY \\ {suspended,poweroff,done}" -> pending [label="destroy --recreate"];
+    "ANY \\ {suspended,poweroff,done}" -> pending [label="delete --recreate"];
 
 #   failures and misc.
     ANY         -> failure [style="dotted"];

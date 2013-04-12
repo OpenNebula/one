@@ -114,8 +114,8 @@ module OpenNebula
         }
 
         HISTORY_ACTION=%w{none migrate live-migrate shutdown shutdown-hard
-            undeploy undeploy-hard hold release stop suspend resume boot destroy
-            destroy-recreate reboot reboot-hard resched unresched poweroff
+            undeploy undeploy-hard hold release stop suspend resume boot delete
+            delete-recreate reboot reboot-hard resched unresched poweroff
             poweroff-hard}
 
         # Creates a VirtualMachine description with just its identifier
@@ -314,17 +314,17 @@ module OpenNebula
         end
 
         # Deletes a VM from the pool
-        def destroy(recreate=false)
+        def delete(recreate=false)
             if recreate
-                action('destroy-recreate')
+                action('delete-recreate')
             else
-                action('destroy')
+                action('delete')
             end
         end
 
-        # @deprecated use {#destroy} instead
+        # @deprecated use {#delete} instead
         def finalize(recreate=false)
-            destroy(recreate)
+            delete(recreate)
         end
 
         # Forces a re-deployment of a VM in UNKNOWN or BOOT state
@@ -334,9 +334,9 @@ module OpenNebula
 
         alias_method :restart, :boot
 
-        # @deprecated use {#destroy} instead
+        # @deprecated use {#delete} instead
         def resubmit
-            action('destroy-recreate')
+            action('delete-recreate')
         end
 
         # Sets the re-scheduling flag for the VM
