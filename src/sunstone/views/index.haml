@@ -50,7 +50,9 @@
 
     :javascript
       var view = JSON.parse('#{view.to_json}')
-      var available_views = JSON.parse('#{$views_config.available_views(session['user'], session['user_gname'])}')
+      var available_views = JSON.parse('["#{
+        $views_config.available_views(session['user'], session['user_gname']).join('","')
+      }"]')
 
       config = {
         'user_config' : {
