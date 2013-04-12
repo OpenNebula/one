@@ -306,19 +306,6 @@ PoolObjectSQL * PoolSQL::get(const string& name, int ouid, bool olock)
     }
     else
     {
-        objectsql = create();
-
-        rc = objectsql->select(db,name,ouid);
-
-        if ( rc != 0 )
-        {
-            delete objectsql;
-
-            unlock();
-
-            return 0;
-        }
-
         if ( index != name_pool.end() && index->second->isValid() == false )
         {
             index->second->lock();
@@ -330,6 +317,19 @@ PoolObjectSQL * PoolSQL::get(const string& name, int ouid, bool olock)
             name_pool.erase(tmp_okey);
 
             delete tmp_ptr;
+        }
+
+        objectsql = create();
+
+        rc = objectsql->select(db,name,ouid);
+
+        if ( rc != 0 )
+        {
+            delete objectsql;
+
+            unlock();
+
+            return 0;
         }
 
         string okey = key(objectsql->name,objectsql->uid);
