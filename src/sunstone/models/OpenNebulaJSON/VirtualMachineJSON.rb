@@ -81,7 +81,7 @@ module OpenNebulaJSON
         end
 
         def delete
-            self.finalize
+            super()
         end
 
         def deploy(params=Hash.new)
