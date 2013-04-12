@@ -2660,7 +2660,7 @@ function printSnapshots(vm_info){
         <div id="columns twelve">\
            <form id="snapshot_form" vmid="'+vm_info.ID+'" >\
               <div class="twelve columns">\
-                <div id="refresh_disk" class="button small secondary radius" ><i class="icon-refresh"/></div>'
+                <div id="refresh_snapshot" class="button small secondary radius" ><i class="icon-refresh"/></div>'
 
     if (Config.isTabActionEnabled("vms-tab", "VM.snapshot_create")) {
       // If VM is not RUNNING, then we forget about the attach disk form.
