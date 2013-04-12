@@ -1476,6 +1476,9 @@ function updateTemplateInfo(request,template){
     Sunstone.updateInfoPanelTab("template_info_panel","template_template_tab",template_tab);
 
     Sunstone.popUpInfoPanel("template_info_panel", "templates-tab");
+
+    // Populate permissions grid
+    setPermissionsTable(template_info,'');
 }
 
 //Given the JSON of a VM template (or of a section of it), it crawls
