@@ -354,19 +354,6 @@ function updateDatastoreImagesInfoView (request,image_list){
     updateView(image_list_array,dataTable_datastore_images_panel);
 }
 
-//callback to update the list of images for info panel
-function updateDatastoreimagesInfoView (request,image_list){
-    var image_list_array = [];
-
-    $.each(image_list,function(){
-        if(this.IMAGE.DATASTORE_ID == datastore_info.ID)
-          image_list_array.push(imageElementArray(this));
-    });
-
-    updateView(image_list_array,dataTable_datastore_images_panel);
-}
-
-
 //Setup actions
 var datastore_actions = {
 
