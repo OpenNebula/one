@@ -698,8 +698,8 @@ function updateImageInfo(request,img){
               <td></td>\
            </tr>\
            <tr>\
-              <td class="key_td">'+tr("Size (MB)")+'</td>\
-              <td class="value_td">'+img_info.SIZE+'</td>\
+              <td class="key_td">'+tr("Size")+'</td>\
+              <td class="value_td">'+humanize_size_from_mb(img_info.SIZE)+'</td>\
               <td></td>\
            </tr>\
            <tr>\
