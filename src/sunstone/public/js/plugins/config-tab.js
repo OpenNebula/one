@@ -68,44 +68,57 @@ var config_tab_content =
   <div class="reveal-body">\
   <form id="config_form">\
     <div class="row">\
-        <div class="six columns">\
-          <label class="right inline" for="lang_sel" >' + tr("Language") + ':</label>\
+      <div class="six columns">\
+        <table id="user_information" class="twelve datatable extended_table">\
+            <thead>\
+               <tr><th colspan="2">' + tr("User information") +'</th></tr>\
+            </thead>\
+            <tbody>\
+            </tbody>\
+        </table>\
+      </div>\
+      <div class="six columns">\
+        <div class="row">\
+          <div class="six columns">\
+            <label class="right inline" for="lang_sel" >' + tr("Language") + ':</label>\
+          </div>\
+          <div class="six columns">\
+             <select id="lang_sel">\
+                 <option value="ca">'+tr("Catalan")+'</option>\
+                 <option value="zh_TW">'+tr("Chinese (TW)")+'</option>\
+                 <option value="cs_CZ">'+tr("Czech (CZ)")+'</option>\
+                 <option value="en_US">'+tr("English (US)")+'</option>\
+                 <option value="fr_FR">'+tr("French (FR)")+'</option>\
+                 <option value="de">'+tr("German")+'</option>\
+                 <option value="el_GR">'+tr("Greek (GR)")+'</option>\
+                 <option value="it_IT">'+tr("Italian (IT)")+'</option>\
+                 <option value="fa_IR">'+tr("Persian (IR)")+'</option>\
+                 <option value="pt_BR">'+tr("Portuguese (BR)")+'</option>\
+                 <option value="pt_PT">'+tr("Portuguese (PT)")+'</option>\
+                 <option value="ru_RU">'+tr("Russian (RU)")+'</option>\
+                 <option value="sk_SK">'+tr("Slovak (SK)")+'</option>\
+                 <option value="es_ES">'+tr("Spanish (SP)")+'</option>\
+             </select>\
+          </div>\
         </div>\
-        <div class="six columns">\
-           <select id="lang_sel">\
-               <option value="ca">'+tr("Catalan")+'</option>\
-               <option value="zh_TW">'+tr("Chinese (TW)")+'</option>\
-               <option value="cs_CZ">'+tr("Czech (CZ)")+'</option>\
-               <option value="en_US">'+tr("English (US)")+'</option>\
-               <option value="fr_FR">'+tr("French (FR)")+'</option>\
-               <option value="de">'+tr("German")+'</option>\
-               <option value="el_GR">'+tr("Greek (GR)")+'</option>\
-               <option value="it_IT">'+tr("Italian (IT)")+'</option>\
-               <option value="fa_IR">'+tr("Persian (IR)")+'</option>\
-               <option value="pt_BR">'+tr("Portuguese (BR)")+'</option>\
-               <option value="pt_PT">'+tr("Portuguese (PT)")+'</option>\
-               <option value="ru_RU">'+tr("Russian (RU)")+'</option>\
-               <option value="sk_SK">'+tr("Slovak (SK)")+'</option>\
-               <option value="es_ES">'+tr("Spanish (SP)")+'</option>\
-           </select>\
+        <div class="row">\
+            <div class="six columns">\
+              <label class="right inline" for="view_sel" >' + tr("Views") + ':</label>\
+            </div>\
+            <div class="six columns">\
+               <select id="view_sel">\
+               </select>\
+            </div>\
         </div>\
-    </div>\
-    <div class="row">\
-        <div class="six columns">\
-          <label class="right inline" for="view_sel" >' + tr("Views") + ':</label>\
+        <div class="row">\
+            <div class="six columns">\
+              <label class="right inline" for="wss_checkbox" >' + tr("VNC Secure websockets") + ':</label>\
+            </div>\
+            <div class="six columns">\
+              <input id="wss_checkbox" type="checkbox" value="yes" />\
+            </div>\
         </div>\
-        <div class="six columns">\
-           <select id="view_sel">\
-           </select>\
-        </div>\
-    </div>\
-    <div class="row">\
-        <div class="six columns">\
-          <label class="right inline" for="wss_checkbox" >' + tr("Secure websockets connection") + ':</label>\
-        </div>\
-        <div class="six columns">\
-          <input id="wss_checkbox" type="checkbox" value="yes" />\
-        </div>\
+      </div>\
     </div>\
     <div class="row">\
         <div class="six columns">\
@@ -222,9 +235,24 @@ $(document).ready(function(){
             quotas_tab_html += Quotas.datastore(info, default_user_quotas);
 
             $("#user_quotas").html('<div class="row graph_legend">\
-                <h3 class="subheader"><small>'+tr("USER QUOTAS")+ ' ('+ info.ID +':'+ info.NAME + ')</small></h3>\
+                <h3 class="subheader"><small>'+tr("USER QUOTAS") + '</small></h3>\
               </div>'+
               quotas_tab_html);
+
+            $("#user_information tbody").html('<tr>\
+                <td class="key_td">' + tr("ID") + '</td>\
+                <td class="value_td">'+info.ID+'</td>\
+            </tr>\
+            <tr>\
+                <td class="key_td">' + tr("Name") + '</td>\
+                <td class="value_td">'+info.NAME+'</td>\
+            </tr>\
+                <td class="key_td">' + tr("Group ID") + '</td>\
+                <td class="value_td">'+info.GID+'</td>\
+            </tr>\
+                <td class="key_td">' + tr("Group Name") + '</td>\
+                <td class="value_td">'+info.GNAME+'</td>\
+            </tr>')
         }
       });
 
@@ -244,7 +272,7 @@ $(document).ready(function(){
             quotas_tab_html += Quotas.datastore(info, default_group_quotas);
 
             $("#group_quotas").html('<div class="row graph_legend">\
-                <h3 class="subheader"><small>'+tr("GROUP QUOTAS")+ ' ('+ info.ID +':'+ info.NAME + ')</small></h3>\
+                <h3 class="subheader"><small>'+tr("GROUP QUOTAS")+ '</small></h3>\
               </div>'+
               quotas_tab_html);
         }
