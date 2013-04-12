@@ -60,7 +60,7 @@ var datastores_tab_content = '\
       <th>'+tr("Basepath")+'</th>\
       <th>'+tr("TM MAD")+'</th>\
       <th>'+tr("DS MAD")+'</th>\
-      <th>'+tr("System")+'</th>\
+      <th>'+tr("Type")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodydatastores">\
@@ -76,7 +76,13 @@ var create_datastore_tmpl =
   </div>\
   <div class="reveal-body">\
   <form id="create_datastore_form" action="" class="creation">\
-    <div class="row">\
+    <dl class="tabs">\
+        <dd class="active"><a href="#datastore_easy">'+tr("Wizard")+'</a></dd>\
+        <dd><a href="#datastore_manual">'+tr("Advanced mode")+'</a></dd>\
+    </dl>\
+  <ul class="tabs-content">\
+   <li id="datastore_easyTab" class="active">\
+      <div class="row">\
       <div class="three columns">\
         <label class="right inline" for="name" >' + tr("Name") + ':</label>\
       </div>\
@@ -104,7 +110,7 @@ var create_datastore_tmpl =
         </div>\
         <div class="one columns ">\
         </div>\
-      </div>\
+       </div>\
       <div class="six columns">\
         <div class="four columns">\
           <label class="right inline" for="cluster">' + tr("Cluster") + ':</label>\
@@ -263,17 +269,35 @@ var create_datastore_tmpl =
       <div class="one columns">\
       </div>\
     </div>\
-  </div>\
   <div class="reveal-footer">\
     <hr>\
-  <div class="form_buttons">\
-      <button class="button radius right success" type="submit" id="create_datastore_submit" value="OpenNebula.Datastore.create">' + tr("Create") + '</button>\
-      <button class="button radius secondary" type="reset" value="reset">' + tr("Reset") + '</button>\
-      <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+    <div class="form_buttons">\
+        <button class="button radius right success" type="submit" id="create_datastore_submit" value="OpenNebula.Datastore.create">' + tr("Create") + '</button>\
+        <button class="button radius secondary" type="reset" value="reset">' + tr("Reset") + '</button>\
+        <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+    </div>\
   </div>\
-  </div>\
+    </li>\
+      <li id="datastore_manualTab">\
+              <div class="columns three">\
+                   <label class="inline left" for="datastore_cluster_raw">'+tr("Cluster")+':</label>\
+                 </div>\
+                 <div class="columns nine">\
+                   <select id="datastore_cluster_raw" name="datastore_cluster_raw"></select>\
+                 </div>\
+                 <textarea id="template" rows="15" style="width:100%;"></textarea>\
+          <div class="reveal-footer">\
+               <hr>\
+               <div class="form_buttons">\
+                 <button class="button success radius right" id="create_datastore_submit_manual" value="datastore/create">'+tr("Create")+'</button>\
+                 <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
+                 <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+               </div>\
+          </div>\
+        </li>\
+    </ul>\
   <a class="close-reveal-modal">&#215;</a>\
-  </form>';
+  </form></div>';
 
 var datastore_image_table_tmpl='<thead>\
     <tr>\
@@ -569,6 +593,13 @@ function datastoreElements() {
 function datastoreElementArray(element_json){
     var element = element_json.DATASTORE;
 
+    var type = "IMAGE_DS";
+
+    if (typeof element.TEMPLATE.TYPE != "undefined")
+    {
+      type = element.TEMPLATE.TYPE;
+    }
+
     return [
         '<input class="check_item" type="checkbox" id="datastore_'+
                              element.ID+'" name="selected_items" value="'+
@@ -581,7 +612,7 @@ function datastoreElementArray(element_json){
         element.BASE_PATH,
         element.TM_MAD,
         element.DS_MAD,
-        element.TEMPLATE.TYPE.toUpperCase()
+        type.toLowerCase().split('_')[0]
     ];
 }
 
@@ -590,7 +621,7 @@ function updateDatastoreSelect(){
                                           1,
                                           4,
                                           [9],//system ds
-                                          ['SYSTEM_DS'], //filter out sys datastores
+                                          ['system'], //filter out sys datastores
                                           true
                                          );
 };
@@ -631,6 +662,7 @@ function updateDatastoreInfo(request,ds){
     var info = ds.DATASTORE;
 
     datastore_name = info.NAME;
+    datastore_type = info.TYPE;
 
     var images_str = "";
     if (info.IMAGES.ID &&
@@ -865,6 +897,26 @@ function setupCreateDatastoreDialog(){
         $create_datastore_dialog.trigger("reveal:close")
         return false;
     });
+
+    $('#create_datastore_submit_manual',dialog).click(function(){
+        var template   = $('#template',dialog).val();
+        var cluster_id = $('#datastore_cluster_raw',dialog).val();
+
+        if (!cluster_id){
+            notifyError(tr("Please select a cluster for this datastore"));
+            return false;
+        };
+
+        var ds_obj = {
+            "datastore" : {
+                "datastore_raw" : template
+            },
+            "cluster_id" : cluster_id
+        };
+        Sunstone.runAction("Datastore.create",ds_obj);
+        $create_datastore_dialog.trigger("reveal:close")
+        return false;
+    });
 }
 
 function select_filesystem(){
@@ -968,6 +1020,7 @@ function select_custom(){
 
 function popUpCreateDatastoreDialog(){
     $('select#cluster_id',$create_datastore_dialog).html(clusters_sel());
+    $('select#datastore_cluster_raw',$create_datastore_dialog).html(clusters_sel());
     $create_datastore_dialog.reveal();
     hide_all($create_datastore_dialog);
     select_filesystem();

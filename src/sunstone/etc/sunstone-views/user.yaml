@@ -289,7 +289,7 @@ tabs:
             #- 6         # Basepath
             #- 7         # TM
             #- 8         # DS
-            #- 9         # System
+            #- 9         # Type
         actions:
             Datastore.refresh: true
             Datastore.create_dialog: false

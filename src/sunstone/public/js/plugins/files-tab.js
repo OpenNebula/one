@@ -922,7 +922,7 @@ function popUpCreateFileDialog(){
                                           1,
                                           4,
                                           [9,9],//system ds
-                                          ['IMAGE_DS','SYSTEM_DS'], //filter sys datastores
+                                          ['image','system'], //filter image & sys datastores
                                           true
                                          );
 

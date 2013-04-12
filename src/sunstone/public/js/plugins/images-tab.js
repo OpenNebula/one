@@ -1121,7 +1121,13 @@ function popUpCreateImageDialog(){
     $('#file-uploader input',$create_image_dialog).removeAttr("style");
     $('#file-uploader input',$create_image_dialog).attr('style','margin:0;width:256px!important');
 
-    var datastores_str = datastores_sel();
+    datastores_str = makeSelectOptions(dataTable_datastores,
+                                          1,
+                                          4,
+                                          [9,9],//system ds
+                                          ['file','system'], //filter image & sys datastores
+                                          true
+                                         );
 
     $('#img_datastore',$create_image_dialog).html(datastores_str);
     $('#img_datastore_raw',$create_image_dialog).html(datastores_str);
