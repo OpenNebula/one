@@ -2196,6 +2196,8 @@ function hotpluggingOps(){
 
 function updateVMNicsInfo(request,vm){
   $("li#vm_network_tabTab").html(printNics(vm.VM));
+  Sunstone.runAction("VM.monitor",vm.VM.ID,
+        { monitor_resources : "CPU,MEMORY,NET_TX,NET_RX"});
 }
 
 function printNics(vm_info){
