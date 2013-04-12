@@ -51,7 +51,7 @@ if !(host_id=ARGV[0])
 end
 
 mode   = "-r" # By default, recreate VMs
-force  = "n"  # By default, don't recreate/destroy suspended VMs
+force  = "n"  # By default, don't recreate/delete suspended VMs
 repeat = nil  # By default, don't wait fo monitorization cycles"
 
 opts = GetoptLong.new(
@@ -121,9 +121,9 @@ if vm_ids_array
         vm.info
 
         if mode == "-r"
-            vm.destroy(true)
+            vm.delete(true)
         elsif mode == "-d"
-            vm.destroy
+            vm.delete
         end
     end
 end

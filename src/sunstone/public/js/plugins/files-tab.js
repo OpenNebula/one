@@ -162,10 +162,10 @@ var create_file_tmpl =
               <div class="six columns">\
                 <div class="row">\
                   <div class="four columns">\
-                    <label class="right inline" for="file_datastore_raw">'+tr("Datastore")+':</label>\
+                    <label class="right inline" for="file_datastore">'+tr("Datastore")+':</label>\
                   </div>\
                   <div class="seven columns">\
-                   <select id="file_datastore_raw" name="file_datastore_">\
+                   <select id="file_datastore" name="file_datastore">\
                    </select>\
                   </div>\
                   <div class="one columns">\
@@ -187,10 +187,10 @@ var create_file_tmpl =
         <li id="file_manualTab">\
         <div class="reveal-body">\
                  <div class="columns three">\
-                   <label class="inline left" for="files_datastores_raw">'+tr("Datastore")+':</label>\
+                   <label class="inline left" for="file_datastores_raw">'+tr("Datastore")+':</label>\
                  </div>\
                  <div class="columns nine">\
-                   <select id="files_datastore_raw" name="files_datastore_raw"></select>\
+                   <select id="file_datastore_raw" name="file_datastore_raw"></select>\
                  </div>\
                  <textarea id="template" rows="15" style="width:100%;"></textarea>\
           </div>\
@@ -907,7 +907,7 @@ function setupCreateFileDialog(){
             "ds_id" : ds_id
         };
         Sunstone.runAction("File.create",img_obj);
-        $create_image_dialog.trigger("reveal:close")
+        $create_file_dialog.trigger("reveal:close")
         return false;
     });
   
@@ -917,19 +917,18 @@ function popUpCreateFileDialog(){
     $('#file-uploader input',$create_file_dialog).removeAttr("style");
     $('#file-uploader input',$create_file_dialog).attr('style','margin:0;width:256px!important');
 
-    var datastores_str = datastores_sel();
+    datastores_str = makeSelectOptions(dataTable_datastores,
+                                          1,
+                                          4,
+                                          [9,9],//system ds
+                                          ['IMAGE_DS','SYSTEM_DS'], //filter sys datastores
+                                          true
+                                         );
 
     $('#file_datastore',$create_file_dialog).html(datastores_str);
     $('#file_datastore_raw',$create_file_dialog).html(datastores_str);
 
     $create_file_dialog.reveal();
-
-    $('select#file_datastore').children('option').each(function() {
-      if ($(this).val() != "2")
-      {
-          $(this).attr('disabled', 'disabled');
-      }
-    });
 }
 
 // Set the autorefresh interval for the datatable

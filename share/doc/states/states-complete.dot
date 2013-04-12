@@ -105,11 +105,11 @@ digraph OpenNebula {
     poweroff        -> boot_poweroff [label="resume"];
     boot_poweroff   -> running [style="dashed"];
 
-#   destroy
-    ANY         -> done [label="destroy"];
+#   delete
+    ANY         -> done [label="delete"];
 
 #   resubmit
-    "ANY \\ {suspended,poweroff,done}" -> pending [label="destroy --recreate"];
+    "ANY \\ {suspended,poweroff,done}" -> pending [label="delete --recreate"];
 
 #   boot
     boot            -> boot [label="boot"];

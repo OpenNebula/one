@@ -506,7 +506,7 @@ public class VirtualMachine extends PoolElement{
      * <li>{@link VirtualMachine#stop()}</li>
      * <li>{@link VirtualMachine#suspend()}</li>
      * <li>{@link VirtualMachine#resume()}</li>
-     * <li>{@link VirtualMachine#destroy(boolean)}</li>
+     * <li>{@link VirtualMachine#delete(boolean)}</li>
      * <li>{@link VirtualMachine#boot()}</li>
      * <li>{@link VirtualMachine#poweroff()}</li>
      * <li>{@link VirtualMachine#resched()}</li>
@@ -516,7 +516,7 @@ public class VirtualMachine extends PoolElement{
      *
      * @param action The action name to be performed, can be:<br/>
      * "shutdown", "hold", "release", "stop", "shutdown-hard", "suspend",
-     * "resume", "boot", "destroy", "destroy-recreate", "reboot", "resched",
+     * "resume", "boot", "delete", "delete-recreate", "reboot", "resched",
      * "unresched", "reboot-hard", "poweroff", "undeploy", "undeploy-hard"
      * @return If an error occurs the error message contains the reason.
      */
@@ -952,9 +952,9 @@ public class VirtualMachine extends PoolElement{
      * Deletes the VM from the pool and database.
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse destroy()
+    public OneResponse delete()
     {
-        return destroy(false);
+        return delete(false);
     }
 
     /**
@@ -962,9 +962,9 @@ public class VirtualMachine extends PoolElement{
      * @param recreate True to recreate the VM in the pending state.
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse destroy(boolean recreate)
+    public OneResponse delete(boolean recreate)
     {
-        String actionSt = recreate ? "destroy-recreate" : "destroy";
+        String actionSt = recreate ? "delete-recreate" : "delete";
 
         return action(actionSt);
     }
@@ -1141,7 +1141,7 @@ public class VirtualMachine extends PoolElement{
      * Deletes the VM from the pool and database.
      * @return If an error occurs the error message contains the reason.
      *
-     * @deprecated  Replaced by {@link #destroy}
+     * @deprecated  Replaced by {@link #delete}
      */
     @Deprecated public OneResponse finalizeVM()
     {
@@ -1152,7 +1152,7 @@ public class VirtualMachine extends PoolElement{
      * Resubmits a VM to PENDING state.
      * @return If an error occurs the error message contains the reason.
      *
-     * @deprecated  Replaced by destroy and recreate {@link #destroy(boolean)}
+     * @deprecated  Replaced by delete and recreate {@link #delete(boolean)}
      */
     @Deprecated public OneResponse resubmit()
     {

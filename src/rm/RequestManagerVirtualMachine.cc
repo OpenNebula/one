@@ -323,11 +323,11 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     }
     else if (action_st == "finalize")
     {
-        action_st = "destroy";
+        action_st = "delete";
     }
     else if (action_st == "resubmit")
     {
-        action_st = "destroy-recreate";
+        action_st = "delete-recreate";
     }
     else if (action_st == "reset")
     {
@@ -372,10 +372,10 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
         case History::BOOT_ACTION:
             rc = dm->restart(id);
             break;
-        case History::DESTROY_ACTION:
+        case History::DELETE_ACTION:
             rc = dm->finalize(id);
             break;
-        case History::DESTROY_RECREATE_ACTION:
+        case History::DELETE_RECREATE_ACTION:
             rc = dm->resubmit(id);
             break;
         case History::REBOOT_ACTION:

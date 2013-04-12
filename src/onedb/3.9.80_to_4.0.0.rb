@@ -17,6 +17,18 @@
 require "rexml/document"
 include REXML
 
+class String
+    def red
+        colorize(31)
+    end
+
+private
+
+    def colorize(color_code)
+        "\e[#{color_code}m#{self}\e[0m"
+    end
+end
+
 module Migrator
     def db_version
         "4.0.0"
@@ -78,6 +90,46 @@ module Migrator
 
         @db.run "DROP TABLE old_history;"
 
+        ########################################################################
+        # Banner for drivers renamed
+        ########################################################################
+
+        puts
+        puts "ATTENTION: manual intervention required".red
+        puts <<-END.gsub(/^ {8}/, '')
+        IM and VM MADS have been renamed in oned.conf. To keep your
+        existing hosts working, you need to duplicate the drivers with the
+        old names.
+
+        For example, for kvm you will have IM_MAD "kvm" and VM_MAD "kvm", so you
+        need to add IM_MAD "im_kvm" and VM_MAD "vmm_kvm"
+
+        IM_MAD = [
+              name       = "kvm",
+              executable = "one_im_ssh",
+              arguments  = "-r 0 -t 15 kvm" ]
+
+
+        IM_MAD = [
+              name       = "im_kvm",
+              executable = "one_im_ssh",
+              arguments  = "-r 0 -t 15 kvm" ]
+
+        VM_MAD = [
+            name       = "kvm",
+            executable = "one_vmm_exec",
+            arguments  = "-t 15 -r 0 kvm",
+            default    = "vmm_exec/vmm_exec_kvm.conf",
+            type       = "kvm" ]
+
+        VM_MAD = [
+            name       = "vmm_kvm",
+            executable = "one_vmm_exec",
+            arguments  = "-t 15 -r 0 kvm",
+            default    = "vmm_exec/vmm_exec_kvm.conf",
+            type       = "kvm" ]
+
+        END
 
         return true
     end
