@@ -80,9 +80,9 @@ var users_tab_content = '\
       <th>'+tr("Name")+'</th>\
       <th>'+tr("Group")+'</th>\
       <th>'+tr("Auth driver")+'</th>\
-      <th>'+tr("VMs")+'</th>\
-      <th>'+tr("Memory")+'</th>\
-      <th>'+tr("CPU")+'</th>\
+      <th style="width:18%">'+tr("VMs")+'</th>\
+      <th style="width:18%">'+tr("Memory")+'</th>\
+      <th style="width:18%">'+tr("CPU")+'</th>\
       <th>'+tr("Group ID")+'</th>\
     </tr>\
   </thead>\

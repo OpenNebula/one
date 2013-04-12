@@ -76,9 +76,9 @@ var groups_tab_content = '\
       <th>'+tr("ID")+'</th>\
       <th>'+tr("Name")+'</th>\
       <th>'+tr("Users")+'</th>\
-      <th>'+tr("VMs")+'</th>\
-      <th>'+tr("Memory")+'</th>\
-      <th>'+tr("CPU")+'</th>\
+      <th style="width:18%">'+tr("VMs")+'</th>\
+      <th style="width:18%">'+tr("Memory")+'</th>\
+      <th style="width:18%">'+tr("CPU")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodygroups">\
