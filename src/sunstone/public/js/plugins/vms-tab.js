@@ -332,7 +332,7 @@ var vm_actions = {
         notify: true
     },
 
-    "VM.destroy_recreate" : {
+    "VM.delete_recreate" : {
         type: "multiple",
         call: OpenNebula.VM.resubmit,
         callback: vmShow,
@@ -442,7 +442,7 @@ var vm_actions = {
         notify: true
     },
 
-    "VM.destroy" : {
+    "VM.delete" : {
         type: "multiple",
         call: OpenNebula.VM.del,
         callback: deleteVMachineElement,
@@ -839,17 +839,17 @@ var vm_buttons = {
         tip: tr("This will cancel selected VMs")
     },
 
-    "VM.destroy" : {
+    "VM.delete" : {
         type: "confirm",
         text: tr("Delete"),
         layout: "vmsdelete_buttons",
         tip: tr("This will delete the selected VMs from the database")
     },
-    "VM.destroy_recreate" : {
+    "VM.delete_recreate" : {
         type: "confirm",
         text: tr("Delete") + ' <span class="label secondary radius">recreate</span>',
         layout: "vmsrepeat_buttons",
-        tip: tr("This will resubmits VMs to PENDING state")
+        tip: tr("This will delete and recreate VMs to PENDING state")
     },
 
     //"VM.help" : {

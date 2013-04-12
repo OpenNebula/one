@@ -126,8 +126,8 @@ tabs:
             VM.undeploy_hard: true
             VM.shutdown: true
             VM.shutdown_hard: true
-            VM.destroy: true
-            VM.destroy_recreate: true
+            VM.delete: true
+            VM.delete_recreate: true
             VM.resize: true
             VM.attachdisk: true
             VM.detachdisk: true
