@@ -149,7 +149,7 @@ function setupConfigDialog() {
 
     $('#config_submit', dialog).live('click',function(){
       var lang = $('#lang_sel', dialog).val();
-      var vnc_wss = $('#input#wss_checkbox', dialog).is(':checked') ? "yes" : "no";
+      var vnc_wss = $('input#wss_checkbox', dialog).is(':checked') ? "yes" : "no";
       var default_view = $('#view_sel', dialog).val()
 
       OpenNebula.User.show({
