@@ -148,7 +148,7 @@ var vm_actions = {
     "VM.create" : {
         type: "custom",
         call: function(id,name) {
-            Sunstone.runAction("Template.instantiate",id,name);
+            Sunstone.runAction("Template.instantiate",[id],name);
             Sunstone.runAction("VM.list");
         },
         callback: addVMachineElement,
@@ -2950,22 +2950,29 @@ function setupCreateVMDialog(){
             n_times_int=parseInt(n_times,10);
         };
 
+        var extra_info = "";
+        if (n_times_int > 1) {
+            extra_info = n_times_int+" times";
+        }
+
+        notifySubmit("Template.instantiate",template_id, extra_info);
+
         if (!vm_name.length){ //empty name use OpenNebula core default
             for (var i=0; i< n_times_int; i++){
-                Sunstone.runAction("Template.instantiate", template_id, "");
+                Sunstone.runAction("Template.instantiate_quiet", template_id, "");
             };
         }
         else
         {
           if (vm_name.indexOf("%i") == -1){ //no wildcard
               for (var i=0; i< n_times_int; i++){
-                Sunstone.runAction("Template.instantiate", template_id, vm_name);
+                Sunstone.runAction("Template.instantiate_quiet", template_id, vm_name);
               };
           } else { //wildcard present: replace wildcard
               var name = "";
               for (var i=0; i< n_times_int; i++){
                   name = vm_name.replace(/%i/gi,i);
-                  Sunstone.runAction("Template.instantiate", template_id, name);
+                  Sunstone.runAction("Template.instantiate_quiet", template_id, name);
               };
           };
         }

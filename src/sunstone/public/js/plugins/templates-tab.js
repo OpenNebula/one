@@ -316,10 +316,18 @@ var template_actions = {
     },
 
     "Template.instantiate" : {
+        type: "multiple",
+        call: OpenNebula.Template.instantiate,
+        elements: templateElements,
+        error: onError,
+        notify: true
+    },
+
+    "Template.instantiate_quiet" : {
         type: "single",
         call: OpenNebula.Template.instantiate,
         error: onError,
-        notify: true
+        notify: false
     },
 
      "Template.instantiate_vms" : {
@@ -332,9 +340,7 @@ var template_actions = {
              }
              else
              {
-               $.each(nodes,function(){
-                 Sunstone.runAction("Template.instantiate",this,"");
-               });
+                Sunstone.runAction("Template.instantiate", nodes);
              }
 
              Sunstone.runAction("VM.refresh");
@@ -4379,22 +4385,29 @@ function setupInstantiateTemplateDialog(){
             n_times_int=parseInt(n_times,10);
         };
 
+        var extra_info = "";
+        if (n_times_int > 1) {
+            extra_info = n_times_int+" times";
+        }
+
+        notifySubmit("Template.instantiate",template_id, extra_info);
+
         if (!vm_name.length){ //empty name use OpenNebula core default
             for (var i=0; i< n_times_int; i++){
-                Sunstone.runAction("Template.instantiate", template_id, "");
+                Sunstone.runAction("Template.instantiate_quiet", template_id, "");
             };
         }
         else
         {
           if (vm_name.indexOf("%i") == -1){//no wildcard, all with the same name
               for (var i=0; i< n_times_int; i++){
-                Sunstone.runAction("Template.instantiate", template_id, vm_name);
+                Sunstone.runAction("Template.instantiate_quiet", template_id, vm_name);
               };
           } else { //wildcard present: replace wildcard
               var name = "";
               for (var i=0; i< n_times_int; i++){
                   name = vm_name.replace(/%i/gi,i);
-                  Sunstone.runAction("Template.instantiate", template_id, name);
+                  Sunstone.runAction("Template.instantiate_quiet", template_id, name);
               };
           };
         }
