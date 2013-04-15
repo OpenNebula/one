@@ -38,6 +38,8 @@ fi
 
 . $TMCOMMON
 
+DRIVER_PATH=$(dirname $0)
+
 #-------------------------------------------------------------------------------
 # Set dst path and dir
 #-------------------------------------------------------------------------------
@@ -52,11 +54,29 @@ SRC_DS_PATH="$(dirname $(dirname $SRC_ARG_PATH))"
 
 SRC_PATH="${DST_DS_PATH}${SRC_ARG_PATH##$SRC_DS_PATH}"
 
+DISK_ID=$(echo "$DST_PATH" | $AWK -F. '{print $NF}')
+
 ssh_make_path $DST_HOST $DST_DIR
+
+#-------------------------------------------------------------------------------
+# Get image information
+#-------------------------------------------------------------------------------
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+unset i XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VMID| $XPATH \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/TYPE )
+
+DISK_TYPE="${XPATH_ELEMENTS[0]}"
 
 #-------------------------------------------------------------------------------
 # Clone (cp) SRC into DST
 #-------------------------------------------------------------------------------
+
 case $SRC in
 http://*)
     log "Downloading $SRC into $DST_PATH"
@@ -72,5 +92,12 @@ http://*)
                      "Error copying $SRC to $DST"
     ;;
 esac
+
+# Add a symlink for CDROM images
+if [ "$DISK_TYPE" = "CDROM" ]; then
+    ssh_exec_and_log $DST_HOST \
+                     "ln -s disk.${DISK_ID} ${DST_PATH}.iso" \
+                     "Error linking ${DST_PATH} to ${DST_PATH}.iso"
+fi
 
 exit 0
