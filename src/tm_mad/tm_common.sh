@@ -101,3 +101,8 @@ function get_tm_use_ssh {
 
     echo $TM_USE_SSH
 }
+
+# Checks wether $IMAGE_TYPE is CDROM 
+function is_cdrom {
+    [ "$IMAGE_TYPE" = "1" ]
+}

@@ -59,9 +59,25 @@ USE_SSH=$(get_tm_use_ssh $DSID)
 #-------------------------------------------------------------------------------
 
 if [ "$USE_SSH" == "yes" ]; then
-    ssh_make_path $DST_HOST $DST_PATH
 
-    log "Link all files in $SRC_PATH to $DST_PATH"
+    # Let's check if it is a CDROM
+    DISK_ID=$(echo "$DST_PATH" | $AWK -F. '{print $NF}')
+    XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+    DRIVER_PATH=$(dirname $0)
+
+    unset i XPATH_ELEMENTS
+     
+    while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+    done < <(onevm show -x $VMID| $XPATH \
+                        /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/TYPE )
+
+    DISK_TYPE="${XPATH_ELEMENTS[0]}"
+
+    if [ "$DISK_TYPE" != "CDROM"]; then
+        ssh_make_path $DST_HOST $DST_PATH
+
+        log "Link all files in $SRC_PATH to $DST_PATH"
 
 LINK_SCRIPT=$(cat <<EOF
 for file in \$(find $SRC_PATH -type f); do
@@ -69,8 +85,18 @@ for file in \$(find $SRC_PATH -type f); do
 done
 EOF
 )
-    ssh_exec_and_log $DST_HOST "$LINK_SCRIPT" \
-          "Could not link dir files from source DS to system DS"
+        ssh_exec_and_log $DST_HOST "$LINK_SCRIPT" \
+              "Could not link dir files from $SRC_PATH to $DST_PATH"
+    else
+        log "Link CD-ROM from $SRC_PATH to $DST_PATH"
+
+LINK_SCRIPT=$(cat <<EOF
+ln -s $SRC_PATH $DST_PATH.iso
+EOF
+)
+        ssh_exec_and_log $DST_HOST "$LINK_SCRIPT" \
+              "Could not link CDROM ISO file from $SRC_PATH to system $DST_PATH"
+    fi
 else
     log "Cannot link files without SSH enabled on the ESX hosts, calling clone"
     exec $(dirname $0)/clone $*
