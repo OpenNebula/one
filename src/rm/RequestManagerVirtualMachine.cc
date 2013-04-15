@@ -624,6 +624,21 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     current_hid = vm->get_hid();
 
+    if (current_hid == hid)
+    {
+        ostringstream oss;
+
+        oss << "VM is already running on "
+            << object_name(PoolObjectSQL::HOST) << " [" << current_hid << "]";
+
+        failure_response(ACTION,
+                request_error(oss.str(),""),
+                att);
+
+        vm->unlock();
+        return;
+    }
+
     if (enforce)
     {
         int    cpu, mem, disk;
