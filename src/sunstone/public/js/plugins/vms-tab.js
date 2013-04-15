@@ -773,73 +773,73 @@ var vm_buttons = {
         condition: mustBeAdmin
     },
     "VM.hold" : {
-        type: "confirm",
+        type: "action",
         text: tr("Hold"),
         tip: tr("This will hold selected pending VMs from being deployed"),
         layout: "vmsplanification_buttons",
     },
     "VM.release" : {
-        type: "confirm",
+        type: "action",
         text: tr("Release"),
         layout: "vmsplanification_buttons",
         tip: tr("This will release held machines")
     },
     "VM.suspend" : {
-        type: "confirm",
+        type: "action",
         text: tr("Suspend"),
         layout: "vmspause_buttons",
         tip: tr("This will suspend selected machines")
     },
     "VM.resume" : {
-        type: "confirm",
+        type: "action",
         text: '<i class="icon-play"/>',
         layout: "vmsplay_buttons",
         tip: tr("This will resume selected stopped or suspended VMs")
     },
     "VM.stop" : {
-        type: "confirm",
+        type: "action",
         text: tr("Stop"),
         layout: "vmsstop_buttons",
         tip: tr("This will stop selected VMs")
     },
     "VM.boot" : {
-        type: "confirm",
+        type: "action",
         text: tr("Boot"),
         layout: "vmsplanification_buttons",
         tip: tr("This will redeploy selected VMs (in UNKNOWN or BOOT state)")
     },
     "VM.reboot" : {
-        type : "confirm",
+        type: "action",
         text: tr("Reboot"),
         layout: "vmsrepeat_buttons",
         tip: tr("This will send a reboot action to running VMs")
     },
     "VM.reboot_hard" : {
-        type: "confirm",
+        type: "action",
         text: tr("Reboot") + ' <span class="label secondary radius">hard</span>',
         layout: "vmsrepeat_buttons",
         tip: tr("This will perform a hard reboot on selected VMs")
     },
     "VM.poweroff" : {
-        type : "confirm",
+        type: "action",
         text: tr("Power Off"),
         layout: "vmspause_buttons",
         tip: tr("This will send a power off signal to running VMs. They can be restarted later.")
     },
     "VM.poweroff_hard" : {
-        type : "confirm",
+        type: "action",
         text: tr("Power Off") + ' <span class="label secondary radius">hard</span>',
         layout: "vmspause_buttons",
         tip: tr("This will send a power off signal to running VMs. They can be restarted later.")
     },
     "VM.undeploy" : {
-        type : "confirm",
+        type: "action",
         text: tr("Undeploy"),
         layout: "vmsstop_buttons",
         tip: tr("Shuts down the given VM. The VM is saved in the system Datastore.")
     },
     "VM.undeploy_hard" : {
-        type : "confirm",
+        type: "action",
         text: tr("Undeploy") + ' <span class="label secondary radius">hard</span>',
         layout: "vmsstop_buttons",
         tip: tr("Shuts down the given VM. The VM is saved in the system Datastore.")
@@ -854,7 +854,7 @@ var vm_buttons = {
         type: "confirm",
         text: tr("Shutdown") + ' <span class="label secondary radius">hard</span>',
         layout: "vmsdelete_buttons",
-        tip: tr("This will cancel selected VMs")
+        tip: tr("This will initiate the shutdown-hard (forced) process in the selected VMs")
     },
 
     "VM.delete" : {
