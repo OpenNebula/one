@@ -43,6 +43,8 @@ var vms_tab_content = '\
       <span class="header-resource">\
         <i class="icon-cloud"></i> '+tr("Virtual Machines")+'\
       </span>\
+      <span class="user-login right">\
+      </span>\
       <span class="header-info">\
         <span id="total_vms"/> <small>'+tr("TOTAL")+'</small>&emsp;\
         <span id="active_vms"/> <small>'+tr("ACTIVE")+'</small>&emsp;\
@@ -50,17 +52,15 @@ var vms_tab_content = '\
         <span id="pending_vms"/> <small>'+tr("PENDING")+'</small>&emsp;\
         <span id="failed_vms"/> <small>'+tr("FAILED")+'</small>\
       </span>\
-      <span class="user-login">\
-      </span>\
     </h4>\
   </div>\
 </div>\
 <div class="row">\
-  <div class="nine columns">\
+  <div class="ten columns">\
     <div class="action_blocks">\
     </div>\
   </div>\
-  <div class="three columns">\
+  <div class="two columns">\
     <input id="vms_search" type="text" placeholder="'+tr("Search")+'" />\
   </div>\
 </div>\

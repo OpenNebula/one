@@ -6147,8 +6147,8 @@ div.button-bar {
 /* line 158, ../sass/app.scss */
 #logo {
   font-weight: bold;
-  margin-top: 15%;
-  margin-bottom: 10%;
+  margin-top: 17%;
+  margin-bottom: 17%;
 }
 
 /* line 164, ../sass/app.scss */
@@ -6827,9 +6827,10 @@ a.footer.button {
 .ui-layout-content {
   overflow-y: overlay;
   overflow-x: hidden;
+  padding: 0;
 }
 
-/* line 767, ../sass/app.scss */
+/* line 768, ../sass/app.scss */
 div.time-picker {
   position: absolute;
   height: 191px;
@@ -6842,20 +6843,20 @@ div.time-picker {
   margin: 0;
 }
 
-/* line 777, ../sass/app.scss */
+/* line 778, ../sass/app.scss */
 div.time-picker-12hours {
   width: 6em;
   /* needed for IE */
 }
 
-/* line 781, ../sass/app.scss */
+/* line 782, ../sass/app.scss */
 div.time-picker ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
 }
 
-/* line 786, ../sass/app.scss */
+/* line 787, ../sass/app.scss */
 div.time-picker li {
   cursor: pointer;
   height: 20px;
@@ -6863,76 +6864,91 @@ div.time-picker li {
   padding: 4px 3px;
 }
 
-/* line 792, ../sass/app.scss */
+/* line 793, ../sass/app.scss */
 div.time-picker li.selected {
   background: #0063CE;
   color: #fff;
 }
 
-/* line 798, ../sass/app.scss */
+/* line 799, ../sass/app.scss */
 .timepicker {
   float: left;
   width: 50px !important;
 }
 
-/* line 803, ../sass/app.scss */
+/* line 804, ../sass/app.scss */
 .jdpicker {
   float: left;
   width: 90px !important;
 }
 
-/* line 808, ../sass/app.scss */
+/* line 809, ../sass/app.scss */
 .columns {
   line-height: 2;
 }
 
-/* line 812, ../sass/app.scss */
+/* line 813, ../sass/app.scss */
 .transparent_table, .transparent_table tr {
   background: none !important;
   border: 0px !important;
 }
 
-/* line 817, ../sass/app.scss */
+/* line 818, ../sass/app.scss */
 form {
   margin: 0 !important;
 }
 
-/* line 821, ../sass/app.scss */
+/* line 822, ../sass/app.scss */
 #template_create_tabs {
   width: 180px;
 }
 
-/* line 826, ../sass/app.scss */
+/* line 827, ../sass/app.scss */
 .dataTables_scrollHead {
   height: 30px;
 }
 
-/* line 830, ../sass/app.scss */
+/* line 831, ../sass/app.scss */
 .dataTables_scrollBody {
   margin-top: -3px;
 }
 
-/* line 834, ../sass/app.scss */
+/* line 835, ../sass/app.scss */
 .show_hide {
   cursor: pointer;
 }
 
-/* line 838, ../sass/app.scss */
+/* line 839, ../sass/app.scss */
 .show_hide:hover > h4 > small {
   color: #6f6f6f !important;
 }
 
-/* line 842, ../sass/app.scss */
+/* line 843, ../sass/app.scss */
 .label.allocated {
   background-color: #2ba6cb;
 }
 
-/* line 845, ../sass/app.scss */
+/* line 846, ../sass/app.scss */
 .label.real {
   background-color: #707d85;
 }
 
-/* line 848, ../sass/app.scss */
+/* line 849, ../sass/app.scss */
 .label.total {
   background-color: #ac5a62;
+}
+
+/* line 853, ../sass/app.scss */
+.tabs dd a, .tabs li a {
+  padding: 0px 13px;
+}
+
+/* line 857, ../sass/app.scss */
+.ui-layout-resizer-west {
+  background: none;
+}
+
+/* line 862, ../sass/app.scss */
+.ui-layout-resizer-west:hover {
+  background: none;
 }

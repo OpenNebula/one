@@ -157,8 +157,8 @@ div.button-bar {
 
 #logo {
     font-weight: bold;
-    margin-top: 15%;
-    margin-bottom: 10%;
+    margin-top: 17%;
+    margin-bottom: 17%;
 }
 
 #login-info {
@@ -760,6 +760,7 @@ a.footer.button {
 .ui-layout-content {
     overflow-y: overlay;
     overflow-x: hidden;
+    padding: 0;
 }
 
 
@@ -847,4 +848,17 @@ form {
 }
 .label.total {
   background-color: rgb(172,90,98);
+}
+
+.tabs dd a, .tabs li a {
+    padding: 0px 13px;
+}
+
+.ui-layout-resizer-west {
+    background: none;
+}
+
+
+.ui-layout-resizer-west:hover {
+    background: none;
 }

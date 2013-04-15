@@ -34,11 +34,11 @@ var templates_tab_content = '\
   </div>\
 </div>\
 <div class="row">\
-  <div class="nine columns">\
+  <div class="ten columns">\
     <div class="action_blocks">\
     </div>\
   </div>\
-  <div class="three columns">\
+  <div class="two columns">\
     <input id="template_search" type="text" placeholder="'+tr("Search")+'" />\
   </div>\
   <br>\
@@ -70,7 +70,7 @@ var create_template_tmpl = '<div class="panel">'+
   '<h3><small id="create_template_header">'+tr("Create VM Template")+'</small><small id="update_template_header" class="hidden">'+tr("Update VM Template")+'</small></h3>'+
   '</div>'+
   '<div class="reveal-body">'+
-  '<dl class="tabs">' + 
+  '<dl class="tabs">' +
     '<dd class="active"><a href="#easy">'+tr("Wizard")+'</a></dd>' +
     '<dd><a href="#manual">'+tr("Advanced mode")+'</a></dd>' +
   '</dl>' +
@@ -95,14 +95,14 @@ var create_template_tmpl = '<div class="panel">'+
       '<button class="button secondary hidden radius" id="template_template_reset_button_update" value="reset" type="reset">'+tr("Reset")+'</button>'+
       '<button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>'+
     '</li>' +
-    '<li id="manualTab">' + 
+    '<li id="manualTab">' +
      '<form id="create_template_form_manual" action="">' +
      '<h4><small>'+tr("Write the Virtual Machine template here")+'</small></h4>' +
-       '<textarea id="template" rows="15" style="width:100%;"></textarea>' + 
+       '<textarea id="template" rows="15" style="width:100%;"></textarea>' +
         '<div class="reveal-footer">' +
-        '<hr>' + 
-        '<div class="form_buttons">' + 
-         '<button class="button success right radius" id="create_template_submit_manual" value="template/create">'+tr("Create")+'</button>' + 
+        '<hr>' +
+        '<div class="form_buttons">' +
+         '<button class="button success right radius" id="create_template_submit_manual" value="template/create">'+tr("Create")+'</button>' +
                  '<button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>' +
                 '<button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>' +
             '</div>' +
@@ -778,7 +778,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
           '<div class="row collapse">'+
             '<div class="seven columns">' +
                '<button id="refresh_template_images_table_button_class'+str_disk_tab_id+'" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
-            '</div>' + 
+            '</div>' +
             '<div class="five columns">'+
               '<input id="'+str_disk_tab_id+'_search" type="text" placeholder="'+tr("Search")+'"/>'+
             '</div>'+
@@ -944,7 +944,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
               if (image_element_array)
                     image_list_array.push(image_element_array);
             });
-            
+
             var dataTable_template_images = $('table[id='+str_datatable_id+']').dataTable();
             updateView(image_list_array, dataTable_template_images);
             }
@@ -1152,7 +1152,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
   var html = '<div class="row">'+
     '<div class="seven columns">' +
        '<button id="refresh_template_nic_table_button_class'+str_nic_tab_id+'" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
-    '</div>' + 
+    '</div>' +
     '<div class="five columns push-seven">'+
       '<input id="'+str_nic_tab_id+'_search" type="text" placeholder="'+tr("Search")+'"/>'+
     '</div>'+
@@ -1928,7 +1928,7 @@ function setupCreateTemplateDialog(){
                   '<div class="row collapse ">'+
                       '<div class="seven columns">' +
                          '<button id="refresh_kernel_table" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
-                      '</div>' + 
+                      '</div>' +
                     '<div class="five columns push-seven">'+
                       '<input id="kernel_search" type="text" placeholder="'+tr("Search")+'"/>'+
                     '</div>'+
@@ -1988,7 +1988,7 @@ function setupCreateTemplateDialog(){
                   '<div class="row collapse ">'+
                       '<div class="seven columns">' +
                          '<button id="refresh_ramdisk_table" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
-                      '</div>' + 
+                      '</div>' +
                     '<div class="five columns push-seven">'+
                       '<input id="initrd_search" type="text" placeholder="'+tr("Search")+'"/>'+
                     '</div>'+
@@ -2066,7 +2066,7 @@ function setupCreateTemplateDialog(){
                     '<div class="tip">'+tr("Add support in the VM for Physical Address Extension (PAE)")+'</div>'+
                   '</div>'+
                 '</div>'+
-          '</li>'+            
+          '</li>'+
             '</ul>'+
       '</form>'+
         '</li>'
@@ -2534,7 +2534,7 @@ function setupCreateTemplateDialog(){
                         '<div class="row collapse ">'+
                           '<div class="seven columns">' +
                              '<button id="refresh_context_table" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
-                          '</div>' + 
+                          '</div>' +
                           '<div class="five columns push-seven">'+
                             '<input id="files_search" type="text" placeholder="'+tr("Search")+'"/>'+
                           '</div>'+
@@ -2807,7 +2807,7 @@ function setupCreateTemplateDialog(){
                     '<div class="row collapse ">'+
                       '<div class="seven columns">' +
                          '<button id="refresh_hosts_placement" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
-                      '</div>' + 
+                      '</div>' +
                       '<div class="five columns push-seven">'+
                         '<input id="hosts_search" type="text" placeholder="'+tr("Search")+'"/>'+
                       '</div>'+
@@ -2844,7 +2844,7 @@ function setupCreateTemplateDialog(){
                     '<div class="row collapse ">'+
                       '<div class="seven columns">' +
                          '<button id="refresh_clusters_placement" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
-                      '</div>' + 
+                      '</div>' +
                       '<div class="five columns push-seven">'+
                         '<input id="clusters_search" type="text" placeholder="'+tr("Search")+'"/>'+
                       '</div>'+

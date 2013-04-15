@@ -35,11 +35,11 @@ var files_tab_content = '\
   </div>\
 </div>\
 <div class="row">\
-  <div class="nine columns">\
+  <div class="ten columns">\
     <div class="action_blocks">\
     </div>\
   </div>\
-  <div class="three columns">\
+  <div class="two columns">\
     <input id="file_search" type="text" placeholder="'+tr("Search")+'" />\
   </div>\
 </div>\

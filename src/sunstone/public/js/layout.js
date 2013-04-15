@@ -142,18 +142,22 @@ $(document).ready(function () {
         applyDefaultStyles:       false
     ,   center__paneSelector:	".outer-center"
     ,	west__paneSelector:		".outer-west"
-    ,	west__size:				260
+    ,	west__size:				240
     ,	north__size:			26
     ,   south__size:            26
     ,	spacing_open:			0 // ALL panes
     ,	spacing_closed:			0 // ALL panes
     //,	north__spacing_open:	0
     //,	south__spacing_open:	0
+    ,   west__spacing_open:      10
+    ,   west__spacing_closed:    10
+    ,   west__togglerContent_open:   '<i class="icon-angle-left">'
+    ,   west__togglerContent_closed: '<i class="icon-angle-right">'
     ,	north__maxSize:			200
     ,	south__maxSize:			200
     ,   south__closable:        false
     ,   north__closable:        false
-    ,   west__closable:         false
+    ,   west__closable:         true
     ,   south__resizable:       false
     ,   north__resizable:       false
     ,   west__resizable:        false
@@ -168,8 +172,11 @@ $(document).ready(function () {
     ,   center__paneSelector:	".inner-center"
     ,	south__paneSelector:	".inner-south"
     ,   south__size:            dialog_height
+    ,   south__togglerContent_open:   '<i class="icon-angle-down">'
+    ,   south__togglerContent_closed: '<i class="icon-angle-up">'
     ,   south__resizable:       true
     ,   south__spacing_open:      10
+    ,   south__spacing_closed:    0
     ,   north__resizable:       true
     ,   north__spacing_open:      10
     ,	spacing_open:			5  // ALL panes

@@ -562,9 +562,7 @@ function insertButtonsInTab(tab_name){
 
     if (action_block.length){
 
-        var buttons_row = $("<div class='row'>"+
-            "<div class='four columns'>"+
-                '<div class="button-bar">'+
+        var buttons_row = $('<div class="button-bar">'+
                   '<ul class="button-group">'+
                     '<li>'+
                         "<div id='refresh_buttons'>"+
@@ -578,8 +576,6 @@ function insertButtonsInTab(tab_name){
                     '</li>'+
                   '</ul>'+
                 "</div>"+
-            "</div>"+
-            "<div class='eight columns'>"+
                 '<div class="button-bar">'+
                   '<ul class="button-group right">'+
                     '<li id="vmsplanification_buttons">'+
@@ -671,8 +667,6 @@ function insertButtonsInTab(tab_name){
                         "</div>"+
                     '</li>'+
                   '</ul>'+
-                "</div>"+
-            "</div>"+
         "</div>");
 
         //for every button defined for this tab...
