@@ -616,7 +616,7 @@ $(document).ready(function(){
     //if we are not oneadmin, our tab will not even be in the DOM.
     dataTable_acls = $("#datatable_acls",main_tabs_context).dataTable({
         "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
+            { "bSortable": false, "aTargets": ["check",2,3,4,5,6] },
             { "sWidth": "35px", "aTargets": [0] },
             { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
             { "bVisible": false, "aTargets": ['_all']}

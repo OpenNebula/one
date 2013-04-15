@@ -3142,7 +3142,7 @@ $(document).ready(function(){
 
     dataTable_vMachines = $("#datatable_vmachines",main_tabs_context).dataTable({
         "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
+            { "bSortable": false, "aTargets": ["check",6,7,9,11] },
             { "sWidth": "35px", "aTargets": [0] },
             { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
             { "bVisible": false, "aTargets": ['_all']}

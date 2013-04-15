@@ -1144,8 +1144,8 @@ $(document).ready(function(){
     //prepare host datatable
     dataTable_hosts = $("#datatable_hosts",main_tabs_context).dataTable({
         "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "35px", "aTargets": [0,1,4,9] }, //check, ID, RVMS, Status,
+            { "bSortable": false, "aTargets": ["check",5,6,7,8] },
+            { "sWidth": "35px", "aTargets": [0] }, //check, ID, RVMS, Status,
             { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
             { "bVisible": false, "aTargets": ['_all']}
         ]
