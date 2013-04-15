@@ -1542,7 +1542,12 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/vnc_on.png \
                         src/sunstone/public/images/network_icon.png \
                         src/sunstone/public/images/system_icon.png \
-                        src/sunstone/public/images/server_icon.png \
+                        src/sunstone/public/images/server_icon.png  \
+                        src/sunstone/public/images/sort_asc.png \
+                        src/sunstone/public/images/sort_asc_disabled.png \
+                        src/sunstone/public/images/sort_both.png \
+                        src/sunstone/public/images/sort_desc.png \
+                        src/sunstone/public/images/sort_desc_disabled.png\
 "
 
 SUNSTONE_PUBLIC_LOCALE_CA="\

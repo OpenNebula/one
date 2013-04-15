@@ -1350,7 +1350,8 @@ $(document).ready(function(){
 
     dataTable_vNetworks = $("#datatable_vnetworks",main_tabs_context).dataTable({
         "aoColumnDefs": [
-            { "sWidth": "35px", "aTargets": [0,1] },
+            { "bSortable": false, "aTargets": ["check"] },
+            { "sWidth": "35px", "aTargets": [0] },
             { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
             { "bVisible": false, "aTargets": ['_all']}
         ]

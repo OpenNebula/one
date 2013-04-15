@@ -1,9 +1,9 @@
 /* Set the defaults for DataTables initialisation */
 $.extend( true, $.fn.dataTable.defaults, {
-    "sDom": "<'H'>t<'row'<'four columns'l><'six columns'p>>",
+    "sDom": "<'H'>t<'row'<'eight columns'li><'four columns'p>>",
     "sPaginationType": "foundation",
     "oLanguage": {
-        "sLengthMenu": '<select><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> rows'
+        "sLengthMenu": '<select><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select>&emsp;&emsp;'
     }
 } );
 
@@ -21,7 +21,7 @@ $.fn.dataTableExt.oApi.fnPagingInfo = function ( oSettings )
         "iTotalPages":    Math.ceil( oSettings.fnRecordsDisplay() / oSettings._iDisplayLength )
     };
 };
- 
+
 /* Bootstrap style pagination control */
 $.extend( $.fn.dataTableExt.oPagination, {
     "foundation": {
@@ -33,7 +33,7 @@ $.extend( $.fn.dataTableExt.oPagination, {
                     fnDraw( oSettings );
                 }
             };
- 
+
             $(nPaging).addClass('pagination').append(
                 '<ul class="pagination">' +
                     '<li class="prev unavailable"><a href="#"><i class="icon-double-angle-left"/></a></li>' +
@@ -48,13 +48,13 @@ $.extend( $.fn.dataTableExt.oPagination, {
             $(els[2]).bind('click.DT', { action: "next" }, fnClickHandler);
             $(els[3]).bind('click.DT', { action: "last" }, fnClickHandler);
         },
- 
+
         "fnUpdate": function ( oSettings, fnDraw ) {
             var iListLength = 5;
             var oPaging = oSettings.oInstance.fnPagingInfo();
             var an = oSettings.aanFeatures.p;
             var i, j, sClass, iStart, iEnd, iHalf=Math.floor(iListLength/2);
- 
+
             if ( oPaging.iTotalPages < iListLength) {
                 iStart = 1;
                 iEnd = oPaging.iTotalPages;
@@ -69,7 +69,7 @@ $.extend( $.fn.dataTableExt.oPagination, {
                 iStart = oPaging.iPage - iHalf + 1;
                 iEnd = iStart + iListLength - 1;
             }
- 
+
             for ( i=0, iLen=an.length ; i<iLen ; i++ ) {
                 // Remove the middle elements
                 $('li:gt(1)', an[i]).filter(':not(.next)').remove();
@@ -92,7 +92,7 @@ $.extend( $.fn.dataTableExt.oPagination, {
                 } else {
                     $('li.prev', an[i]).removeClass('unavailable');
                 }
- 
+
                 if ( oPaging.iPage === oPaging.iTotalPages-1 || oPaging.iTotalPages === 0 ) {
                     $('li.next', an[i]).addClass('unavailable');
                 } else {
@@ -101,5 +101,5 @@ $.extend( $.fn.dataTableExt.oPagination, {
             }
         }
     }
-} 
+}
 );

@@ -1813,7 +1813,7 @@ $(document).ready(function(){
     dataTable_clusters = $("#datatable_clusters",main_tabs_context).dataTable({
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "35px", "aTargets": [0,1] },
+            { "sWidth": "35px", "aTargets": [0] },
             { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
             { "bVisible": false, "aTargets": ['_all']}
         ]

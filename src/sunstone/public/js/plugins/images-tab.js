@@ -1257,10 +1257,7 @@ $(document).ready(function(){
     dataTable_images = $("#datatable_images",main_tabs_context).dataTable({
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0,2,3,9,10] },
-            { "sWidth": "35px", "aTargets": [1,6,11,12] },
-            { "sWidth": "100px", "aTargets": [5,7] },
-            { "sWidth": "150px", "aTargets": [8] },
+            { "sWidth": "35px", "aTargets": [0] },
             { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
             { "bVisible": false, "aTargets": ['_all']}
         ]

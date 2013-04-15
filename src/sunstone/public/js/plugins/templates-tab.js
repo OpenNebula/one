@@ -1062,7 +1062,7 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
             "aiExclude": [ 0 ]
         },
         "aoColumnDefs": [
-            { "sWidth": "35px", "aTargets": [0,1] },
+            { "sWidth": "35px", "aTargets": [0] },
             { "bVisible": false, "aTargets": [0,2,3,6,9,8,12]}
         ],
         "oLanguage": (datatable_lang != "") ?
@@ -4416,7 +4416,7 @@ $(document).ready(function(){
     dataTable_templates = $("#datatable_templates",main_tabs_context).dataTable({
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "35px", "aTargets": [0,1] },
+            { "sWidth": "35px", "aTargets": [0] },
             { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
             { "bVisible": false, "aTargets": ['_all']}
         ]

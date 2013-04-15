@@ -1046,7 +1046,8 @@ $(document).ready(function(){
 
     dataTable_datastores = $("#datatable_datastores",main_tabs_context).dataTable({
         "aoColumnDefs": [
-            { "sWidth": "35px", "aTargets": [0,1] },
+            { "bSortable": false, "aTargets": ["check"] },
+            { "sWidth": "35px", "aTargets": [0] },
             { "bVisible": true, "aTargets": config['view']['tabs']['datastores-tab']['table_columns']},
             { "bVisible": false, "aTargets": ['_all']}
         ]

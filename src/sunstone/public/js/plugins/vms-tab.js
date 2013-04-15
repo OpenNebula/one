@@ -3108,7 +3108,7 @@ function vncIcon(vm){
 
     if (graphics && graphics.TYPE.toLowerCase() == "vnc" && $.inArray(state, VNCstates)!=-1){
         gr_icon = '<a class="vnc" href="#" vm_id="'+vm.ID+'">';
-        gr_icon += '<i class="icon-desktop" style="color: rgb(29, 29, 29)"/>';
+        gr_icon += '<i class="icon-desktop" style="color: rgb(111, 111, 111)"/>';
     }
     else {
         gr_icon = '';
@@ -3136,7 +3136,7 @@ $(document).ready(function(){
     dataTable_vMachines = $("#datatable_vmachines",main_tabs_context).dataTable({
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "35px", "aTargets": [0,1] },
+            { "sWidth": "35px", "aTargets": [0] },
             { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
             { "bVisible": false, "aTargets": ['_all']}
         ]
