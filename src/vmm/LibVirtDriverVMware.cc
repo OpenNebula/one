@@ -222,7 +222,7 @@ int LibVirtDriver::deployment_description_vmware(
         if ( type == "BLOCK" )
         {
             file << "\t\t<disk type='block' device='disk'>" << endl;
-            file << "\t\t\t<source file=[" << vm->get_ds_id() << "] "
+            file << "\t\t\t<source file='[" << vm->get_ds_id() << "] "
                  << vm->get_oid() << "/disk." << disk_id << "'/>" << endl;
         }
         else if ( type == "CDROM" )
