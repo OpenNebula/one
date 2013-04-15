@@ -73,6 +73,8 @@ module OpenNebulaJSON
                  when "update"       then self.update(action_hash['params'])
                  when "rename"       then self.rename(action_hash['params'])
                  when "undeploy"     then self.undeploy(action_hash['params'])
+                 when "resched"      then self.resched
+                 when "unresched"    then self.unresched
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"

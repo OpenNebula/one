@@ -451,6 +451,24 @@ var vm_actions = {
         notify: true
     },
 
+    "VM.resched" : {
+        type: "multiple",
+        call: OpenNebula.VM.resched,
+        callback: vmShow,
+        elements: vmElements,
+        error: onError,
+        notify: true
+    },
+
+    "VM.unresched" : {
+        type: "multiple",
+        call: OpenNebula.VM.unresched,
+        callback: vmShow,
+        elements: vmElements,
+        error: onError,
+        notify: true
+    },
+
     "VM.log" : {
         type: "single",
         call: OpenNebula.VM.log,
@@ -850,6 +868,18 @@ var vm_buttons = {
         text: tr("Delete") + ' <span class="label secondary radius">recreate</span>',
         layout: "vmsrepeat_buttons",
         tip: tr("This will delete and recreate VMs to PENDING state")
+    },
+    "VM.resched" : {
+        type: "action",
+        text: tr("Reschedule"),
+        layout: "vmsplanification_buttons",
+        tip: tr("This will reschedule selected VMs")
+    },
+    "VM.unresched" : {
+        type: "action",
+        text: tr("Un-Reschedule"),
+        layout: "vmsplanification_buttons",
+        tip: tr("This will cancel the rescheduling for the selected VMs")
     },
 
     //"VM.help" : {
@@ -1379,6 +1409,11 @@ function updateVMInfo(request,vm){
               <tr>\
                  <td class="key_td">'+tr("Deploy ID")+'</td>\
                  <td class="value_td">'+(typeof(vm_info.DEPLOY_ID) == "object" ? "-" : vm_info.DEPLOY_ID)+'</td>\
+                 <td></td>\
+              </tr>\
+              <tr>\
+                 <td class="key_td">'+tr("Reschedule")+'</td>\
+                 <td class="value_td">'+(parseInt(vm_info.RESCHED) ? tr("yes") : tr("no"))+'</td>\
                  <td></td>\
               </tr>\
               </tbody>\

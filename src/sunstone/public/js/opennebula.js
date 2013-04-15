@@ -795,6 +795,12 @@ var OpenNebula = {
                                             OpenNebula.VM.resource,
                                             "rename",
                                             action_obj);
+        },
+        "resched" : function(params){
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"resched");
+        },
+        "unresched" : function(params){
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"unresched");
         }
     },
 

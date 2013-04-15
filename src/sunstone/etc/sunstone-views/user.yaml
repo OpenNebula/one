@@ -134,6 +134,8 @@ tabs:
             VM.snapshot_create: true
             VM.snapshot_revert: true
             VM.snapshot_delete: true
+            VM.resched: false
+            VM.unresched: false
     templates-tab:
         enabled: true
         panel_tabs:
