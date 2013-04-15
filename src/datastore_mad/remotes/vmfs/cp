@@ -62,6 +62,7 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5 \
                     /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/SHA1 \
                     /DS_DRIVER_ACTION_DATA/IMAGE/ID \
+                    /DS_DRIVER_ACTION_DATA/IMAGE/TYPE \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/NO_DECOMPRESS \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/LIMIT_TRANSFER_BW)
 
@@ -77,8 +78,9 @@ SRC="${XPATH_ELEMENTS[8]}"
 MD5="${XPATH_ELEMENTS[9]}"
 SHA1="${XPATH_ELEMENTS[10]}"
 IMAGE_ID="${XPATH_ELEMENTS[11]}"
-NO_DECOMPRESS="${XPATH_ELEMENTS[12]}"
-LIMIT_TRANSFER_BW="${XPATH_ELEMENTS[13]}"
+IMAGE_TYPE="${XPATH_ELEMENTS[12]}"
+NO_DECOMPRESS="${XPATH_ELEMENTS[13]}"
+LIMIT_TRANSFER_BW="${XPATH_ELEMENTS[14]}"
 
 FE_DST=`generate_image_path`
 DST_FOLDER=`basename $FE_DST`
@@ -92,7 +94,9 @@ set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS" "$UMASK"
 
 vmfs_set_up
 
-vmfs_create_remote_path $DS_ID
+if ! is_cdrom; then
+    vmfs_create_remote_path $DS_ID
+fi
 
 # ------------  Prepare for a possible download in the front-end  -------------
 
@@ -124,7 +128,7 @@ http://*|https://* )
 
     log "Copying local disk folder $SRC to the image repository"
 
-    if [ ! -d $SRC ]; then
+    if [ ! -d $SRC -a ! is_cdrom ]; then
         exec_and_log "$COPY_COMMAND" "Error copying $SRC to $TMP_DIR/$DST_FOLDER"
         SRC="$TMP_DIR/$DST_FOLDER"
     fi
@@ -132,7 +136,7 @@ http://*|https://* )
 esac
 
 # Rename the disk filename to disk.vmdk (warning: it does so in SRC)
-if [ ! -f $SRC/disk.vmdk ]; then
+if [ -d "$SRC" -a ! -f "$SRC/disk.vmdk" ]; then
     BASE_DISK_FILE=`ls $SRC | grep '\.vmdk$' | grep -v '\-\(flat\|delta\|s[0-9]*\)\.vmdk$'`
 
     exec_and_log "mv -f $SRC/$BASE_DISK_FILE $SRC/disk.vmdk" \
@@ -141,14 +145,24 @@ fi
 
 # Make the final hop, front-end -> VMFS Datastore
 if [ "$USE_SSH" == "yes" ]; then
-    exec_and_log "$SCP -r $SRC/* $DST_HOST:$DST" "Error copying $SRC to $DST through SCP"
+    if ! is_cdrom; then
+        exec_and_log "$SCP -r $SRC/* $DST_HOST:$DST" "Error copying $SRC to $DST through SCP"
+    else
+        exec_and_log "$SCP $SRC $DST_HOST:$DST" "Error copying $SRC to $DST through SCP"
+    fi
 else
-    cd $SRC
-    for file in $(find . -type f); do
-        FNAME=$(basename $file)
-        exec_and_log "vifs $VI_PARAMS -p $file [$DS_ID]$DST_FOLDER/$FNAME" \
-                     "Cannot upload $file to $DST/$FNAME on $DST_HOST"
-    done
+    if ! is_cdrom; then
+        cd $SRC
+        for file in $(find . -type f); do
+            FNAME=$(basename $file)
+            exec_and_log "vifs $VI_PARAMS -p $file [$DS_ID]$DST_FOLDER/$FNAME" \
+                         "Cannot upload $file to $DST/$FNAME on $DST_HOST"
+        done
+    else # Type CDROM
+        FILE_TO_REGISTER=$(basename $DST)
+        exec_and_log "vifs $VI_PARAMS -p $SRC [$DS_ID]$FILE_TO_REGISTER" \
+             "Cannot upload $SRC to $DST on $DST_HOST"
+    fi
 fi
 
 if [ -d "$TMP_DIR/$DST_FOLDER" -a -n "$DST_FOLDER" ]; then

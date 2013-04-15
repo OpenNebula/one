@@ -54,6 +54,20 @@ IMAGE_DS_NAME=`basename $(dirname $SRC_PATH)`
 SYSTEM_DS_NAME=`basename $(dirname $(dirname $DST_PATH))`
 USE_SSH=$(get_tm_use_ssh $IMAGE_DS_NAME)
 
+# Let's check if it is a CDROM
+DISK_ID=$(echo "$DST_PATH" | $AWK -F. '{print $NF}')
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+DRIVER_PATH=$(dirname $0)
+
+unset i XPATH_ELEMENTS
+ 
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VMID| $XPATH \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/TYPE )
+
+DISK_TYPE="${XPATH_ELEMENTS[0]}"
+
 #-------------------------------------------------------------------------------
 # Set up datastore
 #-------------------------------------------------------------------------------
@@ -64,10 +78,12 @@ vmfs_set_up
 # Create remote folder
 #-------------------------------------------------------------------------------
 
-if [ "$USE_SSH" == "yes" ]; then
-	ssh_make_path $DST_HOST $DST_PATH
-else
-  vmfs_create_double_path $SYSTEM_DS_NAME $VMID $DST_FOLDER
+if [ "$DISK_TYPE" != "CDROM"]; then
+  if [ "$USE_SSH" == "yes" ]; then
+  	ssh_make_path $DST_HOST $DST_PATH
+  else
+    vmfs_create_double_path $SYSTEM_DS_NAME $VMID $DST_FOLDER
+  fi
 fi
 
 #-------------------------------------------------------------------------------
@@ -86,23 +102,36 @@ if which sudo > /dev/null; then
   SUDO_CMD="sudo "
 fi
 
-\$SUDO_CMD $VMKFSTOOLS -U $DST_PATH/disk.vmdk
-\$SUDO rm $DST_PATH/*
-\$SUDO_CMD $VMKFSTOOLS -i $SRC_PATH/disk.vmdk -d thin $DST_PATH/disk.vmdk
+if [ "$DISK_TYPE" != "CDROM" ]; then
+  \$SUDO_CMD $VMKFSTOOLS -U $DST_PATH/disk.vmdk
+  \$SUDO rm $DST_PATH/*
+  \$SUDO_CMD $VMKFSTOOLS -i $SRC_PATH/disk.vmdk -d thin $DST_PATH/disk.vmdk
+else
+  \$SUDO rm $DST_PATH
+  \$SUDO cp $SRC_PATH $DST_PATH
+  \$SUDO ln -s $DST_PATH $DST_PATH.iso
+fi
+
 EOF
 )
 	ssh_exec_and_log $DST_HOST "$CLONESCRIPT" "Error cloning $SRC to $DST"
 else
-  $VMKFSTOOLS $VI_PARAMS -U [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/disk.vmdk &> /dev/null
+  if [ "$DISK_TYPE" != "CDROM"]; then
+    $VMKFSTOOLS $VI_PARAMS -U [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/disk.vmdk &> /dev/null
 
-  # Erase in case that vmkfstool didn't recognize the disk
-  FILES_TO_ERASE=`vifs $VI_PARAMS --dir [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER|grep -v "Content Listing"|grep -v "\-\-\-\-\-\-\-\-"|egrep -v "^[[:space:]]*$"`
-  for file in $FILES_TO_ERASE; do
-    vifs $VI_PARAMS --force --rm [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/$file
-  done
+    # Erase in case that vmkfstool didn't recognize the disk
+    FILES_TO_ERASE=`vifs $VI_PARAMS --dir [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER|grep -v "Content Listing"|grep -v "\-\-\-\-\-\-\-\-"|egrep -v "^[[:space:]]*$"`
+    for file in $FILES_TO_ERASE; do
+      vifs $VI_PARAMS --force --rm [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/$file
+    done
 
-	exec_and_log "$VMKFSTOOLS $VI_PARAMS -i [$IMAGE_DS_NAME]$SRC_FOLDER/disk.vmdk -d thin [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/disk.vmdk" \
-                 "Error cloning $SRC to $DST"
+  	exec_and_log "$VMKFSTOOLS $VI_PARAMS -i [$IMAGE_DS_NAME]$SRC_FOLDER/disk.vmdk -d thin [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/disk.vmdk" \
+                   "Error cloning $SRC to $DST"
+  else
+    vifs $VI_PARAMS --force --rm [$SYSTEM_DS_NAME]$VMID/$DST_PATH &> /dev/null
+    exec_and_log "vifs $VI_PARAMS -p $SRC_PATH [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER.iso" \
+     "Cannot upload $SRC_PATH to [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER.iso on $DST_HOST"
+  fi
 fi
 
 exit 0
