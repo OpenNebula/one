@@ -1,4 +1,5 @@
 ---
+logo: ../images/opennebula-sunstone-v4.0.png
 users:
 groups:
     oneadmin:

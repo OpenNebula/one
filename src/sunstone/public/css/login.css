@@ -71,9 +71,7 @@ div#logo_sunstone {
     top: 65px;
     margin-left: auto;
     margin-right: auto;
-    background: url(../images/opennebula-sunstone-v4.0.png) no-repeat center;
     vertical-align: center;
-    background-size: 355px;
 }
 
 div#login {

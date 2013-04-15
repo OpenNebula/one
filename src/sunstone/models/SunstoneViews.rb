@@ -55,4 +55,8 @@ class SunstoneViews
 
         return available_views
     end
+
+    def logo
+        @views_config['logo']
+    end
 end
