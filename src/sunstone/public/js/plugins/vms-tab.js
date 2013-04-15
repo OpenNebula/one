@@ -1222,6 +1222,8 @@ function updateVMachinesView(request, vmachine_list){
             }
         ];
 
+        var t0 = new Date().getTime();
+
         var vm_monitoring_data_copy = jQuery.extend(true, {}, vm_monitoring_data);
 
         // TODO: plot only when the dashboard is visible
@@ -1230,6 +1232,13 @@ function updateVMachinesView(request, vmachine_list){
                 vm_monitoring_data_copy,
                 vm_dashboard_graphs[i]
             );
+        }
+
+        var t1 = new Date().getTime();
+
+        // If plot takes more than 3 seconds, clear the monitoring data
+        if (t1 - t0 > 3000) {
+            vm_monitoring_data = {};
         }
     }
 };

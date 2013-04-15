@@ -869,12 +869,21 @@ function updateHostsView (request,host_list){
         }
         ];
 
+        var t0 = new Date().getTime();
+
         // TODO: plot only when the dashboard is visible
         for(var i=0; i<host_dashboard_graphs.length; i++) {
             plot_totals(
                 host_monitoring_data,
                 host_dashboard_graphs[i]
             );
+        }
+
+        var t1 = new Date().getTime();
+
+        // If plot takes more than 3 seconds, clear the monitoring data
+        if (t1 - t0 > 3000) {
+            host_monitoring_data = {};
         }
     }
 
