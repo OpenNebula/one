@@ -225,7 +225,7 @@ int LibVirtDriver::deployment_description_vmware(
         else if ( type == "CDROM" )
         {
             file << "\t\t<disk type='file' device='cdrom'>" << endl;
-            file << "\t\t\t<source file=[" << vm->get_ds_id() << "] "
+            file << "\t\t\t<source file='[" << vm->get_ds_id() << "] "
                  << vm->get_oid() << "/disk." << disk_id << ".iso'/>" << endl;
         }
         else
