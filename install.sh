@@ -1362,7 +1362,6 @@ SUNSTONE_BIN_FILES="src/sunstone/bin/sunstone-server \
                     src/sunstone/bin/novnc-server"
 
 SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf \
-                    src/sunstone/etc/sunstone-plugins.yaml\
                     src/sunstone/etc/sunstone-views.yaml"
 
 SUNSTONE_ETC_VIEW_FILES="src/sunstone/etc/sunstone-views/admin.yaml \
@@ -1371,8 +1370,7 @@ SUNSTONE_ETC_VIEW_FILES="src/sunstone/etc/sunstone-views/admin.yaml \
 SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
                        src/sunstone/models/SunstoneServer.rb \
                        src/sunstone/models/SunstoneMarketplace.rb \
-                       src/sunstone/models/SunstoneViews.rb \
-                       src/sunstone/models/SunstonePlugins.rb"
+                       src/sunstone/models/SunstoneViews.rb"
 
 SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/ImageJSON.rb \
