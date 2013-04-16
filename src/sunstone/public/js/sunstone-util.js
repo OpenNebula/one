@@ -1006,6 +1006,7 @@ function infoListener(dataTable, info_action){
             $(e.target).is('option')) return true;
 
         var aData = dataTable.fnGetData(this);
+        if (!aData) return true;
         var id = $(aData[0]).val();
         if (!id) return true;
 
