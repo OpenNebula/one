@@ -392,7 +392,22 @@ end
 # Upload image
 ##############################################################################
 post '/upload'do
-    @SunstoneServer.upload(params[:img], request.env['rack.input'].path)
+
+    tmpfile = nil
+    rackinput = request.env['rack.input']
+
+    if (rackinput.class == Tempfile)
+        tmpfile = rackinput
+    elsif (rackinput.class == StringIO)
+        tmpfile = Tempfile.open('sunstone-upload')
+        tmpfile.write rackinput.read
+        tmpfile.flush
+    else
+        logger.error { "Unexpected rackinput class #{rackinput.class}" }
+        return [500, ""]
+    end
+
+    @SunstoneServer.upload(params[:img], tmpfile.path)
 end
 
 ##############################################################################
