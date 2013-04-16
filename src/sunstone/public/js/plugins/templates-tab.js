@@ -67,53 +67,54 @@ var templates_tab_content = '\
 
 
 var create_template_tmpl = '<div class="panel">'+
-  '<h3><small id="create_template_header">'+tr("Create VM Template")+'</small><small id="update_template_header" class="hidden">'+tr("Update VM Template")+'</small></h3>'+
+    '<h3><small id="create_template_header">'+tr("Create VM Template")+'</small><small id="update_template_header" class="hidden">'+tr("Update VM Template")+'</small></h3>'+
   '</div>'+
   '<div class="reveal-body">'+
-  '<dl class="tabs">' +
-    '<dd class="active"><a href="#easy">'+tr("Wizard")+'</a></dd>' +
-    '<dd><a href="#manual">'+tr("Advanced mode")+'</a></dd>' +
-  '</dl>' +
-  '<ul class="tabs-content">' +
-  '<li class="active" id="easyTab">' +
-  '<form class="custom creation">'+
-  '<div class="">'+
-    '<div class="columns three">'+
-        '<dl id="template_create_tabs" class="tabs vertical">'+
-        '</dl>'+
-    '</div>'+
-    '<div class="columns nine">'+
-            '<ul id="template_create_tabs_content" class="tabs-content">'+
-            '</ul>'+
-    '</div>'+
-  '</div>'+
-  '<div class="reveal-footer">'+
-      '<hr>'+
-      '<button class="success button radius" id="create_template_form_easy" value="OpenNebula.Template.create" style="float: right">'+tr("Create")+'</button>'+
-      '<button class="button hidden radius" id="template_template_update_button" value="Template.update_template" style="float: right">'+tr("Update")+'</button>'+
-      '<button class="button secondary radius" id="template_template_reset_button" value="reset" type="reset">'+tr("Reset")+'</button>'+
-      '<button class="button secondary hidden radius" id="template_template_reset_button_update" value="reset" type="reset">'+tr("Reset")+'</button>'+
-      '<button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>'+
-    '</li>' +
-    '<li id="manualTab">' +
-     '<form id="create_template_form_manual" action="">' +
-     '<h4><small>'+tr("Write the Virtual Machine template here")+'</small></h4>' +
-       '<textarea id="template" rows="15" style="width:100%;"></textarea>' +
-        '<div class="reveal-footer">' +
-        '<hr>' +
-        '<div class="form_buttons">' +
-         '<button class="button success right radius" id="create_template_submit_manual" value="template/create">'+tr("Create")+'</button>' +
-                 '<button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>' +
-                '<button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>' +
+    '<dl class="tabs">' +
+      '<dd class="active"><a href="#easy">'+tr("Wizard")+'</a></dd>' +
+      '<dd><a href="#manual">'+tr("Advanced mode")+'</a></dd>' +
+    '</dl>' +
+    '<ul class="tabs-content">' +
+      '<li class="active" id="easyTab">' +
+        '<form class="custom creation">'+
+          '<div class="">'+
+            '<div class="columns three">'+
+                '<dl id="template_create_tabs" class="tabs vertical">'+
+                '</dl>'+
+            '</div>'+
+            '<div class="columns nine">'+
+                    '<ul id="template_create_tabs_content" class="tabs-content">'+
+                    '</ul>'+
+            '</div>'+
+          '</div>'+
+          '<div class="reveal-footer">'+
+              '<hr>'+
+              '<button class="success button radius" id="create_template_form_easy" value="OpenNebula.Template.create" style="float: right">'+tr("Create")+'</button>'+
+              '<button class="button hidden radius" id="template_template_update_button" value="Template.update_template" style="float: right">'+tr("Update")+'</button>'+
+              '<button class="button secondary radius" id="template_template_reset_button" value="reset" type="reset">'+tr("Reset")+'</button>'+
+              '<button class="button secondary hidden radius" id="template_template_reset_button_update" value="reset" type="reset">'+tr("Reset")+'</button>'+
+              '<button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>'+
+          '</div>'+
+        '</form>'+
+      '</li>' +
+      '<li id="manualTab">' +
+       '<form id="create_template_form_manual" action="">' +
+          '<h4><small>'+tr("Write the Virtual Machine template here")+'</small></h4>' +
+          '<textarea id="template" rows="15" style="width:100%;"></textarea>' +
+          '<div class="reveal-footer">' +
+            '<hr>' +
+            '<div class="form_buttons">' +
+              '<button class="button success right radius" id="create_template_submit_manual" value="template/create">'+tr("Create")+'</button>' +
+              '<button class="button hidden radius" id="manual_template_update_button" value="Template.update_template" style="float: right">'+tr("Update")+'</button>'+
+              '<button class="button secondary radius" id="manual_template_reset_button_update" value="reset" type="reset">'+tr("Reset")+'</button>'+
+              '<button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>' +
             '</div>' +
           '</div>' +
-          '</form>' +
-        '</li>' +
+        '</form>' +
+      '</li>' +
     '</ul>' +
   '</div>'+
-  '<a class="close-reveal-modal">&#215;</a>'+
-  '</form>'+
-  '</div>';
+  '<a class="close-reveal-modal">&#215;</a>';
 
 
 var update_template_tmpl =
@@ -1453,8 +1454,8 @@ function updateTemplateInfo(request,template){
     var template_tab = {
         title: tr("Template"),
         content: '<div class="">\
-         <div class="eight columns">\
-          <table id="template_template_table" class="transparent_table twelve">'+
+         <div class="eight columns centered">\
+          <table id="template_template_table" class="transparent_table extend twelve">'+
             prettyPrintJSON(template_info.TEMPLATE)+'\
           </table>\
          </div>\
@@ -3264,9 +3265,14 @@ function setupCreateTemplateDialog(){
         $('button#template_template_update_button', $create_template_dialog).hide();
         $('button#template_template_reset_button', $create_template_dialog).show();
         $('button#template_template_reset_button_update', $create_template_dialog).hide();
+        $('button#manual_template_update_button', $create_template_dialog).hide();
+        $('button#create_template_submit_manual', $create_template_dialog).show();
 
         $('#create_template_header', $create_template_dialog).show();
         $('#update_template_header', $create_template_dialog).hide();
+
+        $('#template_name_form', $create_template_dialog).show();
+        $('#NAME').removeAttr("disabled");;
 
     });
 
@@ -3278,9 +3284,14 @@ function setupCreateTemplateDialog(){
         $('button#template_template_update_button', $create_template_dialog).show();
         $('button#template_template_reset_button', $create_template_dialog).hide();
         $('button#template_template_reset_button_update', $create_template_dialog).show();
+        $('button#manual_template_update_button', $create_template_dialog).show();
+        $('button#create_template_submit_manual', $create_template_dialog).hide();
 
         $('#create_template_header', $create_template_dialog).hide();
         $('#update_template_header', $create_template_dialog).show();
+
+        $('#template_name_form', $create_template_dialog).hide();
+        $('#NAME').attr("disabled", "disabled");;
     });
 
     if (Config.isTemplateCreationTabEnabled('general')){
@@ -3510,6 +3521,20 @@ function setupCreateTemplateDialog(){
 
         return false;
     });
+
+    $('button#manual_template_update_button',dialog).click(function(){
+        var template = $('textarea#template',$create_template_dialog).val();
+
+        //wrap it in the "vm" object
+        template = {"vmtemplate": {"template_raw": template}};
+        var vm_json = JSON.stringify(template);
+        Sunstone.runAction("Template.update",template_to_update_id,vm_json);
+
+        $create_template_dialog.trigger("reveal:close")
+
+        return false;
+    });
+
     //Handle manual forms
     $('button#create_template_submit_manual',$create_template_dialog).click(function(){
         var template = $('textarea#template',$create_template_dialog).val();
@@ -3537,6 +3562,8 @@ function popUpUpdateTemplateDialog(){
     $('button#template_template_update_button', $create_template_dialog).show();
     $('button#template_template_reset_button', $create_template_dialog).hide();
     $('button#template_template_reset_button_update', $create_template_dialog).show();
+    $('button#manual_template_update_button', $create_template_dialog).show();
+    $('button#create_template_submit_manual', $create_template_dialog).hide();
 
     $('#create_template_header', $create_template_dialog).hide();
     $('#update_template_header', $create_template_dialog).show();
@@ -3552,6 +3579,8 @@ function popUpCreateTemplateDialog(){
     $('button#template_template_update_button', $create_template_dialog).hide();
     $('button#template_template_reset_button', $create_template_dialog).show();
     $('button#template_template_reset_button_update', $create_template_dialog).hide();
+    $('button#manual_template_update_button', $create_template_dialog).hide();
+    $('button#create_template_submit_manual', $create_template_dialog).show();
 
     $('#create_template_header', $create_template_dialog).show();
     $('#update_template_header', $create_template_dialog).hide();
@@ -3679,6 +3708,8 @@ function fillTemplatePopUp(request, response){
     $create_template_dialog.empty();
     setupCreateTemplateDialog();
 
+    var use_advanced_template = false;
+
     function autoFillInputs(template_json, context){
         var params = $('.vm_param',context);
         var inputs = $('input',params);
@@ -3690,6 +3721,8 @@ function fillTemplatePopUp(request, response){
                 if (template_json[field.attr('id')]){ //if has a length
                     field.val(template_json[field.attr('id')]);
                     field.change();
+
+                    delete template_json[field.attr('id')]
 
                     if (field.parents(".advanced")) {
                         $('.advanced', context).toggle();
@@ -3828,15 +3861,15 @@ function fillTemplatePopUp(request, response){
                         rows[j].click();
                         clicked = true;
                     }
+                }
 
-                    if (!clicked) {
+                if (!clicked) {
                         var alert = '<div class="alert-box alert">'+
 'NETWORK: '+ nic.NETWORK_ID + tr(" does not exists any more") +
 '  <a href="" class="close">&times;</a>'+
 '</div>';
 
                         $(".dataTables_wrapper", nic_section).append(alert);
-                    }
                 }
           },
           error: onError
