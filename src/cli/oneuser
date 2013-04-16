@@ -262,7 +262,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :key, key_desc, :options=>[KEY] do
-        require 'ssh_auth'
+        require 'opennebula/ssh_auth'
 
         options[:key] ||= ENV['HOME']+'/.ssh/id_rsa'
 
