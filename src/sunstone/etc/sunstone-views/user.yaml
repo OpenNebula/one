@@ -277,7 +277,7 @@ tabs:
     datastores-tab:
         enabled: true
         panel_tabs:
-            datastore_info_tab: true
+            datastore_info_tab: false
             datastore_image_tab: true
         table_columns:
             - 0         # Checkbox
@@ -301,7 +301,7 @@ tabs:
     vnets-tab:
         enabled: true
         panel_tabs:
-            vnet_info_tab: true
+            vnet_info_tab: false
             vnet_leases_tab: true
         table_columns:
             - 0         # Checkbox
