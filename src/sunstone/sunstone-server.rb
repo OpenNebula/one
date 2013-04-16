@@ -52,7 +52,6 @@ SESSION_EXPIRE_TIME = 60*60
 require 'rubygems'
 require 'sinatra'
 require 'erb'
-require 'haml'
 require 'yaml'
 
 require 'CloudAuth'
@@ -125,6 +124,7 @@ $vnc = OpenNebulaVNC.new($conf, logger)
 configure do
     set :run, false
     set :vnc, $vnc
+    set :erb, :trim => '-'
 end
 
 ##############################################################################
@@ -259,7 +259,7 @@ get '/' do
                         :value=>"#{session[:user_gid]}",
                         :expires=>time)
 
-    haml :index
+    erb :index
 end
 
 get '/login' do
