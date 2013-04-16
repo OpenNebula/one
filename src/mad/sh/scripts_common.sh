@@ -465,3 +465,9 @@ function vmfs_create_double_path {
     vifs $VI_PARAMS --force --mkdir [$DS_ID]$FIRST_FOLDER/$SECOND_FOLDER &> /dev/null
 
 }
+
+function vmfs_create_simple_path {
+    DS_ID=$1
+    FIRST_FOLDER=$2
+    vifs $VI_PARAMS --force --mkdir [$DS_ID]$FIRST_FOLDER &> /dev/null
+}

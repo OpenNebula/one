@@ -84,6 +84,12 @@ if [ "$DISK_TYPE" != "CDROM"]; then
   else
     vmfs_create_double_path $SYSTEM_DS_NAME $VMID $DST_FOLDER
   fi
+else
+  if [ "$USE_SSH" == "yes" ]; then
+    ssh_make_path $DST_HOST $(dirname $DST_PATH)
+  else
+    vmfs_create_simple_path $SYSTEM_DS_NAME $VMID
+  fi
 fi
 
 #-------------------------------------------------------------------------------
