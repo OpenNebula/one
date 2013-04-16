@@ -57,7 +57,6 @@ require 'yaml'
 
 require 'CloudAuth'
 require 'SunstoneServer'
-require 'SunstonePlugins'
 require 'SunstoneViews'
 
 
@@ -259,9 +258,6 @@ get '/' do
     response.set_cookie("one-user_gid",
                         :value=>"#{session[:user_gid]}",
                         :expires=>time)
-
-    p = SunstonePlugins.new
-    @plugins = p.authorized_plugins(session[:user], session[:user_gname])
 
     haml :index
 end
