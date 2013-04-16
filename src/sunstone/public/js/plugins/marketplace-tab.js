@@ -223,14 +223,16 @@ function updateMarketInfo(request,app){
         <div class="six columns">\
         <table id="info_marketplace_table2" class="twelve datatable extended_table">\
            <thead>\
-             <tr><th colspan="2">'+tr("Description")+'</th></tr>\
+             <tr><th>'+tr("Description")+'</th></tr>\
            </thead>\
            <tbody>\
               <tr>\
-                <td class="value_td">'+app['description'].replace(/\n/g, "<br />")+'</td>\
+                <td class="">'+app['description'].replace(/\n/g, "<br />")+'</td>\
               </tr>\
             </tbody>\
-        </table>'
+        </table>\
+      </div>\
+    </form>'
     };
 
     Sunstone.updateInfoPanelTab("marketplace_info_panel", "marketplace_info_tab", info_tab);

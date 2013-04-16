@@ -120,7 +120,7 @@ var Sunstone = {
     //Generates and returns the HTML div element for an info panel, with
     //Jquery tabs.
     "getInfoPanelHTML" : function(panel_name,selected_tab){
-        var dl_tabs = $('<br><div id="'+panel_name+'" class="row"><dl class="tabs"></dl><ul class="tabs-content"></ul></div>');
+        var dl_tabs = $('<br><div id="'+panel_name+'" class="row"><div class="twelve columns"><dl class="tabs"></dl></div><ul class="tabs-content"></ul></div>');
         var tabs = SunstoneCfg["info_panels"][panel_name];
         var tab=null;
         var active=false;

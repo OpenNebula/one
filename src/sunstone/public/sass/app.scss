@@ -861,9 +861,29 @@ form {
 
 .ui-layout-resizer-west:hover {
     background: none;
+    width: 30px !important;
 }
 
 
+.ui-layout-toggler-west:hover{
+    width: 30px !important;
+    background: #2ba6cb !important;
+}
+
+.ui-layout-resizer-south:hover{
+    height: 25px !important;
+}
+
+.ui-layout-resizer-south:hover .ui-layout-toggler-south {
+    height: 25px !important;
+}
+
+
+
+.ui-layout-toggler-south:hover {
+    height: 25px !important;
+    background: #2ba6cb !important;
+}
 
 
 

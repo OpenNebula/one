@@ -6951,14 +6951,37 @@ form {
 /* line 862, ../sass/app.scss */
 .ui-layout-resizer-west:hover {
   background: none;
+  width: 30px !important;
 }
 
-/* line 874, ../sass/app.scss */
+/* line 868, ../sass/app.scss */
+.ui-layout-toggler-west:hover {
+  width: 30px !important;
+  background: #2ba6cb !important;
+}
+
+/* line 873, ../sass/app.scss */
+.ui-layout-resizer-south:hover {
+  height: 25px !important;
+}
+
+/* line 877, ../sass/app.scss */
+.ui-layout-resizer-south:hover .ui-layout-toggler-south {
+  height: 25px !important;
+}
+
+/* line 883, ../sass/app.scss */
+.ui-layout-toggler-south:hover {
+  height: 25px !important;
+  background: #2ba6cb !important;
+}
+
+/* line 894, ../sass/app.scss */
 div.dataTables_wrapper {
   margin-bottom: 1.25em;
 }
 
-/* line 880, ../sass/app.scss */
+/* line 900, ../sass/app.scss */
 div.dataTables_length label,
 div.dataTables_filter label,
 div.dataTables_info {
@@ -6966,46 +6989,46 @@ div.dataTables_info {
   font-weight: normal;
 }
 
-/* line 885, ../sass/app.scss */
+/* line 905, ../sass/app.scss */
 div.dataTables_length {
   padding-top: 0px;
 }
 
-/* line 888, ../sass/app.scss */
+/* line 908, ../sass/app.scss */
 div.dataTables_length label {
   float: left;
   text-align: left;
 }
 
-/* line 893, ../sass/app.scss */
+/* line 913, ../sass/app.scss */
 div.dataTables_length select {
   width: 75px;
 }
 
-/* line 897, ../sass/app.scss */
+/* line 917, ../sass/app.scss */
 div.dataTables_filter label {
   float: right;
 }
 
-/* line 900, ../sass/app.scss */
+/* line 920, ../sass/app.scss */
 div.dataTables_filter input {
   display: inline-block !important;
   width: auto !important;
 }
 
-/* line 905, ../sass/app.scss */
+/* line 925, ../sass/app.scss */
 div.dataTables_info {
   padding-top: 1px;
 }
 
-/* line 909, ../sass/app.scss */
+/* line 929, ../sass/app.scss */
 div.dataTables_paginate {
   float: right;
   margin: 0;
   padding-top: 2px;
 }
 
-/* line 915, ../sass/app.scss */
+/* line 935, ../sass/app.scss */
 table.dataTable {
   clear: both;
   margin-bottom: 0.5em !important;
@@ -7013,7 +7036,7 @@ table.dataTable {
   width: 100%;
 }
 
-/* line 926, ../sass/app.scss */
+/* line 946, ../sass/app.scss */
 table.dataTable thead .sorting,
 table.dataTable thead .sorting_asc,
 table.dataTable thead .sorting_desc,
@@ -7023,50 +7046,50 @@ table.dataTable thead .sorting_desc_disabled {
   *cursor: hand;
 }
 
-/* line 931, ../sass/app.scss */
+/* line 951, ../sass/app.scss */
 table.dataTable thead .sorting_asc {
   background: url("../images/sort_asc_disabled.png") no-repeat center right;
 }
 
-/* line 932, ../sass/app.scss */
+/* line 952, ../sass/app.scss */
 table.dataTable thead .sorting_desc {
   background: url("../images/sort_desc_disabled.png") no-repeat center right;
 }
 
-/* line 934, ../sass/app.scss */
+/* line 954, ../sass/app.scss */
 table.dataTable thead .sorting_asc_disabled {
   background: url("../images/sort_asc_disabled.png") no-repeat center right;
 }
 
-/* line 935, ../sass/app.scss */
+/* line 955, ../sass/app.scss */
 table.dataTable thead .sorting_desc_disabled {
   background: url("../images/sort_desc_disabled.png") no-repeat center right;
 }
 
-/* line 937, ../sass/app.scss */
+/* line 957, ../sass/app.scss */
 table.dataTable th:active {
   outline: none;
 }
 
 /* Scrolling */
-/* line 942, ../sass/app.scss */
+/* line 962, ../sass/app.scss */
 div.dataTables_scrollHead table {
   margin-bottom: 0 !important;
 }
 
-/* line 946, ../sass/app.scss */
+/* line 966, ../sass/app.scss */
 div.dataTables_scrollBody table {
   border-top: none;
   margin-bottom: 0 !important;
 }
 
-/* line 952, ../sass/app.scss */
+/* line 972, ../sass/app.scss */
 div.dataTables_scrollBody tbody tr:first-child th,
 div.dataTables_scrollBody tbody tr:first-child td {
   border-top: none;
 }
 
-/* line 956, ../sass/app.scss */
+/* line 976, ../sass/app.scss */
 div.dataTables_scrollFoot table {
   border-top: none;
 }
@@ -7074,20 +7097,20 @@ div.dataTables_scrollFoot table {
 /*
  * TableTools styles
  */
-/* line 967, ../sass/app.scss */
+/* line 987, ../sass/app.scss */
 .table tbody tr.active td,
 .table tbody tr.active th {
   background-color: #08C;
   color: white;
 }
 
-/* line 973, ../sass/app.scss */
+/* line 993, ../sass/app.scss */
 .table tbody tr.active:hover td,
 .table tbody tr.active:hover th {
   background-color: #0075b0 !important;
 }
 
-/* line 978, ../sass/app.scss */
+/* line 998, ../sass/app.scss */
 .table-striped tbody tr.active:nth-child(odd) td,
 .table-striped tbody tr.active:nth-child(odd) th {
   background-color: #017ebc;
