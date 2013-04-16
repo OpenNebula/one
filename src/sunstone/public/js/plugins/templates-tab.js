@@ -71,8 +71,8 @@ var create_template_tmpl = '<div class="panel">'+
   '</div>'+
   '<div class="reveal-body">'+
     '<dl class="tabs">' +
-      '<dd class="active"><a href="#easy">'+tr("Wizard")+'</a></dd>' +
-      '<dd><a href="#manual">'+tr("Advanced mode")+'</a></dd>' +
+      '<dd id="wizard_mode" class="active"><a href="#easy">'+tr("Wizard")+'</a></dd>' +
+      '<dd id="advanced_mode"><a id="advanced_mode_a" href="#manual">'+tr("Advanced mode")+'</a></dd>' +
     '</dl>' +
     '<ul class="tabs-content">' +
       '<li class="active" id="easyTab">' +
@@ -3268,6 +3268,9 @@ function setupCreateTemplateDialog(){
         $('button#manual_template_update_button', $create_template_dialog).hide();
         $('button#create_template_submit_manual', $create_template_dialog).show();
 
+
+        $('#wizard_mode', $create_template_dialog).show();
+
         $('#create_template_header', $create_template_dialog).show();
         $('#update_template_header', $create_template_dialog).hide();
 
@@ -3289,6 +3292,9 @@ function setupCreateTemplateDialog(){
 
         $('#create_template_header', $create_template_dialog).hide();
         $('#update_template_header', $create_template_dialog).show();
+
+        $('#wizard_mode', $create_template_dialog).hide();
+        $('#advanced_mode_a', $create_template_dialog).click();
 
         $('#template_name_form', $create_template_dialog).hide();
         $('#NAME').attr("disabled", "disabled");;
@@ -3571,6 +3577,9 @@ function popUpUpdateTemplateDialog(){
     $('#template_name_form', $create_template_dialog).hide();
     $('#NAME').attr("disabled", "disabled");;
 
+    $('#wizard_mode', $create_template_dialog).hide();
+    $('#advanced_mode_a', $create_template_dialog).click();
+
     $create_template_dialog.reveal();
 };
 
@@ -3587,6 +3596,8 @@ function popUpCreateTemplateDialog(){
 
     $('#template_name_form', $create_template_dialog).show();
     $('#NAME').removeAttr('disabled');
+
+    $('#wizard_mode', $create_template_dialog).show();
 
     $create_template_dialog.reveal();
 };
@@ -3737,562 +3748,562 @@ function fillTemplatePopUp(request, response){
 
     template_to_update_id = response.VMTEMPLATE.ID
 
-    //
-    // GENERAL
-    //
-
-    var capacity_section = $('li#capacityTab', $create_template_dialog);
-    autoFillInputs(template, capacity_section);
-
-
-    //
-    // DISKS
-    //
-
-    var number_of_disks = 0;
-
-    function fillDiskTab(disk) {
-        var str_disk_tab_id = 'disk' + number_of_disks;
-        var disk_section  = $('li#' + str_disk_tab_id + 'Tab', $create_template_dialog);
-
-        if (disk.IMAGE_ID) {
-            $('input#'+str_disk_tab_id+'radioImage', disk_section).click();
-
-            var dataTable_template_images = $("#datatable_template_images" + number_of_disks).dataTable();
-
-            // TODO updateView should not be required. Currently the dataTable
-            //  is filled twice.
-            OpenNebula.Image.list({
-                timeout: true,
-                success: function (request, images_list){
-                    var image_list_array = [];
-
-                    $.each(images_list,function(){
-                        image_list_array.push(imageElementArray(this));
-                    });
-
-                    updateView(image_list_array, dataTable_template_images);
-
-                    var rows = dataTable_template_images.fnGetNodes();
-
-                    var clicked = false
-                    for (var j=0;j<rows.length;j++) {
-                        var current_row = $(rows[j]);
-                        var row_image_id = $(rows[j]).find("td:eq(0)").html();
-
-                        if (row_image_id == disk.IMAGE_ID) {
-                            rows[j].click();
-                            clicked = true;
-                        }
-                    }
-
-                    if (!clicked) {
-                        var alert = '<div class="alert-box alert">'+
-'IMAGE: '+ disk.IMAGE_ID + tr(" does not exists any more") +
-'  <a href="" class="close">&times;</a>'+
-'</div>';
-
-                        $(".dataTables_wrapper", disk_section).append(alert);
-                    }
-              },
-              error: onError
-            });
-
-        }
-        else {
-            $('input#'+str_disk_tab_id+'radioVolatile', disk_section).click();
-        }
-
-        autoFillInputs(disk, $('div#disk_type.vm_param', disk_section));
-    }
-
-    if (template.DISK) {
-        var disks = template.DISK
-
-        if (disks instanceof Array) {
-            $.each(disks, function(){
-                if (number_of_disks > 0) {
-                    $("#tf_btn_disks").click();
-                }
-
-                fillDiskTab(this);
-                number_of_disks++;
-            });
-        }
-        else if (disks instanceof Object) {
-            fillDiskTab(disks);
-        }
-    }
-
-
-    //
-    // NICS
-    //
-
-    var number_of_nics = 0;
-
-    function fillNicTab(nic) {
-        var str_nic_tab_id = 'nic' + number_of_nics;
-        var nic_section  = $('li#' + str_nic_tab_id + 'Tab', $create_template_dialog);
-
-        var dataTable_template_networks = $("#datatable_template_networks" + number_of_nics).dataTable();
-
-        // TODO updateView should not be required. Currently the dataTable
-        //  is filled twice.
-        OpenNebula.Network.list({
-            timeout: true,
-            success: function (request, networks_list){
-                var network_list_array = [];
-
-                $.each(networks_list,function(){
-                    network_list_array.push(vNetworkElementArray(this));
-                });
-
-                updateView(network_list_array, dataTable_template_networks);
-
-                var rows = dataTable_template_networks.fnGetNodes();
-
-                var clicked = false;
-                for (var j=0;j<rows.length;j++) {
-                    var current_row = $(rows[j]);
-                    var row_network_id = $(rows[j]).find("td:eq(0)").html();
-
-                    if (row_network_id == nic.NETWORK_ID) {
-                        rows[j].click();
-                        clicked = true;
-                    }
-                }
-
-                if (!clicked) {
-                        var alert = '<div class="alert-box alert">'+
-'NETWORK: '+ nic.NETWORK_ID + tr(" does not exists any more") +
-'  <a href="" class="close">&times;</a>'+
-'</div>';
-
-                        $(".dataTables_wrapper", nic_section).append(alert);
-                }
-          },
-          error: onError
-        });
-
-        autoFillInputs(nic, nic_section);
-    }
-
-    if (template.NIC) {
-        var nics = template.NIC
-
-        if (nics instanceof Array) {
-            $.each(nics, function(){
-                if (number_of_nics > 0) {
-                    $("#tf_btn_nics").click();
-                }
-
-                fillNicTab(this);
-                number_of_nics++;
-            });
-        }
-        else if (nics instanceof Object) {
-            fillNicTab(nics);
-        }
-    }
-
-
-    //
-    // OS
-    //
-
-    var os = template.OS;
-    var os_section = $('li#osTab', $create_template_dialog);
-
-    if (os) {
-        if (os.KERNEL_DS) {
-            $('input#radioKernelDs', os_section).click();
-
-            var dataTable_template = $("#datatable_kernel").dataTable();
-            var regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/;
-
-            // TODO updateView should not be required. Currently the dataTable
-            //  is filled twice.
-            OpenNebula.Image.list({
-                timeout: true,
-                success: function (request, list){
-                    var list_array = [];
-
-                    $.each(list,function(){
-                        list_array.push(imageElementArray(this));
-                    });
-
-                    updateView(list_array, dataTable_template);
-                    dataTable_template.fnFilter("KERNEL", 6)
-
-                    var rows = dataTable_template.fnGetNodes();
-
-                    var match = regexp.exec(os.KERNEL_DS)
-                    var clicked = false;
-                    for (var j=0;j<rows.length;j++) {
-                        var current_row = $(rows[j]);
-                        var row_id = $(rows[j]).find("td:eq(0)").html();
-
-                        if (match && row_id == match[1]) {
-                            rows[j].click();
-                            clicked = true;
-                        }
-                    }
-                    if (!clicked) {
-                        var alert = '<div class="alert-box alert">'+
-'KERNEL: '+ match[1] + tr(" does not exists any more") +
-'  <a href="" class="close">&times;</a>'+
-'</div>';
-
-                        $("#tabs-kernel .dataTables_wrapper", os_section).append(alert);
-                    }
-              },
-              error: onError
-            });
-        }
-        else if (os.KERNEL) {
-            $('input#radioKernelPath', os_section).click();
-        };
-
-        if (os.INITRD_DS) {
-            $('input#radioInitrdDs', os_section).click();
-
-            var dataTable_template = $("#datatable_initrd").dataTable();
-            var regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/;
-
-            // TODO updateView should not be required. Currently the dataTable
-            //  is filled twice.
-            OpenNebula.Image.list({
-                timeout: true,
-                success: function (request, list){
-                    var list_array = [];
-
-                    $.each(list,function(){
-                        list_array.push(imageElementArray(this));
-                    });
-
-                    updateView(list_array, dataTable_template);
-                    dataTable_template.fnFilter("RAMDISK", 6)
-
-                    var rows = dataTable_template.fnGetNodes();
-                    var match = regexp.exec(os.INITRD_DS);
-                    var clicked = false;
-                    for (var j=0;j<rows.length;j++) {
-                        var current_row = $(rows[j]);
-                        var row_id = $(rows[j]).find("td:eq(0)").html();
-
-                        if (match && row_id == match[1]) {
-                            rows[j].click();
-                            clicked = true;
-                        }
-                    }
-
-                    if (!clicked) {
-                        var alert = '<div class="alert-box alert">'+
-'RAMDISK: '+ match[1] + tr(" does not exists any more") +
-'  <a href="" class="close">&times;</a>'+
-'</div>';
-
-                        $("#tabs-ramdisk .dataTables_wrapper", os_section).append(alert);
-                    }
-              },
-              error: onError
-            });
-        }
-        else if (os.INITRD) {
-            $('input#radioInitrdPath', os_section).click();
-        };
-
-        autoFillInputs(os, os_section);
-    }
-
-    //
-    // INPUT/OUTPUT
-    //
-
-    var graphics = template.GRAPHICS;
-    var graphics_section = $('li#ioTab .graphics', $create_template_dialog);
-
-    if (graphics) {
-        var type = graphics.TYPE;
-        if (graphics.TYPE) {
-            $("input[value='"+ type + "']").click();
-
-            autoFillInputs(graphics, graphics_section);
-        }
-    }
-
-    var inputs = template.INPUT;
-    var inputs_section = $('li#ioTab .inputs', $create_template_dialog);
-
-    if (inputs) {
-        if (!(inputs instanceof Array)) {
-            inputs = [inputs];
-        }
-
-        $.each(inputs, function(){
-            var table = $('#input_table', inputs_section)[0];
-            var rowCount = table.rows.length;
-            var row = table.insertRow(rowCount);
-
-            var cell1 = row.insertCell(0);
-            var element1 = document.createElement("input");
-            element1.id = "TYPE";
-            element1.type = "text";
-            element1.value = this.TYPE;
-            cell1.appendChild(element1);
-
-            var cell2 = row.insertCell(1);
-            var element2 = document.createElement("input");
-            element2.id = "BUS";
-            element2.type = "text";
-            element2.value = this.BUS;
-            cell2.appendChild(element2);
-
-
-            var cell3 = row.insertCell(2);
-            cell3.innerHTML = "<span class='ui-icon ui-icon-close'></span>";
-        });
-    }
-
-
-    //
-    // CONTEXT
-    //
-
-    var context = template.CONTEXT;
-    var context_section = $('li#contextTab', $create_template_dialog);
-
-    if (context) {
-        var file_ds_regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/g;
-        var net_regexp = /^ETH[0-9]+_(MASK|GATEWAY|IP|NETWORK|DNS)$/;
-        var ssh_regexp = /^SSH_PUBLIC_KEY$/;
-        var publickey_regexp = /\$USER\[SSH_PUBLIC_KEY\]/;
-
-        var net_flag = false;
-        var files = [];
-
-        $.each(context, function(key, value){
-            if (ssh_regexp.test(key)) {
-                $("#ssh_context", context_section).click();
-
-                if (!publickey_regexp.test(value)) {
-                    $("input#ssh_puclic_key").val(value);
-                }
-
-            }
-            else if (net_regexp.test(key)) {
-                if (!net_flag) {
-                    $("#network_context", context_section).click();
-                    net_flag = true;
-                }
-            }
-            else if ("FILES_DS" == key){
-                var files = [];
-                while (match = file_ds_regexp.exec(value)) {
-                    files.push(match[1])
-                }
-
-                var dataTable_context = $("#datatable_context").dataTable();
-
-                // TODO updateView should not be required. Currently the dataTable
-                //  is filled twice.
-                OpenNebula.Image.list({
-                    timeout: true,
-                    success: function (request, list){
-                        var list_array = [];
-
-                        $.each(list,function(){
-                            list_array.push(imageElementArray(this));
-                        });
-
-                        updateView(list_array, dataTable_context);
-                        dataTable_context.fnFilter("CONTEXT", 7)
-
-                        var rows = dataTable_context.fnGetNodes();
-
-                        for (var j=0;j<rows.length;j++) {
-                            var current_row = $(rows[j]);
-                            var row_id = $(rows[j]).find("td:eq(0)").html();
-
-                            var in_array = $.inArray(row_id, files)
-                            if (in_array != -1) {
-                                files.splice(in_array, 1);
-                                // TBD check if all the files were clicked
-                                rows[j].click();
-                            }
-                        }
-
-                        if (files.length != 0) {
-                            var alert = '<div class="alert-box alert">'+
-    tr('The following FILES: ') + files.join(', ') + tr(" do not exist any more") +
-    '  <a href="" class="close">&times;</a>'+
-    '</div>';
-
-                            $(".dataTables_wrapper", context_section).append(alert);
-                        }
-
-                  },
-                  error: onError
-                });
-            }
-            else {
-              var table = $('#context_table', context_section)[0];
-              var rowCount = table.rows.length;
-              var row = table.insertRow(rowCount);
-
-              var cell1 = row.insertCell(0);
-              var element1 = document.createElement("input");
-              element1.id = "KEY";
-              element1.type = "text";
-              element1.value = key
-              cell1.appendChild(element1);
-
-              var cell2 = row.insertCell(1);
-              var element2 = document.createElement("input");
-              element2.id = "VALUE";
-              element2.type = "text";
-              element2.value = value
-              cell2.appendChild(element2);
-
-
-              var cell3 = row.insertCell(2);
-              cell3.innerHTML = "<span class='ui-icon ui-icon-close'></span>";
-            }
-        });
-    }
-
-    //
-    // REQUIREMENTS & RANK
-    //
-
-    var req = template.REQUIREMENTS;
-    var req_section = $('li#schedulingTab', $create_template_dialog);
-
-    if (req) {
-        req = escapeDoubleQuotes(req);
-
-        var host_id_regexp = /(\s|\||\b)ID=\\"([0-9]+)\\"/g;
-        var cluster_id_regexp = /CLUSTER_ID=\\"([0-9]+)\\"/g;
-
-        var hosts = [];
-        while (match = host_id_regexp.exec(req)) {
-            hosts.push(match[2])
-        }
-
-        var clusters = [];
-        while (match = cluster_id_regexp.exec(req)) {
-            clusters.push(match[1])
-        }
-
-        if (hosts.length != 0) {
-            var dataTable_template_hosts = $("#datatable_template_hosts").dataTable();
-
-            OpenNebula.Host.list({
-                timeout: true,
-                success: function (request, host_list){
-                    var host_list_array = [];
-
-                    $.each(host_list,function(){
-                        //Grab table data from the host_list
-                        host_list_array.push(hostElementArray(this));
-                    });
-
-                    updateView(host_list_array, dataTable_template_hosts);
-
-                    var rows = dataTable_template_hosts.fnGetNodes();
-
-                    for (var j=0;j<rows.length;j++) {
-                        var current_row = $(rows[j]);
-                        var row_id = $(rows[j]).find("td:eq(0)").html();
-
-                        var in_array = $.inArray(row_id, hosts)
-                        if (in_array != -1) {
-                            hosts.splice(in_array, 1);
-                            // TBD check if all the hosts were clicked
-                            rows[j].click();
-                        }
-                    }
-
-                    if (hosts.length != 0) {
-                        var alert = '<div class="alert-box alert">'+
-tr('The following HOSTs: [') + hosts.join(', ') + '] ' + tr(" do not exist any more") +
-'  <a href="" class="close">&times;</a>'+
-'</div>';
-
-                        $("#datatable_template_hosts_wrapper", req_section).append(alert);
-                    }
-                },
-                error: onError
-            });
-        }
-
-        if (clusters.length != 0) {
-            $('input#clusters_req', req_section).click();
-
-            var dataTable_template_clusters = $("#datatable_template_clusters").dataTable();
-
-            OpenNebula.Cluster.list({
-                timeout: true,
-                success: function (request, cluster_list){
-                    var cluster_list_array = [];
-
-                    $.each(cluster_list,function(){
-                        //Grab table data from the cluster_list
-                        cluster_list_array.push(clusterElementArray(this));
-                    });
-
-                    updateView(cluster_list_array, dataTable_template_clusters);
-
-                    var rows = dataTable_template_clusters.fnGetNodes();
-
-                    for (var j=0;j<rows.length;j++) {
-                        var current_row = $(rows[j]);
-                        var row_id = $(rows[j]).find("td:eq(0)").html();
-
-                        var in_array = $.inArray(row_id, clusters)
-                        if (in_array != -1) {
-                            clusters.splice(in_array, 1);
-                            // TBD check if all the clusters were clicked
-                            rows[j].click();
-                        }
-                    }
-
-                    if (clusters.length != 0) {
-                        var alert = '<div class="alert-box alert">'+
-tr('The following CLUSTERs: [') + clusters.join(', ') + '] ' + tr("do not exist any more") +
-'  <a href="" class="close">&times;</a>'+
-'</div>';
-
-                        $("#datatable_template_clusters_wrapper", req_section).append(alert);
-                    }
-                },
-                error: onError
-            });
-        }
-
-        $('input#REQUIREMENTS', req_section).val(req);
-    }
-
-    var rank = template.RANK;
-
-    if (rank) {
-        var striping_regexp = /-RUNNING_VMS/;
-        var packing_regexp = /RUNNING_VMS/;
-        var loadaware_regexp = /FREECPU/;
-
-        if (striping_regexp.test(rank)) {
-            $('input#stripingRadio', req_section).click()
-        }
-        else if (packing_regexp.test(rank)) {
-            $('input#packingRadio', req_section).click()
-        }
-        else if (loadaware_regexp.test(rank)) {
-            $('input#loadawareRadio', req_section).click()
-        }
-
-        $('input#RANK', req_section).val(rank);
-    }
+//    //
+//    // GENERAL
+//    //
+//
+//    var capacity_section = $('li#capacityTab', $create_template_dialog);
+//    autoFillInputs(template, capacity_section);
+//
+//
+//    //
+//    // DISKS
+//    //
+//
+//    var number_of_disks = 0;
+//
+//    function fillDiskTab(disk) {
+//        var str_disk_tab_id = 'disk' + number_of_disks;
+//        var disk_section  = $('li#' + str_disk_tab_id + 'Tab', $create_template_dialog);
+//
+//        if (disk.IMAGE_ID) {
+//            $('input#'+str_disk_tab_id+'radioImage', disk_section).click();
+//
+//            var dataTable_template_images = $("#datatable_template_images" + number_of_disks).dataTable();
+//
+//            // TODO updateView should not be required. Currently the dataTable
+//            //  is filled twice.
+//            OpenNebula.Image.list({
+//                timeout: true,
+//                success: function (request, images_list){
+//                    var image_list_array = [];
+//
+//                    $.each(images_list,function(){
+//                        image_list_array.push(imageElementArray(this));
+//                    });
+//
+//                    updateView(image_list_array, dataTable_template_images);
+//
+//                    var rows = dataTable_template_images.fnGetNodes();
+//
+//                    var clicked = false
+//                    for (var j=0;j<rows.length;j++) {
+//                        var current_row = $(rows[j]);
+//                        var row_image_id = $(rows[j]).find("td:eq(0)").html();
+//
+//                        if (row_image_id == disk.IMAGE_ID) {
+//                            rows[j].click();
+//                            clicked = true;
+//                        }
+//                    }
+//
+//                    if (!clicked) {
+//                        var alert = '<div class="alert-box alert">'+
+//'IMAGE: '+ disk.IMAGE_ID + tr(" does not exists any more") +
+//'  <a href="" class="close">&times;</a>'+
+//'</div>';
+//
+//                        $(".dataTables_wrapper", disk_section).append(alert);
+//                    }
+//              },
+//              error: onError
+//            });
+//
+//        }
+//        else {
+//            $('input#'+str_disk_tab_id+'radioVolatile', disk_section).click();
+//        }
+//
+//        autoFillInputs(disk, $('div#disk_type.vm_param', disk_section));
+//    }
+//
+//    if (template.DISK) {
+//        var disks = template.DISK
+//
+//        if (disks instanceof Array) {
+//            $.each(disks, function(){
+//                if (number_of_disks > 0) {
+//                    $("#tf_btn_disks").click();
+//                }
+//
+//                fillDiskTab(this);
+//                number_of_disks++;
+//            });
+//        }
+//        else if (disks instanceof Object) {
+//            fillDiskTab(disks);
+//        }
+//    }
+//
+//
+//    //
+//    // NICS
+//    //
+//
+//    var number_of_nics = 0;
+//
+//    function fillNicTab(nic) {
+//        var str_nic_tab_id = 'nic' + number_of_nics;
+//        var nic_section  = $('li#' + str_nic_tab_id + 'Tab', $create_template_dialog);
+//
+//        var dataTable_template_networks = $("#datatable_template_networks" + number_of_nics).dataTable();
+//
+//        // TODO updateView should not be required. Currently the dataTable
+//        //  is filled twice.
+//        OpenNebula.Network.list({
+//            timeout: true,
+//            success: function (request, networks_list){
+//                var network_list_array = [];
+//
+//                $.each(networks_list,function(){
+//                    network_list_array.push(vNetworkElementArray(this));
+//                });
+//
+//                updateView(network_list_array, dataTable_template_networks);
+//
+//                var rows = dataTable_template_networks.fnGetNodes();
+//
+//                var clicked = false;
+//                for (var j=0;j<rows.length;j++) {
+//                    var current_row = $(rows[j]);
+//                    var row_network_id = $(rows[j]).find("td:eq(0)").html();
+//
+//                    if (row_network_id == nic.NETWORK_ID) {
+//                        rows[j].click();
+//                        clicked = true;
+//                    }
+//                }
+//
+//                if (!clicked) {
+//                        var alert = '<div class="alert-box alert">'+
+//'NETWORK: '+ nic.NETWORK_ID + tr(" does not exists any more") +
+//'  <a href="" class="close">&times;</a>'+
+//'</div>';
+//
+//                        $(".dataTables_wrapper", nic_section).append(alert);
+//                }
+//          },
+//          error: onError
+//        });
+//
+//        autoFillInputs(nic, nic_section);
+//    }
+//
+//    if (template.NIC) {
+//        var nics = template.NIC
+//
+//        if (nics instanceof Array) {
+//            $.each(nics, function(){
+//                if (number_of_nics > 0) {
+//                    $("#tf_btn_nics").click();
+//                }
+//
+//                fillNicTab(this);
+//                number_of_nics++;
+//            });
+//        }
+//        else if (nics instanceof Object) {
+//            fillNicTab(nics);
+//        }
+//    }
+//
+//
+//    //
+//    // OS
+//    //
+//
+//    var os = template.OS;
+//    var os_section = $('li#osTab', $create_template_dialog);
+//
+//    if (os) {
+//        if (os.KERNEL_DS) {
+//            $('input#radioKernelDs', os_section).click();
+//
+//            var dataTable_template = $("#datatable_kernel").dataTable();
+//            var regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/;
+//
+//            // TODO updateView should not be required. Currently the dataTable
+//            //  is filled twice.
+//            OpenNebula.Image.list({
+//                timeout: true,
+//                success: function (request, list){
+//                    var list_array = [];
+//
+//                    $.each(list,function(){
+//                        list_array.push(imageElementArray(this));
+//                    });
+//
+//                    updateView(list_array, dataTable_template);
+//                    dataTable_template.fnFilter("KERNEL", 6)
+//
+//                    var rows = dataTable_template.fnGetNodes();
+//
+//                    var match = regexp.exec(os.KERNEL_DS)
+//                    var clicked = false;
+//                    for (var j=0;j<rows.length;j++) {
+//                        var current_row = $(rows[j]);
+//                        var row_id = $(rows[j]).find("td:eq(0)").html();
+//
+//                        if (match && row_id == match[1]) {
+//                            rows[j].click();
+//                            clicked = true;
+//                        }
+//                    }
+//                    if (!clicked) {
+//                        var alert = '<div class="alert-box alert">'+
+//'KERNEL: '+ match[1] + tr(" does not exists any more") +
+//'  <a href="" class="close">&times;</a>'+
+//'</div>';
+//
+//                        $("#tabs-kernel .dataTables_wrapper", os_section).append(alert);
+//                    }
+//              },
+//              error: onError
+//            });
+//        }
+//        else if (os.KERNEL) {
+//            $('input#radioKernelPath', os_section).click();
+//        };
+//
+//        if (os.INITRD_DS) {
+//            $('input#radioInitrdDs', os_section).click();
+//
+//            var dataTable_template = $("#datatable_initrd").dataTable();
+//            var regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/;
+//
+//            // TODO updateView should not be required. Currently the dataTable
+//            //  is filled twice.
+//            OpenNebula.Image.list({
+//                timeout: true,
+//                success: function (request, list){
+//                    var list_array = [];
+//
+//                    $.each(list,function(){
+//                        list_array.push(imageElementArray(this));
+//                    });
+//
+//                    updateView(list_array, dataTable_template);
+//                    dataTable_template.fnFilter("RAMDISK", 6)
+//
+//                    var rows = dataTable_template.fnGetNodes();
+//                    var match = regexp.exec(os.INITRD_DS);
+//                    var clicked = false;
+//                    for (var j=0;j<rows.length;j++) {
+//                        var current_row = $(rows[j]);
+//                        var row_id = $(rows[j]).find("td:eq(0)").html();
+//
+//                        if (match && row_id == match[1]) {
+//                            rows[j].click();
+//                            clicked = true;
+//                        }
+//                    }
+//
+//                    if (!clicked) {
+//                        var alert = '<div class="alert-box alert">'+
+//'RAMDISK: '+ match[1] + tr(" does not exists any more") +
+//'  <a href="" class="close">&times;</a>'+
+//'</div>';
+//
+//                        $("#tabs-ramdisk .dataTables_wrapper", os_section).append(alert);
+//                    }
+//              },
+//              error: onError
+//            });
+//        }
+//        else if (os.INITRD) {
+//            $('input#radioInitrdPath', os_section).click();
+//        };
+//
+//        autoFillInputs(os, os_section);
+//    }
+//
+//    //
+//    // INPUT/OUTPUT
+//    //
+//
+//    var graphics = template.GRAPHICS;
+//    var graphics_section = $('li#ioTab .graphics', $create_template_dialog);
+//
+//    if (graphics) {
+//        var type = graphics.TYPE;
+//        if (graphics.TYPE) {
+//            $("input[value='"+ type + "']").click();
+//
+//            autoFillInputs(graphics, graphics_section);
+//        }
+//    }
+//
+//    var inputs = template.INPUT;
+//    var inputs_section = $('li#ioTab .inputs', $create_template_dialog);
+//
+//    if (inputs) {
+//        if (!(inputs instanceof Array)) {
+//            inputs = [inputs];
+//        }
+//
+//        $.each(inputs, function(){
+//            var table = $('#input_table', inputs_section)[0];
+//            var rowCount = table.rows.length;
+//            var row = table.insertRow(rowCount);
+//
+//            var cell1 = row.insertCell(0);
+//            var element1 = document.createElement("input");
+//            element1.id = "TYPE";
+//            element1.type = "text";
+//            element1.value = this.TYPE;
+//            cell1.appendChild(element1);
+//
+//            var cell2 = row.insertCell(1);
+//            var element2 = document.createElement("input");
+//            element2.id = "BUS";
+//            element2.type = "text";
+//            element2.value = this.BUS;
+//            cell2.appendChild(element2);
+//
+//
+//            var cell3 = row.insertCell(2);
+//            cell3.innerHTML = "<span class='ui-icon ui-icon-close'></span>";
+//        });
+//    }
+//
+//
+//    //
+//    // CONTEXT
+//    //
+//
+//    var context = template.CONTEXT;
+//    var context_section = $('li#contextTab', $create_template_dialog);
+//
+//    if (context) {
+//        var file_ds_regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/g;
+//        var net_regexp = /^ETH[0-9]+_(MASK|GATEWAY|IP|NETWORK|DNS)$/;
+//        var ssh_regexp = /^SSH_PUBLIC_KEY$/;
+//        var publickey_regexp = /\$USER\[SSH_PUBLIC_KEY\]/;
+//
+//        var net_flag = false;
+//        var files = [];
+//
+//        $.each(context, function(key, value){
+//            if (ssh_regexp.test(key)) {
+//                $("#ssh_context", context_section).click();
+//
+//                if (!publickey_regexp.test(value)) {
+//                    $("input#ssh_puclic_key").val(value);
+//                }
+//
+//            }
+//            else if (net_regexp.test(key)) {
+//                if (!net_flag) {
+//                    $("#network_context", context_section).click();
+//                    net_flag = true;
+//                }
+//            }
+//            else if ("FILES_DS" == key){
+//                var files = [];
+//                while (match = file_ds_regexp.exec(value)) {
+//                    files.push(match[1])
+//                }
+//
+//                var dataTable_context = $("#datatable_context").dataTable();
+//
+//                // TODO updateView should not be required. Currently the dataTable
+//                //  is filled twice.
+//                OpenNebula.Image.list({
+//                    timeout: true,
+//                    success: function (request, list){
+//                        var list_array = [];
+//
+//                        $.each(list,function(){
+//                            list_array.push(imageElementArray(this));
+//                        });
+//
+//                        updateView(list_array, dataTable_context);
+//                        dataTable_context.fnFilter("CONTEXT", 7)
+//
+//                        var rows = dataTable_context.fnGetNodes();
+//
+//                        for (var j=0;j<rows.length;j++) {
+//                            var current_row = $(rows[j]);
+//                            var row_id = $(rows[j]).find("td:eq(0)").html();
+//
+//                            var in_array = $.inArray(row_id, files)
+//                            if (in_array != -1) {
+//                                files.splice(in_array, 1);
+//                                // TBD check if all the files were clicked
+//                                rows[j].click();
+//                            }
+//                        }
+//
+//                        if (files.length != 0) {
+//                            var alert = '<div class="alert-box alert">'+
+//    tr('The following FILES: ') + files.join(', ') + tr(" do not exist any more") +
+//    '  <a href="" class="close">&times;</a>'+
+//    '</div>';
+//
+//                            $(".dataTables_wrapper", context_section).append(alert);
+//                        }
+//
+//                  },
+//                  error: onError
+//                });
+//            }
+//            else {
+//              var table = $('#context_table', context_section)[0];
+//              var rowCount = table.rows.length;
+//              var row = table.insertRow(rowCount);
+//
+//              var cell1 = row.insertCell(0);
+//              var element1 = document.createElement("input");
+//              element1.id = "KEY";
+//              element1.type = "text";
+//              element1.value = key
+//              cell1.appendChild(element1);
+//
+//              var cell2 = row.insertCell(1);
+//              var element2 = document.createElement("input");
+//              element2.id = "VALUE";
+//              element2.type = "text";
+//              element2.value = value
+//              cell2.appendChild(element2);
+//
+//
+//              var cell3 = row.insertCell(2);
+//              cell3.innerHTML = "<span class='ui-icon ui-icon-close'></span>";
+//            }
+//        });
+//    }
+//
+//    //
+//    // REQUIREMENTS & RANK
+//    //
+//
+//    var req = template.REQUIREMENTS;
+//    var req_section = $('li#schedulingTab', $create_template_dialog);
+//
+//    if (req) {
+//        req = escapeDoubleQuotes(req);
+//
+//        var host_id_regexp = /(\s|\||\b)ID=\\"([0-9]+)\\"/g;
+//        var cluster_id_regexp = /CLUSTER_ID=\\"([0-9]+)\\"/g;
+//
+//        var hosts = [];
+//        while (match = host_id_regexp.exec(req)) {
+//            hosts.push(match[2])
+//        }
+//
+//        var clusters = [];
+//        while (match = cluster_id_regexp.exec(req)) {
+//            clusters.push(match[1])
+//        }
+//
+//        if (hosts.length != 0) {
+//            var dataTable_template_hosts = $("#datatable_template_hosts").dataTable();
+//
+//            OpenNebula.Host.list({
+//                timeout: true,
+//                success: function (request, host_list){
+//                    var host_list_array = [];
+//
+//                    $.each(host_list,function(){
+//                        //Grab table data from the host_list
+//                        host_list_array.push(hostElementArray(this));
+//                    });
+//
+//                    updateView(host_list_array, dataTable_template_hosts);
+//
+//                    var rows = dataTable_template_hosts.fnGetNodes();
+//
+//                    for (var j=0;j<rows.length;j++) {
+//                        var current_row = $(rows[j]);
+//                        var row_id = $(rows[j]).find("td:eq(0)").html();
+//
+//                        var in_array = $.inArray(row_id, hosts)
+//                        if (in_array != -1) {
+//                            hosts.splice(in_array, 1);
+//                            // TBD check if all the hosts were clicked
+//                            rows[j].click();
+//                        }
+//                    }
+//
+//                    if (hosts.length != 0) {
+//                        var alert = '<div class="alert-box alert">'+
+//tr('The following HOSTs: [') + hosts.join(', ') + '] ' + tr(" do not exist any more") +
+//'  <a href="" class="close">&times;</a>'+
+//'</div>';
+//
+//                        $("#datatable_template_hosts_wrapper", req_section).append(alert);
+//                    }
+//                },
+//                error: onError
+//            });
+//        }
+//
+//        if (clusters.length != 0) {
+//            $('input#clusters_req', req_section).click();
+//
+//            var dataTable_template_clusters = $("#datatable_template_clusters").dataTable();
+//
+//            OpenNebula.Cluster.list({
+//                timeout: true,
+//                success: function (request, cluster_list){
+//                    var cluster_list_array = [];
+//
+//                    $.each(cluster_list,function(){
+//                        //Grab table data from the cluster_list
+//                        cluster_list_array.push(clusterElementArray(this));
+//                    });
+//
+//                    updateView(cluster_list_array, dataTable_template_clusters);
+//
+//                    var rows = dataTable_template_clusters.fnGetNodes();
+//
+//                    for (var j=0;j<rows.length;j++) {
+//                        var current_row = $(rows[j]);
+//                        var row_id = $(rows[j]).find("td:eq(0)").html();
+//
+//                        var in_array = $.inArray(row_id, clusters)
+//                        if (in_array != -1) {
+//                            clusters.splice(in_array, 1);
+//                            // TBD check if all the clusters were clicked
+//                            rows[j].click();
+//                        }
+//                    }
+//
+//                    if (clusters.length != 0) {
+//                        var alert = '<div class="alert-box alert">'+
+//tr('The following CLUSTERs: [') + clusters.join(', ') + '] ' + tr("do not exist any more") +
+//'  <a href="" class="close">&times;</a>'+
+//'</div>';
+//
+//                        $("#datatable_template_clusters_wrapper", req_section).append(alert);
+//                    }
+//                },
+//                error: onError
+//            });
+//        }
+//
+//        $('input#REQUIREMENTS', req_section).val(req);
+//    }
+//
+//    var rank = template.RANK;
+//
+//    if (rank) {
+//        var striping_regexp = /-RUNNING_VMS/;
+//        var packing_regexp = /RUNNING_VMS/;
+//        var loadaware_regexp = /FREECPU/;
+//
+//        if (striping_regexp.test(rank)) {
+//            $('input#stripingRadio', req_section).click()
+//        }
+//        else if (packing_regexp.test(rank)) {
+//            $('input#packingRadio', req_section).click()
+//        }
+//        else if (loadaware_regexp.test(rank)) {
+//            $('input#loadawareRadio', req_section).click()
+//        }
+//
+//        $('input#RANK', req_section).val(rank);
+//    }
 
     popUpUpdateTemplateDialog();
 }
