@@ -809,11 +809,20 @@ function setupCreateFileDialog(){
             //$('div#pb_dialog #upload-progress').progressbar("option","value",Math.floor(loaded*100/total));
         },
         onComplete: function(id, fileName, responseJSON){
+
+            if (uploader._handler._xhrs[id] &&
+                uploader._handler._xhrs[id].status == 500) {
+
+                onError({}, JSON.parse(uploader._handler._xhrs[id].response) )
+            } else {
+                notifyMessage("File uploaded correctly");
+                Sunstone.runAction("File.list");
+            }
+
             //Inform complete upload, destroy upload dialog, refresh img list
-            notifyMessage("File uploaded correctly");
+
             //$('div#pb_dialog').dialog('destroy');
             $('div#pb_dialog').trigger("reveal:close")
-            Sunstone.runAction("File.list");
             return false;
         },
         onCancel: function(id, fileName){
