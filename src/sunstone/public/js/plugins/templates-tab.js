@@ -690,6 +690,11 @@ function setup_capacity_tab_content(capacity_section) {
         update_final_memory_input();
     });
 
+    final_memory_input.change(function() {
+      memory_slider.val(this.value * 100);
+      memory_input.val( Math.floor(final_memory_input.val()) );
+    })
+
     // init::start is ignored for some reason
     memory_slider.val(0);
 
