@@ -301,8 +301,14 @@ void insert_single(VirtualMachine * vm,
     {
         parsed << vm->get_gname();
     }
+    else if (name == "NAME")
+    {
+
+        parsed << vm->get_name();
+    }
     else 
     {
+
         vm->get_template_attribute(name.c_str(),value);
 
         if (value.empty())
