@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEVM" "1" "March 2013" "" "onevm(1) -- manages OpenNebula virtual machines"
+.TH "ONEVM" "1" "April 2013" "" "onevm(1) -- manages OpenNebula virtual machines"
 .
 .SH "NAME"
 \fBonevm\fR
@@ -21,7 +21,9 @@
                            CPU)
  \-\-vcpu vcpu               Number of virtualized CPUs
  \-\-arch arch               Architecture of the VM, e\.g\.: i386 or x86_64
- \-\-memory memory           Memory ammount given to the VM
+ \-\-memory memory           Memory amount given to the VM\. By default the
+                           unit is megabytes\. To use gigabytes add a \'g\',
+                           floats can be used: 8g=8192, 0\.5g=512
  \-\-disk image0,image1      Disks to attach\. To use an image owned by other
                            user use user[disk]
  \-\-nic network0,network1   Networks to attach\. To use a network owned by
@@ -104,7 +106,7 @@ valid options: multiple, hold, name, cpu, vcpu, arch, memory, disk, nic, raw, vn
 update \fIvmid\fR [\fIfile\fR] Update the user template contents\. If a path is not provided the editor will be launched to modify the current content\.
 .
 .IP "\(bu" 4
-destroy \fIrange|vmid_list\fR Deletes the given VM\. Using \-\-recreate resubmits the VM\.
+delete \fIrange|vmid_list\fR Deletes the given VM\. Using \-\-recreate resubmits the VM\.
 .
 .IP "" 4
 .
@@ -153,7 +155,7 @@ valid options: schedule
 
 .
 .IP "\(bu" 4
-disk\-snapshot \fIvmid\fR \fIdiskid\fR \fIimg_name\fR Sets the specified VM disk to be saved in a new Image\. The Image is created immediately, but the contents are saved only if the VM is shut down gracefully (i\.e\., using \'onevm shutdown\' and not \'onevm destroy\')
+disk\-snapshot \fIvmid\fR \fIdiskid\fR \fIimg_name\fR Sets the specified VM disk to be saved in a new Image\. The Image is created immediately, but the contents are saved only if the VM is shut down gracefully (i\.e\., using \'onevm shutdown\' and not \'onevm delete\')
 .
 .IP "" 4
 .
@@ -187,14 +189,31 @@ valid options: schedule, hard
 
 .
 .IP "\(bu" 4
-poweroff \fIrange|vmid_list\fR Powers off the given VM\. The VM will remain in the poweroff state, and can be powered on with the \'onevm boot\' command\.
+undeploy \fIrange|vmid_list\fR Shuts down the given VM\. The VM is saved in the system Datastore\.
+.
+.IP "" 4
+.
+.nf
+
+With \-\-hard it unplugs the VM\.
+
+States: RUNNING
+valid options: schedule, hard
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+poweroff \fIrange|vmid_list\fR Powers off the given VM\. The VM will remain in the poweroff state, and can be powered on with the \'onevm resume\' command\.
 .
 .IP "" 4
 .
 .nf
 
 States: RUNNING
-valid options: schedule
+valid options: schedule, hard
 .
 .fi
 .
@@ -255,7 +274,7 @@ boot \fIrange|vmid_list\fR Boots the given VM\.
 .
 .nf
 
-States: UNKNOWN, BOOT, POWEROFF
+States: UNKNOWN, BOOT
 valid options: schedule
 .
 .fi
@@ -300,7 +319,7 @@ resume \fIrange|vmid_list\fR Resumes the execution of the a saved VM
 .
 .nf
 
-States: STOPPED, SUSPENDED
+States: STOPPED, SUSPENDED, UNDEPLOYED, POWEROFF
 valid options: schedule
 .
 .fi
@@ -464,7 +483,7 @@ diskid Integer
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 3\.9\.80 Copyright 2002\-2013, OpenNebula Project (OpenNebula\.org), C12G Labs
+OpenNebula 3\.9\.90 Copyright 2002\-2013, OpenNebula Project (OpenNebula\.org), C12G Labs
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0
