@@ -97,6 +97,8 @@ case "$1" in
           # Failed to stop
         log_end_msg 1
         ;;
+    esac
+    ;;
   restart-sched)
     log_daemon_msg "Restarting scheduler"
     do_stop_sched
