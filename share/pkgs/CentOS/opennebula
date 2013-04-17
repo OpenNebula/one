@@ -18,7 +18,7 @@
 # Description: start and stop opennebula
 ### END INIT INFO
 
-prog="opennebula"
+prog="oned"
 
 ONE_BIN=/usr/bin/one
 LOCKFILE=/var/lock/subsys/${prog}
