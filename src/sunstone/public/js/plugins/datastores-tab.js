@@ -95,10 +95,10 @@ var create_datastore_tmpl =
     <div class="row">\
       <div class="six columns">\
         <div class="four columns">\
-          <label class="right inline" for="ds_type">' + tr("Presets") + ':</label>\
+          <label class="right inline" for="presets">' + tr("Presets") + ':</label>\
         </div>\
         <div class="seven columns">\
-          <select id="ds_type" name="ds_type">\
+          <select id="presets" name="presets">\
             <option value="fs">' + tr("Filesystem") + '</option>\
             <option value="vmware_fs">' + tr("VMware (FS Based)") + '</option>\
             <option value="vmware_vmfs">' + tr("VMware (VMFS Based)") + '</option>\
@@ -129,13 +129,13 @@ var create_datastore_tmpl =
           <fieldset>\
             <legend>' + tr("Type") + '</legend>\
               <div class="four columns">\
-                <label for="images_ds"><input id="images_ds" type="radio" name="type" value="YES" />' + tr("Images") + '</label>\
+                <label for="ds_type"><input id="ds_type" type="radio" name="ds_type" value="IMAGE_DS" />' + tr("Images") + '</label>\
               </div>\
               <div class="four columns">\
-                <label for="sys_ds"><input id="sys_ds" type="radio" name="type" value="YES" />' + tr("System") + '</label>\
+                <label for="ds_type"><input id="ds_type" type="radio" name="ds_type" value="SYSTEM_DS" />' + tr("System") + '</label>\
               </div>\
               <div class="four columns">\
-                <label for="files_ds"><input id="files_ds" type="radio" name="type" value="YES" />' + tr("Files") + '</label>\
+                <label for="ds_type"><input id="ds_type" type="radio" name="ds_type" value="FILE_DS" />' + tr("Files") + '</label>\
               </div>\
           </fieldset>\
         </div>\
@@ -805,7 +805,7 @@ function setupCreateDatastoreDialog(){
 
     setupTips(dialog);
 
-    $('#ds_type').change(function(){
+    $('#presets').change(function(){
         hide_all($(this).parent());
         var choice_str = $(this).val();
         switch(choice_str)
@@ -839,7 +839,7 @@ function setupCreateDatastoreDialog(){
         var context         = $( "#create_datastore_form", dialog);
         var name            = $('#name',context).val();
         var cluster_id      = $('#cluster_id',context).val();
-        var system          = $('#sys_ds',context).is(':checked');
+        var ds_type         = $('input[name=ds_type]:checked',context).val();
         var ds_mad          = $('#ds_mad',context).val();
         var tm_mad          = $('#tm_mad',context).val();
         var type            = $('#disk_type',context).val();
@@ -861,17 +861,16 @@ function setupCreateDatastoreDialog(){
             "datastore" : {
                 "name" : name,
                 "tm_mad" : tm_mad,
-                "disk_type" : type
+                "disk_type" : type,
+                "type" : ds_type
             },
             "cluster_id" : cluster_id
         };
 
         // If we are adding a system datastore then
         // we do not use ds_mad
-        if (system)
-            ds_obj.datastore.system = "YES";
-        else
-            ds_obj.datastore.ds_mad = ds_mad;
+        if (ds_type != "SYSTEM_DS")
+            s_obj.datastore.ds_mad = ds_mad;
 
         if (safe_dirs)
             ds_obj.datastore.safe_dirs = safe_dirs;
