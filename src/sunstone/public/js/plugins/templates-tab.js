@@ -3744,7 +3744,7 @@ function fillTemplatePopUp(request, response){
 
     var template = response.VMTEMPLATE.TEMPLATE;
 
-    $('#template',$create_template_dialog).val(convert_template_to_string(template).replace(/^[\r\n]+|\.|[\r\n]+$/g, ""));
+    $('#template',$create_template_dialog).val(convert_template_to_string(template).replace(/^[\r\n]+$/g, ""));
 
     template_to_update_id = response.VMTEMPLATE.ID
 
