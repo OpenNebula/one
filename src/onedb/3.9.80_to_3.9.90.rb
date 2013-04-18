@@ -31,11 +31,11 @@ end
 
 module Migrator
     def db_version
-        "4.0.0"
+        "3.9.90"
     end
 
     def one_version
-        "OpenNebula 4.0.0"
+        "OpenNebula 3.9.90"
     end
 
     def up
