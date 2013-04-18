@@ -6792,16 +6792,15 @@ a.footer.button {
 .log-tab {
   background: #6f6f6f;
   color: #f2f2f2;
-  font-weight: bold;
   padding: 20px;
 }
 
-/* line 737, ../sass/app.scss */
+/* line 736, ../sass/app.scss */
 .reveal-modal ul.tabs-content {
   margin: 0 0 0px;
 }
 
-/* line 741, ../sass/app.scss */
+/* line 740, ../sass/app.scss */
 .reveal-body {
   height: 80%;
   overflow-y: overlay;
@@ -6809,28 +6808,28 @@ a.footer.button {
   padding: 5px 20px;
 }
 
-/* line 748, ../sass/app.scss */
+/* line 747, ../sass/app.scss */
 .reveal-footer {
   position: absolute;
   bottom: 20px;
   width: 90%;
 }
 
-/* line 754, ../sass/app.scss */
+/* line 753, ../sass/app.scss */
 .max-height {
   max-height: 85%;
   position: absolute;
   height: 100%;
 }
 
-/* line 760, ../sass/app.scss */
+/* line 759, ../sass/app.scss */
 .ui-layout-content {
   overflow-y: overlay;
   overflow-x: hidden;
   padding: 0;
 }
 
-/* line 768, ../sass/app.scss */
+/* line 767, ../sass/app.scss */
 div.time-picker {
   position: absolute;
   height: 191px;
@@ -6843,20 +6842,20 @@ div.time-picker {
   margin: 0;
 }
 
-/* line 778, ../sass/app.scss */
+/* line 777, ../sass/app.scss */
 div.time-picker-12hours {
   width: 6em;
   /* needed for IE */
 }
 
-/* line 782, ../sass/app.scss */
+/* line 781, ../sass/app.scss */
 div.time-picker ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
 }
 
-/* line 787, ../sass/app.scss */
+/* line 786, ../sass/app.scss */
 div.time-picker li {
   cursor: pointer;
   height: 20px;
@@ -6864,124 +6863,124 @@ div.time-picker li {
   padding: 4px 3px;
 }
 
-/* line 793, ../sass/app.scss */
+/* line 792, ../sass/app.scss */
 div.time-picker li.selected {
   background: #0063CE;
   color: #fff;
 }
 
-/* line 799, ../sass/app.scss */
+/* line 798, ../sass/app.scss */
 .timepicker {
   float: left;
   width: 50px !important;
 }
 
-/* line 804, ../sass/app.scss */
+/* line 803, ../sass/app.scss */
 .jdpicker {
   float: left;
   width: 90px !important;
 }
 
-/* line 809, ../sass/app.scss */
+/* line 808, ../sass/app.scss */
 .columns {
   line-height: 2;
 }
 
-/* line 813, ../sass/app.scss */
+/* line 812, ../sass/app.scss */
 .transparent_table, .transparent_table tr {
   background: none !important;
   border: 0px !important;
 }
 
-/* line 818, ../sass/app.scss */
+/* line 817, ../sass/app.scss */
 form {
   margin: 0 !important;
 }
 
-/* line 822, ../sass/app.scss */
+/* line 821, ../sass/app.scss */
 #template_create_tabs {
   width: 180px;
 }
 
-/* line 827, ../sass/app.scss */
+/* line 826, ../sass/app.scss */
 .dataTables_scrollHead {
   height: 30px;
 }
 
-/* line 831, ../sass/app.scss */
+/* line 830, ../sass/app.scss */
 .dataTables_scrollBody {
   margin-top: -3px;
 }
 
-/* line 835, ../sass/app.scss */
+/* line 834, ../sass/app.scss */
 .show_hide {
   cursor: pointer;
 }
 
-/* line 839, ../sass/app.scss */
+/* line 838, ../sass/app.scss */
 .show_hide:hover > h4 > small {
   color: #6f6f6f !important;
 }
 
-/* line 843, ../sass/app.scss */
+/* line 842, ../sass/app.scss */
 .label.allocated {
   background-color: #2ba6cb;
 }
 
-/* line 846, ../sass/app.scss */
+/* line 845, ../sass/app.scss */
 .label.real {
   background-color: #707d85;
 }
 
-/* line 849, ../sass/app.scss */
+/* line 848, ../sass/app.scss */
 .label.total {
   background-color: #ac5a62;
 }
 
-/* line 853, ../sass/app.scss */
+/* line 852, ../sass/app.scss */
 .tabs dd a, .tabs li a {
   padding: 0px 13px;
 }
 
-/* line 857, ../sass/app.scss */
+/* line 856, ../sass/app.scss */
 .ui-layout-resizer-west {
   background: none;
 }
 
-/* line 862, ../sass/app.scss */
+/* line 861, ../sass/app.scss */
 .ui-layout-resizer-west:hover {
   background: none;
   width: 30px !important;
 }
 
-/* line 868, ../sass/app.scss */
+/* line 867, ../sass/app.scss */
 .ui-layout-toggler-west:hover {
   width: 30px !important;
   background: #2ba6cb !important;
 }
 
-/* line 873, ../sass/app.scss */
+/* line 872, ../sass/app.scss */
 .ui-layout-resizer-south:hover {
   height: 25px !important;
 }
 
-/* line 877, ../sass/app.scss */
+/* line 876, ../sass/app.scss */
 .ui-layout-resizer-south:hover .ui-layout-toggler-south {
   height: 25px !important;
 }
 
-/* line 883, ../sass/app.scss */
+/* line 882, ../sass/app.scss */
 .ui-layout-toggler-south:hover {
   height: 25px !important;
   background: #2ba6cb !important;
 }
 
-/* line 894, ../sass/app.scss */
+/* line 893, ../sass/app.scss */
 div.dataTables_wrapper {
   margin-bottom: 1.25em;
 }
 
-/* line 900, ../sass/app.scss */
+/* line 899, ../sass/app.scss */
 div.dataTables_length label,
 div.dataTables_filter label,
 div.dataTables_info {
@@ -6989,46 +6988,46 @@ div.dataTables_info {
   font-weight: normal;
 }
 
-/* line 905, ../sass/app.scss */
+/* line 904, ../sass/app.scss */
 div.dataTables_length {
   padding-top: 0px;
 }
 
-/* line 908, ../sass/app.scss */
+/* line 907, ../sass/app.scss */
 div.dataTables_length label {
   float: left;
   text-align: left;
 }
 
-/* line 913, ../sass/app.scss */
+/* line 912, ../sass/app.scss */
 div.dataTables_length select {
   width: 75px;
 }
 
-/* line 917, ../sass/app.scss */
+/* line 916, ../sass/app.scss */
 div.dataTables_filter label {
   float: right;
 }
 
-/* line 920, ../sass/app.scss */
+/* line 919, ../sass/app.scss */
 div.dataTables_filter input {
   display: inline-block !important;
   width: auto !important;
 }
 
-/* line 925, ../sass/app.scss */
+/* line 924, ../sass/app.scss */
 div.dataTables_info {
   padding-top: 1px;
 }
 
-/* line 929, ../sass/app.scss */
+/* line 928, ../sass/app.scss */
 div.dataTables_paginate {
   float: right;
   margin: 0;
   padding-top: 2px;
 }
 
-/* line 935, ../sass/app.scss */
+/* line 934, ../sass/app.scss */
 table.dataTable {
   clear: both;
   margin-bottom: 0.5em !important;
@@ -7036,7 +7035,7 @@ table.dataTable {
   width: 100%;
 }
 
-/* line 946, ../sass/app.scss */
+/* line 945, ../sass/app.scss */
 table.dataTable thead .sorting,
 table.dataTable thead .sorting_asc,
 table.dataTable thead .sorting_desc,
@@ -7046,50 +7045,50 @@ table.dataTable thead .sorting_desc_disabled {
   *cursor: hand;
 }
 
-/* line 951, ../sass/app.scss */
+/* line 950, ../sass/app.scss */
 table.dataTable thead .sorting_asc {
   background: url("../images/sort_asc_disabled.png") no-repeat center right;
 }
 
-/* line 952, ../sass/app.scss */
+/* line 951, ../sass/app.scss */
 table.dataTable thead .sorting_desc {
   background: url("../images/sort_desc_disabled.png") no-repeat center right;
 }
 
-/* line 954, ../sass/app.scss */
+/* line 953, ../sass/app.scss */
 table.dataTable thead .sorting_asc_disabled {
   background: url("../images/sort_asc_disabled.png") no-repeat center right;
 }
 
-/* line 955, ../sass/app.scss */
+/* line 954, ../sass/app.scss */
 table.dataTable thead .sorting_desc_disabled {
   background: url("../images/sort_desc_disabled.png") no-repeat center right;
 }
 
-/* line 957, ../sass/app.scss */
+/* line 956, ../sass/app.scss */
 table.dataTable th:active {
   outline: none;
 }
 
 /* Scrolling */
-/* line 962, ../sass/app.scss */
+/* line 961, ../sass/app.scss */
 div.dataTables_scrollHead table {
   margin-bottom: 0 !important;
 }
 
-/* line 966, ../sass/app.scss */
+/* line 965, ../sass/app.scss */
 div.dataTables_scrollBody table {
   border-top: none;
   margin-bottom: 0 !important;
 }
 
-/* line 972, ../sass/app.scss */
+/* line 971, ../sass/app.scss */
 div.dataTables_scrollBody tbody tr:first-child th,
 div.dataTables_scrollBody tbody tr:first-child td {
   border-top: none;
 }
 
-/* line 976, ../sass/app.scss */
+/* line 975, ../sass/app.scss */
 div.dataTables_scrollFoot table {
   border-top: none;
 }
@@ -7097,20 +7096,20 @@ div.dataTables_scrollFoot table {
 /*
  * TableTools styles
  */
-/* line 987, ../sass/app.scss */
+/* line 986, ../sass/app.scss */
 .table tbody tr.active td,
 .table tbody tr.active th {
   background-color: #08C;
   color: white;
 }
 
-/* line 993, ../sass/app.scss */
+/* line 992, ../sass/app.scss */
 .table tbody tr.active:hover td,
 .table tbody tr.active:hover th {
   background-color: #0075b0 !important;
 }
 
-/* line 998, ../sass/app.scss */
+/* line 997, ../sass/app.scss */
 .table-striped tbody tr.active:nth-child(odd) td,
 .table-striped tbody tr.active:nth-child(odd) th {
   background-color: #017ebc;

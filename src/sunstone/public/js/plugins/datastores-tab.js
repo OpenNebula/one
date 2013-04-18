@@ -737,7 +737,7 @@ function updateDatastoreInfo(request,ds){
 
     var datastore_info_tab = {
         title: tr("Images"),
-        content : '<div id="datatable_datastore_images_info_div"><table id="datatable_datastore_images_info_panel" class="table twelve">' + datastore_image_table_tmpl + '</table></div>'
+        content : '<div id="datatable_datastore_images_info_div" class="twelve columns"><table id="datatable_datastore_images_info_panel" class="table twelve">' + datastore_image_table_tmpl + '</table></div>'
     }
 
 

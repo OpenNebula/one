@@ -486,7 +486,7 @@ var vm_actions = {
                 colored_log += line + "<br>";
             }
 
-            $('#vm_log_tabTab').html('<div class=""><div class="log-tab centered eleven columns">'+colored_log+'</div></div>')
+            $('#vm_log_tabTab').html('<div class="twelve columns"><div class="log-tab">'+colored_log+'</div></div>')
         },
         error: function(request,error_json){
             $("#vm_log pre").html('');
@@ -1469,9 +1469,11 @@ function updateVMInfo(request,vm){
     var template_tab = {
         title: tr("Template"),
         content:
-        '<table id="vm_template_table" class="info_table transparent_table" style="width:80%">'+
+        '<div class="twelve columns">\
+            <table id="vm_template_table" class="info_table transparent_table" style="width:80%">'+
                 prettyPrintJSON(vm_info.TEMPLATE)+
-            '</table>'
+            '</table>\
+        </div>'
     };
 
     var log_tab = {
@@ -1546,7 +1548,7 @@ function printActionsTable(vm_info)
 
     var str = '<div class="twelve columns">\
                   <button id="add_scheduling_action" class="button small secondary radius" >' + tr("Schedule action") +'</button>\
-                </div><br><br>\
+                <br><br></div>\
                 <div class="twelve columns">\
                 <table id="scheduling_actions_table" class="info_table twelve datatable extended_table">\
                  <thead>\
@@ -1907,9 +1909,9 @@ function printDisks(vm_info){
     }
 
     html += '\
-      </div>\
-      <br>\
-      <br>'
+      <br/>\
+      <br/>\
+      </div>'
 
     html += '\
       <div class="twelve columns">\
@@ -2264,10 +2266,9 @@ function printNics(vm_info){
       }
     }
 
-    html += '\
-      </div>\
+    html += '<br>\
       <br>\
-      <br>'
+      </div>'
 
     html += '\
       <div class="twelve columns">\
@@ -2525,10 +2526,9 @@ function printCapacity(vm_info){
       }
     }
 
-    html += '\
-      </div>\
+    html += '<br>\
       <br>\
-      <br>'
+      </div>'
 
     html += '\
       <div class="twelve columns">\
@@ -2718,10 +2718,9 @@ function printSnapshots(vm_info){
       }
     }
 
-    html += '\
-      </div>\
+    html += '<br>\
       <br>\
-      <br>'
+      </div>'
 
     html += '\
       <div class="twelve columns">\

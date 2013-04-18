@@ -1453,12 +1453,10 @@ function updateTemplateInfo(request,template){
     };
     var template_tab = {
         title: tr("Template"),
-        content: '<div class="">\
-         <div class="eight columns centered">\
-          <table id="template_template_table" class="transparent_table extend twelve">'+
+        content: '<div class="twelve columns">\
+            <table id="template_template_table" class="info_table transparent_table" style="width:80%">'+
             prettyPrintJSON(template_info.TEMPLATE)+'\
-          </table>\
-         </div>\
+            </table>\
         </div>'
     };
 
