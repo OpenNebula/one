@@ -3039,12 +3039,11 @@ function updateVNCState(rfb, state, oldstate, msg) {
 function setupVNC(){
 
     //Append to DOM
-    dialogs_context.append('<div id="vnc_dialog" title=\"'+tr("VNC connection")+'\"></div>');
+    dialogs_context.append('<div id="vnc_dialog" style="width:auto; max-width:70%" title=\"'+tr("VNC connection")+'\"></div>');
     $vnc_dialog = $('#vnc_dialog',dialogs_context);
     var dialog = $vnc_dialog;
 
     dialog.html('\
-<div id="VNC_status_bar" class="VNC_status_bar">\
   <div class="panel">\
     <h3>\
       <small id="vnc_dialog">'+tr("VNC")+' \
@@ -3055,13 +3054,14 @@ function setupVNC(){
       </small>\
     </h3>\
   </div>\
-  <div class="reveal-body">\
-  <canvas id="VNC_canvas" width="640px" height="20px">\
-      '+tr("Canvas not supported.")+'\
-  </canvas>\
+  <div class="reveal-body" style="width:100%; overflow-x:overlay">\
+    <canvas id="VNC_canvas" width="640px">\
+        '+tr("Canvas not supported.")+'\
+    </canvas>\
+    <div id="VNC_status_bar" class="VNC_status_bar">\
+    </div>\
   </div>\
   <a class="close-reveal-modal">&#215;</a>\
-</div>\
 ');
 
     //dialog.dialog({
