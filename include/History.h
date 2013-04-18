@@ -30,34 +30,34 @@ class History:public ObjectSQL, public ObjectXML
 public:
     enum EndReason
     {
-        NONE,       /** < History record is not closed yet */
-        ERROR,      /** < History record was closed because of an error */
-        USER        /** < History record was closed because of a user action */
+        NONE   = 0, /** < History record is not closed yet */
+        ERROR  = 1, /** < History record was closed because of an error */
+        USER   = 2  /** < History record was closed because of a user action */
     };
 
     enum VMAction
     {
-        NONE_ACTION,
-        MIGRATE_ACTION,
-        LIVE_MIGRATE_ACTION,
-        SHUTDOWN_ACTION,
-        SHUTDOWN_HARD_ACTION,
-        UNDEPLOY_ACTION,
-        UNDEPLOY_HARD_ACTION,
-        HOLD_ACTION,
-        RELEASE_ACTION,
-        STOP_ACTION,
-        SUSPEND_ACTION,
-        RESUME_ACTION,
-        BOOT_ACTION,
-        DELETE_ACTION,
-        DELETE_RECREATE_ACTION,
-        REBOOT_ACTION,
-        REBOOT_HARD_ACTION,
-        RESCHED_ACTION,
-        UNRESCHED_ACTION,
-        POWEROFF_ACTION,
-        POWEROFF_HARD_ACTION
+        NONE_ACTION            = 0,
+        MIGRATE_ACTION         = 1,
+        LIVE_MIGRATE_ACTION    = 2,
+        SHUTDOWN_ACTION        = 3,
+        SHUTDOWN_HARD_ACTION   = 4,
+        UNDEPLOY_ACTION        = 5,
+        UNDEPLOY_HARD_ACTION   = 6,
+        HOLD_ACTION            = 7,
+        RELEASE_ACTION         = 8,
+        STOP_ACTION            = 9,
+        SUSPEND_ACTION         = 10,
+        RESUME_ACTION          = 11,
+        BOOT_ACTION            = 12,
+        DELETE_ACTION          = 13,
+        DELETE_RECREATE_ACTION = 14,
+        REBOOT_ACTION          = 15,
+        REBOOT_HARD_ACTION     = 16,
+        RESCHED_ACTION         = 17,
+        UNRESCHED_ACTION       = 18,
+        POWEROFF_ACTION        = 19,
+        POWEROFF_HARD_ACTION   = 20
     };
 
     static string action_to_str(VMAction action)
