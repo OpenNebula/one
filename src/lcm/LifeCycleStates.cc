@@ -515,6 +515,8 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         vm->set_running_etime(the_time);
 
+        vm->set_reason(History::USER);
+
         vmpool->update_history(vm);
 
         vm->log("LCM", Log::INFO, "New VM state is EPILOG");
