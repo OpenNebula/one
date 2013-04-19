@@ -26,10 +26,10 @@ grep -v "Content Listing"|grep -Fv -- "--------"|egrep -v "^[[:space:]]*$"`
 
     for file in $FILES_TO_ERASE; do
         exec_and_log "vifs $VI_PARAMS --force --rm [$DSID]$VMID/$DIR_TO_RM/$file" \
-            "Cannot delete [$DSID]$VMID/$dir/$file in $DST_HOST"
+            "Cannot delete [$DSID]$VMID/$DIR_TO_RM/$file in $DST_HOST"
     done
 
-    exec_and_log "vifs $VI_PARAMS --force --rm [$DSID]$VMID/$dir" \
+    exec_and_log "vifs $VI_PARAMS --force --rm [$DSID]$VMID/$DIR_TO_RM" \
         "Cannot delete [$DSID]$VMID in $DST_HOST"
 }
 
