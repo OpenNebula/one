@@ -40,12 +40,13 @@ grep -v "Content Listing"|grep -Fv -- "--------"|egrep -v "^[[:space:]]*$"`
 #   - host is the target host to deploy the VM
 #   - remote_system_ds is the path for the system datastore in the host
 #   - vmid is the id of the VM
-#   - dsid is the target datastore (0 is the system datastore)
+#   - dsid is the target datastore
 
 DST=$1
 
 VMID=$2
-DSID=$3
+# We are interested in the system datastore, embedded in the path
+DSID=$(basename $(dirname $(dirname $DST)))
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
@@ -56,7 +57,6 @@ else
 fi
 
 . $TMCOMMON
-
 
 
 DST_PATH=`arg_path $DST`
