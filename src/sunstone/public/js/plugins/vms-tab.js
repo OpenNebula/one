@@ -1895,16 +1895,16 @@ function printDisks(vm_info){
         <div id="datatable_cluster_vnets_info_div columns twelve">\
            <form id="hotplugging_form" vmid="'+vm_info.ID+'" >\
               <div class="twelve columns">\
-                <div id="refresh_disk" class="button small secondary radius" ><i class="icon-refresh"/></div>'
+                <button id="refresh_disk" class="button small secondary radius" ><i class="icon-refresh"/></button>'
 
     if (Config.isTabActionEnabled("vms-tab", "VM.attachdisk")) {
       // If VM is not RUNNING, then we forget about the attach disk form.
       if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
         html += '\
-           <div id="attach_disk" class="button small secondary radius" >' + tr("Attach new disk") +'</div>'
+           <button id="attach_disk" class="button small secondary radius" >' + tr("Attach new disk") +'</button>'
       } else {
         html += '\
-           <div id="attach_disk" class="button small secondary radius" disabled="disabled">' + tr("Attach new disk") +'</div>'
+           <button id="attach_disk" class="button small secondary radius" disabled="disabled">' + tr("Attach new disk") +'</button>'
       }
     }
 
@@ -1989,8 +1989,11 @@ function printDisks(vm_info){
               actions = '';
 
               if (Config.isTabActionEnabled("vms-tab", "VM.saveas")) {
-                if ((vm_info.STATE == "3" && vm_info.LCM_STATE == "3") || vm_info.STATE == "5" || vm_info.STATE == "8") {
-                  actions += '<a href="VM.saveas" class="saveas" ><i class="icon-save"/>'+tr("Snapshot")+'</a> &emsp;'
+                // Check if its volatie
+                if (disk.IMAGE_ID) {
+                  if ((vm_info.STATE == "3" && vm_info.LCM_STATE == "3") || vm_info.STATE == "5" || vm_info.STATE == "8") {
+                    actions += '<a href="VM.saveas" class="saveas" ><i class="icon-save"/>'+tr("Snapshot")+'</a> &emsp;'
+                  }
                 }
               }
 
@@ -2253,16 +2256,16 @@ function printNics(vm_info){
         <div>\
            <form id="tab_network_form" vmid="'+vm_info.ID+'" >\
               <div class="twelve columns">\
-                <div id="refresh_nic" class="button small secondary radius" ><i class="icon-refresh"/></div>'
+                <button id="refresh_nic" class="button small secondary radius" ><i class="icon-refresh"/></button>'
 
     if (Config.isTabActionEnabled("vms-tab", "VM.attachnic")) {
       // If VM is not RUNNING, then we forget about the attach nic form.
       if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
         html += '\
-           <div id="attach_nic" class="button small secondary radius" >' + tr("Attach new nic") +'</div>'
+           <button id="attach_nic" class="button small secondary radius" >' + tr("Attach new nic") +'</button>'
       } else {
         html += '\
-           <div id="attach_nic" class="button small secondary radius" disabled="disabled">' + tr("Attach new nic") +'</div>'
+           <button id="attach_nic" class="button small secondary radius" disabled="disabled">' + tr("Attach new nic") +'</button>'
       }
     }
 
@@ -2513,7 +2516,7 @@ function printCapacity(vm_info){
         <div>\
            <form id="tab_capacity_form" vmid="'+vm_info.ID+'" >\
               <div class="twelve columns">\
-                <div id="refresh_capacity" class="button small secondary radius" ><i class="icon-refresh"/></div>'
+                <button id="refresh_capacity" class="button small secondary radius" ><i class="icon-refresh"/></button>'
 
     if (Config.isTabActionEnabled("vms-tab", "VM.resize")) {
       // If VM is not RUNNING, then we forget about the attach nic form.
@@ -2705,16 +2708,16 @@ function printSnapshots(vm_info){
         <div id="columns twelve">\
            <form id="snapshot_form" vmid="'+vm_info.ID+'" >\
               <div class="twelve columns">\
-                <div id="refresh_snapshot" class="button small secondary radius" ><i class="icon-refresh"/></div>'
+                <button id="refresh_snapshot" class="button small secondary radius" ><i class="icon-refresh"/></button>'
 
     if (Config.isTabActionEnabled("vms-tab", "VM.snapshot_create")) {
       // If VM is not RUNNING, then we forget about the attach disk form.
       if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
         html += '\
-           <div id="take_snapshot" class="button small secondary radius" >' + tr("Take snapshot") +'</div>'
+           <button id="take_snapshot" class="button small secondary radius" >' + tr("Take snapshot") +'</button>'
       } else {
         html += '\
-           <div id="take_snapshot" class="button small secondary radius" disabled="disabled">' + tr("Take snapshot") +'</div>'
+           <button id="take_snapshot" class="button small secondary radius" disabled="disabled">' + tr("Take snapshot") +'</button>'
       }
     }
 
