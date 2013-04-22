@@ -870,7 +870,7 @@ function setupCreateDatastoreDialog(){
         // If we are adding a system datastore then
         // we do not use ds_mad
         if (ds_type != "SYSTEM_DS")
-            s_obj.datastore.ds_mad = ds_mad;
+            ds_obj.datastore.ds_mad = ds_mad;
 
         if (safe_dirs)
             ds_obj.datastore.safe_dirs = safe_dirs;
