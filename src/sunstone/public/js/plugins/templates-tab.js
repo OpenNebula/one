@@ -2887,7 +2887,7 @@ function setupCreateTemplateDialog(){
                         '<input type="text" id="REQUIREMENTS" name="requirements" />'+
                     '</div>'+
                     '<div class="one columns">'+
-                        '<div class="tip"></div>'+
+                        '<div class="tip">'+tr("Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM")+'.</div>'+
                     '</div>'+
                 '</div>'+
             '</li>'+
@@ -2921,7 +2921,7 @@ function setupCreateTemplateDialog(){
                     '<input type="text" id="RANK" name="RANK" />'+
                   '</div>'+
                   '<div class="one columns">'+
-                    '<div class="tip"></div>'+
+                    '<div class="tip">'+tr("This field sets which attribute will be used to sort the suitable hosts for this VM")+'.</div>'+
                   '</div>'+
                 '</div>'+
             '</li>'+
