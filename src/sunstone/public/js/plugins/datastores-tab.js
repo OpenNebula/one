@@ -171,7 +171,12 @@ var create_datastore_tmpl =
                   <option value="lvm">' + tr("LVM") + '</option>\
                   <option value="vmfs">' + tr("VMFS") + '</option>\
                   <option value="ceph">' + tr("Ceph") + '</option>\
+                  <option value="custom">' + tr("Custom") + '</option>\
                 </select>\
+                <div>\
+                  <label>' + tr("Custom DS_MAD") + ':</label>\
+                  <input type="text" name="ds_tab_custom_ds_mad" />\
+                </div>\
               </div>\
               <div class="one columns ">\
               </div>\
@@ -190,7 +195,12 @@ var create_datastore_tmpl =
                   <option value="lvm">' + tr("LVM") + '</option>\
                   <option value="vmfs">' + tr("VMFS") + '</option>\
                   <option value="ceph">' + tr("Ceph") + '</option>\
+                  <option value="custom">' + tr("Custom") + '</option>\
                 </select>\
+                <div>\
+                  <label>' + tr("Custom TM_MAD") + ':</label>\
+                  <input type="text" name="ds_tab_custom_tm_mad" />\
+                </div>\
               </div>\
               <div class="one columns ">\
               </div>\
@@ -790,6 +800,9 @@ function hide_all(context)
     $('select#disk_type').children('option').each(function() {
       $(this).removeAttr('disabled');
     });
+
+    $('input[name="ds_tab_custom_ds_mad"]').parent().hide();
+    $('input[name="ds_tab_custom_tm_mad"]').parent().hide();
 }
 
 // Set up the create datastore dialog
@@ -804,6 +817,24 @@ function setupCreateDatastoreDialog(){
     dialog.addClass("reveal-modal large max-height");
 
     setupTips(dialog);
+
+    // Show custom driver input only when custom is selected in selects
+    $('input[name="ds_tab_custom_ds_mad"],'+
+      'input[name="ds_tab_custom_tm_mad"]',dialog).parent().hide();
+
+    $('select#ds_mad',dialog).change(function(){
+        if ($(this).val()=="custom")
+            $('input[name="ds_tab_custom_ds_mad"]').parent().show();
+        else
+            $('input[name="ds_tab_custom_ds_mad"]').parent().hide();
+    });
+
+    $('select#tm_mad',dialog).change(function(){
+        if ($(this).val()=="custom")
+            $('input[name="ds_tab_custom_tm_mad"]').parent().show();
+        else
+            $('input[name="ds_tab_custom_tm_mad"]').parent().hide();
+    });
 
     $('#presets').change(function(){
         hide_all($(this).parent());
@@ -841,7 +872,9 @@ function setupCreateDatastoreDialog(){
         var cluster_id      = $('#cluster_id',context).val();
         var ds_type         = $('input[name=ds_type]:checked',context).val();
         var ds_mad          = $('#ds_mad',context).val();
+        ds_mad              = ds_mad == "custom" ? $('input[name="ds_tab_custom_ds_mad"]').val() : ds_mad;
         var tm_mad          = $('#tm_mad',context).val();
+        tm_mad              = tm_mad == "custom" ? $('input[name="ds_tab_custom_tm_mad"]').val() : tm_mad;
         var type            = $('#disk_type',context).val();
         var safe_dirs       = $('#safe_dirs',context).val();
         var restricted_dirs = $('#restricted_dirs',context).val();
