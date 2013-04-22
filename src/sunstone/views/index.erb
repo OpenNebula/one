@@ -65,10 +65,8 @@
     <script src="js/plugins/config-tab.js" type="text/javascript"></script>
 
     <!-- enabled tabs: -->
-    <%- view['tabs'].each do |tab_name, tab_config| -%>
-      <%- if tab_config['enabled'] -%>
+    <%- view['enabled_tabs'].each do |tab_name| -%>
         <script src="js/plugins/<%= tab_name %>.js" type="text/javascript"></script>
-      <%- end -%>
     <%- end -%>
     <!-- end tabs -->
 

@@ -1,7 +1,23 @@
 small_logo: images/opennebula-sunstone-v4.0-small.png
+enabled_tabs:
+    - dashboard-tab
+    #- system-tab
+    #- users-tab
+    #- groups-tab
+    #- acls-tab
+    - vresources-tab
+    - vms-tab
+    - templates-tab
+    - images-tab
+    - files-tab
+    - infra-tab
+    #- clusters-tab
+    #- hosts-tab
+    - datastores-tab
+    - vnets-tab
+    - marketplace-tab
 tabs:
     dashboard-tab:
-        enabled: true
         panel_tabs:
         actions:
         widgets_three_per_row:
@@ -14,11 +30,9 @@ tabs:
         widgets_one_per_row:
             - vms
     system-tab:
-        enabled: false
         panel_tabs:
         actions:
     users-tab:
-        enabled: false
         panel_tabs:
             user_info_panel: true
             user_quotas_tab: true
@@ -41,7 +55,6 @@ tabs:
             User.chauth: true
             User.delete: true
     groups-tab:
-        enabled: false
         panel_tabs:
             group_quotas_tab: true
         table_columns:
@@ -58,7 +71,6 @@ tabs:
             Group.quotas_dialog: true
             Group.delete: true
     acls-tab:
-        enabled: false
         panel_tabs:
         table_columns:
             - 0         # Checkbox
@@ -73,11 +85,9 @@ tabs:
             Acl.create_dialog: true
             Acl.delete: true
     vresources-tab:
-        enabled: true
         panel_tabs:
         actions:
     vms-tab:
-        enabled: true
         panel_tabs:
             vm_info_tab: true
             vm_capacity_tab: true
@@ -138,7 +148,6 @@ tabs:
             VM.resched: false
             VM.unresched: false
     templates-tab:
-        enabled: true
         panel_tabs:
             template_info_tab: true
             template_template_tab: true
@@ -169,7 +178,6 @@ tabs:
             context: true
             scheduling: false
     images-tab:
-        enabled: true
         panel_tabs:
             image_info_panel: true
         table_columns:
@@ -199,7 +207,6 @@ tabs:
             Image.clone_dialog: true
             Image.delete: true
     files-tab:
-        enabled: true
         panel_tabs:
             file_info_panel: true
         table_columns:
@@ -226,11 +233,9 @@ tabs:
             File.disable: true
             File.delete: true
     infra-tab:
-        enabled: true
         panel_tabs:
         actions:
     clusters-tab:
-        enabled: false
         panel_tabs:
             cluster_info_tab: true
             cluster_host_tab: true
@@ -249,7 +254,6 @@ tabs:
             Cluster.update_dialog: true
             Cluster.delete: true
     hosts-tab:
-        enabled: false
         panel_tabs:
             host_info_tab: true
             host_monitoring_tab: true
@@ -275,7 +279,6 @@ tabs:
             Host.disable: true
             Host.delete: true
     datastores-tab:
-        enabled: true
         panel_tabs:
             datastore_info_tab: false
             datastore_image_tab: true
@@ -299,7 +302,6 @@ tabs:
             Datastore.chmod: true
             Datastore.delete: false
     vnets-tab:
-        enabled: true
         panel_tabs:
             vnet_info_tab: false
             vnet_leases_tab: true
@@ -326,7 +328,6 @@ tabs:
             Network.remove_lease: false
             Network.release_lease: false
     marketplace-tab:
-        enabled: true
         panel_tabs:
             marketplace_info_tab: true
         table_columns:
