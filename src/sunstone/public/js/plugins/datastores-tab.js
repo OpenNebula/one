@@ -801,8 +801,8 @@ function hide_all(context)
       $(this).removeAttr('disabled');
     });
 
-    $('input[name="ds_tab_custom_ds_mad"]').parent().hide();
-    $('input[name="ds_tab_custom_tm_mad"]').parent().hide();
+    $('input[name="ds_tab_custom_ds_mad"]', context).parent().hide();
+    $('input[name="ds_tab_custom_tm_mad"]', context).parent().hide();
 }
 
 // Set up the create datastore dialog
@@ -837,7 +837,7 @@ function setupCreateDatastoreDialog(){
     });
 
     $('#presets').change(function(){
-        hide_all($(this).parent());
+        hide_all(dialog);
         var choice_str = $(this).val();
         switch(choice_str)
         {
