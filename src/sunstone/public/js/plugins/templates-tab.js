@@ -2531,7 +2531,7 @@ function setupCreateTemplateDialog(){
                                   '<label class="inline" for="network_context">'+ tr("  Add Network contextualization")+'</label>'+
                               '</div>'+
                               '<div class="columns one">'+
-                                  '<div class="tip">'+tr("Add network contextualization parameters. For each NIC defined in the NETWORK section, ETH%i_IP, ETH%i_NETWORK... parameters will be included in the CONTEXT section and will be available in the Virtual Machine")+'</div>'+
+                                  '<div class="tip">'+tr("Add network contextualization parameters. For each NIC defined in the NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in the CONTEXT section and will be available in the Virtual Machine")+'</div>'+
                               '</div>'+
                             '</div>'+
                         '</fieldset>'+

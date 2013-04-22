@@ -794,7 +794,7 @@ var vm_buttons = {
         type: "action",
         text: '<i class="icon-play"/>',
         layout: "vmsplay_buttons",
-        tip: tr("This will resume selected stopped or suspended VMs")
+        tip: tr("This will resume selected VMs")
     },
     "VM.stop" : {
         type: "action",
@@ -806,7 +806,7 @@ var vm_buttons = {
         type: "action",
         text: tr("Boot"),
         layout: "vmsplanification_buttons",
-        tip: tr("This will redeploy selected VMs (in UNKNOWN or BOOT state)")
+        tip: tr("This will force the hypervisor boot action of VMs stuck in UNKNOWN or BOOT state")
     },
     "VM.reboot" : {
         type: "action",
@@ -824,13 +824,13 @@ var vm_buttons = {
         type: "action",
         text: tr("Power Off"),
         layout: "vmspause_buttons",
-        tip: tr("This will send a power off signal to running VMs. They can be restarted later.")
+        tip: tr("This will send a power off signal to running VMs. They can be resumed later.")
     },
     "VM.poweroff_hard" : {
         type: "action",
         text: tr("Power Off") + ' <span class="label secondary radius">hard</span>',
         layout: "vmspause_buttons",
-        tip: tr("This will send a power off signal to running VMs. They can be restarted later.")
+        tip: tr("This will send a forced power off signal to running VMs. They can be resumed later.")
     },
     "VM.undeploy" : {
         type: "action",
@@ -2078,7 +2078,7 @@ function setupSaveAsDialog(){
           </div>\
           <div class="one columns">\
               <div class="tip">'+tr("Sets the specified VM disk to be saved in a new Image.")+'<br><br>\
-        '+tr("Deferred: The Image is created immediately, but the contents are saved only if the VM is shut down gracefully (i.e., using Shutdown or Cancel; not Delete)")+'<br><br>\
+        '+tr("Deferred: The Image is created immediately, but the contents are saved only if the VM is shut down gracefully (i.e., using Shutdown; not Delete)")+'<br><br>\
         '+tr("Hot: The Image will be saved immediately.")+'</div>\
           </div>\
       </div>\
