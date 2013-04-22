@@ -286,7 +286,14 @@ div.button-bar {
     border-left: 5px solid #555 !important;
 }
 
+.tabs dd.topTab a:focus, .tabs li.topTab a:focus {
+    font-weight: normal;
+    outline:none;
+}
 
+.tabs dd a:focus, .tabs li a:focus {
+    outline:none;
+}
 
 
 /* top menu css */
