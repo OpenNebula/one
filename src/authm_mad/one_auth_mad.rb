@@ -126,7 +126,7 @@ class AuthDriver < OpenNebulaDriver
         end.join(' '))
 
         rc = LocalCommand.run(command,
-            log_method_no_password(request_id, secret))
+            log_method_no_password(request_id, Shellwords.escape(secret)))
 
         result , info = get_info_from_execution(rc)
 
