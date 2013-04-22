@@ -54,7 +54,7 @@ class OpenNebula::SshAuth
             key = OpenSSL::PKey::RSA.new(@private_key)
 
             @public_key = key.public_key.to_pem.split("\n")
-            @public_key = @public_key.reject {|l| l.match(/RSA PUBLIC KEY/) }.join('')
+            @public_key = @public_key.reject {|l| l.match(/PUBLIC KEY/) }.join('')
         end
 
         if @private_key.nil? && @public_key.nil?
@@ -89,7 +89,7 @@ class OpenNebula::SshAuth
         file.close
 
         File.chmod(0600,LOGIN_PATH)
-        
+
         secret_crypted
     end
 
