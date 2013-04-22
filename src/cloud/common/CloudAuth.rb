@@ -42,6 +42,9 @@ class CloudAuth
     # Tokens will be generated if time > EXPIRE_TIME - EXPIRE_MARGIN
     EXPIRE_MARGIN = 300
 
+    # The user pool will be updated every EXPIRE_USER_CACHE seconds.
+    EXPIRE_USER_CACHE = 60
+
     attr_reader :client, :token, :logger
 
     # conf a hash with the configuration attributes as symbols
@@ -52,10 +55,19 @@ class CloudAuth
         @lock   = Mutex.new
 
         @token_expiration_time = Time.now.to_i + EXPIRE_DELTA
+        @upool_expiration_time = 0
+
+        @conf[:use_user_pool_cache] = true
+
+        # ------ Load Authorization Modules ------
 
         if AUTH_MODULES.include?(@conf[:auth])
             require 'CloudAuth/' + AUTH_MODULES[@conf[:auth]]
             extend Kernel.const_get(AUTH_MODULES[@conf[:auth]])
+
+            if Kernel.const_get(AUTH_MODULES[@conf[:auth]]).method_defined?(:initialize_auth)
+                initialize_auth(@conf)
+            end
         else
             raise "Auth module not specified"
         end
@@ -81,7 +93,7 @@ class CloudAuth
 
     # Generate a new OpenNebula client for the target User, if the username
     # is nil the Client is generated for the server_admin
-    # ussername:: _String_ Name of the User
+    # username:: _String_ Name of the User
     # [return] _Client_
     def client(username=nil)
         expiration_time = @lock.synchronize {
@@ -99,18 +111,13 @@ class CloudAuth
         OpenNebula::Client.new(token,@conf[:one_xmlrpc])
     end
 
-    #
-    #
-    #
+    # Authenticate the request. This is a wrapper method that executes the
+    # specific do_auth module method. It updates the user cache (if needed)
+    # before calling the do_auth module.
     def auth(env, params={})
-        username = do_auth(env, params)
+        update_userpool_cache if @conf[:use_user_pool_cache]
 
-        if username.nil?
-            update_userpool_cache
-            do_auth(env, params)
-        else
-            username
-        end
+        return do_auth(env, params)
     end
 
     protected
@@ -147,15 +154,22 @@ class CloudAuth
         }
     end
 
-
+    # Updates the userpool cache every EXPIRE_USER_CACHE seconds.
+    # The expiration time is updated if the cache is successfully updated.
     def update_userpool_cache
         oneadmin_client = client
 
         @lock.synchronize {
-            @user_pool = OpenNebula::UserPool.new(oneadmin_client)
+            if Time.now.to_i > @upool_expiration_time
+                @logger.info { "Updating user pool cache." }
 
-            rc = @user_pool.info
-            raise rc.message if OpenNebula.is_error?(rc)
+                @user_pool = OpenNebula::UserPool.new(oneadmin_client)
+
+                rc = @user_pool.info
+                raise rc.message if OpenNebula.is_error?(rc)
+
+                @upool_expiration_time = Time.now.to_i + EXPIRE_USER_CACHE
+            end
         }
     end
 end

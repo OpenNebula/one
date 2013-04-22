@@ -15,6 +15,18 @@
 #--------------------------------------------------------------------------- #
 
 module OpenNebulaCloudAuth
+
+    #
+    #  Do custom initializations for the module
+    #
+    def initialize_auth(conf)
+        conf[:use_user_pool_cache] = false
+    end
+
+    #
+    #  The Auth method creates an OpenNebula client and tries to get the
+    #  user information.
+    #
     def do_auth(env, params={})
         auth = Rack::Auth::Basic::Request.new(env)
 
@@ -30,9 +42,9 @@ module OpenNebulaCloudAuth
                     logger.error{ "User #{username} could not be authenticated"}
                     logger.error { rc.message }
                 end
-                return nil 
+                return nil
             end
-            
+
             return username
         end
 
