@@ -38,19 +38,19 @@
     <script src="js/sunstone.js" type="text/javascript"></script>
     <script src="js/sunstone-util.js" type="text/javascript"></script>
     <script src="js/monitoring.js" type="text/javascript"></script>
-    <% view = $views_config.view(session['user'], session['user_gname'], session['default_view']) %>
+    <% view = $views_config.view(session[:user], session[:user_gname], session[:default_view]) %>
     <script>
 
       var view = JSON.parse('<%= view.to_json %>')
       var available_views = JSON.parse('["<%=
-        $views_config.available_views(session['user'], session['user_gname']).join('","')
+        $views_config.available_views(session[:user], session[:user_gname]).join('","')
       %>"]')
 
       config = {
         'user_config' : {
-            'lang' : '<%= session['lang'] %>',
-            'vnc_wss' : '<%= session['vnc_wss'] %>',
-            'default_view' : '<%= session['default_view'] %>'
+            'lang' : '<%= session[:lang] %>',
+            'vnc_wss' : '<%= session[:vnc_wss] %>',
+            'default_view' : '<%= session[:default_view] %>'
         },
         'system_config' : {
             'marketplace_url' : '<%= $conf[:marketplace_url] %>',

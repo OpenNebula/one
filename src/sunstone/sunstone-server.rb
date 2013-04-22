@@ -187,7 +187,7 @@ helpers do
             if user['TEMPLATE/DEFAULT_VIEW']
                 session[:default_view] = user['TEMPLATE/DEFAULT_VIEW']
             else
-                session[:default_view] = $views_config.available_views(session['user'], session['user_gname']).first
+                session[:default_view] = $views_config.available_views(session[:user], session[:user_gname]).first
             end
 
             #end user options
