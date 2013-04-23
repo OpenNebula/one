@@ -42,6 +42,8 @@ module OpenNebula
             "ERROR"                => "err",
             "DISABLED"             => "off",
             "MONITORING_ERROR"     => "retry",
+            "MONITORING_INIT"      => "init",
+            "MONITORING_DISABLED"  => "off"
         }
 
         # Creates a Host description with just its identifier
