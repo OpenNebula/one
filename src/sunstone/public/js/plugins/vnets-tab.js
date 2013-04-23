@@ -94,13 +94,43 @@ var create_vn_tmpl =
                 <legend>' + tr("Type") + '</legend>\
                   <div class="row">\
                     <div class="six columns">\
+                      <label for="ipv4_check" class="right"><input type="radio" name="ip_version" id="ipv4_check" value="ipv4" checked="checked"/>'+tr("IPv4")+'</label>\
+                    </div>\
+                    <div class="six columns">\
+                      <label for="ipv6_check"><input type="radio" name="ip_version" id="ipv6_check" value="ipv6"/>'+tr("IPv6")+'</label>\
+                    </div>\
+                  </div>\
+                  <div class="row">\
+                    <div class="six columns">\
+                        <div class="four columns">\
+                          <label class="right inline" for="site_prefix">'+tr("Site prefix:")+'</label>\
+                        </div>\
+                        <div class="seven columns">\
+                          <input type="text" name="site_prefix" id="site_prefix" />\
+                        </div>\
+                        <div class="one columns">\
+                        </div>\
+                    </div>\
+                    <div class="six columns">\
+                        <div class="four columns">\
+                          <label class="right inline" for="global_prefix">'+tr("Global prefix:")+'</label>\
+                        </div>\
+                        <div class="seven columns">\
+                          <input type="text" name="global_prefix" id="global_prefix" />\
+                        </div>\
+                        <div class="one columns">\
+                        </div>\
+                    </div>\
+                  </div>\
+                  <hr>\
+                  <div class="row">\
+                    <div class="six columns">\
                       <label for="fixed_check" class="right"><input type="radio" name="fixed_ranged" id="fixed_check" value="fixed" checked="checked"/>'+tr("Fixed network")+'</label>\
                     </div>\
                     <div class="six columns">\
                       <label for="ranged_check"><input type="radio" name="fixed_ranged" id="ranged_check" value="ranged"/>'+tr("Ranged network")+'</label>\
                     </div>\
                   </div>\
-                  <hr>\
                   <div id="fixed">\
                      <div class="row">\
                       <div class="six columns">\
@@ -193,6 +223,30 @@ var create_vn_tmpl =
                           </div>\
                           <div class="seven columns">\
                             <input type="text" name="ip_end" id="ip_end" disabled="disabled" />\
+                          </div>\
+                          <div class="one columns">\
+                          </div>\
+                      </div>\
+                    </div>\
+                  </div>\
+                  <div id="ranged_ipv6">\
+                    <div class="row">\
+                      <div class="six columns">\
+                          <div class="four columns">\
+                            <label class="right inline" for="mac_start">'+tr("MAC Start")+':</label>\
+                          </div>\
+                          <div class="seven columns">\
+                            <input type="text" name="net_address" id="mac_start" />\
+                          </div>\
+                          <div class="one columns">\
+                          </div>\
+                      </div>\
+                      <div class="six columns">\
+                          <div class="four columns">\
+                            <label class="right inline" for="net_size">'+tr("N. Size")+':</label>\
+                          </div>\
+                          <div class="seven columns">\
+                            <input type="text" name="net_size" id="net_size" />\
                           </div>\
                           <div class="one columns">\
                           </div>\
@@ -976,7 +1030,7 @@ function printLeases(vn_info){
 
 //Prepares the vnet creation dialog
 function setupCreateVNetDialog() {
-    dialogs_context.append('<div title=\"'+tr("Create Virtual Network")+'\" id="create_vn_dialog"></div>');
+    dialogs_context.append('<div id="create_vn_dialog"></div>');
     $create_vn_dialog = $('#create_vn_dialog',dialogs_context)
     var dialog = $create_vn_dialog;
     dialog.html(create_vn_tmpl);
@@ -995,14 +1049,51 @@ function setupCreateVNetDialog() {
     //Make the tabs look nice for the creation mode
     //$('#vn_tabs',dialog).tabs();
     $('div#ranged',dialog).hide();
+    $('div#ranged_ipv6',dialog).hide();
+
+    $('input#site_prefix,label[for="site_prefix"]',$create_vn_dialog).hide();
+    $('input#global_prefix,label[for="global_prefix"]',$create_vn_dialog).hide();
+
+    $('input[name="ip_version"]',dialog).change(function(){
+      var fixed_ranged = $('input[name="fixed_ranged"]:checked',dialog).val();
+
+      if (this.id == 'ipv4_check') {
+        $('input#site_prefix,label[for="site_prefix"]',$create_vn_dialog).hide();
+        $('input#global_prefix,label[for="global_prefix"]',$create_vn_dialog).hide();
+
+        if ( fixed_ranged == "fixed" ){
+          // TODO fixed
+        } else {
+          $('div#ranged',$create_vn_dialog).show();
+          $('div#ranged_ipv6',$create_vn_dialog).hide();
+        }
+      } else {
+        $('input#site_prefix,label[for="site_prefix"]',$create_vn_dialog).show();
+        $('input#global_prefix,label[for="global_prefix"]',$create_vn_dialog).show();
+
+        if ( fixed_ranged == "fixed" ){
+          // TODO fixed
+        } else {
+          $('div#ranged',$create_vn_dialog).hide();
+          $('div#ranged_ipv6',$create_vn_dialog).show();
+        }
+      }
+    });
+
     $('input[name="fixed_ranged"]',dialog).change(function(){
       if (this.id == 'fixed_check') {
         $('div#fixed',$create_vn_dialog).show();
         $('div#ranged',$create_vn_dialog).hide();
+        $('div#ranged_ipv6',$create_vn_dialog).hide();
       }
       else {
           $('div#fixed',$create_vn_dialog).hide();
-          $('div#ranged',$create_vn_dialog).show();
+
+          if ( $('input[name="ip_version"]:checked',dialog).val() == "ipv4" ){
+            $('div#ranged',$create_vn_dialog).show();
+          } else {
+            $('div#ranged_ipv6',$create_vn_dialog).show();
+          }
       }
     });
 
@@ -1185,11 +1276,16 @@ function setupCreateVNetDialog() {
             break;
         };
 
+        var ip_version = $('input[name="ip_version"]:checked',dialog).val();
+
         var type = $('input[name="fixed_ranged"]:checked',dialog).val();
         network_json['type']=type;
         //TODO: Name and bridge provided?!
 
         if (type == "fixed") {
+
+            // TODO: handle ipv4 vs 6
+
             var leases = $('#leases option', dialog);
             var leases_obj=[];
 
@@ -1208,29 +1304,53 @@ function setupCreateVNetDialog() {
         }
         else { //type ranged
 
-            var network_addr = $('#net_address',dialog).val();
-            var network_mask = $('#net_mask',dialog).val();
-            var custom = $('#custom_pool',dialog).is(':checked');
-            var ip_start = $('#ip_start',dialog).val();
-            var ip_end = $('#ip_end',dialog).val();
+            if (ip_version == "ipv4") {
+                var network_addr = $('#net_address',dialog).val();
+                var network_mask = $('#net_mask',dialog).val();
+                var custom = $('#custom_pool',dialog).is(':checked');
+                var ip_start = $('#ip_start',dialog).val();
+                var ip_end = $('#ip_end',dialog).val();
 
-            if (!(ip_start.length && ip_end.length) && !network_addr.length){
-                notifyError(tr("There are missing network parameters"));
-                return false;
-            };
+                if (!(ip_start.length && ip_end.length) && !network_addr.length){
+                    notifyError(tr("There are missing network parameters"));
+                    return false;
+                };
 
-            if (network_addr.length)
-                network_json["network_address"]=network_addr;
+                if (network_addr.length)
+                    network_json["network_address"]=network_addr;
 
-            if (network_mask.length)
-                network_json["network_mask"]=network_mask;
+                if (network_mask.length)
+                    network_json["network_mask"]=network_mask;
 
-            if (custom){
-                if (ip_start.length)
-                    network_json["ip_start"] = ip_start;
-                if (ip_end.length)
-                    network_json["ip_end"] = ip_end;
-            };
+                if (custom){
+                    if (ip_start.length)
+                        network_json["ip_start"] = ip_start;
+                    if (ip_end.length)
+                        network_json["ip_end"] = ip_end;
+                };
+            } else {
+                var mac_start = $('#mac_start',dialog).val();
+                var network_size = $('#net_size',dialog).val();
+
+                var site_prefix = $('#site_prefix',dialog).val();
+                var global_prefix = $('#global_prefix',dialog).val();
+
+                if (! mac_start.length){
+                    notifyError(tr("MAC Start must be specified"));
+                    return false;
+                };
+
+                network_json["mac_start"] = mac_start;
+
+                if (network_size.length)
+                    network_json["network_size"] = network_size;
+
+                if (site_prefix.length)
+                    network_json["site_prefix"] = site_prefix;
+
+                if (global_prefix.length)
+                    network_json["global_prefix"] = global_prefix;
+            }
         };
 
         //Time to add custom attributes
