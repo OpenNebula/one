@@ -416,6 +416,11 @@ function is_iscsi {
     fi
 }
 
+# Checks wether $IMAGE_TYPE is CDROM 
+function is_cdrom {
+    [ "$IMAGE_TYPE" = "1" ]
+}
+
 function iqn_get_lv_name {
     IQN="$1"
     TARGET=`echo "$IQN"|$CUT -d: -f2`
