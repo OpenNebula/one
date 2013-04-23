@@ -135,8 +135,8 @@ else
                    "Error cloning $SRC to $DST"
   else
     vifs $VI_PARAMS --force --rm [$SYSTEM_DS_NAME]$VMID/$DST_PATH &> /dev/null
-    exec_and_log "vifs $VI_PARAMS -p $SRC_PATH [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER.iso" \
-     "Cannot upload $SRC_PATH to [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER.iso on $DST_HOST"
+    exec_and_log "vifs $VI_PARAMS -c [$IMAGE_DS_NAME]$(basename $SRC_PATH) [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER.iso" \
+     "Cannot upload [$IMAGE_DS_NAME]$(basename $SRC_PATH) to [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER.iso on $DST_HOST"
   fi
 fi
 
