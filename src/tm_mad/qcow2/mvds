@@ -53,16 +53,32 @@ DST_DS_PATH="$(dirname $(dirname $DST_ARG_PATH))"
 DST_PATH="${SRC_DS_PATH}${DST_ARG_PATH##$DST_DS_PATH}"
 
 #-------------------------------------------------------------------------------
+# Get datastore information
+#-------------------------------------------------------------------------------
+
+XPATH="${ONE_LOCAL_VAR}/remotes/datastore/xpath.rb --stdin"
+
+unset i XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onedatastore show -x $DSID| $XPATH \
+                    /DATASTORE/TEMPLATE/UMASK)
+
+UMASK="${XPATH_ELEMENTS[0]:-0007}"
+
+#-------------------------------------------------------------------------------
 # Move the image back to the datastore
 #-------------------------------------------------------------------------------
 MVSCRIPT=$(cat <<EOF
-umask 0007
+umask $UMASK
 SRC_READLN=\$($READLINK -f $SRC_PATH)
 DST_READLN=\$($READLINK -f $DST_PATH)
 
 if [ \( -L $SRC_PATH \) -a \( "\$SRC_READLN" = "\$DST_READLN" \) ] ; then
-	echo "Not moving files to image repo, they are the same"
+    echo "Not moving files to image repo, they are the same"
 else
+    touch $DST_PATH
     qemu-img convert $SRC_PATH -O qcow2 $DST_PATH
     rm $SRC_PATH
 fi
