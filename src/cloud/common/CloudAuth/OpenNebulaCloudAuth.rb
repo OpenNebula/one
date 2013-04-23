@@ -19,8 +19,8 @@ module OpenNebulaCloudAuth
     #
     #  Do custom initializations for the module
     #
-    def initialize_auth(conf)
-        conf[:use_user_pool_cache] = false
+    def initialize_auth
+        @conf[:use_user_pool_cache] = false
     end
 
     #

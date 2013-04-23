@@ -66,7 +66,7 @@ class CloudAuth
             extend Kernel.const_get(AUTH_MODULES[@conf[:auth]])
 
             if Kernel.const_get(AUTH_MODULES[@conf[:auth]]).method_defined?(:initialize_auth)
-                initialize_auth(@conf)
+                initialize_auth
             end
         else
             raise "Auth module not specified"
