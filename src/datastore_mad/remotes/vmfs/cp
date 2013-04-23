@@ -126,7 +126,11 @@ http://*|https://* )
         exit -1
     fi
 
-    log "Copying local disk folder $SRC to the image repository"
+    if ! is_cdrom; then
+        log "Copying local disk folder $SRC to the image repository"
+    else
+        log "Copying local CD-ROM $SRC to the image repository"
+    fi
 
     if [ ! -d $SRC -a ! is_cdrom ]; then
         exec_and_log "$COPY_COMMAND" "Error copying $SRC to $TMP_DIR/$DST_FOLDER"
