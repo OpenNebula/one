@@ -146,7 +146,7 @@ var create_vn_tmpl =
                         </div>\
                         <div class="row">\
                           <div class="four columns">\
-                            <label class="right inline" for="leasemac">'+tr("MAC (opt):")+'</label>\
+                            <label class="right inline" for="leasemac">'+tr("MAC:")+'</label>\
                           </div>\
                           <div class="seven columns">\
                             <input type="text" name="leasemac" id="leasemac" />\
@@ -1152,21 +1152,14 @@ function setupCreateVNetDialog() {
         var lease_mac = $('#leasemac',create_form).val();
 
         //We do not add anything to the list if there is nothing to add
-        if (lease_ip == null) {
-            notifyError(tr("Please provide a lease IP"));
+        if (!lease_ip.length && !lease_mac.length) {
+            notifyError(tr("Please provide a lease IP or MAC"));
             return false;
         };
 
-        var lease = ""; //contains the HTML to be included in the select box
-        if (lease_mac == "") {
-            lease='<option value="' + lease_ip + '">' + lease_ip + '</option>';
-        } else {
-            lease='<option value="' +
-                lease_ip + ',' +
-                lease_mac + '">' +
-                lease_ip + ',' + lease_mac +
-                '</option>';
-        };
+        //contains the HTML to be included in the select box.
+        // The space is used later to parse ip and mac
+        var lease = '<option value="' + lease_ip + ' ' + lease_mac + '">' + lease_ip + ' ' + lease_mac + '</option>';
 
         //We append the HTML into the select box.
         $('select#leases',$create_vn_dialog).append(lease);
@@ -1291,12 +1284,16 @@ function setupCreateVNetDialog() {
 
             //for each specified lease we prepare the JSON object
             $.each(leases,function(){
-                var lease_str = $(this).val().split(",");
-                if (lease_str[1])
+                var lease_str = $(this).val().split(" ");
+
+                if (lease_str[0].length && lease_str[1].length) {
                     leases_obj.push({"ip": lease_str[0],
                                      "mac": lease_str[1]});
-                else
+                } else if (lease_str[0].length) {
                     leases_obj.push({"ip": lease_str[0] });
+                } else {
+                    leases_obj.push({"mac": lease_str[1] });
+                }
             });
 
             //and construct the final data for the request
