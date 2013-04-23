@@ -55,6 +55,7 @@ void HostEnable::request_execute(xmlrpc_c::paramList const& paramList,
     else
     {
         host->disable();
+        hpool->update_monitoring(host);
     }
 
     hpool->update(host);

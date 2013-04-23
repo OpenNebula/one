@@ -217,6 +217,10 @@ int Host::update_info(string          &parse_str,
         return -1;
     }
 
+    // Touch the host to update its last_monitored timestamp and state
+
+    touch(true);
+
     tmpl = new Template();
 
     tmpl->parse(parse_str, &error_msg);
@@ -225,11 +229,7 @@ int Host::update_info(string          &parse_str,
     // Extract share information                                              //
     // ---------------------------------------------------------------------- //
 
-    if (state == Host::DISABLED)
-    {
-        reset_share_monitoring();
-    }
-    else
+    if (isEnabled())
     {
         get_template_attribute("TOTALCPU", fv);
         host_share.max_cpu = static_cast<int>(fv);
@@ -325,17 +325,15 @@ int Host::update_info(string          &parse_str,
 
     delete tmpl;
 
-    // Touch the host to update its last_monitored timestamp and state
-
-    touch(true);
-
     return 0;
 }
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Host::reset_share_monitoring()
+void Host::disable()
 {
+    state = DISABLED;
+
     host_share.max_cpu = 0;
     host_share.max_mem = 0;
 
@@ -353,8 +351,6 @@ void Host::reset_share_monitoring()
 
     remove_template_attribute("USEDCPU");
     remove_template_attribute("USEDMEMORY");
-
-    touch(true);
 }
 
 /* -------------------------------------------------------------------------- */
