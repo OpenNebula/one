@@ -1190,6 +1190,7 @@ var OpenNebula = {
         "resource" : "MARKETPLACE",
 
         "show" : function(params){
+            params.error = notifyError("Cannot connect with OpenNebula Marketplace");
             OpenNebula.Action.show(params,OpenNebula.Marketplace.resource);
         },
         "list" : function(params){
@@ -1210,7 +1211,7 @@ var OpenNebula = {
                         callback(request, response) : null;
                 },
                 error: function(res){
-                    return callback_error ? callback_error(request, OpenNebula.Error(res)) : null;
+                    return notifyError("Cannot connect with OpenNebula Marketplace");
                 }
             });
         }
