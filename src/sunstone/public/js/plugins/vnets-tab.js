@@ -103,7 +103,7 @@ var create_vn_tmpl =
                   <div class="row">\
                     <div class="six columns">\
                         <div class="four columns">\
-                          <label class="right inline" for="site_prefix">'+tr("Site prefix:")+'</label>\
+                          <label class="right inline" for="site_prefix">'+tr("Site prefix")+':</label>\
                         </div>\
                         <div class="seven columns">\
                           <input type="text" name="site_prefix" id="site_prefix" />\
@@ -113,7 +113,7 @@ var create_vn_tmpl =
                     </div>\
                     <div class="six columns">\
                         <div class="four columns">\
-                          <label class="right inline" for="global_prefix">'+tr("Global prefix:")+'</label>\
+                          <label class="right inline" for="global_prefix">'+tr("Global prefix")+':</label>\
                         </div>\
                         <div class="seven columns">\
                           <input type="text" name="global_prefix" id="global_prefix" />\
@@ -146,7 +146,7 @@ var create_vn_tmpl =
                         </div>\
                         <div class="row">\
                           <div class="four columns">\
-                            <label class="right inline" for="leasemac">'+tr("MAC:")+'</label>\
+                            <label class="right inline" for="leasemac">'+tr("MAC")+':</label>\
                           </div>\
                           <div class="seven columns">\
                             <input type="text" name="leasemac" id="leasemac" />\
@@ -903,54 +903,87 @@ function updateVNetworkInfo(request,vn){
 // It adds the "add lease", "hold lease" fields, and each lease comes with
 // hold, release buttons etc. Listeners in setupLeasesOps()
 function printLeases(vn_info){
-    var html ='<form id="leases_form" vnid="'+vn_info.ID+'"><div class="six columns">\
-                <table id="vn_leases_info_table" class="twelve datatable extended_table">\
-               <thead>\
-                  <tr><th colspan="5">'+tr("Leases information")+'</th></tr>\
-               </thead><tbody>';
+    var html ='<form id="leases_form" vnid="'+vn_info.ID+'"><div class="six columns">';
+    html +='';
+
+    html += '<table id="vn_leases_info_table" class="twelve datatable extended_table">\
+             <thead>\
+                <tr><th colspan="5">'+tr("Network information")+'</th></tr>\
+             </thead>\
+             <tbody>\
+             <tr>\
+               <td  colspan="2" class="key_td">'+tr("Network mask")+'</td>\
+               <td class="value_td">'+( vn_info.TEMPLATE.NETWORK_MASK ? vn_info.TEMPLATE.NETWORK_MASK : "--" )+'</td>\
+              <td></td>\
+              <td></td>\
+             </tr>\
+              <tr>\
+                <td colspan="2" class="key_td">'+tr("IPv6 Global prefix")+'</td>\
+                <td class="value_td">'+ (typeof(vn_info.GLOBAL_PREFIX) == "object" ? "--": vn_info.GLOBAL_PREFIX) +'</td>\
+                <td></td>\
+                <td></td>\
+              </tr>\
+              <tr>\
+                <td colspan="2" class="key_td">'+tr("IPv6 Site prefix")+'</td>\
+                <td class="value_td">'+ (typeof(vn_info.SITE_PREFIX) == "object" ? "--": vn_info.SITE_PREFIX) +'</td>\
+                <td></td>\
+                <td></td>\
+              </tr>\
+            </tbody></table>';
+
+    html += '<table id="vn_leases_table" class="twelve datatable extended_table">\
+      <thead>\
+        <tr><th colspan="8">'+tr("Leases information")+'</th></tr>\
+      </thead>\
+      <tbody>';
 
     if (vn_info.TYPE == "0"){
         html += '<tr>\
-                   <td colspan="2" class="key_td">'+tr("IP Start")+'</td>\
-                   <td class="value_td">'+vn_info.RANGE.IP_START+'</td>\
-                  <td></td>\
-                  <td></td>\
+                   <td colspan="4" class="key_td">'+tr("IP Start")+'</td>\
+                   <td colspan="4" class="value_td">'+vn_info.RANGE.IP_START+'</td>\
                  </tr>\
                  <tr>\
-                   <td  colspan="2" class="key_td">'+tr("IP End")+'</td>\
-                   <td class="value_td">'+vn_info.RANGE.IP_END+'</td>\
-                  <td></td>\
-                  <td></td>\
-                 </tr>\
-                 <tr>\
-                   <td  colspan="2" class="key_td">'+tr("Network mask")+'</td>\
-                   <td class="value_td">'+( vn_info.TEMPLATE.NETWORK_MASK ? vn_info.TEMPLATE.NETWORK_MASK : "--" )+'</td>\
-                  <td></td>\
-                  <td></td>\
+                   <td colspan="4" class="key_td">'+tr("IP End")+'</td>\
+                   <td colspan="4" class="value_td">'+vn_info.RANGE.IP_END+'</td>\
                  </tr>';
-          if (Config.isTabActionEnabled("vnets-tab", "Network.hold_lease")) {
-              html += '<tr>\
-                    <td></td>\
-                   <td class="value_td"><input type="text" id="panel_hold_lease" style="width:9em;"/></td>\
-                  <td colspan="3"><button class="button small secondary radius" id="panel_hold_lease_button">'+tr("Hold IP")+'</button></td>\
-                </tr>';
+
+        if (Config.isTabActionEnabled("vnets-tab", "Network.hold_lease")) {
+            html +=
+            '<tr>\
+              <td colspan="5" class="value_td"><input type="text" id="panel_hold_lease"/></td>\
+              <td colspan="3"><button class="button small secondary radius" id="panel_hold_lease_button">'+tr("Hold IP")+'</button></td>\
+            </tr>';
           }
     } else {
       if (Config.isTabActionEnabled("vnets-tab", "Network.addleases")) {
-        html += '<tr>\
-                  <td></td>\
-                  <td class="value_td"><input type="text" id="panel_add_lease"/></td>\
-                  <td colspan="2"><button id="panel_add_lease_button" class="button small secondary radius">'+tr("Add IP")+'</button></td>\
-                  <td></td>\
-             </tr>';
+        html +=
+        '<tr>\
+          <td colspan="5" class="value_td"><input type="text" id="panel_add_lease"/></td>\
+          <td colspan="3"><button id="panel_add_lease_button" class="button small secondary radius">'+tr("Add IP")+'</button></td>\
+        </tr>';
       }
     };
+
+    html +='</tbody>\
+      <thead>\
+        <tr>\
+        <th></th>\
+        <th></th>\
+        <th></th>\
+        <th>'+tr("IP")+'</th>\
+        <th>'+tr("MAC")+'</th>\
+        <th>'+tr("IPv6 Link")+'</th>\
+        <th>'+tr("IPv6 Site")+'</th>\
+        <th>'+tr("IPv6 Global")+'</th>\
+        </tr>\
+      </thead>\
+      <tbody>';
 
     var leases = vn_info.LEASES.LEASE;
 
     if (!leases) //empty
     {
-        html+='<tr id="no_leases_tr"><td colspan="5" class="key_td">\
+        html+='<tr id="no_leases_tr"><td colspan="8" class="key_td">\
                    '+tr("No leases to show")+'\
                    </td></tr>';
         html += '</tbody></table></div></form>';
@@ -973,9 +1006,6 @@ function printLeases(vn_info){
             state = parseInt(lease.USED,10);
         };
 
-
-        html+='<tr ip="'+lease.IP+'">'
-
         html += '<td class="key_td">';
         switch (state){
         case 0: //free
@@ -989,11 +1019,6 @@ function printLeases(vn_info){
             break;
         };
         html += '</td>'
-
-        html += '<td>'+ lease.IP + '</td>';
-
-        html += '<td class="value_td">\
-                 '+lease.MAC+'</td>';
 
         switch (state){
         case 0:
@@ -1020,6 +1045,16 @@ function printLeases(vn_info){
             break;
         };
         html += '</td>'
+
+        html += '<td>'+ lease.IP + '</td>';
+
+        html += '<td class="value_td">\
+                 '+lease.MAC+'</td>';
+
+        html += '<td class="value_td">'+ (lease.IP6_LINK ? lease.IP6_LINK : "--") +'</td>';
+        html += '<td class="value_td">'+ (lease.IP6_SITE ? lease.IP6_SITE : "--") +'</td>';
+        html += '<td class="value_td">'+ (lease.IP6_GLOBAL ? lease.IP6_GLOBAL : "--") +'</td>';
+
         html += '</tr>';
     };
 
