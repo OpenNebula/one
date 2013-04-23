@@ -1062,7 +1062,7 @@ function setupCreateVNetDialog() {
         $('input#global_prefix,label[for="global_prefix"]',$create_vn_dialog).hide();
 
         if ( fixed_ranged == "fixed" ){
-          // TODO fixed
+          $('input#leaseip,label[for="leaseip"]',$create_vn_dialog).show();
         } else {
           $('div#ranged',$create_vn_dialog).show();
           $('div#ranged_ipv6',$create_vn_dialog).hide();
@@ -1072,7 +1072,7 @@ function setupCreateVNetDialog() {
         $('input#global_prefix,label[for="global_prefix"]',$create_vn_dialog).show();
 
         if ( fixed_ranged == "fixed" ){
-          // TODO fixed
+          $('input#leaseip,label[for="leaseip"]',$create_vn_dialog).hide();
         } else {
           $('div#ranged',$create_vn_dialog).hide();
           $('div#ranged_ipv6',$create_vn_dialog).show();
@@ -1148,7 +1148,12 @@ function setupCreateVNetDialog() {
         var create_form = $('#create_vn_form_easy',$create_vn_dialog); //this is our scope
 
         //Fetch the interesting values
-        var lease_ip = $('#leaseip',create_form).val();
+        var lease_ip = "";
+
+        if ( $('input[name="ip_version"]:checked',dialog).val() == "ipv4" ) {
+            lease_ip = $('#leaseip',create_form).val();
+        }
+
         var lease_mac = $('#leasemac',create_form).val();
 
         //We do not add anything to the list if there is nothing to add
@@ -1159,7 +1164,8 @@ function setupCreateVNetDialog() {
 
         //contains the HTML to be included in the select box.
         // The space is used later to parse ip and mac
-        var lease = '<option value="' + lease_ip + ' ' + lease_mac + '">' + lease_ip + ' ' + lease_mac + '</option>';
+        var lease = '<option value="' + lease_ip + ' ' + lease_mac + '">' +
+                    lease_ip + ' ' + lease_mac + '</option>';
 
         //We append the HTML into the select box.
         $('select#leases',$create_vn_dialog).append(lease);
@@ -1275,10 +1281,18 @@ function setupCreateVNetDialog() {
         network_json['type']=type;
         //TODO: Name and bridge provided?!
 
+        if (ip_version == "ipv6") {
+            var site_prefix = $('#site_prefix',dialog).val();
+            var global_prefix = $('#global_prefix',dialog).val();
+
+            if (site_prefix.length)
+                network_json["site_prefix"] = site_prefix;
+
+            if (global_prefix.length)
+                network_json["global_prefix"] = global_prefix;
+        }
+
         if (type == "fixed") {
-
-            // TODO: handle ipv4 vs 6
-
             var leases = $('#leases option', dialog);
             var leases_obj=[];
 
@@ -1329,9 +1343,6 @@ function setupCreateVNetDialog() {
                 var mac_start = $('#mac_start',dialog).val();
                 var network_size = $('#net_size',dialog).val();
 
-                var site_prefix = $('#site_prefix',dialog).val();
-                var global_prefix = $('#global_prefix',dialog).val();
-
                 if (! mac_start.length){
                     notifyError(tr("MAC Start must be specified"));
                     return false;
@@ -1341,12 +1352,6 @@ function setupCreateVNetDialog() {
 
                 if (network_size.length)
                     network_json["network_size"] = network_size;
-
-                if (site_prefix.length)
-                    network_json["site_prefix"] = site_prefix;
-
-                if (global_prefix.length)
-                    network_json["global_prefix"] = global_prefix;
             }
         };
 
