@@ -76,7 +76,8 @@ var config_tab_content =
             <tbody>\
             </tbody>\
         </table>\
-      </div>\
+        <div id="setting_user_template"></div>\
+        </div>\
       <div class="six columns">\
         <div class="row">\
           <div class="six columns">\
@@ -118,17 +119,17 @@ var config_tab_content =
               <input id="wss_checkbox" type="checkbox" value="yes" />\
             </div>\
         </div>\
+        <div class="">\
+            <dl class="tabs">\
+              <dd class="active"><a href="#user_quotas">User Quotas</a></dd>\
+              <dd><a href="#group_quotas">Group Quotas</a></dd>\
+            </dl>\
+            <ul class="tabs-content">\
+              <li class="active" id="user_quotasTab"></li>\
+              <li id="group_quotasTab"></li>\
+            </ul>\
+        </div>\
       </div>\
-    </div>\
-    <div class="row">\
-        <div class="six columns">\
-          <div id="user_quotas">\
-          </div>\
-        </div>\
-        <div class="six columns">\
-          <div id="group_quotas">\
-          </div>\
-        </div>\
     </div>\
     <div class="reveal-footer">\
       <hr>\
@@ -141,6 +142,112 @@ var config_tab_content =
   </div>\
   <a class="close-reveal-modal">&#215;</a>';
 
+
+var settings_update_password = '<div class="panel">\
+  <h3>\
+    <small id="create_vnet_header">'+tr("Update Password")+'</small>\
+  </h3>\
+</div>\
+<form id="settings_update_password_form" action="">\
+      <div class="row centered">\
+          <div class="four columns">\
+              <label class="inline right" for="new_password">'+tr("New password")+':</label>\
+          </div>\
+          <div class="seven columns">\
+              <input type="password" name="new_password" id="new_password" />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+      </div>\
+      <hr>\
+      <div class="form_buttons">\
+          <button class="button radius right success" id="update_pw_submit" type="submit" value="User.update">'+tr("Change")+'</button>\
+          <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+      </div>\
+  <a class="close-reveal-modal">&#215;</a>\
+</form>';
+
+
+Sunstone.addActions({
+    "UserSettings.update_template" : {
+        type: "single",
+        call: OpenNebula.User.update,
+        callback: function(request) {
+            notifyMessage(tr("Template updated correctly"));
+            OpenNebula.User.show({
+                data : {
+                    id: uid
+                },
+                success: function(request,user_json){
+                    var info = user_json.USER;
+
+                    var default_user_quotas = Quotas.default_quotas(info.DEFAULT_USER_QUOTAS)
+                    var quotas_tab_html = Quotas.vms(info, default_user_quotas);
+                    quotas_tab_html += Quotas.cpu(info, default_user_quotas);
+                    quotas_tab_html += Quotas.memory(info, default_user_quotas);
+                    quotas_tab_html += Quotas.image(info, default_user_quotas);
+                    quotas_tab_html += Quotas.network(info, default_user_quotas);
+                    quotas_tab_html += Quotas.datastore(info, default_user_quotas);
+
+                    $("#user_quotas").html('<div class="row graph_legend">\
+                        <h3 class="subheader"><small>'+tr("USER QUOTAS") + '</small></h3>\
+                      </div>'+
+                      quotas_tab_html);
+
+                    $("#user_information tbody").html('<tr>\
+                        <td class="key_td">' + tr("ID") + '</td>\
+                        <td class="value_td">'+info.ID+'</td>\
+                    </tr>\
+                    <tr>\
+                        <td class="key_td">' + tr("Name") + '</td>\
+                        <td class="value_td">'+info.NAME+'</td>\
+                    </tr>\
+                        <td class="key_td">' + tr("Group ID") + '</td>\
+                        <td class="value_td">'+info.GID+'</td>\
+                    </tr>\
+                        <td class="key_td">' + tr("Group Name") + '</td>\
+                        <td class="value_td">'+info.GNAME+'</td>\
+                    </tr>')
+
+                    $("#setting_user_template").html(
+                        insert_extended_template_table(info.TEMPLATE,
+                                                          "UserSettings",
+                                                          "-1",
+                                                          tr("Custom Attributes"))
+                    )
+                }
+              });
+        },
+        error: onError
+    }
+});
+
+function setupUpdatePassword() {
+    dialogs_context.append('<div title="'+tr("Change password")+'" id="settings_update_password"></div>');
+    var dialog = $('#settings_update_password',dialogs_context);
+    dialog.html(settings_update_password);
+
+    dialog.addClass("reveal-modal");
+
+    $('#update_password').live('click', function(){
+        $('#settings_update_password',dialogs_context).reveal();
+        return false;
+    });
+
+    $('#settings_update_password_form',dialog).submit(function(){
+        var pw=$('#new_password',this).val();
+
+        if (!pw.length){
+            notifyError(tr("Fill in a new password"));
+            return false;
+        }
+
+        Sunstone.runAction("User.passwd",[-1],pw);
+        $('#settings_update_password',dialogs_context).trigger("reveal:close")
+        return false;
+    });
+}
 
 function setupConfigDialog() {
     dialogs_context.append('<div id="config_dialog"></div>');
@@ -164,7 +271,6 @@ function setupConfigDialog() {
     });
 
     $('#view_sel option[value="'+config['user_config']["default_view"]+'"]', dialog).attr('selected','selected');
-
 
     $('#config_submit', dialog).live('click',function(){
       var lang = $('#lang_sel', dialog).val();
@@ -217,6 +323,7 @@ function tr(str){
 
 $(document).ready(function(){
   setupConfigDialog();
+  setupUpdatePassword();
 
   $("span.user-login a.configuration").click(function(){
       OpenNebula.User.show({
@@ -234,10 +341,7 @@ $(document).ready(function(){
             quotas_tab_html += Quotas.network(info, default_user_quotas);
             quotas_tab_html += Quotas.datastore(info, default_user_quotas);
 
-            $("#user_quotas").html('<div class="row graph_legend">\
-                <h3 class="subheader"><small>'+tr("USER QUOTAS") + '</small></h3>\
-              </div>'+
-              quotas_tab_html);
+            $("#user_quotasTab").html(quotas_tab_html);
 
             $("#user_information tbody").html('<tr>\
                 <td class="key_td">' + tr("ID") + '</td>\
@@ -247,12 +351,25 @@ $(document).ready(function(){
                 <td class="key_td">' + tr("Name") + '</td>\
                 <td class="value_td">'+info.NAME+'</td>\
             </tr>\
+            <tr>\
                 <td class="key_td">' + tr("Group ID") + '</td>\
                 <td class="value_td">'+info.GID+'</td>\
             </tr>\
+            <tr>\
                 <td class="key_td">' + tr("Group Name") + '</td>\
                 <td class="value_td">'+info.GNAME+'</td>\
+            </tr>\
+            <tr>\
+                <td class="key_td">' + tr("Password") + '</td>\
+                <td class="value_td"><button id="update_password" type="button" class="button tiny secondary radius" >' + tr("Update password") + '</button></td>\
             </tr>')
+
+            $("#setting_user_template").html(
+                insert_extended_template_table(info.TEMPLATE,
+                                                  "UserSettings",
+                                                  "-1",
+                                                  tr("Custom Attributes"))
+            )
         }
       });
 
@@ -271,10 +388,7 @@ $(document).ready(function(){
             quotas_tab_html += Quotas.network(info, default_group_quotas);
             quotas_tab_html += Quotas.datastore(info, default_group_quotas);
 
-            $("#group_quotas").html('<div class="row graph_legend">\
-                <h3 class="subheader"><small>'+tr("GROUP QUOTAS")+ '</small></h3>\
-              </div>'+
-              quotas_tab_html);
+            $("#group_quotasTab").html(quotas_tab_html);
         }
       });
 
