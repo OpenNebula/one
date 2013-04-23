@@ -111,7 +111,7 @@ exec_and_set_error "$MKISOFS -o $ISO_FILE -J -R $ISO_DIR" \
 [ -n "$ERROR" ] && exit_error
 
 if [ "$USE_SSH" == "yes" ]; then
-    exec_and_set_error "$SCP $ISO_FILE $DST_PATH.iso" "Error copying context ISO to $DST"
+    exec_and_set_error "$SCP $ISO_FILE $DST_HOST:$DST_PATH.iso" "Error copying context ISO to $DST"
 else
     # Copies the iso file with .iso suffix, needed for VMware CDROMs
     vifs $VI_PARAMS -rm [$DS_ID]$VM_ID/$DST_FOLDER.iso
