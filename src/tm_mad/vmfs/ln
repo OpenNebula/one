@@ -62,8 +62,8 @@ if [ "$USE_SSH" == "yes" ]; then
 
     # Let's check if it is a CDROM
     DISK_ID=$(echo "$DST_PATH" | $AWK -F. '{print $NF}')
-    XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
     DRIVER_PATH=$(dirname $0)
+    XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
 
     unset i XPATH_ELEMENTS
      
@@ -74,7 +74,7 @@ if [ "$USE_SSH" == "yes" ]; then
 
     DISK_TYPE="${XPATH_ELEMENTS[0]}"
 
-    if [ "$DISK_TYPE" != "CDROM"]; then
+    if [ "$DISK_TYPE" != "CDROM" ]; then
         ssh_make_path $DST_HOST $DST_PATH
 
         log "Link all files in $SRC_PATH to $DST_PATH"
