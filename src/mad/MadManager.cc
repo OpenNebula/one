@@ -36,7 +36,7 @@ MadManager::MadManager(vector<const Attribute*>& _mads):mad_conf(_mads)
 /* -------------------------------------------------------------------------- */
 
 MadManager::~MadManager()
-{   
+{
     pthread_mutex_destroy(&mutex);
 }
 
@@ -122,17 +122,17 @@ error_pipe:
 /* -------------------------------------------------------------------------- */
 
 void MadManager::stop()
-{ 
+{
     pthread_cancel(listener_thread);
 
     pthread_join(listener_thread,0);
-    
+
     lock();
-       
+
     close(pipe_r);
-    
+
     close(pipe_w);
-    
+
     for (unsigned int i=0;i<mads.size();i++)
     {
         delete mads[i];
@@ -153,7 +153,7 @@ int MadManager::add(Mad *mad)
     {
     	return -1;
     }
-    
+
     lock();
 
     rc = mad->start();
@@ -224,15 +224,15 @@ void MadManager::listener()
     fd_set          in_pipes;
     fd_set          rfds;
     struct timeval  tv;
-        
+
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
-    
-    pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,0); 
-    
+
+    pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,0);
+
     while (1)
     {
         lock();
-        
+
         FD_ZERO(&in_pipes);
 
         for (i=0,greater=0; i < fds.size() ; i++)
@@ -247,14 +247,14 @@ void MadManager::listener()
 
         unlock();
 
-        // Wait for a message        
+        // Wait for a message
         rc = select(greater+1, &in_pipes, NULL, NULL, NULL);
 
         if ( rc <= 0 )
         {
             continue;
         }
-        
+
         for (i=0; i< fds.size(); i++)
         {
             fd  = fds[i];
@@ -264,7 +264,7 @@ void MadManager::listener()
                 if ( fd == pipe_r ) // Driver added, update the fd vector
                 {
                     read(fd, (void *) &c, sizeof(char));
-                    
+
                     lock();
 
                     fds.clear();
@@ -277,7 +277,7 @@ void MadManager::listener()
                     }
 
                     unlock();
-                    
+
                     continue;
                 }
 
@@ -294,7 +294,7 @@ void MadManager::listener()
                     tv.tv_usec = 25000;
 
                     rc = select(mad->mad_nebula_pipe+1,&rfds,0,0,&tv);
-            
+
                     if ( rc <= 0 )
                     {
                         break;
@@ -304,7 +304,7 @@ void MadManager::listener()
                     buffer.put(c);
                 }
                 while ( rc > 0 && c != '\n');
-                                
+
                 if ( rc <= 0 ) // Error reload the driver and recover
                 {
                     mrc = mad->reload();
@@ -314,7 +314,7 @@ void MadManager::listener()
                         mad->recover();
                     }
                     else
-                    {                        
+                    {
                         lock();
 
                         mads.erase(mads.begin() + i - 1);
@@ -322,8 +322,23 @@ void MadManager::listener()
                         delete mad;
 
                         unlock();
-                        
+
                     }
+
+                    // Update the fd vector with the new pipe's
+
+                    lock();
+
+                    fds.clear();
+
+                    fds.push_back(pipe_r);
+
+                    for (j=0;j<mads.size();j++)
+                    {
+                        fds.push_back(mads[j]->mad_nebula_pipe);
+                    }
+
+                    unlock();
 
                     continue;
                 }
