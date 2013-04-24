@@ -103,6 +103,28 @@ var create_vn_tmpl =
                   <div class="row">\
                     <div class="six columns">\
                         <div class="four columns">\
+                          <label class="right inline" for="net_address">'+tr("N. Address")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                          <input type="text" name="net_address" id="net_address" />\
+                        </div>\
+                        <div class="one columns">\
+                        </div>\
+                    </div>\
+                    <div class="six columns">\
+                        <div class="four columns">\
+                          <label class="right inline" for="net_mask">'+tr("N. Mask")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                          <input type="text" name="net_mask" id="net_mask" />\
+                        </div>\
+                        <div class="one columns">\
+                        </div>\
+                    </div>\
+                  </div>\
+                  <div class="row">\
+                    <div class="six columns">\
+                        <div class="four columns">\
                           <label class="right inline" for="site_prefix">'+tr("Site prefix")+':</label>\
                         </div>\
                         <div class="seven columns">\
@@ -179,28 +201,6 @@ var create_vn_tmpl =
                      </div>\
                   </div>\
                   <div id="ranged">\
-                    <div class="row">\
-                      <div class="six columns">\
-                          <div class="four columns">\
-                            <label class="right inline" for="net_address">'+tr("N. Address")+':</label>\
-                          </div>\
-                          <div class="seven columns">\
-                            <input type="text" name="net_address" id="net_address" />\
-                          </div>\
-                          <div class="one columns">\
-                          </div>\
-                      </div>\
-                      <div class="six columns">\
-                          <div class="four columns">\
-                            <label class="right inline" for="net_mask">'+tr("N. Mask")+':</label>\
-                          </div>\
-                          <div class="seven columns">\
-                            <input type="text" name="net_mask" id="net_mask" />\
-                          </div>\
-                          <div class="one columns">\
-                          </div>\
-                      </div>\
-                    </div>\
                     <div class="row">\
                       <div class="four columns centered">\
                         <label for="custom_pool" class="inline"><input type="checkbox" id="custom_pool"/>'+tr("Define a subnet by IP range")+'</label>\
@@ -1093,6 +1093,9 @@ function setupCreateVNetDialog() {
       var fixed_ranged = $('input[name="fixed_ranged"]:checked',dialog).val();
 
       if (this.id == 'ipv4_check') {
+        $('input#net_mask,label[for="net_mask"]',$create_vn_dialog).show();
+        $('input#net_address,label[for="net_address"]',$create_vn_dialog).show();
+
         $('input#site_prefix,label[for="site_prefix"]',$create_vn_dialog).hide();
         $('input#global_prefix,label[for="global_prefix"]',$create_vn_dialog).hide();
 
@@ -1103,6 +1106,9 @@ function setupCreateVNetDialog() {
           $('div#ranged_ipv6',$create_vn_dialog).hide();
         }
       } else {
+        $('input#net_mask,label[for="net_mask"]',$create_vn_dialog).hide();
+        $('input#net_address,label[for="net_address"]',$create_vn_dialog).hide();
+
         $('input#site_prefix,label[for="site_prefix"]',$create_vn_dialog).show();
         $('input#global_prefix,label[for="global_prefix"]',$create_vn_dialog).show();
 
@@ -1316,6 +1322,9 @@ function setupCreateVNetDialog() {
         network_json['type']=type;
         //TODO: Name and bridge provided?!
 
+        var network_addr = $('#net_address',dialog).val();
+        var network_mask = $('#net_mask',dialog).val();
+
         if (ip_version == "ipv6") {
             var site_prefix = $('#site_prefix',dialog).val();
             var global_prefix = $('#global_prefix',dialog).val();
@@ -1325,6 +1334,12 @@ function setupCreateVNetDialog() {
 
             if (global_prefix.length)
                 network_json["global_prefix"] = global_prefix;
+        } else {
+          if (network_addr.length)
+              network_json["network_address"]=network_addr;
+
+          if (network_mask.length)
+              network_json["network_mask"]=network_mask;
         }
 
         if (type == "fixed") {
@@ -1351,8 +1366,6 @@ function setupCreateVNetDialog() {
         else { //type ranged
 
             if (ip_version == "ipv4") {
-                var network_addr = $('#net_address',dialog).val();
-                var network_mask = $('#net_mask',dialog).val();
                 var custom = $('#custom_pool',dialog).is(':checked');
                 var ip_start = $('#ip_start',dialog).val();
                 var ip_end = $('#ip_end',dialog).val();
@@ -1361,12 +1374,6 @@ function setupCreateVNetDialog() {
                     notifyError(tr("There are missing network parameters"));
                     return false;
                 };
-
-                if (network_addr.length)
-                    network_json["network_address"]=network_addr;
-
-                if (network_mask.length)
-                    network_json["network_mask"]=network_mask;
 
                 if (custom){
                     if (ip_start.length)
