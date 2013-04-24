@@ -139,7 +139,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
         options[:time] ||= 3600
 
-        auth.login(username, Time.now+options[:time])
+        auth.login(username, options[:time])
 
         return 0, 'export ONE_AUTH=' << auth.class::LOGIN_PATH
     end
