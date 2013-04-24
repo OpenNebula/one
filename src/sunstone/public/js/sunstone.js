@@ -150,10 +150,18 @@ var Sunstone = {
             //$('ul', dl_tabs).append('<div id="'+panel_tab_name+'"><li id="'+panel_tab_name+'Tab">'+tab.content+'</li></div>');
             var li = $('<li id="'+panel_tab_name+'Tab">'+tab.content+'</li>').appendTo($('ul', dl_tabs));
 
-            if (!active) {
-                dd.addClass('active');
-                li.addClass('active');
-                active = true;
+            if (active_tab_href) {
+                if (active_tab_href == "#"+panel_tab_name) {
+                    dd.addClass('active');
+                    li.addClass('active');
+                }
+            }
+            else {
+                if (!active) {
+                    dd.addClass('active');
+                    li.addClass('active');
+                    active = true;
+                }
             }
         }
         if (selected_tab){
