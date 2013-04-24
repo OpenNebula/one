@@ -472,8 +472,9 @@ var user_actions = {
         type: "multiple",
         call: OpenNebula.User.set_quota,
         elements: userElements,
-        callback: function() {
+        callback: function(request) {
             notifyMessage(tr("Quotas updated correctly"));
+            Sunstone.runAction('User.showinfo',request.request.data[0]);
         },
         error: onError
     },
