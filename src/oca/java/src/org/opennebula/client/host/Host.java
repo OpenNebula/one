@@ -37,10 +37,10 @@ public class Host extends PoolElement{
 
     private static final String[] HOST_STATES =
         {"INIT", "MONITORING_MONITORED", "MONITORED", "ERROR", "DISABLED",
-         "MONITORING_ERROR"};
+         "MONITORING_ERROR",  "MONITORING_INIT", "MONITORING_DISABLED"};
 
     private static final String[] SHORT_HOST_STATES =
-        {"init", "update", "on", "err", "off", "retry"};
+        {"init", "update", "on", "err", "off", "retry", "init", "off"};
 
     /**
      * Creates a new Host representation.
