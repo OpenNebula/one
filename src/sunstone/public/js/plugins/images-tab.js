@@ -1156,7 +1156,7 @@ function setImageAutorefresh() {
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_images);
         var filter = $("#image_search").attr('value');
-        if (!checked.length && !filter.length){
+        if ((checked.length==0) && !filter){
             Sunstone.runAction("Image.autorefresh");
         }
     },INTERVAL+someTime());

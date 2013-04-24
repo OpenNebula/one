@@ -1337,7 +1337,7 @@ function setVNetAutorefresh() {
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_vNetworks);
         var filter = $("#vnet_search").attr('value');
-        if (!checked.length && !filter.length){
+        if ((checked.length==0) && !filter){
             Sunstone.runAction("Network.autorefresh");
         }
     },INTERVAL+someTime());

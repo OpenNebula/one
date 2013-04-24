@@ -4404,7 +4404,7 @@ function setTemplateAutorefresh() {
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_templates);
         var filter = $("#template_search").attr('value');
-        if (!checked.length && !filter.length){
+        if ((checked.length==0) && !filter){
             Sunstone.runAction("Template.autorefresh");
         }
     },INTERVAL+someTime());

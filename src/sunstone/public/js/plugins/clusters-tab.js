@@ -1793,7 +1793,7 @@ function setClusterAutorefresh() {
 
         var checked = $('input.check_item:checked',dataTable_clusters);
         var  filter = $("#cluster_search").attr('value');
-        if (!checked.length && !filter.length && !inSubMenu){
+        if ((checked.length==0) && !filter){
             Sunstone.runAction("Cluster.autorefresh");
         }
     },INTERVAL+someTime());

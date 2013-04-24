@@ -1119,7 +1119,7 @@ function setHostAutorefresh() {
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_hosts);
         var  filter = $("#hosts_search").attr('value');
-        if (!checked.length && !filter.length){
+        if ((checked.length==0) && !filter){
             Sunstone.runAction("Host.autorefresh");
         }
     },INTERVAL+someTime());

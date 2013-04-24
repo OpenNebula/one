@@ -887,7 +887,7 @@ function setUserAutorefresh(){
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_users);
         var filter = $("#user_search").attr('value');
-        if (!checked.length && !filter.length){
+        if ((checked.length==0) && !filter){
             Sunstone.runAction("User.autorefresh");
         }
     },INTERVAL+someTime());

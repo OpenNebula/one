@@ -610,7 +610,7 @@ function setGroupAutorefresh(){
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_groups);
         var  filter = $("#group_search").attr('value');
-        if (!checked.length && !filter.length){
+        if ((checked.length==0) && !filter){
             Sunstone.runAction("Group.autorefresh");
         }
     },INTERVAL+someTime());

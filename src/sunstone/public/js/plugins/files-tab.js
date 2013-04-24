@@ -946,7 +946,7 @@ function setFileAutorefresh() {
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_files);
         var filter = $("#file_search").attr('value');
-        if (!checked.length && !filter.length){
+        if ((checked.length==0) && !filter){
             Sunstone.runAction("File.autorefresh");
         }
     },INTERVAL+someTime());

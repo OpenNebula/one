@@ -603,7 +603,7 @@ function setAclAutorefresh(){
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_acls);
         var filter = $('#acl_search').attr('value');
-        if (!checked.length && !filter.length){
+        if ((checked.length==0) && !filter){
             Sunstone.runAction("Acl.autorefresh");
         }
     },INTERVAL+someTime());

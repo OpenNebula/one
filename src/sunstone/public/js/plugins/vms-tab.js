@@ -2997,7 +2997,7 @@ function setVMAutorefresh(){
      setInterval(function(){
          var checked = $('input.check_item:checked',dataTable_vMachines);
          var filter = $("#vms_search").attr('value');
-         if (!checked.length && !filter.length){
+         if ((checked.length==0) && !filter){
              Sunstone.runAction("VM.autorefresh");
          };
      },INTERVAL+someTime());
