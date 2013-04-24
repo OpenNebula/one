@@ -86,12 +86,13 @@ if [ "$USE_SSH" == "yes" ]; then
 else
     if [ `is_disk $DST_PATH` -eq 1 ]; then
         DISK_TYPE=$(disk_type)
+        DISK_NAME=$(basename $DST_PATH)
 
         if [ "$DISK_TYPE" != "CDROM" ]; then
-            vifs_rmdir $(basename $DST_PATH)
+            vifs_rmdir $DISK_NAME
         else
-            exec_and_log "vifs $VI_PARAMS --force --rm [$DSID]$VMID/$DISK_ID.iso" \
-                        "Cannot delete [$DSID]$VMID/$DISK_ID in $DST_HOST"
+            exec_and_log "vifs $VI_PARAMS --force --rm [$DSID]$VMID/$DISK_NAME.iso" \
+                        "Cannot delete [$DSID]$VMID/$DISK_NAME.iso in $DST_HOST"
         fi
     else
         DIRS_TO_ERASE=`vifs $VI_PARAMS --dir [$DSID]$VMID|grep -v "Content Listing"|grep -Fv -- "--------"|egrep -v "^[[:space:]]*$"`
