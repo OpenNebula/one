@@ -798,6 +798,11 @@ function updateImageInfo(request,img){
 
     setPermissionsTable(img_info,'');
 
+    $("#image_info_panel_refresh", $("#image_info_panel")).click(function(){
+      $(this).html(spinner);
+      Sunstone.runAction('Image.showinfo', img_info.ID);
+    })
+
 }
 
 function enable_all_datastores()

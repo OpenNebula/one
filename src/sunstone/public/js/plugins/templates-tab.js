@@ -1487,6 +1487,11 @@ function updateTemplateInfo(request,template){
 
     // Populate permissions grid
     setPermissionsTable(template_info,'');
+
+    $("#template_info_panel_refresh", $("#template_info_panel")).click(function(){
+      $(this).html(spinner);
+      Sunstone.runAction('Template.showinfo', template_info.ID);
+    })
 }
 
 //Given the JSON of a VM template (or of a section of it), it crawls

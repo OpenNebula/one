@@ -843,6 +843,10 @@ function updateVNetworkInfo(request,vn){
 
     setPermissionsTable(vn_info,'');
 
+    $("#vnet_info_panel_refresh", $("#vnet_info_panel")).click(function(){
+      $(this).html(spinner);
+      Sunstone.runAction('Network.showinfo', vn_info.ID);
+    })
 }
 
 // Prints the lis of leases depending on the Vnet TYPE

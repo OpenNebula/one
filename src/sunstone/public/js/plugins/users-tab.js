@@ -781,6 +781,11 @@ function updateUserInfo(request,user){
     Sunstone.updateInfoPanelTab("user_info_panel","user_quotas_tab",quotas_tab);
     //Sunstone.updateInfoPanelTab("user_info_panel","user_acct_tab",acct_tab);
     Sunstone.popUpInfoPanel("user_info_panel", 'users-tab');
+
+    $("#user_info_panel_refresh", $("#user_info_panel")).click(function(){
+      $(this).html(spinner);
+      Sunstone.runAction('User.showinfo', info.ID);
+    })
 };
 
 // Prepare the user creation dialog

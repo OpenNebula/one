@@ -1536,6 +1536,11 @@ function updateVMInfo(request,vm){
 
     // Populate permissions grid
     setPermissionsTable(vm_info,'');
+
+    $("#vm_info_panel_refresh", $("#vm_info_panel")).click(function(){
+      $(this).html(spinner);
+      Sunstone.runAction('VM.showinfo', vm_info.ID);
+    })
 }
 
 function updateVMDisksInfo(request,vm){

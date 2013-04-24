@@ -756,6 +756,13 @@ function updateDatastoreInfo(request,ds){
     Sunstone.updateInfoPanelTab("datastore_info_panel","datastore_image_tab",datastore_info_tab);
     Sunstone.popUpInfoPanel("datastore_info_panel", "datastores-tab");
 
+
+
+    $("#datastore_info_panel_refresh", $("#datastore_info_panel")).click(function(){
+      $(this).html(spinner);
+      Sunstone.runAction('Datastore.showinfo', info.ID);
+    })
+
     // Define datatables
     // Images datatable
 

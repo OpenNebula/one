@@ -1425,6 +1425,11 @@ function updateClusterInfo(request,cluster){
 
     Sunstone.popUpInfoPanel("cluster_info_panel", "clusters-tab");
 
+    $("#cluster_info_panel_refresh", $("#cluster_info_panel")).click(function(){
+      $(this).html(spinner);
+      Sunstone.runAction('Cluster.showinfo', cluster_info.ID);
+    })
+
     // Hosts datatable
 
     dataTable_cluster_hosts_panel = $("#datatable_cluster_hosts_info_panel").dataTable({

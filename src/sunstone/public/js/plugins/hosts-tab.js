@@ -1020,6 +1020,11 @@ function updateHostInfo(request,host){
 
     Sunstone.popUpInfoPanel("host_info_panel", "hosts-tab");
 
+
+    $("#host_info_panel_refresh", $("#host_info_panel")).click(function(){
+      $(this).html(spinner);
+      Sunstone.runAction('Host.showinfo', host_info.ID);
+    })
     // TODO: re-use Host.pool_monitor data?
 
     //pop up panel while we retrieve the graphs
