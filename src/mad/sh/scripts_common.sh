@@ -469,8 +469,8 @@ function vmfs_create_remote_path {
     DS_ID=$1
     # Create DST in DST_HOST
     if [ "$USE_SSH" == "yes" ]; then
-        exec_and_log  "ssh_make_path $DST_HOST $DST" \
-                      "Cannot create $DST in $DST_HOST"
+        exec_and_log  "ssh_make_path $DST_HOST /vmfs/volumes/$DS_ID/$DST_FOLDER" \
+                      "Cannot create /vmfs/volumes/$DS_ID/$DST_FOLDER in $DST_HOST"
     else
         exec_and_log "vifs $VI_PARAMS --mkdir [$DS_ID]$DST_FOLDER" \
                      "Cannot create [$DS_ID]$DST_FOLDER in $DST_HOST"
