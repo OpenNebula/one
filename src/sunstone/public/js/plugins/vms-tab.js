@@ -2280,10 +2280,11 @@ function printNics(vm_info){
              <tr>\
                 <th>'+tr("ID")+'</th>\
                 <th>'+tr("Network")+'</th>\
-                <th>'+tr("VLAN")+'</th>\
-                <th>'+tr("Bridge")+'</th>\
                 <th>'+tr("IP")+'</th>\
                 <th>'+tr("MAC")+'</th>\
+                <th>'+tr("IPv6 Link")+'</th>\
+                <th>'+tr("IPv6 Site")+'</th>\
+                <th>'+tr("IPv6 Global")+'</th>\
                 <th colspan="">'+tr("Actions")+'</th>\
               </tr>\
            </thead>\
@@ -2299,7 +2300,7 @@ function printNics(vm_info){
     if (!nics.length){
         html += '\
           <tr id="no_nics_tr">\
-            <td colspan="6">' + tr("No nics to show") + '</td>\
+            <td colspan="8">' + tr("No nics to show") + '</td>\
           </tr>';
     }
     else {
@@ -2307,7 +2308,7 @@ function printNics(vm_info){
         for (var i = 0; i < nics.length; i++){
             var nic = nics[i];
 
-            var save_as;
+            var actions;
             // Attach / Detach
             if (
                ( // ACTIVE
@@ -2333,10 +2334,11 @@ function printNics(vm_info){
               <tr nic_id="'+(nic.NIC_ID)+'">\
                 <td>' + nic.NIC_ID + '</td>\
                 <td>' + nic.NETWORK + '</td>\
-                <td>' + nic.VLAN + '</td>\
-                <td>' + nic.BRIDGE + '</td>\
                 <td>' + nic.IP + '</td>\
                 <td>' + nic.MAC + '</td>\
+                <td>' + (nic.IP6_LINK ? nic.IP6_LINK : "--") +'</td>\
+                <td>' + (nic.IP6_SITE ? nic.IP6_SITE : "--") +'</td>\
+                <td>' + (nic.IP6_GLOBAL ? nic.IP6_GLOBAL : "--") +'</td>\
                 <td>' + actions + '</td>\
             </tr>';
         }
