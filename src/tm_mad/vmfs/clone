@@ -55,18 +55,7 @@ SYSTEM_DS_NAME=`basename $(dirname $(dirname $DST_PATH))`
 USE_SSH=$(get_tm_use_ssh $IMAGE_DS_NAME)
 
 # Let's check if it is a CDROM
-DISK_ID=$(echo "$DST_PATH" | $AWK -F. '{print $NF}')
-DRIVER_PATH=$(dirname $0)
-XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
-
-unset i XPATH_ELEMENTS
- 
-while IFS= read -r -d '' element; do
-    XPATH_ELEMENTS[i++]="$element"
-done < <(onevm show -x $VMID| $XPATH \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/TYPE )
-
-DISK_TYPE="${XPATH_ELEMENTS[0]}"
+DISK_TYPE=$(disk_type)
 
 #-------------------------------------------------------------------------------
 # Set up datastore
