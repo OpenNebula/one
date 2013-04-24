@@ -144,6 +144,28 @@ var create_vn_tmpl =
                         </div>\
                     </div>\
                   </div>\
+                  <div class="row">\
+                    <div class="six columns">\
+                        <div class="four columns">\
+                          <label class="right inline" for="net_dns">'+tr("DNS")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                          <input type="text" name="net_dns" id="net_dns" />\
+                        </div>\
+                        <div class="one columns">\
+                        </div>\
+                    </div>\
+                    <div class="six columns">\
+                        <div class="four columns">\
+                          <label class="right inline" for="net_gateway">'+tr("Gateway")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                          <input type="text" name="net_gateway" id="net_gateway" />\
+                        </div>\
+                        <div class="one columns">\
+                        </div>\
+                    </div>\
+                  </div>\
                   <hr>\
                   <div class="row">\
                     <div class="six columns">\
@@ -1322,8 +1344,13 @@ function setupCreateVNetDialog() {
         network_json['type']=type;
         //TODO: Name and bridge provided?!
 
-        var network_addr = $('#net_address',dialog).val();
-        var network_mask = $('#net_mask',dialog).val();
+        var network_addr    = $('#net_address',dialog).val();
+        var network_mask    = $('#net_mask',dialog).val();
+        var network_dns     = $('#net_dns',dialog).val();
+        var network_gateway = $('#net_gateway',dialog).val();
+
+        if (network_dns.length)
+            network_json["dns"] = network_dns;
 
         if (ip_version == "ipv6") {
             var site_prefix = $('#site_prefix',dialog).val();
@@ -1334,12 +1361,19 @@ function setupCreateVNetDialog() {
 
             if (global_prefix.length)
                 network_json["global_prefix"] = global_prefix;
+
+            if (network_gateway.length)
+                network_json["gateway6"] = network_gateway;
+
         } else {
           if (network_addr.length)
               network_json["network_address"]=network_addr;
 
           if (network_mask.length)
               network_json["network_mask"]=network_mask;
+
+          if (network_gateway.length)
+              network_json["gateway"] = network_gateway;
         }
 
         if (type == "fixed") {
