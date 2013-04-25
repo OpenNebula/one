@@ -625,7 +625,7 @@ $(document).ready(function(){
 
 
     $('#acl_search').keyup(function(){
-      dataTable_templates.fnFilter( $(this).val() );
+      dataTable_acls.fnFilter( $(this).val() );
     })
 
     //addElement([
