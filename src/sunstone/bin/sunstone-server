@@ -82,6 +82,7 @@ start()
   if [ $? -ne 0 ]; then
     echo "Error executing sunstone-server."
     echo "Check $SUNSTONE_LOG_ERROR and $SUNSTONE_LOG for more information"
+    $NOVNC_SERVER stop
     exit 1
   else
     echo $LASTPID > $SUNSTONE_PID
@@ -93,6 +94,7 @@ start()
   if [ $? -ne 0 ]; then
     echo "Error executing sunstone-server."
     echo "Check $SUNSTONE_LOG_ERROR and $SUNSTONE_LOG for more information"
+    $NOVNC_SERVER stop
     exit 1
   fi
 
