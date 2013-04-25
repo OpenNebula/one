@@ -152,11 +152,13 @@ void InformationManager::timer_action()
 
     const InformationManagerDriver * imd;
 
-    Host *          host;
-    istringstream   iss;
+    Host *        host;
+    istringstream iss;
 
-    time_t          monitor_length;
-    time_t          target_time;
+    time_t monitor_length;
+    time_t target_time;
+
+    bool do_monitor;
 
     mark = mark + timer_period;
 
@@ -199,59 +201,85 @@ void InformationManager::timer_action()
 
         monitor_length = now - host->get_last_monitored();
 
-        if (host->isMonitoring() && (monitor_length >= monitor_expire))
-        {
-            host->set_state(Host::INIT);
+        /**
+         * Monitor hosts that are:
+         * - enabled and have been being monitored for more than monitor_expire
+         * - enabled and not being monitored
+         * - disabled and not being monitored but have running vms
+         * - disabled with running vms and have been being monitored
+         *   for more than monitor_expire secs.
+         */
 
-            hpool->update(host);
+        do_monitor = false;
+
+        if (host->isEnabled())
+        {
+            if (!host->isMonitoring())
+            {
+                do_monitor = true;
+            }
+            else if (monitor_length >= monitor_expire )
+            {
+                do_monitor = true;
+            }
+        }
+        else if ( host->get_share_running_vms() > 0 )
+        {
+            if (!host->isMonitoring())
+            {
+                do_monitor = true;
+            }
+            else if (monitor_length >= monitor_expire)
+            {
+                do_monitor = true;
+            }
         }
 
-        if ( !(host->isMonitoring()) )
+        if (do_monitor)
         {
-            if (!host->isEnabled() && host->get_share_running_vms() == 0 )
-            {
-                host->reset_share_monitoring();
+            oss.str("");
+            oss << "Monitoring host " << host->get_name() << " ("
+                << host->get_oid() << ")";
 
-                hpool->update(host);
-                hpool->update_monitoring(host);
+            NebulaLog::log("InM",Log::INFO,oss);
+
+            imd = get(host->get_im_mad());
+
+            if (imd == 0)
+            {
+                oss.str("");
+                oss << "Could not find information driver " << host->get_im_mad();
+                NebulaLog::log("InM",Log::ERROR,oss);
+
+                host->set_error();
             }
             else
             {
-                oss.str("");
-                oss << "Monitoring host " << host->get_name()
-                    << " (" << host->get_oid() << ")";
+                bool update_remotes = false;
 
-                NebulaLog::log("InM",Log::INFO,oss);
-
-                imd = get(host->get_im_mad());
-
-                if (imd == 0)
+                if ((sb.st_mtime != 0) &&
+                    (sb.st_mtime > host->get_last_monitored()))
                 {
-                    oss.str("");
-                    oss << "Could not find information driver " << host->get_im_mad();
-                    NebulaLog::log("InM",Log::ERROR,oss);
-
-                    host->set_state(Host::ERROR);
-                }
-                else
-                {
-                    bool update_remotes = false;
-
-                    if ((sb.st_mtime != 0) &&
-                        (sb.st_mtime > host->get_last_monitored()))
-                    {
-                        update_remotes = true;
-                    }
-
-                    imd->monitor(host->get_oid(),host->get_name(),update_remotes);
-
-                    host->set_monitoring_state();
+                    update_remotes = true;
                 }
 
-                hpool->update(host);
+                imd->monitor(host->get_oid(),host->get_name(),update_remotes);
+
+                host->set_monitoring_state();
             }
         }
+        else if (!host->isEnabled() && host->get_share_running_vms() == 0 )
+        {
+            // Disabled hosts without VMs are not monitored, but we need to
+            // update the last_mon_time to rotate the Hosts returned by
+            // HostPool::discover. We also update the monitoring values with
+            // 0s
 
+            host->touch(true);
+            hpool->update_monitoring(host);
+        }
+
+        hpool->update(host);
         host->unlock();
     }
 }

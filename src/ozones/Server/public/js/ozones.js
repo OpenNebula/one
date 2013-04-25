@@ -54,7 +54,9 @@ var oZones = {
                                "MONITORED",
                                "ERROR",
                                "DISABLED",
-                               "MONITORING_ERROR"][value]);
+                               "MONITORING_ERROR",
+                               "MONITORING_INIT",
+                               "MONITORING_DISABLED"][value]);
                     break;
                 case "HOST_SIMPLE":
                 case "host_simple":
@@ -63,7 +65,9 @@ var oZones = {
                                "ON",
                                "ERROR",
                                "OFF",
-                               "RETRY"][value]);
+                               "RETRY",
+                               "INIT",
+                               "OFF"][value]);
                     break;
                 case "VM":
                 case "vm":

@@ -44,7 +44,9 @@ public:
         MONITORED            = 2, /**< The host has been successfully monitored. */
         ERROR                = 3, /**< An error ocurrer while monitoring the host. */
         DISABLED             = 4, /**< The host is disabled won't be monitored. */
-        MONITORING_ERROR     = 5  /**< Monitoring the host (from error). */
+        MONITORING_ERROR     = 5, /**< Monitoring the host (from error). */
+        MONITORING_INIT      = 6, /**< Monitoring the host (from init). */
+        MONITORING_DISABLED  = 7  /**< Monitoring the host (from disabled). */
     };
 
     /**
@@ -68,7 +70,7 @@ public:
      */
      bool isEnabled() const
      {
-        return state != DISABLED;
+        return state != DISABLED && state != MONITORING_DISABLED;
      }
 
     /**
@@ -77,17 +79,17 @@ public:
      */
      bool isMonitoring() const
      {
-        return ((state == MONITORING_ERROR) || (state==MONITORING_MONITORED));
+        return ((state == MONITORING_ERROR) ||
+                (state == MONITORING_MONITORED)||
+                (state == MONITORING_INIT)||
+                (state == MONITORING_DISABLED));
      }
 
     /**
      *   Disables the current host, it will not be monitored nor used by the
      *   scheduler
      */
-    void disable()
-    {
-        state = DISABLED;
-    };
+    void disable();
 
     /**
      *   Enables the current host, it will be monitored and could be used by
@@ -97,6 +99,46 @@ public:
     {
         state = INIT;
     };
+
+    /**
+     *  Sets the host in error
+     */
+     void set_error()
+     {
+        state = ERROR;
+     }
+
+     /**
+      *  Updates the Host's last_monitored time stamp.
+      *    @param success if the monitored action was successfully performed
+      */
+     void touch(bool success)
+     {
+         last_monitored = time(0);
+
+         switch (state)
+         {
+             case MONITORING_DISABLED:
+                 state = DISABLED;
+             break;
+
+             case MONITORING_ERROR:
+             case MONITORING_INIT:
+             case MONITORING_MONITORED:
+                 if (success == true)
+                 {
+                     state = MONITORED;
+                 }
+                 else
+                 {
+                     state = ERROR;
+                 }
+             break;
+
+             default:
+             break;
+         }
+     };
 
     /**
      * Update host after a successful monitor. It modifies counters, state
@@ -111,11 +153,6 @@ public:
                     bool            &with_vm_info,
                     set<int>        &lost,
                     map<int,string> &found);
-
-    /**
-     * Sets the host_share monitoring values to 0
-     */
-    void reset_share_monitoring();
 
     /**
      * Update host after a failed monitor. It state
@@ -170,26 +207,32 @@ public:
     };
 
     /**
-     * Sets host state
-     *    @param HostState state that applies to this host
-     */
-    void set_state(HostState state)
-    {
-        this->state = state;
-    };
-
-    /**
      * Sets the corresponding monitoring state based on the actual host state
      */
     void set_monitoring_state()
     {
-        if ( state == ERROR )
+        last_monitored = time(0); //Needed to expire this monitor action
+
+        switch (state)
         {
-            state = MONITORING_ERROR;
-        }
-        else if ( state == MONITORED )
-        {
-            state = MONITORING_MONITORED;
+            case ERROR:
+                state = MONITORING_ERROR;
+            break;
+
+            case MONITORED:
+                state = MONITORING_MONITORED;
+            break;
+
+            case INIT:
+                state = MONITORING_INIT;
+            break;
+
+            case DISABLED:
+                state = MONITORING_DISABLED;
+            break;
+
+            default:
+            break;
         }
     };
 
@@ -421,31 +464,6 @@ private:
          const string& cluster_name);
 
     virtual ~Host();
-
-    // *************************************************************************
-    // Host Management
-    // *************************************************************************
-
-    /**
-     *  Updates the Host's last_monitored time stamp.
-     *    @param success if the monitored action was successfully performed
-     */
-    void touch(bool success)
-    {
-        last_monitored = time(0);
-
-        if ( state != DISABLED) //Don't change the state is host is disabled
-        {
-            if (success == true)
-            {
-                state = MONITORED;
-            }
-            else
-            {
-                state = ERROR;
-            }
-        }
-    };
 
     // *************************************************************************
     // DataBase implementation (Private)
