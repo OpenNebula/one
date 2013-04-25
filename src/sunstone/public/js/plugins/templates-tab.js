@@ -1186,8 +1186,8 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
     '</table>'+
     '<br>'+
     '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
-      '<span id="select_network" class="radius secondary label">'+tr("Please select an network from the list")+'</span>'+
-      '<span id="network_selected" class="radius secondary label hidden">'+tr("You selected the following image:")+
+      '<span id="select_network" class="radius secondary label">'+tr("Please select a network from the list")+'</span>'+
+      '<span id="network_selected" class="radius secondary label hidden">'+tr("You selected the following network:")+
       '</span>'+
       '<span class="radius label" type="text" id="NETWORK" name="network"></span>'+
       '<input type="hidden" id="NETWORK_ID" name="network_id" size="2"/>'+
