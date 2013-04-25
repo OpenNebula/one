@@ -237,6 +237,11 @@ function updateMarketInfo(request,app){
 
     Sunstone.updateInfoPanelTab("marketplace_info_panel", "marketplace_info_tab", info_tab);
     Sunstone.popUpInfoPanel("marketplace_info_panel", "marketplace-tab");
+
+    $("#marketplace_info_panel_refresh", $("#marketplace_info_panel")).click(function(){
+      $(this).html(spinner);
+      Sunstone.runAction('Marketplace.showinfo', app['_id']["$oid"]);
+    })
 };
 
  function infoListenerMarket(dataTable){

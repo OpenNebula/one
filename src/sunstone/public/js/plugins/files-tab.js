@@ -642,6 +642,11 @@ function updateFileInfo(request,img){
     Sunstone.updateInfoPanelTab("file_info_panel","file_info_tab",info_tab);
     Sunstone.popUpInfoPanel("file_info_panel", "files-tab");
 
+    $("#file_info_panel_refresh", $("#file_info_panel")).click(function(){
+      $(this).html(spinner);
+      Sunstone.runAction('File.showinfo', img_info.ID);
+    })
+
     setPermissionsTable(img_info,'');
 
 }
@@ -946,7 +951,7 @@ function setFileAutorefresh() {
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_files);
         var filter = $("#file_search").attr('value');
-        if (!checked.length && !filter.length){
+        if ((checked.length==0) && !filter){
             Sunstone.runAction("File.autorefresh");
         }
     },INTERVAL+someTime());

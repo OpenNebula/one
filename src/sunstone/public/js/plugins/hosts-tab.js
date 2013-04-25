@@ -1020,6 +1020,11 @@ function updateHostInfo(request,host){
 
     Sunstone.popUpInfoPanel("host_info_panel", "hosts-tab");
 
+
+    $("#host_info_panel_refresh", $("#host_info_panel")).click(function(){
+      $(this).html(spinner);
+      Sunstone.runAction('Host.showinfo', host_info.ID);
+    })
     // TODO: re-use Host.pool_monitor data?
 
     //pop up panel while we retrieve the graphs
@@ -1119,7 +1124,7 @@ function setHostAutorefresh() {
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_hosts);
         var  filter = $("#hosts_search").attr('value');
-        if (!checked.length && !filter.length){
+        if ((checked.length==0) && !filter){
             Sunstone.runAction("Host.autorefresh");
         }
     },INTERVAL+someTime());

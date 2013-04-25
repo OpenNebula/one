@@ -798,6 +798,11 @@ function updateImageInfo(request,img){
 
     setPermissionsTable(img_info,'');
 
+    $("#image_info_panel_refresh", $("#image_info_panel")).click(function(){
+      $(this).html(spinner);
+      Sunstone.runAction('Image.showinfo', img_info.ID);
+    })
+
 }
 
 function enable_all_datastores()
@@ -1156,7 +1161,7 @@ function setImageAutorefresh() {
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_images);
         var filter = $("#image_search").attr('value');
-        if (!checked.length && !filter.length){
+        if ((checked.length==0) && !filter){
             Sunstone.runAction("Image.autorefresh");
         }
     },INTERVAL+someTime());

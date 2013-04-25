@@ -472,8 +472,9 @@ var user_actions = {
         type: "multiple",
         call: OpenNebula.User.set_quota,
         elements: userElements,
-        callback: function() {
+        callback: function(request) {
             notifyMessage(tr("Quotas updated correctly"));
+            Sunstone.runAction('User.showinfo',request.request.data[0]);
         },
         error: onError
     },
@@ -781,6 +782,11 @@ function updateUserInfo(request,user){
     Sunstone.updateInfoPanelTab("user_info_panel","user_quotas_tab",quotas_tab);
     //Sunstone.updateInfoPanelTab("user_info_panel","user_acct_tab",acct_tab);
     Sunstone.popUpInfoPanel("user_info_panel", 'users-tab');
+
+    $("#user_info_panel_refresh", $("#user_info_panel")).click(function(){
+      $(this).html(spinner);
+      Sunstone.runAction('User.showinfo', info.ID);
+    })
 };
 
 // Prepare the user creation dialog
@@ -887,7 +893,7 @@ function setUserAutorefresh(){
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_users);
         var filter = $("#user_search").attr('value');
-        if (!checked.length && !filter.length){
+        if ((checked.length==0) && !filter){
             Sunstone.runAction("User.autorefresh");
         }
     },INTERVAL+someTime());

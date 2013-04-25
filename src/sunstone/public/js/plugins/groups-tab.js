@@ -561,8 +561,14 @@ function updateGroupInfo(request,group){
     Sunstone.updateInfoPanelTab("group_info_panel","group_quotas_tab",quotas_tab);
     Sunstone.popUpInfoPanel("group_info_panel", 'groups-tab');
 
+
+    $("#group_info_panel_refresh", $("#group_info_panel")).click(function(){
+      $(this).html(spinner);
+      Sunstone.runAction('Group.showinfo', info.ID);
+    })
+
     //preload acct
-    loadAccounting('Group', info.ID, group_acct_graphs);
+    //loadAccounting('Group', info.ID, group_acct_graphs);
 
 }
 
@@ -610,7 +616,7 @@ function setGroupAutorefresh(){
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_groups);
         var  filter = $("#group_search").attr('value');
-        if (!checked.length && !filter.length){
+        if ((checked.length==0) && !filter){
             Sunstone.runAction("Group.autorefresh");
         }
     },INTERVAL+someTime());

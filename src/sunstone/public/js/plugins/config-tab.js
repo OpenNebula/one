@@ -68,17 +68,17 @@ var config_tab_content =
   <div class="reveal-body">\
   <form id="config_form">\
     <div class="row">\
-      <div class="six columns">\
-        <table id="user_information" class="twelve datatable extended_table">\
-            <thead>\
-               <tr><th colspan="2">' + tr("User information") +'</th></tr>\
-            </thead>\
-            <tbody>\
-            </tbody>\
-        </table>\
-        <div id="setting_user_template"></div>\
+        <div class="six columns">\
+            <table id="user_information" class="twelve datatable extended_table">\
+                <thead>\
+                   <tr><th colspan="2">' + tr("User information") +'</th></tr>\
+                </thead>\
+                <tbody>\
+                </tbody>\
+            </table>\
+            <div id="setting_user_template"></div>\
         </div>\
-      <div class="six columns">\
+        <div class="six columns">\
         <div class="row">\
           <div class="six columns">\
             <label class="right inline" for="lang_sel" >' + tr("Language") + ':</label>\
@@ -132,11 +132,11 @@ var config_tab_content =
       </div>\
     </div>\
     <div class="reveal-footer">\
-      <hr>\
-    <div class="form_buttons">\
-      <button class="button radius right success" id="config_submit" type="button" value="">'+tr("Update config")+'</button>\
-      <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
-    </div>\
+        <hr>\
+        <div class="form_buttons">\
+          <button class="button radius right success" id="config_submit" type="button" value="">'+tr("Update config")+'</button>\
+          <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+        </div>\
     </div>\
   </form>\
   </div>\
@@ -179,44 +179,7 @@ Sunstone.addActions({
                 data : {
                     id: uid
                 },
-                success: function(request,user_json){
-                    var info = user_json.USER;
-
-                    var default_user_quotas = Quotas.default_quotas(info.DEFAULT_USER_QUOTAS)
-                    var quotas_tab_html = Quotas.vms(info, default_user_quotas);
-                    quotas_tab_html += Quotas.cpu(info, default_user_quotas);
-                    quotas_tab_html += Quotas.memory(info, default_user_quotas);
-                    quotas_tab_html += Quotas.image(info, default_user_quotas);
-                    quotas_tab_html += Quotas.network(info, default_user_quotas);
-                    quotas_tab_html += Quotas.datastore(info, default_user_quotas);
-
-                    $("#user_quotas").html('<div class="row graph_legend">\
-                        <h3 class="subheader"><small>'+tr("USER QUOTAS") + '</small></h3>\
-                      </div>'+
-                      quotas_tab_html);
-
-                    $("#user_information tbody").html('<tr>\
-                        <td class="key_td">' + tr("ID") + '</td>\
-                        <td class="value_td">'+info.ID+'</td>\
-                    </tr>\
-                    <tr>\
-                        <td class="key_td">' + tr("Name") + '</td>\
-                        <td class="value_td">'+info.NAME+'</td>\
-                    </tr>\
-                        <td class="key_td">' + tr("Group ID") + '</td>\
-                        <td class="value_td">'+info.GID+'</td>\
-                    </tr>\
-                        <td class="key_td">' + tr("Group Name") + '</td>\
-                        <td class="value_td">'+info.GNAME+'</td>\
-                    </tr>')
-
-                    $("#setting_user_template").html(
-                        insert_extended_template_table(info.TEMPLATE,
-                                                          "UserSettings",
-                                                          "-1",
-                                                          tr("Custom Attributes"))
-                    )
-                }
+                success: updateUserConfigInfo
               });
         },
         error: onError
@@ -320,6 +283,47 @@ function tr(str){
     return tmp;
 };
 
+function updateUserConfigInfo(request,user_json) {
+    var info = user_json.USER;
+
+    var default_user_quotas = Quotas.default_quotas(info.DEFAULT_USER_QUOTAS)
+    var quotas_tab_html = Quotas.vms(info, default_user_quotas);
+    quotas_tab_html += Quotas.cpu(info, default_user_quotas);
+    quotas_tab_html += Quotas.memory(info, default_user_quotas);
+    quotas_tab_html += Quotas.image(info, default_user_quotas);
+    quotas_tab_html += Quotas.network(info, default_user_quotas);
+    quotas_tab_html += Quotas.datastore(info, default_user_quotas);
+
+    $("#user_quotasTab").html(quotas_tab_html);
+
+    $("#user_information tbody").html('<tr>\
+        <td class="key_td">' + tr("ID") + '</td>\
+        <td class="value_td">'+info.ID+'</td>\
+    </tr>\
+    <tr>\
+        <td class="key_td">' + tr("Name") + '</td>\
+        <td class="value_td">'+info.NAME+'</td>\
+    </tr>\
+    <tr>\
+        <td class="key_td">' + tr("Group ID") + '</td>\
+        <td class="value_td">'+info.GID+'</td>\
+    </tr>\
+    <tr>\
+        <td class="key_td">' + tr("Group Name") + '</td>\
+        <td class="value_td">'+info.GNAME+'</td>\
+    </tr>\
+    <tr>\
+        <td class="key_td">' + tr("Password") + '</td>\
+        <td class="value_td"><button id="update_password" type="button" class="button tiny secondary radius" >' + tr("Update password") + '</button></td>\
+    </tr>')
+
+    $("#setting_user_template").html(
+        insert_extended_template_table(info.TEMPLATE,
+                                          "UserSettings",
+                                          "-1",
+                                          tr("Custom Attributes"))
+    )
+}
 
 $(document).ready(function(){
   setupConfigDialog();
@@ -330,47 +334,7 @@ $(document).ready(function(){
         data : {
             id: uid
         },
-        success: function(request,user_json){
-            var info = user_json.USER;
-
-            var default_user_quotas = Quotas.default_quotas(info.DEFAULT_USER_QUOTAS)
-            var quotas_tab_html = Quotas.vms(info, default_user_quotas);
-            quotas_tab_html += Quotas.cpu(info, default_user_quotas);
-            quotas_tab_html += Quotas.memory(info, default_user_quotas);
-            quotas_tab_html += Quotas.image(info, default_user_quotas);
-            quotas_tab_html += Quotas.network(info, default_user_quotas);
-            quotas_tab_html += Quotas.datastore(info, default_user_quotas);
-
-            $("#user_quotasTab").html(quotas_tab_html);
-
-            $("#user_information tbody").html('<tr>\
-                <td class="key_td">' + tr("ID") + '</td>\
-                <td class="value_td">'+info.ID+'</td>\
-            </tr>\
-            <tr>\
-                <td class="key_td">' + tr("Name") + '</td>\
-                <td class="value_td">'+info.NAME+'</td>\
-            </tr>\
-            <tr>\
-                <td class="key_td">' + tr("Group ID") + '</td>\
-                <td class="value_td">'+info.GID+'</td>\
-            </tr>\
-            <tr>\
-                <td class="key_td">' + tr("Group Name") + '</td>\
-                <td class="value_td">'+info.GNAME+'</td>\
-            </tr>\
-            <tr>\
-                <td class="key_td">' + tr("Password") + '</td>\
-                <td class="value_td"><button id="update_password" type="button" class="button tiny secondary radius" >' + tr("Update password") + '</button></td>\
-            </tr>')
-
-            $("#setting_user_template").html(
-                insert_extended_template_table(info.TEMPLATE,
-                                                  "UserSettings",
-                                                  "-1",
-                                                  tr("Custom Attributes"))
-            )
-        }
+        success: updateUserConfigInfo
       });
 
       OpenNebula.Group.show({
