@@ -1163,7 +1163,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
     '<div class="seven columns">' +
        '<button id="refresh_template_nic_table_button_class'+str_nic_tab_id+'" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
     '</div>' +
-    '<div class="five columns push-seven">'+
+    '<div class="five columns">'+
       '<input id="'+str_nic_tab_id+'_search" type="text" placeholder="'+tr("Search")+'"/>'+
     '</div>'+
   '</div>'+
@@ -1942,7 +1942,7 @@ function setupCreateTemplateDialog(){
                       '<div class="seven columns">' +
                          '<button id="refresh_kernel_table" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
                       '</div>' +
-                    '<div class="five columns push-seven">'+
+                    '<div class="five columns">'+
                       '<input id="kernel_search" type="text" placeholder="'+tr("Search")+'"/>'+
                     '</div>'+
                   '</div>'+
@@ -2002,7 +2002,7 @@ function setupCreateTemplateDialog(){
                       '<div class="seven columns">' +
                          '<button id="refresh_ramdisk_table" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
                       '</div>' +
-                    '<div class="five columns push-seven">'+
+                    '<div class="five columns">'+
                       '<input id="initrd_search" type="text" placeholder="'+tr("Search")+'"/>'+
                     '</div>'+
                   '</div>'+
@@ -2548,7 +2548,7 @@ function setupCreateTemplateDialog(){
                           '<div class="seven columns">' +
                              '<button id="refresh_context_table" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
                           '</div>' +
-                          '<div class="five columns push-seven">'+
+                          '<div class="five columns">'+
                             '<input id="files_search" type="text" placeholder="'+tr("Search")+'"/>'+
                           '</div>'+
                         '</div>'+
@@ -2821,7 +2821,7 @@ function setupCreateTemplateDialog(){
                       '<div class="seven columns">' +
                          '<button id="refresh_hosts_placement" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
                       '</div>' +
-                      '<div class="five columns push-seven">'+
+                      '<div class="five columns">'+
                         '<input id="hosts_search" type="text" placeholder="'+tr("Search")+'"/>'+
                       '</div>'+
                     '</div>'+
@@ -2858,7 +2858,7 @@ function setupCreateTemplateDialog(){
                       '<div class="seven columns">' +
                          '<button id="refresh_clusters_placement" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
                       '</div>' +
-                      '<div class="five columns push-seven">'+
+                      '<div class="five columns">'+
                         '<input id="clusters_search" type="text" placeholder="'+tr("Search")+'"/>'+
                       '</div>'+
                     '</div>'+
