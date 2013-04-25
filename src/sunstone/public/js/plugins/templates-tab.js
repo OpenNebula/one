@@ -3261,46 +3261,19 @@ function setupCreateTemplateDialog(){
 
 
     $('#template_template_reset_button').click(function(){
-        $create_template_dialog.empty();
+        $create_template_dialog.trigger('reveal:close');
+        $create_template_dialog.remove();
         setupCreateTemplateDialog();
 
-        $('button#create_template_form_easy', $create_template_dialog).show();
-        $('button#template_template_update_button', $create_template_dialog).hide();
-        $('button#template_template_reset_button', $create_template_dialog).show();
-        $('button#template_template_reset_button_update', $create_template_dialog).hide();
-        $('button#manual_template_update_button', $create_template_dialog).hide();
-        $('button#create_template_submit_manual', $create_template_dialog).show();
-
-
-        $('#wizard_mode', $create_template_dialog).show();
-
-        $('#create_template_header', $create_template_dialog).show();
-        $('#update_template_header', $create_template_dialog).hide();
-
-        $('#template_name_form', $create_template_dialog).show();
-        $('#NAME').removeAttr("disabled");;
-
+        popUpCreateTemplateDialog();
     });
 
     $('#template_template_reset_button_update').click(function(){
-        $create_template_dialog.empty();
+        $create_template_dialog.trigger('reveal:close');
+        $create_template_dialog.remove();
         setupCreateTemplateDialog();
 
-        $('button#create_template_form_easy', $create_template_dialog).hide();
-        $('button#template_template_update_button', $create_template_dialog).show();
-        $('button#template_template_reset_button', $create_template_dialog).hide();
-        $('button#template_template_reset_button_update', $create_template_dialog).show();
-        $('button#manual_template_update_button', $create_template_dialog).show();
-        $('button#create_template_submit_manual', $create_template_dialog).hide();
-
-        $('#create_template_header', $create_template_dialog).hide();
-        $('#update_template_header', $create_template_dialog).show();
-
-        $('#wizard_mode', $create_template_dialog).hide();
-        $('#advanced_mode_a', $create_template_dialog).click();
-
-        $('#template_name_form', $create_template_dialog).hide();
-        $('#NAME').attr("disabled", "disabled");;
+        popUpUpdateTemplateDialog();
     });
 
     if (Config.isTemplateCreationTabEnabled('general')){
@@ -3730,7 +3703,7 @@ function popUpTemplateTemplateUpdateDialog(){
 };
 
 function fillTemplatePopUp(request, response){
-    $create_template_dialog.empty();
+    $create_template_dialog.remove();
     setupCreateTemplateDialog();
 
     var use_advanced_template = false;
