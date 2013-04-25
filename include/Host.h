@@ -211,6 +211,8 @@ public:
      */
     void set_monitoring_state()
     {
+        last_monitored = time(0); //Needed to expire this monitor action
+
         switch (state)
         {
             case ERROR:
