@@ -37,15 +37,18 @@ class OpenNebula::SshAuth
         @private_key = nil
         @public_key  = nil
 
+        # Initialize the private key
         if options[:private_key]
             begin
                 @private_key = File.read(options[:private_key])
             rescue Exception => e
                 raise "Cannot read #{options[:private_key]}"
             end
-        end
-        @private_key_rsa = OpenSSL::PKey::RSA.new(@private_key) unless @private_key.nil?
 
+            @private_key_rsa = OpenSSL::PKey::RSA.new(@private_key)
+        end
+
+        # Initialize the public key
         if options[:public_key]
             @public_key = options[:public_key]
         elsif @private_key != nil
@@ -55,11 +58,12 @@ class OpenNebula::SshAuth
             @public_key = @private_key_rsa.public_key.to_pem.split("\n")
             @public_key = @public_key.reject {|l| l.match(/PUBLIC KEY/) }.join('')
         end
-        @public_key_rsa = OpenSSL::PKey::RSA.new(Base64::decode64(@public_key)) unless @public_key.nil?
 
         if @private_key.nil? && @public_key.nil?
             raise "You have to define at least one of the keys"
         end
+
+        @public_key_rsa = OpenSSL::PKey::RSA.new(Base64::decode64(@public_key))
     end
 
     # Creates the login file for ssh authentication at ~/.one/one_ssh.
