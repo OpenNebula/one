@@ -67,17 +67,17 @@ var vnets_tab_content = '\
 
 var create_vn_tmpl =
 '<div class="panel">\
-          <h3>\
-            <small id="create_vnet_header">'+tr("Create Virtual Network")+'</small>\
-          </h3>\
-        </div>\
-        <div class="reveal-body">\
-        <dl class="tabs">\
-          <dd class="active"><a href="#easy">'+tr("Wizard")+'</a></dd>\
-          <dd><a href="#manual">'+tr("Advanced mode")+'</a></dd>\
-        </dl>\
-        <ul class="tabs-content">\
-        <li class="active" id="easyTab">\
+  <h3>\
+    <small id="create_vnet_header">'+tr("Create Virtual Network")+'</small>\
+  </h3>\
+</div>\
+<div class="reveal-body">\
+      <dl class="tabs">\
+        <dd class="active"><a href="#vnet_wizard">'+tr("Wizard")+'</a></dd>\
+        <dd><a href="#vnet_advanced">'+tr("Advanced mode")+'</a></dd>\
+      </dl>\
+      <ul class="tabs-content">\
+        <li class="active" id="vnet_wizardTab">\
            <form id="create_vn_form_easy" action="" class="creation">\
             <div class="row">\
               <div class="three columns">\
@@ -404,22 +404,22 @@ var create_vn_tmpl =
          </div>\
         </form>\
       </li>\
-      <li id="manualTab">\
+      <li id="vnet_advancedTab">\
         <form id="create_vn_form_manual" action="">\
-           <h4><small>'+tr("Write the Virtual Network template here")+'</small></h4>\
-               <textarea id="template" rows="15" style="width:100%;"></textarea>\
-                <div class="reveal-footer">\
-          <hr>\
-                <div class="form_buttons">\
+            <h4><small>'+tr("Write the Virtual Network template here")+'</small></h4>\
+            <textarea id="template" rows="15" style="width:100%;"></textarea>\
+            <div class="reveal-footer">\
+              <hr>\
+              <div class="form_buttons">\
                 <button class="button success right radius" id="create_vn_submit_manual" value="vn/create">\
                    '+tr("Create")+'\
                 </button>\
                 <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
                 <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
-                </div>\
-                </div>\
-          </form>\
-        </li>\
+              </div>\
+            </div>\
+        </form>\
+      </li>\
     </ul>\
     </div>\
     <a class="close-reveal-modal">&#215;</a>';
