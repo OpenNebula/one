@@ -183,6 +183,14 @@ Sunstone.addActions({
               });
         },
         error: onError
+    },
+    "UserSettings.passwd" : {
+        type: "multiple",
+        call: OpenNebula.User.passwd,
+        callback: function(req,res){
+            notifyMessage(tr("Change password successful"));
+        },
+        error: onError
     }
 });
 
@@ -206,7 +214,7 @@ function setupUpdatePassword() {
             return false;
         }
 
-        Sunstone.runAction("User.passwd",[-1],pw);
+        Sunstone.runAction("UserSettings.passwd",[-1],pw);
         $('#settings_update_password',dialogs_context).trigger("reveal:close")
         return false;
     });
