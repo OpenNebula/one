@@ -3475,11 +3475,14 @@ function setupCreateTemplateDialog(){
             var eth_str = "ETH"+nic_id+"_"
             var net_str = 'NETWORK_ID=\\"'+ vnet_id +'\\"'
 
-            vm_json["CONTEXT"][eth_str+"IP"] = "$NIC[IP,"+ net_str +"]";
+            vm_json["CONTEXT"][eth_str+"IP"]      = "$NIC[IP,"+ net_str +"]";
             vm_json["CONTEXT"][eth_str+"NETWORK"] = "$NETWORK[NETWORK_ADDRESS,"+ net_str +"]";
-            vm_json["CONTEXT"][eth_str+"MASK"] = "$NETWORK[NETWORK_MASK,"+ net_str +"]";
+            vm_json["CONTEXT"][eth_str+"MASK"]    = "$NETWORK[NETWORK_MASK,"+ net_str +"]";
             vm_json["CONTEXT"][eth_str+"GATEWAY"] = "$NETWORK[GATEWAY,"+ net_str +"]";
-            vm_json["CONTEXT"][eth_str+"DNS"] = "$NETWORK[DNS,"+ net_str +"]";
+            vm_json["CONTEXT"][eth_str+"DNS"]     = "$NETWORK[DNS,"+ net_str +"]";
+            vm_json["CONTEXT"][eth_str+"IPV6"]    = "$NIC[IP6_GLOBAL,"+ net_str +"]";
+            vm_json["CONTEXT"][eth_str+"GATEWAY6"]= "$NETWORK[GATEWAY6,"+ net_str +"]";
+            vm_json["CONTEXT"][eth_str+"CONTEXT_FORCE_IPV4"] = "$NETWORK[CONTEXT_FORCE_IPV4,"+ net_str +"]";
 
             nic_id++;
           });
