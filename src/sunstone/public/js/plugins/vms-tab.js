@@ -2282,7 +2282,6 @@ function printNics(vm_info){
                 <th>'+tr("Network")+'</th>\
                 <th>'+tr("IP")+'</th>\
                 <th>'+tr("MAC")+'</th>\
-                <th>'+tr("IPv6 Link")+'</th>\
                 <th>'+tr("IPv6 Site")+'</th>\
                 <th>'+tr("IPv6 Global")+'</th>\
                 <th colspan="">'+tr("Actions")+'</th>\
@@ -2300,7 +2299,7 @@ function printNics(vm_info){
     if (!nics.length){
         html += '\
           <tr id="no_nics_tr">\
-            <td colspan="8">' + tr("No nics to show") + '</td>\
+            <td colspan="7">' + tr("No nics to show") + '</td>\
           </tr>';
     }
     else {
@@ -2336,7 +2335,6 @@ function printNics(vm_info){
                 <td>' + nic.NETWORK + '</td>\
                 <td>' + nic.IP + '</td>\
                 <td>' + nic.MAC + '</td>\
-                <td>' + (nic.IP6_LINK ? nic.IP6_LINK : "--") +'</td>\
                 <td>' + (nic.IP6_SITE ? nic.IP6_SITE : "--") +'</td>\
                 <td>' + (nic.IP6_GLOBAL ? nic.IP6_GLOBAL : "--") +'</td>\
                 <td>' + actions + '</td>\
