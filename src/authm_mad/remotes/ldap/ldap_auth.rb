@@ -56,18 +56,29 @@ class OpenNebula::LdapAuth
                 :filter => "#{@options[:user_field]}=#{name}")
 
             if result && result.first
-                result.first.dn
+                n=result.first.dn
+                if @options[:user_group_field]
+                    g=result.first[:user_group_field]
+                else
+                    g=nil
+                end
+                [n, g]
             else
                 result=@ldap.search(:base => name)
 
                 if result && result.first
-                    name
+                    if @options[:user_group_field]
+                        g=result.first[:user_group_field]
+                    else
+                        g=nil
+                    end
+                    [name, g]
                 else
-                    nil
+                    [nil, nil]
                 end
             end
         rescue
-            nil
+            [nil, nil]
         end
     end
 

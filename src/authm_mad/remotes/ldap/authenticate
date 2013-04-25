@@ -68,7 +68,7 @@ order.each do |server_name|
 begin
     ldap=OpenNebula::LdapAuth.new(server_conf)
 
-    user_name=ldap.find_user(user)
+    user_name, user_group=ldap.find_user(user)
 
     if !user_name
         STDERR.puts "User #{user} not found"
@@ -76,8 +76,10 @@ begin
     end
 
     if server_conf[:group]
-        if !ldap.is_in_group?(user_name, server_conf[:group])
-            STDERR.puts "User #{user} is not in group #{server_conf[:group]}"
+        group=server_conf[:group]
+        if (server_conf[:user_group_field] && group!=user_group) ||
+                !ldap.is_in_group?(user_name, group)
+            STDERR.puts "User #{user} is not in group #{group}"
             next
         end
     end
