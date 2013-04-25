@@ -59,28 +59,28 @@ require 'OzonesServer'
 # Read configuration
 ##############################################################################
 begin
-    config=YAML::load_file(CONFIGURATION_FILE)
+    $config=YAML::load_file(CONFIGURATION_FILE)
 rescue Exception => e
     warn "Error parsing config file #{CONFIGURATION_FILE}: #{e.message}"
     exit 1
 end
 
-config[:debug_level] ||= 3
+$config[:debug_level] ||= 3
 
-CloudServer.print_configuration(config)
+CloudServer.print_configuration($config)
 
-db_type = config[:databasetype]
+db_type = $config[:databasetype]
 
 case db_type
     when "sqlite" then
         db_url = db_type + "://" + VAR_LOCATION + "/ozones.db"
     when "mysql","postgres" then
-        if config[:databaseserver].nil?
+        if $config[:databaseserver].nil?
             warn "DB server needed for this type of DB backend"
             exit -1
         end
 
-        db_url = db_type + "://" + config[:databaseserver] + "/ozones"
+        db_url = db_type + "://" + $config[:databaseserver] + "/ozones"
     else 
         warn "DB type #{db_type} not recognized"
         exit -1
@@ -89,15 +89,15 @@ end
 ##############################################################################
 # Sinatra Configuration
 ##############################################################################
-set :config, config
-set :bind, config[:host]
-set :port, config[:port]
+set :config, $config
+set :bind, $config[:host]
+set :port, $config[:port]
 
 use Rack::Session::Pool, :key => 'ozones'
 
 #Enable logger
 include CloudLogger
-enable_logging OZONES_LOG, settings.config[:debug_level].to_i
+logger=enable_logging OZONES_LOG, $config[:debug_level].to_i
 
 ##############################################################################
 # DB bootstrapping
@@ -105,8 +105,8 @@ enable_logging OZONES_LOG, settings.config[:debug_level].to_i
 
 DB = Sequel.connect(db_url)
 
-if config[:dbdebug]
-    DB.loggers << settings.logger
+if $config[:dbdebug]
+    DB.loggers << logger
 end
 
 require 'OZones'
@@ -117,7 +117,7 @@ if Auth.all.size == 0
         credentials = IO.read(ENV['OZONES_AUTH']).strip.split(':')
 
         if credentials.length < 2
-            settings.logger.error {"Authorization data malformed"}
+            logger.error {"Authorization data malformed"}
             exit -1
         end
         credentials[1] = Digest::SHA1.hexdigest(credentials[1])
@@ -127,7 +127,7 @@ if Auth.all.size == 0
         @auth.save(:raise_on_failure => true)
     else
         error_m = "oZones admin credentials not set, missing OZONES_AUTH file."
-        settings.logger.error { error_m }
+        logger.error { error_m }
         exit -1
     end
 else
@@ -138,9 +138,9 @@ ADMIN_NAME = @auth.name
 ADMIN_PASS = @auth.password
 
 begin
-    OZones::ProxyRules.new("apache",config[:htaccess])
+    OZones::ProxyRules.new("apache", $config[:htaccess])
 rescue Exception => e
-    settings.logger {e.message}
+    logger {e.message}
     exit -1
 end
 
@@ -203,9 +203,9 @@ before do
         end
 
         @OzonesServer = OzonesServer.new(session[:key],
-                                         settings.config,
-                                         settings.logger)
-        @pr           = OZones::ProxyRules.new("apache",config[:htaccess])
+                                         $config,
+                                         logger)
+        @pr           = OZones::ProxyRules.new("apache",$config[:htaccess])
     end
 end
 
