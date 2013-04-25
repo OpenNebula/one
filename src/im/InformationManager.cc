@@ -267,10 +267,19 @@ void InformationManager::timer_action()
 
                 host->set_monitoring_state();
             }
+        }
+        else if (!host->isEnabled() && host->get_share_running_vms() == 0 )
+        {
+            // Disabled hosts without VMs are not monitored, but we need to
+            // update the last_mon_time to rotate the Hosts returned by
+            // HostPool::discover. We also update the monitoring values with
+            // 0s
 
-            hpool->update(host);
+            host->touch(true);
+            hpool->update_monitoring(host);
         }
 
+        hpool->update(host);
         host->unlock();
     }
 }
