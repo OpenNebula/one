@@ -15,7 +15,14 @@
 #--------------------------------------------------------------------------- #
 
 require 'rubygems'
-require 'sequel'
+
+begin
+    require 'sequel'
+rescue LoadError
+    STDERR.puts "Ruby gem sequel is needed for this operation:"
+    STDERR.puts "  $ sudo gem install sequel"
+    exit -1
+end
 
 class OneDBBacKEnd
     def read_db_version

@@ -19,8 +19,24 @@ require 'onedb_backend'
 class OneDB
     def initialize(ops)
         if ops[:backend] == :sqlite
+            begin
+                require 'sqlite3-ruby'
+            rescue LoadError
+                STDERR.puts "Ruby gem sqlite3-ruby is needed for this operation:"
+                STDERR.puts "  $ sudo gem install sqlite3-ruby"
+                exit -1
+            end
+
             @backend = BackEndSQLite.new(ops[:sqlite])
         elsif ops[:backend] == :mysql
+            begin
+                require 'mysql'
+            rescue LoadError
+                STDERR.puts "Ruby gem mysql is needed for this operation:"
+                STDERR.puts "  $ sudo gem install mysql"
+                exit -1
+            end
+
             passwd = ops[:passwd]
             if !passwd
                 # Hide input characters
