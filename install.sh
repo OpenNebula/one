@@ -190,7 +190,8 @@ else
 fi
 
 SHARE_DIRS="$SHARE_LOCATION/examples \
-            $SHARE_LOCATION/tgt"
+            $SHARE_LOCATION/tgt \
+            $SHARE_LOCATION/websockify"
 
 ETC_DIRS="$ETC_LOCATION/im_ec2 \
           $ETC_LOCATION/vmm_ec2 \
@@ -293,6 +294,8 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/public/vendor/explorercanvas \
                $SUNSTONE_LOCATION/public/vendor/flot \
                $SUNSTONE_LOCATION/public/vendor/fileuploader \
+               $SUNSTONE_LOCATION/public/vendor/noVNC \
+               $SUNSTONE_LOCATION/public/vendor/noVNC/web-socket-js \
                $SUNSTONE_LOCATION/public/vendor/4.0 \
                $SUNSTONE_LOCATION/public/vendor/4.0/datatables \
                $SUNSTONE_LOCATION/public/vendor/4.0/foundation_datatables \
@@ -431,7 +434,7 @@ INSTALL_FILES=(
     NETWORK_VMWARE_FILES:$VAR_LOCATION/remotes/vnm/vmware
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     TGT_SHARE_FILES:$SHARE_LOCATION/tgt
-    INSTALL_NOVNC_SHARE_FILE:$SHARE_LOCATION
+    WEBSOCKIFY_SHARE_FILES:$SHARE_LOCATION/websockify
     INSTALL_GEMS_SHARE_FILE:$SHARE_LOCATION
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
     COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
@@ -490,6 +493,8 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_VENDOR_EXPLORERCANVAS:$SUNSTONE_LOCATION/public/vendor/explorercanvas
     SUNSTONE_PUBLIC_VENDOR_FLOT:$SUNSTONE_LOCATION/public/vendor/flot
     SUNSTONE_PUBLIC_VENDOR_FILEUPLOADER:$SUNSTONE_LOCATION/public/vendor/fileuploader
+    SUNSTONE_PUBLIC_VENDOR_NOVNC:$SUNSTONE_LOCATION/public/vendor/noVNC
+    SUNSTONE_PUBLIC_VENDOR_NOVNC_WEBSOCKET:$SUNSTONE_LOCATION/public/vendor/noVNC/web-socket-js
     SUNSTONE_PUBLIC_NEW_VENDOR_DATATABLES:$SUNSTONE_LOCATION/public/vendor/4.0/datatables
     SUNSTONE_PUBLIC_NEW_VENDOR_FOUNDATION_DATATABLES:$SUNSTONE_LOCATION/public/vendor/4.0/foundation_datatables
     SUNSTONE_PUBLIC_NEW_VENDOR_JGROWL:$SUNSTONE_LOCATION/public/vendor/4.0/jgrowl
@@ -1097,6 +1102,14 @@ EXAMPLE_SHARE_FILES="share/examples/vm.template \
 TGT_SHARE_FILES="share/scripts/tgt/tgt-setup-lun-one"
 
 #-------------------------------------------------------------------------------
+# Files required to interact with the websockify server
+#-------------------------------------------------------------------------------
+
+WEBSOCKIFY_SHARE_FILES="share/websockify/websocketproxy.py \
+                        share/websockify/websocket.py \
+                        share/websockify/websockify"
+
+#-------------------------------------------------------------------------------
 # HOOK scripts, to be installed under $VAR_LOCATION/remotes/hooks
 #-------------------------------------------------------------------------------
 
@@ -1106,7 +1119,6 @@ HOOK_FT_FILES="share/hooks/host_error.rb"
 # Installation scripts, to be installed under $SHARE_LOCATION
 #-------------------------------------------------------------------------------
 
-INSTALL_NOVNC_SHARE_FILE="share/install_novnc.sh"
 INSTALL_GEMS_SHARE_FILE="share/install_gems/install_gems"
 
 #-------------------------------------------------------------------------------
@@ -1445,6 +1457,33 @@ src/sunstone/public/vendor/explorercanvas/LICENSE.txt"
 SUNSTONE_PUBLIC_VENDOR_FILEUPLOADER="\
 src/sunstone/public/vendor/fileuploader/NOTICE \
 src/sunstone/public/vendor/fileuploader/fileuploader.js"
+
+SUNSTONE_PUBLIC_VENDOR_NOVNC="\
+src/sunstone/public/vendor/noVNC/LICENSE.txt \
+src/sunstone/public/vendor/noVNC/black.css \
+src/sunstone/public/vendor/noVNC/playback.js \
+src/sunstone/public/vendor/noVNC/websock.js \
+src/sunstone/public/vendor/noVNC/util.js \
+src/sunstone/public/vendor/noVNC/des.js \
+src/sunstone/public/vendor/noVNC/jsunzip.js \
+src/sunstone/public/vendor/noVNC/Orbitron700.ttf \
+src/sunstone/public/vendor/noVNC/display.js \
+src/sunstone/public/vendor/noVNC/input.js \
+src/sunstone/public/vendor/noVNC/rfb.js \
+src/sunstone/public/vendor/noVNC/base64.js \
+src/sunstone/public/vendor/noVNC/Orbitron700.woff \
+src/sunstone/public/vendor/noVNC/logo.js \
+src/sunstone/public/vendor/noVNC/blue.css \
+src/sunstone/public/vendor/noVNC/ui.js \
+src/sunstone/public/vendor/noVNC/vnc.js \
+src/sunstone/public/vendor/noVNC/base.css \
+src/sunstone/public/vendor/noVNC/webutil.js"
+
+SUNSTONE_PUBLIC_VENDOR_NOVNC_WEBSOCKET="\
+src/sunstone/public/vendor/noVNC/web-socket-js/web_socket.js \
+src/sunstone/public/vendor/noVNC/web-socket-js/README.txt \
+src/sunstone/public/vendor/noVNC/web-socket-js/swfobject.js \
+src/sunstone/public/vendor/noVNC/web-socket-js/WebSocketMain.swf"
 
 SUNSTONE_PUBLIC_VENDOR_XML2JSON="\
 src/sunstone/public/vendor/xml2json/NOTICE \
