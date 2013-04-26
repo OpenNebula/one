@@ -97,7 +97,7 @@ var create_image_tmpl =
                           <label class="right inline" for="img_desc">'+tr("Description")+':</label>\
                         </div>\
                         <div class="seven columns">\
-                          <textarea name="img_desc" id="img_desc" style="height:4em"></textarea>\
+                          <textarea name="img_desc" id="img_desc" rows="4"></textarea>\
                         </div>\
                         <div class="one columns">\
                           <div class="tip">'+tr("Human readable description of the image for other users.")+'</div>\
@@ -122,17 +122,6 @@ var create_image_tmpl =
                       </div>\
                       <div class="row">\
                         <div class="four columns">\
-                          <label class="right inline" for="img_persistent">'+tr("Persistent")+':</label>\
-                        </div>\
-                        <div class="seven columns">\
-                         <input type="checkbox" id="img_persistent" name="img_persistent" value="YES" />\
-                        </div>\
-                        <div class="one columns">\
-                          <div class="tip">'+tr("Persistence of the image")+'</div>\
-                        </div>\
-                      </div>\
-                      <div class="row">\
-                        <div class="four columns">\
                           <label class="right inline" for="img_datastore">'+tr("Datastore")+':</label>\
                         </div>\
                         <div class="seven columns">\
@@ -141,6 +130,17 @@ var create_image_tmpl =
                         </div>\
                         <div class="one columns">\
                           <div class="tip">'+tr("Select the datastore for this image")+'</div>\
+                        </div>\
+                      </div>\
+                      <div class="row">\
+                        <div class="four columns">\
+                          <label class="right inline" for="img_persistent">'+tr("Persistent")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                         <input type="checkbox" id="img_persistent" name="img_persistent" value="YES" />\
+                        </div>\
+                        <div class="one columns">\
+                          <div class="tip">'+tr("Persistence of the image")+'</div>\
                         </div>\
                       </div>\
                     </div>\
