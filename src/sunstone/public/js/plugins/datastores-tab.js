@@ -129,13 +129,13 @@ var create_datastore_tmpl =
           <fieldset>\
             <legend>' + tr("Type") + '</legend>\
               <div class="four columns">\
-                <label for="ds_type"><input id="ds_type" type="radio" name="ds_type" value="IMAGE_DS" />' + tr("Images") + '</label>\
+                <label for="image_ds_type"><input id="image_ds_type" type="radio" name="ds_type" value="IMAGE_DS" checked/>' + tr("Images") + '</label>\
               </div>\
               <div class="four columns">\
-                <label for="ds_type"><input id="ds_type" type="radio" name="ds_type" value="SYSTEM_DS" />' + tr("System") + '</label>\
+                <label for="system_ds_type"><input id="system_ds_type" type="radio" name="ds_type" value="SYSTEM_DS" />' + tr("System") + '</label>\
               </div>\
               <div class="four columns">\
-                <label for="ds_type"><input id="ds_type" type="radio" name="ds_type" value="FILE_DS" />' + tr("Files") + '</label>\
+                <label for="file_ds_type"><input id="file_ds_type" type="radio" name="ds_type" value="FILE_DS" />' + tr("Files") + '</label>\
               </div>\
           </fieldset>\
         </div>\
@@ -289,13 +289,17 @@ var create_datastore_tmpl =
   </div>\
     </li>\
       <li id="datastore_manualTab">\
-              <div class="columns three">\
-                   <label class="inline left" for="datastore_cluster_raw">'+tr("Cluster")+':</label>\
-                 </div>\
-                 <div class="columns nine">\
-                   <select id="datastore_cluster_raw" name="datastore_cluster_raw"></select>\
-                 </div>\
-                 <textarea id="template" rows="15" style="width:100%;"></textarea>\
+          <div class="row">\
+            <div class="columns three">\
+               <label class="inline left" for="datastore_cluster_raw">'+tr("Cluster")+':</label>\
+             </div>\
+             <div class="columns nine">\
+               <select id="datastore_cluster_raw" name="datastore_cluster_raw"></select>\
+             </div>\
+            </div>\
+            <div class="row">\
+                 <textarea id="template" rows="15"></textarea>\
+            </div>\
           <div class="reveal-footer">\
                <hr>\
                <div class="form_buttons">\
