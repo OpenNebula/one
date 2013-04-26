@@ -131,18 +131,29 @@ var create_image_tmpl =
                           <div class="tip">'+tr("Persistence of the image")+'</div>\
                         </div>\
                       </div>\
+                      <div class="row">\
+                        <div class="four columns">\
+                          <label class="right inline" for="img_datastore">'+tr("Datastore")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                         <select id="img_datastore" name="img_datastore">\
+                         </select>\
+                        </div>\
+                        <div class="one columns">\
+                          <div class="tip">'+tr("Select the datastore for this image")+'</div>\
+                        </div>\
+                      </div>\
                     </div>\
                   </div>\
                  <div class="row">\
                  <fieldset>\
                  <legend>'+tr("Image location")+':</legend>\
-                 <div class="row" id="src_path_select">\
-                        <div class="seven columns centered">\
+                 <div class="row centered" id="src_path_select" style="text-align:center">\
                          <input type="radio" name="src_path" id="path_img" value="path">'+ tr("Provide a path")+'&emsp;</input> \
                          <input type="radio" name="src_path" id="upload_img" value="upload"> '+tr("Upload")+'</input> &emsp;\
                          <input type="radio" name="src_path" id="datablock_img" value="datablock" disabled> '+tr("Empty datablock")+'</input> &emsp;\
-                        </div>\
                  </div>\
+                 <hr>\
                  <div class="img_param row">\
                    <div class="eight columns centered">\
                     <div class="two columns">\
@@ -201,10 +212,10 @@ var create_image_tmpl =
                   <div class="row">\
                     <div class="six columns">\
                       <div class="row">\
-                        <div class="four columns">\
+                        <div class="six columns">\
                           <label class="right inline" for="img_dev_prefix">'+tr("Device prefix")+':</label>\
                         </div>\
-                        <div class="seven columns">\
+                        <div class="five columns">\
                           <input type="text" name="img_dev_prefix" id="img_dev_prefix" />\
                         </div>\
                         <div class="one columns">\
@@ -212,10 +223,10 @@ var create_image_tmpl =
                         </div>\
                       </div>\
                       <div class="row">\
-                        <div class="four columns">\
+                        <div class="six columns">\
                           <label class="right inline" for="img_driver">'+tr("Driver")+':</label>\
                         </div>\
-                        <div class="seven columns">\
+                        <div class="five columns">\
                           <input type="text" name="img_driver" id="img_driver" />\
                         </div>\
                         <div class="one columns">\
@@ -225,26 +236,14 @@ var create_image_tmpl =
                     </div>\
                     <div class="six columns">\
                       <div class="row">\
-                        <div class="four columns">\
+                        <div class="six columns">\
                           <label class="right inline" for="img_target">'+tr("Target")+':</label>\
                         </div>\
-                        <div class="seven columns">\
+                        <div class="five columns">\
                           <input type="text" name="img_target" id="img_target" />\
                         </div>\
                         <div class="one columns">\
                           <div class="tip">'+tr("Target on which the image will be mounted at. For example: hda, sdb...")+'</div>\
-                        </div>\
-                      </div>\
-                      <div class="row">\
-                        <div class="four columns">\
-                          <label class="right inline" for="img_datastore">'+tr("Datastore")+':</label>\
-                        </div>\
-                        <div class="seven columns">\
-                         <select id="img_datastore" name="img_datastore">\
-                         </select>\
-                        </div>\
-                        <div class="one columns">\
-                          <div class="tip">'+tr("Select the datastore for this image")+'</div>\
                         </div>\
                       </div>\
                     </div>\
@@ -254,7 +253,7 @@ var create_image_tmpl =
             <hr>\
             <div class="form_buttons">\
               <button class="button success radius right" id="create_image_submit" value="image/create">'+tr("Create")+'</button>\
-              <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
+              <button id="wizard_image_reset_button"  class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
               <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
             </div>\
           </div>\
@@ -273,7 +272,7 @@ var create_image_tmpl =
                  <hr>\
                <div class="form_buttons">\
                  <button class="button success radius right" id="create_image_submit_manual" value="image/create">'+tr("Create")+'</button>\
-                 <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
+                 <button  id="advanced_image_reset_button" class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
                  <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
                </div>\
           </div>\
@@ -814,11 +813,13 @@ function enable_all_datastores()
 
 // Prepare the image creation dialog
 function setupCreateImageDialog(){
-    dialogs_context.append('<div title="'+tr("Create Image")+'" id="create_image_dialog"></div>');
+    dialogs_context.append('<div id="create_image_dialog"></div>');
     $create_image_dialog =  $('#create_image_dialog',dialogs_context);
 
     var dialog = $create_image_dialog;
     dialog.html(create_image_tmpl);
+
+    setupTips($create_image_dialog);
 
     var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
 
@@ -1128,6 +1129,23 @@ function setupCreateImageDialog(){
         $create_image_dialog.trigger("reveal:close")
         return false;
     });
+
+    $('#wizard_image_reset_button').click(function(){
+        $create_image_dialog.trigger('reveal:close');
+        $create_image_dialog.remove();
+        setupCreateImageDialog();
+
+        popUpCreateImageDialog();
+    });
+
+    $('#advanced_image_reset_button').click(function(){
+        $create_image_dialog.trigger('reveal:close');
+        $create_image_dialog.remove();
+        setupCreateImageDialog();
+
+        popUpCreateImageDialog();
+        $("a[href='#img_manual']").click();
+    });
 }
 
 function popUpCreateImageDialog(){
@@ -1173,7 +1191,7 @@ function is_persistent_image(id){
 
 function setupImageCloneDialog(){
     //Append to DOM
-    dialogs_context.append('<div id="image_clone_dialog" title="'+tr("Clone an image")+'"></div>');
+    dialogs_context.append('<div id="image_clone_dialog"></div>');
     var dialog = $('#image_clone_dialog',dialogs_context);
 
     //Put HTML in place
@@ -1286,7 +1304,6 @@ $(document).ready(function(){
     Sunstone.runAction("Image.list");
 
     setupCreateImageDialog();
-    setupTips($create_image_dialog);
     setupImageCloneDialog();
     setImageAutorefresh();
 

@@ -81,8 +81,8 @@ var create_host_tmpl =
       <small id="create_cluster_header">'+tr("Create Host")+'</small>\
     </h3>\
   </div>\
-  <div class="reveal-body">\
   <form id="create_host_form" action="" class="">\
+  <div class="reveal-body">\
   <div class="row">\
       <div class="four columns">\
           <label class="inline right" for="name">' + tr("Hostname")  + ':</label>\
@@ -178,17 +178,17 @@ var create_host_tmpl =
           <div class="tip"></div>\
       </div>\
     </div>\
-    <div class="reveal-footer">\
-    <hr>\
-    <div class="form_buttons row">\
-        <button class="button success right radius" type="submit" id="create_host_submit" value="OpenNebula.Host.create">' + tr("Create") + '</button>\
-        <button class="button secondary radius" type="reset" value="reset">' + tr("Reset") + '</button>\
-        <button class="close-reveal-modal button secondary radius" action="" type="button" value="close">' + tr("Close") + '</button>\
     </div>\
+    <div class="reveal-footer">\
+      <hr>\
+      <div class="form_buttons row">\
+          <button class="button success right radius" type="submit" id="create_host_submit" value="OpenNebula.Host.create">' + tr("Create") + '</button>\
+          <button id="wizard_host_reset_button" class="button secondary radius" type="reset" value="reset">' + tr("Reset") + '</button>\
+          <button class="close-reveal-modal button secondary radius" action="" type="button" value="close">' + tr("Close") + '</button>\
+      </div>\
     </div>\
     <a class="close-reveal-modal">&#215;</a>\
-</form>\
-    </div>';
+</form>';
 
 var hosts_select="";
 var dataTable_hosts;
@@ -923,6 +923,14 @@ function setupCreateHostDialog(){
         Sunstone.runAction("Host.create",host_json);
         $create_host_dialog.trigger("reveal:close")
         return false;
+    });
+
+    $('#wizard_host_reset_button').click(function(){
+        $create_host_dialog.trigger('reveal:close');
+        $create_host_dialog.remove();
+        setupCreateHostDialog();
+
+        popUpCreateHostDialog();
     });
 }
 

@@ -398,7 +398,7 @@ var create_vn_tmpl =
           <button class="button success radius right" id="create_vn_submit_easy" value="vn/create">\
              '+tr("Create")+'\
           </button>\
-          <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
+          <button id="wizard_vnet_reset_button" class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
           <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
         </div>\
          </div>\
@@ -414,7 +414,7 @@ var create_vn_tmpl =
                 <button class="button success right radius" id="create_vn_submit_manual" value="vn/create">\
                    '+tr("Create")+'\
                 </button>\
-                <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
+                <button id="advanced_vnet_reset_button" class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
                 <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
               </div>\
             </div>\
@@ -1101,7 +1101,7 @@ function setupCreateVNetDialog() {
     //    width: 475,
     //    height: height
     //});
-    dialog.addClass("reveal-modal large max-height");
+    dialog.addClass("reveal-modal xlarge max-height");
 
     //Make the tabs look nice for the creation mode
     //$('#vn_tabs',dialog).tabs();
@@ -1455,6 +1455,23 @@ function setupCreateVNetDialog() {
         Sunstone.runAction("Network.create",vnet_json);
         $create_vn_dialog.trigger("reveal:close")
         return false;
+    });
+
+    $('#wizard_vnet_reset_button').click(function(){
+        $create_vn_dialog.trigger('reveal:close');
+        $create_vn_dialog.remove();
+        setupCreateVNetDialog();
+
+        popUpCreateVnetDialog();
+    });
+
+    $('#advanced_vnet_reset_button').click(function(){
+        $create_vn_dialog.trigger('reveal:close');
+        $create_vn_dialog.remove();
+        setupCreateVNetDialog();
+
+        popUpCreateVnetDialog();
+        $("a[href='#vnet_advanced']").click();
     });
 }
 

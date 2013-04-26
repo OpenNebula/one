@@ -283,7 +283,7 @@ var create_datastore_tmpl =
     <hr>\
     <div class="form_buttons">\
         <button class="button radius right success" type="submit" id="create_datastore_submit" value="OpenNebula.Datastore.create">' + tr("Create") + '</button>\
-        <button class="button radius secondary" type="reset" value="reset">' + tr("Reset") + '</button>\
+        <button id="wizard_ds_reset_button" class="button radius secondary" type="reset" value="reset">' + tr("Reset") + '</button>\
         <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
     </div>\
   </div>\
@@ -300,7 +300,7 @@ var create_datastore_tmpl =
                <hr>\
                <div class="form_buttons">\
                  <button class="button success radius right" id="create_datastore_submit_manual" value="datastore/create">'+tr("Create")+'</button>\
-                 <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
+                 <button  id="advanced_ds_reset_button" class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
                  <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
                </div>\
           </div>\
@@ -960,6 +960,23 @@ function setupCreateDatastoreDialog(){
         Sunstone.runAction("Datastore.create",ds_obj);
         $create_datastore_dialog.trigger("reveal:close")
         return false;
+    });
+
+    $('#wizard_ds_reset_button').click(function(){
+        $create_datastore_dialog.trigger('reveal:close');
+        $create_datastore_dialog.remove();
+        setupCreateDatastoreDialog();
+
+        popUpCreateDatastoreDialog();
+    });
+
+    $('#advanced_ds_reset_button').click(function(){
+        $create_datastore_dialog.trigger('reveal:close');
+        $create_datastore_dialog.remove();
+        setupCreateDatastoreDialog();
+
+        popUpCreateDatastoreDialog();
+        $("a[href='#datastore_manual']").click();
     });
 }
 
