@@ -102,7 +102,7 @@ var create_file_tmpl =
                     <label class="right inline" for="img_desc">'+tr("Description")+':</label>\
                   </div>\
                   <div class="seven columns">\
-                    <textarea name="img_desc" id="img_desc" style="height:4em"></textarea>\
+                    <textarea name="img_desc" id="img_desc" rows="4"></textarea>\
                   </div>\
                   <div class="one columns">\
                     <div class="tip">'+tr("Human readable description of the file for other users.")+'</div>\
@@ -125,46 +125,6 @@ var create_file_tmpl =
                     <div class="tip">'+tr("Type of the file, explained in detail in the following section. If omitted, the default value is the one defined in oned.conf (install default is OS).")+'</div>\
                   </div>\
                 </div>\
-              </div>\
-            </div>\
-           <div class="row">\
-           <fieldset>\
-           <legend>'+tr("File location")+':</legend>\
-           <div class="row" id="src_path_select">\
-                  <div class="five columns centered">\
-                   <input type="radio" name="src_path" id="path_img" value="path">'+ tr("Provide a path")+'&emsp;</input> \
-                   <input type="radio" name="src_path" id="upload_img" value="upload"> '+tr("Upload")+'</input> &emsp;\
-                  </div>\
-           </div>\
-           <div class="img_param row">\
-             <div class="eight columns centered">\
-              <div class="two columns">\
-                <label class="right inline" for="img_path">'+tr("Path")+':</label>\
-              </div>\
-              <div class="nine columns">\
-               <input type="text" name="img_path" id="img_path" />\
-              </div>\
-              <div class="one columns">\
-                <div class="tip">'+tr("Path to the original file that will be copied to the file repository. If not specified for a DATABLOCK type file, an empty file will be created.")+'</div>\
-              </div>\
-           </div>\
-           </div>\
-           <div class="img_param" id="upload_div">\
-           <div class="row">\
-                     <div class="columns eight centered">\
-             <div id="file-uploader">\
-             </div><div class="clear" />\
-           </div>\
-           </div>\
-           </div>\
-           </fieldset>\
-           </div>\
-          <div class="show_hide" id="advanced_file_create">\
-               <h4><small><i class=" icon-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>\
-          </div>\
-          <div class="advanced">\
-            <div class="row">\
-              <div class="six columns">\
                 <div class="row">\
                   <div class="four columns">\
                     <label class="right inline" for="file_datastore">'+tr("Datastore")+':</label>\
@@ -179,7 +139,38 @@ var create_file_tmpl =
                 </div>\
               </div>\
             </div>\
+           <div class="row">\
+           <fieldset>\
+           <legend>'+tr("File location")+':</legend>\
+           <div class="row" id="src_path_select">\
+                  <div class="five columns centered">\
+                   <input type="radio" name="src_path" id="path_img" value="path">'+ tr("Provide a path")+'&emsp;</input> \
+                   <input type="radio" name="src_path" id="upload_img" value="upload"> '+tr("Upload")+'</input> &emsp;\
+                  </div>\
+           </div>\
+           <hr>\
+           <div class="img_param row">\
+             <div class="eight columns centered">\
+              <div class="two columns">\
+                <label class="right inline" for="img_path">'+tr("Path")+':</label>\
+              </div>\
+              <div class="nine columns">\
+               <input type="text" name="img_path" id="img_path" />\
+              </div>\
+              <div class="one columns">\
+                <div class="tip">'+tr("Path to the original file that will be copied to the file repository. If not specified for a DATABLOCK type file, an empty file will be created.")+'</div>\
+              </div>\
+           </div>\
+           </div>\
+           <div class="img_param" id="files_upload_div">\
+             <div class="row">\
+                <div class="columns eight centered">\
+                  <div id="files_file-uploader"></div>\
+                </div>\
+             </div>\
             </div>\
+           </fieldset>\
+           </div>\
       <div class="reveal-footer">\
             <hr>\
       <div class="form_buttons">\
@@ -682,16 +673,10 @@ function setupCreateFileDialog(){
     //});
     dialog.addClass("reveal-modal large max-height");
 
-    $('.advanced',dialog).hide();
-
-    $('#advanced_file_create',dialog).click(function(){
-        $('.advanced',dialog).toggle();
-        return false;
-    });
 
     //$('#img_tabs',dialog).tabs();
     //$('button',dialog).button();
-    //$('#datablock_img',dialog).attr('disabled','disabled');
+    //$('#datablock_img',dialogs_contextog).attr('disabled','disabled');
 
 
     $('select#img_type',dialog).change(function(){
@@ -711,23 +696,23 @@ function setupCreateFileDialog(){
     });
 
 
-    $('#img_path,#img_fstype,#img_size,#file-uploader',dialog).closest('.row').hide();
+    $('#img_path,#img_fstype,#img_size,#files_file-uploader',dialog).closest('.row').hide();
 
     $("input[name='src_path']", dialog).change(function(){
         var context = $create_file_dialog;
         var value = $(this).val();
         switch (value){
         case "path":
-            $('#img_fstype,#img_size,#file-uploader',context).closest('.row').hide();
+            $('#img_fstype,#img_size,#files_file-uploader',context).closest('.row').hide();
             $('#img_path',context).closest('.row').show();
             break;
         case "datablock":
-            $('#img_path,#file-uploader',context).closest('.row').hide();
+            $('#img_path,#files_file-uploader',context).closest('.row').hide();
             $('#img_fstype,#img_size',context).closest('.row').show();
             break;
         case "upload":
             $('#img_path,#img_fstype,#img_size',context).closest('.row').hide();
-            $('#file-uploader',context).closest('.row').show();
+            $('#files_file-uploader',context).closest('.row').show();
             break;
         };
     });
@@ -774,7 +759,7 @@ function setupCreateFileDialog(){
 
     // Upload is handled by FileUploader vendor plugin
     var uploader = new qq.FileUploaderBasic({
-        button: $('#file-uploader',$create_file_dialog)[0],
+        button: $('#files_file-uploader',$create_file_dialog)[0],
         action: 'upload',
         multiple: false,
         params: {},
@@ -947,8 +932,8 @@ function setupCreateFileDialog(){
 }
 
 function popUpCreateFileDialog(){
-    $('#file-uploader input',$create_file_dialog).removeAttr("style");
-    $('#file-uploader input',$create_file_dialog).attr('style','margin:0;width:256px!important');
+    $('#files_file-uploader input',$create_file_dialog).removeAttr("style");
+    $('#files_file-uploader input',$create_file_dialog).attr('style','margin:0;width:256px!important');
 
     datastores_str = makeSelectOptions(dataTable_datastores,
                                           1,

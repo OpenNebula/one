@@ -172,6 +172,11 @@ var create_image_tmpl =
                     </div>\
                  </div>\
                  </div>\
+                 <div class="row">\
+                  <div class="columns eight centered">\
+                    <div id="file-uploader"></div>\
+                  </div>\
+                 </div>\
                  <div class="img_size">\
                    <div class="six columns">\
                     <div class="row">\
@@ -200,18 +205,6 @@ var create_image_tmpl =
                     </div>\
                     </div>\
                   </div>\
-                 <div class="img_param" id="upload_div">\
-                   <div class="row">\
-                     <div class="columns eight centered">\
-                       <div id="file-uploader">\
-                       </div><div class="clear" />\
-                     </div>\
-                   </div>\
-                   <div class="row">\
-                      <div id="upload_progress_bar" class="twelve columns">\
-                      </div>\
-                   </div>\
-                 </div>\
                  </fieldset>\
                  </div>\
                 <div class="show_hide" id="advanced_image_create">\
