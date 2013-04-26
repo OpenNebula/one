@@ -467,23 +467,27 @@ class ExecDriver < VirtualMachineDriver
                 :parameters => [:deploy_id, :dest_host, :host]
             },
             # Execute networking clean up operations
+            # NOTE: VM is now in the new host. If we fail from now on, oned will
+            # assume that the VM is in the previous host but it is in fact
+            # migrated. Log errors will be shown in vm.log
             {
                 :driver       => :vnm,
-                :action       => :clean
+                :action       => :clean,
+                :no_fail      => true
             },
             # Execute post-boot networking setup on migrating host
             {
                 :driver       => :vnm,
                 :action       => :post,
                 :parameters   => [:deploy_id],
-                :destination  => :true
-                #TODO :fail_action what to do here? cancel VM?
+                :destination  => :true,
+                :no_fail      => true
             },
             {
                 :driver     => :tm,
                 :action     => :tm_postmigrate,
-                :parameters => post.split
-                #TODO :fail_action what to do here? cancel VM?
+                :parameters => post.split,
+                :no_fail    => true
             },
         ]
 
