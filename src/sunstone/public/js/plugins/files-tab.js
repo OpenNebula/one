@@ -44,6 +44,11 @@ var files_tab_content = '\
   </div>\
 </div>\
 </div>\
+  <div class="">\
+    <div class="twelve columns">\
+  <div id="files_upload_progress_bars"></div>\
+</div>\
+</div>\
   <div class="row">\
     <div class="twelve columns">\
 <table id="datatable_files" class="datatable twelve">\
@@ -145,8 +150,8 @@ var create_file_tmpl =
            </div>\
            </div>\
            <div class="img_param" id="upload_div">\
-           <div class="row centered">\
-           <div class="columns eight">\
+           <div class="row">\
+                     <div class="columns eight centered">\
              <div id="file-uploader">\
              </div><div class="clear" />\
            </div>\
@@ -801,16 +806,28 @@ function setupCreateFileDialog(){
             //                      position: [pos_left, pos_top]
             //                  });
 
-            var pb_dialog = $('<div id="pb_dialog" title="'+
-                              tr("Uploading...")+'">'+
-                              '<div id="upload-progress"></div>'+
-                              '</div>').addClass("reveal-modal");
+
+            $('#files_upload_progress_bars').append('<div id="files'+id+'progressBar" class="row" style="margin-bottom:10px">\
+              <div class="two columns dataTables_info">\
+                '+tr("Uploading...")+'\
+              </div>\
+              <div class="ten columns">\
+                <div id="upload_progress_container" class="progress nine radius" style="height:25px !important">\
+                  <span class="meter" style="width:0%"></span>\
+                </div>\
+                <div class="progress-text" style="margin-left:15px">'+id+' '+fileName+'</div>\
+              </div>\
+            </div>');
+
+            $('#files'+id+'cancel_upload').click(function(){
+              uploader.cancel();
+            })
 
             //$('#upload-progress',pb_dialog).progressbar({value:0});
         },
         onProgress: function(id, fileName, loaded, total){
             //update upload dialog with current progress
-            //$('div#pb_dialog #upload-progress').progressbar("option","value",Math.floor(loaded*100/total));
+            $('span.meter', $('#files'+id+'progressBar')).css('width', Math.floor(loaded*100/total)+'%')
         },
         onComplete: function(id, fileName, responseJSON){
 
@@ -818,9 +835,11 @@ function setupCreateFileDialog(){
                 uploader._handler._xhrs[id].status == 500) {
 
                 onError({}, JSON.parse(uploader._handler._xhrs[id].response) )
+                $('#files'+id+'progressBar').remove();
             } else {
                 notifyMessage("File uploaded correctly");
                 Sunstone.runAction("File.list");
+                $('#files'+id+'progressBar').remove();
             }
 
             //Inform complete upload, destroy upload dialog, refresh img list
