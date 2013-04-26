@@ -1124,133 +1124,6 @@ var cluster_info_panel = {
 
 };
 
-
-// Cluster monitoring configuration. This config controls the monitoring
-// which is plotted in the cluster dashboards.
-// It operations are run for every cluster and are related to hosts in that
-// cluster
-SunstoneMonitoringConfig['CLUSTER_HOST'] = {
-    plot: function(monitoring){
-        //plot the series calculated for the hosts in a specific cluster
-        var cluster_id = SunstoneMonitoringConfig.CLUSTER_HOST.cluster_id
-        if (cluster_id == '-1') cluster_id = '-';
-
-        for (plotID in monitoring){
-            var container = $('div#'+plotID+cluster_id,main_tabs_context);
-            SunstoneMonitoring.plot("CLUSTER_HOST",
-                                    plotID,
-                                    container,
-                                    monitoring[plotID]);
-        };
-    },
-    // Monitor configuration are the same those in the HOST
-    // configuration (except for cluster partitions)
-    // the difference is that these are plotted somewhere else.
-    monitor : {
-        "statePie" : {
-            partitionPath: "STATE",
-            operation: SunstoneMonitoring.ops.partition,
-            dataType: "pie",
-            colorize: function(state){
-                switch (state) {
-                case '0': return "rgb(239,201,86)" //yellow
-                case '1': return "rgb(175,216,248)" //blue
-                case '2': return "rgb(108,183,108)" //green
-                case '3': return "rgb(203,75,75)" //red
-                case '4': return "rgb(71,71,71)" //gray
-                case '5': return "rgb(160,160,160)" //light gray
-                }
-            },
-            plotOptions : {
-                series: { pie: { show: true  } },
-                legend : {
-                    labelFormatter: function(label, series){
-                        return OpenNebula.Helper.resource_state("host_simple",label) +
-                            ' - ' + series.data[0][1] + ' (' +
-                            Math.floor(series.percent) + '%' + ')';
-                    }
-                }
-            }
-        },
-        "globalCpuUsage" : {
-            partitionPath: ["HOST_SHARE", "USED_CPU"],
-            dataType: "pie",
-            operation: SunstoneMonitoring.ops.hostCpuUsagePartition,
-            plotOptions: {
-                series: { pie: { show: true  } }
-            }
-        },
-        "cpuUsageBar" : {
-            paths: [
-                ["HOST_SHARE","MAX_CPU"],
-                ["HOST_SHARE","USED_CPU"],
-                ["HOST_SHARE","CPU_USAGE"],
-            ],
-            operation: SunstoneMonitoring.ops.singleBar,
-            plotOptions: {
-                series: { bars: { show: true,
-                                  horizontal: true,
-                                  barWidth: 0.5 }
-                        },
-                yaxis: { show: false },
-                xaxis: { min:0 },
-                legend: {
-                    noColumns: 3,
-                    margin: [-25,-35],
-                    labelFormatter: function(label, series){
-                        if (label[1] == "USED_CPU") {
-                            return tr("Real CPU");
-                        }
-                        else if (label[1] == "CPU_USAGE") {
-                            return tr("Allocated CPU");
-                        }
-                        else if (label[1] == "MAX_CPU") {
-                            return tr("Total CPU");
-                        }
-                    }
-                }
-            }
-        },
-        "memoryUsageBar" : {
-            paths: [
-                ["HOST_SHARE","MAX_MEM"],
-                ["HOST_SHARE","USED_MEM"],
-                ["HOST_SHARE","MEM_USAGE"],
-            ],
-            operation: SunstoneMonitoring.ops.singleBar,
-            plotOptions: {
-                series: { bars: { show: true,
-                                  horizontal: true,
-                                  barWidth: 0.5 }
-                        },
-                yaxis: { show: false },
-                xaxis: {
-                    tickFormatter : function(val,axis) {
-                        return humanize_size(val);
-                    },
-                    min: 0
-                },
-                legend: {
-                    noColumns: 3,
-                    margin: [-25,-35],
-                    labelFormatter: function(label, series){
-                        if (label[1] == "USED_MEM") {
-                            return tr("Real MEM");
-                        }
-                        else if (label[1] == "MEM_USAGE") {
-                            return tr("Allocated MEM");
-                        }
-                        else if (label[1] == "MAX_MEM") {
-                            return tr("Total MEM");
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-
 Sunstone.addActions(cluster_host_actions);
 Sunstone.addActions(cluster_vnet_actions);
 Sunstone.addActions(cluster_datastore_actions);
@@ -1767,6 +1640,7 @@ function clusterResourceViewListeners(){
 // For each cluster, it calls the monitoring action for the hosts
 // on that cluster. The monitoring is then plotted in the cluster dashboard.
 // This is called from hosts plugin.
+/*
 function monitorClusters(list){
     var clustered_hosts = { "-" : []}
 
@@ -1784,12 +1658,8 @@ function monitorClusters(list){
         else
             clustered_hosts[cluster_id].push({ CLUSTER_HOST : list[i].HOST })
     }
-    for (cluster in clustered_hosts){
-        SunstoneMonitoringConfig.CLUSTER_HOST.cluster_id = cluster;
-        SunstoneMonitoring.monitor('CLUSTER_HOST', clustered_hosts[cluster]);
-    }
 }
-
+*/
 //Prepares the autorefresh for hosts
 function setClusterAutorefresh() {
     setInterval(function(){

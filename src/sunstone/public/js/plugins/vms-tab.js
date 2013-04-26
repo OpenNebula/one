@@ -854,115 +854,6 @@ var vms_tab = {
     parentTab: 'vresources-tab'
 };
 
-SunstoneMonitoringConfig['VM'] = {
-    plot: function(monitoring){
-        // we have the monitoring information and we need to
-        // send it somewhere to be plotted
-
-        // Write total VMs
-        $('#totalVMs', $dashboard).text(monitoring['totalVMs'])
-
-        // Calculate bandwidth
-        // netUsage object is global variable and stores last values of
-        // BU, BD and the time they were stored.
-        // According to the current values and time, we can calculate
-        // how much bandwith we are using.
-        // Once done, we update the netUsage object with the new values
-        // for the next time.
-
-        var t = ((new Date().getTime()) - netUsage.time) / 1000 //in secs
-        var bandwidth_up = monitoring['netUsageBar'][1].data[0][0] - netUsage.up
-        bandwidth_up /= t
-        var bandwidth_up_str = humanize_size(bandwidth_up,true) + "B/s" //bytes /sec
-        var bandwidth_down = monitoring['netUsageBar'][0].data[0][0] - netUsage.down
-        bandwidth_down /= t
-        var bandwidth_down_str = humanize_size(bandwidth_down,true) + "B/s" //bytes /sec
-
-        if (bandwidth_up >= 0)
-            $('#bandwidth_up', $dashboard).text(bandwidth_up_str)
-        if (bandwidth_down >= 0)
-            $('#bandwidth_down', $dashboard).text(bandwidth_down_str)
-
-        netUsage.time = new Date().getTime()
-        netUsage.up = monitoring['netUsageBar'][1].data[0][0]
-        netUsage.down = monitoring['netUsageBar'][0].data[0][0]
-
-        //if (!$dashboard.is(':visible')) return;
-
-        // plot these two graphs
-        var container = $('div#vmStatePie',$dashboard);
-        SunstoneMonitoring.plot('VM',
-                                'statePie',
-                                container,
-                                monitoring['statePie']);
-
-        container = $('div#netUsageBar',$dashboard);
-        SunstoneMonitoring.plot('VM',
-                                'netUsageBar',
-                                container,
-                                monitoring['netUsageBar']);
-    },
-    monitor: {
-        "totalVMs" : {
-            operation: SunstoneMonitoring.ops.totalize
-        },
-        "statePie" : {
-            partitionPath: "STATE",
-            operation: SunstoneMonitoring.ops.partition,
-            dataType: "pie",
-            colorize: function(state){
-                switch (state) {
-                case '0': return "rgb(160,160,160)" //light gray - init
-                case '1': return "rgb(239,201,86)" //yellow - pending
-                case '2': return "rgb(237,154,64)" //orange - hold
-                case '3': return "rgb(108,183,108)" //green - active
-                case '4': return "rgb(175,216,248)" //blue - stopped
-                case '5': return "rgb(112,164,205)" //dark blue - suspended
-                case '6': return "rgb(71,71,71)" //gray - done
-                case '7': return "rgb(203,75,75)" //red - failed
-
-                }
-            },
-            plotOptions : {
-                series: { pie: { show: true  } },
-                legend : {
-                    labelFormatter: function(label, series){
-                        return OpenNebula.Helper.resource_state("vm",label) +
-                            ' - ' + series.data[0][1] + ' (' +
-                            Math.floor(series.percent) + '%' + ')';
-                    }
-                }
-            }
-        },
-        "netUsageBar" : {
-            // Show in a single var the values from netrx and nettx
-            paths: [ "NET_RX", "NET_TX" ],
-            operation: SunstoneMonitoring.ops.singleBar,
-            plotOptions: {
-                series: { bars: { show: true,
-                                  horizontal: true,
-                                  barWidth: 0.5 }
-                        },
-                yaxis: { show: false },
-                xaxis: {
-                    min: 0,
-                    tickFormatter : function(val,axis) {
-                        return humanize_size(val,true);
-                    }
-                },
-                legend: {
-                    noColumns: 3,
-                    container: '#netUsageBar_legend',
-                    labelFormatter: function(label, series){
-                        return label + " - " + humanize_size(series.data[0][0],true)
-                    }
-                }
-            }
-        }
-    }
-}
-
-
 Sunstone.addActions(vm_actions);
 Sunstone.addMainTab('vms-tab',vms_tab);
 Sunstone.addInfoPanel('vm_info_panel',vm_info_panel);
@@ -1137,7 +1028,7 @@ function updateVMachinesView(request, vmachine_list){
     }
 
     updateView(vmachine_list_array,dataTable_vMachines);
-    //SunstoneMonitoring.monitor('VM', vmachine_list)
+
     //updateVResDashboard("vms",vmachine_list);
 
     $("#total_vms", $dashboard).text(vmachine_list.length);

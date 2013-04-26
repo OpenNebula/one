@@ -602,48 +602,6 @@ var users_tab_non_admin = {
     condition: mustNotBeAdmin
 }
 
-
-SunstoneMonitoringConfig['USER'] = {
-    plot: function(monitoring){
-        //plot only when i am admin
-        if (!mustBeAdmin()) return;
-
-        //plot the number of total users
-        $('#totalUsers', $dashboard).text(monitoring['totalUsers'])
-
-        //if (!$dashboard.is(':visible')) return;
-
-        //plot users per group
-        var container = $('div#usersPerGroup',$dashboard);
-        SunstoneMonitoring.plot('USER',
-                                'usersPerGroup',
-                                container,
-                                monitoring['usersPerGroup']);
-    },
-    monitor: {
-        "usersPerGroup" : {
-            //we want to monitor users divided by GNAME to paint bars.
-            partitionPath: "GNAME",
-            operation: SunstoneMonitoring.ops.partition,
-            dataType: "bars",
-            plotOptions: {
-                series: { bars: {show: true, barWidth: 0.5, align: 'center' }},
-                xaxis: { show: true, customLabels: true },
-                yaxis: { tickDecimals: 0,
-                         min: 0 },
-                legend : {
-                    show: false,
-                    noColumns: 2
-                }
-            }
-        },
-        "totalUsers" : {
-            operation: SunstoneMonitoring.ops.totalize
-        }
-    }
-}
-
-
 Sunstone.addActions(user_actions);
 Sunstone.addMainTab('users-tab',users_tab);
 Sunstone.addMainTab('users_tab_non_admin',users_tab_non_admin);
@@ -733,7 +691,7 @@ function updateUsersView(request,users_list){
         user_list_array.push(userElementArray(this));
     });
     updateView(user_list_array,dataTable_users);
-    //SunstoneMonitoring.monitor('USER', users_list)
+
     //if (mustBeAdmin())
     //    updateSystemDashboard("users",users_list);
     updateUserSelect();
