@@ -21,7 +21,6 @@
 #    @param $1 - Datastore base_path
 #    @param $2 - Restricted directories
 #    @param $3 - Safe dirs
-#    @param $4 - Umask for new file creation (default: 0007)
 #    @return sets the following environment variables
 #      - RESTRICTED_DIRS: Paths that cannot be used to register images
 #      - SAFE_DIRS: Paths that are safe to specify image paths
@@ -34,7 +33,6 @@ function set_up_datastore {
 	BASE_PATH="$1"
 	RESTRICTED_DIRS="$2"
 	SAFE_DIRS="$3"
-	UMASK="$4"
 
 	if [ -z "${ONE_LOCATION}" ]; then
 	    VAR_LOCATION=/var/lib/one/
@@ -52,12 +50,6 @@ function set_up_datastore {
 	export BASE_PATH
 	export RESTRICTED_DIRS
 	export SAFE_DIRS
-
-	if [ -n "$UMASK" ]; then
-		umask $UMASK
-	else
-		umask 0007
-	fi
 }
 
 #-------------------------------------------------------------------------------

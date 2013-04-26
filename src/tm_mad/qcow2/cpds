@@ -56,7 +56,6 @@ DST_PATH="${SRC_DS_PATH}${DST_ARG_PATH##$DST_DS_PATH}"
 # Move the image back to the datastore
 #-------------------------------------------------------------------------------
 CPSCRIPT=$(cat <<EOF
-umask 0007
 SRC_READLN=\$($READLINK -f $SRC_PATH)
 DST_READLN=\$($READLINK -f $DST_PATH)
 
