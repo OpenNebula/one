@@ -71,8 +71,7 @@ class OpenNebulaVNC
         @pipe = nil
         @token_folder = File.join(VAR_LOCATION, opts[:token_folder_name])
         @proxy_path   = File.join(SHARE_LOCATION, "websockify/websocketproxy.py")
-        @proxy_port   = config[:vnc_proxy_port] ||
-                        config[:vnc_proxy_base_port] #deprecated
+        @proxy_port   = config[:vnc_proxy_port]
 
         @wss = config[:vnc_proxy_support_wss]
 
