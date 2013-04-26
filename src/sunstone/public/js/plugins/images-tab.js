@@ -410,7 +410,7 @@ var image_actions = {
         call: OpenNebula.Image.chown,
         callback:  function (req) {
             Sunstone.runAction("Image.show",req.request.data[0][0]);
-            Sunstone.runAction('Image.showinfo',request.request.data[0]);
+            Sunstone.runAction('Image.showinfo',req.request.data[0]);
         },
         elements: imageElements,
         error: onError,
@@ -422,7 +422,7 @@ var image_actions = {
         call: OpenNebula.Image.chgrp,
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0][0]);
-            Sunstone.runAction('Image.showinfo',request.request.data[0]);
+            Sunstone.runAction('Image.showinfo',req.request.data[0]);
         },
         elements: imageElements,
         error: onError,

@@ -308,7 +308,7 @@ var file_actions = {
         call: OpenNebula.Image.chown,
         callback:  function (req) {
             Sunstone.runAction("File.show",req.request.data[0][0]);
-            Sunstone.runAction('Image.showinfo',request.request.data[0]);
+            Sunstone.runAction('Image.showinfo',req.request.data[0]);
         },
         elements: fileElements,
         error: onError,
@@ -320,7 +320,7 @@ var file_actions = {
         call: OpenNebula.Image.chgrp,
         callback: function (req) {
             Sunstone.runAction("File.show",req.request.data[0][0]);
-            Sunstone.runAction('Image.showinfo',request.request.data[0]);
+            Sunstone.runAction('Image.showinfo',req.request.data[0]);
         },
         elements: fileElements,
         error: onError,
