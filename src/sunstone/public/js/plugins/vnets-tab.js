@@ -806,8 +806,6 @@ function updateVNetworksView(request, network_list){
     });
 
     updateView(network_list_array,dataTable_vNetworks);
-    //dependency with dashboard
-    //updateInfraDashboard("vnets",network_list);
 
     $("#total_vnets", $dashboard).text(network_list.length);
     $("#addresses_vnets", $dashboard).text(addresses_vnets);

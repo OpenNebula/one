@@ -430,19 +430,6 @@ var groups_tab_non_admin = {
     condition: mustNotBeAdmin
 }
 
-
-SunstoneMonitoringConfig['GROUP'] = {
-    plot: function(monitoring){
-        if (!mustBeAdmin()) return;
-        $('#totalGroups', $dashboard).text(monitoring['totalGroups'])
-    },
-    monitor: {
-        "totalGroups" : {
-            operation: SunstoneMonitoring.ops.totalize
-        }
-    }
-}
-
 Sunstone.addActions(group_actions);
 Sunstone.addMainTab('groups-tab',groups_tab);
 Sunstone.addMainTab('groups_tab_non_admin',groups_tab_non_admin);
@@ -528,11 +515,8 @@ function updateGroupsView(request, group_list){
     });
     updateView(group_list_array,dataTable_groups);
     updateGroupSelect(group_list);
-    //SunstoneMonitoring.monitor('GROUP', group_list)
-    //if (mustBeAdmin())
-    //    updateSystemDashboard("groups",group_list);
 
-
+    // Dashboard info
     $("#total_groups", $dashboard).text(group_list.length);
 
     var form = $("#group_form");

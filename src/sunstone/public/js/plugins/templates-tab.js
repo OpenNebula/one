@@ -530,7 +530,6 @@ function updateTemplatesView(request, templates_list){
 
     updateView(template_list_array,dataTable_templates);
     updateTemplateSelect();
-    updateVResDashboard("templates",templates_list);
 }
 
 function generate_capacity_tab_content() {

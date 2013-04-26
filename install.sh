@@ -1408,7 +1408,6 @@ SUNSTONE_PUBLIC_JS_FILES="src/sunstone/public/js/layout.js \
                         src/sunstone/public/js/sunstone.js \
                         src/sunstone/public/js/sunstone-util.js \
                         src/sunstone/public/js/opennebula.js \
-                        src/sunstone/public/js/monitoring.js \
                         src/sunstone/public/js/locale.js"
 
 SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\

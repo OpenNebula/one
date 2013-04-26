@@ -502,7 +502,6 @@ function updateFilesView(request, files_list){
     });
 
     updateView(file_list_array,dataTable_files);
-    updateVResDashboard("files",files_list);
 
     var size = humanize_size_from_mb(size_files)
 
