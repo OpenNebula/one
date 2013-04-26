@@ -102,6 +102,21 @@ function get_tm_use_ssh {
     echo $TM_USE_SSH
 }
 
+# Returns the UMASK defined in the template of Datastore ($1)
+function get_umask {
+    XPATH="${ONE_LOCAL_VAR}/remotes/datastore/xpath.rb --stdin"
+
+    unset i XPATH_ELEMENTS
+
+    while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+    done < <(onedatastore show -x $1| $XPATH \
+                        /DATASTORE/TEMPLATE/UMASK)
+
+    UMASK="${XPATH_ELEMENTS[0]:-0007}"
+    echo $UMASK
+}
+
 #Return DISK_TYPE
 function disk_type
 {
@@ -110,7 +125,7 @@ function disk_type
     XPATH="${ONE_LOCAL_VAR}/remotes/datastore/xpath.rb --stdin"
 
     unset i XPATH_ELEMENTS
-     
+
     while IFS= read -r -d '' element; do
         XPATH_ELEMENTS[i++]="$element"
     done < <(onevm show -x $VMID| $XPATH \

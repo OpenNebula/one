@@ -52,11 +52,18 @@ DST_DS_PATH="$(dirname $(dirname $DST_ARG_PATH))"
 
 DST_PATH="${SRC_DS_PATH}${DST_ARG_PATH##$DST_DS_PATH}"
 
+UMASK=$(get_umask $DSID)
+TEMPDIR_DIR=$(dirname $DST_PATH)
+
 #-------------------------------------------------------------------------------
 # Move the image back to the datastore
 #-------------------------------------------------------------------------------
 MVSCRIPT=$(cat <<EOF
-umask 0007
+umask $UMASK
+TEMP_DIR=\$(mktemp --directory --tmpdir=$TEMPDIR_DIR)
+TEMP_FILE=\$TEMP_DIR/.perms
+touch \$TEMP_FILE
+
 SRC_READLN=\$($READLINK -f $SRC_PATH)
 DST_READLN=\$($READLINK -f $DST_PATH)
 
@@ -64,15 +71,23 @@ if [ -d $SRC_PATH ] ; then
     if [ \( -L $SRC_PATH \) -a \( "\$SRC_READLN" = "\$DST_READLN" \) ] ;  then
         echo "Not moving files to image repo, they are the same"
     elif [ -f $SRC_PATH/.is_persistent ]; then
-        echo "Not moving files to image repo, they are the same"
+        echo "Not moving files to imagess repo, they are the same"
     else
         mv -f $SRC_PATH/* $DST_PATH
+
+        for FILE in \$(ls $DST_PATH/*); do
+            chmod --reference \$TEMP_FILE \$FILE
+        done
     fi
 elif [ \( -L $SRC_PATH \) -a \( "\$SRC_READLN" = "\$DST_READLN" \) ] ; then
     echo "Not moving files to image repo, they are the same"
 else
     mv -f $SRC_PATH $DST_PATH
+    chmod --reference \$TEMP_FILE $DST_PATH
 fi
+
+rm \$TEMP_FILE
+rmdir \$TEMP_DIR
 EOF
 )
 
