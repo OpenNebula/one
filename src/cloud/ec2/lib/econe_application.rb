@@ -49,8 +49,6 @@ class EC2Application
         @conf[:views] = VIEWS_LOCATION
         @conf[:debug_level] ||= 3
 
-        @conf[:host] ||= @conf[:server] if @conf[:server]
-
         CloudServer.print_configuration(@conf)
 
         # ----------- Init logging system -----------

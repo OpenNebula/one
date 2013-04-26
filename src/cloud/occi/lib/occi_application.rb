@@ -63,8 +63,6 @@ class OCCIApplication
         @conf[:debug_level]     ||= 3
 
         CloudServer.print_configuration(@conf)
-
-        @conf[:host] ||= @conf[:server] if @conf[:server]
     end
 
     #Initialize the log system
