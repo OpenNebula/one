@@ -83,7 +83,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         cid = options[:cluster] || ClusterPool::NONE_CLUSTER_ID
 
         helper.create_resource(options) do |vn|
-            begin 
+            begin
                 template=File.read(args[0])
                 vn.allocate(template, cid)
             rescue => e
@@ -140,29 +140,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :release, release_desc, :vnetid, :ip do
         helper.perform_action(args[0],options,"lease released") do |vn|
             vn.release(args[1])
-        end
-    end
-
-    publish_desc = <<-EOT.unindent
-        DEPRECATED, use chmod instead. Publishes the given Virtual Network. 
-        A public Virtual Network can be seen and used by other users in the 
-        Virtual Network's group.
-    EOT
-
-    command :publish, publish_desc, [:range,:vnetid_list] do
-        helper.perform_actions(args[0],options,"published") do |vn|
-            vn.publish
-        end
-    end
-
-    unpublish_desc = <<-EOT.unindent
-        DEPRECATED, use chmod instead. Unpublishes the given Virtual Network. A 
-        private Virtual Network can't be used by any other user.
-    EOT
-
-    command :unpublish, unpublish_desc, [:range,:vnetid_list] do
-        helper.perform_actions(args[0],options,"unpublished") do |vn|
-            vn.unpublish
         end
     end
 
