@@ -741,6 +741,24 @@ public:
     }
 
     /**
+     *  Sets an error message with timestamp in the template
+     *    @param message Message string
+     */
+    void set_template_error_message(const string& message);
+
+    /**
+     *  Sets an error message with timestamp in the template
+     *    @param name of the error attribute
+     *    @param message Message string
+     */
+    void set_template_error_message(const string& name, const string& message);
+
+    /**
+     *  Deletes the error message from the template
+     */
+    void clear_template_error_message();
+
+    /**
      *  Sets an error message with timestamp in the template (ERROR_MONITOR)
      *    @param message Message string
      */

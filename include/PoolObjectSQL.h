@@ -434,12 +434,12 @@ public:
      *  Sets an error message with timestamp in the template
      *    @param message Message string
      */
-    void set_template_error_message(const string& message);
+    virtual void set_template_error_message(const string& message);
 
     /**
      *  Deletes the error message from the template
      */
-    void clear_template_error_message();
+    virtual void clear_template_error_message();
 
     /**
      *  Adds a string attribute
@@ -599,7 +599,7 @@ protected:
      *    @param name of the error attribute
      *    @param message Message string
      */
-    void set_template_error_message(const string& name, const string& message);
+    virtual void set_template_error_message(const string& name, const string& message);
 
     /**
      *  The object's unique ID

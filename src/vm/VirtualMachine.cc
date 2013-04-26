@@ -3216,12 +3216,46 @@ int VirtualMachine::replace_template(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VirtualMachine::set_template_error_message(const string& message)
+{
+    set_template_error_message("ERROR", message);
+}
+
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::set_template_error_message(const string& name,
+                                               const string& message)
+{
+    SingleAttribute * attr;
+    ostringstream     error_value;
+
+    error_value << one_util::log_time() << " : " << message;
+
+    attr = new SingleAttribute(name, error_value.str());
+
+    user_obj_template->erase(name);
+    user_obj_template->set(attr);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::clear_template_error_message()
+{
+    user_obj_template->erase("ERROR");
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachine::set_template_monitor_error(const string& message)
 {
     set_template_error_message("ERROR_MONITOR", message);
 }
 
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachine::clear_template_monitor_error()
 {
-    remove_template_attribute("ERROR_MONITOR");
+    user_obj_template->erase("ERROR_MONITOR");
 }
