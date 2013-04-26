@@ -87,7 +87,7 @@ class OzonesServer < CloudServer
 
         if OpenNebula.is_error?(vdc_data)
             return [400, OZones::Error.new("Error: Couldn't update vdc. " \
-                                           "Reason: #{data.message}.").to_json]
+                                           "Reason: #{vdc_data.message}.").to_json]
         end
 
         #-----------------------------------------------------------------------
