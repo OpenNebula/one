@@ -55,6 +55,7 @@ ssh_make_path $DST_HOST $DST_DIR
 # Get image information
 #-------------------------------------------------------------------------------
 
+DRIVER_PATH=$(dirname $0)
 XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
 
 unset i XPATH_ELEMENTS
