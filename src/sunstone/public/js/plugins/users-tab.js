@@ -692,8 +692,6 @@ function updateUsersView(request,users_list){
     });
     updateView(user_list_array,dataTable_users);
 
-    //if (mustBeAdmin())
-    //    updateSystemDashboard("users",users_list);
     updateUserSelect();
 
     $("#total_users", $dashboard).text(users_list.length);

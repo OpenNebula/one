@@ -710,14 +710,6 @@ function updateHostsView (request,host_list){
             host_monitoring_data = {};
         }
     }
-
-    ////if clusters_sel is there, it means the clusters have arrived.
-    ////Otherwise do not attempt to monitor them.
-    //if (typeof(monitorClusters) != 'undefined' && clusters_sel())
-    //    monitorClusters(host_list)
-
-    //dependency with the dashboard plugin
-    //updateInfraDashboard("hosts",host_list);
 }
 
 //Updates the host info panel tab content and pops it up

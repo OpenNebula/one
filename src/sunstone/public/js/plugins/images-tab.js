@@ -628,7 +628,6 @@ function updateImagesView(request, images_list){
     });
 
     updateView(image_list_array,dataTable_images);
-    updateVResDashboard("images",images_list);
 
     var size = humanize_size_from_mb(size_images)
 

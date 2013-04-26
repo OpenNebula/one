@@ -403,7 +403,6 @@ function updateAclsView(request,list){
     });
 
     updateView(list_array,dataTable_acls);
-//    updateSystemDashboard("acls",list);
 }
 
 function setupCreateAclDialog(){

@@ -1029,8 +1029,6 @@ function updateVMachinesView(request, vmachine_list){
 
     updateView(vmachine_list_array,dataTable_vMachines);
 
-    //updateVResDashboard("vms",vmachine_list);
-
     $("#total_vms", $dashboard).text(vmachine_list.length);
     $("#active_vms", $dashboard).text(active_vms);
     $("#pending_vms", $dashboard).text(pending_vms);
@@ -2081,15 +2079,6 @@ function hotpluggingOps(){
     }
 }
 
-
-
-
-function updateVMNicsInfo(request,vm){
-  $("li#vm_network_tabTab").html(printNics(vm.VM));
-  Sunstone.runAction("VM.monitor",vm.VM.ID,
-        { monitor_resources : "CPU,MEMORY,NET_TX,NET_RX"});
-}
-
 function printNics(vm_info){
    var html ='\
      <div class="">\
@@ -2331,14 +2320,6 @@ function setup_vm_network_tab(){
           return false;
       });
     }
-}
-
-
-
-function updateVMCapacityInfo(request,vm){
-  $("li#vm_capacity_tabTab").html(printCapacity(vm.VM));
-  Sunstone.runAction("VM.monitor",vm.VM.ID,
-        { monitor_resources : "CPU,MEMORY,NET_TX,NET_RX"});
 }
 
 function printCapacity(vm_info){
