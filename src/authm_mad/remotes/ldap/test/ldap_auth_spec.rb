@@ -29,17 +29,21 @@ describe LdapAuth do
     end
 
     it 'should find user dn' do
-        name=@ldap.find_user('user01')
+        name,group_name=@ldap.find_user('user01')
         name.should=='cn=user01,dc=localdomain'
+        group_name.should=='cn=user01,dc=localdomain'
 
-        name=@ldap.find_user('user02')
+        name,group_name=@ldap.find_user('user02')
         name.should=='cn=user02,dc=localdomain'
+        group_name.should=='cn=user02,dc=localdomain'
 
-        name=@ldap.find_user('user03')
+        name,group_name=@ldap.find_user('user03')
         name.should==nil
+        group_name.should==nil
 
         name=@ldap.find_user('cn=user01,dc=localdomain')
         name.should=='cn=user01,dc=localdomain'
+        group_name.should=='cn=user01,dc=localdomain'
     end
 
     it 'should tell if a user is in a group' do

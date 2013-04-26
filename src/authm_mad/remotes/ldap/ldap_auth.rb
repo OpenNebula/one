@@ -29,6 +29,7 @@ class OpenNebula::LdapAuth
             :base => nil,
             :auth_method => :simple,
             :user_field => 'cn',
+            :user_group_field => 'dn',
             :group_field => 'member'
         }.merge(options)
 
@@ -56,18 +57,18 @@ class OpenNebula::LdapAuth
                 :filter => "#{@options[:user_field]}=#{name}")
 
             if result && result.first
-                result.first.dn
+                [result.first.dn, result.first[@options[:user_group_field]]]
             else
                 result=@ldap.search(:base => name)
 
                 if result && result.first
-                    name
+                    [name, result.first[@options[:user_group_field]]]
                 else
-                    nil
+                    [nil, nil]
                 end
             end
         rescue
-            nil
+            [nil, nil]
         end
     end
 
