@@ -52,6 +52,21 @@ DST_DIR=`dirname $DST_PATH`
 ssh_make_path $DST_HOST $DST_DIR
 
 #-------------------------------------------------------------------------------
+# Get image information
+#-------------------------------------------------------------------------------
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+unset i XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VMID| $XPATH \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/TYPE )
+
+DISK_TYPE="${XPATH_ELEMENTS[0]}"
+
+#-------------------------------------------------------------------------------
 # Copy files to the remote host
 #-------------------------------------------------------------------------------
 case $SRC in
@@ -66,3 +81,8 @@ http://*)
     exec_and_log "$SCP -r $SRC $DST" "Error copying $SRC to $DST"
     ;;
 esac
+
+if [ "$DISK_TYPE" = "CDROM" ]; then
+    ssh_exec_and_log "$DST_HOST" "ln -s $DST_PATH $DST_PATH.iso" \
+                                 "Error soft linking CDROM $DST.iso"
+fi
