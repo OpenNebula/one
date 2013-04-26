@@ -35,7 +35,6 @@ MD5SUM=md5sum
 MKFS=mkfs
 MKISOFS=genisoimage
 MKSWAP=mkswap
-MKTEMP=mktemp
 QEMU_IMG=qemu-img
 RBD=rbd
 READLINK=readlink
@@ -417,7 +416,7 @@ function is_iscsi {
     fi
 }
 
-# Checks wether $IMAGE_TYPE is CDROM
+# Checks wether $IMAGE_TYPE is CDROM 
 function is_cdrom {
     [ "$IMAGE_TYPE" = "1" ]
 }
