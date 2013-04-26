@@ -30,10 +30,7 @@ require 'ImagePoolOCCI'
 require 'UserOCCI'
 require 'UserPoolOCCI'
 
-require 'OpenNebulaVNC'
-
 require 'pp'
-
 
 ##############################################################################
 # The OCCI Server provides an OCCI implementation based on the
