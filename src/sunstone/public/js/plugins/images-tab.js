@@ -44,6 +44,11 @@ var images_tab_content = '\
   </div>\
 </div>\
 </div>\
+  <div class="">\
+    <div class="twelve columns">\
+  <div id="upload_progress_bars"></div>\
+</div>\
+</div>\
   <div class="row">\
     <div class="twelve columns">\
 <table id="datatable_images" class="datatable twelve">\
@@ -196,12 +201,16 @@ var create_image_tmpl =
                     </div>\
                   </div>\
                  <div class="img_param" id="upload_div">\
-                 <div class="row centered">\
-                 <div class="columns eight">\
-                   <div id="file-uploader">\
-                   </div><div class="clear" />\
-                 </div>\
-                 </div>\
+                   <div class="row">\
+                     <div class="columns eight centered">\
+                       <div id="file-uploader">\
+                       </div><div class="clear" />\
+                     </div>\
+                   </div>\
+                   <div class="row">\
+                      <div id="upload_progress_bar" class="twelve columns">\
+                      </div>\
+                   </div>\
                  </div>\
                  </fieldset>\
                  </div>\
@@ -252,7 +261,7 @@ var create_image_tmpl =
           <div class="reveal-footer">\
             <hr>\
             <div class="form_buttons">\
-              <button class="button success radius right" id="create_image_submit" value="image/create">'+tr("Create")+'</button>\
+              <button class="button success radius right" id="create_image_submit" type="button" value="image/create">'+tr("Create")+'</button>\
               <button id="wizard_image_reset_button"  class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
               <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
             </div>\
@@ -941,8 +950,8 @@ function setupCreateImageDialog(){
                 file: fileName
             });
             //we pop up an upload progress dialog
-            var pos_top = $(window).height() - 120;
-            var pos_left = 220;
+            //var pos_top = $(window).height() - 120;
+            //var pos_left = 220;
             //var pb_dialog = $('<div id="pb_dialog" title="'+
             //                  tr("Uploading...")+'">'+
             //                  '<div id="upload-progress"></div>'+
@@ -956,16 +965,28 @@ function setupCreateImageDialog(){
             //                      position: [pos_left, pos_top]
             //                  });
 
-            var pb_dialog = $('<div id="pb_dialog" title="'+
-                              tr("Uploading...")+'">'+
-                              '<div id="upload-progress"></div>'+
-                              '</div>').addClass("reveal-modal");
+            //var pb_dialog = $('<div id="pb_dialog" title="'+
+            //                  tr("Uploading...")+'">'+
+            //                  '<div id="upload-progress"></div>'+
+            //                  '</div>').addClass("reveal-modal");
 
             //$('#upload-progress',pb_dialog).progressbar({value:0});
+            $('#upload_progress_bars').append('<div id="'+id+'progressBar" class="row" style="margin-bottom:10px">\
+              <div class="two columns dataTables_info">\
+                '+tr("Uploading...")+'\
+              </div>\
+              <div class="ten columns">\
+                <div id="upload_progress_container" class="progress nine radius" style="height:25px !important">\
+                  <span class="meter" style="width:0%"></span>\
+                </div>\
+                <div class="progress-text" style="margin-left:15px">'+id+' '+fileName+'</div>\
+              </div>\
+            </div>');
         },
         onProgress: function(id, fileName, loaded, total){
             //update upload dialog with current progress
             //$('div#pb_dialog #upload-progress').progressbar("option","value",Math.floor(loaded*100/total));
+            $('span.meter', $('#'+id+'progressBar')).css('width', Math.floor(loaded*100/total)+'%')
         },
         onComplete: function(id, fileName, responseJSON){
 
@@ -973,15 +994,13 @@ function setupCreateImageDialog(){
                 uploader._handler._xhrs[id].status == 500) {
 
                 onError({}, JSON.parse(uploader._handler._xhrs[id].response) )
+                $('#'+id+'progressBar').remove();
             } else {
                 notifyMessage("Image uploaded correctly");
+                $('#'+id+'progressBar').remove();
                 Sunstone.runAction("Image.list");
             }
 
-            //Inform complete upload, destroy upload dialog, refresh img list
-
-            //$('div#pb_dialog').dialog('destroy');
-            $('div#pb_dialog').trigger("reveal:close")
             return false;
         },
         onCancel: function(id, fileName){
@@ -1107,6 +1126,7 @@ function setupCreateImageDialog(){
         };
 
         $create_image_dialog.trigger("reveal:close")
+
         return false;
     });
 
