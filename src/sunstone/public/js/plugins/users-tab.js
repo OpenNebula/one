@@ -20,6 +20,7 @@ var users_select="";
 var $create_user_dialog;
 var $user_quotas_dialog;
 var $update_pw_dialog;
+var $change_auth_dialog;
 
 var user_acct_graphs = [
     { title : tr("CPU"),
@@ -93,6 +94,21 @@ var users_tab_content = '\
   </div>\
 </form>';
 
+// authn = "ssh,x509,ldap,server_cipher,server_x509"
+
+var auth_drivers_div = 
+'<select name="driver" id="driver">\
+     <option value="core" selected="selected">'+tr("Core")+'</option>\
+     <option value="ssh">'+tr("SSH")+'</option>\
+     <option value="x509">'+tr("x509")+'</option>\
+     <option value="ldap">'+tr("LDAP")+'</option>\
+     <option value="public">'+tr("Public")+'</option>\
+     <option value="custom">'+tr("Custom")+'</option>\
+</select>\
+<div>\
+  <input type="text" name="custom_auth" />\
+</div>';
+
 var create_user_tmpl =
 '<div class="panel">\
   <h3>\
@@ -126,18 +142,7 @@ var create_user_tmpl =
           <div class="four columns">\
               <label class="inline right" for="driver">'+tr("Authentication")+':</label>\
           </div>\
-          <div class="seven columns">\
-            <select name="driver" id="driver">\
-                 <option value="core" selected="selected">'+tr("Core")+'</option>\
-                 <option value="ssh">'+tr("SSH")+'</option>\
-                 <option value="x509">'+tr("x509")+'</option>\
-                 <option value="public">'+tr("Public")+'</option>\
-                 <option value="custom">'+tr("Custom")+'</option>\
-            </select>\
-            <div>\
-              <input type="text" name="custom_auth" />\
-            </div>\
-          </div>\
+          <div class="seven columns">'+auth_drivers_div+'</div>\
           <div class="one columns">\
               <div class=""></div>\
           </div>\
@@ -172,6 +177,26 @@ var update_pw_tmpl = '<div class="panel">\
           <button class="button radius right success" id="update_pw_submit" type="submit" value="User.update">'+tr("Change")+'</button>\
           <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
       </div>\
+  <a class="close-reveal-modal">&#215;</a>\
+</form>';
+
+var change_password_tmpl = '<div class="panel">\
+  <h3>\
+    <small id="change_password_header">'+tr("Change authentication")+'</small>\
+  </h3>\
+</div>\
+<form id="change_password_form" action="">\
+  <div class="row">\
+    <div id="confirm_with_select_tip">'+tr("Please choose the new type of authentication for the selected users")+':\
+    </div>\
+  </div>\
+  <div class="row">'+auth_drivers_div+'\
+  </div>\
+  <hr>\
+  <div class="form_buttons">\
+    <button class="button radius right success" id="change_password_submit" type="submit" value="User.change_authentication">'+tr("Change")+'</button>\
+    <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+  </div>\
   <a class="close-reveal-modal">&#215;</a>\
 </form>';
 
@@ -403,6 +428,10 @@ var user_actions = {
         notify: true
     },
 
+    "User.change_authentication" : {
+        type: "custom",
+        call: popUpChangeAuthenticationDialog
+    },
     "User.chauth" : {
         type: "multiple",
         call: OpenNebula.User.chauth,
@@ -413,7 +442,6 @@ var user_actions = {
         error: onError,
         notify: true
     },
-
     "User.show" : {
         type: "single",
         call: OpenNebula.User.show,
@@ -514,6 +542,11 @@ var user_buttons = {
         layout: "more_select",
         text : tr("Change password")
     },
+    "User.change_authentication" : {
+        type : "action",
+        layout: "more_select",
+        text : tr("Change authentication")
+    },
     "User.quotas_dialog" : {
         type : "action",
         layout: "more_select",
@@ -526,20 +559,6 @@ var user_buttons = {
         layout: "user_select",
         select: groups_sel,
         tip: tr("This will change the main group of the selected users. Select the new group")+":",
-        condition: mustBeAdmin
-    },
-    "User.chauth" : {
-        type: "confirm_with_select",
-        text: tr("Change authentication"),
-        layout: "user_select",
-        //We insert our custom select there.
-        select: function() {
-            return   '<option value="core" selected="selected">'+tr("Core")+'</option>\
-                     <option value="ssh">'+tr("SSH")+'</option>\
-                     <option value="x509">'+tr("x509")+'</option>\
-                     <option value="public">'+tr("Public")+'</option>'
-        },
-        tip: tr("Please choose the new type of authentication for the selected users")+":",
         condition: mustBeAdmin
     },
     "User.delete" : {
@@ -862,6 +881,37 @@ function setupUpdatePasswordDialog(){
     });
 };
 
+function setupChangeAuthenticationDialog(){
+    dialogs_context.append('<div title="'+tr("Change authentication")+'" id="change_user_auth_dialog"></div>');
+    $change_auth_dialog = $('#change_user_auth_dialog',dialogs_context);
+    var dialog = $change_auth_dialog;
+    dialog.html(change_password_tmpl);
+
+    dialog.addClass("reveal-modal");
+
+    $('input[name="custom_auth"]',dialog).parent().hide();
+    $('select#driver').change(function(){
+        if ($(this).val() == "custom")
+            $('input[name="custom_auth"]',dialog).parent().show();
+        else
+            $('input[name="custom_auth"]',dialog).parent().hide();
+    });
+
+    $('#change_password_form',dialog).submit(function(){
+        var driver = $('#driver', this).val();
+        if (driver == 'custom')
+            driver = $('input[name="custom_auth"]', this).val();
+
+        if (!driver.length){
+            notifyError(tr("Fill in a new auth driver"));
+            return false;
+        }
+
+        Sunstone.runAction("User.chauth",getSelectedNodes(dataTable_users), driver);
+        $change_auth_dialog.trigger("reveal:close")
+        return false;
+    });
+};
 
 //add a setup quota dialog and call the sunstone-util.js initialization
 function setupUserQuotasDialog(){
@@ -886,6 +936,11 @@ function popUpCreateUserDialog(){
 function popUpUpdatePasswordDialog(){
     $('#new_password',$update_pw_dialog).val("");
     $update_pw_dialog.reveal();
+}
+
+function popUpChangeAuthenticationDialog(){
+    $('#driver',$change_auth_dialog).val("");
+    $change_auth_dialog.reveal();
 }
 
 // Prepare the autorefresh of the list
@@ -920,6 +975,7 @@ $(document).ready(function(){
 
     setupCreateUserDialog();
     setupUpdatePasswordDialog();
+    setupChangeAuthenticationDialog();
     setupUserQuotasDialog();
     setUserAutorefresh();
     //Setup quota icons
