@@ -57,6 +57,7 @@ ssh_make_path $DST_HOST $DST_DIR
 
 DRIVER_PATH=$(dirname $0)
 XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+DISK_ID=$(echo "$DST_PATH" | $AWK -F. '{print $NF}')
 
 unset i XPATH_ELEMENTS
 
