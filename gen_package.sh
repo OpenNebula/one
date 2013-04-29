@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2010-2012, C12G Labs S.L.                                        #
+# Copyright 2010-2013, C12G Labs S.L.                                        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,7 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-VERSION=${VERSION:-3.8.2}
+VERSION=${VERSION:-3.8.3}
 MAINTAINER=${MAINTAINER:-C12G Labs <support@c12g.com>}
 LICENSE=${LICENSE:-Apache}
 PACKAGE_NAME=${PACKAGE_NAME:-oneapps}
@@ -36,8 +36,19 @@ DIRS="oneapps stage flow market"
 export DESTDIR=$PWD/tmp
 
 if [ "$(id -u)" = "0" ]; then
-    OWNER_FLAGS='-u oneadmin -g oneadmin'
+    FLAGS='-u oneadmin -g oneadmin'
 fi
+
+FLAVOR="other"
+if [ "$PACKAGE_TYPE" = "deb" ]; then
+    FLAGS="$FLAGS -f debian"
+    FLAVOR="debian"
+fi
+
+# Generate postinstall
+sed "s/#FLAVOR#/$FLAVOR/" < $SCRIPTS_DIR/oneapps/postinstall.sh > \
+    $SCRIPTS_DIR/oneapps/postinstall
+chmod +x $SCRIPTS_DIR/oneapps/postinstall
 
 rm -rf $DESTDIR
 mkdir $DESTDIR
@@ -45,7 +56,7 @@ mkdir $DESTDIR
 for TOOL in $DIRS; do
     (
         cd $TOOL
-        ./install.sh $OWNER_FLAGS
+        ./install.sh $FLAGS
     )
 done
 
@@ -54,7 +65,7 @@ cd tmp
 fpm -n "$PACKAGE_NAME" -t "$PACKAGE_TYPE" -s dir --vendor "$VENDOR" \
     --license "$LICENSE" --description "$DESCRIPTION" --url "$URL" \
     -m "$MAINTAINER" -v "$VERSION" \
-    --after-install $SCRIPTS_DIR/oneapps/postinstall.sh \
+    --after-install $SCRIPTS_DIR/oneapps/postinstall \
     -a all -p $SCRIPTS_DIR/$NAME *
 
 
