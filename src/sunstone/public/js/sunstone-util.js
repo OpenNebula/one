@@ -224,7 +224,16 @@ function updateView(item_list,dataTable){
         dataTable.fnClearTable();
         dataTable.fnAddData(item_list);
 
-        dTable_settings._iDisplayStart = prev_start;
+        var new_start = prev_start;
+
+        if(new_start > item_list.length - 1) {
+            if(item_list.length > 0)
+                new_start = item_list.length - 1;
+            else
+                new_start = 0;
+        }
+
+        dTable_settings._iDisplayStart = new_start;
 
         dataTable.fnDraw(false);
     };
