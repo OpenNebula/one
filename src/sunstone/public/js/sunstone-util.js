@@ -218,8 +218,14 @@ function updateView(item_list,dataTable){
     });
 
     if (dataTable) {
+        var dTable_settings = dataTable.fnSettings();
+        var prev_start = dTable_settings._iDisplayStart;
+
         dataTable.fnClearTable();
         dataTable.fnAddData(item_list);
+
+        dTable_settings._iDisplayStart = prev_start;
+
         dataTable.fnDraw(false);
     };
 
