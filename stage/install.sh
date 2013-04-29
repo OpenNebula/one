@@ -21,6 +21,6 @@
 copy_files "lib/* cli/*" "$LIB_LOCATION/stage"
 copy_files "bin/*" "$BIN_LOCATION"
 copy_files "share/packages/*" "$PACKAGES_LOCATION"
-copy_files "sunstone/public/js/user-plugins/*" "$SUNSTONE_LOCATION/public/js/user-plugins"
+copy_files "sunstone/public/js/*" "$SUNSTONE_LOCATION/public/js"
 copy_files "sunstone/public/images/*" "$SUNSTONE_LOCATION/public/images"
 copy_files "sunstone/routes/*" "$SUNSTONE_LOCATION/routes"
