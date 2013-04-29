@@ -17,10 +17,10 @@
 require 'rubygems'
 require 'json'
 
-require 'OpenNebula'
+require 'opennebula'
 
-require 'OpenNebula/DocumentJSON'
-require 'OpenNebula/DocumentPoolJSON'
+require 'OpenNebula/document_json'
+require 'OpenNebula/document_pool_json'
 
 require 'onecast'
 

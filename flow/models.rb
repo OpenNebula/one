@@ -14,12 +14,12 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'OpenNebula'
+require 'opennebula'
 
 include OpenNebula
 
-require 'OpenNebula/DocumentJSON'
-require 'OpenNebula/DocumentPoolJSON'
+require 'opennebula/document_json'
+require 'opennebula/document_pool_json'
 
 require 'validator'
 
