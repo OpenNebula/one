@@ -153,11 +153,11 @@ tabs:
             template_template_tab: true
         table_columns:
             - 0         # Checkbox
-            - 0         # ID
-            - 1         # Owner
-            - 2         # Group
-            - 3         # Name
-            - 4         # Registration time
+            - 1         # ID
+            - 2         # Owner
+            - 3         # Group
+            - 4         # Name
+            - 5         # Registration time
         actions:
             Template.refresh: true
             Template.create_dialog: true
