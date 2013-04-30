@@ -469,7 +469,7 @@ function popUpCreateClusterDialog(){
       dialogs_context.append('<div title=\"'+tr("Create cluster")+'\" id="create_cluster_dialog"></div>');
     }
 
-    reset_counters;
+    reset_counters();
 
     setupCreateClusterDialog();
 
@@ -1259,9 +1259,9 @@ function updateClusterInfo(request,cluster){
 
     var cluster_host_tab = {
         title: tr("Hosts"),
-        content : '<div class="">\
-          <div id="datatable_cluster_hosts_info_div columns twelve">\
-            <table id="datatable_cluster_hosts_info_panel" class="table six">' +
+        content : '<div class="columns twelve">\
+          <div id="datatable_cluster_hosts_info_div">\
+            <table id="datatable_cluster_hosts_info_panel" class="table twelve">' +
               host_datatable_table_tmpl +
             '</table>\
           </div>\
@@ -1270,9 +1270,9 @@ function updateClusterInfo(request,cluster){
 
     var cluster_vnet_tab = {
         title: tr("Virtual Networks"),
-        content : '<div class="">\
-          <div id="datatable_cluster_vnets_info_div columns twelve">\
-            <table id="datatable_cluster_vnets_info_panel" class="table six">' +
+        content : '<div class="columns twelve">\
+          <div id="datatable_cluster_vnets_info_div">\
+            <table id="datatable_cluster_vnets_info_panel" class="table twelve">' +
               vnet_datatable_table_tmpl +
             '</table>\
           </div>\
@@ -1281,9 +1281,9 @@ function updateClusterInfo(request,cluster){
 
     var cluster_datastore_tab = {
         title: tr("Datastores"),
-        content : '<div class="">\
-          <div id="datatable_cluster_datastores_info_div columns twelve">\
-            <table id="datatable_cluster_datastores_info_panel" class="table six">' +
+        content : '<div class="columns twelve">\
+          <div id="datatable_cluster_datastores_info_div">\
+            <table id="datatable_cluster_datastores_info_panel" class="table twelve">' +
               datastore_datatable_table_tmpl +
             '</table>\
           </div>\
