@@ -659,12 +659,6 @@ function insertButtonsInTab(tab_name){
                   '</ul>'+
                   '<ul class="button-group right">'+
                     '<li>'+
-                        "<div id='main_buttons'>"+
-                            "<ul class='button-group radius'>"+
-                            "</ul>"+
-                        "</div>"+
-                    '</li>'+
-                    '<li>'+
                         "<div id='more_buttons'>"+
                             "<div href='#' class='top_button small button secondary dropdown radius'>More "+
                                 "<ul>"+
@@ -672,6 +666,10 @@ function insertButtonsInTab(tab_name){
                             "</div>"+
                         "</div>"+
                     '</li>'+
+                  '</ul>'+
+                  '<ul class="button-group right">'+
+                    "<div id='main_buttons'>"+
+                    "</div>"+
                   '</ul>'+
                   '<ul class="button-group right">'+
                     '<li>'+
@@ -738,10 +736,10 @@ function insertButtonsInTab(tab_name){
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
             case "main":
-                context = $("#main_buttons ul", buttons_row);
+                context = $("#main_buttons", buttons_row);
                 text = button.text;
                 str_class.push("secondary", "button", "small", "radius");
-                button_code = '<li><button type"button" class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button></li>';
+                button_code = '<li><button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button></li>';
                 break;
             case "vmsplay_buttons":
                 context = $("#vmsplay_buttons", buttons_row);
