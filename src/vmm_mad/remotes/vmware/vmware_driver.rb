@@ -344,7 +344,7 @@ class VMwareDriver
             vm_id  = name.match(/^one-(.*)/)[1]
 
             # Reconstruct path to vmx & add metadata
-            path_to_vmx = "/vmfs/volumes/#{ds_id}/#{vm_id}/disk.0/#{name}.vmx"
+            path_to_vmx = "\$(find /vmfs/volumes/#{ds_id}/#{vm_id}/ -name #{name}.vmx)"
 
             metadata.gsub!("\\n","\n")
 
