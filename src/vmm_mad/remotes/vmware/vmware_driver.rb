@@ -377,6 +377,9 @@ class VMwareDriver
 
         return deploy_id if metadata.nil? || metadata.empty?
 
+        # Reconstruct path to vmx & add metadata
+        path_to_vmx = "\$(find /vmfs/volumes/#{ds_id}/#{vm_id}/ -name #{name}.vmx)"
+
         source = XPath.first(dfile_hash, "//disk/source").attributes['file']
         ds_id  = source.match(/^\[(.*)\](.*)/)[1]
 
