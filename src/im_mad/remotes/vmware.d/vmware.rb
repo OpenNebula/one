@@ -88,7 +88,11 @@ def get_vm_names
     rc, data = do_action("virsh -c #{@uri} --readonly list")
     return [] if !rc
 
-    data.gsub!(/^.*----$/m, '').strip!
+    data.gsub!(/^.*----$/m, '')
+
+    data.strip! if data
+
+
     lines=data.split(/\n/)
 
     lines.map do |line|
