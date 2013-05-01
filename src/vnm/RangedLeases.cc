@@ -179,7 +179,7 @@ int RangedLeases::process_template(VirtualNetwork* vn,
     // Check for NETWORK_ADDRESS
     // -------------------------------------------------------------------------
 
-    vn->erase_template_attribute("NETWORK_ADDRESS", st_addr);
+    vn->get_template_attribute("NETWORK_ADDRESS", st_addr);
 
     if (st_addr.empty())
     {
