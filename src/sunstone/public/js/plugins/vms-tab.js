@@ -2330,8 +2330,8 @@ function printCapacity(vm_info){
               <div class="twelve columns">'
 
     if (Config.isTabActionEnabled("vms-tab", "VM.resize")) {
-      // If VM is not RUNNING, then we forget about the attach nic form.
-      if (vm_info.STATE == "0" || vm_info.STATE == "1" || vm_info.STATE == "2" || vm_info.STATE == "7" || vm_info.STATE == "8"){
+      // If VM is not INIT, PENDING, HOLD, FAILED, POWEROFF, UNDEPLOYED, then we forget about the resize form.
+      if (vm_info.STATE == "0" || vm_info.STATE == "1" || vm_info.STATE == "2" || vm_info.STATE == "7" || vm_info.STATE == "8" || vm_info.STATE == "9"){
         html += '\
           <button id="resize_capacity" class="button small secondary radius" >' + tr("Resize VM capacity") +'</button>'
       } else {
