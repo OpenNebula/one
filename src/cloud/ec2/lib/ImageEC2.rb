@@ -55,7 +55,7 @@ class ImageEC2 < Image
         <% if @image_info[:persistent] != nil %>
         PERSISTENT = "YES"
         <% end %>
-        <% if @image_info[:ebs] != "nil" %>
+        <% if @image_info[:ebs] != nil %>
         EBS_VOLUME = "YES"
         <% end %>
         <% if @image_file != nil %>
