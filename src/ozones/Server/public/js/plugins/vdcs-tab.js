@@ -341,14 +341,12 @@ function updateVDCInfo(req,vdc_json){
     var zone_host = "";
     var zone_port = "";
     var sun_link = "";
-    var self_link = "";
     var zone_match = zone_endpoint.match(/^https?:\/\/([\w.-]+):(\d+)\/([\W\w]+)$/);
 
     if (zone_match){
         zone_host = zone_match[1];
         zone_port = zone_match[2];
         sun_link = "http://" + zone_host +"/sunstone_"+ vdc.NAME+"/";
-        self_link = "http://" + zone_host +"/self_"+ vdc.NAME+"/";
     };
 
     var info_tab = {
@@ -402,10 +400,6 @@ function updateVDCInfo(req,vdc_json){
             <tr>\
                 <td class="key_td">Sunstone public link</td>\
                 <td class="value_td">'+(sun_link.length? '<a href="'+sun_link+'" target="_blank">'+sun_link+'<span class="ui-icon ui-icon-extlink" style="display:inline-block;" /></a>' : "")+'</td>\
-            </tr>\
-            <tr>\
-                <td class="key_td">SelfService public link</td>\
-                <td class="value_td">'+(self_link.length? '<a href="'+self_link+'" target="_blank">'+self_link+'<span class="ui-icon ui-icon-extlink" style="display:inline-block;" /></a>' : "")+'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">ONE_XMLPRC (to export for CLI access)</td>\

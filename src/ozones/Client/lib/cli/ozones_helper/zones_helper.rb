@@ -45,7 +45,6 @@ class ZonesHelper < OZonesHelper::OZHelper
         puts str % ["ZONE PASS ", zone[:ONEPASS].to_s]
         puts str % ["ENDPOINT ",  zone[:ENDPOINT].to_s]
         puts str % ["SUNSENDPOINT ",  zone[:SUNSENDPOINT].to_s]
-        puts str % ["SELFENDPOINT ",  zone[:SELFENDPOINT].to_s]
         puts str % ["# VDCS ",    zone[:VDCS].size.to_s]
         puts
 

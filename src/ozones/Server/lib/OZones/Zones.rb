@@ -33,7 +33,6 @@ module OZones
             String      :ONEPASS
             String      :ENDPOINT
             String      :SUNSENDPOINT
-            String      :SELFENDPOINT
         end
 
         create_table unless table_exists?
