@@ -1029,6 +1029,8 @@ function printLeases(vn_info){
             state = parseInt(lease.USED,10);
         };
 
+        html+='<tr ip="'+lease.IP+'">';
+
         html += '<td class="key_td">';
         switch (state){
         case 0: //free
