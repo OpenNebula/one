@@ -35,9 +35,9 @@ module EC2QueryClient
     }
 
     SECRET_KEY = {
-        :name => "sercret_key",
+        :name => "secret_key",
         :short => "-S key",
-        :large => "--sercret-key key",
+        :large => "--secret-key key",
         :description => "The sha1 hashed password of the user",
         :format => String
     }
