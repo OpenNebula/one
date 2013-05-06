@@ -21,7 +21,7 @@ require 'tmpdir'
 
 
 DEFAULTS={
-    :version => "3.9.80.beta",
+    :version => "4.0.0",
     :date => Time.now.strftime("%Y-%m-%d"),
     :dependencies => []
 }
