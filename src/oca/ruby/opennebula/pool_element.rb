@@ -62,7 +62,6 @@ module OpenNebula
         #
         # @param [String] xml_method the name of the XML-RPC method
         # @param [String] root_element Base XML element name
-        # @param [Array] args additional arguments
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
@@ -243,9 +242,8 @@ module OpenNebula
     # @param [String] root_elem Root for each individual PoolElement
     # @param [String] timestamp_elem Name of the XML element with the last
     #   monitorization timestamp
-    # @param [Integer] Id of the object to process
+    # @param [Integer] oid Id of the object to process
     # @param [Array<String>] xpath_expressions Elements to retrieve.
-    # @param args arguemnts for the xml_method call
     #
     # @return [Hash<String, Array<Array<int>>, OpenNebula::Error] Hash with
     #   the requested xpath expressions, and an Array of [timestamp, value].

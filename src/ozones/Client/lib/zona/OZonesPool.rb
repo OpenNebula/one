@@ -24,7 +24,7 @@ module Zona
 
         # Initializes a Pool instance
         # @param [#to_sym] pool pool name tag
-        # @param [#to_sym] pool pool elements name tag
+        # @param [#to_sym] element pool elements name tag
         # @param [Zona::Client] client OZones Client
         def initialize(pool,element,client)
             super(nil)

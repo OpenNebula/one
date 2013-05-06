@@ -69,7 +69,7 @@ module OpenNebula
 
         # Constructor
         #
-        # @param xml [String] must be an xml built with {#build_xml}
+        # @param xml [String] must be an xml built with {.build_xml}
         # @param client [Client] represents an XML-RPC connection
         def initialize(xml, client)
             super(xml,client)
@@ -79,7 +79,6 @@ module OpenNebula
         # specified.
         #
         # @param pe_id [Integer] rule ID
-        # @param client [Client] represents an XML-RPC connection
         #
         # @return [String] an empty XML representation
         def self.build_xml(pe_id=nil)

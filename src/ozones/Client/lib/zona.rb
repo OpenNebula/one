@@ -57,7 +57,7 @@ EOT
         # Initialize client instance
         # @param [String] user oZones username
         # @param [String] pass oZones password
-        # @param [String] endpoint Server endpoint
+        # @param [String] endpoint_str Server endpoint
         # @param [Integer] timeout client timout, defaults means no timeout
         # @param [Boolean] debug_flag produce debug information
         # @return [Client] Client instance
@@ -174,7 +174,7 @@ EOT
 
 
         # Retrieves a resource
-        # @param [String] Kind resource kind: vdc, zone...
+        # @param [String] kind resource kind: vdc, zone...
         # @param [#to_i] id resource id
         # @return [String, Zona::Error] Response string or Error
         def get_resource(kind, id)
@@ -191,9 +191,9 @@ EOT
         end
 
         # Retrieves a pool belonging to a specific resource
-        # @param [String] Kind resource kind: vdc, zone...
+        # @param [String] kind resource kind: vdc, zone...
         # @param [#to_i] id resource id
-        # @param [String] Kind of pool: image, vm, host, etc
+        # @param [String] pool Kind of pool: image, vm, host, etc
         # @return [String, Zona::Error] Response string or Error
         def get_resource_pool(kind, id, pool)
             url = URI.parse("#{@endpoint}/#{kind}/#{id}/#{pool}")
@@ -326,7 +326,7 @@ EOT
     class Error
         attr_reader :message
 
-        # @param [String] A description of the error
+        # @param [String] message A description of the error
         def initialize(message=nil)
             @message=message
         end

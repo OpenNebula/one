@@ -306,7 +306,7 @@ module OpenNebula
 
         # Detaches a NIC from a running VM
         #
-        # @param disk_id [Integer] Id of the NIC to be detached
+        # @param nic_id [Integer] Id of the NIC to be detached
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def nic_detach(nic_id)
