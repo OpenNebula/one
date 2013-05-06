@@ -81,9 +81,9 @@ var users_tab_content = '\
       <th>'+tr("Name")+'</th>\
       <th>'+tr("Group")+'</th>\
       <th>'+tr("Auth driver")+'</th>\
-      <th style="width:18%">'+tr("VMs")+'</th>\
-      <th style="width:18%">'+tr("Memory")+'</th>\
-      <th style="width:18%">'+tr("CPU")+'</th>\
+      <th>'+tr("VMs")+'</th>\
+      <th>'+tr("Memory")+'</th>\
+      <th>'+tr("CPU")+'</th>\
       <th>'+tr("Group ID")+'</th>\
     </tr>\
   </thead>\
@@ -96,7 +96,7 @@ var users_tab_content = '\
 
 // authn = "ssh,x509,ldap,server_cipher,server_x509"
 
-var auth_drivers_div = 
+var auth_drivers_div =
 '<select name="driver" id="driver">\
      <option value="core" selected="selected">'+tr("Core")+'</option>\
      <option value="ssh">'+tr("SSH")+'</option>\
@@ -918,6 +918,7 @@ $(document).ready(function(){
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check",5,6,7] },
             { "sWidth": "35px", "aTargets": [0] },
+            { "sWidth": "150px", "aTargets": [5,6,7] },
             { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
             { "bVisible": false, "aTargets": ['_all']}
         ]
