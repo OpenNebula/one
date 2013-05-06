@@ -142,8 +142,8 @@ class OpenNebulaVNC
             return error(400, "VNC Proxy is not running")
         end
 
-        if vm_resource['LCM_STATE'] != "3"
-            return error(400,"VM is not running")
+        if !VNC_STATES.include?(vm_resource['LCM_STATE'])
+            return error(400,"Wrong state (#{vm_resource['LCM_STATE']}) to open a VNC session")
         end
 
         if vm_resource['TEMPLATE/GRAPHICS/TYPE'].nil? ||
