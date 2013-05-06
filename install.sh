@@ -284,11 +284,14 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/public/locale/fa_IR \
                $SUNSTONE_LOCATION/public/locale/fr_FR \
                $SUNSTONE_LOCATION/public/locale/it_IT \
+               $SUNSTONE_LOCATION/public/locale/nl_NL \
+               $SUNSTONE_LOCATION/public/locale/pl \
+               $SUNSTONE_LOCATION/public/locale/pt_BR \
                $SUNSTONE_LOCATION/public/locale/pt_PT \
                $SUNSTONE_LOCATION/public/locale/ru_RU \
                $SUNSTONE_LOCATION/public/locale/sk_SK \
                $SUNSTONE_LOCATION/public/locale/zh_TW \
-               $SUNSTONE_LOCATION/public/locale/pt_BR \
+               $SUNSTONE_LOCATION/public/locale/zh_CN \
                $SUNSTONE_LOCATION/public/vendor \
                $SUNSTONE_LOCATION/public/vendor/crypto-js \
                $SUNSTONE_LOCATION/public/vendor/explorercanvas \
@@ -519,11 +522,14 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_LOCALE_FA_IR:$SUNSTONE_LOCATION/public/locale/fa_IR
     SUNSTONE_PUBLIC_LOCALE_FR_FR:$SUNSTONE_LOCATION/public/locale/fr_FR
     SUNSTONE_PUBLIC_LOCALE_IT_IT:$SUNSTONE_LOCATION/public/locale/it_IT
+    SUNSTONE_PUBLIC_LOCALE_NL_NL:$SUNSTONE_LOCATION/public/locale/nl_NL
+    SUNSTONE_PUBLIC_LOCALE_PL:$SUNSTONE_LOCATION/public/locale/pl
     SUNSTONE_PUBLIC_LOCALE_PT_PT:$SUNSTONE_LOCATION/public/locale/pt_PT
+    SUNSTONE_PUBLIC_LOCALE_PT_BR:$SUNSTONE_LOCATION/public/locale/pt_BR
     SUNSTONE_PUBLIC_LOCALE_RU_RU:$SUNSTONE_LOCATION/public/locale/ru_RU
     SUNSTONE_PUBLIC_LOCALE_SK_SK:$SUNSTONE_LOCATION/public/locale/sk_SK
+    SUNSTONE_PUBLIC_LOCALE_ZH_CN:$SUNSTONE_LOCATION/public/locale/zh_CN
     SUNSTONE_PUBLIC_LOCALE_ZH_TW:$SUNSTONE_LOCATION/public/locale/zh_TW
-    SUNSTONE_PUBLIC_LOCALE_PT_BR:$SUNSTONE_LOCATION/public/locale/pt_BR
 )
 
 INSTALL_SUNSTONE_ETC_FILES=(
@@ -1624,6 +1630,14 @@ SUNSTONE_PUBLIC_LOCALE_IT_IT="\
 src/sunstone/locale/languages/it_IT.js \
 src/sunstone/locale/languages/it_datatable.txt"
 
+SUNSTONE_PUBLIC_LOCALE_NL_NL="\
+src/sunstone/locale/languages/nl_NL.js \
+src/sunstone/locale/languages/nl_datatable.txt"
+
+SUNSTONE_PUBLIC_LOCALE_PL="\
+src/sunstone/locale/languages/pl.js \
+src/sunstone/locale/languages/pl_datatable.txt"
+
 SUNSTONE_PUBLIC_LOCALE_PT_PT="\
 src/sunstone/locale/languages/pt_PT.js \
 src/sunstone/locale/languages/pt_datatable.txt"
@@ -1639,6 +1653,10 @@ src/sunstone/locale/languages/ru_datatable.txt"
 SUNSTONE_PUBLIC_LOCALE_SK_SK="\
 src/sunstone/locale/languages/sk_SK.js \
 src/sunstone/locale/languages/sk_datatable.txt"
+
+SUNSTONE_PUBLIC_LOCALE_ZH_CN="\
+src/sunstone/locale/languages/zh_CN.js \
+src/sunstone/locale/languages/zh_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_ZH_TW="\
 src/sunstone/locale/languages/zh_TW.js \

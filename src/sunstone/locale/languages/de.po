@@ -3,17 +3,20 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
-# Bastian Widmer <bastian.widmer@gmail.com>, 2012.
-#   <b.widmer@dasrecht.net>, 2012.
-# jules  <>, 2012.
-#   <neuro@hush.com>, 2012.
-# Stefan Freitag <stefan.freitag@udo.edu>, 2012.
+# Bastian Widmer <bastian.widmer@gmail.com>, 2012-2013
+# Bastian Widmer <bastian.widmer@gmail.com>, 2012
+# jules <>, 2012
+# maal <matthias@ma-c.de>, 2013
+# neuroserve <neuro@hush.com>, 2012
+# paescu <pascal-jufer@bluewin.ch>, 2013
+# Stefan Freitag <stefan.freitag@udo.edu>, 2012
+# tino_muc <tino@mofarider.de>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-10-17 11:43+0200\n"
-"PO-Revision-Date: 2012-10-17 09:46+0000\n"
+"POT-Creation-Date: 2013-05-06 16:16+0200\n"
+"PO-Revision-Date: 2013-05-06 14:16+0000\n"
 "Last-Translator: dmolina <dmolina@opennebula.org>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/one/language/de/)\n"
 "Language: de\n"
@@ -22,3112 +25,3247 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../public/js/locale.js:35
-msgid "Changing language"
-msgstr "Sprache ändern"
+#: ../public/js/plugins/acls-tab.js:28
+msgid "Access Control Lists"
+msgstr "Zugriffssteuerungslisten"
 
-#: ../public/js/locale.js:36
-msgid "Loading new language... please wait"
-msgstr "Lade neue Sprache... Bitte warten"
+#: ../public/js/plugins/acls-tab.js:44
+#: ../public/js/plugins/clusters-tab.js:109
+#: ../public/js/plugins/clusters-tab.js:126
+#: ../public/js/plugins/clusters-tab.js:143
+#: ../public/js/plugins/clusters-tab.js:878
+#: ../public/js/plugins/datastores-tab.js:43
+#: ../public/js/plugins/files-tab.js:43 ../public/js/plugins/groups-tab.js:64
+#: ../public/js/plugins/hosts-tab.js:47 ../public/js/plugins/images-tab.js:43
+#: ../public/js/plugins/marketplace-tab.js:123
+#: ../public/js/plugins/templates-tab.js:42
+#: ../public/js/plugins/templates-tab.js:792
+#: ../public/js/plugins/templates-tab.js:1166
+#: ../public/js/plugins/templates-tab.js:1945
+#: ../public/js/plugins/templates-tab.js:2005
+#: ../public/js/plugins/templates-tab.js:2551
+#: ../public/js/plugins/templates-tab.js:2824
+#: ../public/js/plugins/templates-tab.js:2861
+#: ../public/js/plugins/users-tab.js:68 ../public/js/plugins/vms-tab.js:64
+#: ../public/js/plugins/vnets-tab.js:43
+msgid "Search"
+msgstr "Suchen"
 
-#: ../public/js/locale.js:89
-msgid "Documentation"
-msgstr "Dokumentation"
-
-#: ../public/js/locale.js:90
-msgid "Support"
-msgstr "Support"
-
-#: ../public/js/locale.js:91
-msgid "Community"
-msgstr "Community"
-
-#: ../public/js/locale.js:92
-msgid "Welcome"
-msgstr "Willkommen"
-
-#: ../public/js/locale.js:93
-msgid "Sign out"
-msgstr "Abmelden"
-
-#: ../public/js/plugins/hosts-tab.js:23
-msgid "CPU Monitoring information"
-msgstr "CPU Überwachungs Informationen"
-
-#: ../public/js/plugins/hosts-tab.js:29
-msgid "Memory monitoring information"
-msgstr "Überwachungs Informationen"
-
-#: ../public/js/plugins/hosts-tab.js:38 ../public/js/plugins/hosts-tab.js:373
-#: ../public/js/plugins/acls-tab.js:57 ../public/js/plugins/acls-tab.js:269
-#: ../public/js/plugins/dashboard-tab.js:25
-#: ../public/js/plugins/infra-tab.js:34
-#: ../public/js/plugins/clusters-tab.js:31
-#: ../public/js/plugins/clusters-tab.js:591
-#: ../public/js/plugins/clusters-tab.js:698
-#: ../public/js/plugins/clusters-tab.js:807
-msgid "Hosts"
-msgstr "Hosts"
-
-#: ../public/js/plugins/hosts-tab.js:45 ../public/js/plugins/users-tab.js:52
-#: ../public/js/plugins/acls-tab.js:29 ../public/js/plugins/acls-tab.js:69
-#: ../public/js/plugins/acls-tab.js:216 ../public/js/plugins/acls-tab.js:234
-#: ../public/js/plugins/acls-tab.js:500 ../public/js/plugins/vms-tab.js:68
-#: ../public/js/plugins/images-tab.js:27
-#: ../public/js/plugins/templates-tab.js:27
-#: ../public/js/plugins/datastores-tab.js:28
-#: ../public/js/plugins/vnets-tab.js:27
-#: ../public/js/plugins/clusters-tab.js:28
-#: ../public/js/plugins/groups-tab.js:49
-msgid "All"
-msgstr "Alle"
-
-#: ../public/js/plugins/hosts-tab.js:46 ../public/js/plugins/users-tab.js:53
-#: ../public/js/plugins/users-tab.js:631 ../public/js/plugins/acls-tab.js:30
-#: ../public/js/plugins/acls-tab.js:237 ../public/js/plugins/vms-tab.js:69
-#: ../public/js/plugins/vms-tab.js:972 ../public/js/plugins/images-tab.js:28
-#: ../public/js/plugins/images-tab.js:613
-#: ../public/js/plugins/marketplace-tab.js:103
-#: ../public/js/plugins/marketplace-tab.js:155
-#: ../public/js/plugins/templates-tab.js:28
-#: ../public/js/plugins/templates-tab.js:918
-#: ../public/js/plugins/datastores-tab.js:29
-#: ../public/js/plugins/datastores-tab.js:463
-#: ../public/js/plugins/vnets-tab.js:28 ../public/js/plugins/vnets-tab.js:573
-#: ../public/js/plugins/clusters-tab.js:29
-#: ../public/js/plugins/clusters-tab.js:543
-#: ../public/js/plugins/clusters-tab.js:649
-#: ../public/js/plugins/groups-tab.js:50
-#: ../public/js/plugins/groups-tab.js:433
+#: ../public/js/plugins/acls-tab.js:56 ../public/js/plugins/acls-tab.js:292
+#: ../public/js/plugins/clusters-tab.js:24
+#: ../public/js/plugins/clusters-tab.js:44
+#: ../public/js/plugins/clusters-tab.js:60
+#: ../public/js/plugins/clusters-tab.js:888
+#: ../public/js/plugins/config-tab.js:308
+#: ../public/js/plugins/datastores-tab.js:55
+#: ../public/js/plugins/datastores-tab.js:319
+#: ../public/js/plugins/datastores-tab.js:711
+#: ../public/js/plugins/files-tab.js:58 ../public/js/plugins/files-tab.js:526
+#: ../public/js/plugins/groups-tab.js:76 ../public/js/plugins/hosts-tab.js:59
+#: ../public/js/plugins/images-tab.js:58
+#: ../public/js/plugins/images-tab.js:657
+#: ../public/js/plugins/marketplace-tab.js:133
+#: ../public/js/plugins/marketplace-tab.js:189
+#: ../public/js/plugins/templates-tab.js:54
+#: ../public/js/plugins/templates-tab.js:799
+#: ../public/js/plugins/templates-tab.js:1173
+#: ../public/js/plugins/templates-tab.js:1424
+#: ../public/js/plugins/templates-tab.js:1952
+#: ../public/js/plugins/templates-tab.js:2012
+#: ../public/js/plugins/templates-tab.js:2558
+#: ../public/js/plugins/templates-tab.js:2831
+#: ../public/js/plugins/templates-tab.js:2868
+#: ../public/js/plugins/users-tab.js:80 ../public/js/plugins/users-tab.js:718
+#: ../public/js/plugins/vms-tab.js:74 ../public/js/plugins/vms-tab.js:1228
+#: ../public/js/plugins/vms-tab.js:1403 ../public/js/plugins/vms-tab.js:1767
+#: ../public/js/plugins/vms-tab.js:2109 ../public/js/plugins/vms-tab.js:2535
+#: ../public/js/plugins/vnets-tab.js:53 ../public/js/plugins/vnets-tab.js:831
+#: ../public/js/sunstone-util.js:1222 ../public/js/sunstone-util.js:1283
+#: ../public/js/sunstone-util.js:1336
 msgid "ID"
 msgstr "ID"
 
-#: ../public/js/plugins/hosts-tab.js:47 ../public/js/plugins/hosts-tab.js:81
-#: ../public/js/plugins/hosts-tab.js:690 ../public/js/plugins/users-tab.js:54
-#: ../public/js/plugins/vms-tab.js:72 ../public/js/plugins/vms-tab.js:976
-#: ../public/js/plugins/images-tab.js:31 ../public/js/plugins/images-tab.js:65
-#: ../public/js/plugins/images-tab.js:150
-#: ../public/js/plugins/images-tab.js:617
-#: ../public/js/plugins/images-tab.js:1138
-#: ../public/js/plugins/marketplace-tab.js:104
-#: ../public/js/plugins/templates-tab.js:31
-#: ../public/js/plugins/templates-tab.js:79
-#: ../public/js/plugins/templates-tab.js:450
-#: ../public/js/plugins/templates-tab.js:515
-#: ../public/js/plugins/templates-tab.js:922
-#: ../public/js/plugins/templates-tab.js:2057
-#: ../public/js/plugins/datastores-tab.js:32
-#: ../public/js/plugins/datastores-tab.js:54
-#: ../public/js/plugins/datastores-tab.js:467
-#: ../public/js/plugins/vnets-tab.js:31 ../public/js/plugins/vnets-tab.js:58
-#: ../public/js/plugins/vnets-tab.js:128 ../public/js/plugins/vnets-tab.js:577
-#: ../public/js/plugins/clusters-tab.js:30
-#: ../public/js/plugins/clusters-tab.js:44
-#: ../public/js/plugins/clusters-tab.js:547
-#: ../public/js/plugins/clusters-tab.js:653
-#: ../public/js/plugins/groups-tab.js:51
-msgid "Name"
-msgstr "Name"
-
-#: ../public/js/plugins/hosts-tab.js:48 ../public/js/plugins/hosts-tab.js:132
-#: ../public/js/plugins/hosts-tab.js:694
-#: ../public/js/plugins/datastores-tab.js:33
-#: ../public/js/plugins/datastores-tab.js:60
-#: ../public/js/plugins/datastores-tab.js:479
-#: ../public/js/plugins/vnets-tab.js:32 ../public/js/plugins/vnets-tab.js:581
-msgid "Cluster"
-msgstr "Cluster"
-
-#: ../public/js/plugins/hosts-tab.js:49 ../public/js/plugins/hosts-tab.js:745
-msgid "Running VMs"
-msgstr "Laufende VMs"
-
-#: ../public/js/plugins/hosts-tab.js:50
-msgid "Real CPU"
-msgstr ""
-
-#: ../public/js/plugins/hosts-tab.js:51
-msgid "Allocated CPU"
-msgstr ""
-
-#: ../public/js/plugins/hosts-tab.js:52
-msgid "Real MEM"
-msgstr ""
-
-#: ../public/js/plugins/hosts-tab.js:53
-msgid "Allocated MEM"
-msgstr ""
-
-#: ../public/js/plugins/hosts-tab.js:54 ../public/js/plugins/vms-tab.js:73
-#: ../public/js/plugins/images-tab.js:37
-msgid "Status"
-msgstr "Status"
-
-#: ../public/js/plugins/hosts-tab.js:55 ../public/js/plugins/hosts-tab.js:702
-msgid "IM MAD"
-msgstr "IM MAD"
-
-#: ../public/js/plugins/hosts-tab.js:56 ../public/js/plugins/hosts-tab.js:706
-msgid "VM MAD"
-msgstr "VM MAD"
-
-#: ../public/js/plugins/hosts-tab.js:57
-msgid "Last monitored on"
-msgstr "Zuletzt überwacht am"
-
-#: ../public/js/plugins/hosts-tab.js:66
-msgid "CPU Use is calculated as the minimum between (total CPU - real CPU usage) and (allocated CPU). Real CPU usage is provided by the hosts monitoring driver. Available CPU is calculated using the information from the CPU setting of the VMs running on that host (allocated CPU)"
-msgstr ""
-
-#: ../public/js/plugins/hosts-tab.js:69
-msgid "Memory use is calculated according to the information provided by the host monitoring driver."
-msgstr "Speicherverbrauch wird anhand der vom Host Monitoring Treiber gelieferten Informationen berechnet."
-
-#: ../public/js/plugins/hosts-tab.js:72
-msgid "You can get monitoring graphs by clicking in the desired host and visiting the monitoring information tab. Note that oneacctd must be running for this information to be updated/available."
-msgstr ""
-
-#: ../public/js/plugins/hosts-tab.js:80
-msgid "Host parameters"
-msgstr "Host Parameter"
-
-#: ../public/js/plugins/hosts-tab.js:83
-msgid "Drivers"
-msgstr "Treiber"
-
-#: ../public/js/plugins/hosts-tab.js:86
-msgid "Virtualization Manager"
-msgstr "Virtualisierungsmanager"
-
-#: ../public/js/plugins/hosts-tab.js:88 ../public/js/plugins/hosts-tab.js:102
-msgid "KVM"
-msgstr "KVM"
-
-#: ../public/js/plugins/hosts-tab.js:89 ../public/js/plugins/hosts-tab.js:103
-#: ../public/js/plugins/templates-tab.js:387
-msgid "XEN"
-msgstr "XEN"
-
-#: ../public/js/plugins/hosts-tab.js:90 ../public/js/plugins/hosts-tab.js:104
-#: ../public/js/plugins/hosts-tab.js:123
-#: ../public/js/plugins/datastores-tab.js:66
-#: ../public/js/plugins/vnets-tab.js:69
-msgid "VMware"
-msgstr "VMware"
-
-#: ../public/js/plugins/hosts-tab.js:91 ../public/js/plugins/hosts-tab.js:105
-msgid "EC2"
-msgstr "EC2"
-
-#: ../public/js/plugins/hosts-tab.js:92 ../public/js/plugins/hosts-tab.js:107
-#: ../public/js/plugins/datastores-tab.js:76
-msgid "Dummy"
-msgstr "Dummy"
-
-#: ../public/js/plugins/hosts-tab.js:93 ../public/js/plugins/hosts-tab.js:108
-#: ../public/js/plugins/hosts-tab.js:124 ../public/js/plugins/users-tab.js:95
-msgid "Custom"
-msgstr "Benutzerdefiniert"
-
-#: ../public/js/plugins/hosts-tab.js:96
-msgid "Custom VMM_MAD"
-msgstr ""
-
-#: ../public/js/plugins/hosts-tab.js:100
-msgid "Information Manager"
-msgstr ""
-
-#: ../public/js/plugins/hosts-tab.js:106
-msgid "Ganglia"
-msgstr "Ganglia"
-
-#: ../public/js/plugins/hosts-tab.js:111
-msgid "Custom IM_MAD"
-msgstr ""
-
-#: ../public/js/plugins/hosts-tab.js:118
-msgid "Default (dummy)"
-msgstr "Standard (dummy)"
-
-#: ../public/js/plugins/hosts-tab.js:119
-msgid "Firewall"
-msgstr "Firewall"
-
-#: ../public/js/plugins/hosts-tab.js:120 ../public/js/plugins/vnets-tab.js:66
-msgid "802.1Q"
-msgstr "802.1Q"
-
-#: ../public/js/plugins/hosts-tab.js:121 ../public/js/plugins/vnets-tab.js:67
-msgid "ebtables"
-msgstr "ebtables"
-
-#: ../public/js/plugins/hosts-tab.js:122 ../public/js/plugins/vnets-tab.js:68
-msgid "Open vSwitch"
-msgstr "Open vSwitch"
-
-#: ../public/js/plugins/hosts-tab.js:127
-msgid "Custom VNM_MAD"
-msgstr ""
-
-#: ../public/js/plugins/hosts-tab.js:139 ../public/js/plugins/users-tab.js:105
-#: ../public/js/plugins/acls-tab.js:83 ../public/js/plugins/acls-tab.js:91
-#: ../public/js/plugins/vms-tab.js:121 ../public/js/plugins/images-tab.js:164
-#: ../public/js/plugins/images-tab.js:182
-#: ../public/js/plugins/templates-tab.js:538
-#: ../public/js/plugins/templates-tab.js:555
-#: ../public/js/plugins/datastores-tab.js:87
-#: ../public/js/plugins/vnets-tab.js:143 ../public/js/plugins/vnets-tab.js:160
-#: ../public/js/plugins/clusters-tab.js:48
-#: ../public/js/plugins/groups-tab.js:79
-msgid "Create"
-msgstr "Erzeugen"
-
-#: ../public/js/plugins/hosts-tab.js:140 ../public/js/plugins/users-tab.js:106
-#: ../public/js/plugins/users-tab.js:122 ../public/js/plugins/acls-tab.js:92
-#: ../public/js/plugins/vms-tab.js:122 ../public/js/plugins/vms-tab.js:606
-#: ../public/js/plugins/images-tab.js:165
-#: ../public/js/plugins/images-tab.js:184
-#: ../public/js/plugins/templates-tab.js:540
-#: ../public/js/plugins/templates-tab.js:557
-#: ../public/js/plugins/datastores-tab.js:88
-#: ../public/js/plugins/vnets-tab.js:145 ../public/js/plugins/vnets-tab.js:162
-#: ../public/js/plugins/clusters-tab.js:49
-#: ../public/js/plugins/groups-tab.js:80
-msgid "Reset"
-msgstr "Zurücksetzen"
-
-#: ../public/js/plugins/hosts-tab.js:271 ../public/js/plugins/users-tab.js:334
-#: ../public/js/plugins/templates-tab.js:674
-#: ../public/js/plugins/clusters-tab.js:184
-msgid "Template updated correctly"
-msgstr "Template erfolgreich aktualisiert"
-
-#: ../public/js/plugins/hosts-tab.js:317 ../public/js/plugins/users-tab.js:397
-#: ../public/js/plugins/acls-tab.js:165 ../public/js/plugins/vms-tab.js:502
-#: ../public/js/plugins/images-tab.js:450
-#: ../public/js/plugins/templates-tab.js:774
-#: ../public/js/plugins/datastores-tab.js:309
-#: ../public/js/plugins/vnets-tab.js:434
-#: ../public/js/plugins/clusters-tab.js:220
-msgid "+ New"
-msgstr "+ Neu"
-
-#: ../public/js/plugins/hosts-tab.js:322
-msgid "Update a template"
-msgstr "Template aktualisieren"
-
-#: ../public/js/plugins/hosts-tab.js:328
-#: ../public/js/plugins/datastores-tab.js:320
-#: ../public/js/plugins/vnets-tab.js:444
-msgid "Select cluster"
-msgstr "Cluster auswählen"
-
-#: ../public/js/plugins/hosts-tab.js:330
-#: ../public/js/plugins/datastores-tab.js:322
-#: ../public/js/plugins/vnets-tab.js:446
-msgid "Select the destination cluster:"
-msgstr "Zielcluster auswählen"
-
-#: ../public/js/plugins/hosts-tab.js:335
-#: ../public/js/plugins/images-tab.js:476
-#: ../public/js/plugins/templates-tab.js:172
-#: ../public/js/plugins/templates-tab.js:181
-msgid "Enable"
-msgstr "Aktivieren"
-
-#: ../public/js/plugins/hosts-tab.js:340
-#: ../public/js/plugins/images-tab.js:480
-#: ../public/js/plugins/templates-tab.js:173
-#: ../public/js/plugins/templates-tab.js:182
-msgid "Disable"
-msgstr "Deaktivieren"
-
-#: ../public/js/plugins/hosts-tab.js:345
-msgid "Delete host"
-msgstr "Host entfernen"
-
-#: ../public/js/plugins/hosts-tab.js:357 ../public/js/plugins/hosts-tab.js:678
-#: ../public/js/plugins/hosts-tab.js:682
-#: ../public/js/plugins/clusters-tab.js:236
-msgid "Host information"
-msgstr "Host Information"
-
-#: ../public/js/plugins/hosts-tab.js:362 ../public/js/plugins/hosts-tab.js:754
-#: ../public/js/plugins/hosts-tab.js:757
-#: ../public/js/plugins/clusters-tab.js:241
-msgid "Host template"
-msgstr "Host Vorlage"
-
-#: ../public/js/plugins/hosts-tab.js:366 ../public/js/plugins/hosts-tab.js:763
-#: ../public/js/plugins/vms-tab.js:652 ../public/js/plugins/vms-tab.js:1024
-#: ../public/js/plugins/vms-tab.js:1071
-#: ../public/js/plugins/clusters-tab.js:245
-msgid "Monitoring information"
-msgstr "Monitoring Information"
-
-#: ../public/js/plugins/hosts-tab.js:625 ../public/js/plugins/vms-tab.js:1108
-#: ../public/js/plugins/templates-tab.js:1929
-msgid "ERROR"
-msgstr "FEHLER"
-
-#: ../public/js/plugins/hosts-tab.js:625
-msgid "OFF"
-msgstr "AUS"
-
-#: ../public/js/plugins/hosts-tab.js:625
-msgid "RETRY"
-msgstr "RETRY"
-
-#: ../public/js/plugins/hosts-tab.js:686
-msgid "id"
-msgstr "id"
-
-#: ../public/js/plugins/hosts-tab.js:698
-#: ../public/js/plugins/dashboard-tab.js:31
-#: ../public/js/plugins/dashboard-tab.js:115
-#: ../public/js/plugins/vms-tab.js:988 ../public/js/plugins/images-tab.js:661
-#: ../public/js/plugins/dashboard-users-tab.js:49
-msgid "State"
-msgstr "Status"
-
-#: ../public/js/plugins/hosts-tab.js:710
-msgid "VN MAD"
-msgstr "VN MAD"
-
-#: ../public/js/plugins/hosts-tab.js:717
-msgid "Host shares"
-msgstr "Host Anteile"
-
-#: ../public/js/plugins/hosts-tab.js:721
-msgid "Total Mem"
-msgstr ""
-
-#: ../public/js/plugins/hosts-tab.js:725
-msgid "Used Mem (real)"
-msgstr "Benutzter Speicher (reell)"
-
-#: ../public/js/plugins/hosts-tab.js:729
-msgid "Used Mem (allocated)"
-msgstr "Benutzter Speicher (zugewiesen)"
-
-#: ../public/js/plugins/hosts-tab.js:733
-msgid "Total CPU"
-msgstr "Total CPU"
-
-#: ../public/js/plugins/hosts-tab.js:737
-msgid "Used CPU (real)"
-msgstr "Prozessornutzung (reell)"
-
-#: ../public/js/plugins/hosts-tab.js:741
-msgid "Used CPU (allocated)"
-msgstr "Prozessornutzung (zugewiesen)"
-
-#: ../public/js/plugins/hosts-tab.js:783
-msgid "Create host"
-msgstr "Host erstellen"
-
-#: ../public/js/plugins/hosts-tab.js:827
-msgid "Host name missing!"
-msgstr "Hostname fehlt!"
-
-#: ../public/js/plugins/config-tab.js:24
-msgid "Sunstone UI Configuration"
-msgstr "Sunstone UI Konfiguration"
-
-#: ../public/js/plugins/config-tab.js:29
-msgid "Language"
-msgstr "Sprache"
-
-#: ../public/js/plugins/config-tab.js:32
-msgid "English (US)"
-msgstr "Englisch (US)"
-
-#: ../public/js/plugins/config-tab.js:33
-msgid "Catalan"
-msgstr ""
-
-#: ../public/js/plugins/config-tab.js:34
-msgid "Chinese (TW)"
-msgstr "Chinesisch (TW)"
-
-#: ../public/js/plugins/config-tab.js:35
-msgid "Czech (CZ)"
-msgstr ""
-
-#: ../public/js/plugins/config-tab.js:36
-msgid "French (FR)"
-msgstr "Französisch (FR)"
-
-#: ../public/js/plugins/config-tab.js:37
-msgid "German"
-msgstr ""
-
-#: ../public/js/plugins/config-tab.js:38
-msgid "Greek (GR)"
-msgstr ""
-
-#: ../public/js/plugins/config-tab.js:39
-msgid "Italian (IT)"
-msgstr "Italienisch (IT)"
-
-#: ../public/js/plugins/config-tab.js:40
-msgid "Persian (IR)"
-msgstr "Persisch (IR)"
-
-#: ../public/js/plugins/config-tab.js:41
-msgid "Portuguese (PT)"
-msgstr ""
-
-#: ../public/js/plugins/config-tab.js:42
-msgid "Russian (RU)"
-msgstr "Russisch (RU)"
-
-#: ../public/js/plugins/config-tab.js:43
-msgid "Spanish (SP)"
-msgstr ""
-
-#: ../public/js/plugins/config-tab.js:44
-msgid "Slovak (SK)"
-msgstr "Slovakisch (SK)"
-
-#: ../public/js/plugins/config-tab.js:49
-msgid "Secure websockets connection"
-msgstr "Sichere Websockets Verbindung"
-
-#: ../public/js/plugins/config-tab.js:64
-msgid "These options are stored in your OpenNebula user template."
-msgstr ""
-
-#: ../public/js/plugins/config-tab.js:67
-msgid "WSS connection requires additional configuration of Sunstone Server and that the SSL certificate is considered valid by your browser."
-msgstr ""
-
-#: ../public/js/plugins/config-tab.js:82
-msgid "Configuration"
-msgstr "Konfiguration"
-
-#: ../public/js/plugins/users-tab.js:25 ../public/js/plugins/vms-tab.js:28
-#: ../public/js/plugins/templates-tab.js:89
-#: ../public/js/plugins/groups-tab.js:23
-#: ../public/js/plugins/dashboard-users-tab.js:140
-msgid "CPU"
-msgstr "CPU"
-
-#: ../public/js/plugins/users-tab.js:29 ../public/js/plugins/vms-tab.js:33
-#: ../public/js/plugins/templates-tab.js:84
-#: ../public/js/plugins/groups-tab.js:27
-#: ../public/js/plugins/dashboard-users-tab.js:127
-msgid "Memory"
-msgstr "Arbeitsspeicher"
-
-#: ../public/js/plugins/users-tab.js:33 ../public/js/plugins/groups-tab.js:31
-msgid "Net TX"
-msgstr "Net TX"
-
-#: ../public/js/plugins/users-tab.js:37 ../public/js/plugins/groups-tab.js:35
-msgid "Net RX"
-msgstr "Net RX"
-
-#: ../public/js/plugins/users-tab.js:45 ../public/js/plugins/users-tab.js:477
-#: ../public/js/plugins/acls-tab.js:64 ../public/js/plugins/acls-tab.js:284
-#: ../public/js/plugins/acls-tab.js:492 ../public/js/plugins/system-tab.js:34
-#: ../public/js/plugins/groups-tab.js:52
-msgid "Users"
-msgstr "Benutzer"
-
-#: ../public/js/plugins/users-tab.js:55 ../public/js/plugins/users-tab.js:635
-#: ../public/js/plugins/acls-tab.js:76 ../public/js/plugins/acls-tab.js:241
-#: ../public/js/plugins/vms-tab.js:71 ../public/js/plugins/vms-tab.js:148
-#: ../public/js/plugins/vms-tab.js:984 ../public/js/plugins/vms-tab.js:1013
-#: ../public/js/plugins/images-tab.js:30
-#: ../public/js/plugins/images-tab.js:216
-#: ../public/js/plugins/images-tab.js:629
-#: ../public/js/plugins/images-tab.js:674
-#: ../public/js/plugins/templates-tab.js:30
-#: ../public/js/plugins/templates-tab.js:585
-#: ../public/js/plugins/templates-tab.js:930
-#: ../public/js/plugins/templates-tab.js:943
-#: ../public/js/plugins/datastores-tab.js:31
-#: ../public/js/plugins/datastores-tab.js:114
-#: ../public/js/plugins/datastores-tab.js:475
-#: ../public/js/plugins/datastores-tab.js:504
-#: ../public/js/plugins/vnets-tab.js:30 ../public/js/plugins/vnets-tab.js:190
-#: ../public/js/plugins/vnets-tab.js:589 ../public/js/plugins/vnets-tab.js:614
-msgid "Group"
-msgstr "Gruppe"
-
-#: ../public/js/plugins/users-tab.js:56 ../public/js/plugins/users-tab.js:639
-msgid "Authentication driver"
-msgstr ""
-
-#: ../public/js/plugins/users-tab.js:57 ../public/js/plugins/groups-tab.js:53
-msgid "VMs"
-msgstr "VMs"
-
-#: ../public/js/plugins/users-tab.js:58 ../public/js/plugins/groups-tab.js:54
-msgid "Used memory"
-msgstr ""
-
-#: ../public/js/plugins/users-tab.js:59 ../public/js/plugins/vms-tab.js:74
-#: ../public/js/plugins/vms-tab.js:1040 ../public/js/plugins/groups-tab.js:55
-msgid "Used CPU"
-msgstr "CPU Verbrauch"
-
-#: ../public/js/plugins/users-tab.js:60
-msgid "Group ID"
-msgstr "Gruppen ID"
-
-#: ../public/js/plugins/users-tab.js:70
-msgid "Tip: You can save any information in the user template, in the form of VAR=VAL."
-msgstr ""
-
-#: ../public/js/plugins/users-tab.js:75
-msgid "Tip: SSH authentication method is not available for web UI access."
-msgstr ""
-
-#: ../public/js/plugins/users-tab.js:85
-msgid "Username"
-msgstr "Benutzername"
-
-#: ../public/js/plugins/users-tab.js:87
-#: ../public/js/plugins/templates-tab.js:430
-msgid "Password"
-msgstr "Passwort"
-
-#: ../public/js/plugins/users-tab.js:89
-msgid "Authentication"
-msgstr "Authentifikation"
-
-#: ../public/js/plugins/users-tab.js:91 ../public/js/plugins/users-tab.js:426
-msgid "Core"
-msgstr ""
-
-#: ../public/js/plugins/users-tab.js:92 ../public/js/plugins/users-tab.js:427
-#: ../public/js/plugins/datastores-tab.js:74
-msgid "SSH"
-msgstr "SSH"
-
-#: ../public/js/plugins/users-tab.js:93 ../public/js/plugins/users-tab.js:428
-msgid "x509"
-msgstr "x509"
-
-#: ../public/js/plugins/users-tab.js:94 ../public/js/plugins/users-tab.js:429
-msgid "Public"
-msgstr "Public"
-
-#: ../public/js/plugins/users-tab.js:98
-msgid "Custom auth driver"
-msgstr ""
-
-#: ../public/js/plugins/users-tab.js:114
-msgid "This will change the password for the selected users"
-msgstr "Diese Aktion wird das Passwort für die ausgewählten Benutzer ändern"
-
-#: ../public/js/plugins/users-tab.js:115
-msgid "New password"
-msgstr "Neues Passwort"
-
-#: ../public/js/plugins/users-tab.js:121
-msgid "Change"
-msgstr "Wechseln"
-
-#: ../public/js/plugins/users-tab.js:129 ../public/js/plugins/groups-tab.js:87
-msgid "Please add/edit/remove quotas and click on the apply changes button. Note that if several items are selected, changes will be applied to each of them"
-msgstr ""
-
-#: ../public/js/plugins/users-tab.js:130 ../public/js/plugins/groups-tab.js:88
-msgid "Add quota"
-msgstr ""
-
-#: ../public/js/plugins/users-tab.js:132 ../public/js/plugins/groups-tab.js:90
-msgid "Quota type"
-msgstr ""
-
-#: ../public/js/plugins/users-tab.js:133 ../public/js/plugins/groups-tab.js:91
-msgid "Virtual Machine"
-msgstr ""
-
-#: ../public/js/plugins/users-tab.js:134 ../public/js/plugins/users-tab.js:147
-#: ../public/js/plugins/images-tab.js:32 ../public/js/plugins/images-tab.js:75
-#: ../public/js/plugins/images-tab.js:174
-#: ../public/js/plugins/images-tab.js:621
-#: ../public/js/plugins/datastores-tab.js:127
-#: ../public/js/plugins/groups-tab.js:92
-#: ../public/js/plugins/groups-tab.js:105
-#: ../public/js/plugins/dashboard-users-tab.js:149
-msgid "Datastore"
-msgstr "Datastore"
-
-#: ../public/js/plugins/users-tab.js:135 ../public/js/plugins/users-tab.js:155
-#: ../public/js/plugins/images-tab.js:609
-#: ../public/js/plugins/templates-tab.js:203
-#: ../public/js/plugins/templates-tab.js:208
-#: ../public/js/plugins/groups-tab.js:93
-#: ../public/js/plugins/groups-tab.js:113
-#: ../public/js/plugins/dashboard-users-tab.js:178
-msgid "Image"
-msgstr "Abbild"
-
-#: ../public/js/plugins/users-tab.js:136 ../public/js/plugins/users-tab.js:161
-#: ../public/js/plugins/templates-tab.js:262
-#: ../public/js/plugins/templates-tab.js:273
-#: ../public/js/plugins/groups-tab.js:94
-#: ../public/js/plugins/groups-tab.js:119
-#: ../public/js/plugins/dashboard-users-tab.js:193
-msgid "Network"
-msgstr "Netzwerk"
-
-#: ../public/js/plugins/users-tab.js:139 ../public/js/plugins/groups-tab.js:97
-msgid "Max VMs"
-msgstr "Max VMs"
-
-#: ../public/js/plugins/users-tab.js:141 ../public/js/plugins/groups-tab.js:99
-msgid "Max Memory (MB)"
-msgstr ""
-
-#: ../public/js/plugins/users-tab.js:143
-#: ../public/js/plugins/groups-tab.js:101
-msgid "Max CPU"
-msgstr "Max CPU"
-
-#: ../public/js/plugins/users-tab.js:149
-#: ../public/js/plugins/groups-tab.js:107
-msgid "Max size (MB)"
-msgstr ""
-
-#: ../public/js/plugins/users-tab.js:151
-#: ../public/js/plugins/groups-tab.js:109
-msgid "Max images"
-msgstr ""
-
-#: ../public/js/plugins/users-tab.js:157
-#: ../public/js/plugins/groups-tab.js:115
-msgid "Max RVMs"
-msgstr ""
-
-#: ../public/js/plugins/users-tab.js:163
-#: ../public/js/plugins/groups-tab.js:121
-msgid "Max leases"
-msgstr ""
-
-#: ../public/js/plugins/users-tab.js:166
-#: ../public/js/plugins/groups-tab.js:124
-msgid "Add/edit quota"
-msgstr ""
-
-#: ../public/js/plugins/users-tab.js:172 ../public/js/plugins/vms-tab.js:1165
-#: ../public/js/plugins/vms-tab.js:1190 ../public/js/plugins/images-tab.js:34
-#: ../public/js/plugins/images-tab.js:83
-#: ../public/js/plugins/images-tab.js:633
-#: ../public/js/plugins/templates-tab.js:215
-#: ../public/js/plugins/templates-tab.js:375
-#: ../public/js/plugins/vnets-tab.js:33 ../public/js/plugins/groups-tab.js:130
-msgid "Type"
-msgstr "Typ"
-
-#: ../public/js/plugins/users-tab.js:173
-#: ../public/js/plugins/groups-tab.js:131
-msgid "Quota"
-msgstr "Quota"
-
-#: ../public/js/plugins/users-tab.js:174
-#: ../public/js/plugins/groups-tab.js:132
-msgid "Edit"
-msgstr "Bearbeiten"
-
-#: ../public/js/plugins/users-tab.js:180
-#: ../public/js/plugins/groups-tab.js:137
-msgid "Apply changes"
-msgstr "Änderungen anwenden"
-
-#: ../public/js/plugins/users-tab.js:235
-msgid "Change password successful"
-msgstr "Änderung des Passworts erfolgreich"
-
-#: ../public/js/plugins/users-tab.js:365
-#: ../public/js/plugins/groups-tab.js:235
-msgid "Quotas updated correctly"
-msgstr "Quota wurden erfolgreich aktualisiert"
-
-#: ../public/js/plugins/users-tab.js:402 ../public/js/plugins/vms-tab.js:508
-#: ../public/js/plugins/images-tab.js:454
-#: ../public/js/plugins/templates-tab.js:778
-#: ../public/js/plugins/datastores-tab.js:314
-#: ../public/js/plugins/vnets-tab.js:439
-#: ../public/js/plugins/clusters-tab.js:224
-msgid "Update properties"
-msgstr "Eigenschaften aktualisieren"
-
-#: ../public/js/plugins/users-tab.js:407 ../public/js/plugins/users-tab.js:813
-msgid "Change password"
-msgstr "Passwort ändern"
-
-#: ../public/js/plugins/users-tab.js:411
-#: ../public/js/plugins/groups-tab.js:279
-msgid "Update quotas"
-msgstr "Quota aktualisieren"
-
-#: ../public/js/plugins/users-tab.js:416 ../public/js/plugins/vms-tab.js:522
-#: ../public/js/plugins/images-tab.js:466
-#: ../public/js/plugins/templates-tab.js:794
-#: ../public/js/plugins/datastores-tab.js:334
-#: ../public/js/plugins/vnets-tab.js:459
-msgid "Change group"
-msgstr "Gruppe wechseln"
-
-#: ../public/js/plugins/users-tab.js:418
-msgid "This will change the main group of the selected users. Select the new group"
-msgstr ""
-
-#: ../public/js/plugins/users-tab.js:423
-msgid "Change authentication"
-msgstr ""
-
-#: ../public/js/plugins/users-tab.js:431
-msgid "Please choose the new type of authentication for the selected users"
-msgstr ""
-
-#: ../public/js/plugins/users-tab.js:450 ../public/js/plugins/acls-tab.js:169
-#: ../public/js/plugins/vms-tab.js:619 ../public/js/plugins/images-tab.js:498
-#: ../public/js/plugins/templates-tab.js:805
-#: ../public/js/plugins/datastores-tab.js:341
-#: ../public/js/plugins/vnets-tab.js:467
-#: ../public/js/plugins/clusters-tab.js:229
-#: ../public/js/plugins/groups-tab.js:284
-msgid "Delete"
-msgstr "Löschen"
-
-#: ../public/js/plugins/users-tab.js:463 ../public/js/plugins/users-tab.js:623
-#: ../public/js/plugins/users-tab.js:627
-msgid "User information"
-msgstr "Benutzerinformationen"
-
-#: ../public/js/plugins/users-tab.js:467 ../public/js/plugins/users-tab.js:673
-#: ../public/js/plugins/users-tab.js:844
-#: ../public/js/plugins/dashboard-users-tab.js:25
-msgid "User quotas"
-msgstr "Benutzer Quota"
-
-#: ../public/js/plugins/users-tab.js:471 ../public/js/plugins/users-tab.js:678
-#: ../public/js/plugins/groups-tab.js:300
-#: ../public/js/plugins/groups-tab.js:472
-msgid "Historical usages"
-msgstr ""
-
-#: ../public/js/plugins/users-tab.js:486
-msgid "User info"
-msgstr "User info"
-
-#: ../public/js/plugins/users-tab.js:645
-msgid "User template"
-msgstr ""
-
-#: ../public/js/plugins/users-tab.js:681
-#: ../public/js/plugins/groups-tab.js:475
-msgid "From / to"
-msgstr ""
-
-#: ../public/js/plugins/users-tab.js:685 ../public/js/plugins/vms-tab.js:169
-#: ../public/js/plugins/images-tab.js:235
-#: ../public/js/plugins/templates-tab.js:605
-#: ../public/js/plugins/datastores-tab.js:134
-#: ../public/js/plugins/vnets-tab.js:210
-#: ../public/js/plugins/groups-tab.js:479 ../public/js/sunstone-util.js:746
-msgid "Update"
-msgstr "Aktualisieren"
-
-#: ../public/js/plugins/users-tab.js:690
-#: ../public/js/plugins/groups-tab.js:484
-msgid "Meters"
-msgstr ""
-
-#: ../public/js/plugins/users-tab.js:765
-msgid "Create user"
-msgstr "Benutzer erstellen"
-
-#: ../public/js/plugins/users-tab.js:796
-msgid "User name and password must be filled in"
-msgstr "Benutzername und Passwort müssen ausgefüllt werden"
-
-#: ../public/js/plugins/users-tab.js:831
-msgid "Fill in a new password"
-msgstr "Neues Passwort eingeben"
-
-#: ../public/js/plugins/acls-tab.js:22
-msgid "Access Control Lists"
-msgstr "Access Control List"
-
-#: ../public/js/plugins/acls-tab.js:31
+#: ../public/js/plugins/acls-tab.js:57
 msgid "Applies to"
-msgstr "bezieht sich auf"
+msgstr "Bezieht sich auf"
 
-#: ../public/js/plugins/acls-tab.js:32 ../public/js/plugins/acls-tab.js:56
+#: ../public/js/plugins/acls-tab.js:58 ../public/js/plugins/acls-tab.js:90
 msgid "Affected resources"
-msgstr "Betroffene Resourcen"
+msgstr "Betroffene Ressourcen"
 
-#: ../public/js/plugins/acls-tab.js:33
+#: ../public/js/plugins/acls-tab.js:59
 msgid "Resource ID / Owned by"
 msgstr "Resourcen ID / Im Besitz von"
 
-#: ../public/js/plugins/acls-tab.js:34 ../public/js/plugins/acls-tab.js:79
+#: ../public/js/plugins/acls-tab.js:60 ../public/js/plugins/acls-tab.js:134
 msgid "Allowed operations"
 msgstr "Erlaubte Aktionen"
 
-#: ../public/js/plugins/acls-tab.js:35
+#: ../public/js/plugins/acls-tab.js:61
 msgid "ACL String"
 msgstr "ACL Zeichenfolge"
 
-#: ../public/js/plugins/acls-tab.js:44
-msgid "This table shows the ACLs rules broken down to easier the reading and meaning of each one. You can show the ACL original string by clicking on Show/Hide columns."
-msgstr "Diese Übersicht zeigt die einzelnen ACLs, um sie leichter lesen und verstehen zu können. Sie können den genauen ACL-Ausdruck anzeigen, in dem Sie auf die Reiche mit \"Anzeigen/Verbergen\" klicken. "
-
-#: ../public/js/plugins/acls-tab.js:53
-msgid "This rule applies to"
-msgstr "Diese Regel bezieht sich auf"
-
-#: ../public/js/plugins/acls-tab.js:58 ../public/js/plugins/acls-tab.js:290
-#: ../public/js/plugins/dashboard-tab.js:75
-#: ../public/js/plugins/infra-tab.js:30
-#: ../public/js/plugins/clusters-tab.js:21
-#: ../public/js/plugins/clusters-tab.js:253
-msgid "Clusters"
-msgstr "Cluster"
-
-#: ../public/js/plugins/acls-tab.js:59 ../public/js/plugins/acls-tab.js:293
-#: ../public/js/plugins/datastores-tab.js:21
-#: ../public/js/plugins/datastores-tab.js:364
-#: ../public/js/plugins/infra-tab.js:38
-#: ../public/js/plugins/clusters-tab.js:33
-#: ../public/js/plugins/clusters-tab.js:604
-#: ../public/js/plugins/clusters-tab.js:712
-#: ../public/js/plugins/clusters-tab.js:814
-msgid "Datastores"
-msgstr "Datastores"
-
-#: ../public/js/plugins/acls-tab.js:60 ../public/js/plugins/acls-tab.js:272
-#: ../public/js/plugins/dashboard-tab.js:109
-#: ../public/js/plugins/vms-tab.js:61 ../public/js/plugins/vms-tab.js:658
-#: ../public/js/plugins/dashboard-users-tab.js:43
-#: ../public/js/plugins/dashboard-users-tab.js:111
-msgid "Virtual Machines"
-msgstr "Virtuelle Maschinen"
-
-#: ../public/js/plugins/acls-tab.js:61 ../public/js/plugins/acls-tab.js:275
-#: ../public/js/plugins/vresources-tab.js:43
-#: ../public/js/plugins/vnets-tab.js:20 ../public/js/plugins/vnets-tab.js:489
-#: ../public/js/plugins/infra-tab.js:42
-#: ../public/js/plugins/clusters-tab.js:32
-#: ../public/js/plugins/clusters-tab.js:617
-#: ../public/js/plugins/clusters-tab.js:728
-#: ../public/js/plugins/clusters-tab.js:821
-msgid "Virtual Networks"
-msgstr "Virtuelle Netzwerke"
-
-#: ../public/js/plugins/acls-tab.js:62 ../public/js/plugins/acls-tab.js:278
-#: ../public/js/plugins/images-tab.js:20
-#: ../public/js/plugins/images-tab.js:521
-#: ../public/js/plugins/vresources-tab.js:47
-#: ../public/js/plugins/datastores-tab.js:495
-msgid "Images"
-msgstr "Abbilder"
-
-#: ../public/js/plugins/acls-tab.js:63
-#: ../public/js/plugins/templates-tab.js:20
-#: ../public/js/plugins/templates-tab.js:823
-msgid "Templates"
-msgstr "Templates"
-
-#: ../public/js/plugins/acls-tab.js:65 ../public/js/plugins/acls-tab.js:287
-#: ../public/js/plugins/acls-tab.js:497 ../public/js/plugins/system-tab.js:30
-#: ../public/js/plugins/groups-tab.js:42
-#: ../public/js/plugins/groups-tab.js:306
-msgid "Groups"
-msgstr "Gruppen"
-
-#: ../public/js/plugins/acls-tab.js:66 ../public/js/plugins/acls-tab.js:296
-msgid "Documents"
-msgstr ""
-
-#: ../public/js/plugins/acls-tab.js:68
-msgid "Resource subset"
-msgstr "Resourcen Untermenge"
-
-#: ../public/js/plugins/acls-tab.js:70
-msgid "Specific ID"
-msgstr "Spezifidsche ID"
-
-#: ../public/js/plugins/acls-tab.js:71
-msgid "Owned by group"
-msgstr "Im Besitz der Gruppe"
-
-#: ../public/js/plugins/acls-tab.js:73
-msgid "Resource ID"
-msgstr "Resourcen ID"
-
-#: ../public/js/plugins/acls-tab.js:80 ../public/js/plugins/vms-tab.js:138
-#: ../public/js/plugins/images-tab.js:206
-#: ../public/js/plugins/templates-tab.js:575
-#: ../public/js/plugins/datastores-tab.js:104
-#: ../public/js/plugins/vnets-tab.js:180
-msgid "Use"
-msgstr "Gebrauch"
-
-#: ../public/js/plugins/acls-tab.js:81 ../public/js/plugins/vms-tab.js:139
-#: ../public/js/plugins/images-tab.js:207
-#: ../public/js/plugins/templates-tab.js:576
-#: ../public/js/plugins/datastores-tab.js:105
-#: ../public/js/plugins/vnets-tab.js:181
-msgid "Manage"
-msgstr "Verwalten"
-
-#: ../public/js/plugins/acls-tab.js:82
-msgid "Administrate"
-msgstr "Administrieren"
-
-#: ../public/js/plugins/acls-tab.js:85
-msgid "ACL String preview"
-msgstr "ACL String Vorschau"
-
-#: ../public/js/plugins/acls-tab.js:179
-msgid "ACLs"
-msgstr "ACLs"
-
-#: ../public/js/plugins/acls-tab.js:219
-msgid "User"
-msgstr "Benutzer"
-
-#: ../public/js/plugins/acls-tab.js:223
-msgid "Group "
-msgstr "Gruppe"
-
-#: ../public/js/plugins/acls-tab.js:281
-#: ../public/js/plugins/vresources-tab.js:30
-msgid "VM Templates"
-msgstr "VM Templates"
-
-#: ../public/js/plugins/acls-tab.js:351
+#: ../public/js/plugins/acls-tab.js:72 ../public/js/plugins/acls-tab.js:409
 msgid "Create ACL"
 msgstr "ACL erstellen"
 
-#: ../public/js/plugins/acls-tab.js:442
+#: ../public/js/plugins/acls-tab.js:79
+msgid "This rule applies to"
+msgstr "Diese Regel bezieht sich auf"
+
+#: ../public/js/plugins/acls-tab.js:92 ../public/js/plugins/acls-tab.js:328
+#: ../public/js/plugins/clusters-tab.js:98
+#: ../public/js/plugins/clusters-tab.js:890
+#: ../public/js/plugins/clusters-tab.js:1261
+#: ../public/js/plugins/dashboard-tab.js:93
+#: ../public/js/plugins/hosts-tab.js:28 ../public/js/plugins/hosts-tab.js:450
+#: ../public/js/plugins/templates-tab.js:2870
+msgid "Hosts"
+msgstr "Hosts"
+
+#: ../public/js/plugins/acls-tab.js:93 ../public/js/plugins/acls-tab.js:349
+#: ../public/js/plugins/clusters-tab.js:862
+#: ../public/js/plugins/clusters-tab.js:1098
+msgid "Clusters"
+msgstr "Cluster"
+
+#: ../public/js/plugins/acls-tab.js:94 ../public/js/plugins/acls-tab.js:352
+#: ../public/js/plugins/clusters-tab.js:100
+#: ../public/js/plugins/clusters-tab.js:892
+#: ../public/js/plugins/clusters-tab.js:1283
+#: ../public/js/plugins/datastores-tab.js:27
+#: ../public/js/plugins/datastores-tab.js:581
+#: ../public/js/plugins/templates-tab.js:2872
+msgid "Datastores"
+msgstr "Datastores"
+
+#: ../public/js/plugins/acls-tab.js:95 ../public/js/plugins/acls-tab.js:331
+#: ../public/js/plugins/dashboard-tab.js:131
+#: ../public/js/plugins/vms-tab.js:44 ../public/js/plugins/vms-tab.js:850
+msgid "Virtual Machines"
+msgstr "Virtuelle Maschinen"
+
+#: ../public/js/plugins/acls-tab.js:96 ../public/js/plugins/acls-tab.js:334
+#: ../public/js/plugins/clusters-tab.js:99
+#: ../public/js/plugins/clusters-tab.js:1272
+#: ../public/js/plugins/vnets-tab.js:26 ../public/js/plugins/vnets-tab.js:736
+msgid "Virtual Networks"
+msgstr "Virtuelle Netzwerke"
+
+#: ../public/js/plugins/acls-tab.js:99 ../public/js/plugins/acls-tab.js:337
+#: ../public/js/plugins/datastores-tab.js:132
+#: ../public/js/plugins/datastores-tab.js:753
+#: ../public/js/plugins/images-tab.js:26
+#: ../public/js/plugins/images-tab.js:554 ../public/js/sunstone-util.js:1223
+msgid "Images"
+msgstr "Abbilder"
+
+#: ../public/js/plugins/acls-tab.js:100
+#: ../public/js/plugins/templates-tab.js:26
+#: ../public/js/plugins/templates-tab.js:453
+msgid "Templates"
+msgstr "Vorlagen"
+
+#: ../public/js/plugins/acls-tab.js:101 ../public/js/plugins/acls-tab.js:343
+#: ../public/js/plugins/acls-tab.js:570
+#: ../public/js/plugins/dashboard-tab.js:63
+#: ../public/js/plugins/groups-tab.js:78 ../public/js/plugins/users-tab.js:52
+#: ../public/js/plugins/users-tab.js:588
+msgid "Users"
+msgstr "Benutzer"
+
+#: ../public/js/plugins/acls-tab.js:102 ../public/js/plugins/acls-tab.js:346
+#: ../public/js/plugins/acls-tab.js:575 ../public/js/plugins/groups-tab.js:48
+#: ../public/js/plugins/groups-tab.js:416
+msgid "Groups"
+msgstr "Gruppen"
+
+#: ../public/js/plugins/acls-tab.js:103 ../public/js/plugins/acls-tab.js:355
+msgid "Documents"
+msgstr ""
+
+#: ../public/js/plugins/acls-tab.js:109
+msgid "Resource subset"
+msgstr "Ressourcen Untermenge"
+
+#: ../public/js/plugins/acls-tab.js:111 ../public/js/plugins/acls-tab.js:271
+#: ../public/js/plugins/acls-tab.js:289 ../public/js/plugins/acls-tab.js:578
+#: ../public/js/plugins/datastores-tab.js:318
+msgid "All"
+msgstr "Alle"
+
+#: ../public/js/plugins/acls-tab.js:112
+msgid "Specific ID"
+msgstr "Spezifidsche ID"
+
+#: ../public/js/plugins/acls-tab.js:113
+msgid "Owned by group"
+msgstr "Im Besitz der Gruppe"
+
+#: ../public/js/plugins/acls-tab.js:114
+msgid "Assigned to cluster"
+msgstr ""
+
+#: ../public/js/plugins/acls-tab.js:118
+msgid "Resource ID"
+msgstr "Resourcen ID"
+
+#: ../public/js/plugins/acls-tab.js:122 ../public/js/plugins/acls-tab.js:296
+#: ../public/js/plugins/clusters-tab.js:46
+#: ../public/js/plugins/clusters-tab.js:62
+#: ../public/js/plugins/datastores-tab.js:57
+#: ../public/js/plugins/datastores-tab.js:321
+#: ../public/js/plugins/files-tab.js:60 ../public/js/plugins/images-tab.js:60
+#: ../public/js/plugins/templates-tab.js:56
+#: ../public/js/plugins/templates-tab.js:141
+#: ../public/js/plugins/templates-tab.js:801
+#: ../public/js/plugins/templates-tab.js:1175
+#: ../public/js/plugins/templates-tab.js:1954
+#: ../public/js/plugins/templates-tab.js:2014
+#: ../public/js/plugins/templates-tab.js:2560
+#: ../public/js/plugins/users-tab.js:82 ../public/js/plugins/vms-tab.js:76
+#: ../public/js/plugins/vnets-tab.js:55 ../public/js/plugins/vnets-tab.js:448
+#: ../public/js/sunstone-util.js:2294 ../public/js/sunstone-util.js:2357
+#: ../public/js/sunstone-util.js:2438
+msgid "Group"
+msgstr "Gruppe"
+
+#: ../public/js/plugins/acls-tab.js:126
+#: ../public/js/plugins/clusters-tab.js:26
+#: ../public/js/plugins/clusters-tab.js:48
+#: ../public/js/plugins/clusters-tab.js:64
+#: ../public/js/plugins/clusters-tab.js:1236
+#: ../public/js/plugins/datastores-tab.js:59
+#: ../public/js/plugins/datastores-tab.js:116
+#: ../public/js/plugins/datastores-tab.js:294
+#: ../public/js/plugins/hosts-tab.js:61 ../public/js/plugins/hosts-tab.js:171
+#: ../public/js/plugins/templates-tab.js:1177
+#: ../public/js/plugins/templates-tab.js:2833
+#: ../public/js/plugins/vnets-tab.js:57 ../public/js/sunstone-util.js:2399
+msgid "Cluster"
+msgstr "Cluster"
+
+#: ../public/js/plugins/acls-tab.js:135
+#: ../public/js/plugins/templates-tab.js:131
+#: ../public/js/plugins/vnets-tab.js:438 ../public/js/sunstone-util.js:2284
+msgid "Use"
+msgstr "Gebrauch"
+
+#: ../public/js/plugins/acls-tab.js:136
+#: ../public/js/plugins/templates-tab.js:132
+#: ../public/js/plugins/vnets-tab.js:439 ../public/js/sunstone-util.js:2285
+msgid "Manage"
+msgstr "Verwalten"
+
+#: ../public/js/plugins/acls-tab.js:137
+msgid "Administrate"
+msgstr "Administrieren"
+
+#: ../public/js/plugins/acls-tab.js:138 ../public/js/plugins/acls-tab.js:155
+#: ../public/js/plugins/clusters-tab.js:160
+#: ../public/js/plugins/datastores-tab.js:285
+#: ../public/js/plugins/datastores-tab.js:306
+#: ../public/js/plugins/files-tab.js:177 ../public/js/plugins/files-tab.js:196
+#: ../public/js/plugins/groups-tab.js:111
+#: ../public/js/plugins/hosts-tab.js:185
+#: ../public/js/plugins/images-tab.js:257
+#: ../public/js/plugins/images-tab.js:276
+#: ../public/js/plugins/templates-tab.js:92
+#: ../public/js/plugins/templates-tab.js:107
+#: ../public/js/plugins/users-tab.js:152 ../public/js/plugins/vms-tab.js:135
+#: ../public/js/plugins/vnets-tab.js:399 ../public/js/plugins/vnets-tab.js:415
+msgid "Create"
+msgstr "Erzeugen"
+
+#: ../public/js/plugins/acls-tab.js:143
+msgid "ACL String preview"
+msgstr "ACL String Vorschau"
+
+#: ../public/js/plugins/acls-tab.js:156
+#: ../public/js/plugins/datastores-tab.js:286
+#: ../public/js/plugins/datastores-tab.js:307
+#: ../public/js/plugins/files-tab.js:178 ../public/js/plugins/files-tab.js:197
+#: ../public/js/plugins/hosts-tab.js:186
+#: ../public/js/plugins/images-tab.js:258
+#: ../public/js/plugins/images-tab.js:277
+#: ../public/js/plugins/templates-tab.js:94
+#: ../public/js/plugins/templates-tab.js:95
+#: ../public/js/plugins/templates-tab.js:109
+#: ../public/js/plugins/vnets-tab.js:401 ../public/js/plugins/vnets-tab.js:417
+msgid "Reset"
+msgstr "Zurücksetzen"
+
+#: ../public/js/plugins/acls-tab.js:157
+#: ../public/js/plugins/clusters-tab.js:162
+#: ../public/js/plugins/config-tab.js:138
+#: ../public/js/plugins/config-tab.js:166
+#: ../public/js/plugins/datastores-tab.js:287
+#: ../public/js/plugins/datastores-tab.js:308
+#: ../public/js/plugins/files-tab.js:179 ../public/js/plugins/files-tab.js:198
+#: ../public/js/plugins/groups-tab.js:112
+#: ../public/js/plugins/groups-tab.js:272
+#: ../public/js/plugins/hosts-tab.js:187
+#: ../public/js/plugins/images-tab.js:259
+#: ../public/js/plugins/images-tab.js:278
+#: ../public/js/plugins/images-tab.js:1237
+#: ../public/js/plugins/templates-tab.js:96
+#: ../public/js/plugins/templates-tab.js:110
+#: ../public/js/plugins/templates-tab.js:199
+#: ../public/js/plugins/templates-tab.js:4330
+#: ../public/js/plugins/users-tab.js:153 ../public/js/plugins/users-tab.js:178
+#: ../public/js/plugins/users-tab.js:198 ../public/js/plugins/users-tab.js:358
+#: ../public/js/plugins/vms-tab.js:136 ../public/js/plugins/vms-tab.js:1937
+#: ../public/js/plugins/vms-tab.js:2006 ../public/js/plugins/vms-tab.js:2264
+#: ../public/js/plugins/vms-tab.js:2439 ../public/js/plugins/vms-tab.js:2637
+#: ../public/js/plugins/vnets-tab.js:402 ../public/js/plugins/vnets-tab.js:418
+msgid "Close"
+msgstr "Schließen"
+
+#: ../public/js/plugins/acls-tab.js:237
+#: ../public/js/plugins/clusters-tab.js:1093
+#: ../public/js/plugins/datastores-tab.js:567
+#: ../public/js/plugins/files-tab.js:405
+#: ../public/js/plugins/groups-tab.js:406
+#: ../public/js/plugins/images-tab.js:537
+#: ../public/js/plugins/templates-tab.js:435
+#: ../public/js/plugins/users-tab.js:566 ../public/js/plugins/vms-tab.js:815
+#: ../public/js/plugins/vms-tab.js:821 ../public/js/plugins/vms-tab.js:2577
+#: ../public/js/plugins/vnets-tab.js:714
+msgid "Delete"
+msgstr "Löschen"
+
+#: ../public/js/plugins/acls-tab.js:247
+msgid "ACLs"
+msgstr "ACLs"
+
+#: ../public/js/plugins/acls-tab.js:274 ../public/js/plugins/users-tab.js:714
+msgid "User"
+msgstr "Benutzer"
+
+#: ../public/js/plugins/acls-tab.js:278
+msgid "Group "
+msgstr "Gruppe"
+
+#: ../public/js/plugins/acls-tab.js:300
+msgid "Cluster ID"
+msgstr ""
+
+#: ../public/js/plugins/acls-tab.js:340
+msgid "VM Templates"
+msgstr "VM Vorlagen"
+
+#: ../public/js/plugins/acls-tab.js:513
 msgid "Please specify to who this ACL applies"
 msgstr "Spezifizieren auf wen die Zugriffsrechte (ACL) angewandt werden"
 
-#: ../public/js/plugins/acls-tab.js:448
+#: ../public/js/plugins/acls-tab.js:519
 msgid "Please select at least one resource"
 msgstr "Bitte mindestens eine Ressource auswählen"
 
-#: ../public/js/plugins/acls-tab.js:457
+#: ../public/js/plugins/acls-tab.js:528
 msgid "Please provide a resource ID for the resource(s) in this rule"
 msgstr "Bitte eine Resourcen ID für die Resource(n) in dieser Regel festlegen"
 
-#: ../public/js/plugins/dashboard-tab.js:30
-msgid "Total Hosts"
-msgstr "Total Hosts"
-
-#: ../public/js/plugins/dashboard-tab.js:39
-msgid "Global CPU Usage"
-msgstr ""
-
-#: ../public/js/plugins/dashboard-tab.js:47
-#: ../public/js/plugins/clusters-tab.js:560
-#: ../public/js/plugins/clusters-tab.js:667
-msgid "Used vs. Max CPU"
-msgstr ""
-
-#: ../public/js/plugins/dashboard-tab.js:57
-#: ../public/js/plugins/clusters-tab.js:570
-#: ../public/js/plugins/clusters-tab.js:677
-msgid "Used vs. Max Memory"
-msgstr ""
-
-#: ../public/js/plugins/dashboard-tab.js:81
-msgid "Allocated CPU per cluster"
-msgstr ""
-
-#: ../public/js/plugins/dashboard-tab.js:89
-msgid "Allocated Memory per cluster"
-msgstr ""
-
-#: ../public/js/plugins/dashboard-tab.js:114
-#: ../public/js/plugins/dashboard-users-tab.js:48
-msgid "Total VMs"
-msgstr "Total VMs"
-
-#: ../public/js/plugins/dashboard-tab.js:124
-#: ../public/js/plugins/dashboard-users-tab.js:58
-msgid "Bandwidth - Upload"
-msgstr "Bandbreite - Upload"
-
-#: ../public/js/plugins/dashboard-tab.js:125
-#: ../public/js/plugins/dashboard-users-tab.js:59
-msgid "Bandwidth - Download"
-msgstr "Bandbreite - Download"
-
-#: ../public/js/plugins/dashboard-tab.js:133
-#: ../public/js/plugins/dashboard-users-tab.js:67
-msgid "Global transfer rates"
-msgstr ""
-
-#: ../public/js/plugins/dashboard-tab.js:150
-msgid "System Information"
-msgstr "System Informationen"
-
-#: ../public/js/plugins/dashboard-tab.js:155
-msgid "Total Users"
-msgstr "Total Benutzer"
-
-#: ../public/js/plugins/dashboard-tab.js:156
-msgid "Total Groups"
-msgstr "Total Gruppen"
-
-#: ../public/js/plugins/dashboard-tab.js:165
-msgid "Users per group"
-msgstr "Benutzer pro Gruppe"
-
-#: ../public/js/plugins/dashboard-tab.js:182
-#: ../public/js/plugins/dashboard-users-tab.js:86
-msgid "Dashboard"
-msgstr "Dashboard"
-
-#: ../public/js/plugins/vms-tab.js:38
-msgid "Network transmission"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:44
-msgid "Network reception"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:70 ../public/js/plugins/vms-tab.js:142
-#: ../public/js/plugins/vms-tab.js:980 ../public/js/plugins/vms-tab.js:1009
-#: ../public/js/plugins/images-tab.js:29
-#: ../public/js/plugins/images-tab.js:210
-#: ../public/js/plugins/images-tab.js:625
-#: ../public/js/plugins/images-tab.js:670
-#: ../public/js/plugins/templates-tab.js:29
-#: ../public/js/plugins/templates-tab.js:579
-#: ../public/js/plugins/templates-tab.js:926
-#: ../public/js/plugins/templates-tab.js:939
-#: ../public/js/plugins/datastores-tab.js:30
-#: ../public/js/plugins/datastores-tab.js:108
-#: ../public/js/plugins/datastores-tab.js:471
-#: ../public/js/plugins/datastores-tab.js:500
-#: ../public/js/plugins/vnets-tab.js:29 ../public/js/plugins/vnets-tab.js:184
-#: ../public/js/plugins/vnets-tab.js:585 ../public/js/plugins/vnets-tab.js:610
-msgid "Owner"
-msgstr "Besitzer"
-
-#: ../public/js/plugins/vms-tab.js:75 ../public/js/plugins/vms-tab.js:1036
-msgid "Used Memory"
-msgstr "Memory Verbrauch"
-
-#: ../public/js/plugins/vms-tab.js:76 ../public/js/plugins/vms-tab.js:891
-#: ../public/js/plugins/vms-tab.js:996
-msgid "Host"
-msgstr "Host"
-
-#: ../public/js/plugins/vms-tab.js:77
-msgid "IPs"
-msgstr "IPs"
-
-#: ../public/js/plugins/vms-tab.js:78
-msgid "Start Time"
-msgstr "Start Zeit"
-
-#: ../public/js/plugins/vms-tab.js:79
-msgid "VNC Access"
-msgstr "VNC  Zugriff"
-
-#: ../public/js/plugins/vms-tab.js:88
-msgid "CPU, Memory and Start time are hidden columns by default. You can get monitoring graphs by clicking on the desired VM and visiting the monitoring information tab."
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:91
-msgid "VNC console requires previous install of the noVNC addon. Check Sunstone documentation for more information."
-msgstr "Die VNC Konsole benötigt die vorgängige Installation des noVNC-Addons. Nähere Informationen finden sich in der Sunstone Dokumentation"
-
-#: ../public/js/plugins/vms-tab.js:94
-msgid "You can hotplug and detach existing disks from running VMs from the Disks & Hotplugging tab in the VM information dialog."
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:103
-msgid "VM Name"
-msgstr "VM Name"
-
-#: ../public/js/plugins/vms-tab.js:105
-msgid "Defaults to template name when emtpy"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:108
-msgid "Select template"
-msgstr "Template auswählen"
-
-#: ../public/js/plugins/vms-tab.js:113
-msgid "Deploy # VMs"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:115
-msgid "You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:129
-msgid "Please, choose and modify the virtual machine you want to update"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:131
-msgid "Select a VM"
-msgstr "VM auswählen"
-
-#: ../public/js/plugins/vms-tab.js:137 ../public/js/plugins/images-tab.js:205
-#: ../public/js/plugins/images-tab.js:668
-#: ../public/js/plugins/templates-tab.js:574
-#: ../public/js/plugins/templates-tab.js:937
-#: ../public/js/plugins/datastores-tab.js:103
-#: ../public/js/plugins/datastores-tab.js:498
-#: ../public/js/plugins/vnets-tab.js:179 ../public/js/plugins/vnets-tab.js:608
-msgid "Permissions"
-msgstr "Berechtigungen"
-
-#: ../public/js/plugins/vms-tab.js:140 ../public/js/plugins/images-tab.js:208
-#: ../public/js/plugins/templates-tab.js:577
-#: ../public/js/plugins/datastores-tab.js:106
-#: ../public/js/plugins/vnets-tab.js:182
-msgid "Admin"
-msgstr "Administrator"
-
-#: ../public/js/plugins/vms-tab.js:154 ../public/js/plugins/vms-tab.js:1017
-#: ../public/js/plugins/images-tab.js:222
-#: ../public/js/plugins/images-tab.js:678
-#: ../public/js/plugins/templates-tab.js:591
-#: ../public/js/plugins/templates-tab.js:947
-#: ../public/js/plugins/datastores-tab.js:120
-#: ../public/js/plugins/datastores-tab.js:508
-#: ../public/js/plugins/vnets-tab.js:196 ../public/js/plugins/vnets-tab.js:618
-msgid "Other"
-msgstr "Andere"
-
-#: ../public/js/plugins/vms-tab.js:161 ../public/js/plugins/images-tab.js:229
-#: ../public/js/plugins/templates-tab.js:598
-#: ../public/js/plugins/templates-tab.js:914
-#: ../public/js/plugins/templates-tab.js:953
-#: ../public/js/plugins/templates-tab.js:955
-#: ../public/js/plugins/vnets-tab.js:203
-msgid "Template"
-msgstr "Template"
-
-#: ../public/js/plugins/vms-tab.js:514 ../public/js/plugins/images-tab.js:459
-#: ../public/js/plugins/templates-tab.js:787
-#: ../public/js/plugins/datastores-tab.js:327
-#: ../public/js/plugins/vnets-tab.js:451
-msgid "Change owner"
-msgstr "Besitzer wechseln"
-
-#: ../public/js/plugins/vms-tab.js:516 ../public/js/plugins/images-tab.js:461
-#: ../public/js/plugins/templates-tab.js:789
-#: ../public/js/plugins/datastores-tab.js:329
-#: ../public/js/plugins/vnets-tab.js:453
-msgid "Select the new owner"
-msgstr "Neuen Besitzer auswählen"
-
-#: ../public/js/plugins/vms-tab.js:524 ../public/js/plugins/images-tab.js:468
-#: ../public/js/plugins/templates-tab.js:796
-#: ../public/js/plugins/datastores-tab.js:336
-#: ../public/js/plugins/vnets-tab.js:461
-msgid "Select the new group"
-msgstr "Neue Gruppe auswählen"
-
-#: ../public/js/plugins/vms-tab.js:530
-msgid "Shutdown"
-msgstr "Herunterfahren"
-
-#: ../public/js/plugins/vms-tab.js:531
-msgid "This will initiate the shutdown process in the selected VMs"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:539
-msgid "Deploy"
-msgstr "Deploy"
-
-#: ../public/js/plugins/vms-tab.js:540
-msgid "This will deploy the selected VMs on the chosen host"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:546
-msgid "Migrate"
-msgstr "Migration"
-
-#: ../public/js/plugins/vms-tab.js:547
-msgid "This will migrate the selected VMs to the chosen host"
-msgstr "Diese Aktion wird die ausgewählten VMs auf den gewählten Host migrieren"
-
-#: ../public/js/plugins/vms-tab.js:554
-msgid "Live migrate"
-msgstr "Live Migration"
-
-#: ../public/js/plugins/vms-tab.js:555
-msgid "This will live-migrate the selected VMs to the chosen host"
-msgstr "Diese Aktion wird die ausgewählten VMs live auf den gewählten Host migrieren"
-
-#: ../public/js/plugins/vms-tab.js:561 ../public/js/plugins/vnets-tab.js:671
-msgid "Hold"
-msgstr "Blockieren"
-
-#: ../public/js/plugins/vms-tab.js:562
-msgid "This will hold selected pending VMs from being deployed"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:566
-msgid "Release"
-msgstr "Freigeben"
-
-#: ../public/js/plugins/vms-tab.js:567
-msgid "This will release held machines"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:571
-msgid "Suspend"
-msgstr "Suspend"
-
-#: ../public/js/plugins/vms-tab.js:572
-msgid "This will suspend selected machines"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:576
-msgid "Resume"
-msgstr "Resume"
-
-#: ../public/js/plugins/vms-tab.js:577
-msgid "This will resume selected stopped or suspended VMs"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:581
-msgid "Stop"
-msgstr "Stop"
-
-#: ../public/js/plugins/vms-tab.js:582
-msgid "This will stop selected VMs"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:586
-msgid "Restart"
-msgstr "Neustarten"
-
-#: ../public/js/plugins/vms-tab.js:587
-msgid "This will redeploy selected VMs (in UNKNOWN or BOOT state)"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:591
-msgid "Resubmit"
-msgstr "Resubmit"
-
-#: ../public/js/plugins/vms-tab.js:592
-msgid "This will resubmits VMs to PENDING state"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:596
-msgid "Power Off"
-msgstr "Ausschalten"
-
-#: ../public/js/plugins/vms-tab.js:597
-msgid "This will send a power off signal to running VMs. They can be restarted later."
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:601
-msgid "Reboot"
-msgstr "Neustarten"
-
-#: ../public/js/plugins/vms-tab.js:602
-msgid "This will send a reboot action to running VMs"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:607
-msgid "This will perform a hard reboot on selected VMs"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:611 ../public/js/sunstone.js:664
-#: ../public/js/sunstone.js:696
-msgid "Cancel"
-msgstr "Abbrechen"
-
-#: ../public/js/plugins/vms-tab.js:612
-msgid "This will cancel selected VMs"
-msgstr "Diese Aktion wird die ausgewählten VMs abbrechen"
-
-#: ../public/js/plugins/vms-tab.js:620
-msgid "This will delete the selected VMs from the database"
-msgstr "Diese Aktion wird die ausgewählten VMS aus der Datenbank löschen"
-
-#: ../public/js/plugins/vms-tab.js:632 ../public/js/plugins/vms-tab.js:968
-msgid "Virtual Machine information"
-msgstr "Informationen der virtuellen Maschine"
-
-#: ../public/js/plugins/vms-tab.js:636 ../public/js/plugins/vms-tab.js:1052
-msgid "Disks & Hotplugging"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:640 ../public/js/plugins/vms-tab.js:1060
-msgid "VM template"
-msgstr "VM Template"
-
-#: ../public/js/plugins/vms-tab.js:644 ../public/js/plugins/vms-tab.js:1066
-msgid "VM log"
-msgstr "VM Log"
-
-#: ../public/js/plugins/vms-tab.js:648 ../public/js/plugins/vms-tab.js:1076
-msgid "History information"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:815 ../public/js/plugins/vms-tab.js:823
-#: ../public/js/plugins/vms-tab.js:955
-msgid "ACTIVE"
-msgstr "AKTIV"
-
-#: ../public/js/plugins/vms-tab.js:815 ../public/js/plugins/vms-tab.js:955
-msgid "SUSPENDED"
-msgstr "SUSPENDED"
-
-#: ../public/js/plugins/vms-tab.js:890
-msgid "Sequence"
-msgstr "Sequenz"
-
-#: ../public/js/plugins/vms-tab.js:892
-msgid "Reason"
-msgstr "Grund"
-
-#: ../public/js/plugins/vms-tab.js:893
-msgid "State change time"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:894
-msgid "Total time"
-msgstr "Total Zeit"
-
-#: ../public/js/plugins/vms-tab.js:895
-msgid "Prolog time"
-msgstr "Prologzeit"
-
-#: ../public/js/plugins/vms-tab.js:964
-msgid "VM information"
-msgstr "VM Informationen"
-
-#: ../public/js/plugins/vms-tab.js:992
-msgid "LCM State"
-msgstr "LCM Status"
-
-#: ../public/js/plugins/vms-tab.js:1000
-msgid "Start time"
-msgstr "Startzeit"
-
-#: ../public/js/plugins/vms-tab.js:1004
-msgid "Deploy ID"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:1028
-msgid "Net_TX"
-msgstr "Net_TX"
-
-#: ../public/js/plugins/vms-tab.js:1032
-msgid "Net_RX"
-msgstr "Net_RX"
-
-#: ../public/js/plugins/vms-tab.js:1044
-msgid "VNC Session"
-msgstr "VNC Session"
-
-#: ../public/js/plugins/vms-tab.js:1057
-msgid "VM Template"
-msgstr "Aktualisieren"
-
-#: ../public/js/plugins/vms-tab.js:1108
-#: ../public/js/plugins/templates-tab.js:1929
-msgid "DISABLED"
-msgstr "DEAKTIVIERT"
-
-#: ../public/js/plugins/vms-tab.js:1108
-#: ../public/js/plugins/templates-tab.js:1929
-msgid "LOCKED"
-msgstr "GESPERRT"
-
-#: ../public/js/plugins/vms-tab.js:1114
-msgid "Disks information - Save As and Detach"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:1128
-msgid "No disks to show"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:1140
-msgid "Detach"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:1142 ../public/js/plugins/vms-tab.js:1212
-msgid "Save"
-msgstr "Speichern"
-
-#: ../public/js/plugins/vms-tab.js:1144
-msgid "Save_as name"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:1162
-msgid "Attach disk to running VM"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:1168
-msgid "Existing image"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:1169
-msgid "Volatile disk"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:1173
-msgid "Select image"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:1180 ../public/js/plugins/images-tab.js:33
-#: ../public/js/plugins/images-tab.js:133
-#: ../public/js/plugins/marketplace-tab.js:179
-#: ../public/js/plugins/templates-tab.js:224
-msgid "Size"
-msgstr "Grösse"
-
-#: ../public/js/plugins/vms-tab.js:1185
-#: ../public/js/plugins/marketplace-tab.js:108
-#: ../public/js/plugins/templates-tab.js:230
-msgid "Format"
-msgstr "Format"
-
-#: ../public/js/plugins/vms-tab.js:1193
-msgid "swap"
-msgstr "swap"
-
-#: ../public/js/plugins/vms-tab.js:1194
-msgid "fs"
-msgstr "fs"
-
-#: ../public/js/plugins/vms-tab.js:1198 ../public/js/plugins/images-tab.js:97
-msgid "Device prefix"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:1204
-msgid "Readonly"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:1207 ../public/js/plugins/vms-tab.js:1215
-#: ../public/js/plugins/vnets-tab.js:78
-msgid "No"
-msgstr "Nein"
-
-#: ../public/js/plugins/vms-tab.js:1208 ../public/js/plugins/vms-tab.js:1216
-#: ../public/js/plugins/vnets-tab.js:77
-msgid "Yes"
-msgstr "Ja"
-
-#: ../public/js/plugins/vms-tab.js:1223
-msgid "Attach"
-msgstr "Einhängen"
-
-#: ../public/js/plugins/vms-tab.js:1289
-msgid "Please select an image to attach"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:1315
-msgid "Create Virtual Machine"
-msgstr "Virtuelle Maschine erstellen"
-
-#: ../public/js/plugins/vms-tab.js:1338
-msgid "You have not selected a template"
-msgstr "Es wurde kein Template ausgewählt"
-
-#: ../public/js/plugins/vms-tab.js:1377
-msgid "Update VM properties"
-msgstr ""
-
-#: ../public/js/plugins/vms-tab.js:1517
-msgid "VNC connection"
-msgstr "VNC Verbindung"
-
-#: ../public/js/plugins/vms-tab.js:1524 ../public/js/plugins/images-tab.js:997
-#: ../public/js/plugins/templates-tab.js:1971
-#: ../public/js/plugins/datastores-tab.js:623
-#: ../public/js/plugins/vnets-tab.js:1053
-msgid "Loading"
-msgstr "Lade"
-
-#: ../public/js/plugins/vms-tab.js:1532
-msgid "Canvas not supported."
-msgstr "Canvas wird nicht unterstützt"
-
-#: ../public/js/plugins/vms-tab.js:1584
-msgid "RUNNING"
-msgstr "RUNNING"
-
-#: ../public/js/plugins/vms-tab.js:1586
-msgid "Open VNC Session"
-msgstr "VN Session öffnen"
-
-#: ../public/js/plugins/vms-tab.js:1589
-msgid "VNC Disabled"
-msgstr "VNC deaktiviert"
-
-#: ../public/js/plugins/images-tab.js:35
-#: ../public/js/plugins/templates-tab.js:32
-msgid "Registration time"
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:36 ../public/js/plugins/images-tab.js:92
-#: ../public/js/plugins/images-tab.js:199
-#: ../public/js/plugins/images-tab.js:641
-msgid "Persistent"
-msgstr "Presistent"
-
-#: ../public/js/plugins/images-tab.js:38
-msgid "#VMS"
-msgstr "#VMS"
-
-#: ../public/js/plugins/images-tab.js:39
-#: ../public/js/plugins/images-tab.js:107
-#: ../public/js/plugins/templates-tab.js:235
-#: ../public/js/plugins/templates-tab.js:295
-msgid "Target"
-msgstr "Ziel"
-
-#: ../public/js/plugins/images-tab.js:48
-msgid "Size and registration time are hidden colums. Note that persistent images can only be used by 1 VM. To change image datastore, please re-register the image."
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:55 ../public/js/plugins/vnets-tab.js:52
-msgid "Wizard"
-msgstr "Assistent"
-
-#: ../public/js/plugins/images-tab.js:56
-#: ../public/js/plugins/templates-tab.js:54
-#: ../public/js/plugins/vnets-tab.js:53
-msgid "Advanced mode"
-msgstr "Erweiterter Modus"
-
-#: ../public/js/plugins/images-tab.js:61
-#: ../public/js/plugins/templates-tab.js:67
-msgid "Fields marked with"
-msgstr "Markierte Felder"
-
-#: ../public/js/plugins/images-tab.js:62
-#: ../public/js/plugins/templates-tab.js:68
-msgid "are mandatory"
-msgstr "sind vorgeschrieben."
-
-#: ../public/js/plugins/images-tab.js:67
-msgid "Name that the Image will get. Every image must have a unique name."
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:70
-#: ../public/js/plugins/marketplace-tab.js:190
-msgid "Description"
-msgstr "Beschreibung"
-
-#: ../public/js/plugins/images-tab.js:72
-msgid "Human readable description of the image for other users."
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:78
-msgid "Select the datastore for this image"
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:85
-#: ../public/js/plugins/images-tab.js:544
-#: ../public/js/plugins/marketplace-tab.js:171
-msgid "OS"
-msgstr "OS"
-
-#: ../public/js/plugins/images-tab.js:86
-#: ../public/js/plugins/images-tab.js:545
-msgid "CD-ROM"
-msgstr "CD-ROM"
-
-#: ../public/js/plugins/images-tab.js:87
-#: ../public/js/plugins/images-tab.js:546
-msgid "Datablock"
-msgstr "Datablock"
-
-#: ../public/js/plugins/images-tab.js:89
-msgid "Type of the image, explained in detail in the following section. If omitted, the default value is the one defined in oned.conf (install default is OS)."
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:94
-msgid "Persistence of the image"
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:99
-msgid "Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”. If omitted, the default value is the one defined in oned.conf (installation default is “hd”)."
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:102
-#: ../public/js/plugins/templates-tab.js:240
-msgid "Driver"
-msgstr "Driver"
-
-#: ../public/js/plugins/images-tab.js:104
-msgid "Specific image mapping driver. KVM: raw, qcow2. XEN: tap:aio, file:"
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:109
-msgid "Target on which the image will be mounted at. For example: hda, sdb..."
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:114
-msgid "Image location"
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:117
-msgid "Provide a path"
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:120
-msgid "Upload"
-msgstr "Hochladen"
-
-#: ../public/js/plugins/images-tab.js:123
-msgid "Create an empty datablock"
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:124
-msgid "Please choose path if you have a file-based image. Otherwise upload or create an empty datablock disk."
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:128
-#: ../public/js/plugins/images-tab.js:649
-msgid "Path"
-msgstr "Pfad"
-
-#: ../public/js/plugins/images-tab.js:130
-msgid "Path to the original file that will be copied to the image repository. If not specified for a DATABLOCK type image, an empty image will be created."
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:135
-msgid "Size of the datablock in MB."
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:138
-msgid "FS type"
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:140
-msgid "Type of file system to be built. This can be any value understood by mkfs unix command."
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:143
-msgid "Upload file"
-msgstr "Datei hochladen"
-
-#: ../public/js/plugins/images-tab.js:152
-#: ../public/js/plugins/templates-tab.js:455
-#: ../public/js/plugins/templates-tab.js:520
-#: ../public/js/plugins/vnets-tab.js:130
-msgid "Value"
-msgstr "Wert"
-
-#: ../public/js/plugins/images-tab.js:154
-#: ../public/js/plugins/templates-tab.js:245
-#: ../public/js/plugins/templates-tab.js:357
-#: ../public/js/plugins/templates-tab.js:392
-#: ../public/js/plugins/templates-tab.js:460
-#: ../public/js/plugins/templates-tab.js:525
-#: ../public/js/plugins/vnets-tab.js:98 ../public/js/plugins/vnets-tab.js:132
-#: ../public/js/plugins/vnets-tab.js:676
-msgid "Add"
-msgstr "Hinzufügen"
-
-#: ../public/js/plugins/images-tab.js:155
-#: ../public/js/plugins/templates-tab.js:246
-#: ../public/js/plugins/templates-tab.js:358
-#: ../public/js/plugins/templates-tab.js:393
-#: ../public/js/plugins/templates-tab.js:461
-#: ../public/js/plugins/templates-tab.js:526
-#: ../public/js/plugins/vnets-tab.js:101 ../public/js/plugins/vnets-tab.js:133
-msgid "Remove selected"
-msgstr "Markiertes löschen"
-
-#: ../public/js/plugins/images-tab.js:157
-#: ../public/js/plugins/vnets-tab.js:135
-msgid "Custom attributes"
-msgstr "Benutzerdefinierte Attribute"
-
-#: ../public/js/plugins/images-tab.js:173
-msgid "Write the image template here"
-msgstr "GESPERRT"
-
-#: ../public/js/plugins/images-tab.js:193
-msgid "Please, choose and modify the image you want to update"
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:195
-msgid "Select an image"
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:324
-msgid "Image updated correctly"
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:484
-msgid "Make persistent"
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:488
-msgid "Make non persistent"
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:494
-#: ../public/js/plugins/images-tab.js:1143
-#: ../public/js/plugins/templates-tab.js:801
-#: ../public/js/plugins/templates-tab.js:2062
-msgid "Clone"
-msgstr "Klonen"
-
-#: ../public/js/plugins/images-tab.js:509
-#: ../public/js/plugins/images-tab.js:605
-msgid "Image information"
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:514
-#: ../public/js/plugins/images-tab.js:685
-#: ../public/js/plugins/images-tab.js:687
-msgid "Image template"
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:610
-#: ../public/js/plugins/templates-tab.js:915
-#: ../public/js/plugins/vnets-tab.js:570
-msgid "information"
-msgstr "Information"
-
-#: ../public/js/plugins/images-tab.js:637
-#: ../public/js/plugins/templates-tab.js:934
-msgid "Register time"
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:642
-msgid "yes"
-msgstr "ja"
-
-#: ../public/js/plugins/images-tab.js:642
-msgid "no"
-msgstr "nein"
-
-#: ../public/js/plugins/images-tab.js:645
-msgid "Source"
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:653
-msgid "Filesystem type"
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:657
-msgid "Size (Mb)"
-msgstr "Grösse (Mb)"
-
-#: ../public/js/plugins/images-tab.js:665
-msgid "Running #VMS"
-msgstr "#Laufende VMs"
-
-#: ../public/js/plugins/images-tab.js:701
-msgid "Create Image"
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:765
-msgid "Custom attribute name and value must be filled in"
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:818
-msgid "Uploading..."
-msgstr "Lade hoch..."
-
-#: ../public/js/plugins/images-tab.js:857
-msgid "There are mandatory parameters missing"
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:866
-#: ../public/js/plugins/images-tab.js:942
-msgid "Please select a datastore for this image"
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:973
-msgid "Update image properties"
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:1070
-#: ../public/js/plugins/templates-tab.js:200
-#: ../public/js/plugins/templates-tab.js:412 ../public/js/sunstone-util.js:585
-#: ../public/js/sunstone-util.js:807
-msgid "Please select"
-msgstr "Bitte auswählen"
-
-#: ../public/js/plugins/images-tab.js:1129
-msgid "Clone an image"
-msgstr "Abbild klonen"
-
-#: ../public/js/plugins/images-tab.js:1135
-msgid "Choose a new name for the image"
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:1136
-msgid "Several image are selected, please choose prefix to name the new copies"
-msgstr ""
-
-#: ../public/js/plugins/images-tab.js:1139
-#: ../public/js/plugins/templates-tab.js:2058
-msgid "Prefix"
-msgstr ""
-
-#: ../public/js/plugins/marketplace-tab.js:90
-msgid "Import to local infrastructure"
-msgstr ""
-
-#: ../public/js/plugins/marketplace-tab.js:95
-msgid "OpenNebula Marketplace"
-msgstr ""
-
-#: ../public/js/plugins/marketplace-tab.js:105
-#: ../public/js/plugins/marketplace-tab.js:163
-msgid "Publisher"
-msgstr ""
-
-#: ../public/js/plugins/marketplace-tab.js:106
-#: ../public/js/plugins/marketplace-tab.js:183
-msgid "Hypervisor"
-msgstr "Hypervisor"
-
-#: ../public/js/plugins/marketplace-tab.js:107
-#: ../public/js/plugins/marketplace-tab.js:175
-msgid "Arch"
-msgstr ""
-
-#: ../public/js/plugins/marketplace-tab.js:109
-msgid "Tags"
-msgstr "Tags"
-
-#: ../public/js/plugins/marketplace-tab.js:119
-msgid "Marketplace"
-msgstr ""
-
+#: ../public/js/plugins/clusters-tab.js:25
+#: ../public/js/plugins/clusters-tab.js:47
+#: ../public/js/plugins/clusters-tab.js:63
+#: ../public/js/plugins/clusters-tab.js:86
+#: ../public/js/plugins/clusters-tab.js:889
+#: ../public/js/plugins/clusters-tab.js:1245
+#: ../public/js/plugins/config-tab.js:312
+#: ../public/js/plugins/datastores-tab.js:58
+#: ../public/js/plugins/datastores-tab.js:87
+#: ../public/js/plugins/datastores-tab.js:322
+#: ../public/js/plugins/datastores-tab.js:716
+#: ../public/js/plugins/files-tab.js:61 ../public/js/plugins/files-tab.js:93
+#: ../public/js/plugins/files-tab.js:531 ../public/js/plugins/groups-tab.js:77
+#: ../public/js/plugins/groups-tab.js:99 ../public/js/plugins/hosts-tab.js:60
+#: ../public/js/plugins/hosts-tab.js:735 ../public/js/plugins/images-tab.js:61
+#: ../public/js/plugins/images-tab.js:93
+#: ../public/js/plugins/images-tab.js:662
+#: ../public/js/plugins/images-tab.js:1225
 #: ../public/js/plugins/marketplace-tab.js:134
-#: ../public/js/plugins/marketplace-tab.js:147
-#: ../public/js/plugins/marketplace-tab.js:151
-msgid "Appliance information"
-msgstr ""
-
-#: ../public/js/plugins/marketplace-tab.js:159
-msgid "URL"
-msgstr "URL"
-
-#: ../public/js/plugins/marketplace-tab.js:167
-msgid "Downloads"
-msgstr "Downloads"
-
-#: ../public/js/plugins/vresources-tab.js:25
-msgid "Summary of virtual resources"
-msgstr ""
-
-#: ../public/js/plugins/vresources-tab.js:35
-msgid "VM Instances"
-msgstr "VM Instanzen"
-
-#: ../public/js/plugins/vresources-tab.js:36
-msgid "total"
-msgstr "total"
-
-#: ../public/js/plugins/vresources-tab.js:37
-msgid "running"
-msgstr "Laufend"
-
-#: ../public/js/plugins/vresources-tab.js:38
-msgid "failed"
-msgstr "Fehlgeschlagen"
-
-#: ../public/js/plugins/vresources-tab.js:59
-#: ../public/js/plugins/system-tab.js:50 ../public/js/plugins/infra-tab.js:54
-msgid "Quickstart"
-msgstr "Schnellstart"
-
-#: ../public/js/plugins/vresources-tab.js:62
-msgid "Create new Virtual Machine"
-msgstr ""
-
-#: ../public/js/plugins/vresources-tab.js:63
-msgid "Create new VM Template"
-msgstr ""
-
-#: ../public/js/plugins/vresources-tab.js:64
-msgid "Create new Image"
-msgstr "Neues Abbild erstellen"
-
-#: ../public/js/plugins/vresources-tab.js:77
-#: ../public/js/plugins/vresources-tab.js:96
-msgid "Virtual Resources"
-msgstr ""
-
-#: ../public/js/plugins/vresources-tab.js:79
-msgid "The Virtual Resources menu allows management of Virtual Machine Templates, Instances and storage (Images)."
-msgstr ""
-
-#: ../public/js/plugins/vresources-tab.js:80
-msgid "Virtual Machine templates can be instantiated as many times as you want. You can do it from the Templates tab or by creating a new VM in the VM tab. The second method allows you to customize the name and the number of VMs you want to launch."
-msgstr ""
-
-#: ../public/js/plugins/vresources-tab.js:81
-#: ../public/js/plugins/system-tab.js:71 ../public/js/plugins/infra-tab.js:76
-msgid "You can find further information on the following links:"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:41
-msgid "Clicking `instantiate` will instantly create new Virtual Machines from the selected templates and name one-id. If you want to assign a specific name to a new VM, or launch several instances at once, use Virtual Machines->New button."
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:44
-msgid "You can clone a template to obtain a copy from an existing template. This copy will be owned by you."
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:51
-msgid "Wizard KVM"
-msgstr "KVM Assistent"
-
-#: ../public/js/plugins/templates-tab.js:52
-msgid "Wizard XEN"
-msgstr "XEN Assistent"
-
-#: ../public/js/plugins/templates-tab.js:53
-msgid "Wizard VMware"
-msgstr "VMware Assistent"
-
-#: ../public/js/plugins/templates-tab.js:69
-msgid "Fold / Unfold all sections"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:75
-msgid "Capacity options"
-msgstr "Kapazitätsoptionen"
-
-#: ../public/js/plugins/templates-tab.js:77
-msgid "Capacity"
-msgstr "Kapazität"
-
-#: ../public/js/plugins/templates-tab.js:81
-msgid "Name that the VM will get for description purposes. If NAME is not supplied a name generated by one will be in the form of one-&lt;VID&gt;."
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:86
-msgid "Amount of RAM required for the VM, in Megabytes."
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:91
-msgid "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5."
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:94
-msgid "VCPU"
-msgstr "VCPU"
-
-#: ../public/js/plugins/templates-tab.js:96
-msgid "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU."
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:105
-msgid "Boot/OS options"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:107
-msgid "OS and Boot options"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:109
-msgid "Architecture"
-msgstr "Architektur"
-
-#: ../public/js/plugins/templates-tab.js:114
-msgid "CPU architecture to virtualization"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:119
-msgid "Boot method"
-msgstr "Boot Methode"
-
-#: ../public/js/plugins/templates-tab.js:122
-#: ../public/js/plugins/templates-tab.js:128
-msgid "Kernel"
-msgstr "Kernel"
-
-#: ../public/js/plugins/templates-tab.js:123
-#: ../public/js/plugins/templates-tab.js:148
-msgid "Bootloader"
-msgstr "Bootloader"
-
-#: ../public/js/plugins/templates-tab.js:125
-msgid "Select boot method"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:130
-msgid "Path to the OS kernel to boot the image"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:133
-msgid "Initrd"
-msgstr "Initrd"
-
-#: ../public/js/plugins/templates-tab.js:135
-msgid "Path to the initrd image"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:138
-msgid "Root"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:140
-msgid "Device to be mounted as root"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:143
-msgid "Kernel commands"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:145
-msgid "Arguments for the booting kernel"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:150
-msgid "Path to the bootloader executable"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:153
-msgid "Boot"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:156
-msgid "Boot device type"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:165
-#: ../public/js/plugins/templates-tab.js:167
-msgid "Features"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:169
-msgid "PAE"
-msgstr "PAE"
-
-#: ../public/js/plugins/templates-tab.js:171
-#: ../public/js/plugins/templates-tab.js:180
-#: ../public/js/plugins/vnets-tab.js:65
-msgid "Default"
-msgstr "Standard"
-
-#: ../public/js/plugins/templates-tab.js:175
-msgid "Physical address extension mode allows 32-bit guests to address more than 4 GB of memory"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:178
-msgid "ACPI"
-msgstr "ACPI"
-
-#: ../public/js/plugins/templates-tab.js:184
-msgid "Useful for power management, for example, normally required for graceful shutdown to work"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:196
-msgid "Add disks/images"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:198
-msgid "Disks"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:201
-msgid "Volatile Disk"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:211
-msgid "Name of the image to use"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:217
-msgid "FS"
-msgstr "FS"
-
-#: ../public/js/plugins/templates-tab.js:218
-msgid "Swap"
-msgstr "Swap"
-
-#: ../public/js/plugins/templates-tab.js:220
-#: ../public/js/plugins/datastores-tab.js:79
-msgid "Disk type"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:226
-msgid "Size in MB"
-msgstr "Grösse in MB"
-
-#: ../public/js/plugins/templates-tab.js:232
-msgid "Filesystem type for the fs images"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:237
-msgid "Device to map image disk. If set, it will overwrite the default device mapping"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:242
-msgid "Specific image mapping driver. KVM: raw, qcow2. Xen:tap:aio:, file:. VMware unsupported"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:248
-msgid "Current disks"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:260
-msgid "Setup Networks"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:264
-msgid "Add network"
-msgstr "Netzwerk hinzufügen"
-
-#: ../public/js/plugins/templates-tab.js:265
-msgid "Predefined"
-msgstr "Vordefiniert"
-
-#: ../public/js/plugins/templates-tab.js:267
-msgid "Manual"
-msgstr "Manuell"
-
-#: ../public/js/plugins/templates-tab.js:276
-msgid "Name of the network to attach this device"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:280
-msgid "IP"
-msgstr "IP"
-
-#: ../public/js/plugins/templates-tab.js:282
-msgid "Request an specific IP from the Network"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:285
-msgid "MAC"
-msgstr "MAC"
-
-#: ../public/js/plugins/templates-tab.js:287
-msgid "HW address associated with the network interface"
-msgstr "Datei"
-
-#: ../public/js/plugins/templates-tab.js:290
-#: ../public/js/plugins/vnets-tab.js:34 ../public/js/plugins/vnets-tab.js:71
-#: ../public/js/plugins/vnets-tab.js:593
-msgid "Bridge"
-msgstr "Bridge"
-
-#: ../public/js/plugins/templates-tab.js:292
-msgid "Name of the bridge the network device is going to be attached to"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:297
-msgid "Name for the tun device created for the VM"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:300
-msgid "Script"
-msgstr "Script"
-
-#: ../public/js/plugins/templates-tab.js:302
-msgid "Name of a shell script to be executed after creating the tun device for the VM"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:305
-msgid "Model"
-msgstr "Model"
-
-#: ../public/js/plugins/templates-tab.js:307
-msgid "Hardware that will emulate this network interface. With Xen this is the type attribute of the vif."
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:310
-msgid "TCP firewall mode"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:312
-#: ../public/js/plugins/templates-tab.js:331
-msgid "Optional, please select"
-msgstr "Optional, bitte auwsählen"
-
-#: ../public/js/plugins/templates-tab.js:313
-#: ../public/js/plugins/templates-tab.js:332
-msgid "Port whitelist"
-msgstr "Port-Whitelist"
-
-#: ../public/js/plugins/templates-tab.js:314
-#: ../public/js/plugins/templates-tab.js:333
-msgid "Port blacklist"
-msgstr "Port-Blacklist"
-
-#: ../public/js/plugins/templates-tab.js:319
-msgid "TCP white ports"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:321
-msgid "Permits access to the VM only through the specified ports in the TCP protocol"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:324
-msgid "TCP black ports"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:326
-msgid "Disallow access to the VM through the specified ports in the TCP protocol"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:329
-msgid "UDP firewall mode"
-msgstr "UDP Firewall Modus"
-
-#: ../public/js/plugins/templates-tab.js:338
-msgid "UDP white ports"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:340
-msgid "Permits access to the VM only through the specified ports in the UDP protocol"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:343
-msgid "UDP black ports"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:345
-msgid "Disallow access to the VM through the specified ports in the UDP protocol"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:348
-msgid "ICMP"
-msgstr "ICMP"
-
-#: ../public/js/plugins/templates-tab.js:350
-msgid "Accept (default)"
-msgstr "Akzeptieren (Standard)"
-
-#: ../public/js/plugins/templates-tab.js:351
-msgid "Drop"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:353
-msgid "ICMP policy"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:360
-msgid "Current NICs"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:371
-msgid "Add inputs"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:373
-msgid "Inputs"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:377
-msgid "Mouse"
-msgstr "Maus"
-
-#: ../public/js/plugins/templates-tab.js:378
-msgid "Tablet"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:383
-msgid "Bus"
-msgstr "Bus"
-
-#: ../public/js/plugins/templates-tab.js:385
-msgid "USB"
-msgstr "USB"
-
-#: ../public/js/plugins/templates-tab.js:386
-msgid "PS2"
-msgstr "PS2"
-
-#: ../public/js/plugins/templates-tab.js:395
-msgid "Current inputs"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:406
-msgid "Add Graphics"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:408
-msgid "Graphics"
-msgstr "Grafik"
-
-#: ../public/js/plugins/templates-tab.js:410
-msgid "Graphics type"
-msgstr "Grafiktyp"
-
-#: ../public/js/plugins/templates-tab.js:413
-msgid "VNC"
-msgstr "VNC"
-
-#: ../public/js/plugins/templates-tab.js:414
-msgid "SDL"
-msgstr "SDL"
-
-#: ../public/js/plugins/templates-tab.js:415
-msgid "SPICE"
-msgstr "SPICE"
-
-#: ../public/js/plugins/templates-tab.js:417
-msgid "VMware supports VNC only. SPICE is supported by KVM"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:420
-msgid "Listen IP"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:422
-msgid "IP to listen on"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:425
-msgid "Port"
-msgstr "Port"
-
-#: ../public/js/plugins/templates-tab.js:427
-msgid "Port for the VNC/SPICE server"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:432
-msgid "Password for the VNC/SPICE server"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:435
-msgid "Keymap"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:437
-msgid "Keyboard configuration locale to use in the VNC/SPICE display"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:446
-msgid "Add context variables"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:448
-msgid "Context"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:452
-msgid "Name for the context variable"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:457
-msgid "Value of the context variable"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:463
-#: ../public/js/plugins/templates-tab.js:528
-msgid "Current variables"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:474
-msgid "Add placement options"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:476
-msgid "Placement"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:478
-msgid "Requirements"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:480
-msgid "Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:483
-msgid "Rank"
-msgstr "Rang"
-
-#: ../public/js/plugins/templates-tab.js:485
-msgid "This field sets which attribute will be used to sort the suitable hosts for this VM. Basically, it defines which hosts are more suitable than others"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:494
-msgid "Add Hypervisor raw options"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:496
-msgid "Raw"
-msgstr "Raw"
-
-#: ../public/js/plugins/templates-tab.js:499
-msgid "Data"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:502
-msgid "Raw data to be passed directly to the hypervisor"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:511
-msgid "Add custom variables"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:513
-msgid "Custom variables"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:517
-msgid "Name for the custom variable"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:522
-msgid "Value of the custom variable"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:547
-msgid "Write the Virtual Machine template here"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:566 ../public/js/sunstone-util.js:736
-msgid "Please, choose and modify the template you want to update"
-msgstr "Bitte wählen Sie die zu ändernde Vorlage aus"
-
-#: ../public/js/plugins/templates-tab.js:568 ../public/js/sunstone-util.js:738
-#: ../public/js/sunstone-util.js:741
-msgid "Select a template"
-msgstr "Template auswählen"
-
-#: ../public/js/plugins/templates-tab.js:783
-msgid "Instantiate"
-msgstr "Instanzieren"
-
-#: ../public/js/plugins/templates-tab.js:817
-msgid "Template information"
-msgstr "Template Informationen"
-
-#: ../public/js/plugins/templates-tab.js:910
-msgid "Information"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:1050
-msgid "hd"
-msgstr "hd"
-
-#: ../public/js/plugins/templates-tab.js:1051
-msgid "fd"
-msgstr "fd"
-
-#: ../public/js/plugins/templates-tab.js:1052
-msgid "cdrom"
-msgstr "CD-Rom"
-
-#: ../public/js/plugins/templates-tab.js:1053
-msgid "network"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:1057
-msgid "Driver default"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:1076
-msgid "Please choose"
-msgstr "Bitte auswählen"
-
-#: ../public/js/plugins/templates-tab.js:1130
-msgid "There are mandatory parameters missing in this section"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:1654
-msgid "Context variable name and value must be filled in"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:1705
-msgid "Custom variable name and value must be filled in"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:1724
-msgid "Create VM Template"
-msgstr "VM Template erstellen"
-
-#: ../public/js/plugins/templates-tab.js:1812
-msgid "There are mandatory fields missing in the capacity section"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:1823
-msgid "Xen templates must specify a boot method"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:1828
-msgid "There are mandatory fields missing in the OS Boot options section"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:1946
-msgid "Update template properties"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:2048
-msgid "Clone a template"
-msgstr "Template auswählen"
-
-#: ../public/js/plugins/templates-tab.js:2054
-msgid "Choose a new name for the template"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:2055
-msgid "Several templates are selected, please choose prefix to name the new copies"
-msgstr ""
-
-#: ../public/js/plugins/datastores-tab.js:34
-msgid "Basepath"
-msgstr ""
-
-#: ../public/js/plugins/datastores-tab.js:35
-msgid "TM MAD"
-msgstr "TM MAD"
-
-#: ../public/js/plugins/datastores-tab.js:36
-msgid "DS MAD"
-msgstr "DS MAD"
-
-#: ../public/js/plugins/datastores-tab.js:37
-#: ../public/js/plugins/system-tab.js:88
-msgid "System"
-msgstr "System"
-
-#: ../public/js/plugins/datastores-tab.js:46
-msgid "Datatables are sets of images which share a common transfer driver. i.e. Images in a SSH datastore will be copied to the hosts using SSH when deploying a Virtual Machine."
-msgstr ""
-
-#: ../public/js/plugins/datastores-tab.js:57
-msgid "System datastore"
-msgstr ""
-
-#: ../public/js/plugins/datastores-tab.js:63
-msgid "Datastore manager"
-msgstr ""
-
-#: ../public/js/plugins/datastores-tab.js:65
-msgid "Filesystem"
-msgstr "Dateisystem"
-
-#: ../public/js/plugins/datastores-tab.js:67
-#: ../public/js/plugins/datastores-tab.js:75
-msgid "iSCSI"
-msgstr "iSCSI"
-
-#: ../public/js/plugins/datastores-tab.js:68
-msgid "LVM"
-msgstr "LVM"
-
-#: ../public/js/plugins/datastores-tab.js:69
-#: ../public/js/plugins/datastores-tab.js:77
-msgid "VMFS"
-msgstr ""
-
-#: ../public/js/plugins/datastores-tab.js:71
-msgid "Transfer manager"
-msgstr ""
-
-#: ../public/js/plugins/datastores-tab.js:73
-msgid "Shared"
-msgstr ""
-
-#: ../public/js/plugins/datastores-tab.js:81
-msgid "File"
-msgstr "Datei"
-
-#: ../public/js/plugins/datastores-tab.js:82
-msgid "Block"
-msgstr ""
-
-#: ../public/js/plugins/datastores-tab.js:95
-msgid "Please, choose and modify the datastore you want to update"
-msgstr ""
-
-#: ../public/js/plugins/datastores-tab.js:97
-msgid "Select a datastore"
-msgstr ""
-
-#: ../public/js/plugins/datastores-tab.js:219
-msgid "Datastore updated correctly"
-msgstr ""
-
-#: ../public/js/plugins/datastores-tab.js:354
-#: ../public/js/plugins/datastores-tab.js:455
-#: ../public/js/plugins/datastores-tab.js:459
-msgid "Datastore information"
-msgstr ""
-
-#: ../public/js/plugins/datastores-tab.js:358
-#: ../public/js/plugins/datastores-tab.js:519
-msgid "Datastore template"
-msgstr ""
-
-#: ../public/js/plugins/datastores-tab.js:483
-msgid "DS Mad"
-msgstr "DS Mad"
-
-#: ../public/js/plugins/datastores-tab.js:487
-msgid "TM Mad"
-msgstr "TM Mad"
-
-#: ../public/js/plugins/datastores-tab.js:491
-msgid "Base path"
-msgstr ""
-
-#: ../public/js/plugins/datastores-tab.js:516
-msgid "Datastore Template"
-msgstr ""
-
-#: ../public/js/plugins/datastores-tab.js:532
-msgid "Create Datastore"
-msgstr ""
-
-#: ../public/js/plugins/datastores-tab.js:598
-msgid "Update Datastore properties"
-msgstr ""
-
-#: ../public/js/plugins/vnets-tab.js:35
-msgid "Total Leases"
-msgstr "Anzahl Vergaben"
-
-#: ../public/js/plugins/vnets-tab.js:44
-msgid "Tip: edit the leases of a network by clicking on one and going to the lease management tab."
-msgstr "Hinweis: Um die DHCP Leihadressen eines Netzwerkes zu bearbeiten, auf eine Leihadresse klicken und in den Leihadressen-Reiter wechseln."
-
-#: ../public/js/plugins/vnets-tab.js:63
-msgid "Network mode"
-msgstr "Netzwerk Modus"
-
-#: ../public/js/plugins/vnets-tab.js:73 ../public/js/plugins/vnets-tab.js:601
-msgid "Physical device"
-msgstr "Physikalische Adresse"
-
-#: ../public/js/plugins/vnets-tab.js:75 ../public/js/plugins/vnets-tab.js:597
-msgid "VLAN"
-msgstr "VLAN"
-
-#: ../public/js/plugins/vnets-tab.js:80 ../public/js/plugins/vnets-tab.js:605
-msgid "VLAN ID"
-msgstr "VLAN ID"
-
-#: ../public/js/plugins/vnets-tab.js:84
-msgid "Network type"
-msgstr "Netzwerktyp"
-
-#: ../public/js/plugins/vnets-tab.js:85
-msgid "Fixed network"
-msgstr "Fixes Netzwerk"
-
-#: ../public/js/plugins/vnets-tab.js:86
-msgid "Ranged network"
-msgstr "Range Netzwerk"
-
-#: ../public/js/plugins/vnets-tab.js:92
-msgid "Lease IP"
-msgstr "IP Leihadresse"
-
-#: ../public/js/plugins/vnets-tab.js:94
-msgid "Lease MAC (opt):"
-msgstr "MAC Leihadresse (opt.)"
-
-#: ../public/js/plugins/vnets-tab.js:103
-msgid "Current leases"
-msgstr "Aktuelle Leases"
-
-#: ../public/js/plugins/vnets-tab.js:111
-msgid "Network Address"
-msgstr "Netzwerk Adresse"
-
-#: ../public/js/plugins/vnets-tab.js:113
-msgid "Network Mask"
-msgstr "Netzwerkmaske"
-
-#: ../public/js/plugins/vnets-tab.js:115
-msgid "Define a subnet by IP range"
-msgstr "Definietion eines Subnet durch einen IP Adressbereich"
-
-#: ../public/js/plugins/vnets-tab.js:117 ../public/js/plugins/vnets-tab.js:658
-msgid "IP Start"
-msgstr "IP Start"
-
-#: ../public/js/plugins/vnets-tab.js:119 ../public/js/plugins/vnets-tab.js:662
-msgid "IP End"
-msgstr "IP Ende"
-
-#: ../public/js/plugins/vnets-tab.js:152
-msgid "Write the Virtual Network template here"
-msgstr ""
-
-#: ../public/js/plugins/vnets-tab.js:171
-msgid "Please, choose and modify the virtual network you want to update"
-msgstr ""
-
-#: ../public/js/plugins/vnets-tab.js:173
-msgid "Select a network"
-msgstr "Netzwerk auswählen"
-
-#: ../public/js/plugins/vnets-tab.js:479
-msgid "Virtual network information"
-msgstr "Informationen zum Virtuellen Netzwerk"
-
-#: ../public/js/plugins/vnets-tab.js:483 ../public/js/plugins/vnets-tab.js:636
-msgid "Lease management"
-msgstr "Lease Verwaltung"
-
-#: ../public/js/plugins/vnets-tab.js:569
-msgid "Virtual Network"
-msgstr "Virtuelles Netzwerk"
-
-#: ../public/js/plugins/vnets-tab.js:625
-msgid "Virtual Network template (attributes)"
-msgstr "Vorlage Virtuelles Netzwerk (Attribute)"
-
-#: ../public/js/plugins/vnets-tab.js:631
-msgid "Virtual Network information"
-msgstr "Informationen zum Virtuellen Netzwerk"
-
-#: ../public/js/plugins/vnets-tab.js:653
-msgid "Leases information"
-msgstr "Lease Informationen"
-
-#: ../public/js/plugins/vnets-tab.js:666
-msgid "Network mask"
-msgstr "Netzwerkmaske"
-
-#: ../public/js/plugins/vnets-tab.js:670
-msgid "Hold lease"
-msgstr "Verleih blockieren"
-
-#: ../public/js/plugins/vnets-tab.js:675
-msgid "Add lease"
-msgstr "Lease hinzufügen"
-
-#: ../public/js/plugins/vnets-tab.js:685
-msgid "No leases to show"
-msgstr "Keine Leihadressen vorhanden"
-
-#: ../public/js/plugins/vnets-tab.js:731
-msgid "hold"
-msgstr "blockiert"
-
-#: ../public/js/plugins/vnets-tab.js:731
-msgid "delete"
-msgstr "Entfernen"
-
-#: ../public/js/plugins/vnets-tab.js:734
-msgid "Used by VM"
-msgstr "Verwendet von VM"
-
-#: ../public/js/plugins/vnets-tab.js:737
-msgid "release"
-msgstr "Freigeben"
-
-#: ../public/js/plugins/vnets-tab.js:750
-msgid "Create Virtual Network"
-msgstr "Virtuelles Netzwerk erstellen"
-
-#: ../public/js/plugins/vnets-tab.js:823
-msgid "Please provide a lease IP"
-msgstr "Bitte eine IP-Adresse angeben"
-
-#: ../public/js/plugins/vnets-tab.js:889
-msgid "Virtual Network name missing!"
-msgstr "Name des virtuellen Netzwerkes fehlt!"
-
-#: ../public/js/plugins/vnets-tab.js:976
-msgid "There are missing network parameters"
-msgstr "Es fehlen Netzwerkparameter"
-
-#: ../public/js/plugins/vnets-tab.js:1028
-msgid "Update network properties"
-msgstr "Netzwerkeigenschaften aktualisieren"
-
-#: ../public/js/plugins/system-tab.js:25
-msgid "Summary of system resources"
-msgstr ""
-
-#: ../public/js/plugins/system-tab.js:38
-msgid "ACL Rules"
-msgstr "ACL Regeln"
-
-#: ../public/js/plugins/system-tab.js:53
-msgid "Create new Group"
-msgstr "Neue Gruppe erstellen"
-
-#: ../public/js/plugins/system-tab.js:54
-msgid "Create new User"
-msgstr "Neuen Benutzer erstellen"
-
-#: ../public/js/plugins/system-tab.js:55
-msgid "Create new ACL"
-msgstr "Neue ACL erstellen"
-
-#: ../public/js/plugins/system-tab.js:68
-msgid "System Resources"
-msgstr "System Resourcen"
-
-#: ../public/js/plugins/system-tab.js:70
-msgid "System resources management is only accesible to users of the oneadmin group. It comprises the operations regarding OpenNebula groups, users and ACLs."
-msgstr ""
-
-#: ../public/js/plugins/infra-tab.js:25
-msgid "Summary of infrastructure resources"
-msgstr ""
-
-#: ../public/js/plugins/infra-tab.js:57
-msgid "Create new Cluster"
-msgstr "Neuen Cluster erstellen"
-
-#: ../public/js/plugins/infra-tab.js:58
-msgid "Create new Host"
-msgstr "Neuen Host erstellen"
-
-#: ../public/js/plugins/infra-tab.js:59
-msgid "Create new Datastore"
-msgstr "Maus"
-
-#: ../public/js/plugins/infra-tab.js:60
-msgid "Create new Virtual Network"
-msgstr ""
-
-#: ../public/js/plugins/infra-tab.js:73
-msgid "Infrastructure resources"
-msgstr ""
-
-#: ../public/js/plugins/infra-tab.js:75
-msgid "The Infrastructure menu allows management of Hosts, Datastores, Virtual Networks. Users in the oneadmin group can manage clusters as well."
-msgstr ""
-
-#: ../public/js/plugins/infra-tab.js:92
-msgid "Infrastructure"
-msgstr "Infrastruktur"
-
-#: ../public/js/plugins/clusters-tab.js:497
-msgid "No datastores in this cluster"
-msgstr "Keine Datastores im Cluster"
-
-#: ../public/js/plugins/clusters-tab.js:507
-msgid "No hosts in this cluster"
-msgstr "Keine Hosts im Cluster"
-
-#: ../public/js/plugins/clusters-tab.js:517
-msgid "No virtual networks in this cluster"
-msgstr "Keine virtuellen Netzwerke im Cluster"
-
-#: ../public/js/plugins/clusters-tab.js:538
-#: ../public/js/plugins/clusters-tab.js:644
-msgid "Cluster information"
-msgstr "Cluster Information"
-
-#: ../public/js/plugins/clusters-tab.js:551
-#: ../public/js/plugins/clusters-tab.js:657
-msgid "Hosts state"
-msgstr "Presistent"
-
-#: ../public/js/plugins/clusters-tab.js:552
-#: ../public/js/plugins/clusters-tab.js:658
-msgid "Hosts CPU Usage"
-msgstr "Hosts CPU Auslastung"
-
-#: ../public/js/plugins/clusters-tab.js:555
-#: ../public/js/plugins/clusters-tab.js:556
-#: ../public/js/plugins/clusters-tab.js:565
-#: ../public/js/plugins/clusters-tab.js:575
-#: ../public/js/plugins/clusters-tab.js:662
-#: ../public/js/plugins/clusters-tab.js:663
-#: ../public/js/plugins/clusters-tab.js:672
-#: ../public/js/plugins/clusters-tab.js:682 ../public/js/monitoring.js:99
-msgid "No monitoring information available"
-msgstr "Keine Monitoring Informationen verfügbar"
-
-#: ../public/js/plugins/clusters-tab.js:594
-#: ../public/js/plugins/clusters-tab.js:595
-#: ../public/js/plugins/clusters-tab.js:703
-msgid "Create new host"
-msgstr "Neuen Host erstellen"
-
-#: ../public/js/plugins/clusters-tab.js:596
-msgid "Manage unclustered hosts"
-msgstr "Nicht geclusterte Rechner verwalten"
-
-#: ../public/js/plugins/clusters-tab.js:607
-#: ../public/js/plugins/clusters-tab.js:718
-msgid "Create new datastore"
-msgstr "Neuen Datastore erzeugen"
-
-#: ../public/js/plugins/clusters-tab.js:608
-msgid "Manage unclustered datastores"
-msgstr "Nicht geclusterte Speicherbereiche verwalten"
-
-#: ../public/js/plugins/clusters-tab.js:620
-#: ../public/js/plugins/clusters-tab.js:734
-msgid "Create new virtual network"
-msgstr "Neues virtuelles Netzwerk erstellen"
-
-#: ../public/js/plugins/clusters-tab.js:621
-msgid "Manage unclustered virtual networks"
-msgstr "Nicht geclusterte virtuelle Netzwerke verwalten"
-
-#: ../public/js/plugins/clusters-tab.js:701
-msgid "Current number of hosts in this cluster"
-msgstr "Host-Anzahl in diesem Cluster"
-
-#: ../public/js/plugins/clusters-tab.js:704
-msgid "Manage cluster hosts"
-msgstr "Verwalte Cluster Host"
-
-#: ../public/js/plugins/clusters-tab.js:715
-msgid "Current number of datastores in this cluster"
-msgstr "Aktuelle Anzahl Speicherbereiche in diesem Cluster"
-
-#: ../public/js/plugins/clusters-tab.js:719
-msgid "Manage cluster datastores"
-msgstr "Geclusterte Speicherbereiche verwalten"
-
-#: ../public/js/plugins/clusters-tab.js:731
-msgid "Current number of virtual networks in this cluster"
-msgstr "Aktuelle Anzahl virtuelle Netzwerke in diesem Cluster"
-
-#: ../public/js/plugins/clusters-tab.js:735
-msgid "Manage cluster virtual networks"
-msgstr "Geclusterte virtuelle Netzwerke verwalten"
-
-#: ../public/js/plugins/clusters-tab.js:888
-msgid "Create cluster"
-msgstr "Cluster erstellen"
-
-#: ../public/js/plugins/clusters-tab.js:904
-msgid "Cluster name missing!"
-msgstr "Name des Clusters fehlt!"
-
-#: ../public/js/plugins/groups-tab.js:64
-msgid "Tip: Refresh the list if it only shows user ids in the Users column."
-msgstr ""
-
-#: ../public/js/plugins/groups-tab.js:73
-msgid "Group name"
-msgstr "Gruppenname"
-
-#: ../public/js/plugins/groups-tab.js:267
-msgid "+ New Group"
-msgstr "+ Neue Gruppe"
-
-#: ../public/js/plugins/groups-tab.js:296
-#: ../public/js/plugins/groups-tab.js:429
-#: ../public/js/plugins/groups-tab.js:466
-msgid "Group information"
-msgstr "Gruppen Information"
-
-#: ../public/js/plugins/groups-tab.js:315
-msgid "Group info"
-msgstr "Gruppen Information"
-
-#: ../public/js/plugins/groups-tab.js:440
-msgid "Quota information"
-msgstr "Quota Information"
-
-#: ../public/js/plugins/groups-tab.js:562
-msgid "Create group"
-msgstr "Gruppe erstellen"
-
-#: ../public/js/plugins/groups-tab.js:591
-msgid "Group quotas"
-msgstr "Gruppe Quota"
-
-#: ../public/js/plugins/dashboard-users-tab.js:154
-msgid "Storage size"
-msgstr ""
-
-#: ../public/js/plugins/dashboard-users-tab.js:167
-msgid "Number of images"
-msgstr "Anzahl Abbilder"
-
-#: ../public/js/plugins/dashboard-users-tab.js:184
+#: ../public/js/plugins/templates-tab.js:57
+#: ../public/js/plugins/templates-tab.js:802
+#: ../public/js/plugins/templates-tab.js:1176
+#: ../public/js/plugins/templates-tab.js:1429
+#: ../public/js/plugins/templates-tab.js:1955
+#: ../public/js/plugins/templates-tab.js:2015
+#: ../public/js/plugins/templates-tab.js:2561
+#: ../public/js/plugins/templates-tab.js:2832
+#: ../public/js/plugins/templates-tab.js:2869
+#: ../public/js/plugins/templates-tab.js:4318
+#: ../public/js/plugins/users-tab.js:81 ../public/js/plugins/vms-tab.js:77
+#: ../public/js/plugins/vms-tab.js:1233 ../public/js/plugins/vms-tab.js:2536
+#: ../public/js/plugins/vnets-tab.js:56 ../public/js/plugins/vnets-tab.js:84
+#: ../public/js/plugins/vnets-tab.js:352 ../public/js/plugins/vnets-tab.js:836
+msgid "Name"
+msgstr "Name"
+
+#: ../public/js/plugins/clusters-tab.js:27
+#: ../public/js/plugins/hosts-tab.js:62
+#: ../public/js/plugins/templates-tab.js:2834
 msgid "RVMs"
 msgstr ""
 
-#: ../public/js/plugins/dashboard-users-tab.js:199
+#: ../public/js/plugins/clusters-tab.js:28
+#: ../public/js/plugins/hosts-tab.js:63
+#: ../public/js/plugins/templates-tab.js:2835
+msgid "Real CPU"
+msgstr ""
+
+#: ../public/js/plugins/clusters-tab.js:29
+#: ../public/js/plugins/hosts-tab.js:64
+#: ../public/js/plugins/templates-tab.js:2836
+msgid "Allocated CPU"
+msgstr ""
+
+#: ../public/js/plugins/clusters-tab.js:30
+#: ../public/js/plugins/hosts-tab.js:65
+#: ../public/js/plugins/templates-tab.js:2837
+msgid "Real MEM"
+msgstr ""
+
+#: ../public/js/plugins/clusters-tab.js:31
+#: ../public/js/plugins/hosts-tab.js:66
+#: ../public/js/plugins/templates-tab.js:2838
+msgid "Allocated MEM"
+msgstr ""
+
+#: ../public/js/plugins/clusters-tab.js:32
+#: ../public/js/plugins/datastores-tab.js:328
+#: ../public/js/plugins/files-tab.js:67 ../public/js/plugins/hosts-tab.js:67
+#: ../public/js/plugins/images-tab.js:67
+#: ../public/js/plugins/templates-tab.js:808
+#: ../public/js/plugins/templates-tab.js:1961
+#: ../public/js/plugins/templates-tab.js:2021
+#: ../public/js/plugins/templates-tab.js:2567
+#: ../public/js/plugins/templates-tab.js:2839
+#: ../public/js/plugins/vms-tab.js:78
+msgid "Status"
+msgstr "Status"
+
+#: ../public/js/plugins/clusters-tab.js:33
+#: ../public/js/plugins/hosts-tab.js:68 ../public/js/plugins/hosts-tab.js:746
+#: ../public/js/plugins/templates-tab.js:2840
+msgid "IM MAD"
+msgstr "IM MAD"
+
+#: ../public/js/plugins/clusters-tab.js:34
+#: ../public/js/plugins/hosts-tab.js:69 ../public/js/plugins/hosts-tab.js:750
+#: ../public/js/plugins/templates-tab.js:2841
+msgid "VM MAD"
+msgstr "VM MAD"
+
+#: ../public/js/plugins/clusters-tab.js:35
+#: ../public/js/plugins/hosts-tab.js:70
+#: ../public/js/plugins/templates-tab.js:2842
+msgid "Last monitored on"
+msgstr "Zuletzt überwacht am"
+
+#: ../public/js/plugins/clusters-tab.js:45
+#: ../public/js/plugins/clusters-tab.js:61
+#: ../public/js/plugins/datastores-tab.js:56
+#: ../public/js/plugins/datastores-tab.js:320
+#: ../public/js/plugins/files-tab.js:59 ../public/js/plugins/images-tab.js:59
+#: ../public/js/plugins/templates-tab.js:55
+#: ../public/js/plugins/templates-tab.js:135
+#: ../public/js/plugins/templates-tab.js:800
+#: ../public/js/plugins/templates-tab.js:1174
+#: ../public/js/plugins/templates-tab.js:1953
+#: ../public/js/plugins/templates-tab.js:2013
+#: ../public/js/plugins/templates-tab.js:2559
+#: ../public/js/plugins/vms-tab.js:75 ../public/js/plugins/vnets-tab.js:54
+#: ../public/js/plugins/vnets-tab.js:442 ../public/js/sunstone-util.js:2288
+#: ../public/js/sunstone-util.js:2320
+msgid "Owner"
+msgstr "Besitzer"
+
+#: ../public/js/plugins/clusters-tab.js:49
+#: ../public/js/plugins/datastores-tab.js:63
+#: ../public/js/plugins/datastores-tab.js:130
+#: ../public/js/plugins/datastores-tab.js:325
+#: ../public/js/plugins/files-tab.js:64 ../public/js/plugins/files-tab.js:115
+#: ../public/js/plugins/files-tab.js:544
+#: ../public/js/plugins/groups-tab.js:259
+#: ../public/js/plugins/images-tab.js:64
+#: ../public/js/plugins/images-tab.js:115
+#: ../public/js/plugins/images-tab.js:675
+#: ../public/js/plugins/templates-tab.js:805
+#: ../public/js/plugins/templates-tab.js:1178
+#: ../public/js/plugins/templates-tab.js:1958
+#: ../public/js/plugins/templates-tab.js:2018
+#: ../public/js/plugins/templates-tab.js:2564
+#: ../public/js/plugins/users-tab.js:345 ../public/js/plugins/vnets-tab.js:58
+#: ../public/js/plugins/vnets-tab.js:94
+msgid "Type"
+msgstr "Typ"
+
+#: ../public/js/plugins/clusters-tab.js:50
+#: ../public/js/plugins/templates-tab.js:1179
+#: ../public/js/plugins/vnets-tab.js:59 ../public/js/plugins/vnets-tab.js:300
+#: ../public/js/plugins/vnets-tab.js:847
+msgid "Bridge"
+msgstr "Brücke"
+
+#: ../public/js/plugins/clusters-tab.js:51
+#: ../public/js/plugins/templates-tab.js:1180
+#: ../public/js/plugins/vnets-tab.js:60 ../public/js/sunstone-util.js:1337
 msgid "Leases"
 msgstr "Leases"
 
-#: ../public/js/plugins/dashboard-users-tab.js:217
-msgid "VM quota"
-msgstr "VM Quota"
+#: ../public/js/plugins/clusters-tab.js:65
+#: ../public/js/plugins/datastores-tab.js:60
+msgid "Basepath"
+msgstr "Basispfad"
 
-#: ../public/js/plugins/dashboard-users-tab.js:219
-#: ../public/js/plugins/dashboard-users-tab.js:229
-#: ../public/js/plugins/dashboard-users-tab.js:239
-#: ../public/js/plugins/dashboard-users-tab.js:249
-msgid "None"
+#: ../public/js/plugins/clusters-tab.js:66
+#: ../public/js/plugins/datastores-tab.js:61
+msgid "TM MAD"
+msgstr "TM MAD"
+
+#: ../public/js/plugins/clusters-tab.js:67
+#: ../public/js/plugins/datastores-tab.js:62
+msgid "DS MAD"
+msgstr "DS MAD"
+
+#: ../public/js/plugins/clusters-tab.js:68
+#: ../public/js/plugins/datastores-tab.js:135
+#: ../public/js/plugins/system-tab.js:18
+msgid "System"
+msgstr "System"
+
+#: ../public/js/plugins/clusters-tab.js:77
+msgid "Create Cluster"
+msgstr "Cluster erstellen"
+
+#: ../public/js/plugins/clusters-tab.js:78
+msgid "Update Cluster"
+msgstr "Cluster aktualisieren"
+
+#: ../public/js/plugins/clusters-tab.js:116
+#: ../public/js/plugins/templates-tab.js:2850
+msgid "Please select one or more hosts from the list"
+msgstr "Bitte wählen Sie einen oder mehrere Hosts aus der Liste aus"
+
+#: ../public/js/plugins/clusters-tab.js:117
+#: ../public/js/plugins/templates-tab.js:2851
+msgid "You selected the following hosts:"
+msgstr "Sie haben die folgenden Hosts ausgewählt:"
+
+#: ../public/js/plugins/clusters-tab.js:133
+msgid "Please select one or more vnets from the list"
+msgstr "Bitte wählen Sie eine oder mehrere vnets aus der Liste aus"
+
+#: ../public/js/plugins/clusters-tab.js:134
+msgid "You selected the following vnets:"
+msgstr "Sie haben die folgenden vnets ausgewählt:"
+
+#: ../public/js/plugins/clusters-tab.js:150
+msgid "Please select one or more datastores from the list"
 msgstr ""
 
-#: ../public/js/plugins/dashboard-users-tab.js:227
-msgid "Datastore quotas"
-msgstr "Datastore Quota"
+#: ../public/js/plugins/clusters-tab.js:151
+msgid "You selected the following datastores:"
+msgstr ""
 
-#: ../public/js/plugins/dashboard-users-tab.js:237
-msgid "Image quotas"
-msgstr "Image Quota"
+#: ../public/js/plugins/clusters-tab.js:161
+#: ../public/js/plugins/clusters-tab.js:1087
+#: ../public/js/plugins/templates-tab.js:93
+#: ../public/js/plugins/templates-tab.js:108
+#: ../public/js/plugins/templates-tab.js:161
+#: ../public/js/plugins/templates-tab.js:404
+#: ../public/js/plugins/vnets-tab.js:468 ../public/js/sunstone-util.js:934
+msgid "Update"
+msgstr "Aktualisieren"
 
-#: ../public/js/plugins/dashboard-users-tab.js:247
-msgid "Network quotas"
-msgstr "Netzwerk Quota"
+#: ../public/js/plugins/clusters-tab.js:428
+msgid "Cluster name missing!"
+msgstr "Name des Clusters fehlt!"
 
-#: ../public/js/sunstone.js:589
-msgid "Previous action"
-msgstr "Vorherige Aktion"
+#: ../public/js/plugins/clusters-tab.js:469
+#: ../public/js/plugins/clusters-tab.js:1429
+msgid "Create cluster"
+msgstr "Cluster erstellen"
 
-#: ../public/js/sunstone.js:652 ../public/js/sunstone.js:686
-msgid "Confirmation of action"
-msgstr "Bestätigen der Aktion"
+#: ../public/js/plugins/clusters-tab.js:498
+msgid "Update cluster"
+msgstr "Cluster aktualisieren"
 
-#: ../public/js/sunstone.js:658
-msgid "You have to confirm this action."
-msgstr "Sie müssen diese Aktion bestätigen"
+#: ../public/js/plugins/clusters-tab.js:507
+msgid "Please select one (and just one) cluster to update."
+msgstr ""
 
-#: ../public/js/sunstone.js:660
-msgid "Do you want to proceed?"
-msgstr "Wirklich fortfahren?"
+#: ../public/js/plugins/clusters-tab.js:891
+#: ../public/js/plugins/templates-tab.js:2871
+msgid "VNets"
+msgstr ""
 
-#: ../public/js/sunstone.js:663 ../public/js/sunstone.js:695
-msgid "OK"
-msgstr "OK"
+#: ../public/js/plugins/clusters-tab.js:1053
+msgid "Cluster updated correctly"
+msgstr ""
 
-#: ../public/js/sunstone.js:691
-msgid "You need to select something."
-msgstr "Sie müssen etwas auswählen"
+#: ../public/js/plugins/clusters-tab.js:1108
+msgid "Cluster information"
+msgstr "Cluster Information"
 
-#: ../public/js/sunstone-util.js:210
+#: ../public/js/plugins/clusters-tab.js:1113
+msgid "Cluster Hosts"
+msgstr ""
+
+#: ../public/js/plugins/clusters-tab.js:1117
+msgid "Cluster Virtual Networks"
+msgstr ""
+
+#: ../public/js/plugins/clusters-tab.js:1121
+msgid "Cluster Datastores"
+msgstr ""
+
+#: ../public/js/plugins/clusters-tab.js:1229
+#: ../public/js/plugins/datastores-tab.js:575
+#: ../public/js/plugins/datastores-tab.js:748
+#: ../public/js/plugins/files-tab.js:416 ../public/js/plugins/files-tab.js:517
+#: ../public/js/plugins/hosts-tab.js:123 ../public/js/plugins/hosts-tab.js:438
+#: ../public/js/plugins/hosts-tab.js:721
+#: ../public/js/plugins/images-tab.js:548
+#: ../public/js/plugins/images-tab.js:648
+#: ../public/js/plugins/marketplace-tab.js:177
+#: ../public/js/plugins/templates-tab.js:1415
+#: ../public/js/plugins/users-tab.js:574 ../public/js/plugins/vms-tab.js:1218
+#: ../public/js/plugins/vnets-tab.js:884
+msgid "Information"
+msgstr "Information"
+
+#: ../public/js/plugins/clusters-tab.js:1241
+#: ../public/js/plugins/hosts-tab.js:731
+msgid "id"
+msgstr "id"
+
+#: ../public/js/plugins/config-tab.js:65
+msgid "Configuration"
+msgstr "Konfiguration"
+
+#: ../public/js/plugins/config-tab.js:74 ../public/js/plugins/users-tab.js:708
+msgid "User information"
+msgstr "Benutzerinformationen"
+
+#: ../public/js/plugins/config-tab.js:84
+msgid "Language"
+msgstr "Sprache"
+
+#: ../public/js/plugins/config-tab.js:88
+msgid "Catalan"
+msgstr "Katalanisch"
+
+#: ../public/js/plugins/config-tab.js:89
+msgid "Chinese (TW)"
+msgstr "Chinesisch (TW)"
+
+#: ../public/js/plugins/config-tab.js:90
+msgid "Czech (CZ)"
+msgstr "Tschechisch  (CZ)"
+
+#: ../public/js/plugins/config-tab.js:91
+msgid "English (US)"
+msgstr "Englisch (US)"
+
+#: ../public/js/plugins/config-tab.js:92
+msgid "French (FR)"
+msgstr "Französisch (FR)"
+
+#: ../public/js/plugins/config-tab.js:93
+msgid "German"
+msgstr "Deutsch"
+
+#: ../public/js/plugins/config-tab.js:94
+msgid "Greek (GR)"
+msgstr "Griechisch (GR)"
+
+#: ../public/js/plugins/config-tab.js:95
+msgid "Italian (IT)"
+msgstr "Italienisch (IT)"
+
+#: ../public/js/plugins/config-tab.js:96
+msgid "Persian (IR)"
+msgstr "Persisch (IR)"
+
+#: ../public/js/plugins/config-tab.js:97
+msgid "Portuguese (BR)"
+msgstr ""
+
+#: ../public/js/plugins/config-tab.js:98
+msgid "Portuguese (PT)"
+msgstr "Portugiesisch (PT)"
+
+#: ../public/js/plugins/config-tab.js:99
+msgid "Russian (RU)"
+msgstr "Russisch (RU)"
+
+#: ../public/js/plugins/config-tab.js:100
+msgid "Slovak (SK)"
+msgstr "Slovakisch (SK)"
+
+#: ../public/js/plugins/config-tab.js:101
+msgid "Spanish (SP)"
+msgstr "Spanisch (SP)"
+
+#: ../public/js/plugins/config-tab.js:107
+msgid "Views"
+msgstr ""
+
+#: ../public/js/plugins/config-tab.js:116
+msgid "VNC Secure websockets"
+msgstr ""
+
+#: ../public/js/plugins/config-tab.js:137
+msgid "Update config"
+msgstr "Konfiguration aktualisieren"
+
+#: ../public/js/plugins/config-tab.js:148
+#: ../public/js/plugins/users-tab.js:160
+msgid "Update Password"
+msgstr "Passwort ändern"
+
+#: ../public/js/plugins/config-tab.js:154
+#: ../public/js/plugins/users-tab.js:166
+msgid "New password"
+msgstr "Neues Passwort"
+
+#: ../public/js/plugins/config-tab.js:165
+#: ../public/js/plugins/users-tab.js:177 ../public/js/plugins/users-tab.js:197
+msgid "Change"
+msgstr "Wechseln"
+
+#: ../public/js/plugins/config-tab.js:177
+#: ../public/js/plugins/hosts-tab.js:350
+#: ../public/js/plugins/templates-tab.js:285
+#: ../public/js/plugins/users-tab.js:472
+msgid "Template updated correctly"
+msgstr "Template erfolgreich aktualisiert"
+
+#: ../public/js/plugins/config-tab.js:191
+#: ../public/js/plugins/users-tab.js:415
+msgid "Change password successful"
+msgstr "Änderung des Passworts erfolgreich"
+
+#: ../public/js/plugins/config-tab.js:198
+#: ../public/js/plugins/users-tab.js:543 ../public/js/plugins/users-tab.js:819
+msgid "Change password"
+msgstr "Passwort ändern"
+
+#: ../public/js/plugins/config-tab.js:213
+#: ../public/js/plugins/users-tab.js:830
+msgid "Fill in a new password"
+msgstr "Neues Passwort eingeben"
+
+#: ../public/js/plugins/config-tab.js:316 ../public/js/plugins/users-tab.js:87
+msgid "Group ID"
+msgstr "Gruppen ID"
+
+#: ../public/js/plugins/config-tab.js:320
+msgid "Group Name"
+msgstr ""
+
+#: ../public/js/plugins/config-tab.js:324
+#: ../public/js/plugins/templates-tab.js:2376
+#: ../public/js/plugins/users-tab.js:132
+msgid "Password"
+msgstr "Passwort"
+
+#: ../public/js/plugins/config-tab.js:325
+msgid "Update password"
+msgstr ""
+
+#: ../public/js/plugins/config-tab.js:332
+msgid "Custom Attributes"
+msgstr ""
+
+#: ../public/js/plugins/dashboard-tab.js:24
+#: ../public/js/plugins/dashboard-tab.js:169
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#: ../public/js/plugins/dashboard-tab.js:48
+#: ../public/js/plugins/templates-tab.js:1716
+#: ../public/js/plugins/vms-tab.js:1292
+msgid "Storage"
+msgstr ""
+
+#: ../public/js/plugins/dashboard-tab.js:54
+msgid "IMAGES"
+msgstr ""
+
+#: ../public/js/plugins/dashboard-tab.js:56
+#: ../public/js/plugins/images-tab.js:30
+msgid "USED"
+msgstr ""
+
+#: ../public/js/plugins/dashboard-tab.js:69
+msgid "USERS"
+msgstr ""
+
+#: ../public/js/plugins/dashboard-tab.js:71
+msgid "GROUPS"
+msgstr ""
+
+#: ../public/js/plugins/dashboard-tab.js:78
+#: ../public/js/plugins/groups-tab.js:131
+#: ../public/js/plugins/groups-tab.js:231
+#: ../public/js/plugins/templates-tab.js:1789
+#: ../public/js/plugins/templates-tab.js:2529
+#: ../public/js/plugins/users-tab.js:217 ../public/js/plugins/users-tab.js:317
+#: ../public/js/plugins/vms-tab.js:1297 ../public/js/plugins/vms-tab.js:2110
+#: ../public/js/sunstone-util.js:1332
+msgid "Network"
+msgstr "Netzwerk"
+
+#: ../public/js/plugins/dashboard-tab.js:84
+msgid "VNETS"
+msgstr ""
+
+#: ../public/js/plugins/dashboard-tab.js:86
+#: ../public/js/plugins/vnets-tab.js:30
+msgid "USED IPs"
+msgstr ""
+
+#: ../public/js/plugins/dashboard-tab.js:99
+#: ../public/js/plugins/dashboard-tab.js:137
+#: ../public/js/plugins/files-tab.js:29 ../public/js/plugins/groups-tab.js:51
+#: ../public/js/plugins/hosts-tab.js:31 ../public/js/plugins/images-tab.js:29
+#: ../public/js/plugins/users-tab.js:55 ../public/js/plugins/vms-tab.js:49
+#: ../public/js/plugins/vnets-tab.js:29
+msgid "TOTAL"
+msgstr ""
+
+#: ../public/js/plugins/dashboard-tab.js:101
+#: ../public/js/plugins/hosts-tab.js:32 ../public/js/plugins/hosts-tab.js:527
+msgid "ON"
+msgstr "AN"
+
+#: ../public/js/plugins/dashboard-tab.js:103
+#: ../public/js/plugins/hosts-tab.js:33 ../public/js/plugins/hosts-tab.js:534
+#: ../public/js/plugins/hosts-tab.js:564 ../public/js/plugins/vms-tab.js:51
+msgid "OFF"
+msgstr "AUS"
+
+#: ../public/js/plugins/dashboard-tab.js:105
+#: ../public/js/plugins/hosts-tab.js:34 ../public/js/plugins/hosts-tab.js:530
+#: ../public/js/plugins/hosts-tab.js:564
+msgid "ERROR"
+msgstr "FEHLER"
+
+#: ../public/js/plugins/dashboard-tab.js:110
+#: ../public/js/plugins/groups-tab.js:23 ../public/js/plugins/groups-tab.js:81
+#: ../public/js/plugins/hosts-tab.js:804
+#: ../public/js/plugins/templates-tab.js:549
+#: ../public/js/plugins/users-tab.js:26 ../public/js/plugins/users-tab.js:86
+#: ../public/js/plugins/vms-tab.js:2352 ../public/js/sunstone-util.js:1192
+msgid "CPU"
+msgstr "CPU"
+
+#: ../public/js/plugins/dashboard-tab.js:117
+#: ../public/js/plugins/hosts-tab.js:817
+#: ../public/js/plugins/templates-tab.js:565
+#: ../public/js/plugins/vms-tab.js:2354
+msgid "MEMORY"
+msgstr "SPEICHER"
+
+#: ../public/js/plugins/dashboard-tab.js:124
+#: ../public/js/plugins/hosts-tab.js:288 ../public/js/plugins/hosts-tab.js:295
+#: ../public/js/plugins/hosts-tab.js:319 ../public/js/plugins/hosts-tab.js:326
+#: ../public/js/plugins/hosts-tab.js:682 ../public/js/plugins/hosts-tab.js:689
+msgid "Allocated"
+msgstr "Zugewiesen"
+
+#: ../public/js/plugins/dashboard-tab.js:125
+#: ../public/js/plugins/hosts-tab.js:288 ../public/js/plugins/hosts-tab.js:295
+#: ../public/js/plugins/hosts-tab.js:319 ../public/js/plugins/hosts-tab.js:326
+#: ../public/js/plugins/hosts-tab.js:682 ../public/js/plugins/hosts-tab.js:689
+msgid "Real"
+msgstr "Tatsächlich"
+
+#: ../public/js/plugins/dashboard-tab.js:126
+#: ../public/js/plugins/hosts-tab.js:288 ../public/js/plugins/hosts-tab.js:295
+#: ../public/js/plugins/hosts-tab.js:319 ../public/js/plugins/hosts-tab.js:326
+#: ../public/js/plugins/hosts-tab.js:682 ../public/js/plugins/hosts-tab.js:689
+msgid "Total"
+msgstr "Total"
+
+#: ../public/js/plugins/dashboard-tab.js:139
+#: ../public/js/plugins/vms-tab.js:50 ../public/js/plugins/vms-tab.js:898
+#: ../public/js/plugins/vms-tab.js:916 ../public/js/plugins/vms-tab.js:928
+#: ../public/js/plugins/vms-tab.js:1198
+msgid "ACTIVE"
+msgstr "AKTIV"
+
+#: ../public/js/plugins/dashboard-tab.js:141
+#: ../public/js/plugins/vms-tab.js:52 ../public/js/plugins/vms-tab.js:909
+msgid "PENDING"
+msgstr ""
+
+#: ../public/js/plugins/dashboard-tab.js:143
+#: ../public/js/plugins/vms-tab.js:53 ../public/js/plugins/vms-tab.js:913
+msgid "FAILED"
+msgstr "Fehlgeschlagen"
+
+#: ../public/js/plugins/dashboard-tab.js:148
+#: ../public/js/plugins/vms-tab.js:2206
+msgid "NET DOWNLOAD SPEED"
+msgstr ""
+
+#: ../public/js/plugins/dashboard-tab.js:157
+#: ../public/js/plugins/vms-tab.js:2219
+msgid "NET UPLOAD SPEED"
+msgstr ""
+
+#: ../public/js/plugins/datastores-tab.js:74
+msgid "Create Datastore"
+msgstr "Datenspeicher erstellen"
+
+#: ../public/js/plugins/datastores-tab.js:80
+#: ../public/js/plugins/files-tab.js:84 ../public/js/plugins/images-tab.js:84
+#: ../public/js/plugins/templates-tab.js:74
+#: ../public/js/plugins/vnets-tab.js:76
+msgid "Wizard"
+msgstr "Assistent"
+
+#: ../public/js/plugins/datastores-tab.js:81
+#: ../public/js/plugins/files-tab.js:85 ../public/js/plugins/images-tab.js:85
+#: ../public/js/plugins/templates-tab.js:75
+#: ../public/js/plugins/vnets-tab.js:77
+msgid "Advanced mode"
+msgstr "Erweiterter Modus"
+
+#: ../public/js/plugins/datastores-tab.js:98
+msgid "Presets"
+msgstr ""
+
+#: ../public/js/plugins/datastores-tab.js:102
+#: ../public/js/plugins/datastores-tab.js:168
+msgid "Filesystem"
+msgstr "Dateisystem"
+
+#: ../public/js/plugins/datastores-tab.js:103
+msgid "VMware (FS Based)"
+msgstr "VMware (FS basiert)"
+
+#: ../public/js/plugins/datastores-tab.js:104
+msgid "VMware (VMFS Based)"
+msgstr "VMware (VMFS basiert)"
+
+#: ../public/js/plugins/datastores-tab.js:105
+#: ../public/js/plugins/datastores-tab.js:170
+#: ../public/js/plugins/datastores-tab.js:193
+msgid "iSCSI"
+msgstr "iSCSI"
+
+#: ../public/js/plugins/datastores-tab.js:106
+#: ../public/js/plugins/datastores-tab.js:171
+#: ../public/js/plugins/datastores-tab.js:195
+msgid "LVM"
+msgstr "LVM"
+
+#: ../public/js/plugins/datastores-tab.js:107
+#: ../public/js/plugins/datastores-tab.js:173
+#: ../public/js/plugins/datastores-tab.js:197
+msgid "Ceph"
+msgstr ""
+
+#: ../public/js/plugins/datastores-tab.js:108
+#: ../public/js/plugins/datastores-tab.js:174
+#: ../public/js/plugins/datastores-tab.js:198
+#: ../public/js/plugins/hosts-tab.js:111 ../public/js/plugins/hosts-tab.js:133
+#: ../public/js/plugins/hosts-tab.js:156 ../public/js/plugins/users-tab.js:106
+msgid "Custom"
+msgstr "Benutzerdefiniert"
+
+#: ../public/js/plugins/datastores-tab.js:138
+#: ../public/js/plugins/templates-tab.js:2495
+msgid "Files"
+msgstr "Dateien"
+
+#: ../public/js/plugins/datastores-tab.js:145
+#: ../public/js/plugins/templates-tab.js:872
+msgid "Disk type"
+msgstr "Festplatten Typ"
+
+#: ../public/js/plugins/datastores-tab.js:149
+#: ../public/js/plugins/files-tab.js:523
+msgid "File"
+msgstr "Datei"
+
+#: ../public/js/plugins/datastores-tab.js:150
+msgid "Block"
+msgstr "Block"
+
+#: ../public/js/plugins/datastores-tab.js:151
+msgid "RBD"
+msgstr ""
+
+#: ../public/js/plugins/datastores-tab.js:161
+msgid "Managers"
+msgstr ""
+
+#: ../public/js/plugins/datastores-tab.js:164
+#: ../public/js/plugins/datastores-tab.js:323
+#: ../public/js/plugins/datastores-tab.js:707
+#: ../public/js/plugins/files-tab.js:62 ../public/js/plugins/files-tab.js:130
+#: ../public/js/plugins/files-tab.js:186 ../public/js/plugins/files-tab.js:539
+#: ../public/js/plugins/groups-tab.js:129
+#: ../public/js/plugins/groups-tab.js:172
+#: ../public/js/plugins/images-tab.js:62
+#: ../public/js/plugins/images-tab.js:130
+#: ../public/js/plugins/images-tab.js:266
+#: ../public/js/plugins/images-tab.js:670
+#: ../public/js/plugins/templates-tab.js:803
+#: ../public/js/plugins/templates-tab.js:1956
+#: ../public/js/plugins/templates-tab.js:2016
+#: ../public/js/plugins/templates-tab.js:2562
+#: ../public/js/plugins/users-tab.js:215 ../public/js/plugins/users-tab.js:258
+#: ../public/js/sunstone-util.js:1218
+msgid "Datastore"
+msgstr "Datastore"
+
+#: ../public/js/plugins/datastores-tab.js:169
+#: ../public/js/plugins/hosts-tab.js:108 ../public/js/plugins/hosts-tab.js:129
+#: ../public/js/plugins/hosts-tab.js:155 ../public/js/plugins/vnets-tab.js:290
+msgid "VMware"
+msgstr "VMware"
+
+#: ../public/js/plugins/datastores-tab.js:172
+#: ../public/js/plugins/datastores-tab.js:196
+msgid "VMFS"
+msgstr "VMFS"
+
+#: ../public/js/plugins/datastores-tab.js:177
+msgid "Custom DS_MAD"
+msgstr ""
+
+#: ../public/js/plugins/datastores-tab.js:186
+msgid "Transfer"
+msgstr ""
+
+#: ../public/js/plugins/datastores-tab.js:190
+msgid "Shared"
+msgstr "Geteilt"
+
+#: ../public/js/plugins/datastores-tab.js:191
+#: ../public/js/plugins/templates-tab.js:2503
+#: ../public/js/plugins/users-tab.js:102
+msgid "SSH"
+msgstr "SSH"
+
+#: ../public/js/plugins/datastores-tab.js:192
+msgid "qcow2"
+msgstr "qcow2"
+
+#: ../public/js/plugins/datastores-tab.js:194
+#: ../public/js/plugins/hosts-tab.js:110 ../public/js/plugins/hosts-tab.js:132
+msgid "Dummy"
+msgstr "Dummy"
+
+#: ../public/js/plugins/datastores-tab.js:201
+msgid "Custom TM_MAD"
+msgstr ""
+
+#: ../public/js/plugins/datastores-tab.js:214
+msgid "Safe Directories"
+msgstr ""
+
+#: ../public/js/plugins/datastores-tab.js:220
+msgid "Paths that can not be used to register images. A space separated list of paths. This will prevent users registering important files as VM images and accessing them thourgh their VMs. OpenNebula will automatically add its configuration directories: /var/lib/one, /etc/one and oneadmin's home ($HOME)."
+msgstr ""
+
+#: ../public/js/plugins/datastores-tab.js:225
+msgid "Restricted Directories"
+msgstr ""
+
+#: ../public/js/plugins/datastores-tab.js:231
+msgid "If you need to un-block a directory under one of the RESTRICTED_DIRS"
+msgstr ""
+
+#: ../public/js/plugins/datastores-tab.js:236
+msgid "Host Bridge List"
+msgstr ""
+
+#: ../public/js/plugins/datastores-tab.js:246
+msgid "Use SSH for Datastore Manager"
+msgstr ""
+
+#: ../public/js/plugins/datastores-tab.js:249
+msgid "Use SSH for Transfer Manager"
+msgstr ""
+
+#: ../public/js/plugins/datastores-tab.js:254
+msgid "Storage Server"
+msgstr ""
+
+#: ../public/js/plugins/datastores-tab.js:264
+msgid "Base IQN"
+msgstr ""
+
+#: ../public/js/plugins/datastores-tab.js:274
+msgid "Volume Group Name"
+msgstr ""
+
+#: ../public/js/plugins/datastores-tab.js:324
+#: ../public/js/plugins/files-tab.js:63 ../public/js/plugins/files-tab.js:562
+#: ../public/js/plugins/images-tab.js:63
+#: ../public/js/plugins/images-tab.js:184
+#: ../public/js/plugins/images-tab.js:701
+#: ../public/js/plugins/marketplace-tab.js:213
+#: ../public/js/plugins/templates-tab.js:804
+#: ../public/js/plugins/templates-tab.js:1957
+#: ../public/js/plugins/templates-tab.js:2017
+#: ../public/js/plugins/templates-tab.js:2563
+#: ../public/js/sunstone-util.js:1224
+msgid "Size"
+msgstr "Grösse"
+
+#: ../public/js/plugins/datastores-tab.js:326
+#: ../public/js/plugins/files-tab.js:65 ../public/js/plugins/images-tab.js:65
+#: ../public/js/plugins/templates-tab.js:58
+#: ../public/js/plugins/templates-tab.js:806
+#: ../public/js/plugins/templates-tab.js:1959
+#: ../public/js/plugins/templates-tab.js:2019
+#: ../public/js/plugins/templates-tab.js:2565
+msgid "Registration time"
+msgstr "Registrierungszeitpunkt"
+
+#: ../public/js/plugins/datastores-tab.js:327
+#: ../public/js/plugins/files-tab.js:66 ../public/js/plugins/images-tab.js:66
+#: ../public/js/plugins/images-tab.js:142
+#: ../public/js/plugins/images-tab.js:688
+#: ../public/js/plugins/templates-tab.js:807
+#: ../public/js/plugins/templates-tab.js:1960
+#: ../public/js/plugins/templates-tab.js:2020
+#: ../public/js/plugins/templates-tab.js:2566
+#: ../public/js/plugins/vms-tab.js:1770
+msgid "Persistent"
+msgstr "Presistent"
+
+#: ../public/js/plugins/datastores-tab.js:329
+#: ../public/js/plugins/files-tab.js:68 ../public/js/plugins/images-tab.js:68
+#: ../public/js/plugins/templates-tab.js:809
+#: ../public/js/plugins/templates-tab.js:1962
+#: ../public/js/plugins/templates-tab.js:2022
+#: ../public/js/plugins/templates-tab.js:2568
+msgid "#VMS"
+msgstr "#VMS"
+
+#: ../public/js/plugins/datastores-tab.js:330
+#: ../public/js/plugins/files-tab.js:69 ../public/js/plugins/images-tab.js:69
+#: ../public/js/plugins/images-tab.js:242
+#: ../public/js/plugins/templates-tab.js:810
+#: ../public/js/plugins/templates-tab.js:1963
+#: ../public/js/plugins/templates-tab.js:2023
+#: ../public/js/plugins/templates-tab.js:2569
+#: ../public/js/plugins/vms-tab.js:1768
+msgid "Target"
+msgstr "Ziel"
+
+#: ../public/js/plugins/datastores-tab.js:442
+msgid "Datastore updated correctly"
+msgstr "Datenspeicher erfolgreich aktualisiert"
+
+#: ../public/js/plugins/datastores-tab.js:543
+#: ../public/js/plugins/hosts-tab.js:405 ../public/js/plugins/vnets-tab.js:687
+msgid "Select cluster"
+msgstr "Cluster auswählen"
+
+#: ../public/js/plugins/datastores-tab.js:546
+#: ../public/js/plugins/hosts-tab.js:407 ../public/js/plugins/vnets-tab.js:690
+msgid "Select the destination cluster:"
+msgstr "Zielcluster auswählen:"
+
+#: ../public/js/plugins/datastores-tab.js:551
+#: ../public/js/plugins/files-tab.js:378
+#: ../public/js/plugins/images-tab.js:495
+#: ../public/js/plugins/templates-tab.js:413
+#: ../public/js/plugins/vms-tab.js:688 ../public/js/plugins/vnets-tab.js:695
+msgid "Change owner"
+msgstr "Besitzer wechseln"
+
+#: ../public/js/plugins/datastores-tab.js:554
+#: ../public/js/plugins/files-tab.js:381
+#: ../public/js/plugins/images-tab.js:498
+#: ../public/js/plugins/templates-tab.js:416
+#: ../public/js/plugins/vms-tab.js:691 ../public/js/plugins/vnets-tab.js:698
+msgid "Select the new owner"
+msgstr "Neuen Besitzer auswählen"
+
+#: ../public/js/plugins/datastores-tab.js:559
+#: ../public/js/plugins/files-tab.js:386
+#: ../public/js/plugins/images-tab.js:503
+#: ../public/js/plugins/templates-tab.js:421
+#: ../public/js/plugins/users-tab.js:558 ../public/js/plugins/vms-tab.js:697
+#: ../public/js/plugins/vnets-tab.js:704
+msgid "Change group"
+msgstr "Gruppe wechseln"
+
+#: ../public/js/plugins/datastores-tab.js:562
+#: ../public/js/plugins/files-tab.js:389
+#: ../public/js/plugins/images-tab.js:506
+#: ../public/js/plugins/templates-tab.js:424
+#: ../public/js/plugins/vms-tab.js:700 ../public/js/plugins/vnets-tab.js:707
+msgid "Select the new group"
+msgstr "Neue Gruppe auswählen"
+
+#: ../public/js/plugins/datastores-tab.js:724
+msgid "Base path"
+msgstr "Basispfad"
+
+#: ../public/js/plugins/datastores-tab.js:954
+msgid "Please select a cluster for this datastore"
+msgstr ""
+
+#: ../public/js/plugins/files-tab.js:26 ../public/js/plugins/files-tab.js:422
+msgid "Files & Kernels"
+msgstr ""
+
+#: ../public/js/plugins/files-tab.js:30
+#: ../public/js/plugins/templates-tab.js:892
+msgid "SIZE"
+msgstr "GRÖSSE"
+
+#: ../public/js/plugins/files-tab.js:79 ../public/js/plugins/files-tab.js:659
+msgid "Create File"
+msgstr "Datei erstellen"
+
+#: ../public/js/plugins/files-tab.js:98
+msgid "Name that the File will get. Every file must have a unique name."
+msgstr ""
+
+#: ../public/js/plugins/files-tab.js:102
+#: ../public/js/plugins/images-tab.js:102
+#: ../public/js/plugins/marketplace-tab.js:226
+msgid "Description"
+msgstr "Beschreibung"
+
+#: ../public/js/plugins/files-tab.js:108
+msgid "Human readable description of the file for other users."
+msgstr ""
+
+#: ../public/js/plugins/files-tab.js:119 ../public/js/plugins/files-tab.js:623
+#: ../public/js/plugins/templates-tab.js:1853
+msgid "Kernel"
+msgstr "Kernel"
+
+#: ../public/js/plugins/files-tab.js:120 ../public/js/plugins/files-tab.js:624
+#: ../public/js/plugins/templates-tab.js:1854
+msgid "Ramdisk"
+msgstr ""
+
+#: ../public/js/plugins/files-tab.js:121 ../public/js/plugins/files-tab.js:625
+msgid "Context"
+msgstr "Kontext"
+
+#: ../public/js/plugins/files-tab.js:125
+msgid "Type of the file, explained in detail in the following section. If omitted, the default value is the one defined in oned.conf (install default is OS)."
+msgstr ""
+
+#: ../public/js/plugins/files-tab.js:137
+msgid "Select the datastore for this file"
+msgstr ""
+
+#: ../public/js/plugins/files-tab.js:144
+msgid "File location"
+msgstr "Datei-Ablageort"
+
+#: ../public/js/plugins/files-tab.js:147
+#: ../public/js/plugins/images-tab.js:157
+msgid "Provide a path"
+msgstr "Pfad bereitstellen"
+
+#: ../public/js/plugins/files-tab.js:148
+#: ../public/js/plugins/images-tab.js:158
+msgid "Upload"
+msgstr "Hochladen"
+
+#: ../public/js/plugins/files-tab.js:155
+#: ../public/js/plugins/images-tab.js:165
+msgid "Path"
+msgstr "Pfad"
+
+#: ../public/js/plugins/files-tab.js:161
+msgid "Path to the original file that will be copied to the file repository. If not specified for a DATABLOCK type file, an empty file will be created."
+msgstr ""
+
+#: ../public/js/plugins/files-tab.js:395 ../public/js/plugins/hosts-tab.js:413
+#: ../public/js/plugins/images-tab.js:512
+msgid "Enable"
+msgstr "Aktivieren"
+
+#: ../public/js/plugins/files-tab.js:400 ../public/js/plugins/hosts-tab.js:419
+#: ../public/js/plugins/images-tab.js:517
+msgid "Disable"
+msgstr "Deaktivieren"
+
+#: ../public/js/plugins/files-tab.js:552
+#: ../public/js/plugins/images-tab.js:683
+#: ../public/js/plugins/templates-tab.js:1437
+msgid "Register time"
+msgstr ""
+
+#: ../public/js/plugins/files-tab.js:557
+#: ../public/js/plugins/images-tab.js:696
+msgid "Filesystem type"
+msgstr "Dateisystemtyp"
+
+#: ../public/js/plugins/files-tab.js:567 ../public/js/plugins/hosts-tab.js:742
+#: ../public/js/plugins/images-tab.js:706 ../public/js/plugins/vms-tab.js:1241
+msgid "State"
+msgstr "Status"
+
+#: ../public/js/plugins/files-tab.js:572
+#: ../public/js/plugins/images-tab.js:711
+msgid "Running VMS"
+msgstr "Laufende VMs"
+
+#: ../public/js/plugins/files-tab.js:729
+#: ../public/js/plugins/images-tab.js:896
+msgid "Custom attribute name and value must be filled in"
+msgstr ""
+
+#: ../public/js/plugins/files-tab.js:782 ../public/js/plugins/files-tab.js:797
+#: ../public/js/plugins/images-tab.js:949
+#: ../public/js/plugins/images-tab.js:962
+#: ../public/js/plugins/images-tab.js:969
+msgid "Uploading..."
+msgstr "Lade hoch..."
+
+#: ../public/js/plugins/files-tab.js:852
+#: ../public/js/plugins/images-tab.js:1045
+msgid "There are mandatory parameters missing"
+msgstr "Ein Pflichtwert wurde nicht angegeben"
+
+#: ../public/js/plugins/files-tab.js:861 ../public/js/plugins/files-tab.js:917
+msgid "Please select a datastore for this file"
+msgstr ""
+
+#: ../public/js/plugins/groups-tab.js:27 ../public/js/plugins/groups-tab.js:80
+#: ../public/js/plugins/users-tab.js:30 ../public/js/plugins/users-tab.js:85
+#: ../public/js/sunstone-util.js:1207
+msgid "Memory"
+msgstr "Arbeitsspeicher"
+
+#: ../public/js/plugins/groups-tab.js:31 ../public/js/plugins/users-tab.js:34
+msgid "Net TX"
+msgstr "Net TX"
+
+#: ../public/js/plugins/groups-tab.js:35 ../public/js/plugins/users-tab.js:38
+msgid "Net RX"
+msgstr "Net RX"
+
+#: ../public/js/plugins/groups-tab.js:79 ../public/js/plugins/users-tab.js:84
+#: ../public/js/sunstone-util.js:1177
+msgid "VMs"
+msgstr "VMs"
+
+#: ../public/js/plugins/groups-tab.js:92
+msgid "Create Group"
+msgstr "Gruppe erstellen"
+
+#: ../public/js/plugins/groups-tab.js:119
+#: ../public/js/plugins/users-tab.js:205
+msgid "Update Quota"
+msgstr "Quota aktualisieren"
+
+#: ../public/js/plugins/groups-tab.js:127
+#: ../public/js/plugins/users-tab.js:213
+msgid "Quota type"
+msgstr ""
+
+#: ../public/js/plugins/groups-tab.js:128
+#: ../public/js/plugins/users-tab.js:214 ../public/js/plugins/vms-tab.js:1224
+msgid "Virtual Machine"
+msgstr "Virtuelle Maschine"
+
+#: ../public/js/plugins/groups-tab.js:130
+#: ../public/js/plugins/groups-tab.js:207
+#: ../public/js/plugins/images-tab.js:654
+#: ../public/js/plugins/templates-tab.js:779
+#: ../public/js/plugins/users-tab.js:216 ../public/js/plugins/users-tab.js:293
+#: ../public/js/sunstone-util.js:1279
+msgid "Image"
+msgstr "Abbild"
+
+#: ../public/js/plugins/groups-tab.js:137
+#: ../public/js/plugins/users-tab.js:223
+msgid "Max VMs"
+msgstr "Max VMs"
+
+#: ../public/js/plugins/groups-tab.js:148
+#: ../public/js/plugins/users-tab.js:234
+msgid "Max Memory (MB)"
+msgstr "Max. Speicher (MB)"
+
+#: ../public/js/plugins/groups-tab.js:159
+#: ../public/js/plugins/users-tab.js:245
+msgid "Max CPU"
+msgstr "Max CPU"
+
+#: ../public/js/plugins/groups-tab.js:183
+#: ../public/js/plugins/users-tab.js:269
+msgid "Max size (MB)"
+msgstr "Max. Größe (MB)"
+
+#: ../public/js/plugins/groups-tab.js:194
+#: ../public/js/plugins/users-tab.js:280
+msgid "Max images"
+msgstr ""
+
+#: ../public/js/plugins/groups-tab.js:218
+#: ../public/js/plugins/users-tab.js:304
+msgid "Max RVMs"
+msgstr ""
+
+#: ../public/js/plugins/groups-tab.js:242
+#: ../public/js/plugins/users-tab.js:328
+msgid "Max leases"
+msgstr ""
+
+#: ../public/js/plugins/groups-tab.js:253
+#: ../public/js/plugins/users-tab.js:339
+msgid "Add/edit quota"
+msgstr ""
+
+#: ../public/js/plugins/groups-tab.js:260
+#: ../public/js/plugins/users-tab.js:346
+msgid "Quota"
+msgstr "Quota"
+
+#: ../public/js/plugins/groups-tab.js:261
+#: ../public/js/plugins/users-tab.js:347
+msgid "Edit"
+msgstr "Bearbeiten"
+
+#: ../public/js/plugins/groups-tab.js:271
+#: ../public/js/plugins/users-tab.js:357
+msgid "Apply changes"
+msgstr "Änderungen anwenden"
+
+#: ../public/js/plugins/groups-tab.js:363
+#: ../public/js/plugins/users-tab.js:504
+msgid "Quotas updated correctly"
+msgstr "Quota wurden erfolgreich aktualisiert"
+
+#: ../public/js/plugins/groups-tab.js:400
+#: ../public/js/plugins/users-tab.js:553
+msgid "Update quotas"
+msgstr "Quota aktualisieren"
+
+#: ../public/js/plugins/groups-tab.js:425
+msgid "Group info"
+msgstr "Gruppen Information"
+
+#: ../public/js/plugins/groups-tab.js:541
+#: ../public/js/plugins/users-tab.js:578 ../public/js/plugins/users-tab.js:752
+msgid "Quotas"
+msgstr ""
+
+#: ../public/js/plugins/groups-tab.js:563
+msgid "Create group"
+msgstr "Gruppe erstellen"
+
+#: ../public/js/plugins/groups-tab.js:586
+msgid "Group quotas"
+msgstr "Gruppe Quota"
+
+#: ../public/js/plugins/hosts-tab.js:81
+msgid "Create Host"
+msgstr "Host erstellen"
+
+#: ../public/js/plugins/hosts-tab.js:88
+msgid "Hostname"
+msgstr ""
+
+#: ../public/js/plugins/hosts-tab.js:99
+msgid "Drivers"
+msgstr "Treiber"
+
+#: ../public/js/plugins/hosts-tab.js:102
+msgid "Virtualization"
+msgstr "Virtualisierung"
+
+#: ../public/js/plugins/hosts-tab.js:106 ../public/js/plugins/hosts-tab.js:127
+msgid "KVM"
+msgstr "KVM"
+
+#: ../public/js/plugins/hosts-tab.js:107 ../public/js/plugins/hosts-tab.js:128
+#: ../public/js/plugins/templates-tab.js:2414
+msgid "XEN"
+msgstr "XEN"
+
+#: ../public/js/plugins/hosts-tab.js:109 ../public/js/plugins/hosts-tab.js:130
+msgid "EC2"
+msgstr "EC2"
+
+#: ../public/js/plugins/hosts-tab.js:114
+msgid "Custom VMM_MAD"
+msgstr "Benutzerdefinierter VMM_MAD"
+
+#: ../public/js/plugins/hosts-tab.js:131
+msgid "Ganglia"
+msgstr "Ganglia"
+
+#: ../public/js/plugins/hosts-tab.js:136
+msgid "Custom IM_MAD"
+msgstr "Benutzerdefinierter IM_MAD"
+
+#: ../public/js/plugins/hosts-tab.js:146 ../public/js/plugins/vnets-tab.js:827
+msgid "Virtual Network"
+msgstr "Virtuelles Netzwerk"
+
+#: ../public/js/plugins/hosts-tab.js:150
+msgid "Default (dummy)"
+msgstr "Standard (dummy)"
+
+#: ../public/js/plugins/hosts-tab.js:151
+msgid "Firewall"
+msgstr "Firewall"
+
+#: ../public/js/plugins/hosts-tab.js:152 ../public/js/plugins/vnets-tab.js:287
+msgid "802.1Q"
+msgstr "802.1Q"
+
+#: ../public/js/plugins/hosts-tab.js:153 ../public/js/plugins/vnets-tab.js:288
+msgid "ebtables"
+msgstr "ebtables"
+
+#: ../public/js/plugins/hosts-tab.js:154 ../public/js/plugins/vnets-tab.js:289
+msgid "Open vSwitch"
+msgstr "Open vSwitch"
+
+#: ../public/js/plugins/hosts-tab.js:159
+msgid "Custom VNM_MAD"
+msgstr "Benutzerdefinierter VNM_MAD"
+
+#: ../public/js/plugins/hosts-tab.js:425
+msgid "Delete host"
+msgstr "Host entfernen"
+
+#: ../public/js/plugins/hosts-tab.js:443 ../public/js/plugins/hosts-tab.js:799
+msgid "Graphs"
+msgstr "Diagramme"
+
+#: ../public/js/plugins/hosts-tab.js:525 ../public/js/plugins/vms-tab.js:908
+msgid "INIT"
+msgstr ""
+
+#: ../public/js/plugins/hosts-tab.js:526
+msgid "UPDATE"
+msgstr ""
+
+#: ../public/js/plugins/hosts-tab.js:531 ../public/js/plugins/hosts-tab.js:564
+msgid "RETRY"
+msgstr "RETRY"
+
+#: ../public/js/plugins/hosts-tab.js:727 ../public/js/plugins/vms-tab.js:81
+#: ../public/js/plugins/vms-tab.js:1130 ../public/js/plugins/vms-tab.js:1251
+msgid "Host"
+msgstr "Host"
+
+#: ../public/js/plugins/hosts-tab.js:754
+msgid "VN MAD"
+msgstr "VN MAD"
+
+#: ../public/js/plugins/hosts-tab.js:758
+msgid "Total Mem"
+msgstr ""
+
+#: ../public/js/plugins/hosts-tab.js:762
+msgid "Used Mem (real)"
+msgstr "Benutzter Speicher (reell)"
+
+#: ../public/js/plugins/hosts-tab.js:766
+msgid "Used Mem (allocated)"
+msgstr "Benutzter Speicher (zugewiesen)"
+
+#: ../public/js/plugins/hosts-tab.js:770
+msgid "Total CPU"
+msgstr "Total CPU"
+
+#: ../public/js/plugins/hosts-tab.js:774
+msgid "Used CPU (real)"
+msgstr "Prozessornutzung (reell)"
+
+#: ../public/js/plugins/hosts-tab.js:778
+msgid "Used CPU (allocated)"
+msgstr "Prozessornutzung (zugewiesen)"
+
+#: ../public/js/plugins/hosts-tab.js:782 ../public/js/sunstone-util.js:1284
+msgid "Running VMs"
+msgstr "Laufende VMs"
+
+#: ../public/js/plugins/hosts-tab.js:852
+msgid "Create host"
+msgstr "Host erstellen"
+
+#: ../public/js/plugins/hosts-tab.js:897
+msgid "Host name missing!"
+msgstr "Hostname fehlt!"
+
+#: ../public/js/plugins/images-tab.js:79
+msgid "Create Image"
+msgstr "Image erzeugen"
+
+#: ../public/js/plugins/images-tab.js:98
+msgid "Name that the Image will get. Every image must have a unique name."
+msgstr "Name den das Image bekommt. Jedes Images muss einen eindeutigen Namen haben."
+
+#: ../public/js/plugins/images-tab.js:108
+msgid "Human readable description of the image for other users."
+msgstr "Für Menschen lesbare Beschreibung des Abbilds für andere Benutzer."
+
+#: ../public/js/plugins/images-tab.js:119
+#: ../public/js/plugins/images-tab.js:762
+#: ../public/js/plugins/marketplace-tab.js:205
+msgid "OS"
+msgstr "OS"
+
+#: ../public/js/plugins/images-tab.js:120
+#: ../public/js/plugins/images-tab.js:763
+#: ../public/js/plugins/templates-tab.js:1884
+msgid "CDROM"
+msgstr ""
+
+#: ../public/js/plugins/images-tab.js:121
+msgid "DATABLOCK"
+msgstr ""
+
+#: ../public/js/plugins/images-tab.js:125
+msgid "Type of the image, explained in detail in the following section. If omitted, the default value is the one defined in oned.conf (install default is OS)."
+msgstr ""
+
+#: ../public/js/plugins/images-tab.js:137
+msgid "Select the datastore for this image"
+msgstr "Datenspeicher für das Image auswählen"
+
+#: ../public/js/plugins/images-tab.js:148
+msgid "Persistence of the image"
+msgstr "Persistenz des Abbilds"
+
+#: ../public/js/plugins/images-tab.js:155
+msgid "Image location"
+msgstr "Ablageort des Abbilds"
+
+#: ../public/js/plugins/images-tab.js:159
+msgid "Empty datablock"
+msgstr "Leerer Datenblock"
+
+#: ../public/js/plugins/images-tab.js:171
+msgid "Path to the original file that will be copied to the image repository. If not specified for a DATABLOCK type image, an empty image will be created."
+msgstr ""
+
+#: ../public/js/plugins/images-tab.js:190
+msgid "Size of the datablock in MB."
+msgstr "Größe des Datenblocks in MB."
+
+#: ../public/js/plugins/images-tab.js:197
+msgid "FS type"
+msgstr ""
+
+#: ../public/js/plugins/images-tab.js:203
+msgid "Type of file system to be built. This can be any value understood by mkfs unix command."
+msgstr ""
+
+#: ../public/js/plugins/images-tab.js:211
+#: ../public/js/plugins/templates-tab.js:583
+#: ../public/js/plugins/templates-tab.js:826
+#: ../public/js/plugins/templates-tab.js:910
+#: ../public/js/plugins/templates-tab.js:1196
+msgid "Advanced options"
+msgstr ""
+
+#: ../public/js/plugins/images-tab.js:218
+msgid "Device prefix"
+msgstr ""
+
+#: ../public/js/plugins/images-tab.js:224
+msgid "Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”. If omitted, the default value is the one defined in oned.conf (installation default is “hd”)."
+msgstr ""
+
+#: ../public/js/plugins/images-tab.js:229
+msgid "Driver"
+msgstr "Driver"
+
+#: ../public/js/plugins/images-tab.js:235
+msgid "Specific image mapping driver. KVM: raw, qcow2. XEN: tap:aio, file:"
+msgstr ""
+
+#: ../public/js/plugins/images-tab.js:248
+msgid "Target on which the image will be mounted at. For example: hda, sdb..."
+msgstr "Ziel, wo das Abbild eingebunden wird. Zum Beispiel: hda, sdb..."
+
+#: ../public/js/plugins/images-tab.js:522
+msgid "Make persistent"
+msgstr "Dauerhaft machen"
+
+#: ../public/js/plugins/images-tab.js:527
+msgid "Make non persistent"
+msgstr "Transient machen"
+
+#: ../public/js/plugins/images-tab.js:532
+#: ../public/js/plugins/images-tab.js:1235
+#: ../public/js/plugins/templates-tab.js:430
+#: ../public/js/plugins/templates-tab.js:4328
+msgid "Clone"
+msgstr "Klonen"
+
+#: ../public/js/plugins/images-tab.js:689
+#: ../public/js/plugins/images-tab.js:780 ../public/js/plugins/vms-tab.js:1267
+msgid "yes"
+msgstr "ja"
+
+#: ../public/js/plugins/images-tab.js:689
+#: ../public/js/plugins/images-tab.js:781 ../public/js/plugins/vms-tab.js:1267
+msgid "no"
+msgstr "nein"
+
+#: ../public/js/plugins/images-tab.js:764
+msgid "Datablock"
+msgstr "Datablock"
+
+#: ../public/js/plugins/images-tab.js:1054
+#: ../public/js/plugins/images-tab.js:1131
+msgid "Please select a datastore for this image"
+msgstr "Bitte wählen Sie einen Dateispeicher für das Image aus"
+
+#: ../public/js/plugins/images-tab.js:1214
+msgid "Clone Image"
+msgstr "Abbild klonen"
+
+#: ../public/js/plugins/images-tab.js:1220
+msgid "Several image are selected, please choose prefix to name the new copies"
+msgstr ""
+
+#: ../public/js/plugins/images-tab.js:1226
+#: ../public/js/plugins/templates-tab.js:4319
+msgid "Prefix"
+msgstr ""
+
+#: ../public/js/plugins/infra-tab.js:18
+msgid "Infrastructure"
+msgstr "Infrastruktur"
+
+#: ../public/js/plugins/marketplace-tab.js:96
+msgid "Import"
+msgstr "Importieren"
+
+#: ../public/js/plugins/marketplace-tab.js:107
+msgid "OpenNebula Marketplace"
+msgstr "OpenNebula Marktplatz"
+
+#: ../public/js/plugins/marketplace-tab.js:135
+#: ../public/js/plugins/marketplace-tab.js:197
+msgid "Publisher"
+msgstr "Herausgeber"
+
+#: ../public/js/plugins/marketplace-tab.js:136
+#: ../public/js/plugins/marketplace-tab.js:217
+msgid "Hypervisor"
+msgstr "Hypervisor"
+
+#: ../public/js/plugins/marketplace-tab.js:137
+#: ../public/js/plugins/marketplace-tab.js:209
+#: ../public/js/plugins/templates-tab.js:1862
+msgid "Arch"
+msgstr ""
+
+#: ../public/js/plugins/marketplace-tab.js:138
+msgid "Format"
+msgstr "Format"
+
+#: ../public/js/plugins/marketplace-tab.js:139
+msgid "Tags"
+msgstr "Tags"
+
+#: ../public/js/plugins/marketplace-tab.js:149
+msgid "Marketplace"
+msgstr "Marktplatz"
+
+#: ../public/js/plugins/marketplace-tab.js:164
+msgid "Appliance information"
+msgstr ""
+
+#: ../public/js/plugins/marketplace-tab.js:184
+msgid "Appliance"
+msgstr ""
+
+#: ../public/js/plugins/marketplace-tab.js:193
+msgid "URL"
+msgstr "URL"
+
+#: ../public/js/plugins/marketplace-tab.js:194
+msgid "link"
+msgstr ""
+
+#: ../public/js/plugins/marketplace-tab.js:201
+msgid "Downloads"
+msgstr "Downloads"
+
+#: ../public/js/plugins/templates-tab.js:70
+msgid "Create VM Template"
+msgstr "VM Template erstellen"
+
+#: ../public/js/plugins/templates-tab.js:70
+msgid "Update VM Template"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:102
+msgid "Write the Virtual Machine template here"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:122 ../public/js/sunstone-util.js:924
+msgid "Please, choose and modify the template you want to update"
+msgstr "Bitte wählen Sie die zu ändernde Vorlage aus"
+
+#: ../public/js/plugins/templates-tab.js:124 ../public/js/sunstone-util.js:926
+#: ../public/js/sunstone-util.js:929
+msgid "Select a template"
+msgstr "Vorlage auswählen"
+
+#: ../public/js/plugins/templates-tab.js:130
+#: ../public/js/plugins/vnets-tab.js:437 ../public/js/sunstone-util.js:2283
+msgid "Permissions"
+msgstr "Berechtigungen"
+
+#: ../public/js/plugins/templates-tab.js:133
+#: ../public/js/plugins/vnets-tab.js:440 ../public/js/sunstone-util.js:2286
+msgid "Admin"
+msgstr "Administrator"
+
+#: ../public/js/plugins/templates-tab.js:147
+#: ../public/js/plugins/vnets-tab.js:454 ../public/js/sunstone-util.js:2300
+msgid "Other"
+msgstr "Andere"
+
+#: ../public/js/plugins/templates-tab.js:154
+#: ../public/js/plugins/templates-tab.js:1421
+#: ../public/js/plugins/templates-tab.js:1454
+#: ../public/js/plugins/vms-tab.js:1312 ../public/js/plugins/vnets-tab.js:461
+msgid "Template"
+msgstr "Vorlage"
+
+#: ../public/js/plugins/templates-tab.js:170
+#: ../public/js/plugins/templates-tab.js:4405
+msgid "Instantiate VM Template"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:176
+#: ../public/js/plugins/vms-tab.js:101
+msgid "VM Name"
+msgstr "VM Name"
+
+#: ../public/js/plugins/templates-tab.js:182
+#: ../public/js/plugins/vms-tab.js:107
+msgid "Defaults to template name when emtpy"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:187
+#: ../public/js/plugins/vms-tab.js:124
+msgid "Deploy # VMs"
+msgstr "VMs ausrollen"
+
+#: ../public/js/plugins/templates-tab.js:193
+#: ../public/js/plugins/vms-tab.js:130
+msgid "You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:198
+#: ../public/js/plugins/templates-tab.js:409
+msgid "Instantiate"
+msgstr "Instanzieren"
+
+#: ../public/js/plugins/templates-tab.js:447
+msgid "Template information"
+msgstr "Template Informationen"
+
+#: ../public/js/plugins/templates-tab.js:538
+msgid "NAME"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:544
+msgid "Name that the VM will get for description purposes."
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:557
+msgid "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5."
+msgstr "Prozentsatz der CPU / 100 die für die virtuelle Maschine benötigt wird. Die Hälfe des Prozessor ist beispielsweise 0.5."
+
+#: ../public/js/plugins/templates-tab.js:574
+#: ../public/js/plugins/templates-tab.js:902
+msgid "MB"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:575
+#: ../public/js/plugins/templates-tab.js:901
+msgid "GB"
+msgstr "GB"
+
+#: ../public/js/plugins/templates-tab.js:579
+msgid "Amount of RAM required for the VM, in Megabytes."
+msgstr "Arbeitsspeicher der virtuellen Maschine in Megabyte"
+
+#: ../public/js/plugins/templates-tab.js:588
+#: ../public/js/plugins/vms-tab.js:2353
+msgid "VCPU"
+msgstr "VCPU"
+
+#: ../public/js/plugins/templates-tab.js:596
+msgid "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU."
+msgstr "Anzahl der virtuellen CPUs. Der Wert ist optional, wird er nicht angegeben, so gilt der Standardwert des Hypervisor (typischerweise eine virtuelle CPU)."
+
+#: ../public/js/plugins/templates-tab.js:782
+msgid "Volatile Disk"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:818
+msgid "Please select an image from the list"
+msgstr "Bitte wählen Sie ein Abbild aus der Liste aus"
+
+#: ../public/js/plugins/templates-tab.js:819
+msgid "You selected the following image: "
+msgstr "Sie haben folgendes Abbild ausgewählt:"
+
+#: ../public/js/plugins/templates-tab.js:832
+#: ../public/js/plugins/templates-tab.js:916
+msgid "TARGET"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:838
+#: ../public/js/plugins/templates-tab.js:922
+msgid "Device to map image disk. If set, it will overwrite the default device mapping"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:845
+#: ../public/js/plugins/templates-tab.js:929
+msgid "DRIVER"
+msgstr "Treiber"
+
+#: ../public/js/plugins/templates-tab.js:851
+#: ../public/js/plugins/templates-tab.js:935
+msgid "Specific image mapping driver. KVM: raw, qcow2. Xen:tap:aio:, file:. VMware unsupported"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:863
+#: ../public/js/plugins/templates-tab.js:2426
+msgid "TYPE"
+msgstr "Typ"
+
+#: ../public/js/plugins/templates-tab.js:867
+msgid "FS"
+msgstr "FS"
+
+#: ../public/js/plugins/templates-tab.js:868
+msgid "Swap"
+msgstr "Swap"
+
+#: ../public/js/plugins/templates-tab.js:879
+msgid "FORMAT"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:885
+msgid "Filesystem type for the fs images"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:906
+msgid "Size of the new disk"
+msgstr "Größe der neuen Platte"
+
+#: ../public/js/plugins/templates-tab.js:1188
+msgid "Please select a network from the list"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:1189
+msgid "You selected the following network:"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:1203
+#: ../public/js/plugins/vms-tab.js:2111 ../public/js/plugins/vnets-tab.js:183
+#: ../public/js/plugins/vnets-tab.js:997
+msgid "IP"
+msgstr "IP"
+
+#: ../public/js/plugins/templates-tab.js:1209
+msgid "Request an specific IP from the Network"
+msgstr "Eine spezifische IP aus dem Netzwerk anfordern"
+
+#: ../public/js/plugins/templates-tab.js:1216
+msgid "MODEL"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:1222
+msgid "Hardware that will emulate this network interface. With Xen this is the type attribute of the vif."
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:1230
+msgid "TCP Firewall"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:1242
+#: ../public/js/plugins/templates-tab.js:1267
+msgid "PORTS"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:1248
+#: ../public/js/plugins/templates-tab.js:1273
+msgid "A list of ports separated by commas or a ranges separated by semicolons, e.g.: 22,80,5900:6000"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:1255
+msgid "UDP Firewall"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:1258
+msgid "Whitelist"
+msgstr "Whitelist"
+
+#: ../public/js/plugins/templates-tab.js:1261
+msgid "Blacklist"
+msgstr "Blacklist"
+
+#: ../public/js/plugins/templates-tab.js:1282
+msgid "ICMP"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:1288
+msgid "Drop"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:1552
+msgid "There are mandatory parameters missing in this section"
+msgstr "In diesem Abschnitt wurden verpflichtende Parameter nicht angegeben"
+
+#: ../public/js/plugins/templates-tab.js:1710
+msgid "Add another disk"
+msgstr "Eine weitere Platte hinzufügen"
+
+#: ../public/js/plugins/templates-tab.js:1755
+msgid "DISK"
+msgstr "FESTPLATTE"
+
+#: ../public/js/plugins/templates-tab.js:1783
+msgid "Add another nic"
+msgstr "Eine weitere Netzwerkkarte hinzufügen"
+
+#: ../public/js/plugins/templates-tab.js:1825
+msgid "NIC"
+msgstr "Netzwerkkarte"
+
+#: ../public/js/plugins/templates-tab.js:1852
+#: ../public/js/plugins/templates-tab.js:1877
+#: ../public/js/plugins/vms-tab.js:760
+msgid "Boot"
+msgstr "Starten"
+
+#: ../public/js/plugins/templates-tab.js:1855
+msgid "Features"
+msgstr "Eigenschaften"
+
+#: ../public/js/plugins/templates-tab.js:1872
+msgid "CPU architecture to virtualization"
+msgstr "CPU Architektur der Virtualisierung"
+
+#: ../public/js/plugins/templates-tab.js:1882
+msgid "HD"
+msgstr "Festplatte"
+
+#: ../public/js/plugins/templates-tab.js:1883
+msgid "FD"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:1885
+msgid "NETWORK"
+msgstr "NETZWERK"
+
+#: ../public/js/plugins/templates-tab.js:1889
+msgid "Boot device type"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:1894
+msgid "Root"
+msgstr "Root"
+
+#: ../public/js/plugins/templates-tab.js:1900
+msgid "Device to be mounted as root"
+msgstr "Gerät dass als root eingehangen werden soll"
+
+#: ../public/js/plugins/templates-tab.js:1907
+msgid "Kernel cmd"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:1913
+msgid "Arguments for the booting kernel"
+msgstr "Übergebene Parameter für den zu bootenden Kernel"
+
+#: ../public/js/plugins/templates-tab.js:1918
+msgid "Bootloader"
+msgstr "Bootloader"
+
+#: ../public/js/plugins/templates-tab.js:1924
+msgid "Path to the bootloader executable"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:1932
+msgid "Registered Image"
+msgstr "Registrierte Abbilder"
+
+#: ../public/js/plugins/templates-tab.js:1935
+#: ../public/js/plugins/templates-tab.js:1995
+msgid "Remote PATH"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:1970
+msgid "Please select a Kernel from the list"
+msgstr "Bitte wählen Sie einen Kernel aus der Liste aus"
+
+#: ../public/js/plugins/templates-tab.js:1971
+msgid "You selected the following Kernel: "
+msgstr "Sie haben den folgenden Kernel ausgewählt:"
+
+#: ../public/js/plugins/templates-tab.js:1979
+#: ../public/js/plugins/templates-tab.js:2039
+msgid "PATH"
+msgstr "PFAD"
+
+#: ../public/js/plugins/templates-tab.js:1985
+msgid "Path to the OS kernel to boot the image"
+msgstr "Pfad zu dem OS Kernel welcher das Image bootet. "
+
+#: ../public/js/plugins/templates-tab.js:1992
+msgid "Registered Image "
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:2030
+msgid "Please select a Ramdisk from the list"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:2031
+msgid "You selected the following Ramdisk: "
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:2045
+msgid "Path to the initrd image"
+msgstr "Pfad für das initrd image"
+
+#: ../public/js/plugins/templates-tab.js:2053
+msgid "ACPI"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:2058
+#: ../public/js/plugins/templates-tab.js:2073
+#: ../public/js/plugins/vnets-tab.js:326
+msgid "Yes"
+msgstr "Ja"
+
+#: ../public/js/plugins/templates-tab.js:2059
+#: ../public/js/plugins/templates-tab.js:2074
+#: ../public/js/plugins/vnets-tab.js:327
+msgid "No"
+msgstr "Nein"
+
+#: ../public/js/plugins/templates-tab.js:2063
+msgid "Add support in the VM for Advanced Configuration and Power Interface (ACPI)"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:2068
+msgid "PAE"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:2078
+msgid "Add support in the VM for Physical Address Extension (PAE)"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:2334
+msgid "Graphics"
+msgstr "Grafik"
+
+#: ../public/js/plugins/templates-tab.js:2354
+msgid "Listen IP"
+msgstr "Listen IP"
+
+#: ../public/js/plugins/templates-tab.js:2360
+msgid "IP to listen on"
+msgstr "IP auf der gelauscht wird"
+
+#: ../public/js/plugins/templates-tab.js:2365
+msgid "Port"
+msgstr "Port"
+
+#: ../public/js/plugins/templates-tab.js:2371
+msgid "Port for the VNC/SPICE server"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:2382
+msgid "Password for the VNC/SPICE server"
+msgstr "Passwort für den VNC/SPICE Server"
+
+#: ../public/js/plugins/templates-tab.js:2387
+msgid "Keymap"
+msgstr "Tastaturlayout"
+
+#: ../public/js/plugins/templates-tab.js:2393
+msgid "Keyboard configuration locale to use in the VNC/SPICE display"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:2400
+msgid "Inputs"
+msgstr "Eingaben"
+
+#: ../public/js/plugins/templates-tab.js:2405
+msgid "Mouse"
+msgstr "Maus"
+
+#: ../public/js/plugins/templates-tab.js:2406
+msgid "Tablet"
+msgstr "Tablet"
+
+#: ../public/js/plugins/templates-tab.js:2412
+msgid "USB"
+msgstr "USB"
+
+#: ../public/js/plugins/templates-tab.js:2413
+msgid "PS2"
+msgstr "PS2"
+
+#: ../public/js/plugins/templates-tab.js:2418
+#: ../public/js/plugins/templates-tab.js:2590
+#: ../public/js/plugins/vms-tab.js:1448 ../public/js/plugins/vms-tab.js:1478
+#: ../public/js/plugins/vnets-tab.js:204 ../public/js/plugins/vnets-tab.js:373
+#: ../public/js/sunstone-util.js:1793 ../public/js/sunstone-util.js:2035
+msgid "Add"
+msgstr "Hinzufügen"
+
+#: ../public/js/plugins/templates-tab.js:2427
+msgid "BUS"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:2494
+msgid "Network & SSH"
+msgstr "Netzwerk & SSH"
+
+#: ../public/js/plugins/templates-tab.js:2496
+msgid "Custom variables"
+msgstr "Benutzerdefinierte Variable"
+
+#: ../public/js/plugins/templates-tab.js:2509
+msgid "  Add SSH contextualization"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:2512
+msgid "Add an ssh public key to the context. If the Public Key textarea is empty then the user variable SSH_PUBLIC_KEY will be used."
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:2517
+msgid "Public Key"
+msgstr "Öffentlicher Schlüssel"
+
+#: ../public/js/plugins/templates-tab.js:2535
+msgid "  Add Network contextualization"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:2538
+msgid "Add network contextualization parameters. For each NIC defined in the NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in the CONTEXT section and will be available in the Virtual Machine"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:2576
+msgid "Please select files from the list"
+msgstr "Bitte wählen Sie Dateien aus der Liste aus"
+
+#: ../public/js/plugins/templates-tab.js:2577
+msgid "You selected the following files:"
+msgstr "Sie haben folgenden Dateien ausgewählt:"
+
+#: ../public/js/plugins/templates-tab.js:2598
+msgid "KEY"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:2599
+msgid "VALUE"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:2804
+#: ../public/js/plugins/vms-tab.js:1110 ../public/js/plugins/vms-tab.js:1333
+msgid "Placement"
+msgstr "Platzierung"
+
+#: ../public/js/plugins/templates-tab.js:2805
+msgid "Policy"
+msgstr "Richtlinie"
+
+#: ../public/js/plugins/templates-tab.js:2811
+msgid "Select Hosts "
+msgstr "Hosts auswählen"
+
+#: ../public/js/plugins/templates-tab.js:2814
+msgid "Select Clusters "
+msgstr "Cluster auswählen"
+
+#: ../public/js/plugins/templates-tab.js:2880
+msgid "Please select one or more clusters from the list"
+msgstr "Bitte wählen Sie einen oder mehrere Cluster aus der Liste aus"
+
+#: ../public/js/plugins/templates-tab.js:2881
+msgid "You selected the following clusters:"
+msgstr "Sie haben die folgenden Cluster ausgewählt:"
+
+#: ../public/js/plugins/templates-tab.js:2888
+msgid "Requirements"
+msgstr "Anforderungen"
+
+#: ../public/js/plugins/templates-tab.js:2894
+msgid "Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:2901
+msgid "Packing"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:2904
+msgid "Pack the VMs in the cluster nodes to reduce VM fragmentation"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:2907
+msgid "Stripping"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:2910
+msgid "Spread the VMs in the cluster nodes"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:2913
+msgid "Load-aware"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:2916
+msgid "Maximize the resources available to VMs in a node"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:2922
+msgid "Rank"
+msgstr "Rang"
+
+#: ../public/js/plugins/templates-tab.js:2928
+msgid "This field sets which attribute will be used to sort the suitable hosts for this VM"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:3344
+msgid "There are mandatory fields missing in the capacity section"
+msgstr "In Abschnitt Kapazität wurden Pflichtfelder nicht ausgefühlt"
+
+#: ../public/js/plugins/templates-tab.js:3491
+msgid "Virtual Machine name missing!"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:3593
+msgid "Update template properties"
+msgstr "Eigenschaften der Vorlage aktualisieren"
+
+#: ../public/js/plugins/templates-tab.js:3619
+#: ../public/js/plugins/vms-tab.js:2846
+msgid "Loading"
+msgstr "Lade"
+
+#: ../public/js/plugins/templates-tab.js:3788
+#: ../public/js/plugins/templates-tab.js:3865
+#: ../public/js/plugins/templates-tab.js:3940
+#: ../public/js/plugins/templates-tab.js:3989
+msgid " does not exists any more"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:4125
+msgid "The following FILES: "
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:4125
+#: ../public/js/plugins/templates-tab.js:4216
+msgid " do not exist any more"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:4216
+msgid "The following HOSTs: ["
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:4260
+msgid "The following CLUSTERs: ["
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:4260
+msgid "do not exist any more"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:4300
+msgid "Clone a template"
+msgstr "Template auswählen"
+
+#: ../public/js/plugins/templates-tab.js:4307
+msgid "Clone Template"
+msgstr "Vorlage klonen"
+
+#: ../public/js/plugins/templates-tab.js:4313
+msgid "Several templates are selected, please choose prefix to name the new copies"
+msgstr ""
+
+#: ../public/js/plugins/users-tab.js:83
+msgid "Auth driver"
+msgstr ""
+
+#: ../public/js/plugins/users-tab.js:101
+msgid "Core"
+msgstr ""
+
+#: ../public/js/plugins/users-tab.js:103
+msgid "x509"
+msgstr "x509"
+
+#: ../public/js/plugins/users-tab.js:104
+msgid "LDAP"
+msgstr ""
+
+#: ../public/js/plugins/users-tab.js:105
+msgid "Public"
+msgstr "Public"
+
+#: ../public/js/plugins/users-tab.js:115
+msgid "Create User"
+msgstr "Benutzer erstellen"
+
+#: ../public/js/plugins/users-tab.js:121
+msgid "Username"
+msgstr "Benutzername"
+
+#: ../public/js/plugins/users-tab.js:143
+msgid "Authentication"
+msgstr "Authentifikation"
+
+#: ../public/js/plugins/users-tab.js:185 ../public/js/plugins/users-tab.js:548
+#: ../public/js/plugins/users-tab.js:841
+msgid "Change authentication"
+msgstr "Authentifizierung ändern"
+
+#: ../public/js/plugins/users-tab.js:190
+msgid "Please choose the new type of authentication for the selected users"
+msgstr ""
+
+#: ../public/js/plugins/users-tab.js:561
+msgid "This will change the main group of the selected users. Select the new group"
+msgstr ""
+
+#: ../public/js/plugins/users-tab.js:582
+msgid "Historical usages"
+msgstr ""
+
+#: ../public/js/plugins/users-tab.js:597
+msgid "User info"
+msgstr "User info"
+
+#: ../public/js/plugins/users-tab.js:726
+msgid "Authentication driver"
+msgstr "Authentifizierungtreiber"
+
+#: ../public/js/plugins/users-tab.js:737
+msgid "Configuration Attributes"
+msgstr ""
+
+#: ../public/js/plugins/users-tab.js:769
+msgid "Create user"
+msgstr "Benutzer erstellen"
+
+#: ../public/js/plugins/users-tab.js:802
+msgid "User name and password must be filled in"
+msgstr "Benutzername und Passwort müssen ausgefüllt werden"
+
+#: ../public/js/plugins/users-tab.js:862
+msgid "Fill in a new auth driver"
+msgstr ""
+
+#: ../public/js/plugins/users-tab.js:874
+msgid "User quotas"
+msgstr "Benutzer Quota"
+
+#: ../public/js/plugins/vms-tab.js:79
+msgid "Used CPU"
+msgstr "CPU Verbrauch"
+
+#: ../public/js/plugins/vms-tab.js:80
+msgid "Used Memory"
+msgstr "Memory Verbrauch"
+
+#: ../public/js/plugins/vms-tab.js:82
+msgid "IPs"
+msgstr "IPs"
+
+#: ../public/js/plugins/vms-tab.js:83
+msgid "Start Time"
+msgstr "Start Zeit"
+
+#: ../public/js/plugins/vms-tab.js:84 ../public/js/plugins/vms-tab.js:2845
+msgid "VNC"
+msgstr "VNC"
+
+#: ../public/js/plugins/vms-tab.js:95 ../public/js/plugins/vms-tab.js:2717
+msgid "Create Virtual Machine"
+msgstr "Virtuelle Maschine erstellen"
+
+#: ../public/js/plugins/vms-tab.js:112
+msgid "Select template"
+msgstr "Template auswählen"
+
+#: ../public/js/plugins/vms-tab.js:654 ../public/js/plugins/vms-tab.js:665
+msgid "VirtualMachine updated correctly"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:705
+msgid "Deploy"
+msgstr "Deploy"
+
+#: ../public/js/plugins/vms-tab.js:706
+msgid "This will deploy the selected VMs on the chosen host"
+msgstr "Diese Aktion wird die ausgewählten VMs auf den gewählten Host deployen."
+
+#: ../public/js/plugins/vms-tab.js:713 ../public/js/plugins/vms-tab.js:722
+msgid "Migrate"
+msgstr "Migration"
+
+#: ../public/js/plugins/vms-tab.js:714
+msgid "This will migrate the selected VMs to the chosen host"
+msgstr "Diese Aktion wird die ausgewählten VMs auf den gewählten Host migrieren"
+
+#: ../public/js/plugins/vms-tab.js:723
+msgid "This will live-migrate the selected VMs to the chosen host"
+msgstr "Diese Aktion wird die ausgewählten VMs live auf den gewählten Host migrieren"
+
+#: ../public/js/plugins/vms-tab.js:730
+msgid "Hold"
+msgstr "Blockieren"
+
+#: ../public/js/plugins/vms-tab.js:731
+msgid "This will hold selected pending VMs from being deployed"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:736
+msgid "Release"
+msgstr "Freigeben"
+
+#: ../public/js/plugins/vms-tab.js:738
+msgid "This will release held machines"
+msgstr "Angehaltene Maschinen wieder starten"
+
+#: ../public/js/plugins/vms-tab.js:742
+msgid "Suspend"
+msgstr "Suspend"
+
+#: ../public/js/plugins/vms-tab.js:744
+msgid "This will suspend selected machines"
+msgstr "Ausgewählte VMs anhalten."
+
+#: ../public/js/plugins/vms-tab.js:750
+msgid "This will resume selected VMs"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:754
+msgid "Stop"
+msgstr "Stop"
+
+#: ../public/js/plugins/vms-tab.js:756
+msgid "This will stop selected VMs"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:762
+msgid "This will force the hypervisor boot action of VMs stuck in UNKNOWN or BOOT state"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:766 ../public/js/plugins/vms-tab.js:772
+msgid "Reboot"
+msgstr "Neustarten"
+
+#: ../public/js/plugins/vms-tab.js:768
+msgid "This will send a reboot action to running VMs"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:774
+msgid "This will perform a hard reboot on selected VMs"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:778 ../public/js/plugins/vms-tab.js:784
+msgid "Power Off"
+msgstr "Ausschalten"
+
+#: ../public/js/plugins/vms-tab.js:780
+msgid "This will send a power off signal to running VMs. They can be resumed later."
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:786
+msgid "This will send a forced power off signal to running VMs. They can be resumed later."
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:790 ../public/js/plugins/vms-tab.js:796
+msgid "Undeploy"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:792 ../public/js/plugins/vms-tab.js:798
+msgid "Shuts down the given VM. The VM is saved in the system Datastore."
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:802 ../public/js/plugins/vms-tab.js:808
+msgid "Shutdown"
+msgstr "Herunterfahren"
+
+#: ../public/js/plugins/vms-tab.js:804
+msgid "This will initiate the shutdown process in the selected VMs"
+msgstr "Ausgewählte VMs runterfahren."
+
+#: ../public/js/plugins/vms-tab.js:810
+msgid "This will initiate the shutdown-hard (forced) process in the selected VMs"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:817
+msgid "This will delete the selected VMs from the database"
+msgstr "Diese Aktion wird die ausgewählten VMS aus der Datenbank löschen"
+
+#: ../public/js/plugins/vms-tab.js:823
+msgid "This will delete and recreate VMs to PENDING state"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:827 ../public/js/plugins/vms-tab.js:1266
+msgid "Reschedule"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:829
+msgid "This will reschedule selected VMs"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:833
+msgid "Un-Reschedule"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:835
+msgid "This will cancel the rescheduling for the selected VMs"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:898 ../public/js/plugins/vms-tab.js:920
+#: ../public/js/plugins/vms-tab.js:1198
+msgid "SUSPENDED"
+msgstr "SUSPENDED"
+
+#: ../public/js/plugins/vms-tab.js:910
+msgid "HOLD"
+msgstr "ANGEHALTEN"
+
+#: ../public/js/plugins/vms-tab.js:919
+msgid "STOPPED"
+msgstr "GESTOPPT"
+
+#: ../public/js/plugins/vms-tab.js:921
+msgid "POWEROFF"
+msgstr "AUSSCHALTEN"
+
+#: ../public/js/plugins/vms-tab.js:1129
+msgid "#"
+msgstr "#"
+
+#: ../public/js/plugins/vms-tab.js:1131
+msgid "Action"
+msgstr "Aktion"
+
+#: ../public/js/plugins/vms-tab.js:1132
+msgid "Reason"
+msgstr "Grund"
+
+#: ../public/js/plugins/vms-tab.js:1133
+msgid "Chg time"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1134
+msgid "Total time"
+msgstr "Total Zeit"
+
+#: ../public/js/plugins/vms-tab.js:1135
+msgid "Prolog time"
+msgstr "Prologzeit"
+
+#: ../public/js/plugins/vms-tab.js:1246
+msgid "LCM State"
+msgstr "LCM Status"
+
+#: ../public/js/plugins/vms-tab.js:1256
+msgid "Start time"
+msgstr "Startzeit"
+
+#: ../public/js/plugins/vms-tab.js:1261
+msgid "Deploy ID"
+msgstr "Deploy ID"
+
+#: ../public/js/plugins/vms-tab.js:1302
+msgid "Capacity"
+msgstr "Kapazität"
+
+#: ../public/js/plugins/vms-tab.js:1307
+msgid "Snapshots"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1322
+msgid "Log"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1327 ../public/js/plugins/vms-tab.js:1408
+#: ../public/js/plugins/vms-tab.js:1772 ../public/js/plugins/vms-tab.js:2115
+#: ../public/js/plugins/vms-tab.js:2538
+msgid "Actions"
+msgstr "Aktionen"
+
+#: ../public/js/plugins/vms-tab.js:1397
+msgid "Schedule action"
+msgstr "Aktion planen"
+
+#: ../public/js/plugins/vms-tab.js:1404
+msgid "ACTION"
+msgstr "AKTION"
+
+#: ../public/js/plugins/vms-tab.js:1405
+msgid "TIME"
+msgstr "ZEIT"
+
+#: ../public/js/plugins/vms-tab.js:1406
+msgid "DONE"
+msgstr "ERLEDIGT"
+
+#: ../public/js/plugins/vms-tab.js:1407
+msgid "MESSAGE"
+msgstr "MITTEILUNG"
+
+#: ../public/js/plugins/vms-tab.js:1431 ../public/js/plugins/vms-tab.js:1454
+#: ../public/js/plugins/vms-tab.js:1565
+msgid "shutdown"
+msgstr "Herunterfahren"
+
+#: ../public/js/plugins/vms-tab.js:1432 ../public/js/plugins/vms-tab.js:1456
+#: ../public/js/plugins/vms-tab.js:1566
+msgid "hold"
+msgstr "blockiert"
+
+#: ../public/js/plugins/vms-tab.js:1433 ../public/js/plugins/vms-tab.js:1457
+#: ../public/js/plugins/vms-tab.js:1567
+msgid "release"
+msgstr "Freigeben"
+
+#: ../public/js/plugins/vms-tab.js:1434 ../public/js/plugins/vms-tab.js:1458
+#: ../public/js/plugins/vms-tab.js:1568
+msgid "stop"
+msgstr "Stopp"
+
+#: ../public/js/plugins/vms-tab.js:1435 ../public/js/plugins/vms-tab.js:1569
+msgid "cancel"
+msgstr "Abbrechen"
+
+#: ../public/js/plugins/vms-tab.js:1436 ../public/js/plugins/vms-tab.js:1459
+#: ../public/js/plugins/vms-tab.js:1570
+msgid "suspend"
+msgstr "Anhalten"
+
+#: ../public/js/plugins/vms-tab.js:1437 ../public/js/plugins/vms-tab.js:1460
+#: ../public/js/plugins/vms-tab.js:1571
+msgid "resume"
+msgstr "Fortsetzen"
+
+#: ../public/js/plugins/vms-tab.js:1438 ../public/js/plugins/vms-tab.js:1572
+msgid "restart"
+msgstr "Neustarten"
+
+#: ../public/js/plugins/vms-tab.js:1439 ../public/js/plugins/vms-tab.js:1573
+msgid "resubmit"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1440 ../public/js/plugins/vms-tab.js:1464
+#: ../public/js/plugins/vms-tab.js:1574
+msgid "reboot"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1441 ../public/js/plugins/vms-tab.js:1575
+msgid "reset"
+msgstr "Zurücksetzen"
+
+#: ../public/js/plugins/vms-tab.js:1442 ../public/js/plugins/vms-tab.js:1466
+#: ../public/js/plugins/vms-tab.js:1576
+msgid "poweroff"
+msgstr "Ausschalten"
+
+#: ../public/js/plugins/vms-tab.js:1443 ../public/js/plugins/vms-tab.js:1470
+#: ../public/js/plugins/vms-tab.js:1577
+msgid "snapshot-create"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1455
+msgid "shutdown-hard"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1461
+msgid "boot"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1462
+msgid "delete"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1463
+msgid "delete-recreate"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1465
+msgid "reboot-hard"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1467
+msgid "poweroff-hard"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1468
+msgid "undeploy"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1469
+msgid "undeploy-hard"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1700
+msgid "Date Time Picker"
+msgstr "Datum & Uhrzeit"
+
+#: ../public/js/plugins/vms-tab.js:1711
+msgid "Done"
+msgstr "Erledigt"
+
+#: ../public/js/plugins/vms-tab.js:1750 ../public/js/plugins/vms-tab.js:1753
+#: ../public/js/plugins/vms-tab.js:1985
+msgid "Attach new disk"
+msgstr "Neue Festplatte hinzufügen"
+
+#: ../public/js/plugins/vms-tab.js:1769
+msgid "Image / Format-Size"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1771
+msgid "Save as"
+msgstr "Speichern unter"
+
+#: ../public/js/plugins/vms-tab.js:1787
+msgid "No disks to show"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1805
+msgid "in progress"
+msgstr "in Bearbeitung"
+
+#: ../public/js/plugins/vms-tab.js:1806
+msgid "deferred snapshot in progress"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1818
+msgid "hot snapshot in progress"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1830
+msgid "attach/detach in progress"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1841 ../public/js/plugins/vms-tab.js:1881
+#: ../public/js/plugins/vms-tab.js:2608
+msgid "Snapshot"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1848 ../public/js/plugins/vms-tab.js:2155
+msgid "Detach"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1858
+msgid "YES"
+msgstr "JA"
+
+#: ../public/js/plugins/vms-tab.js:1858
+msgid "NO"
+msgstr "NEIN"
+
+#: ../public/js/plugins/vms-tab.js:1887 ../public/js/plugins/vms-tab.js:1992
+#: ../public/js/plugins/vms-tab.js:2250 ../public/js/plugins/vms-tab.js:2412
+#: ../public/js/plugins/vms-tab.js:2614
+msgid "Virtual Machine ID"
+msgstr "ID Virtuelle Maschine"
+
+#: ../public/js/plugins/vms-tab.js:1898
+msgid "Disk ID"
+msgstr "Festplatten ID"
+
+#: ../public/js/plugins/vms-tab.js:1909
+msgid "Image name"
+msgstr "Abbildname"
+
+#: ../public/js/plugins/vms-tab.js:1920
+msgid "Snapshot type"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1924
+msgid "Deferred"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1925
+msgid "Hot"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1929
+msgid "Sets the specified VM disk to be saved in a new Image."
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1930
+msgid "Deferred: The Image is created immediately, but the contents are saved only if the VM is shut down gracefully (i.e., using Shutdown; not Delete)"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1931
+msgid "Hot: The Image will be saved immediately."
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:1936 ../public/js/plugins/vms-tab.js:2519
+#: ../public/js/plugins/vms-tab.js:2522 ../public/js/plugins/vms-tab.js:2636
+msgid "Take snapshot"
+msgstr "Snapshot erstellen"
+
+#: ../public/js/plugins/vms-tab.js:1951
+msgid "Please provide a name for the new image"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:2005 ../public/js/plugins/vms-tab.js:2263
+msgid "Attach"
+msgstr "Einhängen"
+
+#: ../public/js/plugins/vms-tab.js:2093 ../public/js/plugins/vms-tab.js:2096
+#: ../public/js/plugins/vms-tab.js:2243
+msgid "Attach new nic"
+msgstr "Neue Netzwerkkarte hinzufügen"
+
+#: ../public/js/plugins/vms-tab.js:2112 ../public/js/plugins/vnets-tab.js:193
+#: ../public/js/plugins/vnets-tab.js:998
+msgid "MAC"
+msgstr "MAC"
+
+#: ../public/js/plugins/vms-tab.js:2113 ../public/js/plugins/vnets-tab.js:999
+msgid "IPv6 Site"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:2114 ../public/js/plugins/vnets-tab.js:1000
+msgid "IPv6 Global"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:2130
+msgid "No nics to show"
+msgstr "Keine Netzwerkkarten vorhande"
+
+#: ../public/js/plugins/vms-tab.js:2180
+msgid "NET RX"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:2193
+msgid "NET TX"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:2336 ../public/js/plugins/vms-tab.js:2339
+#: ../public/js/plugins/vms-tab.js:2404
+msgid "Resize VM capacity"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:2368
+msgid "REAL CPU"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:2381
+msgid "REAL MEMORY"
+msgstr "PHYSIKALISCHER SPEICHER"
+
+#: ../public/js/plugins/vms-tab.js:2422
+msgid "Enforce"
+msgstr "Erzwingen"
+
+#: ../public/js/plugins/vms-tab.js:2429
+msgid "If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:2438
+msgid "Resize"
+msgstr "Grösse ändern"
+
+#: ../public/js/plugins/vms-tab.js:2537
+msgid "Timestamp"
+msgstr "Zeitstempel"
+
+#: ../public/js/plugins/vms-tab.js:2553
+msgid "No snapshots to show"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:2573
+msgid "Revert"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:2625
+msgid "Snapshot name"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:2741
+msgid "You have not selected a template"
+msgstr "Es wurde kein Template ausgewählt"
+
+#: ../public/js/plugins/vms-tab.js:2838
+msgid "VNC connection"
+msgstr "VNC Verbindung"
+
+#: ../public/js/plugins/vms-tab.js:2855
+msgid "Canvas not supported."
+msgstr "Canvas wird nicht unterstützt"
+
+#: ../public/js/plugins/vnets-tab.js:71
+msgid "Create Virtual Network"
+msgstr "Virtuelles Netzwerk erstellen"
+
+#: ../public/js/plugins/vnets-tab.js:97
+msgid "IPv4"
+msgstr ""
+
+#: ../public/js/plugins/vnets-tab.js:100
+msgid "IPv6"
+msgstr ""
+
+#: ../public/js/plugins/vnets-tab.js:106
+msgid "N. Address"
+msgstr "N. Adresse"
+
+#: ../public/js/plugins/vnets-tab.js:116
+msgid "N. Mask"
+msgstr ""
+
+#: ../public/js/plugins/vnets-tab.js:128
+msgid "Site prefix"
+msgstr ""
+
+#: ../public/js/plugins/vnets-tab.js:138
+msgid "Global prefix"
+msgstr ""
+
+#: ../public/js/plugins/vnets-tab.js:150
+msgid "DNS"
+msgstr ""
+
+#: ../public/js/plugins/vnets-tab.js:160
+msgid "Gateway"
+msgstr ""
+
+#: ../public/js/plugins/vnets-tab.js:172
+msgid "Fixed network"
+msgstr "Fixes Netzwerk"
+
+#: ../public/js/plugins/vnets-tab.js:175
+msgid "Ranged network"
+msgstr "Range Netzwerk"
+
+#: ../public/js/plugins/vnets-tab.js:209 ../public/js/plugins/vnets-tab.js:378
+msgid "Remove selected"
+msgstr "Markiertes löschen"
+
+#: ../public/js/plugins/vnets-tab.js:228
+msgid "Define a subnet by IP range"
+msgstr "Definieren eines Subnet durch einen IP Adressbereich"
+
+#: ../public/js/plugins/vnets-tab.js:234 ../public/js/plugins/vnets-tab.js:966
+msgid "IP Start"
+msgstr "IP Start"
+
+#: ../public/js/plugins/vnets-tab.js:244 ../public/js/plugins/vnets-tab.js:970
+msgid "IP End"
+msgstr "IP Ende"
+
+#: ../public/js/plugins/vnets-tab.js:258
+msgid "MAC Start"
+msgstr ""
+
+#: ../public/js/plugins/vnets-tab.js:268
+msgid "N. Size"
+msgstr ""
+
+#: ../public/js/plugins/vnets-tab.js:282
+msgid "Network model"
+msgstr ""
+
+#: ../public/js/plugins/vnets-tab.js:286
+msgid "Default"
+msgstr "Standard"
+
+#: ../public/js/plugins/vnets-tab.js:310 ../public/js/plugins/vnets-tab.js:857
+msgid "Physical device"
+msgstr "Physikalisches Gerät"
+
+#: ../public/js/plugins/vnets-tab.js:322 ../public/js/plugins/vnets-tab.js:852
+msgid "VLAN"
+msgstr "VLAN"
+
+#: ../public/js/plugins/vnets-tab.js:335 ../public/js/plugins/vnets-tab.js:862
+msgid "VLAN ID"
+msgstr "VLAN ID"
+
+#: ../public/js/plugins/vnets-tab.js:347
+msgid "Custom attributes"
+msgstr "Benutzerdefinierte Attribute"
+
+#: ../public/js/plugins/vnets-tab.js:362
+msgid "Value"
+msgstr "Wert"
+
+#: ../public/js/plugins/vnets-tab.js:409
+msgid "Write the Virtual Network template here"
+msgstr "Definieren Sie die Vorlage für das virtuelle Netzwerk hier"
+
+#: ../public/js/plugins/vnets-tab.js:429
+msgid "Please, choose and modify the virtual network you want to update"
+msgstr "Bitte wählen Sie das virtuelle Netzwerk welches modifiziert werden soll"
+
+#: ../public/js/plugins/vnets-tab.js:431
+msgid "Select a network"
+msgstr "Netzwerk auswählen"
+
+#: ../public/js/plugins/vnets-tab.js:726
+msgid "Virtual network information"
+msgstr "Informationen zum Virtuellen Netzwerk"
+
+#: ../public/js/plugins/vnets-tab.js:730 ../public/js/plugins/vnets-tab.js:889
+msgid "Lease management"
+msgstr "Lease Verwaltung"
+
+#: ../public/js/plugins/vnets-tab.js:935
+msgid "Network information"
+msgstr ""
+
+#: ../public/js/plugins/vnets-tab.js:939
+msgid "Network mask"
+msgstr "Netzwerkmaske"
+
+#: ../public/js/plugins/vnets-tab.js:945
+msgid "IPv6 Global prefix"
+msgstr ""
+
+#: ../public/js/plugins/vnets-tab.js:951
+msgid "IPv6 Site prefix"
+msgstr ""
+
+#: ../public/js/plugins/vnets-tab.js:960
+msgid "Leases information"
+msgstr "Lease Informationen"
+
+#: ../public/js/plugins/vnets-tab.js:978
+msgid "Hold IP"
+msgstr ""
+
+#: ../public/js/plugins/vnets-tab.js:986
+msgid "Add IP"
+msgstr ""
+
+#: ../public/js/plugins/vnets-tab.js:1010
+msgid "No leases to show"
+msgstr "Keine Leihadressen vorhanden"
+
+#: ../public/js/plugins/vnets-tab.js:1061
+msgid "VM:"
+msgstr "VM:"
+
+#: ../public/js/plugins/vnets-tab.js:1226
+msgid "Please provide a lease IP or MAC"
+msgstr ""
+
+#: ../public/js/plugins/vnets-tab.js:1286
+msgid "Virtual Network name missing!"
+msgstr "Name des virtuellen Netzwerkes fehlt!"
+
+#: ../public/js/plugins/vnets-tab.js:1410
+msgid "There are missing network parameters"
+msgstr "Es fehlen Netzwerkparameter"
+
+#: ../public/js/plugins/vnets-tab.js:1425
+msgid "MAC Start must be specified"
+msgstr ""
+
+#: ../public/js/plugins/vresources-tab.js:18
+msgid "Virtual Resources"
+msgstr "Virtuelle Ressource"
+
+#: ../public/js/sunstone-util.js:297
 msgid "Submitted"
 msgstr "Gesendet"
 
-#: ../public/js/sunstone-util.js:227
+#: ../public/js/sunstone-util.js:314
 msgid "Error"
 msgstr "Fehler"
 
-#: ../public/js/sunstone-util.js:233
+#: ../public/js/sunstone-util.js:320
 msgid "Info"
 msgstr "Info"
 
-#: ../public/js/sunstone-util.js:365
+#: ../public/js/sunstone-util.js:446
 msgid "Cannot contact server: is it running and reachable?"
 msgstr "Kann Server nicht kontaktieren: Ist er in Betrieb und erreichbar?"
 
-#: ../public/js/sunstone-util.js:373
+#: ../public/js/sunstone-util.js:454
 msgid "Network is unreachable: is OpenNebula running?"
 msgstr "Netzwerk ist nicht erreichbar: Läuft OpenNebula?"
 
-#: ../public/js/sunstone-util.js:394
+#: ../public/js/sunstone-util.js:475
 msgid "Unauthorized"
-msgstr "Nicht Authorisiert"
+msgstr "Nicht autorisiert"
 
-#: ../public/js/sunstone-util.js:730
+#: ../public/js/sunstone-util.js:681 ../public/js/sunstone-util.js:996
+msgid "Please select"
+msgstr "Bitte auswählen"
+
+#: ../public/js/sunstone-util.js:918
 msgid "Update template"
-msgstr "Template hochladen"
+msgstr "Vorlage aktualisieren"
 
-#: ../public/js/sunstone-util.js:1028
+#: ../public/js/sunstone-util.js:1483
 msgid "Please select an element"
 msgstr "Bitte ein Elementauswählen"
+
+#: ../public/js/sunstone-util.js:2316
+msgid "Ownership"
+msgstr "Eigentümer"
+
+#: ../public/js/sunstone.js:854
+msgid "Previous action"
+msgstr "Vorherige Aktion"
+
+#: ../public/js/sunstone.js:918 ../public/js/sunstone.js:955
+msgid "Confirmation of action"
+msgstr "Bestätigung der Aktion"
+
+#: ../public/js/sunstone.js:925 ../public/js/sunstone.js:961
+msgid "Confirm"
+msgstr "Bestätigen "
+
+#: ../public/js/sunstone.js:929
+msgid "You have to confirm this action."
+msgstr "Sie müssen diese Aktion bestätigen."
+
+#: ../public/js/sunstone.js:931
+msgid "Do you want to proceed?"
+msgstr "Möchten Sie fortfahren?"
+
+#: ../public/js/sunstone.js:935 ../public/js/sunstone.js:975
+msgid "OK"
+msgstr "OK"
+
+#: ../public/js/sunstone.js:936 ../public/js/sunstone.js:976
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: ../public/js/sunstone.js:966
+msgid "You need to select something."
+msgstr "Sie müssen etwas auswählen."
+
+#: ../public/js/sunstone.js:1040 ../public/js/sunstone.js:1059
+#: ../public/js/sunstone.js:1062
+msgid "You have to confirm this action"
+msgstr "Sie müssen die Aktion bestätigen"
