@@ -35,17 +35,18 @@ JUNIT_JAR="/usr/share/java/junit4.jar"
 #-------------------------------------------------------------------------------
 usage() {
  echo
- echo "Usage: build.sh [-d ] [-h] [-s] [-t]"
+ echo "Usage: build.sh [-d ] [-h] [-s] [-t] [-p version]"
  echo
  echo "-d: build the documentation"
  echo "-s: compile the examples"
  echo "-c: clean compilation files"
  echo "-t: build the tests"
+ echo "-p: build the java-oca-version-tar.gz package"
  echo "-h: prints this help"
 }
 #-------------------------------------------------------------------------------
 
-TEMP_OPT=`getopt -o hsdct -n 'build.sh' -- "$@"`
+TEMP_OPT=`getopt -o hsdctp: -n 'build.sh' -- "$@"`
 
 eval set -- "$TEMP_OPT"
 
@@ -53,6 +54,8 @@ DO_DOC="no"
 DO_EXA="no"
 DO_CLEAN="no"
 DO_TESTS="no"
+DO_PACKAGE="no"
+VERSION=""
 
 while true ; do
     case "$1" in
@@ -61,6 +64,7 @@ while true ; do
         -s) DO_EXA="yes"; shift ;;
         -t) DO_TESTS="yes"; shift ;;
         -c) DO_CLEAN="yes"; shift ;;
+        -p) DO_PACKAGE="yes"; VERSION=$2; shift 2;;
         --) shift ; break ;;
         *)  usage; exit 1 ;;
     esac
@@ -151,3 +155,17 @@ if [ "$DO_TESTS" = "yes" ] ; then
     do_tests
 fi
 
+if [ "$DO_PACKAGE" = "yes" ] ; then
+    do_documentation
+
+    PACK_NAME="java-oca-$VERSION"
+
+    mkdir $PACK_NAME
+    cp -r share/doc $PACK_NAME
+    cp -r jar $PACK_NAME
+    cp -r lib $PACK_NAME
+
+    tar cf $PACK_NAME.tar.gz $PACK_NAME
+
+    rm -rf $PACK_NAME
+fi
