@@ -20,10 +20,10 @@ class OneDB
     def initialize(ops)
         if ops[:backend] == :sqlite
             begin
-                require 'sqlite3-ruby'
+                require 'sqlite3'
             rescue LoadError
-                STDERR.puts "Ruby gem sqlite3-ruby is needed for this operation:"
-                STDERR.puts "  $ sudo gem install sqlite3-ruby"
+                STDERR.puts "Ruby gem sqlite3 is needed for this operation:"
+                STDERR.puts "  $ sudo gem install sqlite3"
                 exit -1
             end
 
