@@ -65,32 +65,52 @@ var AppStage = {
 }
 
 var appstage_tab_content = '\
-<h2><i class="icon-magic"></i> '+tr("AppStage - Environments")+'</h2>\
-<form id="appstage_form" action="" action="javascript:alert(\'js error!\');">\
-  <div class="action_blocks">\
+<form class="custom" id="template_form" action="">\
+<div class="panel">\
+<div class="row">\
+  <div class="twelve columns">\
+    <h4 class="subheader header">\
+      <span class="header-resource">\
+       <i class="icon-magic"></i> '+tr("AppStage - Environments")+'\
+      </span>\
+      <span class="header-info">\
+        <span/> <small></small>&emsp;\
+      </span>\
+      <span class="user-login">\
+      </span>\
+    </h4>\
   </div>\
-<table id="datatable_appstages" class="display">\
-  <thead>\
-    <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
-      <th>'+tr("ID")+'</th>\
-      <th>'+tr("Owner")+'</th>\
-      <th>'+tr("Group")+'</th>\
-      <th>'+tr("Name")+'</th>\
-      <th>'+tr("Description")+'</th>\
-    </tr>\
-  </thead>\
-  <tbody>\
-  </tbody>\
-</table>\
-<!--\
-<div class="legend_div">\
-  <span>?</span>\
-<p class="legend_p">\
-'+tr("Size and registration time are hidden colums. Note that persistent images can only be used by 1 VM. To change image datastore, please re-register the image.")+'\
-</p>\
 </div>\
--->\
+<div class="row">\
+  <div class="nine columns">\
+    <div class="action_blocks">\
+    </div>\
+  </div>\
+  <div class="three columns">\
+    <input id="environments_search" type="text" placeholder="'+tr("Search")+'" />\
+  </div>\
+  <br>\
+  <br>\
+</div>\
+</div>\
+  <div class="row">\
+    <div class="twelve columns">\
+      <table id="datatable_appstages" class="datatable twelve">\
+        <thead>\
+          <tr>\
+            <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
+            <th>'+tr("ID")+'</th>\
+            <th>'+tr("Owner")+'</th>\
+            <th>'+tr("Group")+'</th>\
+            <th>'+tr("Name")+'</th>\
+            <th>'+tr("Description")+'</th>\
+          </tr>\
+        </thead>\
+        <tbody>\
+        </tbody>\
+      </table>\
+  </div>\
+  </div>\
 </form>';
 
 var create_appstage_tmpl = '\
@@ -361,22 +381,24 @@ var appstage_actions = {
 var appstage_buttons = {
     "AppStage.refresh" : {
         type: "action",
-        text: '<i class="icon-refresh icon-large">',
+        layout: "refresh",
         alwaysActive: true
     },
     "AppStage.create_dialog" : {
         type: "create_dialog",
-        text: tr('+ New')
+        layout: "create"
     },
     "AppStage.update_dialog" : {
         type: "action",
-        text: tr("Update properties"),
+        text: tr("Update"),
+        layout: "main",
         alwaysActive: true
     },
     "AppStage.chown" : {
         type: "confirm_with_select",
         text: tr("Change owner"),
         select: users_sel,
+        layout: "user_select",
         tip: tr("Select the new owner")+":",
         condition: mustBeAdmin
     },
@@ -384,6 +406,7 @@ var appstage_buttons = {
         type: "confirm_with_select",
         text: tr("Change group"),
         select: groups_sel,
+        layout: "user_select",
         tip: tr("Select the new group")+":",
         condition: mustBeAdmin
     },
@@ -395,12 +418,8 @@ var appstage_buttons = {
 */
     "AppStage.delete" : {
         type: "confirm",
+        layout: "del",
         text: tr("Delete")
-    },
-    "AppStage.help" : {
-        type: "action",
-        text: '?',
-        alwaysActive: true
     }
 }
 
@@ -606,14 +625,7 @@ function setupCreateAppStageDialog(){
     var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
 
     //Prepare jquery dialog
-    dialog.dialog({
-        autoOpen: false,
-        modal:true,
-        width: 520,
-        height: height
-    });
-
-    $('button',dialog).button();
+    dialog.addClass("reveal-modal xlarge");
 
     $('select[name="templates"]', dialog).change(function(){
         $(this).val("");
@@ -705,7 +717,7 @@ function setupCreateAppStageDialog(){
 */
 
         Sunstone.runAction("AppStage.create", { 'DOCUMENT': appstage_obj });
-        dialog.dialog('close');
+        dialog.trigger("reveal:close")
         return false;
     });
 }
@@ -718,7 +730,8 @@ function popUpCreateAppStageDialog(){
         $(this).text('☐ '+$(this).text());
     });
 
-    dialog.dialog('open');
+    dialog.reveal();
+
 }
 
 
@@ -734,15 +747,7 @@ function setupAppStageTemplateUpdateDialog(){
 
     var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
     //Convert into jQuery
-    dialog.dialog({
-        autoOpen:false,
-        width:700,
-        modal:true,
-        height:height,
-        resizable:false
-    });
-
-    $('button',dialog).button();
+    dialog.addClass("reveal-modal xlarge");
 
     $('#appstage_template_update_select',dialog).change(function(){
         var id = $(this).val();
@@ -774,7 +779,7 @@ function setupAppStageTemplateUpdateDialog(){
         var cookbooks = $('input[name="cookbooks"]',dialog).val();
         var id = $('#appstage_template_update_select',dialog).val();
         if (!id || !id.length) {
-            $(this).parents('#appstage_template_update_dialog').dialog('close');
+            $(this).parents('#appstage_template_update_dialog').trigger("reveal:close")
             return false;
         };
 
@@ -802,7 +807,7 @@ function setupAppStageTemplateUpdateDialog(){
         appstage_obj.templates = tmpls
 
         Sunstone.runAction("AppStage.update", id, {'DOCUMENT' : appstage_obj});
-        $(this).parents('#appstage_template_update_dialog').dialog('close');
+        $(this).parents('#appstage_template_update_dialog').trigger("reveal:close")
         return false;
     });
 };
@@ -861,7 +866,8 @@ function popUpAppStageTemplateUpdateDialog(){
         return false;
     });
 
-    dialog.dialog('open');
+    dialog.reveal();
+
     return false;
 };
 
@@ -956,7 +962,7 @@ function setupAppStageCloneDialog(){
         } else {
             Sunstone.runAction('AppStage.clone',sel_elems[0],name)
         };
-        dialog.dialog('close');
+        dialog.trigger("reveal:close")
         setTimeout(function(){
             Sunstone.runAction('AppStage.refresh');
         }, 1500);
@@ -980,7 +986,8 @@ function popUpAppStageCloneDialog(){
                                                  dataTable_appstages, 4));
     };
 
-    $(dialog).dialog('open');
+    $(dialog).addClass("reveal-modal xlarge")
+
 }
 
 */
@@ -989,31 +996,23 @@ function popUpAppStageCloneDialog(){
 $(document).ready(function(){
 
     dataTable_appstages = $("#datatable_appstages",main_tabs_context).dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "bAutoWidth":false,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
-        "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
             { "sWidth": "100px", "aTargets": [2,3] },
             { "sWidth": "200px", "aTargets": [4] },
             { "sWidth": "35px", "aTargets": [1] }
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        ]
     });
 
-    dataTable_appstages.fnClearTable();
-    addElement([
-        spinner,
-        '','','','',''],dataTable_appstages);
+    $('#environments_search').keyup(function(){
+      dataTable_appstages.fnFilter( $(this).val() );
+    })
+
     Sunstone.runAction("AppStage.list");
 
     setupCreateAppStageDialog();
