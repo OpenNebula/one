@@ -112,37 +112,66 @@ var appmarket_actions = {
 var appmarket_buttons = {
     "AppMarket.refresh" : {
         type: "action",
-        text: '<i class="icon-refresh icon-large">',
+        layout: "refresh",
         alwaysActive: true
     },
     "AppMarket.import" : {
         type: "action",
-        text: tr('Import to local infrastructure')
+        layout: "create",
+        text: tr('Import')
     }
 };
 
 var appmarketplace_tab_content = '\
-<h2><i class="icon-shopping-cart"></i> '+tr("OpenNebula AppMarket")+'</h2>\
-<form id="appmarketplace_form" action="" action="javascript:alert(\'js error!\');">\
-  <div class="action_blocks">\
+<form class="custom" id="template_form" action="">\
+<div class="panel">\
+<div class="row">\
+  <div class="twelve columns">\
+    <h4 class="subheader header">\
+      <span class="header-resource">\
+       <i class="icon-shopping-cart"></i> '+tr("OpenNebula AppMarket")+'\
+      </span>\
+      <span class="header-info">\
+        <span/> <small></small>&emsp;\
+      </span>\
+      <span class="user-login">\
+      </span>\
+    </h4>\
   </div>\
-<table id="datatable_appmarketplace" class="display">\
-  <thead>\
-    <tr>\
-      <th class="check"></th>\
-      <th>'+tr("ID")+'</th>\
-      <th>'+tr("Name")+'</th>\
-      <th>'+tr("Publisher")+'</th>\
-      <th>'+tr("Hypervisor")+'</th>\
-      <th>'+tr("Arch")+'</th>\
-      <th>'+tr("Format")+'</th>\
-      <th>'+tr("Tags")+'</th>\
-    </tr>\
-  </thead>\
-  <tbody id="tbodyappmarketplace">\
-  </tbody>\
-</table>\
-</div>';
+</div>\
+<div class="row">\
+  <div class="nine columns">\
+    <div class="action_blocks">\
+    </div>\
+  </div>\
+  <div class="three columns">\
+    <input id="appliances_search" type="text" placeholder="'+tr("Search")+'" />\
+  </div>\
+  <br>\
+  <br>\
+</div>\
+</div>\
+  <div class="row">\
+    <div class="twelve columns">\
+      <table id="datatable_appmarketplace" class="datatable twelve">\
+        <thead>\
+          <tr>\
+            <th class="check"></th>\
+            <th>'+tr("ID")+'</th>\
+            <th>'+tr("Name")+'</th>\
+            <th>'+tr("Publisher")+'</th>\
+            <th>'+tr("Hypervisor")+'</th>\
+            <th>'+tr("Arch")+'</th>\
+            <th>'+tr("Format")+'</th>\
+            <th>'+tr("Tags")+'</th>\
+          </tr>\
+        </thead>\
+        <tbody id="tbodyappmarketplace">\
+        </tbody>\
+      </table>\
+  </div>\
+  </div>\
+</form>';
 
 
 var appmarketplace_tab = {
@@ -278,11 +307,7 @@ function onlyOneCheckboxListener(dataTable) {
 
 $(document).ready(function(){
     dataTable_appmarket = $("#datatable_appmarketplace", main_tabs_context).dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "sPaginationType": "full_numbers",
-        "sDom" : '<"H"lfrC>t<"F"ip>',
-        "bAutoWidth":false,
+        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "aoColumns": [
             { "bSortable": false,
               "fnRender": function ( o, val ) {
@@ -301,12 +326,12 @@ $(document).ready(function(){
             { "mDataProp": "files.0.os-arch", "sWidth" : "100px"},
             { "mDataProp": "files.0.format", "sWidth" : "100px"},
             { "mDataProp": "tags", "bVisible": false}
-          ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+          ]
     });
+
+    $('appliances_search').keyup(function(){
+      dataTable_appmarket.fnFilter( $(this).val() );
+    })
 
 
     tableCheckboxesListener(dataTable_appmarket);
