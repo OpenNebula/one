@@ -85,33 +85,54 @@ var Role = {
 }
 
 var service_tab_content = '\
-<h2><i class="icon-magic"></i> '+tr("AppFlow - Services")+'</h2>\
-<form id="service_form" action="" action="javascript:alert(\'js error!\');">\
-  <div class="action_blocks">\
+<form class="custom" id="template_form" action="">\
+<div class="panel">\
+<div class="row">\
+  <div class="twelve columns">\
+    <h4 class="subheader header">\
+      <span class="header-resource">\
+       <i class="icon-magic"></i> '+tr("AppFlow - Services")+'\
+      </span>\
+      <span class="header-info">\
+        <span/> <small></small>&emsp;\
+      </span>\
+      <span class="user-login">\
+      </span>\
+    </h4>\
   </div>\
-<table id="datatable_services" class="display">\
-  <thead>\
-    <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
-      <th>'+tr("ID")+'</th>\
-      <th>'+tr("Owner")+'</th>\
-      <th>'+tr("Group")+'</th>\
-      <th>'+tr("Name")+'</th>\
-      <th>'+tr("State")+'</th>\
-    </tr>\
-  </thead>\
-  <tbody>\
-  </tbody>\
-</table>\
-<!--\
-<div class="legend_div">\
-  <span>?</span>\
-<p class="legend_p">\
-'+tr("Size and registration time are hidden colums. Note that persistent images can only be used by 1 VM. To change image datastore, please re-register the image.")+'\
-</p>\
 </div>\
--->\
+<div class="row">\
+  <div class="nine columns">\
+    <div class="action_blocks">\
+    </div>\
+  </div>\
+  <div class="three columns">\
+    <input id="services_search" type="text" placeholder="'+tr("Search")+'" />\
+  </div>\
+  <br>\
+  <br>\
+</div>\
+</div>\
+  <div class="row">\
+    <div class="twelve columns">\
+      <table id="datatable_services" class="datatable twelve">\
+        <thead>\
+          <tr>\
+            <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
+            <th>'+tr("ID")+'</th>\
+            <th>'+tr("Owner")+'</th>\
+            <th>'+tr("Group")+'</th>\
+            <th>'+tr("Name")+'</th>\
+            <th>'+tr("State")+'</th>\
+          </tr>\
+        </thead>\
+        <tbody>\
+        </tbody>\
+      </table>\
+  </div>\
+  </div>\
 </form>';
+
 /*+++++++++++++++++++++++++++++++
 var create_service_tmpl = '\
 <div class="create_form"><form id="create_service_form" action="">\
@@ -220,11 +241,6 @@ var service_actions = {
         call: Service.list,
         callback: updateServicesView,
         error: onError
-    },
-
-    "Service.update_dialog" : {
-        type : "custom",
-        call : popUpServiceUpdateDialog
     },
 
     "Service.show" : {
@@ -339,13 +355,7 @@ var service_actions = {
 var service_buttons = {
     "Service.refresh" : {
         type: "action",
-        text: '<i class="icon-refresh icon-large">',
-        alwaysActive: true
-    },
-
-    "Service.update_dialog" : {
-        type: "action",
-        text: tr("Update properties"),
+        layout: "refresh",
         alwaysActive: true
     },
 
@@ -354,6 +364,7 @@ var service_buttons = {
         text: tr("Change owner"),
         select: users_sel,
         tip: tr("Select the new owner")+":",
+        layout: "user_select",
         condition: mustBeAdmin
     },
     "Service.chgrp" : {
@@ -361,6 +372,7 @@ var service_buttons = {
         text: tr("Change group"),
         select: groups_sel,
         tip: tr("Select the new group")+":",
+        layout: "user_select",
         condition: mustBeAdmin
     },
 /*
@@ -371,17 +383,14 @@ var service_buttons = {
 */
     "Service.shutdown" : {
         type: "action",
+        layout: "main",
         text: tr("Shutdown")
     },
     "Service.delete" : {
         type: "confirm",
         text: tr("Delete"),
+        layout: "del",
         tip: tr("This will delete the selected services")
-    },
-    "Service.help" : {
-        type: "action",
-        text: '?',
-        alwaysActive: true
     }
 }
 
@@ -401,7 +410,7 @@ var services_tab = {
 }
 
 Sunstone.addActions(service_actions);
-Sunstone.addMainTab('services_tab',services_tab);
+Sunstone.addMainTab('apptools-appflow-services',services_tab);
 Sunstone.addInfoPanel('service_info_panel',service_info_panel);
 
 
@@ -614,7 +623,7 @@ function updateServiceInfo(request,elem){
     if (logs) {
         log_info += '<table id="service_template_roles_table" class="info_table" style="width:80%;">\
             <thead></thead>'
-        
+
         for (var i = 0; i < logs.length; i++) {
           log_info += '<tr>\
               <td>'+pretty_time(logs[i].timestamp)+' ['+logs[i].severity + '] ' + logs[i].message+ '</td>\
@@ -719,15 +728,8 @@ function setupServiceUpdateDialog(){
     var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
 
     //Convert into jQuery
-    dialog.dialog({
-        autoOpen:false,
-        width:500,
-        modal:true,
-        height:height,
-        resizable:true
-    });
+    dialog.addClass("reveal-modal xlarge");
 
-    $('button',dialog).button();
 
     $('#service_update_select',dialog).change(function(){
         var id = $(this).val();
@@ -746,7 +748,7 @@ function setupServiceUpdateDialog(){
         var dialog = $(this);
         var id = $('#service_update_select',dialog).val();
         if (!id || !id.length) {
-            $(this).parents('#service_update_dialog').dialog('close');
+            $(this).parents('#service_update_dialog').trigger("reveal:close")
             return false;
         };
 
@@ -758,7 +760,7 @@ function setupServiceUpdateDialog(){
             Sunstone.runAction("Service.chmod", id, perms);
         };
 
-        $(this).parents('#service_update_dialog').dialog('close');
+        $(this).parents('#service_update_dialog').trigger("reveal:close")
         return false;
     });
 };
@@ -797,7 +799,7 @@ function popUpServiceUpdateDialog(){
         };
     };
 
-    dialog.dialog('open');
+    dialog.reveal();
     return false;
 }
 
@@ -898,33 +900,23 @@ function popUpServiceCloneDialog(){
 $(document).ready(function(){
 
     dataTable_services = $("#datatable_services",main_tabs_context).dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "bAutoWidth":false,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
-        "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
             { "sWidth": "100px", "aTargets": [2,3] },
             { "sWidth": "200px", "aTargets": [5] },
             { "sWidth": "35px", "aTargets": [1] }
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        ]
     });
 
+    $('#services_search').keyup(function(){
+      dataTable_services.fnFilter( $(this).val() );
+    })
 
-
-    dataTable_services.fnClearTable();
-    addElement([
-        spinner,
-        '','','','','',''],dataTable_services);
     Sunstone.runAction("Service.list");
 
     setupServiceUpdateDialog();

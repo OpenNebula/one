@@ -56,98 +56,173 @@ var ServiceTemplate = {
 }
 
 var service_template_tab_content = '\
-<h2><i class="icon-magic"></i> '+tr("AppFlow - Templates")+'</h2>\
-<form id="service_template_form" action="" action="javascript:alert(\'js error!\');">\
-  <div class="action_blocks">\
+<form class="custom" id="template_form" action="">\
+<div class="panel">\
+<div class="row">\
+  <div class="twelve columns">\
+    <h4 class="subheader header">\
+      <span class="header-resource">\
+       <i class="icon-magic"></i> '+tr("AppFlow - Templates")+'\
+      </span>\
+      <span class="header-info">\
+        <span/> <small></small>&emsp;\
+      </span>\
+      <span class="user-login">\
+      </span>\
+    </h4>\
   </div>\
-<table id="datatable_service_templates" class="display">\
-  <thead>\
-    <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
-      <th>'+tr("ID")+'</th>\
-      <th>'+tr("Owner")+'</th>\
-      <th>'+tr("Group")+'</th>\
-      <th>'+tr("Name")+'</th>\
-    </tr>\
-  </thead>\
-  <tbody>\
-  </tbody>\
-</table>\
-<!--\
-<div class="legend_div">\
-  <span>?</span>\
-<p class="legend_p">\
-'+tr("Size and registration time are hidden colums. Note that persistent images can only be used by 1 VM. To change image datastore, please re-register the image.")+'\
-</p>\
 </div>\
--->\
+<div class="row">\
+  <div class="nine columns">\
+    <div class="action_blocks">\
+    </div>\
+  </div>\
+  <div class="three columns">\
+    <input id="service_templates_search" type="text" placeholder="'+tr("Search")+'" />\
+  </div>\
+  <br>\
+  <br>\
+</div>\
+</div>\
+  <div class="row">\
+    <div class="twelve columns">\
+      <table id="datatable_service_templates" class="datatable twelve">\
+        <thead>\
+          <tr>\
+            <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
+            <th>'+tr("ID")+'</th>\
+            <th>'+tr("Owner")+'</th>\
+            <th>'+tr("Group")+'</th>\
+            <th>'+tr("Name")+'</th>\
+          </tr>\
+        </thead>\
+        <tbody>\
+        </tbody>\
+      </table>\
+  </div>\
+  </div>\
 </form>';
 
 var create_service_template_tmpl = '\
-<div class="create_form"><form id="create_service_template_form" action="">\
-   <p style="font-size:0.8em;text-align:right;"><i>'+
-    tr("Fields marked with")+' <span style="display:inline-block;" class="ui-icon ui-icon-alert" /> '+
-    tr("are mandatory")+'</i><br />\
-  <fieldset>\
-      <legend style="display:none;">' + tr("Service") + '</legend>\
-      <div class="service_template_param st_man">\
-          <label for="service_name">' + tr("Name") + ':</label><input type="text" name="service_name" />\
-          <div class="tip">'+ tr("Name for this template") +'</div>\
-      </div>\
-      <div class="service_template_param st_man">\
-          <label for="deployment">' + tr("Deployment strategy") + ':</label>\
-          <select name="deployment">\
-              <option value="straight">'+ tr("Straight") + '</option>\
-              <option value="none">'+ tr("None") + '</option>\
-          </select>\
-          <div class="tip">'+ tr("Straight strategy will instantiate each role in order: parents role will be deployed before their children. None strategy will instantiate the roles regardless of their relationships.") +'</div>\
-      </div>\
-  </fieldset>\
-  <fieldset>\
-     <legend>' + tr("Roles") + '</legend>\
-     <div class="service_template_param service_role st_man">\
-          <label for="name">' + tr("Name") + ':</label><input type="text" name="name" />\
-          <div class="tip">'+ tr("Name for the role") +'</div>\
-     </div>\
-     <div class="service_template_param service_role st_man">\
-          <label for="cardinality">' + tr("Cardinality") + ':</label><input type="text" name="cardinality" value="1" />\
-          <div class="tip">'+ tr("Number of VMs to instantiate with this role") +'</div>\
-     </div>\
-     <div class="service_template_param service_role st_man">\
-          <label for="vm_template">' + tr("VM template") + ':</label>\
-          <select name="vm_template">\
-          </select>\
-          <div class="tip">'+ tr("Template associated to this role") +'</div>\
-     </div>\
-     <div class="service_template_param service_role">\
-          <label for="parents">' + tr("Parent roles") + ':</label>\
-          <select name="parents" multiple="multiple">\
-          </select>\
-          <div class="tip">'+ tr("Mark the roles that will be deployed before this one when using the straight strategy") +'</div>\
-     </div>\
-     <label>&nbsp;</label>\
-     <button id="add_role">' + tr("Add role") + '</button>\
-  </fieldset>\
-  <fieldset>\
-     <legend>' + tr("Current Roles") + '</legend>\
-     <table id="current_roles" class="info_table" style="width:540px;margin-top:0;">\
-            <thead><tr>\
-                 <th>'+tr("Name")+'</th>\
-                 <th>'+tr("Card.")+'</th>\
-                 <th>'+tr("Template")+'</th>\
-                 <th style="width:100%;">'+tr("Parents")+'</th>\
-                 <th>'+tr("Delete")+'</th></tr></thead>\
-            <tbody>\
-            </tbody>\
-     </table>\
-  </fieldset>\
-  <fieldset>\
-    <div class="form_buttons">\
-        <div><button class="button" type="submit" value="ServiceTemplate.create">' + tr("Create") + '</button>\
-        <button class="button" type="reset" value="reset">' + tr("Reset") + '</button></div>\
+<div class="panel">\
+  <h3>\
+    <small id="create_service_template_header">'+tr("Create Service Template")+'</small>\
+  </h3>\
+</div>\
+<div class="reveal-body create_form">\
+  <form id="create_service_template_form" action="">\
+    <div class="row">\
+        <div class="service_template_param st_man six columns">\
+            <div class="four columns">\
+                <label class="inline right" for="service_name">' + tr("Name") + ':</label>\
+            </div>\
+            <div class="seven columns">\
+                <input type="text" name="service_name" />\
+            </div>\
+            <div class="one columns">\
+                <div class="tip">'+ tr("Name for this template") +'</div>\
+            </div>\
+        </div>\
+        <div class="service_template_param st_man six columns">\
+            <div class="six columns">\
+                <label class="inline right" for="deployment">' + tr("Deployment strategy") + ':</label>\
+            </div>\
+            <div class="five columns">\
+                <select name="deployment">\
+                    <option value="straight">'+ tr("Straight") + '</option>\
+                    <option value="none">'+ tr("None") + '</option>\
+                </select>\
+            </div>\
+            <div class="one columns">\
+                <div class="tip">'+ tr("Straight strategy will instantiate each role in order: parents role will be deployed before their children. None strategy will instantiate the roles regardless of their relationships.") +'</div>\
+            </div>\
+        </div>\
     </div>\
-  </fieldset>\
-</form></div>';
+    <div class="row" id="new_role">\
+      <fieldset>\
+         <legend>' + tr("Roles") + '</legend>\
+           <div class="service_template_param service_role st_man six columns">\
+              <div class="row">\
+                <div class="four columns">\
+                    <label class="inline right" for="name">' + tr("Name") + ':</label>\
+                </div>\
+                <div class="seven columns">\
+                    <input type="text" name="name"/>\
+                </div>\
+                <div class="one columns">\
+                    <div class="tip">'+ tr("Number of VMs to instantiate with this role") +'</div>\
+                </div>\
+              </div>\
+              <div class="row">\
+                <div class="four columns">\
+                    <label class="inline right" for="cardinality">' + tr("Cardinality") + ':</label>\
+                </div>\
+                <div class="seven columns">\
+                    <input type="text" name="cardinality" value="1" />\
+                </div>\
+                <div class="one columns">\
+                    <div class="tip">'+ tr("Number of VMs to instantiate with this role") +'</div>\
+                </div>\
+              </div>\
+              <div class="row">\
+                <div class="four columns">\
+                    <label class="inline right" for="vm_template">' + tr("VM template") + ':</label>\
+                </div>\
+                <div class="seven columns">\
+                    <select name="vm_template">\
+                    </select>\
+                </div>\
+                <div class="one columns">\
+                    <div class="tip">'+ tr("Template associated to this role") +'</div>\
+                </div>\
+              </div>\
+           </div>\
+           <div class="service_template_param service_role six columns">\
+              <div class="row">\
+                <div class="four columns">\
+                    <label class="inline right" for="parents">' + tr("Parent roles") + ':</label>\
+                </div>\
+                <div class="seven columns">\
+                    <select name="parents" multiple="multiple" style="width: 100%; font-size: 14px; font-family: "Open Sans", sans-serif; font-weight: 500;">\
+                    </select>\
+                </div>\
+                <div class="one columns">\
+                    <div class="tip">'+ tr("Mark the roles that will be deployed before this one when using the straight strategy") +'</div>\
+                </div>\
+              </div>\
+              <br>\
+              <div class="row">\
+                <div class="eleven columns">\
+                 <button class="button radius small right" id="add_role">' + tr("Add role") + '</button>\
+                </div>\
+              </div>\
+           </div>\
+           <hr>\
+           <div class="twelve columns">\
+               <table id="current_roles" class="info_table twelve dataTable">\
+                      <thead><tr>\
+                           <th>'+tr("Name")+'</th>\
+                           <th>'+tr("Card.")+'</th>\
+                           <th>'+tr("Template")+'</th>\
+                           <th style="width:100%;">'+tr("Parents")+'</th>\
+                           <th>'+tr("Delete")+'</th></tr></thead>\
+                      <tbody>\
+                      </tbody>\
+               </table>\
+          </div>\
+      </fieldset>\
+    </div>\
+    <div class="reveal-footer">\
+      <hr>\
+      <div class="form_buttons">\
+          <button class="button radius right success"" type="submit" value="ServiceTemplate.create">' + tr("Create") + '</button>\
+          <button class="button radius secondary" type="reset" value="reset">' + tr("Reset") + '</button>\
+          <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+      </div>\
+    </div>\
+    <a class="close-reveal-modal">&#215;</a>\
+  </form>\
+</div>';
 
 
 var update_service_template_tmpl =
@@ -340,28 +415,31 @@ var service_template_actions = {
 var service_template_buttons = {
     "ServiceTemplate.refresh" : {
         type: "action",
-        text: '<i class="icon-refresh icon-large">',
+        layout: "refresh",
         alwaysActive: true
     },
     "ServiceTemplate.create_dialog" : {
         type: "create_dialog",
-        text: tr("+ New")
+        layout: "create"
     },
 
     "ServiceTemplate.update_dialog" : {
         type: "action",
-        text: tr("Update properties"),
+        text: tr("Update"),
+        layout: "main",
         alwaysActive: true
     },
 
     "ServiceTemplate.instantiate" : {
         type: "action",
+        layout: "main",
         text: tr("Instantiate")
     },
     "ServiceTemplate.chown" : {
         type: "confirm_with_select",
         text: tr("Change owner"),
         select: users_sel,
+        layout: "user_select",
         tip: tr("Select the new owner")+":",
         condition: mustBeAdmin
     },
@@ -369,6 +447,7 @@ var service_template_buttons = {
         type: "confirm_with_select",
         text: tr("Change group"),
         select: groups_sel,
+        layout: "user_select",
         tip: tr("Select the new group")+":",
         condition: mustBeAdmin
     },
@@ -381,12 +460,8 @@ var service_template_buttons = {
     "ServiceTemplate.delete" : {
         type: "confirm",
         text: tr("Delete"),
+        layout: "del",
         tip: tr("This will delete the selected templates")
-    },
-    "ServiceTemplate.help" : {
-        type: "action",
-        text: '?',
-        alwaysActive: true
     }
 }
 
@@ -406,7 +481,7 @@ var service_templates_tab = {
 }
 
 Sunstone.addActions(service_template_actions);
-Sunstone.addMainTab('service_templates_tab',service_templates_tab);
+Sunstone.addMainTab('apptools-appflow-templates',service_templates_tab);
 Sunstone.addInfoPanel('service_template_info_panel',service_template_info_panel);
 
 
@@ -581,7 +656,7 @@ function updateServiceTemplateInfo(request,elem){
     else
         Sunstone.removeInfoPanelTab("service_template_info_panel","service_template_roles_tab");
 
-    Sunstone.popUpInfoPanel("service_template_info_panel");
+    Sunstone.popUpInfoPanel("service_template_info_panel", "apptools-appflow-templates");
 
 }
 
@@ -597,14 +672,8 @@ function setupCreateServiceTemplateDialog(){
     var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
 
     //Prepare jquery dialog
-    dialog.dialog({
-        autoOpen: false,
-        modal:true,
-        width: 650,
-        height: height
-    });
+    dialog.addClass("reveal-modal xlarge max-height");
 
-    $('button',dialog).button();
 
     var addParentRole = function(name){
         var select = $('select[name="parents"]', dialog);
@@ -645,7 +714,7 @@ function setupCreateServiceTemplateDialog(){
     });
 
     $('button#add_role', dialog).click(function(){
-        var context = $(this).parent();
+        var context = $(this).closest('#new_role');
         var name = $('input[name="name"]', context).val();
         var cardinality = $('input[name="cardinality"]', context).val();
         var template = $('select[name="vm_template"]', context).val();
@@ -715,7 +784,7 @@ function setupCreateServiceTemplateDialog(){
         }
 
         Sunstone.runAction("ServiceTemplate.create", obj );
-        dialog.dialog('close');
+        dialog.trigger("reveal:close");
         return false;
     });
 }
@@ -742,7 +811,7 @@ function popUpCreateServiceTemplateDialog(){
     //     return false;
     // });
 
-    dialog.dialog('open');
+    dialog.reveal();
 }
 
 
@@ -757,15 +826,8 @@ function setupServiceTemplateUpdateDialog(){
     var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
 
     //Convert into jQuery
-    dialog.dialog({
-        autoOpen:false,
-        width:500,
-        modal:true,
-        height:height,
-        resizable:true
-    });
+    dialog.addClass("reveal-modal xlarge");
 
-    $('button',dialog).button();
 
     $('#service_template_update_select',dialog).change(function(){
         var id = $(this).val();
@@ -784,7 +846,7 @@ function setupServiceTemplateUpdateDialog(){
         var dialog = $(this);
         var id = $('#service_template_update_select',dialog).val();
         if (!id || !id.length) {
-            $(this).parents('#service_template_update_dialog').dialog('close');
+            $(this).parents('#service_template_update_dialog').trigger("reveal:close");
             return false;
         };
 
@@ -796,7 +858,7 @@ function setupServiceTemplateUpdateDialog(){
             Sunstone.runAction("ServiceTemplate.chmod", id, perms);
         };
 
-        $(this).parents('#service_template_update_dialog').dialog('close');
+        $(this).parents('#service_template_update_dialog').trigger("reveal:close");
         return false;
     });
 };
@@ -835,7 +897,7 @@ function popUpServiceTemplateUpdateDialog(){
         };
     };
 
-    dialog.dialog('open');
+    dialog.reveal();
     return false;
 }
 
@@ -851,114 +913,27 @@ function setServiceTemplateAutorefresh() {
     },INTERVAL+someTime());
 };
 
-/*
-function setupServiceTemplateCloneDialog(){
-    //Append to DOM
-    dialogs_context.append('<div id="service_template_clone_dialog" title="'+tr("Clone an flowironment")+'"></div>');
-    var dialog = $('#service_template_clone_dialog',dialogs_context);
-
-    //Put HTML in place
-
-    var html = '<form><fieldset>\
-<div class="clone_one">'+tr("Choose a new name for the flowironment")+':</div>\
-<div class="clone_several">'+tr("Several flowironments are selected, please choose prefix to name the new copies")+':</div>\
-<br />\
-<label class="clone_one">'+tr("Name")+':</label>\
-<label class="clone_several">'+tr("Prefix")+':</label>\
-<input type="text" name="name"></input>\
-<div class="form_buttons">\
-  <button class="button" id="service_template_clone_button" value="ServiceTemplate.clone">\
-'+tr("Clone")+'\
-  </button>\
-</div></fieldset></form>\
-';
-
-    dialog.html(html);
-
-    //Convert into jQuery
-    dialog.dialog({
-        autoOpen:false,
-        width:375,
-        modal:true,
-        resizable:false
-    });
-
-    $('button',dialog).button();
-
-    $('form',dialog).submit(function(){
-        var name = $('input', this).val();
-        var sel_elems = serviceTemplateElements();
-        if (!name || !sel_elems.length)
-            notifyError('A name or prefix is needed!');
-        if (sel_elems.length > 1){
-            for (var i=0; i< sel_elems.length; i++)
-                //If we are cloning several items we
-                //use the name as prefix
-                Sunstone.runAction('ServiceTemplate.clone',
-                                   sel_elems[i],
-                                   name + getName(sel_elems[i],
-                                                  dataTable_service_templates,
-                                                  4));
-        } else {
-            Sunstone.runAction('ServiceTemplate.clone',sel_elems[0],name)
-        };
-        dialog.dialog('close');
-        setTimeout(function(){
-            Sunstone.runAction('ServiceTemplate.refresh');
-        }, 1500);
-        return false;
-    });
-}
-
-function popUpServiceTemplateCloneDialog(){
-    var dialog = $('#service_template_clone_dialog');
-    var sel_elems = serviceTemplateElements();
-    //show different text depending on how many elements are selected
-    if (sel_elems.length > 1){
-        $('.clone_one',dialog).hide();
-        $('.clone_several',dialog).show();
-        $('input',dialog).val('Copy of ');
-    }
-    else {
-        $('.clone_one',dialog).show();
-        $('.clone_several',dialog).hide();
-        $('input',dialog).val('Copy of '+getName(sel_elems[0],
-                                                 dataTable_service_templates, 4));
-    };
-
-    $(dialog).dialog('open');
-}
-
-*/
 
 //The DOM is ready at this point
 $(document).ready(function(){
 
     dataTable_service_templates = $("#datatable_service_templates",main_tabs_context).dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "bAutoWidth":false,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
-        "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
             { "sWidth": "100px", "aTargets": [2,3] },
             { "sWidth": "35px", "aTargets": [1] }
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        ]
     });
 
-    dataTable_service_templates.fnClearTable();
-    addElement([
-        spinner,
-        '','','','',''],dataTable_service_templates);
+    $('#service_templates_search').keyup(function(){
+      dataTable_service_templates.fnFilter( $(this).val() );
+    })
+
     Sunstone.runAction("ServiceTemplate.list");
 
 

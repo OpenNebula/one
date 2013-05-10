@@ -91,7 +91,7 @@ var appflow_dashboard_tmpl = '\
 
 var appflow_dashboard_tab = {
     title: '<i class="icon-sitemap"></i>AppFlow',
-    content: appflow_dashboard_tmpl,
+    //content: appflow_dashboard_tmpl,
 }
 
 

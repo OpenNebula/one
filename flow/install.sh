@@ -45,7 +45,7 @@ copy_files "lib/* models.rb config.ru Gemfile Gemfile.lock \
             Rakefile" "$LIB_LOCATION/flow"
 
 # Sunstone
-copy_files "sunstone/public/js/*" "$SUNSTONE_LOCATION/public/js"
+copy_files "sunstone/public/js/*" "$SUNSTONE_LOCATION/public/js/plugins"
 copy_files "sunstone/public/images/*" "$SUNSTONE_LOCATION/public/images"
 copy_files "sunstone/routes/*" "$SUNSTONE_LOCATION/routes"
 
