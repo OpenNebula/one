@@ -26,6 +26,7 @@ class Router
         :resolv_conf   => "/etc/resolv.conf",
         :context       => "/mnt/context/context.sh",
         :dnsmasq_conf  => "/etc/dnsmasq.conf",
+        :radvd_conf    => "/etc/radvd.conf",
         :log_file      => "/var/log/router.log"
     }
 
@@ -81,13 +82,18 @@ class Router
                 :resource_xpath => 'TEMPLATE/DHCP'
             }
         ],
-        :ntp => [
+        :ntp_server => [
             {
                 :resource => :context
             },
             {
                 :resource       => :privnet,
-                :resource_xpath => 'TEMPLATE/NTP'
+                :resource_xpath => 'TEMPLATE/NTP_SERVER'
+            }
+        ],
+        :ssh_public_key => [
+            {
+                :resource => :context
             }
         ],
         :root_pubkey => [
@@ -103,8 +109,9 @@ class Router
     }
 
     def initialize
+        mount_context
         @context = read_context
-        unpack
+        unpack if @context
         get_network_information
     end
 
@@ -134,7 +141,7 @@ class Router
     end
 
     def root_pubkey
-        get_attribute(:root_pubkey)
+        get_attribute(:root_pubkey) || get_attribute(:ssh_public_key)
     end
 
     def nat
@@ -151,18 +158,18 @@ class Router
         end
     end
 
-    def ntp
-        ntp_raw = get_attribute(:ntp) || ""
-        if ntp_raw.downcase.match(/^y(es)?$/)
-            true
-        else
-            false
-        end
+    def ntp_server
+        get_attribute(:ntp_server)
     end
 
     ############################################################################
     # ACTIONS
     ############################################################################
+
+    def mount_context
+        FileUtils.mkdir_p('/mnt/context')
+        run "mount -t iso9660 /dev/cdrom /mnt/context 2>/dev/null"
+    end
 
     def write_resolv_conf
         if dns
@@ -183,8 +190,37 @@ class Router
     end
 
     def configure_network
-        get_network_information
+        if has_context?
+            configure_network_context
+        else
+            configure_network_static
+        end
+    end
 
+
+    def configure_network_static
+        macs = @mac_interfaces.invert
+
+        defaultgw = true
+        macs.keys.sort.each do |nic|
+            next if nic !~ /^eth/
+
+            mac = macs[nic]
+            ip = mac2ip(mac)
+            gateway = ip.gsub(/\.\d{1,3}$/,".#{DEFAULT_GW}")
+
+            run "ip link set #{nic} up"
+            run "ip addr add #{ip}/24 dev #{nic}"
+
+            if defaultgw
+                defaultgw = false
+                run "ip route add default via #{gateway}"
+            end
+        end
+
+    end
+
+    def configure_network_context
         if pubnet
             ip      = @pubnet[:ip]
             nic     = @pubnet[:interface]
@@ -208,18 +244,17 @@ class Router
 
 
     def configure_dnsmasq
-        File.open(FILES[:dnsmasq_conf],'w') do |dnsmasq_conf|
+        File.open(FILES[:dnsmasq_conf],'w') do |conf|
             _,ip_start,_ = dhcp_ip_mac_pairs[0]
             _,ip_end,_   = dhcp_ip_mac_pairs[-1]
 
-            dnsmasq_conf.puts "dhcp-range=#{ip_start},#{ip_end},infinite"
-            dnsmasq_conf.puts
-            dnsmasq_conf.puts "dhcp-option=42,#{@privnet[:ip]} # ntp server"
-            dnsmasq_conf.puts "dhcp-option=4,#{@privnet[:ip]}  # name server"
-            dnsmasq_conf.puts
+            conf.puts "dhcp-range=#{ip_start},#{ip_end},infinite"
+            conf.puts "dhcp-option=42,#{ntp_server} # ntp server" if ntp_server
+            conf.puts "dhcp-option=4,#{@privnet[:ip]} # name server"
+
             dhcp_ip_mac_pairs.each do |pair|
                 mac, ip = pair
-                dnsmasq_conf.puts "dhcp-host=#{mac},#{ip}"
+                conf.puts "dhcp-host=#{mac},#{ip}"
             end
         end
     end
@@ -248,7 +283,7 @@ class Router
     end
 
     def configure_root_password
-        run "usermod -p #{root_password} root"
+        run "echo root:#{root_password}|chpasswd"
     end
 
     def configure_root_pubkey
@@ -260,7 +295,7 @@ class Router
 
     def service(service, action = :start)
         action = action.to_s
-        run "/etc/rc.d/#{service} #{action}"
+        run "/etc/init.d/#{service} #{action}"
     end
 
     ############################################################################
@@ -269,15 +304,21 @@ class Router
 
 private
 
+    def has_context?
+        !@context.nil?
+    end
+
     def get_network_information
         @pubnet  = Hash.new
         @privnet = Hash.new
 
-        mac_interfaces = Hash[
+        @mac_interfaces = Hash[
             Dir["/sys/class/net/*/address"].collect do |f|
                 [ File.read(f).strip, f.split('/')[4] ]
             end
         ]
+
+        return if !has_context?
 
         if (pubnet_id = get_element_xpath(:pubnet, 'ID'))
             @pubnet[:network_id] = pubnet_id
@@ -288,7 +329,7 @@ private
             @pubnet[:ip]  = get_element_xpath(:template, xpath_ip)
             @pubnet[:mac] = get_element_xpath(:template, xpath_mac)
 
-            @pubnet[:interface] = mac_interfaces[@pubnet[:mac]]
+            @pubnet[:interface] = @mac_interfaces[@pubnet[:mac]]
 
             netmask = get_element_xpath(:pubnet, 'TEMPLATE/NETWORK_MASK')
             @pubnet[:netmask] = netmask || DEFAULT_NETMASK
@@ -309,7 +350,7 @@ private
             @privnet[:ip]  = get_element_xpath(:template, xpath_ip)
             @privnet[:mac] = get_element_xpath(:template, xpath_mac)
 
-            @privnet[:interface] = mac_interfaces[@privnet[:mac]]
+            @privnet[:interface] = @mac_interfaces[@privnet[:mac]]
 
             netmask = get_element_xpath(:privnet, 'TEMPLATE/NETWORK_MASK')
             @privnet[:netmask] = netmask || DEFAULT_NETMASK
@@ -397,6 +438,7 @@ private
         order = ATTRIBUTES[name]
 
         return nil if order.nil?
+        return nil if !has_context?
 
         order.each do |e|
             if e[:resource] != :context
@@ -430,6 +472,8 @@ private
     end
 
     def read_context
+        return nil if !File.exists?(FILES[:context])
+
         context = Hash.new
         context_file = File.read(FILES[:context])
 
