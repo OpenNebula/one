@@ -374,12 +374,6 @@ class VMwareDriver
 
         # Get the ds_id for system_ds from the first disk
         metadata = metadata.text
-
-        return deploy_id if metadata.nil? || metadata.empty?
-
-        # Reconstruct path to vmx & add metadata
-        path_to_vmx = "\$(find /vmfs/volumes/#{ds_id}/#{vm_id}/ -name #{name}.vmx)"
-
         source = XPath.first(dfile_hash, "//disk/source").attributes['file']
         ds_id  = source.match(/^\[(.*)\](.*)/)[1]
 
@@ -387,12 +381,9 @@ class VMwareDriver
         vm_id  = name.match(/^one-(.*)/)[1]
 
         # Reconstruct path to vmx & add metadata
-        path_to_vmx = "/vmfs/volumes/#{ds_id}/#{vm_id}/disk.0/#{name}.vmx"
-
+        path_to_vmx = "\$(find /vmfs/volumes/#{ds_id}/#{vm_id}/ -name #{name}.vmx)"
         metadata.gsub!("\\n","\n")
-
         sed_str = metadata.scan(/^([^ ]+) *=/).join("|")
-
         do_ssh_action("sed -ri \"/^(#{sed_str}) *=.*$/d\" #{path_to_vmx} ; cat >> #{path_to_vmx}", metadata)
 
         return deploy_id
