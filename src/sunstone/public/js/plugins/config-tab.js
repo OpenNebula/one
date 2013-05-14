@@ -14,6 +14,18 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+var user_cookie = $.cookie("one-user");
+
+setInterval(function(){
+    var new_cookie = $.cookie("one-user");
+
+    if ((new_cookie == null) || (new_cookie !== user_cookie)) {
+        window.location.href='/';
+    } else {
+        user_cookie = new_cookie
+    }
+},5000);
+
 
 Config = {
     "isTabEnabled": function(tab_name){
