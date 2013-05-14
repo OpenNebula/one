@@ -109,7 +109,7 @@ void Leases::Lease::ip6_to_string(const unsigned int eui64[],
     ip6.s6_addr32[3] = htonl(eui64[0]);
 
     // global or site unicast address
-    if (prefix[1] != 0 && prefix[0] != 0 )
+    if (prefix[1] != 0 || prefix[0] != 0 )
     {
         ip6.s6_addr32[0] = htonl(prefix[1]);
         ip6.s6_addr32[1] = htonl(prefix[0]);
@@ -177,7 +177,6 @@ int Leases::Lease::mac_to_number(const string& _mac, unsigned int i_mac[])
 int Leases::Lease::prefix6_to_number(const string& prefix, unsigned int ip[])
 {
     struct in6_addr s6;
-    ostringstream   oss;
 
     if (prefix.empty())
     {
@@ -185,9 +184,7 @@ int Leases::Lease::prefix6_to_number(const string& prefix, unsigned int ip[])
         return 0;
     }
 
-    oss << prefix << ":0:0:0:1";
-
-    int rc = inet_pton(AF_INET6, oss.str().c_str(), &s6);
+    int rc = inet_pton(AF_INET6, prefix.c_str(), &s6);
 
     if ( rc != 1 )
     {

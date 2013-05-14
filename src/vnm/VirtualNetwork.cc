@@ -26,6 +26,8 @@
 #include "AuthManager.h"
 #include "ClusterPool.h"
 
+#include "NebulaUtil.h"
+
 #define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
 
 /* ************************************************************************** */
@@ -489,6 +491,24 @@ int VirtualNetwork::drop(SqlDB * db)
 string& VirtualNetwork::to_xml(string& xml) const
 {
     return to_xml_extended(xml,false);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& VirtualNetwork::to_xml64(string &xml64, bool extended)
+{
+    string *str64;
+
+    to_xml_extended(xml64, extended);
+
+    str64 = one_util::base64_encode(xml64);
+
+    xml64 = *str64;
+
+    delete str64;
+
+    return xml64;
 }
 
 /* -------------------------------------------------------------------------- */
