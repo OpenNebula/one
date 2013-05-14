@@ -19,9 +19,11 @@
 require 'rexml/document'
 require 'base64'
 require 'fileutils'
+require 'erb'
 
 class Router
     # Default files
+
     FILES = {
         :resolv_conf   => "/etc/resolv.conf",
         :context       => "/mnt/context/context.sh",
@@ -80,6 +82,15 @@ class Router
             {
                 :resource       => :privnet,
                 :resource_xpath => 'TEMPLATE/DHCP'
+            }
+        ],
+        :radvd => [
+            {
+                :resource => :context
+            },
+            {
+                :resource       => :privnet,
+                :resource_xpath => 'TEMPLATE/RADVD'
             }
         ],
         :ntp_server => [
@@ -162,11 +173,18 @@ class Router
         get_attribute(:ntp_server)
     end
 
+    def radvd
+        radvd_raw = get_attribute(:radvd) || ""
+        radvd = !!radvd_raw.downcase.match(/^y(es)?$/)
+        radvd and @privnet[:ipv6]
+    end
+
     ############################################################################
     # ACTIONS
     ############################################################################
 
     def mount_context
+        log("mounting context")
         FileUtils.mkdir_p("/mnt/context")
         run "mount -t iso9660 /dev/cdrom /mnt/context 2>/dev/null"
     end
@@ -191,12 +209,13 @@ class Router
 
     def configure_network
         if has_context?
+            log("has context")
             configure_network_context
         else
+            log("no context")
             configure_network_static
         end
     end
-
 
     def configure_network_static
         macs = @mac_interfaces.invert
@@ -217,31 +236,39 @@ class Router
                 run "ip route add default via #{gateway}"
             end
         end
-
     end
 
     def configure_network_context
         if pubnet
-            ip      = @pubnet[:ip]
-            nic     = @pubnet[:interface]
-            netmask = @pubnet[:netmask]
-            gateway = @pubnet[:gateway]
+            ip         = @pubnet[:ip]
+            ip6_global = @pubnet[:ip6_global]
+            ip6_site   = @pubnet[:ip6_site]
+            nic        = @pubnet[:interface]
+            netmask    = @pubnet[:netmask]
+            gateway    = @pubnet[:gateway]
 
             run "ip link set #{nic} up"
+
             run "ip addr add #{ip}/#{netmask} dev #{nic}"
+            run "ip addr add #{ip6_global} dev #{nic}" if ip6_global
+            run "ip addr add #{ip6_site}   dev #{nic}" if ip6_site
+
             run "ip route add default via #{gateway}"
         end
 
         if privnet
-            ip      = @privnet[:ip]
-            nic     = @privnet[:interface]
-            netmask = @privnet[:netmask]
+            ip         = @privnet[:ip]
+            ip6_global = @privnet[:ip6_global]
+            ip6_site   = @privnet[:ip6_site]
+            nic        = @privnet[:interface]
+            netmask    = @privnet[:netmask]
 
             run "ip link set #{nic} up"
             run "ip addr add #{ip}/#{netmask} dev #{nic}"
+            run "ip addr add #{ip6_global} dev #{nic}" if ip6_global
+            run "ip addr add #{ip6_site}   dev #{nic}" if ip6_site
         end
     end
-
 
     def configure_dnsmasq
         File.open(FILES[:dnsmasq_conf],'w') do |conf|
@@ -274,6 +301,27 @@ class Router
         end
     end
 
+    def configure_radvd
+        prefixes = [@privnet[:ip6_global],@privnet[:ip6_site]].compact
+        privnet_iface = @privnet[:interface]
+
+        radvd_conf_tpl =<<-EOF.gsub(/^\s{12}/,"")
+            interface <%= privnet_iface %>
+            {
+                AdvSendAdvert on;
+                <% prefixes.each do |p| %>
+                prefix <%= p %>/64
+                {
+                    AdvOnLink on;
+                };
+                <% end %>
+            };
+        EOF
+
+        radvd_conf = ERB.new(radvd_conf_tpl).result(binding)
+        File.open(FILES[:radvd_conf],'w') {|c| c.puts radvd_conf }
+    end
+
     def configure_masquerade
         run "iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE"
     end
@@ -296,6 +344,11 @@ class Router
     def service(service, action = :start)
         action = action.to_s
         run "/etc/init.d/#{service} #{action}"
+    end
+
+    def log(msg, command = false)
+        msg = "=> #{msg}" unless command
+        File.open(FILES[:log_file],'a') {|f| f.puts msg}
     end
 
     ############################################################################
@@ -323,11 +376,17 @@ private
         if (pubnet_id = get_element_xpath(:pubnet, 'ID'))
             @pubnet[:network_id] = pubnet_id
 
-            xpath_ip  = "TEMPLATE/NIC[NETWORK_ID='#{pubnet_id}']/IP"
-            xpath_mac = "TEMPLATE/NIC[NETWORK_ID='#{pubnet_id}']/MAC"
+            xpath_ip         = "TEMPLATE/NIC[NETWORK_ID='#{pubnet_id}']/IP"
+            xpath_ip6_global = "TEMPLATE/NIC[NETWORK_ID='#{pubnet_id}']/IP6_GLOBAL"
+            xpath_ip6_site   = "TEMPLATE/NIC[NETWORK_ID='#{pubnet_id}']/IP6_SITE"
+            xpath_mac        = "TEMPLATE/NIC[NETWORK_ID='#{pubnet_id}']/MAC"
 
-            @pubnet[:ip]  = get_element_xpath(:template, xpath_ip)
-            @pubnet[:mac] = get_element_xpath(:template, xpath_mac)
+            @pubnet[:ip]         = get_element_xpath(:template, xpath_ip)
+            @pubnet[:ip6_global] = get_element_xpath(:template, xpath_ip6_global)
+            @pubnet[:ip6_site]   = get_element_xpath(:template, xpath_ip6_site)
+            @pubnet[:mac]        = get_element_xpath(:template, xpath_mac)
+
+            @pubnet[:ipv6] = true if @pubnet[:ip6_global] or @pubnet[:ip6_site]
 
             @pubnet[:interface] = @mac_interfaces[@pubnet[:mac]]
 
@@ -344,11 +403,17 @@ private
         if (privnet_id = get_element_xpath(:privnet, 'ID'))
             @privnet[:network_id] = privnet_id
 
-            xpath_ip  = "TEMPLATE/NIC[NETWORK_ID='#{privnet_id}']/IP"
-            xpath_mac = "TEMPLATE/NIC[NETWORK_ID='#{privnet_id}']/MAC"
+            xpath_ip         = "TEMPLATE/NIC[NETWORK_ID='#{privnet_id}']/IP"
+            xpath_ip6_global = "TEMPLATE/NIC[NETWORK_ID='#{privnet_id}']/IP6_GLOBAL"
+            xpath_ip6_site   = "TEMPLATE/NIC[NETWORK_ID='#{privnet_id}']/IP6_SITE"
+            xpath_mac        = "TEMPLATE/NIC[NETWORK_ID='#{privnet_id}']/MAC"
 
-            @privnet[:ip]  = get_element_xpath(:template, xpath_ip)
-            @privnet[:mac] = get_element_xpath(:template, xpath_mac)
+            @privnet[:ip]         = get_element_xpath(:template, xpath_ip)
+            @privnet[:ip6_global] = get_element_xpath(:template, xpath_ip6_global)
+            @privnet[:ip6_site]   = get_element_xpath(:template, xpath_ip6_site)
+            @privnet[:mac]        = get_element_xpath(:template, xpath_mac)
+
+            @privnet[:ipv6] = true if @privnet[:ip6_global] or @privnet[:ip6_site]
 
             @privnet[:interface] = @mac_interfaces[@privnet[:mac]]
 
@@ -357,12 +422,8 @@ private
         end
     end
 
-    def log(msg)
-        File.open(FILES[:log_file],'a') {|f| f.puts msg}
-    end
-
     def run(cmd)
-        log(cmd)
+        log(cmd, true)
         output = `#{cmd} 2>&1`
         exitstatus = $?.exitstatus
         log(output) if !output.empty?
@@ -500,34 +561,48 @@ end
 
 router = Router.new
 
+router.log("configure network")
 router.configure_network
 
 if router.pubnet
     if router.dns || router.search
+        router.log("write resolv.conf")
         router.write_resolv_conf
     end
 
     # Set masquerade
+    router.log("set masquerade")
     router.configure_masquerade
 
     # Set ipv4 forward
+    router.log("ip forward")
     router.configure_ip_forward
 
     # Set NAT rules
     if router.nat
+        router.log("configure nat")
         router.configure_nat
     end
 end
 
 if router.privnet and router.dhcp
+    router.log("configure dnsmasq")
     router.configure_dnsmasq
     router.service("dnsmasq")
 end
 
+if router.radvd
+    router.log("configure radvd")
+    router.configure_radvd
+    router.service("radvd")
+end
+
 if router.root_password
+    router.log("configure root password")
     router.configure_root_password
 end
 
 if router.root_pubkey
+    router.log("configure root pubkey")
     router.configure_root_pubkey
 end
