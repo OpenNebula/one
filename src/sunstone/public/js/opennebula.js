@@ -483,6 +483,7 @@ var OpenNebula = {
                 url: "logout",
                 type: "POST",
                 success: function(response){
+                    $.cookie("one-user", null);
                     return callback ? callback(request, response) : null;
                 },
                 error: function(response){
