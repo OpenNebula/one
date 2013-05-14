@@ -225,50 +225,6 @@ var create_service_template_tmpl = '\
 </div>';
 
 
-var update_service_template_tmpl =
-   '<form action="javascript:alert(\'js error!\');">\
-         <h3 style="margin-bottom:10px;">'+tr("Please, choose and modify the service template")+':</h3>\
-            <fieldset style="border-top:none;">\
-                 <label for="service_template_update_select">'+tr("Select a template")+':</label>\
-                 <select id="service_template_update_select" name="service_template_update_select"></select>\
-                 <div class="clear"></div>\
-                 <div>\
-                   <table class="permissions_table" style="padding:0 10px;">\
-                     <thead><tr>\
-                         <td style="width:130px">'+tr("Permissions")+':</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Use")+'</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Manage")+'</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Admin")+'</td></tr></thead>\
-                     <tr>\
-                         <td>'+tr("Owner")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="st_owner_u" class="owner_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="st_owner_m" class="owner_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="st_owner_a" class="owner_a" /></td>\
-                     </tr>\
-                     <tr>\
-                         <td>'+tr("Group")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="st_group_u" class="group_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="st_group_m" class="group_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="st_group_a" class="group_a" /></td>\
-                     </tr>\
-                     <tr>\
-                         <td>'+tr("Other")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="st_other_u" class="other_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="st_other_m" class="other_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="st_other_a" class="other_a" /></td>\
-                     </tr>\
-                   </table>\
-                 </div>\
-            </fieldset>\
-            <fieldset>\
-                 <div class="form_buttons">\
-                    <button class="button" id="service_template_update_button" value="ServiceTemplate.update_template">\
-                       '+tr("Update")+'\
-                    </button>\
-                 </div>\
-            </fieldset>\
-</form>';
-
 var dataTable_service_templates;
 var $create_service_template_dialog;
 
@@ -291,11 +247,6 @@ var service_template_actions = {
     "ServiceTemplate.create_dialog" : {
         type : "custom",
         call: popUpCreateServiceTemplateDialog
-    },
-
-    "ServiceTemplate.update_dialog" : {
-        type : "custom",
-        call : popUpServiceTemplateUpdateDialog
     },
 
     "ServiceTemplate.list" : {
@@ -380,28 +331,6 @@ var service_template_actions = {
         notify: true
     },
 
-    "ServiceTemplate.fetch_permissions" : {
-        type : "single",
-        call : ServiceTemplate.show,
-        callback : function(request, json){
-            var dialog = $('#service_template_update_dialog form');
-            var tmpl = json.DOCUMENT;
-            setPermissionsTable(tmpl, dialog);
-        },
-        error: onError
-    },
-/*
-    "ServiceTemplate.clone_dialog" : {
-        type: "custom",
-        call: popUpServiceTemplateCloneDialog
-    },
-    "ServiceTemplate.clone" : {
-        type: "single",
-        call: ServiceTemplate.clone,
-        error: onError,
-        notify: true
-    },
-*/
     "ServiceTemplate.help" : {
         type: "custom",
         call: function() {
@@ -421,13 +350,6 @@ var service_template_buttons = {
     "ServiceTemplate.create_dialog" : {
         type: "create_dialog",
         layout: "create"
-    },
-
-    "ServiceTemplate.update_dialog" : {
-        type: "action",
-        text: tr("Update"),
-        layout: "main",
-        alwaysActive: true
     },
 
     "ServiceTemplate.instantiate" : {
@@ -451,12 +373,7 @@ var service_template_buttons = {
         tip: tr("Select the new group")+":",
         condition: mustBeAdmin
     },
-/*
-    "ServiceTemplate.clone_dialog" : {
-        type: "action",
-        text: tr("Clone")
-    },
-*/
+
     "ServiceTemplate.delete" : {
         type: "confirm",
         text: tr("Delete"),
@@ -492,10 +409,7 @@ function serviceTemplateElements() {
 // Returns an array containing the values of the service_template_json and ready
 // to be inserted in the dataTable
 function serviceTemplateElementArray(service_template_json){
-    //Changing this? It may affect to the is_persistent() functions.
     var service_template = service_template_json.DOCUMENT;
-    //var body = JSON.parse(service_template.TEMPLATE.BODY);
-    //var description =  body.description;
 
     return [
         '<input class="check_item" type="checkbox" id="service_template_'+service_template.ID+'" name="selected_items" value="'+service_template.ID+'"/>',
@@ -503,7 +417,6 @@ function serviceTemplateElementArray(service_template_json){
         service_template.UNAME,
         service_template.GNAME,
         service_template.NAME
-//        description ? description : tr("None")
     ];
 }
 
@@ -541,39 +454,42 @@ function updateServiceTemplatesView(request, service_templates_list){
 // Callback to update the information panel tabs and pop it up
 function updateServiceTemplateInfo(request,elem){
     var elem_info = elem.DOCUMENT;
-/*
-    // Form trs for variables
-    var vars = '';
-    var defaults = elem_info.TEMPLATE.BODY.defaults;
-    if (!$.isEmptyObject(defaults)){
-        for (key in defaults){
-            vars += '<tr>\
-              <td class="key_td">'+ key +'</td>\
-              <td class="value_td">\
-              <input type="text" name="'+ key +'"value="'+ defaults[key] +'"></input>\
-              </td></tr>';
-    };
-    }
 
-    // Form options of compatible templates
-    var compat_templates = '';
-    var templates = elem_info.TEMPLATE.BODY.templates;
-    if (templates)
-        for (var i = 0; i < templates.length; i++)
-            compat_templates += '<option value="'+ templates[i] +'">\
-                                 '+ getTemplateName(templates[i]) +'\
-                                 </option>';
+    var roles_info = '<table id="service_template_roles_table" class="twelve datatable extended_table">\
+           <thead>\
+             <tr><th colspan="2">'+tr("Roles")+'</th></tr>\
+           </thead>'
 
+    var roles = elem_info.TEMPLATE.BODY.roles
+    if (roles && roles.length > 0)
+        for (var i = 0; i < roles.length; i++) {
+          roles_info += '<tr><td colspan="2">'+roles[i].name+'</td></tr>\
+            <tr>\
+             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Cardinality")+'</td>\
+             <td class="value_td">'+roles[i].cardinality+'</td>\
+            </tr>\
+            <tr>\
+             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("VM Template")+'</td>\
+             <td class="value_td">'+roles[i].vm_template+'</td>\
+            </tr>'
 
-*/
+          if (roles[i].parents)
+            roles_info += '<tr>\
+              <td > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Parents")+'</td>\
+              <td class="value_td">'+roles[i].parents.join(', ')+'</td>\
+            </tr>'
+        }
+
+    roles_info += '</table>'
 
     var info_tab = {
         title: tr("Information"),
         content:
-        '<table id="info_template_table" class="info_table" style="width:80%">\
+        '<div class="">\
+          <div class="six columns">\
+          <table id="info_template_table" class="twelve datatable extended_table">\
            <thead>\
-             <tr><th colspan="2">'+tr("Service Template")+' \"'+elem_info.NAME+'\" '+
-            tr("information")+'</th></tr>\
+             <tr><th colspan="2">'+tr("Service Template")+' \"'+elem_info.NAME+'\"'+'</th></tr>\
            </thead>\
            <tr>\
              <td class="key_td">'+tr("ID")+'</td>\
@@ -584,80 +500,32 @@ function updateServiceTemplateInfo(request,elem){
              <td class="value_td">'+elem_info.NAME+'</td>\
            </tr>\
            <tr>\
-             <td class="key_td">'+tr("Owner")+'</td>\
-             <td class="value_td">'+elem_info.UNAME+'</td>\
-           </tr>\
-           <tr>\
-             <td class="key_td">'+tr("Group")+'</td>\
-             <td class="value_td">'+elem_info.GNAME+'</td>\
-           </tr>\
-           <tr><td class="key_td">'+tr("Permissions")+'</td><td></td></tr>\
-           <tr>\
-             <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Owner")+'</td>\
-             <td class="value_td" style="font-family:monospace;">'+ownerPermStr(elem_info)+'</td>\
-           </tr>\
-           <tr>\
-             <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Group")+'</td>\
-             <td class="value_td" style="font-family:monospace;">'+groupPermStr(elem_info)+'</td>\
-           </tr>\
-           <tr>\
-             <td class="key_td"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Other")+'</td>\
-             <td class="value_td" style="font-family:monospace;">'+otherPermStr(elem_info)+'</td>\
-           </tr>\
-           <tr>\
              <td class="key_td">'+tr("Strategy")+'</td>\
              <td class="value_td">'+elem_info.TEMPLATE.BODY.deployment+'</td>\
            </tr>\
-         </table>'
+         </table>' +
+         roles_info +
+       '</div>\
+        <div class="six columns">' + insert_permissions_table('apptools-appflow-templates',
+                                                              "ServiceTemplate",
+                                                              elem_info.ID,
+                                                              elem_info.UNAME,
+                                                              elem_info.GNAME,
+                                                              elem_info.UID,
+                                                              elem_info.GID) +
+        '</div>\
+     </div>'
     };
 
-    var roles_info = '<table id="service_template_roles_table" class="info_table" style="width:80%;">\
-            <thead></thead>'
-
-    var roles = elem_info.TEMPLATE.BODY.roles
-    if (roles && roles.length > 0)
-        for (var i = 0; i < roles.length; i++) {
-          roles_info += '<tr><td class="key_td">'+tr("Role")+' '+roles[i].name+'</td><td></td></tr>\
-            <tr>\
-             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Cardinality")+'</td>\
-             <td class="value_td" style="font-family:monospace;">'+roles[i].cardinality+'</td>\
-            </tr>\
-            <tr>\
-             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("VM Template")+'</td>\
-             <td class="value_td" style="font-family:monospace;">'+roles[i].vm_template+'</td>\
-            </tr>'
-
-          if (roles[i].parents)
-            roles_info += '<tr>\
-              <td > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Parents")+'</td>\
-              <td class="value_td" style="font-family:monospace;">'+roles[i].parents.join(', ')+'</td>\
-            </tr>'
-        }
-
-    roles_info += '</table>'
-
-    var roles_tab = {
-        title: tr("Roles"),
-        content: roles_info
-    }
-
-/*
-    var roles_tab = {
-        title: tr("Roles"),
-            content: '<table id="service_node_table" class="info_table" style="width:80%;">\
-            <thead><tr><th colspan="2">'+tr("Node")+'</th></tr></thead>'+
-            (elem_info.TEMPLATE.BODY ? prettyPrintJSON(elem_info.TEMPLATE.BODY) : "" )+
-            '</table>'
-          }
-*/
     Sunstone.updateInfoPanelTab("service_template_info_panel","service_template_info_tab",info_tab);
-    if (roles && roles.length > 0)
-        Sunstone.addInfoPanelTab("service_template_info_panel","service_template_roles_tab",roles_tab);
-    else
-        Sunstone.removeInfoPanelTab("service_template_info_panel","service_template_roles_tab");
-
     Sunstone.popUpInfoPanel("service_template_info_panel", "apptools-appflow-templates");
 
+    setPermissionsTable(elem_info,'');
+
+    $("#service_template_info_panel_refresh", $("#service_template_info_panel")).click(function(){
+      $(this).html(spinner);
+      Sunstone.runAction('ServiceTemplate.showinfo', elem_info.ID);
+    })
 }
 
 
@@ -793,121 +661,17 @@ function popUpCreateServiceTemplateDialog(){
     var dialog = $create_service_template_dialog;
     var tpl_select = makeSelectOptions(dataTable_templates, 1, 4, [], [], true);
     $('select[name="vm_template"]', dialog).html(tpl_select);
-    // $('select[name="templates"] option', dialog).each(function(){
-    //     $(this).text('☐ '+$(this).text());
-    // });
-
-    // //Somehow this needs to go here. Live() doesn't respond in setup function
-    // $('select[name="templates"] option', dialog).click(function(){
-    //     var clicked = $(this).attr('clicked');
-    //     if (clicked){//unbold, unmark
-    //         $(this).text($(this).text().replace(/☒/g,'☐'));
-    //         $(this).removeAttr('clicked');
-    //     }
-    //     else {//bold,mark
-    //         $(this).text($(this).text().replace(/☐/g,'☒'));
-    //         $(this).attr('clicked','clicked');
-    //     }
-    //     return false;
-    // });
-
     dialog.reveal();
 }
 
 
-function setupServiceTemplateUpdateDialog(){
-    //Append to DOM
-    dialogs_context.append('<div id="service_template_update_dialog" title="'+tr("Update Service template properties")+'"></div>');
-    var dialog = $('#service_template_update_dialog',dialogs_context);
-
-    //Put HTML in place
-    dialog.html(update_service_template_tmpl);
-
-    var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
-
-    //Convert into jQuery
-    dialog.addClass("reveal-modal xlarge");
-
-
-    $('#service_template_update_select',dialog).change(function(){
-        var id = $(this).val();
-        $('.permissions_table input', dialog).removeAttr('checked');
-        $('.permissions_table', dialog).removeAttr('update');
-        if (id && id.length){
-            Sunstone.runAction("ServiceTemplate.fetch_permissions", id);
-        };
-    });
-
-    $('.permissions_table input',dialog).change(function(){
-        $(this).parents('table').attr('update','update');
-    });
-
-    $('form',dialog).submit(function(){
-        var dialog = $(this);
-        var id = $('#service_template_update_select',dialog).val();
-        if (!id || !id.length) {
-            $(this).parents('#service_template_update_dialog').trigger("reveal:close");
-            return false;
-        };
-
-        var permissions = $('.permissions_table',dialog);
-        if (permissions.attr('update')){
-            var perms = {
-                octet : buildOctet(permissions)
-            };
-            Sunstone.runAction("ServiceTemplate.chmod", id, perms);
-        };
-
-        $(this).parents('#service_template_update_dialog').trigger("reveal:close");
-        return false;
-    });
-};
-
-
-function popUpServiceTemplateUpdateDialog(){
-    var select = makeSelectOptions(dataTable_service_templates,
-                                   1,//id_col
-                                   4,//name_col
-                                   [],
-                                   []
-                                  );
-    var sel_elems = getSelectedNodes(dataTable_service_templates);
-
-
-    var dialog =  $('#service_template_update_dialog');
-    $('#service_template_update_select', dialog).html(select);
-//    $('#service_template_update_textarea',dialog).val("");
-    $('.permissions_table input', dialog).removeAttr('checked');
-    $('.permissions_table', dialog).removeAttr('update');
-
-    if (sel_elems.length >= 1){ //several items in the list are selected
-        //grep them
-        var new_select= sel_elems.length > 1? '<option value="">Please select</option>' : "";
-        $('option','<select>'+select+'</select>').each(function(){
-            var val = $(this).val();
-            if ($.inArray(val,sel_elems) >= 0){
-                new_select+='<option value="'+val+'">'+$(this).text()+'</option>';
-            };
-        });
-        $('#service_template_update_select', dialog).html(new_select);
-        if (sel_elems.length == 1) {
-            $('#service_template_update_select option',
-              dialog).attr('selected','selected');
-            $('#service_template_update_select', dialog).trigger("change");
-        };
-    };
-
-    dialog.reveal();
-    return false;
-}
 
 // Set the autorefresh interval for the datatable
 function setServiceTemplateAutorefresh() {
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_service_templates);
-        var filter = $("#datatable_service_templates_filter input",
-                       dataTable_service_templates.parents("#datatable_service_templates_wrapper")).attr('value');
-        if (!checked.length && !filter.length){
+        var filter = $("#service_template_search").attr('value');
+        if ((checked.length==0) && !filter){
             Sunstone.runAction("ServiceTemplate.autorefresh");
         }
     },INTERVAL+someTime());
@@ -936,13 +700,9 @@ $(document).ready(function(){
 
     Sunstone.runAction("ServiceTemplate.list");
 
-
     setupCreateServiceTemplateDialog();
-    setupServiceTemplateUpdateDialog();
     setupTips($create_service_template_dialog);
-    $('.st_man .man_icon',
-      $create_service_template_dialog).css('display', 'inline-block');
-//    setupImageCloneDialog();
+
     setServiceTemplateAutorefresh();
 
     initCheckAllBoxes(dataTable_service_templates);
