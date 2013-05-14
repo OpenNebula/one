@@ -938,7 +938,7 @@ function setupCreateDatastoreDialog(){
             ds_obj.datastore.base_iqn = base_iqn;
 
         if (vg_name)
-            ds_obj.vg_name.bridge_list = vg_name;
+            ds_obj.datastore.vg_name = vg_name;
 
         Sunstone.runAction("Datastore.create",ds_obj);
 
