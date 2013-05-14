@@ -42,7 +42,10 @@ class Router
     DEFAULT_NETMASK = "255.255.255.0"
 
     # Context parameters that are base64 encoded
-    BASE_64_KEYS = [:privnet, :pubnet, :template]
+    BASE_64_KEYS = [:privnet, :pubnet, :template, :root_password]
+
+    # Context parameters that are XML documents
+    XML_KEYS = [:privnet, :pubnet, :template]
 
     # The specification on how to fetch these attributes.
     # The order in the array matters, the first non-empty one is returned.
@@ -331,7 +334,7 @@ class Router
     end
 
     def configure_root_password
-        run "echo root:#{root_password}|chpasswd"
+        run "echo -n 'root:#{root_password}'|chpasswd -e"
     end
 
     def configure_root_pubkey
@@ -497,8 +500,13 @@ private
 
         BASE_64_KEYS.each do |key|
             if @context.include? key
-                tpl = Base64::decode64(@context[key])
-                @xml[key] = REXML::Document.new(tpl).root
+                @context[key] = Base64::decode64(@context[key])
+            end
+        end
+
+        XML_KEYS.each do |key|
+            if @context.include? key
+                @xml[key] = REXML::Document.new(@context[key]).root
             end
         end
     end
