@@ -167,7 +167,7 @@ class Router
     ############################################################################
 
     def mount_context
-        FileUtils.mkdir_p('/mnt/context')
+        FileUtils.mkdir_p("/mnt/context")
         run "mount -t iso9660 /dev/cdrom /mnt/context 2>/dev/null"
     end
 
@@ -382,12 +382,20 @@ private
                 ip  = int_to_ip(int_ip)
                 mac = ip2mac(ip)
 
+                used_node = netxml.elements["LEASES/LEASE[IP='#{ip}']/USED"]
+                used = (used_node.text.to_i == 1 if used_node) || false
+                next if used
+
                 pairs << [mac, ip, int_ip]
             end
         elsif netxml.elements['LEASES/LEASE']
             netxml.elements.each('LEASES/LEASE') do |lease|
-                ip  = lease.elements['IP'].text
-                mac = lease.elements['MAC'].text
+                used = lease.elements['USED'].text.to_i == 1
+                next if used
+
+                ip   = lease.elements['IP'].text
+                mac  = lease.elements['MAC'].text
+
                 int_ip = ip_to_int(ip)
 
                 pairs << [mac, ip, int_ip]
@@ -511,15 +519,9 @@ if router.pubnet
     end
 end
 
-if router.privnet
-    if router.dhcp
-        router.configure_dnsmasq
-        router.service("dnsmasq")
-    end
-
-    if router.ntp
-        router.service("ntpd")
-    end
+if router.privnet and router.dhcp
+    router.configure_dnsmasq
+    router.service("dnsmasq")
 end
 
 if router.root_password
