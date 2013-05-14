@@ -66,7 +66,7 @@ class Router
         :nat => [
             {
                 :resource => :context,
-                :resource_name => "FORWARDING"
+                :resource_name => :forwarding
             },
             {
                 :resource       => :privnet,
