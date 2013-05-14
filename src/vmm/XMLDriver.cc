@@ -26,16 +26,16 @@ int XMLDriver::deployment_description(
 {
     ofstream    file;
     string      xml;
-    
+
     file.open(file_name.c_str(), ios::out);
-    
+
     if (file.fail() == true)
     {
         vm->log("VMM", Log::ERROR, "Could not open XML deployment file.");
         return -1;
     }
-    
-    file << vm->template_to_xml(xml);
+
+    file << vm->to_xml(xml);
 
     file.close();
 
