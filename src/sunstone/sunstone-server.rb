@@ -290,7 +290,7 @@ get '/config' do
     uconf = {
         :user_config => {
             :lang => session[:lang],
-            :wss  => session[:wss],
+            :vnc_wss  => session[:vnc_wss],
         },
         :system_config => {
             :marketplace_url => $conf[:marketplace_url],
