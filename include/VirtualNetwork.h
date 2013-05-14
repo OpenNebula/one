@@ -178,6 +178,15 @@ public:
     string& to_xml(string& xml) const;
 
     /**
+     * Function to print the object into a string in XML format
+     * base64 encoded
+     *  @param xml64 the resulting XML string
+     *  @param extended return the extended template or the simple one
+     *  @return a reference to the generated string
+     */
+    string& to_xml64(string &xml64, bool extended);
+
+    /**
      * Function to print the VirtualNetwork object into a string in
      * XML format. The extended XML includes the LEASES
      *  @param xml the resulting XML string
