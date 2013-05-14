@@ -307,7 +307,7 @@ private
 
         ec2 = nil
 
-        all_ec2_elements = xml.root.get_elements("EC2")
+        all_ec2_elements = xml.root.get_elements("USER_TEMPLATE/EC2")
 
         # First, let's see if we have an EC2 site that matches
         # our desired host name
