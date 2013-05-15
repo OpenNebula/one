@@ -16,191 +16,92 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"]
+require 'rubygems'
+require 'rbvmomi'
+require 'pp'
 
-if !ONE_LOCATION
-   BIN_LOCATION = "/usr/bin" 
-   LIB_LOCATION = "/usr/lib/one"
-   ETC_LOCATION = "/etc/one/" 
-   VAR_LOCATION = "/var/lib/one"
-   RUBY_LIB_LOCATION = "/usr/lib/one/ruby"  
-else
-   LIB_LOCATION = ONE_LOCATION + "/lib"
-   BIN_LOCATION = ONE_LOCATION + "/bin" 
-   ETC_LOCATION = ONE_LOCATION  + "/etc/"
-   VAR_LOCATION = ONE_LOCATION + "/var/"
-   RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby" 
+def init_client(hostname, user, password)
+  @client = RbVmomi::VIM.connect(:host => hostname, 
+                                 :user => user, 
+                                 :password => password, 
+                                 :insecure => true)
+  @rootFolder = @client.serviceInstance.content.rootFolder
 end
 
-$: << RUBY_LIB_LOCATION
+# Get hold of a VM by name
+def get_vm(name)
+  vm = {}
+  # Traverse all datacenters
+  @rootFolder.childEntity.grep(RbVmomi::VIM::Datacenter).each do |dc|
+    # Traverse all datastores  
+    dc.datastoreFolder.childEntity.collect do |ds|
+      # Find the VM with "name"
+      vm[:vm] = ds.vm.find { |v| v.name == name }
+      if vm[:vm]
+        vm[:ds] = ds.name
+        break
+      end
+    end
+  end
+  return vm
+end
 
-CONF_FILE   = ETC_LOCATION + "/vmwarerc"
+# Get hold of a host by name
+def get_host(name)
+  host = {}
+  @rootFolder.childEntity.grep(RbVmomi::VIM::Datacenter).first.hostFolder.children.first.host.each { |h| 
+      if h.name == name
+        host = h
+        break
+      end
+  }
+  return host
+end
 
-ENV['LANG'] = 'C'
+def get_used_memory(vm)
+  vm.summary.quickStats.hostMemoryUsage.to_s
+end
 
-require "scripts_common"
-require 'yaml'
-require "CommandManager"
-require 'opennebula'
-include OpenNebula
+def get_used_cpu(vm, host)
+  overallCpuUsage = vm.summary.quickStats.overallCpuUsage.to_f
+  cpuMhz          = host.summary.hardware.cpuMhz.to_f
+  numCpuCores     = host.summary.hardware.numCpuCores.to_f
+  (overallCpuUsage / (cpuMhz * numCpuCores)).round(3).to_s
+end
+
+def get_state(vm)
+  case vm.summary.runtime.powerState
+    when "poweredOn"
+      "a"
+    when "suspended"
+      "p"
+    else
+      "d"
+  end
+end
+
+def get_info(vm, host)
+  str_info = ""
+  str_info += "USEDCPU="+get_used_cpu(vm, host)+" "
+  str_info += "USEDMEMORY="+get_used_memory(vm)+" "
+  str_info += "STATE="+get_state(vm)+" "
+end
+
 
 begin
-    client = Client.new()
+  init_client("dyn11","root","DridiatLy")
+
+  vm   = get_vm("neno2")
+  host = get_host("dyn11")
+  str_info = get_info(vm[:vm], host)
+
+  pp vm[:vm].network.each {|n|
+    pp n
+  }
+
 rescue Exception => e
-    puts "Error: #{e}"
-    exit(-1)
+  str_info = "STATE=d"
 end
 
-# ######################################################################## #
-#                          DRIVER HELPER FUNCTIONS                         #
-# ######################################################################## #
+pp str_info
 
-#Generates an ESX command using ttyexpect
-def esx_cmd(command)
-    cmd = "#{BIN_LOCATION}/tty_expect -u #{@user} -p #{@pass} #{command}"
-end
-
-#Performs a action usgin libvirt
-def do_action(cmd)
-    rc = LocalCommand.run(esx_cmd(cmd))
-
-    if rc.code == 0
-        return [true, rc.stdout]
-    else
-        err = "Error executing: #{cmd} err: #{rc.stderr} out: #{rc.stdout}"
-        OpenNebula.log_error(err)
-        return [false, rc.code]
-    end
-end
-
-@result_str = ""
-
-def add_info(name, value)
-    value = "0" if value.nil? or value.to_s.empty?
-    @result_str << "#{name}=#{value}\n"
-end
-
-def print_info
-    puts @result_str
-end
-
-def get_vm_names
-    rc, data = do_action("virsh -c #{@uri} --readonly list")
-    return [] if !rc
-
-    data.gsub!(/^.*----$/m, '')
-
-    data.strip! if data
-
-
-    lines=data.split(/\n/)
-
-    lines.map do |line|
-        line.split(/\s+/).delete_if {|d| d.empty? }[1]
-    end.compact
-end
-
-def get_vm_info(host, vm)
-    `../../vmm/vmware/poll #{vm} #{host}`.strip
-end
-
-def get_all_vm_info(host, vms)
-    puts "VM_POLL=YES"
-    vms.each do |vm|
-        info=get_vm_info(host, vm)
-
-        number = -1
-        if (vm =~ /^one-\d*$/)
-            number = vm.split('-').last
-        end
-
-        puts "VM=["
-        puts "  ID=#{number},"
-        puts "  DEPLOY_ID=#{vm},"
-        puts "  POLL=\"#{info}\" ]"
-    end
-end
-
-# ######################################################################## #
-#                          Main Procedure                                  #
-# ######################################################################## #
-
-host       = ARGV[2]
-
-if !host
-    exit -1
-end
-
-conf  = YAML::load(File.read(CONF_FILE))
-
-@uri  = conf[:libvirt_uri].gsub!('@HOST@', host)
-
-@user = conf[:username]
-if conf[:password] and !conf[:password].empty?
-   @pass=conf[:password]
-else
-   @pass="\"\""
-end
-
-# Poll the VMware hypervisor
-
-rc, data = do_action("virsh -c #{@uri} --readonly nodeinfo")
-
-if rc == false
-    exit data
-end
-
-data.split(/\n/).each{|line|
-    if line.match('^CPU\(s\)')
-        $total_cpu   = line.split(":")[1].strip.to_i * 100
-    elsif line.match('^CPU frequency')
-        $cpu_speed   = line.split(":")[1].strip.split(" ")[0]
-    elsif line.match('^Memory size')
-        $total_memory = line.split(":")[1].strip.split(" ")[0]
-    end
-}
-
-# Loop through all vms
-used_memory = 0
-used_cpu    = 0
-
-vms = VirtualMachinePool.new(client)
-
-rc = vms.info
-if OpenNebula.is_error?(rc)
-    warn "Couldn't reach OpenNebula, aborting."
-    exit -1
-end
-
-vm_ids_array = vms.retrieve_elements("/VM_POOL/VM[STATE=3 or STATE=5]/HISTORY_RECORDS/HISTORY[HOSTNAME=\"#{@host}\"]/../ID")
-
-if vm_ids_array
-    vm_ids_array.each do |vm_id|
-        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, client)
-        rc = vm.info
-        
-        if OpenNebula.is_error?(rc)
-            warn "Couldn't reach OpenNebula, aborting."
-            exit -1
-        end
-
-        used_memory = used_memory + (vm['TEMPLATE/MEMORY'].to_i * 1024)
-        used_cpu    = used_cpu    + (vm['TEMPLATE/CPU'].to_f * 100)
-    end
-end
-
-# Scheduler will take hypervisor memory usage into account
-free_memory = ($total_memory.to_i - used_memory)
-# assume all the host's CPU is devoted to running Virtual Machines
-free_cpu    = ($total_cpu.to_f    - used_cpu)
-
-add_info("HYPERVISOR","vmware")
-add_info("TOTALCPU",$total_cpu)
-add_info("FREECPU",free_cpu.to_i)
-add_info("CPUSPEED",$cpu_speed)
-add_info("TOTALMEMORY",$total_memory)
-add_info("FREEMEMORY",free_memory.to_i)
-
-print_info
-
-get_all_vm_info(host, get_vm_names)
