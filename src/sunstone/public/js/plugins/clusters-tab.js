@@ -1421,6 +1421,10 @@ $(document).ready(function(){
       dataTable_clusters.fnFilter( $(this).val() );
     })
 
+    dataTable_clusters.on('draw', function(){
+      recountCheckboxes(dataTable_clusters);
+    })
+
     Sunstone.runAction("Cluster.list");
 
     dialogs_context.append('<div title=\"'+tr("Create cluster")+'\" id="create_cluster_dialog"></div>');

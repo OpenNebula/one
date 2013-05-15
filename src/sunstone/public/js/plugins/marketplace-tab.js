@@ -324,6 +324,10 @@ $(document).ready(function(){
       dataTable_marketplace.fnFilter( $(this).val() );
     })
 
+    dataTable_marketplace.on('draw', function(){
+      recountCheckboxes(dataTable_marketplace);
+    })
+
     tableCheckboxesListener(dataTable_marketplace);
     onlyOneCheckboxListener(dataTable_marketplace);
 

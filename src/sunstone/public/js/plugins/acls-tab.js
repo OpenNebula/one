@@ -614,9 +614,9 @@ $(document).ready(function(){
       dataTable_acls.fnFilter( $(this).val() );
     })
 
-    //addElement([
-    //    spinner,
-    //    '','','','','',''],dataTable_acls);
+    dataTable_acls.on('draw', function(){
+      recountCheckboxes(dataTable_acls);
+    })
 
     Sunstone.runAction("Acl.list");
 

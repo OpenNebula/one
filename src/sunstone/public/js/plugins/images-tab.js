@@ -1311,9 +1311,10 @@ $(document).ready(function(){
       dataTable_images.fnFilter( $(this).val() );
     })
 
-    //addElement([
-    //    spinner,
-    //    '','','','','','','','','','','',''],dataTable_images);
+    dataTable_images.on('draw', function(){
+      recountCheckboxes(dataTable_images);
+    })
+
     Sunstone.runAction("Image.list");
 
     setupCreateImageDialog();

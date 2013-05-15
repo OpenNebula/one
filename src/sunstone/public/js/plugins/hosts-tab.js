@@ -982,10 +982,10 @@ $(document).ready(function(){
       dataTable_hosts.fnFilter( $(this).val() );
     })
 
-    //preload it
-    //addElement([
-    //    spinner,
-    //    '','','','','','','','','','','',''],dataTable_hosts);
+    dataTable_hosts.on('draw', function(){
+      recountCheckboxes(dataTable_hosts);
+    })
+
     Sunstone.runAction("Host.list");
 
     setupCreateHostDialog();

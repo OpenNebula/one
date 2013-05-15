@@ -1578,9 +1578,10 @@ $(document).ready(function(){
       dataTable_vNetworks.fnFilter( $(this).val() );
     })
 
-    //addElement([
-    //    spinner,
-    //    '','','','','','','',''],dataTable_vNetworks);
+    dataTable_vNetworks.on('draw', function(){
+      recountCheckboxes(dataTable_vNetworks);
+    })
+
     Sunstone.runAction("Network.list");
 
     setupCreateVNetDialog();

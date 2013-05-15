@@ -2949,6 +2949,10 @@ $(document).ready(function(){
       dataTable_vMachines.fnFilter( $(this).val() );
     })
 
+    dataTable_vMachines.on('draw', function(){
+      recountCheckboxes(dataTable_vMachines);
+    })
+
 
 
     //addElement([
