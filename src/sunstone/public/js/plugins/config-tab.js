@@ -192,7 +192,7 @@ Sunstone.addActions({
             notifyMessage(tr("Template updated correctly"));
             OpenNebula.User.show({
                 data : {
-                    id: uid
+                    id: "-1"
                 },
                 success: updateUserConfigInfo
               });
@@ -265,7 +265,7 @@ function setupConfigDialog() {
 
       OpenNebula.User.show({
         data : {
-            id: uid
+            id: "-1"
         },
         success: function(request,user_json){
           var template = user_json.USER.TEMPLATE;
@@ -355,14 +355,14 @@ $(document).ready(function(){
   $("span.user-login a.configuration").click(function(){
       OpenNebula.User.show({
         data : {
-            id: uid
+            id: '-1'
         },
         success: updateUserConfigInfo
       });
 
       OpenNebula.Group.show({
         data : {
-            id: gid
+            id: '-1'
         },
         success: function(request,group_json){
             var info = group_json.GROUP;

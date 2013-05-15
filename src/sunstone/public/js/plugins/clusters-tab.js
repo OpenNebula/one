@@ -1389,9 +1389,6 @@ function clusterResourceViewListeners(){
 //Prepares the autorefresh for hosts
 function setClusterAutorefresh() {
     setInterval(function(){
-        var selected_menu = $('div#menu li.navigation-active-li');
-        var inSubMenu = selected_menu.attr('id').indexOf('cluster') > 0;
-
         var checked = $('input.check_item:checked',dataTable_clusters);
         var  filter = $("#cluster_search").attr('value');
         if ((checked.length==0) && !filter){
