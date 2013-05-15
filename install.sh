@@ -1042,6 +1042,7 @@ ONEDB_MIGRATOR_FILES="src/onedb/2.0_to_2.9.80.rb \
                       src/onedb/3.8.4_to_3.9.80.rb \
                       src/onedb/3.9.80_to_3.9.90.rb \
                       src/onedb/3.9.90_to_4.0.0.rb \
+                      src/onedb/4.0.0_to_4.0.1.rb \
                       src/onedb/fsck.rb \
                       src/onedb/onedb.rb \
                       src/onedb/onedb_backend.rb"
