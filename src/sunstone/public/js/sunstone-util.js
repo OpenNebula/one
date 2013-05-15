@@ -1483,7 +1483,7 @@ function setupQuotasDialog(dialog){
                 notifyError(tr("Please select an element"));
                 return false;
             };
-            if (!value) value = 0;
+            if (!value) value = -1;
             json[name] = value;
         };
 
