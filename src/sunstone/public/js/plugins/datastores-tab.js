@@ -1117,6 +1117,10 @@ $(document).ready(function(){
       dataTable_datastores.fnFilter( $(this).val() );
     })
 
+    dataTable_datastores.on('draw', function(){
+      recountCheckboxes(dataTable_datastores);
+    })
+
     Sunstone.runAction("Datastore.list");
 
     setupCreateDatastoreDialog();

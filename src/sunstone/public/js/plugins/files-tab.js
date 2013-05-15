@@ -982,9 +982,10 @@ $(document).ready(function(){
       dataTable_files.fnFilter( $(this).val() );
     })
 
-    //addElement([
-    //    spinner,
-    //    '','','','','','','','','','','',''],dataTable_files);
+    dataTable_files.on('draw', function(){
+      recountCheckboxes(dataTable_files);
+    })
+
     Sunstone.runAction("File.list");
 
     setupCreateFileDialog();

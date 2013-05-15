@@ -4479,9 +4479,10 @@ $(document).ready(function(){
       dataTable_templates.fnFilter( $(this).val() );
     })
 
-    //addElement([
-    //    spinner,
-    //    '','','','',''],dataTable_templates);
+    dataTable_templates.on('draw', function(){
+      recountCheckboxes(dataTable_templates);
+    })
+
     Sunstone.runAction("Template.list");
     setupInstantiateTemplateDialog();
     setupCreateTemplateDialog();

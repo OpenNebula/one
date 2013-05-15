@@ -618,11 +618,12 @@ $(document).ready(function(){
         ]
     });
 
-    //addElement([
-    //    spinner,
-    //    '','','','','',''],dataTable_groups);
     $('#group_search').keyup(function(){
       dataTable_groups.fnFilter( $(this).val() );
+    })
+
+    dataTable_groups.on('draw', function(){
+      recountCheckboxes(dataTable_groups);
     })
 
     Sunstone.runAction("Group.list");

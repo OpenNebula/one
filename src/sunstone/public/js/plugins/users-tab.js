@@ -928,6 +928,10 @@ $(document).ready(function(){
       dataTable_users.fnFilter( $(this).val() );
     })
 
+    dataTable_users.on('draw', function(){
+      recountCheckboxes(dataTable_users);
+    })
+
     Sunstone.runAction("User.list");
 
     setupCreateUserDialog();
