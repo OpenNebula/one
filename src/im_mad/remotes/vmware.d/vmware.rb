@@ -87,18 +87,12 @@ def get_info(vm, host)
   str_info += "STATE="+get_state(vm)+" "
 end
 
-
 begin
-  init_client("dyn11","root","DridiatLy")
+  init_client(hostname,username,password)
 
-  vm   = get_vm("neno2")
-  host = get_host("dyn11")
+  vm   = get_vm(vm_name)
+  host = get_host(hostname)
   str_info = get_info(vm[:vm], host)
-
-  pp vm[:vm].network.each {|n|
-    pp n
-  }
-
 rescue Exception => e
   str_info = "STATE=d"
 end
