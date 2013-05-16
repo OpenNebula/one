@@ -79,6 +79,18 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Enforce that the host capacity is not exceeded"
     }
 
+    SUCCESS={
+        :name  => "success",
+        :large => "--success",
+        :description => "Recover a VM by succeeding the pending action"
+    }
+
+    FAILURE={
+        :name  => "failure",
+        :large => "--failure",
+        :description => "Recover a VM by failing the pending action"
+    }
+
     ########################################################################
     # Global Options
     ########################################################################
@@ -498,6 +510,38 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             helper.perform_actions(args[0],options,"resuming") do |vm|
                 vm.resume
             end
+        end
+    end
+
+    recover_desc = <<-EOT.unindent
+        Recovers a stuck VM that is waiting for a driver operation. The recovery
+        may be done by failing or succeeding the pending operation. YOU NEED
+        TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation
+        was successful or not.
+
+        Example: A VM is stuck in "migrate" because of a harware failure. You
+        need to check if the VM is running in the new host or not to recover
+        the vm with success (onevm recover --with success) or failure
+        (onevm recover --with failure), respectively.
+
+        States: Any ACTIVE state.
+    EOT
+
+    command :recover, recover_desc, [:range,:vmid_list],
+        :options => [SUCCESS, FAILURE] do
+        if !options[:success].nil?
+            result = true
+        elsif !options[:failure].nil?
+            result = false
+        else
+            STDERR.puts "Need to specify the result of the pending action."
+            STDERR.puts "\t--success recover the VM by succeeding the missing action."
+            STDERR.puts "\t--failure recover the VM by failing the missing action."
+            exit -1
+        end
+
+        helper.perform_actions(args[0], options, "recovering") do |vm|
+            vm.recover(result)
         end
     end
 

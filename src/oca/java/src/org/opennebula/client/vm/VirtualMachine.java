@@ -47,6 +47,7 @@ public class VirtualMachine extends PoolElement{
     private static final String SNAPSHOTCREATE = METHOD_PREFIX + "snapshotcreate";
     private static final String SNAPSHOTREVERT = METHOD_PREFIX + "snapshotrevert";
     private static final String SNAPSHOTDELETE = METHOD_PREFIX + "snapshotdelete";
+    private static final String RECOVER = METHOD_PREFIX + "recover";
 
     private static final String[] VM_STATES =
     {
@@ -438,7 +439,7 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
-     * Deletes a VM snapshot
+     * Deletes a VM snapshot.
      *
      * @param client XML-RPC Client.
      * @param id The VM id of the target VM.
@@ -448,6 +449,19 @@ public class VirtualMachine extends PoolElement{
     public static OneResponse snapshotDelete(Client client, int id, int snapId)
     {
         return client.call(SNAPSHOTDELETE, id, snapId);
+    }
+
+    /**
+     * Recovers a stuck VM.
+     *
+     * @param client XML-RPC Client.
+     * @param id The virtual machine id (vid) of the target instance.
+     * @param success recover by succeeding the missing transaction if true.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse recover(Client client, int id, boolean success)
+    {
+        return client.call(RECOVER, id, success);
     }
 
     // =================================
@@ -815,6 +829,17 @@ public class VirtualMachine extends PoolElement{
     public OneResponse snapshotDelete(int snapId)
     {
         return snapshotDelete(client, id, snapId);
+    }
+
+    /**
+     * Recovers a stuck VM.
+     *
+     * @param success recover by succeeding the missing transaction if true.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse recover(boolean success)
+    {
+        return recover(client, id, success);
     }
 
     // =================================
