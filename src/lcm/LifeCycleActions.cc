@@ -993,3 +993,181 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
         break;
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void  LifeCycleManager::recover(VirtualMachine * vm, bool success)
+{
+    LifeCycleManager::Actions lcm_action = LifeCycleManager::FINALIZE;
+
+    Nebula&           nd = Nebula::instance();
+    DispatchManager * dm = nd.get_dm();
+
+    switch (vm->get_lcm_state())
+    {
+        //----------------------------------------------------------------------
+        // Direct recovery states
+        //----------------------------------------------------------------------
+        case VirtualMachine::LCM_INIT:
+        case VirtualMachine::RUNNING:
+            return;
+
+        case VirtualMachine::CLEANUP_DELETE:
+            dm->trigger(DispatchManager::DONE, vm->get_oid());
+            return;
+
+        case VirtualMachine::CLEANUP_RESUBMIT:
+            dm->trigger(DispatchManager::RESUBMIT, vm->get_oid());
+            return;
+
+        case VirtualMachine::UNKNOWN:
+            vm->set_state(VirtualMachine::RUNNING);
+            vmpool->update(vm);
+            return;
+
+        case VirtualMachine::FAILURE:
+            dm->trigger(DispatchManager::FAILED,vm->get_oid());
+            return;
+
+        //----------------------------------------------------------------------
+        // Recover through re-triggering LCM events
+        //----------------------------------------------------------------------
+        case VirtualMachine::PROLOG:
+        case VirtualMachine::PROLOG_MIGRATE:
+        case VirtualMachine::PROLOG_RESUME:
+        case VirtualMachine::PROLOG_UNDEPLOY:
+            if (success)
+            {
+                lcm_action = LifeCycleManager::PROLOG_SUCCESS;
+            }
+            else
+            {
+                lcm_action = LifeCycleManager::PROLOG_FAILURE;
+            }
+        break;
+
+        case VirtualMachine::EPILOG:
+        case VirtualMachine::EPILOG_STOP:
+        case VirtualMachine::EPILOG_UNDEPLOY:
+            if (success)
+            {
+                lcm_action = LifeCycleManager::EPILOG_SUCCESS;
+            }
+            else
+            {
+                lcm_action = LifeCycleManager::EPILOG_FAILURE;
+            }
+        break;
+
+        case VirtualMachine::HOTPLUG_SAVEAS:
+        case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
+        case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
+            if (success)
+            {
+                lcm_action = LifeCycleManager::SAVEAS_HOT_SUCCESS;
+            }
+            else
+            {
+                lcm_action = LifeCycleManager::SAVEAS_HOT_FAILURE;
+            }
+        break;
+
+        case VirtualMachine::BOOT:
+        case VirtualMachine::BOOT_UNKNOWN:
+        case VirtualMachine::BOOT_POWEROFF:
+        case VirtualMachine::BOOT_SUSPENDED:
+        case VirtualMachine::BOOT_STOPPED:
+        case VirtualMachine::BOOT_UNDEPLOY:
+        case VirtualMachine::MIGRATE:
+            if (success)
+            {
+                //Auto-generate deploy-id it'll work for Xen, KVM and VMware
+                if (vm->get_deploy_id().empty())
+                {
+                    ostringstream oss;
+
+                    oss << "one-" << vm->get_oid();
+
+                    vm->update_info(oss.str());
+                }
+
+                lcm_action = LifeCycleManager::DEPLOY_SUCCESS;
+            }
+            else
+            {
+                lcm_action = LifeCycleManager::DEPLOY_FAILURE;
+            }
+        break;
+
+        case VirtualMachine::SHUTDOWN:
+        case VirtualMachine::SHUTDOWN_POWEROFF:
+        case VirtualMachine::SHUTDOWN_UNDEPLOY:
+            if (success)
+            {
+                lcm_action = LifeCycleManager::SHUTDOWN_SUCCESS;
+            }
+            else
+            {
+                lcm_action = LifeCycleManager::SHUTDOWN_FAILURE;
+            }
+        break;
+
+        case VirtualMachine::CANCEL:
+            if (success)
+            {
+                lcm_action = LifeCycleManager::CANCEL_SUCCESS;
+            }
+            else
+            {
+                lcm_action = LifeCycleManager::CANCEL_FAILURE;
+            }
+        break;
+
+        case VirtualMachine::SAVE_STOP:
+        case VirtualMachine::SAVE_SUSPEND:
+        case VirtualMachine::SAVE_MIGRATE:
+            if (success)
+            {
+                lcm_action = LifeCycleManager::SAVE_SUCCESS;
+            }
+            else
+            {
+                lcm_action = LifeCycleManager::SAVE_FAILURE;
+            }
+        break;
+
+        case VirtualMachine::HOTPLUG:
+            if (success)
+            {
+                lcm_action = LifeCycleManager::ATTACH_SUCCESS;
+            }
+            else
+            {
+                lcm_action = LifeCycleManager::ATTACH_FAILURE;
+            }
+        break;
+
+        case VirtualMachine::HOTPLUG_NIC:
+            if (success)
+            {
+                lcm_action = LifeCycleManager::ATTACH_NIC_SUCCESS;
+            }
+            else
+            {
+                lcm_action = LifeCycleManager::ATTACH_NIC_FAILURE;
+            }
+        break;
+
+        //This is for all snapshot actions (create, delete & revert)
+        case VirtualMachine::HOTPLUG_SNAPSHOT:
+            lcm_action = LifeCycleManager::SNAPSHOT_CREATE_FAILURE;
+        break;
+    }
+
+    if (lcm_action != LifeCycleManager::FINALIZE)
+    {
+        trigger(lcm_action, vm->get_oid());
+    }
+}
+
