@@ -43,7 +43,8 @@ module OpenNebula
             :snapshotdelete => "vm.snapshotdelete",
             :attachnic  => "vm.attachnic",
             :detachnic  => "vm.detachnic",
-            :resize     => "vm.resize"
+            :resize     => "vm.resize",
+            :recover    => "vm.recover"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
@@ -524,9 +525,19 @@ module OpenNebula
             return call(VM_METHODS[:snapshotdelete], @pe_id, snap_id)
         end
 
-        #######################################################################
+        # Recovers an ACTIVE VM
+        #
+        # @param result [Boolean] Recover with success (true) or failure (false)
+        # @param result [info] Additional information needed to recover the VM
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def recover(result)
+            return call(VM_METHODS[:recover], @pe_id, result)
+        end
+
+        ########################################################################
         # Helpers to get VirtualMachine information
-        #######################################################################
+        ########################################################################
 
         # Returns the VM state of the VirtualMachine (numeric value)
         def state
