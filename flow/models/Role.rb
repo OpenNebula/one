@@ -74,6 +74,28 @@ module OpenNebula
             return card
         end
 
+        # Sets a new cardinality for this role
+        # @param [Integer] the new cardinality
+        def set_cardinality(cardinality)
+            @body['cardinality'] = cardinality.to_i
+        end
+
+        # Returns the role max cardinality
+        # @return [Integer] the role cardinality
+        def max_cardinality
+            max = nil
+
+            if !@body['elasticity_policy'].nil?
+                max = @body['elasticity_policy']['max_vms']
+            end
+
+            if max.nil?
+                max = cardinality()
+            end
+
+            return max.to_i
+        end
+
         # Returns the string representation of the service state
         # @return [String] the state string
         def state_str

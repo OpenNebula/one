@@ -37,6 +37,39 @@ module OpenNebula
                     :items => {
                         :type => :string
                     }
+                },
+                'elasticity_policy' => {
+                    :type => :object,
+                    :properties => {
+                        'type' => {
+                            :type => :string,
+                            :required => true
+                        },
+                        'min_vms' => {
+                            :type => :integer,
+                            :default => 1
+                        },
+                        'max_vms' => {
+                            :type => :integer,
+                            :required => true
+                        },
+                        'up_expr' => {
+                            :type => :string,
+                            :required => true
+                        },
+                        'down_expr' => {
+                            :type => :string,
+                            :required => true
+                        },
+                        'period_number' => {
+                            :type => :integer,
+                            :default => 1
+                        },
+                        'period_duration' => {
+                            :type => :integer,
+                            :required => true
+                        }
+                    }
                 }
             }
         }

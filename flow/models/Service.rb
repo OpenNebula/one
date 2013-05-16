@@ -139,6 +139,50 @@ module OpenNebula
             return false
         end
 
+        # If any role scalability rule is triggered, the role is set to DEPLOYING
+        # and the cardinality is updated
+        #
+        # @return true if any role is going to scale up
+        def scale_up?()
+            scale = false
+
+            @roles.each { |name, role|
+                if role_scale_up?(role)
+                    role.set_cardinality( role.cardinality + 1 )
+                    role.set_state(Role::STATE['PENDING'])
+
+                    scale = true
+                end
+            }
+
+            return scale
+        end
+
+        # Method stub, returns true if any VM has an attribute SCALE_UP=YES
+        def role_scale_up?(role)
+            role.get_nodes.each { |node|
+                if node && node['vm_info']
+                    scale_up = node['vm_info']['VM']['USER_TEMPLATE']['SCALE_UP']
+        
+                    if scale_up == "YES"
+                        Log.debug "ELAS", "Role #{role.name} to scale up"
+
+                        if role.cardinality() < role.max_cardinality()
+                            # Clean vm template
+                            `echo "" > /tmp/empty.txt`
+                            `onevm update #{node['deploy_id']} /tmp/empty.txt`
+
+                            return true
+                        else
+                            Log.debug "ELAS", "Role #{role.name} has reached its VM limit"
+                        end
+                    end
+                end
+            }
+
+            return false
+        end
+
         # Create a new service based on the template provided
         # @param [String] template_json
         # @return [nil, OpenNebula::Error] nil in case of success, Error
