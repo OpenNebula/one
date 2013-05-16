@@ -75,7 +75,7 @@ class VIDriver
     # -------------------------------------------------------------------------#
     # Poll the monitoring information for a VM                                 #
     # -------------------------------------------------------------------------# 
-    def poll_vm(deploy_id)
+    def poll(deploy_id)
       begin
         vm       = get_vm(deploy_id)[:vm]
         str_info = get_vm_info(vm)
