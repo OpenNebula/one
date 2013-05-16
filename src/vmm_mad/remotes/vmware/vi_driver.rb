@@ -134,9 +134,7 @@ class VIDriver
             break
           end
         }
-        if host != {}
-          break
-        end
+        break  if host != {}
       end
       return host
     end
@@ -194,8 +192,3 @@ class VIDriver
       return perfManager.retrieve_stats(objects, metrics, stat_opts)
     end
 end
-
-
-vi_driver = VIDriver.new "dyn11"
-pp vi_driver.poll_vm("one-2")
-
