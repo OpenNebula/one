@@ -121,6 +121,13 @@ public:
         return lcm_thread;
     };
 
+    /**
+     *  Recovers a VM by self-triggering the associated lost transition.
+     *    @param vm to be recovered
+     *    @param success trigger successful transition if true, fail otherwise
+     */
+    void  recover(VirtualMachine * vm, bool success);
+
 private:
     /**
      *  Thread id for the Virtual Machine Manager

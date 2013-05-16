@@ -1760,3 +1760,46 @@ void VirtualMachineDetachNic::request_execute(
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void VirtualMachineRecover::request_execute(
+        xmlrpc_c::paramList const& paramList, RequestAttributes& att)
+{
+    int  id      = xmlrpc_c::value_int(paramList.getInt(1));
+    bool success = xmlrpc_c::value_boolean(paramList.getBoolean(2));
+
+    VirtualMachine * vm;
+
+    Nebula& nd             = Nebula::instance();
+    LifeCycleManager*  lcm = nd.get_lcm();
+
+    if ( vm_authorization(id, 0, 0, att, 0, 0, auth_op) == false )
+    {
+        return;
+    }
+
+    if ((vm = get_vm(id, att)) == 0)
+    {
+        return;
+    }
+
+    if(vm->get_state() != VirtualMachine::ACTIVE)
+    {
+        failure_response(ACTION,
+                request_error("Wrong state to perform action",""),
+                att);
+
+        vm->unlock();
+        return;
+    }
+
+    lcm->recover(vm, success);
+
+    success_response(id, att);
+
+    vm->unlock();
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

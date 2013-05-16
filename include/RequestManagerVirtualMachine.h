@@ -316,6 +316,26 @@ public:
             RequestAttributes& att);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineRecover: public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineRecover():
+        RequestManagerVirtualMachine("VirtualMachineRecover",
+                                     "Recovers a virtual machine",
+                                     "A:sib")
+    {
+         auth_op = AuthRequest::ADMIN;
+    };
+
+    ~VirtualMachineRecover(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

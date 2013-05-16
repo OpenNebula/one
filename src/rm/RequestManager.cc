@@ -260,6 +260,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vm_snap_create(new VirtualMachineSnapshotCreate());
     xmlrpc_c::methodPtr vm_snap_revert(new VirtualMachineSnapshotRevert());
     xmlrpc_c::methodPtr vm_snap_delete(new VirtualMachineSnapshotDelete());
+    xmlrpc_c::methodPtr vm_recover(new VirtualMachineRecover());
 
     xmlrpc_c::methodPtr vm_pool_acct(new VirtualMachinePoolAccounting());
     xmlrpc_c::methodPtr vm_pool_monitoring(new VirtualMachinePoolMonitoring());
@@ -410,6 +411,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.snapshotcreate", vm_snap_create);
     RequestManagerRegistry.addMethod("one.vm.snapshotrevert", vm_snap_revert);
     RequestManagerRegistry.addMethod("one.vm.snapshotdelete", vm_snap_delete);
+    RequestManagerRegistry.addMethod("one.vm.recover", vm_recover);
 
     RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);
     RequestManagerRegistry.addMethod("one.vmpool.accounting", vm_pool_acct);
