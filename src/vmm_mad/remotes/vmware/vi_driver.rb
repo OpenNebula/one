@@ -51,8 +51,6 @@ class VIDriver
     def initialize(hostname)
       conf      = YAML::load(File.read(CONF_FILE))
 
-      @hostname = hostname
-
       if conf[:password] and !conf[:password].empty?
         pass=conf[:password]
       else
@@ -63,11 +61,12 @@ class VIDriver
       @vcenter    = conf[:vcenter]
 
       begin
-      @client = RbVmomi::VIM.connect(:host => hostname, 
-                                     :user => conf[:username], 
-                                     :password => pass, 
-                                     :insecure => true)
-      @rootFolder = @client.serviceInstance.content.rootFolder
+        @client = RbVmomi::VIM.connect(:host => hostname, 
+                                       :user => conf[:username], 
+                                       :password => pass, 
+                                       :insecure => true)
+        @rootFolder = @client.serviceInstance.content.rootFolder 
+        @host       = get_host(hostname)
       rescue Exception => e
         raise "Connection error to #{hostname}: " + e.message
       end
@@ -75,22 +74,11 @@ class VIDriver
 
     # -------------------------------------------------------------------------#
     # Poll the monitoring information for a VM                                 #
-    # -------------------------------------------------------------------------#  
+    # -------------------------------------------------------------------------# 
     def poll_vm(deploy_id)
       begin
-        # Get network information
         vm       = get_vm(deploy_id)[:vm]
-        host     = get_host(@hostname)
-        net_info = get_perf_value([vm], ["net.packetsRx","net.packetsTx"])
-
-        str_info = ""
-        str_info += "STATE="      + get_state(vm)          + " "
-        str_info += "USEDCPU="    + get_used_cpu(vm, host) + " "
-        str_info += "USEDMEMORY=" + get_used_memory(vm)    + " "
-        str_info += "NETRX=" +
-                    net_info[vm][:metrics]["net.packetsRx"].first.to_s + " "
-        str_info += "NETTX=" +
-                    net_info[vm][:metrics]["net.packetsTx"].first.to_s
+        str_info = get_vm_info(vm)
       rescue Exception => e
         str_info = "STATE=d"
         STDERR.puts e.message
@@ -98,8 +86,34 @@ class VIDriver
         return str_info
     end
 
+    # -------------------------------------------------------------------------#
+    # Poll the monitoring information for a VM                                 #
+    # -------------------------------------------------------------------------#
+    def poll_all_vms
+      begin
+        vms       = get_all_vms
+        str_info = "VM_POLL=YES "
+
+        vms.each do |vm|
+          number = -1
+          number = vm.name.split('-').last if (vm.name =~ /^one-\d*$/)
+              
+          str_info += "VM=["
+          str_info += "ID=#{number},"
+          str_info += "DEPLOY_ID=#{vm.name},"
+          str_info += "POLL=\"#{get_vm_info(vm)}\"]"
+        end
+
+        return str_info   
+      rescue Exception => e
+        str_info = "STATE=d"
+        STDERR.puts e.message
+      end
+      return str_info
+    end
+
     ############################################################################
-    # Public Methods - Class Interface                                         #
+    # Private Methods                                                          #
     ############################################################################
 
     # -------------------------------------------------------------------------#
@@ -134,9 +148,33 @@ class VIDriver
             break
           end
         }
-        break  if host != {}
+        break if host != {}
       end
       return host
+    end
+
+    # -------------------------------------------------------------------------#
+    # Get information of a particular VM                                       #
+    # -------------------------------------------------------------------------#
+    def get_vm_info(vm)
+      # Get network information
+      net_info = get_perf_value([vm], ["net.packetsRx","net.packetsTx"])
+
+      str_info = ""
+      str_info += "STATE="      + get_state(vm)          + " "
+      str_info += "USEDCPU="    + get_used_cpu(vm)       + " "
+      str_info += "USEDMEMORY=" + get_used_memory(vm)    + " "
+      str_info += "NETRX=" +
+                  net_info[vm][:metrics]["net.packetsRx"].first.to_s + " "
+      str_info += "NETTX=" +
+                  net_info[vm][:metrics]["net.packetsTx"].first.to_s
+    end
+
+    # -------------------------------------------------------------------------#
+    # Get all VMs available in current @hostname                               #
+    # -------------------------------------------------------------------------#
+    def get_all_vms
+      @host.vm.collect { |vm| vm if get_state(vm)=="a"}.compact
     end
 
     # -------------------------------------------------------------------------#
@@ -147,10 +185,10 @@ class VIDriver
     end
 
     # Get percentage of the CPU used by a VM in a host
-    def get_used_cpu(vm, host)
+    def get_used_cpu(vm)
       overallCpuUsage = vm.summary.quickStats.overallCpuUsage.to_f
-      cpuMhz          = host.summary.hardware.cpuMhz.to_f
-      numCpuCores     = host.summary.hardware.numCpuCores.to_f
+      cpuMhz          = @host.summary.hardware.cpuMhz.to_f
+      numCpuCores     = @host.summary.hardware.numCpuCores.to_f
       (overallCpuUsage / (cpuMhz * numCpuCores)).round(3).to_s
     end
 
