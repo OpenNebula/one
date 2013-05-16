@@ -295,6 +295,14 @@ $(document).ready(function(){
     readCookie();
     setLogin();
 
+    setInterval(function(){
+        var user_cookie = cookie["one-user"];
+        readCookie();
+        if ((cookie["one-user"] == null) || (cookie["one-user"] !== user_cookie)) {
+            window.location.href='/';
+        }
+    },5000);
+
     //Insert the tabs in the DOM and their buttons.
     insertTabs();
 //    hideSubTabs();
