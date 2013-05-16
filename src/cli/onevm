@@ -827,5 +827,5 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     deprecated_command(:cancel, 'shutdown --hard')
     deprecated_command(:reset, 'reboot --hard')
     deprecated_command(:restart, 'boot')
-    deprecated_command(:resubmit, 'destroy --recreate')
+    deprecated_command(:resubmit, 'delete --recreate')
 end
