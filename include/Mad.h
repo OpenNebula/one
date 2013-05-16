@@ -32,17 +32,17 @@ using namespace std;
 
 /**
  * Base class to build specific middleware access drivers (MAD).
- * This class provides generic MAD functionality. 
+ * This class provides generic MAD functionality.
  */
 class Mad
 {
 protected:
     /**
-     *  The constructor initialize the class members but DOES NOT start the 
+     *  The constructor initialize the class members but DOES NOT start the
      *  driver. A subsequent call to the start() method is needed.
      *    @param userid user running this MAD
      *    @param attrs configuration attributes for the driver
-     *    @param sudo the driver is started through sudo if true 
+     *    @param sudo the driver is started through sudo if true
      */
     Mad(
         int userid,
@@ -53,13 +53,13 @@ protected:
             sudo_execution(sudo),
             pid(-1)
     {};
-    
+
     /**
      *  The destructor of the class finalizes the driver process, and all its
      *  associated resources (i.e. pipes)
      */
     virtual ~Mad();
-    
+
     /**
      *  Send a command to the driver
      *    @param os an output string stream with the message, it must be
@@ -70,7 +70,7 @@ protected:
     {
         string        str;
         const char *  cstr;
-        
+
         str  = os.str();
         cstr = str.c_str();
 
@@ -95,7 +95,7 @@ protected:
      *    @param first character of the type string
      *    @return the message type
      */
-    Log::MessageType log_type(const char r)
+    Log::MessageType log_type(const char r) const
     {
         Log::MessageType lt;
 
@@ -121,17 +121,17 @@ private:
     friend class MadManager;
 
     /**
-     *  Communication pipe file descriptor. Represents the MAD to nebula 
+     *  Communication pipe file descriptor. Represents the MAD to nebula
      *  communication stream (nebula<-mad)
      */
     int                 mad_nebula_pipe;
 
     /**
-     *  Communication pipe file descriptor. Represents the nebula to MAD 
+     *  Communication pipe file descriptor. Represents the nebula to MAD
      *  communication stream (nebula->mad)
      */
     int                 nebula_mad_pipe;
-        
+
     /**
      *  User running this MAD as defined in the upool DB
      */
@@ -144,7 +144,7 @@ private:
     map<string,string>  attributes;
 
     /**
-     *  True if the mad is to be executed through sudo, with the identity of the 
+     *  True if the mad is to be executed through sudo, with the identity of the
      *  Mad owner (uid).
      */
     bool                sudo_execution;
@@ -153,16 +153,16 @@ private:
      *  Process ID of the running MAD.
      */
     pid_t               pid;
-    
+
     /**
-     *  Starts the MAD. This function creates a new process, sets up the 
+     *  Starts the MAD. This function creates a new process, sets up the
      *  communication pipes and sends the initialization command to the driver.
      *    @return 0 on success
      */
     int start();
 
     /**
-     *  Reloads the driver: sends the finalize command, "waits" for the 
+     *  Reloads the driver: sends the finalize command, "waits" for the
      *  driver process and closes the communication pipes. Then the driver is
      *  started again by calling the start() function
      *    @return 0 on success
@@ -174,14 +174,13 @@ private:
      *  actions on the associated manager.
      *    @param message the string read from the driver
      */
-    virtual void protocol(
-        string&     message) = 0;
+    virtual void protocol(const string& message) const = 0;
 
     /**
      *  This function is called whenever the driver crashes. This function
      *  should perform the actions needed to recover the VMs.
      */
-    virtual void recover() = 0;    
+    virtual void recover() = 0;
 };
 
 #endif /*MAD_H_*/

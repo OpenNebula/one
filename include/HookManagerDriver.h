@@ -29,7 +29,7 @@ using namespace std;
 /**
  *  HookManagerDriver provides a base class to implement Hook (Execution)
  *  Drivers. This class implements the protocol and recover functions
- *  from the Mad interface. This class may be used to further specialize 
+ *  from the Mad interface. This class may be used to further specialize
  *  the Execution driver.
  */
 class HookManagerDriver : public Mad
@@ -49,14 +49,13 @@ public:
      *  Implements the Hook driver protocol.
      *    @param message the string read from the driver
      */
-    void protocol(
-        string&     message);
+    void protocol(const string& message) const;
 
     /**
      *  TODO: What do we need here? just poll the Hosts to recover..
      */
     void recover();
-	
+
 	/**<id> <hook_name> <LOCAL|host> <script> <args|->
      *  Sends an execution request to the MAD: "EXECUTE id name local cmd args"
      *    @param oid the virtual machine id.
@@ -88,7 +87,7 @@ public:
 private:
 
     friend class            HookManager;
-    
+
     VirtualMachinePool *    vmpool;
 };
 

@@ -41,8 +41,7 @@ void TransferManagerDriver::transfer (
 /* MAD Interface                                                              */
 /* ************************************************************************** */
 
-void TransferManagerDriver::protocol(
-    string&     message)
+void TransferManagerDriver::protocol(const string& message) const
 {
     istringstream           is(message);
     ostringstream           os;

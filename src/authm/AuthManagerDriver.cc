@@ -25,9 +25,9 @@
 /* Driver ASCII Protocol Implementation                                       */
 /* ************************************************************************** */
 
-void AuthManagerDriver::authorize(int           oid, 
-                                  int           uid, 
-                                  const string& reqs, 
+void AuthManagerDriver::authorize(int           oid,
+                                  int           uid,
+                                  const string& reqs,
                                   bool          acl) const
 {
     ostringstream os;
@@ -60,8 +60,7 @@ void AuthManagerDriver::authenticate(int           oid,
 /* MAD Interface                                                              */
 /* ************************************************************************** */
 
-void AuthManagerDriver::protocol(
-    string&     message)
+void AuthManagerDriver::protocol(const string& message) const
 {
     istringstream is(message);
     ostringstream os;

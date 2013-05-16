@@ -30,16 +30,16 @@ class ImagePool;
 class ImageManager;
 
 /**
- *  ImageManagerDriver represents the basic abstraction for Image Repository 
- *  drivers. It implements the protocol and recover functions from the Mad 
+ *  ImageManagerDriver represents the basic abstraction for Image Repository
+ *  drivers. It implements the protocol and recover functions from the Mad
  *  interface.
  */
 class ImageManagerDriver : public Mad
 {
 public:
 
-    ImageManagerDriver(int        userid, 
-                       const      map<string,string>& attrs, 
+    ImageManagerDriver(int        userid,
+                       const      map<string,string>& attrs,
                        bool       sudo,
                        ImagePool* _ipool):
             Mad(userid,attrs,sudo),ipool(_ipool){};
@@ -50,7 +50,7 @@ public:
      *  Implements the Image Manager driver protocol.
      *    @param message the string read from the driver
      */
-    void protocol(string& message);
+    void protocol(const string& message) const;
 
     /**
      *  TODO: What do we need here? Check on-going xfr?
