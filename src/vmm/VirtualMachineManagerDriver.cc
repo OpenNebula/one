@@ -179,8 +179,7 @@ static void log_monitor_error(VirtualMachine* vm,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineManagerDriver::protocol(
-    string&     message)
+void VirtualMachineManagerDriver::protocol(const string& message) const
 {
     istringstream is(message);
     ostringstream os;

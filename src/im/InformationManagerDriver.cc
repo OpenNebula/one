@@ -40,8 +40,7 @@ void InformationManagerDriver::monitor(int           oid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void InformationManagerDriver::protocol(
-    string&     message)
+void InformationManagerDriver::protocol(const string& message) const
 {
     istringstream   is(message);
     //stores the action name

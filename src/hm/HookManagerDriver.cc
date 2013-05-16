@@ -29,9 +29,9 @@ void HookManagerDriver::execute(
         const string&   arguments ) const
 {
     ostringstream oss;
-    
+
     oss << "EXECUTE " << oid << " " << hook_name << " LOCAL " << command << " ";
-    
+
     if ( arguments.empty() )
     {
         oss << "-" << endl;
@@ -55,10 +55,10 @@ void HookManagerDriver::execute(
         const string&   arguments ) const
 {
     ostringstream oss;
-    
-    oss << "EXECUTE " << oid << " " << hook_name << " " << host_name << " " 
+
+    oss << "EXECUTE " << oid << " " << hook_name << " " << host_name << " "
         << command << " ";
-    
+
     if ( arguments.empty() )
     {
         oss << "-" << endl;
@@ -74,10 +74,9 @@ void HookManagerDriver::execute(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void HookManagerDriver::protocol(
-    string&     message)
-{       
-    istringstream   is(message);   
+void HookManagerDriver::protocol(const string& message) const
+{
+    istringstream   is(message);
     //stores the action name
     string          action;
     //stores the action result
@@ -88,7 +87,7 @@ void HookManagerDriver::protocol(
     ostringstream    os;
     string           hinfo;
     VirtualMachine * vm;
-    
+
     // Parse the driver message
 
     os << "Message received: " << message;
@@ -109,7 +108,7 @@ void HookManagerDriver::protocol(
         is >> result >> ws;
     }
     else
-    {    
+    {
         return;
     }
 
@@ -135,49 +134,49 @@ void HookManagerDriver::protocol(
     {
         return;
     }
-           
+
     vm = vmpool->get(id,true);
-        
+
     if ( vm == 0 )
     {
         return;
     }
-        
+
     // -------------------------------------------------------------------------
     // Protocol implementation
     // -------------------------------------------------------------------------
-    
+
     if ( action == "EXECUTE" )
     {
         ostringstream oss;
-        
+
         string hook_name;
         string info;
-        
+
         if ( is.good() )
         {
             getline(is,hook_name);
         }
-        
+
         getline (is,info);
-        
+
         if (result == "SUCCESS")
-        {   
+        {
             oss << "Success executing Hook: " << hook_name << ". " << info;
             vm->log("HKM",Log::INFO,oss);
         }
         else
         {
             oss << "Error executing Hook: " << hook_name << ". " << info;
-           
+
             if ( !info.empty() && info[0] != '-' )
-            { 
+            {
                 vm->set_template_error_message(oss.str());
                 vmpool->update(vm);
             }
 
             vm->log("HKM",Log::ERROR,oss);
-        }        
+        }
     }
     else if (action == "LOG")
     {
@@ -186,9 +185,9 @@ void HookManagerDriver::protocol(
         getline(is,info);
         vm->log("HKM",log_type(result[0]),info.c_str());
     }
-    
+
     vm->unlock();
-    
+
     return;
 }
 
@@ -198,5 +197,5 @@ void HookManagerDriver::protocol(
 void HookManagerDriver::recover()
 {
     NebulaLog::log("HKM", Log::ERROR, "Hook driver crashed, recovering...");
- 
+
 }

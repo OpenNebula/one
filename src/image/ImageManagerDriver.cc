@@ -555,8 +555,7 @@ error:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void ImageManagerDriver::protocol(
-    string&     message)
+void ImageManagerDriver::protocol(const string& message) const
 {
     istringstream is(message);
     ostringstream oss;

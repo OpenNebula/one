@@ -49,8 +49,7 @@ public:
      *  Implements the VM Manager driver protocol.
      *    @param message the string read from the driver
      */
-    void protocol(
-        string&     message);
+    void protocol(const string& message) const;
 
     /**
      *  TODO: What do we need here? just poll the active VMs to recover
