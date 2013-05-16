@@ -887,14 +887,17 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
                 '</div>'+
               '</div>'+
             '</div>'+
+            '<div class="vm_param">'+
+                '<input type="hidden" id="SIZE" name="size" />'+
+            '</div>'+
             '<div class="row">'+
                 '<div class="two columns">'+
-                  '<label class="inline right" for="SIZE">'+tr("SIZE")+':</label>'+
+                  '<label class="inline right" for="SIZE_TMP">'+tr("SIZE")+':</label>'+
                 '</div>'+
                 '<div id="size_slider" class="five columns">'+
                 '</div>'+
-                '<div class="two columns vm_param">'+
-                  '<input type="text" id="SIZE" name="size"/>'+
+                '<div class="two columns">'+
+                  '<input type="text" id="SIZE_TMP" name="size_tmp"/>'+
                 '</div>'+
                 '<div class="two columns">'+
                   '<select id="size_unit" name="SIZE_UNIT">'+
@@ -985,10 +988,20 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
 
     // Define the size slider
 
-    var size_input = $( "#SIZE", disk_section );
+    var final_size_input = $( "#SIZE", disk_section );
+    var size_input = $( "#SIZE_TMP", disk_section );
     var size_unit  = $( "#size_unit", disk_section );
 
     var current_size_unit = size_unit.val();
+
+    var update_final_size_input = function() {
+        if (current_size_unit == 'MB') {
+            final_size_input.val( Math.floor(size_input.val()) );
+        }
+        else {
+            final_size_input.val( Math.floor(size_input.val() * 1024) );
+        }
+    }
 
     var size_slider_change = function(type) {
         if ( type != "move")
@@ -996,6 +1009,8 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
             var values = $(this).val();
 
             size_input.val(values / 100);
+
+            update_final_size_input();
         }
     };
 
@@ -1012,15 +1027,18 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
 
     size_input.change(function() {
         size_slider.val(this.value * 100)
+
+        update_final_size_input();
     });
 
     size_input.val(10);
+    update_final_size_input();
 
     // init::start is ignored for some reason
     size_slider.val(1000);
 
     size_unit.change(function() {
-        var size_unit_val = $('#size_unit :selected').val();
+        var size_unit_val = $('#size_unit :selected', disk_section).val();
 
         if (current_size_unit != size_unit_val)
         {
@@ -1058,6 +1076,8 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
                 size_input.val( new_val );
                 size_slider.val(new_val * 100);
             }
+
+            update_final_size_input();
         }
     });
 
