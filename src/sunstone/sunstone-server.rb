@@ -225,16 +225,13 @@ get '/' do
     if !authorized?
         return erb :login
     end
-    time = Time.now + 60*10
+
     response.set_cookie("one-user",
-                        :value=>"#{session[:user]}",
-                        :expires=>time)
+                        :value=>"#{session[:user]}")
     response.set_cookie("one-user_id",
-                        :value=>"#{session[:user_id]}",
-                        :expires=>time)
+                        :value=>"#{session[:user_id]}")
     response.set_cookie("one-user_gid",
-                        :value=>"#{session[:user_gid]}",
-                        :expires=>time)
+                        :value=>"#{session[:user_gid]}")
 
     p = SunstonePlugins.new
     @plugins = p.authorized_plugins(session[:user], session[:user_gname])
