@@ -825,30 +825,128 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
         '<div class="show_hide" id="advanced_image">'+
           '<h4><small><i class=" icon-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
         '</div>'+
-        '<div class="row advanced vm_param">'+
-          '<div class="six columns">'+
-            '<div class="row">'+
-              '<div class="four columns">'+
-                '<label class="right inline" for="TARGET">'+tr("TARGET")+':</label>'+
+        '<div class="advanced">'+
+          '<div class="row advanced vm_param">'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="four columns">'+
+                  '<label class="right inline" for="TARGET">'+tr("TARGET")+':</label>'+
+                '</div>'+
+                '<div class="six columns">'+
+                  '<input type="text" id="TARGET" name="target"/>'+
+                '</div>'+
+                '<div class="two columns">'+
+                  '<div class="tip">'+tr("Device to map image disk. If set, it will overwrite the default device mapping")+'<br><br>\
+                      '+tr("Xen: Optional")+'<br>\
+                      '+tr("KVM: Optional")+'<br>\
+                      '+tr("VMWare: Optional")+
+                  '</div>'+
+                '</div>'+
               '</div>'+
-              '<div class="six columns">'+
-                '<input type="text" id="TARGET" name="target"/>'+
-              '</div>'+
-              '<div class="two columns">'+
-                '<div class="tip">'+tr("Device to map image disk. If set, it will overwrite the default device mapping")+'</div>'+
+            '</div>'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="four columns">'+
+                    '<label class="right inline" for="DRIVER">'+tr("DRIVER")+':</label>'+
+                '</div>'+
+                '<div class="six columns">'+
+                    '<input type="text" id="DRIVER" name="driver" />'+
+                '</div>'+
+                '<div class="two columns">'+
+                    '<div class="tip">'+tr("Specific image mapping driver")+'<br><br>\
+                      '+tr("Xen: Optional (tap:aio:, file:)")+'<br>\
+                      '+tr("KVM: Optional (raw, qcow2)")+'<br>\
+                      '+tr("VMWare: Not supported")+
+                    '</div>'+
+                '</div>'+
               '</div>'+
             '</div>'+
           '</div>'+
-          '<div class="six columns">'+
-            '<div class="row">'+
-              '<div class="four columns">'+
-                  '<label class="right inline" for="DRIVER">'+tr("DRIVER")+':</label>'+
+          '<div class="row advanced vm_param">'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="four columns">'+
+                  '<label class="right inline" for="DEV_PREFIX">'+tr("DEV_PREFIX")+':</label>'+
+                '</div>'+
+                '<div class="six columns">'+
+                  '<input type="text" id="DEV_PREFIX" name="DEV_PREFIX"/>'+
+                '</div>'+
+                '<div class="two columns">'+
+                  '<div class="tip">'+tr("Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”, or “vd” for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used")+'<br><br>\
+                      '+tr("Xen: Optional")+'<br>\
+                      '+tr("KVM: Optional")+'<br>\
+                      '+tr("VMWare: Optional")+
+                  '</div>'+
+                '</div>'+
               '</div>'+
-              '<div class="six columns">'+
-                  '<input type="text" id="DRIVER" name="driver" />'+
+            '</div>'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="four columns">'+
+                    '<label class="right inline" for="READONLY">'+tr("READONLY")+':</label>'+
+                '</div>'+
+                '<div class="six columns">'+
+                    '<select id="READONLY" name="READONLY">'+
+                      '<option value=""></option>'+
+                      '<option value="yes">'+tr("yes")+'</option>'+
+                      '<option value="no">'+tr("no")+'</option>'+
+                    '</select>'+
+                '</div>'+
+                '<div class="two columns">'+
+                    '<div class="tip">'+tr("Set how the image is exposed by the hypervisor")+'<br><br>\
+                      '+tr("Xen: Optional")+'<br>\
+                      '+tr("KVM: Optional")+'<br>\
+                      '+tr("VMWare: Optional")+
+                    '</div>'+
+                '</div>'+
               '</div>'+
-              '<div class="two columns">'+
-                  '<div class="tip">'+tr("Specific image mapping driver. KVM: raw, qcow2. Xen:tap:aio:, file:. VMware unsupported")+'</div>'+
+            '</div>'+
+          '</div>'+
+          '<div class="row advanced vm_param">'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="four columns">'+
+                  '<label class="right inline" for="CACHE">'+tr("CACHE")+':</label>'+
+                '</div>'+
+                '<div class="six columns">'+
+                    '<select id="CACHE" name="CACHE">'+
+                      '<option value=""></option>'+
+                      '<option value="default">'+tr("default")+'</option>'+
+                      '<option value="none">'+tr("none")+'</option>'+
+                      '<option value="writethrough">'+tr("writethrough")+'</option>'+
+                      '<option value="writeback">'+tr("writeback")+'</option>'+
+                      '<option value="directsync">'+tr("directsync")+'</option>'+
+                      '<option value="unsafe">'+tr("unsafe")+'</option>'+
+                    '</select>'+
+                '</div>'+
+                '<div class="two columns">'+
+                  '<div class="tip">'+tr("Selects the cache mechanism for the disk.")+'<br><br>\
+                      '+tr("Xen: Not supported")+'<br>\
+                      '+tr("KVM: Optional")+'<br>\
+                      '+tr("VMWare: Not supported")+
+                  '</div>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="four columns">'+
+                    '<label class="right inline" for="IO">'+tr("IO")+':</label>'+
+                '</div>'+
+                '<div class="six columns">'+
+                    '<select id="IO" name="IO">'+
+                      '<option value=""></option>'+
+                      '<option value="threads">'+tr("threads")+'</option>'+
+                      '<option value="native">'+tr("native")+'</option>'+
+                    '</select>'+
+                '</div>'+
+                '<div class="two columns">'+
+                    '<div class="tip">'+tr("Set IO policy.")+'<br><br>\
+                      '+tr("Xen: Not supported")+'<br>\
+                      '+tr("KVM: Optional")+'<br>\
+                      '+tr("VMWare: Not supported")+
+                    '</div>'+
+                '</div>'+
               '</div>'+
             '</div>'+
           '</div>'+
@@ -910,36 +1008,134 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
                 '</div>'+
             '</div>'+
         '<div class="show_hide" id="advanced_volatile">'+
-          '<h4><small><i class=" icon-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small</h4>'+
+          '<h4><small><i class=" icon-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
         '</div>'+
-        '<div class="row advanced vm_param">'+
-          '<div class="six columns">'+
-            '<div class="row">'+
-              '<div class="four columns">'+
-                '<label class="right inline" for="TARGET">'+tr("TARGET")+':</label>'+
+        '<div class="advanced">'+
+          '<div class="row advanced vm_param">'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="four columns">'+
+                  '<label class="right inline" for="TARGET">'+tr("TARGET")+':</label>'+
+                '</div>'+
+                '<div class="six columns">'+
+                  '<input type="text" id="TARGET" name="target"/>'+
+                '</div>'+
+                '<div class="two columns">'+
+                  '<div class="tip">'+tr("Device to map image disk. If set, it will overwrite the default device mapping")+'<br><br>\
+                      '+tr("Xen: Optional")+'<br>\
+                      '+tr("KVM: Optional")+'<br>\
+                      '+tr("VMWare: Optional")+
+                  '</div>'+
+                '</div>'+
               '</div>'+
-              '<div class="six columns">'+
-                '<input type="text" id="TARGET" name="target"/>'+
-              '</div>'+
-              '<div class="two columns">'+
-                '<div class="tip">'+tr("Device to map image disk. If set, it will overwrite the default device mapping")+'</div>'+
+            '</div>'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="four columns">'+
+                    '<label class="right inline" for="DRIVER">'+tr("DRIVER")+':</label>'+
+                '</div>'+
+                '<div class="six columns">'+
+                    '<input type="text" id="DRIVER" name="driver" />'+
+                '</div>'+
+                '<div class="two columns">'+
+                    '<div class="tip">'+tr("Specific image mapping driver")+'<br><br>\
+                      '+tr("Xen: Optional (tap:aio:, file:)")+'<br>\
+                      '+tr("KVM: Optional (raw, qcow2)")+'<br>\
+                      '+tr("VMWare: Not supported")+
+                    '</div>'+
+                '</div>'+
               '</div>'+
             '</div>'+
           '</div>'+
-          '<div class="six columns">'+
-            '<div class="row">'+
-              '<div class="four columns">'+
-                  '<label class="right inline" for="DRIVER">'+tr("DRIVER")+':</label>'+
+          '<div class="row advanced vm_param">'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="four columns">'+
+                  '<label class="right inline" for="DEV_PREFIX">'+tr("DEV_PREFIX")+':</label>'+
+                '</div>'+
+                '<div class="six columns">'+
+                  '<input type="text" id="DEV_PREFIX" name="DEV_PREFIX"/>'+
+                '</div>'+
+                '<div class="two columns">'+
+                  '<div class="tip">'+tr("Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”, or “vd” for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used")+'<br><br>\
+                      '+tr("Xen: Optional")+'<br>\
+                      '+tr("KVM: Optional")+'<br>\
+                      '+tr("VMWare: Optional")+
+                  '</div>'+
+                '</div>'+
               '</div>'+
-              '<div class="six columns">'+
-                  '<input type="text" id="DRIVER" name="driver" />'+
-              '</div>'+
-              '<div class="two columns">'+
-                  '<div class="tip">'+tr("Specific image mapping driver. KVM: raw, qcow2. Xen:tap:aio:, file:. VMware unsupported")+'</div>'+
+            '</div>'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="four columns">'+
+                    '<label class="right inline" for="READONLY">'+tr("READONLY")+':</label>'+
+                '</div>'+
+                '<div class="six columns">'+
+                    '<select id="READONLY" name="READONLY">'+
+                      '<option value=""></option>'+
+                      '<option value="yes">'+tr("yes")+'</option>'+
+                      '<option value="no">'+tr("no")+'</option>'+
+                    '</select>'+
+                '</div>'+
+                '<div class="two columns">'+
+                    '<div class="tip">'+tr("Set how the image is exposed by the hypervisor")+'<br><br>\
+                      '+tr("Xen: Optional")+'<br>\
+                      '+tr("KVM: Optional")+'<br>\
+                      '+tr("VMWare: Optional")+
+                    '</div>'+
+                '</div>'+
               '</div>'+
             '</div>'+
           '</div>'+
-      '</div>'+
+          '<div class="row advanced vm_param">'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="four columns">'+
+                  '<label class="right inline" for="CACHE">'+tr("CACHE")+':</label>'+
+                '</div>'+
+                '<div class="six columns">'+
+                    '<select id="CACHE" name="CACHE">'+
+                      '<option value=""></option>'+
+                      '<option value="default">'+tr("default")+'</option>'+
+                      '<option value="none">'+tr("none")+'</option>'+
+                      '<option value="writethrough">'+tr("writethrough")+'</option>'+
+                      '<option value="writeback">'+tr("writeback")+'</option>'+
+                      '<option value="directsync">'+tr("directsync")+'</option>'+
+                      '<option value="unsafe">'+tr("unsafe")+'</option>'+
+                    '</select>'+
+                '</div>'+
+                '<div class="two columns">'+
+                  '<div class="tip">'+tr("Selects the cache mechanism for the disk.")+'<br><br>\
+                      '+tr("Xen: Not supported")+'<br>\
+                      '+tr("KVM: Optional")+'<br>\
+                      '+tr("VMWare: Not supported")+
+                  '</div>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="four columns">'+
+                    '<label class="right inline" for="IO">'+tr("IO")+':</label>'+
+                '</div>'+
+                '<div class="six columns">'+
+                    '<select id="IO" name="IO">'+
+                      '<option value=""></option>'+
+                      '<option value="threads">'+tr("threads")+'</option>'+
+                      '<option value="native">'+tr("native")+'</option>'+
+                    '</select>'+
+                '</div>'+
+                '<div class="two columns">'+
+                    '<div class="tip">'+tr("Set IO policy.")+'<br><br>\
+                      '+tr("Xen: Not supported")+'<br>\
+                      '+tr("KVM: Optional")+'<br>\
+                      '+tr("VMWare: Not supported")+
+                    '</div>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
     '</div>';
 
     $("#refresh_template_images_table_button_class"+str_disk_tab_id).die();
