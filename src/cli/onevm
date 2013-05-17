@@ -521,8 +521,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         Example: A VM is stuck in "migrate" because of a hardware failure. You
         need to check if the VM is running in the new host or not to recover
-        the vm with success (onevm recover --with success) or failure
-        (onevm recover --with failure), respectively.
+        the vm with --success or --failure, respectively.
 
         States: Any ACTIVE state.
     EOT
