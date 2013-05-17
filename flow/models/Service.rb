@@ -31,7 +31,8 @@ module OpenNebula
             'UNKNOWN'            => 5,
             'DONE'               => 6,
             'FAILED_UNDEPLOYING' => 7,
-            'FAILED_DEPLOYING'   => 8
+            'FAILED_DEPLOYING'   => 8,
+            'SCALING'            => 9
         }
 
         STATE_STR = [
@@ -43,7 +44,8 @@ module OpenNebula
             'UNKNOWN',
             'DONE',
             'FAILED_UNDEPLOYING',
-            'FAILED_DEPLOYING'
+            'FAILED_DEPLOYING',
+            'SCALING'
         ]
 
         LOG_COMP = "SER"
@@ -70,7 +72,7 @@ module OpenNebula
         # @param [Integer] the new state
         # @return [true, false] true if the value was changed
         def set_state(state)
-            if state < 0 || state > 8
+            if state < 0 || state > STATE_STR.size
                 return false
             end
 
@@ -142,16 +144,21 @@ module OpenNebula
             return false
         end
 
-        # If any role scalability rule is triggered, the role is set to DEPLOYING
+        # If any role scalability rule is triggered, the role is set to PENDING
         # and the cardinality is updated
         #
-        # @return true if any role is going to scale up
-        def scale_up?()
+        # @return true if any role is going to scale up or down
+        def scale?()
             scale = false
 
             @roles.each { |name, role|
-                if role_scale_up?(role)
+                if role.scale_up?
                     role.set_cardinality( role.cardinality + 1 )
+                    role.set_state(Role::STATE['PENDING'])
+
+                    scale = true
+                elsif role.scale_down?
+                    role.set_cardinality( role.cardinality - 1 )
                     role.set_state(Role::STATE['PENDING'])
 
                     scale = true
@@ -159,38 +166,6 @@ module OpenNebula
             }
 
             return scale
-        end
-
-        # Method stub, returns true if any VM has an attribute SCALE_UP=YES
-        def role_scale_up?(role)
-            parser = ElasticityGrammarParser.new
-
-            elas_expr = role.up_expr
-
-            if elas_expr.nil?
-                return false
-            end
-
-            Log.debug "ELAS", "Role #{role.name} up_expr: #{elas_expr}"
-
-            treetop = parser.parse(elas_expr)
-            if treetop.nil?
-                Log.debug "ELAS", "up_expr parse error"
-            end
-
-            result = treetop.result(role)
-
-            if result
-                Log.debug "ELAS", "Role #{role.name} to scale up"
-
-                if role.cardinality() < role.max_cardinality()
-                    return true
-                else
-                    Log.debug "ELAS", "Role #{role.name} has reached its VM limit"
-                end
-            end
-
-            return false
         end
 
         # Create a new service based on the template provided

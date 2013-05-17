@@ -74,6 +74,37 @@ class Strategy
         return [true, nil]
     end
 
+
+    def scale_step(service)
+        Log.debug LOG_COMP, "Scale step", service.id()
+
+        roles_deploy = get_roles_scale(service)
+
+        roles_deploy.each { |name, role|
+
+            if role.cardinality > role.get_nodes.size
+                Log.debug LOG_COMP, "Scaling up role #{name}", service.id()
+
+                rc = role.deploy
+            else
+                Log.debug LOG_COMP, "Scaling down role #{name}", service.id()
+
+                rc = role.shutdown
+            end
+
+            if !rc[0]
+                # TODO: Handle error
+#                role.set_state(Role::STATE['FAILED_DEPLOYING'])
+
+                return rc
+            else
+                role.set_state(Role::STATE['SCALING'])
+            end
+        }
+
+        return [true, nil]
+    end
+
     # Performs a monitor step, check if the roles already deployed are running
     # @param [Service] service service to boot
     # @return [Array<true, nil>, Array<false, String>] true if all the nodes
@@ -96,7 +127,15 @@ class Strategy
                 elsif !role_nodes_running?(role)
                     role.set_state(Role::STATE['UNKNOWN'])
                 end
-            when Role::STATE['DEPLOYING']
+            when Role::STATE['DEPLOYING'], Role::STATE['SCALING']
+                # TODO: For roles scaling up, role_nodes_running detects the
+                # scalability has finished.
+
+                # For roles scaling down, the node is left in DONE. We need
+                # to clear or ignore those. Maybe we could keep the node to have
+                # a reference of all the VMs that were created for this service,
+                # but with a flag to ignore it for plannification and user output
+
                 if OpenNebula.is_error?(rc)
                     role.set_state(Role::STATE['FAILED_DEPLOYING'])
                 elsif role_nodes_running?(role)
@@ -187,6 +226,13 @@ protected
         end
 
         result
+    end
+
+    # Returns all node Roles ready to be scaled up
+    # @param [Service] service
+    # @return [Hash<String, Role>] Roles
+    def get_roles_scale(service)
+        get_roles_deploy(service)
     end
 
     # Determine if the role nodes are running

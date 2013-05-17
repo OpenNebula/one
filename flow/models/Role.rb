@@ -26,7 +26,8 @@ module OpenNebula
             'UNKNOWN'            => 5,
             'DONE'               => 6,
             'FAILED_UNDEPLOYING' => 7,
-            'FAILED_DEPLOYING'   => 8
+            'FAILED_DEPLOYING'   => 8,
+            'SCALING'            => 9
         }
 
         STATE_STR = [
@@ -38,7 +39,8 @@ module OpenNebula
             'UNKNOWN',
             'DONE',
             'FAILED_UNDEPLOYING',
-            'FAILED_DEPLOYING'
+            'FAILED_DEPLOYING',
+            'SCALING'
         ]
 
         LOG_COMP = "ROL"
@@ -96,11 +98,37 @@ module OpenNebula
             return max.to_i
         end
 
+        # Returns the role min cardinality
+        # @return [Integer] the role cardinality
+        def min_cardinality
+            min = nil
+
+            if !@body['elasticity_policy'].nil?
+                min = @body['elasticity_policy']['min_vms']
+            end
+
+            if min.nil?
+                min = cardinality()
+            end
+
+            return min.to_i
+        end
+
         def up_expr
             expr = nil
 
             if !@body['elasticity_policy'].nil?
                 expr = @body['elasticity_policy']['up_expr']
+            end
+
+            return expr
+        end
+
+        def down_expr
+            expr = nil
+
+            if !@body['elasticity_policy'].nil?
+                expr = @body['elasticity_policy']['down_expr']
             end
 
             return expr
@@ -122,7 +150,7 @@ module OpenNebula
         # @param [Integer] the new state
         # @return [true, false] true if the value was changed
         def set_state(state)
-            if state < 0 || state > 8
+            if state < 0 || state > STATE_STR.size
                 return false
             end
 
@@ -210,7 +238,13 @@ module OpenNebula
         def shutdown
             success = true
 
-            get_nodes.each { |node|
+            nodes = get_nodes
+            n_nodes = nodes.size - cardinality()
+
+#            get_nodes.each { |node|
+            n_nodes.times { |i|
+                node = nodes[i]
+
                 vm_id = node['deploy_id']
 
                 Log.debug LOG_COMP, "Role #{name} : Shutting down VM #{vm_id}", @service.id()
@@ -298,5 +332,77 @@ module OpenNebula
 
             return [true, nil]
         end
+
+        ########################################################################
+        # Scalability
+        ########################################################################
+
+        # Returns true if the scalability rule to scale up is triggered
+        # @return true if this role has to scale up
+        def scale_up?()
+            parser = ElasticityGrammarParser.new
+
+            elas_expr = up_expr
+
+            if elas_expr.nil?
+                return false
+            end
+
+            Log.debug "ELAS", "Role #{name} up_expr: #{elas_expr}"
+
+            treetop = parser.parse(elas_expr)
+            if treetop.nil?
+                Log.debug "ELAS", "up_expr parse error"
+            end
+
+            result = treetop.result(self)
+
+            if result
+                Log.debug "ELAS", "Role #{name} to scale up"
+
+                if cardinality() < max_cardinality()
+                    return true
+                else
+                    Log.debug "ELAS", "Role #{name} has reached its VM limit"
+                end
+            end
+
+            return false
+        end
+
+
+        # Returns true if the scalability rule to scale down is triggered
+        # @return true if this role has to scale down
+        def scale_down?()
+            parser = ElasticityGrammarParser.new
+
+            elas_expr = down_expr
+
+            if elas_expr.nil?
+                return false
+            end
+
+            Log.debug "ELAS", "Role #{name} down_expr: #{elas_expr}"
+
+            treetop = parser.parse(elas_expr)
+            if treetop.nil?
+                Log.debug "ELAS", "down_expr parse error"
+            end
+
+            result = treetop.result(self)
+
+            if result
+                Log.debug "ELAS", "Role #{name} to scale down"
+
+                if cardinality() > min_cardinality()
+                    return true
+                else
+                    Log.debug "ELAS", "Role #{name} has reached its VM minimum"
+                end
+            end
+
+            return false
+        end
+
     end
 end
