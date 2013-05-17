@@ -1,0 +1,93 @@
+grammar ElasticityGrammar
+    rule logic_cond
+        left:operand space comp_op space right:operand {
+            def result(role)
+                comp_op.apply(left.result(role), right.result(role))
+            end
+        }
+    end
+
+    rule comp_op
+        '==' / '=' {
+            def apply(a,b)
+                a == b
+            end
+        }
+        /
+        '!=' / '<>' {
+            def apply(a,b)
+                a != b
+            end
+        }
+        /
+        '>' {
+            def apply(a,b)
+                a > b
+            end
+        }
+        /
+        '>=' {
+            def apply(a,b)
+                a >= b
+            end
+        }
+        /
+        '<' {
+            def apply(a,b)
+                a < b
+            end
+        }
+        /
+        '<=' {
+            def apply(a,b)
+                a <= b
+            end
+        }
+    end
+
+    rule operand
+        ( number ) {
+            def result
+                number.result(role)
+            end
+        }
+        /
+        ( variable ) {
+            def result
+                variable.result(role)
+            end
+        }
+    end
+
+    rule number
+        ([1-9] [0-9]* / '0') {
+            def result(role)
+                text_value.to_i
+            end
+        }
+    end
+
+    rule variable
+      [a-z]+ {
+            def result(role)
+                nodes = role.get_nodes
+                total = 0
+
+                nodes.each { |node|
+                    if node && node['vm_info'] && node['vm_info']['VM']['USER_TEMPLATE'][text_value.upcase]
+                        # TODO: Check value is numeric
+                        total += (node['vm_info']['VM']['USER_TEMPLATE'][text_value.upcase]).to_f
+                    end
+                }
+
+                Log.debug "ELAS", "Role #{role.name} attribute #{text_value.upcase} avg value of #{total / nodes.size}"
+
+                return total / nodes.size
+            end
+        }
+    end
+
+    rule space
+      ' '*
+    end
+end

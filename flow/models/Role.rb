@@ -96,6 +96,16 @@ module OpenNebula
             return max.to_i
         end
 
+        def up_expr
+            expr = nil
+
+            if !@body['elasticity_policy'].nil?
+                expr = @body['elasticity_policy']['up_expr']
+            end
+
+            return expr
+        end
+
         # Returns the string representation of the service state
         # @return [String] the state string
         def state_str

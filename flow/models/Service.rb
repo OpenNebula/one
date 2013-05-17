@@ -14,6 +14,9 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'treetop'
+require 'grammar'
+
 module OpenNebula
     class Service < DocumentJSON
 
@@ -160,25 +163,32 @@ module OpenNebula
 
         # Method stub, returns true if any VM has an attribute SCALE_UP=YES
         def role_scale_up?(role)
-            role.get_nodes.each { |node|
-                if node && node['vm_info']
-                    scale_up = node['vm_info']['VM']['USER_TEMPLATE']['SCALE_UP']
-        
-                    if scale_up == "YES"
-                        Log.debug "ELAS", "Role #{role.name} to scale up"
+            parser = ElasticityGrammarParser.new
 
-                        if role.cardinality() < role.max_cardinality()
-                            # Clean vm template
-                            `echo "" > /tmp/empty.txt`
-                            `onevm update #{node['deploy_id']} /tmp/empty.txt`
+            elas_expr = role.up_expr
 
-                            return true
-                        else
-                            Log.debug "ELAS", "Role #{role.name} has reached its VM limit"
-                        end
-                    end
+            if elas_expr.nil?
+                return false
+            end
+
+            Log.debug "ELAS", "Role #{role.name} up_expr: #{elas_expr}"
+
+            treetop = parser.parse(elas_expr)
+            if treetop.nil?
+                Log.debug "ELAS", "up_expr parse error"
+            end
+
+            result = treetop.result(role)
+
+            if result
+                Log.debug "ELAS", "Role #{role.name} to scale up"
+
+                if role.cardinality() < role.max_cardinality()
+                    return true
+                else
+                    Log.debug "ELAS", "Role #{role.name} has reached its VM limit"
                 end
-            }
+            end
 
             return false
         end
