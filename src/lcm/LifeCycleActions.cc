@@ -710,10 +710,6 @@ void LifeCycleManager::delete_action(int vid)
 
     switch(vm->get_lcm_state())
     {
-        case VirtualMachine::LCM_INIT:
-            vm->log("LCM", Log::ERROR, "clean_action, VM in a wrong state.");
-        break;
-
         case VirtualMachine::CLEANUP_RESUBMIT:
         case VirtualMachine::CLEANUP_DELETE:
             vm->set_state(VirtualMachine::CLEANUP_DELETE);
@@ -784,7 +780,6 @@ void  LifeCycleManager::clean_action(int vid)
 
     switch(vm->get_lcm_state())
     {
-        case VirtualMachine::LCM_INIT:
         case VirtualMachine::CLEANUP_DELETE:
             vm->log("LCM", Log::ERROR, "clean_action, VM in a wrong state.");
         break;
