@@ -23,6 +23,7 @@
 #include "Image.h"
 #include "Log.h"
 #include "NebulaLog.h"
+#include "NebulaUtil.h"
 
 #include <time.h>
 #include <set>
@@ -61,6 +62,44 @@ public:
         POWEROFF  = 8,
         UNDEPLOYED = 9
     };
+
+    static int vm_state_from_str(string& st, VmState& state)
+    {
+        one_util::toupper(st);
+
+        if ( st == "INIT" ) { state = INIT; }
+        else if ( st == "PENDING" ) { state = PENDING; }
+        else if ( st == "HOLD" ) { state = HOLD; }
+        else if ( st == "ACTIVE" ) { state = ACTIVE; }
+        else if ( st == "STOPPED" ) { state = STOPPED; }
+        else if ( st == "SUSPENDED" ) { state = SUSPENDED; }
+        else if ( st == "DONE" ) { state = DONE; }
+        else if ( st == "FAILED" ) { state = FAILED; }
+        else if ( st == "POWEROFF" ) { state = POWEROFF; }
+        else if ( st == "UNDEPLOYED" ) { state = UNDEPLOYED; }
+        else {return -1;}
+
+        return 0;
+    }
+
+    static string& vm_state_to_str(string& st, VmState state)
+    {
+        switch (state)
+        {
+            case INIT      : st = "INIT"; break;
+            case PENDING   : st = "PENDING"; break;
+            case HOLD      : st = "HOLD"; break;
+            case ACTIVE    : st = "ACTIVE"; break;
+            case STOPPED   : st = "STOPPED"; break;
+            case SUSPENDED : st = "SUSPENDED"; break;
+            case DONE      : st = "DONE"; break;
+            case FAILED    : st = "FAILED"; break;
+            case POWEROFF  : st = "POWEROFF"; break;
+            case UNDEPLOYED: st = "UNDEPLOYED"; break;
+        }
+
+        return st;
+    }
 
     /**
      *  Virtual Machine state associated to the Life-cycle Manager
@@ -101,6 +140,90 @@ public:
         PROLOG_UNDEPLOY     = 31,
         BOOT_UNDEPLOY       = 32
     };
+
+    static int lcm_state_from_str(string& st, LcmState& state)
+    {
+        one_util::toupper(st);
+
+        if ( st == "LCM_INIT" ){ state = LCM_INIT; }
+        else if ( st == "PROLOG") { state = PROLOG; }
+        else if ( st == "BOOT") { state = BOOT; }
+        else if ( st == "RUNNING") { state = RUNNING; }
+        else if ( st == "MIGRATE") { state = MIGRATE; }
+        else if ( st == "SAVE_STOP") { state = SAVE_STOP; }
+        else if ( st == "SAVE_SUSPEND") { state = SAVE_SUSPEND; }
+        else if ( st == "SAVE_MIGRATE") { state = SAVE_MIGRATE; }
+        else if ( st == "PROLOG_MIGRATE") { state = PROLOG_MIGRATE; }
+        else if ( st == "PROLOG_RESUME") { state = PROLOG_RESUME; }
+        else if ( st == "EPILOG_STOP") { state = EPILOG_STOP; }
+        else if ( st == "EPILOG") { state = EPILOG; }
+        else if ( st == "SHUTDOWN") { state = SHUTDOWN; }
+        else if ( st == "CANCEL") { state = CANCEL; }
+        else if ( st == "FAILURE") { state = FAILURE; }
+        else if ( st == "CLEANUP_RESUBMIT") { state = CLEANUP_RESUBMIT; }
+        else if ( st == "UNKNOWN") { state = UNKNOWN; }
+        else if ( st == "HOTPLUG") { state = HOTPLUG; }
+        else if ( st == "SHUTDOWN_POWEROFF") { state = SHUTDOWN_POWEROFF; }
+        else if ( st == "BOOT_UNKNOWN") { state = BOOT_UNKNOWN; }
+        else if ( st == "BOOT_POWEROFF") { state = BOOT_POWEROFF; }
+        else if ( st == "BOOT_SUSPENDED") { state = BOOT_SUSPENDED; }
+        else if ( st == "BOOT_STOPPED") { state = BOOT_STOPPED; }
+        else if ( st == "CLEANUP_DELETE") { state = CLEANUP_DELETE; }
+        else if ( st == "HOTPLUG_SNAPSHOT") { state = HOTPLUG_SNAPSHOT; }
+        else if ( st == "HOTPLUG_NIC") { state = HOTPLUG_NIC; }
+        else if ( st == "HOTPLUG_SAVEAS") { state = HOTPLUG_SAVEAS; }
+        else if ( st == "HOTPLUG_SAVEAS_POWEROFF") { state = HOTPLUG_SAVEAS_POWEROFF; }
+        else if ( st == "HOTPLUG_SAVEAS_SUSPENDED") { state = HOTPLUG_SAVEAS_SUSPENDED; }
+        else if ( st == "SHUTDOWN_UNDEPLOY") { state = SHUTDOWN_UNDEPLOY; }
+        else if ( st == "EPILOG_UNDEPLOY") { state = EPILOG_UNDEPLOY; }
+        else if ( st == "PROLOG_UNDEPLOY") { state = PROLOG_UNDEPLOY; }
+        else if ( st == "BOOT_UNDEPLOY") { state = BOOT_UNDEPLOY; }
+        else {return -1;}
+
+        return 0;
+    }
+
+    static string& lcm_state_to_str(string& st, LcmState& state)
+    {
+        switch (state)
+        {
+            case LCM_INIT: st = "LCM_INIT"; break;
+            case PROLOG: st = "PROLOG"; break;
+            case BOOT: st = "BOOT"; break;
+            case RUNNING: st = "RUNNING"; break;
+            case MIGRATE: st = "MIGRATE"; break;
+            case SAVE_STOP: st = "SAVE_STOP"; break;
+            case SAVE_SUSPEND: st = "SAVE_SUSPEND"; break;
+            case SAVE_MIGRATE: st = "SAVE_MIGRATE"; break;
+            case PROLOG_MIGRATE: st = "PROLOG_MIGRATE"; break;
+            case PROLOG_RESUME: st = "PROLOG_RESUME"; break;
+            case EPILOG_STOP: st = "EPILOG_STOP"; break;
+            case EPILOG: st = "EPILOG"; break;
+            case SHUTDOWN: st = "SHUTDOWN"; break;
+            case CANCEL: st = "CANCEL"; break;
+            case FAILURE: st = "FAILURE"; break;
+            case CLEANUP_RESUBMIT: st = "CLEANUP_RESUBMIT"; break;
+            case UNKNOWN: st = "UNKNOWN"; break;
+            case HOTPLUG: st = "HOTPLUG"; break;
+            case SHUTDOWN_POWEROFF: st = "SHUTDOWN_POWEROFF"; break;
+            case BOOT_UNKNOWN: st = "BOOT_UNKNOWN"; break;
+            case BOOT_POWEROFF: st = "BOOT_POWEROFF"; break;
+            case BOOT_SUSPENDED: st = "BOOT_SUSPENDED"; break;
+            case BOOT_STOPPED: st = "BOOT_STOPPED"; break;
+            case CLEANUP_DELETE: st = "CLEANUP_DELETE"; break;
+            case HOTPLUG_SNAPSHOT: st = "HOTPLUG_SNAPSHOT"; break;
+            case HOTPLUG_NIC: st = "HOTPLUG_NIC"; break;
+            case HOTPLUG_SAVEAS: st = "HOTPLUG_SAVEAS"; break;
+            case HOTPLUG_SAVEAS_POWEROFF: st = "HOTPLUG_SAVEAS_POWEROFF"; break;
+            case HOTPLUG_SAVEAS_SUSPENDED: st = "HOTPLUG_SAVEAS_SUSPENDED"; break;
+            case SHUTDOWN_UNDEPLOY: st = "SHUTDOWN_UNDEPLOY"; break;
+            case EPILOG_UNDEPLOY: st = "EPILOG_UNDEPLOY"; break;
+            case PROLOG_UNDEPLOY: st = "PROLOG_UNDEPLOY"; break;
+            case BOOT_UNDEPLOY: st = "BOOT_UNDEPLOY"; break;
+        }
+
+        return st;
+    }
 
     // -------------------------------------------------------------------------
     // Log & Print

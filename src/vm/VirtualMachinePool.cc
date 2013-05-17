@@ -180,6 +180,41 @@ VirtualMachinePool::VirtualMachinePool(
 
             state_hook = true;
         }
+        else if ( on == "CUSTOM" )
+        {
+            VirtualMachineStateHook * hook;
+
+            string lcm_str = vattr->vector_value("LCM_STATE");
+            string vm_str  = vattr->vector_value("STATE");
+
+            VirtualMachine::LcmState lcm_state;
+            VirtualMachine::VmState vm_state;
+
+            if ( VirtualMachine::lcm_state_from_str(lcm_str, lcm_state) != 0 )
+            {
+                ostringstream oss;
+                oss << "Wrong LCM_STATE: "<< lcm_str <<". Hook not registered!";
+
+                NebulaLog::log("VM",Log::WARNING,oss);
+                continue;
+            }
+
+            if ( VirtualMachine::vm_state_from_str(vm_str, vm_state) != 0 )
+            {
+                ostringstream oss;
+                oss << "Wrong STATE: "<< vm_str <<". Hook not registered!";
+
+                NebulaLog::log("VM",Log::WARNING,oss);
+                continue;
+            }
+
+            hook = new VirtualMachineStateHook(name, cmd, arg, remote,
+                    lcm_state, vm_state);
+
+            add_hook(hook);
+
+            state_hook = true;
+        }
         else
         {
             ostringstream oss;
