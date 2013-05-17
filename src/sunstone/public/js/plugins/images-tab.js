@@ -250,6 +250,56 @@ var create_image_tmpl =
                       </div>\
                     </div>\
                   </div>\
+                  <div class="row">\
+                    <fieldset>\
+                      <legend>' + tr("Custom attributes") + '</legend>\
+                       <div class="row">\
+                        <div class="six columns">\
+                          <div class="row">\
+                            <div class="four columns">\
+                              <label class="right inline" for="custom_var_image_name">'+tr("Name")+':</label>\
+                            </div>\
+                            <div class="seven columns">\
+                              <input type="text" id="custom_var_image_name" name="custom_var_image_name" />\
+                            </div>\
+                            <div class="one columns">\
+                            </div>\
+                          </div>\
+                          <div class="row">\
+                            <div class="four columns">\
+                              <label class="right inline" for="custom_var_image_value">'+tr("Value")+':</label>\
+                            </div>\
+                            <div class="seven columns">\
+                              <input type="text" id="custom_var_image_value" name="custom_var_image_value" />\
+                            </div>\
+                            <div class="one columns">\
+                            </div>\
+                          </div>\
+                          <div class="row">\
+                            <div class="six columns">\
+                              <button class="add_remove_button add_button secondary button right small radius" id="add_custom_var_image_button" value="add_custom_image_var">\
+                               '+tr("Add")+'\
+                              </button>\
+                            </div>\
+                            <div class="six columns">\
+                              <button class="add_remove_button secondary button small radius" id="remove_custom_var_image_button" value="remove_custom_image_var">\
+                               '+tr("Remove selected")+'\
+                              </button>\
+                            </div>\
+                          </div>\
+                        </div>\
+                        <div class="six columns">\
+                          <div class="row">\
+                            <div class="eight centered columns">\
+                              <select id="custom_var_image_box" name="custom_var_image_box" style="height:10em; width:100%" multiple>\
+                                <!-- insert leases -->\
+                              </select>\
+                            </div>\
+                          </div>\
+                        </div>\
+                       </div>\
+                    </fieldset>\
+                  </div>\
                   </div>\
           <div class="reveal-footer">\
             <hr>\
@@ -1122,6 +1172,7 @@ function setupCreateImageDialog(){
 
         return false;
     });
+
 
     $('#create_image_submit_manual',dialog).click(function(){
         var template=$('#template',dialog).val();
