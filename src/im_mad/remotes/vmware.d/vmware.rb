@@ -16,86 +16,30 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-require 'rubygems'
-require 'rbvmomi'
-require 'pp'
+ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
 
-def init_client(hostname, user, password)
-  @client = RbVmomi::VIM.connect(:host => hostname, 
-                                 :user => user, 
-                                 :password => password, 
-                                 :insecure => true)
-  @rootFolder = @client.serviceInstance.content.rootFolder
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
 end
 
-# Get hold of a VM by name
-def get_vm(name)
-  vm = {}
-  # Traverse all datacenters
-  @rootFolder.childEntity.grep(RbVmomi::VIM::Datacenter).each do |dc|
-    # Traverse all datastores  
-    dc.datastoreFolder.childEntity.collect do |ds|
-      # Find the VM with "name"
-      vm[:vm] = ds.vm.find { |v| v.name == name }
-      if vm[:vm]
-        vm[:ds] = ds.name
-        break
-      end
-    end
-  end
-  return vm
+$: << "../../vmm/vmware/"
+
+require 'vi_driver'
+
+host = ARGV[2]
+
+if !host
+    exit -1
 end
 
-# Get hold of a host by name
-def get_host(name)
-  host = {}
-  @rootFolder.childEntity.grep(RbVmomi::VIM::Datacenter).first.hostFolder.children.first.host.each { |h| 
-      if h.name == name
-        host = h
-        break
-      end
-  }
-  return host
+vi_drv = VIDriver.new(host)
+
+results = vi_drv.poll_host_and_vms
+
+if results != -1
+  puts results
+else
+  exit results.to_i
 end
-
-def get_used_memory(vm)
-  vm.summary.quickStats.hostMemoryUsage.to_s
-end
-
-def get_used_cpu(vm, host)
-  overallCpuUsage = vm.summary.quickStats.overallCpuUsage.to_f
-  cpuMhz          = host.summary.hardware.cpuMhz.to_f
-  numCpuCores     = host.summary.hardware.numCpuCores.to_f
-  (overallCpuUsage / (cpuMhz * numCpuCores)).round(3).to_s
-end
-
-def get_state(vm)
-  case vm.summary.runtime.powerState
-    when "poweredOn"
-      "a"
-    when "suspended"
-      "p"
-    else
-      "d"
-  end
-end
-
-def get_info(vm, host)
-  str_info = ""
-  str_info += "USEDCPU="+get_used_cpu(vm, host)+" "
-  str_info += "USEDMEMORY="+get_used_memory(vm)+" "
-  str_info += "STATE="+get_state(vm)+" "
-end
-
-begin
-  init_client(hostname,username,password)
-
-  vm   = get_vm(vm_name)
-  host = get_host(hostname)
-  str_info = get_info(vm[:vm], host)
-rescue Exception => e
-  str_info = "STATE=d"
-end
-
-pp str_info
-

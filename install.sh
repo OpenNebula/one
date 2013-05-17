@@ -771,7 +771,8 @@ VMM_EXEC_VMWARE_SCRIPTS="src/vmm_mad/remotes/vmware/cancel \
                          src/vmm_mad/remotes/vmware/poll \
                          src/vmm_mad/remotes/vmware/checkpoint \
                          src/vmm_mad/remotes/vmware/shutdown \
-                         src/vmm_mad/remotes/vmware/vmware_driver.rb"
+                         src/vmm_mad/remotes/vmware/vmware_driver.rb \
+                         src/vmm_mad/remotes/vmware/vi_driver.rb"
 
 #-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $REMOTES_LOCATION/im
