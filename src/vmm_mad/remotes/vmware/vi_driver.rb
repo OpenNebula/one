@@ -223,7 +223,7 @@ class VIDriver
     # -------------------------------------------------------------------------#
     def get_host_used_cpu
       overallCpuUsage = @host.summary.quickStats.overallCpuUsage.to_f
-      (overallCpuUsage / (@cpuMhz * @numCpuCores)).round(3)*100
+      (overallCpuUsage / (@cpuMhz * @numCpuCores)).round()
     end
 
     # -------------------------------------------------------------------------#
@@ -257,7 +257,7 @@ class VIDriver
     # Get percentage of the CPU used by a VM in a host
     def get_used_cpu(vm)
       overallCpuUsage = vm.summary.quickStats.overallCpuUsage.to_f
-      ((overallCpuUsage / (@cpuMhz * @numCpuCores)).round(3)*100).to_s
+      ((overallCpuUsage / (@cpuMhz * @numCpuCores)).round()).to_s
     end
 
     # -------------------------------------------------------------------------#
