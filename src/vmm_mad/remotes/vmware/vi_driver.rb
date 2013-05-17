@@ -65,8 +65,11 @@ class VIDriver
                                        :user => conf[:username], 
                                        :password => pass, 
                                        :insecure => true)
-        @rootFolder = @client.serviceInstance.content.rootFolder 
-        @host       = get_host(hostname)
+        @rootFolder  = @client.serviceInstance.content.rootFolder 
+        @host        = get_host(hostname)
+        # Get values to be used in all of this class instantiations
+        @cpuMhz      = @host.summary.hardware.cpuMhz.to_f
+        @numCpuCores = @host.summary.hardware.numCpuCores.to_f
       rescue Exception => e
         raise "Connection error to #{hostname}: " + e.message
       end
@@ -75,7 +78,7 @@ class VIDriver
     # -------------------------------------------------------------------------#
     # Poll the monitoring information for a VM                                 #
     # -------------------------------------------------------------------------# 
-    def poll(deploy_id)
+    def poll_vm(deploy_id)
       begin
         vm       = get_vm(deploy_id)[:vm]
         str_info = get_vm_info(vm)
@@ -88,11 +91,30 @@ class VIDriver
 
     # -------------------------------------------------------------------------#
     # Poll the monitoring information for a VM                                 #
+    # -------------------------------------------------------------------------# 
+    def poll_host_and_vms
+      begin
+        str_info =  get_host_info
+        vms_info = get_all_vms_info
+        str_info += " " + vms_info if vms_info
+      rescue Exception => e
+        STDERR.puts e.message
+        return -1
+      end
+        return str_info
+    end    
+
+    ############################################################################
+    # Private Methods                                                          #
+    ############################################################################
+
     # -------------------------------------------------------------------------#
-    def poll_all_vms
+    # Poll the monitoring information for a VM                                 #
+    # -------------------------------------------------------------------------#
+    def get_all_vms_info
       begin
         vms       = get_all_vms
-        str_info = "VM_POLL=YES "
+        str_info = "VM_POLL=YES " if vms.length > 0
 
         vms.each do |vm|
           number = -1
@@ -111,10 +133,6 @@ class VIDriver
       end
       return str_info
     end
-
-    ############################################################################
-    # Private Methods                                                          #
-    ############################################################################
 
     # -------------------------------------------------------------------------#
     # Get hold of a VM by name                                                 #
@@ -171,25 +189,75 @@ class VIDriver
     end
 
     # -------------------------------------------------------------------------#
+    # Get information of the initialized host                                  #
+    # -------------------------------------------------------------------------#
+    def get_host_info
+      str_info = ""
+      # CPU
+      total_cpu = @host.summary.hardware.numCpuCores*100
+      used_cpu  = get_host_used_cpu
+
+      str_info += "MODELNAME=\""+ @host.summary.hardware.cpuModel.to_s   + "\" "
+      str_info += "CPUSPEED="   + @host.summary.hardware.cpuMhz.to_s     + " "
+      str_info += "TOTALCPU="   + total_cpu.to_s                         + " "
+      str_info += "USEDCPU="    + used_cpu.to_s                          + " "
+      str_info += "FREECPU="    + (total_cpu - used_cpu).to_s            + " "
+
+      # Memory
+      total_memory = get_host_total_memory
+      used_memory  = get_host_used_memory
+      str_info += "TOTALMEMORY=" + total_memory.to_s                      + " "
+      str_info += "USEDMEMORY="  + used_memory.to_s                       + " "
+      str_info += "FREEMEMORY="  + (total_memory - used_memory).to_s      + " "
+
+      # Networking
+      net_info = get_perf_value([@host], ["net.packetsRx","net.packetsTx"])
+      str_info += "NETRX=" +
+                  net_info[@host][:metrics]["net.packetsRx"].first.to_s + " "
+      str_info += "NETTX=" +
+                  net_info[@host][:metrics]["net.packetsTx"].first.to_s
+    end
+
+    # -------------------------------------------------------------------------#
+    # Get used CPO of the initialized host                                     #
+    # -------------------------------------------------------------------------#
+    def get_host_used_cpu
+      overallCpuUsage = @host.summary.quickStats.overallCpuUsage.to_f
+      (overallCpuUsage / (@cpuMhz * @numCpuCores)).round(3)*100
+    end
+
+    # -------------------------------------------------------------------------#
+    # Get total memory of the initialized host                                 #
+    # -------------------------------------------------------------------------#
+    def get_host_total_memory
+      @host.summary.hardware.memorySize/1024
+    end
+
+    # -------------------------------------------------------------------------#
+    # Get used memory of the initialized host                                 #
+    # -------------------------------------------------------------------------#
+    def get_host_used_memory
+      @host.summary.quickStats.overallMemoryUsage*1024
+    end
+
+    # -------------------------------------------------------------------------#
     # Get all VMs available in current @hostname                               #
     # -------------------------------------------------------------------------#
     def get_all_vms
-      @host.vm.collect { |vm| vm if get_state(vm)=="a"}.compact
+      @host.vm.collect { |vm| vm if get_state(vm)=="a" }.compact
     end
 
     # -------------------------------------------------------------------------#
     # Get used memory of a VM                                                  #
     # -------------------------------------------------------------------------#
     def get_used_memory(vm)
-      vm.summary.quickStats.hostMemoryUsage.to_s
+      (vm.summary.quickStats.hostMemoryUsage.*1024).to_s
     end
 
     # Get percentage of the CPU used by a VM in a host
     def get_used_cpu(vm)
       overallCpuUsage = vm.summary.quickStats.overallCpuUsage.to_f
-      cpuMhz          = @host.summary.hardware.cpuMhz.to_f
-      numCpuCores     = @host.summary.hardware.numCpuCores.to_f
-      (overallCpuUsage / (cpuMhz * numCpuCores)).round(3).to_s
+      ((overallCpuUsage / (@cpuMhz * @numCpuCores)).round(3)*100).to_s
     end
 
     # -------------------------------------------------------------------------#
