@@ -75,6 +75,7 @@ module OpenNebulaJSON
                  when "undeploy"     then self.undeploy(action_hash['params'])
                  when "resched"      then self.resched
                  when "unresched"    then self.unresched
+                 when "recover"      then self.recover(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -159,6 +160,11 @@ module OpenNebulaJSON
 
         def rename(params=Hash.new)
             super(params['name'])
+        end
+
+        def recover(params=Hash.new)
+            result = params['with'] == "success" ? true : false
+            super(result)
         end
     end
 end

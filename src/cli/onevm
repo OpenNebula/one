@@ -519,7 +519,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation
         was successful or not.
 
-        Example: A VM is stuck in "migrate" because of a harware failure. You
+        Example: A VM is stuck in "migrate" because of a hardware failure. You
         need to check if the VM is running in the new host or not to recover
         the vm with success (onevm recover --with success) or failure
         (onevm recover --with failure), respectively.

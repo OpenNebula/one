@@ -806,6 +806,10 @@ var OpenNebula = {
         },
         "unresched" : function(params){
             OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"unresched");
+        },
+        "recover" : function(params){
+            var action_obj = {"with": params.data.extra_param};
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"recover",action_obj);
         }
     },
 

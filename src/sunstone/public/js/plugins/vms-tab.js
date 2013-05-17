@@ -404,6 +404,15 @@ var vm_actions = {
         notify: true
     },
 
+    "VM.recover" : {
+        type: "multiple",
+        call: OpenNebula.VM.recover,
+        callback: vmShow,
+        elements: vmElements,
+        error: onError,
+        notify: true
+    },
+
     "VM.resched" : {
         type: "multiple",
         call: OpenNebula.VM.resched,
@@ -834,6 +843,17 @@ var vm_buttons = {
         layout: "vmsplanification_buttons",
         tip: tr("This will cancel the rescheduling for the selected VMs")
     },
+    "VM.recover" : {
+        type: "confirm_with_select",
+        text: tr("Recover"),
+        layout: "vmsplanification_buttons",
+        select: function(){ return '<option value="success">' + tr("success") + '</option>\
+                 <option value="failure">' + tr("failure") + '</option>'},
+        tip: tr("Recovers a stuck VM that is waiting for a driver operation. \
+                The recovery may be done by failing or succeeding the pending operation. \
+                YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation \
+                was successful or not.")
+    }
 
     //"VM.help" : {
     //    type: "action",
