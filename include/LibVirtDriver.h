@@ -41,16 +41,16 @@ public:
 
 private:
     static const char * vmware_vnm_name;
-    
+
     static const float  CGROUP_BASE_CPU_SHARES;
-    
+
     int deployment_description(
         const VirtualMachine *  vm,
         const string&           file_name) const
     {
         int   rc = -1;
 
-        if (emulator == "kvm")
+        if (emulator == "kvm" || emulator == "qemu" )
         {
             rc = deployment_description_kvm(vm,file_name);
         }
