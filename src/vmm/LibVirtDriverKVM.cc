@@ -196,10 +196,7 @@ int LibVirtDriver::deployment_description_kvm(
         }
     }
 
-    if (emulator == "kvm")
-    {
-        file << "\t\t<type arch='" << arch << "'>hvm</type>" << endl;
-    }
+    file << "\t\t<type arch='" << arch << "'>hvm</type>" << endl;
 
     if ( kernel.empty() )
     {
@@ -274,17 +271,14 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     file << "\t<devices>" << endl;
 
-    if (emulator == "kvm")
+    get_default("EMULATOR",emulator_path);
+
+    if(emulator_path.empty())
     {
-        get_default("EMULATOR",emulator_path);
-
-        if(emulator_path.empty())
-        {
-            emulator_path = "/usr/bin/kvm";
-        }
-
-        file << "\t\t<emulator>" << emulator_path << "</emulator>" << endl;
+        emulator_path = "/usr/bin/kvm";
     }
+
+    file << "\t\t<emulator>" << emulator_path << "</emulator>" << endl;
 
     // ------------------------------------------------------------------------
     // Disks
