@@ -19,8 +19,8 @@ require 'json'
 
 require 'opennebula'
 
-require 'OpenNebula/document_json'
-require 'OpenNebula/document_pool_json'
+require 'opennebula/document_json'
+require 'opennebula/document_pool_json'
 
 require 'onecast'
 

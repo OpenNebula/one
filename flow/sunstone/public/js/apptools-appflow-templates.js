@@ -531,7 +531,7 @@ function updateServiceTemplateInfo(request,elem){
 
 // Prepare the creation dialog
 function setupCreateServiceTemplateDialog(){
-    dialogs_context.append('<div title="'+tr("Create service template")+'" id="create_service_template_dialog"></div>');
+    dialogs_context.append('<div id="create_service_template_dialog"></div>');
     $create_service_template_dialog =  $('#create_service_template_dialog',dialogs_context);
 
     var dialog = $create_service_template_dialog;
