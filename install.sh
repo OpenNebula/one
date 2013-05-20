@@ -214,6 +214,11 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/cloud/marketplace \
           $LIB_LOCATION/ruby/cloud/CloudAuth \
           $LIB_LOCATION/ruby/onedb \
+          $LIB_LOCATION/ruby/vendors \
+          $LIB_LOCATION/ruby/vendors/rbvmomi \
+          $LIB_LOCATION/ruby/vendors/rbvmomi/rbvmomi \
+          $LIB_LOCATION/ruby/vendors/rbvmomi/rbvmomi/utils \
+          $LIB_LOCATION/ruby/vendors/rbvmomi/rbvmomi/vim \
           $LIB_LOCATION/mads \
           $LIB_LOCATION/sh \
           $LIB_LOCATION/ruby/cli \
@@ -452,6 +457,10 @@ INSTALL_FILES=(
     MAN_FILES:$MAN_LOCATION
     CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
     ONE_CLI_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
+    RBVMOMI_VENDOR_RUBY_FILES:$LIB_LOCATION/ruby/vendors/rbvmomi
+    RBVMOMI_VENDOR_RUBY_RBVMOMI_FILES:$LIB_LOCATION/ruby/vendors/rbvmomi/rbvmomi
+    RBVMOMI_VENDOR_RUBY_RBVMOMI_VIM_FILES:$LIB_LOCATION/ruby/vendors/rbvmomi/rbvmomi/vim
+    RBVMOMI_VENDOR_RUBY_RBVMOMI_UTILS_FILES:$LIB_LOCATION/ruby/vendors/rbvmomi/rbvmomi/utils
 )
 
 INSTALL_CLIENT_FILES=(
@@ -1876,6 +1885,56 @@ MAN_FILES="share/man/oneauth.1.gz \
         share/man/occi-storage.1.gz \
         share/man/onezone.1.gz \
         share/man/onevdc.1.gz"
+
+#-----------------------------------------------------------------------------
+# Ruby VENDOR files
+#-----------------------------------------------------------------------------
+
+RBVMOMI_VENDOR_RUBY_FILES="share/vendor/ruby/gems/rbvmomi/LICENSE \
+share/vendor/ruby/gems/rbvmomi/README.rdoc \
+share/vendor/ruby/gems/rbvmomi/VERSION \
+share/vendor/ruby/gems/rbvmomi/vmodl.db
+share/vendor/ruby/gems/rbvmomi/rbvmomi.rb"
+
+RBVMOMI_VENDOR_RUBY_RBVMOMI_FILES="\
+share/vendor/ruby/gems/rbvmomi/rbvmomi/basic_types.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/connection.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/deserialization.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/fault.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/pbm.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/trivial_soap.rb 
+share/vendor/ruby/gems/rbvmomi/rbvmomi/trollop.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/type_loader.rb"
+
+RBVMOMI_VENDOR_RUBY_RBVMOMI_UTILS_FILES="\
+share/vendor/ruby/gems/rbvmomi/rbvmomi/utils/admission_control.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/utils/deploy.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/utils/leases.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/utils/perfdump.rb"
+
+RBVMOMI_VENDOR_RUBY_RBVMOMI_VIM_FILES="\
+share/vendor/ruby/gems/rbvmomi/rbvmomi/vim/ComputeResource.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/vim/Datacenter.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/vim/Datastore.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/vim/DynamicTypeMgrAllTypeInfo.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/vim/DynamicTypeMgrDataTypeInfo.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/vim/DynamicTypeMgrManagedTypeInfo.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/vim/Folder.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/vim/HostSystem.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/vim/ManagedEntity.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/vim/ManagedObject.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/vim/ObjectContent.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/vim/ObjectUpdate.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/vim/OvfManager.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/vim/PerfCounterInfo.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/vim/PerformanceManager.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/vim/PropertyCollector.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/vim/ReflectManagedMethodExecuter.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/vim/ResourcePool.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/vim/ServiceInstance.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/vim/Task.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/vim/VirtualMachine.rb \
+share/vendor/ruby/gems/rbvmomi/rbvmomi/vim.rb"
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------

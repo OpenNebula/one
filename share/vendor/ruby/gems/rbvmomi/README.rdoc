@@ -1,0 +1,78 @@
+= RbVmomi
+
+== Introduction
+
+RbVmomi is a Ruby interface to the vSphere API. Like the Perl and Java SDKs,
+you can use it to manage ESX and VirtualCenter servers. The current release
+supports the vSphere 5.0 API. RbVmomi specific documentation is
+online[http://rdoc.info/github/rlane/rbvmomi/master/frames] and is meant to
+be used alongside the official documentation[http://www.vmware.com/support/developer/vc-sdk/visdk41pubs/ApiReference/index.html].
+
+== Installation
+
+    gem install rbvmomi
+
+== Usage
+
+A simple example of turning on a VM:
+
+    require 'rbvmomi'
+    vim = RbVmomi::VIM.connect host: 'foo', user: 'bar', password: 'baz'
+    dc = vim.serviceInstance.find_datacenter("mydatacenter") or fail "datacenter not found"
+    vm = dc.find_vm("myvm") or fail "VM not found"
+    vm.PowerOnVM_Task.wait_for_completion
+
+This code uses several RbVmomi extensions to the vSphere API for concision. The
+expanded snippet below uses only standard API calls and should be familiar to
+users of the Java SDK:
+
+    require 'rbvmomi'
+    vim = RbVmomi::VIM.connect host: 'foo', user: 'bar', password: 'baz'
+    rootFolder = vim.serviceInstance.content.rootFolder
+    dc = rootFolder.childEntity.grep(RbVmomi::VIM::Datacenter).find { |x| x.name == "mydatacenter" } or fail "datacenter not found"
+    vm = dc.vmFolder.childEntity.grep(RbVmomi::VIM::VirtualMachine).find { |x| x.name == "myvm" } or fail "VM not found"
+    task = vm.PowerOnVM_Task
+    filter = vim.propertyCollector.CreateFilter(
+      spec: {
+        propSet: [{ type: 'Task', all: false, pathSet: ['info.state']}],
+        objectSet: [{ obj: task }]
+      },
+      partialUpdates: false
+    )
+    ver = ''
+    while true
+      result = vim.propertyCollector.WaitForUpdates(version: ver)
+      ver = result.version
+      break if ['success', 'error'].member? task.info.state
+    end
+    filter.DestroyPropertyFilter
+    raise task.info.error if task.info.state == 'error'
+
+As you can see, the extensions RbVmomi adds can dramatically decrease the code
+needed to perform simple tasks while still letting you use the full power of
+the API when necessary. RbVmomi extensions are often more efficient than a
+naive implementation; for example, the find_vm method on VIM::Datacenter used
+in the first example uses the SearchIndex for fast lookups.
+
+A few important points:
+
+* All class, method, parameter, and property names match the official documentation[http://www.vmware.com/support/developer/vc-sdk/visdk41pubs/ApiReference/index.html].
+* Properties are exposed as accessor methods.
+* Data object types can usually be inferred from context, so you may use a hash instead.
+* Enumeration values are simply strings.
+* Example code is included in the examples/ directory.
+* A set of helper methods for Trollop is included to speed up development of
+  command line apps. See the included examples for usage.
+* If you don't have trusted SSL certificates installed on the host you're
+  connecting to, you'll get an +OpenSSL::SSL::SSLError+ "certificate verify failed".
+  You can work around this by using the +:insecure+ option to +RbVmomi::VIM.connect+.
+* This is a side project of a VMware employee and is entirely unsupported by VMware.
+
+Built-in extensions are under +lib/rbvmomi/vim/+. You are encouraged to
+reopen VIM classes in your applications and add extensions of your own. If you
+write something generally useful please send it to me and I'll add it in.
+
+== Development
+
+Fork the project on Github and send me a merge request, or send a patch to
+rlane@vmware.com. RbVmomi developers hang out in #rbvmomi on Freenode.
