@@ -118,6 +118,16 @@ public:
     // -------------------------------------------------------------------------
     void do_hook(void *arg);
 
+    /**
+     *  Parses the arguments of the hook using: $ID, $TEMPLATE, $PREV_DM_STATE
+     *  and $PREV_LCM_STATE
+     *    @param obj pointer to the object executing the hook for
+     *    @param the resulting parser arguments
+     */
+    void parse_hook_arguments(PoolObjectSQL *          obj,
+                              VirtualMachine::VmState  prev_dm,
+                              VirtualMachine::LcmState prev_lcm,
+                              string&                  parsed);
 private:
     /**
      *  The target LCM state
