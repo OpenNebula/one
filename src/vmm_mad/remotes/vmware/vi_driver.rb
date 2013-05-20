@@ -14,33 +14,36 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-require 'rubygems'
-require 'rbvmomi'
+# -------------------------------------------------------------------------#
+# Set up the environment for the driver                                    #
+# -------------------------------------------------------------------------#
+ONE_LOCATION = ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+
+if !ONE_LOCATION
+   BIN_LOCATION = "/usr/bin" if !defined?(BIN_LOCATION)
+   LIB_LOCATION = "/usr/lib/one" if !defined?(LIB_LOCATION)
+   ETC_LOCATION = "/etc/one/" if !defined?(ETC_LOCATION)
+   VAR_LOCATION = "/var/lib/one" if !defined?(VAR_LOCATION)
+else
+   BIN_LOCATION = ONE_LOCATION + "/bin" if !defined?(BIN_LOCATION)
+   LIB_LOCATION = ONE_LOCATION + "/lib" if !defined?(LIB_LOCATION)
+   ETC_LOCATION = ONE_LOCATION  + "/etc/" if !defined?(ETC_LOCATION)
+   VAR_LOCATION = ONE_LOCATION + "/var/" if !defined?(VAR_LOCATION)
+end
+
+CONF_FILE   = ETC_LOCATION + "/vmwarerc"
+CHECKPOINT  = VAR_LOCATION + "/remotes/vmm/vmware/checkpoint"
+
+ENV['LANG'] = 'C'
+
+
+$: << LIB_LOCATION+'/ruby/vendors/rbvmomi'
+
+require LIB_LOCATION+'/ruby/vendors/rbvmomi/rbvmomi/vim/vim'
+require LIB_LOCATION+'/ruby/vendors/rbvmomi/rbvmomi'
 require 'yaml'
 
 class VIDriver
-    # -------------------------------------------------------------------------#
-    # Set up the environment for the driver                                    #
-    # -------------------------------------------------------------------------#
-    ONE_LOCATION = ENV["ONE_LOCATION"]
-
-    if !ONE_LOCATION
-       BIN_LOCATION = "/usr/bin"
-       LIB_LOCATION = "/usr/lib/one"
-       ETC_LOCATION = "/etc/one/"
-       VAR_LOCATION = "/var/lib/one"
-    else
-       LIB_LOCATION = ONE_LOCATION + "/lib"
-       BIN_LOCATION = ONE_LOCATION + "/bin"
-       ETC_LOCATION = ONE_LOCATION  + "/etc/"
-       VAR_LOCATION = ONE_LOCATION + "/var/"
-    end
-
-    CONF_FILE   = ETC_LOCATION + "/vmwarerc"
-    CHECKPOINT  = VAR_LOCATION + "/remotes/vmm/vmware/checkpoint"
-
-    ENV['LANG'] = 'C'
-
     ############################################################################
     # Public Methods - Class Interface                                         #
     ############################################################################
