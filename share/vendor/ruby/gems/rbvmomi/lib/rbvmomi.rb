@@ -8,6 +8,5 @@ def self.connect opts
 end
 
 end
-
-require File.dirname(__FILE__) + '/rbvmomi/connection'
-require File.dirname(__FILE__) + '/rbvmomi/vim/vim'
+require 'rbvmomi/connection'
+require 'rbvmomi/vim'

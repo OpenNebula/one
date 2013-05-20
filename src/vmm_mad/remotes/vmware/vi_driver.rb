@@ -36,11 +36,9 @@ CHECKPOINT  = VAR_LOCATION + "/remotes/vmm/vmware/checkpoint"
 
 ENV['LANG'] = 'C'
 
+$: << LIB_LOCATION+'/ruby/vendors/rbvmomi/lib'
 
-$: << LIB_LOCATION+'/ruby/vendors/rbvmomi'
-
-require LIB_LOCATION+'/ruby/vendors/rbvmomi/rbvmomi/vim/vim'
-require LIB_LOCATION+'/ruby/vendors/rbvmomi/rbvmomi'
+require 'rbvmomi'
 require 'yaml'
 
 class VIDriver
