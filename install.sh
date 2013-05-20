@@ -1901,7 +1901,8 @@ share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/fault.rb \
 share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/pbm.rb \
 share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/trivial_soap.rb 
 share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/trollop.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/type_loader.rb"
+share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/type_loader.rb \
+share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim.rb"
 
 RBVMOMI_VENDOR_RUBY_LIB_RBVMOMI_UTILS_FILES="\
 share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/utils/admission_control.rb \
@@ -1930,8 +1931,7 @@ share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/ReflectManagedMethodExecuter.rb \
 share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/ResourcePool.rb \
 share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/ServiceInstance.rb \
 share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/Task.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/VirtualMachine.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim.rb"
+share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/VirtualMachine.rb"
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
