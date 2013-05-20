@@ -73,7 +73,7 @@ static void oned_main()
     
 int main(int argc, char **argv)
 {
-    char            opt;
+    int             opt;
     bool            foreground = false;
     const char *    nl;
     int             fd;
