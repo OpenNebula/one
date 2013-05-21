@@ -42,6 +42,7 @@ int XenDriver::deployment_description(
     string root       = "";
     string kernel_cmd = "";
     string bootloader = "";
+    string hvm = "";
 
     const VectorAttribute * disk;
     const VectorAttribute * context;
@@ -155,6 +156,7 @@ int XenDriver::deployment_description(
             root       = os->vector_value("ROOT");
             kernel_cmd = os->vector_value("KERNEL_CMD");
             bootloader = os->vector_value("BOOTLOADER");
+            hvm        = os->vector_value("HVM");
         }
     }
 
@@ -176,6 +178,11 @@ int XenDriver::deployment_description(
     if ( root.empty() )
     {
         get_default("OS","ROOT",root);
+    }
+
+    if ( hvm.empty() )
+    {
+        get_default("OS","HVM",hvm);
     }
 
     if ( kernel_cmd.empty() )
@@ -205,6 +212,10 @@ int XenDriver::deployment_description(
     else if ( !bootloader.empty() ) //Host loader boot method
     {
         file << "bootloader = \"" << bootloader << "\"" << endl;
+    }
+    else if ( !hvm.empty() && ( hvm=="yes" || hvm=="YES" ) )
+    {
+        file << "builder = \"hvm\"" << endl;
     }
     else
     {
@@ -505,7 +516,7 @@ error_memory:
 
 error_boot:
     vm->log("VMM", Log::ERROR,
-            "No kernel or bootloader defined and no default provided.");
+            "No kernel, bootloader or hvm defined and no default provided.");
     file.close();
     return -1;
 
