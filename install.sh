@@ -714,7 +714,7 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
 #-------------------------------------------------------------------------------
 
 VMM_EXEC_XEN3_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
-                    src/vmm_mad/remotes/xen/deploy \
+                    src/vmm_mad/remotes/xen/xen3/deploy \
                     src/vmm_mad/remotes/xen/xen3/xenrc \
                     src/vmm_mad/remotes/xen/migrate \
                     src/vmm_mad/remotes/xen/restore \
@@ -723,8 +723,8 @@ VMM_EXEC_XEN3_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/save \
                     src/vmm_mad/remotes/xen/poll \
                     src/vmm_mad/remotes/xen/poll_ganglia \
-                    src/vmm_mad/remotes/xen/attach_disk \
-                    src/vmm_mad/remotes/xen/detach_disk \
+                    src/vmm_mad/remotes/xen/xen3/attach_disk \
+                    src/vmm_mad/remotes/xen/xen3/detach_disk \
                     src/vmm_mad/remotes/xen/attach_nic \
                     src/vmm_mad/remotes/xen/detach_nic \
                     src/vmm_mad/remotes/xen/snapshot_create \
@@ -733,7 +733,7 @@ VMM_EXEC_XEN3_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/shutdown"
 
 VMM_EXEC_XEN4_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
-                    src/vmm_mad/remotes/xen/deploy \
+                    src/vmm_mad/remotes/xen/xen4/deploy \
                     src/vmm_mad/remotes/xen/xen4/xenrc \
                     src/vmm_mad/remotes/xen/migrate \
                     src/vmm_mad/remotes/xen/restore \
@@ -742,8 +742,8 @@ VMM_EXEC_XEN4_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/save \
                     src/vmm_mad/remotes/xen/poll \
                     src/vmm_mad/remotes/xen/poll_ganglia \
-                    src/vmm_mad/remotes/xen/attach_disk \
-                    src/vmm_mad/remotes/xen/detach_disk \
+                    src/vmm_mad/remotes/xen/xen4/attach_disk \
+                    src/vmm_mad/remotes/xen/xen4/detach_disk \
                     src/vmm_mad/remotes/xen/attach_nic \
                     src/vmm_mad/remotes/xen/detach_nic \
                     src/vmm_mad/remotes/xen/snapshot_create \

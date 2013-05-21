@@ -19,7 +19,7 @@
 require "pp"
 
 XENTOP_PATH="/usr/sbin/xentop"
-XM_PATH="/usr/sbin/xm"
+XM_PATH="/usr/sbin/xl"
 
 def print_info(name, value)
     value = "0" if value.nil? or value.to_s.strip.empty?
