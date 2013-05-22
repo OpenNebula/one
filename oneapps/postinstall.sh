@@ -155,6 +155,29 @@ add_view "    apptools-appstage:" \
             AppStage.delete: true"
 
 
+add_view "apptools-appmarket-dashboard:" \
+"    apptools-appmarket-dashboard:
+        panel_tabs:
+        table_columns:
+        actions:"
+
+add_view "apptools-appmarket-appliances:" \
+"    apptools-appmarket-appliances:
+        panel_tabs:
+            appmarket_info_tab: true
+        table_columns:
+            - 0         # Checkbox
+            #- 1         # ID
+            - 2         # Name
+            - 3         # Publisher
+            - 4         # Hypervisor
+            - 5         # Arch
+            - 6         # Format
+            #- 7         # Tags
+        actions:
+            AppMarket.refresh: true
+            AppMarket.import: true"
+
 add_server "^:routes:" ":routes:"
 
 add_server "- appstage"  "    - appstage"
