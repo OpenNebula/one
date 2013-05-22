@@ -40,7 +40,7 @@ private
         OpenNebula::ChefDocPool.new(@client, filter)
     end
 
-    def format_resource(node)
+    def format_resource(node, options={})
         str_h1="%-80s"
         str="%-20s: %-20s"
 
@@ -88,7 +88,11 @@ private
 
         CLIHelper.print_header(str_h1 % "NODE DEFINITION",false)
 
-        puts JSON.pretty_generate(node.node['node'])
+	begin
+            puts JSON.pretty_generate(node.node['node'])
+	rescue
+	    puts ""
+	end
 
         puts
 

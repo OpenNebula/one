@@ -34,7 +34,7 @@ helpers do
     def appstage_create(template)
         node = OpenNebula::ChefConf.new
         node.description = template['description'] if template['description']
-        node.cookbooks = template['cookbooks'] if template['cookbacks']
+        node.cookbooks = template['cookbooks'] if template['cookbooks']
         node.templates = template['templates'] if template['templates']
         #variables currently unused
         node.variables = template['variables'] if template['variables']
@@ -63,9 +63,10 @@ helpers do
 
     def appstage_update(resource, template)
         node = resource.node
-        node.node = template['node'] if template['node']
+        node.node = template['node']
         node.templates = template['templates']
         node.cookbooks = template['cookbooks']
+        node.description = template['description']
         resource.update(node.to_json)
     end
 

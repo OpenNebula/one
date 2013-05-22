@@ -99,11 +99,16 @@ COOKBOOKS={
 cmd = CommandParser::CmdParser.new(ARGV) do
     usage "`appstage` <command> [<args>] [<options>]"
     version OneApps::VERSION_TEXT
-    
+
     set :option, CommandParser::VERSION
 
     helper = AppStageHelper.new
     template_helper = OneTemplateHelper.new
+
+    before_proc do
+        helper.set_client(options)
+        template_helper.set_client(options)
+    end
 
     set :format, :groupid, OpenNebulaHelper.rname_to_id_desc("GROUP") do |arg|
         OpenNebulaHelper.rname_to_id(arg, "GROUP")
