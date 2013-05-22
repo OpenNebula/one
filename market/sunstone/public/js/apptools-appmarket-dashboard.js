@@ -72,7 +72,7 @@ var appmarket_dashboard_tmpl = '\
 
 var appmarket_dashboard_tab = {
     title: '<i class="icon-truck"></i>AppMarket',
-    content: appmarket_dashboard_tmpl,
+    //content: appmarket_dashboard_tmpl,
 }
 
 
