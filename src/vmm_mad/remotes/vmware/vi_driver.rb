@@ -96,7 +96,7 @@ class VIDriver
     def poll_host_and_vms
       begin
         str_info =  get_host_info
-        vms_info = get_all_vms_info
+        vms_info =  get_all_vms_info
         str_info += " " + vms_info if vms_info
       rescue Exception => e
         STDERR.puts e.message
@@ -182,11 +182,16 @@ class VIDriver
       str_info = ""
       str_info += "STATE="      + get_state(vm)          + " "
       str_info += "USEDCPU="    + get_used_cpu(vm)       + " "
-      str_info += "USEDMEMORY=" + get_used_memory(vm)    + " "
-      str_info += "NETRX=" +
-                  net_info[vm][:metrics]["net.packetsRx"].first.to_s + " "
-      str_info += "NETTX=" +
-                  net_info[vm][:metrics]["net.packetsTx"].first.to_s
+      str_info += "USEDMEMORY=" + get_used_memory(vm)    
+
+      if net_info[vm] && net_info[:metrics] &&  net_info[vm][:metrics]["net.packetsRx"]
+        str_info += " NETRX=" +
+                    net_info[vm][:metrics]["net.packetsRx"].first.to_s + " "
+        str_info += "NETTX=" +
+                    net_info[vm][:metrics]["net.packetsTx"].first.to_s
+      end
+
+      return str_info
     end
 
     # -------------------------------------------------------------------------#
@@ -252,7 +257,7 @@ class VIDriver
     # Get used memory of a VM                                                  #
     # -------------------------------------------------------------------------#
     def get_used_memory(vm)
-      (vm.summary.quickStats.hostMemoryUsage.*1024).to_s
+      (vm.summary.quickStats.hostMemoryUsage*1024).to_s
     end
 
     # Get percentage of the CPU used by a VM in a host
