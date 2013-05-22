@@ -62,7 +62,7 @@ var service_template_tab_content = '\
   <div class="twelve columns">\
     <h4 class="subheader header">\
       <span class="header-resource">\
-       <i class="icon-magic"></i> '+tr("AppFlow - Templates")+'\
+       <i class="icon-file-alt"></i> '+tr("AppFlow - Templates")+'\
       </span>\
       <span class="header-info">\
         <span/> <small></small>&emsp;\

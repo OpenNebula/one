@@ -792,10 +792,10 @@ function fillEnvInstantiateDialog(request, response){
         }
 
         str += '</select>\
-                </div>\
-                <div class="one columns">\
-                </div>\
-            </div>'
+              </div>\
+              <div class="one columns">\
+              </div>\
+          </div>'
     }
 
     // Form variables
@@ -966,8 +966,7 @@ function popUpAppStageTemplateUpdateDialog(){
 function setAppStageAutorefresh() {
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_appstages);
-        var filter = $("#datatable_appstages_filter input",
-                       dataTable_appstages.parents("#datatable_appstages_wrapper")).attr('value');
+        var filter = $("#environments_search").attr('value');
         if (!checked.length && !filter.length){
             Sunstone.runAction("AppStage.autorefresh");
         }
