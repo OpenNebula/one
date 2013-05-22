@@ -97,13 +97,13 @@ function add_server() {
 make_backup "$SUNSTONE_VIEWS"
 make_backup "$SUNSTONE_SERVER"
 
-add_view "apptools-appflow-dashboard" \
+add_view "    apptools-appflow-dashboard:" \
 "    apptools-appflow-dashboard:
         panel_tabs:
         table_columns:
         actions:"
 
-add_view "apptools-appflow-services" \
+add_view "    apptools-appflow-services:" \
 "    apptools-appflow-services:
         panel_tabs:
             service_info_tab: true
@@ -119,7 +119,7 @@ add_view "apptools-appflow-services" \
             Service.shutdown: true
             Service.delete: true"
 
-add_view "apptools-appflow-templates" \
+add_view "    apptools-appflow-templates:" \
 "    apptools-appflow-templates:
         panel_tabs:
             service_template_info_panel: true
@@ -133,13 +133,13 @@ add_view "apptools-appflow-templates" \
             ServiceTemplate.chmod: true
             ServiceTemplate.delete: true"
 
-add_view "apptools-appstage-dashboard" \
+add_view "    apptools-appstage-dashboard:" \
 "    apptools-appstage-dashboard:
         panel_tabs:
         table_columns:
         actions:"
 
-add_view "apptools-appstage" \
+add_view "    apptools-appstage:" \
 "    apptools-appstage:
         panel_tabs:
             appstage_info_tab: true
