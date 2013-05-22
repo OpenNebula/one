@@ -35,4 +35,4 @@ host      = ARGV[1]
 
 vi_drv = VIDriver.new(host)
 
-puts vi_drv.poll(deploy_id)
+puts vi_drv.poll_vm(deploy_id)
