@@ -26,7 +26,7 @@ usage() {
  echo "-h: prints this help"
 }
 
-PARAMETERS="hlu:g:d:"
+PARAMETERS="hlu:f:g:d:"
 
 if [ $(getopt --version | tr -d " ") = "--" ]; then
     TEMP_OPT=`getopt $PARAMETERS "$@"`
