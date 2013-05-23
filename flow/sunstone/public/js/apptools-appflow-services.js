@@ -559,6 +559,7 @@ function setServiceAutorefresh() {
 
 //The DOM is ready at this point
 $(document).ready(function(){
+    var tab_name = "apptools-appflow-services";
 
     dataTable_services = $("#datatable_services",main_tabs_context).dataTable({
         "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
@@ -567,15 +568,18 @@ $(document).ready(function(){
         },
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "100px", "aTargets": [2,3] },
-            { "sWidth": "200px", "aTargets": [5] },
-            { "sWidth": "35px", "aTargets": [1] }
+            { "sWidth": "35px", "aTargets": [0] },
+            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
+            { "bVisible": false, "aTargets": ['_all']}
         ]
     });
 
     $('#services_search').keyup(function(){
       dataTable_services.fnFilter( $(this).val() );
+    })
+
+    dataTable_services.on('draw', function(){
+      recountCheckboxes(dataTable_services);
     })
 
     Sunstone.runAction("Service.list");

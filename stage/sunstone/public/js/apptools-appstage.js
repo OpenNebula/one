@@ -719,6 +719,10 @@ function setupCreateAppStageDialog(){
             notifyError(tr("Name is mandatory!"));
             return false;
         }
+        if (!node){
+            notifyError(tr("Node is mandatory!"));
+            return false;
+        }
 
         var appstage_obj = {
             name: name,
@@ -982,6 +986,7 @@ function setAppStageAutorefresh() {
 
 //The DOM is ready at this point
 $(document).ready(function(){
+    var tab_name = "apptools-appstage";
 
     dataTable_appstages = $("#datatable_appstages",main_tabs_context).dataTable({
         "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
@@ -990,15 +995,18 @@ $(document).ready(function(){
         },
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "100px", "aTargets": [2,3] },
-            { "sWidth": "200px", "aTargets": [4] },
-            { "sWidth": "35px", "aTargets": [1] }
+            { "sWidth": "35px", "aTargets": [0] },
+            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
+            { "bVisible": false, "aTargets": ['_all']}
         ]
     });
 
     $('#environments_search').keyup(function(){
       dataTable_appstages.fnFilter( $(this).val() );
+    })
+
+    dataTable_appstages.on('draw', function(){
+      recountCheckboxes(dataTable_appstages);
     })
 
     Sunstone.runAction("AppStage.list");

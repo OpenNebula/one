@@ -680,6 +680,7 @@ function setServiceTemplateAutorefresh() {
 
 //The DOM is ready at this point
 $(document).ready(function(){
+    var tab_name = "apptools-appflow-templates";
 
     dataTable_service_templates = $("#datatable_service_templates",main_tabs_context).dataTable({
         "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
@@ -688,14 +689,18 @@ $(document).ready(function(){
         },
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "100px", "aTargets": [2,3] },
-            { "sWidth": "35px", "aTargets": [1] }
+            { "sWidth": "35px", "aTargets": [0] },
+            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
+            { "bVisible": false, "aTargets": ['_all']}
         ]
     });
 
     $('#service_templates_search').keyup(function(){
       dataTable_service_templates.fnFilter( $(this).val() );
+    })
+
+    dataTable_service_templates.on('draw', function(){
+      recountCheckboxes(dataTable_service_templates);
     })
 
     Sunstone.runAction("ServiceTemplate.list");
