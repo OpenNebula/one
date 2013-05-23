@@ -184,7 +184,7 @@ class VIDriver
       str_info += "USEDCPU="    + get_used_cpu(vm)       + " "
       str_info += "USEDMEMORY=" + get_used_memory(vm)    
 
-      if net_info[vm] && net_info[:metrics] &&  net_info[vm][:metrics]["net.packetsRx"]
+      if net_info[vm] && net_info[vm][:metrics] && net_info[vm][:metrics]["net.packetsRx"]
         str_info += " NETRX=" +
                     net_info[vm][:metrics]["net.packetsRx"].first.to_s + " "
         str_info += "NETTX=" +
