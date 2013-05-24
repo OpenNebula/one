@@ -111,6 +111,12 @@ add_view "    apptools-appflow-services:" \
             service_vms_tab: true
             service_log_tab: true
         table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Owner
+            - 3         # Group
+            - 4         # Name
+            - 5         # State
         actions:
             Service.refresh: true
             Service.chown: true
@@ -124,6 +130,11 @@ add_view "    apptools-appflow-templates:" \
         panel_tabs:
             service_template_info_panel: true
         table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Owner
+            - 3         # Group
+            - 4         # Name
         actions:
             ServiceTemplate.refresh: true
             ServiceTemplate.create_dialog: true
