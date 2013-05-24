@@ -1,8 +1,9 @@
 #!/bin/bash
 
+FLAVOR="#FLAVOR#"
 FLA="FLAVOR"
 
-if [ $FLAVOR != "#$FLA#"]; then
+if [ "$FLAVOR" != "#$FLA#" ]; then
     if [ -n "$1" ]; then
         FLAVOR=$1
         ROOT=$2
