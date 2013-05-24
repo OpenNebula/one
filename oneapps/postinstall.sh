@@ -1,10 +1,12 @@
 #!/bin/bash
 
-if [ -n "$1" ]; then
-    FLAVOR=$1
-    ROOT=$2
-else
-    FLAVOR="#FLAVOR#"
+FLA="FLAVOR"
+
+if [ $FLAVOR != "#$FLA#"]; then
+    if [ -n "$1" ]; then
+        FLAVOR=$1
+        ROOT=$2
+    fi
 fi
 
 case "$FLAVOR" in
