@@ -43,6 +43,10 @@ FLAVOR="systemwide"
 if [ "$PACKAGE_TYPE" = "deb" ]; then
     FLAGS="$FLAGS -f debian"
     FLAVOR="debian"
+
+    if [ "$(id -u)" = "0" ]; then
+        FLAGS='-u oneadmin -g cloud'
+    fi
 fi
 
 # Generate postinstall
