@@ -322,7 +322,7 @@ class VIDriver
                        :summary => bridge
                      }, 
                      :backing     => backing,
-                     :addressType => 'manual'),
+                     :addressType => 'manual',
                      :macAddress  => mac }
 
       device = case model.downcase
