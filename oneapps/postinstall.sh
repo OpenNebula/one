@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -n $1 ]; then
+if [ -n "$1" ]; then
     FLAVOR=$1
     ROOT=$2
 else
