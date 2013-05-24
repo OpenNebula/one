@@ -360,82 +360,105 @@ module OpenNebula
 
 
         def scale?()
+
+            elasticity_pol = @body['elasticity_policy']
+
+            if elasticity_pol.nil?
+                return cardinality()
+            end
+
+            now = Time.now.to_i
+
+            # TODO: enforce true_up_evals type in ServiceTemplate::ROLE_SCHEMA ?
+
+            period_duration = elasticity_pol['period_duration'].to_i
+            period_number   = elasticity_pol['period_number'].to_i
+            last_eval       = elasticity_pol['last_eval'].to_i
+            true_up_evals   = elasticity_pol['true_up_evals'].to_i
+            true_down_evals = elasticity_pol['true_down_evals'].to_i
+
+            if !last_eval.nil?
+                if now < (last_eval + period_duration)
+                    Log.debug "ELAS", "Role #{name} eval ignored, time < period"
+
+                    return cardinality()
+                end
+            end
+
+            elasticity_pol['last_eval'] = now
+
+            new_cardinality = cardinality()
+            new_up_evals    = 0
+            new_down_evals  = 0
+
             if scale_up?()
-                return cardinality() + 1
+                new_up_evals = true_up_evals + 1
+                new_up_evals = period_number if new_up_evals > period_number
+
+                Log.debug "ELAS", "Role #{name} scale up expression is true"
+
+                if new_up_evals >= period_number
+                    if cardinality() < max_cardinality()
+                        new_cardinality = cardinality() + 1
+
+                        new_up_evals = 0
+                    else
+                        Log.debug "ELAS", "Role #{name} has reached its VM limit"
+                    end
+                else
+                    Log.debug "ELAS", "Role #{name} eval ignored, true #{new_up_evals} times, #{period_number} needed"
+                end
+            elsif scale_down?()
+                new_down_evals = true_down_evals + 1
+                new_down_evals = period_number if new_down_evals > period_number
+
+                Log.debug "ELAS", "Role #{name} scale down expression is true"
+
+                if new_down_evals >= period_number
+                    if cardinality() > min_cardinality()
+                        new_cardinality = cardinality() - 1
+
+                        new_down_evals = 0
+                    else
+                        Log.debug "ELAS", "Role #{name} has reached its VM minimum"
+                    end
+                else
+                    Log.debug "ELAS", "Role #{name} eval ignored, true #{new_down_evals} times, #{period_number} needed"
+                end
             end
 
-            if scale_down?()
-                return cardinality() - 1
-            end
+            elasticity_pol['true_up_evals']   = new_up_evals
+            elasticity_pol['true_down_evals'] = new_down_evals
 
-            return cardinality()
+            return new_cardinality
         end
 
         # Returns true if the scalability rule to scale up is triggered
         # @return true if this role has to scale up
         def scale_up?()
-            parser = ElasticityGrammarParser.new
-
-            elas_expr = up_expr
-
-            if elas_expr.nil?
-                return false
-            end
-
-            Log.debug "ELAS", "Role #{name} up_expr: #{elas_expr}"
-
-            treetop = parser.parse(elas_expr)
-            if treetop.nil?
-                Log.debug "ELAS", "up_expr parse error"
-            end
-
-            result = treetop.result(self)
-
-            if result
-                Log.debug "ELAS", "Role #{name} to scale up"
-
-                if cardinality() < max_cardinality()
-                    return true
-                else
-                    Log.debug "ELAS", "Role #{name} has reached its VM limit"
-                end
-            end
-
-            return false
+            return scale_rule(up_expr)
         end
 
 
         # Returns true if the scalability rule to scale down is triggered
         # @return true if this role has to scale down
         def scale_down?()
-            parser = ElasticityGrammarParser.new
+            return scale_rule(down_expr)
+        end
 
-            elas_expr = down_expr
+        def scale_rule(elas_expr)
+            parser = ElasticityGrammarParser.new
 
             if elas_expr.nil?
                 return false
             end
 
-            Log.debug "ELAS", "Role #{name} down_expr: #{elas_expr}"
-
             treetop = parser.parse(elas_expr)
             if treetop.nil?
-                Log.debug "ELAS", "down_expr parse error"
+                Log.debug "ELAS", "Expr parse error. '#{elas_expr}'"
             end
 
-            result = treetop.result(self)
-
-            if result
-                Log.debug "ELAS", "Role #{name} to scale down"
-
-                if cardinality() > min_cardinality()
-                    return true
-                else
-                    Log.debug "ELAS", "Role #{name} has reached its VM minimum"
-                end
-            end
-
-            return false
+            return treetop.result(self)
         end
 
         def scale_up(target_cardinality)
