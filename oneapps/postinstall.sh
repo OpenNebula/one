@@ -9,24 +9,24 @@ fi
 
 case "$FLAVOR" in
 debian)
-    SUNSTONE_VIEWS_PATH=/etc/one/sunstone-views
-    SUNSTONE_SERVER=/etc/one/sunstone-server.conf
+    SUNSTONE_VIEWS_PATH="/etc/one/sunstone-views"
+    SUNSTONE_SERVER="/etc/one/sunstone-server.conf"
     SUNSTONE_AUTH="/var/lib/one/.one/sunstone_auth"
     APPFLOW_AUTH="/var/lib/one/.one/appflow_auth"
     ;;
 
 systemwide)
-    SUNSTONE_VIEWS_PATH=/etc/one/sunstone-views
-    SUNSTONE_SERVER=/etc/one/sunstone-server.conf
+    SUNSTONE_VIEWS_PATH="/etc/one/sunstone-views"
+    SUNSTONE_SERVER="/etc/one/sunstone-server.conf"
     SUNSTONE_AUTH="/var/lib/one/.one/sunstone_auth"
     APPFLOW_AUTH="/var/lib/one/.one/appflow_auth"
     ;;
 
 selfcontained)
-    SUNSTONE_VIEWS_PATH=$ROOT/etc/sunstone-views
-    SUNSTONE_SERVER=$ROOT/etc/sunstone-server.conf
-    SUNSTONE_AUTH="$HOME/.one/sunstone_auth"
-    APPFLOW_AUTH="$HOME/.one/appflow_auth"
+    SUNSTONE_VIEWS_PATH="$ROOT/etc/sunstone-views"
+    SUNSTONE_SERVER="$ROOT/etc/sunstone-server.conf"
+    SUNSTONE_AUTH="$ROOT/var/.one/sunstone_auth"
+    APPFLOW_AUTH="$ROOT/var/.one/appflow_auth"
     ;;
 
 *)
