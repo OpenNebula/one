@@ -161,14 +161,19 @@ module OpenNebula
             return true
         end
 
-        # Retrieves the VM information for each Node in this Role
+        # Retrieves the VM information for each Node in this Role. If a Node
+        # is to be disposed and it is found in DONE, it will be cleaned
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def info
             success = true
 
-            @body['nodes'].each { |node|
+            nodes = @body['nodes']
+            new_nodes = []
+#            disposed_nodes = @body['disposed_nodes']
+
+            nodes.each do |node|
                 vm_id = node['deploy_id']
                 vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
                 rc = vm.info
@@ -182,8 +187,17 @@ module OpenNebula
                     node['vm_info'] = nil
                 else
                     node['vm_info'] = vm.to_hash
+
+                    if (node['disposed'] == "1" && node['vm_info']['VM']['STATE'] == '6')
+                        # TODO: copy to an array of disposed nodes?
+                        Log.debug "ELAS", "Role #{name}, VM disposed: #{vm_id}"
+                    else
+                        new_nodes << node
+                    end
                 end
-            }
+            end
+
+            @body['nodes'] = new_nodes
 
             return success
         end
@@ -232,10 +246,13 @@ module OpenNebula
         end
 
         # Shutdown all the nodes in this role
+        #
+        # @param [true, false] true to mark the VMs to be disposed after the
+        #   shutdown is completed
         # @return [Array<true, nil>, Array<false, String>] true if all the VMs
         # were shutdown, false and the error reason if there was a problem
         # shutting down the VMs
-        def shutdown
+        def shutdown(dispose=false)
             success = true
 
             nodes = get_nodes
@@ -269,9 +286,13 @@ module OpenNebula
                         #return [false, rc.message]
                     else
                         Log.debug LOG_COMP, "Role #{name} : Delete success for VM #{vm_id}", @service.id()
+
+                        node['disposed'] = '1'
                     end
                 else
                     Log.debug LOG_COMP, "Role #{name} : Shutdown success for VM #{vm_id}", @service.id()
+
+                    node['disposed'] = '1'
                 end
             }
 
@@ -336,6 +357,19 @@ module OpenNebula
         ########################################################################
         # Scalability
         ########################################################################
+
+
+        def scale?()
+            if scale_up?()
+                return cardinality() + 1
+            end
+
+            if scale_down?()
+                return cardinality() - 1
+            end
+
+            return cardinality()
+        end
 
         # Returns true if the scalability rule to scale up is triggered
         # @return true if this role has to scale up
@@ -404,5 +438,16 @@ module OpenNebula
             return false
         end
 
+        def scale_up(target_cardinality)
+            set_cardinality(target_cardinality)
+
+            return deploy()
+        end
+
+        def scale_down(target_cardinality)
+            set_cardinality(target_cardinality)
+
+            return shutdown(true)
+        end
     end
 end

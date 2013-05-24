@@ -144,30 +144,6 @@ module OpenNebula
             return false
         end
 
-        # If any role scalability rule is triggered, the role is set to PENDING
-        # and the cardinality is updated
-        #
-        # @return true if any role is going to scale up or down
-        def scale?()
-            scale = false
-
-            @roles.each { |name, role|
-                if role.scale_up?
-                    role.set_cardinality( role.cardinality + 1 )
-                    role.set_state(Role::STATE['PENDING'])
-
-                    scale = true
-                elsif role.scale_down?
-                    role.set_cardinality( role.cardinality - 1 )
-                    role.set_state(Role::STATE['PENDING'])
-
-                    scale = true
-                end
-            }
-
-            return scale
-        end
-
         # Create a new service based on the template provided
         # @param [String] template_json
         # @return [nil, OpenNebula::Error] nil in case of success, Error

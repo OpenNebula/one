@@ -78,31 +78,37 @@ class Strategy
     def scale_step(service)
         Log.debug LOG_COMP, "Scale step", service.id()
 
-        roles_deploy = get_roles_scale(service)
+        scale = false
 
-        roles_deploy.each { |name, role|
+        service.get_roles.each do |name, role|
+            target_cardinality = role.scale?
+            diff = target_cardinality - role.cardinality()
 
-            if role.cardinality > role.get_nodes.size
+            if diff > 0
                 Log.debug LOG_COMP, "Scaling up role #{name}", service.id()
 
-                rc = role.deploy
-            else
+                rc = role.scale_up(target_cardinality)
+            elsif diff < 0
                 Log.debug LOG_COMP, "Scaling down role #{name}", service.id()
 
-                rc = role.shutdown
+                rc = role.scale_down(target_cardinality)
             end
 
-            if !rc[0]
-                # TODO: Handle error
+            # TODO: Handle error
+#            if !rc[0]
 #                role.set_state(Role::STATE['FAILED_DEPLOYING'])
+#                return rc
+#            end
 
-                return rc
-            else
+            if diff != 0
                 role.set_state(Role::STATE['SCALING'])
-            end
-        }
+                scale = true
 
-        return [true, nil]
+                break
+            end
+        end
+
+        return [scale, nil]
     end
 
     # Performs a monitor step, check if the roles already deployed are running
@@ -228,13 +234,6 @@ protected
         result
     end
 
-    # Returns all node Roles ready to be scaled up
-    # @param [Service] service
-    # @return [Hash<String, Role>] Roles
-    def get_roles_scale(service)
-        get_roles_deploy(service)
-    end
-
     # Determine if the role nodes are running
     # @param [Role] role
     # @return [true|false]
@@ -243,7 +242,7 @@ protected
             if node && node['vm_info']
                 vm_state = node['vm_info']['VM']['STATE']
                 lcm_state = node['vm_info']['VM']['LCM_STATE']
-    
+
                 # !(ACTIVE && RUNNING)
                 if (vm_state != '3') || (lcm_state != '3')
                     return false

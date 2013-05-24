@@ -74,18 +74,15 @@ class ServiceLCM
 
                             if !service.all_roles_running?
                                 service.set_state(Service::STATE['UNKNOWN'])
-                            elsif service.scale?
-
-                                Log.debug "ELAS", "Service #{service.name} to scale"
-
-                                # TODO: changing state stops the elasticity rules
-                                # check until current deployments end.
-                                service.set_state(Service::STATE['SCALING'])
-
+                            else
                                 rc = strategy.scale_step(service)
-                                if !rc[0]
-                                    service.set_state(Service::STATE['FAILED_DEPLOYING'])
+
+                                if rc[0]
+                                    service.set_state(Service::STATE['SCALING'])
                                 end
+
+                                # TODO: check error
+
                             end
                         when Service::STATE['SCALING']
                             strategy.monitor_step(service)

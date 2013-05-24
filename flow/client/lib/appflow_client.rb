@@ -29,7 +29,8 @@ module Role
         'UNKNOWN'            => 5,
         'DONE'               => 6,
         'FAILED_UNDEPLOYING' => 7,
-        'FAILED_DEPLOYING'   => 8
+        'FAILED_DEPLOYING'   => 8,
+        'SCALING'            => 9
     }
 
     STATE_STR = [
@@ -41,7 +42,8 @@ module Role
         'UNKNOWN',
         'DONE',
         'FAILED_UNDEPLOYING',
-        'FAILED_DEPLOYING'
+        'FAILED_DEPLOYING',
+        'SCALING'
     ]
 
     # Returns the string representation of the role state
@@ -63,7 +65,8 @@ module Service
         'UNKNOWN'            => 5,
         'DONE'               => 6,
         'FAILED_UNDEPLOYING' => 7,
-        'FAILED_DEPLOYING'   => 8
+        'FAILED_DEPLOYING'   => 8,
+        'SCALING'            => 9
     }
 
     STATE_STR = [
@@ -75,7 +78,8 @@ module Service
         'UNKNOWN',
         'DONE',
         'FAILED_UNDEPLOYING',
-        'FAILED_DEPLOYING'
+        'FAILED_DEPLOYING',
+        'SCALING'
     ]
 
     # Returns the string representation of the service state
