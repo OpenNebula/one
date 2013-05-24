@@ -159,6 +159,12 @@ add_view "    apptools-appstage:" \
             appstage_info_tab: true
             appstage_node_tab: true
         table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Owner
+            - 3         # Group
+            - 4         # Name
+            - 5         # Description
         actions:
             AppStage.refresh: true
             AppStage.create_dialog: true
