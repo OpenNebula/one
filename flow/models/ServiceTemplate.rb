@@ -55,11 +55,11 @@ module OpenNebula
                         },
                         'up_expr' => {
                             :type => :string,
-                            :required => true
+                            :default => ""
                         },
                         'down_expr' => {
                             :type => :string,
-                            :required => true
+                            :default => ""
                         },
                         'period_number' => {
                             :type => :integer,
@@ -67,7 +67,7 @@ module OpenNebula
                         },
                         'period_duration' => {
                             :type => :integer,
-                            :required => true
+                            :default => 0
                         }
                     }
                 }

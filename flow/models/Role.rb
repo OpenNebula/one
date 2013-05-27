@@ -452,7 +452,7 @@ module OpenNebula
         def scale_rule(elas_expr)
             parser = ElasticityGrammarParser.new
 
-            if elas_expr.nil?
+            if elas_expr.nil? || elas_expr.empty?
                 return false
             end
 
