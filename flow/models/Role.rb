@@ -14,6 +14,9 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'treetop'
+require 'grammar'
+
 module OpenNebula
     class Role
 
@@ -455,7 +458,10 @@ module OpenNebula
 
             treetop = parser.parse(elas_expr)
             if treetop.nil?
-                Log.debug "ELAS", "Expr parse error. '#{elas_expr}'"
+                # TODO: Add error to service template
+                Log.debug "ELAS", "Expr parse error. '#{elas_expr}': #{parser.failure_reason}"
+
+                return false
             end
 
             return treetop.result(self)

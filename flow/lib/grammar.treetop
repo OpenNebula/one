@@ -1,28 +1,85 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2010-2013, C12G Labs S.L.                                        #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
 grammar ElasticityGrammar
+
+    rule expression
+        space exp:(boolean_exp / logic_cond) space {
+            def result(role)
+                return exp.result(role)
+            end
+        }
+    end
+
+    rule boolean_exp
+        left:logic_cond space ('&&' / '&') space right:expression {
+            def result(role)
+                return left.result(role) && right.result(role)
+            end
+        }
+        /
+        left:logic_cond space ('||' / '|') space right:expression {
+            def result(role)
+                return left.result(role) || right.result(role)
+            end
+        }
+    end
+
     rule logic_cond
+#        'true' {
+#            def result(role)
+#                return true
+#            end
+#        }
+#        /
+#        'false' {
+#            def result(role)
+#                return false
+#            end
+#        }
+#        /
         left:operand space comp_op space right:operand {
             def result(role)
                 comp_op.apply(left.result(role), right.result(role))
             end
         }
+        /
+        '!' space expression {
+            def result(role)
+                return !expression.result(role)
+            end
+        }
+        /
+        '(' space expression space ')' {
+            def result(role)
+                expression.result(role)
+            end
+        }
     end
 
     rule comp_op
-        '==' / '=' {
+        ('==' / '=') {
             def apply(a,b)
                 a == b
             end
         }
         /
-        '!=' / '<>' {
+        ('!=' / '<>') {
             def apply(a,b)
                 a != b
-            end
-        }
-        /
-        '>' {
-            def apply(a,b)
-                a > b
             end
         }
         /
@@ -32,15 +89,21 @@ grammar ElasticityGrammar
             end
         }
         /
-        '<' {
+        '>' {
             def apply(a,b)
-                a < b
+                a > b
             end
         }
         /
         '<=' {
             def apply(a,b)
                 a <= b
+            end
+        }
+        /
+        '<' {
+            def apply(a,b)
+                a < b
             end
         }
     end
@@ -60,7 +123,13 @@ grammar ElasticityGrammar
     end
 
     rule number
-        ([1-9] [0-9]* / '0') {
+        '-'? [0-9]+ '.' [0-9]+ {
+            def result(role)
+                text_value.to_f
+            end
+        }
+        /
+        '-'? [0-9]+ {
             def result(role)
                 text_value.to_i
             end
@@ -68,10 +137,17 @@ grammar ElasticityGrammar
     end
 
     rule variable
-      [a-z]+ {
+        ( '"' [a-zA-Z] [0-9a-zA-Z_]* '"'
+        / '\'' [a-zA-Z] [0-9a-zA-Z_]* '\''
+        / [a-zA-Z] [0-9a-zA-Z_]*
+        ) {
+
             def result(role)
                 nodes = role.get_nodes
                 total = 0
+
+                # TODO: search in 'TEMPLATE' also?
+                # TODO: what to do if value is not found
 
                 nodes.each { |node|
                     if node && node['vm_info'] && node['vm_info']['VM']['USER_TEMPLATE'][text_value.upcase]

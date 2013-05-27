@@ -14,9 +14,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'treetop'
-require 'grammar'
-
 module OpenNebula
     class Service < DocumentJSON
 
