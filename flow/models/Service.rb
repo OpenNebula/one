@@ -144,6 +144,16 @@ module OpenNebula
             return false
         end
 
+        def any_role_scaling?()
+            @roles.each do |name, role|
+                if role.state == Role::STATE['SCALING']
+                    return true
+                end
+            end
+
+            return false
+        end
+
         # Create a new service based on the template provided
         # @param [String] template_json
         # @return [nil, OpenNebula::Error] nil in case of success, Error
