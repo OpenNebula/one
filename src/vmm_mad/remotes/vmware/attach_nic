@@ -32,8 +32,9 @@ require 'vi_driver'
 deploy_id = ARGV[0]
 mac       = ARGV[1]
 bridge    = ARGV[2]
+model     = ARGV[3]
 host      = ARGV[5]
 
 vi_drv = VIDriver.new(host)
 
-puts vi_drv.poll_vm(deploy_id)
+puts vi_drv.attach_nic(deploy_id, bridge, model, mac)

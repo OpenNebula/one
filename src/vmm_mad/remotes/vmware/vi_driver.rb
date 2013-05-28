@@ -103,7 +103,41 @@ class VIDriver
         return -1
       end
         return str_info
-    end    
+    end   
+
+    # -------------------------------------------------------------------------#
+    # Attach a NIC to deploy_id, linked to bridge, with mac and of type = model#
+    # -------------------------------------------------------------------------# 
+    def attach_nic(deploy_id, bridge, model, mac)
+      vm       = get_vm(deploy_id)[:vm]
+      card_num = 1 # start in one, we want the next avaiable id
+      vm.config.hardware.device.each{ |dv|
+        if dv.class.ancestors[1] == VIM::VirtualEthernetCard
+          card_num = card_num + 1
+        end
+      }
+      backing = VIM.VirtualEthernetCardNetworkBackingInfo(:deviceName => bridge)
+      device_spec = {:key         => 0, 
+                     :deviceInfo  => {
+                       :label   => "net" + card_num.to_s, 
+                       :summary => bridge
+                     }, 
+                     :backing     => backing,
+                     :addressType => 'manual',
+                     :macAddress  => mac }
+
+      device = case model.downcase
+                 when 'e1000'
+                  VIM.VirtualE1000(device_spec)
+                 when 'pcnet32'
+                  VIM.VirtualPCNet32(device_spec)
+                 when 'VirtualVmxnet'
+                  VIM.VirtualVmxnet(device_spec)
+               end
+      spec = {:deviceChange => [:operation => :add, :device => device]}
+
+      vm.ReconfigVM_Task(:spec => spec).wait_for_completion
+    end 
 
     ############################################################################
     # Private Methods                                                          #
@@ -302,39 +336,5 @@ class VIDriver
       }
 
       return perfManager.retrieve_stats(objects, metrics, stat_opts)
-    end
-
-    # -------------------------------------------------------------------------#
-    # Attach a NIC to deploy_id, linked to bridge, with mac and of type = model#
-    # -------------------------------------------------------------------------# 
-    def attach_nic(deploy_id, bridge, model, mac)
-      vm       = get_vm(deploy_id)[:vm]
-      card_num = 1 # start in one, we want the next avaiable id
-      vm.config.hardware.device.each{ |dv|
-        if dv.class.ancestors[1] == VIM::VirtualEthernetCard
-          card_num = card_num + 1
-        end
-      }
-      backing = VIM.VirtualEthernetCardNetworkBackingInfo(:deviceName => bridge)
-      device_spec = {:key         => 0, 
-                     :deviceInfo  => {
-                       :label   => "net" + card_num.to_s, 
-                       :summary => bridge
-                     }, 
-                     :backing     => backing,
-                     :addressType => 'manual',
-                     :macAddress  => mac }
-
-      device = case model.downcase
-                 when 'e1000'
-                  VIM.VirtualE1000(device_spec)
-                 when 'pcnet32'
-                  VIM.VirtualPCNet32(device_spec)
-                 when 'VirtualVmxnet'
-                  VIM.VirtualVmxnet(device_spec)
-               end
-      spec = {:deviceChange => [:operation => :add, :device => device]}
-
-      vm.ReconfigVM_Task(:spec => spec).wait_for_completion
     end
 end
