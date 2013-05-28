@@ -209,9 +209,9 @@ class VmmAction
 
         parameters.map do |param|
             if Symbol===param
-                @data[param].to_s
+               "\'#{@data[param].to_s}\'"
             else
-                param
+               "\'#{param}\'"
             end
         end.join(' ')
     end
