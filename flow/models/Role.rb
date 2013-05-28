@@ -16,6 +16,7 @@
 
 require 'treetop'
 require 'grammar'
+require 'parse-cron'
 
 module OpenNebula
     class Role
@@ -363,12 +364,79 @@ module OpenNebula
 
 
         def scale?()
-
             elasticity_pol = @body['elasticity_policy']
 
             if elasticity_pol.nil?
                 return cardinality()
             end
+
+            type = elasticity_pol['type']
+
+            if type.upcase == "SCALING_ATTRIBUTE"
+                return scale_attributes?(elasticity_pol)
+            elsif type.upcase == "TIME_WINDOW"
+                return scale_time?(elasticity_pol)
+            else
+                # TODO: report error
+                return false
+            end
+        end
+
+        def scale_time?(elasticity_pol)
+            now = Time.now.to_i
+
+            last_eval   = elasticity_pol['last_eval'].to_i
+
+            elasticity_pol['last_eval'] = now
+
+            # If this is the first time this is evaluated, ignore it.
+            # We don't want to execute actions planned in the past when the
+            # server starts.
+
+            if last_eval == 0
+                return cardinality()
+            end
+
+            start_time  = elasticity_pol['start_time']
+            desired_vms = elasticity_pol['desired_vms']
+
+            if desired_vms.nil? || desired_vms.empty?
+                # TODO error msg
+                return cardinality()
+            end
+
+            if !(start_time.nil? || start_time.empty?)
+                start_time = Time.parse(start_time).to_i
+            else
+                recurrence  = elasticity_pol['recurrence']
+
+                if recurrence.nil? || recurrence.empty?
+                    # TODO error msg
+                    return cardinality()
+                end
+
+                begin
+                    cron_parser = CronParser.new(recurrence)
+
+                    # This returns the next planned time, starting from the last
+                    # step
+                    start_time = cron_parser.next(Time.at(last_eval)).to_i
+                rescue
+                    # TODO error msg bad format
+                    return cardinality()
+                end
+            end
+
+            # Only actions planned between last step and this one are triggered
+            if start_time > last_eval && start_time <= now
+                # TODO: do not reuse max_vms
+                return desired_vms.to_i
+            end
+
+            return cardinality()
+        end
+
+        def scale_attributes?(elasticity_pol)
 
             now = Time.now.to_i
 

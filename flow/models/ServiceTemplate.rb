@@ -45,6 +45,8 @@ module OpenNebula
                             :type => :string,
                             :required => true
                         },
+
+                        # SCALING_ATTRIBUTE
                         'min_vms' => {
                             :type => :integer,
                             :default => 1
@@ -68,8 +70,21 @@ module OpenNebula
                         'period_duration' => {
                             :type => :integer,
                             :default => 0
-                        }
-                    }
+                        },
+
+                        # TIME_WINDOW
+                        'start_time' => {
+                            :type => :string,
+                            :default => ""
+                        },
+                        'recurrence' => {
+                            :type => :string,
+                            :default => ""
+                        },
+                        'desired_vms' => {
+                            :type => :integer
+                        },
+                    },
                 }
             }
         }
