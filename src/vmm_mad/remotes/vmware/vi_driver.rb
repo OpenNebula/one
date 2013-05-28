@@ -139,6 +139,25 @@ class VIDriver
       vm.ReconfigVM_Task(:spec => spec).wait_for_completion
     end 
 
+    # -------------------------------------------------------------------------#
+    # Detach a NIC with mac from deploy_id                                     #
+    # -------------------------------------------------------------------------# 
+    def detach_nic(deploy_id, mac)
+      vm            = get_vm(deploy_id)[:vm]
+      nic_to_detach = nil
+      vm.config.hardware.device.each{ |dv| 
+        if dv.class.ancestors[1] == VIM::VirtualEthernetCard
+          nic_to_detach = dv if nic.macAddress ==  mac
+        end
+      }
+
+      return -1 if !nic_to_detach
+
+      spec = {:deviceChange => [:operation => :remove, :device => nic_to_detach]}
+
+      vm.ReconfigVM_Task(:spec => spec).wait_for_completion
+    end     
+
     ############################################################################
     # Private Methods                                                          #
     ############################################################################
