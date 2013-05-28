@@ -52,7 +52,7 @@ end
 
 mode   = "-r" # By default, recreate VMs
 force  = "n"  # By default, don't recreate/delete suspended VMs
-repeat = nil  # By default, don't wait fo monitorization cycles"
+repeat = nil  # By default, don't wait for monitorization cycles"
 
 opts = GetoptLong.new(
             ['--delete',   '-d',GetoptLong::NO_ARGUMENT],
