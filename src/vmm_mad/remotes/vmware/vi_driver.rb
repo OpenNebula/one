@@ -116,7 +116,7 @@ class VIDriver
           card_num = card_num + 1
         end
       }
-      backing = VIM.VirtualEthernetCardNetworkBackingInfo(:deviceName => bridge)
+      backing = RbVmomi::VIM.VirtualEthernetCardNetworkBackingInfo(:deviceName => bridge)
       device_spec = {:key         => 0, 
                      :deviceInfo  => {
                        :label   => "net" + card_num.to_s, 
@@ -128,11 +128,11 @@ class VIDriver
 
       device = case model.downcase
                  when 'pcnet32'
-                  VIM.VirtualPCNet32(device_spec)
+                   RbVmomi::VIM.VirtualPCNet32(device_spec)
                  when 'VirtualVmxnet'
-                  VIM.VirtualVmxnet(device_spec)
+                   RbVmomi::VIM.VirtualVmxnet(device_spec)
                  else # By default, assume E1000 model
-                  VIM.VirtualE1000(device_spec)
+                   RbVmomi::VIM.VirtualE1000(device_spec)
                end
       spec = {:deviceChange => [:operation => :add, :device => device]}
 
