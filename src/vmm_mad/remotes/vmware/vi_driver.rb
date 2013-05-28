@@ -127,12 +127,12 @@ class VIDriver
                      :macAddress  => mac }
 
       device = case model.downcase
-                 when 'e1000'
-                  VIM.VirtualE1000(device_spec)
                  when 'pcnet32'
                   VIM.VirtualPCNet32(device_spec)
                  when 'VirtualVmxnet'
                   VIM.VirtualVmxnet(device_spec)
+                 else # By default, assume E1000 model
+                  VIM.VirtualE1000(device_spec)
                end
       spec = {:deviceChange => [:operation => :add, :device => device]}
 
