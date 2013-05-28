@@ -112,7 +112,7 @@ class VIDriver
       vm       = get_vm(deploy_id)[:vm]
       card_num = 1 # start in one, we want the next avaiable id
       vm.config.hardware.device.each{ |dv|
-        if dv.class.ancestors[1] == VIM::VirtualEthernetCard
+        if dv.class.ancestors[1] == RbVmomi::VIM::VirtualEthernetCard
           card_num = card_num + 1
         end
       }
@@ -146,14 +146,14 @@ class VIDriver
       vm            = get_vm(deploy_id)[:vm]
       nic_to_detach = nil
       vm.config.hardware.device.each{ |dv| 
-        if dv.class.ancestors[1] == VIM::VirtualEthernetCard
+        if dv.class.ancestors[1] == RbVmomi::VIM::VirtualEthernetCard
           nic_to_detach = dv if nic.macAddress ==  mac
         end
       }
 
       return -1 if !nic_to_detach
 
-      spec = {:deviceChange => [:operation => :remove, :device => nic_to_detach]}
+      spec = {:deviceChange => [:operation => :remove,:device => nic_to_detach]}
 
       vm.ReconfigVM_Task(:spec => spec).wait_for_completion
     end     
