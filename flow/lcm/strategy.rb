@@ -81,17 +81,16 @@ class Strategy
         scale = false
 
         service.get_roles.each do |name, role|
-            target_cardinality = role.scale?
-            diff = target_cardinality - role.cardinality()
+            diff = role.scale?
 
             if diff > 0
-                Log.debug LOG_COMP, "Scaling up role #{name}", service.id()
+                Log.debug LOG_COMP, "Scaling up role #{name}, #{diff} nodes", service.id()
 
-                rc = role.scale_up(target_cardinality)
+                rc = role.scale_up(role.cardinality() + diff)
             elsif diff < 0
-                Log.debug LOG_COMP, "Scaling down role #{name}", service.id()
+                Log.debug LOG_COMP, "Scaling down role #{name}, #{diff} nodes", service.id()
 
-                rc = role.scale_down(target_cardinality)
+                rc = role.scale_down(role.cardinality() + diff)
             end
 
             # TODO: Handle error

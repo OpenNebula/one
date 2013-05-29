@@ -89,11 +89,7 @@ module OpenNebula
         # Returns the role max cardinality
         # @return [Integer] the role cardinality
         def max_cardinality
-            max = nil
-
-            if !@body['elasticity_policy'].nil?
-                max = @body['elasticity_policy']['max_vms']
-            end
+            max = @body['max_vms']
 
             if max.nil?
                 max = cardinality()
@@ -105,37 +101,13 @@ module OpenNebula
         # Returns the role min cardinality
         # @return [Integer] the role cardinality
         def min_cardinality
-            min = nil
-
-            if !@body['elasticity_policy'].nil?
-                min = @body['elasticity_policy']['min_vms']
-            end
+            min = @body['min_vms']
 
             if min.nil?
                 min = cardinality()
             end
 
             return min.to_i
-        end
-
-        def up_expr
-            expr = nil
-
-            if !@body['elasticity_policy'].nil?
-                expr = @body['elasticity_policy']['up_expr']
-            end
-
-            return expr
-        end
-
-        def down_expr
-            expr = nil
-
-            if !@body['elasticity_policy'].nil?
-                expr = @body['elasticity_policy']['down_expr']
-            end
-
-            return expr
         end
 
         # Returns the string representation of the service state
@@ -362,30 +334,51 @@ module OpenNebula
         # Scalability
         ########################################################################
 
-
+        # Returns a positive, 0, or negative number of nodes to adjust,
+        #   according to the elasticity policies
+        # @return [Integer] positive, 0, or negative number of nodes to adjust
         def scale?()
-            elasticity_pol = @body['elasticity_policy']
+            elasticity_pol = @body['elasticity_policies']
 
-            if elasticity_pol.nil?
-                return cardinality()
+            if elasticity_pol.nil? || elasticity_pol.empty?
+                return 0
             end
 
-            type = elasticity_pol['type']
+            # TODO: give priority to scheduled policies
 
-            if type.upcase == "SCALING_ATTRIBUTE"
-                return scale_attributes?(elasticity_pol)
-            elsif type.upcase == "TIME_WINDOW"
-                return scale_time?(elasticity_pol)
-            else
-                # TODO: report error
-                return false
+            elasticity_pol.each do |policy|
+
+                type = policy['type'].upcase
+
+                if %w[CHANGE CARDINALITY PERCENTAGE_CHANGE].include? type
+
+                    diff = scale_attributes?(policy)
+                    diff = 0
+
+                    Log.debug "ELAS", "diff returned = #{diff}"
+                    return diff if diff != 0
+
+                elsif type == "SCHEDULED"
+
+                    diff = scale_time?(policy)
+                    return diff if diff != 0
+
+                else
+                    # TODO: report error
+                end
             end
+
+            return 0
         end
 
+        # Returns a positive, 0, or negative number of nodes to adjust,
+        #   according to a SCHEDULED type policy
+        # @param [Hash] A SCHEDULED type policy
+        # @return [Integer] positive, 0, or negative number of nodes to adjust
         def scale_time?(elasticity_pol)
             now = Time.now.to_i
 
-            last_eval   = elasticity_pol['last_eval'].to_i
+            last_eval = elasticity_pol['last_eval'].to_i
 
             elasticity_pol['last_eval'] = now
 
@@ -394,15 +387,15 @@ module OpenNebula
             # server starts.
 
             if last_eval == 0
-                return cardinality()
+                return 0
             end
 
             start_time  = elasticity_pol['start_time']
-            desired_vms = elasticity_pol['desired_vms']
+            target_vms = elasticity_pol['adjust']
 
-            if desired_vms.nil? || desired_vms.empty?
+            if target_vms.nil?
                 # TODO error msg
-                return cardinality()
+                return 0
             end
 
             if !(start_time.nil? || start_time.empty?)
@@ -412,111 +405,93 @@ module OpenNebula
 
                 if recurrence.nil? || recurrence.empty?
                     # TODO error msg
-                    return cardinality()
+                    return 0
                 end
 
                 begin
                     cron_parser = CronParser.new(recurrence)
+
+                    Log.debug "ELAS", "Recurrence #{recurrence} next time #{cron_parser.next(Time.at(last_eval))}"
 
                     # This returns the next planned time, starting from the last
                     # step
                     start_time = cron_parser.next(Time.at(last_eval)).to_i
                 rescue
                     # TODO error msg bad format
-                    return cardinality()
+                    return 0
                 end
             end
 
             # Only actions planned between last step and this one are triggered
             if start_time > last_eval && start_time <= now
-                # TODO: do not reuse max_vms
-                return desired_vms.to_i
+                Log.debug "ELAS", "Role #{name} scheduled scalability for #{Time.at(start_time)} triggered"
+
+                return target_vms.to_i - cardinality()
             end
 
-            return cardinality()
+            return 0
         end
 
+        # Returns a positive, 0, or negative number of nodes to adjust,
+        #   according to a policy based on attributes
+        # @param [Hash] A policy based on attributes
+        # @return [Integer] positive, 0, or negative number of nodes to adjust
         def scale_attributes?(elasticity_pol)
 
             now = Time.now.to_i
 
             # TODO: enforce true_up_evals type in ServiceTemplate::ROLE_SCHEMA ?
 
-            period_duration = elasticity_pol['period_duration'].to_i
+            period_duration = elasticity_pol['period'].to_i
             period_number   = elasticity_pol['period_number'].to_i
             last_eval       = elasticity_pol['last_eval'].to_i
-            true_up_evals   = elasticity_pol['true_up_evals'].to_i
-            true_down_evals = elasticity_pol['true_down_evals'].to_i
+            true_evals      = elasticity_pol['true_evals'].to_i
+            expression      = elasticity_pol['expression']
+
+            adjust          = elasticity_pol['adjust'].to_i
+
+            Log.debug "ELAS", "Expression '#{expression}', adjust #{adjust}"
 
             if !last_eval.nil?
                 if now < (last_eval + period_duration)
-                    Log.debug "ELAS", "Role #{name} eval ignored, time < period"
+                    Log.debug "ELAS", "Role #{name} expression '#{expression}' evaluation ignored, time < period"
 
-                    return cardinality()
+                    return 0
                 end
             end
 
             elasticity_pol['last_eval'] = now
 
             new_cardinality = cardinality()
-            new_up_evals    = 0
-            new_down_evals  = 0
+            new_evals       = 0
 
-            if scale_up?()
-                new_up_evals = true_up_evals + 1
-                new_up_evals = period_number if new_up_evals > period_number
+            if scale_rule(expression)
+                new_evals = true_evals + 1
+                new_evals = period_number if new_evals > period_number
 
-                Log.debug "ELAS", "Role #{name} scale up expression is true"
+                Log.debug "ELAS", "Role #{name} scale expression '#{expression}' is true"
 
-                if new_up_evals >= period_number
-                    if cardinality() < max_cardinality()
-                        new_cardinality = cardinality() + 1
+                if new_evals >= period_number
+                    # TODO: Type CHANGE assumed, need to do CARDINALITY, PERCENTAGE_CHANGE
 
-                        new_up_evals = 0
-                    else
-                        Log.debug "ELAS", "Role #{name} has reached its VM limit"
-                    end
+                    new_cardinality = cardinality() + adjust
+
+                    new_cardinality = min_cardinality if new_cardinality < min_cardinality
+                    new_cardinality = max_cardinality if new_cardinality > max_cardinality
+
+                    new_evals = 0
                 else
-                    Log.debug "ELAS", "Role #{name} eval ignored, true #{new_up_evals} times, #{period_number} needed"
-                end
-            elsif scale_down?()
-                new_down_evals = true_down_evals + 1
-                new_down_evals = period_number if new_down_evals > period_number
-
-                Log.debug "ELAS", "Role #{name} scale down expression is true"
-
-                if new_down_evals >= period_number
-                    if cardinality() > min_cardinality()
-                        new_cardinality = cardinality() - 1
-
-                        new_down_evals = 0
-                    else
-                        Log.debug "ELAS", "Role #{name} has reached its VM minimum"
-                    end
-                else
-                    Log.debug "ELAS", "Role #{name} eval ignored, true #{new_down_evals} times, #{period_number} needed"
+                    Log.debug "ELAS", "Role #{name} expression '#{expression}' evaluation ignored, true #{new_up_evals} times, #{period_number} needed"
                 end
             end
 
-            elasticity_pol['true_up_evals']   = new_up_evals
-            elasticity_pol['true_down_evals'] = new_down_evals
+            elasticity_pol['true_evals'] = new_evals
 
-            return new_cardinality
+            return new_cardinality - cardinality()
         end
 
-        # Returns true if the scalability rule to scale up is triggered
-        # @return true if this role has to scale up
-        def scale_up?()
-            return scale_rule(up_expr)
-        end
-
-
-        # Returns true if the scalability rule to scale down is triggered
-        # @return true if this role has to scale down
-        def scale_down?()
-            return scale_rule(down_expr)
-        end
-
+        # Returns true if the scalability rule is triggered
+        # @return true if the scalability rule is triggered
         def scale_rule(elas_expr)
             parser = ElasticityGrammarParser.new
 
@@ -536,12 +511,20 @@ module OpenNebula
         end
 
         def scale_up(target_cardinality)
+            msg = "Role #{name} scaling up from #{cardinality} to #{target_cardinality} nodes"
+            Log.info LOG_COMP, msg, @service.id()
+            @service.log_info(msg)
+
             set_cardinality(target_cardinality)
 
             return deploy()
         end
 
         def scale_down(target_cardinality)
+            msg = "Role #{name} scaling down from #{cardinality} to #{target_cardinality} nodes"
+            Log.info LOG_COMP, msg, @service.id()
+            @service.log_info(msg)
+
             set_cardinality(target_cardinality)
 
             return shutdown(true)

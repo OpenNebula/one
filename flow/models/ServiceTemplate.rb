@@ -38,53 +38,68 @@ module OpenNebula
                         :type => :string
                     }
                 },
-                'elasticity_policy' => {
-                    :type => :object,
-                    :properties => {
-                        'type' => {
-                            :type => :string,
-                            :required => true
-                        },
+                'min_vms' => {
+                    :type => :integer,
+                    :default => 1
+                },
+                #'cooldown' => {
+                #    :type => :integer
+                #}
+                'max_vms' => {
+                    :type => :integer,
+                    :required => false
+                },
+                'elasticity_policies' => {
+                    :type => :array,
+                    :items => {
+                        :type => :object,
+                        :properties => {
+                            # CHANGE, CARDINALITY, PERCENTAGE_CHANGE, SCHEDULED
+                            'type' => {
+                                :type => :string,
+                                :required => true
+                            },
+                            'adjust' => {
+                                :type => :integer,
+                                :required => true
+                            },
+                            'min_adjust_step' => {
+                                :type => :integer,
+                                :required => false
+                            },
+                            # Elasticity by expression
+                            'period_number' => {
+                                :type => :integer,
+                                :default => 1
+                            },
+                            'period' => {
+                                :type => :integer,
+                                :default => 0
+                            },
+                            'expression' => {
+                                :type => :string,
+                                :required => false
+                            },
+                            # Elasticity by time
+                            'start_time' => {
+                                :type => :string,
+                                :required => false
+                            },
+                            'recurrence' => {
+                                :type => :string,
+                                :required => false
+                            }
 
-                        # SCALING_ATTRIBUTE
-                        'min_vms' => {
-                            :type => :integer,
-                            :default => 1
-                        },
-                        'max_vms' => {
-                            :type => :integer,
-                            :required => true
-                        },
-                        'up_expr' => {
-                            :type => :string,
-                            :default => ""
-                        },
-                        'down_expr' => {
-                            :type => :string,
-                            :default => ""
-                        },
-                        'period_number' => {
-                            :type => :integer,
-                            :default => 1
-                        },
-                        'period_duration' => {
-                            :type => :integer,
-                            :default => 0
-                        },
 
-                        # TIME_WINDOW
-                        'start_time' => {
-                            :type => :string,
-                            :default => ""
-                        },
-                        'recurrence' => {
-                            :type => :string,
-                            :default => ""
-                        },
-                        'desired_vms' => {
-                            :type => :integer
-                        },
-                    },
+                            #'cooldown' => {
+                            #    :type => :integer
+                            #}
+                            #'statistic' => {
+                            # # SampleCount | Average | Sum | Minimum | Maximum
+                            #    :type => :string
+                            #}
+                        }
+                    }
                 }
             }
         }
