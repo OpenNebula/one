@@ -233,7 +233,7 @@ class VIDriver
       net_info = get_perf_value([vm], ["net.packetsRx","net.packetsTx"])
 
       state = get_state(vm)
-      return "STATE=d"+ if state.downcase == "d"
+      return "STATE=d" if state.downcase == "d"
 
       str_info = ""
       str_info += "STATE="      + state                  + " "
