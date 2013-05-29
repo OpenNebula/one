@@ -286,6 +286,20 @@ delete '/service_template/:id' do
     status 201
 end
 
+put '/service_template/:id' do
+    service_template = OpenNebula::ServiceTemplate.new_with_id(params[:id], @client)
+
+    rc = service_template.update(request.body.read)
+    if OpenNebula.is_error?(rc)
+        error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
+    end
+
+    service_template.info
+
+    status 200
+    body service_template.to_json
+end
+
 post '/service_template' do
     s_template = OpenNebula::ServiceTemplate.new(
                     OpenNebula::ServiceTemplate.build_xml,
