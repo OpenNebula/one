@@ -83,7 +83,7 @@ esac
 # Add a symlink for CDROM images
 if [ "$DISK_TYPE" = "CDROM" ]; then
     ssh_exec_and_log $DST_HOST \
-                     "ln -s ${DST_PATH} ${DST_PATH}.iso" \
+                     "rm ${DST_PATH}.iso;ln -s ${DST_PATH} ${DST_PATH}.iso" \
                      "Error linking ${DST_PATH} to ${DST_PATH}.iso"
 fi
 
