@@ -31,6 +31,7 @@ require 'vi_driver'
 
 deploy_id = ARGV[0]
 mac       = ARGV[1]
+host      = ARGV[3]
 
 vi_drv = VIDriver.new(host)
 
