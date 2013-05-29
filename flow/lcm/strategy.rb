@@ -133,14 +133,6 @@ class Strategy
                     role.set_state(Role::STATE['UNKNOWN'])
                 end
             when Role::STATE['DEPLOYING'], Role::STATE['SCALING']
-                # TODO: For roles scaling up, role_nodes_running detects the
-                # scalability has finished.
-
-                # For roles scaling down, the node is left in DONE. We need
-                # to clear or ignore those. Maybe we could keep the node to have
-                # a reference of all the VMs that were created for this service,
-                # but with a flag to ignore it for plannification and user output
-
                 if OpenNebula.is_error?(rc)
                     role.set_state(Role::STATE['FAILED_DEPLOYING'])
                 elsif role_nodes_running?(role)

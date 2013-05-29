@@ -223,18 +223,22 @@ module OpenNebula
 
         # Shutdown all the nodes in this role
         #
-        # @param [true, false] true to mark the VMs to be disposed after the
-        #   shutdown is completed
+        # @param scale_down [true, false] true to shutdown and dispose the
+        #   number of VMs needed to get down to cardinality nodes
         # @return [Array<true, nil>, Array<false, String>] true if all the VMs
         # were shutdown, false and the error reason if there was a problem
         # shutting down the VMs
-        def shutdown(dispose=false)
+        def shutdown(scale_down=false)
             success = true
 
             nodes = get_nodes
-            n_nodes = nodes.size - cardinality()
 
-#            get_nodes.each { |node|
+            if scale_down
+                n_nodes = nodes.size - cardinality()
+            else
+                n_nodes = nodes.size
+            end
+
             n_nodes.times { |i|
                 node = nodes[i]
 
@@ -263,12 +267,16 @@ module OpenNebula
                     else
                         Log.debug LOG_COMP, "Role #{name} : Delete success for VM #{vm_id}", @service.id()
 
-                        node['disposed'] = '1'
+                        if scale_down
+                            node['disposed'] = '1'
+                        end
                     end
                 else
                     Log.debug LOG_COMP, "Role #{name} : Shutdown success for VM #{vm_id}", @service.id()
 
-                    node['disposed'] = '1'
+                    if scale_down
+                        node['disposed'] = '1'
+                    end
                 end
             }
 
