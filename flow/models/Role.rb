@@ -353,9 +353,6 @@ module OpenNebula
                 if %w[CHANGE CARDINALITY PERCENTAGE_CHANGE].include? type
 
                     diff = scale_attributes?(policy)
-                    diff = 0
-
-                    Log.debug "ELAS", "diff returned = #{diff}"
                     return diff if diff != 0
 
                 elsif type == "SCHEDULED"
