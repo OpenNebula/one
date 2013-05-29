@@ -147,7 +147,7 @@ class VIDriver
       nic_to_detach = nil
       vm.config.hardware.device.each{ |dv| 
         if dv.class.ancestors[1] == RbVmomi::VIM::VirtualEthernetCard
-          nic_to_detach = dv if nic.macAddress ==  mac
+          nic_to_detach = dv if dv.macAddress ==  mac
         end
       }
 
@@ -232,8 +232,11 @@ class VIDriver
       # Get network information
       net_info = get_perf_value([vm], ["net.packetsRx","net.packetsTx"])
 
+      state = get_state(vm)
+      return "STATE=d"+ if state.downcase == "d"
+
       str_info = ""
-      str_info += "STATE="      + get_state(vm)          + " "
+      str_info += "STATE="      + state                  + " "
       str_info += "USEDCPU="    + get_used_cpu(vm)       + " "
       str_info += "USEDMEMORY=" + get_used_memory(vm)    
 
