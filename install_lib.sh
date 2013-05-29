@@ -19,14 +19,14 @@ usage() {
  echo "Usage: install.sh [-u install_user] [-g install_group] [-f flavour]"
  echo "                  [-d ONE_LOCATION] [-l] [-h]"
  echo
- echo "-f: distribution, debian or other"
+ echo "-f: falvor: debian or systemwide. Default: systemwide"
  echo "-d: target installation directory, if not defined it'd be root. Must be"
- echo "    an absolute path."
+ echo "    an absolute path. Installation will be selfcontained"
  echo "-l: creates symlinks instead of copying files, useful for development"
  echo "-h: prints this help"
 }
 
-PARAMETERS="hlu:g:d:"
+PARAMETERS="hlu:f:g:d:"
 
 if [ $(getopt --version | tr -d " ") = "--" ]; then
     TEMP_OPT=`getopt $PARAMETERS "$@"`
@@ -45,12 +45,12 @@ LINK="no"
 ONEADMIN_USER=`id -u`
 ONEADMIN_GROUP=`id -g`
 SRC_DIR=$PWD
-FLAVOR="other"
+FLAVOR="systemwide"
 
 while true ; do
     case "$1" in
         -h) usage; exit 0;;
-        -d) ROOT="$2" ; shift 2 ;;
+        -d) ROOT="$2" ; FLAVOR="selfcontained" ; shift 2 ;;
         -l) LINK="yes" ; shift ;;
         -u) ONEADMIN_USER="$2" ; shift 2;;
         -g) ONEADMIN_GROUP="$2"; shift 2;;
@@ -72,7 +72,7 @@ if [ -z "$ROOT" ]; then
         ETC_LOCATION="/etc/one"
         SUNSTONE_LOCATION="/usr/share/opennebula/sunstone"
         ;;
-    *)
+    "systemwide")
         LIB_LOCATION="/usr/lib/one/ruby/oneapps"
         BIN_LOCATION="/usr/bin"
         PACKAGES_LOCATION="/usr/share/one/oneapps"

@@ -129,7 +129,7 @@ var appmarketplace_tab_content = '\
   <div class="twelve columns">\
     <h4 class="subheader header">\
       <span class="header-resource">\
-       <i class="icon-shopping-cart"></i> '+tr("OpenNebula AppMarket")+'\
+       <i class="icon-truck"></i> '+tr("OpenNebula AppMarket")+'\
       </span>\
       <span class="header-info">\
         <span/> <small></small>&emsp;\
@@ -182,7 +182,7 @@ var appmarketplace_tab = {
     parentTab: 'appmarket_dashboard_tab'
 }
 
-Sunstone.addMainTab('appmarketplace_tab', appmarketplace_tab);
+Sunstone.addMainTab('apptools-appmarket-appliances', appmarketplace_tab);
 Sunstone.addActions(appmarket_actions);
 
 
@@ -209,7 +209,9 @@ function updateMarketInfo(request,app){
     var info_tab = {
         title : tr("Appliance information"),
         content :
-        '<table id="info_appmarketplace_table" class="info_table">\
+        '<form class="custom"><div class="">\
+        <div class="six columns">\
+        <table id="info_appmarketplace_table" class="twelve datatable extended_table">\
             <thead>\
               <tr><th colspan="2">'+tr("Appliance information")+'</th></tr>\
             </thead>\
@@ -220,7 +222,7 @@ function updateMarketInfo(request,app){
               </tr>\
               <tr>\
                 <td class="key_td">' + tr("URL") + '</td>\
-                <td class="value_td"><a href="'+url+'" target="_blank">'+url+'</a></td>\
+                <td class="value_td"><a href="'+url+'" target="_blank">'+tr("link")+'</a></td>\
               </tr>\
               <tr>\
                 <td class="key_td">' + tr("Publisher") + '</td>\
@@ -248,7 +250,9 @@ function updateMarketInfo(request,app){
               </tr>\
             </tbody>\
         </table>\
-        <table id="info_appmarketplace_table2" class="info_table">\
+        </div>\
+        <div class="six columns">\
+        <table id="info_appmarketplace_table2" class="twelve datatable extended_table">\
            <thead>\
              <tr><th colspan="2">'+tr("Description")+'</th></tr>\
            </thead>\
@@ -257,33 +261,39 @@ function updateMarketInfo(request,app){
                 <td class="value_td">'+app['description'].replace(/\n/g, "<br />")+'</td>\
               </tr>\
             </tbody>\
-        </table>'
+        </table>\
+      </div>\
+    </form>'
     };
 
     Sunstone.updateInfoPanelTab("appmarketplace_info_panel", "appmarketplace_info_tab", info_tab);
-    Sunstone.popUpInfoPanel("appmarketplace_info_panel");
+    Sunstone.popUpInfoPanel("appmarketplace_info_panel", "apptools-appmarket-appliances");
 };
 
-function infoListenerAppMarket(dataTable){
+ function infoListenerAppMarket(dataTable){
     $('tbody tr',dataTable).live("click",function(e){
-        if ($(e.target).is('input')) {return true;}
 
-        var aData = dataTable.fnGetData(this);
-        var id = aData["_id"]["$oid"];
-        if (!id) return true;
+    if ($(e.target).is('input') ||
+        $(e.target).is('select') ||
+        $(e.target).is('option')) return true;
 
-        var count = $('tbody .check_item:checked', dataTable).length;
-
-        //If ctrl is pressed we check the column instead of
-        //doing showinfo()
-        if (e.ctrlKey || count >= 1){
-            $('.check_item',this).trigger('click');
-            return false;
-        }
-
+    var aData = dataTable.fnGetData(this);
+    var id =aData["_id"]["$oid"];
+    if (!id) return true;
         popDialogLoading();
+        Sunstone.runAction("AppMarket.showinfo",id);
 
-        Sunstone.runAction('AppMarket.showinfo',id);
+        // Take care of the coloring business
+        // (and the checking, do not forget the checking)
+        $('tbody input.check_item',$(this).parents('table')).removeAttr('checked');
+        $('.check_item',this).click();
+        $('td',$(this).parents('table')).removeClass('markrowchecked');
+
+        if(last_selected_row)
+            last_selected_row.children().each(function(){$(this).removeClass('markrowselected');});
+        last_selected_row = $("td:first", this).parent();
+        $("td:first", this).parent().children().each(function(){$(this).addClass('markrowselected');});
+
         return false;
     });
 }
@@ -306,31 +316,41 @@ function onlyOneCheckboxListener(dataTable) {
  */
 
 $(document).ready(function(){
+    var tab_name = 'apptools-appmarket-appliances';
+
     dataTable_appmarket = $("#datatable_appmarketplace", main_tabs_context).dataTable({
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
+        "bSortClasses": true,
         "aoColumns": [
             { "bSortable": false,
-              "fnRender": function ( o, val ) {
+              "mData": function ( o, val, data ) {
                   //we render 1st column as a checkbox directly
                   return '<input class="check_item" type="checkbox" id="appmarketplace_'+
-                      o.aData['_id']['$oid']+
+                      o['_id']['$oid']+
                       '" name="selected_items" value="'+
-                      o.aData['_id']['$oid']+'"/>'
+                      o['_id']['$oid']+'"/>'
               },
               "sWidth" : "60px"
             },
-            { "mDataProp": "_id.$oid", "bVisible": false, "sWidth" : "200px" },
+            { "mDataProp": "_id.$oid", "sWidth" : "200px" },
             { "mDataProp": "name" },
             { "mDataProp": "publisher" },
             { "mDataProp": "files.0.hypervisor", "sWidth" : "100px"},
             { "mDataProp": "files.0.os-arch", "sWidth" : "100px"},
             { "mDataProp": "files.0.format", "sWidth" : "100px"},
-            { "mDataProp": "tags", "bVisible": false}
-          ]
+            { "mDataProp": "tags"}
+          ],
+          "aoColumnDefs": [
+            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
+            { "bVisible": false, "aTargets": ['_all']}
+        ]
     });
 
     $('appliances_search').keyup(function(){
       dataTable_appmarket.fnFilter( $(this).val() );
+    })
+
+    dataTable_appmarket.on('draw', function(){
+      recountCheckboxes(dataTable_appmarket);
     })
 
 

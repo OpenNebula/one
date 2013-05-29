@@ -1,7 +1,7 @@
 module OneApps
 
     # OpenNebula version
-    VERSION = '3.8.3'
+    VERSION = '3.9.80'
 
     VERSION_TEXT = <<EOT
 OpenNebulaApps #{OneApps::VERSION}

@@ -85,7 +85,7 @@ var appstage_dashboard_tmpl = '\
 
 var appstage_dashboard_tab = {
     title: '<i class="icon-magic"></i>AppStage',
-    content: appstage_dashboard_tmpl,
+    //content: appstage_dashboard_tmpl,
 }
 
 

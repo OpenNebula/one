@@ -62,7 +62,7 @@ var service_template_tab_content = '\
   <div class="twelve columns">\
     <h4 class="subheader header">\
       <span class="header-resource">\
-       <i class="icon-magic"></i> '+tr("AppFlow - Templates")+'\
+       <i class="icon-file-alt"></i> '+tr("AppFlow - Templates")+'\
       </span>\
       <span class="header-info">\
         <span/> <small></small>&emsp;\
@@ -531,7 +531,7 @@ function updateServiceTemplateInfo(request,elem){
 
 // Prepare the creation dialog
 function setupCreateServiceTemplateDialog(){
-    dialogs_context.append('<div title="'+tr("Create service template")+'" id="create_service_template_dialog"></div>');
+    dialogs_context.append('<div id="create_service_template_dialog"></div>');
     $create_service_template_dialog =  $('#create_service_template_dialog',dialogs_context);
 
     var dialog = $create_service_template_dialog;
@@ -680,6 +680,7 @@ function setServiceTemplateAutorefresh() {
 
 //The DOM is ready at this point
 $(document).ready(function(){
+    var tab_name = "apptools-appflow-templates";
 
     dataTable_service_templates = $("#datatable_service_templates",main_tabs_context).dataTable({
         "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
@@ -688,14 +689,18 @@ $(document).ready(function(){
         },
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "100px", "aTargets": [2,3] },
-            { "sWidth": "35px", "aTargets": [1] }
+            { "sWidth": "35px", "aTargets": [0] },
+            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
+            { "bVisible": false, "aTargets": ['_all']}
         ]
     });
 
     $('#service_templates_search').keyup(function(){
       dataTable_service_templates.fnFilter( $(this).val() );
+    })
+
+    dataTable_service_templates.on('draw', function(){
+      recountCheckboxes(dataTable_service_templates);
     })
 
     Sunstone.runAction("ServiceTemplate.list");

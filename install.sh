@@ -16,11 +16,18 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-. ../install_lib.sh
+ARGS=$*
 
-copy_files "lib/* cli/*" "$LIB_LOCATION/stage"
-copy_files "bin/*" "$BIN_LOCATION"
-copy_files "share/packages/*" "$PACKAGES_LOCATION"
-copy_files "sunstone/public/js/*" "$SUNSTONE_LOCATION/public/js/plugins"
-copy_files "sunstone/public/images/*" "$SUNSTONE_LOCATION/public/images"
-copy_files "sunstone/routes/*" "$SUNSTONE_LOCATION/routes"
+. install_lib.sh
+
+DIRS="flow market stage oneapps"
+
+for dir in $DIRS; do
+    (
+        cd $dir
+        ./install.sh $ARGS
+    )
+done
+
+oneapps/postinstall.sh $FLAVOR $ROOT
+
