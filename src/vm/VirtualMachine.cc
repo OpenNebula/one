@@ -3119,9 +3119,8 @@ int VirtualMachine::from_xml(const string &xml_str)
 string VirtualMachine::get_system_dir() const
 {
     ostringstream oss;
-    Nebula&       nd = Nebula::instance();
 
-    oss << nd.get_ds_location() << history->ds_id << "/"<< oid;
+    oss << history->ds_location << history->ds_id << "/"<< oid;
 
     return oss.str();
 };
