@@ -266,7 +266,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Show detailed information of a given Service Template
     EOT
 
-    command :show, show_desc, :template_id do
+    command :show, show_desc, :template_id, :options => Service::JSON_FORMAT do
         client = Service::Client.new(
                     :username   => options[:username],
                     :password   => options[:password],
