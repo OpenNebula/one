@@ -93,6 +93,11 @@ log "Making raw filesystem of ${SIZE}M at [$DS_ID]$DST_FOLDER on $DST_HOST"
 
 IMAGE_FORMAT=vmdk
 VMWARE_DISK_TYPE=`echo $FSTYPE|cut -d'_' -f 2`
+echo "$VMWARE_DISK_TYPE" | grep '\<thin\>\|\<zeroedthic\>\|\<eagerzeroedthick\>'
+
+if [ $? -eq 1 ] ; then
+    VMWARE_DISK_TYPE="thin"
+fi
 
 if [ "$USE_SSH" == "yes" ]; then
     $SSH $DST_HOST $VMKFSTOOLS -U [$DS_ID]$DST_FOLDER/disk.vmdk &> /dev/null

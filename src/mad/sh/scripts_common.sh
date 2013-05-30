@@ -282,10 +282,8 @@ function mkfs_command {
             ;;
         "vmdk_"*)
             VMWARE_DISK_TYPE=`echo $FSTYPE|cut -d'_' -f 2`
-            echo "WHICH_SUDO=\$(which sudo) ; \
-                  [ ! -z \"\$WHICH_SUDO\" -a -f \"\$WHICH_SUDO\" ] && SUDO=\"sudo\" ; \
-                  \$SUDO $VMKFSTOOLS -U $DST/disk.vmdk; \
-                  \$SUDO $VMKFSTOOLS -c ${SIZE}M -d ${VMWARE_DISK_TYPE} $DST/disk.vmdk"
+            echo "$VMKFSTOOLS -U $DST/disk.vmdk; \
+                  $VMKFSTOOLS -c ${SIZE}M -d ${VMWARE_DISK_TYPE} $DST/disk.vmdk"
             return 0
             ;;
         *)
@@ -416,7 +414,7 @@ function is_iscsi {
     fi
 }
 
-# Checks wether $IMAGE_TYPE is CDROM 
+# Checks wether $IMAGE_TYPE is CDROM
 function is_cdrom {
     [ "$IMAGE_TYPE" = "1" ]
 }
