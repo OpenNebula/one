@@ -80,6 +80,7 @@ public:
      *    @param oid the id assigned to the Datastore
      *    @param cluster_id the id of the cluster this Datastore will belong to
      *    @param cluster_name the name of the cluster this Datastore will belong to
+     *    @param ds_location for hosts in the cluster. defaults to oned.conf.
      *    @param error_str Returns the error reason, if any
      *
      *    @return the oid assigned to the object, -1 in case of failure
@@ -94,6 +95,7 @@ public:
             int *               oid,
             int                 cluster_id,
             const string&       cluster_name,
+            const string&       ds_location,
             string&             error_str);
 
     /**
@@ -184,7 +186,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new Datastore(-1,-1,"","", 0, 0, -1, "");
+        return new Datastore(-1,-1,"","", 0, 0, -1, "", "");
     };
 };
 

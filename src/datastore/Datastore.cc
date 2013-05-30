@@ -44,13 +44,14 @@ Datastore::Datastore(
         int                 umask,
         DatastoreTemplate*  ds_template,
         int                 cluster_id,
-        const string&       cluster_name):
+        const string&       cluster_name,
+        const string&       ds_location):
             PoolObjectSQL(-1,DATASTORE,"",uid,gid,uname,gname,table),
             ObjectCollection("IMAGES"),
             Clusterable(cluster_id, cluster_name),
             ds_mad(""),
             tm_mad(""),
-            base_path(""),
+            base_path(ds_location),
             type(IMAGE_DS)
 {
     if (ds_template != 0)
@@ -132,8 +133,6 @@ int Datastore::insert(SqlDB *db, string& error_str)
     string        s_disk_type;
     string        s_ds_type;
 
-    Nebula& nd = Nebula::instance();
-
     // -------------------------------------------------------------------------
     // Check default datastore attributes
     // -------------------------------------------------------------------------
@@ -166,7 +165,7 @@ int Datastore::insert(SqlDB *db, string& error_str)
         goto error_tm;
     }
 
-    oss << nd.get_ds_location() << oid;
+    oss << base_path << oid; //base_path points to ds_location - constructor
 
     base_path = oss.str();
 

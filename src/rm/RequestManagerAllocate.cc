@@ -658,12 +658,27 @@ int DatastoreAllocate::pool_allocate(
         const string&               cluster_name,
         int                         umask)
 {
-    DatastorePool * dspool = static_cast<DatastorePool *>(pool);
-
+    DatastorePool * dspool      = static_cast<DatastorePool *>(pool);
     DatastoreTemplate * ds_tmpl = static_cast<DatastoreTemplate *>(tmpl);
 
+    Nebula&   nd          = Nebula::instance();
+    string    ds_location = nd.get_ds_location();
+
+    if ( cluster_id != ClusterPool::NONE_CLUSTER_ID )
+    {
+        ClusterPool * cpool = nd.get_clpool();
+        Cluster *   cluster = cpool->get(cluster_id, true);
+
+        if (cluster != 0)
+        {
+            ds_location = cluster->get_ds_location(ds_location);
+
+            cluster->unlock();
+        }
+    }
+
     return dspool->allocate(att.uid, att.gid, att.uname, att.gname, umask,
-            ds_tmpl, &id, cluster_id, cluster_name, error_str);
+            ds_tmpl, &id, cluster_id, cluster_name, ds_location, error_str);
 }
 
 /* -------------------------------------------------------------------------- */
