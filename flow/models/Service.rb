@@ -29,7 +29,8 @@ module OpenNebula
             'DONE'               => 6,
             'FAILED_UNDEPLOYING' => 7,
             'FAILED_DEPLOYING'   => 8,
-            'SCALING'            => 9
+            'SCALING'            => 9,
+            'FAILED_SCALING'     => 10
         }
 
         STATE_STR = [
@@ -42,7 +43,8 @@ module OpenNebula
             'DONE',
             'FAILED_UNDEPLOYING',
             'FAILED_DEPLOYING',
-            'SCALING'
+            'SCALING',
+            'FAILED_SCALING'
         ]
 
         LOG_COMP = "SER"
@@ -151,6 +153,16 @@ module OpenNebula
             return false
         end
 
+        def any_role_failed_scaling?()
+            @roles.each do |name, role|
+                if role.state == Role::STATE['FAILED_SCALING']
+                    return true
+                end
+            end
+
+            return false
+        end
+
         # Create a new service based on the template provided
         # @param [String] template_json
         # @return [nil, OpenNebula::Error] nil in case of success, Error
@@ -187,6 +199,18 @@ module OpenNebula
         def deploy
             if [Service::STATE['FAILED_DEPLOYING']].include?(self.state)
                 self.set_state(Service::STATE['DEPLOYING'])
+                return self.update
+
+            # TODO: hijacked the deploy action to continue a failed scaling operation
+            elsif self.state == Service::STATE['FAILED_SCALING']
+                @roles.each do |name, role|
+                    if role.state == Role::STATE['FAILED_SCALING']
+                        role.retry_scale()
+                        role.set_state(Role::STATE['SCALING'])
+                    end
+                end
+
+                self.set_state(Service::STATE['SCALING'])
                 return self.update
             else
                 return OpenNebula::Error.new("Action deploy: Wrong state" \

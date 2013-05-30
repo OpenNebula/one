@@ -74,7 +74,11 @@ class Strategy
         return [true, nil]
     end
 
-
+    #
+    # @return [Array<false, nil, nil>, Array<true, true, nil>, Array<true, false, String>]
+    # 1st elem: true if the service needed to scale
+    # 2nd elem: true if the operation succeeded
+    # 3rd elem: error reason, if any
     def scale_step(service)
         Log.debug LOG_COMP, "Scale step", service.id()
 
@@ -93,13 +97,14 @@ class Strategy
                 rc = role.scale_down(role.cardinality() + diff)
             end
 
-            # TODO: Handle error
-#            if !rc[0]
-#                role.set_state(Role::STATE['FAILED_DEPLOYING'])
-#                return rc
-#            end
-
             if diff != 0
+
+                if !rc[0]
+                    role.set_state(Role::STATE['FAILED_SCALING'])
+
+                    return [true] + rc
+                end
+
                 role.set_state(Role::STATE['SCALING'])
                 scale = true
 
@@ -107,14 +112,12 @@ class Strategy
             end
         end
 
-        return [scale, nil]
+        return [scale, true, nil]
     end
 
     # Performs a monitor step, check if the roles already deployed are running
-    # @param [Service] service service to boot
-    # @return [Array<true, nil>, Array<false, String>] true if all the nodes
-    # were running, false and the error reason if there was a problem
-    # monitoring the nodes
+    # @param [Service] service service to monitor
+    # @return [nil]
     def monitor_step(service)
         Log.debug LOG_COMP, "Monitor step", service.id()
 
@@ -132,13 +135,21 @@ class Strategy
                 elsif !role_nodes_running?(role)
                     role.set_state(Role::STATE['UNKNOWN'])
                 end
-            when Role::STATE['DEPLOYING'], Role::STATE['SCALING']
+            when Role::STATE['DEPLOYING']
                 if OpenNebula.is_error?(rc)
                     role.set_state(Role::STATE['FAILED_DEPLOYING'])
                 elsif role_nodes_running?(role)
                     role.set_state(Role::STATE['RUNNING'])
                 elsif any_node_failed?(role)
                     role.set_state(Role::STATE['FAILED_DEPLOYING'])
+                end
+            when Role::STATE['SCALING']
+                if OpenNebula.is_error?(rc)
+                    role.set_state(Role::STATE['FAILED_SCALING'])
+                elsif role_nodes_running?(role)
+                    role.set_state(Role::STATE['RUNNING'])
+                elsif any_node_failed_scaling?(role)
+                    role.set_state(Role::STATE['FAILED_SCALING'])
                 end
             when Role::STATE['UNKNOWN']
                 if role_nodes_running?(role)
@@ -280,5 +291,16 @@ protected
         }
 
         return true
+    end
+
+    # Determine if any of the role nodes failed to scale
+    # @param [Role] role
+    # @return [true|false]
+    def any_node_failed_scaling?(role)
+
+        # TODO: This method returns true if any VM is in FAILED, but
+        # it should only consider VMs being scaled (instatiated/shutdown).
+
+        return any_node_failed?(role)
     end
 end

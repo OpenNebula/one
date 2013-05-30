@@ -77,11 +77,17 @@ class ServiceLCM
                             else
                                 rc = strategy.scale_step(service)
 
-                                if rc[0]
-                                    service.set_state(Service::STATE['SCALING'])
-                                end
+                                scale = rc[0]
+                                succ  = rc[1]
+                                error_msg = rc[2]
 
-                                # TODO: check error
+                                if scale
+                                    if succ
+                                        service.set_state(Service::STATE['SCALING'])
+                                    else
+                                        service.set_state(Service::STATE['FAILED_SCALING'])
+                                    end
+                                end
 
                             end
                         when Service::STATE['SCALING']
@@ -90,11 +96,9 @@ class ServiceLCM
                             # TODO: Check scalability rules for roles that are
                             # not scaling now?
 
-                            # The service is moved to RUNNING even if the
-                            # roles scaling ended in failure. Any error is
-                            # handled the next cycle in the RUNNING case
-
-                            if !service.any_role_scaling?
+                            if service.any_role_failed_scaling?
+                                service.set_state(Service::STATE['FAILED_SCALING'])
+                            elsif !service.any_role_scaling?
                                 service.set_state(Service::STATE['RUNNING'])
                             end
                         when Service::STATE['UNKNOWN']

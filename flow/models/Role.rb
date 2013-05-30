@@ -31,7 +31,8 @@ module OpenNebula
             'DONE'               => 6,
             'FAILED_UNDEPLOYING' => 7,
             'FAILED_DEPLOYING'   => 8,
-            'SCALING'            => 9
+            'SCALING'            => 9,
+            'FAILED_SCALING'     => 10
         }
 
         STATE_STR = [
@@ -44,7 +45,8 @@ module OpenNebula
             'DONE',
             'FAILED_UNDEPLOYING',
             'FAILED_DEPLOYING',
-            'SCALING'
+            'SCALING',
+            'FAILED_SCALING'
         ]
 
         LOG_COMP = "ROL"
@@ -249,6 +251,9 @@ module OpenNebula
                 vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
                 rc = vm.shutdown
 
+                if scale_down
+                    node['disposed'] = '1'
+                end
 
                 if OpenNebula.is_error?(rc)
                     msg = "Role #{name} : Shutdown failed for VM #{vm_id}, will perform a Delete; #{rc.message}"
@@ -266,17 +271,9 @@ module OpenNebula
                         #return [false, rc.message]
                     else
                         Log.debug LOG_COMP, "Role #{name} : Delete success for VM #{vm_id}", @service.id()
-
-                        if scale_down
-                            node['disposed'] = '1'
-                        end
                     end
                 else
                     Log.debug LOG_COMP, "Role #{name} : Shutdown success for VM #{vm_id}", @service.id()
-
-                    if scale_down
-                        node['disposed'] = '1'
-                    end
                 end
             }
 
@@ -533,6 +530,55 @@ module OpenNebula
             set_cardinality(target_cardinality)
 
             return shutdown(true)
+        end
+
+        # For a failed scale up, the cardinality is updated to the actual value
+        # For a failed scale down, the shutdown actions are retried
+        def retry_scale()
+            n_dispose = 0
+
+            get_nodes.each do |node|
+                if node['disposed'] == "1"
+
+                    ############################################################
+                    # TODO: refactor code, copied from shutdown()
+                    ############################################################
+
+                    vm_id = node['deploy_id']
+
+                    Log.debug LOG_COMP, "Role #{name} : Shutting down VM #{vm_id}", @service.id()
+
+                    vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
+                    rc = vm.shutdown
+
+                    if OpenNebula.is_error?(rc)
+                        msg = "Role #{name} : Shutdown failed for VM #{vm_id}, will perform a Delete; #{rc.message}"
+                        Log.error LOG_COMP, msg, @service.id()
+                        @service.log_error(msg)
+
+                        rc = vm.finalize
+
+                        if OpenNebula.is_error?(rc)
+                            msg = "Role #{name} : Delete failed for VM #{vm_id}; #{rc.message}"
+                            Log.error LOG_COMP, msg, @service.id()
+                            @service.log_error(msg)
+
+                            success = false
+                            #return [false, rc.message]
+                        else
+                            Log.debug LOG_COMP, "Role #{name} : Delete success for VM #{vm_id}", @service.id()
+                        end
+                    else
+                        Log.debug LOG_COMP, "Role #{name} : Shutdown success for VM #{vm_id}", @service.id()
+                    end
+
+                    ############################################################
+
+                    n_dispose += 1
+                end
+            end
+
+            set_cardinality( get_nodes.size() - n_dispose )
         end
     end
 end

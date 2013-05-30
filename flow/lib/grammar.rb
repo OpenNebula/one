@@ -862,9 +862,6 @@ module ElasticityGrammar
         n_nodes = 0
         att = text_value.upcase
 
-        # TODO: search in 'TEMPLATE' also?
-        # TODO: what to do if value is not found
-
         nodes.each { |node|
             if node && node['vm_info']
                 if node['vm_info']['VM']['USER_TEMPLATE'][att]
