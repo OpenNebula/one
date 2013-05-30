@@ -101,6 +101,12 @@ class ServiceLCM
                             elsif !service.any_role_scaling?
                                 service.set_state(Service::STATE['RUNNING'])
                             end
+                        when Service::STATE['FAILED_SCALING']
+                            strategy.monitor_step(service)
+
+                            if !service.any_role_failed_scaling?
+                                service.set_state(Service::STATE['SCALING'])
+                            end
                         when Service::STATE['UNKNOWN']
                             strategy.monitor_step(service)
 

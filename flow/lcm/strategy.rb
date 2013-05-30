@@ -177,6 +177,10 @@ class Strategy
                 if !OpenNebula.is_error?(rc) && role_nodes_done?(role)
                     role.set_state(Role::STATE['DONE'])
                 end
+            when Role::STATE['FAILED_SCALING']
+                if !OpenNebula.is_error?(rc) && role_finished_scaling?(role)
+                    role.set_state(Role::STATE['SCALING'])
+                end
             end
         }
     end
@@ -264,8 +268,13 @@ protected
         role.get_nodes.each { |node|
             if node && node['vm_info']
                 vm_state = node['vm_info']['VM']['STATE']
-    
+
                 if vm_state == '7' # FAILED
+
+                    # TODO: return error message and log it into the service log
+                    #msg = "Role #{role.name()} : VM #{node['deploy_id']} found in FAILED state"
+                    #Log.error LOG_COMP, msg
+
                     return true
                 end
             end
@@ -302,5 +311,9 @@ protected
         # it should only consider VMs being scaled (instatiated/shutdown).
 
         return any_node_failed?(role)
+    end
+
+    def role_finished_scaling?(role)
+        return role_nodes_running?(role) && role.get_nodes.size() == role.cardinality()
     end
 end
