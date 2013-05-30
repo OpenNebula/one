@@ -98,11 +98,10 @@ IMAGE_DS_NAME=`basename $(dirname $DST_PATH)`
 SYSTEM_DS_NAME=`basename $(dirname $(dirname $SRC_PATH))`
 
 # Paths for disks
-
-SRC_DISK="/vmfs/volumes/$SYSTEM_DS_NAME/$VMID/$SRC_FOLDER/disk.vmdk"
+SRC_DISK="$SRC_PATH/disk.vmdk"
 SRC_DISK_VMW="[$SYSTEM_DS_NAME]$VMID/$SRC_FOLDER/disk.vmdk"
 
-DST_DISK="/vmfs/volumes/$IMAGE_DS_NAME/$DST_FOLDER/disk.vmdk"
+DST_DISK="$DST_PATH/disk.vmdk"
 DST_DISK_VMW="[$IMAGE_DS_NAME]$DST_FOLDER/disk.vmdk"
 
 #-------------------------------------------------------------------------------

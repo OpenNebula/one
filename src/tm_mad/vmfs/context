@@ -107,20 +107,21 @@ for f in "${SRC[@]}"; do
 done
 
 exec_and_set_error "$MKISOFS -o $ISO_FILE -J -R $ISO_DIR" \
-    "Error creating iso fs"
+                   "Error creating iso fs"
 [ -n "$ERROR" ] && exit_error
 
 if [ "$USE_SSH" == "yes" ]; then
-    exec_and_set_error "$SCP $ISO_FILE $DST_HOST:$DST_PATH.iso" "Error copying context ISO to $DST"
+    exec_and_set_error "$SCP $ISO_FILE $DST_HOST:$DST_PATH.iso" \
+                       "Error copying context ISO to $DST"
 else
     # Copies the iso file with .iso suffix, needed for VMware CDROMs
     vifs $VI_PARAMS -f -rm [$DS_ID]$VM_ID/$DST_FOLDER.iso
-    exec_and_set_error "vifs $VI_PARAMS -p $ISO_FILE [$DS_ID]$VM_ID/$DST_FOLDER.iso" \
-                 "Error copying context ISO to [$DS_ID]$VM_ID/$DST_FOLDER.iso in $DST_HOST"
+    exec_and_set_error \
+     "vifs $VI_PARAMS -p $ISO_FILE [$DS_ID]$VM_ID/$DST_FOLDER.iso" \
+     "Error copying context ISO to [$DS_ID]$VM_ID/$DST_FOLDER.iso in $DST_HOST"
 fi
 
 [ -n "$ERROR" ] && exit_error
-
 rm -rf $ISO_DIR > /dev/null 2>&1
 
 exit 0
