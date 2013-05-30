@@ -93,39 +93,42 @@ cd $DST_DIR
 
 export PATH=/usr/sbin:/sbin:\$PATH
 
-if which sudo > /dev/null; then
-  SUDO_CMD="sudo "
-fi
-
 if [ "$DISK_TYPE" != "CDROM" ]; then
-  \$SUDO_CMD $VMKFSTOOLS -U $DST_PATH/disk.vmdk
-  \$SUDO rm $DST_PATH/*
-  \$SUDO_CMD $VMKFSTOOLS -i $SRC_PATH/disk.vmdk -d thin $DST_PATH/disk.vmdk
+  $VMKFSTOOLS -U $DST_PATH/disk.vmdk
+  rm $DST_PATH/*
+  $VMKFSTOOLS -i $SRC_PATH/disk.vmdk -d thin $DST_PATH/disk.vmdk
 else
-  \$SUDO rm $DST_PATH
-  \$SUDO cp $SRC_PATH $DST_PATH
-  \$SUDO ln -s $DST_PATH $DST_PATH.iso
+  rm $DST_PATH
+  cp $SRC_PATH $DST_PATH
+  ln -s $DST_PATH $DST_PATH.iso
 fi
 
 EOF
 )
-	ssh_exec_and_log $DST_HOST "$CLONESCRIPT" "Error cloning $SRC to $DST"
+    ssh_exec_and_log $DST_HOST "$CLONESCRIPT" "Error cloning $SRC to $DST"
 else
   if [ "$DISK_TYPE" != "CDROM" ]; then
-    $VMKFSTOOLS $VI_PARAMS -U [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/disk.vmdk &> /dev/null
+    $VMKFSTOOLS $VI_PARAMS -U \
+[$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/disk.vmdk &> /dev/null
 
     # Erase in case that vmkfstool didn't recognize the disk
-    FILES_TO_ERASE=`vifs $VI_PARAMS --dir [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER|grep -v "Content Listing"|grep -v "\-\-\-\-\-\-\-\-"|egrep -v "^[[:space:]]*$"`
+    FILES_TO_ERASE=`vifs $VI_PARAMS --dir [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER|\
+grep -v "Content Listing"|grep -v "\-\-\-\-\-\-\-\-"|egrep -v "^[[:space:]]*$"`
     for file in $FILES_TO_ERASE; do
       vifs $VI_PARAMS --force --rm [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/$file
     done
 
-  	exec_and_log "$VMKFSTOOLS $VI_PARAMS -i [$IMAGE_DS_NAME]$SRC_FOLDER/disk.vmdk -d thin [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/disk.vmdk" \
-                   "Error cloning $SRC to $DST"
+  	exec_and_log \
+           "$VMKFSTOOLS $VI_PARAMS -i [$IMAGE_DS_NAME]$SRC_FOLDER/disk.vmdk \
+-d thin [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/disk.vmdk" \
+           "Error cloning $SRC to $DST"
   else
     vifs $VI_PARAMS --force --rm [$SYSTEM_DS_NAME]$VMID/$DST_PATH &> /dev/null
-    exec_and_log "vifs $VI_PARAMS -c [$IMAGE_DS_NAME]$(basename $SRC_PATH) [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER.iso" \
-     "Cannot upload [$IMAGE_DS_NAME]$(basename $SRC_PATH) to [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER.iso on $DST_HOST"
+    exec_and_log \
+      "vifs $VI_PARAMS -c [$IMAGE_DS_NAME]$(basename $SRC_PATH) \
+[$SYSTEM_DS_NAME]$VMID/$DST_FOLDER.iso" \
+      "Cannot upload [$IMAGE_DS_NAME]$(basename $SRC_PATH) to \
+[$SYSTEM_DS_NAME]$VMID/$DST_FOLDER.iso on $DST_HOST"
   fi
 fi
 

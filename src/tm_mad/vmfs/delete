@@ -16,8 +16,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-#-----------------------------------------------------------------------------
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
 function vifs_rmdir {
     DIR_TO_RM="$1"
@@ -25,7 +25,8 @@ function vifs_rmdir {
 grep -v "Content Listing"|grep -Fv -- "--------"|egrep -v "^[[:space:]]*$"`
 
     for file in $FILES_TO_ERASE; do
-        exec_and_log "vifs $VI_PARAMS --force --rm [$DSID]$VMID/$DIR_TO_RM/$file" \
+        exec_and_log \
+            "vifs $VI_PARAMS --force --rm [$DSID]$VMID/$DIR_TO_RM/$file" \
             "Cannot delete [$DSID]$VMID/$DIR_TO_RM/$file in $DST_HOST"
     done
 
@@ -33,8 +34,8 @@ grep -v "Content Listing"|grep -Fv -- "--------"|egrep -v "^[[:space:]]*$"`
         "Cannot delete [$DSID]$VMID in $DST_HOST"
 }
 
-#-----------------------------------------------------------------------------
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
 # DELETE <host:remote_system_ds/disk.i|host:remote_system_ds/> vmid dsid
 #   - host is the target host to deploy the VM
@@ -73,7 +74,7 @@ USE_SSH=$(get_tm_use_ssh $DSID)
 
 #-------------------------------------------------------------------------------
 # Set up datastore
-#-----------------------    --------------------------------------------------------
+#-------------------------------------------------------------------------------
 
 vmfs_set_up
 
@@ -94,11 +95,13 @@ else
         if [ "$DISK_TYPE" != "CDROM" ]; then
             vifs_rmdir $DISK_NAME
         else
-            exec_and_log "vifs $VI_PARAMS --force --rm [$DSID]$VMID/$DISK_NAME.iso" \
-                        "Cannot delete [$DSID]$VMID/$DISK_NAME.iso in $DST_HOST"
+            exec_and_log \
+                "vifs $VI_PARAMS --force --rm [$DSID]$VMID/$DISK_NAME.iso" \
+                "Cannot delete [$DSID]$VMID/$DISK_NAME.iso in $DST_HOST"
         fi
     else
-        DIRS_TO_ERASE=`vifs $VI_PARAMS --dir [$DSID]$VMID|grep -v "Content Listing"|grep -Fv -- "--------"|egrep -v "^[[:space:]]*$"`
+        DIRS_TO_ERASE=`vifs $VI_PARAMS --dir [$DSID]$VMID|\
+grep -v "Content Listing"|grep -Fv -- "--------"|egrep -v "^[[:space:]]*$"`
 
         for dir in $DIRS_TO_ERASE; do
             vifs_rmdir $dir
