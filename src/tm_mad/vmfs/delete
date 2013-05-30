@@ -43,10 +43,7 @@ grep -v "Content Listing"|grep -Fv -- "--------"|egrep -v "^[[:space:]]*$"`
 #   - dsid is the target datastore
 
 DST=$1
-
 VMID=$2
-# We are interested in the system datastore, embedded in the path
-DSID=$(basename $(dirname $(dirname $DST)))
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
@@ -58,9 +55,15 @@ fi
 
 . $TMCOMMON
 
-
 DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
+
+#Get the System DS ID based in PATH. dsid argument is for the image DS
+if [ `is_disk $DST_PATH` -eq 1 ]; then
+    DSID=$(basename $(dirname $(dirname $DST)))
+else
+    DSID=$(basename $(dirname $DST))
+fi
 
 #-------------------------------------------------------------------------------
 # Retrieve needed information
@@ -70,7 +73,7 @@ USE_SSH=$(get_tm_use_ssh $DSID)
 
 #-------------------------------------------------------------------------------
 # Set up datastore
-#-------------------------------------------------------------------------------
+#-----------------------    --------------------------------------------------------
 
 vmfs_set_up
 
