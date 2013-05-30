@@ -422,7 +422,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 document_hash = JSON.parse(response.body)
                 template = document_hash['DOCUMENT']['TEMPLATE']['BODY']
 
-                tmp << template.to_json
+                tmp << JSON.pretty_generate(template)
                 tmp.flush
 
                 editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH
