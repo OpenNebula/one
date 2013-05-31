@@ -461,7 +461,7 @@ int LibVirtDriver::deployment_description_vmware(
             data_vmx = raw->vector_value("DATA_VMX");
             if ( !data_vmx.empty() )
             {
-                metadata << data_vmx << endl;
+                metadata << data_vmx;
             }
         }
     }
