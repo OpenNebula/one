@@ -580,5 +580,11 @@ module OpenNebula
 
             set_cardinality( get_nodes.size() - n_dispose )
         end
+
+
+
+        def update(template)
+            set_cardinality(template["cardinality"])
+        end
     end
 end

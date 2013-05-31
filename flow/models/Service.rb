@@ -310,6 +310,34 @@ module OpenNebula
             return nil
         end
 
+        def update_role(role_name, template_json)
+
+            if ![Service::STATE['RUNNING'], Service::STATE['UNKNOWN']].include?(self.state)
+                return OpenNebula::Error.new("Update role: Wrong state" \
+                    " #{self.state_str()}")
+            end
+
+            template = JSON.parse(template_json)
+
+            # TODO: Validate template?
+
+            @roles.each do |name, role|
+                if role_name == name
+                    role.update(template)
+
+                    # TODO: The update may not change the cardinality, only
+                    # the max and min vms...
+
+                    role.set_state(Role::STATE['SCALING'])
+
+                    self.set_state(Service::STATE['SCALING'])
+                    return self.update
+                end
+            end
+
+            return OpenNebula::Error.new("ROLE \"#{role_name}\" does not exist")
+        end
+
         private
 
         # @param [Logger::Severity] severity

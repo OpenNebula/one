@@ -408,6 +408,37 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         }
     end
 
+    #
+    # 
+    #
+
+    set_cardinality_desc = <<-EOT.unindent
+        TODO
+    EOT
+
+    command :'set-cardinality', set_cardinality_desc, :serviceid, :role_name, :cardinality do
+        client = Service::Client.new(
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
+
+        # TODO: check arguments formats
+
+        exit_code = 0
+
+        json = "{ \"cardinality\" : #{args[2]} }"
+
+        response = client.put("#{RESOURCE_PATH}/#{args[0]}/role/#{args[1]}", json)
+
+        if CloudClient::is_error?(response)
+            puts response.to_s
+            exit_code = response.code.to_i
+        end
+
+        exit_code
+    end
+
     chgrp_desc = <<-EOT.unindent
         Changes the service group
     EOT

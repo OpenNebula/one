@@ -245,6 +245,30 @@ post '/service/:id/action' do
     status 201
 end
 
+put '/service/:id/role/:name' do
+
+    service_pool = OpenNebula::ServicePool.new(@client)
+
+    rc = nil
+    service = service_pool.get(params[:id]) do |service|
+        begin
+            rc = service.update_role(params[:name], request.body.read)
+        rescue Validator::ParseException, JSON::ParserError
+            return error 400, $!.message
+        end
+    end
+
+    if OpenNebula.is_error?(service)
+        error CloudServer::HTTP_ERROR_CODE[service.errno], service.message
+    end
+
+    if OpenNebula.is_error?(rc)
+        error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
+    end
+
+    status 200
+end
+
 ##############################################################################
 # Service Template
 ##############################################################################
