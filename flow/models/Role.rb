@@ -84,8 +84,12 @@ module OpenNebula
 
         # Sets a new cardinality for this role
         # @param [Integer] the new cardinality
-        def set_cardinality(cardinality)
-            @body['cardinality'] = cardinality.to_i
+        def set_cardinality(target_cardinality)
+            msg = "Role #{name} scaling up from #{cardinality} to #{target_cardinality} nodes"
+            Log.info LOG_COMP, msg, @service.id()
+            @service.log_info(msg)
+
+            @body['cardinality'] = target_cardinality.to_i
         end
 
         # Returns the role max cardinality
@@ -512,24 +516,28 @@ module OpenNebula
             return treetop.result(self)
         end
 
-        def scale_up(target_cardinality)
-            msg = "Role #{name} scaling up from #{cardinality} to #{target_cardinality} nodes"
-            Log.info LOG_COMP, msg, @service.id()
-            @service.log_info(msg)
+        # Scales up or down the number of nodes needed to match the current
+        # cardinality
+        #
+        # @return [Array<true, nil>, Array<false, String>] true if all the VMs
+        # were created/shut down, false and the error reason if there
+        # was a problem
+        def scale()
+            n_nodes = 0
 
-            set_cardinality(target_cardinality)
+            get_nodes.each do |node|
+                n_nodes += 1 if node['disposed'] != "1"
+            end
 
-            return deploy()
-        end
+            diff = cardinality - n_nodes
 
-        def scale_down(target_cardinality)
-            msg = "Role #{name} scaling down from #{cardinality} to #{target_cardinality} nodes"
-            Log.info LOG_COMP, msg, @service.id()
-            @service.log_info(msg)
+            if diff > 0
+                return deploy()
+            elsif diff < 0
+                return shutdown(true)
+            end
 
-            set_cardinality(target_cardinality)
-
-            return shutdown(true)
+            return [true, nil]
         end
 
         # For a failed scale up, the cardinality is updated to the actual value
@@ -580,8 +588,6 @@ module OpenNebula
 
             set_cardinality( get_nodes.size() - n_dispose )
         end
-
-
 
         def update(template)
             set_cardinality(template["cardinality"])

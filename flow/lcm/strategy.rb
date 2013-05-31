@@ -74,45 +74,51 @@ class Strategy
         return [true, nil]
     end
 
-    #
-    # @return [Array<false, nil, nil>, Array<true, true, nil>, Array<true, false, String>]
-    # 1st elem: true if the service needed to scale
-    # 2nd elem: true if the operation succeeded
-    # 3rd elem: error reason, if any
-    def scale_step(service)
-        Log.debug LOG_COMP, "Scale step", service.id()
-
-        scale = false
+    # If a role needs to scale, its cardinality is updated, and its state is set
+    # to SCALING. Only one role is set to scale.
+    # @param [Service] service
+    # @return [true|false] true if any role needs to scale
+    def apply_scaling_policies(service)
+        Log.debug LOG_COMP, "Apply scaling policies", service.id()
 
         service.get_roles.each do |name, role|
             diff = role.scale?
 
-            if diff > 0
-                Log.debug LOG_COMP, "Scaling up role #{name}, #{diff} nodes", service.id()
-
-                rc = role.scale_up(role.cardinality() + diff)
-            elsif diff < 0
-                Log.debug LOG_COMP, "Scaling down role #{name}, #{diff} nodes", service.id()
-
-                rc = role.scale_down(role.cardinality() + diff)
-            end
-
             if diff != 0
+                Log.debug LOG_COMP, "Role #{name} needs to scale #{diff} nodes", service.id()
+
+                role.set_cardinality(role.cardinality() + diff)
+
+                role.set_state(Role::STATE['SCALING'])
+
+                return true
+            end
+        end
+
+        return false
+    end
+
+    # If a role is scaling, the nodes are created/destroyed to match the current
+    # cardinality
+    # @return [Array<true, nil>, Array<false, String>] true if the action was
+    # performed, false and the error reason if there was a problem
+    def scale_step(service)
+        Log.debug LOG_COMP, "Scale step", service.id()
+
+        service.get_roles.each do |name, role|
+
+            if role.state == Role::STATE['SCALING']
+                rc = role.scale()
 
                 if !rc[0]
                     role.set_state(Role::STATE['FAILED_SCALING'])
 
-                    return [true] + rc
+                    return rc
                 end
-
-                role.set_state(Role::STATE['SCALING'])
-                scale = true
-
-                break
             end
         end
 
-        return [scale, true, nil]
+        return [true, nil]
     end
 
     # Performs a monitor step, check if the roles already deployed are running
@@ -146,7 +152,7 @@ class Strategy
             when Role::STATE['SCALING']
                 if OpenNebula.is_error?(rc)
                     role.set_state(Role::STATE['FAILED_SCALING'])
-                elsif role_nodes_running?(role)
+                elsif role_finished_scaling?(role)
                     role.set_state(Role::STATE['RUNNING'])
                 elsif any_node_failed_scaling?(role)
                     role.set_state(Role::STATE['FAILED_SCALING'])

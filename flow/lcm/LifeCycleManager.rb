@@ -75,20 +75,14 @@ class ServiceLCM
                             if !service.all_roles_running?
                                 service.set_state(Service::STATE['UNKNOWN'])
                             else
-                                rc = strategy.scale_step(service)
+                                if strategy.apply_scaling_policies(service)
+                                    service.set_state(Service::STATE['SCALING'])
 
-                                scale = rc[0]
-                                succ  = rc[1]
-                                error_msg = rc[2]
-
-                                if scale
-                                    if succ
-                                        service.set_state(Service::STATE['SCALING'])
-                                    else
+                                    rc = strategy.scale_step(service)
+                                    if !rc[0]
                                         service.set_state(Service::STATE['FAILED_SCALING'])
                                     end
                                 end
-
                             end
                         when Service::STATE['SCALING']
                             strategy.monitor_step(service)
@@ -100,6 +94,11 @@ class ServiceLCM
                                 service.set_state(Service::STATE['FAILED_SCALING'])
                             elsif !service.any_role_scaling?
                                 service.set_state(Service::STATE['RUNNING'])
+                            else
+                                rc = strategy.scale_step(service)
+                                if !rc[0]
+                                    service.set_state(Service::STATE['FAILED_SCALING'])
+                                end
                             end
                         when Service::STATE['FAILED_SCALING']
                             strategy.monitor_step(service)
