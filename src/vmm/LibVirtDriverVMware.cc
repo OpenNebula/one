@@ -44,6 +44,7 @@ int LibVirtDriver::deployment_description_vmware(
     int     memory_in_kb = 0;
 
     string  arch       = "";
+    string  guestOS    = "";
 
     const VectorAttribute * disk;
     const VectorAttribute * context;
@@ -77,7 +78,9 @@ int LibVirtDriver::deployment_description_vmware(
     const VectorAttribute * raw;
     string data;
     string default_raw;
-    string data_vmx;
+    string data_vmx   = "";
+
+    string metadata   = "";
 
     // ------------------------------------------------------------------------
 
@@ -148,7 +151,8 @@ int LibVirtDriver::deployment_description_vmware(
 
         if( os != 0 )
         {
-            arch = os->vector_value("ARCH");
+            arch    = os->vector_value("ARCH");
+            guestOS = os->vector_value("GUESTOS");
         }
     }
 
@@ -160,6 +164,11 @@ int LibVirtDriver::deployment_description_vmware(
         {
             goto error_vmware_arch;
         }
+    }
+
+    if ( !guestOS.empty() )
+    {
+        metadata << "<guestOS>" << guestOS << "</guestOS>" << endl;
     }
 
     // Start writing to the file with the info we got
@@ -452,7 +461,7 @@ int LibVirtDriver::deployment_description_vmware(
             data_vmx = raw->vector_value("DATA_VMX");
             if ( !data_vmx.empty() )
             {
-                file << "\t<metadata>" << data_vmx << "</metadata>" << endl;
+                metadata << data_vmx
             }
         }
     }
@@ -463,7 +472,12 @@ int LibVirtDriver::deployment_description_vmware(
     {
         file << "\t" << default_raw << endl;
     }
-
+    
+    if ( !metadata.empty? )
+    {
+        file << "\t<metadata>" << metadata << "</metadata>" << endl;
+    }
+    
     file << "</domain>" << endl;
 
     file.close();

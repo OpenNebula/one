@@ -137,7 +137,7 @@ class VIDriver
       spec = {:deviceChange => [:operation => :add, :device => device]}
 
       vm.ReconfigVM_Task(:spec => spec).wait_for_completion
-    end 
+    end
 
     # -------------------------------------------------------------------------#
     # Detach a NIC with mac from deploy_id                                     #
@@ -154,6 +154,17 @@ class VIDriver
       return -1 if !nic_to_detach
 
       spec = {:deviceChange => [:operation => :remove,:device => nic_to_detach]}
+
+      vm.ReconfigVM_Task(:spec => spec).wait_for_completion
+    end
+
+    # -------------------------------------------------------------------------#
+    # Detach a NIC with mac from deploy_id                                     #
+    # -------------------------------------------------------------------------# 
+    def set_guest_os(deploy_id, guest_os_id)
+      vm   = get_vm(deploy_id)[:vm]
+
+      spec = {:guestId => guest_os_id}
 
       vm.ReconfigVM_Task(:spec => spec).wait_for_completion
     end     
