@@ -380,6 +380,17 @@ class VMwareDriver
         deploy_id.strip!
 
         dfile_hash = Document.new(File.open(dfile).read)
+        handle_metada(dfile_hash)
+
+        return deploy_id
+    end
+
+    def domain_defined?(one_id)
+        rc, info  = do_action("virsh -c #{@uri} dominfo one-#{one_id}", false)
+        return rc
+    end
+
+    def handle_metadata(dfile_hash)
         metadata   = XPath.first(dfile_hash, "//metadata")
 
         # Check for the known types
@@ -387,18 +398,21 @@ class VMwareDriver
         pciBridge = XPath.first(dfile_hash, "//metadata/pciBridge")
 
         
-        vi_drv = VIDriver.new(@host) if (guestOS | pciBridge)
+        if (guestOS | pciBridge)
+            vi_drv = VIDriver.new(@host)
+        end
 
         dfile_hash = vi_driver.set_guest_os(dfile_hash,
                                             vi_driver,
                                             deploy_id,
                                             guestOS) if guestOS
 
+        return  if metadata.nil? 
+        return  if metadata.text.nil?
 
-        return deploy_id if (metadata.nil? | metadata.text.nil?)
+        metadata = metadata.text
 
         # Get the ds_id for system_ds from the first disk
-        metadata = metadata.text
         source = XPath.first(dfile_hash, "//disk/source").attributes['file']
         ds_id  = source.match(/^\[(.*)\](.*)/)[1]
 
@@ -413,13 +427,6 @@ class VMwareDriver
         cmd_str = "sed -ri \"/^(#{sed_str}) *=.*$/d\" #{path_to_vmx}; "
         cmd_str << "cat >> #{path_to_vmx}"
         do_ssh_action(,cmd_str metadata)
-
-        return deploy_id
-    end
-
-    def domain_defined?(one_id)
-        rc, info  = do_action("virsh -c #{@uri} dominfo one-#{one_id}", false)
-        return rc
     end
 
     def set_guest_os(dfile_hash,vi_driver, deploy_id, guestOS)

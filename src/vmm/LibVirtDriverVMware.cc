@@ -78,9 +78,9 @@ int LibVirtDriver::deployment_description_vmware(
     const VectorAttribute * raw;
     string data;
     string default_raw;
-    string data_vmx   = "";
+    string data_vmx    = "";
 
-    string metadata   = "";
+    ostringstream metadata;
 
     // ------------------------------------------------------------------------
 
@@ -461,7 +461,7 @@ int LibVirtDriver::deployment_description_vmware(
             data_vmx = raw->vector_value("DATA_VMX");
             if ( !data_vmx.empty() )
             {
-                metadata << data_vmx
+                metadata << data_vmx << endl;
             }
         }
     }
@@ -473,11 +473,11 @@ int LibVirtDriver::deployment_description_vmware(
         file << "\t" << default_raw << endl;
     }
     
-    if ( !metadata.empty? )
+    if ( !metadata.str().empty() )
     {
-        file << "\t<metadata>" << metadata << "</metadata>" << endl;
+        file << "\t<metadata>" << metadata.str() << "</metadata>" << endl;
     }
-    
+
     file << "</domain>" << endl;
 
     file.close();
