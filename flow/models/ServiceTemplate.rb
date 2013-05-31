@@ -148,5 +148,18 @@ module OpenNebula
             @body.to_json
         end
 
+        def update(template_json)
+            template = JSON.parse(template_json)
+
+            validator = Validator::Validator.new(
+                :default_values => true,
+                :delete_extra_properties => false
+            )
+
+            validator.validate!(template, SCHEMA)
+
+            super(template.to_json)
+        end
+
     end
 end

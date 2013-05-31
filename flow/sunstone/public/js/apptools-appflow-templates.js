@@ -18,8 +18,7 @@ var ServiceTemplate = {
     "resource" : 'DOCUMENT',
     "path"     : 'service_template',
     "create": function(params){
-        OpenNebula.Action.create(params, ServiceTemplate.resource,
-                                 ServiceTemplate.path);
+        OpenNebula.Action.create(params, ServiceTemplate.resource, ServiceTemplate.path);
     },
 
     "instantiate": function(params){
@@ -27,6 +26,14 @@ var ServiceTemplate = {
         OpenNebula.Action.simple_action(params,
                                         ServiceTemplate.resource,
                                         "instantiate",
+                                        action_obj,
+                                        ServiceTemplate.path);
+    },
+    "update": function(params){
+        var action_obj = {"template_raw" : params.data.extra_param };
+        OpenNebula.Action.simple_action(params,
+                                        ServiceTemplate.resource,
+                                        "update",
                                         action_obj,
                                         ServiceTemplate.path);
     },
@@ -107,6 +114,7 @@ var create_service_template_tmpl = '\
 <div class="panel">\
   <h3>\
     <small id="create_service_template_header">'+tr("Create Service Template")+'</small>\
+    <small id="update_service_template_header" hidden>'+tr("Update Service Template")+'</small>\
   </h3>\
 </div>\
 <div class="reveal-body create_form">\
@@ -117,7 +125,7 @@ var create_service_template_tmpl = '\
                 <label class="inline right" for="service_name">' + tr("Name") + ':</label>\
             </div>\
             <div class="seven columns">\
-                <input type="text" name="service_name" />\
+                <input type="text" id="service_name" name="service_name" />\
             </div>\
             <div class="one columns">\
                 <div class="tip">'+ tr("Name for this template") +'</div>\
@@ -144,10 +152,10 @@ var create_service_template_tmpl = '\
            <div class="service_template_param service_role st_man six columns">\
               <div class="row">\
                 <div class="four columns">\
-                    <label class="inline right" for="name">' + tr("Name") + ':</label>\
+                    <label class="inline right" for="name">' + tr("Role Name") + ':</label>\
                 </div>\
                 <div class="seven columns">\
-                    <input type="text" name="name"/>\
+                    <input type="text" id="role_name" name="name"/>\
                 </div>\
                 <div class="one columns">\
                     <div class="tip">'+ tr("Number of VMs to instantiate with this role") +'</div>\
@@ -158,7 +166,7 @@ var create_service_template_tmpl = '\
                     <label class="inline right" for="cardinality">' + tr("Cardinality") + ':</label>\
                 </div>\
                 <div class="seven columns">\
-                    <input type="text" name="cardinality" value="1" />\
+                    <input type="text" id="cardinality" name="cardinality" value="1" />\
                 </div>\
                 <div class="one columns">\
                     <div class="tip">'+ tr("Number of VMs to instantiate with this role") +'</div>\
@@ -205,7 +213,7 @@ var create_service_template_tmpl = '\
                            <th>'+tr("Card.")+'</th>\
                            <th>'+tr("Template")+'</th>\
                            <th style="width:100%;">'+tr("Parents")+'</th>\
-                           <th>'+tr("Delete")+'</th></tr></thead>\
+                           <th>'+tr("Actions")+'</th></tr></thead>\
                       <tbody>\
                       </tbody>\
                </table>\
@@ -215,8 +223,9 @@ var create_service_template_tmpl = '\
     <div class="reveal-footer">\
       <hr>\
       <div class="form_buttons">\
-          <button class="button radius right success"" type="submit" value="ServiceTemplate.create">' + tr("Create") + '</button>\
-          <button class="button radius secondary" type="reset" value="reset">' + tr("Reset") + '</button>\
+          <button id="create_service_template_submit" class="button radius right success"" type="submit" value="ServiceTemplate.create">' + tr("Create") + '</button>\
+          <button id="update_service_template_submit" class="button radius right success"" type="submit" value="ServiceTemplate.update" hidden>' + tr("Update") + '</button>\
+          <button id="create_service_template_reset" class="button radius secondary" type="reset" value="reset">' + tr("Reset") + '</button>\
           <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
       </div>\
     </div>\
@@ -247,6 +256,23 @@ var service_template_actions = {
     "ServiceTemplate.create_dialog" : {
         type : "custom",
         call: popUpCreateServiceTemplateDialog
+    },
+
+    "ServiceTemplate.update_dialog" : {
+        type : "single",
+        call: ServiceTemplate.show,
+        callback: popUpUpdateServiceTemplateDialog,
+        error: onError
+    },
+
+    "ServiceTemplate.update" : {  // Update template
+        type: "single",
+        call: ServiceTemplate.update,
+        callback: function(request,response){
+           notifyMessage(tr("ServiceTemplate updated correctly"));
+           Sunstone.runAction('ServiceTemplate.show',response.DOCUMENT.ID);
+        },
+        error: onError
     },
 
     "ServiceTemplate.list" : {
@@ -351,11 +377,15 @@ var service_template_buttons = {
         type: "create_dialog",
         layout: "create"
     },
-
     "ServiceTemplate.instantiate" : {
         type: "action",
         layout: "main",
         text: tr("Instantiate")
+    },
+    "ServiceTemplate.update_dialog" : {
+        type: "action",
+        layout: "main",
+        text: tr("Update")
     },
     "ServiceTemplate.chown" : {
         type: "confirm_with_select",
@@ -551,7 +581,6 @@ function setupCreateServiceTemplateDialog(){
         select.append(
             '<option value="'+ name +'">☐ '+ name +'</option>');
         return true;
-
     }
 
     var removeParentRole = function(name){
@@ -561,6 +590,26 @@ function setupCreateServiceTemplateDialog(){
     $('.role_delete_icon').live('click', function(){
         var row = $(this).parents('tr');
         removeParentRole(row.attr('name'));
+        row.fadeOut().remove();
+        return false;
+    });
+
+    $('.role_update_icon').live('click', function(){
+        var row = $(this).parents('tr');
+        var role = JSON.parse(row.attr('role'))
+
+        removeParentRole(role.name);
+
+        $("#role_name", dialog).val(role.name);
+        $("#cardinality", dialog).val(role.cardinality);
+        $('select[name="vm_template"]', dialog).val(role.vm_template);
+
+        $.each(role.parents, function(index, value){
+            var option = $('select[name="parents"] option[value="'+ value +'"]', dialog);
+            option.text(option.text().replace(/☐/g,'☒'));
+            option.attr('clicked','clicked');
+        })
+
         row.fadeOut().remove();
         return false;
     });
@@ -611,7 +660,10 @@ function setupCreateServiceTemplateDialog(){
         str += '<td>'+ cardinality +'</td>';
         str += '<td>'+ template +'</td>';
         str += '<td>'+ parents.join(',') +'</td>';
-        str += '<td><a href="#" class="role_delete_icon">Delete</a></td>';
+        str += '<td>\
+            <a href="#" class="role_update_icon"><i class="icon-pencil"/></a> &emsp;\
+            <a href="#" class="role_delete_icon"><i class="icon-remove"/></a>\
+        </td>';
         str += '</tr>';
 
         var ok = addParentRole(name);
@@ -621,7 +673,10 @@ function setupCreateServiceTemplateDialog(){
             $('input[name="name"]', context).val("");
             $('input[name="cardinality"]', context).val("1");
             //unselect selected parents
-            $('select[name="parents"] option[clicked="clicked"]').trigger('click');
+            $('select[name="parents"] option[clicked="clicked"]', dialog).each(function(){
+                $(this).text($(this).text().replace(/☒/g,'☐'));
+                $(this).removeAttr('clicked');
+            });
         }
         else
             notifyError(tr("There is already a role with this name!"));
@@ -655,16 +710,79 @@ function setupCreateServiceTemplateDialog(){
         dialog.trigger("reveal:close");
         return false;
     });
+
+    $('#create_service_template_reset', dialog).click(function(){
+        var dialog = $create_service_template_dialog;
+        var tpl_select = makeSelectOptions(dataTable_templates, 1, 4, [], [], true);
+        $('select[name="vm_template"]', dialog).html(tpl_select);
+        $('select[name="parents"]', dialog).html("");
+        $("table#current_roles tbody tr", dialog).remove();
+    })
 }
 
 function popUpCreateServiceTemplateDialog(){
     var dialog = $create_service_template_dialog;
+    $("#create_service_template_reset", dialog).click();
+
     var tpl_select = makeSelectOptions(dataTable_templates, 1, 4, [], [], true);
     $('select[name="vm_template"]', dialog).html(tpl_select);
+    $('select[name="parents"]', dialog).html("");
+    $("table#current_roles tbody tr", dialog).remove();
+
+    $("#create_service_template_header", dialog).show();
+    $("#update_service_template_header", dialog).hide();
+    $("#create_service_template_submit", dialog).show();
+    $("#update_service_template_submit", dialog).hide();
+
+
+    $("#service_name", dialog).removeAttr("disabled");
+
     dialog.reveal();
 }
 
+function popUpUpdateServiceTemplateDialog(request, response){
+    var dialog = $create_service_template_dialog;
+    $("#create_service_template_reset", dialog).click();
 
+    var tpl_select = makeSelectOptions(dataTable_templates, 1, 4, [], [], true);
+    $('select[name="vm_template"]', dialog).html(tpl_select);
+    $('select[name="parents"]', dialog).html("");
+    $("table#current_roles tbody tr", dialog).remove();
+
+    $("#create_service_template_header", dialog).hide();
+    $("#update_service_template_header", dialog).show();
+    $("#create_service_template_submit", dialog).hide();
+    $("#update_service_template_submit", dialog).show();
+
+
+    var service_template = response[ServiceTemplate.resource]
+    $("#service_name", dialog).attr("disabled", "disabled");
+    $("#service_name", dialog).val(service_template.NAME);
+    $('select[name="deployment"]', dialog).val(service_template.TEMPLATE.BODY.deployment);
+
+    $.each(service_template.TEMPLATE.BODY.roles, function(index, value){
+        $("#role_name", dialog).val(value.name);
+        $("#cardinality", dialog).val(value.cardinality);
+        $('select[name="vm_template"]', dialog).val(value.vm_template);
+
+        if (value.parents){
+            $.each(value.parents, function(pindex, parent){
+                var option = $('select[name="parents"] option[value="'+ parent +'"]', dialog);
+                option.text(option.text().replace(/☐/g,'☒'));
+                option.attr('clicked','clicked');
+            })
+        }
+
+        $("#add_role", dialog).click();
+    })
+
+    $('select[name="parents"] option', dialog).each(function(){
+        $(this).text($(this).text().replace(/☒/g,'☐'));
+        $(this).removeAttr('clicked');
+    });
+
+    dialog.reveal();
+}
 
 // Set the autorefresh interval for the datatable
 function setServiceTemplateAutorefresh() {

@@ -266,7 +266,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Show detailed information of a given Service Template
     EOT
 
-    command :show, show_desc, :template_id do
+    command :show, show_desc, :template_id, :options => Service::JSON_FORMAT do
         client = Service::Client.new(
                     :username   => options[:username],
                     :password   => options[:password],
@@ -391,5 +391,61 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
             client.post("#{RESOURCE_PATH}/#{service_id}/action", json_action)
         }
+    end
+
+    update_desc = <<-EOT.unindent
+        Update the template contents. If a path is not provided the editor will
+        be launched to modify the current content.
+    EOT
+
+    command :update, update_desc, :templateid, [:file, nil] do
+        template_id = args[0]
+        client = Service::Client.new(
+            :username   => options[:username],
+            :password   => options[:password],
+            :url        => options[:server],
+            :user_agent => USER_AGENT)
+
+        if args[1]
+            path = args[1]
+        else
+            require 'tempfile'
+
+            tmp  = Tempfile.new(template_id.to_s)
+            path = tmp.path
+
+            response = client.get("#{RESOURCE_PATH}/#{template_id}")
+
+            if CloudClient::is_error?(response)
+                exit_with_code response.code.to_i, response.to_s
+            else
+                document_hash = JSON.parse(response.body)
+                template = document_hash['DOCUMENT']['TEMPLATE']['BODY']
+
+                tmp << JSON.pretty_generate(template)
+                tmp.flush
+
+                editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH
+                system("#{editor_path} #{path}")
+
+                unless $?.exitstatus == 0
+                    puts "Editor not defined"
+                    exit -1
+                end
+
+                tmp.close
+            end
+        end
+
+        exit_code = 0
+
+        t_str = File.read(path)
+        response = client.put("#{RESOURCE_PATH}/#{template_id}", t_str)
+        if CloudClient::is_error?(response)
+            puts response.to_s
+            exit_code = response.code.to_i
+        end
+
+        exit_code
     end
 end

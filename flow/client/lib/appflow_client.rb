@@ -307,6 +307,13 @@ module Service
             do_request(req)
         end
 
+        def put(path, body)
+            req = Net::HTTP::Proxy(@host, @port)::Put.new(path)
+            req.body = body
+
+            do_request(req)
+        end
+
         def login
             req = Net::HTTP::Proxy(@host, @port)::Post.new('/login')
 
