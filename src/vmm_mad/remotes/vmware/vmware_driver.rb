@@ -14,6 +14,18 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
+ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+end
+
+$: << RUBY_LIB_LOCATION
+$: << File.dirname(__FILE__)
+
+require 'vi_driver'
 require "scripts_common"
 require 'yaml'
 require "CommandManager"
@@ -370,7 +382,20 @@ class VMwareDriver
         dfile_hash = Document.new(File.open(dfile).read)
         metadata   = XPath.first(dfile_hash, "//metadata")
 
-        return deploy_id if metadata.nil?
+        # Check for the known types
+        guestOS   = XPath.first(dfile_hash, "//metadata/guestOS")
+        pciBridge = XPath.first(dfile_hash, "//metadata/pciBridge")
+
+        
+        vi_drv = VIDriver.new(@host) if (guestOS | pciBridge)
+
+        dfile_hash = vi_driver.set_guest_os(dfile_hash,
+                                            vi_driver,
+                                            deploy_id,
+                                            guestOS) if guestOS
+
+
+        return deploy_id if (metadata.nil? | metadata.text.nil?)
 
         # Get the ds_id for system_ds from the first disk
         metadata = metadata.text
@@ -381,17 +406,25 @@ class VMwareDriver
         vm_id  = name.match(/^one-(.*)/)[1]
 
         # Reconstruct path to vmx & add metadata
-        path_to_vmx = "\$(find /vmfs/volumes/#{ds_id}/#{vm_id}/ -name #{name}.vmx)"
+        path_to_vmx =  "\$(find /vmfs/volumes/#{ds_id}/#{vm_id}/" 
+        path_to_vxm << " -name #{name}.vmx)"
         metadata.gsub!("\\n","\n")
         sed_str = metadata.scan(/^([^ ]+) *=/).join("|")
-        do_ssh_action("sed -ri \"/^(#{sed_str}) *=.*$/d\" #{path_to_vmx} ; cat >> #{path_to_vmx}", metadata)
+        cmd_str = "sed -ri \"/^(#{sed_str}) *=.*$/d\" #{path_to_vmx}; "
+        cmd_str << "cat >> #{path_to_vmx}"
+        do_ssh_action(,cmd_str metadata)
 
         return deploy_id
     end
 
     def domain_defined?(one_id)
         rc, info  = do_action("virsh -c #{@uri} dominfo one-#{one_id}", false)
-
         return rc
+    end
+
+    def set_guest_os(dfile_hash,vi_driver, deploy_id, guestOS)
+        vi_driver.set_guest_os(deploy_id, guestOS.text)
+        dfile_hash.root.elements.delete guestOS
+        return dfile_hash
     end
 end
