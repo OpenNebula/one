@@ -289,7 +289,12 @@ end
 put '/service_template/:id' do
     service_template = OpenNebula::ServiceTemplate.new_with_id(params[:id], @client)
 
-    rc = service_template.update(request.body.read)
+    begin
+        rc = service_template.update(request.body.read)
+    rescue Validator::ParseException, JSON::ParserError
+        error 400, $!.message
+    end
+
     if OpenNebula.is_error?(rc)
         error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
     end
