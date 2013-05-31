@@ -380,7 +380,7 @@ class VMwareDriver
         deploy_id.strip!
 
         dfile_hash = Document.new(File.open(dfile).read)
-        handle_metada(dfile_hash)
+        handle_metadata(dfile_hash, deploy_id)
 
         return deploy_id
     end
@@ -390,24 +390,27 @@ class VMwareDriver
         return rc
     end
 
-    def handle_metadata(dfile_hash)
+    def handle_metadata(dfile_hash, deploy_id)
         metadata   = XPath.first(dfile_hash, "//metadata")
 
         # Check for the known types
         guestOS   = XPath.first(dfile_hash, "//metadata/guestOS")
         pciBridge = XPath.first(dfile_hash, "//metadata/pciBridge")
         
-        if (guestOS | pciBridge)
-            vi_drv = VIDriver.new(@host)
+        if (guestOS or pciBridge)
+            vi_driver = VIDriver.new(@host)
         end
 
-        dfile_hash = vi_driver.set_guest_os(dfile_hash,
-                                            vi_driver,
-                                            deploy_id,
-                                            guestOS) if guestOS
+        dfile_hash = set_guest_os(dfile_hash,
+                                  vi_driver,
+                                  deploy_id,
+                                  guestOS) if guestOS
 
-        return  if metadata.nil? 
-        return  if metadata.text.nil?
+        metadata   = XPath.first(dfile_hash, "//metadata")
+
+        return if metadata.nil? 
+        return if metadata.text.nil?
+        return if metadata.text.strip.empty?
 
         metadata = metadata.text
 
@@ -420,7 +423,7 @@ class VMwareDriver
 
         # Reconstruct path to vmx & add metadata
         path_to_vmx =  "\$(find /vmfs/volumes/#{ds_id}/#{vm_id}/" 
-        path_to_vxm << " -name #{name}.vmx)"
+        path_to_vmx << " -name #{name}.vmx)"
         metadata.gsub!("\\n","\n")
         sed_str = metadata.scan(/^([^ ]+) *=/).join("|")
         cmd_str = "sed -ri \"/^(#{sed_str}) *=.*$/d\" #{path_to_vmx}; "
@@ -428,9 +431,9 @@ class VMwareDriver
         do_ssh_action(cmd_str, metadata)
     end
 
-    def set_guest_os(dfile_hash,vi_driver, deploy_id, guestOS)
+    def set_guest_os(dfile_hash, vi_driver, deploy_id, guestOS)
         vi_driver.set_guest_os(deploy_id, guestOS.text)
-        dfile_hash.root.elements.delete guestOS
+        dfile_hash.delete_element('//guestOS')
         return dfile_hash
     end
 end
