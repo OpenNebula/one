@@ -396,7 +396,6 @@ class VMwareDriver
         # Check for the known types
         guestOS   = XPath.first(dfile_hash, "//metadata/guestOS")
         pciBridge = XPath.first(dfile_hash, "//metadata/pciBridge")
-
         
         if (guestOS | pciBridge)
             vi_drv = VIDriver.new(@host)
@@ -426,7 +425,7 @@ class VMwareDriver
         sed_str = metadata.scan(/^([^ ]+) *=/).join("|")
         cmd_str = "sed -ri \"/^(#{sed_str}) *=.*$/d\" #{path_to_vmx}; "
         cmd_str << "cat >> #{path_to_vmx}"
-        do_ssh_action(,cmd_str metadata)
+        do_ssh_action(cmd_str, metadata)
     end
 
     def set_guest_os(dfile_hash,vi_driver, deploy_id, guestOS)
