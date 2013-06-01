@@ -50,12 +50,14 @@ while IFS= read -r -d '' element; do
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/ID \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/DS_USE_SSH \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/IMAGE/ID)
 
 SRC="${XPATH_ELEMENTS[0]}"
 DS_ID="${XPATH_ELEMENTS[1]}"
 USE_SSH="${XPATH_ELEMENTS[2]:-$DS_USE_SSH}"
-IMAGE_ID="${XPATH_ELEMENTS[3]}"
+BRIDGE_LIST="${XPATH_ELEMENTS[3]}"
+IMAGE_ID="${XPATH_ELEMENTS[4]}"
 
 DST_HOST=`get_destination_host $IMAGE_ID` # To comply with vmfs_set_up
 SRC_FOLDER=`basename $SRC`
