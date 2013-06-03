@@ -110,7 +110,7 @@ add_view "    apptools-appflow-services:" \
 "    apptools-appflow-services:
         panel_tabs:
             service_info_tab: true
-            service_role_tab: true
+            service_roles_tab: true
             service_vms_tab: true
             service_log_tab: true
         table_columns:

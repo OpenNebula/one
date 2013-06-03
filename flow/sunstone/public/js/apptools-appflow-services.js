@@ -346,38 +346,6 @@ function updateServiceVMInfo(vmachine_list){
 function updateServiceInfo(request,elem){
     var elem_info = elem.DOCUMENT;
 
-
-    var roles_info = '<table id="service_template_roles_table" class="twelve datatable extended_table">\
-           <thead>\
-             <tr><th colspan="2">'+tr("Roles")+'</th></tr>\
-           </thead>'
-
-    var roles = elem_info.TEMPLATE.BODY.roles
-    if (roles && roles.length)
-        for (var i = 0; i < roles.length; i++) {
-          roles_info += '<tr><td colspan="2">'+roles[i].name+'</td></tr>\
-            <tr>\
-             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("State")+'</td>\
-             <td class="value_td">'+Role.state(roles[i].state)+'</td>\
-            </tr>\
-            <tr>\
-             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Cardinality")+'</td>\
-             <td class="value_td">'+roles[i].cardinality+'</td>\
-            </tr>\
-            <tr>\
-             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("VM Template")+'</td>\
-             <td class="value_td">'+roles[i].vm_template+'</td>\
-            </tr>'
-
-          if (roles[i].parents)
-            roles_info += '<tr>\
-              <td > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Parents")+'</td>\
-              <td class="value_td">'+roles[i].parents.join(', ')+'</td>\
-            </tr>'
-        }
-
-    roles_info += '</table>'
-
     var info_tab = {
         title: tr("Information"),
         content:
@@ -404,7 +372,6 @@ function updateServiceInfo(request,elem){
              <td class="value_td">'+ Service.state(elem_info.TEMPLATE.BODY.state) +'</td>\
            </tr>\
          </table>' +
-         roles_info +
        '</div>\
         <div class="six columns">' + insert_permissions_table('apptools-appflow-services',
                                                               "Service",
@@ -416,6 +383,32 @@ function updateServiceInfo(request,elem){
         '</div>\
      </div>'
     }
+
+    Sunstone.updateInfoPanelTab("service_info_panel", "service_info_tab",info_tab);
+
+
+    var roles_tab = {
+        title : "Roles",
+        content : '<div class="columns twelve">\
+          <div id="roles_info">\
+            <table id="datatable_service_roles" class="table twelve">\
+              <thead>\
+                <tr>\
+                  <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
+                  <th>'+tr("Name")+'</th>\
+                  <th>'+tr("State")+'</th>\
+                  <th>'+tr("Cardinality")+'</th>\
+                  <th>'+tr("VM Template")+'</th>\
+                  <th>'+tr("Parents")+'</th>\
+                </tr>\
+              </thead>\
+              <tbody>\
+              </tbody>\
+            </table>\
+          </div>'
+    };
+
+    Sunstone.updateInfoPanelTab("service_info_panel", "service_roles_tab",roles_tab);
 
     var vms_tab = {
         title : "Virtual Machines",
@@ -444,6 +437,9 @@ function updateServiceInfo(request,elem){
           </div>'
     };
 
+    Sunstone.updateInfoPanelTab("service_info_panel", "service_vms_tab",vms_tab);
+
+
     var logs = elem_info.TEMPLATE.BODY.log
     var log_info = ''
     if (logs) {
@@ -466,22 +462,9 @@ function updateServiceInfo(request,elem){
       content: log_info
     }
 
-    var roles = elem_info.TEMPLATE.BODY.roles;
-    if (!roles) roles = [];
 
-    Sunstone.updateInfoPanelTab("service_info_panel",
-                                "service_info_tab",info_tab);
-    if (roles.length){
-        Sunstone.updateInfoPanelTab("service_info_panel",
-                                    "service_vms_tab",vms_tab);
-    }
-    else {
-        Sunstone.removeInfoPanelTab("service_info_panel",
-                                    "service_vms_tab");
-    };
+    Sunstone.updateInfoPanelTab("service_info_panel", "service_log_tab",logs_tab);
 
-    Sunstone.updateInfoPanelTab("service_info_panel",
-                                "service_log_tab",logs_tab);
 
     // Popup panel
     Sunstone.popUpInfoPanel("service_info_panel", "apptools-appflow-services");
@@ -492,36 +475,56 @@ function updateServiceInfo(request,elem){
       Sunstone.runAction('Service.showinfo', elem_info.ID);
     })
 
-    if (!roles.length) return;
+    var roles = elem_info.TEMPLATE.BODY.roles
+    if (roles && roles.length) {
+        var servicerolesDataTable = $('#datatable_service_roles').dataTable({
+            "bSortClasses": false,
+            "bAutoWidth":false,
+            "sDom" : '<"H">t<"F"p>'
+        });
 
-    var vms = [];
-    for (var i=0; i < roles.length; i++)
-      if (roles[i].nodes) {
-        for (var j=0; j < roles[i].nodes.length; j++){
-            var vm_info = roles[i].nodes[j].vm_info;
-            if (vm_info)
-                vms.push(
-                    [roles[i].name].concat(
-                        vMachineElementArray(vm_info).slice(1)
-                    )
-            );
+        var role_elements = [];
+        for (var i = 0; i < roles.length; i++) {
+          role_elements.push([
+            '<input class="check_item" type="checkbox" id="role_'+roles[i].name+'" name="selected_items" value="'+roles[i].name+'"/>',
+            roles[i].name,
+            Role.state(roles[i].state),
+            roles[i].cardinality,
+            roles[i].vm_template,
+            roles[i].parents ? roles[i].parents.join(', ') : '-'
+          ])
+        }
+
+        updateView(role_elements ,servicerolesDataTable);
+
+
+        var servicevmsDataTable = $('#datatable_service_vms').dataTable({
+            "bSortClasses": false,
+            "bAutoWidth":false,
+            "sDom" : '<"H">t<"F"p>',
+            "aoColumnDefs": [
+               { "sWidth": "60px", "aTargets": [6,7] },
+                { "sWidth": "35px", "aTargets": [1, 11] },
+                { "sWidth": "150px", "aTargets": [5,10] },
+                { "sWidth": "100px", "aTargets": [2,3,9] },
+                { "bVisible": false, "aTargets": [6,7,10]}
+            ]
+        });
+
+        var vms = [];
+        for (var i=0; i < roles.length; i++) {
+          if (roles[i].nodes) {
+            for (var j=0; j < roles[i].nodes.length; j++){
+                var vm_info = roles[i].nodes[j].vm_info;
+                if (vm_info) {
+                  vms.push([roles[i].name].concat(vMachineElementArray(vm_info).slice(1)));
+                }
+            };
+          };
         };
-      };
 
-    var servicevmsDataTable = $('#datatable_service_vms').dataTable({
-        "bSortClasses": false,
-        "bAutoWidth":false,
-        "sDom" : '<"H">t<"F"p>',
-        "aoColumnDefs": [
-           { "sWidth": "60px", "aTargets": [6,7] },
-            { "sWidth": "35px", "aTargets": [1, 11] },
-            { "sWidth": "150px", "aTargets": [5,10] },
-            { "sWidth": "100px", "aTargets": [2,3,9] },
-            { "bVisible": false, "aTargets": [6,7,10]}
-        ]
-    });
-
-    updateView(vms, servicevmsDataTable);
+        updateView(vms, servicevmsDataTable);
+    }
 
 
     //$('tbody tr',servicevmsDataTable).click(function(e){
