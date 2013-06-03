@@ -20,6 +20,24 @@ require 'cloud/CloudClient'
 include CloudCLI
 
 module Role
+    # Actions that can be performed on the VMs of a given Role
+    SCHEDULE_ACTIONS = [
+        'shutdown',
+        'delete',
+        'hold',
+        'release',
+        'stop',
+        'shutdown-hard',
+        'suspend',
+        'resume',
+        'boot',
+        'delete-recreate',
+        'reboot',
+        'reboot-hard',
+        'poweroff',
+        'snapshot-create'
+    ]
+
     STATE = {
         'PENDING'            => 0,
         'DEPLOYING'          => 1,
