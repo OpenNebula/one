@@ -45,6 +45,7 @@ int LibVirtDriver::deployment_description_vmware(
 
     string  arch       = "";
     string  guestOS    = "";
+    string  pciBridge  = "";    
 
     const VectorAttribute * disk;
     const VectorAttribute * context;
@@ -433,6 +434,17 @@ int LibVirtDriver::deployment_description_vmware(
     attrs.clear();
 
     file << "\t</devices>" << endl;
+
+    // ------------------------------------------------------------------------
+    // Special Attributes
+    // ------------------------------------------------------------------------
+
+    vm->get_template_attribute("PCIBRIDGE",pciBridge);
+
+    if (!pciBridge.empty())
+    {
+        metadata << "<pcibridge>" << pciBridge.c_str() << "</pcibridge>";
+    }
 
     // ------------------------------------------------------------------------
     // Raw VMware attributes
