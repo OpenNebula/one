@@ -406,6 +406,11 @@ class VMwareDriver
                                   deploy_id,
                                   guestOS) if guestOS
 
+        dfile_hash = set_pcibridge(dfile_hash,
+                                  vi_driver,
+                                  deploy_id,
+                                  pciBridge) if pciBridge
+
         metadata   = XPath.first(dfile_hash, "//metadata")
 
         return if metadata.nil? 
@@ -436,4 +441,10 @@ class VMwareDriver
         dfile_hash.delete_element('//guestOS')
         return dfile_hash
     end
+
+    def set_pcibridge(dfile_hash, vi_driver, deploy_id, pciBridge)
+        vi_driver.set_pcibridge(deploy_id, pciBridge.text)
+        dfile_hash.delete_element('//pciBridge')
+        return dfile_hash
+    end    
 end

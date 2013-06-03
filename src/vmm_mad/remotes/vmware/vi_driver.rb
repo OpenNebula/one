@@ -159,7 +159,7 @@ class VIDriver
     end
 
     # -------------------------------------------------------------------------#
-    # Detach a NIC with mac from deploy_id                                     #
+    # Set the guest OS                                                         #
     # -------------------------------------------------------------------------# 
     def set_guest_os(deploy_id, guest_os_id)
       vm   = get_vm(deploy_id)[:vm]
@@ -167,7 +167,22 @@ class VIDriver
       spec = {:guestId => guest_os_id}
 
       vm.ReconfigVM_Task(:spec => spec).wait_for_completion
-    end     
+    end
+
+    # -------------------------------------------------------------------------#
+    # Set the pciBrdige                                                        #
+    # -------------------------------------------------------------------------# 
+    def set_pcibridge(deploy_id, pciBridge)
+      if pciBridge.downcase == "yes"
+        spec = { :key => "pciBridge0.present", :value => "TRUE" }
+      else
+        spec = { :key => "pciBridge0.present", :value => "FALSE" }
+      end
+
+      vmspec = RbVmomi::VIM.VirtualMachineConfigSpec(:extraConfig => spec)
+
+      vm.ReconfigVM_Task(:spec => vmspec).wait_for_completion
+    end
 
     ############################################################################
     # Private Methods                                                          #
