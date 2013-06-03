@@ -409,11 +409,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     #
-    # 
+    # Set cardinality
     #
 
     set_cardinality_desc = <<-EOT.unindent
-        TODO
+        Scale a role to the given cardinality
     EOT
 
     command :'set-cardinality', set_cardinality_desc, :serviceid, :role_name, :cardinality do
@@ -423,7 +423,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                     :url        => options[:server],
                     :user_agent => USER_AGENT)
 
-        # TODO: check arguments formats
+        if !(args[2] =~ /^\d+$/)
+            puts "Cardinality must be an integer number"
+            exit -1
+        end
 
         exit_code = 0
 
