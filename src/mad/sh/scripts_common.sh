@@ -466,7 +466,7 @@ function iqn_get_host {
 function vmfs_create_remote_path {
     DS_ID=$1
     # Create DST in DST_HOST
-    if [ "$USE_SSH" == "yes" ]; then
+    if [ "${USE_SSH,,}" == "yes" ]; then
         exec_and_log  "ssh_make_path $DST_HOST /vmfs/volumes/$DS_ID/$DST_FOLDER" \
                       "Cannot create /vmfs/volumes/$DS_ID/$DST_FOLDER in $DST_HOST"
     else
@@ -476,7 +476,7 @@ function vmfs_create_remote_path {
 }
 
 function vmfs_set_up {
-    if [ "$USE_SSH" != "yes" ]; then
+    if [ "${USE_SSH,,}" != "yes" ]; then
         USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3|tr -d '"')`
         PASSWORD=`echo $(cat $VMWARERC |grep ":password:"|cut -d":" -f 3|tr -d '"')`
         if [ -z $PASSWORD ]; then

@@ -70,7 +70,7 @@ vmfs_set_up
 
 log "Removing $SRC from the image repository"
 
-if [ "$USE_SSH" == "yes" ]; then
+if [ "${USE_SSH,,}" == "yes" ]; then
     if [ -n $DS_ID -a -n $SRC_FOLDER ]; then
     	ssh_exec_and_log $DST_HOST "rm -rf $SRC" "Error deleting $SRC"
     fi

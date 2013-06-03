@@ -99,7 +99,7 @@ if [ $? -eq 1 ] ; then
     VMWARE_DISK_TYPE="thin"
 fi
 
-if [ "$USE_SSH" == "yes" ]; then
+if [ "${USE_SSH,,}" == "yes" ]; then
     $SSH $DST_HOST $VMKFSTOOLS -U [$DS_ID]$DST_FOLDER/disk.vmdk &> /dev/null
     ssh_exec_and_log $DST_HOST \
               "$VMKFSTOOLS -c ${SIZE}M -d ${VMWARE_DISK_TYPE} $DST/disk.vmdk" \

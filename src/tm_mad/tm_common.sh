@@ -96,7 +96,7 @@ function get_tm_use_ssh {
 
     TM_USE_SSH="${XPATH_ELEMENTS[0]:-$TM_USE_SSH}"
 
-    echo $TM_USE_SSH
+    echo ${TM_USE_SSH,,}
 }
 
 #Return DISK_TYPE
