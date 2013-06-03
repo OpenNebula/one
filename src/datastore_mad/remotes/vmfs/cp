@@ -145,12 +145,12 @@ if [ -d "$SRC" -a ! -f "$SRC/disk.vmdk" ]; then
 fi
 
 # Make the final hop, front-end -> VMFS Datastore
-if [ "$USE_SSH" == "yes" ]; then
+if [ "${USE_SSH,,}" == "yes" ]; then
     if ! is_cdrom; then
         exec_and_log "$SCP -r $SRC/* $DST_HOST:$DST" \
                      "Error copying $SRC to $DST through SCP"
     else
-        exec_and_log "$SCP $SRC $DST_HOST:$DST" \ 
+        exec_and_log "$SCP $SRC $DST_HOST:$DST" \
                      "Error copying $SRC to $DST through SCP"
     fi
 else
