@@ -850,6 +850,24 @@ void Nebula::start()
        throw runtime_error("Could not start the Image Manager");
     }
 
+    // -----------------------------------------------------------
+    // Load mads
+    // -----------------------------------------------------------
+
+    sleep(2);
+
+    vmm->load_mads(0);
+
+    im->load_mads(0);
+    tm->load_mads(0);
+    hm->load_mads(0);
+    imagem->load_mads(0);
+
+    if ( authm != 0 )
+    {
+        authm->load_mads(0);
+    }
+
     // ---- Request Manager ----
     try
     {
@@ -870,24 +888,6 @@ void Nebula::start()
     if ( rc != 0 )
     {
        throw runtime_error("Could not start the Request Manager");
-    }
-
-    // -----------------------------------------------------------
-    // Load mads
-    // -----------------------------------------------------------
-
-    sleep(2);
-
-    vmm->load_mads(0);
-
-    im->load_mads(0);
-    tm->load_mads(0);
-    hm->load_mads(0);
-    imagem->load_mads(0);
-
-    if ( authm != 0 )
-    {
-        authm->load_mads(0);
     }
 
     // -----------------------------------------------------------
