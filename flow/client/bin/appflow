@@ -367,8 +367,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     shutdown_desc = <<-EOT.unindent
         Shutdown a service.
-            From RUNNING or UNKNOWN shutdowna the Service
-            From FAILED_UNDEPLOYING continues shutting down the Service
+            From RUNNING or UNKNOWN shuts down the Service
     EOT
 
     command :shutdown, shutdown_desc, [:range, :serviceid_list] do
@@ -386,15 +385,17 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     #
-    # Deploy
+    # Recover
     #
 
-    deploy_desc = <<-EOT.unindent
-        Deploy a service
+    recover_desc = <<-EOT.unindent
+        Recover a failed service
             From FAILED_DEPLOYING continues deploying the Service
+            From FAILED_SCALING continues scaling the Service
+            From FAILED_UNDEPLOYING continues shutting down the Service
     EOT
 
-    command :deploy, deploy_desc, [:range, :serviceid_list] do
+    command :recover, recover_desc, [:range, :serviceid_list] do
         client = Service::Client.new(
                     :username   => options[:username],
                     :password   => options[:password],
@@ -402,7 +403,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                     :user_agent => USER_AGENT)
 
         Service.perform_actions(args[0]) { |service_id|
-            json_action = Service.build_json_action('deploy')
+            json_action = Service.build_json_action('recover')
 
             client.post("#{RESOURCE_PATH}/#{service_id}/action", json_action)
         }

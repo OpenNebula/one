@@ -191,17 +191,15 @@ module OpenNebula
             end
         end
 
-        # Deploy the service. This action is called when the Service is
-        #   in FAILED_DEPLOYING and the user has fixed the problem and wants
-        #   the deployment to continue
+        # Recover a failed service. This action is called when the Service is
+        #   in FAILED_DEPLOYING or FAILED_SCALING and the user has fixed
+        #   the problem and wants the action to continue
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def deploy
+        def recover
             if [Service::STATE['FAILED_DEPLOYING']].include?(self.state)
                 self.set_state(Service::STATE['DEPLOYING'])
-                return self.update
 
-            # TODO: hijacked the deploy action to continue a failed scaling operation
             elsif self.state == Service::STATE['FAILED_SCALING']
                 @roles.each do |name, role|
                     if role.state == Role::STATE['FAILED_SCALING']
@@ -211,11 +209,16 @@ module OpenNebula
                 end
 
                 self.set_state(Service::STATE['SCALING'])
-                return self.update
+
+            elsif self.state == Service::STATE['FAILED_UNDEPLOYING']
+                self.set_state(Service::STATE['UNDEPLOYING'])
+
             else
-                return OpenNebula::Error.new("Action deploy: Wrong state" \
+                return OpenNebula::Error.new("Action recover: Wrong state" \
                     " #{self.state_str()}")
             end
+
+            return self.update
         end
 
         # Delete the service. All the VMs are also deleted from OpenNebula.

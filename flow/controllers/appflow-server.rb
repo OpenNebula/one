@@ -184,8 +184,8 @@ post '/service/:id/action' do
         rc = case action['perform']
         when 'shutdown'
             service.shutdown
-        when 'deploy'
-            service.deploy
+        when 'recover', 'deploy'
+            service.recover
         when 'chown'
             if opts && opts['owner_id']
                 args = Array.new

@@ -85,7 +85,8 @@ module OpenNebula
         # Sets a new cardinality for this role
         # @param [Integer] the new cardinality
         def set_cardinality(target_cardinality)
-            msg = "Role #{name} scaling up from #{cardinality} to #{target_cardinality} nodes"
+            dir = target_cardinality > cardinality ? "up" : "down"
+            msg = "Role #{name} scaling #{dir} from #{cardinality} to #{target_cardinality} nodes"
             Log.info LOG_COMP, msg, @service.id()
             @service.log_info(msg)
 
