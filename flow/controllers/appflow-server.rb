@@ -245,6 +245,31 @@ post '/service/:id/action' do
     status 201
 end
 
+post '/service/:id/role/:role_name/action' do
+    service_pool = OpenNebula::ServicePool.new(@client)
+    action = JSON.parse(request.body.read)['action']
+    opts   = action['params']
+
+    rc = nil
+    service = service_pool.get(params[:id]) { |service|
+        # TODO check service state
+        roles = service.get_roles
+
+        role = roles[params[:role_name]]
+        if role.nil?
+            OpenNebula::Error.new("Role '#{role}' not found")
+        else
+            rc = role.batch_action(action['perform'])
+        end
+    }
+
+    if OpenNebula.is_error?(rc)
+        error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
+    end
+
+    status 201
+end
+
 ##############################################################################
 # Service Template
 ##############################################################################

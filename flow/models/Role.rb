@@ -21,6 +21,24 @@ require 'parse-cron'
 module OpenNebula
     class Role
 
+        # Actions that can be performed on the VMs of a given Role
+        SCHEDULE_ACTIONS = [
+            'shutdown',
+            'delete',
+            'hold',
+            'release',
+            'stop',
+            'shutdown-hard',
+            'suspend',
+            'resume',
+            'boot',
+            'delete-recreate',
+            'reboot',
+            'reboot-hard',
+            'poweroff',
+            'snapshot-create'
+        ]
+
         STATE = {
             'PENDING'            => 0,
             'DEPLOYING'          => 1,
@@ -331,6 +349,50 @@ module OpenNebula
                     Log.debug LOG_COMP, "Role #{name} : Chown success for VM #{vm_id}", @service.id()
                 end
             }
+
+            return [true, nil]
+        end
+
+        # Schedule the given action on all the VMs that belong to the Role
+        # @param [String] action one of the available actions defined in SCHEDULE_ACTIONS
+        def batch_action(action)
+            vms_id = []
+
+            nodes = @body['nodes']
+            nodes.each do |node|
+                vm_id = node['deploy_id']
+                vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
+                rc = vm.info
+
+                if OpenNebula.is_error?(rc)
+                    msg = "Role #{name} : VM #{vm_id} monitorization failed; #{rc.message}"
+                    Log.error LOG_COMP, msg, @service.id()
+                    @service.log_error(msg)
+
+                    # TODO rollback?
+                else
+                    # TODO disposed nodes?
+
+                    vms_id << vm.id
+                    ids = vm.retrieve_elements('USER_TEMPLATE/SCHED_ACTION/ID')
+
+                    id = 0
+                    if (!ids.nil? && !ids.empty?)
+                        ids.map! {|e| e.to_i }
+                        id = ids.max + 1
+                    end
+
+                    tmp_str = vm.user_template_str
+                    # TODO time & periods
+                    tmp_str << "\nSCHED_ACTION = [ID = #{id}, ACTION = #{action}, TIME = #{Time.now.to_i}]"
+
+                    vm.update(tmp_str)
+                    # TODO check errors
+                end
+            end
+
+            log_msg = "Action:#{action} performed on Role:#{self.name} VMs:#{vms_id.join(',')}"
+            Log.info LOG_COMP, log_msg, @service.id()
 
             return [true, nil]
         end
