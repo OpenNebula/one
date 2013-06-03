@@ -170,10 +170,17 @@ module OpenNebula
                 else
                     node['vm_info'] = vm.to_hash
 
-                    if (node['disposed'] == "1" && node['vm_info']['VM']['STATE'] == '6')
+                    vm_state = node['vm_info']['VM']['STATE']
+                    lcm_state = node['vm_info']['VM']['LCM_STATE']
+
+                    if (node['disposed'] == "1" && vm_state == '6')
                         # TODO: copy to an array of disposed nodes?
                         Log.debug "ELAS", "Role #{name}, VM disposed: #{vm_id}"
                     else
+                        if (node['scale_up'] == "1" && vm_state == '3' && lcm_state == '3')
+                            node.delete('scale_up')
+                        end
+
                         new_nodes << node
                     end
                 end
@@ -188,7 +195,7 @@ module OpenNebula
         # @return [Array<true, nil>, Array<false, String>] true if all the VMs
         # were created, false and the error reason if there was a problem
         # creating the VMs
-        def deploy
+        def deploy(scale_up=false)
             n_nodes = cardinality() - get_nodes.size
 
             n_nodes.times { |i|
@@ -218,10 +225,16 @@ module OpenNebula
                 # containing only the ID
                 vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
 
-                @body['nodes'] << {
+                node = {
                     'deploy_id' => vm_id,
                     'vm_info' => vm.to_hash
                 }
+
+                if scale_up
+                    node['scale_up'] = '1'
+                end
+
+                @body['nodes'] << node
             }
 
             return [true, nil]
@@ -532,7 +545,7 @@ module OpenNebula
             diff = cardinality - n_nodes
 
             if diff > 0
-                return deploy()
+                return deploy(true)
             elsif diff < 0
                 return shutdown(true)
             end

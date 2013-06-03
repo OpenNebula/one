@@ -312,14 +312,42 @@ protected
     # @param [Role] role
     # @return [true|false]
     def any_node_failed_scaling?(role)
+        role.get_nodes.each { |node|
+            if node && node['vm_info']
+                vm_state = node['vm_info']['VM']['STATE']
 
-        # TODO: This method returns true if any VM is in FAILED, but
-        # it should only consider VMs being scaled (instatiated/shutdown).
+                if (node['dispose'] == '1' || node['scale_up'] == '1') && 
+                    vm_state == '7' # FAILED
 
-        return any_node_failed?(role)
+                    # TODO: return error message and log it into the service log
+                    #msg = "Role #{role.name()} : VM #{node['deploy_id']} found in FAILED state"
+                    #Log.error LOG_COMP, msg
+
+                    return true
+                end
+            end
+        }
+
+        return false
     end
 
     def role_finished_scaling?(role)
-        return role_nodes_running?(role) && role.get_nodes.size() == role.cardinality()
+        role.get_nodes.each { |node|
+            if node && node['vm_info']
+                vm_state = node['vm_info']['VM']['STATE']
+                lcm_state = node['vm_info']['VM']['LCM_STATE']
+
+                # !(ACTIVE && RUNNING)
+                if ((node['dispose'] == '1' || node['scale_up'] == '1') &&
+                    (vm_state != '3' || lcm_state != '3'))
+
+                    return false
+                end
+            else
+                return false
+            end
+        }
+
+        return role.get_nodes.size() == role.cardinality()
     end
 end
