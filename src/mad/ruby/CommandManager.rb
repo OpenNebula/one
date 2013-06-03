@@ -206,7 +206,7 @@ private
         SSHCommand.run("mkdir -p #{remote_dir}",host,logger)
 
         # Use SCP to sync:
-        sync_cmd = "scp -r #{REMOTES_LOCATION}/. #{host}:#{remote_dir}"
+        sync_cmd = "scp -rp #{REMOTES_LOCATION}/. #{host}:#{remote_dir}"
 
         # Use rsync to sync:
         # sync_cmd = "rsync -Laz #{REMOTES_LOCATION} #{host}:#{@remote_dir}"
