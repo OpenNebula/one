@@ -78,9 +78,7 @@ module OpenNebula
         # Returns the role cardinality
         # @return [Integer] the role cardinality
         def cardinality
-            card = @body['cardinality'].to_i
-            card = 1 if (card < 1)
-            return card
+            return @body['cardinality'].to_i
         end
 
         # Sets a new cardinality for this role
