@@ -56,6 +56,7 @@ module OpenNebula
             @service    = service
 
             @body['nodes'] ||= []
+            @body['disposed_nodes'] ||= []
         end
 
         def name
@@ -154,7 +155,7 @@ module OpenNebula
 
             nodes = @body['nodes']
             new_nodes = []
-#            disposed_nodes = @body['disposed_nodes']
+            disposed_nodes = @body['disposed_nodes']
 
             nodes.each do |node|
                 vm_id = node['deploy_id']
@@ -175,10 +176,12 @@ module OpenNebula
                     lcm_state = node['vm_info']['VM']['LCM_STATE']
 
                     if (node['disposed'] == "1" && vm_state == '6')
-                        # TODO: copy to an array of disposed nodes?
-                        Log.debug "ELAS", "Role #{name}, VM disposed: #{vm_id}"
+                        # Store the VM id in the array of disposed nodes
+                        disposed_nodes << vm_id
                     else
                         if (node['scale_up'] == "1" && vm_state == '3' && lcm_state == '3')
+                            # If the VM was a scale-up and it reaches RUNNING,
+                            # clear the flag
                             node.delete('scale_up')
                         end
 
