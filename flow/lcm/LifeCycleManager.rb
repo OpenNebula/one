@@ -69,19 +69,25 @@ class ServiceLCM
                                     service.set_state(Service::STATE['FAILED_DEPLOYING'])
                                 end
                             end
-                        when Service::STATE['RUNNING']
+                        when Service::STATE['RUNNING'], Service::STATE['UNKNOWN']
                             strategy.monitor_step(service)
 
-                            if !service.all_roles_running?
-                                service.set_state(Service::STATE['UNKNOWN'])
+                            if service.all_roles_running?
+                                if service.state() == Service::STATE['UNKNOWN']
+                                    service.set_state(Service::STATE['RUNNING'])
+                                end
                             else
-                                if strategy.apply_scaling_policies(service)
-                                    service.set_state(Service::STATE['SCALING'])
+                                if service.state() == Service::STATE['RUNNING']
+                                    service.set_state(Service::STATE['UNKNOWN'])
+                                end
+                            end
 
-                                    rc = strategy.scale_step(service)
-                                    if !rc[0]
-                                        service.set_state(Service::STATE['FAILED_SCALING'])
-                                    end
+                            if strategy.apply_scaling_policies(service)
+                                service.set_state(Service::STATE['SCALING'])
+
+                                rc = strategy.scale_step(service)
+                                if !rc[0]
+                                    service.set_state(Service::STATE['FAILED_SCALING'])
                                 end
                             end
                         when Service::STATE['SCALING']
@@ -105,12 +111,6 @@ class ServiceLCM
 
                             if !service.any_role_failed_scaling?
                                 service.set_state(Service::STATE['SCALING'])
-                            end
-                        when Service::STATE['UNKNOWN']
-                            strategy.monitor_step(service)
-
-                            if service.all_roles_running?
-                                service.set_state(Service::STATE['RUNNING'])
                             end
                         when Service::STATE['FAILED']
                             strategy.monitor_step(service)

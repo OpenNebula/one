@@ -160,6 +160,16 @@ grammar ElasticityGrammar
 
                 nodes.each { |node|
                     if node && node['vm_info']
+
+                        vm_state = node['vm_info']['VM']['STATE']
+                        lcm_state = node['vm_info']['VM']['LCM_STATE']
+
+                        # Use values from VMs in RUNNING only
+
+                        if vm_state != '3' || lcm_state != '3'
+                            next
+                        end
+
                         if node['vm_info']['VM']['USER_TEMPLATE'][att]
                             total += (node['vm_info']['VM']['USER_TEMPLATE'][att]).to_f
                             n_nodes += 1
