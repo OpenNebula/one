@@ -486,6 +486,9 @@ module OpenNebula
             new_cardinality = cardinality()
             new_evals       = 0
 
+            max = [cardinality(), max_cardinality].max()
+            min = [cardinality(), min_cardinality].min()
+
             if scale_rule(expression)
                 new_evals = true_evals + 1
                 new_evals = period_number if new_evals > period_number
@@ -497,8 +500,16 @@ module OpenNebula
 
                     new_cardinality = cardinality() + adjust
 
-                    new_cardinality = min_cardinality if new_cardinality < min_cardinality
-                    new_cardinality = max_cardinality if new_cardinality > max_cardinality
+                    # The cardinality can be forced to be outside the min,max
+                    # range. If that is the case, the scale up/down will not
+                    # move further outside the range. It will move towards the
+                    # range with the adjustement set, instead of jumping the
+                    # difference
+                    if (adjust > 0)
+                        new_cardinality = max if new_cardinality > max
+                    elsif (adjust < 0)
+                        new_cardinality = min if new_cardinality < min
+                    end
 
                     new_evals = 0
                 else
