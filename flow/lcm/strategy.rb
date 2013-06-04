@@ -313,18 +313,15 @@ protected
     # @return [true|false]
     def any_node_failed_scaling?(role)
         role.get_nodes.each { |node|
-            if node && node['vm_info']
-                vm_state = node['vm_info']['VM']['STATE']
+            if node && node['vm_info'] &&
+                (node['disposed'] == '1' || node['scale_up'] == '1') && 
+                node['vm_info']['VM']['STATE'] == '7' # FAILED
 
-                if (node['dispose'] == '1' || node['scale_up'] == '1') && 
-                    vm_state == '7' # FAILED
+                # TODO: return error message and log it into the service log
+                #msg = "Role #{role.name()} : VM #{node['deploy_id']} found in FAILED state"
+                #Log.error LOG_COMP, msg
 
-                    # TODO: return error message and log it into the service log
-                    #msg = "Role #{role.name()} : VM #{node['deploy_id']} found in FAILED state"
-                    #Log.error LOG_COMP, msg
-
-                    return true
-                end
+                return true
             end
         }
 
@@ -334,20 +331,32 @@ protected
     def role_finished_scaling?(role)
         role.get_nodes.each { |node|
             if node && node['vm_info']
-                vm_state = node['vm_info']['VM']['STATE']
-                lcm_state = node['vm_info']['VM']['LCM_STATE']
+                # For scale up, check new nodes are running, or past running
+                if node['scale_up'] == '1'
+                    vm_state = node['vm_info']['VM']['STATE'].to_i
+                    lcm_state = node['vm_info']['VM']['LCM_STATE'].to_i
 
-                # !(ACTIVE && RUNNING)
-                if ((node['dispose'] == '1' || node['scale_up'] == '1') &&
-                    (vm_state != '3' || lcm_state != '3'))
+                    # If any node didn't make it through the initial deployment,
+                    # return false
 
-                    return false
+                    # INIT, PENDING, HOLD ||
+                    # ACTIVE && (LCM_INIT, PROLOG, BOOT)
+
+                    if vm_state == 7 ||
+                        ((vm_state < 3) || (vm_state == 3 && lcm_state < 3 ))
+
+                        return false
+                    end
                 end
             else
                 return false
             end
         }
 
+        # TODO: If a shutdown ends in running again (VM doesn't have acpi),
+        # the role/service will stay in SCALING
+
+        # For scale down, it will finish when scaling nodes are deleted
         return role.get_nodes.size() == role.cardinality()
     end
 end
