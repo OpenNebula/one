@@ -370,34 +370,26 @@ module OpenNebula
         ########################################################################
 
         # Returns a positive, 0, or negative number of nodes to adjust,
-        #   according to the elasticity policies
+        #   according to the elasticity and scheduled policies
         # @return [Integer] positive, 0, or negative number of nodes to adjust
         def scale?()
             elasticity_pol = @body['elasticity_policies']
+            scheduled_pol = @body['scheduled_policies']
 
-            if elasticity_pol.nil? || elasticity_pol.empty?
+            if (elasticity_pol.nil? || elasticity_pol.empty?) &&
+                (scheduled_pol.nil? || scheduled_pol.empty?)
+
                 return 0
             end
 
-            # TODO: give priority to scheduled policies
+            scheduled_pol.each do |policy|
+                diff = scale_time?(policy)
+                return diff if diff != 0
+            end
 
             elasticity_pol.each do |policy|
-
-                type = policy['type'].upcase
-
-                if %w[CHANGE CARDINALITY PERCENTAGE_CHANGE].include? type
-
-                    diff = scale_attributes?(policy)
-                    return diff if diff != 0
-
-                elsif type == "SCHEDULED"
-
-                    diff = scale_time?(policy)
-                    return diff if diff != 0
-
-                else
-                    # TODO: report error
-                end
+                diff = scale_attributes?(policy)
+                return diff if diff != 0
             end
 
             return 0

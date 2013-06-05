@@ -54,7 +54,7 @@ module OpenNebula
                     :items => {
                         :type => :object,
                         :properties => {
-                            # CHANGE, CARDINALITY, PERCENTAGE_CHANGE, SCHEDULED
+                            # CHANGE, CARDINALITY, PERCENTAGE_CHANGE
                             'type' => {
                                 :type => :string,
                                 :required => true
@@ -79,8 +79,36 @@ module OpenNebula
                             'expression' => {
                                 :type => :string,
                                 :required => false
+                            }
+
+                            #'cooldown' => {
+                            #    :type => :integer
+                            #}
+                            #'statistic' => {
+                            # # SampleCount | Average | Sum | Minimum | Maximum
+                            #    :type => :string
+                            #}
+                        }
+                    }
+                },
+                'scheduled_policies' => {
+                    :type => :array,
+                    :items => {
+                        :type => :object,
+                        :properties => {
+                            # CHANGE, CARDINALITY, PERCENTAGE_CHANGE
+                            'type' => {
+                                :type => :string,
+                                :required => true
                             },
-                            # Elasticity by time
+                            'adjust' => {
+                                :type => :integer,
+                                :required => true
+                            },
+                            'min_adjust_step' => {
+                                :type => :integer,
+                                :required => false
+                            },
                             'start_time' => {
                                 :type => :string,
                                 :required => false
@@ -90,13 +118,8 @@ module OpenNebula
                                 :required => false
                             }
 
-
                             #'cooldown' => {
                             #    :type => :integer
-                            #}
-                            #'statistic' => {
-                            # # SampleCount | Average | Sum | Minimum | Maximum
-                            #    :type => :string
                             #}
                         }
                     }
