@@ -447,7 +447,9 @@ module OpenNebula
             if start_time > last_eval && start_time <= now
                 Log.debug "ELAS", "Role #{name} scheduled scalability for #{Time.at(start_time)} triggered"
 
-                return target_vms.to_i - cardinality()
+                new_cardinality = calculate_new_cardinality(elasticity_pol)
+
+                return new_cardinality - cardinality()
             end
 
             return 0
@@ -469,10 +471,6 @@ module OpenNebula
             true_evals      = elasticity_pol['true_evals'].to_i
             expression      = elasticity_pol['expression']
 
-            adjust          = elasticity_pol['adjust'].to_i
-
-            Log.debug "ELAS", "Expression '#{expression}', adjust #{adjust}"
-
             if !last_eval.nil?
                 if now < (last_eval + period_duration)
                     Log.debug "ELAS", "Role #{name} expression '#{expression}' evaluation ignored, time < period"
@@ -486,9 +484,6 @@ module OpenNebula
             new_cardinality = cardinality()
             new_evals       = 0
 
-            max = [cardinality(), max_cardinality].max()
-            min = [cardinality(), min_cardinality].min()
-
             if scale_rule(expression)
                 new_evals = true_evals + 1
                 new_evals = period_number if new_evals > period_number
@@ -496,20 +491,7 @@ module OpenNebula
                 Log.debug "ELAS", "Role #{name} scale expression '#{expression}' is true"
 
                 if new_evals >= period_number
-                    # TODO: Type CHANGE assumed, need to do CARDINALITY, PERCENTAGE_CHANGE
-
-                    new_cardinality = cardinality() + adjust
-
-                    # The cardinality can be forced to be outside the min,max
-                    # range. If that is the case, the scale up/down will not
-                    # move further outside the range. It will move towards the
-                    # range with the adjustement set, instead of jumping the
-                    # difference
-                    if (adjust > 0)
-                        new_cardinality = max if new_cardinality > max
-                    elsif (adjust < 0)
-                        new_cardinality = min if new_cardinality < min
-                    end
+                    new_cardinality = calculate_new_cardinality(elasticity_pol)
                 else
                     Log.debug "ELAS", "Role #{name} expression '#{expression}' evaluation ignored, true #{new_evals} times, #{period_number} needed"
                 end
@@ -538,6 +520,55 @@ module OpenNebula
             end
 
             return treetop.result(self)
+        end
+
+        def calculate_new_cardinality(elasticity_pol)
+            type    = elasticity_pol['type']
+            adjust  = elasticity_pol['adjust'].to_i
+
+            max = [cardinality(), max_cardinality].max()
+            min = [cardinality(), min_cardinality].min()
+
+            case type.upcase
+            when 'CHANGE'
+                new_cardinality = cardinality() + adjust
+            when 'PERCENTAGE_CHANGE'
+                min_adjust_step = elasticity_pol['min_adjust_step'].to_i
+
+                change = cardinality() * adjust / 100.0
+
+                sign = change > 0 ? 1 : -1
+                change = change.abs
+
+                if change < 1
+                    change = 1
+                else
+                    change = change.to_i
+                end
+
+                change = sign * [change, min_adjust_step].max
+
+                new_cardinality = cardinality() + change
+
+            when 'CARDINALITY'
+                new_cardinality = adjust
+            else
+                # TODO: error message
+                return cardinality()
+            end
+
+            # The cardinality can be forced to be outside the min,max
+            # range. If that is the case, the scale up/down will not
+            # move further outside the range. It will move towards the
+            # range with the adjustement set, instead of jumping the
+            # difference
+            if (adjust > 0)
+                new_cardinality = max if new_cardinality > max
+            elsif (adjust < 0)
+                new_cardinality = min if new_cardinality < min
+            end
+
+            return new_cardinality
         end
 
         # Scales up or down the number of nodes needed to match the current
