@@ -196,8 +196,8 @@ int Mad::start()
             FD_ZERO(&rfds);
             FD_SET(mad_nebula_pipe, &rfds);
 
-            // Wait up to 5 seconds
-            tv.tv_sec  = 5;
+            // Wait up to 30 seconds
+            tv.tv_sec  = 30;
             tv.tv_usec = 0;
 
             rc = select(mad_nebula_pipe+1,&rfds,0,0, &tv);
