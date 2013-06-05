@@ -138,6 +138,17 @@ module OpenNebula
 
             @body['state'] = state.to_s
 
+            if state == STATE['SCALING']
+
+                elasticity_pol = @body['elasticity_policies']
+
+                if !elasticity_pol.nil?
+                    elasticity_pol.each do |policy|
+                        policy.delete('true_evals')
+                    end
+                end
+            end
+
             Log.info LOG_COMP, "Role #{name} new state: #{STATE_STR[state]}", @service.id()
 
             return true
@@ -510,10 +521,8 @@ module OpenNebula
                     elsif (adjust < 0)
                         new_cardinality = min if new_cardinality < min
                     end
-
-                    new_evals = 0
                 else
-                    Log.debug "ELAS", "Role #{name} expression '#{expression}' evaluation ignored, true #{new_up_evals} times, #{period_number} needed"
+                    Log.debug "ELAS", "Role #{name} expression '#{expression}' evaluation ignored, true #{new_evals} times, #{period_number} needed"
                 end
             end
 
