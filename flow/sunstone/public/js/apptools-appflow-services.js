@@ -71,6 +71,8 @@ var Service = {
 }
 
 var Role = {
+    "resource" : 'DOCUMENT',
+    "path"     : 'service',
     "state" : function(state_int){
         state_int = state_int ? state_int : 0;
         var state = [
@@ -85,6 +87,361 @@ var Role = {
             tr("FAILED_DEPLOYING")
         ][state_int]
         return state ? state : state_int;
+    },
+    "hold" : function(params){
+        OpenNebula.Action.simple_action(params,
+                                        Service.resource,
+                                        "hold",
+                                        null,
+                                        Role.path);
+    },
+    "release" : function(params){
+        OpenNebula.Action.simple_action(params,
+                                        Role.resource,
+                                        "release",
+                                        null,
+                                        Role.path);
+    },
+    "suspend" : function(params){
+        OpenNebula.Action.simple_action(params,
+                                        Role.resource,
+                                        "suspend",
+                                        null,
+                                        Role.path);
+    },
+    "resume" : function(params){
+        OpenNebula.Action.simple_action(params,
+                                        Role.resource,
+                                        "resume",
+                                        null,
+                                        Role.path);
+    },
+    "stop" : function(params){
+        OpenNebula.Action.simple_action(params,
+                                        Role.resource,
+                                        "stop",
+                                        null,
+                                        Role.path);
+    },
+    "restart" : function(params){
+        OpenNebula.Action.simple_action(params,
+                                        Role.resource,
+                                        "restart",
+                                        null,
+                                        Role.path);
+    },
+    "reset" : function(params){
+        OpenNebula.Action.simple_action(params,
+                                        Role.resource,
+                                        "reset",
+                                        null,
+                                        Role.path);
+    },
+    "resubmit" : function(params){
+        OpenNebula.Action.simple_action(params,
+                                        Role.resource,
+                                        "resubmit",
+                                        null,
+                                        Role.path);
+    },
+    "reboot" : function(params){
+        OpenNebula.Action.simple_action(params,
+                                        Role.resource,
+                                        "reboot",
+                                        null,
+                                        Role.path);
+    },
+    "poweroff" : function(params){
+        OpenNebula.Action.simple_action(params,
+                                        Role.resource,
+                                        "poweroff",
+                                        null,
+                                        Role.path);
+    },
+    "poweroff_hard" : function(params){
+        OpenNebula.Action.simple_action(params,
+                                        Role.resource,
+                                        "poweroff_hard",
+                                        null,
+                                        Role.path);
+    },
+    "snapshot_create" : function(params){
+        OpenNebula.Action.simple_action(params,
+                                        Role.resource,
+                                        "snapshot_create",
+                                        null,
+                                        Role.path);
+    },
+    "shutdown" : function(params){
+        OpenNebula.Action.simple_action(params,
+                                        Role.resource,
+                                        "shutdown",
+                                        null,
+                                        Role.path);
+    },
+    "cancel" : function(params){
+        OpenNebula.Action.simple_action(params,
+                                        Role.resource,
+                                        "cancel",
+                                        null,
+                                        Role.path);
+    },
+    "del" : function(params){
+        OpenNebula.Action.simple_action(params,
+                                        Role.resource,
+                                        "delete",
+                                        null,
+                                        Role.path);
+    },
+    "recover" : function(params){
+        OpenNebula.Action.simple_action(params,
+                                        Role.resource,
+                                        "recover",
+                                        null,
+                                        Role.path);
+    },
+}
+
+var role_actions = {
+    "Role.hold" : {
+        type: "multiple",
+        call: Role.hold,
+        callback: roleCallback,
+        elements: roleElements,
+        error: onError,
+        notify: true
+    },
+
+    "Role.release" : {
+        type: "multiple",
+        call: Role.release,
+        callback: roleCallback,
+        elements: roleElements,
+        error: onError,
+        notify: true
+    },
+
+    "Role.suspend" : {
+        type: "multiple",
+        call: Role.suspend,
+        callback: roleCallback,
+        elements: roleElements,
+        error: onError,
+        notify: true
+    },
+
+    "Role.resume" : {
+        type: "multiple",
+        call: Role.resume,
+        callback: roleCallback,
+        elements: roleElements,
+        error: onError,
+        notify: true
+    },
+
+    "Role.stop" : {
+        type: "multiple",
+        call: Role.stop,
+        callback: roleCallback,
+        elements: roleElements,
+        error: onError,
+        notify: true
+    },
+
+    "Role.boot" : {
+        type: "multiple",
+        call: Role.restart,
+        callback: roleCallback,
+        elements: roleElements,
+        error: onError,
+        notify: true
+    },
+
+    "Role.reboot_hard" : {
+        type: "multiple",
+        call: Role.reset,
+        callback: roleCallback,
+        elements: roleElements,
+        error: onError,
+        notify: true
+    },
+
+    "Role.delete_recreate" : {
+        type: "multiple",
+        call: Role.resubmit,
+        callback: roleCallback,
+        elements: roleElements,
+        error: onError,
+        notify: true
+    },
+
+    "Role.reboot" : {
+        type: "multiple",
+        call: Role.reboot,
+        callback: roleCallback,
+        elements: roleElements,
+        error: onError,
+        notify: true
+    },
+
+    "Role.poweroff" : {
+        type: "multiple",
+        call: Role.poweroff,
+        callback: roleCallback,
+        elements: roleElements,
+        error: onError,
+        notify: true
+    },
+
+    "Role.poweroff_hard" : {
+        type: "multiple",
+        call: Role.poweroff_hard,
+        callback: roleCallback,
+        elements: roleElements,
+        error: onError,
+        notify: true
+    },
+
+    "Role.snapshot_create" : {
+        type: "single",
+        call: Role.snapshot_create,
+        callback: roleCallback,
+        error:onError,
+        notify: true
+    },
+
+    "Role.shutdown" : {
+        type: "multiple",
+        call: Role.shutdown,
+        callback: roleCallback,
+        elements: roleElements,
+        error: onError,
+        notify: true
+    },
+
+    "Role.shutdown_hard" : {
+        type: "multiple",
+        call: Role.cancel,
+        callback: roleCallback,
+        elements: roleElements,
+        error: onError,
+        notify: true
+    },
+
+    "Role.delete" : {
+        type: "multiple",
+        call: Role.del,
+        callback: roleCallback,
+        elements: roleElements,
+        error: onError,
+        notify: true
+    },
+
+    "Role.recover" : {
+        type: "multiple",
+        call: Role.recover,
+        callback: roleCallback,
+        elements: roleElements,
+        error: onError,
+        notify: true
+    }
+
+};
+
+Sunstone.addActions(role_actions);
+
+function roleElements() {
+    return getSelectedNodes(servicerolesDataTable);
+};
+
+function roleCallback() {
+    return $("#service_info_panel_refresh", $("#service_info_panel")).click();
+}
+
+var role_buttons = {
+    "Role.hold" : {
+        type: "action",
+        text: tr("Hold"),
+        tip: tr("This will hold selected pending VMs from being deployed"),
+        layout: "vmsplanification_buttons",
+    },
+    "Role.release" : {
+        type: "action",
+        text: tr("Release"),
+        layout: "vmsplanification_buttons",
+        tip: tr("This will release held machines")
+    },
+    "Role.suspend" : {
+        type: "action",
+        text: tr("Suspend"),
+        layout: "vmspause_buttons",
+        tip: tr("This will suspend selected machines")
+    },
+    "Role.resume" : {
+        type: "action",
+        text: '<i class="icon-play"/>',
+        layout: "vmsplay_buttons",
+        tip: tr("This will resume selected VMs")
+    },
+    "Role.stop" : {
+        type: "action",
+        text: tr("Stop"),
+        layout: "vmsstop_buttons",
+        tip: tr("This will stop selected VMs")
+    },
+    "Role.boot" : {
+        type: "action",
+        text: tr("Boot"),
+        layout: "vmsplanification_buttons",
+        tip: tr("This will force the hypervisor boot action of VMs stuck in UNKNOWN or BOOT state")
+    },
+    "Role.reboot" : {
+        type: "action",
+        text: tr("Reboot"),
+        layout: "vmsrepeat_buttons",
+        tip: tr("This will send a reboot action to running VMs")
+    },
+    "Role.reboot_hard" : {
+        type: "action",
+        text: tr("Reboot") + ' <span class="label secondary radius">hard</span>',
+        layout: "vmsrepeat_buttons",
+        tip: tr("This will perform a hard reboot on selected VMs")
+    },
+    "Role.poweroff" : {
+        type: "action",
+        text: tr("Power Off"),
+        layout: "vmspause_buttons",
+        tip: tr("This will send a power off signal to running VMs. They can be resumed later.")
+    },
+    "Role.poweroff_hard" : {
+        type: "action",
+        text: tr("Power Off") + ' <span class="label secondary radius">hard</span>',
+        layout: "vmspause_buttons",
+        tip: tr("This will send a forced power off signal to running VMs. They can be resumed later.")
+    },
+    "Role.shutdown" : {
+        type: "confirm",
+        text: tr("Shutdown"),
+        layout: "vmsdelete_buttons",
+        tip: tr("This will initiate the shutdown process in the selected VMs")
+    },
+    "Role.shutdown_hard" : {
+        type: "confirm",
+        text: tr("Shutdown") + ' <span class="label secondary radius">hard</span>',
+        layout: "vmsdelete_buttons",
+        tip: tr("This will initiate the shutdown-hard (forced) process in the selected VMs")
+    },
+    "Role.delete" : {
+        type: "confirm",
+        text: tr("Delete"),
+        layout: "vmsdelete_buttons",
+        tip: tr("This will delete the selected VMs from the database")
+    },
+    "Role.delete_recreate" : {
+        type: "confirm",
+        text: tr("Delete") + ' <span class="label secondary radius">recreate</span>',
+        layout: "vmsrepeat_buttons",
+        tip: tr("This will delete and recreate VMs to PENDING state")
     }
 }
 
@@ -389,8 +746,13 @@ function updateServiceInfo(request,elem){
 
     var roles_tab = {
         title : "Roles",
-        content : '<div class="columns twelve">\
-          <div id="roles_info">\
+        content : '<form class="custom" id="roles_form" action="">\
+          <div class="">\
+            <div class="action_blocks columns twelve">\
+            </div>\
+          </div>\
+          <div id="roles_info" class="columns twelve">\
+          <br>\
             <table id="datatable_service_roles" class="table twelve">\
               <thead>\
                 <tr>\
@@ -405,7 +767,8 @@ function updateServiceInfo(request,elem){
               <tbody>\
               </tbody>\
             </table>\
-          </div>'
+          </div>\
+        </form>'
     };
 
     Sunstone.updateInfoPanelTab("service_info_panel", "service_roles_tab",roles_tab);
@@ -477,16 +840,19 @@ function updateServiceInfo(request,elem){
 
     var roles = elem_info.TEMPLATE.BODY.roles
     if (roles && roles.length) {
-        var servicerolesDataTable = $('#datatable_service_roles').dataTable({
+        servicerolesDataTable = $('#datatable_service_roles').dataTable({
             "bSortClasses": false,
             "bAutoWidth":false,
+            "aoColumnDefs": [
+              { "bSortable": false, "aTargets": ["check"] }
+            ],
             "sDom" : '<"H">t<"F"p>'
         });
 
         var role_elements = [];
         for (var i = 0; i < roles.length; i++) {
           role_elements.push([
-            '<input class="check_item" type="checkbox" id="role_'+roles[i].name+'" name="selected_items" value="'+roles[i].name+'"/>',
+            '<input class="check_item" type="checkbox" id="role_'+roles[i].name+'" name="selected_items" value="'+elem_info.ID+'/role/'+roles[i].name+'"/>',
             roles[i].name,
             Role.state(roles[i].state),
             roles[i].cardinality,
@@ -496,7 +862,13 @@ function updateServiceInfo(request,elem){
         }
 
         updateView(role_elements ,servicerolesDataTable);
+        insertButtonsInTab("apptools-appflow-services", "service_roles_tab", role_buttons)
+        $('li#service_roles_tabTab', $("#dialog")).foundationButtons();
+        $('li#service_roles_tabTab', $("#dialog")).foundationButtons();
+        //setupActionButtons($('li#service_roles_tabTab', $("#dialog")));
 
+        initCheckAllBoxes(servicerolesDataTable);
+        tableCheckboxesListener(servicerolesDataTable);
 
         var servicevmsDataTable = $('#datatable_service_vms').dataTable({
             "bSortClasses": false,
