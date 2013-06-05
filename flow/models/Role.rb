@@ -376,11 +376,8 @@ module OpenNebula
             elasticity_pol = @body['elasticity_policies']
             scheduled_pol = @body['scheduled_policies']
 
-            if (elasticity_pol.nil? || elasticity_pol.empty?) &&
-                (scheduled_pol.nil? || scheduled_pol.empty?)
-
-                return 0
-            end
+            elasticity_pol ||= []
+            scheduled_pol ||= []
 
             scheduled_pol.each do |policy|
                 diff = scale_time?(policy)
