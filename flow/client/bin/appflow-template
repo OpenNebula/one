@@ -425,7 +425,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 tmp << JSON.pretty_generate(template)
                 tmp.flush
 
-                editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH
+                editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : OpenNebulaHelper::EDITOR_PATH
                 system("#{editor_path} #{path}")
 
                 unless $?.exitstatus == 0

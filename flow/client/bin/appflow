@@ -237,7 +237,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     usage "`appflow` <command> [<args>] [<options>]"
     version OneApps::VERSION_TEXT
 
-    set :option, Service::DEFAULT_OPTIONS 
+    set :option, Service::DEFAULT_OPTIONS
     set :option, CommandParser::VERSION
 
     #
@@ -251,12 +251,20 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         OpenNebulaHelper.rname_to_id(arg, "USER")
     end
 
-    set :format, :serviceid, Service.rname_to_id_desc("SERVICE") do |arg|
+    set :format, :service_id, Service.rname_to_id_desc("SERVICE") do |arg|
         Service.rname_to_id(arg, "SERVICE")
     end
 
-    set :format, :serviceid_list, Service.list_to_id_desc("SERVICE") do |arg|
+    set :format, :service_id_list, Service.list_to_id_desc("SERVICE") do |arg|
         Service.list_to_id(arg, "SERVICE")
+    end
+
+    set :format, :vm_action, "Actions supported: #{Role::SCHEDULE_ACTIONS.join(', ')}" do |arg|
+        if Role::SCHEDULE_ACTIONS.include?(arg)
+            [0, arg]
+        else
+            [-1, "Action #{arg} is not supported. Actions supported: #{Role::SCHEDULE_ACTIONS.join(', ')}"]
+        end
     end
 
     #
@@ -285,7 +293,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Show detailed information of a given service
     EOT
 
-    command :show, show_desc, :serviceid, :options => Service::JSON_FORMAT do
+    command :show, show_desc, :service_id, :options => Service::JSON_FORMAT do
         client = Service::Client.new(
                     :username   => options[:username],
                     :password   => options[:password],
@@ -304,7 +312,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         id is specified
     EOT
 
-    command :top, top_desc, [:serviceid, nil],
+    command :top, top_desc, [:service_id, nil],
             :options => [Service::JSON_FORMAT, Service::TOP, CLIHelper::DELAY] do
         client = Service::Client.new(
                     :username   => options[:username],
@@ -349,7 +357,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Delete a given service
     EOT
 
-    command :delete, delete_desc, [:range, :serviceid_list] do
+    command :delete, delete_desc, [:range, :service_id_list] do
         client = Service::Client.new(
                     :username   => options[:username],
                     :password   => options[:password],
@@ -370,7 +378,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             From RUNNING or UNKNOWN shuts down the Service
     EOT
 
-    command :shutdown, shutdown_desc, [:range, :serviceid_list] do
+    command :shutdown, shutdown_desc, [:range, :service_id_list] do
         client = Service::Client.new(
                     :username   => options[:username],
                     :password   => options[:password],
@@ -395,7 +403,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             From FAILED_UNDEPLOYING continues shutting down the Service
     EOT
 
+<<<<<<< HEAD
     command :recover, recover_desc, [:range, :serviceid_list] do
+=======
+    command :deploy, deploy_desc, [:range, :service_id_list] do
+>>>>>>> feature-1853
         client = Service::Client.new(
                     :username   => options[:username],
                     :password   => options[:password],
@@ -447,7 +459,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Changes the service group
     EOT
 
-    command :chgrp, chgrp_desc, [:range, :serviceid_list], :groupid do
+    command :chgrp, chgrp_desc, [:range, :service_id_list], :groupid do
         client = Service::Client.new(
                     :username   => options[:username],
                     :password   => options[:password],
@@ -468,7 +480,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Changes the service owner and group
     EOT
 
-    command :chown, chown_desc, [:range, :serviceid_list], :userid, [:groupid, nil] do
+    command :chown, chown_desc, [:range, :service_id_list], :userid, [:groupid, nil] do
         client = Service::Client.new(
                     :username   => options[:username],
                     :password   => options[:password],
@@ -490,7 +502,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Changes the service permissions
     EOT
 
-    command :chmod, chmod_desc, [:range, :serviceid_list], :octet do
+    command :chmod, chmod_desc, [:range, :service_id_list], :octet do
         client = Service::Client.new(
                     :username   => options[:username],
                     :password   => options[:password],
@@ -504,6 +516,26 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             json_action = Service.build_json_action('chmod', params)
 
             client.post("#{RESOURCE_PATH}/#{service_id}/action", json_action)
+        }
+    end
+
+    batch_action_desc = <<-EOT.unindent
+        Changes the service permissions
+    EOT
+
+    command :"batch-action", batch_action_desc, :service_id, :role_name, :vm_action do
+        client = Service::Client.new(
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
+
+        Service.perform_actions([args[0]]) { |service_id|
+            params = Hash.new
+
+            json_action = Service.build_json_action(args[2], params)
+
+            client.post("#{RESOURCE_PATH}/#{service_id}/role/#{args[1]}/action", json_action)
         }
     end
 end

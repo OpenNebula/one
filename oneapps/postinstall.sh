@@ -110,9 +110,25 @@ add_view "    apptools-appflow-services:" \
 "    apptools-appflow-services:
         panel_tabs:
             service_info_tab: true
-            service_role_tab: true
+            service_roles_tab: true
             service_vms_tab: true
             service_log_tab: true
+        panel_tabs_actions:
+            service_roles_tab:
+                Role.hold: true
+                Role.release: true
+                Role.suspend: true
+                Role.resume: true
+                Role.stop: true
+                Role.boot: true
+                Role.reboot: true
+                Role.reboot_hard: true
+                Role.poweroff: true
+                Role.poweroff_hard: true
+                Role.shutdown: true
+                Role.shutdown_hard: true
+                Role.delete: true
+                Role.delete_recreate: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID
