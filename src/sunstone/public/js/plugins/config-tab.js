@@ -32,8 +32,14 @@ Config = {
       var enabled = config['view']['tabs'][tab_name]['enabled'];
       return enabled;
     },
-    "isTabActionEnabled": function(tab_name, action_name){
-      var enabled = config['view']['tabs'][tab_name]['actions'][action_name];
+    "isTabActionEnabled": function(tab_name, action_name, panel_name){
+      var enabled;
+      if (panel_name) {
+        enabled = config['view']['tabs'][tab_name]['panel_tabs_actions'][panel_name][action_name];
+      } else {
+        enabled = config['view']['tabs'][tab_name]['actions'][action_name];
+      }
+
       return enabled;
     },
 

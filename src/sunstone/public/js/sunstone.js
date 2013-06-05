@@ -573,15 +573,20 @@ function insertButtons(){
 
 //If we have defined a block of action buttons in a tab,
 //this function takes care of inserting them in the DOM.
-function insertButtonsInTab(tab_name){
-    var buttons = SunstoneCfg["tabs"][tab_name]["buttons"];
+function insertButtonsInTab(tab_name, panel_name, panel_buttons){
+    var buttons = panel_buttons ? panel_buttons : SunstoneCfg["tabs"][tab_name]["buttons"];
     var button_code="";
     var sel_obj=null;
     var condition=null;
 
-    //Check if we have included an appropiate space our tab to
-    //insert them (an .action_blocks div)
-    var action_block = $('div#'+tab_name+' div.action_blocks',main_tabs_context)
+    var context;
+    if (panel_name) {
+        context = $('li#'+panel_name+'Tab', $("#dialog"));
+    } else {
+        context = $('div#'+tab_name, main_tabs_context);
+    }
+
+    var action_block = $('div.action_blocks', context)
 
     if (action_block.length){
 
@@ -696,7 +701,7 @@ function insertButtonsInTab(tab_name){
             button = buttons[button_name];
 
             //if we meet the condition we proceed. Otherwise we skip it.
-            if (Config.isTabActionEnabled(tab_name, button_name) == false) {
+            if (Config.isTabActionEnabled(tab_name, button_name, panel_name) == false) {
                 continue;
             }
 
