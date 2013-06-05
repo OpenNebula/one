@@ -400,6 +400,17 @@ post '/service_template/:id/action' do
             OpenNebula::Error.new("Action #{action['perform']}: " <<
                     "You have to specify an OCTET")
         end
+    when 'update'
+        if opts && opts['template_json']
+            begin
+                rc = service_template.update(opts['template_json'])
+            rescue Validator::ParseException, JSON::ParserError
+                OpenNebula::Error.new($!.message)
+            end
+        else
+            OpenNebula::Error.new("Action #{action['perform']}: " <<
+                    "You have to provide a template")
+        end
     else
         OpenNebula::Error.new("Action #{action['perform']} not supported")
     end
