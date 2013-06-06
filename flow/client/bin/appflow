@@ -71,7 +71,14 @@ end
 
 NODE_TABLE = CLIHelper::ShowTable.new(nil, self) do
     column :VM_ID, "ONE identifier for Virtual Machine", :size=>6 do |d|
-        d['vm_info']['VM']["ID"]
+        st = ""
+        if d['scale_up']
+            st << "\u2191 "
+        elsif d['disposed']
+            st << "\u2193 "
+        end
+
+        st << d['vm_info']['VM']["ID"]
     end
 
     column :NAME, "Name of the Virtual Machine", :left,
@@ -210,6 +217,58 @@ def show_service(client, args, options)
 
                 puts "NODES INFORMATION"
                 NODE_TABLE.show(role['nodes'])
+
+                if !role['min_vms'].nil? && !role['max_vms'].nil?
+                    puts
+                    puts "ELASTICITY RULES"
+                    puts str % ["MIN VMS", role['min_vms']]
+                    puts str % ["MAX VMS", role['max_vms']]
+
+                    if role['elasticity_policies']
+                        puts
+#                        puts "ELASTICITY POLICIES"
+                        CLIHelper::ShowTable.new(nil, self) do
+                            column :ADJUST, "", :left, :size=>12 do |d|
+                                adjust_str(d)
+                            end
+
+                            column :EXPRESSION, "", :left, :size=>49 do |d|
+                                d['expression']
+                            end
+
+                            column :'EVALUATION', "", :left, :size=>10 do |d|
+                                "#{d['true_evals'].to_i} / #{d['period_number']}"
+                            end
+
+                            column :PERIOD, "", :size=>6 do |d|
+                                "#{d['period']}s"
+                            end
+
+                            default :ADJUST, :EXPRESSION, :EVALUATION, :PERIOD
+                        end.show([role['elasticity_policies']].flatten, {})
+                    end
+
+                    if role['scheduled_policies']
+                        puts
+#                        puts "SCHEDULED POLICIES"
+                        CLIHelper::ShowTable.new(nil, self) do
+                            column :ADJUST, "", :left, :size=>12 do |d|
+                                adjust_str(d)
+                            end
+
+                            column :TIME, "", :left, :size=>67 do |d|
+                                if d['start_time']
+                                    Time.parse(d['start_time']).to_s
+                                else
+                                    d['recurrence']
+                                end
+                            end
+
+                            default :ADJUST, :TIME
+                        end.show([role['scheduled_policies']].flatten, {})
+                    end
+                end
+
                 puts
             }
 
@@ -226,6 +285,25 @@ def show_service(client, args, options)
 
             0
         end
+    end
+end
+
+def adjust_str(policy)
+    sign = policy['adjust'].to_i >= 0 ? "+" : "-"
+    adjust = policy['adjust'].to_i.abs
+
+    case policy['type']
+    when 'CARDINALITY'
+        "= #{adjust}"
+    when 'PERCENTAGE_CHANGE'
+        st = "#{sign} #{adjust} %"
+        if policy['min_adjust_step']
+            st << " (#{policy['min_adjust_step']})"
+        end
+
+        st
+    else
+        "#{sign} #{adjust}"
     end
 end
 
