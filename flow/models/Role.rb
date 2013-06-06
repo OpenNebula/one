@@ -388,6 +388,7 @@ module OpenNebula
         def batch_action(action)
             vms_id = []
 
+            error_msgs = []
             nodes = @body['nodes']
             nodes.each do |node|
                 vm_id = node['deploy_id']
@@ -396,14 +397,10 @@ module OpenNebula
 
                 if OpenNebula.is_error?(rc)
                     msg = "Role #{name} : VM #{vm_id} monitorization failed; #{rc.message}"
+                    error_msgs << msg
                     Log.error LOG_COMP, msg, @service.id()
                     @service.log_error(msg)
-
-                    # TODO rollback?
                 else
-                    # TODO disposed nodes?
-
-                    vms_id << vm.id
                     ids = vm.retrieve_elements('USER_TEMPLATE/SCHED_ACTION/ID')
 
                     id = 0
@@ -416,15 +413,27 @@ module OpenNebula
                     # TODO time & periods
                     tmp_str << "\nSCHED_ACTION = [ID = #{id}, ACTION = #{action}, TIME = #{Time.now.to_i}]"
 
-                    vm.update(tmp_str)
-                    # TODO check errors
+                    rc = vm.update(tmp_str)
+                    if OpenNebula.is_error?(rc)
+                        msg = "Role #{name} : VM #{vm_id} error scheduling action; #{rc.message}"
+                        error_msgs << msg
+                        Log.error LOG_COMP, msg, @service.id()
+                        @service.log_error(msg)
+                    else
+                        vms_id << vm.id
+                    end
                 end
             end
 
-            log_msg = "Action:#{action} performed on Role:#{self.name} VMs:#{vms_id.join(',')}"
+            log_msg = "Action:#{action} scheduled on Role:#{self.name} VMs:#{vms_id.join(',')}"
             Log.info LOG_COMP, log_msg, @service.id()
 
-            return [true, nil]
+            if error_msgs.empty?
+                return [true, log_msg]
+            else
+                error_msgs << log_msg
+                return [false, error_msgs.join('\n')]
+            end
         end
 
         ########################################################################

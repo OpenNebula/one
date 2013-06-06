@@ -277,17 +277,22 @@ post '/service/:id/role/:role_name/action' do
 
         role = roles[params[:role_name]]
         if role.nil?
-            OpenNebula::Error.new("Role '#{role}' not found")
+            rc = OpenNebula::Error.new("Role '#{params[:role_name]}' not found")
         else
             rc = role.batch_action(action['perform'])
         end
     }
+
+    if OpenNebula.is_error?(service)
+        error CloudServer::HTTP_ERROR_CODE[service.errno], service.message
+    end
 
     if OpenNebula.is_error?(rc)
         error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
     end
 
     status 201
+    body rc.to_json
 end
 
 ##############################################################################
