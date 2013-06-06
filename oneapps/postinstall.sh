@@ -16,6 +16,10 @@ debian)
     SUNSTONE_SERVER="/etc/one/sunstone-server.conf"
     SUNSTONE_AUTH="/var/lib/one/.one/sunstone_auth"
     APPFLOW_AUTH="/var/lib/one/.one/appflow_auth"
+    SUNSTONE_JS="/usr/share/opennebula/sunstone/public/js/sunstone.js"
+    SUNSTONE_JS_NEW="/usr/share/opennebula/oneapps/public/js/sunstone.js"
+    CONFIG_TAB_JS="/usr/share/opennebula/sunstone/public/js/plugins/config-tab.js"
+    CONFIG_TAB_JS_NEW="/usr/share/opennebula/oneapps/public/js/plugins/config-tab.js"
     ;;
 
 systemwide)
@@ -23,6 +27,8 @@ systemwide)
     SUNSTONE_SERVER="/etc/one/sunstone-server.conf"
     SUNSTONE_AUTH="/var/lib/one/.one/sunstone_auth"
     APPFLOW_AUTH="/var/lib/one/.one/appflow_auth"
+    CONFIG_TAB_JS="/usr/lib/one/sunstone/public/js/plugins/config-tab.js"
+    CONFIG_TAB_JS_NEW="/usr/share/one/oneapps/public/js/plugins/config-tab.js"
     ;;
 
 selfcontained)
@@ -30,6 +36,10 @@ selfcontained)
     SUNSTONE_SERVER="$ROOT/etc/sunstone-server.conf"
     SUNSTONE_AUTH="$ROOT/var/.one/sunstone_auth"
     APPFLOW_AUTH="$ROOT/var/.one/appflow_auth"
+    SUNSTONE_JS="$ROOT/lib/sunstone/public/js/sunstone.js"
+    SUNSTONE_JS_NEW="/usr/share/one/oneapps/public/js/sunstone.js"
+    CONFIG_TAB_JS="$ROOT/lib/sunstone/public/js/plugins/config-tab.js"
+    CONFIG_TAB_JS_NEW="/usr/share/one/oneapps/public/js/plugins/config-tab.js"
     ;;
 
 *)
@@ -228,6 +238,11 @@ if [ ! -e "$APPFLOW_AUTH" ]; then
     cp -p "$SUNSTONE_AUTH" "$APPFLOW_AUTH"
 fi
 
+# Install new sunstone.js & plugins/config-tab.js
+make_backup "$SUNSTONE_JS"
+cp "$SUNSTONE_JS_NEW" "$SUNSTONE_JS"
+make_backup "$CONFIG_TAB_JS"
+cp "$CONFIG_TAB_JS_NEW" "$CONFIG_TAB_JS"
 
 print_install_message
 
