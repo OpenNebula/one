@@ -403,11 +403,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             From FAILED_UNDEPLOYING continues shutting down the Service
     EOT
 
-<<<<<<< HEAD
     command :recover, recover_desc, [:range, :serviceid_list] do
-=======
-    command :deploy, deploy_desc, [:range, :service_id_list] do
->>>>>>> feature-1853
         client = Service::Client.new(
                     :username   => options[:username],
                     :password   => options[:password],
