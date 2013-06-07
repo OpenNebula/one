@@ -153,6 +153,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     set :option, Service::DEFAULT_OPTIONS
     set :option, CommandParser::VERSION
+    set :option, CommandParser::HELP
 
     #
     # Formatters for arguments

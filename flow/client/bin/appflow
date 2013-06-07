@@ -317,6 +317,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     set :option, Service::DEFAULT_OPTIONS
     set :option, CommandParser::VERSION
+    set :option, CommandParser::HELP
 
     #
     # Formatters for arguments
@@ -594,7 +595,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     batch_action_desc = <<-EOT.unindent
-        Changes the service permissions
+        Perform an action on all the Virtual Machines of a given role.
+        Actions supported: #{Role::SCHEDULE_ACTIONS.join(",")}
     EOT
 
     command :"batch-action", batch_action_desc, :service_id, :role_name, :vm_action do
