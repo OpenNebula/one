@@ -19,7 +19,7 @@ debian)
     SUNSTONE_JS="/usr/share/opennebula/sunstone/public/js/sunstone.js"
     SUNSTONE_JS_NEW="/usr/share/opennebula/oneapps/public/js/sunstone.js"
     CONFIG_TAB_JS="/usr/share/opennebula/sunstone/public/js/plugins/config-tab.js"
-    CONFIG_TAB_JS_NEW="/usr/share/opennebula/oneapps/public/js/plugins/config-tab.js"
+    CONFIG_TAB_JS_NEW="/usr/share/opennebula/oneapps/public/js/config-tab.js"
     ;;
 
 systemwide)
@@ -27,8 +27,10 @@ systemwide)
     SUNSTONE_SERVER="/etc/one/sunstone-server.conf"
     SUNSTONE_AUTH="/var/lib/one/.one/sunstone_auth"
     APPFLOW_AUTH="/var/lib/one/.one/appflow_auth"
+    SUNSTONE_JS="/usr/lib/one/sunstone/public/js/sunstone.js"
+    SUNSTONE_JS_NEW="/usr/share/opennebula/oneapps/public/js/sunstone.js"
     CONFIG_TAB_JS="/usr/lib/one/sunstone/public/js/plugins/config-tab.js"
-    CONFIG_TAB_JS_NEW="/usr/share/one/oneapps/public/js/plugins/config-tab.js"
+    CONFIG_TAB_JS_NEW="/usr/share/one/oneapps/public/js/config-tab.js"
     ;;
 
 selfcontained)
@@ -39,7 +41,7 @@ selfcontained)
     SUNSTONE_JS="$ROOT/lib/sunstone/public/js/sunstone.js"
     SUNSTONE_JS_NEW="/usr/share/one/oneapps/public/js/sunstone.js"
     CONFIG_TAB_JS="$ROOT/lib/sunstone/public/js/plugins/config-tab.js"
-    CONFIG_TAB_JS_NEW="/usr/share/one/oneapps/public/js/plugins/config-tab.js"
+    CONFIG_TAB_JS_NEW="/usr/share/one/oneapps/public/js/config-tab.js"
     ;;
 
 *)
