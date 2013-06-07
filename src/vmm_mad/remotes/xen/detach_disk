@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
@@ -19,41 +19,10 @@
 source $(dirname $0)/xenrc
 source $(dirname $0)/../../scripts_common.sh
 
-function error_exit() {
-    exit_code=$1
-    message=$2
-    if [ "x$exit_code" != "x0" ]; then
-        error_message $message
-        exit $exit_code
-    fi
-}
+DOMAIN="$1"
+SOURCE="$2"
+TARGET="$3"
+TARGET_INDEX="$4"
 
-domain=$1
-
-mkdir -p `dirname $domain`
-cat > $domain
-
-output=`$XM_CREATE $domain`
-
-error_exit $? "Unable to create domain"
-
-domain_name=`echo $output | grep 'Started domain' | sed 's/^.*Started domain //' | tr -d '\n' | cut -d' ' -f1`
-
-out=`grep -e '^\#O CPU_CREDITS =' < $domain`
-
-if [ "x$?" = "x0" ]; then
-    credits=`echo $out | cut -d= -f2 | tr -d ' '`
-    
-    log_debug "Credits set to $credits"
-    
-    name=`grep -e '^name =' < $domain | cut -d= -f2 | tr -d ' ' | tr -d "\'" | cut -d' ' -f1`
-    
-    $XM_CREDITS -d $name -w $credits
-    
-    if [ "x$?" != "x0" ]; then
-        log_error "Unable to set VM credits"
-    fi
-fi
-
-echo $domain_name
-
+exec_and_log "$XM_DETACH_DISK $DOMAIN ${TARGET_PREFIX}$TARGET" \
+    "Could not detach $TARGET from $DOMAIN"

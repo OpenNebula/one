@@ -41,7 +41,11 @@ export XM_NETWORK_LIST="sudo $XM_PATH network-list"
 # Xen 4 uses the new blktap2 and tap:aio handler is no longer supported.
 # To make it work uncomment this line. This will be used as the default
 # handler for disk hot plug
-#export IMAGE_PREFIX="tap:tapdisk:aio"
+#export DEFAULT_FILE_PREFIX="tap:tapdisk:aio"
+export DEFAULT_FILE_PREFIX="file"
+
+# attach and detach disk target prefix
+TARGET_PREFIX="/dev/"
 
 # Seconds to wait after shutdown until timeout
 export SHUTDOWN_TIMEOUT=300
