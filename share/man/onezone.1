@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEZONE" "1" "January 2013" "" "onezone(1) -- manages OpenNebula zones"
+.TH "ONEZONE" "1" "June 2013" "" "onezone(1) -- manages OpenNebula zones"
 .
 .SH "NAME"
 \fBonezone\fR
@@ -23,132 +23,37 @@
 .SH "COMMANDS"
 .
 .IP "\(bu" 4
-create \fIfile\fR
-.
-.IP "" 4
-.
-.nf
-
-Create a new Zone
-.
-.fi
-.
-.IP "" 0
-
+create \fIfile\fR Create a new Zone
 .
 .IP "\(bu" 4
-show \fIzoneid\fR [\fIresource\fR]
-.
-.IP "" 4
-.
-.nf
-
-Show information of a particular Zone
-Available resources: host, vm, image, vnet, vmtemplate,
-                     user, cluster, datastore
-Examples:
-  onezone show 4
-  onezone show 4 host
-valid options: json
-.
-.fi
-.
-.IP "" 0
-
+show \fIzoneid\fR [\fIresource\fR] Show information of a particular Zone Available resources: host, vm, image, vnet, vmtemplate, user, cluster, datastore Examples: onezone show 4 onezone show 4 host valid options: json
 .
 .IP "\(bu" 4
-list
-.
-.IP "" 4
-.
-.nf
-
-Lists Zones in the pool
-valid options: json
-.
-.fi
-.
-.IP "" 0
-
+list Lists Zones in the pool valid options: json
 .
 .IP "\(bu" 4
-delete \fIzoneid\fR
-.
-.IP "" 4
-.
-.nf
-
-Deletes a Zone
-.
-.fi
-.
-.IP "" 0
-
+delete \fIzoneid\fR Deletes a Zone
 .
 .IP "" 0
 .
 .SH "ARGUMENT FORMATS"
 .
 .IP "\(bu" 4
-file
-.
-.IP "" 4
-.
-.nf
-
-Path to a file
-.
-.fi
-.
-.IP "" 0
-
+file Path to a file
 .
 .IP "\(bu" 4
-range
-.
-.IP "" 4
-.
-.nf
-
-List of id\'s in the form 1,8\.\.15
-.
-.fi
-.
-.IP "" 0
-
+range List of id\'s in the form 1,8\.\.15
 .
 .IP "\(bu" 4
-text
-.
-.IP "" 4
-.
-.nf
-
-String
-.
-.fi
-.
-.IP "" 0
-
+text String
 .
 .IP "\(bu" 4
-zoneid
-.
-.IP "" 4
-.
-.nf
-
-Zone ID
-.
-.fi
-.
-.IP "" 0
-
+zoneid Zone ID
 .
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 3\.8\.3 Copyright 2002\-2013, OpenNebula Project Leads (OpenNebula\.org)
+OpenNebula 3\.8\.4 Copyright 2002\-2013, OpenNebula Project Leads (OpenNebula\.org)
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

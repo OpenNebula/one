@@ -20,7 +20,7 @@ require 'ipaddr'
 require 'set'
 
 module OneDBFsck
-    VERSION = "3.8.3"
+    VERSION = "3.8.4"
 
     def db_version
         VERSION

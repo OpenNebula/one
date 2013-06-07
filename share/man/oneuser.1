@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEUSER" "1" "January 2013" "" "oneuser(1) -- manages OpenNebula users"
+.TH "ONEUSER" "1" "June 2013" "" "oneuser(1) -- manages OpenNebula users"
 .
 .SH "NAME"
 \fBoneuser\fR
@@ -37,100 +37,26 @@
 .SH "COMMANDS"
 .
 .IP "\(bu" 4
-create \fIusername\fR [\fIpassword\fR]
-.
-.IP "" 4
-.
-.nf
-
-Creates a new User
-Examples:
-  oneuser create my_user my_password
-  oneuser create my_user \-r /tmp/mypass
-  oneuser create my_user \-\-ssh \-\-key /tmp/id_rsa
-  oneuser create my_user \-\-ssh \-r /tmp/public_key
-  oneuser create my_user \-\-x509 \-\-cert /tmp/my_cert\.pem
-valid options: read_file, sha1, ssh, x509, key, cert, driver
-.
-.fi
-.
-.IP "" 0
-
+create \fIusername\fR [\fIpassword\fR] Creates a new User Examples: oneuser create my_user my_password oneuser create my_user \-r /tmp/mypass oneuser create my_user \-\-ssh \-\-key /tmp/id_rsa oneuser create my_user \-\-ssh \-r /tmp/public_key oneuser create my_user \-\-x509 \-\-cert /tmp/my_cert\.pem valid options: read_file, sha1, ssh, x509, key, cert, driver
 .
 .IP "\(bu" 4
-update \fIuserid\fR [\fIfile\fR]
-.
-.IP "" 4
-.
-.nf
-
-Update the template contents\. If a path is not provided the editor will
-be launched to modify the current content\.
-.
-.fi
-.
-.IP "" 0
-
+update \fIuserid\fR [\fIfile\fR] Update the template contents\. If a path is not provided the editor will be launched to modify the current content\.
 .
 .IP "\(bu" 4
-quota \fIuserid\fR [\fIfile\fR]
-.
-.IP "" 4
-.
-.nf
-
-Set the quota limits for the user\. If a path is not provided the editor
-will be launched to modify the current quotas\.
-.
-.fi
-.
-.IP "" 0
-
+quota \fIuserid\fR [\fIfile\fR] Set the quota limits for the user\. If a path is not provided the editor will be launched to modify the current quotas\.
 .
 .IP "\(bu" 4
-batchquota \fIrange|userid_list\fR [\fIfile\fR]
-.
-.IP "" 4
-.
-.nf
-
-Sets the quota limits in batch for various users\. If a path is not
-provided the editor will be launched to create new quotas\.
-.
-.fi
-.
-.IP "" 0
-
+batchquota \fIrange|userid_list\fR [\fIfile\fR] Sets the quota limits in batch for various users\. If a path is not provided the editor will be launched to create new quotas\.
 .
 .IP "\(bu" 4
-login \fIusername\fR
-.
-.IP "" 4
-.
-.nf
-
-Creates the Login token for authentication
-Examples:
-  oneuser login my_user \-\-ssh \-\-key /tmp/id_rsa \-\-time 72000
-  oneuser login my_user \-\-x509 \-\-cert /tmp/my_cert\.pem
-                        \-\-key /tmp/my_key\.pk \-\-time 72000
-  oneuser login my_user \-\-x509_proxy \-\-proxy /tmp/my_cert\.pem
-                        \-\-time 72000
-valid options: ssh, x509, x509_proxy, key, cert, proxy, time
-.
-.fi
-.
-.IP "" 0
-
+login \fIusername\fR Creates the Login token for authentication Examples: oneuser login my_user \-\-ssh \-\-key /tmp/id_rsa \-\-time 72000 oneuser login my_user \-\-x509 \-\-cert /tmp/my_cert\.pem \-\-key /tmp/my_key\.pk \-\-time 72000 oneuser login my_user \-\-x509_proxy \-\-proxy /tmp/my_cert\.pem \-\-time 72000 valid options: ssh, x509, x509_proxy, key, cert, proxy, time
 .
 .IP "\(bu" 4
-key
+key DEPRECATED, use login to generate auth files\.
 .
 .IP "" 4
 .
 .nf
-
-DEPRECATED, use login to generate auth files\.
 
 Shows a public key from a private SSH key\. Use it as password
 for the SSH authentication mechanism\.
@@ -142,220 +68,55 @@ valid options: key
 
 .
 .IP "\(bu" 4
-delete \fIrange|userid_list\fR
-.
-.IP "" 4
-.
-.nf
-
-Deletes the given User
-.
-.fi
-.
-.IP "" 0
-
+delete \fIrange|userid_list\fR Deletes the given User
 .
 .IP "\(bu" 4
-passwd \fIuserid\fR [\fIpassword\fR]
-.
-.IP "" 4
-.
-.nf
-
-Changes the given User\'s password
-valid options: read_file, sha1, ssh, x509, key, cert, driver
-.
-.fi
-.
-.IP "" 0
-
+passwd \fIuserid\fR [\fIpassword\fR] Changes the given User\'s password valid options: read_file, sha1, ssh, x509, key, cert, driver
 .
 .IP "\(bu" 4
-chgrp \fIrange|userid_list\fR \fIgroupid\fR
-.
-.IP "" 4
-.
-.nf
-
-Changes the User\'s main group
-.
-.fi
-.
-.IP "" 0
-
+chgrp \fIrange|userid_list\fR \fIgroupid\fR Changes the User\'s main group
 .
 .IP "\(bu" 4
-chauth \fIuserid\fR [\fIauth\fR] [\fIpassword\fR]
-.
-.IP "" 4
-.
-.nf
-
-Changes the User\'s auth driver and its password (optional)
-Examples:
-  oneuser chauth my_user core
-  oneuser chauth my_user core new_password
-  oneuser chauth my_user core \-r /tmp/mypass
-  oneuser chauth my_user \-\-ssh \-\-key /home/oneadmin/\.ssh/id_rsa
-  oneuser chauth my_user \-\-ssh \-r /tmp/public_key
-  oneuser chauth my_user \-\-x509 \-\-cert /tmp/my_cert\.pem
-valid options: read_file, sha1, ssh, x509, key, cert, driver
-.
-.fi
-.
-.IP "" 0
-
+chauth \fIuserid\fR [\fIauth\fR] [\fIpassword\fR] Changes the User\'s auth driver and its password (optional) Examples: oneuser chauth my_user core oneuser chauth my_user core new_password oneuser chauth my_user core \-r /tmp/mypass oneuser chauth my_user \-\-ssh \-\-key /home/oneadmin/\.ssh/id_rsa oneuser chauth my_user \-\-ssh \-r /tmp/public_key oneuser chauth my_user \-\-x509 \-\-cert /tmp/my_cert\.pem valid options: read_file, sha1, ssh, x509, key, cert, driver
 .
 .IP "\(bu" 4
-list
-.
-.IP "" 4
-.
-.nf
-
-Lists Users in the pool
-valid options: list, delay, xml, numeric, describe
-.
-.fi
-.
-.IP "" 0
-
+list Lists Users in the pool valid options: list, delay, xml, numeric, describe
 .
 .IP "\(bu" 4
-show [\fIuserid\fR]
-.
-.IP "" 4
-.
-.nf
-
-Shows information for the given User
-valid options: xml
-.
-.fi
-.
-.IP "" 0
-
+show [\fIuserid\fR] Shows information for the given User valid options: xml
 .
 .IP "\(bu" 4
-encode \fIusername\fR [\fIpassword\fR]
-.
-.IP "" 4
-.
-.nf
-
-Encodes user and password to use it with ldap
-.
-.fi
-.
-.IP "" 0
-
+encode \fIusername\fR [\fIpassword\fR] Encodes user and password to use it with ldap
 .
 .IP "" 0
 .
 .SH "ARGUMENT FORMATS"
 .
 .IP "\(bu" 4
-file
-.
-.IP "" 4
-.
-.nf
-
-Path to a file
-.
-.fi
-.
-.IP "" 0
-
+file Path to a file
 .
 .IP "\(bu" 4
-range
-.
-.IP "" 4
-.
-.nf
-
-List of id\'s in the form 1,8\.\.15
-.
-.fi
-.
-.IP "" 0
-
+range List of id\'s in the form 1,8\.\.15
 .
 .IP "\(bu" 4
-text
-.
-.IP "" 4
-.
-.nf
-
-String
-.
-.fi
-.
-.IP "" 0
-
+text String
 .
 .IP "\(bu" 4
-groupid
-.
-.IP "" 4
-.
-.nf
-
-OpenNebula GROUP name or id
-.
-.fi
-.
-.IP "" 0
-
+groupid OpenNebula GROUP name or id
 .
 .IP "\(bu" 4
-userid
-.
-.IP "" 4
-.
-.nf
-
-OpenNebula USER name or id
-.
-.fi
-.
-.IP "" 0
-
+userid OpenNebula USER name or id
 .
 .IP "\(bu" 4
-userid_list
-.
-.IP "" 4
-.
-.nf
-
-Comma\-separated list of OpenNebula USER names or ids
-.
-.fi
-.
-.IP "" 0
-
+userid_list Comma\-separated list of OpenNebula USER names or ids
 .
 .IP "\(bu" 4
-password
-.
-.IP "" 4
-.
-.nf
-
-User password
-.
-.fi
-.
-.IP "" 0
-
+password User password
 .
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 3\.8\.3 Copyright 2002\-2013, OpenNebula Project Leads (OpenNebula\.org)
+OpenNebula 3\.8\.4 Copyright 2002\-2013, OpenNebula Project Leads (OpenNebula\.org)
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

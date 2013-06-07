@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEGROUP" "1" "January 2013" "" "onegroup(1) -- manages OpenNebula groups"
+.TH "ONEGROUP" "1" "June 2013" "" "onegroup(1) -- manages OpenNebula groups"
 .
 .SH "NAME"
 \fBonegroup\fR
@@ -27,171 +27,46 @@
 .SH "COMMANDS"
 .
 .IP "\(bu" 4
-create \fIname\fR
-.
-.IP "" 4
-.
-.nf
-
-Creates a new Group
-.
-.fi
-.
-.IP "" 0
-
+create \fIname\fR Creates a new Group
 .
 .IP "\(bu" 4
-delete \fIrange|groupid_list\fR
-.
-.IP "" 4
-.
-.nf
-
-Deletes the given Group
-.
-.fi
-.
-.IP "" 0
-
+delete \fIrange|groupid_list\fR Deletes the given Group
 .
 .IP "\(bu" 4
-list
-.
-.IP "" 4
-.
-.nf
-
-Lists Groups in the pool
-valid options: list, delay, xml, numeric, describe
-.
-.fi
-.
-.IP "" 0
-
+list Lists Groups in the pool valid options: list, delay, xml, numeric, describe
 .
 .IP "\(bu" 4
-show [\fIgroupid\fR]
-.
-.IP "" 4
-.
-.nf
-
-Shows information for the given Group
-valid options: xml
-.
-.fi
-.
-.IP "" 0
-
+show [\fIgroupid\fR] Shows information for the given Group valid options: xml
 .
 .IP "\(bu" 4
-quota \fIgroupid\fR [\fIfile\fR]
-.
-.IP "" 4
-.
-.nf
-
-Set the quota limits for the group\. If a path is not provided the editor
-will be launched to modify the current quotas\.
-.
-.fi
-.
-.IP "" 0
-
+quota \fIgroupid\fR [\fIfile\fR] Set the quota limits for the group\. If a path is not provided the editor will be launched to modify the current quotas\.
 .
 .IP "\(bu" 4
-batchquota \fIrange|groupid_list\fR [\fIfile\fR]
-.
-.IP "" 4
-.
-.nf
-
-Sets the quota limits in batch for various groups\. If a path is not
-provided the editor will be launched to create new quotas\.
-.
-.fi
-.
-.IP "" 0
-
+batchquota \fIrange|groupid_list\fR [\fIfile\fR] Sets the quota limits in batch for various groups\. If a path is not provided the editor will be launched to create new quotas\.
 .
 .IP "" 0
 .
 .SH "ARGUMENT FORMATS"
 .
 .IP "\(bu" 4
-file
-.
-.IP "" 4
-.
-.nf
-
-Path to a file
-.
-.fi
-.
-.IP "" 0
-
+file Path to a file
 .
 .IP "\(bu" 4
-range
-.
-.IP "" 4
-.
-.nf
-
-List of id\'s in the form 1,8\.\.15
-.
-.fi
-.
-.IP "" 0
-
+range List of id\'s in the form 1,8\.\.15
 .
 .IP "\(bu" 4
-text
-.
-.IP "" 4
-.
-.nf
-
-String
-.
-.fi
-.
-.IP "" 0
-
+text String
 .
 .IP "\(bu" 4
-groupid
-.
-.IP "" 4
-.
-.nf
-
-OpenNebula GROUP name or id
-.
-.fi
-.
-.IP "" 0
-
+groupid OpenNebula GROUP name or id
 .
 .IP "\(bu" 4
-groupid_list
-.
-.IP "" 4
-.
-.nf
-
-Comma\-separated list of OpenNebula GROUP names or ids
-.
-.fi
-.
-.IP "" 0
-
+groupid_list Comma\-separated list of OpenNebula GROUP names or ids
 .
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 3\.8\.3 Copyright 2002\-2013, OpenNebula Project Leads (OpenNebula\.org)
+OpenNebula 3\.8\.4 Copyright 2002\-2013, OpenNebula Project Leads (OpenNebula\.org)
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

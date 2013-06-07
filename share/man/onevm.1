@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEVM" "1" "January 2013" "" "onevm(1) -- manages OpenNebula virtual machines"
+.TH "ONEVM" "1" "June 2013" "" "onevm(1) -- manages OpenNebula virtual machines"
 .
 .SH "NAME"
 \fBonevm\fR
@@ -40,14 +40,11 @@
 .SH "COMMANDS"
 .
 .IP "\(bu" 4
-create [\fIfile\fR]
+create [\fIfile\fR] Creates a new VM from the given description instead of using a previously defined template (see \'onetemplate create\' and \'onetemplate instantiate\')\.
 .
 .IP "" 4
 .
 .nf
-
-Creates a new VM from the given description instead of using a previously
-defined template (see \'onetemplate create\' and \'onetemplate instantiate\')\.
 
 Examples:
 
@@ -71,13 +68,11 @@ valid options: multiple, name, cpu, arch, memory, disk, network, raw
 
 .
 .IP "\(bu" 4
-delete \fIrange|vmid_list\fR
+delete \fIrange|vmid_list\fR Deletes the given VM
 .
 .IP "" 4
 .
 .nf
-
-Deletes the given VM
 
 States: ANY
 .
@@ -87,14 +82,11 @@ States: ANY
 
 .
 .IP "\(bu" 4
-hold \fIrange|vmid_list\fR
+hold \fIrange|vmid_list\fR Sets the given VM on hold\. A VM on hold is not scheduled until it is released\. It can be, however, deployed manually; see \'onevm deploy\'
 .
 .IP "" 4
 .
 .nf
-
-Sets the given VM on hold\. A VM on hold is not scheduled until it is
-released\. It can be, however, deployed manually; see \'onevm deploy\'
 
 States: PENDING
 .
@@ -104,13 +96,11 @@ States: PENDING
 
 .
 .IP "\(bu" 4
-release \fIrange|vmid_list\fR
+release \fIrange|vmid_list\fR Releases a VM on hold\. See \'onevm hold\'
 .
 .IP "" 4
 .
 .nf
-
-Releases a VM on hold\. See \'onevm hold\'
 
 States: HOLD
 .
@@ -120,16 +110,11 @@ States: HOLD
 
 .
 .IP "\(bu" 4
-saveas \fIvmid\fR \fIdiskid\fR \fIimg_name\fR
+saveas \fIvmid\fR \fIdiskid\fR \fIimg_name\fR Sets the specified VM disk to be saved in a new Image\. The Image is created immediately, but the contents are saved only if the VM is shut down gracefully (i\.e\., using \'onevm shutdown\' and not \'onevm delete\')
 .
 .IP "" 4
 .
 .nf
-
-Sets the specified VM disk to be saved in a new Image\. The Image is
-created immediately, but the contents are saved only if the VM is
-shut down gracefully (i\.e\., using \'onevm shutdown\' and not
-\'onevm delete\')
 
 States: ANY
 valid options: type
@@ -140,13 +125,11 @@ valid options: type
 
 .
 .IP "\(bu" 4
-shutdown \fIrange|vmid_list\fR
+shutdown \fIrange|vmid_list\fR Shuts down the given VM\. The VM life cycle will end\.
 .
 .IP "" 4
 .
 .nf
-
-Shuts down the given VM\. The VM life cycle will end\.
 
 States: RUNNING
 .
@@ -156,14 +139,11 @@ States: RUNNING
 
 .
 .IP "\(bu" 4
-poweroff \fIrange|vmid_list\fR
+poweroff \fIrange|vmid_list\fR Powers off the given VM\. The VM will remain in the poweroff state, and can be powered on with the \'onevm restart\' command\.
 .
 .IP "" 4
 .
 .nf
-
-Powers off the given VM\. The VM will remain in the poweroff state, and
-can be powered on with the \'onevm restart\' command\.
 
 States: RUNNING
 .
@@ -173,14 +153,11 @@ States: RUNNING
 
 .
 .IP "\(bu" 4
-reboot \fIrange|vmid_list\fR
+reboot \fIrange|vmid_list\fR Reboots the given VM, this is equivalent to execute the reboot command from the VM console\.
 .
 .IP "" 4
 .
 .nf
-
-Reboots the given VM, this is equivalent to execute the reboot command
-from the VM console\.
 
 States: RUNNING
 .
@@ -190,13 +167,11 @@ States: RUNNING
 
 .
 .IP "\(bu" 4
-reset \fIrange|vmid_list\fR
+reset \fIrange|vmid_list\fR Resets the given VM
 .
 .IP "" 4
 .
 .nf
-
-Resets the given VM
 
 States: RUNNING
 .
@@ -206,15 +181,11 @@ States: RUNNING
 
 .
 .IP "\(bu" 4
-deploy \fIrange|vmid_list\fR \fIhostid\fR
+deploy \fIrange|vmid_list\fR \fIhostid\fR Deploys the given VM in the specified Host\. This command forces the deployment, in a standard installation the Scheduler is in charge of this decision
 .
 .IP "" 4
 .
 .nf
-
-Deploys the given VM in the specified Host\. This command forces the
-deployment, in a standard installation the Scheduler is in charge
-of this decision
 
 States: PENDING
 .
@@ -224,13 +195,11 @@ States: PENDING
 
 .
 .IP "\(bu" 4
-livemigrate \fIrange|vmid_list\fR \fIhostid\fR
+livemigrate \fIrange|vmid_list\fR \fIhostid\fR Migrates the given running VM to another Host without downtime
 .
 .IP "" 4
 .
 .nf
-
-Migrates the given running VM to another Host without downtime
 
 States: RUNNING
 .
@@ -240,13 +209,11 @@ States: RUNNING
 
 .
 .IP "\(bu" 4
-migrate \fIrange|vmid_list\fR \fIhostid\fR
+migrate \fIrange|vmid_list\fR \fIhostid\fR Saves the given running VM and starts it again in the specified Host
 .
 .IP "" 4
 .
 .nf
-
-Saves the given running VM and starts it again in the specified Host
 
 States: RUNNING
 .
@@ -256,13 +223,11 @@ States: RUNNING
 
 .
 .IP "\(bu" 4
-restart \fIrange|vmid_list\fR
+restart \fIrange|vmid_list\fR Boots the given VM\.
 .
 .IP "" 4
 .
 .nf
-
-Boots the given VM\.
 
 States: UNKNOWN, BOOT, POWEROFF
 .
@@ -272,15 +237,11 @@ States: UNKNOWN, BOOT, POWEROFF
 
 .
 .IP "\(bu" 4
-resubmit \fIrange|vmid_list\fR
+resubmit \fIrange|vmid_list\fR Resubmits the VM to PENDING state\. This is intended for VMs stuck in a transient state\. To re\-deploy a fresh copy of the same VM, create a Template and instantiate it, see \'onetemplate instantiate\'
 .
 .IP "" 4
 .
 .nf
-
-Resubmits the VM to PENDING state\. This is intended for VMs stuck in a
-transient state\. To re\-deploy a fresh copy of the same VM, create a
-Template and instantiate it, see \'onetemplate instantiate\'
 
 States: ANY, except SUSPENDED or DONE
 .
@@ -290,15 +251,11 @@ States: ANY, except SUSPENDED or DONE
 
 .
 .IP "\(bu" 4
-cancel \fIrange|vmid_list\fR
+cancel \fIrange|vmid_list\fR Cancels the given VM\. The process is checked by OpenNebula, so if the process fails the VM remains in running state\. If the action succeeds the VMDIR in the remote machine is not deleted
 .
 .IP "" 4
 .
 .nf
-
-Cancels the given VM\. The process is checked by OpenNebula, so
-if the process fails the VM remains in running state\. If the action
-succeeds the VMDIR in the remote machine is not deleted
 
 States: RUNNING
 .
@@ -308,14 +265,11 @@ States: RUNNING
 
 .
 .IP "\(bu" 4
-stop \fIrange|vmid_list\fR
+stop \fIrange|vmid_list\fR Stops a running VM\. The VM state is saved and transferred back to the front\-end along with the disk files
 .
 .IP "" 4
 .
 .nf
-
-Stops a running VM\. The VM state is saved and transferred back to the
-front\-end along with the disk files
 
 States: RUNNING
 .
@@ -325,16 +279,11 @@ States: RUNNING
 
 .
 .IP "\(bu" 4
-suspend \fIrange|vmid_list\fR
+suspend \fIrange|vmid_list\fR Saves a running VM\. It is the same as \'onevm stop\', but the files are left in the remote machine to later restart the VM there (i\.e\. the resources are not freed and there is no need to re\-schedule the VM)\.
 .
 .IP "" 4
 .
 .nf
-
-Saves a running VM\. It is the same as \'onevm stop\', but the files
-are left in the remote machine to later restart the VM there
-(i\.e\. the resources are not freed and there is no need to
-re\-schedule the VM)\.
 
 States: RUNNING
 .
@@ -344,13 +293,11 @@ States: RUNNING
 
 .
 .IP "\(bu" 4
-resume \fIrange|vmid_list\fR
+resume \fIrange|vmid_list\fR Resumes the execution of the a saved VM
 .
 .IP "" 4
 .
 .nf
-
-Resumes the execution of the a saved VM
 
 States: STOPPED, SUSPENDED
 .
@@ -360,13 +307,11 @@ States: STOPPED, SUSPENDED
 
 .
 .IP "\(bu" 4
-attachdisk \fIvmid\fR
+attachdisk \fIvmid\fR Attaches a disk to a running VM
 .
 .IP "" 4
 .
 .nf
-
-Attaches a disk to a running VM
 
 States: RUNNING
 valid options: file, image, target
@@ -377,13 +322,11 @@ valid options: file, image, target
 
 .
 .IP "\(bu" 4
-detachdisk \fIvmid\fR \fIdiskid\fR
+detachdisk \fIvmid\fR \fIdiskid\fR Detaches a disk from a running VM
 .
 .IP "" 4
 .
 .nf
-
-Detaches a disk from a running VM
 
 States: RUNNING
 .
@@ -393,55 +336,20 @@ States: RUNNING
 
 .
 .IP "\(bu" 4
-chgrp \fIrange|vmid_list\fR \fIgroupid\fR
-.
-.IP "" 4
-.
-.nf
-
-Changes the VM group
-.
-.fi
-.
-.IP "" 0
-
+chgrp \fIrange|vmid_list\fR \fIgroupid\fR Changes the VM group
 .
 .IP "\(bu" 4
-chown \fIrange|vmid_list\fR \fIuserid\fR [\fIgroupid\fR]
-.
-.IP "" 4
-.
-.nf
-
-Changes the VM owner and group
-.
-.fi
-.
-.IP "" 0
-
+chown \fIrange|vmid_list\fR \fIuserid\fR [\fIgroupid\fR] Changes the VM owner and group
 .
 .IP "\(bu" 4
-chmod \fIrange|vmid_list\fR \fIoctet\fR
-.
-.IP "" 4
-.
-.nf
-
-Changes the VM permissions
-.
-.fi
-.
-.IP "" 0
-
+chmod \fIrange|vmid_list\fR \fIoctet\fR Changes the VM permissions
 .
 .IP "\(bu" 4
-resched \fIrange|vmid_list\fR
+resched \fIrange|vmid_list\fR Sets the rescheduling flag for the VM\.
 .
 .IP "" 4
 .
 .nf
-
-Sets the rescheduling flag for the VM\.
 
 States: RUNNING
 .
@@ -451,13 +359,11 @@ States: RUNNING
 
 .
 .IP "\(bu" 4
-unresched \fIrange|vmid_list\fR
+unresched \fIrange|vmid_list\fR Clears the rescheduling flag for the VM\.
 .
 .IP "" 4
 .
 .nf
-
-Clears the rescheduling flag for the VM\.
 
 States: RUNNING
 .
@@ -467,203 +373,52 @@ States: RUNNING
 
 .
 .IP "\(bu" 4
-list [\fIfilterflag\fR]
-.
-.IP "" 4
-.
-.nf
-
-Lists VMs in the pool
-valid options: list, delay, xml, numeric, kilobytes, describe
-.
-.fi
-.
-.IP "" 0
-
+list [\fIfilterflag\fR] Lists VMs in the pool valid options: list, delay, xml, numeric, kilobytes, describe
 .
 .IP "\(bu" 4
-show \fIvmid\fR
-.
-.IP "" 4
-.
-.nf
-
-Shows information for the given VM
-valid options: xml
-.
-.fi
-.
-.IP "" 0
-
+show \fIvmid\fR Shows information for the given VM valid options: xml
 .
 .IP "\(bu" 4
-top [\fIfilterflag\fR]
-.
-.IP "" 4
-.
-.nf
-
-Lists Images continuously
-valid options: list, delay, xml, numeric, kilobytes
-.
-.fi
-.
-.IP "" 0
-
+top [\fIfilterflag\fR] Lists Images continuously valid options: list, delay, xml, numeric, kilobytes
 .
 .IP "" 0
 .
 .SH "ARGUMENT FORMATS"
 .
 .IP "\(bu" 4
-file
-.
-.IP "" 4
-.
-.nf
-
-Path to a file
-.
-.fi
-.
-.IP "" 0
-
+file Path to a file
 .
 .IP "\(bu" 4
-range
-.
-.IP "" 4
-.
-.nf
-
-List of id\'s in the form 1,8\.\.15
-.
-.fi
-.
-.IP "" 0
-
+range List of id\'s in the form 1,8\.\.15
 .
 .IP "\(bu" 4
-text
-.
-.IP "" 4
-.
-.nf
-
-String
-.
-.fi
-.
-.IP "" 0
-
+text String
 .
 .IP "\(bu" 4
-hostid
-.
-.IP "" 4
-.
-.nf
-
-OpenNebula HOST name or id
-.
-.fi
-.
-.IP "" 0
-
+hostid OpenNebula HOST name or id
 .
 .IP "\(bu" 4
-groupid
-.
-.IP "" 4
-.
-.nf
-
-OpenNebula GROUP name or id
-.
-.fi
-.
-.IP "" 0
-
+groupid OpenNebula GROUP name or id
 .
 .IP "\(bu" 4
-userid
-.
-.IP "" 4
-.
-.nf
-
-OpenNebula USER name or id
-.
-.fi
-.
-.IP "" 0
-
+userid OpenNebula USER name or id
 .
 .IP "\(bu" 4
-vmid
-.
-.IP "" 4
-.
-.nf
-
-OpenNebula VM name or id
-.
-.fi
-.
-.IP "" 0
-
+vmid OpenNebula VM name or id
 .
 .IP "\(bu" 4
-vmid_list
-.
-.IP "" 4
-.
-.nf
-
-Comma\-separated list of OpenNebula VM names or ids
-.
-.fi
-.
-.IP "" 0
-
+vmid_list Comma\-separated list of OpenNebula VM names or ids
 .
 .IP "\(bu" 4
-filterflag
-.
-.IP "" 4
-.
-.nf
-
-a, all       all the known VMs
-m, mine      the VM belonging to the user in ONE_AUTH
-g, group     \'mine\' plus the VM belonging to the groups
-             the user is member of
-uid          VM of the user identified by this uid
-user         VM of the user identified by the username
-.
-.fi
-.
-.IP "" 0
-
+filterflag a, all all the known VMs m, mine the VM belonging to the user in ONE_AUTH g, group \'mine\' plus the VM belonging to the groups the user is member of uid VM of the user identified by this uid user VM of the user identified by the username
 .
 .IP "\(bu" 4
-diskid
-.
-.IP "" 4
-.
-.nf
-
-Integer
-.
-.fi
-.
-.IP "" 0
-
+diskid Integer
 .
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 3\.8\.3 Copyright 2002\-2013, OpenNebula Project Leads (OpenNebula\.org)
+OpenNebula 3\.8\.4 Copyright 2002\-2013, OpenNebula Project Leads (OpenNebula\.org)
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0
