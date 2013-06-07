@@ -1190,6 +1190,7 @@ function setupCreateVNetDialog() {
             $('input#phydev,label[for="phydev"]',$create_vn_dialog).hide();
             $('select#vlan,label[for="vlan"]',$create_vn_dialog).show();
             $('input#vlan_id,label[for="vlan_id"]',$create_vn_dialog).show();
+            break;
         case "vmware":
             $('input#bridge,label[for="bridge"]',$create_vn_dialog).show();
             $('input#phydev,label[for="phydev"]',$create_vn_dialog).hide();
@@ -1197,9 +1198,6 @@ function setupCreateVNetDialog() {
             $('input#vlan_id,label[for="vlan_id"]',$create_vn_dialog).show();
             break;
         };
-
-        if (!mustBeAdmin())
-            $('input#vlan_id,label[for="vlan_id"]',$create_vn_dialog).hide();
     });
 
     //Initialize shown options
