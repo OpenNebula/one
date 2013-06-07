@@ -158,7 +158,7 @@ var create_service_template_tmpl = '\
                     <input type="text" id="role_name" name="name"/>\
                 </div>\
                 <div class="one columns">\
-                    <div class="tip">'+ tr("Number of VMs to instantiate with this role") +'</div>\
+                    <div class="tip">'+ tr("Name of the role") +'</div>\
                 </div>\
               </div>\
               <div class="row">\
