@@ -49,7 +49,7 @@ MVSCRIPT=$(cat <<EOF
 SRC_READLN=\$($READLINK -f $SRC_PATH)
 DST_READLN=\$($READLINK -f $DST_PATH)
 
-if [ \( -L $SRC \) -a \( "$SRC_READLN" = "$DST_READLN" \) ] ; then
+if [ \( -L $SRC_PATH \) -a \( "$SRC_READLN" = "$DST_READLN" \) ] ; then
     echo "Not moving files to image repo, they are the same"
 else
     $VMKFSTOOLS -U $DST_DISK
