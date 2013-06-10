@@ -77,23 +77,21 @@ CloudServer.print_configuration(conf)
 #Sinatra configuration
 
 set :config, conf
-set :bind, settings.config[:host]
-set :port, settings.config[:port]
+set :bind, conf[:host]
+set :port, conf[:port]
 
 use Rack::Session::Pool, :key => 'sunstone'
 
 # Enable logger
 
 include CloudLogger
-enable_logging SUNSTONE_LOG, settings.config[:debug_level].to_i
-
+logger = enable_logging SUNSTONE_LOG, conf[:debug_level].to_i
 begin
     ENV["ONE_CIPHER_AUTH"] = SUNSTONE_AUTH
-    cloud_auth = CloudAuth.new(settings.config, settings.logger)
+    cloud_auth = CloudAuth.new(conf, logger)
 rescue => e
-    settings.logger.error {
-        "Error initializing authentication system" }
-    settings.logger.error { e.message }
+    logger.error { "Error initializing authentication system" }
+    logger.error { e.message }
     exit -1
 end
 
@@ -102,11 +100,15 @@ set :cloud_auth, cloud_auth
 #start VNC proxy
 
 configure do
+    vnc = OpenNebulaVNC.new(conf, logger)
+
     set :run, false
-    set :vnc, OpenNebulaVNC.new(conf, settings.logger)
-    settings.vnc.start()
+    set :vnc, vnc
+
+    vnc.start()
+
     Kernel.at_exit do
-        settings.vnc.stop
+        vnc.stop
     end
 end
 
@@ -211,8 +213,8 @@ end
 ##############################################################################
 # Custom routes
 ##############################################################################
-if settings.config[:routes]
-    settings.config[:routes].each { |route|
+if conf[:routes]
+    conf[:routes].each { |route|
         require "routes/#{route}"
     }
 end
