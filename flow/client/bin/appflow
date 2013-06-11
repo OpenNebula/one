@@ -504,7 +504,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Scale a role to the given cardinality
     EOT
 
-    command :'set-cardinality', set_cardinality_desc, :serviceid, :role_name, :cardinality do
+    command :'set-cardinality', set_cardinality_desc, :service_id, :role_name, :cardinality do
         client = Service::Client.new(
                     :username   => options[:username],
                     :password   => options[:password],
