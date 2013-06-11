@@ -26,12 +26,15 @@
 if [ -z "${ONE_LOCATION}" ]; then
     LIB_LOCATION=/usr/lib/one
     VMWARERC=/etc/one/vmwarerc
+    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
 else
     LIB_LOCATION=$ONE_LOCATION/lib
     VMWARERC=$ONE_LOCATION/etc/vmwarerc
+    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
 fi
 
 . $LIB_LOCATION/sh/scripts_common.sh
+. $TMCOMMON
 
 DRIVER_PATH=$(dirname $0)
 source ${DRIVER_PATH}/../libfs.sh
