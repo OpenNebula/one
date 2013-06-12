@@ -30,7 +30,8 @@ module OpenNebula
             'FAILED_UNDEPLOYING' => 7,
             'FAILED_DEPLOYING'   => 8,
             'SCALING'            => 9,
-            'FAILED_SCALING'     => 10
+            'FAILED_SCALING'     => 10,
+            'COOLDOWN'           => 11
         }
 
         STATE_STR = [
@@ -44,7 +45,8 @@ module OpenNebula
             'FAILED_UNDEPLOYING',
             'FAILED_DEPLOYING',
             'SCALING',
-            'FAILED_SCALING'
+            'FAILED_SCALING',
+            'COOLDOWN'
         ]
 
         LOG_COMP = "SER"
@@ -156,6 +158,16 @@ module OpenNebula
         def any_role_failed_scaling?()
             @roles.each do |name, role|
                 if role.state == Role::STATE['FAILED_SCALING']
+                    return true
+                end
+            end
+
+            return false
+        end
+
+        def any_role_cooldown?()
+            @roles.each do |name, role|
+                if role.state == Role::STATE['COOLDOWN']
                     return true
                 end
             end

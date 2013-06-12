@@ -50,7 +50,8 @@ module OpenNebula
             'FAILED_UNDEPLOYING' => 7,
             'FAILED_DEPLOYING'   => 8,
             'SCALING'            => 9,
-            'FAILED_SCALING'     => 10
+            'FAILED_SCALING'     => 10,
+            'COOLDOWN'           => 11
         }
 
         STATE_STR = [
@@ -64,7 +65,8 @@ module OpenNebula
             'FAILED_UNDEPLOYING',
             'FAILED_DEPLOYING',
             'SCALING',
-            'FAILED_SCALING'
+            'FAILED_SCALING',
+            'COOLDOWN'
         ]
 
         LOG_COMP = "ROL"
@@ -442,7 +444,8 @@ module OpenNebula
 
         # Returns a positive, 0, or negative number of nodes to adjust,
         #   according to the elasticity and scheduled policies
-        # @return [Integer] positive, 0, or negative number of nodes to adjust
+        # @return [Array<Integer>] positive, 0, or negative number of nodes to
+        #   adjust, plus the cooldown period duration
         def scale?()
             elasticity_pol = @body['elasticity_policies']
             scheduled_pol = @body['scheduled_policies']
@@ -450,17 +453,20 @@ module OpenNebula
             elasticity_pol ||= []
             scheduled_pol ||= []
 
+            # TODO: Fixed duration
+            cooldown_duration = 60
+
             scheduled_pol.each do |policy|
                 diff = scale_time?(policy)
-                return diff if diff != 0
+                return [diff, 0] if diff != 0
             end
 
             elasticity_pol.each do |policy|
                 diff = scale_attributes?(policy)
-                return diff if diff != 0
+                return [diff, cooldown_duration] if diff != 0
             end
 
-            return 0
+            return [0, 0]
         end
 
         # Returns a positive, 0, or negative number of nodes to adjust,
@@ -713,6 +719,27 @@ module OpenNebula
             end
 
             set_cardinality( get_nodes.size() - n_dispose )
+        end
+
+        # Updates the duration for the next cooldown
+        # @param cooldown_duration [Integer] duration for the next cooldown
+        def set_cooldown_duration(cooldown_duration)
+            @body['cooldown_duration'] = cooldown_duration.to_i
+        end
+
+        # Sets the cooldown end time from now + the duration set in set_cooldown_duration
+        # @return [true, false] true if the cooldown duration is bigger than 0
+        def apply_cooldown_duration()
+            cooldown_duration = @body['cooldown_duration'].to_i
+
+            @body['cooldown_end'] = Time.now + cooldown_duration
+            @body.delete('cooldown_duration')
+        end
+
+        # Returns true if the cooldown period ended
+        # @return [true, false] true if the cooldown period ended
+        def cooldown_over?()
+            return Time.now.to_i >= @body['cooldown_end'].to_i
         end
 
         def update(template)

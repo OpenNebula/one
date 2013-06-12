@@ -82,7 +82,7 @@ class Strategy
         Log.debug LOG_COMP, "Apply scaling policies", service.id()
 
         service.get_roles.each do |name, role|
-            diff = role.scale?
+            diff, cooldown_duration = role.scale?
 
             if diff != 0
                 Log.debug LOG_COMP, "Role #{name} needs to scale #{diff} nodes", service.id()
@@ -90,6 +90,7 @@ class Strategy
                 role.set_cardinality(role.cardinality() + diff)
 
                 role.set_state(Role::STATE['SCALING'])
+                role.set_cooldown_duration(cooldown_duration)
 
                 return true
             end
@@ -153,9 +154,17 @@ class Strategy
                 if OpenNebula.is_error?(rc)
                     role.set_state(Role::STATE['FAILED_SCALING'])
                 elsif role_finished_scaling?(role)
-                    role.set_state(Role::STATE['RUNNING'])
+                    if apply_cooldown = role.apply_cooldown_duration()
+                        role.set_state(Role::STATE['COOLDOWN'])
+                    else
+                        role.set_state(Role::STATE['RUNNING'])
+                    end
                 elsif any_node_failed_scaling?(role)
                     role.set_state(Role::STATE['FAILED_SCALING'])
+                end
+            when Role::STATE['COOLDOWN']
+                if role.cooldown_over?
+                    role.set_state(Role::STATE['RUNNING'])
                 end
             when Role::STATE['UNKNOWN']
                 if role_nodes_running?(role)

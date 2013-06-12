@@ -93,11 +93,10 @@ class ServiceLCM
                         when Service::STATE['SCALING']
                             strategy.monitor_step(service)
 
-                            # TODO: Check scalability rules for roles that are
-                            # not scaling now?
-
                             if service.any_role_failed_scaling?
                                 service.set_state(Service::STATE['FAILED_SCALING'])
+                            elsif service.any_role_cooldown?
+                                service.set_state(Service::STATE['COOLDOWN'])
                             elsif !service.any_role_scaling?
                                 service.set_state(Service::STATE['RUNNING'])
                             else
@@ -105,6 +104,12 @@ class ServiceLCM
                                 if !rc[0]
                                     service.set_state(Service::STATE['FAILED_SCALING'])
                                 end
+                            end
+                        when Service::STATE['COOLDOWN']
+                            strategy.monitor_step(service)
+
+                            if !service.any_role_cooldown?
+                                service.set_state(Service::STATE['RUNNING'])
                             end
                         when Service::STATE['FAILED_SCALING']
                             strategy.monitor_step(service)
