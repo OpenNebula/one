@@ -345,6 +345,8 @@ module OpenNebula
 
                     role.set_state(Role::STATE['SCALING'])
 
+                    role.set_default_cooldown_duration()
+
                     self.set_state(Service::STATE['SCALING'])
                     return self.update
                 end

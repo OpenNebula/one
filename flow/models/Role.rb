@@ -730,6 +730,11 @@ module OpenNebula
             @body['cooldown_duration'] = cooldown_duration.to_i
         end
 
+        # Updates the duration for the next cooldown with the default value
+        def set_default_cooldown_duration()
+            set_cooldown_duration(@body['cooldown'].to_i)
+        end
+
         # Sets the cooldown end time from now + the duration set in set_cooldown_duration
         # @return [true, false] true if the cooldown duration is bigger than 0
         def apply_cooldown_duration()
