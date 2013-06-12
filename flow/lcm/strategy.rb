@@ -154,7 +154,7 @@ class Strategy
                 if OpenNebula.is_error?(rc)
                     role.set_state(Role::STATE['FAILED_SCALING'])
                 elsif role_finished_scaling?(role)
-                    if apply_cooldown = role.apply_cooldown_duration()
+                    if role.apply_cooldown_duration()
                         role.set_state(Role::STATE['COOLDOWN'])
                     else
                         role.set_state(Role::STATE['RUNNING'])
