@@ -223,6 +223,7 @@ def show_service(client, args, options)
                     puts "ELASTICITY RULES"
                     puts str % ["MIN VMS", role['min_vms']]
                     puts str % ["MAX VMS", role['max_vms']]
+                    puts str % ["COOLDOWN", "#{role['cooldown']}s"] if role['cooldown']
 
                     if role['elasticity_policies']
                         puts
@@ -232,7 +233,7 @@ def show_service(client, args, options)
                                 adjust_str(d)
                             end
 
-                            column :EXPRESSION, "", :left, :size=>49 do |d|
+                            column :EXPRESSION, "", :left, :size=>44 do |d|
                                 d['expression']
                             end
 
@@ -244,7 +245,11 @@ def show_service(client, args, options)
                                 "#{d['period']}s"
                             end
 
-                            default :ADJUST, :EXPRESSION, :EVALUATION, :PERIOD
+                            column :COOLDOWN, "", :size=>4 do |d|
+                                d['cooldown'] ? "#{d['cooldown']}s" : '-'
+                            end
+
+                            default :ADJUST, :EXPRESSION, :EVALUATION, :PERIOD, :COOLDOWN
                         end.show([role['elasticity_policies']].flatten, {})
                     end
 
