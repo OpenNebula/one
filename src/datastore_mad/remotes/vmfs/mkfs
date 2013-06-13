@@ -38,7 +38,7 @@ DRIVER_PATH=$(dirname $0)
 source ${DRIVER_PATH}/../libfs.sh
 source ${DRIVER_PATH}/vmfs.conf
 
-# -------- Get cp and datastore arguments from OpenNebula core ------------
+# -------- Get mkfs and datastore arguments from OpenNebula core ------------
 
 DRV_ACTION=$1
 ID=$2
@@ -91,7 +91,8 @@ exec_and_log "ssh_make_path $DST_HOST $DST" "Cannot create $DST in $DST_HOST"
 IMAGE_FORMAT=vmdk
 VMWARE_DISK_TYPE=`echo $FSTYPE|cut -d'_' -f 2`
 
-echo "$VMWARE_DISK_TYPE" | grep '\<thin\>\|\<zeroedthic\>\|\<eagerzeroedthick\>'
+echo "$VMWARE_DISK_TYPE" | \
+    grep '\<thin\>\|\<zeroedthic\>\|\<eagerzeroedthick\>' 2>&1 /dev/null
 
 if [ $? -eq 1 ] ; then
     VMWARE_DISK_TYPE="thin"
