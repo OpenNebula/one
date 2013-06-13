@@ -43,14 +43,13 @@ module Role
         'DEPLOYING'          => 1,
         'RUNNING'            => 2,
         'UNDEPLOYING'        => 3,
-        'FAILED'             => 4,
-        'UNKNOWN'            => 5,
-        'DONE'               => 6,
-        'FAILED_UNDEPLOYING' => 7,
-        'FAILED_DEPLOYING'   => 8,
-        'SCALING'            => 9,
-        'FAILED_SCALING'     => 10,
-        'COOLDOWN'           => 11
+        'UNKNOWN'            => 4,
+        'DONE'               => 5,
+        'FAILED_UNDEPLOYING' => 6,
+        'FAILED_DEPLOYING'   => 7,
+        'SCALING'            => 8,
+        'FAILED_SCALING'     => 9,
+        'COOLDOWN'           => 10
     }
 
     STATE_STR = [
@@ -58,7 +57,6 @@ module Role
         'DEPLOYING',
         'RUNNING',
         'UNDEPLOYING',
-        'FAILED',
         'UNKNOWN',
         'DONE',
         'FAILED_UNDEPLOYING',
@@ -83,14 +81,13 @@ module Service
         'DEPLOYING'          => 1,
         'RUNNING'            => 2,
         'UNDEPLOYING'        => 3,
-        'FAILED'             => 4,
-        'UNKNOWN'            => 5,
-        'DONE'               => 6,
-        'FAILED_UNDEPLOYING' => 7,
-        'FAILED_DEPLOYING'   => 8,
-        'SCALING'            => 9,
-        'FAILED_SCALING'     => 10,
-        'COOLDOWN'           => 11
+        'UNKNOWN'            => 4,
+        'DONE'               => 5,
+        'FAILED_UNDEPLOYING' => 6,
+        'FAILED_DEPLOYING'   => 7,
+        'SCALING'            => 8,
+        'FAILED_SCALING'     => 9,
+        'COOLDOWN'           => 10
     }
 
     STATE_STR = [
@@ -98,7 +95,6 @@ module Service
         'DEPLOYING',
         'RUNNING',
         'UNDEPLOYING',
-        'FAILED',
         'UNKNOWN',
         'DONE',
         'FAILED_UNDEPLOYING',

@@ -24,14 +24,13 @@ module OpenNebula
             'DEPLOYING'          => 1,
             'RUNNING'            => 2,
             'UNDEPLOYING'        => 3,
-            'FAILED'             => 4,
-            'UNKNOWN'            => 5,
-            'DONE'               => 6,
-            'FAILED_UNDEPLOYING' => 7,
-            'FAILED_DEPLOYING'   => 8,
-            'SCALING'            => 9,
-            'FAILED_SCALING'     => 10,
-            'COOLDOWN'           => 11
+            'UNKNOWN'            => 4,
+            'DONE'               => 5,
+            'FAILED_UNDEPLOYING' => 6,
+            'FAILED_DEPLOYING'   => 7,
+            'SCALING'            => 8,
+            'FAILED_SCALING'     => 9,
+            'COOLDOWN'           => 10
         }
 
         STATE_STR = [
@@ -39,7 +38,6 @@ module OpenNebula
             'DEPLOYING',
             'RUNNING',
             'UNDEPLOYING',
-            'FAILED',
             'UNKNOWN',
             'DONE',
             'FAILED_UNDEPLOYING',
@@ -132,8 +130,7 @@ module OpenNebula
         # @return [true, false] true if any of the roles is in failed state
         def any_role_failed?()
             failed_states = [
-                Role::STATE['FAILED'], 
-                Role::STATE['FAILED_DEPLOYING'], 
+                Role::STATE['FAILED_DEPLOYING'],
                 Role::STATE['FAILED_UNDEPLOYING']]
                 
             @roles.each { |name, role|

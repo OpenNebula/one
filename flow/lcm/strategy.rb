@@ -170,12 +170,6 @@ class Strategy
                 if role_nodes_running?(role)
                     role.set_state(Role::STATE['RUNNING'])
                 end
-            when Role::STATE['FAILED']
-                if OpenNebula.is_error?(rc)
-                    role.set_state(Role::STATE['UNKNOWN'])
-                elsif role_nodes_running?(role)
-                    role.set_state(Role::STATE['RUNNING'])
-                end
             when Role::STATE['UNDEPLOYING']
                 if OpenNebula.is_error?(rc)
                     role.set_state(Role::STATE['FAILED_UNDEPLOYING'])
@@ -241,7 +235,6 @@ protected
     def get_roles_shutdown(service)
         result = service.get_roles.select {|name, role|
             ![Role::STATE['UNDEPLOYING'],
-              Role::STATE['FAILED'],
               Role::STATE['DONE'],
               Role::STATE['FAILED_UNDEPLOYING'],
               Role::STATE['FAILED_DEPLOYING']].include?(role.state)

@@ -117,12 +117,6 @@ class ServiceLCM
                             if !service.any_role_failed_scaling?
                                 service.set_state(Service::STATE['SCALING'])
                             end
-                        when Service::STATE['FAILED']
-                            strategy.monitor_step(service)
-
-                            if service.all_roles_running?
-                                service.set_state(Service::STATE['RUNNING'])
-                            end
                         when Service::STATE['UNDEPLOYING']
                             strategy.monitor_step(service)
 
@@ -133,7 +127,7 @@ class ServiceLCM
                             else
                                 rc = strategy.shutdown_step(service)
                                 if !rc[0]
-                                    service.set_state(Service::STATE['FAILED'])
+                                    service.set_state(Service::STATE['FAILED_UNDEPLOYING'])
                                 end
                             end
                         #when Service::STATE['FAILED_DEPLOYING']

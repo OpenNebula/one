@@ -121,7 +121,6 @@ module Straight
         roles.each { |name, role|
             # All roles can be shutdown, except the ones in these states
             if (![Role::STATE['UNDEPLOYING'],
-              Role::STATE['FAILED'],
               Role::STATE['DONE'],
               Role::STATE['FAILED_UNDEPLOYING'],
               Role::STATE['FAILED_DEPLOYING']].include?(role.state) )
