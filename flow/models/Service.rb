@@ -225,6 +225,15 @@ module OpenNebula
             elsif self.state == Service::STATE['FAILED_UNDEPLOYING']
                 self.set_state(Service::STATE['UNDEPLOYING'])
 
+            elsif self.state == Service::STATE['COOLDOWN']
+                @roles.each do |name, role|
+                    if role.state == Role::STATE['COOLDOWN']
+                        role.set_state(Role::STATE['RUNNING'])
+                    end
+                end
+
+                self.set_state(Service::STATE['RUNNING'])
+
             else
                 return OpenNebula::Error.new("Action recover: Wrong state" \
                     " #{self.state_str()}")
