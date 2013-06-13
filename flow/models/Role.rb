@@ -462,7 +462,7 @@ module OpenNebula
                 diff, cooldown_duration = scale_attributes?(policy)
                 if diff != 0
                     cooldown_duration = @body['cooldown'] if cooldown_duration.nil?
-                    cooldown_duration = 0 if cooldown_duration.nil?
+                    cooldown_duration = @@default_cooldown if cooldown_duration.nil?
 
                     return [diff, cooldown_duration]
                 end
@@ -732,7 +732,10 @@ module OpenNebula
 
         # Updates the duration for the next cooldown with the default value
         def set_default_cooldown_duration()
-            set_cooldown_duration(@body['cooldown'].to_i)
+            cooldown_duration = @body['cooldown']
+            cooldown_duration = @@default_cooldown if cooldown_duration.nil?
+
+            set_cooldown_duration(cooldown_duration)
         end
 
         # Sets the cooldown end time from now + the duration set in set_cooldown_duration
@@ -754,6 +757,10 @@ module OpenNebula
         # @return [true, false] true if the cooldown period ended
         def cooldown_over?()
             return Time.now.to_i >= @body['cooldown_end'].to_i
+        end
+
+        def self.init_default_cooldown(default_cooldown)
+            @@default_cooldown = default_cooldown
         end
 
         def update(template)
