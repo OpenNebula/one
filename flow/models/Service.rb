@@ -227,6 +227,12 @@ module OpenNebula
                 self.set_state(Service::STATE['SCALING'])
 
             elsif self.state == Service::STATE['FAILED_UNDEPLOYING']
+                @roles.each do |name, role|
+                    if role.state == Role::STATE['FAILED_UNDEPLOYING']
+                        role.set_state(Role::STATE['RUNNING'])
+                    end
+                end
+
                 self.set_state(Service::STATE['UNDEPLOYING'])
 
             elsif self.state == Service::STATE['COOLDOWN']
