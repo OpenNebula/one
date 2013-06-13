@@ -50,7 +50,8 @@ module OpenNebula
             'FAILED_UNDEPLOYING' => 7,
             'FAILED_DEPLOYING'   => 8,
             'SCALING'            => 9,
-            'FAILED_SCALING'     => 10
+            'FAILED_SCALING'     => 10,
+            'COOLDOWN'           => 11
         }
 
         STATE_STR = [
@@ -64,7 +65,8 @@ module OpenNebula
             'FAILED_UNDEPLOYING',
             'FAILED_DEPLOYING',
             'SCALING',
-            'FAILED_SCALING'
+            'FAILED_SCALING',
+            'COOLDOWN'
         ]
 
         LOG_COMP = "ROL"
@@ -442,7 +444,8 @@ module OpenNebula
 
         # Returns a positive, 0, or negative number of nodes to adjust,
         #   according to the elasticity and scheduled policies
-        # @return [Integer] positive, 0, or negative number of nodes to adjust
+        # @return [Array<Integer>] positive, 0, or negative number of nodes to
+        #   adjust, plus the cooldown period duration
         def scale?()
             elasticity_pol = @body['elasticity_policies']
             scheduled_pol = @body['scheduled_policies']
@@ -452,15 +455,20 @@ module OpenNebula
 
             scheduled_pol.each do |policy|
                 diff = scale_time?(policy)
-                return diff if diff != 0
+                return [diff, 0] if diff != 0
             end
 
             elasticity_pol.each do |policy|
-                diff = scale_attributes?(policy)
-                return diff if diff != 0
+                diff, cooldown_duration = scale_attributes?(policy)
+                if diff != 0
+                    cooldown_duration = @body['cooldown'] if cooldown_duration.nil?
+                    cooldown_duration = @@default_cooldown if cooldown_duration.nil?
+
+                    return [diff, cooldown_duration]
+                end
             end
 
-            return 0
+            return [0, 0]
         end
 
         # Returns a positive, 0, or negative number of nodes to adjust,
@@ -529,7 +537,8 @@ module OpenNebula
         # Returns a positive, 0, or negative number of nodes to adjust,
         #   according to a policy based on attributes
         # @param [Hash] A policy based on attributes
-        # @return [Integer] positive, 0, or negative number of nodes to adjust
+        # @return [Array<Integer>] positive, 0, or negative number of nodes to
+        #   adjust, plus the cooldown period duration
         def scale_attributes?(elasticity_pol)
 
             now = Time.now.to_i
@@ -546,7 +555,7 @@ module OpenNebula
                 if now < (last_eval + period_duration)
                     Log.debug "ELAS", "Role #{name} expression '#{expression}' evaluation ignored, time < period"
 
-                    return 0
+                    return [0, 0]
                 end
             end
 
@@ -570,7 +579,7 @@ module OpenNebula
 
             elasticity_pol['true_evals'] = new_evals
 
-            return new_cardinality - cardinality()
+            return [new_cardinality - cardinality(), elasticity_pol['cooldown']]
         end
 
         # Returns true if the scalability rule is triggered
@@ -713,6 +722,45 @@ module OpenNebula
             end
 
             set_cardinality( get_nodes.size() - n_dispose )
+        end
+
+        # Updates the duration for the next cooldown
+        # @param cooldown_duration [Integer] duration for the next cooldown
+        def set_cooldown_duration(cooldown_duration)
+            @body['cooldown_duration'] = cooldown_duration.to_i
+        end
+
+        # Updates the duration for the next cooldown with the default value
+        def set_default_cooldown_duration()
+            cooldown_duration = @body['cooldown']
+            cooldown_duration = @@default_cooldown if cooldown_duration.nil?
+
+            set_cooldown_duration(cooldown_duration)
+        end
+
+        # Sets the cooldown end time from now + the duration set in set_cooldown_duration
+        # @return [true, false] true if the cooldown duration is bigger than 0
+        def apply_cooldown_duration()
+            cooldown_duration = @body['cooldown_duration'].to_i
+
+            if cooldown_duration != 0
+                @body['cooldown_end'] = Time.now.to_i + cooldown_duration
+                @body.delete('cooldown_duration')
+
+                return true
+            end
+
+            return false
+        end
+
+        # Returns true if the cooldown period ended
+        # @return [true, false] true if the cooldown period ended
+        def cooldown_over?()
+            return Time.now.to_i >= @body['cooldown_end'].to_i
+        end
+
+        def self.init_default_cooldown(default_cooldown)
+            @@default_cooldown = default_cooldown
         end
 
         def update(template)

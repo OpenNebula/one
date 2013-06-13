@@ -30,7 +30,8 @@ module OpenNebula
             'FAILED_UNDEPLOYING' => 7,
             'FAILED_DEPLOYING'   => 8,
             'SCALING'            => 9,
-            'FAILED_SCALING'     => 10
+            'FAILED_SCALING'     => 10,
+            'COOLDOWN'           => 11
         }
 
         STATE_STR = [
@@ -44,7 +45,8 @@ module OpenNebula
             'FAILED_UNDEPLOYING',
             'FAILED_DEPLOYING',
             'SCALING',
-            'FAILED_SCALING'
+            'FAILED_SCALING',
+            'COOLDOWN'
         ]
 
         LOG_COMP = "SER"
@@ -163,6 +165,16 @@ module OpenNebula
             return false
         end
 
+        def any_role_cooldown?()
+            @roles.each do |name, role|
+                if role.state == Role::STATE['COOLDOWN']
+                    return true
+                end
+            end
+
+            return false
+        end
+
         # Create a new service based on the template provided
         # @param [String] template_json
         # @return [nil, OpenNebula::Error] nil in case of success, Error
@@ -212,6 +224,15 @@ module OpenNebula
 
             elsif self.state == Service::STATE['FAILED_UNDEPLOYING']
                 self.set_state(Service::STATE['UNDEPLOYING'])
+
+            elsif self.state == Service::STATE['COOLDOWN']
+                @roles.each do |name, role|
+                    if role.state == Role::STATE['COOLDOWN']
+                        role.set_state(Role::STATE['RUNNING'])
+                    end
+                end
+
+                self.set_state(Service::STATE['RUNNING'])
 
             else
                 return OpenNebula::Error.new("Action recover: Wrong state" \
@@ -332,6 +353,8 @@ module OpenNebula
                     # the max and min vms...
 
                     role.set_state(Role::STATE['SCALING'])
+
+                    role.set_default_cooldown_duration()
 
                     self.set_state(Service::STATE['SCALING'])
                     return self.update

@@ -42,10 +42,11 @@ module OpenNebula
                     :type => :integer,
                     :default => 1
                 },
-                #'cooldown' => {
-                #    :type => :integer
-                #}
                 'max_vms' => {
+                    :type => :integer,
+                    :required => false
+                },
+                'cooldown' => {
                     :type => :integer,
                     :required => false
                 },
@@ -79,11 +80,11 @@ module OpenNebula
                             'expression' => {
                                 :type => :string,
                                 :required => false
+                            },
+                            'cooldown' => {
+                                :type => :integer,
+                                :required => false
                             }
-
-                            #'cooldown' => {
-                            #    :type => :integer
-                            #}
                             #'statistic' => {
                             # # SampleCount | Average | Sum | Minimum | Maximum
                             #    :type => :string
@@ -117,10 +118,6 @@ module OpenNebula
                                 :type => :string,
                                 :required => false
                             }
-
-                            #'cooldown' => {
-                            #    :type => :integer
-                            #}
                         }
                     }
                 }

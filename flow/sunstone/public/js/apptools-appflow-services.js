@@ -64,7 +64,10 @@ var Service = {
             tr("UNKNOWN"),
             tr("DONE"),
             tr("FAILED_UNDEPLOYING"),
-            tr("FAILED_DEPLOYING")
+            tr("FAILED_DEPLOYING"),
+            tr("SCALING"),
+            tr("FAILED_SCALING"),
+            tr("COOLDOWN")
         ][state_int]
         return state ? state : state_int;
     }
@@ -84,7 +87,10 @@ var Role = {
             tr("UNKNOWN"),
             tr("DONE"),
             tr("FAILED_UNDEPLOYING"),
-            tr("FAILED_DEPLOYING")
+            tr("FAILED_DEPLOYING"),
+            tr("SCALING"),
+            tr("FAILED_SCALING"),
+            tr("COOLDOWN")
         ][state_int]
         return state ? state : state_int;
     },
