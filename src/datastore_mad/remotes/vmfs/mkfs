@@ -16,12 +16,13 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-###############################################################################
-# This script is used to create a VM image (SRC) of size (SIZE) and formatted
-# as (FS)
-###############################################################################
-
-# -------- Set up the environment to source common tools & conf ------------
+# ------------------------------------------------------------------------------
+#  Set up Environment and transfer arguments
+# ------------------------------------------------------------------------------
+#
+#  vmfs.conf: includes default TMP_DIR
+#  libfs.sh a& scripts_common.sh: includes tools and lib calls
+# ------------------------------------------------------------------------------
 
 if [ -z "${ONE_LOCATION}" ]; then
     LIB_LOCATION=/usr/lib/one
@@ -37,7 +38,7 @@ DRIVER_PATH=$(dirname $0)
 source ${DRIVER_PATH}/../libfs.sh
 source ${DRIVER_PATH}/vmfs.conf
 
-# -------- Get mkfs and datastore arguments from OpenNebula core ------------
+# -------- Get cp and datastore arguments from OpenNebula core ------------
 
 DRV_ACTION=$1
 ID=$2
@@ -52,7 +53,6 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/RESTRICTED_DIRS \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SAFE_DIRS \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/DS_USE_SSH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/ID \
                     /DS_DRIVER_ACTION_DATA/IMAGE/FSTYPE \
                     /DS_DRIVER_ACTION_DATA/IMAGE/SIZE \
@@ -62,54 +62,58 @@ BASE_PATH="${XPATH_ELEMENTS[0]}"
 RESTRICTED_DIRS="${XPATH_ELEMENTS[1]}"
 SAFE_DIRS="${XPATH_ELEMENTS[2]}"
 BRIDGE_LIST="${XPATH_ELEMENTS[3]}"
-USE_SSH="${XPATH_ELEMENTS[4]:-$DS_USE_SSH}"
-DS_ID="${XPATH_ELEMENTS[5]}"
-FSTYPE="${XPATH_ELEMENTS[6]}"
-SIZE="${XPATH_ELEMENTS[7]}"
-IMAGE_ID="${XPATH_ELEMENTS[8]}"
+DS_ID="${XPATH_ELEMENTS[4]}"
+FSTYPE="${XPATH_ELEMENTS[5]}"
+SIZE="${XPATH_ELEMENTS[6]}"
+IMAGE_ID="${XPATH_ELEMENTS[7]}"
+
+# ------------------------------------------------------------------------------
+#  Set up datastore
+# ------------------------------------------------------------------------------
+#
+#  DST is the final generated image SOURCE, e.g. /vmfs/volumes/104/834efd1/
+#  DST_FOLDER is the image folder name, e.g. 834efd1
+#  DST_HOST is the host to make the transfers (from BRIDGE_LIST)
+# ------------------------------------------------------------------------------
+
 DST=`generate_image_path`
-DST_DIR=`dirname $DST`
 DST_FOLDER=`basename $DST`
 DST_HOST=`get_destination_host $IMAGE_ID`
 
-# ------------ Set up datastore  -------------
-
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS"
 
-vmfs_set_up
+# ------------------------------------------------------------------------------
+# Create image folder and set image size and attributes
+# ------------------------------------------------------------------------------
 
-vmfs_create_remote_path $DS_ID
-
-# ------------ Image to save_as disk, no need to create a FS ------------
-
-if [ "$FSTYPE" = "save_as" ]; then
-    echo "$DST"
-    exit 0
-fi
-
-# ------------ Create the image within the image datastore ------------
-
-log "Making raw filesystem of ${SIZE}M at [$DS_ID]$DST_FOLDER on $DST_HOST"
+exec_and_log "ssh_make_path $DST_HOST $DST" "Cannot create $DST in $DST_HOST"
 
 IMAGE_FORMAT=vmdk
 VMWARE_DISK_TYPE=`echo $FSTYPE|cut -d'_' -f 2`
+
 echo "$VMWARE_DISK_TYPE" | grep '\<thin\>\|\<zeroedthic\>\|\<eagerzeroedthick\>'
 
 if [ $? -eq 1 ] ; then
     VMWARE_DISK_TYPE="thin"
 fi
 
-if [ "${USE_SSH,,}" == "yes" ]; then
-    $SSH $DST_HOST $VMKFSTOOLS -U [$DS_ID]$DST_FOLDER/disk.vmdk &> /dev/null
-    ssh_exec_and_log $DST_HOST \
-              "$VMKFSTOOLS -c ${SIZE}M -d ${VMWARE_DISK_TYPE} $DST/disk.vmdk" \
-              "Cannot create [$DS_ID] $DST_FOLDER/disk.vmdk on $DST_HOST"
-else
-    $VMKFSTOOLS $VI_PARAMS -U [$DS_ID]$DST_FOLDER/disk.vmdk &> /dev/null
-    exec_and_log \
- "$VMKFSTOOLS $VI_PARAMS -c ${SIZE}M -d ${VMWARE_DISK_TYPE} \
- [$DS_ID]$DST_FOLDER/disk.vmdk" \
- "Cannot create $DS_ID]$DST_FOLDER/disk.vmdk on $DST_HOST"
+# ------------------------------------------------------------------------------
+# Create the image within the datastore
+# ------------------------------------------------------------------------------
+
+if [ "$FSTYPE" = "save_as" ]; then
+    echo "$DST"
+    exit 0
 fi
+
+log "Making raw filesystem of ${SIZE}M at $DST on $DST_HOST"
+
+ssh_exec_and_log $DST_HOST \
+              "$VMKFSTOOLS -c ${SIZE}M -d ${VMWARE_DISK_TYPE} $DST/disk.vmdk" \
+              "Cannot create $DST/disk.vmdk on $DST_HOST"
+
+# ------------------------------------------------------------------------------
+#  Send SOURCE to OpenNebula core
+# ------------------------------------------------------------------------------
 
 echo "$DST"
