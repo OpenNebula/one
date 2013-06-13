@@ -16,12 +16,13 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-###############################################################################
-# This script is used to copy a VM image (SRC) to the image repository as DST
-# Several SRC types are supported
-###############################################################################
-
-# -------- Set up the environment to source common tools & conf ------------
+# ------------------------------------------------------------------------------
+#  Set up Environment and transfer arguments
+# ------------------------------------------------------------------------------
+#
+#  vmfs.conf: includes default TMP_DIR
+#  libfs.sh a& scripts_common.sh: includes tools and lib calls
+# ------------------------------------------------------------------------------
 
 if [ -z "${ONE_LOCATION}" ]; then
     LIB_LOCATION=/usr/lib/one
@@ -34,7 +35,7 @@ fi
 DRIVER_PATH=$(dirname $0)
 source ${DRIVER_PATH}/../libfs.sh
 
-# -------- Get cp and datastore arguments from OpenNebula core ------------
+# -------- Get stat and datastore arguments from OpenNebula core ------------
 
 DRV_ACTION=$1
 ID=$2
@@ -48,6 +49,10 @@ while IFS= read -r -d '' element; do
 done < <($XPATH /DS_DRIVER_ACTION_DATA/IMAGE/PATH)
 
 SRC="${XPATH_ELEMENTS[0]}"
+
+# ------------------------------------------------------------------------------
+#  Compute the size
+# ------------------------------------------------------------------------------
 
 SIZE=`fs_size $SRC`
 
