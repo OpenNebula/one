@@ -764,5 +764,54 @@ module OpenNebula
         def update(template)
             set_cardinality(template["cardinality"])
         end
+
+        ########################################################################
+        # Recover
+        ########################################################################
+
+        def recover_deployment()
+
+            nodes = @body['nodes']
+            new_nodes = []
+            disposed_nodes = @body['disposed_nodes']
+
+            nodes.each do |node|
+                vm_state = nil
+
+                if node['vm_info'] && node['vm_info']['VM'] && node['vm_info']['VM']['STATE']
+                    vm_state = node['vm_info']['VM']['STATE']
+                end
+
+                if vm_state == '6' # DONE
+                    # Store the VM id in the array of disposed nodes
+                    disposed_nodes << vm_id
+
+                elsif vm_state == '7' # FAILED
+                    vm_id = node['deploy_id']
+
+                    vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
+                    rc = vm.finalize
+
+                    if !OpenNebula.is_error?(rc)
+                        # Store the VM id in the array of disposed nodes
+                        disposed_nodes << vm_id
+
+                        Log.debug LOG_COMP, "Role #{name} : Delete success for VM #{vm_id}", @service.id()
+                    else
+                        msg = "Role #{name} : Delete failed for VM #{vm_id}; #{rc.message}"
+                        Log.error LOG_COMP, msg, @service.id()
+                        @service.log_error(msg)
+
+                        success = false
+
+                        new_nodes << node
+                    end
+                else
+                    new_nodes << node
+                end
+            end
+
+            @body['nodes'] = new_nodes
+        end
     end
 end

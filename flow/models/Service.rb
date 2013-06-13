@@ -210,6 +210,7 @@ module OpenNebula
                 @roles.each do |name, role|
                     if role.state == Role::STATE['FAILED_DEPLOYING']
                         role.set_state(Role::STATE['PENDING'])
+                        role.recover_deployment()
                     end
                 end
 
