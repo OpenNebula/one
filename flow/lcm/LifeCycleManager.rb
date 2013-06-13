@@ -130,18 +130,18 @@ class ServiceLCM
                                     service.set_state(Service::STATE['FAILED_UNDEPLOYING'])
                                 end
                             end
-                        #when Service::STATE['FAILED_DEPLOYING']
-                        #    strategy.monitor_step(service)
-#
-                        #    if !service.any_role_failed?
-                        #        service.set_state(Service::STATE['DEPLOYING'])
-                        #    end
-                        #when Service::STATE['FAILED_UNDEPLOYING']
-                        #    strategy.monitor_step(service)
-#
-                        #    if !service.any_role_failed?
-                        #        service.set_state(Service::STATE['UNDEPLOYING'])
-                        #    end
+                        when Service::STATE['FAILED_DEPLOYING']
+                            strategy.monitor_step(service)
+
+                            if !service.any_role_failed?
+                                service.set_state(Service::STATE['DEPLOYING'])
+                            end
+                        when Service::STATE['FAILED_UNDEPLOYING']
+                            strategy.monitor_step(service)
+
+                            if !service.any_role_failed?
+                                service.set_state(Service::STATE['UNDEPLOYING'])
+                            end
                         end
 
                         rc = service.update()

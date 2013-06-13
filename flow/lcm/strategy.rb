@@ -180,7 +180,7 @@ class Strategy
                 end
             when Role::STATE['FAILED_DEPLOYING']
                 if !OpenNebula.is_error?(rc) && role_nodes_running?(role)
-                    role.set_state(Role::STATE['PENDING'])
+                    role.set_state(Role::STATE['RUNNING'])
                 end
             when Role::STATE['FAILED_UNDEPLOYING']
                 if !OpenNebula.is_error?(rc) && role_nodes_done?(role)
@@ -252,6 +252,10 @@ protected
     # @param [Role] role
     # @return [true|false]
     def role_nodes_running?(role)
+        if role.get_nodes.size() != role.cardinality()
+            return false
+        end
+
         role.get_nodes.each { |node|
             if node && node['vm_info']
                 vm_state = node['vm_info']['VM']['STATE']

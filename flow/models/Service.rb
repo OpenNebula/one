@@ -207,6 +207,12 @@ module OpenNebula
         #   otherwise
         def recover
             if [Service::STATE['FAILED_DEPLOYING']].include?(self.state)
+                @roles.each do |name, role|
+                    if role.state == Role::STATE['FAILED_DEPLOYING']
+                        role.set_state(Role::STATE['PENDING'])
+                    end
+                end
+
                 self.set_state(Service::STATE['DEPLOYING'])
 
             elsif self.state == Service::STATE['FAILED_SCALING']
