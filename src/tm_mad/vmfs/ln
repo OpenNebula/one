@@ -38,60 +38,57 @@ fi
 
 . $TMCOMMON
 
+   #-v ------------------------------------------------------------------------------
+# Retrieve needed information, Example (same for SRC)
+#  DST       : esx1:/vmfs/volumes/105/90/disk.0
+#  SRC       : one:/vmfs/volumes/104/84045f4a
+#  DST_PATH  : /vmfs/volumes/105/90/disk.0
+#  DST_DIR   : /vmfs/volumes/105/90/
+#  DST_HOST  : esx1
+#
+#  DISK_TYPE: CDROM if it is a cd (not a directory)
 #-------------------------------------------------------------------------------
-# Retrieve needed information, set dst path and dir
-#-------------------------------------------------------------------------------
+
+SRC_PATH=`arg_path $SRC`
 DST_PATH=`arg_path $DST`
+
 DST_HOST=`arg_host $DST`
 DST_DIR=`dirname $DST_PATH`
 
-SRC_ARG_PATH=`arg_path $SRC`
-
-DST_DS_PATH="$(dirname $(dirname $(dirname $DST_PATH)))"
-SRC_DS_PATH="$(dirname $(dirname $SRC_ARG_PATH))"
-
-SRC_PATH="${DST_DS_PATH}${SRC_ARG_PATH##$SRC_DS_PATH}"
-
-USE_SSH=$(get_tm_use_ssh $DSID)
+DISK_TYPE=$(disk_type)
 
 #-------------------------------------------------------------------------------
 # Link (ln) SRC into DST
 #-------------------------------------------------------------------------------
 
-if [ "$USE_SSH" == "yes" ]; then
+if [ "$DISK_TYPE" != "CDROM" ]; then
+    log "Link all files in $SRC_PATH to $DST_PATH"
 
-    # Let's check if it is a CDROM
-    DISK_TYPE=$(disk_type)
+    LINK_SCRIPT=$(cat <<EOF
+if [ ! -d $DST_PATH ]; then
+   mkdir -p $DST_PATH
+fi
 
-    if [ "$DISK_TYPE" != "CDROM" ]; then
-        ssh_make_path $DST_HOST $DST_PATH
-
-        log "Link all files in $SRC_PATH to $DST_PATH"
-
-LINK_SCRIPT=$(cat <<EOF
 for file in \$(find $SRC_PATH -type f); do
     (cd $DST_PATH ; ln -sf \$file)
 done
 EOF
 )
-        ssh_exec_and_log $DST_HOST "$LINK_SCRIPT" \
-              "Could not link dir files from $SRC_PATH to $DST_PATH"
-    else
-        # Just need to create the /<vid> folder, not the disk.<n> as well
-        ssh_make_path $DST_HOST $(dirname $DST_PATH)
+    ssh_exec_and_log $DST_HOST "$LINK_SCRIPT" \
+            "Error linking files from $SRC_PATH to $DST_PATH"
+else
+    log "Link CD-ROM from $SRC_PATH to $DST_PATH"
 
-        log "Link CD-ROM from $SRC_PATH to $DST_PATH"
+    LINK_SCRIPT=$(cat <<EOF
+if [ ! -d $DST_DIR ]; then
+   mkdir -p $DST_DIR
+fi
 
-LINK_SCRIPT=$(cat <<EOF
 ln -s $SRC_PATH $DST_PATH.iso
 EOF
 )
-        ssh_exec_and_log $DST_HOST "$LINK_SCRIPT" \
-              "Could not link CDROM ISO file from $SRC_PATH to system $DST_PATH"
-    fi
-else
-    log "Cannot link files without SSH enabled on the ESX hosts, calling clone"
-    exec $(dirname $0)/clone $*
+    ssh_exec_and_log $DST_HOST "$LINK_SCRIPT" \
+            "Error linking CDROM ISO file from $SRC_PATH to $DST_PATH"
 fi
 
 exit 0
