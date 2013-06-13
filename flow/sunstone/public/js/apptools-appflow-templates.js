@@ -146,10 +146,9 @@ var create_service_template_tmpl = '\
             </div>\
         </div>\
     </div>\
-    <hr>\
     <div class="row" id="new_role">\
            <dl class="tabs" id="roles_tabs">\
-            <dt><button type="button" class="button tiny radius" id="tf_btn_roles"><span class="icon-plus"></span> '+tr("Add another role")+'</button></dt>\
+            <dt class="right"><div type="button" class="button tiny radius" id="tf_btn_roles"><span class="icon-plus"></span> '+tr("Add another role")+'</div></dt>\
            </dl>\
            <ul class="tabs-content" id="roles_tabs_content">\
            </ul>\
@@ -168,52 +167,212 @@ var create_service_template_tmpl = '\
 </div>';
 
 var role_tab_content = '\
-<div class="service_template_param service_role st_man six columns">\
-  <div class="row">\
-    <div class="four columns">\
-        <label class="inline right" for="name">' + tr("Role Name") + ':</label>\
+<div class="row">\
+    <div class="service_template_param service_role st_man five columns">\
+      <div class="row">\
+        <div class="five columns">\
+            <label class="inline right" for="name">' + tr("Role Name") + ':</label>\
+        </div>\
+        <div class="six columns">\
+            <input type="text" id="role_name" name="name"/>\
+        </div>\
+        <div class="one columns">\
+            <div class="tip">'+ tr("Name of the role") +'</div>\
+        </div>\
+      </div>\
+      <div class="row">\
+        <div class="five columns">\
+            <label class="inline right" for="cardinality">' + tr("Cardinality") + ':</label>\
+        </div>\
+        <div class="six columns">\
+            <input type="text" id="cardinality" name="cardinality" value="1" />\
+        </div>\
+        <div class="one columns">\
+            <div class="tip">'+ tr("Number of VMs to instantiate with this role") +'</div>\
+        </div>\
+      </div>\
+      <div class="row">\
+        <div class="five columns">\
+            <label class="inline right" for="vm_template">' + tr("VM template") + ':</label>\
+        </div>\
+        <div class="six columns">\
+            <select name="vm_template">\
+            </select>\
+        </div>\
+        <div class="one columns">\
+            <div class="tip">'+ tr("Template associated to this role") +'</div>\
+        </div>\
+      </div>\
     </div>\
-    <div class="seven columns">\
-        <input type="text" id="role_name" name="name"/>\
+    <div class="service_template_param service_role six columns">\
+        <table id="parent_roles" class="extended_table eleven centered">\
+            <thead>\
+                <tr><th colspan="2">'+tr("Parent roles")+'</th></tr>\
+            </thead>\
+            <tbody id="parent_roles_body">\
+            </tbody>\
+        </table>\
     </div>\
-    <div class="one columns">\
-        <div class="tip">'+ tr("Name of the role") +'</div>\
-    </div>\
-  </div>\
-  <div class="row">\
-    <div class="four columns">\
-        <label class="inline right" for="cardinality">' + tr("Cardinality") + ':</label>\
-    </div>\
-    <div class="seven columns">\
-        <input type="text" id="cardinality" name="cardinality" value="1" />\
-    </div>\
-    <div class="one columns">\
-        <div class="tip">'+ tr("Number of VMs to instantiate with this role") +'</div>\
-    </div>\
-  </div>\
-  <div class="row">\
-    <div class="four columns">\
-        <label class="inline right" for="vm_template">' + tr("VM template") + ':</label>\
-    </div>\
-    <div class="seven columns">\
-        <select name="vm_template">\
-        </select>\
-    </div>\
-    <div class="one columns">\
-        <div class="tip">'+ tr("Template associated to this role") +'</div>\
-    </div>\
-  </div>\
 </div>\
-<div class="service_template_param service_role six columns">\
-    <table id="parent_roles" class="extended_table eleven right">\
-        <thead>\
-            <tr><th colspan="2">'+tr("Parent roles")+'</th></tr>\
-        </thead>\
-        <tbody id="parent_roles_body">\
-        </tbody>\
-    </table>\
+<div class="row">\
+    <div class="eleven columns centered">\
+        <fieldset>\
+            <legend>'+tr("Elasticity")+' - <span id="role_name_text"></span></legend>\
+            <div class="">\
+                <div class="four columns">\
+                    <div class="five columns">\
+                        <label class="inline right" for="min_vms">' + tr("Min VMs") + ':</label>\
+                    </div>\
+                    <div class="six columns">\
+                        <input type="text" id="min_vms" name="min_vms" value="1" />\
+                    </div>\
+                    <div class="one columns">\
+                        <div class="tip">'+ tr("Minimum number of VMs for elasticity adjustments") +'</div>\
+                    </div>\
+                </div>\
+                <div class="four columns">\
+                    <div class="five columns">\
+                        <label class="inline right" for="max_vms">' + tr("Max VMs") + ':</label>\
+                    </div>\
+                    <div class="six columns">\
+                        <input type="text" id="max_vms" name="max_vms" value="1" />\
+                    </div>\
+                    <div class="one columns">\
+                        <div class="tip">'+ tr("Maximum number of VMs for elasticity adjustments") +'</div>\
+                    </div>\
+                </div>\
+                <div class="four columns">\
+                    <div class="five columns">\
+                        <label class="inline right" for="cooldown">' + tr("Cooldown") + ':</label>\
+                    </div>\
+                    <div class="six columns">\
+                        <input type="text" id="cooldown" name="cooldown" value="1" />\
+                    </div>\
+                    <div class="one columns">\
+                        <div class="tip">'+ tr("Cooldown time after an elasticity operation (secs)") +'</div>\
+                    </div>\
+                </div>\
+            </div>\
+            <div class="">\
+                <div class="twelve columns">\
+                      <br>\
+                      <table id="elasticity_policies_table" class="form_table twelve">\
+                            <thead style="background:#dfdfdf">\
+                              <tr>\
+                                <th colspan="7">\
+                                    '+tr("Elasticty policies")+'\
+                                    <div type="button" class="button tiny radius right secondary" id="tf_btn_elas_policies"><span class="icon-plus"></span> '+tr("Add")+'</div>\
+                                </th>\
+                              </tr>\
+                            </thead>\
+                            <thead>\
+                              <tr>\
+                                <th style="width:15%">'+tr("Type")+'\
+                                    <span class="tip">'+tr("Type of adjustment.")+'<br><br>\
+                                        '+tr("CHANGE: Add/substract the given number of VMs.")+'<br>\
+                                        '+tr("CARDINALITY: Set the cardinality to the given number.")+'<br>\
+                                        '+tr("PERCENTAGE_CHANGE: Add/substract the given percentage to the current cardinality.")+'\
+                                    </span>\
+                                </th>\
+                                <th style="width:15%">'+tr("Adjust")+'\
+                                    <span class="tip">'+tr("Positive or negative adjustment. Its meaning depends on 'type'")+'<br><br>\
+                                        '+tr("CHANGE: -2, will substract 2 VMs from the role")+'<br>\
+                                        '+tr("CARDINALITY: 8, will set carditanilty to 8")+'<br>\
+                                        '+tr("PERCENTAGE_CHANGE: 20, will increment cardinality by 20%")+'\
+                                    </span>\
+                                </th>\
+                                <th style="width:28%">'+tr("Expression")+'</th>\
+                                <th style="width:13%">'+tr("# Periods")+'</th>\
+                                <th style="width:13%">'+tr("Period step")+'</th>\
+                                <th style="width:13%">'+tr("Cooldown")+'</th>\
+                                <th style="width:3%"></th>\
+                              </tr>\
+                            </thead>\
+                            <tbody id="elasticity_policies_tbody">\
+                            </tbody>\
+                      </table>\
+                </div>\
+            </div>\
+            <div class="">\
+                <div class="twelve columns">\
+                      <br>\
+                      <table id="scheduled_policies_table" class="form_table twelve">\
+                            <thead style="background:#dfdfdf">\
+                              <tr>\
+                                <th colspan="5">\
+                                    '+tr("Scheduled policies")+'\
+                                    <div type="button" class="button tiny radius right secondary" id="tf_btn_sche_policies"><span class="icon-plus"></span> '+tr("Add")+'</div>\
+                                </th>\
+                              </tr>\
+                            <thead>\
+                              <tr>\
+                                <th style="width:15%">'+tr("Type")+'\
+                                    <span class="tip">'+tr("Type of adjustment.")+'<br><br>\
+                                        '+tr("CHANGE: Add/substract the given number of VMs.")+'<br>\
+                                        '+tr("CARDINALITY: Set the cardinality to the given number.")+'<br>\
+                                        '+tr("PERCENTAGE_CHANGE: Add/substract the given percentage to the current cardinality.")+'\
+                                    </span>\
+                                </th>\
+                                <th style="width:15%">'+tr("Adjust")+'\
+                                    <span class="tip">'+tr("Positive or negative adjustment. Its meaning depends on 'type'")+'<br><br>\
+                                        '+tr("CHANGE: -2, will substract 2 VMs from the role")+'<br>\
+                                        '+tr("CARDINALITY: 8, will set carditanilty to 8")+'<br>\
+                                        '+tr("PERCENTAGE_CHANGE: 20, will increment cardinality by 20%")+'\
+                                    </span>\
+                                </th>\
+                                <th style="width:28%">'+tr("Time format")+'</th>\
+                                <th style="width:38%">'+tr("Time expression")+'</th>\
+                                <th style="width:3%"></th>\
+                              </tr>\
+                            </thead>\
+                            <tbody id="scheduled_policies_tbody">\
+                            </tbody>\
+                      </table>\
+                </div>\
+            </div>\
+        </fieldset>\
+    </div>\
 </div>';
 
+var policy_tab_content = '\
+<div class="row">\
+    <div class="six columns">\
+        <div class="four columns">\
+            <label class="inline right" for="type">' + tr("Type") + ':</label>\
+        </div>\
+        <div class="seven columns">\
+            <select id="type" name="type">\
+                <option value="CHANGE">'+tr("CHANGE")+'</option>\
+                <option value="CARDINALITY">'+tr("CARDINALITY")+'</option>\
+                <option value="PERCENTAGE_CHANGE">'+tr("PERCENTAGE_CHANGE")+'</option>\
+            </select>\
+        </div>\
+        <div class="one columns">\
+            <div class="tip">'+tr("Type of adjustment.")+'<br><br>\
+                '+tr("CHANGE: Add/substract the given number of VMs.")+'<br>\
+                '+tr("CARDINALITY: Set the cardinality to the given number.")+'<br>\
+                '+tr("PERCENTAGE_CHANGE: Add/substract the given percentage to the current cardinality.")+'\
+            </div>\
+        </div>\
+    </div>\
+    <div class="six columns">\
+        <div class="four columns">\
+            <label class="inline right" for="adjustment">' + tr("Adjustment") + ':</label>\
+        </div>\
+        <div class="seven columns">\
+            <input type="text" id="adjustment" name="adjustment" value="1" />\
+        </div>\
+        <div class="one columns">\
+            <div class="tip">'+tr("Positive or negative adjustment. Its meaning depends on 'type'")+'<br><br>\
+                '+tr("CHANGE: -2, will substract 2 VMs from the role")+'<br>\
+                '+tr("CARDINALITY: 8, will set carditanilty to 8")+'<br>\
+                '+tr("PERCENTAGE_CHANGE: 20, will increment cardinality by 20%")+'\
+            </div>\
+        </div>\
+    </div>\
+</div>\
+\
+';
 
 var dataTable_service_templates;
 var $create_service_template_dialog;
@@ -545,6 +704,11 @@ function updateServiceTemplateInfo(request,elem){
     })
 }
 
+function setup_policy_tab_content(policy_section, html_policy_id) {
+    setupTips(policy_section);
+
+    return false;
+}
 
 function setup_role_tab_content(role_section, html_role_id) {
     setupTips(role_section);
@@ -554,7 +718,90 @@ function setup_role_tab_content(role_section, html_role_id) {
 
     $("#role_name", role_section).change(function(){
         $("#" + html_role_id +" #role_name_text").html($(this).val());
+        $("#role_name_text", role_section).html($(this).val());
     });
+
+    var add_elas_policy_tab = function() {
+        $('<tr>\
+                <td>\
+                    <select id="type" name="type">\
+                        <option value="CHANGE">'+tr("Change")+'</option>\
+                        <option value="CARDINALITY">'+tr("Cardinality")+'</option>\
+                        <option value="PERCENTAGE_CHANGE">'+tr("Percentage")+'</option>\
+                    </select>\
+                </td>\
+                <td>\
+                    <input type="text" id="adjust" name="adjust"/>\
+                </td>\
+                <td>\
+                    <input type="text" id="expression" name="expression"/>\
+                </td>\
+                <td>\
+                    <input type="text" id="period" name="period"/>\
+                </td>\
+                <td>\
+                    <input type="text" id="period_number" name="period_number"/>\
+                </td>\
+                <td>\
+                    <input type="text" id="cooldown" name="cooldown"/>\
+                </td>\
+                <td>\
+                    <a href="#"><i class="icon-remove-sign remove-tab"></i></a>\
+                </td>\
+            </tr>').appendTo($("#elasticity_policies_tbody", role_section))
+
+        //setup_policy_tab_content(policy_section, html_policy_id);
+    }
+
+    var add_sche_policy_tab = function() {
+        $('<tr>\
+                <td>\
+                    <select id="type" name="type">\
+                        <option value="CHANGE">'+tr("Change")+'</option>\
+                        <option value="CARDINALITY">'+tr("Cardinality")+'</option>\
+                        <option value="PERCENTAGE_CHANGE">'+tr("Percentage")+'</option>\
+                    </select>\
+                </td>\
+                <td>\
+                    <input type="text" id="adjust" name="adjust"/>\
+                </td>\
+                <td>\
+                    <select id="type_of_time" name="type_of_time">\
+                        <option value="start_time">'+tr("Start time")+'</option>\
+                        <option value="recurrence">'+tr("Recurrence")+'</option>\
+                    </select>\
+                </td>\
+                <td>\
+                    <input type="text" id="time" name="time"/>\
+                </td>\
+                <td>\
+                    <a href="#"><i class="icon-remove-sign remove-tab"></i></a>\
+                </td>\
+            </tr>').appendTo($("#scheduled_policies_tbody", role_section))
+
+        //setup_policy_tab_content(policy_section, html_policy_id);
+    }
+
+    // close icon: removing the tab on click
+    $( "#scheduled_policies_table i.remove-tab").live( "click", function() {
+        var tr = $(this).closest('tr');
+        tr.remove();
+    });
+
+    $( "#elasticity_policies_table i.remove-tab").live( "click", function() {
+        var tr = $(this).closest('tr');
+        tr.remove();
+    });
+
+    $("#tf_btn_elas_policies", role_section).bind("click", function(){
+        add_elas_policy_tab();
+    });
+
+    $("#tf_btn_sche_policies", role_section).bind("click", function(){
+        add_sche_policy_tab();
+    });
+
+    policies_index = 0;
 
     return false;
 }
@@ -579,8 +826,6 @@ function setupCreateServiceTemplateDialog(){
             role_tab_content +
         '</li>').appendTo($("ul#roles_tabs_content"));
 
-        setup_role_tab_content(role_section, html_role_id)
-
         var a = $("<dd>\
             <a id='"+html_role_id+"' href='#"+html_role_id+"'><span id='role_name_text'>"+tr("Role ")+role_id+" </span>\
                 <i class='icon-remove-sign remove-tab'></i>\
@@ -589,6 +834,8 @@ function setupCreateServiceTemplateDialog(){
 
         $("#"+html_role_id, a).click();
         $(document).foundationTabs("set_tab", a);
+
+        setup_role_tab_content(role_section, html_role_id);
 
         roles_index++;
     }
@@ -612,6 +859,9 @@ function setupCreateServiceTemplateDialog(){
     });
 
     // Fill parents table
+    // Each time a tab is clicked the table is filled with existing tabs (roles)
+    // Selected roles are kept
+    // TODO If the name of a role is changed and is selected, selection will be lost
     $("#roles_tabs a").live('click', function(){
         var tab_id = "#"+this.id+"Tab";
         var str = "";
@@ -637,15 +887,12 @@ function setupCreateServiceTemplateDialog(){
         });
     })
 
-    roles_index = 0;
-    add_role_tab(roles_index);
-
     $("#tf_btn_roles", dialog).bind("click", function(){
         add_role_tab(roles_index);
     });
 
 
-    $('#create_service_template_submit',dialog).live("click", function(){
+    $('#create_service_template_submit',dialog).click(function(){
         var name = $('input[name="service_name"]', $create_service_template_dialog).val();
         var deployment = $('select[name="deployment"]', $create_service_template_dialog).val();
 
@@ -657,27 +904,61 @@ function setupCreateServiceTemplateDialog(){
         var roles = [];
 
         $('#roles_tabs_content li', $create_service_template_dialog).each(function(){
-            var name = $('input[name="name"]', this).val();
-            var cardinality = $('input[name="cardinality"]', this).val();
-            var template = $('select[name="vm_template"]', this).val();
-            var parents = [];
+            var role = {};
+            role['name'] = $('input[name="name"]', this).val();
+            role['cardinality'] = $('input[name="cardinality"]', this).val();
+            role['vm_template'] = $('select[name="vm_template"]', this).val();
+            role['parents'] = [];
 
-            if (!name || !cardinality || !template){
+            if (!role['name'] || !role['cardinality'] || !role['vm_template']){
                 // TODO Select tab that is missing these attrs
                 //notifyError(tr("Please specify name, cardinality and template for this role"));
                 //return false;
-            };
+            } else {
+                $('#parent_roles_body input.check_item:checked', this).each(function(){
+                    parents.push($(this).val())
+                });
 
-            $('#parent_roles_body input.check_item:checked', this).each(function(){
-                parents.push($(this).val())
-            });
+                var min_vms = $('input[name="min_vms"]', this).val();
+                if (min_vms) {
+                    role['min_vms'] = min_vms
+                }
+                var max_vms = $('input[name="max_vms"]', this).val();
+                if (max_vms) {
+                    role['max_vms'] = max_vms
+                }
 
-            roles.push({
-                name : name,
-                cardinality: cardinality,
-                vm_template: template,
-                parents: parents
-            });
+                role['elasticity_policies'] = [];
+                $("#elasticity_policies_tbody tr", this).each(function(){
+                    var policy = {};
+                    policy['type'] = $("#type" ,this).val();
+                    policy['adjust']  = $("#adjust" ,this).val();
+                    policy['min_adjust_step']  = $("#min_adjust_step" ,this).val();
+                    policy['expression']  = $("#expression" ,this).val();
+                    policy['period']  = $("#period" ,this).val();
+                    policy['period_number']  = $("#period_number" ,this).val();
+                    //policy['cooldown']  = $("#cooldown" ,this).val();
+
+                    // TODO remove empty policies
+                    role['elasticity_policies'].push(policy);
+                });
+
+                role['scheduled_policies'] = [];
+                $("#scheduled_policies_tbody tr", this).each(function(){
+                    var policy = {};
+                    policy['type'] = $("#type" ,this).val();
+                    policy['adjust']  = $("#adjust" ,this).val();
+                    policy['min_adjust_step']  = $("#min_adjust_step" ,this).val();
+
+                    var time_format = $("#time_format" ,this).val();
+                    policy[time_format] = $("#time" ,this).val();
+
+                    // TODO remove empty policies
+                    role['scheduled_policies'].push(policy);
+                });
+
+                roles.push(role);
+            }
         });
 
         var obj = {
@@ -691,7 +972,7 @@ function setupCreateServiceTemplateDialog(){
         return false;
     });
 
-    $('#update_service_template_submit',dialog).live("click", function(){
+    $('#update_service_template_submit',dialog).click(function(){
         var name = $('input[name="service_name"]', $create_service_template_dialog).val();
         var deployment = $('select[name="deployment"]', $create_service_template_dialog).val();
 
@@ -739,17 +1020,23 @@ function setupCreateServiceTemplateDialog(){
         setupCreateServiceTemplateDialog();
 
         popUpCreateServiceTemplateDialog();
-    })
+    });
+
+    roles_index = 0;
+    add_role_tab(roles_index);
 }
 
 function popUpCreateServiceTemplateDialog(){
+    if (!$create_service_template_dialog) {
+        setupCreateServiceTemplateDialog();
+    }
+
     var dialog = $create_service_template_dialog;
 
     $("#create_service_template_header", dialog).show();
     $("#update_service_template_header", dialog).hide();
     $("#create_service_template_submit", dialog).show();
     $("#update_service_template_submit", dialog).hide();
-
 
     $("#service_name", dialog).removeAttr("disabled");
 
@@ -773,13 +1060,13 @@ function popUpUpdateServiceTemplateDialog() {
 
 
 function fillUpUpdateServiceTemplateDialog(request, response){
-    $("#create_service_template_reset", $create_service_template_dialog).click();
-    var dialog = $create_service_template_dialog;
+    if (!$create_service_template_dialog) {
+        setupCreateServiceTemplateDialog();
+    } else {
+        $("#create_service_template_reset", $create_service_template_dialog).click();
+    }
 
-    var tpl_select = makeSelectOptions(dataTable_templates, 1, 4, [], [], true);
-    $('select[name="vm_template"]', dialog).html(tpl_select);
-    $('select[name="parents"]', dialog).html("");
-    $("table#current_roles tbody tr", dialog).remove();
+    var dialog = $create_service_template_dialog;
 
     $("#create_service_template_header", dialog).hide();
     $("#update_service_template_header", dialog).show();
@@ -789,6 +1076,8 @@ function fillUpUpdateServiceTemplateDialog(request, response){
     var service_template = response[ServiceTemplate.resource]
     $("#service_name", dialog).attr("disabled", "disabled");
     $("#service_name", dialog).val(service_template.NAME);
+
+    // TODO Check if the template still exists
     $('select[name="deployment"]', dialog).val(service_template.TEMPLATE.BODY.deployment);
 
     var more_than_one = false;
@@ -872,8 +1161,6 @@ $(document).ready(function(){
     })
 
     Sunstone.runAction("ServiceTemplate.list");
-
-    setupCreateServiceTemplateDialog();
 
     setServiceTemplateAutorefresh();
 
