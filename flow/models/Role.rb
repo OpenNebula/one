@@ -777,6 +777,7 @@ module OpenNebula
 
             nodes.each do |node|
                 vm_state = nil
+                vm_id = node['deploy_id']
 
                 if node['vm_info'] && node['vm_info']['VM'] && node['vm_info']['VM']['STATE']
                     vm_state = node['vm_info']['VM']['STATE']
@@ -787,8 +788,6 @@ module OpenNebula
                     disposed_nodes << vm_id
 
                 elsif vm_state == '7' # FAILED
-                    vm_id = node['deploy_id']
-
                     vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
                     rc = vm.finalize
 
