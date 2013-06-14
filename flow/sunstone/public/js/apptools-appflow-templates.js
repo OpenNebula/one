@@ -148,7 +148,7 @@ var create_service_template_tmpl = '\
     </div>\
     <div class="row" id="new_role">\
            <dl class="tabs" id="roles_tabs">\
-            <dt class="right"><div type="button" class="button tiny radius" id="tf_btn_roles"><span class="icon-plus"></span> '+tr("Add another role")+'</div></dt>\
+            <dt><div type="button" class="button tiny radius" id="tf_btn_roles"><span class="icon-plus"></span> '+tr("Add another role")+'</div></dt>\
            </dl>\
            <ul class="tabs-content" id="roles_tabs_content">\
            </ul>\
@@ -283,7 +283,7 @@ var role_tab_content = '\
                                 </th>\
                                 <th style="width:28%">'+tr("Expression")+'</th>\
                                 <th style="width:13%">'+tr("# Periods")+'</th>\
-                                <th style="width:13%">'+tr("Period step")+'</th>\
+                                <th style="width:13%">'+tr("Step")+'</th>\
                                 <th style="width:13%">'+tr("Cooldown")+'</th>\
                                 <th style="width:3%"></th>\
                               </tr>\
@@ -304,6 +304,7 @@ var role_tab_content = '\
                                     <div type="button" class="button tiny radius right secondary" id="tf_btn_sche_policies"><span class="icon-plus"></span> '+tr("Add")+'</div>\
                                 </th>\
                               </tr>\
+                            </thead>\
                             <thead>\
                               <tr>\
                                 <th style="width:15%">'+tr("Type")+'\
@@ -631,33 +632,6 @@ function updateServiceTemplatesView(request, service_templates_list){
 function updateServiceTemplateInfo(request,elem){
     var elem_info = elem.DOCUMENT;
 
-    var roles_info = '<table id="service_template_roles_table" class="twelve datatable extended_table">\
-           <thead>\
-             <tr><th colspan="2">'+tr("Roles")+'</th></tr>\
-           </thead>'
-
-    var roles = elem_info.TEMPLATE.BODY.roles
-    if (roles && roles.length > 0)
-        for (var i = 0; i < roles.length; i++) {
-          roles_info += '<tr><td colspan="2">'+roles[i].name+'</td></tr>\
-            <tr>\
-             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Cardinality")+'</td>\
-             <td class="value_td">'+roles[i].cardinality+'</td>\
-            </tr>\
-            <tr>\
-             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("VM Template")+'</td>\
-             <td class="value_td">'+roles[i].vm_template+'</td>\
-            </tr>'
-
-          if (roles[i].parents)
-            roles_info += '<tr>\
-              <td > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Parents")+'</td>\
-              <td class="value_td">'+roles[i].parents.join(', ')+'</td>\
-            </tr>'
-        }
-
-    roles_info += '</table>'
-
     var info_tab = {
         title: tr("Information"),
         content:
@@ -680,7 +654,6 @@ function updateServiceTemplateInfo(request,elem){
              <td class="value_td">'+elem_info.TEMPLATE.BODY.deployment+'</td>\
            </tr>\
          </table>' +
-         roles_info +
        '</div>\
         <div class="six columns">' + insert_permissions_table('apptools-appflow-templates',
                                                               "ServiceTemplate",
@@ -694,6 +667,31 @@ function updateServiceTemplateInfo(request,elem){
     };
 
     Sunstone.updateInfoPanelTab("service_template_info_panel","service_template_info_tab",info_tab);
+
+    var roles_tab = {
+        title : "Roles",
+        content : '<form class="custom" id="roles_form" action="">\
+          <div id="roles_info" class="columns twelve">\
+            <table id="datatable_service_roles" class="table twelve">\
+              <thead>\
+                <tr>\
+                  <th>'+tr("Name")+'</th>\
+                  <th>'+tr("Cardinality")+'</th>\
+                  <th>'+tr("VM Template")+'</th>\
+                  <th>'+tr("Parents")+'</th>\
+                </tr>\
+              </thead>\
+              <tbody>\
+              </tbody>\
+            </table>\
+          </div>\
+          <div id="roles_extended_info" class="columns twelve">\
+          </div>\
+        </form>'
+    };
+
+    Sunstone.updateInfoPanelTab("service_template_info_panel", "service_template_roles_tab",roles_tab);
+
     Sunstone.popUpInfoPanel("service_template_info_panel", "apptools-appflow-templates");
 
     setPermissionsTable(elem_info,'');
@@ -701,7 +699,142 @@ function updateServiceTemplateInfo(request,elem){
     $("#service_template_info_panel_refresh", $("#service_template_info_panel")).click(function(){
       $(this).html(spinner);
       Sunstone.runAction('ServiceTemplate.showinfo', elem_info.ID);
-    })
+    });
+
+    var roles = elem_info.TEMPLATE.BODY.roles
+    if (roles && roles.length) {
+        servicerolesDataTable = $('#datatable_service_roles').dataTable({
+            "bSortClasses": false,
+            "bAutoWidth":false,
+            "aoColumnDefs": [
+              { "bSortable": false, "aTargets": ["check"] }
+            ],
+            "sDom" : '<"H">t<"F"p>'
+        });
+
+        var context = $("#roles_extended_info", $("#service_template_info_panel"));
+        var role_elements = [];
+        $.each(roles, function(){
+            role_elements.push([
+                this.name,
+                this.cardinality,
+                this.vm_template,
+                this.parents ? this.parents.join(', ') : '-'
+            ])
+
+            var info_str = "<fieldset>\
+                <legend>"+tr("Role")+" - "+this.name+"</legend>";
+
+            info_str += "<div class='three columns'>\
+                <table class='twelve datatable extended_table'>\
+                    <thead>\
+                        <tr><th colspan='2'></th></tr>\
+                    </thead>\
+                    <tbody>";
+
+            if (this.min_vms) {
+                info_str += "<tr>\
+                     <td class='key_td'>"+tr("Min VMs")+"</td>\
+                     <td class='value_td'>"+this.min_vms+"</td>\
+                   </tr>";
+            }
+            if (this.max_vms) {
+                info_str += "<tr>\
+                     <td class='key_td'>"+tr("Max VMs")+"</td>\
+                     <td class='value_td'>"+this.max_vms+"</td>\
+                   </tr>";
+            }
+            if (this.cooldown) {
+                info_str += "<tr>\
+                     <td class='key_td'>"+tr("Cooldown")+"</td>\
+                     <td class='value_td'>"+this.cooldown+"</td>\
+                   </tr>";
+            }
+
+            info_str += "</tbody>\
+                </table>";
+
+
+            info_str += "</div>\
+            <div class='nine columns'>";
+
+            if (this.elasticity_policies && this.elasticity_policies.length > 0) {
+                info_str += '<table class="twelve datatable extended_table">\
+                    <thead style="background:#dfdfdf">\
+                      <tr>\
+                        <th colspan="6">'+tr("Elasticity policies")+'</th>\
+                      </tr>\
+                    </thead>\
+                    <thead>\
+                      <tr>\
+                        <th>'+tr("Type")+'</th>\
+                        <th>'+tr("Adjust")+'</th>\
+                        <th>'+tr("Expression")+'</th>\
+                        <th>'+tr("# Periods")+'</th>\
+                        <th>'+tr("Step")+'</th>\
+                        <th>'+tr("Cooldown")+'</th>\
+                      </tr>\
+                    </thead>\
+                    <tbody>';
+
+                $.each(this.elasticity_policies, function(){
+                    info_str += '<tr>\
+                        <td>'+this.type+'</td>\
+                        <td>'+this.adjust+'</td>\
+                        <td>'+this.expression+'</td>\
+                        <td>'+this.period+'</td>\
+                        <td>'+this.period_number+'</td>\
+                        <td>'+this.cooldown+'</td>\
+                    </tr>'
+                });
+
+                info_str += '</tbody>\
+                    </table>';
+            }
+
+            if (this.scheduled_policies && this.scheduled_policies.length > 0) {
+                info_str += '<table class="twelve datatable extended_table">\
+                    <thead style="background:#dfdfdf">\
+                      <tr>\
+                        <th colspan="4">'+tr("Scheduled policies")+'</th>\
+                      </tr>\
+                    </thead>\
+                    <thead>\
+                      <tr>\
+                        <th>'+tr("Type")+'</th>\
+                        <th>'+tr("Adjust")+'</th>\
+                        <th>'+tr("Time format")+'</th>\
+                        <th>'+tr("Time expression")+'</th>\
+                      </tr>\
+                    </thead>\
+                    <tbody>';
+
+                $.each(this.scheduled_policies, function(){
+                    info_str += '<tr>\
+                        <td>'+this.type+'</td>\
+                        <td>'+this.adjust+'</td>';
+
+                    if (this['start_time']) {
+                        info_str += '<td>start_time</td>';
+                        info_str += '<td>'+this.start_time+'</td>';
+                    } else if (this['recurrence']) {
+                        info_str += '<td>recurrence</td>';
+                        info_str += '<td>'+this.recurrence+'</td>';
+                    }
+                });
+
+                info_str += '</tbody>\
+                    </table>';
+            }
+
+            info_str += "</div>";
+
+            info_str += "</fieldset>"
+            $(info_str).appendTo(context);
+        });
+
+        updateView(role_elements ,servicerolesDataTable);
+    }
 }
 
 function setup_policy_tab_content(policy_section, html_policy_id) {
@@ -766,7 +899,7 @@ function setup_role_tab_content(role_section, html_role_id) {
                     <input type="text" id="adjust" name="adjust"/>\
                 </td>\
                 <td>\
-                    <select id="type_of_time" name="type_of_time">\
+                    <select id="time_format" name="time_format">\
                         <option value="start_time">'+tr("Start time")+'</option>\
                         <option value="recurrence">'+tr("Recurrence")+'</option>\
                     </select>\
@@ -893,123 +1026,15 @@ function setupCreateServiceTemplateDialog(){
 
 
     $('#create_service_template_submit',dialog).click(function(){
-        var name = $('input[name="service_name"]', $create_service_template_dialog).val();
-        var deployment = $('select[name="deployment"]', $create_service_template_dialog).val();
-
-        if (!name){
-            notifyError(tr("Name is mandatory!"));
-            return false;
-        }
-
-        var roles = [];
-
-        $('#roles_tabs_content li', $create_service_template_dialog).each(function(){
-            var role = {};
-            role['name'] = $('input[name="name"]', this).val();
-            role['cardinality'] = $('input[name="cardinality"]', this).val();
-            role['vm_template'] = $('select[name="vm_template"]', this).val();
-            role['parents'] = [];
-
-            if (!role['name'] || !role['cardinality'] || !role['vm_template']){
-                // TODO Select tab that is missing these attrs
-                //notifyError(tr("Please specify name, cardinality and template for this role"));
-                //return false;
-            } else {
-                $('#parent_roles_body input.check_item:checked', this).each(function(){
-                    parents.push($(this).val())
-                });
-
-                var min_vms = $('input[name="min_vms"]', this).val();
-                if (min_vms) {
-                    role['min_vms'] = min_vms
-                }
-                var max_vms = $('input[name="max_vms"]', this).val();
-                if (max_vms) {
-                    role['max_vms'] = max_vms
-                }
-
-                role['elasticity_policies'] = [];
-                $("#elasticity_policies_tbody tr", this).each(function(){
-                    var policy = {};
-                    policy['type'] = $("#type" ,this).val();
-                    policy['adjust']  = $("#adjust" ,this).val();
-                    policy['min_adjust_step']  = $("#min_adjust_step" ,this).val();
-                    policy['expression']  = $("#expression" ,this).val();
-                    policy['period']  = $("#period" ,this).val();
-                    policy['period_number']  = $("#period_number" ,this).val();
-                    //policy['cooldown']  = $("#cooldown" ,this).val();
-
-                    // TODO remove empty policies
-                    role['elasticity_policies'].push(policy);
-                });
-
-                role['scheduled_policies'] = [];
-                $("#scheduled_policies_tbody tr", this).each(function(){
-                    var policy = {};
-                    policy['type'] = $("#type" ,this).val();
-                    policy['adjust']  = $("#adjust" ,this).val();
-                    policy['min_adjust_step']  = $("#min_adjust_step" ,this).val();
-
-                    var time_format = $("#time_format" ,this).val();
-                    policy[time_format] = $("#time" ,this).val();
-
-                    // TODO remove empty policies
-                    role['scheduled_policies'].push(policy);
-                });
-
-                roles.push(role);
-            }
-        });
-
-        var obj = {
-            name: name,
-            deployment: deployment,
-            roles: roles
-        }
-
-        Sunstone.runAction("ServiceTemplate.create", obj );
+        var json_template = generate_json_service_template_from_form();
+        Sunstone.runAction("ServiceTemplate.create", json_template );
         dialog.trigger("reveal:close");
         return false;
     });
 
     $('#update_service_template_submit',dialog).click(function(){
-        var name = $('input[name="service_name"]', $create_service_template_dialog).val();
-        var deployment = $('select[name="deployment"]', $create_service_template_dialog).val();
-
-        var roles = [];
-
-        $('#roles_tabs_content li', $create_service_template_dialog).each(function(){
-            var name = $('input[name="name"]', this).val();
-            var cardinality = $('input[name="cardinality"]', this).val();
-            var template = $('select[name="vm_template"]', this).val();
-            var parents = [];
-
-            if (!name || !cardinality || !template){
-                notifyError(tr("Please specify name, cardinality and template for this role"));
-                return false;
-            };
-
-            $('#parent_roles_body input.check_item:checked', this).each(function(){
-                parents.push($(this).val())
-            });
-
-            roles.push({
-                name : name,
-                cardinality: cardinality,
-                vm_template: template,
-                parents: parents
-            });
-        });
-
-        var obj = {
-            name: name,
-            deployment: deployment,
-            roles: roles
-        }
-
-        var json_template =JSON.stringify(obj);
-
-        Sunstone.runAction("ServiceTemplate.update",service_template_to_update_id, json_template);
+        var json_template = generate_json_service_template_from_form();
+        Sunstone.runAction("ServiceTemplate.update",service_template_to_update_id, JSON.stringify(json_template));
         dialog.trigger("reveal:close");
         return false;
     });
@@ -1024,6 +1049,82 @@ function setupCreateServiceTemplateDialog(){
 
     roles_index = 0;
     add_role_tab(roles_index);
+}
+
+function generate_json_service_template_from_form() {
+    var name = $('input[name="service_name"]', $create_service_template_dialog).val();
+    var deployment = $('select[name="deployment"]', $create_service_template_dialog).val();
+
+    var roles = [];
+
+    $('#roles_tabs_content li', $create_service_template_dialog).each(function(){
+        var role = {};
+        role['name'] = $('input[name="name"]', this).val();
+        role['cardinality'] = $('input[name="cardinality"]', this).val();
+        role['vm_template'] = $('select[name="vm_template"]', this).val();
+        role['parents'] = [];
+
+        if (!name || !cardinality || !template){
+            notifyError(tr("Please specify name, cardinality and template for this role"));
+            return false;
+        } else {
+            $('#parent_roles_body input.check_item:checked', this).each(function(){
+                role['parents'].push($(this).val())
+            });
+
+            var min_vms = $('input[name="min_vms"]', this).val();
+            if (min_vms) {
+                role['min_vms'] = min_vms
+            }
+            var max_vms = $('input[name="max_vms"]', this).val();
+            if (max_vms) {
+                role['max_vms'] = max_vms
+            }
+            var cooldown = $('input[name="cooldown"]', this).val();
+            if (cooldown) {
+                role['cooldown'] = cooldown
+            }
+
+            role['elasticity_policies'] = [];
+            $("#elasticity_policies_tbody tr", this).each(function(){
+                var policy = {};
+                policy['type'] = $("#type" ,this).val();
+                policy['adjust']  = $("#adjust" ,this).val();
+                policy['min_adjust_step']  = $("#min_adjust_step" ,this).val();
+                policy['expression']  = $("#expression" ,this).val();
+                policy['period']  = $("#period" ,this).val();
+                policy['period_number']  = $("#period_number" ,this).val();
+                policy['cooldown']  = $("#cooldown" ,this).val();
+
+                // TODO remove empty policies
+                role['elasticity_policies'].push(policy);
+            });
+
+            role['scheduled_policies'] = [];
+            $("#scheduled_policies_tbody tr", this).each(function(){
+                var policy = {};
+                policy['type'] = $("#type" ,this).val();
+                policy['adjust']  = $("#adjust" ,this).val();
+                policy['min_adjust_step']  = $("#min_adjust_step" ,this).val();
+
+                var time_format = $("#time_format" ,this).val();
+                policy[time_format] = $("#time" ,this).val();
+
+                // TODO remove empty policies
+                role['scheduled_policies'].push(policy);
+            });
+
+            roles.push(role);
+        }
+    });
+
+    var obj = {
+        name: name,
+        deployment: deployment,
+        roles: roles
+    }
+
+    return obj;
 }
 
 function popUpCreateServiceTemplateDialog(){
@@ -1088,10 +1189,45 @@ function fillUpUpdateServiceTemplateDialog(request, response){
         var context = $('#roles_tabs_content li', $create_service_template_dialog).last();
 
         $("#role_name", context).val(value.name);
+        roles_names.push(value.name);
+
         $("#cardinality", context).val(value.cardinality);
         $('select[name="vm_template"]', context).val(value.vm_template);
 
-        roles_names.push(value.name);
+        $("#min_vms", context).val(value.min_vms);
+        $("#max_vms", context).val(value.max_vms);
+
+        if (value['elasticity_policies']) {
+            $.each(value['elasticity_policies'], function(){
+                $("#tf_btn_elas_policies", context).click();
+                var td = $("#elasticity_policies_tbody tr", context).last();
+                $("#type" ,td).val(this['type'])
+                $("#adjust" ,td).val(this['adjust'] )
+                $("#min_adjust_step" ,td).val(this['min_adjust_step'] )
+                $("#expression" ,td).val(this['expression'] )
+                $("#period" ,td).val(this['period'] )
+                $("#period_number" ,td).val(this['period_number'] )
+                $("#cooldown" ,td).val(this['cooldown'] )
+            })
+        }
+
+        if (value['scheduled_policies']) {
+            $.each(value['scheduled_policies'], function(){
+                $("#tf_btn_sche_policies", context).click();
+                var td = $("#scheduled_policies_tbody tr", context).last();
+                $("#type", td).val(this['type'])
+                $("#adjust", td).val(this['adjust'] )
+                $("#min_adjust_step", td).val(this['min_adjust_step'] )
+
+                if (this['start_time']) {
+                    $("#time_format", td).val('start_time');
+                    $("#time", td).val(this['start_time']);
+                } else if (this['recurrence']) {
+                    $("#time_format", td).val('recurrence');
+                    $("#time", td).val(this['recurrence']);
+                }
+            })
+        }
     })
 
     $.each(service_template.TEMPLATE.BODY.roles, function(index, value){
@@ -1140,10 +1276,6 @@ $(document).ready(function(){
     var tab_name = "apptools-appflow-templates";
 
     dataTable_service_templates = $("#datatable_service_templates",main_tabs_context).dataTable({
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
-        "oColVis": {
-            "aiExclude": [ 0 ]
-        },
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0] },

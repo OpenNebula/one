@@ -749,7 +749,6 @@ function updateServiceInfo(request,elem){
 
     Sunstone.updateInfoPanelTab("service_info_panel", "service_info_tab",info_tab);
 
-
     var roles_tab = {
         title : "Roles",
         content : '<form class="custom" id="roles_form" action="">\
@@ -774,40 +773,12 @@ function updateServiceInfo(request,elem){
               </tbody>\
             </table>\
           </div>\
+          <div id="roles_extended_info" class="columns twelve">\
+          </div>\
         </form>'
     };
 
     Sunstone.updateInfoPanelTab("service_info_panel", "service_roles_tab",roles_tab);
-
-    var vms_tab = {
-        title : "Virtual Machines",
-        content : '<div class="columns twelve">\
-          <div id="datatable_cluster_hosts_info_div">\
-            <table id="datatable_service_vms" class="table twelve">\
-              <thead>\
-                <tr>\
-                  <th>'+tr("Role")+'</th>\
-                  <th>'+tr("ID")+'</th>\
-                  <th>'+tr("Owner")+'</th>\
-                  <th>'+tr("Group")+'</th>\
-                  <th>'+tr("Name")+'</th>\
-                  <th>'+tr("Status")+'</th>\
-                  <th>'+tr("Used CPU")+'</th>\
-                  <th>'+tr("Used Memory")+'</th>\
-                  <th>'+tr("Host")+'</th>\
-                  <th>'+tr("IPs")+'</th>\
-                  <th>'+tr("Start Time")+'</th>\
-                  <th>'+tr("VNC")+'</th>\
-                </tr>\
-              </thead>\
-              <tbody>\
-              </tbody>\
-            </table>\
-          </div>'
-    };
-
-    Sunstone.updateInfoPanelTab("service_info_panel", "service_vms_tab",vms_tab);
-
 
     var logs = elem_info.TEMPLATE.BODY.log
     var log_info = ''
@@ -855,17 +826,170 @@ function updateServiceInfo(request,elem){
             "sDom" : '<"H">t<"F"p>'
         });
 
+        var context = $("#roles_extended_info", $("#service_info_panel"));
         var role_elements = [];
-        for (var i = 0; i < roles.length; i++) {
-          role_elements.push([
-            '<input class="check_item" type="checkbox" id="role_'+roles[i].name+'" name="selected_items" value="'+elem_info.ID+'/role/'+roles[i].name+'"/>',
-            roles[i].name,
-            Role.state(roles[i].state),
-            roles[i].cardinality,
-            roles[i].vm_template,
-            roles[i].parents ? roles[i].parents.join(', ') : '-'
-          ])
-        }
+        $.each(roles, function(){
+            role_elements.push([
+                '<input class="check_item" type="checkbox" id="role_'+this.name+'" name="selected_items" value="'+elem_info.ID+'/role/'+this.name+'"/>',
+                this.name,
+                Role.state(this.state),
+                this.cardinality,
+                this.vm_template,
+                this.parents ? this.parents.join(', ') : '-'
+            ])
+
+            var info_str = "<fieldset>\
+                <legend>"+tr("Role")+" - "+this.name+"</legend>";
+
+            info_str += "<div class='three columns'>\
+                <table class='twelve datatable extended_table'>\
+                    <thead>\
+                        <tr><th colspan='2'></th></tr>\
+                    </thead>\
+                    <tbody>";
+
+            if (this.min_vms) {
+                info_str += "<tr>\
+                     <td class='key_td'>"+tr("Min VMs")+"</td>\
+                     <td class='value_td'>"+this.min_vms+"</td>\
+                   </tr>";
+            }
+            if (this.max_vms) {
+                info_str += "<tr>\
+                     <td class='key_td'>"+tr("Max VMs")+"</td>\
+                     <td class='value_td'>"+this.max_vms+"</td>\
+                   </tr>";
+            }
+            if (this.cooldown) {
+                info_str += "<tr>\
+                     <td class='key_td'>"+tr("Cooldown")+"</td>\
+                     <td class='value_td'>"+this.cooldown+"</td>\
+                   </tr>";
+            }
+
+            info_str += "</tbody>\
+                </table>";
+
+
+            info_str += "</div>\
+            <div class='nine columns'>";
+
+            if (this.elasticity_policies && this.elasticity_policies.length > 0) {
+                info_str += '<table class="twelve datatable extended_table">\
+                    <thead style="background:#dfdfdf">\
+                      <tr>\
+                        <th colspan="6">'+tr("Elasticity policies")+'</th>\
+                      </tr>\
+                    </thead>\
+                    <thead>\
+                      <tr>\
+                        <th>'+tr("Type")+'</th>\
+                        <th>'+tr("Adjust")+'</th>\
+                        <th>'+tr("Expression")+'</th>\
+                        <th>'+tr("# Periods")+'</th>\
+                        <th>'+tr("Step")+'</th>\
+                        <th>'+tr("Cooldown")+'</th>\
+                      </tr>\
+                    </thead>\
+                    <tbody>';
+
+                $.each(this.elasticity_policies, function(){
+                    info_str += '<tr>\
+                        <td>'+this.type+'</td>\
+                        <td>'+this.adjust+'</td>\
+                        <td>'+this.expression+'</td>\
+                        <td>'+this.period+'</td>\
+                        <td>'+this.period_number+'</td>\
+                        <td>'+this.cooldown+'</td>\
+                    </tr>'
+                });
+
+                info_str += '</tbody>\
+                    </table>';
+            }
+
+            if (this.scheduled_policies && this.scheduled_policies.length > 0) {
+                info_str += '<table class="twelve datatable extended_table">\
+                    <thead style="background:#dfdfdf">\
+                      <tr>\
+                        <th colspan="4">'+tr("Scheduled policies")+'</th>\
+                      </tr>\
+                    </thead>\
+                    <thead>\
+                      <tr>\
+                        <th>'+tr("Type")+'</th>\
+                        <th>'+tr("Adjust")+'</th>\
+                        <th>'+tr("Time format")+'</th>\
+                        <th>'+tr("Time expression")+'</th>\
+                      </tr>\
+                    </thead>\
+                    <tbody>';
+
+                $.each(this.scheduled_policies, function(){
+                    info_str += '<tr>\
+                        <td>'+this.type+'</td>\
+                        <td>'+this.adjust+'</td>';
+
+                    if (this['start_time']) {
+                        info_str += '<td>start_time</td>';
+                        info_str += '<td>'+this.start_time+'</td>';
+                    } else if (this['recurrence']) {
+                        info_str += '<td>recurrence</td>';
+                        info_str += '<td>'+this.recurrence+'</td>';
+                    }
+                });
+
+                info_str += '</tbody>\
+                    </table>';
+            }
+
+            info_str += '</div>\
+                <div class="columns twelve">\
+                    <table id="datatable_service_vms_'+this.name+'" class="table datatable twelve">\
+                      <thead>\
+                        <tr>\
+                          <th></th>\
+                          <th>'+tr("ID")+'</th>\
+                          <th>'+tr("Owner")+'</th>\
+                          <th>'+tr("Group")+'</th>\
+                          <th>'+tr("Name")+'</th>\
+                          <th>'+tr("Status")+'</th>\
+                          <th>'+tr("Used CPU")+'</th>\
+                          <th>'+tr("Used Memory")+'</th>\
+                          <th>'+tr("Host")+'</th>\
+                          <th>'+tr("IPs")+'</th>\
+                          <th>'+tr("Start Time")+'</th>\
+                          <th>'+tr("VNC")+'</th>\
+                        </tr>\
+                      </thead>\
+                      <tbody>\
+                      </tbody>\
+                    </table>\
+                </div>';
+
+            info_str += "</fieldset>"
+            $(info_str).appendTo(context);
+
+            var vms = [];
+            var servicevmsDataTable = $('#datatable_service_vms_'+this.name, context).dataTable({
+                "aoColumnDefs": [
+                    { "bSortable": false, "aTargets": [0,6,7,9,11] },
+                    { "sWidth": "35px", "aTargets": [0] },
+                    { "bVisible": false, "aTargets": [6,7,10]}
+                ]
+            });
+
+            if (this.nodes) {
+                $.each(this.nodes, function(){
+                    var vm_info = this.vm_info;
+                    if (vm_info) {
+                      vms.push([""].concat(vMachineElementArray(vm_info).slice(1)));
+                    }
+                });
+
+                updateView(vms, servicevmsDataTable);
+            }
+        });
 
         updateView(role_elements ,servicerolesDataTable);
         insertButtonsInTab("apptools-appflow-services", "service_roles_tab", role_buttons)
@@ -875,33 +999,6 @@ function updateServiceInfo(request,elem){
 
         initCheckAllBoxes(servicerolesDataTable);
         tableCheckboxesListener(servicerolesDataTable);
-
-        var servicevmsDataTable = $('#datatable_service_vms').dataTable({
-            "bSortClasses": false,
-            "bAutoWidth":false,
-            "sDom" : '<"H">t<"F"p>',
-            "aoColumnDefs": [
-               { "sWidth": "60px", "aTargets": [6,7] },
-                { "sWidth": "35px", "aTargets": [1, 11] },
-                { "sWidth": "150px", "aTargets": [5,10] },
-                { "sWidth": "100px", "aTargets": [2,3,9] },
-                { "bVisible": false, "aTargets": [6,7,10]}
-            ]
-        });
-
-        var vms = [];
-        for (var i=0; i < roles.length; i++) {
-          if (roles[i].nodes) {
-            for (var j=0; j < roles[i].nodes.length; j++){
-                var vm_info = roles[i].nodes[j].vm_info;
-                if (vm_info) {
-                  vms.push([roles[i].name].concat(vMachineElementArray(vm_info).slice(1)));
-                }
-            };
-          };
-        };
-
-        updateView(vms, servicevmsDataTable);
     }
 
 
@@ -943,10 +1040,6 @@ $(document).ready(function(){
     var tab_name = "apptools-appflow-services";
 
     dataTable_services = $("#datatable_services",main_tabs_context).dataTable({
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
-        "oColVis": {
-            "aiExclude": [ 0 ]
-        },
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0] },
