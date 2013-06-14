@@ -68,18 +68,21 @@ MVSCRIPT=$(cat <<EOF
 SRC_DISK_LN=\$($READLINK -f $SRC_DISK)
 DST_DISK_LN=\$($READLINK -f $DST_DISK)
 
-if [ \( -L $SRC_DISK \) -a \( "\$SRC_DISK_LN" = "\$DST_DISK_LN" \) ] ; then
+if [ \( -L $SRC_DISK \) -a \( "\$SRC_DISK_LN" = "\$DST_DISK_LN" \) ]; then
     echo "Not moving files to image repo, they are the same"
+elif [ -L "$SRC_PATH.iso" ]; then
+    echo "Not moving the file it is a CDROM"
 else
     $VMKFSTOOLS -U $DST_DISK
     $VMKFSTOOLS -i $SRC_DISK -d thin $DST_DISK
+
+    if [ -d $DST_PATH ]; then
+        chmod 0770 $DST_PATH
+    else
+        chmod 0660 $DST_PATH
+    fi
 fi
 
-if [ -d $DST_PATH ]; then
-    chmod 0770 $DST_PATH
-else
-    chmod 0660 $DST_PATH
-fi
 EOF
 )
 
