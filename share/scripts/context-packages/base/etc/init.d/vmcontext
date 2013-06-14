@@ -60,9 +60,6 @@ if [ -e "$CDROM_DEVICE" ]; then
 
     execute_scripts
 
-    if [ -f /mnt/init.sh ]; then
-        /mnt/init.sh
-    fi
     umount /mnt
 else
     execute_scripts
