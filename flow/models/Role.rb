@@ -769,7 +769,17 @@ module OpenNebula
         # Recover
         ########################################################################
 
+
         def recover_deployment()
+            delete_failed_done()
+        end
+
+        def recover_unknown()
+            delete_failed_done()
+            deploy()
+        end
+
+        def delete_failed_done()
 
             nodes = @body['nodes']
             new_nodes = []

@@ -244,6 +244,13 @@ module OpenNebula
 
                 self.set_state(Service::STATE['RUNNING'])
 
+            elsif self.state == Service::STATE['UNKNOWN']
+                @roles.each do |name, role|
+                    if role.state == Role::STATE['UNKNOWN']
+                        role.recover_unknown()
+                    end
+                end
+
             else
                 return OpenNebula::Error.new("Action recover: Wrong state" \
                     " #{self.state_str()}")
