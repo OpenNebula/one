@@ -69,16 +69,16 @@ class ServiceLCM
                                     service.set_state(Service::STATE['FAILED_DEPLOYING'])
                                 end
                             end
-                        when Service::STATE['RUNNING'], Service::STATE['UNKNOWN']
+                        when Service::STATE['RUNNING'], Service::STATE['WARNING']
                             strategy.monitor_step(service)
 
                             if service.all_roles_running?
-                                if service.state() == Service::STATE['UNKNOWN']
+                                if service.state() == Service::STATE['WARNING']
                                     service.set_state(Service::STATE['RUNNING'])
                                 end
                             else
                                 if service.state() == Service::STATE['RUNNING']
-                                    service.set_state(Service::STATE['UNKNOWN'])
+                                    service.set_state(Service::STATE['WARNING'])
                                 end
                             end
 

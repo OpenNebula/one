@@ -24,7 +24,7 @@ module OpenNebula
             'DEPLOYING'          => 1,
             'RUNNING'            => 2,
             'UNDEPLOYING'        => 3,
-            'UNKNOWN'            => 4,
+            'WARNING'            => 4,
             'DONE'               => 5,
             'FAILED_UNDEPLOYING' => 6,
             'FAILED_DEPLOYING'   => 7,
@@ -38,7 +38,7 @@ module OpenNebula
             'DEPLOYING',
             'RUNNING',
             'UNDEPLOYING',
-            'UNKNOWN',
+            'WARNING',
             'DONE',
             'FAILED_UNDEPLOYING',
             'FAILED_DEPLOYING',
@@ -191,7 +191,7 @@ module OpenNebula
         def shutdown
             if [Service::STATE['RUNNING'], 
                     Service::STATE['FAILED_UNDEPLOYING'],
-                    Service::STATE['UNKNOWN']].include?(self.state)
+                    Service::STATE['WARNING']].include?(self.state)
                 self.set_state(Service::STATE['UNDEPLOYING'])
                 return self.update
             else
@@ -244,10 +244,10 @@ module OpenNebula
 
                 self.set_state(Service::STATE['RUNNING'])
 
-            elsif self.state == Service::STATE['UNKNOWN']
+            elsif self.state == Service::STATE['WARNING']
                 @roles.each do |name, role|
-                    if role.state == Role::STATE['UNKNOWN']
-                        role.recover_unknown()
+                    if role.state == Role::STATE['WARNING']
+                        role.recover_warning()
                     end
                 end
 
@@ -353,7 +353,7 @@ module OpenNebula
 
         def update_role(role_name, template_json)
 
-            if ![Service::STATE['RUNNING'], Service::STATE['UNKNOWN']].include?(self.state)
+            if ![Service::STATE['RUNNING'], Service::STATE['WARNING']].include?(self.state)
                 return OpenNebula::Error.new("Update role: Wrong state" \
                     " #{self.state_str()}")
             end

@@ -138,9 +138,9 @@ class Strategy
             case role.state()
             when Role::STATE['RUNNING']
                 if OpenNebula.is_error?(rc)
-                    role.set_state(Role::STATE['UNKNOWN'])
+                    role.set_state(Role::STATE['WARNING'])
                 elsif !role_nodes_running?(role)
-                    role.set_state(Role::STATE['UNKNOWN'])
+                    role.set_state(Role::STATE['WARNING'])
                 end
             when Role::STATE['DEPLOYING']
                 if OpenNebula.is_error?(rc)
@@ -166,7 +166,7 @@ class Strategy
                 if role.cooldown_over?
                     role.set_state(Role::STATE['RUNNING'])
                 end
-            when Role::STATE['UNKNOWN']
+            when Role::STATE['WARNING']
                 if role_nodes_running?(role)
                     role.set_state(Role::STATE['RUNNING'])
                 end

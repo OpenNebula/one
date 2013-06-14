@@ -459,7 +459,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     shutdown_desc = <<-EOT.unindent
         Shutdown a service.
-            From RUNNING or UNKNOWN shuts down the Service
+            From RUNNING or WARNING shuts down the Service
     EOT
 
     command :shutdown, shutdown_desc, [:range, :service_id_list] do

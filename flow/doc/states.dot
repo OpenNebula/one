@@ -19,7 +19,7 @@ digraph AppFlow {
 
     end [ width=0.15, height=0.15, shape=point ];
 
-    running [ label="running /\nunknown"];
+    running [ label="running /\nwarning"];
 
     subgraph { rank = min; user; pending}
     subgraph { rank = same; deploying; failed_deploying; color="white"}
@@ -37,8 +37,8 @@ digraph AppFlow {
     done -> end [label="delete"];
 
 
-//    running -> unknown [style="dotted"];
-//    unknown -> running [style="dotted"];
+//    running -> warning [style="dotted"];
+//    warning -> running [style="dotted"];
 
     running -> scaling [style="dashed"];
     scaling -> running [style="dashed"];

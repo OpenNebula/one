@@ -44,7 +44,7 @@ module OpenNebula
             'DEPLOYING'          => 1,
             'RUNNING'            => 2,
             'UNDEPLOYING'        => 3,
-            'UNKNOWN'            => 4,
+            'WARNING'            => 4,
             'DONE'               => 5,
             'FAILED_UNDEPLOYING' => 6,
             'FAILED_DEPLOYING'   => 7,
@@ -58,7 +58,7 @@ module OpenNebula
             'DEPLOYING',
             'RUNNING',
             'UNDEPLOYING',
-            'UNKNOWN',
+            'WARNING',
             'DONE',
             'FAILED_UNDEPLOYING',
             'FAILED_DEPLOYING',
@@ -774,7 +774,7 @@ module OpenNebula
             delete_failed_done()
         end
 
-        def recover_unknown()
+        def recover_warning()
             delete_failed_done()
             deploy()
         end
