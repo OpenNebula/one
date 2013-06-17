@@ -54,6 +54,13 @@ var Service = {
                                         null,
                                         Service.path);
     },
+    "recover" : function(params){
+        OpenNebula.Action.simple_action(params,
+                                        Service.resource,
+                                        "recover",
+                                        null,
+                                        Service.path);
+    },
     "state" : function(state_int){
         var state = [
             tr("PENDING"),
@@ -585,6 +592,14 @@ var service_actions = {
         error: onError,
         notify: true
     },
+
+    "Service.recover" : {
+        type: "multiple",
+        call: Service.recover,
+        elements: serviceElements,
+        error: onError,
+        notify: true
+    }
 };
 
 
@@ -615,6 +630,11 @@ var service_buttons = {
         type: "action",
         layout: "main",
         text: tr("Shutdown")
+    },
+    "Service.recover" : {
+        type: "action",
+        layout: "main",
+        text: tr("Recover")
     },
     "Service.delete" : {
         type: "confirm",

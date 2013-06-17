@@ -123,7 +123,6 @@ add_view "    apptools-appflow-services:" \
         panel_tabs:
             service_info_tab: true
             service_roles_tab: true
-            service_vms_tab: true
             service_log_tab: true
         panel_tabs_actions:
             service_roles_tab:
@@ -154,12 +153,14 @@ add_view "    apptools-appflow-services:" \
             Service.chgrp: true
             Service.chmod: true
             Service.shutdown: true
+            Service.recover: true
             Service.delete: true"
 
 add_view "    apptools-appflow-templates:" \
 "    apptools-appflow-templates:
         panel_tabs:
             service_template_info_panel: true
+            service_template_roles_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID
