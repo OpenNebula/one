@@ -775,7 +775,24 @@ module OpenNebula
         end
 
         def recover_warning()
+            @body['nodes'].each do |node|
+                vm_state = nil
+                lcm_state = nil
+                vm_id = node['deploy_id']
+
+                if node['vm_info'] && node['vm_info']['VM']
+                    vm_state = node['vm_info']['VM']['STATE']
+                    lcm_state = node['vm_info']['VM']['LCM_STATE']
+                end
+
+                if vm_state == '3' && lcm_state == '16' # UNKNOWN
+                    vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
+                    vm.boot
+                end
+            end
+
             delete_failed_done()
+
             deploy()
         end
 
