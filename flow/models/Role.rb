@@ -44,14 +44,13 @@ module OpenNebula
             'DEPLOYING'          => 1,
             'RUNNING'            => 2,
             'UNDEPLOYING'        => 3,
-            'FAILED'             => 4,
-            'UNKNOWN'            => 5,
-            'DONE'               => 6,
-            'FAILED_UNDEPLOYING' => 7,
-            'FAILED_DEPLOYING'   => 8,
-            'SCALING'            => 9,
-            'FAILED_SCALING'     => 10,
-            'COOLDOWN'           => 11
+            'WARNING'            => 4,
+            'DONE'               => 5,
+            'FAILED_UNDEPLOYING' => 6,
+            'FAILED_DEPLOYING'   => 7,
+            'SCALING'            => 8,
+            'FAILED_SCALING'     => 9,
+            'COOLDOWN'           => 10
         }
 
         STATE_STR = [
@@ -59,8 +58,7 @@ module OpenNebula
             'DEPLOYING',
             'RUNNING',
             'UNDEPLOYING',
-            'FAILED',
-            'UNKNOWN',
+            'WARNING',
             'DONE',
             'FAILED_UNDEPLOYING',
             'FAILED_DEPLOYING',
@@ -765,6 +763,81 @@ module OpenNebula
 
         def update(template)
             set_cardinality(template["cardinality"])
+        end
+
+        ########################################################################
+        # Recover
+        ########################################################################
+
+
+        def recover_deployment()
+            delete_failed_done()
+        end
+
+        def recover_warning()
+            @body['nodes'].each do |node|
+                vm_state = nil
+                lcm_state = nil
+                vm_id = node['deploy_id']
+
+                if node['vm_info'] && node['vm_info']['VM']
+                    vm_state = node['vm_info']['VM']['STATE']
+                    lcm_state = node['vm_info']['VM']['LCM_STATE']
+                end
+
+                if vm_state == '3' && lcm_state == '16' # UNKNOWN
+                    vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
+                    vm.boot
+                end
+            end
+
+            delete_failed_done()
+
+            deploy()
+        end
+
+        def delete_failed_done()
+
+            nodes = @body['nodes']
+            new_nodes = []
+            disposed_nodes = @body['disposed_nodes']
+
+            nodes.each do |node|
+                vm_state = nil
+                vm_id = node['deploy_id']
+
+                if node['vm_info'] && node['vm_info']['VM'] && node['vm_info']['VM']['STATE']
+                    vm_state = node['vm_info']['VM']['STATE']
+                end
+
+                if vm_state == '6' # DONE
+                    # Store the VM id in the array of disposed nodes
+                    disposed_nodes << vm_id
+
+                elsif vm_state == '7' # FAILED
+                    vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
+                    rc = vm.finalize
+
+                    if !OpenNebula.is_error?(rc)
+                        # Store the VM id in the array of disposed nodes
+                        disposed_nodes << vm_id
+
+                        Log.debug LOG_COMP, "Role #{name} : Delete success for VM #{vm_id}", @service.id()
+                    else
+                        msg = "Role #{name} : Delete failed for VM #{vm_id}; #{rc.message}"
+                        Log.error LOG_COMP, msg, @service.id()
+                        @service.log_error(msg)
+
+                        success = false
+
+                        new_nodes << node
+                    end
+                else
+                    new_nodes << node
+                end
+            end
+
+            @body['nodes'] = new_nodes
         end
     end
 end

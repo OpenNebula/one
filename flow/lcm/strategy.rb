@@ -138,9 +138,9 @@ class Strategy
             case role.state()
             when Role::STATE['RUNNING']
                 if OpenNebula.is_error?(rc)
-                    role.set_state(Role::STATE['UNKNOWN'])
+                    role.set_state(Role::STATE['WARNING'])
                 elsif !role_nodes_running?(role)
-                    role.set_state(Role::STATE['UNKNOWN'])
+                    role.set_state(Role::STATE['WARNING'])
                 end
             when Role::STATE['DEPLOYING']
                 if OpenNebula.is_error?(rc)
@@ -166,14 +166,8 @@ class Strategy
                 if role.cooldown_over?
                     role.set_state(Role::STATE['RUNNING'])
                 end
-            when Role::STATE['UNKNOWN']
+            when Role::STATE['WARNING']
                 if role_nodes_running?(role)
-                    role.set_state(Role::STATE['RUNNING'])
-                end
-            when Role::STATE['FAILED']
-                if OpenNebula.is_error?(rc)
-                    role.set_state(Role::STATE['UNKNOWN'])
-                elsif role_nodes_running?(role)
                     role.set_state(Role::STATE['RUNNING'])
                 end
             when Role::STATE['UNDEPLOYING']
@@ -186,7 +180,7 @@ class Strategy
                 end
             when Role::STATE['FAILED_DEPLOYING']
                 if !OpenNebula.is_error?(rc) && role_nodes_running?(role)
-                    role.set_state(Role::STATE['PENDING'])
+                    role.set_state(Role::STATE['RUNNING'])
                 end
             when Role::STATE['FAILED_UNDEPLOYING']
                 if !OpenNebula.is_error?(rc) && role_nodes_done?(role)
@@ -241,7 +235,6 @@ protected
     def get_roles_shutdown(service)
         result = service.get_roles.select {|name, role|
             ![Role::STATE['UNDEPLOYING'],
-              Role::STATE['FAILED'],
               Role::STATE['DONE'],
               Role::STATE['FAILED_UNDEPLOYING'],
               Role::STATE['FAILED_DEPLOYING']].include?(role.state)
@@ -259,6 +252,10 @@ protected
     # @param [Role] role
     # @return [true|false]
     def role_nodes_running?(role)
+        if role.get_nodes.size() != role.cardinality()
+            return false
+        end
+
         role.get_nodes.each { |node|
             if node && node['vm_info']
                 vm_state = node['vm_info']['VM']['STATE']
