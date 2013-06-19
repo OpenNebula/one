@@ -103,105 +103,105 @@ var Role = {
         OpenNebula.Action.simple_action(params,
                                         Service.resource,
                                         "hold",
-                                        null,
+                                        generate_batch_action_params(),
                                         Role.path);
     },
     "release" : function(params){
         OpenNebula.Action.simple_action(params,
                                         Role.resource,
                                         "release",
-                                        null,
+                                        generate_batch_action_params(),
                                         Role.path);
     },
     "suspend" : function(params){
         OpenNebula.Action.simple_action(params,
                                         Role.resource,
                                         "suspend",
-                                        null,
+                                        generate_batch_action_params(),
                                         Role.path);
     },
     "resume" : function(params){
         OpenNebula.Action.simple_action(params,
                                         Role.resource,
                                         "resume",
-                                        null,
+                                        generate_batch_action_params(),
                                         Role.path);
     },
     "stop" : function(params){
         OpenNebula.Action.simple_action(params,
                                         Role.resource,
                                         "stop",
-                                        null,
+                                        generate_batch_action_params(),
                                         Role.path);
     },
     "restart" : function(params){
         OpenNebula.Action.simple_action(params,
                                         Role.resource,
                                         "restart",
-                                        null,
+                                        generate_batch_action_params(),
                                         Role.path);
     },
     "reset" : function(params){
         OpenNebula.Action.simple_action(params,
                                         Role.resource,
                                         "reset",
-                                        null,
+                                        generate_batch_action_params(),
                                         Role.path);
     },
     "resubmit" : function(params){
         OpenNebula.Action.simple_action(params,
                                         Role.resource,
                                         "resubmit",
-                                        null,
+                                        generate_batch_action_params(),
                                         Role.path);
     },
     "reboot" : function(params){
         OpenNebula.Action.simple_action(params,
                                         Role.resource,
                                         "reboot",
-                                        null,
+                                        generate_batch_action_params(),
                                         Role.path);
     },
     "poweroff" : function(params){
         OpenNebula.Action.simple_action(params,
                                         Role.resource,
                                         "poweroff",
-                                        null,
+                                        generate_batch_action_params(),
                                         Role.path);
     },
     "poweroff_hard" : function(params){
         OpenNebula.Action.simple_action(params,
                                         Role.resource,
                                         "poweroff_hard",
-                                        null,
+                                        generate_batch_action_params(),
                                         Role.path);
     },
     "snapshot_create" : function(params){
         OpenNebula.Action.simple_action(params,
                                         Role.resource,
                                         "snapshot_create",
-                                        null,
+                                        generate_batch_action_params(),
                                         Role.path);
     },
     "shutdown" : function(params){
         OpenNebula.Action.simple_action(params,
                                         Role.resource,
                                         "shutdown",
-                                        null,
+                                        generate_batch_action_params(),
                                         Role.path);
     },
     "cancel" : function(params){
         OpenNebula.Action.simple_action(params,
                                         Role.resource,
                                         "cancel",
-                                        null,
+                                        generate_batch_action_params(),
                                         Role.path);
     },
     "del" : function(params){
         OpenNebula.Action.simple_action(params,
                                         Role.resource,
                                         "delete",
-                                        null,
+                                        generate_batch_action_params(),
                                         Role.path);
     },
     "recover" : function(params){
@@ -211,6 +211,14 @@ var Role = {
                                         null,
                                         Role.path);
     },
+}
+
+var generate_batch_action_params = function(){
+    var action_obj = {
+        "period" : $("#batch_action_period").val(),
+        "number" : $("#batch_action_number").val()};
+
+    return action_obj;
 }
 
 var role_actions = {
@@ -374,7 +382,7 @@ var role_buttons = {
         type: "action",
         text: tr("Hold"),
         tip: tr("This will hold selected pending VMs from being deployed"),
-        layout: "vmsplanification_buttons",
+        layout: "vmsplanification_buttons"
     },
     "Role.release" : {
         type: "action",
@@ -505,7 +513,6 @@ var service_tab_content = '\
   </div>\
 </form>';
 
-
 var dataTable_services;
 
 var service_actions = {
@@ -613,16 +620,14 @@ var service_buttons = {
         text: tr("Change owner"),
         select: users_sel,
         tip: tr("Select the new owner")+":",
-        layout: "user_select",
-        condition: mustBeAdmin
+        layout: "user_select"
     },
     "Service.chgrp" : {
         type: "confirm_with_select",
         text: tr("Change group"),
         select: groups_sel,
         tip: tr("Select the new group")+":",
-        layout: "user_select",
-        condition: mustBeAdmin
+        layout: "user_select"
     },
     "Service.shutdown" : {
         type: "action",
@@ -771,11 +776,32 @@ function updateServiceInfo(request,elem){
         title : "Roles",
         content : '<form class="custom" id="roles_form" action="">\
           <div class="">\
-            <div class="action_blocks columns twelve">\
+            <div class="columns six">\
+              <div class="row">\
+                    <div class="two columns">\
+                        <label class="inline right" for="batch_action_period">' + tr("Period") + ':</label>\
+                    </div>\
+                    <div class="two columns">\
+                        <input type="text" id="batch_action_period" name="batch_action_period"/>\
+                    </div>\
+                    <div class="one columns">\
+                        <div class="tip">'+ tr("Period") +'</div>\
+                    </div>\
+                    <div class="four columns">\
+                        <label class="inline right" for="batch_action_number">' + tr("VMs per period") + ':</label>\
+                    </div>\
+                    <div class="two columns">\
+                        <input type="text" id="batch_action_number" name="batch_action_number"/>\
+                    </div>\
+                    <div class="one columns">\
+                        <div class="tip">'+ tr("VMs per period") +'</div>\
+                    </div>\
+              </div>\
+            </div>\
+            <div class="action_blocks columns six">\
             </div>\
           </div>\
           <div id="roles_info" class="columns twelve">\
-          <br>\
             <table id="datatable_service_roles" class="table twelve">\
               <thead>\
                 <tr>\
@@ -855,115 +881,64 @@ function updateServiceInfo(request,elem){
                 this.vm_template,
                 this.parents ? this.parents.join(', ') : '-'
             ])
+        });
 
-            var info_str = "<fieldset>\
-                <legend>"+tr("Role")+" - "+this.name+"</legend>";
+        updateView(role_elements ,servicerolesDataTable);
 
-            info_str += "<div class='three columns'>\
-                <table class='twelve datatable extended_table'>\
-                    <thead>\
-                        <tr><th colspan='2'></th></tr>\
-                    </thead>\
-                    <tbody>";
+        insertButtonsInTab("apptools-appflow-services", "service_roles_tab", role_buttons)
+        $('li#service_roles_tabTab', $("#dialog")).foundationButtons();
+        $('li#service_roles_tabTab', $("#dialog")).foundationButtons();
 
-            if (this.min_vms) {
-                info_str += "<tr>\
-                     <td class='key_td'>"+tr("Min VMs")+"</td>\
-                     <td class='value_td'>"+this.min_vms+"</td>\
-                   </tr>";
-            }
-            if (this.max_vms) {
-                info_str += "<tr>\
-                     <td class='key_td'>"+tr("Max VMs")+"</td>\
-                     <td class='value_td'>"+this.max_vms+"</td>\
-                   </tr>";
-            }
-            if (this.cooldown) {
-                info_str += "<tr>\
-                     <td class='key_td'>"+tr("Cooldown")+"</td>\
-                     <td class='value_td'>"+this.cooldown+"</td>\
-                   </tr>";
+        initCheckAllBoxes(servicerolesDataTable);
+        tableCheckboxesListener(servicerolesDataTable);
+
+        $('tbody tr',servicerolesDataTable).live("click",function(e){
+            var aData = servicerolesDataTable.fnGetData(this);
+            var role_name = $(aData[0]).val();
+
+            var role_index = servicerolesDataTable.fnGetPosition(this);
+
+            if ($("#service_info_panel_resize_75").attr('visibility') != 'hidden') {
+                $("#service_info_panel_resize_75").click();
             }
 
-            info_str += "</tbody>\
-                </table>";
-
-
-            info_str += "</div>\
-            <div class='nine columns'>";
-
-            if (this.elasticity_policies && this.elasticity_policies.length > 0) {
-                info_str += '<table class="twelve datatable extended_table">\
-                    <thead style="background:#dfdfdf">\
-                      <tr>\
-                        <th colspan="6">'+tr("Elasticity policies")+'</th>\
-                      </tr>\
-                    </thead>\
-                    <thead>\
-                      <tr>\
-                        <th>'+tr("Type")+'</th>\
-                        <th>'+tr("Adjust")+'</th>\
-                        <th>'+tr("Expression")+'</th>\
-                        <th>'+tr("# Periods")+'</th>\
-                        <th>'+tr("Step")+'</th>\
-                        <th>'+tr("Cooldown")+'</th>\
-                      </tr>\
-                    </thead>\
-                    <tbody>';
-
-                $.each(this.elasticity_policies, function(){
-                    info_str += '<tr>\
-                        <td>'+this.type+'</td>\
-                        <td>'+this.adjust+'</td>\
-                        <td>'+this.expression+'</td>\
-                        <td>'+this.period+'</td>\
-                        <td>'+this.period_number+'</td>\
-                        <td>'+this.cooldown+'</td>\
-                    </tr>'
+            if(last_selected_row) {
+                last_selected_row.children().each(function(){
+                    $(this).removeClass('markrowselected');
                 });
-
-                info_str += '</tbody>\
-                    </table>';
             }
 
-            if (this.scheduled_policies && this.scheduled_policies.length > 0) {
-                info_str += '<table class="twelve datatable extended_table">\
-                    <thead style="background:#dfdfdf">\
-                      <tr>\
-                        <th colspan="4">'+tr("Scheduled policies")+'</th>\
-                      </tr>\
-                    </thead>\
-                    <thead>\
-                      <tr>\
-                        <th>'+tr("Type")+'</th>\
-                        <th>'+tr("Adjust")+'</th>\
-                        <th>'+tr("Time format")+'</th>\
-                        <th>'+tr("Time expression")+'</th>\
-                      </tr>\
-                    </thead>\
-                    <tbody>';
+            last_selected_row = $(this);
+            $(this).children().each(function(){
+                $(this).addClass('markrowselected');
+            });
 
-                $.each(this.scheduled_policies, function(){
-                    info_str += '<tr>\
-                        <td>'+this.type+'</td>\
-                        <td>'+this.adjust+'</td>';
+            generate_role_div(role_index);
 
-                    if (this['start_time']) {
-                        info_str += '<td>start_time</td>';
-                        info_str += '<td>'+this.start_time+'</td>';
-                    } else if (this['recurrence']) {
-                        info_str += '<td>recurrence</td>';
-                        info_str += '<td>'+this.recurrence+'</td>';
-                    }
-                });
+            //if($(this).is(":checked"))
+            //{
+            //    $(this).parents('tr').children().each(function(){$(this).addClass('markrowchecked');});
+            //}
+            //else
+            //{
+            //    $(this).parents('tr').children().removeClass('markrowchecked');
+            //    $(this).parents('tr').children().removeClass('markrowselected');
+            //}
+//
+            //recountCheckboxes(datatable);
+        });
 
-                info_str += '</tbody>\
-                    </table>';
-            }
-
-            info_str += '</div>\
+        var generate_role_div = function(role_index) {
+            var role = roles[role_index]
+            var info_str = '<fieldset>\
+                <legend>'+tr("Role")+' - '+role.name+'</legend>\
+                <div class="">\
+                    <div class="action_blocks columns twelve">\
+                    </div>\
+                </div>\
                 <div class="columns twelve">\
-                    <table id="datatable_service_vms_'+this.name+'" class="table datatable twelve">\
+                    <br>\
+                    <table id="datatable_service_vms_'+role.name+'" class="table datatable twelve">\
                       <thead>\
                         <tr>\
                           <th></th>\
@@ -985,11 +960,124 @@ function updateServiceInfo(request,elem){
                     </table>\
                 </div>';
 
-            info_str += "</fieldset>"
-            $(info_str).appendTo(context);
+            info_str += "<div class='three columns'>\
+                <table class='twelve datatable extended_table'>\
+                    <thead>\
+                        <tr><th colspan='2'>"+tr("Information")+"</th></tr>\
+                    </thead>\
+                    <tbody>";
+
+            info_str += "<tr>\
+                 <td class='key_td'>"+tr("State")+"</td>\
+                 <td class='value_td'>"+Role.state(role.state)+"</td>\
+               </tr>";
+            info_str += "<tr>\
+                 <td class='key_td'>"+tr("Cardinality")+"</td>\
+                 <td class='value_td'>"+role.cardinality+"</td>\
+               </tr>";
+
+            if (role.min_vms) {
+                info_str += "<tr>\
+                     <td class='key_td'>"+tr("Min VMs")+"</td>\
+                     <td class='value_td'>"+role.min_vms+"</td>\
+                   </tr>";
+            }
+            if (role.max_vms) {
+                info_str += "<tr>\
+                     <td class='key_td'>"+tr("Max VMs")+"</td>\
+                     <td class='value_td'>"+role.max_vms+"</td>\
+                   </tr>";
+            }
+            if (role.cooldown) {
+                info_str += "<tr>\
+                     <td class='key_td'>"+tr("Cooldown")+"</td>\
+                     <td class='value_td'>"+role.cooldown+"</td>\
+                   </tr>";
+            }
+
+            info_str += "</tbody>\
+                </table>";
+
+
+            info_str += "</div>\
+            <div class='nine columns'>";
+
+            if (role.elasticity_policies && role.elasticity_policies.length > 0) {
+                info_str += '<table class="twelve datatable extended_table">\
+                    <thead style="background:#dfdfdf">\
+                      <tr>\
+                        <th colspan="6">'+tr("Elasticity policies")+'</th>\
+                      </tr>\
+                    </thead>\
+                    <thead>\
+                      <tr>\
+                        <th>'+tr("Type")+'</th>\
+                        <th>'+tr("Adjust")+'</th>\
+                        <th>'+tr("Expression")+'</th>\
+                        <th>'+tr("# Periods")+'</th>\
+                        <th>'+tr("Step")+'</th>\
+                        <th>'+tr("Cooldown")+'</th>\
+                      </tr>\
+                    </thead>\
+                    <tbody>';
+
+                $.each(role.elasticity_policies, function(){
+                    info_str += '<tr>\
+                        <td>'+this.type+'</td>\
+                        <td>'+this.adjust+'</td>\
+                        <td>'+this.expression+'</td>\
+                        <td>'+this.period+'</td>\
+                        <td>'+this.period_number+'</td>\
+                        <td>'+this.cooldown+'</td>\
+                    </tr>'
+                });
+
+                info_str += '</tbody>\
+                    </table>';
+            }
+
+            if (role.scheduled_policies && role.scheduled_policies.length > 0) {
+                info_str += '<table class="twelve datatable extended_table">\
+                    <thead style="background:#dfdfdf">\
+                      <tr>\
+                        <th colspan="4">'+tr("Scheduled policies")+'</th>\
+                      </tr>\
+                    </thead>\
+                    <thead>\
+                      <tr>\
+                        <th>'+tr("Type")+'</th>\
+                        <th>'+tr("Adjust")+'</th>\
+                        <th>'+tr("Time format")+'</th>\
+                        <th>'+tr("Time expression")+'</th>\
+                      </tr>\
+                    </thead>\
+                    <tbody>';
+
+                $.each(role.scheduled_policies, function(){
+                    info_str += '<tr>\
+                        <td>'+this.type+'</td>\
+                        <td>'+this.adjust+'</td>';
+
+                    if (this['start_time']) {
+                        info_str += '<td>start_time</td>';
+                        info_str += '<td>'+this.start_time+'</td>';
+                    } else if (this['recurrence']) {
+                        info_str += '<td>recurrence</td>';
+                        info_str += '<td>'+this.recurrence+'</td>';
+                    }
+                });
+
+                info_str += '</tbody>\
+                    </table>';
+            }
+
+            info_str += '</div>\
+                </fieldset>'
+
+            context.html(info_str);
 
             var vms = [];
-            var servicevmsDataTable = $('#datatable_service_vms_'+this.name, context).dataTable({
+            var servicevmsDataTable = $('#datatable_service_vms_'+role.name, context).dataTable({
                 "aoColumnDefs": [
                     { "bSortable": false, "aTargets": [0,6,7,9,11] },
                     { "sWidth": "35px", "aTargets": [0] },
@@ -997,8 +1085,8 @@ function updateServiceInfo(request,elem){
                 ]
             });
 
-            if (this.nodes) {
-                $.each(this.nodes, function(){
+            if (role.nodes) {
+                $.each(role.nodes, function(){
                     var vm_info = this.vm_info;
                     if (vm_info) {
                       vms.push([""].concat(vMachineElementArray(vm_info).slice(1)));
@@ -1007,16 +1095,13 @@ function updateServiceInfo(request,elem){
 
                 updateView(vms, servicevmsDataTable);
             }
-        });
 
-        updateView(role_elements ,servicerolesDataTable);
-        insertButtonsInTab("apptools-appflow-services", "service_roles_tab", role_buttons)
-        $('li#service_roles_tabTab', $("#dialog")).foundationButtons();
-        $('li#service_roles_tabTab', $("#dialog")).foundationButtons();
+            //insertButtonsInTab("apptools-appflow-services", "service_roles_tab", role_buttons)
+            //$('li#service_roles_tabTab', $("#dialog")).foundationButtons();
+            //$('li#service_roles_tabTab', $("#dialog")).foundationButtons();
+        }
+
         //setupActionButtons($('li#service_roles_tabTab', $("#dialog")));
-
-        initCheckAllBoxes(servicerolesDataTable);
-        tableCheckboxesListener(servicerolesDataTable);
     }
 
 
@@ -1040,6 +1125,7 @@ function updateServiceInfo(request,elem){
     //});
 
 
+    setupTips($("#roles_form"));
 }
 
 // Set the autorefresh interval for the datatable
