@@ -49,17 +49,9 @@ DST_DIR=`dirname $DST_PATH`
 #-------------------------------------------------------------------------------
 # Make the new image (file-based)
 #-------------------------------------------------------------------------------
-case "$FSTYPE" in
-    "vmdk_"*)
-		ssh_make_path $DST_HOST $DST_PATH
-		CREATE_IMAGE=""
-        ;;
-    *)
-		ssh_make_path $DST_HOST $DST_DIR
-		CREATE_IMAGE="$DD if=/dev/zero of=$DST_PATH bs=1 count=1 seek=${SIZE}M"
-        ;;
-esac
+ssh_make_path $DST_HOST $DST_DIR
 
+CREATE_IMAGE="$DD if=/dev/zero of=$DST_PATH bs=1 count=1 seek=${SIZE}M"
 MKFS_CMD=`mkfs_command $DST_PATH $FSTYPE $SIZE`
  
 MKSCRIPT=$(cat <<EOF
