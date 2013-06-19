@@ -110,6 +110,11 @@ module OpenNebula
             @body['cardinality'] = target_cardinality.to_i
         end
 
+        # Updates the cardinality with the current number of nodes
+        def update_cardinality()
+            @body['cardinality'] = @body['nodes'].size()
+        end
+
         # Returns the role max cardinality
         # @return [Integer] the role cardinality
         def max_cardinality
@@ -202,7 +207,7 @@ module OpenNebula
                     vm_state = node['vm_info']['VM']['STATE']
                     lcm_state = node['vm_info']['VM']['LCM_STATE']
 
-                    if (node['disposed'] == "1" && vm_state == '6')
+                    if (vm_state == '6')
                         # Store the VM id in the array of disposed nodes
                         disposed_nodes << vm_id
                     else

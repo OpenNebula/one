@@ -142,6 +142,14 @@ class Strategy
                 elsif role_nodes_warning?(role)
                     role.set_state(Role::STATE['WARNING'])
                 end
+
+                role.update_cardinality()
+            when Role::STATE['WARNING']
+                if !role_nodes_warning?(role)
+                    role.set_state(Role::STATE['RUNNING'])
+                end
+
+                role.update_cardinality()
             when Role::STATE['DEPLOYING']
                 if OpenNebula.is_error?(rc)
                     role.set_state(Role::STATE['FAILED_DEPLOYING'])
@@ -166,10 +174,8 @@ class Strategy
                 if role.cooldown_over?
                     role.set_state(Role::STATE['RUNNING'])
                 end
-            when Role::STATE['WARNING']
-                if !role_nodes_warning?(role)
-                    role.set_state(Role::STATE['RUNNING'])
-                end
+
+                role.update_cardinality()
             when Role::STATE['UNDEPLOYING']
                 if OpenNebula.is_error?(rc)
                     role.set_state(Role::STATE['FAILED_UNDEPLOYING'])
@@ -202,7 +208,8 @@ protected
     # @return [Hash<String, Role>] Roles
     def get_roles_deploy(service)
         result = service.get_roles.select {|name, role|
-            role.state == Role::STATE['PENDING']
+            role.state == Role::STATE['PENDING'] ||
+            role.state == Role::STATE['DEPLOYING']
         }
 
         # Ruby 1.8 compatibility
