@@ -219,7 +219,7 @@ module OpenNebula
             elsif self.state == Service::STATE['FAILED_SCALING']
                 @roles.each do |name, role|
                     if role.state == Role::STATE['FAILED_SCALING']
-                        role.retry_scale()
+                        role.recover_scale()
                         role.set_state(Role::STATE['SCALING'])
                     end
                 end

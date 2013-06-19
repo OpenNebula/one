@@ -776,32 +776,21 @@ module OpenNebula
 
 
         def recover_deployment()
-            delete_failed_done()
+            recover()
         end
 
         def recover_warning()
-            @body['nodes'].each do |node|
-                vm_state = nil
-                lcm_state = nil
-                vm_id = node['deploy_id']
-
-                if node['vm_info'] && node['vm_info']['VM']
-                    vm_state = node['vm_info']['VM']['STATE']
-                    lcm_state = node['vm_info']['VM']['LCM_STATE']
-                end
-
-                if vm_state == '3' && lcm_state == '16' # UNKNOWN
-                    vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
-                    vm.boot
-                end
-            end
-
-            delete_failed_done()
-
+            recover()
             deploy()
         end
 
-        def delete_failed_done()
+        def recover_scale()
+            recover()
+            retry_scale()
+        end
+
+        # Deletes VMs in DONE or FAILED, and sends a boot action to VMs in UNKNOWN
+        def recover()
 
             nodes = @body['nodes']
             new_nodes = []
@@ -813,6 +802,7 @@ module OpenNebula
 
                 if node['vm_info'] && node['vm_info']['VM'] && node['vm_info']['VM']['STATE']
                     vm_state = node['vm_info']['VM']['STATE']
+                    lcm_state = node['vm_info']['VM']['LCM_STATE']
                 end
 
                 if vm_state == '6' # DONE
@@ -837,6 +827,9 @@ module OpenNebula
 
                         new_nodes << node
                     end
+                elsif vm_state == '3' && lcm_state == '16' # UNKNOWN
+                    vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
+                    vm.boot
                 else
                     new_nodes << node
                 end
