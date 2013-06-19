@@ -139,7 +139,7 @@ class Strategy
             when Role::STATE['RUNNING']
                 if OpenNebula.is_error?(rc)
                     role.set_state(Role::STATE['WARNING'])
-                elsif !role_nodes_running?(role)
+                elsif role_nodes_warning?(role)
                     role.set_state(Role::STATE['WARNING'])
                 end
             when Role::STATE['DEPLOYING']
@@ -167,7 +167,7 @@ class Strategy
                     role.set_state(Role::STATE['RUNNING'])
                 end
             when Role::STATE['WARNING']
-                if role_nodes_running?(role)
+                if !role_nodes_warning?(role)
                     role.set_state(Role::STATE['RUNNING'])
                 end
             when Role::STATE['UNDEPLOYING']
@@ -271,6 +271,25 @@ protected
         }
 
         return true
+    end
+
+    # Returns true if any VM is in UNKNOWN or FAILED
+    # @param [Role] role
+    # @return [true|false]
+    def role_nodes_warning?(role)
+        role.get_nodes.each do |node|
+            if node && node['vm_info']
+                vm_state = node['vm_info']['VM']['STATE']
+                lcm_state = node['vm_info']['VM']['LCM_STATE']
+
+                # UNKNOWN or FAILED
+                if (vm_state == '3' && lcm_state == '16') || vm_state == '7'
+                    return true
+                end
+            end
+        end
+
+        return false
     end
 
     # Determine if any of the role nodes failed
