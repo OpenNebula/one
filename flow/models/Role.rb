@@ -405,12 +405,21 @@ module OpenNebula
 
         # Schedule the given action on all the VMs that belong to the Role
         # @param [String] action one of the available actions defined in SCHEDULE_ACTIONS
-        def batch_action(action)
+        # @param [Integer] period
+        # @param [Integer] vm_per_period
+        def batch_action(action, period, vms_per_period)
             vms_id = []
 
             error_msgs = []
             nodes = @body['nodes']
-            nodes.each do |node|
+            now = Time.now.to_i
+
+            do_offset = ( !period.nil? && period.to_i > 0 &&
+                !vms_per_period.nil? && vms_per_period.to_i > 0 )
+
+            time_offset = 0
+
+            nodes.each_with_index do |node, index|
                 vm_id = node['deploy_id']
                 vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
                 rc = vm.info
@@ -431,7 +440,13 @@ module OpenNebula
 
                     tmp_str = vm.user_template_str
                     # TODO time & periods
-                    tmp_str << "\nSCHED_ACTION = [ID = #{id}, ACTION = #{action}, TIME = #{Time.now.to_i}]"
+
+                    if do_offset
+                        time_offset = (index / vms_per_period.to_i).floor * period.to_i
+                    end
+
+                    tmp_str << "\nSCHED_ACTION = "<<
+                        "[ID = #{id}, ACTION = #{action}, TIME = #{now + time_offset}]"
 
                     rc = vm.update(tmp_str)
                     if OpenNebula.is_error?(rc)

@@ -286,7 +286,8 @@ post '/service/:id/role/:role_name/action' do
         if role.nil?
             rc = OpenNebula::Error.new("Role '#{params[:role_name]}' not found")
         else
-            rc = role.batch_action(action['perform'])
+            # TODO: opts['period'], opts['number'] check  be integer
+            rc = role.batch_action(action['perform'], opts['period'], opts['number'])
         end
     }
 

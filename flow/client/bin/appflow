@@ -604,7 +604,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Actions supported: #{Role::SCHEDULE_ACTIONS.join(",")}
     EOT
 
-    command :"batch-action", batch_action_desc, :service_id, :role_name, :vm_action do
+    command :"batch-action", batch_action_desc, :service_id, :role_name, :vm_action,
+        :options => [Service::PERIOD, Service::NUMBER] do
+
+        if !options[:number].nil? && options[:period].nil?
+            puts "Option number cannot be provided without period"
+            -1
+        end
+
         client = Service::Client.new(
                     :username   => options[:username],
                     :password   => options[:password],
@@ -613,6 +620,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         Service.perform_actions([args[0]]) { |service_id|
             params = Hash.new
+            params[:period] = options[:period].to_i if options[:period]
+            params[:number] = options[:number].to_i if options[:number]
 
             json_action = Service.build_json_action(args[2], params)
 

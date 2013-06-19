@@ -166,6 +166,22 @@ module Service
         :description => "Top for the command"
     }
 
+    PERIOD = {
+        :name => "period",
+        :short => "-p x",
+        :large => "--period x",
+        :format => Integer,
+        :description => "Seconds between each group of actions"
+    }
+
+    NUMBER = {
+        :name => "number",
+        :short => "-n x",
+        :large => "--number x",
+        :format => Integer,
+        :description => "Number of VMs to apply the action to each period"
+    }
+
     # Format helpers
 
 #    def self.rname_to_id(name, poolname, options)
