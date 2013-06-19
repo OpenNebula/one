@@ -61,6 +61,7 @@ end
 conf[:debug_level]  ||= 2
 conf[:lcm_interval] ||= 30
 conf[:default_cooldown] ||= 300
+conf[:shutdown_action] ||= 'shutdown'
 
 conf[:auth] = 'opennebula'
 
@@ -112,10 +113,11 @@ before do
 end
 
 ##############################################################################
-# Cooldown config
+# Defaults
 ##############################################################################
 
 Role.init_default_cooldown(conf[:default_cooldown])
+Role.init_default_shutdown(conf[:shutdown_action])
 
 ##############################################################################
 # LCM thread

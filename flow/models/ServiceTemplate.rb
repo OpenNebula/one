@@ -38,6 +38,10 @@ module OpenNebula
                         :type => :string
                     }
                 },
+                'shutdown_action' => {
+                    :type => :string,
+                    :required => false
+                },
                 'min_vms' => {
                     :type => :integer,
                     :default => 1
@@ -135,6 +139,10 @@ module OpenNebula
                 :type => :string,
                 :enum => %w{none straight},
                 :default => 'none'
+                },
+                'shutdown_action' => {
+                    :type => :string,
+                    :required => false
                 },
                 'roles' => {
                     :type => :array,

@@ -294,6 +294,16 @@ module OpenNebula
                 n_nodes = nodes.size
             end
 
+            action = @body['shutdown_action']
+
+            if action.nil?
+                action = @service.get_shutdown_action()
+            end
+
+            if action.nil?
+                action = @@default_shutdown
+            end
+
             n_nodes.times { |i|
                 node = nodes[i]
 
@@ -302,7 +312,12 @@ module OpenNebula
                 Log.debug LOG_COMP, "Role #{name} : Shutting down VM #{vm_id}", @service.id()
 
                 vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
-                rc = vm.shutdown
+
+                if action == 'shutdown-hard'
+                    rc = vm.shutdown(true)
+                else
+                    rc = vm.shutdown
+                end
 
                 if scale_down
                     node['disposed'] = '1'
@@ -764,6 +779,10 @@ module OpenNebula
 
         def self.init_default_cooldown(default_cooldown)
             @@default_cooldown = default_cooldown
+        end
+
+        def self.init_default_shutdown(shutdown_action)
+            @@default_shutdown = shutdown_action
         end
 
         def update(template)

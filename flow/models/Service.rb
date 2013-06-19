@@ -381,6 +381,10 @@ module OpenNebula
             return OpenNebula::Error.new("ROLE \"#{role_name}\" does not exist")
         end
 
+        def get_shutdown_action()
+            return @body['shutdown_action']
+        end
+
         private
 
         # @param [Logger::Severity] severity
