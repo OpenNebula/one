@@ -62,8 +62,6 @@ DST_READLN=\$($READLINK -f $DST_PATH)
 if [ -d $SRC_PATH ] ; then
     if [ \( -L $SRC_PATH \) -a \( "\$SRC_READLN" = "\$DST_READLN" \) ] ;  then
         echo "Not moving files to image repo, they are the same"
-    elif [ -f $SRC_PATH/.is_persistent ]; then
-        echo "Not moving files to image repo, they are the same"
     else
         mv -f $SRC_PATH/* $DST_PATH
     fi

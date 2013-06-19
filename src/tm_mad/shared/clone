@@ -52,13 +52,11 @@ SRC_DS_PATH="$(dirname $(dirname $SRC_ARG_PATH))"
 
 SRC_PATH="${DST_DS_PATH}${SRC_ARG_PATH##$SRC_DS_PATH}"
 
+#-------------------------------------------------------------------------------
+# Create DST path
+#-------------------------------------------------------------------------------
+
 ssh_make_path $DST_HOST $DST_DIR
-
-#-------------------------------------------------------------------------------
-# Get image information
-#-------------------------------------------------------------------------------
-
-DISK_TYPE=$(disk_type)
 
 #-------------------------------------------------------------------------------
 # Clone (cp) SRC into DST
@@ -75,16 +73,9 @@ http://*)
 *)
     log "Cloning $SRC_PATH in $DST"
     ssh_exec_and_log $DST_HOST \
-                     "cd $DST_DIR; cp -r $SRC_PATH $DST_PATH" \
+                     "cd $DST_DIR; cp $SRC_PATH $DST_PATH" \
                      "Error copying $SRC to $DST"
     ;;
 esac
-
-# Add a symlink for CDROM images
-if [ "$DISK_TYPE" = "CDROM" ]; then
-    ssh_exec_and_log $DST_HOST \
-                     "ln -s ${DST_PATH} ${DST_PATH}.iso" \
-                     "Error linking ${DST_PATH} to ${DST_PATH}.iso"
-fi
 
 exit 0

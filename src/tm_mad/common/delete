@@ -43,6 +43,6 @@ DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
 
 log "Deleting $DST_PATH"
-ssh_exec_and_log $DST_HOST "rm -rf $DST_PATH" "Error deleting $DST_PATH"
+ssh_exec_and_log $DST_HOST "rm -f $DST_PATH" "Error deleting $DST_PATH"
 
 exit 0
