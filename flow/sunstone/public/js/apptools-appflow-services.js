@@ -754,6 +754,10 @@ function updateServiceInfo(request,elem){
              <td class="value_td">'+elem_info.TEMPLATE.BODY.deployment+'</td>\
            </tr>\
            <tr>\
+             <td class="key_td">'+tr("Shutdown action")+'</td>\
+             <td class="value_td">'+elem_info.TEMPLATE.BODY.shutdown_action+'</td>\
+           </tr>\
+           <tr>\
              <td class="key_td">'+tr("State")+'</td>\
              <td class="value_td">'+ Service.state(elem_info.TEMPLATE.BODY.state) +'</td>\
            </tr>\
@@ -976,6 +980,13 @@ function updateServiceInfo(request,elem){
                  <td class='value_td'>"+role.cardinality+"</td>\
                </tr>";
 
+
+            if (role.shutdown_action) {
+                info_str += "<tr>\
+                     <td class='key_td'>"+tr("Shutdown action")+"</td>\
+                     <td class='value_td'>"+role.shutdown_action+"</td>\
+                   </tr>";
+            }
             if (role.min_vms) {
                 info_str += "<tr>\
                      <td class='key_td'>"+tr("Min VMs")+"</td>\
@@ -1013,6 +1024,7 @@ function updateServiceInfo(request,elem){
                       <tr>\
                         <th>'+tr("Type")+'</th>\
                         <th>'+tr("Adjust")+'</th>\
+                        <th>'+tr("Min")+'</th>\
                         <th>'+tr("Expression")+'</th>\
                         <th>'+tr("# Periods")+'</th>\
                         <th>'+tr("Step")+'</th>\
@@ -1025,6 +1037,7 @@ function updateServiceInfo(request,elem){
                     info_str += '<tr>\
                         <td>'+this.type+'</td>\
                         <td>'+this.adjust+'</td>\
+                        <td>'+this.min_adjust_step+'</td>\
                         <td>'+this.expression+'</td>\
                         <td>'+this.period+'</td>\
                         <td>'+this.period_number+'</td>\
@@ -1047,6 +1060,7 @@ function updateServiceInfo(request,elem){
                       <tr>\
                         <th>'+tr("Type")+'</th>\
                         <th>'+tr("Adjust")+'</th>\
+                        <th>'+tr("Min")+'</th>\
                         <th>'+tr("Time format")+'</th>\
                         <th>'+tr("Time expression")+'</th>\
                       </tr>\
@@ -1056,7 +1070,8 @@ function updateServiceInfo(request,elem){
                 $.each(role.scheduled_policies, function(){
                     info_str += '<tr>\
                         <td>'+this.type+'</td>\
-                        <td>'+this.adjust+'</td>';
+                        <td>'+this.adjust+'</td>\
+                        <td>'+this.min_adjust_step+'</td>';
 
                     if (this['start_time']) {
                         info_str += '<td>start_time</td>';
