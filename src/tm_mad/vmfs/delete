@@ -16,27 +16,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-#-------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------
-
-function vifs_rmdir {
-    DIR_TO_RM="$1"
-    FILES_TO_ERASE=`vifs $VI_PARAMS --dir [$DSID]$VMID/$DIR_TO_RM | \
-grep -v "Content Listing"|grep -Fv -- "--------"|egrep -v "^[[:space:]]*$"`
-
-    for file in $FILES_TO_ERASE; do
-        exec_and_log \
-            "vifs $VI_PARAMS --force --rm [$DSID]$VMID/$DIR_TO_RM/$file" \
-            "Cannot delete [$DSID]$VMID/$DIR_TO_RM/$file in $DST_HOST"
-    done
-
-    exec_and_log "vifs $VI_PARAMS --force --rm [$DSID]$VMID/$DIR_TO_RM" \
-        "Cannot delete [$DSID]$VMID in $DST_HOST"
-}
-
-#-------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------
-
 # DELETE <host:remote_system_ds/disk.i|host:remote_system_ds/> vmid dsid
 #   - host is the target host to deploy the VM
 #   - remote_system_ds is the path for the system datastore in the host
@@ -56,57 +35,26 @@ fi
 
 . $TMCOMMON
 
-DST_PATH=`arg_path $DST`
-DST_HOST=`arg_host $DST`
-
-#Get the System DS ID based in PATH. dsid argument is for the image DS
-if [ `is_disk $DST_PATH` -eq 1 ]; then
-    DSID=$(basename $(dirname $(dirname $DST)))
-else
-    DSID=$(basename $(dirname $DST))
-fi
-
 #-------------------------------------------------------------------------------
 # Retrieve needed information
+#  DST       : esx1:/vmfs/volumes/105/90/disk.0
+#  DST_PATH  : /vmfs/volumes/105/90/disk.0
+#  DST_HOST  : esx1
+#  DSID      : 105
 #-------------------------------------------------------------------------------
 
-USE_SSH=$(get_tm_use_ssh $DSID)
-
-#-------------------------------------------------------------------------------
-# Set up datastore
-#-------------------------------------------------------------------------------
-
-vmfs_set_up
+DST_PATH=`arg_path $DST`
+DST_HOST=`arg_host $DST`
 
 #-------------------------------------------------------------------------------
 # Return if deleting a disk, we will delete them when removing the
 # remote_system_ds directory for the VM (remotely)
 #-------------------------------------------------------------------------------
 
-log "Deleting $DST_PATH"
-
-if [ "$USE_SSH" == "yes" ]; then
-    ssh_exec_and_log $DST_HOST "rm -rf $DST_PATH" "Error deleting $DST_PATH"
+if [ `is_disk $DST_PATH` -eq 1 ]; then
+    exit 0
 else
-    if [ `is_disk $DST_PATH` -eq 1 ]; then
-        DISK_TYPE=$(disk_type)
-        DISK_NAME=$(basename $DST_PATH)
-
-        if [ "$DISK_TYPE" != "CDROM" ]; then
-            vifs_rmdir $DISK_NAME
-        else
-            exec_and_log \
-                "vifs $VI_PARAMS --force --rm [$DSID]$VMID/$DISK_NAME.iso" \
-                "Cannot delete [$DSID]$VMID/$DISK_NAME.iso in $DST_HOST"
-        fi
-    else
-        DIRS_TO_ERASE=`vifs $VI_PARAMS --dir [$DSID]$VMID|\
-grep -v "Content Listing"|grep -Fv -- "--------"|egrep -v "^[[:space:]]*$"`
-
-        for dir in $DIRS_TO_ERASE; do
-            vifs_rmdir $dir
-        done
-    fi
+    ssh_exec_and_log $DST_HOST "rm -rf $DST_PATH" "Error deleting $DST_PATH"
 fi
 
 exit 0

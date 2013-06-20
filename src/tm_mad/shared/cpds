@@ -59,15 +59,7 @@ CPSCRIPT=$(cat <<EOF
 SRC_READLN=\$($READLINK -f $SRC_PATH)
 DST_READLN=\$($READLINK -f $DST_PATH)
 
-if [ -d $SRC_PATH ] ; then
-    if [ \( -L $SRC_PATH \) -a \( "\$SRC_READLN" = "\$DST_READLN" \) ] ;  then
-        echo "Not moving files to image repo, they are the same"
-    elif [ -f $SRC_PATH/.is_persistent ]; then
-        echo "Not moving files to image repo, they are the same"
-    else
-        cp -rf $SRC_PATH/* $DST_PATH
-    fi
-elif [ \( -L $SRC_PATH \) -a \( "\$SRC_READLN" = "\$DST_READLN" \) ] ; then
+if [ \( -L $SRC_PATH \) -a \( "\$SRC_READLN" = "\$DST_READLN" \) ] ; then
     echo "Not copying files to image repo, they are the same"
 else
     cp -f $SRC_PATH $DST_PATH

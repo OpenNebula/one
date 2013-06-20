@@ -41,85 +41,51 @@ fi
 . $TMCOMMON
 
 #-------------------------------------------------------------------------------
+# Retrieve needed information, Example (same for SRC)
+#  SRC       : esx1:/vmfs/volumes/105/90/disk.0
+#  DST       : one:/vmfs/volumes/104/84045f4a
+#  SRC_PATH  : /vmfs/volumes/105/90/disk.0
+#  SRC_DISK  : /vmfs/volumes/105/90/disk.0/disk.vmdk
+#  SRC_HOST  : esx1
 #-------------------------------------------------------------------------------
 
-function mvds_ssh {
-
-MVSCRIPT=$(cat <<EOF
-SRC_READLN=\$($READLINK -f $SRC_PATH)
-DST_READLN=\$($READLINK -f $DST_PATH)
-
-if [ \( -L $SRC_PATH \) -a \( "$SRC_READLN" = "$DST_READLN" \) ] ; then
-    echo "Not moving files to image repo, they are the same"
-else
-    $VMKFSTOOLS -U $DST_DISK
-    $VMKFSTOOLS -i $SRC_DISK -d thin $DST_DISK
-fi
-
-if [ -d $DST_PATH ]; then
-    chmod 0770 $DST_PATH
-else
-    chmod 0660 $DST_PATH
-fi
-EOF
-)
-
-ssh_exec_and_log $SRC_HOST "$MVSCRIPT" \
-        "Could not move image $SRC_DISK_VMW to $DST_DISK_VMW"
-}
-
-#-------------------------------------------------------------------------------
-
-function mvds_local {
-
-$VMKFSTOOLS $VI_PARAMS -U $DST_DISK_VMW &> /dev/null
-
-exec_and_log "$VMKFSTOOLS $VI_PARAMS -i $SRC_DISK_VMW -d thin $DST_DISK_VMW" \
-                 "Could not move image $SRC_DISK_VMW to $DST_DISK_VMW"
-}
-
-#-------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------
-
-#-------------------------------------------------------------------------------
-# Retrieve needed information, set dst path and dir
-#-------------------------------------------------------------------------------
 SRC_PATH=`arg_path $SRC`
-SRC_HOST=`arg_host $SRC`
-SRC_FOLDER=`basename $SRC_PATH`
-
 DST_PATH=`arg_path $DST`
-DST_HOST=$SRC_HOST
-DST_FOLDER=`basename $DST_PATH`
 
-USE_SSH=$(get_tm_use_ssh $DSID)
-
-IMAGE_DS_NAME=`basename $(dirname $DST_PATH)`
-SYSTEM_DS_NAME=`basename $(dirname $(dirname $SRC_PATH))`
-
-# Paths for disks
 SRC_DISK="$SRC_PATH/disk.vmdk"
-SRC_DISK_VMW="[$SYSTEM_DS_NAME]$VMID/$SRC_FOLDER/disk.vmdk"
-
 DST_DISK="$DST_PATH/disk.vmdk"
-DST_DISK_VMW="[$IMAGE_DS_NAME]$DST_FOLDER/disk.vmdk"
 
-#-------------------------------------------------------------------------------
-# Set up datastore
-#-------------------------------------------------------------------------------
-
-vmfs_set_up
+SRC_HOST=`arg_host $SRC`
 
 #-------------------------------------------------------------------------------
 # Move the image back to the datastore
 #-------------------------------------------------------------------------------
 
-log "Moving $SRC_DISK_VMW to $DST_DISK_VMW"
+log "Moving $SRC to $DST"
 
-if [ "$USE_SSH" == "yes" ]; then
-    mvds_ssh
+MVSCRIPT=$(cat <<EOF
+
+SRC_DISK_LN=\$($READLINK -f $SRC_DISK)
+DST_DISK_LN=\$($READLINK -f $DST_DISK)
+
+if [ \( -L $SRC_DISK \) -a \( "\$SRC_DISK_LN" = "\$DST_DISK_LN" \) ]; then
+    echo "Not moving files to image repo, they are the same"
+elif [ -L "$SRC_PATH.iso" ]; then
+    echo "Not moving the file it is a CDROM"
 else
-    mvds_local
+    $VMKFSTOOLS -U $DST_DISK
+    $VMKFSTOOLS -i $SRC_DISK -d thin $DST_DISK
+
+    if [ -d $DST_PATH ]; then
+        chmod 0770 $DST_PATH
+    else
+        chmod 0660 $DST_PATH
+    fi
 fi
+
+EOF
+)
+
+ssh_exec_and_log $SRC_HOST "$MVSCRIPT" "Could not move image $SRC to $DST"
 
 exit 0

@@ -282,7 +282,16 @@ function mkfs_command {
             ;;
         "vmdk_"*)
             VMWARE_DISK_TYPE=`echo $FSTYPE|cut -d'_' -f 2`
+
+            echo "$VMWARE_DISK_TYPE" | \
+            grep '\<thin\>\|\<zeroedthic\>\|\<eagerzeroedthick\>' 2>&1 /dev/null
+
+            if [ $? -eq 1 ] ; then
+                VMWARE_DISK_TYPE="thin"
+            fi
+
             echo "$VMKFSTOOLS -U $DST/disk.vmdk; \
+                  rm -f $DST/*; \
                   $VMKFSTOOLS -c ${SIZE}M -d ${VMWARE_DISK_TYPE} $DST/disk.vmdk"
             return 0
             ;;
@@ -461,44 +470,4 @@ function iqn_get_host {
     LV_NAME=$(iqn_get_lv_name "$IQN")
     VG_NAME=$(iqn_get_vg_name "$IQN")
     echo ${TARGET%%.$VG_NAME.$LV_NAME}
-}
-
-function vmfs_create_remote_path {
-    DS_ID=$1
-    # Create DST in DST_HOST
-    if [ "${USE_SSH,,}" == "yes" ]; then
-        exec_and_log  "ssh_make_path $DST_HOST /vmfs/volumes/$DS_ID/$DST_FOLDER" \
-                      "Cannot create /vmfs/volumes/$DS_ID/$DST_FOLDER in $DST_HOST"
-    else
-        exec_and_log "vifs $VI_PARAMS --mkdir [$DS_ID]$DST_FOLDER" \
-                     "Cannot create [$DS_ID]$DST_FOLDER in $DST_HOST"
-    fi
-}
-
-function vmfs_set_up {
-    if [ "${USE_SSH,,}" != "yes" ]; then
-        USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3|tr -d '"')`
-        PASSWORD=`echo $(cat $VMWARERC |grep ":password:"|cut -d":" -f 3|tr -d '"')`
-        if [ -z $PASSWORD ]; then
-            VI_PARAMS="--server $DST_HOST --username $USERNAME --password \"\""
-        else
-            VI_PARAMS="--server $DST_HOST --username $USERNAME --password $PASSWORD"
-        fi
-    fi
-}
-
-function vmfs_create_double_path {
-    DS_ID=$1
-    FIRST_FOLDER=$2
-    SECOND_FOLDER=$3
-    # Two calls needed since vifs cannot do a mkdir -p
-    vifs $VI_PARAMS --force --mkdir [$DS_ID]$FIRST_FOLDER &> /dev/null
-    vifs $VI_PARAMS --force --mkdir [$DS_ID]$FIRST_FOLDER/$SECOND_FOLDER &> /dev/null
-
-}
-
-function vmfs_create_simple_path {
-    DS_ID=$1
-    FIRST_FOLDER=$2
-    vifs $VI_PARAMS --force --mkdir [$DS_ID]$FIRST_FOLDER &> /dev/null
 }

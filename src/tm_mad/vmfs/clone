@@ -41,52 +41,29 @@ fi
 . $TMCOMMON
 
 #-------------------------------------------------------------------------------
-# Retrieve needed information, set dst path and dir
+# Retrieve needed information, Example (same for SRC)
+#  DST       : esx1:/vmfs/volumes/105/90/disk.0
+#  SRC       : one:/vmfs/volumes/104/84045f4a
+#  DST_PATH  : /vmfs/volumes/105/90/disk.0
+#  DST_DIR   : /vmfs/volumes/105/90/
+#  DST_HOST  : esx1
+#
+#  DISK_TYPE: CDROM if it is a cd (not a directory)
 #-------------------------------------------------------------------------------
-SRC_PATH=`arg_path $SRC`
-SRC_FOLDER=`basename $SRC_PATH`
 
+SRC_PATH=`arg_path $SRC`
 DST_PATH=`arg_path $DST`
+
 DST_HOST=`arg_host $DST`
 DST_DIR=`dirname $DST_PATH`
-DST_FOLDER=`basename $DST_PATH`
-IMAGE_DS_NAME=`basename $(dirname $SRC_PATH)`
-SYSTEM_DS_NAME=`basename $(dirname $(dirname $DST_PATH))`
-USE_SSH=$(get_tm_use_ssh $IMAGE_DS_NAME)
 
-# Let's check if it is a CDROM
 DISK_TYPE=$(disk_type)
-
-#-------------------------------------------------------------------------------
-# Set up datastore
-#-------------------------------------------------------------------------------
-
-vmfs_set_up
-
-#-------------------------------------------------------------------------------
-# Create remote folder
-#-------------------------------------------------------------------------------
-
-if [ "$DISK_TYPE" != "CDROM" ]; then
-  if [ "$USE_SSH" == "yes" ]; then
-  	ssh_make_path $DST_HOST $DST_PATH
-  else
-    vmfs_create_double_path $SYSTEM_DS_NAME $VMID $DST_FOLDER
-  fi
-else
-  if [ "$USE_SSH" == "yes" ]; then
-    ssh_make_path $DST_HOST $(dirname $DST_PATH)
-  else
-    vmfs_create_simple_path $SYSTEM_DS_NAME $VMID
-  fi
-fi
 
 #-------------------------------------------------------------------------------
 # Clone (cp) SRC into DST
 #-------------------------------------------------------------------------------
-log "Cloning $SRC_PATH in $DST"
 
-if [ "$USE_SSH" == "yes" ]; then
+log "Cloning $SRC in $DST"
 
 CLONESCRIPT=$(cat <<EOF
 cd $DST_DIR
@@ -94,42 +71,27 @@ cd $DST_DIR
 export PATH=/usr/sbin:/sbin:\$PATH
 
 if [ "$DISK_TYPE" != "CDROM" ]; then
+  if [ ! -d $DST_PATH ]; then
+    mkdir -p $DST_PATH
+  fi
+
   $VMKFSTOOLS -U $DST_PATH/disk.vmdk
-  rm $DST_PATH/*
+  rm -f $DST_PATH/*
+
   $VMKFSTOOLS -i $SRC_PATH/disk.vmdk -d thin $DST_PATH/disk.vmdk
 else
-  rm $DST_PATH
+  if [ ! -d $DST_DIR ]; then
+   mkdir -p $DST_DIR
+  fi
+
+  rm -f $DST_PATH
+
   cp $SRC_PATH $DST_PATH
   ln -s $DST_PATH $DST_PATH.iso
 fi
-
 EOF
 )
-    ssh_exec_and_log $DST_HOST "$CLONESCRIPT" "Error cloning $SRC to $DST"
-else
-  if [ "$DISK_TYPE" != "CDROM" ]; then
-    $VMKFSTOOLS $VI_PARAMS -U \
-[$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/disk.vmdk &> /dev/null
 
-    # Erase in case that vmkfstool didn't recognize the disk
-    FILES_TO_ERASE=`vifs $VI_PARAMS --dir [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER|\
-grep -v "Content Listing"|grep -v "\-\-\-\-\-\-\-\-"|egrep -v "^[[:space:]]*$"`
-    for file in $FILES_TO_ERASE; do
-      vifs $VI_PARAMS --force --rm [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/$file
-    done
-
-  	exec_and_log \
-           "$VMKFSTOOLS $VI_PARAMS -i [$IMAGE_DS_NAME]$SRC_FOLDER/disk.vmdk \
--d thin [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/disk.vmdk" \
-           "Error cloning $SRC to $DST"
-  else
-    vifs $VI_PARAMS --force --rm [$SYSTEM_DS_NAME]$VMID/$DST_PATH &> /dev/null
-    exec_and_log \
-      "vifs $VI_PARAMS -c [$IMAGE_DS_NAME]$(basename $SRC_PATH) \
-[$SYSTEM_DS_NAME]$VMID/$DST_FOLDER.iso" \
-      "Cannot upload [$IMAGE_DS_NAME]$(basename $SRC_PATH) to \
-[$SYSTEM_DS_NAME]$VMID/$DST_FOLDER.iso on $DST_HOST"
-  fi
-fi
+ssh_exec_and_log $DST_HOST "$CLONESCRIPT" "Error cloning $SRC to $DST"
 
 exit 0
