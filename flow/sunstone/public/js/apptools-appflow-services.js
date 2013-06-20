@@ -473,13 +473,13 @@ var role_buttons = {
     "Role.undeploy" : {
         type: "action",
         text: tr("Undeploy Off"),
-        layout: "vmspause_buttons",
+        layout: "vmsstop_buttons",
         tip: tr("Shuts down the given VM. The VM is saved in the system Datastore.")
     },
     "Role.undeploy_hard" : {
         type: "action",
         text: tr("Undeploy Off") + ' <span class="label secondary radius">hard</span>',
-        layout: "vmspause_buttons",
+        layout: "vmsstop_buttons",
         tip: tr("Shuts down the given VM. The VM is saved in the system Datastore.")
     },
     "Role.shutdown" : {
