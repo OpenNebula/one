@@ -42,7 +42,7 @@ class OpenNebulaVMware < OpenNebulaNetwork
     XPATH_FILTER = "TEMPLATE/NIC"
     VCLI_CMD     = "/sbin/esxcfg-vswitch"
 
-    def initialize(vm, host, deploy_id = nil, hypervisor = nil)
+    def initialize(vm, deploy_id = nil, hypervisor = nil)
         super(vm,XPATH_FILTER,deploy_id,hypervisor)
 
         @locking = false
@@ -80,10 +80,10 @@ class OpenNebulaVMware < OpenNebulaNetwork
     def add_pg_to_switch(host, pg, switch, vlan)
         # Check's first if the vSwitch exists
         add_pg_cmd  = "((esxcfg-vswitch vSwitch0 -l|grep #{pg})"
-        add_pg_cmd += "&& #{VCLI_CMD} #{switch} --add-pg #{pg})"
+        add_pg_cmd += " || #{VCLI_CMD} #{switch} --add-pg #{pg})"
 
         if vlan
-            add_pg_cmd = "; #{VCLI_CMD} #{switch} -p #{pg} --vlan=#{vlan}"
+            add_pg_cmd += "; #{VCLI_CMD} #{switch} -p #{pg} --vlan=#{vlan}"
         end
 
         do_ssh_action(add_pg_cmd, host)
