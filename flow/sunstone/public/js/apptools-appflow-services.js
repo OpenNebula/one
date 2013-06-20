@@ -176,6 +176,20 @@ var Role = {
                                         generate_batch_action_params(),
                                         Role.path);
     },
+    "undeploy" : function(params){
+        OpenNebula.Action.simple_action(params,
+                                        Role.resource,
+                                        "undeploy",
+                                        generate_batch_action_params(),
+                                        Role.path);
+    },
+    "undeploy_hard" : function(params){
+        OpenNebula.Action.simple_action(params,
+                                        Role.resource,
+                                        "undeploy_hard",
+                                        generate_batch_action_params(),
+                                        Role.path);
+    },
     "snapshot_create" : function(params){
         OpenNebula.Action.simple_action(params,
                                         Role.resource,
@@ -321,6 +335,24 @@ var role_actions = {
         notify: true
     },
 
+    "Role.undeploy" : {
+        type: "multiple",
+        call: Role.undeploy,
+        callback: roleCallback,
+        elements: roleElements,
+        error: onError,
+        notify: true
+    },
+
+    "Role.undeploy_hard" : {
+        type: "multiple",
+        call: Role.undeploy_hard,
+        callback: roleCallback,
+        elements: roleElements,
+        error: onError,
+        notify: true
+    },
+
     "Role.snapshot_create" : {
         type: "single",
         call: Role.snapshot_create,
@@ -437,6 +469,18 @@ var role_buttons = {
         text: tr("Power Off") + ' <span class="label secondary radius">hard</span>',
         layout: "vmspause_buttons",
         tip: tr("This will send a forced power off signal to running VMs. They can be resumed later.")
+    },
+    "Role.undeploy" : {
+        type: "action",
+        text: tr("Undeploy Off"),
+        layout: "vmspause_buttons",
+        tip: tr("Shuts down the given VM. The VM is saved in the system Datastore.")
+    },
+    "Role.undeploy_hard" : {
+        type: "action",
+        text: tr("Undeploy Off") + ' <span class="label secondary radius">hard</span>',
+        layout: "vmspause_buttons",
+        tip: tr("Shuts down the given VM. The VM is saved in the system Datastore.")
     },
     "Role.shutdown" : {
         type: "confirm",
@@ -1017,7 +1061,7 @@ function updateServiceInfo(request,elem){
                 info_str += '<table class="twelve datatable extended_table">\
                     <thead style="background:#dfdfdf">\
                       <tr>\
-                        <th colspan="6">'+tr("Elasticity policies")+'</th>\
+                        <th colspan="7">'+tr("Elasticity policies")+'</th>\
                       </tr>\
                     </thead>\
                     <thead>\
@@ -1027,7 +1071,7 @@ function updateServiceInfo(request,elem){
                         <th>'+tr("Min")+'</th>\
                         <th>'+tr("Expression")+'</th>\
                         <th>'+tr("# Periods")+'</th>\
-                        <th>'+tr("Step")+'</th>\
+                        <th>'+tr("Period")+'</th>\
                         <th>'+tr("Cooldown")+'</th>\
                       </tr>\
                     </thead>\
@@ -1053,7 +1097,7 @@ function updateServiceInfo(request,elem){
                 info_str += '<table class="twelve datatable extended_table">\
                     <thead style="background:#dfdfdf">\
                       <tr>\
-                        <th colspan="4">'+tr("Scheduled policies")+'</th>\
+                        <th colspan="5">'+tr("Scheduled policies")+'</th>\
                       </tr>\
                     </thead>\
                     <thead>\

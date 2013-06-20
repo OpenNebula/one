@@ -798,7 +798,7 @@ function updateServiceTemplateInfo(request,elem){
                         <th>'+tr("Min")+'</th>\
                         <th>'+tr("Expression")+'</th>\
                         <th>'+tr("# Periods")+'</th>\
-                        <th>'+tr("Step")+'</th>\
+                        <th>'+tr("Period")+'</th>\
                         <th>'+tr("Cooldown")+'</th>\
                       </tr>\
                     </thead>\
