@@ -79,16 +79,15 @@ class OpenNebulaVMware < OpenNebulaNetwork
     # Add port group to switch in host, and sets vlan if available
     def add_pg_to_switch(host, pg, switch, vlan)
         # Check's first if the vSwitch exists
-        add_pg_cmd  = "(esxcfg-vswitch vSwitch0 -l|grep #{pg})"
-        add_pg_cmd += "&& #{VCLI_CMD} #{switch} --add-pg #{pg}"
+        add_pg_cmd  = "((esxcfg-vswitch vSwitch0 -l|grep #{pg})"
+        add_pg_cmd += "&& #{VCLI_CMD} #{switch} --add-pg #{pg})"
 
         if vlan
-            add_pg_cmd = "&& #{VCLI_CMD} #{switch} -p #{pg} --vlan=#{vlan}"
+            add_pg_cmd = "; #{VCLI_CMD} #{switch} -p #{pg} --vlan=#{vlan}"
         end
 
         do_ssh_action(add_pg_cmd, host)
     end
-
 
     # Performs a remote action in host using ssh
     def do_ssh_action(cmd, host)
