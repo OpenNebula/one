@@ -269,6 +269,10 @@ put '/service/:id/role/:name' do
         error CloudServer::HTTP_ERROR_CODE[service.errno], service.message
     end
 
+    if OpenNebula.is_error?(rc)
+        error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
+    end
+
     status 200
 end
 

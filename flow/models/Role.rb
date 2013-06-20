@@ -116,25 +116,21 @@ module OpenNebula
         end
 
         # Returns the role max cardinality
-        # @return [Integer] the role cardinality
+        # @return [Integer,nil] the role cardinality, or nil if it was not defined
         def max_cardinality
             max = @body['max_vms']
 
-            if max.nil?
-                max = cardinality()
-            end
+            return nil if max.nil?
 
             return max.to_i
         end
 
         # Returns the role min cardinality
-        # @return [Integer] the role cardinality
+        # @return [Integer,nil] the role cardinality, or nil if it was not defined
         def min_cardinality
             min = @body['min_vms']
 
-            if min.nil?
-                min = cardinality()
-            end
+            return nil if min.nil?
 
             return min.to_i
         end
@@ -641,8 +637,8 @@ module OpenNebula
             type    = elasticity_pol['type']
             adjust  = elasticity_pol['adjust'].to_i
 
-            max = [cardinality(), max_cardinality].max()
-            min = [cardinality(), min_cardinality].min()
+            max = [cardinality(), max_cardinality.to_i].max()
+            min = [cardinality(), min_cardinality.to_i].min()
 
             case type.upcase
             when 'CHANGE'
@@ -802,8 +798,36 @@ module OpenNebula
             @@default_shutdown = shutdown_action
         end
 
+        # Updates the role
+        # @param [Hash] template
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
         def update(template)
-            set_cardinality(template["cardinality"])
+
+            force = template['force'] == true
+            new_cardinality = template["cardinality"]
+
+            if new_cardinality.nil?
+                return nil
+            end
+
+            new_cardinality = new_cardinality.to_i
+
+            if !force
+                if new_cardinality < min_cardinality().to_i
+                    return OpenNebula::Error.new(
+                        "Minimum cardinality is #{min_cardinality()}")
+
+                elsif !max_cardinality().nil? && new_cardinality > max_cardinality().to_i
+                    return OpenNebula::Error.new(
+                        "Maximum cardinality is #{max_cardinality()}")
+
+                end
+            end
+
+            set_cardinality(new_cardinality)
+
+            return nil
         end
 
         ########################################################################

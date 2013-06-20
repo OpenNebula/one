@@ -351,6 +351,11 @@ module OpenNebula
             return nil
         end
 
+        # Updates a role
+        # @param [String] role_name
+        # @param [String] template_json
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
         def update_role(role_name, template_json)
 
             if ![Service::STATE['RUNNING'], Service::STATE['WARNING']].include?(self.state)
@@ -364,7 +369,11 @@ module OpenNebula
 
             @roles.each do |name, role|
                 if role_name == name
-                    role.update(template)
+                    rc = role.update(template)
+
+                    if OpenNebula.is_error?(rc)
+                        return rc
+                    end
 
                     # TODO: The update may not change the cardinality, only
                     # the max and min vms...

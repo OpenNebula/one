@@ -182,6 +182,13 @@ module Service
         :description => "Number of VMs to apply the action to each period"
     }
 
+    FORCE = {
+        :name => "force",
+        :short => "-f",
+        :large => "--force",
+        :description => "Force the new cardinality even if it is outside the limits"
+    }
+
     # Format helpers
 
 #    def self.rname_to_id(name, poolname, options)

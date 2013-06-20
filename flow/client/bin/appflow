@@ -513,7 +513,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Scale a role to the given cardinality
     EOT
 
-    command :'set-cardinality', set_cardinality_desc, :service_id, :role_name, :cardinality do
+    command :'set-cardinality', set_cardinality_desc, :service_id, :role_name,
+        :cardinality, :options => [Service::FORCE] do
         client = Service::Client.new(
                     :username   => options[:username],
                     :password   => options[:password],
@@ -527,7 +528,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         exit_code = 0
 
-        json = "{ \"cardinality\" : #{args[2]} }"
+        json =  "{ \"cardinality\" : #{args[2]},\n"<<
+                "  \"force\" : #{options[:force] == true} }"
 
         response = client.put("#{RESOURCE_PATH}/#{args[0]}/role/#{args[1]}", json)
 
