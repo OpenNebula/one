@@ -40,32 +40,20 @@ class OpenNebulaVMware < OpenNebulaNetwork
     DRIVER = "vmware"
 
     XPATH_FILTER = "TEMPLATE/NIC"
-    VCLI_PREFIX  = "/usr/bin/vicfg"
+    VCLI_CMD     = "/sbin/esxcfg-vswitch"
 
-    def initialize(vm, deploy_id = nil, hypervisor = nil)
+    def initialize(vm, host, deploy_id = nil, hypervisor = nil)
         super(vm,XPATH_FILTER,deploy_id,hypervisor)
+
         @locking = false
-
-        @config = YAML::load(File.read(CONF_FILE))
-
-        set_conn_options
-    end
-
-    def set_conn_options
-        username = @config[:username]
-        password = @config[:password]
-        server   = @vm['HISTORY_RECORDS/HISTORY/HOSTNAME']
-
-        @conn_options   =   "--username=#{username} " <<
-                            "--password=#{password} " <<
-                            "--server=#{server}"
+        @config  = YAML::load(File.read(CONF_FILE))
     end
 
     def activate
         lock
 
         vm_id =  @vm['ID']
-        hostname = @vm['HISTORY_RECORDS/HISTORY/HOSTNAME']
+        host = @vm['HISTORY_RECORDS/HISTORY/HOSTNAME']
         process do |nic|
             switch     = nic[:bridge]
             network_id = nic[:network_id]
@@ -81,54 +69,36 @@ class OpenNebulaVMware < OpenNebulaNetwork
                 vlan = nil
             end
 
-            add_pg(pg, switch, vlan) if !check_pg(pg, switch)
+            add_pg_to_switch(host, pg, switch, vlan)
         end
 
         unlock
-
         return 0
     end
 
-
-    def vcli(command, params)
-        cmd = "#{VCLI_PREFIX}-#{command.to_s} #{@conn_options} #{params}"
-    end
-
-    def vswitch(params)
-        vcli(:vswitch, params)
-    end
-
-    def check_pg(pg, switch)
-        cmd = vcli(:vswitch, "--check-pg #{pg} #{switch}")
-        rc, output = do_action(cmd)
-        output.strip!
-        if output.match(/^\d+$/)
-            return output != "0"
-        else
-            OpenNebula.log_error("Unexpected output for #{cmd}:\n#{output}")
-            return false
-        end
-    end
-
-    def add_pg(pg, switch, vlan=nil)
-        add_pg_cmd = vcli(:vswitch, "--add-pg #{pg} #{switch}")
-        do_action(add_pg_cmd)
+    # Add port group to switch in host, and sets vlan if available
+    def add_pg_to_switch(host, pg, switch, vlan)
+        # Check's first if the vSwitch exists
+        add_pg_cmd  = "(esxcfg-vswitch vSwitch0 -l|grep #{pg})"
+        add_pg_cmd += "&& #{VCLI_CMD} #{switch} --add-pg #{pg}"
 
         if vlan
-            set_vlan_cmd = vcli(:vswitch, "--vlan #{vlan} --pg #{pg} #{switch}")
-            do_action(set_vlan_cmd)
+            add_pg_cmd = "&& #{VCLI_CMD} #{switch} -p #{pg} --vlan=#{vlan}"
         end
+
+        do_ssh_action(add_pg_cmd, host)
     end
 
-    #Performs an action using vCLI
-    def do_action(cmd)
-        rc = LocalCommand.run(cmd)
+
+    # Performs a remote action in host using ssh
+    def do_ssh_action(cmd, host)
+        rc = SSHCommand.run("'#{cmd}'", host, nil, nil)
 
         if rc.code == 0
-            OpenNebula.log("Executed \"#{cmd}\".")
             return [true, rc.stdout]
         else
-            err = "Error executing: #{cmd} err: #{rc.stderr} out: #{rc.stdout}"
+            err = "Error executing: #{cmd} on host: #{@host} " <<
+                  "err: #{rc.stderr} out: #{rc.stdout}"
             OpenNebula.log_error(err)
             return [false, rc.code]
         end
