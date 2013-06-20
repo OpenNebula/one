@@ -233,11 +233,15 @@ def show_service(client, args, options)
                                 adjust_str(d)
                             end
 
-                            column :EXPRESSION, "", :left, :size=>44 do |d|
-                                d['expression']
+                            column :EXPRESSION, "", :left, :size=>49 do |d|
+                                if !d['expression_evaluated'].nil?
+                                    d['expression_evaluated']
+                                else
+                                    d['expression']
+                                end
                             end
 
-                            column :'EVALUATION', "", :left, :size=>10 do |d|
+                            column :'EVALS', "", :left, :size=>5 do |d|
                                 "#{d['true_evals'].to_i} / #{d['period_number']}"
                             end
 
@@ -249,7 +253,7 @@ def show_service(client, args, options)
                                 d['cooldown'] ? "#{d['cooldown']}s" : '-'
                             end
 
-                            default :ADJUST, :EXPRESSION, :EVALUATION, :PERIOD, :COOLDOWN
+                            default :ADJUST, :EXPRESSION, :EVALS, :PERIOD, :COOLDOWN
                         end.show([role['elasticity_policies']].flatten, {})
                     end
 

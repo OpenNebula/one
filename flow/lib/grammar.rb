@@ -101,6 +101,10 @@ module ElasticityGrammar
       elements[1]
     end
 
+    def op
+      elements[2]
+    end
+
     def space2
       elements[3]
     end
@@ -112,7 +116,13 @@ module ElasticityGrammar
 
   module BooleanExp1
     def result(role)
-        return left.result(role) && right.result(role)
+        l_val, l_st = left.result(role)
+        r_val, r_st = right.result(role)
+
+        st = "#{l_st} #{op.text_value} #{r_st}"
+        val = l_val && r_val
+
+        return [val, st]
     end
   end
 
@@ -123,6 +133,10 @@ module ElasticityGrammar
 
     def space1
       elements[1]
+    end
+
+    def op
+      elements[2]
     end
 
     def space2
@@ -136,7 +150,13 @@ module ElasticityGrammar
 
   module BooleanExp3
     def result(role)
-        return left.result(role) || right.result(role)
+        l_val, l_st = left.result(role)
+        r_val, r_st = right.result(role)
+
+        st = "#{l_st} #{op.text_value} #{r_st}"
+        val = l_val || r_val
+
+        return [val, st]
     end
   end
 
@@ -294,17 +314,21 @@ module ElasticityGrammar
 
   module LogicCond1
     def result(role)
-        l_res = left.result(role)
-        r_res = right.result(role)
+        l_val, l_st = left.result(role)
+        r_val, r_st = right.result(role)
 
-        if l_res.nil? || r_res.nil?
+        st = "#{l_st} #{comp_op.text_value} #{r_st}"
+
+        if l_val.nil? || r_val.nil?
             # An attribute was not found, we return false instead
             # of assuming a value of 0
 
-            return false
+            val = false
         else
-            comp_op.apply(l_res, r_res)
+            val = comp_op.apply(l_val, r_val)
         end
+
+        return [val, st]
     end
   end
 
@@ -320,7 +344,12 @@ module ElasticityGrammar
 
   module LogicCond3
     def result(role)
-        return !expression.result(role)
+        e_val, e_st = expression.result(role)
+
+        val = !e_val
+        st = "!#{e_st}"
+
+        return [val, st]
     end
   end
 
@@ -341,7 +370,11 @@ module ElasticityGrammar
 
   module LogicCond5
     def result(role)
-        expression.result(role)
+        e_val, e_st = expression.result(role)
+
+        st = "(#{e_st})"
+
+        return [e_val, st]
     end
   end
 
@@ -681,7 +714,10 @@ module ElasticityGrammar
 
   module Number1
     def result(role)
-        text_value.to_f
+        val = text_value.to_f
+        st = val.to_s
+
+        return [val, st]
     end
   end
 
@@ -690,7 +726,10 @@ module ElasticityGrammar
 
   module Number3
     def result(role)
-        text_value.to_i
+        val = text_value.to_i
+        st = val.to_s
+
+        return [val, st]
     end
   end
 
@@ -889,12 +928,14 @@ module ElasticityGrammar
 
         # The attribute wasn't found for any of the nodes
         if n_nodes == 0
-            return nil
+            val = nil
+            st = "#{att}[--]"
+        else
+            val = total / n_nodes
+            st = "#{att}[#{val.to_s}]"
         end
 
-        Log.debug "ELAS", "Role #{role.name} attribute #{att} avg value of #{total / n_nodes}"
-
-        return total / n_nodes
+        return [val, st]
     end
   end
 

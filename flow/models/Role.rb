@@ -597,7 +597,9 @@ module OpenNebula
             new_cardinality = cardinality()
             new_evals       = 0
 
-            if scale_rule(expression)
+            exp_value, exp_st = scale_rule(expression)
+
+            if exp_value
                 new_evals = true_evals + 1
                 new_evals = period_number if new_evals > period_number
 
@@ -611,6 +613,7 @@ module OpenNebula
             end
 
             elasticity_pol['true_evals'] = new_evals
+            elasticity_pol['expression_evaluated'] = exp_st
 
             return [new_cardinality - cardinality(), elasticity_pol['cooldown']]
         end
@@ -626,13 +629,12 @@ module OpenNebula
 
             treetop = parser.parse(elas_expr)
             if treetop.nil?
-                # TODO: Add error to service template
-                Log.debug "ELAS", "Expr parse error. '#{elas_expr}': #{parser.failure_reason}"
-
-                return false
+                return [false, "Parse error. '#{elas_expr}': #{parser.failure_reason}"]
             end
 
-            return treetop.result(self)
+            val, st = treetop.result(self)
+
+            return [val, st]
         end
 
         def calculate_new_cardinality(elasticity_pol)
