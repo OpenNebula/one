@@ -1082,8 +1082,8 @@ function updateServiceInfo(request,elem){
                         <td>'+this.type+'</td>\
                         <td>'+this.adjust+'</td>\
                         <td>'+this.min_adjust_step+'</td>\
-                        <td>'+this.expression+'</td>\
-                        <td>'+this.period+'</td>\
+                        <td>'+(this.expression_evaluated ? this.expression_evaluated : this.expression)+'</td>\
+                        <td>'+(this.true_evals ? this.true_evals : 0 )+'/'+ this.period+'</td>\
                         <td>'+this.period_number+'</td>\
                         <td>'+this.cooldown+'</td>\
                     </tr>'
