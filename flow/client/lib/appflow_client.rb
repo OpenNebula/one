@@ -23,18 +23,21 @@ module Role
     # Actions that can be performed on the VMs of a given Role
     SCHEDULE_ACTIONS = [
         'shutdown',
-        'delete',
+        'shutdown-hard',
+        'undeploy',
+        'undeploy-hard',
         'hold',
         'release',
         'stop',
-        'shutdown-hard',
         'suspend',
         'resume',
         'boot',
+        'delete',
         'delete-recreate',
         'reboot',
         'reboot-hard',
         'poweroff',
+        'poweroff-hard',
         'snapshot-create'
     ]
 
