@@ -62,6 +62,8 @@ conf[:debug_level]  ||= 2
 conf[:lcm_interval] ||= 30
 conf[:default_cooldown] ||= 300
 conf[:shutdown_action] ||= 'shutdown'
+conf[:action_number] ||= 1
+conf[:action_period] ||= 60
 
 conf[:auth] = 'opennebula'
 
@@ -291,6 +293,14 @@ post '/service/:id/role/:role_name/action' do
             rc = OpenNebula::Error.new("Role '#{params[:role_name]}' not found")
         else
             # TODO: opts['period'], opts['number'] check  be integer
+
+            # Use defaults only if one of the options is supplied
+
+            if opts['period'].nil? ^ opts['number'].nil?
+                opts['period'] = conf[:action_period] if opts['period'].nil?
+                opts['number'] = conf[:action_number] if opts['number'].nil?
+            end
+
             rc = role.batch_action(action['perform'], opts['period'], opts['number'])
         end
     }

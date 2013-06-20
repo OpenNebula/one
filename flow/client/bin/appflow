@@ -613,11 +613,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :"batch-action", batch_action_desc, :service_id, :role_name, :vm_action,
         :options => [Service::PERIOD, Service::NUMBER] do
 
-        if !options[:number].nil? && options[:period].nil?
-            puts "Option number cannot be provided without period"
-            -1
-        end
-
         client = Service::Client.new(
                     :username   => options[:username],
                     :password   => options[:password],
