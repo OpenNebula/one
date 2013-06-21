@@ -406,6 +406,8 @@ module OpenNebula
         def batch_action(action, period, vms_per_period)
             vms_id = []
 
+            # TODO: check action is a valid string, period vm_per_period integer
+
             error_msgs = []
             nodes = @body['nodes']
             now = Time.now.to_i

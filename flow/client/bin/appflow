@@ -191,6 +191,7 @@ def show_service(client, args, options)
 
             puts str % ["STRATEGY", template['deployment']]
             puts str % ["SERVICE STATE", Service.state_str(template['state'])]
+            puts str % ["SHUTDOWN", template['shutdown_action']] if template['shutdown_action']
 
             puts
 
@@ -212,8 +213,9 @@ def show_service(client, args, options)
 
                 puts str % ["ROLE STATE", Role.state_str(role['state'])]
                 puts str % ["PARENTS", role['parents'].join(', ')] if role['parents']
-                puts str % ["CARNIDALITY", role['cardinality']||1]
+                puts str % ["CARNIDALITY", role['cardinality']]
                 puts str % ["VM TEMPLATE", role['vm_template']]
+                puts str % ["SHUTDOWN", role['shutdown_action']] if role['shutdown_action']
 
                 puts "NODES INFORMATION"
                 NODE_TABLE.show(role['nodes'])

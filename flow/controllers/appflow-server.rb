@@ -291,10 +291,7 @@ post '/service/:id/role/:role_name/action' do
         if role.nil?
             rc = OpenNebula::Error.new("Role '#{params[:role_name]}' not found")
         else
-            # TODO: opts['period'], opts['number'] check  be integer
-
             # Use defaults only if one of the options is supplied
-
             if opts['period'].nil? ^ opts['number'].nil?
                 opts['period'] = conf[:action_period] if opts['period'].nil?
                 opts['number'] = conf[:action_number] if opts['number'].nil?
