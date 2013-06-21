@@ -213,18 +213,18 @@ def show_service(client, args, options)
 
                 puts str % ["ROLE STATE", Role.state_str(role['state'])]
                 puts str % ["PARENTS", role['parents'].join(', ')] if role['parents']
-                puts str % ["CARNIDALITY", role['cardinality']]
                 puts str % ["VM TEMPLATE", role['vm_template']]
+                puts str % ["CARNIDALITY", role['cardinality']]
+                puts str % ["MIN VMS", role['min_vms']] if role['min_vms']
+                puts str % ["MAX VMS", role['max_vms']] if role['max_vms']
                 puts str % ["SHUTDOWN", role['shutdown_action']] if role['shutdown_action']
 
                 puts "NODES INFORMATION"
                 NODE_TABLE.show(role['nodes'])
 
-                if !role['min_vms'].nil? || !role['max_vms'].nil? || !role['elasticity_policies'].nil?
+                if !role['elasticity_policies'].nil?
                     puts
                     puts "ELASTICITY RULES"
-                    puts str % ["MIN VMS", role['min_vms']] if role['min_vms']
-                    puts str % ["MAX VMS", role['max_vms']] if role['max_vms']
                     puts str % ["COOLDOWN", "#{role['cooldown']}s"] if role['cooldown']
 
                     if role['elasticity_policies']
