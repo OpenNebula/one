@@ -222,7 +222,7 @@ def show_service(client, args, options)
                 puts "NODES INFORMATION"
                 NODE_TABLE.show(role['nodes'])
 
-                if !role['elasticity_policies'].nil?
+                if !role['elasticity_policies'].nil? || !role['scheduled_policies'].nil?
                     puts
                     puts "ELASTICITY RULES"
                     puts str % ["COOLDOWN", "#{role['cooldown']}s"] if role['cooldown']

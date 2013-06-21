@@ -290,56 +290,7 @@ module OpenNebula
                 n_nodes = nodes.size
             end
 
-            action = @body['shutdown_action']
-
-            if action.nil?
-                action = @service.get_shutdown_action()
-            end
-
-            if action.nil?
-                action = @@default_shutdown
-            end
-
-            n_nodes.times { |i|
-                node = nodes[i]
-
-                vm_id = node['deploy_id']
-
-                Log.debug LOG_COMP, "Role #{name} : Shutting down VM #{vm_id}", @service.id()
-
-                vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
-
-                if action == 'shutdown-hard'
-                    rc = vm.shutdown(true)
-                else
-                    rc = vm.shutdown
-                end
-
-                if scale_down
-                    node['disposed'] = '1'
-                end
-
-                if OpenNebula.is_error?(rc)
-                    msg = "Role #{name} : Shutdown failed for VM #{vm_id}, will perform a Delete; #{rc.message}"
-                    Log.error LOG_COMP, msg, @service.id()
-                    @service.log_error(msg)
-
-                    rc = vm.finalize
-
-                    if OpenNebula.is_error?(rc)
-                        msg = "Role #{name} : Delete failed for VM #{vm_id}; #{rc.message}"
-                        Log.error LOG_COMP, msg, @service.id()
-                        @service.log_error(msg)
-
-                        success = false
-                        #return [false, rc.message]
-                    else
-                        Log.debug LOG_COMP, "Role #{name} : Delete success for VM #{vm_id}", @service.id()
-                    end
-                else
-                    Log.debug LOG_COMP, "Role #{name} : Shutdown success for VM #{vm_id}", @service.id()
-                end
-            }
+            shutdown_nodes(nodes[0..n_nodes-1], scale_down)
 
             return [success, nil]
         end
@@ -506,6 +457,130 @@ module OpenNebula
 
             return [0, 0]
         end
+
+        # Scales up or down the number of nodes needed to match the current
+        # cardinality
+        #
+        # @return [Array<true, nil>, Array<false, String>] true if all the VMs
+        # were created/shut down, false and the error reason if there
+        # was a problem
+        def scale()
+            n_nodes = 0
+
+            get_nodes.each do |node|
+                n_nodes += 1 if node['disposed'] != "1"
+            end
+
+            diff = cardinality - n_nodes
+
+            if diff > 0
+                return deploy(true)
+            elsif diff < 0
+                return shutdown(true)
+            end
+
+            return [true, nil]
+        end
+
+        # Updates the duration for the next cooldown
+        # @param cooldown_duration [Integer] duration for the next cooldown
+        def set_cooldown_duration(cooldown_duration)
+            @body['cooldown_duration'] = cooldown_duration.to_i
+        end
+
+        # Updates the duration for the next cooldown with the default value
+        def set_default_cooldown_duration()
+            cooldown_duration = @body['cooldown']
+            cooldown_duration = @@default_cooldown if cooldown_duration.nil?
+
+            set_cooldown_duration(cooldown_duration)
+        end
+
+        # Sets the cooldown end time from now + the duration set in set_cooldown_duration
+        # @return [true, false] true if the cooldown duration is bigger than 0
+        def apply_cooldown_duration()
+            cooldown_duration = @body['cooldown_duration'].to_i
+
+            if cooldown_duration != 0
+                @body['cooldown_end'] = Time.now.to_i + cooldown_duration
+                @body.delete('cooldown_duration')
+
+                return true
+            end
+
+            return false
+        end
+
+        # Returns true if the cooldown period ended
+        # @return [true, false] true if the cooldown period ended
+        def cooldown_over?()
+            return Time.now.to_i >= @body['cooldown_end'].to_i
+        end
+
+        def self.init_default_cooldown(default_cooldown)
+            @@default_cooldown = default_cooldown
+        end
+
+        def self.init_default_shutdown(shutdown_action)
+            @@default_shutdown = shutdown_action
+        end
+
+        # Updates the role
+        # @param [Hash] template
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def update(template)
+
+            force = template['force'] == true
+            new_cardinality = template["cardinality"]
+
+            if new_cardinality.nil?
+                return nil
+            end
+
+            new_cardinality = new_cardinality.to_i
+
+            if !force
+                if new_cardinality < min_cardinality().to_i
+                    return OpenNebula::Error.new(
+                        "Minimum cardinality is #{min_cardinality()}")
+
+                elsif !max_cardinality().nil? && new_cardinality > max_cardinality().to_i
+                    return OpenNebula::Error.new(
+                        "Maximum cardinality is #{max_cardinality()}")
+
+                end
+            end
+
+            set_cardinality(new_cardinality)
+
+            return nil
+        end
+
+        ########################################################################
+        # Recover
+        ########################################################################
+
+        def recover_deployment()
+            recover()
+        end
+
+        def recover_warning()
+            recover()
+            deploy()
+        end
+
+        def recover_scale()
+            recover()
+            retry_scale()
+        end
+
+
+        ########################################################################
+        ########################################################################
+
+
+        private
 
         # Returns a positive, 0, or negative number of nodes to adjust,
         #   according to a SCHEDULED type policy
@@ -693,171 +768,16 @@ module OpenNebula
             return new_cardinality
         end
 
-        # Scales up or down the number of nodes needed to match the current
-        # cardinality
-        #
-        # @return [Array<true, nil>, Array<false, String>] true if all the VMs
-        # were created/shut down, false and the error reason if there
-        # was a problem
-        def scale()
-            n_nodes = 0
-
-            get_nodes.each do |node|
-                n_nodes += 1 if node['disposed'] != "1"
-            end
-
-            diff = cardinality - n_nodes
-
-            if diff > 0
-                return deploy(true)
-            elsif diff < 0
-                return shutdown(true)
-            end
-
-            return [true, nil]
-        end
-
         # For a failed scale up, the cardinality is updated to the actual value
         # For a failed scale down, the shutdown actions are retried
         def retry_scale()
-            n_dispose = 0
+            nodes_dispose = get_nodes.select { |node|
+                node['disposed'] == "1"
+            }
 
-            get_nodes.each do |node|
-                if node['disposed'] == "1"
+            shutdown_nodes(nodes_dispose, true)
 
-                    ############################################################
-                    # TODO: refactor code, copied from shutdown()
-                    ############################################################
-
-                    vm_id = node['deploy_id']
-
-                    Log.debug LOG_COMP, "Role #{name} : Shutting down VM #{vm_id}", @service.id()
-
-                    vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
-                    rc = vm.shutdown
-
-                    if OpenNebula.is_error?(rc)
-                        msg = "Role #{name} : Shutdown failed for VM #{vm_id}, will perform a Delete; #{rc.message}"
-                        Log.error LOG_COMP, msg, @service.id()
-                        @service.log_error(msg)
-
-                        rc = vm.finalize
-
-                        if OpenNebula.is_error?(rc)
-                            msg = "Role #{name} : Delete failed for VM #{vm_id}; #{rc.message}"
-                            Log.error LOG_COMP, msg, @service.id()
-                            @service.log_error(msg)
-
-                            success = false
-                            #return [false, rc.message]
-                        else
-                            Log.debug LOG_COMP, "Role #{name} : Delete success for VM #{vm_id}", @service.id()
-                        end
-                    else
-                        Log.debug LOG_COMP, "Role #{name} : Shutdown success for VM #{vm_id}", @service.id()
-                    end
-
-                    ############################################################
-
-                    n_dispose += 1
-                end
-            end
-
-            set_cardinality( get_nodes.size() - n_dispose )
-        end
-
-        # Updates the duration for the next cooldown
-        # @param cooldown_duration [Integer] duration for the next cooldown
-        def set_cooldown_duration(cooldown_duration)
-            @body['cooldown_duration'] = cooldown_duration.to_i
-        end
-
-        # Updates the duration for the next cooldown with the default value
-        def set_default_cooldown_duration()
-            cooldown_duration = @body['cooldown']
-            cooldown_duration = @@default_cooldown if cooldown_duration.nil?
-
-            set_cooldown_duration(cooldown_duration)
-        end
-
-        # Sets the cooldown end time from now + the duration set in set_cooldown_duration
-        # @return [true, false] true if the cooldown duration is bigger than 0
-        def apply_cooldown_duration()
-            cooldown_duration = @body['cooldown_duration'].to_i
-
-            if cooldown_duration != 0
-                @body['cooldown_end'] = Time.now.to_i + cooldown_duration
-                @body.delete('cooldown_duration')
-
-                return true
-            end
-
-            return false
-        end
-
-        # Returns true if the cooldown period ended
-        # @return [true, false] true if the cooldown period ended
-        def cooldown_over?()
-            return Time.now.to_i >= @body['cooldown_end'].to_i
-        end
-
-        def self.init_default_cooldown(default_cooldown)
-            @@default_cooldown = default_cooldown
-        end
-
-        def self.init_default_shutdown(shutdown_action)
-            @@default_shutdown = shutdown_action
-        end
-
-        # Updates the role
-        # @param [Hash] template
-        # @return [nil, OpenNebula::Error] nil in case of success, Error
-        #   otherwise
-        def update(template)
-
-            force = template['force'] == true
-            new_cardinality = template["cardinality"]
-
-            if new_cardinality.nil?
-                return nil
-            end
-
-            new_cardinality = new_cardinality.to_i
-
-            if !force
-                if new_cardinality < min_cardinality().to_i
-                    return OpenNebula::Error.new(
-                        "Minimum cardinality is #{min_cardinality()}")
-
-                elsif !max_cardinality().nil? && new_cardinality > max_cardinality().to_i
-                    return OpenNebula::Error.new(
-                        "Maximum cardinality is #{max_cardinality()}")
-
-                end
-            end
-
-            set_cardinality(new_cardinality)
-
-            return nil
-        end
-
-        ########################################################################
-        # Recover
-        ########################################################################
-
-
-        def recover_deployment()
-            recover()
-        end
-
-        def recover_warning()
-            recover()
-            deploy()
-        end
-
-        def recover_scale()
-            recover()
-            retry_scale()
+            set_cardinality( get_nodes.size() - n_dispose.size() )
         end
 
         # Deletes VMs in DONE or FAILED, and sends a boot action to VMs in UNKNOWN
@@ -908,5 +828,61 @@ module OpenNebula
 
             @body['nodes'] = new_nodes
         end
+
+
+        # Shuts down all the given roles
+        # @param scale_down [true,false] True to set the 'disposed' node flag
+        def shutdown_nodes(nodes, scale_down)
+
+            action = @body['shutdown_action']
+
+            if action.nil?
+                action = @service.get_shutdown_action()
+            end
+
+            if action.nil?
+                action = @@default_shutdown
+            end
+
+            nodes.each { |node|
+                vm_id = node['deploy_id']
+
+                Log.debug LOG_COMP, "Role #{name} : Shutting down VM #{vm_id}", @service.id()
+
+                vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
+
+                if action == 'shutdown-hard'
+                    rc = vm.shutdown(true)
+                else
+                    rc = vm.shutdown
+                end
+
+                if scale_down
+                    node['disposed'] = '1'
+                end
+
+                if OpenNebula.is_error?(rc)
+                    msg = "Role #{name} : Shutdown failed for VM #{vm_id}, will perform a Delete; #{rc.message}"
+                    Log.error LOG_COMP, msg, @service.id()
+                    @service.log_error(msg)
+
+                    rc = vm.finalize
+
+                    if OpenNebula.is_error?(rc)
+                        msg = "Role #{name} : Delete failed for VM #{vm_id}; #{rc.message}"
+                        Log.error LOG_COMP, msg, @service.id()
+                        @service.log_error(msg)
+
+                        success = false
+                        #return [false, rc.message]
+                    else
+                        Log.debug LOG_COMP, "Role #{name} : Delete success for VM #{vm_id}", @service.id()
+                    end
+                else
+                    Log.debug LOG_COMP, "Role #{name} : Shutdown success for VM #{vm_id}", @service.id()
+                end
+            }
+        end
+
     end
 end

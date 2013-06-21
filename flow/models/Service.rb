@@ -367,27 +367,28 @@ module OpenNebula
 
             # TODO: Validate template?
 
-            @roles.each do |name, role|
-                if role_name == name
-                    rc = role.update(template)
+            role = @roles[role_name]
 
-                    if OpenNebula.is_error?(rc)
-                        return rc
-                    end
-
-                    # TODO: The update may not change the cardinality, only
-                    # the max and min vms...
-
-                    role.set_state(Role::STATE['SCALING'])
-
-                    role.set_default_cooldown_duration()
-
-                    self.set_state(Service::STATE['SCALING'])
-                    return self.update
-                end
+            if role.nil?
+                return OpenNebula::Error.new("ROLE \"#{role_name}\" does not exist")
             end
 
-            return OpenNebula::Error.new("ROLE \"#{role_name}\" does not exist")
+            rc = role.update(template)
+
+            if OpenNebula.is_error?(rc)
+                return rc
+            end
+
+            # TODO: The update may not change the cardinality, only
+            # the max and min vms...
+
+            role.set_state(Role::STATE['SCALING'])
+
+            role.set_default_cooldown_duration()
+
+            self.set_state(Service::STATE['SCALING'])
+
+            return self.update
         end
 
         def get_shutdown_action()
