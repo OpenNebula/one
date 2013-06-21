@@ -2417,7 +2417,17 @@ int VirtualMachine::generate_context(string &files, int &disk_id)
 
     for (it=values.begin(); it != values.end(); it++ )
     {
-        file << it->first <<"=\""<< it->second << "\"" << endl;
+        //Replace every ' in value by '\''
+        string escape_str(it->second);
+        size_t pos = 0;
+
+        while ((pos = escape_str.find('\'', pos)) != string::npos)
+        {
+            escape_str.replace(pos,1,"'\\''");
+            pos = pos + 4;
+        }
+
+        file << it->first <<"='" << escape_str << "'" << endl;
     }
 
     file.close();
