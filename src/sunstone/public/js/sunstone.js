@@ -73,7 +73,7 @@ var Sunstone = {
     "updateMainTabContent" : function(tab_id,content_arg,refresh){
         SunstoneCfg["tabs"][tab_id]["content"]=content_arg;
         //if not present it will not be updated
-        if (refresh){ 
+        if (refresh){
             $('div#'+tab_id, main_tabs_context).html(content_arg);
         }
     },
@@ -296,10 +296,24 @@ $(document).ready(function(){
     setLogin();
 
     setInterval(function(){
-        var user_cookie = cookie["one-user"];
-        readCookie();
-        if ((cookie["one-user"] == null) || (cookie["one-user"] !== user_cookie)) {
-            window.location.href='/';
+        if (whichUI() == "sunstone") {
+            var user_cookie = cookie["one-user"];
+            readCookie();
+            if ((cookie["one-user"] == null) || (cookie["one-user"] !== user_cookie)) {
+                window.location.href='/';
+            }
+        } else if (whichUI() == "selfservice") {
+            var user_cookie = cookie["occi-user"];
+            readCookie();
+            if ((cookie["occi-user"] == null) || (cookie["occi-user"] !== user_cookie)) {
+                window.location.href='/';
+            }
+        } else if (whichUI() == "ozones") {
+            var user_cookie = cookie["ozones-user"];
+            readCookie();
+            if ((cookie["ozones-user"] == null) || (cookie["ozones-user"] !== user_cookie)) {
+                window.location.href='/';
+            }
         }
     },5000);
 
