@@ -1007,3 +1007,14 @@ div.dataTables_scrollFoot table {
 
 
 
+table.policies_table {
+    th, td {
+        font-size: 13px;
+    }
+    input {
+        margin: 0px !important;
+        height: 23px !important;
+        font-size: 13px;
+    }
+}
+

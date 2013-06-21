@@ -193,7 +193,7 @@ function setupCreateClusterDialog(){
         },
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [1] },
-            { "bVisible": false, "aTargets": [0,5,6,7,8,10,11,12]} // 3 = cluster
+            { "bVisible": false, "aTargets": [0,5,7,10,11,12]} // 3 = cluster
         ],
         "oLanguage": (datatable_lang != "") ?
             {
@@ -1313,7 +1313,7 @@ function updateClusterInfo(request,cluster){
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [1] },
             { "sWidth": "35px", "aTargets": [9] },
-            { "bVisible": false, "aTargets": [0,3,5,6,7,8,10,11,12]}
+            { "bVisible": false, "aTargets": [0,5,7,10,11,12]}
         ],
         "oLanguage": (datatable_lang != "") ?
             {
