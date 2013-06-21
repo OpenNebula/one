@@ -131,10 +131,27 @@ var Sunstone = {
                     <div id="refresh_div">\
                         <button type="button" style="float:left; margin-right:5px" class="button secondary tiny radius" id="'+panel_name+'_refresh"><span class="icon-refresh"></span></button>\
                     </div>\
+                    <div id="aa" class="right">\
+                        <a href="#" id="'+panel_name+'_resize_50" hidden><span class="icon-resize-small"></span>&emsp;</a>\
+                        <a href="#" id="'+panel_name+'_resize_75"><span class="icon-resize-full"></span>&emsp;</a>\
+                    </div>\
                 </dl>\
             </div>\
             <ul class="tabs-content"></ul>\
         </div>');
+
+        $('#'+panel_name+'_resize_75').live('click', function(){
+            $(".ui-layout-resizer-south").css('bottom', Math.floor($(window).height()*0.75));
+            $(".ui-layout-pane-south").css('height', Math.floor($(window).height()*0.75));
+            $('#'+panel_name+'_resize_75').hide();
+            $('#'+panel_name+'_resize_50').show();
+        })
+        $('#'+panel_name+'_resize_50').live('click', function(){
+            $(".ui-layout-resizer-south").css('bottom', Math.floor($(window).height()*0.50));
+            $(".ui-layout-pane-south").css('height', Math.floor($(window).height()*0.50));
+            $('#'+panel_name+'_resize_50').hide();
+            $('#'+panel_name+'_resize_75').show();
+        })
 
         var tabs = SunstoneCfg["info_panels"][panel_name];
         var tab=null;
