@@ -40,11 +40,12 @@ module OpenNebula
                 },
                 'shutdown_action' => {
                     :type => :string,
+                    :enum => %w{shutdown shutdown-hard},
                     :required => false
                 },
                 'min_vms' => {
                     :type => :integer,
-                    :default => 1
+                    :required => false
                 },
                 'max_vms' => {
                     :type => :integer,
@@ -142,6 +143,7 @@ module OpenNebula
                 },
                 'shutdown_action' => {
                     :type => :string,
+                    :enum => %w{shutdown shutdown-hard},
                     :required => false
                 },
                 'roles' => {

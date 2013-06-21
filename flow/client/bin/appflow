@@ -220,11 +220,11 @@ def show_service(client, args, options)
                 puts "NODES INFORMATION"
                 NODE_TABLE.show(role['nodes'])
 
-                if !role['min_vms'].nil? && !role['max_vms'].nil?
+                if !role['min_vms'].nil? || !role['max_vms'].nil? || !role['elasticity_policies'].nil?
                     puts
                     puts "ELASTICITY RULES"
-                    puts str % ["MIN VMS", role['min_vms']]
-                    puts str % ["MAX VMS", role['max_vms']]
+                    puts str % ["MIN VMS", role['min_vms']] if role['min_vms']
+                    puts str % ["MAX VMS", role['max_vms']] if role['max_vms']
                     puts str % ["COOLDOWN", "#{role['cooldown']}s"] if role['cooldown']
 
                     if role['elasticity_policies']
