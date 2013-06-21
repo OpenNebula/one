@@ -603,7 +603,7 @@ function setupTips(context){
 
     $('ui-dialog').css('z-index', '1000')
     //For each tip in this context
-    $('div.tip',context).each(function(){
+    $('.tip',context).each(function(){
        // //store the text
        // var obj = $(this);
        // var tip = obj.html();
