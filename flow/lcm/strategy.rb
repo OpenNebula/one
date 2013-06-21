@@ -308,11 +308,6 @@ protected
                 vm_state = node['vm_info']['VM']['STATE']
 
                 if vm_state == '7' # FAILED
-
-                    # TODO: return error message and log it into the service log
-                    #msg = "Role #{role.name()} : VM #{node['deploy_id']} found in FAILED state"
-                    #Log.error LOG_COMP, msg
-
                     return true
                 end
             end
@@ -348,10 +343,6 @@ protected
             if node && node['vm_info'] &&
                 (node['disposed'] == '1' || node['scale_up'] == '1') && 
                 node['vm_info']['VM']['STATE'] == '7' # FAILED
-
-                # TODO: return error message and log it into the service log
-                #msg = "Role #{role.name()} : VM #{node['deploy_id']} found in FAILED state"
-                #Log.error LOG_COMP, msg
 
                 return true
             end

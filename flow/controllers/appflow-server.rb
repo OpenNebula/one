@@ -285,7 +285,6 @@ post '/service/:id/role/:role_name/action' do
 
     rc = nil
     service = service_pool.get(params[:id]) { |service|
-        # TODO check service state
         roles = service.get_roles
 
         role = roles[params[:role_name]]

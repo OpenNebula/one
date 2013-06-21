@@ -435,7 +435,6 @@ module OpenNebula
                     end
 
                     tmp_str = vm.user_template_str
-                    # TODO time & periods
 
                     if do_offset
                         time_offset = (index / vms_per_period.to_i).floor * period.to_i
