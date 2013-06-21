@@ -1226,12 +1226,9 @@ void  LifeCycleManager::monitor_done_action(int vid)
 
         vm->log("LCM", Log::INFO, "New VM state is UNKNOWN");
     }
-    else if ( vm->get_lcm_state() != VirtualMachine::UNKNOWN &&
-              vm->get_state() != VirtualMachine::POWEROFF &&
-              vm->get_state() != VirtualMachine::SUSPENDED )
-    {
-        vm->log("LCM",Log::ERROR,"monitor_done_action, VM in a wrong state");
-    }
+    // This event can be received when the VM is in PROLOG, BOOT...
+    // and other transient states (through host monitor probe).
+    // Just ignore the callback if VM is not in RUNNING.
 
     vm->unlock();
 }
