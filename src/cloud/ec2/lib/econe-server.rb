@@ -69,41 +69,38 @@ conf[:template_location] = TEMPLATE_LOCATION
 conf[:views] = VIEWS_LOCATION
 conf[:debug_level] ||= 3
 
-CloudServer.print_configuration(conf)
-
 ##############################################################################
 # Sinatra Configuration
 ##############################################################################
-set :config, conf
 
 include CloudLogger
-enable_logging EC2_LOG, settings.config[:debug_level].to_i
+logger = enable_logging EC2_LOG, conf[:debug_level].to_i
 
-if settings.config[:server]
-    settings.config[:host] ||= settings.config[:server]
+if conf[:server]
+    conf[:host] ||= conf[:server]
     warning = "Warning: :server: configuration parameter has been deprecated."
     warning << " Use :host: instead."
-    settings.logger.warn warning
+    logger.warn warning
 end
 
-if CloudServer.is_port_open?(settings.config[:host],
-                             settings.config[:port])
-    settings.logger.error {
-        "Port #{settings.config[:port]} busy, please shutdown " <<
+if CloudServer.is_port_open?(conf[:host],
+                             conf[:port])
+    logger.error {
+        "Port #{conf[:port]} busy, please shutdown " <<
         "the service or move occi server port."
     }
     exit -1
 end
 
-set :bind, settings.config[:host]
-set :port, settings.config[:port]
+set :bind, conf[:host]
+set :port, conf[:port]
 
 begin
     ENV["ONE_CIPHER_AUTH"] = EC2_AUTH
-    cloud_auth = CloudAuth.new(settings.config, settings.logger)
+    cloud_auth = CloudAuth.new(conf, logger)
 rescue => e
-    settings.logger.error {"Error initializing authentication system"}
-    settings.logger.error {e.message}
+    logger.error {"Error initializing authentication system"}
+    logger.error {e.message}
     exit -1
 end
 
@@ -115,14 +112,18 @@ if conf[:ssl_server]
     econe_port = uri.port
     econe_path = uri.path
 else
-    econe_host = settings.config[:host]
-    econe_port = settings.config[:port]
+    econe_host = conf[:host]
+    econe_port = conf[:port]
     econe_path = '/'
 end
 
 set :econe_host, econe_host
 set :econe_port, econe_port
 set :econe_path, econe_path
+
+set :config, conf
+
+CloudServer.print_configuration(conf)
 
 ##############################################################################
 # Actions

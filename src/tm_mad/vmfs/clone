@@ -56,8 +56,8 @@ USE_SSH=$(get_tm_use_ssh $IMAGE_DS_NAME)
 
 # Let's check if it is a CDROM
 DISK_ID=$(echo "$DST_PATH" | $AWK -F. '{print $NF}')
-XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
 DRIVER_PATH=$(dirname $0)
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
 
 unset i XPATH_ELEMENTS
  
@@ -78,7 +78,7 @@ vmfs_set_up
 # Create remote folder
 #-------------------------------------------------------------------------------
 
-if [ "$DISK_TYPE" != "CDROM"]; then
+if [ "$DISK_TYPE" != "CDROM" ]; then
   if [ "$USE_SSH" == "yes" ]; then
   	ssh_make_path $DST_HOST $DST_PATH
   else
@@ -122,7 +122,7 @@ EOF
 )
 	ssh_exec_and_log $DST_HOST "$CLONESCRIPT" "Error cloning $SRC to $DST"
 else
-  if [ "$DISK_TYPE" != "CDROM"]; then
+  if [ "$DISK_TYPE" != "CDROM" ]; then
     $VMKFSTOOLS $VI_PARAMS -U [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/disk.vmdk &> /dev/null
 
     # Erase in case that vmkfstool didn't recognize the disk

@@ -153,5 +153,7 @@ module CloudLogger
                 settings.logger
             end
         end
+
+        logger
     end
 end

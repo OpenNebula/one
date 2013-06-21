@@ -83,42 +83,42 @@ set :config, conf
 
 # Enable Logger
 include CloudLogger
-enable_logging OCCI_LOG, settings.config[:debug_level].to_i
+logger = enable_logging OCCI_LOG, conf[:debug_level].to_i
 
 
 # Set Sinatra configuration
 use Rack::Session::Pool, :key => 'occi'
 
-set :public_folder, Proc.new { File.join(root, "ui/public") }
-set :views, settings.root + '/ui/views'
+set :public, File.dirname(__FILE__) + '/ui/public'
+set :views,  File.dirname(__FILE__) + '/ui/views'
 
-if settings.config[:server]
-    settings.config[:host] ||= settings.config[:server]
+if conf[:server]
+    conf[:host] ||= conf[:server]
     warning = "Warning: :server: configuration parameter has been deprecated."
     warning << " Use :host: instead."
-    settings.logger.warn warning
+    logger.warn warning
 end
 
-if CloudServer.is_port_open?(settings.config[:host],
-                             settings.config[:port])
-    settings.logger.error {
-        "Port #{settings.config[:port]} busy, please shutdown " <<
+if CloudServer.is_port_open?(conf[:host],
+                             conf[:port])
+    logger.error {
+        "Port #{conf[:port]} busy, please shutdown " <<
         "the service or move occi server port."
     }
     exit -1
 end
 
-set :bind, settings.config[:host]
-set :port, settings.config[:port]
+set :bind, conf[:host]
+set :port, conf[:port]
 
 
 # Create CloudAuth
 begin
     ENV["ONE_CIPHER_AUTH"] = OCCI_AUTH
-    cloud_auth = CloudAuth.new(settings.config, settings.logger)
+    cloud_auth = CloudAuth.new(conf, logger)
 rescue => e
-    settings.logger.error {"Error initializing authentication system"}
-    settings.logger.error {e.message}
+    logger.error {"Error initializing authentication system"}
+    logger.error {e.message}
     exit -1
 end
 
@@ -129,17 +129,19 @@ set :cloud_auth, cloud_auth
 configure do
     set :run, false
 
-    if settings.config[:vnc_enable]
+    if conf[:vnc_enable]
         opts = {
             :json_errors => false,
             :token_folder_name => 'selfservice_vnc_tokens'
         }
-        set :vnc, OpenNebulaVNC.new(settings.config,
-                                    settings.logger,
-                                    opts)
-        settings.vnc.start()
+
+        vnc = OpenNebulaVNC.new(conf, logger, opts)
+
+        set :vnc, vnc
+
+        vnc.start()
         Kernel.at_exit do
-            settings.vnc.stop
+            vnc.stop
         end
     end
 end
