@@ -799,7 +799,7 @@ function updateServiceInfo(request,elem){
            </tr>\
            <tr>\
              <td class="key_td">'+tr("Shutdown action")+'</td>\
-             <td class="value_td">'+elem_info.TEMPLATE.BODY.shutdown_action+'</td>\
+             <td class="value_td">'+(elem_info.TEMPLATE.BODY.shutdown_action || "")+'</td>\
            </tr>\
            <tr>\
              <td class="key_td">'+tr("State")+'</td>\
@@ -836,7 +836,7 @@ function updateServiceInfo(request,elem){
                         <div class="tip">'+ tr("Period") +'</div>\
                     </div>\
                     <div class="four columns">\
-                        <label class="inline right" for="batch_action_number">' + tr("VMs per period") + ':</label>\
+                        <label class="inline right" for="batch_action_number">' + tr("Number") + ':</label>\
                     </div>\
                     <div class="two columns">\
                         <input type="text" id="batch_action_number" name="batch_action_number"/>\
@@ -940,28 +940,55 @@ function updateServiceInfo(request,elem){
         initCheckAllBoxes(servicerolesDataTable);
         tableCheckboxesListener(servicerolesDataTable);
 
+        $('tbody input.check_item',servicerolesDataTable).live("change",function(){
+            if($(this).is(":checked"))
+            {
+                $(this).parents('tr').children().each(function(){$(this).addClass('markrowchecked');});
+            }
+            else
+            {
+                $(this).parents('tr').children().removeClass('markrowchecked');
+                $(this).parents('tr').children().removeClass('markrowselected');
+            }
+        });
+
         $('tbody tr',servicerolesDataTable).live("click",function(e){
-            var aData = servicerolesDataTable.fnGetData(this);
-            var role_name = $(aData[0]).val();
+            if ($(e.target).is('input') ||
+                $(e.target).is('select') ||
+                $(e.target).is('option')) return true;
 
-            var role_index = servicerolesDataTable.fnGetPosition(this);
-
-            if ($("#service_info_panel_resize_75").attr('visibility') != 'hidden') {
-                $("#service_info_panel_resize_75").click();
+            if (e.ctrlKey || e.metaKey || $(e.target).is('input'))
+            {
+                $('.check_item',this).trigger('click');
             }
+            else
+            {
+                var aData = servicerolesDataTable.fnGetData(this);
+                var role_name = $(aData[0]).val();
 
-            if(last_selected_row) {
-                last_selected_row.children().each(function(){
-                    $(this).removeClass('markrowselected');
+                var role_index = servicerolesDataTable.fnGetPosition(this);
+
+                if ($("#service_info_panel_resize_75").attr('visibility') != 'hidden') {
+                    $("#service_info_panel_resize_75").click();
+                }
+
+                $('tbody input.check_item',$(this).parents('table')).removeAttr('checked');
+                $('.check_item',this).click();
+                $('td',$(this).parents('table')).removeClass('markrowchecked');
+
+                if(last_selected_row) {
+                    last_selected_row.children().each(function(){
+                        $(this).removeClass('markrowselected');
+                    });
+                }
+
+                last_selected_row = $(this);
+                $(this).children().each(function(){
+                    $(this).addClass('markrowselected');
                 });
+
+                generate_role_div(role_index);
             }
-
-            last_selected_row = $(this);
-            $(this).children().each(function(){
-                $(this).addClass('markrowselected');
-            });
-
-            generate_role_div(role_index);
 
             //if($(this).is(":checked"))
             //{
@@ -1028,25 +1055,25 @@ function updateServiceInfo(request,elem){
             if (role.shutdown_action) {
                 info_str += "<tr>\
                      <td class='key_td'>"+tr("Shutdown action")+"</td>\
-                     <td class='value_td'>"+role.shutdown_action+"</td>\
+                     <td class='value_td'>"+(role.shutdown_action || "")+"</td>\
                    </tr>";
             }
             if (role.min_vms) {
                 info_str += "<tr>\
                      <td class='key_td'>"+tr("Min VMs")+"</td>\
-                     <td class='value_td'>"+role.min_vms+"</td>\
+                     <td class='value_td'>"+(role.min_vms || "")+"</td>\
                    </tr>";
             }
             if (role.max_vms) {
                 info_str += "<tr>\
                      <td class='key_td'>"+tr("Max VMs")+"</td>\
-                     <td class='value_td'>"+role.max_vms+"</td>\
+                     <td class='value_td'>"+(role.max_vms || "")+"</td>\
                    </tr>";
             }
             if (role.cooldown) {
                 info_str += "<tr>\
                      <td class='key_td'>"+tr("Cooldown")+"</td>\
-                     <td class='value_td'>"+role.cooldown+"</td>\
+                     <td class='value_td'>"+(role.cooldown || "")+"</td>\
                    </tr>";
             }
 
@@ -1081,11 +1108,11 @@ function updateServiceInfo(request,elem){
                     info_str += '<tr>\
                         <td>'+this.type+'</td>\
                         <td>'+this.adjust+'</td>\
-                        <td>'+this.min_adjust_step+'</td>\
-                        <td>'+(this.expression_evaluated ? this.expression_evaluated : this.expression)+'</td>\
-                        <td>'+(this.true_evals ? this.true_evals : 0 )+'/'+ this.period+'</td>\
+                        <td>'+(this.min_adjust_step || "")+'</td>\
+                        <td>'+(this.expression_evaluated || this.expression)+'</td>\
+                        <td>'+(this.true_evals || 0 )+'/'+ this.period+'</td>\
                         <td>'+this.period_number+'</td>\
-                        <td>'+this.cooldown+'</td>\
+                        <td>'+(this.cooldown || "")+'</td>\
                     </tr>'
                 });
 
@@ -1115,7 +1142,7 @@ function updateServiceInfo(request,elem){
                     info_str += '<tr>\
                         <td>'+this.type+'</td>\
                         <td>'+this.adjust+'</td>\
-                        <td>'+this.min_adjust_step+'</td>';
+                        <td>'+(this.min_adjust_step || "")+'</td>';
 
                     if (this['start_time']) {
                         info_str += '<td>start_time</td>';
