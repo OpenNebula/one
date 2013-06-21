@@ -124,8 +124,7 @@ module Straight
             # All roles can be shutdown, except the ones in these states
             if (![Role::STATE['UNDEPLOYING'],
               Role::STATE['DONE'],
-              Role::STATE['FAILED_UNDEPLOYING'],
-              Role::STATE['FAILED_DEPLOYING']].include?(role.state) )
+              Role::STATE['FAILED_UNDEPLOYING']].include?(role.state) )
 
                 running_roles[name]= role
             end

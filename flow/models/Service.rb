@@ -184,14 +184,12 @@ module OpenNebula
         end
 
         # Shutdown the service. This action is called when user wants to shutdwon
-        #   the Service or it is in FAILED_UNDEPLOYING and the user has fixed the 
-        #   problem
+        #   the Service
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def shutdown
-            if [Service::STATE['RUNNING'], 
-                    Service::STATE['FAILED_UNDEPLOYING'],
-                    Service::STATE['WARNING']].include?(self.state)
+            if ![Service::STATE['FAILED_SCALING'], 
+                    Service::STATE['DONE']].include?(self.state)
                 self.set_state(Service::STATE['UNDEPLOYING'])
                 return self.update
             else

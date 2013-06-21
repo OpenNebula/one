@@ -243,8 +243,7 @@ protected
         result = service.get_roles.select {|name, role|
             ![Role::STATE['UNDEPLOYING'],
               Role::STATE['DONE'],
-              Role::STATE['FAILED_UNDEPLOYING'],
-              Role::STATE['FAILED_DEPLOYING']].include?(role.state)
+              Role::STATE['FAILED_UNDEPLOYING']].include?(role.state)
         }
 
         # Ruby 1.8 compatibility
