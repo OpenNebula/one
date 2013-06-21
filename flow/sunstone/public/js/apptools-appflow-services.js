@@ -225,6 +225,22 @@ var Role = {
                                         null,
                                         Role.path);
     },
+    "update" : function(params){
+        request = OpenNebula.Helper.request(Role.resource, "update", params.data.id);
+
+        $.ajax({
+            url: Role.path + "/" + params.data.id,
+            type: "PUT",
+            dataType: "json",
+            data: JSON.stringify(params.data.extra_param),
+            success: function(response){
+                return roleCallback(request, response);
+            },
+            error: function(response){
+                return onError(request, OpenNebula.Error(response));
+            }
+        });
+    }
 }
 
 var generate_batch_action_params = function(){
@@ -236,6 +252,20 @@ var generate_batch_action_params = function(){
 }
 
 var role_actions = {
+    "Role.update_dialog" : {
+        type: "custom",
+        call: popUpScaleDialog
+    },
+
+    "Role.update" : {
+        type: "multiple",
+        call: Role.update,
+        callback: roleCallback,
+        elements: roleElements,
+        error: onError,
+        notify: true
+    },
+
     "Role.hold" : {
         type: "multiple",
         call: Role.hold,
@@ -824,7 +854,10 @@ function updateServiceInfo(request,elem){
         title : "Roles",
         content : '<form class="custom" id="roles_form" action="">\
           <div class="">\
-            <div class="columns six">\
+            <div class="columns three">\
+                <button id="scale_role" class="action_button secondary button small radius" href="Role.update_dialog">'+tr("Scale")+'</button>\
+              </div>\
+            <div class="columns four">\
               <div class="row">\
                     <div class="two columns">\
                         <label class="inline right" for="batch_action_period">' + tr("Period") + ':</label>\
@@ -846,7 +879,7 @@ function updateServiceInfo(request,elem){
                     </div>\
               </div>\
             </div>\
-            <div class="action_blocks columns six">\
+            <div class="action_blocks columns five">\
             </div>\
           </div>\
           <div id="roles_info" class="columns twelve">\
@@ -936,6 +969,8 @@ function updateServiceInfo(request,elem){
         insertButtonsInTab("apptools-appflow-services", "service_roles_tab", role_buttons)
         $('li#service_roles_tabTab', $("#dialog")).foundationButtons();
         $('li#service_roles_tabTab', $("#dialog")).foundationButtons();
+
+        setupScaleDialog();
 
         initCheckAllBoxes(servicerolesDataTable);
         tableCheckboxesListener(servicerolesDataTable);
@@ -1212,6 +1247,73 @@ function updateServiceInfo(request,elem){
 
 
     setupTips($("#roles_form"));
+}
+
+function setupScaleDialog(){
+    dialogs_context.append('<div id="scale_dialog"></div>');
+    $scale_dialog = $('#scale_dialog', dialogs_context);
+    var dialog = $scale_dialog;
+
+    dialog.html('<div class="panel">\
+      <h3>\
+        <small id="">'+tr("Scale")+'</small>\
+      </h3>\
+    </div>\
+    <form id="scale_form" action="">\
+          <div class="row">\
+              <div class="four columns">\
+                  <label class="inline right" for="cardinality">'+tr("Cardinality")+':</label>\
+              </div>\
+              <div class="seven columns">\
+                  <input type="text" name="cardinality" id="cardinality"/>\
+              </div>\
+              <div class="one columns">\
+              </div>\
+          </div>\
+          <div class="row">\
+              <div class="four columns">\
+                  <label class="inline right" for="force">'+tr("Force")+':</label>\
+              </div>\
+              <div class="two columns">\
+                  <input type="checkbox" name="force" id="force"/>\
+              </div>\
+              <div class="one columns pull-five">\
+                  <div class="tip"></div>\
+              </div>\
+          </div>\
+          <hr>\
+          <div class="form_buttons">\
+              <button class="button radius right success" id="" type="submit" value="">'+tr("Scale")+'</button>\
+              <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+          </div>\
+      <a class="close-reveal-modal">&#215;</a>\
+    </form></div>')
+
+    dialog.addClass("reveal-modal");
+    setupTips(dialog);
+
+    $('#scale_form',dialog).submit(function(){
+        var force = false;
+        if ($("#force", this).is(":checked")) {
+          force = true;
+        }
+
+        var obj = {
+          "force": force,
+          "cardinality": $("#cardinality", this).val(),
+        }
+
+        Sunstone.runAction('Role.update', roleElements(), obj);
+
+        $scale_dialog.trigger("reveal:close")
+        return false;
+    });
+};
+
+
+function popUpScaleDialog(){
+    $scale_dialog.reveal();
+    return false;
 }
 
 // Set the autorefresh interval for the datatable

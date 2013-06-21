@@ -97,6 +97,15 @@ post '/service/:id/role/:role_name/action' do
     af_format_response(resp)
 end
 
+
+put '/service/:id/role/:role_name' do
+    client = af_build_client
+
+    resp = client.put('/service/' + params[:id] + '/role/' + params[:role_name], request.body.read)
+
+    af_format_response(resp)
+end
+
 ##############################################################################
 # Service Template
 ##############################################################################
