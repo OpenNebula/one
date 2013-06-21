@@ -498,6 +498,12 @@ module OpenNebula
                 end
             end
 
+            # Implicit rule that scales up to maintain the min_cardinality, with
+            # no cooldown period
+            if cardinality < min_cardinality.to_i
+                return [min_cardinality.to_i - cardinality, 0]
+            end
+
             return [0, 0]
         end
 
@@ -638,8 +644,12 @@ module OpenNebula
             type    = elasticity_pol['type']
             adjust  = elasticity_pol['adjust'].to_i
 
+            # Min is a hard limit, if the current cardinality + adjustment does
+            # not reach it, the difference is added
+
             max = [cardinality(), max_cardinality.to_i].max()
-            min = [cardinality(), min_cardinality.to_i].min()
+#            min = [cardinality(), min_cardinality.to_i].min()
+            min = min_cardinality.to_i
 
             case type.upcase
             when 'CHANGE'
