@@ -590,15 +590,15 @@ function insertButtons(){
 
 //If we have defined a block of action buttons in a tab,
 //this function takes care of inserting them in the DOM.
-function insertButtonsInTab(tab_name, panel_name, panel_buttons){
+function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context){
     var buttons = panel_buttons ? panel_buttons : SunstoneCfg["tabs"][tab_name]["buttons"];
     var button_code="";
     var sel_obj=null;
     var condition=null;
 
     var context;
-    if (panel_name) {
-        context = $('li#'+panel_name+'Tab', $("#dialog"));
+    if (custom_context) {
+        context = custom_context;
     } else {
         context = $('div#'+tab_name, main_tabs_context);
     }
