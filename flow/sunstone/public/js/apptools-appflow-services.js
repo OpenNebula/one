@@ -425,14 +425,232 @@ var role_actions = {
         elements: roleElements,
         error: onError,
         notify: true
-    }
+    },
 
+    "RoleVM.deploy" : {
+        type: "multiple",
+        call: OpenNebula.VM.deploy,
+        callback: roleCallback,
+        elements: roleVMElements,
+        error: onError,
+        notify: true
+    },
+
+    "RoleVM.migrate" : {
+        type: "multiple",
+        call: OpenNebula.VM.migrate,
+        callback: roleCallback,
+        elements: roleVMElements,
+        error: onError,
+        notify: true
+    },
+
+    "RoleVM.migrate_live" : {
+        type: "multiple",
+        call: OpenNebula.VM.livemigrate,
+        callback: roleCallback,
+        elements: roleVMElements,
+        error: onError,
+        notify: true
+    },
+
+    "RoleVM.hold" : {
+        type: "multiple",
+        call: OpenNebula.VM.hold,
+        callback: roleCallback,
+        elements: roleVMElements,
+        error: onError,
+        notify: true
+    },
+
+    "RoleVM.release" : {
+        type: "multiple",
+        call: OpenNebula.VM.release,
+        callback: roleCallback,
+        elements: roleVMElements,
+        error: onError,
+        notify: true
+    },
+
+    "RoleVM.suspend" : {
+        type: "multiple",
+        call: OpenNebula.VM.suspend,
+        callback: roleCallback,
+        elements: roleVMElements,
+        error: onError,
+        notify: true
+    },
+
+    "RoleVM.resume" : {
+        type: "multiple",
+        call: OpenNebula.VM.resume,
+        callback: roleCallback,
+        elements: roleVMElements,
+        error: onError,
+        notify: true
+    },
+
+    "RoleVM.stop" : {
+        type: "multiple",
+        call: OpenNebula.VM.stop,
+        callback: roleCallback,
+        elements: roleVMElements,
+        error: onError,
+        notify: true
+    },
+
+    "RoleVM.boot" : {
+        type: "multiple",
+        call: OpenNebula.VM.restart,
+        callback: roleCallback,
+        elements: roleVMElements,
+        error: onError,
+        notify: true
+    },
+
+    "RoleVM.reboot_hard" : {
+        type: "multiple",
+        call: OpenNebula.VM.reset,
+        callback: roleCallback,
+        elements: roleVMElements,
+        error: onError,
+        notify: true
+    },
+
+    "RoleVM.delete_recreate" : {
+        type: "multiple",
+        call: OpenNebula.VM.resubmit,
+        callback: roleCallback,
+        elements: roleVMElements,
+        error: onError,
+        notify: true
+    },
+
+    "RoleVM.reboot" : {
+        type: "multiple",
+        call: OpenNebula.VM.reboot,
+        callback: roleCallback,
+        elements: roleVMElements,
+        error: onError,
+        notify: true
+    },
+
+    "RoleVM.poweroff" : {
+        type: "multiple",
+        call: OpenNebula.VM.poweroff,
+        callback: roleCallback,
+        elements: roleVMElements,
+        error: onError,
+        notify: true
+    },
+
+    "RoleVM.poweroff_hard" : {
+        type: "multiple",
+        call: OpenNebula.VM.poweroff_hard,
+        callback: roleCallback,
+        elements: roleVMElements,
+        error: onError,
+        notify: true
+    },
+
+    "RoleVM.undeploy" : {
+        type: "multiple",
+        call: OpenNebula.VM.undeploy,
+        callback: roleCallback,
+        elements: roleVMElements,
+        error: onError,
+        notify: true
+    },
+
+    "RoleVM.undeploy_hard" : {
+        type: "multiple",
+        call: OpenNebula.VM.undeploy_hard,
+        callback: roleCallback,
+        elements: roleVMElements,
+        error: onError,
+        notify: true
+    },
+
+    "RoleVM.shutdown" : {
+        type: "multiple",
+        call: OpenNebula.VM.shutdown,
+        callback: roleCallback,
+        elements: roleVMElements,
+        error: onError,
+        notify: true
+    },
+
+    "RoleVM.shutdown_hard" : {
+        type: "multiple",
+        call: OpenNebula.VM.cancel,
+        callback: roleCallback,
+        elements: roleVMElements,
+        error: onError,
+        notify: true
+    },
+
+    "RoleVM.delete" : {
+        type: "multiple",
+        call: OpenNebula.VM.del,
+        callback: deleteVMachineElement,
+        elements: roleVMElements,
+        error: onError,
+        notify: true
+    },
+
+    "RoleVM.recover" : {
+        type: "multiple",
+        call: OpenNebula.VM.recover,
+        callback: roleCallback,
+        elements: roleVMElements,
+        error: onError,
+        notify: true
+    },
+
+    "RoleVM.resched" : {
+        type: "multiple",
+        call: OpenNebula.VM.resched,
+        callback: roleCallback,
+        elements: roleVMElements,
+        error: onError,
+        notify: true
+    },
+
+    "RoleVM.unresched" : {
+        type: "multiple",
+        call: OpenNebula.VM.unresched,
+        callback: roleCallback,
+        elements: roleVMElements,
+        error: onError,
+        notify: true
+    },
+
+    "RoleVM.chown" : {
+        type: "multiple",
+        call: OpenNebula.VM.chown,
+        callback: roleCallback,
+        elements: roleVMElements,
+        error: onError,
+        notify: true
+    },
+    "RoleVM.chgrp" : {
+        type: "multiple",
+        call: OpenNebula.VM.chgrp,
+        callback: roleCallback,
+        elements: roleVMElements,
+        error: onError,
+        notify: true
+    }
 };
 
 Sunstone.addActions(role_actions);
 
 function roleElements() {
     return getSelectedNodes(servicerolesDataTable);
+};
+
+function roleVMElements() {
+    return getSelectedNodes(serviceroleVMsDataTable);
 };
 
 function roleCallback() {
@@ -541,6 +759,172 @@ var role_buttons = {
         text: tr("Delete") + ' <span class="label secondary radius">recreate</span>',
         layout: "vmsrepeat_buttons",
         tip: tr("This will delete and recreate VMs to PENDING state")
+    }
+}
+
+
+var role_vm_buttons = {
+    "RoleVM.chown" : {
+        type: "confirm_with_select",
+        text: tr("Change owner"),
+        select: users_sel,
+        layout: "user_select",
+        tip: tr("Select the new owner")+":",
+        condition: mustBeAdmin
+    },
+
+    "RoleVM.chgrp" : {
+        type: "confirm_with_select",
+        text: tr("Change group"),
+        select: groups_sel,
+        layout: "user_select",
+        tip: tr("Select the new group")+":",
+        condition: mustBeAdmin
+    },
+    "RoleVM.deploy" : {
+        type: "confirm_with_select",
+        text: tr("Deploy"),
+        tip: tr("This will deploy the selected VMs on the chosen host"),
+        layout: "vmsplanification_buttons",
+        select: hosts_sel,
+        condition: mustBeAdmin
+    },
+    "RoleVM.migrate" : {
+        type: "confirm_with_select",
+        text: tr("Migrate"),
+        tip: tr("This will migrate the selected VMs to the chosen host"),
+        layout: "vmsplanification_buttons",
+        select: hosts_sel,
+        condition: mustBeAdmin
+
+    },
+    "RoleVM.migrate_live" : {
+        type: "confirm_with_select",
+        text: tr("Migrate") + ' <span class="label secondary radius">live</span>',
+        tip: tr("This will live-migrate the selected VMs to the chosen host"),
+        layout: "vmsplanification_buttons",
+        select: hosts_sel,
+        condition: mustBeAdmin
+    },
+    "RoleVM.hold" : {
+        type: "action",
+        text: tr("Hold"),
+        tip: tr("This will hold selected pending VMs from being deployed"),
+        layout: "vmsplanification_buttons",
+    },
+    "RoleVM.release" : {
+        type: "action",
+        text: tr("Release"),
+        layout: "vmsplanification_buttons",
+        tip: tr("This will release held machines")
+    },
+    "RoleVM.suspend" : {
+        type: "action",
+        text: tr("Suspend"),
+        layout: "vmspause_buttons",
+        tip: tr("This will suspend selected machines")
+    },
+    "RoleVM.resume" : {
+        type: "action",
+        text: '<i class="icon-play"/>',
+        layout: "vmsplay_buttons",
+        tip: tr("This will resume selected VMs")
+    },
+    "RoleVM.stop" : {
+        type: "action",
+        text: tr("Stop"),
+        layout: "vmsstop_buttons",
+        tip: tr("This will stop selected VMs")
+    },
+    "RoleVM.boot" : {
+        type: "action",
+        text: tr("Boot"),
+        layout: "vmsplanification_buttons",
+        tip: tr("This will force the hypervisor boot action of VMs stuck in UNKNOWN or BOOT state")
+    },
+    "RoleVM.reboot" : {
+        type: "action",
+        text: tr("Reboot"),
+        layout: "vmsrepeat_buttons",
+        tip: tr("This will send a reboot action to running VMs")
+    },
+    "RoleVM.reboot_hard" : {
+        type: "action",
+        text: tr("Reboot") + ' <span class="label secondary radius">hard</span>',
+        layout: "vmsrepeat_buttons",
+        tip: tr("This will perform a hard reboot on selected VMs")
+    },
+    "RoleVM.poweroff" : {
+        type: "action",
+        text: tr("Power Off"),
+        layout: "vmspause_buttons",
+        tip: tr("This will send a power off signal to running VMs. They can be resumed later.")
+    },
+    "RoleVM.poweroff_hard" : {
+        type: "action",
+        text: tr("Power Off") + ' <span class="label secondary radius">hard</span>',
+        layout: "vmspause_buttons",
+        tip: tr("This will send a forced power off signal to running VMs. They can be resumed later.")
+    },
+    "RoleVM.undeploy" : {
+        type: "action",
+        text: tr("Undeploy"),
+        layout: "vmsstop_buttons",
+        tip: tr("Shuts down the given VM. The VM is saved in the system Datastore.")
+    },
+    "RoleVM.undeploy_hard" : {
+        type: "action",
+        text: tr("Undeploy") + ' <span class="label secondary radius">hard</span>',
+        layout: "vmsstop_buttons",
+        tip: tr("Shuts down the given VM. The VM is saved in the system Datastore.")
+    },
+    "RoleVM.shutdown" : {
+        type: "confirm",
+        text: tr("Shutdown"),
+        layout: "vmsdelete_buttons",
+        tip: tr("This will initiate the shutdown process in the selected VMs")
+    },
+    "RoleVM.shutdown_hard" : {
+        type: "confirm",
+        text: tr("Shutdown") + ' <span class="label secondary radius">hard</span>',
+        layout: "vmsdelete_buttons",
+        tip: tr("This will initiate the shutdown-hard (forced) process in the selected VMs")
+    },
+
+    "RoleVM.delete" : {
+        type: "confirm",
+        text: tr("Delete"),
+        layout: "vmsdelete_buttons",
+        tip: tr("This will delete the selected VMs from the database")
+    },
+    "RoleVM.delete_recreate" : {
+        type: "confirm",
+        text: tr("Delete") + ' <span class="label secondary radius">recreate</span>',
+        layout: "vmsrepeat_buttons",
+        tip: tr("This will delete and recreate VMs to PENDING state")
+    },
+    "RoleVM.resched" : {
+        type: "action",
+        text: tr("Reschedule"),
+        layout: "vmsplanification_buttons",
+        tip: tr("This will reschedule selected VMs")
+    },
+    "RoleVM.unresched" : {
+        type: "action",
+        text: tr("Un-Reschedule"),
+        layout: "vmsplanification_buttons",
+        tip: tr("This will cancel the rescheduling for the selected VMs")
+    },
+    "RoleVM.recover" : {
+        type: "confirm_with_select",
+        text: tr("Recover"),
+        layout: "vmsplanification_buttons",
+        select: function(){ return '<option value="success">' + tr("success") + '</option>\
+                 <option value="failure">' + tr("failure") + '</option>'},
+        tip: tr("Recovers a stuck VM that is waiting for a driver operation. \
+                The recovery may be done by failing or succeeding the pending operation. \
+                YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation \
+                was successful or not.")
     }
 }
 
@@ -805,7 +1189,7 @@ function updateServiceVMInfo(vmachine_list){
         vmachine_list_array.push( vMachineElementArray(this));
     });
 
-    updateView(vmachine_list_array, servicevmsDataTable);
+    updateView(vmachine_list_array, serviceroleVMsDataTable);
 };
 
 // Callback to update the information panel tabs and pop it up
@@ -859,7 +1243,7 @@ function updateServiceInfo(request,elem){
     var roles_tab = {
         title : "Roles",
         content : '<form class="custom" id="roles_form" action="">\
-          <div class="">\
+          <div id="role_actions">\
             <div class="action_blocks columns eight">\
             </div>\
             <div class="columns four">\
@@ -969,17 +1353,17 @@ function updateServiceInfo(request,elem){
 
         updateView(role_elements ,servicerolesDataTable);
 
-        insertButtonsInTab("apptools-appflow-services", "service_roles_tab", role_buttons)
-        $('li#service_roles_tabTab', $("#dialog")).foundationButtons();
-        $('li#service_roles_tabTab', $("#dialog")).foundationButtons();
+        insertButtonsInTab("apptools-appflow-services", "service_roles_tab", role_buttons, $('#role_actions', $("#dialog")))
+        $('#role_actions', $("#dialog")).foundationButtons();
+        $('#role_actions', $("#dialog")).foundationButtons();
 
         setupScaleDialog();
 
         $('tbody input.check_item',servicerolesDataTable).die();
         $('tbody tr',servicerolesDataTable).die();
 
-        initCheckAllBoxes(servicerolesDataTable);
-        tableCheckboxesListener(servicerolesDataTable);
+        initCheckAllBoxes(servicerolesDataTable, $('#role_actions', $("#dialog")));
+        tableCheckboxesListener(servicerolesDataTable, $('#role_actions', $("#dialog")));
 
         $('tbody input.check_item',servicerolesDataTable).live("change",function(){
             if($(this).is(":checked"))
@@ -1046,9 +1430,10 @@ function updateServiceInfo(request,elem){
 
         var generate_role_div = function(role_index) {
             var role = roles[role_index]
-            var info_str = '<fieldset>\
+            var info_str = '<form>\
+                <fieldset>\
                 <legend>'+tr("Role")+' - '+role.name+'</legend>\
-                <div class="">\
+                <div id="role_vms_actions">\
                     <div class="action_blocks columns twelve">\
                     </div>\
                 </div>\
@@ -1057,7 +1442,7 @@ function updateServiceInfo(request,elem){
                     <table id="datatable_service_vms_'+role.name+'" class="table datatable twelve">\
                       <thead>\
                         <tr>\
-                          <th></th>\
+                          <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
                           <th>'+tr("ID")+'</th>\
                           <th>'+tr("Owner")+'</th>\
                           <th>'+tr("Group")+'</th>\
@@ -1199,12 +1584,14 @@ function updateServiceInfo(request,elem){
             }
 
             info_str += '</div>\
-                </fieldset>'
+                </fieldset>\
+                    </form>'
 
             context.html(info_str);
 
+
             var vms = [];
-            var servicevmsDataTable = $('#datatable_service_vms_'+role.name, context).dataTable({
+            serviceroleVMsDataTable = $('#datatable_service_vms_'+role.name, context).dataTable({
                 "aoColumnDefs": [
                     { "bSortable": false, "aTargets": [0,6,7,9,11] },
                     { "sWidth": "35px", "aTargets": [0] },
@@ -1216,12 +1603,20 @@ function updateServiceInfo(request,elem){
                 $.each(role.nodes, function(){
                     var vm_info = this.vm_info;
                     if (vm_info) {
-                      vms.push([""].concat(vMachineElementArray(vm_info).slice(1)));
+                      vms.push(vMachineElementArray(vm_info));
                     }
                 });
 
-                updateView(vms, servicevmsDataTable);
+                updateView(vms, serviceroleVMsDataTable);
             }
+
+
+            insertButtonsInTab("apptools-appflow-services", "service_roles_tab", role_vm_buttons, $('div#role_vms_actions', $("#dialog")))
+            $('div#role_vms_actions', $("#dialog")).foundationButtons();
+            $('div#role_vms_actions', $("#dialog")).foundationButtons();
+
+            initCheckAllBoxes(serviceroleVMsDataTable, $('div#role_vms_actions', $("#dialog")));
+            tableCheckboxesListener(serviceroleVMsDataTable, $('div#role_vms_actions', $("#dialog")));
 
             //insertButtonsInTab("apptools-appflow-services", "service_roles_tab", role_buttons)
             //$('li#service_roles_tabTab', $("#dialog")).foundationButtons();
@@ -1232,8 +1627,8 @@ function updateServiceInfo(request,elem){
     }
 
 
-    //$('tbody tr',servicevmsDataTable).click(function(e){
-    //    var aData = servicevmsDataTable.fnGetData(this);
+    //$('tbody tr',serviceroleVMsDataTable).click(function(e){
+    //    var aData = serviceroleVMsDataTable.fnGetData(this);
     //    var id = aData[1];
     //    if (!id) return true;
     //    if ($(e.target).is('img')) return true;
