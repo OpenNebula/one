@@ -396,8 +396,8 @@ function prettyPrintRowJSON(field,value,padding,weight, border_bottom,padding_to
 function initCheckAllBoxes(datatable, custom_context){
 
     //small css hack
-    $('input.check_all').css({"border":"2px"});
-    $('input.check_all').live("change",function(){
+    $('input.check_all', datatable).css({"border":"2px"});
+    $('input.check_all', datatable).live("change",function(){
         var table = $(this).closest('.dataTables_wrapper');
         var checked = $(this).attr('checked');
         if (checked) { //check all
