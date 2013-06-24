@@ -1615,8 +1615,50 @@ function updateServiceInfo(request,elem){
             $('div#role_vms_actions', $("#dialog")).foundationButtons();
             $('div#role_vms_actions', $("#dialog")).foundationButtons();
 
+            $('tbody input.check_item',serviceroleVMsDataTable).die();
+            $('tbody tr',serviceroleVMsDataTable).die();
+
             initCheckAllBoxes(serviceroleVMsDataTable, $('div#role_vms_actions', $("#dialog")));
             tableCheckboxesListener(serviceroleVMsDataTable, $('div#role_vms_actions', $("#dialog")));
+
+            $('tbody input.check_item',serviceroleVMsDataTable).live("change",function(){
+                if($(this).is(":checked"))
+                {
+                    $(this).parents('tr').children().each(function(){$(this).addClass('markrowchecked');});
+                }
+                else
+                {
+                    $(this).parents('tr').children().removeClass('markrowchecked');
+                }
+            });
+
+            $('tbody tr',serviceroleVMsDataTable).live("click",function(e){
+                if ($(e.target).is('input') ||
+                    $(e.target).is('select') ||
+                    $(e.target).is('option')) return true;
+
+                if (e.ctrlKey || e.metaKey || $(e.target).is('input'))
+                {
+                    $('.check_item',this).trigger('click');
+                }
+                else
+                {
+                    $('tbody input.check_item',$(this).parents('table')).removeAttr('checked');
+                    $('.check_item',this).click();
+                    $('td',$(this).parents('table')).removeClass('markrowchecked');
+
+                    if(last_selected_row) {
+                        last_selected_row.children().each(function(){
+                            $(this).removeClass('markrowchecked');
+                        });
+                    }
+
+                    last_selected_row = $(this);
+                    $(this).children().each(function(){
+                        $(this).addClass('markrowchecked');
+                    });
+                }
+            });
 
             //insertButtonsInTab("apptools-appflow-services", "service_roles_tab", role_buttons)
             //$('li#service_roles_tabTab', $("#dialog")).foundationButtons();
