@@ -134,24 +134,17 @@ var Role = {
                                         generate_batch_action_params(),
                                         Role.path);
     },
-    "restart" : function(params){
+    "boot" : function(params){
         OpenNebula.Action.simple_action(params,
                                         Role.resource,
-                                        "restart",
+                                        "boot",
                                         generate_batch_action_params(),
                                         Role.path);
     },
-    "reset" : function(params){
+    "delete_recreate" : function(params){
         OpenNebula.Action.simple_action(params,
                                         Role.resource,
-                                        "reset",
-                                        generate_batch_action_params(),
-                                        Role.path);
-    },
-    "resubmit" : function(params){
-        OpenNebula.Action.simple_action(params,
-                                        Role.resource,
-                                        "resubmit",
+                                        "delete-recreate",
                                         generate_batch_action_params(),
                                         Role.path);
     },
@@ -159,6 +152,13 @@ var Role = {
         OpenNebula.Action.simple_action(params,
                                         Role.resource,
                                         "reboot",
+                                        generate_batch_action_params(),
+                                        Role.path);
+    },
+    "reboot_hard" : function(params){
+        OpenNebula.Action.simple_action(params,
+                                        Role.resource,
+                                        "reboot-hard",
                                         generate_batch_action_params(),
                                         Role.path);
     },
@@ -172,7 +172,7 @@ var Role = {
     "poweroff_hard" : function(params){
         OpenNebula.Action.simple_action(params,
                                         Role.resource,
-                                        "poweroff_hard",
+                                        "poweroff-hard",
                                         generate_batch_action_params(),
                                         Role.path);
     },
@@ -186,14 +186,14 @@ var Role = {
     "undeploy_hard" : function(params){
         OpenNebula.Action.simple_action(params,
                                         Role.resource,
-                                        "undeploy_hard",
+                                        "undeploy-hard",
                                         generate_batch_action_params(),
                                         Role.path);
     },
     "snapshot_create" : function(params){
         OpenNebula.Action.simple_action(params,
                                         Role.resource,
-                                        "snapshot_create",
+                                        "snapshot-create",
                                         generate_batch_action_params(),
                                         Role.path);
     },
@@ -207,7 +207,7 @@ var Role = {
     "cancel" : function(params){
         OpenNebula.Action.simple_action(params,
                                         Role.resource,
-                                        "cancel",
+                                        "shutdown-hard",
                                         generate_batch_action_params(),
                                         Role.path);
     },
@@ -313,7 +313,7 @@ var role_actions = {
 
     "Role.boot" : {
         type: "multiple",
-        call: Role.restart,
+        call: Role.boot,
         callback: roleCallback,
         elements: roleElements,
         error: onError,
@@ -322,7 +322,7 @@ var role_actions = {
 
     "Role.reboot_hard" : {
         type: "multiple",
-        call: Role.reset,
+        call: Role.reboot_hard,
         callback: roleCallback,
         elements: roleElements,
         error: onError,
@@ -331,7 +331,7 @@ var role_actions = {
 
     "Role.delete_recreate" : {
         type: "multiple",
-        call: Role.resubmit,
+        call: Role.delete_recreate,
         callback: roleCallback,
         elements: roleElements,
         error: onError,
@@ -508,36 +508,36 @@ var role_buttons = {
     },
     "Role.undeploy" : {
         type: "action",
-        text: tr("Undeploy Off"),
+        text: tr("Undeploy"),
         layout: "vmsstop_buttons",
         tip: tr("Shuts down the given VM. The VM is saved in the system Datastore.")
     },
     "Role.undeploy_hard" : {
         type: "action",
-        text: tr("Undeploy Off") + ' <span class="label secondary radius">hard</span>',
+        text: tr("Undeploy") + ' <span class="label secondary radius">hard</span>',
         layout: "vmsstop_buttons",
         tip: tr("Shuts down the given VM. The VM is saved in the system Datastore.")
     },
     "Role.shutdown" : {
-        type: "confirm",
+        type: "action",
         text: tr("Shutdown"),
         layout: "vmsdelete_buttons",
         tip: tr("This will initiate the shutdown process in the selected VMs")
     },
     "Role.shutdown_hard" : {
-        type: "confirm",
+        type: "action",
         text: tr("Shutdown") + ' <span class="label secondary radius">hard</span>',
         layout: "vmsdelete_buttons",
         tip: tr("This will initiate the shutdown-hard (forced) process in the selected VMs")
     },
     "Role.delete" : {
-        type: "confirm",
+        type: "action",
         text: tr("Delete"),
         layout: "vmsdelete_buttons",
         tip: tr("This will delete the selected VMs from the database")
     },
     "Role.delete_recreate" : {
-        type: "confirm",
+        type: "action",
         text: tr("Delete") + ' <span class="label secondary radius">recreate</span>',
         layout: "vmsrepeat_buttons",
         tip: tr("This will delete and recreate VMs to PENDING state")
@@ -974,6 +974,9 @@ function updateServiceInfo(request,elem){
         $('li#service_roles_tabTab', $("#dialog")).foundationButtons();
 
         setupScaleDialog();
+
+        $('tbody input.check_item',servicerolesDataTable).die();
+        $('tbody tr',servicerolesDataTable).die();
 
         initCheckAllBoxes(servicerolesDataTable);
         tableCheckboxesListener(servicerolesDataTable);
