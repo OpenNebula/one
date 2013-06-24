@@ -440,6 +440,12 @@ function roleCallback() {
 }
 
 var role_buttons = {
+    "Role.update_dialog" : {
+        type: "action",
+        text: tr("Scale"),
+        tip: tr("This will hold selected pending VMs from being deployed"),
+        layout: "create"
+    },
     "Role.hold" : {
         type: "action",
         text: tr("Hold"),
@@ -854,9 +860,8 @@ function updateServiceInfo(request,elem){
         title : "Roles",
         content : '<form class="custom" id="roles_form" action="">\
           <div class="">\
-            <div class="columns three">\
-                <button id="scale_role" class="action_button secondary button small radius" href="Role.update_dialog">'+tr("Scale")+'</button>\
-              </div>\
+            <div class="action_blocks columns eight">\
+            </div>\
             <div class="columns four">\
               <div class="row">\
                     <div class="two columns">\
@@ -878,8 +883,6 @@ function updateServiceInfo(request,elem){
                         <div class="tip">'+ tr("VMs per period") +'</div>\
                     </div>\
               </div>\
-            </div>\
-            <div class="action_blocks columns five">\
             </div>\
           </div>\
           <div id="roles_info" class="columns twelve">\
@@ -1003,6 +1006,8 @@ function updateServiceInfo(request,elem){
 
                 var role_index = servicerolesDataTable.fnGetPosition(this);
 
+                generate_role_div(role_index);
+
                 if ($("#service_info_panel_resize_75").attr('visibility') != 'hidden') {
                     $("#service_info_panel_resize_75").click();
                 }
@@ -1021,8 +1026,6 @@ function updateServiceInfo(request,elem){
                 $(this).children().each(function(){
                     $(this).addClass('markrowselected');
                 });
-
-                generate_role_div(role_index);
             }
 
             //if($(this).is(":checked"))
