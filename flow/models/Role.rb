@@ -252,15 +252,19 @@ module OpenNebula
                 end
 
                 Log.debug LOG_COMP, "Role #{name} : Instantiate success, VM ID #{vm_id}", @service.id()
+                node = {
+                    'deploy_id' => vm_id,
+                }
 
                 # vm.info is not performed, this creates an empty VM xml
                 # containing only the ID
                 vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
-
-                node = {
-                    'deploy_id' => vm_id,
-                    'vm_info' => vm.to_hash
-                }
+                rc = vm.info
+                if OpenNebula.is_error?(rc)
+                    node['vm_info'] = nil
+                else
+                    node['vm_info'] = vm.to_hash
+                end
 
                 if scale_up
                     node['scale_up'] = '1'
