@@ -126,6 +126,7 @@ add_view "    apptools-appflow-services:" \
             service_log_tab: true
         panel_tabs_actions:
             service_roles_tab:
+                Role.scale: true
                 Role.hold: true
                 Role.release: true
                 Role.suspend: true
@@ -140,6 +141,30 @@ add_view "    apptools-appflow-services:" \
                 Role.shutdown_hard: true
                 Role.delete: true
                 Role.delete_recreate: true
+                RoleVM.chown: true
+                RoleVM.chgrp: true
+                RoleVM.deploy: true
+                RoleVM.migrate: true
+                RoleVM.migrate_live: true
+                RoleVM.hold: true
+                RoleVM.release: true
+                RoleVM.suspend: true
+                RoleVM.resume: true
+                RoleVM.stop: true
+                RoleVM.boot: true
+                RoleVM.reboot: true
+                RoleVM.reboot_hard: true
+                RoleVM.poweroff: true
+                RoleVM.poweroff_hard: true
+                RoleVM.undeploy: true
+                RoleVM.undeploy_hard: true
+                RoleVM.shutdown: true
+                RoleVM.shutdown_hard: true
+                RoleVM.delete: true
+                RoleVM.delete_recreate: true
+                RoleVM.resched: true
+                RoleVM.unresched: true
+                RoleVM.recover: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID
