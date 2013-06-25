@@ -1103,10 +1103,56 @@ function setupCreateServiceTemplateDialog(){
     add_role_tab(roles_index);
 }
 
+var removeEmptyObjects = function(obj){
+    for (elem in obj){
+        var remove = false;
+        var value = obj[elem];
+        if (value instanceof Array)
+        {
+            if (value.length == 0)
+                remove = true;
+            else if (value.length > 0)
+            {
+              value = jQuery.grep(value, function (n) {
+                var obj_length = 0;
+                for (e in n)
+                    obj_length += 1;
+
+                if (obj_length == 0)
+                    return false;
+
+                return true;
+               });
+
+              if (value.length == 0)
+                remove = true;
+            }
+        }
+        else if (value instanceof Object)
+        {
+            var obj_length = 0;
+            for (e in value)
+                obj_length += 1;
+            if (obj_length == 0)
+                remove = true;
+        }
+        else
+        {
+            value = String(value);
+            if (value.length == 0)
+                remove = true;
+        }
+
+        if (remove)
+            delete obj[elem];
+    }
+    return obj;
+}
+
 function generate_json_service_template_from_form() {
     var name = $('input[name="service_name"]', $create_service_template_dialog).val();
     var deployment = $('select[name="deployment"]', $create_service_template_dialog).val();
-    var shutdown_action = $('select[name="shutdown_action_service"]', $create_service_template_dialog).val();
+    var shutdown_action_service = $('select[name="shutdown_action_service"]', $create_service_template_dialog).val();
 
     var roles = [];
 
@@ -1143,6 +1189,7 @@ function generate_json_service_template_from_form() {
                 role['cooldown'] = cooldown
             }
 
+            role = removeEmptyObjects(role);
             role['elasticity_policies'] = [];
             $("#elasticity_policies_tbody tr", this).each(function(){
                 var policy = {};
@@ -1155,7 +1202,7 @@ function generate_json_service_template_from_form() {
                 policy['cooldown']  = $("#cooldown" ,this).val();
 
                 // TODO remove empty policies
-                role['elasticity_policies'].push(policy);
+                role['elasticity_policies'].push(removeEmptyObjects(policy));
             });
 
             role['scheduled_policies'] = [];
@@ -1169,7 +1216,7 @@ function generate_json_service_template_from_form() {
                 policy[time_format] = $("#time" ,this).val();
 
                 // TODO remove empty policies
-                role['scheduled_policies'].push(policy);
+                role['scheduled_policies'].push(removeEmptyObjects(policy));
             });
 
             roles.push(role);
@@ -1179,8 +1226,11 @@ function generate_json_service_template_from_form() {
     var obj = {
         name: name,
         deployment: deployment,
-        shutdown_action: shutdown_action,
         roles: roles
+    }
+
+    if (shutdown_action_service){
+        obj['shutdown_action'] = shutdown_action_service
     }
 
     return obj;
