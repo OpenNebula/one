@@ -1439,16 +1439,38 @@ function updateServiceInfo(request,elem){
 
         var generate_role_div = function(role_index) {
             var role = roles[role_index]
-            var info_str = '<form>\
+            var info_str = "<form>\
                 <fieldset>\
-                <legend>'+tr("Role")+' - '+role.name+'</legend>\
+                <legend>"+tr("Role")+" - "+role.name+"</legend>\
+                <div class='twelve columns'>\
+                    <table class='twelve datatable extended_table policies_table'>\
+                        <thead>\
+                            <tr><th colspan='8'>"+tr("Information")+"</th></tr>\
+                        </thead>\
+                        <tbody>\
+                            <tr>\
+                             <td class='key_td'>"+tr("Shutdown action")+"</td>\
+                             <td class='value_td'>"+(role.shutdown_action || "-")+"</td>\
+                             <td class='key_td'>"+tr("Cooldown")+"</td>\
+                             <td class='value_td'>"+(role.cooldown || "-")+"</td>\
+                             <td class='key_td'>"+tr("Min VMs")+"</td>\
+                             <td class='value_td'>"+(role.min_vms || "-")+"</td>\
+                             <td class='key_td'>"+tr("Max VMs")+"</td>\
+                             <td class='value_td'>"+(role.max_vms || "-")+"</td>\
+                           </tr>\
+                        </tbody>\
+                    </table>\
+                 </div>";
+
+            info_str += '<fieldset>\
+                <legend>'+tr("Virtual Machines")+'</legend>\
                 <div id="role_vms_actions">\
                     <div class="action_blocks columns twelve">\
                     </div>\
                 </div>\
                 <div class="columns twelve">\
                     <br>\
-                    <table id="datatable_service_vms_'+role.name+'" class="table datatable twelve">\
+                    <table id="datatable_service_vms_'+role.name+'" class="table datatable twelve ">\
                       <thead>\
                         <tr>\
                           <th></th>\
@@ -1469,43 +1491,13 @@ function updateServiceInfo(request,elem){
                       <tbody>\
                       </tbody>\
                     </table>\
-                </div>';
+                </div>\
+                </fieldset>';
 
-            info_str += "<div class='twelve columns'>\
-                <table class='twelve datatable extended_table'>\
-                    <thead>\
-                        <tr><th colspan='6'>"+tr("Information")+"</th></tr>\
-                    </thead>\
-                    <tbody>";
-
-            info_str += "<tr>\
-                 <td class='key_td'>"+tr("State")+"</td>\
-                 <td class='value_td'>"+Role.state(role.state)+"</td>\
-                 <td class='key_td'>"+tr("Shutdown action")+"</td>\
-                 <td class='value_td'>"+(role.shutdown_action || "")+"</td>\
-                 <td class='key_td'>"+tr("Cooldown")+"</td>\
-                 <td class='value_td'>"+(role.cooldown || "")+"</td>\
-               </tr>";
-
-
-            info_str += "<tr>\
-                 <td class='key_td'>"+tr("Cardinality")+"</td>\
-                 <td class='value_td'>"+role.cardinality+"</td>\
-                 <td class='key_td'>"+tr("Min VMs")+"</td>\
-                 <td class='value_td'>"+(role.min_vms || "")+"</td>\
-                 <td class='key_td'>"+tr("Max VMs")+"</td>\
-                 <td class='value_td'>"+(role.max_vms || "")+"</td>\
-               </tr>";
-
-            info_str += "</tbody>\
-                </table>";
-
-
-            info_str += "</div>\
-            <div class='twelve columns'>";
+            info_str += "<div class='twelve columns'><br>";
 
             if (role.elasticity_policies && role.elasticity_policies.length > 0) {
-                info_str += '<table class="twelve datatable extended_table">\
+                info_str += '<table class="twelve datatable extended_table policies_table">\
                     <thead style="background:#dfdfdf">\
                       <tr>\
                         <th colspan="7">'+tr("Elasticity policies")+'</th>\
@@ -1528,11 +1520,11 @@ function updateServiceInfo(request,elem){
                     info_str += '<tr>\
                         <td>'+this.type+'</td>\
                         <td>'+this.adjust+'</td>\
-                        <td>'+(this.min_adjust_step || "")+'</td>\
+                        <td>'+(this.min_adjust_step || "-")+'</td>\
                         <td>'+(this.expression_evaluated || this.expression)+'</td>\
                         <td>'+(this.true_evals || 0 )+'/'+ this.period+'</td>\
-                        <td>'+this.period_number+'</td>\
-                        <td>'+(this.cooldown || "")+'</td>\
+                        <td>'+(this.period_number || "-")+'</td>\
+                        <td>'+(this.cooldown || "-")+'</td>\
                     </tr>'
                 });
 
@@ -1541,7 +1533,7 @@ function updateServiceInfo(request,elem){
             }
 
             if (role.scheduled_policies && role.scheduled_policies.length > 0) {
-                info_str += '<table class="twelve datatable extended_table">\
+                info_str += '<table class="twelve datatable extended_table policies_table">\
                     <thead style="background:#dfdfdf">\
                       <tr>\
                         <th colspan="5">'+tr("Scheduled policies")+'</th>\
@@ -1587,9 +1579,9 @@ function updateServiceInfo(request,elem){
             var vms = [];
             serviceroleVMsDataTable = $('#datatable_service_vms_'+role.name, context).dataTable({
                 "aoColumnDefs": [
-                    { "bSortable": false, "aTargets": [0,6,7,9,11] },
-                    { "sWidth": "35px", "aTargets": [0] },
-                    { "bVisible": false, "aTargets": [6,7,10]}
+                    { "bSortable": false, "aTargets": [0,1,7,8,10,12] },
+                    { "sWidth": "35px", "aTargets": [0,1] },
+                    { "bVisible": false, "aTargets": [7,8,11]}
                 ]
             });
 
