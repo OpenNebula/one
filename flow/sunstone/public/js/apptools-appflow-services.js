@@ -1442,6 +1442,7 @@ function updateServiceInfo(request,elem){
                     <table id="datatable_service_vms_'+role.name+'" class="table datatable twelve">\
                       <thead>\
                         <tr>\
+                          <th></th>\
                           <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
                           <th>'+tr("ID")+'</th>\
                           <th>'+tr("Owner")+'</th>\
@@ -1603,7 +1604,16 @@ function updateServiceInfo(request,elem){
                 $.each(role.nodes, function(){
                     var vm_info = this.vm_info;
                     if (vm_info) {
-                      vms.push(vMachineElementArray(vm_info));
+                        var info = [];
+                        if (this.scale_up) {
+                            info.push("<i class='icon-arrow-up'/>");
+                        } else if (this.disposed) {
+                            info.push("<i class='icon-arrow-down'/>");
+                        } else {
+                            info.push("");
+                        }
+
+                      vms.push(info.concat(vMachineElementArray(vm_info)));
                     }
                 });
 
