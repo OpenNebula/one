@@ -13,6 +13,10 @@
 // See the License for the specific language governing permissions and      //
 // limitations under the License.                                           //
 //------------------------------------------------------------------------- //
+var selected_row_role_id;
+var last_selected_row_role;
+var last_selected_row_rolevm;
+var checked_row_rolevm_ids = [];
 
 var Service = {
     "resource" : 'DOCUMENT',
@@ -1323,8 +1327,17 @@ function updateServiceInfo(request,elem){
     setPermissionsTable(elem_info,'');
 
     $("#service_info_panel_refresh", $("#service_info_panel")).click(function(){
-      $(this).html(spinner);
-      Sunstone.runAction('Service.showinfo', elem_info.ID);
+        $(this).html(spinner);
+        selected_row_role_id = $($('td.markrowselected',servicerolesDataTable.fnGetNodes())[1]).html();
+        checked_row_rolevm_ids = new Array();
+
+        $.each($(serviceroleVMsDataTable.fnGetNodes()), function(){
+           if($('td.markrowchecked',this).length!=0)
+           {
+             checked_row_rolevm_ids.push($($('td',$(this))[1]).html());
+           }
+        });
+        Sunstone.runAction('Service.showinfo', elem_info.ID);
     })
 
     var roles = elem_info.TEMPLATE.BODY.roles
@@ -1395,21 +1408,17 @@ function updateServiceInfo(request,elem){
 
                 generate_role_div(role_index);
 
-                if ($("#service_info_panel_resize_75").attr('visibility') != 'hidden') {
-                    $("#service_info_panel_resize_75").click();
-                }
-
                 $('tbody input.check_item',$(this).parents('table')).removeAttr('checked');
                 $('.check_item',this).click();
                 $('td',$(this).parents('table')).removeClass('markrowchecked');
 
-                if(last_selected_row) {
-                    last_selected_row.children().each(function(){
+                if(last_selected_row_role) {
+                    last_selected_row_role.children().each(function(){
                         $(this).removeClass('markrowselected');
                     });
                 }
 
-                last_selected_row = $(this);
+                last_selected_row_role = $(this);
                 $(this).children().each(function(){
                     $(this).addClass('markrowselected');
                 });
@@ -1462,54 +1471,38 @@ function updateServiceInfo(request,elem){
                     </table>\
                 </div>';
 
-            info_str += "<div class='three columns'>\
+            info_str += "<div class='twelve columns'>\
                 <table class='twelve datatable extended_table'>\
                     <thead>\
-                        <tr><th colspan='2'>"+tr("Information")+"</th></tr>\
+                        <tr><th colspan='6'>"+tr("Information")+"</th></tr>\
                     </thead>\
                     <tbody>";
 
             info_str += "<tr>\
                  <td class='key_td'>"+tr("State")+"</td>\
                  <td class='value_td'>"+Role.state(role.state)+"</td>\
+                 <td class='key_td'>"+tr("Shutdown action")+"</td>\
+                 <td class='value_td'>"+(role.shutdown_action || "")+"</td>\
+                 <td class='key_td'>"+tr("Cooldown")+"</td>\
+                 <td class='value_td'>"+(role.cooldown || "")+"</td>\
                </tr>";
+
+
             info_str += "<tr>\
                  <td class='key_td'>"+tr("Cardinality")+"</td>\
                  <td class='value_td'>"+role.cardinality+"</td>\
+                 <td class='key_td'>"+tr("Min VMs")+"</td>\
+                 <td class='value_td'>"+(role.min_vms || "")+"</td>\
+                 <td class='key_td'>"+tr("Max VMs")+"</td>\
+                 <td class='value_td'>"+(role.max_vms || "")+"</td>\
                </tr>";
-
-
-            if (role.shutdown_action) {
-                info_str += "<tr>\
-                     <td class='key_td'>"+tr("Shutdown action")+"</td>\
-                     <td class='value_td'>"+(role.shutdown_action || "")+"</td>\
-                   </tr>";
-            }
-            if (role.min_vms) {
-                info_str += "<tr>\
-                     <td class='key_td'>"+tr("Min VMs")+"</td>\
-                     <td class='value_td'>"+(role.min_vms || "")+"</td>\
-                   </tr>";
-            }
-            if (role.max_vms) {
-                info_str += "<tr>\
-                     <td class='key_td'>"+tr("Max VMs")+"</td>\
-                     <td class='value_td'>"+(role.max_vms || "")+"</td>\
-                   </tr>";
-            }
-            if (role.cooldown) {
-                info_str += "<tr>\
-                     <td class='key_td'>"+tr("Cooldown")+"</td>\
-                     <td class='value_td'>"+(role.cooldown || "")+"</td>\
-                   </tr>";
-            }
 
             info_str += "</tbody>\
                 </table>";
 
 
             info_str += "</div>\
-            <div class='nine columns'>";
+            <div class='twelve columns'>";
 
             if (role.elasticity_policies && role.elasticity_policies.length > 0) {
                 info_str += '<table class="twelve datatable extended_table">\
@@ -1657,24 +1650,44 @@ function updateServiceInfo(request,elem){
                     $('.check_item',this).click();
                     $('td',$(this).parents('table')).removeClass('markrowchecked');
 
-                    if(last_selected_row) {
-                        last_selected_row.children().each(function(){
+                    if(last_selected_row_rolevm) {
+                        last_selected_row_rolevm.children().each(function(){
                             $(this).removeClass('markrowchecked');
                         });
                     }
 
-                    last_selected_row = $(this);
+                    last_selected_row_rolevm = $(this);
                     $(this).children().each(function(){
                         $(this).addClass('markrowchecked');
                     });
                 }
             });
 
+
             //insertButtonsInTab("apptools-appflow-services", "service_roles_tab", role_buttons)
             //$('li#service_roles_tabTab', $("#dialog")).foundationButtons();
             //$('li#service_roles_tabTab', $("#dialog")).foundationButtons();
         }
 
+        if(selected_row_role_id) {
+            $.each($(servicerolesDataTable.fnGetNodes()),function(){
+                if($($('td',this)[1]).html()==selected_row_role_id) {
+                    $('td',this)[2].click();
+                }
+            });
+        }
+
+        if(checked_row_rolevm_ids.length!=0) {
+            $.each($(serviceroleVMsDataTable.fnGetNodes()),function(){
+                var current_id = $($('td',this)[1]).html();
+                if (current_id) {
+                    if(jQuery.inArray(current_id, checked_row_rolevm_ids)!=-1) {
+                        $('input.check_item',this).first().click();
+                        $('td',this).addClass('markrowchecked');
+                    }
+                }
+            });
+        }
         //setupActionButtons($('li#service_roles_tabTab', $("#dialog")));
     }
 
