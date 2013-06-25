@@ -13,6 +13,8 @@
 // See the License for the specific language governing permissions and      //
 // limitations under the License.                                           //
 //------------------------------------------------------------------------- //
+var selected_row_template_role_id;
+var last_selected_row_template_role;
 
 var ServiceTemplate = {
     "resource" : 'DOCUMENT',
@@ -692,7 +694,7 @@ function updateServiceTemplateInfo(request,elem){
         title : "Roles",
         content : '<form class="custom" id="roles_form" action="">\
           <div id="roles_info" class="columns twelve">\
-            <table id="datatable_service_roles" class="table twelve">\
+            <table id="datatable_service_template_roles" class="table twelve">\
               <thead>\
                 <tr>\
                   <th>'+tr("Name")+'</th>\
@@ -717,13 +719,14 @@ function updateServiceTemplateInfo(request,elem){
     setPermissionsTable(elem_info,'');
 
     $("#service_template_info_panel_refresh", $("#service_template_info_panel")).click(function(){
-      $(this).html(spinner);
-      Sunstone.runAction('ServiceTemplate.showinfo', elem_info.ID);
-    });
+        $(this).html(spinner);
+        selected_row_template_role_id = $($('td.markrowselected',serviceTemplaterolesDataTable.fnGetNodes())[1]).html();
+        Sunstone.runAction('ServiceTemplate.showinfo', elem_info.ID);
+    })
 
     var roles = elem_info.TEMPLATE.BODY.roles
     if (roles && roles.length) {
-        servicerolesDataTable = $('#datatable_service_roles').dataTable({
+        serviceTemplaterolesDataTable = $('#datatable_service_template_roles').dataTable({
             "bSortClasses": false,
             "bAutoWidth":false,
             "aoColumnDefs": [
@@ -742,49 +745,61 @@ function updateServiceTemplateInfo(request,elem){
                 this.parents ? this.parents.join(', ') : '-'
             ])
 
-            var info_str = "<fieldset>\
-                <legend>"+tr("Role")+" - "+this.name+"</legend>";
+            updateView(role_elements ,serviceTemplaterolesDataTable);
 
-            info_str += "<div class='three columns'>\
-                <table class='twelve datatable extended_table'>\
+            $('tbody tr',serviceTemplaterolesDataTable).live("click",function(e){
+                var aData = serviceTemplaterolesDataTable.fnGetData(this);
+                var role_name = $(aData[0]).val();
+
+                var role_index = serviceTemplaterolesDataTable.fnGetPosition(this);
+
+                generate_template_role_div(role_index);
+
+                if(last_selected_row_template_role) {
+                    last_selected_row_template_role.children().each(function(){
+                        $(this).removeClass('markrowselected');
+                    });
+                }
+
+                last_selected_row_template_role = $(this);
+                $(this).children().each(function(){
+                    $(this).addClass('markrowselected');
+                });
+            });
+        });
+
+        var generate_template_role_div = function(role_index) {
+            var role = roles[role_index]
+            var info_str = '<form>\
+                <fieldset>\
+                <legend>'+tr("Role")+' - '+role.name+'</legend>';
+
+            info_str += "<div class='twelve columns'>\
+                <table class='twelve datatable extended_table policies_table'>\
                     <thead>\
-                        <tr><th colspan='2'></th></tr>\
+                        <tr><th colspan='8'>"+tr("Information")+"</th></tr>\
                     </thead>\
                     <tbody>";
 
-            if (this.shutdown_action) {
-                info_str += "<tr>\
-                     <td class='key_td'>"+tr("Shutdown action")+"</td>\
-                     <td class='value_td'>"+this.shutdown_action+"</td>\
-                   </tr>";
-            }
-            if (this.min_vms) {
-                info_str += "<tr>\
-                     <td class='key_td'>"+tr("Min VMs")+"</td>\
-                     <td class='value_td'>"+this.min_vms+"</td>\
-                   </tr>";
-            }
-            if (this.max_vms) {
-                info_str += "<tr>\
-                     <td class='key_td'>"+tr("Max VMs")+"</td>\
-                     <td class='value_td'>"+this.max_vms+"</td>\
-                   </tr>";
-            }
-            if (this.cooldown) {
-                info_str += "<tr>\
-                     <td class='key_td'>"+tr("Cooldown")+"</td>\
-                     <td class='value_td'>"+this.cooldown+"</td>\
-                   </tr>";
-            }
+            info_str += "<tr>\
+                 <td class='key_td'>"+tr("Shutdown action")+"</td>\
+                 <td class='value_td'>"+(role.shutdown_action || "-")+"</td>\
+                 <td class='key_td'>"+tr("Cooldown")+"</td>\
+                 <td class='value_td'>"+(role.cooldown || "-")+"</td>\
+                 <td class='key_td'>"+tr("Min VMs")+"</td>\
+                 <td class='value_td'>"+(role.min_vms || "-")+"</td>\
+                 <td class='key_td'>"+tr("Max VMs")+"</td>\
+                 <td class='value_td'>"+(role.max_vms || "-")+"</td>\
+               </tr>";
 
             info_str += "</tbody>\
                 </table>";
 
 
             info_str += "</div>\
-            <div class='nine columns'>";
+            <div class='twelve columns'>";
 
-            if (this.elasticity_policies && this.elasticity_policies.length > 0) {
+            if (role.elasticity_policies && role.elasticity_policies.length > 0) {
                 info_str += '<table class="twelve datatable extended_table policies_table">\
                     <thead style="background:#dfdfdf">\
                       <tr>\
@@ -804,15 +819,15 @@ function updateServiceTemplateInfo(request,elem){
                     </thead>\
                     <tbody>';
 
-                $.each(this.elasticity_policies, function(){
+                $.each(role.elasticity_policies, function(){
                     info_str += '<tr>\
                         <td>'+this.type+'</td>\
                         <td>'+this.adjust+'</td>\
-                        <td>'+this.min_adjust_step+'</td>\
+                        <td>'+(this.min_adjust_step || "-")+'</td>\
                         <td>'+this.expression+'</td>\
-                        <td>'+this.period+'</td>\
-                        <td>'+this.period_number+'</td>\
-                        <td>'+this.cooldown+'</td>\
+                        <td>'+(this.period || "-")+'</td>\
+                        <td>'+(this.period_number || "-")+'</td>\
+                        <td>'+(this.cooldown || "-")+'</td>\
                     </tr>'
                 });
 
@@ -820,7 +835,7 @@ function updateServiceTemplateInfo(request,elem){
                     </table>';
             }
 
-            if (this.scheduled_policies && this.scheduled_policies.length > 0) {
+            if (role.scheduled_policies && role.scheduled_policies.length > 0) {
                 info_str += '<table class="twelve datatable extended_table policies_table">\
                     <thead style="background:#dfdfdf">\
                       <tr>\
@@ -838,11 +853,11 @@ function updateServiceTemplateInfo(request,elem){
                     </thead>\
                     <tbody>';
 
-                $.each(this.scheduled_policies, function(){
+                $.each(role.scheduled_policies, function(){
                     info_str += '<tr>\
                         <td>'+this.type+'</td>\
                         <td>'+this.adjust+'</td>\
-                        <td>'+this.min_adjust_step+'</td>';
+                        <td>'+(this.min_adjust_step || "-")+'</td>';
 
                     if (this['start_time']) {
                         info_str += '<td>start_time</td>';
@@ -857,14 +872,23 @@ function updateServiceTemplateInfo(request,elem){
                     </table>';
             }
 
-            info_str += "</div>";
+            info_str += '</div>\
+                </fieldset>\
+                    </form>'
 
-            info_str += "</fieldset>"
-            $(info_str).appendTo(context);
-        });
+            context.html(info_str);
+        }
 
-        updateView(role_elements ,servicerolesDataTable);
+        if(selected_row_template_role_id) {
+            $.each($(serviceTemplaterolesDataTable.fnGetNodes()),function(){
+                if($($('td',this)[1]).html()==selected_row_template_role_id) {
+                    $('td',this)[2].click();
+                }
+            });
+        }
     }
+
+    setupTips($("#roles_form"));
 }
 
 function setup_policy_tab_content(policy_section, html_policy_id) {
