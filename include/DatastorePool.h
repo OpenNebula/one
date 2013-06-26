@@ -179,6 +179,17 @@ public:
         return PoolSQL::dump(oss, "DATASTORE_POOL", Datastore::table, where);
     };
 
+    /**
+     *  Lists the Datastore ids
+     *  @param oids a vector with the oids of the objects.
+     *
+     *  @return 0 on success
+     */
+     int list(vector<int>& oids)
+     {
+        return PoolSQL::list(oids, Datastore::table);
+     }
+
 private:
 
     /**
