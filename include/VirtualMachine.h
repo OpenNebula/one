@@ -1043,9 +1043,10 @@ public:
      *  in the context block device (CBD)
      *    @param  files space separated list of paths to be included in the CBD
      *    @param  disk_id CONTEXT/DISK_ID attribute value
+     *    @param  token_password Password to encrypt the token, if it is set
      *    @return -1 in case of error, 0 if the VM has no context, 1 on success
      */
-    int  generate_context(string &files, int &disk_id);
+    int  generate_context(string &files, int &disk_id, string& token_password);
 
     // -------------------------------------------------------------------------
     // Datastore related functions

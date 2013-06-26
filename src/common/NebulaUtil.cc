@@ -21,6 +21,7 @@
 #include <openssl/evp.h>
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
+#include <openssl/aes.h>
 
 #include <string>
 #include <sstream>
@@ -170,6 +171,29 @@ string one_util::sha1_digest(const string& in)
     }
 
     return oss.str();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string one_util::aes256cbc_encrypt(const string& in, const string password)
+{
+    EVP_CIPHER_CTX ctx;
+    const unsigned char *key = (unsigned char*)password.c_str();
+    const unsigned char *in_data = (unsigned char*)in.c_str();
+    unsigned char out[in.length() + AES_BLOCK_SIZE];
+    int outlen1, outlen2;
+
+    EVP_EncryptInit(&ctx, EVP_aes_256_cbc(), key, NULL);
+    EVP_EncryptUpdate(&ctx, out, &outlen1, in_data, in.length());
+    EVP_EncryptFinal(&ctx, out + outlen1, &outlen2);
+
+    EVP_CIPHER_CTX_cleanup(&ctx);
+
+    string encrypt = string((char*)out, (size_t)outlen1+outlen2);
+    string encrypt64 = *base64_encode(encrypt);
+
+    return encrypt64;
 }
 
 /* -------------------------------------------------------------------------- */

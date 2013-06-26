@@ -28,6 +28,7 @@
 #include "VirtualNetworkPool.h"
 #include "ImagePool.h"
 #include "NebulaLog.h"
+#include "NebulaUtil.h"
 
 #include "Nebula.h"
 
@@ -2361,7 +2362,7 @@ int VirtualMachine::release_network_leases(VectorAttribute const * nic, int vmid
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::generate_context(string &files, int &disk_id)
+int VirtualMachine::generate_context(string &files, int &disk_id, string& token_password)
 {
     ofstream file;
     string   files_ds;
@@ -2372,6 +2373,7 @@ int VirtualMachine::generate_context(string &files, int &disk_id)
     map<string, string>::const_iterator it;
 
     files = "";
+    bool token;
 
     if ( history == 0 )
         return -1;
@@ -2409,6 +2411,46 @@ int VirtualMachine::generate_context(string &files, int &disk_id)
     {
         files += " ";
         files += files_ds;
+    }
+
+    context->vector_value("TOKEN", token);
+    if (token)
+    {
+        if (token_password.empty())
+        {
+            file.close();
+
+            log("VM", Log::ERROR,
+                "CONTEXT/TOKEN set, but TOKEN_PASSWORD is not defined in the user template.");
+            return -1;
+        }
+
+        // The token_password is taken from the owner user's template.
+        // We store this original owner in case a chown operation is performed.
+        add_template_attribute("CREATED_BY", uid);
+
+        // TODO: The token file is left in the vm dir readable by any user.
+
+        ofstream token_file;
+        ostringstream oss;
+        string token_path;
+
+        oss << Nebula::instance().get_vms_location() << oid << "/token.txt";
+        token_path = oss.str();
+
+        token_file.open(token_path.c_str(),ios::out);
+
+        if (!token_file.fail())
+        {
+            oss.str("");
+            oss << oid << ':' << stime;
+
+            token_file << one_util::aes256cbc_encrypt(oss.str(), token_password) << endl;
+
+            token_file.close();
+
+            files += (" " + token_path);
+        }
     }
 
     const map<string, string> values = context->value();

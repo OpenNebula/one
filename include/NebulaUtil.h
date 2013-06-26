@@ -52,6 +52,7 @@ namespace one_util
     */
     std::string * base64_decode(const std::string& in);
 
+    std::string aes256cbc_encrypt(const std::string& in, const std::string password);
 };
 
 #endif /* _NEBULA_UTIL_H_ */
