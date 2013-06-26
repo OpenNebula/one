@@ -17,6 +17,7 @@
 #include "ImageManager.h"
 #include "NebulaLog.h"
 #include "ImagePool.h"
+#include "Nebula.h"
 
 const char * ImageManager::image_driver_name = "image_exe";
 
@@ -36,7 +37,7 @@ extern "C" void * image_action_loop(void *arg)
 
     im = static_cast<ImageManager *>(arg);
 
-    im->am.loop(0,0);
+    im->am.loop(im->timer_period, 0);
 
     NebulaLog::log("ImM",Log::INFO,"Image Manager stopped.");
 
@@ -113,7 +114,11 @@ int ImageManager::start()
 
 void ImageManager::do_action(const string &action, void * arg)
 {
-    if (action == ACTION_FINALIZE)
+    if (action == ACTION_TIMER)
+    {
+        timer_action();
+    }
+    else if (action == ACTION_FINALIZE)
     {
         NebulaLog::log("ImM",Log::INFO,"Stopping Image Manager...");
         MadManager::stop();
@@ -125,4 +130,70 @@ void ImageManager::do_action(const string &action, void * arg)
 
         NebulaLog::log("ImM", Log::ERROR, oss);
     }
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void ImageManager::timer_action()
+{
+    static int mark = 0;
+    static int tics = 0;
+
+    mark += timer_period;
+    tics += timer_period;
+
+    if ( mark >= 600 )
+    {
+        NebulaLog::log("ImM",Log::INFO,"--Mark--");
+        mark = 0;
+    }
+
+    if ( tics < monitor_period )
+    {
+        return;
+    }
+
+    tics = 0;
+
+    int rc;
+
+    vector<int>           datastores;
+    vector<int>::iterator it;
+
+    Nebula& nd             = Nebula::instance();
+    DatastorePool * dspool = nd.get_dspool();
+
+    rc = dspool->list(datastores);
+
+    if ( rc != 0 )
+    {
+        return;
+    }
+
+    const ImageManagerDriver* imd = get();
+
+    for(it = datastores.begin() ; it != datastores.end(); it++)
+    {
+        string  ds_data;
+        string* drv_msg;
+
+        Datastore * ds = dspool->get(*it, true);
+
+        if ( ds == 0 )
+        {
+            continue;
+        }
+
+        drv_msg = format_message("", ds->to_xml(ds_data));
+
+        ds->unlock();
+
+        imd->monitor(*it, *drv_msg);
+
+        delete drv_msg;
+    }
+
+    return;
 }

@@ -32,8 +32,14 @@ class ImageManager : public MadManager, public ActionListener
 {
 public:
 
-    ImageManager(ImagePool * _ipool, vector<const Attribute*>& _mads):
-            MadManager(_mads), ipool(_ipool)
+    ImageManager(time_t                    _timer_period,
+                 time_t                    _monitor_period,
+                 ImagePool *               _ipool,
+                 vector<const Attribute*>& _mads):
+            MadManager(_mads),
+            timer_period(_timer_period),
+            monitor_period(_monitor_period),
+            ipool(_ipool)
     {
         am.addListener(this);
     };
@@ -181,9 +187,19 @@ private:
      static const char *  image_driver_name;
 
     /**
-     *  Thread id for the Transfer Manager
+     *  Thread id for the Image Manager
      */
     pthread_t             imagem_thread;
+
+    /**
+     *  Timer period for the Image Manager.
+     */
+    time_t                timer_period;
+
+    /**
+     *  Datastore Monitor Interval
+     */
+    time_t                monitor_period;
 
     /**
      *  Pointer to the Image Pool to access VMs
@@ -242,6 +258,11 @@ private:
      *    @return the XML message
      */
     string * format_message(const string& img_data, const string& ds_data);
+
+    /**
+     *  This function is executed periodically to monitor Datastores.
+     */
+    void timer_action();
 };
 
 #endif /*IMAGE_MANAGER_H*/

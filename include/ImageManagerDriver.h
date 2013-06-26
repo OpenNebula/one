@@ -99,6 +99,13 @@ private:
      *    @param drv_msg xml data for the mad operation.
      */
     void rm(int oid, const string& drv_msg) const;
+
+    /**
+     *  Sends a monitor request to the MAD: "MONITOR DS_ID DS_XML"
+     *    @param oid the datastore id.
+     *    @param drv_msg xml data for the mad operation.
+     */
+    void monitor(int oid, const string& drv_msg) const;
 };
 
 /* -------------------------------------------------------------------------- */
