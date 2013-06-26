@@ -729,6 +729,44 @@ int VirtualMachine::parse_context(string& error_str)
 
     obj_template->set(context_parsed);
 
+    // -------------------------------------------------------------------------
+    // OneGate URL
+    // -------------------------------------------------------------------------
+
+    bool token;
+    context_parsed->vector_value("TOKEN", token);
+
+    if (token)
+    {
+        string onegate_url;
+        context_parsed->vector_value("ONEGATE_URL");
+
+        if (onegate_url.empty())
+        {
+            string endpoint;
+            endpoint = context_parsed->vector_value("ONEGATE_ENDPOINT");
+
+            if ( endpoint.empty() )
+            {
+                Nebula::instance().get_configuration_attribute(
+                        "ONEGATE_ENDPOINT", endpoint);
+            }
+
+            if ( endpoint.empty() )
+            {
+                error_str = "CONTEXT/TOKEN set, but OneGate endpoint was not defined in oned.conf or CONTEXT.";
+                return -1;
+            }
+            else
+            {
+                ostringstream oss;
+                oss << endpoint << '/' << oid;
+
+                context_parsed->replace("ONEGATE_URL", oss.str());
+            }
+        }
+    }
+
     return rc;
 
 error_cleanup:
@@ -2428,8 +2466,6 @@ int VirtualMachine::generate_context(string &files, int &disk_id, string& token_
         // The token_password is taken from the owner user's template.
         // We store this original owner in case a chown operation is performed.
         add_template_attribute("CREATED_BY", uid);
-
-        // TODO: The token file is left in the vm dir readable by any user.
 
         ofstream token_file;
         ostringstream oss;
