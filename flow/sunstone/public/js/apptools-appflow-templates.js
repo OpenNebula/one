@@ -274,7 +274,7 @@ var role_tab_content = '\
                         <label class="inline right" for="min_vms">' + tr("Min VMs") + ':</label>\
                     </div>\
                     <div class="six columns">\
-                        <input type="text" id="min_vms" name="min_vms" value="1" />\
+                        <input type="text" id="min_vms" name="min_vms" value="" />\
                     </div>\
                     <div class="one columns">\
                         <div class="tip">'+ tr("Minimum number of VMs for elasticity adjustments") +'</div>\
@@ -285,7 +285,7 @@ var role_tab_content = '\
                         <label class="inline right" for="max_vms">' + tr("Max VMs") + ':</label>\
                     </div>\
                     <div class="six columns">\
-                        <input type="text" id="max_vms" name="max_vms" value="1" />\
+                        <input type="text" id="max_vms" name="max_vms" value="" />\
                     </div>\
                     <div class="one columns">\
                         <div class="tip">'+ tr("Maximum number of VMs for elasticity adjustments") +'</div>\
@@ -296,7 +296,7 @@ var role_tab_content = '\
                         <label class="inline right" for="cooldown">' + tr("Cooldown") + ':</label>\
                     </div>\
                     <div class="six columns">\
-                        <input type="text" id="cooldown" name="cooldown" value="1" />\
+                        <input type="text" id="cooldown" name="cooldown" value="" />\
                     </div>\
                     <div class="one columns">\
                         <div class="tip">'+ tr("Cooldown time after an elasticity operation (secs)") +'</div>\
