@@ -52,7 +52,10 @@ Datastore::Datastore(
             ds_mad(""),
             tm_mad(""),
             base_path(ds_location),
-            type(IMAGE_DS)
+            type(IMAGE_DS),
+            total_mb(0),
+            free_mb(0),
+            used_mb(0)
 {
     if (ds_template != 0)
     {
@@ -331,6 +334,9 @@ string& Datastore::to_xml(string& xml) const
         "<DISK_TYPE>"   << disk_type    << "</DISK_TYPE>"   <<
         "<CLUSTER_ID>"  << cluster_id   << "</CLUSTER_ID>"  <<
         "<CLUSTER>"     << cluster      << "</CLUSTER>"     <<
+        "<TOTAL_MB>"    << total_mb     << "</TOTAL_MB>"    <<
+        "<FREE_MB>"     << free_mb      << "</FREE_MB>"    <<
+        "<USED_MB>"     << used_mb      << "</USED_MB>"    <<
         collection_xml  <<
         obj_template->to_xml(template_xml)                  <<
     "</DATASTORE>";
@@ -368,6 +374,10 @@ int Datastore::from_xml(const string& xml)
 
     rc += xpath(cluster_id, "/DATASTORE/CLUSTER_ID", -1);
     rc += xpath(cluster,    "/DATASTORE/CLUSTER",    "not_found");
+
+    rc += xpath(total_mb, "/DATASTORE/TOTAL_MB", 0);
+    rc += xpath(free_mb,  "/DATASTORE/FREE_MB",  0);
+    rc += xpath(used_mb,  "/DATASTORE/USED_MB",  0);
 
     // Permissions
     rc += perms_from_xml();

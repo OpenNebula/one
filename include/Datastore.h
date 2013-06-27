@@ -149,6 +149,19 @@ public:
      */
     int replace_template(const string& tmpl_str, string& error);
 
+    /**
+     *  Set monitor information for the Datastore
+     *    @param total_mb
+     *    @param free_mb
+     *    @param used_mb
+     */
+    void update_monitor(unsigned int total, unsigned int free, unsigned int used)
+    {
+        total_mb = total;
+        free_mb  = free;
+        used_mb  = used;
+    }
+
 private:
 
     // -------------------------------------------------------------------------
@@ -185,6 +198,21 @@ private:
      * Disk types for the Images created in this datastore
      */
      Image::DiskType disk_type;
+
+    /**
+     * Total datastore capacity in MB
+     */
+     unsigned int total_mb;
+
+    /**
+     * Available datastore capacity in MB
+     */
+     unsigned int free_mb;
+
+    /**
+     * Used datastore capacity in MB
+     */
+     unsigned int used_mb;
 
     // *************************************************************************
     // Constructor
