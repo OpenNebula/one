@@ -198,3 +198,13 @@ string one_util::aes256cbc_encrypt(const string& in, const string password)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+string one_util::random_password()
+{
+    stringstream  sstr;
+
+    srand(time(0));
+    sstr << rand();
+
+    return sha1_digest(sstr.str());
+}

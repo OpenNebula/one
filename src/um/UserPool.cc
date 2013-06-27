@@ -74,7 +74,6 @@ UserPool::UserPool(SqlDB * db,
 
     string        filenames[4];
     string        error_str;
-    stringstream  sstr;
 
     Nebula& nd   = Nebula::instance();
 
@@ -142,10 +141,7 @@ UserPool::UserPool(SqlDB * db,
         goto error_one_name;
     }
 
-    srand(time(0));
-    sstr << rand();
-
-    random = one_util::sha1_digest(sstr.str());
+    random = one_util::random_password();
 
     filenames[0] = nd.get_var_location() + "/.one/sunstone_auth";
     filenames[1] = nd.get_var_location() + "/.one/occi_auth";
@@ -295,6 +291,9 @@ int UserPool::allocate (
 
     // Build a new User object
     user = new User(-1, gid, uname, gname, upass, auth_driver, enabled);
+
+    // Set a password for the OneGate tokens
+    user->add_template_attribute("TOKEN_PASSWORD", one_util::random_password());
 
     // Insert the Object in the pool
     *oid = PoolSQL::allocate(user, error_str);

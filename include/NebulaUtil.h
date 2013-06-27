@@ -45,7 +45,7 @@ namespace one_util
     std::string * base64_encode(const std::string& in);
 
    /**
-    *  Base 64 deencoding
+    *  Base 64 decoding
     *    @param in the string to decode
     *    @return a pointer to the decoded string (must be freed) or 0 in case of
     *    error
@@ -53,6 +53,12 @@ namespace one_util
     std::string * base64_decode(const std::string& in);
 
     std::string aes256cbc_encrypt(const std::string& in, const std::string password);
+
+    /**
+     *  Creates a random number, using time(0) as seed, and performs an sha1 hash
+     *    @return a new random password
+     */
+    std::string random_password();
 };
 
 #endif /* _NEBULA_UTIL_H_ */
