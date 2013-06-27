@@ -810,13 +810,28 @@ function updateServiceTemplateInfo(request,elem){
                     </thead>\
                     <thead>\
                       <tr>\
-                        <th>'+tr("Type")+'</th>\
-                        <th>'+tr("Adjust")+'</th>\
-                        <th>'+tr("Min")+'</th>\
-                        <th>'+tr("Expression")+'</th>\
-                        <th>'+tr("# Periods")+'</th>\
-                        <th>'+tr("Period")+'</th>\
-                        <th>'+tr("Cooldown")+'</th>\
+                        <th style="width:14%">'+tr("Type")+'\
+                            <span class="tip">'+tr("Type of adjustment.")+'<br><br>\
+                                '+tr("CHANGE: Add/substract the given number of VMs.")+'<br>\
+                                '+tr("CARDINALITY: Set the cardinality to the given number.")+'<br>\
+                                '+tr("PERCENTAGE_CHANGE: Add/substract the given percentage to the current cardinality.")+'\
+                            </span>\
+                        </th>\
+                        <th style="width:12%">'+tr("Adjust")+'\
+                            <span class="tip">'+tr("Positive or negative adjustment. Its meaning depends on 'type'")+'<br><br>\
+                                '+tr("CHANGE: -2, will substract 2 VMs from the role")+'<br>\
+                                '+tr("CARDINALITY: 8, will set carditanilty to 8")+'<br>\
+                                '+tr("PERCENTAGE_CHANGE: 20, will increment cardinality by 20%")+'\
+                            </span>\
+                        </th>\
+                        <th style="width:9%">'+tr("Min")+'\
+                            <span class="tip">'+tr("Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute.")+'\
+                            </span>\
+                        </th>\
+                        <th style="width:26%">'+tr("Expression")+'</th>\
+                        <th style="width:13%">'+tr("# Periods")+'</th>\
+                        <th style="width:10%">'+tr("Period")+'</th>\
+                        <th style="width:13%">'+tr("Cooldown")+'</th>\
                       </tr>\
                     </thead>\
                     <tbody>';
@@ -846,11 +861,26 @@ function updateServiceTemplateInfo(request,elem){
                     </thead>\
                     <thead>\
                       <tr>\
-                        <th>'+tr("Type")+'</th>\
-                        <th>'+tr("Adjust")+'</th>\
-                        <th>'+tr("Min")+'</th>\
-                        <th>'+tr("Time format")+'</th>\
-                        <th>'+tr("Time expression")+'</th>\
+                        <th style="width:14%">'+tr("Type")+'\
+                            <span class="tip">'+tr("Type of adjustment.")+'<br><br>\
+                                '+tr("CHANGE: Add/substract the given number of VMs.")+'<br>\
+                                '+tr("CARDINALITY: Set the cardinality to the given number.")+'<br>\
+                                '+tr("PERCENTAGE_CHANGE: Add/substract the given percentage to the current cardinality.")+'\
+                            </span>\
+                        </th>\
+                        <th style="width:12%">'+tr("Adjust")+'\
+                            <span class="tip">'+tr("Positive or negative adjustment. Its meaning depends on 'type'")+'<br><br>\
+                                '+tr("CHANGE: -2, will substract 2 VMs from the role")+'<br>\
+                                '+tr("CARDINALITY: 8, will set carditanilty to 8")+'<br>\
+                                '+tr("PERCENTAGE_CHANGE: 20, will increment cardinality by 20%")+'\
+                            </span>\
+                        </th>\
+                        <th style="width:9%">'+tr("Min")+'\
+                            <span class="tip">'+tr("Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute.")+'\
+                            </span>\
+                        </th>\
+                        <th style="width:28%">'+tr("Time format")+'</th>\
+                        <th style="width:33%">'+tr("Time expression")+'</th>\
                       </tr>\
                     </thead>\
                     <tbody>';
@@ -879,6 +909,7 @@ function updateServiceTemplateInfo(request,elem){
                     </form>'
 
             context.html(info_str);
+            setupTips(context, "tip-top");
         }
 
         if(selected_row_template_role_id) {
