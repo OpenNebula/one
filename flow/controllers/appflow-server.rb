@@ -73,11 +73,11 @@ set :port, conf[:port]
 set :config, conf
 
 include CloudLogger
-enable_logging APPFLOW_LOG, conf[:debug_level].to_i
+logger = enable_logging APPFLOW_LOG, conf[:debug_level].to_i
 
 use Rack::Session::Pool, :key => 'appflow'
 
-Log.logger = settings.logger
+Log.logger = logger
 Log.level  = conf[:debug_level].to_i
 
 
@@ -87,7 +87,7 @@ Log.info LOG_COMP, "Starting server"
 
 begin
     ENV["ONE_CIPHER_AUTH"] = APPFLOW_AUTH
-    cloud_auth = CloudAuth.new(settings.config)
+    cloud_auth = CloudAuth.new(conf)
 rescue => e
     message = "Error initializing authentication system : #{e.message}"
     Log.error LOG_COMP, message
