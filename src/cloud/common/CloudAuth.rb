@@ -117,6 +117,10 @@ class CloudAuth
         return do_auth(env, params)
     end
 
+    def logger
+        @logger
+    end
+
     protected
 
     # Gets the password associated with a username
