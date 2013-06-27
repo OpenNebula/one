@@ -708,6 +708,7 @@ function updateServiceTemplateInfo(request,elem){
             </table>\
           </div>\
           <div id="roles_extended_info" class="columns twelve">\
+            <span class="radius secondary label">'+tr("Select a role in the table for more information")+'</span>\
           </div>\
         </form>'
     };
