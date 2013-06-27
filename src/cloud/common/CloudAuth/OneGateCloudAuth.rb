@@ -80,7 +80,7 @@ module OneGateCloudAuth
             end
 
 
-            return user['NAME']
+            return vm['UNAME']
         end
     end
 
