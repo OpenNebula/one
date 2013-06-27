@@ -105,7 +105,7 @@ put '/vm/:id' do
             template_str = vm.template_like_str('USER_TEMPLATE')
 
             # TODO check body format
-            template_str += request.body.read
+            template_str += "\n" + request.body.read
 
             rc = vm.update(template_str)
             if OpenNebula.is_error?(rc)
