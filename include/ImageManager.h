@@ -35,11 +35,13 @@ public:
     ImageManager(time_t                    _timer_period,
                  time_t                    _monitor_period,
                  ImagePool *               _ipool,
+                 DatastorePool *           _dspool,
                  vector<const Attribute*>& _mads):
             MadManager(_mads),
             timer_period(_timer_period),
             monitor_period(_monitor_period),
-            ipool(_ipool)
+            ipool(_ipool),
+            dspool(_dspool)
     {
         am.addListener(this);
     };
@@ -205,6 +207,11 @@ private:
      *  Pointer to the Image Pool to access VMs
      */
     ImagePool *           ipool;
+
+    /**
+     *  Pointer to the Image Pool to access VMs
+     */
+    DatastorePool *       dspool;
 
     /**
      *  Action engine for the Manager

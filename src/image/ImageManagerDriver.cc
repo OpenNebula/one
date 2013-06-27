@@ -564,6 +564,40 @@ error:
 }
 
 /* -------------------------------------------------------------------------- */
+
+static void monitor_action(istringstream& is,
+                           DatastorePool* dspool,
+                           int            id,
+                           const string&  result)
+{
+    string  dsinfo64;
+    string *dsinfo;
+
+    getline (is, dsinfo64);
+
+    dsinfo = one_util::base64_decode(dsinfo64);
+
+    if (result != "SUCCESS")
+    {
+        ostringstream oss;
+
+        oss << "Error monitoring datastore " << id << ": " << *dsinfo;
+        NebulaLog::log("ImM", Log::ERROR, oss);
+
+        delete dsinfo;
+        return;
+    }
+
+    NebulaLog::log("ImM**", Log::INFO, *dsinfo);
+
+    //1.- Build & Parse Template
+    //2.- Get Datastore
+    //3.- Update Monitor Info
+
+    delete dsinfo;
+}
+
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 void ImageManagerDriver::protocol(const string& message) const
@@ -631,6 +665,10 @@ void ImageManagerDriver::protocol(const string& message) const
     else if ( action == "RM" )
     {
         rm_action(is, ipool, id, result);
+    }
+    else if ( action == "MONITOR" )
+    {
+        monitor_action(is, dspool, id, result);
     }
     else if (action == "LOG")
     {

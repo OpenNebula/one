@@ -29,6 +29,8 @@ using namespace std;
 class ImagePool;
 class ImageManager;
 
+class DatastorePool;
+
 /**
  *  ImageManagerDriver represents the basic abstraction for Image Repository
  *  drivers. It implements the protocol and recover functions from the Mad
@@ -41,8 +43,9 @@ public:
     ImageManagerDriver(int        userid,
                        const      map<string,string>& attrs,
                        bool       sudo,
-                       ImagePool* _ipool):
-            Mad(userid,attrs,sudo),ipool(_ipool){};
+                       ImagePool* _ipool,
+                       DatastorePool * _dspool):
+            Mad(userid,attrs,sudo),ipool(_ipool),dspool(_dspool){};
 
     virtual ~ImageManagerDriver(){};
 
@@ -64,6 +67,11 @@ private:
      *  Reference to the ImagePool
      */
     ImagePool * ipool;
+
+    /**
+     *  Reference to the DatastorePool
+     */
+    DatastorePool * dspool;
 
     /**
      * Sends a copy request to the MAD.

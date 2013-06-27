@@ -71,7 +71,7 @@ void ImageManager::load_mads(int uid)
 
     image_conf.replace("NAME",image_driver_name);
 
-    imagem_mad = new ImageManagerDriver(0,image_conf.value(),false,ipool);
+    imagem_mad= new ImageManagerDriver(0,image_conf.value(),false,ipool,dspool);
 
     rc = add(imagem_mad);
 
@@ -165,6 +165,8 @@ void ImageManager::timer_action()
     Nebula& nd             = Nebula::instance();
     DatastorePool * dspool = nd.get_dspool();
 
+    ostringstream oss;
+
     rc = dspool->list(datastores);
 
     if ( rc != 0 )
@@ -187,6 +189,11 @@ void ImageManager::timer_action()
         }
 
         drv_msg = format_message("", ds->to_xml(ds_data));
+
+        oss.str("");
+        oss << "Monitoring datastore " << ds->get_name() << " (" << *it << ")";
+
+        NebulaLog::log("InM", Log::INFO, oss);
 
         ds->unlock();
 
