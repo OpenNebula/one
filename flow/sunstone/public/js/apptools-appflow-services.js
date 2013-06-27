@@ -1648,6 +1648,7 @@ function updateServiceInfo(request,elem){
             initCheckAllBoxes(serviceroleVMsDataTable, $('div#role_vms_actions', $("#dialog")));
             tableCheckboxesListener(serviceroleVMsDataTable, $('div#role_vms_actions', $("#dialog")));
 
+            $('tbody input.check_item',serviceroleVMsDataTable).die()
             $('tbody input.check_item',serviceroleVMsDataTable).live("change",function(){
                 if($(this).is(":checked"))
                 {
@@ -1659,6 +1660,7 @@ function updateServiceInfo(request,elem){
                 }
             });
 
+            $('tbody tr',serviceroleVMsDataTable).die()
             $('tbody tr',serviceroleVMsDataTable).live("click",function(e){
                 if ($(e.target).is('input') ||
                     $(e.target).is('select') ||
