@@ -2457,9 +2457,10 @@ int VirtualMachine::generate_context(string &files, int &disk_id, string& token_
         if (token_password.empty())
         {
             file.close();
+            string err = "CONTEXT/TOKEN set, but TOKEN_PASSWORD is not defined in the user template.";
 
-            log("VM", Log::ERROR,
-                "CONTEXT/TOKEN set, but TOKEN_PASSWORD is not defined in the user template.");
+            log("VM", Log::ERROR, err.c_str());
+            set_template_error_message(err);
             return -1;
         }
 
