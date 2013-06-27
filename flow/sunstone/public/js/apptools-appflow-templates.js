@@ -747,6 +747,7 @@ function updateServiceTemplateInfo(request,elem){
 
             updateView(role_elements ,serviceTemplaterolesDataTable);
 
+            $('tbody tr',serviceTemplaterolesDataTable).die();
             $('tbody tr',serviceTemplaterolesDataTable).live("click",function(e){
                 var aData = serviceTemplaterolesDataTable.fnGetData(this);
                 var role_name = $(aData[0]).val();

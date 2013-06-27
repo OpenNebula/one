@@ -1390,6 +1390,7 @@ function updateServiceInfo(request,elem){
             }
         });
 
+        $('tbody tr',servicerolesDataTable).die()
         $('tbody tr',servicerolesDataTable).live("click",function(e){
             if ($(e.target).is('input') ||
                 $(e.target).is('select') ||
