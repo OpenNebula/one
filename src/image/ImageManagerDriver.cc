@@ -573,14 +573,14 @@ static void monitor_action(istringstream& is,
     string  dsinfo64;
     string *dsinfo;
 
+    ostringstream oss;
+
     getline (is, dsinfo64);
 
     dsinfo = one_util::base64_decode(dsinfo64);
 
     if (result != "SUCCESS")
     {
-        ostringstream oss;
-
         oss << "Error monitoring datastore " << id << ": " << *dsinfo;
         NebulaLog::log("ImM", Log::ERROR, oss);
 
@@ -588,13 +588,52 @@ static void monitor_action(istringstream& is,
         return;
     }
 
-    NebulaLog::log("ImM**", Log::INFO, *dsinfo);
+    Template monitor_data;
 
-    //1.- Build & Parse Template
-    //2.- Get Datastore
-    //3.- Update Monitor Info
+    char*  error_msg;
+    int    rc = monitor_data.parse(*dsinfo, &error_msg);
 
     delete dsinfo;
+
+    if ( rc != 0 )
+    {
+        oss << "Error parsing datastore information: " << error_msg
+            << ". Monitoring information: " << endl << *dsinfo;
+
+        NebulaLog::log("ImM", Log::ERROR, oss);
+
+        free(error_msg);
+
+        return;
+    }
+
+    float  total, free, used;
+    string ds_name;
+
+    monitor_data.get("TOTAL_MB", total);
+    monitor_data.get("FREE_MB", free);
+    monitor_data.get("USED_MB", used);
+
+    Datastore * ds = dspool->get(id, true);
+
+    if (ds == 0 )
+    {
+        return;
+    }
+
+    ds_name = ds->get_name();
+
+    ds->update_monitor(total, free, used);
+
+    dspool->update(ds);
+
+    ds->unlock();
+
+    oss << "Datastore " << ds_name << " (" << id << ") successfully monitored.";
+
+    NebulaLog::log("ImM", Log::INFO, oss);
+
+    return;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -612,7 +651,7 @@ void ImageManagerDriver::protocol(const string& message) const
     int    id;
 
     oss << "Message received: " << message;
-    NebulaLog::log("ImG", Log::DEBUG, oss);
+    NebulaLog::log("ImG", Log::DDEBUG, oss);
 
     // --------------------- Parse the driver message --------------------------
 

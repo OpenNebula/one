@@ -50,14 +50,20 @@ BASE_PATH="${XPATH_ELEMENTS[0]}"
 
 # ------------ Compute datastore usage -------------
 
-USED_MB=`du -sLm $BASE_PATH | cut -f1`
-TOTAL_MB=`df -B1M --output=size $BASE_PATH | tail -1`
-FREE_MB=`df -B1M --output=avail $BASE_PATH | tail -1`
+if [ ! -d $BASE_PATH ]; then
+    error_message "Directory $BASE_PATH does not exists"
+    exit -1
+fi
 
-MONITOR_DATA=<<EOF
+USED_MB=`du -sLm $BASE_PATH 2>/dev/null | cut -f1`
+TOTAL_MB=`df -B1M --output=size $BASE_PATH 2>/dev/null | tail -1`
+FREE_MB=`df -B1M --output=avail $BASE_PATH 2>/dev/null | tail -1`
+
+MONITOR_DATA=$(cat <<EOF
 USED_MB=$USED_MB
 TOTAL_MB=$TOTAL_MB
 FREE_MB=$FREE_MB
 EOF
+)
 
 echo "$MONITOR_DATA"
