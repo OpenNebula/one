@@ -23,7 +23,8 @@ class CloudAuth
         "sunstone"   => 'SunstoneCloudAuth' ,
         "ec2"        => 'EC2CloudAuth',
         "x509"       => 'X509CloudAuth',
-        "opennebula" => 'OpenNebulaCloudAuth'
+        "opennebula" => 'OpenNebulaCloudAuth',
+        "onegate"    => 'OneGateCloudAuth'
     }
 
     # These are the authentication modules for the OpenNebula requests
