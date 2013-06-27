@@ -25,6 +25,7 @@ var dialogs_context;
 var plots_context;
 var info_panels_context;
 
+panel_extended = false;
 
 //Sunstone configuration is formed by predifined "actions", main tabs
 //and "info_panels". Each tab has "content" and "buttons". Each
@@ -132,8 +133,8 @@ var Sunstone = {
                         <button type="button" style="float:left; margin-right:5px" class="button secondary tiny radius" id="'+panel_name+'_refresh"><span class="icon-refresh"></span></button>\
                     </div>\
                     <div id="aa" class="right">\
-                        <a href="#" id="'+panel_name+'_resize_50" hidden><span class="icon-resize-small"></span>&emsp;</a>\
-                        <a href="#" id="'+panel_name+'_resize_75"><span class="icon-resize-full"></span>&emsp;</a>\
+                        <a href="#" id="'+panel_name+'_resize_50" '+ (!panel_extended ? "hidden" : "") +'><span class="icon-resize-small"></span>&emsp;</a>\
+                        <a href="#" id="'+panel_name+'_resize_75" '+ (panel_extended ? "hidden" : "") +'><span class="icon-resize-full"></span>&emsp;</a>\
                     </div>\
                 </dl>\
             </div>\
@@ -141,14 +142,14 @@ var Sunstone = {
         </div>');
 
         $('#'+panel_name+'_resize_75').live('click', function(){
-            $(".ui-layout-resizer-south").css('bottom', Math.floor($(window).height()*0.75));
-            $(".ui-layout-pane-south").css('height', Math.floor($(window).height()*0.75));
+            panel_extended = true;
+            changeInnerLayout(0.75);
             $('#'+panel_name+'_resize_75').hide();
             $('#'+panel_name+'_resize_50').show();
         })
         $('#'+panel_name+'_resize_50').live('click', function(){
-            $(".ui-layout-resizer-south").css('bottom', Math.floor($(window).height()*0.50));
-            $(".ui-layout-pane-south").css('height', Math.floor($(window).height()*0.50));
+            panel_extended = false;
+            changeInnerLayout(0.5);
             $('#'+panel_name+'_resize_50').hide();
             $('#'+panel_name+'_resize_75').show();
         })
@@ -590,15 +591,15 @@ function insertButtons(){
 
 //If we have defined a block of action buttons in a tab,
 //this function takes care of inserting them in the DOM.
-function insertButtonsInTab(tab_name, panel_name, panel_buttons){
+function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context){
     var buttons = panel_buttons ? panel_buttons : SunstoneCfg["tabs"][tab_name]["buttons"];
     var button_code="";
     var sel_obj=null;
     var condition=null;
 
     var context;
-    if (panel_name) {
-        context = $('li#'+panel_name+'Tab', $("#dialog"));
+    if (custom_context) {
+        context = custom_context;
     } else {
         context = $('div#'+tab_name, main_tabs_context);
     }

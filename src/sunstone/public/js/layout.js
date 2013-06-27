@@ -132,6 +132,11 @@ function setupTopMenu(){
     });
 };
 
+function changeInnerLayout(factor){
+    var dialog_height = Math.floor($(".outer-center").height()*factor);
+    innerLayout.sizePane("south", dialog_height)
+}
+
 $(document).ready(function () {
     $(".tab").hide();
 
@@ -165,12 +170,11 @@ $(document).ready(function () {
 
     var factor = 0.5;
     var dialog_height = Math.floor($(".outer-center").height()*factor);
-
     innerLayout = $('div.outer-center').layout({
         fxName:                 "slide"
     ,   initClosed:             true
-    ,   center__paneSelector:	".inner-center"
-    ,	south__paneSelector:	".inner-south"
+    ,   center__paneSelector:   ".inner-center"
+    ,   south__paneSelector:    ".inner-south"
     ,   south__size:            dialog_height
     ,   south__togglerContent_open:   '<i class="icon-angle-down">'
     ,   south__togglerContent_closed: '<i class="icon-angle-up">'
@@ -179,8 +183,8 @@ $(document).ready(function () {
     ,   south__spacing_closed:    0
     ,   north__resizable:       true
     ,   north__spacing_open:      10
-    ,	spacing_open:			5  // ALL panes
-    ,	spacing_closed:			5 // ALL panes
+    ,   spacing_open:           5  // ALL panes
+    ,   spacing_closed:         5 // ALL panes
     });
 
 });

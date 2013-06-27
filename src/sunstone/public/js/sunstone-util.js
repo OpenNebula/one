@@ -142,9 +142,9 @@ function deleteElement(dataTable,tag){
 
 //Handle the activation of action buttons and the check_all box
 //when elements in a datatable are modified.
-function recountCheckboxes(dataTable){
+function recountCheckboxes(dataTable, custom_context){
     var table = $('tbody',dataTable);
-    var context = table.parents('form');
+    var context = custom_context||table.parents('form');
     var nodes = $('tr',table); //visible nodes
     var total_length = nodes.length;
     var checked_length = $('input.check_item:checked',nodes).length;
@@ -176,9 +176,9 @@ function recountCheckboxes(dataTable){
 }
 
 //Init action buttons and checkboxes listeners
-function tableCheckboxesListener(dataTable){
+function tableCheckboxesListener(dataTable, custom_context){
     //Initialization - disable all buttons
-    var context = dataTable.parents('form');
+    var context = custom_context||dataTable.parents('form');
 
     $('.last_action_button',context).attr('disabled', true);
     $('.top_button, .list_button',context).attr('disabled', true);
@@ -200,7 +200,7 @@ function tableCheckboxesListener(dataTable){
             $(this).parents('tr').children().removeClass('markrowselected');
         }
 
-        recountCheckboxes(datatable);
+        recountCheckboxes(datatable, context);
     });
 }
 
@@ -393,11 +393,11 @@ function prettyPrintRowJSON(field,value,padding,weight, border_bottom,padding_to
 
 //Add a listener to the check-all box of a datatable, enabling it to
 //check and uncheck all the checkboxes of its elements.
-function initCheckAllBoxes(datatable){
+function initCheckAllBoxes(datatable, custom_context){
 
     //small css hack
-    $('input.check_all').css({"border":"2px"});
-    $('input.check_all').live("change",function(){
+    $('input.check_all', datatable).css({"border":"2px"});
+    $('input.check_all', datatable).live("change",function(){
         var table = $(this).closest('.dataTables_wrapper');
         var checked = $(this).attr('checked');
         if (checked) { //check all
@@ -407,7 +407,9 @@ function initCheckAllBoxes(datatable){
             $('tbody input.check_item',table).removeAttr('checked');
             $('td',table).removeClass('markrowchecked');
         };
-        recountCheckboxes(table);
+
+        var context = custom_context||table.parents('form');
+        recountCheckboxes(table, context);
     });
 }
 
