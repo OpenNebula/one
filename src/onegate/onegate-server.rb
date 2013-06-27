@@ -33,7 +33,7 @@ end
 
 ONEGATE_AUTH = VAR_LOCATION + "/.one/onegate_auth"
 
-ONEGATE_LOG = LOG_LOCATION + "/onegate-server.log"
+ONEGATE_LOG = LOG_LOCATION + "/onegate.log"
 CONFIGURATION_FILE = ETC_LOCATION + "/onegate-server.conf"
 
 $: << RUBY_LIB_LOCATION
