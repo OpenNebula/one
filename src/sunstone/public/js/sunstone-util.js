@@ -601,7 +601,7 @@ function getValue(filter_str,filter_col,value_col,dataTable){
 
 //Replaces all class"tip" divs with an information icon that
 //displays the tip information on mouseover.
-function setupTips(context){
+function setupTips(context, position){
 
     $('ui-dialog').css('z-index', '1000')
     //For each tip in this context
@@ -640,8 +640,13 @@ function setupTips(context){
         var obj = $(this);
         obj.removeClass('tip');
         var tip = obj.html();
+
+        var tip_classes = ['has-tip']
+        if (position) {
+            tip_classes.push(position)
+        }
         //replace the text with an icon and spans
-        obj.html('<span class="has-tip" data-width="210" title="'+tip+'"><i class="icon-info-sign"></i></span>');
+        obj.html('<span class="'+tip_classes.join(' ')+'" data-width="210" title="'+tip+'"><i class="icon-info-sign"></i></span>');
 
         //obj.append('<span class="ui-icon ui-icon-alert man_icon" />');
 
