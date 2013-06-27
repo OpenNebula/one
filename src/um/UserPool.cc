@@ -72,7 +72,7 @@ UserPool::UserPool(SqlDB * db,
     const char *  one_auth;
     ifstream      file;
 
-    string        filenames[3];
+    string        filenames[4];
     string        error_str;
     stringstream  sstr;
 
@@ -150,10 +150,11 @@ UserPool::UserPool(SqlDB * db,
     filenames[0] = nd.get_var_location() + "/.one/sunstone_auth";
     filenames[1] = nd.get_var_location() + "/.one/occi_auth";
     filenames[2] = nd.get_var_location() + "/.one/ec2_auth";
+    filenames[3] = nd.get_var_location() + "/.one/onegate_auth";
 
     mkdir(string(nd.get_var_location() + "/.one").c_str(), S_IRWXU);
 
-    for (i=0 ; i < 3; i++)
+    for (i=0 ; i < 4; i++)
     {
         int cfile = creat(filenames[i].c_str(), S_IRUSR | S_IWUSR);
         close(cfile);
