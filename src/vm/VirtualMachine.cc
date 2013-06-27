@@ -760,7 +760,7 @@ int VirtualMachine::parse_context(string& error_str)
             else
             {
                 ostringstream oss;
-                oss << endpoint << '/' << oid;
+                oss << endpoint << "/vm/" << oid;
 
                 context_parsed->replace("ONEGATE_URL", oss.str());
             }
