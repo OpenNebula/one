@@ -41,6 +41,7 @@ usage() {
  echo "    an absolute path."
  echo "-c: install client utilities: OpenNebula cli, occi and ec2 client files"
  echo "-s: install OpenNebula Sunstone"
+ echo "-G: install OpenNebula Gate"
  echo "-o: install OpenNebula Zones (OZones)"
  echo "-r: remove Opennebula, only useful if -d was not specified, otherwise"
  echo "    rm -rf \$ONE_LOCATION would do the job"
@@ -68,6 +69,7 @@ INSTALL_ETC="yes"
 UNINSTALL="no"
 LINK="no"
 CLIENT="no"
+ONEGATE="no"
 SUNSTONE="no"
 OZONES="no"
 ONEADMIN_USER=`id -u`
@@ -81,6 +83,7 @@ while true ; do
         -r) UNINSTALL="yes"   ; shift ;;
         -l) LINK="yes" ; shift ;;
         -c) CLIENT="yes"; INSTALL_ETC="no" ; shift ;;
+        -G) ONEGATE="yes"; shift ;;
         -s) SUNSTONE="yes"; shift ;;
         -o) OZONES="yes"; shift ;;
         -u) ONEADMIN_USER="$2" ; shift 2;;
@@ -103,6 +106,7 @@ if [ -z "$ROOT" ] ; then
     ETC_LOCATION="/etc/one"
     LOG_LOCATION="/var/log/one"
     VAR_LOCATION="/var/lib/one"
+    ONEGATE_LOCATION="$LIB_LOCATION/onegate"
     SUNSTONE_LOCATION="$LIB_LOCATION/sunstone"
     OZONES_LOCATION="$LIB_LOCATION/ozones"
     SYSTEM_DS_LOCATION="$VAR_LOCATION/datastores/0"
@@ -127,6 +131,13 @@ if [ -z "$ROOT" ] ; then
         DELETE_DIRS="$MAKE_DIRS"
 
         CHOWN_DIRS=""
+    elif [ "$ONEGATE" = "yes" ]; then
+        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION \
+                   $ONEGATE_LOCATION $ETC_LOCATION"
+
+        DELETE_DIRS="$MAKE_DIRS"
+
+        CHOWN_DIRS=""
     elif [ "$OZONES" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION $OZONES_LOCATION \
                     $ETC_LOCATION"
@@ -139,7 +150,7 @@ if [ -z "$ROOT" ] ; then
                    $INCLUDE_LOCATION $SHARE_LOCATION \
                    $LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION \
                    $SYSTEM_DS_LOCATION $DEFAULT_DS_LOCATION $MAN_LOCATION \
-                   $VM_LOCATION"
+                   $VM_LOCATION $ONEGATE_LOCATION"
 
         DELETE_DIRS="$LIB_LOCATION $ETC_LOCATION $LOG_LOCATION $VAR_LOCATION \
                      $RUN_LOCATION $SHARE_DIRS"
@@ -152,6 +163,7 @@ else
     LIB_LOCATION="$ROOT/lib"
     ETC_LOCATION="$ROOT/etc"
     VAR_LOCATION="$ROOT/var"
+    ONEGATE_LOCATION="$LIB_LOCATION/onegate"
     SUNSTONE_LOCATION="$LIB_LOCATION/sunstone"
     OZONES_LOCATION="$LIB_LOCATION/ozones"
     SYSTEM_DS_LOCATION="$VAR_LOCATION/datastores/0"
@@ -163,6 +175,11 @@ else
 
     if [ "$CLIENT" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION"
+
+        DELETE_DIRS="$MAKE_DIRS"
+    elif [ "$ONEGATE" = "yes" ]; then
+        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION \
+                   $ONEGATE_LOCATION $ETC_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
     elif [ "$SUNSTONE" = "yes" ]; then
@@ -179,7 +196,7 @@ else
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION $SYSTEM_DS_LOCATION \
                    $DEFAULT_DS_LOCATION $MAN_LOCATION $OZONES_LOCATION \
-                   $VM_LOCATION"
+                   $VM_LOCATION  $ONEGATE_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
 
@@ -367,6 +384,8 @@ if [ "$CLIENT" = "yes" ]; then
     MAKE_DIRS="$MAKE_DIRS $LIB_ECO_CLIENT_DIRS $LIB_OCCI_CLIENT_DIRS $LIB_MARKET_CLIENT_DIRS \
                $LIB_OCA_CLIENT_DIRS $LIB_CLI_CLIENT_DIRS $CONF_CLI_DIRS \
                $ETC_LOCATION $OZONES_CLIENT_DIRS"
+elif [ "$ONEGATE" = "yes" ]; then
+    MAKE_DIRS="$MAKE_DIRS $LIB_OCA_CLIENT_DIRS"
 elif [ "$SUNSTONE" = "yes" ]; then
     MAKE_DIRS="$MAKE_DIRS $SUNSTONE_DIRS $LIB_OCA_CLIENT_DIRS"
 elif [ "$OZONES" = "yes" ]; then
@@ -534,6 +553,15 @@ INSTALL_SUNSTONE_FILES=(
 INSTALL_SUNSTONE_ETC_FILES=(
     SUNSTONE_ETC_FILES:$ETC_LOCATION
     SUNSTONE_ETC_VIEW_FILES:$ETC_LOCATION/sunstone-views
+)
+
+INSTALL_ONEGATE_FILES=(
+    ONEGATE_FILES:$ONEGATE_LOCATION
+    ONEGATE_BIN_FILES:$BIN_LOCATION
+)
+
+INSTALL_ONEGATE_ETC_FILES=(
+    ONEGATE_ETC_FILES:$ETC_LOCATION
 )
 
 INSTALL_OZONES_RUBY_FILES=(
@@ -1173,6 +1201,7 @@ CLOUD_AUTH_LIB_FILES="src/cloud/common/CloudAuth/OCCICloudAuth.rb \
                       src/cloud/common/CloudAuth/SunstoneCloudAuth.rb \
                       src/cloud/common/CloudAuth/EC2CloudAuth.rb \
                       src/cloud/common/CloudAuth/X509CloudAuth.rb \
+                      src/cloud/common/CloudAuth/OneGateCloudAuth.rb \
                       src/cloud/common/CloudAuth/OpenNebulaCloudAuth.rb"
 
 #-------------------------------------------------------------------------------
@@ -1655,6 +1684,16 @@ SUNSTONE_PUBLIC_LOCALE_ZH_TW="\
 src/sunstone/locale/languages/zh_TW.js \
 src/sunstone/locale/languages/zh_datatable.txt"
 
+#-----------------------------------------------------------------------------
+# OneGate files
+#-----------------------------------------------------------------------------
+
+ONEGATE_FILES="src/onegate/onegate-server.rb \
+                src/onegate/config.ru"
+
+ONEGATE_BIN_FILES="src/onegate/bin/onegate-server"
+
+ONEGATE_ETC_FILES="src/onegate/etc/onegate-server.conf"
 
 #-----------------------------------------------------------------------------
 # Ozones files
@@ -1900,13 +1939,15 @@ do_file() {
 
 if [ "$CLIENT" = "yes" ]; then
     INSTALL_SET=${INSTALL_CLIENT_FILES[@]}
+elif [ "$ONEGATE" = "yes" ]; then
+    INSTALL_SET="${INSTALL_ONEGATE_FILES[@]}"
 elif [ "$SUNSTONE" = "yes" ]; then
     INSTALL_SET="${INSTALL_SUNSTONE_RUBY_FILES[@]} ${INSTALL_SUNSTONE_FILES[@]}"
 elif [ "$OZONES" = "yes" ]; then
     INSTALL_SET="${INSTALL_OZONES_RUBY_FILES[@]} ${INSTALL_OZONES_FILES[@]}"
 else
     INSTALL_SET="${INSTALL_FILES[@]} ${INSTALL_OZONES_FILES[@]} \
-                 ${INSTALL_SUNSTONE_FILES[@]}"
+                 ${INSTALL_SUNSTONE_FILES[@]} ${INSTALL_ONEGATE_FILES[@]}"
 fi
 
 for i in ${INSTALL_SET[@]}; do
@@ -1923,12 +1964,15 @@ done
 if [ "$INSTALL_ETC" = "yes" ] ; then
     if [ "$SUNSTONE" = "yes" ]; then
         INSTALL_ETC_SET="${INSTALL_SUNSTONE_ETC_FILES[@]}"
+    elif [ "$ONEGATE" = "yes" ]; then
+        INSTALL_ETC_SET="${INSTALL_ONEGATE_ETC_FILES[@]}"
     elif [ "$OZONES" = "yes" ]; then
         INSTALL_ETC_SET="${INSTALL_OZONES_ETC_FILES[@]}"
     else
         INSTALL_ETC_SET="${INSTALL_ETC_FILES[@]} \
                          ${INSTALL_SUNSTONE_ETC_FILES[@]} \
-                         ${INSTALL_OZONES_ETC_FILES[@]}"
+                         ${INSTALL_OZONES_ETC_FILES[@]} \
+                         ${INSTALL_ONEGATE_ETC_FILES[@]}"
     fi
 
     for i in ${INSTALL_ETC_SET[@]}; do
