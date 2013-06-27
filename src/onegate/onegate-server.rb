@@ -81,7 +81,7 @@ helpers do
         begin
             result = $cloud_auth.auth(env, params)
         rescue Exception => e
-            logger.error { e.message }
+            logger.error { "Unauthorized login attempt #{e.message}" }
             halt 401, "Not authorized"
         end
 
@@ -100,6 +100,7 @@ put '/vm/:id' do
         vm = VirtualMachine.new_with_id(params[:id], client)
         rc = vm.info
         if OpenNebula.is_error?(rc)
+            logger.error {"VMID:#{params[:id]} vm.info error: #{rc.message}"}
             halt 404, rc.message
         else
             template_str = vm.template_like_str('USER_TEMPLATE')
@@ -109,6 +110,8 @@ put '/vm/:id' do
 
             rc = vm.update(template_str)
             if OpenNebula.is_error?(rc)
+                logger.error {"VMID:#{params[:id]} vm.update \
+                    error: #{rc.message}"}
                 halt 500, rc.message
             end
         end

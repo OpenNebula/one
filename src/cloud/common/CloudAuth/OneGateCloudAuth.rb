@@ -31,36 +31,37 @@ module OneGateCloudAuth
     def do_auth(env, params={})
         token = env['HTTP_X_ONEGATE_TOKEN']
         if token.nil?
-                STDERR.puts "token"
+            logger.error {"VMID:#{params[:id]} X_ONEGATE_TOKEN" \
+                " header not preset"}
             return nil
         else
             vm = VirtualMachine.new_with_id(params[:id], client)
             rc = vm.info
             if OpenNebula.is_error?(rc)
-                STDERR.puts "vm info"
-                # TODO Add log message
+                logger.error {"VMID:#{params[:id]} vm.info" \
+                    " error: #{rc.message}"}
                 return nil
             end
 
             user_id = vm['TEMPLATE/CREATED_BY']
             if user_id.nil?
-                # TODO Add log message
-                STDERR.puts "CREATED_BY"
+                logger.error {"VMID:#{params[:id]} CREATED_BY not present" \
+                    " in the VM TEMPLATE"}
                 return nil
             end
 
             user = User.new_with_id(user_id, client)
             rc = user.info
             if OpenNebula.is_error?(rc)
-                STDERR.puts "user info"
-                # TODO Add log message
+                logger.error {"VMID:#{params[:id]} user.info" \
+                    " error: #{rc.message}"}
                 return nil
             end
 
             token_password = user['TEMPLATE/TOKEN_PASSWORD']
             if token_password.nil?
-                STDERR.puts "token password nil"
-                # TODO Add log message
+                logger.error {"VMID:#{params[:id]} TOKEN_PASSWORD not present"\
+                    " in the USER:#{user_id} TEMPLATE"}
                 return nil
             end
 
@@ -70,12 +71,13 @@ module OneGateCloudAuth
 
                 if (token_vm_id.nil? || (token_vm_id != vm['ID']) ||
                     token_vm_stime.nil? || (token_vm_stime != vm['STIME']))
-                    STDERR.puts "token content check"
+                    logger.error {"VMID:#{params[:id]} token content does not" \
+                        " match"}
                     return nil
                 end
             rescue => e
-                STDERR.puts e.message
-                # TODO Add log message
+                logger.error {"VMID:#{params[:id]} token decrypt error:" \
+                    " #{e.message}"}
                 return nil
             end
 
