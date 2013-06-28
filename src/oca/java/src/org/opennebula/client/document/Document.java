@@ -131,7 +131,19 @@ public abstract class Document extends PoolElement
      */
     public OneResponse update(String new_document)
     {
-        return client.call(UPDATE, id, new_document);
+        return update(new_document, false);
+    }
+
+    /**
+     * Replaces the document template contents.
+     *
+     * @param new_document New template contents.
+     * @param append True to append new attributes instead of replace the whole template
+     * @return If successful the message contains the document id.
+     */
+    public OneResponse update(String new_document, boolean append)
+    {
+        return client.call(UPDATE, id, new_document, append);
     }
 
     /**
