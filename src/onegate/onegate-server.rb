@@ -103,12 +103,8 @@ put '/vm/:id' do
             logger.error {"VMID:#{params[:id]} vm.info error: #{rc.message}"}
             halt 404, rc.message
         else
-            template_str = vm.template_like_str('USER_TEMPLATE')
+            rc = vm.update(request.body.read, true)
 
-            # TODO check body format
-            template_str += "\n" + request.body.read
-
-            rc = vm.update(template_str)
             if OpenNebula.is_error?(rc)
                 logger.error {"VMID:#{params[:id]} vm.update \
                     error: #{rc.message}"}
