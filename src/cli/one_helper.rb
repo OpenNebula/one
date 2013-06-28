@@ -662,14 +662,14 @@ EOT
     end
 
     def OpenNebulaHelper.update_template(id, resource, path=nil, xpath='TEMPLATE')
-        return update_template_helper(false, id, resource, path=nil, xpath='TEMPLATE')
+        return update_template_helper(false, id, resource, path, xpath)
     end
 
     def OpenNebulaHelper.append_template(id, resource, path=nil, xpath='TEMPLATE')
-        return update_template_helper(true, id, resource, path=nil, xpath='TEMPLATE')
+        return update_template_helper(true, id, resource, path, xpath)
     end
 
-    def OpenNebulaHelper.update_template_helper(append, id, resource, path=nil, xpath='TEMPLATE')
+    def OpenNebulaHelper.update_template_helper(append, id, resource, path, xpath)
         unless path
             require 'tempfile'
 
