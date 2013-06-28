@@ -854,6 +854,16 @@ public:
     int replace_template(const string& tmpl_str, bool keep_restricted, string& error);
 
     /**
+     *  Append new attributes to the *user template*.
+     *    @param tmpl_str new contents
+     *    @param keep_restricted If true, the restricted attributes of the
+     *    current template will override the new template
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     */
+    int append_template(const string& tmpl_str, bool keep_restricted, string& error);
+
+    /**
      *  This function gets an attribute from the user template
      *    @param name of the attribute
      *    @param value of the attribute

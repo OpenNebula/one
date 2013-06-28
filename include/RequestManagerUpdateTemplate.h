@@ -45,6 +45,9 @@ protected:
 
     virtual int replace_template(PoolObjectSQL * object, const string & tmpl,
             const RequestAttributes &att, string &error_str);
+
+    virtual int append_template(PoolObjectSQL * object, const string & tmpl,
+            const RequestAttributes &att, string &error_str);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -85,6 +88,9 @@ public:
     /* -------------------------------------------------------------------- */
 
     int replace_template(PoolObjectSQL * object, const string & tmpl,
+            const RequestAttributes &att, string &error_str);
+
+    int append_template(PoolObjectSQL * object, const string & tmpl,
             const RequestAttributes &att, string &error_str);
 };
 

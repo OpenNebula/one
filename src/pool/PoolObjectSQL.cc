@@ -196,6 +196,38 @@ int PoolObjectSQL::replace_template(const string& tmpl_str, string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int PoolObjectSQL::append_template(const string& tmpl_str, string& error)
+{
+    Template * new_tmpl  = get_new_template();
+
+    if ( new_tmpl == 0 )
+    {
+        error = "Cannot allocate a new template";
+        return -1;
+    }
+
+    if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
+    {
+        delete new_tmpl;
+        return -1;
+    }
+
+    if ( obj_template != 0 )
+    {
+        obj_template->merge(new_tmpl, error);
+        delete new_tmpl;
+    }
+    else
+    {
+        obj_template = new_tmpl;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 string& PoolObjectSQL::perms_to_xml(string& xml) const
 {
     ostringstream   oss;

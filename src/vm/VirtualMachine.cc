@@ -3304,6 +3304,47 @@ int VirtualMachine::replace_template(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachine::append_template(
+        const string&   tmpl_str,
+        bool            keep_restricted,
+        string&         error)
+{
+    VirtualMachineTemplate * new_tmpl =
+            new VirtualMachineTemplate(false,'=',"USER_TEMPLATE");
+
+    if ( new_tmpl == 0 )
+    {
+        error = "Cannot allocate a new template";
+        return -1;
+    }
+
+    if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
+    {
+        delete new_tmpl;
+        return -1;
+    }
+
+    if (keep_restricted)
+    {
+        new_tmpl->remove_restricted();
+    }
+
+    if (user_obj_template != 0)
+    {
+        user_obj_template->merge(new_tmpl, error);
+        delete new_tmpl;
+    }
+    else
+    {
+        user_obj_template = new_tmpl;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachine::set_template_error_message(const string& message)
 {
     set_template_error_message("ERROR", message);
