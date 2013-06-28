@@ -17,15 +17,20 @@
 var user_cookie = $.cookie("one-user");
 
 setInterval(function(){
-    var new_cookie = $.cookie("one-user");
-
-    if ((new_cookie == null) || (new_cookie !== user_cookie)) {
-        window.location.href='/';
-    } else {
-        user_cookie = new_cookie
+    if (whichUI() == "sunstone") {
+        var user_cookie = cookie["one-user"];
+        readCookie();
+        if ((cookie["one-user"] == null) || (cookie["one-user"] !== user_cookie)) {
+            window.location.href='/';
+        }
+    } else if (whichUI() == "ozones") {
+        var user_cookie = cookie["ozones-user"];
+        readCookie();
+        if ((cookie["ozones-user"] == null) || (cookie["ozones-user"] !== user_cookie)) {
+            window.location.href='/';
+        }
     }
 },5000);
-
 
 Config = {
     "isTabEnabled": function(tab_name){
