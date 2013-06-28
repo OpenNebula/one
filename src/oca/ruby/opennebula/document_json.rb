@@ -56,15 +56,18 @@ module OpenNebula
         #
         # @params [String, nil] template_json string to be inserted in the
         #   template. If nil @body will be used instead
+        # @param append [true, false] True to append new attributes instead of
+        #   replace the whole template
+        #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         #
-        def update(template_json=nil)
+        def update(template_json=nil, append=false)
             template_json ||= @body.to_json
 
             text = build_template_xml(template_json)
 
-            super(text)
+            super(text, append)
         end
 
         # Generates a json representing the object

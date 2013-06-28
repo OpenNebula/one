@@ -114,10 +114,14 @@ module OpenNebula
 
         # Replaces the template contents
         #
-        # +new_template+ New template contents. If no argument is provided
-        #   the object will be updated using the @xml variable
-        def update(new_template=nil)
-            super(IMAGE_METHODS[:update], new_template)
+        # @param new_template [String] New template contents
+        # @param append [true, false] True to append new attributes instead of
+        #   replace the whole template
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def update(new_template=nil, append=false)
+            super(IMAGE_METHODS[:update], new_template, append ? 1 : 0)
         end
 
         # Enables an Image
