@@ -208,11 +208,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         editor will be launched to modify the current content.
     EOT
 
-    command :update, update_desc, :vmid, [:file, nil] do
-        helper.perform_action(args[0],options,"modified") do |vm|
-            str = OpenNebulaHelper.update_template(args[0], vm, args[1],
-                                                   'USER_TEMPLATE')
-            vm.update(str)
+    command :update, update_desc, :vmid, [:file, nil],
+    :options=>OpenNebulaHelper::APPEND do
+        helper.perform_action(args[0],options,"modified") do |obj|
+            if options[:append]
+                str = OpenNebulaHelper.append_template(args[0], obj, args[1], 'USER_TEMPLATE')
+            else
+                str = OpenNebulaHelper.update_template(args[0], obj, args[1], 'USER_TEMPLATE')
+            end
+
+            obj.update(str, options[:append])
         end
     end
 
