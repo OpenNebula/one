@@ -116,54 +116,6 @@ var create_template_tmpl = '<div class="panel">'+
   '</div>'+
   '<a class="close-reveal-modal">&#215;</a>';
 
-
-var update_template_tmpl =
-   '<form action="javascript:alert(\'js error!\');">\
-         <h3 style="margin-bottom:10px;">'+tr("Please, choose and modify the template you want to update")+':</h3>\
-            <fieldset style="border-top:none;">\
-                 <label for="template_template_update_select">'+tr("Select a template")+':</label>\
-                 <select id="template_template_update_select" name="template_template_update_select"></select>\
-                 <div class="clear"></div>\
-                 <div>\
-                   <table class="permissions_table" style="padding:0 10px;">\
-                     <thead><tr>\
-                         <td style="width:130px">'+tr("Permissions")+':</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Use")+'</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Manage")+'</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Admin")+'</td></tr></thead>\
-                     <tr>\
-                         <td>'+tr("Owner")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="template_owner_u" class="owner_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="template_owner_m" class="owner_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="template_owner_a" class="owner_a" /></td>\
-                     </tr>\
-                     <tr>\
-                         <td>'+tr("Group")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="template_group_u" class="group_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="template_group_m" class="group_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="template_group_a" class="group_a" /></td>\
-                     </tr>\
-                     <tr>\
-                         <td>'+tr("Other")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="template_other_u" class="other_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="template_other_m" class="other_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="template_other_a" class="other_a" /></td>\
-                     </tr>\
-                   </table>\
-                 </div>\
-                 <label for="template_template_update_textarea">'+tr("Template")+':</label>\
-                 <div class="clear"></div>\
-                 <textarea id="template_template_update_textarea" style="width:100%; height:14em;"></textarea>\
-            </fieldset>\
-            <fieldset>\
-                 <div class="form_buttons">\
-                    <button class="button" id="template_template_update_button" value="Template.update_template">\
-                       '+tr("Update")+'\
-                    </button>\
-                 </div>\
-            </fieldset>\
-</form>';
-
 var instantiate_vm_template_tmpl ='\
         <div class="panel">\
           <h3>\
@@ -3822,70 +3774,6 @@ function popUpCreateTemplateDialog(){
     $create_template_dialog.reveal();
 };
 
-function setupTemplateTemplateUpdateDialog(){
-    //Append to DOM
-    dialogs_context.append('<div id="template_template_update_dialog" title="'+tr("Update template properties")+'"></div>');
-    var dialog = $('#template_template_update_dialog',dialogs_context);
-
-    //Put HTML in place
-    dialog.html(update_template_tmpl);
-
-    var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
-
-    //Convert into jQuery
-    //dialog.dialog({
-    //    autoOpen:false,
-    //    width:700,
-    //    modal:true,
-    //    height:height,
-    //    resizable:false
-    //});
-    dialog.addClass("reveal-modal");
-
-    //$('button',dialog).button();
-
-    $('#template_template_update_select',dialog).change(function(){
-        var id = $(this).val();
-        $('.permissions_table input',dialog).removeAttr('checked')
-        $('.permissions_table',dialog).removeAttr('update');
-        if (id && id.length){
-            var dialog = $('#template_template_update_dialog');
-            $('#template_template_update_textarea',dialog).val(tr("Loading")+"...");
-
-            Sunstone.runAction("Template.fetch_permissions",id);
-            Sunstone.runAction("Template.fetch_template",id);
-        } else {
-            $('#template_template_update_textarea',dialog).val("");
-        };
-    });
-
-    $('.permissions_table input',dialog).change(function(){
-        $(this).parents('table').attr('update','update');
-    });
-
-    $('form',dialog).submit(function(){
-        var dialog = $(this);
-        var new_template = $('#template_template_update_textarea',dialog).val();
-        var id = $('#template_template_update_select',dialog).val();
-        if (!id || !id.length) {
-            $(this).parents('#template_template_update_dialog').trigger("reveal:close")
-            return false;
-        };
-
-        var permissions = $('.permissions_table',dialog);
-        if (permissions.attr('update')){
-            var perms = {
-                octet : buildOctet(permissions)
-            };
-            Sunstone.runAction("Template.chmod",id,perms);
-        };
-
-        Sunstone.runAction("Template.update",id,new_template);
-        $(this).parents('#template_template_update_dialog').trigger("reveal:close")
-        return false;
-    });
-};
-
 function popUpTemplateTemplateUpdateDialog(){
     var selected_nodes = getSelectedNodes(dataTable_templates);
 
@@ -3899,40 +3787,6 @@ function popUpTemplateTemplateUpdateDialog(){
     var template_id   = ""+selected_nodes[0];
 
     Sunstone.runAction("Template.show_to_update", template_id);
-//    var select = makeSelectOptions(dataTable_templates,
-//                                   1,//id_col
-//                                   4,//name_col
-//                                   [],
-//                                   []
-//                                  );
-//    var sel_elems = getSelectedNodes(dataTable_templates);
-//
-//
-//    var dialog =  $('#template_template_update_dialog');
-//    $('#template_template_update_select',dialog).html(select);
-//    $('#template_template_update_textarea',dialog).val("");
-//    $('.permissions_table input',dialog).removeAttr('checked');
-//    $('.permissions_table',dialog).removeAttr('update');
-//
-//    if (sel_elems.length >= 1){ //several items in the list are selected
-//        //grep them
-//        var new_select= sel_elems.length > 1? '<option value="">Please select</option>' : "";
-//        $('option','<select>'+select+'</select>').each(function(){
-//            var val = $(this).val();
-//            if ($.inArray(val,sel_elems) >= 0){
-//                new_select+='<option value="'+val+'">'+$(this).text()+'</option>';
-//            };
-//        });
-//        $('#template_template_update_select',dialog).html(new_select);
-//        if (sel_elems.length == 1) {
-//            $('#template_template_update_select option',dialog).attr('selected','selected');
-//            $('#template_template_update_select',dialog).trigger("change");
-//        };
-//    };
-//
-//    dialog.dialog('open');
-//    return false;
-
 };
 
 function fillTemplatePopUp(request, response){
@@ -4569,17 +4423,7 @@ function setupTemplateCloneDialog(){
 
 
     dialog.html(html);
-
-    //Convert into jQuery
-    //dialog.dialog({
-    //    autoOpen:false,
-    //    width:375,
-    //    modal:true,
-    //    resizable:false
-    //})
     dialog.addClass("reveal-modal");
-
-    //$('button',dialog).button();
 
     $('form',dialog).submit(function(){
         var name = $('input', this).val();
@@ -4720,7 +4564,6 @@ $(document).ready(function(){
     Sunstone.runAction("Template.list");
     setupInstantiateTemplateDialog();
     setupCreateTemplateDialog();
-    setupTemplateTemplateUpdateDialog();
     setupTemplateCloneDialog();
     setTemplateAutorefresh();
 
