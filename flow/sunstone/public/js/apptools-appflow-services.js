@@ -1332,7 +1332,7 @@ function updateServiceInfo(request,elem){
         selected_row_role_id = $($('td.markrowselected',servicerolesDataTable.fnGetNodes())[1]).html();
         checked_row_rolevm_ids = new Array();
 
-        if (serviceroleVMsDataTable) {
+        if (typeof(serviceroleVMsDataTable) !== 'undefined') {
             $.each($(serviceroleVMsDataTable.fnGetNodes()), function(){
                if($('td.markrowchecked',this).length!=0)
                {
