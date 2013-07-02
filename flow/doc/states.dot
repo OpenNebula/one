@@ -23,7 +23,9 @@ digraph AppFlow {
 
     subgraph { rank = min; user; pending}
     subgraph { rank = same; deploying; failed_deploying; color="white"}
+
     subgraph { rank = same; running; scaling; failed_scaling; color="white"}
+
     subgraph { rank = same; undeploying; failed_undeploying; color="white"}
 //    subgraph { rank = same; done; end; color="white"}
 
@@ -40,8 +42,12 @@ digraph AppFlow {
 //    running -> warning [style="dotted"];
 //    warning -> running [style="dotted"];
 
+
     running -> scaling [style="dashed"];
-    scaling -> running [style="dashed"];
+    scaling -> cooldown [style="dashed"];
+    cooldown -> running [style="dashed"];
+
+    cooldown -> failed_undeploying [style="invis"];
 
     failed_deploying -> deploying [label="recover"];
     deploying -> failed_deploying [style="dotted"];
