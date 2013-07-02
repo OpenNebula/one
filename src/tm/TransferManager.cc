@@ -530,7 +530,7 @@ void TransferManager::prolog_action(int vid)
             initrd = prolog_os_transfer_commands(
                         vm,
                         os_attr,
-                        "initrd",
+                        "INITRD",
                         opennebula_hostname,
                         xfr);
         }
