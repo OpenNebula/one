@@ -1332,12 +1332,14 @@ function updateServiceInfo(request,elem){
         selected_row_role_id = $($('td.markrowselected',servicerolesDataTable.fnGetNodes())[1]).html();
         checked_row_rolevm_ids = new Array();
 
-        $.each($(servicerolesDataTable.fnGetNodes()), function(){
-           if($('td.markrowchecked',this).length!=0)
-           {
-             checked_row_rolevm_ids.push($($('td',$(this))[1]).html());
-           }
-        });
+        if (serviceroleVMsDataTable) {
+            $.each($(serviceroleVMsDataTable.fnGetNodes()), function(){
+               if($('td.markrowchecked',this).length!=0)
+               {
+                 checked_row_rolevm_ids.push($($('td',$(this))[1]).html());
+               }
+            });
+        }
         Sunstone.runAction('Service.showinfo', elem_info.ID);
     })
 
@@ -1378,18 +1380,6 @@ function updateServiceInfo(request,elem){
 
         initCheckAllBoxes(servicerolesDataTable, $('#role_actions', $("#dialog")));
         tableCheckboxesListener(servicerolesDataTable, $('#role_actions', $("#dialog")));
-
-        $('tbody input.check_item',servicerolesDataTable).live("change",function(){
-            if($(this).is(":checked"))
-            {
-                $(this).parents('tr').children().each(function(){$(this).addClass('markrowchecked');});
-            }
-            else
-            {
-                $(this).parents('tr').children().removeClass('markrowchecked');
-                $(this).parents('tr').children().removeClass('markrowselected');
-            }
-        });
 
         $('tbody tr',servicerolesDataTable).die()
         $('tbody tr',servicerolesDataTable).live("click",function(e){
@@ -1648,19 +1638,6 @@ function updateServiceInfo(request,elem){
             initCheckAllBoxes(serviceroleVMsDataTable, $('div#role_vms_actions', $("#dialog")));
             tableCheckboxesListener(serviceroleVMsDataTable, $('div#role_vms_actions', $("#dialog")));
 
-            $('tbody input.check_item',serviceroleVMsDataTable).die()
-            $('tbody input.check_item',serviceroleVMsDataTable).live("change",function(){
-                if($(this).is(":checked"))
-                {
-                    $(this).parents('tr').children().each(function(){$(this).addClass('markrowchecked');});
-                }
-                else
-                {
-                    $(this).parents('tr').children().removeClass('markrowchecked');
-                }
-            });
-
-            $('tbody tr',serviceroleVMsDataTable).die()
             $('tbody tr',serviceroleVMsDataTable).live("click",function(e){
                 if ($(e.target).is('input') ||
                     $(e.target).is('select') ||
