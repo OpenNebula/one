@@ -28,11 +28,11 @@ end
 $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
-require 'vmware_driver'
+require 'vi_driver'
 
 deploy_id = ARGV[0]
 host      = ARGV[1]
 
-vmware_drv = VMwareDriver.new(host)
+VIDriver::initialize(host)
 
-puts vmware_drv.poll(deploy_id)
+puts VIDriver::poll_vm(deploy_id)

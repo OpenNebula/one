@@ -14,11 +14,22 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
+ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+end
+
+$: << RUBY_LIB_LOCATION
+$: << File.dirname(__FILE__)
+
+require 'vi_driver'
 require "scripts_common"
 require 'yaml'
 require "CommandManager"
 require 'rexml/document'
-include REXML
 
 class VMwareDriver
     # -------------------------------------------------------------------------#
@@ -367,31 +378,61 @@ class VMwareDriver
 
         deploy_id.strip!
 
-        dfile_hash = Document.new(File.open(dfile).read)
-        metadata   = XPath.first(dfile_hash, "//metadata")
-
-        return deploy_id if metadata.nil?
-
-        # Get the ds_id for system_ds from the first disk
-        metadata = metadata.text
-        source = XPath.first(dfile_hash, "//disk/source").attributes['file']
-        ds_id  = source.match(/^\[(.*)\](.*)/)[1]
-
-        name   = XPath.first(dfile_hash, "//name").text
-        vm_id  = name.match(/^one-(.*)/)[1]
-
-        # Reconstruct path to vmx & add metadata
-        path_to_vmx = "\$(find /vmfs/volumes/#{ds_id}/#{vm_id}/ -name #{name}.vmx)"
-        metadata.gsub!("\\n","\n")
-        sed_str = metadata.scan(/^([^ ]+) *=/).join("|")
-        do_ssh_action("sed -ri \"/^(#{sed_str}) *=.*$/d\" #{path_to_vmx} ; cat >> #{path_to_vmx}", metadata)
+        handle_metadata(dfile, deploy_id)
 
         return deploy_id
     end
 
     def domain_defined?(one_id)
         rc, info  = do_action("virsh -c #{@uri} dominfo one-#{one_id}", false)
-
         return rc
+    end
+
+    def handle_metadata(dfile, deploy_id)
+        dfile_hash = REXML::Document.new(File.open(dfile).read)
+
+        # Check for the known elements in metadata
+        guestos   = REXML::XPath.first(dfile_hash, "/domain/metadata/guestos")
+        pcibridge = REXML::XPath.first(dfile_hash, "/domain/metadata/pcibridge")
+
+        if (guestos || pcibridge)
+            VIDriver::initialize(@host, false)
+
+            vivm = VIDriver::VIVm.new(deploy_id, nil)
+
+            vivm.set_guestos(guestos.text) if guestos
+
+            vivm.set_pcibridge(pcibridge.text) if pcibridge
+        end
+
+        # Append the raw datavmx to vmx file
+        metadata   = REXML::XPath.first(dfile_hash, "/domain/metadata/datavmx")
+
+        return if metadata.nil?
+        return if metadata.text.nil?
+        return if metadata.text.strip.empty?
+
+        metadata = metadata.text
+
+        # Get the ds_id for system_ds from the first disk
+        disk   = REXML::XPath.first(dfile_hash, "/domain//disk/source")
+        source = disk.attributes['file']
+        ds_id  = source.match(/^\[(.*)\](.*)/)[1]
+
+        name   = REXML::XPath.first(dfile_hash, "/domain/name").text
+        vm_id  = name.match(/^one-(.*)/)[1]
+
+        # Reconstruct path to vmx & add metadata
+        path_to_vmx =  "\$(find /vmfs/volumes/#{ds_id}/#{vm_id}/"
+        path_to_vmx << " -name #{name}.vmx)"
+
+        metadata.gsub!("\\n","\n")
+
+        sed_str = metadata.scan(/^([^ ]+) *=/).join("|")
+
+        cmd_str = "sed -ri \"/^(#{sed_str}) *=.*$/d\" #{path_to_vmx}; "
+        cmd_str << "cat >> #{path_to_vmx}"
+
+        do_ssh_action(cmd_str, metadata)
     end
 end

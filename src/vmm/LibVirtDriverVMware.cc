@@ -44,6 +44,10 @@ int LibVirtDriver::deployment_description_vmware(
     int     memory_in_kb = 0;
 
     string  arch       = "";
+    string  guestOS    = "";
+    string  pciBridge  = "";
+
+    const VectorAttribute * features;
 
     const VectorAttribute * disk;
     const VectorAttribute * context;
@@ -77,7 +81,9 @@ int LibVirtDriver::deployment_description_vmware(
     const VectorAttribute * raw;
     string data;
     string default_raw;
-    string data_vmx;
+    string data_vmx    = "";
+
+    ostringstream metadata;
 
     // ------------------------------------------------------------------------
 
@@ -148,7 +154,8 @@ int LibVirtDriver::deployment_description_vmware(
 
         if( os != 0 )
         {
-            arch = os->vector_value("ARCH");
+            arch    = os->vector_value("ARCH");
+            guestOS = os->vector_value("GUESTOS");
         }
     }
 
@@ -162,6 +169,11 @@ int LibVirtDriver::deployment_description_vmware(
         }
     }
 
+    if ( !guestOS.empty() )
+    {
+        metadata << "<guestos>" << guestOS << "</guestos>" << endl;
+    }
+
     // Start writing to the file with the info we got
 
     file << "\t<os>" << endl;
@@ -169,6 +181,29 @@ int LibVirtDriver::deployment_description_vmware(
     file << "\t\t<type arch='" << arch << "'>hvm</type>" << endl;
 
     file << "\t</os>" << endl;
+
+    attrs.clear();
+
+    // ------------------------------------------------------------------------
+    // Features
+    // ------------------------------------------------------------------------
+
+    num = vm->get_template_attribute("FEATURES",attrs);
+
+    if ( num > 0 )
+    {
+        features = dynamic_cast<const VectorAttribute *>(attrs[0]);
+
+        if ( features != 0 )
+        {
+            pciBridge = features->vector_value("PCIBRIDGE");
+
+            if (!pciBridge.empty())
+            {
+                metadata << "<pcibridge>" << pciBridge << "</pcibridge>";
+            }
+        }
+    }
 
     attrs.clear();
 
@@ -452,7 +487,7 @@ int LibVirtDriver::deployment_description_vmware(
             data_vmx = raw->vector_value("DATA_VMX");
             if ( !data_vmx.empty() )
             {
-                file << "\t<metadata>" << data_vmx << "</metadata>" << endl;
+                metadata << "<datavmx>" << data_vmx << "</datavmx>";
             }
         }
     }
@@ -462,6 +497,11 @@ int LibVirtDriver::deployment_description_vmware(
     if ( !default_raw.empty() )
     {
         file << "\t" << default_raw << endl;
+    }
+
+    if ( !metadata.str().empty() )
+    {
+        file << "\t<metadata>" << metadata.str() << "</metadata>" << endl;
     }
 
     file << "</domain>" << endl;
