@@ -747,7 +747,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
           '<table id="'+str_datatable_id+'" class="datatable twelve">'+
             '<thead>'+
               '<tr>'+
-                '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
+                '<th></th>'+
                 '<th>'+tr("ID")+'</th>'+
                 '<th>'+tr("Owner")+'</th>'+
                 '<th>'+tr("Group")+'</th>'+
@@ -1094,9 +1094,20 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
 
     $("#refresh_template_images_table_button_class"+str_disk_tab_id).live('click', function(){
         // Retrieve the images to fill the datatable
-        OpenNebula.Image.list({
-          timeout: true,
-          success: function (request, images_list){
+        update_datatable_info($('table[id='+str_datatable_id+']').dataTable());
+    });
+
+    return html;
+}
+
+function update_datatable_info(datatable, fnDrawCallback) {
+    if (fnDrawCallback) {
+        datatable.on('draw', fnDrawCallback);
+    }
+
+    OpenNebula.Image.list({
+        timeout: true,
+        success: function (request, images_list){
             var image_list_array = [];
 
             $.each(images_list,function(){
@@ -1105,14 +1116,9 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
                     image_list_array.push(image_element_array);
             });
 
-            var dataTable_template_images = $('table[id='+str_datatable_id+']').dataTable();
-            updateView(image_list_array, dataTable_template_images);
-            }
-        });
-      }
-    );
-
-    return html;
+            updateView(image_list_array, datatable);
+        }
+    });
 }
 
 function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id) {
@@ -1231,78 +1237,39 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
 
 
     var dataTable_template_images = $('#'+str_datatable_id, disk_section).dataTable({
-        "bSortClasses": false,
-        "bAutoWidth":false,
         "iDisplayLength": 4,
+        "bAutoWidth":false,
         "sDom" : '<"H">t<"F"p>',
-        "oColVis": {
-            "aiExclude": [ 0 ]
-        },
         "aoColumnDefs": [
-            { "sWidth": "35px", "aTargets": [0] },
-            { "bVisible": false, "aTargets": [0,2,3,6,9,8,12]}
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+            { "sWidth": "35px", "aTargets": [0,1] },
+            { "bVisible": false, "aTargets": [2,3,6,9,8,12]}
+        ]
     });
 
-    //addElement([spinner,'','','','','','','','','','','',''],dataTable_template_images);
 
     // Retrieve the images to fill the datatable
-    OpenNebula.Image.list({
-      timeout: true,
-      success: function (request, images_list){
-          var image_list_array = [];
-
-          $.each(images_list,function(){
-            var image = imageElementArray(this);
-            if (image)
-              image_list_array.push(image);
-          });
-
-          updateView(image_list_array, dataTable_template_images);
-      },
-      error: onError
-    });
+    update_datatable_info(dataTable_template_images);
 
     $('#'+str_disk_tab_id+'_search', disk_section).keyup(function(){
       dataTable_template_images.fnFilter( $(this).val() );
     })
 
-    // TBD Add refresh button for the datatable
-
-    // When a row is selected the background color is updated. If a previous row
-    // was selected (previous_row) the background color is removed.
-    // #IMAGE and #IMAGE_ID inputs are updated using the row information
-    if (typeof previous_row === 'undefined') {
-        var previous_row = 0;
-    }
-
     $('#'+str_datatable_id + '  tbody', disk_section).delegate("tr", "click", function(e){
-        if ($(e.target).is('input') ||
-            $(e.target).is('select') ||
-            $(e.target).is('option')) return true;
-
         var aData = dataTable_template_images.fnGetData(this);
 
-        if (previous_row) {
-            $("td:first", previous_row).parent().children().each(function(){$(this).removeClass('markrow');});
-        }
-        else {
-            $('#image_selected', disk_section).toggle();
-            $('#select_image', disk_section).hide();
-        }
+        $("td.markrowchecked", disk_section).removeClass('markrowchecked');
+        $('tbody input.check_item', dataTable_template_images).removeAttr('checked');
 
+        $('#image_selected', disk_section).show();
+        $('#select_image', disk_section).hide();
         $('.alert-box', disk_section).hide();
 
-        previous_row = this;
-        $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
+        $("td", this).addClass('markrowchecked');
+        $('input.check_item', this).attr('checked','checked');
 
         $('#IMAGE', disk_section).text(aData[4]);
         $('#IMAGE_ID', disk_section).val(aData[1]);
-        return false;
+        return true;
     });
 
     // Hide image advanced options
@@ -1924,11 +1891,6 @@ function setupCreateTemplateDialog(){
         </dd>").appendTo($("dl#template_create_storage_tabs"));
 
         $(document).foundationTabs("set_tab", a);
-
-        $("#disk_tab"+str_disk_tab_id).live('click', function(){
-          $("#refresh_template_images_table_button_class"+str_disk_tab_id).click();
-        });
-
 
         var disk_section = $('li#' +str_disk_tab_id+'Tab', dialog);
         setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
@@ -3845,43 +3807,33 @@ function fillTemplatePopUp(request, response){
 
             var dataTable_template_images = $("#datatable_template_images" + number_of_disks).dataTable();
 
+            var disk_image_id = disk.IMAGE_ID
             // TODO updateView should not be required. Currently the dataTable
             //  is filled twice.
-            OpenNebula.Image.list({
-                timeout: true,
-                success: function (request, images_list){
-                    var image_list_array = [];
+            update_datatable_info(dataTable_template_images, function(){
+                dataTable_template_images.unbind('draw');
 
-                    $.each(images_list,function(){
-                        image_list_array.push(imageElementArray(this));
-                    });
+                var rows = dataTable_template_images.fnGetNodes();
+                var clicked = false
+                for (var j=0;j<rows.length;j++) {
+                    var current_row = $(rows[j]);
+                    var row_image_id = $(rows[j]).find("td:eq(1)").html();
 
-                    updateView(image_list_array, dataTable_template_images);
-
-                    var rows = dataTable_template_images.fnGetNodes();
-
-                    var clicked = false
-                    for (var j=0;j<rows.length;j++) {
-                        var current_row = $(rows[j]);
-                        var row_image_id = $(rows[j]).find("td:eq(0)").html();
-
-                        if (row_image_id == disk.IMAGE_ID) {
-                            rows[j].click();
-                            clicked = true;
-                        }
+                    if (row_image_id == disk_image_id) {
+                        rows[j].click();
+                        clicked = true;
                     }
+                }
 
-                    if (!clicked) {
-                        var alert = '<div class="alert-box alert">'+
-'IMAGE: '+ disk.IMAGE_ID + tr(" does not exists any more") +
+                if (!clicked) {
+                    var alert = '<div class="alert-box alert">'+
+'IMAGE: '+ disk_image_id + tr(" does not exists any more") +
 '  <a href="" class="close">&times;</a>'+
 '</div>';
 
-                        $(".dataTables_wrapper", disk_section).append(alert);
-                    }
-              },
-              error: onError
-            });
+                    $(".dataTables_wrapper", disk_section).append(alert);
+                }
+            })
 
         }
         else {
