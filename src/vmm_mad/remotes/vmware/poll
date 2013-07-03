@@ -33,6 +33,6 @@ require 'vi_driver'
 deploy_id = ARGV[0]
 host      = ARGV[1]
 
-vi_drv = VIDriver.new(host)
+VIDriver::initialize(host)
 
-puts vi_drv.poll_vm(deploy_id)
+puts VIDriver::poll_vm(deploy_id)

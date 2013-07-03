@@ -39,4 +39,4 @@ VIDriver::initialize(host, false)
 
 vivm = VIDriver::VIVm.new(deploy_id, nil)
 
-puts vivm.attach_nic(bridge, model, mac)
+puts vivm.attach_nic(bridge, mac, model)
