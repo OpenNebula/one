@@ -157,9 +157,9 @@ class VIVm
         return if (pciBridge.nil? || pciBridge.empty? )
 
         if pciBridge.downcase == "yes"
-            spec = { :key => "pciBridge0.present", :value => "TRUE" }
+            spec = [ :key => "pciBridge0.present", :value => "TRUE" ]
         else
-            spec = { :key => "pciBridge0.present", :value => "FALSE" }
+            spec = [ :key => "pciBridge0.present", :value => "FALSE" ]
         end
 
         vmspec = RbVmomi::VIM.VirtualMachineConfigSpec(:extraConfig => spec)
@@ -170,7 +170,7 @@ class VIVm
     ########################################################################
     #
     ########################################################################
-    def attach_nic(bridge, model, mac)
+    def attach_nic(bridge, mac, model='default')
         return if bridge.empty? || mac.empty?
 
         card_num = 1 # start in one, we want the next avaiable id
@@ -213,21 +213,18 @@ class VIVm
     #  Initialize the vm monitor information
     ########################################################################
     def detach_nic(mac)
-        nic_to_detach = nil
 
-        @vm.config.hardware.device.each{ |dv|
-            if dv.class.ancestors[1] == RbVmomi::VIM::VirtualEthernetCard
-                nic_to_detach = dv if dv.macAddress ==  mac
-                break
-            end
+        eth = @vm.config.hardware.device.find { |d|
+            (d.class.ancestors[1] == RbVmomi::VIM::VirtualEthernetCard) &&
+            (d.macAddress ==  mac)
         }
 
-        return -1 if !nic_to_detach
+        return -1 if eth.nil?
 
         spec = {
             :deviceChange => [
                 :operation => :remove,
-                :device => nic_to_detach
+                :device => eth
             ]
         }
 
