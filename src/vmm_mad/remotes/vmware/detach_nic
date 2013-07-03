@@ -33,6 +33,9 @@ deploy_id = ARGV[0]
 mac       = ARGV[1]
 host      = ARGV[3]
 
-vi_drv = VIDriver.new(host)
 
-puts vi_drv.detach_nic(deploy_id, mac)
+VIDriver::initialize(host, false)
+
+vivm = VIDriver::VIVm.new(deploy_id, nil)
+
+puts vivm.detach_nic(mac)

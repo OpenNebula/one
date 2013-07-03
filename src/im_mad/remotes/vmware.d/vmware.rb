@@ -34,9 +34,9 @@ if !host
     exit -1
 end
 
-vi_drv = VIDriver.new(host)
+VIDriver::initialize(host)
 
-results = vi_drv.poll_host_and_vms
+results = VIDriver::poll_host_and_vms
 
 if results != -1
   puts results

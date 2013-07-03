@@ -379,8 +379,7 @@ class VMwareDriver
 
         deploy_id.strip!
 
-        dfile_hash = Document.new(File.open(dfile).read)
-        handle_metadata(dfile_hash, deploy_id)
+        handle_metadata(dfile, deploy_id)
 
         return deploy_id
     end
@@ -390,61 +389,50 @@ class VMwareDriver
         return rc
     end
 
-    def handle_metadata(dfile_hash, deploy_id)
-        metadata   = XPath.first(dfile_hash, "//metadata")
+    def handle_metadata(dfile, deploy_id)
+        dfile_hash = Document.new(File.open(dfile).read)
 
-        # Check for the known types
-        guestOS   = XPath.first(dfile_hash, "//metadata/guestOS")
-        pciBridge = XPath.first(dfile_hash, "//metadata/pciBridge")
-        
-        if (guestOS or pciBridge)
-            vi_driver = VIDriver.new(@host)
+        # Check for the known elements in metadata
+        guestOS   = XPath.first(dfile_hash, "/domain/metadata/guestOS")
+        pciBridge = XPath.first(dfile_hash, "/domain/metadata/pciBridge")
+
+        if (guestOS || pciBridge)
+            VIDriver::initialize(@host, false)
+
+            vivm = VIDriver::VIVm.new(deploy_id, nil)
+
+            vivm.set_guestos(guestOS.text) if guestOS
+
+            vivm.set_pcibridge(pciBridge.text) if pciBridge
         end
 
-        dfile_hash = set_guest_os(dfile_hash,
-                                  vi_driver,
-                                  deploy_id,
-                                  guestOS) if guestOS
+        # Append the raw datavmx to vmx file
+        metadata   = XPath.first(dfile_hash, "/domain/metadata/datavmx")
 
-        dfile_hash = set_pcibridge(dfile_hash,
-                                  vi_driver,
-                                  deploy_id,
-                                  pciBridge) if pciBridge
-
-        metadata   = XPath.first(dfile_hash, "//metadata")
-
-        return if metadata.nil? 
+        return if metadata.nil?
         return if metadata.text.nil?
         return if metadata.text.strip.empty?
 
         metadata = metadata.text
 
         # Get the ds_id for system_ds from the first disk
-        source = XPath.first(dfile_hash, "//disk/source").attributes['file']
+        source = XPath.first(dfile_hash, "/domain//disk/source").attributes['file']
         ds_id  = source.match(/^\[(.*)\](.*)/)[1]
 
-        name   = XPath.first(dfile_hash, "//name").text
+        name   = XPath.first(dfile_hash, "/domain/name").text
         vm_id  = name.match(/^one-(.*)/)[1]
 
         # Reconstruct path to vmx & add metadata
-        path_to_vmx =  "\$(find /vmfs/volumes/#{ds_id}/#{vm_id}/" 
+        path_to_vmx =  "\$(find /vmfs/volumes/#{ds_id}/#{vm_id}/"
         path_to_vmx << " -name #{name}.vmx)"
+
         metadata.gsub!("\\n","\n")
+
         sed_str = metadata.scan(/^([^ ]+) *=/).join("|")
+
         cmd_str = "sed -ri \"/^(#{sed_str}) *=.*$/d\" #{path_to_vmx}; "
         cmd_str << "cat >> #{path_to_vmx}"
+
         do_ssh_action(cmd_str, metadata)
     end
-
-    def set_guest_os(dfile_hash, vi_driver, deploy_id, guestOS)
-        vi_driver.set_guest_os(deploy_id, guestOS.text)
-        dfile_hash.delete_element('//guestOS')
-        return dfile_hash
-    end
-
-    def set_pcibridge(dfile_hash, vi_driver, deploy_id, pciBridge)
-        vi_driver.set_pcibridge(deploy_id, pciBridge.text)
-        dfile_hash.delete_element('//pciBridge')
-        return dfile_hash
-    end    
 end
