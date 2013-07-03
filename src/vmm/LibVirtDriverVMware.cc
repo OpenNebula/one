@@ -45,7 +45,7 @@ int LibVirtDriver::deployment_description_vmware(
 
     string  arch       = "";
     string  guestOS    = "";
-    string  pciBridge  = "";    
+    string  pciBridge  = "";
 
     const VectorAttribute * disk;
     const VectorAttribute * context;
@@ -473,7 +473,7 @@ int LibVirtDriver::deployment_description_vmware(
             data_vmx = raw->vector_value("DATA_VMX");
             if ( !data_vmx.empty() )
             {
-                metadata << data_vmx;
+                metadata << "<datavmx>" << data_vmx << "</datavmx>";
             }
         }
     }
@@ -484,7 +484,7 @@ int LibVirtDriver::deployment_description_vmware(
     {
         file << "\t" << default_raw << endl;
     }
-    
+
     if ( !metadata.str().empty() )
     {
         file << "\t<metadata>" << metadata.str() << "</metadata>" << endl;

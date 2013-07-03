@@ -35,6 +35,8 @@ bridge    = ARGV[2]
 model     = ARGV[3]
 host      = ARGV[5]
 
-vi_drv = VIDriver.new(host)
+VIDriver::initialize(host, false)
 
-puts vi_drv.attach_nic(deploy_id, bridge, model, mac)
+vivm = VIDriver::VIVm.new(deploy_id, nil)
+
+puts vivm.attach_nic(bridge, model, mac)
