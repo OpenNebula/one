@@ -153,14 +153,15 @@ class VIVm
     # Set or removes a pciBridge from VM
     ########################################################################
     def set_pcibridge(pciBridge)
+        num = pciBridge.to_i
 
-        return if (pciBridge.nil? || pciBridge.empty? )
+        return if (num == 0)
 
-        if pciBridge.downcase == "yes"
-            spec = [ :key => "pciBridge0.present", :value => "TRUE" ]
-        else
-            spec = [ :key => "pciBridge0.present", :value => "FALSE" ]
-        end
+        spec = []
+
+        num.times { |i|
+            spec <<  { :key => "pciBridge#{i}.present", :value => "TRUE" }
+        }
 
         vmspec = RbVmomi::VIM.VirtualMachineConfigSpec(:extraConfig => spec)
 

@@ -171,7 +171,7 @@ int LibVirtDriver::deployment_description_vmware(
 
     if ( !guestOS.empty() )
     {
-        metadata << "<guestOS>" << guestOS << "</guestOS>" << endl;
+        metadata << "<guestos>" << guestOS << "</guestos>" << endl;
     }
 
     // Start writing to the file with the info we got

@@ -30,7 +30,6 @@ require "scripts_common"
 require 'yaml'
 require "CommandManager"
 require 'rexml/document'
-include REXML
 
 class VMwareDriver
     # -------------------------------------------------------------------------#
@@ -390,24 +389,24 @@ class VMwareDriver
     end
 
     def handle_metadata(dfile, deploy_id)
-        dfile_hash = Document.new(File.open(dfile).read)
+        dfile_hash = REXML::Document.new(File.open(dfile).read)
 
         # Check for the known elements in metadata
-        guestOS   = XPath.first(dfile_hash, "/domain/metadata/guestOS")
-        pciBridge = XPath.first(dfile_hash, "/domain/metadata/pciBridge")
+        guestos   = REXML::XPath.first(dfile_hash, "/domain/metadata/guestos")
+        pcibridge = REXML::XPath.first(dfile_hash, "/domain/metadata/pcibridge")
 
-        if (guestOS || pciBridge)
+        if (guestos || pcibridge)
             VIDriver::initialize(@host, false)
 
             vivm = VIDriver::VIVm.new(deploy_id, nil)
 
-            vivm.set_guestos(guestOS.text) if guestOS
+            vivm.set_guestos(guestos.text) if guestos
 
-            vivm.set_pcibridge(pciBridge.text) if pciBridge
+            vivm.set_pcibridge(pcibridge.text) if pcibridge
         end
 
         # Append the raw datavmx to vmx file
-        metadata   = XPath.first(dfile_hash, "/domain/metadata/datavmx")
+        metadata   = REXML::XPath.first(dfile_hash, "/domain/metadata/datavmx")
 
         return if metadata.nil?
         return if metadata.text.nil?
@@ -416,10 +415,11 @@ class VMwareDriver
         metadata = metadata.text
 
         # Get the ds_id for system_ds from the first disk
-        source = XPath.first(dfile_hash, "/domain//disk/source").attributes['file']
+        disk   = REXML::XPath.first(dfile_hash, "/domain//disk/source")
+        source = disk.attributes['file']
         ds_id  = source.match(/^\[(.*)\](.*)/)[1]
 
-        name   = XPath.first(dfile_hash, "/domain/name").text
+        name   = REXML::XPath.first(dfile_hash, "/domain/name").text
         vm_id  = name.match(/^one-(.*)/)[1]
 
         # Reconstruct path to vmx & add metadata
