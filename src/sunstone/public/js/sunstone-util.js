@@ -221,7 +221,7 @@ function updateView(item_list,dataTable){
         var dTable_settings = dataTable.fnSettings();
         var prev_start = dTable_settings._iDisplayStart;
 
-        dataTable.fnClearTable();
+        dataTable.fnClearTable(0);
         dataTable.fnAddData(item_list);
 
         var new_start = prev_start;
