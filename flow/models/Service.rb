@@ -198,9 +198,7 @@ module OpenNebula
             end
         end
 
-        # Recover a failed service. This action is called when the Service is
-        #   in FAILED_DEPLOYING or FAILED_SCALING and the user has fixed
-        #   the problem and wants the action to continue
+        # Recover a failed service.
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def recover

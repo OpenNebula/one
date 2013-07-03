@@ -487,10 +487,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     #
 
     recover_desc = <<-EOT.unindent
-        Recover a failed service
+        Recover a failed service, cleaning the failed VMs.
             From FAILED_DEPLOYING continues deploying the Service
             From FAILED_SCALING continues scaling the Service
             From FAILED_UNDEPLOYING continues shutting down the Service
+            From COOLDOWN the Service is set to running ignoring the cooldown duration
+            From WARNING failed VMs are deleted, and new VMs are instantiated
     EOT
 
     command :recover, recover_desc, [:range, :service_id_list] do
