@@ -1455,21 +1455,8 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
     $("#refresh_template_nic_table_button_class"+str_nic_tab_id).die();
 
     $("#refresh_template_nic_table_button_class"+str_nic_tab_id).live('click', function(){
-        // Retrieve the nics to fill the datatable
-        OpenNebula.Network.list({
-          timeout: true,
-          success: function (request, networks_list){
-          var network_list_array = [];
-
-          $.each(networks_list,function(){
-             network_list_array.push(vNetworkElementArray(this));
-          });
-          var dataTable_template_networks = $('table[id='+str_datatable_id+']').dataTable();
-          updateView(network_list_array, dataTable_template_networks);
-          }
-        });
-      }
-    );
+        update_datatable_template_networks($('table[id='+str_datatable_id+']').dataTable());
+    });
 
     return html;
 }
@@ -2055,7 +2042,7 @@ function setupCreateTemplateDialog(){
                   '<table id="datatable_kernel" class="datatable twelve">'+
                     '<thead>'+
                       '<tr>'+
-                        '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
+                        '<th></th>'+
                         '<th>'+tr("ID")+'</th>'+
                         '<th>'+tr("Owner")+'</th>'+
                         '<th>'+tr("Group")+'</th>'+
@@ -2115,7 +2102,7 @@ function setupCreateTemplateDialog(){
                   '<table id="datatable_initrd" class="datatable twelve">'+
                     '<thead>'+
                       '<tr>'+
-                        '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
+                        '<th></th>'+
                         '<th>'+tr("ID")+'</th>'+
                         '<th>'+tr("Owner")+'</th>'+
                         '<th>'+tr("Group")+'</th>'+
