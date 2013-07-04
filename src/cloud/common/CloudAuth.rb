@@ -23,7 +23,8 @@ class CloudAuth
         "sunstone"   => 'SunstoneCloudAuth' ,
         "ec2"        => 'EC2CloudAuth',
         "x509"       => 'X509CloudAuth',
-        "opennebula" => 'OpenNebulaCloudAuth'
+        "opennebula" => 'OpenNebulaCloudAuth',
+        "onegate"    => 'OneGateCloudAuth'
     }
 
     # These are the authentication modules for the OpenNebula requests
@@ -114,6 +115,10 @@ class CloudAuth
         update_userpool_cache if @conf[:use_user_pool_cache]
 
         return do_auth(env, params)
+    end
+
+    def logger
+        @logger
     end
 
     protected

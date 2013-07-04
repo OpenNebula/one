@@ -1690,7 +1690,7 @@ function fromJSONtoActionsTable(actions_array){
 function fromJSONtoActionRow(scheduling_action){
     var str = "";
 
-    var done_str    = scheduling_action.DONE ? scheduling_action.DONE : "";
+    var done_str    = scheduling_action.DONE ? (new Date(scheduling_action.DONE*1000).toLocaleString()) : "";
     var message_str = scheduling_action.MESSAGE ? scheduling_action.MESSAGE : "";
     var time_str    = new Date(scheduling_action.TIME*1000).toLocaleString();
 

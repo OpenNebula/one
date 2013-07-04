@@ -488,6 +488,13 @@ public:
      */
     virtual int replace_template(const string& tmpl_str, string& error);
 
+    /**
+     *  Append new attributes to this object's template. Object should be updated
+     *  after calling this method
+     *    @param tmpl string representation of the template
+     */
+    virtual int append_template(const string& tmpl_str, string& error);
+
 
     /**
      *  Fills a auth class to perform an authZ/authN request based on the object

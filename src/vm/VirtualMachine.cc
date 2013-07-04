@@ -28,6 +28,7 @@
 #include "VirtualNetworkPool.h"
 #include "ImagePool.h"
 #include "NebulaLog.h"
+#include "NebulaUtil.h"
 
 #include "Nebula.h"
 
@@ -727,6 +728,44 @@ int VirtualMachine::parse_context(string& error_str)
     }
 
     obj_template->set(context_parsed);
+
+    // -------------------------------------------------------------------------
+    // OneGate URL
+    // -------------------------------------------------------------------------
+
+    bool token;
+    context_parsed->vector_value("TOKEN", token);
+
+    if (token)
+    {
+        string onegate_url;
+        context_parsed->vector_value("ONEGATE_URL");
+
+        if (onegate_url.empty())
+        {
+            string endpoint;
+            endpoint = context_parsed->vector_value("ONEGATE_ENDPOINT");
+
+            if ( endpoint.empty() )
+            {
+                Nebula::instance().get_configuration_attribute(
+                        "ONEGATE_ENDPOINT", endpoint);
+            }
+
+            if ( endpoint.empty() )
+            {
+                error_str = "CONTEXT/TOKEN set, but OneGate endpoint was not defined in oned.conf or CONTEXT.";
+                return -1;
+            }
+            else
+            {
+                ostringstream oss;
+                oss << endpoint << "/vm/" << oid;
+
+                context_parsed->replace("ONEGATE_URL", oss.str());
+            }
+        }
+    }
 
     return rc;
 
@@ -2361,7 +2400,7 @@ int VirtualMachine::release_network_leases(VectorAttribute const * nic, int vmid
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::generate_context(string &files, int &disk_id)
+int VirtualMachine::generate_context(string &files, int &disk_id, string& token_password)
 {
     ofstream file;
     string   files_ds;
@@ -2372,6 +2411,7 @@ int VirtualMachine::generate_context(string &files, int &disk_id)
     map<string, string>::const_iterator it;
 
     files = "";
+    bool token;
 
     if ( history == 0 )
         return -1;
@@ -2409,6 +2449,60 @@ int VirtualMachine::generate_context(string &files, int &disk_id)
     {
         files += " ";
         files += files_ds;
+    }
+
+    context->vector_value("TOKEN", token);
+
+    if (token)
+    {
+        ofstream      token_file;
+        ostringstream oss;
+
+        string* encrypted;
+        string  tk_error;
+
+        if (token_password.empty())
+        {
+            tk_error = "CONTEXT/TOKEN set, but TOKEN_PASSWORD is not defined"
+                " in the user template.";
+
+            file.close();
+
+            log("VM", Log::ERROR, tk_error.c_str());
+            set_template_error_message(tk_error);
+
+            return -1;
+        }
+
+        // The token_password is taken from the owner user's template.
+        // We store this original owner in case a chown operation is performed.
+        add_template_attribute("CREATED_BY", uid);
+
+        token_file.open(history->token_file.c_str(), ios::out);
+
+        if (token_file.fail())
+        {
+            tk_error = "Cannot create token file";
+
+            file.close();
+
+            log("VM", Log::ERROR, tk_error.c_str());
+            set_template_error_message(tk_error);
+
+            return -1;
+        }
+
+        oss << oid << ':' << stime;
+
+        encrypted = one_util::aes256cbc_encrypt(oss.str(), token_password);
+
+        token_file << *encrypted << endl;
+
+        token_file.close();
+
+        delete encrypted;
+
+        files += (" " + history->token_file);
     }
 
     const map<string, string> values = context->value();
@@ -3218,6 +3312,47 @@ int VirtualMachine::replace_template(
     delete user_obj_template;
 
     user_obj_template = new_tmpl;
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::append_template(
+        const string&   tmpl_str,
+        bool            keep_restricted,
+        string&         error)
+{
+    VirtualMachineTemplate * new_tmpl =
+            new VirtualMachineTemplate(false,'=',"USER_TEMPLATE");
+
+    if ( new_tmpl == 0 )
+    {
+        error = "Cannot allocate a new template";
+        return -1;
+    }
+
+    if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
+    {
+        delete new_tmpl;
+        return -1;
+    }
+
+    if (keep_restricted)
+    {
+        new_tmpl->remove_restricted();
+    }
+
+    if (user_obj_template != 0)
+    {
+        user_obj_template->merge(new_tmpl, error);
+        delete new_tmpl;
+    }
+    else
+    {
+        user_obj_template = new_tmpl;
+    }
 
     return 0;
 }

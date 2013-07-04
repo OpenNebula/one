@@ -557,7 +557,7 @@ public:
      *  or, in case that OpenNebula is installed in root
      *          /var/lib/one/vms/$VM_ID/deployment.$SEQ
      *  The hasHistory() function MUST be called before this one.
-     *    @return the deployment filename
+     *    @return the deployment file path
      */
     const string & get_deployment_file() const
     {
@@ -570,11 +570,24 @@ public:
      *  or, in case that OpenNebula is installed in root
      *          /var/lib/one/vms/$VM_ID/context.sh
      *  The hasHistory() function MUST be called before this one.
-     *    @return the deployment filename
+     *    @return the context file path
      */
     const string & get_context_file() const
     {
         return history->context_file;
+    }
+
+    /**
+     *  Returns the token filename. The token file is in the form:
+     *          $ONE_LOCATION/var/vms/$VM_ID/token.txt
+     *  or, in case that OpenNebula is installed in root
+     *          /var/lib/one/vms/$VM_ID/token.txt
+     *  The hasHistory() function MUST be called before this one.
+     *    @return the token file path
+     */
+    const string & get_token_file() const
+    {
+        return history->token_file;
     }
 
     /**
@@ -854,6 +867,16 @@ public:
     int replace_template(const string& tmpl_str, bool keep_restricted, string& error);
 
     /**
+     *  Append new attributes to the *user template*.
+     *    @param tmpl_str new contents
+     *    @param keep_restricted If true, the restricted attributes of the
+     *    current template will override the new template
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     */
+    int append_template(const string& tmpl_str, bool keep_restricted, string& error);
+
+    /**
      *  This function gets an attribute from the user template
      *    @param name of the attribute
      *    @param value of the attribute
@@ -1043,9 +1066,10 @@ public:
      *  in the context block device (CBD)
      *    @param  files space separated list of paths to be included in the CBD
      *    @param  disk_id CONTEXT/DISK_ID attribute value
+     *    @param  token_password Password to encrypt the token, if it is set
      *    @return -1 in case of error, 0 if the VM has no context, 1 on success
      */
-    int  generate_context(string &files, int &disk_id);
+    int  generate_context(string &files, int &disk_id, string& token_password);
 
     // -------------------------------------------------------------------------
     // Datastore related functions

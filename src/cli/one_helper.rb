@@ -67,6 +67,13 @@ EOT
         :description => "Describe list columns"
     }
 
+    APPEND = {
+        :name => "append",
+        :short => "-a",
+        :large => "--append",
+        :description => "Append new attributes to the current template"
+    }
+
     # Command line VM template options
     TEMPLATE_NAME_VM={
         :name   => 'name',
@@ -655,21 +662,31 @@ EOT
     end
 
     def OpenNebulaHelper.update_template(id, resource, path=nil, xpath='TEMPLATE')
+        return update_template_helper(false, id, resource, path, xpath)
+    end
+
+    def OpenNebulaHelper.append_template(id, resource, path=nil, xpath='TEMPLATE')
+        return update_template_helper(true, id, resource, path, xpath)
+    end
+
+    def OpenNebulaHelper.update_template_helper(append, id, resource, path, xpath)
         unless path
             require 'tempfile'
 
             tmp  = Tempfile.new(id.to_s)
             path = tmp.path
 
-            rc = resource.info
+            if !append
+                rc = resource.info
 
-            if OpenNebula.is_error?(rc)
-                puts rc.message
-                exit -1
+                if OpenNebula.is_error?(rc)
+                    puts rc.message
+                    exit -1
+                end
+
+                tmp << resource.template_like_str(xpath)
+                tmp.flush
             end
-
-            tmp << resource.template_like_str(xpath)
-            tmp.flush
 
             editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH
             system("#{editor_path} #{path}")

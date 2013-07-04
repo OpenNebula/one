@@ -2755,6 +2755,20 @@ function setupCreateTemplateDialog(){
                               '</div>'+
                             '</div>'+
                         '</fieldset>'+
+                        '<fieldset>'+
+                            '<legend>'+tr("OneGate token")+'</legend>'+
+                            '<div class="">'+
+                              '<div class="columns one">'+
+                                  '<input type="checkbox" name="token_context" id="token_context">'+
+                              '</div>'+
+                              '<div class="columns ten">'+
+                                  '<label class="inline" for="token_context">'+ tr("  Add OneGate token")+'</label>'+
+                              '</div>'+
+                              '<div class="columns one">'+
+                                  '<div class="tip">'+tr("Add a file (token.txt) to the context contaning the token to push custom metrics to the VirtualMachine through OneGate")+'</div>'+
+                              '</div>'+
+                            '</div>'+
+                        '</fieldset>'+
                     '</div>'+
                   '</div>'+
                     '</li>'+
@@ -3679,6 +3693,10 @@ function setupCreateTemplateDialog(){
 
             nic_id++;
           });
+        };
+
+        if ($("#token_context", $('li#contextTab')).is(":checked")) {
+          vm_json["CONTEXT"]["TOKEN"] = "YES";
         };
 
         addSectionJSON(vm_json["CONTEXT"],$('li#contextTab',dialog));

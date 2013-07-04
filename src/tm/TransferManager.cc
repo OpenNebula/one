@@ -441,9 +441,31 @@ void TransferManager::prolog_action(int vid)
 
     int  context_result;
 
+    string token_password;
+
     // -------------------------------------------------------------------------
     // Setup & Transfer script
     // -------------------------------------------------------------------------
+
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    int uid = vm->get_uid();
+
+    vm->unlock();
+
+    User * user = Nebula::instance().get_upool()->get(uid, true);
+
+    if (user != 0)
+    {
+        user->get_template_attribute("TOKEN_PASSWORD", token_password);
+        user->unlock();
+    }
+
     vm = vmpool->get(vid,true);
 
     if (vm == 0)
@@ -559,7 +581,7 @@ void TransferManager::prolog_action(int vid)
     // Generate context file
     // -------------------------------------------------------------------------
 
-    context_result = vm->generate_context(files, disk_id);
+    context_result = vm->generate_context(files, disk_id, token_password);
 
     if ( context_result == -1 )
     {

@@ -121,11 +121,13 @@ public class Datastore extends PoolElement
      * @param client XML-RPC Client.
      * @param id The id of the target datastore we want to modify.
      * @param new_template New datastore contents.
+     * @param append True to append new attributes instead of replace the whole template
      * @return If successful the message contains the datastore id.
      */
-    public static OneResponse update(Client client, int id, String new_template)
+    public static OneResponse update(Client client, int id, String new_template,
+        boolean append)
     {
-        return client.call(UPDATE, id, new_template);
+        return client.call(UPDATE, id, new_template, append ? 1 : 0);
     }
 
     /**
@@ -245,7 +247,19 @@ public class Datastore extends PoolElement
      */
     public OneResponse update(String new_template)
     {
-        return update(client, id, new_template);
+        return update(new_template, false);
+    }
+
+    /**
+     * Replaces the datastore template.
+     *
+     * @param new_template New datastore template.
+     * @param append True to append new attributes instead of replace the whole template
+     * @return If successful the message contains the datastore id.
+     */
+    public OneResponse update(String new_template, boolean append)
+    {
+        return update(client, id, new_template, append);
     }
 
     /**

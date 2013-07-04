@@ -33,6 +33,18 @@ int RequestManagerUpdateTemplate::replace_template(
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+int RequestManagerUpdateTemplate::append_template(
+        PoolObjectSQL * object,
+        const string & tmpl,
+        const RequestAttributes &att,
+        string &error_str)
+{
+    return object->append_template(tmpl, error_str);
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 int VirtualMachineUpdateTemplate::replace_template(
         PoolObjectSQL * object,
         const string & tmpl,
@@ -55,6 +67,27 @@ int VirtualMachineUpdateTemplate::replace_template(
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+int VirtualMachineUpdateTemplate::append_template(
+        PoolObjectSQL * object,
+        const string & tmpl,
+        const RequestAttributes & att,
+        string & error_str)
+{
+    VirtualMachine* vm = static_cast<VirtualMachine*>(object);
+
+    if (att.uid!=UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
+    {
+        return vm->append_template(tmpl, true, error_str);
+    }
+    else
+    {
+        return vm->append_template(tmpl, false, error_str);
+    }
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 void RequestManagerUpdateTemplate::request_execute(
         xmlrpc_c::paramList const& paramList,
         RequestAttributes& att)
@@ -64,13 +97,30 @@ void RequestManagerUpdateTemplate::request_execute(
 
     int    oid  = xmlrpc_c::value_int(paramList.getInt(1));
     string tmpl = xmlrpc_c::value_string(paramList.getString(2));
-    
+
+    int update_type = 0;
+
+    if ( paramList.size() > 3 )
+    {
+        update_type = xmlrpc_c::value_int(paramList.getInt(3));
+    }
+
     PoolObjectSQL * object;
 
     if ( basic_authorization(oid, att) == false )
     {
         return;
     }
+
+    if ( update_type < 0 || update_type > 1 )
+    {
+        failure_response(XML_RPC_API,
+                request_error("Wrong update type",error_str),
+                att);
+
+        return;
+    }
+
 
     object = pool->get(oid,true);
 
@@ -83,9 +133,14 @@ void RequestManagerUpdateTemplate::request_execute(
         return;
     }
 
-    rc = replace_template(object, tmpl, att, error_str);
-
-//    rc = object->replace_template(tmpl, error_str);
+    if (update_type == 0)
+    {
+        rc = replace_template(object, tmpl, att, error_str);
+    }
+    else //if (update_type == 1)
+    {
+        rc = append_template(object, tmpl, att, error_str);
+    }
 
     if ( rc != 0 )
     {

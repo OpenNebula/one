@@ -1,0 +1,122 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+if [ -z "$ONE_LOCATION" ]; then
+    ONEGATE_PID=/var/run/one/onegate.pid
+    ONEGATE_SERVER=/usr/lib/one/onegate/onegate-server.rb
+    ONEGATE_LOCK_FILE=/var/lock/one/.onegate.lock
+    ONEGATE_LOG=/var/log/one/onegate.log
+    ONEGATE_LOG_ERROR=/var/log/one/onegate.error
+    ONEGATE_CONF=/etc/one/onegate-server.conf
+else
+    ONEGATE_PID=$ONE_LOCATION/var/onegate.pid
+    ONEGATE_SERVER=$ONE_LOCATION/lib/onegate/onegate-server.rb
+    ONEGATE_LOCK_FILE=$ONE_LOCATION/var/.onegate.lock
+    ONEGATE_LOG=$ONE_LOCATION/var/onegate.log
+    ONEGATE_LOG_ERROR=$ONE_LOCATION/var/onegate.error
+    ONEGATE_CONF=$ONE_LOCATION/etc/onegate-server.conf
+fi
+
+setup()
+{
+  if [ -f $ONEGATE_LOCK_FILE ]; then
+    if [ -f  $ONEGATE_PID ]; then
+      ONEGATEPID=`cat $ONEGATE_PID`
+      ps $ONEGATEPID &> /dev/null
+      if [ $? -eq 0 ]; then
+        echo -n "OneGate Server is still running (PID:$ONEGATEPID). Please "
+        echo "try 'onegate-server stop' first."
+        exit 1
+      fi
+    fi
+    echo "Stale .lock detected. Erasing it."
+    rm $ONEGATE_LOCK_FILE
+  fi
+}
+
+
+start()
+{
+  if [ ! -f "$ONEGATE_SERVER" ]; then
+    echo "Cannot find $ONEGATE_SERVER."
+    exit 1
+  fi
+
+  # Start the onegate daemon
+  touch $ONEGATE_LOCK_FILE
+  ruby $ONEGATE_SERVER > $ONEGATE_LOG 2>$ONEGATE_LOG_ERROR &
+  LASTPID=$!
+
+  if [ $? -ne 0 ]; then
+    echo "Error executing onegate-server."
+    echo "Check $ONEGATE_LOG_ERROR and $ONEGATE_LOG for more information"
+    exit 1
+  else
+    echo $LASTPID > $ONEGATE_PID
+  fi
+
+  sleep 1
+  ps $LASTPID &> /dev/null
+
+  if [ $? -ne 0 ]; then
+    echo "Error executing onegate-server."
+    echo "Check $ONEGATE_LOG_ERROR and $ONEGATE_LOG for more information"
+    exit 1
+  fi
+
+  echo "onegate-server started"
+}
+
+#
+# Function that stops the daemon/service
+#
+stop()
+{
+  if [ ! -f $ONEGATE_PID ]; then
+    echo "Couldn't find onegate-server process pid."
+    exit 1
+  fi
+
+  # Kill the onegate daemon
+  kill -INT `cat $ONEGATE_PID` &> /dev/null
+
+  # Remove pid files
+  rm -f $ONEGATE_LOCK_FILE &> /dev/null
+  rm -f $ONEGATE_PID &> /dev/null
+
+  echo "onegate-server stopped"
+}
+
+case "$1" in
+  start)
+    setup
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart)
+    stop
+    setup
+    start
+    ;;
+  *)
+    echo "Usage: onegate-server {start|stop|restart}" >&2
+    exit 3
+    ;;
+esac

@@ -120,14 +120,16 @@ module OpenNebula
         # Replaces the template contents
         #
         # @param [String] new_template new template contents
+        # @param append [true, false] True to append new attributes instead of
+        #   replace the whole template
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def update(new_template)
+        def update(new_template, append=false)
             rc = check_type()
             return rc if OpenNebula.is_error?(rc)
 
-            super(DOCUMENT_METHODS[:update], new_template)
+            super(DOCUMENT_METHODS[:update], new_template, append ? 1 : 0)
         end
 
         # Changes the owner/group

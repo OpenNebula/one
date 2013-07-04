@@ -125,11 +125,13 @@ public class Image extends PoolElement
      * @param client XML-RPC Client.
      * @param id The image id of the target image we want to modify.
      * @param new_template New template contents
+     * @param append True to append new attributes instead of replace the whole template
      * @return If successful the message contains the image id.
      */
-    public static OneResponse update(Client client, int id, String new_template)
+    public static OneResponse update(Client client, int id, String new_template,
+        boolean append)
     {
-        return client.call(UPDATE, id, new_template);
+        return client.call(UPDATE, id, new_template, append ? 1 : 0);
     }
 
     /**
@@ -314,7 +316,19 @@ public class Image extends PoolElement
      */
     public OneResponse update(String new_template)
     {
-        return update(client, id, new_template);
+        return update(new_template, false);
+    }
+
+    /**
+     * Replaces the template contents.
+     *
+     * @param new_template New template contents
+     * @param append True to append new attributes instead of replace the whole template
+     * @return If successful the message contains the image id.
+     */
+    public OneResponse update(String new_template, boolean append)
+    {
+        return update(client, id, new_template, append);
     }
 
     /**
