@@ -96,24 +96,23 @@ end
 
 put '/vm/:id' do
     client = authenticate(request.env, params)
-    if client
-        vm = VirtualMachine.new_with_id(params[:id], client)
-        rc = vm.info
-        if OpenNebula.is_error?(rc)
-            logger.error {"VMID:#{params[:id]} vm.info error: #{rc.message}"}
-            halt 404, rc.message
-        else
-            rc = vm.update(request.body.read, true)
 
-            if OpenNebula.is_error?(rc)
-                logger.error {"VMID:#{params[:id]} vm.update \
-                    error: #{rc.message}"}
-                halt 500, rc.message
-            end
-        end
+    halt 401, "Not authorized" if client.nil?
 
-        [200, ""]
-    else
-        halt 401, "Not authorized"
+    vm = VirtualMachine.new_with_id(params[:id], client)
+    rc = vm.info
+
+    if OpenNebula.is_error?(rc)
+        logger.error {"VMID:#{params[:id]} vm.info error: #{rc.message}"}
+        halt 404, rc.message
     end
+
+    rc = vm.update(request.body.read, true)
+
+    if OpenNebula.is_error?(rc)
+        logger.error {"VMID:#{params[:id]} vm.update error: #{rc.message}"}
+        halt 500, rc.message
+    end
+
+    [200, ""]
 end

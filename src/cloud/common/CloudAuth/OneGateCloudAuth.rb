@@ -30,6 +30,7 @@ module OneGateCloudAuth
 
     def do_auth(env, params={})
         token = env['HTTP_X_ONEGATE_TOKEN']
+
         if token.nil?
             logger.error {"VMID:#{params[:id]} X_ONEGATE_TOKEN" \
                 " header not preset"}
@@ -37,6 +38,7 @@ module OneGateCloudAuth
         else
             vm = VirtualMachine.new_with_id(params[:id], client)
             rc = vm.info
+
             if OpenNebula.is_error?(rc)
                 logger.error {"VMID:#{params[:id]} vm.info" \
                     " error: #{rc.message}"}
@@ -44,6 +46,7 @@ module OneGateCloudAuth
             end
 
             user_id = vm['TEMPLATE/CREATED_BY']
+
             if user_id.nil?
                 logger.error {"VMID:#{params[:id]} CREATED_BY not present" \
                     " in the VM TEMPLATE"}
@@ -51,7 +54,8 @@ module OneGateCloudAuth
             end
 
             user = User.new_with_id(user_id, client)
-            rc = user.info
+            rc   = user.info
+
             if OpenNebula.is_error?(rc)
                 logger.error {"VMID:#{params[:id]} user.info" \
                     " error: #{rc.message}"}
@@ -59,6 +63,7 @@ module OneGateCloudAuth
             end
 
             token_password = user['TEMPLATE/TOKEN_PASSWORD']
+
             if token_password.nil?
                 logger.error {"VMID:#{params[:id]} TOKEN_PASSWORD not present"\
                     " in the USER:#{user_id} TEMPLATE"}
@@ -88,9 +93,9 @@ module OneGateCloudAuth
 
     private
 
-    def encrypt(data)
+    def encrypt(data, token_password)
         @cipher.encrypt
-        @cipher.key = @key
+        @cipher.key = token_password
 
         rc = @cipher.update(data)
         rc << @cipher.final

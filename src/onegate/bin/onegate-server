@@ -59,7 +59,7 @@ start()
 
   # Start the onegate daemon
   touch $ONEGATE_LOCK_FILE
-  ruby -dw $ONEGATE_SERVER > $ONEGATE_LOG 2>$ONEGATE_LOG_ERROR &
+  ruby $ONEGATE_SERVER > $ONEGATE_LOG 2>$ONEGATE_LOG_ERROR &
   LASTPID=$!
 
   if [ $? -ne 0 ]; then
@@ -87,7 +87,6 @@ start()
 #
 stop()
 {
-
   if [ ! -f $ONEGATE_PID ]; then
     echo "Couldn't find onegate-server process pid."
     exit 1

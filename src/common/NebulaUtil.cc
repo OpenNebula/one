@@ -176,12 +176,15 @@ string one_util::sha1_digest(const string& in)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string one_util::aes256cbc_encrypt(const string& in, const string password)
+string * one_util::aes256cbc_encrypt(const string& in, const string password)
 {
     EVP_CIPHER_CTX ctx;
-    const unsigned char *key = (unsigned char*)password.c_str();
-    const unsigned char *in_data = (unsigned char*)in.c_str();
+
+    const unsigned char *key     = (unsigned char*) password.c_str();
+    const unsigned char *in_data = (unsigned char*) in.c_str();
+
     unsigned char out[in.length() + AES_BLOCK_SIZE];
+
     int outlen1, outlen2;
 
     EVP_EncryptInit(&ctx, EVP_aes_256_cbc(), key, NULL);
@@ -190,10 +193,9 @@ string one_util::aes256cbc_encrypt(const string& in, const string password)
 
     EVP_CIPHER_CTX_cleanup(&ctx);
 
-    string encrypt = string((char*)out, (size_t)outlen1+outlen2);
-    string encrypt64 = *base64_encode(encrypt);
+    string encrypt((char*) out, (size_t)(outlen1+outlen2));
 
-    return encrypt64;
+    return base64_encode(encrypt);;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -201,7 +203,7 @@ string one_util::aes256cbc_encrypt(const string& in, const string password)
 
 string one_util::random_password()
 {
-    stringstream  sstr;
+    ostringstream  sstr;
 
     srand(time(0));
     sstr << rand();

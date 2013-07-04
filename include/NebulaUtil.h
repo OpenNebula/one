@@ -52,7 +52,14 @@ namespace one_util
     */
     std::string * base64_decode(const std::string& in);
 
-    std::string aes256cbc_encrypt(const std::string& in, const std::string password);
+   /**
+    *  AES256 encryption
+    *    @param in the string to encrypt
+    *    @param password to encrypt data
+    *    @return a pointer to the encrypted string (must be freed) or 0 in case of
+    *    error
+    */
+    std::string * aes256cbc_encrypt(const std::string& in, const std::string password);
 
     /**
      *  Creates a random number, using time(0) as seed, and performs an sha1 hash

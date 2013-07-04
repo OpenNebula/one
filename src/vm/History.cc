@@ -127,6 +127,11 @@ void History::non_persistent_data()
 
     context_file = os.str();
 
+    os.str("");
+    os << vm_lhome << "/token.txt";
+
+    token_file = os.str();
+
     // ----------- Remote Locations ------------
 
     os.str("");

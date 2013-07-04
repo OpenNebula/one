@@ -2452,15 +2452,25 @@ int VirtualMachine::generate_context(string &files, int &disk_id, string& token_
     }
 
     context->vector_value("TOKEN", token);
+
     if (token)
     {
+        ofstream      token_file;
+        ostringstream oss;
+
+        string* encrypted;
+        string  tk_error;
+
         if (token_password.empty())
         {
-            file.close();
-            string err = "CONTEXT/TOKEN set, but TOKEN_PASSWORD is not defined in the user template.";
+            tk_error = "CONTEXT/TOKEN set, but TOKEN_PASSWORD is not defined"
+                " in the user template.";
 
-            log("VM", Log::ERROR, err.c_str());
-            set_template_error_message(err);
+            file.close();
+
+            log("VM", Log::ERROR, tk_error.c_str());
+            set_template_error_message(tk_error);
+
             return -1;
         }
 
@@ -2468,26 +2478,31 @@ int VirtualMachine::generate_context(string &files, int &disk_id, string& token_
         // We store this original owner in case a chown operation is performed.
         add_template_attribute("CREATED_BY", uid);
 
-        ofstream token_file;
-        ostringstream oss;
-        string token_path;
+        token_file.open(history->token_file.c_str(), ios::out);
 
-        oss << Nebula::instance().get_vms_location() << oid << "/token.txt";
-        token_path = oss.str();
-
-        token_file.open(token_path.c_str(),ios::out);
-
-        if (!token_file.fail())
+        if (token_file.fail())
         {
-            oss.str("");
-            oss << oid << ':' << stime;
+            tk_error = "Cannot create token file";
 
-            token_file << one_util::aes256cbc_encrypt(oss.str(), token_password) << endl;
+            file.close();
 
-            token_file.close();
+            log("VM", Log::ERROR, tk_error.c_str());
+            set_template_error_message(tk_error);
 
-            files += (" " + token_path);
+            return -1;
         }
+
+        oss << oid << ':' << stime;
+
+        encrypted = one_util::aes256cbc_encrypt(oss.str(), token_password);
+
+        token_file << *encrypted << endl;
+
+        token_file.close();
+
+        delete encrypted;
+
+        files += (" " + history->token_file);
     }
 
     const map<string, string> values = context->value();

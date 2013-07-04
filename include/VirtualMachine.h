@@ -557,7 +557,7 @@ public:
      *  or, in case that OpenNebula is installed in root
      *          /var/lib/one/vms/$VM_ID/deployment.$SEQ
      *  The hasHistory() function MUST be called before this one.
-     *    @return the deployment filename
+     *    @return the deployment file path
      */
     const string & get_deployment_file() const
     {
@@ -570,11 +570,24 @@ public:
      *  or, in case that OpenNebula is installed in root
      *          /var/lib/one/vms/$VM_ID/context.sh
      *  The hasHistory() function MUST be called before this one.
-     *    @return the deployment filename
+     *    @return the context file path
      */
     const string & get_context_file() const
     {
         return history->context_file;
+    }
+
+    /**
+     *  Returns the token filename. The token file is in the form:
+     *          $ONE_LOCATION/var/vms/$VM_ID/token.txt
+     *  or, in case that OpenNebula is installed in root
+     *          /var/lib/one/vms/$VM_ID/token.txt
+     *  The hasHistory() function MUST be called before this one.
+     *    @return the token file path
+     */
+    const string & get_token_file() const
+    {
+        return history->token_file;
     }
 
     /**

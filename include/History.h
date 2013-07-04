@@ -310,6 +310,7 @@ private:
     string  transfer_file;
     string  deployment_file;
     string  context_file;
+    string  token_file;
 
     // Remote paths
     string  checkpoint_file;
