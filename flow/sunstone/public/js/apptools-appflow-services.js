@@ -883,26 +883,26 @@ var role_vm_buttons = {
         tip: tr("Shuts down the given VM. The VM is saved in the system Datastore.")
     },
     "RoleVM.shutdown" : {
-        type: "confirm",
+        type: "action",
         text: tr("Shutdown"),
         layout: "vmsdelete_buttons",
         tip: tr("This will initiate the shutdown process in the selected VMs")
     },
     "RoleVM.shutdown_hard" : {
-        type: "confirm",
+        type: "action",
         text: tr("Shutdown") + ' <span class="label secondary radius">hard</span>',
         layout: "vmsdelete_buttons",
         tip: tr("This will initiate the shutdown-hard (forced) process in the selected VMs")
     },
 
     "RoleVM.delete" : {
-        type: "confirm",
+        type: "action",
         text: tr("Delete"),
         layout: "vmsdelete_buttons",
         tip: tr("This will delete the selected VMs from the database")
     },
     "RoleVM.delete_recreate" : {
-        type: "confirm",
+        type: "action",
         text: tr("Delete") + ' <span class="label secondary radius">recreate</span>',
         layout: "vmsrepeat_buttons",
         tip: tr("This will delete and recreate VMs to PENDING state")
@@ -919,17 +919,17 @@ var role_vm_buttons = {
         layout: "vmsplanification_buttons",
         tip: tr("This will cancel the rescheduling for the selected VMs")
     },
-    "RoleVM.recover" : {
-        type: "confirm_with_select",
-        text: tr("Recover"),
-        layout: "vmsplanification_buttons",
-        select: function(){ return '<option value="success">' + tr("success") + '</option>\
-                 <option value="failure">' + tr("failure") + '</option>'},
-        tip: tr("Recovers a stuck VM that is waiting for a driver operation. \
-                The recovery may be done by failing or succeeding the pending operation. \
-                YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation \
-                was successful or not.")
-    }
+//    "RoleVM.recover" : {
+//        type: "confirm_with_select",
+//        text: tr("Recover"),
+//        layout: "vmsplanification_buttons",
+//        select: function(){ return '<option value="success">' + tr("success") + '</option>\
+//                 <option value="failure">' + tr("failure") + '</option>'},
+//        tip: tr("Recovers a stuck VM that is waiting for a driver operation. \
+//                The recovery may be done by failing or succeeding the pending operation. \
+//                YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation \
+//                was successful or not.")
+//    }
 }
 
 var service_tab_content = '\
