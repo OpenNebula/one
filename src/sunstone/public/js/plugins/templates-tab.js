@@ -1100,6 +1100,48 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
     return html;
 }
 
+function update_datatable_template_hosts(datatable, fnDrawCallback) {
+    if (fnDrawCallback) {
+        datatable.on('draw', fnDrawCallback);
+    }
+
+    OpenNebula.Host.list({
+    timeout: true,
+    success: function (request, host_list){
+        var host_list_array = [];
+
+        $.each(host_list,function(){
+            //Grab table data from the host_list
+            host_list_array.push(hostElementArray(this));
+        });
+
+        updateView(host_list_array, datatable);
+    },
+    error: onError
+  });
+}
+
+function update_datatable_template_clusters(datatable, fnDrawCallback) {
+    if (fnDrawCallback) {
+        datatable.on('draw', fnDrawCallback);
+    }
+
+    OpenNebula.Cluster.list({
+    timeout: true,
+    success: function (request, host_list){
+        var host_list_array = [];
+
+        $.each(host_list,function(){
+            //Grab table data from the host_list
+            host_list_array.push(clusterElementArray(this));
+        });
+
+        updateView(host_list_array, datatable);
+    },
+    error: onError
+  });
+}
+
 function update_datatable_template_images(datatable, fnDrawCallback) {
     if (fnDrawCallback) {
         datatable.on('draw', fnDrawCallback);
@@ -2823,428 +2865,336 @@ function setupCreateTemplateDialog(){
     **************************************************************************/
 
     var add_schedulingTab = function() {
-      var html_tab_content = '<li id="schedulingTab" class="wizard_tab">'+
-      '<form>'+
-        '<dl class="tabs">'+
-          '<dd class="active"><a href="#placement">'+tr("Placement")+'</a></dd>'+
-          '<dd><a href="#policy">'+tr("Policy")+'</a></dd>'+
-        '</dl>'+
-        '<ul class="tabs-content">'+
-            '<li class="requirements wizard_internal_tab active" id="placementTab">'+
-                '<div class="row">'+
-                  '<div class="three columns push-three">'+
-                      '<input type="radio" id="hosts_req" name="req_select" value="host_select" checked> '+tr("Select Hosts ")+
-                  '</div>'+
-                  '<div class="three columns pull-three">'+
-                      '<input type="radio" id="clusters_req"  name="req_select" value="cluster_select"> '+tr("Select Clusters ")+
-                  '</div>'+
-                '</div>'+
-                '<hr>'+
-                '<div id="req_type" class="host_select row">'+
-                    '<div class="row collapse ">'+
-                      '<div class="seven columns">' +
-                         '<button id="refresh_hosts_placement" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
-                      '</div>' +
-                      '<div class="five columns">'+
-                        '<input id="hosts_search" type="text" placeholder="'+tr("Search")+'"/>'+
+        var html_tab_content = '<li id="schedulingTab" class="wizard_tab">'+
+          '<form>'+
+            '<dl class="tabs">'+
+              '<dd class="active"><a href="#placement">'+tr("Placement")+'</a></dd>'+
+              '<dd><a href="#policy">'+tr("Policy")+'</a></dd>'+
+            '</dl>'+
+            '<ul class="tabs-content">'+
+                '<li class="requirements wizard_internal_tab active" id="placementTab">'+
+                    '<div class="row">'+
+                      '<div class="three columns push-three">'+
+                          '<input type="radio" id="hosts_req" name="req_select" value="host_select" checked> '+tr("Select Hosts ")+
+                      '</div>'+
+                      '<div class="three columns pull-three">'+
+                          '<input type="radio" id="clusters_req"  name="req_select" value="cluster_select"> '+tr("Select Clusters ")+
                       '</div>'+
                     '</div>'+
-                    '<table id="datatable_template_hosts" class="datatable twelve">'+
-                        '<thead>'+
-                        '<tr>'+
-                            '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
-                            '<th>' + tr("ID") + '</th>'+
-                            '<th>' + tr("Name") + '</th>'+
-                            '<th>' + tr("Cluster") + '</th>'+
-                            '<th>' + tr("RVMs") + '</th>'+
-                            '<th>' + tr("Real CPU") + '</th>'+
-                            '<th>' + tr("Allocated CPU") + '</th>'+
-                            '<th>' + tr("Real MEM") + '</th>'+
-                            '<th>' + tr("Allocated MEM") + '</th>'+
-                            '<th>' + tr("Status") + '</th>'+
-                            '<th>' + tr("IM MAD") + '</th>'+
-                            '<th>' + tr("VM MAD") + '</th>'+
-                            '<th>' + tr("Last monitored on") + '</th>'+
-                        '</tr>'+
-                        '</thead>'+
-                        '<tbody id="tbodyhosts">'+
-                        '</tbody>'+
-                    '</table>'+
-                    '<br>'+
-                    '<div class="kvm_opt xen_opt vmware_opt" id="selected_hosts_template">'+
-                      '<span id="select_hosts" class="radius secondary label">'+tr("Please select one or more hosts from the list")+'</span> '+
-                      '<span id="hosts_selected" class="radius secondary label hidden">'+tr("You selected the following hosts:")+'</span> '+
+                    '<hr>'+
+                    '<div id="req_type" class="host_select row">'+
+                        '<div class="row collapse ">'+
+                          '<div class="seven columns">' +
+                             '<button id="refresh_hosts_placement" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
+                          '</div>' +
+                          '<div class="five columns">'+
+                            '<input id="hosts_search" type="text" placeholder="'+tr("Search")+'"/>'+
+                          '</div>'+
+                        '</div>'+
+                        '<table id="datatable_template_hosts" class="datatable twelve">'+
+                            '<thead>'+
+                            '<tr>'+
+                                '<th></th>'+
+                                '<th>' + tr("ID") + '</th>'+
+                                '<th>' + tr("Name") + '</th>'+
+                                '<th>' + tr("Cluster") + '</th>'+
+                                '<th>' + tr("RVMs") + '</th>'+
+                                '<th>' + tr("Real CPU") + '</th>'+
+                                '<th>' + tr("Allocated CPU") + '</th>'+
+                                '<th>' + tr("Real MEM") + '</th>'+
+                                '<th>' + tr("Allocated MEM") + '</th>'+
+                                '<th>' + tr("Status") + '</th>'+
+                                '<th>' + tr("IM MAD") + '</th>'+
+                                '<th>' + tr("VM MAD") + '</th>'+
+                                '<th>' + tr("Last monitored on") + '</th>'+
+                            '</tr>'+
+                            '</thead>'+
+                            '<tbody id="tbodyhosts">'+
+                            '</tbody>'+
+                        '</table>'+
+                        '<br>'+
+                        '<div class="kvm_opt xen_opt vmware_opt" id="selected_hosts_template">'+
+                          '<span id="select_hosts" class="radius secondary label">'+tr("Please select one or more hosts from the list")+'</span> '+
+                          '<span id="hosts_selected" class="radius secondary label hidden">'+tr("You selected the following hosts:")+'</span> '+
+                        '</div>'+
+                        '<br>'+
                     '</div>'+
-                    '<br>'+
-                '</div>'+
-                '<div id="req_type" class="cluster_select hidden row">'+
-                    '<div class="row collapse ">'+
-                      '<div class="seven columns">' +
-                         '<button id="refresh_clusters_placement" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
-                      '</div>' +
-                      '<div class="five columns">'+
-                        '<input id="clusters_search" type="text" placeholder="'+tr("Search")+'"/>'+
+                    '<div id="req_type" class="cluster_select hidden row">'+
+                        '<div class="row collapse ">'+
+                          '<div class="seven columns">' +
+                             '<button id="refresh_clusters_placement" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
+                          '</div>' +
+                          '<div class="five columns">'+
+                            '<input id="clusters_search" type="text" placeholder="'+tr("Search")+'"/>'+
+                          '</div>'+
+                        '</div>'+
+                        '<table id="datatable_template_clusters" class="datatable twelve">'+
+                            '<thead>'+
+                            '<tr>'+
+                                '<th></th>'+
+                                '<th>' + tr("ID") + '</th>'+
+                                '<th>' + tr("Name") + '</th>'+
+                                '<th>' + tr("Hosts") + '</th>'+
+                                '<th>' + tr("VNets") + '</th>'+
+                                '<th>' + tr("Datastores") + '</th>'+
+                            '</tr>'+
+                            '</thead>'+
+                            '<tbody id="tbodyclusters">'+
+                            '</tbody>'+
+                        '</table>'+
+                        '<br>'+
+                        '<div class="kvm_opt xen_opt vmware_opt" id="selected_clusters_template">'+
+                          '<span id="select_clusters" class="radius secondary label">'+tr("Please select one or more clusters from the list")+'</span> '+
+                          '<span id="clusters_selected" class="radius secondary label hidden">'+tr("You selected the following clusters:")+'</span> '+
+                        '</div>'+
+                        '<br>'+
+                    '</div>'+
+                    '<hr>'+
+                    '<div class="row vm_param">'+
+                        '<div class="two columns">'+
+                            '<label class="inline right" for="REQUIREMENTS">'+tr("Requirements")+':</label>'+
+                        '</div>'+
+                        '<div class="nine columns">'+
+                            '<input type="text" id="REQUIREMENTS" name="requirements" />'+
+                        '</div>'+
+                        '<div class="one columns">'+
+                            '<div class="tip">'+tr("Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM")+'.</div>'+
+                        '</div>'+
+                    '</div>'+
+                '</li>'+
+                '<li id="policyTab" class="wizard_internal_tab">'+
+                      '<div class="row">'+
+                        '<div class="two columns push-two">'+
+                          '<input type="radio" id="packingRadio" name="rank_select" value="RUNNING_VMS"> '+tr("Packing")+
+                        '</div>'+
+                        '<div class="one columns push-two">'+
+                          '<div class="tip">'+tr("Pack the VMs in the cluster nodes to reduce VM fragmentation")+'</div>'+
+                        '</div>'+
+                        '<div class="two columns push-two">'+
+                          '<input type="radio"  id="stripingRadio" name="rank_select" value="-RUNNING_VMS"> '+tr("Stripping")+
+                        '</div>'+
+                        '<div class="one columns push-two">'+
+                          '<div class="tip">'+tr("Spread the VMs in the cluster nodes")+'</div>'+
+                        '</div>'+
+                        '<div class="two columns push-two">'+
+                          '<input type="radio"  id="loadawareRadio" name="rank_select" value="FREECPU"> '+tr("Load-aware")+
+                        '</div>'+
+                        '<div class="two columns">'+
+                          '<div class="tip">'+tr("Maximize the resources available to VMs in a node")+'</div>'+
+                        '</div>'+
+                      '</div>'+
+                      '<hr>'+
+                    '<div class="row vm_param">'+
+                      '<div class="two columns">'+
+                        '<label class="inline right" for="RANK">'+tr("Rank")+':</label>'+
+                      '</div>'+
+                      '<div class="nine columns">'+
+                        '<input type="text" id="RANK" name="RANK" />'+
+                      '</div>'+
+                      '<div class="one columns">'+
+                        '<div class="tip">'+tr("This field sets which attribute will be used to sort the suitable hosts for this VM")+'.</div>'+
                       '</div>'+
                     '</div>'+
-                    '<table id="datatable_template_clusters" class="datatable twelve">'+
-                        '<thead>'+
-                        '<tr>'+
-                            '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
-                            '<th>' + tr("ID") + '</th>'+
-                            '<th>' + tr("Name") + '</th>'+
-                            '<th>' + tr("Hosts") + '</th>'+
-                            '<th>' + tr("VNets") + '</th>'+
-                            '<th>' + tr("Datastores") + '</th>'+
-                        '</tr>'+
-                        '</thead>'+
-                        '<tbody id="tbodyclusters">'+
-                        '</tbody>'+
-                    '</table>'+
-                    '<br>'+
-                    '<div class="kvm_opt xen_opt vmware_opt" id="selected_clusters_template">'+
-                      '<span id="select_clusters" class="radius secondary label">'+tr("Please select one or more clusters from the list")+'</span> '+
-                      '<span id="clusters_selected" class="radius secondary label hidden">'+tr("You selected the following clusters:")+'</span> '+
-                    '</div>'+
-                    '<br>'+
-                '</div>'+
-                '<hr>'+
-                '<div class="row vm_param">'+
-                    '<div class="two columns">'+
-                        '<label class="inline right" for="REQUIREMENTS">'+tr("Requirements")+':</label>'+
-                    '</div>'+
-                    '<div class="nine columns">'+
-                        '<input type="text" id="REQUIREMENTS" name="requirements" />'+
-                    '</div>'+
-                    '<div class="one columns">'+
-                        '<div class="tip">'+tr("Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM")+'.</div>'+
-                    '</div>'+
-                '</div>'+
-            '</li>'+
-            '<li id="policyTab" class="wizard_internal_tab">'+
-                  '<div class="row">'+
-                    '<div class="two columns push-two">'+
-                      '<input type="radio" id="packingRadio" name="rank_select" value="RUNNING_VMS"> '+tr("Packing")+
-                    '</div>'+
-                    '<div class="one columns push-two">'+
-                      '<div class="tip">'+tr("Pack the VMs in the cluster nodes to reduce VM fragmentation")+'</div>'+
-                    '</div>'+
-                    '<div class="two columns push-two">'+
-                      '<input type="radio"  id="stripingRadio" name="rank_select" value="-RUNNING_VMS"> '+tr("Stripping")+
-                    '</div>'+
-                    '<div class="one columns push-two">'+
-                      '<div class="tip">'+tr("Spread the VMs in the cluster nodes")+'</div>'+
-                    '</div>'+
-                    '<div class="two columns push-two">'+
-                      '<input type="radio"  id="loadawareRadio" name="rank_select" value="FREECPU"> '+tr("Load-aware")+
-                    '</div>'+
-                    '<div class="two columns">'+
-                      '<div class="tip">'+tr("Maximize the resources available to VMs in a node")+'</div>'+
-                    '</div>'+
-                  '</div>'+
-                  '<hr>'+
-                '<div class="row vm_param">'+
-                  '<div class="two columns">'+
-                    '<label class="inline right" for="RANK">'+tr("Rank")+':</label>'+
-                  '</div>'+
-                  '<div class="nine columns">'+
-                    '<input type="text" id="RANK" name="RANK" />'+
-                  '</div>'+
-                  '<div class="one columns">'+
-                    '<div class="tip">'+tr("This field sets which attribute will be used to sort the suitable hosts for this VM")+'.</div>'+
-                  '</div>'+
-                '</div>'+
-            '</li>'+
-          '</ul>'+
-      '</form>'+
-    '</li>'
-
-    $("#refresh_hosts_placement").die();
-
-    $("#refresh_hosts_placement").live('click', function(){
-        // Retrieve the hosts to fill the datatable
-        OpenNebula.Host.list({
-        timeout: true,
-        success: function (request, host_list){
-            var host_list_array = [];
-
-            $.each(host_list,function(){
-                //Grab table data from the host_list
-                host_list_array.push(hostElementArray(this));
-            });
-
-            var dataTable_template_hosts = $("#datatable_template_hosts",dialog).dataTable();
-            updateView(host_list_array, dataTable_template_hosts);
-        },
-        error: onError
-      });
-      }
-    );
-
+                '</li>'+
+              '</ul>'+
+          '</form>'+
+        '</li>'
 
         $("<dd><a href='#scheduling'>Scheduling</a></dd>").appendTo($("dl#template_create_tabs"));
         $(html_tab_content).appendTo($("ul#template_create_tabs_content"));
 
-      //$('#tabs-scheduling', dialog).tabs();
+        var dataTable_template_hosts = $("#datatable_template_hosts",dialog).dataTable({
+            "iDisplayLength": 4,
+            "sDom" : '<"H">t<"F"p>',
+            "bAutoWidth":false,
+            "aoColumnDefs": [
+                { "sWidth": "35px", "aTargets": [0,1] },
+                { "bVisible": false, "aTargets": [3,5,7,10,11,12]}
+            ]
+        });
 
-      // hOSTS TABLE
-      dataTable_template_hosts = $("#datatable_template_hosts",dialog).dataTable({
-          "bSortClasses": false,
-          "iDisplayLength": 4,
-          "sDom" : '<"H">t<"F"p>',
-          "oColVis": { //exclude checkbox column
-              "aiExclude": [ 0 ]
-          },
-          "bAutoWidth":false,
-          "aoColumnDefs": [
-              { "sWidth": "35px", "aTargets": [0,1] },
-              { "bVisible": false, "aTargets": [0,3,5,7,10,11,12]}
-          ],
-          "oLanguage": (datatable_lang != "") ?
-              {
-                  sUrl: "locale/"+lang+"/"+datatable_lang
-              } : ""
-      });
+        $("#refresh_hosts_placement").die();
+        $("#refresh_hosts_placement").live('click', function(){
+            update_datatable_template_hosts(dataTable_template_hosts)
+        });
 
+        update_datatable_template_hosts(dataTable_template_hosts);
 
-      //preload it
-      //addElement([spinner,'','','','','','','','','','','',''],dataTable_template_hosts);
+        $('#hosts_search', dialog).keyup(function(){
+            dataTable_template_hosts.fnFilter( $(this).val() );
+        })
 
-      OpenNebula.Host.list({
-        timeout: true,
-        success: function (request, host_list){
-            var host_list_array = [];
+        var selected_hosts = {};
+        var host_row_hash = {};
 
-            $.each(host_list,function(){
-                //Grab table data from the host_list
-                host_list_array.push(hostElementArray(this));
-            });
+        $('#datatable_template_hosts', dialog).delegate("tr", "click", function(e){
+            console.log("pepepepe")
+            var aData   = dataTable_template_hosts.fnGetData(this);
+            var host_id = aData[1];
 
-            updateView(host_list_array, dataTable_template_hosts);
-        },
-        error: onError
-      });
+            if ($.isEmptyObject(selected_hosts)) {
+                $('#hosts_selected',  dialog).show();
+                $('#select_hosts', dialog).hide();
+            }
 
-      $('#hosts_search', dialog).keyup(function(){
-        dataTable_template_hosts.fnFilter( $(this).val() );
-      })
+            if(!$("td:first", this).hasClass('markrowchecked')) {
+                $('input.check_item', this).attr('checked','checked');
+                selected_hosts[host_id]=1;
+                host_row_hash[host_id]=this;
+                $(this).children().each(function(){$(this).addClass('markrowchecked');});
+                if ($('#tag_host_'+aData[1], $('div#selected_hosts_template', dialog)).length == 0 ) {
+                    $('div#selected_hosts_template', dialog).append('<span id="tag_host_'+aData[1]+'" class="radius label">'+aData[2]+' <span class="icon-remove blue"></span></span> ');
+                }
+            } else {
+                $('input.check_item', this).removeAttr('checked');
+                delete selected_hosts[host_id];
+                $(this).children().each(function(){$(this).removeClass('markrowchecked');});
+                $('div#selected_hosts_template span#tag_host_'+host_id, dialog).remove();
+            }
 
-      var selected_hosts = {};
-      var host_row_hash = {};
+            if ($.isEmptyObject(selected_hosts)) {
+                $('#hosts_selected',  dialog).hide();
+                $('#select_hosts', dialog).show();
+            }
 
-      $('#datatable_template_hosts', dialog).delegate("tr", "click", function(e){
-          if ($(e.target).is('input') ||
-              $(e.target).is('select') ||
-              $(e.target).is('option')) return true;
+            $('.alert-box', $('li#schedulingTab .host_select')).hide();
 
-          var aData   = dataTable_template_hosts.fnGetData(this);
-          var host_id = aData[1];
+            generate_requirements();
 
-          if ($.isEmptyObject(selected_hosts)) {
-            $('#hosts_selected',  dialog).show();
-            $('#select_hosts', dialog).hide();
-          }
+            return true;
+        });
 
-          if(!$("td:first", this).hasClass('markrow'))
-          {
-            selected_hosts[host_id]=1;
-            host_row_hash[host_id]=this;
-            $(this).children().each(function(){$(this).addClass('markrow');});
-            $('div#selected_hosts_template', dialog).append('<span id="tag_host_'+aData[1]+'" class="radius label">'+aData[2]+' <span class="icon-remove blue"></span></span> ');
-          }
-          else
-          {
+        $( "#selected_hosts_template span.icon-remove" ).live( "click", function() {
+            $(this).parent().remove();
+            var id = $(this).parent().attr("ID");
+
+            var host_id=id.substring(9,id.length);
             delete selected_hosts[host_id];
-            $(this).children().each(function(){$(this).removeClass('markrow');});
-            $('div#selected_hosts_template span#tag_host_'+host_id, dialog).remove();
-          }
+            $(host_row_hash[host_id]).children().each(function(){$(this).removeClass('markrowchecked');});
 
-          if ($.isEmptyObject(selected_hosts)) {
-            $('#hosts_selected',  dialog).hide();
-            $('#select_hosts', dialog).show();
-          }
+            if ($.isEmptyObject(selected_hosts)) {
+                $('#hosts_selected',  dialog).hide();
+                $('#select_hosts', dialog).show();
+            }
 
-          $('.alert-box', $('li#schedulingTab .host_select')).hide();
+            generate_requirements();
+        });
 
-          generate_requirements();
+        // Clusters TABLE
+        var dataTable_template_clusters = $("#datatable_template_clusters", dialog).dataTable({
+            "iDisplayLength": 4,
+            "sDom" : '<"H">t<"F"p>',
+            "bAutoWidth":false,
+            "aoColumnDefs": [
+                { "sWidth": "35px", "aTargets": [0,1] },
+                { "bVisible": false, "aTargets": []}
+            ]
+        });
 
-          return false;
-      });
+        $("#refresh_clusters_placement").die();
+        $("#refresh_clusters_placement").live('click', function(){
+            update_datatable_template_clusters(dataTable_template_clusters);
+        });
 
-      $( "#selected_hosts_template span.icon-remove" ).live( "click", function() {
-         $(this).parent().remove();
-         var id = $(this).parent().attr("ID");
+        update_datatable_template_clusters(dataTable_template_clusters);
 
-         var host_id=id.substring(9,id.length);
-         delete selected_hosts[host_id];
-         $(host_row_hash[host_id]).children().each(function(){$(this).removeClass('markrow');});
+        $('#clusters_search', dialog).keyup(function(){
+            dataTable_template_clusters.fnFilter( $(this).val() );
+        })
 
-          if ($.isEmptyObject(selected_hosts)) {
-            $('#hosts_selected',  dialog).hide();
-            $('#select_hosts', dialog).show();
-          }
+        var selected_clusters = {};
+        var cluster_row_hash = {};
 
-         generate_requirements();
-      });
+        $('#datatable_template_clusters', dialog).delegate("tr", "click", function(e){
+            var aData   = dataTable_template_clusters.fnGetData(this);
+            var cluster_id = aData[1];
 
-    $("#refresh_clusters_placement").die();
+            if ($.isEmptyObject(selected_clusters)) {
+                $('#clusters_selected',  dialog).show();
+                $('#select_clusters', dialog).hide();
+            }
 
-    $("#refresh_clusters_placement").live('click', function(){
-        // Retrieve the clusters to fill the datatable
+            if(!$("td:first", this).hasClass('markrowchecked'))
+            {
+                $('input.check_item', this).attr('checked','checked');
+                selected_clusters[cluster_id]=1;
+                cluster_row_hash[cluster_id]=this;
+                $(this).children().each(function(){$(this).addClass('markrowchecked');});
+                if ($('#tag_cluster_'+aData[1], $('div#selected_clusters_template', dialog)).length == 0 ) {
+                    $('div#selected_clusters_template', dialog).append('<span id="tag_cluster_'+aData[1]+'" class="radius label">'+aData[2]+' <span class="icon-remove blue"></span></span> ');
+                }
+            }
+            else
+            {
+                $('input.check_item', this).removeAttr('checked');
+                delete selected_clusters[cluster_id];
+                $(this).children().each(function(){$(this).removeClass('markrowchecked');});
+                $('div#selected_clusters_template span#tag_cluster_'+cluster_id, dialog).remove();
+            }
 
-        OpenNebula.Cluster.list({
-          timeout: true,
-          success: function (request, cluster_list){
-            var list_array = [];
 
-            $.each(cluster_list,function(){
-                //Grab table data from the list
-                list_array.push(clusterElementArray(this));
+            if ($.isEmptyObject(selected_clusters)) {
+                $('#clusters_selected',  dialog).hide();
+                $('#select_clusters', dialog).show();
+            }
+
+            $('.alert-box', $('li#schedulingTab .cluster_select')).hide();
+
+            generate_requirements();
+
+            return true;
+        });
+
+        $( "#selected_clusters_template span.icon-remove" ).live( "click", function() {
+            $(this).parent().remove();
+            var id = $(this).parent().attr("ID");
+
+            var cluster_id=id.substring(12,id.length);
+            delete selected_clusters[cluster_id];
+            $(cluster_row_hash[cluster_id]).children().each(function(){$(this).removeClass('markrowchecked');});
+
+            if ($.isEmptyObject(selected_clusters)) {
+                $('#clusters_selected',  dialog).hide();
+                $('#select_clusters', dialog).show();
+            }
+
+            generate_requirements();
+        });
+
+        // Select Image or Volatile disk. The div is hidden depending on the selection, and the
+        // vm_param class is included to be computed when the template is generated.
+        $("input[name='req_select']").change(function(){
+            if ($("input[name='req_select']:checked").val() == "host_select") {
+                $("div.host_select",  $('li#schedulingTab')).toggle();
+                $("div.host_select",  $('li#schedulingTab')).addClass('vm_param');
+                $("div.cluster_select",  $('li#schedulingTab')).hide();
+                $("div.cluster_select",  $('li#schedulingTab')).removeClass('vm_param');
+            }
+            else {
+                $("div.host_select",  $('li#schedulingTab')).hide();
+                $("div.host_select",  $('li#schedulingTab')).removeClass('vm_param');
+                $("div.cluster_select",  $('li#schedulingTab')).toggle();
+                $("div.cluster_select",  $('li#schedulingTab')).addClass('vm_param');
+            }
+        });
+
+        $("input[name='rank_select']").change(function(){
+            $("#RANK", dialog).val(this.value);
+        });
+
+        var generate_requirements = function() {
+            var req_string=[];
+
+            $.each(selected_hosts, function(key, value) {
+            req_string.push('ID=\\"'+key+'\\"');
             });
 
-            var dataTable_template_clusters = $("#datatable_template_clusters",dialog).dataTable();
-            updateView(list_array,dataTable_template_clusters);
-          },
-          error: onError
-        });
-      }
-    );
+            $.each(selected_clusters, function(key, value) {
+            req_string.push('CLUSTER_ID=\\"'+key+'\\"');
+            });
 
-      // Clusters TABLE
-      dataTable_template_clusters = $("#datatable_template_clusters", dialog).dataTable({
-          "bSortClasses": false,
-          "iDisplayLength": 4,
-          "sDom" : '<"H">t<"F"p>',
-          "oColVis": {
-              "aiExclude": [ 0 ]
-          },
-          "bAutoWidth":false,
-          "aoColumnDefs": [
-              { "sWidth": "35px", "aTargets": [0,1] },
-              { "bVisible": false, "aTargets": [0]}
-          ],
-          "oLanguage": (datatable_lang != "") ?
-              {
-                  sUrl: "locale/"+lang+"/"+datatable_lang
-              } : ""
-      });
-
-      //preload it
-
-      //addElement([spinner,'','','','',''],dataTable_template_clusters);
-
-      OpenNebula.Cluster.list({
-        timeout: true,
-        success: function (request, cluster_list){
-          var list_array = [];
-
-          $.each(cluster_list,function(){
-              //Grab table data from the list
-              list_array.push(clusterElementArray(this));
-          });
-
-          updateView(list_array,dataTable_template_clusters);
-        },
-        error: onError
-      });
-
-
-      $('#clusters_search', dialog).keyup(function(){
-        dataTable_template_clusters.fnFilter( $(this).val() );
-      })
-
-      var selected_clusters = {};
-      var cluster_row_hash = {};
-
-      $('#datatable_template_clusters', dialog).delegate("tr", "click", function(e){
-          if ($(e.target).is('input') ||
-              $(e.target).is('select') ||
-              $(e.target).is('option')) return true;
-
-          var aData   = dataTable_template_clusters.fnGetData(this);
-          var cluster_id = aData[1];
-
-          if ($.isEmptyObject(selected_clusters)) {
-            $('#clusters_selected',  dialog).show();
-            $('#select_clusters', dialog).hide();
-          }
-
-          if(!$("td:first", this).hasClass('markrow'))
-          {
-            selected_clusters[cluster_id]=1;
-            cluster_row_hash[cluster_id]=this;
-            $(this).children().each(function(){$(this).addClass('markrow');});
-            $('div#selected_clusters_template', dialog).append('<span id="tag_cluster_'+aData[1]+'" class="radius label">'+aData[2]+' <span class="icon-remove blue"></span></span> ');
-          }
-          else
-          {
-            delete selected_clusters[cluster_id];
-            $(this).children().each(function(){$(this).removeClass('markrow');});
-            $('div#selected_clusters_template span#tag_cluster_'+cluster_id, dialog).remove();
-          }
-
-
-          if ($.isEmptyObject(selected_clusters)) {
-            $('#clusters_selected',  dialog).hide();
-            $('#select_clusters', dialog).show();
-          }
-
-          $('.alert-box', $('li#schedulingTab .cluster_select')).hide();
-
-          generate_requirements();
-
-          return false;
-      });
-
-      $( "#selected_clusters_template span.icon-remove" ).live( "click", function() {
-         $(this).parent().remove();
-         var id = $(this).parent().attr("ID");
-
-         var cluster_id=id.substring(12,id.length);
-         delete selected_clusters[cluster_id];
-         $(cluster_row_hash[cluster_id]).children().each(function(){$(this).removeClass('markrow');});
-
-          if ($.isEmptyObject(selected_clusters)) {
-            $('#clusters_selected',  dialog).hide();
-            $('#select_clusters', dialog).show();
-          }
-
-         generate_requirements();
-      });
-
-      // Select Image or Volatile disk. The div is hidden depending on the selection, and the
-      // vm_param class is included to be computed when the template is generated.
-      $("input[name='req_select']").change(function(){
-        if ($("input[name='req_select']:checked").val() == "host_select") {
-            $("div.host_select",  $('li#schedulingTab')).toggle();
-            $("div.host_select",  $('li#schedulingTab')).addClass('vm_param');
-            $("div.cluster_select",  $('li#schedulingTab')).hide();
-            $("div.cluster_select",  $('li#schedulingTab')).removeClass('vm_param');
-        }
-        else {
-            $("div.host_select",  $('li#schedulingTab')).hide();
-            $("div.host_select",  $('li#schedulingTab')).removeClass('vm_param');
-            $("div.cluster_select",  $('li#schedulingTab')).toggle();
-            $("div.cluster_select",  $('li#schedulingTab')).addClass('vm_param');
-        }
-      });
-
-      $("input[name='rank_select']").change(function(){
-        $("#RANK", dialog).val(this.value);
-      });
-
-      var generate_requirements = function() {
-        var req_string=[];
-
-        $.each(selected_hosts, function(key, value) {
-          req_string.push('ID=\\"'+key+'\\"');
-        });
-
-        $.each(selected_clusters, function(key, value) {
-          req_string.push('CLUSTER_ID=\\"'+key+'\\"');
-        });
-
-        $('#REQUIREMENTS', dialog).val(req_string.join(" | "));
-      };
+            $('#REQUIREMENTS', dialog).val(req_string.join(" | "));
+        };
     }
 
 
@@ -3258,31 +3208,10 @@ function setupCreateTemplateDialog(){
     dialog.html(create_template_tmpl);
 
 
-
-    //Prepare jquery dialog
-    var height = Math.floor($(window).height()*0.9); //set height to a percentage of the window
-    //dialog.dialog({
-    //    autoOpen: false,
-    //    modal: true,
-    //    width: 'auto',
-    //    height: height
-    //});
     dialog.addClass("reveal-modal xlarge max-height")
 
 
     var tabs = $( "#template_create_tabs", dialog)//.tabs().addClass("ui-tabs-vertical");
-
-
-    //$('#wizard_next').click(function(){
-    //  var selected = tabs.tabs('option', 'active');
-    //  tabs.tabs("option", "active", selected+1);
-    //});
-//
-    //$('#wizard_previous').click(function(){
-    //  var selected = tabs.tabs('option', 'active');
-    //  tabs.tabs("option", "active", selected-1);
-    //});
-
 
     $('#template_template_reset_button').click(function(){
         $create_template_dialog.trigger('reveal:close');
@@ -4080,42 +4009,31 @@ function fillTemplatePopUp(request, response){
         if (hosts.length != 0) {
             var dataTable_template_hosts = $("#datatable_template_hosts").dataTable();
 
-            OpenNebula.Host.list({
-                timeout: true,
-                success: function (request, host_list){
-                    var host_list_array = [];
+            update_datatable_template_hosts(dataTable_template_hosts, function(){
+                dataTable_template_hosts.unbind('draw');
 
-                    $.each(host_list,function(){
-                        //Grab table data from the host_list
-                        host_list_array.push(hostElementArray(this));
-                    });
+                var rows = dataTable_template_hosts.fnGetNodes();
 
-                    updateView(host_list_array, dataTable_template_hosts);
+                for (var j=0;j<rows.length;j++) {
+                    var current_row = $(rows[j]);
+                    var row_id = $(rows[j]).find("td:eq(1)").html();
 
-                    var rows = dataTable_template_hosts.fnGetNodes();
-
-                    for (var j=0;j<rows.length;j++) {
-                        var current_row = $(rows[j]);
-                        var row_id = $(rows[j]).find("td:eq(0)").html();
-
-                        var in_array = $.inArray(row_id, hosts)
-                        if (in_array != -1) {
-                            hosts.splice(in_array, 1);
-                            // TBD check if all the hosts were clicked
-                            rows[j].click();
-                        }
+                    var in_array = $.inArray(row_id, hosts)
+                    if (in_array != -1) {
+                        hosts.splice(in_array, 1);
+                        // TBD check if all the hosts were clicked
+                        rows[j].click();
                     }
+                }
 
-                    if (hosts.length != 0) {
-                        var alert = '<div class="alert-box alert">'+
+                if (hosts.length != 0) {
+                    var alert = '<div class="alert-box alert">'+
 tr('The following HOSTs: [') + hosts.join(', ') + '] ' + tr(" do not exist any more") +
 '  <a href="" class="close">&times;</a>'+
 '</div>';
 
-                        $("#datatable_template_hosts_wrapper", req_section).append(alert);
-                    }
-                },
-                error: onError
+                    $("#datatable_template_hosts_wrapper", req_section).append(alert);
+                }
             });
         }
 
@@ -4124,42 +4042,31 @@ tr('The following HOSTs: [') + hosts.join(', ') + '] ' + tr(" do not exist any m
 
             var dataTable_template_clusters = $("#datatable_template_clusters").dataTable();
 
-            OpenNebula.Cluster.list({
-                timeout: true,
-                success: function (request, cluster_list){
-                    var cluster_list_array = [];
+            update_datatable_template_clusters(dataTable_template_clusters, function(){
+                dataTable_template_hosts.unbind('draw');
 
-                    $.each(cluster_list,function(){
-                        //Grab table data from the cluster_list
-                        cluster_list_array.push(clusterElementArray(this));
-                    });
+                var rows = dataTable_template_clusters.fnGetNodes();
 
-                    updateView(cluster_list_array, dataTable_template_clusters);
+                for (var j=0;j<rows.length;j++) {
+                    var current_row = $(rows[j]);
+                    var row_id = $(rows[j]).find("td:eq(1)").html();
 
-                    var rows = dataTable_template_clusters.fnGetNodes();
-
-                    for (var j=0;j<rows.length;j++) {
-                        var current_row = $(rows[j]);
-                        var row_id = $(rows[j]).find("td:eq(0)").html();
-
-                        var in_array = $.inArray(row_id, clusters)
-                        if (in_array != -1) {
-                            clusters.splice(in_array, 1);
-                            // TBD check if all the clusters were clicked
-                            rows[j].click();
-                        }
+                    var in_array = $.inArray(row_id, clusters)
+                    if (in_array != -1) {
+                        clusters.splice(in_array, 1);
+                        // TBD check if all the clusters were clicked
+                        rows[j].click();
                     }
+                }
 
-                    if (clusters.length != 0) {
-                        var alert = '<div class="alert-box alert">'+
+                if (clusters.length != 0) {
+                    var alert = '<div class="alert-box alert">'+
 tr('The following CLUSTERs: [') + clusters.join(', ') + '] ' + tr("do not exist any more") +
 '  <a href="" class="close">&times;</a>'+
 '</div>';
 
-                        $("#datatable_template_clusters_wrapper", req_section).append(alert);
-                    }
-                },
-                error: onError
+                    $("#datatable_template_clusters_wrapper", req_section).append(alert);
+                }
             });
         }
 
