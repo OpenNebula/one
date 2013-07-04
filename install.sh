@@ -217,7 +217,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/vendors \
           $LIB_LOCATION/ruby/vendors/rbvmomi \
           $LIB_LOCATION/ruby/vendors/rbvmomi/lib \
-          $LIB_LOCATION/ruby/vendors/rbvmomi/lib/rbvmomi \          
+          $LIB_LOCATION/ruby/vendors/rbvmomi/lib/rbvmomi \
           $LIB_LOCATION/ruby/vendors/rbvmomi/lib/rbvmomi/utils \
           $LIB_LOCATION/ruby/vendors/rbvmomi/lib/rbvmomi/vim \
           $LIB_LOCATION/mads \
@@ -1893,25 +1893,22 @@ share/vendor/ruby/gems/rbvmomi/vmodl.db"
 
 RBVMOMI_VENDOR_RUBY_LIB_FILES="share/vendor/ruby/gems/rbvmomi/lib/rbvmomi.rb"
 
-RBVMOMI_VENDOR_RUBY_LIB_RBVMOMI_FILES="\
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/basic_types.rb \
+RBVMOMI_VENDOR_RUBY_LIB_RBVMOMI_FILES="share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/basic_types.rb \
 share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/connection.rb \
 share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/deserialization.rb \
 share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/fault.rb \
 share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/pbm.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/trivial_soap.rb 
+share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/trivial_soap.rb
 share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/trollop.rb \
 share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/type_loader.rb \
 share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim.rb"
 
-RBVMOMI_VENDOR_RUBY_LIB_RBVMOMI_UTILS_FILES="\
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/utils/admission_control.rb \
+RBVMOMI_VENDOR_RUBY_LIB_RBVMOMI_UTILS_FILES="share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/utils/admission_control.rb \
 share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/utils/deploy.rb \
 share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/utils/leases.rb \
 share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/utils/perfdump.rb"
 
-RBVMOMI_VENDOR_RUBY_LIB_RBVMOMI_VIM_FILES="\
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/ComputeResource.rb \
+RBVMOMI_VENDOR_RUBY_LIB_RBVMOMI_VIM_FILES="share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/ComputeResource.rb \
 share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/Datacenter.rb \
 share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/Datastore.rb \
 share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/DynamicTypeMgrAllTypeInfo.rb \
