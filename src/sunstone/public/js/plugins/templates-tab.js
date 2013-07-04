@@ -1121,6 +1121,27 @@ function update_datatable_template_images(datatable, fnDrawCallback) {
     });
 }
 
+function update_datatable_template_files(datatable, fnDrawCallback) {
+    if (fnDrawCallback) {
+        datatable.on('draw', fnDrawCallback);
+    }
+
+    OpenNebula.Image.list({
+        timeout: true,
+        success: function (request, images_list){
+            var image_list_array = [];
+
+            $.each(images_list,function(){
+              var image_element_array = fileElementArray(this);
+              if (image_element_array)
+                    image_list_array.push(image_element_array);
+            });
+
+            updateView(image_list_array, datatable);
+        }
+    });
+}
+
 function update_datatable_template_networks(datatable, fnDrawCallback) {
     if (fnDrawCallback) {
         datatable.on('draw', fnDrawCallback);
@@ -1257,7 +1278,6 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
         }
     });
 
-
     var dataTable_template_images = $('#'+str_datatable_id, disk_section).dataTable({
         "iDisplayLength": 4,
         "bAutoWidth":false,
@@ -1267,7 +1287,6 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
             { "bVisible": false, "aTargets": [2,3,6,9,8,12]}
         ]
     });
-
 
     // Retrieve the images to fill the datatable
     update_datatable_template_images(dataTable_template_images);
@@ -1939,298 +1958,252 @@ function setupCreateTemplateDialog(){
     **************************************************************************/
 
     var add_osTab = function() {
-      var html_tab_content = '<li id="osTab" class="wizard_tab">'+
-      '<form>'+
-        '<div id="tabs-bootos">'+
-          '<dl class="tabs">'+
-            '<dd class="active"><a href="#boot">'+tr("Boot")+'</a></dd>'+
-            '<dd><a href="#kernel">'+tr("Kernel")+'</a></dd>'+
-            '<dd><a href="#ramdisk">'+tr("Ramdisk")+'</a></dd>'+
-            '<dd><a href="#features">'+tr("Features")+'</a></dd>'+
-          '</dl>'+
-          '<ul class="tabs-content">'+
-          '<li class="wizard_internal_tab active" id="bootTab">'+
-            '<div class="six columns vm_param">'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="ARCH">'+tr("Arch")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<select id="ARCH" name="arch">'+
-                        '<option id="no_arch" name="no_arch" value=""></option>'+
-                        '<option value="i686">i686</option>'+
-                        '<option value="x86_64">x86_64</option>'+
-                    '</select>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("CPU architecture to virtualization")+'</div>'+
-                  '</div>'+
-                '</div>'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="BOOT">'+tr("Boot")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<select id="BOOT" name="boot">'+
-                      '<option id="no_boot" name="no_boot" value=""></option>'+
-                      '<option value="hd">'+tr("HD")+'</option>'+
-                      '<option value="fd">'+tr("FD")+'</option>'+
-                      '<option value="cdrom">'+tr("CDROM")+'</option>'+
-                      '<option value="network">'+tr("NETWORK")+'</option>'+
-                    '</select>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Boot device type")+'</div>'+
-                  '</div>'+
-                '</div>'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="ROOT">'+tr("Root")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<input type="text" id="ROOT" name="root"/>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Device to be mounted as root")+'</div>'+
-                  '</div>'+
-                '</div>'+
-            '</div>'+
-            '<div class="six columns vm_param">'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="KERNEL_CMD">'+tr("Kernel cmd")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<input type="text" id="KERNEL_CMD" name="kernel_cmd" />'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Arguments for the booting kernel")+'</div>'+
-                  '</div>'+
-                '</div>'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="BOOTLOADER">'+tr("Bootloader")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<input type="text" id="BOOTLOADER" name="bootloader" />'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Path to the bootloader executable")+'</div>'+
-                  '</div>'+
-                '</div>'+
-            '</div>'+
-          '</li>'+
-          '<li id="kernelTab" class="wizard_internal_tab">'+
-                '<div class="row">'+
-                  '<div class="three columns push-three">'+
-                    '<input id="radioKernelDs" type="radio" name="kernel_type" value="kernel_ds" checked> '+tr("Registered Image")+
-                  '</div>'+
-                  '<div class="three columns pull-three">'+
-                    '<input id="radioKernelPath" type="radio" name="kernel_type" value="kernel_path"> '+tr("Remote PATH")+
-                  '</div>'+
-                '</div>'+
-                '<hr>'+
-                '<div class="row kernel_ds">'+
-                  '<div class="row collapse ">'+
-                      '<div class="seven columns">' +
-                         '<button id="refresh_kernel_table" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
-                      '</div>' +
-                    '<div class="five columns">'+
-                      '<input id="kernel_search" type="text" placeholder="'+tr("Search")+'"/>'+
+        var html_tab_content = '<li id="osTab" class="wizard_tab">'+
+          '<form>'+
+            '<div id="tabs-bootos">'+
+              '<dl class="tabs">'+
+                '<dd class="active"><a href="#boot">'+tr("Boot")+'</a></dd>'+
+                '<dd><a href="#kernel">'+tr("Kernel")+'</a></dd>'+
+                '<dd><a href="#ramdisk">'+tr("Ramdisk")+'</a></dd>'+
+                '<dd><a href="#features">'+tr("Features")+'</a></dd>'+
+              '</dl>'+
+              '<ul class="tabs-content">'+
+              '<li class="wizard_internal_tab active" id="bootTab">'+
+                '<div class="six columns vm_param">'+
+                    '<div class="row">'+
+                      '<div class="four columns">'+
+                        '<label class="right inline" for="ARCH">'+tr("Arch")+':</label>'+
+                      '</div>'+
+                      '<div class="six columns">'+
+                        '<select id="ARCH" name="arch">'+
+                            '<option id="no_arch" name="no_arch" value=""></option>'+
+                            '<option value="i686">i686</option>'+
+                            '<option value="x86_64">x86_64</option>'+
+                        '</select>'+
+                      '</div>'+
+                      '<div class="two columns">'+
+                        '<div class="tip">'+tr("CPU architecture to virtualization")+'</div>'+
+                      '</div>'+
                     '</div>'+
-                  '</div>'+
-                  '<table id="datatable_kernel" class="datatable twelve">'+
-                    '<thead>'+
-                      '<tr>'+
-                        '<th></th>'+
-                        '<th>'+tr("ID")+'</th>'+
-                        '<th>'+tr("Owner")+'</th>'+
-                        '<th>'+tr("Group")+'</th>'+
-                        '<th>'+tr("Name")+'</th>'+
-                        '<th>'+tr("Datastore")+'</th>'+
-                        '<th>'+tr("Size")+'</th>'+
-                        '<th>'+tr("Type")+'</th>'+
-                        '<th>'+tr("Registration time")+'</th>'+
-                        '<th>'+tr("Persistent")+'</th>'+
-                        '<th>'+tr("Status")+'</th>'+
-                        '<th>'+tr("#VMS")+'</th>'+
-                        '<th>'+tr("Target")+'</th>'+
-                      '</tr>'+
-                    '</thead>'+
-                    '<tbody id="tbodyimages">'+
-                    '</tbody>'+
-                  '</table>'+
-                  '<div id="kernel_ds_inputs"  class="vm_param kvm_opt xen_opt vmware_opt">'+
-                    '<span id="select_image" class="radius secondary label">'+tr("Please select a Kernel from the list")+'</span>'+
-                    '<span id="image_selected" class="radius secondary label hidden">'+tr("You selected the following Kernel: ")+
-                    '</span>'+
-                    '<span class="radius label" type="text"  id="KERNEL" name="kernel""></span>'+
-                    '<input type="hidden" id="KERNEL_DS" name="kernel_ds" s size="2"/>'+
-                  '</div>'+
-                '</div>'+
-              '<div id="kernel_path_inputs" class="kernel_path hidden row">'+
-                  '<div class="two columns">'+
-                    '<label class="right inline" for="KERNEL">'+tr("PATH")+':</label>'+
-                  '</div>'+
-                  '<div class="eight columns">'+
-                    '<input type="text" id="KERNEL" name="kernel" />'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Path to the OS kernel to boot the image")+'</div>'+
-                  '</div>'+
-                '</div>'+
-            '</li>'+
-            '<li id="ramdiskTab" class="wizard_internal_tab">'+
-                '<div class="row">'+
-                  '<div class="three columns push-three">'+
-                    '<input id="radioInintrdDs" type="radio" name="initrd_type" value="initrd_ds" checked> '+tr("Registered Image ") +
-                  '</div>'+
-                  '<div class="three columns pull-three">'+
-                    '<input id="radioInitrdPath" type="radio" name="initrd_type" value="initrd_path"> '+tr("Remote PATH")+
-                  '</div>'+
-                '</div>'+
-                '<hr>'+
-                '<div class="row initrd_ds">'+
-                  '<div class="row collapse ">'+
-                      '<div class="seven columns">' +
-                         '<button id="refresh_ramdisk_table" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
-                      '</div>' +
-                    '<div class="five columns">'+
-                      '<input id="initrd_search" type="text" placeholder="'+tr("Search")+'"/>'+
+                    '<div class="row">'+
+                      '<div class="four columns">'+
+                        '<label class="right inline" for="BOOT">'+tr("Boot")+':</label>'+
+                      '</div>'+
+                      '<div class="six columns">'+
+                        '<select id="BOOT" name="boot">'+
+                          '<option id="no_boot" name="no_boot" value=""></option>'+
+                          '<option value="hd">'+tr("HD")+'</option>'+
+                          '<option value="fd">'+tr("FD")+'</option>'+
+                          '<option value="cdrom">'+tr("CDROM")+'</option>'+
+                          '<option value="network">'+tr("NETWORK")+'</option>'+
+                        '</select>'+
+                      '</div>'+
+                      '<div class="two columns">'+
+                        '<div class="tip">'+tr("Boot device type")+'</div>'+
+                      '</div>'+
                     '</div>'+
-                  '</div>'+
-                  '<table id="datatable_initrd" class="datatable twelve">'+
-                    '<thead>'+
-                      '<tr>'+
-                        '<th></th>'+
-                        '<th>'+tr("ID")+'</th>'+
-                        '<th>'+tr("Owner")+'</th>'+
-                        '<th>'+tr("Group")+'</th>'+
-                        '<th>'+tr("Name")+'</th>'+
-                        '<th>'+tr("Datastore")+'</th>'+
-                        '<th>'+tr("Size")+'</th>'+
-                        '<th>'+tr("Type")+'</th>'+
-                        '<th>'+tr("Registration time")+'</th>'+
-                        '<th>'+tr("Persistent")+'</th>'+
-                        '<th>'+tr("Status")+'</th>'+
-                        '<th>'+tr("#VMS")+'</th>'+
-                        '<th>'+tr("Target")+'</th>'+
-                      '</tr>'+
-                    '</thead>'+
-                    '<tbody id="tbodyimages">'+
-                    '</tbody>'+
-                  '</table>'+
-                  '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
-                    '<span id="select_image" class="radius secondary label">'+tr("Please select a Ramdisk from the list")+'</span>'+
-                    '<span id="image_selected" class="radius secondary label hidden">'+tr("You selected the following Ramdisk: ")+
-                    '</span>'+
-                    '<span class="radius label" type="text" id="INITRD" name="initrd"></span>'+
-                    '<input type="hidden"id="INITRD_DS" name="initrd_id" size="2"/>'+
-                  '</div>'+
+                    '<div class="row">'+
+                      '<div class="four columns">'+
+                        '<label class="right inline" for="ROOT">'+tr("Root")+':</label>'+
+                      '</div>'+
+                      '<div class="six columns">'+
+                        '<input type="text" id="ROOT" name="root"/>'+
+                      '</div>'+
+                      '<div class="two columns">'+
+                        '<div class="tip">'+tr("Device to be mounted as root")+'</div>'+
+                      '</div>'+
+                    '</div>'+
                 '</div>'+
-              '<div id="initrd_path_inputs" class="initrd_path hidden row">'+
-                  '<div class="two columns">'+
-                    '<label class="right inline" for="INITRD">'+tr("PATH")+':</label>'+
-                  '</div>'+
-                  '<div class="eight columns">'+
-                    '<input type="text" id="INITRD" name="initrd"/>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Path to the initrd image")+'</div>'+
-                  '</div>'+
+                '<div class="six columns vm_param">'+
+                    '<div class="row">'+
+                      '<div class="four columns">'+
+                        '<label class="right inline" for="KERNEL_CMD">'+tr("Kernel cmd")+':</label>'+
+                      '</div>'+
+                      '<div class="six columns">'+
+                        '<input type="text" id="KERNEL_CMD" name="kernel_cmd" />'+
+                      '</div>'+
+                      '<div class="two columns">'+
+                        '<div class="tip">'+tr("Arguments for the booting kernel")+'</div>'+
+                      '</div>'+
+                    '</div>'+
+                    '<div class="row">'+
+                      '<div class="four columns">'+
+                        '<label class="right inline" for="BOOTLOADER">'+tr("Bootloader")+':</label>'+
+                      '</div>'+
+                      '<div class="six columns">'+
+                        '<input type="text" id="BOOTLOADER" name="bootloader" />'+
+                      '</div>'+
+                      '<div class="two columns">'+
+                        '<div class="tip">'+tr("Path to the bootloader executable")+'</div>'+
+                      '</div>'+
+                    '</div>'+
                 '</div>'+
-            '</li>'+
-          '<li class="wizard_internal_tab active" id="featuresTab">'+
-            '<div class="six columns vm_param">'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="ACPI">'+tr("ACPI")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<select id="ACPI" name="acpi">'+
-                        '<option id="no_apci" name="no_apci" value=""></option>'+
-                        '<option value="yes">'+tr("Yes")+'</option>'+
-                        '<option value="no">'+tr("No")+'</option>'+
-                    '</select>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Add support in the VM for Advanced Configuration and Power Interface (ACPI)")+'</div>'+
-                  '</div>'+
+              '</li>'+
+              '<li id="kernelTab" class="wizard_internal_tab">'+
+                    '<div class="row">'+
+                      '<div class="three columns push-three">'+
+                        '<input id="radioKernelDs" type="radio" name="kernel_type" value="kernel_ds" checked> '+tr("Registered Image")+
+                      '</div>'+
+                      '<div class="three columns pull-three">'+
+                        '<input id="radioKernelPath" type="radio" name="kernel_type" value="kernel_path"> '+tr("Remote PATH")+
+                      '</div>'+
+                    '</div>'+
+                    '<hr>'+
+                    '<div class="row kernel_ds">'+
+                      '<div class="row collapse ">'+
+                          '<div class="seven columns">' +
+                             '<button id="refresh_kernel_table" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
+                          '</div>' +
+                        '<div class="five columns">'+
+                          '<input id="kernel_search" type="text" placeholder="'+tr("Search")+'"/>'+
+                        '</div>'+
+                      '</div>'+
+                      '<table id="datatable_kernel" class="datatable twelve">'+
+                        '<thead>'+
+                          '<tr>'+
+                            '<th></th>'+
+                            '<th>'+tr("ID")+'</th>'+
+                            '<th>'+tr("Owner")+'</th>'+
+                            '<th>'+tr("Group")+'</th>'+
+                            '<th>'+tr("Name")+'</th>'+
+                            '<th>'+tr("Datastore")+'</th>'+
+                            '<th>'+tr("Size")+'</th>'+
+                            '<th>'+tr("Type")+'</th>'+
+                            '<th>'+tr("Registration time")+'</th>'+
+                            '<th>'+tr("Persistent")+'</th>'+
+                            '<th>'+tr("Status")+'</th>'+
+                            '<th>'+tr("#VMS")+'</th>'+
+                            '<th>'+tr("Target")+'</th>'+
+                          '</tr>'+
+                        '</thead>'+
+                        '<tbody id="tbodyimages">'+
+                        '</tbody>'+
+                      '</table>'+
+                      '<div id="kernel_ds_inputs"  class="vm_param kvm_opt xen_opt vmware_opt">'+
+                        '<span id="select_image" class="radius secondary label">'+tr("Please select a Kernel from the list")+'</span>'+
+                        '<span id="image_selected" class="radius secondary label hidden">'+tr("You selected the following Kernel: ")+
+                        '</span>'+
+                        '<span class="radius label" type="text"  id="KERNEL" name="kernel""></span>'+
+                        '<input type="hidden" id="KERNEL_DS" name="kernel_ds" s size="2"/>'+
+                      '</div>'+
+                    '</div>'+
+                  '<div id="kernel_path_inputs" class="kernel_path hidden row">'+
+                      '<div class="two columns">'+
+                        '<label class="right inline" for="KERNEL">'+tr("PATH")+':</label>'+
+                      '</div>'+
+                      '<div class="eight columns">'+
+                        '<input type="text" id="KERNEL" name="kernel" />'+
+                      '</div>'+
+                      '<div class="two columns">'+
+                        '<div class="tip">'+tr("Path to the OS kernel to boot the image")+'</div>'+
+                      '</div>'+
+                    '</div>'+
+                '</li>'+
+                '<li id="ramdiskTab" class="wizard_internal_tab">'+
+                    '<div class="row">'+
+                      '<div class="three columns push-three">'+
+                        '<input id="radioInintrdDs" type="radio" name="initrd_type" value="initrd_ds" checked> '+tr("Registered Image ") +
+                      '</div>'+
+                      '<div class="three columns pull-three">'+
+                        '<input id="radioInitrdPath" type="radio" name="initrd_type" value="initrd_path"> '+tr("Remote PATH")+
+                      '</div>'+
+                    '</div>'+
+                    '<hr>'+
+                    '<div class="row initrd_ds">'+
+                      '<div class="row collapse ">'+
+                          '<div class="seven columns">' +
+                             '<button id="refresh_ramdisk_table" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
+                          '</div>' +
+                        '<div class="five columns">'+
+                          '<input id="initrd_search" type="text" placeholder="'+tr("Search")+'"/>'+
+                        '</div>'+
+                      '</div>'+
+                      '<table id="datatable_initrd" class="datatable twelve">'+
+                        '<thead>'+
+                          '<tr>'+
+                            '<th></th>'+
+                            '<th>'+tr("ID")+'</th>'+
+                            '<th>'+tr("Owner")+'</th>'+
+                            '<th>'+tr("Group")+'</th>'+
+                            '<th>'+tr("Name")+'</th>'+
+                            '<th>'+tr("Datastore")+'</th>'+
+                            '<th>'+tr("Size")+'</th>'+
+                            '<th>'+tr("Type")+'</th>'+
+                            '<th>'+tr("Registration time")+'</th>'+
+                            '<th>'+tr("Persistent")+'</th>'+
+                            '<th>'+tr("Status")+'</th>'+
+                            '<th>'+tr("#VMS")+'</th>'+
+                            '<th>'+tr("Target")+'</th>'+
+                          '</tr>'+
+                        '</thead>'+
+                        '<tbody id="tbodyimages">'+
+                        '</tbody>'+
+                      '</table>'+
+                      '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
+                        '<span id="select_image" class="radius secondary label">'+tr("Please select a Ramdisk from the list")+'</span>'+
+                        '<span id="image_selected" class="radius secondary label hidden">'+tr("You selected the following Ramdisk: ")+
+                        '</span>'+
+                        '<span class="radius label" type="text" id="INITRD" name="initrd"></span>'+
+                        '<input type="hidden"id="INITRD_DS" name="initrd_id" size="2"/>'+
+                      '</div>'+
+                    '</div>'+
+                  '<div id="initrd_path_inputs" class="initrd_path hidden row">'+
+                      '<div class="two columns">'+
+                        '<label class="right inline" for="INITRD">'+tr("PATH")+':</label>'+
+                      '</div>'+
+                      '<div class="eight columns">'+
+                        '<input type="text" id="INITRD" name="initrd"/>'+
+                      '</div>'+
+                      '<div class="two columns">'+
+                        '<div class="tip">'+tr("Path to the initrd image")+'</div>'+
+                      '</div>'+
+                    '</div>'+
+                '</li>'+
+              '<li class="wizard_internal_tab active" id="featuresTab">'+
+                '<div class="six columns vm_param">'+
+                    '<div class="row">'+
+                      '<div class="four columns">'+
+                        '<label class="right inline" for="ACPI">'+tr("ACPI")+':</label>'+
+                      '</div>'+
+                      '<div class="six columns">'+
+                        '<select id="ACPI" name="acpi">'+
+                            '<option id="no_apci" name="no_apci" value=""></option>'+
+                            '<option value="yes">'+tr("Yes")+'</option>'+
+                            '<option value="no">'+tr("No")+'</option>'+
+                        '</select>'+
+                      '</div>'+
+                      '<div class="two columns">'+
+                        '<div class="tip">'+tr("Add support in the VM for Advanced Configuration and Power Interface (ACPI)")+'</div>'+
+                      '</div>'+
+                    '</div>'+
+                    '<div class="row">'+
+                      '<div class="four columns">'+
+                        '<label class="right inline" for="PAE">'+tr("PAE")+':</label>'+
+                      '</div>'+
+                      '<div class="six columns">'+
+                        '<select id="PAE" name="pae">'+
+                          '<option id="no_pae" name="no_pae" value=""></option>'+
+                            '<option value="yes">'+tr("Yes")+'</option>'+
+                            '<option value="no">'+tr("No")+'</option>'+
+                        '</select>'+
+                      '</div>'+
+                      '<div class="two columns">'+
+                        '<div class="tip">'+tr("Add support in the VM for Physical Address Extension (PAE)")+'</div>'+
+                      '</div>'+
+                    '</div>'+
                 '</div>'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="PAE">'+tr("PAE")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<select id="PAE" name="pae">'+
-                      '<option id="no_pae" name="no_pae" value=""></option>'+
-                        '<option value="yes">'+tr("Yes")+'</option>'+
-                        '<option value="no">'+tr("No")+'</option>'+
-                    '</select>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Add support in the VM for Physical Address Extension (PAE)")+'</div>'+
-                  '</div>'+
-                '</div>'+
-            '</div>'+
-          '</li>'+
-            '</ul>'+
-      '</form>'+
+              '</li>'+
+                '</ul>'+
+          '</form>'+
         '</li>'
-
-      $("#refresh_kernel_table").die();
-
-      $("#refresh_kernel_table").live('click', function(){
-
-          OpenNebula.Image.list({
-          timeout: true,
-          success: function (request, images_list){
-              var image_list_array = [];
-
-              $.each(images_list,function(){
-                var file = fileElementArray(this);
-                if (file)
-                  image_list_array.push(file);
-              });
-
-              var dataTable_template_kernel = $('#datatable_kernel').dataTable();
-              updateView(image_list_array, dataTable_template_kernel);
-              dataTable_template_kernel.fnFilter("KERNEL", 7)
-          },
-          error: onError
-        });
-        });
-
-      $("#refresh_ramdisk_table").die();
-
-      $("#refresh_ramdisk_table").live('click', function(){
-
-           OpenNebula.Image.list({
-            timeout: true,
-            success: function (request, images_list){
-                var image_list_array = [];
-
-                $.each(images_list,function(){
-                  var file = fileElementArray(this);
-                  if (file)
-                    image_list_array.push(file);
-                });
-
-                var datTable_template_initrd = $('#datatable_initrd').dataTable();
-                updateView(image_list_array, datTable_template_initrd);
-                datTable_template_initrd.fnFilter("RAMDISK", 7)
-            },
-            error: onError
-           });
-        });
-
 
         $("<dd><a href='#os'>OS Booting</a></dd>").appendTo($("dl#template_create_tabs"));
         $(html_tab_content).appendTo($("ul#template_create_tabs_content"));
 
-      var os_section = $('li#osTab', dialog);
+        var os_section = $('li#osTab', dialog);
+        var kernel_section = $('li#kernelTab', os_section);
+        var initrd_section = $('li#ramdiskTab', os_section);
 
-      //$('#tabs-bootos', os_section).tabs();
 
         // Select Image or Volatile disk. The div is hidden depending on the selection, and the
         // vm_param class is included to be computed when the template is generated.
@@ -2265,144 +2238,87 @@ function setupCreateTemplateDialog(){
         });
 
         var dataTable_template_kernel = $('#datatable_kernel', dialog).dataTable({
-            "bSortClasses": false,
             "bAutoWidth":false,
             "sDom" : '<"H">t<"F"p>',
             "iDisplayLength": 4,
-            "oColVis": {
-                "aiExclude": [ 0 ]
-            },
             "aoColumnDefs": [
                 { "sWidth": "35px", "aTargets": [0,1] },
-                { "bVisible": false, "aTargets": [0,3,2,5,6,7,9,8,11,12,10]}
-            ],
-            "oLanguage": (datatable_lang != "") ?
-                {
-                    sUrl: "locale/"+lang+"/"+datatable_lang
-                } : ""
+                { "bVisible": false, "aTargets": [3,2,5,6,7,9,8,11,12,10]}
+            ]
         });
 
+        dataTable_template_kernel.fnFilter("KERNEL", 7)
 
-        //addElement([spinner,'','','','','','','','','','','',''],dataTable_template_kernel);
+        $("#refresh_kernel_table").die();
+        $("#refresh_kernel_table").live('click', function(){
+            update_datatable_template_files(dataTable_template_kernel)
+        });
 
         // Retrieve the images to fill the datatable
-        OpenNebula.Image.list({
-          timeout: true,
-          success: function (request, images_list){
-              var image_list_array = [];
-
-              $.each(images_list,function(){
-                var file = fileElementArray(this);
-                if (file)
-                  image_list_array.push(file);
-              });
-
-              updateView(image_list_array, dataTable_template_kernel);
-              dataTable_template_kernel.fnFilter("KERNEL", 7)
-          },
-          error: onError
-        });
-
-        // TBD Add refresh button for the datatable
-
-        // When a row is selected the background color is updated. If a previous row
-        // was selected (previous_row) the background color is removed.
-        // #IMAGE and #IMAGE_ID inputs are updated using the row information
-        if (typeof previous_kernel_row === 'undefined') {
-            var previous_kernel_row = 0;
-        }
-
-        $('#datatable_kernel tbody', dialog).delegate("tr", "click", function(e){
-            if ($(e.target).is('input') ||
-                $(e.target).is('select') ||
-                $(e.target).is('option')) return true;
-
-            var aData = dataTable_template_kernel.fnGetData(this);
-
-            if (previous_kernel_row)
-                $("td:first", previous_kernel_row).parent().children().each(function(){$(this).removeClass('markrow');});
-            previous_kernel_row = this;
-            $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
-
-            $('.kernel_ds .alert-box', os_section).hide();
-
-            $('#KERNEL', os_section).text(aData[4]);
-            $('#KERNEL_DS', os_section).val("$FILE[IMAGE_ID="+ aData[1] +"]");
-            return false;
-        });
+        update_datatable_template_files(dataTable_template_kernel);
 
         $('#kernel_search', dialog).keyup(function(){
-          dataTable_template_kernel.fnFilter( $(this).val() );
+            dataTable_template_kernel.fnFilter( $(this).val() );
         })
 
-          var datTable_template_initrd = $('#datatable_initrd', dialog).dataTable({
-            "bSortClasses": false,
+        $('#datatable_kernel tbody', dialog).delegate("tr", "click", function(e){
+            var aData = dataTable_template_kernel.fnGetData(this);
+
+            $("td.markrowchecked", kernel_section).removeClass('markrowchecked');
+            $('tbody input.check_item', kernel_section).removeAttr('checked');
+
+            $('#image_selected', kernel_section).show();
+            $('#select_image', kernel_section).hide();
+            $('.alert-box', kernel_section).hide();
+
+            $("td", this).addClass('markrowchecked');
+            $('input.check_item', this).attr('checked','checked');
+
+            $('#KERNEL', kernel_section).text(aData[4]);
+            $('#KERNEL_DS', kernel_section).val("$FILE[IMAGE_ID="+ aData[1] +"]");
+            return true;
+        });
+
+
+        var datTable_template_initrd = $('#datatable_initrd', dialog).dataTable({
             "bAutoWidth":false,
             "iDisplayLength": 4,
             "sDom" : '<"H">t<"F"p>',
-            "oColVis": {
-                "aiExclude": [ 0 ]
-            },
             "aoColumnDefs": [
                 { "sWidth": "35px", "aTargets": [0,1] },
-                { "bVisible": false, "aTargets": [0,2,3,5,6,7,9,8,10,11,12]}
-            ],
-            "oLanguage": (datatable_lang != "") ?
-                {
-                    sUrl: "locale/"+lang+"/"+datatable_lang
-                } : ""
+                { "bVisible": false, "aTargets": [2,3,5,6,7,9,8,10,11,12]}
+            ]
         });
 
-        //addElement([spinner,'','','','','','','','','','','',''],datTable_template_initrd);
+        datTable_template_initrd.fnFilter("RAMDISK", 7)
 
-        // Retrieve the images to fill the datatable
-        OpenNebula.Image.list({
-          timeout: true,
-          success: function (request, images_list){
-              var image_list_array = [];
-
-              $.each(images_list,function(){
-                var file = fileElementArray(this);
-                if (file)
-                  image_list_array.push(file);
-              });
-
-              updateView(image_list_array, datTable_template_initrd);
-              datTable_template_initrd.fnFilter("RAMDISK", 7)
-          },
-          error: onError
+        $("#refresh_ramdisk_table").die();
+        $("#refresh_ramdisk_table").live('click', function(){
+            update_datatable_template_files(datTable_template_initrd)
         });
+
+        update_datatable_template_files(datTable_template_initrd);
 
         $('#initrd_search', dialog).keyup(function(){
-          datTable_template_initrd.fnFilter( $(this).val() );
+            datTable_template_initrd.fnFilter( $(this).val() );
         })
 
-        // TBD Add refresh button for the datatable
-
-        // When a row is selected the background color is updated. If a previous row
-        // was selected (previous_row) the background color is removed.
-        // #IMAGE and #IMAGE_ID inputs are updated using the row information
-        if (typeof previous_initrd_row === 'undefined') {
-            var previous_initrd_row = 0;
-        }
-
         $('#datatable_initrd tbody', dialog).delegate("tr", "click", function(e){
-            if ($(e.target).is('input') ||
-                $(e.target).is('select') ||
-                $(e.target).is('option')) return true;
-
             var aData = datTable_template_initrd.fnGetData(this);
 
-            if (previous_initrd_row)
-                $("td:first", previous_initrd_row).parent().children().each(function(){$(this).removeClass('markrow');});
-            previous_initrd_row = this;
-            $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
+            $("td.markrowchecked", initrd_section).removeClass('markrowchecked');
+            $('tbody input.check_item', initrd_section).removeAttr('checked');
 
-            $('.initrd_ds .alert-box', os_section).hide();
+            $('#image_selected', initrd_section).show();
+            $('#select_image', initrd_section).hide();
+            $('.alert-box', initrd_section).hide();
+
+            $("td", this).addClass('markrowchecked');
+            $('input.check_item', this).attr('checked','checked');
 
             $('#INITRD', os_section).text(aData[4]);
             $('#INITRD_DS', os_section).val("$FILE[IMAGE_ID="+ aData[1] +"]");
-            return false;
+            return true;
         });
 
         // Hide image advanced options
@@ -3839,7 +3755,7 @@ function fillTemplatePopUp(request, response){
 
         var dataTable_template_networks = $("#datatable_template_networks" + number_of_nics).dataTable();
 
-        var disk_image_id = nic.NETWORK_ID
+        var nic_network_id = nic.NETWORK_ID
         // TODO updateView should not be required. Currently the dataTable
         //  is filled twice.
         update_datatable_template_networks(dataTable_template_networks, function(){
@@ -3851,7 +3767,7 @@ function fillTemplatePopUp(request, response){
                 var current_row = $(rows[j]);
                 var row_network_id = $(rows[j]).find("td:eq(1)").html();
 
-                if (row_network_id == disk_image_id) {
+                if (row_network_id == nic_network_id) {
                     rows[j].click();
                     clicked = true;
                 }
@@ -3859,7 +3775,7 @@ function fillTemplatePopUp(request, response){
 
             if (!clicked) {
                 var alert = '<div class="alert-box alert">'+
-'NETWORK: '+ disk_image_id + tr(" does not exists any more") +
+'NETWORK: '+ nic_network_id + tr(" does not exists any more") +
 '  <a href="" class="close">&times;</a>'+
 '</div>';
 
@@ -3895,52 +3811,44 @@ function fillTemplatePopUp(request, response){
 
     var os = template.OS;
     var os_section = $('li#osTab', $create_template_dialog);
+    var kernel_section = $('li#kernelTab', $create_template_dialog);
+    var initrd_section = $('li#ramdiskTab', $create_template_dialog);
 
     if (os) {
         if (os.KERNEL_DS) {
-            $('input#radioKernelDs', os_section).click();
+            $('input#radioKernelDs', kernel_section).click();
 
-            var dataTable_template = $("#datatable_kernel").dataTable();
-            var regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/;
+            var dataTable_template_kernel = $("#datatable_kernel").dataTable();
 
+            var os_kernel_ds = os.KERNEL_DS;
             // TODO updateView should not be required. Currently the dataTable
             //  is filled twice.
-            OpenNebula.Image.list({
-                timeout: true,
-                success: function (request, list){
-                    var list_array = [];
+            update_datatable_template_files(dataTable_template_kernel, function(){
+                dataTable_template_kernel.unbind('draw');
 
-                    $.each(list,function(){
-                        list_array.push(imageElementArray(this));
-                    });
+                var rows = dataTable_template_kernel.fnGetNodes();
+                var regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/;
+                var match = regexp.exec(os_kernel_ds)
+                var clicked = false;
+                for (var j=0;j<rows.length;j++) {
+                    var current_row = $(rows[j]);
+                    var row_id = $(rows[j]).find("td:eq(1)").html();
 
-                    updateView(list_array, dataTable_template);
-                    dataTable_template.fnFilter("KERNEL", 6)
-
-                    var rows = dataTable_template.fnGetNodes();
-
-                    var match = regexp.exec(os.KERNEL_DS)
-                    var clicked = false;
-                    for (var j=0;j<rows.length;j++) {
-                        var current_row = $(rows[j]);
-                        var row_id = $(rows[j]).find("td:eq(0)").html();
-
-                        if (match && row_id == match[1]) {
-                            rows[j].click();
-                            clicked = true;
-                        }
+                    if (match && row_id == match[1]) {
+                        rows[j].click();
+                        clicked = true;
                     }
-                    if (!clicked) {
-                        var alert = '<div class="alert-box alert">'+
-'KERNEL: '+ match[1] + tr(" does not exists any more") +
+                }
+
+                if (!clicked) {
+                    var alert = '<div class="alert-box alert">'+
+'KERNEL: '+ os_kernel_ds + tr(" does not exists any more") +
 '  <a href="" class="close">&times;</a>'+
 '</div>';
 
-                        $("#tabs-kernel .dataTables_wrapper", os_section).append(alert);
-                    }
-              },
-              error: onError
-            });
+                    $(".dataTables_wrapper", kernel_section).append(alert);
+                }
+            })
         }
         else if (os.KERNEL) {
             $('input#radioKernelPath', os_section).click();
@@ -3949,47 +3857,37 @@ function fillTemplatePopUp(request, response){
         if (os.INITRD_DS) {
             $('input#radioInitrdDs', os_section).click();
 
-            var dataTable_template = $("#datatable_initrd").dataTable();
-            var regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/;
+            var dataTable_template_initrd = $("#datatable_initrd").dataTable();
+            var os_initrd_ds = os.INITRD_DS;
 
             // TODO updateView should not be required. Currently the dataTable
             //  is filled twice.
-            OpenNebula.Image.list({
-                timeout: true,
-                success: function (request, list){
-                    var list_array = [];
+            update_datatable_template_files(dataTable_template_initrd, function(){
+                dataTable_template_initrd.unbind('draw');
 
-                    $.each(list,function(){
-                        list_array.push(imageElementArray(this));
-                    });
+                var rows = dataTable_template_initrd.fnGetNodes();
+                var regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/;
+                var match = regexp.exec(os_initrd_ds)
+                var clicked = false;
+                for (var j=0;j<rows.length;j++) {
+                    var current_row = $(rows[j]);
+                    var row_id = $(rows[j]).find("td:eq(1)").html();
 
-                    updateView(list_array, dataTable_template);
-                    dataTable_template.fnFilter("RAMDISK", 6)
-
-                    var rows = dataTable_template.fnGetNodes();
-                    var match = regexp.exec(os.INITRD_DS);
-                    var clicked = false;
-                    for (var j=0;j<rows.length;j++) {
-                        var current_row = $(rows[j]);
-                        var row_id = $(rows[j]).find("td:eq(0)").html();
-
-                        if (match && row_id == match[1]) {
-                            rows[j].click();
-                            clicked = true;
-                        }
+                    if (match && row_id == match[1]) {
+                        rows[j].click();
+                        clicked = true;
                     }
+                }
 
-                    if (!clicked) {
-                        var alert = '<div class="alert-box alert">'+
-'RAMDISK: '+ match[1] + tr(" does not exists any more") +
+                if (!clicked) {
+                    var alert = '<div class="alert-box alert">'+
+'RAMDISK: '+ os_initrd_ds + tr(" does not exists any more") +
 '  <a href="" class="close">&times;</a>'+
 '</div>';
 
-                        $("#tabs-ramdisk .dataTables_wrapper", os_section).append(alert);
-                    }
-              },
-              error: onError
-            });
+                    $(".dataTables_wrapper", initrd_section).append(alert);
+                }
+            })
         }
         else if (os.INITRD) {
             $('input#radioInitrdPath', os_section).click();
