@@ -2185,6 +2185,7 @@ function setupCreateTemplateDialog(){
                     '<div class="tip">'+tr("Add support in the VM for Physical Address Extension (PAE)")+'</div>'+
                   '</div>'+
                 '</div>'+
+            '</div>'+
           '</li>'+
             '</ul>'+
       '</form>'+
