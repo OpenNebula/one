@@ -1094,13 +1094,13 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
 
     $("#refresh_template_images_table_button_class"+str_disk_tab_id).live('click', function(){
         // Retrieve the images to fill the datatable
-        update_datatable_info($('table[id='+str_datatable_id+']').dataTable());
+        update_datatable_template_images($('table[id='+str_datatable_id+']').dataTable());
     });
 
     return html;
 }
 
-function update_datatable_info(datatable, fnDrawCallback) {
+function update_datatable_template_images(datatable, fnDrawCallback) {
     if (fnDrawCallback) {
         datatable.on('draw', fnDrawCallback);
     }
@@ -1120,6 +1120,28 @@ function update_datatable_info(datatable, fnDrawCallback) {
         }
     });
 }
+
+function update_datatable_template_networks(datatable, fnDrawCallback) {
+    if (fnDrawCallback) {
+        datatable.on('draw', fnDrawCallback);
+    }
+
+    OpenNebula.Network.list({
+      timeout: true,
+      success: function (request, networks_list){
+          var network_list_array = [];
+
+          $.each(networks_list,function(){
+             network_list_array.push(vNetworkElementArray(this));
+          });
+
+          updateView(network_list_array, datatable);
+      },
+      error: onError
+    });
+}
+
+
 
 function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id) {
           // Select Image or Volatile disk. The div is hidden depending on the selection, and the
@@ -1248,7 +1270,7 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
 
 
     // Retrieve the images to fill the datatable
-    update_datatable_info(dataTable_template_images);
+    update_datatable_template_images(dataTable_template_images);
 
     $('#'+str_disk_tab_id+'_search', disk_section).keyup(function(){
       dataTable_template_images.fnFilter( $(this).val() );
@@ -1304,7 +1326,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
     '<table id="'+str_datatable_id+'" class="datatable twelve">'+
       '<thead>'+
         '<tr>'+
-          '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
+          '<th></th>'+
           '<th>'+tr("ID")+'</th>'+
           '<th>'+tr("Owner")+'</th>'+
           '<th>'+tr("Group")+'</th>'+
@@ -1454,94 +1476,49 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
 
 function setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id) {
     var dataTable_template_networks = $('#'+str_datatable_id, nic_section).dataTable({
-              "bSortClasses": false,
               "bAutoWidth":false,
               "iDisplayLength": 4,
               "sDom" : '<"H">t<"F"p>',
-              "oColVis": {
-                  "aiExclude": [ 0 ]
-              },
               "aoColumnDefs": [
                   { "sWidth": "35px", "aTargets": [0,1] },
-                  { "bVisible": false, "aTargets": [0, 7]}
-              ],
-              "oLanguage": (datatable_lang != "") ?
-                  {
-                      sUrl: "locale/"+lang+"/"+datatable_lang
-                  } : ""
+                  { "bVisible": false, "aTargets": [7]}
+              ]
             });
 
-    //addElement([spinner,'','','','','','','',''],dataTable_template_networks);
-
     // Retrieve the networks to fill the datatable
-    OpenNebula.Network.list({
-      timeout: true,
-      success: function (request, networks_list){
-          var network_list_array = [];
-
-          $.each(networks_list,function(){
-             network_list_array.push(vNetworkElementArray(this));
-          });
-
-          updateView(network_list_array, dataTable_template_networks);
-      },
-      error: onError
-    });
-
+    update_datatable_template_networks(dataTable_template_networks);
 
     $('#'+str_nic_tab_id+'_search', nic_section).keyup(function(){
       dataTable_template_networks.fnFilter( $(this).val() );
     })
 
-  // TBD Add refresh button for the datatable
+    $('#'+str_datatable_id + '  tbody', nic_section).delegate("tr", "click", function(e){
+        var aData = dataTable_template_networks.fnGetData(this);
 
-  // When a row is selected the background color is updated. If a previous row
-  // was selected (previous_row) the background color is removed.
-  // #IMAGE and #IMAGE_ID inputs are updated using the row information
-  if (typeof previous_row === 'undefined') {
-      var previous_row = 0;
-  }
+        $("td.markrowchecked", nic_section).removeClass('markrowchecked');
+        $('tbody input.check_item', dataTable_template_networks).removeAttr('checked');
 
-  $('#'+str_datatable_id + '  tbody', nic_section).delegate("tr", "click", function(e){
-      if ($(e.target).is('input') ||
-          $(e.target).is('select') ||
-          $(e.target).is('option')) return true;
-
-      var aData = dataTable_template_networks.fnGetData(this);
-
-    if (previous_row) {
-        $("td:first", previous_row).parent().children().each(function(){$(this).removeClass('markrow');});
-    }
-    else {
-        $('#network_selected',  nic_section).toggle();
-        $('#select_network',  nic_section).hide();
-    }
-
+        $('#image_selected', nic_section).show();
+        $('#select_image', nic_section).hide();
         $('.alert-box', nic_section).hide();
 
-      previous_row = this;
-      $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
+        $("td", this).addClass('markrowchecked');
+        $('input.check_item', this).attr('checked','checked');
 
-      $('#NETWORK', nic_section).text(aData[4]);
-      $('#NETWORK_ID', nic_section).val(aData[1]);
-      return false;
-  });
+        $('#NETWORK', nic_section).text(aData[4]);
+        $('#NETWORK_ID', nic_section).val(aData[1]);
+        return true;
+    });
 
+    $('.advanced', nic_section).hide();
 
-  $('.advanced', nic_section).hide();
+    $('#advanced', nic_section).click(function(){
+        $('.advanced', nic_section).toggle();
+        return false;
+    });
 
-  $('#advanced', nic_section).click(function(){
-      $('.advanced', nic_section).toggle();
-      return false;
-  });
-
-  setupTips(nic_section);
+    setupTips(nic_section);
 }
-
-
-
-
-
 
 // Callback to update the information panel tabs and pop it up
 function updateTemplateInfo(request,template){
@@ -3810,7 +3787,7 @@ function fillTemplatePopUp(request, response){
             var disk_image_id = disk.IMAGE_ID
             // TODO updateView should not be required. Currently the dataTable
             //  is filled twice.
-            update_datatable_info(dataTable_template_images, function(){
+            update_datatable_template_images(dataTable_template_images, function(){
                 dataTable_template_images.unbind('draw');
 
                 var rows = dataTable_template_images.fnGetNodes();
@@ -3874,43 +3851,33 @@ function fillTemplatePopUp(request, response){
 
         var dataTable_template_networks = $("#datatable_template_networks" + number_of_nics).dataTable();
 
+        var disk_image_id = nic.NETWORK_ID
         // TODO updateView should not be required. Currently the dataTable
         //  is filled twice.
-        OpenNebula.Network.list({
-            timeout: true,
-            success: function (request, networks_list){
-                var network_list_array = [];
+        update_datatable_template_networks(dataTable_template_networks, function(){
+            dataTable_template_networks.unbind('draw');
 
-                $.each(networks_list,function(){
-                    network_list_array.push(vNetworkElementArray(this));
-                });
+            var rows = dataTable_template_networks.fnGetNodes();
+            var clicked = false
+            for (var j=0;j<rows.length;j++) {
+                var current_row = $(rows[j]);
+                var row_network_id = $(rows[j]).find("td:eq(1)").html();
 
-                updateView(network_list_array, dataTable_template_networks);
-
-                var rows = dataTable_template_networks.fnGetNodes();
-
-                var clicked = false;
-                for (var j=0;j<rows.length;j++) {
-                    var current_row = $(rows[j]);
-                    var row_network_id = $(rows[j]).find("td:eq(0)").html();
-
-                    if (row_network_id == nic.NETWORK_ID) {
-                        rows[j].click();
-                        clicked = true;
-                    }
+                if (row_network_id == disk_image_id) {
+                    rows[j].click();
+                    clicked = true;
                 }
+            }
 
-                if (!clicked) {
-                        var alert = '<div class="alert-box alert">'+
-'NETWORK: '+ nic.NETWORK_ID + tr(" does not exists any more") +
+            if (!clicked) {
+                var alert = '<div class="alert-box alert">'+
+'NETWORK: '+ disk_image_id + tr(" does not exists any more") +
 '  <a href="" class="close">&times;</a>'+
 '</div>';
 
-                        $(".dataTables_wrapper", nic_section).append(alert);
-                }
-          },
-          error: onError
-        });
+                $(".dataTables_wrapper", disk_section).append(alert);
+            }
+        })
 
         autoFillInputs(nic, nic_section);
     }
