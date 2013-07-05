@@ -73,6 +73,7 @@ if [ \( -L $SRC_DISK \) -a \( "\$SRC_DISK_LN" = "\$DST_DISK_LN" \) ]; then
 elif [ -L "$SRC_PATH.iso" ]; then
     echo "Not moving the file it is a CDROM"
 else
+    mkdir -p $DST_PATH
     $VMKFSTOOLS -U $DST_DISK
     $VMKFSTOOLS -i $SRC_DISK -d thin $DST_DISK
 
