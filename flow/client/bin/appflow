@@ -78,60 +78,98 @@ NODE_TABLE = CLIHelper::ShowTable.new(nil, self) do
             st << "\u2193 "
         end
 
-        st << d['vm_info']['VM']["ID"]
+        if d['vm_info'].nil?
+            st << d['deploy_id'].to_s
+        else
+            st << d['vm_info']['VM']["ID"]
+        end
+
+        st
     end
 
     column :NAME, "Name of the Virtual Machine", :left,
             :size=>23 do |d|
-        if d['vm_info']['VM']["RESCHED"] == "1"
-            "*#{d["NAME"]}"
+        if !d['vm_info'].nil?
+            if d['vm_info']['VM']["RESCHED"] == "1"
+                "*#{d["NAME"]}"
+            else
+                d['vm_info']['VM']["NAME"]
+            end
         else
-            d['vm_info']['VM']["NAME"]
+            ""
         end
     end
 
     column :USER, "Username of the Virtual Machine owner", :left,
             :size=>8 do |d|
-        d['vm_info']['VM']["UNAME"]
+        if !d['vm_info'].nil?
+            d['vm_info']['VM']["UNAME"]
+        else
+            ""
+        end
     end
 
     column :GROUP, "Group of the Virtual Machine", :left,
             :size=>8 do |d|
-        d['vm_info']['VM']["GNAME"]
+        if !d['vm_info'].nil?
+            d['vm_info']['VM']["GNAME"]
+        else
+            ""
+        end
     end
 
     column :STAT, "Actual status", :size=>4 do |d,e|
-        OneVMHelper.state_to_str(d['vm_info']['VM']["STATE"], d['vm_info']['VM']["LCM_STATE"])
+        if !d['vm_info'].nil?
+            OneVMHelper.state_to_str(d['vm_info']['VM']["STATE"], d['vm_info']['VM']["LCM_STATE"])
+        else
+            ""
+        end
     end
 
     column :UCPU, "CPU percentage used by the VM", :size=>4 do |d|
-        d['vm_info']['VM']["CPU"]
+        if !d['vm_info'].nil?
+            d['vm_info']['VM']["CPU"]
+        else
+            ""
+        end
     end
 
     column :UMEM, "Memory used by the VM", :size=>7 do |d|
-        OpenNebulaHelper.unit_to_str(d['vm_info']['VM']["MEMORY"].to_i, {})
+        if !d['vm_info'].nil?
+            OpenNebulaHelper.unit_to_str(d['vm_info']['VM']["MEMORY"].to_i, {})
+        else
+            ""
+        end
     end
 
     column :HOST, "Host where the VM is running", :left, :size=>20 do |d|
-        if d['vm_info']['VM']['HISTORY_RECORDS'] && d['vm_info']['VM']['HISTORY_RECORDS']['HISTORY']
-            state_str = VirtualMachine::VM_STATE[d['vm_info']['VM']['STATE'].to_i]
-            if %w{ACTIVE SUSPENDED}.include? state_str
-                history = if d['vm_info']['VM']['HISTORY_RECORDS']['HISTORY'].instance_of?(Array)
-                    d['vm_info']['VM']['HISTORY_RECORDS']['HISTORY'].last
-                else
-                    d['vm_info']['VM']['HISTORY_RECORDS']['HISTORY']
-                end
+        if !d['vm_info'].nil?
+            if d['vm_info']['VM']['HISTORY_RECORDS'] && d['vm_info']['VM']['HISTORY_RECORDS']['HISTORY']
+                state_str = VirtualMachine::VM_STATE[d['vm_info']['VM']['STATE'].to_i]
+                if %w{ACTIVE SUSPENDED}.include? state_str
+                    history = if d['vm_info']['VM']['HISTORY_RECORDS']['HISTORY'].instance_of?(Array)
+                        d['vm_info']['VM']['HISTORY_RECORDS']['HISTORY'].last
+                    else
+                        d['vm_info']['VM']['HISTORY_RECORDS']['HISTORY']
+                    end
 
-                history['HOSTNAME']
+                    history['HOSTNAME']
+                end
             end
+        else
+            ""
         end
     end
 
     column :TIME, "Time since the VM was submitted", :size=>10 do |d|
-        stime = d['vm_info']['VM']["STIME"].to_i
-        etime = d['vm_info']['VM']["ETIME"]=="0" ? Time.now.to_i : d['vm_info']['VM']["ETIME"].to_i
-        dtime = etime-stime
-        OpenNebulaHelper.period_to_str(dtime, false)
+        if !d['vm_info'].nil?
+            stime = d['vm_info']['VM']["STIME"].to_i
+            etime = d['vm_info']['VM']["ETIME"]=="0" ? Time.now.to_i : d['vm_info']['VM']["ETIME"].to_i
+            dtime = etime-stime
+            OpenNebulaHelper.period_to_str(dtime, false)
+        else
+            ""
+        end
     end
 
     default :VM_ID, :NAME, :STAT, :UCPU, :UMEM, :HOST, :TIME

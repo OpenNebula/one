@@ -197,6 +197,8 @@ module OpenNebula
 
                     success = false
                     node['vm_info'] = nil
+
+                    new_nodes << node
                 else
                     node['vm_info'] = vm.to_hash
 
@@ -256,8 +258,6 @@ module OpenNebula
                     'deploy_id' => vm_id,
                 }
 
-                # vm.info is not performed, this creates an empty VM xml
-                # containing only the ID
                 vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
                 rc = vm.info
                 if OpenNebula.is_error?(rc)

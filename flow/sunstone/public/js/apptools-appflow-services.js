@@ -1610,17 +1610,25 @@ function updateServiceInfo(request,elem){
             if (role.nodes) {
                 $.each(role.nodes, function(){
                     var vm_info = this.vm_info;
-                    if (vm_info) {
-                        var info = [];
-                        if (this.scale_up) {
-                            info.push("<i class='icon-arrow-up'/>");
-                        } else if (this.disposed) {
-                            info.push("<i class='icon-arrow-down'/>");
-                        } else {
-                            info.push("");
-                        }
 
+                    var info = [];
+                    if (this.scale_up) {
+                        info.push("<i class='icon-arrow-up'/>");
+                    } else if (this.disposed) {
+                        info.push("<i class='icon-arrow-down'/>");
+                    } else {
+                        info.push("");
+                    }
+
+                    if (vm_info) {
                       vms.push(info.concat(vMachineElementArray(vm_info)));
+                    } else {
+                        empty_arr = [
+                            '<input class="check_item" type="checkbox" id="vm_'+this.deploy_id+'" name="selected_items" value="'+this.deploy_id+'"/>',
+                            this.deploy_id,
+                            '', '', '', '', '', '', '', '', '', '' ];
+
+                        vms.push(info.concat(empty_arr));
                     }
                 });
 
