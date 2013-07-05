@@ -1207,7 +1207,7 @@ function updateServiceInfo(request,elem){
           <div class="six columns">\
           <table id="info_template_table" class="twelve datatable extended_table">\
            <thead>\
-             <tr><th colspan="2">'+tr("Service Template")+' \"'+elem_info.NAME+'\"'+'</th></tr>\
+             <tr><th colspan="2">'+tr("Service")+' \"'+elem_info.NAME+'\"'+'</th></tr>\
            </thead>\
            <tr>\
              <td class="key_td">'+tr("ID")+'</td>\
