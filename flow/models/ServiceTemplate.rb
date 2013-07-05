@@ -210,7 +210,16 @@ module OpenNebula
         def validate_values(template)
             parser = ElasticityGrammarParser.new
 
-            template['roles'].each do |role|
+            roles = template['roles']
+
+            roles.each_with_index do |role, role_index|
+
+                roles[role_index+1..-1].each do |other_role|
+                    if role['name'] == other_role['name']
+                        raise Validator::ParseException,
+                        "Role name '#{role['name']}' is repeated"
+                    end
+                end
 
                 if (!role['min_vms'].nil? && role['min_vms'].to_i > role['cardinality'].to_i)
 
