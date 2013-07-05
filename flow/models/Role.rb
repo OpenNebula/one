@@ -246,7 +246,10 @@ module OpenNebula
 
                 template = OpenNebula::Template.new_with_id(template_id, @service.client)
 
-                vm_id = template.instantiate(vm_name)
+                extra_template = "SERVICE_ID = #{@service.id()}\n"\
+                    "ROLE_NAME = #{@body['name']}"
+
+                vm_id = template.instantiate(vm_name, false, extra_template)
 
                 if OpenNebula.is_error?(vm_id)
                     msg = "Role #{name} : Instantiate failed for template #{template_id}; #{vm_id.message}"
