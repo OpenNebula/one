@@ -222,7 +222,11 @@ module OpenNebula
 
             @body['nodes'] = new_nodes
 
-            return success
+            if !success
+                return OpenNebula::Error.new()
+            end
+
+            return nil
         end
 
         # Deploys all the nodes in this role
