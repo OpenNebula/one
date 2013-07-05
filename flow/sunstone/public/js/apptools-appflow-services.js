@@ -1755,7 +1755,7 @@ function setupScaleDialog(){
                   <input type="checkbox" name="force" id="force"/>\
               </div>\
               <div class="one columns pull-five">\
-                  <div class="tip"></div>\
+                  <div class="tip">'+ tr("Force the new cardinality even if it is outside the limits") +'</div>\
               </div>\
           </div>\
           <hr>\
