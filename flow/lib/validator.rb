@@ -259,7 +259,29 @@ class Validator
     #
     #
     def validate_integer(body, schema_array, schema_key)
-        Integer(body)
+        value = Integer(body)
+
+        if schema_array[:maximum]
+            excl = schema_array[:exclusiveMaximum]
+            max = schema_array[:maximum]
+            if !(excl ? value < max : value <= max)
+                raise ParseException, "KEY: '#{schema_key}' must be "\
+                    "lower than #{excl ? '' : 'or equal to'} #{max};"\
+                    " SCHEMA: #{schema_array}"
+            end
+        end
+
+        if schema_array[:minimum]
+            excl = schema_array[:exclusiveMinimum]
+            min = schema_array[:minimum]
+            if !(excl ? value > min : value >= min)
+                raise ParseException, "KEY: '#{schema_key}' must be "\
+                    "greater than #{excl ? '' : 'or equal to'} #{min};"\
+                    " SCHEMA: #{schema_array}"
+            end
+        end
+
+        value
     rescue ArgumentError
         raise ParseException, "KEY: '#{schema_key}' must be an Integer;"\
             " SCHEMA: #{schema_array}"
