@@ -2621,7 +2621,7 @@ function setupCreateTemplateDialog(){
                           '<table id="datatable_context" class="datatable twelve">'+
                             '<thead>'+
                               '<tr>'+
-                                '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
+                                '<th></th>'+
                                 '<th>'+tr("ID")+'</th>'+
                                 '<th>'+tr("Owner")+'</th>'+
                                 '<th>'+tr("Group")+'</th>'+
@@ -2681,26 +2681,6 @@ function setupCreateTemplateDialog(){
         '</form>'+
       '</li>'
 
-      $("#refresh_context_table").die();
-
-      $("#refresh_context_table").live('click', function(){
-          // Retrieve the nics to fill the datatable
-          OpenNebula.Image.list({
-            timeout: true,
-            success: function (request, files_list){
-              var files_list_array = [];
-
-              $.each(files_list,function(){
-                var image = fileElementArray(this);
-                if (image)
-                  files_list_array.push(image);
-              });
-              var datTable_template_context = $('table[id="datatable_context"]').dataTable();
-              updateView(files_list_array, datTable_template_context);
-            },
-            error: onError
-          });
-        });
 
         $("<dd><a href='#context'>Context</a></dd>").appendTo($("dl#template_create_tabs"));
         $(html_tab_content).appendTo($("ul#template_create_tabs_content"));
@@ -2737,65 +2717,35 @@ function setupCreateTemplateDialog(){
 
 
       var datTable_template_context = $('#datatable_context', dialog).dataTable({
-          "bSortClasses": false,
           "bAutoWidth":false,
           "iDisplayLength": 4,
           "sDom" : '<"H">t<"F"p>',
-          "oColVis": {
-              "aiExclude": [ 0 ]
-          },
           "aoColumnDefs": [
               { "bSortable": false, "aTargets": ["check"] },
               { "sWidth": "35px", "aTargets": [0,1] },
-              { "bVisible": false, "aTargets": [0,2,3,5,6,7,9,8,10,11,12]}
-          ],
-          "oLanguage": (datatable_lang != "") ?
-              {
-                  sUrl: "locale/"+lang+"/"+datatable_lang
-              } : ""
+              { "bVisible": false, "aTargets": [2,3,5,6,7,9,8,10,11,12]}
+          ]
       });
 
-      //addElement([spinner,'','','','','','','','','','','',''],datTable_template_context);
+        datTable_template_context.fnFilter("CONTEXT", 7)
 
-      // Retrieve the images to fill the datatable
-      OpenNebula.Image.list({
-      timeout: true,
-      success: function (request, images_list){
-          var image_list_array = [];
-          $.each(images_list,function(){
-            var image = fileElementArray(this);
-            if (image)
-              image_list_array.push(image);
-          });
+        $("#refresh_context_table").die();
+        $("#refresh_context_table").live('click', function(){
+            update_datatable_template_files(datTable_template_context)
+        });
 
-          updateView(image_list_array, datTable_template_context);
-          datTable_template_context.fnFilter("CONTEXT", 7)
-      },
-      error: onError
-      });
+        // Retrieve the images to fill the datatable
+        update_datatable_template_files(datTable_template_context);
 
-      $('#files_search', dialog).keyup(function(){
-        datTable_template_context.fnFilter( $(this).val() );
-      })
+        $('#files_search', dialog).keyup(function(){
+            datTable_template_context.fnFilter( $(this).val() );
+        })
 
-      // TBD More than one file
-
-      // TBD Add refresh button for the datatable
-      // When a row is selected the background color is updated. If a previous row
-      // was selected (previous_row) the background color is removed.
-      // #IMAGE and #IMAGE_ID inputs are updated using the row information
-      if (typeof previous_context_row === 'undefined') {
-          var previous_context_row = 0;
-      }
 
       var selected_files = {};
       var file_row_hash = {};
 
       $('#datatable_context tbody', dialog).delegate("tr", "click", function(e){
-          if ($(e.target).is('input') ||
-              $(e.target).is('select') ||
-              $(e.target).is('option')) return true;
-
           var aData   = datTable_template_context.fnGetData(this);
           var file_id = aData[1];
 
@@ -2804,17 +2754,18 @@ function setupCreateTemplateDialog(){
             $('#select_files', dialog).hide();
           }
 
-          if(!$("td:first", this).hasClass('markrow'))
-          {
+          if (!$("td:first", this).hasClass('markrowchecked')) {
+            $('input.check_item', this).attr('checked','checked');
             selected_files[file_id]=1;
             file_row_hash[file_id]=this;
-            $(this).children().each(function(){$(this).addClass('markrow');});
-            $('#selected_files_spans', dialog).append('<span id="tag_file_'+aData[1]+'" class="radius label">'+aData[4]+' <span class="icon-remove blue"></span></span> ');
-          }
-          else
-          {
+            $(this).children().each(function(){$(this).addClass('markrowchecked');});
+            if ($('#tag_file_'+aData[1], $('div#selected_files_spans', dialog)).length == 0 ) {
+                $('#selected_files_spans', dialog).append('<span id="tag_file_'+aData[1]+'" class="radius label">'+aData[4]+' <span class="icon-remove blue"></span></span> ');
+            }
+          } else {
+            $('input.check_item', this).removeAttr('checked');
             delete selected_files[file_id];
-            $(this).children().each(function(){$(this).removeClass('markrow');});
+            $(this).children().each(function(){$(this).removeClass('markrowchecked');});
             $('div#selected_files_spans span#tag_file_'+file_id, dialog).remove();
           }
 
@@ -2825,18 +2776,22 @@ function setupCreateTemplateDialog(){
 
           $('.alert-box', $('li#contextTab')).hide();
 
+          console.log(selected_files)
+          console.log(file_row_hash)
           generate_context_files();
 
-          return false;
+          return true;
       });
 
-      $( "#selected_files_spans span.icon-remove" ).live( "click", function() {
+      $( "span.icon-remove", $("#selected_files_spans") ).die()
+      $( "span.icon-remove", $("#selected_files_spans") ).live( "click", function() {
          $(this).parent().remove();
-         var id = $(this).parent().attr("ID");
+         var id = $(this).parent().attr("id");
 
          var file_id=id.substring(9,id.length);
          delete selected_files[file_id];
-         $(file_row_hash[file_id]).children().each(function(){$(this).removeClass('markrow');});
+         $('td', file_row_hash[file_id]).removeClass('markrowchecked');
+         $('input.check_item', file_row_hash[file_id]).removeAttr('checked');
 
           if ($.isEmptyObject(selected_files)) {
             $('#files_selected',  dialog).hide();
@@ -3028,7 +2983,6 @@ function setupCreateTemplateDialog(){
         var host_row_hash = {};
 
         $('#datatable_template_hosts', dialog).delegate("tr", "click", function(e){
-            console.log("pepepepe")
             var aData   = dataTable_template_hosts.fnGetData(this);
             var host_id = aData[1];
 
@@ -3070,7 +3024,8 @@ function setupCreateTemplateDialog(){
 
             var host_id=id.substring(9,id.length);
             delete selected_hosts[host_id];
-            $(host_row_hash[host_id]).children().each(function(){$(this).removeClass('markrowchecked');});
+            $('td', host_row_hash[file_id]).removeClass('markrowchecked');
+            $('input.check_item', host_row_hash[file_id]).removeAttr('checked');
 
             if ($.isEmptyObject(selected_hosts)) {
                 $('#hosts_selected',  dialog).hide();
@@ -3151,7 +3106,8 @@ function setupCreateTemplateDialog(){
 
             var cluster_id=id.substring(12,id.length);
             delete selected_clusters[cluster_id];
-            $(cluster_row_hash[cluster_id]).children().each(function(){$(this).removeClass('markrowchecked');});
+            $('td', cluster_row_hash[file_id]).removeClass('markrowchecked');
+            $('input.check_item', cluster_row_hash[file_id]).removeAttr('checked');
 
             if ($.isEmptyObject(selected_clusters)) {
                 $('#clusters_selected',  dialog).hide();
@@ -3918,43 +3874,31 @@ function fillTemplatePopUp(request, response){
 
                 // TODO updateView should not be required. Currently the dataTable
                 //  is filled twice.
-                OpenNebula.Image.list({
-                    timeout: true,
-                    success: function (request, list){
-                        var list_array = [];
+                update_datatable_template_files(dataTable_context, function(){
+                    dataTable_context.unbind('draw');
 
-                        $.each(list,function(){
-                            list_array.push(imageElementArray(this));
-                        });
+                    var rows = dataTable_context.fnGetNodes();
 
-                        updateView(list_array, dataTable_context);
-                        dataTable_context.fnFilter("CONTEXT", 7)
+                    for (var j=0;j<rows.length;j++) {
+                        var current_row = $(rows[j]);
+                        var row_id = $(rows[j]).find("td:eq(1)").html();
 
-                        var rows = dataTable_context.fnGetNodes();
-
-                        for (var j=0;j<rows.length;j++) {
-                            var current_row = $(rows[j]);
-                            var row_id = $(rows[j]).find("td:eq(0)").html();
-
-                            var in_array = $.inArray(row_id, files)
-                            if (in_array != -1) {
-                                files.splice(in_array, 1);
-                                // TBD check if all the files were clicked
-                                rows[j].click();
-                            }
+                        var in_array = $.inArray(row_id, files)
+                        if (in_array != -1) {
+                            files.splice(in_array, 1);
+                            // TBD check if all the files were clicked
+                            rows[j].click();
                         }
+                    }
 
-                        if (files.length != 0) {
-                            var alert = '<div class="alert-box alert">'+
-    tr('The following FILES: ') + files.join(', ') + tr(" do not exist any more") +
-    '  <a href="" class="close">&times;</a>'+
-    '</div>';
+                    if (files.length != 0) {
+                        var alert = '<div class="alert-box alert">'+
+tr('The following FILES: ') + files.join(', ') + tr(" do not exist any more") +
+'  <a href="" class="close">&times;</a>'+
+'</div>';
 
-                            $(".dataTables_wrapper", context_section).append(alert);
-                        }
-
-                  },
-                  error: onError
+                        $(".dataTables_wrapper", context_section).append(alert);
+                    }
                 });
             }
             else {
@@ -4043,7 +3987,7 @@ tr('The following HOSTs: [') + hosts.join(', ') + '] ' + tr(" do not exist any m
             var dataTable_template_clusters = $("#datatable_template_clusters").dataTable();
 
             update_datatable_template_clusters(dataTable_template_clusters, function(){
-                dataTable_template_hosts.unbind('draw');
+                dataTable_template_clusters.unbind('draw');
 
                 var rows = dataTable_template_clusters.fnGetNodes();
 
