@@ -766,12 +766,11 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
             '</tbody>'+
           '</table>'+
           '<br>'+
-          '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
+          '<div id="selected_image" class="vm_param kvm_opt xen_opt vmware_opt">'+
             '<span id="select_image" class="radius secondary label">'+tr("Please select an image from the list")+'</span>'+
             '<span id="image_selected" class="radius secondary label hidden">'+tr("You selected the following image: ")+
             '</span>'+
-            '<span class="radius label" type="text" id="IMAGE" name="image"></span>'+
-            '<input type="hidden" id="IMAGE_ID" name="image_id" size="2"/>'+
+            '<span class="radius label" type="text" id="IMAGE_NAME" name="image"></span>'+
           '</div>'+
           '<hr>'+
         '<div class="show_hide" id="advanced_image">'+
@@ -779,6 +778,67 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
         '</div>'+
         '<div class="advanced">'+
           '<div class="row advanced vm_param">'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="four columns">'+
+                  '<label class="right inline" for="IMAGE_ID">'+tr("IMAGE_ID")+':</label>'+
+                '</div>'+
+                '<div class="six columns">'+
+                  '<input type="text" id="IMAGE_ID" name="IMAGE_ID"/>'+
+                '</div>'+
+                '<div class="two columns">'+
+                  '<div class="tip">'+
+                  '</div>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="four columns">'+
+                    '<label class="right inline" for="IMAGE">'+tr("IMAGE")+':</label>'+
+                '</div>'+
+                '<div class="six columns">'+
+                    '<input type="text" id="IMAGE" name="IMAGE" />'+
+                '</div>'+
+                '<div class="two columns">'+
+                    '<div class="tip">'+
+                    '</div>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<div class="row advanced vm_param">'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="four columns">'+
+                  '<label class="right inline" for="IMAGE_UID">'+tr("IMAGE_UID")+':</label>'+
+                '</div>'+
+                '<div class="six columns">'+
+                  '<input type="text" id="IMAGE_UID" name="IMAGE_UID"/>'+
+                '</div>'+
+                '<div class="two columns">'+
+                  '<div class="tip">'+
+                  '</div>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="four columns">'+
+                  '<label class="right inline" for="IMAGE_UNAME">'+tr("IMAGE_UNAME")+':</label>'+
+                '</div>'+
+                '<div class="six columns">'+
+                  '<input type="text" id="IMAGE_UNAME" name="IMAGE_UNAME"/>'+
+                '</div>'+
+                '<div class="two columns">'+
+                  '<div class="tip">'+
+                  '</div>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<div class="row advanced vm_param">'+
+        '<br>'+
             '<div class="six columns">'+
               '<div class="row">'+
                 '<div class="four columns">'+
@@ -1327,7 +1387,16 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [0,1] },
             { "bVisible": false, "aTargets": [2,3,6,9,8,12]}
-        ]
+        ],
+          "fnDrawCallback": function(oSettings) {
+            var nodes = this.fnGetNodes();
+            $.each(nodes, function(){
+                if ($(this).find("td:eq(1)").html() == $('#IMAGE_ID', disk_section).val()) {
+                    $("td", this).addClass('markrow');
+                    $('input.check_item', this).attr('checked','checked');
+                }
+            })
+          }
     });
 
     // Retrieve the images to fill the datatable
@@ -1340,18 +1409,21 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
     $('#'+str_datatable_id + '  tbody', disk_section).delegate("tr", "click", function(e){
         var aData = dataTable_template_images.fnGetData(this);
 
-        $("td.markrowchecked", disk_section).removeClass('markrowchecked');
+        $("td.markrow", disk_section).removeClass('markrow');
         $('tbody input.check_item', dataTable_template_images).removeAttr('checked');
 
         $('#image_selected', disk_section).show();
         $('#select_image', disk_section).hide();
         $('.alert-box', disk_section).hide();
 
-        $("td", this).addClass('markrowchecked');
+        $("td", this).addClass('markrow');
         $('input.check_item', this).attr('checked','checked');
 
-        $('#IMAGE', disk_section).text(aData[4]);
+        $('#IMAGE_NAME', disk_section).text(aData[4]);
         $('#IMAGE_ID', disk_section).val(aData[1]);
+        $('#IMAGE', disk_section).val("");
+        $('#IMAGE_UNAME', disk_section).val("");
+        $('#IMAGE_UID', disk_section).val("");
         return true;
     });
 
@@ -1402,25 +1474,85 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
       '</tbody>'+
     '</table>'+
     '<br>'+
-    '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
+    '<div id="selected_network" class="vm_param kvm_opt xen_opt vmware_opt">'+
       '<span id="select_network" class="radius secondary label">'+tr("Please select a network from the list")+'</span>'+
       '<span id="network_selected" class="radius secondary label hidden">'+tr("You selected the following network:")+
       '</span>'+
-      '<span class="radius label" type="text" id="NETWORK" name="network"></span>'+
-      '<input type="hidden" id="NETWORK_ID" name="network_id" size="2"/>'+
+      '<span class="radius label" type="text" id="NETWORK_NAME" name="network"></span>'+
     '</div>'+
   '<hr>'+
     '<div class="show_hide" id="advanced">'+
           '<h4><small><i class=" icon-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
     '</div>'+
     '<div class="advanced">'+
+          '<div class="row advanced vm_param">'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="five columns">'+
+                  '<label class="right inline" for="IMAGE_ID">'+tr("NETWORK_ID")+':</label>'+
+                '</div>'+
+                '<div class="five columns">'+
+                  '<input type="text" id="NETWORK_ID" name="NETWORK_ID"/>'+
+                '</div>'+
+                '<div class="two columns">'+
+                  '<div class="tip">'+
+                  '</div>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="five columns">'+
+                    '<label class="right inline" for="NETWORK">'+tr("NETWORK")+':</label>'+
+                '</div>'+
+                '<div class="five columns">'+
+                    '<input type="text" id="NETWORK" name="NETWORK" />'+
+                '</div>'+
+                '<div class="two columns">'+
+                    '<div class="tip">'+
+                    '</div>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<div class="row advanced vm_param">'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="five columns">'+
+                  '<label class="right inline" for="NETWORK_UID">'+tr("NETWORK_UID")+':</label>'+
+                '</div>'+
+                '<div class="five columns">'+
+                  '<input type="text" id="NETWORK_UID" name="NETWORK_UID"/>'+
+                '</div>'+
+                '<div class="two columns">'+
+                  '<div class="tip">'+
+                  '</div>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="five columns">'+
+                  '<label class="right inline" for="NETWORK_UNAME">'+tr("NETWORK_UNAME")+':</label>'+
+                '</div>'+
+                '<div class="five columns">'+
+                  '<input type="text" id="NETWORK_UNAME" name="NETWORK_UNAME"/>'+
+                '</div>'+
+                '<div class="two columns">'+
+                  '<div class="tip">'+
+                  '</div>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
       '<div class="row">'+
+        '<br>'+
         '<div class="six columns">'+
           '<div class="row">'+
-            '<div class="four columns">'+
+            '<div class="five columns">'+
               '<label class="right inline" for="IP">'+tr("IP")+':</label>'+
             '</div>'+
-            '<div class="six columns vm_param">'+
+            '<div class="five columns vm_param">'+
               '<input type="text" id="IP" name="IP" size="3" />'+
             '</div>'+
             '<div class="two columns">'+
@@ -1430,10 +1562,10 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
         '</div>'+
         '<div class="six columns">'+
           '<div class="row">'+
-            '<div class="four columns">'+
+            '<div class="five columns">'+
                 '<label class="right inline" for="MODEL">'+tr("MODEL")+':</label>'+
             '</div>'+
-            '<div class="six columns vm_param">'+
+            '<div class="five columns vm_param">'+
               '<input type="text" id="MODEL" name="MODEL" />'+
             '</div>'+
             '<div class="two columns">'+
@@ -1524,14 +1656,23 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
 
 function setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id) {
     var dataTable_template_networks = $('#'+str_datatable_id, nic_section).dataTable({
-              "bAutoWidth":false,
-              "iDisplayLength": 4,
-              "sDom" : '<"H">t<"F"p>',
-              "aoColumnDefs": [
-                  { "sWidth": "35px", "aTargets": [0,1] },
-                  { "bVisible": false, "aTargets": [7]}
-              ]
-            });
+      "bAutoWidth":false,
+      "iDisplayLength": 4,
+      "sDom" : '<"H">t<"F"p>',
+      "aoColumnDefs": [
+          { "sWidth": "35px", "aTargets": [0,1] },
+          { "bVisible": false, "aTargets": [7]}
+        ],
+          "fnDrawCallback": function(oSettings) {
+            var nodes = this.fnGetNodes();
+            $.each(nodes, function(){
+                if ($(this).find("td:eq(1)").html() == $('#NETWORK_ID', nic_section).val()) {
+                    $("td", this).addClass('markrow');
+                    $('input.check_item', this).attr('checked','checked');
+                }
+            })
+          }
+    });
 
     // Retrieve the networks to fill the datatable
     update_datatable_template_networks(dataTable_template_networks);
@@ -1543,18 +1684,21 @@ function setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id) {
     $('#'+str_datatable_id + '  tbody', nic_section).delegate("tr", "click", function(e){
         var aData = dataTable_template_networks.fnGetData(this);
 
-        $("td.markrowchecked", nic_section).removeClass('markrowchecked');
+        $("td.markrow", nic_section).removeClass('markrow');
         $('tbody input.check_item', dataTable_template_networks).removeAttr('checked');
 
         $('#image_selected', nic_section).show();
         $('#select_image', nic_section).hide();
         $('.alert-box', nic_section).hide();
 
-        $("td", this).addClass('markrowchecked');
+        $("td", this).addClass('markrow');
         $('input.check_item', this).attr('checked','checked');
 
-        $('#NETWORK', nic_section).text(aData[4]);
+        $('#NETWORK_NAME', nic_section).text(aData[4]);
         $('#NETWORK_ID', nic_section).val(aData[1]);
+        $('#NETWORK', nic_section).val("");
+        $('#NETWORK_UNAME', nic_section).val("");
+        $('#NETWORK_UID', nic_section).val("");
         return true;
     });
 
@@ -2121,13 +2265,24 @@ function setupCreateTemplateDialog(){
                         '<tbody id="tbodyimages">'+
                         '</tbody>'+
                       '</table>'+
-                      '<div id="kernel_ds_inputs"  class="vm_param kvm_opt xen_opt vmware_opt">'+
+                      '<div id="kernel_ds_inputs"  class="kvm_opt xen_opt vmware_opt">'+
                         '<span id="select_image" class="radius secondary label">'+tr("Please select a Kernel from the list")+'</span>'+
                         '<span id="image_selected" class="radius secondary label hidden">'+tr("You selected the following Kernel: ")+
                         '</span>'+
                         '<span class="radius label" type="text"  id="KERNEL" name="kernel""></span>'+
-                        '<input type="hidden" id="KERNEL_DS" name="kernel_ds" s size="2"/>'+
                       '</div>'+
+                    '<div class="vm_param row">'+
+                      '<br>'+
+                      '<div class="four columns">'+
+                        '<label class="right inline" for="KERNEL_DS">'+tr("KERNEL_DS")+':</label>'+
+                      '</div>'+
+                      '<div class="six columns">'+
+                        '<input type="text" id="KERNEL_DS" name="KERNEL_DS"/>'+
+                      '</div>'+
+                      '<div class="two columns">'+
+                        '<div class="tip"></div>'+
+                      '</div>'+
+                    '</div>'+
                     '</div>'+
                   '<div id="kernel_path_inputs" class="kernel_path hidden row">'+
                       '<div class="two columns">'+
@@ -2181,13 +2336,24 @@ function setupCreateTemplateDialog(){
                         '<tbody id="tbodyimages">'+
                         '</tbody>'+
                       '</table>'+
-                      '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
+                      '<div id="selected_image" class=" kvm_opt xen_opt vmware_opt">'+
                         '<span id="select_image" class="radius secondary label">'+tr("Please select a Ramdisk from the list")+'</span>'+
                         '<span id="image_selected" class="radius secondary label hidden">'+tr("You selected the following Ramdisk: ")+
                         '</span>'+
                         '<span class="radius label" type="text" id="INITRD" name="initrd"></span>'+
-                        '<input type="hidden"id="INITRD_DS" name="initrd_id" size="2"/>'+
                       '</div>'+
+                    '<div class="row vm_param">'+
+                      '<br>'+
+                      '<div class="four columns">'+
+                        '<label class="right inline" for="INITRD_DS">'+tr("INITRD_DS")+':</label>'+
+                      '</div>'+
+                      '<div class="six columns">'+
+                        '<input type="text" id="INITRD_DS" name="initrd_id"/>'+
+                      '</div>'+
+                      '<div class="two columns">'+
+                        '<div class="tip"></div>'+
+                      '</div>'+
+                    '</div>'+
                     '</div>'+
                   '<div id="initrd_path_inputs" class="initrd_path hidden row">'+
                       '<div class="two columns">'+
@@ -2286,7 +2452,16 @@ function setupCreateTemplateDialog(){
             "aoColumnDefs": [
                 { "sWidth": "35px", "aTargets": [0,1] },
                 { "bVisible": false, "aTargets": [3,2,5,6,7,9,8,11,12,10]}
-            ]
+            ],
+          //"fnDrawCallback": function(oSettings) {
+          //  var nodes = this.fnGetNodes();
+          //  $.each(nodes, function(){
+          //      if ($(this).find("td:eq(1)").html() == $('#KERNEL', kernel_section).text()) {
+          //          $("td", this).addClass('markrow');
+          //          $('input.check_item', this).attr('checked','checked');
+          //      }
+          //  })
+          //}
         });
 
         dataTable_template_kernel.fnFilter("KERNEL", 7)
@@ -2329,7 +2504,16 @@ function setupCreateTemplateDialog(){
             "aoColumnDefs": [
                 { "sWidth": "35px", "aTargets": [0,1] },
                 { "bVisible": false, "aTargets": [2,3,5,6,7,9,8,10,11,12]}
-            ]
+            ],
+           //"fnDrawCallback": function(oSettings) {
+           // var nodes = this.fnGetNodes();
+           // $.each(nodes, function(){
+           //     if ($(this).find("td:eq(1)").html() == $('#INITRD', kernel_section).text()) {
+           //         $("td", this).addClass('markrowchecked');
+           //         $('input.check_item', this).attr('checked','checked');
+           //     }
+           // })
+           // }
         });
 
         datTable_template_initrd.fnFilter("RAMDISK", 7)
@@ -2473,7 +2657,7 @@ function setupCreateTemplateDialog(){
               '</div>'+
               '<hr>'+
               '<div class="">'+
-              '<table id="input_table" class="twelve">'+
+              '<table id="input_table" class="twelve policies_table">'+
                  '<thead>'+
                    '<tr>'+
                      '<th>'+tr("TYPE")+'</th>'+
@@ -2642,7 +2826,18 @@ function setupCreateTemplateDialog(){
                       '<div class="vm_param kvm_opt xen_opt vmware_opt row" id="selected_files_spans">'+
                         '<span id="select_files" class="radius secondary label">'+tr("Please select files from the list")+'</span> '+
                         '<span id="files_selected" class="radius secondary label hidden">'+tr("You selected the following files:")+'</span> '+
-                        '<input type="hidden" id="FILES_DS" name="files_ds" size="2"/>'+
+                      '</div>'+
+                      '<div class="row vm_param">'+
+                      '<br>'+
+                        '<div class="four columns">'+
+                          '<label class="right inline" for="FILES_DS">'+tr("FILES_DS")+':</label>'+
+                        '</div>'+
+                        '<div class="six columns">'+
+                          '<input type="text" id="FILES_DS" name="FILES_DS" />'+
+                        '</div>'+
+                        '<div class="two columns">'+
+                          '<div class="tip"></div>'+
+                        '</div>'+
                       '</div>'+
                     '</li>'+
                 '<li class="wizard_internal_tab" id="zcustomTab">'+
@@ -2659,7 +2854,7 @@ function setupCreateTemplateDialog(){
                   '</div>'+
                   '<hr>'+
                   '<div class="row">'+
-                      '<table id="context_table" class="twelve">'+
+                      '<table id="context_table" class="twelve policies_table">'+
                          '<thead>'+
                            '<tr>'+
                              '<th>'+tr("KEY")+'</th>'+
@@ -2719,12 +2914,28 @@ function setupCreateTemplateDialog(){
       var datTable_template_context = $('#datatable_context', dialog).dataTable({
           "bAutoWidth":false,
           "iDisplayLength": 4,
+          "bDeferRender": true,
           "sDom" : '<"H">t<"F"p>',
           "aoColumnDefs": [
               { "bSortable": false, "aTargets": ["check"] },
               { "sWidth": "35px", "aTargets": [0,1] },
               { "bVisible": false, "aTargets": [2,3,5,6,7,9,8,10,11,12]}
-          ]
+          ],
+          //"fnDrawCallback": function(oSettings) {
+          //  var images = []
+          //  $.each($( "span.image", $("#selected_files_spans")), function() {
+          //    images.push($(this).attr("image_id"));
+          //  });
+//
+          //  var nodes = this.fnGetNodes();
+          //  $.each(nodes, function(){
+          //      var in_array = $.inArray($(this).find("td:eq(1)").html(), images)
+          //      if (in_array != -1) {
+          //          $("td", this).addClass('markrow');
+          //          $('input.check_item', this).attr('checked','checked');
+          //      }
+          //  })
+          //}
       });
 
         datTable_template_context.fnFilter("CONTEXT", 7)
@@ -2760,12 +2971,12 @@ function setupCreateTemplateDialog(){
             file_row_hash[file_id]=this;
             $(this).children().each(function(){$(this).addClass('markrowchecked');});
             if ($('#tag_file_'+aData[1], $('div#selected_files_spans', dialog)).length == 0 ) {
-                $('#selected_files_spans', dialog).append('<span id="tag_file_'+aData[1]+'" class="radius label">'+aData[4]+' <span class="icon-remove blue"></span></span> ');
+                $('#selected_files_spans', dialog).append('<span image_id="'+aData[1]+'" id="tag_file_'+aData[1]+'" class="image radius label">'+aData[4]+' <span class="icon-remove blue"></span></span> ');
             }
           } else {
             $('input.check_item', this).removeAttr('checked');
             delete selected_files[file_id];
-            $(this).children().each(function(){$(this).removeClass('markrowchecked');});
+            $("td", this).removeClass('markrowchecked');
             $('div#selected_files_spans span#tag_file_'+file_id, dialog).remove();
           }
 
@@ -2776,8 +2987,6 @@ function setupCreateTemplateDialog(){
 
           $('.alert-box', $('li#contextTab')).hide();
 
-          console.log(selected_files)
-          console.log(file_row_hash)
           generate_context_files();
 
           return true;
@@ -2786,17 +2995,17 @@ function setupCreateTemplateDialog(){
       $( "span.icon-remove", $("#selected_files_spans") ).die()
       $( "span.icon-remove", $("#selected_files_spans") ).live( "click", function() {
          $(this).parent().remove();
-         var id = $(this).parent().attr("id");
+         var file_id = $(this).parent().attr("image_id");
 
-         var file_id=id.substring(9,id.length);
          delete selected_files[file_id];
-         $('td', file_row_hash[file_id]).removeClass('markrowchecked');
-         $('input.check_item', file_row_hash[file_id]).removeAttr('checked');
 
-          if ($.isEmptyObject(selected_files)) {
-            $('#files_selected',  dialog).hide();
-            $('#select_files', dialog).show();
-          }
+           var nodes = datTable_template_context.fnGetNodes();
+            $.each(nodes, function(){
+                if ($(this).find("td:eq(1)").html() == file_id) {
+                    $("td", this).removeClass('markrowchecked');
+                    $('input.check_item', this).removeAttr('checked');
+                }
+            })
 
          generate_context_files();
       });
@@ -2804,8 +3013,8 @@ function setupCreateTemplateDialog(){
       var generate_context_files = function() {
         var req_string=[];
 
-        $.each(selected_files, function(key, value) {
-          req_string.push("$FILE[IMAGE_ID="+ key +"]");
+        $.each($( "span.image", $("#selected_files_spans")), function() {
+          req_string.push("$FILE[IMAGE_ID="+ $(this).attr("image_id") +"]");
         });
 
 
@@ -3360,7 +3569,12 @@ function setupCreateTemplateDialog(){
           $.each(vm_json["NIC"], function(){
             var vnet_id = this["NETWORK_ID"]
             var eth_str = "ETH"+nic_id+"_"
-            var net_str = 'NETWORK_ID=\\"'+ vnet_id +'\\"'
+
+            if (vnet_id) {
+                var net_str = 'NETWORK_ID=\\"'+ vnet_id +'\\"'
+            } else {
+                var net_str = 'NETWORK=\\"'+ this["NETWORK"] +'\\"'
+            }
 
             vm_json["CONTEXT"][eth_str+"IP"]      = "$NIC[IP,"+ net_str +"]";
             vm_json["CONTEXT"][eth_str+"NETWORK"] = "$NETWORK[NETWORK_ADDRESS,"+ net_str +"]";
@@ -3538,7 +3752,7 @@ function fillTemplatePopUp(request, response){
                     delete template_json[field.attr('id')]
 
                     if (field.parents(".advanced")) {
-                        $('.advanced', context).toggle();
+                        $('.advanced', context).show();
                     }
                 };
         });
@@ -3568,7 +3782,7 @@ function fillTemplatePopUp(request, response){
         var str_disk_tab_id = 'disk' + number_of_disks;
         var disk_section  = $('li#' + str_disk_tab_id + 'Tab', $create_template_dialog);
 
-        if (disk.IMAGE_ID) {
+        if (disk.IMAGE_ID || disk.IMAGE) {
             $('input#'+str_disk_tab_id+'radioImage', disk_section).click();
 
             var dataTable_template_images = $("#datatable_template_images" + number_of_disks).dataTable();
@@ -3579,26 +3793,35 @@ function fillTemplatePopUp(request, response){
             update_datatable_template_images(dataTable_template_images, function(){
                 dataTable_template_images.unbind('draw');
 
-                var rows = dataTable_template_images.fnGetNodes();
-                var clicked = false
-                for (var j=0;j<rows.length;j++) {
-                    var current_row = $(rows[j]);
-                    var row_image_id = $(rows[j]).find("td:eq(1)").html();
+                if (disk_image_id) {
+                    var clicked = false
+                    var data = dataTable_template_images.fnGetData();
+                    $.each(data, function(){
+                        if (this[1] == disk_image_id) {
+                            clicked = true;
+                            $('#image_selected', disk_section).show();
+                            $('#select_image', disk_section).hide();
+                            $('#IMAGE_NAME', disk_section).text(this[4]);
+                            $('#IMAGE_ID', disk_section).val(this[1]);
+                        }
+                    })
 
-                    if (row_image_id == disk_image_id) {
-                        rows[j].click();
-                        clicked = true;
+                    if (!clicked) {
+                        var alert = '<div class="alert-box alert">'+
+    'IMAGE: '+ disk_image_id + tr(" does not exists any more.") +
+    '  <a href="" class="close">&times;</a>'+
+    '</div>';
+
+                        $("#selected_image", disk_section).append(alert);
                     }
-                }
-
-                if (!clicked) {
+                } else {
                     var alert = '<div class="alert-box alert">'+
-'IMAGE: '+ disk_image_id + tr(" does not exists any more") +
-'  <a href="" class="close">&times;</a>'+
-'</div>';
-
-                    $(".dataTables_wrapper", disk_section).append(alert);
+    tr("The image you specified cannot be selected in the table") +
+    '  <a href="" class="close">&times;</a>'+
+    '</div>';
+                    $("#selected_image", disk_section).append(alert);
                 }
+
             })
 
         }
@@ -3646,25 +3869,33 @@ function fillTemplatePopUp(request, response){
         update_datatable_template_networks(dataTable_template_networks, function(){
             dataTable_template_networks.unbind('draw');
 
-            var rows = dataTable_template_networks.fnGetNodes();
-            var clicked = false
-            for (var j=0;j<rows.length;j++) {
-                var current_row = $(rows[j]);
-                var row_network_id = $(rows[j]).find("td:eq(1)").html();
+            if (nic_network_id) {
+                var clicked = false
+                var data = dataTable_template_networks.fnGetData();
+                $.each(data, function(){
+                    if (this[1] == nic_network_id) {
+                        clicked = true;
+                        $('#network_selected', nic_section).show();
+                        $('#select_network', nic_section).hide();
+                        $('#NETWORK_NAME', nic_section).text(this[4]);
+                        $('#NETWORK_ID', nic_section).val(this[1]);
+                    }
+                })
 
-                if (row_network_id == nic_network_id) {
-                    rows[j].click();
-                    clicked = true;
+                if (!clicked) {
+                    var alert = '<div class="alert-box alert">'+
+    'NETWORK: '+ nic_network_id + tr(" does not exists any more") +
+    '  <a href="" class="close">&times;</a>'+
+    '</div>';
+
+                    $("#selected_network", nic_section).append(alert);
                 }
-            }
-
-            if (!clicked) {
+            } else {
                 var alert = '<div class="alert-box alert">'+
-'NETWORK: '+ nic_network_id + tr(" does not exists any more") +
+tr("The network you specified cannot be selected in the table") +
 '  <a href="" class="close">&times;</a>'+
 '</div>';
-
-                $(".dataTables_wrapper", disk_section).append(alert);
+                $("#selected_network", nic_section).append(alert);
             }
         })
 
@@ -3709,30 +3940,35 @@ function fillTemplatePopUp(request, response){
             // TODO updateView should not be required. Currently the dataTable
             //  is filled twice.
             update_datatable_template_files(dataTable_template_kernel, function(){
-                dataTable_template_kernel.unbind('draw');
-
-                var rows = dataTable_template_kernel.fnGetNodes();
-                var regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/;
-                var match = regexp.exec(os_kernel_ds)
-                var clicked = false;
-                for (var j=0;j<rows.length;j++) {
-                    var current_row = $(rows[j]);
-                    var row_id = $(rows[j]).find("td:eq(1)").html();
-
-                    if (match && row_id == match[1]) {
-                        rows[j].click();
-                        clicked = true;
-                    }
-                }
-
-                if (!clicked) {
-                    var alert = '<div class="alert-box alert">'+
-'KERNEL: '+ os_kernel_ds + tr(" does not exists any more") +
-'  <a href="" class="close">&times;</a>'+
-'</div>';
-
-                    $(".dataTables_wrapper", kernel_section).append(alert);
-                }
+//                dataTable_template_kernel.unbind('draw');
+//
+//                var regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/;
+//                var match = regexp.exec(os_kernel_ds)
+//                var clicked = false;
+//                var data = dataTable_template_kernel.fnGetData();
+//                if (match) {
+//                    $.each(data, function(){
+//                         if (this[1] == match[1]) {
+//                            clicked = true;
+//                            $("#KERNEL", kernel_section).val(this[1])
+//                         }
+//                    })
+//
+//                    if (!clicked) {
+//                        var alert = '<div class="alert-box alert">'+
+//    'RAMDISK: '+ os_initrd_ds + tr(" does not exists any more") +
+//    '  <a href="" class="close">&times;</a>'+
+//    '</div>';
+//
+//                        $("#kernel_ds_inputs", kernel_section).append(alert);
+//                    }
+//                } else {
+//                    var alert = '<div class="alert-box alert">'+
+//    tr("The image you specified cannot be selected in the table") +
+//    '  <a href="" class="close">&times;</a>'+
+//    '</div>';
+//                    $("#kernel_ds_inputs", kernel_section).append(alert);
+//                }
             })
         }
         else if (os.KERNEL) {
@@ -3748,30 +3984,35 @@ function fillTemplatePopUp(request, response){
             // TODO updateView should not be required. Currently the dataTable
             //  is filled twice.
             update_datatable_template_files(dataTable_template_initrd, function(){
-                dataTable_template_initrd.unbind('draw');
+ //               dataTable_template_initrd.unbind('draw');
 
-                var rows = dataTable_template_initrd.fnGetNodes();
-                var regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/;
-                var match = regexp.exec(os_initrd_ds)
-                var clicked = false;
-                for (var j=0;j<rows.length;j++) {
-                    var current_row = $(rows[j]);
-                    var row_id = $(rows[j]).find("td:eq(1)").html();
+ //               var regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/;
+ //               var match = regexp.exec(os_initrd_ds)
+ //               var clicked = false;
+ //               var data = dataTable_template_initrd.fnGetData();
+ //               if (match) {
+ //                   $.each(data, function(){
+ //                        if (this[1] == match[1]) {
+ //                           clicked = true;
+ //                           $("#INITRD", initrd_section).text(this[1])
+ //                        }
+ //                   })
 
-                    if (match && row_id == match[1]) {
-                        rows[j].click();
-                        clicked = true;
-                    }
-                }
+ //                   if (!clicked) {
+ //                       var alert = '<div class="alert-box alert">'+
+ //   'RAMDISK: '+ os_initrd_ds + tr(" does not exists any more") +
+ //   '  <a href="" class="close">&times;</a>'+
+ //   '</div>';
 
-                if (!clicked) {
-                    var alert = '<div class="alert-box alert">'+
-'RAMDISK: '+ os_initrd_ds + tr(" does not exists any more") +
-'  <a href="" class="close">&times;</a>'+
-'</div>';
-
-                    $(".dataTables_wrapper", initrd_section).append(alert);
-                }
+ //                       $("#selected_image", initrd_section).append(alert);
+ //                   }
+ //               } else {
+ //                   var alert = '<div class="alert-box alert">'+
+ //   tr("The image you specified cannot be selected in the table") +
+ //   '  <a href="" class="close">&times;</a>'+
+ //   '</div>';
+ //                   $("#selected_image", initrd_section).append(alert);
+ //               }
             })
         }
         else if (os.INITRD) {
@@ -3826,7 +4067,7 @@ function fillTemplatePopUp(request, response){
 
 
             var cell3 = row.insertCell(2);
-            cell3.innerHTML = "<span class='ui-icon ui-icon-close'></span>";
+            cell3.innerHTML = "<i class='icon-remove-sign icon-large remove-tab'></i>";
         });
     }
 
@@ -3840,8 +4081,9 @@ function fillTemplatePopUp(request, response){
 
     if (context) {
         var file_ds_regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/g;
-        var net_regexp = /^ETH[0-9]+_(MASK|GATEWAY|IP|NETWORK|DNS)$/;
+        var net_regexp = /^ETH[0-9]+_(MASK|GATEWAY|IP|NETWORK|DNS|IPV6|GATEWAY6|CONTEXT_FORCE_IPV4)$/;
         var ssh_regexp = /^SSH_PUBLIC_KEY$/;
+        var token_regexp = /^TOKEN$/;
         var publickey_regexp = /\$USER\[SSH_PUBLIC_KEY\]/;
 
         var net_flag = false;
@@ -3856,7 +4098,9 @@ function fillTemplatePopUp(request, response){
                 if (!publickey_regexp.test(value)) {
                     $("input#ssh_puclic_key").val(value);
                 }
-
+            }
+            else if (token_regexp.test(key)) {
+                $("#token_context", context_section).attr('checked','checked');
             }
             else if (net_regexp.test(key)) {
                 if (!net_flag) {
@@ -3865,6 +4109,7 @@ function fillTemplatePopUp(request, response){
                 }
             }
             else if ("FILES_DS" == key){
+                $('#FILES_DS', context_section).val(context["FILES_DS"])
                 var files = [];
                 while (match = file_ds_regexp.exec(value)) {
                     files.push(match[1])
@@ -3875,30 +4120,27 @@ function fillTemplatePopUp(request, response){
                 // TODO updateView should not be required. Currently the dataTable
                 //  is filled twice.
                 update_datatable_template_files(dataTable_context, function(){
-                    dataTable_context.unbind('draw');
-
-                    var rows = dataTable_context.fnGetNodes();
-
-                    for (var j=0;j<rows.length;j++) {
-                        var current_row = $(rows[j]);
-                        var row_id = $(rows[j]).find("td:eq(1)").html();
-
-                        var in_array = $.inArray(row_id, files)
-                        if (in_array != -1) {
-                            files.splice(in_array, 1);
-                            // TBD check if all the files were clicked
-                            rows[j].click();
-                        }
-                    }
-
-                    if (files.length != 0) {
-                        var alert = '<div class="alert-box alert">'+
-tr('The following FILES: ') + files.join(', ') + tr(" do not exist any more") +
-'  <a href="" class="close">&times;</a>'+
-'</div>';
-
-                        $(".dataTables_wrapper", context_section).append(alert);
-                    }
+//                    dataTable_context.unbind('draw');
+//
+//                    var data = dataTable_context.fnGetData();
+//                    $.each(data, function(){
+//                        var in_array = $.inArray(this[1], files)
+//                        if (in_array != -1) {
+//                            $('#files_selected',  context_section).show();
+//                            $('#select_files', context_section).hide();
+//                            files.splice(in_array, 1);
+//                            $('#selected_files_spans', context_section).append('<span image_id="'+this[1]+'" id="tag_file_'+this[1]+'" class="image radius label">'+this[4]+' <span class="icon-remove blue"></span></span> ');
+//                        }
+//                    })
+//
+//                    if (files.length != 0) {
+//                        var alert = '<div class="alert-box alert">'+
+//tr('The following FILES: ') + files.join(', ') + tr(" do not exist any more") +
+//'  <a href="" class="close">&times;</a>'+
+//'</div>';
+//
+//                        $(".dataTables_wrapper", context_section).append(alert);
+//                    }
                 });
             }
             else {
@@ -3922,7 +4164,7 @@ tr('The following FILES: ') + files.join(', ') + tr(" do not exist any more") +
 
 
               var cell3 = row.insertCell(2);
-              cell3.innerHTML = "<span class='ui-icon ui-icon-close'></span>";
+              cell3.innerHTML = "<i class='icon-remove-sign icon-large remove-tab'></i>";
             }
         });
     }
@@ -3954,30 +4196,30 @@ tr('The following FILES: ') + files.join(', ') + tr(" do not exist any more") +
             var dataTable_template_hosts = $("#datatable_template_hosts").dataTable();
 
             update_datatable_template_hosts(dataTable_template_hosts, function(){
-                dataTable_template_hosts.unbind('draw');
-
-                var rows = dataTable_template_hosts.fnGetNodes();
-
-                for (var j=0;j<rows.length;j++) {
-                    var current_row = $(rows[j]);
-                    var row_id = $(rows[j]).find("td:eq(1)").html();
-
-                    var in_array = $.inArray(row_id, hosts)
-                    if (in_array != -1) {
-                        hosts.splice(in_array, 1);
-                        // TBD check if all the hosts were clicked
-                        rows[j].click();
-                    }
-                }
-
-                if (hosts.length != 0) {
-                    var alert = '<div class="alert-box alert">'+
-tr('The following HOSTs: [') + hosts.join(', ') + '] ' + tr(" do not exist any more") +
-'  <a href="" class="close">&times;</a>'+
-'</div>';
-
-                    $("#datatable_template_hosts_wrapper", req_section).append(alert);
-                }
+//                dataTable_template_hosts.unbind('draw');
+//
+//                var rows = dataTable_template_hosts.fnGetNodes();
+//
+//                for (var j=0;j<rows.length;j++) {
+//                    var current_row = $(rows[j]);
+//                    var row_id = $(rows[j]).find("td:eq(1)").html();
+//
+//                    var in_array = $.inArray(row_id, hosts)
+//                    if (in_array != -1) {
+//                        hosts.splice(in_array, 1);
+//                        // TBD check if all the hosts were clicked
+//                        rows[j].click();
+//                    }
+//                }
+//
+//                if (hosts.length != 0) {
+//                    var alert = '<div class="alert-box alert">'+
+//tr('The following HOSTs: [') + hosts.join(', ') + '] ' + tr(" do not exist any more") +
+//'  <a href="" class="close">&times;</a>'+
+//'</div>';
+//
+//                    $("#datatable_template_hosts_wrapper", req_section).append(alert);
+//                }
             });
         }
 
@@ -3987,30 +4229,30 @@ tr('The following HOSTs: [') + hosts.join(', ') + '] ' + tr(" do not exist any m
             var dataTable_template_clusters = $("#datatable_template_clusters").dataTable();
 
             update_datatable_template_clusters(dataTable_template_clusters, function(){
-                dataTable_template_clusters.unbind('draw');
+//               dataTable_template_clusters.unbind('draw');
 
-                var rows = dataTable_template_clusters.fnGetNodes();
+//               var rows = dataTable_template_clusters.fnGetNodes();
 
-                for (var j=0;j<rows.length;j++) {
-                    var current_row = $(rows[j]);
-                    var row_id = $(rows[j]).find("td:eq(1)").html();
+//               for (var j=0;j<rows.length;j++) {
+//                   var current_row = $(rows[j]);
+//                   var row_id = $(rows[j]).find("td:eq(1)").html();
 
-                    var in_array = $.inArray(row_id, clusters)
-                    if (in_array != -1) {
-                        clusters.splice(in_array, 1);
-                        // TBD check if all the clusters were clicked
-                        rows[j].click();
-                    }
-                }
+//                   var in_array = $.inArray(row_id, clusters)
+//                   if (in_array != -1) {
+//                       clusters.splice(in_array, 1);
+//                       // TBD check if all the clusters were clicked
+//                       rows[j].click();
+//                   }
+//               }
 
-                if (clusters.length != 0) {
-                    var alert = '<div class="alert-box alert">'+
-tr('The following CLUSTERs: [') + clusters.join(', ') + '] ' + tr("do not exist any more") +
-'  <a href="" class="close">&times;</a>'+
-'</div>';
+//               if (clusters.length != 0) {
+//                   var alert = '<div class="alert-box alert">'+
+//r('The following CLUSTERs: [') + clusters.join(', ') + '] ' + tr("do not exist any more") +
+//  <a href="" class="close">&times;</a>'+
+//</div>';
 
-                    $("#datatable_template_clusters_wrapper", req_section).append(alert);
-                }
+//                   $("#datatable_template_clusters_wrapper", req_section).append(alert);
+//               }
             });
         }
 
