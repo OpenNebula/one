@@ -165,8 +165,6 @@ void ImageManager::timer_action()
     Nebula& nd             = Nebula::instance();
     DatastorePool * dspool = nd.get_dspool();
 
-    ostringstream oss;
-
     rc = dspool->list(datastores);
 
     if ( rc != 0 )
@@ -174,33 +172,46 @@ void ImageManager::timer_action()
         return;
     }
 
-    const ImageManagerDriver* imd = get();
-
     for(it = datastores.begin() ; it != datastores.end(); it++)
     {
-        string  ds_data;
-        string* drv_msg;
-
-        Datastore * ds = dspool->get(*it, true);
-
-        if ( ds == 0 )
-        {
-            continue;
-        }
-
-        drv_msg = format_message("", ds->to_xml(ds_data));
-
-        oss.str("");
-        oss << "Monitoring datastore " << ds->get_name() << " (" << *it << ")";
-
-        NebulaLog::log("InM", Log::INFO, oss);
-
-        ds->unlock();
-
-        imd->monitor(*it, *drv_msg);
-
-        delete drv_msg;
+        monitor_datastore(*it);
     }
 
     return;
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void ImageManager::monitor_datastore(int ds_id)
+{
+    string  ds_data;
+    string* drv_msg;
+
+    Nebula& nd             = Nebula::instance();
+    DatastorePool * dspool = nd.get_dspool();
+
+    ostringstream oss;
+
+    const ImageManagerDriver* imd = get();
+
+    Datastore * ds = dspool->get(ds_id, true);
+
+    if ( ds == 0 )
+    {
+        return;
+    }
+
+    drv_msg = ImageManager::format_message("", ds->to_xml(ds_data));
+
+    oss << "Monitoring datastore " << ds->get_name() << " (" << ds_id << ")";
+
+    NebulaLog::log("InM", Log::INFO, oss);
+
+    ds->unlock();
+
+    imd->monitor(ds_id, *drv_msg);
+
+    delete drv_msg;
 }

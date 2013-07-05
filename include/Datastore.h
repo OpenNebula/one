@@ -162,6 +162,27 @@ public:
         used_mb  = used;
     }
 
+    unsigned int get_avail_mb()
+    {
+        float        reserved_size;
+        float        max_used_size;
+        unsigned int effective_free = free_mb;
+
+        if (get_template_attribute("MAX_USED_SIZE", max_used_size))
+        {
+            if (used_mb >= max_used_size)
+            {
+                effective_free = 0;
+            }
+        }
+        else if (get_template_attribute("RESERVED_SIZE", reserved_size))
+        {
+            effective_free -= reserved_size;
+        }
+
+        return effective_free;
+    }
+
 private:
 
     // -------------------------------------------------------------------------

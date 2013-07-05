@@ -182,6 +182,12 @@ public:
      */
      int stat_image(Template* img_tmpl, const string& ds_tmpl, string& res);
 
+     /**
+      *  Trigger a monitor action for the datastore.
+      *    @param ds_id id of the datastore to monitor
+      */
+     void monitor_datastore(int ds_id);
+
 private:
     /**
      *  Generic name for the Image driver
@@ -264,7 +270,7 @@ private:
      *    @param ds_data Datastore XML representation
      *    @return the XML message
      */
-    string * format_message(const string& img_data, const string& ds_data);
+    static string * format_message(const string& img_data, const string& ds_data);
 
     /**
      *  This function is executed periodically to monitor Datastores.

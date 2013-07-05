@@ -342,7 +342,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     Datastore *     ds;
     Image::DiskType ds_disk_type;
 
-    int             umask;
+    int             umask, avail;
 
     // ------------------------- Get user's umask ------------------------------
 
@@ -407,6 +407,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     ds_name      = ds->get_name();
     ds_disk_type = ds->get_disk_type();
+    avail        = ds->get_avail_mb();
 
     ds->to_xml(ds_data);
 
@@ -433,6 +434,14 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
         failure_response(INTERNAL,
                          request_error("Cannot parse SIZE", size_str),
                          att);
+        delete tmpl;
+        return;
+    }
+
+    if ( size_mb > avail )
+    {
+        failure_response(ACTION, "Not enough space in datastore", att);
+
         delete tmpl;
         return;
     }
