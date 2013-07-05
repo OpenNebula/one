@@ -614,7 +614,12 @@ module OpenNebula
             end
 
             if !(start_time.nil? || start_time.empty?)
-                start_time = Time.parse(start_time).to_i
+                begin
+                    start_time = Time.parse(start_time).to_i
+                rescue ArgumentError
+                    # TODO error msg
+                    return 0
+                end
             else
                 recurrence  = elasticity_pol['recurrence']
 
