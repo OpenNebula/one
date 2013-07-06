@@ -226,7 +226,10 @@ int DatastorePool::allocate(
         Nebula& nd        = Nebula::instance();
         ImageManager * im = nd.get_imagem();
 
-        im->monitor_datastore(*oid);
+        if (im != 0 ) //Do not monitor during bootstrap
+        {
+            im->monitor_datastore(*oid);
+        }
     }
 
     return *oid;

@@ -51,8 +51,7 @@ BASE_PATH="${XPATH_ELEMENTS[0]}"
 # ------------ Compute datastore usage -------------
 
 if [ ! -d $BASE_PATH ]; then
-    error_message "Directory $BASE_PATH does not exists"
-    exit -1
+    mkdir -p $BASE_PATH
 fi
 
 USED_MB=`du -sLm $BASE_PATH 2>/dev/null | cut -f1`
