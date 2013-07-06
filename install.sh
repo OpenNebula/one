@@ -986,6 +986,7 @@ DATASTORE_DRIVER_VMFS_SCRIPTS="src/datastore_mad/remotes/vmfs/cp \
                          src/datastore_mad/remotes/vmfs/mkfs \
                          src/datastore_mad/remotes/vmfs/stat \
                          src/datastore_mad/remotes/vmfs/clone \
+                         src/datastore_mad/remotes/vmfs/monitor \
                          src/datastore_mad/remotes/vmfs/rm \
                          src/datastore_mad/remotes/vmfs/vmfs.conf"
 
