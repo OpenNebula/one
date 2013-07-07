@@ -68,4 +68,4 @@ echo "FREE_MB=\$FREE_MB"
 EOF
 )
 
-ssh_exec_and_log $HOST "$MONITOR_SCRIPT" | tr ' ' '\n'
+ssh_monitor_and_log $HOST "$MONITOR_SCRIPT" | tr ' ' '\n'
