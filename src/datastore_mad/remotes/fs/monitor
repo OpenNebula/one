@@ -66,5 +66,3 @@ EOF
 )
 
 echo "$MONITOR_DATA"
-
-#vgdisplay  --units M -o vg_free -C vg --noheadings --nosuffix
