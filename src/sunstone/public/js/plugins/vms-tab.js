@@ -2866,6 +2866,7 @@ function setupVNC(){
         <span id="VNC_status">'+tr("Loading")+'</span>\
         <span id="VNC_buttons">\
           <input type=button value="Send CtrlAltDel" id="sendCtrlAltDelButton">\
+          <a id="open_in_a_new_window" href="" target="_blank">'+tr("Open in a new window")+'</a>\
         </span>\
       </small>\
     </h3>\
@@ -2918,6 +2919,15 @@ function vncCallback(request,response){
     var pw = response["password"];
     var token = response["token"];
     var path = '?token='+token;
+
+    var url = "vnc?";
+    url += "host=" + proxy_host;
+    url += "&port=" + proxy_port;
+    url += "&token=" + token;
+    url += "&password=" + pw;
+    url += "&encrypt=" + config['user_config']['vnc_wss'];
+
+    $("#open_in_a_new_window").attr('href', url)
     rfb.connect(proxy_host, proxy_port, pw, path);
     $vnc_dialog.reveal({"closed": function () {
       rfb.disconnect();
