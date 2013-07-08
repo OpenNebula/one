@@ -642,6 +642,90 @@ int VirtualMachine::parse_context(string& error_str)
 
     context->remove("FILES_DS");
 
+    // ----------- Inject Network context in marshalled string  ----------------
+
+    bool net_context;
+    context->vector_value("NETWORK", net_context);
+
+    if (net_context)
+    {
+        vector<Attribute  * > v_attributes;
+        VectorAttribute *     vatt;
+
+        int num_vatts = obj_template->get("NIC", v_attributes);
+
+        for(int i=0; i<num_vatts; i++)
+        {
+            vatt = dynamic_cast<VectorAttribute * >(v_attributes[i]);
+
+            if ( vatt == 0 )
+            {
+                continue;
+            }
+
+            string name   = vatt->vector_value("NETWORK");
+            string ip     = vatt->vector_value("IP");
+            string ip6    = vatt->vector_value("IP6_GLOBAL");
+            string nic_id = vatt->vector_value("NIC_ID");
+
+            ostringstream var;
+            ostringstream val;
+
+            var << "ETH" << nic_id << "_IP";
+            context->replace(var.str(), ip);
+
+            var.str(""); val.str("");
+
+            var << "ETH" << nic_id << "_NETWORK";
+            val << "$NETWORK[NETWORK_ADDRESS, NETWORK=\"" << name << "\"]";
+            context->replace(var.str(), val.str());
+
+            var.str(""); val.str("");
+
+            var << "ETH" << nic_id << "_MASK";
+            val << "$NETWORK[NETWORK_MASK, NETWORK=\"" << name << "\"]";
+            context->replace(var.str(), val.str());
+
+            var.str(""); val.str("");
+
+            var << "ETH" << nic_id << "_GATEWAY";
+            val << "$NETWORK[GATEWAY, NETWORK=\"" << name << "\"]";
+            context->replace(var.str(), val.str());
+
+            var.str(""); val.str("");
+
+            var << "ETH" << nic_id << "_GATEWAY";
+            val << "$NETWORK[GATEWAY, NETWORK=\"" << name << "\"]";
+            context->replace(var.str(), val.str());
+
+            var.str(""); val.str("");
+
+            var << "ETH" << nic_id << "_DNS";
+            val << "$NETWORK[DNS, NETWORK=\"" << name << "\"]";
+            context->replace(var.str(), val.str());
+
+            if (!ip6.empty())
+            {
+                var.str(""); val.str("");
+
+                var << "ETH" << nic_id << "_IP6";
+                context->replace(var.str(), ip6);
+
+                var.str(""); val.str("");
+
+                var << "ETH" << nic_id << "_GATEWAY6";
+                val << "$NETWORK[GATEWAY6, NETWORK=\"" << name << "\"]";
+                context->replace(var.str(), val.str());
+
+                var.str(""); val.str("");
+
+                var << "ETH" << nic_id << "_CONTEXT_FORCE_IPV4";
+                val << "$NETWORK[CONTEXT_FORCE_IPV4, NETWORK=\"" << name << "\"]";
+                context->replace(var.str(), val.str());
+            }
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Parse CONTEXT variables & free vector attributes
     // -------------------------------------------------------------------------
@@ -754,7 +838,8 @@ int VirtualMachine::parse_context(string& error_str)
 
             if ( endpoint.empty() )
             {
-                error_str = "CONTEXT/TOKEN set, but OneGate endpoint was not defined in oned.conf or CONTEXT.";
+                error_str = "CONTEXT/TOKEN set, but OneGate endpoint was not "
+                    "defined in oned.conf or CONTEXT.";
                 return -1;
             }
             else

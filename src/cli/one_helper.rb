@@ -760,26 +760,8 @@ EOT
                 end
             end
 
-            if options[:net_context] && options[:nic]
-                nets=options[:nic].map {|n| parse_user_object(n).last }
-
-                if nets!=nets.uniq
-                    STDERR.puts "Network context generation from command "<<
-                        "line is not supported for VMs with\n"<<
-                        "more than one network with the same name."
-                    exit(-1)
-                end
-
-                nets.each_with_index do |name, index|
-                    lines<<"ETH#{index}_IP = \"$NIC[IP, NETWORK=\\\"#{name}\\\"]\""
-                    lines<<"ETH#{index}_NETWORK = \"$NETWORK[NETWORK_ADDRESS, NETWORK=\\\"#{name}\\\"]\""
-                    lines<<"ETH#{index}_MASK = \"$NETWORK[NETWORK_MASK, NETWORK=\\\"#{name}\\\"]\""
-                    lines<<"ETH#{index}_GATEWAY = \"$NETWORK[GATEWAY, NETWORK=\\\"#{name}\\\"]\""
-                    lines<<"ETH#{index}_DNS = \"$NETWORK[DNS, NETWORK=\\\"#{name}\\\"]\""
-                    lines<<"ETH#{index}_IPV6 = \"$NIC[IP6_GLOBAL, NETWORK=\\\"#{name}\\\"]\""
-                    lines<<"ETH#{index}_GATEWAY6 = \"$NETWORK[GATEWAY6, NETWORK=\\\"#{name}\\\"]\""
-                    lines<<"ETH#{index}_CONTEXT_FORCE_IPV4 = \"$NETWORK[CONTEXT_FORCE_IPV4, NETWORK=\\\"#{name}\\\"]\""
-                end
+            if options[:net_context]
+                    lines << "NETWORK = \"YES\""
             end
 
             lines+=options[:context] if options[:context]
