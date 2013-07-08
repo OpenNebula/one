@@ -116,54 +116,6 @@ var create_template_tmpl = '<div class="panel">'+
   '</div>'+
   '<a class="close-reveal-modal">&#215;</a>';
 
-
-var update_template_tmpl =
-   '<form action="javascript:alert(\'js error!\');">\
-         <h3 style="margin-bottom:10px;">'+tr("Please, choose and modify the template you want to update")+':</h3>\
-            <fieldset style="border-top:none;">\
-                 <label for="template_template_update_select">'+tr("Select a template")+':</label>\
-                 <select id="template_template_update_select" name="template_template_update_select"></select>\
-                 <div class="clear"></div>\
-                 <div>\
-                   <table class="permissions_table" style="padding:0 10px;">\
-                     <thead><tr>\
-                         <td style="width:130px">'+tr("Permissions")+':</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Use")+'</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Manage")+'</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Admin")+'</td></tr></thead>\
-                     <tr>\
-                         <td>'+tr("Owner")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="template_owner_u" class="owner_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="template_owner_m" class="owner_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="template_owner_a" class="owner_a" /></td>\
-                     </tr>\
-                     <tr>\
-                         <td>'+tr("Group")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="template_group_u" class="group_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="template_group_m" class="group_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="template_group_a" class="group_a" /></td>\
-                     </tr>\
-                     <tr>\
-                         <td>'+tr("Other")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="template_other_u" class="other_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="template_other_m" class="other_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="template_other_a" class="other_a" /></td>\
-                     </tr>\
-                   </table>\
-                 </div>\
-                 <label for="template_template_update_textarea">'+tr("Template")+':</label>\
-                 <div class="clear"></div>\
-                 <textarea id="template_template_update_textarea" style="width:100%; height:14em;"></textarea>\
-            </fieldset>\
-            <fieldset>\
-                 <div class="form_buttons">\
-                    <button class="button" id="template_template_update_button" value="Template.update_template">\
-                       '+tr("Update")+'\
-                    </button>\
-                 </div>\
-            </fieldset>\
-</form>';
-
 var instantiate_vm_template_tmpl ='\
         <div class="panel">\
           <h3>\
@@ -795,7 +747,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
           '<table id="'+str_datatable_id+'" class="datatable twelve">'+
             '<thead>'+
               '<tr>'+
-                '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
+                '<th></th>'+
                 '<th>'+tr("ID")+'</th>'+
                 '<th>'+tr("Owner")+'</th>'+
                 '<th>'+tr("Group")+'</th>'+
@@ -814,12 +766,11 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
             '</tbody>'+
           '</table>'+
           '<br>'+
-          '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
+          '<div id="selected_image" class="vm_param kvm_opt xen_opt vmware_opt">'+
             '<span id="select_image" class="radius secondary label">'+tr("Please select an image from the list")+'</span>'+
             '<span id="image_selected" class="radius secondary label hidden">'+tr("You selected the following image: ")+
             '</span>'+
-            '<span class="radius label" type="text" id="IMAGE" name="image"></span>'+
-            '<input type="hidden" id="IMAGE_ID" name="image_id" size="2"/>'+
+            '<span class="radius label" type="text" id="IMAGE_NAME" name="image"></span>'+
           '</div>'+
           '<hr>'+
         '<div class="show_hide" id="advanced_image">'+
@@ -827,6 +778,67 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
         '</div>'+
         '<div class="advanced">'+
           '<div class="row advanced vm_param">'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="four columns">'+
+                  '<label class="right inline" for="IMAGE_ID">'+tr("IMAGE_ID")+':</label>'+
+                '</div>'+
+                '<div class="six columns">'+
+                  '<input type="text" id="IMAGE_ID" name="IMAGE_ID"/>'+
+                '</div>'+
+                '<div class="two columns">'+
+                  '<div class="tip">'+
+                  '</div>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="four columns">'+
+                    '<label class="right inline" for="IMAGE">'+tr("IMAGE")+':</label>'+
+                '</div>'+
+                '<div class="six columns">'+
+                    '<input type="text" id="IMAGE" name="IMAGE" />'+
+                '</div>'+
+                '<div class="two columns">'+
+                    '<div class="tip">'+
+                    '</div>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<div class="row advanced vm_param">'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="four columns">'+
+                  '<label class="right inline" for="IMAGE_UID">'+tr("IMAGE_UID")+':</label>'+
+                '</div>'+
+                '<div class="six columns">'+
+                  '<input type="text" id="IMAGE_UID" name="IMAGE_UID"/>'+
+                '</div>'+
+                '<div class="two columns">'+
+                  '<div class="tip">'+
+                  '</div>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="four columns">'+
+                  '<label class="right inline" for="IMAGE_UNAME">'+tr("IMAGE_UNAME")+':</label>'+
+                '</div>'+
+                '<div class="six columns">'+
+                  '<input type="text" id="IMAGE_UNAME" name="IMAGE_UNAME"/>'+
+                '</div>'+
+                '<div class="two columns">'+
+                  '<div class="tip">'+
+                  '</div>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<div class="row advanced vm_param">'+
+        '<br>'+
             '<div class="six columns">'+
               '<div class="row">'+
                 '<div class="four columns">'+
@@ -1142,9 +1154,62 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
 
     $("#refresh_template_images_table_button_class"+str_disk_tab_id).live('click', function(){
         // Retrieve the images to fill the datatable
-        OpenNebula.Image.list({
-          timeout: true,
-          success: function (request, images_list){
+        update_datatable_template_images($('table[id='+str_datatable_id+']').dataTable());
+    });
+
+    return html;
+}
+
+function update_datatable_template_hosts(datatable, fnDrawCallback) {
+    if (fnDrawCallback) {
+        datatable.on('draw', fnDrawCallback);
+    }
+
+    OpenNebula.Host.list({
+    timeout: true,
+    success: function (request, host_list){
+        var host_list_array = [];
+
+        $.each(host_list,function(){
+            //Grab table data from the host_list
+            host_list_array.push(hostElementArray(this));
+        });
+
+        updateView(host_list_array, datatable);
+    },
+    error: onError
+  });
+}
+
+function update_datatable_template_clusters(datatable, fnDrawCallback) {
+    if (fnDrawCallback) {
+        datatable.on('draw', fnDrawCallback);
+    }
+
+    OpenNebula.Cluster.list({
+    timeout: true,
+    success: function (request, host_list){
+        var host_list_array = [];
+
+        $.each(host_list,function(){
+            //Grab table data from the host_list
+            host_list_array.push(clusterElementArray(this));
+        });
+
+        updateView(host_list_array, datatable);
+    },
+    error: onError
+  });
+}
+
+function update_datatable_template_images(datatable, fnDrawCallback) {
+    if (fnDrawCallback) {
+        datatable.on('draw', fnDrawCallback);
+    }
+
+    OpenNebula.Image.list({
+        timeout: true,
+        success: function (request, images_list){
             var image_list_array = [];
 
             $.each(images_list,function(){
@@ -1153,15 +1218,53 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
                     image_list_array.push(image_element_array);
             });
 
-            var dataTable_template_images = $('table[id='+str_datatable_id+']').dataTable();
-            updateView(image_list_array, dataTable_template_images);
-            }
-        });
-      }
-    );
-
-    return html;
+            updateView(image_list_array, datatable);
+        }
+    });
 }
+
+function update_datatable_template_files(datatable, fnDrawCallback) {
+    if (fnDrawCallback) {
+        datatable.on('draw', fnDrawCallback);
+    }
+
+    OpenNebula.Image.list({
+        timeout: true,
+        success: function (request, images_list){
+            var image_list_array = [];
+
+            $.each(images_list,function(){
+              var image_element_array = fileElementArray(this);
+              if (image_element_array)
+                    image_list_array.push(image_element_array);
+            });
+
+            updateView(image_list_array, datatable);
+        }
+    });
+}
+
+function update_datatable_template_networks(datatable, fnDrawCallback) {
+    if (fnDrawCallback) {
+        datatable.on('draw', fnDrawCallback);
+    }
+
+    OpenNebula.Network.list({
+      timeout: true,
+      success: function (request, networks_list){
+          var network_list_array = [];
+
+          $.each(networks_list,function(){
+             network_list_array.push(vNetworkElementArray(this));
+          });
+
+          updateView(network_list_array, datatable);
+      },
+      error: onError
+    });
+}
+
+
 
 function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id) {
           // Select Image or Volatile disk. The div is hidden depending on the selection, and the
@@ -1277,80 +1380,51 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
         }
     });
 
-
     var dataTable_template_images = $('#'+str_datatable_id, disk_section).dataTable({
-        "bSortClasses": false,
-        "bAutoWidth":false,
         "iDisplayLength": 4,
+        "bAutoWidth":false,
         "sDom" : '<"H">t<"F"p>',
-        "oColVis": {
-            "aiExclude": [ 0 ]
-        },
         "aoColumnDefs": [
-            { "sWidth": "35px", "aTargets": [0] },
-            { "bVisible": false, "aTargets": [0,2,3,6,9,8,12]}
+            { "sWidth": "35px", "aTargets": [0,1] },
+            { "bVisible": false, "aTargets": [2,3,6,9,8,12]}
         ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+          "fnDrawCallback": function(oSettings) {
+            var nodes = this.fnGetNodes();
+            $.each(nodes, function(){
+                if ($(this).find("td:eq(1)").html() == $('#IMAGE_ID', disk_section).val()) {
+                    $("td", this).addClass('markrow');
+                    $('input.check_item', this).attr('checked','checked');
+                }
+            })
+          }
     });
-
-    //addElement([spinner,'','','','','','','','','','','',''],dataTable_template_images);
 
     // Retrieve the images to fill the datatable
-    OpenNebula.Image.list({
-      timeout: true,
-      success: function (request, images_list){
-          var image_list_array = [];
-
-          $.each(images_list,function(){
-            var image = imageElementArray(this);
-            if (image)
-              image_list_array.push(image);
-          });
-
-          updateView(image_list_array, dataTable_template_images);
-      },
-      error: onError
-    });
+    update_datatable_template_images(dataTable_template_images);
 
     $('#'+str_disk_tab_id+'_search', disk_section).keyup(function(){
       dataTable_template_images.fnFilter( $(this).val() );
     })
 
-    // TBD Add refresh button for the datatable
-
-    // When a row is selected the background color is updated. If a previous row
-    // was selected (previous_row) the background color is removed.
-    // #IMAGE and #IMAGE_ID inputs are updated using the row information
-    if (typeof previous_row === 'undefined') {
-        var previous_row = 0;
-    }
-
     $('#'+str_datatable_id + '  tbody', disk_section).delegate("tr", "click", function(e){
-        if ($(e.target).is('input') ||
-            $(e.target).is('select') ||
-            $(e.target).is('option')) return true;
-
         var aData = dataTable_template_images.fnGetData(this);
 
-        if (previous_row) {
-            $("td:first", previous_row).parent().children().each(function(){$(this).removeClass('markrow');});
-        }
-        else {
-            $('#image_selected', disk_section).toggle();
-            $('#select_image', disk_section).hide();
-        }
+        $("td.markrow", disk_section).removeClass('markrow');
+        $('tbody input.check_item', dataTable_template_images).removeAttr('checked');
 
+        $('#image_selected', disk_section).show();
+        $('#select_image', disk_section).hide();
         $('.alert-box', disk_section).hide();
 
-        previous_row = this;
-        $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
+        $("td", this).addClass('markrow');
+        $('input.check_item', this).attr('checked','checked');
 
-        $('#IMAGE', disk_section).text(aData[4]);
+        $('#IMAGE_NAME', disk_section).text(aData[4]);
         $('#IMAGE_ID', disk_section).val(aData[1]);
-        return false;
+        $('#IMAGE', disk_section).val("");
+        $('#IMAGE_UNAME', disk_section).val("");
+        $('#IMAGE_UID', disk_section).val("");
+        return true;
     });
 
     // Hide image advanced options
@@ -1385,7 +1459,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
     '<table id="'+str_datatable_id+'" class="datatable twelve">'+
       '<thead>'+
         '<tr>'+
-          '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
+          '<th></th>'+
           '<th>'+tr("ID")+'</th>'+
           '<th>'+tr("Owner")+'</th>'+
           '<th>'+tr("Group")+'</th>'+
@@ -1400,25 +1474,85 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
       '</tbody>'+
     '</table>'+
     '<br>'+
-    '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
+    '<div id="selected_network" class="vm_param kvm_opt xen_opt vmware_opt">'+
       '<span id="select_network" class="radius secondary label">'+tr("Please select a network from the list")+'</span>'+
       '<span id="network_selected" class="radius secondary label hidden">'+tr("You selected the following network:")+
       '</span>'+
-      '<span class="radius label" type="text" id="NETWORK" name="network"></span>'+
-      '<input type="hidden" id="NETWORK_ID" name="network_id" size="2"/>'+
+      '<span class="radius label" type="text" id="NETWORK_NAME" name="network"></span>'+
     '</div>'+
   '<hr>'+
     '<div class="show_hide" id="advanced">'+
           '<h4><small><i class=" icon-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
     '</div>'+
     '<div class="advanced">'+
+          '<div class="row advanced vm_param">'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="five columns">'+
+                  '<label class="right inline" for="IMAGE_ID">'+tr("NETWORK_ID")+':</label>'+
+                '</div>'+
+                '<div class="five columns">'+
+                  '<input type="text" id="NETWORK_ID" name="NETWORK_ID"/>'+
+                '</div>'+
+                '<div class="two columns">'+
+                  '<div class="tip">'+
+                  '</div>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="five columns">'+
+                    '<label class="right inline" for="NETWORK">'+tr("NETWORK")+':</label>'+
+                '</div>'+
+                '<div class="five columns">'+
+                    '<input type="text" id="NETWORK" name="NETWORK" />'+
+                '</div>'+
+                '<div class="two columns">'+
+                    '<div class="tip">'+
+                    '</div>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<div class="row advanced vm_param">'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="five columns">'+
+                  '<label class="right inline" for="NETWORK_UID">'+tr("NETWORK_UID")+':</label>'+
+                '</div>'+
+                '<div class="five columns">'+
+                  '<input type="text" id="NETWORK_UID" name="NETWORK_UID"/>'+
+                '</div>'+
+                '<div class="two columns">'+
+                  '<div class="tip">'+
+                  '</div>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+            '<div class="six columns">'+
+              '<div class="row">'+
+                '<div class="five columns">'+
+                  '<label class="right inline" for="NETWORK_UNAME">'+tr("NETWORK_UNAME")+':</label>'+
+                '</div>'+
+                '<div class="five columns">'+
+                  '<input type="text" id="NETWORK_UNAME" name="NETWORK_UNAME"/>'+
+                '</div>'+
+                '<div class="two columns">'+
+                  '<div class="tip">'+
+                  '</div>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
       '<div class="row">'+
+        '<br>'+
         '<div class="six columns">'+
           '<div class="row">'+
-            '<div class="four columns">'+
+            '<div class="five columns">'+
               '<label class="right inline" for="IP">'+tr("IP")+':</label>'+
             '</div>'+
-            '<div class="six columns vm_param">'+
+            '<div class="five columns vm_param">'+
               '<input type="text" id="IP" name="IP" size="3" />'+
             '</div>'+
             '<div class="two columns">'+
@@ -1428,10 +1562,10 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
         '</div>'+
         '<div class="six columns">'+
           '<div class="row">'+
-            '<div class="four columns">'+
+            '<div class="five columns">'+
                 '<label class="right inline" for="MODEL">'+tr("MODEL")+':</label>'+
             '</div>'+
-            '<div class="six columns vm_param">'+
+            '<div class="five columns vm_param">'+
               '<input type="text" id="MODEL" name="MODEL" />'+
             '</div>'+
             '<div class="two columns">'+
@@ -1514,115 +1648,69 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
     $("#refresh_template_nic_table_button_class"+str_nic_tab_id).die();
 
     $("#refresh_template_nic_table_button_class"+str_nic_tab_id).live('click', function(){
-        // Retrieve the nics to fill the datatable
-        OpenNebula.Network.list({
-          timeout: true,
-          success: function (request, networks_list){
-          var network_list_array = [];
-
-          $.each(networks_list,function(){
-             network_list_array.push(vNetworkElementArray(this));
-          });
-          var dataTable_template_networks = $('table[id='+str_datatable_id+']').dataTable();
-          updateView(network_list_array, dataTable_template_networks);
-          }
-        });
-      }
-    );
+        update_datatable_template_networks($('table[id='+str_datatable_id+']').dataTable());
+    });
 
     return html;
 }
 
 function setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id) {
     var dataTable_template_networks = $('#'+str_datatable_id, nic_section).dataTable({
-              "bSortClasses": false,
-              "bAutoWidth":false,
-              "iDisplayLength": 4,
-              "sDom" : '<"H">t<"F"p>',
-              "oColVis": {
-                  "aiExclude": [ 0 ]
-              },
-              "aoColumnDefs": [
-                  { "sWidth": "35px", "aTargets": [0,1] },
-                  { "bVisible": false, "aTargets": [0, 7]}
-              ],
-              "oLanguage": (datatable_lang != "") ?
-                  {
-                      sUrl: "locale/"+lang+"/"+datatable_lang
-                  } : ""
-            });
-
-    //addElement([spinner,'','','','','','','',''],dataTable_template_networks);
-
-    // Retrieve the networks to fill the datatable
-    OpenNebula.Network.list({
-      timeout: true,
-      success: function (request, networks_list){
-          var network_list_array = [];
-
-          $.each(networks_list,function(){
-             network_list_array.push(vNetworkElementArray(this));
-          });
-
-          updateView(network_list_array, dataTable_template_networks);
-      },
-      error: onError
+      "bAutoWidth":false,
+      "iDisplayLength": 4,
+      "sDom" : '<"H">t<"F"p>',
+      "aoColumnDefs": [
+          { "sWidth": "35px", "aTargets": [0,1] },
+          { "bVisible": false, "aTargets": [7]}
+        ],
+          "fnDrawCallback": function(oSettings) {
+            var nodes = this.fnGetNodes();
+            $.each(nodes, function(){
+                if ($(this).find("td:eq(1)").html() == $('#NETWORK_ID', nic_section).val()) {
+                    $("td", this).addClass('markrow');
+                    $('input.check_item', this).attr('checked','checked');
+                }
+            })
+          }
     });
 
+    // Retrieve the networks to fill the datatable
+    update_datatable_template_networks(dataTable_template_networks);
 
     $('#'+str_nic_tab_id+'_search', nic_section).keyup(function(){
       dataTable_template_networks.fnFilter( $(this).val() );
     })
 
-  // TBD Add refresh button for the datatable
+    $('#'+str_datatable_id + '  tbody', nic_section).delegate("tr", "click", function(e){
+        var aData = dataTable_template_networks.fnGetData(this);
 
-  // When a row is selected the background color is updated. If a previous row
-  // was selected (previous_row) the background color is removed.
-  // #IMAGE and #IMAGE_ID inputs are updated using the row information
-  if (typeof previous_row === 'undefined') {
-      var previous_row = 0;
-  }
+        $("td.markrow", nic_section).removeClass('markrow');
+        $('tbody input.check_item', dataTable_template_networks).removeAttr('checked');
 
-  $('#'+str_datatable_id + '  tbody', nic_section).delegate("tr", "click", function(e){
-      if ($(e.target).is('input') ||
-          $(e.target).is('select') ||
-          $(e.target).is('option')) return true;
-
-      var aData = dataTable_template_networks.fnGetData(this);
-
-    if (previous_row) {
-        $("td:first", previous_row).parent().children().each(function(){$(this).removeClass('markrow');});
-    }
-    else {
-        $('#network_selected',  nic_section).toggle();
-        $('#select_network',  nic_section).hide();
-    }
-
+        $('#image_selected', nic_section).show();
+        $('#select_image', nic_section).hide();
         $('.alert-box', nic_section).hide();
 
-      previous_row = this;
-      $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
+        $("td", this).addClass('markrow');
+        $('input.check_item', this).attr('checked','checked');
 
-      $('#NETWORK', nic_section).text(aData[4]);
-      $('#NETWORK_ID', nic_section).val(aData[1]);
-      return false;
-  });
+        $('#NETWORK_NAME', nic_section).text(aData[4]);
+        $('#NETWORK_ID', nic_section).val(aData[1]);
+        $('#NETWORK', nic_section).val("");
+        $('#NETWORK_UNAME', nic_section).val("");
+        $('#NETWORK_UID', nic_section).val("");
+        return true;
+    });
 
+    $('.advanced', nic_section).hide();
 
-  $('.advanced', nic_section).hide();
+    $('#advanced', nic_section).click(function(){
+        $('.advanced', nic_section).toggle();
+        return false;
+    });
 
-  $('#advanced', nic_section).click(function(){
-      $('.advanced', nic_section).toggle();
-      return false;
-  });
-
-  setupTips(nic_section);
+    setupTips(nic_section);
 }
-
-
-
-
-
 
 // Callback to update the information panel tabs and pop it up
 function updateTemplateInfo(request,template){
@@ -1973,11 +2061,6 @@ function setupCreateTemplateDialog(){
 
         $(document).foundationTabs("set_tab", a);
 
-        $("#disk_tab"+str_disk_tab_id).live('click', function(){
-          $("#refresh_template_images_table_button_class"+str_disk_tab_id).click();
-        });
-
-
         var disk_section = $('li#' +str_disk_tab_id+'Tab', dialog);
         setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
 
@@ -2061,297 +2144,274 @@ function setupCreateTemplateDialog(){
     **************************************************************************/
 
     var add_osTab = function() {
-      var html_tab_content = '<li id="osTab" class="wizard_tab">'+
-      '<form>'+
-        '<div id="tabs-bootos">'+
-          '<dl class="tabs">'+
-            '<dd class="active"><a href="#boot">'+tr("Boot")+'</a></dd>'+
-            '<dd><a href="#kernel">'+tr("Kernel")+'</a></dd>'+
-            '<dd><a href="#ramdisk">'+tr("Ramdisk")+'</a></dd>'+
-            '<dd><a href="#features">'+tr("Features")+'</a></dd>'+
-          '</dl>'+
-          '<ul class="tabs-content">'+
-          '<li class="wizard_internal_tab active" id="bootTab">'+
-            '<div class="six columns vm_param">'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="ARCH">'+tr("Arch")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<select id="ARCH" name="arch">'+
-                        '<option id="no_arch" name="no_arch" value=""></option>'+
-                        '<option value="i686">i686</option>'+
-                        '<option value="x86_64">x86_64</option>'+
-                    '</select>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("CPU architecture to virtualization")+'</div>'+
-                  '</div>'+
-                '</div>'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="BOOT">'+tr("Boot")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<select id="BOOT" name="boot">'+
-                      '<option id="no_boot" name="no_boot" value=""></option>'+
-                      '<option value="hd">'+tr("HD")+'</option>'+
-                      '<option value="fd">'+tr("FD")+'</option>'+
-                      '<option value="cdrom">'+tr("CDROM")+'</option>'+
-                      '<option value="network">'+tr("NETWORK")+'</option>'+
-                    '</select>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Boot device type")+'</div>'+
-                  '</div>'+
-                '</div>'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="ROOT">'+tr("Root")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<input type="text" id="ROOT" name="root"/>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Device to be mounted as root")+'</div>'+
-                  '</div>'+
-                '</div>'+
-            '</div>'+
-            '<div class="six columns vm_param">'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="KERNEL_CMD">'+tr("Kernel cmd")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<input type="text" id="KERNEL_CMD" name="kernel_cmd" />'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Arguments for the booting kernel")+'</div>'+
-                  '</div>'+
-                '</div>'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="BOOTLOADER">'+tr("Bootloader")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<input type="text" id="BOOTLOADER" name="bootloader" />'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Path to the bootloader executable")+'</div>'+
-                  '</div>'+
-                '</div>'+
-            '</div>'+
-          '</li>'+
-          '<li id="kernelTab" class="wizard_internal_tab">'+
-                '<div class="row">'+
-                  '<div class="three columns push-three">'+
-                    '<input id="radioKernelDs" type="radio" name="kernel_type" value="kernel_ds" checked> '+tr("Registered Image")+
-                  '</div>'+
-                  '<div class="three columns pull-three">'+
-                    '<input id="radioKernelPath" type="radio" name="kernel_type" value="kernel_path"> '+tr("Remote PATH")+
-                  '</div>'+
-                '</div>'+
-                '<hr>'+
-                '<div class="row kernel_ds">'+
-                  '<div class="row collapse ">'+
-                      '<div class="seven columns">' +
-                         '<button id="refresh_kernel_table" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
-                      '</div>' +
-                    '<div class="five columns">'+
-                      '<input id="kernel_search" type="text" placeholder="'+tr("Search")+'"/>'+
+        var html_tab_content = '<li id="osTab" class="wizard_tab">'+
+          '<form>'+
+            '<div id="tabs-bootos">'+
+              '<dl class="tabs">'+
+                '<dd class="active"><a href="#boot">'+tr("Boot")+'</a></dd>'+
+                '<dd><a href="#kernel">'+tr("Kernel")+'</a></dd>'+
+                '<dd><a href="#ramdisk">'+tr("Ramdisk")+'</a></dd>'+
+                '<dd><a href="#features">'+tr("Features")+'</a></dd>'+
+              '</dl>'+
+              '<ul class="tabs-content">'+
+              '<li class="wizard_internal_tab active" id="bootTab">'+
+                '<div class="six columns vm_param">'+
+                    '<div class="row">'+
+                      '<div class="four columns">'+
+                        '<label class="right inline" for="ARCH">'+tr("Arch")+':</label>'+
+                      '</div>'+
+                      '<div class="six columns">'+
+                        '<select id="ARCH" name="arch">'+
+                            '<option id="no_arch" name="no_arch" value=""></option>'+
+                            '<option value="i686">i686</option>'+
+                            '<option value="x86_64">x86_64</option>'+
+                        '</select>'+
+                      '</div>'+
+                      '<div class="two columns">'+
+                        '<div class="tip">'+tr("CPU architecture to virtualization")+'</div>'+
+                      '</div>'+
                     '</div>'+
-                  '</div>'+
-                  '<table id="datatable_kernel" class="datatable twelve">'+
-                    '<thead>'+
-                      '<tr>'+
-                        '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
-                        '<th>'+tr("ID")+'</th>'+
-                        '<th>'+tr("Owner")+'</th>'+
-                        '<th>'+tr("Group")+'</th>'+
-                        '<th>'+tr("Name")+'</th>'+
-                        '<th>'+tr("Datastore")+'</th>'+
-                        '<th>'+tr("Size")+'</th>'+
-                        '<th>'+tr("Type")+'</th>'+
-                        '<th>'+tr("Registration time")+'</th>'+
-                        '<th>'+tr("Persistent")+'</th>'+
-                        '<th>'+tr("Status")+'</th>'+
-                        '<th>'+tr("#VMS")+'</th>'+
-                        '<th>'+tr("Target")+'</th>'+
-                      '</tr>'+
-                    '</thead>'+
-                    '<tbody id="tbodyimages">'+
-                    '</tbody>'+
-                  '</table>'+
-                  '<div id="kernel_ds_inputs"  class="vm_param kvm_opt xen_opt vmware_opt">'+
-                    '<span id="select_image" class="radius secondary label">'+tr("Please select a Kernel from the list")+'</span>'+
-                    '<span id="image_selected" class="radius secondary label hidden">'+tr("You selected the following Kernel: ")+
-                    '</span>'+
-                    '<span class="radius label" type="text"  id="KERNEL" name="kernel""></span>'+
-                    '<input type="hidden" id="KERNEL_DS" name="kernel_ds" s size="2"/>'+
-                  '</div>'+
-                '</div>'+
-              '<div id="kernel_path_inputs" class="kernel_path hidden row">'+
-                  '<div class="two columns">'+
-                    '<label class="right inline" for="KERNEL">'+tr("PATH")+':</label>'+
-                  '</div>'+
-                  '<div class="eight columns">'+
-                    '<input type="text" id="KERNEL" name="kernel" />'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Path to the OS kernel to boot the image")+'</div>'+
-                  '</div>'+
-                '</div>'+
-            '</li>'+
-            '<li id="ramdiskTab" class="wizard_internal_tab">'+
-                '<div class="row">'+
-                  '<div class="three columns push-three">'+
-                    '<input id="radioInintrdDs" type="radio" name="initrd_type" value="initrd_ds" checked> '+tr("Registered Image ") +
-                  '</div>'+
-                  '<div class="three columns pull-three">'+
-                    '<input id="radioInitrdPath" type="radio" name="initrd_type" value="initrd_path"> '+tr("Remote PATH")+
-                  '</div>'+
-                '</div>'+
-                '<hr>'+
-                '<div class="row initrd_ds">'+
-                  '<div class="row collapse ">'+
-                      '<div class="seven columns">' +
-                         '<button id="refresh_ramdisk_table" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
-                      '</div>' +
-                    '<div class="five columns">'+
-                      '<input id="initrd_search" type="text" placeholder="'+tr("Search")+'"/>'+
+                    '<div class="row">'+
+                      '<div class="four columns">'+
+                        '<label class="right inline" for="BOOT">'+tr("Boot")+':</label>'+
+                      '</div>'+
+                      '<div class="six columns">'+
+                        '<select id="BOOT" name="boot">'+
+                          '<option id="no_boot" name="no_boot" value=""></option>'+
+                          '<option value="hd">'+tr("HD")+'</option>'+
+                          '<option value="fd">'+tr("FD")+'</option>'+
+                          '<option value="cdrom">'+tr("CDROM")+'</option>'+
+                          '<option value="network">'+tr("NETWORK")+'</option>'+
+                        '</select>'+
+                      '</div>'+
+                      '<div class="two columns">'+
+                        '<div class="tip">'+tr("Boot device type")+'</div>'+
+                      '</div>'+
                     '</div>'+
-                  '</div>'+
-                  '<table id="datatable_initrd" class="datatable twelve">'+
-                    '<thead>'+
-                      '<tr>'+
-                        '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
-                        '<th>'+tr("ID")+'</th>'+
-                        '<th>'+tr("Owner")+'</th>'+
-                        '<th>'+tr("Group")+'</th>'+
-                        '<th>'+tr("Name")+'</th>'+
-                        '<th>'+tr("Datastore")+'</th>'+
-                        '<th>'+tr("Size")+'</th>'+
-                        '<th>'+tr("Type")+'</th>'+
-                        '<th>'+tr("Registration time")+'</th>'+
-                        '<th>'+tr("Persistent")+'</th>'+
-                        '<th>'+tr("Status")+'</th>'+
-                        '<th>'+tr("#VMS")+'</th>'+
-                        '<th>'+tr("Target")+'</th>'+
-                      '</tr>'+
-                    '</thead>'+
-                    '<tbody id="tbodyimages">'+
-                    '</tbody>'+
-                  '</table>'+
-                  '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
-                    '<span id="select_image" class="radius secondary label">'+tr("Please select a Ramdisk from the list")+'</span>'+
-                    '<span id="image_selected" class="radius secondary label hidden">'+tr("You selected the following Ramdisk: ")+
-                    '</span>'+
-                    '<span class="radius label" type="text" id="INITRD" name="initrd"></span>'+
-                    '<input type="hidden"id="INITRD_DS" name="initrd_id" size="2"/>'+
-                  '</div>'+
+                    '<div class="row">'+
+                      '<div class="four columns">'+
+                        '<label class="right inline" for="ROOT">'+tr("Root")+':</label>'+
+                      '</div>'+
+                      '<div class="six columns">'+
+                        '<input type="text" id="ROOT" name="root"/>'+
+                      '</div>'+
+                      '<div class="two columns">'+
+                        '<div class="tip">'+tr("Device to be mounted as root")+'</div>'+
+                      '</div>'+
+                    '</div>'+
                 '</div>'+
-              '<div id="initrd_path_inputs" class="initrd_path hidden row">'+
-                  '<div class="two columns">'+
-                    '<label class="right inline" for="INITRD">'+tr("PATH")+':</label>'+
-                  '</div>'+
-                  '<div class="eight columns">'+
-                    '<input type="text" id="INITRD" name="initrd"/>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Path to the initrd image")+'</div>'+
-                  '</div>'+
+                '<div class="six columns vm_param">'+
+                    '<div class="row">'+
+                      '<div class="four columns">'+
+                        '<label class="right inline" for="KERNEL_CMD">'+tr("Kernel cmd")+':</label>'+
+                      '</div>'+
+                      '<div class="six columns">'+
+                        '<input type="text" id="KERNEL_CMD" name="kernel_cmd" />'+
+                      '</div>'+
+                      '<div class="two columns">'+
+                        '<div class="tip">'+tr("Arguments for the booting kernel")+'</div>'+
+                      '</div>'+
+                    '</div>'+
+                    '<div class="row">'+
+                      '<div class="four columns">'+
+                        '<label class="right inline" for="BOOTLOADER">'+tr("Bootloader")+':</label>'+
+                      '</div>'+
+                      '<div class="six columns">'+
+                        '<input type="text" id="BOOTLOADER" name="bootloader" />'+
+                      '</div>'+
+                      '<div class="two columns">'+
+                        '<div class="tip">'+tr("Path to the bootloader executable")+'</div>'+
+                      '</div>'+
+                    '</div>'+
                 '</div>'+
-            '</li>'+
-          '<li class="wizard_internal_tab active" id="featuresTab">'+
-            '<div class="six columns vm_param">'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="ACPI">'+tr("ACPI")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<select id="ACPI" name="acpi">'+
-                        '<option id="no_apci" name="no_apci" value=""></option>'+
-                        '<option value="yes">'+tr("Yes")+'</option>'+
-                        '<option value="no">'+tr("No")+'</option>'+
-                    '</select>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Add support in the VM for Advanced Configuration and Power Interface (ACPI)")+'</div>'+
-                  '</div>'+
+              '</li>'+
+              '<li id="kernelTab" class="wizard_internal_tab">'+
+                    '<div class="row">'+
+                      '<div class="three columns push-three">'+
+                        '<input id="radioKernelDs" type="radio" name="kernel_type" value="kernel_ds" checked> '+tr("Registered Image")+
+                      '</div>'+
+                      '<div class="three columns pull-three">'+
+                        '<input id="radioKernelPath" type="radio" name="kernel_type" value="kernel_path"> '+tr("Remote PATH")+
+                      '</div>'+
+                    '</div>'+
+                    '<hr>'+
+                    '<div class="row kernel_ds">'+
+                      '<div class="row collapse ">'+
+                          '<div class="seven columns">' +
+                             '<button id="refresh_kernel_table" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
+                          '</div>' +
+                        '<div class="five columns">'+
+                          '<input id="kernel_search" type="text" placeholder="'+tr("Search")+'"/>'+
+                        '</div>'+
+                      '</div>'+
+                      '<table id="datatable_kernel" class="datatable twelve">'+
+                        '<thead>'+
+                          '<tr>'+
+                            '<th></th>'+
+                            '<th>'+tr("ID")+'</th>'+
+                            '<th>'+tr("Owner")+'</th>'+
+                            '<th>'+tr("Group")+'</th>'+
+                            '<th>'+tr("Name")+'</th>'+
+                            '<th>'+tr("Datastore")+'</th>'+
+                            '<th>'+tr("Size")+'</th>'+
+                            '<th>'+tr("Type")+'</th>'+
+                            '<th>'+tr("Registration time")+'</th>'+
+                            '<th>'+tr("Persistent")+'</th>'+
+                            '<th>'+tr("Status")+'</th>'+
+                            '<th>'+tr("#VMS")+'</th>'+
+                            '<th>'+tr("Target")+'</th>'+
+                          '</tr>'+
+                        '</thead>'+
+                        '<tbody id="tbodyimages">'+
+                        '</tbody>'+
+                      '</table>'+
+                      '<div id="kernel_ds_inputs"  class="kvm_opt xen_opt vmware_opt">'+
+                        '<span id="select_image" class="radius secondary label">'+tr("Please select a Kernel from the list")+'</span>'+
+                        '<span id="image_selected" class="radius secondary label hidden">'+tr("You selected the following Kernel: ")+
+                        '</span>'+
+                        '<span class="radius label" type="text"  id="KERNEL" name="kernel""></span>'+
+                      '</div>'+
+                    '<div class="vm_param row">'+
+                      '<br>'+
+                      '<div class="four columns">'+
+                        '<label class="right inline" for="KERNEL_DS">'+tr("KERNEL_DS")+':</label>'+
+                      '</div>'+
+                      '<div class="six columns">'+
+                        '<input type="text" id="KERNEL_DS" name="KERNEL_DS"/>'+
+                      '</div>'+
+                      '<div class="two columns">'+
+                        '<div class="tip"></div>'+
+                      '</div>'+
+                    '</div>'+
+                    '</div>'+
+                  '<div id="kernel_path_inputs" class="kernel_path hidden row">'+
+                      '<div class="two columns">'+
+                        '<label class="right inline" for="KERNEL">'+tr("PATH")+':</label>'+
+                      '</div>'+
+                      '<div class="eight columns">'+
+                        '<input type="text" id="KERNEL" name="kernel" />'+
+                      '</div>'+
+                      '<div class="two columns">'+
+                        '<div class="tip">'+tr("Path to the OS kernel to boot the image")+'</div>'+
+                      '</div>'+
+                    '</div>'+
+                '</li>'+
+                '<li id="ramdiskTab" class="wizard_internal_tab">'+
+                    '<div class="row">'+
+                      '<div class="three columns push-three">'+
+                        '<input id="radioInintrdDs" type="radio" name="initrd_type" value="initrd_ds" checked> '+tr("Registered Image ") +
+                      '</div>'+
+                      '<div class="three columns pull-three">'+
+                        '<input id="radioInitrdPath" type="radio" name="initrd_type" value="initrd_path"> '+tr("Remote PATH")+
+                      '</div>'+
+                    '</div>'+
+                    '<hr>'+
+                    '<div class="row initrd_ds">'+
+                      '<div class="row collapse ">'+
+                          '<div class="seven columns">' +
+                             '<button id="refresh_ramdisk_table" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
+                          '</div>' +
+                        '<div class="five columns">'+
+                          '<input id="initrd_search" type="text" placeholder="'+tr("Search")+'"/>'+
+                        '</div>'+
+                      '</div>'+
+                      '<table id="datatable_initrd" class="datatable twelve">'+
+                        '<thead>'+
+                          '<tr>'+
+                            '<th></th>'+
+                            '<th>'+tr("ID")+'</th>'+
+                            '<th>'+tr("Owner")+'</th>'+
+                            '<th>'+tr("Group")+'</th>'+
+                            '<th>'+tr("Name")+'</th>'+
+                            '<th>'+tr("Datastore")+'</th>'+
+                            '<th>'+tr("Size")+'</th>'+
+                            '<th>'+tr("Type")+'</th>'+
+                            '<th>'+tr("Registration time")+'</th>'+
+                            '<th>'+tr("Persistent")+'</th>'+
+                            '<th>'+tr("Status")+'</th>'+
+                            '<th>'+tr("#VMS")+'</th>'+
+                            '<th>'+tr("Target")+'</th>'+
+                          '</tr>'+
+                        '</thead>'+
+                        '<tbody id="tbodyimages">'+
+                        '</tbody>'+
+                      '</table>'+
+                      '<div id="selected_image" class=" kvm_opt xen_opt vmware_opt">'+
+                        '<span id="select_image" class="radius secondary label">'+tr("Please select a Ramdisk from the list")+'</span>'+
+                        '<span id="image_selected" class="radius secondary label hidden">'+tr("You selected the following Ramdisk: ")+
+                        '</span>'+
+                        '<span class="radius label" type="text" id="INITRD" name="initrd"></span>'+
+                      '</div>'+
+                    '<div class="row vm_param">'+
+                      '<br>'+
+                      '<div class="four columns">'+
+                        '<label class="right inline" for="INITRD_DS">'+tr("INITRD_DS")+':</label>'+
+                      '</div>'+
+                      '<div class="six columns">'+
+                        '<input type="text" id="INITRD_DS" name="initrd_id"/>'+
+                      '</div>'+
+                      '<div class="two columns">'+
+                        '<div class="tip"></div>'+
+                      '</div>'+
+                    '</div>'+
+                    '</div>'+
+                  '<div id="initrd_path_inputs" class="initrd_path hidden row">'+
+                      '<div class="two columns">'+
+                        '<label class="right inline" for="INITRD">'+tr("PATH")+':</label>'+
+                      '</div>'+
+                      '<div class="eight columns">'+
+                        '<input type="text" id="INITRD" name="initrd"/>'+
+                      '</div>'+
+                      '<div class="two columns">'+
+                        '<div class="tip">'+tr("Path to the initrd image")+'</div>'+
+                      '</div>'+
+                    '</div>'+
+                '</li>'+
+              '<li class="wizard_internal_tab active" id="featuresTab">'+
+                '<div class="six columns vm_param">'+
+                    '<div class="row">'+
+                      '<div class="four columns">'+
+                        '<label class="right inline" for="ACPI">'+tr("ACPI")+':</label>'+
+                      '</div>'+
+                      '<div class="six columns">'+
+                        '<select id="ACPI" name="acpi">'+
+                            '<option id="no_apci" name="no_apci" value=""></option>'+
+                            '<option value="yes">'+tr("Yes")+'</option>'+
+                            '<option value="no">'+tr("No")+'</option>'+
+                        '</select>'+
+                      '</div>'+
+                      '<div class="two columns">'+
+                        '<div class="tip">'+tr("Add support in the VM for Advanced Configuration and Power Interface (ACPI)")+'</div>'+
+                      '</div>'+
+                    '</div>'+
+                    '<div class="row">'+
+                      '<div class="four columns">'+
+                        '<label class="right inline" for="PAE">'+tr("PAE")+':</label>'+
+                      '</div>'+
+                      '<div class="six columns">'+
+                        '<select id="PAE" name="pae">'+
+                          '<option id="no_pae" name="no_pae" value=""></option>'+
+                            '<option value="yes">'+tr("Yes")+'</option>'+
+                            '<option value="no">'+tr("No")+'</option>'+
+                        '</select>'+
+                      '</div>'+
+                      '<div class="two columns">'+
+                        '<div class="tip">'+tr("Add support in the VM for Physical Address Extension (PAE)")+'</div>'+
+                      '</div>'+
+                    '</div>'+
                 '</div>'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="PAE">'+tr("PAE")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<select id="PAE" name="pae">'+
-                      '<option id="no_pae" name="no_pae" value=""></option>'+
-                        '<option value="yes">'+tr("Yes")+'</option>'+
-                        '<option value="no">'+tr("No")+'</option>'+
-                    '</select>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Add support in the VM for Physical Address Extension (PAE)")+'</div>'+
-                  '</div>'+
-                '</div>'+
-          '</li>'+
-            '</ul>'+
-      '</form>'+
+              '</li>'+
+                '</ul>'+
+          '</form>'+
         '</li>'
-
-      $("#refresh_kernel_table").die();
-
-      $("#refresh_kernel_table").live('click', function(){
-
-          OpenNebula.Image.list({
-          timeout: true,
-          success: function (request, images_list){
-              var image_list_array = [];
-
-              $.each(images_list,function(){
-                var file = fileElementArray(this);
-                if (file)
-                  image_list_array.push(file);
-              });
-
-              var dataTable_template_kernel = $('#datatable_kernel').dataTable();
-              updateView(image_list_array, dataTable_template_kernel);
-              dataTable_template_kernel.fnFilter("KERNEL", 7)
-          },
-          error: onError
-        });
-        });
-
-      $("#refresh_ramdisk_table").die();
-
-      $("#refresh_ramdisk_table").live('click', function(){
-
-           OpenNebula.Image.list({
-            timeout: true,
-            success: function (request, images_list){
-                var image_list_array = [];
-
-                $.each(images_list,function(){
-                  var file = fileElementArray(this);
-                  if (file)
-                    image_list_array.push(file);
-                });
-
-                var datTable_template_initrd = $('#datatable_initrd').dataTable();
-                updateView(image_list_array, datTable_template_initrd);
-                datTable_template_initrd.fnFilter("RAMDISK", 7)
-            },
-            error: onError
-           });
-        });
-
 
         $("<dd><a href='#os'>OS Booting</a></dd>").appendTo($("dl#template_create_tabs"));
         $(html_tab_content).appendTo($("ul#template_create_tabs_content"));
 
-      var os_section = $('li#osTab', dialog);
+        var os_section = $('li#osTab', dialog);
+        var kernel_section = $('li#kernelTab', os_section);
+        var initrd_section = $('li#ramdiskTab', os_section);
 
-      //$('#tabs-bootos', os_section).tabs();
 
         // Select Image or Volatile disk. The div is hidden depending on the selection, and the
         // vm_param class is included to be computed when the template is generated.
@@ -2386,144 +2446,105 @@ function setupCreateTemplateDialog(){
         });
 
         var dataTable_template_kernel = $('#datatable_kernel', dialog).dataTable({
-            "bSortClasses": false,
             "bAutoWidth":false,
             "sDom" : '<"H">t<"F"p>',
             "iDisplayLength": 4,
-            "oColVis": {
-                "aiExclude": [ 0 ]
-            },
             "aoColumnDefs": [
                 { "sWidth": "35px", "aTargets": [0,1] },
-                { "bVisible": false, "aTargets": [0,3,2,5,6,7,9,8,11,12,10]}
+                { "bVisible": false, "aTargets": [3,2,5,6,7,9,8,11,12,10]}
             ],
-            "oLanguage": (datatable_lang != "") ?
-                {
-                    sUrl: "locale/"+lang+"/"+datatable_lang
-                } : ""
+          //"fnDrawCallback": function(oSettings) {
+          //  var nodes = this.fnGetNodes();
+          //  $.each(nodes, function(){
+          //      if ($(this).find("td:eq(1)").html() == $('#KERNEL', kernel_section).text()) {
+          //          $("td", this).addClass('markrow');
+          //          $('input.check_item', this).attr('checked','checked');
+          //      }
+          //  })
+          //}
         });
 
+        dataTable_template_kernel.fnFilter("KERNEL", 7)
 
-        //addElement([spinner,'','','','','','','','','','','',''],dataTable_template_kernel);
+        $("#refresh_kernel_table").die();
+        $("#refresh_kernel_table").live('click', function(){
+            update_datatable_template_files(dataTable_template_kernel)
+        });
 
         // Retrieve the images to fill the datatable
-        OpenNebula.Image.list({
-          timeout: true,
-          success: function (request, images_list){
-              var image_list_array = [];
-
-              $.each(images_list,function(){
-                var file = fileElementArray(this);
-                if (file)
-                  image_list_array.push(file);
-              });
-
-              updateView(image_list_array, dataTable_template_kernel);
-              dataTable_template_kernel.fnFilter("KERNEL", 7)
-          },
-          error: onError
-        });
-
-        // TBD Add refresh button for the datatable
-
-        // When a row is selected the background color is updated. If a previous row
-        // was selected (previous_row) the background color is removed.
-        // #IMAGE and #IMAGE_ID inputs are updated using the row information
-        if (typeof previous_kernel_row === 'undefined') {
-            var previous_kernel_row = 0;
-        }
-
-        $('#datatable_kernel tbody', dialog).delegate("tr", "click", function(e){
-            if ($(e.target).is('input') ||
-                $(e.target).is('select') ||
-                $(e.target).is('option')) return true;
-
-            var aData = dataTable_template_kernel.fnGetData(this);
-
-            if (previous_kernel_row)
-                $("td:first", previous_kernel_row).parent().children().each(function(){$(this).removeClass('markrow');});
-            previous_kernel_row = this;
-            $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
-
-            $('.kernel_ds .alert-box', os_section).hide();
-
-            $('#KERNEL', os_section).text(aData[4]);
-            $('#KERNEL_DS', os_section).val("$FILE[IMAGE_ID="+ aData[1] +"]");
-            return false;
-        });
+        update_datatable_template_files(dataTable_template_kernel);
 
         $('#kernel_search', dialog).keyup(function(){
-          dataTable_template_kernel.fnFilter( $(this).val() );
+            dataTable_template_kernel.fnFilter( $(this).val() );
         })
 
-          var datTable_template_initrd = $('#datatable_initrd', dialog).dataTable({
-            "bSortClasses": false,
+        $('#datatable_kernel tbody', dialog).delegate("tr", "click", function(e){
+            var aData = dataTable_template_kernel.fnGetData(this);
+
+            $("td.markrowchecked", kernel_section).removeClass('markrowchecked');
+            $('tbody input.check_item', kernel_section).removeAttr('checked');
+
+            $('#image_selected', kernel_section).show();
+            $('#select_image', kernel_section).hide();
+            $('.alert-box', kernel_section).hide();
+
+            $("td", this).addClass('markrowchecked');
+            $('input.check_item', this).attr('checked','checked');
+
+            $('#KERNEL', kernel_section).text(aData[4]);
+            $('#KERNEL_DS', kernel_section).val("$FILE[IMAGE_ID="+ aData[1] +"]");
+            return true;
+        });
+
+
+        var datTable_template_initrd = $('#datatable_initrd', dialog).dataTable({
             "bAutoWidth":false,
             "iDisplayLength": 4,
             "sDom" : '<"H">t<"F"p>',
-            "oColVis": {
-                "aiExclude": [ 0 ]
-            },
             "aoColumnDefs": [
                 { "sWidth": "35px", "aTargets": [0,1] },
-                { "bVisible": false, "aTargets": [0,2,3,5,6,7,9,8,10,11,12]}
+                { "bVisible": false, "aTargets": [2,3,5,6,7,9,8,10,11,12]}
             ],
-            "oLanguage": (datatable_lang != "") ?
-                {
-                    sUrl: "locale/"+lang+"/"+datatable_lang
-                } : ""
+           //"fnDrawCallback": function(oSettings) {
+           // var nodes = this.fnGetNodes();
+           // $.each(nodes, function(){
+           //     if ($(this).find("td:eq(1)").html() == $('#INITRD', kernel_section).text()) {
+           //         $("td", this).addClass('markrowchecked');
+           //         $('input.check_item', this).attr('checked','checked');
+           //     }
+           // })
+           // }
         });
 
-        //addElement([spinner,'','','','','','','','','','','',''],datTable_template_initrd);
+        datTable_template_initrd.fnFilter("RAMDISK", 7)
 
-        // Retrieve the images to fill the datatable
-        OpenNebula.Image.list({
-          timeout: true,
-          success: function (request, images_list){
-              var image_list_array = [];
-
-              $.each(images_list,function(){
-                var file = fileElementArray(this);
-                if (file)
-                  image_list_array.push(file);
-              });
-
-              updateView(image_list_array, datTable_template_initrd);
-              datTable_template_initrd.fnFilter("RAMDISK", 7)
-          },
-          error: onError
+        $("#refresh_ramdisk_table").die();
+        $("#refresh_ramdisk_table").live('click', function(){
+            update_datatable_template_files(datTable_template_initrd)
         });
+
+        update_datatable_template_files(datTable_template_initrd);
 
         $('#initrd_search', dialog).keyup(function(){
-          datTable_template_initrd.fnFilter( $(this).val() );
+            datTable_template_initrd.fnFilter( $(this).val() );
         })
 
-        // TBD Add refresh button for the datatable
-
-        // When a row is selected the background color is updated. If a previous row
-        // was selected (previous_row) the background color is removed.
-        // #IMAGE and #IMAGE_ID inputs are updated using the row information
-        if (typeof previous_initrd_row === 'undefined') {
-            var previous_initrd_row = 0;
-        }
-
         $('#datatable_initrd tbody', dialog).delegate("tr", "click", function(e){
-            if ($(e.target).is('input') ||
-                $(e.target).is('select') ||
-                $(e.target).is('option')) return true;
-
             var aData = datTable_template_initrd.fnGetData(this);
 
-            if (previous_initrd_row)
-                $("td:first", previous_initrd_row).parent().children().each(function(){$(this).removeClass('markrow');});
-            previous_initrd_row = this;
-            $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
+            $("td.markrowchecked", initrd_section).removeClass('markrowchecked');
+            $('tbody input.check_item', initrd_section).removeAttr('checked');
 
-            $('.initrd_ds .alert-box', os_section).hide();
+            $('#image_selected', initrd_section).show();
+            $('#select_image', initrd_section).hide();
+            $('.alert-box', initrd_section).hide();
+
+            $("td", this).addClass('markrowchecked');
+            $('input.check_item', this).attr('checked','checked');
 
             $('#INITRD', os_section).text(aData[4]);
             $('#INITRD_DS', os_section).val("$FILE[IMAGE_ID="+ aData[1] +"]");
-            return false;
+            return true;
         });
 
         // Hide image advanced options
@@ -2636,7 +2657,7 @@ function setupCreateTemplateDialog(){
               '</div>'+
               '<hr>'+
               '<div class="">'+
-              '<table id="input_table" class="twelve">'+
+              '<table id="input_table" class="twelve policies_table">'+
                  '<thead>'+
                    '<tr>'+
                      '<th>'+tr("TYPE")+'</th>'+
@@ -2784,7 +2805,7 @@ function setupCreateTemplateDialog(){
                           '<table id="datatable_context" class="datatable twelve">'+
                             '<thead>'+
                               '<tr>'+
-                                '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
+                                '<th></th>'+
                                 '<th>'+tr("ID")+'</th>'+
                                 '<th>'+tr("Owner")+'</th>'+
                                 '<th>'+tr("Group")+'</th>'+
@@ -2805,7 +2826,18 @@ function setupCreateTemplateDialog(){
                       '<div class="vm_param kvm_opt xen_opt vmware_opt row" id="selected_files_spans">'+
                         '<span id="select_files" class="radius secondary label">'+tr("Please select files from the list")+'</span> '+
                         '<span id="files_selected" class="radius secondary label hidden">'+tr("You selected the following files:")+'</span> '+
-                        '<input type="hidden" id="FILES_DS" name="files_ds" size="2"/>'+
+                      '</div>'+
+                      '<div class="row vm_param">'+
+                      '<br>'+
+                        '<div class="four columns">'+
+                          '<label class="right inline" for="FILES_DS">'+tr("FILES_DS")+':</label>'+
+                        '</div>'+
+                        '<div class="six columns">'+
+                          '<input type="text" id="FILES_DS" name="FILES_DS" />'+
+                        '</div>'+
+                        '<div class="two columns">'+
+                          '<div class="tip"></div>'+
+                        '</div>'+
                       '</div>'+
                     '</li>'+
                 '<li class="wizard_internal_tab" id="zcustomTab">'+
@@ -2822,7 +2854,7 @@ function setupCreateTemplateDialog(){
                   '</div>'+
                   '<hr>'+
                   '<div class="row">'+
-                      '<table id="context_table" class="twelve">'+
+                      '<table id="context_table" class="twelve policies_table">'+
                          '<thead>'+
                            '<tr>'+
                              '<th>'+tr("KEY")+'</th>'+
@@ -2844,26 +2876,6 @@ function setupCreateTemplateDialog(){
         '</form>'+
       '</li>'
 
-      $("#refresh_context_table").die();
-
-      $("#refresh_context_table").live('click', function(){
-          // Retrieve the nics to fill the datatable
-          OpenNebula.Image.list({
-            timeout: true,
-            success: function (request, files_list){
-              var files_list_array = [];
-
-              $.each(files_list,function(){
-                var image = fileElementArray(this);
-                if (image)
-                  files_list_array.push(image);
-              });
-              var datTable_template_context = $('table[id="datatable_context"]').dataTable();
-              updateView(files_list_array, datTable_template_context);
-            },
-            error: onError
-          });
-        });
 
         $("<dd><a href='#context'>Context</a></dd>").appendTo($("dl#template_create_tabs"));
         $(html_tab_content).appendTo($("ul#template_create_tabs_content"));
@@ -2900,65 +2912,51 @@ function setupCreateTemplateDialog(){
 
 
       var datTable_template_context = $('#datatable_context', dialog).dataTable({
-          "bSortClasses": false,
           "bAutoWidth":false,
           "iDisplayLength": 4,
+          "bDeferRender": true,
           "sDom" : '<"H">t<"F"p>',
-          "oColVis": {
-              "aiExclude": [ 0 ]
-          },
           "aoColumnDefs": [
               { "bSortable": false, "aTargets": ["check"] },
               { "sWidth": "35px", "aTargets": [0,1] },
-              { "bVisible": false, "aTargets": [0,2,3,5,6,7,9,8,10,11,12]}
+              { "bVisible": false, "aTargets": [2,3,5,6,7,9,8,10,11,12]}
           ],
-          "oLanguage": (datatable_lang != "") ?
-              {
-                  sUrl: "locale/"+lang+"/"+datatable_lang
-              } : ""
+          //"fnDrawCallback": function(oSettings) {
+          //  var images = []
+          //  $.each($( "span.image", $("#selected_files_spans")), function() {
+          //    images.push($(this).attr("image_id"));
+          //  });
+//
+          //  var nodes = this.fnGetNodes();
+          //  $.each(nodes, function(){
+          //      var in_array = $.inArray($(this).find("td:eq(1)").html(), images)
+          //      if (in_array != -1) {
+          //          $("td", this).addClass('markrow');
+          //          $('input.check_item', this).attr('checked','checked');
+          //      }
+          //  })
+          //}
       });
 
-      //addElement([spinner,'','','','','','','','','','','',''],datTable_template_context);
+        datTable_template_context.fnFilter("CONTEXT", 7)
 
-      // Retrieve the images to fill the datatable
-      OpenNebula.Image.list({
-      timeout: true,
-      success: function (request, images_list){
-          var image_list_array = [];
-          $.each(images_list,function(){
-            var image = fileElementArray(this);
-            if (image)
-              image_list_array.push(image);
-          });
+        $("#refresh_context_table").die();
+        $("#refresh_context_table").live('click', function(){
+            update_datatable_template_files(datTable_template_context)
+        });
 
-          updateView(image_list_array, datTable_template_context);
-          datTable_template_context.fnFilter("CONTEXT", 7)
-      },
-      error: onError
-      });
+        // Retrieve the images to fill the datatable
+        update_datatable_template_files(datTable_template_context);
 
-      $('#files_search', dialog).keyup(function(){
-        datTable_template_context.fnFilter( $(this).val() );
-      })
+        $('#files_search', dialog).keyup(function(){
+            datTable_template_context.fnFilter( $(this).val() );
+        })
 
-      // TBD More than one file
-
-      // TBD Add refresh button for the datatable
-      // When a row is selected the background color is updated. If a previous row
-      // was selected (previous_row) the background color is removed.
-      // #IMAGE and #IMAGE_ID inputs are updated using the row information
-      if (typeof previous_context_row === 'undefined') {
-          var previous_context_row = 0;
-      }
 
       var selected_files = {};
       var file_row_hash = {};
 
       $('#datatable_context tbody', dialog).delegate("tr", "click", function(e){
-          if ($(e.target).is('input') ||
-              $(e.target).is('select') ||
-              $(e.target).is('option')) return true;
-
           var aData   = datTable_template_context.fnGetData(this);
           var file_id = aData[1];
 
@@ -2967,17 +2965,18 @@ function setupCreateTemplateDialog(){
             $('#select_files', dialog).hide();
           }
 
-          if(!$("td:first", this).hasClass('markrow'))
-          {
+          if (!$("td:first", this).hasClass('markrowchecked')) {
+            $('input.check_item', this).attr('checked','checked');
             selected_files[file_id]=1;
             file_row_hash[file_id]=this;
-            $(this).children().each(function(){$(this).addClass('markrow');});
-            $('#selected_files_spans', dialog).append('<span id="tag_file_'+aData[1]+'" class="radius label">'+aData[4]+' <span class="icon-remove blue"></span></span> ');
-          }
-          else
-          {
+            $(this).children().each(function(){$(this).addClass('markrowchecked');});
+            if ($('#tag_file_'+aData[1], $('div#selected_files_spans', dialog)).length == 0 ) {
+                $('#selected_files_spans', dialog).append('<span image_id="'+aData[1]+'" id="tag_file_'+aData[1]+'" class="image radius label">'+aData[4]+' <span class="icon-remove blue"></span></span> ');
+            }
+          } else {
+            $('input.check_item', this).removeAttr('checked');
             delete selected_files[file_id];
-            $(this).children().each(function(){$(this).removeClass('markrow');});
+            $("td", this).removeClass('markrowchecked');
             $('div#selected_files_spans span#tag_file_'+file_id, dialog).remove();
           }
 
@@ -2990,21 +2989,23 @@ function setupCreateTemplateDialog(){
 
           generate_context_files();
 
-          return false;
+          return true;
       });
 
-      $( "#selected_files_spans span.icon-remove" ).live( "click", function() {
+      $( "span.icon-remove", $("#selected_files_spans") ).die()
+      $( "span.icon-remove", $("#selected_files_spans") ).live( "click", function() {
          $(this).parent().remove();
-         var id = $(this).parent().attr("ID");
+         var file_id = $(this).parent().attr("image_id");
 
-         var file_id=id.substring(9,id.length);
          delete selected_files[file_id];
-         $(file_row_hash[file_id]).children().each(function(){$(this).removeClass('markrow');});
 
-          if ($.isEmptyObject(selected_files)) {
-            $('#files_selected',  dialog).hide();
-            $('#select_files', dialog).show();
-          }
+           var nodes = datTable_template_context.fnGetNodes();
+            $.each(nodes, function(){
+                if ($(this).find("td:eq(1)").html() == file_id) {
+                    $("td", this).removeClass('markrowchecked');
+                    $('input.check_item', this).removeAttr('checked');
+                }
+            })
 
          generate_context_files();
       });
@@ -3012,8 +3013,8 @@ function setupCreateTemplateDialog(){
       var generate_context_files = function() {
         var req_string=[];
 
-        $.each(selected_files, function(key, value) {
-          req_string.push("$FILE[IMAGE_ID="+ key +"]");
+        $.each($( "span.image", $("#selected_files_spans")), function() {
+          req_string.push("$FILE[IMAGE_ID="+ $(this).attr("image_id") +"]");
         });
 
 
@@ -3028,428 +3029,337 @@ function setupCreateTemplateDialog(){
     **************************************************************************/
 
     var add_schedulingTab = function() {
-      var html_tab_content = '<li id="schedulingTab" class="wizard_tab">'+
-      '<form>'+
-        '<dl class="tabs">'+
-          '<dd class="active"><a href="#placement">'+tr("Placement")+'</a></dd>'+
-          '<dd><a href="#policy">'+tr("Policy")+'</a></dd>'+
-        '</dl>'+
-        '<ul class="tabs-content">'+
-            '<li class="requirements wizard_internal_tab active" id="placementTab">'+
-                '<div class="row">'+
-                  '<div class="three columns push-three">'+
-                      '<input type="radio" id="hosts_req" name="req_select" value="host_select" checked> '+tr("Select Hosts ")+
-                  '</div>'+
-                  '<div class="three columns pull-three">'+
-                      '<input type="radio" id="clusters_req"  name="req_select" value="cluster_select"> '+tr("Select Clusters ")+
-                  '</div>'+
-                '</div>'+
-                '<hr>'+
-                '<div id="req_type" class="host_select row">'+
-                    '<div class="row collapse ">'+
-                      '<div class="seven columns">' +
-                         '<button id="refresh_hosts_placement" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
-                      '</div>' +
-                      '<div class="five columns">'+
-                        '<input id="hosts_search" type="text" placeholder="'+tr("Search")+'"/>'+
+        var html_tab_content = '<li id="schedulingTab" class="wizard_tab">'+
+          '<form>'+
+            '<dl class="tabs">'+
+              '<dd class="active"><a href="#placement">'+tr("Placement")+'</a></dd>'+
+              '<dd><a href="#policy">'+tr("Policy")+'</a></dd>'+
+            '</dl>'+
+            '<ul class="tabs-content">'+
+                '<li class="requirements wizard_internal_tab active" id="placementTab">'+
+                    '<div class="row">'+
+                      '<div class="three columns push-three">'+
+                          '<input type="radio" id="hosts_req" name="req_select" value="host_select" checked> '+tr("Select Hosts ")+
+                      '</div>'+
+                      '<div class="three columns pull-three">'+
+                          '<input type="radio" id="clusters_req"  name="req_select" value="cluster_select"> '+tr("Select Clusters ")+
                       '</div>'+
                     '</div>'+
-                    '<table id="datatable_template_hosts" class="datatable twelve">'+
-                        '<thead>'+
-                        '<tr>'+
-                            '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
-                            '<th>' + tr("ID") + '</th>'+
-                            '<th>' + tr("Name") + '</th>'+
-                            '<th>' + tr("Cluster") + '</th>'+
-                            '<th>' + tr("RVMs") + '</th>'+
-                            '<th>' + tr("Real CPU") + '</th>'+
-                            '<th>' + tr("Allocated CPU") + '</th>'+
-                            '<th>' + tr("Real MEM") + '</th>'+
-                            '<th>' + tr("Allocated MEM") + '</th>'+
-                            '<th>' + tr("Status") + '</th>'+
-                            '<th>' + tr("IM MAD") + '</th>'+
-                            '<th>' + tr("VM MAD") + '</th>'+
-                            '<th>' + tr("Last monitored on") + '</th>'+
-                        '</tr>'+
-                        '</thead>'+
-                        '<tbody id="tbodyhosts">'+
-                        '</tbody>'+
-                    '</table>'+
-                    '<br>'+
-                    '<div class="kvm_opt xen_opt vmware_opt" id="selected_hosts_template">'+
-                      '<span id="select_hosts" class="radius secondary label">'+tr("Please select one or more hosts from the list")+'</span> '+
-                      '<span id="hosts_selected" class="radius secondary label hidden">'+tr("You selected the following hosts:")+'</span> '+
+                    '<hr>'+
+                    '<div id="req_type" class="host_select row">'+
+                        '<div class="row collapse ">'+
+                          '<div class="seven columns">' +
+                             '<button id="refresh_hosts_placement" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
+                          '</div>' +
+                          '<div class="five columns">'+
+                            '<input id="hosts_search" type="text" placeholder="'+tr("Search")+'"/>'+
+                          '</div>'+
+                        '</div>'+
+                        '<table id="datatable_template_hosts" class="datatable twelve">'+
+                            '<thead>'+
+                            '<tr>'+
+                                '<th></th>'+
+                                '<th>' + tr("ID") + '</th>'+
+                                '<th>' + tr("Name") + '</th>'+
+                                '<th>' + tr("Cluster") + '</th>'+
+                                '<th>' + tr("RVMs") + '</th>'+
+                                '<th>' + tr("Real CPU") + '</th>'+
+                                '<th>' + tr("Allocated CPU") + '</th>'+
+                                '<th>' + tr("Real MEM") + '</th>'+
+                                '<th>' + tr("Allocated MEM") + '</th>'+
+                                '<th>' + tr("Status") + '</th>'+
+                                '<th>' + tr("IM MAD") + '</th>'+
+                                '<th>' + tr("VM MAD") + '</th>'+
+                                '<th>' + tr("Last monitored on") + '</th>'+
+                            '</tr>'+
+                            '</thead>'+
+                            '<tbody id="tbodyhosts">'+
+                            '</tbody>'+
+                        '</table>'+
+                        '<br>'+
+                        '<div class="kvm_opt xen_opt vmware_opt" id="selected_hosts_template">'+
+                          '<span id="select_hosts" class="radius secondary label">'+tr("Please select one or more hosts from the list")+'</span> '+
+                          '<span id="hosts_selected" class="radius secondary label hidden">'+tr("You selected the following hosts:")+'</span> '+
+                        '</div>'+
+                        '<br>'+
                     '</div>'+
-                    '<br>'+
-                '</div>'+
-                '<div id="req_type" class="cluster_select hidden row">'+
-                    '<div class="row collapse ">'+
-                      '<div class="seven columns">' +
-                         '<button id="refresh_clusters_placement" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
-                      '</div>' +
-                      '<div class="five columns">'+
-                        '<input id="clusters_search" type="text" placeholder="'+tr("Search")+'"/>'+
+                    '<div id="req_type" class="cluster_select hidden row">'+
+                        '<div class="row collapse ">'+
+                          '<div class="seven columns">' +
+                             '<button id="refresh_clusters_placement" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
+                          '</div>' +
+                          '<div class="five columns">'+
+                            '<input id="clusters_search" type="text" placeholder="'+tr("Search")+'"/>'+
+                          '</div>'+
+                        '</div>'+
+                        '<table id="datatable_template_clusters" class="datatable twelve">'+
+                            '<thead>'+
+                            '<tr>'+
+                                '<th></th>'+
+                                '<th>' + tr("ID") + '</th>'+
+                                '<th>' + tr("Name") + '</th>'+
+                                '<th>' + tr("Hosts") + '</th>'+
+                                '<th>' + tr("VNets") + '</th>'+
+                                '<th>' + tr("Datastores") + '</th>'+
+                            '</tr>'+
+                            '</thead>'+
+                            '<tbody id="tbodyclusters">'+
+                            '</tbody>'+
+                        '</table>'+
+                        '<br>'+
+                        '<div class="kvm_opt xen_opt vmware_opt" id="selected_clusters_template">'+
+                          '<span id="select_clusters" class="radius secondary label">'+tr("Please select one or more clusters from the list")+'</span> '+
+                          '<span id="clusters_selected" class="radius secondary label hidden">'+tr("You selected the following clusters:")+'</span> '+
+                        '</div>'+
+                        '<br>'+
+                    '</div>'+
+                    '<hr>'+
+                    '<div class="row vm_param">'+
+                        '<div class="two columns">'+
+                            '<label class="inline right" for="REQUIREMENTS">'+tr("Requirements")+':</label>'+
+                        '</div>'+
+                        '<div class="nine columns">'+
+                            '<input type="text" id="REQUIREMENTS" name="requirements" />'+
+                        '</div>'+
+                        '<div class="one columns">'+
+                            '<div class="tip">'+tr("Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM")+'.</div>'+
+                        '</div>'+
+                    '</div>'+
+                '</li>'+
+                '<li id="policyTab" class="wizard_internal_tab">'+
+                      '<div class="row">'+
+                        '<div class="two columns push-two">'+
+                          '<input type="radio" id="packingRadio" name="rank_select" value="RUNNING_VMS"> '+tr("Packing")+
+                        '</div>'+
+                        '<div class="one columns push-two">'+
+                          '<div class="tip">'+tr("Pack the VMs in the cluster nodes to reduce VM fragmentation")+'</div>'+
+                        '</div>'+
+                        '<div class="two columns push-two">'+
+                          '<input type="radio"  id="stripingRadio" name="rank_select" value="-RUNNING_VMS"> '+tr("Stripping")+
+                        '</div>'+
+                        '<div class="one columns push-two">'+
+                          '<div class="tip">'+tr("Spread the VMs in the cluster nodes")+'</div>'+
+                        '</div>'+
+                        '<div class="two columns push-two">'+
+                          '<input type="radio"  id="loadawareRadio" name="rank_select" value="FREECPU"> '+tr("Load-aware")+
+                        '</div>'+
+                        '<div class="two columns">'+
+                          '<div class="tip">'+tr("Maximize the resources available to VMs in a node")+'</div>'+
+                        '</div>'+
+                      '</div>'+
+                      '<hr>'+
+                    '<div class="row vm_param">'+
+                      '<div class="two columns">'+
+                        '<label class="inline right" for="RANK">'+tr("Rank")+':</label>'+
+                      '</div>'+
+                      '<div class="nine columns">'+
+                        '<input type="text" id="RANK" name="RANK" />'+
+                      '</div>'+
+                      '<div class="one columns">'+
+                        '<div class="tip">'+tr("This field sets which attribute will be used to sort the suitable hosts for this VM")+'.</div>'+
                       '</div>'+
                     '</div>'+
-                    '<table id="datatable_template_clusters" class="datatable twelve">'+
-                        '<thead>'+
-                        '<tr>'+
-                            '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
-                            '<th>' + tr("ID") + '</th>'+
-                            '<th>' + tr("Name") + '</th>'+
-                            '<th>' + tr("Hosts") + '</th>'+
-                            '<th>' + tr("VNets") + '</th>'+
-                            '<th>' + tr("Datastores") + '</th>'+
-                        '</tr>'+
-                        '</thead>'+
-                        '<tbody id="tbodyclusters">'+
-                        '</tbody>'+
-                    '</table>'+
-                    '<br>'+
-                    '<div class="kvm_opt xen_opt vmware_opt" id="selected_clusters_template">'+
-                      '<span id="select_clusters" class="radius secondary label">'+tr("Please select one or more clusters from the list")+'</span> '+
-                      '<span id="clusters_selected" class="radius secondary label hidden">'+tr("You selected the following clusters:")+'</span> '+
-                    '</div>'+
-                    '<br>'+
-                '</div>'+
-                '<hr>'+
-                '<div class="row vm_param">'+
-                    '<div class="two columns">'+
-                        '<label class="inline right" for="REQUIREMENTS">'+tr("Requirements")+':</label>'+
-                    '</div>'+
-                    '<div class="nine columns">'+
-                        '<input type="text" id="REQUIREMENTS" name="requirements" />'+
-                    '</div>'+
-                    '<div class="one columns">'+
-                        '<div class="tip">'+tr("Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM")+'.</div>'+
-                    '</div>'+
-                '</div>'+
-            '</li>'+
-            '<li id="policyTab" class="wizard_internal_tab">'+
-                  '<div class="row">'+
-                    '<div class="two columns push-two">'+
-                      '<input type="radio" id="packingRadio" name="rank_select" value="RUNNING_VMS"> '+tr("Packing")+
-                    '</div>'+
-                    '<div class="one columns push-two">'+
-                      '<div class="tip">'+tr("Pack the VMs in the cluster nodes to reduce VM fragmentation")+'</div>'+
-                    '</div>'+
-                    '<div class="two columns push-two">'+
-                      '<input type="radio"  id="stripingRadio" name="rank_select" value="-RUNNING_VMS"> '+tr("Stripping")+
-                    '</div>'+
-                    '<div class="one columns push-two">'+
-                      '<div class="tip">'+tr("Spread the VMs in the cluster nodes")+'</div>'+
-                    '</div>'+
-                    '<div class="two columns push-two">'+
-                      '<input type="radio"  id="loadawareRadio" name="rank_select" value="FREECPU"> '+tr("Load-aware")+
-                    '</div>'+
-                    '<div class="two columns">'+
-                      '<div class="tip">'+tr("Maximize the resources available to VMs in a node")+'</div>'+
-                    '</div>'+
-                  '</div>'+
-                  '<hr>'+
-                '<div class="row vm_param">'+
-                  '<div class="two columns">'+
-                    '<label class="inline right" for="RANK">'+tr("Rank")+':</label>'+
-                  '</div>'+
-                  '<div class="nine columns">'+
-                    '<input type="text" id="RANK" name="RANK" />'+
-                  '</div>'+
-                  '<div class="one columns">'+
-                    '<div class="tip">'+tr("This field sets which attribute will be used to sort the suitable hosts for this VM")+'.</div>'+
-                  '</div>'+
-                '</div>'+
-            '</li>'+
-          '</ul>'+
-      '</form>'+
-    '</li>'
-
-    $("#refresh_hosts_placement").die();
-
-    $("#refresh_hosts_placement").live('click', function(){
-        // Retrieve the hosts to fill the datatable
-        OpenNebula.Host.list({
-        timeout: true,
-        success: function (request, host_list){
-            var host_list_array = [];
-
-            $.each(host_list,function(){
-                //Grab table data from the host_list
-                host_list_array.push(hostElementArray(this));
-            });
-
-            var dataTable_template_hosts = $("#datatable_template_hosts",dialog).dataTable();
-            updateView(host_list_array, dataTable_template_hosts);
-        },
-        error: onError
-      });
-      }
-    );
-
+                '</li>'+
+              '</ul>'+
+          '</form>'+
+        '</li>'
 
         $("<dd><a href='#scheduling'>Scheduling</a></dd>").appendTo($("dl#template_create_tabs"));
         $(html_tab_content).appendTo($("ul#template_create_tabs_content"));
 
-      //$('#tabs-scheduling', dialog).tabs();
+        var dataTable_template_hosts = $("#datatable_template_hosts",dialog).dataTable({
+            "iDisplayLength": 4,
+            "sDom" : '<"H">t<"F"p>',
+            "bAutoWidth":false,
+            "aoColumnDefs": [
+                { "sWidth": "35px", "aTargets": [0,1] },
+                { "bVisible": false, "aTargets": [3,5,7,10,11,12]}
+            ]
+        });
 
-      // hOSTS TABLE
-      dataTable_template_hosts = $("#datatable_template_hosts",dialog).dataTable({
-          "bSortClasses": false,
-          "iDisplayLength": 4,
-          "sDom" : '<"H">t<"F"p>',
-          "oColVis": { //exclude checkbox column
-              "aiExclude": [ 0 ]
-          },
-          "bAutoWidth":false,
-          "aoColumnDefs": [
-              { "sWidth": "35px", "aTargets": [0,1] },
-              { "bVisible": false, "aTargets": [0,3,5,7,10,11,12]}
-          ],
-          "oLanguage": (datatable_lang != "") ?
-              {
-                  sUrl: "locale/"+lang+"/"+datatable_lang
-              } : ""
-      });
+        $("#refresh_hosts_placement").die();
+        $("#refresh_hosts_placement").live('click', function(){
+            update_datatable_template_hosts(dataTable_template_hosts)
+        });
 
+        update_datatable_template_hosts(dataTable_template_hosts);
 
-      //preload it
-      //addElement([spinner,'','','','','','','','','','','',''],dataTable_template_hosts);
+        $('#hosts_search', dialog).keyup(function(){
+            dataTable_template_hosts.fnFilter( $(this).val() );
+        })
 
-      OpenNebula.Host.list({
-        timeout: true,
-        success: function (request, host_list){
-            var host_list_array = [];
+        var selected_hosts = {};
+        var host_row_hash = {};
 
-            $.each(host_list,function(){
-                //Grab table data from the host_list
-                host_list_array.push(hostElementArray(this));
-            });
+        $('#datatable_template_hosts', dialog).delegate("tr", "click", function(e){
+            var aData   = dataTable_template_hosts.fnGetData(this);
+            var host_id = aData[1];
 
-            updateView(host_list_array, dataTable_template_hosts);
-        },
-        error: onError
-      });
+            if ($.isEmptyObject(selected_hosts)) {
+                $('#hosts_selected',  dialog).show();
+                $('#select_hosts', dialog).hide();
+            }
 
-      $('#hosts_search', dialog).keyup(function(){
-        dataTable_template_hosts.fnFilter( $(this).val() );
-      })
+            if(!$("td:first", this).hasClass('markrowchecked')) {
+                $('input.check_item', this).attr('checked','checked');
+                selected_hosts[host_id]=1;
+                host_row_hash[host_id]=this;
+                $(this).children().each(function(){$(this).addClass('markrowchecked');});
+                if ($('#tag_host_'+aData[1], $('div#selected_hosts_template', dialog)).length == 0 ) {
+                    $('div#selected_hosts_template', dialog).append('<span id="tag_host_'+aData[1]+'" class="radius label">'+aData[2]+' <span class="icon-remove blue"></span></span> ');
+                }
+            } else {
+                $('input.check_item', this).removeAttr('checked');
+                delete selected_hosts[host_id];
+                $(this).children().each(function(){$(this).removeClass('markrowchecked');});
+                $('div#selected_hosts_template span#tag_host_'+host_id, dialog).remove();
+            }
 
-      var selected_hosts = {};
-      var host_row_hash = {};
+            if ($.isEmptyObject(selected_hosts)) {
+                $('#hosts_selected',  dialog).hide();
+                $('#select_hosts', dialog).show();
+            }
 
-      $('#datatable_template_hosts', dialog).delegate("tr", "click", function(e){
-          if ($(e.target).is('input') ||
-              $(e.target).is('select') ||
-              $(e.target).is('option')) return true;
+            $('.alert-box', $('li#schedulingTab .host_select')).hide();
 
-          var aData   = dataTable_template_hosts.fnGetData(this);
-          var host_id = aData[1];
+            generate_requirements();
 
-          if ($.isEmptyObject(selected_hosts)) {
-            $('#hosts_selected',  dialog).show();
-            $('#select_hosts', dialog).hide();
-          }
+            return true;
+        });
 
-          if(!$("td:first", this).hasClass('markrow'))
-          {
-            selected_hosts[host_id]=1;
-            host_row_hash[host_id]=this;
-            $(this).children().each(function(){$(this).addClass('markrow');});
-            $('div#selected_hosts_template', dialog).append('<span id="tag_host_'+aData[1]+'" class="radius label">'+aData[2]+' <span class="icon-remove blue"></span></span> ');
-          }
-          else
-          {
+        $( "#selected_hosts_template span.icon-remove" ).live( "click", function() {
+            $(this).parent().remove();
+            var id = $(this).parent().attr("ID");
+
+            var host_id=id.substring(9,id.length);
             delete selected_hosts[host_id];
-            $(this).children().each(function(){$(this).removeClass('markrow');});
-            $('div#selected_hosts_template span#tag_host_'+host_id, dialog).remove();
-          }
+            $('td', host_row_hash[file_id]).removeClass('markrowchecked');
+            $('input.check_item', host_row_hash[file_id]).removeAttr('checked');
 
-          if ($.isEmptyObject(selected_hosts)) {
-            $('#hosts_selected',  dialog).hide();
-            $('#select_hosts', dialog).show();
-          }
+            if ($.isEmptyObject(selected_hosts)) {
+                $('#hosts_selected',  dialog).hide();
+                $('#select_hosts', dialog).show();
+            }
 
-          $('.alert-box', $('li#schedulingTab .host_select')).hide();
+            generate_requirements();
+        });
 
-          generate_requirements();
+        // Clusters TABLE
+        var dataTable_template_clusters = $("#datatable_template_clusters", dialog).dataTable({
+            "iDisplayLength": 4,
+            "sDom" : '<"H">t<"F"p>',
+            "bAutoWidth":false,
+            "aoColumnDefs": [
+                { "sWidth": "35px", "aTargets": [0,1] },
+                { "bVisible": false, "aTargets": []}
+            ]
+        });
 
-          return false;
-      });
+        $("#refresh_clusters_placement").die();
+        $("#refresh_clusters_placement").live('click', function(){
+            update_datatable_template_clusters(dataTable_template_clusters);
+        });
 
-      $( "#selected_hosts_template span.icon-remove" ).live( "click", function() {
-         $(this).parent().remove();
-         var id = $(this).parent().attr("ID");
+        update_datatable_template_clusters(dataTable_template_clusters);
 
-         var host_id=id.substring(9,id.length);
-         delete selected_hosts[host_id];
-         $(host_row_hash[host_id]).children().each(function(){$(this).removeClass('markrow');});
+        $('#clusters_search', dialog).keyup(function(){
+            dataTable_template_clusters.fnFilter( $(this).val() );
+        })
 
-          if ($.isEmptyObject(selected_hosts)) {
-            $('#hosts_selected',  dialog).hide();
-            $('#select_hosts', dialog).show();
-          }
+        var selected_clusters = {};
+        var cluster_row_hash = {};
 
-         generate_requirements();
-      });
+        $('#datatable_template_clusters', dialog).delegate("tr", "click", function(e){
+            var aData   = dataTable_template_clusters.fnGetData(this);
+            var cluster_id = aData[1];
 
-    $("#refresh_clusters_placement").die();
+            if ($.isEmptyObject(selected_clusters)) {
+                $('#clusters_selected',  dialog).show();
+                $('#select_clusters', dialog).hide();
+            }
 
-    $("#refresh_clusters_placement").live('click', function(){
-        // Retrieve the clusters to fill the datatable
+            if(!$("td:first", this).hasClass('markrowchecked'))
+            {
+                $('input.check_item', this).attr('checked','checked');
+                selected_clusters[cluster_id]=1;
+                cluster_row_hash[cluster_id]=this;
+                $(this).children().each(function(){$(this).addClass('markrowchecked');});
+                if ($('#tag_cluster_'+aData[1], $('div#selected_clusters_template', dialog)).length == 0 ) {
+                    $('div#selected_clusters_template', dialog).append('<span id="tag_cluster_'+aData[1]+'" class="radius label">'+aData[2]+' <span class="icon-remove blue"></span></span> ');
+                }
+            }
+            else
+            {
+                $('input.check_item', this).removeAttr('checked');
+                delete selected_clusters[cluster_id];
+                $(this).children().each(function(){$(this).removeClass('markrowchecked');});
+                $('div#selected_clusters_template span#tag_cluster_'+cluster_id, dialog).remove();
+            }
 
-        OpenNebula.Cluster.list({
-          timeout: true,
-          success: function (request, cluster_list){
-            var list_array = [];
 
-            $.each(cluster_list,function(){
-                //Grab table data from the list
-                list_array.push(clusterElementArray(this));
+            if ($.isEmptyObject(selected_clusters)) {
+                $('#clusters_selected',  dialog).hide();
+                $('#select_clusters', dialog).show();
+            }
+
+            $('.alert-box', $('li#schedulingTab .cluster_select')).hide();
+
+            generate_requirements();
+
+            return true;
+        });
+
+        $( "#selected_clusters_template span.icon-remove" ).live( "click", function() {
+            $(this).parent().remove();
+            var id = $(this).parent().attr("ID");
+
+            var cluster_id=id.substring(12,id.length);
+            delete selected_clusters[cluster_id];
+            $('td', cluster_row_hash[file_id]).removeClass('markrowchecked');
+            $('input.check_item', cluster_row_hash[file_id]).removeAttr('checked');
+
+            if ($.isEmptyObject(selected_clusters)) {
+                $('#clusters_selected',  dialog).hide();
+                $('#select_clusters', dialog).show();
+            }
+
+            generate_requirements();
+        });
+
+        // Select Image or Volatile disk. The div is hidden depending on the selection, and the
+        // vm_param class is included to be computed when the template is generated.
+        $("input[name='req_select']").change(function(){
+            if ($("input[name='req_select']:checked").val() == "host_select") {
+                $("div.host_select",  $('li#schedulingTab')).toggle();
+                $("div.host_select",  $('li#schedulingTab')).addClass('vm_param');
+                $("div.cluster_select",  $('li#schedulingTab')).hide();
+                $("div.cluster_select",  $('li#schedulingTab')).removeClass('vm_param');
+            }
+            else {
+                $("div.host_select",  $('li#schedulingTab')).hide();
+                $("div.host_select",  $('li#schedulingTab')).removeClass('vm_param');
+                $("div.cluster_select",  $('li#schedulingTab')).toggle();
+                $("div.cluster_select",  $('li#schedulingTab')).addClass('vm_param');
+            }
+        });
+
+        $("input[name='rank_select']").change(function(){
+            $("#RANK", dialog).val(this.value);
+        });
+
+        var generate_requirements = function() {
+            var req_string=[];
+
+            $.each(selected_hosts, function(key, value) {
+            req_string.push('ID=\\"'+key+'\\"');
             });
 
-            var dataTable_template_clusters = $("#datatable_template_clusters",dialog).dataTable();
-            updateView(list_array,dataTable_template_clusters);
-          },
-          error: onError
-        });
-      }
-    );
+            $.each(selected_clusters, function(key, value) {
+            req_string.push('CLUSTER_ID=\\"'+key+'\\"');
+            });
 
-      // Clusters TABLE
-      dataTable_template_clusters = $("#datatable_template_clusters", dialog).dataTable({
-          "bSortClasses": false,
-          "iDisplayLength": 4,
-          "sDom" : '<"H">t<"F"p>',
-          "oColVis": {
-              "aiExclude": [ 0 ]
-          },
-          "bAutoWidth":false,
-          "aoColumnDefs": [
-              { "sWidth": "35px", "aTargets": [0,1] },
-              { "bVisible": false, "aTargets": [0]}
-          ],
-          "oLanguage": (datatable_lang != "") ?
-              {
-                  sUrl: "locale/"+lang+"/"+datatable_lang
-              } : ""
-      });
-
-      //preload it
-
-      //addElement([spinner,'','','','',''],dataTable_template_clusters);
-
-      OpenNebula.Cluster.list({
-        timeout: true,
-        success: function (request, cluster_list){
-          var list_array = [];
-
-          $.each(cluster_list,function(){
-              //Grab table data from the list
-              list_array.push(clusterElementArray(this));
-          });
-
-          updateView(list_array,dataTable_template_clusters);
-        },
-        error: onError
-      });
-
-
-      $('#clusters_search', dialog).keyup(function(){
-        dataTable_template_clusters.fnFilter( $(this).val() );
-      })
-
-      var selected_clusters = {};
-      var cluster_row_hash = {};
-
-      $('#datatable_template_clusters', dialog).delegate("tr", "click", function(e){
-          if ($(e.target).is('input') ||
-              $(e.target).is('select') ||
-              $(e.target).is('option')) return true;
-
-          var aData   = dataTable_template_clusters.fnGetData(this);
-          var cluster_id = aData[1];
-
-          if ($.isEmptyObject(selected_clusters)) {
-            $('#clusters_selected',  dialog).show();
-            $('#select_clusters', dialog).hide();
-          }
-
-          if(!$("td:first", this).hasClass('markrow'))
-          {
-            selected_clusters[cluster_id]=1;
-            cluster_row_hash[cluster_id]=this;
-            $(this).children().each(function(){$(this).addClass('markrow');});
-            $('div#selected_clusters_template', dialog).append('<span id="tag_cluster_'+aData[1]+'" class="radius label">'+aData[2]+' <span class="icon-remove blue"></span></span> ');
-          }
-          else
-          {
-            delete selected_clusters[cluster_id];
-            $(this).children().each(function(){$(this).removeClass('markrow');});
-            $('div#selected_clusters_template span#tag_cluster_'+cluster_id, dialog).remove();
-          }
-
-
-          if ($.isEmptyObject(selected_clusters)) {
-            $('#clusters_selected',  dialog).hide();
-            $('#select_clusters', dialog).show();
-          }
-
-          $('.alert-box', $('li#schedulingTab .cluster_select')).hide();
-
-          generate_requirements();
-
-          return false;
-      });
-
-      $( "#selected_clusters_template span.icon-remove" ).live( "click", function() {
-         $(this).parent().remove();
-         var id = $(this).parent().attr("ID");
-
-         var cluster_id=id.substring(12,id.length);
-         delete selected_clusters[cluster_id];
-         $(cluster_row_hash[cluster_id]).children().each(function(){$(this).removeClass('markrow');});
-
-          if ($.isEmptyObject(selected_clusters)) {
-            $('#clusters_selected',  dialog).hide();
-            $('#select_clusters', dialog).show();
-          }
-
-         generate_requirements();
-      });
-
-      // Select Image or Volatile disk. The div is hidden depending on the selection, and the
-      // vm_param class is included to be computed when the template is generated.
-      $("input[name='req_select']").change(function(){
-        if ($("input[name='req_select']:checked").val() == "host_select") {
-            $("div.host_select",  $('li#schedulingTab')).toggle();
-            $("div.host_select",  $('li#schedulingTab')).addClass('vm_param');
-            $("div.cluster_select",  $('li#schedulingTab')).hide();
-            $("div.cluster_select",  $('li#schedulingTab')).removeClass('vm_param');
-        }
-        else {
-            $("div.host_select",  $('li#schedulingTab')).hide();
-            $("div.host_select",  $('li#schedulingTab')).removeClass('vm_param');
-            $("div.cluster_select",  $('li#schedulingTab')).toggle();
-            $("div.cluster_select",  $('li#schedulingTab')).addClass('vm_param');
-        }
-      });
-
-      $("input[name='rank_select']").change(function(){
-        $("#RANK", dialog).val(this.value);
-      });
-
-      var generate_requirements = function() {
-        var req_string=[];
-
-        $.each(selected_hosts, function(key, value) {
-          req_string.push('ID=\\"'+key+'\\"');
-        });
-
-        $.each(selected_clusters, function(key, value) {
-          req_string.push('CLUSTER_ID=\\"'+key+'\\"');
-        });
-
-        $('#REQUIREMENTS', dialog).val(req_string.join(" | "));
-      };
+            $('#REQUIREMENTS', dialog).val(req_string.join(" | "));
+        };
     }
 
 
@@ -3463,31 +3373,10 @@ function setupCreateTemplateDialog(){
     dialog.html(create_template_tmpl);
 
 
-
-    //Prepare jquery dialog
-    var height = Math.floor($(window).height()*0.9); //set height to a percentage of the window
-    //dialog.dialog({
-    //    autoOpen: false,
-    //    modal: true,
-    //    width: 'auto',
-    //    height: height
-    //});
     dialog.addClass("reveal-modal xlarge max-height")
 
 
     var tabs = $( "#template_create_tabs", dialog)//.tabs().addClass("ui-tabs-vertical");
-
-
-    //$('#wizard_next').click(function(){
-    //  var selected = tabs.tabs('option', 'active');
-    //  tabs.tabs("option", "active", selected+1);
-    //});
-//
-    //$('#wizard_previous').click(function(){
-    //  var selected = tabs.tabs('option', 'active');
-    //  tabs.tabs("option", "active", selected-1);
-    //});
-
 
     $('#template_template_reset_button').click(function(){
         $create_template_dialog.trigger('reveal:close');
@@ -3680,7 +3569,12 @@ function setupCreateTemplateDialog(){
           $.each(vm_json["NIC"], function(){
             var vnet_id = this["NETWORK_ID"]
             var eth_str = "ETH"+nic_id+"_"
-            var net_str = 'NETWORK_ID=\\"'+ vnet_id +'\\"'
+
+            if (vnet_id) {
+                var net_str = 'NETWORK_ID=\\"'+ vnet_id +'\\"'
+            } else {
+                var net_str = 'NETWORK=\\"'+ this["NETWORK"] +'\\"'
+            }
 
             vm_json["CONTEXT"][eth_str+"IP"]      = "$NIC[IP,"+ net_str +"]";
             vm_json["CONTEXT"][eth_str+"NETWORK"] = "$NETWORK[NETWORK_ADDRESS,"+ net_str +"]";
@@ -3797,8 +3691,8 @@ function popUpUpdateTemplateDialog(){
     $('#template_name_form', $create_template_dialog).hide();
     $('#NAME').attr("disabled", "disabled");;
 
-    $('#wizard_mode', $create_template_dialog).hide();
-    $('#advanced_mode_a', $create_template_dialog).click();
+    //$('#wizard_mode', $create_template_dialog).hide();
+    //$('#advanced_mode_a', $create_template_dialog).click();
 
     $create_template_dialog.reveal();
 };
@@ -3822,70 +3716,6 @@ function popUpCreateTemplateDialog(){
     $create_template_dialog.reveal();
 };
 
-function setupTemplateTemplateUpdateDialog(){
-    //Append to DOM
-    dialogs_context.append('<div id="template_template_update_dialog" title="'+tr("Update template properties")+'"></div>');
-    var dialog = $('#template_template_update_dialog',dialogs_context);
-
-    //Put HTML in place
-    dialog.html(update_template_tmpl);
-
-    var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
-
-    //Convert into jQuery
-    //dialog.dialog({
-    //    autoOpen:false,
-    //    width:700,
-    //    modal:true,
-    //    height:height,
-    //    resizable:false
-    //});
-    dialog.addClass("reveal-modal");
-
-    //$('button',dialog).button();
-
-    $('#template_template_update_select',dialog).change(function(){
-        var id = $(this).val();
-        $('.permissions_table input',dialog).removeAttr('checked')
-        $('.permissions_table',dialog).removeAttr('update');
-        if (id && id.length){
-            var dialog = $('#template_template_update_dialog');
-            $('#template_template_update_textarea',dialog).val(tr("Loading")+"...");
-
-            Sunstone.runAction("Template.fetch_permissions",id);
-            Sunstone.runAction("Template.fetch_template",id);
-        } else {
-            $('#template_template_update_textarea',dialog).val("");
-        };
-    });
-
-    $('.permissions_table input',dialog).change(function(){
-        $(this).parents('table').attr('update','update');
-    });
-
-    $('form',dialog).submit(function(){
-        var dialog = $(this);
-        var new_template = $('#template_template_update_textarea',dialog).val();
-        var id = $('#template_template_update_select',dialog).val();
-        if (!id || !id.length) {
-            $(this).parents('#template_template_update_dialog').trigger("reveal:close")
-            return false;
-        };
-
-        var permissions = $('.permissions_table',dialog);
-        if (permissions.attr('update')){
-            var perms = {
-                octet : buildOctet(permissions)
-            };
-            Sunstone.runAction("Template.chmod",id,perms);
-        };
-
-        Sunstone.runAction("Template.update",id,new_template);
-        $(this).parents('#template_template_update_dialog').trigger("reveal:close")
-        return false;
-    });
-};
-
 function popUpTemplateTemplateUpdateDialog(){
     var selected_nodes = getSelectedNodes(dataTable_templates);
 
@@ -3899,40 +3729,6 @@ function popUpTemplateTemplateUpdateDialog(){
     var template_id   = ""+selected_nodes[0];
 
     Sunstone.runAction("Template.show_to_update", template_id);
-//    var select = makeSelectOptions(dataTable_templates,
-//                                   1,//id_col
-//                                   4,//name_col
-//                                   [],
-//                                   []
-//                                  );
-//    var sel_elems = getSelectedNodes(dataTable_templates);
-//
-//
-//    var dialog =  $('#template_template_update_dialog');
-//    $('#template_template_update_select',dialog).html(select);
-//    $('#template_template_update_textarea',dialog).val("");
-//    $('.permissions_table input',dialog).removeAttr('checked');
-//    $('.permissions_table',dialog).removeAttr('update');
-//
-//    if (sel_elems.length >= 1){ //several items in the list are selected
-//        //grep them
-//        var new_select= sel_elems.length > 1? '<option value="">Please select</option>' : "";
-//        $('option','<select>'+select+'</select>').each(function(){
-//            var val = $(this).val();
-//            if ($.inArray(val,sel_elems) >= 0){
-//                new_select+='<option value="'+val+'">'+$(this).text()+'</option>';
-//            };
-//        });
-//        $('#template_template_update_select',dialog).html(new_select);
-//        if (sel_elems.length == 1) {
-//            $('#template_template_update_select option',dialog).attr('selected','selected');
-//            $('#template_template_update_select',dialog).trigger("change");
-//        };
-//    };
-//
-//    dialog.dialog('open');
-//    return false;
-
 };
 
 function fillTemplatePopUp(request, response){
@@ -3956,7 +3752,7 @@ function fillTemplatePopUp(request, response){
                     delete template_json[field.attr('id')]
 
                     if (field.parents(".advanced")) {
-                        $('.advanced', context).toggle();
+                        $('.advanced', context).show();
                     }
                 };
         });
@@ -3968,562 +3764,520 @@ function fillTemplatePopUp(request, response){
 
     template_to_update_id = response.VMTEMPLATE.ID
 
-//    //
-//    // GENERAL
-//    //
+    //
+    // GENERAL
+    //
+
+    var capacity_section = $('li#capacityTab', $create_template_dialog);
+    autoFillInputs(template, capacity_section);
+
+
+    //
+    // DISKS
+    //
+
+    var number_of_disks = 0;
+
+    function fillDiskTab(disk) {
+        var str_disk_tab_id = 'disk' + number_of_disks;
+        var disk_section  = $('li#' + str_disk_tab_id + 'Tab', $create_template_dialog);
+
+        if (disk.IMAGE_ID || disk.IMAGE) {
+            $('input#'+str_disk_tab_id+'radioImage', disk_section).click();
+
+            var dataTable_template_images = $("#datatable_template_images" + number_of_disks).dataTable();
+
+            var disk_image_id = disk.IMAGE_ID
+            // TODO updateView should not be required. Currently the dataTable
+            //  is filled twice.
+            update_datatable_template_images(dataTable_template_images, function(){
+                dataTable_template_images.unbind('draw');
+
+                if (disk_image_id) {
+                    var clicked = false
+                    var data = dataTable_template_images.fnGetData();
+                    $.each(data, function(){
+                        if (this[1] == disk_image_id) {
+                            clicked = true;
+                            $('#image_selected', disk_section).show();
+                            $('#select_image', disk_section).hide();
+                            $('#IMAGE_NAME', disk_section).text(this[4]);
+                            $('#IMAGE_ID', disk_section).val(this[1]);
+                        }
+                    })
+
+                    if (!clicked) {
+                        var alert = '<div class="alert-box alert">'+
+    'IMAGE: '+ disk_image_id + tr(" does not exists any more.") +
+    '  <a href="" class="close">&times;</a>'+
+    '</div>';
+
+                        $("#selected_image", disk_section).append(alert);
+                    }
+                } else {
+                    var alert = '<div class="alert-box alert">'+
+    tr("The image you specified cannot be selected in the table") +
+    '  <a href="" class="close">&times;</a>'+
+    '</div>';
+                    $("#selected_image", disk_section).append(alert);
+                }
+
+            })
+
+        }
+        else {
+            $('input#'+str_disk_tab_id+'radioVolatile', disk_section).click();
+        }
+
+        autoFillInputs(disk, $('div#disk_type.vm_param', disk_section));
+    }
+
+    if (template.DISK) {
+        var disks = template.DISK
+
+        if (disks instanceof Array) {
+            $.each(disks, function(){
+                if (number_of_disks > 0) {
+                    $("#tf_btn_disks").click();
+                }
+
+                fillDiskTab(this);
+                number_of_disks++;
+            });
+        }
+        else if (disks instanceof Object) {
+            fillDiskTab(disks);
+        }
+    }
+
+
+    //
+    // NICS
+    //
+
+    var number_of_nics = 0;
+
+    function fillNicTab(nic) {
+        var str_nic_tab_id = 'nic' + number_of_nics;
+        var nic_section  = $('li#' + str_nic_tab_id + 'Tab', $create_template_dialog);
+
+        var dataTable_template_networks = $("#datatable_template_networks" + number_of_nics).dataTable();
+
+        var nic_network_id = nic.NETWORK_ID
+        // TODO updateView should not be required. Currently the dataTable
+        //  is filled twice.
+        update_datatable_template_networks(dataTable_template_networks, function(){
+            dataTable_template_networks.unbind('draw');
+
+            if (nic_network_id) {
+                var clicked = false
+                var data = dataTable_template_networks.fnGetData();
+                $.each(data, function(){
+                    if (this[1] == nic_network_id) {
+                        clicked = true;
+                        $('#network_selected', nic_section).show();
+                        $('#select_network', nic_section).hide();
+                        $('#NETWORK_NAME', nic_section).text(this[4]);
+                        $('#NETWORK_ID', nic_section).val(this[1]);
+                    }
+                })
+
+                if (!clicked) {
+                    var alert = '<div class="alert-box alert">'+
+    'NETWORK: '+ nic_network_id + tr(" does not exists any more") +
+    '  <a href="" class="close">&times;</a>'+
+    '</div>';
+
+                    $("#selected_network", nic_section).append(alert);
+                }
+            } else {
+                var alert = '<div class="alert-box alert">'+
+tr("The network you specified cannot be selected in the table") +
+'  <a href="" class="close">&times;</a>'+
+'</div>';
+                $("#selected_network", nic_section).append(alert);
+            }
+        })
+
+        autoFillInputs(nic, nic_section);
+    }
+
+    if (template.NIC) {
+        var nics = template.NIC
+
+        if (nics instanceof Array) {
+            $.each(nics, function(){
+                if (number_of_nics > 0) {
+                    $("#tf_btn_nics").click();
+                }
+
+                fillNicTab(this);
+                number_of_nics++;
+            });
+        }
+        else if (nics instanceof Object) {
+            fillNicTab(nics);
+        }
+    }
+
+
+    //
+    // OS
+    //
+
+    var os = template.OS;
+    var os_section = $('li#osTab', $create_template_dialog);
+    var kernel_section = $('li#kernelTab', $create_template_dialog);
+    var initrd_section = $('li#ramdiskTab', $create_template_dialog);
+
+    if (os) {
+        if (os.KERNEL_DS) {
+            $('input#radioKernelDs', kernel_section).click();
+
+            var dataTable_template_kernel = $("#datatable_kernel").dataTable();
+
+            var os_kernel_ds = os.KERNEL_DS;
+            // TODO updateView should not be required. Currently the dataTable
+            //  is filled twice.
+            update_datatable_template_files(dataTable_template_kernel, function(){
+//                dataTable_template_kernel.unbind('draw');
 //
-//    var capacity_section = $('li#capacityTab', $create_template_dialog);
-//    autoFillInputs(template, capacity_section);
-//
-//
-//    //
-//    // DISKS
-//    //
-//
-//    var number_of_disks = 0;
-//
-//    function fillDiskTab(disk) {
-//        var str_disk_tab_id = 'disk' + number_of_disks;
-//        var disk_section  = $('li#' + str_disk_tab_id + 'Tab', $create_template_dialog);
-//
-//        if (disk.IMAGE_ID) {
-//            $('input#'+str_disk_tab_id+'radioImage', disk_section).click();
-//
-//            var dataTable_template_images = $("#datatable_template_images" + number_of_disks).dataTable();
-//
-//            // TODO updateView should not be required. Currently the dataTable
-//            //  is filled twice.
-//            OpenNebula.Image.list({
-//                timeout: true,
-//                success: function (request, images_list){
-//                    var image_list_array = [];
-//
-//                    $.each(images_list,function(){
-//                        image_list_array.push(imageElementArray(this));
-//                    });
-//
-//                    updateView(image_list_array, dataTable_template_images);
-//
-//                    var rows = dataTable_template_images.fnGetNodes();
-//
-//                    var clicked = false
-//                    for (var j=0;j<rows.length;j++) {
-//                        var current_row = $(rows[j]);
-//                        var row_image_id = $(rows[j]).find("td:eq(0)").html();
-//
-//                        if (row_image_id == disk.IMAGE_ID) {
-//                            rows[j].click();
-//                            clicked = true;
-//                        }
-//                    }
-//
-//                    if (!clicked) {
-//                        var alert = '<div class="alert-box alert">'+
-//'IMAGE: '+ disk.IMAGE_ID + tr(" does not exists any more") +
-//'  <a href="" class="close">&times;</a>'+
-//'</div>';
-//
-//                        $(".dataTables_wrapper", disk_section).append(alert);
-//                    }
-//              },
-//              error: onError
-//            });
-//
-//        }
-//        else {
-//            $('input#'+str_disk_tab_id+'radioVolatile', disk_section).click();
-//        }
-//
-//        autoFillInputs(disk, $('div#disk_type.vm_param', disk_section));
-//    }
-//
-//    if (template.DISK) {
-//        var disks = template.DISK
-//
-//        if (disks instanceof Array) {
-//            $.each(disks, function(){
-//                if (number_of_disks > 0) {
-//                    $("#tf_btn_disks").click();
-//                }
-//
-//                fillDiskTab(this);
-//                number_of_disks++;
-//            });
-//        }
-//        else if (disks instanceof Object) {
-//            fillDiskTab(disks);
-//        }
-//    }
-//
-//
-//    //
-//    // NICS
-//    //
-//
-//    var number_of_nics = 0;
-//
-//    function fillNicTab(nic) {
-//        var str_nic_tab_id = 'nic' + number_of_nics;
-//        var nic_section  = $('li#' + str_nic_tab_id + 'Tab', $create_template_dialog);
-//
-//        var dataTable_template_networks = $("#datatable_template_networks" + number_of_nics).dataTable();
-//
-//        // TODO updateView should not be required. Currently the dataTable
-//        //  is filled twice.
-//        OpenNebula.Network.list({
-//            timeout: true,
-//            success: function (request, networks_list){
-//                var network_list_array = [];
-//
-//                $.each(networks_list,function(){
-//                    network_list_array.push(vNetworkElementArray(this));
-//                });
-//
-//                updateView(network_list_array, dataTable_template_networks);
-//
-//                var rows = dataTable_template_networks.fnGetNodes();
-//
+//                var regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/;
+//                var match = regexp.exec(os_kernel_ds)
 //                var clicked = false;
-//                for (var j=0;j<rows.length;j++) {
-//                    var current_row = $(rows[j]);
-//                    var row_network_id = $(rows[j]).find("td:eq(0)").html();
-//
-//                    if (row_network_id == nic.NETWORK_ID) {
-//                        rows[j].click();
-//                        clicked = true;
-//                    }
-//                }
-//
-//                if (!clicked) {
-//                        var alert = '<div class="alert-box alert">'+
-//'NETWORK: '+ nic.NETWORK_ID + tr(" does not exists any more") +
-//'  <a href="" class="close">&times;</a>'+
-//'</div>';
-//
-//                        $(".dataTables_wrapper", nic_section).append(alert);
-//                }
-//          },
-//          error: onError
-//        });
-//
-//        autoFillInputs(nic, nic_section);
-//    }
-//
-//    if (template.NIC) {
-//        var nics = template.NIC
-//
-//        if (nics instanceof Array) {
-//            $.each(nics, function(){
-//                if (number_of_nics > 0) {
-//                    $("#tf_btn_nics").click();
-//                }
-//
-//                fillNicTab(this);
-//                number_of_nics++;
-//            });
-//        }
-//        else if (nics instanceof Object) {
-//            fillNicTab(nics);
-//        }
-//    }
-//
-//
-//    //
-//    // OS
-//    //
-//
-//    var os = template.OS;
-//    var os_section = $('li#osTab', $create_template_dialog);
-//
-//    if (os) {
-//        if (os.KERNEL_DS) {
-//            $('input#radioKernelDs', os_section).click();
-//
-//            var dataTable_template = $("#datatable_kernel").dataTable();
-//            var regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/;
-//
-//            // TODO updateView should not be required. Currently the dataTable
-//            //  is filled twice.
-//            OpenNebula.Image.list({
-//                timeout: true,
-//                success: function (request, list){
-//                    var list_array = [];
-//
-//                    $.each(list,function(){
-//                        list_array.push(imageElementArray(this));
-//                    });
-//
-//                    updateView(list_array, dataTable_template);
-//                    dataTable_template.fnFilter("KERNEL", 6)
-//
-//                    var rows = dataTable_template.fnGetNodes();
-//
-//                    var match = regexp.exec(os.KERNEL_DS)
-//                    var clicked = false;
-//                    for (var j=0;j<rows.length;j++) {
-//                        var current_row = $(rows[j]);
-//                        var row_id = $(rows[j]).find("td:eq(0)").html();
-//
-//                        if (match && row_id == match[1]) {
-//                            rows[j].click();
+//                var data = dataTable_template_kernel.fnGetData();
+//                if (match) {
+//                    $.each(data, function(){
+//                         if (this[1] == match[1]) {
 //                            clicked = true;
-//                        }
-//                    }
-//                    if (!clicked) {
-//                        var alert = '<div class="alert-box alert">'+
-//'KERNEL: '+ match[1] + tr(" does not exists any more") +
-//'  <a href="" class="close">&times;</a>'+
-//'</div>';
-//
-//                        $("#tabs-kernel .dataTables_wrapper", os_section).append(alert);
-//                    }
-//              },
-//              error: onError
-//            });
-//        }
-//        else if (os.KERNEL) {
-//            $('input#radioKernelPath', os_section).click();
-//        };
-//
-//        if (os.INITRD_DS) {
-//            $('input#radioInitrdDs', os_section).click();
-//
-//            var dataTable_template = $("#datatable_initrd").dataTable();
-//            var regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/;
-//
-//            // TODO updateView should not be required. Currently the dataTable
-//            //  is filled twice.
-//            OpenNebula.Image.list({
-//                timeout: true,
-//                success: function (request, list){
-//                    var list_array = [];
-//
-//                    $.each(list,function(){
-//                        list_array.push(imageElementArray(this));
-//                    });
-//
-//                    updateView(list_array, dataTable_template);
-//                    dataTable_template.fnFilter("RAMDISK", 6)
-//
-//                    var rows = dataTable_template.fnGetNodes();
-//                    var match = regexp.exec(os.INITRD_DS);
-//                    var clicked = false;
-//                    for (var j=0;j<rows.length;j++) {
-//                        var current_row = $(rows[j]);
-//                        var row_id = $(rows[j]).find("td:eq(0)").html();
-//
-//                        if (match && row_id == match[1]) {
-//                            rows[j].click();
-//                            clicked = true;
-//                        }
-//                    }
+//                            $("#KERNEL", kernel_section).val(this[1])
+//                         }
+//                    })
 //
 //                    if (!clicked) {
 //                        var alert = '<div class="alert-box alert">'+
-//'RAMDISK: '+ match[1] + tr(" does not exists any more") +
-//'  <a href="" class="close">&times;</a>'+
-//'</div>';
-//
-//                        $("#tabs-ramdisk .dataTables_wrapper", os_section).append(alert);
-//                    }
-//              },
-//              error: onError
-//            });
-//        }
-//        else if (os.INITRD) {
-//            $('input#radioInitrdPath', os_section).click();
-//        };
-//
-//        autoFillInputs(os, os_section);
-//    }
-//
-//    //
-//    // INPUT/OUTPUT
-//    //
-//
-//    var graphics = template.GRAPHICS;
-//    var graphics_section = $('li#ioTab .graphics', $create_template_dialog);
-//
-//    if (graphics) {
-//        var type = graphics.TYPE;
-//        if (graphics.TYPE) {
-//            $("input[value='"+ type + "']").click();
-//
-//            autoFillInputs(graphics, graphics_section);
-//        }
-//    }
-//
-//    var inputs = template.INPUT;
-//    var inputs_section = $('li#ioTab .inputs', $create_template_dialog);
-//
-//    if (inputs) {
-//        if (!(inputs instanceof Array)) {
-//            inputs = [inputs];
-//        }
-//
-//        $.each(inputs, function(){
-//            var table = $('#input_table', inputs_section)[0];
-//            var rowCount = table.rows.length;
-//            var row = table.insertRow(rowCount);
-//
-//            var cell1 = row.insertCell(0);
-//            var element1 = document.createElement("input");
-//            element1.id = "TYPE";
-//            element1.type = "text";
-//            element1.value = this.TYPE;
-//            cell1.appendChild(element1);
-//
-//            var cell2 = row.insertCell(1);
-//            var element2 = document.createElement("input");
-//            element2.id = "BUS";
-//            element2.type = "text";
-//            element2.value = this.BUS;
-//            cell2.appendChild(element2);
-//
-//
-//            var cell3 = row.insertCell(2);
-//            cell3.innerHTML = "<span class='ui-icon ui-icon-close'></span>";
-//        });
-//    }
-//
-//
-//    //
-//    // CONTEXT
-//    //
-//
-//    var context = template.CONTEXT;
-//    var context_section = $('li#contextTab', $create_template_dialog);
-//
-//    if (context) {
-//        var file_ds_regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/g;
-//        var net_regexp = /^ETH[0-9]+_(MASK|GATEWAY|IP|NETWORK|DNS)$/;
-//        var ssh_regexp = /^SSH_PUBLIC_KEY$/;
-//        var publickey_regexp = /\$USER\[SSH_PUBLIC_KEY\]/;
-//
-//        var net_flag = false;
-//        var files = [];
-//
-//        $.each(context, function(key, value){
-//            if (ssh_regexp.test(key)) {
-//                $("#ssh_context", context_section).click();
-//
-//                if (!publickey_regexp.test(value)) {
-//                    $("input#ssh_puclic_key").val(value);
-//                }
-//
-//            }
-//            else if (net_regexp.test(key)) {
-//                if (!net_flag) {
-//                    $("#network_context", context_section).click();
-//                    net_flag = true;
-//                }
-//            }
-//            else if ("FILES_DS" == key){
-//                var files = [];
-//                while (match = file_ds_regexp.exec(value)) {
-//                    files.push(match[1])
-//                }
-//
-//                var dataTable_context = $("#datatable_context").dataTable();
-//
-//                // TODO updateView should not be required. Currently the dataTable
-//                //  is filled twice.
-//                OpenNebula.Image.list({
-//                    timeout: true,
-//                    success: function (request, list){
-//                        var list_array = [];
-//
-//                        $.each(list,function(){
-//                            list_array.push(imageElementArray(this));
-//                        });
-//
-//                        updateView(list_array, dataTable_context);
-//                        dataTable_context.fnFilter("CONTEXT", 7)
-//
-//                        var rows = dataTable_context.fnGetNodes();
-//
-//                        for (var j=0;j<rows.length;j++) {
-//                            var current_row = $(rows[j]);
-//                            var row_id = $(rows[j]).find("td:eq(0)").html();
-//
-//                            var in_array = $.inArray(row_id, files)
-//                            if (in_array != -1) {
-//                                files.splice(in_array, 1);
-//                                // TBD check if all the files were clicked
-//                                rows[j].click();
-//                            }
-//                        }
-//
-//                        if (files.length != 0) {
-//                            var alert = '<div class="alert-box alert">'+
-//    tr('The following FILES: ') + files.join(', ') + tr(" do not exist any more") +
+//    'RAMDISK: '+ os_initrd_ds + tr(" does not exists any more") +
 //    '  <a href="" class="close">&times;</a>'+
 //    '</div>';
 //
-//                            $(".dataTables_wrapper", context_section).append(alert);
-//                        }
-//
-//                  },
-//                  error: onError
-//                });
-//            }
-//            else {
-//              var table = $('#context_table', context_section)[0];
-//              var rowCount = table.rows.length;
-//              var row = table.insertRow(rowCount);
-//
-//              var cell1 = row.insertCell(0);
-//              var element1 = document.createElement("input");
-//              element1.id = "KEY";
-//              element1.type = "text";
-//              element1.value = key
-//              cell1.appendChild(element1);
-//
-//              var cell2 = row.insertCell(1);
-//              var element2 = document.createElement("input");
-//              element2.id = "VALUE";
-//              element2.type = "text";
-//              element2.value = value
-//              cell2.appendChild(element2);
-//
-//
-//              var cell3 = row.insertCell(2);
-//              cell3.innerHTML = "<span class='ui-icon ui-icon-close'></span>";
-//            }
-//        });
-//    }
-//
-//    //
-//    // REQUIREMENTS & RANK
-//    //
-//
-//    var req = template.REQUIREMENTS;
-//    var req_section = $('li#schedulingTab', $create_template_dialog);
-//
-//    if (req) {
-//        req = escapeDoubleQuotes(req);
-//
-//        var host_id_regexp = /(\s|\||\b)ID=\\"([0-9]+)\\"/g;
-//        var cluster_id_regexp = /CLUSTER_ID=\\"([0-9]+)\\"/g;
-//
-//        var hosts = [];
-//        while (match = host_id_regexp.exec(req)) {
-//            hosts.push(match[2])
-//        }
-//
-//        var clusters = [];
-//        while (match = cluster_id_regexp.exec(req)) {
-//            clusters.push(match[1])
-//        }
-//
-//        if (hosts.length != 0) {
-//            var dataTable_template_hosts = $("#datatable_template_hosts").dataTable();
-//
-//            OpenNebula.Host.list({
-//                timeout: true,
-//                success: function (request, host_list){
-//                    var host_list_array = [];
-//
-//                    $.each(host_list,function(){
-//                        //Grab table data from the host_list
-//                        host_list_array.push(hostElementArray(this));
-//                    });
-//
-//                    updateView(host_list_array, dataTable_template_hosts);
-//
-//                    var rows = dataTable_template_hosts.fnGetNodes();
-//
-//                    for (var j=0;j<rows.length;j++) {
-//                        var current_row = $(rows[j]);
-//                        var row_id = $(rows[j]).find("td:eq(0)").html();
-//
-//                        var in_array = $.inArray(row_id, hosts)
-//                        if (in_array != -1) {
-//                            hosts.splice(in_array, 1);
-//                            // TBD check if all the hosts were clicked
-//                            rows[j].click();
-//                        }
+//                        $("#kernel_ds_inputs", kernel_section).append(alert);
 //                    }
+//                } else {
+//                    var alert = '<div class="alert-box alert">'+
+//    tr("The image you specified cannot be selected in the table") +
+//    '  <a href="" class="close">&times;</a>'+
+//    '</div>';
+//                    $("#kernel_ds_inputs", kernel_section).append(alert);
+//                }
+            })
+        }
+        else if (os.KERNEL) {
+            $('input#radioKernelPath', os_section).click();
+        };
+
+        if (os.INITRD_DS) {
+            $('input#radioInitrdDs', os_section).click();
+
+            var dataTable_template_initrd = $("#datatable_initrd").dataTable();
+            var os_initrd_ds = os.INITRD_DS;
+
+            // TODO updateView should not be required. Currently the dataTable
+            //  is filled twice.
+            update_datatable_template_files(dataTable_template_initrd, function(){
+ //               dataTable_template_initrd.unbind('draw');
+
+ //               var regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/;
+ //               var match = regexp.exec(os_initrd_ds)
+ //               var clicked = false;
+ //               var data = dataTable_template_initrd.fnGetData();
+ //               if (match) {
+ //                   $.each(data, function(){
+ //                        if (this[1] == match[1]) {
+ //                           clicked = true;
+ //                           $("#INITRD", initrd_section).text(this[1])
+ //                        }
+ //                   })
+
+ //                   if (!clicked) {
+ //                       var alert = '<div class="alert-box alert">'+
+ //   'RAMDISK: '+ os_initrd_ds + tr(" does not exists any more") +
+ //   '  <a href="" class="close">&times;</a>'+
+ //   '</div>';
+
+ //                       $("#selected_image", initrd_section).append(alert);
+ //                   }
+ //               } else {
+ //                   var alert = '<div class="alert-box alert">'+
+ //   tr("The image you specified cannot be selected in the table") +
+ //   '  <a href="" class="close">&times;</a>'+
+ //   '</div>';
+ //                   $("#selected_image", initrd_section).append(alert);
+ //               }
+            })
+        }
+        else if (os.INITRD) {
+            $('input#radioInitrdPath', os_section).click();
+        };
+
+        autoFillInputs(os, os_section);
+    }
+
+    //
+    // INPUT/OUTPUT
+    //
+
+    var graphics = template.GRAPHICS;
+    var graphics_section = $('li#ioTab .graphics', $create_template_dialog);
+
+    if (graphics) {
+        var type = graphics.TYPE;
+        if (graphics.TYPE) {
+            $("input[value='"+ type + "']").click();
+
+            autoFillInputs(graphics, graphics_section);
+        }
+    }
+
+    var inputs = template.INPUT;
+    var inputs_section = $('li#ioTab .inputs', $create_template_dialog);
+
+    if (inputs) {
+        if (!(inputs instanceof Array)) {
+            inputs = [inputs];
+        }
+
+        $.each(inputs, function(){
+            var table = $('#input_table', inputs_section)[0];
+            var rowCount = table.rows.length;
+            var row = table.insertRow(rowCount);
+
+            var cell1 = row.insertCell(0);
+            var element1 = document.createElement("input");
+            element1.id = "TYPE";
+            element1.type = "text";
+            element1.value = this.TYPE;
+            cell1.appendChild(element1);
+
+            var cell2 = row.insertCell(1);
+            var element2 = document.createElement("input");
+            element2.id = "BUS";
+            element2.type = "text";
+            element2.value = this.BUS;
+            cell2.appendChild(element2);
+
+
+            var cell3 = row.insertCell(2);
+            cell3.innerHTML = "<i class='icon-remove-sign icon-large remove-tab'></i>";
+        });
+    }
+
+
+    //
+    // CONTEXT
+    //
+
+    var context = template.CONTEXT;
+    var context_section = $('li#contextTab', $create_template_dialog);
+
+    if (context) {
+        var file_ds_regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/g;
+        var net_regexp = /^ETH[0-9]+_(MASK|GATEWAY|IP|NETWORK|DNS|IPV6|GATEWAY6|CONTEXT_FORCE_IPV4)$/;
+        var ssh_regexp = /^SSH_PUBLIC_KEY$/;
+        var token_regexp = /^TOKEN$/;
+        var publickey_regexp = /\$USER\[SSH_PUBLIC_KEY\]/;
+
+        var net_flag = false;
+        var files = [];
+
+        $("#ssh_context", context_section).removeAttr('checked');
+        $("#network_context", context_section).removeAttr('checked');
+        $.each(context, function(key, value){
+            if (ssh_regexp.test(key)) {
+                $("#ssh_context", context_section).attr('checked','checked');
+
+                if (!publickey_regexp.test(value)) {
+                    $("input#ssh_puclic_key").val(value);
+                }
+            }
+            else if (token_regexp.test(key)) {
+                $("#token_context", context_section).attr('checked','checked');
+            }
+            else if (net_regexp.test(key)) {
+                if (!net_flag) {
+                    $("#network_context", context_section).attr('checked','checked');
+                    net_flag = true;
+                }
+            }
+            else if ("FILES_DS" == key){
+                $('#FILES_DS', context_section).val(context["FILES_DS"])
+                var files = [];
+                while (match = file_ds_regexp.exec(value)) {
+                    files.push(match[1])
+                }
+
+                var dataTable_context = $("#datatable_context").dataTable();
+
+                // TODO updateView should not be required. Currently the dataTable
+                //  is filled twice.
+                update_datatable_template_files(dataTable_context, function(){
+//                    dataTable_context.unbind('draw');
 //
-//                    if (hosts.length != 0) {
+//                    var data = dataTable_context.fnGetData();
+//                    $.each(data, function(){
+//                        var in_array = $.inArray(this[1], files)
+//                        if (in_array != -1) {
+//                            $('#files_selected',  context_section).show();
+//                            $('#select_files', context_section).hide();
+//                            files.splice(in_array, 1);
+//                            $('#selected_files_spans', context_section).append('<span image_id="'+this[1]+'" id="tag_file_'+this[1]+'" class="image radius label">'+this[4]+' <span class="icon-remove blue"></span></span> ');
+//                        }
+//                    })
+//
+//                    if (files.length != 0) {
 //                        var alert = '<div class="alert-box alert">'+
+//tr('The following FILES: ') + files.join(', ') + tr(" do not exist any more") +
+//'  <a href="" class="close">&times;</a>'+
+//'</div>';
+//
+//                        $(".dataTables_wrapper", context_section).append(alert);
+//                    }
+                });
+            }
+            else {
+              var table = $('#context_table', context_section)[0];
+              var rowCount = table.rows.length;
+              var row = table.insertRow(rowCount);
+
+              var cell1 = row.insertCell(0);
+              var element1 = document.createElement("input");
+              element1.id = "KEY";
+              element1.type = "text";
+              element1.value = key
+              cell1.appendChild(element1);
+
+              var cell2 = row.insertCell(1);
+              var element2 = document.createElement("input");
+              element2.id = "VALUE";
+              element2.type = "text";
+              element2.value = value
+              cell2.appendChild(element2);
+
+
+              var cell3 = row.insertCell(2);
+              cell3.innerHTML = "<i class='icon-remove-sign icon-large remove-tab'></i>";
+            }
+        });
+    }
+
+    //
+    // REQUIREMENTS & RANK
+    //
+
+    var req = template.REQUIREMENTS;
+    var req_section = $('li#schedulingTab', $create_template_dialog);
+
+    if (req) {
+        req = escapeDoubleQuotes(req);
+
+        var host_id_regexp = /(\s|\||\b)ID=\\"([0-9]+)\\"/g;
+        var cluster_id_regexp = /CLUSTER_ID=\\"([0-9]+)\\"/g;
+
+        var hosts = [];
+        while (match = host_id_regexp.exec(req)) {
+            hosts.push(match[2])
+        }
+
+        var clusters = [];
+        while (match = cluster_id_regexp.exec(req)) {
+            clusters.push(match[1])
+        }
+
+        if (hosts.length != 0) {
+            var dataTable_template_hosts = $("#datatable_template_hosts").dataTable();
+
+            update_datatable_template_hosts(dataTable_template_hosts, function(){
+//                dataTable_template_hosts.unbind('draw');
+//
+//                var rows = dataTable_template_hosts.fnGetNodes();
+//
+//                for (var j=0;j<rows.length;j++) {
+//                    var current_row = $(rows[j]);
+//                    var row_id = $(rows[j]).find("td:eq(1)").html();
+//
+//                    var in_array = $.inArray(row_id, hosts)
+//                    if (in_array != -1) {
+//                        hosts.splice(in_array, 1);
+//                        // TBD check if all the hosts were clicked
+//                        rows[j].click();
+//                    }
+//                }
+//
+//                if (hosts.length != 0) {
+//                    var alert = '<div class="alert-box alert">'+
 //tr('The following HOSTs: [') + hosts.join(', ') + '] ' + tr(" do not exist any more") +
 //'  <a href="" class="close">&times;</a>'+
 //'</div>';
 //
-//                        $("#datatable_template_hosts_wrapper", req_section).append(alert);
-//                    }
-//                },
-//                error: onError
-//            });
-//        }
-//
-//        if (clusters.length != 0) {
-//            $('input#clusters_req', req_section).click();
-//
-//            var dataTable_template_clusters = $("#datatable_template_clusters").dataTable();
-//
-//            OpenNebula.Cluster.list({
-//                timeout: true,
-//                success: function (request, cluster_list){
-//                    var cluster_list_array = [];
-//
-//                    $.each(cluster_list,function(){
-//                        //Grab table data from the cluster_list
-//                        cluster_list_array.push(clusterElementArray(this));
-//                    });
-//
-//                    updateView(cluster_list_array, dataTable_template_clusters);
-//
-//                    var rows = dataTable_template_clusters.fnGetNodes();
-//
-//                    for (var j=0;j<rows.length;j++) {
-//                        var current_row = $(rows[j]);
-//                        var row_id = $(rows[j]).find("td:eq(0)").html();
-//
-//                        var in_array = $.inArray(row_id, clusters)
-//                        if (in_array != -1) {
-//                            clusters.splice(in_array, 1);
-//                            // TBD check if all the clusters were clicked
-//                            rows[j].click();
-//                        }
-//                    }
-//
-//                    if (clusters.length != 0) {
-//                        var alert = '<div class="alert-box alert">'+
-//tr('The following CLUSTERs: [') + clusters.join(', ') + '] ' + tr("do not exist any more") +
-//'  <a href="" class="close">&times;</a>'+
-//'</div>';
-//
-//                        $("#datatable_template_clusters_wrapper", req_section).append(alert);
-//                    }
-//                },
-//                error: onError
-//            });
-//        }
-//
-//        $('input#REQUIREMENTS', req_section).val(req);
-//    }
-//
-//    var rank = template.RANK;
-//
-//    if (rank) {
-//        var striping_regexp = /-RUNNING_VMS/;
-//        var packing_regexp = /RUNNING_VMS/;
-//        var loadaware_regexp = /FREECPU/;
-//
-//        if (striping_regexp.test(rank)) {
-//            $('input#stripingRadio', req_section).click()
-//        }
-//        else if (packing_regexp.test(rank)) {
-//            $('input#packingRadio', req_section).click()
-//        }
-//        else if (loadaware_regexp.test(rank)) {
-//            $('input#loadawareRadio', req_section).click()
-//        }
-//
-//        $('input#RANK', req_section).val(rank);
-//    }
+//                    $("#datatable_template_hosts_wrapper", req_section).append(alert);
+//                }
+            });
+        }
+
+        if (clusters.length != 0) {
+            $('input#clusters_req', req_section).click();
+
+            var dataTable_template_clusters = $("#datatable_template_clusters").dataTable();
+
+            update_datatable_template_clusters(dataTable_template_clusters, function(){
+//               dataTable_template_clusters.unbind('draw');
+
+//               var rows = dataTable_template_clusters.fnGetNodes();
+
+//               for (var j=0;j<rows.length;j++) {
+//                   var current_row = $(rows[j]);
+//                   var row_id = $(rows[j]).find("td:eq(1)").html();
+
+//                   var in_array = $.inArray(row_id, clusters)
+//                   if (in_array != -1) {
+//                       clusters.splice(in_array, 1);
+//                       // TBD check if all the clusters were clicked
+//                       rows[j].click();
+//                   }
+//               }
+
+//               if (clusters.length != 0) {
+//                   var alert = '<div class="alert-box alert">'+
+//r('The following CLUSTERs: [') + clusters.join(', ') + '] ' + tr("do not exist any more") +
+//  <a href="" class="close">&times;</a>'+
+//</div>';
+
+//                   $("#datatable_template_clusters_wrapper", req_section).append(alert);
+//               }
+            });
+        }
+
+        $('input#REQUIREMENTS', req_section).val(req);
+    }
+
+    var rank = template.RANK;
+
+    if (rank) {
+        var striping_regexp = /-RUNNING_VMS/;
+        var packing_regexp = /RUNNING_VMS/;
+        var loadaware_regexp = /FREECPU/;
+
+        if (striping_regexp.test(rank)) {
+            $('input#stripingRadio', req_section).click()
+        }
+        else if (packing_regexp.test(rank)) {
+            $('input#packingRadio', req_section).click()
+        }
+        else if (loadaware_regexp.test(rank)) {
+            $('input#loadawareRadio', req_section).click()
+        }
+
+        $('input#RANK', req_section).val(rank);
+    }
 
     popUpUpdateTemplateDialog();
 }
@@ -4569,17 +4323,7 @@ function setupTemplateCloneDialog(){
 
 
     dialog.html(html);
-
-    //Convert into jQuery
-    //dialog.dialog({
-    //    autoOpen:false,
-    //    width:375,
-    //    modal:true,
-    //    resizable:false
-    //})
     dialog.addClass("reveal-modal");
-
-    //$('button',dialog).button();
 
     $('form',dialog).submit(function(){
         var name = $('input', this).val();
@@ -4720,7 +4464,6 @@ $(document).ready(function(){
     Sunstone.runAction("Template.list");
     setupInstantiateTemplateDialog();
     setupCreateTemplateDialog();
-    setupTemplateTemplateUpdateDialog();
     setupTemplateCloneDialog();
     setTemplateAutorefresh();
 
