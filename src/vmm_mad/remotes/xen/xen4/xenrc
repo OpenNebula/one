@@ -16,7 +16,7 @@
 
 export LANG=C
 
-export XM_PATH="/usr/sbin/xm"
+export XM_PATH="/usr/sbin/xl"
 export XM_CANCEL="sudo $XM_PATH destroy"
 export XM_CREATE="sudo $XM_PATH create"
 export XM_CREDITS="sudo $XM_PATH sched-cred"
@@ -41,7 +41,10 @@ export XM_CREDITS="sudo $XM_PATH sched-credit"
 # Xen 4 uses the new blktap2 and tap:aio handler is no longer supported.
 # To make it work uncomment this line. This will be used as the default
 # handler for disk hot plug
-export IMAGE_PREFIX="tap2:tapdisk:aio"
+export DEFAULT_FILE_PREFIX="raw"
+
+# attach and detach disk target prefix
+TARGET_PREFIX=""
 
 # Seconds to wait after shutdown until timeout
 export SHUTDOWN_TIMEOUT=300

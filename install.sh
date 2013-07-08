@@ -245,7 +245,8 @@ LIB_DIRS="$LIB_LOCATION/ruby \
 VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im \
           $VAR_LOCATION/remotes/im/kvm.d \
-          $VAR_LOCATION/remotes/im/xen.d \
+          $VAR_LOCATION/remotes/im/xen3.d \
+          $VAR_LOCATION/remotes/im/xen4.d \
           $VAR_LOCATION/remotes/im/vmware.d \
           $VAR_LOCATION/remotes/im/ganglia.d \
           $VAR_LOCATION/remotes/vmm \
@@ -421,7 +422,8 @@ INSTALL_FILES=(
     MADS_LIB_FILES:$LIB_LOCATION/mads
     IM_PROBES_FILES:$VAR_LOCATION/remotes/im
     IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d
-    IM_PROBES_XEN_FILES:$VAR_LOCATION/remotes/im/xen.d
+    IM_PROBES_XEN3_FILES:$VAR_LOCATION/remotes/im/xen3.d
+    IM_PROBES_XEN4_FILES:$VAR_LOCATION/remotes/im/xen4.d
     IM_PROBES_VMWARE_FILES:$VAR_LOCATION/remotes/im/vmware.d
     IM_PROBES_GANGLIA_FILES:$VAR_LOCATION/remotes/im/ganglia.d
     AUTH_SSH_FILES:$VAR_LOCATION/remotes/auth/ssh
@@ -825,11 +827,17 @@ IM_PROBES_KVM_FILES="src/im_mad/remotes/kvm.d/kvm.rb \
                      src/im_mad/remotes/kvm.d/poll.sh \
                      src/im_mad/remotes/kvm.d/name.sh"
 
-IM_PROBES_XEN_FILES="src/im_mad/remotes/xen.d/xen.rb \
-                     src/im_mad/remotes/xen.d/architecture.sh \
-                     src/im_mad/remotes/xen.d/cpu.sh \
-                     src/im_mad/remotes/xen.d/poll.sh \
-                     src/im_mad/remotes/xen.d/name.sh"
+IM_PROBES_XEN3_FILES="src/im_mad/remotes/xen.d/xen.rb \
+                      src/im_mad/remotes/xen.d/architecture.sh \
+                      src/im_mad/remotes/xen.d/cpu.sh \
+                      src/im_mad/remotes/xen.d/poll3.sh \
+                      src/im_mad/remotes/xen.d/name.sh"
+
+IM_PROBES_XEN4_FILES="src/im_mad/remotes/xen.d/xen.rb \
+                      src/im_mad/remotes/xen.d/architecture.sh \
+                      src/im_mad/remotes/xen.d/cpu.sh \
+                      src/im_mad/remotes/xen.d/poll4.sh \
+                      src/im_mad/remotes/xen.d/name.sh"
 
 IM_PROBES_VMWARE_FILES="src/im_mad/remotes/vmware.d/vmware.rb"
 
