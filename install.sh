@@ -1009,6 +1009,7 @@ DATASTORE_DRIVER_CEPH_SCRIPTS="src/datastore_mad/remotes/ceph/cp \
                          src/datastore_mad/remotes/ceph/mkfs \
                          src/datastore_mad/remotes/ceph/stat \
                          src/datastore_mad/remotes/ceph/rm \
+                         src/datastore_mad/remotes/ceph/monitor \
                          src/datastore_mad/remotes/ceph/clone \
                          src/datastore_mad/remotes/ceph/ceph.conf"
 

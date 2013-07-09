@@ -36,6 +36,7 @@ MKFS=mkfs
 MKISOFS=genisoimage
 MKSWAP=mkswap
 QEMU_IMG=qemu-img
+RADOS=rados
 RBD=rbd
 READLINK=readlink
 RM=rm
@@ -334,7 +335,7 @@ EOF`
 
     if [ $SSH_EXEC_RC -ne 0 ]; then
         log_error "Command \"$2\" failed: $SSH_EXEC_OUT"
-        error_message "Cannot moinitor $1"
+        error_message "Cannot monitor $1"
 
         exit $SSH_EXEC_RC
     fi
