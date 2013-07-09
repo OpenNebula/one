@@ -2866,7 +2866,9 @@ function setupVNC(){
         <span id="VNC_status">'+tr("Loading")+'</span>\
         <span id="VNC_buttons">\
           <input type=button value="Send CtrlAltDel" id="sendCtrlAltDelButton">\
-          <a id="open_in_a_new_window" href="" target="_blank">'+tr("Open in a new window")+'</a>\
+          <a id="open_in_a_new_window" href="" target="_blank" title="'+tr("Open in a new window")+'">\
+            <i class="icon-external-link detach-vnc-icon"/>\
+          </a>\
         </span>\
       </small>\
     </h3>\

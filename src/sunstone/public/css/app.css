@@ -7141,3 +7141,16 @@ table.policies_table input {
 .key_td {
   font-weight: bold;
 }
+
+/* line 1025, ../sass/app.scss */
+.detach-vnc-icon {
+  top: 11px;
+  right: 40px;
+  position: absolute;
+  color: #aaa;
+}
+
+/* line 1032, ../sass/app.scss */
+.detach-vnc-icon:hover {
+  color: #222;
+}
