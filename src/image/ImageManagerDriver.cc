@@ -582,13 +582,31 @@ static void monitor_action(istringstream& is,
                            const string&  result)
 {
     string  dsinfo64;
-    string *dsinfo;
+    string *dsinfo = 0;
 
     ostringstream oss;
 
     getline (is, dsinfo64);
 
+    if (is.fail())
+    {
+        oss << "Error monitoring datastore " << id << ". Bad monitor data: "
+            << dsinfo64;
+
+        NebulaLog::log("ImM", Log::ERROR, oss);
+        return;
+    }
+
     dsinfo = one_util::base64_decode(dsinfo64);
+
+    if (dsinfo == 0)
+    {
+        oss << "Error monitoring datastore " << id << ". Bad monitor data: "
+            << dsinfo64;
+
+        NebulaLog::log("ImM", Log::ERROR, oss);
+        return;
+    }
 
     if (result != "SUCCESS")
     {
