@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
@@ -16,13 +16,5 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source $(dirname $0)/xenrc
-source $(dirname $0)/../../scripts_common.sh
+../../vmm/xen4/poll --xen -t
 
-DOMAIN="$1"
-SOURCE="$2"
-TARGET="$3"
-TARGET_INDEX="$4"
-
-exec_and_log "$XM_DETACH_DISK $DOMAIN ${TARGET_PREFIX}$TARGET" \
-    "Could not detach $TARGET from $DOMAIN"

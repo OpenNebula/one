@@ -16,6 +16,7 @@
 
 #include "XenDriver.h"
 #include "Nebula.h"
+#include "NebulaUtil.h"
 #include <sstream>
 #include <fstream>
 #include <math.h>
@@ -42,6 +43,7 @@ int XenDriver::deployment_description(
     string root       = "";
     string kernel_cmd = "";
     string bootloader = "";
+    string hvm = "";
 
     const VectorAttribute * disk;
     const VectorAttribute * context;
@@ -155,6 +157,7 @@ int XenDriver::deployment_description(
             root       = os->vector_value("ROOT");
             kernel_cmd = os->vector_value("KERNEL_CMD");
             bootloader = os->vector_value("BOOTLOADER");
+            hvm        = os->vector_value("HVM");
         }
     }
 
@@ -176,6 +179,11 @@ int XenDriver::deployment_description(
     if ( root.empty() )
     {
         get_default("OS","ROOT",root);
+    }
+
+    if ( hvm.empty() )
+    {
+        get_default("OS","HVM",hvm);
     }
 
     if ( kernel_cmd.empty() )
@@ -206,9 +214,9 @@ int XenDriver::deployment_description(
     {
         file << "bootloader = \"" << bootloader << "\"" << endl;
     }
-    else
+    else //No kernel & no bootloader use hvm
     {
-        goto error_boot;
+        file << "builder = \"hvm\"" << endl;
     }
 
     attrs.clear();
@@ -224,6 +232,10 @@ int XenDriver::deployment_description(
     if (default_driver.empty())
     {
         default_driver = "tap:aio:";
+    }
+    else if (*default_driver.rbegin() != ':' )
+    {
+        default_driver += ':';
     }
 
     file << "disk = [" << endl;
@@ -248,13 +260,13 @@ int XenDriver::deployment_description(
             goto error_disk;
         }
 
-        transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
+        one_util::toupper(type);
 
         mode = "w";
 
         if ( !ro.empty() )
         {
-            transform(ro.begin(),ro.end(),ro.begin(),(int(*)(int))toupper);
+            one_util::toupper(ro);
 
             if ( ro == "YES" )
             {
@@ -265,6 +277,11 @@ int XenDriver::deployment_description(
         if ( !driver.empty() )
         {
             file << "    '" << driver;
+
+            if (*driver.rbegin() != ':')
+            {
+                file << ":";
+            }
         }
         else
         {
@@ -305,6 +322,11 @@ int XenDriver::deployment_description(
             if ( !driver.empty() )
             {
                 file << driver;
+
+                if (*driver.rbegin() != ':')
+                {
+                    file << ":";
+                }
             }
             else
             {
@@ -500,12 +522,6 @@ error_file:
 
 error_memory:
     vm->log("VMM", Log::ERROR, "No memory defined and no default provided.");
-    file.close();
-    return -1;
-
-error_boot:
-    vm->log("VMM", Log::ERROR,
-            "No kernel or bootloader defined and no default provided.");
     file.close();
     return -1;
 

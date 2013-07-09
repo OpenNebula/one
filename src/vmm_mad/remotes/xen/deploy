@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
@@ -29,6 +29,8 @@ function error_exit() {
 }
 
 domain=$1
+id=$2
+host=$3
 
 mkdir -p `dirname $domain`
 cat > $domain
@@ -37,19 +39,17 @@ output=`$XM_CREATE $domain`
 
 error_exit $? "Unable to create domain"
 
-domain_name=`echo $output | grep 'Started domain' | sed 's/^.*Started domain //' | tr -d '\n' | cut -d' ' -f1`
+domain_name=`grep -e '^name =' < $domain | cut -d= -f2 | tr -d ' ' | tr -d "\'" | cut -d' ' -f1`
 
 out=`grep -e '^\#O CPU_CREDITS =' < $domain`
 
 if [ "x$?" = "x0" ]; then
     credits=`echo $out | cut -d= -f2 | tr -d ' '`
-    
+
     log_debug "Credits set to $credits"
-    
-    name=`grep -e '^name =' < $domain | cut -d= -f2 | tr -d ' ' | tr -d "\'" | cut -d' ' -f1`
-    
-    $XM_CREDITS -d $name -w $credits
-    
+
+    $XM_CREDITS -d $domain_name -w $credits
+
     if [ "x$?" != "x0" ]; then
         log_error "Unable to set VM credits"
     fi

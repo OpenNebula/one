@@ -1021,3 +1021,14 @@ table.policies_table {
 .key_td {
     font-weight: bold;
 }
+
+.detach-vnc-icon {
+    top: 11px;
+    right: 40px;
+    position: absolute;
+    color: #aaa;
+}
+
+.detach-vnc-icon:hover {
+    color: #222;
+}

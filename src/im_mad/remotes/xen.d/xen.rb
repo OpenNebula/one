@@ -19,7 +19,13 @@
 require "pp"
 
 XENTOP_PATH="/usr/sbin/xentop"
-XM_PATH="/usr/sbin/xm"
+
+dir=File.basename(Dir.pwd)
+if dir=='xen4.d'
+    XM_PATH="/usr/sbin/xl"
+else
+    XM_PATH="/usr/sbin/xm"
+end
 
 def print_info(name, value)
     value = "0" if value.nil? or value.to_s.strip.empty?

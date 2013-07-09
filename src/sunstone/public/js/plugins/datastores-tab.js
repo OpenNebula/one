@@ -100,8 +100,7 @@ var create_datastore_tmpl =
         <div class="seven columns">\
           <select id="presets" name="presets">\
             <option value="fs">' + tr("Filesystem") + '</option>\
-            <option value="vmware_fs">' + tr("VMware (FS Based)") + '</option>\
-            <option value="vmware_vmfs">' + tr("VMware (VMFS Based)") + '</option>\
+            <option value="vmware_vmfs">' + tr("VMware VMFS") + '</option>\
             <option value="iscsi">' + tr("iSCSI") + '</option>\
             <option value="lvm">' + tr("LVM") + '</option>\
             <option value="ceph">' + tr("Ceph") + '</option>\
@@ -855,9 +854,6 @@ function setupCreateDatastoreDialog(){
           case 'fs':
             select_filesystem();
             break;
-          case 'vmware_fs':
-            select_vmware_fs();
-            break;
           case 'vmware_vmfs':
             select_vmware_vmfs();
             break;
@@ -995,23 +991,6 @@ function select_filesystem(){
           value_str == "shared" ||
           value_str == "ssh"    ||
           value_str == "dummy")
-      {
-           $(this).removeAttr('disabled');
-      }
-    });
-    $('select#disk_type').val('file');
-    $('select#disk_type').attr('disabled', 'disabled');
-}
-
-function select_vmware_fs(){
-    $('select#ds_mad').val('vmware');
-    $('select#ds_mad').attr('disabled', 'disabled');
-    $('select#tm_mad').val('shared');
-    $('select#tm_mad').children('option').each(function() {
-      var value_str = $(this).val();
-      $(this).attr('disabled', 'disabled');
-      if (value_str == "shared"  ||
-          value_str == "ssh")
       {
            $(this).removeAttr('disabled');
       }
