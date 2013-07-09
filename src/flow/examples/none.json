@@ -1,0 +1,34 @@
+{
+  "name": "my_first_service",
+  "roles": [
+    {
+      "name": "frontend",
+      "cardinality": 1,
+      "parents": [
+        "mysql_server",
+        "kvm_host",
+        "nfs_server"
+      ],
+      "vm_template": 3
+    },
+    {
+      "name": "nfs_server",
+      "cardinality": 1,
+      "vm_template": 2
+    },
+    {
+      "name": "mysql_server",
+      "cardinality": 1,
+      "vm_template": 5
+    },
+    {
+      "name": "kvm_host",
+      "parents": [
+        "nfs_server"
+      ],
+      "cardinality": 3,
+      "vm_template": 7
+    }
+  ],
+  "deployment": "none"
+}
