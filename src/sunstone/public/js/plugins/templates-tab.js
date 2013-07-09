@@ -2223,15 +2223,120 @@ function setupCreateTemplateDialog(){
                         '<div class="tip">'+tr("Path to the bootloader executable")+'</div>'+
                       '</div>'+
                     '</div>'+
+                    '<div class="row">'+
+                      '<div class="four columns">'+
+                        '<label class="right inline" for="GUESTOS">'+tr("Guest OS")+':</label>'+
+                      '</div>'+
+                      '<div class="seven columns">'+
+                        '<select id="GUESTOS" name="GUESTOS">'+
+                          '<option id="no_guestos" name="no_guestos" value=""></option>'+
+                          '<option value="asianux3_64Guest">asianux3_64Guest</option>'+
+                          '<option value="asianux3Guest">asianux3Guest</option>'+
+                          '<option value="asianux4_64Guest">asianux4_64Guest</option>'+
+                          '<option value="asianux4Guest">asianux4Guest</option>'+
+                          '<option value="centos64Guest">centos64Guest</option>'+
+                          '<option value="centosGuest">centosGuest</option>'+
+                          '<option value="darwin64Guest">darwin64Guest</option>'+
+                          '<option value="darwinGuest">darwinGuest</option>'+
+                          '<option value="debian4_64Guest">debian4_64Guest</option>'+
+                          '<option value="debian4Guest">debian4Guest</option>'+
+                          '<option value="debian5_64Guest">debian5_64Guest</option>'+
+                          '<option value="debian5Guest">debian5Guest</option>'+
+                          '<option value="dosGuest">dosGuest</option>'+
+                          '<option value="eComStationGuest">eComStationGuest</option>'+
+                          '<option value="freebsd64Guest">freebsd64Guest</option>'+
+                          '<option value="freebsdGuest">freebsdGuest</option>'+
+                          '<option value="mandriva64Guest">mandriva64Guest</option>'+
+                          '<option value="mandrivaGuest">mandrivaGuest</option>'+
+                          '<option value="netware4Guest">netware4Guest</option>'+
+                          '<option value="netware5Guest">netware5Guest</option>'+
+                          '<option value="netware6Guest">netware6Guest</option>'+
+                          '<option value="nld9Guest">nld9Guest</option>'+
+                          '<option value="oesGuest">oesGuest</option>'+
+                          '<option value="openServer5Guest">openServer5Guest</option>'+
+                          '<option value="openServer6Guest">openServer6Guest</option>'+
+                          '<option value="oracleLinux64Guest">oracleLinux64Guest</option>'+
+                          '<option value="oracleLinuxGuest">oracleLinuxGuest</option>'+
+                          '<option value="os2Guest">os2Guest</option>'+
+                          '<option value="other24xLinux64Guest">other24xLinux64Guest</option>'+
+                          '<option value="other24xLinuxGuest">other24xLinuxGuest</option>'+
+                          '<option value="other26xLinux64Guest">other26xLinux64Guest</option>'+
+                          '<option value="other26xLinuxGuest">other26xLinuxGuest</option>'+
+                          '<option value="otherGuest">otherGuest</option>'+
+                          '<option value="otherGuest64">otherGuest64</option>'+
+                          '<option value="otherLinux64Guest">otherLinux64Guest</option>'+
+                          '<option value="otherLinuxGuest">otherLinuxGuest</option>'+
+                          '<option value="redhatGuest">redhatGuest</option>'+
+                          '<option value="rhel2Guest">rhel2Guest</option>'+
+                          '<option value="rhel3_64Guest">rhel3_64Guest</option>'+
+                          '<option value="rhel3Guest">rhel3Guest</option>'+
+                          '<option value="rhel4_64Guest">rhel4_64Guest</option>'+
+                          '<option value="rhel4Guest">rhel4Guest</option>'+
+                          '<option value="rhel5_64Guest">rhel5_64Guest</option>'+
+                          '<option value="rhel5Guest">rhel5Guest</option>'+
+                          '<option value="rhel6_64Guest">rhel6_64Guest</option>'+
+                          '<option value="rhel6Guest">rhel6Guest</option>'+
+                          '<option value="sjdsGuest">sjdsGuest</option>'+
+                          '<option value="sles10_64Guest">sles10_64Guest</option>'+
+                          '<option value="sles10Guest">sles10Guest</option>'+
+                          '<option value="sles11_64Guest">sles11_64Guest</option>'+
+                          '<option value="sles11Guest">sles11Guest</option>'+
+                          '<option value="sles64Guest">sles64Guest</option>'+
+                          '<option value="slesGuest">slesGuest</option>'+
+                          '<option value="solaris10_64Guest">solaris10_64Guest</option>'+
+                          '<option value="solaris10Guest">solaris10Guest</option>'+
+                          '<option value="solaris6Guest">solaris6Guest</option>'+
+                          '<option value="solaris7Guest">solaris7Guest</option>'+
+                          '<option value="solaris8Guest">solaris8Guest</option>'+
+                          '<option value="solaris9Guest">solaris9Guest</option>'+
+                          '<option value="suse64Guest">suse64Guest</option>'+
+                          '<option value="suseGuest">suseGuest</option>'+
+                          '<option value="turboLinux64Guest">turboLinux64Guest</option>'+
+                          '<option value="turboLinuxGuest">turboLinuxGuest</option>'+
+                          '<option value="ubuntu64Guest">ubuntu64Guest</option>'+
+                          '<option value="ubuntuGuest">ubuntuGuest</option>'+
+                          '<option value="unixWare7Guest">unixWare7Guest</option>'+
+                          '<option value="win2000AdvServGuest">win2000AdvServGuest</option>'+
+                          '<option value="win2000ProGuest">win2000ProGuest</option>'+
+                          '<option value="win2000ServGuest">win2000ServGuest</option>'+
+                          '<option value="win31Guest">win31Guest</option>'+
+                          '<option value="win95Guest">win95Guest</option>'+
+                          '<option value="win98Guest">win98Guest</option>'+
+                          '<option value="windows7_64Guest">windows7_64Guest</option>'+
+                          '<option value="windows7Guest">windows7Guest</option>'+
+                          '<option value="windows7Server64Guest">windows7Server64Guest</option>'+
+                          '<option value="winLonghorn64Guest">winLonghorn64Guest</option>'+
+                          '<option value="winLonghornGuest">winLonghornGuest</option>'+
+                          '<option value="winMeGuest">winMeGuest</option>'+
+                          '<option value="winNetBusinessGuest">winNetBusinessGuest</option>'+
+                          '<option value="winNetDatacenter64Guest">winNetDatacenter64Guest</option>'+
+                          '<option value="winNetDatacenterGuest">winNetDatacenterGuest</option>'+
+                          '<option value="winNetEnterprise64Guest">winNetEnterprise64Guest</option>'+
+                          '<option value="winNetEnterpriseGuest">winNetEnterpriseGuest</option>'+
+                          '<option value="winNetStandard64Guest">winNetStandard64Guest</option>'+
+                          '<option value="winNetStandardGuest">winNetStandardGuest</option>'+
+                          '<option value="winNetWebGuest">winNetWebGuest</option>'+
+                          '<option value="winNTGuest">winNTGuest</option>'+
+                          '<option value="winVista64Guest">winVista64Guest</option>'+
+                          '<option value="winVistaGuest">winVistaGuest</option>'+
+                          '<option value="winXPHomeGuest">winXPHomeGuest</option>'+
+                          '<option value="winXPPro64Guest">winXPPro64Guest</option>'+
+                          '<option value="winXPProGuest">winXPProGuest</option>'+
+                        '</select>'+
+                      '</div>'+
+                      '<div class="one columns">'+
+                        '<div class="tip">'+tr("Set the OS of the VM, only for VMware")+'</div>'+
+                      '</div>'+
+                    '</div>'+
                 '</div>'+
               '</li>'+
               '<li id="kernelTab" class="wizard_internal_tab">'+
                     '<div class="row">'+
                       '<div class="three columns push-three">'+
-                        '<input id="radioKernelDs" type="radio" name="kernel_type" value="kernel_ds" checked> '+tr("Registered Image")+
+                        '<input id="radioKernelDs" type="radio" name="kernel_type" value="kernel_ds" checked/> '+tr("Registered Image")+
                       '</div>'+
                       '<div class="three columns pull-three">'+
-                        '<input id="radioKernelPath" type="radio" name="kernel_type" value="kernel_path"> '+tr("Remote PATH")+
+                        '<input id="radioKernelPath" type="radio" name="kernel_type" value="kernel_path"/> '+tr("Remote PATH")+
                       '</div>'+
                     '</div>'+
                     '<hr>'+
@@ -2367,7 +2472,7 @@ function setupCreateTemplateDialog(){
                       '</div>'+
                     '</div>'+
                 '</li>'+
-              '<li class="wizard_internal_tab active" id="featuresTab">'+
+              '<li class="wizard_internal_tab" id="featuresTab">'+
                 '<div class="six columns vm_param">'+
                     '<div class="row">'+
                       '<div class="four columns">'+
@@ -2422,7 +2527,7 @@ function setupCreateTemplateDialog(){
                         '</select>'+
                       '</div>'+
                       '<div class="two columns">'+
-                        '<div class="tip">'+tr(" Adds a PCI Controller that provides bridge-to-bridge capability (only for VMware).")+'</div>'+
+                        '<div class="tip">'+tr(" Adds a PCI Controller that provides bridge-to-bridge capability, only for VMware.")+'</div>'+
                       '</div>'+
                     '</div>'+
                 '</div>'+
@@ -4025,6 +4130,17 @@ tr("The network you specified cannot be selected in the table") +
         };
 
         autoFillInputs(os, os_section);
+    }
+
+    //
+    // FEATURES
+    //
+
+    var features = template.FEATURES;
+    var features_section = $('li#featuresTab', $create_template_dialog);
+
+    if (features_section) {
+        autoFillInputs(features, features_section);
     }
 
     //
