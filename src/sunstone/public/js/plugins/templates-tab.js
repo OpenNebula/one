@@ -2400,8 +2400,35 @@ function setupCreateTemplateDialog(){
                       '</div>'+
                     '</div>'+
                 '</div>'+
+                '<div class="six columns vm_param">'+
+                    '<div class="row">'+
+                      '<div class="four columns">'+
+                        '<label class="right inline" for="PCIBRIDGE">'+tr("PCI BRIDGE")+':</label>'+
+                      '</div>'+
+                      '<div class="six columns">'+
+                        '<select id="PCIBRIDGE" name="PCIBRIDGE">'+
+                            '<option id="no_pcibridge" name="no_pcibridge" value=""></option>'+
+                            '<option value="0">0</option>'+
+                            '<option value="1">1</option>'+
+                            '<option value="2">2</option>'+
+                            '<option value="3">3</option>'+
+                            '<option value="4">4</option>'+
+                            '<option value="5">5</option>'+
+                            '<option value="6">6</option>'+
+                            '<option value="7">7</option>'+
+                            '<option value="8">8</option>'+
+                            '<option value="9">9</option>'+
+                            '<option value="10">10</option>'+
+                        '</select>'+
+                      '</div>'+
+                      '<div class="two columns">'+
+                        '<div class="tip">'+tr(" Adds a PCI Controller that provides bridge-to-bridge capability (only for VMware).")+'</div>'+
+                      '</div>'+
+                    '</div>'+
+                '</div>'+
               '</li>'+
                 '</ul>'+
+                '</div>'+
           '</form>'+
         '</li>'
 
