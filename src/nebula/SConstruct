@@ -60,7 +60,8 @@ env.Prepend(LIBS=[
     'nebula_sql',
     'nebula_log',
     'nebula_xml',
-    'crypto'
+    'crypto',
+    'xml2'
 ])
 
 if not env.GetOption('clean'):
