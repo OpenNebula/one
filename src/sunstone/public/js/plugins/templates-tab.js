@@ -3564,29 +3564,7 @@ function setupCreateTemplateDialog(){
         };
 
         if ($("#network_context", $('li#contextTab')).is(":checked")) {
-          var nic_id = 0;
-
-          $.each(vm_json["NIC"], function(){
-            var vnet_id = this["NETWORK_ID"]
-            var eth_str = "ETH"+nic_id+"_"
-
-            if (vnet_id) {
-                var net_str = 'NETWORK_ID=\\"'+ vnet_id +'\\"'
-            } else {
-                var net_str = 'NETWORK=\\"'+ this["NETWORK"] +'\\"'
-            }
-
-            vm_json["CONTEXT"][eth_str+"IP"]      = "$NIC[IP,"+ net_str +"]";
-            vm_json["CONTEXT"][eth_str+"NETWORK"] = "$NETWORK[NETWORK_ADDRESS,"+ net_str +"]";
-            vm_json["CONTEXT"][eth_str+"MASK"]    = "$NETWORK[NETWORK_MASK,"+ net_str +"]";
-            vm_json["CONTEXT"][eth_str+"GATEWAY"] = "$NETWORK[GATEWAY,"+ net_str +"]";
-            vm_json["CONTEXT"][eth_str+"DNS"]     = "$NETWORK[DNS,"+ net_str +"]";
-            vm_json["CONTEXT"][eth_str+"IPV6"]    = "$NIC[IP6_GLOBAL,"+ net_str +"]";
-            vm_json["CONTEXT"][eth_str+"GATEWAY6"]= "$NETWORK[GATEWAY6,"+ net_str +"]";
-            vm_json["CONTEXT"][eth_str+"CONTEXT_FORCE_IPV4"] = "$NETWORK[CONTEXT_FORCE_IPV4,"+ net_str +"]";
-
-            nic_id++;
-          });
+          vm_json["CONTEXT"]["NETWORK"] = "YES";
         };
 
         if ($("#token_context", $('li#contextTab')).is(":checked")) {
@@ -4081,7 +4059,7 @@ tr("The network you specified cannot be selected in the table") +
 
     if (context) {
         var file_ds_regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/g;
-        var net_regexp = /^ETH[0-9]+_(MASK|GATEWAY|IP|NETWORK|DNS|IPV6|GATEWAY6|CONTEXT_FORCE_IPV4)$/;
+        var net_regexp = /^NETWORK$/;;
         var ssh_regexp = /^SSH_PUBLIC_KEY$/;
         var token_regexp = /^TOKEN$/;
         var publickey_regexp = /\$USER\[SSH_PUBLIC_KEY\]/;
@@ -4103,10 +4081,7 @@ tr("The network you specified cannot be selected in the table") +
                 $("#token_context", context_section).attr('checked','checked');
             }
             else if (net_regexp.test(key)) {
-                if (!net_flag) {
-                    $("#network_context", context_section).attr('checked','checked');
-                    net_flag = true;
-                }
+                $("#network_context", context_section).attr('checked','checked');
             }
             else if ("FILES_DS" == key){
                 $('#FILES_DS', context_section).val(context["FILES_DS"])
