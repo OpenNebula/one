@@ -4139,7 +4139,7 @@ tr("The network you specified cannot be selected in the table") +
     var features = template.FEATURES;
     var features_section = $('li#featuresTab', $create_template_dialog);
 
-    if (features_section) {
+    if (features) {
         autoFillInputs(features, features_section);
     }
 
