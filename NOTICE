@@ -21,6 +21,9 @@ The following people have contributed to the development of the technology
 - Daniel Molina Aranda (dmolina@opennebula.org)
 - Hector Sanjuan Redondo (hsanjuan@opennebula.org)
 
+The new features for service elasticity (oneFlow) introduced in OpenNebula 4.2
+were funded by Blackberry in the context of the Fund a Feature Program.
+
 OpenNebula Project also acknowledges the contributions of C12G Labs developers.
 
 LICENSE
@@ -43,5 +46,6 @@ OpenNebula distribution includes third-party software under fully compatible
 open-source licenses. See the following directories and the NOTICE files
 they contain for more information:
 
+- share/vendor
 - src/sunstone/public/vendor
 - src/oca/java/lib
