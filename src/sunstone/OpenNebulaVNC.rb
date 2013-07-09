@@ -174,6 +174,7 @@ class OpenNebulaVNC
         info   = {
             :password => vnc_pw,
             :token => random_str,
+            :vm_name => vm_resource['NAME']
         }
 
         return [200, info.to_json]

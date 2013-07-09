@@ -2920,6 +2920,7 @@ function vncCallback(request,response){
     var proxy_port = config['system_config']['vnc_proxy_port'];
     var pw = response["password"];
     var token = response["token"];
+    var vm_name = response["vm_name"];
     var path = '?token='+token;
 
     var url = "vnc?";
@@ -2928,6 +2929,7 @@ function vncCallback(request,response){
     url += "&token=" + token;
     url += "&password=" + pw;
     url += "&encrypt=" + config['user_config']['vnc_wss'];
+    url += "&title=" + vm_name;
 
     $("#open_in_a_new_window").attr('href', url)
     rfb.connect(proxy_host, proxy_port, pw, path);
