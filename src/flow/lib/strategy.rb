@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'lcm/strategy/straight'
+require 'strategy/straight'
 
 class Strategy
 

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2010-2013, C12G Labs S.L.                                        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -14,45 +14,17 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'opennebula'
 
-begin # require 'rubygems'
-    require 'rubygems'
-rescue Exception
-end
+include OpenNebula
 
-require 'digest/sha1'
-require 'rexml/document'
-require 'pp'
+require 'opennebula/document_json'
+require 'opennebula/document_pool_json'
 
-require 'opennebula/xml_utils'
-require 'opennebula/client'
-require 'opennebula/error'
-require 'opennebula/virtual_machine'
-require 'opennebula/virtual_machine_pool'
-require 'opennebula/virtual_network'
-require 'opennebula/virtual_network_pool'
-require 'opennebula/image'
-require 'opennebula/image_pool'
-require 'opennebula/user'
-require 'opennebula/user_pool'
-require 'opennebula/host'
-require 'opennebula/host_pool'
-require 'opennebula/template'
-require 'opennebula/template_pool'
-require 'opennebula/group'
-require 'opennebula/group_pool'
-require 'opennebula/acl'
-require 'opennebula/acl_pool'
-require 'opennebula/datastore'
-require 'opennebula/datastore_pool'
-require 'opennebula/cluster'
-require 'opennebula/cluster_pool'
-require 'opennebula/document'
-require 'opennebula/document_pool'
-require 'opennebula/system'
+require 'validator'
 
-module OpenNebula
-
-    # OpenNebula version
-    VERSION = '4.1.0'
-end
+require 'models/role.rb'
+require 'models/service_pool.rb'
+require 'models/service.rb'
+require 'models/service_template_pool.rb'
+require 'models/service_template.rb'

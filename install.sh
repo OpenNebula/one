@@ -384,7 +384,8 @@ OZONES_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/zona"
 
 ONEFLOW_DIRS="$ONEFLOW_LOCATION/lib \
-              $ONEFLOW_LOCATION/lib/strategy"
+              $ONEFLOW_LOCATION/lib/strategy \
+              $ONEFLOW_LOCATION/lib/models"
 
 LIB_ECO_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/opennebula \
@@ -640,6 +641,8 @@ INSTALL_ONEFLOW_FILES=(
     ONEFLOW_FILES:$ONEFLOW_LOCATION
     ONEFLOW_BIN_FILES:$BIN_LOCATION
     ONEFLOW_LIB_FILES:$ONEFLOW_LOCATION/lib
+    ONEFLOW_LIB_STRATEGY_FILES:$ONEFLOW_LOCATION/lib/strategy
+    ONEFLOW_LIB_MODELS_FILES:$ONEFLOW_LOCATION/lib/models
 )
 
 INSTALL_ONEFLOW_ETC_FILES=(
@@ -1229,10 +1232,6 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/image.rb \
                             src/oca/ruby/opennebula/pool_element.rb \
                             src/oca/ruby/opennebula/pool.rb \
-                            src/oca/ruby/opennebula/service_pool.rb \
-                            src/oca/ruby/opennebula/service.rb \
-                            src/oca/ruby/opennebula/service_template_pool.rb \
-                            src/oca/ruby/opennebula/service_template.rb \
                             src/oca/ruby/opennebula/system.rb \
                             src/oca/ruby/opennebula/template_pool.rb \
                             src/oca/ruby/opennebula/template.rb \
@@ -1941,10 +1940,18 @@ ONEFLOW_LIB_FILES="src/flow/lib/grammar.rb \
                     src/flow/lib/grammar.treetop \
                     src/flow/lib/LifeCycleManager.rb \
                     src/flow/lib/log.rb \
-                    src/flow/lib/Role.rb \
-                    src/flow/lib/strategy/straight.rb \
+                    src/flow/lib/models.rb \
                     src/flow/lib/strategy.rb \
                     src/flow/lib/validator.rb"
+
+ONEFLOW_LIB_STRATEGY_FILES="src/flow/lib/strategy/straight.rb"
+
+ONEFLOW_LIB_MODELS_FILES="src/flow/lib/models/role.rb \
+                          src/flow/lib/models/service_pool.rb \
+                          src/flow/lib/models/service.rb \
+                          src/flow/lib/models/service_template_pool.rb \
+                          src/flow/lib/models/service_template.rb"
+
 
 #-----------------------------------------------------------------------------
 # MAN files

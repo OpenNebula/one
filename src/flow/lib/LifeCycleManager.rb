@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'lcm/strategy'
+require 'strategy'
 
 class ServiceLCM
 

@@ -46,12 +46,7 @@ $: << LIB_LOCATION+'/oneflow/lib'
 require 'CloudAuth'
 require 'CloudServer'
 
-require 'opennebula'
-include OpenNebula
-
-require 'Role'
-require 'validator'
-
+require 'models'
 require 'log'
 
 ##############################################################################
@@ -133,7 +128,7 @@ Role.init_default_shutdown(conf[:shutdown_action])
 ##############################################################################
 
 t = Thread.new {
-    require 'lcm/LifeCycleManager'
+    require 'LifeCycleManager'
 
     ServiceLCM.new(conf[:lcm_interval], settings.cloud_auth).loop
 }
