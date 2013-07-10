@@ -844,6 +844,22 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     img->unlock();
 
+    switch (type)
+    {
+        case Image::OS:
+        case Image::DATABLOCK:
+        case Image::CDROM:
+        break;
+
+        case Image::KERNEL:
+        case Image::RAMDISK:
+        case Image::CONTEXT:
+            failure_response(INTERNAL,
+                    request_error("Cannot save_as image of type " +
+                    Image::type_to_str(type), ""), att);
+        return;
+    }
+
     // -------------------------------------------------------------------------
     // Get the data of the DataStore for the new image
     // -------------------------------------------------------------------------
@@ -864,31 +880,37 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         return;
     }
 
-    switch (type)
-    {
-        case Image::OS:
-        case Image::DATABLOCK:
-        case Image::CDROM:
-        break;
-
-        case Image::KERNEL:
-        case Image::RAMDISK:
-        case Image::CONTEXT:
-            failure_response(INTERNAL,
-                    request_error("Cannot save_as image of type " +
-                    Image::type_to_str(type), ""), att);
-        return;
-    }
-
     string         ds_data;
     PoolObjectAuth ds_perms;
+    unsigned int   avail;
+    bool           ds_check;
 
     ds->get_permissions(ds_perms);
     ds->to_xml(ds_data);
 
+    ds_check = ds->get_avail_mb(avail);
+
     Image::DiskType ds_disk_type = ds->get_disk_type();
 
     ds->unlock();
+
+    // -------------------------------------------------------------------------
+    // Check Datastore Capacity
+    // -------------------------------------------------------------------------
+    if (ds_check && ((unsigned int) size > avail))
+    {
+        failure_response(ACTION, "Not enough space in datastore", att);
+
+        if ((vm = vmpool->get(id, true)) != 0)
+        {
+            vm->clear_saveas_state(disk_id, is_hot);
+
+            vmpool->update(vm);
+            vm->unlock();
+        }
+
+        return;
+    }
 
     // -------------------------------------------------------------------------
     // Create a template for the new Image

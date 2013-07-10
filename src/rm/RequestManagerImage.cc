@@ -347,7 +347,7 @@ void ImageClone::request_execute(
     img_usage.add("DATASTORE", ds_id);
     img_usage.add("SIZE", size);
 
-    if (ds_check && (size > avail))
+    if (ds_check && ((unsigned int) size > avail))
     {
         failure_response(ACTION, "Not enough space in datastore", att);
 
