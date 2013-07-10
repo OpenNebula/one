@@ -36,6 +36,7 @@ MKFS=mkfs
 MKISOFS=genisoimage
 MKSWAP=mkswap
 QEMU_IMG=qemu-img
+RADOS=rados
 RBD=rbd
 READLINK=readlink
 RM=rm
@@ -322,6 +323,24 @@ EOF`
 
         exit $SSH_EXEC_RC
     fi
+}
+
+#This function executes $2 at $1 host and returns stdout
+function ssh_monitor_and_log
+{
+    SSH_EXEC_OUT=`$SSH $1 sh -s 2>/dev/null <<EOF
+$2
+EOF`
+    SSH_EXEC_RC=$?
+
+    if [ $SSH_EXEC_RC -ne 0 ]; then
+        log_error "Command \"$2\" failed: $SSH_EXEC_OUT"
+        error_message "Cannot monitor $1"
+
+        exit $SSH_EXEC_RC
+    fi
+
+    echo $SSH_EXEC_OUT
 }
 
 #Creates path ($2) at $1

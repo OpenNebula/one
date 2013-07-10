@@ -1027,12 +1027,14 @@ DATASTORE_DRIVER_FS_SCRIPTS="src/datastore_mad/remotes/fs/cp \
                          src/datastore_mad/remotes/fs/mkfs \
                          src/datastore_mad/remotes/fs/stat \
                          src/datastore_mad/remotes/fs/clone \
+                         src/datastore_mad/remotes/fs/monitor \
                          src/datastore_mad/remotes/fs/rm"
 
 DATASTORE_DRIVER_VMFS_SCRIPTS="src/datastore_mad/remotes/vmfs/cp \
                          src/datastore_mad/remotes/vmfs/mkfs \
                          src/datastore_mad/remotes/vmfs/stat \
                          src/datastore_mad/remotes/vmfs/clone \
+                         src/datastore_mad/remotes/vmfs/monitor \
                          src/datastore_mad/remotes/vmfs/rm \
                          src/datastore_mad/remotes/vmfs/vmfs.conf"
 
@@ -1047,6 +1049,7 @@ DATASTORE_DRIVER_LVM_SCRIPTS="src/datastore_mad/remotes/lvm/cp \
                          src/datastore_mad/remotes/lvm/mkfs \
                          src/datastore_mad/remotes/lvm/stat \
                          src/datastore_mad/remotes/lvm/rm \
+                         src/datastore_mad/remotes/lvm/monitor \
                          src/datastore_mad/remotes/lvm/clone \
                          src/datastore_mad/remotes/lvm/lvm.conf"
 
@@ -1054,6 +1057,7 @@ DATASTORE_DRIVER_CEPH_SCRIPTS="src/datastore_mad/remotes/ceph/cp \
                          src/datastore_mad/remotes/ceph/mkfs \
                          src/datastore_mad/remotes/ceph/stat \
                          src/datastore_mad/remotes/ceph/rm \
+                         src/datastore_mad/remotes/ceph/monitor \
                          src/datastore_mad/remotes/ceph/clone \
                          src/datastore_mad/remotes/ceph/ceph.conf"
 

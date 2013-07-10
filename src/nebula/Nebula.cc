@@ -836,7 +836,11 @@ void Nebula::start()
 
         nebula_configuration->get("DATASTORE_MAD", image_mads);
 
-        imagem = new ImageManager(ipool,image_mads);
+        imagem = new ImageManager(timer_period,
+                                  monitor_period,
+                                  ipool,
+                                  dspool,
+                                  image_mads);
     }
     catch (bad_alloc&)
     {

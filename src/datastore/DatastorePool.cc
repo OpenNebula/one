@@ -221,6 +221,17 @@ int DatastorePool::allocate(
 
     *oid = PoolSQL::allocate(ds, error_str);
 
+    if ( *oid != -1 )
+    {
+        Nebula& nd        = Nebula::instance();
+        ImageManager * im = nd.get_imagem();
+
+        if (im != 0 ) //Do not monitor during bootstrap
+        {
+            im->monitor_datastore(*oid);
+        }
+    }
+
     return *oid;
 
 error_duplicated:

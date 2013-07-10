@@ -17,8 +17,7 @@
 #--------------------------------------------------------------------------- #
 
 ###############################################################################
-# This script is used to copy a VM image (SRC) to the image repository as DST
-# Several SRC types are supported
+# This script is used to monitor the free and used space of a datastore
 ###############################################################################
 
 # -------- Set up the environment to source common tools & conf ------------
@@ -34,7 +33,7 @@ fi
 DRIVER_PATH=$(dirname $0)
 source ${DRIVER_PATH}/../libfs.sh
 
-# -------- Get cp and datastore arguments from OpenNebula core ------------
+# -------- Get datastore arguments from OpenNebula core ------------
 
 DRV_ACTION=$1
 ID=$2
@@ -45,21 +44,25 @@ unset i XPATH_ELEMENTS
 
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
-done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
-                    /DS_DRIVER_ACTION_DATA/IMAGE/PATH)
+done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH)
 
 BASE_PATH="${XPATH_ELEMENTS[0]}"
-SRC="${XPATH_ELEMENTS[1]}"
 
-mkdir -p "$BASE_PATH"
-set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS"
+# ------------ Compute datastore usage -------------
 
-DST=`generate_image_path`
+if [ ! -d $BASE_PATH ]; then
+    mkdir -p $BASE_PATH
+fi
 
-# ------------ Copy the image to the repository -------------
+USED_MB=`du -sLm $BASE_PATH 2>/dev/null | cut -f1`
+TOTAL_MB=`df -B1M --output=size $BASE_PATH 2>/dev/null | tail -1`
+FREE_MB=`df -B1M --output=avail $BASE_PATH 2>/dev/null | tail -1`
 
-log "Copying local image $SRC to the image repository"
+MONITOR_DATA=$(cat <<EOF
+USED_MB=$USED_MB
+TOTAL_MB=$TOTAL_MB
+FREE_MB=$FREE_MB
+EOF
+)
 
-exec_and_log "cp -f $SRC $DST" "Error copying $SRC to $DST"
-
-echo "$DST"
+echo "$MONITOR_DATA"

@@ -5,12 +5,22 @@
 
 :NAME:
   :desc: Name of the Datastore
-  :size: 25
+  :size: 13
+  :left: true
+
+:SIZE:
+  :desc: Total Datastore size
+  :size: 10
+  :left: true
+
+:AVAIL:
+  :desc: Free Datastore size (%)
+  :size: 5
   :left: true
 
 :CLUSTER:
   :desc: Name of the Cluster
-  :size: 15
+  :size: 12
   :left: true
 
 :IMAGES:
@@ -35,6 +45,8 @@
 :default:
 - :ID
 - :NAME
+- :SIZE
+- :AVAIL
 - :CLUSTER
 - :IMAGES
 - :TYPE

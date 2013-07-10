@@ -86,9 +86,8 @@ class GenericCommand
 
         if @code!=0
             log("Command execution fail: #{command}")
+            log(@stderr)
         end
-
-        log(@stderr)
 
         return @code
     end

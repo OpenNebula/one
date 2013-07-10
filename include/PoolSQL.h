@@ -98,6 +98,20 @@ public:
         const string&   where);
 
     /**
+     *  List the objects in the pool
+     *   @param oids a vector with the oids of the objects.
+     *   @param the name of the DB table.
+     *
+     *   @return 0 on success
+     */
+    int list(
+        vector<int>&    oids,
+        const char *    table)
+    {
+        return search(oids, table, "");
+    }
+
+    /**
      *  Updates the object's data in the data base. The object mutex SHOULD be
      *  locked.
      *    @param objsql a pointer to the object

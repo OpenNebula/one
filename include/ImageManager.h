@@ -32,8 +32,16 @@ class ImageManager : public MadManager, public ActionListener
 {
 public:
 
-    ImageManager(ImagePool * _ipool, vector<const Attribute*>& _mads):
-            MadManager(_mads), ipool(_ipool)
+    ImageManager(time_t                    _timer_period,
+                 time_t                    _monitor_period,
+                 ImagePool *               _ipool,
+                 DatastorePool *           _dspool,
+                 vector<const Attribute*>& _mads):
+            MadManager(_mads),
+            timer_period(_timer_period),
+            monitor_period(_monitor_period),
+            ipool(_ipool),
+            dspool(_dspool)
     {
         am.addListener(this);
     };
@@ -174,6 +182,12 @@ public:
      */
      int stat_image(Template* img_tmpl, const string& ds_tmpl, string& res);
 
+     /**
+      *  Trigger a monitor action for the datastore.
+      *    @param ds_id id of the datastore to monitor
+      */
+     void monitor_datastore(int ds_id);
+
 private:
     /**
      *  Generic name for the Image driver
@@ -181,14 +195,29 @@ private:
      static const char *  image_driver_name;
 
     /**
-     *  Thread id for the Transfer Manager
+     *  Thread id for the Image Manager
      */
     pthread_t             imagem_thread;
+
+    /**
+     *  Timer period for the Image Manager.
+     */
+    time_t                timer_period;
+
+    /**
+     *  Datastore Monitor Interval
+     */
+    time_t                monitor_period;
 
     /**
      *  Pointer to the Image Pool to access VMs
      */
     ImagePool *           ipool;
+
+    /**
+     *  Pointer to the Image Pool to access VMs
+     */
+    DatastorePool *       dspool;
 
     /**
      *  Action engine for the Manager
@@ -241,7 +270,12 @@ private:
      *    @param ds_data Datastore XML representation
      *    @return the XML message
      */
-    string * format_message(const string& img_data, const string& ds_data);
+    static string * format_message(const string& img_data, const string& ds_data);
+
+    /**
+     *  This function is executed periodically to monitor Datastores.
+     */
+    void timer_action();
 };
 
 #endif /*IMAGE_MANAGER_H*/

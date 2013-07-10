@@ -561,7 +561,12 @@ int PoolSQL::search(
     set_callback(static_cast<Callbackable::Callback>(&PoolSQL::search_cb),
                  static_cast<void *>(&oids));
 
-    sql  << "SELECT oid FROM " <<  table << " WHERE " << where;
+    sql  << "SELECT oid FROM " <<  table;
+
+    if (!where.empty())
+    {
+        sql << " WHERE " << where;
+    }
 
     rc = db->exec(sql, this);
 
