@@ -162,20 +162,13 @@ public:
         used_mb  = used;
     }
 
-    unsigned int get_avail_mb()
-    {
-        float max_used_size;
-
-        if (get_template_attribute("MAX_USED_SIZE", max_used_size))
-        {
-            if (used_mb >= (unsigned int) max_used_size)
-            {
-                return 0;
-            }
-        }
-
-        return free_mb;
-    }
+    /**
+     *  Returns the available capacity in the datastore.
+     *    @params avail the total available size in the datastore (mb)
+     *    @return true if the datastore is configured to enforce capacity
+     *    checkings
+     */
+    bool get_avail_mb(unsigned int &avail);
 
 private:
 

@@ -229,8 +229,10 @@ void ImageClone::request_execute(
     int    clone_id = xmlrpc_c::value_int(paramList.getInt(1));
     string name     = xmlrpc_c::value_string(paramList.getString(2));
 
-    int             rc, new_id, ds_id, size, umask, avail;
+    unsigned int    avail;
+    int             rc, new_id, ds_id, size, umask;
     string          error_str, ds_name, ds_data;
+    bool            ds_check;
 
     Image::DiskType disk_type;
     PoolObjectAuth  perms, ds_perms;
@@ -336,7 +338,7 @@ void ImageClone::request_execute(
 
     ds->to_xml(ds_data);
 
-    avail = ds->get_avail_mb();
+    ds_check = ds->get_avail_mb(avail);
 
     ds->unlock();
 
@@ -345,7 +347,7 @@ void ImageClone::request_execute(
     img_usage.add("DATASTORE", ds_id);
     img_usage.add("SIZE", size);
 
-    if ( size > avail )
+    if (ds_check && (size > avail))
     {
         failure_response(ACTION, "Not enough space in datastore", att);
 

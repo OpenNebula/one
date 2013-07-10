@@ -542,3 +542,27 @@ int Datastore::replace_template(const string& tmpl_str, string& error_str)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
+bool Datastore::get_avail_mb(unsigned int &avail)
+{
+    float max_used_size;
+    bool  check;
+
+    avail = free_mb;
+
+    if (get_template_attribute("MAX_USED_SIZE", max_used_size))
+    {
+        if (used_mb >= (unsigned int) max_used_size)
+        {
+            avail = 0;
+        }
+    }
+
+    if (!get_template_attribute("DATASTORE_CAPACITY_CHECK", check))
+    {
+        Nebula& nd = Nebula::instance();
+
+        nd.get_configuration_attribute("DATASTORE_CAPACITY_CHECK", check);
+    }
+
+    return check;
+}
