@@ -30,10 +30,13 @@ module Migrator
         begin
             FileUtils.cp("#{VAR_LOCATION}/.one/sunstone_auth",
                 "#{VAR_LOCATION}/.one/onegate_auth", :preserve => true)
+
+            FileUtils.cp("#{VAR_LOCATION}/.one/sunstone_auth",
+                "#{VAR_LOCATION}/.one/oneflow_auth", :preserve => true)
         rescue
             puts "Error trying to copy #{VAR_LOCATION}/.one/sunstone_auth "<<
-                "to #{VAR_LOCATION}/.one/onegate_auth."
-            puts "Please copy the file manually."
+                "to #{VAR_LOCATION}/.one/onegate_auth and #{VAR_LOCATION}/.one/oneflow_auth."
+            puts "Please copy the files manually."
         end
 
         @db.run "ALTER TABLE user_pool RENAME TO old_user_pool;"
