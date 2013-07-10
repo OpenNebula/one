@@ -1021,6 +1021,7 @@ DATASTORE_DRIVER_DUMMY_SCRIPTS="src/datastore_mad/remotes/dummy/cp \
                          src/datastore_mad/remotes/dummy/mkfs \
                          src/datastore_mad/remotes/dummy/stat \
                          src/datastore_mad/remotes/dummy/clone \
+                         src/datastore_mad/remotes/dummy/monitor \
                          src/datastore_mad/remotes/dummy/rm"
 
 DATASTORE_DRIVER_FS_SCRIPTS="src/datastore_mad/remotes/fs/cp \
@@ -1043,6 +1044,7 @@ DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi/cp \
                          src/datastore_mad/remotes/iscsi/stat \
                          src/datastore_mad/remotes/iscsi/rm \
                          src/datastore_mad/remotes/iscsi/clone \
+                         src/datastore_mad/remotes/iscsi/monitor \
                          src/datastore_mad/remotes/iscsi/iscsi.conf"
 
 DATASTORE_DRIVER_LVM_SCRIPTS="src/datastore_mad/remotes/lvm/cp \
