@@ -24,27 +24,34 @@ if !ONE_LOCATION
     LOG_LOCATION = "/var/log/one"
     VAR_LOCATION = "/var/lib/one"
     ETC_LOCATION = "/etc/one"
+    LIB_LOCATION = "/usr/lib/one"
     RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
 else
     VAR_LOCATION = ONE_LOCATION + "/var"
     LOG_LOCATION = ONE_LOCATION + "/var"
     ETC_LOCATION = ONE_LOCATION + "/etc"
+    LIB_LOCATION = ONE_LOCATION+"/lib"
     RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
 end
 
-APPFLOW_AUTH    = VAR_LOCATION + "/.one/appflow_auth"
+ONEFLOW_AUTH    = VAR_LOCATION + "/.one/oneflow_auth"
 
-APPFLOW_LOG        = LOG_LOCATION + "/appflow-server.log"
-CONFIGURATION_FILE = ETC_LOCATION + "/appflow-server.conf"
+ONEFLOW_LOG        = LOG_LOCATION + "/oneflow.log"
+CONFIGURATION_FILE = ETC_LOCATION + "/oneflow-server.conf"
 
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+'/cloud'
-$: << RUBY_LIB_LOCATION+'/oneapps/flow'
+$: << LIB_LOCATION+'/oneflow/lib'
 
 require 'CloudAuth'
 require 'CloudServer'
 
-require 'models'
+require 'opennebula'
+include OpenNebula
+
+require 'Role'
+require 'validator'
+
 require 'log'
 
 ##############################################################################
@@ -73,20 +80,20 @@ set :port, conf[:port]
 set :config, conf
 
 include CloudLogger
-logger = enable_logging APPFLOW_LOG, conf[:debug_level].to_i
+logger = enable_logging ONEFLOW_LOG, conf[:debug_level].to_i
 
-use Rack::Session::Pool, :key => 'appflow'
+use Rack::Session::Pool, :key => 'oneflow'
 
 Log.logger = logger
 Log.level  = conf[:debug_level].to_i
 
 
-LOG_COMP = "APPFLOW"
+LOG_COMP = "ONEFLOW"
 
 Log.info LOG_COMP, "Starting server"
 
 begin
-    ENV["ONE_CIPHER_AUTH"] = APPFLOW_AUTH
+    ENV["ONE_CIPHER_AUTH"] = ONEFLOW_AUTH
     cloud_auth = CloudAuth.new(conf)
 rescue => e
     message = "Error initializing authentication system : #{e.message}"

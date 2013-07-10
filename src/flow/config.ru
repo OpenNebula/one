@@ -15,6 +15,6 @@
 #--------------------------------------------------------------------------- #
 
 $: << '.'
-require 'controllers/appflow-server'
+require 'oneflow-server'
 
 run Sinatra::Application

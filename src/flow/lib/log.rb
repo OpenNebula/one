@@ -132,7 +132,7 @@ class Log
         end
 
         begin
-            open("#{LOG_LOCATION}/appflow/#{service_id}.log", 'a') do |f|
+            open("#{LOG_LOCATION}/oneflow/#{service_id}.log", 'a') do |f|
               f <<  MSG_FORMAT % [
                 Time.now.strftime(DATE_FORMAT),
                 Logger::SEV_LABEL[severity][0..0],
@@ -140,7 +140,7 @@ class Log
                 message ]
             end
         rescue => e
-            message = "Could not log into #{LOG_LOCATION}/appflow/#{service_id}.log: #{e.message}"
+            message = "Could not log into #{LOG_LOCATION}/oneflow/#{service_id}.log: #{e.message}"
             error LOG_COMP, message
         end
     end

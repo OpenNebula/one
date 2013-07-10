@@ -51,6 +51,13 @@ require 'opennebula/document'
 require 'opennebula/document_pool'
 require 'opennebula/system'
 
+require 'opennebula/document_json'
+require 'opennebula/document_pool_json'
+require 'opennebula/service_pool.rb'
+require 'opennebula/service.rb'
+require 'opennebula/service_template_pool.rb'
+require 'opennebula/service_template.rb'
+
 module OpenNebula
 
     # OpenNebula version

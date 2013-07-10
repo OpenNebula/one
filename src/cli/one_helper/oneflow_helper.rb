@@ -300,10 +300,10 @@ module Service
 
     class Client
         def initialize(opts={})
-            @username = opts[:username] || ENV['APPFLOW_USER']
-            @password = opts[:password] || ENV['APPFLOW_PASSWORD']
+            @username = opts[:username] || ENV['ONEFLOW_USER']
+            @password = opts[:password] || ENV['ONEFLOW_PASSWORD']
 
-            url = opts[:url] || ENV['APPFLOW_URL'] || 'http://localhost:2474'
+            url = opts[:url] || ENV['ONEFLOW_URL'] || 'http://localhost:2474'
 
             if @username.nil? && @password.nil?
                 if ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.file?(ENV["ONE_AUTH"])
