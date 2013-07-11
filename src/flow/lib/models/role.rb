@@ -638,8 +638,6 @@ module OpenNebula
                 begin
                     cron_parser = CronParser.new(recurrence)
 
-                    Log.debug "ELAS", "Recurrence #{recurrence} next time #{cron_parser.next(Time.at(last_eval))}"
-
                     # This returns the next planned time, starting from the last
                     # step
                     start_time = cron_parser.next(Time.at(last_eval)).to_i
@@ -651,7 +649,8 @@ module OpenNebula
 
             # Only actions planned between last step and this one are triggered
             if start_time > last_eval && start_time <= now
-                Log.debug "ELAS", "Role #{name} scheduled scalability for #{Time.at(start_time)} triggered"
+                Log.debug LOG_COMP, "Role #{name} : scheduled scalability for "\
+                    "#{Time.at(start_time)} triggered", @service.id()
 
                 new_cardinality = calculate_new_cardinality(elasticity_pol)
 
@@ -680,8 +679,6 @@ module OpenNebula
 
             if !last_eval.nil?
                 if now < (last_eval + period_duration)
-                    Log.debug "ELAS", "Role #{name} expression '#{expression}' evaluation ignored, time < period"
-
                     return [0, 0]
                 end
             end
@@ -697,12 +694,10 @@ module OpenNebula
                 new_evals = true_evals + 1
                 new_evals = period_number if new_evals > period_number
 
-                Log.debug "ELAS", "Role #{name} scale expression '#{expression}' is true"
-
                 if new_evals >= period_number
+                    Log.debug LOG_COMP, "Role #{name} : elasticy policy #{exp_st} "\
+                        "triggered", @service.id()
                     new_cardinality = calculate_new_cardinality(elasticity_pol)
-                else
-                    Log.debug "ELAS", "Role #{name} expression '#{expression}' evaluation ignored, true #{new_evals} times, #{period_number} needed"
                 end
             end
 
