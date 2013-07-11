@@ -19,19 +19,13 @@
 rm -f /etc/udev/rules.d/70-persistent-cd.rules
 rm -f /etc/udev/rules.d/70-persistent-net.rules
 
-RUNLEVEL=$(runlevel | cut -d' ' -f2)
-
-(
-
-cd /etc/rc${RUNLEVEL}.d
-ln -sf ../init.d/vmcontext S99vmcontext
-
-)
-
 # Debian based distros
 if [ -d /etc/network ]; then
-    cp /etc/network/interfaces /etc/network/interfaces.$(date "+%s")
+    # Register Service
+    update-rc.d vmcontext defaults 9 99
 
+    # Prepare network files
+    cp /etc/network/interfaces /etc/network/interfaces.$(date "+%s")
     cat > /etc/network/interfaces <<EOT
 # The loopback network interface
 auto lo
@@ -41,6 +35,10 @@ fi
 
 # RedHat based distros
 if [ -d /etc/sysconfig/network-scripts ]; then
+    # Register Service
+    chkconfig --add vmcontext
+
+    # Prepare network files
     rm -f /etc/sysconfig/network-scripts/ifcfg-eth*
 fi
 
