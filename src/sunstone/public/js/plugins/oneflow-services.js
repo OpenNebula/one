@@ -939,7 +939,7 @@ var service_tab_content = '\
   <div class="twelve columns">\
     <h4 class="subheader header">\
       <span class="header-resource">\
-       <i class="icon-magic"></i> '+tr("AppFlow - Services")+'\
+       <i class="icon-magic"></i> '+tr("OneFlow - Services")+'\
       </span>\
       <span class="header-info">\
         <span/> <small></small>&emsp;\
@@ -1127,11 +1127,11 @@ var services_tab = {
     content: service_tab_content,
     buttons: service_buttons,
     tabClass: 'subTab',
-    parentTab: 'appflow_dashboard_tab'
+    parentTab: 'oneflow_dashboard_tab'
 }
 
 Sunstone.addActions(service_actions);
-Sunstone.addMainTab('apptools-appflow-services',services_tab);
+Sunstone.addMainTab('oneflow-services',services_tab);
 Sunstone.addInfoPanel('service_info_panel',service_info_panel);
 
 
@@ -1181,8 +1181,6 @@ function updateServicesView(request, services_list){
     });
 
     updateView(service_list_array,dataTable_services);
-    //updateVResDashboard("images",images_list);
-    updateAppFlowDashboard('services', service_list_array);
 }
 
 // Callback to refresh the list of Virtual Machines
@@ -1231,7 +1229,7 @@ function updateServiceInfo(request,elem){
            </tr>\
          </table>' +
        '</div>\
-        <div class="six columns">' + insert_permissions_table('apptools-appflow-services',
+        <div class="six columns">' + insert_permissions_table('oneflow-services',
                                                               "Service",
                                                               elem_info.ID,
                                                               elem_info.UNAME,
@@ -1324,7 +1322,7 @@ function updateServiceInfo(request,elem){
 
 
     // Popup panel
-    Sunstone.popUpInfoPanel("service_info_panel", "apptools-appflow-services");
+    Sunstone.popUpInfoPanel("service_info_panel", "oneflow-services");
     setPermissionsTable(elem_info,'');
 
     $("#service_info_panel_refresh", $("#service_info_panel")).click(function(){
@@ -1369,7 +1367,7 @@ function updateServiceInfo(request,elem){
 
         updateView(role_elements ,servicerolesDataTable);
 
-        insertButtonsInTab("apptools-appflow-services", "service_roles_tab", role_buttons, $('#role_actions', $("#dialog")))
+        insertButtonsInTab("oneflow-services", "service_roles_tab", role_buttons, $('#role_actions', $("#dialog")))
         $('#role_actions', $("#dialog")).foundationButtons();
         $('#role_actions', $("#dialog")).foundationButtons();
 
@@ -1636,7 +1634,7 @@ function updateServiceInfo(request,elem){
             }
 
 
-            insertButtonsInTab("apptools-appflow-services", "service_roles_tab", role_vm_buttons, $('div#role_vms_actions', $("#dialog")))
+            insertButtonsInTab("oneflow-services", "service_roles_tab", role_vm_buttons, $('div#role_vms_actions', $("#dialog")))
             $('div#role_vms_actions', $("#dialog")).foundationButtons();
             $('div#role_vms_actions', $("#dialog")).foundationButtons();
 
@@ -1675,7 +1673,7 @@ function updateServiceInfo(request,elem){
             });
 
 
-            //insertButtonsInTab("apptools-appflow-services", "service_roles_tab", role_buttons)
+            //insertButtonsInTab("oneflow-services", "service_roles_tab", role_buttons)
             //$('li#service_roles_tabTab', $("#dialog")).foundationButtons();
             //$('li#service_roles_tabTab', $("#dialog")).foundationButtons();
         }
@@ -1806,7 +1804,7 @@ function setServiceAutorefresh() {
 
 //The DOM is ready at this point
 $(document).ready(function(){
-    var tab_name = "apptools-appflow-services";
+    var tab_name = "oneflow-services";
 
     dataTable_services = $("#datatable_services",main_tabs_context).dataTable({
         "aoColumnDefs": [

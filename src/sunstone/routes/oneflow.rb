@@ -14,20 +14,20 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-APPFLOW_CONF_FILE = ETC_LOCATION + "/sunstone-appflow.conf"
+ONEFLOW_CONF_FILE = ETC_LOCATION + "/sunstone-oneflow.conf"
 
-$: << RUBY_LIB_LOCATION+"/oneapps/flow"
+$: << RUBY_LIB_LOCATION+"/oneflow"
 
-require 'appflow_client'
+require 'opennebula/oneflow_client'
 
 begin
-    appflow_conf = YAML.load_file(APPFLOW_CONF_FILE)
+    oneflow_conf = YAML.load_file(ONEFLOW_CONF_FILE)
 rescue Exception => e
-    STDERR.puts "Error parsing config file #{APPFLOW_CONF_FILE}: #{e.message}"
+    STDERR.puts "Error parsing config file #{ONEFLOW_CONF_FILE}: #{e.message}"
     exit 1
 end
 
-set :appflow_config, appflow_conf
+set :oneflow_config, oneflow_conf
 
 helpers do
     def af_build_client
@@ -35,7 +35,7 @@ helpers do
         split_array = flow_client.one_auth.split(':')
 
         Service::Client.new(
-                :url        => settings.appflow_config[:appflow_server],
+                :url        => settings.oneflow_config[:oneflow_server],
                 :user_agent => "Sunstone",
                 :username   => split_array.shift,
                 :password   => split_array.join(':'))
@@ -43,7 +43,7 @@ helpers do
 
     def af_format_response(resp)
         if CloudClient::is_error?(resp)
-            logger.error("[AppFlow] " + resp.to_s)
+            logger.error("[OneFlow] " + resp.to_s)
 
             error = Error.new(resp.to_s)
             error resp.code.to_i, error.to_json

@@ -28,7 +28,7 @@ $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+'/cli'
 
 require 'command_parser'
-require 'one_helper/oneflow_helper'
+require 'opennebula/oneflow_client'
 
 require 'cli_helper'
 require 'one_helper/onevm_helper'

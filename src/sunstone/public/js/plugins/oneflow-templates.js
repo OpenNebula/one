@@ -71,7 +71,7 @@ var service_template_tab_content = '\
   <div class="twelve columns">\
     <h4 class="subheader header">\
       <span class="header-resource">\
-       <i class="icon-file-alt"></i> '+tr("AppFlow - Templates")+'\
+       <i class="icon-file-alt"></i> '+tr("OneFlow - Templates")+'\
       </span>\
       <span class="header-info">\
         <span/> <small></small>&emsp;\
@@ -589,11 +589,11 @@ var service_templates_tab = {
     content: service_template_tab_content,
     buttons: service_template_buttons,
     tabClass: 'subTab',
-    parentTab: 'appflow_dashboard_tab'
+    parentTab: 'oneflow_dashboard_tab'
 }
 
 Sunstone.addActions(service_template_actions);
-Sunstone.addMainTab('apptools-appflow-templates',service_templates_tab);
+Sunstone.addMainTab('oneflow-templates',service_templates_tab);
 Sunstone.addInfoPanel('service_template_info_panel',service_template_info_panel);
 
 
@@ -642,8 +642,6 @@ function updateServiceTemplatesView(request, service_templates_list){
     });
 
     updateView(service_template_list_array,dataTable_service_templates);
-    //updateVResDashboard("images",images_list);
-    updateAppFlowDashboard('templates', service_template_list_array);
 }
 
 // Callback to update the information panel tabs and pop it up
@@ -677,7 +675,7 @@ function updateServiceTemplateInfo(request,elem){
            </tr>\
          </table>' +
        '</div>\
-        <div class="six columns">' + insert_permissions_table('apptools-appflow-templates',
+        <div class="six columns">' + insert_permissions_table('oneflow-templates',
                                                               "ServiceTemplate",
                                                               elem_info.ID,
                                                               elem_info.UNAME,
@@ -715,7 +713,7 @@ function updateServiceTemplateInfo(request,elem){
 
     Sunstone.updateInfoPanelTab("service_template_info_panel", "service_template_roles_tab",roles_tab);
 
-    Sunstone.popUpInfoPanel("service_template_info_panel", "apptools-appflow-templates");
+    Sunstone.popUpInfoPanel("service_template_info_panel", "oneflow-templates");
 
     setPermissionsTable(elem_info,'');
 
@@ -1445,7 +1443,7 @@ function setServiceTemplateAutorefresh() {
 
 //The DOM is ready at this point
 $(document).ready(function(){
-    var tab_name = "apptools-appflow-templates";
+    var tab_name = "oneflow-templates";
 
     dataTable_service_templates = $("#datatable_service_templates",main_tabs_context).dataTable({
         "aoColumnDefs": [

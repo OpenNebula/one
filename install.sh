@@ -545,6 +545,7 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_VIEWS_FILES:$SUNSTONE_LOCATION/views
     SUNSTONE_PUBLIC_JS_FILES:$SUNSTONE_LOCATION/public/js
     SUNSTONE_PUBLIC_JS_PLUGINS_FILES:$SUNSTONE_LOCATION/public/js/plugins
+    SUNSTONE_ROUTES_FILES:$SUNSTONE_LOCATION/routes
     SUNSTONE_PUBLIC_CSS_FILES:$SUNSTONE_LOCATION/public/css
     SUNSTONE_PUBLIC_VENDOR_CRYPTOJS:$SUNSTONE_LOCATION/public/vendor/crypto-js
     SUNSTONE_PUBLIC_VENDOR_EXPLORERCANVAS:$SUNSTONE_LOCATION/public/vendor/explorercanvas
@@ -1243,7 +1244,8 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/virtual_network.rb \
                             src/oca/ruby/opennebula/xml_element.rb \
                             src/oca/ruby/opennebula/xml_pool.rb \
-                            src/oca/ruby/opennebula/xml_utils.rb"
+                            src/oca/ruby/opennebula/xml_utils.rb \
+                            src/oca/ruby/opennebula/oneflow_client.rb"
 
 #-------------------------------------------------------------------------------
 # Common Cloud Files
@@ -1423,8 +1425,7 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/oneacl_helper.rb \
                    src/cli/one_helper/onedatastore_helper.rb \
                    src/cli/one_helper/onecluster_helper.rb \
-                   src/cli/one_helper/oneacct_helper.rb \
-                   src/cli/one_helper/oneflow_helper.rb"
+                   src/cli/one_helper/oneacct_helper.rb"
 
 CLI_BIN_FILES="src/cli/onevm \
                src/cli/onehost \
@@ -1465,7 +1466,8 @@ SUNSTONE_BIN_FILES="src/sunstone/bin/sunstone-server \
                     src/sunstone/bin/novnc-server"
 
 SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf \
-                    src/sunstone/etc/sunstone-views.yaml"
+                    src/sunstone/etc/sunstone-views.yaml \
+                    src/sunstone/etc/sunstone-oneflow.conf"
 
 SUNSTONE_ETC_VIEW_FILES="src/sunstone/etc/sunstone-views/admin.yaml \
                     src/sunstone/etc/sunstone-views/user.yaml"
@@ -1517,7 +1519,12 @@ SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
                         src/sunstone/public/js/plugins/acls-tab.js \
                         src/sunstone/public/js/plugins/vnets-tab.js \
                         src/sunstone/public/js/plugins/marketplace-tab.js \
-                        src/sunstone/public/js/plugins/config-tab.js"
+                        src/sunstone/public/js/plugins/config-tab.js \
+                        src/sunstone/public/js/plugins/oneflow-dashboard.js \
+                        src/sunstone/public/js/plugins/oneflow-services.js \
+                        src/sunstone/public/js/plugins/oneflow-templates.js"
+
+SUNSTONE_ROUTES_FILES="src/sunstone/routes/oneflow.rb"
 
 SUNSTONE_PUBLIC_CSS_FILES="src/sunstone/public/css/app.css \
                 src/sunstone/public/css/login.css"
