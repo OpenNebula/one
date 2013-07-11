@@ -132,12 +132,20 @@ class Log
         end
 
         begin
-            open("#{LOG_LOCATION}/oneflow/#{service_id}.log", 'a') do |f|
-              f <<  MSG_FORMAT % [
+            msg = MSG_FORMAT % [
                 Time.now.strftime(DATE_FORMAT),
                 Logger::SEV_LABEL[severity][0..0],
                 component,
                 message ]
+
+            open("#{LOG_LOCATION}/oneflow/#{service_id}.log", 'a') do |f|
+              f <<  msg
+            end
+        rescue Errno::ENOENT => e
+            FileUtils.mkdir("#{LOG_LOCATION}/oneflow/")
+
+            open("#{LOG_LOCATION}/oneflow/#{service_id}.log", 'a') do |f|
+              f <<  msg
             end
         rescue => e
             message = "Could not log into #{LOG_LOCATION}/oneflow/#{service_id}.log: #{e.message}"
