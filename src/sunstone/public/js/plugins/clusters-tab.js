@@ -1407,32 +1407,34 @@ function clusters_sel() {
 $(document).ready(function(){
     var tab_name = "clusters-tab"
 
-    //prepare host datatable
-    dataTable_clusters = $("#datatable_clusters",main_tabs_context).dataTable({
-        "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "35px", "aTargets": [0] },
-            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
-            { "bVisible": false, "aTargets": ['_all']}
-        ]
-    });
+    if (Config.isTabEnabled(tab_name)) {
+      //prepare host datatabl
+      dataTable_clusters = $("#datatable_clusters",main_tabs_context).dataTable({
+          "aoColumnDefs": [
+              { "bSortable": false, "aTargets": ["check"] },
+              { "sWidth": "35px", "aTargets": [0] },
+              { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
+              { "bVisible": false, "aTargets": ['_all']}
+          ]
+      });
 
-    $('#cluster_search').keyup(function(){
-      dataTable_clusters.fnFilter( $(this).val() );
-    })
+      $('#cluster_search').keyup(function(){
+        dataTable_clusters.fnFilter( $(this).val() );
+      })
 
-    dataTable_clusters.on('draw', function(){
-      recountCheckboxes(dataTable_clusters);
-    })
+      dataTable_clusters.on('draw', function(){
+        recountCheckboxes(dataTable_clusters);
+      })
 
-    Sunstone.runAction("Cluster.list");
+      Sunstone.runAction("Cluster.list");
 
-    dialogs_context.append('<div title=\"'+tr("Create cluster")+'\" id="create_cluster_dialog"></div>');
+      dialogs_context.append('<div title=\"'+tr("Create cluster")+'\" id="create_cluster_dialog"></div>');
 
-    setClusterAutorefresh();
-    clusterResourceViewListeners();
+      setClusterAutorefresh();
+      clusterResourceViewListeners();
 
-    initCheckAllBoxes(dataTable_clusters);
-    tableCheckboxesListener(dataTable_clusters);
-    infoListener(dataTable_clusters, "Cluster.showinfo");
+      initCheckAllBoxes(dataTable_clusters);
+      tableCheckboxesListener(dataTable_clusters);
+      infoListener(dataTable_clusters, "Cluster.showinfo");
+    }
 });

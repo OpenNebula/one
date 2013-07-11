@@ -34,7 +34,7 @@ setInterval(function(){
 
 Config = {
     "isTabEnabled": function(tab_name){
-      var enabled = config['view']['tabs'][tab_name]['enabled'];
+      var enabled = config['view']['enabled_tabs'][tab_name];
       return enabled;
     },
     "isTabActionEnabled": function(tab_name, action_name, panel_name){

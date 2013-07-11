@@ -3241,41 +3241,43 @@ function vmMonitorError(req,error_json){
 $(document).ready(function(){
     var tab_name = 'vms-tab';
 
-    dataTable_vMachines = $("#datatable_vmachines",main_tabs_context).dataTable({
-        "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check",6,7,9,11] },
-            { "sWidth": "35px", "aTargets": [0] },
-            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
-            { "bVisible": false, "aTargets": ['_all']}
-        ]
-    });
+    if (Config.isTabEnabled(tab_name)) {
+      dataTable_vMachines = $("#datatable_vmachines",main_tabs_context).dataTable({
+          "aoColumnDefs": [
+              { "bSortable": false, "aTargets": ["check",6,7,9,11] },
+              { "sWidth": "35px", "aTargets": [0] },
+              { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
+              { "bVisible": false, "aTargets": ['_all']}
+          ]
+      });
 
-    $('#vms_search').keyup(function(){
-      dataTable_vMachines.fnFilter( $(this).val() );
-    })
+      $('#vms_search').keyup(function(){
+        dataTable_vMachines.fnFilter( $(this).val() );
+      })
 
-    dataTable_vMachines.on('draw', function(){
-      recountCheckboxes(dataTable_vMachines);
-    })
+      dataTable_vMachines.on('draw', function(){
+        recountCheckboxes(dataTable_vMachines);
+      })
 
 
 
-    //addElement([
-    //    spinner,
-    //    '','','','','','','','','','',''],dataTable_vMachines);
-    Sunstone.runAction("VM.list");
+      //addElement([
+      //    spinner,
+      //    '','','','','','','','','','',''],dataTable_vMachines);
+      Sunstone.runAction("VM.list");
 
-    setupCreateVMDialog();
-    setVMAutorefresh();
-    setupVNC();
-    hotpluggingOps();
-    setup_vm_network_tab();
-    setup_vm_capacity_tab();
-    setup_vm_snapshot_tab();
+      //setupCreateVMDialog();
+      setVMAutorefresh();
+      setupVNC();
+      hotpluggingOps();
+      setup_vm_network_tab();
+      setup_vm_capacity_tab();
+      setup_vm_snapshot_tab();
 
-    initCheckAllBoxes(dataTable_vMachines);
-    tableCheckboxesListener(dataTable_vMachines);
-    infoListener(dataTable_vMachines,'VM.showinfo');
+      initCheckAllBoxes(dataTable_vMachines);
+      tableCheckboxesListener(dataTable_vMachines);
+      infoListener(dataTable_vMachines,'VM.showinfo');
 
-    $('div#vms_tab div.legend_div').hide();
+      $('div#vms_tab div.legend_div').hide();
+    }
 })

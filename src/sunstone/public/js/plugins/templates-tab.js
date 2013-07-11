@@ -4882,33 +4882,34 @@ function popUpInstantiateVMTemplateDialog(easy_provision){
 $(document).ready(function(){
     var tab_name = 'templates-tab';
 
-    dataTable_templates = $("#datatable_templates",main_tabs_context).dataTable({
-        "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "35px", "aTargets": [0] },
-            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
-            { "bVisible": false, "aTargets": ['_all']}
-        ]
-    });
+    if (Config.isTabEnabled(tab_name)) {
+      dataTable_templates = $("#datatable_templates",main_tabs_context).dataTable({
+          "aoColumnDefs": [
+              { "bSortable": false, "aTargets": ["check"] },
+              { "sWidth": "35px", "aTargets": [0] },
+              { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
+              { "bVisible": false, "aTargets": ['_all']}
+          ]
+      });
 
 
-    $('#template_search').keyup(function(){
-      dataTable_templates.fnFilter( $(this).val() );
-    })
+      $('#template_search').keyup(function(){
+        dataTable_templates.fnFilter( $(this).val() );
+      })
 
-    dataTable_templates.on('draw', function(){
-      recountCheckboxes(dataTable_templates);
-    })
+      dataTable_templates.on('draw', function(){
+        recountCheckboxes(dataTable_templates);
+      })
 
-    Sunstone.runAction("Template.list");
-    setupCreateTemplateDialog();
-    setupTemplateCloneDialog();
-    setTemplateAutorefresh();
+      Sunstone.runAction("Template.list");
+      setupCreateTemplateDialog();
+      setupTemplateCloneDialog();
+      setTemplateAutorefresh();
 
-    initCheckAllBoxes(dataTable_templates);
-    tableCheckboxesListener(dataTable_templates);
-    infoListener(dataTable_templates,'Template.showinfo');
+      initCheckAllBoxes(dataTable_templates);
+      tableCheckboxesListener(dataTable_templates);
+      infoListener(dataTable_templates,'Template.showinfo');
 
-    $('div#templates_tab div.legend_div').hide();
-
+      $('div#templates_tab div.legend_div').hide();
+    }
 });

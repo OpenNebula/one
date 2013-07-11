@@ -292,46 +292,48 @@ function onlyOneCheckboxListener(dataTable) {
 $(document).ready(function(){
     var tab_name = 'marketplace-tab';
 
-    dataTable_marketplace = $("#datatable_marketplace", main_tabs_context).dataTable({
-        "bSortClasses": true,
-        "aoColumns": [
-            { "bSortable": false,
-              "mData": function ( o, val, data ) {
-                  //we render 1st column as a checkbox directly
-                  return '<input class="check_item" type="checkbox" id="marketplace_'+
-                      o['_id']['$oid']+
-                      '" name="selected_items" value="'+
-                      o['_id']['$oid']+'"/>'
+    if (Config.isTabEnabled(tab_name)) {
+      dataTable_marketplace = $("#datatable_marketplace", main_tabs_context).dataTable({
+          "bSortClasses": true,
+          "aoColumns": [
+              { "bSortable": false,
+                "mData": function ( o, val, data ) {
+                    //we render 1st column as a checkbox directly
+                    return '<input class="check_item" type="checkbox" id="marketplace_'+
+                        o['_id']['$oid']+
+                        '" name="selected_items" value="'+
+                        o['_id']['$oid']+'"/>'
+                },
+                "sWidth" : "60px"
               },
-              "sWidth" : "60px"
-            },
-            { "mDataProp": "_id.$oid", "sWidth" : "200px" },
-            { "mDataProp": "name" },
-            { "mDataProp": "publisher" },
-            { "mDataProp": "files.0.hypervisor", "sWidth" : "100px"},
-            { "mDataProp": "files.0.os-arch", "sWidth" : "100px"},
-            { "mDataProp": "files.0.format", "sWidth" : "100px"},
-            { "mDataProp": "tags"}
-          ],
-          "aoColumnDefs": [
-            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
-            { "bVisible": false, "aTargets": ['_all']}
-        ]
-    });
+              { "mDataProp": "_id.$oid", "sWidth" : "200px" },
+              { "mDataProp": "name" },
+              { "mDataProp": "publisher" },
+              { "mDataProp": "files.0.hypervisor", "sWidth" : "100px"},
+              { "mDataProp": "files.0.os-arch", "sWidth" : "100px"},
+              { "mDataProp": "files.0.format", "sWidth" : "100px"},
+              { "mDataProp": "tags"}
+            ],
+            "aoColumnDefs": [
+              { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
+              { "bVisible": false, "aTargets": ['_all']}
+          ]
+      });
 
 
-    $('#marketplace_search').keyup(function(){
-      dataTable_marketplace.fnFilter( $(this).val() );
-    })
+      $('#marketplace_search').keyup(function(){
+        dataTable_marketplace.fnFilter( $(this).val() );
+      })
 
-    dataTable_marketplace.on('draw', function(){
-      recountCheckboxes(dataTable_marketplace);
-    })
+      dataTable_marketplace.on('draw', function(){
+        recountCheckboxes(dataTable_marketplace);
+      })
 
-    tableCheckboxesListener(dataTable_marketplace);
-    onlyOneCheckboxListener(dataTable_marketplace);
+      tableCheckboxesListener(dataTable_marketplace);
+      onlyOneCheckboxListener(dataTable_marketplace);
 
-    infoListenerMarket(dataTable_marketplace);
+      infoListenerMarket(dataTable_marketplace);
 
-    Sunstone.runAction('Marketplace.list');
+      Sunstone.runAction('Marketplace.list');
+    }
 });

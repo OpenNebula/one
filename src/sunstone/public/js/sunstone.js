@@ -64,10 +64,12 @@ var Sunstone = {
 
     //Adds a new main tab. Refreshes the dom if wanted.
     "addMainTab" : function(tab_id,tab_obj,refresh) {
-        SunstoneCfg["tabs"][tab_id] = tab_obj;
-        if (refresh){
-            insertTab(tab_id);
-            //$(document).foundationCustomForms();
+        if (Config.isTabEnabled(tab_id)) {
+            SunstoneCfg["tabs"][tab_id] = tab_obj;
+            if (refresh){
+                insertTab(tab_id);
+                //$(document).foundationCustomForms();
+            }
         }
     },
 
