@@ -4,7 +4,7 @@ require 'pp'
 
 $nokogiri='nokogiri'
 
-DEFAULT=%w{sunstone quota cloud ozones_server auth_ldap vmware}
+DEFAULT=%w{sunstone quota cloud ozones_server auth_ldap vmware oneflow}
 
 if defined?(RUBY_VERSION) && RUBY_VERSION>="1.8.7"
     SQLITE='sqlite3'
@@ -23,7 +23,8 @@ GROUPS={
     :ozones_server_sqlite => %w{json sequel}<<SQLITE,
     :ozones_server_mysql => %w{json sequel mysql},
     :auth_ldap => 'net-ldap',
-    :vmware => 'builder'
+    :vmware => 'builder',
+    :oneflow => %w{sinatra json treetop parse-cron}
 }
 
 PACKAGES=GROUPS.keys
