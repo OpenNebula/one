@@ -50,10 +50,8 @@ function execute_scripts {
     done
 }
 
-CDROM_DEVICE=$(ls /dev/cdrom* /dev/scd* /dev/sr* 2>/dev/null| sort | head -n 1)
-
-if [ -e "$CDROM_DEVICE" ]; then
-    mount -t iso9660 $CDROM_DEVICE /mnt
+if [ -e "/dev/disk/by-label/CONTEXT" ]; then
+    mount -t iso9660 -L CONTEXT -o ro /mnt
     if [ -f /mnt/context.sh ]; then
         export_rc_vars /mnt/context.sh
     fi

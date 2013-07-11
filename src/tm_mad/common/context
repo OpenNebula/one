@@ -93,7 +93,7 @@ for f in "${SRC[@]}"; do
     [ -n "$ERROR" ] && exit_error
 done
 
-exec_and_set_error "$MKISOFS -o $ISO_FILE -J -R $ISO_DIR" \
+exec_and_set_error "$MKISOFS -o $ISO_FILE -V CONTEXT -J -R $ISO_DIR" \
     "Error creating iso fs"
 [ -n "$ERROR" ] && exit_error
 
