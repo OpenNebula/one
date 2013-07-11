@@ -1,21 +1,21 @@
 small_logo: images/opennebula-sunstone-v4.0-small.png
 enabled_tabs:
-    - dashboard-tab
-    #- system-tab
-    #- users-tab
-    #- groups-tab
-    #- acls-tab
-    - vresources-tab
-    - vms-tab
-    - templates-tab
-    - images-tab
-    - files-tab
-    - infra-tab
-    #- clusters-tab
-    #- hosts-tab
-    - datastores-tab
-    - vnets-tab
-    - marketplace-tab
+    dashboard-tab: true
+    system-tab: false
+    users-tab: false
+    groups-tab: false
+    acls-tab: false
+    vresources-tab: true
+    vms-tab: true
+    templates-tab: true
+    images-tab: true
+    files-tab: true
+    infra-tab: true
+    clusters-tab: false
+    hosts-tab: false
+    datastores-tab: true
+    vnets-tab: true
+    marketplace-tab: true
 tabs:
     dashboard-tab:
         panel_tabs:
