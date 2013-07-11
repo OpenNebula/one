@@ -1066,8 +1066,7 @@ var OpenNebula = {
             OpenNebula.Action.simple_action(params,OpenNebula.Template.resource,"unpublish");
         },
         "instantiate" : function(params) {
-            var vm_name = params.data.extra_param ? params.data.extra_param : "";
-            var action_obj = { "vm_name" : vm_name };
+            var action_obj = params.data.extra_param ? params.data.extra_param : {};
             OpenNebula.Action.simple_action(params,OpenNebula.Template.resource,
                                             "instantiate",action_obj);
         },

@@ -78,7 +78,12 @@ module OpenNebulaJSON
         end
 
         def instantiate(params=Hash.new)
-            super(params['vm_name'])
+            if params['template']
+                template = template_to_str(params['template'])
+                super(params['vm_name'], false, template)
+            else
+                super(params['vm_name'])
+            end
         end
 
         def clone(params=Hash.new)
