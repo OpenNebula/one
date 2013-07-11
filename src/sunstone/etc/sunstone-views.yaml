@@ -18,6 +18,8 @@ available_tabs:
     - vnets-tab
     - marketplace-tab
 users:
+    cloud:
+        - cloud
 groups:
     oneadmin:
         - admin
