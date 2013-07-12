@@ -16,6 +16,8 @@
 
 /*Images tab plugin*/
 
+size_images = 0;
+
 var images_tab_content = '\
 <form class="custom" id="image_form" action="">\
 <div class="panel">\
@@ -1349,32 +1351,34 @@ function popUpImageCloneDialog(){
 $(document).ready(function(){
     var tab_name = 'images-tab';
 
-    dataTable_images = $("#datatable_images",main_tabs_context).dataTable({
-        "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "35px", "aTargets": [0] },
-            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
-            { "bVisible": false, "aTargets": ['_all']}
-        ]
-    });
+    if (Config.isTabEnabled(tab_name)) {
+      dataTable_images = $("#datatable_images",main_tabs_context).dataTable({
+          "aoColumnDefs": [
+              { "bSortable": false, "aTargets": ["check"] },
+              { "sWidth": "35px", "aTargets": [0] },
+              { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
+              { "bVisible": false, "aTargets": ['_all']}
+          ]
+      });
 
-    $('#image_search').keyup(function(){
-      dataTable_images.fnFilter( $(this).val() );
-    })
+      $('#image_search').keyup(function(){
+        dataTable_images.fnFilter( $(this).val() );
+      })
 
-    dataTable_images.on('draw', function(){
-      recountCheckboxes(dataTable_images);
-    })
+      dataTable_images.on('draw', function(){
+        recountCheckboxes(dataTable_images);
+      })
 
-    Sunstone.runAction("Image.list");
+      Sunstone.runAction("Image.list");
 
-    setupCreateImageDialog();
-    setupImageCloneDialog();
-    setImageAutorefresh();
+      setupCreateImageDialog();
+      setupImageCloneDialog();
+      setImageAutorefresh();
 
-    initCheckAllBoxes(dataTable_images);
-    tableCheckboxesListener(dataTable_images);
-    infoListener(dataTable_images,'Image.showinfo');
+      initCheckAllBoxes(dataTable_images);
+      tableCheckboxesListener(dataTable_images);
+      infoListener(dataTable_images,'Image.showinfo');
 
-    $('div#images_tab div.legend_div').hide();
+      $('div#images_tab div.legend_div').hide();
+    }
 });

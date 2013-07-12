@@ -969,32 +969,34 @@ function is_persistent_file(id){
 $(document).ready(function(){
     var tab_name = 'files-tab';
 
-    dataTable_files = $("#datatable_files",main_tabs_context).dataTable({
-        "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "35px", "aTargets": [0] },
-            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
-            { "bVisible": false, "aTargets": ['_all']}
-        ]
-    });
+    if (Config.isTabEnabled(tab_name)) {
+      dataTable_files = $("#datatable_files",main_tabs_context).dataTable({
+          "aoColumnDefs": [
+              { "bSortable": false, "aTargets": ["check"] },
+              { "sWidth": "35px", "aTargets": [0] },
+              { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
+              { "bVisible": false, "aTargets": ['_all']}
+          ]
+      });
 
-    $('#file_search').keyup(function(){
-      dataTable_files.fnFilter( $(this).val() );
-    })
+      $('#file_search').keyup(function(){
+        dataTable_files.fnFilter( $(this).val() );
+      })
 
-    dataTable_files.on('draw', function(){
-      recountCheckboxes(dataTable_files);
-    })
+      dataTable_files.on('draw', function(){
+        recountCheckboxes(dataTable_files);
+      })
 
-    Sunstone.runAction("File.list");
+      Sunstone.runAction("File.list");
 
-    setupCreateFileDialog();
-    setupTips($create_file_dialog);
-    setFileAutorefresh();
+      setupCreateFileDialog();
+      setupTips($create_file_dialog);
+      setFileAutorefresh();
 
-    initCheckAllBoxes(dataTable_files);
-    tableCheckboxesListener(dataTable_files);
-    infoListener(dataTable_files,'File.showinfo');
+      initCheckAllBoxes(dataTable_files);
+      tableCheckboxesListener(dataTable_files);
+      infoListener(dataTable_files,'File.showinfo');
 
-    $('div#files_tab div.legend_div').hide();
+      $('div#files_tab div.legend_div').hide();
+    }
 });

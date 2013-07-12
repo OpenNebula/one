@@ -599,35 +599,37 @@ function setAclAutorefresh(){
 $(document).ready(function(){
     var tab_name = 'acls-tab';
 
-    //if we are not oneadmin, our tab will not even be in the DOM.
-    dataTable_acls = $("#datatable_acls",main_tabs_context).dataTable({
-        "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check",2,3,4,5,6] },
-            { "sWidth": "35px", "aTargets": [0] },
-            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
-            { "bVisible": false, "aTargets": ['_all']}
-        ]
-    });
+    if (Config.isTabEnabled(tab_name)) {
+        //if we are not oneadmin, our tab will not even be in the DOM.
+        dataTable_acls = $("#datatable_acls",main_tabs_context).dataTable({
+            "aoColumnDefs": [
+                { "bSortable": false, "aTargets": ["check",2,3,4,5,6] },
+                { "sWidth": "35px", "aTargets": [0] },
+                { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
+                { "bVisible": false, "aTargets": ['_all']}
+            ]
+        });
 
 
-    $('#acl_search').keyup(function(){
-      dataTable_acls.fnFilter( $(this).val() );
-    })
+        $('#acl_search').keyup(function(){
+          dataTable_acls.fnFilter( $(this).val() );
+        })
 
-    dataTable_acls.on('draw', function(){
-      recountCheckboxes(dataTable_acls);
-    })
+        dataTable_acls.on('draw', function(){
+          recountCheckboxes(dataTable_acls);
+        })
 
-    Sunstone.runAction("Acl.list");
+        Sunstone.runAction("Acl.list");
 
-    setupCreateAclDialog();
-    setAclAutorefresh();
+        setupCreateAclDialog();
+        setAclAutorefresh();
 
-    initCheckAllBoxes(dataTable_acls);
-    tableCheckboxesListener(dataTable_acls);
-    //shortenedInfoFields('#datatable_acls');
+        initCheckAllBoxes(dataTable_acls);
+        tableCheckboxesListener(dataTable_acls);
+        //shortenedInfoFields('#datatable_acls');
 
-    infoListener(dataTable_acls);
+        infoListener(dataTable_acls);
 
-    $('div#acls_tab div.legend_div').hide();
+        $('div#acls_tab div.legend_div').hide();
+    }
 })

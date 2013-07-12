@@ -64,7 +64,7 @@
     <script src="js/plugins/config-tab.js" type="text/javascript"></script>
 
     <!-- enabled tabs: -->
-    <%- view['enabled_tabs'].each do |tab_name| -%>
+    <%- $views_config.available_tabs.each do |tab_name| -%>
         <script src="js/plugins/<%= tab_name %>.js" type="text/javascript"></script>
     <%- end -%>
     <!-- end tabs -->

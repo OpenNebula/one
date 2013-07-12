@@ -913,40 +913,42 @@ function setUserAutorefresh(){
 $(document).ready(function(){
     var tab_name = 'users-tab';
 
-    //if we are not oneadmin, our tab will not even be in the DOM.
-    dataTable_users = $("#datatable_users",main_tabs_context).dataTable({
-        "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check",5,6,7] },
-            { "sWidth": "35px", "aTargets": [0] },
-            { "sWidth": "150px", "aTargets": [5,6,7] },
-            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
-            { "bVisible": false, "aTargets": ['_all']}
-        ]
-    });
+    if (Config.isTabEnabled(tab_name)) {
+      //if we are not oneadmin, our tab will not even be in the DOM.
+      dataTable_users = $("#datatable_users",main_tabs_context).dataTable({
+          "aoColumnDefs": [
+              { "bSortable": false, "aTargets": ["check",5,6,7] },
+              { "sWidth": "35px", "aTargets": [0] },
+              { "sWidth": "150px", "aTargets": [5,6,7] },
+              { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
+              { "bVisible": false, "aTargets": ['_all']}
+          ]
+      });
 
-    $('#user_search').keyup(function(){
-      dataTable_users.fnFilter( $(this).val() );
-    })
+      $('#user_search').keyup(function(){
+        dataTable_users.fnFilter( $(this).val() );
+      })
 
-    dataTable_users.on('draw', function(){
-      recountCheckboxes(dataTable_users);
-    })
+      dataTable_users.on('draw', function(){
+        recountCheckboxes(dataTable_users);
+      })
 
-    Sunstone.runAction("User.list");
+      Sunstone.runAction("User.list");
 
-    setupCreateUserDialog();
-    setupUpdatePasswordDialog();
-    setupChangeAuthenticationDialog();
-    setupUserQuotasDialog();
-    setUserAutorefresh();
-    //Setup quota icons
-    //Also for group tab
-    setupQuotaIcons();
+      setupCreateUserDialog();
+      setupUpdatePasswordDialog();
+      setupChangeAuthenticationDialog();
+      setupUserQuotasDialog();
+      setUserAutorefresh();
+      //Setup quota icons
+      //Also for group tab
+      setupQuotaIcons();
 
-    initCheckAllBoxes(dataTable_users);
-    tableCheckboxesListener(dataTable_users);
-    infoListener(dataTable_users,'User.showinfo');
+      initCheckAllBoxes(dataTable_users);
+      tableCheckboxesListener(dataTable_users);
+      infoListener(dataTable_users,'User.showinfo');
 
-    $('div#users_tab div.legend_div').hide();
-    $('div#users_tab_non_admin div.legend_div').hide();
+      $('div#users_tab div.legend_div').hide();
+      $('div#users_tab_non_admin div.legend_div').hide();
+    }
 });

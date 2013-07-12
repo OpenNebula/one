@@ -1563,38 +1563,40 @@ function setVNetAutorefresh() {
 $(document).ready(function(){
     var tab_name = 'vnets-tab';
 
-    dataTable_vNetworks = $("#datatable_vnetworks",main_tabs_context).dataTable({
-        "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "35px", "aTargets": [0] },
-            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
-            { "bVisible": false, "aTargets": ['_all']}
-        ]
-    });
+    if (Config.isTabEnabled(tab_name)) {
+      dataTable_vNetworks = $("#datatable_vnetworks",main_tabs_context).dataTable({
+          "aoColumnDefs": [
+              { "bSortable": false, "aTargets": ["check"] },
+              { "sWidth": "35px", "aTargets": [0] },
+              { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
+              { "bVisible": false, "aTargets": ['_all']}
+          ]
+      });
 
-    $('#vnet_search').keyup(function(){
-      dataTable_vNetworks.fnFilter( $(this).val() );
-    })
+      $('#vnet_search').keyup(function(){
+        dataTable_vNetworks.fnFilter( $(this).val() );
+      })
 
-    dataTable_vNetworks.on('draw', function(){
-      recountCheckboxes(dataTable_vNetworks);
-    })
+      dataTable_vNetworks.on('draw', function(){
+        recountCheckboxes(dataTable_vNetworks);
+      })
 
-    Sunstone.runAction("Network.list");
+      Sunstone.runAction("Network.list");
 
-    setupCreateVNetDialog();
-    setupLeasesOps();
-    setVNetAutorefresh();
+      setupCreateVNetDialog();
+      setupLeasesOps();
+      setVNetAutorefresh();
 
-    initCheckAllBoxes(dataTable_vNetworks);
-    tableCheckboxesListener(dataTable_vNetworks);
-    infoListener(dataTable_vNetworks,'Network.showinfo');
+      initCheckAllBoxes(dataTable_vNetworks);
+      tableCheckboxesListener(dataTable_vNetworks);
+      infoListener(dataTable_vNetworks,'Network.showinfo');
 
-    // Reset list filter in case it was set because we were lookin
-    // at a single cluster view
-    $('div#menu li#li_vnets_tab').live('click',function(){
-        dataTable_vNetworks.fnFilter('',5);
-    });
+      // Reset list filter in case it was set because we were lookin
+      // at a single cluster view
+      $('div#menu li#li_vnets_tab').live('click',function(){
+          dataTable_vNetworks.fnFilter('',5);
+      });
 
-    $('div#vnets_tab div.legend_div').hide();
+      $('div#vnets_tab div.legend_div').hide();
+    }
 });

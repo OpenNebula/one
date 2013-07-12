@@ -968,42 +968,44 @@ function hostMonitorError(req,error_json){
 $(document).ready(function(){
     var tab_name = 'hosts-tab';
 
-    //prepare host datatable
-    dataTable_hosts = $("#datatable_hosts",main_tabs_context).dataTable({
-        "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check",5,6,7,8] },
-            { "sWidth": "35px", "aTargets": [0] }, //check, ID, RVMS, Status,
-            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
-            { "bVisible": false, "aTargets": ['_all']}
-        ]
-    });
+    if (Config.isTabEnabled(tab_name)) {
+      //prepare host datatable
+      dataTable_hosts = $("#datatable_hosts",main_tabs_context).dataTable({
+          "aoColumnDefs": [
+              { "bSortable": false, "aTargets": ["check",5,6,7,8] },
+              { "sWidth": "35px", "aTargets": [0] }, //check, ID, RVMS, Status,
+              { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
+              { "bVisible": false, "aTargets": ['_all']}
+          ]
+      });
 
-    $('#hosts_search').keyup(function(){
-      dataTable_hosts.fnFilter( $(this).val() );
-    })
+      $('#hosts_search').keyup(function(){
+        dataTable_hosts.fnFilter( $(this).val() );
+      })
 
-    dataTable_hosts.on('draw', function(){
-      recountCheckboxes(dataTable_hosts);
-    })
+      dataTable_hosts.on('draw', function(){
+        recountCheckboxes(dataTable_hosts);
+      })
 
-    Sunstone.runAction("Host.list");
+      Sunstone.runAction("Host.list");
 
-    setupCreateHostDialog();
+      setupCreateHostDialog();
 
-    setHostAutorefresh();
+      setHostAutorefresh();
 
-    initCheckAllBoxes(dataTable_hosts);
-    tableCheckboxesListener(dataTable_hosts);
-    infoListener(dataTable_hosts, "Host.showinfo");
+      initCheckAllBoxes(dataTable_hosts);
+      tableCheckboxesListener(dataTable_hosts);
+      infoListener(dataTable_hosts, "Host.showinfo");
 
-    // This listener removes any filter on hosts table when its menu item is
-    // selected. The cluster plugins will filter hosts when the hosts
-    // in a cluster are shown. So we have to make sure no filter has been
-    // left in place when we want to see all hosts.
-    $('div#menu li#li_hosts_tab').live('click',function(){
-        dataTable_hosts.fnFilter('',3);
-    });
+      // This listener removes any filter on hosts table when its menu item is
+      // selected. The cluster plugins will filter hosts when the hosts
+      // in a cluster are shown. So we have to make sure no filter has been
+      // left in place when we want to see all hosts.
+      $('div#menu li#li_hosts_tab').live('click',function(){
+          dataTable_hosts.fnFilter('',3);
+      });
 
-    // Hide help
-    $('div#hosts_tab div.legend_div',main_tabs_context).hide();
+      // Hide help
+      $('div#hosts_tab div.legend_div',main_tabs_context).hide();
+    }
 });
