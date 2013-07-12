@@ -215,7 +215,7 @@ private:
     ImagePool *           ipool;
 
     /**
-     *  Pointer to the Image Pool to access VMs
+     *  Pointer to the DS Pool
      */
     DatastorePool *       dspool;
 

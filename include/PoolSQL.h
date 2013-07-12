@@ -100,7 +100,7 @@ public:
     /**
      *  List the objects in the pool
      *   @param oids a vector with the oids of the objects.
-     *   @param the name of the DB table.
+     *   @param table the name of the DB table.
      *
      *   @return 0 on success
      */

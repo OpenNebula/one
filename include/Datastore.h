@@ -164,7 +164,7 @@ public:
 
     /**
      *  Returns the available capacity in the datastore.
-     *    @params avail the total available size in the datastore (mb)
+     *    @params avail the total available size in the datastore (MB)
      *    @return true if the datastore is configured to enforce capacity
      *    checkings
      */

@@ -11,7 +11,6 @@
 :SIZE:
   :desc: Total Datastore size
   :size: 10
-  :left: true
 
 :AVAIL:
   :desc: Free Datastore size (%)
