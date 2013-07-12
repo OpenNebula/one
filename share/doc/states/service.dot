@@ -1,0 +1,63 @@
+
+
+digraph AppFlow {
+    graph [
+        nodesep= 0.5,
+        ratio=1,
+        pad=0.5,
+    ];
+
+    node [fontname="Helvetica"];
+    edge [fontname="Menlo"];
+    
+    user [
+        fillcolor="black",
+        style="filled", shape="box",
+        fontcolor="white", fontsize= "24.0"];
+
+    ANY [ shape="box" ];
+
+    end [ width=0.15, height=0.15, shape=point ];
+
+    running [ label="running /\nwarning"];
+
+    subgraph { rank = min; user; pending}
+    subgraph { rank = same; deploying; failed_deploying; color="white"}
+
+    subgraph { rank = same; running; scaling; failed_scaling; color="white"}
+
+    subgraph { rank = same; undeploying; failed_undeploying; color="white"}
+//    subgraph { rank = same; done; end; color="white"}
+
+
+    user -> pending [label="instantiate"];
+
+    pending -> deploying [style="dashed"];
+    deploying -> running [style="dashed"];
+    running -> undeploying [label="shutdown"];
+    undeploying -> done [style="dashed"];
+    done -> end [label="delete"];
+
+
+//    running -> warning [style="dotted"];
+//    warning -> running [style="dotted"];
+
+
+    running -> scaling [style="dashed"];
+    scaling -> cooldown [style="dashed"];
+    cooldown -> running [style="dashed"];
+
+    cooldown -> failed_undeploying [style="invis"];
+
+    failed_deploying -> deploying [label="recover"];
+    deploying -> failed_deploying [style="dotted"];
+    
+    failed_undeploying -> undeploying [label="recover"];
+    undeploying -> failed_undeploying [style="dotted"];
+
+    failed_scaling -> scaling [label="recover"];
+    scaling -> failed_scaling [style="dotted"];
+    
+
+    ANY -> end [label="delete"];
+}
