@@ -1445,30 +1445,32 @@ function setServiceTemplateAutorefresh() {
 $(document).ready(function(){
     var tab_name = "oneflow-templates";
 
-    dataTable_service_templates = $("#datatable_service_templates",main_tabs_context).dataTable({
-        "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "35px", "aTargets": [0] },
-            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
-            { "bVisible": false, "aTargets": ['_all']}
-        ]
-    });
+    if (Config.isTabEnabled(tab_name)) {
+        dataTable_service_templates = $("#datatable_service_templates",main_tabs_context).dataTable({
+            "aoColumnDefs": [
+                { "bSortable": false, "aTargets": ["check"] },
+                { "sWidth": "35px", "aTargets": [0] },
+                { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
+                { "bVisible": false, "aTargets": ['_all']}
+            ]
+        });
 
-    $('#service_templates_search').keyup(function(){
-      dataTable_service_templates.fnFilter( $(this).val() );
-    })
+        $('#service_templates_search').keyup(function(){
+          dataTable_service_templates.fnFilter( $(this).val() );
+        })
 
-    dataTable_service_templates.on('draw', function(){
-      recountCheckboxes(dataTable_service_templates);
-    })
+        dataTable_service_templates.on('draw', function(){
+          recountCheckboxes(dataTable_service_templates);
+        })
 
-    Sunstone.runAction("ServiceTemplate.list");
+        Sunstone.runAction("ServiceTemplate.list");
 
-    setServiceTemplateAutorefresh();
+        setServiceTemplateAutorefresh();
 
-    initCheckAllBoxes(dataTable_service_templates);
-    tableCheckboxesListener(dataTable_service_templates);
-    infoListener(dataTable_service_templates,'ServiceTemplate.showinfo');
+        initCheckAllBoxes(dataTable_service_templates);
+        tableCheckboxesListener(dataTable_service_templates);
+        infoListener(dataTable_service_templates,'ServiceTemplate.showinfo');
 
-    $('div#service_templates_tab div.legend_div').hide();
+        $('div#service_templates_tab div.legend_div').hide();
+    }
 });
