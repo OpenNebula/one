@@ -16,6 +16,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-echo "USED_MB=30720"
+echo "USED_MB=9720"
 echo "TOTAL_MB=20480"
 echo "FREE_MB=20480"

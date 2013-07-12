@@ -56,6 +56,7 @@ var datastores_tab_content = '\
       <th>'+tr("Owner")+'</th>\
       <th>'+tr("Group")+'</th>\
       <th>'+tr("Name")+'</th>\
+      <th>'+tr("Capacity")+'</th>\
       <th>'+tr("Cluster")+'</th>\
       <th>'+tr("Basepath")+'</th>\
       <th>'+tr("TM MAD")+'</th>\
@@ -605,6 +606,23 @@ function datastoreElementArray(element_json){
       type = element.TEMPLATE.TYPE;
     }
 
+    var total = parseInt(element.TOTAL_MB);
+
+    var used = parseInt(element.USED_MB);
+
+    if (total > 0) {
+        var ratio = Math.round((used / total) * 100);
+        info_str = humanize_size_from_mb(used) + ' / ' + humanize_size_from_mb(total) + ' (' + ratio + '%)';
+    } else {
+        if(element.TYPE == 1) {
+            info_str = '- / -';
+        } else {
+            info_str = humanize_size(used) + ' / -';
+        }
+    }
+
+    var pb_capacity = quotaBarHtml(used, total, info_str);
+
     return [
         '<input class="check_item" type="checkbox" id="datastore_'+
                              element.ID+'" name="selected_items" value="'+
@@ -613,6 +631,7 @@ function datastoreElementArray(element_json){
         element.UNAME,
         element.GNAME,
         element.NAME,
+        pb_capacity,
         element.CLUSTER.length ? element.CLUSTER : "-",
         element.BASE_PATH,
         element.TM_MAD,
@@ -693,11 +712,13 @@ function updateDatastoreInfo(request,ds){
         images_str=getImageName(info.IMAGES.ID);
     };
 
-    var cluster_str = '<td class="key_td">Cluster</td><td>-</td>';
+    var cluster_str = '<td class="key_td">Cluster</td><td colspan="2">-</td>';
     if (info.ID != "0")
     {
         cluster_str = insert_cluster_dropdown("Datastore",info.ID,info.CLUSTER,info.CLUSTER_ID);
     }
+
+    var is_system = (info.TYPE == 1)
 
     var info_tab_content = '<div class="">\
         <div class="six columns">\
@@ -723,6 +744,19 @@ function updateDatastoreInfo(request,ds){
                  <td class="key_td">'+tr("Base path")+'</td>\
                  <td class="value_td">'+info.BASE_PATH+'</td>\
                  <td></td>\
+              </tr>\
+              <thead><tr><th colspan="3" style="width:130px">'+tr("Capacity")+'</th>\</tr></thead>\
+              <tr>\
+                <td class="key_td">' + tr("Total") + '</td>\
+                <td class="value_td" colspan="2">'+(is_system ? '-' : humanize_size_from_mb(info.TOTAL_MB))+'</td>\
+              </tr>\
+              <tr>\
+                <td class="key_td">' + tr("Used") + '</td>\
+                <td class="value_td" colspan="2">'+(is_system ? '-' : humanize_size_from_mb(info.USED_MB))+'</td>\
+              </tr>\
+              <tr>\
+                <td class="key_td">' + tr("Free") + '</td>\
+                <td class="value_td" colspan="2">'+(is_system ? '-' : humanize_size_from_mb(info.FREE_MB))+'</td>\
               </tr>\
             </tbody>\
           </table>'
@@ -1087,6 +1121,7 @@ $(document).ready(function(){
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "35px", "aTargets": [0] },
+            { "sWidth": "200px", "aTargets": [5] },
             { "bVisible": true, "aTargets": config['view']['tabs']['datastores-tab']['table_columns']},
             { "bVisible": false, "aTargets": ['_all']}
         ]

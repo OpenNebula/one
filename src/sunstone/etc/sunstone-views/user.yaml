@@ -291,11 +291,13 @@ tabs:
             - 2         # Owner
             - 3         # Group
             - 4         # Name
-            - 5         # Cluster
-            #- 6         # Basepath
-            #- 7         # TM
-            #- 8         # DS
-            #- 9         # Type
+            - 5         # Capacity
+            - 6         # Cluster
+            #- 7         # Basepath
+            #- 8         # TM
+            #- 9         # DS
+            #- 10        # Type
+
         actions:
             Datastore.refresh: true
             Datastore.create_dialog: false
