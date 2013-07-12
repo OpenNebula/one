@@ -15,6 +15,9 @@
 #--------------------------------------------------------------------------- #
 
 require 'fileutils'
+require 'rexml/document'
+require 'openssl'
+
 
 module Migrator
     def db_version
@@ -43,11 +46,11 @@ module Migrator
         @db.run "CREATE TABLE user_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
 
         @db.fetch("SELECT * FROM old_user_pool") do |row|
-            doc = Document.new(row[:body])
+            doc = REXML::Document.new(row[:body])
 
             doc.root.each_element("TEMPLATE") do |e|
                 e.add_element("TOKEN_PASSWORD").text =
-                    Digest::SHA1.hexdigest( rand().to_s )
+                    OpenSSL::Digest::SHA1.hexdigest( rand().to_s )
             end
 
             @db[:user_pool].insert(
@@ -71,7 +74,7 @@ module Migrator
         @db.run "CREATE TABLE datastore_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name));"
 
         @db.fetch("SELECT * FROM old_datastore_pool") do |row|
-            doc = Document.new(row[:body])
+            doc = REXML::Document.new(row[:body])
 
             doc.root.add_element("TOTAL_MB").text = "0"
             doc.root.add_element("FREE_MB").text = "0"
