@@ -203,6 +203,12 @@ void ImageManager::monitor_datastore(int ds_id)
         return;
     }
 
+    if ( ds->get_type() == Datastore::SYSTEM_DS )
+    {
+        ds->unlock();
+        return;
+    }
+
     drv_msg = ImageManager::format_message("", ds->to_xml(ds_data));
 
     oss << "Monitoring datastore " << ds->get_name() << " (" << ds_id << ")";

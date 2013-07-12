@@ -508,6 +508,9 @@ int Datastore::replace_template(const string& tmpl_str, string& error_str)
     if ( type == SYSTEM_DS )
     {
         new_ds_mad = "-";
+
+        // System DS are not monitored, clear current info
+        update_monitor(0, 0, 0);
     }
     else
     {
