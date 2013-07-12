@@ -1,0 +1,57 @@
+{
+  "name": "scalability",
+  "deployment": "straight",
+  "roles": [
+    {
+      "name": "frontend",
+      "cardinality": 1,
+      "vm_template": 0,
+
+      "min_vms" : 1,
+      "max_vms" : 5,
+
+      "elasticity_policies" : [
+        {
+          // +2 VMs when the exp. is true for 3 times in a row,
+          // separated by 10 seconds
+          "type" : "CHANGE",
+          "expression" : "ATT > 50",
+          "adjust" : 2,
+
+          "period_number" : 3,
+          "period" : 10
+        },
+        {
+          // -10 percent VMs when the exp. is true.
+          // If 10 percent is less than 2, -2 VMs.
+          "type" : "PERCENTAGE_CHANGE",
+          "expression" : "ATT < 10",
+          "adjust" : -10,
+          "min_adjust_step" : 2
+        },
+        {
+          // Set cardinality to 4 when the exp. is true
+          "type" : "CARDINALITY",
+          "expression" : "SOME_ATT <= 50 && OTHER_ATT > 90",
+          "adjust" : 4
+        }
+      ],
+
+      "scheduled_policies" : [
+        {
+          // Set cardinality to 2 each 10 minutes
+          "type" : "CARDINALITY",
+          "recurrence" : "*/10 * * * *",
+          "adjust" : 2
+        },
+        {
+          // +10 percent at the given date and time
+          "type" : "PERCENTAGE_CHANGE",
+          "start_time" : "2nd oct 2013 15:45",
+          "adjust" : 10
+        }
+      ]
+    }
+  ]
+}
+

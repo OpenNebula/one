@@ -43,6 +43,7 @@ usage() {
  echo "-s: install OpenNebula Sunstone"
  echo "-G: install OpenNebula Gate"
  echo "-o: install OpenNebula Zones (OZones)"
+ echo "-f: install OpenNebula Flow"
  echo "-r: remove Opennebula, only useful if -d was not specified, otherwise"
  echo "    rm -rf \$ONE_LOCATION would do the job"
  echo "-l: creates symlinks instead of copying files, useful for development"
@@ -72,6 +73,7 @@ CLIENT="no"
 ONEGATE="no"
 SUNSTONE="no"
 OZONES="no"
+ONEFLOW="no"
 ONEADMIN_USER=`id -u`
 ONEADMIN_GROUP=`id -g`
 SRC_DIR=$PWD
@@ -86,6 +88,7 @@ while true ; do
         -G) ONEGATE="yes"; shift ;;
         -s) SUNSTONE="yes"; shift ;;
         -o) OZONES="yes"; shift ;;
+        -f) ONEFLOW="yes"; shift ;;
         -u) ONEADMIN_USER="$2" ; shift 2;;
         -g) ONEADMIN_GROUP="$2"; shift 2;;
         -d) ROOT="$2" ; shift 2 ;;
@@ -109,6 +112,7 @@ if [ -z "$ROOT" ] ; then
     ONEGATE_LOCATION="$LIB_LOCATION/onegate"
     SUNSTONE_LOCATION="$LIB_LOCATION/sunstone"
     OZONES_LOCATION="$LIB_LOCATION/ozones"
+    ONEFLOW_LOCATION="$LIB_LOCATION/oneflow"
     SYSTEM_DS_LOCATION="$VAR_LOCATION/datastores/0"
     DEFAULT_DS_LOCATION="$VAR_LOCATION/datastores/1"
     RUN_LOCATION="/var/run/one"
@@ -145,12 +149,19 @@ if [ -z "$ROOT" ] ; then
         DELETE_DIRS="$MAKE_DIRS"
 
         CHOWN_DIRS=""
+    elif [ "$ONEFLOW" = "yes" ]; then
+        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION $ONEFLOW_LOCATION \
+                    $ETC_LOCATION"
+
+        DELETE_DIRS="$MAKE_DIRS"
+
+        CHOWN_DIRS=""
     else
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION \
                    $LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION \
                    $SYSTEM_DS_LOCATION $DEFAULT_DS_LOCATION $MAN_LOCATION \
-                   $VM_LOCATION $ONEGATE_LOCATION"
+                   $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION"
 
         DELETE_DIRS="$LIB_LOCATION $ETC_LOCATION $LOG_LOCATION $VAR_LOCATION \
                      $RUN_LOCATION $SHARE_DIRS"
@@ -166,6 +177,7 @@ else
     ONEGATE_LOCATION="$LIB_LOCATION/onegate"
     SUNSTONE_LOCATION="$LIB_LOCATION/sunstone"
     OZONES_LOCATION="$LIB_LOCATION/ozones"
+    ONEFLOW_LOCATION="$LIB_LOCATION/oneflow"
     SYSTEM_DS_LOCATION="$VAR_LOCATION/datastores/0"
     DEFAULT_DS_LOCATION="$VAR_LOCATION/datastores/1"
     INCLUDE_LOCATION="$ROOT/include"
@@ -192,11 +204,16 @@ else
                    $ETC_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
+    elif [ "$ONEFLOW" = "yes" ]; then
+        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION $ONEFLOW_LOCATION \
+                   $ETC_LOCATION"
+
+        DELETE_DIRS="$MAKE_DIRS"
     else
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION $SYSTEM_DS_LOCATION \
                    $DEFAULT_DS_LOCATION $MAN_LOCATION $OZONES_LOCATION \
-                   $VM_LOCATION  $ONEGATE_LOCATION"
+                   $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
 
@@ -366,6 +383,10 @@ OZONES_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/cli/ozones_helper \
                  $LIB_LOCATION/ruby/zona"
 
+ONEFLOW_DIRS="$ONEFLOW_LOCATION/lib \
+              $ONEFLOW_LOCATION/lib/strategy \
+              $ONEFLOW_LOCATION/lib/models"
+
 LIB_ECO_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/opennebula \
                  $LIB_LOCATION/ruby/cloud/ \
@@ -397,9 +418,11 @@ elif [ "$SUNSTONE" = "yes" ]; then
     MAKE_DIRS="$MAKE_DIRS $SUNSTONE_DIRS $LIB_OCA_CLIENT_DIRS"
 elif [ "$OZONES" = "yes" ]; then
     MAKE_DIRS="$MAKE_DIRS $OZONES_DIRS $OZONES_CLIENT_DIRS $LIB_OCA_CLIENT_DIRS"
+elif [ "$ONEFLOW" = "yes" ]; then
+    MAKE_DIRS="$MAKE_DIRS $ONEFLOW_DIRS $LIB_OCA_CLIENT_DIRS"
 else
     MAKE_DIRS="$MAKE_DIRS $SHARE_DIRS $ETC_DIRS $LIB_DIRS $VAR_DIRS \
-                $OZONES_DIRS $OZONES_CLIENT_DIRS $SUNSTONE_DIRS"
+                $OZONES_DIRS $OZONES_CLIENT_DIRS $SUNSTONE_DIRS $ONEFLOW_DIRS"
 fi
 
 #-------------------------------------------------------------------------------
@@ -522,6 +545,7 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_VIEWS_FILES:$SUNSTONE_LOCATION/views
     SUNSTONE_PUBLIC_JS_FILES:$SUNSTONE_LOCATION/public/js
     SUNSTONE_PUBLIC_JS_PLUGINS_FILES:$SUNSTONE_LOCATION/public/js/plugins
+    SUNSTONE_ROUTES_FILES:$SUNSTONE_LOCATION/routes
     SUNSTONE_PUBLIC_CSS_FILES:$SUNSTONE_LOCATION/public/css
     SUNSTONE_PUBLIC_VENDOR_CRYPTOJS:$SUNSTONE_LOCATION/public/vendor/crypto-js
     SUNSTONE_PUBLIC_VENDOR_EXPLORERCANVAS:$SUNSTONE_LOCATION/public/vendor/explorercanvas
@@ -614,6 +638,17 @@ INSTALL_OZONES_ETC_FILES=(
     OZONES_ETC_FILES:$ETC_LOCATION
 )
 
+INSTALL_ONEFLOW_FILES=(
+    ONEFLOW_FILES:$ONEFLOW_LOCATION
+    ONEFLOW_BIN_FILES:$BIN_LOCATION
+    ONEFLOW_LIB_FILES:$ONEFLOW_LOCATION/lib
+    ONEFLOW_LIB_STRATEGY_FILES:$ONEFLOW_LOCATION/lib/strategy
+    ONEFLOW_LIB_MODELS_FILES:$ONEFLOW_LOCATION/lib/models
+)
+
+INSTALL_ONEFLOW_ETC_FILES=(
+    ONEFLOW_ETC_FILES:$ETC_LOCATION
+)
 
 INSTALL_ETC_FILES=(
     ETC_FILES:$ETC_LOCATION
@@ -647,6 +682,8 @@ BIN_FILES="src/nebula/oned \
            src/cli/oneacl \
            src/cli/onedatastore \
            src/cli/onecluster \
+           src/cli/oneflow \
+           src/cli/oneflow-template \
            src/onedb/onedb \
            src/onedb/onezonedb/onezonedb \
            src/mad/utils/tty_expect \
@@ -1182,38 +1219,39 @@ INSTALL_GEMS_SHARE_FILE="share/install_gems/install_gems"
 #-------------------------------------------------------------------------------
 OCA_LIB_FILES="src/oca/ruby/opennebula.rb"
 
-RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/host.rb \
-                           src/oca/ruby/opennebula/host_pool.rb \
-                           src/oca/ruby/opennebula/pool.rb \
-                           src/oca/ruby/opennebula/user.rb \
-                           src/oca/ruby/opennebula/user_pool.rb \
-                           src/oca/ruby/opennebula/virtual_machine.rb \
-                           src/oca/ruby/opennebula/virtual_machine_pool.rb \
-                           src/oca/ruby/opennebula/virtual_network.rb \
-                           src/oca/ruby/opennebula/virtual_network_pool.rb \
-                           src/oca/ruby/opennebula/image.rb \
-                           src/oca/ruby/opennebula/image_pool.rb \
-                           src/oca/ruby/opennebula/template.rb \
-                           src/oca/ruby/opennebula/template_pool.rb \
-                           src/oca/ruby/opennebula/document.rb \
-                           src/oca/ruby/opennebula/document_pool.rb \
-                           src/oca/ruby/opennebula/document_json.rb \
-                           src/oca/ruby/opennebula/document_pool_json.rb \
-                           src/oca/ruby/opennebula/group.rb \
-                           src/oca/ruby/opennebula/group_pool.rb \
-                           src/oca/ruby/opennebula/acl.rb \
-                           src/oca/ruby/opennebula/acl_pool.rb \
-                           src/oca/ruby/opennebula/datastore.rb \
-                           src/oca/ruby/opennebula/datastore_pool.rb \
-                           src/oca/ruby/opennebula/cluster.rb \
-                           src/oca/ruby/opennebula/cluster_pool.rb \
-                           src/oca/ruby/opennebula/xml_utils.rb \
-                           src/oca/ruby/opennebula/client.rb \
-                           src/oca/ruby/opennebula/error.rb \
-                           src/oca/ruby/opennebula/pool_element.rb \
-                           src/oca/ruby/opennebula/xml_element.rb \
-                           src/oca/ruby/opennebula/xml_pool.rb \
-                           src/oca/ruby/opennebula/system.rb"
+RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
+                            src/oca/ruby/opennebula/acl.rb \
+                            src/oca/ruby/opennebula/client.rb \
+                            src/oca/ruby/opennebula/cluster_pool.rb \
+                            src/oca/ruby/opennebula/cluster.rb \
+                            src/oca/ruby/opennebula/datastore_pool.rb \
+                            src/oca/ruby/opennebula/datastore.rb \
+                            src/oca/ruby/opennebula/document_json.rb \
+                            src/oca/ruby/opennebula/document_pool_json.rb \
+                            src/oca/ruby/opennebula/document_pool.rb \
+                            src/oca/ruby/opennebula/document.rb \
+                            src/oca/ruby/opennebula/error.rb \
+                            src/oca/ruby/opennebula/group_pool.rb \
+                            src/oca/ruby/opennebula/group.rb \
+                            src/oca/ruby/opennebula/host_pool.rb \
+                            src/oca/ruby/opennebula/host.rb \
+                            src/oca/ruby/opennebula/image_pool.rb \
+                            src/oca/ruby/opennebula/image.rb \
+                            src/oca/ruby/opennebula/pool_element.rb \
+                            src/oca/ruby/opennebula/pool.rb \
+                            src/oca/ruby/opennebula/system.rb \
+                            src/oca/ruby/opennebula/template_pool.rb \
+                            src/oca/ruby/opennebula/template.rb \
+                            src/oca/ruby/opennebula/user_pool.rb \
+                            src/oca/ruby/opennebula/user.rb \
+                            src/oca/ruby/opennebula/virtual_machine_pool.rb \
+                            src/oca/ruby/opennebula/virtual_machine.rb \
+                            src/oca/ruby/opennebula/virtual_network_pool.rb \
+                            src/oca/ruby/opennebula/virtual_network.rb \
+                            src/oca/ruby/opennebula/xml_element.rb \
+                            src/oca/ruby/opennebula/xml_pool.rb \
+                            src/oca/ruby/opennebula/xml_utils.rb \
+                            src/oca/ruby/opennebula/oneflow_client.rb"
 
 #-------------------------------------------------------------------------------
 # Common Cloud Files
@@ -1405,6 +1443,8 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/oneacl \
                src/cli/onedatastore \
                src/cli/onecluster \
+               src/cli/oneflow \
+               src/cli/oneflow-template \
                src/cli/oneacct"
 
 CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
@@ -1432,7 +1472,8 @@ SUNSTONE_BIN_FILES="src/sunstone/bin/sunstone-server \
                     src/sunstone/bin/novnc-server"
 
 SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf \
-                    src/sunstone/etc/sunstone-views.yaml"
+                    src/sunstone/etc/sunstone-views.yaml \
+                    src/sunstone/etc/sunstone-oneflow.conf"
 
 SUNSTONE_ETC_VIEW_FILES="src/sunstone/etc/sunstone-views/admin.yaml \
                     src/sunstone/etc/sunstone-views/user.yaml"
@@ -1485,7 +1526,12 @@ SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
                         src/sunstone/public/js/plugins/acls-tab.js \
                         src/sunstone/public/js/plugins/vnets-tab.js \
                         src/sunstone/public/js/plugins/marketplace-tab.js \
-                        src/sunstone/public/js/plugins/config-tab.js"
+                        src/sunstone/public/js/plugins/config-tab.js \
+                        src/sunstone/public/js/plugins/oneflow-dashboard.js \
+                        src/sunstone/public/js/plugins/oneflow-services.js \
+                        src/sunstone/public/js/plugins/oneflow-templates.js"
+
+SUNSTONE_ROUTES_FILES="src/sunstone/routes/oneflow.rb"
 
 SUNSTONE_PUBLIC_CSS_FILES="src/sunstone/public/css/app.css \
                 src/sunstone/public/css/login.css"
@@ -1893,6 +1939,35 @@ OZONES_BIN_CLIENT_FILES="src/ozones/Client/bin/onevdc \
 OZONES_RUBY_LIB_FILES="src/oca/ruby/OpenNebula.rb"
 
 #-----------------------------------------------------------------------------
+# OneFlow files
+#-----------------------------------------------------------------------------
+
+
+ONEFLOW_FILES="src/flow/oneflow-server.rb \
+                src/flow/config.ru"
+
+ONEFLOW_BIN_FILES="src/flow/bin/oneflow-server"
+
+ONEFLOW_ETC_FILES="src/flow/etc/oneflow-server.conf"
+
+ONEFLOW_LIB_FILES="src/flow/lib/grammar.rb \
+                    src/flow/lib/grammar.treetop \
+                    src/flow/lib/LifeCycleManager.rb \
+                    src/flow/lib/log.rb \
+                    src/flow/lib/models.rb \
+                    src/flow/lib/strategy.rb \
+                    src/flow/lib/validator.rb"
+
+ONEFLOW_LIB_STRATEGY_FILES="src/flow/lib/strategy/straight.rb"
+
+ONEFLOW_LIB_MODELS_FILES="src/flow/lib/models/role.rb \
+                          src/flow/lib/models/service_pool.rb \
+                          src/flow/lib/models/service.rb \
+                          src/flow/lib/models/service_template_pool.rb \
+                          src/flow/lib/models/service_template.rb"
+
+
+#-----------------------------------------------------------------------------
 # MAN files
 #-----------------------------------------------------------------------------
 
@@ -1909,6 +1984,8 @@ MAN_FILES="share/man/oneauth.1.gz \
         share/man/onedb.1.gz \
         share/man/onedatastore.1.gz \
         share/man/onecluster.1.gz \
+        share/man/oneflow.1.gz \
+        share/man/oneflow-template.1.gz \
         share/man/econe-allocate-address.1.gz \
         share/man/econe-associate-address.1.gz \
         share/man/econe-attach-volume.1.gz \
@@ -2022,9 +2099,12 @@ elif [ "$SUNSTONE" = "yes" ]; then
     INSTALL_SET="${INSTALL_SUNSTONE_RUBY_FILES[@]} ${INSTALL_SUNSTONE_FILES[@]}"
 elif [ "$OZONES" = "yes" ]; then
     INSTALL_SET="${INSTALL_OZONES_RUBY_FILES[@]} ${INSTALL_OZONES_FILES[@]}"
+elif [ "$ONEFLOW" = "yes" ]; then
+    INSTALL_SET="${INSTALL_ONEFLOW_FILES[@]}"
 else
     INSTALL_SET="${INSTALL_FILES[@]} ${INSTALL_OZONES_FILES[@]} \
-                 ${INSTALL_SUNSTONE_FILES[@]} ${INSTALL_ONEGATE_FILES[@]}"
+                 ${INSTALL_SUNSTONE_FILES[@]} ${INSTALL_ONEGATE_FILES[@]} \
+                 ${INSTALL_ONEFLOW_FILES[@]}"
 fi
 
 for i in ${INSTALL_SET[@]}; do
@@ -2045,11 +2125,14 @@ if [ "$INSTALL_ETC" = "yes" ] ; then
         INSTALL_ETC_SET="${INSTALL_ONEGATE_ETC_FILES[@]}"
     elif [ "$OZONES" = "yes" ]; then
         INSTALL_ETC_SET="${INSTALL_OZONES_ETC_FILES[@]}"
+    elif [ "$ONEFLOW" = "yes" ]; then
+        INSTALL_ETC_SET="${INSTALL_ONEFLOW_ETC_FILES[@]}"
     else
         INSTALL_ETC_SET="${INSTALL_ETC_FILES[@]} \
                          ${INSTALL_SUNSTONE_ETC_FILES[@]} \
                          ${INSTALL_OZONES_ETC_FILES[@]} \
-                         ${INSTALL_ONEGATE_ETC_FILES[@]}"
+                         ${INSTALL_ONEGATE_ETC_FILES[@]} \
+                         ${INSTALL_ONEFLOW_ETC_FILES[@]}"
     fi
 
     for i in ${INSTALL_ETC_SET[@]}; do

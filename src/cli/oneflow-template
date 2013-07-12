@@ -1,0 +1,451 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2010-2013, C12G Labs S.L.                                        #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION=ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+end
+
+$: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+'/cli'
+
+require 'command_parser'
+require 'opennebula/oneflow_client'
+
+require 'cli_helper'
+require 'one_helper'
+
+require 'json'
+
+USER_AGENT = "CLI"
+
+# Base Path representing the resource to be used in the requests
+RESOURCE_PATH = '/service_template'
+
+#
+# Table
+#
+
+TABLE = CLIHelper::ShowTable.new(nil, self) do
+    column :ID, "ID", :size=>10 do |d|
+        d["ID"]
+    end
+
+    column :USER, "Username", :left, :size=>15 do |d|
+        d["UNAME"]
+    end
+
+    column :GROUP, "Group", :left, :size=>15 do |d|
+        d["GNAME"]
+    end
+
+    column :NAME, "Name", :left, :size=>37 do |d|
+        d["NAME"]
+    end
+
+    default :ID, :USER, :GROUP, :NAME
+end
+
+
+# Show the service template information. This method is used in top and
+# show commands
+# @param [Service::Client] client
+# @param [Array] args
+# @param [Hash] options
+# @return [[Integer, String], Integer] Returns the exit_code and optionally
+#   a String to be printed
+def show_service_template(client, args, options)
+    response = client.get("#{RESOURCE_PATH}/#{args[0]}")
+
+    if CloudClient::is_error?(response)
+        [response.code.to_i, response.to_s]
+    else
+        #[0,response.body]
+        if options[:json]
+            [0,response.body]
+        else
+            str="%-20s: %-20s"
+            str_h1="%-80s"
+
+            document_hash = JSON.parse(response.body)
+            template = document_hash['DOCUMENT']['TEMPLATE']['BODY']
+
+            CLIHelper.print_header(str_h1 %
+                "SERVICE TEMPLATE #{document_hash['DOCUMENT']['ID']} INFORMATION")
+
+            puts str % ["ID",   document_hash['DOCUMENT']['ID']]
+            puts str % ["NAME", document_hash['DOCUMENT']['NAME']]
+            puts str % ["USER", document_hash['DOCUMENT']['UNAME']]
+            puts str % ["GROUP",document_hash['DOCUMENT']['GNAME']]
+
+            puts
+
+            CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
+
+            ["OWNER", "GROUP", "OTHER"].each { |e|
+                mask = "---"
+                mask[0] = "u" if document_hash['DOCUMENT']['PERMISSIONS']["#{e}_U"] == "1"
+                mask[1] = "m" if document_hash['DOCUMENT']['PERMISSIONS']["#{e}_M"] == "1"
+                mask[2] = "a" if document_hash['DOCUMENT']['PERMISSIONS']["#{e}_A"] == "1"
+
+                puts str % [e,  mask]
+            }
+
+            puts
+
+            CLIHelper.print_header(str_h1 % "TEMPLATE CONTENTS",false)
+            puts JSON.pretty_generate(template)
+
+            0
+        end
+    end
+end
+
+# List the services. This method is used in top and list commands
+# @param [Service::Client] client
+# @param [Array] args
+# @param [Hash] options
+# @return [[Integer, String], Integer] Returns the exit_code and optionally
+#   a String to be printed
+def list_service_templates(client, args, options)
+    response = client.get(RESOURCE_PATH)
+
+    if CloudClient::is_error?(response)
+        [response.code.to_i, response.to_s]
+    else
+        #[0,response.body]
+        if options[:json]
+            [0,response.body]
+        else
+            array_list = JSON.parse(response.body)
+            TABLE.show(array_list['DOCUMENT_POOL']['DOCUMENT'])
+            0
+        end
+    end
+end
+
+#
+# Commands
+#
+
+cmd=CommandParser::CmdParser.new(ARGV) do
+    usage "`oneflow-template` <command> [<args>] [<options>]"
+    version OpenNebulaHelper::ONE_VERSION
+
+    set :option, Service::DEFAULT_OPTIONS
+    set :option, CommandParser::VERSION
+    set :option, CommandParser::HELP
+
+    #
+    # Formatters for arguments
+    #
+    set :format, :groupid, OpenNebulaHelper.rname_to_id_desc("GROUP") do |arg|
+        OpenNebulaHelper.rname_to_id(arg, "GROUP")
+    end
+
+    set :format, :userid, OpenNebulaHelper.rname_to_id_desc("USER") do |arg|
+        OpenNebulaHelper.rname_to_id(arg, "USER")
+    end
+
+    set :format, :template_id, Service.rname_to_id_desc("SERVICE TEMPLATE") do |arg|
+        Service.rname_to_id(arg, "SERVICE TEMPLATE")
+    end
+
+    set :format, :templateid_list, Service.list_to_id_desc("SERVICE TEMPLATE") do |arg|
+        Service.list_to_id(arg, "SERVICE TEMPLATE")
+    end
+
+    #
+    # List
+    #
+
+    list_desc = <<-EOT.unindent
+        List the available Service Templates
+    EOT
+
+    command :list, list_desc, :options => Service::JSON_FORMAT do
+        client = Service::Client.new(
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
+
+        list_service_templates(client, args, options)
+    end
+
+    #
+    # Top
+    #
+
+    top_desc = <<-EOT.unindent
+        List the available Service Templates continuously
+    EOT
+
+    command :top, top_desc,
+            :options => [Service::JSON_FORMAT, Service::TOP, CLIHelper::DELAY] do
+        client = Service::Client.new(
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
+
+        delay=options[:delay] ? options[:delay] : 3
+
+        begin
+            while true
+                CLIHelper.scr_cls
+                CLIHelper.scr_move(0,0)
+
+                rc, message = list_service_templates(client, args, options)
+
+                if rc != 0
+                    raise message
+                end
+
+                sleep delay
+            end
+        rescue Exception => e
+            puts e.message
+            -1
+        end
+    end
+
+    #
+    # Create
+    #
+
+    create_desc = <<-EOT.unindent
+        Create a new Service Template
+    EOT
+
+    command :create, create_desc, :file, :options => Service::JSON_FORMAT do
+        client = Service::Client.new(
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
+
+        response = client.post(RESOURCE_PATH, File.read(args[0]))
+
+        if CloudClient::is_error?(response)
+            [response.code.to_i, response.to_s]
+        else
+            if options[:json]
+                [0,response.body]
+            else
+                template = JSON.parse(response.body)
+                puts "ID: #{template['DOCUMENT']['ID']}"
+                0
+            end
+        end
+    end
+
+    #
+    # Show
+    #
+
+    show_desc = <<-EOT.unindent
+        Show detailed information of a given Service Template
+    EOT
+
+    command :show, show_desc, :template_id, :options => Service::JSON_FORMAT do
+        client = Service::Client.new(
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
+
+        show_service_template(client, args, options)
+    end
+
+    #
+    # Delete
+    #
+
+    delete_desc = <<-EOT.unindent
+        Delete a given Service Template
+    EOT
+
+    command :delete, delete_desc, [:range, :templateid_list] do
+        client = Service::Client.new(
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
+
+        Service.perform_actions(args[0]) { |template_id|
+            client.delete("#{RESOURCE_PATH}/#{template_id}")
+        }
+    end
+
+    #
+    # Instantiate
+    #
+
+    instantiate_desc = <<-EOT.unindent
+        Instantiate a Service Template
+    EOT
+
+    command :instantiate, instantiate_desc, :template_id,
+            :options => [Service::JSON_FORMAT, Service::TOP] do
+        client = Service::Client.new(
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
+
+        json_str = Service.build_json_action('instantiate')
+
+        response = client.post("#{RESOURCE_PATH}/#{args[0]}/action", json_str)
+
+        if CloudClient::is_error?(response)
+            [response.code.to_i, response.to_s]
+        else
+            if options[:json]
+                [0,response.body]
+            else
+                template = JSON.parse(response.body)
+                puts "ID: #{template['DOCUMENT']['ID']}"
+                0
+            end
+        end
+    end
+
+    chgrp_desc = <<-EOT.unindent
+        Changes the service template group
+    EOT
+
+    command :chgrp, chgrp_desc, [:range, :templateid_list], :groupid do
+        client = Service::Client.new(
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
+
+        Service.perform_actions(args[0]) { |service_id|
+            params = Hash.new
+            params['group_id'] = args[1].to_i
+
+            json_action = Service.build_json_action('chgrp', params)
+
+            client.post("#{RESOURCE_PATH}/#{service_id}/action", json_action)
+        }
+    end
+
+    chown_desc = <<-EOT.unindent
+        Changes the service template owner and group
+    EOT
+
+    command :chown, chown_desc, [:range, :templateid_list], :userid, [:groupid, nil] do
+        client = Service::Client.new(
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
+
+        Service.perform_actions(args[0]) { |service_id|
+            params = Hash.new
+            params['owner_id'] = args[1]
+            params['group_id'] = args[2] if args[2]
+
+            json_action = Service.build_json_action('chown', params)
+
+            client.post("#{RESOURCE_PATH}/#{service_id}/action", json_action)
+        }
+    end
+
+    chmod_desc = <<-EOT.unindent
+        Changes the service template permissions
+    EOT
+
+    command :chmod, chmod_desc, [:range, :templateid_list], :octet do
+        client = Service::Client.new(
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
+
+        Service.perform_actions(args[0]) { |service_id|
+            params = Hash.new
+            params['octet'] = args[1]
+
+            json_action = Service.build_json_action('chmod', params)
+
+            client.post("#{RESOURCE_PATH}/#{service_id}/action", json_action)
+        }
+    end
+
+    update_desc = <<-EOT.unindent
+        Update the template contents. If a path is not provided the editor will
+        be launched to modify the current content.
+    EOT
+
+    command :update, update_desc, :templateid, [:file, nil] do
+        template_id = args[0]
+        client = Service::Client.new(
+            :username   => options[:username],
+            :password   => options[:password],
+            :url        => options[:server],
+            :user_agent => USER_AGENT)
+
+        if args[1]
+            path = args[1]
+        else
+            require 'tempfile'
+
+            tmp  = Tempfile.new(template_id.to_s)
+            path = tmp.path
+
+            response = client.get("#{RESOURCE_PATH}/#{template_id}")
+
+            if CloudClient::is_error?(response)
+                exit_with_code response.code.to_i, response.to_s
+            else
+                document_hash = JSON.parse(response.body)
+                template = document_hash['DOCUMENT']['TEMPLATE']['BODY']
+
+                tmp << JSON.pretty_generate(template)
+                tmp.flush
+
+                editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : OpenNebulaHelper::EDITOR_PATH
+                system("#{editor_path} #{path}")
+
+                unless $?.exitstatus == 0
+                    puts "Editor not defined"
+                    exit -1
+                end
+
+                tmp.close
+            end
+        end
+
+        exit_code = 0
+
+        t_str = File.read(path)
+        response = client.put("#{RESOURCE_PATH}/#{template_id}", t_str)
+        if CloudClient::is_error?(response)
+            puts response.to_s
+            exit_code = response.code.to_i
+        end
+
+        exit_code
+    end
+end
