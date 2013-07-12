@@ -55,8 +55,8 @@ if [ ! -d $BASE_PATH ]; then
 fi
 
 USED_MB=`du -sLm $BASE_PATH 2>/dev/null | cut -f1`
-TOTAL_MB=`df -B1M --output=size $BASE_PATH 2>/dev/null | tail -1`
-FREE_MB=`df -B1M --output=avail $BASE_PATH 2>/dev/null | tail -1`
+TOTAL_MB=`df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print $2}'`
+FREE_MB=`df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print $4}'`
 
 MONITOR_DATA=$(cat <<EOF
 USED_MB=$USED_MB
