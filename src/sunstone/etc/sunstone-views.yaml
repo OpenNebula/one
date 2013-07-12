@@ -17,6 +17,9 @@ available_tabs:
     - datastores-tab
     - vnets-tab
     - marketplace-tab
+    - oneflow-dashboard
+    - oneflow-services
+    - oneflow-templates
 users:
     cloud:
         - cloud
