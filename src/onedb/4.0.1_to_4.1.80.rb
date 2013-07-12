@@ -63,6 +63,34 @@ module Migrator
 
         @db.run "DROP TABLE old_user_pool;"
 
+        ########################################################################
+        # Feature #1613
+        ########################################################################
+
+        @db.run "ALTER TABLE datastore_pool RENAME TO old_datastore_pool;"
+        @db.run "CREATE TABLE datastore_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name));"
+
+        @db.fetch("SELECT * FROM old_datastore_pool") do |row|
+            doc = Document.new(row[:body])
+
+            doc.root.add_element("TOTAL_MB").text = "0"
+            doc.root.add_element("FREE_MB").text = "0"
+            doc.root.add_element("USED_MB").text = "0"
+
+            @db[:datastore_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => row[:uid],
+                :gid        => row[:gid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u],
+                :cid        => row[:cid])
+        end
+
+        @db.run "DROP TABLE old_datastore_pool;"
+
         return true
     end
 end
