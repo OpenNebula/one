@@ -66,3 +66,6 @@ env.Man('onegroup')
 env.Man('onezone')
 env.Man('onevdc')
 
+env.Man('oneflow')
+env.Man('oneflow-template')
+

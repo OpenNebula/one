@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# chkconfig: 2345 9 90
+# chkconfig: 2345 9 99
 # description:  network reconfigure
 #
 # -------------------------------------------------------------------------- #
@@ -21,12 +21,12 @@
 
 ### BEGIN INIT INFO
 # Provides:          vmcontext
-# Required-Start:
+# Required-Start:    $all
 # Required-Stop:
 # Should-Start:      networking
 # Should-Stop:       networking
-# Default-Start:
-# Default-Stop:      0 6
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
 # Short-Description: OpenNebula contextualization script
 ### END INIT INFO
 
@@ -50,10 +50,8 @@ function execute_scripts {
     done
 }
 
-CDROM_DEVICE=$(ls /dev/cdrom* /dev/scd* /dev/sr* | sort | head -n 1)
-
-if [ -e "$CDROM_DEVICE" ]; then
-    mount -t iso9660 $CDROM_DEVICE /mnt
+if [ -e "/dev/disk/by-label/CONTEXT" ]; then
+    mount -t iso9660 -L CONTEXT -o ro /mnt
     if [ -f /mnt/context.sh ]; then
         export_rc_vars /mnt/context.sh
     fi

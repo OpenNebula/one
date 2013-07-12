@@ -1806,28 +1806,30 @@ function setServiceAutorefresh() {
 $(document).ready(function(){
     var tab_name = "oneflow-services";
 
-    dataTable_services = $("#datatable_services",main_tabs_context).dataTable({
-        "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "35px", "aTargets": [0] },
-            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
-            { "bVisible": false, "aTargets": ['_all']}
-        ]
-    });
+    if (Config.isTabEnabled(tab_name)) {
+        dataTable_services = $("#datatable_services",main_tabs_context).dataTable({
+            "aoColumnDefs": [
+                { "bSortable": false, "aTargets": ["check"] },
+                { "sWidth": "35px", "aTargets": [0] },
+                { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
+                { "bVisible": false, "aTargets": ['_all']}
+            ]
+        });
 
-    $('#services_search').keyup(function(){
-      dataTable_services.fnFilter( $(this).val() );
-    })
+        $('#services_search').keyup(function(){
+          dataTable_services.fnFilter( $(this).val() );
+        })
 
-    dataTable_services.on('draw', function(){
-      recountCheckboxes(dataTable_services);
-    })
+        dataTable_services.on('draw', function(){
+          recountCheckboxes(dataTable_services);
+        })
 
-    Sunstone.runAction("Service.list");
+        Sunstone.runAction("Service.list");
 
-    setServiceAutorefresh();
+        setServiceAutorefresh();
 
-    initCheckAllBoxes(dataTable_services);
-    tableCheckboxesListener(dataTable_services);
-    infoListener(dataTable_services,'Service.showinfo');
+        initCheckAllBoxes(dataTable_services);
+        tableCheckboxesListener(dataTable_services);
+        infoListener(dataTable_services,'Service.showinfo');
+    }
 });

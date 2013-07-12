@@ -1,24 +1,24 @@
 small_logo: images/opennebula-sunstone-v4.0-small.png
 enabled_tabs:
-    - dashboard-tab
-    #- system-tab
-    #- users-tab
-    #- groups-tab
-    #- acls-tab
-    - vresources-tab
-    - vms-tab
-    - templates-tab
-    - images-tab
-    - files-tab
-    - infra-tab
-    #- clusters-tab
-    #- hosts-tab
-    - datastores-tab
-    - vnets-tab
-    - marketplace-tab
-    #- oneflow-dashboard
-    #- oneflow-services
-    #- oneflow-templates
+    dashboard-tab: true
+    system-tab: false
+    users-tab: false
+    groups-tab: false
+    acls-tab: false
+    vresources-tab: true
+    vms-tab: true
+    templates-tab: true
+    images-tab: true
+    files-tab: true
+    infra-tab: true
+    clusters-tab: false
+    hosts-tab: false
+    datastores-tab: true
+    vnets-tab: true
+    marketplace-tab: true
+    oneflow-dashboard: false
+    oneflow-services: false
+    oneflow-templates: false
 tabs:
     dashboard-tab:
         panel_tabs:
@@ -117,6 +117,7 @@ tabs:
         actions:
             VM.refresh: true
             VM.create_dialog: true
+            VM.easy_provision: false
             VM.chown: false
             VM.chgrp: false
             VM.chmod: true
@@ -164,6 +165,7 @@ tabs:
         actions:
             Template.refresh: true
             Template.create_dialog: true
+            Template.easy_provision: false
             Template.update_dialog: true
             Template.instantiate_vms: true
             Template.chown: false

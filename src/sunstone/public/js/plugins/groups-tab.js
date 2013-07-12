@@ -609,32 +609,34 @@ function setGroupAutorefresh(){
 $(document).ready(function(){
     var tab_name = 'groups-tab';
 
-    dataTable_groups = $("#datatable_groups",main_tabs_context).dataTable({
-        "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check",4,5,6] },
-            { "sWidth": "35px", "aTargets": [0] },
-            { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
-            { "bVisible": false, "aTargets": ['_all']}
-        ]
-    });
+    if (Config.isTabEnabled(tab_name)) {
+      dataTable_groups = $("#datatable_groups",main_tabs_context).dataTable({
+          "aoColumnDefs": [
+              { "bSortable": false, "aTargets": ["check",4,5,6] },
+              { "sWidth": "35px", "aTargets": [0] },
+              { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
+              { "bVisible": false, "aTargets": ['_all']}
+          ]
+      });
 
-    $('#group_search').keyup(function(){
-      dataTable_groups.fnFilter( $(this).val() );
-    })
+      $('#group_search').keyup(function(){
+        dataTable_groups.fnFilter( $(this).val() );
+      })
 
-    dataTable_groups.on('draw', function(){
-      recountCheckboxes(dataTable_groups);
-    })
+      dataTable_groups.on('draw', function(){
+        recountCheckboxes(dataTable_groups);
+      })
 
-    Sunstone.runAction("Group.list");
-    setupCreateGroupDialog();
-    setupGroupQuotasDialog();
-    setGroupAutorefresh();
+      Sunstone.runAction("Group.list");
+      setupCreateGroupDialog();
+      setupGroupQuotasDialog();
+      setGroupAutorefresh();
 
-    initCheckAllBoxes(dataTable_groups);
-    tableCheckboxesListener(dataTable_groups);
-    infoListener(dataTable_groups, 'Group.showinfo');
+      initCheckAllBoxes(dataTable_groups);
+      tableCheckboxesListener(dataTable_groups);
+      infoListener(dataTable_groups, 'Group.showinfo');
 
-    $('div#groups_tab div.legend_div').hide();
-    $('div#groups_tab_non_admin div.legend_div').hide();
+      $('div#groups_tab div.legend_div').hide();
+      $('div#groups_tab_non_admin div.legend_div').hide();
+    }
 })

@@ -1116,39 +1116,42 @@ function setDatastoreAutorefresh(){
 }
 
 $(document).ready(function(){
+    var tab_name = 'datastores-tab';
 
-    dataTable_datastores = $("#datatable_datastores",main_tabs_context).dataTable({
-        "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "35px", "aTargets": [0] },
-            { "sWidth": "200px", "aTargets": [5] },
-            { "bVisible": true, "aTargets": config['view']['tabs']['datastores-tab']['table_columns']},
-            { "bVisible": false, "aTargets": ['_all']}
-        ]
-    });
+    if (Config.isTabEnabled(tab_name)) {
+      dataTable_datastores = $("#datatable_datastores",main_tabs_context).dataTable({
+          "aoColumnDefs": [
+              { "bSortable": false, "aTargets": ["check"] },
+              { "sWidth": "35px", "aTargets": [0] },
+              { "sWidth": "200px", "aTargets": [5] },
+              { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
+              { "bVisible": false, "aTargets": ['_all']}
+          ]
+      });
 
-    $('#datastore_search').keyup(function(){
-      dataTable_datastores.fnFilter( $(this).val() );
-    })
+      $('#datastore_search').keyup(function(){
+        dataTable_datastores.fnFilter( $(this).val() );
+      })
 
-    dataTable_datastores.on('draw', function(){
-      recountCheckboxes(dataTable_datastores);
-    })
+      dataTable_datastores.on('draw', function(){
+        recountCheckboxes(dataTable_datastores);
+      })
 
-    Sunstone.runAction("Datastore.list");
+      Sunstone.runAction("Datastore.list");
 
-    setupCreateDatastoreDialog();
-    setDatastoreAutorefresh();
+      setupCreateDatastoreDialog();
+      setDatastoreAutorefresh();
 
-    initCheckAllBoxes(dataTable_datastores);
-    tableCheckboxesListener(dataTable_datastores);
-    infoListener(dataTable_datastores,'Datastore.showinfo');
+      initCheckAllBoxes(dataTable_datastores);
+      tableCheckboxesListener(dataTable_datastores);
+      infoListener(dataTable_datastores,'Datastore.showinfo');
 
-    // Reset filter in case the view was filtered because it was accessed
-    // from a single cluster.
-    $('div#menu li#li_datastores_tab').live('click',function(){
-        dataTable_datastores.fnFilter('',5);
-    });
+      // Reset filter in case the view was filtered because it was accessed
+      // from a single cluster.
+      $('div#menu li#li_datastores_tab').live('click',function(){
+          dataTable_datastores.fnFilter('',5);
+      });
 
-    $('div#datastores_tab div.legend_div').hide();
+      $('div#datastores_tab div.legend_div').hide();
+    }
 })
