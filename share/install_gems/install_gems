@@ -14,7 +14,7 @@ end
 
 GROUPS={
     :quota => [SQLITE, 'sequel'],
-    :sunstone => ['json', 'rack', 'sinatra', 'thin', 'sequel', SQLITE],
+    :sunstone => ['json', 'rack', 'sinatra', 'thin', SQLITE],
     :cloud => %w{amazon-ec2 rack sinatra thin uuidtools curb json},
     :ozones_client => %w{json},
     :ozones_server => %w{json sequel}+[
@@ -36,6 +36,7 @@ GEM_TEST={
 DISTRIBUTIONS={
     :debian => {
         :id => ['Ubuntu', 'Debian'],
+        :dependencies_common => ['ruby-dev', 'make'],
         :dependencies => {
             SQLITE      => ['gcc', 'libsqlite3-dev'],
             'mysql'     => ['gcc', 'libmysqlclient-dev'],
@@ -43,7 +44,7 @@ DISTRIBUTIONS={
             'nokogiri'  => %w{gcc rake libxml2-dev libxslt1-dev},
             'xmlparser' => ['gcc', 'libexpat1-dev'],
             'thin'      => ['g++'],
-            'json'      => ['make', 'gcc']
+            'json'      => ['gcc']
         },
         :install_command => 'apt-get install',
         :gem_env    => {
@@ -52,6 +53,7 @@ DISTRIBUTIONS={
     },
     :redhat => {
         :id => ['CentOS', /^RedHat/],
+        :dependencies_common => ['ruby-devel', 'make'],
         :dependencies => {
             SQLITE      => ['gcc', 'sqlite-devel'],
             'mysql'     => ['gcc', 'mysql-devel'],
@@ -59,12 +61,13 @@ DISTRIBUTIONS={
             'nokogiri'  => %w{gcc rubygem-rake libxml2-devel libxslt-devel},
             'xmlparser' => ['gcc', 'expat-devel'],
             'thin'      => ['gcc-c++'],
-            'json'      => ['make', 'gcc']
+            'json'      => ['gcc']
         },
         :install_command => 'yum install'
     },
     :suse => {
         :id => [/^SUSE/],
+        :dependencies_common => ['ruby-devel', 'make'],
         :dependencies => {
             SQLITE      => ['gcc', 'sqlite3-devel'],
             'mysql'     => ['gcc', 'libmysqlclient-devel'],
@@ -72,7 +75,7 @@ DISTRIBUTIONS={
             'nokogiri'  => %w{rubygem-rake gcc rubygem-rake libxml2-devel libxslt-devel},
             'xmlparser' => ['gcc', 'libexpat-devel'],
             'thin'      => ['rubygem-rake', 'gcc-c++'],
-            'json'      => ['make', 'gcc']
+            'json'      => ['gcc']
         },
         :install_command => 'zypper install'
     }
@@ -291,6 +294,7 @@ def install_dependencies(gems, distro)
     else
         puts "Distribution \"#{distro.first}\" detected."
         deps=get_dependencies(gems, distro.last[:dependencies])
+        deps+=distro.last[:dependencies_common]
 
         if deps.length==0
             return
