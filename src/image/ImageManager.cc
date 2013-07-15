@@ -139,7 +139,7 @@ void ImageManager::do_action(const string &action, void * arg)
 void ImageManager::timer_action()
 {
     static int mark = 0;
-    static int tics = 0;
+    static int tics = monitor_period;
 
     mark += timer_period;
     tics += timer_period;
@@ -195,6 +195,14 @@ void ImageManager::monitor_datastore(int ds_id)
     ostringstream oss;
 
     const ImageManagerDriver* imd = get();
+
+    if ( imd == 0 )
+    {
+        oss << "Error getting ImageManagerDriver";
+
+        NebulaLog::log("InM", Log::ERROR, oss);
+        return;
+    }
 
     Datastore * ds = dspool->get(ds_id, true);
 
