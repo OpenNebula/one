@@ -608,7 +608,7 @@ function datastoreElementArray(element_json){
 
     var total = parseInt(element.TOTAL_MB);
 
-    var used = parseInt(element.USED_MB);
+    var used = total - parseInt(element.FREE_MB);
 
     if (total > 0) {
         var ratio = Math.round((used / total) * 100);
