@@ -939,7 +939,7 @@ var service_tab_content = '\
   <div class="twelve columns">\
     <h4 class="subheader header">\
       <span class="header-resource">\
-       <i class="icon-magic"></i> '+tr("OneFlow - Services")+'\
+       <i class="icon-sitemap icon-rotate-270"></i> '+tr("OneFlow - Services")+'\
       </span>\
       <span class="header-info">\
         <span/> <small></small>&emsp;\
