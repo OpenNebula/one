@@ -133,21 +133,20 @@ var INCLUDE_URI = "vendor/noVNC/";
             path = WebUtil.getQueryVar('path', 'websockify');
 
             if ((!host) || (!port)) {
-                updateState('failed',
-                    "Must specify host and port in URL");
-                return;
+                updateState('failed', "Must specify host and port in URL");
+            } else {
+                rfb = new RFB({'target':       $D('noVNC_canvas'),
+                               'encrypt':      "<%=params['encrypt']%>" == "yes",
+                               'repeaterID':   WebUtil.getQueryVar('repeaterID', ''),
+                               'true_color':   WebUtil.getQueryVar('true_color', true),
+                               'local_cursor': WebUtil.getQueryVar('cursor', true),
+                               'shared':       WebUtil.getQueryVar('shared', true),
+                               'view_only':    WebUtil.getQueryVar('view_only', false),
+                               'updateState':  updateState,
+                               'onPasswordRequired':  passwordRequired});
+                rfb.connect("<%= params['host']%>", "<%= params['port']%>", "<%= params['password']%>", path+"?token=<%= params['token']%>");
             }
 
-            rfb = new RFB({'target':       $D('noVNC_canvas'),
-                           'encrypt':      "<%=params['encrypt']%>" == "yes",
-                           'repeaterID':   WebUtil.getQueryVar('repeaterID', ''),
-                           'true_color':   WebUtil.getQueryVar('true_color', true),
-                           'local_cursor': WebUtil.getQueryVar('cursor', true),
-                           'shared':       WebUtil.getQueryVar('shared', true),
-                           'view_only':    WebUtil.getQueryVar('view_only', false),
-                           'updateState':  updateState,
-                           'onPasswordRequired':  passwordRequired});
-            rfb.connect("<%= params['host']%>", "<%= params['port']%>", "<%= params['password']%>", path+"?token=<%= params['token']%>");
         </script>
 
     </body>
