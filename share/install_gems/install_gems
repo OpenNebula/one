@@ -416,20 +416,6 @@ try_library :rubygems, <<-EOT.unindent
         * Follow the instructions from http://rubygems.org/pages/download
 EOT
 
-try_library :mkmf, <<-EOT.unindent
-    ruby development package is needed to install gems
-
-    Use one of these methods:
-
-        * Debian/Ubuntu
-            apt-get install ruby-dev
-
-        * RHEL/CENTOS
-            yum install ruby-devel
-
-        * Install the ruby development package for your distro
-EOT
-
 try_library :openssl, <<-EOT.unindent
     ruby openssl libraries are needed. They usually come as companion
     package to ruby.
