@@ -1127,7 +1127,7 @@ var services_tab = {
     content: service_tab_content,
     buttons: service_buttons,
     tabClass: 'subTab',
-    parentTab: 'oneflow_dashboard_tab'
+    parentTab: 'oneflow-dashboard'
 }
 
 Sunstone.addActions(service_actions);

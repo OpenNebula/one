@@ -19,4 +19,4 @@ var oneflow_dashboard_tab = {
 }
 
 
-Sunstone.addMainTab('oneflow_dashboard_tab',oneflow_dashboard_tab);
+Sunstone.addMainTab('oneflow-dashboard',oneflow_dashboard_tab);
