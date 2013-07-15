@@ -27,70 +27,128 @@ module KVM
         :list       => 'virsh --connect LIBVIRT_URI --readonly list',
         :dumpxml    => 'virsh --connect LIBVIRT_URI --readonly dumpxml',
         :domifstat  => 'virsh --connect LIBVIRT_URI --readonly domifstat',
+        :top        => 'top -b -d2 -n 2 -p ',
         'LIBVIRT_URI' => 'qemu:///system'
     }
 
-    def self.get_vm_info(vm_id)
-        if !vm_id or vm_id.empty?
-            STDERR.puts "VM id not specified"
-            return nil
+    def self.get_all_vm_info
+        vms=get_vm_info
+
+        info={}
+        vms.each do |name, vm|
+            info[name]=vm[:values]
         end
 
-        data=dom_info(vm_id)
-
-        if !data
-            return {:STATE => 'd'}
-        end
-
-
-        ps_data=process_info(data['UUID'])
-
-
-        monitor=Hash.new
-
-        monitor[:cpu]=ps_data[2]
-        monitor[:resident_memory]=ps_data[5].to_i
-        monitor[:max_memory]=data['Max memory'].split(/\s+/).first.to_i
-
-        monitor[:memory]=[monitor[:resident_memory], monitor[:max_memory]].max
-
-
-        state=data['State']
-
-
-        monitor[:state]=get_state(data['State'])
-        monitor[:cpus]=data['CPU(s)']
-
-        values=Hash.new
-
-        values[:state]=monitor[:state]
-        values[:usedcpu]=monitor[:cpu]
-        values[:usedmemory]=monitor[:memory]
-
-        values.merge!(get_interface_statistics(vm_id))
-
-        values
+        info
     end
 
-    def self.get_all_vm_info
+    def self.get_vm_names
+        text=`#{virsh(:list)}`
+
+        return [] if $?.exitstatus != 0
+
+        lines=text.split(/\n/)[2..-1]
+
+        lines.map do |line|
+            line.split(/\s+/).delete_if {|d| d.empty? }[1]
+        end
+    end
+
+    def self.process_info(uuid)
+        ps=`ps auxwww | grep -- '-uuid #{uuid}' | grep -v grep`
+        ps.split(/\s+/)
+    end
+
+    def self.get_vm_info(one_vm=nil)
+        vms={}
+
         names=get_vm_names
 
-        vms=Hash.new
-
         names.each do |vm|
-            info=get_vm_info(vm)
+            dominfo=dom_info(vm)
+            psinfo=process_info(dominfo['UUID'])
+
+            info={}
+            info[:dominfo]=dominfo
+            info[:psinfo]=psinfo
             info[:name]=vm
+            info[:pid]=psinfo[1]
 
             vms[vm]=info
         end
 
-        vms
+        cpu=get_cpu_info(vms)
+
+        vms.each do |name, vm|
+            if one_vm
+                next if name!=one_vm
+            end
+
+            c=cpu[vm[:pid]]
+            vm[:cpu]=c if c
+
+            monitor=Hash.new
+
+            ps_data=vm[:psinfo]
+            dominfo=vm[:dominfo]
+            monitor[:cpu]=vm[:cpu]
+            monitor[:resident_memory]=ps_data[5].to_i
+            monitor[:max_memory]=dominfo['Max memory'].split(/\s+/).first.to_i
+
+            monitor[:memory]=[monitor[:resident_memory], monitor[:max_memory]].max
+
+            state=dominfo['State']
+
+
+            monitor[:state]=get_state(state)
+            monitor[:cpus]=dominfo['CPU(s)']
+
+            values=Hash.new
+
+            values[:state]=monitor[:state]
+            values[:usedcpu]=monitor[:cpu]
+            values[:usedmemory]=monitor[:memory]
+
+            values.merge!(get_interface_statistics(name))
+
+            vm[:values]=values
+        end
+
+        if one_vm
+            vms[one_vm][:values]
+        else
+            vms
+        end
     end
 
-private
+    def self.get_cpu_info(vms)
+        pids=vms.map {|name, vm| vm[:pid] }
 
-    def self.virsh(command)
-        CONF[command].gsub('LIBVIRT_URI', CONF['LIBVIRT_URI'])
+        data=%x{#{CONF[:top]} #{pids.join(',')}}
+
+        lines=data.strip.split("\n")
+        block_size=lines.length/2
+        valid_lines=lines.last(block_size)
+
+        first_domain = 7
+        valid_lines.each_with_index{ |l,i|
+            if l.match 'PID USER'
+                first_domain=i+1
+                break
+            end
+        }
+
+        domain_lines=valid_lines[first_domain..-1]
+
+        cpu={}
+
+        domain_lines.each do |line|
+            d=line.split
+
+            cpu[d[0]]=d[8]
+        end
+
+        cpu
     end
 
     def self.dom_info(vmid)
@@ -110,16 +168,8 @@ private
         hash
     end
 
-    def self.get_vm_names
-        text=`#{virsh(:list)}`
-
-        return [] if $?.exitstatus != 0
-
-        lines=text.split(/\n/)[2..-1]
-
-        lines.map do |line|
-            line.split(/\s+/).delete_if {|d| d.empty? }[1]
-        end
+    def self.virsh(command)
+        CONF[command].gsub('LIBVIRT_URI', CONF['LIBVIRT_URI'])
     end
 
     def self.get_interface_names(vmid)
@@ -160,11 +210,6 @@ private
         else
             {}
         end
-    end
-
-    def self.process_info(uuid)
-        ps=`ps auxwww | grep -- '-uuid #{uuid}' | grep -v grep`
-        ps.split(/\s+/)
     end
 
     def self.get_state(state)
