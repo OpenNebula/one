@@ -217,7 +217,7 @@ var create_datastore_tmpl =
         <input type="text" name="safe_dirs" id="safe_dirs" />\
       </div>\
       <div class="one columns">\
-        <div class="tip">'+tr("Paths that can not be used to register images. A space separated list of paths. This will prevent users registering important files as VM images and accessing them thourgh their VMs. OpenNebula will automatically add its configuration directories: /var/lib/one, /etc/one and oneadmin's home ($HOME).")+'</div>\
+        <div class="tip">'+tr("If you need to un-block a directory under one of the RESTRICTED_DIRS")+'</div>\
       </div>\
     </div>\
     <div class="twelve columns">\
@@ -228,7 +228,7 @@ var create_datastore_tmpl =
         <input type="text" name="restricted_dirs" id="restricted_dirs" />\
       </div>\
       <div class="one columns">\
-        <div class="tip">'+tr("If you need to un-block a directory under one of the RESTRICTED_DIRS")+'</div>\
+        <div class="tip">'+tr("Paths that can not be used to register images. A space separated list of paths. This will prevent users registering important files as VM images and accessing them thourgh their VMs. OpenNebula will automatically add its configuration directories: /var/lib/one, /etc/one and oneadmin's home ($HOME).")+'</div>\
       </div>\
     </div>\
     <div class="twelve columns">\

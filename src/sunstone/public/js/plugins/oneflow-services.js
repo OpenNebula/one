@@ -1257,7 +1257,7 @@ function updateServiceInfo(request,elem){
                         <input type="text" id="batch_action_period" name="batch_action_period"/>\
                     </div>\
                     <div class="one columns">\
-                        <div class="tip">'+ tr("Period") +'</div>\
+                        <div class="tip">'+ tr("Seconds between each group of actions") +'</div>\
                     </div>\
                     <div class="four columns">\
                         <label class="inline right" for="batch_action_number">' + tr("Number") + ':</label>\
@@ -1266,7 +1266,7 @@ function updateServiceInfo(request,elem){
                         <input type="text" id="batch_action_number" name="batch_action_number"/>\
                     </div>\
                     <div class="one columns">\
-                        <div class="tip">'+ tr("VMs per period") +'</div>\
+                        <div class="tip">'+ tr("Number of VMs to apply the action to each period") +'</div>\
                     </div>\
               </div>\
             </div>\
@@ -1513,10 +1513,23 @@ function updateServiceInfo(request,elem){
                             <span class="tip">'+tr("Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute.")+'\
                             </span>\
                         </th>\
-                        <th style="width:26%">'+tr("Expression")+'</th>\
-                        <th style="width:13%">'+tr("# Periods")+'</th>\
-                        <th style="width:10%">'+tr("Period")+'</th>\
-                        <th style="width:13%">'+tr("Cooldown")+'</th>\
+                        <th style="width:26%">'+tr("Expression")+'\
+                            <span class="tip">'+tr("Expression to trigger the elasticity")+'<br><br>\
+                                '+tr("Example: ATT < 20")+'<br>\
+                            </span>\
+                        </th>\
+                        <th style="width:13%">'+tr("# Periods")+'\
+                            <span class="tip">'+tr("Number of periods that the expression must be true before the elasticity is triggered")+'\
+                            </span>\
+                        </th>\
+                        <th style="width:10%">'+tr("Period")+'\
+                            <span class="tip">'+tr("Duration, in seconds, of each period in '# Periods'")+'\
+                            </span>\
+                        </th>\
+                        <th style="width:13%">'+tr("Cooldown")+'\
+                            <span class="tip">'+tr("Cooldown period duration after a scale operation, in seconds")+'\
+                            </span>\
+                        </th>\
                       </tr>\
                     </thead>\
                     <tbody>';
@@ -1564,8 +1577,17 @@ function updateServiceInfo(request,elem){
                             <span class="tip">'+tr("Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute.")+'\
                             </span>\
                         </th>\
-                        <th style="width:28%">'+tr("Time format")+'</th>\
-                        <th style="width:33%">'+tr("Time expression")+'</th>\
+                        <th style="width:28%">'+tr("Time format")+'\
+                            <span class="tip">'+tr("Recurrence: Time for recurring adjustements. Time is specified with the Unix cron syntax")+'<br><br>\
+                                '+tr("Start time: Exact time for the adjustement")+'\
+                            </span>\
+                        </th>\
+                        <th style="width:33%">'+tr("Time expression")+'\
+                            <span class="tip">'+tr("Time expression depends on the the time formar selected")+'<br><br>\
+                                '+tr("Recurrence: Time for recurring adjustements. Time is specified with the Unix cron syntax")+'<br>\
+                                '+tr("Start time: Exact time for the adjustement")+'<br>\
+                            </span>\
+                        </th>\
                       </tr>\
                     </thead>\
                     <tbody>';
@@ -1743,6 +1765,7 @@ function setupScaleDialog(){
                   <input type="text" name="cardinality" id="cardinality"/>\
               </div>\
               <div class="one columns">\
+                  <div class="tip">'+ tr("Number of VMs to instantiate with this role") +'</div>\
               </div>\
           </div>\
           <div class="row">\
