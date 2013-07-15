@@ -14,28 +14,18 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONEFLOW_CONF_FILE = ETC_LOCATION + "/sunstone-oneflow.conf"
-
 $: << RUBY_LIB_LOCATION+"/oneflow"
 
 require 'opennebula/oneflow_client'
 
-begin
-    oneflow_conf = YAML.load_file(ONEFLOW_CONF_FILE)
-rescue Exception => e
-    STDERR.puts "Error parsing config file #{ONEFLOW_CONF_FILE}: #{e.message}"
-    exit 1
-end
-
-set :oneflow_config, oneflow_conf
 
 helpers do
     def af_build_client
-        flow_client = settings.cloud_auth.client(session[:user])
+        flow_client = $cloud_auth.client(session[:user])
         split_array = flow_client.one_auth.split(':')
 
         Service::Client.new(
-                :url        => settings.oneflow_config[:oneflow_server],
+                :url        => $conf[:oneflow_server],
                 :user_agent => "Sunstone",
                 :username   => split_array.shift,
                 :password   => split_array.join(':'))
