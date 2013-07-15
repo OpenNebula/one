@@ -2646,7 +2646,7 @@ function setupResizeCapacityDialog(){
 
         var obj = {
           "vm_template": data,
-          "enforce": (enforce == "on" ? true : false),
+          "enforce": enforce,
         }
 
         Sunstone.runAction('VM.resize', vm_id, obj);
