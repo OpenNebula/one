@@ -195,7 +195,7 @@ var easy_provision_vm_template_tmpl ='\
     <br>\
     <div class="row">\
       <fieldset>\
-        <legend>'+tr("Step 3: Select an instance type")+'</legend>\
+        <legend>'+tr("Step 3: Select a template")+'</legend>\
         <div class="row collapse">\
           <div class="seven columns">\
              <button id="refresh_template_templates_table_button_class" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>\
