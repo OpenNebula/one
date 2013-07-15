@@ -168,7 +168,7 @@ var create_service_template_tmpl = '\
                     </select>\
                 </div>\
                 <div class="one columns">\
-                    <div class="tip">'+ tr("Shutdown action") +'</div>\
+                    <div class="tip">'+ tr("VM shutdown action: 'shutdown' or 'shutdown-hard'.") +'</div>\
                 </div>\
             </div>\
         </div>\
@@ -244,7 +244,7 @@ var role_tab_content = '\
                 </select>\
             </div>\
             <div class="one columns">\
-                <div class="tip">'+ tr("Shutdown action") +'</div>\
+                <div class="tip">'+ tr("VM shutdown action: 'shutdown' or 'shutdown-hard'. If it is not set, the one set for the Service will be used") +'</div>\
             </div>\
         </div>\
     </div>\
@@ -335,10 +335,23 @@ var role_tab_content = '\
                                     <span class="tip">'+tr("Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute.")+'\
                                     </span>\
                                 </th>\
-                                <th style="width:26%">'+tr("Expression")+'</th>\
-                                <th style="width:13%">'+tr("# Periods")+'</th>\
-                                <th style="width:10%">'+tr("Period")+'</th>\
-                                <th style="width:13%">'+tr("Cooldown")+'</th>\
+                                <th style="width:20%">'+tr("Expression")+'\
+                                    <span class="tip">'+tr("Expression to trigger the elasticity")+'<br><br>\
+                                        '+tr("Example: ATT < 20")+'<br>\
+                                    </span>\
+                                </th>\
+                                <th style="width:15%">'+tr("# Periods")+'\
+                                    <span class="tip">'+tr("Number of periods that the expression must be true before the elasticity is triggered")+'\
+                                    </span>\
+                                </th>\
+                                <th style="width:12%">'+tr("Period")+'\
+                                    <span class="tip">'+tr("Duration, in seconds, of each period in '# Periods'")+'\
+                                    </span>\
+                                </th>\
+                                <th style="width:15%">'+tr("Cooldown")+'\
+                                    <span class="tip">'+tr("Cooldown period duration after a scale operation, in seconds")+'\
+                                    </span>\
+                                </th>\
                                 <th style="width:3%"></th>\
                               </tr>\
                             </thead>\
@@ -379,8 +392,17 @@ var role_tab_content = '\
                                     <span class="tip">'+tr("Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute.")+'\
                                     </span>\
                                 </th>\
-                                <th style="width:28%">'+tr("Time format")+'</th>\
-                                <th style="width:33%">'+tr("Time expression")+'</th>\
+                                <th style="width:28%">'+tr("Time format")+'\
+                                    <span class="tip">'+tr("Recurrence: Time for recurring adjustements. Time is specified with the Unix cron syntax")+'<br><br>\
+                                        '+tr("Start time: Exact time for the adjustement")+'\
+                                    </span>\
+                                </th>\
+                                <th style="width:33%">'+tr("Time expression")+'\
+                                    <span class="tip">'+tr("Time expression depends on the the time formar selected")+'<br><br>\
+                                        '+tr("Recurrence: Time for recurring adjustements. Time is specified with the Unix cron syntax")+'<br>\
+                                        '+tr("Start time: Exact time for the adjustement")+'<br>\
+                                    </span>\
+                                </th>\
                                 <th style="width:3%"></th>\
                               </tr>\
                             </thead>\
@@ -826,10 +848,23 @@ function updateServiceTemplateInfo(request,elem){
                             <span class="tip">'+tr("Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute.")+'\
                             </span>\
                         </th>\
-                        <th style="width:26%">'+tr("Expression")+'</th>\
-                        <th style="width:13%">'+tr("# Periods")+'</th>\
-                        <th style="width:10%">'+tr("Period")+'</th>\
-                        <th style="width:13%">'+tr("Cooldown")+'</th>\
+                        <th style="width:20%">'+tr("Expression")+'\
+                            <span class="tip">'+tr("Expression to trigger the elasticity")+'<br><br>\
+                                '+tr("Example: ATT < 20")+'<br>\
+                            </span>\
+                        </th>\
+                        <th style="width:15%">'+tr("# Periods")+'\
+                            <span class="tip">'+tr("Number of periods that the expression must be true before the elasticity is triggered")+'\
+                            </span>\
+                        </th>\
+                        <th style="width:12%">'+tr("Period")+'\
+                            <span class="tip">'+tr("Duration, in seconds, of each period in '# Periods'")+'\
+                            </span>\
+                        </th>\
+                        <th style="width:15%">'+tr("Cooldown")+'\
+                            <span class="tip">'+tr("Cooldown period duration after a scale operation, in seconds")+'\
+                            </span>\
+                        </th>\
                       </tr>\
                     </thead>\
                     <tbody>';
@@ -877,8 +912,17 @@ function updateServiceTemplateInfo(request,elem){
                             <span class="tip">'+tr("Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute.")+'\
                             </span>\
                         </th>\
-                        <th style="width:28%">'+tr("Time format")+'</th>\
-                        <th style="width:33%">'+tr("Time expression")+'</th>\
+                        <th style="width:28%">'+tr("Time format")+'\
+                            <span class="tip">'+tr("Recurrence: Time for recurring adjustements. Time is specified with the Unix cron syntax")+'<br><br>\
+                                '+tr("Start time: Exact time for the adjustement")+'\
+                            </span>\
+                        </th>\
+                        <th style="width:33%">'+tr("Time expression")+'\
+                            <span class="tip">'+tr("Time expression depends on the the time formar selected")+'<br><br>\
+                                '+tr("Recurrence: Time for recurring adjustements. Time is specified with the Unix cron syntax")+'<br>\
+                                '+tr("Start time: Exact time for the adjustement")+'<br>\
+                            </span>\
+                        </th>\
                       </tr>\
                     </thead>\
                     <tbody>';
