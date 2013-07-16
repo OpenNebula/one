@@ -977,8 +977,11 @@ var service_tab_content = '\
         <tbody>\
         </tbody>\
       </table>\
+    </div>\
   </div>\
-  </div>\
+<div class="row" id="error_message" hidden>\
+    <div class="alert-box alert">'+tr("Cannot connect to OneFlow server")+'<a href="" class="close">&times;</a></div>\
+</div>\
 </form>';
 
 var dataTable_services;
@@ -987,8 +990,13 @@ var service_actions = {
     "Service.list" : {
         type: "list",
         call: Service.list,
-        callback: updateServicesView,
-        error: onError
+        callback: function(request, service_list) {
+            $("#oneflow-services #error_message").hide();
+            updateServicesView(request, service_list);
+        },
+        error: function(request, error_json) {
+            onError(request, error_json, $("#oneflow-services #error_message"));
+        }
     },
 
     "Service.show" : {

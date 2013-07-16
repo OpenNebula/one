@@ -108,7 +108,10 @@ var service_template_tab_content = '\
         <tbody>\
         </tbody>\
       </table>\
+    </div>\
   </div>\
+  <div class="row" id="error_message" hidden>\
+    <div class="alert-box alert">'+tr("Cannot connect to OneFlow server")+'<a href="" class="close">&times;</a></div>\
   </div>\
 </form>';
 
@@ -465,8 +468,13 @@ var service_template_actions = {
     "ServiceTemplate.list" : {
         type: "list",
         call: ServiceTemplate.list,
-        callback: updateServiceTemplatesView,
-        error: onError
+        callback: function(request, service_list) {
+            $("#oneflow-templates #error_message").hide();
+            updateServiceTemplatesView(request, service_list);
+        },
+        error: function(request, error_json) {
+            onError(request, error_json, $("#oneflow-templates #error_message"))
+        }
     },
 
     "ServiceTemplate.show" : {
