@@ -20,12 +20,10 @@ available_tabs:
     - oneflow-dashboard
     - oneflow-services
     - oneflow-templates
-users:
-    cloud:
-        - cloud
 groups:
     oneadmin:
         - admin
         - user
+        - cloud
 default:
     - user
