@@ -318,10 +318,12 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/public/locale \
                $SUNSTONE_LOCATION/public/locale/ca \
                $SUNSTONE_LOCATION/public/locale/cs_CZ \
+               $SUNSTONE_LOCATION/public/locale/da \
                $SUNSTONE_LOCATION/public/locale/de \
                $SUNSTONE_LOCATION/public/locale/el_GR \
                $SUNSTONE_LOCATION/public/locale/en_US \
                $SUNSTONE_LOCATION/public/locale/es_ES \
+               $SUNSTONE_LOCATION/public/locale/da \
                $SUNSTONE_LOCATION/public/locale/fa_IR \
                $SUNSTONE_LOCATION/public/locale/fr_FR \
                $SUNSTONE_LOCATION/public/locale/it_IT \
@@ -571,6 +573,7 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_LOCALE_CA:$SUNSTONE_LOCATION/public/locale/ca
     SUNSTONE_PUBLIC_LOCALE_CS_CZ:$SUNSTONE_LOCATION/public/locale/cs_CZ
     SUNSTONE_PUBLIC_LOCALE_DE:$SUNSTONE_LOCATION/public/locale/de
+    SUNSTONE_PUBLIC_LOCALE_DA:$SUNSTONE_LOCATION/public/locale/da
     SUNSTONE_PUBLIC_LOCALE_EL_GR:$SUNSTONE_LOCATION/public/locale/el_GR
     SUNSTONE_PUBLIC_LOCALE_EN_US:$SUNSTONE_LOCATION/public/locale/en_US
     SUNSTONE_PUBLIC_LOCALE_ES_ES:$SUNSTONE_LOCATION/public/locale/es_ES
@@ -1702,6 +1705,10 @@ src/sunstone/locale/languages/cs_datatable.txt"
 SUNSTONE_PUBLIC_LOCALE_DE="\
 src/sunstone/locale/languages/de.js \
 src/sunstone/locale/languages/de_datatable.txt"
+
+SUNSTONE_PUBLIC_LOCALE_DA="\
+src/sunstone/locale/languages/da.js \
+src/sunstone/locale/languages/da_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_EL_GR="\
 src/sunstone/locale/languages/el_GR.js \

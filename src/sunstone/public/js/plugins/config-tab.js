@@ -112,6 +112,7 @@ var config_tab_content =
                  <option value="ca">Catalan (ca)</option>\
                  <option value="cs_CZ">Czech (cs_CZ)</option>\
                  <option value="nl_NL">Dutch (nl_NL)</option>\
+                 <option value="da">Danish (da)</option>\
                  <option value="fr_FR">French (fr_FR)</option>\
                  <option value="de">German (de)</option>\
                  <option value="el_GR">Greek (el_GR)</option>\
