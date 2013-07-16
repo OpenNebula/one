@@ -415,7 +415,7 @@ function initCheckAllBoxes(datatable, custom_context){
 
 //standard handling for the server errors on ajax requests.
 //Pops up a message with the information.
-function onError(request,error_json) {
+function onError(request,error_json, container) {
     var method;
     var action;
     var object;
@@ -450,6 +450,11 @@ function onError(request,error_json) {
         }
         return false;
     };
+
+    if (container) {
+        container.show();
+        return false;
+    }
 
     if (message.match(/^Network is unreachable .+$/)){
         if (!onError.disabled){
