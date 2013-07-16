@@ -26,6 +26,7 @@ env.Append(BUILDERS = {'Po' : po_bld})
 
 env.Po('ca.po')
 env.Po('cs_CZ.po')
+env.Po('da.po')
 env.Po('de.po')
 env.Po('el_GR.po')
 env.Po('en_US.po')

@@ -680,7 +680,7 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                   '<ul class="button-group right">'+
                     '<li>'+
                         "<div id='more_buttons'>"+
-                            "<div href='#' class='top_button small button secondary dropdown radius'>More "+
+                            "<div href='#' class='top_button small button secondary dropdown radius'> " + tr("More")+
                                 "<ul>"+
                                 "</ul>"+
                             "</div>"+
@@ -745,7 +745,7 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
             switch (button.layout) {
             case "create":
                 context = $("#create_buttons", buttons_row);
-                text = button.text ? '<i class="icon-plus-sign"/>  ' + button.text : '<i class="icon-plus-sign"/>  Create';
+                text = button.text ? '<i class="icon-plus-sign"/>  ' + button.text : '<i class="icon-plus-sign"/>  ' + tr("Create");
                 str_class.push("success", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
@@ -804,7 +804,7 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                 break;
             case "del":
                 context = $("#delete_buttons", buttons_row);
-                text = '<i class=" icon-trash"/>  Delete';
+                text = '<i class=" icon-trash"/>  ' + tr("Delete");
                 str_class.push("alert", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
