@@ -1203,13 +1203,13 @@ module OneDBFsck
             vm_quota  = doc.root.add_element("VM_QUOTA")
             vm_elem   = vm_quota.add_element("VM")
 
-            vm_elem.add_element("CPU").text         = "0"
+            vm_elem.add_element("CPU").text         = "-1"
             vm_elem.add_element("CPU_USED").text    = "0"
 
-            vm_elem.add_element("MEMORY").text      = "0"
+            vm_elem.add_element("MEMORY").text      = "-1"
             vm_elem.add_element("MEMORY_USED").text = "0"
 
-            vm_elem.add_element("VMS").text         = "0"
+            vm_elem.add_element("VMS").text         = "-1"
             vm_elem.add_element("VMS_USED").text    = "0"
         end
 
@@ -1278,7 +1278,7 @@ module OneDBFsck
             new_elem = net_quota.add_element("NETWORK")
 
             new_elem.add_element("ID").text = vnet_id
-            new_elem.add_element("LEASES").text = "0"
+            new_elem.add_element("LEASES").text = "-1"
             new_elem.add_element("LEASES_USED").text = leases_used.to_s
         }
 
@@ -1313,7 +1313,7 @@ module OneDBFsck
             new_elem = img_quota.add_element("IMAGE")
 
             new_elem.add_element("ID").text = img_id
-            new_elem.add_element("RVMS").text = "0"
+            new_elem.add_element("RVMS").text = "-1"
             new_elem.add_element("RVMS_USED").text = rvms.to_s
         }
 
@@ -1375,10 +1375,10 @@ module OneDBFsck
 
             new_elem.add_element("ID").text = ds_id
 
-            new_elem.add_element("IMAGES").text = "0"
+            new_elem.add_element("IMAGES").text = "-1"
             new_elem.add_element("IMAGES_USED").text = images_used.to_s
 
-            new_elem.add_element("SIZE").text = "0"
+            new_elem.add_element("SIZE").text = "-1"
             new_elem.add_element("SIZE_USED").text = size_used.to_s
         }
     end
