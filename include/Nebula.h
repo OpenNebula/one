@@ -193,7 +193,7 @@ public:
 
             log_level_int = atoi(value.c_str());
 
-            if (0 <= log_level_int && log_level_int <= 3 )
+            if ( Log::ERROR <= log_level_int && log_level_int <= Log::DDDEBUG )
             {
                 clevel = static_cast<Log::MessageType>(log_level_int);
             }
