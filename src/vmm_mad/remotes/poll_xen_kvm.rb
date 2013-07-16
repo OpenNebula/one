@@ -64,58 +64,64 @@ module KVM
 
         names=get_vm_names
 
-        names.each do |vm|
-            dominfo=dom_info(vm)
-            psinfo=process_info(dominfo['UUID'])
+        if names.length!=0
+            names.each do |vm|
+                dominfo=dom_info(vm)
+                psinfo=process_info(dominfo['UUID'])
 
-            info={}
-            info[:dominfo]=dominfo
-            info[:psinfo]=psinfo
-            info[:name]=vm
-            info[:pid]=psinfo[1]
+                info={}
+                info[:dominfo]=dominfo
+                info[:psinfo]=psinfo
+                info[:name]=vm
+                info[:pid]=psinfo[1]
 
-            vms[vm]=info
-        end
-
-        cpu=get_cpu_info(vms)
-
-        vms.each do |name, vm|
-            if one_vm
-                next if name!=one_vm
+                vms[vm]=info
             end
 
-            c=cpu[vm[:pid]]
-            vm[:cpu]=c if c
+            cpu=get_cpu_info(vms)
 
-            monitor=Hash.new
+            vms.each do |name, vm|
+                if one_vm
+                    next if name!=one_vm
+                end
 
-            ps_data=vm[:psinfo]
-            dominfo=vm[:dominfo]
-            monitor[:cpu]=vm[:cpu]
-            monitor[:resident_memory]=ps_data[5].to_i
-            monitor[:max_memory]=dominfo['Max memory'].split(/\s+/).first.to_i
+                c=cpu[vm[:pid]]
+                vm[:cpu]=c if c
 
-            monitor[:memory]=[monitor[:resident_memory], monitor[:max_memory]].max
+                monitor=Hash.new
 
-            state=dominfo['State']
+                ps_data=vm[:psinfo]
+                dominfo=vm[:dominfo]
+                monitor[:cpu]=vm[:cpu]
+                monitor[:resident_memory]=ps_data[5].to_i
+                monitor[:max_memory]=dominfo['Max memory'].split(/\s+/).first.to_i
+
+                monitor[:memory]=[monitor[:resident_memory], monitor[:max_memory]].max
+
+                state=dominfo['State']
 
 
-            monitor[:state]=get_state(state)
-            monitor[:cpus]=dominfo['CPU(s)']
+                monitor[:state]=get_state(state)
+                monitor[:cpus]=dominfo['CPU(s)']
 
-            values=Hash.new
+                values=Hash.new
 
-            values[:state]=monitor[:state]
-            values[:usedcpu]=monitor[:cpu]
-            values[:usedmemory]=monitor[:memory]
+                values[:state]=monitor[:state]
+                values[:usedcpu]=monitor[:cpu]
+                values[:usedmemory]=monitor[:memory]
 
-            values.merge!(get_interface_statistics(name))
+                values.merge!(get_interface_statistics(name))
 
-            vm[:values]=values
+                vm[:values]=values
+            end
         end
 
         if one_vm
-            vms[one_vm][:values]
+            if vms[one_vm]
+                vms[one_vm][:values]
+            else
+                { :state => '-' }
+            end
         else
             vms
         end
