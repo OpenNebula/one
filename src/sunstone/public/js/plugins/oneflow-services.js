@@ -1024,7 +1024,16 @@ var service_actions = {
     "Service.autorefresh" : {
         type: "custom",
         call: function() {
-            Service.list({timeout: true, success: updateServicesView, error: onError});
+            Service.list({
+                timeout: true, 
+                success: function(request, service_list) {
+                    $("#oneflow-services #error_message").hide();
+                    updateServicesView(request, service_list);
+                },
+                error: function(request, error_json) {
+                    onError(request, error_json, $("#oneflow-services #error_message"));
+                }
+            });
         }
     },
 
