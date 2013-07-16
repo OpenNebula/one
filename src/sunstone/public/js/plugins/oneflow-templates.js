@@ -510,7 +510,16 @@ var service_template_actions = {
     "ServiceTemplate.autorefresh" : {
         type: "custom",
         call: function() {
-            ServiceTemplate.list({timeout: true, success: updateServiceTemplatesView, error: onError});
+            ServiceTemplate.list({
+                timeout: true, 
+                success: function(request, service_list) {
+                    $("#oneflow-templates #error_message").hide();
+                    updateServiceTemplatesView(request, service_list);
+                },
+                error: function(request, error_json) {
+                    onError(request, error_json, $("#oneflow-templates #error_message"));
+                }
+            });
         }
     },
 
