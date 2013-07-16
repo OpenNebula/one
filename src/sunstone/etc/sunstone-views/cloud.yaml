@@ -8,7 +8,7 @@ enabled_tabs:
     vresources-tab: false
     vms-tab: true
     templates-tab: false
-    images-tab: false
+    images-tab: true
     files-tab: false
     infra-tab: false
     clusters-tab: false
@@ -202,15 +202,15 @@ tabs:
             #- 12       # Target
         actions:
             Image.refresh: true
-            Image.create_dialog: true
+            Image.create_dialog: false
             Image.chown: false
             Image.chgrp: false
-            Image.chmod: true
-            Image.enable: true
-            Image.disable: true
+            Image.chmod: false
+            Image.enable: false
+            Image.disable: false
             Image.persistent: true
             Image.nonpersistent: true
-            Image.clone_dialog: true
+            Image.clone_dialog: false
             Image.delete: true
     files-tab:
         panel_tabs:
