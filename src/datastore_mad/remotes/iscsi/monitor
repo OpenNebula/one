@@ -66,4 +66,12 @@ echo "FREE_MB=\$FREE_MB"
 EOF
 )
 
-ssh_monitor_and_log $HOST "$MONITOR_SCRIPT" | tr ' ' '\n'
+MONITOR_DATA=$(ssh_monitor_and_log $HOST "$MONITOR_SCRIPT" 2>&1)
+MONITOR_STATUS=$?
+
+if [ "$MONITOR_STATUS" = "0" ]; then
+    echo "$MONITOR_DATA" | tr ' ' '\n'
+else
+    echo "$MONITOR_DATA"
+    exit $MONITOR_STATUS
+fi
