@@ -130,7 +130,7 @@ Role.init_default_shutdown(conf[:shutdown_action])
 t = Thread.new {
     require 'LifeCycleManager'
 
-    ServiceLCM.new(conf[:lcm_interval], settings.cloud_auth).loop
+    ServiceLCM.new(conf[:lcm_interval], cloud_auth).loop
 }
 t.abort_on_exception = true
 
