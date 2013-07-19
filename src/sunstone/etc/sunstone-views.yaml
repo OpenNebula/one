@@ -23,6 +23,7 @@ available_tabs:
 groups:
     oneadmin:
         - admin
+        - vdcadmin
         - user
         - cloud
 default:
