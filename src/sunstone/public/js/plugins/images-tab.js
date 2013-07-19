@@ -1221,7 +1221,7 @@ function popUpCreateImageDialog(){
     datastores_str = makeSelectOptions(dataTable_datastores,
                                           1,
                                           4,
-                                          [9,9],//system ds
+                                          [10,10],//system ds
                                           ['file','system'], //filter image & sys datastores
                                           true
                                          );
