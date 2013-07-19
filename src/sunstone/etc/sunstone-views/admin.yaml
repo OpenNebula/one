@@ -122,7 +122,7 @@ tabs:
             VM.chmod: true
             VM.deploy: true
             VM.migrate: true
-            VM.livemigrate: true
+            VM.migrate_live: true
             VM.hold: true
             VM.release: true
             VM.suspend: true
