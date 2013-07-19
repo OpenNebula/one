@@ -61,11 +61,12 @@ var datastore_datatable_table_tmpl='<thead>\
         <th>'+tr("Owner")+'</th>\
         <th>'+tr("Group")+'</th>\
         <th>'+tr("Name")+'</th>\
+        <th>'+tr("Capacity")+'</th>\
         <th>'+tr("Cluster")+'</th>\
         <th>'+tr("Basepath")+'</th>\
         <th>'+tr("TM MAD")+'</th>\
         <th>'+tr("DS MAD")+'</th>\
-        <th>'+tr("System")+'</th>\
+        <th>'+tr("Type")+'</th>\
       </tr>\
     </thead>\
     <tbody id="tbodydatastores">\
@@ -232,7 +233,7 @@ function setupCreateClusterDialog(){
         },
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [1] },
-            { "bVisible": false, "aTargets": [0,6,7,8,9] } // 5 = cluster
+            { "bVisible": false, "aTargets": [0,6,7,8,9,10] } // 5 = cluster
         ],
         "oLanguage": (datatable_lang != "") ?
             {
@@ -809,7 +810,7 @@ var cluster_datastore_actions = {
         call: OpenNebula.Datastore.list,
         callback: function(request,ds_list){
           updateClusterDatastoresView(request,ds_list);
-          dataTable_cluster_datastores.fnFilter( filter_expr, 5, true);
+          dataTable_cluster_datastores.fnFilter( filter_expr, 6, true);
           if(filter_expr!="-")
             Sunstone.runAction("Cluster.show_to_update", cluster_id);
         },
@@ -1348,7 +1349,7 @@ function updateClusterInfo(request,cluster){
         },
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [1] },
-            { "bVisible": false, "aTargets": [0,5,6,7,8,9] }
+            { "bVisible": false, "aTargets": [0,6,7,8,9,10] }
         ],
         "oLanguage": (datatable_lang != "") ?
             {
@@ -1375,7 +1376,7 @@ function clusterResourceViewListeners(){
             dataTable_hosts.fnFilter(getClusterName(filter_id),3,false,true,false,true);
             break;
         case 'datastores_tab':
-            dataTable_datastores.fnFilter(getClusterName(filter_id),5,false,true,false,true);
+            dataTable_datastores.fnFilter(getClusterName(filter_id),6,false,true,false,true);
             break;
         case 'vnets_tab':
             dataTable_vNetworks.fnFilter(getClusterName(filter_id),5,false,true,false,true);
