@@ -294,11 +294,12 @@ tabs:
             - 2         # Owner
             - 3         # Group
             - 4         # Name
-            - 5         # Cluster
-            #- 6         # Basepath
-            #- 7         # TM
-            #- 8         # DS
-            #- 9         # Type
+            - 5         # Capacity
+            - 6         # Cluster
+            #- 7         # Basepath
+            #- 8         # TM
+            #- 9         # DS
+            #- 10        # Type
         actions:
             Datastore.refresh: true
             Datastore.create_dialog: false
@@ -348,3 +349,86 @@ tabs:
         actions:
             Marketplace.refresh: true
             Marketplace.import: true
+    oneflow-dashboard:
+        panel_tabs:
+        table_columns:
+        actions:
+    oneflow-services:
+        panel_tabs:
+            service_info_tab: true
+            service_roles_tab: true
+            service_log_tab: true
+        panel_tabs_actions:
+            service_roles_tab:
+                Role.scale: true
+                Role.hold: true
+                Role.release: true
+                Role.suspend: true
+                Role.resume: true
+                Role.stop: true
+                Role.boot: true
+                Role.reboot: true
+                Role.reboot_hard: true
+                Role.poweroff: true
+                Role.poweroff_hard: true
+                Role.shutdown: true
+                Role.shutdown_hard: true
+                Role.delete: true
+                Role.delete_recreate: true
+                RoleVM.chown: false
+                RoleVM.chgrp: false
+                RoleVM.deploy: false
+                RoleVM.migrate: false
+                RoleVM.migrate_live: false
+                RoleVM.hold: true
+                RoleVM.release: true
+                RoleVM.suspend: true
+                RoleVM.resume: true
+                RoleVM.stop: true
+                RoleVM.boot: true
+                RoleVM.reboot: true
+                RoleVM.reboot_hard: true
+                RoleVM.poweroff: true
+                RoleVM.poweroff_hard: true
+                RoleVM.undeploy: true
+                RoleVM.undeploy_hard: true
+                RoleVM.shutdown: true
+                RoleVM.shutdown_hard: true
+                RoleVM.delete: true
+                RoleVM.delete_recreate: true
+                RoleVM.resched: false
+                RoleVM.unresched: false
+                RoleVM.recover: false
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Owner
+            - 3         # Group
+            - 4         # Name
+            - 5         # State
+        actions:
+            Service.refresh: true
+            Service.chown: false
+            Service.chgrp: false
+            Service.chmod: true
+            Service.shutdown: true
+            Service.recover: true
+            Service.delete: true
+    oneflow-templates:
+        panel_tabs:
+            service_template_info_panel: true
+            service_template_roles_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Owner
+            - 3         # Group
+            - 4         # Name
+        actions:
+            ServiceTemplate.refresh: true
+            ServiceTemplate.create_dialog: true
+            ServiceTemplate.instantiate: true
+            ServiceTemplate.chown: false
+            ServiceTemplate.chgrp: false
+            ServiceTemplate.chmod: true
+            ServiceTemplate.delete: true
