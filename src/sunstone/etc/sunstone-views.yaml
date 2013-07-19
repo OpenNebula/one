@@ -26,6 +26,7 @@ users:
 groups:
     oneadmin:
         - admin
+        - vdcadmin
         - user
 default:
     - user
