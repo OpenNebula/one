@@ -927,10 +927,10 @@ function updateVNetworkInfo(request,vn){
 // It adds the "add lease", "hold lease" fields, and each lease comes with
 // hold, release buttons etc. Listeners in setupLeasesOps()
 function printLeases(vn_info){
-    var html ='<form id="leases_form" vnid="'+vn_info.ID+'"><div class="six columns">';
+    var html ='<form id="leases_form" vnid="'+vn_info.ID+'"><div class="twelve columns">';
     html +='';
 
-    html += '<table id="vn_leases_info_table" class="twelve datatable extended_table">\
+    html += '<table id="vn_leases_info_table" class="six datatable extended_table">\
              <thead>\
                 <tr><th colspan="5">'+tr("Network information")+'</th></tr>\
              </thead>\
@@ -955,7 +955,7 @@ function printLeases(vn_info){
               </tr>\
             </tbody></table>';
 
-    html += '<table id="vn_leases_table" class="twelve datatable extended_table">\
+    html += '<table id="vn_leases_table" class="six datatable extended_table">\
       <thead>\
         <tr><th colspan="7">'+tr("Leases information")+'</th></tr>\
       </thead>\
@@ -989,6 +989,8 @@ function printLeases(vn_info){
     };
 
     html +='</tbody>\
+      </table>\
+      <table class="twelve datatable extended_table">\
       <thead>\
         <tr>\
         <th></th>\
