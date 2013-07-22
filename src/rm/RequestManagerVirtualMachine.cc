@@ -1295,6 +1295,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
 
     deltas.add("MEMORY", dmemory);
     deltas.add("CPU", dcpu);
+    deltas.add("VMS", 0);
 
     switch (vm->get_state())
     {
