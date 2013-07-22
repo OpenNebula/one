@@ -58,16 +58,6 @@ public:
     bool check(Template* tmpl, Quotas& default_quotas, string& error);
 
     /**
-     *  Check if the resource update (change in MEMORY or CPU) will exceed the
-     *  quota limits. If not the usage counters are updated
-     *    @param tmpl with increments in MEMORY and CPU
-     *    @param default_quotas Quotas that contain the default limits
-     *    @param error string
-     *    @return true if the operation can be performed
-     */
-    bool update(Template * tmpl, Quotas& default_quotas, string& error);
-
-    /**
      *  Decrement usage counters when deallocating image
      *    @param tmpl template for the resource
      */

@@ -149,20 +149,6 @@ public:
                      string& error_str);
 
     /**
-     *  Update usage of an existing quota (e.g. size of an image), it updates
-     *  the usage counters if quotas are not exceeded.
-     *    @param type the quota to work with
-     *    @param tmpl template for the VirtualMachine
-     *    @param default_quotas Quotas that contain the default limits
-     *    @param error_str string describing the error
-     *    @return true if resource can be updated, false otherwise
-     */
-     bool quota_update(QuotaType type,
-                       Template *tmpl,
-                       Quotas& default_quotas,
-                       string& error_str);
-
-    /**
      *  Delete usage from the given quota counters.
      *    @param type the quota to work with
      *    @param tmpl template for the image, with usage
