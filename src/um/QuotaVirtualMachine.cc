@@ -84,7 +84,7 @@ void QuotaVirtualMachine::del(Template * tmpl)
 {
     map<string, float> vm_request;
 
-    int memory;
+    int memory, vms;
     float cpu;
 
     if ( tmpl->get("MEMORY", memory) == false )
@@ -97,7 +97,12 @@ void QuotaVirtualMachine::del(Template * tmpl)
         cpu = 0;
     }
 
-    vm_request.insert(make_pair("VMS",1));
+    if ( tmpl->get("VMS", vms) == false )
+    {
+        vms = 1;
+    }
+
+    vm_request.insert(make_pair("VMS", vms));
     vm_request.insert(make_pair("MEMORY", memory));
     vm_request.insert(make_pair("CPU", cpu));
 
