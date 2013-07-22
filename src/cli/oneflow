@@ -254,17 +254,17 @@ def show_service(client, args, options)
                 puts str % ["CARNIDALITY", role['cardinality']]
                 puts str % ["MIN VMS", role['min_vms']] if role['min_vms']
                 puts str % ["MAX VMS", role['max_vms']] if role['max_vms']
+                puts str % ["COOLDOWN", "#{role['cooldown']}s"] if role['cooldown']
                 puts str % ["SHUTDOWN", role['shutdown_action']] if role['shutdown_action']
 
                 puts "NODES INFORMATION"
                 NODE_TABLE.show(role['nodes'])
 
-                if !role['elasticity_policies'].nil? || !role['scheduled_policies'].nil?
+                if !role['elasticity_policies'].nil? && role['elasticity_policies'].size > 0 || !role['scheduled_policies'].nil? && role['scheduled_policies'].size > 0
                     puts
                     puts "ELASTICITY RULES"
-                    puts str % ["COOLDOWN", "#{role['cooldown']}s"] if role['cooldown']
 
-                    if role['elasticity_policies']
+                    if role['elasticity_policies'] && role['elasticity_policies'].size > 0
                         puts
 #                        puts "ELASTICITY POLICIES"
                         CLIHelper::ShowTable.new(nil, self) do
@@ -280,12 +280,16 @@ def show_service(client, args, options)
                                 end
                             end
 
-                            column :'EVALS', "", :left, :size=>5 do |d|
-                                "#{d['true_evals'].to_i} / #{d['period_number']}"
+                            column :'EVALS', "", :right, :size=>5 do |d|
+                                if d['period_number']
+                                    "#{d['true_evals'].to_i} / #{d['period_number']}"
+                                else
+                                    "-"
+                                end
                             end
 
                             column :PERIOD, "", :size=>6 do |d|
-                                "#{d['period']}s"
+                                d['period'] ?  "#{d['period']}s" : '-'
                             end
 
                             column :COOL, "", :size=>5 do |d|
@@ -296,7 +300,7 @@ def show_service(client, args, options)
                         end.show([role['elasticity_policies']].flatten, {})
                     end
 
-                    if role['scheduled_policies']
+                    if role['scheduled_policies'] && role['scheduled_policies'].size > 0
                         puts
 #                        puts "SCHEDULED POLICIES"
                         CLIHelper::ShowTable.new(nil, self) do
