@@ -319,7 +319,11 @@ module OpenNebula
                 Log.debug LOG_COMP, "Role #{name} : Deleting VM #{vm_id}", @service.id()
 
                 vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
-                rc = vm.finalize
+                rc = vm.shutdown(true)
+
+                if OpenNebula.is_error?(rc)
+                    rc = vm.finalize
+                end
 
                 if OpenNebula.is_error?(rc)
                     msg = "Role #{name} : Delete failed for VM #{vm_id}; #{rc.message}"
