@@ -52,6 +52,20 @@ public:
     virtual bool check(Template* tmpl, Quotas& default_quotas, string& error) = 0;
 
     /**
+     *  Check if a resource update in usage counters will exceed the
+     *  quota limits. If not the usage counters are updated for that resource
+     *    @param tmpl with increments in MEMORY and CPU
+     *    @param default_quotas Quotas that contain the default limits
+     *    @param error string
+     *    @return true if the operation can be performed
+     */
+    virtual bool update(Template * tmpl, Quotas& default_quotas, string& error)
+    {
+        error = "Update operation for quotas not supported.";
+        return false;
+    };
+
+    /**
      *  Decrement usage counters when deallocating image
      *    @param tmpl template for the resource
      */

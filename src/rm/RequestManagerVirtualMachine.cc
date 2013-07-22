@@ -1187,6 +1187,9 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
     int   nvcpu, ovcpu;
 
     Nebula&    nd    = Nebula::instance();
+    UserPool*  upool = nd.get_upool();
+    GroupPool* gpool = nd.get_gpool();
+    Quotas     dquotas = nd.get_default_user_quota();
     HostPool * hpool = nd.get_hpool();
 
     Host * host;
@@ -1293,10 +1296,6 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
     deltas.add("MEMORY", dmemory);
     deltas.add("CPU", dcpu);
 
-    // This attribute tells the quotas that we are not allocating a new
-    // VM, just updating the CPU & MEMORY usage
-    deltas.add("UPDATE", "YES");
-
     switch (vm->get_state())
     {
         case VirtualMachine::POWEROFF: //Only check host capacity in POWEROFF
@@ -1341,9 +1340,69 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
     /*  Check quotas                                                          */
     /* ---------------------------------------------------------------------- */
 
-    if ( quota_authorization(&deltas, Quotas::VIRTUALMACHINE, att) == false )
+    if (vm_perms.uid != UserPool::ONEADMIN_ID)
     {
-        return;
+        User * user  = upool->get(vm_perms.uid, true);
+
+        if ( user != 0 )
+        {
+            rc = user->quota.quota_update(Quotas::VM, &deltas, dquotas, error_str);
+
+            if (rc == false)
+            {
+                ostringstream oss;
+
+                oss << object_name(PoolObjectSQL::USER)
+                    << " [" << vm_perms.uid << "] "
+                    << error_str;
+
+                failure_response(AUTHORIZATION,
+                        request_error(oss.str(), ""),
+                        att);
+
+                user->unlock();
+
+                return;
+            }
+
+            upool->update(user);
+
+            user->unlock();
+        }
+    }
+
+    if (vm_perms.gid != GroupPool::ONEADMIN_ID)
+    {
+        Group * group  = gpool->get(vm_perms.gid, true);
+
+        if ( group != 0 )
+        {
+            rc = group->quota.quota_update(Quotas::VM, &deltas, dquotas, error_str);
+
+            if (rc == false)
+            {
+                ostringstream oss;
+                RequestAttributes att_tmp(vm_perms.uid, -1, att);
+
+                oss << object_name(PoolObjectSQL::GROUP)
+                    << " [" << vm_perms.gid << "] "
+                    << error_str;
+
+                failure_response(AUTHORIZATION,
+                                 request_error(oss.str(), ""),
+                                 att);
+
+                group->unlock();
+
+                quota_rollback(&deltas, Quotas::VM, att_tmp);
+
+                return;
+            }
+
+            gpool->update(group);
+
+            group->unlock();
+        }
     }
 
     /* ---------------------------------------------------------------------- */

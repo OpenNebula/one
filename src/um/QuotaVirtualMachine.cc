@@ -55,32 +55,22 @@ bool QuotaVirtualMachine::check(Template * tmpl,
 {
     map<string, float> vm_request;
 
-    int     memory;
-    float   cpu;
-    bool    update;
+    int memory;
+    float cpu;
 
-    // For an update (change in MEMORY or CPU), negative values are allowed,
-    // and VMS is not updated since a new VM is not being allocated.
-
-    tmpl->get("UPDATE", update);
-
-    if ( tmpl->get("MEMORY", memory) == false  || (!update && memory <= 0) )
+    if ( tmpl->get("MEMORY", memory) == false  || memory <= 0 )
     {
         error = "MEMORY attribute must be a positive integer value";
         return false;
     }
 
-    if ( tmpl->get("CPU", cpu) == false || (!update && cpu <= 0) )
+    if ( tmpl->get("CPU", cpu) == false || cpu <= 0 )
     {
         error = "CPU attribute must be a positive float or integer value";
         return false;
     }
 
-    if ( !update )
-    {
-        vm_request.insert(make_pair("VMS",1));
-    }
-
+    vm_request.insert(make_pair("VMS",1));
     vm_request.insert(make_pair("MEMORY", memory));
     vm_request.insert(make_pair("CPU", cpu));
 
@@ -94,11 +84,8 @@ void QuotaVirtualMachine::del(Template * tmpl)
 {
     map<string, float> vm_request;
 
-    int     memory;
-    float   cpu;
-    bool    update;
-
-    tmpl->get("UPDATE", update);
+    int memory;
+    float cpu;
 
     if ( tmpl->get("MEMORY", memory) == false )
     {
@@ -110,11 +97,7 @@ void QuotaVirtualMachine::del(Template * tmpl)
         cpu = 0;
     }
 
-    if (!update)
-    {
-        vm_request.insert(make_pair("VMS",1));
-    }
-
+    vm_request.insert(make_pair("VMS",1));
     vm_request.insert(make_pair("MEMORY", memory));
     vm_request.insert(make_pair("CPU", cpu));
 
@@ -130,4 +113,29 @@ int QuotaVirtualMachine::get_default_quota(
     VectorAttribute **va)
 {
     return default_quotas.vm_get(id, va);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool QuotaVirtualMachine::update(Template * tmpl,
+                                 Quotas& default_quotas,
+                                 string& error)
+{
+    map<string, float> vm_request;
+
+    int   delta_memory;
+    float delta_cpu;
+
+    if ( tmpl->get("MEMORY", delta_memory) == true )
+    {
+        vm_request.insert(make_pair("MEMORY", delta_memory));
+    }
+
+    if ( tmpl->get("CPU", delta_cpu) == true )
+    {
+        vm_request.insert(make_pair("CPU", delta_cpu));
+    }
+
+    return check_quota("", vm_request, default_quotas, error);
 }
