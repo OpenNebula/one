@@ -1622,7 +1622,7 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
         $('#IMAGE', disk_section).val("");
         $('#IMAGE_UNAME', disk_section).val("");
         $('#IMAGE_UID', disk_section).val("");
-        return true;
+        return false;
     });
 
     // Hide image advanced options
@@ -1897,7 +1897,7 @@ function setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id) {
         $('#NETWORK', nic_section).val("");
         $('#NETWORK_UNAME', nic_section).val("");
         $('#NETWORK_UID', nic_section).val("");
-        return true;
+        return false;
     });
 
     $('.advanced', nic_section).hide();
