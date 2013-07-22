@@ -768,48 +768,48 @@ var role_buttons = {
 
 
 var role_vm_buttons = {
-    "RoleVM.chown" : {
-        type: "confirm_with_select",
-        text: tr("Change owner"),
-        select: users_sel,
-        layout: "user_select",
-        tip: tr("Select the new owner")+":",
-        condition: mustBeAdmin
-    },
-
-    "RoleVM.chgrp" : {
-        type: "confirm_with_select",
-        text: tr("Change group"),
-        select: groups_sel,
-        layout: "user_select",
-        tip: tr("Select the new group")+":",
-        condition: mustBeAdmin
-    },
-    "RoleVM.deploy" : {
-        type: "confirm_with_select",
-        text: tr("Deploy"),
-        tip: tr("This will deploy the selected VMs on the chosen host"),
-        layout: "vmsplanification_buttons",
-        select: hosts_sel,
-        condition: mustBeAdmin
-    },
-    "RoleVM.migrate" : {
-        type: "confirm_with_select",
-        text: tr("Migrate"),
-        tip: tr("This will migrate the selected VMs to the chosen host"),
-        layout: "vmsplanification_buttons",
-        select: hosts_sel,
-        condition: mustBeAdmin
-
-    },
-    "RoleVM.migrate_live" : {
-        type: "confirm_with_select",
-        text: tr("Migrate") + ' <span class="label secondary radius">live</span>',
-        tip: tr("This will live-migrate the selected VMs to the chosen host"),
-        layout: "vmsplanification_buttons",
-        select: hosts_sel,
-        condition: mustBeAdmin
-    },
+//    "RoleVM.chown" : {
+//        type: "confirm_with_select",
+//        text: tr("Change owner"),
+//        select: users_sel,
+//        layout: "user_select",
+//        tip: tr("Select the new owner")+":",
+//        condition: mustBeAdmin
+//    },
+//
+//    "RoleVM.chgrp" : {
+//        type: "confirm_with_select",
+//        text: tr("Change group"),
+//        select: groups_sel,
+//        layout: "user_select",
+//        tip: tr("Select the new group")+":",
+//        condition: mustBeAdmin
+//    },
+//    "RoleVM.deploy" : {
+//        type: "confirm_with_select",
+//        text: tr("Deploy"),
+//        tip: tr("This will deploy the selected VMs on the chosen host"),
+//        layout: "vmsplanification_buttons",
+//        select: hosts_sel,
+//        condition: mustBeAdmin
+//    },
+//    "RoleVM.migrate" : {
+//        type: "confirm_with_select",
+//        text: tr("Migrate"),
+//        tip: tr("This will migrate the selected VMs to the chosen host"),
+//        layout: "vmsplanification_buttons",
+//        select: hosts_sel,
+//        condition: mustBeAdmin
+//
+//    },
+//    "RoleVM.migrate_live" : {
+//        type: "confirm_with_select",
+//        text: tr("Migrate") + ' <span class="label secondary radius">live</span>',
+//        tip: tr("This will live-migrate the selected VMs to the chosen host"),
+//        layout: "vmsplanification_buttons",
+//        select: hosts_sel,
+//        condition: mustBeAdmin
+//    },
     "RoleVM.hold" : {
         type: "action",
         text: tr("Hold"),
