@@ -374,11 +374,6 @@ tabs:
                 Role.shutdown_hard: true
                 Role.delete: true
                 Role.delete_recreate: true
-                RoleVM.chown: true
-                RoleVM.chgrp: true
-                RoleVM.deploy: true
-                RoleVM.migrate: true
-                RoleVM.migrate_live: true
                 RoleVM.hold: true
                 RoleVM.release: true
                 RoleVM.suspend: true
