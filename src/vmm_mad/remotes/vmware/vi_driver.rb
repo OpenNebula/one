@@ -249,27 +249,26 @@ class VIVm
             return
         end
 
-        host        = VIDriver::host
-        cpuMhz      = host.cpuMhz.to_f
-        numCpuCores = host.numCpuCores.to_f
-
-        @used_cpu= (@summary.quickStats.overallCpuUsage.to_f /
-            (cpuMhz * numCpuCores)).round()
-
         @used_memory = @summary.quickStats.hostMemoryUsage * 1024
 
-        net = VIDriver::retrieve_stats([@vm],
-                                       ["net.packetsRx","net.packetsTx"])
-        @net_rx = 0
-        @net_tx = 0
+        host        = VIDriver::host
+        cpuMhz      = host.cpuMhz.to_f
+        @used_cpu   = 
+                ((@summary.quickStats.overallCpuUsage.to_f / cpuMhz) * 100).to_s
+        @used_cpu   = sprintf('%.2f',@used_cpu).to_s
 
-        if net[@vm] && net[@vm][:metrics]
-            if net[@vm][:metrics]["net.packetsRx"]
-                @net_rx = net[@vm][:metrics]["net.packetsRx"].first
+        vm_stats = VIDriver::retrieve_stats([@vm],
+                                  ["net.packetsRx","net.packetsTx"])
+        @net_rx   = 0
+        @net_tx   = 0
+
+        if vm_stats[@vm] && vm_stats[@vm][:metrics]
+            if vm_stats[@vm][:metrics]["net.packetsRx"]
+                @net_rx = vm_stats[@vm][:metrics]["net.packetsRx"].first
             end
 
-            if net[@vm][:metrics]["net.packetsTx"]
-                @net_tx = net[@vm][:metrics]["net.packetsTx"].first
+            if vm_stats[@vm][:metrics]["net.packetsTx"]
+                @net_tx = vm_stats[@vm][:metrics]["net.packetsTx"].first
             end
         end
     end
@@ -336,11 +335,10 @@ class VIHost
 
         @cpuModel    = hardware.cpuModel
         @cpuMhz      = hardware.cpuMhz
-        @numCpuCores = hardware.numCpuCores
 
         @total_cpu = hardware.numCpuCores*100
-        @used_cpu  = (stats.overallCpuUsage.to_f /
-            (@cpuMhz.to_f * @numCpuCores.to_f)).round()
+        @used_cpu  = (stats.overallCpuUsage.to_f / @cpuMhz.to_f) * 100
+        @used_cpu  = sprintf('%.2f', @used_cpu).to_f # Trim precission
 
         @total_memory = hardware.memorySize/1024
         @used_memory  = stats.overallMemoryUsage*1024
