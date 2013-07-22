@@ -1433,8 +1433,8 @@ function fillUpUpdateServiceTemplateDialog(request, response){
                 $("#type" ,td).val(this['type'])
                 $("#type" ,td).change();
                 $("#adjust" ,td).val(this['adjust'] )
-                $("#expression" ,td).val(this['expression'] )
                 $("#min_adjust_step" ,td).val(this['min_adjust_step'] || "" )
+                $("#expression" ,td).val(unscape(this.expression))
                 $("#period" ,td).val(this['period'] || "" )
                 $("#period_number" ,td).val(this['period_number'] || "")
                 $("#cooldown" ,td).val(this['cooldown'] || "" )
