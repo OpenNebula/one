@@ -209,7 +209,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                         limit = "0" if limit.nil? || limit == ""
                     end
 
-                    "%3.1f / %3.0f" % [d['VM_QUOTA']['VM']["CPU_USED"], limit]
+                    "%3.1f / %3.1f" % [d['VM_QUOTA']['VM']["CPU_USED"], limit]
                 else
                     "-"
                 end
