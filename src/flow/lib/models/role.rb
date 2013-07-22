@@ -236,8 +236,11 @@ module OpenNebula
         def deploy(scale_up=false)
             n_nodes = cardinality() - get_nodes.size
 
+            @body['last_vmname'] ||= 0
+
             n_nodes.times { |i|
-                vm_name = "#{@body['name']}_#{i}_(service_#{@service.id()})"
+                vm_name = "#{@body['name']}_#{@body['last_vmname']}_(service_#{@service.id()})"
+                @body['last_vmname'] += 1
 
                 template_id = @body['vm_template']
 
