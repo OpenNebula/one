@@ -1416,11 +1416,11 @@ function fillUpUpdateServiceTemplateDialog(request, response){
                 $("#type" ,td).val(this['type'])
                 $("#type" ,td).change();
                 $("#adjust" ,td).val(this['adjust'] )
-                $("#min_adjust_step" ,td).val(this['min_adjust_step'] )
                 $("#expression" ,td).val(this['expression'] )
-                $("#period" ,td).val(this['period'] )
-                $("#period_number" ,td).val(this['period_number'] )
-                $("#cooldown" ,td).val(this['cooldown'] )
+                $("#min_adjust_step" ,td).val(this['min_adjust_step'] || "" )
+                $("#period" ,td).val(this['period'] || "" )
+                $("#period_number" ,td).val(this['period_number'] || "")
+                $("#cooldown" ,td).val(this['cooldown'] || "" )
             })
         }
 
@@ -1431,7 +1431,7 @@ function fillUpUpdateServiceTemplateDialog(request, response){
                 $("#type", td).val(this['type'])
                 $("#type" ,td).change();
                 $("#adjust", td).val(this['adjust'] )
-                $("#min_adjust_step", td).val(this['min_adjust_step'] )
+                $("#min_adjust_step", td).val(this['min_adjust_step']  || "")
 
                 if (this['start_time']) {
                     $("#time_format", td).val('start_time');
