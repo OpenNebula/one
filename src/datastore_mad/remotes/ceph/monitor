@@ -48,8 +48,8 @@ while IFS= read -r -d '' element; do
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/HOST \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/POOL_NAME)
 
-HOST="${XPATH_ELEMENTS[0]}"
-POOL_NAME="${XPATH_ELEMENTS[1]}"
+HOST="${XPATH_ELEMENTS[0]:-$HOST}"
+POOL_NAME="${XPATH_ELEMENTS[1]:-$POOL_NAME}"
 
 # ------------ Compute datastore usage -------------
 
