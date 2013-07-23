@@ -13,13 +13,13 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-07-15 13:00+0200\n"
-"PO-Revision-Date: 2013-07-16 10:38+0000\n"
+"PO-Revision-Date: 2013-07-23 14:40+0000\n"
 "Last-Translator: Hsi En Yu <yun@narlabs.org.tw>\n"
 "Language-Team: Chinese (Taiwan) (http://www.transifex.com/projects/p/one/language/zh_TW/)\n"
+"Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: zh_TW\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../public/js/plugins/acls-tab.js:28
@@ -648,7 +648,7 @@ msgstr "修改主機叢集"
 
 #: ../public/js/plugins/clusters-tab.js:507
 msgid "Please select one (and just one) cluster to update."
-msgstr "請選擇一個您想修改的主機叢集"
+msgstr "您僅能選取一個欲修改的主機叢集"
 
 #: ../public/js/plugins/clusters-tab.js:891
 #: ../public/js/plugins/templates-tab.js:3432
@@ -1247,11 +1247,11 @@ msgstr "基底路徑"
 
 #: ../public/js/plugins/datastores-tab.js:754
 msgid "Used"
-msgstr ""
+msgstr "已使用"
 
 #: ../public/js/plugins/datastores-tab.js:758
 msgid "Free"
-msgstr ""
+msgstr "可用"
 
 #: ../public/js/plugins/datastores-tab.js:984
 msgid "Please select a cluster for this datastore"
@@ -1887,22 +1887,22 @@ msgstr "下載"
 #: ../public/js/plugins/oneflow-services.js:71
 #: ../public/js/plugins/oneflow-services.js:93
 msgid "DEPLOYING"
-msgstr ""
+msgstr "部署中"
 
 #: ../public/js/plugins/oneflow-services.js:72
 #: ../public/js/plugins/oneflow-services.js:94
 msgid "RUNNING"
-msgstr ""
+msgstr "運行中"
 
 #: ../public/js/plugins/oneflow-services.js:73
 #: ../public/js/plugins/oneflow-services.js:95
 msgid "UNDEPLOYING"
-msgstr ""
+msgstr "關機封存中"
 
 #: ../public/js/plugins/oneflow-services.js:74
 #: ../public/js/plugins/oneflow-services.js:96
 msgid "WARNING"
-msgstr ""
+msgstr "警告"
 
 #: ../public/js/plugins/oneflow-services.js:75
 #: ../public/js/plugins/oneflow-services.js:97
@@ -1913,33 +1913,33 @@ msgstr "完成時間"
 #: ../public/js/plugins/oneflow-services.js:76
 #: ../public/js/plugins/oneflow-services.js:98
 msgid "FAILED_UNDEPLOYING"
-msgstr ""
+msgstr "關機封存失敗"
 
 #: ../public/js/plugins/oneflow-services.js:77
 #: ../public/js/plugins/oneflow-services.js:99
 msgid "FAILED_DEPLOYING"
-msgstr ""
+msgstr "部署失敗"
 
 #: ../public/js/plugins/oneflow-services.js:78
 #: ../public/js/plugins/oneflow-services.js:100
 msgid "SCALING"
-msgstr ""
+msgstr "動態調整中"
 
 #: ../public/js/plugins/oneflow-services.js:79
 #: ../public/js/plugins/oneflow-services.js:101
 msgid "FAILED_SCALING"
-msgstr ""
+msgstr "動態調整失敗"
 
 #: ../public/js/plugins/oneflow-services.js:80
 #: ../public/js/plugins/oneflow-services.js:102
 msgid "COOLDOWN"
-msgstr ""
+msgstr "冷卻中"
 
 #: ../public/js/plugins/oneflow-services.js:667
 #: ../public/js/plugins/oneflow-services.js:1756
 #: ../public/js/plugins/oneflow-services.js:1784
 msgid "Scale"
-msgstr ""
+msgstr "規模"
 
 #: ../public/js/plugins/oneflow-services.js:668
 #: ../public/js/plugins/oneflow-services.js:674
@@ -2075,7 +2075,7 @@ msgstr "此VM將會被關機。關機後，VM的磁碟影像檔將會被封存�
 #: ../public/js/plugins/oneflow-templates.js:242
 #: ../public/js/plugins/vms-tab.js:975 ../public/js/plugins/vms-tab.js:981
 msgid "Shutdown"
-msgstr "關機"
+msgstr "結束"
 
 #: ../public/js/plugins/oneflow-services.js:747
 #: ../public/js/plugins/oneflow-services.js:889
@@ -2151,17 +2151,17 @@ msgstr "選取的VM若處於重新排程狀態，將會取消排程"
 #: ../public/js/plugins/oneflow-services.js:1108
 #: ../public/js/plugins/vms-tab.js:1012
 msgid "Recover"
-msgstr ""
+msgstr "復原"
 
 #: ../public/js/plugins/oneflow-services.js:926
 #: ../public/js/plugins/vms-tab.js:1014
 msgid "success"
-msgstr ""
+msgstr "成功"
 
 #: ../public/js/plugins/oneflow-services.js:927
 #: ../public/js/plugins/vms-tab.js:1015
 msgid "failure"
-msgstr ""
+msgstr "失敗"
 
 #: ../public/js/plugins/oneflow-services.js:928
 msgid "Recovers a stuck VM that is waiting for a driver operation. //                The recovery may be done by failing or succeeding the pending operation. //                YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation //                was successful or not."
@@ -2169,26 +2169,26 @@ msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:942
 msgid "OneFlow - Services"
-msgstr ""
+msgstr "OneFlow - 服務"
 
 #: ../public/js/plugins/oneflow-services.js:1114
 msgid "This will delete the selected services"
-msgstr ""
+msgstr "選取的服務將會立刻刪除"
 
 #: ../public/js/plugins/oneflow-services.js:1120
 #: ../public/js/plugins/oneflow-templates.js:604
 msgid "Service information"
-msgstr ""
+msgstr "服務資訊"
 
 #: ../public/js/plugins/oneflow-services.js:1208
 msgid "Service"
-msgstr ""
+msgstr "服務"
 
 #: ../public/js/plugins/oneflow-services.js:1219
 #: ../public/js/plugins/oneflow-templates.js:145
 #: ../public/js/plugins/oneflow-templates.js:691
 msgid "Strategy"
-msgstr ""
+msgstr "策略"
 
 #: ../public/js/plugins/oneflow-services.js:1223
 #: ../public/js/plugins/oneflow-services.js:1442
@@ -2197,26 +2197,26 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:695
 #: ../public/js/plugins/oneflow-templates.js:807
 msgid "Shutdown action"
-msgstr ""
+msgstr "VM結束操作程序"
 
 #: ../public/js/plugins/oneflow-services.js:1254
 #: ../public/js/plugins/oneflow-services.js:1525
 #: ../public/js/plugins/oneflow-templates.js:347
 #: ../public/js/plugins/oneflow-templates.js:860
 msgid "Period"
-msgstr ""
+msgstr "週期時間"
 
 #: ../public/js/plugins/oneflow-services.js:1260
 msgid "Seconds between each group of actions"
-msgstr ""
+msgstr "每個操作集合的間隔時間"
 
 #: ../public/js/plugins/oneflow-services.js:1263
 msgid "Number"
-msgstr ""
+msgstr "數量"
 
 #: ../public/js/plugins/oneflow-services.js:1269
 msgid "Number of VMs to apply the action to each period"
-msgstr ""
+msgstr "每個週期可套用此操作的VM數量"
 
 #: ../public/js/plugins/oneflow-services.js:1281
 #: ../public/js/plugins/oneflow-services.js:1762
@@ -2225,17 +2225,17 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:1000
 #: ../public/js/plugins/oneflow-templates.js:1034
 msgid "Cardinality"
-msgstr ""
+msgstr "基數"
 
 #: ../public/js/plugins/oneflow-services.js:1282
 #: ../public/js/plugins/oneflow-templates.js:722
 msgid "VM Template"
-msgstr ""
+msgstr "VM範本"
 
 #: ../public/js/plugins/oneflow-services.js:1283
 #: ../public/js/plugins/oneflow-templates.js:723
 msgid "Parents"
-msgstr ""
+msgstr "父VM"
 
 #: ../public/js/plugins/oneflow-services.js:1291
 #: ../public/js/plugins/oneflow-templates.js:731
@@ -2245,7 +2245,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:1434
 #: ../public/js/plugins/oneflow-templates.js:797
 msgid "Role"
-msgstr ""
+msgstr "角色"
 
 #: ../public/js/plugins/oneflow-services.js:1444
 #: ../public/js/plugins/oneflow-services.js:1529
@@ -2254,13 +2254,13 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:809
 #: ../public/js/plugins/oneflow-templates.js:864
 msgid "Cooldown"
-msgstr ""
+msgstr "冷卻"
 
 #: ../public/js/plugins/oneflow-services.js:1446
 #: ../public/js/plugins/oneflow-templates.js:274
 #: ../public/js/plugins/oneflow-templates.js:811
 msgid "Min VMs"
-msgstr ""
+msgstr "最小VM數量"
 
 #: ../public/js/plugins/oneflow-services.js:1473
 #: ../public/js/plugins/vms-tab.js:79
@@ -2290,7 +2290,7 @@ msgstr "VNC"
 #: ../public/js/plugins/oneflow-services.js:1493
 #: ../public/js/plugins/oneflow-templates.js:828
 msgid "Elasticity policies"
-msgstr ""
+msgstr "動態性原則"
 
 #: ../public/js/plugins/oneflow-services.js:1499
 #: ../public/js/plugins/oneflow-services.js:1563
@@ -2299,7 +2299,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:834
 #: ../public/js/plugins/oneflow-templates.js:898
 msgid "Type of adjustment."
-msgstr ""
+msgstr "變化量的種類"
 
 #: ../public/js/plugins/oneflow-services.js:1500
 #: ../public/js/plugins/oneflow-services.js:1564
@@ -2335,7 +2335,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:840
 #: ../public/js/plugins/oneflow-templates.js:904
 msgid "Adjust"
-msgstr ""
+msgstr "變化量"
 
 #: ../public/js/plugins/oneflow-services.js:1506
 #: ../public/js/plugins/oneflow-services.js:1570
@@ -2380,7 +2380,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:847
 #: ../public/js/plugins/oneflow-templates.js:911
 msgid "Min"
-msgstr ""
+msgstr "下限"
 
 #: ../public/js/plugins/oneflow-services.js:1513
 #: ../public/js/plugins/oneflow-services.js:1577
@@ -2395,25 +2395,25 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:338
 #: ../public/js/plugins/oneflow-templates.js:851
 msgid "Expression"
-msgstr ""
+msgstr "表示式"
 
 #: ../public/js/plugins/oneflow-services.js:1517
 #: ../public/js/plugins/oneflow-templates.js:339
 #: ../public/js/plugins/oneflow-templates.js:852
 msgid "Expression to trigger the elasticity"
-msgstr ""
+msgstr "用來觸發動態調整的表示式"
 
 #: ../public/js/plugins/oneflow-services.js:1518
 #: ../public/js/plugins/oneflow-templates.js:340
 #: ../public/js/plugins/oneflow-templates.js:853
 msgid "Example: ATT < 20"
-msgstr ""
+msgstr "例： ATT < 20"
 
 #: ../public/js/plugins/oneflow-services.js:1521
 #: ../public/js/plugins/oneflow-templates.js:343
 #: ../public/js/plugins/oneflow-templates.js:856
 msgid "# Periods"
-msgstr ""
+msgstr "#週期數量"
 
 #: ../public/js/plugins/oneflow-services.js:1522
 #: ../public/js/plugins/oneflow-templates.js:344
@@ -2437,13 +2437,13 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:370
 #: ../public/js/plugins/oneflow-templates.js:892
 msgid "Scheduled policies"
-msgstr ""
+msgstr "排程原則"
 
 #: ../public/js/plugins/oneflow-services.js:1580
 #: ../public/js/plugins/oneflow-templates.js:395
 #: ../public/js/plugins/oneflow-templates.js:915
 msgid "Time format"
-msgstr ""
+msgstr "時間格式"
 
 #: ../public/js/plugins/oneflow-services.js:1581
 #: ../public/js/plugins/oneflow-services.js:1587
@@ -2467,7 +2467,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:400
 #: ../public/js/plugins/oneflow-templates.js:920
 msgid "Time expression"
-msgstr ""
+msgstr "時間表示式"
 
 #: ../public/js/plugins/oneflow-services.js:1586
 #: ../public/js/plugins/oneflow-templates.js:401
@@ -2482,27 +2482,27 @@ msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1773
 msgid "Force"
-msgstr ""
+msgstr "忽略承載檢驗"
 
 #: ../public/js/plugins/oneflow-services.js:1779
 msgid "Force the new cardinality even if it is outside the limits"
-msgstr ""
+msgstr "直接套用新基數並忽略承載數量限制"
 
 #: ../public/js/plugins/oneflow-templates.js:74
 msgid "OneFlow - Templates"
-msgstr ""
+msgstr "OneFlow - 服務範本"
 
 #: ../public/js/plugins/oneflow-templates.js:118
 msgid "Create Service Template"
-msgstr ""
+msgstr "建立服務範本"
 
 #: ../public/js/plugins/oneflow-templates.js:119
 msgid "Update Service Template"
-msgstr ""
+msgstr "修改服務範本"
 
 #: ../public/js/plugins/oneflow-templates.js:134
 msgid "Name for this template"
-msgstr ""
+msgstr "此服務範本的名稱"
 
 #: ../public/js/plugins/oneflow-templates.js:149
 msgid "Straight"
@@ -2510,7 +2510,7 @@ msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:150
 msgid "None"
-msgstr ""
+msgstr "無"
 
 #: ../public/js/plugins/oneflow-templates.js:154
 msgid "Straight strategy will instantiate each role in order: parents role will be deployed before their children. None strategy will instantiate the roles regardless of their relationships."
@@ -2519,27 +2519,27 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:167
 #: ../public/js/plugins/oneflow-templates.js:243
 msgid "Shutdown hard"
-msgstr ""
+msgstr "強迫結束(Shutdown hard)"
 
 #: ../public/js/plugins/oneflow-templates.js:171
 msgid "VM shutdown action: 'shutdown' or 'shutdown-hard'."
-msgstr ""
+msgstr "VM結束操作: '結束(shutdown)' 或 '強迫結束(shutdown-hard)'"
 
 #: ../public/js/plugins/oneflow-templates.js:178
 msgid "Add another role"
-msgstr ""
+msgstr "新增角色"
 
 #: ../public/js/plugins/oneflow-templates.js:201
 msgid "Role Name"
-msgstr ""
+msgstr "角色名稱"
 
 #: ../public/js/plugins/oneflow-templates.js:207
 msgid "Name of the role"
-msgstr ""
+msgstr "此角色的名稱"
 
 #: ../public/js/plugins/oneflow-templates.js:225
 msgid "VM template"
-msgstr ""
+msgstr "VM範本"
 
 #: ../public/js/plugins/oneflow-templates.js:232
 msgid "Template associated to this role"
@@ -2547,15 +2547,15 @@ msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:247
 msgid "VM shutdown action: 'shutdown' or 'shutdown-hard'. If it is not set, the one set for the Service will be used"
-msgstr ""
+msgstr "VM結束操作: '結束(shutdown)' 或 '強迫結束(shutdown-hard)'。若未設定此值，則將以服務範本設定值為預設值"
 
 #: ../public/js/plugins/oneflow-templates.js:258
 msgid "Parent roles"
-msgstr ""
+msgstr "父角色"
 
 #: ../public/js/plugins/oneflow-templates.js:270
 msgid "Elasticity"
-msgstr ""
+msgstr "動態性"
 
 #: ../public/js/plugins/oneflow-templates.js:280
 msgid "Minimum number of VMs for elasticity adjustments"
@@ -2571,11 +2571,11 @@ msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:313
 msgid "Elasticty policies"
-msgstr ""
+msgstr "動態性原則"
 
 #: ../public/js/plugins/oneflow-templates.js:459
 msgid "ServiceTemplate updated correctly"
-msgstr ""
+msgstr "服務範本已成功修改"
 
 #: ../public/js/plugins/oneflow-templates.js:570
 #: ../public/js/plugins/templates-tab.js:152
@@ -2586,11 +2586,11 @@ msgstr "實例化"
 
 #: ../public/js/plugins/oneflow-templates.js:598
 msgid "This will delete the selected templates"
-msgstr ""
+msgstr "選取的服務範本將會立刻刪除"
 
 #: ../public/js/plugins/oneflow-templates.js:680
 msgid "Service Template"
-msgstr ""
+msgstr "服務範本"
 
 #: ../public/js/plugins/oneflow-templates.js:1001
 #: ../public/js/plugins/oneflow-templates.js:1035
@@ -2608,7 +2608,7 @@ msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:1105
 msgid "Role "
-msgstr ""
+msgstr "角色 "
 
 #: ../public/js/plugins/oneflow-templates.js:1267
 msgid "Please specify name, cardinality and template for this role"
@@ -2642,54 +2642,55 @@ msgstr "VM名稱"
 #: ../public/js/plugins/templates-tab.js:177
 #: ../public/js/plugins/vms-tab.js:160
 msgid "Defaults to template name when emtpy. You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them"
-msgstr ""
+msgstr "若未填寫此欄位，預設值為範本名稱。你可以使用萬用字元 &#37;i 。當一次建立多個VM時，&#37;i 會被替換成由0開始的依序數字"
 
 #: ../public/js/plugins/templates-tab.js:140
 #: ../public/js/plugins/templates-tab.js:182
 #: ../public/js/plugins/vms-tab.js:165
 msgid "# VMs"
-msgstr ""
+msgstr "# VM數量"
 
 #: ../public/js/plugins/templates-tab.js:146
 #: ../public/js/plugins/templates-tab.js:188
 #: ../public/js/plugins/vms-tab.js:171
 msgid "Number of Virtual Machines that will be created using this template"
-msgstr ""
+msgstr "將套用此範本所建立的虛擬機器數量"
 
 #: ../public/js/plugins/templates-tab.js:168
 #: ../public/js/plugins/vms-tab.js:151
 msgid "Step 1: Specify a name and the number of instances"
-msgstr ""
+msgstr "第1步：設定虛擬機器名稱及數量"
 
 #: ../public/js/plugins/templates-tab.js:198
+#, fuzzy
 msgid "Step 3: Select an instance type"
-msgstr ""
+msgstr "第3步：選擇一個範本"
 
 #: ../public/js/plugins/templates-tab.js:223
 #: ../public/js/plugins/vms-tab.js:206
 msgid "TEMPLATE_ID"
-msgstr ""
+msgstr "範本ID"
 
 #: ../public/js/plugins/templates-tab.js:235
 #: ../public/js/plugins/vms-tab.js:218
 msgid "Please select a template from the list"
-msgstr ""
+msgstr "請選擇一個範本"
 
 #: ../public/js/plugins/templates-tab.js:236
 #: ../public/js/plugins/vms-tab.js:219
 msgid "You selected the following template:"
-msgstr ""
+msgstr "你已選擇下列範本:"
 
 #: ../public/js/plugins/templates-tab.js:246
 #: ../public/js/plugins/vms-tab.js:229
 msgid "Step 3: Select an operating system"
-msgstr ""
+msgstr "第3步：選擇一個作業系統"
 
 #: ../public/js/plugins/templates-tab.js:278
 #: ../public/js/plugins/templates-tab.js:963
 #: ../public/js/plugins/vms-tab.js:261
 msgid "IMAGE_ID"
-msgstr ""
+msgstr "磁碟影像檔ID"
 
 #: ../public/js/plugins/templates-tab.js:290
 #: ../public/js/plugins/templates-tab.js:949
@@ -2700,11 +2701,11 @@ msgstr "請選擇一個磁碟影像檔"
 #: ../public/js/plugins/templates-tab.js:291
 #: ../public/js/plugins/vms-tab.js:274
 msgid "You selected the following image:"
-msgstr ""
+msgstr "你已選擇下列磁碟影像檔:"
 
 #: ../public/js/plugins/templates-tab.js:470
 msgid "Please select only one template in the table"
-msgstr ""
+msgstr "您僅能選取一個範本"
 
 #: ../public/js/plugins/templates-tab.js:578
 msgid "Template information"
@@ -2833,12 +2834,12 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:1302
 #: ../public/js/plugins/templates-tab.js:1323
 msgid "VMWare: Not supported"
-msgstr ""
+msgstr "VMWare: 不支援"
 
 #: ../public/js/plugins/templates-tab.js:1060
 #: ../public/js/plugins/templates-tab.js:1245
 msgid "DEV_PREFIX"
-msgstr ""
+msgstr "裝置名稱字首"
 
 #: ../public/js/plugins/templates-tab.js:1066
 #: ../public/js/plugins/templates-tab.js:1251
@@ -2848,7 +2849,7 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:1077
 #: ../public/js/plugins/templates-tab.js:1262
 msgid "READONLY"
-msgstr ""
+msgstr "唯讀"
 
 #: ../public/js/plugins/templates-tab.js:1087
 #: ../public/js/plugins/templates-tab.js:1272
@@ -2858,37 +2859,37 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:1100
 #: ../public/js/plugins/templates-tab.js:1285
 msgid "CACHE"
-msgstr ""
+msgstr "快取"
 
 #: ../public/js/plugins/templates-tab.js:1105
 #: ../public/js/plugins/templates-tab.js:1290
 msgid "default"
-msgstr ""
+msgstr "default"
 
 #: ../public/js/plugins/templates-tab.js:1106
 #: ../public/js/plugins/templates-tab.js:1291
 msgid "none"
-msgstr ""
+msgstr "none"
 
 #: ../public/js/plugins/templates-tab.js:1107
 #: ../public/js/plugins/templates-tab.js:1292
 msgid "writethrough"
-msgstr ""
+msgstr "writethrough"
 
 #: ../public/js/plugins/templates-tab.js:1108
 #: ../public/js/plugins/templates-tab.js:1293
 msgid "writeback"
-msgstr ""
+msgstr "writeback"
 
 #: ../public/js/plugins/templates-tab.js:1109
 #: ../public/js/plugins/templates-tab.js:1294
 msgid "directsync"
-msgstr ""
+msgstr "directsync"
 
 #: ../public/js/plugins/templates-tab.js:1110
 #: ../public/js/plugins/templates-tab.js:1295
 msgid "unsafe"
-msgstr ""
+msgstr "unsafe"
 
 #: ../public/js/plugins/templates-tab.js:1114
 #: ../public/js/plugins/templates-tab.js:1299
@@ -2900,27 +2901,27 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:1300
 #: ../public/js/plugins/templates-tab.js:1321
 msgid "Xen: Not supported"
-msgstr ""
+msgstr "Xen: 不支援"
 
 #: ../public/js/plugins/templates-tab.js:1125
 #: ../public/js/plugins/templates-tab.js:1310
 msgid "IO"
-msgstr ""
+msgstr "IO"
 
 #: ../public/js/plugins/templates-tab.js:1130
 #: ../public/js/plugins/templates-tab.js:1315
 msgid "threads"
-msgstr ""
+msgstr "threads"
 
 #: ../public/js/plugins/templates-tab.js:1131
 #: ../public/js/plugins/templates-tab.js:1316
 msgid "native"
-msgstr ""
+msgstr "native"
 
 #: ../public/js/plugins/templates-tab.js:1135
 #: ../public/js/plugins/templates-tab.js:1320
 msgid "Set IO policy."
-msgstr ""
+msgstr "設定IO原則"
 
 #: ../public/js/plugins/templates-tab.js:1152
 #: ../public/js/plugins/templates-tab.js:2993
@@ -3096,11 +3097,11 @@ msgstr "bootloader可執行檔路徑"
 
 #: ../public/js/plugins/templates-tab.js:2426
 msgid "Guest OS"
-msgstr ""
+msgstr "Guest OS"
 
 #: ../public/js/plugins/templates-tab.js:2526
 msgid "Set the OS of the VM, only for VMware"
-msgstr ""
+msgstr "設定VM的OS種類，僅適用於VMWare"
 
 #: ../public/js/plugins/templates-tab.js:2534
 msgid "Registered Image"
@@ -3278,7 +3279,7 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:3116
 msgid "  Add OneGate token"
-msgstr ""
+msgstr "新增OneGate"
 
 #: ../public/js/plugins/templates-tab.js:3119
 msgid "Add a file (token.txt) to the context contaning the token to push custom metrics to the VirtualMachine through OneGate"
@@ -3379,7 +3380,7 @@ msgstr "未填寫虛擬機器名稱!"
 
 #: ../public/js/plugins/templates-tab.js:4119
 msgid " does not exists any more."
-msgstr ""
+msgstr " 已不存在."
 
 #: ../public/js/plugins/templates-tab.js:4127
 #: ../public/js/plugins/templates-tab.js:4275
@@ -3525,8 +3526,9 @@ msgid "You can use the wildcard &#37;i. When creating several VMs, &#37;i will b
 msgstr "你可以使用萬用字元 &#37;i 。當一次建立多個VM時，&#37;i 會被替換成由0開始的依序數字。"
 
 #: ../public/js/plugins/vms-tab.js:181
+#, fuzzy
 msgid "Step 2: Select an instance type"
-msgstr ""
+msgstr "第2步：選擇一個範本"
 
 #: ../public/js/plugins/vms-tab.js:821 ../public/js/plugins/vms-tab.js:832
 msgid "VirtualMachine updated correctly"
@@ -3534,7 +3536,7 @@ msgstr "虛擬機器已成功修改"
 
 #: ../public/js/plugins/vms-tab.js:856
 msgid "Launch"
-msgstr ""
+msgstr "啟動"
 
 #: ../public/js/plugins/vms-tab.js:1016
 msgid "Recovers a stuck VM that is waiting for a driver operation.                 The recovery may be done by failing or succeeding the pending operation.                 YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation                 was successful or not."
@@ -3627,12 +3629,12 @@ msgstr "結束(shutdown)"
 #: ../public/js/plugins/vms-tab.js:1616 ../public/js/plugins/vms-tab.js:1640
 #: ../public/js/plugins/vms-tab.js:1750
 msgid "hold"
-msgstr "保留"
+msgstr "保留(hold)"
 
 #: ../public/js/plugins/vms-tab.js:1617 ../public/js/plugins/vms-tab.js:1641
 #: ../public/js/plugins/vms-tab.js:1751
 msgid "release"
-msgstr "釋放"
+msgstr "釋放(release)"
 
 #: ../public/js/plugins/vms-tab.js:1618 ../public/js/plugins/vms-tab.js:1642
 #: ../public/js/plugins/vms-tab.js:1752
@@ -3906,7 +3908,7 @@ msgstr "載入中"
 
 #: ../public/js/plugins/vms-tab.js:3140
 msgid "Open in a new window"
-msgstr ""
+msgstr "在新視窗開啟"
 
 #: ../public/js/plugins/vms-tab.js:3149
 msgid "Canvas not supported."
@@ -4168,3 +4170,9 @@ msgstr "未選取任何項目"
 #: ../public/js/sunstone.js:1082
 msgid "You have to confirm this action"
 msgstr "請確認這個操作"
+
+#~ msgid "Cannot connect to OneFlow server"
+#~ msgstr "無法連線至OneFlow伺服器"
+
+#~ msgid "More"
+#~ msgstr "更多"

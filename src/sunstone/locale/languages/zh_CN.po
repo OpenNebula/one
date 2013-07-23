@@ -10,13 +10,13 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-07-15 13:00+0200\n"
-"PO-Revision-Date: 2013-05-06 14:16+0000\n"
+"PO-Revision-Date: 2013-07-23 09:30+0000\n"
 "Last-Translator: dmolina <dmolina@opennebula.org>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language-Team: Chinese (China) (http://www.transifex.com/projects/p/one/language/zh_CN/)\n"
+"Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: zh_CN\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../public/js/plugins/acls-tab.js:28
@@ -710,15 +710,15 @@ msgstr "语言"
 
 #: ../public/js/plugins/config-tab.js:133
 msgid "Views"
-msgstr ""
+msgstr "视图"
 
 #: ../public/js/plugins/config-tab.js:142
 msgid "VNC Secure websockets"
-msgstr ""
+msgstr "安全的VNC连接"
 
 #: ../public/js/plugins/config-tab.js:163
 msgid "Update config"
-msgstr ""
+msgstr "更新配置"
 
 #: ../public/js/plugins/config-tab.js:174
 #: ../public/js/plugins/users-tab.js:160
@@ -765,7 +765,7 @@ msgstr "群组ID"
 
 #: ../public/js/plugins/config-tab.js:346
 msgid "Group Name"
-msgstr ""
+msgstr "群组名称"
 
 #: ../public/js/plugins/config-tab.js:350
 #: ../public/js/plugins/templates-tab.js:2943
@@ -775,11 +775,11 @@ msgstr "密码"
 
 #: ../public/js/plugins/config-tab.js:351
 msgid "Update password"
-msgstr ""
+msgstr "更新密码"
 
 #: ../public/js/plugins/config-tab.js:358
 msgid "Custom Attributes"
-msgstr ""
+msgstr "自定义属性"
 
 #: ../public/js/plugins/dashboard-tab.js:24
 #: ../public/js/plugins/dashboard-tab.js:169
@@ -827,7 +827,7 @@ msgstr "虚拟网络"
 #: ../public/js/plugins/dashboard-tab.js:86
 #: ../public/js/plugins/vnets-tab.js:30
 msgid "USED IPs"
-msgstr ""
+msgstr "已用IP地址"
 
 #: ../public/js/plugins/dashboard-tab.js:99
 #: ../public/js/plugins/dashboard-tab.js:137
@@ -956,9 +956,8 @@ msgid "Filesystem"
 msgstr "文件系统"
 
 #: ../public/js/plugins/datastores-tab.js:104
-#, fuzzy
 msgid "VMware VMFS"
-msgstr "VMware (基于VMFS)"
+msgstr "VMWare VMFS"
 
 #: ../public/js/plugins/datastores-tab.js:105
 #: ../public/js/plugins/datastores-tab.js:170
@@ -1047,7 +1046,7 @@ msgstr "VMFS"
 
 #: ../public/js/plugins/datastores-tab.js:177
 msgid "Custom DS_MAD"
-msgstr ""
+msgstr "自定义DS_MAD"
 
 #: ../public/js/plugins/datastores-tab.js:186
 msgid "Transfer"
@@ -1074,7 +1073,7 @@ msgstr "Dummy"
 
 #: ../public/js/plugins/datastores-tab.js:201
 msgid "Custom TM_MAD"
-msgstr ""
+msgstr "自定义TM_MAD"
 
 #: ../public/js/plugins/datastores-tab.js:214
 msgid "Safe Directories"
@@ -1082,7 +1081,7 @@ msgstr "安全目录"
 
 #: ../public/js/plugins/datastores-tab.js:220
 msgid "If you need to un-block a directory under one of the RESTRICTED_DIRS"
-msgstr ""
+msgstr "如果您需要解除RESTRICTED_DIRS目录下某个子目录的限制"
 
 #: ../public/js/plugins/datastores-tab.js:225
 msgid "Restricted Directories"
@@ -1090,7 +1089,7 @@ msgstr "受限目录"
 
 #: ../public/js/plugins/datastores-tab.js:231
 msgid "Paths that can not be used to register images. A space separated list of paths. This will prevent users registering important files as VM images and accessing them thourgh their VMs. OpenNebula will automatically add its configuration directories: /var/lib/one, /etc/one and oneadmin's home ($HOME)."
-msgstr ""
+msgstr "不允许注册映像的路径，包含一系列用空格键分割的目录。此设置是为了阻止用户将某些重要文件注册为磁盘映像并从VM中进行访问。OpenNebula自动地将/var/lib/one、/etc/one和oneadmin用户的$HOME目录设置为禁止访问目录。"
 
 #: ../public/js/plugins/datastores-tab.js:236
 msgid "Host Bridge List"
@@ -1244,18 +1243,16 @@ msgid "Base path"
 msgstr "Base路径"
 
 #: ../public/js/plugins/datastores-tab.js:754
-#, fuzzy
 msgid "Used"
-msgstr "使用"
+msgstr "已用"
 
 #: ../public/js/plugins/datastores-tab.js:758
-#, fuzzy
 msgid "Free"
-msgstr "重置"
+msgstr "可用"
 
 #: ../public/js/plugins/datastores-tab.js:984
 msgid "Please select a cluster for this datastore"
-msgstr ""
+msgstr "请为此数据仓库选择一个集群"
 
 #: ../public/js/plugins/files-tab.js:26 ../public/js/plugins/files-tab.js:422
 msgid "Files & Kernels"
@@ -1523,7 +1520,7 @@ msgstr "创建主机"
 
 #: ../public/js/plugins/hosts-tab.js:88
 msgid "Hostname"
-msgstr ""
+msgstr "主机名"
 
 #: ../public/js/plugins/hosts-tab.js:99
 msgid "Drivers"
@@ -1887,22 +1884,22 @@ msgstr "下载"
 #: ../public/js/plugins/oneflow-services.js:71
 #: ../public/js/plugins/oneflow-services.js:93
 msgid "DEPLOYING"
-msgstr ""
+msgstr "正在部署"
 
 #: ../public/js/plugins/oneflow-services.js:72
 #: ../public/js/plugins/oneflow-services.js:94
 msgid "RUNNING"
-msgstr ""
+msgstr "运行"
 
 #: ../public/js/plugins/oneflow-services.js:73
 #: ../public/js/plugins/oneflow-services.js:95
 msgid "UNDEPLOYING"
-msgstr ""
+msgstr "正在取消部署"
 
 #: ../public/js/plugins/oneflow-services.js:74
 #: ../public/js/plugins/oneflow-services.js:96
 msgid "WARNING"
-msgstr ""
+msgstr "警告"
 
 #: ../public/js/plugins/oneflow-services.js:75
 #: ../public/js/plugins/oneflow-services.js:97
@@ -1913,35 +1910,33 @@ msgstr "完成"
 #: ../public/js/plugins/oneflow-services.js:76
 #: ../public/js/plugins/oneflow-services.js:98
 msgid "FAILED_UNDEPLOYING"
-msgstr ""
+msgstr "失败—取消部署"
 
 #: ../public/js/plugins/oneflow-services.js:77
 #: ../public/js/plugins/oneflow-services.js:99
 msgid "FAILED_DEPLOYING"
-msgstr ""
+msgstr "失败—部署"
 
 #: ../public/js/plugins/oneflow-services.js:78
 #: ../public/js/plugins/oneflow-services.js:100
 msgid "SCALING"
-msgstr ""
+msgstr "扩展"
 
 #: ../public/js/plugins/oneflow-services.js:79
 #: ../public/js/plugins/oneflow-services.js:101
-#, fuzzy
 msgid "FAILED_SCALING"
-msgstr "失败"
+msgstr "失败—扩展"
 
 #: ../public/js/plugins/oneflow-services.js:80
 #: ../public/js/plugins/oneflow-services.js:102
 msgid "COOLDOWN"
-msgstr ""
+msgstr "COOLDOWN"
 
 #: ../public/js/plugins/oneflow-services.js:667
 #: ../public/js/plugins/oneflow-services.js:1756
 #: ../public/js/plugins/oneflow-services.js:1784
-#, fuzzy
 msgid "Scale"
-msgstr "状态"
+msgstr "扩展"
 
 #: ../public/js/plugins/oneflow-services.js:668
 #: ../public/js/plugins/oneflow-services.js:674
@@ -1984,7 +1979,7 @@ msgstr "选中的VM将会暂停。"
 #: ../public/js/plugins/oneflow-services.js:835
 #: ../public/js/plugins/vms-tab.js:923
 msgid "This will resume selected VMs"
-msgstr ""
+msgstr "将选中的VM恢复运行。"
 
 #: ../public/js/plugins/oneflow-services.js:697
 #: ../public/js/plugins/oneflow-services.js:839
@@ -2010,7 +2005,7 @@ msgstr "启动设置"
 #: ../public/js/plugins/oneflow-services.js:847
 #: ../public/js/plugins/vms-tab.js:935
 msgid "This will force the hypervisor boot action of VMs stuck in UNKNOWN or BOOT state"
-msgstr ""
+msgstr "强制要求hypervisor启动处于UNKNOWN或者BOOT状态的VM。"
 
 #: ../public/js/plugins/oneflow-services.js:709
 #: ../public/js/plugins/oneflow-services.js:715
@@ -2044,13 +2039,13 @@ msgstr "关机"
 #: ../public/js/plugins/oneflow-services.js:865
 #: ../public/js/plugins/vms-tab.js:953
 msgid "This will send a power off signal to running VMs. They can be resumed later."
-msgstr ""
+msgstr "向处于运行状态的VM发送关闭电源信号。这些VM未来可以被恢复运行。"
 
 #: ../public/js/plugins/oneflow-services.js:729
 #: ../public/js/plugins/oneflow-services.js:871
 #: ../public/js/plugins/vms-tab.js:959
 msgid "This will send a forced power off signal to running VMs. They can be resumed later."
-msgstr ""
+msgstr "向处于运行状态的VM发送强制关闭电源信号。这些VM未来可以被恢复运行。"
 
 #: ../public/js/plugins/oneflow-services.js:733
 #: ../public/js/plugins/oneflow-services.js:739
@@ -2058,7 +2053,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:881
 #: ../public/js/plugins/vms-tab.js:963 ../public/js/plugins/vms-tab.js:969
 msgid "Undeploy"
-msgstr ""
+msgstr "取消部署"
 
 #: ../public/js/plugins/oneflow-services.js:735
 #: ../public/js/plugins/oneflow-services.js:741
@@ -2066,7 +2061,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:883
 #: ../public/js/plugins/vms-tab.js:965 ../public/js/plugins/vms-tab.js:971
 msgid "Shuts down the given VM. The VM is saved in the system Datastore."
-msgstr ""
+msgstr "将指定的VM关机。该VM会被保存在系统数据仓库中。"
 
 #: ../public/js/plugins/oneflow-services.js:745
 #: ../public/js/plugins/oneflow-services.js:751
@@ -2089,7 +2084,7 @@ msgstr "选中的VM将会执行关机程序。"
 #: ../public/js/plugins/oneflow-services.js:895
 #: ../public/js/plugins/vms-tab.js:983
 msgid "This will initiate the shutdown-hard (forced) process in the selected VMs"
-msgstr ""
+msgstr "在选中的VM内部启动强制关机进程。"
 
 #: ../public/js/plugins/oneflow-services.js:759
 #: ../public/js/plugins/oneflow-services.js:902
@@ -2101,7 +2096,7 @@ msgstr "选中的VM将会从数据库中删除。"
 #: ../public/js/plugins/oneflow-services.js:908
 #: ../public/js/plugins/vms-tab.js:996
 msgid "This will delete and recreate VMs to PENDING state"
-msgstr ""
+msgstr "将选中的VM删除，并重新创建该VM至PENDING状态。"
 
 #: ../public/js/plugins/oneflow-services.js:790
 #: ../public/js/plugins/vms-tab.js:878
@@ -2132,40 +2127,38 @@ msgstr "选中的VM将会被在线迁移到指定的主机。"
 #: ../public/js/plugins/oneflow-services.js:912
 #: ../public/js/plugins/vms-tab.js:1000 ../public/js/plugins/vms-tab.js:1450
 msgid "Reschedule"
-msgstr ""
+msgstr "重新调度"
 
 #: ../public/js/plugins/oneflow-services.js:914
 #: ../public/js/plugins/vms-tab.js:1002
 msgid "This will reschedule selected VMs"
-msgstr ""
+msgstr "将选中的VM重新调度。"
 
 #: ../public/js/plugins/oneflow-services.js:918
 #: ../public/js/plugins/vms-tab.js:1006
 msgid "Un-Reschedule"
-msgstr ""
+msgstr "取消重新调度指令。"
 
 #: ../public/js/plugins/oneflow-services.js:920
 #: ../public/js/plugins/vms-tab.js:1008
 msgid "This will cancel the rescheduling for the selected VMs"
-msgstr ""
+msgstr "取消选中的VM的重新调度指令。"
 
 #: ../public/js/plugins/oneflow-services.js:924
 #: ../public/js/plugins/oneflow-services.js:1108
 #: ../public/js/plugins/vms-tab.js:1012
-#, fuzzy
 msgid "Recover"
-msgstr "还原"
+msgstr "恢复"
 
 #: ../public/js/plugins/oneflow-services.js:926
 #: ../public/js/plugins/vms-tab.js:1014
 msgid "success"
-msgstr ""
+msgstr "成功"
 
 #: ../public/js/plugins/oneflow-services.js:927
 #: ../public/js/plugins/vms-tab.js:1015
-#, fuzzy
 msgid "failure"
-msgstr "值"
+msgstr "失败"
 
 #: ../public/js/plugins/oneflow-services.js:928
 msgid "Recovers a stuck VM that is waiting for a driver operation. //                The recovery may be done by failing or succeeding the pending operation. //                YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation //                was successful or not."
@@ -2176,27 +2169,23 @@ msgid "OneFlow - Services"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1114
-#, fuzzy
 msgid "This will delete the selected services"
-msgstr "选中的VM将会从数据库中删除。"
+msgstr "选中的服务将会被删除"
 
 #: ../public/js/plugins/oneflow-services.js:1120
 #: ../public/js/plugins/oneflow-templates.js:604
-#, fuzzy
 msgid "Service information"
-msgstr "用户信息"
+msgstr "服务信息"
 
 #: ../public/js/plugins/oneflow-services.js:1208
-#, fuzzy
 msgid "Service"
-msgstr "搜索"
+msgstr "服务"
 
 #: ../public/js/plugins/oneflow-services.js:1219
 #: ../public/js/plugins/oneflow-templates.js:145
 #: ../public/js/plugins/oneflow-templates.js:691
-#, fuzzy
 msgid "Strategy"
-msgstr "状态"
+msgstr "策略"
 
 #: ../public/js/plugins/oneflow-services.js:1223
 #: ../public/js/plugins/oneflow-services.js:1442
@@ -2204,29 +2193,27 @@ msgstr "状态"
 #: ../public/js/plugins/oneflow-templates.js:237
 #: ../public/js/plugins/oneflow-templates.js:695
 #: ../public/js/plugins/oneflow-templates.js:807
-#, fuzzy
 msgid "Shutdown action"
-msgstr "关机"
+msgstr "关机操作"
 
 #: ../public/js/plugins/oneflow-services.js:1254
 #: ../public/js/plugins/oneflow-services.js:1525
 #: ../public/js/plugins/oneflow-templates.js:347
 #: ../public/js/plugins/oneflow-templates.js:860
 msgid "Period"
-msgstr ""
+msgstr "周期"
 
 #: ../public/js/plugins/oneflow-services.js:1260
 msgid "Seconds between each group of actions"
-msgstr ""
+msgstr "每一组操作之间的时间间隔（秒）"
 
 #: ../public/js/plugins/oneflow-services.js:1263
-#, fuzzy
 msgid "Number"
-msgstr "名称"
+msgstr "数量"
 
 #: ../public/js/plugins/oneflow-services.js:1269
 msgid "Number of VMs to apply the action to each period"
-msgstr ""
+msgstr "每个操作周期所操作的VM数量"
 
 #: ../public/js/plugins/oneflow-services.js:1281
 #: ../public/js/plugins/oneflow-services.js:1762
@@ -2234,31 +2221,28 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:721
 #: ../public/js/plugins/oneflow-templates.js:1000
 #: ../public/js/plugins/oneflow-templates.js:1034
-#, fuzzy
 msgid "Cardinality"
-msgstr "容量"
+msgstr "基数"
 
 #: ../public/js/plugins/oneflow-services.js:1282
 #: ../public/js/plugins/oneflow-templates.js:722
-#, fuzzy
 msgid "VM Template"
 msgstr "VM模版"
 
 #: ../public/js/plugins/oneflow-services.js:1283
 #: ../public/js/plugins/oneflow-templates.js:723
-#, fuzzy
 msgid "Parents"
-msgstr "预设参数"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1291
 #: ../public/js/plugins/oneflow-templates.js:731
 msgid "Select a role in the table for more information"
-msgstr ""
+msgstr "从列表中选择一个角色查看更多信息"
 
 #: ../public/js/plugins/oneflow-services.js:1434
 #: ../public/js/plugins/oneflow-templates.js:797
 msgid "Role"
-msgstr ""
+msgstr "角色"
 
 #: ../public/js/plugins/oneflow-services.js:1444
 #: ../public/js/plugins/oneflow-services.js:1529
@@ -2266,16 +2250,14 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:351
 #: ../public/js/plugins/oneflow-templates.js:809
 #: ../public/js/plugins/oneflow-templates.js:864
-#, fuzzy
 msgid "Cooldown"
-msgstr "克隆"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1446
 #: ../public/js/plugins/oneflow-templates.js:274
 #: ../public/js/plugins/oneflow-templates.js:811
-#, fuzzy
 msgid "Min VMs"
-msgstr "最大VM数量"
+msgstr "最小VM数量"
 
 #: ../public/js/plugins/oneflow-services.js:1473
 #: ../public/js/plugins/vms-tab.js:79
@@ -2305,7 +2287,7 @@ msgstr "VNC"
 #: ../public/js/plugins/oneflow-services.js:1493
 #: ../public/js/plugins/oneflow-templates.js:828
 msgid "Elasticity policies"
-msgstr ""
+msgstr "弹性策略"
 
 #: ../public/js/plugins/oneflow-services.js:1499
 #: ../public/js/plugins/oneflow-services.js:1563
@@ -2314,7 +2296,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:834
 #: ../public/js/plugins/oneflow-templates.js:898
 msgid "Type of adjustment."
-msgstr ""
+msgstr "调整类型"
 
 #: ../public/js/plugins/oneflow-services.js:1500
 #: ../public/js/plugins/oneflow-services.js:1564
@@ -2332,7 +2314,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:836
 #: ../public/js/plugins/oneflow-templates.js:900
 msgid "CARDINALITY: Set the cardinality to the given number."
-msgstr ""
+msgstr "基数：将基数设定为指定的数字"
 
 #: ../public/js/plugins/oneflow-services.js:1502
 #: ../public/js/plugins/oneflow-services.js:1566
@@ -2350,7 +2332,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:840
 #: ../public/js/plugins/oneflow-templates.js:904
 msgid "Adjust"
-msgstr ""
+msgstr "调整"
 
 #: ../public/js/plugins/oneflow-services.js:1506
 #: ../public/js/plugins/oneflow-services.js:1570
@@ -2377,7 +2359,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:843
 #: ../public/js/plugins/oneflow-templates.js:907
 msgid "CARDINALITY: 8, will set carditanilty to 8"
-msgstr ""
+msgstr "基数：8，将基数设定为8"
 
 #: ../public/js/plugins/oneflow-services.js:1509
 #: ../public/js/plugins/oneflow-services.js:1573
@@ -2386,7 +2368,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:844
 #: ../public/js/plugins/oneflow-templates.js:908
 msgid "PERCENTAGE_CHANGE: 20, will increment cardinality by 20%"
-msgstr ""
+msgstr "变更百分比：20，将基数增加20%"
 
 #: ../public/js/plugins/oneflow-services.js:1512
 #: ../public/js/plugins/oneflow-services.js:1576
@@ -2395,7 +2377,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:847
 #: ../public/js/plugins/oneflow-templates.js:911
 msgid "Min"
-msgstr ""
+msgstr "最小"
 
 #: ../public/js/plugins/oneflow-services.js:1513
 #: ../public/js/plugins/oneflow-services.js:1577
@@ -2410,7 +2392,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:338
 #: ../public/js/plugins/oneflow-templates.js:851
 msgid "Expression"
-msgstr ""
+msgstr "表达式"
 
 #: ../public/js/plugins/oneflow-services.js:1517
 #: ../public/js/plugins/oneflow-templates.js:339
@@ -2422,26 +2404,25 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:340
 #: ../public/js/plugins/oneflow-templates.js:853
 msgid "Example: ATT < 20"
-msgstr ""
+msgstr "例如：ATT < 20"
 
 #: ../public/js/plugins/oneflow-services.js:1521
 #: ../public/js/plugins/oneflow-templates.js:343
 #: ../public/js/plugins/oneflow-templates.js:856
-#, fuzzy
 msgid "# Periods"
-msgstr "权限"
+msgstr "周期数量"
 
 #: ../public/js/plugins/oneflow-services.js:1522
 #: ../public/js/plugins/oneflow-templates.js:344
 #: ../public/js/plugins/oneflow-templates.js:857
 msgid "Number of periods that the expression must be true before the elasticity is triggered"
-msgstr ""
+msgstr "在弹性操作被激活之前，表达式必须保持为真的周期数量。"
 
 #: ../public/js/plugins/oneflow-services.js:1526
 #: ../public/js/plugins/oneflow-templates.js:348
 #: ../public/js/plugins/oneflow-templates.js:861
 msgid "Duration, in seconds, of each period in '# Periods'"
-msgstr ""
+msgstr "每个周期的时间跨度（秒）"
 
 #: ../public/js/plugins/oneflow-services.js:1530
 #: ../public/js/plugins/oneflow-templates.js:352
@@ -2452,16 +2433,14 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:1557
 #: ../public/js/plugins/oneflow-templates.js:370
 #: ../public/js/plugins/oneflow-templates.js:892
-#, fuzzy
 msgid "Scheduled policies"
-msgstr "计划操作"
+msgstr "计划的策略"
 
 #: ../public/js/plugins/oneflow-services.js:1580
 #: ../public/js/plugins/oneflow-templates.js:395
 #: ../public/js/plugins/oneflow-templates.js:915
-#, fuzzy
 msgid "Time format"
-msgstr "模版信息"
+msgstr "时间格式"
 
 #: ../public/js/plugins/oneflow-services.js:1581
 #: ../public/js/plugins/oneflow-services.js:1587
@@ -2479,62 +2458,56 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:917
 #: ../public/js/plugins/oneflow-templates.js:923
 msgid "Start time: Exact time for the adjustement"
-msgstr ""
+msgstr "开始时间：开始执行调整动作的准确时间"
 
 #: ../public/js/plugins/oneflow-services.js:1585
 #: ../public/js/plugins/oneflow-templates.js:400
 #: ../public/js/plugins/oneflow-templates.js:920
 msgid "Time expression"
-msgstr ""
+msgstr "时间表达式"
 
 #: ../public/js/plugins/oneflow-services.js:1586
 #: ../public/js/plugins/oneflow-templates.js:401
 #: ../public/js/plugins/oneflow-templates.js:921
 msgid "Time expression depends on the the time formar selected"
-msgstr ""
+msgstr "时间表达式依赖于选中的时间格式"
 
 #: ../public/js/plugins/oneflow-services.js:1768
 #: ../public/js/plugins/oneflow-templates.js:218
 msgid "Number of VMs to instantiate with this role"
-msgstr ""
+msgstr "使用此角色创建的VM数量"
 
 #: ../public/js/plugins/oneflow-services.js:1773
-#, fuzzy
 msgid "Force"
-msgstr "Core"
+msgstr "强制"
 
 #: ../public/js/plugins/oneflow-services.js:1779
 msgid "Force the new cardinality even if it is outside the limits"
-msgstr ""
+msgstr "强制使用新的基数，即使该基数已经超出了限制"
 
 #: ../public/js/plugins/oneflow-templates.js:74
-#, fuzzy
 msgid "OneFlow - Templates"
-msgstr "克隆模板"
+msgstr "OneFlow — 模板"
 
 #: ../public/js/plugins/oneflow-templates.js:118
-#, fuzzy
 msgid "Create Service Template"
-msgstr "创建VM模版"
+msgstr "创建服务模板"
 
 #: ../public/js/plugins/oneflow-templates.js:119
-#, fuzzy
 msgid "Update Service Template"
-msgstr "修改模版"
+msgstr "更新服务模板"
 
 #: ../public/js/plugins/oneflow-templates.js:134
 msgid "Name for this template"
-msgstr ""
+msgstr "这个模板的名称"
 
 #: ../public/js/plugins/oneflow-templates.js:149
-#, fuzzy
 msgid "Straight"
-msgstr "存储"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:150
-#, fuzzy
 msgid "None"
-msgstr "完成"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:154
 msgid "Straight strategy will instantiate each role in order: parents role will be deployed before their children. None strategy will instantiate the roles regardless of their relationships."
@@ -2542,36 +2515,32 @@ msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:167
 #: ../public/js/plugins/oneflow-templates.js:243
-#, fuzzy
 msgid "Shutdown hard"
 msgstr "强制关机"
 
 #: ../public/js/plugins/oneflow-templates.js:171
 msgid "VM shutdown action: 'shutdown' or 'shutdown-hard'."
-msgstr ""
+msgstr "VM关机操作：“关机”或者“强制关机”。"
 
 #: ../public/js/plugins/oneflow-templates.js:178
-#, fuzzy
 msgid "Add another role"
-msgstr "添加另外一个网卡"
+msgstr "添加另外一个角色"
 
 #: ../public/js/plugins/oneflow-templates.js:201
-#, fuzzy
 msgid "Role Name"
-msgstr "VM名称"
+msgstr "角色名称"
 
 #: ../public/js/plugins/oneflow-templates.js:207
 msgid "Name of the role"
-msgstr ""
+msgstr "角色名称"
 
 #: ../public/js/plugins/oneflow-templates.js:225
-#, fuzzy
 msgid "VM template"
-msgstr "VM模版"
+msgstr "VM模板"
 
 #: ../public/js/plugins/oneflow-templates.js:232
 msgid "Template associated to this role"
-msgstr ""
+msgstr "与此角色关联的模板"
 
 #: ../public/js/plugins/oneflow-templates.js:247
 msgid "VM shutdown action: 'shutdown' or 'shutdown-hard'. If it is not set, the one set for the Service will be used"
@@ -2583,15 +2552,15 @@ msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:270
 msgid "Elasticity"
-msgstr ""
+msgstr "弹性"
 
 #: ../public/js/plugins/oneflow-templates.js:280
 msgid "Minimum number of VMs for elasticity adjustments"
-msgstr ""
+msgstr "弹性调整的最小VM数量"
 
 #: ../public/js/plugins/oneflow-templates.js:291
 msgid "Maximum number of VMs for elasticity adjustments"
-msgstr ""
+msgstr "弹性调整的最大VM数量"
 
 #: ../public/js/plugins/oneflow-templates.js:302
 msgid "Cooldown time after an elasticity operation (secs)"
@@ -2599,12 +2568,11 @@ msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:313
 msgid "Elasticty policies"
-msgstr ""
+msgstr "弹性策略"
 
 #: ../public/js/plugins/oneflow-templates.js:459
-#, fuzzy
 msgid "ServiceTemplate updated correctly"
-msgstr "成功更新模版"
+msgstr "成功更新服务模板"
 
 #: ../public/js/plugins/oneflow-templates.js:570
 #: ../public/js/plugins/templates-tab.js:152
@@ -2614,20 +2582,17 @@ msgid "Instantiate"
 msgstr "创建实例"
 
 #: ../public/js/plugins/oneflow-templates.js:598
-#, fuzzy
 msgid "This will delete the selected templates"
-msgstr "选中的VM将会从数据库中删除。"
+msgstr "即将删除选中的模板"
 
 #: ../public/js/plugins/oneflow-templates.js:680
-#, fuzzy
 msgid "Service Template"
-msgstr "选择一个模版"
+msgstr "服务模板"
 
 #: ../public/js/plugins/oneflow-templates.js:1001
 #: ../public/js/plugins/oneflow-templates.js:1035
-#, fuzzy
 msgid "Percentage"
-msgstr "持久性"
+msgstr "百分比"
 
 #: ../public/js/plugins/oneflow-templates.js:1045
 #: ../public/js/plugins/vms-tab.js:1440
@@ -2640,12 +2605,11 @@ msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:1105
 msgid "Role "
-msgstr ""
+msgstr "角色"
 
 #: ../public/js/plugins/oneflow-templates.js:1267
-#, fuzzy
 msgid "Please specify name, cardinality and template for this role"
-msgstr "请选择一个数据仓库用来存放文件。"
+msgstr "请指定此角色的名称、基数和模板"
 
 #: ../public/js/plugins/templates-tab.js:70
 msgid "Create VM Template"
@@ -2653,11 +2617,11 @@ msgstr "创建VM模版"
 
 #: ../public/js/plugins/templates-tab.js:70
 msgid "Update VM Template"
-msgstr ""
+msgstr "更新VM模板"
 
 #: ../public/js/plugins/templates-tab.js:102
 msgid "Write the Virtual Machine template here"
-msgstr ""
+msgstr "在此处输入虚拟机模板"
 
 #: ../public/js/plugins/templates-tab.js:122
 #: ../public/js/plugins/templates-tab.js:161
@@ -2674,14 +2638,12 @@ msgstr "VM名称"
 #: ../public/js/plugins/templates-tab.js:135
 #: ../public/js/plugins/templates-tab.js:177
 #: ../public/js/plugins/vms-tab.js:160
-#, fuzzy
 msgid "Defaults to template name when emtpy. You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them"
-msgstr "你可以使用通配符 &#37;i 。当一次创建多个VM时，&#37;i 会被替换成由0开始的顺序数字。"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:140
 #: ../public/js/plugins/templates-tab.js:182
 #: ../public/js/plugins/vms-tab.js:165
-#, fuzzy
 msgid "# VMs"
 msgstr "VM数量"
 
@@ -2689,45 +2651,43 @@ msgstr "VM数量"
 #: ../public/js/plugins/templates-tab.js:188
 #: ../public/js/plugins/vms-tab.js:171
 msgid "Number of Virtual Machines that will be created using this template"
-msgstr ""
+msgstr "使用此模板创建的虚拟机数量"
 
 #: ../public/js/plugins/templates-tab.js:168
 #: ../public/js/plugins/vms-tab.js:151
 msgid "Step 1: Specify a name and the number of instances"
-msgstr ""
+msgstr "步骤一：制定一个名称，以及实例数量"
 
 #: ../public/js/plugins/templates-tab.js:198
+#, fuzzy
 msgid "Step 3: Select an instance type"
-msgstr ""
+msgstr "步骤三：选择一个操作系统"
 
 #: ../public/js/plugins/templates-tab.js:223
 #: ../public/js/plugins/vms-tab.js:206
 msgid "TEMPLATE_ID"
-msgstr ""
+msgstr "模板ID"
 
 #: ../public/js/plugins/templates-tab.js:235
 #: ../public/js/plugins/vms-tab.js:218
-#, fuzzy
 msgid "Please select a template from the list"
-msgstr "请从列表中选择一个映像"
+msgstr "请从列表中选择一个模板"
 
 #: ../public/js/plugins/templates-tab.js:236
 #: ../public/js/plugins/vms-tab.js:219
-#, fuzzy
 msgid "You selected the following template:"
-msgstr "您选中了如下映像："
+msgstr "您选中了如下模板："
 
 #: ../public/js/plugins/templates-tab.js:246
 #: ../public/js/plugins/vms-tab.js:229
 msgid "Step 3: Select an operating system"
-msgstr ""
+msgstr "步骤三：选择一个操作系统"
 
 #: ../public/js/plugins/templates-tab.js:278
 #: ../public/js/plugins/templates-tab.js:963
 #: ../public/js/plugins/vms-tab.js:261
-#, fuzzy
 msgid "IMAGE_ID"
-msgstr "映像"
+msgstr "映像ID"
 
 #: ../public/js/plugins/templates-tab.js:290
 #: ../public/js/plugins/templates-tab.js:949
@@ -2737,14 +2697,12 @@ msgstr "请从列表中选择一个映像"
 
 #: ../public/js/plugins/templates-tab.js:291
 #: ../public/js/plugins/vms-tab.js:274
-#, fuzzy
 msgid "You selected the following image:"
 msgstr "您选中了如下映像："
 
 #: ../public/js/plugins/templates-tab.js:470
-#, fuzzy
 msgid "Please select only one template in the table"
-msgstr "请从列表中选择一个或者多个datastore"
+msgstr "请从列表中选择一个（只有一个）模板"
 
 #: ../public/js/plugins/templates-tab.js:578
 msgid "Template information"
@@ -2756,7 +2714,7 @@ msgstr "名称"
 
 #: ../public/js/plugins/templates-tab.js:675
 msgid "Name that the VM will get for description purposes."
-msgstr ""
+msgstr "为VM提供的描述性名称。"
 
 #: ../public/js/plugins/templates-tab.js:688
 msgid "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5."
@@ -2794,14 +2752,12 @@ msgid "You selected the following image: "
 msgstr "您选中了如下映像："
 
 #: ../public/js/plugins/templates-tab.js:977
-#, fuzzy
 msgid "IMAGE"
 msgstr "映像"
 
 #: ../public/js/plugins/templates-tab.js:993
-#, fuzzy
 msgid "IMAGE_UID"
-msgstr "映像"
+msgstr "映像UID"
 
 #: ../public/js/plugins/templates-tab.js:1007
 msgid "IMAGE_UNAME"
@@ -2855,9 +2811,8 @@ msgstr "驱动"
 
 #: ../public/js/plugins/templates-tab.js:1047
 #: ../public/js/plugins/templates-tab.js:1232
-#, fuzzy
 msgid "Specific image mapping driver"
-msgstr "指定磁盘映像的驱动方式。KVM: raw, qcow2, Xen:tap:aio:, file:"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1048
 #: ../public/js/plugins/templates-tab.js:1233
@@ -2875,9 +2830,8 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:1235
 #: ../public/js/plugins/templates-tab.js:1302
 #: ../public/js/plugins/templates-tab.js:1323
-#, fuzzy
 msgid "VMWare: Not supported"
-msgstr "不支持Canvas"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1060
 #: ../public/js/plugins/templates-tab.js:1245
@@ -2886,14 +2840,13 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1066
 #: ../public/js/plugins/templates-tab.js:1251
-#, fuzzy
 msgid "Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”, or “vd” for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used"
-msgstr "挂载此磁盘映像所使用的设备名称前缀，例如hd或者sd。如果省略此选项，系统将使用在oned.conf中所定义的缺省值（缺省的前缀是hd）。"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1077
 #: ../public/js/plugins/templates-tab.js:1262
 msgid "READONLY"
-msgstr ""
+msgstr "只读"
 
 #: ../public/js/plugins/templates-tab.js:1087
 #: ../public/js/plugins/templates-tab.js:1272
@@ -2903,24 +2856,22 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:1100
 #: ../public/js/plugins/templates-tab.js:1285
 msgid "CACHE"
-msgstr ""
+msgstr "CACHE"
 
 #: ../public/js/plugins/templates-tab.js:1105
 #: ../public/js/plugins/templates-tab.js:1290
-#, fuzzy
 msgid "default"
-msgstr "缺省值"
+msgstr "default"
 
 #: ../public/js/plugins/templates-tab.js:1106
 #: ../public/js/plugins/templates-tab.js:1291
-#, fuzzy
 msgid "none"
-msgstr "完成"
+msgstr "none"
 
 #: ../public/js/plugins/templates-tab.js:1107
 #: ../public/js/plugins/templates-tab.js:1292
 msgid "writethrough"
-msgstr ""
+msgstr "writethrough"
 
 #: ../public/js/plugins/templates-tab.js:1108
 #: ../public/js/plugins/templates-tab.js:1293
@@ -2930,26 +2881,24 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:1109
 #: ../public/js/plugins/templates-tab.js:1294
 msgid "directsync"
-msgstr ""
+msgstr "directsync"
 
 #: ../public/js/plugins/templates-tab.js:1110
 #: ../public/js/plugins/templates-tab.js:1295
 msgid "unsafe"
-msgstr ""
+msgstr "unsafe"
 
 #: ../public/js/plugins/templates-tab.js:1114
 #: ../public/js/plugins/templates-tab.js:1299
-#, fuzzy
 msgid "Selects the cache mechanism for the disk."
-msgstr "选择此文件所属的数据仓库"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1115
 #: ../public/js/plugins/templates-tab.js:1136
 #: ../public/js/plugins/templates-tab.js:1300
 #: ../public/js/plugins/templates-tab.js:1321
-#, fuzzy
 msgid "Xen: Not supported"
-msgstr "不支持Canvas"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1125
 #: ../public/js/plugins/templates-tab.js:1310
@@ -2958,9 +2907,8 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1130
 #: ../public/js/plugins/templates-tab.js:1315
-#, fuzzy
 msgid "threads"
-msgstr "Shared"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1131
 #: ../public/js/plugins/templates-tab.js:1316
@@ -2999,16 +2947,15 @@ msgstr "新磁盘的大小"
 
 #: ../public/js/plugins/templates-tab.js:1676
 msgid "Please select a network from the list"
-msgstr ""
+msgstr "请从列表中选择一个网络"
 
 #: ../public/js/plugins/templates-tab.js:1677
 msgid "You selected the following network:"
-msgstr ""
+msgstr "您选中了如下网络："
 
 #: ../public/js/plugins/templates-tab.js:1690
-#, fuzzy
 msgid "NETWORK_ID"
-msgstr "网络"
+msgstr "网络ID"
 
 #: ../public/js/plugins/templates-tab.js:1704
 #: ../public/js/plugins/templates-tab.js:2382
@@ -3016,14 +2963,12 @@ msgid "NETWORK"
 msgstr "网络"
 
 #: ../public/js/plugins/templates-tab.js:1720
-#, fuzzy
 msgid "NETWORK_UID"
-msgstr "网络"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1734
-#, fuzzy
 msgid "NETWORK_UNAME"
-msgstr "网络"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1751
 #: ../public/js/plugins/vms-tab.js:2295 ../public/js/plugins/vnets-tab.js:183
@@ -3055,7 +3000,7 @@ msgstr "端口"
 #: ../public/js/plugins/templates-tab.js:1796
 #: ../public/js/plugins/templates-tab.js:1821
 msgid "A list of ports separated by commas or a ranges separated by semicolons, e.g.: 22,80,5900:6000"
-msgstr ""
+msgstr "一系列用逗号分割的端口，或者用冒号分割的端口范围，例如：22,80,5900:6000"
 
 #: ../public/js/plugins/templates-tab.js:1803
 msgid "UDP Firewall"
@@ -3071,11 +3016,11 @@ msgstr "黑名单"
 
 #: ../public/js/plugins/templates-tab.js:1830
 msgid "ICMP"
-msgstr ""
+msgstr "ICMP"
 
 #: ../public/js/plugins/templates-tab.js:1836
 msgid "Drop"
-msgstr ""
+msgstr "丢弃"
 
 #: ../public/js/plugins/templates-tab.js:1923
 #: ../public/js/plugins/templates-tab.js:1956
@@ -3105,7 +3050,7 @@ msgstr "网卡"
 
 #: ../public/js/plugins/templates-tab.js:2352
 msgid "Features"
-msgstr ""
+msgstr "特性"
 
 #: ../public/js/plugins/templates-tab.js:2369
 msgid "CPU architecture to virtualization"
@@ -3149,11 +3094,11 @@ msgstr "bootloader可执行文件的路径"
 
 #: ../public/js/plugins/templates-tab.js:2426
 msgid "Guest OS"
-msgstr ""
+msgstr "客户机操作系统"
 
 #: ../public/js/plugins/templates-tab.js:2526
 msgid "Set the OS of the VM, only for VMware"
-msgstr ""
+msgstr "选择VM的操作系统类型（仅对VMWare有效）"
 
 #: ../public/js/plugins/templates-tab.js:2534
 msgid "Registered Image"
@@ -3198,9 +3143,8 @@ msgid "You selected the following Ramdisk: "
 msgstr "您选中了如下Ramdisk："
 
 #: ../public/js/plugins/templates-tab.js:2651
-#, fuzzy
 msgid "INITRD_DS"
-msgstr "初始化"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2669
 msgid "Path to the initrd image"
@@ -3208,7 +3152,7 @@ msgstr "initrd映像文件路径"
 
 #: ../public/js/plugins/templates-tab.js:2677
 msgid "ACPI"
-msgstr ""
+msgstr "ACPI"
 
 #: ../public/js/plugins/templates-tab.js:2682
 #: ../public/js/plugins/templates-tab.js:2697
@@ -3224,15 +3168,15 @@ msgstr "否"
 
 #: ../public/js/plugins/templates-tab.js:2687
 msgid "Add support in the VM for Advanced Configuration and Power Interface (ACPI)"
-msgstr ""
+msgstr "为VM提供高级配置与电源管理接口（ACPI）支持"
 
 #: ../public/js/plugins/templates-tab.js:2692
 msgid "PAE"
-msgstr ""
+msgstr "PAE"
 
 #: ../public/js/plugins/templates-tab.js:2702
 msgid "Add support in the VM for Physical Address Extension (PAE)"
-msgstr ""
+msgstr "为VM提供物理地址扩展（PAE）支持"
 
 #: ../public/js/plugins/templates-tab.js:2709
 msgid "PCI BRIDGE"
@@ -3312,7 +3256,7 @@ msgstr "添加SSH Context"
 
 #: ../public/js/plugins/templates-tab.js:3079
 msgid "Add an ssh public key to the context. If the Public Key textarea is empty then the user variable SSH_PUBLIC_KEY will be used."
-msgstr ""
+msgstr "在context中添加一个SSH公钥。如果公钥输入框为空，则使用用户的SSH_PUBLIC_KEY属性。"
 
 #: ../public/js/plugins/templates-tab.js:3084
 msgid "Public Key"
@@ -3324,7 +3268,7 @@ msgstr "添加网络Context"
 
 #: ../public/js/plugins/templates-tab.js:3105
 msgid "Add network contextualization parameters. For each NIC defined in the NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in the CONTEXT section and will be available in the Virtual Machine"
-msgstr ""
+msgstr "添加网络context参数。对于NETWORK部分所定义的每一个NIC，ETH$i_IP, ETH$i_NETWORK等参数会被包含在CONTEXT部分，可以被虚拟机所访问。"
 
 #: ../public/js/plugins/templates-tab.js:3110
 msgid "OneGate token"
@@ -3347,9 +3291,8 @@ msgid "You selected the following files:"
 msgstr "您选中了如下文件："
 
 #: ../public/js/plugins/templates-tab.js:3163
-#, fuzzy
 msgid "FILES_DS"
-msgstr "失败"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:3190
 msgid "KEY"
@@ -3430,12 +3373,11 @@ msgstr "在容量部分有未填写的栏目。"
 
 #: ../public/js/plugins/templates-tab.js:3927
 msgid "Virtual Machine name missing!"
-msgstr ""
+msgstr "未提供虚拟机名称！"
 
 #: ../public/js/plugins/templates-tab.js:4119
-#, fuzzy
 msgid " does not exists any more."
-msgstr "已经不存在了"
+msgstr "不再存在了"
 
 #: ../public/js/plugins/templates-tab.js:4127
 #: ../public/js/plugins/templates-tab.js:4275
@@ -3496,7 +3438,7 @@ msgstr "x509"
 
 #: ../public/js/plugins/users-tab.js:104
 msgid "LDAP"
-msgstr ""
+msgstr "LDAP"
 
 #: ../public/js/plugins/users-tab.js:105
 msgid "Public"
@@ -3553,7 +3495,7 @@ msgstr "必须填写用户帐号和密码。"
 
 #: ../public/js/plugins/users-tab.js:862
 msgid "Fill in a new auth driver"
-msgstr ""
+msgstr "输入一个新的授权驱动"
 
 #: ../public/js/plugins/users-tab.js:874
 msgid "User quotas"
@@ -3581,8 +3523,9 @@ msgid "You can use the wildcard &#37;i. When creating several VMs, &#37;i will b
 msgstr "你可以使用通配符 &#37;i 。当一次创建多个VM时，&#37;i 会被替换成由0开始的顺序数字。"
 
 #: ../public/js/plugins/vms-tab.js:181
+#, fuzzy
 msgid "Step 2: Select an instance type"
-msgstr ""
+msgstr "步骤三：选择一个操作系统"
 
 #: ../public/js/plugins/vms-tab.js:821 ../public/js/plugins/vms-tab.js:832
 msgid "VirtualMachine updated correctly"
@@ -3619,7 +3562,7 @@ msgstr "#"
 
 #: ../public/js/plugins/vms-tab.js:1315
 msgid "Action"
-msgstr ""
+msgstr "操作"
 
 #: ../public/js/plugins/vms-tab.js:1316
 msgid "Reason"
@@ -3746,11 +3689,11 @@ msgstr "启动"
 
 #: ../public/js/plugins/vms-tab.js:1646
 msgid "delete"
-msgstr ""
+msgstr "删除"
 
 #: ../public/js/plugins/vms-tab.js:1647
 msgid "delete-recreate"
-msgstr ""
+msgstr "删除－重新创建"
 
 #: ../public/js/plugins/vms-tab.js:1649
 msgid "reboot-hard"
@@ -3758,15 +3701,15 @@ msgstr "强制重启"
 
 #: ../public/js/plugins/vms-tab.js:1651
 msgid "poweroff-hard"
-msgstr ""
+msgstr "关闭电源－强制"
 
 #: ../public/js/plugins/vms-tab.js:1652
 msgid "undeploy"
-msgstr ""
+msgstr "取消部署"
 
 #: ../public/js/plugins/vms-tab.js:1653
 msgid "undeploy-hard"
-msgstr ""
+msgstr "取消部署－强制"
 
 #: ../public/js/plugins/vms-tab.js:1884
 msgid "Date Time Picker"
@@ -3889,11 +3832,11 @@ msgstr "MAC"
 
 #: ../public/js/plugins/vms-tab.js:2297 ../public/js/plugins/vnets-tab.js:999
 msgid "IPv6 Site"
-msgstr ""
+msgstr "IPv6 Site"
 
 #: ../public/js/plugins/vms-tab.js:2298 ../public/js/plugins/vnets-tab.js:1000
 msgid "IPv6 Global"
-msgstr ""
+msgstr "IPv6 Global"
 
 #: ../public/js/plugins/vms-tab.js:2314
 msgid "No nics to show"
@@ -3962,7 +3905,7 @@ msgstr "载入中"
 
 #: ../public/js/plugins/vms-tab.js:3140
 msgid "Open in a new window"
-msgstr ""
+msgstr "在新窗口中打开"
 
 #: ../public/js/plugins/vms-tab.js:3149
 msgid "Canvas not supported."
@@ -3974,11 +3917,11 @@ msgstr "创建虚拟网络"
 
 #: ../public/js/plugins/vnets-tab.js:97
 msgid "IPv4"
-msgstr ""
+msgstr "IPv4"
 
 #: ../public/js/plugins/vnets-tab.js:100
 msgid "IPv6"
-msgstr ""
+msgstr "IPv6"
 
 #: ../public/js/plugins/vnets-tab.js:106
 msgid "N. Address"
@@ -3990,19 +3933,19 @@ msgstr "网络掩码"
 
 #: ../public/js/plugins/vnets-tab.js:128
 msgid "Site prefix"
-msgstr ""
+msgstr "Site前缀"
 
 #: ../public/js/plugins/vnets-tab.js:138
 msgid "Global prefix"
-msgstr ""
+msgstr "全局前缀"
 
 #: ../public/js/plugins/vnets-tab.js:150
 msgid "DNS"
-msgstr ""
+msgstr "DNS"
 
 #: ../public/js/plugins/vnets-tab.js:160
 msgid "Gateway"
-msgstr ""
+msgstr "网关"
 
 #: ../public/js/plugins/vnets-tab.js:172
 msgid "Fixed network"
@@ -4026,11 +3969,11 @@ msgstr "IP结束地址"
 
 #: ../public/js/plugins/vnets-tab.js:258
 msgid "MAC Start"
-msgstr ""
+msgstr "MAC起始地址"
 
 #: ../public/js/plugins/vnets-tab.js:268
 msgid "N. Size"
-msgstr ""
+msgstr "网络大小"
 
 #: ../public/js/plugins/vnets-tab.js:282
 msgid "Network model"
@@ -4086,7 +4029,7 @@ msgstr "租用管理"
 
 #: ../public/js/plugins/vnets-tab.js:935
 msgid "Network information"
-msgstr ""
+msgstr "网络信息"
 
 #: ../public/js/plugins/vnets-tab.js:939
 msgid "Network mask"
@@ -4094,11 +4037,11 @@ msgstr "netmask"
 
 #: ../public/js/plugins/vnets-tab.js:945
 msgid "IPv6 Global prefix"
-msgstr ""
+msgstr "IPv6全局前缀"
 
 #: ../public/js/plugins/vnets-tab.js:951
 msgid "IPv6 Site prefix"
-msgstr ""
+msgstr "IPv6局部前缀"
 
 #: ../public/js/plugins/vnets-tab.js:960
 msgid "Leases information"
@@ -4106,11 +4049,11 @@ msgstr "租用信息"
 
 #: ../public/js/plugins/vnets-tab.js:978
 msgid "Hold IP"
-msgstr ""
+msgstr "保留IP"
 
 #: ../public/js/plugins/vnets-tab.js:986
 msgid "Add IP"
-msgstr ""
+msgstr "增加IP"
 
 #: ../public/js/plugins/vnets-tab.js:1010
 msgid "No leases to show"
@@ -4122,7 +4065,7 @@ msgstr "虚拟机："
 
 #: ../public/js/plugins/vnets-tab.js:1224
 msgid "Please provide a lease IP or MAC"
-msgstr ""
+msgstr "请填写一个出租的IP或者MAC地址"
 
 #: ../public/js/plugins/vnets-tab.js:1284
 msgid "Virtual Network name missing!"
@@ -4134,7 +4077,7 @@ msgstr "未填写网络参数"
 
 #: ../public/js/plugins/vnets-tab.js:1423
 msgid "MAC Start must be specified"
-msgstr ""
+msgstr "必须指定MAC起始地址"
 
 #: ../public/js/plugins/vresources-tab.js:18
 msgid "Virtual Resources"
@@ -4224,57 +4167,3 @@ msgstr "您需要至少选择一个项目"
 #: ../public/js/sunstone.js:1082
 msgid "You have to confirm this action"
 msgstr "您需要对此操作进行确认"
-
-#~ msgid "Catalan"
-#~ msgstr "加泰隆尼亚语"
-
-#~ msgid "Chinese (TW)"
-#~ msgstr "Chinese (TW) - 繁体中文(台湾)"
-
-#~ msgid "Czech (CZ)"
-#~ msgstr "捷克语 (CZ)"
-
-#~ msgid "English (US)"
-#~ msgstr "英语 (US)"
-
-#~ msgid "French (FR)"
-#~ msgstr "法语 (FR)"
-
-#~ msgid "German"
-#~ msgstr "德语"
-
-#~ msgid "Greek (GR)"
-#~ msgstr "希腊语 (GR)"
-
-#~ msgid "Italian (IT)"
-#~ msgstr "意大利语 (IT)"
-
-#~ msgid "Persian (IR)"
-#~ msgstr "波斯语 (IR)"
-
-#~ msgid "Portuguese (BR)"
-#~ msgstr "葡萄牙语（BR）"
-
-#~ msgid "Portuguese (PT)"
-#~ msgstr "葡萄牙语 (PT)"
-
-#~ msgid "Russian (RU)"
-#~ msgstr "俄语 (RU)"
-
-#~ msgid "Slovak (SK)"
-#~ msgstr "斯洛伐克语 (SK)"
-
-#~ msgid "Spanish (SP)"
-#~ msgstr "西班牙语 (SP)"
-
-#~ msgid "VMware (FS Based)"
-#~ msgstr "VMware (基于文件系统)"
-
-#~ msgid "Specific image mapping driver. KVM: raw, qcow2. Xen:tap:aio:, file:. VMware unsupported"
-#~ msgstr "指定磁盘映像的驱动方式。KVM: raw, qcow2. Xen:tap:aio:, file:. 不支持VMware。"
-
-#~ msgid "Update template properties"
-#~ msgstr "修改模版属性"
-
-#~ msgid "The following CLUSTERs: ["
-#~ msgstr "如下集群：["

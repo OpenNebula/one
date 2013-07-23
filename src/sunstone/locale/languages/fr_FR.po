@@ -18,13 +18,13 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-07-15 13:00+0200\n"
-"PO-Revision-Date: 2013-07-16 06:40+0000\n"
-"Last-Translator: plachance <patlachance@gmail.com>\n"
+"PO-Revision-Date: 2013-07-23 09:30+0000\n"
+"Last-Translator: dmolina <dmolina@opennebula.org>\n"
 "Language-Team: French (France) (http://www.transifex.com/projects/p/one/language/fr_FR/)\n"
+"Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: fr_FR\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: ../public/js/plugins/acls-tab.js:28
@@ -2170,7 +2170,7 @@ msgstr "échec"
 
 #: ../public/js/plugins/oneflow-services.js:928
 msgid "Recovers a stuck VM that is waiting for a driver operation. //                The recovery may be done by failing or succeeding the pending operation. //                YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation //                was successful or not."
-msgstr ""
+msgstr "Récupère une VM bloquée dans l'attente d'une opération d'un pilote. // La récupération peut être effectuée en échouant ou réussissant l'opération en attente. // VOUS DEVEZ VÉRIFIER MANUELLEMENT LE STATUT DE LA VM SUR L'HÔTE pour décider si l'opération // a été un succès ou non."
 
 #: ../public/js/plugins/oneflow-services.js:942
 msgid "OneFlow - Services"
@@ -2667,8 +2667,9 @@ msgid "Step 1: Specify a name and the number of instances"
 msgstr "Étape 1: Spécifiez un nom et le nombre d'instances"
 
 #: ../public/js/plugins/templates-tab.js:198
+#, fuzzy
 msgid "Step 3: Select an instance type"
-msgstr "Étape 3: Choisir un type d'instance"
+msgstr "Étape 3 : Choisir un système d'exploitation"
 
 #: ../public/js/plugins/templates-tab.js:223
 #: ../public/js/plugins/vms-tab.js:206
@@ -2683,12 +2684,12 @@ msgstr "Merci de choisir un modèle dans la liste"
 #: ../public/js/plugins/templates-tab.js:236
 #: ../public/js/plugins/vms-tab.js:219
 msgid "You selected the following template:"
-msgstr ""
+msgstr "Vous avez choisi le modèle suivant :"
 
 #: ../public/js/plugins/templates-tab.js:246
 #: ../public/js/plugins/vms-tab.js:229
 msgid "Step 3: Select an operating system"
-msgstr ""
+msgstr "Étape 3 : Choisir un système d'exploitation"
 
 #: ../public/js/plugins/templates-tab.js:278
 #: ../public/js/plugins/templates-tab.js:963
@@ -2705,11 +2706,11 @@ msgstr "Merci de choisir une image de la liste"
 #: ../public/js/plugins/templates-tab.js:291
 #: ../public/js/plugins/vms-tab.js:274
 msgid "You selected the following image:"
-msgstr ""
+msgstr "Vous avez choisi l'image suivante :"
 
 #: ../public/js/plugins/templates-tab.js:470
 msgid "Please select only one template in the table"
-msgstr ""
+msgstr "Merci de ne choisir qu'un seul modèle dans la liste"
 
 #: ../public/js/plugins/templates-tab.js:578
 msgid "Template information"
@@ -2787,7 +2788,7 @@ msgstr "P&eacute;riph&eacute;rique auquel relier l'image. Surcharge la valeur pa
 #: ../public/js/plugins/templates-tab.js:1252
 #: ../public/js/plugins/templates-tab.js:1273
 msgid "Xen: Optional"
-msgstr ""
+msgstr "Xen : optionnel"
 
 #: ../public/js/plugins/templates-tab.js:1032
 #: ../public/js/plugins/templates-tab.js:1068
@@ -2800,7 +2801,7 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:1301
 #: ../public/js/plugins/templates-tab.js:1322
 msgid "KVM: Optional"
-msgstr ""
+msgstr "KVM : optionnel"
 
 #: ../public/js/plugins/templates-tab.js:1033
 #: ../public/js/plugins/templates-tab.js:1069
@@ -2809,7 +2810,7 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:1254
 #: ../public/js/plugins/templates-tab.js:1275
 msgid "VMWare: Optional"
-msgstr ""
+msgstr "VMWare : optionnel"
 
 #: ../public/js/plugins/templates-tab.js:1041
 #: ../public/js/plugins/templates-tab.js:1226
@@ -2819,7 +2820,7 @@ msgstr "PILOTE"
 #: ../public/js/plugins/templates-tab.js:1047
 #: ../public/js/plugins/templates-tab.js:1232
 msgid "Specific image mapping driver"
-msgstr ""
+msgstr "Pilote spécifique de correspondance de l'image"
 
 #: ../public/js/plugins/templates-tab.js:1048
 #: ../public/js/plugins/templates-tab.js:1233
@@ -3530,8 +3531,9 @@ msgid "You can use the wildcard &#37;i. When creating several VMs, &#37;i will b
 msgstr "Vous pouvez utiliser le caractère générique &#37;i. Lorsque vous créez plusieurs VMs, &#37;i sera remplacé par un nombre en partant de 0 dans chacune d'entre elles."
 
 #: ../public/js/plugins/vms-tab.js:181
+#, fuzzy
 msgid "Step 2: Select an instance type"
-msgstr ""
+msgstr "Étape 3 : Choisir un système d'exploitation"
 
 #: ../public/js/plugins/vms-tab.js:821 ../public/js/plugins/vms-tab.js:832
 msgid "VirtualMachine updated correctly"

@@ -16,13 +16,13 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-07-15 13:00+0200\n"
-"PO-Revision-Date: 2013-05-06 14:18+0000\n"
+"PO-Revision-Date: 2013-07-23 09:30+0000\n"
 "Last-Translator: dmolina <dmolina@opennebula.org>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language-Team: Spanish (Spain) (http://www.transifex.com/projects/p/one/language/es_ES/)\n"
+"Language: es_ES\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: es_ES\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ../public/js/plugins/acls-tab.js:28
@@ -962,9 +962,8 @@ msgid "Filesystem"
 msgstr "Sistema de ficheros"
 
 #: ../public/js/plugins/datastores-tab.js:104
-#, fuzzy
 msgid "VMware VMFS"
-msgstr "VMware (basado en VMFS)"
+msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:105
 #: ../public/js/plugins/datastores-tab.js:170
@@ -1250,14 +1249,12 @@ msgid "Base path"
 msgstr "Ruta base"
 
 #: ../public/js/plugins/datastores-tab.js:754
-#, fuzzy
 msgid "Used"
-msgstr "Utilice"
+msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:758
-#, fuzzy
 msgid "Free"
-msgstr "restablecer"
+msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:984
 msgid "Please select a cluster for this datastore"
@@ -1933,9 +1930,8 @@ msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:79
 #: ../public/js/plugins/oneflow-services.js:101
-#, fuzzy
 msgid "FAILED_SCALING"
-msgstr "FALLO"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:80
 #: ../public/js/plugins/oneflow-services.js:102
@@ -1945,9 +1941,8 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:667
 #: ../public/js/plugins/oneflow-services.js:1756
 #: ../public/js/plugins/oneflow-services.js:1784
-#, fuzzy
 msgid "Scale"
-msgstr "Estado"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:668
 #: ../public/js/plugins/oneflow-services.js:674
@@ -2158,9 +2153,8 @@ msgstr "Esto cancelará la reprogramación de las MVs seleccionadas"
 #: ../public/js/plugins/oneflow-services.js:924
 #: ../public/js/plugins/oneflow-services.js:1108
 #: ../public/js/plugins/vms-tab.js:1012
-#, fuzzy
 msgid "Recover"
-msgstr "Revertir"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:926
 #: ../public/js/plugins/vms-tab.js:1014
@@ -2169,9 +2163,8 @@ msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:927
 #: ../public/js/plugins/vms-tab.js:1015
-#, fuzzy
 msgid "failure"
-msgstr "Valor"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:928
 msgid "Recovers a stuck VM that is waiting for a driver operation. //                The recovery may be done by failing or succeeding the pending operation. //                YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation //                was successful or not."
@@ -2182,27 +2175,23 @@ msgid "OneFlow - Services"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1114
-#, fuzzy
 msgid "This will delete the selected services"
-msgstr "Esto borrará las MVs seleccionadas de la base de datos"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1120
 #: ../public/js/plugins/oneflow-templates.js:604
-#, fuzzy
 msgid "Service information"
-msgstr "Información de Usuario"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1208
-#, fuzzy
 msgid "Service"
-msgstr "Buscar"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1219
 #: ../public/js/plugins/oneflow-templates.js:145
 #: ../public/js/plugins/oneflow-templates.js:691
-#, fuzzy
 msgid "Strategy"
-msgstr "Estado"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1223
 #: ../public/js/plugins/oneflow-services.js:1442
@@ -2210,9 +2199,8 @@ msgstr "Estado"
 #: ../public/js/plugins/oneflow-templates.js:237
 #: ../public/js/plugins/oneflow-templates.js:695
 #: ../public/js/plugins/oneflow-templates.js:807
-#, fuzzy
 msgid "Shutdown action"
-msgstr "Apagar"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1254
 #: ../public/js/plugins/oneflow-services.js:1525
@@ -2226,9 +2214,8 @@ msgid "Seconds between each group of actions"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1263
-#, fuzzy
 msgid "Number"
-msgstr "Nombre"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1269
 msgid "Number of VMs to apply the action to each period"
@@ -2240,21 +2227,18 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:721
 #: ../public/js/plugins/oneflow-templates.js:1000
 #: ../public/js/plugins/oneflow-templates.js:1034
-#, fuzzy
 msgid "Cardinality"
-msgstr "Capacidad"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1282
 #: ../public/js/plugins/oneflow-templates.js:722
-#, fuzzy
 msgid "VM Template"
-msgstr "Plantillas de MV"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1283
 #: ../public/js/plugins/oneflow-templates.js:723
-#, fuzzy
 msgid "Parents"
-msgstr "Ajustes predeterminados"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1291
 #: ../public/js/plugins/oneflow-templates.js:731
@@ -2272,16 +2256,14 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:351
 #: ../public/js/plugins/oneflow-templates.js:809
 #: ../public/js/plugins/oneflow-templates.js:864
-#, fuzzy
 msgid "Cooldown"
-msgstr "Clonar"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1446
 #: ../public/js/plugins/oneflow-templates.js:274
 #: ../public/js/plugins/oneflow-templates.js:811
-#, fuzzy
 msgid "Min VMs"
-msgstr "MVs máx."
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1473
 #: ../public/js/plugins/vms-tab.js:79
@@ -2433,9 +2415,8 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:1521
 #: ../public/js/plugins/oneflow-templates.js:343
 #: ../public/js/plugins/oneflow-templates.js:856
-#, fuzzy
 msgid "# Periods"
-msgstr "Permisos"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1522
 #: ../public/js/plugins/oneflow-templates.js:344
@@ -2458,16 +2439,14 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:1557
 #: ../public/js/plugins/oneflow-templates.js:370
 #: ../public/js/plugins/oneflow-templates.js:892
-#, fuzzy
 msgid "Scheduled policies"
-msgstr "Programar acción"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1580
 #: ../public/js/plugins/oneflow-templates.js:395
 #: ../public/js/plugins/oneflow-templates.js:915
-#, fuzzy
 msgid "Time format"
-msgstr "Información de Plantilla"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1581
 #: ../public/js/plugins/oneflow-services.js:1587
@@ -2505,42 +2484,36 @@ msgid "Number of VMs to instantiate with this role"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1773
-#, fuzzy
 msgid "Force"
-msgstr "Core"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1779
 msgid "Force the new cardinality even if it is outside the limits"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:74
-#, fuzzy
 msgid "OneFlow - Templates"
-msgstr "Clonar Plantilla"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:118
-#, fuzzy
 msgid "Create Service Template"
-msgstr "Crear Plantilla VM"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:119
-#, fuzzy
 msgid "Update Service Template"
-msgstr "Actualizar Plantilla MV"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:134
 msgid "Name for this template"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:149
-#, fuzzy
 msgid "Straight"
-msgstr "Almacenamiento"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:150
-#, fuzzy
 msgid "None"
-msgstr "Hecho"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:154
 msgid "Straight strategy will instantiate each role in order: parents role will be deployed before their children. None strategy will instantiate the roles regardless of their relationships."
@@ -2548,32 +2521,28 @@ msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:167
 #: ../public/js/plugins/oneflow-templates.js:243
-#, fuzzy
 msgid "Shutdown hard"
-msgstr "apagar-duro"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:171
 msgid "VM shutdown action: 'shutdown' or 'shutdown-hard'."
 msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:178
-#, fuzzy
 msgid "Add another role"
-msgstr "Añadir otra nic"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:201
-#, fuzzy
 msgid "Role Name"
-msgstr "Nombre de Grupo"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:207
 msgid "Name of the role"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:225
-#, fuzzy
 msgid "VM template"
-msgstr "Plantillas de MV"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:232
 msgid "Template associated to this role"
@@ -2608,9 +2577,8 @@ msgid "Elasticty policies"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:459
-#, fuzzy
 msgid "ServiceTemplate updated correctly"
-msgstr "Plantilla actualizada correctamente"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:570
 #: ../public/js/plugins/templates-tab.js:152
@@ -2620,20 +2588,17 @@ msgid "Instantiate"
 msgstr "Instanciar"
 
 #: ../public/js/plugins/oneflow-templates.js:598
-#, fuzzy
 msgid "This will delete the selected templates"
-msgstr "Esto borrará las MVs seleccionadas de la base de datos"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:680
-#, fuzzy
 msgid "Service Template"
-msgstr "Seleccione plantilla"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:1001
 #: ../public/js/plugins/oneflow-templates.js:1035
-#, fuzzy
 msgid "Percentage"
-msgstr "Persistente"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:1045
 #: ../public/js/plugins/vms-tab.js:1440
@@ -2649,9 +2614,8 @@ msgid "Role "
 msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:1267
-#, fuzzy
 msgid "Please specify name, cardinality and template for this role"
-msgstr "Por favor, seleccione un datastore para este fichero"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:70
 msgid "Create VM Template"
@@ -2680,16 +2644,14 @@ msgstr "Nombre de MV"
 #: ../public/js/plugins/templates-tab.js:135
 #: ../public/js/plugins/templates-tab.js:177
 #: ../public/js/plugins/vms-tab.js:160
-#, fuzzy
 msgid "Defaults to template name when emtpy. You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them"
-msgstr "Puede utilizar el comodín &#37;i. Al crear varias MVs, &#37;i será sustituido por un número diferente que comienza en 0 en cada una de ellas."
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:140
 #: ../public/js/plugins/templates-tab.js:182
 #: ../public/js/plugins/vms-tab.js:165
-#, fuzzy
 msgid "# VMs"
-msgstr "MVs"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:146
 #: ../public/js/plugins/templates-tab.js:188
@@ -2713,15 +2675,13 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:235
 #: ../public/js/plugins/vms-tab.js:218
-#, fuzzy
 msgid "Please select a template from the list"
-msgstr "Por favor, seleccione una imagen de la lista"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:236
 #: ../public/js/plugins/vms-tab.js:219
-#, fuzzy
 msgid "You selected the following template:"
-msgstr "Ha selecciona la siguiente imagen:"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:246
 #: ../public/js/plugins/vms-tab.js:229
@@ -2731,9 +2691,8 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:278
 #: ../public/js/plugins/templates-tab.js:963
 #: ../public/js/plugins/vms-tab.js:261
-#, fuzzy
 msgid "IMAGE_ID"
-msgstr "IMÁGENES"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:290
 #: ../public/js/plugins/templates-tab.js:949
@@ -2743,14 +2702,12 @@ msgstr "Por favor, seleccione una imagen de la lista"
 
 #: ../public/js/plugins/templates-tab.js:291
 #: ../public/js/plugins/vms-tab.js:274
-#, fuzzy
 msgid "You selected the following image:"
-msgstr "Ha selecciona la siguiente imagen:"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:470
-#, fuzzy
 msgid "Please select only one template in the table"
-msgstr "Por favor, seleccione uno o varios datastores de la lista"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:578
 msgid "Template information"
@@ -2800,14 +2757,12 @@ msgid "You selected the following image: "
 msgstr "Ha selecciona la siguiente imagen:"
 
 #: ../public/js/plugins/templates-tab.js:977
-#, fuzzy
 msgid "IMAGE"
-msgstr "IMÁGENES"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:993
-#, fuzzy
 msgid "IMAGE_UID"
-msgstr "IMÁGENES"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1007
 msgid "IMAGE_UNAME"
@@ -2861,9 +2816,8 @@ msgstr "DRIVER"
 
 #: ../public/js/plugins/templates-tab.js:1047
 #: ../public/js/plugins/templates-tab.js:1232
-#, fuzzy
 msgid "Specific image mapping driver"
-msgstr "Driver de mapeado de imágen específico. KVM: raw, qcow2. XEN: tap:aio, file:"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1048
 #: ../public/js/plugins/templates-tab.js:1233
@@ -2881,9 +2835,8 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:1235
 #: ../public/js/plugins/templates-tab.js:1302
 #: ../public/js/plugins/templates-tab.js:1323
-#, fuzzy
 msgid "VMWare: Not supported"
-msgstr "Canvas no soportado."
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1060
 #: ../public/js/plugins/templates-tab.js:1245
@@ -2892,9 +2845,8 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1066
 #: ../public/js/plugins/templates-tab.js:1251
-#, fuzzy
 msgid "Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”, or “vd” for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used"
-msgstr "Prefijo para los dispositivos emulados que se montarán para esta imagen. Por ejemplo, \"hd\", \"sd\". Si se omite, el valor por defecto será el que esté definido en el fichero oned.conf (el valor por defecto en la instalación es \"hd\")."
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1077
 #: ../public/js/plugins/templates-tab.js:1262
@@ -2913,15 +2865,13 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1105
 #: ../public/js/plugins/templates-tab.js:1290
-#, fuzzy
 msgid "default"
-msgstr "Por defecto"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1106
 #: ../public/js/plugins/templates-tab.js:1291
-#, fuzzy
 msgid "none"
-msgstr "Hecho"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1107
 #: ../public/js/plugins/templates-tab.js:1292
@@ -2945,17 +2895,15 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1114
 #: ../public/js/plugins/templates-tab.js:1299
-#, fuzzy
 msgid "Selects the cache mechanism for the disk."
-msgstr "Seleccione el datastore para almacenar este fichero"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1115
 #: ../public/js/plugins/templates-tab.js:1136
 #: ../public/js/plugins/templates-tab.js:1300
 #: ../public/js/plugins/templates-tab.js:1321
-#, fuzzy
 msgid "Xen: Not supported"
-msgstr "Canvas no soportado."
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1125
 #: ../public/js/plugins/templates-tab.js:1310
@@ -2964,9 +2912,8 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1130
 #: ../public/js/plugins/templates-tab.js:1315
-#, fuzzy
 msgid "threads"
-msgstr "Compartido"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1131
 #: ../public/js/plugins/templates-tab.js:1316
@@ -3012,9 +2959,8 @@ msgid "You selected the following network:"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1690
-#, fuzzy
 msgid "NETWORK_ID"
-msgstr "RED"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1704
 #: ../public/js/plugins/templates-tab.js:2382
@@ -3022,14 +2968,12 @@ msgid "NETWORK"
 msgstr "RED"
 
 #: ../public/js/plugins/templates-tab.js:1720
-#, fuzzy
 msgid "NETWORK_UID"
-msgstr "RED"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1734
-#, fuzzy
 msgid "NETWORK_UNAME"
-msgstr "RED"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1751
 #: ../public/js/plugins/vms-tab.js:2295 ../public/js/plugins/vnets-tab.js:183
@@ -3204,9 +3148,8 @@ msgid "You selected the following Ramdisk: "
 msgstr "Ha seleccionado el siguiente Ramdisk:"
 
 #: ../public/js/plugins/templates-tab.js:2651
-#, fuzzy
 msgid "INITRD_DS"
-msgstr "INIT"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2669
 msgid "Path to the initrd image"
@@ -3353,9 +3296,8 @@ msgid "You selected the following files:"
 msgstr "Ha seleccionado los siguientes ficheros:"
 
 #: ../public/js/plugins/templates-tab.js:3163
-#, fuzzy
 msgid "FILES_DS"
-msgstr "FALLO"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:3190
 msgid "KEY"
@@ -3439,9 +3381,8 @@ msgid "Virtual Machine name missing!"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:4119
-#, fuzzy
 msgid " does not exists any more."
-msgstr "ya no existe"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:4127
 #: ../public/js/plugins/templates-tab.js:4275
@@ -4230,57 +4171,3 @@ msgstr "Debe seleccionar algún elemento"
 #: ../public/js/sunstone.js:1082
 msgid "You have to confirm this action"
 msgstr "Tiene que confirmar esta acción"
-
-#~ msgid "Catalan"
-#~ msgstr "Catalán"
-
-#~ msgid "Chinese (TW)"
-#~ msgstr "Chino (TW)"
-
-#~ msgid "Czech (CZ)"
-#~ msgstr "Checo (CZ)"
-
-#~ msgid "English (US)"
-#~ msgstr "Inglés (US)"
-
-#~ msgid "French (FR)"
-#~ msgstr "Francés (FR)"
-
-#~ msgid "German"
-#~ msgstr "Alemán"
-
-#~ msgid "Greek (GR)"
-#~ msgstr "Griego (GR)"
-
-#~ msgid "Italian (IT)"
-#~ msgstr "Italiano (IT)"
-
-#~ msgid "Persian (IR)"
-#~ msgstr "Persa (IR)"
-
-#~ msgid "Portuguese (BR)"
-#~ msgstr "Portugués (BR)"
-
-#~ msgid "Portuguese (PT)"
-#~ msgstr "Portugués (PT)"
-
-#~ msgid "Russian (RU)"
-#~ msgstr "Ruso (RU)"
-
-#~ msgid "Slovak (SK)"
-#~ msgstr "Eslovaco (SK)"
-
-#~ msgid "Spanish (SP)"
-#~ msgstr "Español (ES)"
-
-#~ msgid "VMware (FS Based)"
-#~ msgstr "VMware (basado en FS)"
-
-#~ msgid "Specific image mapping driver. KVM: raw, qcow2. Xen:tap:aio:, file:. VMware unsupported"
-#~ msgstr "Driver específico para el mapeo de la imagen. KVM: raw, qcow2. Xen:tap:aio:, file:. VMware no soportado"
-
-#~ msgid "Update template properties"
-#~ msgstr "Actualizar propiedades de plantilla"
-
-#~ msgid "The following CLUSTERs: ["
-#~ msgstr "Los siguientes CLUSTERs: ["
