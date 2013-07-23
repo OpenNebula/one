@@ -117,6 +117,17 @@ int get_image_path(VirtualMachine * vm,
         }
 
         img = ipool->get(val1, uid, true);
+
+        if ( img == 0 )
+        {
+            ostringstream oss;
+            oss << "User " << uid << " does not own an image with name: " << val1
+                << " . Set IMAGE_UNAME or IMAGE_UID of owner.";
+
+            error_str = oss.str();
+
+            return -1;
+        }
     }
     else if ( var1 == "IMAGE_ID" )
     {
@@ -126,11 +137,20 @@ int get_image_path(VirtualMachine * vm,
         {
             img = ipool->get(iid, true);
         }
-    }
 
-    if ( img == 0 )
+        if ( img == 0 )
+        {
+            ostringstream oss;
+            oss << "Image with ID: " << iid  << " does not exist";
+
+            error_str = oss.str();
+
+            return -1;
+        }
+    }
+    else
     {
-        error_str = "Cannot get image (check name/ID or try IMAGE_UNAME or IMAGE_UID).";
+        error_str = "Cannot get image, set IMAGE_ID or IMAGE.";
         return -1;
     }
 

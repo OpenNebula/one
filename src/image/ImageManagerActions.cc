@@ -64,7 +64,8 @@ Image * ImageManager::acquire_image(int vm_id, const string& name, int uid, stri
     if ( img == 0 )
     {
         ostringstream oss;
-        oss << "Image " << name << " does not exist for user " << uid;
+        oss << "User " << uid << " does not own an image with name: " << name
+            << " . Set IMAGE_UNAME or IMAGE_UID of owner in DISK.";
 
         error = oss.str();
         return 0;
