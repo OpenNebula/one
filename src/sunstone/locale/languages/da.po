@@ -1,21 +1,21 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs
 # This file is distributed under the same license as the PACKAGE package.
-# 
+#
 # Translators:
 # jks <jens@mermaidconsulting.dk>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
-"Report-Msgid-Bugs-To: http://dev.opennebula.org/\n"
+"Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-07-15 13:00+0200\n"
-"PO-Revision-Date: 2013-07-15 11:56+0000\n"
+"PO-Revision-Date: 2013-07-23 09:33+0000\n"
 "Last-Translator: jks <jens@mermaidconsulting.dk>\n"
 "Language-Team: Danish (http://www.transifex.com/projects/p/one/language/da/)\n"
+"Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: da\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ../public/js/plugins/acls-tab.js:28
@@ -1087,12 +1087,7 @@ msgid "Restricted Directories"
 msgstr "Begrænsende biblioteker"
 
 #: ../public/js/plugins/datastores-tab.js:231
-msgid ""
-"Paths that can not be used to register images. A space separated list of "
-"paths. This will prevent users registering important files as VM images and "
-"accessing them thourgh their VMs. OpenNebula will automatically add its "
-"configuration directories: /var/lib/one, /etc/one and oneadmin's home "
-"($HOME)."
+msgid "Paths that can not be used to register images. A space separated list of paths. This will prevent users registering important files as VM images and accessing them thourgh their VMs. OpenNebula will automatically add its configuration directories: /var/lib/one, /etc/one and oneadmin's home ($HOME)."
 msgstr "Stier kan ikke bruges til at registrere diskbilleder. En mellemrums-adskilt liste af stier. Dette forhindrer brugere i at registrere vigtige filer som VM-diskbilleder og tilgå dem gennem deres VMer. OpenNebula tilføjer automatisk sine konfigurations-biblioteker: /var/lib/one, /etc/one og oneadmins hjemmebibliotek ($HOME)."
 
 #: ../public/js/plugins/datastores-tab.js:236
@@ -1300,9 +1295,7 @@ msgid "Context"
 msgstr "Kontekst"
 
 #: ../public/js/plugins/files-tab.js:125
-msgid ""
-"Type of the file, explained in detail in the following section. If omitted, "
-"the default value is the one defined in oned.conf (install default is OS)."
+msgid "Type of the file, explained in detail in the following section. If omitted, the default value is the one defined in oned.conf (install default is OS)."
 msgstr "Typen af filen, forklaret i detaljer i det følgende afsnit. Hvis udelagt, så er standardværdien den, som er defineret i oned.conf (ved installationen er det OS)."
 
 #: ../public/js/plugins/files-tab.js:137
@@ -1329,9 +1322,7 @@ msgid "Path"
 msgstr "Sti"
 
 #: ../public/js/plugins/files-tab.js:161
-msgid ""
-"Path to the original file that will be copied to the file repository. If not"
-" specified for a DATABLOCK type file, an empty file will be created."
+msgid "Path to the original file that will be copied to the file repository. If not specified for a DATABLOCK type file, an empty file will be created."
 msgstr "Sti til den oprindelige fil som vil blive kopieret til fil-lageret. Hvis ikke angivet for en fil af typen DATABLOK, oprettes en tom fil."
 
 #: ../public/js/plugins/files-tab.js:395 ../public/js/plugins/hosts-tab.js:413
@@ -1687,9 +1678,7 @@ msgid "DATABLOCK"
 msgstr "DATABLOK"
 
 #: ../public/js/plugins/images-tab.js:127
-msgid ""
-"Type of the image, explained in detail in the following section. If omitted,"
-" the default value is the one defined in oned.conf (install default is OS)."
+msgid "Type of the image, explained in detail in the following section. If omitted, the default value is the one defined in oned.conf (install default is OS)."
 msgstr "Typen af diskbillede, forklaret i detaljer i det følgende afsnit. Hvis udelagt, så er standardværdien den, som er defineret i oned.conf (ved installationen er det OS)."
 
 #: ../public/js/plugins/images-tab.js:139
@@ -1709,9 +1698,7 @@ msgid "Empty datablock"
 msgstr "Tøm datablok"
 
 #: ../public/js/plugins/images-tab.js:173
-msgid ""
-"Path to the original file that will be copied to the image repository. If "
-"not specified for a DATABLOCK type image, an empty image will be created."
+msgid "Path to the original file that will be copied to the image repository. If not specified for a DATABLOCK type image, an empty image will be created."
 msgstr "Sti til den oprindelige fil som bliver kopieret til diskbillede-lageret. Hvis ikke angivet for et diskbillede af  DATABLOK-typen, så oprettes et tomt diskbillede."
 
 #: ../public/js/plugins/images-tab.js:192
@@ -1723,9 +1710,7 @@ msgid "FS type"
 msgstr "FS-type"
 
 #: ../public/js/plugins/images-tab.js:205
-msgid ""
-"Type of file system to be built. This can be any value understood by mkfs "
-"unix command."
+msgid "Type of file system to be built. This can be any value understood by mkfs unix command."
 msgstr "Typen af filsystem som skal bygges. Dette kan være enhver værdi forstået af mkfs unix-kommandoen."
 
 #: ../public/js/plugins/images-tab.js:213
@@ -1741,10 +1726,7 @@ msgid "Device prefix"
 msgstr "Enhedspræfiks"
 
 #: ../public/js/plugins/images-tab.js:226
-msgid ""
-"Prefix for the emulated device this image will be mounted at. For instance, "
-"“hd”, “sd”. If omitted, the default value is the one defined in oned.conf "
-"(installation default is “hd”)."
+msgid "Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”. If omitted, the default value is the one defined in oned.conf (installation default is “hd”)."
 msgstr "Præfiks for den emulerede enhed, som dette diskbillede bliver monteret på. Fx \"hd\" eller \"sd\". Hvis udeladt er standardværdien den, som er defineret i oned.conf (ved installation er standardværdien \"hd\")."
 
 #: ../public/js/plugins/images-tab.js:231
@@ -1830,8 +1812,7 @@ msgid "Clone Image"
 msgstr "Klon diskbillede"
 
 #: ../public/js/plugins/images-tab.js:1273
-msgid ""
-"Several image are selected, please choose prefix to name the new copies"
+msgid "Several image are selected, please choose prefix to name the new copies"
 msgstr "Flere diskbilleder er valgt, vælg et præfiks til navngivning af de nye kopier"
 
 #: ../public/js/plugins/images-tab.js:1279
@@ -2022,9 +2003,7 @@ msgstr "Boot"
 #: ../public/js/plugins/oneflow-services.js:705
 #: ../public/js/plugins/oneflow-services.js:847
 #: ../public/js/plugins/vms-tab.js:935
-msgid ""
-"This will force the hypervisor boot action of VMs stuck in UNKNOWN or BOOT "
-"state"
+msgid "This will force the hypervisor boot action of VMs stuck in UNKNOWN or BOOT state"
 msgstr "Dette vil tvinge hypervisor boothandlingen for VMer som sidder fast i UKENDT eller BOOT tilstandene."
 
 #: ../public/js/plugins/oneflow-services.js:709
@@ -2058,16 +2037,13 @@ msgstr "Sluk"
 #: ../public/js/plugins/oneflow-services.js:723
 #: ../public/js/plugins/oneflow-services.js:865
 #: ../public/js/plugins/vms-tab.js:953
-msgid ""
-"This will send a power off signal to running VMs. They can be resumed later."
+msgid "This will send a power off signal to running VMs. They can be resumed later."
 msgstr "Dette vil sende et sluk-signal til de kørende VMer. De kan genoptages senere."
 
 #: ../public/js/plugins/oneflow-services.js:729
 #: ../public/js/plugins/oneflow-services.js:871
 #: ../public/js/plugins/vms-tab.js:959
-msgid ""
-"This will send a forced power off signal to running VMs. They can be resumed"
-" later."
+msgid "This will send a forced power off signal to running VMs. They can be resumed later."
 msgstr "Dette vil sende et tvungent sluk-signal til de kørende VMer. De kan genoptages senere."
 
 #: ../public/js/plugins/oneflow-services.js:733
@@ -2106,8 +2082,7 @@ msgstr "Dette vil påbegynde nedlukningsprocessen i de valgte VMer"
 #: ../public/js/plugins/oneflow-services.js:753
 #: ../public/js/plugins/oneflow-services.js:895
 #: ../public/js/plugins/vms-tab.js:983
-msgid ""
-"This will initiate the shutdown-hard (forced) process in the selected VMs"
+msgid "This will initiate the shutdown-hard (forced) process in the selected VMs"
 msgstr "Dette vil påbegynde hård (forceret) nedlukning i de valgte VMer"
 
 #: ../public/js/plugins/oneflow-services.js:759
@@ -2185,12 +2160,7 @@ msgid "failure"
 msgstr "fejl"
 
 #: ../public/js/plugins/oneflow-services.js:928
-msgid ""
-"Recovers a stuck VM that is waiting for a driver operation. //"
-"                The recovery may be done by failing or succeeding the "
-"pending operation. //                YOU NEED TO MANUALLY CHECK THE VM "
-"STATUS ON THE HOST, to decide if the operation //                was "
-"successful or not."
+msgid "Recovers a stuck VM that is waiting for a driver operation. //                The recovery may be done by failing or succeeding the pending operation. //                YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation //                was successful or not."
 msgstr "Gendanner en fastlåst VM, der venter på en driver-handling. // Gendannelse kan ske ved at gennemtvinge den ventende handling som fejl eller success. // DU SKAL MANUELT KONTROLLERE VM STATUS PÅ VÆRTEN, for at afgøre om handlingen // gik godt eller ej."
 
 #: ../public/js/plugins/oneflow-services.js:942
@@ -2351,9 +2321,7 @@ msgstr "KARDINALITET: Sæt kardinaliteten til det givne tal."
 #: ../public/js/plugins/oneflow-templates.js:381
 #: ../public/js/plugins/oneflow-templates.js:837
 #: ../public/js/plugins/oneflow-templates.js:901
-msgid ""
-"PERCENTAGE_CHANGE: Add/substract the given percentage to the current "
-"cardinality."
+msgid "PERCENTAGE_CHANGE: Add/substract the given percentage to the current cardinality."
 msgstr "PROCENTVIS_ÆNDRING: Læg til / træk fra en given procentdel fra den nuværende kardinalitet."
 
 #: ../public/js/plugins/oneflow-services.js:1505
@@ -2416,10 +2384,7 @@ msgstr "Min"
 #: ../public/js/plugins/oneflow-templates.js:392
 #: ../public/js/plugins/oneflow-templates.js:848
 #: ../public/js/plugins/oneflow-templates.js:912
-msgid ""
-"Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the "
-"policy will change the cardinality by at least the number of VMs set in this"
-" attribute."
+msgid "Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute."
 msgstr "Valgfri parameter for PROCENTVIS_ÆNDRING justerings-typen. Hvis angivet, så vil politikken ændre kardinaliteten med mindst det antal VMer som er angivet i attributten."
 
 #: ../public/js/plugins/oneflow-services.js:1516
@@ -2449,9 +2414,7 @@ msgstr "# Perioder"
 #: ../public/js/plugins/oneflow-services.js:1522
 #: ../public/js/plugins/oneflow-templates.js:344
 #: ../public/js/plugins/oneflow-templates.js:857
-msgid ""
-"Number of periods that the expression must be true before the elasticity is "
-"triggered"
+msgid "Number of periods that the expression must be true before the elasticity is triggered"
 msgstr "Antal perioder udtrykket skal være sandt før elasticiteten trigges"
 
 #: ../public/js/plugins/oneflow-services.js:1526
@@ -2484,9 +2447,7 @@ msgstr "Tidsformat"
 #: ../public/js/plugins/oneflow-templates.js:402
 #: ../public/js/plugins/oneflow-templates.js:916
 #: ../public/js/plugins/oneflow-templates.js:922
-msgid ""
-"Recurrence: Time for recurring adjustements. Time is specified with the Unix"
-" cron syntax"
+msgid "Recurrence: Time for recurring adjustements. Time is specified with the Unix cron syntax"
 msgstr "Gentagelse: Tidspunkt for gentagne justeringer. Tidspunktet er angivet med Unix cron syntaks"
 
 #: ../public/js/plugins/oneflow-services.js:1582
@@ -2548,10 +2509,7 @@ msgid "None"
 msgstr "Ingen"
 
 #: ../public/js/plugins/oneflow-templates.js:154
-msgid ""
-"Straight strategy will instantiate each role in order: parents role will be "
-"deployed before their children. None strategy will instantiate the roles "
-"regardless of their relationships."
+msgid "Straight strategy will instantiate each role in order: parents role will be deployed before their children. None strategy will instantiate the roles regardless of their relationships."
 msgstr "Ligefrem strategi instantierer hver rolle i rækkefølge: forældrenes rolle startes før deres børn. Strategien \"ingen\" instantierer rollerne uden hensyn til deres indbyrdes relationer."
 
 #: ../public/js/plugins/oneflow-templates.js:167
@@ -2584,9 +2542,7 @@ msgid "Template associated to this role"
 msgstr "Skabelon tilknyttet denne rolle"
 
 #: ../public/js/plugins/oneflow-templates.js:247
-msgid ""
-"VM shutdown action: 'shutdown' or 'shutdown-hard'. If it is not set, the one"
-" set for the Service will be used"
+msgid "VM shutdown action: 'shutdown' or 'shutdown-hard'. If it is not set, the one set for the Service will be used"
 msgstr "VM-nedlukningshandling: 'luk-ned' eller 'luk-ned-hård'. Hvis den ikke vælges, så bruges den, der er valgt for servicen"
 
 #: ../public/js/plugins/oneflow-templates.js:258
@@ -2681,10 +2637,7 @@ msgstr "VM-navn"
 #: ../public/js/plugins/templates-tab.js:135
 #: ../public/js/plugins/templates-tab.js:177
 #: ../public/js/plugins/vms-tab.js:160
-msgid ""
-"Defaults to template name when emtpy. You can use the wildcard &#37;i. When "
-"creating several VMs, &#37;i will be replaced with a different number "
-"starting from 0 in each of them"
+msgid "Defaults to template name when emtpy. You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them"
 msgstr "Hvis tom, benyttes skabelonavnet som standard. Du kan bruge wildcardet &#37;i. Når du opretter flere VMer bliver &#37;i erstattet med et tal begyndende med 0."
 
 #: ../public/js/plugins/templates-tab.js:140
@@ -2705,8 +2658,9 @@ msgid "Step 1: Specify a name and the number of instances"
 msgstr "Trin 1: Vælg et navn og antal instanser"
 
 #: ../public/js/plugins/templates-tab.js:198
+#, fuzzy
 msgid "Step 3: Select an instance type"
-msgstr "Trin 3: Vælg en instans-type"
+msgstr "Trin 3: Vælg en skabelon"
 
 #: ../public/js/plugins/templates-tab.js:223
 #: ../public/js/plugins/vms-tab.js:206
@@ -2762,9 +2716,7 @@ msgid "Name that the VM will get for description purposes."
 msgstr "VM-navn til beskrivende formål"
 
 #: ../public/js/plugins/templates-tab.js:688
-msgid ""
-"Percentage of CPU divided by 100 required for the Virtual Machine. Half a "
-"processor is written 0.5."
+msgid "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5."
 msgstr "Procentdel af CPU dividereret med 100 påkrævet af den virtuelle maskine. En halv processor angives 0.5."
 
 #: ../public/js/plugins/templates-tab.js:705
@@ -2787,9 +2739,7 @@ msgid "VCPU"
 msgstr "VCPU"
 
 #: ../public/js/plugins/templates-tab.js:727
-msgid ""
-"Number of virtual cpus. This value is optional, the default hypervisor "
-"behavior is used, usually one virtual CPU."
+msgid "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU."
 msgstr "Antal virtuelle CPUer. Værdien er valgfri, standard hypervisor opførsel benyttes, sædvanligvis 1 virtuel CPU."
 
 #: ../public/js/plugins/templates-tab.js:913
@@ -2819,9 +2769,7 @@ msgstr "MÅL"
 
 #: ../public/js/plugins/templates-tab.js:1030
 #: ../public/js/plugins/templates-tab.js:1215
-msgid ""
-"Device to map image disk. If set, it will overwrite the default device "
-"mapping"
+msgid "Device to map image disk. If set, it will overwrite the default device mapping"
 msgstr "Enhed som diskbilledet mappes til. Hvis sat, så overskriver den standard enheden."
 
 #: ../public/js/plugins/templates-tab.js:1031
@@ -2891,10 +2839,7 @@ msgstr "DEV_PREVIX"
 
 #: ../public/js/plugins/templates-tab.js:1066
 #: ../public/js/plugins/templates-tab.js:1251
-msgid ""
-"Prefix for the emulated device this image will be mounted at. For instance, "
-"“hd”, “sd”, or “vd” for KVM virtio. If omitted, the dev_prefix attribute of "
-"the Image will be used"
+msgid "Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”, or “vd” for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used"
 msgstr "Præfiks for den emulerede enhed, som dette diskbillede bliver monteret på. Fx \"hd\", \"sd\" eller \"vd\" for KVM virtio. Hvis udeladt, benyttes dev_prefix attributen fra diskbilledet."
 
 #: ../public/js/plugins/templates-tab.js:1077
@@ -3039,9 +2984,7 @@ msgid "MODEL"
 msgstr "MODEL"
 
 #: ../public/js/plugins/templates-tab.js:1770
-msgid ""
-"Hardware that will emulate this network interface. With Xen this is the type"
-" attribute of the vif."
+msgid "Hardware that will emulate this network interface. With Xen this is the type attribute of the vif."
 msgstr "Hardware som skal emulere dette netværksinterface. Ved Xen er det type-attributten på vif."
 
 #: ../public/js/plugins/templates-tab.js:1778
@@ -3055,9 +2998,7 @@ msgstr "PORTE"
 
 #: ../public/js/plugins/templates-tab.js:1796
 #: ../public/js/plugins/templates-tab.js:1821
-msgid ""
-"A list of ports separated by commas or a ranges separated by semicolons, "
-"e.g.: 22,80,5900:6000"
+msgid "A list of ports separated by commas or a ranges separated by semicolons, e.g.: 22,80,5900:6000"
 msgstr "En liste af porte adskilt af kommaer, eller et interval adskilt af semikolonner, fx: 22,80,5900:6000"
 
 #: ../public/js/plugins/templates-tab.js:1803
@@ -3225,8 +3166,7 @@ msgid "No"
 msgstr "Nej"
 
 #: ../public/js/plugins/templates-tab.js:2687
-msgid ""
-"Add support in the VM for Advanced Configuration and Power Interface (ACPI)"
+msgid "Add support in the VM for Advanced Configuration and Power Interface (ACPI)"
 msgstr "Tilføj understøttelse i VMen for Advanced Configuration and Power Interface (ACPI)"
 
 #: ../public/js/plugins/templates-tab.js:2692
@@ -3242,9 +3182,7 @@ msgid "PCI BRIDGE"
 msgstr "PCI BRO"
 
 #: ../public/js/plugins/templates-tab.js:2728
-msgid ""
-" Adds a PCI Controller that provides bridge-to-bridge capability, only for "
-"VMware."
+msgid " Adds a PCI Controller that provides bridge-to-bridge capability, only for VMware."
 msgstr "Tilføjer en PCI Controller der giver bridge-to-bridge mulighed, kun for VMware."
 
 #: ../public/js/plugins/templates-tab.js:2901
@@ -3316,9 +3254,7 @@ msgid "  Add SSH contextualization"
 msgstr "Tilføj SSH-kontekstualisering"
 
 #: ../public/js/plugins/templates-tab.js:3079
-msgid ""
-"Add an ssh public key to the context. If the Public Key textarea is empty "
-"then the user variable SSH_PUBLIC_KEY will be used."
+msgid "Add an ssh public key to the context. If the Public Key textarea is empty then the user variable SSH_PUBLIC_KEY will be used."
 msgstr "Tilføj en ssh offentlig nøgle til konteksten. Hvis tekstområdet til den offentlige nøgle er tomt, så bliver bruger-variablen SSH_PUBLIC_KEY anvendt istedet."
 
 #: ../public/js/plugins/templates-tab.js:3084
@@ -3330,10 +3266,7 @@ msgid "  Add Network contextualization"
 msgstr "Tilføj netværks-kontekstualisering"
 
 #: ../public/js/plugins/templates-tab.js:3105
-msgid ""
-"Add network contextualization parameters. For each NIC defined in the "
-"NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in "
-"the CONTEXT section and will be available in the Virtual Machine"
+msgid "Add network contextualization parameters. For each NIC defined in the NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in the CONTEXT section and will be available in the Virtual Machine"
 msgstr "Tilføj netværkskontekstualiseringsparametre. For hvert netværkskort defineret i NETWORK afsnittet, ETH$i_IP, ETH$i_NETWORK... parametrene bliver inkluderet i CONTEXT afsnittet og gøres tilgængelige i den virtuelle maskine."
 
 #: ../public/js/plugins/templates-tab.js:3110
@@ -3345,9 +3278,7 @@ msgid "  Add OneGate token"
 msgstr "Tilføj OneGate token"
 
 #: ../public/js/plugins/templates-tab.js:3119
-msgid ""
-"Add a file (token.txt) to the context contaning the token to push custom "
-"metrics to the VirtualMachine through OneGate"
+msgid "Add a file (token.txt) to the context contaning the token to push custom metrics to the VirtualMachine through OneGate"
 msgstr "Tilføj en fil (token.txt) til konteksten som indeholder det toke, der skubber tilpassede metrikker ind i den virtuelle maskine gennem OneGate"
 
 #: ../public/js/plugins/templates-tab.js:3157
@@ -3400,9 +3331,7 @@ msgid "Requirements"
 msgstr "Krav"
 
 #: ../public/js/plugins/templates-tab.js:3455
-msgid ""
-"Boolean expression that rules out provisioning hosts from list of machines "
-"suitable to run this VM"
+msgid "Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM"
 msgstr "Boolsk udtryk som udelukker provisionerings-værter fra listen af maskiner, som kan køre denne VM."
 
 #: ../public/js/plugins/templates-tab.js:3462
@@ -3434,9 +3363,7 @@ msgid "Rank"
 msgstr "Position"
 
 #: ../public/js/plugins/templates-tab.js:3489
-msgid ""
-"This field sets which attribute will be used to sort the suitable hosts for "
-"this VM"
+msgid "This field sets which attribute will be used to sort the suitable hosts for this VM"
 msgstr "Dette felt angiver de attributer som bruges til at sortere de værter, som er passende for denne VM."
 
 #: ../public/js/plugins/templates-tab.js:3793
@@ -3493,8 +3420,7 @@ msgid "Clone Template"
 msgstr "Klynge-skabelon"
 
 #: ../public/js/plugins/templates-tab.js:4617
-msgid ""
-"Several templates are selected, please choose prefix to name the new copies"
+msgid "Several templates are selected, please choose prefix to name the new copies"
 msgstr "Flere skabeloner er valgt, vælg et præfiks til navngivning af nye kopier"
 
 #: ../public/js/plugins/users-tab.js:83
@@ -3539,8 +3465,7 @@ msgid "Please choose the new type of authentication for the selected users"
 msgstr "Vælg den nye type autentifikation for de valgte brugere"
 
 #: ../public/js/plugins/users-tab.js:561
-msgid ""
-"This will change the main group of the selected users. Select the new group"
+msgid "This will change the main group of the selected users. Select the new group"
 msgstr "Dette vil ændre hovedgruppen for de valgte brugere. Vælg den nye gruppe"
 
 #: ../public/js/plugins/users-tab.js:582
@@ -3593,14 +3518,13 @@ msgid "Deploy # VMs"
 msgstr "Start # VMer"
 
 #: ../public/js/plugins/vms-tab.js:130
-msgid ""
-"You can use the wildcard &#37;i. When creating several VMs, &#37;i will be "
-"replaced with a different number starting from 0 in each of them"
+msgid "You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them"
 msgstr "Du kan bruge wildcardet &#37;i. Når du opretter flere VMer vil &#37;i blive erstattet med et tal begyndende med 0."
 
 #: ../public/js/plugins/vms-tab.js:181
+#, fuzzy
 msgid "Step 2: Select an instance type"
-msgstr "Trin 2: Vælg en instans-type"
+msgstr "Trin 2: Vælg en skabelon"
 
 #: ../public/js/plugins/vms-tab.js:821 ../public/js/plugins/vms-tab.js:832
 msgid "VirtualMachine updated correctly"
@@ -3611,11 +3535,7 @@ msgid "Launch"
 msgstr "Start"
 
 #: ../public/js/plugins/vms-tab.js:1016
-msgid ""
-"Recovers a stuck VM that is waiting for a driver operation.                 "
-"The recovery may be done by failing or succeeding the pending operation."
-"                 YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to "
-"decide if the operation                 was successful or not."
+msgid "Recovers a stuck VM that is waiting for a driver operation.                 The recovery may be done by failing or succeeding the pending operation.                 YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation                 was successful or not."
 msgstr "Gendanner en fastlåst VM, der venter på en driver-handling. Gendannelse kan ske ved at gennemtvinge den ventende handling som fejl eller success. DU SKAL MANUELT KONTROLLERE VM STATUS PÅ VÆRTEN for at afgøre om handlingen gik godt eller ej."
 
 #: ../public/js/plugins/vms-tab.js:1082 ../public/js/plugins/vms-tab.js:1104
@@ -3879,9 +3799,7 @@ msgid "Sets the specified VM disk to be saved in a new Image."
 msgstr "Vælg at den valgte VM disk bliver gemt i et nyt diskbillede"
 
 #: ../public/js/plugins/vms-tab.js:2114
-msgid ""
-"Deferred: The Image is created immediately, but the contents are saved only "
-"if the VM is shut down gracefully (i.e., using Shutdown; not Delete)"
+msgid "Deferred: The Image is created immediately, but the contents are saved only if the VM is shut down gracefully (i.e., using Shutdown; not Delete)"
 msgstr "Udskudt: Diskbilledet bliver oprettet med det samme, men dets indhold gemmes kun, hvis VMen lukkes pænt ned (i.e. ved at bruge Luk ned; ikke Slet)"
 
 #: ../public/js/plugins/vms-tab.js:2115
@@ -3949,10 +3867,7 @@ msgid "Enforce"
 msgstr "Påtving"
 
 #: ../public/js/plugins/vms-tab.js:2613
-msgid ""
-"If it is set to true, the host capacity will be checked. This will only "
-"affect oneadmin requests, regular users resize requests will always be "
-"enforced"
+msgid "If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced"
 msgstr "Hvis sat til \"sandt\" vil værtskapaciteten blive tjekket. Det påvirker kun oneadmin-forespørgsler, alm. brugeres forespørgsler om ændring af størrelser bliver altid udført"
 
 #: ../public/js/plugins/vms-tab.js:2622
@@ -4251,3 +4166,9 @@ msgstr "Du skal vælge noget."
 #: ../public/js/sunstone.js:1082
 msgid "You have to confirm this action"
 msgstr "Du skal bekræfte denne handling"
+
+#~ msgid "Cannot connect to OneFlow server"
+#~ msgstr "Kan ikke forbinde til OneFlow serveren"
+
+#~ msgid "More"
+#~ msgstr "Flere"

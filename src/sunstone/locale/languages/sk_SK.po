@@ -12,13 +12,13 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-07-15 13:00+0200\n"
-"PO-Revision-Date: 2013-07-15 15:40+0000\n"
-"Last-Translator: Ján Beňadik <jan.benadik@atos.net>\n"
+"PO-Revision-Date: 2013-07-23 09:30+0000\n"
+"Last-Translator: dmolina <dmolina@opennebula.org>\n"
 "Language-Team: Slovak (Slovakia) (http://www.transifex.com/projects/p/one/language/sk_SK/)\n"
+"Language: sk_SK\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: sk_SK\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 
 #: ../public/js/plugins/acls-tab.js:28
@@ -2209,7 +2209,7 @@ msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1260
 msgid "Seconds between each group of actions"
-msgstr ""
+msgstr "Sekundy medzi každou skupinou akcií"
 
 #: ../public/js/plugins/oneflow-services.js:1263
 msgid "Number"
@@ -2261,7 +2261,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:274
 #: ../public/js/plugins/oneflow-templates.js:811
 msgid "Min VMs"
-msgstr ""
+msgstr "Minimálny počet VS"
 
 #: ../public/js/plugins/oneflow-services.js:1473
 #: ../public/js/plugins/vms-tab.js:79
@@ -2468,7 +2468,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:400
 #: ../public/js/plugins/oneflow-templates.js:920
 msgid "Time expression"
-msgstr ""
+msgstr "Formát času"
 
 #: ../public/js/plugins/oneflow-services.js:1586
 #: ../public/js/plugins/oneflow-templates.js:401
@@ -2556,15 +2556,15 @@ msgstr "Nadradené roly"
 
 #: ../public/js/plugins/oneflow-templates.js:270
 msgid "Elasticity"
-msgstr ""
+msgstr "Elasticita"
 
 #: ../public/js/plugins/oneflow-templates.js:280
 msgid "Minimum number of VMs for elasticity adjustments"
-msgstr ""
+msgstr "Minimálny počet VS ore ladenie elasticity"
 
 #: ../public/js/plugins/oneflow-templates.js:291
 msgid "Maximum number of VMs for elasticity adjustments"
-msgstr ""
+msgstr "Maximálny počet pre ladenie elasticity"
 
 #: ../public/js/plugins/oneflow-templates.js:302
 msgid "Cooldown time after an elasticity operation (secs)"
@@ -2572,7 +2572,7 @@ msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:313
 msgid "Elasticty policies"
-msgstr ""
+msgstr "Pravidlá elasticity"
 
 #: ../public/js/plugins/oneflow-templates.js:459
 msgid "ServiceTemplate updated correctly"
@@ -2660,31 +2660,32 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:168
 #: ../public/js/plugins/vms-tab.js:151
 msgid "Step 1: Specify a name and the number of instances"
-msgstr ""
+msgstr "Krak 1: Zadaj meno a počet inštancií"
 
 #: ../public/js/plugins/templates-tab.js:198
+#, fuzzy
 msgid "Step 3: Select an instance type"
-msgstr "Krok 3: vyber typ inštancie"
+msgstr "Krok 3: Vyber operačný systém"
 
 #: ../public/js/plugins/templates-tab.js:223
 #: ../public/js/plugins/vms-tab.js:206
 msgid "TEMPLATE_ID"
-msgstr ""
+msgstr "TEMPLATE_ID"
 
 #: ../public/js/plugins/templates-tab.js:235
 #: ../public/js/plugins/vms-tab.js:218
 msgid "Please select a template from the list"
-msgstr ""
+msgstr "Vyber šablónu zo zoznamu"
 
 #: ../public/js/plugins/templates-tab.js:236
 #: ../public/js/plugins/vms-tab.js:219
 msgid "You selected the following template:"
-msgstr ""
+msgstr "Vybral si túto šablónu:"
 
 #: ../public/js/plugins/templates-tab.js:246
 #: ../public/js/plugins/vms-tab.js:229
 msgid "Step 3: Select an operating system"
-msgstr ""
+msgstr "Krok 3: Vyber operačný systém"
 
 #: ../public/js/plugins/templates-tab.js:278
 #: ../public/js/plugins/templates-tab.js:963
@@ -2844,7 +2845,7 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:1066
 #: ../public/js/plugins/templates-tab.js:1251
 msgid "Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”, or “vd” for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used"
-msgstr ""
+msgstr "Prefix pre emulované zariadenie, ktorým bude obraz mountovaný. Pre názornosť - \"hd\", \"sd\", alebo \"vd\" pre KVM virtio. Ak nebude zadané, použije sa dev_prefix atribút."
 
 #: ../public/js/plugins/templates-tab.js:1077
 #: ../public/js/plugins/templates-tab.js:1262
@@ -2894,7 +2895,7 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:1114
 #: ../public/js/plugins/templates-tab.js:1299
 msgid "Selects the cache mechanism for the disk."
-msgstr ""
+msgstr "Vyber mechanizmus cachovania pre disk"
 
 #: ../public/js/plugins/templates-tab.js:1115
 #: ../public/js/plugins/templates-tab.js:1136
@@ -3101,7 +3102,7 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2526
 msgid "Set the OS of the VM, only for VMware"
-msgstr ""
+msgstr "Nastav operačný systém pre VS - iba pre VMware"
 
 #: ../public/js/plugins/templates-tab.js:2534
 msgid "Registered Image"
@@ -3122,7 +3123,7 @@ msgstr "Vybral si nasledovné jadro:"
 
 #: ../public/js/plugins/templates-tab.js:2580
 msgid "KERNEL_DS"
-msgstr ""
+msgstr "KERNEL_DS"
 
 #: ../public/js/plugins/templates-tab.js:2592
 #: ../public/js/plugins/templates-tab.js:2663
@@ -3187,7 +3188,7 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2728
 msgid " Adds a PCI Controller that provides bridge-to-bridge capability, only for VMware."
-msgstr ""
+msgstr "Pridá PCI radič pre bridge-to-bridge funkcionalitu - iba pre VMware"
 
 #: ../public/js/plugins/templates-tab.js:2901
 msgid "Graphics"
@@ -3526,8 +3527,9 @@ msgid "You can use the wildcard &#37;i. When creating several VMs, &#37;i will b
 msgstr "Môžeš použiť zástupné znaky (*). Keď vytváraš naraz viac VS, zástupné znaky budú pre každý z nich nahradené číslom od 0 vyššie"
 
 #: ../public/js/plugins/vms-tab.js:181
+#, fuzzy
 msgid "Step 2: Select an instance type"
-msgstr ""
+msgstr "Krok 3: Vyber operačný systém"
 
 #: ../public/js/plugins/vms-tab.js:821 ../public/js/plugins/vms-tab.js:832
 msgid "VirtualMachine updated correctly"
