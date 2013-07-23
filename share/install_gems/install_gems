@@ -66,7 +66,7 @@ DISTRIBUTIONS={
         :install_command => 'yum install'
     },
     :suse => {
-        :id => [/^SUSE/],
+        :id => [/SUSE/],
         :dependencies_common => ['ruby-devel', 'make'],
         :dependencies => {
             SQLITE      => ['gcc', 'sqlite3-devel'],
