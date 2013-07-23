@@ -48,8 +48,8 @@ while IFS= read -r -d '' element; do
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/HOST \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VG_NAME)
 
-HOST="${XPATH_ELEMENTS[0]}"
-VG_NAME="${XPATH_ELEMENTS[1]}"
+HOST="${XPATH_ELEMENTS[0]:-$HOST}"
+VG_NAME="${XPATH_ELEMENTS[1]-$VG_NAME}"
 
 # ------------ Compute datastore usage -------------
 
@@ -58,7 +58,7 @@ VG_OPTS="--units M -C --noheadings --nosuffix $VG_NAME"
 
 TOTAL_MB=\$(sudo vgdisplay -o vg_size \$VG_OPTS | tr -d ' ')
 FREE_MB=\$(sudo vgdisplay -o vg_free \$VG_OPTS | tr -d ' ')
-USED_MB=\$(echo "\$TOTAL_MB - \$FREE_MB" | bc -l)
+USED_MB=\$(awk "BEGIN {print \$TOTAL_MB - \$FREE_MB}")
 
 echo "USED_MB=\$USED_MB"
 echo "TOTAL_MB=\$TOTAL_MB"
