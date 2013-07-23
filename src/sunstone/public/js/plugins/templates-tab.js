@@ -198,7 +198,7 @@ var easy_provision_vm_template_tmpl ='\
         <legend>'+tr("Step 3: Select a template")+'</legend>\
         <div class="row collapse">\
           <div class="seven columns">\
-             <button id="refresh_template_templates_table_button_class" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>\
+             <button id="refresh_template_templates_table_button_class" type="button" class="refresh button small radius secondary"><i class="icon-refresh" /></button>\
           </div>\
           <div class="five columns">\
             <input id="template_templates_table_search" type="text" placeholder="'+tr("Search")+'"/>\
@@ -246,7 +246,7 @@ var easy_provision_vm_template_tmpl ='\
         <legend>'+tr("Step 3: Select an operating system")+'</legend>\
         <div class="row collapse">\
           <div class="seven columns">\
-             <button id="refresh_template_images_table_button_class" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>\
+             <button id="refresh_template_images_table_button_class" type="button" class="refresh button small radius secondary"><i class="icon-refresh" /></button>\
           </div>\
           <div class="five columns">\
             <input id="template_images_table_search" type="text" placeholder="'+tr("Search")+'"/>\
@@ -917,7 +917,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
         '<div id="disk_type" class="vm_param image">'+
           '<div class="row collapse">'+
             '<div class="seven columns">' +
-               '<button id="refresh_template_images_table_button_class'+str_disk_tab_id+'" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
+               '<button id="refresh_template_images_table_button_class'+str_disk_tab_id+'" type="button" class="refresh button small radius secondary"><i class="icon-refresh" /></button>' +
             '</div>' +
             '<div class="five columns">'+
               '<input id="'+str_disk_tab_id+'_search" type="text" placeholder="'+tr("Search")+'"/>'+
@@ -2541,7 +2541,7 @@ function setupCreateTemplateDialog(){
                     '<div class="row kernel_ds">'+
                       '<div class="row collapse ">'+
                           '<div class="seven columns">' +
-                             '<button id="refresh_kernel_table" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
+                             '<button id="refresh_kernel_table" type="button" class="refresh button small radius secondary"><i class="icon-refresh" /></button>' +
                           '</div>' +
                         '<div class="five columns">'+
                           '<input id="kernel_search" type="text" placeholder="'+tr("Search")+'"/>'+
@@ -2612,7 +2612,7 @@ function setupCreateTemplateDialog(){
                     '<div class="row initrd_ds">'+
                       '<div class="row collapse ">'+
                           '<div class="seven columns">' +
-                             '<button id="refresh_ramdisk_table" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
+                             '<button id="refresh_ramdisk_table" type="button" class="refresh button small radius secondary"><i class="icon-refresh" /></button>' +
                           '</div>' +
                         '<div class="five columns">'+
                           '<input id="initrd_search" type="text" placeholder="'+tr("Search")+'"/>'+
@@ -3128,7 +3128,7 @@ function setupCreateTemplateDialog(){
                 '<li class="wizard_internal_tab" id="filesTab">'+
                         '<div class="row collapse ">'+
                           '<div class="seven columns">' +
-                             '<button id="refresh_context_table" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
+                             '<button id="refresh_context_table" type="button" class="refresh button small radius secondary"><i class="icon-refresh" /></button>' +
                           '</div>' +
                           '<div class="five columns">'+
                             '<input id="files_search" type="text" placeholder="'+tr("Search")+'"/>'+
@@ -3382,7 +3382,7 @@ function setupCreateTemplateDialog(){
                     '<div id="req_type" class="host_select row">'+
                         '<div class="row collapse ">'+
                           '<div class="seven columns">' +
-                             '<button id="refresh_hosts_placement" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
+                             '<button id="refresh_hosts_placement" type="button" class="refresh button small radius secondary"><i class="icon-refresh" /></button>' +
                           '</div>' +
                           '<div class="five columns">'+
                             '<input id="hosts_search" type="text" placeholder="'+tr("Search")+'"/>'+
@@ -3419,7 +3419,7 @@ function setupCreateTemplateDialog(){
                     '<div id="req_type" class="cluster_select hidden row">'+
                         '<div class="row collapse ">'+
                           '<div class="seven columns">' +
-                             '<button id="refresh_clusters_placement" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
+                             '<button id="refresh_clusters_placement" type="button" class="refresh button small radius secondary"><i class="icon-refresh" /></button>' +
                           '</div>' +
                           '<div class="five columns">'+
                             '<input id="clusters_search" type="text" placeholder="'+tr("Search")+'"/>'+
@@ -4009,6 +4009,7 @@ function popUpUpdateTemplateDialog(){
 };
 
 function popUpCreateTemplateDialog(){
+
     $('button#create_template_form_easy', $create_template_dialog).show();
     $('button#template_template_update_button', $create_template_dialog).hide();
     $('button#template_template_reset_button', $create_template_dialog).show();
@@ -4025,6 +4026,10 @@ function popUpCreateTemplateDialog(){
     $('#wizard_mode', $create_template_dialog).show();
 
     $create_template_dialog.reveal();
+
+    $('button.refresh').each(function(){
+      this.click();
+    })
 };
 
 function popUpTemplateTemplateUpdateDialog(){
