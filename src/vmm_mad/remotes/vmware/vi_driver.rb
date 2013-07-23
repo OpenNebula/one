@@ -271,6 +271,12 @@ class VIVm
                 @net_tx = vm_stats[@vm][:metrics]["net.packetsTx"].first
             end
         end
+
+        # Check for negative values
+        @used_memory = 0 if @used_memory.to_i < 0
+        @used_cpu    = 0 if @used_cpu.to_i < 0
+        @net_rx      = 0 if @net_rx.to_i < 0
+        @net_tx      = 0 if @net_tx.to_i < 0
     end
 
     ########################################################################
@@ -357,6 +363,12 @@ class VIHost
                 @net_tx = net[@host][:metrics]["net.packetsTx"].first
             end
         end
+
+        # Check for negative values
+        @used_memory = 0 if @used_memory.to_i < 0
+        @used_cpu    = 0 if @used_cpu.to_i < 0
+        @net_rx      = 0 if @net_rx.to_i < 0
+        @net_tx      = 0 if @net_tx.to_i < 0
     end
 
     ########################################################################
