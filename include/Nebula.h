@@ -340,12 +340,12 @@ public:
      */
     static string version()
     {
-        return "OpenNebula 4.1.80";
+        return "OpenNebula 4.2.0";
     };
 
     static string db_version()
     {
-        return "4.1.80";
+        return "4.2.0";
     }
 
     /**
