@@ -1189,8 +1189,10 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
     Nebula&    nd    = Nebula::instance();
     UserPool*  upool = nd.get_upool();
     GroupPool* gpool = nd.get_gpool();
-    Quotas     dquotas = nd.get_default_user_quota();
     HostPool * hpool = nd.get_hpool();
+
+    Quotas     user_dquotas  = nd.get_default_user_quota();
+    Quotas     group_dquotas = nd.get_default_group_quota();
 
     Host * host;
 
@@ -1347,7 +1349,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
 
         if ( user != 0 )
         {
-            rc = user->quota.quota_update(Quotas::VM, &deltas, dquotas, error_str);
+            rc = user->quota.quota_update(Quotas::VM, &deltas, user_dquotas, error_str);
 
             if (rc == false)
             {
@@ -1378,7 +1380,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
 
         if ( group != 0 )
         {
-            rc = group->quota.quota_update(Quotas::VM, &deltas, dquotas, error_str);
+            rc = group->quota.quota_update(Quotas::VM, &deltas, group_dquotas, error_str);
 
             if (rc == false)
             {
