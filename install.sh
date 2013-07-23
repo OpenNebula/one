@@ -1537,6 +1537,7 @@ SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
 SUNSTONE_ROUTES_FILES="src/sunstone/routes/oneflow.rb"
 
 SUNSTONE_PUBLIC_CSS_FILES="src/sunstone/public/css/app.css \
+                src/sunstone/public/css/opensans.woff \
                 src/sunstone/public/css/login.css"
 
 SUNSTONE_PUBLIC_VENDOR_FLOT="\
