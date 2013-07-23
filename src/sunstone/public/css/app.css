@@ -7163,3 +7163,8 @@ table.policies_table input {
 .detach-vnc-icon:hover {
   color: #222;
 }
+
+/* line 1045, ../sass/app.scss */
+.dataTables_length select {
+  margin-right: 8px;
+}

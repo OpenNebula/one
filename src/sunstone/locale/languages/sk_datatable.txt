@@ -1,6 +1,6 @@
 {
     "sProcessing":   "Pracujem...",
-    "sLengthMenu":   "Zobraz _MENU_ záznamov",
+    "sLengthMenu":   "_MENU_",
     "sZeroRecords":  "Neboli nájdené žiadne záznamy",
     "sInfo":         "Záznamy _START_ až _END_ z celkovo _TOTAL_",
     "sInfoEmpty":    "Záznamy 0 až 0 z celkovo 0",

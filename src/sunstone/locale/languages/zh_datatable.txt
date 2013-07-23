@@ -1,6 +1,6 @@
 ﻿{
     "sProcessing":   "處理中...",
-    "sLengthMenu":   "顯示 _MENU_ 項",
+    "sLengthMenu":   "_MENU_",
     "sZeroRecords":  "沒有任何資料",
     "sInfo":         "顯示 _START_ 至 _END_ 項，共 _TOTAL_ 項",
     "sInfoEmpty":    "沒有任何資料",

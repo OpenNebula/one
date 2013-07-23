@@ -1,6 +1,6 @@
 {
     "sProcessing":   "En cours...",
-    "sLengthMenu":   "Affiche _MENU_ éléments",
+    "sLengthMenu":   "_MENU_",
     "sZeroRecords":  "Pas d'enregistrement",
     "sInfo":         "Affiche de _START_ à _END_ sur _TOTAL_",
     "sInfoEmpty":    "Pas d'enregistrement",
