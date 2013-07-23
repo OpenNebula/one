@@ -2,9 +2,12 @@
 $.extend( true, $.fn.dataTable.defaults, {
     "sDom": "<'H'>t<'row'<'eight columns'li><'four columns'p>>",
     "sPaginationType": "foundation",
-    "oLanguage": {
-        "sLengthMenu": '<select><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select>&emsp;&emsp;'
-    }
+        "oLanguage": (datatable_lang != "") ?
+            {
+                sUrl: "locale/"+lang+"/"+datatable_lang,
+
+            } : "",
+
 } );
 
 
