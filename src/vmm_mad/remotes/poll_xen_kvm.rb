@@ -129,29 +129,32 @@ module KVM
 
     def self.get_cpu_info(vms)
         pids=vms.map {|name, vm| vm[:pid] }
-
-        data=%x{#{CONF[:top]} #{pids.join(',')}}
-
-        lines=data.strip.split("\n")
-        block_size=lines.length/2
-        valid_lines=lines.last(block_size)
-
-        first_domain = 7
-        valid_lines.each_with_index{ |l,i|
-            if l.match 'PID USER'
-                first_domain=i+1
-                break
-            end
-        }
-
-        domain_lines=valid_lines[first_domain..-1]
+        pids.compact!
 
         cpu={}
 
-        domain_lines.each do |line|
-            d=line.split
+        pids.each_slice(20) do |slice|
+            data=%x{#{CONF[:top]} #{slice.join(',')}}
 
-            cpu[d[0]]=d[8]
+            lines=data.strip.split("\n")
+            block_size=lines.length/2
+            valid_lines=lines.last(block_size)
+
+            first_domain = 7
+            valid_lines.each_with_index{ |l,i|
+                if l.match 'PID USER'
+                    first_domain=i+1
+                    break
+                end
+            }
+
+            domain_lines=valid_lines[first_domain..-1]
+
+            domain_lines.each do |line|
+                d=line.split
+
+                cpu[d[0]]=d[8]
+            end
         end
 
         cpu
