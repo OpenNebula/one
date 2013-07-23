@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 2.7.  */
+/* A Bison parser, made by GNU Bison 2.7.12-4996.  */
 
 /* Bison implementation for Yacc-like parsers in C
    
-      Copyright (C) 1984, 1989-1990, 2000-2012 Free Software Foundation, Inc.
+      Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "2.7"
+#define YYBISON_VERSION "2.7.12-4996"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -282,12 +282,21 @@ typedef short int yytype_int16;
 # endif
 #endif
 
+#ifndef __attribute__
+/* This feature is available in gcc versions 2.5 and later.  */
+# if (! defined __GNUC__ || __GNUC__ < 2 \
+      || (__GNUC__ == 2 && __GNUC_MINOR__ < 5))
+#  define __attribute__(Spec) /* empty */
+# endif
+#endif
+
 /* Suppress unused-variable warnings by "using" E.  */
 #if ! defined lint || defined __GNUC__
 # define YYUSE(E) ((void) (E))
 #else
 # define YYUSE(E) /* empty */
 #endif
+
 
 /* Identity function, used to suppress warnings about constant conditions.  */
 #ifndef lint
@@ -813,11 +822,7 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, oxml, result
 # else
   YYUSE (yyoutput);
 # endif
-  switch (yytype)
-    {
-      default:
-        break;
-    }
+  YYUSE (yytype);
 }
 
 
@@ -1229,12 +1234,7 @@ yydestruct (yymsg, yytype, yyvaluep, yylocationp, mc, oxml, result, error_msg)
     yymsg = "Deleting";
   YY_SYMBOL_PRINT (yymsg, yytype, yyvaluep, yylocationp);
 
-  switch (yytype)
-    {
-
-      default:
-        break;
-    }
+  YYUSE (yytype);
 }
 
 
@@ -1561,19 +1561,19 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 100 "expr_arith.y"
     { result = static_cast<int>((yyvsp[(1) - (1)].val_float));}
     break;
 
   case 3:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 101 "expr_arith.y"
     { result = 0; }
     break;
 
   case 4:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 104 "expr_arith.y"
     { float val = 0.0;
 
@@ -1606,55 +1606,55 @@ yyreduce:
     break;
 
   case 5:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 132 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(1) - (1)].val_float); }
     break;
 
   case 6:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 133 "expr_arith.y"
     { (yyval.val_float) = static_cast<float>((yyvsp[(1) - (1)].val_int)); }
     break;
 
   case 7:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 134 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(1) - (3)].val_float) + (yyvsp[(3) - (3)].val_float);}
     break;
 
   case 8:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 135 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(1) - (3)].val_float) - (yyvsp[(3) - (3)].val_float);}
     break;
 
   case 9:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 136 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(1) - (3)].val_float) * (yyvsp[(3) - (3)].val_float);}
     break;
 
   case 10:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 137 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(1) - (3)].val_float) / (yyvsp[(3) - (3)].val_float);}
     break;
 
   case 11:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 138 "expr_arith.y"
     { (yyval.val_float) = - (yyvsp[(2) - (2)].val_float);}
     break;
 
   case 12:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 139 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(2) - (3)].val_float);}
     break;
 
 
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 1659 "expr_arith.cc"
       default: break;
     }
@@ -1893,7 +1893,7 @@ yyreturn:
 }
 
 
-/* Line 2055 of yacc.c  */
+/* Line 2050 of yacc.c  */
 #line 142 "expr_arith.y"
 
 

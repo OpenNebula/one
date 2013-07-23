@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 2.7.  */
+/* A Bison parser, made by GNU Bison 2.7.12-4996.  */
 
 /* Bison interface for Yacc-like parsers in C
    
-      Copyright (C) 1984, 1989-1990, 2000-2012 Free Software Foundation, Inc.
+      Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ extern int expr_bool__debug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
 {
-/* Line 2058 of yacc.c  */
+/* Line 2053 of yacc.c  */
 #line 88 "expr_bool.y"
 
     char * 	val_str;
@@ -64,7 +64,7 @@ typedef union YYSTYPE
     float   val_float;
 
 
-/* Line 2058 of yacc.c  */
+/* Line 2053 of yacc.c  */
 #line 69 "expr_bool.hh"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
