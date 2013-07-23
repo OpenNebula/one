@@ -1480,7 +1480,8 @@ SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf \
 
 SUNSTONE_ETC_VIEW_FILES="src/sunstone/etc/sunstone-views/admin.yaml \
                     src/sunstone/etc/sunstone-views/user.yaml \
-                    src/sunstone/etc/sunstone-views/cloud.yaml"
+                    src/sunstone/etc/sunstone-views/cloud.yaml \
+                     src/sunstone/etc/sunstone-views/vdcadmin.yaml"
 
 SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
                        src/sunstone/models/SunstoneServer.rb \
