@@ -1,0 +1,12 @@
+[main]
+host = https://www.transifex.com
+
+[one.sunstone]
+file_filter = src/sunstone/locale/languages/<lang>.po
+source_file = src/sunstone/locale/messages.pot
+source_lang = en_US
+
+[one.self-service]
+file_filter = translations/one.self-service/<lang>.po
+source_lang = en
+

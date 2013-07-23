@@ -2791,10 +2791,11 @@ function setupCreateTemplateDialog(){
           //          $('input.check_item', this).attr('checked','checked');
           //      }
           //  })
-          //}
+          //},
+          "fnInitComplete": function(oSettings) {
+            this.fnFilter("KERNEL", 7)
+          }
         });
-
-        dataTable_template_kernel.fnFilter("KERNEL", 7)
 
         $("#refresh_kernel_table").die();
         $("#refresh_kernel_table").live('click', function(){
@@ -2835,7 +2836,8 @@ function setupCreateTemplateDialog(){
                 { "sWidth": "35px", "aTargets": [0,1] },
                 { "bVisible": false, "aTargets": [2,3,5,6,7,9,8,10,11,12]}
             ],
-           //"fnDrawCallback": function(oSettings) {
+           "fnInitComplete": function(oSettings) {
+              this.fnFilter("RAMDISK", 7)
            // var nodes = this.fnGetNodes();
            // $.each(nodes, function(){
            //     if ($(this).find("td:eq(1)").html() == $('#INITRD', kernel_section).text()) {
@@ -2843,10 +2845,10 @@ function setupCreateTemplateDialog(){
            //         $('input.check_item', this).attr('checked','checked');
            //     }
            // })
-           // }
+           }
         });
 
-        datTable_template_initrd.fnFilter("RAMDISK", 7)
+        
 
         $("#refresh_ramdisk_table").die();
         $("#refresh_ramdisk_table").live('click', function(){
@@ -3251,7 +3253,8 @@ function setupCreateTemplateDialog(){
               { "sWidth": "35px", "aTargets": [0,1] },
               { "bVisible": false, "aTargets": [2,3,5,6,7,9,8,10,11,12]}
           ],
-          //"fnDrawCallback": function(oSettings) {
+          "fnInitComplete": function(oSettings) {
+            this.fnFilter("CONTEXT", 7)
           //  var images = []
           //  $.each($( "span.image", $("#selected_files_spans")), function() {
           //    images.push($(this).attr("image_id"));
@@ -3265,10 +3268,10 @@ function setupCreateTemplateDialog(){
           //          $('input.check_item', this).attr('checked','checked');
           //      }
           //  })
-          //}
+          }
       });
 
-        datTable_template_context.fnFilter("CONTEXT", 7)
+        
 
         $("#refresh_context_table").die();
         $("#refresh_context_table").live('click', function(){

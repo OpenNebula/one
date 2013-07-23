@@ -1,6 +1,6 @@
 {
     "sProcessing":   "Procesando...",
-    "sLengthMenu":   "Número de elementos",
+    "sLengthMenu":   "_MENU_",
     "sZeroRecords":  "No hay elementos",
     "sInfo":         "Mostrando del _START_ al _END_ de _TOTAL_",
     "sInfoEmpty":    "No hay elementos",

@@ -1,6 +1,6 @@
 {
     "sProcessing":   "Ждите. Выполняется обработка...",
-    "sLengthMenu":   "Показывать _MENU_ элементов списка",
+    "sLengthMenu":   "_MENU_",
     "sZeroRecords":  "Список пуст",
     "sInfo":         "Показаны элементы списка с _START_ по _END_ из _TOTAL_",
     "sInfoEmpty":    "Список пуст",

@@ -1,6 +1,6 @@
 {
     "sProcessing":   "Proszę czekać...",
-    "sLengthMenu":   "Pokaż _MENU_ pozycji",
+    "sLengthMenu":   "_MENU_",
     "sZeroRecords":  "Nie znaleziono żadnych pasujących indeksów",
     "sInfo":         "Pozycje od _START_ do _END_ z _TOTAL_ łącznie",
     "sInfoEmpty":    "Pozycji 0 z 0 dostępnych",

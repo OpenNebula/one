@@ -1,6 +1,6 @@
 {
     "sProcessing":   "درحال پردازش...",
-    "sLengthMenu":   "نمایش محتویات _MENU_",
+    "sLengthMenu":   "_MENU_",
     "sZeroRecords":  "موردی یافت نشد",
     "sInfo":         "نمایش _START_ تا _END_ از مجموع _TOTAL_ مورد",
     "sInfoEmpty":    "تهی",
