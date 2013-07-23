@@ -3309,7 +3309,7 @@ string VirtualMachine::get_system_dir() const
 {
     ostringstream oss;
 
-    oss << history->ds_location << history->ds_id << "/"<< oid;
+    oss << history->ds_location << "/" << history->ds_id << "/"<< oid;
 
     return oss.str();
 };
