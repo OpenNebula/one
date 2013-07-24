@@ -32,6 +32,9 @@
         <xs:element name="DISK_TYPE" type="xs:integer"/>
         <xs:element name="CLUSTER_ID" type="xs:integer"/>
         <xs:element name="CLUSTER" type="xs:string"/>
+        <xs:element name="TOTAL_MB" type="xs:integer"/>
+        <xs:element name="FREE_MB" type="xs:integer"/>
+        <xs:element name="USED_MB" type="xs:integer"/>
         <xs:element name="IMAGES">
               <xs:complexType>
                 <xs:sequence>
