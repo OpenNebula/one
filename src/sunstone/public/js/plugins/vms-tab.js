@@ -24,7 +24,20 @@ function loadVNC(){
 }
 loadVNC();
 
-var VNCstates=["RUNNING","SHUTDOWN","SHUTDOWN_POWEROFF","UNKNOWN","HOTPLUG","CANCEL","MIGRATE", "HOTPLUG_SNAPSHOT", "HOTPLUG_NIC", "HOTPLUG_SAVEAS", "HOTPLUG_SAVEAS_POWEROFF", "HOTPLUG_SAVEAS_SUSPENDED", "SHUTDOWN_UNDEPLOY"];
+var VNCstates=[
+  tr("RUNNING"),
+  tr("SHUTDOWN"),
+  tr("SHUTDOWN_POWEROFF"),
+  tr("UNKNOWN"),
+  tr("HOTPLUG"),
+  tr("CANCEL"),
+  tr("MIGRATE"),
+  tr("HOTPLUG_SNAPSHOT"),
+  tr("HOTPLUG_NIC"),
+  tr("HOTPLUG_SAVEAS"),
+  tr("HOTPLUG_SAVEAS_POWEROFF"),
+  tr("HOTPLUG_SAVEAS_SUSPENDED"),
+  tr("SHUTDOWN_UNDEPLOY")];
 
 //Permanent storage for last value of aggregated network usage
 //Used to calculate bandwidth
