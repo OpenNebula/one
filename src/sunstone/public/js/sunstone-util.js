@@ -1622,7 +1622,7 @@ function parseQuotas(elem, formatter_f){
     }
 
     var vn_arr = []
-    if ($.isArray(elem.NETWORK_QUOTA)){
+    if ($.isArray(elem.NETWORK_QUOTA.NETWORK)){
         vn_arr = elem.NETWORK_QUOTA.NETWORK
     } else if (!$.isEmptyObject(elem.NETWORK_QUOTA)){
         vn_arr = [elem.NETWORK_QUOTA.NETWORK]
