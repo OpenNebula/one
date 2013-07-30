@@ -219,7 +219,7 @@ grammar ElasticityGrammar
                     val = nil
                     st = "#{att}[--]"
                 else
-                    val = total / n_nodes
+                    val = (total / n_nodes).round(2)
                     st = "#{att}[#{val.to_s}]"
                 end
 
