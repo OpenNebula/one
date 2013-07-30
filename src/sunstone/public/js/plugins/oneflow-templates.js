@@ -892,8 +892,8 @@ function updateServiceTemplateInfo(request,elem){
                         <td>'+this.adjust+'</td>\
                         <td>'+(this.min_adjust_step || "-")+'</td>\
                         <td>'+this.expression+'</td>\
-                        <td>'+(this.period || "-")+'</td>\
                         <td>'+(this.period_number || "-")+'</td>\
+                        <td>'+(this.period || "-")+'</td>\
                         <td>'+(this.cooldown || "-")+'</td>\
                     </tr>'
                 });
@@ -1027,10 +1027,10 @@ function setup_role_tab_content(role_section, html_role_id) {
                     <input type="text" id="expression" name="expression"/>\
                 </td>\
                 <td>\
-                    <input type="text" id="period" name="period"/>\
+                    <input type="text" id="period_number" name="period_number"/>\
                 </td>\
                 <td>\
-                    <input type="text" id="period_number" name="period_number"/>\
+                    <input type="text" id="period" name="period"/>\
                 </td>\
                 <td>\
                     <input type="text" id="cooldown" name="cooldown"/>\
@@ -1313,8 +1313,8 @@ function generate_json_service_template_from_form() {
                 policy['adjust']  = $("#adjust" ,this).val();
                 policy['min_adjust_step']  = $("#min_adjust_step" ,this).val();
                 policy['expression']  = $("#expression" ,this).val();
-                policy['period']  = $("#period" ,this).val();
                 policy['period_number']  = $("#period_number" ,this).val();
+                policy['period']  = $("#period" ,this).val();
                 policy['cooldown']  = $("#cooldown" ,this).val();
 
                 // TODO remove empty policies
@@ -1435,8 +1435,8 @@ function fillUpUpdateServiceTemplateDialog(request, response){
                 $("#adjust" ,td).val(this['adjust'] )
                 $("#min_adjust_step" ,td).val(this['min_adjust_step'] || "" )
                 $("#expression" ,td).val(unscape(this.expression))
-                $("#period" ,td).val(this['period'] || "" )
                 $("#period_number" ,td).val(this['period_number'] || "")
+                $("#period" ,td).val(this['period'] || "" )
                 $("#cooldown" ,td).val(this['cooldown'] || "" )
             })
         }
