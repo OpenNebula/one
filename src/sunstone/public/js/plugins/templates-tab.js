@@ -950,6 +950,10 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
             '<span id="image_selected" class="radius secondary label hidden">'+tr("You selected the following image: ")+
             '</span>'+
             '<span class="radius label" type="text" id="IMAGE_NAME" name="image"></span>'+
+            '<div class="alert-box alert" style="display: none;">'+
+            tr("The image you specified cannot be selected in the table") +
+            '  <a href="" class="close">&times;</a>'+
+            '</div>'+
           '</div>'+
           '<hr>'+
         '<div class="show_hide" id="advanced_image">'+
@@ -1339,6 +1343,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
 
 function update_datatable_template_hosts(datatable, fnDrawCallback) {
     if (fnDrawCallback) {
+        datatable.unbind('draw');
         datatable.on('draw', fnDrawCallback);
     }
 
@@ -1360,6 +1365,7 @@ function update_datatable_template_hosts(datatable, fnDrawCallback) {
 
 function update_datatable_template_clusters(datatable, fnDrawCallback) {
     if (fnDrawCallback) {
+        datatable.unbind('draw');
         datatable.on('draw', fnDrawCallback);
     }
 
@@ -1381,6 +1387,7 @@ function update_datatable_template_clusters(datatable, fnDrawCallback) {
 
 function update_datatable_template_images(datatable, fnDrawCallback) {
     if (fnDrawCallback) {
+        datatable.unbind('draw');
         datatable.on('draw', fnDrawCallback);
     }
 
@@ -1402,6 +1409,7 @@ function update_datatable_template_images(datatable, fnDrawCallback) {
 
 function update_datatable_template_templates(datatable, fnDrawCallback) {
     if (fnDrawCallback) {
+        datatable.unbind('draw');
         datatable.on('draw', fnDrawCallback);
     }
 
@@ -1423,6 +1431,7 @@ function update_datatable_template_templates(datatable, fnDrawCallback) {
 
 function update_datatable_template_files(datatable, fnDrawCallback) {
     if (fnDrawCallback) {
+        datatable.unbind('draw');
         datatable.on('draw', fnDrawCallback);
     }
 
@@ -1444,6 +1453,7 @@ function update_datatable_template_files(datatable, fnDrawCallback) {
 
 function update_datatable_template_networks(datatable, fnDrawCallback) {
     if (fnDrawCallback) {
+        datatable.unbind('draw');
         datatable.on('draw', fnDrawCallback);
     }
 
@@ -1605,6 +1615,7 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
     })
 
     $('#'+str_datatable_id + '  tbody', disk_section).delegate("tr", "click", function(e){
+        dataTable_template_images.unbind("draw");
         var aData = dataTable_template_images.fnGetData(this);
 
         $("td.markrow", disk_section).removeClass('markrow');
@@ -1677,6 +1688,10 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
       '<span id="network_selected" class="radius secondary label hidden">'+tr("You selected the following network:")+
       '</span>'+
       '<span class="radius label" type="text" id="NETWORK_NAME" name="network"></span>'+
+      '<div class="alert-box alert"  style="display: none;">'+
+      tr("The network you specified cannot be selected in the table") +
+      '  <a href="" class="close">&times;</a>'+
+      '</div>'+
     '</div>'+
   '<hr>'+
     '<div class="show_hide" id="advanced">'+
@@ -1880,6 +1895,7 @@ function setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id) {
     })
 
     $('#'+str_datatable_id + '  tbody', nic_section).delegate("tr", "click", function(e){
+        dataTable_template_networks.unbind("draw");
         var aData = dataTable_template_networks.fnGetData(this);
 
         $("td.markrow", nic_section).removeClass('markrow');
@@ -4107,7 +4123,7 @@ function fillTemplatePopUp(request, response){
             // TODO updateView should not be required. Currently the dataTable
             //  is filled twice.
             update_datatable_template_images(dataTable_template_images, function(){
-                dataTable_template_images.unbind('draw');
+                //dataTable_template_images.unbind('draw');
 
                 if (disk_image_id) {
                     var clicked = false
@@ -4115,6 +4131,7 @@ function fillTemplatePopUp(request, response){
                     $.each(data, function(){
                         if (this[1] == disk_image_id) {
                             clicked = true;
+                            $(".alert-box", disk_section).hide();
                             $('#image_selected', disk_section).show();
                             $('#select_image', disk_section).hide();
                             $('#IMAGE_NAME', disk_section).text(this[4]);
@@ -4123,19 +4140,10 @@ function fillTemplatePopUp(request, response){
                     })
 
                     if (!clicked) {
-                        var alert = '<div class="alert-box alert">'+
-    'IMAGE: '+ disk_image_id + tr(" does not exists any more.") +
-    '  <a href="" class="close">&times;</a>'+
-    '</div>';
-
-                        $("#selected_image", disk_section).append(alert);
+                        $(".alert-box", disk_section).show();
                     }
                 } else {
-                    var alert = '<div class="alert-box alert">'+
-    tr("The image you specified cannot be selected in the table") +
-    '  <a href="" class="close">&times;</a>'+
-    '</div>';
-                    $("#selected_image", disk_section).append(alert);
+                    $(".alert-box", disk_section).show();
                 }
 
             })
@@ -4183,7 +4191,7 @@ function fillTemplatePopUp(request, response){
         // TODO updateView should not be required. Currently the dataTable
         //  is filled twice.
         update_datatable_template_networks(dataTable_template_networks, function(){
-            dataTable_template_networks.unbind('draw');
+            //dataTable_template_networks.unbind('draw');
 
             if (nic_network_id) {
                 var clicked = false
@@ -4191,6 +4199,7 @@ function fillTemplatePopUp(request, response){
                 $.each(data, function(){
                     if (this[1] == nic_network_id) {
                         clicked = true;
+                        $('.alert-box', nic_section).hide();
                         $('#network_selected', nic_section).show();
                         $('#select_network', nic_section).hide();
                         $('#NETWORK_NAME', nic_section).text(this[4]);
@@ -4199,19 +4208,10 @@ function fillTemplatePopUp(request, response){
                 })
 
                 if (!clicked) {
-                    var alert = '<div class="alert-box alert">'+
-    'NETWORK: '+ nic_network_id + tr(" does not exists any more") +
-    '  <a href="" class="close">&times;</a>'+
-    '</div>';
-
-                    $("#selected_network", nic_section).append(alert);
+                    $('.alert-box', nic_section).show();
                 }
             } else {
-                var alert = '<div class="alert-box alert">'+
-tr("The network you specified cannot be selected in the table") +
-'  <a href="" class="close">&times;</a>'+
-'</div>';
-                $("#selected_network", nic_section).append(alert);
+                $('.alert-box', nic_section).show();
             }
         })
 
