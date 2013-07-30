@@ -3582,8 +3582,8 @@ function setupCreateTemplateDialog(){
 
             var host_id=id.substring(9,id.length);
             delete selected_hosts[host_id];
-            $('td', host_row_hash[file_id]).removeClass('markrowchecked');
-            $('input.check_item', host_row_hash[file_id]).removeAttr('checked');
+            $('td', host_row_hash[host_id]).removeClass('markrowchecked');
+            $('input.check_item', host_row_hash[host_id]).removeAttr('checked');
 
             if ($.isEmptyObject(selected_hosts)) {
                 $('#hosts_selected',  dialog).hide();
@@ -3664,8 +3664,8 @@ function setupCreateTemplateDialog(){
 
             var cluster_id=id.substring(12,id.length);
             delete selected_clusters[cluster_id];
-            $('td', cluster_row_hash[file_id]).removeClass('markrowchecked');
-            $('input.check_item', cluster_row_hash[file_id]).removeAttr('checked');
+            $('td', cluster_row_hash[cluster_id]).removeClass('markrowchecked');
+            $('input.check_item', cluster_row_hash[cluster_id]).removeAttr('checked');
 
             if ($.isEmptyObject(selected_clusters)) {
                 $('#clusters_selected',  dialog).hide();
