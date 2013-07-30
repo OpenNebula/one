@@ -2924,12 +2924,12 @@ function setupCreateVMDialog(include_select_image){
         "sDom" : '<"H">t<"F"p>',
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [0,1] },
-            { "bVisible": false, "aTargets": [1,2,3,5]}
+            { "bVisible": false, "aTargets": [0,2,3,5]}
         ],
           "fnDrawCallback": function(oSettings) {
             var nodes = this.fnGetNodes();
             $.each(nodes, function(){
-                if ($(this).find("td:eq(1)").html() == $('#TEMPLATE_ID', dialog).val()) {
+                if ($(this).find("td:eq(0)").html() == $('#TEMPLATE_ID', dialog).val()) {
                     $("td", this).addClass('markrow');
                     $('input.check_item', this).attr('checked','checked');
                 }
@@ -2975,12 +2975,12 @@ function setupCreateVMDialog(include_select_image){
           "sDom" : '<"H">t<"F"p>',
           "aoColumnDefs": [
               { "sWidth": "35px", "aTargets": [0,1] },
-              { "bVisible": false, "aTargets": [2,3,7,8,5,9,12]}
+              { "bVisible": false, "aTargets": [0,2,3,7,8,5,9,12]}
           ],
             "fnDrawCallback": function(oSettings) {
               var nodes = this.fnGetNodes();
               $.each(nodes, function(){
-                  if ($(this).find("td:eq(1)").html() == $('#IMAGE_ID', dialog).val()) {
+                  if ($(this).find("td:eq(0)").html() == $('#IMAGE_ID', dialog).val()) {
                       $("td", this).addClass('markrow');
                       $('input.check_item', this).attr('checked','checked');
                   }
