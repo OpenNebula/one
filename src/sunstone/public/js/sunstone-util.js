@@ -1519,7 +1519,10 @@ function setupQuotasDialog(dialog){
             var json = JSON.parse($(this).attr('quota'));
             var type = json['TYPE'];
             delete json['TYPE'];
-            obj[type.toUpperCase()] = json;
+            if (typeof obj[type.toUpperCase()] == "undefined") {
+                obj[type.toUpperCase()] = [];
+            }
+            obj[type.toUpperCase()].push(json);
         });
 
         var action = $('div.form_buttons button',this).val();
