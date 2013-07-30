@@ -1584,12 +1584,12 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
         "sDom" : '<"H">t<"F"p>',
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [0,1] },
-            { "bVisible": false, "aTargets": [2,3,6,9,8,12]}
+            { "bVisible": false, "aTargets": [0,2,3,6,9,8,12]}
         ],
           "fnDrawCallback": function(oSettings) {
             var nodes = this.fnGetNodes();
             $.each(nodes, function(){
-                if ($(this).find("td:eq(1)").html() == $('#IMAGE_ID', disk_section).val()) {
+                if ($(this).find("td:eq(0)").html() == $('#IMAGE_ID', disk_section).val()) {
                     $("td", this).addClass('markrow');
                     $('input.check_item', this).attr('checked','checked');
                 }
@@ -1622,7 +1622,7 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
         $('#IMAGE', disk_section).val("");
         $('#IMAGE_UNAME', disk_section).val("");
         $('#IMAGE_UID', disk_section).val("");
-        return false;
+        return true;
     });
 
     // Hide image advanced options
@@ -1859,12 +1859,12 @@ function setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id) {
       "sDom" : '<"H">t<"F"p>',
       "aoColumnDefs": [
           { "sWidth": "35px", "aTargets": [0,1] },
-          { "bVisible": false, "aTargets": [7]}
+          { "bVisible": false, "aTargets": [0,7]}
         ],
           "fnDrawCallback": function(oSettings) {
             var nodes = this.fnGetNodes();
             $.each(nodes, function(){
-                if ($(this).find("td:eq(1)").html() == $('#NETWORK_ID', nic_section).val()) {
+                if ($(this).find("td:eq(0)").html() == $('#NETWORK_ID', nic_section).val()) {
                     $("td", this).addClass('markrow');
                     $('input.check_item', this).attr('checked','checked');
                 }
@@ -1897,7 +1897,7 @@ function setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id) {
         $('#NETWORK', nic_section).val("");
         $('#NETWORK_UNAME', nic_section).val("");
         $('#NETWORK_UID', nic_section).val("");
-        return false;
+        return true;
     });
 
     $('.advanced', nic_section).hide();
