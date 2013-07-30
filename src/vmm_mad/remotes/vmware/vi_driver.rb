@@ -416,7 +416,7 @@ class VIHost
 
             str_info << "VM = ["
             str_info << "ID=#{number},"
-            str_info << "DEPLOY_ID=#{name},"
+            str_info << "DEPLOY_ID=\"#{name}\","
             str_info << "POLL=\"#{vivm.info}\"]\n"
         }
 
