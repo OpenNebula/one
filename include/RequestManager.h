@@ -107,6 +107,31 @@ private:
     int socket_fd;
 
     /**
+     *  Max connections
+     */
+    int max_conn;
+
+    /*
+     *  Max backlog connections
+     */
+    int max_conn_backlog;
+
+    /*
+     *  Keepalive timeout
+     */
+    int keepalive_timeout;
+
+    /*
+     *  Keepalive max conn
+     */
+    int keepalive_max_conn;
+
+    /*
+     *  Timeout
+     */
+    int timeout;
+
+    /**
      *  Filename for the log of the xmlrpc server that listens
      */
     string xml_log_file;
