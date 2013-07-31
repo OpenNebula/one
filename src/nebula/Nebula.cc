@@ -353,6 +353,17 @@ void Nebula::start()
         os << "Log level:" << clevel << " [0=ERROR,1=WARNING,2=INFO,3=DEBUG]";
 
         NebulaLog::log("ONE",Log::INFO,os);
+
+        os.str("");
+        os << "Support for xmlrpc-c > 1.31: ";
+
+#ifdef OLD_XMLRPC
+        os << "no. MAX_CONN and MAX_CONN_BACKLOG configuration will not be used";
+#else
+        os << "yes";
+#endif
+
+        NebulaLog::log("ONE",Log::INFO,os);
     }
     catch(runtime_error&)
     {
