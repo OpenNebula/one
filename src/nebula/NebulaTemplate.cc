@@ -176,6 +176,47 @@ void OpenNebulaTemplate::set_conf_default()
     conf_default.insert(make_pair(vattribute->name(),vattribute));
 /*
 #*******************************************************************************
+# XML-RPC server configuration
+#-------------------------------------------------------------------------------
+#  MAX_CONN
+#  MAX_CONN_BACKLOG
+#  KEEPALIVE_TIMEOUT
+#  KEEPALIVE_MAX_CONN
+#  TIMEOUT
+#*******************************************************************************
+*/
+    // MAX_CONN
+    value = "15";
+
+    attribute = new SingleAttribute("MAX_CONN",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
+    // MAX_CONN_BACKLOG
+    value = "15";
+
+    attribute = new SingleAttribute("MAX_CONN_BACKLOG",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
+    // KEEPALIVE_TIMEOUT
+    value = "15";
+
+    attribute = new SingleAttribute("KEEPALIVE_TIMEOUT",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
+    // KEEPALIVE_MAX_CONN
+    value = "30";
+
+    attribute = new SingleAttribute("KEEPALIVE_MAX_CONN",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
+    // TIMEOUT
+    value = "15";
+
+    attribute = new SingleAttribute("TIMEOUT",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
+/*
+#*******************************************************************************
 # Physical Networks configuration
 #*******************************************************************************
 #  NETWORK_SIZE

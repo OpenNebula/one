@@ -875,11 +875,23 @@ void Nebula::start()
     // ---- Request Manager ----
     try
     {
-        int             rm_port = 0;
+        int rm_port = 0;
+        int max_conn;
+        int max_conn_backlog;
+        int keepalive_timeout;
+        int keepalive_max_conn;
+        int timeout;
 
         nebula_configuration->get("PORT", rm_port);
+        nebula_configuration->get("MAX_CONN", max_conn);
+        nebula_configuration->get("MAX_CONN_BACKLOG", max_conn_backlog);
+        nebula_configuration->get("KEEPALIVE_TIMEOUT", keepalive_timeout);
+        nebula_configuration->get("KEEPALIVE_MAX_CONN", keepalive_max_conn);
+        nebula_configuration->get("TIMEOUT", timeout);
 
-        rm = new RequestManager(rm_port, log_location + "one_xmlrpc.log");
+        rm = new RequestManager(rm_port, max_conn, max_conn_backlog,
+            keepalive_timeout, keepalive_max_conn, timeout,
+            log_location + "one_xmlrpc.log");
     }
     catch (bad_alloc&)
     {
