@@ -42,8 +42,22 @@ class RequestManager : public ActionListener
 {
 public:
 
-    RequestManager(int _port, const string _xml_log_file)
-            :port(_port), socket_fd(-1), xml_log_file(_xml_log_file)
+    RequestManager(
+            int _port,
+            int _max_conn,
+            int _max_conn_backlog,
+            int _keepalive_timeout,
+            int _keepalive_max_conn,
+            int _timeout,
+            const string _xml_log_file):
+                port(_port),
+                socket_fd(-1),
+                max_conn(_max_conn),
+                max_conn_backlog(_max_conn_backlog),
+                keepalive_timeout(_keepalive_timeout),
+                keepalive_max_conn(_keepalive_max_conn),
+                timeout(_timeout),
+                xml_log_file(_xml_log_file)
     {
         am.addListener(this);
     };

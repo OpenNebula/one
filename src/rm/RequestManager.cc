@@ -78,14 +78,6 @@ extern "C" void * rm_action_loop(void *arg)
 extern "C" void * rm_xml_server_loop(void *arg)
 {
     RequestManager *    rm;
-    Nebula& nd = Nebula::instance();
-    string str;
-    ostringstream oss;
-    unsigned int max_conn = 15;
-    unsigned int max_conn_backlog = 15;
-    unsigned int keepalive_timeout = 15;
-    unsigned int keepalive_max_conn = 30;
-    unsigned int timeout = 15;
 
     if ( arg == 0 )
     {
@@ -93,62 +85,6 @@ extern "C" void * rm_xml_server_loop(void *arg)
     }
 
     rm = static_cast<RequestManager *>(arg);
-
-    // Get configuration parameters
-
-    // MAX_CONN
-    nd.get_configuration_attribute("MAX_CONN", str);
-    if (!str.empty())
-    {
-        max_conn = atoi(str.c_str());
-    }
-
-    oss << "max_conn: " << max_conn;
-    NebulaLog::log("ReM",Log::DEBUG, oss);
-
-    // MAX_CONN_BACKLOG
-    nd.get_configuration_attribute("MAX_CONN_BACKLOG", str);
-    if (!str.empty())
-    {
-        max_conn_backlog = atoi(str.c_str());
-    }
-
-    oss.str("");
-    oss << "max_conn_backlog: " << max_conn_backlog;
-    NebulaLog::log("ReM",Log::DEBUG, oss);
-
-    // KEEPALIVE_TIMEOUT
-    nd.get_configuration_attribute("KEEPALIVE_TIMEOUT", str);
-    if (!str.empty())
-    {
-        keepalive_timeout = atoi(str.c_str());
-    }
-
-    oss.str("");
-    oss << "keepalive_timeout: " << keepalive_timeout;
-    NebulaLog::log("ReM",Log::DEBUG, oss);
-
-    // KEEPALIVE_MAX_CONN
-    nd.get_configuration_attribute("KEEPALIVE_MAX_CONN", str);
-    if (!str.empty())
-    {
-        keepalive_max_conn = atoi(str.c_str());
-    }
-
-    oss.str("");
-    oss << "keepalive_max_conn: " << keepalive_max_conn;
-    NebulaLog::log("ReM",Log::DEBUG, oss);
-
-    // TIMEOUT
-    nd.get_configuration_attribute("TIMEOUT", str);
-    if (!str.empty())
-    {
-        timeout = atoi(str.c_str());
-    }
-
-    oss.str("");
-    oss << "timeout: " << timeout;
-    NebulaLog::log("ReM",Log::DEBUG, oss);
 
     // Set cancel state for the thread
 
@@ -161,11 +97,11 @@ extern "C" void * rm_xml_server_loop(void *arg)
     rm->AbyssServer = new xmlrpc_c::serverAbyss(xmlrpc_c::serverAbyss::constrOpt()
         .registryP(&rm->RequestManagerRegistry)
         .logFileName(rm->xml_log_file)
-        .maxConn(max_conn)
-        .maxConnBacklog(max_conn_backlog)
-        .keepaliveTimeout(keepalive_timeout)
-        .keepaliveMaxConn(keepalive_max_conn)
-        .timeout(timeout)
+        .maxConn(rm->max_conn)
+        .maxConnBacklog(rm->max_conn_backlog)
+        .keepaliveTimeout(rm->keepalive_timeout)
+        .keepaliveMaxConn(rm->keepalive_max_conn)
+        .timeout(rm->timeout)
         .socketFd(rm->socket_fd));
 
     rm->AbyssServer->run();
