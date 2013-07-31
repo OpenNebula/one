@@ -94,6 +94,15 @@ extern "C" void * rm_xml_server_loop(void *arg)
 
     //Start the server
 
+#ifdef OLD_XMLRPC
+    rm->AbyssServer = new xmlrpc_c::serverAbyss(xmlrpc_c::serverAbyss::constrOpt()
+        .registryP(&rm->RequestManagerRegistry)
+        .logFileName(rm->xml_log_file)
+        .keepaliveTimeout(rm->keepalive_timeout)
+        .keepaliveMaxConn(rm->keepalive_max_conn)
+        .timeout(rm->timeout)
+        .socketFd(rm->socket_fd));
+#else
     rm->AbyssServer = new xmlrpc_c::serverAbyss(xmlrpc_c::serverAbyss::constrOpt()
         .registryP(&rm->RequestManagerRegistry)
         .logFileName(rm->xml_log_file)
@@ -103,6 +112,7 @@ extern "C" void * rm_xml_server_loop(void *arg)
         .keepaliveMaxConn(rm->keepalive_max_conn)
         .timeout(rm->timeout)
         .socketFd(rm->socket_fd));
+#endif /* OLD_XMLRPC */
 
     rm->AbyssServer->run();
 

@@ -118,6 +118,14 @@ if mysql=='yes':
 else:
     main_env.Append(mysql='no')
 
+# Flag to compile with xmlrpc-c versions prior to 1.31 (September 2012)
+old_xmlrpc=ARGUMENTS.get('old_xmlrpc', 'no')
+if old_xmlrpc=='yes':
+    main_env.Append(old_xmlrpc='yes')
+    main_env.Append(CPPFLAGS=["-DOLD_XMLRPC"])
+else:
+    main_env.Append(old_xmlrpc='no')
+
 # SysLog
 syslog=ARGUMENTS.get('syslog', 'no')
 if syslog=='yes':
