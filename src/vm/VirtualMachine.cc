@@ -484,11 +484,13 @@ void VirtualMachine::parse_graphics()
         int           base_port;
         string        base_port_s;
 
+        int limit = 65535;
+
         nd.get_configuration_attribute("VNC_BASE_PORT",base_port_s);
         iss.str(base_port_s);
         iss >> base_port;
 
-        oss << ( base_port + oid );
+        oss << ( base_port + ( oid % (limit - base_port) ));
         graphics->replace("PORT", oss.str());
     }
 }
