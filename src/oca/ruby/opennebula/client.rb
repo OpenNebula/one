@@ -86,7 +86,7 @@ module OpenNebula
                 @one_endpoint = "http://localhost:2633/RPC2"
             end
 
-            timeout=1
+            timeout=nil
             timeout=options[:timeout] if options[:timeout]
 
             @server = XMLRPC::Client.new2(@one_endpoint, nil, timeout)
