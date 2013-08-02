@@ -22,6 +22,13 @@ require 'rubygems'
 require 'json'
 require 'opennebula'
 
+
+if !ONE_LOCATION
+    NOVNC_LOCK_FILE = "/var/lock/one/.novnc.lock"
+else
+    NOVNC_LOCK_FILE= ONE_LOCATION + "/var/.novnc.lock"
+end
+
 TOKEN_EXPIRE_SECONDS = 4
 
 VNC_STATES = [
@@ -75,7 +82,7 @@ class OpenNebulaVNC
 
         @wss = config[:vnc_proxy_support_wss]
 
-        @lock_file = config[:lock_file] || '/tmp/novnc.lock'
+        @lock_file = NOVNC_LOCK_FILE
 
         if (@wss == "yes") || (@wss == "only") || (@wss == true)
             @enable_wss = true
