@@ -21,21 +21,18 @@ ONE_LOCATION = ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
     LOG_LOCATION = "/var/log/one"
-    LOCK_LOCATION = "/var/lock/one"
     VAR_LOCATION = "/var/lib/one"
     SHARE_LOCATION = "/usr/share/one"
     ETC_LOCATION = "/etc/one"
     RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
 else
     VAR_LOCATION = ONE_LOCATION + "/var"
-    LOCK_LOCATION = ONE_LOCATION + "/var"
     LOG_LOCATION = ONE_LOCATION + "/var"
     SHARE_LOCATION = ONE_LOCATION + "/share"
     ETC_LOCATION = ONE_LOCATION + "/etc"
     RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
 end
 
-VNC_LOCK                  = LOCK_LOCATION + "/novnc.lock"
 VNC_LOG                   = LOG_LOCATION + "/novnc.log"
 
 CONFIGURATION_FILE        = ETC_LOCATION + "/sunstone-server.conf"
