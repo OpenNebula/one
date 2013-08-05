@@ -3712,6 +3712,73 @@ function setupCreateTemplateDialog(){
     }
 
 
+    /**************************************************************************
+        OTHER TAB
+
+    **************************************************************************/
+
+    var add_otherTab = function() {
+      var html_tab_content = '<li id="rawTab" class="wizard_tab">'+
+        '<form>'+
+          '<div class="row">'+
+            '<fieldset>'+
+              '<legend>'+tr("RAW data")+'</legend>'+
+              '<div class="row">'+
+              '<div class="six columns">'+
+                '<div class="row">'+
+                  '<div class="four columns">'+
+                      '<label class="right inline" for="raw_type">'+tr("TYPE")+':</label>'+
+                  '</div>'+
+                  '<div class="six columns">'+
+                      '<select id="raw_type" name="raw_type">'+
+                        '<option value=""></option>'+
+                        '<option value="kvm">'+tr("kvm")+'</option>'+
+                        '<option value="xen">'+tr("xen")+'</option>'+
+                        '<option value="vmware">'+tr("vmware")+'</option>'+
+                      '</select>'+
+                  '</div>'+
+                  '<div class="two columns">'+
+                  '</div>'+
+                '</div>'+
+              '</div>'+
+              '</div>'+
+              '<div class="row">'+
+                '<div class="six columns">'+
+                  '<div class="twelve columns">'+
+                      '<label class="" for="raw_data">'+tr("DATA")+':</label>'+
+                  '</div>'+
+                  '<div class="eleven columns">'+
+                    '<textarea rows="4" type="text" id="raw_data" name="raw_data" />'+
+                  '</div>'+
+                  '<div class="one columns">'+
+                    '<div class="tip">'+tr("Raw data to be passed directly to the hypervisor")+'.</div>'+
+                  '</div>'+
+                '</div>'+
+                '<div class="six columns">'+
+                  '<div class="twelve columns">'+
+                      '<label class="" for="raw_data_vmx">'+tr("DATA_VMX")+':</label>'+
+                  '</div>'+
+                  '<div class="eleven columns">'+
+                    '<textarea rows="4" type="text" id="raw_data_vmx" name="raw_data_vmx" />'+
+                  '</div>'+
+                  '<div class="one columns">'+
+                    '<div class="tip">'+tr("Raw data to be added directly to the .vmx file.")+'.</div>'+
+                  '</div>'+
+                '</div>'+
+              '</div>'+
+            '</fieldset>'+
+          '</div>'+
+        '</form>'+
+      '</li>'
+
+      $("<dd><a href='#raw'>"+tr("Other")+"</a></dd>").appendTo($("dl#template_create_tabs"));
+      $(html_tab_content).appendTo($("ul#template_create_tabs_content"));
+
+    }
+
+
+
+
     //***CREATE VM DIALOG MAIN BODY***
 
     dialogs_context.append('<div id="create_template_dialog"></div>');
@@ -3769,6 +3836,10 @@ function setupCreateTemplateDialog(){
 
     if (Config.isTemplateCreationTabEnabled('scheduling')){
       add_schedulingTab();
+    }
+
+    if (Config.isTemplateCreationTabEnabled('other')){
+      add_otherTab();
     }
 
     //tabs.tabs("option", "active", 0);
@@ -3928,10 +3999,24 @@ function setupCreateTemplateDialog(){
 
         addSectionJSON(vm_json,$('li#schedulingTab',dialog));
 
+        //
+        // RAW
+        //
+        function addslashes( str ) {
+          return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+        }
+
+        vm_json["RAW"] = {}
+        t = addslashes($('#raw_type', dialog).val());
+        if (t) { vm_json["RAW"]['TYPE'] = t; }
+        t = addslashes($('#raw_data', dialog).val());
+        if (t) { vm_json["RAW"]['DATA'] = t; }
+        t = addslashes($('#raw_data_vmx', dialog).val());
+        if (t) { vm_json["RAW"]['DATA_VMX'] = t; }
+
         // remove empty elements
         vm_json = removeEmptyObjects(vm_json);
         return vm_json;
-
     }
 
     //Process form
@@ -4601,6 +4686,23 @@ function fillTemplatePopUp(request, response){
         }
 
         $('input#RANK', req_section).val(rank);
+    }
+
+    //
+    // RAW
+    //
+
+    var raw = template.RAW;
+    var raw_section = $('li#rawTab', $create_template_dialog);
+
+    if (raw) {
+        function htmlDecode(value){
+          return $('<div/>').html(value).text();
+        }
+
+        $('#raw_type').val(htmlDecode(raw['TYPE']));
+        $('#raw_data').val(htmlDecode(raw['DATA']));
+        $('#raw_data_vmx').val(htmlDecode(raw['DATA_VMX']));
     }
 
     popUpUpdateTemplateDialog();
