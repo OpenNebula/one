@@ -3759,6 +3759,38 @@ function setupCreateTemplateDialog(){
                     '<div class="tip">'+tr("Raw data to be added directly to the .vmx file.")+'.</div>'+
                   '</div>'+
                 '</div>'+
+            '</fieldset>'+
+            '<br>'+
+            '<fieldset>'+
+              '<legend>'+tr("Custom Tags")+'</legend>'+
+              '<div class="">'+
+                '<div class="three columns">'+
+                  '<input type="text" id="KEY" name="key" />'+
+                '</div>'+
+                '<div class="seven columns">'+
+                  '<input type="text" id="VALUE" name="value" />'+
+                '</div>'+
+                '<div class="two columns">'+
+                    '<button type="button" class="button tiny radius" id="add_context">'+tr("Add")+'</button>'+
+                '</div>'+
+              '</div>'+
+              '<div class="">'+
+                  '<table id="custom_tags" class="twelve policies_table">'+
+                     '<thead>'+
+                       '<tr>'+
+                         '<th>'+tr("KEY")+'</th>'+
+                         '<th>'+tr("VALUE")+'</th>'+
+                         '<th></th>'+
+                       '</tr>'+
+                     '</thead>'+
+                     '<tbody id="tbodyinput">'+
+                       '<tr>'+
+                       '</tr>'+
+                       '<tr>'+
+                       '</tr>'+
+                     '</tbody>'+
+                  '</table>'+
+                  '<br>'+
               '</div>'+
             '</fieldset>'+
           '</div>'+
@@ -3766,7 +3798,35 @@ function setupCreateTemplateDialog(){
       '</li>'
 
       $("<dd><a href='#raw'>"+tr("Other")+"</a></dd>").appendTo($("dl#template_create_tabs"));
+
       $(html_tab_content).appendTo($("ul#template_create_tabs_content"));
+      $('#add_context', $('li#rawTab')).click(function() {
+          var table = $('#custom_tags', $('li#rawTab'))[0];
+          var rowCount = table.rows.length;
+          var row = table.insertRow(rowCount);
+
+          var cell1 = row.insertCell(0);
+          var element1 = document.createElement("input");
+          element1.id = "KEY";
+          element1.type = "text";
+          element1.value = $('input#KEY', $('li#rawTab')).val()
+          cell1.appendChild(element1);
+
+          var cell2 = row.insertCell(1);
+          var element2 = document.createElement("input");
+          element2.id = "VALUE";
+          element2.type = "text";
+          element2.value = $('input#VALUE', $('li#rawTab')).val()
+          cell2.appendChild(element2);
+
+
+          var cell3 = row.insertCell(2);
+          cell3.innerHTML = "<i class='icon-remove-sign icon-large remove-tab'></i>";
+      });
+
+      $( "#rawTab i.remove-tab" ).live( "click", function() {
+          $(this).closest("tr").remove()
+      });
 
       $('#raw_type').change(function(){
         var choice_str = $(this).val();
@@ -4018,6 +4078,12 @@ function setupCreateTemplateDialog(){
         t = addslashes($('#raw_data_vmx', dialog).val());
         if (t) { vm_json["RAW"]['DATA_VMX'] = t; }
 
+        $('#custom_tags tr', $('li#rawTab')).each(function(){
+          if ($('#KEY', $(this)).val()) {
+            vm_json[$('#KEY', $(this)).val()] = $('#VALUE', $(this)).val()
+          }
+        });
+
         // remove empty elements
         vm_json = removeEmptyObjects(vm_json);
         return vm_json;
@@ -4261,6 +4327,8 @@ function fillTemplatePopUp(request, response){
         else if (disks instanceof Object) {
             fillDiskTab(disks);
         }
+
+        delete template.DISK
     }
 
 
@@ -4323,6 +4391,8 @@ function fillTemplatePopUp(request, response){
         else if (nics instanceof Object) {
             fillNicTab(nics);
         }
+
+        delete template.NIC
     }
 
 
@@ -4425,6 +4495,9 @@ function fillTemplatePopUp(request, response){
         };
 
         autoFillInputs(os, os_section);
+
+
+        delete template.OS
     }
 
     //
@@ -4436,6 +4509,7 @@ function fillTemplatePopUp(request, response){
 
     if (features) {
         autoFillInputs(features, features_section);
+        delete template.FEATURES
     }
 
     //
@@ -4452,6 +4526,8 @@ function fillTemplatePopUp(request, response){
 
             autoFillInputs(graphics, graphics_section);
         }
+
+        delete template.GRAPHICS
     }
 
     var inputs = template.INPUT;
@@ -4485,6 +4561,9 @@ function fillTemplatePopUp(request, response){
             var cell3 = row.insertCell(2);
             cell3.innerHTML = "<i class='icon-remove-sign icon-large remove-tab'></i>";
         });
+
+
+        delete template.INPUT
     }
 
 
@@ -4580,6 +4659,8 @@ function fillTemplatePopUp(request, response){
               cell3.innerHTML = "<i class='icon-remove-sign icon-large remove-tab'></i>";
             }
         });
+
+        delete template.CONTEXT
     }
 
     //
@@ -4670,6 +4751,8 @@ function fillTemplatePopUp(request, response){
         }
 
         $('input#REQUIREMENTS', req_section).val(req);
+
+        delete template.REQUIREMENTS;
     }
 
     var rank = template.RANK;
@@ -4690,6 +4773,8 @@ function fillTemplatePopUp(request, response){
         }
 
         $('input#RANK', req_section).val(rank);
+
+        delete template.RANK;
     }
 
     //
@@ -4705,9 +4790,36 @@ function fillTemplatePopUp(request, response){
         }
 
         $('#raw_type', raw_section).val(htmlDecode(raw['TYPE']));
+        $('#raw_type', raw_section).change();
         $('#raw_data', raw_section).val(htmlDecode(raw['DATA']));
         $('#raw_data_vmx', raw_section).val(htmlDecode(raw['DATA_VMX']));
+
+        delete template.RAW
     }
+
+    $.each(template, function(key, value){
+        var table = $('#custom_tags', raw_section)[0];
+        var rowCount = table.rows.length;
+        var row = table.insertRow(rowCount);
+
+        var cell1 = row.insertCell(0);
+        var element1 = document.createElement("input");
+        element1.id = "KEY";
+        element1.type = "text";
+        element1.value = key
+        cell1.appendChild(element1);
+
+        var cell2 = row.insertCell(1);
+        var element2 = document.createElement("input");
+        element2.id = "VALUE";
+        element2.type = "text";
+        element2.value = value
+        cell2.appendChild(element2);
+
+
+        var cell3 = row.insertCell(2);
+        cell3.innerHTML = "<i class='icon-remove-sign icon-large remove-tab'></i>";
+    });
 
     popUpUpdateTemplateDialog();
 }
