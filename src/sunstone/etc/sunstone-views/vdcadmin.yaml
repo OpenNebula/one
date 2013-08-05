@@ -183,6 +183,7 @@ tabs:
             input_output: true
             context: true
             scheduling: false
+            other: true
     images-tab:
         panel_tabs:
             image_info_panel: true
