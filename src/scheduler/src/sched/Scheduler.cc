@@ -216,6 +216,7 @@ void Scheduler::start()
                                        machines_limit,
                                        (live_rescheds == 1));
     vmapool= new VirtualMachineActionsPoolXML(client, machines_limit);
+    dspool = new DatastorePoolXML(client);
 
     acls   = new AclXML(client);
 
@@ -308,6 +309,17 @@ int Scheduler::set_up_pools()
     //--------------------------------------------------------------------------
 
     rc = vmpool->set_up();
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    //--------------------------------------------------------------------------
+    //Cleans the cache and get the datastores
+    //--------------------------------------------------------------------------
+
+    rc = dspool->set_up();
 
     if ( rc != 0 )
     {

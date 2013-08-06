@@ -27,8 +27,9 @@ class ClusterPoolXML : public PoolXML
 {
 public:
 
-    ClusterPoolXML(Client* client):PoolXML(client)
-    {};
+    ClusterPoolXML(Client* client):PoolXML(client){};
+
+    ~ClusterPoolXML(){};
 
     /**
      *  Gets an object from the pool

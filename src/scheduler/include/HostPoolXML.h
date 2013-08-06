@@ -33,6 +33,8 @@ public:
         HostXML::set_hypervisor_mem(mem);
     };
 
+    ~HostPoolXML(){};
+
     int set_up();
 
     /**

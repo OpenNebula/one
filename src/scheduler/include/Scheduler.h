@@ -20,6 +20,7 @@
 #include "Log.h"
 #include "HostPoolXML.h"
 #include "ClusterPoolXML.h"
+#include "DatastorePoolXML.h"
 #include "VirtualMachinePoolXML.h"
 #include "SchedulerPolicy.h"
 #include "ActionManager.h"
@@ -85,6 +86,11 @@ protected:
             delete vmapool;
         }
 
+        if ( dspool != 0)
+        {
+            delete dspool;
+        }
+
         if ( acls != 0)
         {
             delete acls;
@@ -105,6 +111,7 @@ protected:
 
     VirtualMachinePoolXML *       vmpool;
     VirtualMachineActionsPoolXML* vmapool;
+    DatastorePoolXML * dspool;
 
     AclXML * acls;
 

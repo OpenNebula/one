@@ -15,63 +15,43 @@
 /* -------------------------------------------------------------------------- */
 
 
-#ifndef DATASTORE_XML_H_
-#define DATASTORE_XML_H_
+#ifndef DATASTORE_POOL_XML_H_
+#define DATASTORE_POOL_XML_H_
 
-#include "ObjectXML.h"
+#include "PoolXML.h"
+#include "DatastoreXML.h"
 
 using namespace std;
 
-class DatastoreXML : public ObjectXML
+class DatastorePoolXML : public PoolXML
 {
 public:
-    DatastoreXML(const string &xml_doc):ObjectXML(xml_doc)
-    {
-        init_attributes();
-    };
 
-    DatastoreXML(const xmlNodePtr node):ObjectXML(node)
-    {
-        init_attributes();
-    };
+    DatastorePoolXML(Client* client):PoolXML(client){};
+
+    ~DatastorePoolXML(){};
 
     /**
-     *  Tests whether a new VM can be hosted by the datasotre
-     *    @param vm_disk_mb capacity needed by the VM
-     *    @return true if the datastore can host the VM
+     *  Gets an object from the pool
+     *   @param oid the object unique identifier
+     *
+     *   @return a pointer to the object, 0 in case of failure
      */
-    bool test_capacity(unsigned int vm_disk_mb) const
+    DatastoreXML * get(int oid) const
     {
-        return (vm_disk_mb < free_mb);
+        return static_cast<DatastoreXML *>(PoolXML::get(oid));
     };
 
-    /**
-     *  Adds a new VM to the datastore
-     *    @param vm_disk_mb capacity needed by the VM
-     *    @return 0 on success
-     */
-    void add_capacity(unsigned int vm_disk_mb)
+protected:
+
+    int get_suitable_nodes(vector<xmlNodePtr>& content)
     {
-        free_mb  += vm_disk_mb;
+        return get_nodes("/DATASTORE_POOL/DATASTORE[TYPE=1]", content);
     };
 
-    int get_oid() const
-    {
-        return oid;
-    };
+    void add_object(xmlNodePtr node);
 
-private:
-
-    int oid;
-    int cluster_id;
-
-    unsigned int free_mb; /**< Free disk for VMs (in Mb). */
-
-    static const char *ds_paths[]; /**< paths for search function */
-
-    static int ds_num_paths; /**< number of paths*/
-
-    void init_attributes();
+    int load_info(xmlrpc_c::value &result);
 };
 
-#endif /* DATASTORE_XML_H_ */
+#endif /* DATASTORE_POOL_XML_H_ */

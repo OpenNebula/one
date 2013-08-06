@@ -27,6 +27,7 @@ source_files=[
 	'VirtualMachinePoolXML.cc',
 	'VirtualMachineXML.cc',
 	'ClusterPoolXML.cc',
+    'DatastorePoolXML.cc',
     'DatastoreXML.cc']
 
 # Build library
