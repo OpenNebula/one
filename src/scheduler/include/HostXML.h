@@ -77,6 +77,15 @@ public:
     };
 
     /**
+     *  Search the Object for a given attribute in a set of object specific
+     *  routes. Overwrite ObjectXML function to deal with pseudo-attributes
+     *    - CURRENT_VMS. value is the VM ID to search in the set of VMS
+     *    running VMs in the host. If the VM_ID is found value is not modified
+     *    otherwise is set to -1
+     */
+    int search(const char *name, int& value);
+
+    /**
      *  Sets the memory fraction reserved for the hypervisor. This function
      *  should be called before using the host pool.
      */
@@ -101,6 +110,10 @@ private:
     int running_vms; /**< Number of running VMs in this Host   */
 
     static float hypervisor_mem; /**< Fraction of memory for the VMs */
+
+    static const char *host_paths[]; /**< paths for search function */
+
+    static int host_num_paths; /**< number of paths*/
 
     void init_attributes();
 };

@@ -15,10 +15,22 @@
 /* -------------------------------------------------------------------------- */
 
 #include <math.h>
+#include <sstream>
+
 #include "HostXML.h"
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-float HostXML::hypervisor_mem; 
+float HostXML::hypervisor_mem;
+
+int HostXML::host_num_paths =  4;
+
+const char *HostXML::host_paths[] = {
+    "/HOST/TEMPLATE/",
+    "/HOST/HOST_SHARE/",
+    "/HOST/",
+    "/HOST/CLUSTER_TEMPLATE/"};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -40,8 +52,50 @@ void HostXML::init_attributes()
 
     //Reserve memory for the hypervisor
     max_mem = static_cast<int>(hypervisor_mem * static_cast<float>(max_mem));
+
+    //Init search xpath routes
+
+    ObjectXML::paths     = host_paths;
+    ObjectXML::num_paths = host_num_paths;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int HostXML::search(const char *name, int& value)
+{
+    string s_name(name);
+
+    if (s_name == "CURRENT_VMS")
+    {
+        vector<string>::iterator it;
+        istringstream  iss;
+        int id;
+
+        vector<string> results = (*this)["/HOST/VMS/ID"];
+
+        for (it=results.begin(); it!=results.end(); it++)
+        {
+            iss.clear();
+            iss.str(*it);
+
+            iss >> id;
+
+            if (!iss.fail() && id == value)
+            {
+                return 0; //VMID found in VMS value is VMID
+            }
+        }
+
+        value = -1; //VMID not found in VMS value is -1
+
+        return 0;
+    }
+    else
+    {
+        return ObjectXML::search(name, value);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
