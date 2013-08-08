@@ -22,27 +22,37 @@
 
 #include "ObjectXML.h"
 #include "HostPoolXML.h"
+#include "Schedulable.h"
+
 #include "VirtualMachineTemplate.h"
 
 using namespace std;
 
-class VirtualMachineXML : public ObjectXML
+class VirtualMachineXML : public ObjectXML, public Schedulable
 {
 public:
 
-    VirtualMachineXML(const string &xml_doc):
-        ObjectXML(xml_doc)
+    VirtualMachineXML(const string &xml_doc): ObjectXML(xml_doc), Schedulable()
     {
         init_attributes();
     };
 
-    VirtualMachineXML(const xmlNodePtr node):
-        ObjectXML(node)
+    VirtualMachineXML(const xmlNodePtr node): ObjectXML(node), Schedulable()
     {
         init_attributes();
     }
 
-    ~VirtualMachineXML();
+    ~VirtualMachineXML()
+    {
+        if (vm_template != 0)
+        {
+            delete vm_template;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    // Get Methods for VirtualMachineXML class
+    //--------------------------------------------------------------------------
 
     int get_oid() const
     {
@@ -69,33 +79,6 @@ public:
         return (resched == 1);
     }
 
-    /**
-     *  Adds a new host to the list of suitable hosts to start this VM
-     *    @param  hid of the selected host
-     */
-    void add_host(int hid);
-
-    /**
-     *  Gets the matching hosts ids
-     *    @param mh vector with the hids of the matching hosts
-     */
-    void get_matching_hosts(vector<int>& mh);
-
-    /**
-     *  Sets the priorities for each matching host
-     */
-    void set_priorities(vector<float>& total);
-
-    /**
-     *
-     */
-    int get_host(int& hid,
-                 HostPoolXML * hpool,
-                 map<int,int>& host_vms,
-                 int max_vms);
-
-    void get_requirements (int& cpu, int& memory, int& disk);
-
     const string& get_rank()
     {
         return rank;
@@ -105,6 +88,33 @@ public:
     {
         return requirements;
     };
+
+    void get_requirements (int& cpu, int& memory, int& disk);
+
+    //--------------------------------------------------------------------------
+    // Schedulable Interface
+    //--------------------------------------------------------------------------
+
+    /**
+     *  Adds a matching resource to the object. Overwrite Schedulable method.
+     */
+    void add_resource(int oid)
+    {
+        if (( resched == 1 && hid != oid ) || ( resched == 0 ))
+        {
+            Schedulable::add_resource(oid);
+        }
+    };
+
+    /**
+     *  Selects a resource among the matched and prioritized resources, in a
+     *  scheduling step. Overwrite Schedulable method.
+     */
+    int get_resource(int& oid, PoolXML *pool, map<int,int>& current, int max);
+
+    //--------------------------------------------------------------------------
+    // Action Interface
+    //--------------------------------------------------------------------------
 
     /**
      *  Get the user template of the VM
@@ -158,28 +168,7 @@ public:
     /**
      *  Function to write a Virtual Machine in an output stream
      */
-    friend ostream& operator<<(ostream& os, VirtualMachineXML& vm)
-    {
-        if (vm.hosts.empty())
-        {
-            return os;
-        }
-
-        vector<VirtualMachineXML::Host *>::reverse_iterator  i;
-        vector<int>::iterator j;
-
-        os  << "\t PRI\tHID  VM: " << vm.oid << endl
-            << "\t-----------------------"  << endl;
-
-        for (i=vm.hosts.rbegin();i!=vm.hosts.rend();i++)
-        {
-            os << "\t" << (*i)->priority << "\t" << (*i)->hid << endl;
-        }
-
-        os << endl;
-
-        return os;
-    };
+    friend ostream& operator<<(ostream& os, VirtualMachineXML& vm);
 
     /**
      * Adds a message to the VM's USER_TEMPLATE/SCHED_MESSAGE attribute
@@ -194,34 +183,8 @@ protected:
      */
     void init_attributes();
 
-    //--------------------------------------------------------------------------
-    //--------------------------------------------------------------------------
-    struct Host
-    {
-        int     hid;
-        float   priority;
-
-        Host(int _hid):
-            hid(_hid),
-            priority(0){};
-
-        ~Host(){};
-
-        bool operator<(const Host& b) const { //Sort by priority
-            return priority < b.priority;
-        }
-    };
-
-    static bool host_cmp (const Host * a, const Host * b )
-    {
-        return (*a < *b );
-    };
-    //--------------------------------------------------------------------------
-    //--------------------------------------------------------------------------
-
-    // ----------------------- VIRTUAL MACHINE ATTRIBUTES --------------------
     /**
-     *
+     *  ----------------------- VIRTUAL MACHINE ATTRIBUTES --------------------
      */
     int     oid;
 
@@ -237,11 +200,6 @@ protected:
 
     string  rank;
     string  requirements;
-
-    /**
-     *  Matching hosts
-     */
-    vector<VirtualMachineXML::Host *>   hosts;
 
     /**
      * The VM user template

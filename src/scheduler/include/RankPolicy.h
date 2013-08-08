@@ -22,74 +22,91 @@
 
 using namespace std;
 
-class RankPolicy : public SchedulerHostPolicy
+class RankPolicy : public SchedulerPolicy
 {
 public:
 
     RankPolicy(
-        VirtualMachinePoolXML *   vmpool,
-        HostPoolXML *             hpool,
+        VirtualMachinePoolXML *   _vmpool,
+        HostPoolXML *             _hpool,
         const string&             dr,
-        float                     w = 1.0)
-            :SchedulerHostPolicy(vmpool,hpool,w), default_rank(dr){};
+        float                     w = 1.0):
+            SchedulerPolicy(w),
+            default_rank(dr),
+            vmpool(_vmpool),
+            hpool(_hpool)
+    {};
 
     ~RankPolicy(){};
 
 private:
-
+    /**
+     *  Default rank for resources
+     */
     string default_rank;
 
-    void policy(
-        VirtualMachineXML * vm)
+    VirtualMachinePoolXML * vmpool;
+    HostPoolXML *           hpool;
+
+    /**
+     *  Implements the Match-Making policy by computing the rank of each resource
+     *    @param obj The Schedulable object
+     *    @param priority for each resource.
+     */
+    void policy(Schedulable * obj, vector<float>& priority)
     {
-        string  srank;
-        int     rank;
-
-        char *  errmsg;
-        int     rc;
-
-        vector<int>     hids;
-        unsigned int    i;
-
         HostXML * host;
+        char *    errmsg = 0;
 
-        vm->get_matching_hosts(hids);
+        int rc, rank = 0;
 
-        srank = vm->get_rank();
+        const vector<Resource *> resources = obj->get_resources();
+
+        VirtualMachineXML * vm = dynamic_cast<VirtualMachineXML *>(obj);
+        string  srank          = vm->get_rank();
 
         if (srank.empty())
         {
             srank = default_rank;
-        } 
+        }
 
-        for (i=0;i<hids.size();i++)
+        priority.clear();
+
+        if (srank.empty())
         {
-            rank = 0;
+            priority.resize(resources.size(),0);
+            return;
+        }
 
-            if (srank != "")
+        for (unsigned int i=0; i<resources.size(); rank=0, i++)
+        {
+            host = hpool->get(resources[i]->oid);
+
+            if ( host != 0 )
             {
-                host = hpool->get(hids[i]);
+                rc = host->eval_arith(srank, rank, &errmsg);
 
-                if ( host != 0 )
+                if (rc != 0)
                 {
-                    rc = host->eval_arith(srank, rank, &errmsg);
+                    ostringstream oss;
 
-                    if (rc != 0)
+                    oss << "Computing host rank, expression: " << srank;
+
+                    if (errmsg != 0)
                     {
-                        ostringstream oss;
-
-                        oss << "Computing host rank, expression: " << srank
-                            << ", error: " << errmsg;
-                        NebulaLog::log("RANK",Log::ERROR,oss);
+                        oss << ", error: " << errmsg;
+                        errmsg = 0;
 
                         free(errmsg);
                     }
+
+                    NebulaLog::log("RANK",Log::ERROR,oss);
                 }
             }
 
             priority.push_back(rank);
         }
-    }
+    };
 };
 
 #endif /*RANK_POLICY_H_*/

@@ -137,117 +137,78 @@ void VirtualMachineXML::init_attributes()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VirtualMachineXML::~VirtualMachineXML()
+ostream& operator<<(ostream& os, VirtualMachineXML& vm)
 {
-    vector<VirtualMachineXML::Host *>::iterator	jt;
-
-    for (jt=hosts.begin();jt!=hosts.end();jt++)
+    if (vm.resources.empty())
     {
-        delete *jt;
+        return os;
     }
 
-    hosts.clear();
+    vector<Resource *>::reverse_iterator  i;
+    vector<int>::iterator j;
 
-    if (vm_template != 0)
+    os  << "\t PRI\tHID  VM: " << vm.oid << endl
+        << "\t-----------------------"  << endl;
+
+    for (i = vm.resources.rbegin(); i != vm.resources.rend() ; i++)
     {
-        delete vm_template;
+        os << "\t" << (*i)->priority << "\t" << (*i)->oid << endl;
     }
-}
+
+    os << endl;
+
+    return os;
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineXML::add_host(int host_id)
+int VirtualMachineXML::get_resource(int&          oid,
+                                    PoolXML *     pool,
+                                    map<int,int>& current,
+                                    int           max)
 {
-    if (( resched == 1 && host_id != hid ) || ( resched == 0 ))
-    {
-        VirtualMachineXML::Host * ss;
+    vector<Resource *>::reverse_iterator i;
+    vector<int>::iterator j;
 
-        ss = new VirtualMachineXML::Host(host_id);
-
-        hosts.push_back(ss);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineXML::get_matching_hosts(vector<int>& mh)
-{
-    vector<VirtualMachineXML::Host *>::iterator i;
-
-    for(i=hosts.begin();i!=hosts.end();i++)
-    {
-        mh.push_back((*i)->hid);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineXML::set_priorities(vector<float>& total)
-{
-    if ( hosts.size() != total.size() )
-    {
-        NebulaLog::log("VM",Log::ERROR,"Wrong size for priority vector");
-        return;
-    }
-
-    for (unsigned int i=0; i<hosts.size(); i++)
-    {
-        hosts[i]->priority = total[i];
-    }
-
-    //Sort the shares using the priority
-    sort(hosts.begin(),hosts.end(),VirtualMachineXML::host_cmp);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachineXML::get_host(int&          hid,
-                                HostPoolXML * hpool,
-                                map<int,int>& host_vms,
-                                int           max_vms)
-{
-    vector<VirtualMachineXML::Host *>::reverse_iterator  i;
-
-    vector<int>::iterator   j;
-    HostXML *         host;
+    HostXML *     host;
+    HostPoolXML * hpool = dynamic_cast<HostPoolXML *>(pool);
 
     int cpu;
     int mem;
     int dsk;
 
-    pair<map<int,int>::iterator,bool> rc;
+    pair<map<int,int>::iterator, bool> rc;
 
     get_requirements(cpu,mem,dsk);
 
-    for (i=hosts.rbegin();i!=hosts.rend();i++)
+    for (i = resources.rbegin() ; i != resources.rend() ; i++)
     {
-        host = hpool->get( (*i)->hid );
+        host = hpool->get( (*i)->oid );
 
         if ( host == 0 )
         {
             continue;
         }
 
-        if (host->test_capacity(cpu,mem,dsk)==true)
+        if ( host->test_capacity(cpu,mem,dsk) == true )
         {
-            rc = host_vms.insert(make_pair((*i)->hid,0));
+            rc = current.insert(make_pair((*i)->oid,0));
 
-            if ( rc.first->second < max_vms )
+            if ( rc.first->second < max )
             {
                 host->add_capacity(cpu,mem,dsk);
-                hid  = (*i)->hid;
+
+                oid  = (*i)->oid;
 
                 rc.first->second++;
+
                 return 0;
             }
         }
     }
 
-    hid  = -1;
+    oid  = -1;
 
     return -1;
 }

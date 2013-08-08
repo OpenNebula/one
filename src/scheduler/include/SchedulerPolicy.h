@@ -17,70 +17,77 @@
 #ifndef SCHEDULER_POLICY_H_
 #define SCHEDULER_POLICY_H_
 
-#include "HostPoolXML.h"
-#include "VirtualMachinePoolXML.h"
+#include "Schedulable.h"
+
 #include <cmath>
 #include <algorithm>
 
 using namespace std;
 
-class SchedulerHostPolicy
+/**
+ *  Abstract class that represents a Scheduling policy
+ */
+class SchedulerPolicy
 {
 public:
+    SchedulerPolicy(float w=1.0):sw(w){};
 
-    SchedulerHostPolicy(
-        VirtualMachinePoolXML *   _vmpool,
-        HostPoolXML *             _hpool,
-        float w=1.0):
-            vmpool(_vmpool),hpool(_hpool),sw(w){};
+    virtual ~SchedulerPolicy(){};
 
-    virtual ~SchedulerHostPolicy(){};
-
-    const vector<float>& get(
-        VirtualMachineXML * vm)
+    /**
+     *  Main interface for the class schedule the objects applying the policy.
+     *  It returns a reference to a vector of priorities for each "schedulable"
+     *  object.
+     *    @param obj, pointer to the object to schedule
+     *
+     */
+    const void schedule(Schedulable * obj)
     {
-        priority.clear();
+        vector<float> priority;
+        const vector<Resource *> resources = obj->get_resources();
 
-        policy(vm);
-
-        if(!priority.empty())
+        if (resources.empty())
         {
-            sw.max = fabs(*max_element(
-                priority.begin(),
-                priority.end(),
-                SchedulerHostPolicy::abs_cmp));
-
-            transform(
-                priority.begin(),
-                priority.end(),
-                priority.begin(),
-                sw);
+            return;
         }
 
-        return priority;
+        //1. Compute priorities
+        policy(obj, priority);
+
+        //2. Scale priorities
+        sw.max =fabs(*max_element(priority.begin(), priority.end(), abs_cmp));
+
+        transform(priority.begin(), priority.end(), priority.begin(), sw);
+
+        //3. Aggregate to other policies
+        for (unsigned int i=0; i< resources.size(); i++)
+        {
+            resources[i]->priority += priority[i];
+        }
     };
 
 protected:
 
-    vector<float>   priority;
-
-    virtual void policy(VirtualMachineXML * vm) = 0;
-
-    VirtualMachinePoolXML *   vmpool;
-    HostPoolXML *             hpool;
+    virtual void policy(Schedulable * obj, vector<float>& priority) = 0;
 
 private:
-
+    /**
+     *  ABS compare to sort priorities
+     */
     static bool abs_cmp(float fl1, float fl2)
     {
         return fabs(fl1)<fabs(fl2);
     };
 
-    //--------------------------------------------------------------------------
+    /**
+     *  Private class to scale priorities on resources. Each resource has a
+     *  priority assgined by a policy, in order to sort and combine policies
+     *  priorities are scaled to 1.0 and weighted.
+     */
     class ScaleWeight
     {
     public:
-    	ScaleWeight(float _weight):weight(_weight){};
+        ScaleWeight(float _weight):weight(_weight){};
 
         ~ScaleWeight(){};
 
@@ -96,17 +103,10 @@ private:
             }
         };
 
-    private:
-        friend class SchedulerHostPolicy;
+        float weight;
 
-        float   weight;
-        float   max;
-    };
-    //--------------------------------------------------------------------------
-
-    ScaleWeight    sw;
+        float max;
+    } sw;
 };
-
-/* -------------------------------------------------------------------------- */
 
 #endif /*SCHEDULER_POLICY_H_*/

@@ -119,7 +119,7 @@ protected:
     // Scheduler Policies
     // ---------------------------------------------------------------
 
-    void add_host_policy(SchedulerHostPolicy *policy)
+    void add_host_policy(SchedulerPolicy *policy)
     {
         host_policies.push_back(policy);
     }
@@ -162,7 +162,7 @@ private:
     // Scheduling Policies
     // ---------------------------------------------------------------
 
-    vector<SchedulerHostPolicy *>   host_policies;
+    vector<SchedulerPolicy *>   host_policies;
 
     // ---------------------------------------------------------------
     // Configuration attributes

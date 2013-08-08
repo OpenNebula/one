@@ -519,7 +519,7 @@ void Scheduler::match()
 
             if (host->test_capacity(vm_cpu,vm_memory,vm_disk) == true)
             {
-                vm->add_host(host->get_hid());
+                vm->add_resource(host->get_hid());
 
                 n_hosts++;
             }
@@ -568,53 +568,25 @@ void Scheduler::match()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static float sum_operator (float i, float j)
-{
-    return i+j;
-}
-
-/* -------------------------------------------------------------------------- */
-
 int Scheduler::schedule()
 {
-    vector<SchedulerHostPolicy *>::iterator it;
+    vector<SchedulerPolicy *>::iterator it;
+    map<int, ObjectXML*>::const_iterator    vm_it;
 
     VirtualMachineXML * vm;
-    ostringstream       oss;
-
-    vector<float>   total;
-    vector<float>   policy;
-
-    map<int, ObjectXML*>::const_iterator  vm_it;
 
     const map<int, ObjectXML*> pending_vms = vmpool->get_objects();
 
-    for (vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++)
+    for (vm_it = pending_vms.begin(); vm_it != pending_vms.end(); vm_it++)
     {
-        vm = static_cast<VirtualMachineXML*>(vm_it->second);
+        vm = dynamic_cast<VirtualMachineXML*>(vm_it->second);
 
-        total.clear();
-
-        for ( it=host_policies.begin();it!=host_policies.end();it++)
+        for ( it =host_policies.begin() ; it != host_policies.end() ; it++)
         {
-            policy = (*it)->get(vm);
-
-            if (total.empty() == true)
-            {
-                total = policy;
-            }
-            else
-            {
-                transform(
-                    total.begin(),
-                    total.end(),
-                    policy.begin(),
-                    total.begin(),
-                    sum_operator);
-            }
+            (*it)->schedule(vm);
         }
 
-        vm->set_priorities(total);
+        vm->sort_resources();
     }
 
     return 0;
@@ -628,14 +600,14 @@ void Scheduler::dispatch()
     VirtualMachineXML * vm;
     ostringstream       oss;
 
-    int             hid;
-    int             rc;
-    unsigned int    dispatched_vms;
-
-    map<int, ObjectXML*>::const_iterator  vm_it;
-    const map<int, ObjectXML*>            pending_vms = vmpool->get_objects();
+    int hid;
+    int rc;
+    unsigned int dispatched_vms = 0;
 
     map<int, int>  host_vms;
+
+    const map<int, ObjectXML*> pending_vms = vmpool->get_objects();
+    map<int, ObjectXML*>::const_iterator vm_it;
 
     oss << "Selected hosts:" << endl;
 
@@ -648,15 +620,14 @@ void Scheduler::dispatch()
 
     NebulaLog::log("SCHED",Log::INFO,oss);
 
-    dispatched_vms = 0;
     for (vm_it=pending_vms.begin();
-         vm_it != pending_vms.end() && ( dispatch_limit <= 0 ||
-                                         dispatched_vms < dispatch_limit );
+         vm_it != pending_vms.end() &&
+            ( dispatch_limit <= 0 || dispatched_vms < dispatch_limit );
          vm_it++)
     {
         vm = static_cast<VirtualMachineXML*>(vm_it->second);
 
-        rc = vm->get_host(hid,hpool,host_vms,host_dispatch_limit);
+        rc = vm->get_resource(hid, hpool, host_vms, host_dispatch_limit);
 
         if (rc == 0)
         {
