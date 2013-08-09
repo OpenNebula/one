@@ -48,7 +48,12 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/HOST)
 
 SRC="${XPATH_ELEMENTS[j++]}"
-DST_HOST="${XPATH_ELEMENTS[j++]:-$HOST}"
+DST_HOST="${XPATH_ELEMENTS[j++]}"
+
+if [ -z "$DST_HOST" ]; then
+    error_message "Datastore template missing 'HOST' attribute."
+    exit -1
+fi
 
 TARGET=`echo $SRC|$CUT -d: -f2`
 LV_NAME=`echo $TARGET|$AWK -F. '{print $(NF)}'`

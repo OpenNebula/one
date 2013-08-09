@@ -63,7 +63,7 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
 BASE_PATH="${XPATH_ELEMENTS[j++]}"
 RESTRICTED_DIRS="${XPATH_ELEMENTS[j++]}"
 SAFE_DIRS="${XPATH_ELEMENTS[j++]}"
-DST_HOST="${XPATH_ELEMENTS[j++]:-$HOST}"
+DST_HOST="${XPATH_ELEMENTS[j++]}"
 VG_NAME="${XPATH_ELEMENTS[j++]:-$VG_NAME}"
 SRC="${XPATH_ELEMENTS[j++]}"
 SIZE="${XPATH_ELEMENTS[j++]}"
@@ -71,6 +71,11 @@ MD5="${XPATH_ELEMENTS[j++]}"
 SHA1="${XPATH_ELEMENTS[j++]}"
 NO_DECOMPRESS="${XPATH_ELEMENTS[j++]}"
 LIMIT_TRANSFER_BW="${XPATH_ELEMENTS[j++]}"
+
+if [ -z "$DST_HOST" ]; then
+    error_message "Datastore template missing 'HOST' attribute."
+    exit -1
+fi
 
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS"
 
