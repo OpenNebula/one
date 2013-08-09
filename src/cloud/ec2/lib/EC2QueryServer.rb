@@ -161,8 +161,8 @@ class EC2QueryServer < CloudServer
                         impool << image
                     end
                 else
-                    rc = OpenNebula::Error.new("InvalidAMIID #{value}")
-                    rc.ec2_code = "InvalidAMIID"
+                    rc = OpenNebula::Error.new("InvalidAMIID.Malformed #{value}")
+                    rc.ec2_code = "InvalidAMIID.Malformed"
                     return rc
                 end
             end
