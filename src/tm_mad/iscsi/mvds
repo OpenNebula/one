@@ -53,7 +53,7 @@ DISK_ID=$(echo $SRC|awk -F. '{print $NF}')
 
 XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
 
-unset i XPATH_ELEMENTS
+unset i j XPATH_ELEMENTS
 
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
@@ -62,9 +62,9 @@ done < <(onevm show -x $VMID| $XPATH \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SAVE_AS \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/PERSISTENT)
 
-IQN="${XPATH_ELEMENTS[0]}"
-SAVE_AS="${XPATH_ELEMENTS[1]}"
-PERSISTENT="${XPATH_ELEMENTS[2]}"
+IQN="${XPATH_ELEMENTS[j++]}"
+SAVE_AS="${XPATH_ELEMENTS[j++]}"
+PERSISTENT="${XPATH_ELEMENTS[j++]}"
 
 if [ -z "$PERSISTENT" ]; then
     IQN=$IQN-$VMID
