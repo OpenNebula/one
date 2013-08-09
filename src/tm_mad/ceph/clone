@@ -57,6 +57,11 @@ unset i
 
 CEPH_HOST="${XPATH_ELEMENTS[i++]}"
 
+if [ -z "$CEPH_HOST" ]; then
+    error_message "Datastore template missing 'HOST' attribute."
+    exit -1
+fi
+
 #-------------------------------------------------------------------------------
 # Compute the destination image name
 #-------------------------------------------------------------------------------
