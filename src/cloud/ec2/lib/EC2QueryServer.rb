@@ -148,11 +148,33 @@ class EC2QueryServer < CloudServer
     end
 
     def describe_images(params)
-        user_flag = OpenNebula::Pool::INFO_ALL
-        impool = ImageEC2Pool.new(@client, user_flag)
+        impool = []
+        params.each { |key, value|
+            if key =~ /ImageId\./
+                if value =~ /ami\-(.+)/
+                    image = ImageEC2.new(Image.build_xml($1), @client)
+                    rc = image.info
+                    if OpenNebula.is_error?(rc)
+                        rc.ec2_code = "InvalidAMIID.NotFound"
+                        return rc
+                    else
+                        impool << image
+                    end
+                else
+                    rc = OpenNebula::Error.new("InvalidAMIID #{value}")
+                    rc.ec2_code = "InvalidAMIID"
+                    return rc
+                end
+            end
+        }
 
-        rc = impool.info
-        return rc if OpenNebula::is_error?(rc)
+        if impool.empty?
+            user_flag = OpenNebula::Pool::INFO_ALL
+            impool = ImageEC2Pool.new(@client, user_flag)
+
+            rc = impool.info
+            return rc if OpenNebula::is_error?(rc)
+        end
 
         erb_version = params['Version']
 
