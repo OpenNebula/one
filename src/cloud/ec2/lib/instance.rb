@@ -108,11 +108,33 @@ module Instance
     end
 
     def describe_instances(params)
-        user_flag = OpenNebula::Pool::INFO_ALL
-        vmpool = VirtualMachinePool.new(@client, user_flag)
+        vmpool = []
+        params.each { |key, value|
+            if key =~ /InstanceId\./
+                if value =~ /i\-(.+)/
+                    vm = VirtualMachine.new(VirtualMachine.build_xml($1), @client)
+                    rc = vm.info
+                    if OpenNebula.is_error?(rc)
+                        rc.ec2_code = "InvalidInstanceID.NotFound"
+                        return rc
+                    else
+                        vmpool << vm
+                    end
+                else
+                    rc = OpenNebula::Error.new("InvalidInstanceID.Malformed #{value}")
+                    rc.ec2_code = "InvalidInstanceID.Malformed"
+                    return rc
+                end
+            end
+        }
 
-        rc = vmpool.info
-        return rc if OpenNebula::is_error?(rc)
+        if vmpool.empty?
+            user_flag = OpenNebula::Pool::INFO_ALL
+            vmpool = VirtualMachinePool.new(@client, user_flag)
+
+            rc = vmpool.info
+            return rc if OpenNebula::is_error?(rc)
+        end
 
         erb_version = params['Version']
         erb_user_name = params['AWSAccessKeyId']
