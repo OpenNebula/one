@@ -48,8 +48,13 @@ while IFS= read -r -d '' element; do
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/HOST \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VG_NAME)
 
-HOST="${XPATH_ELEMENTS[j++]:-$HOST}"
+HOST="${XPATH_ELEMENTS[j++]}"
 VG_NAME="${XPATH_ELEMENTS[j++]-$VG_NAME}"
+
+if [ -z "$HOST" ]; then
+    error_message "Datastore template missing 'HOST' attribute."
+    exit -1
+fi
 
 # ------------ Compute datastore usage -------------
 
