@@ -250,8 +250,7 @@ module Instance
     def include_terminated_instance?(vm)
         if include_terminated_instances?
             if EC2_STATES[ONE_STATES[vm.status]||:pending][:name] == "terminated"
-                end_time = vm.retrieve_elements("ETIME")[0].to_i
-                if (Time.now.getutc.to_i - end_time) <= TERMINATED_INSTANCES_EXPIRATION_TIME 
+                if (Time.now.getutc.to_i - vm["ETIME"].to_i) <= TERMINATED_INSTANCES_EXPIRATION_TIME
                     return true
                 else
                     return false
