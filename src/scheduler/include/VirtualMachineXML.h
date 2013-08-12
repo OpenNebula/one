@@ -106,12 +106,6 @@ public:
         }
     };
 
-    /**
-     *  Selects a resource among the matched and prioritized resources, in a
-     *  scheduling step. Overwrite Schedulable method.
-     */
-    int get_resource(int& oid, PoolXML *pool, map<int,int>& current, int max);
-
     //--------------------------------------------------------------------------
     // Action Interface
     //--------------------------------------------------------------------------

@@ -84,18 +84,6 @@ public:
     }
 
     /**
-     *  Selects a resource among the matched and prioritized resources, in a
-     *  scheduling step.
-     *    @param oid of the selected resource.
-     *    @param pool storing the resources.
-     *    @param current number of schedules for each resource in this step.
-     *    @param max number of schedules per resource in this step.
-     *
-     *    @return 0 if success -1 otherwise
-     */
-    virtual int get_resource(int& oid, PoolXML *pool, map<int,int>& current, int max) = 0;
-
-    /**
      *  Return a reference to the resources of the object
      *    @return vector of resources.
      */

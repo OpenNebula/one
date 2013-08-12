@@ -133,11 +133,9 @@ protected:
      *  the capacity of the host is checked. If there is enough room to host the
      *  VM a share vector is added to the VM.
      */
-    virtual void match();
+    virtual void match_schedule_hosts();
 
     virtual void dispatch();
-
-    virtual int schedule();
 
     /**
      * Retrieves the pools

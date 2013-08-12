@@ -145,7 +145,6 @@ ostream& operator<<(ostream& os, VirtualMachineXML& vm)
     }
 
     vector<Resource *>::reverse_iterator  i;
-    vector<int>::iterator j;
 
     os  << "\t PRI\tHID  VM: " << vm.oid << endl
         << "\t-----------------------"  << endl;
@@ -159,59 +158,6 @@ ostream& operator<<(ostream& os, VirtualMachineXML& vm)
 
     return os;
 };
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachineXML::get_resource(int&          oid,
-                                    PoolXML *     pool,
-                                    map<int,int>& current,
-                                    int           max)
-{
-    vector<Resource *>::reverse_iterator i;
-    vector<int>::iterator j;
-
-    HostXML *     host;
-    HostPoolXML * hpool = dynamic_cast<HostPoolXML *>(pool);
-
-    int cpu;
-    int mem;
-    int dsk;
-
-    pair<map<int,int>::iterator, bool> rc;
-
-    get_requirements(cpu,mem,dsk);
-
-    for (i = resources.rbegin() ; i != resources.rend() ; i++)
-    {
-        host = hpool->get( (*i)->oid );
-
-        if ( host == 0 )
-        {
-            continue;
-        }
-
-        if ( host->test_capacity(cpu,mem,dsk) == true )
-        {
-            rc = current.insert(make_pair((*i)->oid,0));
-
-            if ( rc.first->second < max )
-            {
-                host->add_capacity(cpu,mem,dsk);
-
-                oid  = (*i)->oid;
-
-                rc.first->second++;
-
-                return 0;
-            }
-        }
-    }
-
-    oid  = -1;
-
-    return -1;
-}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

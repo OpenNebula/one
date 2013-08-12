@@ -365,19 +365,13 @@ int Scheduler::set_up_pools()
         return rc;
     }
 
-    //--------------------------------------------------------------------------
-    //Get the matching hosts for each VM
-    //--------------------------------------------------------------------------
-
-    match();
-
     return 0;
 };
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Scheduler::match()
+void Scheduler::match_schedule_hosts()
 {
     VirtualMachineXML * vm;
 
@@ -403,6 +397,8 @@ void Scheduler::match()
 
     map<int, ObjectXML*>::const_iterator  vm_it;
     map<int, ObjectXML*>::const_iterator  h_it;
+
+    vector<SchedulerPolicy *>::iterator it;
 
     const map<int, ObjectXML*> pending_vms = vmpool->get_objects();
     const map<int, ObjectXML*> hosts = hpool->get_objects();
@@ -561,57 +557,52 @@ void Scheduler::match()
             }
 
             vmpool->update(vm);
+
+            continue;
         }
-    }
-}
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+        // ---------------------------------------------------------------------
+        // Schedule matched hosts
+        // ---------------------------------------------------------------------
 
-int Scheduler::schedule()
-{
-    vector<SchedulerPolicy *>::iterator it;
-    map<int, ObjectXML*>::const_iterator    vm_it;
-
-    VirtualMachineXML * vm;
-
-    const map<int, ObjectXML*> pending_vms = vmpool->get_objects();
-
-    for (vm_it = pending_vms.begin(); vm_it != pending_vms.end(); vm_it++)
-    {
-        vm = dynamic_cast<VirtualMachineXML*>(vm_it->second);
-
-        for ( it =host_policies.begin() ; it != host_policies.end() ; it++)
+        for (it=host_policies.begin() ; it != host_policies.end() ; it++)
         {
             (*it)->schedule(vm);
         }
 
         vm->sort_resources();
     }
-
-    return 0;
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 void Scheduler::dispatch()
 {
+    HostXML *           host;
     VirtualMachineXML * vm;
+
     ostringstream       oss;
 
+    int cpu, mem, dsk;
     int hid;
-    int rc;
+    int irc;
+
     unsigned int dispatched_vms = 0;
 
-    map<int, int>  host_vms;
+    map<int, unsigned int>  host_vms;
+    pair<map<int,unsigned int>::iterator, bool> rc;
 
     const map<int, ObjectXML*> pending_vms = vmpool->get_objects();
-    map<int, ObjectXML*>::const_iterator vm_it;
+
+    //--------------------------------------------------------------------------
+    // Print the VMs to schedule and the selected hosts for each one
+    //--------------------------------------------------------------------------
 
     oss << "Selected hosts:" << endl;
 
-    for (vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++)
+    for (map<int, ObjectXML*>::const_iterator vm_it=pending_vms.begin();
+        vm_it != pending_vms.end(); vm_it++)
     {
         vm = static_cast<VirtualMachineXML*>(vm_it->second);
 
@@ -620,20 +611,61 @@ void Scheduler::dispatch()
 
     NebulaLog::log("SCHED",Log::INFO,oss);
 
-    for (vm_it=pending_vms.begin();
+    //--------------------------------------------------------------------------
+    // Dispatch each VM till we reach the dispatch limit
+    //--------------------------------------------------------------------------
+
+    for (map<int, ObjectXML*>::const_iterator vm_it=pending_vms.begin();
          vm_it != pending_vms.end() &&
             ( dispatch_limit <= 0 || dispatched_vms < dispatch_limit );
          vm_it++)
     {
         vm = static_cast<VirtualMachineXML*>(vm_it->second);
 
-        rc = vm->get_resource(hid, hpool, host_vms, host_dispatch_limit);
+        //----------------------------------------------------------------------
+        // Get the highest ranked host:
+        // 1. with enough left capacity
+        // 2. without exceeded dispatch limit
+        //----------------------------------------------------------------------
+        const vector<Resource *> resources = vm->get_resources();
 
-        if (rc == 0)
+        vm->get_requirements(cpu,mem,dsk);
+
+        hid  = -1;
+
+        for (vector<Resource *>::const_reverse_iterator i = resources.rbegin() ;
+            i != resources.rend() ; i++)
         {
-            rc = vmpool->dispatch(vm_it->first, hid, vm->is_resched());
+            host = hpool->get((*i)->oid);
 
-            if (rc == 0 && !vm->is_resched())
+            if ( host == 0 )
+            {
+                continue;
+            }
+
+            if (host->test_capacity(cpu,mem,dsk) == true)
+            {
+                rc = host_vms.insert(make_pair((*i)->oid,0));
+
+                //Select the host: update capacity and dispatch counter
+                if (rc.first->second < host_dispatch_limit)
+                {
+                    host->add_capacity(cpu,mem,dsk);
+
+                    hid = (*i)->oid;
+
+                    rc.first->second++;
+
+                    break;
+                }
+            }
+        }
+
+        if (hid != -1)
+        {
+            irc = vmpool->dispatch(vm_it->first, hid, vm->is_resched());
+
+            if (irc == 0 && !vm->is_resched())
             {
                 dispatched_vms++;
             }
@@ -759,12 +791,7 @@ void Scheduler::do_action(const string &name, void *args)
             return;
         }
 
-        rc = schedule();
-
-        if ( rc != 0 )
-        {
-            return;
-        }
+        match_schedule_hosts();
 
         dispatch();
     }
