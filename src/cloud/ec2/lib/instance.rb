@@ -47,6 +47,12 @@ module Instance
         'unkn' => :terminated
     }
 
+    # Include terminated instances in the describe_instances xml
+    DESCRIBE_WITH_TERMINATED_INSTANCES = true
+    # Terminated VMs will be included in the list
+    #  till the termination date + TERMINATED_INSTANCES_EXPIRATION_TIME is reached
+    TERMINATED_INSTANCES_EXPIRATION_TIME = 900
+
     def run_instances(params)
         # Get the instance type and path
         if params['InstanceType'] != nil
@@ -132,7 +138,13 @@ module Instance
             user_flag = OpenNebula::Pool::INFO_ALL
             vmpool = VirtualMachinePool.new(@client, user_flag)
 
-            rc = vmpool.info
+            if include_terminated_instances?
+                rc = vmpool.info(user_flag, -1, -1,
+                        OpenNebula::VirtualMachinePool::INFO_ALL_VM)
+            else
+                rc = vmpool.info
+            end
+
             return rc if OpenNebula::is_error?(rc)
         end
 
@@ -229,5 +241,24 @@ module Instance
     def render_instance_id(vm)
         instance_id = "i-" + sprintf('%08i', vm.id)
         return "<instanceId>#{instance_id}</instanceId>"
+    end
+
+    def include_terminated_instances?
+        @config[:describe_with_terminated_instances] || DESCRIBE_WITH_TERMINATED_INSTANCES
+    end
+
+    def include_terminated_instance?(vm)
+        if include_terminated_instances?
+            if EC2_STATES[ONE_STATES[vm.status]||:pending][:name] == "terminated"
+                end_time = vm.retrieve_elements("ETIME")[0].to_i
+                if (Time.now.getutc.to_i - end_time) <= TERMINATED_INSTANCES_EXPIRATION_TIME 
+                    return true
+                else
+                    return false
+                end
+            end
+        end
+
+        return true
     end
 end
