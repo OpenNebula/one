@@ -119,6 +119,11 @@ string SchedulerTemplate::get_policy() const
 
     get("DEFAULT_SCHED", vsched);
 
+    if (vsched.empty())
+    {
+        return "";
+    }
+
     sched = static_cast<const VectorAttribute *> (vsched[0]);
 
     iss.str(sched->vector_value("POLICY"));
@@ -164,6 +169,11 @@ string SchedulerTemplate::get_ds_policy() const
 
     get("DEFAULT_DS_SCHED", vsched);
 
+    if (vsched.empty())
+    {
+        return "";
+    }
+
     sched = static_cast<const VectorAttribute *> (vsched[0]);
 
     iss.str(sched->vector_value("POLICY"));
@@ -172,11 +182,11 @@ string SchedulerTemplate::get_ds_policy() const
     switch (policy)
     {
         case 0: //Packing
-            rank = "FREE_MB";
+            rank = "- FREE_MB";
         break;
 
         case 1: //Striping
-            rank = "- FREE_MB";
+            rank = "FREE_MB";
         break;
 
         case 2: //Custom
