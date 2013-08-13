@@ -343,8 +343,14 @@ int ObjectXML::get_nodes (const char * xpath_expr, vector<xmlNodePtr>& content)
     obj = xmlXPathEvalExpression(
         reinterpret_cast<const xmlChar *>(xpath_expr), ctx);
 
-    if (obj == 0 || obj->nodesetval == 0)
+    if (obj == 0)
     {
+        return 0;
+    }
+
+    if (obj->nodesetval == 0)
+    {
+        xmlXPathFreeObject(obj);
         return 0;
     }
 
