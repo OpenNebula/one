@@ -237,4 +237,69 @@ module EBS
         return response.result(binding), 200
     end
 
+    # Creates a snapshot of an Amazon EBS volume
+    #
+    # @param [Hash] params
+    # @option params [String] VolumeId The ID of the Amazon EBS volume.
+    # @option params [Description] A description for the snapshot.
+    def create_snapshot(params)
+        image_id = params['VolumeId']
+        image_id = image_id.split('-')[1]
+
+        image = ImageEC2.new(Image.build_xml(image_id.to_i), @client)
+        rc = image.info
+        if OpenNebula::is_error?(rc) || image["TEMPLATE/EBS_VOLUME"] != "YES"
+            rc ||= OpenNebula::Error.new()
+            rc.ec2_code = "InvalidVolume.NotFound"
+            return rc
+        end
+
+        instance_id = image["TEMPLATE/EBS/INSTANCE_ID"]
+
+        if instance_id
+            # Disk snapshot
+            instance_id = instance_id.split('-')[1]
+                vm = VirtualMachine.new(
+                    VirtualMachine.build_xml(instance_id),
+                    @client)
+
+                rc = vm.info
+                if OpenNebula::is_error?(rc)
+                    rc.ec2_code = "InvalidInstanceID.NotFound"
+                    return rc
+                end
+
+                disk_id = vm["TEMPLATE/DISK[IMAGE_ID=#{image_id}]/DISK_ID"]
+                if !disk_id.nil?
+                    snapshot_id = vm.disk_snapshot(disk_id.to_i,
+                        params["Description"]||ImageEC2.generate_uuid,
+                        OpenNebula::Image::IMAGE_TYPES[image["TYPE"].to_i],
+                        true)
+
+                    if OpenNebula::is_error?(snapshot_id)
+                        return snapshot_id
+                    end
+                end
+        end
+
+        if snapshot_id.nil?
+            # Clone
+            snapshot_id = image.clone(params["Description"]||ImageEC2.generate_uuid)
+            if OpenNebula::is_error?(snapshot_id)
+                return snapshot_id
+            end
+        end
+
+        snapshot = ImageEC2.new(Image.build_xml(snapshot_id.to_i), @client)
+        rc = snapshot.info
+        if OpenNebula::is_error?(rc)
+            return rc
+        end
+
+        erb_version = params['Version']
+
+        response = ERB.new(File.read(@config[:views]+"/create_snapshot.erb"))
+        return response.result(binding), 200
+    end
+
 end

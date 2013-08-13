@@ -44,7 +44,7 @@ class ImageEC2 < Image
     }
 
     ONE_IMAGE = %q{
-        NAME = "ec2-<%= uuid %>"
+        NAME = "<%= ImageEC2.generate_uuid %>"
         TYPE = <%= @image_info[:type] %>
         <% if @image_info[:size] != nil %>
         SIZE = "<%= @image_info[:size] %>"
@@ -74,8 +74,6 @@ class ImageEC2 < Image
     end
 
     def to_one_template()
-        uuid = UUIDTools::UUID.random_create.to_s
-
         one = ERB.new(ONE_IMAGE)
         return one.result(binding)
     end
@@ -90,5 +88,9 @@ class ImageEC2 < Image
 
     def render_create_time
         Time.at(self["REGTIME"].to_i).xmlschema
+    end
+
+    def self.generate_uuid
+        "ec2-" + UUIDTools::UUID.random_create.to_s
     end
 end

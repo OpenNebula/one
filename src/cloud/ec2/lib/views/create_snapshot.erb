@@ -1,0 +1,11 @@
+<CreateSnapshotResponse xmlns="http://ec2.amazonaws.com/doc/2013-06-15/">
+  <requestId><%= @request_id %></requestId>
+  <snapshotId>snap-<%= sprintf('%08i', snapshot["ID"]) %></snapshotId>
+  <volumeId><%= params["VolumeId"] %></volumeId>
+  <status><%= snapshot.render_state %></status>
+  <startTime><%= snapshot.render_create_time %></startTime>
+  <progress>100%</progress>
+  <ownerId><%= snapshot["UNAME"] %></ownerId>
+  <volumeSize><%= snapshot.render_size %></volumeSize>
+  <description><%= snapshot["NAME"] %></description>
+</CreateSnapshotResponse>
