@@ -89,6 +89,11 @@ public:
         return requirements;
     };
 
+    const string& get_ds_requirements()
+    {
+        return ds_requirements;
+    }
+
     void get_requirements (int& cpu, int& memory, int& disk);
 
     //--------------------------------------------------------------------------
@@ -146,6 +151,22 @@ public:
     void sort_match_datastores()
     {
         match_datastores.sort_resources();
+    }
+
+    /**
+     *  Removes the matched hosts
+     */
+    void clear_match_hosts()
+    {
+        match_hosts.clear();
+    }
+
+    /**
+     *  Removes the matched datastores
+     */
+    void clear_match_datastores()
+    {
+        match_datastores.clear();
     }
 
     //--------------------------------------------------------------------------
@@ -224,20 +245,23 @@ protected:
     ResourceMatch match_datastores;
 
     /* ----------------------- VIRTUAL MACHINE ATTRIBUTES ------------------- */
-    int     oid;
+    int   oid;
 
-    int     uid;
-    int     gid;
+    int   uid;
+    int   gid;
 
-    int     hid;
+    int   hid;
 
-    int     resched;
+    int   resched;
 
-    int     memory;
-    float   cpu;
+    int   memory;
+    float cpu;
 
-    string  rank;
-    string  requirements;
+    string rank;
+    string requirements;
+
+    string ds_requirements;
+    string ds_rank;
 
     VirtualMachineTemplate * vm_template; /**< The VM user template */
 };

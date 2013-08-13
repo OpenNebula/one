@@ -96,21 +96,20 @@ int VirtualMachinePoolXML::load_info(xmlrpc_c::value &result)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachinePoolXML::dispatch(int vid, int hid, bool resched) const
+int VirtualMachinePoolXML::dispatch(int vid, int hid, int dsid, bool resched) const
 {
     ostringstream               oss;
     xmlrpc_c::value             deploy_result;
 
     if (resched == true)
     {
-        oss << "Rescheduling ";
+        oss << "Rescheduling " << "VM " << vid << " to host " << hid;
     }
     else
     {
-        oss << "Dispatching ";
+        oss << "Dispatching " << "VM " << vid << " to host " << hid
+            << " and datastore " << dsid;
     }
-
-    oss << "virtual machine " << vid << " to host " << hid;
 
     NebulaLog::log("VM",Log::INFO,oss);
 
