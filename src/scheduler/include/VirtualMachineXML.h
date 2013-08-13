@@ -84,6 +84,11 @@ public:
         return rank;
     };
 
+    const string& get_ds_rank()
+    {
+        return ds_rank;
+    };
+
     const string& get_requirements()
     {
         return requirements;

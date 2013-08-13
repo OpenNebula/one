@@ -136,4 +136,36 @@ private:
     };
 };
 
+
+class RankDatastorePolicy : public RankPolicy
+{
+public:
+
+    RankDatastorePolicy(DatastorePoolXML * pool, const string&  dr,float w=1.0):
+            RankPolicy(pool, dr, w){};
+
+    ~RankDatastorePolicy(){};
+
+private:
+
+    const vector<Resource *> get_match_resources(ObjectXML *obj)
+    {
+        VirtualMachineXML * vm = dynamic_cast<VirtualMachineXML *>(obj);
+
+        return vm->get_match_datastores();
+    };
+
+    const string& get_rank(ObjectXML *obj)
+    {
+        VirtualMachineXML * vm = dynamic_cast<VirtualMachineXML *>(obj);
+
+        if (vm->get_ds_rank().empty())
+        {
+            return default_rank;
+        }
+
+        return vm->get_ds_rank();
+    };
+};
+
 #endif /*RANK_POLICY_H_*/

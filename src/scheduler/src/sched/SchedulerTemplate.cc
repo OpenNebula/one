@@ -148,3 +148,44 @@ string SchedulerTemplate::get_policy() const
 
     return rank;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string SchedulerTemplate::get_ds_policy() const
+{
+    int    policy;
+    string rank;
+
+    istringstream iss;
+
+    vector<const Attribute *> vsched;
+    const  VectorAttribute *  sched;
+
+    get("DEFAULT_DS_SCHED", vsched);
+
+    sched = static_cast<const VectorAttribute *> (vsched[0]);
+
+    iss.str(sched->vector_value("POLICY"));
+    iss >> policy;
+
+    switch (policy)
+    {
+        case 0: //Packing
+            rank = "FREE_MB";
+        break;
+
+        case 1: //Striping
+            rank = "- FREE_MB";
+        break;
+
+        case 2: //Custom
+            rank = sched->vector_value("RANK");
+        break;
+
+        default:
+            rank = "";
+    }
+
+    return rank;
+}

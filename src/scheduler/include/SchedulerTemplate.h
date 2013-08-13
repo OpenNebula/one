@@ -21,23 +21,25 @@
 
 
 class SchedulerTemplate : public NebulaTemplate
-{    
+{
 public:
 
     SchedulerTemplate(const string& etc_location):
         NebulaTemplate(etc_location, conf_name)
         {};
-    
+
     ~SchedulerTemplate(){};
 
     string get_policy() const;
+
+    string get_ds_policy() const;
 
 private:
     /**
      *  Name for the configuration file, oned.conf
      */
     static const char * conf_name;
-    
+
     /**
      *  Sets the defaults value for the template
      */

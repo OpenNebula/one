@@ -32,26 +32,35 @@ class RankScheduler : public Scheduler
 {
 public:
 
-    RankScheduler():Scheduler(),rp(0){};
+    RankScheduler():Scheduler(),rp_host(0),rp_ds(0){};
 
     ~RankScheduler()
     {
-        if ( rp != 0 )
+        if ( rp_host != 0 )
         {
-            delete rp;
+            delete rp_host;
+        }
+
+        if ( rp_ds != 0 )
+        {
+            delete rp_ds;
         }
     };
 
     void register_policies(const SchedulerTemplate& conf)
     {
-        rp = new RankHostPolicy(hpool, conf.get_policy(), 1.0);
+        rp_host = new RankHostPolicy(hpool, conf.get_policy(), 1.0);
 
-        add_host_policy(rp);
+        add_host_policy(rp_host);
+
+        rp_ds = new RankDatastorePolicy(dspool, conf.get_ds_policy(), 1.0);
+
+        add_ds_policy(rp_ds);
     };
 
 private:
-    RankPolicy * rp;
-
+    RankPolicy * rp_host;
+    RankPolicy * rp_ds;
 };
 
 int main(int argc, char **argv)

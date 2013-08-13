@@ -371,7 +371,7 @@ int Scheduler::set_up_pools()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Scheduler::match_schedule_hosts()
+void Scheduler::match_schedule()
 {
     VirtualMachineXML * vm;
 
@@ -591,7 +591,7 @@ void Scheduler::match_schedule_hosts()
         // ---------------------------------------------------------------------
         // Match datastores for this VM that:
         //  2. Meets requirements
-        //  3. Have enough capacity to host the VM (TODO)
+        //  3. Have enough capacity to host the VM
         // ---------------------------------------------------------------------
 
         ds_reqs = vm->get_ds_requirements();
@@ -652,12 +652,13 @@ void Scheduler::match_schedule_hosts()
             n_matched++;
 
             // -----------------------------------------------------------------
-            // TODO Check host capacity
+            // Check datastore capacity
             // -----------------------------------------------------------------
 
             if (ds->test_capacity(vm_disk))
             {
                 vm->add_match_datastore(ds->get_oid());
+
                 n_hosts++;
             }
             else
@@ -699,6 +700,17 @@ void Scheduler::match_schedule_hosts()
 
             continue;
         }
+
+        // ---------------------------------------------------------------------
+        // Schedule matched datastores
+        // ---------------------------------------------------------------------
+
+        for (it=ds_policies.begin() ; it != ds_policies.end() ; it++)
+        {
+            (*it)->schedule(vm);
+        }
+
+        vm->sort_match_datastores();
     }
 }
 
@@ -754,9 +766,7 @@ void Scheduler::dispatch()
         vm->get_requirements(cpu,mem,dsk);
 
         //----------------------------------------------------------------------
-        // Get the highest ranked host:
-        // 1. with enough left capacity
-        // 2. without an exceeded host dispatch limit
+        // Get the highest ranked host
         //----------------------------------------------------------------------
         const vector<Resource *> resources = vm->get_match_hosts();
 
@@ -794,14 +804,17 @@ void Scheduler::dispatch()
             continue;
         }
 
-        if (vm->is_resched()) //Rescheduling the VM no need to select DS
+        //----------------------------------------------------------------------
+        // Migrate VM if reschedule VM, skip DS selection
+        //----------------------------------------------------------------------
+
+        if (vm->is_resched())
         {
             vmpool->dispatch(vm_it->first, hid, -1, true);
         }
 
         //----------------------------------------------------------------------
-        // Get the highest ranked datastore:
-        // 1. with enough left capacity
+        // Get the highest ranked datastore
         //----------------------------------------------------------------------
         const vector<Resource *> ds_resources = vm->get_match_datastores();
 
@@ -826,12 +839,23 @@ void Scheduler::dispatch()
             }
         }
 
-        if (dsid == -1)
+        if (dsid == -1) //No DS, rollback and go for the next VM
         {
-            //TODO Rollback Host Capacity
+            host = hpool->get(hid);
+
+            if ( host != 0 )
+            {
+                host->del_capacity(cpu,mem,dsk);
+
+                host_vms[hid] = host_vms[hid] - 1;
+            }
+
             continue;
         }
 
+        //----------------------------------------------------------------------
+        // Dispatch the VM
+        //----------------------------------------------------------------------
         if (vmpool->dispatch(vm_it->first, hid, dsid, false) == 0)
         {
             dispatched_vms++;
@@ -957,7 +981,7 @@ void Scheduler::do_action(const string &name, void *args)
             return;
         }
 
-        match_schedule_hosts();
+        match_schedule();
 
         dispatch();
     }

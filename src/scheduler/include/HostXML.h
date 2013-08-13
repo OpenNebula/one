@@ -77,6 +77,23 @@ public:
     };
 
     /**
+     *  Deletes a VM to the given host by updating the cpu,mem and disk
+     *  counters
+     *    @param cpu needed by the VM (percentage)
+     *    @param mem needed by the VM (in KB)
+     *    @param disk needed by the VM
+     *    @return 0 on success
+     */
+    void del_capacity(int cpu, int mem, int disk)
+    {
+        cpu_usage  -= cpu;
+        mem_usage  -= mem;
+        disk_usage -= disk;
+
+        running_vms--;
+    };
+
+    /**
      *  Search the Object for a given attribute in a set of object specific
      *  routes. Overwrite ObjectXML function to deal with pseudo-attributes
      *    - CURRENT_VMS. value is the VM ID to search in the set of VMS
