@@ -931,7 +931,7 @@ module ElasticityGrammar
             val = nil
             st = "#{att}[--]"
         else
-            val = (total / n_nodes).round(2)
+            val = ((total / n_nodes)*100).round/100.0
             st = "#{att}[#{val.to_s}]"
         end
 
