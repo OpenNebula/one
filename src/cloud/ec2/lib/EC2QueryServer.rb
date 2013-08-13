@@ -182,6 +182,40 @@ class EC2QueryServer < CloudServer
         return response.result(binding), 200
     end
 
+    # TODO: NoReboot = false, cleanly shut down the instance before image
+    #   creation and then reboots the instance.
+    # TODO: If you customized your instance with instance store volumes
+    #   or EBS volumes in addition to the root device volume, the
+    #   new AMI contains block device mapping information for those volumes
+    def create_image(params)
+        instance_id = params['InstanceId']
+        instance_id = instance_id.split('-')[1]
+
+        vm = VirtualMachine.new(
+                VirtualMachine.build_xml(instance_id),
+                @client)
+
+        rc = vm.info
+        if OpenNebula::is_error?(rc)
+            rc.ec2_code = "InvalidInstanceID.NotFound"
+            return rc
+        end
+
+        image_id = vm.disk_snapshot(1,
+                    params["Name"],
+                    OpenNebula::Image::IMAGE_TYPES[0],
+                    true)
+
+        if OpenNebula::is_error?(image_id)
+            return image_id
+        end
+
+        erb_version = params['Version']
+
+        response = ERB.new(File.read(@config[:views]+"/create_image.erb"))
+        return response.result(binding), 200
+    end
+
     ###########################################################################
     # Helper functions
     ###########################################################################

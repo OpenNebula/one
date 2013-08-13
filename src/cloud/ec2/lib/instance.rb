@@ -205,6 +205,7 @@ module Instance
 
                     rc = vm.info
                     if OpenNebula::is_error?(rc)
+                        rc.ec2_code = "InvalidInstanceID.NotFound"
                         return rc
                     end
 
