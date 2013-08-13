@@ -22,22 +22,22 @@
 
 #include "ObjectXML.h"
 #include "HostPoolXML.h"
-#include "Schedulable.h"
+#include "Resource.h"
 
 #include "VirtualMachineTemplate.h"
 
 using namespace std;
 
-class VirtualMachineXML : public ObjectXML, public Schedulable
+class VirtualMachineXML : public ObjectXML
 {
 public:
 
-    VirtualMachineXML(const string &xml_doc): ObjectXML(xml_doc), Schedulable()
+    VirtualMachineXML(const string &xml_doc): ObjectXML(xml_doc)
     {
         init_attributes();
     };
 
-    VirtualMachineXML(const xmlNodePtr node): ObjectXML(node), Schedulable()
+    VirtualMachineXML(const xmlNodePtr node): ObjectXML(node)
     {
         init_attributes();
     }
@@ -92,19 +92,61 @@ public:
     void get_requirements (int& cpu, int& memory, int& disk);
 
     //--------------------------------------------------------------------------
-    // Schedulable Interface
+    // Matched Resources Interface
     //--------------------------------------------------------------------------
 
     /**
-     *  Adds a matching resource to the object. Overwrite Schedulable method.
+     *  Adds a matching host if it is not equal to the actual one
+     *    @param oid of the host
      */
-    void add_resource(int oid)
+    void add_match_host(int oid)
     {
         if (( resched == 1 && hid != oid ) || ( resched == 0 ))
         {
-            Schedulable::add_resource(oid);
+            match_hosts.add_resource(oid);
         }
     };
+
+    /**
+     *  Adds a matching datastore
+     *    @param oid of the datastore
+     */
+    void add_match_datastore(int oid)
+    {
+        match_datastores.add_resource(oid);
+    }
+
+    /**
+     *  Returns a vector of matched hosts
+     */
+    const vector<Resource *> get_match_hosts()
+    {
+        return match_hosts.get_resources();
+    }
+
+    /**
+     *  Returns a vector of matched datastores
+     */
+    const vector<Resource *> get_match_datastores()
+    {
+        return match_datastores.get_resources();
+    }
+
+    /**
+     *  Sort the matched hosts for the VM
+     */
+    void sort_match_hosts()
+    {
+        match_hosts.sort_resources();
+    }
+
+    /**
+     *  Sort the matched datastores for the VM
+     */
+    void sort_match_datastores()
+    {
+        match_datastores.sort_resources();
+    }
 
     //--------------------------------------------------------------------------
     // Action Interface
@@ -177,9 +219,11 @@ protected:
      */
     void init_attributes();
 
-    /**
-     *  ----------------------- VIRTUAL MACHINE ATTRIBUTES --------------------
-     */
+    ResourceMatch match_hosts;
+
+    ResourceMatch match_datastores;
+
+    /* ----------------------- VIRTUAL MACHINE ATTRIBUTES ------------------- */
     int     oid;
 
     int     uid;
@@ -195,10 +239,7 @@ protected:
     string  rank;
     string  requirements;
 
-    /**
-     * The VM user template
-     */
-     VirtualMachineTemplate * vm_template;
+    VirtualMachineTemplate * vm_template; /**< The VM user template */
 };
 
 #endif /* VM_XML_H_ */

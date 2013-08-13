@@ -139,17 +139,19 @@ void VirtualMachineXML::init_attributes()
 
 ostream& operator<<(ostream& os, VirtualMachineXML& vm)
 {
-    if (vm.resources.empty())
+    const vector<Resource *> resources = vm.match_hosts.get_resources();
+
+    vector<Resource *>::const_reverse_iterator  i;
+
+    if (resources.empty())
     {
         return os;
     }
 
-    vector<Resource *>::reverse_iterator  i;
-
     os  << "\t PRI\tHID  VM: " << vm.oid << endl
         << "\t-----------------------"  << endl;
 
-    for (i = vm.resources.rbegin(); i != vm.resources.rend() ; i++)
+    for (i = resources.rbegin(); i != resources.rend() ; i++)
     {
         os << "\t" << (*i)->priority << "\t" << (*i)->oid << endl;
     }

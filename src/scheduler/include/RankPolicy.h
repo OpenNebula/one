@@ -26,49 +26,44 @@ class RankPolicy : public SchedulerPolicy
 {
 public:
 
-    RankPolicy(
-        VirtualMachinePoolXML *   _vmpool,
-        HostPoolXML *             _hpool,
-        const string&             dr,
-        float                     w = 1.0):
-            SchedulerPolicy(w),
-            default_rank(dr),
-            vmpool(_vmpool),
-            hpool(_hpool)
-    {};
+    RankPolicy(PoolXML * _pool, const string&  dr, float  w = 1.0):
+            SchedulerPolicy(w), default_rank(dr), pool(_pool) {};
 
-    ~RankPolicy(){};
+    virtual ~RankPolicy(){};
 
-private:
+protected:
+
+    /**
+     *  Gets the rank to apply.
+     */
+    virtual const string& get_rank(ObjectXML *obj) = 0;
+
     /**
      *  Default rank for resources
      */
     string default_rank;
 
-    VirtualMachinePoolXML * vmpool;
-    HostPoolXML *           hpool;
+    /**
+     *  Pool of matched resources
+     */
+    PoolXML * pool;
 
+private:
     /**
      *  Implements the Match-Making policy by computing the rank of each resource
      *    @param obj The Schedulable object
      *    @param priority for each resource.
      */
-    void policy(Schedulable * obj, vector<float>& priority)
+    void policy(ObjectXML * obj, vector<float>& priority)
     {
-        HostXML * host;
-        char *    errmsg = 0;
+        ObjectXML * resource;
+        char *      errmsg = 0;
 
         int rc, rank = 0;
 
-        const vector<Resource *> resources = obj->get_resources();
+        const vector<Resource *> resources = get_match_resources(obj);
 
-        VirtualMachineXML * vm = dynamic_cast<VirtualMachineXML *>(obj);
-        string  srank          = vm->get_rank();
-
-        if (srank.empty())
-        {
-            srank = default_rank;
-        }
+        string srank = get_rank(obj);
 
         priority.clear();
 
@@ -80,17 +75,17 @@ private:
 
         for (unsigned int i=0; i<resources.size(); rank=0, i++)
         {
-            host = hpool->get(resources[i]->oid);
+            resource = pool->get(resources[i]->oid);
 
-            if ( host != 0 )
+            if ( resource != 0 )
             {
-                rc = host->eval_arith(srank, rank, &errmsg);
+                rc = resource->eval_arith(srank, rank, &errmsg);
 
                 if (rc != 0)
                 {
                     ostringstream oss;
 
-                    oss << "Computing host rank, expression: " << srank;
+                    oss << "Computing rank, expression: " << srank;
 
                     if (errmsg != 0)
                     {
@@ -106,6 +101,38 @@ private:
 
             priority.push_back(rank);
         }
+    };
+};
+
+
+class RankHostPolicy : public RankPolicy
+{
+public:
+
+    RankHostPolicy(HostPoolXML * pool, const string&  dr, float  w = 1.0):
+            RankPolicy(pool, dr, w){};
+
+    ~RankHostPolicy(){};
+
+private:
+
+    const vector<Resource *> get_match_resources(ObjectXML *obj)
+    {
+        VirtualMachineXML * vm = dynamic_cast<VirtualMachineXML *>(obj);
+
+        return vm->get_match_hosts();
+    };
+
+    const string& get_rank(ObjectXML *obj)
+    {
+        VirtualMachineXML * vm = dynamic_cast<VirtualMachineXML *>(obj);
+
+        if (vm->get_rank().empty())
+        {
+            return default_rank;
+        }
+
+        return vm->get_rank();
     };
 };
 

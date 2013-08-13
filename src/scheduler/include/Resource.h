@@ -14,8 +14,8 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef SCHEDULABLE_H_
-#define SCHEDULABLE_H_
+#ifndef RESOURCE_H_
+#define RESOURCE_H_
 
 #include <map>
 
@@ -52,19 +52,14 @@ public:
 /**
  *  Abstract class that models an object that can be scheduled over a resource
  */
-class Schedulable
+class ResourceMatch
 {
 public:
-    Schedulable(){};
+    ResourceMatch(){};
 
-    virtual ~Schedulable()
+    virtual ~ResourceMatch()
     {
-        vector<Resource *>::iterator jt;
-
-        for (jt=resources.begin(); jt!=resources.end(); jt++)
-        {
-            delete *jt;
-        }
+        clear();
     };
 
     /**
@@ -78,6 +73,9 @@ public:
         resources.push_back(r);
     }
 
+    /**
+     *  Sort the matched resources in the vector
+     */
     void sort_resources()
     {
         sort(resources.begin(), resources.end(), Resource::cmp);
@@ -92,9 +90,25 @@ public:
         return resources;
     };
 
-protected:
+    /**
+     *  Clear the resources by freeing memory and reducing the effective size
+     *  to 0.
+     */
+    void clear()
+    {
+        vector<Resource *>::iterator jt;
+
+        for (jt=resources.begin(); jt!=resources.end(); jt++)
+        {
+            delete *jt;
+        }
+
+        resources.clear();
+    }
+
+private:
 
     vector<Resource *> resources;
 };
 
-#endif /*SCHEDULABLE_H_*/
+#endif /*RESOURCE_H_*/

@@ -17,7 +17,7 @@
 #ifndef SCHEDULER_POLICY_H_
 #define SCHEDULER_POLICY_H_
 
-#include "Schedulable.h"
+#include "ObjectXML.h"
 
 #include <cmath>
 #include <algorithm>
@@ -41,10 +41,10 @@ public:
      *    @param obj, pointer to the object to schedule
      *
      */
-    const void schedule(Schedulable * obj)
+    const void schedule(ObjectXML * obj)
     {
         vector<float> priority;
-        const vector<Resource *> resources = obj->get_resources();
+        const vector<Resource *> resources = get_match_resources(obj);
 
         if (resources.empty())
         {
@@ -68,7 +68,18 @@ public:
 
 protected:
 
-    virtual void policy(Schedulable * obj, vector<float>& priority) = 0;
+    /**
+     *  Get the vector of matched resources for the Object being schedule
+     *    @param obj pointer to the object
+     *    @return a reference to the vector
+     */
+     virtual const vector<Resource *> get_match_resources(ObjectXML *obj) = 0;
+
+    /**
+     *  Implements the actual schedule by computing the priority of each
+     *  matching resource.
+     */
+    virtual void policy(ObjectXML * obj, vector<float>& priority) = 0;
 
 private:
     /**

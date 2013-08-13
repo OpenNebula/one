@@ -515,7 +515,7 @@ void Scheduler::match_schedule_hosts()
 
             if (host->test_capacity(vm_cpu,vm_memory,vm_disk) == true)
             {
-                vm->add_resource(host->get_hid());
+                vm->add_match_host(host->get_hid());
 
                 n_hosts++;
             }
@@ -570,7 +570,7 @@ void Scheduler::match_schedule_hosts()
             (*it)->schedule(vm);
         }
 
-        vm->sort_resources();
+        vm->sort_match_hosts();
     }
 }
 
@@ -627,7 +627,7 @@ void Scheduler::dispatch()
         // 1. with enough left capacity
         // 2. without exceeded dispatch limit
         //----------------------------------------------------------------------
-        const vector<Resource *> resources = vm->get_resources();
+        const vector<Resource *> resources = vm->get_match_hosts();
 
         vm->get_requirements(cpu,mem,dsk);
 

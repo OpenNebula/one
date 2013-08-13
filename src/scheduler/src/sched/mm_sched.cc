@@ -44,7 +44,7 @@ public:
 
     void register_policies(const SchedulerTemplate& conf)
     {
-        rp = new RankPolicy(vmpool, hpool, conf.get_policy(), 1.0);
+        rp = new RankHostPolicy(hpool, conf.get_policy(), 1.0);
 
         add_host_policy(rp);
     };
