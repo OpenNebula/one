@@ -241,7 +241,7 @@ module EBS
     #
     # @param [Hash] params
     # @option params [String] VolumeId The ID of the Amazon EBS volume.
-    # @option params [Description] A description for the snapshot.
+    # @option params [String] Description A description for the snapshot.
     def create_snapshot(params)
         image_id = params['VolumeId']
         image_id = image_id.split('-')[1]
@@ -295,6 +295,9 @@ module EBS
         if OpenNebula::is_error?(rc)
             return rc
         end
+
+        snapshot.delete_element("TEMPLATE/EBS_VOLUME")
+        snapshot.update
 
         erb_version = params['Version']
 
