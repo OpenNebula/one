@@ -248,7 +248,7 @@ module EBS
 
         image = ImageEC2.new(Image.build_xml(image_id.to_i), @client)
         rc = image.info
-        if OpenNebula::is_error?(rc) || image["TEMPLATE/EBS_VOLUME"] != "YES"
+        if OpenNebula::is_error?(rc) || !image.ebs_volume?
             rc ||= OpenNebula::Error.new()
             rc.ec2_code = "InvalidVolume.NotFound"
             return rc
@@ -305,4 +305,30 @@ module EBS
         return response.result(binding), 200
     end
 
+    # Deletes the specified snapshot.
+    #
+    # @param [Hash] params
+    # @option params [String] SnapshotId The ID of the Amazon EBS snapshot.
+    def delete_snapshot(params)
+        snapshot_id = params['SnapshotId']
+        snapshot_id = snapshot_id.split('-')[1]
+
+        snapshot = ImageEC2.new(Image.build_xml(snapshot_id.to_i), @client)
+        rc = snapshot.info
+        if OpenNebula::is_error?(rc) || snapshot.ebs_volume? || snapshot.ec2_ami?
+            rc ||= OpenNebula::Error.new()
+            rc.ec2_code = "InvalidSnapshot.NotFound"
+            return rc
+        end
+
+        rc = snapshot.delete
+        if OpenNebula::is_error?(rc)
+            return rc
+        end
+
+        erb_version = params['Version']
+
+        response = ERB.new(File.read(@config[:views]+"/delete_snapshot.erb"))
+        return response.result(binding), 200
+    end
 end

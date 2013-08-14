@@ -1297,6 +1297,7 @@ ECO_LIB_VIEW_FILES="src/cloud/ec2/lib/views/describe_images.erb \
                     src/cloud/ec2/lib/views/describe_availability_zones.erb \
                     src/cloud/ec2/lib/views/create_volume.erb \
                     src/cloud/ec2/lib/views/create_snapshot.erb \
+                    src/cloud/ec2/lib/views/delete_snapshot.erb \
                     src/cloud/ec2/lib/views/create_image.erb \
                     src/cloud/ec2/lib/views/describe_volumes.erb \
                     src/cloud/ec2/lib/views/attach_volume.erb \

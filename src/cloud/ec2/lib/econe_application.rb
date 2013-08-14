@@ -136,6 +136,8 @@ class EC2Application
             result,rc = econe_server.describe_availability_zones(params)
         when 'CreateSnapshot'
             result,rc = econe_server.create_snapshot(params)
+        when 'DeleteSnapshot'
+            result,rc = econe_server.delete_snapshot(params)
         when 'CreateImage'
             result,rc = econe_server.create_image(params)
         when 'CreateVolume'
