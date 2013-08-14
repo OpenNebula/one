@@ -41,6 +41,7 @@ void SchedulerTemplate::set_conf_default()
 #  MAX_DISPATCH
 #  MAX_HOST
 #  DEFAULT_SCHED
+#  DEFAULT_DS_SCHED
 #  LIVE_RESCHEDS
 #  HYPERVISOR_MEM
 #  LOG
@@ -87,6 +88,13 @@ void SchedulerTemplate::set_conf_default()
     vvalue.insert(make_pair("POLICY","1"));
 
     vattribute = new VectorAttribute("DEFAULT_SCHED",vvalue);
+    conf_default.insert(make_pair(vattribute->name(),vattribute));
+
+    //DEFAULT_DS_SCHED
+    vvalue.clear();
+    vvalue.insert(make_pair("POLICY","1"));
+
+    vattribute = new VectorAttribute("DEFAULT_DS_SCHED",vvalue);
     conf_default.insert(make_pair(vattribute->name(),vattribute));
 
     //HYPERVISOR_MEM
