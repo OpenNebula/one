@@ -315,7 +315,7 @@ module EBS
 
         snapshot = ImageEC2.new(Image.build_xml(snapshot_id.to_i), @client)
         rc = snapshot.info
-        if OpenNebula::is_error?(rc) || snapshot.ebs_volume? || snapshot.ec2_ami?
+        if OpenNebula::is_error?(rc) || !snapshot.ebs_snapshot?
             rc ||= OpenNebula::Error.new()
             rc.ec2_code = "InvalidSnapshot.NotFound"
             return rc
@@ -329,6 +329,41 @@ module EBS
         erb_version = params['Version']
 
         response = ERB.new(File.read(@config[:views]+"/delete_snapshot.erb"))
+        return response.result(binding), 200
+    end
+
+    def describe_snapshots(params)
+        impool = []
+        params.each { |key, value|
+            if key =~ /SnapshotId\./
+                if value =~ /snap\-(.+)/
+                    image = ImageEC2.new(Image.build_xml($1), @client)
+                    rc = image.info
+                    if OpenNebula.is_error?(rc) || !image.ebs_snapshot?
+                        rc.ec2_code = "InvalidSnapshot.NotFound"
+                        return rc
+                    else
+                        impool << image
+                    end
+                else
+                    rc = OpenNebula::Error.new("InvalidSnapshot.Malformed #{value}")
+                    rc.ec2_code = "InvalidSnapshot.Malformed"
+                    return rc
+                end
+            end
+        }
+
+        if impool.empty?
+            user_flag = OpenNebula::Pool::INFO_ALL
+            impool = ImageEC2Pool.new(@client, user_flag)
+
+            rc = impool.info
+            return rc if OpenNebula::is_error?(rc)
+        end
+
+        erb_version = params['Version']
+
+        response = ERB.new(File.read(@config[:views]+"/describe_snapshots.erb"))
         return response.result(binding), 200
     end
 end

@@ -101,4 +101,8 @@ class ImageEC2 < Image
     def ec2_ami?
         self["TEMPLATE/EC2_AMI"] == "YES"
     end
+
+    def ebs_snapshot?
+        !ebs_volume? && !ec2_ami?
+    end
 end
