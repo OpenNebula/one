@@ -93,4 +93,12 @@ class ImageEC2 < Image
     def self.generate_uuid
         "ec2-" + UUIDTools::UUID.random_create.to_s
     end
+
+    def ebs_volume?
+        self["TEMPLATE/EBS_VOLUME"] == "YES"
+    end
+
+    def ec2_ami?
+        self["TEMPLATE/EC2_AMI"] == "YES"
+    end
 end
