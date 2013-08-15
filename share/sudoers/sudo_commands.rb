@@ -62,10 +62,10 @@ __END__
 Defaults !requiretty
 Defaults secure_path = /sbin:/bin:/usr/sbin:/usr/bin
 
-<% KEYS.each do |k|; v = abs_cmds["ONE_#{k}"]  %>
+<% KEYS.each do |k|; l = "ONE_#{k}"; v = abs_cmds[l]  %>
 <% if !v.nil? %>
-Cmnd_Alias <%= k %> = <%= v.join(", ") %>
+Cmnd_Alias <%= l %> = <%= v.join(", ") %>
 <% end %>
 <% end %>
 
-oneadmin ALL=(ALL) NOPASSWD: <%= KEYS.select{|k| l="ONE_#{k}"; l if !abs_cmds[l].nil?}.join(", ") %>
+oneadmin ALL=(ALL) NOPASSWD: <%= KEYS.select{|k| !abs_cmds["ONE_#{k}"].nil?}.collect{|k| "ONE_#{k}"}.join(", ") %>
