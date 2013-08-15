@@ -18,6 +18,8 @@
 
 require "erb"
 
+KEYS = [:MISC , :NET , :LVM , :ISCSI , :OVS , :XEN]
+
 CMDS = {
     :MISC  => %w(dd mkfs sync),
     :NET   => %w(brctl ebtables iptables ip vconfig),
@@ -30,9 +32,10 @@ CMDS = {
 abs_cmds = {}
 not_found_cmds = []
 
-CMDS.each do |label, cmds|
-    _abs_cmds = []
+KEYS.each do |label|
+    cmds = CMDS[label]
 
+    _abs_cmds = []
     cmds.each do |cmd|
         abs_cmd = `which #{cmd} 2>/dev/null`
 
@@ -59,8 +62,10 @@ __END__
 Defaults !requiretty
 Defaults secure_path = /sbin:/bin:/usr/sbin:/usr/bin
 
-<% abs_cmds.each do |k,v| %>
+<% KEYS.each do |k|; v = abs_cmds["ONE_#{k}"]  %>
+<% if !v.nil? %>
 Cmnd_Alias <%= k %> = <%= v.join(", ") %>
 <% end %>
+<% end %>
 
-oneadmin ALL=(ALL) NOPASSWD: <%= abs_cmds.keys.join(", ") %>
+oneadmin ALL=(ALL) NOPASSWD: <%= KEYS.select{|k| l="ONE_#{k}"; l if !abs_cmds[l].nil?}.join(", ") %>
