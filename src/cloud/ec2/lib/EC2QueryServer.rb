@@ -154,7 +154,8 @@ class EC2QueryServer < CloudServer
                 if value =~ /ami\-(.+)/
                     image = ImageEC2.new(Image.build_xml($1), @client)
                     rc = image.info
-                    if OpenNebula.is_error?(rc)
+                    if OpenNebula.is_error?(rc) || !image.ec2_ami?
+                        rc ||= OpenNebula::Error.new()
                         rc.ec2_code = "InvalidAMIID.NotFound"
                         return rc
                     else
@@ -213,6 +214,93 @@ class EC2QueryServer < CloudServer
         erb_version = params['Version']
 
         response = ERB.new(File.read(@config[:views]+"/create_image.erb"))
+        return response.result(binding), 200
+    end
+
+    # Adds or overwrites one or more tags for the specified EC2 resource or
+    #   resources. Each resource can have a maximum of 10 tags. Each tag
+    #   consists of a key and optional value. Tag keys must be unique per resource.
+    #
+    # @param [Hash] params
+    # @option params [String] ResourceId.n The IDs of one or more resources
+    #   to tag. For example, ami-1a2b3c4d.
+    # @option params [String] Tag.n.Key The key for a tag.
+    # @option params [String] Tag.n.Value The value for a tag. If you don't
+    #   want the tag to have a value, specify the parameter with no value,
+    #   and we set the value to an empty string.
+    #
+    # TODO: return if error or continue
+    def create_tags(params)
+        resources = []
+        tags = {}
+
+        params.each { |key, value|
+            case key
+            when /ResourceId\./
+              resources << case value
+              when /ami\-(.+)/
+                image = ImageEC2.new(Image.build_xml($1), @client)
+                rc = image.info
+                if OpenNebula.is_error?(rc) || !image.ec2_ami?
+                    rc ||= OpenNebula::Error.new()
+                    rc.ec2_code = "InvalidAMIID.NotFound"
+                    return rc
+                else
+                    image
+                end
+              when /vol\-(.+)/
+                image = ImageEC2.new(Image.build_xml($1), @client)
+                rc = image.info
+                if OpenNebula.is_error?(rc) || !image.ebs_volume?
+                    rc ||= OpenNebula::Error.new()
+                    rc.ec2_code = "InvalidVolume.NotFound"
+                    return rc
+                else
+                    image
+                end
+              when /snap\-(.+)/
+                image = ImageEC2.new(Image.build_xml($1), @client)
+                rc = image.info
+                if OpenNebula.is_error?(rc) || !image.ebs_snapshot?
+                    rc ||= OpenNebula::Error.new()
+                    rc.ec2_code = "InvalidSnapshot.NotFound"
+                    return rc
+                else
+                    image
+                end
+              when /i\-(.+)/
+                vm = VirtualMachine.new(VirtualMachine.build_xml($1), @client)
+                rc = vm.info
+                if OpenNebula.is_error?(rc)
+                    rc.ec2_code = "InvalidInstanceID.NotFound"
+                    return rc
+                else
+                    vm
+                end
+              end
+            when /Tag\.(\d+)\.Key/
+                tags[value] = params["Tag.#{$1}.Value"] || ""
+            end
+        }
+
+        resources.each {|resource|
+            if resource.is_a?(VirtualMachine)
+                template_key = "USER_TEMPLATE"
+            elsif resource.is_a?(Image)
+                template_key = "TEMPLATE"
+            end
+
+            former_tags = resource.to_hash.first[1][template_key]["EC2_TAGS"] || {}
+            resource.delete_element("#{template_key}/EC2_TAGS")
+            resource.add_element(template_key, {"EC2_TAGS" => former_tags.merge(tags)})
+
+            rc = resource.update(resource.template_like_str(template_key))
+            return rc if OpenNebula::is_error?(rc)
+        }
+
+        erb_version = params['Version']
+
+        response = ERB.new(File.read(@config[:views]+"/create_tags.erb"))
         return response.result(binding), 200
     end
 
