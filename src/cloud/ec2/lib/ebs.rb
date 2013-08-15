@@ -297,6 +297,7 @@ module EBS
         end
 
         snapshot.delete_element("TEMPLATE/EBS_VOLUME")
+        snapshot.add_element('TEMPLATE', {"EBS_SNAPSHOT" => "YES"})
         snapshot.update
 
         erb_version = params['Version']
