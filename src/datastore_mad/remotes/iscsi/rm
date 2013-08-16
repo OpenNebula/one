@@ -59,6 +59,8 @@ DEV="/dev/$VG_NAME/$LV_NAME"
 IQN="$BASE_IQN:$DST_HOST.$VG_NAME.$LV_NAME"
 
 RM_COMMAND=$(cat <<EOF
+    set -e
+
     TID=\$($SUDO $(tgtadm_get_tid_for_iqn "$IQN"))
 
     $SUDO $(tgtadm_target_delete "\$TID")

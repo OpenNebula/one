@@ -55,12 +55,14 @@ HOST=`get_destination_host $ID`
 # ------------ Compute datastore usage -------------
 
 MONITOR_SCRIPT=$(cat <<EOF
-USED_MB=\$(du -sLm ${BASE_PATH%/} 2>/dev/null | cut -f1)
+set -e
 
-DF_STR=\$(df -m | grep ${BASE_PATH%/} | sed 's/ \+/:/g')
+USED_MB=\$($DU -sLm ${BASE_PATH%/} 2>/dev/null | $CUT -f1)
 
-TOTAL_MB=\$(echo \$DF_STR | cut -d':' -f 2)
-FREE_MB=\$(echo \$DF_STR | cut -d':' -f 4)
+DF_STR=\$($DF -m | grep ${BASE_PATH%/} | $SED 's/ \+/:/g')
+
+TOTAL_MB=\$(echo \$DF_STR | $CUT -d':' -f 2)
+FREE_MB=\$(echo \$DF_STR | $CUT -d':' -f 4)
 
 echo "USED_MB=\$USED_MB"
 echo "TOTAL_MB=\$TOTAL_MB"
