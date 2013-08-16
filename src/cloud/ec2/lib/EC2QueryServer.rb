@@ -389,6 +389,31 @@ class EC2QueryServer < CloudServer
         return response.result(binding), 200
     end
 
+    def describe_tags(params)
+        user_flag = OpenNebula::Pool::INFO_ALL
+        impool = ImageEC2Pool.new(@client, user_flag)
+
+        rc = impool.info
+        return rc if OpenNebula::is_error?(rc)
+
+        user_flag = OpenNebula::Pool::INFO_ALL
+        vmpool = VirtualMachinePool.new(@client, user_flag)
+
+        if include_terminated_instances?
+            rc = vmpool.info(user_flag, -1, -1,
+                    OpenNebula::VirtualMachinePool::INFO_ALL_VM)
+        else
+            rc = vmpool.info
+        end
+
+        return rc if OpenNebula::is_error?(rc)
+
+        erb_version = params['Version']
+
+        response = ERB.new(File.read(@config[:views]+"/describe_tags.erb"))
+        return response.result(binding), 200
+    end
+
     ###########################################################################
     # Helper functions
     ###########################################################################

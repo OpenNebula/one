@@ -100,10 +100,29 @@ class ImageEC2 < Image
 
     def ec2_ami?
         self["TEMPLATE/EC2_AMI"] == "YES"
-        true
     end
 
     def ebs_snapshot?
         self["TEMPLATE/EBS_SNAPSHOT"] == "YES"
+    end
+
+    def ec2_id
+        if self.ebs_snapshot?
+            "snap-" + sprintf('%08i', self.id)
+        elsif self.ec2_ami?
+            "ami-" + sprintf('%08i', self.id)
+        elsif self.ebs_volume?
+            "vol-" + sprintf('%08i', self.id)
+        end
+    end
+
+    def resource_type
+        if self.ebs_snapshot?
+            "snapshot"
+        elsif self.ec2_ami?
+            "image"
+        elsif self.ebs_volume?
+            "volume"
+        end
     end
 end
