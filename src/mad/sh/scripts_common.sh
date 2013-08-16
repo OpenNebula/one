@@ -23,6 +23,7 @@ BASH=bash
 CUT=cut
 DATE=date
 DD=dd
+DF=df
 DU=du
 GREP=grep
 ISCSIADM=iscsiadm
@@ -49,6 +50,8 @@ TAR=tar
 TGTADM=tgtadm
 TGTADMIN=tgt-admin
 TGTSETUPLUN=tgt-setup-lun-one
+TR=tr
+VGDISPLAY=vgdisplay
 VMKFSTOOLS=vmkfstools
 WGET=wget
 
@@ -308,6 +311,8 @@ function mkfs_command {
 function ssh_exec_and_log
 {
     SSH_EXEC_ERR=`$SSH $1 sh -s 2>&1 1>/dev/null <<EOF
+export LANG=C
+export LC_ALL=C
 $2
 EOF`
     SSH_EXEC_RC=$?
@@ -329,6 +334,8 @@ EOF`
 function ssh_monitor_and_log
 {
     SSH_EXEC_OUT=`$SSH $1 sh -s 2>/dev/null <<EOF
+export LANG=C
+export LC_ALL=C
 $2
 EOF`
     SSH_EXEC_RC=$?

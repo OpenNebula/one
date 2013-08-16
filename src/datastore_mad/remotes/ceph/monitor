@@ -54,7 +54,7 @@ POOL_NAME="${XPATH_ELEMENTS[1]:-$POOL_NAME}"
 # ------------ Compute datastore usage -------------
 
 MONITOR_SCRIPT=$(cat <<EOF
-$SUDO $RADOS df | $AWK '{
+$SUDO $RADOS $DF | $AWK '{
     if (\$1 == "total") {
 
         space = int(\$3/1024)
