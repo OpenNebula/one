@@ -127,20 +127,30 @@ class EC2QueryServer < CloudServer
         return response.result(binding), 200
     end
 
+    # TODO Kernel, Ramdisk, Arch, BlockDeviceMapping
     def register_image(params)
         # Get the Image ID
-        tmp, img=params['ImageLocation'].split('-')
+        image_id = params['ImageLocation']
+        image = ImageEC2.new(Image.build_xml(image_id.to_i), @client)
 
-        image = Image.new(Image.build_xml(img.to_i), @client)
-
-        # Enable the new Image
         rc = image.info
         if OpenNebula.is_error?(rc)
-            rc.ec2_code = "InvalidAMIID.NotFound"
             return rc
         end
 
-        image.enable
+        if image["EBS_VOLUME"] == "YES"
+            return OpenNebula::Error.new("The image you are trying to register"\
+                " is already a volume")
+        elsif image["EBS_SNAPSHOT"] == "YES"
+            return OpenNebula::Error.new("The image you are trying to register"\
+                " is already an snapshot")
+        end
+
+        image.add_element('TEMPLATE', {"EC2_AMI" => "YES"})
+        rc = image.update
+        if OpenNebula.is_error?(rc)
+            return rc
+        end
 
         erb_version = params['Version']
 
