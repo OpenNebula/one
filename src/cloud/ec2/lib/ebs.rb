@@ -168,33 +168,64 @@ module EBS
     #   the new volume (unsupported).
     # @option params [String] AvailabilityZone The Availability Zone in which
     #   to create the new volume (unsupported)
+    # TODO: Availability zone
     def create_volume(params)
-        size = params['Size'].to_i # in GiBs
-        size *= 1024
+        snapshot_id = params['SnapshotId']
+        if snapshot_id
+            snapshot_id = snapshot_id.split('-')[1]
 
-        opts = {
-            :type => "DATABLOCK",
-            :size => size,
-            :fstype => @config[:ebs_fstype]||DEFAULT_FSTYPE,
-            :persistent => "YES",
-            :ebs => "YES"
-        }
+            snapshot = ImageEC2.new(Image.build_xml(snapshot_id.to_i), @client)
+            rc = snapshot.info
+            if OpenNebula::is_error?(rc) || !snapshot.ebs_snapshot?
+                rc ||= OpenNebula::Error.new()
+                rc.ec2_code = "InvalidSnapshot.NotFound"
+                return rc
+            end
 
-        image    = ImageEC2.new(Image.build_xml, @client, nil, opts)
-        template = image.to_one_template
+            # Clone
+            volume_id = snapshot.clone(ImageEC2.generate_uuid)
+            if OpenNebula::is_error?(volume_id)
+                return volume_id
+            end
 
-        if OpenNebula.is_error?(template)
-            return template
+            volume = ImageEC2.new(Image.build_xml(volume_id.to_i), @client)
+            rc = volume.info
+            if OpenNebula::is_error?(rc)
+                return rc
+            end
+
+            volume.delete_element("TEMPLATE/EBS_SNAPSHOT")
+            volume.add_element('TEMPLATE', {
+                "EBS_VOLUME" => "YES",
+                "EBS_FROM_SNAPSHOT_ID" => snapshot.ec2_id})
+            volume.update
+        else
+            size = params['Size'].to_i # in GiBs
+            size *= 1024
+
+            opts = {
+                :type => "DATABLOCK",
+                :size => size,
+                :fstype => @config[:ebs_fstype]||DEFAULT_FSTYPE,
+                :persistent => "YES",
+                :ebs_volume => "YES"
+            }
+
+            volume    = ImageEC2.new(Image.build_xml, @client, nil, opts)
+            template = volume.to_one_template
+
+            if OpenNebula.is_error?(template)
+                return template
+            end
+
+            rc = volume.allocate(template, @config[:datastore_id]||1)
+
+            if OpenNebula.is_error?(rc)
+                return rc
+            end
+
+            volume.info
         end
-
-        rc = image.allocate(template, @config[:datastore_id]||1)
-
-        if OpenNebula.is_error?(rc)
-            return rc
-        end
-
-        # Response
-        image.info
 
         erb_version = params['Version']
         response    = ERB.new(File.read(@config[:views]+"/create_volume.erb"))

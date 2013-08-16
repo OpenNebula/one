@@ -7,7 +7,7 @@
             <item>
                <volumeId>vol-<%= sprintf('%08i', im.id) %></volumeId>
                <size><%= im.render_size %></size>
-               <snapshotId/>
+               <snapshotId><%= im["TEMPLATE/EBS_FROM_SNAPSHOT_ID"] %></snapshotId>
                <availabilityZone/>
                <status><%= state_image %></status>
                <createTime><%= im.render_create_time %></createTime>
