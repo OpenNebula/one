@@ -1283,6 +1283,7 @@ ECO_LIB_FILES="src/cloud/ec2/lib/EC2QueryClient.rb \
                src/cloud/ec2/lib/ImageEC2.rb \
                src/cloud/ec2/lib/elastic_ip.rb \
                src/cloud/ec2/lib/ebs.rb \
+               src/cloud/ec2/lib/tags.rb \
                src/cloud/ec2/lib/instance.rb \
                src/cloud/ec2/lib/keypair.rb \
                src/cloud/ec2/lib/net_ssh_replacement.rb \
