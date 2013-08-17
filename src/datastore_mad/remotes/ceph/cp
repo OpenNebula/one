@@ -120,7 +120,7 @@ REGISTER_CMD=$(cat <<EOF
     set -e
 
     # create rbd
-    $QEMU_IMG convert -O rbd $TMP_DST rbd:$RBD_SOURCE
+    $QEMU_IMG convert $TMP_DST rbd:$RBD_SOURCE
 
     # remove original
     $RM -f $TMP_DST

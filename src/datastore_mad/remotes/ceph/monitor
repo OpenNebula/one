@@ -59,7 +59,7 @@ fi
 # ------------ Compute datastore usage -------------
 
 MONITOR_SCRIPT=$(cat <<EOF
-$SUDO $RADOS $DF | $AWK '{
+$RADOS df | $AWK '{
     if (\$1 == "total") {
 
         space = int(\$3/1024)
