@@ -187,6 +187,11 @@ EOT
             :description => 'Add VNC server to the VM'
         },
         {
+            :name   => 'spice',
+            :large  => '--spice',
+            :description => 'Add spice server to the VM'
+        },
+        {
             :name   => 'ssh',
             :large  => '--ssh [file]',
             :description => "Add an ssh public key to the context. If the \n"<<
@@ -814,6 +819,10 @@ EOT
 
         if options[:vnc]
             template<<'GRAPHICS=[ TYPE="vnc", LISTEN="0.0.0.0" ]'<<"\n"
+        end
+
+        if options[:spice]
+            template<<'GRAPHICS=[ TYPE="spice", LISTEN="0.0.0.0" ]'<<"\n"
         end
 
         context=create_context(options)
