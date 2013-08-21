@@ -56,15 +56,22 @@ protected:
                           PoolObjectAuth *        ds_perm,
                           AuthRequest::Operation  op);
 
-    int get_host_information(int hid,
-                             string& name,
-                             string& vmm,
-                             string& vnm,
-                             string& tm,
-                             string& ds_location,
-                             int&    ds_id,
-                             RequestAttributes& att,
-                             PoolObjectAuth& host_perms);
+    int get_host_information(
+        int     hid,
+        string& name,
+        string& vmm,
+        string& vnm,
+        int&    cluster_id,
+        int&    default_ds_id,
+        string& ds_location,
+        PoolObjectAuth&    host_perms,
+        RequestAttributes& att);
+
+    int get_ds_information(
+        int ds_id,
+        int& ds_cluster_id,
+        string& tm_mad,
+        RequestAttributes& att);
 
     bool check_host(int     hid,
                     int     cpu,
@@ -112,7 +119,7 @@ public:
     VirtualMachineDeploy():
         RequestManagerVirtualMachine("VirtualMachineDeploy",
                                      "Deploys a virtual machine",
-                                     "A:siib")
+                                     "A:siibi")
     {
          auth_op = AuthRequest::ADMIN;
     };
