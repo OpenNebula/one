@@ -532,19 +532,15 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
             return;
         }
 
-        if ( ds_cluster_id != cluster_id )
+        if ((ds_cluster_id != -1) && (ds_cluster_id != cluster_id))
         {
             ostringstream oss;
 
-            oss << "Trying to use " << object_name(PoolObjectSQL::DATASTORE)
-                << " [" << ds_id << "], to deploy VM but it is not part of "
-                << object_name(PoolObjectSQL::CLUSTER) << " [" << cluster_id
-                <<"] as " << object_name(PoolObjectSQL::HOST) << " [" << hid
-                <<"] ";
+            oss << object_name(PoolObjectSQL::DATASTORE)
+                << " [" << ds_id << "] and " << object_name(PoolObjectSQL::HOST)
+                << " [" << hid <<"] are not in the same cluster.";
 
-            failure_response(ACTION,
-                request_error(oss.str(),""),
-                att);
+            failure_response(ACTION, request_error(oss.str(),""), att);
 
             return;
         }
