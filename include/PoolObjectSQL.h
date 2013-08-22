@@ -337,7 +337,7 @@ public:
     }
 
     /**
-     *  Gets an removes a string based attribute (single)
+     *  Gets and removes a string based attribute (single)
      *    @param name of the attribute
      *    @param value of the attribute (a string), will be "" if not defined or
      *    not a single attribute
@@ -346,6 +346,21 @@ public:
     int erase_template_attribute(
         const char * name,
         string&      value)
+    {
+        obj_template->get(name,value);
+        return obj_template->erase(name);
+    }
+
+    /**
+     *  Gets and removes a float based attribute (single)
+     *    @param name of the attribute
+     *    @param value of the attribute (a float), will be 0 if not defined or
+     *    not a single attribute
+     *    @return the number of attributes erased
+     */
+    int erase_template_attribute(
+        const char * name,
+        float&       value)
     {
         obj_template->get(name,value);
         return obj_template->erase(name);
