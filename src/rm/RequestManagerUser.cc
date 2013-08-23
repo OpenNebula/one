@@ -214,15 +214,83 @@ int UserSetQuota::user_action(int     user_id,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int UserAddGroup::user_action(
-        int                         user_id,
-        xmlrpc_c::paramList const&  paramList,
-        string&                     error_str)
+void UserEditGroup::
+    request_execute(xmlrpc_c::paramList const& paramList,
+                    RequestAttributes& att)
 {
+    int user_id  = xmlrpc_c::value_int(paramList.getInt(1));
     int group_id = xmlrpc_c::value_int(paramList.getInt(2));
+
     int rc;
 
-    User* user = static_cast<User *>(pool->get(user_id,true));
+    string error_str;
+
+    string gname;
+    string uname;
+
+    PoolObjectAuth uperms;
+    PoolObjectAuth gperms;
+
+    rc = get_info(upool, user_id, PoolObjectSQL::USER, att, uperms, uname);
+
+    if ( rc == -1 )
+    {
+        return;
+    }
+
+    rc = get_info(gpool, group_id, PoolObjectSQL::GROUP, att, gperms, gname);
+
+    if ( rc == -1 )
+    {
+        return;
+    }
+
+    if ( att.uid != UserPool::ONEADMIN_ID )
+    {
+        AuthRequest ar(att.uid, att.group_ids);
+
+        ar.add_auth(AuthRequest::MANAGE, uperms);   // MANAGE USER
+        ar.add_auth(AuthRequest::MANAGE, gperms);   // MANAGE GROUP
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            failure_response(AUTHORIZATION,
+                             authorization_error(ar.message, att),
+                             att);
+
+            return;
+        }
+    }
+
+    if ( secondary_group_action(user_id, group_id, paramList, error_str) < 0 )
+    {
+        failure_response(ACTION, request_error(error_str,""), att);
+        return;
+    }
+
+    success_response(user_id, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int UserAddGroup::secondary_group_action(
+            int                        user_id,
+            int                        group_id,
+            xmlrpc_c::paramList const& _paramList,
+            string&                    error_str)
+{
+    User *  user;
+    Group * group;
+
+    int rc;
+
+    user = upool->get(user_id,true);
+
+    if ( user == 0 )
+    {
+        return -1;
+    }
 
     rc = user->add_group(group_id);
 
@@ -231,26 +299,24 @@ int UserAddGroup::user_action(
         user->unlock();
 
         error_str = "User is already in this group";
-        return rc;
+        return -1;
     }
 
-    pool->update(user);
+    upool->update(user);
 
     user->unlock();
 
-    Nebula&     nd    = Nebula::instance();
-    GroupPool * gpool = nd.get_gpool();
-    Group *     group = gpool->get(group_id, true);
+    group = gpool->get(group_id, true);
 
     if( group == 0 )
     {
-        User * user = static_cast<User *>(pool->get(user_id,true));
+        user = upool->get(user_id,true);
 
         if ( user != 0 )
         {
             user->del_group(group_id);
 
-            pool->update(user);
+            upool->update(user);
 
             user->unlock();
         }
@@ -271,15 +337,18 @@ int UserAddGroup::user_action(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int UserDelGroup::user_action(
-        int                         user_id,
-        xmlrpc_c::paramList const&  paramList,
-        string&                     error_str)
+int UserDelGroup::secondary_group_action(
+            int                        user_id,
+            int                        group_id,
+            xmlrpc_c::paramList const& _paramList,
+            string&                    error_str)
 {
-    int group_id = xmlrpc_c::value_int(paramList.getInt(2));
+    User *  user;
+    Group * group;
+
     int rc;
 
-    User* user = static_cast<User *>(pool->get(user_id,true));
+    user = upool->get(user_id,true);
 
     rc = user->del_group(group_id);
 
@@ -299,20 +368,19 @@ int UserDelGroup::user_action(
         {
             error_str = "Cannot remove user from group";
         }
+
         return rc;
     }
 
-    pool->update(user);
+    upool->update(user);
 
     user->unlock();
 
-    Nebula&     nd    = Nebula::instance();
-    GroupPool * gpool = nd.get_gpool();
-    Group *     group = gpool->get(group_id, true);
+    group = gpool->get(group_id, true);
 
     if( group == 0 )
     {
-        //Group does not exists, should never occur
+        //Group does not exist, should never occur
         error_str = "Cannot remove user from group";
         return -1;
     }

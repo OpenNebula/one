@@ -45,8 +45,9 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+    void request_execute(
+            xmlrpc_c::paramList const&  _paramList,
+            RequestAttributes&          att);
 
     virtual int user_action(int                        user_id,
                             xmlrpc_c::paramList const& _paramList,
@@ -131,43 +132,78 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class UserAddGroup : public RequestManagerUser
+class UserEditGroup : public Request
 {
 public:
-    UserAddGroup():
-        RequestManagerUser("UserAddGroup",
-                           "Adds the user to a secondary group",
-                           "A:sii")
+    UserEditGroup(
+            const string& method_name,
+            const string& help,
+            const string& params):
+                Request(method_name,params,help)
     {
+        auth_object = PoolObjectSQL::USER;
         auth_op = AuthRequest::MANAGE;
+
+        Nebula& nd = Nebula::instance();
+        gpool = nd.get_gpool();
+        upool = nd.get_upool();
     };
 
-    ~UserAddGroup(){};
+    ~UserEditGroup(){};
 
-    int user_action(int                        user_id,
-                    xmlrpc_c::paramList const& _paramList,
-                    string&                    err);
+    void request_execute(
+            xmlrpc_c::paramList const&  _paramList,
+            RequestAttributes&          att);
+
+    virtual int secondary_group_action(
+            int                        user_id,
+            int                        group_id,
+            xmlrpc_c::paramList const& _paramList,
+            string&                    error_str) = 0;
+
+protected:
+    GroupPool * gpool;
+    UserPool  * upool;
 };
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class UserDelGroup : public RequestManagerUser
+class UserAddGroup : public UserEditGroup
+{
+public:
+    UserAddGroup():
+        UserEditGroup("UserAddGroup",
+                       "Adds the user to a secondary group",
+                       "A:sii"){};
+
+    ~UserAddGroup(){};
+
+    int secondary_group_action(
+                int                        user_id,
+                int                        group_id,
+                xmlrpc_c::paramList const& _paramList,
+                string&                    error_str);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class UserDelGroup : public UserEditGroup
 {
 public:
     UserDelGroup():
-        RequestManagerUser("UserDelGroup",
-                           "Deletes the user from a secondary group",
-                           "A:sii")
-    {
-        auth_op = AuthRequest::MANAGE;
-    };
+        UserEditGroup("UserDelGroup",
+                       "Deletes the user from a secondary group",
+                       "A:sii"){};
 
     ~UserDelGroup(){};
 
-    int user_action(int                        user_id,
-                    xmlrpc_c::paramList const& _paramList,
-                    string&                    err);
+    int secondary_group_action(
+            int                        user_id,
+            int                        group_id,
+            xmlrpc_c::paramList const& _paramList,
+            string&                    error_str);
 };
 
 /* -------------------------------------------------------------------------- */
