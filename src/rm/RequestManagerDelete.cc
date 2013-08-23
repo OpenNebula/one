@@ -227,8 +227,11 @@ int ClusterDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 
 int UserDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 {
-    User * user  = static_cast<User *>(object);
-    int group_id = user->get_gid();
+    set<int>            group_set;
+    set<int>::iterator  it;
+
+    User * user = static_cast<User *>(object);
+    group_set   = user->get_groups();
 
     if (oid == 0)
     {
@@ -244,10 +247,17 @@ int UserDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 
     if ( rc == 0 )
     {
-        Group * group = gpool->get(group_id, true);
+        Group * group;
 
-        if( group != 0 )
+        for ( it = group_set.begin(); it != group_set.end(); it++ )
         {
+            group = gpool->get(*it, true);
+
+            if( group == 0 )
+            {
+                continue;
+            }
+
             group->del_user(oid);
             gpool->update(group);
 
