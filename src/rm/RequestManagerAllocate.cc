@@ -34,7 +34,7 @@ bool RequestManagerAllocate::allocate_authorization(
 
     string tmpl_str = "";
 
-    AuthRequest ar(att.uid, att.gid);
+    AuthRequest ar(att.uid, att.group_ids);
 
     if ( tmpl != 0 )
     {
@@ -73,7 +73,7 @@ bool VirtualMachineAllocate::allocate_authorization(
         return true;
     }
 
-    AuthRequest ar(att.uid, att.gid);
+    AuthRequest ar(att.uid, att.group_ids);
     string      t64;
     string      aname;
 
@@ -459,7 +459,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     if ( att.uid != 0 )
     {
-        AuthRequest ar(att.uid, att.gid);
+        AuthRequest ar(att.uid, att.group_ids);
         string  tmpl_str;
         string  aname;
 

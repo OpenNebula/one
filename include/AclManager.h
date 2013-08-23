@@ -58,13 +58,13 @@ public:
      *  authorizes the operation.
      *
      *    @param uid The user ID requesting to be authorized
-     *    @param gid Group ID of the user
+     *    @param user_groups Set of group IDs that the user is part of
      *    @param obj_perms The object's permission attributes
      *    @param op The operation to be authorized
      *    @return true if the authorization is granted by any rule
      */
     const bool authorize(int                    uid,
-                         int                    gid,
+                         const set<int>&        user_groups,
                          const PoolObjectAuth&  obj_perms,
                          AuthRequest::Operation op);
 

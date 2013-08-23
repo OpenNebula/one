@@ -213,7 +213,7 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( att.uid != 0 )
     {
-        AuthRequest ar(att.uid, att.gid);
+        AuthRequest ar(att.uid, att.group_ids);
 
         rc = get_info(pool, oid, auth_object, att, operms, oname);
 
@@ -363,7 +363,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( att.uid != 0 )
     {
-        AuthRequest ar(att.uid, att.gid);
+        AuthRequest ar(att.uid, att.group_ids);
 
         ar.add_auth(auth_op, uperms);           // MANAGE USER
         ar.add_auth(AuthRequest::USE, ngperms); // USE    GROUP
@@ -398,6 +398,9 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     user->set_group(ngid,ngname);
+
+    user->add_group(ngid);
+    user->del_group(old_gid);
 
     upool->update(user);
     

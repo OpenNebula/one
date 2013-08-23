@@ -132,7 +132,7 @@ AclManager::~AclManager()
 
 const bool AclManager::authorize(
         int                     uid,
-        int                     gid,
+        const set<int>&         user_groups,
         const PoolObjectAuth&   obj_perms,
         AuthRequest::Operation  op)
 {
@@ -280,23 +280,28 @@ const bool AclManager::authorize(
     }
 
     // ----------------------------------------------------------
-    // Look for rules that apply to the user's group
+    // Look for rules that apply to each one of the user's groups
     // ----------------------------------------------------------
 
-    user_req = AclRule::GROUP_ID | gid;
-    auth     = match_rules_wrapper(user_req,
-                                   resource_oid_req,
-                                   resource_gid_req,
-                                   resource_cid_req,
-                                   resource_all_req,
-                                   rights_req,
-                                   resource_oid_mask,
-                                   resource_gid_mask,
-                                   resource_cid_mask,
-                                   tmp_rules);
-    if ( auth == true )
+    set<int>::iterator  g_it;
+
+    for (g_it = user_groups.begin(); g_it != user_groups.end(); g_it++)
     {
-        return true;
+        user_req = AclRule::GROUP_ID | *g_it;
+        auth     = match_rules_wrapper(user_req,
+                                       resource_oid_req,
+                                       resource_gid_req,
+                                       resource_cid_req,
+                                       resource_all_req,
+                                       rights_req,
+                                       resource_oid_mask,
+                                       resource_gid_mask,
+                                       resource_cid_mask,
+                                       tmp_rules);
+        if ( auth == true )
+        {
+            return true;
+        }
     }
 
     oss.str("No more rules, permission not granted ");

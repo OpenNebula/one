@@ -20,6 +20,7 @@
 #include "PoolSQL.h"
 #include "UserTemplate.h"
 #include "Quotas.h"
+#include "ObjectCollection.h"
 
 using namespace std;
 
@@ -29,7 +30,7 @@ using namespace std;
 /**
  *  The User class.
  */
-class User : public PoolObjectSQL
+class User : public PoolObjectSQL, public ObjectCollection
 {
 public:
 
@@ -180,6 +181,47 @@ public:
      */
     int get_umask() const;
 
+    /**
+     *  Returns a copy of the groups for the user
+     */
+    set<int> get_groups()
+    {
+        return get_collection_copy();
+    };
+
+    // *************************************************************************
+    // Group IDs set Management
+    // *************************************************************************
+
+    /**
+     *  Adds a group ID to the groups set.
+     *
+     *    @param id The new id
+     *    @return 0 on success, -1 if the ID was already in the set
+     */
+    int add_group(int group_id)
+    {
+        return add_collection_id(group_id);
+    }
+
+    /**
+     *  Deletes a group ID from the groups set.
+     *
+     *    @param id The id
+     *    @return   0 on success,
+     *              -1 if the ID was not in the set,
+     *              -2 if the group to delete is the main group
+     */
+    int del_group(int group_id)
+    {
+        if( group_id == gid )
+        {
+            return -2;
+        }
+
+        return del_collection_id(group_id);
+    }
+
 private:
     // -------------------------------------------------------------------------
     // Friends
@@ -310,6 +352,7 @@ protected:
          const string& _auth_driver,
          bool          _enabled):
         PoolObjectSQL(id,USER,_uname,-1,_gid,"",_gname,table),
+        ObjectCollection("GROUPS"),
         quota("/USER/DATASTORE_QUOTA",
             "/USER/NETWORK_QUOTA",
             "/USER/IMAGE_QUOTA",

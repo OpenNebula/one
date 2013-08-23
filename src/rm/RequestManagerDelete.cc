@@ -47,7 +47,7 @@ bool RequestManagerDelete::delete_authorization(
 
     object->unlock();
 
-    AuthRequest ar(att.uid, att.gid);
+    AuthRequest ar(att.uid, att.group_ids);
 
     ar.add_auth(auth_op, perms);    // <MANAGE|ADMIN> OBJECT
 
