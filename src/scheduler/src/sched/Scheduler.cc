@@ -14,10 +14,8 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-
 #include <stdexcept>
 #include <stdlib.h>
-
 
 #include <signal.h>
 #include <unistd.h>
@@ -726,14 +724,14 @@ void Scheduler::dispatch()
     ostringstream       oss;
 
     int cpu, mem, dsk;
-    int hid, dsid;
+    int hid, dsid, cid;
 
     unsigned int dispatched_vms = 0;
 
     map<int, unsigned int>  host_vms;
     pair<map<int,unsigned int>::iterator, bool> rc;
 
-    vector<Resource *>::const_reverse_iterator i;
+    vector<Resource *>::const_reverse_iterator i, j;
     const map<int, ObjectXML*> pending_vms = vmpool->get_objects();
 
     //--------------------------------------------------------------------------
@@ -766,99 +764,124 @@ void Scheduler::dispatch()
         vm->get_requirements(cpu,mem,dsk);
 
         //----------------------------------------------------------------------
-        // Get the highest ranked host
+        // Get the highest ranked host and best System DS for it
         //----------------------------------------------------------------------
         const vector<Resource *> resources = vm->get_match_hosts();
 
-        hid  = -1;
-
         for (i = resources.rbegin() ; i != resources.rend() ; i++)
         {
-            host = hpool->get((*i)->oid);
+            hid  = (*i)->oid;
+            host = hpool->get(hid);
 
             if ( host == 0 )
             {
                 continue;
             }
 
-            if (host->test_capacity(cpu,mem,dsk) == true)
-            {
-                rc = host_vms.insert(make_pair((*i)->oid,0));
+            cid = host->get_cid();
 
-                //Select the host: update capacity and dispatch counter
-                if (rc.first->second < host_dispatch_limit)
-                {
-                    host->add_capacity(cpu,mem,dsk);
-
-                    hid = (*i)->oid;
-
-                    rc.first->second++;
-
-                    break;
-                }
-            }
-        }
-
-        if ( hid == -1 ) //No hosts for this VM skip DS selection and move on
-        {
-            continue;
-        }
-
-        //----------------------------------------------------------------------
-        // Migrate VM if reschedule VM, skip DS selection
-        //----------------------------------------------------------------------
-
-        if (vm->is_resched())
-        {
-            vmpool->dispatch(vm_it->first, hid, -1, true);
-        }
-
-        //----------------------------------------------------------------------
-        // Get the highest ranked datastore
-        //----------------------------------------------------------------------
-        const vector<Resource *> ds_resources = vm->get_match_datastores();
-
-        dsid = -1;
-
-        for (i = ds_resources.rbegin() ; i != ds_resources.rend() ; i++)
-        {
-            ds = dspool->get((*i)->oid);
-
-            if ( ds == 0 )
+            //------------------------------------------------------------------
+            // Test host capcity
+            //------------------------------------------------------------------
+            if (host->test_capacity(cpu,mem,dsk) != true)
             {
                 continue;
             }
 
-            if (ds->test_capacity(dsk))
-            {
-                dsid = (*i)->oid;
+            //------------------------------------------------------------------
+            // Test host dispatch limit (init counter if needed)
+            //------------------------------------------------------------------
+            rc = host_vms.insert(make_pair(hid,0));
 
-                ds->add_capacity(dsk);
+            if (rc.first->second >= host_dispatch_limit)
+            {
+                continue;
+            }
+
+            //------------------------------------------------------------------
+            // Migrate VM if reschedule VM, skip DS selection
+            //------------------------------------------------------------------
+            if (vm->is_resched())
+            {
+                host->add_capacity(cpu,mem,dsk);
+
+                host_vms[hid]++;
+
+                vmpool->dispatch(vm_it->first, hid, -1, true); //migrate VM
 
                 break;
             }
-        }
 
-        if (dsid == -1) //No DS, rollback and go for the next VM
-        {
-            host = hpool->get(hid);
+            //------------------------------------------------------------------
+            // Get the highest ranked datastore
+            //------------------------------------------------------------------
+            const vector<Resource *> ds_resources = vm->get_match_datastores();
 
-            if ( host != 0 )
+            dsid = -1;
+
+            for (j = ds_resources.rbegin() ; j != ds_resources.rend() ; j++)
             {
-                host->del_capacity(cpu,mem,dsk);
+                ds = dspool->get((*j)->oid);
 
-                host_vms[hid] = host_vms[hid] - 1;
+                if ( ds == 0 )
+                {
+                    continue;
+                }
+
+                //--------------------------------------------------------------
+                // Test cluster membership for datastore and selected host
+                //--------------------------------------------------------------
+                if ((ds->get_cid() != ClusterPoolXML::NONE_CLUSTER_ID) &&
+                    (ds->get_cid() != cid))
+                {
+                    continue;
+                }
+
+                //--------------------------------------------------------------
+                // Test datastore capcity
+                //--------------------------------------------------------------
+                if (ds->test_capacity(dsk) != true)
+                {
+                    continue;
+                }
+
+                //--------------------------------------------------------------
+                //Select this DS to dispatch VM
+                //--------------------------------------------------------------
+                dsid = (*j)->oid;
+
+                break;
             }
 
-            continue;
-        }
+            if (dsid == -1)
+            {
+                ostringstream oss;
 
-        //----------------------------------------------------------------------
-        // Dispatch the VM
-        //----------------------------------------------------------------------
-        if (vmpool->dispatch(vm_it->first, hid, dsid, false) == 0)
-        {
+                oss << "No suitable System DS found for Host: " << hid
+                    << ". Filtering out host.";
+
+                NebulaLog::log("SCHED", Log::INFO, oss);
+
+                continue;
+            }
+
+            //------------------------------------------------------------------
+            // Dispatch and update host and DS capacity, and dispatch counters
+            //------------------------------------------------------------------
+            if (vmpool->dispatch(vm_it->first, hid, dsid, false) != 0)
+            {
+                continue;
+            }
+
+            ds->add_capacity(dsk);
+
+            host->add_capacity(cpu,mem,dsk);
+
+            host_vms[hid]++;
+
             dispatched_vms++;
+
+            break;
         }
     }
 }

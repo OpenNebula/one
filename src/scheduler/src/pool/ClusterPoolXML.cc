@@ -16,6 +16,8 @@
 
 #include "ClusterPoolXML.h"
 
+const int ClusterPoolXML::NONE_CLUSTER_ID   = -1;
+
 void ClusterPoolXML::add_object(xmlNodePtr node)
 {
     if ( node == 0 || node->children == 0 )

@@ -62,6 +62,11 @@ public:
         return oid;
     };
 
+    int get_cid() const
+    {
+        return cluster_id;
+    };
+
 private:
 
     int oid;

@@ -42,6 +42,11 @@ public:
         return static_cast<ClusterXML *>(PoolXML::get(oid));
     };
 
+    /**
+     *  Identifier for the "none" cluster
+     */
+    static const int NONE_CLUSTER_ID;
+
 protected:
 
     int get_suitable_nodes(vector<xmlNodePtr>& content)
