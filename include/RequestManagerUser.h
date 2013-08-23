@@ -128,6 +128,48 @@ public:
                     string&                    err);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class UserAddGroup : public RequestManagerUser
+{
+public:
+    UserAddGroup():
+        RequestManagerUser("UserAddGroup",
+                           "Adds the user to a secondary group",
+                           "A:sii")
+    {
+        auth_op = AuthRequest::MANAGE;
+    };
+
+    ~UserAddGroup(){};
+
+    int user_action(int                        user_id,
+                    xmlrpc_c::paramList const& _paramList,
+                    string&                    err);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class UserDelGroup : public RequestManagerUser
+{
+public:
+    UserDelGroup():
+        RequestManagerUser("UserDelGroup",
+                           "Deletes the user from a secondary group",
+                           "A:sii")
+    {
+        auth_op = AuthRequest::MANAGE;
+    };
+
+    ~UserDelGroup(){};
+
+    int user_action(int                        user_id,
+                    xmlrpc_c::paramList const& _paramList,
+                    string&                    err);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

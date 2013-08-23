@@ -210,3 +210,118 @@ int UserSetQuota::user_action(int     user_id,
 
     return rc;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int UserAddGroup::user_action(
+        int                         user_id,
+        xmlrpc_c::paramList const&  paramList,
+        string&                     error_str)
+{
+    int group_id = xmlrpc_c::value_int(paramList.getInt(2));
+    int rc;
+
+    User* user = static_cast<User *>(pool->get(user_id,true));
+
+    rc = user->add_group(group_id);
+
+    if ( rc != 0 )
+    {
+        user->unlock();
+
+        error_str = "User is already in this group";
+        return rc;
+    }
+
+    pool->update(user);
+
+    user->unlock();
+
+    Nebula&     nd    = Nebula::instance();
+    GroupPool * gpool = nd.get_gpool();
+    Group *     group = gpool->get(group_id, true);
+
+    if( group == 0 )
+    {
+        User * user = static_cast<User *>(pool->get(user_id,true));
+
+        if ( user != 0 )
+        {
+            user->del_group(group_id);
+
+            pool->update(user);
+
+            user->unlock();
+        }
+
+        error_str = "Group does not exist";
+        return -1;
+    }
+
+    group->add_user(user_id);
+
+    gpool->update(group);
+
+    group->unlock();
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int UserDelGroup::user_action(
+        int                         user_id,
+        xmlrpc_c::paramList const&  paramList,
+        string&                     error_str)
+{
+    int group_id = xmlrpc_c::value_int(paramList.getInt(2));
+    int rc;
+
+    User* user = static_cast<User *>(pool->get(user_id,true));
+
+    rc = user->del_group(group_id);
+
+    if ( rc != 0 )
+    {
+        user->unlock();
+
+        if ( rc == -1 )
+        {
+            error_str = "User is not part of this group";
+        }
+        else if ( rc == -2 )
+        {
+            error_str = "Cannot remove user from the primary group";
+        }
+        else
+        {
+            error_str = "Cannot remove user from group";
+        }
+        return rc;
+    }
+
+    pool->update(user);
+
+    user->unlock();
+
+    Nebula&     nd    = Nebula::instance();
+    GroupPool * gpool = nd.get_gpool();
+    Group *     group = gpool->get(group_id, true);
+
+    if( group == 0 )
+    {
+        //Group does not exists, should never occur
+        error_str = "Cannot remove user from group";
+        return -1;
+    }
+
+    group->del_user(user_id);
+
+    gpool->update(group);
+
+    group->unlock();
+
+    return 0;
+}
