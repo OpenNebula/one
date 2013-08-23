@@ -317,6 +317,8 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     int rc;
 
+    bool remove_old_group;
+
     string ngname;
     string uname;
 
@@ -399,8 +401,17 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     user->set_group(ngid,ngname);
 
-    user->add_group(ngid);
-    user->del_group(old_gid);
+    // The user is removed from the old group only if the new group is not a
+    // secondary one
+
+    rc = user->add_group(ngid);
+
+    remove_old_group = (rc == 0);
+
+    if (remove_old_group)
+    {
+        user->del_group(old_gid);
+    }
 
     upool->update(user);
     
@@ -426,15 +437,18 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     // ------------- Updates old group removing the user ---------------------
 
-    group = gpool->get(old_gid, true);
-
-    if( group != 0 )
+    if (remove_old_group)
     {
-        group->del_user(oid);
+        group = gpool->get(old_gid, true);
 
-        gpool->update(group);
+        if( group != 0 )
+        {
+            group->del_user(oid);
 
-        group->unlock();
+            gpool->update(group);
+
+            group->unlock();
+        }
     }
 
     success_response(oid, att);
