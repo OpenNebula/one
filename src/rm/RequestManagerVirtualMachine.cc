@@ -532,7 +532,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
             return;
         }
 
-        if ((ds_cluster_id != -1) && (ds_cluster_id != cluster_id))
+        if ((ds_cluster_id != ClusterPool::NONE_CLUSTER_ID) && (ds_cluster_id != cluster_id))
         {
             ostringstream oss;
 
