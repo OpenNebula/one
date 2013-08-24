@@ -23,3 +23,5 @@ file=$1
 
 exec_and_log "virsh --connect $LIBVIRT_URI restore $file" \
     "Could not restore from $file"
+
+rm "$file"
