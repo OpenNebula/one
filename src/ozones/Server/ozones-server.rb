@@ -140,7 +140,7 @@ ADMIN_PASS = @auth.password
 begin
     OZones::ProxyRules.new("apache", $config[:htaccess])
 rescue Exception => e
-    logger {e.message}
+    logger.error {e.message}
     exit -1
 end
 
