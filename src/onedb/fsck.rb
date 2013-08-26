@@ -177,9 +177,10 @@ module OneDBFsck
 
             gid = doc.root.get_text('GID').to_s.to_i
             user_gid = gid
+            user_gids = Set.new
 
             if group[gid].nil?
-                log_error("User #{row[:oid]} is in group #{gid}, but it does not exist")
+                log_error("User #{row[:oid]} has primary group #{gid}, but it does not exist")
 
                 user_gid = 1
 
@@ -191,7 +192,42 @@ module OneDBFsck
                     e.text = "users"
                 end
 
+                doc.root.each_element("GROUPS") { |e|
+                    e.elements.delete("ID[.=#{gid}]")
+                    e.add_element("ID").text = user_gid.to_s
+                }
+
                 users_fix[row[:oid]] = {:body => doc.to_s, :gid => user_gid}
+            end
+
+            doc.root.each_element("GROUPS/ID") { |e|
+                user_gids.add e.text.to_i
+            }
+
+            if !user_gids.include?(user_gid)
+                log_error("User #{row[:oid]} does not have his primary group #{user_gid} in the list of secondary groups")
+
+                doc.root.each_element("GROUPS") { |e|
+                    e.add_element("ID").text = user_gid.to_s
+                }
+
+                user_gids.add user_gid.to_i
+
+                users_fix[row[:oid]] = {:body => doc.to_s, :gid => user_gid}
+            end
+
+            user_gids.each do |secondary_gid|
+                if group[secondary_gid].nil?
+                    log_error("User #{row[:oid]} has secondary group #{secondary_gid}, but it does not exist")
+
+                    doc.root.each_element("GROUPS") { |e|
+                        e.elements.delete("ID[.=#{secondary_gid}]")
+                    }
+
+                    users_fix[row[:oid]] = {:body => doc.to_s, :gid => user_gid}
+                else
+                    group[secondary_gid] << row[:oid]
+                end
             end
 
             if gid != row[:gid]
@@ -201,8 +237,6 @@ module OneDBFsck
 
                 users_fix[row[:oid]] = {:body => doc.to_s, :gid => user_gid}
             end
-
-            group[user_gid] << row[:oid]
         end
 
         users_fix.each do |id, user|
