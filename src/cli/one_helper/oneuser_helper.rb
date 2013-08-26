@@ -245,13 +245,15 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
     def format_resource(user, options = {})
         system = System.new(@client)
 
-        str="%-15s: %-20s"
+        str="%-16s: %-20s"
         str_h1="%-80s"
 
         CLIHelper.print_header(str_h1 % "USER #{user['ID']} INFORMATION")
         puts str % ["ID",          user.id.to_s]
         puts str % ["NAME",        user.name]
         puts str % ["GROUP",       user['GNAME']]
+        groups = user.retrieve_elements("GROUPS/ID")
+        puts str % ["SECONDARY GROUPS", groups.join(',') ] if groups.size > 1
         puts str % ["PASSWORD",    user['PASSWORD']]
         puts str % ["AUTH_DRIVER", user['AUTH_DRIVER']]
 
