@@ -208,13 +208,21 @@ function tableCheckboxesListener(dataTable, custom_context){
 // Does a partial redraw, so the filter and pagination are kept
 function updateView(item_list,dataTable){
     var selected_row_id = $($('td.markrowselected',dataTable.fnGetNodes())[1]).html();
+    if (!selected_row_id) selected_row_id = $($('td.markrowselected',dataTable.fnGetNodes())[0]).html();
     var checked_row_ids = new Array();
 
     $.each($(dataTable.fnGetNodes()), function(){
-       if($('td.markrowchecked',this).length!=0)
-       {
-         checked_row_ids.push($($('td',$(this))[1]).html());
-       }
+        if($('td.markrowchecked',this).length!=0)
+        {
+            if (!isNaN($($('td',$(this))[1]).html()))
+            {
+                checked_row_ids.push($($('td',$(this))[1]).html());
+            }
+            else
+            {
+                checked_row_ids.push($($('td',$(this))[0]).html());
+            }
+        }
     });
 
     if (dataTable) {
@@ -252,6 +260,12 @@ function updateView(item_list,dataTable){
     {
         $.each($(dataTable.fnGetNodes()),function(){
             var current_id = $($('td',this)[1]).html();
+
+            if (isNaN(current_id))
+            {
+                current_id = $($('td',this)[0]).html();
+            }
+            
             if (current_id)
             {
                 if(jQuery.inArray(current_id, checked_row_ids)!=-1)
