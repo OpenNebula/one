@@ -227,7 +227,7 @@ module OneDBFsck
                 id_elem = users_elem.elements.delete("ID[.=#{id}]")
 
                 if id_elem.nil?
-                    log_error("User #{id} is missing fom Group #{gid} users id list")
+                    log_error("User #{id} is missing from Group #{gid} users id list")
                 end
 
                 users_new_elem.add_element("ID").text = id.to_s
@@ -409,7 +409,7 @@ module OneDBFsck
                 id_elem = hosts_elem.elements.delete("ID[.=#{id}]")
 
                 if id_elem.nil?
-                    log_error("Host #{id} is missing fom Cluster #{cluster_id} host id list")
+                    log_error("Host #{id} is missing from Cluster #{cluster_id} host id list")
                 end
 
                 hosts_new_elem.add_element("ID").text = id.to_s
@@ -439,7 +439,7 @@ module OneDBFsck
                 id_elem = ds_elem.elements.delete("ID[.=#{id}]")
 
                 if id_elem.nil?
-                    log_error("Datastore #{id} is missing fom Cluster #{cluster_id} datastore id list")
+                    log_error("Datastore #{id} is missing from Cluster #{cluster_id} datastore id list")
                 end
 
                 ds_new_elem.add_element("ID").text = id.to_s
@@ -459,7 +459,7 @@ module OneDBFsck
                 id_elem = vnets_elem.elements.delete("ID[.=#{id}]")
 
                 if id_elem.nil?
-                    log_error("VNet #{id} is missing fom Cluster #{cluster_id} vnet id list")
+                    log_error("VNet #{id} is missing from Cluster #{cluster_id} vnet id list")
                 end
 
                 vnets_new_elem.add_element("ID").text = id.to_s
@@ -546,7 +546,7 @@ module OneDBFsck
                 id_elem = images_elem.elements.delete("ID[.=#{id}]")
 
                 if id_elem.nil?
-                    log_error("Image #{id} is missing fom Datastore #{ds_id} image id list")
+                    log_error("Image #{id} is missing from Datastore #{ds_id} image id list")
                 end
 
                 images_new_elem.add_element("ID").text = id.to_s
@@ -740,7 +740,7 @@ module OneDBFsck
                 id_elem = vms_elem.elements.delete("ID[.=#{id}]")
 
                 if id_elem.nil?
-                    log_error("VM #{id} is missing fom Host #{hid} VM id list")
+                    log_error("VM #{id} is missing from Host #{hid} VM id list")
                 end
 
                 vms_new_elem.add_element("ID").text = id.to_s
@@ -824,7 +824,7 @@ module OneDBFsck
                 id_elem = vms_elem.elements.delete("ID[.=#{id}]")
 
                 if id_elem.nil?
-                    log_error("VM #{id} is missing fom Image #{oid} VM id list")
+                    log_error("VM #{id} is missing from Image #{oid} VM id list")
                 end
 
                 vms_new_elem.add_element("ID").text = id.to_s
@@ -857,7 +857,7 @@ module OneDBFsck
                 id_elem = clones_elem.elements.delete("ID[.=#{id}]")
 
                 if id_elem.nil?
-                    log_error("Image #{id} is missing fom Image #{oid} CLONES id list")
+                    log_error("Image #{id} is missing from Image #{oid} CLONES id list")
                 end
 
                 clones_new_elem.add_element("ID").text = id.to_s
