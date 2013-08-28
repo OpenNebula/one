@@ -181,7 +181,8 @@ int DispatchManager::shutdown (
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::RUNNING )
+        (vm->get_lcm_state() == VirtualMachine::RUNNING ||
+         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
     {
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();
@@ -228,7 +229,8 @@ int DispatchManager::undeploy(
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::RUNNING )
+        (vm->get_lcm_state() == VirtualMachine::RUNNING ||
+         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
     {
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();
@@ -281,7 +283,8 @@ int DispatchManager::poweroff (
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::RUNNING )
+        (vm->get_lcm_state() == VirtualMachine::RUNNING ||
+         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
     {
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();
@@ -470,7 +473,8 @@ int DispatchManager::cancel(
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::RUNNING )
+        (vm->get_lcm_state() == VirtualMachine::RUNNING ||
+         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
     {
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();
