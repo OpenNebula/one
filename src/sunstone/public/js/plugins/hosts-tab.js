@@ -128,7 +128,6 @@ var create_host_tmpl =
                <option value="xen">' + tr("XEN") + '</option>\
                <option value="vmware">' + tr("VMware") + '</option>\
                <option value="ec2">' + tr("EC2") + '</option>\
-               <option value="ganglia">' + tr("Ganglia") + '</option>\
                <option value="dummy">' + tr("Dummy") + '</option>\
                <option value="custom">' + tr("Custom") + '</option>\
           </select>\
