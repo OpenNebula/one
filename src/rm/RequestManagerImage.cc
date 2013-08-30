@@ -357,7 +357,7 @@ void ImageClone::request_execute(
 
     if ( att.uid != 0 )
     {
-        AuthRequest ar(att.uid, att.gid);
+        AuthRequest ar(att.uid, att.group_ids);
         string      tmpl_str;
 
         // ------------------ Check permissions and ACLs  ----------------------

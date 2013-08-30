@@ -36,6 +36,8 @@ public class User extends PoolElement{
     private static final String CHAUTH          = METHOD_PREFIX + "chauth";
     private static final String UPDATE          = METHOD_PREFIX + "update";
     private static final String QUOTA           = METHOD_PREFIX + "quota";
+    private static final String ADDGROUP        = METHOD_PREFIX + "addgroup";
+    private static final String DELGROUP        = METHOD_PREFIX + "delgroup";
 
     /**
      * Creates a new User representation.
@@ -147,6 +149,33 @@ public class User extends PoolElement{
     }
 
     /**
+     * Adds the User to a secondary group
+     *
+     * @param client XML-RPC Client.
+     * @param id The user id (uid) of the target user we want to modify.
+     * @param gid The new group ID.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse addgroup(Client client, int id, int gid)
+    {
+        return client.call(ADDGROUP, id, gid);
+    }
+
+    /**
+     * Removes the User from a secondary group. Fails if the
+     * group is the main one
+     *
+     * @param client XML-RPC Client.
+     * @param id The user id (uid) of the target user we want to modify.
+     * @param gid The group ID.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse delgroup(Client client, int id, int gid)
+    {
+        return client.call(DELGROUP, id, gid);
+    }
+
+    /**
      * Changes the auth driver and the password of the given user
      *
      * @param client XML-RPC Client.
@@ -240,6 +269,29 @@ public class User extends PoolElement{
     public OneResponse chgrp(int gid)
     {
         return chgrp(client, id, gid);
+    }
+
+    /**
+     * Adds the User to a secondary group
+     *
+     * @param gid The new group ID.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse addgroup(int gid)
+    {
+        return addgroup(client, id, gid);
+    }
+
+    /**
+     * Removes the User from a secondary group. Fails if the
+     * group is the main one
+     *
+     * @param gid The group ID.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse delgroup(int gid)
+    {
+        return delgroup(client, id, gid);
     }
 
     /**

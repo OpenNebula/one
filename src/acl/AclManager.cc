@@ -132,7 +132,7 @@ AclManager::~AclManager()
 
 const bool AclManager::authorize(
         int                     uid,
-        int                     gid,
+        const set<int>&         user_groups,
         const PoolObjectAuth&   obj_perms,
         AuthRequest::Operation  op)
 {
@@ -280,23 +280,28 @@ const bool AclManager::authorize(
     }
 
     // ----------------------------------------------------------
-    // Look for rules that apply to the user's group
+    // Look for rules that apply to each one of the user's groups
     // ----------------------------------------------------------
 
-    user_req = AclRule::GROUP_ID | gid;
-    auth     = match_rules_wrapper(user_req,
-                                   resource_oid_req,
-                                   resource_gid_req,
-                                   resource_cid_req,
-                                   resource_all_req,
-                                   rights_req,
-                                   resource_oid_mask,
-                                   resource_gid_mask,
-                                   resource_cid_mask,
-                                   tmp_rules);
-    if ( auth == true )
+    set<int>::iterator  g_it;
+
+    for (g_it = user_groups.begin(); g_it != user_groups.end(); g_it++)
     {
-        return true;
+        user_req = AclRule::GROUP_ID | *g_it;
+        auth     = match_rules_wrapper(user_req,
+                                       resource_oid_req,
+                                       resource_gid_req,
+                                       resource_cid_req,
+                                       resource_all_req,
+                                       rights_req,
+                                       resource_oid_mask,
+                                       resource_gid_mask,
+                                       resource_cid_mask,
+                                       tmp_rules);
+        if ( auth == true )
+        {
+            return true;
+        }
     }
 
     oss.str("No more rules, permission not granted ");
@@ -716,7 +721,7 @@ void AclManager::del_resource_matching_rules(long long resource_req,
 /* -------------------------------------------------------------------------- */
 
 void AclManager::reverse_search(int                       uid,
-                                int                       gid,
+                                const set<int>&           user_groups,
                                 PoolObjectSQL::ObjectType obj_type,
                                 AuthRequest::Operation    op,
                                 bool&                     all,
@@ -764,22 +769,30 @@ void AclManager::reverse_search(int                       uid,
     // Look for the rules that match
     // ---------------------------------------------------
 
-    long long user_reqs[] =
+    vector<long long>           user_reqs;
+    vector<long long>::iterator reqs_it;
+
+    set<int>::iterator  g_it;
+
+    // rules that apply to everyone
+    user_reqs.push_back(AclRule::ALL_ID);
+
+    // rules that apply to the individual user id
+    user_reqs.push_back(AclRule::INDIVIDUAL_ID | uid);
+
+    // rules that apply to each one of the user's groups
+    for (g_it = user_groups.begin(); g_it != user_groups.end(); g_it++)
     {
-        AclRule::ALL_ID,                // rules that apply to everyone
-        AclRule::INDIVIDUAL_ID | uid,   // rules that apply to the individual user id
-        AclRule::GROUP_ID | gid         // rules that apply to the user's groups
-    };
+        user_reqs.push_back(AclRule::GROUP_ID | *g_it);
+    }
 
     all = false;
 
-    for ( int i=0; i<3; i++ )
+    for (reqs_it = user_reqs.begin(); reqs_it != user_reqs.end(); reqs_it++)
     {
-        long long user_req = user_reqs[i];
-
         lock();
 
-        index = acl_rules.equal_range( user_req );
+        index = acl_rules.equal_range( *reqs_it );
 
         for ( it = index.first; it != index.second; it++)
         {

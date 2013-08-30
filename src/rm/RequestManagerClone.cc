@@ -79,7 +79,7 @@ void RequestManagerClone::request_execute(
     {
         string tmpl_str = "";
 
-        AuthRequest ar(att.uid, att.gid);
+        AuthRequest ar(att.uid, att.group_ids);
 
         ar.add_auth(auth_op, perms); //USE OBJECT
 

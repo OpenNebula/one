@@ -254,6 +254,8 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr user_change_password(new UserChangePassword());
     xmlrpc_c::methodPtr user_change_auth(new UserChangeAuth());
     xmlrpc_c::methodPtr user_set_quota(new UserSetQuota());
+    xmlrpc_c::methodPtr user_add_group(new UserAddGroup());
+    xmlrpc_c::methodPtr user_del_group(new UserDelGroup());
 
     // Group Methods
     xmlrpc_c::methodPtr group_set_quota(new GroupSetQuota());
@@ -489,6 +491,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.user.info", user_info);
     RequestManagerRegistry.addMethod("one.user.passwd", user_change_password);
     RequestManagerRegistry.addMethod("one.user.chgrp", user_chown);
+    RequestManagerRegistry.addMethod("one.user.addgroup", user_add_group);
+    RequestManagerRegistry.addMethod("one.user.delgroup", user_del_group);
     RequestManagerRegistry.addMethod("one.user.chauth", user_change_auth);
     RequestManagerRegistry.addMethod("one.user.quota", user_set_quota);
 

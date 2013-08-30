@@ -279,9 +279,9 @@ void RequestManagerPoolInfoFilter::where_filter(
 
     ostringstream filter;
 
-    PoolSQL::acl_filter(att.uid, att.gid, auth_object, all, acl_str);
+    PoolSQL::acl_filter(att.uid, att.group_ids, auth_object, all, acl_str);
 
-    PoolSQL::usr_filter(att.uid, att.gid, filter_flag, all, acl_str, uid_str);
+    PoolSQL::usr_filter(att.uid, att.group_ids, filter_flag, all, acl_str, uid_str);
 
     PoolSQL::oid_filter(start_id, end_id, oid_str);
 

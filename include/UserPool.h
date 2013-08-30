@@ -124,6 +124,7 @@ public:
      *   @param gid of the user if authN succeeded -1 otherwise
      *   @param uname of the user if authN succeeded "" otherwise
      *   @param gname of the group if authN succeeded "" otherwise
+     *   @param group_ids the user groups if authN succeeded, is empty otherwise
      *
      *   @return false if authn failed, true otherwise
      */
@@ -131,7 +132,8 @@ public:
                       int&          uid,
                       int&          gid,
                       string&       uname,
-                      string&       gname);
+                      string&       gname,
+                      set<int>&     group_ids);
     /**
      * Returns whether the operations described in a authorization request are
      * authorized ot not.
@@ -217,7 +219,8 @@ private:
                                int&          user_id,
                                int&          group_id,
                                string&       uname,
-                               string&       gname);
+                               string&       gname,
+                               set<int>&     group_ids);
 
     /**
      *  Function to authenticate internal users using a server driver
@@ -227,18 +230,20 @@ private:
                              int&          user_id,
                              int&          group_id,
                              string&       uname,
-                             string&       gname);
+                             string&       gname,
+                             set<int>&     group_ids);
 
 
     /**
      *  Function to authenticate external (not known) users
      */
-    bool authenticate_external(const string& username,
-                               const string& token,
-                               int&    user_id,
-                               int&    group_id,
-                               string& uname,
-                               string& gname);
+    bool authenticate_external(const string&    username,
+                               const string&    token,
+                               int&             user_id,
+                               int&             group_id,
+                               string&          uname,
+                               string&          gname,
+                               set<int>&        group_ids);
     /**
      *  Factory method to produce User objects
      *    @return a pointer to the new User

@@ -67,7 +67,7 @@ void AuthRequest::add_auth(Operation             op,
 
     // Default conditions that grants permission :
     // User is oneadmin, or is in the oneadmin group
-    if ( uid == 0 || gid == GroupPool::ONEADMIN_ID )
+    if ( uid == 0 || gids.count( GroupPool::ONEADMIN_ID ) == 1 )
     {
         auth = true;
     }
@@ -76,7 +76,7 @@ void AuthRequest::add_auth(Operation             op,
         Nebula&     nd   = Nebula::instance();
         AclManager* aclm = nd.get_aclm();
 
-        auth = aclm->authorize(uid, gid, ob_perms, op);
+        auth = aclm->authorize(uid, gids, ob_perms, op);
     }
 
     oss << auth; // Store the ACL authorization result in the request
