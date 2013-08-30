@@ -29,6 +29,8 @@ module OpenNebula
             :delete   => "user.delete",
             :passwd   => "user.passwd",
             :chgrp    => "user.chgrp",
+            :addgroup => "user.addgroup",
+            :delgroup => "user.delgroup",
             :update   => "user.update",
             :chauth   => "user.chauth",
             :quota    => "user.quota"
@@ -124,7 +126,7 @@ module OpenNebula
             return rc
         end
 
-        # Changes the main group
+        # Changes the primary group
         # gid:: _Integer_ the new group id. Set to -1 to leave the current one
         # [return] nil in case of success or an Error object
         def chgrp(gid)
@@ -134,6 +136,23 @@ module OpenNebula
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc
+        end
+
+        # Adds the User to a secondary group
+        # @param gid [Integer] the new group id.
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def addgroup(gid)
+            return call(USER_METHODS[:addgroup], @pe_id, gid)
+        end
+
+        # Removes the User from a secondary group. Fails if the
+        # group is the main one
+        # @param gid [Integer] the group id.
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def delgroup(gid)
+            return call(USER_METHODS[:delgroup], @pe_id, gid)
         end
 
         # Changes the auth driver and the password of the given User

@@ -579,14 +579,14 @@ int PoolSQL::search(
 /* -------------------------------------------------------------------------- */
 
 void PoolSQL::acl_filter(int                       uid,
-                         int                       gid,
+                         const set<int>&           user_groups,
                          PoolObjectSQL::ObjectType auth_object,
                          bool&                     all,
                          string&                   filter)
 {
     filter.clear();
 
-    if ( uid == 0 || gid == 0 )
+    if ( uid == UserPool::ONEADMIN_ID || user_groups.count( GroupPool::ONEADMIN_ID ) == 1 )
     {
         all = true;
         return;
@@ -603,7 +603,7 @@ void PoolSQL::acl_filter(int                       uid,
     vector<int> cids;
 
     aclm->reverse_search(uid,
-                         gid,
+                         user_groups,
                          auth_object,
                          AuthRequest::USE,
                          all,
@@ -631,14 +631,16 @@ void PoolSQL::acl_filter(int                       uid,
 
 /* -------------------------------------------------------------------------- */
 
-void PoolSQL::usr_filter(int           uid,
-                         int           gid,
-                         int           filter_flag,
-                         bool          all,
-                         const string& acl_str,
-                         string&       filter)
+void PoolSQL::usr_filter(int                uid,
+                         const set<int>&    user_groups,
+                         int                filter_flag,
+                         bool               all,
+                         const string&      acl_str,
+                         string&            filter)
 {
     ostringstream uid_filter;
+
+    set<int>::iterator g_it;
 
     if ( filter_flag == RequestManagerPoolInfoFilter::MINE )
     {
@@ -646,17 +648,26 @@ void PoolSQL::usr_filter(int           uid,
     }
     else if ( filter_flag == RequestManagerPoolInfoFilter::MINE_GROUP )
     {
-        uid_filter << " uid = " << uid
-                   << " OR ( gid = " << gid << " AND group_u = 1 )";
+        uid_filter << " uid = " << uid;
+
+        for (g_it = user_groups.begin(); g_it != user_groups.end(); g_it++)
+        {
+            uid_filter << " OR ( gid = " << *g_it << " AND group_u = 1 )";
+        }
     }
     else if ( filter_flag == RequestManagerPoolInfoFilter::ALL )
     {
         if (!all)
         {
             uid_filter << " uid = " << uid
-                       << " OR ( gid = " << gid << " AND group_u = 1 )"
-                       << " OR other_u = 1"
-                       << acl_str;
+                    << " OR other_u = 1";
+
+            for (g_it = user_groups.begin(); g_it != user_groups.end(); g_it++)
+            {
+                uid_filter << " OR ( gid = " << *g_it << " AND group_u = 1 )";
+            }
+
+            uid_filter << acl_str;
         }
     }
     else
@@ -665,11 +676,14 @@ void PoolSQL::usr_filter(int           uid,
 
         if ( filter_flag != uid && !all )
         {
-            uid_filter << " AND ("
-                       << " ( gid = " << gid << " AND group_u = 1)"
-                       << " OR other_u = 1"
-                       << acl_str
-                       << ")";
+            uid_filter << " AND ( other_u = 1";
+
+            for (g_it = user_groups.begin(); g_it != user_groups.end(); g_it++)
+            {
+                uid_filter << " OR ( gid = " << *g_it << " AND group_u = 1 )";
+            }
+
+            uid_filter << acl_str << ")";
         }
     }
 

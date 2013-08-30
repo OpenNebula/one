@@ -156,6 +156,9 @@ string& User::to_xml_extended(string& xml, bool extended) const
 
     string template_xml;
     string quota_xml;
+    string collection_xml;
+
+    ObjectCollection::to_xml(collection_xml);
 
     int  enabled_int = enabled?1:0;
 
@@ -163,6 +166,7 @@ string& User::to_xml_extended(string& xml, bool extended) const
     "<USER>"
          "<ID>"          << oid         <<"</ID>"         <<
          "<GID>"         << gid         <<"</GID>"        <<
+         collection_xml  <<
          "<GNAME>"       << gname       <<"</GNAME>"      <<
          "<NAME>"        << name        <<"</NAME>"       <<
          "<PASSWORD>"    << password    <<"</PASSWORD>"   <<
@@ -220,7 +224,22 @@ int User::from_xml(const string& xml)
     rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
+    content.clear();
 
+    ObjectXML::get_nodes("/USER/GROUPS", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    // Set of IDs
+    rc += ObjectCollection::from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
+    content.clear();
+
+    // Quotas
     rc += quota.from_xml(this);
 
     if (rc != 0)

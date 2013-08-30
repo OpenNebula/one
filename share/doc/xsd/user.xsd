@@ -6,6 +6,13 @@
       <xs:sequence>
         <xs:element name="ID" type="xs:integer"/>
         <xs:element name="GID" type="xs:integer"/>
+        <xs:element name="GROUPS">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ID" type="xs:integer" minOccurs="1" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
         <xs:element name="GNAME" type="xs:string"/>
         <xs:element name="NAME" type="xs:string"/>
         <xs:element name="PASSWORD" type="xs:string"/>

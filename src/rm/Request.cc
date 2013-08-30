@@ -40,7 +40,8 @@ void Request::execute(
                                                 att.uid,
                                                 att.gid,
                                                 att.uname,
-                                                att.gname);
+                                                att.gname,
+                                                att.group_ids);
 
     log_method_invoked(att, _paramList);
 
@@ -240,7 +241,7 @@ bool Request::basic_authorization(int oid,
         perms.obj_type = auth_object;
     }
 
-    AuthRequest ar(att.uid, att.gid);
+    AuthRequest ar(att.uid, att.group_ids);
 
     ar.add_auth(op, perms);
 

@@ -177,9 +177,10 @@ module OneDBFsck
 
             gid = doc.root.get_text('GID').to_s.to_i
             user_gid = gid
+            user_gids = Set.new
 
             if group[gid].nil?
-                log_error("User #{row[:oid]} is in group #{gid}, but it does not exist")
+                log_error("User #{row[:oid]} has primary group #{gid}, but it does not exist")
 
                 user_gid = 1
 
@@ -191,7 +192,42 @@ module OneDBFsck
                     e.text = "users"
                 end
 
+                doc.root.each_element("GROUPS") { |e|
+                    e.elements.delete("ID[.=#{gid}]")
+                    e.add_element("ID").text = user_gid.to_s
+                }
+
                 users_fix[row[:oid]] = {:body => doc.to_s, :gid => user_gid}
+            end
+
+            doc.root.each_element("GROUPS/ID") { |e|
+                user_gids.add e.text.to_i
+            }
+
+            if !user_gids.include?(user_gid)
+                log_error("User #{row[:oid]} does not have his primary group #{user_gid} in the list of secondary groups")
+
+                doc.root.each_element("GROUPS") { |e|
+                    e.add_element("ID").text = user_gid.to_s
+                }
+
+                user_gids.add user_gid.to_i
+
+                users_fix[row[:oid]] = {:body => doc.to_s, :gid => user_gid}
+            end
+
+            user_gids.each do |secondary_gid|
+                if group[secondary_gid].nil?
+                    log_error("User #{row[:oid]} has secondary group #{secondary_gid}, but it does not exist")
+
+                    doc.root.each_element("GROUPS") { |e|
+                        e.elements.delete("ID[.=#{secondary_gid}]")
+                    }
+
+                    users_fix[row[:oid]] = {:body => doc.to_s, :gid => user_gid}
+                else
+                    group[secondary_gid] << row[:oid]
+                end
             end
 
             if gid != row[:gid]
@@ -201,8 +237,6 @@ module OneDBFsck
 
                 users_fix[row[:oid]] = {:body => doc.to_s, :gid => user_gid}
             end
-
-            group[user_gid] << row[:oid]
         end
 
         users_fix.each do |id, user|
@@ -227,7 +261,7 @@ module OneDBFsck
                 id_elem = users_elem.elements.delete("ID[.=#{id}]")
 
                 if id_elem.nil?
-                    log_error("User #{id} is missing fom Group #{gid} users id list")
+                    log_error("User #{id} is missing from Group #{gid} users id list")
                 end
 
                 users_new_elem.add_element("ID").text = id.to_s
@@ -409,7 +443,7 @@ module OneDBFsck
                 id_elem = hosts_elem.elements.delete("ID[.=#{id}]")
 
                 if id_elem.nil?
-                    log_error("Host #{id} is missing fom Cluster #{cluster_id} host id list")
+                    log_error("Host #{id} is missing from Cluster #{cluster_id} host id list")
                 end
 
                 hosts_new_elem.add_element("ID").text = id.to_s
@@ -439,7 +473,7 @@ module OneDBFsck
                 id_elem = ds_elem.elements.delete("ID[.=#{id}]")
 
                 if id_elem.nil?
-                    log_error("Datastore #{id} is missing fom Cluster #{cluster_id} datastore id list")
+                    log_error("Datastore #{id} is missing from Cluster #{cluster_id} datastore id list")
                 end
 
                 ds_new_elem.add_element("ID").text = id.to_s
@@ -459,7 +493,7 @@ module OneDBFsck
                 id_elem = vnets_elem.elements.delete("ID[.=#{id}]")
 
                 if id_elem.nil?
-                    log_error("VNet #{id} is missing fom Cluster #{cluster_id} vnet id list")
+                    log_error("VNet #{id} is missing from Cluster #{cluster_id} vnet id list")
                 end
 
                 vnets_new_elem.add_element("ID").text = id.to_s
@@ -546,7 +580,7 @@ module OneDBFsck
                 id_elem = images_elem.elements.delete("ID[.=#{id}]")
 
                 if id_elem.nil?
-                    log_error("Image #{id} is missing fom Datastore #{ds_id} image id list")
+                    log_error("Image #{id} is missing from Datastore #{ds_id} image id list")
                 end
 
                 images_new_elem.add_element("ID").text = id.to_s
@@ -740,7 +774,7 @@ module OneDBFsck
                 id_elem = vms_elem.elements.delete("ID[.=#{id}]")
 
                 if id_elem.nil?
-                    log_error("VM #{id} is missing fom Host #{hid} VM id list")
+                    log_error("VM #{id} is missing from Host #{hid} VM id list")
                 end
 
                 vms_new_elem.add_element("ID").text = id.to_s
@@ -824,7 +858,7 @@ module OneDBFsck
                 id_elem = vms_elem.elements.delete("ID[.=#{id}]")
 
                 if id_elem.nil?
-                    log_error("VM #{id} is missing fom Image #{oid} VM id list")
+                    log_error("VM #{id} is missing from Image #{oid} VM id list")
                 end
 
                 vms_new_elem.add_element("ID").text = id.to_s
@@ -857,7 +891,7 @@ module OneDBFsck
                 id_elem = clones_elem.elements.delete("ID[.=#{id}]")
 
                 if id_elem.nil?
-                    log_error("Image #{id} is missing fom Image #{oid} CLONES id list")
+                    log_error("Image #{id} is missing from Image #{oid} CLONES id list")
                 end
 
                 clones_new_elem.add_element("ID").text = id.to_s

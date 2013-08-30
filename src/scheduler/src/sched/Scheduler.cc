@@ -450,8 +450,14 @@ void Scheduler::match_schedule()
                 host_perms.oid      = host->get_hid();
                 host_perms.obj_type = PoolObjectSQL::HOST;
 
+                // Even if the owner is in several groups, this request only
+                // uses the VM group ID
+
+                set<int> gids;
+                gids.insert(gid);
+
                 matched = acls->authorize(uid,
-                                          gid,
+                                          gids,
                                           host_perms,
                                           AuthRequest::MANAGE);
             }

@@ -108,7 +108,7 @@ void RequestManagerChmod::request_execute(xmlrpc_c::paramList const& paramList,
             }
         }
 
-        AuthRequest ar(att.uid, att.gid);
+        AuthRequest ar(att.uid, att.group_ids);
 
         ar.add_auth(op, perms);
 

@@ -20,6 +20,7 @@
 #include <map>
 #include <string>
 #include <queue>
+#include <set>
 
 #include "SqlDB.h"
 #include "PoolObjectSQL.h"
@@ -180,30 +181,31 @@ public:
      *  Creates a filter for those objects (oids) or objects owned by a given
      *  group that an user can access based on the ACL rules
      *    @param uid the user id
-     *    @param gid the group id
+     *    @param user_groups Set of group IDs that the user is part of
      *    @param auth_object object type
      *    @param all returns if the user can access all objects
      *    @param filter the resulting filter string
      */
     static void acl_filter(int                       uid,
-                           int                       gid,
+                           const set<int>&           user_groups,
                            PoolObjectSQL::ObjectType auth_object,
                            bool&                     all,
                            string&                   filter);
+
     /**
      *  Creates a filter for the objects owned by a given user/group
      *    @param uid the user id
-     *    @param gid the group id
+     *    @param user_groups Set of group IDs that the user is part of
      *    @param filter_flag query type (ALL, MINE, GROUP)
      *    @param all user can access all objects
      *    @param filter the resulting filter string
      */
-    static void usr_filter(int           uid,
-                           int           gid,
-                           int           filter_flag,
-                           bool          all,
-                           const string& acl_str,
-                           string&       filter);
+    static void usr_filter(int              uid,
+                           const set<int>&  user_groups,
+                           int              filter_flag,
+                           bool             all,
+                           const string&    acl_str,
+                           string&          filter);
     /**
      *  Creates a filter for a given set of objects based on their id
      *    @param start_id first id

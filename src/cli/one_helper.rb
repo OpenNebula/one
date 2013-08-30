@@ -187,6 +187,37 @@ EOT
             :description => 'Add VNC server to the VM'
         },
         {
+            :name   => 'vnc_password',
+            :large  => '--vnc-password password',
+            :format => String,
+            :description => 'VNC password'
+        },
+        {
+            :name   => 'vnc_listen',
+            :large  => '--vnc-listen ip',
+            :format => String,
+            :description => 'VNC IP where to listen for connections. '<<
+                'By default is 0.0.0.0 (all interfaces).'
+        },
+        {
+            :name   => 'spice',
+            :large  => '--spice',
+            :description => 'Add spice server to the VM'
+        },
+        {
+            :name   => 'spice_password',
+            :large  => '--spice-password password',
+            :format => String,
+            :description => 'spice password'
+        },
+        {
+            :name   => 'spice_listen',
+            :large  => '--spice-listen ip',
+            :format => String,
+            :description => 'spice IP where to listen for connections. '<<
+                'By default is 0.0.0.0 (all interfaces).'
+        },
+        {
             :name   => 'ssh',
             :large  => '--ssh [file]',
             :description => "Add an ssh public key to the context. If the \n"<<
@@ -813,7 +844,21 @@ EOT
         end
 
         if options[:vnc]
-            template<<'GRAPHICS=[ TYPE="vnc", LISTEN="0.0.0.0" ]'<<"\n"
+            vnc_listen=options[:vnc_listen] || "0.0.0.0"
+            template<<"GRAPHICS=[ TYPE=\"vnc\", LISTEN=\"#{vnc_listen}\""
+            if options[:vnc_password]
+                template << ", PASSWD=\"#{options[:vnc_password]}\""
+            end
+            template<<' ]'<<"\n"
+        end
+
+        if options[:spice]
+            spice_listen=options[:spice_listen] || "0.0.0.0"
+            template<<"GRAPHICS=[ TYPE=\"spice\", LISTEN=\"#{spice_listen}\""
+            if options[:spice_password]
+                template << ", PASSWD=\"#{options[:spice_password]}\""
+            end
+            template<<' ]'<<"\n"
         end
 
         context=create_context(options)

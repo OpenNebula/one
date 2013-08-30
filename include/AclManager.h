@@ -58,13 +58,13 @@ public:
      *  authorizes the operation.
      *
      *    @param uid The user ID requesting to be authorized
-     *    @param gid Group ID of the user
+     *    @param user_groups Set of group IDs that the user is part of
      *    @param obj_perms The object's permission attributes
      *    @param op The operation to be authorized
      *    @return true if the authorization is granted by any rule
      */
     const bool authorize(int                    uid,
-                         int                    gid,
+                         const set<int>&        user_groups,
                          const PoolObjectAuth&  obj_perms,
                          AuthRequest::Operation op);
 
@@ -128,7 +128,7 @@ public:
      * the given user to perform the operation.
      *
      *    @param uid The user ID
-     *    @param gid Group ID of the user
+     *    @param user_groups Set of group IDs that the user is part of
      *    @param obj_type The object over which the search will be performed
      *    @param op The operation to be searched
      *    @param all True if the user can perform the operation over any object
@@ -137,7 +137,7 @@ public:
      *    @param cids Set of object cluster IDs over which the user can operate
      */
     void reverse_search(int                       uid,
-                        int                       gid,
+                        const set<int>&           user_groups,
                         PoolObjectSQL::ObjectType obj_type,
                         AuthRequest::Operation    op,
                         bool&                     all,

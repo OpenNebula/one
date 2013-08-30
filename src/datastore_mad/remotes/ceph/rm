@@ -50,7 +50,12 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
 unset i
 
 SRC="${XPATH_ELEMENTS[i++]}"
-DST_HOST="${XPATH_ELEMENTS[i++]:-$HOST}"
+DST_HOST="${XPATH_ELEMENTS[i++]}"
+
+if [ -z "$DST_HOST" ]; then
+    error_message "Datastore template missing 'HOST' attribute."
+    exit -1
+fi
 
 log "Removing $SRC from the rbd image repository in $DST_HOST"
 

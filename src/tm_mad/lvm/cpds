@@ -53,6 +53,8 @@ LV_NAME=$(echo $DST_PATH|cut -d. -f2)
 TARGET_DEV=/dev/$VG_NAME/$LV_NAME
 
 DUMP_CMD=$(cat <<EOF
+    set -e
+
     DEV=\$(readlink $SRC_PATH)
     SIZE=\$($SUDO $LVS \$DEV --noheadings --nosuffix --units m -o lv_size \
             | tr -d ' ')

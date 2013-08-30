@@ -40,24 +40,25 @@ ID=$2
 
 XPATH="${DRIVER_PATH}/../xpath.rb -b $DRV_ACTION"
 
-unset i XPATH_ELEMENTS
+unset i j XPATH_ELEMENTS
 
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/HOST \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BASE_TID)
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/HOST)
 
-SRC="${XPATH_ELEMENTS[0]}"
-DST_HOST="${XPATH_ELEMENTS[1]:-$HOST}"
-BASE_TID="${XPATH_ELEMENTS[2]:-$BASE_TID}"
+SRC="${XPATH_ELEMENTS[j++]}"
+DST_HOST="${XPATH_ELEMENTS[j++]}"
+
+if [ -z "$DST_HOST" ]; then
+    error_message "Datastore template missing 'HOST' attribute."
+    exit -1
+fi
 
 TARGET=`echo $SRC|$CUT -d: -f2`
 LV_NAME=`echo $TARGET|$AWK -F. '{print $(NF)}'`
 VG_NAME=`echo $TARGET|$AWK -F. '{print $(NF-1)}'`
 DEV="/dev/$VG_NAME/$LV_NAME"
-
-let TID=ID+BASE_TID
 
 RM_COMMAND=$(cat <<EOF
     $SUDO $LVREMOVE -f $VG_NAME/$LV_NAME

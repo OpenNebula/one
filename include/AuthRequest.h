@@ -18,6 +18,7 @@
 #define AUTH_REQUEST_H_
 
 #include <time.h>
+#include <set>
 
 #include "ActionManager.h"
 #include "PoolObjectAuth.h"
@@ -36,7 +37,7 @@ using namespace std;
 class AuthRequest : public SyncRequest
 {
 public:
-    AuthRequest(int _uid, int _gid): uid(_uid),gid(_gid),self_authorize(true){};
+    AuthRequest(int _uid, set<int> _gids): uid(_uid),gids(_gids),self_authorize(true){};
 
     ~AuthRequest(){};
 
@@ -158,9 +159,9 @@ private:
     int    uid;
 
     /**
-     *  The user group ID
+     *  The user groups ID set
      */
-    int    gid;
+    set<int> gids;
 
     /**
      *  Username to authenticate the user

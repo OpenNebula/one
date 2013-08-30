@@ -41,20 +41,25 @@ ID=$2
 
 XPATH="${DRIVER_PATH}/../xpath.rb -b $DRV_ACTION"
 
-unset i XPATH_ELEMENTS
+unset i j XPATH_ELEMENTS
 
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/HOST \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/POOL_NAME)
 
-HOST="${XPATH_ELEMENTS[0]:-$HOST}"
-POOL_NAME="${XPATH_ELEMENTS[1]:-$POOL_NAME}"
+HOST="${XPATH_ELEMENTS[j++]}"
+POOL_NAME="${XPATH_ELEMENTS[j++]:-$POOL_NAME}"
+
+if [ -z "$HOST" ]; then
+    error_message "Datastore template missing 'HOST' attribute."
+    exit -1
+fi
 
 # ------------ Compute datastore usage -------------
 
 MONITOR_SCRIPT=$(cat <<EOF
-$SUDO $RADOS df | $AWK '{
+$RADOS df | $AWK '{
     if (\$1 == "total") {
 
         space = int(\$3/1024)

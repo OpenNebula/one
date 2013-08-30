@@ -28,40 +28,42 @@ class OneDBBacKEnd
     def read_db_version
         connect_db
 
-        version   = "2.0"
-        timestamp = 0
-        comment   = ""
-
-        @db.fetch("SELECT version, timestamp, comment FROM db_versioning " +
-                  "WHERE oid=(SELECT MAX(oid) FROM db_versioning)") do |row|
-            version   = row[:version]
-            timestamp = row[:timestamp]
-            comment   = row[:comment]
-        end
-
-        return [version, timestamp, comment]
-
-    rescue Exception => e
-        if e.class == Sequel::DatabaseConnectionError
-            raise e
-        elsif !db_exists?
-            # If the DB doesn't have db_version table, it means it is empty or a 2.x
-            raise "Database schema does not look to be created by " <<
-                  "OpenNebula: table user_pool is missing or empty."
-        end
-
         begin
-            # Table image_pool is present only in 2.X DBs
-            @db.fetch("SELECT * FROM image_pool") { |row| }
-        rescue
-            raise "Database schema looks to be created by OpenNebula 1.X." <<
-                  "This tool only works with databases created by 2.X versions."
+            version   = "2.0"
+            timestamp = 0
+            comment   = ""
+
+            @db.fetch("SELECT version, timestamp, comment FROM db_versioning " +
+                      "WHERE oid=(SELECT MAX(oid) FROM db_versioning)") do |row|
+                version   = row[:version]
+                timestamp = row[:timestamp]
+                comment   = row[:comment]
+            end
+
+            return [version, timestamp, comment]
+
+        rescue Exception => e
+            if e.class == Sequel::DatabaseConnectionError
+                raise e
+            elsif !db_exists?
+                # If the DB doesn't have db_version table, it means it is empty or a 2.x
+                raise "Database schema does not look to be created by " <<
+                      "OpenNebula: table user_pool is missing or empty."
+            end
+
+            begin
+                # Table image_pool is present only in 2.X DBs
+                @db.fetch("SELECT * FROM image_pool") { |row| }
+            rescue
+                raise "Database schema looks to be created by OpenNebula 1.X." <<
+                      "This tool only works with databases created by 2.X versions."
+            end
+
+            comment = "Could not read any previous db_versioning data, " <<
+                      "assuming it is an OpenNebula 2.0 or 2.2 DB."
+
+            return [version, timestamp, comment]
         end
-
-        comment = "Could not read any previous db_versioning data, " <<
-                  "assuming it is an OpenNebula 2.0 or 2.2 DB."
-
-        return [version, timestamp, comment]
     end
 
     def history
@@ -222,10 +224,6 @@ class BackEndSQLite < OneDBBacKEnd
 
     def initialize(file)
         @sqlite_file = file
-
-        if !File.exists?(@sqlite_file)
-            raise "File #{@sqlite_file} doesn't exist"
-        end
     end
 
     def bck_file
@@ -239,7 +237,7 @@ class BackEndSQLite < OneDBBacKEnd
     end
 
     def restore(bck_file, force=nil)
-        if !force
+        if File.exists?(@sqlite_file) && !force
             raise "File #{@sqlite_file} exists, use -f to overwrite."
         end
 
@@ -250,6 +248,10 @@ class BackEndSQLite < OneDBBacKEnd
     private
 
     def connect_db
+        if !File.exists?(@sqlite_file)
+            raise "File #{@sqlite_file} doesn't exist"
+        end
+
         begin
             @db = Sequel.sqlite(@sqlite_file)
         rescue Exception => e

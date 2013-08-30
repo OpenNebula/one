@@ -60,11 +60,16 @@ unset i
 BASE_PATH="${XPATH_ELEMENTS[i++]}"
 RESTRICTED_DIRS="${XPATH_ELEMENTS[i++]}"
 SAFE_DIRS="${XPATH_ELEMENTS[i++]}"
-DST_HOST="${XPATH_ELEMENTS[i++]:-$HOST}"
+DST_HOST="${XPATH_ELEMENTS[i++]}"
 POOL_NAME="${XPATH_ELEMENTS[i++]:-$POOL_NAME}"
 STAGING_DIR="${XPATH_ELEMENTS[i++]:-$STAGING_DIR}"
 FSTYPE="${XPATH_ELEMENTS[i++]}"
 SIZE="${XPATH_ELEMENTS[i++]}"
+
+if [ -z "$DST_HOST" ]; then
+    error_message "Datastore template missing 'HOST' attribute."
+    exit -1
+fi
 
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS"
 
@@ -93,7 +98,7 @@ REGISTER_CMD=$(cat <<EOF
     $MKFS_CMD
 
     # create rbd
-    $QEMU_IMG convert -O rbd $TMP_DST rbd:$RBD_SOURCE
+    $QEMU_IMG convert $TMP_DST rbd:$RBD_SOURCE
 
     # remove original
     $RM -f $TMP_DST

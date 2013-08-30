@@ -622,8 +622,6 @@ static void monitor_action(istringstream& is,
     char*  error_msg;
     int    rc = monitor_data.parse(*dsinfo, &error_msg);
 
-    delete dsinfo;
-
     if ( rc != 0 )
     {
         oss << "Error parsing datastore information: " << error_msg
@@ -631,10 +629,13 @@ static void monitor_action(istringstream& is,
 
         NebulaLog::log("ImM", Log::ERROR, oss);
 
+        delete dsinfo;
         free(error_msg);
 
         return;
     }
+
+    delete dsinfo;
 
     float  total, free, used;
     string ds_name;
