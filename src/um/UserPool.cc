@@ -451,6 +451,8 @@ auth_failure:
     user_id  = -1;
     group_id = -1;
 
+    group_ids.clear();
+
     uname = "";
     gname = "";
 
@@ -580,6 +582,8 @@ auth_failure:
     user_id  = -1;
     group_id = -1;
 
+    group_ids.clear();
+
     uname = "";
     gname = "";
 
@@ -693,6 +697,8 @@ auth_failure_nodriver:
 auth_failure:
     user_id  = -1;
     group_id = -1;
+
+    group_ids.clear();
 
     uname = "";
     gname = "";

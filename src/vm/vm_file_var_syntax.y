@@ -171,6 +171,10 @@ int get_image_path(VirtualMachine * vm,
         gids = user->get_groups();
         user->unlock();
     }
+    else
+    {
+        gids.insert(vm->get_gid());
+    }
 
     AuthRequest ar(vm->get_uid(), gids);
 

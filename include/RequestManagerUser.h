@@ -73,7 +73,7 @@ public:
     ~UserChangePassword(){};
 
     int user_action(int                        user_id,
-                    xmlrpc_c::paramList const& _paramList, 
+                    xmlrpc_c::paramList const& _paramList,
                     string&                    err);
 
     void log_xmlrpc_param(
@@ -125,7 +125,7 @@ public:
     ~UserSetQuota(){};
 
     int user_action(int                        user_id,
-                    xmlrpc_c::paramList const& _paramList, 
+                    xmlrpc_c::paramList const& _paramList,
                     string&                    err);
 };
 
@@ -142,7 +142,7 @@ public:
                 Request(method_name,params,help)
     {
         auth_object = PoolObjectSQL::USER;
-        auth_op = AuthRequest::MANAGE;
+        auth_op     = AuthRequest::MANAGE;
 
         Nebula& nd = Nebula::instance();
         gpool = nd.get_gpool();
@@ -155,14 +155,16 @@ public:
             xmlrpc_c::paramList const&  _paramList,
             RequestAttributes&          att);
 
+protected:
+
     virtual int secondary_group_action(
             int                        user_id,
             int                        group_id,
             xmlrpc_c::paramList const& _paramList,
             string&                    error_str) = 0;
 
-protected:
     GroupPool * gpool;
+
     UserPool  * upool;
 };
 
