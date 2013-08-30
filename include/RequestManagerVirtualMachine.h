@@ -62,7 +62,6 @@ protected:
         string& vmm,
         string& vnm,
         int&    cluster_id,
-        int&    default_ds_id,
         string& ds_location,
         PoolObjectAuth&    host_perms,
         RequestAttributes& att);

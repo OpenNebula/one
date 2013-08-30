@@ -150,7 +150,6 @@ int RequestManagerVirtualMachine::get_host_information(
     string& vmm,
     string& vnm,
     int&    cluster_id,
-    int&    default_ds_id,
     string& ds_location,
     PoolObjectAuth&    host_perms,
     RequestAttributes& att)
@@ -181,7 +180,7 @@ int RequestManagerVirtualMachine::get_host_information(
 
     host->unlock();
 
-    if ( cluster_id != -1 ) //Default System DS from a cluster
+    if ( cluster_id != -1 )
     {
         Cluster * cluster = nd.get_clpool()->get(cluster_id, true);
 
@@ -194,16 +193,12 @@ int RequestManagerVirtualMachine::get_host_information(
             return -1;
         }
 
-        default_ds_id = cluster->get_ds_id();
-
         cluster->get_ds_location(ds_location);
 
         cluster->unlock();
     }
     else //Default System DS
     {
-        default_ds_id = DatastorePool::SYSTEM_DS_ID;
-
         nd.get_configuration_attribute("DATASTORE_LOCATION", ds_location);
     }
 
@@ -468,7 +463,6 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     string vmm_mad;
     string vnm_mad;
     int    cluster_id;
-    int    default_ds_id;
     string ds_location;
     PoolObjectAuth host_perms;
 
@@ -500,7 +494,6 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
                              vmm_mad,
                              vnm_mad,
                              cluster_id,
-                             default_ds_id,
                              ds_location,
                              host_perms,
                              att) != 0)
@@ -516,7 +509,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     {
         int ds_cluster_id;
 
-        ds_id = default_ds_id;
+        ds_id = DatastorePool::SYSTEM_DS_ID;
 
         if (get_ds_information(ds_id, ds_cluster_id, tm_mad, att) != 0)
         {
@@ -532,7 +525,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
             return;
         }
 
-        if ((ds_cluster_id != ClusterPool::NONE_CLUSTER_ID) && (ds_cluster_id != cluster_id))
+        if (ds_cluster_id != cluster_id)
         {
             ostringstream oss;
 
@@ -640,7 +633,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     string vmm_mad;
     string vnm_mad;
     int    cluster_id;
-    int    default_ds_id;
     string ds_location;
     PoolObjectAuth host_perms;
 
@@ -670,7 +662,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
                              vmm_mad,
                              vnm_mad,
                              cluster_id,
-                             default_ds_id,
                              ds_location,
                              host_perms,
                              att) != 0)

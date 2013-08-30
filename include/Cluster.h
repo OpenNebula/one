@@ -30,17 +30,6 @@ using namespace std;
 class Cluster : public PoolObjectSQL
 {
 public:
-
-    /**
-     * Returns the SYSTEM_DS attribute
-     *
-     * @return the SYSTEM_DS attribute
-     */
-    int get_ds_id()
-    {
-        return system_ds;
-    }
-
     /**
      * Returns the DATASTORE_LOCATION for the hosts of the cluster. If not
      * defined that in oned.conf is returned.
@@ -187,11 +176,6 @@ private:
     ObjectCollection hosts;
     ObjectCollection datastores;
     ObjectCollection vnets;
-
-    /**
-     * System datastore id
-     */
-    int system_ds;
 
     // *************************************************************************
     // DataBase implementation (Private)

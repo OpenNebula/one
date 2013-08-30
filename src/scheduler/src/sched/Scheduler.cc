@@ -837,8 +837,7 @@ void Scheduler::dispatch()
                 //--------------------------------------------------------------
                 // Test cluster membership for datastore and selected host
                 //--------------------------------------------------------------
-                if ((ds->get_cid() != ClusterPoolXML::NONE_CLUSTER_ID) &&
-                    (ds->get_cid() != cid))
+                if (ds->get_cid() != cid)
                 {
                     continue;
                 }
