@@ -45,6 +45,8 @@ protected:
                         RequestAttributes& att);
 
     virtual PoolObjectSQL * get(const string& name, int uid, bool lock) = 0;
+
+    virtual void post_execute(int oid){};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -157,6 +159,78 @@ public:
     {
         return 0;
     };
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ClusterRename: public RequestManagerRename
+{
+public:
+    ClusterRename():
+        RequestManagerRename("ClusterRename", "Renames a cluster")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_clpool();
+        auth_object = PoolObjectSQL::CLUSTER;
+    };
+
+    ~ClusterRename(){};
+
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return static_cast<ClusterPool*>(pool)->get(name, lock);
+    };
+
+    void post_execute(int oid);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class DatastoreRename: public RequestManagerRename
+{
+public:
+    DatastoreRename():
+        RequestManagerRename("DatastoreRename", "Renames a datastore")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_dspool();
+        auth_object = PoolObjectSQL::DATASTORE;
+    };
+
+    ~DatastoreRename(){};
+
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return static_cast<DatastorePool*>(pool)->get(name, lock);
+    };
+
+    void post_execute(int oid);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class HostRename: public RequestManagerRename
+{
+public:
+    HostRename():
+        RequestManagerRename("HostRename", "Renames a host")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_hpool();
+        auth_object = PoolObjectSQL::HOST;
+    };
+
+    ~HostRename(){};
+
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return static_cast<HostPool*>(pool)->get(name, lock);
+    };
+
+    void post_execute(int oid);
 };
 
 /* -------------------------------------------------------------------------- */

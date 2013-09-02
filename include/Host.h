@@ -391,6 +391,14 @@ public:
     }
 
     /**
+     *  Returns a copy of the VM IDs set
+     */
+    set<int> get_vm_ids()
+    {
+        return vm_collection.get_collection_copy();
+    }
+
+    /**
      *  Factory method for host templates
      */
     Template * get_new_template() const
