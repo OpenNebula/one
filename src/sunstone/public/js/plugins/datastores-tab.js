@@ -524,6 +524,18 @@ var datastore_actions = {
             hideDialog();
             $('div#datastores_tab div.legend_div').slideToggle();
         }
+    },
+
+    "Datastore.rename" : {
+        type: "single",
+        call: OpenNebula.Datastore.rename,
+        callback: function(request) {
+            notifyMessage("Datastore renamed correctly");
+            Sunstone.runAction('Datastore.showinfo',request.request.data[0]);
+            Sunstone.runAction('Datastore.list');
+        },
+        error: onError,
+        notify: true
     }
 };
 
@@ -733,9 +745,12 @@ function updateDatastoreInfo(request,ds){
                  <td></td>\
               </tr>\
               <tr>\
-                 <td class="key_td">'+tr("Name")+'</td>\
-                 <td class="value_td">'+info.NAME+'</td>\
-                 <td></td>\
+                <td class="key_td">'+tr("Name")+'</td>\
+                <td class="value_td_rename">'+info.NAME+'</td>\
+                <td><div id="div_edit_rename">\
+                   <a id="div_edit_rename_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                </div>\
+                </td>\
               </tr>\
               <tr>'+
               cluster_str  +
@@ -787,6 +802,24 @@ function updateDatastoreInfo(request,ds){
         content : '<div id="datatable_datastore_images_info_div" class="twelve columns"><table id="datatable_datastore_images_info_panel" class="table twelve">' + datastore_image_table_tmpl + '</table></div>'
     }
 
+    $("#div_edit_rename_link").die();
+    $(".input_edit_value_rename").die();
+
+    // Listener for edit link for rename
+    $("#div_edit_rename_link").live("click", function() {
+        var value_str = $(".value_td_rename").text();
+        $(".value_td_rename").html('<input class="input_edit_value_rename" id="input_edit_rename" type="text" value="'+value_str+'"/>');
+    });
+
+    $(".input_edit_value_rename").live("change", function() {
+        var value_str = $(".input_edit_value_rename").val();
+        if(value_str!="")
+        {
+            // Let OpenNebula know
+            var name_template = {"name": value_str};
+            Sunstone.runAction("Datastore.rename",info.ID,name_template);
+        }
+    });
 
     // Add tabs
     Sunstone.updateInfoPanelTab("datastore_info_panel","datastore_info_tab",info_tab);

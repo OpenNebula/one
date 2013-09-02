@@ -1070,6 +1070,18 @@ var cluster_actions = {
         type: "single",
         call: popUpUpdateClusterDialog
     },
+
+    "Cluster.rename" : {
+        type: "single",
+        call: OpenNebula.Cluster.rename,
+        callback: function(request) {
+            notifyMessage("Cluster renamed correctly");
+            Sunstone.runAction('Cluster.showinfo',request.request.data[0]);
+            Sunstone.runAction('Cluster.list');
+        },
+        error: onError,
+        notify: true
+    }
 };
 
 var cluster_buttons = {
@@ -1233,18 +1245,22 @@ function updateClusterInfo(request,cluster){
         <div class="six columns">\
         <table id="info_cluster_table" class="twelve datatable extended_table">\
             <thead>\
-               <tr><th colspan="2">' +
+               <tr><th colspan="3">' +
                         tr("Cluster") +
                         ' - '+cluster_info.NAME+'</th></tr>\
             </thead>\
             <tbody>\
             <tr>\
                 <td class="key_td">' + tr("id") + '</td>\
-                <td class="value_td">'+cluster_info.ID+'</td>\
+                <td class="value_td" colspan="2">'+cluster_info.ID+'</td>\
             </tr>\
             <tr>\
-                <td class="key_td">' + tr("Name") + '</td>\
-                <td class="value_td">'+cluster_info.NAME+'</td>\
+                <td class="key_td">'+tr("Name")+'</td>\
+                <td class="value_td_rename">'+cluster_info.NAME+'</td>\
+                <td><div id="div_edit_rename">\
+                   <a id="div_edit_rename_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                </div>\
+                </td>\
             </tr>\
             </tbody>\
          </table>\
@@ -1290,6 +1306,25 @@ function updateClusterInfo(request,cluster){
           </div>\
         </div>'
     }
+
+    $("#div_edit_rename_link").die();
+    $(".input_edit_value_rename").die();
+
+    // Listener for edit link for rename
+    $("#div_edit_rename_link").live("click", function() {
+        var value_str = $(".value_td_rename").text();
+        $(".value_td_rename").html('<input class="input_edit_value_rename" id="input_edit_rename" type="text" value="'+value_str+'"/>');
+    });
+
+    $(".input_edit_value_rename").live("change", function() {
+        var value_str = $(".input_edit_value_rename").val();
+        if(value_str!="")
+        {
+            // Let OpenNebula know
+            var name_template = {"name": value_str};
+            Sunstone.runAction("Cluster.rename",cluster_info.ID,name_template);
+        }
+    });
 
     //Sunstone.updateInfoPanelTab(info_panel_name,tab_name, new tab object);
     Sunstone.updateInfoPanelTab("cluster_info_panel","cluster_info_tab",info_tab);

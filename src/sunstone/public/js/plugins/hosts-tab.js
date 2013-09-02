@@ -384,8 +384,19 @@ var host_actions = {
             hideDialog();
             $('div#hosts_tab div.legend_div').slideToggle();
         }
-    }
+    },
 
+    "Host.rename" : {
+        type: "single",
+        call: OpenNebula.Host.rename,
+        callback: function(request) {
+            notifyMessage("Host renamed correctly");
+            Sunstone.runAction('Host.showinfo',request.request.data[0]);
+            Sunstone.runAction('Host.list');
+        },
+        error: onError,
+        notify: true
+    }
 };
 
 var host_buttons = {
@@ -732,8 +743,12 @@ function updateHostInfo(request,host){
                 <td class="value_td" colspan="2">'+host_info.ID+'</td>\
             </tr>\
             <tr>\
-                <td class="key_td">' + tr("Name") + '</td>\
-                <td class="value_td" colspan="2">'+host_info.NAME+'</td>\
+                <td class="key_td">'+tr("Name")+'</td>\
+                <td class="value_td_rename">'+host_info.NAME+'</td>\
+                <td><div id="div_edit_rename">\
+                   <a id="div_edit_rename_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                </div>\
+                </td>\
             </tr>\
             <tr>' +
                 insert_cluster_dropdown("Host",host_info.ID,host_info.CLUSTER,host_info.CLUSTER_ID) +
@@ -827,6 +842,25 @@ function updateHostInfo(request,host){
             </div>\
         </div>'
     }
+
+    $("#div_edit_rename_link").die();
+    $(".input_edit_value_rename").die();
+
+    // Listener for edit link for rename
+    $("#div_edit_rename_link").live("click", function() {
+        var value_str = $(".value_td_rename").text();
+        $(".value_td_rename").html('<input class="input_edit_value_rename" id="input_edit_rename" type="text" value="'+value_str+'"/>');
+    });
+
+    $(".input_edit_value_rename").live("change", function() {
+        var value_str = $(".input_edit_value_rename").val();
+        if(value_str!="")
+        {
+            // Let OpenNebula know
+            var name_template = {"name": value_str};
+            Sunstone.runAction("Host.rename",host_info.ID,name_template);
+        }
+    });
 
     //Sunstone.updateInfoPanelTab(info_panel_name,tab_name, new tab object);
     Sunstone.updateInfoPanelTab("host_info_panel","host_info_tab",info_tab);
