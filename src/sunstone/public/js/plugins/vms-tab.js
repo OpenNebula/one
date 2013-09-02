@@ -819,7 +819,7 @@ var vm_actions = {
         type: "single",
         call: OpenNebula.VM.rename,
         callback: function(request) {
-            notifyMessage("VirtualMachine renamed correctly");
+            notifyMessage(tr("VirtualMachine renamed correctly"));
             Sunstone.runAction('VM.showinfo',request.request.data[0]);
             Sunstone.runAction("VM.list");
         },

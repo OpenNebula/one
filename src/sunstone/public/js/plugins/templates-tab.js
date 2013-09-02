@@ -381,6 +381,7 @@ var template_actions = {
         type: "single",
         call: OpenNebula.Template.rename,
         callback: function(request) {
+            notifyMessage(tr("Template renamed correctly"));
             Sunstone.runAction('Template.showinfo',request.request.data[0]);
             Sunstone.runAction("Template.show",request.request.data[0]);
         },

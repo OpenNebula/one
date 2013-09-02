@@ -617,7 +617,7 @@ var vnet_actions = {
         type: "single",
         call: OpenNebula.Network.rename,
         callback: function(request) {
-            notifyMessage("VirtualNetwork renamed correctly");
+            notifyMessage(tr("VirtualNetwork renamed correctly"));
             Sunstone.runAction('Network.showinfo',request.request.data[0]);
             Sunstone.runAction("Network.list");
         },
