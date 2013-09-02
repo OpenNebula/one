@@ -522,7 +522,7 @@ var image_actions = {
         type: "single",
         call: OpenNebula.Image.rename,
         callback: function(request) {
-            notifyMessage("Image renamed correctly");
+            notifyMessage(tr("Image renamed correctly"));
             Sunstone.runAction('Image.showinfo',request.request.data[0]);
             Sunstone.runAction('Image.list');
         },
