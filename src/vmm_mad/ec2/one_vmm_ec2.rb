@@ -212,6 +212,10 @@ class EC2Driver < VirtualMachineDriver
             exec_and_log_ec2(:authorize, ec2_info, 'default', id)
         end
 
+        LocalCommand.run(
+            "#{EC2_LOCATION}/bin/ec2-create-tags #{deploy_id} -t ONE_ID=#{id}",
+            log_method(id))
+
         if ec2_value(ec2_info, 'TAGS')
             exec_and_log_ec2(:tags, ec2_info, deploy_id, id)
         end
@@ -254,19 +258,24 @@ class EC2Driver < VirtualMachineDriver
 
         deploy_id = msg.elements["DEPLOY_ID"].text
 
-        info =  "#{POLL_ATTRIBUTE[:usedmemory]}=0 " \
-                "#{POLL_ATTRIBUTE[:usedcpu]}=0 " \
-                "#{POLL_ATTRIBUTE[:nettx]}=0 " \
-                "#{POLL_ATTRIBUTE[:netrx]}=0"
-
-
         exe = exec_and_log_ec2(:describe, nil, deploy_id, id)
         if exe.code != 0
             send_message(ACTION[:poll], RESULT[:failure], id, exe.stderr)
             return
         end
 
-        exe.stdout.match(Regexp.new("INSTANCE\\s+#{deploy_id}\\s+(.+)"))
+        info = EC2Driver.parse_poll(exe.stdout, deploy_id)
+
+        send_message(ACTION[:poll], RESULT[:success], id, info)
+    end
+
+    def self.parse_poll(text, deploy_id)
+        text.match(Regexp.new("INSTANCE\\s+#{deploy_id}\\s+(.+)"))
+
+        info =  "#{POLL_ATTRIBUTE[:usedmemory]}=0 " \
+                "#{POLL_ATTRIBUTE[:usedcpu]}=0 " \
+                "#{POLL_ATTRIBUTE[:nettx]}=0 " \
+                "#{POLL_ATTRIBUTE[:netrx]}=0"
 
         if !$1
             info << " #{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:deleted]}"
@@ -284,7 +293,7 @@ class EC2Driver < VirtualMachineDriver
             end
         end
 
-        send_message(ACTION[:poll], RESULT[:success], id, info)
+        info
     end
 
 private
@@ -396,7 +405,42 @@ private
     end
 end
 
+def monitor_all_vms
+    exe = LocalCommand.run(
+            "#{EC2_LOCATION}/bin/ec2-describe-instances",
+            lambda { |str| STDERR.puts str })
+
+    if exe.code != 0
+        exit -1
+    end
+
+    puts "VM_POLL=YES"
+
+    exe.stdout.split(/^RESERVATION\s.*?$/).each do |vm|
+        m=vm.match(/^INSTANCE\s+(\S+)/)
+        next if !m
+
+        deploy_id = m[1]
+
+        one_id='-1'
+
+        vm.scan(/^TAG.*ONE_ID\s+(\d+)/) {|i| one_id = i.first }
+
+        poll_data=EC2Driver.parse_poll(vm, deploy_id)
+
+        puts "VM=["
+        puts "  ID=#{one_id},"
+        puts "  DEPLOY_ID=#{deploy_id},"
+        puts "  POLL=\"#{poll_data}\" ]"
+    end
+end
+
 # EC2Driver Main program
+
+if ARGV[0]=='--poll'
+    monitor_all_vms
+    exit(0)
+end
 
 ec2_conf = ARGV.last
 

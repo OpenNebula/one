@@ -20,8 +20,10 @@ ONE_LOCATION=ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    MAD_LOCATION="/usr/lib/one/mads"
 else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    MAD_LOCATION=ONE_LOCATION+"/lib/mads"
 end
 
 $: << RUBY_LIB_LOCATION
@@ -66,8 +68,19 @@ class EC2InformationManagerDriver < OpenNebulaDriver
     # The monitor action, just print the capacity info and hostname
     def action_monitor(num, host, not_used)
         info   = "HOSTNAME=\"#{host}\"\n#{@info}"
+        info << get_vm_info
         info64 = Base64::encode64(info).strip.delete("\n")
         send_message("MONITOR", RESULT[:success], num, info64)
+    end
+
+    def get_vm_info
+        exe=LocalCommand.run(MAD_LOCATION+'/one_vmm_ec2 --poll')
+
+        if exe.code==0
+            exe.stdout
+        else
+            ''
+        end
     end
 end
 
