@@ -73,6 +73,8 @@ protected:
         string uname;             /**< name of the user */
         string gname;             /**< name of the user's group */
 
+        set<int> group_ids;      /**< set of user's group ids */
+
         string session;           /**< Session from ONE XML-RPC API */
         int    req_id;            /**< Request ID for log messages */
 

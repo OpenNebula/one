@@ -210,3 +210,186 @@ int UserSetQuota::user_action(int     user_id,
 
     return rc;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void UserEditGroup::
+    request_execute(xmlrpc_c::paramList const& paramList,
+                    RequestAttributes& att)
+{
+    int user_id  = xmlrpc_c::value_int(paramList.getInt(1));
+    int group_id = xmlrpc_c::value_int(paramList.getInt(2));
+
+    int rc;
+
+    string error_str;
+
+    string gname;
+    string uname;
+
+    PoolObjectAuth uperms;
+    PoolObjectAuth gperms;
+
+    rc = get_info(upool, user_id, PoolObjectSQL::USER, att, uperms, uname);
+
+    if ( rc == -1 )
+    {
+        return;
+    }
+
+    rc = get_info(gpool, group_id, PoolObjectSQL::GROUP, att, gperms, gname);
+
+    if ( rc == -1 )
+    {
+        return;
+    }
+
+    if ( att.uid != UserPool::ONEADMIN_ID )
+    {
+        AuthRequest ar(att.uid, att.group_ids);
+
+        ar.add_auth(AuthRequest::MANAGE, uperms);   // MANAGE USER
+        ar.add_auth(AuthRequest::MANAGE, gperms);   // MANAGE GROUP
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            failure_response(AUTHORIZATION,
+                             authorization_error(ar.message, att),
+                             att);
+
+            return;
+        }
+    }
+
+    if ( secondary_group_action(user_id, group_id, paramList, error_str) < 0 )
+    {
+        failure_response(ACTION, request_error(error_str,""), att);
+        return;
+    }
+
+    success_response(user_id, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int UserAddGroup::secondary_group_action(
+            int                        user_id,
+            int                        group_id,
+            xmlrpc_c::paramList const& _paramList,
+            string&                    error_str)
+{
+    User *  user;
+    Group * group;
+
+    int rc;
+
+    user = upool->get(user_id,true);
+
+    if ( user == 0 )
+    {
+        return -1;
+    }
+
+    rc = user->add_group(group_id);
+
+    if ( rc != 0 )
+    {
+        user->unlock();
+
+        error_str = "User is already in this group";
+        return -1;
+    }
+
+    upool->update(user);
+
+    user->unlock();
+
+    group = gpool->get(group_id, true);
+
+    if( group == 0 )
+    {
+        user = upool->get(user_id,true);
+
+        if ( user != 0 )
+        {
+            user->del_group(group_id);
+
+            upool->update(user);
+
+            user->unlock();
+        }
+
+        error_str = "Group does not exist";
+        return -1;
+    }
+
+    group->add_user(user_id);
+
+    gpool->update(group);
+
+    group->unlock();
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int UserDelGroup::secondary_group_action(
+            int                        user_id,
+            int                        group_id,
+            xmlrpc_c::paramList const& _paramList,
+            string&                    error_str)
+{
+    User *  user;
+    Group * group;
+
+    int rc;
+
+    user = upool->get(user_id,true);
+
+    rc = user->del_group(group_id);
+
+    if ( rc != 0 )
+    {
+        user->unlock();
+
+        if ( rc == -1 )
+        {
+            error_str = "User is not part of this group";
+        }
+        else if ( rc == -2 )
+        {
+            error_str = "Cannot remove user from the primary group";
+        }
+        else
+        {
+            error_str = "Cannot remove user from group";
+        }
+
+        return rc;
+    }
+
+    upool->update(user);
+
+    user->unlock();
+
+    group = gpool->get(group_id, true);
+
+    if( group == 0 )
+    {
+        //Group does not exist, should never occur
+        error_str = "Cannot remove user from group";
+        return -1;
+    }
+
+    group->del_user(user_id);
+
+    gpool->update(group);
+
+    group->unlock();
+
+    return 0;
+}

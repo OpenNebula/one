@@ -87,7 +87,9 @@ int get_image_path(VirtualMachine * vm,
     Nebula& nd = Nebula::instance();
 
     ImagePool * ipool = nd.get_ipool();
+    UserPool *  upool = nd.get_upool();
     Image  *    img   = 0;
+    User  *     user  = 0;
     int         iid   = -1;
 
     PoolObjectAuth  perm;
@@ -160,7 +162,21 @@ int get_image_path(VirtualMachine * vm,
 
     img->unlock();
 
-    AuthRequest ar(vm->get_uid(), vm->get_gid());
+    set<int> gids;
+
+    user = upool->get(vm->get_uid(), true);
+
+    if (user != 0)
+    {
+        gids = user->get_groups();
+        user->unlock();
+    }
+    else
+    {
+        gids.insert(vm->get_gid());
+    }
+
+    AuthRequest ar(vm->get_uid(), gids);
 
     ar.add_auth(AuthRequest::USE, perm);
 

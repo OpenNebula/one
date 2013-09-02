@@ -70,7 +70,7 @@ void RequestManagerCluster::add_generic(
 
     if ( att.uid != 0 )
     {
-        AuthRequest ar(att.uid, att.gid);
+        AuthRequest ar(att.uid, att.group_ids);
 
         if ( cluster_id != ClusterPool::NONE_CLUSTER_ID )
         {
