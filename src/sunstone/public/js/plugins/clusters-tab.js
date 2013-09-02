@@ -1075,7 +1075,7 @@ var cluster_actions = {
         type: "single",
         call: OpenNebula.Cluster.rename,
         callback: function(request) {
-            notifyMessage("Cluster renamed correctly");
+            notifyMessage(tr("Cluster renamed correctly"));
             Sunstone.runAction('Cluster.showinfo',request.request.data[0]);
             Sunstone.runAction('Cluster.list');
         },

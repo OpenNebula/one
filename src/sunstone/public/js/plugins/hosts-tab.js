@@ -390,7 +390,7 @@ var host_actions = {
         type: "single",
         call: OpenNebula.Host.rename,
         callback: function(request) {
-            notifyMessage("Host renamed correctly");
+            notifyMessage(tr("Host renamed correctly"));
             Sunstone.runAction('Host.showinfo',request.request.data[0]);
             Sunstone.runAction('Host.list');
         },

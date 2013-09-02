@@ -530,7 +530,7 @@ var datastore_actions = {
         type: "single",
         call: OpenNebula.Datastore.rename,
         callback: function(request) {
-            notifyMessage("Datastore renamed correctly");
+            notifyMessage(tr("Datastore renamed correctly"));
             Sunstone.runAction('Datastore.showinfo',request.request.data[0]);
             Sunstone.runAction('Datastore.list');
         },
