@@ -308,8 +308,10 @@ module OneDBFsck
 
         cluster = {}
 
-        @db.fetch("SELECT oid FROM cluster_pool") do |row|
+        @db.fetch("SELECT oid, name FROM cluster_pool") do |row|
             cluster[row[:oid]] = {}
+
+            cluster[row[:oid]][:name]       = row[:name]
 
             cluster[row[:oid]][:hosts]      = []
             cluster[row[:oid]][:datastores] = []
@@ -322,13 +324,21 @@ module OneDBFsck
         datastores_fix  = {}
         vnets_fix       = {}
 
-        @db.fetch("SELECT oid,body FROM host_pool") do |row|
+        @db.fetch("SELECT oid,body,cid FROM host_pool") do |row|
             doc = Document.new(row[:body])
 
             cluster_id = doc.root.get_text('CLUSTER_ID').to_s.to_i
+            cluster_name = doc.root.get_text('CLUSTER')
+
+            if cluster_id != row[:cid]
+                log_error("Host #{row[:oid]} is in cluster #{cluster_id}, but cid column has cluster #{row[:cid]}")
+                hosts_fix[row[:oid]] = {:body => row[:body], :cid => cluster_id}
+            end
 
             if cluster_id != -1
-                if cluster[cluster_id].nil?
+                cluster_entry = cluster[cluster_id]
+
+                if cluster_entry.nil?
                     log_error("Host #{row[:oid]} is in cluster #{cluster_id}, but it does not exist")
 
                     doc.root.each_element('CLUSTER_ID') do |e|
@@ -339,25 +349,43 @@ module OneDBFsck
                         e.text = ""
                     end
 
-                    hosts_fix[row[:oid]] = doc.to_s
+                    hosts_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
                 else
-                    cluster[cluster_id][:hosts] << row[:oid]
+                    if cluster_name != cluster_entry[:name]
+                        log_error("Host #{row[:oid]} has a wrong name for cluster #{cluster_id}, #{cluster_name}. It will be changed to #{cluster_entry[:name]}")
+
+                        doc.root.each_element('CLUSTER') do |e|
+                            e.text = cluster_entry[:name]
+                        end
+
+                        hosts_fix[row[:oid]] = {:body => doc.to_s, :cid => cluster_id}
+                    end
+
+                    cluster_entry[:hosts] << row[:oid]
                 end
             end
         end
 
-        hosts_fix.each do |id, body|
-            @db[:host_pool].where(:oid => id).update(:body => body, :cid => -1)
+        hosts_fix.each do |id, entry|
+            @db[:host_pool].where(:oid => id).update(:body => entry[:body], :cid => entry[:cid])
         end
 
 
-        @db.fetch("SELECT oid,body FROM datastore_pool") do |row|
+        @db.fetch("SELECT oid,body,cid FROM datastore_pool") do |row|
             doc = Document.new(row[:body])
 
             cluster_id = doc.root.get_text('CLUSTER_ID').to_s.to_i
+            cluster_name = doc.root.get_text('CLUSTER')
+
+            if cluster_id != row[:cid]
+                log_error("Datastore #{row[:oid]} is in cluster #{cluster_id}, but cid column has cluster #{row[:cid]}")
+                hosts_fix[row[:oid]] = {:body => row[:body], :cid => cluster_id}
+            end
 
             if cluster_id != -1
-                if cluster[cluster_id].nil?
+                cluster_entry = cluster[cluster_id]
+
+                if cluster_entry.nil?
                     log_error("Datastore #{row[:oid]} is in cluster #{cluster_id}, but it does not exist")
 
                     doc.root.each_element('CLUSTER_ID') do |e|
@@ -368,16 +396,16 @@ module OneDBFsck
                         e.text = ""
                     end
 
-                    datastores_fix[row[:oid]] = doc.to_s
+                    datastores_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
                 else
                     if doc.root.get_text('TYPE').to_s != "1"
-                        cluster[cluster_id][:datastores] << row[:oid]
+                        cluster_entry[:datastores] << row[:oid]
                     else
-                        if cluster[cluster_id][:system_ds] == 0
-                            cluster[cluster_id][:datastores] << row[:oid]
-                            cluster[cluster_id][:system_ds] = row[:oid]
+                        if cluster_entry[:system_ds] == 0
+                            cluster_entry[:datastores] << row[:oid]
+                            cluster_entry[:system_ds] = row[:oid]
                         else
-                            log_error("System Datastore #{row[:oid]} is in Cluster #{cluster_id}, but it already contains System Datastore #{cluster[cluster_id][:system_ds]}")
+                            log_error("System Datastore #{row[:oid]} is in Cluster #{cluster_id}, but it already contains System Datastore #{cluster_entry[:system_ds]}")
 
                             doc.root.each_element('CLUSTER_ID') do |e|
                                 e.text = "-1"
@@ -387,25 +415,45 @@ module OneDBFsck
                                 e.text = ""
                             end
 
-                            datastores_fix[row[:oid]] = doc.to_s
+                            datastores_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
+
+                            next
                         end
+                    end
+
+                    if cluster_name != cluster_entry[:name]
+                        log_error("Datastore #{row[:oid]} has a wrong name for cluster #{cluster_id}, #{cluster_name}. It will be changed to #{cluster_entry[:name]}")
+
+                        doc.root.each_element('CLUSTER') do |e|
+                            e.text = cluster_entry[:name]
+                        end
+
+                        datastores_fix[row[:oid]] = {:body => doc.to_s, :cid => cluster_id}
                     end
                 end
             end
         end
 
-        datastores_fix.each do |id, body|
-            @db[:datastore_pool].where(:oid => id).update(:body => body, :cid => -1)
+        datastores_fix.each do |id, entry|
+            @db[:datastore_pool].where(:oid => id).update(:body => entry[:body], :cid => entry[:cid])
         end
 
 
-        @db.fetch("SELECT oid,body FROM network_pool") do |row|
+        @db.fetch("SELECT oid,body,cid FROM network_pool") do |row|
             doc = Document.new(row[:body])
 
             cluster_id = doc.root.get_text('CLUSTER_ID').to_s.to_i
+            cluster_name = doc.root.get_text('CLUSTER')
+
+            if cluster_id != row[:cid]
+                log_error("VNet #{row[:oid]} is in cluster #{cluster_id}, but cid column has cluster #{row[:cid]}")
+                hosts_fix[row[:oid]] = {:body => row[:body], :cid => cluster_id}
+            end
 
             if cluster_id != -1
-                if cluster[cluster_id].nil?
+                cluster_entry = cluster[cluster_id]
+
+                if cluster_entry.nil?
                     log_error("VNet #{row[:oid]} is in cluster #{cluster_id}, but it does not exist")
 
                     doc.root.each_element('CLUSTER_ID') do |e|
@@ -416,15 +464,25 @@ module OneDBFsck
                         e.text = ""
                     end
 
-                    vnets_fix[row[:oid]] = doc.to_s
+                    vnets_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
                 else
-                    cluster[cluster_id][:vnets] << row[:oid]
+                    if cluster_name != cluster_entry[:name]
+                        log_error("VNet #{row[:oid]} has a wrong name for cluster #{cluster_id}, #{cluster_name}. It will be changed to #{cluster_entry[:name]}")
+
+                        doc.root.each_element('CLUSTER') do |e|
+                            e.text = cluster_entry[:name]
+                        end
+
+                        vnets_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
+                    end
+
+                    cluster_entry[:vnets] << row[:oid]
                 end
             end
         end
 
-        vnets_fix.each do |id, body|
-            @db[:network_pool].where(:oid => id).update(:body => body, :cid => -1)
+        vnets_fix.each do |id, entry|
+            @db[:network_pool].where(:oid => id).update(:body => entry[:body], :cid => entry[:cid])
         end
 
 
@@ -528,35 +586,49 @@ module OneDBFsck
 
         datastore = {}
 
-        @db.fetch("SELECT oid FROM datastore_pool") do |row|
-            datastore[row[:oid]] = []
+        @db.fetch("SELECT oid, name FROM datastore_pool") do |row|
+            datastore[row[:oid]] = {:name => row[:name], :images => []}
         end
 
-        images_fix = {}
+        ds_1_name = datastore[1][:name]
 
+        images_fix = {}
 
         @db.fetch("SELECT oid,body FROM image_pool") do |row|
             doc = Document.new(row[:body])
 
             ds_id = doc.root.get_text('DATASTORE_ID').to_s.to_i
+            ds_name = doc.root.get_text('DATASTORE')
 
             if ds_id != -1
-                if datastore[ds_id].nil?
-                    log_error("Image #{row[:oid]} has datastore #{ds_id}, but it does not exist. It will be moved to the Datastore default (1), but it is probably unusable anymore")
+                ds_entry = datastore[ds_id]
+
+                if ds_entry.nil?
+                    log_error("Image #{row[:oid]} has datastore #{ds_id}, but it does not exist. It will be moved to the Datastore #{ds_1_name} (1), but it is probably unusable anymore")
 
                     doc.root.each_element('DATASTORE_ID') do |e|
                         e.text = "1"
                     end
 
                     doc.root.each_element('DATASTORE') do |e|
-                        e.text = "default"
+                        e.text = ds_1_name
                     end
 
                     images_fix[row[:oid]] = doc.to_s
 
-                    datastore[1] << row[:oid]
+                    datastore[1][:images] << row[:oid]
                 else
-                    datastore[ds_id] << row[:oid]
+                    if ds_name != ds_entry[:name]
+                        log_error("Image #{row[:oid]} has a wrong name for datastore #{ds_id}, #{ds_name}. It will be changed to #{ds_entry[:name]}")
+
+                        doc.root.each_element('DATASTORE') do |e|
+                            e.text = ds_entry[:name]
+                        end
+
+                        images_fix[row[:oid]] = doc.to_s
+                    end
+
+                    ds_entry[:images] << row[:oid]
                 end
             end
         end
@@ -576,7 +648,7 @@ module OneDBFsck
 
             images_new_elem = doc.root.add_element("IMAGES")
 
-            datastore[ds_id].each do |id|
+            datastore[ds_id][:images].each do |id|
                 id_elem = images_elem.elements.delete("ID[.=#{id}]")
 
                 if id_elem.nil?
@@ -611,8 +683,9 @@ module OneDBFsck
         counters[:vnet]  = {}
 
         # Initialize all the host counters to 0
-        @db.fetch("SELECT oid FROM host_pool") do |row|
+        @db.fetch("SELECT oid, name FROM host_pool") do |row|
             counters[:host][row[:oid]] = {
+                :name   => row[:name],
                 :memory => 0,
                 :cpu    => 0,
                 :rvms   => Set.new
@@ -654,6 +727,8 @@ module OneDBFsck
                 :leases         => {}
             }
         end
+
+        vms_fix = {}
 
         # Aggregate information of the RUNNING vms
         @db.fetch("SELECT oid,body FROM vm_pool WHERE state<>6") do |row|
@@ -713,21 +788,41 @@ module OneDBFsck
                 cpu = e.text.to_f
             }
 
-            # Get hostid
+            # Get hostid, hostname
             hid = -1
             vm_doc.root.each_element("HISTORY_RECORDS/HISTORY[last()]/HID") { |e|
                 hid = e.text.to_i
             }
 
-            if counters[:host][hid].nil?
+            hostname = ""
+            vm_doc.root.each_element("HISTORY_RECORDS/HISTORY[last()]/HOSTNAME") { |e|
+                hostname = e.text
+            }
+
+            counters_host = counters[:host][hid]
+
+            if counters_host.nil?
                 log_error("VM #{row[:oid]} is using Host #{hid}, but it does not exist")
             else
-                counters[:host][hid][:memory] += memory
-                counters[:host][hid][:cpu]    += cpu
-                counters[:host][hid][:rvms].add(row[:oid])
+                if counters_host[:name] != hostname
+                    log_error("VM #{row[:oid]} has a wrong hostname for Host #{hid}, #{hostname}. It will be changed to #{counters_host[:name]}")
+
+                    vm_doc.root.each_element("HISTORY_RECORDS/HISTORY[last()]/HOSTNAME") { |e|
+                        e.text = counters_host[:name]
+                    }
+
+                    vms_fix[row[:oid]] = vm_doc.to_s
+                end
+
+                counters_host[:memory] += memory
+                counters_host[:cpu]    += cpu
+                counters_host[:rvms].add(row[:oid])
             end
         end
 
+        vms_fix.each do |id, body|
+            @db[:vm_pool].where(:oid => id).update(:body => body)
+        end
 
 
         ########################################################################
@@ -752,9 +847,11 @@ module OneDBFsck
 
             hid = row[:oid]
 
-            rvms        = counters[:host][hid][:rvms].size
-            cpu_usage   = (counters[:host][hid][:cpu]*100).to_i
-            mem_usage   = counters[:host][hid][:memory]*1024
+            counters_host = counters[:host][hid]
+
+            rvms        = counters_host[:rvms].size
+            cpu_usage   = (counters_host[:cpu]*100).to_i
+            mem_usage   = counters_host[:memory]*1024
 
             # rewrite running_vms
             host_doc.root.each_element("HOST_SHARE/RUNNING_VMS") {|e|
@@ -770,7 +867,7 @@ module OneDBFsck
 
             vms_new_elem = host_doc.root.add_element("VMS")
 
-            counters[:host][hid][:rvms].each do |id|
+            counters_host[:rvms].each do |id|
                 id_elem = vms_elem.elements.delete("ID[.=#{id}]")
 
                 if id_elem.nil?
