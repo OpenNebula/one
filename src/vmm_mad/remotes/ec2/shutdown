@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2010-2013, C12G Labs S.L                                         #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -14,30 +14,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
-#--------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------- #
 
-if [ -z "${ONE_LOCATION}" ]; then
-    EC2RC=/etc/one/im_ec2/im_ec2rc
-    EC2CONF=/etc/one/im_ec2/im_ec2.conf
-    MADCOMMON=/usr/lib/one/mads/madcommon.sh
-    VAR_LOCATION=/var/lib/one 
-else
-    EC2RC=$ONE_LOCATION/etc/im_ec2/im_ec2rc
-    EC2CONF=$ONE_LOCATION/etc/im_ec2/im_ec2.conf
-    MADCOMMON=$ONE_LOCATION/lib/mads/madcommon.sh
-    VAR_LOCATION=$ONE_LOCATION/var 
-fi
+$: << File.dirname(__FILE__)
 
-. $MADCOMMON
+require 'ec2_driver'
 
-# Export the vmm_mad specific rc
-export_rc_vars $EC2RC
+deploy_id = ARGV[0]
+host      = ARGV[1]
 
-# Export max instance type usages
-export_rc_vars $EC2CONF
+ec2_drv = EC2Driver.new
 
-# Go to var directory ONE_LOCATION/var or /var/lib/one
-cd $VAR_LOCATION
+ec2_drv.shutdown(deploy_id)
 
-# Execute the actual MAD
-execute_mad $*

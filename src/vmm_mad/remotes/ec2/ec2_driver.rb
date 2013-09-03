@@ -1,30 +1,19 @@
 #!/usr/bin/env ruby
-# ---------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------- #
 # Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
-#                                                                              #
-# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
-# not use this file except in compliance with the License. You may obtain      #
-# a copy of the License at                                                     #
-#                                                                              #
-# http://www.apache.org/licenses/LICENSE-2.0                                   #
-#                                                                              #
-# Unless required by applicable law or agreed to in writing, software          #
-# distributed under the License is distributed on an "AS IS" BASIS,            #
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
-# See the License for the specific language governing permissions and          #
-# limitations under the License.                                               #
-# ---------------------------------------------------------------------------- #
-
-# Set up the environment for the driver
-
-EC2_LOCATION = ENV["EC2_HOME"]
-
-if !EC2_LOCATION
-    puts "EC2_HOME not set"
-    exit(-1)
-end
-
-EC2_JVM_CONCURRENCY = ENV["EC2_JVM_CONCURRENCY"]
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+# -------------------------------------------------------------------------- #
 
 ONE_LOCATION = ENV["ONE_LOCATION"]
 
@@ -36,15 +25,37 @@ else
     ETC_LOCATION      = ONE_LOCATION + "/etc/"
 end
 
+# Load EC2 credentials and environment
+require 'yaml'
+
+ec2_env = "#{ETC_LOCATION}/ec2rc"
+if File.exist?(ec2_env)
+    env = YAML::load(File.read(ec2_env))
+    env.each do |key, value|
+        ENV[key] = value.to_s
+    end
+end
+
+# Set up the environment for the driver
+EC2_LOCATION = ENV["EC2_HOME"]
+
+if !EC2_LOCATION
+    STDERR.puts "EC2_HOME not set"
+    exit(-1)
+end
+
 $: << RUBY_LIB_LOCATION
 
-require "VirtualMachineDriver"
-require "CommandManager"
+require 'CommandManager'
 require 'scripts_common'
-require "rexml/document"
+require 'rexml/document'
+require 'VirtualMachineDriver'
 
 # The main class for the EC2 driver
-class EC2Driver < VirtualMachineDriver
+class EC2Driver
+    ACTION          = VirtualMachineDriver::ACTION
+    POLL_ATTRIBUTE  = VirtualMachineDriver::POLL_ATTRIBUTE
+    VM_STATE        = VirtualMachineDriver::VM_STATE
 
     # EC2 commands constants
     EC2 = {
@@ -151,15 +162,11 @@ class EC2Driver < VirtualMachineDriver
 
     # EC2 constructor, loads defaults for the EC2Driver
     def initialize(ec2_conf = nil)
-        if !EC2_JVM_CONCURRENCY
-            concurrency = 5
-        else
-            concurrency = EC2_JVM_CONCURRENCY.to_i
-        end
-
-        super('', :concurrency => concurrency, :threaded => true)
-
         @defaults = Hash.new
+
+        if !ec2_conf && ENV['EC2_CONF']
+            ec2_conf = ENV['EC2_CONF']
+        end
 
         if ec2_conf && File.exists?(ec2_conf)
             fd  = File.new(ec2_conf)
@@ -183,93 +190,153 @@ class EC2Driver < VirtualMachineDriver
     end
 
     # DEPLOY action, also sets ports and ip if needed
-    def deploy(id, drv_message)
-        ec2_info = get_deployment_info(drv_message)
+    def deploy(id, host, xml_text)
+        ec2_info = get_deployment_info(host, xml_text)
         return unless ec2_info
 
         if !ec2_value(ec2_info, 'AMI')
             msg = "Cannot find AMI in deployment file"
-            send_message(ACTION[:deploy], RESULT[:failure], id, msg)
-            return
+            STDERR.puts(msg)
+            exit(-1)
         end
 
-        deploy_exe = exec_and_log_ec2(:run, ec2_info, "", id)
+        deploy_exe = exec_and_log_ec2(:run, ec2_info, "")
         if deploy_exe.code != 0
             msg = deploy_exe.stderr
-            send_message(ACTION[:deploy], RESULT[:failure], id, msg)
-            return
+            STDERR.puts(msg)
+            exit(-1)
         end
 
         if !deploy_exe.stdout.match(/^INSTANCE\s*(.+?)\s/)
             msg = "Could not find instance id. Check ec2-describe-instances"
-            send_message(ACTION[:deploy], RESULT[:failure], id, msg)
-            return
+            STDERR.puts(msg)
+            exit(-1)
         end
 
         deploy_id = $1
 
         if ec2_value(ec2_info, 'AUTHORIZEDPORTS')
-            exec_and_log_ec2(:authorize, ec2_info, 'default', id)
+            exec_and_log_ec2(:authorize, ec2_info, 'default')
         end
 
         LocalCommand.run(
             "#{EC2_LOCATION}/bin/ec2-create-tags #{deploy_id} -t ONE_ID=#{id}",
-            log_method(id))
+            lambda {|str| STDERR.puts(str) })
 
         if ec2_value(ec2_info, 'TAGS')
-            exec_and_log_ec2(:tags, ec2_info, deploy_id, id)
+            exec_and_log_ec2(:tags, ec2_info, deploy_id)
         end
 
         if ec2_value(ec2_info, 'ELASTICIP')
-            exec_and_log_ec2(:associate, ec2_info, "-i #{deploy_id}", id)
+            exec_and_log_ec2(:associate, ec2_info, "-i #{deploy_id}")
         end
 
-        send_message(ACTION[:deploy], RESULT[:success], id, deploy_id)
+        puts(deploy_id)
     end
 
     # Shutdown a EC2 instance
-    def shutdown(id, drv_message)
-        ec2_action(drv_message, :terminate, ACTION[:shutdown], id)
+    def shutdown(deploy_id)
+        ec2_action(deploy_id, :terminate, ACTION[:shutdown])
     end
 
     # Reboot a EC2 instance
-    def reboot(id, drv_message)
-        ec2_action(drv_message, :reboot, ACTION[:reboot], id)
+    def reboot(deploy_id)
+        ec2_action(deploy_id, :reboot, ACTION[:reboot])
     end
 
     # Cancel a EC2 instance
-    def cancel(id, drv_message)
-        ec2_action(drv_message, :terminate, ACTION[:cancel], id)
+    def cancel(deploy_id)
+        ec2_action(deploy_id, :terminate, ACTION[:cancel])
     end
 
     # Stop a EC2 instance
-    def save(id, drv_message)
-        ec2_action(drv_message, :stop, ACTION[:save], id)
+    def save(deploy_id)
+        ec2_action(deploy_id, :stop, ACTION[:save])
     end
 
     # Cancel a EC2 instance
-    def restore(id, drv_message)
-        ec2_action(drv_message, :start, ACTION[:restor], id)
+    def restore(deploy_id)
+        ec2_action(deploy_id, :start, ACTION[:restore])
     end
 
     # Get info (IP, and state) for a EC2 instance
-    def poll(id, drv_message)
-        msg = decode(drv_message)
-
-        deploy_id = msg.elements["DEPLOY_ID"].text
-
-        exe = exec_and_log_ec2(:describe, nil, deploy_id, id)
+    def poll(id, deploy_id)
+        exe = exec_and_log_ec2(:describe, nil, deploy_id)
         if exe.code != 0
-            send_message(ACTION[:poll], RESULT[:failure], id, exe.stderr)
-            return
+            STDERR.puts(exe.stderr)
+            exit(-1)
         end
 
-        info = EC2Driver.parse_poll(exe.stdout, deploy_id)
-
-        send_message(ACTION[:poll], RESULT[:success], id, info)
+        info = parse_poll(exe.stdout, deploy_id)
+        puts info
     end
 
-    def self.parse_poll(text, deploy_id)
+    def monitor_all_vms
+        exe = LocalCommand.run(
+                "#{EC2_LOCATION}/bin/ec2-describe-instances",
+                lambda { |str| STDERR.puts str })
+
+        if exe.code != 0
+            exit(-1)
+        end
+
+        puts "VM_POLL=YES"
+
+        exe.stdout.split(/^RESERVATION\s.*?$/).each do |vm|
+            m=vm.match(/^INSTANCE\s+(\S+)/)
+            next if !m
+
+            deploy_id = m[1]
+
+            one_id='-1'
+
+            vm.scan(/^TAG.*ONE_ID\s+(\d+)/) {|i| one_id = i.first }
+
+            poll_data=parse_poll(vm, deploy_id)
+
+            puts "VM=["
+            puts "  ID=#{one_id},"
+            puts "  DEPLOY_ID=#{deploy_id},"
+            puts "  POLL=\"#{poll_data}\" ]"
+        end
+    end
+
+private
+
+    def get_deployment_info(host, xml_text)
+        xml = REXML::Document.new xml_text
+
+        ec2 = nil
+
+        all_ec2_elements = xml.root.get_elements("//USER_TEMPLATE/EC2")
+
+        # First, let's see if we have an EC2 site that matches
+        # our desired host name
+        all_ec2_elements.each { |element|
+            cloud=element.elements["CLOUD"]
+            if cloud and cloud.text.upcase == host.upcase
+                ec2 = element
+            end
+        }
+
+        if !ec2
+            # If we don't find the EC2 site, and ONE just
+            # knows about one EC2 site, let's use that
+            if all_ec2_elements.size == 1
+                ec2 = all_ec2_elements[0]
+            else
+                STDERR.puts(
+                    "Cannot find EC2 element in deployment file "<<
+                    "#{local_dfile} or couldn't find any EC2 site matching "<<
+                    "one of the template.")
+                exit(-1)
+            end
+        end
+
+        ec2
+    end
+
+    def parse_poll(text, deploy_id)
         text.match(Regexp.new("INSTANCE\\s+#{deploy_id}\\s+(.+)"))
 
         info =  "#{POLL_ATTRIBUTE[:usedmemory]}=0 " \
@@ -296,69 +363,15 @@ class EC2Driver < VirtualMachineDriver
         info
     end
 
-private
-
-    def get_deployment_info(drv_message)
-        msg = decode(drv_message)
-
-        host        = msg.elements["HOST"].text
-        local_dfile = msg.elements["LOCAL_DEPLOYMENT_FILE"].text
-
-        if !local_dfile
-            send_message(ACTION[:deploy],RESULT[:failure],id,
-                "Cannot open deployment file #{local_dfile}")
-            return
-        end
-
-        tmp = File.new(local_dfile)
-        xml = REXML::Document.new tmp
-        tmp.close()
-
-        ec2 = nil
-
-        all_ec2_elements = xml.root.get_elements("USER_TEMPLATE/EC2")
-
-        # First, let's see if we have an EC2 site that matches
-        # our desired host name
-        all_ec2_elements.each { |element|
-            cloud=element.elements["CLOUD"]
-            if cloud and cloud.text.upcase == host.upcase
-                ec2 = element
-            end
-        }
-
-        if !ec2
-            # If we don't find the EC2 site, and ONE just
-            # knows about one EC2 site, let's use that
-            if all_ec2_elements.size == 1
-                ec2 = all_ec2_elements[0]
-            else
-                send_message(ACTION[:deploy],RESULT[:failure],id,
-                    "Cannot find EC2 element in deployment file "<<
-                    "#{local_dfile} or couldn't find any EC2 site matching "<<
-                    "one of the template.")
-                return
-            end
-        end
-
-        ec2
-    end
-
     # Execute an EC2 command and send the SUCCESS or FAILURE signal
-    # +drv_message+: String, base64 encoded info sent by ONE
+    # +deploy_id+: String, VM id in EC2
     # +ec2_action+: Symbol, one of the keys of the EC2 hash constant (i.e :run)
     # +one_action+: String, OpenNebula action
-    # +id+: String, action id
-    def ec2_action(drv_message, ec2_action, one_action, id)
-        msg = decode(drv_message)
-
-        deploy_id = msg.elements["DEPLOY_ID"].text
-
-        exe = exec_and_log_ec2(ec2_action, nil, deploy_id, id)
+    def ec2_action(deploy_id, ec2_action, one_action)
+        exe = exec_and_log_ec2(ec2_action, nil, deploy_id)
         if exe.code != 0
-            send_message(one_action, RESULT[:failure], id, exe.stderr)
-        else
-            send_message(one_action, RESULT[:success], id)
+            STDERR.puts(exe.stderr)
+            exit(-1)
         end
     end
 
@@ -369,7 +382,7 @@ private
     # +action+: Symbol, one of the keys of the EC2 hash constant (i.e :run)
     # +xml+: REXML Document, containing EC2 information
     # +extra_params+: String, extra information to be added to the command
-    def exec_and_log_ec2(action, xml, extra_params, id)
+    def exec_and_log_ec2(action, xml, extra_params)
         cmd = EC2[action][:cmd].clone
         cmd << ' ' << extra_params << ' ' if extra_params
 
@@ -380,7 +393,7 @@ private
             }.join(' ')
         end
 
-        LocalCommand.run(cmd, log_method(id))
+        LocalCommand.run(cmd, lambda {|str| STDERR.puts(str) })
     end
 
     # Returns the value of the xml specified by the name or the default
@@ -405,48 +418,3 @@ private
     end
 end
 
-def monitor_all_vms
-    exe = LocalCommand.run(
-            "#{EC2_LOCATION}/bin/ec2-describe-instances",
-            lambda { |str| STDERR.puts str })
-
-    if exe.code != 0
-        exit -1
-    end
-
-    puts "VM_POLL=YES"
-
-    exe.stdout.split(/^RESERVATION\s.*?$/).each do |vm|
-        m=vm.match(/^INSTANCE\s+(\S+)/)
-        next if !m
-
-        deploy_id = m[1]
-
-        one_id='-1'
-
-        vm.scan(/^TAG.*ONE_ID\s+(\d+)/) {|i| one_id = i.first }
-
-        poll_data=EC2Driver.parse_poll(vm, deploy_id)
-
-        puts "VM=["
-        puts "  ID=#{one_id},"
-        puts "  DEPLOY_ID=#{deploy_id},"
-        puts "  POLL=\"#{poll_data}\" ]"
-    end
-end
-
-# EC2Driver Main program
-
-if ARGV[0]=='--poll'
-    monitor_all_vms
-    exit(0)
-end
-
-ec2_conf = ARGV.last
-
-if ec2_conf
-    ec2_conf = ETC_LOCATION + ec2_conf if ec2_conf[0] != ?/
-end
-
-ec2_driver = EC2Driver.new(ec2_conf)
-ec2_driver.start_driver

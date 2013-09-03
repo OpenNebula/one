@@ -14,22 +14,28 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-#May be needed in some setups
-#CLASSPATH=""
+# May be needed in some setups
+#CLASSPATH: ""
+#JAVA_HOME: ""
 
 #----------------------------------------------------------------------------
 # EC2 API TOOLS Configuration.
 #----------------------------------------------------------------------------
-#EC2_HOME="<path_to_ec2_utils>"
-#EC2_PRIVATE_KEY="<path_to_your_ec2_pem_key>"
-#EC2_CERT="<path_to_your_ec2_pem_cert>"
+#EC2_HOME: "<path_to_ec2_utils>"
+#EC2_PRIVATE_KEY: "<path_to_your_ec2_pem_key>"
+#EC2_CERT: "<path_to_your_ec2_pem_cert>"
 
-#
 #----------------------------------------------------------------------------
-# Driver configuration 
+# Driver configuration
 #----------------------------------------------------------------------------
 # Arguments for the JAVA Virtual Machine
-EC2_JVM_ARGS="-Xms16m -Xmx64m"
+EC2_JVM_ARGS: "-Xms16m -Xmx64m"
 
-# Number of concurrent EC2 operations (not instances) 
-EC2_JVM_CONCURRENCY=10
+#----------------------------------------------------------------------------
+# Max number of instances that can be launched into EC2
+#----------------------------------------------------------------------------
+
+SMALL_INSTANCES:        5
+LARGE_INSTANCES:        0
+EXTRALARGE_INSTANCES:   0
+
