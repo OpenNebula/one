@@ -1092,7 +1092,7 @@ function vMachineElementArray(vm_json){
     var state = OpenNebula.Helper.resource_state("vm",vm.STATE);
     var hostname = "--";
 
-    if (state == tr("ACTIVE") || state == tr("SUSPENDED")){
+    if (state == tr("ACTIVE") || state == tr("SUSPENDED") || state == tr("POWEROFF")){
         if (vm.HISTORY_RECORDS.HISTORY.constructor == Array){
             hostname = vm.HISTORY_RECORDS.HISTORY[vm.HISTORY_RECORDS.HISTORY.length-1].HOSTNAME;
         } else {
@@ -1392,7 +1392,7 @@ function updateVMInfo(request,vm){
     var vm_info = vm.VM;
     var vm_state = OpenNebula.Helper.resource_state("vm",vm_info.STATE);
     var hostname = "--"
-    if (vm_state == tr("ACTIVE") || vm_state == tr("SUSPENDED")) {
+    if (vm_state == tr("ACTIVE") || vm_state == tr("SUSPENDED") || vm_state == tr("POWEROFF")) {
         if (vm_info.HISTORY_RECORDS.HISTORY.constructor == Array){
             hostname = vm_info.HISTORY_RECORDS.HISTORY[vm_info.HISTORY_RECORDS.HISTORY.length-1].HOSTNAME
         } else {
