@@ -213,4 +213,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             host.flush
         end
     end
+
+    rename_desc = <<-EOT.unindent
+        Renames the Host
+    EOT
+
+    command :rename, rename_desc, :hostid, :name do
+        helper.perform_action(args[0],options,"renamed") do |o|
+            o.rename(args[1])
+        end
+    end
 end

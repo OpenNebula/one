@@ -50,6 +50,7 @@ module OpenNebulaJSON
                  when "update"        then self.update(action_hash['params'])
                  when "chown"         then self.chown(action_hash['params'])
                  when "chmod"         then self.chmod_octet(action_hash['params'])
+                 when "rename"        then self.rename(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -67,6 +68,10 @@ module OpenNebulaJSON
 
         def chmod_octet(params=Hash.new)
             super(params['octet'])
+        end
+
+        def rename(params=Hash.new)
+            super(params['name'])
         end
     end
 end
