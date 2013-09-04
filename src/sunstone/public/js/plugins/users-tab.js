@@ -427,7 +427,26 @@ var user_actions = {
         error: onError,
         notify: true
     },
-
+    "User.addgroup" : {
+        type: "multiple",
+        call: OpenNebula.User.addgroup,
+        callback : function(req){
+            Sunstone.runAction("User.show",req.request.data[0][0]);
+        },
+        elements : userElements,
+        error: onError,
+        notify: true
+    },
+    "User.delgroup" : {
+        type: "multiple",
+        call: OpenNebula.User.delgroup,
+        callback : function(req){
+            Sunstone.runAction("User.show",req.request.data[0][0]);
+        },
+        elements : userElements,
+        error: onError,
+        notify: true
+    },
     "User.change_authentication" : {
         type: "custom",
         call: popUpChangeAuthenticationDialog
@@ -559,6 +578,22 @@ var user_buttons = {
         layout: "user_select",
         select: groups_sel,
         tip: tr("This will change the main group of the selected users. Select the new group")+":",
+        condition: mustBeAdmin
+    },
+    "User.addgroup" : {
+        type: "confirm_with_select",
+        text: tr("Add to group"),
+        layout: "user_select",
+        select: groups_sel,
+        tip: tr("This will add the user to a secondary group. Select the new group")+":",
+        condition: mustBeAdmin
+    },
+    "User.delgroup" : {
+        type: "confirm_with_select",
+        text: tr("Remove from group"),
+        layout: "user_select",
+        select: groups_sel,
+        tip: tr("This will remove the user from a secondary group. Select the group")+":",
         condition: mustBeAdmin
     },
     "User.delete" : {
@@ -722,6 +757,11 @@ function updateUserInfo(request,user){
             <tr>' +
                 insert_group_dropdown("User",info.ID,info.GNAME,info.GID) +
             '</tr>\
+            <tr>\
+                <td class="key_td">' + tr("Secondary groups") + '</td>\
+                <td class="value_td">'+(typeof info.GROUPS.ID == "object" ? info.GROUPS.ID.join(",") : "-")+'</td>\
+                <td></td>\
+            </tr>\
             <tr>\
                 <td class="key_td">' + tr("Authentication driver") + '</td>\
                 <td class="value_td">'+info.AUTH_DRIVER+'</td>\
