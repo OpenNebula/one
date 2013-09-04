@@ -36,16 +36,27 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
     PoolObjectAuth  operms;
     PoolObjectSQL * object;
 
+    if (test_and_set_rename(oid) == false)
+    {
+        failure_response(INTERNAL,
+            request_error("Object is being renamed", ""), att);
+
+        return;
+    }
+
     rc = get_info(pool, oid, auth_object, att, operms, old_name);
 
     if ( rc == -1 )
     {
+        clear_rename(oid);
         return;
     }
 
     if (old_name == new_name)
     {
         success_response(oid, att);
+
+        clear_rename(oid);
         return;
     }
 
@@ -62,12 +73,12 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
             failure_response(AUTHORIZATION,
                              authorization_error(ar.message, att),
                              att);
-
+            clear_rename(oid);
             return;
         }
     }
 
-    // --------------- Check name uniqueness -----------------------------------
+    // ----------------------- Check name uniqueness ---------------------------
 
     object = get(new_name, operms.uid, true);
 
@@ -85,10 +96,12 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
             << id;
 
         failure_response(ACTION, request_error(oss.str(), ""), att);
+
+        clear_rename(oid);
         return;
     }
 
-    // --------------- Update the object ---------------------------------------
+    // -------------------------- Update the object ----------------------------
 
     object = pool->get(oid, true);
 
@@ -97,6 +110,9 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
         failure_response(NO_EXISTS,
                          get_error(object_name(auth_object), oid),
                          att);
+
+        clear_rename(oid);
+        return;
     }
 
     if ( object->set_name(new_name, error_str) != 0 )
@@ -104,6 +120,8 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
         object->unlock();
 
         failure_response(ACTION, request_error(error_str, ""), att);
+
+        clear_rename(oid);
         return;
     }
 
@@ -113,9 +131,11 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
 
     pool->update_cache_index(old_name, operms.uid, new_name, operms.uid);
 
-    post_execute(oid);
+    batch_rename(oid);
 
     success_response(oid, att);
+
+    clear_rename(oid);
 
     return;
 }
@@ -123,13 +143,13 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void * cluster_rename_loop(void *arg)
+void ClusterRename::batch_rename(int oid)
 {
-    Cluster * cluster = static_cast<Cluster*>(arg);
+    Cluster * cluster = static_cast<ClusterPool *>(pool)->get(oid, true);
 
     if (cluster == 0)
     {
-        return 0;
+        return;
     }
 
     const set<int> & hosts      = cluster->get_host_ids();
@@ -138,7 +158,6 @@ void * cluster_rename_loop(void *arg)
 
     set<int>::iterator it;
 
-    int oid = cluster->get_oid();
     string cluster_name = cluster->get_name();
 
     cluster->unlock();
@@ -199,41 +218,24 @@ void * cluster_rename_loop(void *arg)
             vnet->unlock();
         }
     }
-
-    return 0;
-}
-
-void ClusterRename::post_execute(int oid)
-{
-    pthread_t pthread;
-
-    pthread_attr_t pattr;
-
-    pthread_attr_init (&pattr);
-    pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_DETACHED);
-
-    Cluster * cluster = static_cast<ClusterPool*>(pool)->get(oid, true);
-
-    pthread_create(&pthread, &pattr, cluster_rename_loop, (void *) cluster);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void * ds_rename_loop(void *arg)
+void DatastoreRename::batch_rename(int oid)
 {
-    Datastore * datastore = static_cast<Datastore*>(arg);
+    Datastore * datastore = static_cast<DatastorePool*>(pool)->get(oid, true);
 
     if (datastore == 0)
     {
-        return 0;
+        return;
     }
 
     const set<int> & images = datastore->get_image_ids();
 
     set<int>::iterator it;
 
-    int oid = datastore->get_oid();
     string image_name = datastore->get_name();
 
     datastore->unlock();
@@ -256,41 +258,24 @@ void * ds_rename_loop(void *arg)
             image->unlock();
         }
     }
-
-    return 0;
-}
-
-void DatastoreRename::post_execute(int oid)
-{
-    pthread_t pthread;
-
-    pthread_attr_t pattr;
-
-    pthread_attr_init (&pattr);
-    pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_DETACHED);
-
-    Datastore * datastore = static_cast<DatastorePool*>(pool)->get(oid, true);
-
-    pthread_create(&pthread, &pattr, ds_rename_loop, (void *) datastore);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void * host_rename_loop(void *arg)
+void HostRename::batch_rename(int oid)
 {
-    Host * host = static_cast<Host*>(arg);
+    Host * host = static_cast<HostPool*>(pool)->get(oid, true);
 
     if (host == 0)
     {
-        return 0;
+        return;
     }
 
     const set<int> & vms = host->get_vm_ids();
 
     set<int>::iterator it;
 
-    int oid = host->get_oid();
     string host_name = host->get_name();
 
     host->unlock();
@@ -313,22 +298,6 @@ void * host_rename_loop(void *arg)
             vm->unlock();
         }
     }
-
-    return 0;
-}
-
-void HostRename::post_execute(int oid)
-{
-    pthread_t pthread;
-
-    pthread_attr_t pattr;
-
-    pthread_attr_init (&pattr);
-    pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_DETACHED);
-
-    Host * host = static_cast<HostPool*>(pool)->get(oid, true);
-
-    pthread_create(&pthread, &pattr, host_rename_loop, (void *) host);
 }
 
 /* -------------------------------------------------------------------------- */
