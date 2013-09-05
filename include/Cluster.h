@@ -143,6 +143,30 @@ public:
         return rc;
     }
 
+    /**
+     *  Returns a copy of the host IDs set
+     */
+    set<int> get_host_ids()
+    {
+        return hosts.get_collection_copy();
+    }
+
+    /**
+     *  Returns a copy of the datastore IDs set
+     */
+    set<int> get_datastore_ids()
+    {
+        return datastores.get_collection_copy();
+    }
+
+    /**
+     *  Returns a copy of the vnet IDs set
+     */
+    set<int> get_vnet_ids()
+    {
+        return vnets.get_collection_copy();
+    }
+
     // *************************************************************************
     // DataBase implementation (Public)
     // *************************************************************************

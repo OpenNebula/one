@@ -37,6 +37,7 @@ public class Cluster extends PoolElement{
     private static final String DELDATASTORE    = METHOD_PREFIX + "deldatastore";
     private static final String ADDVNET         = METHOD_PREFIX + "addvnet";
     private static final String DELVNET         = METHOD_PREFIX + "delvnet";
+    private static final String RENAME          = METHOD_PREFIX + "rename";
 
     /**
      * Creates a new Cluster representation.
@@ -199,6 +200,19 @@ public class Cluster extends PoolElement{
         return client.call(DELVNET, id, vnetId);
     }
 
+    /**
+     * Renames this Cluster.
+     *
+     * @param client XML-RPC Client.
+     * @param id The image id of the target host we want to modify.
+     * @param name New name for the Cluster
+     * @return If successful the message contains the cluster id.
+     */
+    public static OneResponse rename(Client client, int id, String name)
+    {
+        return client.call(RENAME, id, name);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -313,6 +327,17 @@ public class Cluster extends PoolElement{
     public OneResponse delVnet(int vnetId)
     {
         return delVnet(client, id, vnetId);
+    }
+
+    /**
+     * Renames this Cluster
+     *
+     * @param name New name for the Cluster.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse rename(String name)
+    {
+        return rename(client, id, name);
     }
 
     // =================================

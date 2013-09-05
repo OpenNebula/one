@@ -479,11 +479,19 @@ public:
     };
 
     /**
-     * Returns the Datastore ID
+     * Returns the Datastore name
      */
     const string& get_ds_name() const
     {
         return ds_name;
+    };
+
+    /**
+     * Updates the Datastore name
+     */
+    void set_ds_name(const string& name)
+    {
+        ds_name = name;
     };
 
     /**

@@ -34,6 +34,8 @@ protected:
                          const string& params = "A:sis")
         :Request(method_name,params,help)
     {
+        pthread_mutex_init(&mutex, 0);
+
         auth_op = AuthRequest::MANAGE;
     };
 
@@ -44,7 +46,60 @@ protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
                         RequestAttributes& att);
 
-    virtual PoolObjectSQL * get(const string& name, int uid, bool lock) = 0;
+    /**
+     *  Gets and object by name and owner. Default implementation returns no
+     *  object
+     */
+    virtual PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return 0;
+    }
+
+    /**
+     *  Batch rename of related objects. Default implementation does nothing
+     */
+    virtual void batch_rename(int oid){};
+
+    /**
+     *  Test if a rename is being perform on a given object. If not it set it.
+     *    @return true if the rename can be performed (no ongoing rename)
+     */
+    bool test_and_set_rename(int oid)
+    {
+        pair<set<int>::iterator,bool> rc;
+
+        pthread_mutex_lock(&mutex);
+
+        rc = rename_ids.insert(oid);
+
+        pthread_mutex_unlock(&mutex);
+
+        return rc.second == true;
+    }
+
+    /**
+     *  Clear the rename.
+     */
+    void clear_rename(int oid)
+    {
+        pthread_mutex_lock(&mutex);
+
+        rename_ids.erase(oid);
+
+        pthread_mutex_unlock(&mutex);
+    }
+
+private:
+    /**
+     *  Mutex to control concurrent access to the ongoing rename operations
+     */
+    pthread_mutex_t mutex;
+
+    /**
+     *  Set of IDs being renamed;
+     */
+    set<int> rename_ids;
+
 };
 
 /* ------------------------------------------------------------------------- */
@@ -62,11 +117,6 @@ public:
     };
 
     ~VirtualMachineRename(){};
-
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
-    {
-        return 0;
-    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -152,11 +202,78 @@ public:
     };
 
     ~DocumentRename(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ClusterRename: public RequestManagerRename
+{
+public:
+    ClusterRename():
+        RequestManagerRename("ClusterRename", "Renames a cluster")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_clpool();
+        auth_object = PoolObjectSQL::CLUSTER;
+    };
+
+    ~ClusterRename(){};
 
     PoolObjectSQL * get(const string& name, int uid, bool lock)
     {
-        return 0;
+        return static_cast<ClusterPool*>(pool)->get(name, lock);
     };
+
+    void batch_rename(int oid);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class DatastoreRename: public RequestManagerRename
+{
+public:
+    DatastoreRename():
+        RequestManagerRename("DatastoreRename", "Renames a datastore")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_dspool();
+        auth_object = PoolObjectSQL::DATASTORE;
+    };
+
+    ~DatastoreRename(){};
+
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return static_cast<DatastorePool*>(pool)->get(name, lock);
+    };
+
+    void batch_rename(int oid);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class HostRename: public RequestManagerRename
+{
+public:
+    HostRename():
+        RequestManagerRename("HostRename", "Renames a host")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_hpool();
+        auth_object = PoolObjectSQL::HOST;
+    };
+
+    ~HostRename(){};
+
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return static_cast<HostPool*>(pool)->get(name, lock);
+    };
+
+    void batch_rename(int oid);
 };
 
 /* -------------------------------------------------------------------------- */

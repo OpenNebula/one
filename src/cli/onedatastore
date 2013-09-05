@@ -174,4 +174,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             obj.update(str, options[:append])
         end
     end
+
+    rename_desc = <<-EOT.unindent
+        Renames the Datastore
+    EOT
+
+    command :rename, rename_desc, :datastoreid, :name do
+        helper.perform_action(args[0],options,"renamed") do |o|
+            o.rename(args[1])
+        end
+    end
 end

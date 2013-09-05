@@ -34,6 +34,7 @@ module OpenNebula
             :addvnet        => "cluster.addvnet",
             :delvnet        => "cluster.delvnet",
             :update         => "cluster.update",
+            :rename         => "cluster.rename"
         }
 
         # Creates a Cluster description with just its identifier
@@ -169,6 +170,16 @@ module OpenNebula
         #   otherwise
         def update(new_template, append=false)
             super(CLUSTER_METHODS[:update], new_template, append ? 1 : 0)
+        end
+
+        # Renames this Cluster
+        #
+        # @param name [String] New name for the Cluster.
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def rename(name)
+            return call(CLUSTER_METHODS[:rename], @pe_id, name)
         end
 
         # ---------------------------------------------------------------------

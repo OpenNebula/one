@@ -407,6 +407,9 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vn_rename(new VirtualNetworkRename());
     xmlrpc_c::methodPtr image_rename(new ImageRename());
     xmlrpc_c::methodPtr doc_rename(new DocumentRename());
+    xmlrpc_c::methodPtr cluster_rename(new ClusterRename());
+    xmlrpc_c::methodPtr datastore_rename(new DatastoreRename());
+    xmlrpc_c::methodPtr host_rename(new HostRename());
 
     /* VM related methods  */
     RequestManagerRegistry.addMethod("one.vm.deploy", vm_deploy);
@@ -454,6 +457,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.host.delete", host_delete);
     RequestManagerRegistry.addMethod("one.host.info", host_info);
     RequestManagerRegistry.addMethod("one.host.monitoring", host_monitoring);
+    RequestManagerRegistry.addMethod("one.host.rename", host_rename);
 
     RequestManagerRegistry.addMethod("one.hostpool.info", hostpool_info);
     RequestManagerRegistry.addMethod("one.hostpool.monitoring", host_pool_monitoring);
@@ -528,6 +532,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.datastore.update",  datastore_update);
     RequestManagerRegistry.addMethod("one.datastore.chown",   datastore_chown);
     RequestManagerRegistry.addMethod("one.datastore.chmod",   datastore_chmod);
+    RequestManagerRegistry.addMethod("one.datastore.rename",  datastore_rename);
 
     RequestManagerRegistry.addMethod("one.datastorepool.info",datastorepool_info);
 
@@ -536,6 +541,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.cluster.delete",  cluster_delete);
     RequestManagerRegistry.addMethod("one.cluster.info",    cluster_info);
     RequestManagerRegistry.addMethod("one.cluster.update",  cluster_update);
+    RequestManagerRegistry.addMethod("one.cluster.rename",  cluster_rename);
 
     RequestManagerRegistry.addMethod("one.cluster.addhost", cluster_addhost);
     RequestManagerRegistry.addMethod("one.cluster.delhost", cluster_delhost);
