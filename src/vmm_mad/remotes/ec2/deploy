@@ -24,7 +24,7 @@ dfile = ARGV[0]
 host  = ARGV[1]
 id    = ARGV[2]
 
-ec2_drv = EC2Driver.new(host)
+ec2_drv = EC2Driver.new(ETC_LOCATION+'/ec2.conf')
 
 text=File.read(dfile)
 
