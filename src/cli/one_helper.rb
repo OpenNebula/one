@@ -812,9 +812,13 @@ EOT
             lines+=options[:context] if options[:context]
 
             if options[:files_ds]
-                options[:files_ds].each do |file|
-                    lines << %Q<FILES_DS="$FILE[IMAGE=\"#{file}\"]">
-                end
+                text='FILES_DS="'
+                text << options[:files_ds].map do |file|
+                    %Q<$FILE[IMAGE=\\"#{file}\\"]>
+                end.join(' ')
+                text << '"'
+
+                lines << text
             end
 
             if options[:init]
