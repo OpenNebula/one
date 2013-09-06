@@ -818,7 +818,7 @@ EOT
             end
 
             if options[:init]
-                lines << %Q<INIT_SCRIPTS="#{options[:init].join(',')}">
+                lines << %Q<INIT_SCRIPTS="#{options[:init].join(' ')}">
             end
 
             if !lines.empty?
