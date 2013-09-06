@@ -565,7 +565,8 @@ void  LifeCycleManager::cancel_action(int vid)
     }
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::RUNNING)
+        (vm->get_lcm_state() == VirtualMachine::RUNNING ||
+         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
     {
         Nebula&                 nd = Nebula::instance();
         VirtualMachineManager * vmm = nd.get_vmm();
