@@ -2865,7 +2865,7 @@ function setupCreateTemplateDialog(){
            }
         });
 
-        
+
 
         $("#refresh_ramdisk_table").die();
         $("#refresh_ramdisk_table").live('click', function(){
@@ -3178,14 +3178,25 @@ function setupCreateTemplateDialog(){
                       '</div>'+
                       '<div class="row vm_param">'+
                       '<br>'+
-                        '<div class="four columns">'+
+                        '<div class="two columns">'+
                           '<label class="right inline" for="FILES_DS">'+tr("FILES_DS")+':</label>'+
                         '</div>'+
-                        '<div class="six columns">'+
+                        '<div class="nine columns">'+
                           '<input type="text" id="FILES_DS" name="FILES_DS" />'+
                         '</div>'+
-                        '<div class="two columns">'+
+                        '<div class="one columns">'+
                           '<div class="tip"></div>'+
+                        '</div>'+
+                      '</div>'+
+                      '<div class="row vm_param">'+
+                        '<div class="two columns">'+
+                          '<label class="right inline" for="INIT_SCRIPTS">'+tr("Init scripts")+':</label>'+
+                        '</div>'+
+                        '<div class="nine columns">'+
+                          '<input type="text" id="INIT_SCRIPTS" name="INIT_SCRIPTS" />'+
+                        '</div>'+
+                        '<div class="one columns">'+
+                          '<div class="tip">'+tr("If the VM uses the OpenNebula contextualization package the init.sh file is executed by default. When the init script added is not called init.sh or more than one init script is added, this list contains the scripts to run and the order. Ex. “init.sh users.sh mysql.sh”")+'</div>'+
                         '</div>'+
                       '</div>'+
                     '</li>'+
@@ -3287,7 +3298,7 @@ function setupCreateTemplateDialog(){
           }
       });
 
-        
+
 
         $("#refresh_context_table").die();
         $("#refresh_context_table").live('click', function(){
@@ -4601,6 +4612,9 @@ function fillTemplatePopUp(request, response){
             else if (net_regexp.test(key)) {
                 $("#network_context", context_section).attr('checked','checked');
             }
+            else if ("INIT_SCRIPTS" == key){
+                $("input#INIT_SCRIPTS").val(value);
+            }
             else if ("FILES_DS" == key){
                 $('#FILES_DS', context_section).val(context["FILES_DS"])
                 var files = [];
@@ -5034,7 +5048,7 @@ function setupInstantiateTemplateDialog(easy_provision){
       dialog.addClass("reveal-modal large");
       dialog.removeClass("max-height")
     }
-    
+
 
     setupTips(dialog);
 
@@ -5071,7 +5085,7 @@ function setupInstantiateTemplateDialog(easy_provision){
               'image_id': image_id
             }
           }
-        } 
+        }
 
         if (!vm_name.length){ //empty name use OpenNebula core default
             for (var i=0; i< n_times_int; i++){
