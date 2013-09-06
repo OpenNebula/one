@@ -177,12 +177,17 @@ int Image::insert(SqlDB *db, string& error_str)
     {
         if ( source.empty() && path.empty() )
         {
+            if (type != DATABLOCK)
+            {
+                goto error_no_path;
+            }
+
             erase_template_attribute("FSTYPE", fs_type);
 
             // DATABLOCK image needs FSTYPE
-            if (type != DATABLOCK || fs_type.empty())
+            if (fs_type.empty())
             {
-                goto error_no_path;
+                fs_type = "raw";
             }
         }
         else if ( !source.empty() && !path.empty() )
@@ -210,15 +215,7 @@ error_type:
     goto error_common;
 
 error_no_path:
-    if ( type == DATABLOCK )
-    {
-        error_str = "A DATABLOCK type IMAGE has to declare a PATH, or both "
-                    "SIZE and FSTYPE.";
-    }
-    else
-    {
-        error_str = "No PATH in template.";
-    }
+    error_str = "No PATH in template.";
     goto error_common;
 
 error_path_and_source:
