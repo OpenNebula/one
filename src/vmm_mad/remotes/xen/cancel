@@ -25,6 +25,12 @@ function gdm {
     $XM_LIST | grep "$deploy_id "
 }
 
+OUT=$(gdm)
+
+if [ -z "$OUT" ]; then
+    exit 0
+fi
+
 exec_and_log "$XM_CANCEL $deploy_id" \
     "Could not destroy $deploy_id"
 
