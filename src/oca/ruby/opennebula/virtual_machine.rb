@@ -216,11 +216,13 @@ module OpenNebula
         # @param enforce [true|false] If it is set to true, the host capacity
         #   will be checked, and the deployment will fail if the host is
         #   overcommited. Defaults to false
+        # @param ds_id [Integer] The System Datastore where to deploy the VM. To
+        #   use the default, set it to -1
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def deploy(host_id, enforce=false)
-            return call(VM_METHODS[:deploy], @pe_id, host_id.to_i, enforce)
+        def deploy(host_id, enforce=false, ds_id=-1)
+            return call(VM_METHODS[:deploy], @pe_id, host_id.to_i, enforce, ds_id)
         end
 
         # Shutdowns an already deployed VM
