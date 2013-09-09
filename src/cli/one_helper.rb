@@ -248,6 +248,19 @@ EOT
             :large  => '--boot device',
             :description => 'Select boot device (hd|fd|cdrom|network)',
             :format => String
+        },
+        {
+            :name   => 'files_ds',
+            :large  => '--files_ds file1,file2',
+            :format => Array,
+            :description => 'Add files to the contextualization CD from the' <<
+                'files datastore'
+        },
+        {
+            :name   => 'init',
+            :large  => '--init script1,script2',
+            :format => Array,
+            :description => 'Script or scripts to start in context'
         }
     ]
 
@@ -774,7 +787,8 @@ EOT
     end
 
     def self.create_context(options)
-        if !(options.keys & [:ssh, :net_context, :context]).empty?
+        context_options = [:ssh, :net_context, :context, :init, :files_ds]
+        if !(options.keys & context_options).empty?
             lines=[]
 
             if options[:ssh]
@@ -792,10 +806,24 @@ EOT
             end
 
             if options[:net_context]
-                    lines << "NETWORK = \"YES\""
+                lines << "NETWORK = \"YES\""
             end
 
             lines+=options[:context] if options[:context]
+
+            if options[:files_ds]
+                text='FILES_DS="'
+                text << options[:files_ds].map do |file|
+                    %Q<$FILE[IMAGE=\\"#{file}\\"]>
+                end.join(' ')
+                text << '"'
+
+                lines << text
+            end
+
+            if options[:init]
+                lines << %Q<INIT_SCRIPTS="#{options[:init].join(' ')}">
+            end
 
             if !lines.empty?
                 "CONTEXT=[\n"<<lines.map{|l| "  "<<l }.join(",\n")<<"\n]\n"
