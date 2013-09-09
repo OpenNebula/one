@@ -195,7 +195,7 @@ var easy_provision_vm_template_tmpl ='\
     <br>\
     <div class="row">\
       <fieldset>\
-        <legend>'+tr("Step 3: Select a template")+'</legend>\
+        <legend>'+tr("Step 2: Select a template")+'</legend>\
         <div class="row collapse">\
           <div class="seven columns">\
              <button id="refresh_template_templates_table_button_class" type="button" class="refresh button small radius secondary"><i class="icon-refresh" /></button>\
@@ -281,8 +281,7 @@ var easy_provision_vm_template_tmpl ='\
             <input type="text" id="IMAGE_ID" name="IMAGE_ID"/>\
           </div>\
           <div class="two columns">\
-            <div class="tip">\
-            </div>\
+            <div class="tip">'+tr("Identifier of the image to be used as the main disk for this Virtual Machine. This choice will select the Operating System the VM will run under.")+'</div>\
           </div>\
         </div>\
         <br>\
@@ -971,7 +970,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
                   '<input type="text" id="IMAGE_ID" name="IMAGE_ID"/>'+
                 '</div>'+
                 '<div class="two columns">'+
-                  '<div class="tip">'+
+                  '<div class="tip">'+tr("Image ID to be used in the Virtual Image disk.")+
                   '</div>'+
                 '</div>'+
               '</div>'+
@@ -985,7 +984,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
                     '<input type="text" id="IMAGE" name="IMAGE" />'+
                 '</div>'+
                 '<div class="two columns">'+
-                    '<div class="tip">'+
+                    '<div class="tip">'+tr("Name of the image to be used in the Virtual Image disk.")+
                     '</div>'+
                 '</div>'+
               '</div>'+
@@ -1001,7 +1000,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
                   '<input type="text" id="IMAGE_UID" name="IMAGE_UID"/>'+
                 '</div>'+
                 '<div class="two columns">'+
-                  '<div class="tip">'+
+                  '<div class="tip">'+tr("Identifier of the user owner of the image to reduce ambiguity.")+
                   '</div>'+
                 '</div>'+
               '</div>'+
@@ -1015,7 +1014,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
                   '<input type="text" id="IMAGE_UNAME" name="IMAGE_UNAME"/>'+
                 '</div>'+
                 '<div class="two columns">'+
-                  '<div class="tip">'+
+                  '<div class="tip">'+tr("Name of the user owner of the image to reduce ambiguity.")+
                   '</div>'+
                 '</div>'+
               '</div>'+
@@ -1709,7 +1708,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
                   '<input type="text" id="NETWORK_ID" name="NETWORK_ID"/>'+
                 '</div>'+
                 '<div class="two columns">'+
-                  '<div class="tip">'+
+                  '<div class="tip">'+tr("Identifier of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")+
                   '</div>'+
                 '</div>'+
               '</div>'+
@@ -1723,7 +1722,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
                     '<input type="text" id="NETWORK" name="NETWORK" />'+
                 '</div>'+
                 '<div class="two columns">'+
-                    '<div class="tip">'+
+                    '<div class="tip">'+tr("Name of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")+
                     '</div>'+
                 '</div>'+
               '</div>'+
@@ -1739,7 +1738,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
                   '<input type="text" id="NETWORK_UID" name="NETWORK_UID"/>'+
                 '</div>'+
                 '<div class="two columns">'+
-                  '<div class="tip">'+
+                  '<div class="tip">'+tr("Identifier of the user owner of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")+
                   '</div>'+
                 '</div>'+
               '</div>'+
@@ -1753,7 +1752,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
                   '<input type="text" id="NETWORK_UNAME" name="NETWORK_UNAME"/>'+
                 '</div>'+
                 '<div class="two columns">'+
-                  '<div class="tip">'+
+                  '<div class="tip">'+tr("Name of the user owner of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")+
                   '</div>'+
                 '</div>'+
               '</div>'+
@@ -3185,7 +3184,7 @@ function setupCreateTemplateDialog(){
                           '<input type="text" id="FILES_DS" name="FILES_DS" />'+
                         '</div>'+
                         '<div class="one columns">'+
-                          '<div class="tip"></div>'+
+                          '<div class="tip">'+tr("Raw String for the FILE_DS attribute of the VM template, representing files that will be included in the contextualization image. Each file must be stored in a FILE_DS Datastore and must be of type CONTEXT")+'</div>'+
                         '</div>'+
                       '</div>'+
                       '<div class="row vm_param">'+
