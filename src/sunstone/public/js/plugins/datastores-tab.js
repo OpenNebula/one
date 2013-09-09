@@ -257,6 +257,7 @@ var create_datastore_tmpl =
         <input type="text" name="host" id="host" />\
       </div>\
       <div class="one columns">\
+          <div class="tip">'+tr("Server name or IP where OpenNebula will be staging the new images into. This server will act as the entry point for new inmages in the datastore.")+'</div>\
       </div>\
     </div>\
     <div class="twelve columns">\
@@ -865,7 +866,7 @@ function hide_all(context)
     $('label[for="bridge_list"],input#bridge_list',context).hide();
     $('label[for="ds_use_ssh"],input#ds_use_ssh',context).hide();
     $('label[for="tm_use_ssh"],input#tm_use_ssh',context).hide();
-    $('label[for="host"],input#host',context).hide();
+    $('label[for="host"],input#host',context).parent().parent().hide();
     $('label[for="base_iqn"],input#base_iqn',context).hide();
     $('label[for="vg_name"],input#vg_name',context).hide();
     $('select#ds_mad').removeAttr('disabled');
@@ -959,6 +960,7 @@ function setupCreateDatastoreDialog(){
         var base_iqn        = $('#base_iqn',context).val();
         var vg_name         = $('#vg_name',context).val();
 
+
         if (!name){
             notifyError("Please provide a name");
             return false;
@@ -1001,7 +1003,7 @@ function setupCreateDatastoreDialog(){
             ds_obj.datastore.base_iqn = base_iqn;
 
         if (vg_name)
-            ds_obj.datastore.vg_name = vg_name;
+            ds_obj.datastore.vg_name = vg_name;       
 
         Sunstone.runAction("Datastore.create",ds_obj);
 
@@ -1083,7 +1085,7 @@ function select_iscsi(){
     $('select#ds_mad').attr('disabled', 'disabled');
     $('select#tm_mad').val('iscsi');
     $('select#tm_mad').attr('disabled', 'disabled');
-    $('label[for="host"],input#host').fadeIn();
+    $('label[for="host"],input#host').parent().parent().fadeIn();
     $('label[for="base_iqn"],input#base_iqn').fadeIn();
     $('label[for="vg_name"],input#vg_name').fadeIn();
     $('select#disk_type').children('option').each(function() {
@@ -1102,6 +1104,7 @@ function select_ceph(){
     $('select#ds_mad').attr('disabled', 'disabled');
     $('select#tm_mad').val('ceph');
     $('select#tm_mad').attr('disabled', 'disabled');
+    $('label[for="host"],input#host').parent().parent().fadeIn();
     $('select#disk_type').val('RBD');
 }
 
@@ -1110,7 +1113,7 @@ function select_lvm(){
     $('select#ds_mad').attr('disabled', 'disabled');
     $('select#tm_mad').val('lvm');
     $('select#tm_mad').attr('disabled', 'disabled');
-    $('label[for="host"],input#host').fadeIn();
+    $('label[for="host"],input#host').parent().parent().fadeIn();
     $('label[for="vg_name"],input#vg_name').fadeIn();
     $('select#disk_type').children('option').each(function() {
       var value_str = $(this).val();
