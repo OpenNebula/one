@@ -231,16 +231,6 @@ var create_datastore_tmpl =
         <div class="tip">'+tr("Paths that can not be used to register images. A space separated list of paths. This will prevent users registering important files as VM images and accessing them thourgh their VMs. OpenNebula will automatically add its configuration directories: /var/lib/one, /etc/one and oneadmin's home ($HOME).")+'</div>\
       </div>\
     </div>\
-    <div class="twelve columns">\
-      <div class="four columns">\
-        <label class="right inline" for="bridge_list">' + tr("Host Bridge List") + ':</label>\
-      </div>\
-      <div class="seven columns">\
-        <input type="text" name="bridge_list" id="bridge_list" />\
-      </div>\
-      <div class="one columns">\
-      </div>\
-    </div>\
     <div class="row">\
       <div class="six columns">\
         <label class="right inline" for="ds_use_ssh"><input id="ds_use_ssh" type="checkbox" name="ds_use_ssh" value="YES" />' + tr("Use SSH for Datastore Manager") + '</label>\
@@ -251,13 +241,13 @@ var create_datastore_tmpl =
     </div>\
     <div class="twelve columns">\
       <div class="four columns">\
-        <label class="right inline" for="host">' + tr("Storage Server") + ':</label>\
+        <label class="right inline" for="bridge_list">' + tr("Host Bridge List") + ':</label>\
       </div>\
       <div class="seven columns">\
-        <input type="text" name="host" id="host" />\
+        <input type="text" name="bridge_list" id="bridge_list" />\
       </div>\
       <div class="one columns">\
-          <div class="tip">'+tr("Server name or IP where OpenNebula will be staging the new images into. This server will act as the entry point for new inmages in the datastore.")+'</div>\
+          <div class="tip">'+tr("Space separated list of Server names or IPs where OpenNebula will be staging the new images into. This server will act as the entry point for new inmages in the datastore.")+'</div>\
       </div>\
     </div>\
     <div class="twelve columns">\
@@ -863,10 +853,9 @@ function hide_all(context)
 {
     // Hide all the options that depends on datastore type
     // and reset the selects
-    $('label[for="bridge_list"],input#bridge_list',context).hide();
     $('label[for="ds_use_ssh"],input#ds_use_ssh',context).hide();
     $('label[for="tm_use_ssh"],input#tm_use_ssh',context).hide();
-    $('label[for="host"],input#host',context).parent().parent().hide();
+    $('label[for="bridge_list"],input#bridge_list',context).parent().parent().hide();
     $('label[for="base_iqn"],input#base_iqn',context).hide();
     $('label[for="vg_name"],input#vg_name',context).hide();
     $('select#ds_mad').removeAttr('disabled');
@@ -956,7 +945,6 @@ function setupCreateDatastoreDialog(){
         var bridge_list     = $('#bridge_list',context).val();
         var ds_use_ssh      = $('#ds_use_ssh',context).is(':checked');
         var tm_use_ssh      = $('#tm_use_ssh',context).is(':checked');
-        var host            = $('#host',context).val();
         var base_iqn        = $('#base_iqn',context).val();
         var vg_name         = $('#vg_name',context).val();
 
@@ -995,9 +983,6 @@ function setupCreateDatastoreDialog(){
 
         if (tm_use_ssh)
             ds_obj.datastore.tm_use_ssh = "YES";
-
-        if (host)
-            ds_obj.datastore.host = host;
 
         if (base_iqn)
             ds_obj.datastore.base_iqn = base_iqn;
@@ -1069,7 +1054,7 @@ function select_filesystem(){
 }
 
 function select_vmware_vmfs(){
-    $('label[for="bridge_list"],input#bridge_list').fadeIn();
+    $('label[for="bridge_list"],input#bridge_list').parent().parent().fadeIn();
     $('label[for="ds_use_ssh"],input#ds_use_ssh').fadeIn();
     $('label[for="tm_use_ssh"],input#tm_use_ssh').fadeIn();
     $('select#ds_mad').val('vmfs');
@@ -1085,7 +1070,7 @@ function select_iscsi(){
     $('select#ds_mad').attr('disabled', 'disabled');
     $('select#tm_mad').val('iscsi');
     $('select#tm_mad').attr('disabled', 'disabled');
-    $('label[for="host"],input#host').parent().parent().fadeIn();
+    $('label[for="bridge_list"],input#bridge_list').parent().parent().fadeIn();
     $('label[for="base_iqn"],input#base_iqn').fadeIn();
     $('label[for="vg_name"],input#vg_name').fadeIn();
     $('select#disk_type').children('option').each(function() {
@@ -1104,7 +1089,7 @@ function select_ceph(){
     $('select#ds_mad').attr('disabled', 'disabled');
     $('select#tm_mad').val('ceph');
     $('select#tm_mad').attr('disabled', 'disabled');
-    $('label[for="host"],input#host').parent().parent().fadeIn();
+    $('label[for="bridge_list"],input#bridge_list').parent().parent().fadeIn();
     $('select#disk_type').val('RBD');
 }
 
@@ -1113,7 +1098,7 @@ function select_lvm(){
     $('select#ds_mad').attr('disabled', 'disabled');
     $('select#tm_mad').val('lvm');
     $('select#tm_mad').attr('disabled', 'disabled');
-    $('label[for="host"],input#host').parent().parent().fadeIn();
+    $('label[for="bridge_list"],input#bridge_list').parent().parent().fadeIn();
     $('label[for="vg_name"],input#vg_name').fadeIn();
     $('select#disk_type').children('option').each(function() {
       var value_str = $(this).val();
