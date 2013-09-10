@@ -766,7 +766,7 @@ var vm_actions = {
         type: "single",
         call: OpenNebula.VM.attachdisk,
         callback: function(request) {
-            Sunstone.runAction("VM.showinfo", request.request.data[0]);
+            Sunstone.runAction("VM.showinfo", request.request.data[0][0]);
         },
         error: onError,
         notify: true
@@ -775,7 +775,7 @@ var vm_actions = {
         type: "single",
         call: OpenNebula.VM.detachdisk,
         callback: function(request) {
-            Sunstone.runAction("VM.showinfo", request.request.data[0]);
+            Sunstone.runAction("VM.showinfo", request.request.data[0][0]);
         },
         error: onError,
         notify: true
