@@ -2073,7 +2073,7 @@ function setupSaveAsDialog(){
 
 function popUpSaveAsDialog(vm_id, disk_id){
     $('#vm_id',$save_as_dialog).text(vm_id);
-    $('#disk_id',$save_as_dialog).twzt(disk_id);
+    $('#disk_id',$save_as_dialog).text(disk_id);
     $save_as_dialog.reveal();
     $("input#image_name",$save_as_dialog).focus();
 }
