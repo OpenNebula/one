@@ -2084,7 +2084,7 @@ function setupSaveAsDialog(){
               <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
           </div>\
           <div class="seven columns">\
-              <input type="text" name="vm_id" id="vm_id" disabled/>\
+              <label style="border-style: inset; background-color: lightgrey" type="text" name="vm_id" id="vm_id" disabled/>\
           </div>\
           <div class="one columns">\
               <div class=""></div>\
@@ -2095,7 +2095,7 @@ function setupSaveAsDialog(){
               <label class="inline right" for="disk_id">'+tr("Disk ID")+':</label>\
           </div>\
           <div class="seven columns">\
-              <input type="text" name="disk_id" id="disk_id" disabled/>\
+              <label style="border-style: inset; background-color: lightgrey" type="text" name="disk_id" id="disk_id" disabled/>\
           </div>\
           <div class="one columns">\
               <div class=""></div>\
@@ -2140,7 +2140,7 @@ function setupSaveAsDialog(){
     setupTips(dialog);
 
     $('#save_as_form',dialog).submit(function(){
-        var vm_id = $('#vm_id', this).val();
+        var vm_id = $('#vm_id', this).text();
         var image_name = $('#image_name', this).val();
         var snapshot_type = $('#snapshot_type', this).val();
 
@@ -2150,7 +2150,7 @@ function setupSaveAsDialog(){
         }
 
         var obj = {
-            disk_id : $('#disk_id', this).val(),
+            disk_id : $('#disk_id', this).text(),
             image_name : image_name,
             type: "",
             hot: (snapshot_type == "true" ? true : false)
@@ -2164,8 +2164,8 @@ function setupSaveAsDialog(){
 };
 
 function popUpSaveAsDialog(vm_id, disk_id){
-    $('#vm_id',$save_as_dialog).val(vm_id);
-    $('#disk_id',$save_as_dialog).val(disk_id);
+    $('#vm_id',$save_as_dialog).text(vm_id);
+    $('#disk_id',$save_as_dialog).twzt(disk_id);
     $save_as_dialog.reveal();
 }
 
@@ -2189,7 +2189,7 @@ function setupAttachDiskDialog(){
                   <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
               </div>\
               <div class="seven columns">\
-                  <input type="text" name="vm_id" id="vm_id" disabled/>\
+                  <label style="border-style: inset; background-color: lightgrey" type="text" name="vm_id" id="vm_id" disabled/>\
               </div>\
               <div class="one columns">\
                   <div class=""></div>\
@@ -2212,7 +2212,7 @@ function setupAttachDiskDialog(){
     setup_disk_tab_content(dialog, "attach_disk", "attach_disk")
 
     $('#attach_disk_form',dialog).submit(function(){
-        var vm_id = $('#vm_id', this).val();
+        var vm_id = $('#vm_id', this).text();
 
         var data  = {};
         addSectionJSON(data, this);
@@ -2226,7 +2226,7 @@ function setupAttachDiskDialog(){
 };
 
 function popUpAttachDiskDialog(vm_id){
-    $('#vm_id',$attach_disk_dialog).val(vm_id);
+    $('#vm_id',$attach_disk_dialog).text(vm_id);
     $attach_disk_dialog.reveal();
 }
 
@@ -2447,7 +2447,7 @@ function setupAttachNicDialog(){
                   <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
               </div>\
               <div class="seven columns">\
-                  <input type="text" name="vm_id" id="vm_id" disabled/>\
+                  <label style="border-style: inset; background-color: lightgrey" type="text" name="vm_id" id="vm_id" disabled/>\
               </div>\
               <div class="one columns">\
                   <div class=""></div>\
@@ -2470,7 +2470,7 @@ function setupAttachNicDialog(){
     setup_nic_tab_content(dialog, "attach_nic", "attach_nic")
 
     $('#attach_nic_form',dialog).submit(function(){
-        var vm_id = $('#vm_id', this).val();
+        var vm_id = $('#vm_id', this).text();
 
         var data  = {};
         addSectionJSON(data, this);
@@ -2484,7 +2484,7 @@ function setupAttachNicDialog(){
 };
 
 function popUpAttachNicDialog(vm_id){
-    $('#vm_id',$attach_nic_dialog).val(vm_id);
+    $('#vm_id',$attach_nic_dialog).text(vm_id);
     $attach_nic_dialog.reveal();
 }
 
@@ -2609,7 +2609,7 @@ function setupResizeCapacityDialog(){
                   <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
               </div>\
               <div class="seven columns">\
-                  <input type="text" name="vm_id" id="vm_id" disabled/>\
+                  <label style="border-style: inset; background-color: lightgrey" type="text" name="vm_id" id="vm_id" disabled/>\
               </div>\
               <div class="one columns">\
               </div>\
@@ -2647,7 +2647,7 @@ function setupResizeCapacityDialog(){
     setup_capacity_tab_content(dialog);
 
     $('#resize_capacity_form',dialog).submit(function(){
-        var vm_id = $('#vm_id', this).val();
+        var vm_id = $('#vm_id', this).text();
 
         var enforce = false;
         if ($("#enforce", this).is(":checked")) {
@@ -2670,7 +2670,7 @@ function setupResizeCapacityDialog(){
 };
 
 function popUpResizeCapacityDialog(vm_id){
-    $('#vm_id',$resize_capacity_dialog).val(vm_id);
+    $('#vm_id',$resize_capacity_dialog).text(vm_id);
     $resize_capacity_dialog.reveal();
 }
 
@@ -2811,7 +2811,7 @@ function setupSnapshotDialog(){
               <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
           </div>\
           <div class="seven columns">\
-              <input type="text" name="vm_id" id="vm_id" disabled/>\
+              <label style="border-style: inset; background-color: lightgrey" type="text" name="vm_id" id="vm_id" disabled/>\
           </div>\
           <div class="one columns">\
               <div class=""></div>\
@@ -2840,7 +2840,7 @@ function setupSnapshotDialog(){
     setupTips(dialog);
 
     $('#snapshot_form',dialog).submit(function(){
-        var vm_id = $('#vm_id', this).val();
+        var vm_id = $('#vm_id', this).text();
         var snapshot_name = $('#snapshot_name', this).val();
 
         var obj = {
@@ -2855,7 +2855,7 @@ function setupSnapshotDialog(){
 };
 
 function popUpSnapshotDialog(vm_id){
-    $('#vm_id',$snapshot_dialog).val(vm_id);
+    $('#vm_id',$snapshot_dialog).text(vm_id);
     $snapshot_dialog.reveal();
 }
 
