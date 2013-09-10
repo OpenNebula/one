@@ -96,6 +96,79 @@ bool RequestManagerVirtualMachine::vm_authorization(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int RequestManagerVirtualMachine::get_default_ds_information(
+    int cluster_id,
+    int& ds_id,
+    string& tm_mad,
+    RequestAttributes& att)
+{
+    Nebula& nd = Nebula::instance();
+
+    ClusterPool*    clpool = nd.get_clpool();
+    Cluster*        cluster;
+    DatastorePool*  dspool = nd.get_dspool();
+    Datastore*      ds;
+
+    ds_id = -1;
+
+    if (cluster_id == ClusterPool::NONE_CLUSTER_ID)
+    {
+        ds_id = DatastorePool::SYSTEM_DS_ID;
+        return get_ds_information(ds_id, cluster_id, tm_mad, att);
+    }
+
+    cluster = clpool->get(cluster_id, true);
+
+    if (cluster == 0)
+    {
+        failure_response(NO_EXISTS,
+            get_error(object_name(PoolObjectSQL::CLUSTER), cluster_id),
+            att);
+
+        return -1;
+    }
+
+    set<int> ds_ids = cluster->get_datastores();
+
+    cluster->unlock();
+
+    for (set<int>::iterator it = ds_ids.begin(); it != ds_ids.end(); it++)
+    {
+        ds = dspool->get(*it, true);
+
+        if (ds == 0)
+        {
+            continue;
+        }
+
+        if (ds->get_type() == Datastore::SYSTEM_DS)
+        {
+            ds_id = *it;
+            ds->unlock();
+
+            break;
+        }
+
+        ds->unlock();
+    }
+
+    if (ds_id == -1)
+    {
+        ostringstream oss;
+
+        oss << object_name(PoolObjectSQL::CLUSTER)
+            << " [" << cluster_id << "] does not have any "
+            << object_name(PoolObjectSQL::DATASTORE) << " of type "
+            << Datastore::type_to_str(Datastore::SYSTEM_DS) << ".";
+
+        failure_response(ACTION, request_error(oss.str(),""), att);
+
+        return -1;
+    }
+
+    return get_ds_information(ds_id, cluster_id, tm_mad, att);
+}
+
 int RequestManagerVirtualMachine::get_ds_information(int ds_id,
     int& ds_cluster_id,
     string& tm_mad,
@@ -121,7 +194,7 @@ int RequestManagerVirtualMachine::get_ds_information(int ds_id,
         ostringstream oss;
 
         oss << "Trying to use " << object_name(PoolObjectSQL::DATASTORE)
-            << " [" << ds_id << "], to deploy VM but it is not of type "
+            << " [" << ds_id << "] to deploy the VM, but it is not of type"
             << " system datastore.";
 
         failure_response(INTERNAL, request_error(oss.str(),""), att);
@@ -507,11 +580,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( ds_id == -1 ) //Use default system DS for cluster
     {
-        int ds_cluster_id;
-
-        ds_id = DatastorePool::SYSTEM_DS_ID;
-
-        if (get_ds_information(ds_id, ds_cluster_id, tm_mad, att) != 0)
+        if (get_default_ds_information(cluster_id, ds_id, tm_mad, att) != 0)
         {
             return;
         }

@@ -72,6 +72,12 @@ protected:
         string& tm_mad,
         RequestAttributes& att);
 
+    int get_default_ds_information(
+        int cluster_id,
+        int& ds_id,
+        string& tm_mad,
+        RequestAttributes& att);
+
     bool check_host(int     hid,
                     int     cpu,
                     int     mem,

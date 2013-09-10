@@ -97,6 +97,14 @@ public:
     int del_datastore(int id, string& error_msg);
 
     /**
+     *  Returns a copy of the datastore IDs set
+     */
+    set<int> get_datastores()
+    {
+        return datastores.get_collection_copy();
+    };
+
+    /**
      *  Adds this vnet ID to the set.
      *    @param id to be added to the cluster
      *    @param error_msg Error message, if any
