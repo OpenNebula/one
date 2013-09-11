@@ -102,7 +102,6 @@ class OneClusterHelper < OpenNebulaHelper::OneHelper
         CLIHelper.print_header(str_h1 % "CLUSTER #{cluster['ID']} INFORMATION")
         puts str % ["ID",   cluster.id.to_s]
         puts str % ["NAME", cluster.name]
-        puts str % ["SYSTEM DS", cluster['SYSTEM_DS']]
         puts
 
         CLIHelper.print_header(str_h1 % "CLUSTER TEMPLATE", false)

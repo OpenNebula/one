@@ -547,6 +547,10 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 VirtualMachine.get_reason d["REASON"]
             end
 
+            column :DS, "System Datastore", :size=>4 do |d|
+                d["DS_ID"]
+            end
+
             column :START, "Time when the state changed", :size=>15 do |d|
                 OpenNebulaHelper.time_to_str(d['STIME'])
             end
@@ -569,7 +573,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.short_period_to_str(dtime)
             end
 
-            default :SEQ, :HOST, :ACTION, :REASON, :START, :TIME, :PROLOG
+            default :SEQ, :HOST, :ACTION, :DS, :START, :TIME, :PROLOG
         end
 
         vm_hash=vm.to_hash
