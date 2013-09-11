@@ -587,8 +587,12 @@ void Scheduler::match_schedule()
 
         vm->sort_match_hosts();
 
-        if (vm->is_resched()) //Do not schedule storage for migrations
+        if (vm->is_resched())
         {
+            // Do not schedule storage for migrations, the VMs needs to be
+            // deployed in the same system DS
+
+            vm->add_match_datastore(vm->get_dsid());
             continue;
         }
 
@@ -805,20 +809,6 @@ void Scheduler::dispatch()
             }
 
             //------------------------------------------------------------------
-            // Migrate VM if reschedule VM, skip DS selection
-            //------------------------------------------------------------------
-            if (vm->is_resched())
-            {
-                host->add_capacity(cpu,mem,dsk);
-
-                host_vms[hid]++;
-
-                vmpool->dispatch(vm_it->first, hid, -1, true); //migrate VM
-
-                break;
-            }
-
-            //------------------------------------------------------------------
             // Get the highest ranked datastore
             //------------------------------------------------------------------
             const vector<Resource *> ds_resources = vm->get_match_datastores();
@@ -843,9 +833,9 @@ void Scheduler::dispatch()
                 }
 
                 //--------------------------------------------------------------
-                // Test datastore capcity
+                // Test datastore capacity, but not for migrations
                 //--------------------------------------------------------------
-                if (ds->test_capacity(dsk) != true)
+                if (!vm->is_resched() && ds->test_capacity(dsk) != true)
                 {
                     continue;
                 }

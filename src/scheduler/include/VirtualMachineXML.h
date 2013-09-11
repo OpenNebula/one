@@ -74,6 +74,11 @@ public:
         return hid;
     };
 
+    int get_dsid() const
+    {
+        return dsid;
+    };
+
     bool is_resched() const
     {
         return (resched == 1);
@@ -256,6 +261,7 @@ protected:
     int   gid;
 
     int   hid;
+    int   dsid;
 
     int   resched;
 

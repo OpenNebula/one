@@ -133,7 +133,7 @@ void VirtualMachineXML::init_attributes()
         ds_requirements = automatic_requirements;
     }
 
-    // ---------------- HISTORY HID, RESCHED & TEMPLATE ------------------------
+    // ---------------- HISTORY HID, DSID, RESCHED & TEMPLATE ------------------
 
     result = ((*this)["/VM/HISTORY_RECORDS/HISTORY/HID"]);
 
@@ -144,6 +144,17 @@ void VirtualMachineXML::init_attributes()
     else
     {
         hid = -1;
+    }
+
+    result = ((*this)["/VM/HISTORY_RECORDS/HISTORY/DS_ID"]);
+
+    if (result.size() > 0)
+    {
+        dsid = atoi(result[0].c_str());
+    }
+    else
+    {
+        dsid = -1;
     }
 
     result = ((*this)["/VM/RESCHED"]);
