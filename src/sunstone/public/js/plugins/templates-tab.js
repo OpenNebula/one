@@ -3195,7 +3195,7 @@ function setupCreateTemplateDialog(){
                           '<input type="text" id="INIT_SCRIPTS" name="INIT_SCRIPTS" />'+
                         '</div>'+
                         '<div class="one columns">'+
-                          '<div class="tip">'+tr("If the VM uses the OpenNebula contextualization package the init.sh file is executed by default. When the init script added is not called init.sh or more than one init script is added, this list contains the scripts to run and the order. Ex. “init.sh users.sh mysql.sh”")+'</div>'+
+                          '<div class="tip">'+tr("OpenNebula expects the VM to have an OpenNebula contextualization package installed, which will look for a script called init.sh in the contextualization CD. If you want the VM to execute an script that is not called init.sh (or if you want to call more than just one script),this list contains the scripts to run and their order. Ex. \"init.sh users.sh mysql.sh\" will force the VM to execute init.sh , then users.sh and lastly mysql.sh at boot time")+'</div>'+
                         '</div>'+
                       '</div>'+
                     '</li>'+
