@@ -3475,10 +3475,10 @@ function setupCreateTemplateDialog(){
                     '<hr>'+
                     '<div class="row vm_param">'+
                         '<div class="two columns">'+
-                            '<label class="inline right" for="REQUIREMENTS">'+tr("Requirements")+':</label>'+
+                            '<label class="inline right" for="SCHED_REQUIREMENTS">'+tr("Requirements")+':</label>'+
                         '</div>'+
                         '<div class="nine columns">'+
-                            '<input type="text" id="REQUIREMENTS" name="requirements" />'+
+                            '<input type="text" id="SCHED_REQUIREMENTS" name="requirements" />'+
                         '</div>'+
                         '<div class="one columns">'+
                             '<div class="tip">'+tr("Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM")+'.</div>'+
@@ -3509,10 +3509,10 @@ function setupCreateTemplateDialog(){
                       '<hr>'+
                     '<div class="row vm_param">'+
                       '<div class="two columns">'+
-                        '<label class="inline right" for="RANK">'+tr("Rank")+':</label>'+
+                        '<label class="inline right" for="SCHED_RANK">'+tr("Rank")+':</label>'+
                       '</div>'+
                       '<div class="nine columns">'+
-                        '<input type="text" id="RANK" name="RANK" />'+
+                        '<input type="text" id="SCHED_RANK" name="RANK" />'+
                       '</div>'+
                       '<div class="one columns">'+
                         '<div class="tip">'+tr("This field sets which attribute will be used to sort the suitable hosts for this VM")+'.</div>'+
@@ -3703,7 +3703,7 @@ function setupCreateTemplateDialog(){
         });
 
         $("input[name='rank_select']").change(function(){
-            $("#RANK", dialog).val(this.value);
+            $("#SCHED_RANK", dialog).val(this.value);
         });
 
         var generate_requirements = function() {
@@ -3717,7 +3717,7 @@ function setupCreateTemplateDialog(){
             req_string.push('CLUSTER_ID=\\"'+key+'\\"');
             });
 
-            $('#REQUIREMENTS', dialog).val(req_string.join(" | "));
+            $('#SCHED_REQUIREMENTS', dialog).val(req_string.join(" | "));
         };
     }
 
@@ -4681,7 +4681,7 @@ function fillTemplatePopUp(request, response){
     // REQUIREMENTS & RANK
     //
 
-    var req = template.REQUIREMENTS;
+    var req = template.SCHED_REQUIREMENTS;
     var req_section = $('li#schedulingTab', $create_template_dialog);
 
     if (req) {
@@ -4764,12 +4764,12 @@ function fillTemplatePopUp(request, response){
             });
         }
 
-        $('input#REQUIREMENTS', req_section).val(req);
+        $('input#SCHED_REQUIREMENTS', req_section).val(req);
 
-        delete template.REQUIREMENTS;
+        delete template.SCHED_REQUIREMENTS;
     }
 
-    var rank = template.RANK;
+    var rank = template.SCHED_RANK;
 
     if (rank) {
         var striping_regexp = /-RUNNING_VMS/;
@@ -4786,9 +4786,9 @@ function fillTemplatePopUp(request, response){
             $('input#loadawareRadio', req_section).click()
         }
 
-        $('input#RANK', req_section).val(rank);
+        $('input#SCHED_RANK', req_section).val(rank);
 
-        delete template.RANK;
+        delete template.SCHED_RANK;
     }
 
     //
