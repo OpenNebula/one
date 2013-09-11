@@ -3088,7 +3088,7 @@ function setupCreateTemplateDialog(){
                           '<legend>'+tr("SSH")+'</legend>'+
                           '<div class="">'+
                             '<div class="columns one">'+
-                                '<input type="checkbox" name="ssh_context" id="ssh_context"  checked>'+
+                                '<input type="checkbox" name="ssh_context" id="ssh_context">'+
                             '</div>'+
                             '<div class="columns ten">'+
                                 '<label class="inline" for="ssh_context">'+ tr("  Add SSH contextualization")+'</label>'+
@@ -3099,12 +3099,12 @@ function setupCreateTemplateDialog(){
                           '</div>'+
                           '<div class="">'+
                             '<div class="twelve columns">'+
-                                '<label for="ssh_puclic_key"> '+tr("Public Key")+':</label>'+
+                                '<label for="ssh_public_key"> '+tr("Public Key")+':</label>'+
                             '</div>'+
                           '</div>'+
                           '<div class="">'+
                             '<div class="twelve columns">'+
-                            '<textarea rows="4" type="text" id="ssh_puclic_key" name="ssh_puclic_key" />'+
+                            '<textarea rows="4" type="text" id="ssh_public_key" name="ssh_public_key" />'+
                             '</div>'+
                           '</div>'+
                         '</fieldset>'+
@@ -3114,7 +3114,7 @@ function setupCreateTemplateDialog(){
                             '<legend>'+tr("Network")+'</legend>'+
                             '<div class="">'+
                               '<div class="columns one">'+
-                                  '<input type="checkbox" name="network_context" id="network_context" checked>'+
+                                  '<input type="checkbox" name="network_context" id="network_context">'+
                               '</div>'+
                               '<div class="columns ten">'+
                                   '<label class="inline" for="network_context">'+ tr("  Add Network contextualization")+'</label>'+
@@ -3195,7 +3195,7 @@ function setupCreateTemplateDialog(){
                           '<input type="text" id="INIT_SCRIPTS" name="INIT_SCRIPTS" />'+
                         '</div>'+
                         '<div class="one columns">'+
-                          '<div class="tip">'+tr("OpenNebula expects the VM to have an OpenNebula contextualization package installed, which will look for a script called init.sh in the contextualization CD. If you want the VM to execute an script that is not called init.sh (or if you want to call more than just one script),this list contains the scripts to run and their order. Ex. \"init.sh users.sh mysql.sh\" will force the VM to execute init.sh , then users.sh and lastly mysql.sh at boot time")+'</div>'+
+                          '<div class="tip">'+tr("If the VM uses the OpenNebula contextualization package the init.sh file is executed by default. When the init script added is not called init.sh or more than one init script is added, this list contains the scripts to run and the order. Ex. “init.sh users.sh mysql.sh”")+'</div>'+
                         '</div>'+
                       '</div>'+
                     '</li>'+
@@ -4049,7 +4049,7 @@ function setupCreateTemplateDialog(){
         });
 
         if ($("#ssh_context", $('li#contextTab')).is(":checked")) {
-          var public_key = $("#ssh_puclic_key", $('li#contextTab')).val();
+          var public_key = $("#ssh_public_key", $('li#contextTab')).val();
           if (public_key){
             vm_json["CONTEXT"]["SSH_PUBLIC_KEY"] = public_key;
           }
@@ -4602,7 +4602,7 @@ function fillTemplatePopUp(request, response){
                 $("#ssh_context", context_section).attr('checked','checked');
 
                 if (!publickey_regexp.test(value)) {
-                    $("input#ssh_puclic_key").val(value);
+                    $("input#ssh_public_key").val(value);
                 }
             }
             else if (token_regexp.test(key)) {
