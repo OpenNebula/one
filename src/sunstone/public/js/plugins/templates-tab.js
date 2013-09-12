@@ -3088,7 +3088,7 @@ function setupCreateTemplateDialog(){
                           '<legend>'+tr("SSH")+'</legend>'+
                           '<div class="">'+
                             '<div class="columns one">'+
-                                '<input type="checkbox" name="ssh_context" id="ssh_context">'+
+                                '<input type="checkbox" name="ssh_context" id="ssh_context" checked>'+
                             '</div>'+
                             '<div class="columns ten">'+
                                 '<label class="inline" for="ssh_context">'+ tr("  Add SSH contextualization")+'</label>'+
@@ -3114,7 +3114,7 @@ function setupCreateTemplateDialog(){
                             '<legend>'+tr("Network")+'</legend>'+
                             '<div class="">'+
                               '<div class="columns one">'+
-                                  '<input type="checkbox" name="network_context" id="network_context">'+
+                                  '<input type="checkbox" name="network_context" id="network_context" checked>'+
                               '</div>'+
                               '<div class="columns ten">'+
                                   '<label class="inline" for="network_context">'+ tr("  Add Network contextualization")+'</label>'+
