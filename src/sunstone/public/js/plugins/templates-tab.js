@@ -4578,6 +4578,9 @@ function fillTemplatePopUp(request, response){
     var context = template.CONTEXT;
     var context_section = $('li#contextTab', $create_template_dialog);
 
+    $("#ssh_context", context_section).removeAttr('checked');
+    $("#network_context", context_section).removeAttr('checked');
+
     if (context) {
         var file_ds_regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/g;
         var net_regexp = /^NETWORK$/;;
@@ -4588,8 +4591,6 @@ function fillTemplatePopUp(request, response){
         var net_flag = false;
         var files = [];
 
-        $("#ssh_context", context_section).removeAttr('checked');
-        $("#network_context", context_section).removeAttr('checked');
         $.each(context, function(key, value){
             if (ssh_regexp.test(key)) {
                 $("#ssh_context", context_section).attr('checked','checked');
