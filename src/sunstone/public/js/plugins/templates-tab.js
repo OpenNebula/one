@@ -810,7 +810,8 @@ function setup_capacity_tab_content(capacity_section) {
         connect: "lower",
         range: [0,409600],
         step: 12800,
-        start: 1,
+        start: 51200,
+        value: 512,
         slide: memory_slider_change,
     });
 
@@ -827,9 +828,6 @@ function setup_capacity_tab_content(capacity_section) {
       memory_input.val( Math.floor(final_memory_input.val()) );
     })
 
-    // init::start is ignored for some reason
-    memory_slider.val(0);
-
     memory_unit.change(function() {
         var memory_unit_val = $('#memory_unit :selected', capacity_section).val();
 
@@ -845,6 +843,7 @@ function setup_capacity_tab_content(capacity_section) {
                     range: [0,1600],
                     start: 1,
                     step: 50,
+                    value: 51200,
                     slide: memory_slider_change,
                 });
 
@@ -860,6 +859,7 @@ function setup_capacity_tab_content(capacity_section) {
                     connect: "lower",
                     range: [0,409600],
                     start: 1,
+                    value: 51200,
                     step: 12800,
                     slide: memory_slider_change,
                 });
@@ -873,6 +873,9 @@ function setup_capacity_tab_content(capacity_section) {
             update_final_memory_input();
         }
     });
+
+    // init::start is ignored for some reason
+    memory_input.val(512);
 
 
     // Define the vcpu slider
