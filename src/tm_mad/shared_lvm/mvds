@@ -21,7 +21,7 @@
 #   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
 #   - host is the target host to deploy the VM
 #   - remote_system_ds is the path for the system datastore in the host
-s
+
 SRC=$1
 DST=$2
 VM_ID=$3
@@ -34,8 +34,6 @@ else
 fi
 
 source $TMCOMMON
-
-COMMAND=$(basename $0) # either "mvds" or "cpds"
 
 #-------------------------------------------------------------------------------
 # Set dst path and dir
@@ -56,9 +54,7 @@ DEV="/dev/${VG_NAME}/${LV_NAME}"
 
 DUMP_CMD=$(cat <<EOF
     $SUDO $DD if=$DEV of=$DST_PATH bs=64k
-    if [ "$COMMAND" = "mvds" ]; then
-        $SUDO $LVREMOVE -f $DEV
-    fi
+    $SUDO $LVREMOVE -f $DEV
 EOF
 )
 
