@@ -21,7 +21,7 @@
 #   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
 #   - host is the target host to deploy the VM
 #   - remote_system_ds is the path for the system datastore in the host
-
+s
 SRC=$1
 DST=$2
 VM_ID=$3
