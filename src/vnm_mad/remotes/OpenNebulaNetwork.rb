@@ -42,6 +42,9 @@ COMMANDS = {
   :lsmod    => "lsmod"
 }
 
+# Set PATH
+ENV['PATH'] = "#{ENV['PATH']}:/bin:/sbin:/usr/bin"
+
 class VM
     attr_accessor :nics, :vm_info, :deploy_id
 
