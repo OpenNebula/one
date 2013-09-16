@@ -31,7 +31,7 @@ DRV_ACTION="$5"
 
 XPATH="${DRIVER_PATH}/../../datastore/xpath.rb -b $DRV_ACTION"
 
-unset i XPATH_ELEMENTS
+unset i j XPATH_ELEMENTS
 
 DISK_XPATH="/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/DISK[ATTACH='YES']"
 
@@ -40,12 +40,14 @@ while IFS= read -r -d '' element; do
 done < <($XPATH     $DISK_XPATH/DRIVER \
                     $DISK_XPATH/TYPE \
                     $DISK_XPATH/READONLY \
-                    $DISK_XPATH/CACHE)
+                    $DISK_XPATH/CACHE \
+                    $DISK_XPATH/IMAGE_ID)
 
-DRIVER="${XPATH_ELEMENTS[0]:-$DEFAULT_TYPE}"
-TYPE="${XPATH_ELEMENTS[1]}"
-READONLY="${XPATH_ELEMENTS[2]}"
-CACHE="${XPATH_ELEMENTS[3]}"
+DRIVER="${XPATH_ELEMENTS[j++]:-$DEFAULT_TYPE}"
+TYPE="${XPATH_ELEMENTS[j++]}"
+READONLY="${XPATH_ELEMENTS[j++]}"
+CACHE="${XPATH_ELEMENTS[j++]}"
+IMAGE_ID="${XPATH_ELEMENTS[j++]}"
 
 TYPE=$(echo "$TYPE"|tr A-Z a-z)
 
@@ -60,7 +62,14 @@ cdrom)
     TYPE_XML="file"
     DEVICE="cdrom"
     ;;
-*) 
+rbd)
+    TYPE_SOURCE="protocol"
+    TYPE_XML="network"
+    SOURCE="rbd"
+    SOURCE_ARGS="name='one/one-$IMAGE_ID'"
+    DEVICE="disk"
+    ;;
+*)
     #NOTE: This includes TYPE=FS and TYPE=SWAP
     TYPE_SOURCE="file"
     TYPE_XML="file"
@@ -83,7 +92,7 @@ ATTACH_FILE="$SOURCE.attach"
 cat <<EOF > $ATTACH_FILE
 <disk type='$TYPE_XML' device='$DEVICE'>
   <driver name='qemu' type='$DRIVER' $CACHE/>
-  <source $TYPE_SOURCE='$SOURCE'/>
+  <source $TYPE_SOURCE='$SOURCE' $SOURCE_ARGS/>
   <target dev='$TARGET'/>
   $READONLY
 </disk>

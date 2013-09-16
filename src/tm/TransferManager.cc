@@ -284,10 +284,15 @@ int TransferManager::prolog_transfer_command(
         size   = disk->vector_value("SIZE");
         format = disk->vector_value("FORMAT");
 
-        if ( size.empty() || format.empty() )
+        if (format.empty())
         {
-            os << "No size or format in FS";
-            vm->log("TM", Log::WARNING, "No size or format in FS, skipping");
+            format = "raw";
+        }
+
+        if ( size.empty() )
+        {
+            os << "No size in FS";
+            vm->log("TM", Log::WARNING, "No size in FS, skipping");
             return 0;
         }
 

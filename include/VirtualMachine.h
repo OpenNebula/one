@@ -624,6 +624,16 @@ public:
     };
 
     /**
+     * Updates the current hostname. The hasHistory()
+     *  function MUST be called before this one.
+     * @param hostname New hostname
+     */
+    void set_hostname(const string& hostname)
+    {
+        history->hostname = hostname;
+    };
+
+    /**
      *  Returns the hostname for the previous host. The hasPreviousHistory()
      *  function MUST be called before this one.
      *    @return the hostname

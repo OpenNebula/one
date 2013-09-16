@@ -98,6 +98,14 @@ public:
     };
 
     /**
+     *  Returns a copy of the Image IDs set
+     */
+    set<int> get_image_ids()
+    {
+        return get_collection_copy();
+    }
+
+    /**
      *  Retrieves TM mad name
      *    @return string tm mad name
      */

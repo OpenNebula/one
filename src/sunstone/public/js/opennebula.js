@@ -531,6 +531,13 @@ var OpenNebula = {
         },
         "pool_monitor" : function(params){
             OpenNebula.Action.monitor(params,OpenNebula.Host.resource,true);
+        },
+        "rename" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.Host.resource,
+                                            "rename",
+                                            action_obj);
         }
     },
 
@@ -936,18 +943,17 @@ var OpenNebula = {
         "set_quota" : function(params){
             var action_obj = { quotas :  params.data.extra_param };
             OpenNebula.Action.simple_action(params,OpenNebula.User.resource,"set_quota",action_obj);
+        },
+        "addgroup" : function(params){
+            var action_obj = {"group_id": params.data.extra_param };
+            OpenNebula.Action.simple_action(params,OpenNebula.User.resource,
+                                            "addgroup",action_obj);
+        },
+        "delgroup" : function(params){
+            var action_obj = {"group_id": params.data.extra_param };
+            OpenNebula.Action.simple_action(params,OpenNebula.User.resource,
+                                            "delgroup",action_obj);
         }
-
-        // "addgroup" : function(params){
-        //     var action_obj = {"group_id": params.data.extra_param };
-        //     OpenNebula.Action.simple_action(params,OpenNebula.User.resource,
-        //                                     "addgroup",action_obj);
-        // },
-        // "delgroup" : function(params){
-        //     var action_obj = {"group_id": params.data.extra_param };
-        //     OpenNebula.Action.simple_action(params,OpenNebula.User.resource,
-        //                                     "delgroup",action_obj);
-        // }
     },
 
     "Image": {
@@ -1152,6 +1158,13 @@ var OpenNebula = {
                                             OpenNebula.Cluster.resource,
                                             "update",
                                             action_obj);
+        },
+        "rename" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.Cluster.resource,
+                                            "rename",
+                                            action_obj);
         }
     },
     "Datastore" : {
@@ -1191,6 +1204,13 @@ var OpenNebula = {
         },
         "fetch_template" : function(params){
             OpenNebula.Action.show(params,OpenNebula.Datastore.resource,"template");
+        },
+        "rename" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.Datastore.resource,
+                                            "rename",
+                                            action_obj);
         }
     },
 

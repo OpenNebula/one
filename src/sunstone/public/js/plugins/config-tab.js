@@ -94,7 +94,7 @@ var config_tab_content =
         <div class="six columns">\
             <table id="user_information" class="twelve datatable extended_table">\
                 <thead>\
-                   <tr><th colspan="2">' + tr("User information") +'</th></tr>\
+                   <tr><th colspan="3">' + tr("User information") +'</th></tr>\
                 </thead>\
                 <tbody>\
                 </tbody>\
@@ -153,7 +153,18 @@ var config_tab_content =
             </dl>\
             <ul class="tabs-content">\
               <li class="active" id="user_quotasTab"></li>\
-              <li id="group_quotasTab"></li>\
+              <li id="group_quotasTab">\
+                <div class="row">\
+                  <div class="six columns">\
+                    <label class="right inline">' + tr("Select group") + ':</label>\
+                  </div>\
+                  <div class="six columns">\
+                    <select id="quota_group_sel">\
+                    </select>\
+                  </div>\
+                </div>\
+                <div id="group_quotasTabBody"></div>\
+              </li>\
             </ul>\
         </div>\
       </div>\
@@ -202,12 +213,7 @@ Sunstone.addActions({
         call: OpenNebula.User.update,
         callback: function(request) {
             notifyMessage(tr("Template updated correctly"));
-            OpenNebula.User.show({
-                data : {
-                    id: "-1"
-                },
-                success: updateUserConfigInfo
-              });
+            fillUserInfo();
         },
         error: onError
     },
@@ -307,6 +313,16 @@ function setupConfigDialog() {
         }
       })
     });
+
+    $("#quota_group_sel").die();
+
+    $("#quota_group_sel").live("change", function() {
+        var value_str = $('select#quota_group_sel').val();
+        if(value_str!="")
+        {
+            fillGroupQuotas(value_str)
+        }
+    });
 }
 
 function tr(str){
@@ -333,23 +349,32 @@ function updateUserConfigInfo(request,user_json) {
 
     $("#user_information tbody").html('<tr>\
         <td class="key_td">' + tr("ID") + '</td>\
-        <td class="value_td">'+info.ID+'</td>\
+        <td class="value_td" colspan="2">'+info.ID+'</td>\
     </tr>\
     <tr>\
         <td class="key_td">' + tr("Name") + '</td>\
-        <td class="value_td">'+info.NAME+'</td>\
+        <td class="value_td" colspan="2">'+info.NAME+'</td>\
     </tr>\
     <tr>\
         <td class="key_td">' + tr("Group ID") + '</td>\
-        <td class="value_td">'+info.GID+'</td>\
+        <td class="value_td" colspan="2">'+info.GID+'</td>\
     </tr>\
     <tr>\
-        <td class="key_td">' + tr("Group Name") + '</td>\
-        <td class="value_td">'+info.GNAME+'</td>\
+        <td class="key_td">' + tr("Group") + '</td>\
+        <td class="value_td_group">'+ info.GNAME +'</td>\
+        <td>\
+            <div id="div_edit_chg_group">\
+                <a id="div_edit_chg_group_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+            </div>\
+        </td>\
+    </tr>\
+    <tr>\
+        <td class="key_td">' + tr("Secondary groups") + '</td>\
+        <td class="value_td" colspan="2">'+(typeof info.GROUPS.ID == "object" ? info.GROUPS.ID.join(",") : "-")+'</td>\
     </tr>\
     <tr>\
         <td class="key_td">' + tr("Password") + '</td>\
-        <td class="value_td"><button id="update_password" type="button" class="button tiny secondary radius" >' + tr("Update password") + '</button></td>\
+        <td class="value_td" colspan="2"><button id="update_password" type="button" class="button tiny secondary radius" >' + tr("Update password") + '</button></td>\
     </tr>')
 
     $("#setting_user_template").html(
@@ -358,28 +383,57 @@ function updateUserConfigInfo(request,user_json) {
                                           "-1",
                                           tr("Custom Attributes"))
     )
+
+    $("#div_edit_chg_group_link").die();
+    $("#group_confirm_select").die();
+
+    // Listener for key,value pair edit action
+    $("#div_edit_chg_group_link").live("click", function() {
+        // TODO: do not call group.list again, use the callback from
+        // $("span.user-login a.configuration").click
+        OpenNebula.Group.list(
+        {
+            success: function(request, group_list) {
+                var value_str = $(".value_td_group").text();
+                var select_str='<select style="margin: 10px 0;" id="group_confirm_select">';
+
+                $.each(group_list,function(){
+                    select_str +='<option elem_id="'+this.GROUP.ID
+                        +'" value="'+this.GROUP.ID+'">'
+                        +this.GROUP.NAME+' (id:'+this.GROUP.ID+')</option>';
+                });
+
+                select_str+="</select>";
+                $(".value_td_group").html(select_str);
+                $("select#group_confirm_select").val(info.GID);
+            },
+            error: onError
+        })
+    });
+
+    $("#group_confirm_select").live("change", function() {
+        var value_str = $('select#group_confirm_select').val();
+        if(value_str!="")
+        {
+            // Let OpenNebula know
+            var resource_struct = new Array();
+            resource_struct[0]  = info.ID;
+            Sunstone.runAction("User.chgrp",resource_struct,value_str);
+            fillUserInfo();
+        }
+    });
 }
 
-$(document).ready(function(){
-  setupConfigDialog();
-  setupUpdatePassword();
-
-  $("span.user-login a.configuration").click(function(){
-      OpenNebula.User.show({
-        data : {
-            id: '-1'
-        },
-        success: updateUserConfigInfo
-      });
-
+function fillGroupQuotas(group_id){
       OpenNebula.Group.show({
         data : {
-            id: '-1'
+            id: group_id
         },
         success: function(request,group_json){
             var info = group_json.GROUP;
 
-            var default_group_quotas = Quotas.default_quotas(info.DEFAULT_GROUP_QUOTAS)
+            var default_group_quotas = Quotas.default_quotas(info.DEFAULT_GROUP_QUOTAS);
+
             var quotas_tab_html = Quotas.vms(info, default_group_quotas);
             quotas_tab_html += Quotas.cpu(info, default_group_quotas);
             quotas_tab_html += Quotas.memory(info, default_group_quotas);
@@ -387,10 +441,46 @@ $(document).ready(function(){
             quotas_tab_html += Quotas.network(info, default_group_quotas);
             quotas_tab_html += Quotas.datastore(info, default_group_quotas);
 
-            $("#group_quotasTab").html(quotas_tab_html);
+            $("#group_quotasTabBody").html(quotas_tab_html);
+
+            $("select#quota_group_sel").val(info.ID);
         }
       });
+}
 
-      $config_dialog.reveal();
-  });
+function fillUserInfo(){
+    OpenNebula.User.show({
+        data : {
+            id: '-1'
+        },
+        success: updateUserConfigInfo
+    });
+}
+
+$(document).ready(function(){
+    setupConfigDialog();
+    setupUpdatePassword();
+
+    $("span.user-login a.configuration").click(function(){
+        fillUserInfo();
+
+        OpenNebula.Group.list(
+        {
+            success: function(request, group_list) {
+                var group_dropdown_options = "";
+                $.each(group_list,function(){
+                    group_dropdown_options +=                     
+                        '<option elem_id="'+this.GROUP.ID
+                        +'" value="'+this.GROUP.ID+'">'
+                        +this.GROUP.NAME+' (id:'+this.GROUP.ID+')</option>';
+                });
+
+                $('select#quota_group_sel', $config_dialog).html(group_dropdown_options);
+
+                fillGroupQuotas('-1');
+            }
+        });
+
+        $config_dialog.reveal();
+    });
 });

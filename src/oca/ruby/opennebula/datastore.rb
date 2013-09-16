@@ -29,7 +29,8 @@ module OpenNebula
             :delete     => "datastore.delete",
             :update     => "datastore.update",
             :chown      => "datastore.chown",
-            :chmod      => "datastore.chmod"
+            :chmod      => "datastore.chmod",
+            :rename     => "datastore.rename"
         }
 
         DATASTORE_TYPES=%w{IMAGE SYSTEM FILE}
@@ -144,6 +145,16 @@ module OpenNebula
                 other_m, other_a)
             super(DATASTORE_METHODS[:chmod], owner_u, owner_m, owner_a, group_u,
                 group_m, group_a, other_u, other_m, other_a)
+        end
+
+        # Renames this datastore
+        #
+        # @param name [String] New name for the datastore
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def rename(name)
+            return call(DATASTORE_METHODS[:rename], @pe_id, name)
         end
 
         # ---------------------------------------------------------------------

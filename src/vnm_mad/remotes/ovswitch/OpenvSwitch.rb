@@ -80,6 +80,8 @@ class OpenvSwitchVLAN < OpenNebulaNetwork
     end
 
     def mac_spoofing
+        add_flow("in_port=#{port},arp,dl_src=#{@nic[:mac]}",:drop,45000)
+        add_flow("in_port=#{port},arp,dl_src=#{@nic[:mac]},nw_src=#{@nic[:ip]}",:normal,46000)
         add_flow("in_port=#{port},dl_src=#{@nic[:mac]}",:normal,40000)
         add_flow("in_port=#{port}",:drop,39000)
     end

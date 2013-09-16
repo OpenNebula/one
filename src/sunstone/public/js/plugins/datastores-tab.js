@@ -231,16 +231,6 @@ var create_datastore_tmpl =
         <div class="tip">'+tr("Paths that can not be used to register images. A space separated list of paths. This will prevent users registering important files as VM images and accessing them thourgh their VMs. OpenNebula will automatically add its configuration directories: /var/lib/one, /etc/one and oneadmin's home ($HOME).")+'</div>\
       </div>\
     </div>\
-    <div class="twelve columns">\
-      <div class="four columns">\
-        <label class="right inline" for="bridge_list">' + tr("Host Bridge List") + ':</label>\
-      </div>\
-      <div class="seven columns">\
-        <input type="text" name="bridge_list" id="bridge_list" />\
-      </div>\
-      <div class="one columns">\
-      </div>\
-    </div>\
     <div class="row">\
       <div class="six columns">\
         <label class="right inline" for="ds_use_ssh"><input id="ds_use_ssh" type="checkbox" name="ds_use_ssh" value="YES" />' + tr("Use SSH for Datastore Manager") + '</label>\
@@ -251,12 +241,13 @@ var create_datastore_tmpl =
     </div>\
     <div class="twelve columns">\
       <div class="four columns">\
-        <label class="right inline" for="host">' + tr("Storage Server") + ':</label>\
+        <label class="right inline" for="bridge_list">' + tr("Host Bridge List") + ':</label>\
       </div>\
       <div class="seven columns">\
-        <input type="text" name="host" id="host" />\
+        <input type="text" name="bridge_list" id="bridge_list" />\
       </div>\
       <div class="one columns">\
+          <div class="tip">'+tr("Space separated list of Server names or IPs where OpenNebula will be staging the new images into. This server will act as the entry point for new inmages in the datastore.")+'</div>\
       </div>\
     </div>\
     <div class="twelve columns">\
@@ -524,6 +515,18 @@ var datastore_actions = {
             hideDialog();
             $('div#datastores_tab div.legend_div').slideToggle();
         }
+    },
+
+    "Datastore.rename" : {
+        type: "single",
+        call: OpenNebula.Datastore.rename,
+        callback: function(request) {
+            notifyMessage(tr("Datastore renamed correctly"));
+            Sunstone.runAction('Datastore.showinfo',request.request.data[0]);
+            Sunstone.runAction('Datastore.list');
+        },
+        error: onError,
+        notify: true
     }
 };
 
@@ -733,9 +736,12 @@ function updateDatastoreInfo(request,ds){
                  <td></td>\
               </tr>\
               <tr>\
-                 <td class="key_td">'+tr("Name")+'</td>\
-                 <td class="value_td">'+info.NAME+'</td>\
-                 <td></td>\
+                <td class="key_td">'+tr("Name")+'</td>\
+                <td class="value_td_rename">'+info.NAME+'</td>\
+                <td><div id="div_edit_rename">\
+                   <a id="div_edit_rename_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                </div>\
+                </td>\
               </tr>\
               <tr>'+
               cluster_str  +
@@ -787,6 +793,24 @@ function updateDatastoreInfo(request,ds){
         content : '<div id="datatable_datastore_images_info_div" class="twelve columns"><table id="datatable_datastore_images_info_panel" class="table twelve">' + datastore_image_table_tmpl + '</table></div>'
     }
 
+    $("#div_edit_rename_link").die();
+    $(".input_edit_value_rename").die();
+
+    // Listener for edit link for rename
+    $("#div_edit_rename_link").live("click", function() {
+        var value_str = $(".value_td_rename").text();
+        $(".value_td_rename").html('<input class="input_edit_value_rename" id="input_edit_rename" type="text" value="'+value_str+'"/>');
+    });
+
+    $(".input_edit_value_rename").live("change", function() {
+        var value_str = $(".input_edit_value_rename").val();
+        if(value_str!="")
+        {
+            // Let OpenNebula know
+            var name_template = {"name": value_str};
+            Sunstone.runAction("Datastore.rename",info.ID,name_template);
+        }
+    });
 
     // Add tabs
     Sunstone.updateInfoPanelTab("datastore_info_panel","datastore_info_tab",info_tab);
@@ -829,10 +853,9 @@ function hide_all(context)
 {
     // Hide all the options that depends on datastore type
     // and reset the selects
-    $('label[for="bridge_list"],input#bridge_list',context).hide();
     $('label[for="ds_use_ssh"],input#ds_use_ssh',context).hide();
     $('label[for="tm_use_ssh"],input#tm_use_ssh',context).hide();
-    $('label[for="host"],input#host',context).hide();
+    $('label[for="bridge_list"],input#bridge_list',context).parent().parent().hide();
     $('label[for="base_iqn"],input#base_iqn',context).hide();
     $('label[for="vg_name"],input#vg_name',context).hide();
     $('select#ds_mad').removeAttr('disabled');
@@ -922,9 +945,9 @@ function setupCreateDatastoreDialog(){
         var bridge_list     = $('#bridge_list',context).val();
         var ds_use_ssh      = $('#ds_use_ssh',context).is(':checked');
         var tm_use_ssh      = $('#tm_use_ssh',context).is(':checked');
-        var host            = $('#host',context).val();
         var base_iqn        = $('#base_iqn',context).val();
         var vg_name         = $('#vg_name',context).val();
+
 
         if (!name){
             notifyError("Please provide a name");
@@ -961,14 +984,11 @@ function setupCreateDatastoreDialog(){
         if (tm_use_ssh)
             ds_obj.datastore.tm_use_ssh = "YES";
 
-        if (host)
-            ds_obj.datastore.host = host;
-
         if (base_iqn)
             ds_obj.datastore.base_iqn = base_iqn;
 
         if (vg_name)
-            ds_obj.datastore.vg_name = vg_name;
+            ds_obj.datastore.vg_name = vg_name;       
 
         Sunstone.runAction("Datastore.create",ds_obj);
 
@@ -1034,7 +1054,7 @@ function select_filesystem(){
 }
 
 function select_vmware_vmfs(){
-    $('label[for="bridge_list"],input#bridge_list').fadeIn();
+    $('label[for="bridge_list"],input#bridge_list').parent().parent().fadeIn();
     $('label[for="ds_use_ssh"],input#ds_use_ssh').fadeIn();
     $('label[for="tm_use_ssh"],input#tm_use_ssh').fadeIn();
     $('select#ds_mad').val('vmfs');
@@ -1050,7 +1070,7 @@ function select_iscsi(){
     $('select#ds_mad').attr('disabled', 'disabled');
     $('select#tm_mad').val('iscsi');
     $('select#tm_mad').attr('disabled', 'disabled');
-    $('label[for="host"],input#host').fadeIn();
+    $('label[for="bridge_list"],input#bridge_list').parent().parent().fadeIn();
     $('label[for="base_iqn"],input#base_iqn').fadeIn();
     $('label[for="vg_name"],input#vg_name').fadeIn();
     $('select#disk_type').children('option').each(function() {
@@ -1069,6 +1089,7 @@ function select_ceph(){
     $('select#ds_mad').attr('disabled', 'disabled');
     $('select#tm_mad').val('ceph');
     $('select#tm_mad').attr('disabled', 'disabled');
+    $('label[for="bridge_list"],input#bridge_list').parent().parent().fadeIn();
     $('select#disk_type').val('RBD');
 }
 
@@ -1077,7 +1098,7 @@ function select_lvm(){
     $('select#ds_mad').attr('disabled', 'disabled');
     $('select#tm_mad').val('lvm');
     $('select#tm_mad').attr('disabled', 'disabled');
-    $('label[for="host"],input#host').fadeIn();
+    $('label[for="bridge_list"],input#bridge_list').parent().parent().fadeIn();
     $('label[for="vg_name"],input#vg_name').fadeIn();
     $('select#disk_type').children('option').each(function() {
       var value_str = $(this).val();

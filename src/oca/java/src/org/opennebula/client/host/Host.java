@@ -34,6 +34,7 @@ public class Host extends PoolElement{
     private static final String ENABLE          = METHOD_PREFIX + "enable";
     private static final String UPDATE          = METHOD_PREFIX + "update";
     private static final String MONITORING      = METHOD_PREFIX + "monitoring";
+    private static final String RENAME          = METHOD_PREFIX + "rename";
 
     private static final String[] HOST_STATES =
         {"INIT", "MONITORING_MONITORED", "MONITORED", "ERROR", "DISABLED",
@@ -189,6 +190,19 @@ public class Host extends PoolElement{
         return client.call(MONITORING, id);
     }
 
+    /**
+     * Renames this Host.
+     *
+     * @param client XML-RPC Client.
+     * @param id The image id of the target host we want to modify.
+     * @param name New name for the Host
+     * @return If successful the message contains the host id.
+     */
+    public static OneResponse rename(Client client, int id, String name)
+    {
+        return client.call(RENAME, id, name);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -278,6 +292,17 @@ public class Host extends PoolElement{
     public OneResponse monitoring()
     {
         return monitoring(client, id);
+    }
+
+    /**
+     * Renames this Host.
+     *
+     * @param name New name for the Host
+     * @return If successful the message contains the host id.
+     */
+    public OneResponse rename(String name)
+    {
+        return rename(client, id, name);
     }
 
     // =================================

@@ -195,7 +195,7 @@ var easy_provision_vm_template_tmpl ='\
     <br>\
     <div class="row">\
       <fieldset>\
-        <legend>'+tr("Step 3: Select a template")+'</legend>\
+        <legend>'+tr("Step 2: Select a template")+'</legend>\
         <div class="row collapse">\
           <div class="seven columns">\
              <button id="refresh_template_templates_table_button_class" type="button" class="refresh button small radius secondary"><i class="icon-refresh" /></button>\
@@ -281,8 +281,7 @@ var easy_provision_vm_template_tmpl ='\
             <input type="text" id="IMAGE_ID" name="IMAGE_ID"/>\
           </div>\
           <div class="two columns">\
-            <div class="tip">\
-            </div>\
+            <div class="tip">'+tr("Identifier of the image to be used as the main disk for this Virtual Machine. This choice will select the Operating System the VM will run under.")+'</div>\
           </div>\
         </div>\
         <br>\
@@ -381,6 +380,7 @@ var template_actions = {
         type: "single",
         call: OpenNebula.Template.rename,
         callback: function(request) {
+            notifyMessage(tr("Template renamed correctly"));
             Sunstone.runAction('Template.showinfo',request.request.data[0]);
             Sunstone.runAction("Template.show",request.request.data[0]);
         },
@@ -970,7 +970,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
                   '<input type="text" id="IMAGE_ID" name="IMAGE_ID"/>'+
                 '</div>'+
                 '<div class="two columns">'+
-                  '<div class="tip">'+
+                  '<div class="tip">'+tr("Image ID to be used in the Virtual Image disk.")+
                   '</div>'+
                 '</div>'+
               '</div>'+
@@ -984,7 +984,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
                     '<input type="text" id="IMAGE" name="IMAGE" />'+
                 '</div>'+
                 '<div class="two columns">'+
-                    '<div class="tip">'+
+                    '<div class="tip">'+tr("Name of the image to be used in the Virtual Image disk.")+
                     '</div>'+
                 '</div>'+
               '</div>'+
@@ -1000,7 +1000,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
                   '<input type="text" id="IMAGE_UID" name="IMAGE_UID"/>'+
                 '</div>'+
                 '<div class="two columns">'+
-                  '<div class="tip">'+
+                  '<div class="tip">'+tr("Identifier of the user owner of the image to reduce ambiguity.")+
                   '</div>'+
                 '</div>'+
               '</div>'+
@@ -1014,7 +1014,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
                   '<input type="text" id="IMAGE_UNAME" name="IMAGE_UNAME"/>'+
                 '</div>'+
                 '<div class="two columns">'+
-                  '<div class="tip">'+
+                  '<div class="tip">'+tr("Name of the user owner of the image to reduce ambiguity.")+
                   '</div>'+
                 '</div>'+
               '</div>'+
@@ -1708,7 +1708,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
                   '<input type="text" id="NETWORK_ID" name="NETWORK_ID"/>'+
                 '</div>'+
                 '<div class="two columns">'+
-                  '<div class="tip">'+
+                  '<div class="tip">'+tr("Identifier of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")+
                   '</div>'+
                 '</div>'+
               '</div>'+
@@ -1722,7 +1722,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
                     '<input type="text" id="NETWORK" name="NETWORK" />'+
                 '</div>'+
                 '<div class="two columns">'+
-                    '<div class="tip">'+
+                    '<div class="tip">'+tr("Name of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")+
                     '</div>'+
                 '</div>'+
               '</div>'+
@@ -1738,7 +1738,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
                   '<input type="text" id="NETWORK_UID" name="NETWORK_UID"/>'+
                 '</div>'+
                 '<div class="two columns">'+
-                  '<div class="tip">'+
+                  '<div class="tip">'+tr("Identifier of the user owner of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")+
                   '</div>'+
                 '</div>'+
               '</div>'+
@@ -1752,7 +1752,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
                   '<input type="text" id="NETWORK_UNAME" name="NETWORK_UNAME"/>'+
                 '</div>'+
                 '<div class="two columns">'+
-                  '<div class="tip">'+
+                  '<div class="tip">'+tr("Name of the user owner of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")+
                   '</div>'+
                 '</div>'+
               '</div>'+
@@ -2864,7 +2864,7 @@ function setupCreateTemplateDialog(){
            }
         });
 
-        
+
 
         $("#refresh_ramdisk_table").die();
         $("#refresh_ramdisk_table").live('click', function(){
@@ -3088,7 +3088,7 @@ function setupCreateTemplateDialog(){
                           '<legend>'+tr("SSH")+'</legend>'+
                           '<div class="">'+
                             '<div class="columns one">'+
-                                '<input type="checkbox" name="ssh_context" id="ssh_context"  checked>'+
+                                '<input type="checkbox" name="ssh_context" id="ssh_context" checked>'+
                             '</div>'+
                             '<div class="columns ten">'+
                                 '<label class="inline" for="ssh_context">'+ tr("  Add SSH contextualization")+'</label>'+
@@ -3099,12 +3099,12 @@ function setupCreateTemplateDialog(){
                           '</div>'+
                           '<div class="">'+
                             '<div class="twelve columns">'+
-                                '<label for="ssh_puclic_key"> '+tr("Public Key")+':</label>'+
+                                '<label for="ssh_public_key"> '+tr("Public Key")+':</label>'+
                             '</div>'+
                           '</div>'+
                           '<div class="">'+
                             '<div class="twelve columns">'+
-                            '<textarea rows="4" type="text" id="ssh_puclic_key" name="ssh_puclic_key" />'+
+                            '<textarea rows="4" type="text" id="ssh_public_key" name="ssh_public_key" />'+
                             '</div>'+
                           '</div>'+
                         '</fieldset>'+
@@ -3177,14 +3177,25 @@ function setupCreateTemplateDialog(){
                       '</div>'+
                       '<div class="row vm_param">'+
                       '<br>'+
-                        '<div class="four columns">'+
+                        '<div class="two columns">'+
                           '<label class="right inline" for="FILES_DS">'+tr("FILES_DS")+':</label>'+
                         '</div>'+
-                        '<div class="six columns">'+
+                        '<div class="nine columns">'+
                           '<input type="text" id="FILES_DS" name="FILES_DS" />'+
                         '</div>'+
+                        '<div class="one columns">'+
+                          '<div class="tip">'+tr("Raw String for the FILE_DS attribute of the VM template, representing files that will be included in the contextualization image. Each file must be stored in a FILE_DS Datastore and must be of type CONTEXT")+'</div>'+
+                        '</div>'+
+                      '</div>'+
+                      '<div class="row vm_param">'+
                         '<div class="two columns">'+
-                          '<div class="tip"></div>'+
+                          '<label class="right inline" for="INIT_SCRIPTS">'+tr("Init scripts")+':</label>'+
+                        '</div>'+
+                        '<div class="nine columns">'+
+                          '<input type="text" id="INIT_SCRIPTS" name="INIT_SCRIPTS" />'+
+                        '</div>'+
+                        '<div class="one columns">'+
+                          '<div class="tip">'+tr("If the VM uses the OpenNebula contextualization package the init.sh file is executed by default. When the init script added is not called init.sh or more than one init script is added, this list contains the scripts to run and the order. Ex. “init.sh users.sh mysql.sh”")+'</div>'+
                         '</div>'+
                       '</div>'+
                     '</li>'+
@@ -3286,7 +3297,7 @@ function setupCreateTemplateDialog(){
           }
       });
 
-        
+
 
         $("#refresh_context_table").die();
         $("#refresh_context_table").live('click', function(){
@@ -3464,10 +3475,10 @@ function setupCreateTemplateDialog(){
                     '<hr>'+
                     '<div class="row vm_param">'+
                         '<div class="two columns">'+
-                            '<label class="inline right" for="REQUIREMENTS">'+tr("Requirements")+':</label>'+
+                            '<label class="inline right" for="SCHED_REQUIREMENTS">'+tr("Requirements")+':</label>'+
                         '</div>'+
                         '<div class="nine columns">'+
-                            '<input type="text" id="REQUIREMENTS" name="requirements" />'+
+                            '<input type="text" id="SCHED_REQUIREMENTS" name="requirements" />'+
                         '</div>'+
                         '<div class="one columns">'+
                             '<div class="tip">'+tr("Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM")+'.</div>'+
@@ -3498,10 +3509,10 @@ function setupCreateTemplateDialog(){
                       '<hr>'+
                     '<div class="row vm_param">'+
                       '<div class="two columns">'+
-                        '<label class="inline right" for="RANK">'+tr("Rank")+':</label>'+
+                        '<label class="inline right" for="SCHED_RANK">'+tr("Rank")+':</label>'+
                       '</div>'+
                       '<div class="nine columns">'+
-                        '<input type="text" id="RANK" name="RANK" />'+
+                        '<input type="text" id="SCHED_RANK" name="RANK" />'+
                       '</div>'+
                       '<div class="one columns">'+
                         '<div class="tip">'+tr("This field sets which attribute will be used to sort the suitable hosts for this VM")+'.</div>'+
@@ -3692,7 +3703,7 @@ function setupCreateTemplateDialog(){
         });
 
         $("input[name='rank_select']").change(function(){
-            $("#RANK", dialog).val(this.value);
+            $("#SCHED_RANK", dialog).val(this.value);
         });
 
         var generate_requirements = function() {
@@ -3706,7 +3717,7 @@ function setupCreateTemplateDialog(){
             req_string.push('CLUSTER_ID=\\"'+key+'\\"');
             });
 
-            $('#REQUIREMENTS', dialog).val(req_string.join(" | "));
+            $('#SCHED_REQUIREMENTS', dialog).val(req_string.join(" | "));
         };
     }
 
@@ -4038,7 +4049,7 @@ function setupCreateTemplateDialog(){
         });
 
         if ($("#ssh_context", $('li#contextTab')).is(":checked")) {
-          var public_key = $("#ssh_puclic_key", $('li#contextTab')).val();
+          var public_key = $("#ssh_public_key", $('li#contextTab')).val();
           if (public_key){
             vm_json["CONTEXT"]["SSH_PUBLIC_KEY"] = public_key;
           }
@@ -4591,7 +4602,7 @@ function fillTemplatePopUp(request, response){
                 $("#ssh_context", context_section).attr('checked','checked');
 
                 if (!publickey_regexp.test(value)) {
-                    $("input#ssh_puclic_key").val(value);
+                    $("input#ssh_public_key").val(value);
                 }
             }
             else if (token_regexp.test(key)) {
@@ -4599,6 +4610,9 @@ function fillTemplatePopUp(request, response){
             }
             else if (net_regexp.test(key)) {
                 $("#network_context", context_section).attr('checked','checked');
+            }
+            else if ("INIT_SCRIPTS" == key){
+                $("input#INIT_SCRIPTS").val(value);
             }
             else if ("FILES_DS" == key){
                 $('#FILES_DS', context_section).val(context["FILES_DS"])
@@ -4667,7 +4681,7 @@ function fillTemplatePopUp(request, response){
     // REQUIREMENTS & RANK
     //
 
-    var req = template.REQUIREMENTS;
+    var req = template.SCHED_REQUIREMENTS;
     var req_section = $('li#schedulingTab', $create_template_dialog);
 
     if (req) {
@@ -4750,12 +4764,12 @@ function fillTemplatePopUp(request, response){
             });
         }
 
-        $('input#REQUIREMENTS', req_section).val(req);
+        $('input#SCHED_REQUIREMENTS', req_section).val(req);
 
-        delete template.REQUIREMENTS;
+        delete template.SCHED_REQUIREMENTS;
     }
 
-    var rank = template.RANK;
+    var rank = template.SCHED_RANK;
 
     if (rank) {
         var striping_regexp = /-RUNNING_VMS/;
@@ -4772,9 +4786,9 @@ function fillTemplatePopUp(request, response){
             $('input#loadawareRadio', req_section).click()
         }
 
-        $('input#RANK', req_section).val(rank);
+        $('input#SCHED_RANK', req_section).val(rank);
 
-        delete template.RANK;
+        delete template.SCHED_RANK;
     }
 
     //
@@ -5033,7 +5047,7 @@ function setupInstantiateTemplateDialog(easy_provision){
       dialog.addClass("reveal-modal large");
       dialog.removeClass("max-height")
     }
-    
+
 
     setupTips(dialog);
 
@@ -5070,7 +5084,7 @@ function setupInstantiateTemplateDialog(easy_provision){
               'image_id': image_id
             }
           }
-        } 
+        }
 
         if (!vm_name.length){ //empty name use OpenNebula core default
             for (var i=0; i< n_times_int; i++){

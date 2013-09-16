@@ -35,6 +35,7 @@ public class Datastore extends PoolElement
     private static final String UPDATE   = METHOD_PREFIX + "update";
     private static final String CHOWN    = METHOD_PREFIX + "chown";
     private static final String CHMOD    = METHOD_PREFIX + "chmod";
+    private static final String RENAME   = METHOD_PREFIX + "rename";
 
     private static final String[] DATASTORE_TYPES = {"IMAGE", "SYSTEM", "FILE"};
 
@@ -212,6 +213,19 @@ public class Datastore extends PoolElement
         return chmod(client, CHMOD, id, octet);
     }
 
+    /**
+     * Renames this Datastore.
+     *
+     * @param client XML-RPC Client.
+     * @param id The image id of the target host we want to modify.
+     * @param name New name for the Datastore
+     * @return If successful the message contains the datastore id.
+     */
+    public static OneResponse rename(Client client, int id, String name)
+    {
+        return client.call(RENAME, id, name);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -371,6 +385,17 @@ public class Datastore extends PoolElement
     public OneResponse chmod(int octet)
     {
         return chmod(client, id, octet);
+    }
+
+    /**
+     * Renames this Datastore
+     *
+     * @param name New name for the Datastore.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse rename(String name)
+    {
+        return rename(client, id, name);
     }
 
     // =================================

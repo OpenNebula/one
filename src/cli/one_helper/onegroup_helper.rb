@@ -61,10 +61,15 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
             end
 
             column :USERS, "Number of Users in this group", :size=>5 do |d|
-                if d["USERS"]["ID"].nil?
-                    "0"
+                ids = d["USERS"]["ID"]
+
+                case ids
+                when String
+                    "1"
+                when Array
+                    ids.size
                 else
-                    d["USERS"]["ID"].size
+                    "0"
                 end
             end
 
