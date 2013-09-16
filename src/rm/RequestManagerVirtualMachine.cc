@@ -106,68 +106,52 @@ int RequestManagerVirtualMachine::get_default_ds_information(
 
     ClusterPool*    clpool = nd.get_clpool();
     Cluster*        cluster;
-    DatastorePool*  dspool = nd.get_dspool();
-    Datastore*      ds;
 
     ds_id = -1;
 
     if (cluster_id == ClusterPool::NONE_CLUSTER_ID)
     {
         ds_id = DatastorePool::SYSTEM_DS_ID;
-        return get_ds_information(ds_id, cluster_id, tm_mad, att);
     }
-
-    cluster = clpool->get(cluster_id, true);
-
-    if (cluster == 0)
+    else
     {
-        failure_response(NO_EXISTS,
-            get_error(object_name(PoolObjectSQL::CLUSTER), cluster_id),
-            att);
+        cluster = clpool->get(cluster_id, true);
 
-        return -1;
-    }
-
-    set<int> ds_ids = cluster->get_datastores();
-
-    cluster->unlock();
-
-    for (set<int>::iterator it = ds_ids.begin(); it != ds_ids.end(); it++)
-    {
-        ds = dspool->get(*it, true);
-
-        if (ds == 0)
+        if (cluster == 0)
         {
-            continue;
+            failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::CLUSTER), cluster_id),
+                att);
+
+            return -1;
         }
 
-        if (ds->get_type() == Datastore::SYSTEM_DS)
+        set<int> ds_ids = cluster->get_datastores();
+
+        cluster->unlock();
+
+        ds_id = Cluster::get_default_sysetm_ds(ds_ids);
+
+        if (ds_id == -1)
         {
-            ds_id = *it;
-            ds->unlock();
+            ostringstream oss;
 
-            break;
+            oss << object_name(PoolObjectSQL::CLUSTER)
+                << " [" << cluster_id << "] does not have any "
+                << object_name(PoolObjectSQL::DATASTORE) << " of type "
+                << Datastore::type_to_str(Datastore::SYSTEM_DS) << ".";
+
+            failure_response(ACTION, request_error(oss.str(),""), att);
+
+            return -1;
         }
-
-        ds->unlock();
-    }
-
-    if (ds_id == -1)
-    {
-        ostringstream oss;
-
-        oss << object_name(PoolObjectSQL::CLUSTER)
-            << " [" << cluster_id << "] does not have any "
-            << object_name(PoolObjectSQL::DATASTORE) << " of type "
-            << Datastore::type_to_str(Datastore::SYSTEM_DS) << ".";
-
-        failure_response(ACTION, request_error(oss.str(),""), att);
-
-        return -1;
     }
 
     return get_ds_information(ds_id, cluster_id, tm_mad, att);
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int RequestManagerVirtualMachine::get_ds_information(int ds_id,
     int& ds_cluster_id,

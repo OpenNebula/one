@@ -154,6 +154,38 @@ int Cluster::del_datastore(int id, string& error_msg)
     return rc;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Cluster::get_default_sysetm_ds(const set<int>& ds_set)
+{
+    Nebula& nd = Nebula::instance();
+
+    DatastorePool*  dspool = nd.get_dspool();
+    Datastore*      ds;
+
+    for (set<int>::const_iterator it = ds_set.begin(); it != ds_set.end(); it++)
+    {
+        ds = dspool->get(*it, true);
+
+        if (ds == 0)
+        {
+            continue;
+        }
+
+        if (ds->get_type() == Datastore::SYSTEM_DS)
+        {
+            ds->unlock();
+
+            return *it;
+        }
+
+        ds->unlock();
+    }
+
+    return -1;
+}
+
 /* ************************************************************************** */
 /* Cluster :: Database Access Functions                                       */
 /* ************************************************************************** */

@@ -105,6 +105,12 @@ public:
     };
 
     /**
+     *  Returns a system DS for the cluster when none is set at the API level
+     *    @return the ID of the System
+     */
+    static int get_default_sysetm_ds(const set<int>& ds_collection);
+
+    /**
      *  Adds this vnet ID to the set.
      *    @param id to be added to the cluster
      *    @param error_msg Error message, if any
