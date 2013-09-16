@@ -282,6 +282,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/tm/ \
           $VAR_LOCATION/remotes/tm/dummy \
           $VAR_LOCATION/remotes/tm/shared \
+          $VAR_LOCATION/remotes/tm/shared_lvm \
           $VAR_LOCATION/remotes/tm/qcow2 \
           $VAR_LOCATION/remotes/tm/ssh \
           $VAR_LOCATION/remotes/tm/vmfs \
@@ -464,6 +465,7 @@ INSTALL_FILES=(
     VMM_EXEC_VMWARE_SCRIPTS:$VAR_LOCATION/remotes/vmm/vmware
     TM_FILES:$VAR_LOCATION/remotes/tm
     TM_SHARED_FILES:$VAR_LOCATION/remotes/tm/shared
+    TM_SHARED_LVM_FILES:$VAR_LOCATION/remotes/tm/shared_lvm
     TM_QCOW2_FILES:$VAR_LOCATION/remotes/tm/qcow2
     TM_SSH_FILES:$VAR_LOCATION/remotes/tm/ssh
     TM_VMFS_FILES:$VAR_LOCATION/remotes/tm/vmfs
@@ -945,6 +947,7 @@ NETWORK_VMWARE_FILES="src/vnm_mad/remotes/vmware/clean \
 #-------------------------------------------------------------------------------
 # Transfer Manager commands, to be installed under $LIB_LOCATION/tm_commands
 #   - SHARED TM, $VAR_LOCATION/tm/shared
+#   - SHARED_LVM TM, $VAR_LOCATION/tm/shared_lvm
 #   - QCOW2 TM, $VAR_LOCATION/tm/qcow2
 #   - SSH TM, $VAR_LOCATION/tm/ssh
 #   - DUMMY TM, $VAR_LOCATION/tm/dummy
@@ -967,6 +970,15 @@ TM_SHARED_FILES="src/tm_mad/shared/clone \
                  src/tm_mad/shared/postmigrate \
                  src/tm_mad/shared/mvds \
                  src/tm_mad/shared/cpds"
+
+TM_SHARED_LVM_FILES="src/tm_mad/shared_lvm/clone \
+                 src/tm_mad/shared_lvm/ln \
+                 src/tm_mad/shared_lvm/mv \
+                 src/tm_mad/shared_lvm/mvds \
+                 src/tm_mad/shared_lvm/cpds \
+                 src/tm_mad/shared_lvm/premigrate \
+                 src/tm_mad/shared_lvm/postmigrate \
+                 src/tm_mad/shared_lvm/delete"
 
 TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
                  src/tm_mad/qcow2/delete \
