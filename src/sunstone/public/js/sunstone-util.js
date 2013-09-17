@@ -285,6 +285,7 @@ function updateSingleElement(element,dataTable,tag){
     var position = dataTable.fnGetPosition(tr);
     dataTable.fnUpdate(element,position,undefined,false);
     recountCheckboxes(dataTable);
+    $('input.check_item',tr).attr('checked','checked');
 }
 
 function getElementData(id, resource_tag, dataTable){
