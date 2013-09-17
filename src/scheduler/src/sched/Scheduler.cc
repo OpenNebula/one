@@ -868,7 +868,11 @@ void Scheduler::dispatch()
                 continue;
             }
 
-            ds->add_capacity(dsk);
+            // DS capacity is only added for new deployments, not for migrations
+            if (!vm->is_resched())
+            {
+                ds->add_capacity(dsk);
+            }
 
             host->add_capacity(cpu,mem,dsk);
 
