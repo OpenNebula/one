@@ -493,13 +493,13 @@ var datastore_actions = {
         type: "multiple",
         call: function(params, success){
             var cluster = params.data.extra_param;
-            var ds = params.data.id;
+            var ds = params.data.id[0];
 
             if (cluster == -1){
                 //get cluster name
                 var current_cluster = getValue(ds,
                                                1,
-                                               5,
+                                               6,
                                                dataTable_datastores);
                 //get cluster id
                 current_cluster = getValue(current_cluster,
@@ -513,6 +513,8 @@ var datastore_actions = {
             {
                 Sunstone.runAction("Cluster.adddatastore",cluster,ds);
             }
+            Sunstone.runAction("Datastore.show",ds);
+            Sunstone.runAction("Datastore.showinfo",ds);
         },
         elements: datastoreElements,
         notify:true
