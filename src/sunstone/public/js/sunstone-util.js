@@ -1565,6 +1565,8 @@ function popUpQuotasDialog(dialog, resource, sel_elems){
     $('input[value="vm"]', dialog).click();
 
     dialog.reveal();
+
+    $("input[name='VMS']",dialog).focus();
 }
 
 

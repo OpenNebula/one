@@ -4213,6 +4213,8 @@ function popUpCreateTemplateDialog(){
 
     $create_template_dialog.reveal();
 
+    $("input#NAME",$create_template_dialog).focus();
+
     $('button.refresh').each(function(){
       this.click();
     })
@@ -4924,6 +4926,7 @@ function popUpTemplateCloneDialog(){
     };
 
     $(dialog).reveal();
+    $("input[name='name']",dialog).focus();
 }
 
 // Set the autorefresh interval for the datatable
@@ -5121,6 +5124,7 @@ function setupInstantiateTemplateDialog(easy_provision){
 function popUpInstantiateVMTemplateDialog(easy_provision){
     setupInstantiateTemplateDialog(easy_provision);
     $instantiate_vm_template_dialog.reveal();
+    $("input#vm_name",$instantiate_vm_template_dialog).focus();
 }
 
 //The DOM is ready at this point

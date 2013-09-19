@@ -485,6 +485,8 @@ function popUpCreateClusterDialog(){
     Sunstone.runAction("ClusterDS.list");
     $create_cluster_dialog.reveal();
 
+    $("input#name",$create_cluster_dialog).focus();
+
     return false;
 }
 

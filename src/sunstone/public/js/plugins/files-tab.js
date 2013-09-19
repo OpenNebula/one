@@ -403,12 +403,7 @@ var file_buttons = {
         type: "confirm",
         layout: "del",
         text: tr("Delete")
-    },
-    //"File.help" : {
-    //    type: "action",
-    //    text: '?',
-    //    alwaysActive: true
-    //}
+    }
 }
 
 var file_info_panel = {
@@ -664,20 +659,7 @@ function setupCreateFileDialog(){
 
     var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
 
-    //Prepare jquery dialog
-    //dialog.dialog({
-    //    autoOpen: false,
-    //    modal:true,
-    //    width: 520,
-    //    height: height
-    //});
     dialog.addClass("reveal-modal large max-height");
-
-
-    //$('#img_tabs',dialog).tabs();
-    //$('button',dialog).button();
-    //$('#datablock_img',dialogs_contextog).attr('disabled','disabled');
-
 
     $('select#img_type',dialog).change(function(){
         var value = $(this).val();
@@ -829,7 +811,6 @@ function setupCreateFileDialog(){
 
             //Inform complete upload, destroy upload dialog, refresh img list
 
-            //$('div#pb_dialog').dialog('destroy');
             $('div#pb_dialog').trigger("reveal:close")
             return false;
         },
@@ -947,6 +928,7 @@ function popUpCreateFileDialog(){
     $('#file_datastore_raw',$create_file_dialog).html(datastores_str);
 
     $create_file_dialog.reveal();
+    $("input#img_name",$create_file_dialog).focus();
 }
 
 // Set the autorefresh interval for the datatable

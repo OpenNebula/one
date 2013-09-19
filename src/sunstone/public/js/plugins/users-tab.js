@@ -811,13 +811,6 @@ function setupCreateUserDialog(){
     var dialog = $create_user_dialog;
     dialog.html(create_user_tmpl);
 
-    //Prepare jquery dialog
-    //dialog.dialog({
-    //    autoOpen: false,
-    //    modal:true,
-    //    width: 400
-    //});
-
     dialog.addClass("reveal-modal");
 
     //$('button',dialog).button();
@@ -920,18 +913,19 @@ function setupUserQuotasDialog(){
 }
 
 function popUpUserQuotasDialog(){
-    popUpQuotasDialog($user_quotas_dialog, 'User', userElements())
+    popUpQuotasDialog($user_quotas_dialog, 'User', userElements());
 }
 
 function popUpCreateUserDialog(){
     $create_user_dialog.reveal();
-
+    $("input#username",$create_user_dialog).focus();
 }
 
 
 function popUpUpdatePasswordDialog(){
     $('#new_password',$update_pw_dialog).val("");
     $update_pw_dialog.reveal();
+    $("input#new_password",$update_pw_dialog).focus();
 }
 
 function popUpChangeAuthenticationDialog(){

@@ -1123,6 +1123,7 @@ function popUpCreateDatastoreDialog(){
     $('select#cluster_id',$create_datastore_dialog).html(clusters_sel());
     $('select#datastore_cluster_raw',$create_datastore_dialog).html(clusters_sel());
     $create_datastore_dialog.reveal();
+    $("input#name",$create_datastore_dialog).focus();
     hide_all($create_datastore_dialog);
     select_filesystem();
 }

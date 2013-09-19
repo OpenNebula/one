@@ -578,6 +578,7 @@ function setupCreateGroupDialog(){
 
 function popUpCreateGroupDialog(){
     $create_group_dialog.reveal();
+    $("input#name",$create_group_dialog).focus();
     return false;
 }
 

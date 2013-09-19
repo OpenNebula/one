@@ -888,15 +888,8 @@ function setupCreateHostDialog(){
     var dialog = $create_host_dialog;
 
     dialog.html(create_host_tmpl);
-    //dialog.dialog({
-    //    autoOpen: false,
-    //    modal: true,
-    //    width: 500
-    //});
+
     dialog.addClass("reveal-modal max-height");
-
-    //$('button',dialog).button();
-
 
     // Show custom driver input only when custom is selected in selects
     $('input[name="custom_vmm_mad"],'+
@@ -972,6 +965,7 @@ function setupCreateHostDialog(){
 function popUpCreateHostDialog(){
     $('#host_cluster_id',$create_host_dialog).html(clusters_sel());
     $create_host_dialog.reveal();
+    $("input#name",$create_host_dialog).focus();
     return false;
 }
 
