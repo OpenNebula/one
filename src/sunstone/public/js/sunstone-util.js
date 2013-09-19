@@ -45,7 +45,7 @@ function pretty_time(time_seconds)
     var month = pad(d.getMonth()+1,2); //getMonths returns 0-11
     var year = d.getFullYear();
 
-    return hour + ":" + mins +":" + secs + "&nbsp;" + month + "/" + day + "/" + year;
+    return hour + ":" + mins +":" + secs + "&nbsp;" + day + "/" + month + "/" + year;
 }
 
 // Format time for plot axis
@@ -62,7 +62,7 @@ function pretty_time_axis(time, show_date){
     var year = d.getFullYear();
 
     if (show_date)
-        return month + "/" + day;
+        return day + "/" + month;
     else
         return hour + ":" + mins;
 }
@@ -78,7 +78,7 @@ function pretty_time_runtime(time){
     var month = pad(d.getUTCMonth()+1,2); //getMonths returns 0-11
     var year = d.getUTCFullYear();
 
-    return day + "d " + hour + ":" + mins;// + ":" + secs;// + "&nbsp;" + month + "/" + day;
+    return day + "d " + hour + ":" + mins;
 }
 
 //returns a human readable size in Kilo, Mega, Giga or Tera bytes

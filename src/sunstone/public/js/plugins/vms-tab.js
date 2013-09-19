@@ -945,12 +945,6 @@ var vm_buttons = {
                 YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation \
                 was successful or not.")
     }
-
-    //"VM.help" : {
-    //    type: "action",
-    //    text: '?',
-    //    alwaysActive: true
-    //}
 }
 
 var vm_info_panel = {
