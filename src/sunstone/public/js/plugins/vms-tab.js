@@ -102,55 +102,6 @@ var vms_tab_content = '\
 </table>\
 </form>';
 
-//var create_vm_tmpl ='\
-//        <div class="panel">\
-//          <h3>\
-//            <small id="create_vnet_header">'+tr("Create Virtual Machine")+'</small>\
-//          </h3>\
-//        </div>\
-//        <form id="create_vm_form" action="">\
-//          <div class="row centered">\
-//              <div class="four columns">\
-//                  <label class="inline right" for="vm_name">'+tr("VM Name")+':</label>\
-//              </div>\
-//              <div class="seven columns">\
-//                  <input type="text" name="vm_name" id="vm_name" />\
-//              </div>\
-//              <div class="one columns">\
-//                  <div class="tip">'+tr("Defaults to template name when emtpy")+'.</div>\
-//              </div>\
-//          </div>\
-//          <div class="row centered">\
-//              <div class="four columns">\
-//                  <label class="inline right" for="template_id">'+tr("Select template")+':</label>\
-//              </div>\
-//              <div class="seven columns">\
-//                 <select id="template_id">\
-//                 </select>\
-//              </div>\
-//              <div class="one columns">\
-//                  <div class=""></div>\
-//              </div>\
-//          </div>\
-//          <div class="row centered">\
-//              <div class="four columns">\
-//                  <label class="inline right" for="vm_n_times">'+tr("Deploy # VMs")+':</label>\
-//              </div>\
-//              <div class="seven columns">\
-//                  <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
-//              </div>\
-//              <div class="one columns">\
-//                  <div class="tip">'+tr("You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them")+'.</div>\
-//              </div>\
-//          </div>\
-//          <hr>\
-//        <div class="form_buttons">\
-//           <button class="button radius right success" id="create_vm_proceed" value="VM.create">'+tr("Create")+'</button>\
-//           <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
-//        </div>\
-//<a class="close-reveal-modal">&#215;</a>\
-//</form>';
-
 var create_vm_tmpl ='\
 <div class="panel">\
   <h3>\
@@ -695,44 +646,7 @@ var vm_actions = {
         },
         error: vmMonitorError
     },
-/*
-    "VM.pool_monitor" : {
-        type: "monitor_global",
-        call : OpenNebula.VM.pool_monitor,
-        callback: function(req,response) {
-            var vm_dashboard_graphs = [
-                { labels : "Network transmission",
-                  monitor_resources : "NET_TX",
-                  humanize_figures : true,
-                  convert_from_bytes : true,
-                  y_sufix : "B/s",
-                  derivative : true,
-                  div_graph : $("#dash_vm_net_tx_graph", $dashboard)
-                },
-                { labels : "Network reception",
-                  monitor_resources : "NET_RX",
-                  humanize_figures : true,
-                  convert_from_bytes : true,
-                  y_sufix : "B/s",
-                  derivative : true,
-                  div_graph : $("#dash_vm_net_rx_graph", $dashboard)
-                }
-            ];
 
-            for(var i=0; i<vm_dashboard_graphs.length; i++) {
-                plot_totals(
-                    response,
-                    vm_dashboard_graphs[i]
-                );
-            }
-
-            // TODO: refresh individual info panel graphs with this new data?
-        },
-
-        // TODO: ignore error, or set message similar to hostMonitorError?
-        error: onError
-    },
-*/
     "VM.chown" : {
         type: "multiple",
         call: OpenNebula.VM.chown,
@@ -3170,14 +3084,6 @@ function setupVNC(){
   <a class="close-reveal-modal">&#215;</a>\
 ');
 
-    //dialog.dialog({
-    //    autoOpen:false,
-    //    width:750,
-    //    modal:true,
-    //    height:500,
-    //    resizable:true,
-    //    closeOnEscape: false
-    //});
     dialog.addClass("reveal-modal large max-height");
 
     $('#sendCtrlAltDelButton',dialog).click(function(){
@@ -3276,13 +3182,8 @@ $(document).ready(function(){
       })
 
 
-
-      //addElement([
-      //    spinner,
-      //    '','','','','','','','','','',''],dataTable_vMachines);
       Sunstone.runAction("VM.list");
 
-      //setupCreateVMDialog();
       setVMAutorefresh();
       setupVNC();
       hotpluggingOps();
