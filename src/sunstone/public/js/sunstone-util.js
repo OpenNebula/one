@@ -1842,10 +1842,13 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
 
     // Add listener for add key and add value for Extended Template
     $('#button_add_value').live("click", function() {
-        if ( $('#new_value').val() != "" && $('#new_key').val() != "" )
+        new_value = $('#new_value',$(this).parent().parent()).val();
+        new_key   = $('#new_key',$(this).parent().parent()).val();
+
+        if ( new_value != "" && new_key != "" )
         {
             var template_json_bk = $.extend({}, template_json);
-            template_json[$.trim($('#new_key').val())] = $.trim($('#new_value').val());
+            template_json[$.trim(new_key)] = $.trim(new_value);
             template_str  = convert_template_to_string(template_json,unshown_values);
 
             Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
@@ -1861,7 +1864,7 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
           if (key == 13)
           {
              //Get the button the user wants to have clicked
-             $('#button_add_value').click();
+             $('#button_add_value', $(this).parent().parent()).click();
              ev.preventDefault();
           }
     })
