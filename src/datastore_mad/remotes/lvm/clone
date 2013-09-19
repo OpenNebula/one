@@ -56,7 +56,7 @@ VG_NAME="${XPATH_ELEMENTS[j++]:-$VG_NAME}"
 SRC="${XPATH_ELEMENTS[j++]}"
 SIZE="${XPATH_ELEMENTS[j++]}"
 
-DST_HOST=`get_destination_host $IMAGE_ID`
+DST_HOST=`get_destination_host $ID`
 
 if [ -z "$DST_HOST" ]; then
     error_message "Datastore template missing 'BRIDGE_LIST' attribute."

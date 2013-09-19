@@ -76,7 +76,7 @@ SHA1="${XPATH_ELEMENTS[i++]}"
 NO_DECOMPRESS="${XPATH_ELEMENTS[i++]}"
 LIMIT_TRANSFER_BW="${XPATH_ELEMENTS[i++]}"
 
-DST_HOST=`get_destination_host $IMAGE_ID`
+DST_HOST=`get_destination_host $ID`
 
 if [ -z "$DST_HOST" ]; then
     error_message "Datastore template missing 'BRIDGE_LIST' attribute."

@@ -50,7 +50,7 @@ ID=$2
 
 XPATH="${DRIVER_PATH}/../xpath.rb -b $DRV_ACTION"
 
-unset i XPATH_ELEMENTS
+unset i j XPATH_ELEMENTS
 
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
@@ -58,15 +58,13 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/ID \
                     /DS_DRIVER_ACTION_DATA/IMAGE/PATH \
-                    /DS_DRIVER_ACTION_DATA/IMAGE/ID \
                     /DS_DRIVER_ACTION_DATA/IMAGE/TYPE)
 
-BASE_PATH="${XPATH_ELEMENTS[0]}"
-BRIDGE_LIST="${XPATH_ELEMENTS[1]}"
-DS_ID="${XPATH_ELEMENTS[2]}"
-SRC="${XPATH_ELEMENTS[3]}"
-IMAGE_ID="${XPATH_ELEMENTS[4]}"
-IMAGE_TYPE="${XPATH_ELEMENTS[5]}"
+BASE_PATH="${XPATH_ELEMENTS[j++]}"
+BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
+DS_ID="${XPATH_ELEMENTS[j++]}"
+SRC="${XPATH_ELEMENTS[j++]}"
+IMAGE_TYPE="${XPATH_ELEMENTS[j++]}"
 
 
 # ------------------------------------------------------------------------------
@@ -83,7 +81,12 @@ DST=`generate_image_path`
 SRC_FOLDER=`basename $SRC`
 DST_FOLDER=`basename $DST`
 
-DST_HOST=`get_destination_host $IMAGE_ID`
+DST_HOST=`get_destination_host $ID`
+
+if [ -z "$DST_HOST" ]; then
+    error_message "Datastore template missing 'BRIDGE_LIST' attribute."
+    exit -1
+fi
 
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS"
 

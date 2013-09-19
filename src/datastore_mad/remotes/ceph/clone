@@ -58,7 +58,7 @@ POOL_NAME="${XPATH_ELEMENTS[i++]:-$POOL_NAME}"
 SRC="${XPATH_ELEMENTS[i++]}"
 SIZE="${XPATH_ELEMENTS[i++]}"
 
-DST_HOST=`get_destination_host $IMAGE_ID`
+DST_HOST=`get_destination_host $ID`
 
 if [ -z "$DST_HOST" ]; then
     error_message "Datastore template missing 'BRIDGE_LIST' attribute."

@@ -64,7 +64,7 @@ BASE_IQN="${XPATH_ELEMENTS[j++]:-$BASE_IQN}"
 FSTYPE="${XPATH_ELEMENTS[j++]}"
 SIZE="${XPATH_ELEMENTS[j++]:-0}"
 
-DST_HOST=`get_destination_host $IMAGE_ID`
+DST_HOST=`get_destination_host $ID`
 
 if [ -z "$DST_HOST" ]; then
     error_message "Datastore template missing 'BRIDGE_LIST' attribute."
