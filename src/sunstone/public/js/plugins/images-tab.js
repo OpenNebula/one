@@ -1230,6 +1230,7 @@ function popUpCreateImageDialog(){
     $('#img_datastore_raw',$create_image_dialog).html(datastores_str);
 
     $create_image_dialog.reveal();
+    $("input#img_name",$create_image_dialog).focus();
 
     $('select#img_datastore').children('option').each(function() {
       if ($(this).val() == "2")
@@ -1294,17 +1295,7 @@ function setupImageCloneDialog(){
 ';
 
     dialog.html(html);
-
-    //Convert into jQuery
-    //dialog.dialog({
-    //    autoOpen:false,
-    //    width:375,
-    //    modal:true,
-    //    resizable:false
-    //});
     dialog.addClass("reveal-modal");
-
-    //$('button',dialog).button();
 
     $('form',dialog).submit(function(){
         var name = $('input', this).val();
@@ -1345,6 +1336,7 @@ function popUpImageCloneDialog(){
     };
 
     $(dialog).reveal();
+    $("input[name='name']",dialog).focus();
 }
 
 //The DOM is ready at this point

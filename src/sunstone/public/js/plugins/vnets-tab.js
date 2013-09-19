@@ -1479,6 +1479,7 @@ function setupCreateVNetDialog() {
 
 function popUpCreateVnetDialog() {
     $create_vn_dialog.reveal();
+    $("input#name",$create_vn_dialog).focus();
 }
 
 

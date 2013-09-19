@@ -2167,6 +2167,7 @@ function popUpSaveAsDialog(vm_id, disk_id){
     $('#vm_id',$save_as_dialog).val(vm_id);
     $('#disk_id',$save_as_dialog).val(disk_id);
     $save_as_dialog.reveal();
+    $("input#image_name",$save_as_dialog).focus();
 }
 
 
@@ -2857,6 +2858,7 @@ function setupSnapshotDialog(){
 function popUpSnapshotDialog(vm_id){
     $('#vm_id',$snapshot_dialog).val(vm_id);
     $snapshot_dialog.reveal();
+    $("input#snapshot_name",$snapshot_dialog).focus();
 }
 
 
@@ -3088,6 +3090,7 @@ function setupCreateVMDialog(include_select_image){
 function popUpCreateVMDialog(include_select_image){
     setupCreateVMDialog(include_select_image);
     $create_vm_dialog.reveal();
+    $("input#vm_name",$create_vm_dialog).focus();
 }
 
 //Prepares autorefresh
