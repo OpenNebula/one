@@ -265,7 +265,6 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/xen3.d \
           $VAR_LOCATION/remotes/im/xen4.d \
           $VAR_LOCATION/remotes/im/vmware.d \
-          $VAR_LOCATION/remotes/im/ganglia.d \
           $VAR_LOCATION/remotes/vmm \
           $VAR_LOCATION/remotes/vmm/kvm \
           $VAR_LOCATION/remotes/vmm/xen3 \
@@ -451,7 +450,6 @@ INSTALL_FILES=(
     IM_PROBES_XEN3_FILES:$VAR_LOCATION/remotes/im/xen3.d
     IM_PROBES_XEN4_FILES:$VAR_LOCATION/remotes/im/xen4.d
     IM_PROBES_VMWARE_FILES:$VAR_LOCATION/remotes/im/vmware.d
-    IM_PROBES_GANGLIA_FILES:$VAR_LOCATION/remotes/im/ganglia.d
     AUTH_SSH_FILES:$VAR_LOCATION/remotes/auth/ssh
     AUTH_X509_FILES:$VAR_LOCATION/remotes/auth/x509
     AUTH_LDAP_FILES:$VAR_LOCATION/remotes/auth/ldap
@@ -714,7 +712,6 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/mad/ruby/DriverExecHelper.rb \
                 src/mad/ruby/ssh_stream.rb \
                 src/vnm_mad/one_vnm.rb \
-                src/mad/ruby/Ganglia.rb \
                 src/oca/ruby/deprecated/OpenNebula.rb \
                 src/oca/ruby/opennebula.rb \
                 src/sunstone/OpenNebulaVNC.rb"
@@ -781,7 +778,6 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/reset \
                     src/vmm_mad/remotes/kvm/save \
                     src/vmm_mad/remotes/kvm/poll \
-                    src/vmm_mad/remotes/kvm/poll_ganglia \
                     src/vmm_mad/remotes/kvm/attach_disk \
                     src/vmm_mad/remotes/kvm/detach_disk \
                     src/vmm_mad/remotes/kvm/attach_nic \
@@ -804,7 +800,6 @@ VMM_EXEC_XEN3_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/reset \
                     src/vmm_mad/remotes/xen/save \
                     src/vmm_mad/remotes/xen/poll \
-                    src/vmm_mad/remotes/xen/poll_ganglia \
                     src/vmm_mad/remotes/xen/attach_disk \
                     src/vmm_mad/remotes/xen/detach_disk \
                     src/vmm_mad/remotes/xen/attach_nic \
@@ -823,7 +818,6 @@ VMM_EXEC_XEN4_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/reset \
                     src/vmm_mad/remotes/xen/save \
                     src/vmm_mad/remotes/xen/poll \
-                    src/vmm_mad/remotes/xen/poll_ganglia \
                     src/vmm_mad/remotes/xen/attach_disk \
                     src/vmm_mad/remotes/xen/detach_disk \
                     src/vmm_mad/remotes/xen/attach_nic \
@@ -882,8 +876,6 @@ IM_PROBES_XEN4_FILES="src/im_mad/remotes/xen.d/xen.rb \
                       src/im_mad/remotes/xen.d/name.sh"
 
 IM_PROBES_VMWARE_FILES="src/im_mad/remotes/vmware.d/vmware.rb"
-
-IM_PROBES_GANGLIA_FILES="src/im_mad/remotes/ganglia.d/ganglia_probe"
 
 #-------------------------------------------------------------------------------
 # Auth Manager drivers to be installed under $REMOTES_LOCATION/auth
