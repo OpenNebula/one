@@ -3955,12 +3955,13 @@ function setupCreateTemplateDialog(){
         //
         // CAPACITY
         //
-//        var scope = section_capacity;
-//
-//        if (!mandatory_filter(scope)){
-//            notifyError(tr("There are mandatory fields missing in the capacity section"));
-//            return false;
-//        };
+
+        if (!$('input#MEMORY',$('li#capacityTab',dialog)).val())
+        {
+          // Put default memory value
+          $('input#MEMORY',$('li#capacityTab',dialog)).val("512")
+        }
+
         addSectionJSON(vm_json,$('li#capacityTab',dialog));
         //
         // OS
