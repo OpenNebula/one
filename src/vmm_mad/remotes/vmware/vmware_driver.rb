@@ -109,12 +109,16 @@ class VMwareDriver
     # Cancels & undefine the VM                                                #
     # ------------------------------------------------------------------------ #
     def cancel(deploy_id)
-        # Destroy the VM
-        rc, info = do_action("virsh -c #{@uri} destroy #{deploy_id}")
+        rc, info = do_action("virsh -c #{@uri} --readonly dominfo #{deploy_id}")
 
-        exit info if rc == false
+        if rc
+            # Destroy the VM
+            rc, info = do_action("virsh -c #{@uri} destroy #{deploy_id}")
 
-        OpenNebula.log_debug("Successfully canceled domain #{deploy_id}.")
+            exit info if rc == false
+
+            OpenNebula.log_debug("Successfully canceled domain #{deploy_id}.")
+        end
 
         # Undefine the VM
         undefine_domain(deploy_id)
