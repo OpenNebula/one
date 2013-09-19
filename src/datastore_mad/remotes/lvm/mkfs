@@ -49,7 +49,7 @@ while IFS= read -r -d '' element; do
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/RESTRICTED_DIRS \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SAFE_DIRS \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/HOST \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VG_NAME \
                     /DS_DRIVER_ACTION_DATA/IMAGE/FSTYPE \
                     /DS_DRIVER_ACTION_DATA/IMAGE/SIZE)
@@ -57,13 +57,15 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
 BASE_PATH="${XPATH_ELEMENTS[j++]}"
 RESTRICTED_DIRS="${XPATH_ELEMENTS[j++]}"
 SAFE_DIRS="${XPATH_ELEMENTS[j++]}"
-DST_HOST="${XPATH_ELEMENTS[j++]}"
+BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
 VG_NAME="${XPATH_ELEMENTS[j++]:-$VG_NAME}"
 FSTYPE="${XPATH_ELEMENTS[j++]}"
 SIZE="${XPATH_ELEMENTS[j++]}"
 
+DST_HOST=`get_destination_host $IMAGE_ID`
+
 if [ -z "$DST_HOST" ]; then
-    error_message "Datastore template missing 'HOST' attribute."
+    error_message "Datastore template missing 'BRIDGE_LIST' attribute."
     exit -1
 fi
 

@@ -45,15 +45,17 @@ unset i XPATH_ELEMENTS
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/HOST)
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST)
 
 unset i
 
 SRC="${XPATH_ELEMENTS[i++]}"
-DST_HOST="${XPATH_ELEMENTS[i++]}"
+BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
+
+DST_HOST=`get_destination_host $IMAGE_ID`
 
 if [ -z "$DST_HOST" ]; then
-    error_message "Datastore template missing 'HOST' attribute."
+    error_message "Datastore template missing 'BRIDGE_LIST' attribute."
     exit -1
 fi
 
