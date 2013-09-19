@@ -50,7 +50,12 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
 BASE_PATH="${XPATH_ELEMENTS[0]}"
 BRIDGE_LIST="${XPATH_ELEMENTS[1]}"
 
-HOST=`get_destination_host $ID`
+HOST=`get_destination_host`
+
+if [ -z "$HOST" ]; then
+    error_message "Datastore template missing 'BRIDGE_LIST' attribute."
+    exit -1
+fi
 
 # ------------ Compute datastore usage -------------
 
