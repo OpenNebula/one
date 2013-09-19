@@ -36,31 +36,8 @@ fi
 DRIVER_PATH=$(dirname $0)
 
 source $TMCOMMON
-source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
 
-#-------------------------------------------------------------------------------
-# Get Image information
-#-------------------------------------------------------------------------------
-
-DISK_ID=$(echo "$DST_PATH" | $AWK -F. '{print $NF}')
-
-XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
-
-unset i XPATH_ELEMENTS
-
-while IFS= read -r -d '' element; do
-    XPATH_ELEMENTS[i++]="$element"
-done < <(onedatastore show -x $DS_ID | $XPATH \
-                    /DATASTORE/TEMPLATE/HOST)
-
-unset i
-
-CEPH_HOST="${XPATH_ELEMENTS[i++]}"
-
-if [ -z "$CEPH_HOST" ]; then
-    error_message "Datastore template missing 'HOST' attribute."
-    exit -1
-fi
+DST_HOST=`arg_host $DST`
 
 #-------------------------------------------------------------------------------
 # Compute the destination image name
@@ -75,6 +52,6 @@ RBD_DST="${SRC_PATH}-${VM_ID}-${DISK_ID}"
 # Clone the image
 #-------------------------------------------------------------------------------
 
-ssh_exec_and_log "$CEPH_HOST" "$RBD copy $SRC_PATH $RBD_DST" \
-        "Error cloning $SRC_PATH to $RBD_DST in $CEPH_HOST"
+ssh_exec_and_log "$DST_HOST" "$RBD copy $SRC_PATH $RBD_DST" \
+        "Error cloning $SRC_PATH to $RBD_DST in $DST_HOST"
 exit 0

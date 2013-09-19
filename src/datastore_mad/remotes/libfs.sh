@@ -211,7 +211,14 @@ function check_restricted {
 #   @return host to be used as bridge
 #-------------------------------------------------------------------------------
 function get_destination_host {
-	HOSTS_ARRAY=($BRIDGE_LIST)
-    ARRAY_INDEX=`expr $1 % ${#HOSTS_ARRAY[@]}`
-	echo ${HOSTS_ARRAY[$ARRAY_INDEX]}
+    HOSTS_ARRAY=($BRIDGE_LIST)
+    N_HOSTS=${#HOSTS_ARRAY[@]}
+
+    if [ -n "$1" ]; then
+        ARRAY_INDEX=$(($1 % ${N_HOSTS}))
+    else
+        ARRAY_INDEX=$((RANDOM % ${N_HOSTS}))
+    fi
+
+    echo ${HOSTS_ARRAY[$ARRAY_INDEX]}
 }
