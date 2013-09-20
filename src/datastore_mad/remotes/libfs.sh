@@ -123,15 +123,37 @@ function set_downloader_args {
 #------------------------------------------------------------------------------
 
 function file_size {
-	stat --version &> /dev/null
+    stat --version &> /dev/null
 
-	if [ $? = 0 ]; then
-		STAT_CMD="stat -c %s"
-	else
-		STAT_CMD="stat -f %z"
-	fi
+    if [ $? = 0 ]; then
+        # Linux
+        STAT_CMD="stat -c %s"
+    else
+        # Darwin
+        STAT_CMD="stat -f %z"
+    fi
 
-	$STAT_CMD "$*"
+    $STAT_CMD "$*"
+}
+
+#------------------------------------------------------------------------------
+# Gets the size in bytes of a gzipped file
+#   @param $1 - Path to the image
+#   @return size of the image in bytes
+#------------------------------------------------------------------------------
+
+function gzip_file_size {
+    gzip -l "$1" | tail -n 1 | awk '{print $2}'
+}
+
+#------------------------------------------------------------------------------
+# Gets the size in bytes of a bzip2 file
+#   @param $1 - Path to the image
+#   @return size of the image in bytes
+#------------------------------------------------------------------------------
+
+function bzip2_file_size {
+    bzip2 -dc "$1" | wc -c
 }
 
 #-------------------------------------------------------------------------------
@@ -141,44 +163,55 @@ function file_size {
 #-------------------------------------------------------------------------------
 function fs_size {
 
-	case $1 in
-	http://*/download|https://*/download)
-		BASE_URL=${1%%/download}
-		HEADERS=`wget -S --spider --no-check-certificate $BASE_URL 2>&1`
+    case $1 in
+    http://*/download|https://*/download)
+        BASE_URL=${1%%/download}
+        HEADERS=`wget -S --spider --no-check-certificate $BASE_URL 2>&1`
 
-		echo $HEADERS | grep "market" > /dev/null 2>&1
+        echo $HEADERS | grep "market" > /dev/null 2>&1
 
-		if [ $? -eq 0 ]; then
-			#URL is from market place
-			SIZE=`wget -O - -S --no-check-certificate $BASE_URL 2>&1|grep -E "^ *\"size\": \"?[0-9]+\"?.$"|tr -dc 0-9`
-		else
-			#Not a marketplace URL
-			SIZE=`wget -S --spider --no-check-certificate $1 2>&1 | grep Content-Length  | cut -d':' -f2`
-		fi
-		error=$?
-	    ;;
-	http://*|https://*)
-		SIZE=`wget -S --spider --no-check-certificate $1 2>&1 | grep Content-Length  | cut -d':' -f2`
-		error=$?
-	    ;;
-	*)
-		if [ -d "$1" ]; then
-			SIZE=`du -sb "$1" | cut -f1`
-			error=$?
-		else
-			SIZE=$(file_size "$1")
-			error=$?
-		fi
-		;;
-	esac
+        if [ $? -eq 0 ]; then
+            #URL is from market place
+            SIZE=`wget -O - -S --no-check-certificate $BASE_URL 2>&1|grep -E "^ *\"size\": \"?[0-9]+\"?.$"|tr -dc 0-9`
+        else
+            #Not a marketplace URL
+            SIZE=`wget -S --spider --no-check-certificate $1 2>&1 | grep Content-Length  | cut -d':' -f2`
+        fi
+        error=$?
+        ;;
+    http://*|https://*)
+        SIZE=`wget -S --spider --no-check-certificate $1 2>&1 | grep Content-Length  | cut -d':' -f2`
+        error=$?
+        ;;
+    *)
+        if [ -d "$1" ]; then
+            SIZE=`du -sb "$1" | cut -f1`
+            error=$?
+        else
+            TYPE=$(cat "$1" | head -n 1024 | file -b --mime-type -)
+            case "$TYPE" in
+            "application/x-gzip")
+                SIZE=$(gzip_file_size "$1")
+                ;;
+            "application/x-bzip2")
+                SIZE=$(bzip2_file_size "$1")
+                ;;
+            *)
+                SIZE=$(file_size "$1")
+                ;;
+            esac
+            error=$?
+        fi
+        ;;
+    esac
 
-	if [ $error -ne 0 ]; then
-		SIZE=0
-	else
-		SIZE=$((($SIZE+1048575)/1048576))
-	fi
+    if [ $error -ne 0 ]; then
+        SIZE=0
+    else
+        SIZE=$((($SIZE+1048575)/1048576))
+    fi
 
-	echo "$SIZE"
+    echo "$SIZE"
 }
 
 #-------------------------------------------------------------------------------
