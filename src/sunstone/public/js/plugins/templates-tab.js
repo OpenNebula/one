@@ -4132,6 +4132,8 @@ function setupCreateTemplateDialog(){
         vm_json = {vmtemplate: vm_json};
         vm_json =JSON.stringify(vm_json);
 
+        vm_json=vm_json.replace(/\\\"/g,"'");
+
         Sunstone.runAction("Template.update",template_to_update_id,vm_json);
 
         $create_template_dialog.trigger("reveal:close")
@@ -4145,6 +4147,9 @@ function setupCreateTemplateDialog(){
         //wrap it in the "vm" object
         template = {"vmtemplate": {"template_raw": template}};
         var vm_json = JSON.stringify(template);
+
+        vm_json=vm_json.replace(/\\\"/g,"'");
+
         Sunstone.runAction("Template.update",template_to_update_id,vm_json);
 
         $create_template_dialog.trigger("reveal:close")
@@ -4163,15 +4168,6 @@ function setupCreateTemplateDialog(){
         $create_template_dialog.trigger("reveal:close")
         return false;
     });
-
-    //Reset form - empty boxes
-    //$('button#reset_vm_form',dialog).click(function(){
-    //    $('select#disks_box option',section_disks).remove();
-    //   $('select#nics_box option',section_networks).remove();
-    //    $('select#inputs_box option',section_inputs).remove();
-    //    $('select#custom_var_box option',section_custom_var).remove();
-    //    return true;
-    //});
 }
 
 function popUpUpdateTemplateDialog(){
@@ -4187,9 +4183,6 @@ function popUpUpdateTemplateDialog(){
 
     $('#template_name_form', $create_template_dialog).hide();
     $('#NAME').attr("disabled", "disabled");;
-
-    //$('#wizard_mode', $create_template_dialog).hide();
-    //$('#advanced_mode_a', $create_template_dialog).click();
 
     $create_template_dialog.reveal();
 };
@@ -4365,7 +4358,6 @@ function fillTemplatePopUp(request, response){
         // TODO updateView should not be required. Currently the dataTable
         //  is filled twice.
         update_datatable_template_networks(dataTable_template_networks, function(){
-            //dataTable_template_networks.unbind('draw');
 
             if (nic_network_id) {
                 var clicked = false
