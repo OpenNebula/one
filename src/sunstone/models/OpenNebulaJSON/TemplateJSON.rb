@@ -66,6 +66,12 @@ module OpenNebulaJSON
                 template = template_to_str(template_hash)
             end
 
+            # Substitue single quotes (not supported by ONE core) 
+            # with \" (supported)
+            template.gsub!(/'/,"\\\"")
+
+            File.open("/tmp/opa","w"){|f| f.write template}
+
             super(template)
         end
 
