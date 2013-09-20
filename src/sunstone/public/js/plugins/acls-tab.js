@@ -631,5 +631,7 @@ $(document).ready(function(){
         infoListener(dataTable_acls);
 
         $('div#acls_tab div.legend_div').hide();
+        
+        dataTable_acls.fnSort( [ [1,config['user_config']['table_order']] ] );
     }
 })

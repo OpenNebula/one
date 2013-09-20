@@ -1034,5 +1034,7 @@ $(document).ready(function(){
 
       // Hide help
       $('div#hosts_tab div.legend_div',main_tabs_context).hide();
+
+      dataTable_hosts.fnSort( [ [1,config['user_config']['table_order']] ] );
     }
 });

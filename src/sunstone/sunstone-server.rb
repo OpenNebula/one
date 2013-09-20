@@ -170,6 +170,7 @@ helpers do
             #Load options either from user settings or default config.
             # - LANG
             # - WSS CONECTION
+            # - TABLE ORDER
 
             if user['TEMPLATE/LANG']
                 session[:lang] = user['TEMPLATE/LANG']
@@ -184,6 +185,12 @@ helpers do
                 #limit to yes,no options
                 session[:vnc_wss] = (wss == true || wss == "yes" || wss == "only" ?
                                  "yes" : "no")
+            end
+
+            if user['TEMPLATE/TABLE_ORDER']
+                session[:table_order] = user['TEMPLATE/TABLE_ORDER']
+            else
+                session[:table_order] = $conf[:table_order]
             end
 
             if user['TEMPLATE/DEFAULT_VIEW']

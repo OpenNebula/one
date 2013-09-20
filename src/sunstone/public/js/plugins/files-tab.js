@@ -980,5 +980,6 @@ $(document).ready(function(){
       infoListener(dataTable_files,'File.showinfo');
 
       $('div#files_tab div.legend_div').hide();
+      dataTable_files.fnSort( [ [1,config['user_config']['table_order']] ] );
     }
 });

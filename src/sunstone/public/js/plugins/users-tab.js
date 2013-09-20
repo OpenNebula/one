@@ -984,5 +984,7 @@ $(document).ready(function(){
 
       $('div#users_tab div.legend_div').hide();
       $('div#users_tab_non_admin div.legend_div').hide();
+
+      dataTable_users.fnSort( [ [1,config['user_config']['table_order']] ] );
     }
 });

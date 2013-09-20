@@ -5152,5 +5152,7 @@ $(document).ready(function(){
       infoListener(dataTable_templates,'Template.showinfo');
 
       $('div#templates_tab div.legend_div').hide();
+
+      dataTable_templates.fnSort( [ [1,config['user_config']['table_order']] ] );
     }
 });

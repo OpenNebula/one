@@ -1177,5 +1177,6 @@ $(document).ready(function(){
       });
 
       $('div#datastores_tab div.legend_div').hide();
+      dataTable_datastores.fnSort( [ [1,config['user_config']['table_order']] ] );
     }
 })

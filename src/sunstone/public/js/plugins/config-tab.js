@@ -78,6 +78,10 @@ Config = {
       else {
         return [];
       }
+    },
+
+    "tableOrder": function(){
+        return config['user_config']["table_order"];
     }
 }
 
@@ -135,6 +139,17 @@ var config_tab_content =
             </div>\
             <div class="six columns">\
                <select id="view_sel">\
+               </select>\
+            </div>\
+        </div>\
+        <div class="row">\
+            <div class="six columns">\
+              <label class="right inline" for="table_order" >' + tr("Default Table order") + ':</label>\
+            </div>\
+            <div class="six columns">\
+               <select id="table_order">\
+                 <option value="asc">ascending</option>\
+                 <option value="desc">descending</option>\
                </select>\
             </div>\
         </div>\
@@ -268,6 +283,8 @@ function setupConfigDialog() {
         $('input#wss_checkbox').attr('checked','checked');
     };
 
+    $('#table_order option[value="'+config['user_config']["table_order"]+'"]', dialog).attr('selected','selected');
+
     $('#lang_sel option[value="'+config['user_config']["lang"]+'"]', dialog).attr('selected','selected');
 
     $.each( config['available_views'], function(id, view) {
@@ -279,7 +296,8 @@ function setupConfigDialog() {
     $('#config_submit', dialog).live('click',function(){
       var lang = $('#lang_sel', dialog).val();
       var vnc_wss = $('input#wss_checkbox', dialog).is(':checked') ? "yes" : "no";
-      var default_view = $('#view_sel', dialog).val()
+      var table_order = $('#table_order', dialog).val();
+      var default_view = $('#view_sel', dialog).val();
 
       OpenNebula.User.show({
         data : {
@@ -290,6 +308,7 @@ function setupConfigDialog() {
 
           template["LANG"] = lang;
           template['VNC_WSS'] = vnc_wss;
+          template['TABLE_ORDER'] = table_order;
           template["DEFAULT_VIEW"] = default_view;
 
           template_str = "";

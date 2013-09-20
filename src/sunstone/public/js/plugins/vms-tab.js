@@ -3178,7 +3178,7 @@ $(document).ready(function(){
               { "bSortable": false, "aTargets": ["check",6,7,9,11] },
               { "sWidth": "35px", "aTargets": [0] },
               { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
-              { "bVisible": false, "aTargets": ['_all']}
+              { "bVisible": false, "aTargets": ['_all']},
           ]
       });
 
@@ -3205,5 +3205,8 @@ $(document).ready(function(){
       infoListener(dataTable_vMachines,'VM.showinfo');
 
       $('div#vms_tab div.legend_div').hide();
+
+
+      dataTable_vMachines.fnSort( [ [1,config['user_config']['table_order']] ] );
     }
 })

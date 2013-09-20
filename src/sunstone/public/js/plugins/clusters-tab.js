@@ -1474,5 +1474,6 @@ $(document).ready(function(){
       initCheckAllBoxes(dataTable_clusters);
       tableCheckboxesListener(dataTable_clusters);
       infoListener(dataTable_clusters, "Cluster.showinfo");
+      dataTable_clusters.fnSort( [ [1,config['user_config']['table_order']] ] );
     }
 });

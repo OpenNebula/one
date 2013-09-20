@@ -639,5 +639,7 @@ $(document).ready(function(){
 
       $('div#groups_tab div.legend_div').hide();
       $('div#groups_tab_non_admin div.legend_div').hide();
+
+      dataTable_groups.fnSort( [ [1,config['user_config']['table_order']] ] );
     }
 })
