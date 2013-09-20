@@ -70,8 +70,6 @@ module OpenNebulaJSON
             # with \" (supported)
             template.gsub!(/'/,"\\\"")
 
-            File.open("/tmp/opa","w"){|f| f.write template}
-
             super(template)
         end
 
