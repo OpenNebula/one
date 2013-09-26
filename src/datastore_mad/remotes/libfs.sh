@@ -146,16 +146,6 @@ function gzip_file_size {
     gzip -l "$1" | tail -n 1 | awk '{print $2}'
 }
 
-#------------------------------------------------------------------------------
-# Gets the size in bytes of a bzip2 file
-#   @param $1 - Path to the image
-#   @return size of the image in bytes
-#------------------------------------------------------------------------------
-
-function bzip2_file_size {
-    bzip2 -dc "$1" | wc -c
-}
-
 #-------------------------------------------------------------------------------
 # Computes the size of an image
 #   @param $1 - Path to the image
@@ -192,9 +182,6 @@ function fs_size {
             case "$TYPE" in
             "application/x-gzip")
                 SIZE=$(gzip_file_size "$1")
-                ;;
-            "application/x-bzip2")
-                SIZE=$(bzip2_file_size "$1")
                 ;;
             *)
                 SIZE=$(file_size "$1")
