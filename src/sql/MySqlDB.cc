@@ -21,6 +21,8 @@
  * Doc: http://dev.mysql.com/doc/refman/5.5/en/c-api-function-overview.html
  ********/
 
+const int MySqlDB::DB_CONNECT_SIZE = 10;
+
 /* -------------------------------------------------------------------------- */
 
 MySqlDB::MySqlDB(
@@ -30,6 +32,11 @@ MySqlDB::MySqlDB(
         const string& _password,
         const string& _database)
 {
+    vector<MYSQL *> connections(DB_CONNECT_SIZE);
+    MYSQL * rc;
+
+    ostringstream oss;
+
     server   = _server;
     port     = _port;
     user     = _user;
@@ -39,30 +46,88 @@ MySqlDB::MySqlDB(
     // Initialize the MySQL library
     mysql_library_init(0, NULL, NULL);
 
-    // Initialize a connection handler
-    db = mysql_init(NULL);
-
-    // Connect to the server
-    if (!mysql_real_connect(db, server.c_str(), user.c_str(),
-                            password.c_str(), 0, port, NULL, 0))
+    // Create connection pool to the server
+    for (int i=0 ; i < DB_CONNECT_SIZE ; i++)
     {
-        throw runtime_error("Could not open database.");
+        connections[i] = mysql_init(NULL);
+
+        rc = mysql_real_connect(connections[i],
+                                server.c_str(),
+                                user.c_str(),
+                                password.c_str(),
+                                0,
+                                port,
+                                NULL,
+                                0);
+        if ( rc == NULL)
+        {
+            throw runtime_error("Could not open connect to database server.");
+        }
+    }
+
+    db_escape_connect = mysql_init(NULL);
+
+    rc = mysql_real_connect(db_escape_connect,
+                            server.c_str(),
+                            user.c_str(),
+                            password.c_str(),
+                            0,
+                            port,
+                            NULL,
+                            0);
+
+    if ( rc == NULL)
+    {
+        throw runtime_error("Could not open connect to database server.");
+    }
+
+    //Connect to the database & initialize connection pool
+    oss << "CREATE DATABASE IF NOT EXISTS " << database;
+
+    if ( mysql_query(connections[0], oss.str().c_str()) != 0 )
+    {
+        throw runtime_error("Could not create the database.");
+    }
+
+    oss.str("");
+    oss << "USE " << database;
+
+    for (int i=0 ; i < DB_CONNECT_SIZE ; i++)
+    {
+        if ( mysql_query(connections[i], oss.str().c_str()) != 0 )
+        {
+            throw runtime_error("Could not connect to the database.");
+        }
+
+        db_connect.push(connections[i]);
     }
 
     pthread_mutex_init(&mutex,0);
+
+    pthread_cond_init(&cond,0);
 }
 
 /* -------------------------------------------------------------------------- */
 
 MySqlDB::~MySqlDB()
 {
-    // Close the connection to the MySQL server
-    mysql_close(db);
+    // Close the connections to the MySQL server
+    while (!db_connect.empty())
+    {
+        MYSQL * db = db_connect.front();
+        db_connect.pop();
+
+        mysql_close(db);
+    }
+
+    mysql_close(db_escape_connect);
 
     // End use of the MySQL library
     mysql_library_end();
 
     pthread_mutex_destroy(&mutex);
+
+    pthread_cond_destroy(&cond);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -77,7 +142,9 @@ int MySqlDB::exec(ostringstream& cmd, Callbackable* obj)
     str   = cmd.str();
     c_str = str.c_str();
 
-    lock();
+    MYSQL *db;
+
+    db = get_db_connection();
 
     rc = mysql_query(db, c_str);
 
@@ -111,7 +178,7 @@ int MySqlDB::exec(ostringstream& cmd, Callbackable* obj)
 
         NebulaLog::log("ONE",Log::ERROR,oss);
 
-        unlock();
+        free_db_connection(db);
 
         return -1;
     }
@@ -139,7 +206,7 @@ int MySqlDB::exec(ostringstream& cmd, Callbackable* obj)
 
             NebulaLog::log("ONE",Log::ERROR,oss);
 
-            unlock();
+            free_db_connection(db);
 
             return -1;
         }
@@ -167,7 +234,7 @@ int MySqlDB::exec(ostringstream& cmd, Callbackable* obj)
         delete[] names;
     }
 
-    unlock();
+    free_db_connection(db);
 
     return 0;
 }
@@ -178,7 +245,7 @@ char * MySqlDB::escape_str(const string& str)
 {
     char * result = new char[str.size()*2+1];
 
-    mysql_real_escape_string(db, result, str.c_str(), str.size());
+    mysql_real_escape_string(db_escape_connect, result, str.c_str(), str.size());
 
     return result;
 }
@@ -188,6 +255,41 @@ char * MySqlDB::escape_str(const string& str)
 void MySqlDB::free_str(char * str)
 {
     delete[] str;
+}
+
+/* -------------------------------------------------------------------------- */
+
+MYSQL * MySqlDB::get_db_connection()
+{
+    MYSQL *db;
+
+    pthread_mutex_lock(&mutex);
+
+    while ( db_connect.empty() == true )
+    {
+        pthread_cond_wait(&cond, &mutex);
+    }
+
+    db = db_connect.front();
+
+    db_connect.pop();
+
+    pthread_mutex_unlock(&mutex);
+
+    return db;
+}
+
+/* -------------------------------------------------------------------------- */
+
+void MySqlDB::free_db_connection(MYSQL * db)
+{
+    pthread_mutex_lock(&mutex);
+
+    db_connect.push(db);
+
+    pthread_cond_signal(&cond);
+
+    pthread_mutex_unlock(&mutex);
 }
 
 /* -------------------------------------------------------------------------- */

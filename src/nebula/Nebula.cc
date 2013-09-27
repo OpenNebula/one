@@ -454,22 +454,6 @@ void Nebula::start()
             ostringstream   oss;
 
             db = new MySqlDB(server,port,user,passwd,db_name);
-
-            oss << "CREATE DATABASE IF NOT EXISTS " << db_name;
-            rc = db->exec(oss);
-
-            if ( rc != 0 )
-            {
-                throw runtime_error("Could not create database.");
-            }
-
-            oss.str("");
-            oss << "USE " << db_name;
-            rc = db->exec(oss);
-            if ( rc != 0 )
-            {
-                throw runtime_error("Could not open database.");
-            }
         }
 
         // ---------------------------------------------------------------------

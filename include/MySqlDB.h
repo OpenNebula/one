@@ -20,6 +20,7 @@
 #include <string>
 #include <sstream>
 #include <stdexcept>
+#include <queue>
 
 #include <sys/time.h>
 #include <sys/types.h>
@@ -77,9 +78,19 @@ public:
 private:
 
     /**
-     * The MySql connection handler
+     *  Number of concurrent DB connections.
      */
-    MYSQL *             db;
+    static const int  DB_CONNECT_SIZE;
+
+    /**
+     * The MySql connection pool handler
+     */
+    queue<MYSQL *> db_connect;
+
+    /**
+     * Cached DB connection to escape strings (it uses the server character set)
+     */
+    MYSQL *        db_escape_connect;
 
     /**
      *  MySQL Connection parameters
@@ -95,25 +106,24 @@ private:
     string              database;
 
     /**
-     *  Fine-grain mutex for DB access
+     *  Fine-grain mutex for DB access (pool of DB connections)
      */
-    pthread_mutex_t     mutex;
+    pthread_mutex_t mutex;
 
     /**
-     *  Function to lock the DB
+     *  Conditional variable to wake-up waiting threads.
      */
-    void lock()
-    {
-        pthread_mutex_lock(&mutex);
-    };
+    pthread_cond_t  cond;
 
     /**
-     *  Function to unlock the DB
+     *  Gets a free DB connection from the pool.
      */
-    void unlock()
-    {
-        pthread_mutex_unlock(&mutex);
-    };
+    MYSQL * get_db_connection();
+
+    /**
+     *  Returns the connection to the pool.
+     */
+    void    free_db_connection(MYSQL * db);
 };
 #else
 //CLass stub
