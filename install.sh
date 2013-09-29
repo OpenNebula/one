@@ -755,6 +755,7 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/im_mad/ec2/one_im_ec2 \
               src/im_mad/dummy/one_im_dummy.rb \
               src/im_mad/dummy/one_im_dummy \
+              src/im_mad/collectd/collectd \
               src/tm_mad/one_tm \
               src/tm_mad/one_tm.rb \
               src/hm_mad/one_hm.rb \

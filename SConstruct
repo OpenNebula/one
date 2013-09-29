@@ -246,7 +246,8 @@ build_scripts=[
     'share/man/SConstruct',
     'src/sunstone/locale/languages/SConstruct',
     'share/scripts/context-packages/SConstruct',
-    'share/rubygems/SConstruct'
+    'share/rubygems/SConstruct',
+    'src/im_mad/collectd/SConstruct'
 ]
 
 # Testing
