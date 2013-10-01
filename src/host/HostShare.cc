@@ -27,10 +27,7 @@
 /* HostShare :: Constructor/Destructor                                      */
 /* ************************************************************************ */
 
-HostShare::HostShare(
-        int     _max_disk,
-        int     _max_mem,
-        int     _max_cpu):
+HostShare::HostShare(long long _max_disk,long long _max_mem,long long _max_cpu):
         ObjectXML(),
         disk_usage(0),
         mem_usage(0),

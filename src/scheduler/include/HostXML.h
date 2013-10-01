@@ -47,7 +47,7 @@ public:
      *    @param disk needed by the VM
      *    @return true if the share can host the VM
      */
-    bool test_capacity(int cpu, int mem, int disk) const
+    bool test_capacity(long long cpu, long long mem, long long disk) const
     {
         return (((max_cpu  - cpu_usage ) >= cpu) &&
                 ((max_mem  - mem_usage ) >= mem) &&
@@ -62,7 +62,7 @@ public:
      *    @param disk needed by the VM
      *    @return 0 on success
      */
-    void add_capacity(int cpu, int mem, int disk)
+    void add_capacity(long long cpu, long long mem, long long disk)
     {
         cpu_usage  += cpu;
         mem_usage  += mem;
@@ -84,15 +84,15 @@ private:
     int oid;
 
     // Host share values
-    int disk_usage; /**< Disk allocated to VMs (in Mb).        */
-    int mem_usage;  /**< Memory allocated to VMs (in KB)       */
-    int cpu_usage;  /**< CPU  allocated to VMs (in percentage) */
+    long long disk_usage; /**< Disk allocated to VMs (in Mb).        */
+    long long mem_usage;  /**< Memory allocated to VMs (in KB)       */
+    long long cpu_usage;  /**< CPU  allocated to VMs (in percentage) */
 
-    int max_disk;   /**< Total disk capacity (in Mb)           */
-    int max_mem;    /**< Total memory capacity (in KB)         */
-    int max_cpu;    /**< Total cpu capacity (in percentage)    */
+    long long max_disk;   /**< Total disk capacity (in Mb)           */
+    long long max_mem;    /**< Total memory capacity (in KB)         */
+    long long max_cpu;    /**< Total cpu capacity (in percentage)    */
 
-    int running_vms; /**< Number of running VMs in this Host   */
+    long long running_vms; /**< Number of running VMs in this Host   */
 
     static float hypervisor_mem; /**< Fraction of memory for the VMs */
 

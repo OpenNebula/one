@@ -207,67 +207,67 @@ public:
     // metric
     // ------------------------------------------------------------------------
 
-    int get_share_running_vms()
+    long long get_share_running_vms()
     {
         return host_share.running_vms;
     }
 
-    int get_share_disk_usage()
+    long long get_share_disk_usage()
     {
         return host_share.disk_usage;
     }
 
-    int get_share_mem_usage()
+    long long get_share_mem_usage()
     {
         return host_share.mem_usage;
     }
 
-    int get_share_cpu_usage()
+    long long get_share_cpu_usage()
     {
         return host_share.cpu_usage;
     }
 
-    int get_share_max_disk()
+    long long get_share_max_disk()
     {
         return host_share.max_disk;
     }
 
-    int get_share_max_mem()
+    long long get_share_max_mem()
     {
         return host_share.max_mem;
     }
 
-    int get_share_max_cpu()
+    long long get_share_max_cpu()
     {
         return host_share.max_cpu;
     }
 
-    int get_share_free_disk()
+    long long get_share_free_disk()
     {
         return host_share.free_disk;
     }
 
-    int get_share_free_mem()
+    long long get_share_free_mem()
     {
         return host_share.free_mem;
     }
 
-    int get_share_free_cpu()
+    long long get_share_free_cpu()
     {
         return host_share.free_cpu;
     }
 
-    int get_share_used_disk()
+    long long get_share_used_disk()
     {
         return host_share.used_disk;
     }
 
-    int get_share_used_mem()
+    long long get_share_used_mem()
     {
         return host_share.used_mem;
     }
 
-    int get_share_used_cpu()
+    long long get_share_used_cpu()
     {
         return host_share.used_cpu;
     }
@@ -281,7 +281,7 @@ public:
      *    @param disk needed by the VM
      *    @return 0 on success
      */
-    void add_capacity(int vm_id, int cpu, int mem, int disk)
+    void add_capacity(int vm_id, long long cpu, long long mem, long long disk)
     {
         if ( vm_collection.add_collection_id(vm_id) == 0 )
         {
@@ -306,7 +306,7 @@ public:
      *    @param disk used by the VM
      *    @return 0 on success
      */
-    void del_capacity(int vm_id, int cpu, int mem, int disk)
+    void del_capacity(int vm_id, long long cpu, long long mem, long long disk)
     {
         if ( vm_collection.del_collection_id(vm_id) == 0 )
         {
@@ -329,7 +329,7 @@ public:
      *    @param disk needed by the VM
      *    @return true if the share can host the VM
      */
-    bool test_capacity(int cpu, int mem, int disk)
+    bool test_capacity(long long cpu, long long mem, long long disk)
     {
         return host_share.test(cpu,mem,disk);
     }

@@ -186,19 +186,19 @@ int Host::update_info(string &parse_str)
     }
 
     get_template_attribute("TOTALCPU", fv);
-    host_share.max_cpu = static_cast<int>(fv);
+    host_share.max_cpu = static_cast<long long>(fv);
     get_template_attribute("TOTALMEMORY", fv);
-    host_share.max_mem = static_cast<int>(fv);
+    host_share.max_mem = static_cast<long long>(fv);
 
     get_template_attribute("FREECPU", fv);
-    host_share.free_cpu = static_cast<int>(fv);
+    host_share.free_cpu = static_cast<long long>(fv);
     get_template_attribute("FREEMEMORY", fv);
-    host_share.free_mem = static_cast<int>(fv);
+    host_share.free_mem = static_cast<long long>(fv);
 
     get_template_attribute("USEDCPU", fv);
-    host_share.used_cpu = static_cast<int>(fv);
+    host_share.used_cpu = static_cast<long long>(fv);
     get_template_attribute("USEDMEMORY", fv);
-    host_share.used_mem = static_cast<int>(fv);
+    host_share.used_mem = static_cast<long long>(fv);
 
     return 0;
 }
