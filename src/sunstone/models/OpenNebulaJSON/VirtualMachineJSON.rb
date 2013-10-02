@@ -88,7 +88,7 @@ module OpenNebulaJSON
         end
 
         def deploy(params=Hash.new)
-            super(params['host_id'])
+            super(params['host_id'], params['enforce'], params['ds_id'])
         end
 
         def undeploy(params=Hash.new)

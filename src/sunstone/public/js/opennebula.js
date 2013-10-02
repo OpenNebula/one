@@ -704,7 +704,7 @@ var OpenNebula = {
             OpenNebula.Action.show(params,OpenNebula.VM.resource,"log");
         },
         "deploy": function(params){
-            var action_obj = {"host_id": params.data.extra_param};
+            var action_obj = params.data.extra_param;
             OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
                                             "deploy",action_obj);
         },

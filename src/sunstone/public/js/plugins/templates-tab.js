@@ -1366,6 +1366,28 @@ function update_datatable_template_hosts(datatable, fnDrawCallback) {
   });
 }
 
+function update_datatable_template_datastores(datatable, fnDrawCallback) {
+    if (fnDrawCallback) {
+        datatable.unbind('draw');
+        datatable.on('draw', fnDrawCallback);
+    }
+
+    OpenNebula.Datastore.list({
+    timeout: true,
+    success: function (request, datastore_list){
+        var datastore_list_array = [];
+
+        $.each(datastore_list,function(){
+            //Grab table data from the datastore_list
+            datastore_list_array.push(datastoreElementArray(this));
+        });
+
+        updateView(datastore_list_array, datatable);
+    },
+    error: onError
+  });
+}
+
 function update_datatable_template_clusters(datatable, fnDrawCallback) {
     if (fnDrawCallback) {
         datatable.unbind('draw');
@@ -3510,23 +3532,17 @@ function setupCreateTemplateDialog(){
                   '<fieldset class="host_rank">'+
                     '<legend>'+tr("Host Rank")+'</legend>'+
                       '<div class="row">'+
-                        '<div class="two columns push-two">'+
-                          '<input type="radio" id="packingRadio" name="rank_select" value="RUNNING_VMS"> '+tr("Packing")+
+                        '<div class="four columns" style="text-align:center">'+
+                            '<input type="radio" id="packingRadio" name="rank_select" value="RUNNING_VMS"> '+tr("Packing")+
+                            '&nbsp;&nbsp;<span class="tip">'+tr("Pack the VMs in the cluster nodes to reduce VM fragmentation")+'</span>'+
                         '</div>'+
-                        '<div class="one columns push-two">'+
-                          '<div class="tip">'+tr("Pack the VMs in the cluster nodes to reduce VM fragmentation")+'</div>'+
+                        '<div class="four columns" style="text-align:center">'+
+                            '<input type="radio"  id="stripingRadio" name="rank_select" value="-RUNNING_VMS"> '+tr("Stripping")+
+                            '&nbsp;&nbsp;<span class="tip">'+tr("Spread the VMs in the cluster nodes")+'</span>'+
                         '</div>'+
-                        '<div class="two columns push-two">'+
-                          '<input type="radio"  id="stripingRadio" name="rank_select" value="-RUNNING_VMS"> '+tr("Stripping")+
-                        '</div>'+
-                        '<div class="one columns push-two">'+
-                          '<div class="tip">'+tr("Spread the VMs in the cluster nodes")+'</div>'+
-                        '</div>'+
-                        '<div class="two columns push-two">'+
-                          '<input type="radio"  id="loadawareRadio" name="rank_select" value="FREECPU"> '+tr("Load-aware")+
-                        '</div>'+
-                        '<div class="two columns">'+
-                          '<div class="tip">'+tr("Maximize the resources available to VMs in a node")+'</div>'+
+                        '<div class="four columns" style="text-align:center">'+
+                            '<input type="radio"  id="loadawareRadio" name="rank_select" value="FREECPU"> '+tr("Load-aware")+
+                            '&nbsp;&nbsp;<span class="tip">'+tr("Maximize the resources available to VMs in a node")+'</span>'+
                         '</div>'+
                       '</div>'+
                       '<hr>'+
@@ -3546,17 +3562,13 @@ function setupCreateTemplateDialog(){
                   '<fieldset class="ds_rank">'+
                     '<legend>'+tr("Datastore Rank")+'</legend>'+
                       '<div class="row">'+
-                        '<div class="four columns push-two">'+
+                        '<div class="six columns" style="text-align:center">'+
                           '<input type="radio" id="packingRadio" name="ds_rank_select" value="-FREE_MB"> '+tr("Packing")+
+                          '&nbsp;&nbsp;<span class="tip">'+tr("Tries to optimize storage usage by selecting the DS with less free space")+'</span>'+
                         '</div>'+
-                        '<div class="two columns">'+
-                          '<div class="tip">'+tr("Tries to optimize storage usage by selecting the DS with less free space")+'</div>'+
-                        '</div>'+
-                        '<div class="four columns push-two">'+
+                        '<div class="six columns" style="text-align:center">'+
                           '<input type="radio"  id="stripingRadio" name="ds_rank_select" value="FREE_MB"> '+tr("Stripping")+
-                        '</div>'+
-                        '<div class="two columns">'+
-                          '<div class="tip">'+tr("Striping. Tries to optimize I/O by distributing the VMs across datastores.")+'</div>'+
+                          '&nbsp;&nbsp;<span class="tip">'+tr("Striping. Tries to optimize I/O by distributing the VMs across datastores.")+'</span>'+
                         '</div>'+
                       '</div>'+
                       '<hr>'+
