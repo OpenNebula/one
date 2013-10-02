@@ -99,6 +99,13 @@ public:
     };
 
     /**
+     *  Return the string representation of a DiskType
+     *    @param s_disk_type string representing the DiskTypr
+     *    @return the DiskType (defaults to FILE)
+     */
+    static DiskType str_to_disk_type(string& s_disk_type);
+
+    /**
      *  Image State
      */
     enum ImageState
