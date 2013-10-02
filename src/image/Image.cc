@@ -27,6 +27,7 @@
 
 #include "AuthManager.h"
 #include "UserPool.h"
+#include "NebulaUtil.h"
 
 #define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
 
@@ -707,4 +708,29 @@ Image::ImageType Image::str_to_type(string& str_type)
     }
 
     return it;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+Image::DiskType Image::str_to_disk_type(string& s_disk_type)
+{
+    Image::DiskType type = FILE;
+
+    one_util::toupper(s_disk_type);
+
+    if (s_disk_type == "BLOCK")
+    {
+        type = Image::BLOCK;
+    }
+    else if (s_disk_type == "CDROM")
+    {
+        type = Image::CD_ROM;
+    }
+    else if (s_disk_type == "RBD")
+    {
+        type = Image::RBD;
+    }
+
+    return type;
 }
