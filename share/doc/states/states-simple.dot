@@ -37,6 +37,7 @@ digraph OpenNebula {
     running     -> shutdown [label="shutdown"];
     shutdown    -> epilog [label="shutdown", style="dashed"];
     epilog      -> done [label="shutdown", style="dashed"];
+    unknown     -> epilog [label="shutdown --hard"];
 
 #   poweroff
     running     -> shutdown [label="poweroff"];
