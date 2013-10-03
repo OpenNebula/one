@@ -135,6 +135,7 @@ int Datastore::insert(SqlDB *db, string& error_str)
     ostringstream oss;
     string        s_disk_type;
     string        s_ds_type;
+    string        datastore_location;
 
     // -------------------------------------------------------------------------
     // Check default datastore attributes
@@ -166,6 +167,27 @@ int Datastore::insert(SqlDB *db, string& error_str)
     if ( tm_mad.empty() == true )
     {
         goto error_tm;
+    }
+
+
+    get_template_attribute("DATASTORE_LOCATION", datastore_location);
+
+    if (datastore_location.empty() == true )
+    {
+        Nebula& nd = Nebula::instance();
+        nd.get_configuration_attribute("DATASTORE_LOCATION", datastore_location);
+    }
+
+    // If default value provided, use it
+    // If not, default to /var/lib/one (already present in base_path)
+    if (datastore_location.empty() != true )
+    {
+        base_path = datastore_location;
+    }
+
+    if ( base_path.at(base_path.size()-1) != '/' )
+    {
+        base_path += "/";
     }
 
     oss << base_path << oid; //base_path points to ds_location - constructor
