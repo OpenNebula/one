@@ -11,7 +11,7 @@
     <% erb_vms.each { |vm| %>
     <item>
       <%= render_instance_id(vm) %>
-      <imageId><%= erb_vm_info[:ec2_img_id] %></imageId>
+      <imageId><%= params['ImageId'] %></imageId>
       <instanceState><%= render_state(vm) %></instanceState>
       <% if vm.has_elements?("TEMPLATE/NIC/IP") %>
       <% ips_str = vm.retrieve_elements("TEMPLATE/NIC/IP").join(', ') %>
@@ -25,7 +25,7 @@
       <keyName><%= vm['TEMPLATE/CONTEXT/EC2_KEYNAME'] %></keyName>
       <% end %>
       <amiLaunchIndex><%= vm.id %></amiLaunchIndex>
-      <instanceType><%= erb_vm_info[:instance_type] %></instanceType>
+      <instanceType><%= params['InstanceType'] %></instanceType>
       <%= render_launch_time(vm) %>
       <placement>
         <availabilityZone>default</availabilityZone>
