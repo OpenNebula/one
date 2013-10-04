@@ -101,34 +101,7 @@ stmt:   expr                { result = static_cast<int>($1);}
         |                   { result = 0; }
         ;
 
-expr:   STRING              { float val = 0.0;
-
-                              vector<string> results;
-
-                              if ($1[0] == '/')
-                              {
-                                  results = (*oxml)[$1];
-                              }
-                              else
-                              {
-                                  ostringstream  xpath_t;
-
-                                  xpath_t << "/HOST/TEMPLATE/" << $1
-                                          << "|/HOST/HOST_SHARE/" << $1
-                                          << "|/HOST/" << $1
-                                          << "|/HOST/CLUSTER_TEMPLATE/" << $1;
-
-                                  results = (*oxml)[xpath_t.str().c_str()];
-                              }
-
-                              if (results.size() != 0)
-                              {
-                                  istringstream iss(results[0]);
-                                  iss >> val;
-                              }
-
-                              $$ = val;
-                            }
+expr:   STRING              { float val; oxml->search($1, val); $$ = val; }
         | FLOAT             { $$ = $1; }
         | INTEGER           { $$ = static_cast<float>($1); }
         | expr '+' expr     { $$ = $1 + $3;}

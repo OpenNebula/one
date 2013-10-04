@@ -34,9 +34,9 @@ const char * Cluster::db_bootstrap = "CREATE TABLE IF NOT EXISTS cluster_pool ("
     "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
     "UNIQUE(name))";
 
-/* ************************************************************************ */
-/* Cluster :: Constructor/Destructor                                        */
-/* ************************************************************************ */
+/* ************************************************************************** */
+/* Cluster :: Constructor/Destructor                                          */
+/* ************************************************************************** */
 
 Cluster::Cluster(
         int id,
@@ -45,8 +45,7 @@ Cluster::Cluster(
             PoolObjectSQL(id,CLUSTER,name,-1,-1,"","",table),
             hosts("HOSTS"),
             datastores("DATASTORES"),
-            vnets("VNETS"),
-            system_ds(DatastorePool::SYSTEM_DS_ID)
+            vnets("VNETS")
 {
     if (cl_template != 0)
     {
@@ -58,8 +57,8 @@ Cluster::Cluster(
     }
 }
 
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int Cluster::check_drop(string& error_msg)
 {
@@ -97,8 +96,8 @@ error_common:
     return -1;
 }
 
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 string& Cluster::get_ds_location(string &ds_location)
 {
@@ -114,8 +113,8 @@ string& Cluster::get_ds_location(string &ds_location)
     return ds_location;
 }
 
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int Cluster::add_datastore(int id, Datastore::DatastoreType ds_type, string& error_msg)
 {
@@ -130,36 +129,18 @@ int Cluster::add_datastore(int id, Datastore::DatastoreType ds_type, string& err
         return -1;
     }
 
-    if ( ds_type == Datastore::SYSTEM_DS )
-    {
-        if ( system_ds != DatastorePool::SYSTEM_DS_ID )
-        {
-            ostringstream oss;
-            oss << "Cluster " << oid << " already contains the System Datastore "
-                << system_ds << ".";
-
-            error_msg = oss.str();
-
-            return -1;
-        }
-    }
-
     int rc = datastores.add_collection_id(id);
 
     if ( rc < 0 )
     {
         error_msg = "Datastore ID is already in the cluster set.";
     }
-    else if ( ds_type == Datastore::SYSTEM_DS )
-    {
-        system_ds = id;
-    }
 
     return rc;
 }
 
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int Cluster::del_datastore(int id, string& error_msg)
 {
@@ -169,17 +150,45 @@ int Cluster::del_datastore(int id, string& error_msg)
     {
         error_msg = "Datastore ID is not part of the cluster set.";
     }
-    else if ( system_ds == id )
-    {
-        system_ds = DatastorePool::SYSTEM_DS_ID;
-    }
 
     return rc;
 }
 
-/* ************************************************************************ */
-/* Cluster :: Database Access Functions                                     */
-/* ************************************************************************ */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Cluster::get_default_sysetm_ds(const set<int>& ds_set)
+{
+    Nebula& nd = Nebula::instance();
+
+    DatastorePool*  dspool = nd.get_dspool();
+    Datastore*      ds;
+
+    for (set<int>::const_iterator it = ds_set.begin(); it != ds_set.end(); it++)
+    {
+        ds = dspool->get(*it, true);
+
+        if (ds == 0)
+        {
+            continue;
+        }
+
+        if (ds->get_type() == Datastore::SYSTEM_DS)
+        {
+            ds->unlock();
+
+            return *it;
+        }
+
+        ds->unlock();
+    }
+
+    return -1;
+}
+
+/* ************************************************************************** */
+/* Cluster :: Database Access Functions                                       */
+/* ************************************************************************** */
 
 int Cluster::insert_replace(SqlDB *db, bool replace, string& error_str)
 {
@@ -266,8 +275,8 @@ error_common:
     return -1;
 }
 
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 string& Cluster::to_xml(string& xml) const
 {
@@ -281,8 +290,6 @@ string& Cluster::to_xml(string& xml) const
     "<CLUSTER>"  <<
         "<ID>"          << oid          << "</ID>"          <<
         "<NAME>"        << name         << "</NAME>"        <<
-        "<SYSTEM_DS>"   << system_ds    << "</SYSTEM_DS>"   <<
-
         hosts.to_xml(host_collection_xml)    <<
         datastores.to_xml(ds_collection_xml) <<
         vnets.to_xml(vnet_collection_xml)    <<
@@ -294,8 +301,8 @@ string& Cluster::to_xml(string& xml) const
     return xml;
 }
 
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int Cluster::from_xml(const string& xml)
 {
@@ -308,7 +315,6 @@ int Cluster::from_xml(const string& xml)
     // Get class base attributes
     rc += xpath(oid,        "/CLUSTER/ID",          -1);
     rc += xpath(name,       "/CLUSTER/NAME",        "not_found");
-    rc += xpath(system_ds,  "/CLUSTER/SYSTEM_DS",   -1);
 
     // Set oneadmin as the owner
     set_user(0,"");
@@ -384,6 +390,6 @@ int Cluster::from_xml(const string& xml)
     return 0;
 }
 
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 

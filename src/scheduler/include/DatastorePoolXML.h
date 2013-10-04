@@ -14,69 +14,44 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "Scheduler.h"
-#include "SchedulerTemplate.h"
-#include "RankPolicy.h"
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 
-#include <iostream>
-#include <sstream>
+#ifndef DATASTORE_POOL_XML_H_
+#define DATASTORE_POOL_XML_H_
 
+#include "PoolXML.h"
+#include "DatastoreXML.h"
 
 using namespace std;
 
-class RankScheduler : public Scheduler
+class DatastorePoolXML : public PoolXML
 {
 public:
 
-    RankScheduler():Scheduler(),rp_host(0),rp_ds(0){};
+    DatastorePoolXML(Client* client):PoolXML(client){};
 
-    ~RankScheduler()
+    ~DatastorePoolXML(){};
+
+    /**
+     *  Gets an object from the pool
+     *   @param oid the object unique identifier
+     *
+     *   @return a pointer to the object, 0 in case of failure
+     */
+    DatastoreXML * get(int oid) const
     {
-        if ( rp_host != 0 )
-        {
-            delete rp_host;
-        }
-
-        if ( rp_ds != 0 )
-        {
-            delete rp_ds;
-        }
+        return static_cast<DatastoreXML *>(PoolXML::get(oid));
     };
 
-    void register_policies(const SchedulerTemplate& conf)
+protected:
+
+    int get_suitable_nodes(vector<xmlNodePtr>& content)
     {
-        rp_host = new RankHostPolicy(hpool, conf.get_policy(), 1.0);
-
-        add_host_policy(rp_host);
-
-        rp_ds = new RankDatastorePolicy(dspool, conf.get_ds_policy(), 1.0);
-
-        add_ds_policy(rp_ds);
+        return get_nodes("/DATASTORE_POOL/DATASTORE[TYPE=1]", content);
     };
 
-private:
-    RankPolicy * rp_host;
-    RankPolicy * rp_ds;
+    void add_object(xmlNodePtr node);
+
+    int load_info(xmlrpc_c::value &result);
 };
 
-int main(int argc, char **argv)
-{
-    RankScheduler ss;
-
-    try
-    {
-        ss.start();
-    }
-    catch (exception &e)
-    {
-        cout << e.what() << endl;
-
-        return -1;
-    }
-
-    return 0;
-}
+#endif /* DATASTORE_POOL_XML_H_ */

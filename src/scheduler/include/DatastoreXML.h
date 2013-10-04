@@ -14,69 +14,71 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "Scheduler.h"
-#include "SchedulerTemplate.h"
-#include "RankPolicy.h"
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 
-#include <iostream>
-#include <sstream>
+#ifndef DATASTORE_XML_H_
+#define DATASTORE_XML_H_
 
+#include "ObjectXML.h"
 
 using namespace std;
 
-class RankScheduler : public Scheduler
+class DatastoreXML : public ObjectXML
 {
 public:
-
-    RankScheduler():Scheduler(),rp_host(0),rp_ds(0){};
-
-    ~RankScheduler()
+    DatastoreXML(const string &xml_doc):ObjectXML(xml_doc)
     {
-        if ( rp_host != 0 )
-        {
-            delete rp_host;
-        }
-
-        if ( rp_ds != 0 )
-        {
-            delete rp_ds;
-        }
+        init_attributes();
     };
 
-    void register_policies(const SchedulerTemplate& conf)
+    DatastoreXML(const xmlNodePtr node):ObjectXML(node)
     {
-        rp_host = new RankHostPolicy(hpool, conf.get_policy(), 1.0);
+        init_attributes();
+    };
 
-        add_host_policy(rp_host);
+    /**
+     *  Tests whether a new VM can be hosted by the datasotre
+     *    @param vm_disk_mb capacity needed by the VM
+     *    @return true if the datastore can host the VM
+     */
+    bool test_capacity(unsigned int vm_disk_mb) const
+    {
+        return true;
+        //TODO Perform test.
+        //return (vm_disk_mb < free_mb);
+    };
 
-        rp_ds = new RankDatastorePolicy(dspool, conf.get_ds_policy(), 1.0);
+    /**
+     *  Adds a new VM to the datastore
+     *    @param vm_disk_mb capacity needed by the VM
+     *    @return 0 on success
+     */
+    void add_capacity(unsigned int vm_disk_mb)
+    {
+        free_mb  += vm_disk_mb;
+    };
 
-        add_ds_policy(rp_ds);
+    int get_oid() const
+    {
+        return oid;
+    };
+
+    int get_cid() const
+    {
+        return cluster_id;
     };
 
 private:
-    RankPolicy * rp_host;
-    RankPolicy * rp_ds;
+
+    int oid;
+    int cluster_id;
+
+    unsigned int free_mb; /**< Free disk for VMs (in Mb). */
+
+    static const char *ds_paths[]; /**< paths for search function */
+
+    static int ds_num_paths; /**< number of paths*/
+
+    void init_attributes();
 };
 
-int main(int argc, char **argv)
-{
-    RankScheduler ss;
-
-    try
-    {
-        ss.start();
-    }
-    catch (exception &e)
-    {
-        cout << e.what() << endl;
-
-        return -1;
-    }
-
-    return 0;
-}
+#endif /* DATASTORE_XML_H_ */

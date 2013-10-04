@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2013, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -14,34 +14,34 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "ClusterPoolXML.h"
+#include "DatastorePoolXML.h"
 
-const int ClusterPoolXML::NONE_CLUSTER_ID   = -1;
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-void ClusterPoolXML::add_object(xmlNodePtr node)
+void DatastorePoolXML::add_object(xmlNodePtr node)
 {
     if ( node == 0 || node->children == 0 )
     {
-        NebulaLog::log("CLUSTER",Log::ERROR,
-                       "XML Node does not represent a valid Cluster");
-
+        NebulaLog::log("DATASTORE",Log::ERROR,
+                       "XML Node does not represent a valid Host");
         return;
     }
 
-    ClusterXML* cluster = new ClusterXML( node );
+    DatastoreXML* ds = new DatastoreXML(node);
 
-    objects.insert( pair<int,ObjectXML*>(cluster->get_oid(), cluster) );
+    objects.insert(pair<int,ObjectXML*>(ds->get_oid(), ds));
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ClusterPoolXML::load_info(xmlrpc_c::value &result)
+int DatastorePoolXML::load_info(xmlrpc_c::value &result)
 {
     try
     {
         client->call( client->get_endpoint(),           // serverUrl
-                      "one.clusterpool.info",           // methodName
+                      "one.datastorepool.info",         // methodName
                       "s",                              // arguments format
                       &result,                          // resultP
                       client->get_oneauth().c_str()     // argument
@@ -53,7 +53,7 @@ int ClusterPoolXML::load_info(xmlrpc_c::value &result)
         ostringstream   oss;
         oss << "Exception raised: " << e.what();
 
-        NebulaLog::log("CLUSTER", Log::ERROR, oss);
+        NebulaLog::log("DATASTORE", Log::ERROR, oss);
 
         return -1;
     }

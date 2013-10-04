@@ -60,7 +60,7 @@ public:
      *    @param hid the id of the target host
      *    @param resched the machine is going to be rescheduled
      */
-    int dispatch(int vid, int hid, bool resched) const;
+    int dispatch(int vid, int hid, int dsid, bool resched) const;
 
     /**
      *  Update the VM template

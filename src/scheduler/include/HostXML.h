@@ -77,6 +77,32 @@ public:
     };
 
     /**
+     *  Deletes a VM to the given host by updating the cpu,mem and disk
+     *  counters
+     *    @param cpu needed by the VM (percentage)
+     *    @param mem needed by the VM (in KB)
+     *    @param disk needed by the VM
+     *    @return 0 on success
+     */
+    void del_capacity(int cpu, int mem, int disk)
+    {
+        cpu_usage  -= cpu;
+        mem_usage  -= mem;
+        disk_usage -= disk;
+
+        running_vms--;
+    };
+
+    /**
+     *  Search the Object for a given attribute in a set of object specific
+     *  routes. Overwrite ObjectXML function to deal with pseudo-attributes
+     *    - CURRENT_VMS. value is the VM ID to search in the set of VMS
+     *    running VMs in the host. If the VM_ID is found value is not modified
+     *    otherwise is set to -1
+     */
+    int search(const char *name, int& value);
+
+    /**
      *  Sets the memory fraction reserved for the hypervisor. This function
      *  should be called before using the host pool.
      */
@@ -101,6 +127,10 @@ private:
     long long running_vms; /**< Number of running VMs in this Host   */
 
     static float hypervisor_mem; /**< Fraction of memory for the VMs */
+
+    static const char *host_paths[]; /**< paths for search function */
+
+    static int host_num_paths; /**< number of paths*/
 
     void init_attributes();
 };

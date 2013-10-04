@@ -96,26 +96,127 @@ bool RequestManagerVirtualMachine::vm_authorization(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int RequestManagerVirtualMachine::get_host_information(int hid,
-                                                string& name,
-                                                string& vmm,
-                                                string& vnm,
-                                                string& tm,
-                                                string& ds_location,
-                                                int&    ds_id,
-                                                RequestAttributes& att,
-                                                PoolObjectAuth&    host_perms)
+int RequestManagerVirtualMachine::get_default_ds_information(
+    int cluster_id,
+    int& ds_id,
+    string& tm_mad,
+    RequestAttributes& att)
+{
+    Nebula& nd = Nebula::instance();
+
+    ClusterPool*    clpool = nd.get_clpool();
+    Cluster*        cluster;
+
+    ds_id = -1;
+
+    if (cluster_id == ClusterPool::NONE_CLUSTER_ID)
+    {
+        ds_id = DatastorePool::SYSTEM_DS_ID;
+    }
+    else
+    {
+        cluster = clpool->get(cluster_id, true);
+
+        if (cluster == 0)
+        {
+            failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::CLUSTER), cluster_id),
+                att);
+
+            return -1;
+        }
+
+        set<int> ds_ids = cluster->get_datastores();
+
+        cluster->unlock();
+
+        ds_id = Cluster::get_default_sysetm_ds(ds_ids);
+
+        if (ds_id == -1)
+        {
+            ostringstream oss;
+
+            oss << object_name(PoolObjectSQL::CLUSTER)
+                << " [" << cluster_id << "] does not have any "
+                << object_name(PoolObjectSQL::DATASTORE) << " of type "
+                << Datastore::type_to_str(Datastore::SYSTEM_DS) << ".";
+
+            failure_response(ACTION, request_error(oss.str(),""), att);
+
+            return -1;
+        }
+    }
+
+    return get_ds_information(ds_id, cluster_id, tm_mad, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int RequestManagerVirtualMachine::get_ds_information(int ds_id,
+    int& ds_cluster_id,
+    string& tm_mad,
+    RequestAttributes& att)
+{
+    Nebula& nd = Nebula::instance();
+
+    Datastore * ds = nd.get_dspool()->get(ds_id, true);
+
+    ds_cluster_id = -1;
+
+    if ( ds == 0 )
+    {
+        failure_response(NO_EXISTS,
+            get_error(object_name(PoolObjectSQL::DATASTORE), ds_id),
+            att);
+
+        return -1;
+    }
+
+    if ( ds->get_type() != Datastore::SYSTEM_DS )
+    {
+        ostringstream oss;
+
+        oss << "Trying to use " << object_name(PoolObjectSQL::DATASTORE)
+            << " [" << ds_id << "] to deploy the VM, but it is not of type"
+            << " system datastore.";
+
+        failure_response(INTERNAL, request_error(oss.str(),""), att);
+
+        ds->unlock();
+
+        return -1;
+    }
+
+    ds_cluster_id = ds->get_cluster_id();
+
+    tm_mad = ds->get_tm_mad();
+
+    ds->unlock();
+
+    return 0;
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int RequestManagerVirtualMachine::get_host_information(
+    int     hid,
+    string& name,
+    string& vmm,
+    string& vnm,
+    int&    cluster_id,
+    string& ds_location,
+    PoolObjectAuth&    host_perms,
+    RequestAttributes& att)
+
+
 {
     Nebula&    nd    = Nebula::instance();
     HostPool * hpool = nd.get_hpool();
 
-    Host *      host;
-    Cluster *   cluster;
-    Datastore * ds;
-
-    int cluster_id;
-
-    host = hpool->get(hid,true);
+    Host *     host  = hpool->get(hid,true);
 
     if ( host == 0 )
     {
@@ -130,15 +231,15 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
     vmm  = host->get_vmm_mad();
     vnm  = host->get_vnm_mad();
 
-    host->get_permissions(host_perms);
-
     cluster_id = host->get_cluster_id();
+
+    host->get_permissions(host_perms);
 
     host->unlock();
 
     if ( cluster_id != -1 )
     {
-        cluster = nd.get_clpool()->get(cluster_id, true);
+        Cluster * cluster = nd.get_clpool()->get(cluster_id, true);
 
         if ( cluster == 0 )
         {
@@ -149,51 +250,14 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
             return -1;
         }
 
-        ds_id = cluster->get_ds_id();
-
         cluster->get_ds_location(ds_location);
 
         cluster->unlock();
     }
-    else
+    else //Default System DS
     {
-        ds_id = DatastorePool::SYSTEM_DS_ID;
-
         nd.get_configuration_attribute("DATASTORE_LOCATION", ds_location);
     }
-
-    ds = nd.get_dspool()->get(ds_id, true);
-
-    if ( ds == 0 )
-    {
-        failure_response(NO_EXISTS,
-                get_error(object_name(PoolObjectSQL::DATASTORE),ds_id),
-                att);
-
-        return -1;
-    }
-
-    if ( ds->get_type() != Datastore::SYSTEM_DS )
-    {
-        ostringstream oss;
-
-        ds->unlock();
-
-        oss << object_name(PoolObjectSQL::CLUSTER)
-            << " [" << cluster_id << "] has its SYSTEM_DS set to "
-            << object_name(PoolObjectSQL::DATASTORE)
-            << " [" << ds_id << "], but it is not a system one.";
-
-        failure_response(INTERNAL,
-                request_error(oss.str(),""),
-                att);
-
-        return -1;
-    }
-
-    tm = ds->get_tm_mad();
-
-    ds->unlock();
 
     return 0;
 }
@@ -451,38 +515,86 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     DispatchManager *   dm = nd.get_dm();
 
     VirtualMachine * vm;
-    PoolObjectAuth host_perms;
 
     string hostname;
     string vmm_mad;
     string vnm_mad;
-    string tm_mad;
+    int    cluster_id;
     string ds_location;
-    int    ds_id;
+    PoolObjectAuth host_perms;
 
-    int id       = xmlrpc_c::value_int(paramList.getInt(1));
-    int hid      = xmlrpc_c::value_int(paramList.getInt(2));
-    bool enforce = false;
+    string tm_mad;
 
     bool auth = false;
+
+    // ------------------------------------------------------------------------
+    // Get request parameters and information about the target host
+    // ------------------------------------------------------------------------
+
+    int  id      = xmlrpc_c::value_int(paramList.getInt(1));
+    int  hid     = xmlrpc_c::value_int(paramList.getInt(2));
+    bool enforce = false;
+    int  ds_id   = -1;
 
     if ( paramList.size() > 3 )
     {
         enforce = xmlrpc_c::value_boolean(paramList.getBoolean(3));
     }
 
+    if ( paramList.size() > 4 )
+    {
+        ds_id = xmlrpc_c::value_int(paramList.getInt(4));
+    }
+
     if (get_host_information(hid,
                              hostname,
                              vmm_mad,
                              vnm_mad,
-                             tm_mad,
+                             cluster_id,
                              ds_location,
-                             ds_id,
-                             att,
-                             host_perms) != 0)
+                             host_perms,
+                             att) != 0)
     {
         return;
     }
+
+    // ------------------------------------------------------------------------
+    // Get information about the system DS to use (tm_mad)
+    // ------------------------------------------------------------------------
+
+    if ( ds_id == -1 ) //Use default system DS for cluster
+    {
+        if (get_default_ds_information(cluster_id, ds_id, tm_mad, att) != 0)
+        {
+            return;
+        }
+    }
+    else //Get information from user selected system DS
+    {
+        int ds_cluster_id;
+
+        if (get_ds_information(ds_id, ds_cluster_id, tm_mad, att) != 0)
+        {
+            return;
+        }
+
+        if (ds_cluster_id != cluster_id)
+        {
+            ostringstream oss;
+
+            oss << object_name(PoolObjectSQL::DATASTORE)
+                << " [" << ds_id << "] and " << object_name(PoolObjectSQL::HOST)
+                << " [" << hid <<"] are not in the same cluster.";
+
+            failure_response(ACTION, request_error(oss.str(),""), att);
+
+            return;
+        }
+    }
+
+    // ------------------------------------------------------------------------
+    // Authorize request
+    // ------------------------------------------------------------------------
 
     auth = vm_authorization(id, 0, 0, att, &host_perms, 0, auth_op);
 
@@ -490,6 +602,12 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     {
         return;
     }
+
+    // ------------------------------------------------------------------------
+    // Check request consistency:
+    // - VM States are right
+    // - Host capacity if required
+    // ------------------------------------------------------------------------
 
     if ((vm = get_vm(id, att)) == 0)
     {
@@ -528,6 +646,10 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         }
     }
 
+    // ------------------------------------------------------------------------
+    // Add a new history record and deploy the VM
+    // ------------------------------------------------------------------------
+
     if (add_history(vm,
                     hid,
                     hostname,
@@ -559,19 +681,24 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     DispatchManager *   dm = nd.get_dm();
 
     VirtualMachine * vm;
-    PoolObjectAuth host_perms;
 
     string hostname;
     string vmm_mad;
     string vnm_mad;
-    string tm_mad;
+    int    cluster_id;
     string ds_location;
-    int    ds_id;
+    PoolObjectAuth host_perms;
 
-    PoolObjectAuth aux_perms;
-    int     current_ds_id;
-    string  aux_st;
-    int     current_hid;
+    int    c_hid;
+    int    c_cluster_id;
+    int    c_ds_id;
+    string c_tm_mad;
+
+    bool auth = false;
+
+    // ------------------------------------------------------------------------
+    // Get request parameters and information about the target host
+    // ------------------------------------------------------------------------
 
     int  id      = xmlrpc_c::value_int(paramList.getInt(1));
     int  hid     = xmlrpc_c::value_int(paramList.getInt(2));
@@ -583,20 +710,21 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         enforce = xmlrpc_c::value_boolean(paramList.getBoolean(4));
     }
 
-    bool auth = false;
-
     if (get_host_information(hid,
                              hostname,
                              vmm_mad,
                              vnm_mad,
-                             tm_mad,
+                             cluster_id,
                              ds_location,
-                             ds_id,
-                             att,
-                             host_perms) != 0)
+                             host_perms,
+                             att) != 0)
     {
         return;
     }
+
+    // ------------------------------------------------------------------------
+    // Authorize request
+    // ------------------------------------------------------------------------
 
     auth = vm_authorization(id, 0, 0, att, &host_perms, 0, auth_op);
 
@@ -604,6 +732,14 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     {
         return;
     }
+
+    // ------------------------------------------------------------------------
+    // Check request consistency:
+    // - VM States are right and there is at least a history record
+    // - New host is not the current one
+    // - Host capacity if required
+    // - New host and current one are in the same cluster
+    // ------------------------------------------------------------------------
 
     if ((vm = get_vm(id, att)) == 0)
     {
@@ -622,14 +758,16 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    current_hid = vm->get_hid();
+    // Check we are not migrating to the same host
 
-    if (current_hid == hid)
+    c_hid = vm->get_hid();
+
+    if (c_hid == hid)
     {
         ostringstream oss;
 
         oss << "VM is already running on "
-            << object_name(PoolObjectSQL::HOST) << " [" << current_hid << "]";
+            << object_name(PoolObjectSQL::HOST) << " [" << c_hid << "]";
 
         failure_response(ACTION,
                 request_error(oss.str(),""),
@@ -638,6 +776,14 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         vm->unlock();
         return;
     }
+
+    // Get System DS information from current History record
+
+    istringstream iss(vm->get_ds_id());
+
+    iss >> c_ds_id;
+
+    c_tm_mad = vm->get_tm_mad();
 
     if (enforce)
     {
@@ -659,28 +805,29 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         vm->unlock();
     }
 
-    if (get_host_information(current_hid,
-                             aux_st,
-                             aux_st,
-                             aux_st,
-                             aux_st,
-                             aux_st,
-                             current_ds_id,
-                             att,
-                             aux_perms) != 0)
+    // Check we are in the same cluster
+
+    Host * host = nd.get_hpool()->get(c_hid, true);
+
+    if (host == 0)
     {
-        return;
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::HOST), c_hid),
+                att);
     }
 
-    if ( current_ds_id != ds_id )
+    c_cluster_id = host->get_cluster_id();
+
+    host->unlock();
+
+    if ( c_cluster_id != cluster_id )
     {
         ostringstream oss;
 
-        oss << "Cannot migrate to a different cluster with different system "
-        << "datastore. Current " << object_name(PoolObjectSQL::HOST)
-        << " [" << current_hid << "] uses system datastore [" << current_ds_id
-        << "], new " << object_name(PoolObjectSQL::HOST) << " [" << hid
-        << "] uses system datastore [" << ds_id << "]";
+        oss << "Cannot migrate to a different cluster. VM running in a host"
+            << " in " << object_name(PoolObjectSQL::CLUSTER) << " ["
+            << c_cluster_id << "] , and new host is in "
+            << object_name(PoolObjectSQL::CLUSTER) << " [" << cluster_id << "]";
 
         failure_response(ACTION,
                 request_error(oss.str(),""),
@@ -688,6 +835,10 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
         return;
     }
+
+    // ------------------------------------------------------------------------
+    // Add a new history record and migrate the VM
+    // ------------------------------------------------------------------------
 
     if ( (vm = get_vm(id, att)) == 0 )
     {
@@ -699,9 +850,9 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
                     hostname,
                     vmm_mad,
                     vnm_mad,
-                    tm_mad,
+                    c_tm_mad,
                     ds_location,
-                    ds_id,
+                    c_ds_id,
                     att) != 0)
     {
         vm->unlock();

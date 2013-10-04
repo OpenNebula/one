@@ -1366,6 +1366,28 @@ function update_datatable_template_hosts(datatable, fnDrawCallback) {
   });
 }
 
+function update_datatable_template_datastores(datatable, fnDrawCallback) {
+    if (fnDrawCallback) {
+        datatable.unbind('draw');
+        datatable.on('draw', fnDrawCallback);
+    }
+
+    OpenNebula.Datastore.list({
+    timeout: true,
+    success: function (request, datastore_list){
+        var datastore_list_array = [];
+
+        $.each(datastore_list,function(){
+            //Grab table data from the datastore_list
+            datastore_list_array.push(datastoreElementArray(this));
+        });
+
+        updateView(datastore_list_array, datatable);
+    },
+    error: onError
+  });
+}
+
 function update_datatable_template_clusters(datatable, fnDrawCallback) {
     if (fnDrawCallback) {
         datatable.unbind('draw');
@@ -3397,8 +3419,10 @@ function setupCreateTemplateDialog(){
               '<dd class="active"><a href="#placement">'+tr("Placement")+'</a></dd>'+
               '<dd><a href="#policy">'+tr("Policy")+'</a></dd>'+
             '</dl>'+
-            '<ul class="tabs-content">'+
+            '<ul class="tabs-content row">'+
                 '<li class="requirements wizard_internal_tab active" id="placementTab">'+
+                  '<fieldset>'+
+                    '<legend>'+tr("Host Requirements")+'</legend>'+
                     '<div class="row">'+
                       '<div class="three columns push-three">'+
                           '<input type="radio" id="hosts_req" name="req_select" value="host_select" checked> '+tr("Select Hosts ")+
@@ -3408,7 +3432,7 @@ function setupCreateTemplateDialog(){
                       '</div>'+
                     '</div>'+
                     '<hr>'+
-                    '<div id="req_type" class="host_select row">'+
+                    '<div id="req_type" class="host_select ">'+
                         '<div class="row collapse ">'+
                           '<div class="seven columns">' +
                              '<button id="refresh_hosts_placement" type="button" class="refresh button small radius secondary"><i class="icon-refresh" /></button>' +
@@ -3445,7 +3469,7 @@ function setupCreateTemplateDialog(){
                         '</div>'+
                         '<br>'+
                     '</div>'+
-                    '<div id="req_type" class="cluster_select hidden row">'+
+                    '<div id="req_type" class="cluster_select hidden">'+
                         '<div class="row collapse ">'+
                           '<div class="seven columns">' +
                              '<button id="refresh_clusters_placement" type="button" class="refresh button small radius secondary"><i class="icon-refresh" /></button>' +
@@ -3475,10 +3499,10 @@ function setupCreateTemplateDialog(){
                         '</div>'+
                         '<br>'+
                     '</div>'+
-                    '<hr>'+
+                    '<br>'+
                     '<div class="row vm_param">'+
                         '<div class="two columns">'+
-                            '<label class="inline right" for="SCHED_REQUIREMENTS">'+tr("Requirements")+':</label>'+
+                            '<label class="inline right" for="SCHED_REQUIREMENTS">'+tr("Expression")+':</label>'+
                         '</div>'+
                         '<div class="nine columns">'+
                             '<input type="text" id="SCHED_REQUIREMENTS" name="requirements" />'+
@@ -3487,32 +3511,44 @@ function setupCreateTemplateDialog(){
                             '<div class="tip">'+tr("Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM")+'.</div>'+
                         '</div>'+
                     '</div>'+
+                  '</fieldset>'+
+                  '<br>'+
+                  '<fieldset>'+
+                    '<legend>'+tr("Datastore Requirements")+'</legend>'+
+                    '<div class="row vm_param">'+
+                        '<div class="two columns">'+
+                            '<label class="inline right" for="SCHED_DS_REQUIREMENTS">'+tr("Expression")+':</label>'+
+                        '</div>'+
+                        '<div class="nine columns">'+
+                            '<input type="text" id="SCHED_DS_REQUIREMENTS" name="requirements" />'+
+                        '</div>'+
+                        '<div class="one columns">'+
+                            '<div class="tip">'+tr("")+'.</div>'+
+                        '</div>'+
+                    '</div>'+
+                  '</fieldset>'+
                 '</li>'+
                 '<li id="policyTab" class="wizard_internal_tab">'+
+                  '<fieldset class="host_rank">'+
+                    '<legend>'+tr("Host Rank")+'</legend>'+
                       '<div class="row">'+
-                        '<div class="two columns push-two">'+
-                          '<input type="radio" id="packingRadio" name="rank_select" value="RUNNING_VMS"> '+tr("Packing")+
+                        '<div class="four columns" style="text-align:center">'+
+                            '<input type="radio" id="packingRadio" name="rank_select" value="RUNNING_VMS"> '+tr("Packing")+
+                            '&nbsp;&nbsp;<span class="tip">'+tr("Pack the VMs in the cluster nodes to reduce VM fragmentation")+'</span>'+
                         '</div>'+
-                        '<div class="one columns push-two">'+
-                          '<div class="tip">'+tr("Pack the VMs in the cluster nodes to reduce VM fragmentation")+'</div>'+
+                        '<div class="four columns" style="text-align:center">'+
+                            '<input type="radio"  id="stripingRadio" name="rank_select" value="-RUNNING_VMS"> '+tr("Stripping")+
+                            '&nbsp;&nbsp;<span class="tip">'+tr("Spread the VMs in the cluster nodes")+'</span>'+
                         '</div>'+
-                        '<div class="two columns push-two">'+
-                          '<input type="radio"  id="stripingRadio" name="rank_select" value="-RUNNING_VMS"> '+tr("Stripping")+
-                        '</div>'+
-                        '<div class="one columns push-two">'+
-                          '<div class="tip">'+tr("Spread the VMs in the cluster nodes")+'</div>'+
-                        '</div>'+
-                        '<div class="two columns push-two">'+
-                          '<input type="radio"  id="loadawareRadio" name="rank_select" value="FREECPU"> '+tr("Load-aware")+
-                        '</div>'+
-                        '<div class="two columns">'+
-                          '<div class="tip">'+tr("Maximize the resources available to VMs in a node")+'</div>'+
+                        '<div class="four columns" style="text-align:center">'+
+                            '<input type="radio"  id="loadawareRadio" name="rank_select" value="FREECPU"> '+tr("Load-aware")+
+                            '&nbsp;&nbsp;<span class="tip">'+tr("Maximize the resources available to VMs in a node")+'</span>'+
                         '</div>'+
                       '</div>'+
                       '<hr>'+
                     '<div class="row vm_param">'+
                       '<div class="two columns">'+
-                        '<label class="inline right" for="SCHED_RANK">'+tr("Rank")+':</label>'+
+                        '<label class="inline right" for="SCHED_RANK">'+tr("Expression")+':</label>'+
                       '</div>'+
                       '<div class="nine columns">'+
                         '<input type="text" id="SCHED_RANK" name="RANK" />'+
@@ -3521,6 +3557,33 @@ function setupCreateTemplateDialog(){
                         '<div class="tip">'+tr("This field sets which attribute will be used to sort the suitable hosts for this VM")+'.</div>'+
                       '</div>'+
                     '</div>'+
+                  '</fieldset>'+
+                  '<br>'+
+                  '<fieldset class="ds_rank">'+
+                    '<legend>'+tr("Datastore Rank")+'</legend>'+
+                      '<div class="row">'+
+                        '<div class="six columns" style="text-align:center">'+
+                          '<input type="radio" id="packingRadio" name="ds_rank_select" value="-FREE_MB"> '+tr("Packing")+
+                          '&nbsp;&nbsp;<span class="tip">'+tr("Tries to optimize storage usage by selecting the DS with less free space")+'</span>'+
+                        '</div>'+
+                        '<div class="six columns" style="text-align:center">'+
+                          '<input type="radio"  id="stripingRadio" name="ds_rank_select" value="FREE_MB"> '+tr("Stripping")+
+                          '&nbsp;&nbsp;<span class="tip">'+tr("Striping. Tries to optimize I/O by distributing the VMs across datastores.")+'</span>'+
+                        '</div>'+
+                      '</div>'+
+                      '<hr>'+
+                    '<div class="row vm_param">'+
+                      '<div class="two columns">'+
+                        '<label class="inline right" for="SCHED_DS_RANK">'+tr("Expression")+':</label>'+
+                      '</div>'+
+                      '<div class="nine columns">'+
+                        '<input type="text" id="SCHED_DS_RANK" name="RANK" />'+
+                      '</div>'+
+                      '<div class="one columns">'+
+                        '<div class="tip">'+tr("This field sets which attribute will be used to sort the suitable datastores for this VM")+'.</div>'+
+                      '</div>'+
+                    '</div>'+
+                  '</fieldset>'+
                 '</li>'+
               '</ul>'+
           '</form>'+
@@ -3705,8 +3768,12 @@ function setupCreateTemplateDialog(){
             }
         });
 
-        $("input[name='rank_select']").change(function(){
+        $("input[name='rank_select']", $(".host_rank")).change(function(){
             $("#SCHED_RANK", dialog).val(this.value);
+        });
+
+        $("input[name='ds_rank_select']", $(".ds_rank")).change(function(){
+            $("#SCHED_DS_RANK", dialog).val(this.value);
         });
 
         var generate_requirements = function() {
@@ -4768,26 +4835,54 @@ function fillTemplatePopUp(request, response){
         delete template.SCHED_REQUIREMENTS;
     }
 
+    var ds_req = template.SCHED_DS_REQUIREMENTS;
+    var ds_req_section = $('li#schedulingTab', $create_template_dialog);
+
+    if (ds_req) {
+        ds_req = escapeDoubleQuotes(ds_req);
+        $('input#SCHED_DS_REQUIREMENTS', req_section).val(ds_req);
+
+        delete template.SCHED_DS_REQUIREMENTS;
+    }
+
     var rank = template.SCHED_RANK;
 
     if (rank) {
-        var striping_regexp = /-RUNNING_VMS/;
-        var packing_regexp = /RUNNING_VMS/;
-        var loadaware_regexp = /FREECPU/;
+        var striping_regexp = /^-RUNNING_VMS$/;
+        var packing_regexp = /^RUNNING_VMS$/;
+        var loadaware_regexp = /^FREECPU$/;
 
         if (striping_regexp.test(rank)) {
-            $('input#stripingRadio', req_section).click()
+            $('input[name="rank_select"]#stripingRadio', req_section).click()
         }
         else if (packing_regexp.test(rank)) {
-            $('input#packingRadio', req_section).click()
+            $('input[name="rank_select"]#packingRadio', req_section).click()
         }
         else if (loadaware_regexp.test(rank)) {
-            $('input#loadawareRadio', req_section).click()
+            $('input[name="rank_select"]#loadawareRadio', req_section).click()
         }
 
         $('input#SCHED_RANK', req_section).val(rank);
 
         delete template.SCHED_RANK;
+    }
+
+    var ds_rank = template.SCHED_DS_RANK;
+
+    if (ds_rank) {
+        var striping_regexp = /^FREE_MB$/;
+        var packing_regexp = /^-FREE_MB$/;
+
+        if (striping_regexp.test(ds_rank)) {
+            $('input[name="ds_rank_select"]#stripingRadio', req_section).click()
+        }
+        else if (packing_regexp.test(ds_rank)) {
+            $('input[name="ds_rank_select"]#packingRadio', req_section).click()
+        }
+
+        $('input#SCHED_DS_RANK', req_section).val(ds_rank);
+
+        delete template.SCHED_DS_RANK;
     }
 
     //

@@ -63,7 +63,7 @@ public:
     /**
      *  Gets and sets a xpath attribute, if the attribute is not found a default
      *  is used
-     *    @param value to set 
+     *    @param value to set
      *    @param xpath_expr of the xml element
      *    @param def default value if the element is not found
      *
@@ -74,7 +74,7 @@ public:
     /**
      *  Gets and sets a xpath attribute, if the attribute is not found a default
      *  is used
-     *    @param value to set 
+     *    @param value to set
      *    @param xpath_expr of the xml element
      *    @param def default value if the element is not found
      *
@@ -85,7 +85,7 @@ public:
     /**
      *  Gets and sets a xpath attribute, if the attribute is not found a default
      *  is used
-     *    @param value to set 
+     *    @param value to set
      *    @param xpath_expr of the xml element
      *    @param def default value if the element is not found
      *
@@ -97,7 +97,7 @@ public:
     /**
      *  Gets and sets a xpath attribute, if the attribute is not found a default
      *  is used
-     *    @param value to set 
+     *    @param value to set
      *    @param xpath_expr of the xml element
      *    @param def default value if the element is not found
      *
@@ -109,7 +109,7 @@ public:
     /**
      *  Gets and sets a xpath attribute, if the attribute is not found a default
      *  is used
-     *    @param value to set 
+     *    @param value to set
      *    @param xpath_expr of the xml element
      *    @param def default value if the element is not found
      *
@@ -134,10 +134,32 @@ public:
      *    @param value the value of the element
      *    @param xml the xml string
      *    @param xpath the xpath of the target element
-     *    
+     *
      *    @return -1 if the element was not found
      */
     static int xpath_value(string& value, const char *xml, const char *xpath);
+
+    /**
+     *  Search the Object for a given attribute in a set of object specific
+     *  routes.
+     *    @param name of the attribute
+     *    @param value of the attribute
+     *
+     *    @return -1 if the element was not found
+     */
+    virtual int search(const char *name, string& value);
+
+    /**
+     *  Search the Object for a given attribute in a set of object specific
+     *  routes. integer version
+     */
+    virtual int search(const char *name, int& value);
+
+    /**
+     *  Search the Object for a given attribute in a set of object specific
+     *  routes. float version
+     */
+    virtual int search(const char *name, float& value);
 
     /**
      *  Get xml nodes by Xpath
@@ -247,6 +269,17 @@ public:
         return os;
     };
 
+protected:
+    /**
+     *  Array of paths to look for attributes in search methods
+     */
+    const char **paths;
+
+    /**
+     *  Number of elements in paths array
+     */
+    int num_paths;
+
 private:
     /**
      *  XML representation of the Object
@@ -262,6 +295,14 @@ private:
      *  Parse a XML documents and initializes XPath contexts
      */
     void xml_parse(const string &xml_doc);
+
+    /**
+     *  Search the Object for a given attribute in a set of object specific
+     *  routes.
+     *  @param name of the attribute
+     *  @results vector of attributes that matches the query
+     */
+    void search(const char* name, vector<string>& results);
 };
 
 #endif /*OBJECT_XML_H_*/

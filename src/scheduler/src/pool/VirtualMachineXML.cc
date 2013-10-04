@@ -24,6 +24,8 @@ void VirtualMachineXML::init_attributes()
     vector<string>     result;
     vector<xmlNodePtr> nodes;
 
+    string automatic_requirements;
+
     oid = atoi(((*this)["/VM/ID"] )[0].c_str());
     uid = atoi(((*this)["/VM/UID"])[0].c_str());
     gid = atoi(((*this)["/VM/GID"])[0].c_str());
@@ -52,6 +54,8 @@ void VirtualMachineXML::init_attributes()
         cpu = 0;
     }
 
+    // ------------------------ RANK & DS_RANK ---------------------------------
+
     result = ((*this)["/VM/USER_TEMPLATE/SCHED_RANK"]);
 
     if (result.size() > 0)
@@ -67,28 +71,33 @@ void VirtualMachineXML::init_attributes()
         {
             rank = result[0];
         }
-        else
-        {
-            rank = "";
-        }
     }
+
+    result = ((*this)["/VM/USER_TEMPLATE/SCHED_DS_RANK"]);
+
+    if (result.size() > 0)
+    {
+        ds_rank = result[0];
+    }
+
+    // ------------------- REQUIREMENTS & DS_REQUIREMENTS ----------------------
 
     result = ((*this)["/VM/TEMPLATE/AUTOMATIC_REQUIREMENTS"]);
 
     if (result.size() > 0)
     {
-        requirements = result[0];
+        automatic_requirements = result[0];
     }
 
     result = ((*this)["/VM/USER_TEMPLATE/SCHED_REQUIREMENTS"]);
 
     if (result.size() > 0)
     {
-        if ( !requirements.empty() )
+        if ( !automatic_requirements.empty() )
         {
             ostringstream oss;
 
-            oss << requirements << " & ( " << result[0] << " )";
+            oss << automatic_requirements << " & ( " << result[0] << " )";
 
             requirements = oss.str();
         }
@@ -97,6 +106,34 @@ void VirtualMachineXML::init_attributes()
             requirements = result[0];
         }
     }
+    else if ( !automatic_requirements.empty() )
+    {
+        requirements = automatic_requirements;
+    }
+
+    result = ((*this)["/VM/USER_TEMPLATE/SCHED_DS_REQUIREMENTS"]);
+
+    if (result.size() > 0)
+    {
+        if ( !automatic_requirements.empty() )
+        {
+            ostringstream oss;
+
+            oss << automatic_requirements << " & ( " << result[0] << " )";
+
+            ds_requirements = oss.str();
+        }
+        else
+        {
+            ds_requirements = result[0];
+        }
+    }
+    else if ( !automatic_requirements.empty() )
+    {
+        ds_requirements = automatic_requirements;
+    }
+
+    // ---------------- HISTORY HID, DSID, RESCHED & TEMPLATE ------------------
 
     result = ((*this)["/VM/HISTORY_RECORDS/HISTORY/HID"]);
 
@@ -107,6 +144,17 @@ void VirtualMachineXML::init_attributes()
     else
     {
         hid = -1;
+    }
+
+    result = ((*this)["/VM/HISTORY_RECORDS/HISTORY/DS_ID"]);
+
+    if (result.size() > 0)
+    {
+        dsid = atoi(result[0].c_str());
+    }
+    else
+    {
+        dsid = -1;
     }
 
     result = ((*this)["/VM/RESCHED"]);
@@ -137,120 +185,43 @@ void VirtualMachineXML::init_attributes()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VirtualMachineXML::~VirtualMachineXML()
+ostream& operator<<(ostream& os, VirtualMachineXML& vm)
 {
-    vector<VirtualMachineXML::Host *>::iterator	jt;
+    const vector<Resource *> resources = vm.match_hosts.get_resources();
 
-    for (jt=hosts.begin();jt!=hosts.end();jt++)
+    vector<Resource *>::const_reverse_iterator  i;
+
+    if (resources.empty())
     {
-        delete *jt;
+        return os;
     }
 
-    hosts.clear();
+    os << "Virtual Machine: " << vm.oid << endl << endl;
 
-    if (vm_template != 0)
+    os << "\tPRI\tID - HOSTS"<< endl
+       << "\t------------------------"  << endl;
+
+    for (i = resources.rbegin(); i != resources.rend() ; i++)
     {
-        delete vm_template;
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineXML::add_host(int host_id)
-{
-    if (( resched == 1 && host_id != hid ) || ( resched == 0 ))
-    {
-        VirtualMachineXML::Host * ss;
-
-        ss = new VirtualMachineXML::Host(host_id);
-
-        hosts.push_back(ss);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineXML::get_matching_hosts(vector<int>& mh)
-{
-    vector<VirtualMachineXML::Host *>::iterator i;
-
-    for(i=hosts.begin();i!=hosts.end();i++)
-    {
-        mh.push_back((*i)->hid);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineXML::set_priorities(vector<float>& total)
-{
-    if ( hosts.size() != total.size() )
-    {
-        NebulaLog::log("VM",Log::ERROR,"Wrong size for priority vector");
-        return;
+        os << "\t" << (*i)->priority << "\t" << (*i)->oid << endl;
     }
 
-    for (unsigned int i=0; i<hosts.size(); i++)
+    os << endl;
+
+    os << "\tPRI\tID - DATASTORES"<< endl
+       << "\t------------------------"  << endl;
+
+    const vector<Resource *> ds_resources = vm.match_datastores.get_resources();
+
+    for (i = ds_resources.rbegin(); i != ds_resources.rend() ; i++)
     {
-        hosts[i]->priority = total[i];
+        os << "\t" << (*i)->priority << "\t" << (*i)->oid << endl;
     }
 
-    //Sort the shares using the priority
-    sort(hosts.begin(),hosts.end(),VirtualMachineXML::host_cmp);
-}
+    os << endl;
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachineXML::get_host(int&          hid,
-                                HostPoolXML * hpool,
-                                map<int,int>& host_vms,
-                                int           max_vms)
-{
-    vector<VirtualMachineXML::Host *>::reverse_iterator  i;
-
-    vector<int>::iterator   j;
-    HostXML *         host;
-
-    int cpu;
-    int mem;
-    int dsk;
-
-    pair<map<int,int>::iterator,bool> rc;
-
-    get_requirements(cpu,mem,dsk);
-
-    for (i=hosts.rbegin();i!=hosts.rend();i++)
-    {
-        host = hpool->get( (*i)->hid );
-
-        if ( host == 0 )
-        {
-            continue;
-        }
-
-        if (host->test_capacity(cpu,mem,dsk)==true)
-        {
-            rc = host_vms.insert(make_pair((*i)->hid,0));
-
-            if ( rc.first->second < max_vms )
-            {
-                host->add_capacity(cpu,mem,dsk);
-                hid  = (*i)->hid;
-
-                rc.first->second++;
-                return 0;
-            }
-        }
-    }
-
-    hid  = -1;
-
-    return -1;
-}
+    return os;
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

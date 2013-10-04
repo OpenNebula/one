@@ -96,21 +96,20 @@ int VirtualMachinePoolXML::load_info(xmlrpc_c::value &result)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachinePoolXML::dispatch(int vid, int hid, bool resched) const
+int VirtualMachinePoolXML::dispatch(int vid, int hid, int dsid, bool resched) const
 {
     ostringstream               oss;
     xmlrpc_c::value             deploy_result;
 
     if (resched == true)
     {
-        oss << "Rescheduling ";
+        oss << "Rescheduling " << "VM " << vid << " to host " << hid;
     }
     else
     {
-        oss << "Dispatching ";
+        oss << "Dispatching " << "VM " << vid << " to host " << hid
+            << " and datastore " << dsid;
     }
-
-    oss << "virtual machine " << vid << " to host " << hid;
 
     NebulaLog::log("VM",Log::INFO,oss);
 
@@ -132,12 +131,13 @@ int VirtualMachinePoolXML::dispatch(int vid, int hid, bool resched) const
         {
             client->call(client->get_endpoint(),           // serverUrl
                          "one.vm.deploy",                  // methodName
-                         "siib",                           // arguments format
+                         "siibi",                          // arguments format
                          &deploy_result,                   // resultP
                          client->get_oneauth().c_str(),    // argument 0 (AUTH)
                          vid,                              // argument 1 (VM)
                          hid,                              // argument 2 (HOST)
-                         false);                           // argument 3 (ENFORCE)
+                         false,                            // argument 3 (ENFORCE)
+                         dsid);                            // argument 5 (SYSTEM SD)
         }
     }
     catch (exception const& e)
@@ -155,11 +155,11 @@ int VirtualMachinePoolXML::dispatch(int vid, int hid, bool resched) const
     vector<xmlrpc_c::value> values =
                     xmlrpc_c::value_array(deploy_result).vectorValueValue();
 
-    bool   success = xmlrpc_c::value_boolean( values[0] );
+    bool success = xmlrpc_c::value_boolean(values[0]);
 
     if ( !success )
     {
-        string message = xmlrpc_c::value_string(  values[1] );
+        string message = xmlrpc_c::value_string(values[1]);
 
         oss.str("");
         oss << "Error deploying virtual machine " << vid

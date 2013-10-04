@@ -22,6 +22,8 @@
 
 #include "ObjectXML.h"
 #include "HostPoolXML.h"
+#include "Resource.h"
+
 #include "VirtualMachineTemplate.h"
 
 using namespace std;
@@ -30,19 +32,27 @@ class VirtualMachineXML : public ObjectXML
 {
 public:
 
-    VirtualMachineXML(const string &xml_doc):
-        ObjectXML(xml_doc)
+    VirtualMachineXML(const string &xml_doc): ObjectXML(xml_doc)
     {
         init_attributes();
     };
 
-    VirtualMachineXML(const xmlNodePtr node):
-        ObjectXML(node)
+    VirtualMachineXML(const xmlNodePtr node): ObjectXML(node)
     {
         init_attributes();
     }
 
-    ~VirtualMachineXML();
+    ~VirtualMachineXML()
+    {
+        if (vm_template != 0)
+        {
+            delete vm_template;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    // Get Methods for VirtualMachineXML class
+    //--------------------------------------------------------------------------
 
     int get_oid() const
     {
@@ -64,47 +74,114 @@ public:
         return hid;
     };
 
+    int get_dsid() const
+    {
+        return dsid;
+    };
+
     bool is_resched() const
     {
         return (resched == 1);
     }
-
-    /**
-     *  Adds a new host to the list of suitable hosts to start this VM
-     *    @param  hid of the selected host
-     */
-    void add_host(int hid);
-
-    /**
-     *  Gets the matching hosts ids
-     *    @param mh vector with the hids of the matching hosts
-     */
-    void get_matching_hosts(vector<int>& mh);
-
-    /**
-     *  Sets the priorities for each matching host
-     */
-    void set_priorities(vector<float>& total);
-
-    /**
-     *
-     */
-    int get_host(int& hid,
-                 HostPoolXML * hpool,
-                 map<int,int>& host_vms,
-                 int max_vms);
-
-    void get_requirements (int& cpu, int& memory, int& disk);
 
     const string& get_rank()
     {
         return rank;
     };
 
+    const string& get_ds_rank()
+    {
+        return ds_rank;
+    };
+
     const string& get_requirements()
     {
         return requirements;
     };
+
+    const string& get_ds_requirements()
+    {
+        return ds_requirements;
+    }
+
+    void get_requirements (int& cpu, int& memory, int& disk);
+
+    //--------------------------------------------------------------------------
+    // Matched Resources Interface
+    //--------------------------------------------------------------------------
+
+    /**
+     *  Adds a matching host if it is not equal to the actual one
+     *    @param oid of the host
+     */
+    void add_match_host(int oid)
+    {
+        if (( resched == 1 && hid != oid ) || ( resched == 0 ))
+        {
+            match_hosts.add_resource(oid);
+        }
+    };
+
+    /**
+     *  Adds a matching datastore
+     *    @param oid of the datastore
+     */
+    void add_match_datastore(int oid)
+    {
+        match_datastores.add_resource(oid);
+    }
+
+    /**
+     *  Returns a vector of matched hosts
+     */
+    const vector<Resource *> get_match_hosts()
+    {
+        return match_hosts.get_resources();
+    }
+
+    /**
+     *  Returns a vector of matched datastores
+     */
+    const vector<Resource *> get_match_datastores()
+    {
+        return match_datastores.get_resources();
+    }
+
+    /**
+     *  Sort the matched hosts for the VM
+     */
+    void sort_match_hosts()
+    {
+        match_hosts.sort_resources();
+    }
+
+    /**
+     *  Sort the matched datastores for the VM
+     */
+    void sort_match_datastores()
+    {
+        match_datastores.sort_resources();
+    }
+
+    /**
+     *  Removes the matched hosts
+     */
+    void clear_match_hosts()
+    {
+        match_hosts.clear();
+    }
+
+    /**
+     *  Removes the matched datastores
+     */
+    void clear_match_datastores()
+    {
+        match_datastores.clear();
+    }
+
+    //--------------------------------------------------------------------------
+    // Action Interface
+    //--------------------------------------------------------------------------
 
     /**
      *  Get the user template of the VM
@@ -158,28 +235,7 @@ public:
     /**
      *  Function to write a Virtual Machine in an output stream
      */
-    friend ostream& operator<<(ostream& os, VirtualMachineXML& vm)
-    {
-        if (vm.hosts.empty())
-        {
-            return os;
-        }
-
-        vector<VirtualMachineXML::Host *>::reverse_iterator  i;
-        vector<int>::iterator j;
-
-        os  << "\t PRI\tHID  VM: " << vm.oid << endl
-            << "\t-----------------------"  << endl;
-
-        for (i=vm.hosts.rbegin();i!=vm.hosts.rend();i++)
-        {
-            os << "\t" << (*i)->priority << "\t" << (*i)->hid << endl;
-        }
-
-        os << endl;
-
-        return os;
-    };
+    friend ostream& operator<<(ostream& os, VirtualMachineXML& vm);
 
     /**
      * Adds a message to the VM's USER_TEMPLATE/SCHED_MESSAGE attribute
@@ -194,59 +250,31 @@ protected:
      */
     void init_attributes();
 
-    //--------------------------------------------------------------------------
-    //--------------------------------------------------------------------------
-    struct Host
-    {
-        int     hid;
-        float   priority;
+    ResourceMatch match_hosts;
 
-        Host(int _hid):
-            hid(_hid),
-            priority(0){};
+    ResourceMatch match_datastores;
 
-        ~Host(){};
+    /* ----------------------- VIRTUAL MACHINE ATTRIBUTES ------------------- */
+    int   oid;
 
-        bool operator<(const Host& b) const { //Sort by priority
-            return priority < b.priority;
-        }
-    };
+    int   uid;
+    int   gid;
 
-    static bool host_cmp (const Host * a, const Host * b )
-    {
-        return (*a < *b );
-    };
-    //--------------------------------------------------------------------------
-    //--------------------------------------------------------------------------
+    int   hid;
+    int   dsid;
 
-    // ----------------------- VIRTUAL MACHINE ATTRIBUTES --------------------
-    /**
-     *
-     */
-    int     oid;
+    int   resched;
 
-    int     uid;
-    int     gid;
+    int   memory;
+    float cpu;
 
-    int     hid;
+    string rank;
+    string requirements;
 
-    int     resched;
+    string ds_requirements;
+    string ds_rank;
 
-    int     memory;
-    float   cpu;
-
-    string  rank;
-    string  requirements;
-
-    /**
-     *  Matching hosts
-     */
-    vector<VirtualMachineXML::Host *>   hosts;
-
-    /**
-     * The VM user template
-     */
-     VirtualMachineTemplate * vm_template;
+    VirtualMachineTemplate * vm_template; /**< The VM user template */
 };
 
 #endif /* VM_XML_H_ */

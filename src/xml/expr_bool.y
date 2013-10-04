@@ -65,17 +65,6 @@ extern "C"
         return rc;
     }
 }
-
-int get_xml_attribute(ObjectXML * oxml, const char* attr, int& val);
-
-int get_xml_attribute(ObjectXML * oxml, const char* attr, float& val);
-
-int get_xml_attribute(ObjectXML * oxml, const char* attr, string& val);
-
-void get_xml_values(ObjectXML * oxml, const char* attr, vector<string>& results);
-
-void get_vm_ids(ObjectXML * oxml, set<int>& vm_ids);
-
 %}
 
 %parse-param {mem_collector * mc}
@@ -109,77 +98,80 @@ stmt:   expr    { result=$1;   }
         |       { result=true; } /* TRUE BY DEFAULT, ON EMPTY STRINGS */
         ;
 
-expr:   STRING '=' INTEGER { int val, rc;
+expr:   STRING '=' INTEGER {
+            int val = $3;
+            int rc;
 
-            if ($1 == string("CURRENT_VMS"))
-            {
-                set<int> vm_ids;
-                get_vm_ids(oxml, vm_ids);
+            rc = oxml->search($1,val);
 
-                $$ = vm_ids.count($3) > 0;
-            }
-            else
-            {
-                rc = get_xml_attribute(oxml,$1,val);
-                $$ = (rc == 0 && val == $3);
-            }
-          }
+            $$ = (rc == 0 && val == $3);
+        }
 
-        | STRING '!' '=' INTEGER { int val, rc;
+        | STRING '!' '=' INTEGER {
+            int val = $4;
+            int rc;
 
-            if ($1 == string("CURRENT_VMS"))
-            {
-                set<int> vm_ids;
-                get_vm_ids(oxml, vm_ids);
+            rc = oxml->search($1,val);
 
-                $$ = vm_ids.count($4) == 0;
-            }
-            else
-            {
-                rc = get_xml_attribute(oxml,$1,val);
-                $$ = (rc == 0 && val != $4);
-            }
-          }
+            $$ = (rc == 0 && val != $4);
+        }
 
-        | STRING '>' INTEGER { int val, rc;
+        | STRING '>' INTEGER {
+            int val, rc;
 
-            rc = get_xml_attribute(oxml,$1,val);
-            $$ = (rc == 0 && val > $3);}
+            rc = oxml->search($1,val);
+            $$ = (rc == 0 && val > $3);
+        }
 
-        | STRING '<' INTEGER { int val, rc;
+        | STRING '<' INTEGER {
+            int val, rc;
 
-            rc = get_xml_attribute(oxml,$1,val);
+            rc = oxml->search($1,val);
+            $$ = (rc == 0 && val < $3);
+        }
+
+        | STRING '=' FLOAT {
+            float val, rc;
+
+            rc = oxml->search($1,val);
+            $$ = (rc == 0 && val == $3);
+        }
+
+        | STRING '!' '=' FLOAT {
+            float val, rc;
+
+            rc = oxml->search($1,val);
+            $$ = (rc == 0 && val != $4);
+        }
+
+        | STRING '>' FLOAT {
+            float val, rc;
+
+            rc = oxml->search($1,val);
+            $$ = (rc == 0 && val > $3);
+        }
+
+        | STRING '<' FLOAT {
+            float val, rc;
+
+            rc = oxml->search($1,val);
             $$ = (rc == 0 && val < $3);}
 
-        | STRING '=' FLOAT { float val, rc;
+        | STRING '=' STRING {
+            string val;
+            int rc;
 
-            rc = get_xml_attribute(oxml,$1,val);
-            $$ = (rc == 0 && val == $3);}
+            rc = oxml->search($1,val);
+            $$ = (rc != 0 || $3==0) ? false : fnmatch($3,val.c_str(),0)==0;
+        }
 
-        | STRING '!' '=' FLOAT { float val, rc;
+        | STRING '!''=' STRING {
+            string val;
+            int rc;
 
-            rc = get_xml_attribute(oxml,$1,val);
-            $$ = (rc == 0 && val != $4);}
-
-        | STRING '>' FLOAT { float val, rc;
-
-            rc = get_xml_attribute(oxml,$1,val);
-            $$ = (rc == 0 && val > $3);}
-
-        | STRING '<' FLOAT { float val, rc;
-
-            rc = get_xml_attribute(oxml,$1,val);
-            $$ = (rc == 0 && val < $3);}
-
-        | STRING '=' STRING { string val; int rc;
-
-            rc = get_xml_attribute(oxml,$1,val);
-            $$ = (rc != 0 || $3==0) ? false : fnmatch($3,val.c_str(),0)==0;}
-
-        | STRING '!''=' STRING { string val; int rc;
-
-            rc = get_xml_attribute(oxml,$1,val);
-            $$ = (rc != 0 || $4==0) ? false : fnmatch($4,val.c_str(),0)!=0;}
+            rc = oxml->search($1,val);
+            $$ = (rc != 0 || $4==0) ? false : fnmatch($4,val.c_str(),0)!=0;
+        }
 
         | expr '&' expr { $$ = $1 && $3; }
         | expr '|' expr { $$ = $1 || $3; }
@@ -215,112 +207,4 @@ extern "C" void expr_bool__error(
     }
 
     result = false;
-}
-
-void get_xml_values(ObjectXML * oxml, const char* attr, vector<string> &results)
-{
-    if (attr[0] == '/')
-    {
-        results = (*oxml)[attr];
-    }
-    else
-    {
-        ostringstream  xpath;
-
-        xpath << "/HOST/TEMPLATE/" << attr
-            << "|/HOST/HOST_SHARE/" << attr
-            << "|/HOST/" << attr
-            << "|/HOST/CLUSTER_TEMPLATE/" << attr;
-
-        results = (*oxml)[xpath.str().c_str()];
-    }
-}
-
-int get_xml_attribute(ObjectXML * oxml, const char* attr, int& val)
-{
-    val = 0;
-
-    vector<string> results;
-    get_xml_values(oxml, attr, results);
-
-    if (results.size() != 0)
-    {
-        istringstream iss(results[0]);
-        iss >> val;
-
-        if (iss.fail())
-        {
-            val = 0;
-
-            return -1;
-        }
-
-        return 0;
-    }
-
-    return -1;
-}
-
-int get_xml_attribute(ObjectXML * oxml, const char* attr, float& val)
-{
-    val = 0.0;
-
-    vector<string> results;
-    get_xml_values(oxml, attr, results);
-
-    if (results.size() != 0)
-    {
-        istringstream iss(results[0]);
-        iss >> val;
-
-        if (iss.fail())
-        {
-            val = 0;
-
-            return -1;
-        }
-
-        return 0;
-    }
-
-    return -1;
-}
-
-int get_xml_attribute(ObjectXML * oxml, const char* attr, string& val)
-{
-    val = "";
-
-    vector<string> results;
-    get_xml_values(oxml, attr, results);
-
-    if (results.size() != 0)
-    {
-        val = results[0];
-
-        return 0;
-    }
-
-    return -1;
-}
-
-void get_vm_ids(ObjectXML * oxml, set<int>& vm_ids)
-{
-    istringstream  iss;
-    vector<string> results;
-    int id;
-
-    get_xml_values(oxml, "/HOST/VMS/ID", results);
-
-    for (vector<string>::iterator it=results.begin(); it!=results.end(); it++)
-    {
-        iss.clear();
-        iss.str(*it);
-
-        iss >> id;
-
-        if (!iss.fail())
-        {
-            vm_ids.insert(id);
-        }
-    }
 }

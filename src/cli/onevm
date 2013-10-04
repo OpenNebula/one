@@ -111,6 +111,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         OpenNebulaHelper.rname_to_id(arg, "USER")
     end
 
+    set :format, :datastoreid, OpenNebulaHelper.rname_to_id_desc("DATASTORE") do |arg|
+        OpenNebulaHelper.rname_to_id(arg, "DATASTORE")
+    end
+
     set :format, :vmid, OneVMHelper.to_id_desc do |arg|
         helper.to_id(arg)
     end
@@ -413,17 +417,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         States: PENDING
     EOT
 
-    command :deploy, deploy_desc, [:range,:vmid_list], :hostid,
+    command :deploy, deploy_desc, [:range,:vmid_list], :hostid, [:datastoreid,nil], 
             :options=>[ENFORCE] do
         host_id = args[1]
         verbose = "deploying in host #{host_id}"
 
+        enforce = options[:enforce].nil? ? false : options[:enforce]
+        ds_id = args[2].nil? ? -1 : args[2]
+
         helper.perform_actions(args[0],options,verbose) do |vm|
-            if !options[:enforce].nil?
-                vm.deploy(host_id, options[:enforce])
-            else
-                vm.deploy(host_id)
-            end
+            vm.deploy(host_id, enforce, ds_id)
         end
     end
 

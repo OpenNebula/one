@@ -20,6 +20,7 @@
 #include "Log.h"
 #include "HostPoolXML.h"
 #include "ClusterPoolXML.h"
+#include "DatastorePoolXML.h"
 #include "VirtualMachinePoolXML.h"
 #include "SchedulerPolicy.h"
 #include "ActionManager.h"
@@ -85,6 +86,11 @@ protected:
             delete vmapool;
         }
 
+        if ( dspool != 0)
+        {
+            delete dspool;
+        }
+
         if ( acls != 0)
         {
             delete acls;
@@ -105,6 +111,7 @@ protected:
 
     VirtualMachinePoolXML *       vmpool;
     VirtualMachineActionsPoolXML* vmapool;
+    DatastorePoolXML * dspool;
 
     AclXML * acls;
 
@@ -112,9 +119,14 @@ protected:
     // Scheduler Policies
     // ---------------------------------------------------------------
 
-    void add_host_policy(SchedulerHostPolicy *policy)
+    void add_host_policy(SchedulerPolicy *policy)
     {
         host_policies.push_back(policy);
+    }
+
+    void add_ds_policy(SchedulerPolicy *policy)
+    {
+        ds_policies.push_back(policy);
     }
 
     // ---------------------------------------------------------------
@@ -126,11 +138,9 @@ protected:
      *  the capacity of the host is checked. If there is enough room to host the
      *  VM a share vector is added to the VM.
      */
-    virtual void match();
+    virtual void match_schedule();
 
     virtual void dispatch();
-
-    virtual int schedule();
 
     /**
      * Retrieves the pools
@@ -140,7 +150,6 @@ protected:
      *          -2 if no VMs need to be scheduled
      */
     virtual int set_up_pools();
-
 
     virtual int do_scheduled_actions();
 
@@ -155,7 +164,8 @@ private:
     // Scheduling Policies
     // ---------------------------------------------------------------
 
-    vector<SchedulerHostPolicy *>   host_policies;
+    vector<SchedulerPolicy *> host_policies;
+    vector<SchedulerPolicy *> ds_policies;
 
     // ---------------------------------------------------------------
     // Configuration attributes

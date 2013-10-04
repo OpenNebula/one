@@ -14,69 +14,34 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "Scheduler.h"
-#include "SchedulerTemplate.h"
-#include "RankPolicy.h"
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-
-#include <iostream>
 #include <sstream>
 
+#include "DatastoreXML.h"
 
-using namespace std;
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-class RankScheduler : public Scheduler
-{
-public:
+int DatastoreXML::ds_num_paths = 2;
 
-    RankScheduler():Scheduler(),rp_host(0),rp_ds(0){};
-
-    ~RankScheduler()
-    {
-        if ( rp_host != 0 )
-        {
-            delete rp_host;
-        }
-
-        if ( rp_ds != 0 )
-        {
-            delete rp_ds;
-        }
-    };
-
-    void register_policies(const SchedulerTemplate& conf)
-    {
-        rp_host = new RankHostPolicy(hpool, conf.get_policy(), 1.0);
-
-        add_host_policy(rp_host);
-
-        rp_ds = new RankDatastorePolicy(dspool, conf.get_ds_policy(), 1.0);
-
-        add_ds_policy(rp_ds);
-    };
-
-private:
-    RankPolicy * rp_host;
-    RankPolicy * rp_ds;
+const char * DatastoreXML::ds_paths[] = {
+    "/DATASTORE/TEMPLATE/",
+    "/DATASTORE/"
 };
 
-int main(int argc, char **argv)
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void DatastoreXML::init_attributes()
 {
-    RankScheduler ss;
+    oid        = atoi(((*this)["/DATASTORE/ID"] )[0].c_str() );
+    cluster_id = atoi(((*this)["/DATASTORE/CLUSTER_ID"] )[0].c_str() );
 
-    try
-    {
-        ss.start();
-    }
-    catch (exception &e)
-    {
-        cout << e.what() << endl;
+    free_mb = static_cast<unsigned int>(
+        atol(((*this)["/DATASTORE/FREE_MB"])[0].c_str()));
 
-        return -1;
-    }
-
-    return 0;
+    ObjectXML::paths     = ds_paths;
+    ObjectXML::num_paths = ds_num_paths;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

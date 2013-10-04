@@ -27,8 +27,9 @@ class ClusterPoolXML : public PoolXML
 {
 public:
 
-    ClusterPoolXML(Client* client):PoolXML(client)
-    {};
+    ClusterPoolXML(Client* client):PoolXML(client){};
+
+    ~ClusterPoolXML(){};
 
     /**
      *  Gets an object from the pool
@@ -40,6 +41,11 @@ public:
     {
         return static_cast<ClusterXML *>(PoolXML::get(oid));
     };
+
+    /**
+     *  Identifier for the "none" cluster
+     */
+    static const int NONE_CLUSTER_ID;
 
 protected:
 

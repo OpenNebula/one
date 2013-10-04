@@ -491,11 +491,13 @@ public class VirtualMachine extends PoolElement{
      * @param enforce If it is set to true, the host capacity
      * will be checked, and the deployment will fail if the host is
      * overcommited. Defaults to false
+     * @param dsId The System Datastore where to deploy the VM. To use the
+     * default, set it to -1
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse deploy(int hostId, boolean enforce)
+    public OneResponse deploy(int hostId, boolean enforce, int dsId)
     {
-        return client.call(DEPLOY, id, hostId, enforce);
+        return client.call(DEPLOY, id, hostId, enforce, dsId);
     }
 
     /**
@@ -507,7 +509,7 @@ public class VirtualMachine extends PoolElement{
      */
     public OneResponse deploy(int hostId)
     {
-        return deploy(hostId, false);
+        return deploy(hostId, false, -1);
     }
 
     /**

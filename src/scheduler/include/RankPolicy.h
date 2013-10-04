@@ -22,74 +22,150 @@
 
 using namespace std;
 
-class RankPolicy : public SchedulerHostPolicy
+class RankPolicy : public SchedulerPolicy
 {
 public:
 
-    RankPolicy(
-        VirtualMachinePoolXML *   vmpool,
-        HostPoolXML *             hpool,
-        const string&             dr,
-        float                     w = 1.0)
-            :SchedulerHostPolicy(vmpool,hpool,w), default_rank(dr){};
+    RankPolicy(PoolXML * _pool, const string&  dr, float  w = 1.0):
+            SchedulerPolicy(w), default_rank(dr), pool(_pool) {};
 
-    ~RankPolicy(){};
+    virtual ~RankPolicy(){};
 
-private:
+protected:
 
+    /**
+     *  Gets the rank to apply.
+     */
+    virtual const string& get_rank(ObjectXML *obj) = 0;
+
+    /**
+     *  Default rank for resources
+     */
     string default_rank;
 
-    void policy(
-        VirtualMachineXML * vm)
+    /**
+     *  Pool of matched resources
+     */
+    PoolXML * pool;
+
+private:
+    /**
+     *  Implements the Match-Making policy by computing the rank of each resource
+     *    @param obj The Schedulable object
+     *    @param priority for each resource.
+     */
+    void policy(ObjectXML * obj, vector<float>& priority)
     {
-        string  srank;
-        int     rank;
+        ObjectXML * resource;
+        char *      errmsg = 0;
 
-        char *  errmsg;
-        int     rc;
+        int rc, rank = 0;
 
-        vector<int>     hids;
-        unsigned int    i;
+        const vector<Resource *> resources = get_match_resources(obj);
 
-        HostXML * host;
+        string srank = get_rank(obj);
 
-        vm->get_matching_hosts(hids);
-
-        srank = vm->get_rank();
+        priority.clear();
 
         if (srank.empty())
         {
-            srank = default_rank;
-        } 
+            priority.resize(resources.size(),0);
+            return;
+        }
 
-        for (i=0;i<hids.size();i++)
+        for (unsigned int i=0; i<resources.size(); rank=0, i++)
         {
-            rank = 0;
+            resource = pool->get(resources[i]->oid);
 
-            if (srank != "")
+            if ( resource != 0 )
             {
-                host = hpool->get(hids[i]);
+                rc = resource->eval_arith(srank, rank, &errmsg);
 
-                if ( host != 0 )
+                if (rc != 0)
                 {
-                    rc = host->eval_arith(srank, rank, &errmsg);
+                    ostringstream oss;
 
-                    if (rc != 0)
+                    oss << "Computing rank, expression: " << srank;
+
+                    if (errmsg != 0)
                     {
-                        ostringstream oss;
-
-                        oss << "Computing host rank, expression: " << srank
-                            << ", error: " << errmsg;
-                        NebulaLog::log("RANK",Log::ERROR,oss);
+                        oss << ", error: " << errmsg;
+                        errmsg = 0;
 
                         free(errmsg);
                     }
+
+                    NebulaLog::log("RANK",Log::ERROR,oss);
                 }
             }
 
             priority.push_back(rank);
         }
-    }
+    };
+};
+
+
+class RankHostPolicy : public RankPolicy
+{
+public:
+
+    RankHostPolicy(HostPoolXML * pool, const string&  dr, float  w = 1.0):
+            RankPolicy(pool, dr, w){};
+
+    ~RankHostPolicy(){};
+
+private:
+
+    const vector<Resource *> get_match_resources(ObjectXML *obj)
+    {
+        VirtualMachineXML * vm = dynamic_cast<VirtualMachineXML *>(obj);
+
+        return vm->get_match_hosts();
+    };
+
+    const string& get_rank(ObjectXML *obj)
+    {
+        VirtualMachineXML * vm = dynamic_cast<VirtualMachineXML *>(obj);
+
+        if (vm->get_rank().empty())
+        {
+            return default_rank;
+        }
+
+        return vm->get_rank();
+    };
+};
+
+
+class RankDatastorePolicy : public RankPolicy
+{
+public:
+
+    RankDatastorePolicy(DatastorePoolXML * pool, const string&  dr,float w=1.0):
+            RankPolicy(pool, dr, w){};
+
+    ~RankDatastorePolicy(){};
+
+private:
+
+    const vector<Resource *> get_match_resources(ObjectXML *obj)
+    {
+        VirtualMachineXML * vm = dynamic_cast<VirtualMachineXML *>(obj);
+
+        return vm->get_match_datastores();
+    };
+
+    const string& get_rank(ObjectXML *obj)
+    {
+        VirtualMachineXML * vm = dynamic_cast<VirtualMachineXML *>(obj);
+
+        if (vm->get_ds_rank().empty())
+        {
+            return default_rank;
+        }
+
+        return vm->get_ds_rank();
+    };
 };
 
 #endif /*RANK_POLICY_H_*/
