@@ -242,8 +242,7 @@ private:
             int                 umask,
             DatastoreTemplate*  ds_template,
             int                 cluster_id,
-            const string&       cluster_name,
-            const string&       ds_location);
+            const string&       cluster_name);
 
     virtual ~Datastore(){};
 

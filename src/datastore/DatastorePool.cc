@@ -44,13 +44,9 @@ DatastorePool::DatastorePool(SqlDB * db):
     ostringstream oss;
     string        error_str;
 
-    Nebula& nd = Nebula::instance();
-
     if (get_lastOID() == -1) //lastOID is set in PoolSQL::init_cb
     {
         DatastoreTemplate * ds_tmpl;
-
-        string ds_location = nd.get_ds_location();
         int    rc;
 
         // ---------------------------------------------------------------------
@@ -78,7 +74,6 @@ DatastorePool::DatastorePool(SqlDB * db):
                 &rc,
                 ClusterPool::NONE_CLUSTER_ID,
                 ClusterPool::NONE_CLUSTER_NAME,
-                ds_location,
                 error_str);
 
         if( rc < 0 )
@@ -113,7 +108,6 @@ DatastorePool::DatastorePool(SqlDB * db):
                 &rc,
                 ClusterPool::NONE_CLUSTER_ID,
                 ClusterPool::NONE_CLUSTER_NAME,
-                ds_location,
                 error_str);
 
         if( rc < 0 )
@@ -148,7 +142,6 @@ DatastorePool::DatastorePool(SqlDB * db):
                 &rc,
                 ClusterPool::NONE_CLUSTER_ID,
                 ClusterPool::NONE_CLUSTER_NAME,
-                ds_location,
                 error_str);
 
         if( rc < 0 )
@@ -183,7 +176,6 @@ int DatastorePool::allocate(
         int *               oid,
         int                 cluster_id,
         const string&       cluster_name,
-        string&             ds_location,
         string&             error_str)
 {
     Datastore * ds;
@@ -193,13 +185,8 @@ int DatastorePool::allocate(
 
     ostringstream oss;
 
-    if (*ds_location.rbegin() != '/' )
-    {
-        ds_location += '/';
-    }
-
     ds = new Datastore(uid, gid, uname, gname, umask,
-            ds_template, cluster_id, cluster_name, ds_location);
+            ds_template, cluster_id, cluster_name);
 
     // -------------------------------------------------------------------------
     // Check name & duplicates

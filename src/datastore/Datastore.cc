@@ -44,14 +44,13 @@ Datastore::Datastore(
         int                 umask,
         DatastoreTemplate*  ds_template,
         int                 cluster_id,
-        const string&       cluster_name,
-        const string&       ds_location):
+        const string&       cluster_name):
             PoolObjectSQL(-1,DATASTORE,"",uid,gid,uname,gname,table),
             ObjectCollection("IMAGES"),
             Clusterable(cluster_id, cluster_name),
             ds_mad(""),
             tm_mad(""),
-            base_path(ds_location),
+            base_path(""),
             type(IMAGE_DS),
             total_mb(0),
             free_mb(0),
@@ -169,20 +168,12 @@ int Datastore::insert(SqlDB *db, string& error_str)
         goto error_tm;
     }
 
+    erase_template_attribute("BASE_PATH", base_path);
 
-    get_template_attribute("DATASTORE_LOCATION", datastore_location);
-
-    if (datastore_location.empty() == true )
+    if (base_path.empty() == true )
     {
         Nebula& nd = Nebula::instance();
-        nd.get_configuration_attribute("DATASTORE_LOCATION", datastore_location);
-    }
-
-    // If default value provided, use it
-    // If not, default to /var/lib/one (already present in base_path)
-    if (datastore_location.empty() != true )
-    {
-        base_path = datastore_location;
+        nd.get_configuration_attribute("DATASTORE_BASE_PATH", base_path);
     }
 
     if ( base_path.at(base_path.size()-1) != '/' )
@@ -190,7 +181,7 @@ int Datastore::insert(SqlDB *db, string& error_str)
         base_path += "/";
     }
 
-    oss << base_path << oid; //base_path points to ds_location - constructor
+    oss << base_path << oid;
 
     base_path = oss.str();
 

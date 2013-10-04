@@ -280,16 +280,6 @@ public:
     };
 
     /**
-     *  Returns the default var location. When ONE_LOCATION is defined this path
-     *  points to $ONE_LOCATION/var, otherwise it is /var/lib/one.
-     *      @return the log location.
-     */
-    const string& get_ds_location()
-    {
-        return ds_location;
-    };
-
-    /**
      *  Returns the default vms location. When ONE_LOCATION is defined this path
      *  points to $ONE_LOCATION/var/vms, otherwise it is /var/lib/one/vms. This
      *  location stores vm related files: deployment, transfer, context, and
@@ -526,7 +516,6 @@ private:
             log_location     = "/var/log/one/";
             var_location     = "/var/lib/one/";
             remotes_location = "/var/lib/one/remotes/";
-            ds_location      = "/var/lib/one/datastores/";
             vms_location     = "/var/lib/one/vms/";
         }
         else
@@ -543,7 +532,6 @@ private:
             log_location     = nebula_location + "var/";
             var_location     = nebula_location + "var/";
             remotes_location = nebula_location + "var/remotes/";
-            ds_location      = nebula_location + "var/datastores/";
             vms_location     = nebula_location + "var/vms/";
         }
     };
@@ -680,7 +668,6 @@ private:
     string	var_location;
     string  hook_location;
     string  remotes_location;
-    string  ds_location;
     string  vms_location;
 
     string	hostname;

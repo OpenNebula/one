@@ -240,6 +240,7 @@ void OpenNebulaTemplate::set_conf_default()
 # Datastore Configuration
 #*******************************************************************************
 #  DATASTORE_LOCATION
+#  DATASTORE_BASE_PATH
 #  DATASTORE_CAPACITY_CHECK
 #  DEFAULT_IMAGE_TYPE
 #  DEFAULT_DEVICE_PREFIX
@@ -247,6 +248,11 @@ void OpenNebulaTemplate::set_conf_default()
 */
     //DATASTORE_LOCATION
     attribute = new SingleAttribute("DATASTORE_LOCATION",
+                                     var_location + "/datastores");
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
+    //DATASTORE_BASE_PATH
+    attribute = new SingleAttribute("DATASTORE_BASE_PATH",
                                      var_location + "/datastores");
     conf_default.insert(make_pair(attribute->name(),attribute));
 
