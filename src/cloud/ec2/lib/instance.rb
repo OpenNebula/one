@@ -47,6 +47,13 @@ module Instance
         'unkn' => :terminated
     }
 
+    EC2_ACTIONS = {
+        :start      => :resume,
+        :stop       => :poweroff,
+        :terminate  => :shutdown,
+        :reboot     => :reboot
+    }
+
     # Include terminated instances in the describe_instances xml
     DESCRIBE_WITH_TERMINATED_INSTANCES = true
     # Terminated VMs will be included in the list
@@ -234,7 +241,7 @@ module Instance
     def terminate_instances(params)
         perform_action(params, "terminate_instances.erb") { |vm|
             if vm.status == 'runn'
-                vm.shutdown
+                vm.send(EC2_ACTIONS[:terminate])
             else
                 vm.finalize
             end
@@ -243,19 +250,19 @@ module Instance
 
     def start_instances(params)
         perform_action(params, "start_instances.erb") { |vm|
-            vm.resume
+            vm.send(EC2_ACTIONS[:start])
         }
     end
 
     def stop_instances(params)
         perform_action(params, "stop_instances.erb") { |vm|
-            vm.stop
+            vm.send(EC2_ACTIONS[:stop])
         }
     end
 
     def reboot_instances(params)
         perform_action(params, "reboot_instances.erb") { |vm|
-            vm.reboot
+            vm.send(EC2_ACTIONS[:reboot])
         }
     end
 
