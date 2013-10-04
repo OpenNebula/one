@@ -478,8 +478,6 @@ int VirtualMachine::set_os_file(VectorAttribute *  os,
 
     string type_str;
 
-    ostringstream oss;
-
     attr = os->vector_value(base_name_ds.c_str());
 
     if ( attr.empty() )
@@ -525,7 +523,7 @@ int VirtualMachine::set_os_file(VectorAttribute *  os,
 
     if ( type != base_type )
     {
-        oss.str("");
+        ostringstream oss;
 
         oss << base_name << " needs an image of type "
             << Image::type_to_str(base_type) << " and not "
@@ -535,8 +533,9 @@ int VirtualMachine::set_os_file(VectorAttribute *  os,
         return -1;
     }
 
-    if ( state != Image::READY ) {
-        oss.str("");
+    if ( state != Image::READY )
+    {
+        ostringstream oss;
 
         oss << type_str << " Image '" << img_id << " 'not in READY state.";
 
@@ -635,7 +634,6 @@ int VirtualMachine::parse_context(string& error_str)
     string   files_ds_parsed;
 
     ostringstream oss_parsed;
-    ostringstream oss;
 
     vector<int>  img_ids;
 
@@ -807,8 +805,6 @@ int VirtualMachine::parse_context(string& error_str)
 
                 if ( img != 0 )
                 {
-
-
                     oss_parsed << img->get_source() << ":'"
                                << img->get_name() << "' ";
 
@@ -824,12 +820,15 @@ int VirtualMachine::parse_context(string& error_str)
                         return -1;
                     }
 
-                    if ( state != Image::READY ) {
-                        oss.str("");
+                    if ( state != Image::READY )
+                    {
+                        ostringstream oss;
+
                         oss << Image::type_to_str(type)
-                        oss << " Image '" << *it
-                            << "' not in READY state.";
+                            << " Image '" << *it << "' not in READY state.";
+
                         error_str = oss.str();
+
                         return -1;
                     }
 
