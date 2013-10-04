@@ -457,9 +457,12 @@ int VirtualMachine::set_os_file(VectorAttribute *  os,
     Nebula& nd = Nebula::instance();
 
     ImagePool * ipool = nd.get_ipool();
-    Image  *    img   = 0;
+    Image *     img   = 0;
 
-    Image::ImageType type;
+    int img_id;
+
+    Image::ImageType  type;
+    Image::ImageState state;
 
     DatastorePool * ds_pool = nd.get_dspool();
     Datastore *     ds;
@@ -472,6 +475,8 @@ int VirtualMachine::set_os_file(VectorAttribute *  os,
     string base_name_ds_id  = base_name + "_DS_DSID";
     string base_name_tm     = base_name + "_DS_TM";
     string base_name_cluster= base_name + "_DS_CLUSTER_ID";
+
+    string type_str;
 
     attr = os->vector_value(base_name_ds.c_str());
 
@@ -491,13 +496,17 @@ int VirtualMachine::set_os_file(VectorAttribute *  os,
         return -1;
     }
 
-    img = ipool->get(img_ids.back(), true);
+    img_id = img_ids.back();
+
+    img = ipool->get(img_id, true);
 
     if ( img == 0 )
     {
         error_str = "Image no longer exists in attribute: " + attr;
         return -1;
     }
+
+    state = img->get_state();
 
     ds_id = img->get_ds_id();
     type  = img->get_type();
@@ -510,13 +519,25 @@ int VirtualMachine::set_os_file(VectorAttribute *  os,
 
     img->unlock();
 
+    type_str = Image::type_to_str(type);
+
     if ( type != base_type )
     {
         ostringstream oss;
 
         oss << base_name << " needs an image of type "
             << Image::type_to_str(base_type) << " and not "
-            << Image::type_to_str(type);
+            << type_str;
+
+        error_str = oss.str();
+        return -1;
+    }
+
+    if ( state != Image::READY )
+    {
+        ostringstream oss;
+
+        oss << type_str << " Image '" << img_id << " 'not in READY state.";
 
         error_str = oss.str();
         return -1;
@@ -776,6 +797,7 @@ int VirtualMachine::parse_context(string& error_str)
             Image  *    img   = 0;
 
             Image::ImageType type;
+            Image::ImageState state;
 
             for ( it=img_ids.begin() ; it < img_ids.end(); it++ )
             {
@@ -786,7 +808,8 @@ int VirtualMachine::parse_context(string& error_str)
                     oss_parsed << img->get_source() << ":'"
                                << img->get_name() << "' ";
 
-                    type = img->get_type();
+                    type  = img->get_type();
+                    state = img->get_state();
 
                     img->unlock();
 
@@ -796,6 +819,19 @@ int VirtualMachine::parse_context(string& error_str)
                                     " FILE_DS attribute.";
                         return -1;
                     }
+
+                    if ( state != Image::READY )
+                    {
+                        ostringstream oss;
+
+                        oss << Image::type_to_str(type)
+                            << " Image '" << *it << "' not in READY state.";
+
+                        error_str = oss.str();
+
+                        return -1;
+                    }
+
                 }
             }
         }
