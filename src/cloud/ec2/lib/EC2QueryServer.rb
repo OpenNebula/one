@@ -218,6 +218,9 @@ class EC2QueryServer < CloudServer
                     OpenNebula::Image::IMAGE_TYPES[0],
                     true)
 
+        # TODO Add AMI Tags
+        # TODO A new persistent image should be created for each instance
+
         if OpenNebula::is_error?(image_id)
             return image_id
         end

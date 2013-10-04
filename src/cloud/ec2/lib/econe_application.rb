@@ -146,8 +146,8 @@ class EC2Application
             result,rc = econe_server.delete_tags(params)
         when 'DescribeTags'
             result,rc = econe_server.describe_tags(params)
-        when 'CreateImage'
-            result,rc = econe_server.create_image(params)
+        #when 'CreateImage'
+        #    result,rc = econe_server.create_image(params)
         when 'CreateVolume'
             result,rc = econe_server.create_volume(params)
         when 'DescribeVolumes'
