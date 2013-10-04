@@ -1068,6 +1068,16 @@ public:
      */
     void release_disk_images();
 
+    /**
+     *  Check if the given disk is volatile
+     */
+    static bool isVolatile(const VectorAttribute * disk);
+
+    /**
+     *  Return the total SIZE of volatile disks
+     */
+    static float get_volatile_disk_size(Template * tmpl);
+
     // ------------------------------------------------------------------------
     // Context related functions
     // ------------------------------------------------------------------------

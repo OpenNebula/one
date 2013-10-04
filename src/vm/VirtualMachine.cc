@@ -2005,6 +2005,56 @@ VectorAttribute * VirtualMachine::delete_attach_disk()
 
     return 0;
 }
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool VirtualMachine::isVolatile(const VectorAttribute * disk)
+{
+    string type = disk->vector_value("TYPE");
+
+    one_util::toupper(type);
+
+    return ( type == "SWAP" || type == "FS");
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+float VirtualMachine::get_volatile_disk_size(Template * tmpl)
+{
+    float size = 0;
+
+    vector<const Attribute*> disks;
+    int num_disks = tmpl->get("DISKS", disks);
+
+    if (num_disks == 0)
+    {
+        return size;
+    }
+
+    for (int i = 0 ; i < num_disks ; i++)
+    {
+        float disk_size;
+        const VectorAttribute * disk = dynamic_cast<const VectorAttribute*>(disks[i]);
+
+        if (disk == 0)
+        {
+            continue;
+        }
+
+        if (!VirtualMachine::isVolatile(disk))
+        {
+            continue;
+        }
+
+        if (disk->vector_value("SIZE", disk_size) == 0)
+        {
+            size += disk_size;
+        }
+    }
+
+    return size;
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
