@@ -21,11 +21,23 @@ void  LifeCycleManager::deploy_action(int vid)
 {
     VirtualMachine *    vm;
     ostringstream       os;
+    Host           *    host;
+    bool                host_is_hybrid;
 
     vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
+        return;
+    }
+
+    host = hpool->get(vm->get_hid(),true);
+    host_is_hybrid=host->isHybrid();  
+    host->unlock();
+
+    if (host_is_hybrid)
+    {
+        trigger(PROLOG_SUCCESS,vid);
         return;
     }
 

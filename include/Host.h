@@ -23,6 +23,7 @@
 #include "Clusterable.h"
 #include "ObjectCollection.h"
 #include "NebulaLog.h"
+#include "NebulaUtil.h"
 
 using namespace std;
 
@@ -84,6 +85,12 @@ public:
                 (state == MONITORING_INIT)||
                 (state == MONITORING_DISABLED));
      }
+
+    /**
+     *  Check if host is hybrid
+     *    @return true if the host is enabled
+     */
+     bool isHybrid() const;
 
     /**
      *   Disables the current host, it will not be monitored nor used by the
@@ -459,6 +466,7 @@ private:
      */
     ObjectCollection vm_collection;
 
+
     // *************************************************************************
     // Constructor
     // *************************************************************************
@@ -488,6 +496,13 @@ private:
     static const char * monit_db_bootstrap;
 
     static const char * monit_table;
+
+    /**
+     *  Array containing the hybrid hypervisors, and counter
+     */
+    static const char * HYBRID_HYPERVISORS[];
+
+    static const int NUM_HYBRID_HYPERVISORS;
 
     /**
      *  Execute an INSERT or REPLACE Sql query.

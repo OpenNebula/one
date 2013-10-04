@@ -67,11 +67,26 @@ public:
      */
     void remove_all_except_restricted();
 
+    /**
+     *  Returns a copy of the VirtualMachineTemplate
+     *  @param hypervisor the resulting hypervisor string
+     *    @return true if any hybrid hypervisor found, false otherwise
+     */
+     bool get_hybrid_hypervisor(string& hypervisor) const;
+
 private:
 
     friend class VirtualMachinePool;
 
     static vector<string> restricted_attributes;
+
+
+    /**
+     *  Array containing the hybrid attributes, and counter
+     */
+    static const char * HYBRID_ATTRIBUTES[];
+
+    static const int NUM_HYBRID_ATTRIBUTES;
 
     /**
      * Stores the attributes as restricted, these attributes will be used in
