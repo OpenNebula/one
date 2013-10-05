@@ -180,7 +180,7 @@ int MySqlDB::exec(ostringstream& cmd, Callbackable* obj)
 
         free_db_connection(db);
 
-        return -1;
+        return err_num;
     }
 
 
@@ -208,7 +208,7 @@ int MySqlDB::exec(ostringstream& cmd, Callbackable* obj)
 
             free_db_connection(db);
 
-            return -1;
+            return err_num;
         }
 
         // Fetch the names of the fields

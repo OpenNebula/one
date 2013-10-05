@@ -32,9 +32,10 @@ static const char * usage =
 "SYNOPSIS\n"
 "  Starts the OpenNebula daemon\n\n"
 "OPTIONS\n"
-"\t-h\tprints this help.\n"
 "\t-v\tprints OpenNebula version and license\n"
-"\t-f\tforeground, do not fork the oned daemon\n";
+"\t-h\tprints this help.\n"
+"\t-f\tforeground, do not fork the oned daemon\n"
+"\t-i\tinitialize the dabase and exit.\n";
 
 static const char * susage =
 "usage: oned [-h] [-v] [-f]\n";
@@ -48,6 +49,24 @@ static void print_license()
         << Nebula::version() << " is distributed and licensed for use under the"
         << " terms of the\nApache License, Version 2.0 "
         << "(http://www.apache.org/licenses/LICENSE-2.0).\n";
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+static void oned_init()
+{
+    try
+    {
+        Nebula& nd  = Nebula::instance();
+        nd.init();   
+    }
+    catch (exception &e)
+    {
+        cerr << e.what() << endl;
+ 
+        return;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -81,7 +100,7 @@ int main(int argc, char **argv)
     string          wd;
     int             rc;
             
-    while((opt = getopt(argc,argv,"vhf")) != -1)
+    while((opt = getopt(argc,argv,"vhif")) != -1)
         switch(opt)
         {
             case 'v':
@@ -90,6 +109,10 @@ int main(int argc, char **argv)
                 break;
             case 'h':
                 cout << usage;
+                exit(0);
+                break;
+            case 'i':
+                oned_init();
                 exit(0);
                 break;
             case 'f':

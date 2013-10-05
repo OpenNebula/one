@@ -79,7 +79,7 @@ if [ ! -d /var/lock/one ]; then
 fi
 
 # Start the one daemon
-$ONED -f 2>&1 &
+$ONED -i 2>&1 &
 STARTED=$?
 CURPID=$!
 
@@ -89,9 +89,10 @@ if [ $STARTED -ne 0 ]; then
 fi
 
 # Give oned a chance to do it's thing...
-sleep 2
+sleep 5
 
 # OK we're all done here
+# Just in case the process gets stuck, kill it
 kill -TERM $CURPID > /dev/null 2>&1
 
 counter=0
@@ -105,4 +106,4 @@ while ps $CURPID > /dev/null 2>&1; do
 done
 
 # If the lock file is left over remove it
-rm -f /var/lol/one/one
+rm -f /var/lock/one/one

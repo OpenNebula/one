@@ -343,6 +343,11 @@ public:
      */
     void start();
 
+    /**
+     *  Initialize the database
+     */
+    void init();
+
     // -----------------------------------------------------------------------
     // Configuration attributes (read from oned.conf)
     // -----------------------------------------------------------------------

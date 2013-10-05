@@ -23,7 +23,8 @@
 #include <stdlib.h>
 #include <stdexcept>
 #include <libxml/parser.h>
-
+ 
+#include <errno.h>
 #include <signal.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -116,7 +117,6 @@ int SystemDB::select_cb(void *_loaded_db_version, int num, char **values,
 
 int SystemDB::check_db_version()
 {
-    int             rc;
     ostringstream   oss;
 
     string loaded_db_version = "";
@@ -132,21 +132,6 @@ int SystemDB::check_db_version()
 
     oss.str("");
     unset_callback();
-
-    if( loaded_db_version == "" )
-    {
-        // Table user_pool is present for all OpenNebula versions, and it
-        // always contains at least the oneadmin user.
-        oss << "SELECT MAX(oid) FROM user_pool";
-        rc = db->exec(oss);
-
-        oss.str("");
-
-        if( rc != 0 )   // Database needs bootstrap
-        {
-            return -2;
-        }
-    }
 
     if( Nebula::db_version() != loaded_db_version )
     {
@@ -268,21 +253,10 @@ int SystemDB::select_sys_attribute(const string& attr_name, string& attr_xml)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Nebula::start()
+void Nebula::init()
 {
-    int             rc;
-    int             fd;
-    sigset_t        mask;
-    int             signal;
-    char            hn[80];
-    string          scripts_remote_dir;
-
-    if ( gethostname(hn,79) != 0 )
-    {
-        throw runtime_error("Error getting hostname");
-    }
-
-    hostname = hn;
+    int    rc;
+    string scripts_remote_dir;
 
     // -----------------------------------------------------------
     // Configuration
@@ -384,6 +358,7 @@ void Nebula::start()
         int  rc;
 
         bool   db_is_sqlite = true;
+        bool   bootstrap_db = false;
 
         string server  = "localhost";
         string port_str;
@@ -445,8 +420,19 @@ void Nebula::start()
 
         if ( db_is_sqlite )
         {
-            string  db_name = var_location + "one.db";
-
+            db_name = var_location + "one.db";
+            rc = access(db_name.c_str(), R_OK|W_OK|F_OK);
+            if (rc == -1)
+            {
+                if (errno == ENOENT)
+                {
+                    bootstrap_db = true;
+                }
+                else
+                {
+                    throw runtime_error("Could not acces one.db file");
+                } 
+            }
             db = new SqliteDB(db_name);
         }
         else
@@ -454,28 +440,41 @@ void Nebula::start()
             ostringstream   oss;
 
             db = new MySqlDB(server,port,user,passwd,db_name);
+
+            oss << "USE " << db_name;
+            rc = db->exec(oss);
+
+            if ( rc == 1044 )
+            {
+                oss.str("");                
+                oss << "CREATE DATABASE " << db_name;
+                rc = db->exec(oss);
+
+                if ( rc == 0 )
+                {
+                    bootstrap_db = true;
+                }
+                else if ( rc == 1044 )
+                {
+                    throw runtime_error("Could not create database.");
+                }
+            }
+            else if ( rc != 0 )
+            {
+                throw runtime_error("Could not open database.");
+            }
         }
 
         // ---------------------------------------------------------------------
         // Prepare the SystemDB and check versions
         // ---------------------------------------------------------------------
 
-        NebulaLog::log("ONE",Log::INFO,"Checking database version.");
-
         system_db = new SystemDB(db);
 
-        rc = system_db->check_db_version();
-
-        if( rc == -1 )
-        {
-            throw runtime_error("Database version mismatch.");
-        }
-
-        if( rc == -2 )
-        {
+        if (bootstrap_db) {
             rc = 0;
-
-            NebulaLog::log("ONE",Log::INFO,"Bootstrapping OpenNebula database.");
+            NebulaLog::log("ONE",Log::INFO,
+                           "Bootstrapping OpenNebula database.");
 
             rc += VirtualMachinePool::bootstrap(db);
             rc += HostPool::bootstrap(db);
@@ -502,13 +501,42 @@ void Nebula::start()
             if ( rc != 0 )
             {
                 throw runtime_error("Error bootstrapping database.");
-            }
+            } 
+        }
+
+        NebulaLog::log("ONE",Log::INFO,"Checking database version.");
+        rc = system_db->check_db_version();
+
+        if( rc == -1 )
+        {
+            throw runtime_error("Database version mismatch.");
         }
     }
     catch (exception&)
     {
         throw;
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Nebula::start()
+{
+    int             rc;
+    int             fd;
+    sigset_t        mask;
+    int             signal;
+    char            hn[80];
+
+    if ( gethostname(hn,79) != 0 )
+    {
+        throw runtime_error("Error getting hostname");
+    }
+
+    hostname = hn;
+
+    Nebula::init();
 
     try
     {
