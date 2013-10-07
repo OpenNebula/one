@@ -103,7 +103,8 @@ var create_datastore_tmpl =
             <option value="fs">' + tr("Filesystem") + '</option>\
             <option value="vmware_vmfs">' + tr("VMware VMFS") + '</option>\
             <option value="iscsi">' + tr("iSCSI") + '</option>\
-            <option value="lvm">' + tr("LVM") + '</option>\
+            <option value="block_lvm">' + tr("Block LVM") + '</option>\
+            <option value="fs_lvm">' + tr("FS LVM") + '</option>\
             <option value="ceph">' + tr("Ceph") + '</option>\
             <option value="custom">' + tr("Custom") + '</option>\
           </select>\
@@ -193,6 +194,7 @@ var create_datastore_tmpl =
                   <option value="iscsi">' + tr("iSCSI") + '</option>\
                   <option value="dummy">' + tr("Dummy") + '</option>\
                   <option value="lvm">' + tr("LVM") + '</option>\
+                  <option value="shared_lvm">' + tr("Shared LVM") + '</option>\
                   <option value="vmfs">' + tr("VMFS") + '</option>\
                   <option value="ceph">' + tr("Ceph") + '</option>\
                   <option value="custom">' + tr("Custom") + '</option>\
@@ -857,6 +859,10 @@ function hide_all(context)
     // and reset the selects
     $('label[for="ds_use_ssh"],input#ds_use_ssh',context).hide();
     $('label[for="tm_use_ssh"],input#tm_use_ssh',context).hide();
+
+    $('input#image_ds_type').attr('checked', 'true');
+    $('input[name=ds_type]').removeAttr('disabled', 'disabled');
+
     $('label[for="bridge_list"],input#bridge_list',context).parent().parent().hide();
     $('label[for="base_iqn"],input#base_iqn',context).hide();
     $('label[for="vg_name"],input#vg_name',context).hide();
@@ -916,8 +922,11 @@ function setupCreateDatastoreDialog(){
           case 'vmware_vmfs':
             select_vmware_vmfs();
             break;
-          case 'lvm':
-            select_lvm();
+          case 'block_lvm':
+            select_block_lvm();
+            break;
+          case 'fs_lvm':
+            select_fs_lvm();
             break;
           case 'iscsi':
             select_iscsi();
@@ -1095,22 +1104,28 @@ function select_ceph(){
     $('select#disk_type').val('RBD');
 }
 
-function select_lvm(){
+function select_block_lvm(){
     $('select#ds_mad').val('lvm');
     $('select#ds_mad').attr('disabled', 'disabled');
     $('select#tm_mad').val('lvm');
     $('select#tm_mad').attr('disabled', 'disabled');
+    $('input#image_ds_type').attr('checked', 'true');
+    $('input[name=ds_type]').attr('disabled', 'disabled');
     $('label[for="bridge_list"],input#bridge_list').parent().parent().fadeIn();
     $('label[for="vg_name"],input#vg_name').fadeIn();
-    $('select#disk_type').children('option').each(function() {
-      var value_str = $(this).val();
-      $(this).attr('disabled', 'disabled');
-      if (value_str == "file"  ||
-          value_str == "block")
-      {
-           $(this).removeAttr('disabled');
-      }
-    });
+    $('select#disk_type').val('block');
+    $('select#disk_type').attr('disabled', 'disabled');
+}
+
+function select_fs_lvm(){
+    $('select#ds_mad').val('fs');
+    $('select#ds_mad').attr('disabled', 'disabled');
+    $('select#tm_mad').val('shared_lvm');
+    $('select#tm_mad').attr('disabled', 'disabled');
+    $('input#image_ds_type').attr('checked', 'true');
+    $('input[name=ds_type]').attr('disabled', 'disabled');
+    $('select#disk_type').val('block');
+    $('select#disk_type').attr('disabled', 'disabled');
 }
 
 function select_custom(){
