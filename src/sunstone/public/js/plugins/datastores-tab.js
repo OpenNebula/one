@@ -1072,6 +1072,7 @@ function select_ceph(){
     $('select#tm_mad').val('ceph');
     $('select#tm_mad').attr('disabled', 'disabled');
     $('select#disk_type').val('RBD');
+    $('select#disk_type').attr('disabled', 'disabled');
 }
 
 function select_lvm(){
