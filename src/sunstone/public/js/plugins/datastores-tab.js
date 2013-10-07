@@ -1102,6 +1102,7 @@ function select_ceph(){
     $('select#tm_mad').attr('disabled', 'disabled');
     $('label[for="bridge_list"],input#bridge_list').parent().parent().fadeIn();
     $('select#disk_type').val('RBD');
+    $('select#disk_type').attr('disabled', 'disabled');
 }
 
 function select_block_lvm(){
