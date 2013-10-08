@@ -362,6 +362,19 @@ int LibVirtDriver::deployment_description_kvm(
 
             file << "'/>" << endl;
         }
+        else if ( type == "RBD_CDROM" )
+        {
+            file << "\t\t<disk type='network' device='cdrom'>" << endl
+                 << "\t\t\t<source protocol='rbd' name='"
+                 << source;
+
+            if ( clone == "YES" )
+            {
+                file << "-" << vm->get_oid() << "-" << disk_id;
+            }
+
+            file << "'/>" << endl;
+        }
         else if ( type == "CDROM" )
         {
             file << "\t\t<disk type='file' device='cdrom'>" << endl

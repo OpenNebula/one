@@ -571,16 +571,27 @@ int Image::disk_attribute(  VectorAttribute * disk,
     {
         case OS:
         case DATABLOCK:
-        case RBD: //Type is FILE or BLOCK as inherited from the DS
             disk_attr_type = disk_type_to_str(disk_type);
-        break;
+            break;
 
         case CDROM: //Always use CDROM type for these ones
-            disk_attr_type = "CDROM";
-        break;
+            DiskType new_disk_type;
+
+            switch(disk_type)
+            {
+                case RBD:
+                    new_disk_type = RBD_CDROM;
+                    break;
+
+                default:
+                    new_disk_type = CD_ROM;
+            }
+
+            disk_attr_type = disk_type_to_str(new_disk_type);
+            break;
 
         default: //Other file types should not be never a DISK
-        break;
+            break;
     }
 
     disk->replace("TYPE", disk_attr_type);
