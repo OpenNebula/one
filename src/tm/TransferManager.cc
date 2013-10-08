@@ -436,6 +436,8 @@ void TransferManager::prolog_action(int vid)
     string  error_str;
 
     VirtualMachine * vm;
+    Host           *    host;
+    bool                host_is_hybrid;
     Nebula&          nd = Nebula::instance();
 
     const TransferManagerDriver * tm_md;
@@ -460,8 +462,18 @@ void TransferManager::prolog_action(int vid)
     }
 
     int uid = vm->get_uid();
-
     vm->unlock();
+
+    host = hpool->get(vm->get_hid(),true);
+    host_is_hybrid=host->isHybrid();
+    host->unlock();
+
+    if (host_is_hybrid)
+    {
+        vm->unlock();
+        (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_SUCCESS,vid);
+        return;
+    }
 
     User * user = Nebula::instance().get_upool()->get(uid, true);
 
@@ -1041,6 +1053,9 @@ void TransferManager::epilog_action(int vid)
     VirtualMachine *    vm;
     Nebula&             nd = Nebula::instance();
 
+    Host           *    host;
+    bool                host_is_hybrid;
+
     const TransferManagerDriver * tm_md;
 
     vector<const Attribute *>   attrs;
@@ -1059,6 +1074,17 @@ void TransferManager::epilog_action(int vid)
     if (!vm->hasHistory())
     {
         goto error_history;
+    }
+
+    host = hpool->get(vm->get_hid(),true);
+    host_is_hybrid=host->isHybrid();
+    host->unlock();
+
+    if (host_is_hybrid)
+    {
+        vm->unlock();
+        (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
+        return;
     }
 
     vm_tm_mad = vm->get_tm_mad();

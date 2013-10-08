@@ -251,9 +251,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     string value;
     int    ivalue;
     float  fvalue;
-
-    bool   ec2_present;
-
+    
     ostringstream oss;
 
     // ------------------------------------------------------------------------
