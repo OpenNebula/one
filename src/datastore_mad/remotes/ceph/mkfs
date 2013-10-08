@@ -94,6 +94,7 @@ MKFS_CMD=`mkfs_command $TMP_DST $FSTYPE $SIZE`
 
 REGISTER_CMD=$(cat <<EOF
     set -e
+    export PATH=/usr/sbin:/sbin:\$PATH
 
     # create and format
     $DD if=/dev/zero of=$TMP_DST bs=1 count=1 seek=${SIZE}M
