@@ -41,13 +41,13 @@ done < <($XPATH     $DISK_XPATH/DRIVER \
                     $DISK_XPATH/TYPE \
                     $DISK_XPATH/READONLY \
                     $DISK_XPATH/CACHE \
-                    $DISK_XPATH/IMAGE_ID)
+                    $DISK_XPATH/SOURCE)
 
 DRIVER="${XPATH_ELEMENTS[j++]:-$DEFAULT_TYPE}"
 TYPE="${XPATH_ELEMENTS[j++]}"
 READONLY="${XPATH_ELEMENTS[j++]}"
 CACHE="${XPATH_ELEMENTS[j++]}"
-IMAGE_ID="${XPATH_ELEMENTS[j++]}"
+IMG_SRC="${XPATH_ELEMENTS[j++]}"
 
 TYPE=$(echo "$TYPE"|tr A-Z a-z)
 
@@ -66,7 +66,7 @@ rbd)
     TYPE_SOURCE="protocol"
     TYPE_XML="network"
     SOURCE="rbd"
-    SOURCE_ARGS="name='one/one-$IMAGE_ID'"
+    SOURCE_ARGS="name='$IMG_SRC'"
     DEVICE="disk"
     ;;
 *)
