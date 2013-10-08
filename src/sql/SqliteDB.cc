@@ -66,7 +66,7 @@ SqliteDB::~SqliteDB()
 
 /* -------------------------------------------------------------------------- */
 
-int SqliteDB::exec(ostringstream& cmd, Callbackable* obj)
+int SqliteDB::exec(ostringstream& cmd, Callbackable* obj, bool quiet)
 {
     int          rc;
 
@@ -119,10 +119,12 @@ int SqliteDB::exec(ostringstream& cmd, Callbackable* obj)
     {
         if (err_msg != 0)
         {
+            Log::MessageType error_level = quiet ? Log::DDEBUG : Log::ERROR;
+
             ostringstream oss;
 
             oss << "SQL command was: " << c_str << ", error: " << err_msg;
-            NebulaLog::log("ONE",Log::ERROR,oss);
+            NebulaLog::log("ONE",error_level,oss);
 
             sqlite3_free(err_msg);
         }

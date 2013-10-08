@@ -132,7 +132,7 @@ MySqlDB::~MySqlDB()
 
 /* -------------------------------------------------------------------------- */
 
-int MySqlDB::exec(ostringstream& cmd, Callbackable* obj)
+int MySqlDB::exec(ostringstream& cmd, Callbackable* obj, bool quiet)
 {
     int          rc;
 
@@ -141,6 +141,8 @@ int MySqlDB::exec(ostringstream& cmd, Callbackable* obj)
 
     str   = cmd.str();
     c_str = str.c_str();
+
+    Log::MessageType error_level = quiet ? Log::DDEBUG : Log::ERROR;
 
     MYSQL *db;
 
@@ -176,11 +178,11 @@ int MySqlDB::exec(ostringstream& cmd, Callbackable* obj)
             oss << ", error " << err_num << " : " << err_msg;
         }
 
-        NebulaLog::log("ONE",Log::ERROR,oss);
+        NebulaLog::log("ONE",error_level,oss);
 
         free_db_connection(db);
 
-        return err_num;
+        return -1;
     }
 
 
@@ -204,11 +206,11 @@ int MySqlDB::exec(ostringstream& cmd, Callbackable* obj)
             oss << "SQL command was: " << c_str;
             oss << ", error " << err_num << " : " << err_msg;
 
-            NebulaLog::log("ONE",Log::ERROR,oss);
+            NebulaLog::log("ONE",error_level,oss);
 
             free_db_connection(db);
 
-            return err_num;
+            return -1;
         }
 
         // Fetch the names of the fields
