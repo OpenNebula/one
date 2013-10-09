@@ -341,7 +341,12 @@ public:
     /**
      *  Starts all the modules and services for OpenNebula
      */
-    void start();
+    void start(bool bootstrap_only=false);
+
+    /**
+     *  Initialize the database
+     */
+    void bootstrap_db();
 
     // -----------------------------------------------------------------------
     // Configuration attributes (read from oned.conf)
