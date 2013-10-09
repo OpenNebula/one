@@ -219,10 +219,10 @@ var user_quotas_tmpl = '<div class="panel">\
       <hr>\
       <div id="vm_quota">\
         <div class="row">\
-          <div class="four columns">\
+          <div class="six columns">\
               <label class="inline right" >'+tr("Max VMs")+':</label>\
           </div>\
-          <div class="seven columns">\
+          <div class="five columns">\
             <input type="text" name="VMS"></input>\
           </div>\
           <div class="one columns">\
@@ -230,10 +230,10 @@ var user_quotas_tmpl = '<div class="panel">\
           </div>\
         </div>\
         <div class="row">\
-          <div class="four columns">\
+          <div class="six columns">\
               <label class="inline right" >'+tr("Max Memory (MB)")+':</label>\
           </div>\
-          <div class="seven columns">\
+          <div class="five columns">\
             <input type="text" name="MEMORY"></input>\
           </div>\
           <div class="one columns">\
@@ -241,11 +241,22 @@ var user_quotas_tmpl = '<div class="panel">\
           </div>\
         </div>\
         <div class="row">\
-          <div class="four columns">\
+          <div class="six columns">\
               <label class="inline right" >'+tr("Max CPU")+':</label>\
           </div>\
-          <div class="seven columns">\
+          <div class="five columns">\
             <input type="text" name="CPU"></input>\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="six columns">\
+              <label class="inline right" >'+tr("Max Volatile Storage (MB)")+':</label>\
+          </div>\
+          <div class="five columns">\
+            <input type="text" name="VOLATILE_SIZE"></input>\
           </div>\
           <div class="one columns">\
               <div class=""></div>\
@@ -780,9 +791,10 @@ function updateUserInfo(request,user){
     };
 
     var default_user_quotas = Quotas.default_quotas(info.DEFAULT_USER_QUOTAS)
-    var quotas_tab_html = '<div class="four columns">' + Quotas.vms(info, default_user_quotas) + '</div>';
-    quotas_tab_html += '<div class="four columns">' + Quotas.cpu(info, default_user_quotas) + '</div>';
-    quotas_tab_html += '<div class="four columns">' + Quotas.memory(info, default_user_quotas) + '</div>';
+    var quotas_tab_html = '<div class="three columns">' + Quotas.vms(info, default_user_quotas) + '</div>';
+    quotas_tab_html += '<div class="three columns">' + Quotas.cpu(info, default_user_quotas) + '</div>';
+    quotas_tab_html += '<div class="three columns">' + Quotas.memory(info, default_user_quotas) + '</div>';
+    quotas_tab_html += '<div class="three columns">' + Quotas.volatile_size(info, default_user_quotas) + '</div>';
     quotas_tab_html += '<br><br>';
     quotas_tab_html += '<div class="six columns">' + Quotas.image(info, default_user_quotas) + '</div>';
     quotas_tab_html += '<div class="six columns">' + Quotas.network(info, default_user_quotas) + '</div>';
