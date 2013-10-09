@@ -268,7 +268,7 @@ int SystemDB::select_sys_attribute(const string& attr_name, string& attr_xml)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Nebula::init()
+void Nebula::bootstrap_db()
 {
     start(true);
 }

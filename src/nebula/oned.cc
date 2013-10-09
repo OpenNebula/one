@@ -59,12 +59,12 @@ static void oned_init()
     try
     {
         Nebula& nd  = Nebula::instance();
-        nd.init();   
+        nd.bootstrap_db();
     }
     catch (exception &e)
     {
         cerr << e.what() << endl;
- 
+
         return;
     }
 }
@@ -77,19 +77,19 @@ static void oned_main()
     try
     {
         Nebula& nd  = Nebula::instance();
-        nd.start();    
+        nd.start();
     }
     catch (exception &e)
     {
         cerr << e.what() << endl;
- 
+
         return;
     }
 }
-    
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-    
+
 int main(int argc, char **argv)
 {
     int             opt;
@@ -99,7 +99,7 @@ int main(int argc, char **argv)
     pid_t           pid,sid;
     string          wd;
     int             rc;
-            
+
     while((opt = getopt(argc,argv,"vhif")) != -1)
         switch(opt)
         {
@@ -117,7 +117,7 @@ int main(int argc, char **argv)
                 break;
             case 'f':
                 foreground = true;
-                break;        
+                break;
             default:
                 cerr << susage;
                 exit(-1);
@@ -125,24 +125,24 @@ int main(int argc, char **argv)
         }
 
     // ---------------------------------
-    //   Check if other oned is running  
-    // --------------------------------- 
-    
+    //   Check if other oned is running
+    // ---------------------------------
+
     string lockfile;
     string var_location;
-    
+
     nl = getenv("ONE_LOCATION");
 
     if (nl == 0) // OpenNebula in root of FSH
     {
-    	var_location = "/var/lib/one/"; 
+    	var_location = "/var/lib/one/";
     	lockfile 	 = "/var/lock/one/one";
     }
     else
     {
     	var_location = nl;
     	var_location += "/var/";
-    	
+
     	lockfile = var_location + ".lock";
     }
 
@@ -150,70 +150,70 @@ int main(int argc, char **argv)
 
     if( fd == -1)
     {
-        cerr<< "Error: Cannot start oned, opening lock file " << lockfile 
+        cerr<< "Error: Cannot start oned, opening lock file " << lockfile
             << endl;
-        
+
         exit(-1);
     }
 
     close(fd);
-    
-    // ---------------------------- 
-    //   Fork & exit main process   
-    // ---------------------------- 
-    
+
+    // ----------------------------
+    //   Fork & exit main process
+    // ----------------------------
+
     if (foreground == true)
     {
         pid = 0; //Do not fork
     }
     else
     {
-        pid = fork();    
+        pid = fork();
     }
-        
+
 
     switch (pid){
         case -1: // Error
-            cerr << "Error: Unable to fork.\n"; 
+            cerr << "Error: Unable to fork.\n";
             exit(-1);
-            
+
 
         case 0: // Child process
-        	
+
             rc  = chdir(var_location.c_str());
-                        
+
             if (rc != 0)
             {
                 goto error_chdir;
             }
-            
+
             if (foreground == false)
-            { 
+            {
                 sid = setsid();
-                
+
                 if (sid == -1)
                 {
                     goto error_sid;
                 }
             }
-                        
+
             oned_main();
-            
-            unlink(lockfile.c_str());            
+
+            unlink(lockfile.c_str());
             break;
 
         default: // Parent process
-            break;               
+            break;
     }
-    
+
     return 0;
-    
+
 error_chdir:
     cerr << "Error: cannot change to dir " << wd << "\n";
     unlink(lockfile.c_str());
     exit(-1);
 
-error_sid:    
+error_sid:
     cerr << "Error: creating new session\n";
     unlink(lockfile.c_str());
     exit(-1);

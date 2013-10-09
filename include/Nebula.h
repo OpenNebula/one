@@ -346,7 +346,7 @@ public:
     /**
      *  Initialize the database
      */
-    void init();
+    void bootstrap_db();
 
     // -----------------------------------------------------------------------
     // Configuration attributes (read from oned.conf)
