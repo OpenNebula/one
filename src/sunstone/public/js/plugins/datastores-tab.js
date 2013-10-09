@@ -233,6 +233,17 @@ var create_datastore_tmpl =
         <div class="tip">'+tr("Paths that can not be used to register images. A space separated list of paths. This will prevent users registering important files as VM images and accessing them thourgh their VMs. OpenNebula will automatically add its configuration directories: /var/lib/one, /etc/one and oneadmin's home ($HOME).")+'</div>\
       </div>\
     </div>\
+    <div class="twelve columns">\
+      <div class="four columns">\
+        <label class="right inline" for="base_path">' + tr("Base Path") + ':</label>\
+      </div>\
+      <div class="seven columns">\
+        <input type="text" name="base_path" id="base_path" />\
+      </div>\
+      <div class="one columns">\
+        <div class="tip">'+tr("When needed, the front-end will access the datastores using BASE_PATH (defaults to /var/lib/one/datastores).")+'</div>\
+      </div>\
+    </div>\
     <div class="row">\
       <div class="six columns">\
         <label class="right inline" for="ds_use_ssh"><input id="ds_use_ssh" type="checkbox" name="ds_use_ssh" value="YES" />' + tr("Use SSH for Datastore Manager") + '</label>\
@@ -952,6 +963,7 @@ function setupCreateDatastoreDialog(){
         tm_mad              = tm_mad == "custom" ? $('input[name="ds_tab_custom_tm_mad"]').val() : tm_mad;
         var type            = $('#disk_type',context).val();
         var safe_dirs       = $('#safe_dirs',context).val();
+        var base_path       = $('#base_path',context).val();
         var restricted_dirs = $('#restricted_dirs',context).val();
         var bridge_list     = $('#bridge_list',context).val();
         var ds_use_ssh      = $('#ds_use_ssh',context).is(':checked');
@@ -979,6 +991,9 @@ function setupCreateDatastoreDialog(){
         // we do not use ds_mad
         if (ds_type != "SYSTEM_DS")
             ds_obj.datastore.ds_mad = ds_mad;
+
+        if (base_path)
+            ds_obj.datastore.base_path = base_path;
 
         if (safe_dirs)
             ds_obj.datastore.safe_dirs = safe_dirs;
