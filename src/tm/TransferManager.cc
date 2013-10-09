@@ -653,19 +653,6 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static bool isVolatile(const VectorAttribute * disk)
-{
-    string type;
-
-    type = disk->vector_value("TYPE");
-    transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
-
-    return ( type == "SWAP" || type == "FS");
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void TransferManager::prolog_migr_action(int vid)
 {
     ofstream        xfr;
@@ -736,7 +723,7 @@ void TransferManager::prolog_migr_action(int vid)
 
         disk->vector_value_str("DISK_ID", disk_id);
 
-        if ( isVolatile(disk) == true )
+        if ( VirtualMachine::isVolatile(disk) == true )
         {
             tm_mad = vm_tm_mad;
             ds_id  = vm_ds_id;
@@ -875,7 +862,7 @@ void TransferManager::prolog_resume_action(int vid)
 
         disk->vector_value_str("DISK_ID", disk_id);
 
-        if ( isVolatile(disk) == true )
+        if ( VirtualMachine::isVolatile(disk) == true )
         {
             tm_mad = vm_tm_mad;
             ds_id  = vm_ds_id;
@@ -999,7 +986,7 @@ void TransferManager::epilog_transfer_command(
     }
     else //No saving disk
     {
-        if ( isVolatile(disk) == true )
+        if ( VirtualMachine::isVolatile(disk) == true )
         {
             tm_mad = vm->get_tm_mad();
             ds_id  = vm->get_ds_id();
@@ -1205,7 +1192,7 @@ void TransferManager::epilog_stop_action(int vid)
 
         disk->vector_value_str("DISK_ID", disk_id);
 
-        if ( isVolatile(disk) == true )
+        if ( VirtualMachine::isVolatile(disk) == true )
         {
             tm_mad = vm_tm_mad;
             ds_id  = vm_ds_id;
@@ -1357,7 +1344,7 @@ int TransferManager::epilog_delete_commands(VirtualMachine *vm,
 
         disk->vector_value_str("DISK_ID", disk_id);
 
-        if ( isVolatile(disk) == true )
+        if ( VirtualMachine::isVolatile(disk) == true )
         {
             tm_mad = vm_tm_mad;
             ds_id  = vm_ds_id;

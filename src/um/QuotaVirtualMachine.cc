@@ -16,13 +16,15 @@
 
 #include "QuotaVirtualMachine.h"
 #include "Quotas.h"
+#include "VirtualMachine.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const char * QuotaVirtualMachine::VM_METRICS[] = {"VMS", "CPU", "MEMORY"};
+const char * QuotaVirtualMachine::VM_METRICS[] =
+    {"VMS", "CPU", "MEMORY", "VOLATILE_SIZE"};
 
-const int QuotaVirtualMachine::NUM_VM_METRICS  = 3;
+const int QuotaVirtualMachine::NUM_VM_METRICS  = 4;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -56,7 +58,7 @@ bool QuotaVirtualMachine::check(Template * tmpl,
     map<string, float> vm_request;
 
     int memory;
-    float cpu;
+    float cpu, size;
 
     if ( tmpl->get("MEMORY", memory) == false  || memory <= 0 )
     {
@@ -70,9 +72,12 @@ bool QuotaVirtualMachine::check(Template * tmpl,
         return false;
     }
 
+    size = VirtualMachine::get_volatile_disk_size(tmpl);
+
     vm_request.insert(make_pair("VMS",1));
     vm_request.insert(make_pair("MEMORY", memory));
     vm_request.insert(make_pair("CPU", cpu));
+    vm_request.insert(make_pair("VOLATILE_SIZE", size));
 
     return check_quota("", vm_request, default_quotas, error);
 }
@@ -85,7 +90,7 @@ void QuotaVirtualMachine::del(Template * tmpl)
     map<string, float> vm_request;
 
     int memory, vms;
-    float cpu;
+    float cpu, size;
 
     if ( tmpl->get("MEMORY", memory) == false )
     {
@@ -102,9 +107,12 @@ void QuotaVirtualMachine::del(Template * tmpl)
         vms = 1;
     }
 
+    size = VirtualMachine::get_volatile_disk_size(tmpl);
+
     vm_request.insert(make_pair("VMS", vms));
     vm_request.insert(make_pair("MEMORY", memory));
     vm_request.insert(make_pair("CPU", cpu));
+    vm_request.insert(make_pair("VOLATILE_SIZE", size));
 
     del_quota("", vm_request);
 }
@@ -130,7 +138,7 @@ bool QuotaVirtualMachine::update(Template * tmpl,
     map<string, float> vm_request;
 
     int   delta_memory;
-    float delta_cpu;
+    float delta_cpu, delta_size;
 
     if ( tmpl->get("MEMORY", delta_memory) == true )
     {
@@ -140,6 +148,11 @@ bool QuotaVirtualMachine::update(Template * tmpl,
     if ( tmpl->get("CPU", delta_cpu) == true )
     {
         vm_request.insert(make_pair("CPU", delta_cpu));
+    }
+
+    if ( tmpl->get("VOLATILE_SIZE", delta_size) == true )
+    {
+        vm_request.insert(make_pair("VOLATILE_SIZE", delta_size));
     }
 
     return check_quota("", vm_request, default_quotas, error);

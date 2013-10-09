@@ -2025,7 +2025,7 @@ float VirtualMachine::get_volatile_disk_size(Template * tmpl)
     float size = 0;
 
     vector<const Attribute*> disks;
-    int num_disks = tmpl->get("DISKS", disks);
+    int num_disks = tmpl->get("DISK", disks);
 
     if (num_disks == 0)
     {
