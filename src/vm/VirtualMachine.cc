@@ -251,7 +251,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     string value;
     int    ivalue;
     float  fvalue;
-    
+
     ostringstream oss;
 
     // ------------------------------------------------------------------------
@@ -1144,16 +1144,12 @@ int VirtualMachine::automatic_requirements(string& error_str)
         }
     }
 
-    static_cast<VirtualMachineTemplate*>(obj_template)->get_hybrid_hypervisor(
-                                                                    hypervisor);
-    oss.str("");
-
     if ( !cluster_id.empty() )
     {
         oss << "CLUSTER_ID = " << cluster_id;
     }
 
-    if ( !hypervisor.empty() )
+    if (static_cast<VirtualMachineTemplate*>(obj_template)->get_hybrid_hypervisor(hypervisor))
     {
         if ( !cluster_id.empty() )
         {

@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "VirtualMachineTemplate.h"
+#include "Host.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -151,10 +152,10 @@ bool VirtualMachineTemplate::get_hybrid_hypervisor(string& hypervisor) const
     bool found_it = false;
 
     for(int i=0; i < NUM_HYBRID_ATTRIBUTES; i++)
-    { 
+    {
         if(get(HYBRID_ATTRIBUTES[i],attrs))
         {
-            hypervisor = HYBRID_ATTRIBUTES[i];
+            hypervisor = Host::get_hybrid_hypervisor_by_id(i);
             found_it   = true;
             break;
         }

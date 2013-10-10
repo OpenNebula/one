@@ -68,9 +68,9 @@ public:
     void remove_all_except_restricted();
 
     /**
-     *  Returns a copy of the VirtualMachineTemplate
+     *  Returns the hypervisor name if the template is hybrid
      *  @param hypervisor the resulting hypervisor string
-     *    @return true if any hybrid hypervisor found, false otherwise
+     *  @return true if any hybrid hypervisor attribute found, false otherwise
      */
      bool get_hybrid_hypervisor(string& hypervisor) const;
 
@@ -80,9 +80,12 @@ private:
 
     static vector<string> restricted_attributes;
 
-
     /**
-     *  Array containing the hybrid attributes, and counter
+     * Array containing the hybrid attributes, and counter. There is a
+     * correspondence between Host::HYBRID_HYPERVISOR and
+     * VirtualMachine::HYBRID_ATTRIBUTES. Attributes in HYBRID_ATTRIBUTES[i] are
+     * meant to be used in hosts reporting a a hypervisor of type
+     * HYBRID_HYPERVISOR[i]
      */
     static const char * HYBRID_ATTRIBUTES[];
 
