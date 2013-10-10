@@ -863,7 +863,7 @@ void Scheduler::dispatch()
             //------------------------------------------------------------------
             // Dispatch and update host and DS capacity, and dispatch counters
             //------------------------------------------------------------------
-            if (vmpool->dispatch(vm_it->first, hid, dsid, false) != 0)
+            if (vmpool->dispatch(vm_it->first, hid, dsid, vm->is_resched()) != 0)
             {
                 continue;
             }
