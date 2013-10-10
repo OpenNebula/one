@@ -1238,6 +1238,21 @@ var Quotas = {
             return '';
         }
     },
+    "volatile_size" : function(info, default_quotas){
+        if (!$.isEmptyObject(info.VM_QUOTA)){
+            var volatile_bar = quotaBarMB(
+                info.VM_QUOTA.VM.VOLATILE_SIZE_USED,
+                info.VM_QUOTA.VM.VOLATILE_SIZE,
+                default_quotas.VM_QUOTA.VM.VOLATILE_SIZE);
+
+            var quotas_tab_html =
+            '<fieldset><legend>' + tr("Volatile disks") + '</legend><div>'+volatile_bar+'</div><br></fieldset>'
+
+            return quotas_tab_html;
+        } else {
+            return '';
+        }
+    },
     "datastore" : function(info, default_quotas) {
         if (!$.isEmptyObject(info.DATASTORE_QUOTA)){
             var quotas_tab_html =
@@ -1410,9 +1425,10 @@ var Quotas = {
         if ($.isEmptyObject(default_quotas.VM_QUOTA)){
             default_quotas.VM_QUOTA = {
                 "VM" : {
-                    "VMS"    : "0",
-                    "MEMORY" : "0",
-                    "CPU"    : "0"
+                    "VMS"           : "0",
+                    "MEMORY"        : "0",
+                    "CPU"           : "0",
+                    "VOLATILE_SIZE" : "0"
                 }
             }
         }
@@ -1581,6 +1597,7 @@ function setupQuotaIcons(){
             $('div#vm_quota input[name="VMS"]',dialog).val(quota.VMS);
             $('div#vm_quota input[name="MEMORY"]',dialog).val(quota.MEMORY);
             $('div#vm_quota input[name="CPU"]',dialog).val(quota.CPU);
+            $('div#vm_quota input[name="VOLATILE_SIZE"]',dialog).val(quota.VOLATILE_SIZE);
             break;
             case "DATASTORE":
             $('div#datastore_quota select[name="ID"]',dialog).val(quota.ID);
@@ -1675,7 +1692,8 @@ function quotaListItem(quota_json){
     case "VM":
         str +=  'VMs: ' + quota_json.VMS + (quota_json.VMS_USED ? ' (' + quota_json.VMS_USED + '). ' : ". ") + '<br>' +
                'Memory: ' + quota_json.MEMORY + (quota_json.MEMORY_USED ? ' MB (' + quota_json.MEMORY_USED + ' MB). ' : " MB. ") + '<br>' +
-               'CPU: ' + quota_json.CPU +  (quota_json.CPU_USED ? ' (' + quota_json.CPU_USED + '). ' : ". ");
+               'CPU: ' + quota_json.CPU +  (quota_json.CPU_USED ? ' (' + quota_json.CPU_USED + '). ' : ". ") + '<br>' +
+               'Volatile disks: ' + quota_json.VOLATILE_SIZE + (quota_json.VOLATILE_SIZE_USED ? ' MB (' + quota_json.VOLATILE_SIZE_USED + ' MB). ' : " MB. ");
         break;
     case "DATASTORE":
         str +=  'ID/Name: ' + getDatastoreName(quota_json.ID) + '. ' + '<br>' +
