@@ -1103,6 +1103,7 @@ int VirtualMachine::automatic_requirements(string& error_str)
     ostringstream   oss;
     string          requirements;
     string          cluster_id = "";
+    string          hypervisor;
 
     int incomp_id;
     int rc;
@@ -1181,9 +1182,21 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
     if ( !cluster_id.empty() )
     {
-        oss.str("");
         oss << "CLUSTER_ID = " << cluster_id;
+    }
 
+    if (static_cast<VirtualMachineTemplate*>(obj_template)->get_hybrid_hypervisor(hypervisor))
+    {
+        if ( !cluster_id.empty() )
+        {
+            oss << " || ";
+        }
+
+        oss << "HYPERVISOR = " << hypervisor;
+    }
+
+    if ( !cluster_id.empty() || !hypervisor.empty() )
+    {
         obj_template->add("AUTOMATIC_REQUIREMENTS", oss.str());
     }
 

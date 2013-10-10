@@ -148,7 +148,11 @@ void TransferManager::trigger(Actions action, int _vid)
 
 void TransferManager::do_action(const string &action, void * arg)
 {
-    int vid;
+    int                 vid;
+    VirtualMachine *    vm;
+    Host           *    host;
+    bool                host_is_hybrid;
+    Nebula&             nd = Nebula::instance();
 
     if (arg == 0)
     {
@@ -159,41 +163,118 @@ void TransferManager::do_action(const string &action, void * arg)
 
     delete static_cast<int *>(arg);
 
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    host = hpool->get(vm->get_hid(),true);
+    host_is_hybrid=host->isHybrid();
+
+    vm->unlock();
+    host->unlock();
+
     if (action == "PROLOG")
     {
-        prolog_action(vid);
+        if (host_is_hybrid)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_SUCCESS,vid);
+        }
+        else
+        {
+            prolog_action(vid);
+        }
     }
     else if (action == "PROLOG_MIGR")
     {
-        prolog_migr_action(vid);
+        if (host_is_hybrid)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_SUCCESS,vid);
+        }
+        else
+        {
+            prolog_migr_action(vid);
+        }
     }
     else if (action == "PROLOG_RESUME")
     {
-        prolog_resume_action(vid);
+        if (host_is_hybrid)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_SUCCESS,vid);
+        }
+        else
+        {
+            prolog_resume_action(vid);
+        }
     }
     else if (action == "EPILOG")
     {
-        epilog_action(vid);
+        if (host_is_hybrid)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
+        }
+        else
+        {
+            epilog_action(vid);
+        }
     }
     else if (action == "EPILOG_STOP")
     {
-        epilog_stop_action(vid);
+        if (host_is_hybrid)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
+        }
+        else
+        {
+            epilog_stop_action(vid);
+        }
     }
     else if (action == "EPILOG_DELETE")
     {
-        epilog_delete_action(vid);
+        if (host_is_hybrid)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
+        }
+        else
+        {
+            epilog_delete_action(vid);
+        }
     }
     else if (action == "EPILOG_DELETE_STOP")
     {
-        epilog_delete_stop_action(vid);
+        if (host_is_hybrid)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
+        }
+        else
+        {
+            epilog_delete_stop_action(vid);
+        }
     }
     else if (action == "EPILOG_DELETE_PREVIOUS")
     {
-        epilog_delete_previous_action(vid);
+        if (host_is_hybrid)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
+        }
+        else
+        {   
+            epilog_delete_previous_action(vid);
+
+        }
     }
     else if (action == "EPILOG_DELETE_BOTH")
     {
-        epilog_delete_both_action(vid);
+        if (host_is_hybrid)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
+        }
+        else
+        {  
+            epilog_delete_both_action(vid);
+        }
     }
     else if (action == "CHECKPOINT")
     {
@@ -460,7 +541,6 @@ void TransferManager::prolog_action(int vid)
     }
 
     int uid = vm->get_uid();
-
     vm->unlock();
 
     User * user = Nebula::instance().get_upool()->get(uid, true);
