@@ -264,6 +264,9 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/kvm.d \
           $VAR_LOCATION/remotes/im/xen3.d \
           $VAR_LOCATION/remotes/im/xen4.d \
+          $VAR_LOCATION/remotes/im/kvm-probes.d \
+          $VAR_LOCATION/remotes/im/xen3-probes.d \
+          $VAR_LOCATION/remotes/im/xen4-probes.d \
           $VAR_LOCATION/remotes/im/vmware.d \
           $VAR_LOCATION/remotes/vmm \
           $VAR_LOCATION/remotes/vmm/kvm \
@@ -447,8 +450,11 @@ INSTALL_FILES=(
     MADS_LIB_FILES:$LIB_LOCATION/mads
     IM_PROBES_FILES:$VAR_LOCATION/remotes/im
     IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d
+    IM_PROBES_KVM_PROBES_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d
     IM_PROBES_XEN3_FILES:$VAR_LOCATION/remotes/im/xen3.d
+    IM_PROBES_XEN3_PROBES_FILES:$VAR_LOCATION/remotes/im/xen3-probes.d
     IM_PROBES_XEN4_FILES:$VAR_LOCATION/remotes/im/xen4.d
+    IM_PROBES_XEN4_PROBES_FILES:$VAR_LOCATION/remotes/im/xen4-probes.d
     IM_PROBES_VMWARE_FILES:$VAR_LOCATION/remotes/im/vmware.d
     AUTH_SSH_FILES:$VAR_LOCATION/remotes/auth/ssh
     AUTH_X509_FILES:$VAR_LOCATION/remotes/auth/x509
@@ -858,23 +864,32 @@ VMM_EXEC_VMWARE_SCRIPTS="src/vmm_mad/remotes/vmware/cancel \
 
 IM_PROBES_FILES="src/im_mad/remotes/run_probes"
 
-IM_PROBES_KVM_FILES="src/im_mad/remotes/kvm.d/kvm.rb \
-                     src/im_mad/remotes/kvm.d/architecture.sh \
-                     src/im_mad/remotes/kvm.d/cpu.sh \
-                     src/im_mad/remotes/kvm.d/poll.sh \
-                     src/im_mad/remotes/kvm.d/name.sh"
+IM_PROBES_KVM_FILES="src/im_mad/remotes/kvm.d/collectd-client_control.sh \
+                     src/im_mad/remotes/kvm.d/collectd-client.rb"
 
-IM_PROBES_XEN3_FILES="src/im_mad/remotes/xen.d/xen.rb \
-                      src/im_mad/remotes/xen.d/architecture.sh \
-                      src/im_mad/remotes/xen.d/cpu.sh \
-                      src/im_mad/remotes/xen.d/poll3.sh \
-                      src/im_mad/remotes/xen.d/name.sh"
+IM_PROBES_KVM_PROBES_FILES="src/im_mad/remotes/kvm-probes.d/kvm.rb \
+                     src/im_mad/remotes/kvm-probes.d/architecture.sh \
+                     src/im_mad/remotes/kvm-probes.d/cpu.sh \
+                     src/im_mad/remotes/kvm-probes.d/poll.sh \
+                     src/im_mad/remotes/kvm-probes.d/name.sh"
 
-IM_PROBES_XEN4_FILES="src/im_mad/remotes/xen.d/xen.rb \
-                      src/im_mad/remotes/xen.d/architecture.sh \
-                      src/im_mad/remotes/xen.d/cpu.sh \
-                      src/im_mad/remotes/xen.d/poll4.sh \
-                      src/im_mad/remotes/xen.d/name.sh"
+IM_PROBES_XEN3_FILES="src/im_mad/remotes/xen.d/collectd-client_control.sh \
+                      src/im_mad/remotes/xen.d/collectd-client.rb"
+
+IM_PROBES_XEN3_PROBES_FILES="src/im_mad/remotes/xen-probes.d/xen.rb \
+                      src/im_mad/remotes/xen-probes.d/architecture.sh \
+                      src/im_mad/remotes/xen-probes.d/cpu.sh \
+                      src/im_mad/remotes/xen-probes.d/poll3.sh \
+                      src/im_mad/remotes/xen-probes.d/name.sh"
+
+IM_PROBES_XEN4_FILES="src/im_mad/remotes/xen.d/collectd-client_control.sh \
+                     src/im_mad/remotes/xen.d/collectd-client.rb"
+
+IM_PROBES_XEN4_PROBES_FILES="src/im_mad/remotes/xen-probes.d/xen.rb \
+                      src/im_mad/remotes/xen-probes.d/architecture.sh \
+                      src/im_mad/remotes/xen-probes.d/cpu.sh \
+                      src/im_mad/remotes/xen-probes.d/poll4.sh \
+                      src/im_mad/remotes/xen-probes.d/name.sh"
 
 IM_PROBES_VMWARE_FILES="src/im_mad/remotes/vmware.d/vmware.rb"
 
