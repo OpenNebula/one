@@ -73,7 +73,8 @@ class InformationManagerDriver < OpenNebulaDriver
             end
         end
 
-        do_action("#{@hypervisor}", number, host, :MONITOR,
+        # TODO: Do not hard-code the port
+        do_action("#{@hypervisor} #{number} 9876", number, host, :MONITOR,
             :script_name => 'run_probes', :base64 => true)
     end
 end
