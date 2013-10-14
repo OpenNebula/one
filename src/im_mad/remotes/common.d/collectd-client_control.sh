@@ -60,3 +60,9 @@ if ! check_running; then
     start_client
     write_pid $!
 fi
+
+# This script returns the run_probes execution
+HYPERVISOR=$1
+set $HYPERVISOR-probes $@
+
+$DIR/../run_probes $@
