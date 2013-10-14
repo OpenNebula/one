@@ -57,8 +57,6 @@ class InformationManagerDriver < OpenNebulaDriver
             @collectd_port = im_collectd.match(/-p (\d+)/)[1]
         rescue
         end
-
-        File.open('/tmp/collectd_port.log','a'){|f| f.puts @collectd_port}
     end
 
     # Execute the run_probes in the remote host
