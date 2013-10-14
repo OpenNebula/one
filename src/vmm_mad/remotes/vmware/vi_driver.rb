@@ -394,12 +394,15 @@ class VIHost
 
         # Networking
         str_info << "NETRX=" << @net_rx.to_s << "\n"
-        str_info << "NETTX=" << @net_tx.to_s
+        str_info << "NETTX=" << @net_tx.to_s << "\n"
 
         # Datastores
         @free_ds_info.each{|k,v|
-            str_info << "DS_#{k}_FREE_MB" << v << "\n"
+            str_info << "DS_#{k}_FREE_MB" << v[:free_space] << "\n"
+            str_info << "DS_#{k}_TOTAL_MB" << v[:capacity] << "\n"
         }
+
+        str_info.strip
     end
 
     ########################################################################
