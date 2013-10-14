@@ -20,8 +20,10 @@ ONE_LOCATION=ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    REMOTES_LOCATION="/var/lib/one/remotes"
 else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    REMOTES_LOCATION=ONE_LOCATION+"/var/remotes/"
 end
 
 $: << RUBY_LIB_LOCATION
@@ -168,12 +170,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :sync, sync_desc do
-        if ONE_LOCATION
-            FileUtils.touch "#{ONE_LOCATION}/var/remotes"
-        else
-            FileUtils.touch "/var/lib/one/remotes"
-        end
-        0
+        helper.sync
     end
 
     list_desc = <<-EOT.unindent
