@@ -369,6 +369,9 @@ class VIHost
         @used_cpu    = 0 if @used_cpu.to_i < 0
         @net_rx      = 0 if @net_rx.to_i < 0
         @net_tx      = 0 if @net_tx.to_i < 0
+
+        # Check free datastore space
+        @free_ds_info = VIDriver::retrieve_free_ds_space(@host)
     end
 
     ########################################################################
@@ -392,6 +395,11 @@ class VIHost
         # Networking
         str_info << "NETRX=" << @net_rx.to_s << "\n"
         str_info << "NETTX=" << @net_tx.to_s
+
+        # Datastores
+        @free_ds_info.each{|k,v|
+            str_info << "DS_#{k}_FREE_MB" << v << "\n"
+        }
     end
 
     ########################################################################
@@ -453,6 +461,24 @@ def self.retrieve_stats(objects,metrics)
 
     return perfManager.retrieve_stats(objects, metrics, stat_opts)
 end
+
+def self.retrieve_free_ds(host)
+    pc = @@client.serviceContent.propertyCollector
+    hds = host.configManager.datastoreSystem
+    datastore_props = pc.collectMultiple(hds.datastore, 'summary', 'name')
+
+    free_ds_info=Hash.new
+
+    hds.datastore.each{|ds| 
+        free_ds_info[datastore_props[ds]['name']][:free_space] = 
+            datastore_props[ds]['summary'].freeSpace
+        free_ds_info[datastore_props[ds]['name']][:capacity] = 
+            datastore_props[ds]['summary'].capacity
+    }
+
+    free_ds_info
+end
+
 
 def self.root
     @@root
