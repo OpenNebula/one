@@ -15,12 +15,15 @@
 /* -------------------------------------------------------------------------- */
 
 #include <sstream>
+#include <iostream>
 
 #include <unistd.h>
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <errno.h>
+#include <string.h>
 
 #include "OpenNebulaDriver.h"
 #include "ListenerThread.h"
@@ -114,14 +117,20 @@ int IMCollectorDriver::init_collector()
 
     if ( sock < 0 )
     {
+        std::cerr << strerror(errno);
         return -1;
     }
 
     im_server.sin_family = AF_INET;
     im_server.sin_port   = htons(_port);
 
-    if ( inet_pton(AF_INET, _address.c_str(), &im_server.sin_addr.s_addr) < 0 )
+    if (_address == "0.0.0.0")
     {
+        im_server.sin_addr.s_addr = htonl (INADDR_ANY);
+    }
+    else if (inet_pton(AF_INET,_address.c_str(),&im_server.sin_addr.s_addr) < 0)
+    {
+        std::cerr << strerror(errno);
         return -1;
     }
 
@@ -129,6 +138,7 @@ int IMCollectorDriver::init_collector()
 
     if ( rc < 0 )
     {
+        std::cerr << strerror(errno);
         return -1;
     }
 
