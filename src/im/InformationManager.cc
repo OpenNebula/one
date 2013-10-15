@@ -98,8 +98,6 @@ int InformationManager::start()
         return -1;
     }
 
-    utime(remotes_location.c_str(), 0);
-
     NebulaLog::log("InM",Log::INFO,"Starting Information Manager...");
 
     pthread_attr_init (&pattr);
@@ -257,8 +255,7 @@ void InformationManager::timer_action()
             {
                 bool update_remotes = false;
 
-                if ((sb.st_mtime != 0) &&
-                    (sb.st_mtime > host->get_last_monitored()))
+                if (host->get_last_monitored() == 0)
                 {
                     update_remotes = true;
                 }

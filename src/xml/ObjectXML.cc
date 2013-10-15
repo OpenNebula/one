@@ -292,8 +292,8 @@ int ObjectXML::xpath(unsigned long long& value, const char * xpath_expr,
 
 int ObjectXML::xpath(time_t& value, const char * xpath_expr, const time_t& def)
 {
-    int int_val;
-    int int_def = static_cast<time_t>(def);
+    unsigned long long int_val;
+    unsigned long long int_def = static_cast<time_t>(def);
     int rc;
 
     rc = xpath(int_val, xpath_expr, int_def);
