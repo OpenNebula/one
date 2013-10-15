@@ -189,12 +189,19 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         end
 
         host_errors = Array.new
+        lock = Mutex.new
+
         ts = hs_threads.map do |t|
             Thread.new {
                 t.each do |host|
                     sync_cmd = "scp -rp #{REMOTES_LOCATION}/. #{host}:#{remote_dir} 2> /dev/null"
                     `#{sync_cmd} 2>/dev/null`
-                    host_errors << host if !$?.success?
+
+                    if !$?.success?
+                        lock.synchronize {
+                            host_errors << host
+                        }
+                    end
                 end
             }
         end
