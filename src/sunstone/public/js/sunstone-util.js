@@ -1868,7 +1868,14 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
         if ( new_value != "" && new_key != "" )
         {
             var template_json_bk = $.extend({}, template_json);
-            template_json[$.trim(new_key)] = $.trim(new_value);
+            if(template_json[$.trim(new_key)] && (template_json[$.trim(new_key)] instanceof Array))
+            {
+                template_json[$.trim(new_key)].push($.trim(new_value));
+            }
+            else
+            {
+                template_json[$.trim(new_key)]=$.trim(new_value);
+            }
             template_str  = convert_template_to_string(template_json,unshown_values);
 
             Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
