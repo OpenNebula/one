@@ -2018,6 +2018,7 @@ VectorAttribute * VirtualMachine::delete_attach_disk()
 
     return 0;
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -2028,6 +2029,32 @@ bool VirtualMachine::isVolatile(const VectorAttribute * disk)
     one_util::toupper(type);
 
     return ( type == "SWAP" || type == "FS");
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool VirtualMachine::isVolatile(const Template * tmpl)
+{
+    vector<const Attribute*> disks;
+    int num_disks = tmpl->get("DISK", disks);
+
+    for (int i = 0 ; i < num_disks ; i++)
+    {
+        const VectorAttribute * disk = dynamic_cast<const VectorAttribute*>(disks[i]);
+
+        if (disk == 0)
+        {
+            continue;
+        }
+
+        if (VirtualMachine::isVolatile(disk))
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 /* -------------------------------------------------------------------------- */

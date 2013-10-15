@@ -150,7 +150,9 @@ bool QuotaVirtualMachine::update(Template * tmpl,
         vm_request.insert(make_pair("CPU", delta_cpu));
     }
 
-    if ( tmpl->get("VOLATILE_SIZE", delta_size) == true )
+    delta_size = VirtualMachine::get_volatile_disk_size(tmpl);
+
+    if ( delta_size != 0 )
     {
         vm_request.insert(make_pair("VOLATILE_SIZE", delta_size));
     }

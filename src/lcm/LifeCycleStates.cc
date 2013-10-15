@@ -1346,11 +1346,20 @@ void LifeCycleManager::attach_failure_action(int vid)
 
             tmpl.set(disk);
 
-            Quotas::quota_del(Quotas::IMAGE, uid, gid, &tmpl);
-
             if ( disk->vector_value("IMAGE_ID", image_id) == 0 )
             {
+                // Disk using an Image
+                Quotas::quota_del(Quotas::IMAGE, uid, gid, &tmpl);
+
                 imagem->release_image(oid, image_id, false);
+            }
+            else // Volatile disk
+            {
+                // It is an update of the volatile counter without
+                // shutting destroying a VM
+                tmpl.add("VMS", 0);
+
+                Quotas::quota_del(Quotas::VM, uid, gid, &tmpl);
             }
         }
     }
