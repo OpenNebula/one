@@ -173,6 +173,10 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
             return -1,error_msg
         end
 
+        # Touch the update file
+        FileUtils.touch(File.join(REMOTES_LOCATION,'.update'))
+
+        # Get the Host pool
         filter_flag ||= OpenNebula::Pool::INFO_ALL
 
         pool = factory_pool(filter_flag)
@@ -180,6 +184,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         rc = pool.info
         return -1, rc.message if OpenNebula.is_error?(rc)
 
+        # Assign hosts to threads
         i = 0
         hs_threads = Array.new
         pool.each do |host|
@@ -188,6 +193,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
             i+=1
         end
 
+        # Run the jobs in threads
         host_errors = Array.new
         lock = Mutex.new
 
@@ -206,6 +212,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
             }
         end
 
+        # Wait for threads to finish
         ts.each{|t| t.join}
 
         if host_errors.empty?

@@ -20,6 +20,7 @@ require 'socket'
 require 'base64'
 
 DIRNAME = File.dirname(__FILE__)
+REMOTE_DIR_UPDATE = File.join(DIRNAME, '../../.update')
 
 CYCLE       = 20
 TOTAL_HOSTS = 1000
@@ -41,6 +42,9 @@ class CollectdClient
         # Probes
         run_probes_cmd = File.join(DIRNAME, '..', "run_probes")
         @run_probes_cmd = "#{run_probes_cmd} #{@hypervisor}-probes"
+
+        # Get last update
+        @last_update = get_last_update
 
         # Socket
         @s = UDPSocket.new
@@ -86,6 +90,9 @@ class CollectdClient
         last_send = nil
 
         loop do
+            # Stop the execution if we receive the update signal
+            exit 0 if stop?
+
             t = Time.now.to_i
 
             current_cycle = t / CYCLE
@@ -107,6 +114,14 @@ class CollectdClient
 
             sleep SLEEP
         end
+    end
+
+    def get_last_update
+        File.stat(REMOTE_DIR_UPDATE).mtime.to_i rescue 0
+    end
+
+    def stop?
+        get_last_update.to_i != @last_update.to_i
     end
 end
 
