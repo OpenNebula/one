@@ -158,7 +158,9 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
 
     NUM_THREADS = 15
-    def sync
+    def sync(host_ids, options)
+        cluster_id = options[:cluster]
+
         # Get remote_dir (implies oneadmin group)
         rc = OpenNebula::System.new(@client).get_configuration
         return -1, rc.message if OpenNebula.is_error?(rc)
@@ -187,7 +189,14 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         # Assign hosts to threads
         i = 0
         hs_threads = Array.new
+
         pool.each do |host|
+            if host_ids
+                next if !host_ids.include?(host['ID'].to_i)
+            elsif cluster_id
+                next if host['CLUSTER_ID'].to_i != cluster_id
+            end
+
             hs_threads[i % NUM_THREADS] ||= []
             hs_threads[i % NUM_THREADS] << host['NAME']
             i+=1

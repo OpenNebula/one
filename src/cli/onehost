@@ -74,6 +74,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     }
 
     CREAT_OPTIONS = [ IM, VMM, VNET, OneClusterHelper::CLUSTER ]
+    SYNC_OPTIONS  = [ OneClusterHelper::CLUSTER ]
 
     ########################################################################
     # Formatters for arguments
@@ -166,11 +167,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     sync_desc = <<-EOT.unindent
         Synchronizes probes in /var/lib/one/remotes ($ONE_LOCATION/var/remotes
         in self-contained installations) with Hosts.
-        The copy is performed the next time the Host is monitored
+        Examples:
+            onehost sync
+            onehost sync -c myCluster
+            onehost sync host01,host02,host03
     EOT
 
-    command :sync, sync_desc do
-        helper.sync
+    command :sync, sync_desc, [:range,:hostid_list, nil], :options=>SYNC_OPTIONS do
+        helper.sync(args[0],options)
     end
 
     list_desc = <<-EOT.unindent
