@@ -398,8 +398,8 @@ class VIHost
 
         # Datastores
         @free_ds_info.each{|k,v|
-            str_info << "DS_#{k}_FREE_MB" << v[:free_space] << "\n"
-            str_info << "DS_#{k}_TOTAL_MB" << v[:capacity] << "\n"
+            str_info << "DS_#{k}_FREE_MB="  << v[:free_space]   << "\n"
+            str_info << "DS_#{k}_TOTAL_MB=" << v[:capacity]     << "\n"
         }
 
         str_info.strip
