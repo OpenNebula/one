@@ -20,7 +20,8 @@ $: << File.join(File.dirname(__FILE__), '../../vmm/ec2')
 
 require 'ec2_driver'
 
-ec2_drv = EC2Driver.new
+host = ARGV[2]
+ec2_drv = EC2Driver.new(host)
 
 ec2_drv.monitor_all_vms
 

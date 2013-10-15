@@ -25,7 +25,7 @@ host            = ARGV[1]
 
 deploy_id=File.read(checkpoint_file).strip
 
-ec2_drv = EC2Driver.new
+ec2_drv = EC2Driver.new(host)
 
 ec2_drv.restore(deploy_id)
 

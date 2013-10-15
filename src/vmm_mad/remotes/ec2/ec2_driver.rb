@@ -15,34 +15,22 @@
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
-    ETC_LOCATION      = "/etc/one/"
+    RUBY_LIB_LOCATION = "/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+    ETC_LOCATION      = "/etc/one/" if !defined?(ETC_LOCATION)
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + "/lib/ruby"
-    ETC_LOCATION      = ONE_LOCATION + "/etc/"
+    RUBY_LIB_LOCATION = ONE_LOCATION + "/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+    ETC_LOCATION      = ONE_LOCATION + "/etc/" if !defined?(ETC_LOCATION)
 end
+
+HYBRID_CONF = "#{ETC_LOCATION}/hybrid_ec2.conf"
 
 # Load EC2 credentials and environment
 require 'yaml'
-
-ec2_env = "#{ETC_LOCATION}/ec2rc"
-if File.exist?(ec2_env)
-    env = YAML::load(File.read(ec2_env))
-    env.each do |key, value|
-        ENV[key] = value.to_s
-    end
-end
-
-# Set up the environment for the driver
-EC2_LOCATION = ENV["EC2_HOME"]
-
-if !EC2_LOCATION
-    STDERR.puts "EC2_HOME not set"
-    exit(-1)
-end
+require 'rubygems'
+require 'aws-sdk'
 
 $: << RUBY_LIB_LOCATION
 
@@ -60,79 +48,82 @@ class EC2Driver
     # EC2 commands constants
     EC2 = {
         :run => {
-            :cmd => "#{EC2_LOCATION}/bin/ec2-run-instances",
+            :cmd => :create,
             :args => {
                 "AKI" => {
-                    :opt => '--kernel'
+                    :opt => 'kernel_id'
                 },
                 "AMI" => {
-                    :opt => ''
+                    :opt => 'image_id'
                 },
-                "BLOCKDEVICEMAPPING" => {
-                    :opt => '-b'
-                },
+                #"BLOCKDEVICEMAPPING" => {
+                #    :opt => '-b'
+                #},
                 "CLIENTTOKEN" => {
-                    :opt => '--client-token'
+                    :opt => 'client_token'
                 },
                 "INSTANCETYPE" => {
-                    :opt => '-t'
+                    :opt => 'instance_type'
                 },
                 "KEYPAIR" => {
-                    :opt => '-k'
+                    :opt => 'key_name'
                 },
                 "LICENSEPOOL" => {
-                    :opt => '--license-pool'
+                    :opt => 'license/pool'
                 },
                 "PLACEMENTGROUP" => {
-                    :opt => '--placement-group'
+                    :opt => 'placement/group_name'
                 },
                 "PRIVATEIP" => {
-                    :opt => '--private-ip-address'
+                    :opt => 'private_ip_address'
                 },
                 "RAMDISK" => {
-                    :opt => '--ramdisk'
+                    :opt => 'ramdisk_id'
                 },
                 "SUBNETID" => {
-                    :opt => '-s'
+                    :opt => 'subnet_id'
                 },
                 "TENANCY" => {
-                    :opt => '--tenancy'
+                    :opt => 'placement/tenancy'
                 },
                 "USERDATA" => {
-                    :opt => '-d'
+                    :opt => 'user_data'
                 },
-                "USERDATAFILE" => {
-                    :opt => '-f'
-                },
+                #"USERDATAFILE" => {
+                #    :opt => '-f'
+                #},
                 "SECURITYGROUPS" => {
-                    :opt => '-g',
-                    :proc => lambda {|str| str.split(',').join(' -g ')}
+                    :opt => 'security_groups',
+                    :proc => lambda {|str| str.split(',')}
                 },
                 "AVAILABILITYZONE" => {
-                    :opt => '--availability-zone'
+                    :opt => 'placement/availability-zone'
+                },
+                "EBS_OPTIMIZED" => {
+                    :opt => 'ebs_optimized'
                 }
             }
         },
         :terminate => {
-            :cmd => "#{EC2_LOCATION}/bin/ec2-terminate-instances"
+            :cmd => :terminate
         },
         :describe => {
-            :cmd => "#{EC2_LOCATION}/bin/ec2-describe-instances"
+            :cmd => :describe_instances
         },
         :associate => {
-            :cmd => "#{EC2_LOCATION}/bin/ec2-associate-address",
+            :cmd => :associate_address,
             :args => {
-                "SUBNETID"  => {
-                    :opt  => '-a',
-                    :proc => lambda {|str| ''}
-                },
+                #"SUBNETID"  => {
+                #    :opt  => '-a',
+                #    :proc => lambda {|str| ''}
+                #},
                 "ELASTICIP" => {
-                    :opt => ''
+                    :opt => 'public_ip'
                 }
             }
         },
         :authorize => {
-            :cmd => "#{EC2_LOCATION}/bin/ec2-authorize",
+            :cmd => :authorize,
             :args => {
                 "AUTHORIZEDPORTS" => {
                     :opt => '-p',
@@ -141,183 +132,208 @@ class EC2Driver
             }
         },
         :reboot => {
-            :cmd => "#{EC2_LOCATION}/bin/ec2-reboot-instances"
+            :cmd => :reboot
         },
         :stop => {
-            :cmd => "#{EC2_LOCATION}/bin/ec2-stop-instances"
+            :cmd => :stop
         },
         :start => {
-            :cmd => "#{EC2_LOCATION}/bin/ec2-start-instances"
+            :cmd => :start
         },
         :tags => {
-            :cmd => "#{EC2_LOCATION}/bin/ec2-create-tags",
+            :cmd => :create_tags,
             :args => {
                 "TAGS" => {
                     :opt  => '-t',
-                    :proc => lambda {|str| str.split(',').join(' -t ')}
+                    :proc => lambda {|str|
+                        hash = {}
+                        str.split(',').each {|s|
+                            k,v = s.split('=')
+                            hash[k] = v
+                        }
+                        hash
+                    }
                 }
             }
         }
     }
 
-    # EC2 constructor, loads defaults for the EC2Driver
-    def initialize(ec2_conf = nil)
-        @defaults = Hash.new
+    # EC2 constructor, loads credentials and endpoint
+    def initialize(host)
+        @host = host
 
-        if !ec2_conf && ENV['EC2_CONF']
-            ec2_conf = ENV['EC2_CONF']
-        end
+        @ec2_conf = ETC_LOCATION+'/ec2.conf'
 
-        if ec2_conf && File.exists?(ec2_conf)
-            fd  = File.new(ec2_conf)
-            xml = REXML::Document.new fd
-            fd.close()
+        hybrid_ec2_conf  = YAML::load(File.read(HYBRID_CONF))
 
-            return if !xml || !xml.root
+        @instance_types = hybrid_ec2_conf['instance_types']
 
-            ec2 = xml.root.elements["EC2"]
+        regions = hybrid_ec2_conf['regions']
+        @region = regions[host] || regions["default"]
 
-            return if !ec2
+        AWS.config(
+            'access_key_id'     => @region['access_key_id'],
+            'secret_access_key' => @region['secret_access_key'],
+            'region'            => @region['region_name'])
 
-            EC2.each {|action, hash|
-                if hash[:args]
-                    hash[:args].each { |key, value|
-                        @defaults[key] = value_from_xml(ec2, key)
-                    }
-                end
-            }
-        end
+        @ec2 = AWS.ec2
     end
 
     # DEPLOY action, also sets ports and ip if needed
     def deploy(id, host, xml_text)
         ec2_info = get_deployment_info(host, xml_text)
-        return unless ec2_info
+
+        load_default_template_values
 
         if !ec2_value(ec2_info, 'AMI')
-            msg = "Cannot find AMI in deployment file"
-            STDERR.puts(msg)
+            STDERR.puts("Cannot find AMI in deployment file")
             exit(-1)
         end
 
-        deploy_exe = exec_and_log_ec2(:run, ec2_info, "")
-        if deploy_exe.code != 0
-            msg = deploy_exe.stderr
-            STDERR.puts(msg)
+        opts = generate_options(:run, ec2_info, {
+                :min_count => 1,
+                :max_count => 1})
+
+        begin
+            instance = AWS.ec2.instances.create(opts)
+        rescue => e
+            STDERR.puts(e.message)
             exit(-1)
         end
 
-        if !deploy_exe.stdout.match(/^INSTANCE\s*(.+?)\s/)
-            msg = "Could not find instance id. Check ec2-describe-instances"
-            STDERR.puts(msg)
-            exit(-1)
-        end
-
-        deploy_id = $1
-
-        if ec2_value(ec2_info, 'AUTHORIZEDPORTS')
-            exec_and_log_ec2(:authorize, ec2_info, 'default')
-        end
-
-        LocalCommand.run(
-            "#{EC2_LOCATION}/bin/ec2-create-tags #{deploy_id} -t ONE_ID=#{id}",
-            lambda {|str| STDERR.puts(str) })
-
-        if ec2_value(ec2_info, 'TAGS')
-            exec_and_log_ec2(:tags, ec2_info, deploy_id)
-        end
+        tags = generate_options(:tags, ec2_info) || {}
+        tags['ONE_ID'] = id
+        tags.each{ |key,value|
+            begin
+                instance.add_tag(key, :value => value)
+            rescue => e
+                STDERR.puts(e.message)
+                exit(-1)
+            end
+        }
 
         if ec2_value(ec2_info, 'ELASTICIP')
-            exec_and_log_ec2(:associate, ec2_info, "-i #{deploy_id}")
+            begin
+                instance.associate_elastic_ip(ec2_value(ec2_info, 'ELASTICIP'))
+            rescue => e
+                STDERR.puts(e.message)
+                exit(-1)
+            end
         end
 
-        puts(deploy_id)
+        puts(instance.id)
     end
 
     # Shutdown a EC2 instance
     def shutdown(deploy_id)
-        ec2_action(deploy_id, :terminate, ACTION[:shutdown])
+        ec2_action(deploy_id, :terminate)
     end
 
     # Reboot a EC2 instance
     def reboot(deploy_id)
-        ec2_action(deploy_id, :reboot, ACTION[:reboot])
+        ec2_action(deploy_id, :reboot)
     end
 
     # Cancel a EC2 instance
     def cancel(deploy_id)
-        ec2_action(deploy_id, :terminate, ACTION[:cancel])
+        ec2_action(deploy_id, :terminate)
     end
 
     # Stop a EC2 instance
     def save(deploy_id)
-        ec2_action(deploy_id, :stop, ACTION[:save])
+        ec2_action(deploy_id, :stop)
     end
 
     # Cancel a EC2 instance
     def restore(deploy_id)
-        ec2_action(deploy_id, :start, ACTION[:restore])
+        ec2_action(deploy_id, :start)
     end
 
     # Get info (IP, and state) for a EC2 instance
     def poll(id, deploy_id)
-        exe = exec_and_log_ec2(:describe, nil, deploy_id)
-        if exe.code != 0
-            STDERR.puts(exe.stderr)
-            exit(-1)
-        end
-
-        info = parse_poll(exe.stdout, deploy_id)
-        puts info
+        i = get_instance(deploy_id)
+        puts parse_poll(i)
     end
 
+    # Get the info of all the EC2 instances. An EC2 instance must include
+    #   the ONE_ID tag, otherwise it will be ignored
     def monitor_all_vms
-        exe = LocalCommand.run(
-                "#{EC2_LOCATION}/bin/ec2-describe-instances",
-                lambda { |str| STDERR.puts str })
+        totalmemory = 0
+        totalcpu = 0
+        @region['capacity'].each { |name, size|
+            totalmemory += @instance_types[name]['memory'] * size * 1024 * 1024
+            totalcpu += @instance_types[name]['cpu'] * size * 100
+        }
 
-        if exe.code != 0
+        host_info =  "HYPERVISOR=ec2\n"
+        host_info << "TOTALMEMORY=#{totalmemory}\n"
+        host_info << "TOTALCPU=#{totalcpu}\n"
+        host_info << "CPUSPEED=1000\n"
+        host_info << "HOSTNAME=\"#{@host}\"\n"
+
+        vms_info = "VM_POLL=YES\n"
+
+        usedcpu = 0
+        usedmemory = 0
+        begin
+            AWS.ec2.instances.each do |i|
+                poll_data=parse_poll(i)
+
+                one_id = i.tags['ONE_ID']
+
+                vms_info << "VM=[\n"
+                vms_info << "  ID=#{one_id || -1},\n"
+                vms_info << "  DEPLOY_ID=#{i.instance_id},\n"
+                vms_info << "  POLL=\"#{poll_data}\" ]\n"
+
+                if one_id
+                    name = i.instance_type
+                    usedcpu += @instance_types[name]['cpu'] * 100
+                    usedmemory += @instance_types[name]['memory'] * 1024 * 1024
+                end
+
+            end
+        rescue => e
+            STDERR.puts(e.message)
             exit(-1)
         end
 
-        puts "VM_POLL=YES"
+        host_info << "USEDMEMORY=#{usedmemory.round}\n"
+        host_info << "USEDCPU=#{usedcpu.round}\n"
+        host_info << "FREEMEMORY=#{(totalmemory - usedmemory).round}\n"
+        host_info << "FREECPU=#{(totalcpu - usedcpu).round}\n"
 
-        exe.stdout.split(/^RESERVATION\s.*?$/).each do |vm|
-            m=vm.match(/^INSTANCE\s+(\S+)/)
-            next if !m
-
-            deploy_id = m[1]
-
-            one_id='-1'
-
-            vm.scan(/^TAG.*ONE_ID\s+(\d+)/) {|i| one_id = i.first }
-
-            poll_data=parse_poll(vm, deploy_id)
-
-            puts "VM=["
-            puts "  ID=#{one_id},"
-            puts "  DEPLOY_ID=#{deploy_id},"
-            puts "  POLL=\"#{poll_data}\" ]"
-        end
+        puts host_info
+        puts vms_info
     end
 
 private
 
+    # Get the EC2 section of the template. If more than one EC2 section
+    # the CLOUD element is used and matched with the host
     def get_deployment_info(host, xml_text)
         xml = REXML::Document.new xml_text
 
         ec2 = nil
+        ec2_deprecated = nil
 
         all_ec2_elements = xml.root.get_elements("//USER_TEMPLATE/EC2")
 
         # First, let's see if we have an EC2 site that matches
         # our desired host name
         all_ec2_elements.each { |element|
-            cloud=element.elements["CLOUD"]
+            cloud=element.elements["HOST"]
             if cloud and cloud.text.upcase == host.upcase
                 ec2 = element
+            else
+                cloud=element.elements["CLOUD"]
+                if cloud and cloud.text.upcase == host.upcase
+                    ec2_deprecated = element
+                end
             end
         }
+
+        ec2 ||= ec2_deprecated
 
         if !ec2
             # If we don't find the EC2 site, and ONE just
@@ -336,26 +352,23 @@ private
         ec2
     end
 
-    def parse_poll(text, deploy_id)
-        text.match(Regexp.new("INSTANCE\\s+#{deploy_id}\\s+(.+)"))
-
+    # Retrive the vm information from the EC2 instance
+    def parse_poll(instance)
         info =  "#{POLL_ATTRIBUTE[:usedmemory]}=0 " \
                 "#{POLL_ATTRIBUTE[:usedcpu]}=0 " \
                 "#{POLL_ATTRIBUTE[:nettx]}=0 " \
                 "#{POLL_ATTRIBUTE[:netrx]}=0"
 
-        if !$1
+        if !instance.exists?
             info << " #{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:deleted]}"
         else
-            monitor_data = $1.split(/\s+/)
-
-            case monitor_data[3]
-                when "pending"
+            case instance.status
+                when :pending
                     info << " #{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:active]}"
-                when "running"
+                when :running
                     info<<" #{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:active]}"<<
-                        " IP=#{monitor_data[1]}"
-                when "shutting-down","terminated"
+                        " IP=#{instance.ip_address}"
+                when :'shutting-down', :terminated
                     info << " #{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:deleted]}"
             end
         end
@@ -363,37 +376,43 @@ private
         info
     end
 
-    # Execute an EC2 command and send the SUCCESS or FAILURE signal
+    # Execute an EC2 command
     # +deploy_id+: String, VM id in EC2
     # +ec2_action+: Symbol, one of the keys of the EC2 hash constant (i.e :run)
-    # +one_action+: String, OpenNebula action
-    def ec2_action(deploy_id, ec2_action, one_action)
-        exe = exec_and_log_ec2(ec2_action, nil, deploy_id)
-        if exe.code != 0
-            STDERR.puts(exe.stderr)
+    def ec2_action(deploy_id, ec2_action)
+        i = get_instance(deploy_id)
+
+        begin
+            i.send(EC2[ec2_action][:cmd])
+        rescue => e
+            STDERR.puts e.message
             exit(-1)
         end
     end
 
-    # Execute an EC2 command and log the message if error
-    # This function will build the command joining the :cmd value of the EC2
-    # hash, the extra_params string and the options built from the :args schema
-    # of the EC2 hash and the xml
-    # +action+: Symbol, one of the keys of the EC2 hash constant (i.e :run)
-    # +xml+: REXML Document, containing EC2 information
-    # +extra_params+: String, extra information to be added to the command
-    def exec_and_log_ec2(action, xml, extra_params)
-        cmd = EC2[action][:cmd].clone
-        cmd << ' ' << extra_params << ' ' if extra_params
+    # Generate the options for the given command from the xml provided in the
+    #   template. The available options for each command are defined in the EC2
+    #   constant
+    def generate_options(action, xml, extra_params={})
+        opts = extra_params || {}
 
         if EC2[action][:args]
-            cmd << EC2[action][:args].map {|k,v|
+            EC2[action][:args].each {|k,v|
                 str = ec2_value(xml, k, &v[:proc])
-                v[:opt] + ' ' + str if str
-            }.join(' ')
+                if str
+                    tmp = opts
+                    last_key = nil
+                    v[:opt].split('/').each { |k|
+                        tmp = tmp[last_key] if last_key
+                        tmp[k] = {}
+                        last_key = k
+                    }
+                    tmp[last_key] = str
+                end
+            }
         end
 
-        LocalCommand.run(cmd, lambda {|str| STDERR.puts(str) })
+        opts
     end
 
     # Returns the value of the xml specified by the name or the default
@@ -414,6 +433,52 @@ private
         if xml
             element = xml.elements[name]
             element.text.strip if element && element.text
+        end
+    end
+
+    # Load the default values that will be used to create a new instance, if
+    #   not provided in the template. These values are defined in the EC2_CONF
+    #   file
+    def load_default_template_values
+        @defaults = Hash.new
+
+        if !@ec2_conf && ENV['EC2_CONF']
+            @ec2_conf = ENV['EC2_CONF']
+        end
+
+        if @ec2_conf && File.exists?(@ec2_conf)
+            fd  = File.new(@ec2_conf)
+            xml = REXML::Document.new fd
+            fd.close()
+
+            return if !xml || !xml.root
+
+            ec2 = xml.root.elements["EC2"]
+
+            return if !ec2
+
+            EC2.each {|action, hash|
+                if hash[:args]
+                    hash[:args].each { |key, value|
+                        @defaults[key] = value_from_xml(ec2, key)
+                    }
+                end
+            }
+        end
+    end
+
+    # Retrive the instance from EC2
+    def get_instance(id)
+        begin
+            instance = AWS.ec2.instances[id]
+            if instance.exists?
+                return instance
+            else
+                raise "Instance #{id} does not exist"
+            end
+        rescue => e
+            STDERR.puts e.message
+            exit(-1)
         end
     end
 end

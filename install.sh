@@ -904,8 +904,7 @@ IM_PROBES_VMWARE_FILES="src/im_mad/remotes/vmware.d/vmware.rb"
 
 IM_PROBES_GANGLIA_FILES="src/im_mad/remotes/ganglia.d/ganglia_probe"
 
-IM_PROBES_EC2_FILES="src/im_mad/remotes/ec2.d/monitor \
-                     src/im_mad/remotes/ec2.d/poll"
+IM_PROBES_EC2_FILES="src/im_mad/remotes/ec2.d/poll"
 
 #-------------------------------------------------------------------------------
 # Auth Manager drivers to be installed under $REMOTES_LOCATION/auth
@@ -1172,6 +1171,7 @@ ETC_FILES="share/etc/oned.conf \
 VMWARE_ETC_FILES="src/vmm_mad/remotes/vmware/vmwarerc"
 
 EC2_ETC_FILES="src/vmm_mad/remotes/ec2/ec2rc \
+               src/vmm_mad/remotes/ec2/hybrid_ec2.conf \
                src/vmm_mad/remotes/ec2/ec2.conf"
 
 #-------------------------------------------------------------------------------

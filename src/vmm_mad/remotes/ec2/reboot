@@ -23,7 +23,7 @@ require 'ec2_driver'
 deploy_id = ARGV[0]
 host      = ARGV[1]
 
-ec2_drv = EC2Driver.new
+ec2_drv = EC2Driver.new(host)
 
 ec2_drv.reboot(deploy_id)
 

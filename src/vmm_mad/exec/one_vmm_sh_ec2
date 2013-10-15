@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
@@ -16,48 +16,20 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"]
-
-if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
-    MAD_LOCATION="/usr/lib/one/mads"
+if [ -z "${ONE_LOCATION}" ]; then
+    MAD_LOCATION=/usr/lib/one/mads
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
-    MAD_LOCATION=ONE_LOCATION+"/lib/mads"
-end
+    MAD_LOCATION=$ONE_LOCATION/lib/mads
+fi
 
-$: << RUBY_LIB_LOCATION
-$: << File.join(File.dirname(__FILE__), '../../vmm/ec2')
+while getopts ":u:r:t:l:s:" opt $@; do
+  case "${opt}" in
+    u)
+        export EC2_REGION="${OPTARG}"
+        ;;
+    *)
+        ;;
+  esac
+done
 
-require 'pp'
-require 'OpenNebulaDriver'
-require 'ec2_driver'
-
-host = ARGV[2]
-
-def monitor(host)
-    sinst  = ENV["SMALL_INSTANCES"].to_i
-    linst  = ENV["LARGE_INSTANCES"].to_i
-    xlinst = ENV["EXTRALARGE_INSTANCES"].to_i
-
-    smem  = 1048576 * 1.7 * sinst
-    scpu  = 100 * sinst
-
-    lmem  = 1048576 * 7.5 * linst
-    lcpu  = 400 * linst
-
-    xlmem = 1048576 * 15 * xlinst
-    xlcpu = 800 * xlinst
-
-    totalmemory = smem + lmem + xlmem
-    totalcpu    = scpu + lcpu + xlcpu
-
-    info="HYPERVISOR=ec2\nTOTALMEMORY=#{totalmemory}\n"<<
-        "TOTALCPU=#{totalcpu}\nCPUSPEED=1000\nFREEMEMORY=#{totalmemory}"<<
-        "\nFREECPU=#{totalcpu}\n"
-    info << "HOSTNAME=\"#{host}\"\n"
-
-    puts info
-end
-
-monitor(host)
+exec $MAD_LOCATION/one_vmm_sh $*
