@@ -64,10 +64,10 @@ set -e
 
 USED_MB=\$($DU -sLm ${BASE_PATH%/} 2>/dev/null | $CUT -f1)
 
-DF_STR=\$($DF -m | grep ${BASE_PATH%/} | $SED 's/ \+/:/g')
+DF_STR=\$($DF -m | grep ${BASE_PATH%/} | sed -e 's/ \+/:/g')
 
-TOTAL_MB=\$(echo \$DF_STR | $CUT -d':' -f 2)
-FREE_MB=\$(echo \$DF_STR | $CUT -d':' -f 4)
+TOTAL_MB=\$(echo \$DF_STR | $CUT -d: -f 2)
+FREE_MB=\$(echo \$DF_STR | $CUT -d: -f 4)
 
 echo "USED_MB=\$USED_MB"
 echo "TOTAL_MB=\$TOTAL_MB"

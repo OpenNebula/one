@@ -16,28 +16,53 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-if [ -z "${ONE_LOCATION}" ]; then
-    EC2RC=/etc/one/im_ec2/im_ec2rc
-    EC2CONF=/etc/one/im_ec2/im_ec2.conf
-    MADCOMMON=/usr/lib/one/mads/madcommon.sh
-    VAR_LOCATION=/var/lib/one 
-else
-    EC2RC=$ONE_LOCATION/etc/im_ec2/im_ec2rc
-    EC2CONF=$ONE_LOCATION/etc/im_ec2/im_ec2.conf
-    MADCOMMON=$ONE_LOCATION/lib/mads/madcommon.sh
-    VAR_LOCATION=$ONE_LOCATION/var 
+ARGV=$*
+
+# Directory that contains this file
+DIR=$(pwd)
+
+# Basename
+BASENAME=$(basename $0 _control.sh)
+
+# Collectd client (Ruby)
+CLIENT=$DIR/${BASENAME}.rb
+
+# Collectd client PID
+CLIENT_PID_FILE=/tmp/one-collectd-client.pid
+
+# Launch the client
+function start_client() {
+    /usr/bin/env ruby $CLIENT $ARGV &
+}
+
+# Write the PID
+function write_pid() {
+    echo $1 > $CLIENT_PID_FILE
+}
+
+# Check if running process
+function check_running() {
+    # Assume the process is not running if there is no pid file
+    test ! -f $CLIENT_PID_FILE && return 1
+
+    PID=$(cat $CLIENT_PID_FILE)
+
+    if ps --no-headers -o command $PID 2>/dev/null | grep -q $BASENAME; then
+        return 0
+    else
+        # Stale PID file
+        rm -f $CLIENT_PID_FILE
+        return 1
+    fi
+}
+
+if ! check_running; then
+    start_client
+    write_pid $!
 fi
 
-. $MADCOMMON
+# This script returns the run_probes execution
+HYPERVISOR=$1
+set $HYPERVISOR-probes $@
 
-# Export the vmm_mad specific rc
-export_rc_vars $EC2RC
-
-# Export max instance type usages
-export_rc_vars $EC2CONF
-
-# Go to var directory ONE_LOCATION/var or /var/lib/one
-cd $VAR_LOCATION
-
-# Execute the actual MAD
-execute_mad $*
+$DIR/../run_probes $@

@@ -360,6 +360,7 @@ function updateUserConfigInfo(request,user_json) {
     var quotas_tab_html = Quotas.vms(info, default_user_quotas);
     quotas_tab_html += Quotas.cpu(info, default_user_quotas);
     quotas_tab_html += Quotas.memory(info, default_user_quotas);
+    quotas_tab_html += Quotas.volatile_size(info, default_user_quotas);
     quotas_tab_html += Quotas.image(info, default_user_quotas);
     quotas_tab_html += Quotas.network(info, default_user_quotas);
     quotas_tab_html += Quotas.datastore(info, default_user_quotas);
@@ -456,6 +457,7 @@ function fillGroupQuotas(group_id){
             var quotas_tab_html = Quotas.vms(info, default_group_quotas);
             quotas_tab_html += Quotas.cpu(info, default_group_quotas);
             quotas_tab_html += Quotas.memory(info, default_group_quotas);
+            quotas_tab_html += Quotas.volatile_size(info, default_group_quotas);
             quotas_tab_html += Quotas.image(info, default_group_quotas);
             quotas_tab_html += Quotas.network(info, default_group_quotas);
             quotas_tab_html += Quotas.datastore(info, default_group_quotas);

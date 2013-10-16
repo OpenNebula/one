@@ -23,6 +23,13 @@
 #include "Host.h"
 #include "Nebula.h"
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+const char * Host::HYBRID_HYPERVISORS[] = {"EC2"};
+
+const int Host::NUM_HYBRID_HYPERVISORS  = 1;
+
 /* ************************************************************************ */
 /* Host :: Constructor/Destructor                                           */
 /* ************************************************************************ */
@@ -424,6 +431,29 @@ error_common:
     NebulaLog::log("ONE",Log::ERROR, oss);
 
     return -1;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+bool Host::isHybrid() const
+{
+    string hypervisor;
+    bool is_hybrid = false;
+
+    get_template_attribute("HYPERVISOR", hypervisor);
+    one_util::toupper(hypervisor);
+
+    for(int i=0; i < NUM_HYBRID_HYPERVISORS; i++)
+    { 
+        if(hypervisor==HYBRID_HYPERVISORS[i])
+        {
+            is_hybrid   = true;
+            break;
+        }
+    }
+
+    return is_hybrid;
 }
 
 /* ************************************************************************ */

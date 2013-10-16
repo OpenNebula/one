@@ -58,7 +58,7 @@ public:
      *    @param obj Callbackable obj to call if the query succeeds
      *    @return 0 on success
      */
-    int exec(ostringstream& cmd, Callbackable* obj=0);
+    int exec(ostringstream& cmd, Callbackable* obj=0, bool quiet=false);
 
     /**
      *  This function returns a legal SQL string that can be used in an SQL
@@ -143,7 +143,7 @@ public:
 
     ~MySqlDB(){};
 
-    int exec(ostringstream& cmd, Callbackable* obj=0){return -1;};
+    int exec(ostringstream& cmd, Callbackable* obj=0, bool quiet=false){return -1;};
 
     char * escape_str(const string& str){return 0;};
 

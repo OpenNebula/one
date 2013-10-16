@@ -148,7 +148,11 @@ void TransferManager::trigger(Actions action, int _vid)
 
 void TransferManager::do_action(const string &action, void * arg)
 {
-    int vid;
+    int                 vid;
+    VirtualMachine *    vm;
+    Host           *    host;
+    bool                host_is_hybrid;
+    Nebula&             nd = Nebula::instance();
 
     if (arg == 0)
     {
@@ -159,41 +163,118 @@ void TransferManager::do_action(const string &action, void * arg)
 
     delete static_cast<int *>(arg);
 
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    host = hpool->get(vm->get_hid(),true);
+    host_is_hybrid=host->isHybrid();
+
+    vm->unlock();
+    host->unlock();
+
     if (action == "PROLOG")
     {
-        prolog_action(vid);
+        if (host_is_hybrid)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_SUCCESS,vid);
+        }
+        else
+        {
+            prolog_action(vid);
+        }
     }
     else if (action == "PROLOG_MIGR")
     {
-        prolog_migr_action(vid);
+        if (host_is_hybrid)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_SUCCESS,vid);
+        }
+        else
+        {
+            prolog_migr_action(vid);
+        }
     }
     else if (action == "PROLOG_RESUME")
     {
-        prolog_resume_action(vid);
+        if (host_is_hybrid)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_SUCCESS,vid);
+        }
+        else
+        {
+            prolog_resume_action(vid);
+        }
     }
     else if (action == "EPILOG")
     {
-        epilog_action(vid);
+        if (host_is_hybrid)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
+        }
+        else
+        {
+            epilog_action(vid);
+        }
     }
     else if (action == "EPILOG_STOP")
     {
-        epilog_stop_action(vid);
+        if (host_is_hybrid)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
+        }
+        else
+        {
+            epilog_stop_action(vid);
+        }
     }
     else if (action == "EPILOG_DELETE")
     {
-        epilog_delete_action(vid);
+        if (host_is_hybrid)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
+        }
+        else
+        {
+            epilog_delete_action(vid);
+        }
     }
     else if (action == "EPILOG_DELETE_STOP")
     {
-        epilog_delete_stop_action(vid);
+        if (host_is_hybrid)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
+        }
+        else
+        {
+            epilog_delete_stop_action(vid);
+        }
     }
     else if (action == "EPILOG_DELETE_PREVIOUS")
     {
-        epilog_delete_previous_action(vid);
+        if (host_is_hybrid)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
+        }
+        else
+        {   
+            epilog_delete_previous_action(vid);
+
+        }
     }
     else if (action == "EPILOG_DELETE_BOTH")
     {
-        epilog_delete_both_action(vid);
+        if (host_is_hybrid)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
+        }
+        else
+        {  
+            epilog_delete_both_action(vid);
+        }
     }
     else if (action == "CHECKPOINT")
     {
@@ -460,7 +541,6 @@ void TransferManager::prolog_action(int vid)
     }
 
     int uid = vm->get_uid();
-
     vm->unlock();
 
     User * user = Nebula::instance().get_upool()->get(uid, true);
@@ -653,19 +733,6 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static bool isVolatile(const VectorAttribute * disk)
-{
-    string type;
-
-    type = disk->vector_value("TYPE");
-    transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
-
-    return ( type == "SWAP" || type == "FS");
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void TransferManager::prolog_migr_action(int vid)
 {
     ofstream        xfr;
@@ -736,7 +803,7 @@ void TransferManager::prolog_migr_action(int vid)
 
         disk->vector_value_str("DISK_ID", disk_id);
 
-        if ( isVolatile(disk) == true )
+        if ( VirtualMachine::isVolatile(disk) == true )
         {
             tm_mad = vm_tm_mad;
             ds_id  = vm_ds_id;
@@ -875,7 +942,7 @@ void TransferManager::prolog_resume_action(int vid)
 
         disk->vector_value_str("DISK_ID", disk_id);
 
-        if ( isVolatile(disk) == true )
+        if ( VirtualMachine::isVolatile(disk) == true )
         {
             tm_mad = vm_tm_mad;
             ds_id  = vm_ds_id;
@@ -999,7 +1066,7 @@ void TransferManager::epilog_transfer_command(
     }
     else //No saving disk
     {
-        if ( isVolatile(disk) == true )
+        if ( VirtualMachine::isVolatile(disk) == true )
         {
             tm_mad = vm->get_tm_mad();
             ds_id  = vm->get_ds_id();
@@ -1205,7 +1272,7 @@ void TransferManager::epilog_stop_action(int vid)
 
         disk->vector_value_str("DISK_ID", disk_id);
 
-        if ( isVolatile(disk) == true )
+        if ( VirtualMachine::isVolatile(disk) == true )
         {
             tm_mad = vm_tm_mad;
             ds_id  = vm_ds_id;
@@ -1357,7 +1424,7 @@ int TransferManager::epilog_delete_commands(VirtualMachine *vm,
 
         disk->vector_value_str("DISK_ID", disk_id);
 
-        if ( isVolatile(disk) == true )
+        if ( VirtualMachine::isVolatile(disk) == true )
         {
             tm_mad = vm_tm_mad;
             ds_id  = vm_ds_id;

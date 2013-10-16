@@ -31,9 +31,10 @@ class OneQuotaHelper
         #  ]
         #
         #  VM = [
-        #    VMS    = <Max. number of VMs>
-        #    MEMORY = <Max. allocated memory (Mb)>
-        #    CPU    = <Max. allocated CPU>
+        #    VMS           = <Max. number of VMs>
+        #    MEMORY        = <Max. allocated memory (MB)>
+        #    CPU           = <Max. allocated CPU>
+        #    VOLATILE_SIZE = <Max. allocated volatile disks (MB)>
         #  ]
         #
         #  NETWORK = [
@@ -180,14 +181,14 @@ class OneQuotaHelper
 
         if !vm_quotas[0].nil?
             CLIHelper::ShowTable.new(nil, self) do
-                column :"NUMBER OF VMS", "", :right, :size=>20 do |d|
+                column :"NUMBER OF VMS", "", :right, :size=>17 do |d|
                     if !d.nil?
                         elem = 'VMS'
                         limit = d[elem]
                         limit = helper.get_default_limit(
                             limit, "VM_QUOTA/VM/#{elem}")
 
-                        "%8d / %8d" % [d["VMS_USED"], limit]
+                        "%7d / %7d" % [d["VMS_USED"], limit]
                     end
                 end
 
@@ -213,6 +214,20 @@ class OneQuotaHelper
                             limit, "VM_QUOTA/VM/#{elem}")
 
                         "%8.2f / %8.2f" % [d["CPU_USED"], limit]
+                    end
+                end
+
+                column :"VOLATILE_SIZE", "", :right, :size=>20 do |d|
+                    if !d.nil?
+                        elem = 'VOLATILE_SIZE'
+                        limit = d[elem]
+                        limit = helper.get_default_limit(
+                            limit, "VM_QUOTA/VM/#{elem}")
+
+                        "%8s / %8s" % [
+                            OpenNebulaHelper.unit_to_str(d["VOLATILE_SIZE_USED"].to_i,{},"M"),
+                            OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")
+                        ]
                     end
                 end
             end.show(vm_quotas, {})

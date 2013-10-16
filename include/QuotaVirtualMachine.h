@@ -22,12 +22,14 @@
 /**
  *  VM Quotas, defined as:
  *  VM  = [
- *        VMS     = <Max. number of VMs>
- *        MEMORY  = <Max. number of MB requested by VMs>
- *        CPU     = <Max. number of CPU units requested by VMs>
- *        VMS_USED    = Current number of VMs
- *        MEMORY_USED = Overall Memory requested
- *        CPU_USED    = Overall CPU requested
+ *        VMS           = <Max. number of VMs>
+ *        MEMORY        = <Max. number of MB requested by VMs>
+ *        CPU           = <Max. number of CPU units requested by VMs>
+ *        VOLATILE_SIZE = <Max. number of volatile disk MB>
+ *        VMS_USED      = Current number of VMs
+ *        MEMORY_USED   = Overall Memory requested
+ *        CPU_USED      = Overall CPU requested
+ *        VOLATILE_SIZE_USED = <Max. number of volatile disk MB>
  *    ]
  *
  *   0 = unlimited, default if missing

@@ -1047,6 +1047,8 @@ function setupCreateDatastoreDialog(){
         $create_datastore_dialog.remove();
         setupCreateDatastoreDialog();
 
+        window.ds_wizard_is_not_first="false";
+
         popUpCreateDatastoreDialog();
     });
 
@@ -1054,6 +1056,8 @@ function setupCreateDatastoreDialog(){
         $create_datastore_dialog.trigger('reveal:close');
         $create_datastore_dialog.remove();
         setupCreateDatastoreDialog();
+
+        window.ds_wizard_is_not_first="false";
 
         popUpCreateDatastoreDialog();
         $("a[href='#datastore_manual']").click();
@@ -1155,8 +1159,12 @@ function popUpCreateDatastoreDialog(){
     $('select#datastore_cluster_raw',$create_datastore_dialog).html(clusters_sel());
     $create_datastore_dialog.reveal();
     $("input#name",$create_datastore_dialog).focus();
-    hide_all($create_datastore_dialog);
-    select_filesystem();
+    if(window.ds_wizard_is_not_first != "true")
+    {
+      hide_all($create_datastore_dialog);
+      select_filesystem();
+      window.ds_wizard_is_not_first="true";
+    }
 }
 
 //Prepares autorefresh

@@ -128,7 +128,7 @@ int SystemDB::check_db_version()
     oss << "SELECT version FROM " << ver_table
         << " WHERE oid=(SELECT MAX(oid) FROM " << ver_table << ")";
 
-    db->exec(oss, this);
+    db->exec(oss, this, true);
 
     oss.str("");
     unset_callback();
@@ -138,7 +138,7 @@ int SystemDB::check_db_version()
         // Table user_pool is present for all OpenNebula versions, and it
         // always contains at least the oneadmin user.
         oss << "SELECT MAX(oid) FROM user_pool";
-        rc = db->exec(oss);
+        rc = db->exec(oss, 0, true);
 
         oss.str("");
 
@@ -268,7 +268,15 @@ int SystemDB::select_sys_attribute(const string& attr_name, string& attr_xml)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Nebula::start()
+void Nebula::bootstrap_db()
+{
+    start(true);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Nebula::start(bool bootstrap_only)
 {
     int             rc;
     int             fd;
@@ -376,7 +384,7 @@ void Nebula::start()
     xmlInitParser();
 
     // -----------------------------------------------------------
-    // Pools
+    // Database
     // -----------------------------------------------------------
     try
     {
@@ -510,6 +518,19 @@ void Nebula::start()
         throw;
     }
 
+    if (bootstrap_only)
+    {
+        //XML Library
+        xmlCleanupParser();
+
+        NebulaLog::log("ONE", Log::INFO, "Database bootstrap finalized, exiting.\n");
+
+        return;
+    }
+
+    // -----------------------------------------------------------
+    // Pools
+    // -----------------------------------------------------------
     try
     {
         int     size;

@@ -56,6 +56,16 @@ protected:
                           PoolObjectAuth *        ds_perm,
                           AuthRequest::Operation  op);
 
+    bool quota_resize_authorization(
+            Template *          deltas,
+            RequestAttributes&  att,
+            PoolObjectAuth&     vm_perms);
+
+    bool quota_resize_authorization(
+            int                 oid,
+            Template *          deltas,
+            RequestAttributes&  att);
+
     int get_host_information(
         int     hid,
         string& name,

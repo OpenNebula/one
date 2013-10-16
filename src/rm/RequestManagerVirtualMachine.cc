@@ -96,6 +96,120 @@ bool RequestManagerVirtualMachine::vm_authorization(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+bool RequestManagerVirtualMachine::quota_resize_authorization(
+        int                 oid,
+        Template *          deltas,
+        RequestAttributes&  att)
+{
+    PoolObjectAuth      vm_perms;
+    VirtualMachine *    vm = Nebula::instance().get_vmpool()->get(oid, true);
+
+    if (vm == 0)
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::VM),oid),
+                att);
+
+        return false;
+    }
+
+    vm->get_permissions(vm_perms);
+
+    vm->unlock();
+
+    return quota_resize_authorization(deltas, att, vm_perms);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool RequestManagerVirtualMachine::quota_resize_authorization(
+        Template *          deltas,
+        RequestAttributes&  att,
+        PoolObjectAuth&     vm_perms)
+{
+    int rc;
+
+    string   error_str;
+
+    Nebula&    nd    = Nebula::instance();
+    UserPool*  upool = nd.get_upool();
+    GroupPool* gpool = nd.get_gpool();
+
+    Quotas     user_dquotas  = nd.get_default_user_quota();
+    Quotas     group_dquotas = nd.get_default_group_quota();
+
+    if (vm_perms.uid != UserPool::ONEADMIN_ID)
+    {
+        User * user  = upool->get(vm_perms.uid, true);
+
+        if ( user != 0 )
+        {
+            rc = user->quota.quota_update(Quotas::VM, deltas, user_dquotas, error_str);
+
+            if (rc == false)
+            {
+                ostringstream oss;
+
+                oss << object_name(PoolObjectSQL::USER)
+                    << " [" << vm_perms.uid << "] "
+                    << error_str;
+
+                failure_response(AUTHORIZATION,
+                        request_error(oss.str(), ""),
+                        att);
+
+                user->unlock();
+
+                return false;
+            }
+
+            upool->update(user);
+
+            user->unlock();
+        }
+    }
+
+    if (vm_perms.gid != GroupPool::ONEADMIN_ID)
+    {
+        Group * group  = gpool->get(vm_perms.gid, true);
+
+        if ( group != 0 )
+        {
+            rc = group->quota.quota_update(Quotas::VM, deltas, group_dquotas, error_str);
+
+            if (rc == false)
+            {
+                ostringstream oss;
+                RequestAttributes att_tmp(vm_perms.uid, -1, att);
+
+                oss << object_name(PoolObjectSQL::GROUP)
+                    << " [" << vm_perms.gid << "] "
+                    << error_str;
+
+                failure_response(AUTHORIZATION,
+                                 request_error(oss.str(), ""),
+                                 att);
+
+                group->unlock();
+
+                quota_rollback(deltas, Quotas::VM, att_tmp);
+
+                return false;
+            }
+
+            gpool->update(group);
+
+            group->unlock();
+        }
+    }
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int RequestManagerVirtualMachine::get_default_ds_information(
     int cluster_id,
     int& ds_id,
@@ -1226,10 +1340,13 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
     DispatchManager * dm = nd.get_dm();
 
     VirtualMachineTemplate * tmpl = new VirtualMachineTemplate();
+    VirtualMachineTemplate * deltas = 0;
     PoolObjectAuth           host_perms;
+    PoolObjectAuth           vm_perms;
 
     int    rc;
     string error_str;
+    bool   volatile_disk;
 
     int     id       = xmlrpc_c::value_int(paramList.getInt(1));
     string  str_tmpl = xmlrpc_c::value_string(paramList.getString(2));
@@ -1258,17 +1375,43 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ( quota_authorization(tmpl, Quotas::IMAGE, att) == false )
+    volatile_disk = VirtualMachine::isVolatile(tmpl);
+
+    if ( volatile_disk )
     {
-        delete tmpl;
-        return;
+        deltas = new VirtualMachineTemplate(*tmpl);
+
+        deltas->add("VMS", 0);
+
+        if (quota_resize_authorization(id, deltas, att) == false)
+        {
+            delete tmpl;
+            delete deltas;
+
+            return;
+        }
+    }
+    else
+    {
+        if ( quota_authorization(tmpl, Quotas::IMAGE, att) == false )
+        {
+            delete tmpl;
+            return;
+        }
     }
 
     rc = dm->attach(id, tmpl, error_str);
 
     if ( rc != 0 )
     {
-        quota_rollback(tmpl, Quotas::IMAGE, att);
+        if ( volatile_disk )
+        {
+            quota_rollback(deltas, Quotas::VM, att);
+        }
+        else
+        {
+            quota_rollback(tmpl, Quotas::IMAGE, att);
+        }
 
         failure_response(ACTION,
                 request_error(error_str, ""),
@@ -1280,6 +1423,8 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     delete tmpl;
+    delete deltas;
+
     return;
 }
 
@@ -1338,14 +1483,8 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
     int   nvcpu, ovcpu;
 
     Nebula&    nd    = Nebula::instance();
-    UserPool*  upool = nd.get_upool();
-    GroupPool* gpool = nd.get_gpool();
     HostPool * hpool = nd.get_hpool();
-
-    Quotas     user_dquotas  = nd.get_default_user_quota();
-    Quotas     group_dquotas = nd.get_default_group_quota();
-
-    Host * host;
+    Host *     host;
 
     Template deltas;
     string   error_str;
@@ -1494,69 +1633,9 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
     /*  Check quotas                                                          */
     /* ---------------------------------------------------------------------- */
 
-    if (vm_perms.uid != UserPool::ONEADMIN_ID)
+    if (quota_resize_authorization(&deltas, att, vm_perms) == false)
     {
-        User * user  = upool->get(vm_perms.uid, true);
-
-        if ( user != 0 )
-        {
-            rc = user->quota.quota_update(Quotas::VM, &deltas, user_dquotas, error_str);
-
-            if (rc == false)
-            {
-                ostringstream oss;
-
-                oss << object_name(PoolObjectSQL::USER)
-                    << " [" << vm_perms.uid << "] "
-                    << error_str;
-
-                failure_response(AUTHORIZATION,
-                        request_error(oss.str(), ""),
-                        att);
-
-                user->unlock();
-
-                return;
-            }
-
-            upool->update(user);
-
-            user->unlock();
-        }
-    }
-
-    if (vm_perms.gid != GroupPool::ONEADMIN_ID)
-    {
-        Group * group  = gpool->get(vm_perms.gid, true);
-
-        if ( group != 0 )
-        {
-            rc = group->quota.quota_update(Quotas::VM, &deltas, group_dquotas, error_str);
-
-            if (rc == false)
-            {
-                ostringstream oss;
-                RequestAttributes att_tmp(vm_perms.uid, -1, att);
-
-                oss << object_name(PoolObjectSQL::GROUP)
-                    << " [" << vm_perms.gid << "] "
-                    << error_str;
-
-                failure_response(AUTHORIZATION,
-                                 request_error(oss.str(), ""),
-                                 att);
-
-                group->unlock();
-
-                quota_rollback(&deltas, Quotas::VM, att_tmp);
-
-                return;
-            }
-
-            gpool->update(group);
-
-            group->unlock();
-        }
+        return;
     }
 
     /* ---------------------------------------------------------------------- */

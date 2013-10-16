@@ -20,7 +20,7 @@ require 'ipaddr'
 require 'set'
 
 module OneDBFsck
-    VERSION = "4.3.0"
+    VERSION = "4.3.80"
 
     def db_version
         VERSION
@@ -1286,6 +1286,7 @@ module OneDBFsck
         cpu_used = 0.0
         mem_used = 0
         vms_used = 0
+        vol_used = 0.0
 
         # VNet quotas
         vnet_usage = {}
@@ -1301,10 +1302,26 @@ module OneDBFsck
                 # truncate to 2 decimals
                 cpu = (e.text.to_f * 100).to_i / 100.0
                 cpu_used += cpu
+                cpu_used = (cpu_used * 100).to_i / 100.0
             }
 
             vmdoc.root.each_element("TEMPLATE/MEMORY") { |e|
                 mem_used += e.text.to_i
+            }
+
+            vmdoc.root.each_element("TEMPLATE/DISK") { |e|
+                type = ""
+
+                e.each_element("TYPE") { |t_elem|
+                    type = t_elem.text.upcase
+                }
+
+                if ( type == "SWAP" || type == "FS")
+                    e.each_element("SIZE") { |size_elem|
+                        vol_used += size_elem.text.to_f
+                        vol_used = (vol_used * 100).to_i / 100.0
+                    }
+                end
             }
 
             vms_used += 1
@@ -1342,6 +1359,9 @@ module OneDBFsck
 
             vm_elem.add_element("VMS").text         = "-1"
             vm_elem.add_element("VMS_USED").text    = "0"
+
+            vm_elem.add_element("VOLATILE_SIZE").text       = "-1"
+            vm_elem.add_element("VOLATILE_SIZE_USED").text  = "0"
         end
 
 
@@ -1378,6 +1398,20 @@ module OneDBFsck
             end
         }
 
+        vm_elem.each_element("VOLATILE_SIZE_USED") { |e|
+            # Check if the float value or the string representation mismatch,
+            # but ignoring the precision
+
+            different = ( e.text.to_f != vol_used ||
+                ![sprintf('%.2f', vol_used), sprintf('%.1f', vol_used), sprintf('%.0f', vol_used)].include?(e.text)  )
+
+            vol_used_str = sprintf('%.2f', vol_used)
+
+            if different
+                log_error("#{resource} #{oid} quotas: VOLATILE_SIZE_USED has #{e.text} \tis\t#{vol_used_str}")
+                e.text = vol_used_str
+            end
+        }
 
         # VNet quotas
 

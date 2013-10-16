@@ -1,11 +1,10 @@
 
-OpenNebula - The OpenSource Toolkit for Cloud Computing
+OpenNebula - Flexible Enterprise Cloud Made Simple
 
 ## DESCRIPTION
 
-OpenNebula is an open-source project aimed at building the industry standard
-open source cloud computing tool to manage the complexity and heterogeneity of
-distributed data center infrastructures.
+OpenNebula is an open-source project delivering a simple but feature-rich and 
+flexible solution to build and manage enterprise clouds and virtualized data centers.
 
 Complete documentation can be found at
 

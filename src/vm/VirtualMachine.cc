@@ -1103,6 +1103,7 @@ int VirtualMachine::automatic_requirements(string& error_str)
     ostringstream   oss;
     string          requirements;
     string          cluster_id = "";
+    string          hypervisor;
 
     int incomp_id;
     int rc;
@@ -1181,9 +1182,21 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
     if ( !cluster_id.empty() )
     {
-        oss.str("");
         oss << "CLUSTER_ID = " << cluster_id;
+    }
 
+    if (static_cast<VirtualMachineTemplate*>(obj_template)->get_hybrid_hypervisor(hypervisor))
+    {
+        if ( !cluster_id.empty() )
+        {
+            oss << " || ";
+        }
+
+        oss << "HYPERVISOR = " << hypervisor;
+    }
+
+    if ( !cluster_id.empty() || !hypervisor.empty() )
+    {
         obj_template->add("AUTOMATIC_REQUIREMENTS", oss.str());
     }
 
@@ -2004,6 +2017,83 @@ VectorAttribute * VirtualMachine::delete_attach_disk()
     }
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool VirtualMachine::isVolatile(const VectorAttribute * disk)
+{
+    string type = disk->vector_value("TYPE");
+
+    one_util::toupper(type);
+
+    return ( type == "SWAP" || type == "FS");
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool VirtualMachine::isVolatile(const Template * tmpl)
+{
+    vector<const Attribute*> disks;
+    int num_disks = tmpl->get("DISK", disks);
+
+    for (int i = 0 ; i < num_disks ; i++)
+    {
+        const VectorAttribute * disk = dynamic_cast<const VectorAttribute*>(disks[i]);
+
+        if (disk == 0)
+        {
+            continue;
+        }
+
+        if (VirtualMachine::isVolatile(disk))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+float VirtualMachine::get_volatile_disk_size(Template * tmpl)
+{
+    float size = 0;
+
+    vector<const Attribute*> disks;
+    int num_disks = tmpl->get("DISK", disks);
+
+    if (num_disks == 0)
+    {
+        return size;
+    }
+
+    for (int i = 0 ; i < num_disks ; i++)
+    {
+        float disk_size;
+        const VectorAttribute * disk = dynamic_cast<const VectorAttribute*>(disks[i]);
+
+        if (disk == 0)
+        {
+            continue;
+        }
+
+        if (!VirtualMachine::isVolatile(disk))
+        {
+            continue;
+        }
+
+        if (disk->vector_value("SIZE", disk_size) == 0)
+        {
+            size += disk_size;
+        }
+    }
+
+    return size;
 }
 
 /* -------------------------------------------------------------------------- */
