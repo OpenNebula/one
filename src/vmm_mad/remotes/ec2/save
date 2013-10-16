@@ -25,13 +25,5 @@ file      = ARGV[1]
 host      = ARGV[2]
 
 ec2_drv = EC2Driver.new(host)
-
-dir=File.dirname(file)
-Dir.mkdir(dir) if !Dir.exist?(dir)
-
-f=open(file, "w")
-f.write(deploy_id)
-f.close
-
 ec2_drv.save(deploy_id)
 

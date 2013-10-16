@@ -25,7 +25,8 @@ else
     ETC_LOCATION      = ONE_LOCATION + "/etc/" if !defined?(ETC_LOCATION)
 end
 
-HYBRID_CONF = "#{ETC_LOCATION}/hybrid_ec2.conf"
+EC2_DRIVER_CONF = "#{ETC_LOCATION}/ec2_driver.conf"
+EC2_DRIVER_DEFAULT = "#{ETC_LOCATION}/ec2_driver.default"
 
 # Load EC2 credentials and environment
 require 'yaml'
@@ -162,9 +163,7 @@ class EC2Driver
     def initialize(host)
         @host = host
 
-        @ec2_conf = ETC_LOCATION+'/ec2.conf'
-
-        hybrid_ec2_conf  = YAML::load(File.read(HYBRID_CONF))
+        hybrid_ec2_conf  = YAML::load(File.read(EC2_DRIVER_CONF))
 
         @instance_types = hybrid_ec2_conf['instance_types']
 
@@ -442,12 +441,8 @@ private
     def load_default_template_values
         @defaults = Hash.new
 
-        if !@ec2_conf && ENV['EC2_CONF']
-            @ec2_conf = ENV['EC2_CONF']
-        end
-
-        if @ec2_conf && File.exists?(@ec2_conf)
-            fd  = File.new(@ec2_conf)
+        if File.exists?(EC2_DRIVER_DEFAULT)
+            fd  = File.new(EC2_DRIVER_DEFAULT)
             xml = REXML::Document.new fd
             fd.close()
 

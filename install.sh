@@ -1170,9 +1170,8 @@ ETC_FILES="share/etc/oned.conf \
 
 VMWARE_ETC_FILES="src/vmm_mad/remotes/vmware/vmwarerc"
 
-EC2_ETC_FILES="src/vmm_mad/remotes/ec2/ec2rc \
-               src/vmm_mad/remotes/ec2/hybrid_ec2.conf \
-               src/vmm_mad/remotes/ec2/ec2.conf"
+EC2_ETC_FILES="src/vmm_mad/remotes/ec2/ec2_driver.conf \
+               src/vmm_mad/remotes/ec2/ec2_driver.default"
 
 #-------------------------------------------------------------------------------
 # Virtualization drivers config. files, to be installed under $ETC_LOCATION

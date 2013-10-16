@@ -416,7 +416,7 @@ class ExecDriver < VirtualMachineDriver
             {
                 :driver     => :vmm,
                 :action     => :restore,
-                :parameters => [:checkpoint_file, :host]
+                :parameters => [:checkpoint_file, :host, :deploy_id]
             },
             # Execute post-boot networking setup
             {
