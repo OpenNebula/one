@@ -48,6 +48,11 @@ public:
         {
             delete vm_template;
         }
+
+        if (user_template != 0)
+        {
+            delete user_template;
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -105,6 +110,8 @@ public:
     }
 
     void get_requirements (int& cpu, int& memory, int& disk);
+
+    map<int,float> get_storage_usage();
 
     //--------------------------------------------------------------------------
     // Matched Resources Interface
@@ -189,9 +196,9 @@ public:
      */
     string& get_template(string& xml_str)
     {
-        if (vm_template != 0)
+        if (user_template != 0)
         {
-            vm_template->to_xml(xml_str);
+            user_template->to_xml(xml_str);
         }
         else
         {
@@ -210,7 +217,7 @@ public:
     {
         attributes.clear();
 
-        vm_template->remove("SCHED_ACTION", attributes);
+        user_template->remove("SCHED_ACTION", attributes);
     }
 
     /**
@@ -220,7 +227,7 @@ public:
      */
     void set_attribute(Attribute* att)
     {
-        return vm_template->set(att);
+        return user_template->set(att);
     }
 
     /**
@@ -274,7 +281,8 @@ protected:
     string ds_requirements;
     string ds_rank;
 
-    VirtualMachineTemplate * vm_template; /**< The VM user template */
+    VirtualMachineTemplate * vm_template;   /**< The VM template */
+    VirtualMachineTemplate * user_template; /**< The VM user template */
 };
 
 #endif /* VM_XML_H_ */

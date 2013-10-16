@@ -168,7 +168,7 @@ void VirtualMachineXML::init_attributes()
         resched = 0;
     }
 
-    if (get_nodes("/VM/USER_TEMPLATE", nodes) > 0)
+    if (get_nodes("/VM/TEMPLATE", nodes) > 0)
     {
         vm_template = new VirtualMachineTemplate;
 
@@ -179,6 +179,21 @@ void VirtualMachineXML::init_attributes()
     else
     {
         vm_template = 0;
+    }
+
+    nodes.clear();
+
+    if (get_nodes("/VM/USER_TEMPLATE", nodes) > 0)
+    {
+        user_template = new VirtualMachineTemplate;
+
+        user_template->from_xml_node(nodes[0]);
+
+        free_nodes(nodes);
+    }
+    else
+    {
+        user_template = 0;
     }
 }
 
@@ -245,9 +260,102 @@ void VirtualMachineXML::get_requirements (int& cpu, int& memory, int& disk)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+// TODO: use VirtualMachine::isVolatile(disk)
+bool isVolatile(const VectorAttribute * disk)
+{
+    string type = disk->vector_value("TYPE");
+
+    one_util::toupper(type);
+
+    return ( type == "SWAP" || type == "FS");
+}
+
+map<int,float> VirtualMachineXML::get_storage_usage()
+{
+    map<int, float> ds_usage;
+
+    vector<Attribute  *> disks;
+    vector<Attribute*>::iterator it;
+
+    float size;
+    string st;
+    int ds_id;
+
+    bool clone;
+
+    // Usage for the system DS will be stored in the index 0, although
+    // it may not be DS 0
+    ds_usage[0] = 0;
+
+    vm_template->remove("DISK", disks);
+
+    for (it=disks.begin(); it != disks.end(); it++)
+    {
+        const VectorAttribute * disk = dynamic_cast<const VectorAttribute*>(*it);
+
+        if (disk == 0)
+        {
+            continue;
+        }
+
+        if (disk->vector_value("SIZE", size) != 0)
+        {
+            // TODO: report error?
+            continue;
+        }
+
+        if (isVolatile(disk))
+        {
+            ds_usage[0] += size;
+        }
+        else
+        {
+            if (disk->vector_value("DATASTORE_ID", ds_id) != 0)
+            {
+                // TODO: report error?
+                continue;
+            }
+
+            if (ds_usage.count(ds_id) == 0)
+            {
+                ds_usage[ds_id] = 0;
+            }
+
+            if (disk->vector_value("CLONE", clone) != 0)
+            {
+                continue;
+            }
+
+            if (clone)
+            {
+                st = disk->vector_value("CLONE_TARGET");
+            }
+            else
+            {
+                st = disk->vector_value("LN_TARGET");
+            }
+
+            // TODO: define constants or enum in Datastore.h ?
+            if (st == "SELF")
+            {
+                ds_usage[ds_id] += size;
+            }
+            else if (st == "SYSTEM")
+            {
+                ds_usage[0] += size;
+            } // else st == NONE
+        }
+    }
+
+    return ds_usage;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachineXML::log(const string &st)
 {
-    if (vm_template == 0 || st.empty())
+    if (user_template == 0 || st.empty())
     {
         return;
     }
@@ -255,7 +363,7 @@ void VirtualMachineXML::log(const string &st)
 
     oss << one_util::log_time() << " : " << st;
 
-    vm_template->replace("SCHED_MESSAGE", oss.str());
+    user_template->replace("SCHED_MESSAGE", oss.str());
 }
 
 /* -------------------------------------------------------------------------- */

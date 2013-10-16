@@ -42,6 +42,31 @@ int VirtualMachinePoolXML::set_up()
         }
 
         NebulaLog::log("VM",Log::DEBUG,oss);
+
+        // TODO: remove debug log
+
+        oss.str("");
+
+        oss << "Storage usage:" << endl;
+
+        for (it=objects.begin();it!=objects.end();it++)
+        {
+            VirtualMachineXML * vm = static_cast<VirtualMachineXML *>(it->second);
+
+            map<int,float> ds_usage = vm->get_storage_usage();
+            map<int,float>::iterator ds_it;
+
+            oss << "VM " << vm->get_oid() << ": ";
+
+            for (ds_it = ds_usage.begin(); ds_it != ds_usage.end(); ds_it++)
+            {
+                oss << "DS " << ds_it->first << " " << ds_it->second << "MB; ";
+            }
+
+            oss << endl;
+        }
+
+        NebulaLog::log("VM",Log::DEBUG,oss);
     }
 
     return rc;

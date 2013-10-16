@@ -517,6 +517,9 @@ int Image::disk_attribute(  VectorAttribute * disk,
     disk->replace("IMAGE_ID", iid.str());
     disk->replace("SOURCE",   source);
 
+    // TODO: move all size values (image, volatile disk, quotas) to long long
+    disk->replace("SIZE",     (int)size_mb);
+
     if (driver.empty() && !template_driver.empty())//DRIVER in Image,not in DISK
     {
         disk->replace("DRIVER",template_driver);
