@@ -49,6 +49,14 @@ class InformationManagerDriver < OpenNebulaDriver
 
         # register actions
         register_action(:MONITOR, method("action_monitor"))
+
+        # collectd port
+        @collectd_port = 4124
+        begin
+            im_collectd = @config["IM_MAD"].select{|e| e.match(/collectd/)}[0]
+            @collectd_port = im_collectd.match(/-p (\d+)/)[1]
+        rescue
+        end
     end
 
     # Execute the run_probes in the remote host
@@ -73,8 +81,8 @@ class InformationManagerDriver < OpenNebulaDriver
             end
         end
 
-        do_action("#{@hypervisor}", number, host, :MONITOR,
-            :script_name => 'run_probes', :base64 => true)
+        do_action("#{@hypervisor} #{number} #{@collectd_port}", number, host,
+                        :MONITOR, :script_name => 'run_probes', :base64 => true)
     end
 end
 

@@ -29,7 +29,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
     def self.state_to_str(id)
         id        = id.to_i
         state_str = Host::HOST_STATES[id]
-        
+
         return Host::SHORT_HOST_STATES[state_str]
     end
 
@@ -114,7 +114,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                         "#{cpu_usage} / #{max_cpu} (#{ratio}%)"
                     else
                         "#{cpu_usage} / -"
-                    end                    
+                    end
                 end
             end
 
@@ -154,6 +154,84 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         end
 
         table
+    end
+
+
+    NUM_THREADS = 15
+    def sync(host_ids, options)
+        cluster_id = options[:cluster]
+
+        # Get remote_dir (implies oneadmin group)
+        rc = OpenNebula::System.new(@client).get_configuration
+        return -1, rc.message if OpenNebula.is_error?(rc)
+
+        conf = rc
+        remote_dir = conf['SCRIPTS_REMOTE_DIR']
+
+        # Verify the existence of REMOTES_LOCATION
+        if !File.directory? REMOTES_LOCATION
+            error_msg = "'#{REMOTES_LOCATION}' does not exist. " <<
+                            "This command must be run in the frontend."
+            return -1,error_msg
+        end
+
+        # Touch the update file
+        FileUtils.touch(File.join(REMOTES_LOCATION,'.update'))
+
+        # Get the Host pool
+        filter_flag ||= OpenNebula::Pool::INFO_ALL
+
+        pool = factory_pool(filter_flag)
+
+        rc = pool.info
+        return -1, rc.message if OpenNebula.is_error?(rc)
+
+        # Assign hosts to threads
+        i = 0
+        hs_threads = Array.new
+
+        pool.each do |host|
+            if host_ids
+                next if !host_ids.include?(host['ID'].to_i)
+            elsif cluster_id
+                next if host['CLUSTER_ID'].to_i != cluster_id
+            end
+
+            hs_threads[i % NUM_THREADS] ||= []
+            hs_threads[i % NUM_THREADS] << host['NAME']
+            i+=1
+        end
+
+        # Run the jobs in threads
+        host_errors = Array.new
+        lock = Mutex.new
+
+        ts = hs_threads.map do |t|
+            Thread.new {
+                t.each do |host|
+                    sync_cmd = "scp -rp #{REMOTES_LOCATION}/. #{host}:#{remote_dir} 2> /dev/null"
+                    `#{sync_cmd} 2>/dev/null`
+
+                    if !$?.success?
+                        lock.synchronize {
+                            host_errors << host
+                        }
+                    end
+                end
+            }
+        end
+
+        # Wait for threads to finish
+        ts.each{|t| t.join}
+
+        if host_errors.empty?
+            puts "All hosts updated successfully."
+            0
+        else
+            STDERR.puts "Failed to update the following hosts:"
+            host_errors.each{|h| STDERR.puts "* #{h}"}
+            -1
+        end
     end
 
     private
