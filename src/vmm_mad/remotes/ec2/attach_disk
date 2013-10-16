@@ -16,28 +16,5 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-if [ -z "${ONE_LOCATION}" ]; then
-    EC2RC=/etc/one/im_ec2/im_ec2rc
-    EC2CONF=/etc/one/im_ec2/im_ec2.conf
-    MADCOMMON=/usr/lib/one/mads/madcommon.sh
-    VAR_LOCATION=/var/lib/one 
-else
-    EC2RC=$ONE_LOCATION/etc/im_ec2/im_ec2rc
-    EC2CONF=$ONE_LOCATION/etc/im_ec2/im_ec2.conf
-    MADCOMMON=$ONE_LOCATION/lib/mads/madcommon.sh
-    VAR_LOCATION=$ONE_LOCATION/var 
-fi
-
-. $MADCOMMON
-
-# Export the vmm_mad specific rc
-export_rc_vars $EC2RC
-
-# Export max instance type usages
-export_rc_vars $EC2CONF
-
-# Go to var directory ONE_LOCATION/var or /var/lib/one
-cd $VAR_LOCATION
-
-# Execute the actual MAD
-execute_mad $*
+SCRIPT_NAME=$(basename $0)
+echo "Action $SCRIPT_NAME not supported" 1>&2

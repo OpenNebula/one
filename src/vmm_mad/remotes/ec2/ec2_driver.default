@@ -1,0 +1,36 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+<!--
+ Default configuration attributes for the EC2 driver
+ (all domains will use these values as defaults)
+ Valid atributes are: AKI AMI CLIENTTOKEN INSTANCETYPE KEYPAIR LICENSEPOOL
+    PLACEMENTGROUP PRIVATEIP RAMDISK SUBNETID TENANCY USERDATA SECURITYGROUPS
+    AVAILABILITYZONE EBS_OPTIMIZED ELASTICIP AUTHORIZEDPORTS TAGS
+ Use XML syntax to specify defaults, note elements are UPCASE
+ Example:
+ <TEMPLATE>
+   <EC2>
+     <KEYPAIR>gsg-keypair</KEYPAIR>
+     <INSTANCETYPE>m1.small</INSTANCETYPE>
+   </EC2>
+ </TEMPLATE>
+-->
+
+<TEMPLATE>
+  <EC2>
+    <INSTANCETYPE>m1.small</INSTANCETYPE>
+  </EC2>
+</TEMPLATE>

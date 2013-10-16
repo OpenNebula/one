@@ -16,33 +16,5 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-if [ -z "${ONE_LOCATION}" ]; then
-    DRIVERRC=/etc/one/vmm_ec2/vmm_ec2rc
-    MADCOMMON=/usr/lib/one/mads/madcommon.sh
-    VAR_LOCATION=/var/lib/one
-else
-    DRIVERRC=$ONE_LOCATION/etc/vmm_ec2/vmm_ec2rc
-    MADCOMMON=$ONE_LOCATION/lib/mads/madcommon.sh
-    VAR_LOCATION=$ONE_LOCATION/var
-fi
-
-. $MADCOMMON
-
-# Export the vmm_mad specific rc
-export_rc_vars $DRIVERRC
-
-# Go to ONE_LOCATION
-cd $VAR_LOCATION
-
-while getopts u:h:k:c: option $@
-do
-    case $option in
-    u)  export EC2_URL="$OPTARG";;
-    h)  export EC2_HOME="$OPTARG";;
-    k)  export EC2_PRIVATE_KEY="$OPTARG";;
-    c)  export EC2_CERT="$OPTARG";;
-    esac
-done
-
-# Execute the actual MAD
-execute_mad $*
+SCRIPT_NAME=$(basename $0)
+echo "Action $SCRIPT_NAME not supported" 1>&2

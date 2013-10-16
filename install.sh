@@ -227,9 +227,7 @@ SHARE_DIRS="$SHARE_LOCATION/examples \
             $SHARE_LOCATION/tgt \
             $SHARE_LOCATION/websockify"
 
-ETC_DIRS="$ETC_LOCATION/im_ec2 \
-          $ETC_LOCATION/vmm_ec2 \
-          $ETC_LOCATION/vmm_exec \
+ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/hm \
           $ETC_LOCATION/auth \
           $ETC_LOCATION/auth/certificates \
@@ -268,11 +266,13 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/xen3-probes.d \
           $VAR_LOCATION/remotes/im/xen4-probes.d \
           $VAR_LOCATION/remotes/im/vmware.d \
+          $VAR_LOCATION/remotes/im/ec2.d \
           $VAR_LOCATION/remotes/vmm \
           $VAR_LOCATION/remotes/vmm/kvm \
           $VAR_LOCATION/remotes/vmm/xen3 \
           $VAR_LOCATION/remotes/vmm/xen4 \
           $VAR_LOCATION/remotes/vmm/vmware \
+          $VAR_LOCATION/remotes/vmm/ec2 \
           $VAR_LOCATION/remotes/vnm \
           $VAR_LOCATION/remotes/vnm/802.1Q \
           $VAR_LOCATION/remotes/vnm/dummy \
@@ -456,6 +456,7 @@ INSTALL_FILES=(
     IM_PROBES_XEN4_FILES:$VAR_LOCATION/remotes/im/xen4.d
     IM_PROBES_XEN4_PROBES_FILES:$VAR_LOCATION/remotes/im/xen4-probes.d
     IM_PROBES_VMWARE_FILES:$VAR_LOCATION/remotes/im/vmware.d
+    IM_PROBES_EC2_FILES:$VAR_LOCATION/remotes/im/ec2.d
     AUTH_SSH_FILES:$VAR_LOCATION/remotes/auth/ssh
     AUTH_X509_FILES:$VAR_LOCATION/remotes/auth/x509
     AUTH_LDAP_FILES:$VAR_LOCATION/remotes/auth/ldap
@@ -467,6 +468,7 @@ INSTALL_FILES=(
     VMM_EXEC_XEN3_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen3
     VMM_EXEC_XEN4_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen4
     VMM_EXEC_VMWARE_SCRIPTS:$VAR_LOCATION/remotes/vmm/vmware
+    VMM_EXEC_EC2_SCRIPTS:$VAR_LOCATION/remotes/vmm/ec2
     TM_FILES:$VAR_LOCATION/remotes/tm
     TM_SHARED_FILES:$VAR_LOCATION/remotes/tm/shared
     TM_SHARED_LVM_FILES:$VAR_LOCATION/remotes/tm/shared_lvm
@@ -662,9 +664,8 @@ INSTALL_ONEFLOW_ETC_FILES=(
 INSTALL_ETC_FILES=(
     ETC_FILES:$ETC_LOCATION
     VMWARE_ETC_FILES:$ETC_LOCATION
-    VMM_EC2_ETC_FILES:$ETC_LOCATION/vmm_ec2
+    EC2_ETC_FILES:$ETC_LOCATION
     VMM_EXEC_ETC_FILES:$ETC_LOCATION/vmm_exec
-    IM_EC2_ETC_FILES:$ETC_LOCATION/im_ec2
     HM_ETC_FILES:$ETC_LOCATION/hm
     AUTH_ETC_FILES:$ETC_LOCATION/auth
     ECO_ETC_FILES:$ETC_LOCATION
@@ -749,15 +750,12 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/vmm_mad/exec/one_vmm_exec \
               src/vmm_mad/exec/one_vmm_sh \
               src/vmm_mad/exec/one_vmm_ssh \
-              src/vmm_mad/ec2/one_vmm_ec2.rb \
-              src/vmm_mad/ec2/one_vmm_ec2 \
               src/vmm_mad/dummy/one_vmm_dummy.rb \
               src/vmm_mad/dummy/one_vmm_dummy \
               src/im_mad/im_exec/one_im_exec.rb \
               src/im_mad/im_exec/one_im_exec \
               src/im_mad/im_exec/one_im_ssh \
               src/im_mad/im_exec/one_im_sh \
-              src/im_mad/ec2/one_im_ec2 \
               src/im_mad/dummy/one_im_dummy.rb \
               src/im_mad/dummy/one_im_dummy \
               src/im_mad/collectd/collectd \
@@ -857,6 +855,30 @@ VMM_EXEC_VMWARE_SCRIPTS="src/vmm_mad/remotes/vmware/cancel \
                          src/vmm_mad/remotes/vmware/vmware_driver.rb \
                          src/vmm_mad/remotes/vmware/vi_driver.rb"
 
+#------------------------------------------------------------------------------
+# VMM Driver EC2 scripts, to be installed under $REMOTES_LOCATION/vmm/ec2
+#------------------------------------------------------------------------------
+
+VMM_EXEC_EC2_SCRIPTS="src/vmm_mad/remotes/ec2/cancel \
+                      src/vmm_mad/remotes/ec2/attach_disk \
+                      src/vmm_mad/remotes/ec2/detach_disk \
+                      src/vmm_mad/remotes/ec2/attach_nic \
+                      src/vmm_mad/remotes/ec2/detach_nic \
+                      src/vmm_mad/remotes/ec2/snapshot_create \
+                      src/vmm_mad/remotes/ec2/snapshot_revert \
+                      src/vmm_mad/remotes/ec2/snapshot_delete \
+                      src/vmm_mad/remotes/ec2/scripts_common_sh.sh \
+                      src/vmm_mad/remotes/ec2/deploy \
+                      src/vmm_mad/remotes/ec2/migrate \
+                      src/vmm_mad/remotes/ec2/restore \
+                      src/vmm_mad/remotes/ec2/reboot \
+                      src/vmm_mad/remotes/ec2/reset \
+                      src/vmm_mad/remotes/ec2/save \
+                      src/vmm_mad/remotes/ec2/poll \
+                      src/vmm_mad/remotes/ec2/checkpoint \
+                      src/vmm_mad/remotes/ec2/shutdown \
+                      src/vmm_mad/remotes/ec2/ec2_driver.rb"
+
 #-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $REMOTES_LOCATION/im
 #-------------------------------------------------------------------------------
@@ -891,6 +913,8 @@ IM_PROBES_XEN4_PROBES_FILES="src/im_mad/remotes/xen-probes.d/xen.rb \
                       src/im_mad/remotes/xen-probes.d/name.sh"
 
 IM_PROBES_VMWARE_FILES="src/im_mad/remotes/vmware.d/vmware.rb"
+
+IM_PROBES_EC2_FILES="src/im_mad/remotes/ec2.d/poll"
 
 #-------------------------------------------------------------------------------
 # Auth Manager drivers to be installed under $REMOTES_LOCATION/auth
@@ -1167,28 +1191,20 @@ ETC_FILES="share/etc/oned.conf \
 
 VMWARE_ETC_FILES="src/vmm_mad/remotes/vmware/vmwarerc"
 
+EC2_ETC_FILES="src/vmm_mad/remotes/ec2/ec2_driver.conf \
+               src/vmm_mad/remotes/ec2/ec2_driver.default"
+
 #-------------------------------------------------------------------------------
 # Virtualization drivers config. files, to be installed under $ETC_LOCATION
-#   - ec2, $ETC_LOCATION/vmm_ec2
 #   - ssh, $ETC_LOCATION/vmm_exec
 #-------------------------------------------------------------------------------
 
-VMM_EC2_ETC_FILES="src/vmm_mad/ec2/vmm_ec2rc \
-                   src/vmm_mad/ec2/vmm_ec2.conf"
 
 VMM_EXEC_ETC_FILES="src/vmm_mad/exec/vmm_execrc \
                   src/vmm_mad/exec/vmm_exec_kvm.conf \
                   src/vmm_mad/exec/vmm_exec_xen3.conf \
                   src/vmm_mad/exec/vmm_exec_xen4.conf \
                   src/vmm_mad/exec/vmm_exec_vmware.conf"
-
-#-------------------------------------------------------------------------------
-# Information drivers config. files, to be installed under $ETC_LOCATION
-#   - ec2, $ETC_LOCATION/im_ec2
-#-------------------------------------------------------------------------------
-
-IM_EC2_ETC_FILES="src/im_mad/ec2/im_ec2rc \
-                  src/im_mad/ec2/im_ec2.conf"
 
 #-------------------------------------------------------------------------------
 # Hook Manager driver config. files, to be installed under $ETC_LOCATION/hm
