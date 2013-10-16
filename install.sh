@@ -867,7 +867,6 @@ VMM_EXEC_EC2_SCRIPTS="src/vmm_mad/remotes/ec2/cancel \
                       src/vmm_mad/remotes/ec2/snapshot_create \
                       src/vmm_mad/remotes/ec2/snapshot_revert \
                       src/vmm_mad/remotes/ec2/snapshot_delete \
-                      src/vmm_mad/remotes/ec2/scripts_common_sh.sh \
                       src/vmm_mad/remotes/ec2/deploy \
                       src/vmm_mad/remotes/ec2/migrate \
                       src/vmm_mad/remotes/ec2/restore \
@@ -875,7 +874,6 @@ VMM_EXEC_EC2_SCRIPTS="src/vmm_mad/remotes/ec2/cancel \
                       src/vmm_mad/remotes/ec2/reset \
                       src/vmm_mad/remotes/ec2/save \
                       src/vmm_mad/remotes/ec2/poll \
-                      src/vmm_mad/remotes/ec2/checkpoint \
                       src/vmm_mad/remotes/ec2/shutdown \
                       src/vmm_mad/remotes/ec2/ec2_driver.rb"
 
