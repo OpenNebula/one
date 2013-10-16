@@ -143,8 +143,6 @@ void InformationManager::timer_action()
     time_t          now;
     ostringstream   oss;
 
-    struct stat     sb;
-
     set<int>            discovered_hosts;
     set<int>::iterator  it;
 
@@ -178,14 +176,6 @@ void InformationManager::timer_action()
     if ((rc != 0) || (discovered_hosts.empty() == true))
     {
         return;
-    }
-
-    if (stat(remotes_location.c_str(), &sb) == -1)
-    {
-        sb.st_mtime = 0;
-
-        NebulaLog::log("InM",Log::ERROR,"Could not stat remotes directory, "
-        "will not update remotes.");
     }
 
     for(it=discovered_hosts.begin();it!=discovered_hosts.end();it++)
@@ -255,6 +245,7 @@ void InformationManager::timer_action()
             {
                 bool update_remotes = false;
 
+                //Force remotes update if the host has never been monitored.
                 if (host->get_last_monitored() == 0)
                 {
                     update_remotes = true;
