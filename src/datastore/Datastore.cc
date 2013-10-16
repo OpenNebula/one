@@ -76,6 +76,7 @@ Datastore::Datastore(
 int Datastore::disk_attribute(VectorAttribute * disk)
 {
     ostringstream oss;
+    string st;
 
     oss << oid;
 
@@ -90,6 +91,22 @@ int Datastore::disk_attribute(VectorAttribute * disk)
 
         disk->replace("CLUSTER_ID", oss.str());
     }
+
+    get_template_attribute("CLONE_TARGET", st);
+
+    if(!st.empty())
+    {
+        disk->replace("CLONE_TARGET", st);
+    }
+
+    get_template_attribute("LN_TARGET", st);
+
+    if(!st.empty())
+    {
+        disk->replace("LN_TARGET", st);
+    }
+
+    // TODO: if _TARGET is empty, set defaults?
 
     return 0;
 }
