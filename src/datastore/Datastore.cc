@@ -587,16 +587,16 @@ int Datastore::replace_template(const string& tmpl_str, string& error_str)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-bool Datastore::get_avail_mb(unsigned int &avail)
+bool Datastore::get_avail_mb(long long &avail)
 {
-    float max_used_size;
-    bool  check;
+    long long   max_used_size;
+    bool        check;
 
     avail = free_mb;
 
     if (get_template_attribute("MAX_USED_SIZE", max_used_size))
     {
-        if (used_mb >= (unsigned int) max_used_size)
+        if (used_mb >= max_used_size)
         {
             avail = 0;
         }

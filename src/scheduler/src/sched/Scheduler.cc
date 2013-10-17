@@ -385,7 +385,7 @@ void Scheduler::match_schedule()
 
     int vm_memory;
     int vm_cpu;
-    int vm_disk;
+    long long vm_disk;
 
     int oid;
     int uid;
@@ -409,7 +409,7 @@ void Scheduler::match_schedule()
     map<int, ObjectXML*>::const_iterator  vm_it;
     map<int, ObjectXML*>::const_iterator  h_it;
     map<int, ObjectXML*>::const_iterator  ds_it;
-    map<int,float>::const_iterator        ds_usage_it;
+    map<int,long long>::const_iterator    ds_usage_it;
 
     vector<SchedulerPolicy *>::iterator it;
 
@@ -435,7 +435,7 @@ void Scheduler::match_schedule()
         n_auth    = 0;
         n_error   = 0;
 
-        map<int,float> ds_usage = vm->get_storage_usage();
+        map<int,long long> ds_usage = vm->get_storage_usage();
 
         for (ds_usage_it = ds_usage.begin(); ds_usage_it != ds_usage.end(); ds_usage_it++)
         {
@@ -449,7 +449,7 @@ void Scheduler::match_schedule()
 
             ds = static_cast<DatastoreXML *>( ds_it->second );
 
-            if (!ds->test_capacity((unsigned int) ds_usage_it->second))
+            if (!ds->test_capacity(ds_usage_it->second))
             {
                 ostringstream oss;
 
@@ -777,7 +777,8 @@ void Scheduler::dispatch()
 
     ostringstream       oss;
 
-    int cpu, mem, dsk;
+    int cpu, mem;
+    long long dsk;
     int hid, dsid, cid;
 
     unsigned int dispatched_vms = 0;

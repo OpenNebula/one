@@ -398,7 +398,7 @@ int ImageManager::delete_image(int iid, const string& ds_data, string& error_str
     string   img_tmpl;
     string * drv_msg;
 
-    int size;
+    long long size;
     int ds_id;
 
     int uid;

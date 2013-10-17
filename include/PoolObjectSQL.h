@@ -383,6 +383,22 @@ public:
     }
 
     /**
+     *  Gets a long long based attribute (single)
+     *    @param name of the attribute
+     *    @param value of the attribute (long long), will be 0 if not defined or
+     *    not a single attribute
+     *
+     *    @return True if the Single attribute was found and is a valid integer
+     *    value
+     */
+    bool get_template_attribute(
+        const char *    name,
+        long long&      value) const
+    {
+        return obj_template->get(name,value);
+    }
+
+    /**
      *  Gets a float based attribute (single)
      *    @param name of the attribute
      *    @param value of the attribute (a float), will be 0 if not defined or

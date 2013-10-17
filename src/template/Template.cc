@@ -451,6 +451,36 @@ bool Template::get(
 /* -------------------------------------------------------------------------- */
 
 bool Template::get(
+        const string& name,
+        long long&    value) const
+{
+    string sval;
+
+    get(name, sval);
+
+    if ( sval == "" )
+    {
+        value = 0;
+        return false;
+    }
+
+    istringstream iss(sval);
+
+    iss >> value;
+
+    if (iss.fail() || !iss.eof())
+    {
+        value = 0;
+        return false;
+    }
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool Template::get(
         const string&   name,
         float&          value) const
 {

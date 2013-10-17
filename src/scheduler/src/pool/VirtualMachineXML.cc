@@ -250,7 +250,7 @@ ostream& operator<<(ostream& os, VirtualMachineXML& vm)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineXML::get_requirements (int& cpu, int& memory, int& disk)
+void VirtualMachineXML::get_requirements (int& cpu, int& memory, long long& disk)
 {
     if (this->memory == 0 || this->cpu == 0)
     {
@@ -279,7 +279,7 @@ bool isVolatile(const VectorAttribute * disk)
     return ( type == "SWAP" || type == "FS");
 }
 
-map<int,float> VirtualMachineXML::get_storage_usage()
+map<int,long long> VirtualMachineXML::get_storage_usage()
 {
     return ds_usage;
 }
@@ -289,10 +289,10 @@ void VirtualMachineXML::init_storage_usage()
     vector<Attribute  *>            disks;
     vector<Attribute*>::iterator    it;
 
-    float   size;
-    string  st;
-    int     ds_id;
-    bool    clone;
+    long long   size;
+    string      st;
+    int         ds_id;
+    bool        clone;
 
     system_ds_usage = 0;
 

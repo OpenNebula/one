@@ -35,9 +35,7 @@ void DatastoreXML::init_attributes()
 {
     oid        = atoi(((*this)["/DATASTORE/ID"] )[0].c_str() );
     cluster_id = atoi(((*this)["/DATASTORE/CLUSTER_ID"] )[0].c_str() );
-
-    free_mb = static_cast<unsigned int>(
-        atol(((*this)["/DATASTORE/FREE_MB"])[0].c_str()));
+    free_mb    = atoll(((*this)["/DATASTORE/FREE_MB"])[0].c_str());
 
     ObjectXML::paths     = ds_paths;
     ObjectXML::num_paths = ds_num_paths;

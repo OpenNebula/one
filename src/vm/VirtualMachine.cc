@@ -2060,9 +2060,9 @@ bool VirtualMachine::isVolatile(const Template * tmpl)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-float VirtualMachine::get_volatile_disk_size(Template * tmpl)
+long long VirtualMachine::get_volatile_disk_size(Template * tmpl)
 {
-    float size = 0;
+    long long size = 0;
 
     vector<const Attribute*> disks;
     int num_disks = tmpl->get("DISK", disks);
@@ -2074,7 +2074,7 @@ float VirtualMachine::get_volatile_disk_size(Template * tmpl)
 
     for (int i = 0 ; i < num_disks ; i++)
     {
-        float disk_size;
+        long long disk_size;
         const VectorAttribute * disk = dynamic_cast<const VectorAttribute*>(disks[i]);
 
         if (disk == 0)

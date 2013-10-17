@@ -1097,9 +1097,9 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         return;
     }
 
-    int    ds_id   = img->get_ds_id();
-    string ds_name = img->get_ds_name();
-    int    size    = img->get_size();
+    int         ds_id   = img->get_ds_id();
+    string      ds_name = img->get_ds_name();
+    long long   size    = img->get_size();
 
     Image::ImageType type = img->get_type();
 
@@ -1147,7 +1147,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     string         ds_data;
     PoolObjectAuth ds_perms;
-    unsigned int   avail;
+    long long      avail;
     bool           ds_check;
 
     ds->get_permissions(ds_perms);
@@ -1162,7 +1162,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     // -------------------------------------------------------------------------
     // Check Datastore Capacity
     // -------------------------------------------------------------------------
-    if (ds_check && ((unsigned int) size > avail))
+    if (ds_check && (size > avail))
     {
         failure_response(ACTION, "Not enough space in datastore", att);
 

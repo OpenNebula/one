@@ -313,7 +313,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     string error_str;
     string size_str;
 
-    int           size_mb;
+    long long     size_mb;
     istringstream iss;
 
     string ds_name;
@@ -342,7 +342,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     Datastore *     ds;
     Image::DiskType ds_disk_type;
 
-    unsigned int    avail;
+    long long       avail;
 
     int  umask;
     bool ds_check;
@@ -441,7 +441,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
         return;
     }
 
-    if (ds_check && ((unsigned int) size_mb > avail))
+    if (ds_check && (size_mb > avail))
     {
         failure_response(ACTION, "Not enough space in datastore", att);
 

@@ -163,7 +163,7 @@ public:
      *    @param free_mb
      *    @param used_mb
      */
-    void update_monitor(unsigned int total, unsigned int free, unsigned int used)
+    void update_monitor(long long total, long long free, long long used)
     {
         total_mb = total;
         free_mb  = free;
@@ -176,7 +176,7 @@ public:
      *    @return true if the datastore is configured to enforce capacity
      *    checkings
      */
-    bool get_avail_mb(unsigned int &avail);
+    bool get_avail_mb(long long &avail);
 
 private:
 
@@ -218,17 +218,17 @@ private:
     /**
      * Total datastore capacity in MB
      */
-     unsigned int total_mb;
+     long long total_mb;
 
     /**
      * Available datastore capacity in MB
      */
-     unsigned int free_mb;
+     long long free_mb;
 
     /**
      * Used datastore capacity in MB
      */
-     unsigned int used_mb;
+     long long used_mb;
 
     // *************************************************************************
     // Constructor

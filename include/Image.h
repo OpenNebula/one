@@ -204,9 +204,9 @@ public:
 
     /**
      *  Returns the size of the image
-     *     @return size in mb
+     *     @return size in MB
      */
-    int get_size() const
+    long long get_size() const
     {
         return size_mb;
     }
@@ -222,7 +222,7 @@ public:
     /**
      *  Sets the size for the image
      */
-    void set_size(unsigned int _size_mb)
+    void set_size(long long _size_mb)
     {
         size_mb = _size_mb;
     }
@@ -563,7 +563,7 @@ private:
     /**
      *  Size of the image in MB
      */
-    unsigned int size_mb;
+    long long size_mb;
 
      /**
       *  Image state

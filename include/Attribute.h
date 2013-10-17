@@ -266,6 +266,16 @@ public:
     int vector_value(const char *name, int& value) const;
 
     /**
+     * Returns the long long value
+     *
+     * @param name Name of the attribute
+     * @param value Long long value
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int vector_value(const char *name, long long& value) const;
+
+    /**
      * Returns the float value
      *
      * @param name Name of the attribute
@@ -339,6 +349,18 @@ public:
      *  Replace the value of the given vector attribute
      */
     void replace(const string& name, int value)
+    {
+        ostringstream oss;
+
+        oss << value;
+
+        replace(name, oss.str());
+    }
+
+    /**
+     *  Replace the value of the given vector attribute
+     */
+    void replace(const string& name, long long value)
     {
         ostringstream oss;
 

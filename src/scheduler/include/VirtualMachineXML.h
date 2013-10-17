@@ -109,9 +109,9 @@ public:
         return ds_requirements;
     }
 
-    void get_requirements (int& cpu, int& memory, int& disk);
+    void get_requirements (int& cpu, int& memory, long long& disk);
 
-    map<int,float> get_storage_usage();
+    map<int,long long> get_storage_usage();
 
     //--------------------------------------------------------------------------
     // Matched Resources Interface
@@ -274,11 +274,11 @@ protected:
 
     int   resched;
 
-    int   memory;
-    float cpu;
-    float system_ds_usage;
+    int         memory;
+    float       cpu;
+    long long   system_ds_usage;
 
-    map<int,float> ds_usage;
+    map<int,long long> ds_usage;
 
     string rank;
     string requirements;

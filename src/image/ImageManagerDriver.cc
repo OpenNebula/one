@@ -637,8 +637,8 @@ static void monitor_action(istringstream& is,
 
     delete dsinfo;
 
-    float  total, free, used;
-    string ds_name;
+    long long   total, free, used;
+    string      ds_name;
 
     monitor_data.get("TOTAL_MB", total);
     monitor_data.get("FREE_MB", free);
