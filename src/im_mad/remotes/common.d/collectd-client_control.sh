@@ -63,6 +63,7 @@ fi
 
 # This script returns the run_probes execution
 HYPERVISOR=$1
+shift
 set $HYPERVISOR-probes $@
 
 $DIR/../run_probes $@
