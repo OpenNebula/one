@@ -30,6 +30,7 @@ class ImagePool;
 class ImageManager;
 
 class DatastorePool;
+class Datastore;
 
 /**
  *  ImageManagerDriver represents the basic abstraction for Image Repository
@@ -59,6 +60,22 @@ public:
      *  TODO: What do we need here? Check on-going xfr?
      */
     void recover();
+
+    /**
+     * Updates the DS with the information gathered by the drivers
+     *
+     * @param id DS id
+     * @param monitor_str String returned by the poll driver call
+     */
+    static void process_poll(int id, const string &monitor_str);
+
+    /**
+     * Updates the DS with the information gathered by the drivers
+     *
+     * @param ds DS to update, must be locked
+     * @param monitor_str String returned by the poll driver call
+     */
+    static void process_poll(Datastore* ds, const string &monitor_str);
 
 private:
     friend class ImageManager;

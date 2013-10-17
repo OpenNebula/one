@@ -180,7 +180,9 @@ error_common:
 int Host::update_info(string          &parse_str,
                       bool            &with_vm_info,
                       set<int>        &lost,
-                      map<int,string> &found)
+                      map<int,string> &found,
+                      bool            &with_ds_info,
+                      map<int,string> &ds)
 {
     char *    error_msg;
     Template* tmpl;
@@ -188,6 +190,7 @@ int Host::update_info(string          &parse_str,
     VectorAttribute*             vatt;
     vector<Attribute*>::iterator it;
     vector<Attribute*>           vm_att;
+    vector<Attribute*>           ds_att;
 
     int   rc;
     int   vmid;
@@ -270,6 +273,11 @@ int Host::update_info(string          &parse_str,
     get_template_attribute("VM_POLL", with_vm_info);
     remove_template_attribute("VM_POLL");
 
+    long long tmp;
+    with_ds_info = get_template_attribute("DS_LOCATION_FREE_MB", tmp);
+
+    remove_template_attribute("DS");
+
     // ---------------------------------------------------------------------- //
     // Correlate VM information with the list of running VMs                  //
     // ---------------------------------------------------------------------- //
@@ -329,6 +337,39 @@ int Host::update_info(string          &parse_str,
         add_template_attribute("TOTAL_ZOMBIES", num_zombies);
         add_template_attribute("ZOMBIES", zombie.str());
     }
+
+    // ---------------------------------------------------------------------- //
+    // Copy Datastore monitorization                                          //
+    // ---------------------------------------------------------------------- //
+
+    tmpl->remove("DS", ds_att);
+
+    for (it = ds_att.begin(); it != ds_att.end(); it++)
+    {
+        int dsid;
+
+        vatt = dynamic_cast<VectorAttribute*>(*it);
+
+        if (vatt == 0)
+        {
+            delete *it;
+            continue;
+        }
+
+        rc = vatt->vector_value("ID", dsid);
+
+        if (rc == 0 && dsid != -1)
+        {
+            string* s = vatt->to_xml();
+            string poll = *s;
+            delete s;
+
+            ds.insert(make_pair(vmid, poll));
+        }
+
+        delete *it;
+    }
+
 
     delete tmpl;
 

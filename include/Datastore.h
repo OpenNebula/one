@@ -178,6 +178,12 @@ public:
      */
     bool get_avail_mb(long long &avail);
 
+    // TODO
+    bool is_shared()
+    {
+        return true;
+    }
+
 private:
 
     // -------------------------------------------------------------------------

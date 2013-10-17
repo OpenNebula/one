@@ -95,9 +95,11 @@ void InformationManagerDriver::protocol(const string& message) const
     if ( action == "MONITOR" )
     {
         bool vm_poll;
+        bool ds_poll;
 
         set<int>        lost;
         map<int,string> found;
+        map<int,string> datastores;
 
         int rc;
 
@@ -134,7 +136,7 @@ void InformationManagerDriver::protocol(const string& message) const
             return;
         }
 
-        rc = host->update_info(*hinfo, vm_poll, lost, found);
+        rc = host->update_info(*hinfo, vm_poll, lost, found, ds_poll, datastores);
 
         delete hinfo;
 
@@ -172,6 +174,34 @@ void InformationManagerDriver::protocol(const string& message) const
             for (itm = found.begin(); itm != found.end(); itm++)
             {
                 VirtualMachineManagerDriver::process_poll(itm->first, itm->second);
+            }
+        }
+
+        if (ds_poll)
+        {
+            // TODO: move to constructor
+            DatastorePool * dspool = Nebula::instance().get_dspool();
+            Datastore *     ds;
+
+            map<int,string>::iterator  itm;
+
+            for (itm = datastores.begin(); itm != datastores.end(); itm++)
+            {
+                ds = dspool->get(itm->first, true);
+
+                if (ds != 0)
+                {
+                    if (ds->get_type() == Datastore::SYSTEM_DS && ds->is_shared())
+                    {
+                        ImageManagerDriver::process_poll(ds, itm->second);
+                    }
+                    else
+                    {
+                        // TODO: store in host template
+                    }
+
+                    ds->unlock();
+                }
             }
         }
     }

@@ -693,7 +693,7 @@ void VirtualMachineManagerDriver::process_poll(
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachineManagerDriver::parse_vm_info(
-    const string&   monitor_str,
+    const string       &monitor_str,
     int                &cpu,
     int                &memory,
     long long          &net_tx,

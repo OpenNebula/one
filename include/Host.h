@@ -168,7 +168,9 @@ public:
     int update_info(string          &parse_str,
                     bool            &with_vm_info,
                     set<int>        &lost,
-                    map<int,string> &found);
+                    map<int,string> &found,
+                    bool            &with_ds_info,
+                    map<int,string> &ds);
 
     /**
      * Update host after a failed monitor. It state
