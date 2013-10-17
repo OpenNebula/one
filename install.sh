@@ -891,7 +891,7 @@ IM_PROBES_KVM_PROBES_FILES="src/im_mad/remotes/kvm-probes.d/kvm.rb \
                      src/im_mad/remotes/kvm-probes.d/cpu.sh \
                      src/im_mad/remotes/kvm-probes.d/poll.sh \
                      src/im_mad/remotes/kvm-probes.d/name.sh \
-                     src/im_mad/remotes/kvm-probes.d/monitor_ds.sh"
+                     src/im_mad/remotes/common.d/monitor_ds.sh"
 
 IM_PROBES_XEN3_FILES="src/im_mad/remotes/xen.d/collectd-client_control.sh \
                       src/im_mad/remotes/xen.d/collectd-client.rb"
@@ -901,7 +901,7 @@ IM_PROBES_XEN3_PROBES_FILES="src/im_mad/remotes/xen-probes.d/xen.rb \
                       src/im_mad/remotes/xen-probes.d/cpu.sh \
                       src/im_mad/remotes/xen-probes.d/poll3.sh \
                       src/im_mad/remotes/xen-probes.d/name.sh
-                      src/im_mad/remotes/kvm-probes.d/monitor_ds.sh"
+                      src/im_mad/remotes/common.d/monitor_ds.sh"
 
 IM_PROBES_XEN4_FILES="src/im_mad/remotes/xen.d/collectd-client_control.sh \
                       src/im_mad/remotes/xen.d/collectd-client.rb"
@@ -911,7 +911,7 @@ IM_PROBES_XEN4_PROBES_FILES="src/im_mad/remotes/xen-probes.d/xen.rb \
                       src/im_mad/remotes/xen-probes.d/cpu.sh \
                       src/im_mad/remotes/xen-probes.d/poll4.sh \
                       src/im_mad/remotes/xen-probes.d/name.sh \
-                      src/im_mad/remotes/kvm-probes.d/monitor_ds.sh"
+                      src/im_mad/remotes/common.d/monitor_ds.sh"
 
 IM_PROBES_VMWARE_FILES="src/im_mad/remotes/vmware.d/vmware.rb"
 
