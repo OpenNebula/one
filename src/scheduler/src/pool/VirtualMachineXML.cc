@@ -195,6 +195,15 @@ void VirtualMachineXML::init_attributes()
     {
         user_template = 0;
     }
+
+    if (vm_template != 0)
+    {
+        init_storage_usage();
+    }
+    else
+    {
+        system_ds_usage = 0;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -254,7 +263,7 @@ void VirtualMachineXML::get_requirements (int& cpu, int& memory, int& disk)
 
     cpu    = (int) (this->cpu * 100);//now in 100%
     memory = this->memory * 1024;    //now in Kilobytes
-    disk   = 0;
+    disk   = this->system_ds_usage;  // MB
 }
 
 /* -------------------------------------------------------------------------- */
@@ -272,20 +281,20 @@ bool isVolatile(const VectorAttribute * disk)
 
 map<int,float> VirtualMachineXML::get_storage_usage()
 {
-    map<int, float> ds_usage;
+    return ds_usage;
+}
 
-    vector<Attribute  *> disks;
-    vector<Attribute*>::iterator it;
+void VirtualMachineXML::init_storage_usage()
+{
+    vector<Attribute  *>            disks;
+    vector<Attribute*>::iterator    it;
 
-    float size;
-    string st;
-    int ds_id;
+    float   size;
+    string  st;
+    int     ds_id;
+    bool    clone;
 
-    bool clone;
-
-    // Usage for the system DS will be stored in the index 0, although
-    // it may not be DS 0
-    ds_usage[0] = 0;
+    system_ds_usage = 0;
 
     vm_template->remove("DISK", disks);
 
@@ -306,7 +315,7 @@ map<int,float> VirtualMachineXML::get_storage_usage()
 
         if (isVolatile(disk))
         {
-            ds_usage[0] += size;
+            system_ds_usage += size;
         }
         else
         {
@@ -342,12 +351,10 @@ map<int,float> VirtualMachineXML::get_storage_usage()
             }
             else if (st == "SYSTEM")
             {
-                ds_usage[0] += size;
+                system_ds_usage += size;
             } // else st == NONE
         }
     }
-
-    return ds_usage;
 }
 
 /* -------------------------------------------------------------------------- */

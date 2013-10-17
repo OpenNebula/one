@@ -49,6 +49,8 @@ int VirtualMachinePoolXML::set_up()
 
         oss << "Storage usage:" << endl;
 
+        int tmp, disk;
+
         for (it=objects.begin();it!=objects.end();it++)
         {
             VirtualMachineXML * vm = static_cast<VirtualMachineXML *>(it->second);
@@ -57,6 +59,9 @@ int VirtualMachinePoolXML::set_up()
             map<int,float>::iterator ds_it;
 
             oss << "VM " << vm->get_oid() << ": ";
+
+            vm->get_requirements(tmp, tmp, disk);
+            oss << "System " << disk << "MB; ";
 
             for (ds_it = ds_usage.begin(); ds_it != ds_usage.end(); ds_it++)
             {

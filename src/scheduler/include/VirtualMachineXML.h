@@ -257,6 +257,8 @@ protected:
      */
     void init_attributes();
 
+    void init_storage_usage();
+
     ResourceMatch match_hosts;
 
     ResourceMatch match_datastores;
@@ -274,6 +276,9 @@ protected:
 
     int   memory;
     float cpu;
+    float system_ds_usage;
+
+    map<int,float> ds_usage;
 
     string rank;
     string requirements;

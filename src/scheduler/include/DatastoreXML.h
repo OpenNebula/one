@@ -42,9 +42,7 @@ public:
      */
     bool test_capacity(unsigned int vm_disk_mb) const
     {
-        return true;
-        //TODO Perform test.
-        //return (vm_disk_mb < free_mb);
+        return (vm_disk_mb < free_mb);
     };
 
     /**

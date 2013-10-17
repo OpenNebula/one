@@ -214,7 +214,8 @@ void Scheduler::start()
                                        machines_limit,
                                        (live_rescheds == 1));
     vmapool= new VirtualMachineActionsPoolXML(client, machines_limit);
-    dspool = new DatastorePoolXML(client);
+    dspool = new SystemDatastorePoolXML(client);
+    img_dspool = new ImageDatastorePoolXML(client);
 
     acls   = new AclXML(client);
 
@@ -317,7 +318,16 @@ int Scheduler::set_up_pools()
     //Cleans the cache and get the datastores
     //--------------------------------------------------------------------------
 
+    // TODO: Avoid two ds pool info calls to oned
+
     rc = dspool->set_up();
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    rc = img_dspool->set_up();
 
     if ( rc != 0 )
     {
@@ -398,12 +408,15 @@ void Scheduler::match_schedule()
 
     map<int, ObjectXML*>::const_iterator  vm_it;
     map<int, ObjectXML*>::const_iterator  h_it;
+    map<int, ObjectXML*>::const_iterator  ds_it;
+    map<int,float>::const_iterator        ds_usage_it;
 
     vector<SchedulerPolicy *>::iterator it;
 
-    const map<int, ObjectXML*> pending_vms = vmpool->get_objects();
-    const map<int, ObjectXML*> hosts       = hpool->get_objects();
-    const map<int, ObjectXML*> datastores  = dspool->get_objects();
+    const map<int, ObjectXML*> pending_vms      = vmpool->get_objects();
+    const map<int, ObjectXML*> hosts            = hpool->get_objects();
+    const map<int, ObjectXML*> datastores       = dspool->get_objects();
+    const map<int, ObjectXML*> img_datastores   = img_dspool->get_objects();
 
     for (vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++)
     {
@@ -421,6 +434,35 @@ void Scheduler::match_schedule()
         n_matched = 0;
         n_auth    = 0;
         n_error   = 0;
+
+        map<int,float> ds_usage = vm->get_storage_usage();
+
+        for (ds_usage_it = ds_usage.begin(); ds_usage_it != ds_usage.end(); ds_usage_it++)
+        {
+            ds_it = img_datastores.find( ds_usage_it->first );
+
+            if (ds_it == img_datastores.end())
+            {
+                // TODO log error
+                continue;
+            }
+
+            ds = static_cast<DatastoreXML *>( ds_it->second );
+
+            if (!ds->test_capacity((unsigned int) ds_usage_it->second))
+            {
+                ostringstream oss;
+
+                oss << "VM " << oid << " cannot be deployed because Datastore "
+                    << ds_usage_it->first << " does not have enough free storage.";
+
+                NebulaLog::log("SCHED",Log::INFO,oss);
+
+                vm->log(oss.str());
+            }
+
+            break;
+        }
 
         // ---------------------------------------------------------------------
         // Match hosts for this VM that:
@@ -663,7 +705,9 @@ void Scheduler::match_schedule()
             // Check datastore capacity
             // -----------------------------------------------------------------
 
-            if (ds->test_capacity(vm_disk))
+            // TODO, system DS monitorization needs to be implemented
+//            if (ds->test_capacity(vm_disk))
+            if (true)
             {
                 vm->add_match_datastore(ds->get_oid());
 
@@ -875,6 +919,8 @@ void Scheduler::dispatch()
             }
 
             host->add_capacity(cpu,mem,dsk);
+
+            // TODO update img & system DS free space
 
             host_vms[hid]++;
 
