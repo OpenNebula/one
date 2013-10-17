@@ -134,17 +134,17 @@ end
 
 # Array with flags/libs to test
 Configs=[
-    # Configuration for fedora
-    {
-        :description => "pkg-config",
-        :client => exec_command("pkg-config xmlrpc_client++ xmlrpc++ --libs"),
-        :server => exec_command("pkg-config xmlrpc_server_abyss++ --static --libs")
-    },
     # Configuration using xmlrpc-c-config
     {
         :description => "xmlrpc-c-config",
         :client => exec_command("xmlrpc-c-config c++2 client --libs --cflags"),
         :server => exec_command("xmlrpc-c-config c++2 abyss-server --libs --cflags")
+    },
+    # Configuration for fedora
+    {
+        :description => "pkg-config",
+        :client => exec_command("pkg-config xmlrpc_client++ xmlrpc++ --libs"),
+        :server => exec_command("pkg-config xmlrpc_server_abyss++ --static --libs")
     },
     # Debian lenny
     {
