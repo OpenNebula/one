@@ -28,7 +28,7 @@ $: << "../../vmm/vmware/"
 
 require 'vi_driver'
 
-host = ARGV[2]
+host = ARGV[-1]
 
 if !host
     exit -1
