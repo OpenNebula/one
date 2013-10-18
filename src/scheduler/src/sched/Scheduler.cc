@@ -570,7 +570,7 @@ void Scheduler::match_schedule()
             // -----------------------------------------------------------------
             // Check host capacity
             // -----------------------------------------------------------------
-            if (host->test_capacity(vm_cpu,vm_memory,vm_disk) == true)
+            if (host->test_capacity(vm_cpu,vm_memory) == true)
             {
                 vm->add_match_host(host->get_hid());
 
@@ -705,9 +705,8 @@ void Scheduler::match_schedule()
             // Check datastore capacity
             // -----------------------------------------------------------------
 
-            // TODO, system DS monitorization needs to be implemented
-//            if (ds->test_capacity(vm_disk))
-            if (true)
+            // TODO: non shared DS
+            if (ds->test_capacity(vm_disk))
             {
                 vm->add_match_datastore(ds->get_oid());
 
@@ -838,7 +837,7 @@ void Scheduler::dispatch()
             //------------------------------------------------------------------
             // Test host capcity
             //------------------------------------------------------------------
-            if (host->test_capacity(cpu,mem,dsk) != true)
+            if (host->test_capacity(cpu,mem) != true)
             {
                 continue;
             }
@@ -913,13 +912,15 @@ void Scheduler::dispatch()
                 continue;
             }
 
+            // TODO: non shared DS
+
             // DS capacity is only added for new deployments, not for migrations
             if (!vm->is_resched())
             {
                 ds->add_capacity(dsk);
             }
 
-            host->add_capacity(cpu,mem,dsk);
+            host->add_capacity(cpu,mem);
 
             // TODO update img & system DS free space
 

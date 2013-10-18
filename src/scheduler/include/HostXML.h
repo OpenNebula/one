@@ -49,14 +49,12 @@ public:
      *  Tests whether a new VM can be hosted by the host or not
      *    @param cpu needed by the VM (percentage)
      *    @param mem needed by the VM (in KB)
-     *    @param disk needed by the VM
      *    @return true if the share can host the VM
      */
-    bool test_capacity(long long cpu, long long mem, long long disk) const
+    bool test_capacity(long long cpu, long long mem) const
     {
         return (((max_cpu  - cpu_usage ) >= cpu) &&
-                ((max_mem  - mem_usage ) >= mem) &&
-                ((max_disk - disk_usage) >= disk));
+                ((max_mem  - mem_usage ) >= mem));
     };
 
     /**
@@ -64,14 +62,12 @@ public:
      *  counters
      *    @param cpu needed by the VM (percentage)
      *    @param mem needed by the VM (in KB)
-     *    @param disk needed by the VM
      *    @return 0 on success
      */
-    void add_capacity(long long cpu, long long mem, long long disk)
+    void add_capacity(long long cpu, long long mem)
     {
         cpu_usage  += cpu;
         mem_usage  += mem;
-        disk_usage += disk;
 
         running_vms++;
     };
@@ -81,14 +77,12 @@ public:
      *  counters
      *    @param cpu needed by the VM (percentage)
      *    @param mem needed by the VM (in KB)
-     *    @param disk needed by the VM
      *    @return 0 on success
      */
-    void del_capacity(int cpu, int mem, int disk)
+    void del_capacity(int cpu, int mem)
     {
         cpu_usage  -= cpu;
         mem_usage  -= mem;
-        disk_usage -= disk;
 
         running_vms--;
     };
