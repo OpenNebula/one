@@ -896,7 +896,8 @@ void Scheduler::dispatch()
             {
                 ostringstream oss;
 
-                oss << "No suitable System DS found for Host: " << hid
+                oss << "VM " << vm->get_oid()
+                    << ": No suitable System DS found for Host: " << hid
                     << ". Filtering out host.";
 
                 NebulaLog::log("SCHED", Log::INFO, oss);
