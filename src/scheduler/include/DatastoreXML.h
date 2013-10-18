@@ -52,7 +52,7 @@ public:
      */
     void add_capacity(long long vm_disk_mb)
     {
-        free_mb  += vm_disk_mb;
+        free_mb  -= vm_disk_mb;
     };
 
     int get_oid() const
