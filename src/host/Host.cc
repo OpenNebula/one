@@ -364,7 +364,7 @@ int Host::update_info(string          &parse_str,
             string poll = *s;
             delete s;
 
-            ds.insert(make_pair(vmid, poll));
+            ds.insert(make_pair(dsid, poll));
         }
 
         delete *it;
