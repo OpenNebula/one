@@ -56,7 +56,7 @@ int OpenNebulaDriver::read_one(std::string& message)
     }
     while ( rc > 0 && c != '\n' );
 
-    if (rc < 0)
+    if (rc <= 0)
     {
         return -1;
     }
@@ -71,36 +71,42 @@ int OpenNebulaDriver::read_one(std::string& message)
 
 void OpenNebulaDriver::driver_loop()
 {
+    int rc;
+
     while (true)
     {
         std::string message;
 
-        if (read_one(message) == 0)
+        rc = read_one(message);
+
+        if ( rc == -1 ) //Error in select or read from OpenNebula, exit
         {
-            std::istringstream is(message);
-            std::string        action;
+            break;
+        }
 
-            if ( is.good() )
-            {
-                is >> action >> std::ws;
-            }
-            else
-            {
-                continue;
-            }
+        std::istringstream is(message);
+        std::string        action;
 
-            if (action == "INIT")
-            {
-                write2one("INIT SUCCESS\n",13);
-            }
-            else if (action == "FINALIZE")
-            {
-                break;
-            }
-            else
-            {
-                driver_action(action, is);
-            }
+        if ( is.good() )
+        {
+            is >> action >> std::ws;
+        }
+        else
+        {
+            continue;
+        }
+
+        if (action == "INIT")
+        {
+            write2one("INIT SUCCESS\n",13);
+        }
+        else if (action == "FINALIZE")
+        {
+            break;
+        }
+        else
+        {
+            driver_action(action, is);
         }
     }
 }

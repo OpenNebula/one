@@ -19,6 +19,10 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <signal.h>
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 static const char * usage =
 "\n  collectd [-h] [-a address] [-p port] [-t threads] [-f flush]\n\n"
@@ -31,8 +35,32 @@ static const char * usage =
 "\t-f\tInterval in seconds to flush collected information\n"
 "\t-t\tNumber of threads for the server\n";
 
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+extern "C" void * sig_thread(void *arg)
+{
+    // Wait for a SIGTERM or SIGINT signal & exit
+    sigset_t mask;
+    int      signal;
+
+    sigemptyset(&mask);
+
+    sigaddset(&mask, SIGINT);
+    sigaddset(&mask, SIGTERM);
+
+    sigwait(&mask, &signal);
+
+    _exit(0);
+}
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
 int main(int argc, char ** argv)
 {
+    sigset_t mask;
+
     std::string address = "0.0.0.0";
     int port    = 4124;
     int threads = 50;
@@ -79,7 +107,29 @@ int main(int argc, char ** argv)
                 break;
         }
 
+    //--------------------------------------------------------------------------
+    // Block all signals before creating server threads
+    //--------------------------------------------------------------------------
+    sigfillset(&mask);
 
+    pthread_sigmask(SIG_BLOCK, &mask, NULL);
+
+    // -------------------------------------------------------------------------
+    //Handle SIGTERM and SIGQUIT in a specific thread
+    // -------------------------------------------------------------------------
+    pthread_attr_t attr;
+    pthread_t      id;
+
+    pthread_attr_init(&attr);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+
+    pthread_create(&id, &attr, sig_thread, 0);
+
+    pthread_attr_destroy(&attr);
+
+    // -------------------------------------------------------------------------
+    // Start the collector and server threads
+    // -------------------------------------------------------------------------
     IMCollectorDriver collectd(address, port, threads, flush);
 
     if ( collectd.init_collector() != 0 )
