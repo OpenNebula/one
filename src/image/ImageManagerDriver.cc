@@ -663,12 +663,17 @@ void ImageManagerDriver::process_poll(Datastore* ds, const string &monitor_str)
     }
 
     long long total, free, used;
+    string ln_tgt, cl_tgt;
 
     monitor_data.get("TOTAL_MB", total);
     monitor_data.get("FREE_MB", free);
     monitor_data.get("USED_MB", used);
+    monitor_data.get("LN_TARGET", ln_tgt);
+    monitor_data.get("CLONE_TARGET", cl_tgt);
 
     ds->update_monitor(total, free, used);
+    ds->replace_template_attribute("LN_TARGET", ln_tgt);
+    ds->replace_template_attribute("CLONE_TARGET", cl_tgt);
 
     dspool->update(ds);
 

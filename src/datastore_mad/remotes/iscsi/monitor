@@ -78,6 +78,8 @@ EOF
 MONITOR_DATA=$(ssh_monitor_and_log $HOST "$MONITOR_SCRIPT" 2>&1)
 MONITOR_STATUS=$?
 
+MONITOR_DATA="$MONITOR_DATA LN_TARGET=NONE CLONE_TARGET=SELF"
+
 if [ "$MONITOR_STATUS" = "0" ]; then
     echo "$MONITOR_DATA" | tr ' ' '\n'
 else

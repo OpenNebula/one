@@ -40,13 +40,32 @@ ID=$2
 
 XPATH="${DRIVER_PATH}/../xpath.rb -b $DRV_ACTION"
 
-unset i XPATH_ELEMENTS
+unset i j XPATH_ELEMENTS
 
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
-done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH)
+done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/TM_MAD \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH)
 
-BASE_PATH="${XPATH_ELEMENTS[0]}"
+TM_MAD="${XPATH_ELEMENTS[j++]}"
+BASE_PATH="${XPATH_ELEMENTS[j++]}"
+
+case $TM_MAD in
+    "ssh")
+    LN_TARGET="SYSTEM"
+    CLONE_TARGET="SYSTEM"
+    ;;
+
+    "lvm_shared")
+    LN_TARGET="SYSTEM"
+    CLONE_TARGET="SYSTEM"
+    ;;
+
+    *) #shared, qcow2
+    LN_TARGET="NONE"
+    CLONE_TARGET="SYSTEM"
+    ;;
+esac
 
 # ------------ Compute datastore usage -------------
 
@@ -62,6 +81,8 @@ MONITOR_DATA=$(cat <<EOF
 USED_MB=$USED_MB
 TOTAL_MB=$TOTAL_MB
 FREE_MB=$FREE_MB
+LN_TARGET=$LN_TARGET
+CLONE_TARGET=$CLONE_TARGET
 EOF
 )
 
