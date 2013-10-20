@@ -16,6 +16,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+#Arguments: hypervisor(0) ds_location(1) collectd_port(2) host_id(3) hostname(4)
+
 source $(dirname $0)/../scripts_common.sh
 
 export LANG=C

@@ -60,7 +60,7 @@ class InformationManagerDriver < OpenNebulaDriver
     end
 
     # Execute the run_probes in the remote host
-    def action_monitor(number, host, do_update)
+    def action_monitor(number, host, ds_location, do_update)
 
         if !action_is_local?(:MONITOR)
             if do_update == "1" || @options[:force_copy]
@@ -81,7 +81,7 @@ class InformationManagerDriver < OpenNebulaDriver
             end
         end
 
-        do_action("#{@hypervisor} #{number} #{@collectd_port}", number, host,
+        do_action("#{@hypervisor} #{ds_location} #{@collectd_port}", number, host,
                         :MONITOR, :script_name => 'run_probes', :base64 => true)
     end
 end

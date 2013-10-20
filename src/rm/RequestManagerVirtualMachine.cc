@@ -351,26 +351,13 @@ int RequestManagerVirtualMachine::get_host_information(
 
     host->unlock();
 
-    if ( cluster_id != -1 )
+    if (nd.get_ds_location(cluster_id, ds_location) == -1)
     {
-        Cluster * cluster = nd.get_clpool()->get(cluster_id, true);
+        failure_response(NO_EXISTS,
+            get_error(object_name(PoolObjectSQL::CLUSTER),cluster_id),
+            att);
 
-        if ( cluster == 0 )
-        {
-            failure_response(NO_EXISTS,
-                    get_error(object_name(PoolObjectSQL::CLUSTER),cluster_id),
-                    att);
-
-            return -1;
-        }
-
-        cluster->get_ds_location(ds_location);
-
-        cluster->unlock();
-    }
-    else //Default System DS
-    {
-        nd.get_configuration_attribute("DATASTORE_LOCATION", ds_location);
+        return -1;
     }
 
     return 0;
