@@ -680,8 +680,6 @@ void ImageManagerDriver::process_poll(Datastore* ds, const string &monitor_str)
     oss << "Datastore " << ds->get_cluster_name()
         << " (" << ds->get_oid() << ") successfully monitored.";
 
-    ds->unlock();
-
     NebulaLog::log("ImM", Log::INFO, oss);
 }
 
