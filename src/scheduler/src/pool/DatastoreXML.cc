@@ -17,6 +17,7 @@
 #include <sstream>
 
 #include "DatastoreXML.h"
+#include "NebulaUtil.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -36,6 +37,11 @@ void DatastoreXML::init_attributes()
     oid        = atoi(((*this)["/DATASTORE/ID"] )[0].c_str() );
     cluster_id = atoi(((*this)["/DATASTORE/CLUSTER_ID"] )[0].c_str() );
     free_mb    = atoll(((*this)["/DATASTORE/FREE_MB"])[0].c_str());
+
+    string shared_st;
+    this->xpath(shared_st, "/DATASTORE/TEMPLATE/SHARED", "YES");
+
+    shared = one_util::toupper(shared_st) == "YES";
 
     ObjectXML::paths     = ds_paths;
     ObjectXML::num_paths = ds_num_paths;

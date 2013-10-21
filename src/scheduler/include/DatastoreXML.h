@@ -65,12 +65,23 @@ public:
         return cluster_id;
     };
 
+    /**
+     * Returns true if the DS contains the SHARED = YES attribute
+     * @return true if the DS is shared
+     */
+    bool is_shared()
+    {
+        return shared;
+    };
+
 private:
 
     int oid;
     int cluster_id;
 
     long long free_mb; /**< Free disk for VMs (in MB). */
+
+    bool shared;
 
     static const char *ds_paths[]; /**< paths for search function */
 

@@ -705,21 +705,31 @@ void Scheduler::match_schedule()
             // Check datastore capacity
             // -----------------------------------------------------------------
 
-            // TODO: non shared DS
-            if (ds->test_capacity(vm_disk))
+            if (ds->is_shared())
             {
-                vm->add_match_datastore(ds->get_oid());
+                if (ds->test_capacity(vm_disk))
+                {
+                    vm->add_match_datastore(ds->get_oid());
 
-                n_hosts++;
+                    n_hosts++;
+                }
+                else
+                {
+                    ostringstream oss;
+
+                    oss << "VM " << oid << ": Datastore " << ds->get_oid()
+                        << " filtered out. Not enough capacity.";
+
+                    NebulaLog::log("SCHED",Log::DEBUG,oss);
+                }
             }
             else
             {
-                ostringstream oss;
+                // All non shared system DS are valid candidates, the
+                // capacity will be checked later for each host
 
-                oss << "VM " << oid << ": Datastore " << ds->get_oid()
-                    << " filtered out. Not enough capacity.";
-
-                NebulaLog::log("SCHED",Log::DEBUG,oss);
+                vm->add_match_datastore(ds->get_oid());
+                n_hosts++;
             }
         }
 
@@ -779,6 +789,7 @@ void Scheduler::dispatch()
     int cpu, mem;
     long long dsk;
     int hid, dsid, cid;
+    bool test_cap_result;
 
     unsigned int dispatched_vms = 0;
 
@@ -879,9 +890,33 @@ void Scheduler::dispatch()
                 //--------------------------------------------------------------
                 // Test datastore capacity, but not for migrations
                 //--------------------------------------------------------------
-                if (!vm->is_resched() && ds->test_capacity(dsk) != true)
+
+                if (!vm->is_resched())
                 {
-                    continue;
+                    if (ds->is_shared())
+                    {
+                        test_cap_result = ds->test_capacity(dsk);
+                    }
+                    else
+                    {
+                        test_cap_result = host->test_ds_capacity(ds->get_oid(), dsk);
+
+                        if (test_cap_result == false)
+                        {
+                            ostringstream oss;
+
+                            oss << "VM " << vm->get_oid() << ": Local Datastore "
+                                << ds->get_oid() << " in Host " << host->get_hid()
+                                << " filtered out. Not enough capacity.";
+
+                            NebulaLog::log("SCHED",Log::DEBUG,oss);
+                        }
+                    }
+
+                    if (test_cap_result != true)
+                    {
+                        continue;
+                    }
                 }
 
                 //--------------------------------------------------------------
@@ -913,17 +948,22 @@ void Scheduler::dispatch()
                 continue;
             }
 
-            // TODO: non shared DS
-
             // DS capacity is only added for new deployments, not for migrations
             if (!vm->is_resched())
             {
-                ds->add_capacity(dsk);
+                if (ds->is_shared())
+                {
+                    ds->add_capacity(dsk);
+                }
+                else
+                {
+                    host->add_ds_capacity(ds->get_oid(), dsk);
+                }
             }
 
             host->add_capacity(cpu,mem);
 
-            // TODO update img & system DS free space
+            // TODO update img DS free space
 
             host_vms[hid]++;
 

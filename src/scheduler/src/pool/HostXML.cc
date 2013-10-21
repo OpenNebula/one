@@ -53,6 +53,22 @@ void HostXML::init_attributes()
     //Reserve memory for the hypervisor
     max_mem = static_cast<int>(hypervisor_mem * static_cast<float>(max_mem));
 
+    ds_location_free_mb = atoll(((*this)["/HOST/TEMPLATE/DS_LOCATION_FREE_MB"])[0].c_str());
+
+    vector<string> ds_ids       = (*this)["/HOST/TEMPLATE/DS/ID"];
+    vector<string> ds_free_mb   = (*this)["/HOST/TEMPLATE/DS/FREE_MB"];
+
+    int id;
+    long long disk;
+
+    for (size_t i = 0; i < ds_ids.size() && i < ds_free_mb.size(); i++)
+    {
+        id = atoi(ds_ids[i].c_str());
+        disk = atoll(ds_free_mb[i].c_str());
+
+        ds_free_disk[id] = disk;
+    }
+
     //Init search xpath routes
 
     ObjectXML::paths     = host_paths;
@@ -95,6 +111,32 @@ int HostXML::search(const char *name, int& value)
     {
         return ObjectXML::search(name, value);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool HostXML::test_ds_capacity(int dsid, long long vm_disk_mb)
+{
+    if (ds_free_disk.count(dsid) == 0)
+    {
+        ds_free_disk[dsid] = ds_location_free_mb;
+    }
+
+    return (vm_disk_mb < ds_free_disk[dsid]);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void HostXML::add_ds_capacity(int dsid, long long vm_disk_mb)
+{
+    if (ds_free_disk.count(dsid) == 0)
+    {
+        ds_free_disk[dsid] = ds_location_free_mb;
+    }
+
+    ds_free_disk[dsid] -= vm_disk_mb;
 }
 
 /* -------------------------------------------------------------------------- */

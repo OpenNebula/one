@@ -18,6 +18,7 @@
 #ifndef HOST_XML_H_
 #define HOST_XML_H_
 
+#include <map>
 #include "ObjectXML.h"
 
 using namespace std;
@@ -88,6 +89,22 @@ public:
     };
 
     /**
+     *  Tests whether a new VM can be hosted by the local system DS or not
+     *    @param dsid DS id
+     *    @param vm_disk_mb System disk needed by the VM (in MB)
+     *    @return true if the share can host the VM
+     */
+    bool test_ds_capacity(int dsid, long long vm_disk_mb);
+
+    /**
+     *  Adds a new VM to the given local sytem DS share by incrementing the disk
+     *  counter
+     *    @param dsid DS id
+     *    @param vm_disk_mb System disk needed by the VM (in MB)
+     */
+    void add_ds_capacity(int dsid, long long vm_disk_mb);
+
+    /**
      *  Search the Object for a given attribute in a set of object specific
      *  routes. Overwrite ObjectXML function to deal with pseudo-attributes
      *    - CURRENT_VMS. value is the VM ID to search in the set of VMS
@@ -110,13 +127,16 @@ private:
     int cluster_id;
 
     // Host share values
-    long long disk_usage; /**< Disk allocated to VMs (in Mb).        */
+    long long disk_usage; /**< Disk allocated to VMs (in MB).        */
     long long mem_usage;  /**< Memory allocated to VMs (in KB)       */
     long long cpu_usage;  /**< CPU  allocated to VMs (in percentage) */
 
-    long long max_disk;   /**< Total disk capacity (in Mb)           */
+    long long max_disk;   /**< Total disk capacity (in MB)           */
     long long max_mem;    /**< Total memory capacity (in KB)         */
     long long max_cpu;    /**< Total cpu capacity (in percentage)    */
+
+    map<int, long long> ds_free_disk; /**< Free MB for local system DS */
+    long long ds_location_free_mb; // TODO: merge with host share max_disk?
 
     long long running_vms; /**< Number of running VMs in this Host   */
 
