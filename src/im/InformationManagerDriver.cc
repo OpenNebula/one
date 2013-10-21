@@ -28,11 +28,12 @@
 
 void InformationManagerDriver::monitor(int           oid,
                                        const string& host,
+                                       const string& dsloc,
                                        bool          update) const
 {
     ostringstream os;
 
-    os << "MONITOR " << oid << " " << host << " " << update << endl;
+    os << "MONITOR " << oid << " " << host << " " << dsloc << " " << update << endl;
 
     write(os);
 }

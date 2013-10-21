@@ -371,7 +371,7 @@ class VIHost
         @net_tx      = 0 if @net_tx.to_i < 0
 
         # Check free datastore space
-        @free_ds_info = VIDriver::retrieve_free_ds_space(@host)
+        @free_ds_info = VIDriver::retrieve_free_ds(@host)
     end
 
     ########################################################################
@@ -398,8 +398,10 @@ class VIHost
 
         # Datastores
         @free_ds_info.each{|k,v|
-            str_info << "DS_#{k}_FREE_MB="  << v[:free_space]   << "\n"
-            str_info << "DS_#{k}_TOTAL_MB=" << v[:capacity]     << "\n"
+            used_space = v[:capacity].to_i - v[:free_space].to_i
+            str_info << "DS=[ID=#{k},USED_MB=#{used_space},"
+            str_info << "TOTAL_MB=#{v[:capacity]},"
+            str_info << "FREE_MB=#{v[:free_space]}]\n"
         }
 
         str_info.strip
@@ -473,10 +475,11 @@ def self.retrieve_free_ds(host)
     free_ds_info=Hash.new
 
     hds.datastore.each{|ds| 
+        free_ds_info[datastore_props[ds]['name']]=Hash.new
         free_ds_info[datastore_props[ds]['name']][:free_space] = 
-            datastore_props[ds]['summary'].freeSpace
+            datastore_props[ds]['summary'].freeSpace.to_i / 1024 / 1024
         free_ds_info[datastore_props[ds]['name']][:capacity] = 
-            datastore_props[ds]['summary'].capacity
+            datastore_props[ds]['summary'].capacity.to_i / 1024 / 1024
     }
 
     free_ds_info

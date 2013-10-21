@@ -61,9 +61,11 @@ public:
      *  Sends a monitor request to the MAD: "MONITOR  ID  HOSTNAME -"
      *    @param oid the virtual machine id.
      *    @param host the hostname
+     *    @param ds_location DATASTORE_LOCATION for the host
      *    @param update the remotes directory in host
      */
-    void monitor(int oid, const string& host, bool update) const;
+    void monitor(int oid, const string& host, const string& ds_location,
+        bool update) const;
 
 private:
     /**

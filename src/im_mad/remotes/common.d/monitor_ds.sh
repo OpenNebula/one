@@ -1,11 +1,8 @@
 #!/bin/bash
 
+#Arguments: hypervisor ds_location collectd_port host_id hostname
 HYPERVISOR=$1
-
-# Harcoded value while the position of the parameter is not known 
-#DATASTORE_LOCATION=${2:-"/var/lib/one/datastores"}
-DATASTORE_LOCATION="/var/lib/one/datastores"
-
+DATASTORE_LOCATION=${2:-"/var/lib/one/datastores"}
 
 LVM_VG_PREFIX="vg-one-"
 LVM_SIZE_CMD="sudo vgdisplay --separator : --units m -o vg_size,vg_free --nosuffix --noheadings -C"
