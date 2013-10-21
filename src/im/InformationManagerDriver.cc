@@ -103,13 +103,6 @@ void InformationManagerDriver::protocol(const string& message) const
 
         int rc;
 
-        host = hpool->get(id,true);
-
-        if ( host == 0 )
-        {
-            goto error_host;
-        }
-
         getline (is, hinfo64);
 
         hinfo = one_util::base64_decode(hinfo64);
@@ -117,6 +110,14 @@ void InformationManagerDriver::protocol(const string& message) const
         if (result != "SUCCESS")
         {
             set<int> vm_ids;
+
+            host = hpool->get(id,true);
+
+            if ( host == 0 )
+            {
+                delete hinfo;
+                goto error_host;
+            }
 
             host->error_info(*hinfo, vm_ids);
 
@@ -136,7 +137,55 @@ void InformationManagerDriver::protocol(const string& message) const
             return;
         }
 
-        rc = host->update_info(*hinfo, vm_poll, lost, found, ds_poll, datastores);
+        rc = Host::extract_ds_info(*hinfo, ds_poll, datastores);
+
+        if (rc != 0)
+        {
+            // TODO
+        }
+
+        set<int> non_shared_ds;
+
+        if (rc == 0 && ds_poll)
+        {
+            // TODO: move to constructor
+            DatastorePool * dspool = Nebula::instance().get_dspool();
+            Datastore *     ds;
+
+            map<int,string>::iterator  itm;
+
+            for (itm = datastores.begin(); itm != datastores.end(); itm++)
+            {
+                ds = dspool->get(itm->first, true);
+
+                if (ds != 0)
+                {
+                    if (ds->get_type() == Datastore::SYSTEM_DS)
+                    {
+                        if (ds->is_shared())
+                        {
+                            ImageManagerDriver::process_poll(ds, itm->second);
+                        }
+                        else
+                        {
+                            non_shared_ds.insert(itm->first);
+                        }
+                    }
+
+                    ds->unlock();
+                }
+            }
+        }
+
+        host = hpool->get(id,true);
+
+        if ( host == 0 )
+        {
+            delete hinfo;
+            goto error_host;
+        }
+
+        rc = host->update_info(*hinfo, vm_poll, lost, found, non_shared_ds);
 
         delete hinfo;
 
@@ -174,34 +223,6 @@ void InformationManagerDriver::protocol(const string& message) const
             for (itm = found.begin(); itm != found.end(); itm++)
             {
                 VirtualMachineManagerDriver::process_poll(itm->first, itm->second);
-            }
-        }
-
-        if (ds_poll)
-        {
-            // TODO: move to constructor
-            DatastorePool * dspool = Nebula::instance().get_dspool();
-            Datastore *     ds;
-
-            map<int,string>::iterator  itm;
-
-            for (itm = datastores.begin(); itm != datastores.end(); itm++)
-            {
-                ds = dspool->get(itm->first, true);
-
-                if (ds != 0)
-                {
-                    if (ds->get_type() == Datastore::SYSTEM_DS && ds->is_shared())
-                    {
-                        ImageManagerDriver::process_poll(ds, itm->second);
-                    }
-                    else
-                    {
-                        // TODO: store in host template
-                    }
-
-                    ds->unlock();
-                }
             }
         }
     }

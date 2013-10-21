@@ -177,15 +177,70 @@ error_common:
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
+int Host::extract_ds_info(
+            string          &parse_str,
+            bool            &with_ds_info,
+            map<int,string> &ds)
+{
+    char *    error_msg;
+    Template  tmpl;
+    int       rc;
+
+    VectorAttribute*             vatt;
+    vector<Attribute*>           ds_att;
+    vector<Attribute*>::iterator it;
+
+    rc = tmpl.parse(parse_str, &error_msg);
+
+    if ( rc != 0 )
+    {
+        // TODO
+        free(error_msg);
+        return -1;
+    }
+
+    long long tmp;
+    with_ds_info = tmpl.get("DS_LOCATION_FREE_MB", tmp);
+
+    tmpl.get("DS", ds_att);
+
+    for (it = ds_att.begin(); it != ds_att.end(); it++)
+    {
+        int dsid;
+
+        vatt = dynamic_cast<VectorAttribute*>(*it);
+
+        if (vatt == 0)
+        {
+            continue;
+        }
+
+        rc = vatt->vector_value("ID", dsid);
+
+        if (rc == 0 && dsid != -1)
+        {
+            string* s = vatt->to_xml();
+            string poll = *s;
+            delete s;
+
+            ds.insert(make_pair(dsid, poll));
+        }
+    }
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
 int Host::update_info(string          &parse_str,
                       bool            &with_vm_info,
                       set<int>        &lost,
                       map<int,string> &found,
-                      bool            &with_ds_info,
-                      map<int,string> &ds)
+                      const set<int>  &non_shared_ds)
 {
     char *    error_msg;
-    Template* tmpl;
+    Template  tmpl;
 
     VectorAttribute*             vatt;
     vector<Attribute*>::iterator it;
@@ -202,11 +257,10 @@ int Host::update_info(string          &parse_str,
     int num_zombies = 0;
     int num_wilds   = 0;
 
-    //
     // ---------------------------------------------------------------------- //
-    // Parse Template (twice because of repeated VM values)                   //
+    // Parse Template                                                         //
     // ---------------------------------------------------------------------- //
-    rc = obj_template->parse(parse_str, &error_msg);
+    rc = tmpl.parse(parse_str, &error_msg);
 
     if ( rc != 0 )
     {
@@ -227,13 +281,34 @@ int Host::update_info(string          &parse_str,
         return -1;
     }
 
+    // ---------------------------------------------------------------------- //
+    // Remove expired information from current template                       //
+    // ---------------------------------------------------------------------- //
+    clear_template_error_message();
+
+    remove_template_attribute("ZOMBIES");
+    remove_template_attribute("TOTAL_ZOMBIES");
+
+    remove_template_attribute("WILDS");
+    remove_template_attribute("TOTAL_WILDS");
+
+    remove_template_attribute("VM");
+
+    get_template_attribute("VM_POLL", with_vm_info);
+    remove_template_attribute("VM_POLL");
+
+    remove_template_attribute("DS");
+
+    // ---------------------------------------------------------------------- //
+    // Copy new values                                                        //
+    // ---------------------------------------------------------------------- //
+
+    string error_st;
+    obj_template->merge(&tmpl, error_st);
+
     // Touch the host to update its last_monitored timestamp and state
 
     touch(true);
-
-    tmpl = new Template();
-
-    tmpl->parse(parse_str, &error_msg);
 
     // ---------------------------------------------------------------------- //
     // Extract share information                                              //
@@ -258,30 +333,10 @@ int Host::update_info(string          &parse_str,
     }
 
     // ---------------------------------------------------------------------- //
-    // Remove expired information                                             //
-    // ---------------------------------------------------------------------- //
-    clear_template_error_message();
-
-    remove_template_attribute("ZOMBIES");
-    remove_template_attribute("TOTAL_ZOMBIES");
-
-    remove_template_attribute("WILDS");
-    remove_template_attribute("TOTAL_WILDS");
-
-    remove_template_attribute("VM");
-
-    get_template_attribute("VM_POLL", with_vm_info);
-    remove_template_attribute("VM_POLL");
-
-    long long tmp;
-    with_ds_info = get_template_attribute("DS_LOCATION_FREE_MB", tmp);
-
-    remove_template_attribute("DS");
-
-    // ---------------------------------------------------------------------- //
     // Correlate VM information with the list of running VMs                  //
     // ---------------------------------------------------------------------- //
-    tmpl->remove("VM", vm_att);
+
+    obj_template->remove("VM", vm_att);
 
     lost = vm_collection.get_collection_copy();
 
@@ -339,10 +394,10 @@ int Host::update_info(string          &parse_str,
     }
 
     // ---------------------------------------------------------------------- //
-    // Copy Datastore monitorization                                          //
+    // Copy local system datastore monitorization                             //
     // ---------------------------------------------------------------------- //
 
-    tmpl->remove("DS", ds_att);
+    obj_template->remove("DS", ds_att);
 
     for (it = ds_att.begin(); it != ds_att.end(); it++)
     {
@@ -358,23 +413,19 @@ int Host::update_info(string          &parse_str,
 
         rc = vatt->vector_value("ID", dsid);
 
-        if (rc == 0 && dsid != -1)
+        if (rc == 0 && non_shared_ds.count(dsid) == 1)
         {
-            string* s = vatt->to_xml();
-            string poll = *s;
-            delete s;
-
-            ds.insert(make_pair(dsid, poll));
+            obj_template->set(vatt);
         }
-
-        delete *it;
+        else
+        {
+            delete *it;
+        }
     }
-
-
-    delete tmpl;
 
     return 0;
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

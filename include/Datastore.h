@@ -178,11 +178,21 @@ public:
      */
     bool get_avail_mb(long long &avail);
 
-    // TODO
+    /**
+     * Returns true if the DS contains the SHARED = YES attribute
+     * @return true if the DS is shared
+     */
     bool is_shared()
     {
-        return true;
-    }
+        bool shared;
+
+        if (!get_template_attribute("SHARED", shared))
+        {
+            shared = true;
+        }
+
+        return shared;
+    };
 
 private:
 
