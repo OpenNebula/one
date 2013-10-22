@@ -246,6 +246,7 @@ int Host::update_info(string          &parse_str,
     vector<Attribute*>::iterator it;
     vector<Attribute*>           vm_att;
     vector<Attribute*>           ds_att;
+    vector<Attribute*>           local_ds_att;
 
     int   rc;
     int   vmid;
@@ -415,13 +416,15 @@ int Host::update_info(string          &parse_str,
 
         if (rc == 0 && non_shared_ds.count(dsid) == 1)
         {
-            obj_template->set(vatt);
+            local_ds_att.push_back(vatt);
         }
         else
         {
             delete *it;
         }
     }
+
+    host_share.set_ds_monitorization(local_ds_att);
 
     return 0;
 }

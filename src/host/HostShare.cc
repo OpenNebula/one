@@ -74,6 +74,7 @@ string& HostShare::to_xml(string& xml) const
           << "<USED_MEM>"   << used_mem   << "</USED_MEM>"
           << "<USED_CPU>"   << used_cpu   << "</USED_CPU>"
           << "<RUNNING_VMS>"<<running_vms <<"</RUNNING_VMS>"
+          << ds_template.to_xml(template_xml)
         << "</HOST_SHARE>";
 
     xml = oss.str();
@@ -86,6 +87,7 @@ string& HostShare::to_xml(string& xml) const
 
 int HostShare::from_xml_node(const xmlNodePtr node)
 {
+    vector<xmlNodePtr> content;
     int rc = 0;
 
     // Initialize the internal XML object
@@ -109,10 +111,37 @@ int HostShare::from_xml_node(const xmlNodePtr node)
 
     rc += xpath(running_vms,"/HOST_SHARE/RUNNING_VMS",-1);
 
+    // ------------ DS Template ---------------
+
+    ObjectXML::get_nodes("/HOST_SHARE/DATASTORES", content);
+
+    if( content.empty())
+    {
+        return -1;
+    }
+
+    rc += ds_template.from_xml_node( content[0] );
+
+    ObjectXML::free_nodes(content);
+
+    content.clear();
+
     if (rc != 0)
     {
         return -1;
     }
 
     return 0;
+}
+
+void HostShare::set_ds_monitorization(const vector<Attribute*> &ds_att)
+{
+    vector<Attribute*>::const_iterator it;
+
+    ds_template.erase("DS");
+
+    for (it = ds_att.begin(); it != ds_att.end(); it++)
+    {
+        ds_template.set(*it);
+    }
 }

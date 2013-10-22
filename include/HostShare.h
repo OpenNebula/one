@@ -18,9 +18,21 @@
 #define HOST_SHARE_H_
 
 #include "ObjectXML.h"
+#include "Template.h"
 #include <time.h>
 
 using namespace std;
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+class HostShareTemplate : public Template
+{
+public:
+    HostShareTemplate() : Template(false,'=',"DATASTORES"){};
+
+    ~HostShareTemplate(){};
+};
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -111,13 +123,15 @@ public:
      */
     string& to_xml(string& xml) const;
 
+    void set_ds_monitorization(const vector<Attribute*> &ds_att);
+
 private:
 
-    long long disk_usage; /**< Disk allocated to VMs (in Mb).        */
+    long long disk_usage; /**< Disk allocated to VMs (in MB).        */
     long long mem_usage;  /**< Memory allocated to VMs (in KB)       */
     long long cpu_usage;  /**< CPU  allocated to VMs (in percentage) */
 
-    long long max_disk;   /**< Total disk capacity (in Mb)           */
+    long long max_disk;   /**< Total disk capacity (in MB)           */
     long long max_mem;    /**< Total memory capacity (in KB)         */
     long long max_cpu;    /**< Total cpu capacity (in percentage)    */
 
@@ -130,6 +144,8 @@ private:
     long long used_cpu;   /**< Used cpu from the IM monitor          */
 
     long long running_vms;/**< Number of running VMs in this Host   */
+
+    HostShareTemplate ds_template;
 
     // ----------------------------------------
     // Friends
