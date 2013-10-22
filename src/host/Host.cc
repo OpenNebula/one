@@ -248,9 +248,9 @@ int Host::update_info(string          &parse_str,
     vector<Attribute*>           ds_att;
     vector<Attribute*>           local_ds_att;
 
-    int   rc;
-    int   vmid;
-    float fv;
+    int         rc;
+    int         vmid;
+    long long   val;
 
     ostringstream zombie;
     ostringstream wild;
@@ -294,8 +294,6 @@ int Host::update_info(string          &parse_str,
     remove_template_attribute("TOTAL_WILDS");
 
     remove_template_attribute("VM");
-
-    get_template_attribute("VM_POLL", with_vm_info);
     remove_template_attribute("VM_POLL");
 
     remove_template_attribute("DS");
@@ -317,25 +315,34 @@ int Host::update_info(string          &parse_str,
 
     if (isEnabled())
     {
-        erase_template_attribute("TOTALCPU", fv);
-        host_share.max_cpu = static_cast<long long>(fv);
-        erase_template_attribute("TOTALMEMORY", fv);
-        host_share.max_mem = static_cast<long long>(fv);
+        erase_template_attribute("TOTALCPU", val);
+        host_share.max_cpu = val;
+        erase_template_attribute("TOTALMEMORY", val);
+        host_share.max_mem = val;
+        erase_template_attribute("DS_LOCATION_TOTAL_MB", val);
+        host_share.max_disk = val;
 
-        erase_template_attribute("FREECPU", fv);
-        host_share.free_cpu = static_cast<long long>(fv);
-        erase_template_attribute("FREEMEMORY", fv);
-        host_share.free_mem = static_cast<long long>(fv);
+        erase_template_attribute("FREECPU", val);
+        host_share.free_cpu = val;
+        erase_template_attribute("FREEMEMORY", val);
+        host_share.free_mem = val;
+        erase_template_attribute("DS_LOCATION_FREE_MB", val);
+        host_share.free_disk = val;
 
-        erase_template_attribute("USEDCPU", fv);
-        host_share.used_cpu = static_cast<long long>(fv);
-        erase_template_attribute("USEDMEMORY", fv);
-        host_share.used_mem = static_cast<long long>(fv);
+        erase_template_attribute("USEDCPU", val);
+        host_share.used_cpu = val;
+        erase_template_attribute("USEDMEMORY", val);
+        host_share.used_mem = val;
+        erase_template_attribute("DS_LOCATION_USED_MB", val);
+        host_share.free_disk = val;
     }
 
     // ---------------------------------------------------------------------- //
     // Correlate VM information with the list of running VMs                  //
     // ---------------------------------------------------------------------- //
+
+    get_template_attribute("VM_POLL", with_vm_info);
+    remove_template_attribute("VM_POLL");
 
     obj_template->remove("VM", vm_att);
 

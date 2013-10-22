@@ -367,6 +367,21 @@ public:
     }
 
     /**
+     *  Gets and removes a long long based attribute (single)
+     *    @param name of the attribute
+     *    @param value of the attribute (a long long), will be 0 if not defined or
+     *    not a single attribute
+     *    @return the number of attributes erased
+     */
+    int erase_template_attribute(
+        const char * name,
+        long long&   value)
+    {
+        obj_template->get(name,value);
+        return obj_template->erase(name);
+    }
+
+    /**
      *  Gets an int based attribute (single)
      *    @param name of the attribute
      *    @param value of the attribute (an int), will be 0 if not defined or
