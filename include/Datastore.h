@@ -170,6 +170,21 @@ public:
         used_mb  = used;
     }
 
+    void process_poll(Template &monitor_data)
+    {
+        string err;
+
+        monitor_data.get("TOTAL_MB", total_mb);
+        monitor_data.get("FREE_MB", free_mb);
+        monitor_data.get("USED_MB", used_mb);
+
+        monitor_data.erase("TOTAL_MB");
+        monitor_data.erase("FREE_MB");
+        monitor_data.erase("USED_MB");
+
+        obj_template->merge(&monitor_data, err);
+    };
+
     /**
      *  Returns the available capacity in the datastore.
      *    @params avail the total available size in the datastore (MB)
