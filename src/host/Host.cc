@@ -334,7 +334,7 @@ int Host::update_info(string          &parse_str,
         erase_template_attribute("USEDMEMORY", val);
         host_share.used_mem = val;
         erase_template_attribute("DS_LOCATION_USED_MB", val);
-        host_share.free_disk = val;
+        host_share.used_disk = val;
     }
 
     // ---------------------------------------------------------------------- //

@@ -127,16 +127,17 @@ private:
     int cluster_id;
 
     // Host share values
-    long long disk_usage; /**< Disk allocated to VMs (in MB).        */
+//    long long disk_usage; /**< Disk allocated to VMs (in MB).        */
     long long mem_usage;  /**< Memory allocated to VMs (in KB)       */
     long long cpu_usage;  /**< CPU  allocated to VMs (in percentage) */
 
-    long long max_disk;   /**< Total disk capacity (in MB)           */
+//    long long max_disk;   /**< Total disk capacity (in MB)           */
     long long max_mem;    /**< Total memory capacity (in KB)         */
     long long max_cpu;    /**< Total cpu capacity (in percentage)    */
 
+    long long free_disk;  /**< Free disk capacity (in MB)            */
+
     map<int, long long> ds_free_disk; /**< Free MB for local system DS */
-    long long ds_location_free_mb; // TODO: merge with host share max_disk?
 
     long long running_vms; /**< Number of running VMs in this Host   */
 
