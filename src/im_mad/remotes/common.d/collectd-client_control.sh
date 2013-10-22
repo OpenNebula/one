@@ -32,7 +32,7 @@ CLIENT_PID_FILE=/tmp/one-collectd-client.pid
 
 # Launch the client
 function start_client() {
-    /usr/bin/env ruby $CLIENT $ARGV &
+    nohup /usr/bin/env ruby $CLIENT $ARGV >/dev/null 2>&1 &
 }
 
 # Write the PID
