@@ -23,6 +23,7 @@
 
 #include "Mad.h"
 #include "HostPool.h"
+#include "DatastorePool.h"
 
 
 using namespace std;
@@ -38,11 +39,10 @@ class InformationManagerDriver : public Mad
 public:
 
     InformationManagerDriver(
-        int                     userid,
-        const map<string,string>&     attrs,
-        bool                    sudo,
-        HostPool *              pool):
-            Mad(userid,attrs,sudo),hpool(pool){};
+        int                         userid,
+        const map<string,string>&   attrs,
+        bool                        sudo,
+        HostPool *                  pool);
 
     virtual ~InformationManagerDriver(){};
 
@@ -72,6 +72,8 @@ private:
      *  Pointer to the Virtual Machine Pool, to access VMs
      */
     HostPool * hpool;
+
+    DatastorePool * dspool;
 
     friend class InformationManager;
 };

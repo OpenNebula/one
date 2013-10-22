@@ -174,14 +174,12 @@ public:
     /**
      * Extracts the DS attributes from the given template
      * @param parse_str string with values to be parsed
-     * @param with_ds_info if monitoring contains DS information
      * @param ds map of DS monitoring information
      *
      * @return 0 on success
      */
     static int extract_ds_info(
             string          &parse_str,
-            bool            &with_ds_info,
             map<int,string> &ds);
 
     /**

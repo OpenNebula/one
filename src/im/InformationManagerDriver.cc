@@ -21,6 +21,19 @@
 #include "VirtualMachineManagerDriver.h"
 #include <sstream>
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+InformationManagerDriver::InformationManagerDriver(
+        int                         userid,
+        const map<string,string>&   attrs,
+        bool                        sudo,
+        HostPool *                  pool):
+            Mad(userid,attrs,sudo),hpool(pool)
+{
+    dspool = Nebula::instance().get_dspool();
+};
+
 
 /* ************************************************************************** */
 /* Driver ASCII Protocol Implementation                                       */
@@ -96,11 +109,14 @@ void InformationManagerDriver::protocol(const string& message) const
     if ( action == "MONITOR" )
     {
         bool vm_poll;
-        bool ds_poll;
 
         set<int>        lost;
         map<int,string> found;
         map<int,string> datastores;
+
+        Datastore *     ds;
+
+        map<int,string>::iterator  itm;
 
         int rc;
 
@@ -138,7 +154,7 @@ void InformationManagerDriver::protocol(const string& message) const
             return;
         }
 
-        rc = Host::extract_ds_info(*hinfo, ds_poll, datastores);
+        rc = Host::extract_ds_info(*hinfo, datastores);
 
         if (rc != 0)
         {
@@ -147,14 +163,8 @@ void InformationManagerDriver::protocol(const string& message) const
 
         set<int> non_shared_ds;
 
-        if (rc == 0 && ds_poll)
+        if (rc == 0)
         {
-            // TODO: move to constructor
-            DatastorePool * dspool = Nebula::instance().get_dspool();
-            Datastore *     ds;
-
-            map<int,string>::iterator  itm;
-
             for (itm = datastores.begin(); itm != datastores.end(); itm++)
             {
                 ds = dspool->get(itm->first, true);

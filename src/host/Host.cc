@@ -179,7 +179,6 @@ error_common:
 
 int Host::extract_ds_info(
             string          &parse_str,
-            bool            &with_ds_info,
             map<int,string> &ds)
 {
     char *    error_msg;
@@ -198,9 +197,6 @@ int Host::extract_ds_info(
         free(error_msg);
         return -1;
     }
-
-    long long tmp;
-    with_ds_info = tmpl.get("DS_LOCATION_FREE_MB", tmp);
 
     tmpl.get("DS", ds_att);
 
