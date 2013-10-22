@@ -242,6 +242,10 @@ void InformationManager::timer_action()
                 NebulaLog::log("InM",Log::ERROR,oss);
 
                 host->set_error();
+
+                hpool->update(host);
+
+                host->unlock();
             }
             else
             {
