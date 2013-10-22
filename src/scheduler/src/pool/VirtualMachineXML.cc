@@ -17,6 +17,7 @@
 #include <algorithm>
 
 #include "VirtualMachineXML.h"
+#include "DatastoreXML.h"
 #include "NebulaUtil.h"
 
 void VirtualMachineXML::init_attributes()
@@ -403,3 +404,79 @@ int VirtualMachineXML::parse_action_name(string& action_st)
 
     return 0;
 };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool VirtualMachineXML::test_image_datastore_capacity(const map<int, ObjectXML*> &img_datastores)
+{
+    map<int, ObjectXML*>::const_iterator  ds_it;
+    map<int,long long>::const_iterator    ds_usage_it;
+
+    ostringstream oss;
+    DatastoreXML* ds;
+
+    for (ds_usage_it = ds_usage.begin(); ds_usage_it != ds_usage.end(); ds_usage_it++)
+    {
+        ds_it = img_datastores.find( ds_usage_it->first );
+
+        if (ds_it == img_datastores.end())
+        {
+            oss << "VM " << oid
+                << ": Image Datastore " << ds_usage_it->first
+                << " is unknown for the Scheduler.";
+
+            break;
+        }
+
+        ds = static_cast<DatastoreXML *>( ds_it->second );
+
+        if (!ds->test_capacity(ds_usage_it->second))
+        {
+            oss << "VM " << oid
+                << ": Image Datastore " << ds_usage_it->first
+                << " does not have enough free storage.";
+
+            break;
+        }
+    }
+
+    if (ds_usage_it != ds_usage.end())
+    {
+        NebulaLog::log("SCHED",Log::INFO,oss);
+
+        // TODO: log into VM template?
+//        log(oss.str());
+
+        return false;
+    }
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineXML::add_image_datastore_capacity(
+        const map<int, ObjectXML*> &img_datastores)
+{
+    map<int, ObjectXML*>::const_iterator  ds_it;
+    map<int,long long>::const_iterator    ds_usage_it;
+
+    DatastoreXML *ds;
+
+    for (ds_usage_it = ds_usage.begin(); ds_usage_it != ds_usage.end(); ds_usage_it++)
+    {
+        ds_it = img_datastores.find( ds_usage_it->first );
+
+        if (ds_it == img_datastores.end())
+        {
+            // TODO log error?
+            continue;
+        }
+
+        ds = static_cast<DatastoreXML *>( ds_it->second );
+
+        ds->add_capacity(ds_usage_it->second);
+    }
+}

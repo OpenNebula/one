@@ -408,8 +408,6 @@ void Scheduler::match_schedule()
 
     map<int, ObjectXML*>::const_iterator  vm_it;
     map<int, ObjectXML*>::const_iterator  h_it;
-    map<int, ObjectXML*>::const_iterator  ds_it;
-    map<int,long long>::const_iterator    ds_usage_it;
 
     vector<SchedulerPolicy *>::iterator it;
 
@@ -435,33 +433,15 @@ void Scheduler::match_schedule()
         n_auth    = 0;
         n_error   = 0;
 
-        map<int,long long> ds_usage = vm->get_storage_usage();
-
-        for (ds_usage_it = ds_usage.begin(); ds_usage_it != ds_usage.end(); ds_usage_it++)
+        //--------------------------------------------------------------
+        // Test Image Datastore capacity, but not for migrations
+        //--------------------------------------------------------------
+        if (!vm->is_resched())
         {
-            ds_it = img_datastores.find( ds_usage_it->first );
-
-            if (ds_it == img_datastores.end())
+            if (vm->test_image_datastore_capacity(img_datastores) == false)
             {
-                // TODO log error
                 continue;
             }
-
-            ds = static_cast<DatastoreXML *>( ds_it->second );
-
-            if (!ds->test_capacity(ds_usage_it->second))
-            {
-                ostringstream oss;
-
-                oss << "VM " << oid << " cannot be deployed because Datastore "
-                    << ds_usage_it->first << " does not have enough free storage.";
-
-                NebulaLog::log("SCHED",Log::INFO,oss);
-
-                vm->log(oss.str());
-            }
-
-            break;
         }
 
         // ---------------------------------------------------------------------
@@ -797,7 +777,9 @@ void Scheduler::dispatch()
     pair<map<int,unsigned int>::iterator, bool> rc;
 
     vector<Resource *>::const_reverse_iterator i, j;
-    const map<int, ObjectXML*> pending_vms = vmpool->get_objects();
+
+    const map<int, ObjectXML*> pending_vms      = vmpool->get_objects();
+    const map<int, ObjectXML*> img_datastores   = img_dspool->get_objects();
 
     //--------------------------------------------------------------------------
     // Print the VMs to schedule and the selected hosts for each one
@@ -826,12 +808,25 @@ void Scheduler::dispatch()
     {
         vm = static_cast<VirtualMachineXML*>(vm_it->second);
 
+        const vector<Resource *> resources = vm->get_match_hosts();
+
+        //--------------------------------------------------------------
+        // Test Image Datastore capacity, but not for migrations
+        //--------------------------------------------------------------
+
+        if (!resources.empty() && !vm->is_resched())
+        {
+            if (vm->test_image_datastore_capacity(img_datastores) == false)
+            {
+                continue;
+            }
+        }
+
         vm->get_requirements(cpu,mem,dsk);
 
         //----------------------------------------------------------------------
         // Get the highest ranked host and best System DS for it
         //----------------------------------------------------------------------
-        const vector<Resource *> resources = vm->get_match_hosts();
 
         for (i = resources.rbegin() ; i != resources.rend() ; i++)
         {
@@ -959,11 +954,11 @@ void Scheduler::dispatch()
                 {
                     host->add_ds_capacity(ds->get_oid(), dsk);
                 }
+
+                vm->add_image_datastore_capacity(img_datastores);
             }
 
             host->add_capacity(cpu,mem);
-
-            // TODO update img DS free space
 
             host_vms[hid]++;
 

@@ -187,6 +187,23 @@ public:
     }
 
     //--------------------------------------------------------------------------
+    // Capacity Interface
+    //--------------------------------------------------------------------------
+
+    /**
+     *  Tests if the Image DS have enough free space to host the VM
+     *    @param img_datastores Image Datastores
+     *    @return true if the Image Datastores can host the VM
+     */
+    bool test_image_datastore_capacity(const map<int, ObjectXML*> &img_datastores);
+
+    /**
+     *  Adds the VM disk requirements to each Image Datastore counter
+     *    @param img_datastores Image Datastores
+     */
+    void add_image_datastore_capacity(const map<int, ObjectXML*> &img_datastores);
+
+    //--------------------------------------------------------------------------
     // Action Interface
     //--------------------------------------------------------------------------
 
