@@ -195,7 +195,8 @@ static int cp_action(istringstream& is,
 
     image->unlock();
 
-    NebulaLog::log("ImM", Log::INFO, "Image copied and ready to use.");
+    oss << "Image " << id << " copied and ready to use.";
+    NebulaLog::log("ImM", Log::INFO, oss);
 
     return ds_id;
 
@@ -677,7 +678,7 @@ void ImageManagerDriver::process_poll(Datastore* ds, const string &monitor_str)
 
     dspool->update(ds);
 
-    oss << "Datastore " << ds->get_cluster_name()
+    oss << "Datastore " << ds->get_name()
         << " (" << ds->get_oid() << ") successfully monitored.";
 
     NebulaLog::log("ImM", Log::INFO, oss);
