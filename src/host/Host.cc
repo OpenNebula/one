@@ -341,8 +341,7 @@ int Host::update_info(string          &parse_str,
     // Correlate VM information with the list of running VMs                  //
     // ---------------------------------------------------------------------- //
 
-    get_template_attribute("VM_POLL", with_vm_info);
-    remove_template_attribute("VM_POLL");
+    erase_template_attribute("VM_POLL", with_vm_info);
 
     obj_template->remove("VM", vm_att);
 

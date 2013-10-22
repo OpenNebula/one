@@ -174,15 +174,11 @@ public:
     {
         string err;
 
-        monitor_data.get("TOTAL_MB", total_mb);
-        monitor_data.get("FREE_MB", free_mb);
-        monitor_data.get("USED_MB", used_mb);
-
-        monitor_data.erase("TOTAL_MB");
-        monitor_data.erase("FREE_MB");
-        monitor_data.erase("USED_MB");
-
         obj_template->merge(&monitor_data, err);
+
+        erase_template_attribute("TOTAL_MB", total_mb);
+        erase_template_attribute("FREE_MB", free_mb);
+        erase_template_attribute("USED_MB", used_mb);
     };
 
     /**
