@@ -292,5 +292,9 @@ void InformationManager::timer_action()
 
             host->unlock();
         }
+        else
+        {
+            host->unlock();
+        }
     }
 }
