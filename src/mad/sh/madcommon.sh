@@ -72,3 +72,20 @@ export_rc_vars $DEFAULTRC
 if [ -z "$PRIORITY" ]; then
     export PRIORITY=19
 fi
+
+# Add ruby vendorized libraries to the path
+if [ -z "${ONE_LOCATION}" ]; then
+    VENDOR=/usr/lib/one/ruby/vendors
+else
+    VENDOR=$ONE_LOCATION/lib/ruby/vendors
+fi
+
+ls $VENDOR/*/lib &> /dev/null
+if [ $? = 0 ]; then
+    if [ -n "$RUBYLIB" ]; then
+        RUBYLIB="$RUBYLIB:"
+    fi
+
+    RUBYLIB="${RUBYLIB}$(echo $VENDOR/*/lib | tr ' ' ':')"
+fi
+
