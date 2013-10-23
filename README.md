@@ -1,18 +1,18 @@
 
-OpenNebula - Flexible Enterprise Cloud Made Simple
+# OpenNebula - Flexible Enterprise Cloud Made Simple
 
-## DESCRIPTION
+## Description
 
 OpenNebula is an open-source project delivering a simple but feature-rich and 
 flexible solution to build and manage enterprise clouds and virtualized data centers.
 
-Complete documentation can be found at
+Complete documentation: http://opennebula.org/documentation:documentation
 
-  http://opennebula.org/documentation:documentation
+How to contribute: http://opennebula.org/community:contribute
 
-## INSTALLATION
+## Installation
 
-### REQUISITES
+### Requirements
 
 This machine will act as the OpenNebula server and therefore needs to have
 installed the following software:
@@ -34,7 +34,7 @@ Additionally, to build OpenNebula from source you need:
 * **bison** >= 2.3 (optional, only needed to rebuild the parsers)
 * **libxml2-dev**
 
-### RUBY LIBRARIES REQUIREMENTS
+### Ruby Libraries Requirements
 
 A set of gem requirements are needed to make several components work. We
 include a handy script to install them and the requirements. It is located at
@@ -74,7 +74,7 @@ If you want to install them manually here are the list of required rubygems:
   * sequel
   * nokogiri
 
-### OPTIONAL PACKAGES
+### Optional Packages
 
 These packages are not needed to run or build OpenNebula. They improve the
 performance of the user-land libraries and tools of OpenNebula, nor the core
@@ -93,21 +93,21 @@ Then install the following packages:
   (**libxml-parser-ruby1.8**). If it is not available in your distribution
   install expat libraries with its development files and install xmlparser
   using gem:
-  
+
     $ sudo gem install xmlparser --no-ri --no-rdoc
-    
+
   Note the extra parameters to gem install. Some versions of xmlparser have
   problems building the documentation and we can use it without documentation
   installed.
-  
+
 * **ruby nokogiri**, to install this gem you will need **libxml2** and
   **libxslt** libraries and their development versions. The we can install
   nokogiri library:
-  
+
     $ sudo gem install nokogiri --no-ri --no-rdoc
 
 
-### BUILDING
+### Building
 
 Compilation is done using **scons** command:
 
@@ -123,16 +123,16 @@ The argument expression *[OPTIONAL]* is used to set non-default values for:
         parsers     yes if you want to rebuild flex/bison files
         
 
-### INSTALLATION
+### Installation
 
-* OpenNebula can be installed in two modes: system-wide, or in self-contained
-  directory. In either case, you do not need to run OpenNebula as root. These
-  options can be specified when running the install script:
+OpenNebula can be installed in two modes: system-wide, or in self-contained
+directory. In either case, you do not need to run OpenNebula as root. These
+options can be specified when running the install script:
 
     $ ./install.sh install_options
-    
+
 where **install_options** can be one or more of:
-  
+
     OPTION  VALUE
     -u      user that will run OpenNebula, defaults to user executing
             install.sh
@@ -149,22 +149,22 @@ where **install_options** can be one or more of:
     -h      prints installer help
 
 
-## CONFIGURATION
+## Configuration
 
 Information on how to configure OpenNebula is located at
 http://opennebula.org/documentation:documentation:cg
 
 
-## CONTACT
+## Contact
 
 OpenNebula web page: http://opennebula.org
 
 Development and issue tracking: http://dev.opennebula.org
 
-Support mailing list: http://opennebula.org/support:support
+Support: http://opennebula.org/support:support
 
 
-## LICENSE
+## License
 
 Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs
 
@@ -177,5 +177,4 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
 
