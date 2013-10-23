@@ -610,6 +610,25 @@ Sunstone.addMainTab('datastores-tab',datastores_tab);
 Sunstone.addInfoPanel('datastore_info_panel',datastore_info_panel);
 
 
+function generate_datastore_capacity_bar(ds, ds_type) {
+    var total = parseInt(ds.TOTAL_MB);
+
+    var used = total - parseInt(ds.FREE_MB);
+
+    if (total > 0) {
+        var ratio = Math.round((used / total) * 100);
+        info_str = humanize_size_from_mb(used) + ' / ' + humanize_size_from_mb(total) + ' (' + ratio + '%)';
+    } else {
+        if(ds_type == 1) {
+            info_str = '- / -';
+        } else {
+            info_str = humanize_size(used) + ' / -';
+        }
+    }
+
+    return quotaBarHtml(used, total, info_str);
+}
+
 function datastoreElements() {
     return getSelectedNodes(dataTable_datastores);
 }
@@ -617,29 +636,14 @@ function datastoreElements() {
 function datastoreElementArray(element_json){
     var element = element_json.DATASTORE;
 
-    var type = "IMAGE_DS";
+    var ds_type_str = "IMAGE_DS";
 
     if (typeof element.TEMPLATE.TYPE != "undefined")
     {
-      type = element.TEMPLATE.TYPE;
+      ds_type_str = element.TEMPLATE.TYPE;
     }
 
-    var total = parseInt(element.TOTAL_MB);
-
-    var used = total - parseInt(element.FREE_MB);
-
-    if (total > 0) {
-        var ratio = Math.round((used / total) * 100);
-        info_str = humanize_size_from_mb(used) + ' / ' + humanize_size_from_mb(total) + ' (' + ratio + '%)';
-    } else {
-        if(element.TYPE == 1) {
-            info_str = '- / -';
-        } else {
-            info_str = humanize_size(used) + ' / -';
-        }
-    }
-
-    var pb_capacity = quotaBarHtml(used, total, info_str);
+    var pb_capacity = generate_datastore_capacity_bar(element, element.TYPE);
 
     return [
         '<input class="check_item" type="checkbox" id="datastore_'+
@@ -654,7 +658,7 @@ function datastoreElementArray(element_json){
         element.BASE_PATH,
         element.TM_MAD,
         element.DS_MAD,
-        type.toLowerCase().split('_')[0]
+        ds_type_str.toLowerCase().split('_')[0]
     ];
 }
 
@@ -1014,7 +1018,7 @@ function setupCreateDatastoreDialog(){
             ds_obj.datastore.base_iqn = base_iqn;
 
         if (vg_name)
-            ds_obj.datastore.vg_name = vg_name;       
+            ds_obj.datastore.vg_name = vg_name;
 
         Sunstone.runAction("Datastore.create",ds_obj);
 
