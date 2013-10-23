@@ -457,28 +457,6 @@ int Datastore::replace_template(const string& tmpl_str, string& error_str)
     if (!s_ds_type.empty())
     {
         new_ds_type = str_to_type(s_ds_type);
-
-        if (get_cluster_id() != ClusterPool::NONE_CLUSTER_ID)//It's in a cluster
-        {
-            if (type == SYSTEM_DS && new_ds_type != SYSTEM_DS)
-            {
-                error_str = "Datastore is associated to a cluster, and it is "
-                            "the SYSTEM_DS, remove it from cluster first to "
-                            "update its type.";
-
-                delete new_tmpl;
-                return -1;
-            }
-            else if (new_ds_type == SYSTEM_DS && type != SYSTEM_DS)
-            {
-                error_str = "Datastore is associated to a cluster, cannot set "
-                            "type to SYSTEM_DS. Remove it from cluster first "
-                            "to update its type.";
-
-                delete new_tmpl;
-                return -1;
-            }
-        }
     }
     else //No TYPE in the new Datastore template
     {
