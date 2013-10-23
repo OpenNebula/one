@@ -296,7 +296,6 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/datastore \
           $VAR_LOCATION/remotes/datastore/dummy \
           $VAR_LOCATION/remotes/datastore/fs \
-          $VAR_LOCATION/remotes/datastore/vmware \
           $VAR_LOCATION/remotes/datastore/vmfs \
           $VAR_LOCATION/remotes/datastore/iscsi \
           $VAR_LOCATION/remotes/datastore/lvm \
@@ -1088,7 +1087,6 @@ TM_CEPH_FILES="src/tm_mad/ceph/clone \
 # Datastore drivers, to be installed under $REMOTES_LOCATION/datastore
 #   - Dummy Image Repository, $REMOTES_LOCATION/datastore/dummy
 #   - FS based Image Repository, $REMOTES_LOCATION/datastore/fs
-#   - VMware based Image Repository, $REMOTES_LOCATION/datastore/vmware
 #   - VMFS based Image Repository, $REMOTES_LOCATION/datastore/vmfs
 #   - iSCSI based Image Repository, $REMOTES_LOCATION/datastore/iscsi
 #   - LVM based Image Repository, $REMOTES_LOCATION/datastore/lvm
