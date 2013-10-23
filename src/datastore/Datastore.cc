@@ -145,6 +145,41 @@ Datastore::DatastoreType Datastore::str_to_type(string& str_type)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
+int Datastore::set_tm_mad(string &tm_mad, string &error_str)
+{
+    VectorAttribute* vatt;
+    int rc;
+    string st;
+
+    rc = Nebula::instance().get_tm_conf_attribute(tm_mad, vatt);
+
+    if (rc != 0)
+    {
+        ostringstream oss;
+        oss << "TM_MAD named \"" << tm_mad << "\" is not defined in oned.conf";
+        error_str = oss.str();
+
+        return -1;
+    }
+
+    // TODO: detect missing tm_mad conf?   if (st.empty()){}
+    if (type == SYSTEM_DS)
+    {
+        st = vatt->vector_value("SHARED");
+        replace_template_attribute("SHARED", st);
+    }
+    else
+    {
+        st = vatt->vector_value("LN_TARGET");
+        replace_template_attribute("LN_TARGET", st);
+
+        st = vatt->vector_value("CLONE_TARGET");
+        replace_template_attribute("CLONE_TARGET", st);
+    }
+
+    return 0;
+}
+
 int Datastore::insert(SqlDB *db, string& error_str)
 {
     int           rc;
@@ -182,7 +217,12 @@ int Datastore::insert(SqlDB *db, string& error_str)
 
     if ( tm_mad.empty() == true )
     {
-        goto error_tm;
+        goto error_empty_tm;
+    }
+
+    if (set_tm_mad(tm_mad, error_str) != 0)
+    {
+        goto error_common;
     }
 
     erase_template_attribute("BASE_PATH", base_path);
@@ -215,7 +255,7 @@ int Datastore::insert(SqlDB *db, string& error_str)
 
     if ( tm_mad.empty() == true )
     {
-        goto error_tm;
+        goto error_empty_tm;
     }
     //--------------------------------------------------------------------------
     // Insert the Datastore
@@ -233,7 +273,7 @@ error_ds:
     error_str = "No DS_MAD in template.";
     goto error_common;
 
-error_tm:
+error_empty_tm:
     error_str = "No TM_MAD in template.";
     goto error_common;
 
@@ -574,6 +614,13 @@ int Datastore::replace_template(const string& tmpl_str, string& error_str)
 
     if ( !new_tm_mad.empty() )
     {
+        if (set_tm_mad(new_tm_mad, error_str) != 0)
+        {
+            replace_template_attribute("TM_MAD", tm_mad);
+
+            return -1;
+        }
+
         tm_mad = new_tm_mad;
     }
     else

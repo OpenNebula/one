@@ -328,6 +328,8 @@ private:
     {
         return new DatastoreTemplate;
     }
+
+    int set_tm_mad(string &tm_mad, string &error_str);
 };
 
 #endif /*DATASTORE_H_*/

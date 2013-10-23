@@ -406,6 +406,37 @@ public:
     };
 
     /**
+     *  Gets a TM configuration attribute
+     */
+    int get_tm_conf_attribute(
+        const string&    tm_name,
+        VectorAttribute* &value) const
+    {
+        vector<Attribute*>::iterator it;
+        vector<Attribute*> values;
+        nebula_configuration->Template::get("TM_MAD_CONF", values);
+
+        for (it = values.begin(); it != values.end(); it ++)
+        {
+            value = dynamic_cast<VectorAttribute*>(*it);
+
+            if (value == 0)
+            {
+                continue;
+            }
+
+            if (value->vector_value("NAME") == tm_name)
+            {
+                return 0;
+            }
+        }
+
+        value = 0;
+        return -1;
+    };
+
+
+    /**
      *  Gets an XML document with all of the configuration attributes
      *    @return the XML
      */
