@@ -1,5 +1,5 @@
 
-# OpenNebula - Flexible Enterprise Cloud Made Simple
+# OpenNebula
 
 ## Description
 
