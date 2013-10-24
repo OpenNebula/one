@@ -148,12 +148,12 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
     int    rc;
     string st;
 
+    ostringstream oss;
+
     rc = Nebula::instance().get_tm_conf_attribute(tm_mad, vatt);
 
     if (rc != 0)
     {
-        ostringstream oss;
-
         oss << "TM_MAD named \"" << tm_mad << "\" is not defined in oned.conf";
 
         error_str = oss.str();
@@ -167,12 +167,10 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
 
         if (st.empty())
         {
-            st = "YES";
+            goto error;
         }
-        else
-        {
-            one_util::toupper(st);
-        }
+
+        one_util::toupper(st);
 
         replace_template_attribute("SHARED", st);
     }
@@ -182,12 +180,10 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
 
         if (st.empty())
         {
-            st = "NONE";
+            goto error;
         }
-        else
-        {
-            one_util::toupper(st);
-        }
+
+        one_util::toupper(st);
 
         replace_template_attribute("LN_TARGET", st);
 
@@ -195,17 +191,23 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
 
         if (st.empty())
         {
-            st = "SYSTEM";
+            goto error;
         }
-        else
-        {
-            one_util::toupper(st);
-        }
+
+        one_util::toupper(st);
 
         replace_template_attribute("CLONE_TARGET", st);
     }
 
     return 0;
+
+error:
+    oss << "Attribute TM_MAD_CONF for " << tm_mad
+        << " is missing shared, ln_target or clone_target in oned.conf";
+
+    error_str = oss.str();
+
+    return -1;
 }
 
 int Datastore::insert(SqlDB *db, string& error_str)
