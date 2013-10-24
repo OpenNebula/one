@@ -30,7 +30,6 @@ class ImagePool;
 class ImageManager;
 
 class DatastorePool;
-class Datastore;
 
 /**
  *  ImageManagerDriver represents the basic abstraction for Image Repository
