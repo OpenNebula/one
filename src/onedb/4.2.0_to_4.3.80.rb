@@ -302,7 +302,7 @@ http://opennebula.org/documentation:rel4.4:upgrade
 
                 if ( type == "SWAP" || type == "FS")
                     e.each_element("SIZE") { |size_elem|
-                        vol_used += size_elem.text.to_f
+                        vol_used += size_elem.text.to_i
                     }
                 end
             }
@@ -326,7 +326,7 @@ http://opennebula.org/documentation:rel4.4:upgrade
             vm_elem.add_element("VMS_USED").text = vms_used.to_s
 
             vm_elem.add_element("VOLATILE_SIZE").text = vol_limit
-            vm_elem.add_element("VOLATILE_SIZE_USED").text = sprintf('%.2f', vol_used)
+            vm_elem.add_element("VOLATILE_SIZE_USED").text = vol_used.to_s
         end
     end
 

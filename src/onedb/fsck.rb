@@ -1286,7 +1286,7 @@ module OneDBFsck
         cpu_used = 0.0
         mem_used = 0
         vms_used = 0
-        vol_used = 0.0
+        vol_used = 0
 
         # VNet quotas
         vnet_usage = {}
@@ -1318,8 +1318,7 @@ module OneDBFsck
 
                 if ( type == "SWAP" || type == "FS")
                     e.each_element("SIZE") { |size_elem|
-                        vol_used += size_elem.text.to_f
-                        vol_used = (vol_used * 100).to_i / 100.0
+                        vol_used += size_elem.text.to_i
                     }
                 end
             }
@@ -1399,17 +1398,9 @@ module OneDBFsck
         }
 
         vm_elem.each_element("VOLATILE_SIZE_USED") { |e|
-            # Check if the float value or the string representation mismatch,
-            # but ignoring the precision
-
-            different = ( e.text.to_f != vol_used ||
-                ![sprintf('%.2f', vol_used), sprintf('%.1f', vol_used), sprintf('%.0f', vol_used)].include?(e.text)  )
-
-            vol_used_str = sprintf('%.2f', vol_used)
-
-            if different
-                log_error("#{resource} #{oid} quotas: VOLATILE_SIZE_USED has #{e.text} \tis\t#{vol_used_str}")
-                e.text = vol_used_str
+            if e.text != vol_used.to_s
+                log_error("#{resource} #{oid} quotas: VOLATILE_SIZE_USED has #{e.text} \tis\t#{vol_used}")
+                e.text = vol_used.to_s
             end
         }
 
