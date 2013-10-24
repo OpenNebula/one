@@ -243,9 +243,9 @@ class EC2Driver < VirtualMachineDriver
         ec2_action(drv_message, :stop, ACTION[:save], id)
     end
 
-    # Cancel a EC2 instance
+    # Restore a EC2 instance
     def restore(id, drv_message)
-        ec2_action(drv_message, :start, ACTION[:restor], id)
+        ec2_action(drv_message, :start, ACTION[:restore], id)
     end
 
     # Get info (IP, and state) for a EC2 instance
