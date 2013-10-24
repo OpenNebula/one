@@ -563,7 +563,15 @@ int Image::disk_attribute(  VectorAttribute * disk,
     }
     else
     {
-        disk->replace("CLONE", "YES");
+        if ( type == CDROM )
+        {
+            disk->replace("CLONE", "NO");
+        }
+        else
+        {
+            disk->replace("CLONE", "YES");
+        }
+
         disk->replace("SAVE", "NO");
     }
 
