@@ -409,16 +409,17 @@ public:
      *  Gets a TM configuration attribute
      */
     int get_tm_conf_attribute(
-        const string&    tm_name,
-        VectorAttribute* &value) const
+        const string& tm_name,
+        const VectorAttribute* &value) const
     {
-        vector<Attribute*>::iterator it;
-        vector<Attribute*> values;
+        vector<const Attribute*>::const_iterator it;
+        vector<const Attribute*> values;
+
         nebula_configuration->Template::get("TM_MAD_CONF", values);
 
         for (it = values.begin(); it != values.end(); it ++)
         {
-            value = dynamic_cast<VectorAttribute*>(*it);
+            value = dynamic_cast<const VectorAttribute*>(*it);
 
             if (value == 0)
             {

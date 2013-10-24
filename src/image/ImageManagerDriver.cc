@@ -195,8 +195,7 @@ static int cp_action(istringstream& is,
 
     image->unlock();
 
-    oss << "Image " << id << " copied and ready to use.";
-    NebulaLog::log("ImM", Log::INFO, oss);
+    NebulaLog::log("ImM", Log::INFO, "Image copied and ready to use.");
 
     return ds_id;
 
@@ -618,59 +617,53 @@ static void monitor_action(istringstream& is,
         return;
     }
 
-    ImageManagerDriver::process_poll(id, *dsinfo);
-
-    delete dsinfo;
-
-    return;
-}
-
-void ImageManagerDriver::process_poll(int id, const string &monitor_str)
-{
-    Datastore* ds = Nebula::instance().get_dspool()->get(id,true);
-
-    if ( ds == 0 )
-    {
-        return;
-    }
-
-    process_poll(ds, monitor_str);
-
-    ds->unlock();
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void ImageManagerDriver::process_poll(Datastore* ds, const string &monitor_str)
-{
     Template monitor_data;
 
-    ostringstream oss;
-
-    string error_msg;
-    int    rc = monitor_data.parse_str_or_xml(monitor_str, error_msg);
-
-    DatastorePool* dspool = Nebula::instance().get_dspool();
+    char*  error_msg;
+    int    rc = monitor_data.parse(*dsinfo, &error_msg);
 
     if ( rc != 0 )
     {
         oss << "Error parsing datastore information: " << error_msg
-            << ". Monitoring information: " << endl << monitor_str;
+            << ". Monitoring information: " << endl << *dsinfo;
 
         NebulaLog::log("ImM", Log::ERROR, oss);
+
+        delete dsinfo;
+        free(error_msg);
 
         return;
     }
 
-    ds->process_poll(monitor_data);
+    delete dsinfo;
+
+    float  total, free, used;
+    string ds_name;
+
+    monitor_data.get("TOTAL_MB", total);
+    monitor_data.get("FREE_MB", free);
+    monitor_data.get("USED_MB", used);
+
+    Datastore * ds = dspool->get(id, true);
+
+    if (ds == 0 )
+    {
+        return;
+    }
+
+    ds_name = ds->get_name();
+
+    ds->update_monitor(total, free, used);
 
     dspool->update(ds);
 
-    oss << "Datastore " << ds->get_name()
-        << " (" << ds->get_oid() << ") successfully monitored.";
+    ds->unlock();
+
+    oss << "Datastore " << ds_name << " (" << id << ") successfully monitored.";
 
     NebulaLog::log("ImM", Log::INFO, oss);
+
+    return;
 }
 
 /* -------------------------------------------------------------------------- */

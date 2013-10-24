@@ -112,13 +112,21 @@ void InformationManagerDriver::protocol(const string& message) const
 
         set<int>        lost;
         map<int,string> found;
-        map<int,string> datastores;
+        set<int>        non_shared_ds;
 
-        Datastore *     ds;
+        map<int,const VectorAttribute*> datastores;
 
-        map<int,string>::iterator  itm;
+        Template tmpl;
+
+        Datastore * ds;
+
+        map<int, const VectorAttribute*>::iterator  itm;
 
         int rc;
+
+        // ---------------------------------------------------------------------
+        // Get information from driver and decode from base64
+        // ---------------------------------------------------------------------
 
         getline (is, hinfo64);
 
@@ -127,19 +135,21 @@ void InformationManagerDriver::protocol(const string& message) const
             return;
         }
 
+        host = hpool->get(id,true);
+
+        if ( host == 0 )
+        {
+            goto error_host;
+        }
+
         hinfo = one_util::base64_decode(hinfo64);
 
+        // ---------------------------------------------------------------------
+        // Monitoring Error
+        // ---------------------------------------------------------------------
         if (result != "SUCCESS")
         {
             set<int> vm_ids;
-
-            host = hpool->get(id,true);
-
-            if ( host == 0 )
-            {
-                delete hinfo;
-                goto error_host;
-            }
 
             host->error_info(*hinfo, vm_ids);
 
@@ -154,44 +164,66 @@ void InformationManagerDriver::protocol(const string& message) const
             delete hinfo;
 
             hpool->update(host);
+
             host->unlock();
 
             return;
         }
 
-        rc = Host::extract_ds_info(*hinfo, datastores);
+        // ---------------------------------------------------------------------
+        // Get DS Information from Moniroting Information
+        // ---------------------------------------------------------------------
+
+        rc = host->extract_ds_info(*hinfo, tmpl, datastores);
+
+        delete hinfo;
+
+        host->unlock();
 
         if (rc != 0)
         {
-            // TODO
+            return;
         }
 
-        set<int> non_shared_ds;
-
-        if (rc == 0)
+        for (itm = datastores.begin(); itm != datastores.end(); itm++)
         {
-            for (itm = datastores.begin(); itm != datastores.end(); itm++)
+            ds = dspool->get(itm->first, true);
+
+            if (ds == 0)
             {
-                ds = dspool->get(itm->first, true);
+                continue;
+            }
 
-                if (ds != 0)
+            if (ds->get_type() == Datastore::SYSTEM_DS)
+            {
+                if (ds->is_shared())
                 {
-                    if (ds->get_type() == Datastore::SYSTEM_DS)
-                    {
-                        if (ds->is_shared())
-                        {
-                            ImageManagerDriver::process_poll(ds, itm->second);
-                        }
-                        else
-                        {
-                            non_shared_ds.insert(itm->first);
-                        }
-                    }
+                    float total = 0, free = 0, used = 0;
+                    ostringstream oss;
 
-                    ds->unlock();
+                    (itm->second)->vector_value("TOTAL_MB", total);
+                    (itm->second)->vector_value("FREE_MB", free);
+                    (itm->second)->vector_value("USED_MB", used);
+
+                    ds->update_monitor(total, free, used);
+
+                    oss << "Datastore " << ds->get_name() <<
+                        " (" << ds->get_oid() << ") successfully monitored.";
+
+                    NebulaLog::log("ImM", Log::INFO, oss);
+                }
+                else
+                {
+                    non_shared_ds.insert(itm->first);
                 }
             }
+
+            ds->unlock();
         }
+
+        // ---------------------------------------------------------------------
+        // Parse Host information
+        // ---------------------------------------------------------------------
 
         host = hpool->get(id,true);
 
@@ -201,9 +233,7 @@ void InformationManagerDriver::protocol(const string& message) const
             goto error_host;
         }
 
-        rc = host->update_info(*hinfo, vm_poll, lost, found, non_shared_ds);
-
-        delete hinfo;
+        rc = host->update_info(tmpl, vm_poll, lost, found, non_shared_ds);
 
         hpool->update(host);
 

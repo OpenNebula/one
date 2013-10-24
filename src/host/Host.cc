@@ -179,84 +179,20 @@ error_common:
 
 int Host::extract_ds_info(
             string          &parse_str,
-            map<int,string> &ds)
+            Template        &tmpl,
+            map<int, const VectorAttribute*> &ds)
 {
     char *    error_msg;
-    Template  tmpl;
     int       rc;
 
-    VectorAttribute*             vatt;
-    vector<Attribute*>           ds_att;
-    vector<Attribute*>::iterator it;
+    const VectorAttribute *  vatt;
+    vector<const Attribute*> ds_att;
 
-    rc = tmpl.parse(parse_str, &error_msg);
+    vector<const Attribute*>::const_iterator it;
 
-    if ( rc != 0 )
-    {
-        // TODO
-        free(error_msg);
-        return -1;
-    }
-
-    tmpl.get("DS", ds_att);
-
-    for (it = ds_att.begin(); it != ds_att.end(); it++)
-    {
-        int dsid;
-
-        vatt = dynamic_cast<VectorAttribute*>(*it);
-
-        if (vatt == 0)
-        {
-            continue;
-        }
-
-        rc = vatt->vector_value("ID", dsid);
-
-        if (rc == 0 && dsid != -1)
-        {
-            string* s = vatt->to_xml();
-            string poll = *s;
-            delete s;
-
-            ds.insert(make_pair(dsid, poll));
-        }
-    }
-
-    return 0;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int Host::update_info(string          &parse_str,
-                      bool            &with_vm_info,
-                      set<int>        &lost,
-                      map<int,string> &found,
-                      const set<int>  &non_shared_ds)
-{
-    char *    error_msg;
-    Template  tmpl;
-
-    VectorAttribute*             vatt;
-    vector<Attribute*>::iterator it;
-    vector<Attribute*>           vm_att;
-    vector<Attribute*>           ds_att;
-    vector<Attribute*>           local_ds_att;
-
-    int         rc;
-    int         vmid;
-    long long   val;
-
-    ostringstream zombie;
-    ostringstream wild;
-
-    int num_zombies = 0;
-    int num_wilds   = 0;
-
-    // ---------------------------------------------------------------------- //
-    // Parse Template                                                         //
-    // ---------------------------------------------------------------------- //
+    // -------------------------------------------------------------------------
+    // Parse Template
+    // -------------------------------------------------------------------------
     rc = tmpl.parse(parse_str, &error_msg);
 
     if ( rc != 0 )
@@ -278,9 +214,63 @@ int Host::update_info(string          &parse_str,
         return -1;
     }
 
-    // ---------------------------------------------------------------------- //
-    // Remove expired information from current template                       //
-    // ---------------------------------------------------------------------- //
+    // -------------------------------------------------------------------------
+    // Get DS information
+    // -------------------------------------------------------------------------
+    tmpl.get("DS", ds_att);
+
+    for (it = ds_att.begin(); it != ds_att.end(); it++)
+    {
+        int dsid;
+
+        vatt = dynamic_cast<const VectorAttribute*>(*it);
+
+        if (vatt == 0)
+        {
+            continue;
+        }
+
+        rc = vatt->vector_value("ID", dsid);
+
+        if (rc == 0 && dsid != -1)
+        {
+            ds.insert(make_pair(dsid, vatt));
+        }
+    }
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Host::update_info(Template        &tmpl,
+                      bool            &with_vm_info,
+                      set<int>        &lost,
+                      map<int,string> &found,
+                      const set<int>  &non_shared_ds)
+{
+    VectorAttribute*             vatt;
+    vector<Attribute*>::iterator it;
+    vector<Attribute*>           vm_att;
+    vector<Attribute*>           ds_att;
+    vector<Attribute*>           local_ds_att;
+
+    int         rc;
+    int         vmid;
+    long long   val;
+
+    string error_st;
+
+    ostringstream zombie;
+    ostringstream wild;
+
+    int num_zombies = 0;
+    int num_wilds   = 0;
+
+    // -------------------------------------------------------------------------
+    // Remove expired information from current template
+    // -------------------------------------------------------------------------
     clear_template_error_message();
 
     remove_template_attribute("ZOMBIES");
@@ -294,20 +284,13 @@ int Host::update_info(string          &parse_str,
 
     remove_template_attribute("DS");
 
-    // ---------------------------------------------------------------------- //
-    // Copy new values                                                        //
-    // ---------------------------------------------------------------------- //
+    // -------------------------------------------------------------------------
+    // Copy monitor, extract share info & update last_monitored and state
+    // -------------------------------------------------------------------------
 
-    string error_st;
     obj_template->merge(&tmpl, error_st);
 
-    // Touch the host to update its last_monitored timestamp and state
-
     touch(true);
-
-    // ---------------------------------------------------------------------- //
-    // Extract share information                                              //
-    // ---------------------------------------------------------------------- //
 
     if (isEnabled())
     {
@@ -333,9 +316,9 @@ int Host::update_info(string          &parse_str,
         host_share.used_disk = val;
     }
 
-    // ---------------------------------------------------------------------- //
-    // Correlate VM information with the list of running VMs                  //
-    // ---------------------------------------------------------------------- //
+    // -------------------------------------------------------------------------
+    // Correlate VM information with the list of running VMs
+    // -------------------------------------------------------------------------
 
     erase_template_attribute("VM_POLL", with_vm_info);
 
@@ -396,9 +379,9 @@ int Host::update_info(string          &parse_str,
         add_template_attribute("ZOMBIES", zombie.str());
     }
 
-    // ---------------------------------------------------------------------- //
-    // Copy local system datastore monitorization                             //
-    // ---------------------------------------------------------------------- //
+    // -------------------------------------------------------------------------
+    // Copy system datastore monitorization (non_shared) to host share
+    // -------------------------------------------------------------------------
 
     obj_template->remove("DS", ds_att);
 
@@ -542,7 +525,7 @@ bool Host::isHybrid() const
     one_util::toupper(hypervisor);
 
     for(int i=0; i < NUM_HYBRID_HYPERVISORS; i++)
-    { 
+    {
         if(hypervisor==HYBRID_HYPERVISORS[i])
         {
             is_hybrid   = true;

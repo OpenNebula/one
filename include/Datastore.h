@@ -170,17 +170,6 @@ public:
         used_mb  = used;
     }
 
-    void process_poll(Template &monitor_data)
-    {
-        string err;
-
-        obj_template->merge(&monitor_data, err);
-
-        erase_template_attribute("TOTAL_MB", total_mb);
-        erase_template_attribute("FREE_MB", free_mb);
-        erase_template_attribute("USED_MB", used_mb);
-    };
-
     /**
      *  Returns the available capacity in the datastore.
      *    @params avail the total available size in the datastore (MB)

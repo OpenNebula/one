@@ -19,8 +19,6 @@
 #include "NebulaLog.h"
 #include "Nebula.h"
 
-#define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
-
 const char * Datastore::table = "datastore_pool";
 
 const char * Datastore::db_names =
@@ -80,9 +78,9 @@ int Datastore::disk_attribute(VectorAttribute * disk)
 
     oss << oid;
 
-    disk->replace("DATASTORE",      get_name());
-    disk->replace("DATASTORE_ID",   oss.str());
-    disk->replace("TM_MAD",         get_tm_mad());
+    disk->replace("DATASTORE",    get_name());
+    disk->replace("DATASTORE_ID", oss.str());
+    disk->replace("TM_MAD",       get_tm_mad());
 
     if ( get_cluster_id() != ClusterPool::NONE_CLUSTER_ID )
     {
@@ -106,8 +104,6 @@ int Datastore::disk_attribute(VectorAttribute * disk)
         disk->replace("LN_TARGET", st);
     }
 
-    // TODO: if _TARGET is empty, set defaults?
-
     return 0;
 }
 
@@ -124,7 +120,7 @@ Datastore::DatastoreType Datastore::str_to_type(string& str_type)
         return dst;
     }
 
-    TO_UPPER(str_type);
+    one_util::toupper(str_type);
 
     if ( str_type == "IMAGE_DS" )
     {
@@ -147,8 +143,9 @@ Datastore::DatastoreType Datastore::str_to_type(string& str_type)
 
 int Datastore::set_tm_mad(string &tm_mad, string &error_str)
 {
-    VectorAttribute* vatt;
-    int rc;
+    const VectorAttribute* vatt;
+
+    int    rc;
     string st;
 
     rc = Nebula::instance().get_tm_conf_attribute(tm_mad, vatt);
@@ -156,24 +153,55 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
     if (rc != 0)
     {
         ostringstream oss;
+
         oss << "TM_MAD named \"" << tm_mad << "\" is not defined in oned.conf";
+
         error_str = oss.str();
 
         return -1;
     }
 
-    // TODO: detect missing tm_mad conf?   if (st.empty()){}
     if (type == SYSTEM_DS)
     {
         st = vatt->vector_value("SHARED");
+
+        if (st.empty())
+        {
+            st = "YES";
+        }
+        else
+        {
+            one_util::toupper(st);
+        }
+
         replace_template_attribute("SHARED", st);
     }
     else
     {
         st = vatt->vector_value("LN_TARGET");
+
+        if (st.empty())
+        {
+            st = "NONE";
+        }
+        else
+        {
+            one_util::toupper(st);
+        }
+
         replace_template_attribute("LN_TARGET", st);
 
         st = vatt->vector_value("CLONE_TARGET");
+
+        if (st.empty())
+        {
+            st = "SYSTEM";
+        }
+        else
+        {
+            one_util::toupper(st);
+        }
+
         replace_template_attribute("CLONE_TARGET", st);
     }
 

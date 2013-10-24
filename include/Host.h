@@ -165,22 +165,23 @@ public:
      *    @param found VMs running in the host (as expected) and info.
      *    @return 0 on success
      **/
-    int update_info(string          &parse_str,
+    int update_info(Template        &tmpl,
                     bool            &with_vm_info,
                     set<int>        &lost,
                     map<int,string> &found,
                     const set<int>  &non_shared_ds);
-
     /**
      * Extracts the DS attributes from the given template
      * @param parse_str string with values to be parsed
      * @param ds map of DS monitoring information
+     * @param template object parsed from parse_str
      *
      * @return 0 on success
      */
-    static int extract_ds_info(
+    int extract_ds_info(
             string          &parse_str,
-            map<int,string> &ds);
+            Template        &tmpl,
+            map<int, const VectorAttribute*> &ds);
 
     /**
      * Update host after a failed monitor. It state
