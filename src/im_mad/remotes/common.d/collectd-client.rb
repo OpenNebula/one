@@ -36,8 +36,8 @@ class CollectdClient
         @port       = port
 
         # Monitorization slot
-        hosts_per_cycle = TOTAL_HOSTS / CYCLE
-        @my_slot        = (@number % TOTAL_HOSTS) / hosts_per_cycle
+        hosts_per_cycle = TOTAL_HOSTS.to_f / CYCLE.to_f
+        @my_slot = ((@number % TOTAL_HOSTS) / hosts_per_cycle).to_i
 
         # Probes
         run_probes_cmd = File.join(DIRNAME, '..', "run_probes")
