@@ -58,13 +58,15 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/ID \
                     /DS_DRIVER_ACTION_DATA/IMAGE/PATH \
-                    /DS_DRIVER_ACTION_DATA/IMAGE/TYPE)
+                    /DS_DRIVER_ACTION_DATA/IMAGE/TYPE \
+                    /DS_DRIVER_ACTION_DATA/IMAGE/CLONE_FSTYPE)
 
 BASE_PATH="${XPATH_ELEMENTS[j++]}"
 BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
 DS_ID="${XPATH_ELEMENTS[j++]}"
 SRC="${XPATH_ELEMENTS[j++]}"
 IMAGE_TYPE="${XPATH_ELEMENTS[j++]}"
+CLONE_FSTYPE="-d ${XPATH_ELEMENTS[j++]}"
 
 
 # ------------------------------------------------------------------------------
@@ -101,7 +103,7 @@ if ! is_cdrom; then
     exec_and_log "ssh_make_path $DST_HOST $DST" \
                  "Cannot create $DST in $DST_HOST"
 
-    ssh_exec_and_log $DST_HOST "$VMKFSTOOLS -i $SRC/disk.vmdk $DST/disk.vmdk" \
+    ssh_exec_and_log $DST_HOST "$VMKFSTOOLS $CLONE_FSTYPE -i $SRC/disk.vmdk $DST/disk.vmdk" \
                  "Error copying $SRC/disk.vmdk to $DST/disk.vmdk"
 else
     ssh_exec_and_log $DST_HOST "cp $SRC $DST" \
