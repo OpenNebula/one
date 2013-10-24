@@ -122,6 +122,11 @@ void InformationManagerDriver::protocol(const string& message) const
 
         getline (is, hinfo64);
 
+        if (hinfo64.empty())
+        {
+            return;
+        }
+
         hinfo = one_util::base64_decode(hinfo64);
 
         if (result != "SUCCESS")
