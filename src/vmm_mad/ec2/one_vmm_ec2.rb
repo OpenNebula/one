@@ -63,6 +63,9 @@ class EC2Driver < VirtualMachineDriver
                 "CLIENTTOKEN" => {
                     :opt => '--client-token'
                 },
+                "EBSOPTIMIZED" => {
+                    :opt => '--ebs-optimized'
+                },
                 "INSTANCETYPE" => {
                     :opt => '-t'
                 },
