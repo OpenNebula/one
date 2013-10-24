@@ -52,7 +52,7 @@ require 'OpenNebula/DocumentPool'
 module OpenNebula
 
     # OpenNebula version
-    VERSION = '3.8.4'
+    VERSION = '3.8.5'
 
     # The Error Class represents a generic error in the OpenNebula
     # library. It contains a readable representation of the error.
