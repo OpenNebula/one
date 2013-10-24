@@ -211,6 +211,8 @@ void InformationManagerDriver::protocol(const string& message) const
                         " (" << ds->get_oid() << ") successfully monitored.";
 
                     NebulaLog::log("ImM", Log::INFO, oss);
+
+                    dspool->update(ds);
                 }
                 else
                 {
