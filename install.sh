@@ -881,7 +881,8 @@ VMM_EXEC_EC2_SCRIPTS="src/vmm_mad/remotes/ec2/cancel \
 # Information Manager Probes, to be installed under $REMOTES_LOCATION/im
 #-------------------------------------------------------------------------------
 
-IM_PROBES_FILES="src/im_mad/remotes/run_probes"
+IM_PROBES_FILES="src/im_mad/remotes/run_probes \
+                 src/im_mad/remotes/stop_probes"
 
 IM_PROBES_KVM_FILES="src/im_mad/remotes/kvm.d/collectd-client_control.sh \
                      src/im_mad/remotes/kvm.d/collectd-client.rb"

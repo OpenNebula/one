@@ -16,7 +16,22 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+
+#--------------------------------------------------------------------------- #
+# Process Arguments
+#--------------------------------------------------------------------------- #
+
+ACTION="start"
+
+if [ "$1" = "stop" ]; then
+    shift
+    ACTION="stop"
+fi
+
 ARGV=$*
+
+#--------------------------------------------------------------------------- #
+#--------------------------------------------------------------------------- #
 
 # Directory that contains this file
 DIR=$(pwd)
@@ -35,9 +50,22 @@ function start_client() {
     nohup /usr/bin/env ruby $CLIENT $ARGV >/dev/null 2>&1 &
 }
 
+function stop_client() {
+    PID=$(get_pid)
+    kill $PID
+}
+
+function remove_pid_file() {
+    rm -f $CLIENT_PID_FILE
+}
+
 # Write the PID
 function write_pid() {
     echo $1 > $CLIENT_PID_FILE
+}
+
+function get_pid() {
+    cat $CLIENT_PID_FILE
 }
 
 # Check if running process
@@ -45,7 +73,7 @@ function check_running() {
     # Assume the process is not running if there is no pid file
     test ! -f $CLIENT_PID_FILE && return 1
 
-    PID=$(cat $CLIENT_PID_FILE)
+    PID=$(get_pid)
 
     if ps --no-headers -o command $PID 2>/dev/null | grep -q $BASENAME; then
         return 0
@@ -56,14 +84,29 @@ function check_running() {
     fi
 }
 
-if ! check_running; then
-    start_client
-    write_pid $!
-fi
 
-# This script returns the run_probes execution
-HYPERVISOR=$1
-shift
-set $HYPERVISOR-probes $@
+case $ACTION in
+start)
+    if ! check_running; then
+        start_client
+        write_pid $!
+    fi
 
-$DIR/../run_probes $@
+    # This script returns the run_probes execution
+    HYPERVISOR=$1
+    shift
+    set $HYPERVISOR-probes $@
+
+    $DIR/../run_probes $@
+
+    ;;
+
+stop)
+    if check_running; then
+        stop_client
+        remove_pid_file
+    fi
+    ;;
+esac
+
+

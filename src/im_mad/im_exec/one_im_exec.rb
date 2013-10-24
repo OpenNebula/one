@@ -49,6 +49,7 @@ class InformationManagerDriver < OpenNebulaDriver
 
         # register actions
         register_action(:MONITOR, method("action_monitor"))
+        register_action(:STOPMONITOR, method("stop_monitor"))
 
         # collectd port
         @collectd_port = 4124
@@ -83,6 +84,11 @@ class InformationManagerDriver < OpenNebulaDriver
 
         do_action("#{@hypervisor} #{ds_location} #{@collectd_port}", number, host,
                         :MONITOR, :script_name => 'run_probes', :base64 => true)
+    end
+
+    def stop_monitor(number, host)
+        do_action("#{@hypervisor}", number, host,
+                :STOPMONITOR, :script_name => 'stop_probes', :base64 => true)
     end
 end
 
