@@ -353,7 +353,20 @@ class VMwareDriver
 
     # Undefines a domain in the ESX hypervisor
     def undefine_domain(id)
-        rc, info = do_action("virsh -c #{@uri} undefine #{id}")
+        if @vcenter and !@vcenter.empty? and @datacenter and !@datacenter.empty?
+            undefine_uri = 
+                  "vpx://#{@vcenter}/#{@datacenter}/#{@host}/?no_verify=1"
+        else
+            undefine_uri = @uri
+        end
+
+        rc = false
+
+        30.times do
+            rc, info = do_action("virsh -c #{@undefine_uri} undefine #{id}")
+            break if rc
+            sleep 1
+        end
 
         if rc == false
             OpenNebula.log_error("Error undefining domain #{id}")
