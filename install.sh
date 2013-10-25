@@ -1165,7 +1165,7 @@ ONEDB_MIGRATOR_FILES="src/onedb/2.0_to_2.9.80.rb \
                       src/onedb/3.8.1_to_3.8.2.rb \
                       src/onedb/3.8.2_to_3.8.3.rb \
                       src/onedb/3.8.3_to_3.8.4.rb \
-		      src/onedb/3.8.4_to_3.8.5.rb \	
+                      src/onedb/3.8.4_to_3.8.5.rb \
                       src/onedb/3.8.5_to_3.9.80.rb \
                       src/onedb/3.9.80_to_3.9.90.rb \
                       src/onedb/3.9.90_to_4.0.0.rb \
