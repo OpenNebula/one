@@ -168,33 +168,64 @@ module EBS
     #   the new volume (unsupported).
     # @option params [String] AvailabilityZone The Availability Zone in which
     #   to create the new volume (unsupported)
+    # TODO: Availability zone
     def create_volume(params)
-        size = params['Size'].to_i # in GiBs
-        size *= 1024
+        snapshot_id = params['SnapshotId']
+        if snapshot_id
+            snapshot_id = snapshot_id.split('-')[1]
 
-        opts = {
-            :type => "DATABLOCK",
-            :size => size,
-            :fstype => @config[:ebs_fstype]||DEFAULT_FSTYPE,
-            :persistent => "YES",
-            :ebs => "YES"
-        }
+            snapshot = ImageEC2.new(Image.build_xml(snapshot_id.to_i), @client)
+            rc = snapshot.info
+            if OpenNebula::is_error?(rc) || !snapshot.ebs_snapshot?
+                rc ||= OpenNebula::Error.new()
+                rc.ec2_code = "InvalidSnapshot.NotFound"
+                return rc
+            end
 
-        image    = ImageEC2.new(Image.build_xml, @client, nil, opts)
-        template = image.to_one_template
+            # Clone
+            volume_id = snapshot.clone(ImageEC2.generate_uuid)
+            if OpenNebula::is_error?(volume_id)
+                return volume_id
+            end
 
-        if OpenNebula.is_error?(template)
-            return template
+            volume = ImageEC2.new(Image.build_xml(volume_id.to_i), @client)
+            rc = volume.info
+            if OpenNebula::is_error?(rc)
+                return rc
+            end
+
+            volume.delete_element("TEMPLATE/EBS_SNAPSHOT")
+            volume.add_element('TEMPLATE', {
+                "EBS_VOLUME" => "YES",
+                "EBS_FROM_SNAPSHOT_ID" => snapshot.ec2_id})
+            volume.update
+        else
+            size = params['Size'].to_i # in GiBs
+            size *= 1024
+
+            opts = {
+                :type => "DATABLOCK",
+                :size => size,
+                :fstype => @config[:ebs_fstype]||DEFAULT_FSTYPE,
+                :persistent => "YES",
+                :ebs_volume => "YES"
+            }
+
+            volume    = ImageEC2.new(Image.build_xml, @client, nil, opts)
+            template = volume.to_one_template
+
+            if OpenNebula.is_error?(template)
+                return template
+            end
+
+            rc = volume.allocate(template, @config[:datastore_id]||1)
+
+            if OpenNebula.is_error?(rc)
+                return rc
+            end
+
+            volume.info
         end
-
-        rc = image.allocate(template, @config[:datastore_id]||1)
-
-        if OpenNebula.is_error?(rc)
-            return rc
-        end
-
-        # Response
-        image.info
 
         erb_version = params['Version']
         response    = ERB.new(File.read(@config[:views]+"/create_volume.erb"))
@@ -237,4 +268,134 @@ module EBS
         return response.result(binding), 200
     end
 
+    # Creates a snapshot of an Amazon EBS volume
+    #
+    # @param [Hash] params
+    # @option params [String] VolumeId The ID of the Amazon EBS volume.
+    # @option params [String] Description A description for the snapshot.
+    def create_snapshot(params)
+        image_id = params['VolumeId']
+        image_id = image_id.split('-')[1]
+
+        image = ImageEC2.new(Image.build_xml(image_id.to_i), @client)
+        rc = image.info
+        if OpenNebula::is_error?(rc) || !image.ebs_volume?
+            rc ||= OpenNebula::Error.new()
+            rc.ec2_code = "InvalidVolume.NotFound"
+            return rc
+        end
+
+        instance_id = image["TEMPLATE/EBS/INSTANCE_ID"]
+
+        if instance_id
+            # Disk snapshot
+            instance_id = instance_id.split('-')[1]
+                vm = VirtualMachine.new(
+                    VirtualMachine.build_xml(instance_id),
+                    @client)
+
+                rc = vm.info
+                if OpenNebula::is_error?(rc)
+                    rc.ec2_code = "InvalidInstanceID.NotFound"
+                    return rc
+                end
+
+                disk_id = vm["TEMPLATE/DISK[IMAGE_ID=#{image_id}]/DISK_ID"]
+                if !disk_id.nil?
+                    snapshot_id = vm.disk_snapshot(disk_id.to_i,
+                        params["Description"]||ImageEC2.generate_uuid,
+                        OpenNebula::Image::IMAGE_TYPES[image["TYPE"].to_i],
+                        true)
+
+                    if OpenNebula::is_error?(snapshot_id)
+                        return snapshot_id
+                    end
+                end
+        end
+
+        if snapshot_id.nil?
+            # Clone
+            snapshot_id = image.clone(params["Description"]||ImageEC2.generate_uuid)
+            if OpenNebula::is_error?(snapshot_id)
+                return snapshot_id
+            end
+        end
+
+        snapshot = ImageEC2.new(Image.build_xml(snapshot_id.to_i), @client)
+        rc = snapshot.info
+        if OpenNebula::is_error?(rc)
+            return rc
+        end
+
+        snapshot.delete_element("TEMPLATE/EBS_VOLUME")
+        snapshot.add_element('TEMPLATE', {"EBS_SNAPSHOT" => "YES"})
+        snapshot.update
+
+        erb_version = params['Version']
+
+        response = ERB.new(File.read(@config[:views]+"/create_snapshot.erb"))
+        return response.result(binding), 200
+    end
+
+    # Deletes the specified snapshot.
+    #
+    # @param [Hash] params
+    # @option params [String] SnapshotId The ID of the Amazon EBS snapshot.
+    def delete_snapshot(params)
+        snapshot_id = params['SnapshotId']
+        snapshot_id = snapshot_id.split('-')[1]
+
+        snapshot = ImageEC2.new(Image.build_xml(snapshot_id.to_i), @client)
+        rc = snapshot.info
+        if OpenNebula::is_error?(rc) || !snapshot.ebs_snapshot?
+            rc ||= OpenNebula::Error.new()
+            rc.ec2_code = "InvalidSnapshot.NotFound"
+            return rc
+        end
+
+        rc = snapshot.delete
+        if OpenNebula::is_error?(rc)
+            return rc
+        end
+
+        erb_version = params['Version']
+
+        response = ERB.new(File.read(@config[:views]+"/delete_snapshot.erb"))
+        return response.result(binding), 200
+    end
+
+    def describe_snapshots(params)
+        impool = []
+        params.each { |key, value|
+            if key =~ /SnapshotId\./
+                if value =~ /snap\-(.+)/
+                    image = ImageEC2.new(Image.build_xml($1), @client)
+                    rc = image.info
+                    if OpenNebula.is_error?(rc) || !image.ebs_snapshot?
+                        rc.ec2_code = "InvalidSnapshot.NotFound"
+                        return rc
+                    else
+                        impool << image
+                    end
+                else
+                    rc = OpenNebula::Error.new("InvalidSnapshot.Malformed #{value}")
+                    rc.ec2_code = "InvalidSnapshot.Malformed"
+                    return rc
+                end
+            end
+        }
+
+        if impool.empty?
+            user_flag = OpenNebula::Pool::INFO_ALL
+            impool = ImageEC2Pool.new(@client, user_flag)
+
+            rc = impool.info
+            return rc if OpenNebula::is_error?(rc)
+        end
+
+        erb_version = params['Version']
+
+        response = ERB.new(File.read(@config[:views]+"/describe_snapshots.erb"))
+        return response.result(binding), 200
+    end
 end

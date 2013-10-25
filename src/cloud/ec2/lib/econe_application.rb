@@ -134,6 +134,20 @@ class EC2Application
             result,rc = econe_server.describe_regions(params)
         when 'DescribeAvailabilityZones'
             result,rc = econe_server.describe_availability_zones(params)
+        when 'CreateSnapshot'
+            result,rc = econe_server.create_snapshot(params)
+        when 'DeleteSnapshot'
+            result,rc = econe_server.delete_snapshot(params)
+        when 'DescribeSnapshots'
+            result,rc = econe_server.describe_snapshots(params)
+        when 'CreateTags'
+            result,rc = econe_server.create_tags(params)
+        when 'DeleteTags'
+            result,rc = econe_server.delete_tags(params)
+        when 'DescribeTags'
+            result,rc = econe_server.describe_tags(params)
+        #when 'CreateImage'
+        #    result,rc = econe_server.create_image(params)
         when 'CreateVolume'
             result,rc = econe_server.create_volume(params)
         when 'DescribeVolumes'

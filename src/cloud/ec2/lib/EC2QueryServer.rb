@@ -28,6 +28,7 @@ require 'ebs'
 require 'elastic_ip'
 require 'instance'
 require 'keypair'
+require 'tags'
 
 ################################################################################
 #  Extends the OpenNebula::Error class to include an EC2 render of error
@@ -126,20 +127,30 @@ class EC2QueryServer < CloudServer
         return response.result(binding), 200
     end
 
+    # TODO Kernel, Ramdisk, Arch, BlockDeviceMapping
     def register_image(params)
         # Get the Image ID
-        tmp, img=params['ImageLocation'].split('-')
+        image_id = params['ImageLocation']
+        image = ImageEC2.new(Image.build_xml(image_id.to_i), @client)
 
-        image = Image.new(Image.build_xml(img.to_i), @client)
-
-        # Enable the new Image
         rc = image.info
         if OpenNebula.is_error?(rc)
-            rc.ec2_code = "InvalidAMIID.NotFound"
             return rc
         end
 
-        image.enable
+        if image["EBS_VOLUME"] == "YES"
+            return OpenNebula::Error.new("The image you are trying to register"\
+                " is already a volume")
+        elsif image["EBS_SNAPSHOT"] == "YES"
+            return OpenNebula::Error.new("The image you are trying to register"\
+                " is already an snapshot")
+        end
+
+        image.add_element('TEMPLATE', {"EC2_AMI" => "YES"})
+        rc = image.update
+        if OpenNebula.is_error?(rc)
+            return rc
+        end
 
         erb_version = params['Version']
 
@@ -148,15 +159,75 @@ class EC2QueryServer < CloudServer
     end
 
     def describe_images(params)
-        user_flag = OpenNebula::Pool::INFO_ALL
-        impool = ImageEC2Pool.new(@client, user_flag)
+        impool = []
+        params.each { |key, value|
+            if key =~ /ImageId\./
+                if value =~ /ami\-(.+)/
+                    image = ImageEC2.new(Image.build_xml($1), @client)
+                    rc = image.info
+                    if OpenNebula.is_error?(rc) || !image.ec2_ami?
+                        rc ||= OpenNebula::Error.new()
+                        rc.ec2_code = "InvalidAMIID.NotFound"
+                        return rc
+                    else
+                        impool << image
+                    end
+                else
+                    rc = OpenNebula::Error.new("InvalidAMIID.Malformed #{value}")
+                    rc.ec2_code = "InvalidAMIID.Malformed"
+                    return rc
+                end
+            end
+        }
 
-        rc = impool.info
-        return rc if OpenNebula::is_error?(rc)
+        if impool.empty?
+            user_flag = OpenNebula::Pool::INFO_ALL
+            impool = ImageEC2Pool.new(@client, user_flag)
+
+            rc = impool.info
+            return rc if OpenNebula::is_error?(rc)
+        end
 
         erb_version = params['Version']
 
         response = ERB.new(File.read(@config[:views]+"/describe_images.erb"))
+        return response.result(binding), 200
+    end
+
+    # TODO: NoReboot = false, cleanly shut down the instance before image
+    #   creation and then reboots the instance.
+    # TODO: If you customized your instance with instance store volumes
+    #   or EBS volumes in addition to the root device volume, the
+    #   new AMI contains block device mapping information for those volumes
+    def create_image(params)
+        instance_id = params['InstanceId']
+        instance_id = instance_id.split('-')[1]
+
+        vm = VirtualMachine.new(
+                VirtualMachine.build_xml(instance_id),
+                @client)
+
+        rc = vm.info
+        if OpenNebula::is_error?(rc)
+            rc.ec2_code = "InvalidInstanceID.NotFound"
+            return rc
+        end
+
+        image_id = vm.disk_snapshot(1,
+                    params["Name"],
+                    OpenNebula::Image::IMAGE_TYPES[0],
+                    true)
+
+        # TODO Add AMI Tags
+        # TODO A new persistent image should be created for each instance
+
+        if OpenNebula::is_error?(image_id)
+            return image_id
+        end
+
+        erb_version = params['Version']
+
+        response = ERB.new(File.read(@config[:views]+"/create_image.erb"))
         return response.result(binding), 200
     end
 

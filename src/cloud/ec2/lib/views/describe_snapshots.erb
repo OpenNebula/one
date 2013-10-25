@@ -1,0 +1,23 @@
+<DescribeSnapshotsResponse xmlns="http://ec2.amazonaws.com/doc/2013-06-15/">
+   <requestId><%= @request_id %></requestId>
+   <snapshotSet>
+        <% impool.each do |im| %>
+        <% logger.debug(im.id) %>
+            <% if (state_image = im.render_state) && im.ebs_snapshot? %>
+      <item>
+         <snapshotId>snap-<%= sprintf('%08i', im.id) %></snapshotId>
+         <volumeId></volumeId>
+         <status><%= state_image %></status>
+         <startTime><%= im.render_create_time %></startTime>
+         <progress>100%</progress>
+         <ownerId><%= im["UNAME"] %></ownerId>
+         <volumeSize><%= im.render_size %></volumeSize>
+         <description><%= im["NAME"] %></description>
+         <tagSet></tagSet>
+      </item>
+            <% else
+                next
+            end
+        end %>
+   </snapshotSet>
+</DescribeSnapshotsResponse>

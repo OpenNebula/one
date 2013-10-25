@@ -44,7 +44,7 @@ class ImageEC2 < Image
     }
 
     ONE_IMAGE = %q{
-        NAME = "ec2-<%= uuid %>"
+        NAME = "<%= ImageEC2.generate_uuid %>"
         TYPE = <%= @image_info[:type] %>
         <% if @image_info[:size] != nil %>
         SIZE = "<%= @image_info[:size] %>"
@@ -55,7 +55,7 @@ class ImageEC2 < Image
         <% if @image_info[:persistent] != nil %>
         PERSISTENT = "YES"
         <% end %>
-        <% if @image_info[:ebs] != nil %>
+        <% if @image_info[:ebs_volume] != nil %>
         EBS_VOLUME = "YES"
         <% end %>
         <% if @image_file != nil %>
@@ -74,8 +74,6 @@ class ImageEC2 < Image
     end
 
     def to_one_template()
-        uuid = UUIDTools::UUID.random_create.to_s
-
         one = ERB.new(ONE_IMAGE)
         return one.result(binding)
     end
@@ -90,5 +88,41 @@ class ImageEC2 < Image
 
     def render_create_time
         Time.at(self["REGTIME"].to_i).xmlschema
+    end
+
+    def self.generate_uuid
+        "ec2-" + UUIDTools::UUID.random_create.to_s
+    end
+
+    def ebs_volume?
+        self["TEMPLATE/EBS_VOLUME"] == "YES"
+    end
+
+    def ec2_ami?
+        self["TEMPLATE/EC2_AMI"] == "YES"
+    end
+
+    def ebs_snapshot?
+        self["TEMPLATE/EBS_SNAPSHOT"] == "YES"
+    end
+
+    def ec2_id
+        if self.ebs_snapshot?
+            "snap-" + sprintf('%08i', self.id)
+        elsif self.ec2_ami?
+            "ami-" + sprintf('%08i', self.id)
+        elsif self.ebs_volume?
+            "vol-" + sprintf('%08i', self.id)
+        end
+    end
+
+    def resource_type
+        if self.ebs_snapshot?
+            "snapshot"
+        elsif self.ec2_ami?
+            "image"
+        elsif self.ebs_volume?
+            "volume"
+        end
     end
 end

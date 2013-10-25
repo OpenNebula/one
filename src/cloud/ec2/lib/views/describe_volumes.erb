@@ -3,11 +3,11 @@
    <requestId><%= @request_id %></requestId>
    <volumeSet>
         <% impool.each do |im| %>
-            <% if (state_image = im.render_state) && (im['TEMPLATE/EBS_VOLUME'] == 'YES') %>
+            <% if (state_image = im.render_state) && im.ebs_volume? %>
             <item>
                <volumeId>vol-<%= sprintf('%08i', im.id) %></volumeId>
                <size><%= im.render_size %></size>
-               <snapshotId/>
+               <snapshotId><%= im["TEMPLATE/EBS_FROM_SNAPSHOT_ID"] %></snapshotId>
                <availabilityZone/>
                <status><%= state_image %></status>
                <createTime><%= im.render_create_time %></createTime>

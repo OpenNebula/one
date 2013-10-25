@@ -12,6 +12,7 @@
       </groupSet>
       <instancesSet>
         <% vmpool.each do |vm| %>
+        <% if include_terminated_instance?(vm) %>
         <item>
           <%= render_instance_id(vm) %>
           <imageId><%= vm['USER_TEMPLATE/IMAGE_ID'] %></imageId>
@@ -44,6 +45,7 @@
           </monitoring>
 
         </item>
+        <% end %>
         <% end %>
       </instancesSet>
     </item>

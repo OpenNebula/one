@@ -3,7 +3,7 @@
    <requestId><%= @request_id %></requestId>
     <imagesSet>
         <% impool.each do |im| %>
-            <% if (state_image = im.render_state) && (im['TEMPLATE/EBS_VOLUME'] != 'YES') %>
+            <% if (state_image = im.render_state) && im.ec2_ami? %>
             <item>
                 <name><%= im['NAME'] %></name>
                 <% if im['TEMPLATE/DESCRIPTION'] %>
@@ -12,7 +12,7 @@
                 <% if im['TEMPLATE/PLATFORM'] %>
                 <platform><%= im['TEMPLATE/PLATFORM'] %></platform>
                 <% end %>
-                <imageId>ami-<%= sprintf('%08i', im.id) %></imageId>
+                <imageId><%= im.ec2_id %></imageId>
                 <imageLocation><%= im['SOURCE'].split('/').last %></imageLocation>
                 <imageState><%= state_image %></imageState>
                 <imageOwnerId><%= im['UNAME'] %></imageOwnerId>
