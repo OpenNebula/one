@@ -278,6 +278,16 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         puts str % ["RUNNING VMS", host['HOST_SHARE/RUNNING_VMS']]
         puts
 
+        datastores = [host.to_hash['HOST']['HOST_SHARE']['DATASTORES']['DS']].flatten
+
+        datastores.each do |datastore|
+            CLIHelper.print_header(str_h1 % "LOCAL SYSTEM DATASTORE ##{datastore['ID']} CAPACITY", false)
+            puts str % ["TOTAL:", OpenNebulaHelper.unit_to_str(datastore['TOTAL_MB'].to_i, {},'M')]
+            puts str % ["USED: ", OpenNebulaHelper.unit_to_str(datastore['USED_MB'].to_i, {},'M')]
+            puts str % ["FREE:",  OpenNebulaHelper.unit_to_str(datastore['FREE_MB'].to_i, {},'M')]
+            puts
+        end
+
         CLIHelper.print_header(str_h1 % "MONITORING INFORMATION", false)
 
         puts host.template_str
