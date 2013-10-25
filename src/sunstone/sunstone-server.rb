@@ -202,7 +202,7 @@ helpers do
             #end user options
 
             if params[:remember] == "true"
-                env['rack.session.options'][:expire_after] = 30*60*60*24
+                env['rack.session.options'][:expire_after] = 30*60*60*24-1
             end
 
             return [204, ""]
