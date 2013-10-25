@@ -2194,7 +2194,7 @@ error_common:
 /* MAD Loading                                                                */
 /* ************************************************************************** */
 
-void VirtualMachineManager::load_mads(int uid)
+int VirtualMachineManager::load_mads(int uid)
 {
     unsigned int                    i;
     ostringstream                   oss;
@@ -2263,5 +2263,11 @@ void VirtualMachineManager::load_mads(int uid)
 
             NebulaLog::log("VMM",Log::INFO,oss);
         }
+        else
+        {
+            return rc;
+        }
     }
+
+    return 0;
 }

@@ -52,7 +52,7 @@ extern "C" void * im_action_loop(void *arg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void InformationManager::load_mads(int uid)
+int InformationManager::load_mads(int uid)
 {
     InformationManagerDriver *  im_mad;
     unsigned int                i;
@@ -82,7 +82,13 @@ void InformationManager::load_mads(int uid)
 
             NebulaLog::log("InM",Log::INFO,oss);
         }
+        else
+        {
+            return -1;
+        }
     }
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */

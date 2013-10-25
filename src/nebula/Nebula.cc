@@ -874,18 +874,41 @@ void Nebula::start(bool bootstrap_only)
     // Load mads
     // -----------------------------------------------------------
 
-    sleep(2);
+    sleep(1);
 
-    vmm->load_mads(0);
+    rc = 0;
 
-    im->load_mads(0);
-    tm->load_mads(0);
-    hm->load_mads(0);
-    imagem->load_mads(0);
+    if (vmm->load_mads(0) != 0)
+    {
+        goto error_mad;
+    }
+
+    if (im->load_mads(0) != 0)
+    {
+        goto error_mad;
+    }
+
+    if (tm->load_mads(0) != 0)
+    {
+        goto error_mad;
+    }
+
+    if (hm->load_mads(0) != 0)
+    {
+        goto error_mad;
+    }
+
+    if (imagem->load_mads(0) != 0)
+    {
+        goto error_mad;
+    }
 
     if ( authm != 0 )
     {
-        authm->load_mads(0);
+        if (authm->load_mads(0) != 0)
+        {
+            goto error_mad;
+        }
     }
 
     // ---- Request Manager ----
@@ -964,5 +987,9 @@ void Nebula::start(bool bootstrap_only)
     xmlCleanupParser();
 
     NebulaLog::log("ONE", Log::INFO, "All modules finalized, exiting.\n");
+
+error_mad:
+    NebulaLog::log("ONE", Log::ERROR, "Could not load driver");
+    throw runtime_error("Could not load an OpenNebula driver");
 }
 

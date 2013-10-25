@@ -69,7 +69,7 @@ public:
     /**
      *
      */
-    void load_mads(int uid=0);
+    int load_mads(int uid=0);
 
     /**
      *

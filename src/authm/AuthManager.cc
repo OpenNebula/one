@@ -314,7 +314,7 @@ error:
 /* MAD Loading                                                                */
 /* ************************************************************************** */
 
-void AuthManager::load_mads(int uid)
+int AuthManager::load_mads(int uid)
 {
     ostringstream                   oss;
     const VectorAttribute *         vattr = 0;
@@ -334,7 +334,7 @@ void AuthManager::load_mads(int uid)
     if ( vattr == 0 )
     {
         NebulaLog::log("AuM",Log::ERROR,"Failed to load Auth. Manager driver.");
-        return;
+        return -1;
     }
 
     VectorAttribute auth_conf("AUTH_MAD",vattr->value());
@@ -375,4 +375,6 @@ void AuthManager::load_mads(int uid)
 
         NebulaLog::log("AuM",Log::INFO,oss);
     }
+
+    return rc;
 }
