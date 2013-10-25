@@ -160,6 +160,8 @@ public:
         }
     };
 
+    int drop(int hid, string& error_msg);
+
     int drop(PoolObjectSQL * objsql, string& error_msg)
     {
         Host * host = static_cast<Host *>(objsql);

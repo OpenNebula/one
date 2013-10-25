@@ -50,7 +50,7 @@ protected:
 
     bool delete_authorization(int                           oid,
                               RequestAttributes&            att);
-                              
+
     /* -------------------------------------------------------------------- */
 
     virtual int drop(int oid, PoolObjectSQL * object, string& error_msg);
@@ -98,7 +98,7 @@ public:
     VirtualNetworkDelete():
         RequestManagerDelete("VirtualNetworkDelete",
                              "Deletes a virtual network")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();
         auth_object = PoolObjectSQL::NET;
@@ -127,7 +127,7 @@ class ImageDelete: public RequestManagerDelete
 public:
     ImageDelete():
         RequestManagerDelete("ImageDelete", "Deletes an image")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_ipool();
         auth_object = PoolObjectSQL::IMAGE;
@@ -149,7 +149,7 @@ class HostDelete : public RequestManagerDelete
 public:
     HostDelete():
         RequestManagerDelete("HostDelete", "Deletes a host")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_hpool();
         auth_object = PoolObjectSQL::HOST;
@@ -169,6 +169,10 @@ public:
     {
         return cluster->del_host(id, error_msg);
     };
+
+    /* -------------------------------------------------------------------- */
+
+    int drop(int oid, PoolObjectSQL * object, string& error_msg);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -179,7 +183,7 @@ class GroupDelete: public RequestManagerDelete
 public:
     GroupDelete():
         RequestManagerDelete("GroupDelete", "Deletes a group")
-    {    
+    {
         Nebula& nd = Nebula::instance();
         pool       = nd.get_gpool();
 
@@ -202,7 +206,7 @@ class UserDelete: public RequestManagerDelete
 public:
     UserDelete():
         RequestManagerDelete("UserDelete", "Deletes a user")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_upool();
         gpool       = nd.get_gpool();

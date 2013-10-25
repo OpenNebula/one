@@ -49,6 +49,21 @@ public:
 
     ~InformationManager(){};
 
+    enum Actions
+    {
+        STOPMONITOR /** Sent by the RM when a host is deleted **/
+    };
+
+    /**
+     *  Triggers specific actions to the Information Manager.
+     *    @param action the IM action
+     *    @param hid Host unique id. This is the argument of the passed to the
+     *    invoked action.
+     */
+    void trigger(
+        Actions action,
+        int     vid);
+
     /**
      *  This functions starts the associated listener thread, and creates a
      *  new thread for the Information Manager. This thread will wait in
@@ -78,6 +93,8 @@ public:
     {
         am.trigger(ACTION_FINALIZE,0);
     };
+
+    void stop_monitor(int hid);
 
 private:
     /**

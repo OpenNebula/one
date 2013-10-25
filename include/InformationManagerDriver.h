@@ -57,7 +57,7 @@ public:
      */
     void recover();
 
-	/**
+    /**
      *  Sends a monitor request to the MAD: "MONITOR  ID  HOSTNAME -"
      *    @param oid the virtual machine id.
      *    @param host the hostname
@@ -66,6 +66,13 @@ public:
      */
     void monitor(int oid, const string& host, const string& ds_location,
         bool update) const;
+
+    /**
+     *  Sends a stop monitor request to the MAD: "MONITOR  ID  HOSTNAME -"
+     *    @param oid the virtual machine id.
+     *    @param host the hostname
+     */
+    void stop_monitor(int oid, const string& host) const;
 
 private:
     /**

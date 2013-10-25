@@ -51,6 +51,15 @@ void InformationManagerDriver::monitor(int           oid,
     write(os);
 }
 
+void InformationManagerDriver::stop_monitor(int oid, const string& host) const
+{
+    ostringstream os;
+
+    os << "STOPMONITOR " << oid << " " << host << " " << endl;
+
+    write(os);
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -281,7 +290,34 @@ void InformationManagerDriver::protocol(const string& message) const
         getline(is,info);
         NebulaLog::log("InM",log_type(result[0]),info.c_str());
     }
+    else if (action == "STOPMONITOR")
+    {
+        if (result != "SUCCESS")
+        {
+            host = hpool->get(id,true);
 
+            if ( host == 0 )
+            {
+                goto error_host;
+            }
+
+            host->set_error();
+            hpool->update(host);
+            host->unlock();
+        }
+        else
+        {
+            string error_message;
+            int rc = hpool->drop(id, error_message);
+
+            if (rc != 0)
+            {
+                ostringstream oss;
+                oss << "Could not delete host " << id << " " << error_message;
+                NebulaLog::log("InM",Log::ERROR,oss.str());
+            }
+        }
+    }
     return;
 
 error_host:

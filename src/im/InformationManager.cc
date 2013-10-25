@@ -119,6 +119,29 @@ int InformationManager::start()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void InformationManager::trigger(Actions action, int _hid)
+{
+    int *   hid;
+    string  aname;
+
+    hid = new int(_hid);
+
+    switch (action)
+    {
+    case STOPMONITOR:
+        aname = "STOPMONITOR";
+        break;
+
+    default:
+        return;
+    }
+
+    am.trigger(aname,hid);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void InformationManager::do_action(const string &action, void * arg)
 {
     if (action == ACTION_TIMER)
@@ -131,6 +154,13 @@ void InformationManager::do_action(const string &action, void * arg)
 
         MadManager::stop();
     }
+    else if (action == "STOPMONITOR")
+    {
+        int hid  = *(static_cast<int *>(arg));
+        delete static_cast<int *>(arg);
+
+        stop_monitor(hid);
+    }
     else
     {
         ostringstream oss;
@@ -138,6 +168,44 @@ void InformationManager::do_action(const string &action, void * arg)
 
         NebulaLog::log("InM", Log::ERROR, oss);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void InformationManager::stop_monitor(int hid)
+{
+    Host * host;
+
+    const InformationManagerDriver * imd;
+
+    ostringstream   oss;
+
+    host = hpool->get(hid,true);
+
+    if (host == 0)
+    {
+        oss.str("");
+        oss << "Could get host " << hid;
+        NebulaLog::log("InM",Log::ERROR,oss);
+        return;
+    }
+
+    imd = get(host->get_im_mad());
+
+    if (imd == 0)
+    {
+        oss.str("");
+        oss << "Could not find information driver " << host->get_im_mad();
+        NebulaLog::log("InM",Log::ERROR,oss);
+
+        host->unlock();
+        return;
+    }
+
+    imd->stop_monitor(hid, host->get_name());
+
+    host->unlock();
 }
 
 /* -------------------------------------------------------------------------- */
