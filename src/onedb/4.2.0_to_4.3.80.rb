@@ -123,6 +123,57 @@ module Migrator
 
         @db.run "DROP TABLE old_datastore_pool;"
 
+        ########################################################################
+        # Feature #2392
+        ########################################################################
+
+        @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
+        @db.run "CREATE TABLE vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
+
+        @db.fetch("SELECT * FROM old_vm_pool") do |row|
+            doc = REXML::Document.new(row[:body])
+
+            doc.root.each_element("HISTORY_RECORDS/HISTORY") do |e|
+                update_history(e)
+            end
+
+            @db[:vm_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => row[:uid],
+                :gid        => row[:gid],
+                :last_poll  => row[:last_poll],
+                :state      => row[:state],
+                :lcm_state  => row[:lcm_state],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        @db.run "DROP TABLE old_vm_pool;"
+
+        @db.run "ALTER TABLE history RENAME TO old_history;"
+        @db.run "CREATE TABLE history (vid INTEGER, seq INTEGER, body MEDIUMTEXT, stime INTEGER, etime INTEGER,PRIMARY KEY(vid,seq));"
+
+        @db.fetch("SELECT * FROM old_history") do |row|
+            doc = REXML::Document.new(row[:body])
+
+            doc.root.each_element("/HISTORY") do |e|
+                update_history(e)
+            end
+
+            @db[:history].insert(
+                :vid    => row[:vid],
+                :seq    => row[:seq],
+                :body   => doc.root.to_s,
+                :stime  => row[:stime],
+                :etime  => row[:etime])
+        end
+
+        @db.run "DROP TABLE old_history;"
+
+
         return true
     end
 
@@ -199,6 +250,25 @@ module Migrator
 
             vm_elem.add_element("VOLATILE_SIZE").text = vol_limit
             vm_elem.add_element("VOLATILE_SIZE_USED").text = sprintf('%.2f', vol_used)
+        end
+    end
+
+    def update_history(history_elem)
+        hid = nil
+
+        history_elem.each_element("HID") do |e|
+            hid = e.text
+        end
+
+        new_elem = history_elem.add_element("CID")
+        new_elem.text = "-1" # Cluster None
+
+        if hid.nil?
+            return
+        end
+
+        @db.fetch("SELECT cid FROM host_pool WHERE oid = #{hid}") do |row|
+            new_elem.text = row[:cid].to_s
         end
     end
 
