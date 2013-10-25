@@ -250,49 +250,6 @@ build_scripts=[
     'src/im_mad/collectd/SConstruct'
 ]
 
-# Testing
-testing=ARGUMENTS.get('tests', 'no')
-
-if testing=='yes':
-    main_env.Append(testing='yes')
-
-    main_env.ParseConfig('cppunit-config --cflags --libs')
-
-    main_env.Append(CPPPATH=[
-        cwd+'/include/test',
-        '/usr/include/cppunit/' #not provided by cppunit-config command
-    ])
-
-    main_env.Append(LIBPATH=[
-        cwd+'/src/test',
-    ])
-
-    main_env.Append(LIBS=[
-        'nebula_test_common',
-    ])
-
-    build_scripts.extend([
-        'src/authm/test/SConstruct',
-        'src/common/test/SConstruct',
-        'src/host/test/SConstruct',
-        'src/cluster/test/SConstruct',
-        'src/datastore/test/SConstruct',
-        'src/group/test/SConstruct',
-        'src/image/test/SConstruct',
-        'src/lcm/test/SConstruct',
-        'src/pool/test/SConstruct',
-        'src/template/test/SConstruct',
-        'src/test/SConstruct',
-        'src/um/test/SConstruct',
-        'src/vm/test/SConstruct',
-        'src/vnm/test/SConstruct',
-        'src/xml/test/SConstruct',
-        'src/vm_template/test/SConstruct',
-    ])
-else:
-    main_env.Append(testing='no')
-
-
 for script in build_scripts:
     env=main_env.Clone()
     SConscript(script, exports='env')

@@ -43,11 +43,6 @@ build_scripts=[
     'src/sched/SConstruct'
 ]
 
-if env['testing']=='yes':
-    build_scripts.extend([
-        'src/pool/test/SConstruct',
-    ])
-
 for script in build_scripts:
     sched_env=env.Clone()
     SConscript(script, exports='sched_env')
