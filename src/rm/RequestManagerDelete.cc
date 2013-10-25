@@ -146,19 +146,10 @@ int RequestManagerDelete::drop(
 
 int HostDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 {
-    Nebula&         nd       = Nebula::instance();
+    Nebula& nd = Nebula::instance();
+    InformationManager * im = nd.get_im();
 
-
-    InformationManager *  im = nd.get_im();
-    HostPool * hpool         = nd.get_hpool();
-
-    Host * host = static_cast<Host *>(object);
-
-    host->disable();
-    hpool->update(host);
-    host->unlock();
-
-    im->trigger(InformationManager::STOPMONITOR,oid);
+    im->trigger(InformationManager::STOPMONITOR, oid);
 
     return 0;
 }

@@ -235,10 +235,8 @@ error_common:
 
 int HostPool::drop(int hid, string& error_msg)
 {
-    Nebula&         nd     = Nebula::instance();
 
     Host * host;
-    ClusterPool * clpool;
 
     host = get(hid,true);
 
@@ -250,8 +248,6 @@ int HostPool::drop(int hid, string& error_msg)
         return -1;
     }
 
-    clpool = nd.get_clpool();
-
     int cluster_id = host->get_cluster_id();
 
     int rc = drop(host, error_msg);
@@ -260,7 +256,10 @@ int HostPool::drop(int hid, string& error_msg)
 
     if ( cluster_id != ClusterPool::NONE_CLUSTER_ID && rc == 0 )
     {
-        Cluster * cluster = clpool->get(cluster_id, true);
+        Nebula& nd = Nebula::instance();
+
+        ClusterPool * clpool = nd.get_clpool();
+        Cluster * cluster    = clpool->get(cluster_id, true);
 
         if( cluster != 0 )
         {
@@ -280,7 +279,6 @@ int HostPool::drop(int hid, string& error_msg)
 
     return rc;
 }
-
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

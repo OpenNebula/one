@@ -133,6 +133,7 @@ void InformationManager::trigger(Actions action, int _hid)
         break;
 
     default:
+        delete hid;
         return;
     }
 
@@ -183,11 +184,8 @@ void InformationManager::stop_monitor(int hid)
 
     host = hpool->get(hid,true);
 
-    if (host == 0)
+    if (host == 0) //Already deleted silently return
     {
-        oss.str("");
-        oss << "Could get host " << hid;
-        NebulaLog::log("InM",Log::ERROR,oss);
         return;
     }
 
@@ -203,7 +201,11 @@ void InformationManager::stop_monitor(int hid)
         return;
     }
 
+    host->disable();
+
     imd->stop_monitor(hid, host->get_name());
+
+    hpool->update(host);
 
     host->unlock();
 }

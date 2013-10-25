@@ -292,32 +292,40 @@ void InformationManagerDriver::protocol(const string& message) const
     }
     else if (action == "STOPMONITOR")
     {
+        int    rc;
+        string error;
+
+        host = hpool->get(id,true);
+
+        if ( host == 0 )
+        {
+            goto error_host;
+        }
+
         if (result != "SUCCESS")
         {
-            host = hpool->get(id,true);
+            ostringstream oss;
+            string info;
 
-            if ( host == 0 )
-            {
-                goto error_host;
-            }
+            getline (is, info);
 
-            host->set_error();
-            hpool->update(host);
-            host->unlock();
+            oss << "Could not stop monitor on host " << id << " " << info;
+            NebulaLog::log("InM", Log::ERROR, oss.str());
         }
-        else
-        {
-            string error_message;
-            int rc = hpool->drop(id, error_message);
 
-            if (rc != 0)
-            {
-                ostringstream oss;
-                oss << "Could not delete host " << id << " " << error_message;
-                NebulaLog::log("InM",Log::ERROR,oss.str());
-            }
+        rc = hpool->drop(id, error);
+
+        host->unlock();
+
+        if (rc != 0)
+        {
+            ostringstream oss;
+
+            oss << "Could not delete host " << id << " " << error;
+            NebulaLog::log("InM",Log::ERROR,oss.str());
         }
     }
+
     return;
 
 error_host:
