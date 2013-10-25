@@ -116,8 +116,8 @@ protected:
 
     VirtualMachinePoolXML *       vmpool;
     VirtualMachineActionsPoolXML* vmapool;
-    DatastorePoolXML * dspool;
-    DatastorePoolXML * img_dspool;
+    SystemDatastorePoolXML * dspool;
+    ImageDatastorePoolXML * img_dspool;
 
     AclXML * acls;
 

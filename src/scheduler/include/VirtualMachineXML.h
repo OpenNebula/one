@@ -26,6 +26,8 @@
 
 #include "VirtualMachineTemplate.h"
 
+class ImageDatastorePoolXML;
+
 using namespace std;
 
 class VirtualMachineXML : public ObjectXML
@@ -195,13 +197,13 @@ public:
      *    @param img_datastores Image Datastores
      *    @return true if the Image Datastores can host the VM
      */
-    bool test_image_datastore_capacity(const map<int, ObjectXML*> &img_datastores);
+    bool test_image_datastore_capacity(ImageDatastorePoolXML * img_dspool);
 
     /**
      *  Adds the VM disk requirements to each Image Datastore counter
      *    @param img_datastores Image Datastores
      */
-    void add_image_datastore_capacity(const map<int, ObjectXML*> &img_datastores);
+    void add_image_datastore_capacity(ImageDatastorePoolXML * img_dspool);
 
     //--------------------------------------------------------------------------
     // Action Interface

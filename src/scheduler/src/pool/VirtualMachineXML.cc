@@ -18,6 +18,7 @@
 
 #include "VirtualMachineXML.h"
 #include "DatastoreXML.h"
+#include "DatastorePoolXML.h"
 #include "NebulaUtil.h"
 
 void VirtualMachineXML::init_attributes()
@@ -310,7 +311,6 @@ void VirtualMachineXML::init_storage_usage()
 
         if (disk->vector_value("SIZE", size) != 0)
         {
-            // TODO: report error?
             continue;
         }
 
@@ -322,7 +322,6 @@ void VirtualMachineXML::init_storage_usage()
         {
             if (disk->vector_value("DATASTORE_ID", ds_id) != 0)
             {
-                // TODO: report error?
                 continue;
             }
 
@@ -345,7 +344,8 @@ void VirtualMachineXML::init_storage_usage()
                 st = disk->vector_value("LN_TARGET");
             }
 
-            // TODO: define constants or enum in Datastore.h ?
+            one_util::toupper(st);
+
             if (st == "SELF")
             {
                 ds_usage[ds_id] += size;
@@ -408,47 +408,41 @@ int VirtualMachineXML::parse_action_name(string& action_st)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachineXML::test_image_datastore_capacity(const map<int, ObjectXML*> &img_datastores)
+bool VirtualMachineXML::test_image_datastore_capacity(
+    ImageDatastorePoolXML * img_dspool)
 {
-    map<int, ObjectXML*>::const_iterator  ds_it;
-    map<int,long long>::const_iterator    ds_usage_it;
-
-    ostringstream oss;
+    map<int,long long>::const_iterator ds_usage_it;
     DatastoreXML* ds;
 
     for (ds_usage_it = ds_usage.begin(); ds_usage_it != ds_usage.end(); ds_usage_it++)
     {
-        ds_it = img_datastores.find( ds_usage_it->first );
+        ds = img_dspool->get(ds_usage_it->first);
 
-        if (ds_it == img_datastores.end())
+        if (ds == 0) //Should never reach here
         {
-            oss << "VM " << oid
-                << ": Image Datastore " << ds_usage_it->first
-                << " is unknown for the Scheduler.";
+            ostringstream oss;
 
-            break;
+            oss << "Image Datastore " << ds_usage_it->first << " not found.";
+
+            NebulaLog::log("SCHED",Log::INFO,oss);
+
+            return false;
         }
-
-        ds = static_cast<DatastoreXML *>( ds_it->second );
 
         if (!ds->test_capacity(ds_usage_it->second))
         {
+            ostringstream oss;
+
             oss << "VM " << oid
                 << ": Image Datastore " << ds_usage_it->first
                 << " does not have enough free storage.";
 
-            break;
+            NebulaLog::log("SCHED",Log::INFO,oss);
+
+            log(oss.str());
+
+            return false;
         }
-    }
-
-    if (ds_usage_it != ds_usage.end())
-    {
-        NebulaLog::log("SCHED",Log::INFO,oss);
-
-        // TODO: log into VM template?
-//        log(oss.str());
-
-        return false;
     }
 
     return true;
@@ -458,24 +452,20 @@ bool VirtualMachineXML::test_image_datastore_capacity(const map<int, ObjectXML*>
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineXML::add_image_datastore_capacity(
-        const map<int, ObjectXML*> &img_datastores)
+        ImageDatastorePoolXML * img_dspool)
 {
-    map<int, ObjectXML*>::const_iterator  ds_it;
-    map<int,long long>::const_iterator    ds_usage_it;
+    map<int,long long>::const_iterator ds_usage_it;
 
     DatastoreXML *ds;
 
     for (ds_usage_it = ds_usage.begin(); ds_usage_it != ds_usage.end(); ds_usage_it++)
     {
-        ds_it = img_datastores.find( ds_usage_it->first );
+        ds = img_dspool->get(ds_usage_it->first);
 
-        if (ds_it == img_datastores.end())
+        if (ds == 0) //Should never reach here
         {
-            // TODO log error?
             continue;
         }
-
-        ds = static_cast<DatastoreXML *>( ds_it->second );
 
         ds->add_capacity(ds_usage_it->second);
     }

@@ -210,14 +210,14 @@ void Scheduler::start()
 
     hpool  = new HostPoolXML(client, hypervisor_mem);
     clpool = new ClusterPoolXML(client);
-    vmpool = new VirtualMachinePoolXML(client,
-                                       machines_limit,
-                                       (live_rescheds == 1));
-    vmapool= new VirtualMachineActionsPoolXML(client, machines_limit);
-    dspool = new SystemDatastorePoolXML(client);
+    vmpool = new VirtualMachinePoolXML(client,machines_limit,(live_rescheds==1));
+
+    vmapool = new VirtualMachineActionsPoolXML(client, machines_limit);
+
+    dspool     = new SystemDatastorePoolXML(client);
     img_dspool = new ImageDatastorePoolXML(client);
 
-    acls   = new AclXML(client);
+    acls = new AclXML(client);
 
     // -----------------------------------------------------------
     // Load scheduler policies
@@ -414,7 +414,6 @@ void Scheduler::match_schedule()
     const map<int, ObjectXML*> pending_vms      = vmpool->get_objects();
     const map<int, ObjectXML*> hosts            = hpool->get_objects();
     const map<int, ObjectXML*> datastores       = dspool->get_objects();
-    const map<int, ObjectXML*> img_datastores   = img_dspool->get_objects();
 
     for (vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++)
     {
@@ -438,7 +437,7 @@ void Scheduler::match_schedule()
         //--------------------------------------------------------------
         if (!vm->is_resched())
         {
-            if (vm->test_image_datastore_capacity(img_datastores) == false)
+            if (vm->test_image_datastore_capacity(img_dspool) == false)
             {
                 continue;
             }
@@ -778,8 +777,7 @@ void Scheduler::dispatch()
 
     vector<Resource *>::const_reverse_iterator i, j;
 
-    const map<int, ObjectXML*> pending_vms      = vmpool->get_objects();
-    const map<int, ObjectXML*> img_datastores   = img_dspool->get_objects();
+    const map<int, ObjectXML*> pending_vms = vmpool->get_objects();
 
     //--------------------------------------------------------------------------
     // Print the VMs to schedule and the selected hosts for each one
@@ -816,7 +814,7 @@ void Scheduler::dispatch()
 
         if (!resources.empty() && !vm->is_resched())
         {
-            if (vm->test_image_datastore_capacity(img_datastores) == false)
+            if (vm->test_image_datastore_capacity(img_dspool) == false)
             {
                 continue;
             }
@@ -955,7 +953,7 @@ void Scheduler::dispatch()
                     host->add_ds_capacity(ds->get_oid(), dsk);
                 }
 
-                vm->add_image_datastore_capacity(img_datastores);
+                vm->add_image_datastore_capacity(img_dspool);
             }
 
             host->add_capacity(cpu,mem);

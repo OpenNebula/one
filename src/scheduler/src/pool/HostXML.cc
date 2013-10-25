@@ -40,30 +40,28 @@ void HostXML::init_attributes()
     oid         = atoi(((*this)["/HOST/ID"] )[0].c_str() );
     cluster_id  = atoi(((*this)["/HOST/CLUSTER_ID"] )[0].c_str() );
 
-//    disk_usage  = atoll(((*this)["/HOST/HOST_SHARE/DISK_USAGE"])[0].c_str());
     mem_usage   = atoll(((*this)["/HOST/HOST_SHARE/MEM_USAGE"])[0].c_str());
     cpu_usage   = atoll(((*this)["/HOST/HOST_SHARE/CPU_USAGE"])[0].c_str());
 
-//    max_disk    = atoll(((*this)["/HOST/HOST_SHARE/MAX_DISK"])[0].c_str());
     max_mem     = atoll(((*this)["/HOST/HOST_SHARE/MAX_MEM"])[0].c_str());
     max_cpu     = atoll(((*this)["/HOST/HOST_SHARE/MAX_CPU"])[0].c_str());
 
-    free_disk    = atoll(((*this)["/HOST/HOST_SHARE/FREE_DISK"])[0].c_str());
+    free_disk   = atoll(((*this)["/HOST/HOST_SHARE/FREE_DISK"])[0].c_str());
 
     running_vms = atoll(((*this)["/HOST/HOST_SHARE/RUNNING_VMS"])[0].c_str());
 
     //Reserve memory for the hypervisor
     max_mem = static_cast<int>(hypervisor_mem * static_cast<float>(max_mem));
 
-    vector<string> ds_ids       = (*this)["/HOST/HOST_SHARE/DATASTORES/DS/ID"];
-    vector<string> ds_free_mb   = (*this)["/HOST/HOST_SHARE/DATASTORES/DS/FREE_MB"];
+    vector<string> ds_ids     = (*this)["/HOST/HOST_SHARE/DATASTORES/DS/ID"];
+    vector<string> ds_free_mb = (*this)["/HOST/HOST_SHARE/DATASTORES/DS/FREE_MB"];
 
     int id;
     long long disk;
 
     for (size_t i = 0; i < ds_ids.size() && i < ds_free_mb.size(); i++)
     {
-        id = atoi(ds_ids[i].c_str());
+        id   = atoi(ds_ids[i].c_str());
         disk = atoll(ds_free_mb[i].c_str());
 
         ds_free_disk[id] = disk;

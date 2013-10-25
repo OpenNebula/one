@@ -127,11 +127,9 @@ private:
     int cluster_id;
 
     // Host share values
-//    long long disk_usage; /**< Disk allocated to VMs (in MB).        */
     long long mem_usage;  /**< Memory allocated to VMs (in KB)       */
     long long cpu_usage;  /**< CPU  allocated to VMs (in percentage) */
 
-//    long long max_disk;   /**< Total disk capacity (in MB)           */
     long long max_mem;    /**< Total memory capacity (in KB)         */
     long long max_cpu;    /**< Total cpu capacity (in percentage)    */
 
