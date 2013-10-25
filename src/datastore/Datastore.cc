@@ -173,6 +173,9 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
         one_util::toupper(st);
 
         replace_template_attribute("SHARED", st);
+
+        remove_template_attribute("LN_TARGET");
+        remove_template_attribute("CLONE_TARGET");
     }
     else
     {
@@ -197,6 +200,8 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
         one_util::toupper(st);
 
         replace_template_attribute("CLONE_TARGET", st);
+
+        remove_template_attribute("SHARED");
     }
 
     return 0;
@@ -613,37 +618,46 @@ int Datastore::replace_template(const string& tmpl_str, string& error_str)
         disk_type = Image::FILE;
     }
 
+    get_template_attribute("DS_MAD", new_ds_mad);
+    get_template_attribute("TM_MAD", new_tm_mad);
+
     /* ---------------------------------------------------------------------- */
     /* Set the DS_MAD of the Datastore (class & template)                     */
     /* ---------------------------------------------------------------------- */
 
     if ( type == SYSTEM_DS )
     {
-        new_ds_mad = "-";
+        ds_mad = "-";
 
-        // System DS are not monitored, clear current info
-        update_monitor(0, 0, 0);
+        remove_template_attribute("DS_MAD");
     }
     else
     {
-        get_template_attribute("DS_MAD", new_ds_mad);
-    }
+        if ( new_ds_mad.empty() )
+        {
+            replace_template_attribute("DS_MAD", ds_mad);
+        }
+        else if ( new_ds_mad != ds_mad)
+        {
+            ds_mad = new_ds_mad;
 
-    if ( !new_ds_mad.empty() )
-    {
-        ds_mad = new_ds_mad;
+            // DS are monitored by the DS mad, reset information
+            update_monitor(0, 0, 0);
+        }
     }
-
-    replace_template_attribute("DS_MAD", ds_mad);
 
     /* ---------------------------------------------------------------------- */
     /* Set the TM_MAD of the Datastore (class & template)                     */
     /* ---------------------------------------------------------------------- */
 
-    get_template_attribute("TM_MAD", new_tm_mad);
-
     if ( !new_tm_mad.empty() )
     {
+        // System DS are monitored by the TM mad, reset information
+        if ( type == SYSTEM_DS && new_tm_mad != tm_mad )
+        {
+            update_monitor(0, 0, 0);
+        }
+
         if (set_tm_mad(new_tm_mad, error_str) != 0)
         {
             replace_template_attribute("TM_MAD", tm_mad);
