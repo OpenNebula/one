@@ -21,10 +21,12 @@
 #include <stdexcept>
 #include <sstream>
 
+#include "Nebula.h"
 #include "HostPool.h"
 #include "HostHook.h"
 #include "NebulaLog.h"
 #include "GroupPool.h"
+#include "ClusterPool.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -79,7 +81,7 @@ HostPool::HostPool(SqlDB*                    db,
 
             oss << "Empty ON or COMMAND attribute in HOST_HOOK. Hook "
                 << "not registered!";
-            NebulaLog::log("VM",Log::WARNING,oss);
+            NebulaLog::log("ONE",Log::WARNING,oss);
 
             continue;
         }
@@ -226,6 +228,56 @@ error_common:
     *oid = -1;
 
     return *oid;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int HostPool::drop(int hid, string& error_msg)
+{
+
+    Host * host;
+
+    host = get(hid,true);
+
+    if (host == 0)
+    {
+        ostringstream   oss;
+        oss << "Could not get host " << hid;
+        error_msg = oss.str();
+        return -1;
+    }
+
+    int cluster_id = host->get_cluster_id();
+
+    int rc = drop(host, error_msg);
+
+    host->unlock();
+
+    if ( cluster_id != ClusterPool::NONE_CLUSTER_ID && rc == 0 )
+    {
+        Nebula& nd = Nebula::instance();
+
+        ClusterPool * clpool = nd.get_clpool();
+        Cluster * cluster    = clpool->get(cluster_id, true);
+
+        if( cluster != 0 )
+        {
+            rc = cluster->del_host(hid, error_msg);
+
+            if ( rc < 0 )
+            {
+                cluster->unlock();
+                return rc;
+            }
+
+            clpool->update(cluster);
+
+            cluster->unlock();
+        }
+    }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */

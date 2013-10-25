@@ -44,14 +44,41 @@ public:
 
 protected:
 
-    int get_suitable_nodes(vector<xmlNodePtr>& content)
-    {
-        return get_nodes("/DATASTORE_POOL/DATASTORE[TYPE=1]", content);
-    };
+    virtual int get_suitable_nodes(vector<xmlNodePtr>& content) = 0;
 
     void add_object(xmlNodePtr node);
 
     int load_info(xmlrpc_c::value &result);
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class SystemDatastorePoolXML : public DatastorePoolXML
+{
+public:
+    SystemDatastorePoolXML(Client* client):DatastorePoolXML(client){};
+
+protected:
+    int get_suitable_nodes(vector<xmlNodePtr>& content)
+    {
+        return get_nodes("/DATASTORE_POOL/DATASTORE[TYPE=1]", content);
+    };
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class ImageDatastorePoolXML : public DatastorePoolXML
+{
+public:
+    ImageDatastorePoolXML(Client* client):DatastorePoolXML(client){};
+
+protected:
+    int get_suitable_nodes(vector<xmlNodePtr>& content)
+    {
+        return get_nodes("/DATASTORE_POOL/DATASTORE[TYPE=0]", content);
+    };
 };
 
 #endif /* DATASTORE_POOL_XML_H_ */

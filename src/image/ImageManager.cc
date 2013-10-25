@@ -47,7 +47,7 @@ extern "C" void * image_action_loop(void *arg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void ImageManager::load_mads(int uid)
+int ImageManager::load_mads(int uid)
 {
     ImageManagerDriver *    imagem_mad;
     ostringstream           oss;
@@ -64,7 +64,7 @@ void ImageManager::load_mads(int uid)
     if ( vattr == 0 )
     {
         NebulaLog::log("ImM",Log::INFO,"Failed to load Image Manager driver.");
-        return;
+        return -1;
     }
 
     VectorAttribute image_conf("IMAGE_MAD",vattr->value());
@@ -82,6 +82,8 @@ void ImageManager::load_mads(int uid)
 
         NebulaLog::log("ImM",Log::INFO,oss);
     }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */

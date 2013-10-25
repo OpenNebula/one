@@ -28,7 +28,7 @@ TOTAL_HOSTS = 1000
 SLEEP       = 1
 
 class CollectdClient
-    def initialize(hypervisor, number, host, port)
+    def initialize(hypervisor, number, host, port, probes_args)
         # Arguments
         @hypervisor = hypervisor
         @number     = number.to_i
@@ -41,7 +41,7 @@ class CollectdClient
 
         # Probes
         run_probes_cmd = File.join(DIRNAME, '..', "run_probes")
-        @run_probes_cmd = "#{run_probes_cmd} #{@hypervisor}-probes"
+        @run_probes_cmd = "#{run_probes_cmd} #{@hypervisor}-probes #{probes_args}"
 
         # Get last update
         @last_update = get_last_update
@@ -125,11 +125,13 @@ class CollectdClient
     end
 end
 
+#Arguments: hypervisor(0) ds_location(1) collectd_port(2) host_id(3) hostname(4)
 hypervisor = ARGV[0]
-number     = ARGV[1]
+number     = ARGV[3]
 port       = ARGV[2]
 
 host       = ENV['SSH_CLIENT'].split.first
+probes_args= ARGV[1..-1].join(" ")
 
-client = CollectdClient.new(hypervisor, number, host, port)
+client = CollectdClient.new(hypervisor, number, host, port, probes_args)
 client.monitor

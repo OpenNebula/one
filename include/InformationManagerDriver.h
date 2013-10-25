@@ -23,6 +23,7 @@
 
 #include "Mad.h"
 #include "HostPool.h"
+#include "DatastorePool.h"
 
 
 using namespace std;
@@ -38,11 +39,10 @@ class InformationManagerDriver : public Mad
 public:
 
     InformationManagerDriver(
-        int                     userid,
-        const map<string,string>&     attrs,
-        bool                    sudo,
-        HostPool *              pool):
-            Mad(userid,attrs,sudo),hpool(pool){};
+        int                         userid,
+        const map<string,string>&   attrs,
+        bool                        sudo,
+        HostPool *                  pool);
 
     virtual ~InformationManagerDriver(){};
 
@@ -57,19 +57,30 @@ public:
      */
     void recover();
 
-	/**
+    /**
      *  Sends a monitor request to the MAD: "MONITOR  ID  HOSTNAME -"
      *    @param oid the virtual machine id.
      *    @param host the hostname
+     *    @param ds_location DATASTORE_LOCATION for the host
      *    @param update the remotes directory in host
      */
-    void monitor(int oid, const string& host, bool update) const;
+    void monitor(int oid, const string& host, const string& ds_location,
+        bool update) const;
+
+    /**
+     *  Sends a stop monitor request to the MAD: "MONITOR  ID  HOSTNAME -"
+     *    @param oid the virtual machine id.
+     *    @param host the hostname
+     */
+    void stop_monitor(int oid, const string& host) const;
 
 private:
     /**
      *  Pointer to the Virtual Machine Pool, to access VMs
      */
     HostPool * hpool;
+
+    DatastorePool * dspool;
 
     friend class InformationManager;
 };

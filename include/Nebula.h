@@ -280,6 +280,33 @@ public:
     };
 
     /**
+     *
+     *
+     */
+    int get_ds_location(int cluster_id, string& dsloc)
+    {
+        if ( cluster_id != -1 )
+        {
+            Cluster * cluster = clpool->get(cluster_id, true);
+
+            if ( cluster == 0 )
+            {
+                return -1;
+            }
+
+            cluster->get_ds_location(dsloc);
+
+            cluster->unlock();
+        }
+        else
+        {
+            get_configuration_attribute("DATASTORE_LOCATION", dsloc);
+        }
+
+        return 0;
+    }
+
+    /**
      *  Returns the default vms location. When ONE_LOCATION is defined this path
      *  points to $ONE_LOCATION/var/vms, otherwise it is /var/lib/one/vms. This
      *  location stores vm related files: deployment, transfer, context, and
@@ -377,6 +404,38 @@ public:
 
         nebula_configuration->Template::get(_name, value);
     };
+
+    /**
+     *  Gets a TM configuration attribute
+     */
+    int get_tm_conf_attribute(
+        const string& tm_name,
+        const VectorAttribute* &value) const
+    {
+        vector<const Attribute*>::const_iterator it;
+        vector<const Attribute*> values;
+
+        nebula_configuration->Template::get("TM_MAD_CONF", values);
+
+        for (it = values.begin(); it != values.end(); it ++)
+        {
+            value = dynamic_cast<const VectorAttribute*>(*it);
+
+            if (value == 0)
+            {
+                continue;
+            }
+
+            if (value->vector_value("NAME") == tm_name)
+            {
+                return 0;
+            }
+        }
+
+        value = 0;
+        return -1;
+    };
+
 
     /**
      *  Gets an XML document with all of the configuration attributes

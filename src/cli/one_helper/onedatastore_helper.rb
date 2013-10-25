@@ -49,7 +49,8 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
             end
 
             column :SIZE, "Datastore total size", :size =>10 do |d|
-                if d['TEMPLATE']['TYPE'] == 'SYSTEM_DS'
+                shared = d['TEMPLATE']['SHARED']
+                if shared != nil && shared.upcase == 'NO'
                     "-"
                 else
                     OpenNebulaHelper.unit_to_str(d['TOTAL_MB'].to_i, {}, 'M')
@@ -115,8 +116,6 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
         str="%-15s: %-20s"
         str_h1="%-80s"
 
-        system = datastore.type == 1
-
         CLIHelper.print_header(str_h1 % "DATASTORE #{datastore['ID']} INFORMATION")
         puts str % ["ID",       datastore.id.to_s]
         puts str % ["NAME",     datastore.name]
@@ -132,9 +131,13 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
         puts
 
         CLIHelper.print_header(str_h1 % "DATASTORE CAPACITY", false)
-        puts str % ["TOTAL:", system ? '-' : OpenNebulaHelper.unit_to_str(datastore['TOTAL_MB'].to_i, {},'M')]
-        puts str % ["USED: ", system ? '-' : OpenNebulaHelper.unit_to_str(datastore['USED_MB'].to_i, {},'M')]
-        puts str % ["FREE:",  system ? '-' : OpenNebulaHelper.unit_to_str(datastore['FREE_MB'].to_i, {},'M')]
+
+        shared = datastore['TEMPLATE/SHARED']
+        local = shared != nil && shared.upcase == 'NO'
+
+        puts str % ["TOTAL:", local ? '-' : OpenNebulaHelper.unit_to_str(datastore['TOTAL_MB'].to_i, {},'M')]
+        puts str % ["USED: ", local ? '-' : OpenNebulaHelper.unit_to_str(datastore['USED_MB'].to_i, {},'M')]
+        puts str % ["FREE:",  local ? '-' : OpenNebulaHelper.unit_to_str(datastore['FREE_MB'].to_i, {},'M')]
         puts
 
         CLIHelper.print_header(str_h1 % "PERMISSIONS",false)

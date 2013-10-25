@@ -18,6 +18,7 @@
 #ifndef HOST_XML_H_
 #define HOST_XML_H_
 
+#include <map>
 #include "ObjectXML.h"
 
 using namespace std;
@@ -49,14 +50,12 @@ public:
      *  Tests whether a new VM can be hosted by the host or not
      *    @param cpu needed by the VM (percentage)
      *    @param mem needed by the VM (in KB)
-     *    @param disk needed by the VM
      *    @return true if the share can host the VM
      */
-    bool test_capacity(long long cpu, long long mem, long long disk) const
+    bool test_capacity(long long cpu, long long mem) const
     {
         return (((max_cpu  - cpu_usage ) >= cpu) &&
-                ((max_mem  - mem_usage ) >= mem) &&
-                ((max_disk - disk_usage) >= disk));
+                ((max_mem  - mem_usage ) >= mem));
     };
 
     /**
@@ -64,14 +63,12 @@ public:
      *  counters
      *    @param cpu needed by the VM (percentage)
      *    @param mem needed by the VM (in KB)
-     *    @param disk needed by the VM
      *    @return 0 on success
      */
-    void add_capacity(long long cpu, long long mem, long long disk)
+    void add_capacity(long long cpu, long long mem)
     {
         cpu_usage  += cpu;
         mem_usage  += mem;
-        disk_usage += disk;
 
         running_vms++;
     };
@@ -81,17 +78,31 @@ public:
      *  counters
      *    @param cpu needed by the VM (percentage)
      *    @param mem needed by the VM (in KB)
-     *    @param disk needed by the VM
      *    @return 0 on success
      */
-    void del_capacity(int cpu, int mem, int disk)
+    void del_capacity(int cpu, int mem)
     {
         cpu_usage  -= cpu;
         mem_usage  -= mem;
-        disk_usage -= disk;
 
         running_vms--;
     };
+
+    /**
+     *  Tests whether a new VM can be hosted by the local system DS or not
+     *    @param dsid DS id
+     *    @param vm_disk_mb System disk needed by the VM (in MB)
+     *    @return true if the share can host the VM
+     */
+    bool test_ds_capacity(int dsid, long long vm_disk_mb);
+
+    /**
+     *  Adds a new VM to the given local sytem DS share by incrementing the disk
+     *  counter
+     *    @param dsid DS id
+     *    @param vm_disk_mb System disk needed by the VM (in MB)
+     */
+    void add_ds_capacity(int dsid, long long vm_disk_mb);
 
     /**
      *  Search the Object for a given attribute in a set of object specific
@@ -116,13 +127,15 @@ private:
     int cluster_id;
 
     // Host share values
-    long long disk_usage; /**< Disk allocated to VMs (in Mb).        */
     long long mem_usage;  /**< Memory allocated to VMs (in KB)       */
     long long cpu_usage;  /**< CPU  allocated to VMs (in percentage) */
 
-    long long max_disk;   /**< Total disk capacity (in Mb)           */
     long long max_mem;    /**< Total memory capacity (in KB)         */
     long long max_cpu;    /**< Total cpu capacity (in percentage)    */
+
+    long long free_disk;  /**< Free disk capacity (in MB)            */
+
+    map<int, long long> ds_free_disk; /**< Free MB for local system DS */
 
     long long running_vms; /**< Number of running VMs in this Host   */
 

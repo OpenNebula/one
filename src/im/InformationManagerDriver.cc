@@ -21,6 +21,19 @@
 #include "VirtualMachineManagerDriver.h"
 #include <sstream>
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+InformationManagerDriver::InformationManagerDriver(
+        int                         userid,
+        const map<string,string>&   attrs,
+        bool                        sudo,
+        HostPool *                  pool):
+            Mad(userid,attrs,sudo),hpool(pool)
+{
+    dspool = Nebula::instance().get_dspool();
+};
+
 
 /* ************************************************************************** */
 /* Driver ASCII Protocol Implementation                                       */
@@ -28,11 +41,21 @@
 
 void InformationManagerDriver::monitor(int           oid,
                                        const string& host,
+                                       const string& dsloc,
                                        bool          update) const
 {
     ostringstream os;
 
-    os << "MONITOR " << oid << " " << host << " " << update << endl;
+    os << "MONITOR " << oid << " " << host << " " << dsloc << " " << update << endl;
+
+    write(os);
+}
+
+void InformationManagerDriver::stop_monitor(int oid, const string& host) const
+{
+    ostringstream os;
+
+    os << "STOPMONITOR " << oid << " " << host << " " << endl;
 
     write(os);
 }
@@ -98,8 +121,28 @@ void InformationManagerDriver::protocol(const string& message) const
 
         set<int>        lost;
         map<int,string> found;
+        set<int>        non_shared_ds;
+
+        map<int,const VectorAttribute*> datastores;
+
+        Template tmpl;
+
+        Datastore * ds;
+
+        map<int, const VectorAttribute*>::iterator  itm;
 
         int rc;
+
+        // ---------------------------------------------------------------------
+        // Get information from driver and decode from base64
+        // ---------------------------------------------------------------------
+
+        getline (is, hinfo64);
+
+        if (hinfo64.empty())
+        {
+            return;
+        }
 
         host = hpool->get(id,true);
 
@@ -108,10 +151,11 @@ void InformationManagerDriver::protocol(const string& message) const
             goto error_host;
         }
 
-        getline (is, hinfo64);
-
         hinfo = one_util::base64_decode(hinfo64);
 
+        // ---------------------------------------------------------------------
+        // Monitoring Error
+        // ---------------------------------------------------------------------
         if (result != "SUCCESS")
         {
             set<int> vm_ids;
@@ -129,14 +173,78 @@ void InformationManagerDriver::protocol(const string& message) const
             delete hinfo;
 
             hpool->update(host);
+
             host->unlock();
 
             return;
         }
 
-        rc = host->update_info(*hinfo, vm_poll, lost, found);
+        // ---------------------------------------------------------------------
+        // Get DS Information from Moniroting Information
+        // ---------------------------------------------------------------------
+
+        rc = host->extract_ds_info(*hinfo, tmpl, datastores);
 
         delete hinfo;
+
+        host->unlock();
+
+        if (rc != 0)
+        {
+            return;
+        }
+
+        for (itm = datastores.begin(); itm != datastores.end(); itm++)
+        {
+            ds = dspool->get(itm->first, true);
+
+            if (ds == 0)
+            {
+                continue;
+            }
+
+            if (ds->get_type() == Datastore::SYSTEM_DS)
+            {
+                if (ds->is_shared())
+                {
+                    float total = 0, free = 0, used = 0;
+                    ostringstream oss;
+
+                    (itm->second)->vector_value("TOTAL_MB", total);
+                    (itm->second)->vector_value("FREE_MB", free);
+                    (itm->second)->vector_value("USED_MB", used);
+
+                    ds->update_monitor(total, free, used);
+
+                    oss << "Datastore " << ds->get_name() <<
+                        " (" << ds->get_oid() << ") successfully monitored.";
+
+                    NebulaLog::log("ImM", Log::INFO, oss);
+
+                    dspool->update(ds);
+                }
+                else
+                {
+                    non_shared_ds.insert(itm->first);
+                }
+            }
+
+            ds->unlock();
+        }
+
+        // ---------------------------------------------------------------------
+        // Parse Host information
+        // ---------------------------------------------------------------------
+
+        host = hpool->get(id,true);
+
+        if ( host == 0 )
+        {
+            delete hinfo;
+            goto error_host;
+        }
+
+        rc = host->update_info(tmpl, vm_poll, lost, found, non_shared_ds);
 
         hpool->update(host);
 
@@ -181,6 +289,41 @@ void InformationManagerDriver::protocol(const string& message) const
 
         getline(is,info);
         NebulaLog::log("InM",log_type(result[0]),info.c_str());
+    }
+    else if (action == "STOPMONITOR")
+    {
+        int    rc;
+        string error;
+
+        host = hpool->get(id,true);
+
+        if ( host == 0 )
+        {
+            goto error_host;
+        }
+
+        if (result != "SUCCESS")
+        {
+            ostringstream oss;
+            string info;
+
+            getline (is, info);
+
+            oss << "Could not stop monitor on host " << id << " " << info;
+            NebulaLog::log("InM", Log::ERROR, oss.str());
+        }
+
+        rc = hpool->drop(id, error);
+
+        host->unlock();
+
+        if (rc != 0)
+        {
+            ostringstream oss;
+
+            oss << "Could not delete host " << id << " " << error;
+            NebulaLog::log("InM",Log::ERROR,oss.str());
+        }
     }
 
     return;

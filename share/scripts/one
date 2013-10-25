@@ -44,7 +44,7 @@ KILL_9_SECONDS=5
 BACKUP="true"
 
 #------------------------------------------------------------------------------
-# Function that checks for running daemons 
+# Function that checks for running daemons
 #------------------------------------------------------------------------------
 setup()
 {
@@ -146,7 +146,7 @@ start()
     start_sched
 
     # Wait for the daemons to warm up
-    sleep 2
+    sleep 3
 
     STARTED="true"
 

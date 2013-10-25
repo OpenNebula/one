@@ -159,6 +159,22 @@ public:
         return replace(name, oss.str());
     }
 
+    /**
+     *  Adds a new attribute to the template (replacing it if
+     *  already defined)
+     *    @param name of the new attribute
+     *    @param value of the new attribute
+     *    @return 0 on success
+     */
+    int replace(const string& name, long long value)
+    {
+        ostringstream oss;
+
+        oss << value;
+
+        return replace(name, oss.str());
+    }
+
     /*
      *  Adds a new single attribute to the template. It will replace an existing
      *  one if replace_mode was set to true
@@ -182,6 +198,20 @@ public:
         oss << value;
 
         set(new SingleAttribute(name, oss.str()));
+     }
+
+     /**
+      *  Adds a new single attribute to the template.
+      *    @param name of the attribute
+      *    @param value of the attribute
+      */
+     void add(const string& name, long long value)
+     {
+         ostringstream oss;
+
+         oss << value;
+
+         set(new SingleAttribute(name, oss.str()));
      }
 
     /**
@@ -265,6 +295,19 @@ public:
     virtual bool get(
         const string& name,
         int&    value) const;
+
+    /**
+     *  Gets the value of a Single attributes (long long) with the given name.
+     *    @param name the attribute name.
+     *    @param value the attribute value, a long long, 0 if the attribute is not
+     *    defined or not Single
+     *
+     *    @return True if the Single attribute was found and is a valid integer
+     *    value
+     */
+    virtual bool get(
+        const string& name,
+        long long&    value) const;
 
     /**
      *  Gets the value of a Single attributes (float) with the given name.

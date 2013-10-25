@@ -86,7 +86,7 @@ public:
      *   identity will be used. Otherwise the Mad will be loaded through the
      *   sudo application.
      */
-    void load_mads(int uid);
+    int load_mads(int uid);
 
     /**
      *  Gets the thread identification.

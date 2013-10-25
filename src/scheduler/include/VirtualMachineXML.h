@@ -26,6 +26,8 @@
 
 #include "VirtualMachineTemplate.h"
 
+class ImageDatastorePoolXML;
+
 using namespace std;
 
 class VirtualMachineXML : public ObjectXML
@@ -47,6 +49,11 @@ public:
         if (vm_template != 0)
         {
             delete vm_template;
+        }
+
+        if (user_template != 0)
+        {
+            delete user_template;
         }
     }
 
@@ -104,7 +111,9 @@ public:
         return ds_requirements;
     }
 
-    void get_requirements (int& cpu, int& memory, int& disk);
+    void get_requirements (int& cpu, int& memory, long long& disk);
+
+    map<int,long long> get_storage_usage();
 
     //--------------------------------------------------------------------------
     // Matched Resources Interface
@@ -180,6 +189,23 @@ public:
     }
 
     //--------------------------------------------------------------------------
+    // Capacity Interface
+    //--------------------------------------------------------------------------
+
+    /**
+     *  Tests if the Image DS have enough free space to host the VM
+     *    @param img_datastores Image Datastores
+     *    @return true if the Image Datastores can host the VM
+     */
+    bool test_image_datastore_capacity(ImageDatastorePoolXML * img_dspool);
+
+    /**
+     *  Adds the VM disk requirements to each Image Datastore counter
+     *    @param img_datastores Image Datastores
+     */
+    void add_image_datastore_capacity(ImageDatastorePoolXML * img_dspool);
+
+    //--------------------------------------------------------------------------
     // Action Interface
     //--------------------------------------------------------------------------
 
@@ -189,9 +215,9 @@ public:
      */
     string& get_template(string& xml_str)
     {
-        if (vm_template != 0)
+        if (user_template != 0)
         {
-            vm_template->to_xml(xml_str);
+            user_template->to_xml(xml_str);
         }
         else
         {
@@ -210,7 +236,7 @@ public:
     {
         attributes.clear();
 
-        vm_template->remove("SCHED_ACTION", attributes);
+        user_template->remove("SCHED_ACTION", attributes);
     }
 
     /**
@@ -220,7 +246,7 @@ public:
      */
     void set_attribute(Attribute* att)
     {
-        return vm_template->set(att);
+        return user_template->set(att);
     }
 
     /**
@@ -250,6 +276,8 @@ protected:
      */
     void init_attributes();
 
+    void init_storage_usage();
+
     ResourceMatch match_hosts;
 
     ResourceMatch match_datastores;
@@ -265,8 +293,11 @@ protected:
 
     int   resched;
 
-    int   memory;
-    float cpu;
+    int         memory;
+    float       cpu;
+    long long   system_ds_usage;
+
+    map<int,long long> ds_usage;
 
     string rank;
     string requirements;
@@ -274,7 +305,8 @@ protected:
     string ds_requirements;
     string ds_rank;
 
-    VirtualMachineTemplate * vm_template; /**< The VM user template */
+    VirtualMachineTemplate * vm_template;   /**< The VM template */
+    VirtualMachineTemplate * user_template; /**< The VM user template */
 };
 
 #endif /* VM_XML_H_ */

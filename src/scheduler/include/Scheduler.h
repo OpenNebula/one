@@ -91,6 +91,11 @@ protected:
             delete dspool;
         }
 
+        if ( img_dspool != 0)
+        {
+            delete img_dspool;
+        }
+
         if ( acls != 0)
         {
             delete acls;
@@ -111,7 +116,8 @@ protected:
 
     VirtualMachinePoolXML *       vmpool;
     VirtualMachineActionsPoolXML* vmapool;
-    DatastorePoolXML * dspool;
+    SystemDatastorePoolXML * dspool;
+    ImageDatastorePoolXML * img_dspool;
 
     AclXML * acls;
 

@@ -210,13 +210,14 @@ void Scheduler::start()
 
     hpool  = new HostPoolXML(client, hypervisor_mem);
     clpool = new ClusterPoolXML(client);
-    vmpool = new VirtualMachinePoolXML(client,
-                                       machines_limit,
-                                       (live_rescheds == 1));
-    vmapool= new VirtualMachineActionsPoolXML(client, machines_limit);
-    dspool = new DatastorePoolXML(client);
+    vmpool = new VirtualMachinePoolXML(client,machines_limit,(live_rescheds==1));
 
-    acls   = new AclXML(client);
+    vmapool = new VirtualMachineActionsPoolXML(client, machines_limit);
+
+    dspool     = new SystemDatastorePoolXML(client);
+    img_dspool = new ImageDatastorePoolXML(client);
+
+    acls = new AclXML(client);
 
     // -----------------------------------------------------------
     // Load scheduler policies
@@ -317,7 +318,16 @@ int Scheduler::set_up_pools()
     //Cleans the cache and get the datastores
     //--------------------------------------------------------------------------
 
+    // TODO: Avoid two ds pool info calls to oned
+
     rc = dspool->set_up();
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    rc = img_dspool->set_up();
 
     if ( rc != 0 )
     {
@@ -375,7 +385,7 @@ void Scheduler::match_schedule()
 
     int vm_memory;
     int vm_cpu;
-    int vm_disk;
+    long long vm_disk;
 
     int oid;
     int uid;
@@ -401,9 +411,9 @@ void Scheduler::match_schedule()
 
     vector<SchedulerPolicy *>::iterator it;
 
-    const map<int, ObjectXML*> pending_vms = vmpool->get_objects();
-    const map<int, ObjectXML*> hosts       = hpool->get_objects();
-    const map<int, ObjectXML*> datastores  = dspool->get_objects();
+    const map<int, ObjectXML*> pending_vms      = vmpool->get_objects();
+    const map<int, ObjectXML*> hosts            = hpool->get_objects();
+    const map<int, ObjectXML*> datastores       = dspool->get_objects();
 
     for (vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++)
     {
@@ -421,6 +431,17 @@ void Scheduler::match_schedule()
         n_matched = 0;
         n_auth    = 0;
         n_error   = 0;
+
+        //--------------------------------------------------------------
+        // Test Image Datastore capacity, but not for migrations
+        //--------------------------------------------------------------
+        if (!vm->is_resched())
+        {
+            if (vm->test_image_datastore_capacity(img_dspool) == false)
+            {
+                continue;
+            }
+        }
 
         // ---------------------------------------------------------------------
         // Match hosts for this VM that:
@@ -528,7 +549,7 @@ void Scheduler::match_schedule()
             // -----------------------------------------------------------------
             // Check host capacity
             // -----------------------------------------------------------------
-            if (host->test_capacity(vm_cpu,vm_memory,vm_disk) == true)
+            if (host->test_capacity(vm_cpu,vm_memory) == true)
             {
                 vm->add_match_host(host->get_hid());
 
@@ -663,20 +684,31 @@ void Scheduler::match_schedule()
             // Check datastore capacity
             // -----------------------------------------------------------------
 
-            if (ds->test_capacity(vm_disk))
+            if (ds->is_shared())
             {
-                vm->add_match_datastore(ds->get_oid());
+                if (ds->test_capacity(vm_disk))
+                {
+                    vm->add_match_datastore(ds->get_oid());
 
-                n_hosts++;
+                    n_hosts++;
+                }
+                else
+                {
+                    ostringstream oss;
+
+                    oss << "VM " << oid << ": Datastore " << ds->get_oid()
+                        << " filtered out. Not enough capacity.";
+
+                    NebulaLog::log("SCHED",Log::DEBUG,oss);
+                }
             }
             else
             {
-                ostringstream oss;
+                // All non shared system DS are valid candidates, the
+                // capacity will be checked later for each host
 
-                oss << "VM " << oid << ": Datastore " << ds->get_oid()
-                    << " filtered out. Not enough capacity.";
-
-                NebulaLog::log("SCHED",Log::DEBUG,oss);
+                vm->add_match_datastore(ds->get_oid());
+                n_hosts++;
             }
         }
 
@@ -733,8 +765,10 @@ void Scheduler::dispatch()
 
     ostringstream       oss;
 
-    int cpu, mem, dsk;
+    int cpu, mem;
+    long long dsk;
     int hid, dsid, cid;
+    bool test_cap_result;
 
     unsigned int dispatched_vms = 0;
 
@@ -742,6 +776,7 @@ void Scheduler::dispatch()
     pair<map<int,unsigned int>::iterator, bool> rc;
 
     vector<Resource *>::const_reverse_iterator i, j;
+
     const map<int, ObjectXML*> pending_vms = vmpool->get_objects();
 
     //--------------------------------------------------------------------------
@@ -771,12 +806,25 @@ void Scheduler::dispatch()
     {
         vm = static_cast<VirtualMachineXML*>(vm_it->second);
 
+        const vector<Resource *> resources = vm->get_match_hosts();
+
+        //--------------------------------------------------------------
+        // Test Image Datastore capacity, but not for migrations
+        //--------------------------------------------------------------
+
+        if (!resources.empty() && !vm->is_resched())
+        {
+            if (vm->test_image_datastore_capacity(img_dspool) == false)
+            {
+                continue;
+            }
+        }
+
         vm->get_requirements(cpu,mem,dsk);
 
         //----------------------------------------------------------------------
         // Get the highest ranked host and best System DS for it
         //----------------------------------------------------------------------
-        const vector<Resource *> resources = vm->get_match_hosts();
 
         for (i = resources.rbegin() ; i != resources.rend() ; i++)
         {
@@ -793,7 +841,7 @@ void Scheduler::dispatch()
             //------------------------------------------------------------------
             // Test host capcity
             //------------------------------------------------------------------
-            if (host->test_capacity(cpu,mem,dsk) != true)
+            if (host->test_capacity(cpu,mem) != true)
             {
                 continue;
             }
@@ -835,9 +883,33 @@ void Scheduler::dispatch()
                 //--------------------------------------------------------------
                 // Test datastore capacity, but not for migrations
                 //--------------------------------------------------------------
-                if (!vm->is_resched() && ds->test_capacity(dsk) != true)
+
+                if (!vm->is_resched())
                 {
-                    continue;
+                    if (ds->is_shared())
+                    {
+                        test_cap_result = ds->test_capacity(dsk);
+                    }
+                    else
+                    {
+                        test_cap_result = host->test_ds_capacity(ds->get_oid(), dsk);
+
+                        if (test_cap_result == false)
+                        {
+                            ostringstream oss;
+
+                            oss << "VM " << vm->get_oid() << ": Local Datastore "
+                                << ds->get_oid() << " in Host " << host->get_hid()
+                                << " filtered out. Not enough capacity.";
+
+                            NebulaLog::log("SCHED",Log::DEBUG,oss);
+                        }
+                    }
+
+                    if (test_cap_result != true)
+                    {
+                        continue;
+                    }
                 }
 
                 //--------------------------------------------------------------
@@ -852,7 +924,8 @@ void Scheduler::dispatch()
             {
                 ostringstream oss;
 
-                oss << "No suitable System DS found for Host: " << hid
+                oss << "VM " << vm->get_oid()
+                    << ": No suitable System DS found for Host: " << hid
                     << ". Filtering out host.";
 
                 NebulaLog::log("SCHED", Log::INFO, oss);
@@ -871,10 +944,19 @@ void Scheduler::dispatch()
             // DS capacity is only added for new deployments, not for migrations
             if (!vm->is_resched())
             {
-                ds->add_capacity(dsk);
+                if (ds->is_shared())
+                {
+                    ds->add_capacity(dsk);
+                }
+                else
+                {
+                    host->add_ds_capacity(ds->get_oid(), dsk);
+                }
+
+                vm->add_image_datastore_capacity(img_dspool);
             }
 
-            host->add_capacity(cpu,mem,dsk);
+            host->add_capacity(cpu,mem);
 
             host_vms[hid]++;
 

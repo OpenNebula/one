@@ -57,8 +57,9 @@ bool QuotaVirtualMachine::check(Template * tmpl,
 {
     map<string, float> vm_request;
 
-    int memory;
-    float cpu, size;
+    int         memory;
+    float       cpu;
+    long long   size;
 
     if ( tmpl->get("MEMORY", memory) == false  || memory <= 0 )
     {
@@ -89,8 +90,9 @@ void QuotaVirtualMachine::del(Template * tmpl)
 {
     map<string, float> vm_request;
 
-    int memory, vms;
-    float cpu, size;
+    int         memory, vms;
+    float       cpu;
+    long long   size;
 
     if ( tmpl->get("MEMORY", memory) == false )
     {
@@ -137,8 +139,9 @@ bool QuotaVirtualMachine::update(Template * tmpl,
 {
     map<string, float> vm_request;
 
-    int   delta_memory;
-    float delta_cpu, delta_size;
+    int         delta_memory;
+    float       delta_cpu;
+    long long   delta_size;
 
     if ( tmpl->get("MEMORY", delta_memory) == true )
     {

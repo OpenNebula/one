@@ -45,7 +45,7 @@ extern "C" void * hm_action_loop(void *arg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void HookManager::load_mads(int uid)
+int HookManager::load_mads(int uid)
 {
     HookManagerDriver *     hm_mad;
     ostringstream           oss;
@@ -62,7 +62,7 @@ void HookManager::load_mads(int uid)
     if ( vattr == 0 )
     {
         NebulaLog::log("HKM",Log::INFO,"Failed to load Hook Manager driver.");
-        return;
+        return -1;
     }
 
     VectorAttribute hook_conf("HOOK_MAD",vattr->value());
@@ -80,6 +80,8 @@ void HookManager::load_mads(int uid)
 
         NebulaLog::log("HKM",Log::INFO,oss);
     }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */

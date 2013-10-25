@@ -177,33 +177,23 @@ error_common:
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Host::update_info(string          &parse_str,
-                      bool            &with_vm_info,
-                      set<int>        &lost,
-                      map<int,string> &found)
+int Host::extract_ds_info(
+            string          &parse_str,
+            Template        &tmpl,
+            map<int, const VectorAttribute*> &ds)
 {
     char *    error_msg;
-    Template* tmpl;
+    int       rc;
 
-    VectorAttribute*             vatt;
-    vector<Attribute*>::iterator it;
-    vector<Attribute*>           vm_att;
+    const VectorAttribute *  vatt;
+    vector<const Attribute*> ds_att;
 
-    int   rc;
-    int   vmid;
-    float fv;
+    vector<const Attribute*>::const_iterator it;
 
-    ostringstream zombie;
-    ostringstream wild;
-
-    int num_zombies = 0;
-    int num_wilds   = 0;
-
-    //
-    // ---------------------------------------------------------------------- //
-    // Parse Template (twice because of repeated VM values)                   //
-    // ---------------------------------------------------------------------- //
-    rc = obj_template->parse(parse_str, &error_msg);
+    // -------------------------------------------------------------------------
+    // Parse Template
+    // -------------------------------------------------------------------------
+    rc = tmpl.parse(parse_str, &error_msg);
 
     if ( rc != 0 )
     {
@@ -224,39 +214,63 @@ int Host::update_info(string          &parse_str,
         return -1;
     }
 
-    // Touch the host to update its last_monitored timestamp and state
+    // -------------------------------------------------------------------------
+    // Get DS information
+    // -------------------------------------------------------------------------
+    tmpl.get("DS", ds_att);
 
-    touch(true);
-
-    tmpl = new Template();
-
-    tmpl->parse(parse_str, &error_msg);
-
-    // ---------------------------------------------------------------------- //
-    // Extract share information                                              //
-    // ---------------------------------------------------------------------- //
-
-    if (isEnabled())
+    for (it = ds_att.begin(); it != ds_att.end(); it++)
     {
-        erase_template_attribute("TOTALCPU", fv);
-        host_share.max_cpu = static_cast<long long>(fv);
-        erase_template_attribute("TOTALMEMORY", fv);
-        host_share.max_mem = static_cast<long long>(fv);
+        int dsid;
 
-        erase_template_attribute("FREECPU", fv);
-        host_share.free_cpu = static_cast<long long>(fv);
-        erase_template_attribute("FREEMEMORY", fv);
-        host_share.free_mem = static_cast<long long>(fv);
+        vatt = dynamic_cast<const VectorAttribute*>(*it);
 
-        erase_template_attribute("USEDCPU", fv);
-        host_share.used_cpu = static_cast<long long>(fv);
-        erase_template_attribute("USEDMEMORY", fv);
-        host_share.used_mem = static_cast<long long>(fv);
+        if (vatt == 0)
+        {
+            continue;
+        }
+
+        rc = vatt->vector_value("ID", dsid);
+
+        if (rc == 0 && dsid != -1)
+        {
+            ds.insert(make_pair(dsid, vatt));
+        }
     }
 
-    // ---------------------------------------------------------------------- //
-    // Remove expired information                                             //
-    // ---------------------------------------------------------------------- //
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Host::update_info(Template        &tmpl,
+                      bool            &with_vm_info,
+                      set<int>        &lost,
+                      map<int,string> &found,
+                      const set<int>  &non_shared_ds)
+{
+    VectorAttribute*             vatt;
+    vector<Attribute*>::iterator it;
+    vector<Attribute*>           vm_att;
+    vector<Attribute*>           ds_att;
+    vector<Attribute*>           local_ds_att;
+
+    int         rc;
+    int         vmid;
+    long long   val;
+
+    string error_st;
+
+    ostringstream zombie;
+    ostringstream wild;
+
+    int num_zombies = 0;
+    int num_wilds   = 0;
+
+    // -------------------------------------------------------------------------
+    // Remove expired information from current template
+    // -------------------------------------------------------------------------
     clear_template_error_message();
 
     remove_template_attribute("ZOMBIES");
@@ -266,14 +280,49 @@ int Host::update_info(string          &parse_str,
     remove_template_attribute("TOTAL_WILDS");
 
     remove_template_attribute("VM");
-
-    get_template_attribute("VM_POLL", with_vm_info);
     remove_template_attribute("VM_POLL");
 
-    // ---------------------------------------------------------------------- //
-    // Correlate VM information with the list of running VMs                  //
-    // ---------------------------------------------------------------------- //
-    tmpl->remove("VM", vm_att);
+    remove_template_attribute("DS");
+
+    // -------------------------------------------------------------------------
+    // Copy monitor, extract share info & update last_monitored and state
+    // -------------------------------------------------------------------------
+
+    obj_template->merge(&tmpl, error_st);
+
+    touch(true);
+
+    if (isEnabled())
+    {
+        erase_template_attribute("TOTALCPU", val);
+        host_share.max_cpu = val;
+        erase_template_attribute("TOTALMEMORY", val);
+        host_share.max_mem = val;
+        erase_template_attribute("DS_LOCATION_TOTAL_MB", val);
+        host_share.max_disk = val;
+
+        erase_template_attribute("FREECPU", val);
+        host_share.free_cpu = val;
+        erase_template_attribute("FREEMEMORY", val);
+        host_share.free_mem = val;
+        erase_template_attribute("DS_LOCATION_FREE_MB", val);
+        host_share.free_disk = val;
+
+        erase_template_attribute("USEDCPU", val);
+        host_share.used_cpu = val;
+        erase_template_attribute("USEDMEMORY", val);
+        host_share.used_mem = val;
+        erase_template_attribute("DS_LOCATION_USED_MB", val);
+        host_share.used_disk = val;
+    }
+
+    // -------------------------------------------------------------------------
+    // Correlate VM information with the list of running VMs
+    // -------------------------------------------------------------------------
+
+    erase_template_attribute("VM_POLL", with_vm_info);
+
+    obj_template->remove("VM", vm_att);
 
     lost = vm_collection.get_collection_copy();
 
@@ -330,10 +379,41 @@ int Host::update_info(string          &parse_str,
         add_template_attribute("ZOMBIES", zombie.str());
     }
 
-    delete tmpl;
+    // -------------------------------------------------------------------------
+    // Copy system datastore monitorization (non_shared) to host share
+    // -------------------------------------------------------------------------
+
+    obj_template->remove("DS", ds_att);
+
+    for (it = ds_att.begin(); it != ds_att.end(); it++)
+    {
+        int dsid;
+
+        vatt = dynamic_cast<VectorAttribute*>(*it);
+
+        if (vatt == 0)
+        {
+            delete *it;
+            continue;
+        }
+
+        rc = vatt->vector_value("ID", dsid);
+
+        if (rc == 0 && non_shared_ds.count(dsid) == 1)
+        {
+            local_ds_att.push_back(vatt);
+        }
+        else
+        {
+            delete *it;
+        }
+    }
+
+    host_share.set_ds_monitorization(local_ds_att);
 
     return 0;
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -445,7 +525,7 @@ bool Host::isHybrid() const
     one_util::toupper(hypervisor);
 
     for(int i=0; i < NUM_HYBRID_HYPERVISORS; i++)
-    { 
+    {
         if(hypervisor==HYBRID_HYPERVISORS[i])
         {
             is_hybrid   = true;

@@ -516,6 +516,7 @@ int Image::disk_attribute(  VectorAttribute * disk,
     disk->replace("IMAGE",    name);
     disk->replace("IMAGE_ID", iid.str());
     disk->replace("SOURCE",   source);
+    disk->replace("SIZE",     size_mb);
 
     if (driver.empty() && !template_driver.empty())//DRIVER in Image,not in DISK
     {

@@ -40,11 +40,9 @@ public:
      *    @param vm_disk_mb capacity needed by the VM
      *    @return true if the datastore can host the VM
      */
-    bool test_capacity(unsigned int vm_disk_mb) const
+    bool test_capacity(long long vm_disk_mb) const
     {
-        return true;
-        //TODO Perform test.
-        //return (vm_disk_mb < free_mb);
+        return (vm_disk_mb < free_mb);
     };
 
     /**
@@ -52,9 +50,9 @@ public:
      *    @param vm_disk_mb capacity needed by the VM
      *    @return 0 on success
      */
-    void add_capacity(unsigned int vm_disk_mb)
+    void add_capacity(long long vm_disk_mb)
     {
-        free_mb  += vm_disk_mb;
+        free_mb  -= vm_disk_mb;
     };
 
     int get_oid() const
@@ -67,12 +65,23 @@ public:
         return cluster_id;
     };
 
+    /**
+     * Returns true if the DS contains the SHARED = YES attribute
+     * @return true if the DS is shared
+     */
+    bool is_shared()
+    {
+        return shared;
+    };
+
 private:
 
     int oid;
     int cluster_id;
 
-    unsigned int free_mb; /**< Free disk for VMs (in Mb). */
+    long long free_mb; /**< Free disk for VMs (in MB). */
+
+    bool shared;
 
     static const char *ds_paths[]; /**< paths for search function */
 

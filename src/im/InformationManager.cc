@@ -16,6 +16,8 @@
 
 #include "InformationManager.h"
 #include "NebulaLog.h"
+#include "Cluster.h"
+#include "Nebula.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -50,7 +52,7 @@ extern "C" void * im_action_loop(void *arg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void InformationManager::load_mads(int uid)
+int InformationManager::load_mads(int uid)
 {
     InformationManagerDriver *  im_mad;
     unsigned int                i;
@@ -80,7 +82,13 @@ void InformationManager::load_mads(int uid)
 
             NebulaLog::log("InM",Log::INFO,oss);
         }
+        else
+        {
+            return -1;
+        }
     }
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -111,6 +119,30 @@ int InformationManager::start()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void InformationManager::trigger(Actions action, int _hid)
+{
+    int *   hid;
+    string  aname;
+
+    hid = new int(_hid);
+
+    switch (action)
+    {
+    case STOPMONITOR:
+        aname = "STOPMONITOR";
+        break;
+
+    default:
+        delete hid;
+        return;
+    }
+
+    am.trigger(aname,hid);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void InformationManager::do_action(const string &action, void * arg)
 {
     if (action == ACTION_TIMER)
@@ -123,6 +155,13 @@ void InformationManager::do_action(const string &action, void * arg)
 
         MadManager::stop();
     }
+    else if (action == "STOPMONITOR")
+    {
+        int hid  = *(static_cast<int *>(arg));
+        delete static_cast<int *>(arg);
+
+        stop_monitor(hid);
+    }
     else
     {
         ostringstream oss;
@@ -130,6 +169,45 @@ void InformationManager::do_action(const string &action, void * arg)
 
         NebulaLog::log("InM", Log::ERROR, oss);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void InformationManager::stop_monitor(int hid)
+{
+    Host * host;
+
+    const InformationManagerDriver * imd;
+
+    ostringstream   oss;
+
+    host = hpool->get(hid,true);
+
+    if (host == 0) //Already deleted silently return
+    {
+        return;
+    }
+
+    imd = get(host->get_im_mad());
+
+    if (imd == 0)
+    {
+        oss.str("");
+        oss << "Could not find information driver " << host->get_im_mad();
+        NebulaLog::log("InM",Log::ERROR,oss);
+
+        host->unlock();
+        return;
+    }
+
+    host->disable();
+
+    imd->stop_monitor(hid, host->get_name());
+
+    hpool->update(host);
+
+    host->unlock();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -240,10 +318,21 @@ void InformationManager::timer_action()
                 NebulaLog::log("InM",Log::ERROR,oss);
 
                 host->set_error();
+
+                hpool->update(host);
+
+                host->unlock();
             }
             else
             {
+                Nebula&    nd       = Nebula::instance();
                 bool update_remotes = false;
+
+                string name    = host->get_name();
+                int    oid     = host->get_oid();
+                int cluster_id = host->get_cluster_id();
+
+                string dsloc;
 
                 //Force remotes update if the host has never been monitored.
                 if (host->get_last_monitored() == 0)
@@ -251,9 +340,18 @@ void InformationManager::timer_action()
                     update_remotes = true;
                 }
 
-                imd->monitor(host->get_oid(),host->get_name(),update_remotes);
-
                 host->set_monitoring_state();
+
+                hpool->update(host);
+
+                host->unlock();
+
+                if (nd.get_ds_location(cluster_id, dsloc) == -1)
+                {
+                    continue;
+                }
+
+                imd->monitor(oid, name, dsloc, update_remotes);
             }
         }
         else if (!host->isEnabled() && host->get_share_running_vms() == 0 )
@@ -262,12 +360,17 @@ void InformationManager::timer_action()
             // update the last_mon_time to rotate the Hosts returned by
             // HostPool::discover. We also update the monitoring values with
             // 0s
-
             host->touch(true);
-            hpool->update_monitoring(host);
-        }
 
-        hpool->update(host);
-        host->unlock();
+            hpool->update_monitoring(host);
+
+            hpool->update(host);
+
+            host->unlock();
+        }
+        else
+        {
+            host->unlock();
+        }
     }
 }

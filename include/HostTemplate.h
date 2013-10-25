@@ -27,7 +27,7 @@ using namespace std;
 class HostTemplate : public Template
 {
 public:
-    HostTemplate() : Template(true,'=',"TEMPLATE"){};
+    HostTemplate() : Template(false,'=',"TEMPLATE"){};
 
     ~HostTemplate(){};
 

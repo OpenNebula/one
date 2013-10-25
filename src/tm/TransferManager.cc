@@ -260,7 +260,7 @@ void TransferManager::do_action(const string &action, void * arg)
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
         }
         else
-        {   
+        {
             epilog_delete_previous_action(vid);
 
         }
@@ -272,7 +272,7 @@ void TransferManager::do_action(const string &action, void * arg)
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
         }
         else
-        {  
+        {
             epilog_delete_both_action(vid);
         }
     }
@@ -1905,7 +1905,7 @@ void TransferManager::migrate_transfer_command(
 /* MAD Loading                                                                */
 /* ************************************************************************** */
 
-void TransferManager::load_mads(int uid)
+int TransferManager::load_mads(int uid)
 {
     ostringstream oss;
 
@@ -1927,7 +1927,7 @@ void TransferManager::load_mads(int uid)
     if ( vattr == 0 )
     {
         NebulaLog::log("TM",Log::ERROR,"Failed to load Transfer Manager driver.");
-        return;
+        return -1;
     }
 
     VectorAttribute tm_conf("TM_MAD",vattr->value());
@@ -1947,4 +1947,6 @@ void TransferManager::load_mads(int uid)
 
         NebulaLog::log("TM",Log::INFO,oss);
     }
+
+    return rc;
 }

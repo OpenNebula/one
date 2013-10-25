@@ -48,7 +48,7 @@ class DummyInformationManager < OpenNebulaDriver
     end
 
     # Execute the sensor array in the remote host
-    def action_monitor(number, host, not_used)
+    def action_monitor(number, host, not_used1, not_used2)
         results =  "HYPERVISOR=dummy\n"
         results << "HOSTNAME=#{host}\n"
 

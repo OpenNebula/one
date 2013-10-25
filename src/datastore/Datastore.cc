@@ -19,8 +19,6 @@
 #include "NebulaLog.h"
 #include "Nebula.h"
 
-#define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
-
 const char * Datastore::table = "datastore_pool";
 
 const char * Datastore::db_names =
@@ -76,12 +74,13 @@ Datastore::Datastore(
 int Datastore::disk_attribute(VectorAttribute * disk)
 {
     ostringstream oss;
+    string st;
 
     oss << oid;
 
-    disk->replace("DATASTORE",      get_name());
-    disk->replace("DATASTORE_ID",   oss.str());
-    disk->replace("TM_MAD",         get_tm_mad());
+    disk->replace("DATASTORE",    get_name());
+    disk->replace("DATASTORE_ID", oss.str());
+    disk->replace("TM_MAD",       get_tm_mad());
 
     if ( get_cluster_id() != ClusterPool::NONE_CLUSTER_ID )
     {
@@ -89,6 +88,20 @@ int Datastore::disk_attribute(VectorAttribute * disk)
         oss << get_cluster_id();
 
         disk->replace("CLUSTER_ID", oss.str());
+    }
+
+    get_template_attribute("CLONE_TARGET", st);
+
+    if(!st.empty())
+    {
+        disk->replace("CLONE_TARGET", st);
+    }
+
+    get_template_attribute("LN_TARGET", st);
+
+    if(!st.empty())
+    {
+        disk->replace("LN_TARGET", st);
     }
 
     return 0;
@@ -107,7 +120,7 @@ Datastore::DatastoreType Datastore::str_to_type(string& str_type)
         return dst;
     }
 
-    TO_UPPER(str_type);
+    one_util::toupper(str_type);
 
     if ( str_type == "IMAGE_DS" )
     {
@@ -127,6 +140,80 @@ Datastore::DatastoreType Datastore::str_to_type(string& str_type)
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
+
+int Datastore::set_tm_mad(string &tm_mad, string &error_str)
+{
+    const VectorAttribute* vatt;
+
+    int    rc;
+    string st;
+
+    ostringstream oss;
+
+    rc = Nebula::instance().get_tm_conf_attribute(tm_mad, vatt);
+
+    if (rc != 0)
+    {
+        oss << "TM_MAD named \"" << tm_mad << "\" is not defined in oned.conf";
+
+        error_str = oss.str();
+
+        return -1;
+    }
+
+    if (type == SYSTEM_DS)
+    {
+        st = vatt->vector_value("SHARED");
+
+        if (st.empty())
+        {
+            goto error;
+        }
+
+        one_util::toupper(st);
+
+        replace_template_attribute("SHARED", st);
+
+        remove_template_attribute("LN_TARGET");
+        remove_template_attribute("CLONE_TARGET");
+    }
+    else
+    {
+        st = vatt->vector_value("LN_TARGET");
+
+        if (st.empty())
+        {
+            goto error;
+        }
+
+        one_util::toupper(st);
+
+        replace_template_attribute("LN_TARGET", st);
+
+        st = vatt->vector_value("CLONE_TARGET");
+
+        if (st.empty())
+        {
+            goto error;
+        }
+
+        one_util::toupper(st);
+
+        replace_template_attribute("CLONE_TARGET", st);
+
+        remove_template_attribute("SHARED");
+    }
+
+    return 0;
+
+error:
+    oss << "Attribute TM_MAD_CONF for " << tm_mad
+        << " is missing shared, ln_target or clone_target in oned.conf";
+
+    error_str = oss.str();
+
+    return -1;
+}
 
 int Datastore::insert(SqlDB *db, string& error_str)
 {
@@ -165,7 +252,12 @@ int Datastore::insert(SqlDB *db, string& error_str)
 
     if ( tm_mad.empty() == true )
     {
-        goto error_tm;
+        goto error_empty_tm;
+    }
+
+    if (set_tm_mad(tm_mad, error_str) != 0)
+    {
+        goto error_common;
     }
 
     erase_template_attribute("BASE_PATH", base_path);
@@ -198,7 +290,7 @@ int Datastore::insert(SqlDB *db, string& error_str)
 
     if ( tm_mad.empty() == true )
     {
-        goto error_tm;
+        goto error_empty_tm;
     }
     //--------------------------------------------------------------------------
     // Insert the Datastore
@@ -216,7 +308,7 @@ error_ds:
     error_str = "No DS_MAD in template.";
     goto error_common;
 
-error_tm:
+error_empty_tm:
     error_str = "No TM_MAD in template.";
     goto error_common;
 
@@ -504,37 +596,53 @@ int Datastore::replace_template(const string& tmpl_str, string& error_str)
         disk_type = Image::FILE;
     }
 
+    get_template_attribute("DS_MAD", new_ds_mad);
+    get_template_attribute("TM_MAD", new_tm_mad);
+
     /* ---------------------------------------------------------------------- */
     /* Set the DS_MAD of the Datastore (class & template)                     */
     /* ---------------------------------------------------------------------- */
 
     if ( type == SYSTEM_DS )
     {
-        new_ds_mad = "-";
+        ds_mad = "-";
 
-        // System DS are not monitored, clear current info
-        update_monitor(0, 0, 0);
+        remove_template_attribute("DS_MAD");
     }
     else
     {
-        get_template_attribute("DS_MAD", new_ds_mad);
-    }
+        if ( new_ds_mad.empty() )
+        {
+            replace_template_attribute("DS_MAD", ds_mad);
+        }
+        else if ( new_ds_mad != ds_mad)
+        {
+            ds_mad = new_ds_mad;
 
-    if ( !new_ds_mad.empty() )
-    {
-        ds_mad = new_ds_mad;
+            // DS are monitored by the DS mad, reset information
+            update_monitor(0, 0, 0);
+        }
     }
-
-    replace_template_attribute("DS_MAD", ds_mad);
 
     /* ---------------------------------------------------------------------- */
     /* Set the TM_MAD of the Datastore (class & template)                     */
     /* ---------------------------------------------------------------------- */
 
-    get_template_attribute("TM_MAD", new_tm_mad);
-
     if ( !new_tm_mad.empty() )
     {
+        // System DS are monitored by the TM mad, reset information
+        if ( type == SYSTEM_DS && new_tm_mad != tm_mad )
+        {
+            update_monitor(0, 0, 0);
+        }
+
+        if (set_tm_mad(new_tm_mad, error_str) != 0)
+        {
+            replace_template_attribute("TM_MAD", tm_mad);
+
+            return -1;
+        }
+
         tm_mad = new_tm_mad;
     }
     else
@@ -548,16 +656,16 @@ int Datastore::replace_template(const string& tmpl_str, string& error_str)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-bool Datastore::get_avail_mb(unsigned int &avail)
+bool Datastore::get_avail_mb(long long &avail)
 {
-    float max_used_size;
-    bool  check;
+    long long   max_used_size;
+    bool        check;
 
     avail = free_mb;
 
     if (get_template_attribute("MAX_USED_SIZE", max_used_size))
     {
-        if (used_mb >= (unsigned int) max_used_size)
+        if (used_mb >= max_used_size)
         {
             avail = 0;
         }

@@ -40,18 +40,32 @@ void HostXML::init_attributes()
     oid         = atoi(((*this)["/HOST/ID"] )[0].c_str() );
     cluster_id  = atoi(((*this)["/HOST/CLUSTER_ID"] )[0].c_str() );
 
-    disk_usage  = atoll(((*this)["/HOST/HOST_SHARE/DISK_USAGE"])[0].c_str());
     mem_usage   = atoll(((*this)["/HOST/HOST_SHARE/MEM_USAGE"])[0].c_str());
     cpu_usage   = atoll(((*this)["/HOST/HOST_SHARE/CPU_USAGE"])[0].c_str());
 
-    max_disk    = atoll(((*this)["/HOST/HOST_SHARE/MAX_DISK"])[0].c_str());
     max_mem     = atoll(((*this)["/HOST/HOST_SHARE/MAX_MEM"])[0].c_str());
     max_cpu     = atoll(((*this)["/HOST/HOST_SHARE/MAX_CPU"])[0].c_str());
+
+    free_disk   = atoll(((*this)["/HOST/HOST_SHARE/FREE_DISK"])[0].c_str());
 
     running_vms = atoll(((*this)["/HOST/HOST_SHARE/RUNNING_VMS"])[0].c_str());
 
     //Reserve memory for the hypervisor
     max_mem = static_cast<int>(hypervisor_mem * static_cast<float>(max_mem));
+
+    vector<string> ds_ids     = (*this)["/HOST/HOST_SHARE/DATASTORES/DS/ID"];
+    vector<string> ds_free_mb = (*this)["/HOST/HOST_SHARE/DATASTORES/DS/FREE_MB"];
+
+    int id;
+    long long disk;
+
+    for (size_t i = 0; i < ds_ids.size() && i < ds_free_mb.size(); i++)
+    {
+        id   = atoi(ds_ids[i].c_str());
+        disk = atoll(ds_free_mb[i].c_str());
+
+        ds_free_disk[id] = disk;
+    }
 
     //Init search xpath routes
 
@@ -95,6 +109,32 @@ int HostXML::search(const char *name, int& value)
     {
         return ObjectXML::search(name, value);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool HostXML::test_ds_capacity(int dsid, long long vm_disk_mb)
+{
+    if (ds_free_disk.count(dsid) == 0)
+    {
+        ds_free_disk[dsid] = free_disk;
+    }
+
+    return (vm_disk_mb < ds_free_disk[dsid]);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void HostXML::add_ds_capacity(int dsid, long long vm_disk_mb)
+{
+    if (ds_free_disk.count(dsid) == 0)
+    {
+        ds_free_disk[dsid] = free_disk;
+    }
+
+    ds_free_disk[dsid] -= vm_disk_mb;
 }
 
 /* -------------------------------------------------------------------------- */

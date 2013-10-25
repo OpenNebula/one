@@ -1082,7 +1082,7 @@ public:
     /**
      *  Return the total SIZE of volatile disks
      */
-    static float get_volatile_disk_size(Template * tmpl);
+    static long long get_volatile_disk_size(Template * tmpl);
 
     // ------------------------------------------------------------------------
     // Context related functions

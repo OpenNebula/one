@@ -16,6 +16,57 @@
 
 require 'rexml/document'
 
+TM_MAD_CONF = {
+    "dummy" => {
+        :ln_target    => "NONE",
+        :clone_target => "SYSTEM"
+    },
+    "lvm" => {
+        :ln_target    => "NONE",
+        :clone_target => "SELF"
+    },
+    "shared" => {
+        :ln_target    => "NONE",
+        :clone_target => "SYSTEM"
+    },
+    "shared_lvm" => {
+        :ln_target    => "SYSTEM",
+        :clone_target => "SYSTEM"
+    },
+    "qcow2" => {
+        :ln_target    => "NONE",
+        :clone_target => "SYSTEM"
+    },
+    "ssh" => {
+        :ln_target    => "SYSTEM",
+        :clone_target => "SYSTEM"
+    },
+    "vmfs" => {
+        :ln_target    => "NONE",
+        :clone_target => "SYSTEM"
+    },
+    "iscsi" => {
+        :ln_target    => "NONE",
+        :clone_target => "SELF"
+    },
+    "ceph" => {
+        :ln_target    => "NONE",
+        :clone_target => "SELF"
+    }
+}
+
+class String
+    def red
+        colorize(31)
+    end
+
+private
+
+    def colorize(color_code)
+        "\e[#{color_code}m#{self}\e[0m"
+    end
+end
+
 module Migrator
     def db_version
         "4.3.80"
@@ -96,17 +147,52 @@ module Migrator
         @db.run "DROP TABLE old_group_pool;"
 
         ########################################################################
-        # Bug #2330
+        # Bug #2330 & Feature #1678
         ########################################################################
 
         @db.run "ALTER TABLE datastore_pool RENAME TO old_datastore_pool;"
         @db.run "CREATE TABLE datastore_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name));"
+
+        #tm_mads = {}
 
         @db.fetch("SELECT * FROM old_datastore_pool") do |row|
             doc = REXML::Document.new(row[:body])
 
             doc.root.each_element("TEMPLATE/HOST") do |e|
                 e.name = "BRIDGE_LIST"
+            end
+
+            tm_mad = ""
+            doc.root.each_element("TM_MAD"){ |e| tm_mad = e.text }
+
+            type = 0
+            doc.root.each_element("TYPE"){ |e| type = e.text.to_i }
+
+            if (type == 1) # System DS
+                doc.root.each_element("TEMPLATE") do |e|
+                    e.add_element("SHARED").text =
+                        (tm_mad == "ssh" ? "NO" : "YES")
+                end
+            else
+                #tm_mads[row[:oid].to_i] = tm_mad
+
+                conf = TM_MAD_CONF[tm_mad]
+
+                if conf.nil?
+                    puts
+                    puts "ATTENTION: manual intervention required".red
+                    puts <<-END
+The Datastore ##{row[:oid]} #{row[:name]} is using the
+custom TM MAD '#{tm_mad}'. You will need to define new
+configuration parameters in oned.conf for this driver, see
+http://opennebula.org/documentation:rel4.4:upgrade
+                    END
+                else
+                    doc.root.each_element("TEMPLATE") do |e|
+                        e.add_element("LN_TARGET").text = conf[:ln_target]
+                        e.add_element("CLONE_TARGET").text = conf[:clone_target]
+                    end
+                end
             end
 
             @db[:datastore_pool].insert(
@@ -173,6 +259,46 @@ module Migrator
 
         @db.run "DROP TABLE old_history;"
 
+        ########################################################################
+        # Feature #1678
+        ########################################################################
+
+        @db.run "ALTER TABLE host_pool RENAME TO old_host_pool;"
+        @db.run "CREATE TABLE host_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, state INTEGER, last_mon_time INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name));"
+
+        @db.fetch("SELECT * FROM old_host_pool") do |row|
+            doc = REXML::Document.new(row[:body])
+
+            doc.root.each_element("HOST_SHARE") do |e|
+                e.add_element("DATASTORES")
+            end
+
+            @db[:host_pool].insert(
+                :oid            => row[:oid],
+                :name           => row[:name],
+                :body           => doc.root.to_s,
+                :state          => row[:state],
+                :last_mon_time  => row[:last_mon_],
+                :uid            => row[:uid],
+                :gid            => row[:gid],
+                :owner_u        => row[:owner_u],
+                :group_u        => row[:group_u],
+                :other_u        => row[:other_u],
+                :cid            => row[:cid])
+        end
+
+        @db.run "DROP TABLE old_host_pool;"
+
+        # TODO:
+        # For Feature #1678, VMs have new disk elements:
+        # VM/DISK/CLONE_TARGET
+        # VM/DISK/LN_TARGET
+        # VM/DISK/SIZE
+        #
+        # These elements are only used to schedule new deployments, so if we
+        # don't add them it will only affect automatic deployment of VMs
+        # recreated (onevm delete --recreate). Manual deployments will still
+        # work without problems.
 
         return true
     end
@@ -225,7 +351,7 @@ module Migrator
 
                 if ( type == "SWAP" || type == "FS")
                     e.each_element("SIZE") { |size_elem|
-                        vol_used += size_elem.text.to_f
+                        vol_used += size_elem.text.to_i
                     }
                 end
             }
@@ -249,7 +375,7 @@ module Migrator
             vm_elem.add_element("VMS_USED").text = vms_used.to_s
 
             vm_elem.add_element("VOLATILE_SIZE").text = vol_limit
-            vm_elem.add_element("VOLATILE_SIZE_USED").text = sprintf('%.2f', vol_used)
+            vm_elem.add_element("VOLATILE_SIZE_USED").text = vol_used.to_s
         end
     end
 

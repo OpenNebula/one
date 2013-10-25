@@ -722,6 +722,42 @@ function updateHostsView (request,host_list){
     }
 }
 
+function insert_datastores_capacity_table(host_share) {
+  var datastores = []
+  if ($.isArray(host_share.DATASTORES.DS))
+      datastores = host_share.DATASTORES.DS
+  else if (!$.isEmptyObject(host_share.DATASTORES.DS))
+      datastores = [host_share.DATASTORES.DS]
+
+  var str = "";
+
+  if (datastores.length) {
+    str += '<table id="info_host_datastore_table" class="twelve datatable extended_table">\
+      <thead>\
+        <tr>\
+          <th>' + tr("Datastore ID") + '</th>\
+          <th style="width:70%">' + tr("Capacity") + '</th>\
+        </tr>\
+      </thead>\
+      <tbody>';
+
+    $.each(datastores, function(index, value){
+      var pbar = generate_datastore_capacity_bar(value, 1);
+
+      str += '<tr>\
+         <td class="key_td">' + value.ID + '</td>\
+         <td class="value_td" colspan="2">'+ pbar +'</td>\
+      </tr>'
+    })
+
+    str += '</tbody>\
+      </table>'
+  }
+
+  return str;
+}
+
+
 //Updates the host info panel tab content and pops it up
 function updateHostInfo(request,host){
     var host_info = host.HOST;
@@ -799,6 +835,9 @@ function updateHostInfo(request,host){
             </tbody>\
          </table>\
         </div>\
+        <div class="six columns">'
+        + insert_datastores_capacity_table(host_info.HOST_SHARE) +
+        '</div>\
         <div class="six columns">'
         + insert_extended_template_table(host_info.TEMPLATE,
                                          "Host",

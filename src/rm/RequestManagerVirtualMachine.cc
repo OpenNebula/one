@@ -351,26 +351,13 @@ int RequestManagerVirtualMachine::get_host_information(
 
     host->unlock();
 
-    if ( cluster_id != -1 )
+    if (nd.get_ds_location(cluster_id, ds_location) == -1)
     {
-        Cluster * cluster = nd.get_clpool()->get(cluster_id, true);
+        failure_response(NO_EXISTS,
+            get_error(object_name(PoolObjectSQL::CLUSTER),cluster_id),
+            att);
 
-        if ( cluster == 0 )
-        {
-            failure_response(NO_EXISTS,
-                    get_error(object_name(PoolObjectSQL::CLUSTER),cluster_id),
-                    att);
-
-            return -1;
-        }
-
-        cluster->get_ds_location(ds_location);
-
-        cluster->unlock();
-    }
-    else //Default System DS
-    {
-        nd.get_configuration_attribute("DATASTORE_LOCATION", ds_location);
+        return -1;
     }
 
     return 0;
@@ -1100,9 +1087,9 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         return;
     }
 
-    int    ds_id   = img->get_ds_id();
-    string ds_name = img->get_ds_name();
-    int    size    = img->get_size();
+    int         ds_id   = img->get_ds_id();
+    string      ds_name = img->get_ds_name();
+    long long   size    = img->get_size();
 
     Image::ImageType type = img->get_type();
 
@@ -1150,7 +1137,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     string         ds_data;
     PoolObjectAuth ds_perms;
-    unsigned int   avail;
+    long long      avail;
     bool           ds_check;
 
     ds->get_permissions(ds_perms);
@@ -1165,7 +1152,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     // -------------------------------------------------------------------------
     // Check Datastore Capacity
     // -------------------------------------------------------------------------
-    if (ds_check && ((unsigned int) size > avail))
+    if (ds_check && (size > avail))
     {
         failure_response(ACTION, "Not enough space in datastore", att);
 

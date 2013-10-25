@@ -118,6 +118,11 @@ public:
         logger->log(module,type,message.c_str());
     };
 
+    static Log::MessageType log_level()
+    {
+        return logger->get_log_level();
+    }
+
 private:
     NebulaLog(){};
     ~NebulaLog(){};
