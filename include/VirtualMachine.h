@@ -408,6 +408,7 @@ public:
      */
     void add_history(
         int     hid,
+        int     cid,
         const string& hostname,
         const string& vmm_mad,
         const string& vnm_mad,

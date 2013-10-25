@@ -96,6 +96,7 @@ protected:
 
     int add_history(VirtualMachine * vm,
                     int              hid,
+                    int              cid,
                     const string&    hostname,
                     const string&    vmm_mad,
                     const string&    vnm_mad,

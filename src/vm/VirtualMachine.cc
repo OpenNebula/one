@@ -1367,6 +1367,7 @@ error_common:
 
 void VirtualMachine::add_history(
     int   hid,
+    int   cid,
     const string& hostname,
     const string& vmm_mad,
     const string& vnm_mad,
@@ -1395,6 +1396,7 @@ void VirtualMachine::add_history(
                           seq,
                           hid,
                           hostname,
+                          cid,
                           vmm_mad,
                           vnm_mad,
                           tm_mad,
@@ -1424,6 +1426,7 @@ void VirtualMachine::cp_history()
                        history->seq + 1,
                        history->hid,
                        history->hostname,
+                       history->cid,
                        history->vmm_mad_name,
                        history->vnm_mad_name,
                        history->tm_mad_name,
@@ -1456,6 +1459,7 @@ void VirtualMachine::cp_previous_history()
                        history->seq + 1,
                        previous_history->hid,
                        previous_history->hostname,
+                       previous_history->cid,
                        previous_history->vmm_mad_name,
                        previous_history->vnm_mad_name,
                        previous_history->tm_mad_name,

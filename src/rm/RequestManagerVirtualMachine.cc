@@ -440,6 +440,7 @@ VirtualMachine * RequestManagerVirtualMachine::get_vm(int id,
 
 int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
                                        int              hid,
+                                       int              cid,
                                        const string&    hostname,
                                        const string&    vmm_mad,
                                        const string&    vnm_mad,
@@ -453,7 +454,7 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
 
     VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
 
-    vm->add_history(hid, hostname, vmm_mad, vnm_mad, tm_mad, ds_location, ds_id);
+    vm->add_history(hid, cid, hostname, vmm_mad, vnm_mad, tm_mad, ds_location, ds_id);
 
     rc = vmpool->update_history(vm);
 
@@ -766,6 +767,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (add_history(vm,
                     hid,
+                    cluster_id,
                     hostname,
                     vmm_mad,
                     vnm_mad,
@@ -961,6 +963,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     if (add_history(vm,
                     hid,
+                    cluster_id,
                     hostname,
                     vmm_mad,
                     vnm_mad,

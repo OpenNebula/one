@@ -232,6 +232,7 @@ public:
         int seq,
         int hid,
         const string& hostname,
+        int cid,
         const string& vmm,
         const string& vnm,
         const string& tmm,
@@ -275,8 +276,9 @@ private:
     int     oid;
     int     seq;
 
-    string  hostname;
     int     hid;
+    string  hostname;
+    int     cid;
 
     string  vmm_mad_name;
     string  vnm_mad_name;
