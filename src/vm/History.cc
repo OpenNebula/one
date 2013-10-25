@@ -40,8 +40,9 @@ History::History(
         ObjectXML(),
         oid(_oid),
         seq(_seq),
-        hostname(""),
         hid(-1),
+        hostname(""),
+        cid(-1),
         vmm_mad_name(""),
         vnm_mad_name(""),
         tm_mad_name(""),
@@ -66,6 +67,7 @@ History::History(
     int	_seq,
     int	_hid,
     const string& _hostname,
+    int _cid,    
     const string& _vmm,
     const string& _vnm,
     const string& _tmm,
@@ -74,8 +76,9 @@ History::History(
     const string& _vm_info):
         oid(_oid),
         seq(_seq),
-        hostname(_hostname),
         hid(_hid),
+        hostname(_hostname),
+        cid(_cid),
         vmm_mad_name(_vmm),
         vnm_mad_name(_vnm),
         tm_mad_name(_tmm),
@@ -301,6 +304,7 @@ string& History::to_xml(string& xml, bool database) const
           "<SEQ>"               << seq               << "</SEQ>"   <<
           "<HOSTNAME>"          << hostname          << "</HOSTNAME>"<<
           "<HID>"               << hid               << "</HID>"   <<
+          "<CID>"               << cid               << "</CID>"   <<
           "<STIME>"             << stime             << "</STIME>" <<
           "<ETIME>"             << etime             << "</ETIME>" <<
           "<VMMMAD>"            << vmm_mad_name      << "</VMMMAD>"<<
@@ -341,6 +345,7 @@ int History::rebuild_attributes()
     rc += xpath(seq              , "/HISTORY/SEQ",         -1);
     rc += xpath(hostname         , "/HISTORY/HOSTNAME",    "not_found");
     rc += xpath(hid              , "/HISTORY/HID",         -1);
+    rc += xpath(cid              , "/HISTORY/CID",         -1);    
     rc += xpath(stime            , "/HISTORY/STIME",       0);
     rc += xpath(etime            , "/HISTORY/ETIME",       0);
     rc += xpath(vmm_mad_name     , "/HISTORY/VMMMAD",      "not_found");
