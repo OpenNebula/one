@@ -278,7 +278,13 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         puts str % ["RUNNING VMS", host['HOST_SHARE/RUNNING_VMS']]
         puts
 
-        datastores = [host.to_hash['HOST']['HOST_SHARE']['DATASTORES']['DS']].flatten
+        datastores = host.to_hash['HOST']['HOST_SHARE']['DATASTORES']['DS']
+
+        if datastores.nil?
+            datastores = []
+        else
+            datastores = [datastores].flatten
+        end
 
         datastores.each do |datastore|
             CLIHelper.print_header(str_h1 % "LOCAL SYSTEM DATASTORE ##{datastore['ID']} CAPACITY", false)
