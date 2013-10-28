@@ -109,6 +109,7 @@
                     <xs:element name="SEQ" type="xs:integer"/>
                     <xs:element name="HOSTNAME" type="xs:string"/>
                     <xs:element name="HID" type="xs:integer"/>
+                    <xs:element name="CID" type="xs:integer"/>
                     <xs:element name="STIME" type="xs:integer"/>
                     <xs:element name="ETIME" type="xs:integer"/>
                     <xs:element name="VMMMAD" type="xs:string"/>

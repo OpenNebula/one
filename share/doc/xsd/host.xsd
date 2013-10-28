@@ -47,6 +47,22 @@
               <xs:element name="USED_CPU" type="xs:integer"/>
               <!-- ^^ Percentage of CPU used by all host processes (including VMs) over a total of # cores * 100   -->
               <xs:element name="RUNNING_VMS" type="xs:integer"/>
+              <xs:element name="DATASTORES">
+                    <xs:complexType>
+                      <xs:sequence>
+                        <xs:element name="DS" minOccurs="0" maxOccurs="unbounded">
+                              <xs:complexType>
+                                <xs:all>
+                                  <xs:element name="ID" type="xs:integer"/>
+                                  <xs:element name="FREE_MB" type="xs:integer"/>
+                                  <xs:element name="TOTAL_MB" type="xs:integer"/>
+                                  <xs:element name="USED_MB" type="xs:integer"/>
+                                </xs:all>
+                              </xs:complexType>
+                        </xs:element>
+                      </xs:sequence>
+                    </xs:complexType>
+              </xs:element>
             </xs:sequence>
           </xs:complexType>
         </xs:element>
