@@ -408,7 +408,7 @@ post '/upload'do
 
     if (rackinput.class == Tempfile)
         tmpfile = rackinput
-    elsif (rackinput.class == StringIO)
+    elsif (rackinput.class == StringIO || rackinput.class == PhusionPassenger::Utils::RewindableInput)
         tmpfile = Tempfile.open('sunstone-upload')
         tmpfile.write rackinput.read
         tmpfile.flush
