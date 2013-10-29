@@ -162,6 +162,10 @@ module Instance
             context["EC2_KEYNAME"] = params['KeyName'] if params['KeyName']
             context["EC2_USER_DATA"] = params['UserData'] if params['UserData']
 
+            if merge_info["CONTEXT"].empty?
+                merge_info.delete("CONTEXT")
+            end
+
             template_str = template_to_str(merge_info)
             vm_id =
 
