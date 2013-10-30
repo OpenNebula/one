@@ -67,6 +67,7 @@ class EC2QueryServer < CloudServer
     include Keypair
     include EBS
     include Instance
+    include Tags
 
     ############################################################################
     #
