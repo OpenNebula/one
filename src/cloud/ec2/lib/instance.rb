@@ -65,6 +65,13 @@ module Instance
         img = nil
         if params['ImageId'] =~ /ami\-(.+)/
             img = $1
+            image = ImageEC2.new(Image.build_xml(img), @client)
+            rc = image.info
+            if OpenNebula.is_error?(rc) || !image.ec2_ami?
+                rc ||= OpenNebula::Error.new()
+                rc.ec2_code = "InvalidAMIID.NotFound"
+                return rc
+            end
         else
             rc = OpenNebula::Error.new("InvalidAMIID.Malformed #{params['ImageId']}")
             rc.ec2_code = "InvalidAMIID.Malformed"
