@@ -363,7 +363,7 @@ class VMwareDriver
         rc = false
 
         30.times do
-            rc, info = do_action("virsh -c #{@undefine_uri} undefine #{id}")
+            rc, info = do_action("virsh -c #{undefine_uri} undefine #{id}")
             break if rc
             sleep 1
         end
