@@ -22,7 +22,7 @@ def print_info(name, value)
 end
 
 ######
-#  First, get all the posible info out of virsh 
+#  First, get all the posible info out of virsh
 #  TODO : use virsh freecell when available
 ######
 
@@ -43,7 +43,7 @@ nodeinfo_text.split(/\n/).each{|line|
 #   for everything else, top & proc
 #####
 
-NETINTERFACE = "eth1"
+NETINTERFACE = "eth|bond"
 
 top_text=`top -bin2`
 exit(-1) if $?.exitstatus != 0
@@ -74,12 +74,14 @@ $free_memory=tmp[1]
 net_text=`cat /proc/net/dev`
 exit(-1) if $?.exitstatus != 0
 
+$netrx = 0
+$nettx = 0
+
 net_text.split(/\n/).each{|line|
     if line.match("^ *#{NETINTERFACE}")
         arr   = line.split(":")[1].split(" ")
-        $netrx = arr[0]
-        $nettx = arr[8]
-        break
+        $netrx += arr[0].to_i
+        $nettx += arr[8].to_i
     end
 }
 
