@@ -136,15 +136,15 @@ module Instance
 
             template_id = template_pool["VMTEMPLATE/TEMPLATE[EC2_INSTANCE_TYPE=\'#{params['InstanceType']}\']/../ID"]
             if template_id.nil?
-                rc = OpenNebula::Error.new("InvalidInstanceID.NotFound #{params['InstanceType']}")
-                rc.ec2_code = "InvalidInstanceID.NotFound"
+                rc = OpenNebula::Error.new("InvalidInstanceAttributeValue.NotFound #{params['InstanceType']}")
+                rc.ec2_code = "InvalidInstanceAttributeValue.NotFound"
                 return rc
             end
 
             template = Template.new(Template.build_xml(template_id), @client)
             rc = template.info
             if OpenNebula.is_error?(rc)
-                rc.ec2_code = "InvalidInstanceID.NotFound"
+                rc.ec2_code = "InvalidInstanceAttributeValue.NotFound"
                 return rc
             end
 
