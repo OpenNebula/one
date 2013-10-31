@@ -1628,6 +1628,8 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
+    RequestAttributes att_rollback(vm_perms.uid, vm_perms.gid, att);
+
     /* ---------------------------------------------------------------------- */
     /*  Check & update host capacity                                          */
     /* ---------------------------------------------------------------------- */
@@ -1645,7 +1647,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
                 get_error(object_name(PoolObjectSQL::HOST),hid),
                 att);
 
-            quota_rollback(&deltas, Quotas::VM, att);
+            quota_rollback(&deltas, Quotas::VM, att_rollback);
 
             return;
         }
@@ -1661,7 +1663,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
 
             host->unlock();
 
-            quota_rollback(&deltas, Quotas::VM, att);
+            quota_rollback(&deltas, Quotas::VM, att_rollback);
 
             return;
         }
@@ -1685,7 +1687,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
                 get_error(object_name(PoolObjectSQL::VM),id),
                 att);
 
-        quota_rollback(&deltas, Quotas::VM, att);
+        quota_rollback(&deltas, Quotas::VM, att_rollback);
 
         if (hid != -1)
         {
@@ -1736,7 +1738,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
 
             vm->unlock();
 
-            quota_rollback(&deltas, Quotas::VM, att);
+            quota_rollback(&deltas, Quotas::VM, att_rollback);
 
             if (hid != -1)
             {
