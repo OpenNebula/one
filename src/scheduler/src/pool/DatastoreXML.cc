@@ -38,6 +38,11 @@ void DatastoreXML::init_attributes()
     cluster_id = atoi(((*this)["/DATASTORE/CLUSTER_ID"] )[0].c_str() );
     free_mb    = atoll(((*this)["/DATASTORE/FREE_MB"])[0].c_str());
 
+    long long total_mb  = atoll(((*this)["/DATASTORE/TOTAL_MB"])[0].c_str());
+    long long used_mb   = atoll(((*this)["/DATASTORE/USED_MB"])[0].c_str());
+
+    monitored = (free_mb != 0 || total_mb != 0 || used_mb != 0);
+
     string shared_st;
     this->xpath(shared_st, "/DATASTORE/TEMPLATE/SHARED", "YES");
 

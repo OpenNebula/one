@@ -684,7 +684,7 @@ void Scheduler::match_schedule()
             // Check datastore capacity
             // -----------------------------------------------------------------
 
-            if (ds->is_shared())
+            if (ds->is_shared() && ds->is_monitored())
             {
                 if (ds->test_capacity(vm_disk))
                 {
@@ -886,7 +886,7 @@ void Scheduler::dispatch()
 
                 if (!vm->is_resched())
                 {
-                    if (ds->is_shared())
+                    if (ds->is_shared() && ds->is_monitored())
                     {
                         test_cap_result = ds->test_capacity(dsk);
                     }
@@ -944,7 +944,7 @@ void Scheduler::dispatch()
             // DS capacity is only added for new deployments, not for migrations
             if (!vm->is_resched())
             {
-                if (ds->is_shared())
+                if (ds->is_shared() && ds->is_monitored())
                 {
                     ds->add_capacity(dsk);
                 }
