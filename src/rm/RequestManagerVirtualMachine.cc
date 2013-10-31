@@ -1331,8 +1331,10 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
 
     VirtualMachineTemplate * tmpl = new VirtualMachineTemplate();
     VirtualMachineTemplate * deltas = 0;
-    PoolObjectAuth           host_perms;
     PoolObjectAuth           vm_perms;
+
+    VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
+    VirtualMachine *     vm;
 
     int    rc;
     string error_str;
@@ -1365,6 +1367,22 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
+    vm = vmpool->get(id, true);
+
+    if (vm == 0)
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::VM),id),
+                att);
+        return;
+    }
+
+    vm->get_permissions(vm_perms);
+
+    vm->unlock();
+
+    RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
+
     volatile_disk = VirtualMachine::isVolatile(tmpl);
 
     if ( volatile_disk )
@@ -1373,7 +1391,7 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
 
         deltas->add("VMS", 0);
 
-        if (quota_resize_authorization(id, deltas, att) == false)
+        if (quota_resize_authorization(id, deltas, att_quota) == false)
         {
             delete tmpl;
             delete deltas;
@@ -1383,7 +1401,7 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
     }
     else
     {
-        if ( quota_authorization(tmpl, Quotas::IMAGE, att) == false )
+        if ( quota_authorization(tmpl, Quotas::IMAGE, att_quota) == false )
         {
             delete tmpl;
             return;
@@ -1396,11 +1414,11 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
     {
         if ( volatile_disk )
         {
-            quota_rollback(deltas, Quotas::VM, att);
+            quota_rollback(deltas, Quotas::VM, att_quota);
         }
         else
         {
-            quota_rollback(tmpl, Quotas::IMAGE, att);
+            quota_rollback(tmpl, Quotas::IMAGE, att_quota);
         }
 
         failure_response(ACTION,
