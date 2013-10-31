@@ -174,7 +174,7 @@ module Tags
             end
 
             tags.each { |key,value|
-                resource.delete_element("#{template_key}/EC2_TAGS/#{key}")
+                resource.delete_element("#{template_key}/EC2_TAGS/#{key.upcase}")
             }
 
             rc = resource.update(resource.template_like_str(template_key))
