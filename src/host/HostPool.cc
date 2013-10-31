@@ -235,16 +235,14 @@ error_common:
 
 int HostPool::drop(int hid, string& error_msg)
 {
-
-    Host * host;
-
-    host = get(hid,true);
+    Host * host = get(hid,true);
 
     if (host == 0)
     {
         ostringstream   oss;
         oss << "Could not get host " << hid;
         error_msg = oss.str();
+
         return -1;
     }
 

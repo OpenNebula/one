@@ -295,13 +295,6 @@ void InformationManagerDriver::protocol(const string& message) const
         int    rc;
         string error;
 
-        host = hpool->get(id,true);
-
-        if ( host == 0 )
-        {
-            goto error_host;
-        }
-
         if (result != "SUCCESS")
         {
             ostringstream oss;
@@ -314,8 +307,6 @@ void InformationManagerDriver::protocol(const string& message) const
         }
 
         rc = hpool->drop(id, error);
-
-        host->unlock();
 
         if (rc != 0)
         {

@@ -146,8 +146,24 @@ int RequestManagerDelete::drop(
 
 int HostDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 {
-    Nebula& nd = Nebula::instance();
+    Nebula& nd              = Nebula::instance();
     InformationManager * im = nd.get_im();
+
+    HostPool * hpool = nd.get_hpool();
+
+    Host* host = static_cast<Host *>(object);
+
+    if ( host->get_share_running_vms() > 0 )
+    {
+        error_msg = "Can not remove a host with running VMs";
+        return -1;
+    }
+
+    host->disable();
+
+    hpool->update(host);
+
+    host->unlock();
 
     im->trigger(InformationManager::STOPMONITOR, oid);
 

@@ -176,36 +176,30 @@ void InformationManager::do_action(const string &action, void * arg)
 
 void InformationManager::stop_monitor(int hid)
 {
-    Host * host;
-
-    const InformationManagerDriver * imd;
-
-    ostringstream   oss;
-
-    host = hpool->get(hid,true);
+    Host * host = hpool->get(hid,true);
 
     if (host == 0) //Already deleted silently return
     {
         return;
     }
 
-    imd = get(host->get_im_mad());
+    const InformationManagerDriver * imd = get(host->get_im_mad());
 
-    if (imd == 0)
+    if (imd == 0) //No IM Driver to call, delete host.
     {
-        oss.str("");
-        oss << "Could not find information driver " << host->get_im_mad();
-        NebulaLog::log("InM",Log::ERROR,oss);
+        string error_str;
 
-        host->unlock();
-        return;
+        hpool->drop(host, error_str);
+
+        if (!error_str.empty())
+        {
+            NebulaLog::log("InM", Log::ERROR, error_str);
+        }
     }
-
-    host->disable();
-
-    imd->stop_monitor(hid, host->get_name());
-
-    hpool->update(host);
+    else
+    {
+        imd->stop_monitor(hid, host->get_name());
+    }
 
     host->unlock();
 }
