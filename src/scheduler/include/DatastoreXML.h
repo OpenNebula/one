@@ -74,12 +74,24 @@ public:
         return shared;
     };
 
+    /**
+     * Returns true if the DS free_mb is not 0. Only for shared DS
+     * @return true if the DS is monitored
+     */
+    bool is_monitored()
+    {
+        return monitored;
+    };
+
+
 private:
 
     int oid;
     int cluster_id;
 
     long long free_mb; /**< Free disk for VMs (in MB). */
+
+    bool monitored;
 
     bool shared;
 

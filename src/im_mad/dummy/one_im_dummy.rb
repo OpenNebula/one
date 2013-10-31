@@ -64,6 +64,10 @@ class DummyInformationManager < OpenNebulaDriver
         results << "USEDCPU=#{used_cpu}\n"
         results << "FREECPU=#{800-used_cpu}\n"
 
+        results << "DS_LOCATION_USED_MB=9720\n"
+        results << "DS_LOCATION_TOTAL_MB=20480\n"
+        results << "DS_LOCATION_FREE_MB=20480\n"
+
         results = Base64::encode64(results).strip.delete("\n")
 
         send_message("MONITOR", RESULT[:success], number, results)
