@@ -357,6 +357,17 @@ int ImagePool::disk_attribute(int               vm_id,
             return -1;
         }
 
+        int rc;
+        long long size;
+
+        rc = disk->vector_value("SIZE", size);
+
+        if ( rc != 0 || size <= 0 )
+        {
+            error_str = "SIZE attribute must be a positive integer value.";
+            return -1;
+        }
+
         img_type   = Image::DATABLOCK;
         dev_prefix = disk->vector_value("DEV_PREFIX");
 

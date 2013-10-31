@@ -1729,6 +1729,9 @@ int VirtualMachine::get_disk_images(string& error_str)
         }
         else
         {
+            oss << "DISK " << i << ": " << error_str;
+            error_str = oss.str();
+
             goto error_common;
         }
     }
