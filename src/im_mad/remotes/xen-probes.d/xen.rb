@@ -21,7 +21,7 @@ require "pp"
 XENTOP_PATH="/usr/sbin/xentop"
 
 dir=File.basename(Dir.pwd)
-if dir=='xen4.d'
+if dir.match(/^xen4/)
     XM_PATH="/usr/sbin/xl"
 else
     XM_PATH="/usr/sbin/xm"
