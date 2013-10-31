@@ -77,7 +77,7 @@ module Tags
                 end
               end
             when /Tag\.(\d+)\.Key/
-                tags[value] = params["Tag.#{$1}.Value"] || ""
+                tags[value] = params["Tag.#{$1}.Value"] || "\"\""
             end
         }
 
