@@ -751,6 +751,14 @@ public:
     };
 
     /**
+     *  Gets the running start time for the VM
+     */
+    time_t get_running_stime()
+    {
+        return history->running_stime;
+    }
+
+    /**
      *  Sets end time of VM running state.
      *    @param _etime time when the running state finished
      */

@@ -1456,14 +1456,13 @@ error_common:
 
 void VirtualMachineManager::timer_action()
 {
-    static int mark        = 0;
-    static int timer_start = time(0);
+    static int mark = 0;
 
-    VirtualMachine *        vm;
-    vector<int>             oids;
-    vector<int>::iterator   it;
-    int                     rc;
-    ostringstream           os;
+    VirtualMachine *      vm;
+    vector<int>           oids;
+    vector<int>::iterator it;
+    int                   rc;
+    ostringstream         os;
 
     time_t thetime = time(0);
 
@@ -1482,13 +1481,6 @@ void VirtualMachineManager::timer_action()
 
     // Clear the expired monitoring records
     vmpool->clean_expired_monitoring();
-
-    // Skip monitoring the first poll_period to allow the Host monitoring to
-    // gather the VM info
-    if ( timer_start + poll_period > thetime )
-    {
-        return;
-    }
 
     // Monitor only VMs that hasn't been monitored for 'poll_period' seconds.
     rc = vmpool->get_running(oids, vm_limit, thetime - poll_period);
@@ -1513,6 +1505,14 @@ void VirtualMachineManager::timer_action()
             os << "Monitoring VM " << *it << " but it has no history.";
             NebulaLog::log("VMM", Log::ERROR, os);
 
+            vm->unlock();
+            continue;
+        }
+
+        // Skip monitoring the first poll_period to allow the Host monitoring to
+        // gather the VM info
+        if (vm->get_running_stime() + poll_period > thetime)
+        {
             vm->unlock();
             continue;
         }
