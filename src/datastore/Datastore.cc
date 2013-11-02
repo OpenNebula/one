@@ -138,8 +138,27 @@ Datastore::DatastoreType Datastore::str_to_type(string& str_type)
     return dst;
 }
 
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static int check_tm_target_type(string& tm_tt)
+{
+    if (tm_tt.empty())
+    {
+        return -1;
+    }
+
+    one_util::toupper(tm_tt);
+
+    if ((tm_tt != "NONE") && (tm_tt != "SELF") && (tm_tt != "SYSTEM"))
+    {
+        return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
 
 int Datastore::set_tm_mad(string &tm_mad, string &error_str)
 {
@@ -163,16 +182,21 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
 
     if (type == SYSTEM_DS)
     {
-        st = vatt->vector_value("SHARED");
+        bool shared_type;
 
-        if (st.empty())
+        if (vatt->vector_value("SHARED", shared_type) == -1)
         {
             goto error;
         }
 
-        one_util::toupper(st);
-
-        replace_template_attribute("SHARED", st);
+        if (shared_type)
+        {
+            replace_template_attribute("SHARED", "YES");
+        }
+        else
+        {
+            replace_template_attribute("SHARED", "NO");
+        }
 
         remove_template_attribute("LN_TARGET");
         remove_template_attribute("CLONE_TARGET");
@@ -181,23 +205,19 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
     {
         st = vatt->vector_value("LN_TARGET");
 
-        if (st.empty())
+        if (check_tm_target_type(st) == -1)
         {
             goto error;
         }
-
-        one_util::toupper(st);
 
         replace_template_attribute("LN_TARGET", st);
 
         st = vatt->vector_value("CLONE_TARGET");
 
-        if (st.empty())
+        if (check_tm_target_type(st) == -1)
         {
             goto error;
         }
-
-        one_util::toupper(st);
 
         replace_template_attribute("CLONE_TARGET", st);
 
@@ -207,8 +227,8 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
     return 0;
 
 error:
-    oss << "Attribute TM_MAD_CONF for " << tm_mad
-        << " is missing shared, ln_target or clone_target in oned.conf";
+    oss << "Attribute shared, ln_target or clone_target in TM_MAD_CONF for "
+        << tm_mad << " is missing or has wrong value in oned.conf";
 
     error_str = oss.str();
 
