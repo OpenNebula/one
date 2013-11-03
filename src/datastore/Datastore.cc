@@ -297,13 +297,16 @@ int Datastore::insert(SqlDB *db, string& error_str)
 
     base_path = oss.str();
 
-    disk_type = Image::FILE;
-
     erase_template_attribute("DISK_TYPE", s_disk_type);
 
     if ( type == IMAGE_DS )
     {
         disk_type = Image::str_to_disk_type(s_disk_type);
+
+        if (disk_type == Image::NONE)
+        {
+            goto error_disk_type;
+        }
 
         add_template_attribute("DISK_TYPE", Image::disk_type_to_str(disk_type));
     }
@@ -330,6 +333,10 @@ error_ds:
 
 error_empty_tm:
     error_str = "No TM_MAD in template.";
+    goto error_common;
+
+error_disk_type:
+    error_str = "Unknown DISK_TYPE in template.";
     goto error_common;
 
 error_common:

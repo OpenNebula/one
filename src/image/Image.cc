@@ -732,7 +732,7 @@ Image::ImageType Image::str_to_type(string& str_type)
 
 Image::DiskType Image::str_to_disk_type(string& s_disk_type)
 {
-    Image::DiskType type = FILE;
+    Image::DiskType type = NONE;
 
     one_util::toupper(s_disk_type);
 

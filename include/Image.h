@@ -80,7 +80,8 @@ public:
         BLOCK     = 2, /** < Block-device disk */
         RBD       = 3, /** < CEPH RBD disk */
         RBD_CDROM = 4, /** < CEPH RBD CDROM disk */
-        GLUSTER   = 5  /** < Gluster Block Device */
+        GLUSTER   = 5, /** < Gluster Block Device */
+        NONE      = 255 /** < No disk type, error situation */
     };
 
     /**
