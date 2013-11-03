@@ -748,6 +748,10 @@ Image::DiskType Image::str_to_disk_type(string& s_disk_type)
     {
         type = Image::RBD;
     }
+    else if (s_disk_type == "GLUSTER")
+    {
+        type = Image::GLUSTER;
+    }
 
     return type;
 }
