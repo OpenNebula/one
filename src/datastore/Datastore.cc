@@ -299,13 +299,18 @@ int Datastore::insert(SqlDB *db, string& error_str)
 
     erase_template_attribute("DISK_TYPE", s_disk_type);
 
+    disk_type = Image::FILE;
+
     if ( type == IMAGE_DS )
     {
-        disk_type = Image::str_to_disk_type(s_disk_type);
-
-        if (disk_type == Image::NONE)
+        if (!s_disk_type.empty())
         {
-            goto error_disk_type;
+            disk_type = Image::str_to_disk_type(s_disk_type);
+
+            if (disk_type == Image::NONE)
+            {
+                goto error_disk_type;
+            }
         }
 
         add_template_attribute("DISK_TYPE", Image::disk_type_to_str(disk_type));
@@ -550,7 +555,9 @@ int Datastore::replace_template(const string& tmpl_str, string& error_str)
     string new_ds_mad;
     string new_tm_mad;
     string s_ds_type;
-    string new_disk_type;
+    string new_disk_type_st;
+
+    Image::DiskType new_disk_type;
 
     DatastoreType new_ds_type;
     Template *    new_tmpl  = new DatastoreTemplate;
@@ -607,13 +614,18 @@ int Datastore::replace_template(const string& tmpl_str, string& error_str)
     /* Set the DISK_TYPE (class & template)                                   */
     /* ---------------------------------------------------------------------- */
 
-    erase_template_attribute("DISK_TYPE", new_disk_type);
+    erase_template_attribute("DISK_TYPE", new_disk_type_st);
 
     if ( type == IMAGE_DS )
     {
-        if (!new_disk_type.empty())
+        if (!new_disk_type_st.empty())
         {
-            disk_type = Image::str_to_disk_type(new_disk_type);
+            new_disk_type = Image::str_to_disk_type(new_disk_type_st);
+
+            if (new_disk_type != Image::NONE)
+            {
+                disk_type = new_disk_type;
+            }
         }
 
         add_template_attribute("DISK_TYPE", Image::disk_type_to_str(disk_type));

@@ -736,7 +736,11 @@ Image::DiskType Image::str_to_disk_type(string& s_disk_type)
 
     one_util::toupper(s_disk_type);
 
-    if (s_disk_type == "BLOCK")
+    if (s_disk_type == "FILE")
+    {
+        type = Image::FILE;
+    }
+    else if (s_disk_type == "BLOCK")
     {
         type = Image::BLOCK;
     }
