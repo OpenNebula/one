@@ -149,9 +149,11 @@ void TransferManager::trigger(Actions action, int _vid)
 void TransferManager::do_action(const string &action, void * arg)
 {
     int                 vid;
+    int                 hid;
     VirtualMachine *    vm;
     Host           *    host;
-    bool                host_is_hybrid;
+    bool                host_is_hybrid  = false;
+    bool                host_is_deleted = false;
     Nebula&             nd = Nebula::instance();
 
     if (arg == 0)
@@ -170,17 +172,30 @@ void TransferManager::do_action(const string &action, void * arg)
         return;
     }
 
-    host = hpool->get(vm->get_hid(),true);
-    host_is_hybrid=host->isHybrid();
-
+    hid = vm->get_hid();
     vm->unlock();
-    host->unlock();
+
+    host = hpool->get(hid,true);
+
+    if ( host == 0)
+    {
+        host_is_deleted=true;
+    }
+    else
+    {
+        host_is_hybrid=host->isHybrid();
+        host->unlock();
+    }
 
     if (action == "PROLOG")
     {
         if (host_is_hybrid)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_SUCCESS,vid);
+        }
+        else if (host_is_deleted)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_FAILURE,vid);
         }
         else
         {
@@ -193,6 +208,10 @@ void TransferManager::do_action(const string &action, void * arg)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_SUCCESS,vid);
         }
+        else if (host_is_deleted)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_FAILURE,vid);
+        }
         else
         {
             prolog_migr_action(vid);
@@ -203,6 +222,10 @@ void TransferManager::do_action(const string &action, void * arg)
         if (host_is_hybrid)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_SUCCESS,vid);
+        }
+        else if (host_is_deleted)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_FAILURE,vid);
         }
         else
         {
@@ -215,6 +238,10 @@ void TransferManager::do_action(const string &action, void * arg)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
         }
+        else if (host_is_deleted)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
+        }
         else
         {
             epilog_action(vid);
@@ -225,6 +252,10 @@ void TransferManager::do_action(const string &action, void * arg)
         if (host_is_hybrid)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
+        }
+        else if (host_is_deleted)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
         }
         else
         {
@@ -237,6 +268,10 @@ void TransferManager::do_action(const string &action, void * arg)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
         }
+        else if (host_is_deleted)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
+        }
         else
         {
             epilog_delete_action(vid);
@@ -247,6 +282,10 @@ void TransferManager::do_action(const string &action, void * arg)
         if (host_is_hybrid)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
+        }
+        else if (host_is_deleted)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
         }
         else
         {
@@ -259,10 +298,13 @@ void TransferManager::do_action(const string &action, void * arg)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
         }
+        else if (host_is_deleted)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
+        }
         else
         {
             epilog_delete_previous_action(vid);
-
         }
     }
     else if (action == "EPILOG_DELETE_BOTH")
@@ -270,6 +312,10 @@ void TransferManager::do_action(const string &action, void * arg)
         if (host_is_hybrid)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
+        }
+        else if (host_is_deleted)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
         }
         else
         {
