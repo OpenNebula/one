@@ -4383,6 +4383,10 @@ function fillTemplatePopUp(request, response){
         }
         else {
             $('input#'+str_disk_tab_id+'radioVolatile', disk_section).click();
+            if (disk.SIZE) {
+              $('#SIZE_TMP', disk_section).val(Math.round( disk.SIZE / 1024 ))
+            }
+
         }
 
         autoFillInputs(disk, $('div#disk_type.vm_param', disk_section));
