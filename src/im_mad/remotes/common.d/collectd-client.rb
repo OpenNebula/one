@@ -23,8 +23,6 @@ DIRNAME = File.dirname(__FILE__)
 REMOTE_DIR_UPDATE = File.join(DIRNAME, '../../.update')
 
 CYCLE       = 20
-TOTAL_HOSTS = 1000
-
 SLEEP       = 1
 
 class CollectdClient
@@ -36,8 +34,7 @@ class CollectdClient
         @port       = port
 
         # Monitorization slot
-        hosts_per_cycle = TOTAL_HOSTS.to_f / CYCLE.to_f
-        @my_slot = ((@number % TOTAL_HOSTS) / hosts_per_cycle).to_i
+        @my_slot = @number % CYCLE
 
         # Probes
         run_probes_cmd = File.join(DIRNAME, '..', "run_probes")
