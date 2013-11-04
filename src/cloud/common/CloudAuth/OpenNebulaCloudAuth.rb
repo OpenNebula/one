@@ -33,7 +33,7 @@ module OpenNebulaCloudAuth
         if auth.provided? && auth.basic?
             username, password = auth.credentials
 
-            client = OpenNebula::Client.new("#{username}:#{password}")
+            client = OpenNebula::Client.new("#{username}:#{password}", @conf[:one_xmlrpc])
             user   = OpenNebula::User.new_with_id(OpenNebula::User::SELF, client)
 
             rc = user.info
