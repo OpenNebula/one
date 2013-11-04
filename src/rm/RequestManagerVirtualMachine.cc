@@ -1913,7 +1913,10 @@ void VirtualMachineAttachNic::request_execute(
     DispatchManager * dm = nd.get_dm();
 
     VirtualMachineTemplate tmpl;
-    PoolObjectAuth           host_perms;
+
+    PoolObjectAuth       vm_perms;
+    VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
+    VirtualMachine *     vm;
 
     int    rc;
     string error_str;
@@ -1942,6 +1945,22 @@ void VirtualMachineAttachNic::request_execute(
         return;
     }
 
+    vm = vmpool->get(id, true);
+
+    if (vm == 0)
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::VM),id),
+                att);
+        return;
+    }
+
+    vm->get_permissions(vm_perms);
+
+    vm->unlock();
+
+    RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
+
     if (att.uid != UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
     {
         string aname;
@@ -1959,7 +1978,7 @@ void VirtualMachineAttachNic::request_execute(
         }
     }
 
-    if ( quota_authorization(&tmpl, Quotas::NETWORK, att) == false )
+    if ( quota_authorization(&tmpl, Quotas::NETWORK, att_quota) == false )
     {
         return;
     }
@@ -1968,7 +1987,7 @@ void VirtualMachineAttachNic::request_execute(
 
     if ( rc != 0 )
     {
-        quota_rollback(&tmpl, Quotas::NETWORK, att);
+        quota_rollback(&tmpl, Quotas::NETWORK, att_quota);
 
         failure_response(ACTION,
                 request_error(error_str, ""),
