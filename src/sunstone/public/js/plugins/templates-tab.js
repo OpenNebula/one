@@ -3523,7 +3523,7 @@ function setupCreateTemplateDialog(){
                             '<input type="text" id="SCHED_DS_REQUIREMENTS" name="requirements" />'+
                         '</div>'+
                         '<div class="one columns">'+
-                            '<div class="tip">'+tr("")+'.</div>'+
+                            '<div class="tip">'+tr("Boolean expression that rules out entries from the pool of datastores suitable to run this VM.")+'.</div>'+
                         '</div>'+
                     '</div>'+
                   '</fieldset>'+
