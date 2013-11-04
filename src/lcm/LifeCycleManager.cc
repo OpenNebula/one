@@ -167,6 +167,7 @@ void LifeCycleManager::trigger(Actions action, int _vid)
 
     case DETACH_NIC_FAILURE:
         aname = "DETACH_NIC_FAILURE";
+        break;
 
     case CLEANUP_SUCCESS:
         aname = "CLEANUP_SUCCESS";
