@@ -156,6 +156,9 @@ int HostDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
     if ( host->get_share_running_vms() > 0 )
     {
         error_msg = "Can not remove a host with running VMs";
+
+        host->unlock();
+
         return -1;
     }
 
