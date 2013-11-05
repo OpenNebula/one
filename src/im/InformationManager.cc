@@ -176,6 +176,12 @@ void InformationManager::do_action(const string &action, void * arg)
 
 void InformationManager::stop_monitor(int hid)
 {
+    string error_msg;
+    int    rc;
+
+    // -------------------------------------------------------------------------
+    // Drop host from DB
+    // -------------------------------------------------------------------------
     Host * host = hpool->get(hid,true);
 
     if (host == 0) //Already deleted silently return
@@ -183,25 +189,56 @@ void InformationManager::stop_monitor(int hid)
         return;
     }
 
-    const InformationManagerDriver * imd = get(host->get_im_mad());
+    int cluster_id = host->get_cluster_id();
+    string im_mad  = host->get_im_mad();
 
-    if (imd == 0) //No IM Driver to call, delete host.
+    rc = hpool->drop(host, error_msg);
+
+    host->unlock();
+
+    if (rc != 0) //Error (a VM has been allocated or DB error)
     {
-        string error_str;
+        ostringstream oss;
 
-        hpool->drop(host, error_str);
+        oss << "Could not delete host " << hid << ": " << error_msg;
 
-        if (!error_str.empty())
-        {
-            NebulaLog::log("InM", Log::ERROR, error_str);
-        }
+        NebulaLog::log("InM", Log::ERROR, oss);
+
+        return;
     }
-    else
+
+    // -------------------------------------------------------------------------
+    // Send STOPMONITOR to the IM driver if defined
+    // -------------------------------------------------------------------------
+    const InformationManagerDriver * imd = get(im_mad);
+
+    if (imd != 0)
     {
         imd->stop_monitor(hid, host->get_name());
     }
 
-    host->unlock();
+    // -------------------------------------------------------------------------
+    // Remove host from cluster
+    // -------------------------------------------------------------------------
+    if ( cluster_id != ClusterPool::NONE_CLUSTER_ID )
+    {
+        Cluster * cluster = clpool->get(cluster_id, true);
+
+        if( cluster != 0 )
+        {
+            rc = cluster->del_host(hid, error_msg);
+
+            if ( rc < 0 )
+            {
+                cluster->unlock();
+                return;
+            }
+
+            clpool->update(cluster);
+
+            cluster->unlock();
+        }
+    }
 }
 
 /* -------------------------------------------------------------------------- */

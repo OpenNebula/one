@@ -722,6 +722,7 @@ void Nebula::start(bool bootstrap_only)
         nebula_configuration->get("IM_MAD", im_mads);
 
         im = new InformationManager(hpool,
+                                    clpool,
                                     timer_period,
                                     monitor_period,
                                     monitor_push_period,

@@ -20,11 +20,13 @@
 #include "MadManager.h"
 #include "ActionManager.h"
 #include "InformationManagerDriver.h"
-#include "HostPool.h"
 
 using namespace std;
 
 extern "C" void * im_action_loop(void *arg);
+
+class HostPool;
+class ClusterPool;
 
 class InformationManager : public MadManager, public ActionListener
 {
@@ -32,6 +34,7 @@ public:
 
     InformationManager(
         HostPool *                  _hpool,
+        ClusterPool *               _clpool,
         time_t                      _timer_period,
         time_t                      _monitor_period,
         time_t                      _monitor_push_period,
@@ -40,6 +43,7 @@ public:
         vector<const Attribute*>&   _mads)
             :MadManager(_mads),
             hpool(_hpool),
+            clpool(_clpool),
             timer_period(_timer_period),
             monitor_period(_monitor_period),
             monitor_push_period(_monitor_push_period),
@@ -105,9 +109,14 @@ private:
     pthread_t       im_thread;
 
     /**
-     *  Pointer to the Host Pool, to access hosts
+     *  Pointer to the Host Pool
      */
     HostPool *      hpool;
+
+    /**
+     *  Pointer to the Cluster Pool
+     */
+    ClusterPool *   clpool;
 
     /**
      *  Timer period for the Virtual Machine Manager.

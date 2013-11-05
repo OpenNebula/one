@@ -233,54 +233,6 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int HostPool::drop(int hid, string& error_msg)
-{
-    Host * host = get(hid,true);
-
-    if (host == 0)
-    {
-        ostringstream   oss;
-        oss << "Could not get host " << hid;
-        error_msg = oss.str();
-
-        return -1;
-    }
-
-    int cluster_id = host->get_cluster_id();
-
-    int rc = drop(host, error_msg);
-
-    host->unlock();
-
-    if ( cluster_id != ClusterPool::NONE_CLUSTER_ID && rc == 0 )
-    {
-        Nebula& nd = Nebula::instance();
-
-        ClusterPool * clpool = nd.get_clpool();
-        Cluster * cluster    = clpool->get(cluster_id, true);
-
-        if( cluster != 0 )
-        {
-            rc = cluster->del_host(hid, error_msg);
-
-            if ( rc < 0 )
-            {
-                cluster->unlock();
-                return rc;
-            }
-
-            clpool->update(cluster);
-
-            cluster->unlock();
-        }
-    }
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int HostPool::discover_cb(void * _set, int num, char **values, char **names)
 {
     set<int> *  discovered_hosts;

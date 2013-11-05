@@ -294,7 +294,6 @@ void InformationManagerDriver::protocol(const string& message) const
     }
     else if (action == "STOPMONITOR")
     {
-        int    rc;
         string error;
 
         if (result != "SUCCESS")
@@ -306,16 +305,6 @@ void InformationManagerDriver::protocol(const string& message) const
 
             oss << "Could not stop monitor on host " << id << " " << info;
             NebulaLog::log("InM", Log::ERROR, oss.str());
-        }
-
-        rc = hpool->drop(id, error);
-
-        if (rc != 0)
-        {
-            ostringstream oss;
-
-            oss << "Could not delete host " << id << " " << error;
-            NebulaLog::log("InM",Log::ERROR,oss.str());
         }
     }
 

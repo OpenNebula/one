@@ -153,6 +153,7 @@ int HostDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 
     Host* host = static_cast<Host *>(object);
 
+    //Do not trigger delete event on IM if there are VMs running on the host
     if ( host->get_share_running_vms() > 0 )
     {
         error_msg = "Can not remove a host with running VMs";
