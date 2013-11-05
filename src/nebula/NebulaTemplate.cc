@@ -107,6 +107,12 @@ void OpenNebulaTemplate::set_conf_default()
     attribute = new SingleAttribute("MONITORING_INTERVAL",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 
+    // MONITORING_PUSH_INTERVAL
+    value = "20";
+
+    attribute = new SingleAttribute("MONITORING_PUSH_INTERVAL",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
     // HOST_PER_INTERVAL
     value = "15";
 

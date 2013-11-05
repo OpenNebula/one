@@ -42,11 +42,13 @@ InformationManagerDriver::InformationManagerDriver(
 void InformationManagerDriver::monitor(int           oid,
                                        const string& host,
                                        const string& dsloc,
-                                       bool          update) const
+                                       bool          update,
+                                       time_t monitor_push_period) const
 {
     ostringstream os;
 
-    os << "MONITOR " << oid << " " << host << " " << dsloc << " " << update << endl;
+    os << "MONITOR " << oid << " " << host << " " << dsloc << " " << update
+       << " " << monitor_push_period << endl;
 
     write(os);
 }

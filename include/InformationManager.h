@@ -34,6 +34,7 @@ public:
         HostPool *                  _hpool,
         time_t                      _timer_period,
         time_t                      _monitor_period,
+        time_t                      _monitor_push_period,
         int                         _host_limit,
         const string&               _remotes_location,
         vector<const Attribute*>&   _mads)
@@ -41,6 +42,7 @@ public:
             hpool(_hpool),
             timer_period(_timer_period),
             monitor_period(_monitor_period),
+            monitor_push_period(_monitor_push_period),
             host_limit(_host_limit),
             remotes_location(_remotes_location)
     {
@@ -116,6 +118,11 @@ private:
      *  Host monitoring interval
      */
     time_t          monitor_period;
+
+    /**
+     *  Host monitoring push interval
+     */
+    time_t          monitor_push_period;
 
     /**
      *  Host monitoring limit

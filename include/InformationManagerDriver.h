@@ -65,7 +65,7 @@ public:
      *    @param update the remotes directory in host
      */
     void monitor(int oid, const string& host, const string& ds_location,
-        bool update) const;
+        bool update, time_t monitor_push_period) const;
 
     /**
      *  Sends a stop monitor request to the MAD: "MONITOR  ID  HOSTNAME -"

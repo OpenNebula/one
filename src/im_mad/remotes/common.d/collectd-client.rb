@@ -22,19 +22,21 @@ require 'base64'
 DIRNAME = File.dirname(__FILE__)
 REMOTE_DIR_UPDATE = File.join(DIRNAME, '../../.update')
 
-CYCLE       = 20
-SLEEP       = 1
-
 class CollectdClient
-    def initialize(hypervisor, number, host, port, probes_args)
+    SLEEP = 1
+
+    def initialize(hypervisor, number, host, port, probes_args, cycle)
         # Arguments
         @hypervisor = hypervisor
         @number     = number.to_i
         @host       = host
         @port       = port
+        @cycle      = cycle.to_i
+
+        @cycle = 20 if @cycle == 0
 
         # Monitorization slot
-        @my_slot = @number % CYCLE
+        @my_slot = @number % @cycle
 
         # Probes
         run_probes_cmd = File.join(DIRNAME, '..', "run_probes")
@@ -92,8 +94,8 @@ class CollectdClient
 
             t = Time.now.to_i
 
-            current_cycle = t / CYCLE
-            current_slot  = t % CYCLE
+            current_cycle = t / @cycle
+            current_slot  = t % @cycle
 
             current = [current_cycle, current_slot]
 
@@ -122,13 +124,16 @@ class CollectdClient
     end
 end
 
-#Arguments: hypervisor(0) ds_location(1) collectd_port(2) host_id(3) hostname(4)
+#Arguments: hypervisor(0) ds_location(1) collectd_port(2) monitor_push_period(3)
+#                         host_id(4) hostname(5)
+
 hypervisor = ARGV[0]
-number     = ARGV[3]
 port       = ARGV[2]
+cycle      = ARGV[3]
+number     = ARGV[4]
 
 host       = ENV['SSH_CLIENT'].split.first
 probes_args= ARGV[1..-1].join(" ")
 
-client = CollectdClient.new(hypervisor, number, host, port, probes_args)
+client = CollectdClient.new(hypervisor, number, host, port, probes_args, cycle)
 client.monitor
