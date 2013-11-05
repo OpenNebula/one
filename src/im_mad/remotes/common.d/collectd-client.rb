@@ -23,20 +23,14 @@ DIRNAME = File.dirname(__FILE__)
 REMOTE_DIR_UPDATE = File.join(DIRNAME, '../../.update')
 
 class CollectdClient
-    SLEEP = 1
-
-    def initialize(hypervisor, number, host, port, probes_args, cycle)
+    def initialize(hypervisor, number, host, port, probes_args,
+                   monitor_push_period)
         # Arguments
-        @hypervisor = hypervisor
-        @number     = number.to_i
-        @host       = host
-        @port       = port
-        @cycle      = cycle.to_i
-
-        @cycle = 20 if @cycle == 0
-
-        # Monitorization slot
-        @my_slot = @number % @cycle
+        @hypervisor          = hypervisor
+        @number              = number.to_i
+        @host                = host
+        @port                = port
+        @monitor_push_period = monitor_push_period
 
         # Probes
         run_probes_cmd = File.join(DIRNAME, '..', "run_probes")
@@ -60,58 +54,24 @@ class CollectdClient
         @s.send("MONITOR SUCCESS #{@number} #{data}\n", 0, @host, @port)
     end
 
-    def do_send?(current, last_send)
-        current_cycle = current[0]
-        current_slot  = current[1]
-
-        last_cycle    = last_send[0]
-        last_slot     = last_send[1]
-
-        if last_slot < @my_slot
-            min_cycle = last_cycle
-        else
-            min_cycle = last_cycle + 1
-        end
-
-        if current_cycle > min_cycle
-            return true
-        elsif current_cycle < min_cycle
-            return false
-        else
-            return current_slot >= @my_slot
-        end
-    end
-
     def monitor
-        initial = true
-        data    = run_probes
-
-        last_send = nil
-
         loop do
             # Stop the execution if we receive the update signal
             exit 0 if stop?
 
-            t = Time.now.to_i
+            # Collect the Data
+            ts = Time.now
+            data = run_probes
 
-            current_cycle = t / @cycle
-            current_slot  = t % @cycle
+            run_probes_time = (Time.now - ts).to_i
 
-            current = [current_cycle, current_slot]
+            # Send the Data
+            send data
 
-            if initial
-                last_send = current
-                initial   = false
-            end
-
-            if do_send?(current, last_send)
-                send data
-                last_send = current
-
-                data = run_probes
-            end
-
-            sleep SLEEP
+            # Sleep during the Cycle
+            sleep_time = @monitor_push_period - run_probes_time
+            sleep_time = 0 if sleep_time < 0
+            sleep sleep_time
         end
     end
 
@@ -127,13 +87,20 @@ end
 #Arguments: hypervisor(0) ds_location(1) collectd_port(2) monitor_push_period(3)
 #                         host_id(4) hostname(5)
 
-hypervisor = ARGV[0]
-port       = ARGV[2]
-cycle      = ARGV[3]
-number     = ARGV[4]
+hypervisor          = ARGV[0]
+port                = ARGV[2]
+monitor_push_period = ARGV[3].to_i
+number              = ARGV[4]
+
+monitor_push_period = 20 if monitor_push_period == 0
 
 host       = ENV['SSH_CLIENT'].split.first
 probes_args= ARGV[1..-1].join(" ")
 
-client = CollectdClient.new(hypervisor, number, host, port, probes_args, cycle)
+# Add a random sleep before the first send
+sleep rand monitor_push_period
+
+# Start push monitorization
+client = CollectdClient.new(hypervisor, number, host, port, probes_args,
+                            monitor_push_period)
 client.monitor
