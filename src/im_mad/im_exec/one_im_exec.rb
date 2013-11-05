@@ -58,11 +58,18 @@ class InformationManagerDriver < OpenNebulaDriver
             @collectd_port = im_collectd.match(/-p (\d+)/)[1]
         rescue
         end
+
+        # monitor_push_interval
+        @monitor_push_interval = 20
+        begin
+            im_collectd = @config["IM_MAD"].select{|e| e.match(/collectd/)}[0]
+            @monitor_push_interval = im_collectd.match(/-i (\d+)/)[1].to_i
+        rescue
+        end
     end
 
     # Execute the run_probes in the remote host
-    def action_monitor(number, host, ds_location, do_update,
-                       monitor_push_interval)
+    def action_monitor(number, host, ds_location, do_update)
 
         if !action_is_local?(:MONITOR)
             if do_update == "1" || @options[:force_copy]
@@ -84,7 +91,7 @@ class InformationManagerDriver < OpenNebulaDriver
         end
 
         args = "#{@hypervisor} #{ds_location} #{@collectd_port}"
-        args << " #{monitor_push_interval}"
+        args << " #{@monitor_push_interval}"
         do_action(args, number, host,:MONITOR, :script_name => 'run_probes',
                   :base64 => true)
     end
