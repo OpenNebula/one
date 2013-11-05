@@ -47,9 +47,3 @@ function run_dir {
 if [ -d "$HYPERVISOR_DIR" ]; then
     run_dir "$HYPERVISOR_DIR"
 fi
-
-EXIT_CODE=$?
-
-if [ "x$EXIT_CODE" != "x0" ]; then
-    exit $EXIT_CODE
-fi

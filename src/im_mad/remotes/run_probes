@@ -54,6 +54,4 @@ EXIT_CODE=$?
 
 echo "$data"
 
-if [ "x$EXIT_CODE" != "x0" ]; then
-    exit $EXIT_CODE
-fi
+exit $EXIT_CODE
