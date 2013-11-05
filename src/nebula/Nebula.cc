@@ -655,11 +655,9 @@ void Nebula::start(bool bootstrap_only)
 
     time_t timer_period;
     time_t monitor_period;
-    time_t monitor_push_period;
 
     nebula_configuration->get("MANAGER_TIMER", timer_period);
     nebula_configuration->get("MONITORING_INTERVAL", monitor_period);
-    nebula_configuration->get("MONITORING_PUSH_INTERVAL", monitor_push_period);
 
     // ---- Virtual Machine Manager ----
     try
@@ -725,7 +723,6 @@ void Nebula::start(bool bootstrap_only)
                                     clpool,
                                     timer_period,
                                     monitor_period,
-                                    monitor_push_period,
                                     host_limit,
                                     remotes_location,
                                     im_mads);

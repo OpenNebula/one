@@ -382,8 +382,7 @@ void InformationManager::timer_action()
                     continue;
                 }
 
-                imd->monitor(oid, name, dsloc, update_remotes,
-                             monitor_push_period);
+                imd->monitor(oid, name, dsloc, update_remotes);
             }
         }
         else if (!host->isEnabled() && host->get_share_running_vms() == 0 )
