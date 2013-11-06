@@ -480,6 +480,18 @@ private:
      */
     HostShare       host_share;
 
+    /**
+     * Tmp set of lost VM IDs. Used to give lost VMs one grace cycle, in case
+     * they reappear.
+     */
+    set<int>        tmp_lost_vms;
+
+    /**
+     * Tmp set of zombie VM IDs. Used to give zombie VMs one grace cycle, in
+     * case they are cleaned.
+     */
+    set<int>        tmp_zombie_vms;
+
     // -------------------------------------------------------------------------
     //  VM Collection
     // -------------------------------------------------------------------------

@@ -265,6 +265,11 @@ int Host::update_info(Template        &tmpl,
     ostringstream zombie;
     ostringstream wild;
 
+    set<int>::iterator set_it;
+
+    set<int> prev_tmp_lost   = tmp_lost_vms;
+    set<int> prev_tmp_zombie = tmp_zombie_vms;
+
     int num_zombies = 0;
     int num_wilds   = 0;
 
@@ -324,7 +329,9 @@ int Host::update_info(Template        &tmpl,
 
     obj_template->remove("VM", vm_att);
 
-    lost = vm_collection.get_collection_copy();
+    tmp_lost_vms = vm_collection.get_collection_copy();
+
+    tmp_zombie_vms.clear();
 
     for (it = vm_att.begin(); it != vm_att.end(); it++)
     {
@@ -340,18 +347,24 @@ int Host::update_info(Template        &tmpl,
 
         if (rc == 0 && vmid != -1)
         {
-            if (lost.erase(vmid) == 1) //Good, known
+            if (tmp_lost_vms.erase(vmid) == 1) //Good, known
             {
                 found.insert(make_pair(vmid, vatt->vector_value("POLL")));
             }
             else //Bad, known but should not be here
             {
-                if (num_zombies++ > 0)
-                {
-                    zombie << ", ";
-                }
+                tmp_zombie_vms.insert(vmid);
 
-                zombie << vatt->vector_value("DEPLOY_ID");
+                // Reported as zombie at least 2 times?
+                if (prev_tmp_zombie.count(vmid) == 1)
+                {
+                    if (num_zombies++ > 0)
+                    {
+                        zombie << ", ";
+                    }
+
+                    zombie << vatt->vector_value("DEPLOY_ID");
+                }
             }
         }
         else if (rc == 0) //not ours
@@ -365,6 +378,15 @@ int Host::update_info(Template        &tmpl,
         }
 
         delete *it;
+    }
+
+    for(set_it = tmp_lost_vms.begin(); set_it != tmp_lost_vms.end(); set_it++)
+    {
+        // Reported as lost at least 2 times?
+        if (prev_tmp_lost.count(*set_it) == 1)
+        {
+            lost.insert(*set_it);
+        }
     }
 
     if (num_wilds > 0)
