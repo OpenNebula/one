@@ -203,6 +203,10 @@ void  DispatchManager::done_action(int vid)
            lcm_state == VirtualMachine::CANCEL ||
            lcm_state == VirtualMachine::CLEANUP_DELETE))
     {
+        vm->release_network_leases();
+
+        vm->release_disk_images();
+
         vm->set_state(VirtualMachine::DONE);
 
         vm->set_state(VirtualMachine::LCM_INIT);
@@ -212,10 +216,6 @@ void  DispatchManager::done_action(int vid)
         vmpool->update(vm);
 
         vm->log("DiM", Log::INFO, "New VM state is DONE");
-
-        vm->release_network_leases();
-
-        vm->release_disk_images();
 
         uid  = vm->get_uid();
         gid  = vm->get_gid();
