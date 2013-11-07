@@ -2321,7 +2321,7 @@ void VirtualMachine::release_disk_images()
 
         if ( rc == 0 )
         {
-            imagem->release_image(oid, save_as_id, (state == FAILED));
+            imagem->release_image(oid, save_as_id, (state != ACTIVE || lcm_state != EPILOG));
         }
     }
 }
