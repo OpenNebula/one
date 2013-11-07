@@ -165,6 +165,15 @@ void TransferManager::do_action(const string &action, void * arg)
 
     delete static_cast<int *>(arg);
 
+    if (action == ACTION_FINALIZE)
+    {
+        NebulaLog::log("TrM",Log::INFO,"Stopping Transfer Manager...");
+
+        MadManager::stop();
+
+        return;
+    }
+
     vm = vmpool->get(vid,true);
 
     if (vm == 0)
@@ -172,10 +181,20 @@ void TransferManager::do_action(const string &action, void * arg)
         return;
     }
 
-    hid = vm->get_hid();
-    vm->unlock();
+    if (vm->hasHistory())
+    {
+        hid = vm->get_hid();
 
-    host = hpool->get(hid,true);
+        vm->unlock();
+
+        host = hpool->get(hid,true);
+    }
+    else
+    {
+        vm->unlock();
+
+        host = 0;
+    }
 
     if ( host == 0)
     {
@@ -333,12 +352,6 @@ void TransferManager::do_action(const string &action, void * arg)
     else if (action == "DRIVER_CANCEL")
     {
         driver_cancel_action(vid);
-    }
-    else if (action == ACTION_FINALIZE)
-    {
-        NebulaLog::log("TrM",Log::INFO,"Stopping Transfer Manager...");
-
-        MadManager::stop();
     }
     else
     {
