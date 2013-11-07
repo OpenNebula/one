@@ -23,8 +23,10 @@ JUNIT_JAR="/usr/share/java/junit4.jar"
 
 if [ -z $ONE_LOCATION ]; then
     DB_LOCATION="/var/lib/one/one.db"
+    LOG_LOCATION="/var/log/one"
 else
     DB_LOCATION="$ONE_LOCATION/var/one.db"
+    LOG_LOCATION="$ONE_LOCATION/var"
 fi
 
 if [ -f $DB_LOCATION ]; then
@@ -40,7 +42,11 @@ PID=$$
 
 oned -f &
 
-sleep 10s;
+sleep 2;
+
+until grep 'Datastore default (1) successfully monitored' $LOG_LOCATION/oned.log; do
+    sleep 1;
+done
 
 java -cp ../lib/*:../jar/*:$JUNIT_JAR:. org.junit.runner.JUnitCore $1
 
