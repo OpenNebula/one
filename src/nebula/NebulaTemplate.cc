@@ -102,7 +102,7 @@ void OpenNebulaTemplate::set_conf_default()
 #*******************************************************************************
 */
     // MONITORING_INTERVAL
-    value = "300";
+    value = "60";
 
     attribute = new SingleAttribute("MONITORING_INTERVAL",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
@@ -114,7 +114,7 @@ void OpenNebulaTemplate::set_conf_default()
     conf_default.insert(make_pair(attribute->name(),attribute));
 
     // HOST_MONITORING_EXPIRATION_TIME
-    value = "86400";
+    value = "43200";
 
     attribute = new SingleAttribute("HOST_MONITORING_EXPIRATION_TIME",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
@@ -126,7 +126,7 @@ void OpenNebulaTemplate::set_conf_default()
     conf_default.insert(make_pair(attribute->name(),attribute));
 
     // VM_MONITORING_EXPIRATION_TIME
-    value = "86400";
+    value = "14400";
 
     attribute = new SingleAttribute("VM_MONITORING_EXPIRATION_TIME",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
