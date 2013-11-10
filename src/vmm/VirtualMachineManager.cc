@@ -352,6 +352,7 @@ string * VirtualMachineManager::format_message(
     const string& rdfile,
     const string& cfile,
     const string& tm_command,
+    const string& tm_command_rollback,
     const string& disk_target_path,
     const string& tmpl)
 {
@@ -402,11 +403,21 @@ string * VirtualMachineManager::format_message(
 
     if ( !tm_command.empty() )
     {
-        oss << "<TM_COMMAND><![CDATA[" << tm_command   << "]]></TM_COMMAND>";
+        oss << "<TM_COMMAND><![CDATA[" << tm_command << "]]></TM_COMMAND>";
     }
     else
     {
         oss << "<TM_COMMAND/>";
+    }
+
+    if (!tm_command_rollback.empty())
+    {
+        oss << "<TM_COMMAND_ROLLBACK><![CDATA[" << tm_command_rollback
+            << "]]></TM_COMMAND_ROLLBACK>";
+    }
+    else
+    {
+        oss << "<TM_COMMAND_ROLLBACK/>";
     }
 
     if ( !disk_target_path.empty() )
@@ -480,6 +491,7 @@ void VirtualMachineManager::deploy_action(int vid)
         "",
         vm->get_deployment_file(),
         vm->get_remote_deployment_file(),
+        "",
         "",
         "",
         "",
@@ -582,6 +594,7 @@ void VirtualMachineManager::save_action(
         vm->get_checkpoint_file(),
         "",
         "",
+        "",
         vm->to_xml(vm_tmpl));
 
     vmd->save(vid, *drv_msg);
@@ -663,6 +676,7 @@ void VirtualMachineManager::shutdown_action(
         "",
         "",
         "",
+        "",
         vm->to_xml(vm_tmpl));
 
     vmd->shutdown(vid, *drv_msg);
@@ -739,6 +753,7 @@ void VirtualMachineManager::reboot_action(
         "",
         "",
         "",
+        "",
         vm->to_xml(vm_tmpl));
 
     vmd->reboot(vid, *drv_msg);
@@ -805,6 +820,7 @@ void VirtualMachineManager::reset_action(
         "",
         "",
         vm->get_deploy_id(),
+        "",
         "",
         "",
         "",
@@ -882,6 +898,7 @@ void VirtualMachineManager::cancel_action(
         "",
         "",
         "",
+        "",
         vm->to_xml(vm_tmpl));
 
     vmd->cancel(vid, *drv_msg);
@@ -954,6 +971,7 @@ void VirtualMachineManager::cancel_previous_action(
         "",
         "",
         vm->get_deploy_id(),
+        "",
         "",
         "",
         "",
@@ -1051,6 +1069,7 @@ void VirtualMachineManager::cleanup_action(
         "",
         os.str(),
         "",
+        "",
         vm->to_xml(vm_tmpl));
 
     vmd->cleanup(vid, *drv_msg);
@@ -1135,6 +1154,7 @@ void VirtualMachineManager::cleanup_previous_action(
         "",
         os.str(),
         "",
+        "",
         vm->to_xml(vm_tmpl));
 
     vmd->cleanup(vid, *drv_msg);
@@ -1213,6 +1233,7 @@ void VirtualMachineManager::migrate_action(
         "",
         "",
         os.str(),
+        "",
         "",
         vm->to_xml(vm_tmpl));
 
@@ -1296,6 +1317,7 @@ void VirtualMachineManager::restore_action(
         vm->get_checkpoint_file(),
         "",
         "",
+        "",
         vm->to_xml(vm_tmpl));
 
     vmd->restore(vid, *drv_msg);
@@ -1368,6 +1390,7 @@ void VirtualMachineManager::poll_action(
         "",
         "",
         vm->get_deploy_id(),
+        "",
         "",
         "",
         "",
@@ -1549,6 +1572,7 @@ void VirtualMachineManager::timer_action()
             "",
             "",
             "",
+            "",
             vm->to_xml(vm_tmpl));
 
         vmd->poll(*it, *drv_msg);
@@ -1580,13 +1604,15 @@ void VirtualMachineManager::attach_action(
     string  vm_tm_mad;
     string  opennebula_hostname;
     string  prolog_cmd;
+    string  epilog_cmd;
     string  disk_path;
 
     const VectorAttribute * disk;
     int disk_id;
     int rc;
 
-    Nebula& nd = Nebula::instance();
+    Nebula& nd           = Nebula::instance();
+    TransferManager * tm = nd.get_tm();
 
     // Get the VM from the pool
     vm = vmpool->get(vid,true);
@@ -1617,9 +1643,10 @@ void VirtualMachineManager::attach_action(
     }
 
     vm_tm_mad = vm->get_tm_mad();
+
     opennebula_hostname = nd.get_nebula_hostname();
 
-    rc = nd.get_tm()->prolog_transfer_command(
+    rc = tm->prolog_transfer_command(
             vm,
             disk,
             vm_tm_mad,
@@ -1633,6 +1660,12 @@ void VirtualMachineManager::attach_action(
     {
         goto error_no_tm_command;
     }
+
+    os.str("");
+
+    tm->epilog_transfer_command(vm, disk, os);
+
+    epilog_cmd = os.str();
 
     os.str("");
 
@@ -1653,6 +1686,7 @@ void VirtualMachineManager::attach_action(
         "",
         "",
         prolog_cmd,
+        epilog_cmd,
         disk_path,
         vm->to_xml(vm_tmpl));
 
@@ -1773,6 +1807,7 @@ void VirtualMachineManager::detach_action(
         "",
         "",
         epilog_cmd,
+        "",
         disk_path,
         vm->to_xml(vm_tmpl));
 
@@ -1855,6 +1890,7 @@ void VirtualMachineManager::snapshot_create_action(int vid)
         "",
         "",
         "",
+        "",
         vm->to_xml(vm_tmpl));
 
     vmd->snapshot_create(vid, *drv_msg);
@@ -1932,6 +1968,7 @@ void VirtualMachineManager::snapshot_revert_action(int vid)
         "",
         "",
         "",
+        "",
         vm->to_xml(vm_tmpl));
 
     vmd->snapshot_revert(vid, *drv_msg);
@@ -2004,6 +2041,7 @@ void VirtualMachineManager::snapshot_delete_action(int vid)
         "",
         "",
         vm->get_deploy_id(),
+        "",
         "",
         "",
         "",
@@ -2088,6 +2126,7 @@ void VirtualMachineManager::attach_nic_action(
         "",
         "",
         "",
+        "",
         vm->to_xml(vm_tmpl));
 
     vmd->attach_nic(vid, *drv_msg);
@@ -2162,6 +2201,7 @@ void VirtualMachineManager::detach_nic_action(
         "",
         "",
         vm->get_deploy_id(),
+        "",
         "",
         "",
         "",

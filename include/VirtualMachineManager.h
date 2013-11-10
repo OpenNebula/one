@@ -211,6 +211,7 @@ private:
      *    @param cfile checkpoint file to save the VM
      *    @param disk_id Disk to attach/detach, if any
      *    @param tm_command Transfer Manager command to attach/detach, if any
+     *    @param tm_command_rollback TM command in case of attach failure
      *    @param disk_target_path Path of the disk to attach, if any
      *    @param tmpl the VM information in XML
      */
@@ -224,6 +225,7 @@ private:
         const string& rdfile,
         const string& cfile,
         const string& tm_command,
+        const string& tm_command_rollback,
         const string& disk_target_path,
         const string& tmpl);
 
