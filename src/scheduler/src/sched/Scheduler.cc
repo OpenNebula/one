@@ -584,7 +584,12 @@ void Scheduler::match_schedule()
                 }
                 else if (n_matched == 0)
                 {
-                    vm->log("No host meets SCHED_REQUIREMENTS");
+                    ostringstream oss;
+
+                    oss << "No host meets SCHED_REQUIREMENTS: "
+                        << reqs;
+
+                    vm->log(oss.str());
                 }
                 else
                 {
@@ -726,7 +731,12 @@ void Scheduler::match_schedule()
                 }
                 else if (n_matched == 0)
                 {
-                    vm->log("No system datastore meets SCHED_DS_REQUIREMENTS");
+                    ostringstream oss;
+
+                    oss << "No system datastore meets SCHED_DS_REQUIREMENTS: "
+                        << ds_reqs;
+
+                    vm->log(oss.str());
                 }
                 else
                 {
