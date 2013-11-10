@@ -535,11 +535,14 @@ class ExecDriver < VirtualMachineDriver
         xml_data = decode(drv_message)
 
         tm_command = ensure_xpath(xml_data, id, action, 'TM_COMMAND') || return
+        tm_rollback= xml_data.elements['TM_COMMAND_ROLLBACK'].text.strip
 
         target_xpath = "VM/TEMPLATE/DISK[ATTACH='YES']/TARGET"
         target     = ensure_xpath(xml_data, id, action, target_xpath) || return
 
         target_index = target.downcase[-1..-1].unpack('c').first - 97
+
+
 
         action = VmmAction.new(self, id, :attach_disk, drv_message)
 
@@ -566,6 +569,13 @@ class ExecDriver < VirtualMachineDriver
                         target,
                         target_index,
                         drv_message
+                ],
+                :fail_actions => [
+                    {
+                        :driver     => :tm,
+                        :action     => :tm_detach,
+                        :parameters => tm_rollback.split
+                    }
                 ]
             }
         ]
