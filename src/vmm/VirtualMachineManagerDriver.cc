@@ -635,7 +635,7 @@ void VirtualMachineManagerDriver::process_poll(
     }
 
     oss << "VM " << vm->get_oid() << " successfully monitored: " << monitor_str;
-    NebulaLog::log("VMM", Log::INFO, oss);
+    NebulaLog::log("VMM", Log::DEBUG, oss);
 
     vm->update_info(memory, cpu, net_tx, net_rx, custom);
 

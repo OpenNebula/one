@@ -195,7 +195,8 @@ static int cp_action(istringstream& is,
 
     image->unlock();
 
-    NebulaLog::log("ImM", Log::INFO, "Image copied and ready to use.");
+    oss << "Image (" << id << ") copied and ready to use.";
+    NebulaLog::log("ImM", Log::INFO, oss);
 
     return ds_id;
 
@@ -661,7 +662,7 @@ static void monitor_action(istringstream& is,
 
     oss << "Datastore " << ds_name << " (" << id << ") successfully monitored.";
 
-    NebulaLog::log("ImM", Log::INFO, oss);
+    NebulaLog::log("ImM", Log::DEBUG, oss);
 
     return;
 }

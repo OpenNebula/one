@@ -219,7 +219,7 @@ void InformationManagerDriver::protocol(const string& message) const
                     oss << "Datastore " << ds->get_name() <<
                         " (" << ds->get_oid() << ") successfully monitored.";
 
-                    NebulaLog::log("ImM", Log::INFO, oss);
+                    NebulaLog::log("ImM", Log::DEBUG, oss);
 
                     dspool->update(ds);
                 }

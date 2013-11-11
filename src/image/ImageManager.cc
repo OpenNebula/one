@@ -223,7 +223,7 @@ void ImageManager::monitor_datastore(int ds_id)
 
     oss << "Monitoring datastore " << ds->get_name() << " (" << ds_id << ")";
 
-    NebulaLog::log("InM", Log::INFO, oss);
+    NebulaLog::log("InM", Log::DEBUG, oss);
 
     ds->unlock();
 
