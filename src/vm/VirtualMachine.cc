@@ -1902,7 +1902,7 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
         {
             ostringstream oss;
 
-            oss << "Target " << target << "is already in use.";
+            oss << "Target " << target << " is already in use.";
             error_str = oss.str();
 
             imagem->release_image(vm_id, image_id, false);
