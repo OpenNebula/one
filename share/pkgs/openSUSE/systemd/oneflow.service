@@ -1,0 +1,20 @@
+[Unit]
+Description=OpenNebula Flow Service for multi tier applications
+After=syslog.target
+After=network.target
+After=one.service
+After=one_scheduler.service
+BindTo=one.service
+!ConditionFileExists=/var/lock/one/.oneflow.lock
+
+[Service]
+ExecStart=/bin/bash -c "/usr/bin/oneflow-server start"
+ExecStartPost=/usr/bin/touch /var/lock/one/.oneflow.lock
+ExecStop=/bin/kill -INT $MAINPID
+PIDFile=/var/run/one/oneflow.pid
+Type=simple
+Group=cloud
+User=oneadmin
+
+[Install]
+WantedBy=multi-user.target
