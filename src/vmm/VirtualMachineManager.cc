@@ -1551,7 +1551,7 @@ void VirtualMachineManager::timer_action()
         os.str("");
 
         os << "Monitoring VM " << *it << ".";
-        NebulaLog::log("VMM", Log::INFO, os);
+        NebulaLog::log("VMM", Log::DEBUG, os);
 
         vmd = get(vm->get_vmm_mad());
 
