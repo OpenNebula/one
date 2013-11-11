@@ -194,7 +194,7 @@ var create_datastore_tmpl =
                   <option value="iscsi">' + tr("iSCSI") + '</option>\
                   <option value="dummy">' + tr("Dummy") + '</option>\
                   <option value="lvm">' + tr("LVM") + '</option>\
-                  <option value="shared_lvm">' + tr("Shared LVM") + '</option>\
+                  <option value="fs_lvm">' + tr("FS LVM") + '</option>\
                   <option value="vmfs">' + tr("VMFS") + '</option>\
                   <option value="ceph">' + tr("Ceph") + '</option>\
                   <option value="custom">' + tr("Custom") + '</option>\
@@ -1144,7 +1144,7 @@ function select_block_lvm(){
 function select_fs_lvm(){
     $('select#ds_mad').val('fs');
     $('select#ds_mad').attr('disabled', 'disabled');
-    $('select#tm_mad').val('shared_lvm');
+    $('select#tm_mad').val('fs_lvm');
     $('select#tm_mad').attr('disabled', 'disabled');
     $('input#image_ds_type').attr('checked', 'true');
     $('input[name=ds_type]').attr('disabled', 'disabled');
