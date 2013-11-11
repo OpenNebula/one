@@ -686,6 +686,7 @@ int VirtualMachine::parse_context(string& error_str)
 
             string name   = vatt->vector_value("NETWORK");
             string ip     = vatt->vector_value("IP");
+            string mac    = vatt->vector_value("MAC");
             string ip6    = vatt->vector_value("IP6_GLOBAL");
             string nic_id = vatt->vector_value("NIC_ID");
 
@@ -694,6 +695,11 @@ int VirtualMachine::parse_context(string& error_str)
 
             var << "ETH" << nic_id << "_IP";
             context->replace(var.str(), ip);
+
+            var.str(""); val.str("");
+
+            var << "ETH" << nic_id << "_MAC";
+            context->replace(var.str(), mac);
 
             var.str(""); val.str("");
 
