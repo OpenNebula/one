@@ -33,7 +33,7 @@ deploy_id = ARGV[0]
 mac       = ARGV[1]
 bridge    = ARGV[2]
 model     = ARGV[3]
-host      = ARGV[5]
+host      = ARGV[6]
 
 VIDriver::initialize(host, false)
 

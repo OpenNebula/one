@@ -772,6 +772,13 @@ class ExecDriver < VirtualMachineDriver
         model = model.strip if !model.nil?
         model = "-" if model.nil?
 
+
+        net_drv = xml_data.elements["NET_DRV"]
+
+        net_drv = net_drv.text if !net_drv.nil?
+        net_drv = net_drv.strip if !net_drv.nil?
+        net_drv = "-" if net_drv.nil?
+
         action = VmmAction.new(self, id, :attach_nic, drv_message)
 
         steps=[
@@ -784,7 +791,7 @@ class ExecDriver < VirtualMachineDriver
             {
                 :driver     => :vmm,
                 :action     => :attach_nic,
-                :parameters => [:deploy_id, mac, source, model]
+                :parameters => [:deploy_id, mac, source, model, net_drv]
             },
             # Execute post-boot networking setup
             {

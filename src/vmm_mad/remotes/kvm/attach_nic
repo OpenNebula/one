@@ -21,14 +21,36 @@ source $(dirname $0)/../../scripts_common.sh
 
 DOMAIN=$1
 MAC=$2
-SOURCE=$3
-MODEL=$4
+BRIDGE=$3
+THE_MODEL=$4
+NET_DRV=$5
 
-ATTACH_ARGS="--domain $DOMAIN --type bridge --source $SOURCE --mac $MAC"
-
-if [ "$MODEL" != "-" ]; then
-    ATTACH_ARGS="$ATTACH_ARGS --model $MODEL"
+if [ "$THE_MODEL" != "-" ]; then
+    MODEL="<model type='$THE_MODEL'/>"
 fi
 
-exec_and_log "virsh --connect $LIBVIRT_URI attach-interface $ATTACH_ARGS" \
-    "Could not attach NIC ($MAC) to $DOMAIN"
+if [ "$NET_DRV" = "ovswitch" ]; then
+    VIRTUALPORT="<virtualport type='openvswitch'/>"
+fi
+
+DEVICE=$(cat <<EOF
+<interface type='bridge'>
+    <source bridge='$BRIDGE'/>
+    <mac address='$MAC'/>
+    $MODEL
+    $VIRTUALPORT
+</interface>
+EOF
+)
+
+ATTACH_CMD=$(cat <<EOF
+virsh --connect $LIBVIRT_URI attach-device $DOMAIN <(
+cat <<EOT
+$DEVICE
+EOT
+)
+EOF
+)
+
+multiline_exec_and_log "$ATTACH_CMD" \
+    "Could not attach $SOURCE ($TARGET) to $DOMAIN"
