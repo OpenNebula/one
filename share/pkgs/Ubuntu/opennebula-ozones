@@ -1,19 +1,19 @@
 #! /bin/sh
 ### BEGIN INIT INFO
-# Provides:          opennebula-gate
+# Provides:          opennebula-ozones
 # Required-Start:    $remote_fs
 # Required-Stop:     $remote_fs
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: OneGate init script
-# Description:       OpenNebula OneGate service initialisation script
+# Short-Description: oZones Server init script
+# Description:       OpenNebula oZones service initialisation script
 ### END INIT INFO
 
 # Author: Tino Vázquez <tinova@opennebula.org>
 
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
-DESC="OneGate Service"
-NAME=onegate-server
+DESC="oZones Service"
+NAME=ozones-server
 DAEMON=/usr/bin/$NAME
 DAEMON_ARGS=""
 SCRIPTNAME=/etc/init.d/$NAME

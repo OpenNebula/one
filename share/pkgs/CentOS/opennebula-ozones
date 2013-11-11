@@ -1,27 +1,27 @@
 #!/bin/bash
 #
-#    /etc/rc.d/init.d/opennebula-econe
+#    /etc/rc.d/init.d/opennebula-ozones
 #
-# Starts the OpenNebula ECONE Server
+# Starts the OpenNebula oZones Server
 #
 # chkconfig: 345 66 34
-# description: Starts the ECONE Server daemon
-# processname: opennebula-econe
+# description: Starts the oZones Server daemon
+# processname: opennebula-ozones
 
 ### BEGIN INIT INFO
-# Provides: opennebula-econe
+# Provides: opennebula-ozones
 # Required-Start: $local_fs $remote_fs oned
 # Required-Stop: $local_fs $remote_fs oned
 # Default-Start:  2 3 4 5
 # Default-Stop: 0 1 6
-# Short-Description: start and stop opennebula-econe
-# Description: start and stop opennebula-econe
+# Short-Description: start and stop opennebula-ozones
+# Description: start and stop opennebula-ozones
 ### END INIT INFO
 
-prog="opennebula-econe"
+prog="opennebula-ozones"
 
-SERVER_BIN=/usr/bin/econe-server
-SERVER_PROGRAM=econe-server.rb
+SERVER_BIN=/usr/bin/ozones-server
+SERVER_PROGRAM=ozones-server.rb
 LOCKFILE=/var/lock/subsys/${prog}
 PID_FILE=/var/run/${prog}.pid
 
