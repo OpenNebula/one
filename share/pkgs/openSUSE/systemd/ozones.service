@@ -8,7 +8,7 @@ BindTo=one.service
 !ConditionFileExists=/var/lock/one/.ozones.lock
 
 [Service]
-ExecStart=/bin/bash -c "/usr/bin/rackup /usr/lib/one/ozones/config.ru -s thin -P /var/run/one/ozones.pid > /var/log/one/ozones-server.log 2>&1"
+ExecStart=/bin/bash -c "/usr/bin/ozones-server start"
 ExecStartPost=/usr/bin/touch /var/lock/one/.ozones.lock
 ExecStop=/bin/kill -INT $MAINPID
 PIDFile=/var/run/one/ozones.pid
