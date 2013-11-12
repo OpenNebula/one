@@ -731,6 +731,12 @@ int VirtualMachine::parse_context(string& error_str)
             val << "$NETWORK[DNS, NETWORK=\"" << name << "\"]";
             context->replace(var.str(), val.str());
 
+            var.str(""); val.str("");
+
+            var << "ETH" << nic_id << "_SEARCH_DOMAIN";
+            val << "$NETWORK[SEARCH_DOMAIN, NETWORK=\"" << name << "\"]";
+            context->replace(var.str(), val.str());
+
             if (!ip6.empty())
             {
                 var.str(""); val.str("");
