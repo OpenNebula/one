@@ -18,7 +18,7 @@
 
 export DNS_VARIABLES="DNS $(env | sed 's/=.*$//' | grep -E '^ETH[0-9]+_DNS$' | sort)"
 
-export SEARCH_VARIABLES="SEARCH $(env | sed 's/=.*$//' | grep -E '^ETH[0-9]+_SEARCH$' | sort)"
+export SEARCH_VARIABLES="SEARCH_DOMAIN $(env | sed 's/=.*$//' | grep -E '^ETH[0-9]+_SEARCH_DOMAIN$' | sort)"
 
 nameservers=$(
     for var in ${DNS_VARIABLES}; do
@@ -49,3 +49,4 @@ done
 [ -z "$searchdomains" ] && exit 0
 
 echo search $searchdomains >> /etc/resolv.conf
+
