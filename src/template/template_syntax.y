@@ -165,9 +165,9 @@ array_val:  VARIABLE EQUAL STRING
 
 string& unescape (string &str)
 {
-    size_t  pos;
+    size_t  pos = 0;
 
-    while ((pos = str.find("\\\"")) != string::npos)
+    while ((pos = str.find("\\\"", pos)) != string::npos)
     {
         str.replace(pos,2,"\"");
     }
