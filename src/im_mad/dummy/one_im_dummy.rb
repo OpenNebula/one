@@ -45,6 +45,7 @@ class DummyInformationManager < OpenNebulaDriver
 
         # register actions
         register_action(:MONITOR, method("action_monitor"))
+        register_action(:STOPMONITOR, method("stop_monitor"))
     end
 
     # Execute the sensor array in the remote host
@@ -71,6 +72,10 @@ class DummyInformationManager < OpenNebulaDriver
         results = Base64::encode64(results).strip.delete("\n")
 
         send_message("MONITOR", RESULT[:success], number, results)
+    end
+
+    def stop_monitor(number, host)
+        send_message("STOPMONITOR", RESULT[:success], number, nil)
     end
 end
 
