@@ -16,6 +16,7 @@
 
 #include "VirtualMachinePoolXML.h"
 #include <stdexcept>
+#include <iomanip>
 
 int VirtualMachinePoolXML::set_up()
 {
@@ -32,7 +33,14 @@ int VirtualMachinePoolXML::set_up()
         if (NebulaLog::log_level() == Log::DEBUG)
         {
             ostringstream   oss;
-            oss << "Pending/rescheduling VM and capacity requirements:";
+            oss << "Pending/rescheduling VM and capacity requirements:" << endl;
+
+            oss << right << setw(8)  << "VM"        << " "
+                << right << setw(4)  << "CPU"       << " "
+                << right << setw(11) << "Memory"    << " "
+                << right << setw(11) << "System DS" << " "
+                << " Image DS"
+                << endl << setw(60) << setfill('-') << "-" << setfill(' ');
 
             for (map<int,ObjectXML*>::iterator it=objects.begin();it!=objects.end();it++)
             {
@@ -44,18 +52,17 @@ int VirtualMachinePoolXML::set_up()
                 vm->get_requirements(cpu, mem, disk);
 
                 oss << endl
-                    << "\tVM: " << it->first << endl
-                    << "\t  CPU: " << cpu  << endl
-                    << "\t  Memory: " << mem << endl
-                    << "\t  System DS: " << disk << endl;
+                    << right << setw(8)  << it->first   << " "
+                    << right << setw(4)  << cpu         << " "
+                    << right << setw(11) << mem         << " "
+                    << right << setw(11) << disk        << " ";
 
                 map<int,long long> ds_usage = vm->get_storage_usage();
 
                 for (map<int,long long>::const_iterator ds_it = ds_usage.begin();
                         ds_it != ds_usage.end(); ds_it++)
                 {
-                    oss << "\t  Image DS " << ds_it->first << ": " << ds_it->second
-                        << endl;
+                    oss << " DS " << ds_it->first << ": " << ds_it->second << " ";
                 }
             }
 
