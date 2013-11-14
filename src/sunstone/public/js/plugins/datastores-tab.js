@@ -102,7 +102,6 @@ var create_datastore_tmpl =
           <select id="presets" name="presets">\
             <option value="fs">' + tr("Filesystem") + '</option>\
             <option value="vmware_vmfs">' + tr("VMware VMFS") + '</option>\
-            <option value="iscsi">' + tr("iSCSI") + '</option>\
             <option value="block_lvm">' + tr("Block LVM") + '</option>\
             <option value="fs_lvm">' + tr("FS LVM") + '</option>\
             <option value="ceph">' + tr("Ceph") + '</option>\
@@ -168,7 +167,6 @@ var create_datastore_tmpl =
                 <select id="ds_mad" name="ds_mad">\
                   <option value="fs">' + tr("Filesystem") + '</option>\
                   <option value="vmware">' + tr("VMware") + '</option>\
-                  <option value="iscsi">' + tr("iSCSI") + '</option>\
                   <option value="lvm">' + tr("LVM") + '</option>\
                   <option value="vmfs">' + tr("VMFS") + '</option>\
                   <option value="ceph">' + tr("Ceph") + '</option>\
@@ -191,7 +189,6 @@ var create_datastore_tmpl =
                   <option value="shared">' + tr("Shared") + '</option>\
                   <option value="ssh">' + tr("SSH") + '</option>\
                   <option value="qcow2">' + tr("qcow2") + '</option>\
-                  <option value="iscsi">' + tr("iSCSI") + '</option>\
                   <option value="dummy">' + tr("Dummy") + '</option>\
                   <option value="lvm">' + tr("LVM") + '</option>\
                   <option value="fs_lvm">' + tr("FS LVM") + '</option>\
@@ -943,9 +940,6 @@ function setupCreateDatastoreDialog(){
           case 'fs_lvm':
             select_fs_lvm();
             break;
-          case 'iscsi':
-            select_iscsi();
-            break;
           case 'ceph':
             select_ceph();
             break;
@@ -1097,25 +1091,6 @@ function select_vmware_vmfs(){
     $('select#tm_mad').attr('disabled', 'disabled');
     $('select#disk_type').val('file');
     $('select#disk_type').attr('disabled', 'disabled');
-}
-
-function select_iscsi(){
-    $('select#ds_mad').val('iscsi');
-    $('select#ds_mad').attr('disabled', 'disabled');
-    $('select#tm_mad').val('iscsi');
-    $('select#tm_mad').attr('disabled', 'disabled');
-    $('label[for="bridge_list"],input#bridge_list').parent().parent().fadeIn();
-    $('label[for="base_iqn"],input#base_iqn').fadeIn();
-    $('label[for="vg_name"],input#vg_name').fadeIn();
-    $('select#disk_type').children('option').each(function() {
-      var value_str = $(this).val();
-      $(this).attr('disabled', 'disabled');
-      if (value_str == "file"  ||
-          value_str == "block")
-      {
-           $(this).removeAttr('disabled');
-      }
-    });
 }
 
 function select_ceph(){
