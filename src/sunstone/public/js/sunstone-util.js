@@ -736,8 +736,7 @@ function makeSelectOptions(dataTable,
 
 //Escape doublequote in a string and return it
 function escapeDoubleQuotes(string){
-    string = string.replace(/\\"/g,'"');
-    return string.replace(/"/g,'\\"');
+    return string.replace(/\\/g,'\\').replace(/"/g,'\\"');
 }
 
 function derivative(data) {
