@@ -740,7 +740,7 @@ function updateDatastoreInfo(request,ds){
         cluster_str = insert_cluster_dropdown("Datastore",info.ID,info.CLUSTER,info.CLUSTER_ID);
     }
 
-    var is_system = (info.TYPE == 1)
+    var is_system_ssh = (info.TEMPLATE.SHARED == "NO")
 
     var info_tab_content = '<div class="">\
         <div class="six columns">\
@@ -773,15 +773,15 @@ function updateDatastoreInfo(request,ds){
               <thead><tr><th colspan="3" style="width:130px">'+tr("Capacity")+'</th>\</tr></thead>\
               <tr>\
                 <td class="key_td">' + tr("Total") + '</td>\
-                <td class="value_td" colspan="2">'+(is_system ? '-' : humanize_size_from_mb(info.TOTAL_MB))+'</td>\
+                <td class="value_td" colspan="2">'+(is_system_ssh ? '-' : humanize_size_from_mb(info.TOTAL_MB))+'</td>\
               </tr>\
               <tr>\
                 <td class="key_td">' + tr("Used") + '</td>\
-                <td class="value_td" colspan="2">'+(is_system ? '-' : humanize_size_from_mb(info.USED_MB))+'</td>\
+                <td class="value_td" colspan="2">'+(is_system_ssh ? '-' : humanize_size_from_mb(info.USED_MB))+'</td>\
               </tr>\
               <tr>\
                 <td class="key_td">' + tr("Free") + '</td>\
-                <td class="value_td" colspan="2">'+(is_system ? '-' : humanize_size_from_mb(info.FREE_MB))+'</td>\
+                <td class="value_td" colspan="2">'+(is_system_ssh ? '-' : humanize_size_from_mb(info.FREE_MB))+'</td>\
               </tr>\
             </tbody>\
           </table>'
