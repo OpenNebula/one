@@ -497,7 +497,7 @@ var datastore_actions = {
         type: "multiple",
         call: function(params, success){
             var cluster = params.data.extra_param;
-            var ds = params.data.id[0];
+            var ds = params.data.id;
 
             if (cluster == -1){
                 //get cluster name
