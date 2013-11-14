@@ -394,6 +394,9 @@ EOF`
     fi
 }
 
+# TODO -> Use a dynamically loaded scripts directory. Not removing this due
+#         to iSCSI addon: https://github.com/OpenNebula/addon-iscsi
+
 
 # ------------------------------------------------------------------------------
 # iSCSI functions
