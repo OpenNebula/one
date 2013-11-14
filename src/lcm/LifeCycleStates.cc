@@ -47,6 +47,9 @@ void  LifeCycleManager::save_success_action(int vid)
 
         vm->delete_snapshots();
 
+        map<string, string> empty;
+        vm->update_info(0, 0, -1, -1, empty);
+
         vmpool->update(vm);
 
         vm->set_previous_etime(the_time);
@@ -85,6 +88,9 @@ void  LifeCycleManager::save_success_action(int vid)
 
         vm->delete_snapshots();
 
+        map<string, string> empty;
+        vm->update_info(0, 0, -1, -1, empty);
+
         vmpool->update(vm);
 
         vm->set_running_etime(the_time);
@@ -114,6 +120,9 @@ void  LifeCycleManager::save_success_action(int vid)
         vm->set_state(VirtualMachine::EPILOG_STOP);
 
         vm->delete_snapshots();
+
+        map<string, string> empty;
+        vm->update_info(0, 0, -1, -1, empty);
 
         vmpool->update(vm);
 
@@ -509,6 +518,9 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         vm->delete_snapshots();
 
+        map<string, string> empty;
+        vm->update_info(0, 0, -1, -1, empty);
+
         vmpool->update(vm);
 
         vm->set_epilog_stime(the_time);
@@ -519,6 +531,7 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         vmpool->update_history(vm);
 
+        // TODO CARLOS
         vm->log("LCM", Log::INFO, "New VM state is EPILOG");
 
         //----------------------------------------------------
@@ -532,6 +545,9 @@ void  LifeCycleManager::shutdown_success_action(int vid)
         //----------------------------------------------------
 
         vm->delete_snapshots();
+
+        map<string, string> empty;
+        vm->update_info(0, 0, -1, -1, empty);
 
         vmpool->update(vm);
 
@@ -558,6 +574,9 @@ void  LifeCycleManager::shutdown_success_action(int vid)
         vm->set_state(VirtualMachine::EPILOG_UNDEPLOY);
 
         vm->delete_snapshots();
+
+        map<string, string> empty;
+        vm->update_info(0, 0, -1, -1, empty);
 
         vmpool->update(vm);
 
@@ -987,6 +1006,9 @@ void  LifeCycleManager::cancel_success_action(int vid)
 
         vm->delete_snapshots();
 
+        map<string, string> empty;
+        vm->update_info(0, 0, -1, -1, empty);
+
         vmpool->update(vm);
 
         vm->set_reason(History::USER);
@@ -1013,6 +1035,9 @@ void  LifeCycleManager::cancel_success_action(int vid)
 
         vm->delete_snapshots();
 
+        map<string, string> empty;
+        vm->update_info(0, 0, -1, -1, empty);
+
         vmpool->update(vm);
 
         vm->set_epilog_stime(the_time);
@@ -1036,6 +1061,9 @@ void  LifeCycleManager::cancel_success_action(int vid)
         //----------------------------------------------------
 
         vm->delete_snapshots();
+
+        map<string, string> empty;
+        vm->update_info(0, 0, -1, -1, empty);
 
         vmpool->update(vm);
 
@@ -1172,6 +1200,9 @@ void  LifeCycleManager::monitor_suspend_action(int vid)
 
         vm->delete_snapshots();
 
+        map<string, string> empty;
+        vm->update_info(0, 0, -1, -1, empty);
+
         vmpool->update(vm);
 
         vm->set_running_etime(the_time);
@@ -1254,6 +1285,9 @@ void  LifeCycleManager::failure_action(VirtualMachine * vm)
     vm->set_resched(false);
 
     vm->delete_snapshots();
+
+    map<string, string> empty;
+    vm->update_info(0, 0, -1, -1, empty);
 
     vmpool->update(vm);
 
