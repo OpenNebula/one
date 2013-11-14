@@ -1929,7 +1929,8 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
         var key_str=this.firstElementChild.id.substring(9,this.firstElementChild.id.length);
 
         var value_str = $("#value_td_input_"+key_str).text();
-        $("#value_td_input_"+key_str).html('<input class="input_edit_value" id="input_edit_'+key_str+'" type="text" value="'+value_str+'"/>');
+        input = $("#value_td_input_"+key_str).html('<input class="input_edit_value" id="input_edit_'+key_str+'" type="text"/>');
+        $('#input_edit_'+key_str).val(value_str);
 
     });
 
