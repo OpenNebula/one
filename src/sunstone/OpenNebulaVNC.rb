@@ -267,7 +267,6 @@ class OpenNebulaVNC
                 Dir.glob("#{@token_folder}/*").each do |file|
                     File.delete(file)
                 end
-                Dir.rmdir(@token_folder)
             rescue => e
                 @logger.error "Error deleting token folder"
                 @logger.error e.message
