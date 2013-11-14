@@ -454,6 +454,7 @@ int XenDriver::deployment_description(
                         goto error_vncdisplay;
                     }
 
+                    file << ",vncunused=0";
                     file << ",vncdisplay=" << display - 5900;
                 }
 
