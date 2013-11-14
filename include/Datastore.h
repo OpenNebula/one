@@ -146,9 +146,14 @@ public:
      * attributes
      *
      * @param disk
+     * @param inherit_attrs Attributes to be inherited from the DS template
+     *   into the disk
      * @return 0 on success
      */
-    int disk_attribute(VectorAttribute * disk);
+    int disk_attribute(
+            VectorAttribute *       disk,
+            const vector<string>&   inherit_attrs);
+
 
     /**
      *  Replace template for this object. Object should be updated

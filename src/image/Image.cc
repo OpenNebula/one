@@ -467,17 +467,21 @@ int Image::from_xml(const string& xml)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Image::disk_attribute(  VectorAttribute * disk,
-                            ImageType&        img_type,
-                            string&           dev_prefix)
+int Image::disk_attribute(  VectorAttribute *       disk,
+                            ImageType&              img_type,
+                            string&                 dev_prefix,
+                            const vector<string>&   inherit_attrs)
 {
     string target;
     string driver;
     string disk_attr_type;
+    string inherit_val;
 
     bool ro;
 
     ostringstream iid;
+
+    vector<string>::const_iterator it;
 
     img_type   = type;
     target     = disk->vector_value("TARGET");
@@ -612,6 +616,16 @@ int Image::disk_attribute(  VectorAttribute * disk,
     if ( target.empty() && !template_target.empty() )
     {
         disk->replace("TARGET", template_target);
+    }
+
+    for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)
+    {
+        get_template_attribute((*it).c_str(), inherit_val);
+
+        if (!inherit_val.empty())
+        {
+            disk->replace(*it, inherit_val);
+        }
     }
 
     return 0;

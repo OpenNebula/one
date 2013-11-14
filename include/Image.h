@@ -467,12 +467,15 @@ public:
      * @param img_type will be set to the used image's type
      * @param dev_prefix will be set to the defined dev_prefix,
      *   or the default one
+     * @param inherit_attrs Attributes to be inherited from the image template
+     *   into the disk
      *
      * @return 0 on success, -1 otherwise
      */
-    int disk_attribute( VectorAttribute * disk,
-                        ImageType&        img_type,
-                        string&           dev_prefix);
+    int disk_attribute( VectorAttribute *       disk,
+                        ImageType&              img_type,
+                        string&                 dev_prefix,
+                        const vector<string>&   inherit_attrs);
 
     /**
      *  Factory method for image templates
