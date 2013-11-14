@@ -1339,34 +1339,45 @@ function updateVMachinesView(request, vmachine_list){
 // Some calculations are performed, inspired from what is done
 // in the CLI
 function generatePlacementTable(vm){
-   var requirements_str = "-";
-   var rank_str         = "-";
+   var requirements_str = vm.USER_TEMPLATE.SCHED_REQUIREMENTS ? vm.USER_TEMPLATE.SCHED_REQUIREMENTS : "-";
+   var rank_str = vm.USER_TEMPLATE.SCHED_RANK ? vm.USER_TEMPLATE.SCHED_RANK : "-";
+   var ds_requirements_str = vm.USER_TEMPLATE.SCHED_DS_REQUIREMENTS ? vm.USER_TEMPLATE.SCHED_DS_REQUIREMENTS : "-";
+   var ds_rank_str = vm.USER_TEMPLATE.SCHED_DS_RANK ? vm.USER_TEMPLATE.SCHED_DS_RANK : "-";
 
-   if (vm.USER_TEMPLATE.SCHED_REQUIREMENTS)
-   {
-     requirements_str = vm.USER_TEMPLATE.SCHED_REQUIREMENTS;
-   }
-
-  if (vm.USER_TEMPLATE.SCHED_RANK)
-   {
-     rank_str         = vm.USER_TEMPLATE.SCHED_RANK;
-   }
 
     var html = '<div class=""><div class="six columns">\
           <table id="vm_placement_table" class="extended_table twelve">\
                    <thead>\
                      <tr>\
-                         <th colspan="2" align="center">'+tr("Placement")+'</th>\
+                         <th colspan="2" align="center">'+tr("Placement - Host")+'</th>\
                      </tr>\
                    </thead>\
                    <tbody>\
                       <tr>\
-                       <td>REQUIREMENTS</td>\
+                       <td>'+ tr("Requirements")+'</td>\
                        <td>'+requirements_str+'</td>\
                      </tr>\
                       <tr>\
-                       <td>RANK</td>\
+                       <td>'+ tr("Rank")+'</td>\
                        <td>'+rank_str+'</td>\
+                     </tr>\
+                   </tbody>\
+          </table>\
+          </div><div class="six columns">\
+          <table id="vm_ds_placement_table" class="extended_table twelve">\
+                   <thead>\
+                     <tr>\
+                         <th colspan="2" align="center">'+tr("Placement - Datastore")+'</th>\
+                     </tr>\
+                   </thead>\
+                   <tbody>\
+                      <tr>\
+                       <td>'+ tr("DS Requirements")+'</td>\
+                       <td>'+ds_requirements_str+'</td>\
+                     </tr>\
+                      <tr>\
+                       <td>'+ tr("DS Rank")+'</td>\
+                       <td>'+ds_rank_str+'</td>\
                      </tr>\
                    </tbody>\
           </table>\
@@ -1392,7 +1403,11 @@ function generatePlacementTable(vm){
             history = vm.HISTORY_RECORDS.HISTORY;
         else if (vm.HISTORY_RECORDS.HISTORY.SEQ)
             history = [vm.HISTORY_RECORDS.HISTORY];
-    };
+    } else {
+      html += '     <tr>\
+               <td colspan="8" style="width:5%">'+tr("No data avialable in table")+'</td>\
+              </tr>'
+    }
 
     var now = Math.round(new Date().getTime() / 1000);
 
