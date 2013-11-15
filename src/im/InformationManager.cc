@@ -338,7 +338,7 @@ void InformationManager::timer_action()
             oss << "Monitoring host " << host->get_name() << " ("
                 << host->get_oid() << ")";
 
-            NebulaLog::log("InM",Log::INFO,oss);
+            NebulaLog::log("InM",Log::DEBUG,oss);
 
             imd = get(host->get_im_mad());
 

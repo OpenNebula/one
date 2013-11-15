@@ -555,6 +555,10 @@ void Nebula::start(bool bootstrap_only)
         vector<const Attribute *> vm_restricted_attrs;
         vector<const Attribute *> img_restricted_attrs;
 
+        vector<const Attribute *> inherit_image_attrs;
+        vector<const Attribute *> inherit_datastore_attrs;
+        vector<const Attribute *> inherit_vnet_attrs;
+
         clpool  = new ClusterPool(db);
         docpool = new DocumentPool(db);
 
@@ -567,6 +571,10 @@ void Nebula::start(bool bootstrap_only)
 
         nebula_configuration->get("VM_RESTRICTED_ATTR", vm_restricted_attrs);
         nebula_configuration->get("IMAGE_RESTRICTED_ATTR", img_restricted_attrs);
+
+        nebula_configuration->get("INHERIT_IMAGE_ATTR", inherit_image_attrs);
+        nebula_configuration->get("INHERIT_DATASTORE_ATTR", inherit_datastore_attrs);
+        nebula_configuration->get("INHERIT_VNET_ATTR", inherit_vnet_attrs);
 
         nebula_configuration->get("VM_MONITORING_EXPIRATION_TIME",vm_expiration);
         nebula_configuration->get("HOST_MONITORING_EXPIRATION_TIME",host_expiration);
@@ -593,7 +601,8 @@ void Nebula::start(bool bootstrap_only)
                                         mac_prefix,
                                         size,
                                         vnet_hooks,
-                                        remotes_location);
+                                        remotes_location,
+                                        inherit_vnet_attrs);
 
         gpool  = new GroupPool(db, group_hooks, remotes_location);
 
@@ -609,7 +618,9 @@ void Nebula::start(bool bootstrap_only)
                                default_device_prefix,
                                img_restricted_attrs,
                                image_hooks,
-                               remotes_location);
+                               remotes_location,
+                               inherit_image_attrs,
+                               inherit_datastore_attrs);
 
         tpool  = new VMTemplatePool(db);
 
@@ -988,6 +999,8 @@ void Nebula::start(bool bootstrap_only)
     xmlCleanupParser();
 
     NebulaLog::log("ONE", Log::INFO, "All modules finalized, exiting.\n");
+
+    return;
 
 error_mad:
     NebulaLog::log("ONE", Log::ERROR, "Could not load driver");

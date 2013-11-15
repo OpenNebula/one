@@ -148,6 +148,33 @@ function exec_and_log
     fi
 }
 
+# Executes a command, if it fails returns error message and exits. Similar to
+# exec_and_log, except that it allows multiline commands.
+# If a second parameter is present it is used as the error message when
+# the command fails.
+function multiline_exec_and_log
+{
+    message=$2
+
+    EXEC_LOG_ERR=`bash -s 2>&1 1>/dev/null <<EOF
+export LANG=C
+export LC_ALL=C
+$1
+EOF`
+    EXEC_LOG_RC=$?
+
+    if [ $EXEC_LOG_RC -ne 0 ]; then
+        log_error "Command \"$1\" failed: $EXEC_LOG_ERR"
+
+        if [ -n "$2" ]; then
+            error_message "$2"
+        else
+            error_message "Error executing $1: $EXEC_LOG_ERR"
+        fi
+        exit $EXEC_LOG_RC
+    fi
+}
+
 # Like exec_and_log but does not exit on failure. Just sets the variable
 # ERROR to the error message.
 function exec_and_set_error
@@ -366,6 +393,9 @@ EOF`
         exit $SSH_EXEC_RC
     fi
 }
+
+# TODO -> Use a dynamically loaded scripts directory. Not removing this due
+#         to iSCSI addon: https://github.com/OpenNebula/addon-iscsi
 
 
 # ------------------------------------------------------------------------------

@@ -80,6 +80,8 @@ class OpenNebulaVNC
         @proxy_path   = File.join(SHARE_LOCATION, "websockify/websocketproxy.py")
         @proxy_port   = config[:vnc_proxy_port]
 
+        @proxy_ipv6   = config[:vnc_proxy_ipv6]
+
         @wss = config[:vnc_proxy_support_wss]
 
         @lock_file = NOVNC_LOCK_FILE
@@ -111,6 +113,10 @@ class OpenNebulaVNC
             proxy_options << " --cert #{@cert}"
             proxy_options << " --key #{@key}" if @key && @key.size > 0
             proxy_options << " --ssl-only" if @wss == "only"
+        end
+
+        if @proxy_ipv6
+            proxy_options << " -6"
         end
 
         cmd ="python #{@proxy_path} #{proxy_options} #{@proxy_port}"
@@ -267,7 +273,6 @@ class OpenNebulaVNC
                 Dir.glob("#{@token_folder}/*").each do |file|
                     File.delete(file)
                 end
-                Dir.rmdir(@token_folder)
             rescue => e
                 @logger.error "Error deleting token folder"
                 @logger.error e.message

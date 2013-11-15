@@ -5,7 +5,12 @@ HYPERVISOR=$1
 DATASTORE_LOCATION=${2:-"/var/lib/one/datastores"}
 
 LVM_VG_PREFIX="vg-one-"
-LVM_SIZE_CMD="sudo vgdisplay --separator : --units m -o vg_size,vg_free --nosuffix --noheadings -C"
+
+PATH=$PATH:/sbin:/bin:/usr/sbin:/usr/bin which vgdisplay &> /dev/null
+
+if [ $? == 0 ]; then
+    LVM_SIZE_CMD="sudo vgdisplay --separator : --units m -o vg_size,vg_free --nosuffix --noheadings -C"
+fi
 
 USED_MB=$(du -sLm $DATASTORE_LOCATION 2>/dev/null | cut -f1)
 TOTAL_MB=$(df -B1M -P $DATASTORE_LOCATION 2>/dev/null | tail -n 1 | awk '{print $2}')
@@ -26,8 +31,12 @@ for ds in $dirs; do
     TOTAL_MB=$(df -B1M -P $dir 2>/dev/null | tail -n 1 | awk '{print $2}')
     FREE_MB=$(df -B1M -P $dir 2>/dev/null | tail -n 1 | awk '{print $4}')
 
-    LVM_SIZE=$($LVM_SIZE_CMD ${LVM_VG_PREFIX}${ds} 2>/dev/null)
-    LVM_STATUS=$?
+    if [ -n "$LVM_SIZE_CMD" ]; then
+        LVM_SIZE=$($LVM_SIZE_CMD ${LVM_VG_PREFIX}${ds} 2>/dev/null)
+        LVM_STATUS=$?
+    else
+        LVM_STATUS=255
+    fi
 
     echo "DS = ["
     echo "  ID = $ds,"

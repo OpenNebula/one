@@ -706,17 +706,23 @@ int VirtualNetwork::from_xml(const string &xml_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::nic_attribute(VectorAttribute *nic, int vid)
+int VirtualNetwork::nic_attribute(
+        VectorAttribute *       nic,
+        int                     vid,
+        const vector<string>&   inherit_attrs)
 {
     int rc;
 
     string  ip;
     string  mac;
+    string  inherit_val;
 
     unsigned int eui64[2];
     unsigned int prefix[2] = {0, 0};
 
     ostringstream oss;
+
+    vector<string>::const_iterator it;
 
     ip    = nic->vector_value("IP");
     oss << oid;
@@ -790,6 +796,16 @@ int VirtualNetwork::nic_attribute(VectorAttribute *nic, int vid)
         oss << get_cluster_id();
 
         nic->replace("CLUSTER_ID", oss.str());
+    }
+
+    for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)
+    {
+        get_template_attribute((*it).c_str(), inherit_val);
+
+        if (!inherit_val.empty())
+        {
+            nic->replace(*it, inherit_val);
+        }
     }
 
     return 0;

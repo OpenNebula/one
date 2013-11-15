@@ -102,7 +102,6 @@ var create_datastore_tmpl =
           <select id="presets" name="presets">\
             <option value="fs">' + tr("Filesystem") + '</option>\
             <option value="vmware_vmfs">' + tr("VMware VMFS") + '</option>\
-            <option value="iscsi">' + tr("iSCSI") + '</option>\
             <option value="block_lvm">' + tr("Block LVM") + '</option>\
             <option value="fs_lvm">' + tr("FS LVM") + '</option>\
             <option value="ceph">' + tr("Ceph") + '</option>\
@@ -168,7 +167,6 @@ var create_datastore_tmpl =
                 <select id="ds_mad" name="ds_mad">\
                   <option value="fs">' + tr("Filesystem") + '</option>\
                   <option value="vmware">' + tr("VMware") + '</option>\
-                  <option value="iscsi">' + tr("iSCSI") + '</option>\
                   <option value="lvm">' + tr("LVM") + '</option>\
                   <option value="vmfs">' + tr("VMFS") + '</option>\
                   <option value="ceph">' + tr("Ceph") + '</option>\
@@ -191,10 +189,9 @@ var create_datastore_tmpl =
                   <option value="shared">' + tr("Shared") + '</option>\
                   <option value="ssh">' + tr("SSH") + '</option>\
                   <option value="qcow2">' + tr("qcow2") + '</option>\
-                  <option value="iscsi">' + tr("iSCSI") + '</option>\
                   <option value="dummy">' + tr("Dummy") + '</option>\
                   <option value="lvm">' + tr("LVM") + '</option>\
-                  <option value="shared_lvm">' + tr("Shared LVM") + '</option>\
+                  <option value="fs_lvm">' + tr("FS LVM") + '</option>\
                   <option value="vmfs">' + tr("VMFS") + '</option>\
                   <option value="ceph">' + tr("Ceph") + '</option>\
                   <option value="custom">' + tr("Custom") + '</option>\
@@ -497,7 +494,7 @@ var datastore_actions = {
         type: "multiple",
         call: function(params, success){
             var cluster = params.data.extra_param;
-            var ds = params.data.id[0];
+            var ds = params.data.id;
 
             if (cluster == -1){
                 //get cluster name
@@ -740,7 +737,7 @@ function updateDatastoreInfo(request,ds){
         cluster_str = insert_cluster_dropdown("Datastore",info.ID,info.CLUSTER,info.CLUSTER_ID);
     }
 
-    var is_system = (info.TYPE == 1)
+    var is_system_ssh = (info.TEMPLATE.SHARED == "NO")
 
     var info_tab_content = '<div class="">\
         <div class="six columns">\
@@ -773,15 +770,15 @@ function updateDatastoreInfo(request,ds){
               <thead><tr><th colspan="3" style="width:130px">'+tr("Capacity")+'</th>\</tr></thead>\
               <tr>\
                 <td class="key_td">' + tr("Total") + '</td>\
-                <td class="value_td" colspan="2">'+(is_system ? '-' : humanize_size_from_mb(info.TOTAL_MB))+'</td>\
+                <td class="value_td" colspan="2">'+(is_system_ssh ? '-' : humanize_size_from_mb(info.TOTAL_MB))+'</td>\
               </tr>\
               <tr>\
                 <td class="key_td">' + tr("Used") + '</td>\
-                <td class="value_td" colspan="2">'+(is_system ? '-' : humanize_size_from_mb(info.USED_MB))+'</td>\
+                <td class="value_td" colspan="2">'+(is_system_ssh ? '-' : humanize_size_from_mb(info.USED_MB))+'</td>\
               </tr>\
               <tr>\
                 <td class="key_td">' + tr("Free") + '</td>\
-                <td class="value_td" colspan="2">'+(is_system ? '-' : humanize_size_from_mb(info.FREE_MB))+'</td>\
+                <td class="value_td" colspan="2">'+(is_system_ssh ? '-' : humanize_size_from_mb(info.FREE_MB))+'</td>\
               </tr>\
             </tbody>\
           </table>'
@@ -943,9 +940,6 @@ function setupCreateDatastoreDialog(){
           case 'fs_lvm':
             select_fs_lvm();
             break;
-          case 'iscsi':
-            select_iscsi();
-            break;
           case 'ceph':
             select_ceph();
             break;
@@ -1099,25 +1093,6 @@ function select_vmware_vmfs(){
     $('select#disk_type').attr('disabled', 'disabled');
 }
 
-function select_iscsi(){
-    $('select#ds_mad').val('iscsi');
-    $('select#ds_mad').attr('disabled', 'disabled');
-    $('select#tm_mad').val('iscsi');
-    $('select#tm_mad').attr('disabled', 'disabled');
-    $('label[for="bridge_list"],input#bridge_list').parent().parent().fadeIn();
-    $('label[for="base_iqn"],input#base_iqn').fadeIn();
-    $('label[for="vg_name"],input#vg_name').fadeIn();
-    $('select#disk_type').children('option').each(function() {
-      var value_str = $(this).val();
-      $(this).attr('disabled', 'disabled');
-      if (value_str == "file"  ||
-          value_str == "block")
-      {
-           $(this).removeAttr('disabled');
-      }
-    });
-}
-
 function select_ceph(){
     $('select#ds_mad').val('ceph');
     $('select#ds_mad').attr('disabled', 'disabled');
@@ -1144,7 +1119,7 @@ function select_block_lvm(){
 function select_fs_lvm(){
     $('select#ds_mad').val('fs');
     $('select#ds_mad').attr('disabled', 'disabled');
-    $('select#tm_mad').val('shared_lvm');
+    $('select#tm_mad').val('fs_lvm');
     $('select#tm_mad').attr('disabled', 'disabled');
     $('input#image_ds_type').attr('checked', 'true');
     $('input[name=ds_type]').attr('disabled', 'disabled');

@@ -65,9 +65,8 @@ fi
 
 SAFE_DIRS=""
 
-SRC_HOST=`echo $SRC|cut -d. -f1`
-SRC_PATH=`echo $SRC|cut -d. -f2`
-
+SRC_HOST=`echo $SRC|cut -d: -f1`
+SRC_PATH=`echo $SRC|awk -F. '{print $NF}'`
 LV_SRC=$(echo $SRC_PATH|cut -d. -f2)
 DEV_SRC="/dev/$VG_NAME/$LV_SRC"
 

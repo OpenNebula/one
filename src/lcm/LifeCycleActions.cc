@@ -855,6 +855,9 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
 
     vm->delete_snapshots();
 
+    map<string, string> empty;
+    vm->update_info(0, 0, -1, -1, empty);
+
     vmpool->update(vm);
 
     vm->set_etime(the_time);

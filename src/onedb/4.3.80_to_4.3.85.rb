@@ -14,16 +14,16 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# Default IQN path
-BASE_IQN=iqn.2012-02.org.opennebula
+module Migrator
+    def db_version
+        "4.3.85"
+    end
 
-# Default volume group
-VG_NAME=vg-one
+    def one_version
+        "OpenNebula 4.3.85"
+    end
 
-# Lists of hosts (separated by spaces) for which no iscsiadm login or logout
-# is performed.
-NO_ISCSI="$HOSTNAME"
-
-# File where the iSCSI configured is dumped to (tgt-admin --dump)
-# If it poings to /dev/null, iSCSI targets will not be persistent
-TARGET_CONF=/etc/tgt/targets.conf
+    def up
+        return true
+    end
+end

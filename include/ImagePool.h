@@ -39,12 +39,15 @@ class ImagePool : public PoolSQL
 {
 public:
 
-    ImagePool(SqlDB *       db,
-              const string& _default_type,
-              const string& _default_dev_prefix,
-              vector<const Attribute *>& restricted_attrs,
-              vector<const Attribute *> hook_mads,
-              const string&             remotes_location);
+    ImagePool(
+            SqlDB *                             db,
+            const string&                       __default_type,
+            const string&                       __default_dev_prefix,
+            vector<const Attribute *>&          restricted_attrs,
+            vector<const Attribute *>           hook_mads,
+            const string&                       remotes_location,
+            const vector<const Attribute *>&    _inherit_image_attrs,
+            const vector<const Attribute *>&    _inherit_datastore_attrs);
 
     ~ImagePool(){};
 
@@ -211,6 +214,16 @@ private:
      * Default device prefix
      **/
     static string  _default_dev_prefix;
+
+    /**
+     * Image attributes to be inherited into the VM disk
+     */
+    vector<string> inherit_image_attrs;
+
+    /**
+     * Datastore attributes to be inherited into the VM disk
+     */
+    vector<string> inherit_datastore_attrs;
 
     //--------------------------------------------------------------------------
     // Pool Attributes

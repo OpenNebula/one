@@ -4148,16 +4148,12 @@ function setupCreateTemplateDialog(){
         //
         // RAW
         //
-        function addslashes( str ) {
-          return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
-        }
-
         vm_json["RAW"] = {}
-        t = addslashes($('#raw_type', dialog).val());
+        t = $('#raw_type', dialog).val();
         if (t) { vm_json["RAW"]['TYPE'] = t; }
-        t = addslashes($('#raw_data', dialog).val());
+        t = escapeDoubleQuotes($('#raw_data', dialog).val());
         if (t) { vm_json["RAW"]['DATA'] = t; }
-        t = addslashes($('#raw_data_vmx', dialog).val());
+        t = escapeDoubleQuotes($('#raw_data_vmx', dialog).val());
         if (t) { vm_json["RAW"]['DATA_VMX'] = t; }
 
         $('#custom_tags tr', $('li#rawTab')).each(function(){
@@ -4199,8 +4195,6 @@ function setupCreateTemplateDialog(){
         vm_json = {vmtemplate: vm_json};
         vm_json =JSON.stringify(vm_json);
 
-        vm_json=vm_json.replace(/\\\"/g,"'");
-
         Sunstone.runAction("Template.update",template_to_update_id,vm_json);
 
         $create_template_dialog.trigger("reveal:close")
@@ -4214,8 +4208,6 @@ function setupCreateTemplateDialog(){
         //wrap it in the "vm" object
         template = {"vmtemplate": {"template_raw": template}};
         var vm_json = JSON.stringify(template);
-
-        vm_json=vm_json.replace(/\\\"/g,"'");
 
         Sunstone.runAction("Template.update",template_to_update_id,vm_json);
 
@@ -4901,10 +4893,10 @@ function fillTemplatePopUp(request, response){
           return $('<div/>').html(value).text();
         }
 
-        $('#raw_type', raw_section).val(htmlDecode(raw['TYPE']));
+        $('#raw_type', raw_section).val(raw['TYPE']);
         $('#raw_type', raw_section).change();
-        $('#raw_data', raw_section).val(htmlDecode(raw['DATA']));
-        $('#raw_data_vmx', raw_section).val(htmlDecode(raw['DATA_VMX']));
+        $('#raw_data', raw_section).val(raw['DATA']);
+        $('#raw_data_vmx', raw_section).val(raw['DATA_VMX']);
 
         delete template.RAW
     }

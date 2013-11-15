@@ -50,16 +50,21 @@ function execute_scripts {
     done
 }
 
-if [ -e "/dev/disk/by-label/CONTEXT" ]; then
-    mount -t iso9660 -L CONTEXT -o ro /mnt
-    if [ -f /mnt/context.sh ]; then
-        export_rc_vars /mnt/context.sh
+case "$1" in
+"start")
+    if [ -e "/dev/disk/by-label/CONTEXT" ]; then
+        mount -t iso9660 -L CONTEXT -o ro /mnt
+        if [ -f /mnt/context.sh ]; then
+            export_rc_vars /mnt/context.sh
+        fi
+
+        execute_scripts
+
+        umount /mnt
+    else
+        execute_scripts
     fi
+    ;;
 
-    execute_scripts
-
-    umount /mnt
-else
-    execute_scripts
-fi
+esac
 

@@ -224,7 +224,6 @@ else
 fi
 
 SHARE_DIRS="$SHARE_LOCATION/examples \
-            $SHARE_LOCATION/tgt \
             $SHARE_LOCATION/websockify"
 
 ETC_DIRS="$ETC_LOCATION/vmm_exec \
@@ -284,11 +283,10 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/tm/ \
           $VAR_LOCATION/remotes/tm/dummy \
           $VAR_LOCATION/remotes/tm/shared \
-          $VAR_LOCATION/remotes/tm/shared_lvm \
+          $VAR_LOCATION/remotes/tm/fs_lvm \
           $VAR_LOCATION/remotes/tm/qcow2 \
           $VAR_LOCATION/remotes/tm/ssh \
           $VAR_LOCATION/remotes/tm/vmfs \
-          $VAR_LOCATION/remotes/tm/iscsi \
           $VAR_LOCATION/remotes/tm/lvm \
           $VAR_LOCATION/remotes/tm/ceph \
           $VAR_LOCATION/remotes/hooks \
@@ -297,7 +295,6 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/datastore/dummy \
           $VAR_LOCATION/remotes/datastore/fs \
           $VAR_LOCATION/remotes/datastore/vmfs \
-          $VAR_LOCATION/remotes/datastore/iscsi \
           $VAR_LOCATION/remotes/datastore/lvm \
           $VAR_LOCATION/remotes/datastore/ceph \
           $VAR_LOCATION/remotes/auth \
@@ -470,11 +467,10 @@ INSTALL_FILES=(
     VMM_EXEC_EC2_SCRIPTS:$VAR_LOCATION/remotes/vmm/ec2
     TM_FILES:$VAR_LOCATION/remotes/tm
     TM_SHARED_FILES:$VAR_LOCATION/remotes/tm/shared
-    TM_SHARED_LVM_FILES:$VAR_LOCATION/remotes/tm/shared_lvm
+    TM_FS_LVM_FILES:$VAR_LOCATION/remotes/tm/fs_lvm
     TM_QCOW2_FILES:$VAR_LOCATION/remotes/tm/qcow2
     TM_SSH_FILES:$VAR_LOCATION/remotes/tm/ssh
     TM_VMFS_FILES:$VAR_LOCATION/remotes/tm/vmfs
-    TM_ISCSI_FILES:$VAR_LOCATION/remotes/tm/iscsi
     TM_LVM_FILES:$VAR_LOCATION/remotes/tm/lvm
     TM_CEPH_FILES:$VAR_LOCATION/remotes/tm/ceph
     TM_DUMMY_FILES:$VAR_LOCATION/remotes/tm/dummy
@@ -482,7 +478,6 @@ INSTALL_FILES=(
     DATASTORE_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/datastore/dummy
     DATASTORE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/datastore/fs
     DATASTORE_DRIVER_VMFS_SCRIPTS:$VAR_LOCATION/remotes/datastore/vmfs
-    DATASTORE_DRIVER_ISCSI_SCRIPTS:$VAR_LOCATION/remotes/datastore/iscsi
     DATASTORE_DRIVER_LVM_SCRIPTS:$VAR_LOCATION/remotes/datastore/lvm
     DATASTORE_DRIVER_CEPH_SCRIPTS:$VAR_LOCATION/remotes/datastore/ceph
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
@@ -494,7 +489,6 @@ INSTALL_FILES=(
     NETWORK_OVSWITCH_BRCOMPAT_FILES:$VAR_LOCATION/remotes/vnm/ovswitch_brcompat
     NETWORK_VMWARE_FILES:$VAR_LOCATION/remotes/vnm/vmware
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
-    TGT_SHARE_FILES:$SHARE_LOCATION/tgt
     WEBSOCKIFY_SHARE_FILES:$SHARE_LOCATION/websockify
     INSTALL_GEMS_SHARE_FILE:$SHARE_LOCATION
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
@@ -979,12 +973,11 @@ NETWORK_VMWARE_FILES="src/vnm_mad/remotes/vmware/clean \
 #-------------------------------------------------------------------------------
 # Transfer Manager commands, to be installed under $LIB_LOCATION/tm_commands
 #   - SHARED TM, $VAR_LOCATION/tm/shared
-#   - SHARED_LVM TM, $VAR_LOCATION/tm/shared_lvm
+#   - FS_LVM TM, $VAR_LOCATION/tm/fs_lvm
 #   - QCOW2 TM, $VAR_LOCATION/tm/qcow2
 #   - SSH TM, $VAR_LOCATION/tm/ssh
 #   - DUMMY TM, $VAR_LOCATION/tm/dummy
 #   - VMWARE TM, $VAR_LOCATION/tm/vmware
-#   - ISCSI TM, $VAR_LOCATION/tm/iscsi
 #   - LVM TM, $VAR_LOCATION/tm/lvm
 #   - CEPH TM, $VAR_LOCATION/tm/ceph
 #-------------------------------------------------------------------------------
@@ -1003,14 +996,14 @@ TM_SHARED_FILES="src/tm_mad/shared/clone \
                  src/tm_mad/shared/mvds \
                  src/tm_mad/shared/cpds"
 
-TM_SHARED_LVM_FILES="src/tm_mad/shared_lvm/clone \
-                 src/tm_mad/shared_lvm/ln \
-                 src/tm_mad/shared_lvm/mv \
-                 src/tm_mad/shared_lvm/mvds \
-                 src/tm_mad/shared_lvm/cpds \
-                 src/tm_mad/shared_lvm/premigrate \
-                 src/tm_mad/shared_lvm/postmigrate \
-                 src/tm_mad/shared_lvm/delete"
+TM_FS_LVM_FILES="src/tm_mad/fs_lvm/clone \
+                 src/tm_mad/fs_lvm/ln \
+                 src/tm_mad/fs_lvm/mv \
+                 src/tm_mad/fs_lvm/mvds \
+                 src/tm_mad/fs_lvm/cpds \
+                 src/tm_mad/fs_lvm/premigrate \
+                 src/tm_mad/fs_lvm/postmigrate \
+                 src/tm_mad/fs_lvm/delete"
 
 TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
                  src/tm_mad/qcow2/delete \
@@ -1060,15 +1053,6 @@ TM_VMFS_FILES="src/tm_mad/vmfs/clone \
                  src/tm_mad/vmfs/postmigrate \
                  src/tm_mad/vmfs/premigrate"
 
-TM_ISCSI_FILES="src/tm_mad/iscsi/clone \
-                 src/tm_mad/iscsi/ln \
-                 src/tm_mad/iscsi/mv \
-                 src/tm_mad/iscsi/mvds \
-                 src/tm_mad/iscsi/cpds \
-                 src/tm_mad/iscsi/premigrate \
-                 src/tm_mad/iscsi/postmigrate \
-                 src/tm_mad/iscsi/delete"
-
 TM_LVM_FILES="src/tm_mad/lvm/clone \
                  src/tm_mad/lvm/ln \
                  src/tm_mad/lvm/mv \
@@ -1092,7 +1076,6 @@ TM_CEPH_FILES="src/tm_mad/ceph/clone \
 #   - Dummy Image Repository, $REMOTES_LOCATION/datastore/dummy
 #   - FS based Image Repository, $REMOTES_LOCATION/datastore/fs
 #   - VMFS based Image Repository, $REMOTES_LOCATION/datastore/vmfs
-#   - iSCSI based Image Repository, $REMOTES_LOCATION/datastore/iscsi
 #   - LVM based Image Repository, $REMOTES_LOCATION/datastore/lvm
 #-------------------------------------------------------------------------------
 
@@ -1121,14 +1104,6 @@ DATASTORE_DRIVER_VMFS_SCRIPTS="src/datastore_mad/remotes/vmfs/cp \
                          src/datastore_mad/remotes/vmfs/monitor \
                          src/datastore_mad/remotes/vmfs/rm \
                          src/datastore_mad/remotes/vmfs/vmfs.conf"
-
-DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi/cp \
-                         src/datastore_mad/remotes/iscsi/mkfs \
-                         src/datastore_mad/remotes/iscsi/stat \
-                         src/datastore_mad/remotes/iscsi/rm \
-                         src/datastore_mad/remotes/iscsi/clone \
-                         src/datastore_mad/remotes/iscsi/monitor \
-                         src/datastore_mad/remotes/iscsi/iscsi.conf"
 
 DATASTORE_DRIVER_LVM_SCRIPTS="src/datastore_mad/remotes/lvm/cp \
                          src/datastore_mad/remotes/lvm/mkfs \
@@ -1177,6 +1152,7 @@ ONEDB_MIGRATOR_FILES="src/onedb/2.0_to_2.9.80.rb \
                       src/onedb/4.0.1_to_4.1.80.rb \
                       src/onedb/4.1.80_to_4.2.0.rb \
                       src/onedb/4.2.0_to_4.3.80.rb \
+                      src/onedb/4.3.80_to_4.3.85.rb \
                       src/onedb/fsck.rb \
                       src/onedb/onedb.rb \
                       src/onedb/onedb_backend.rb"
@@ -1228,12 +1204,6 @@ AUTH_ETC_FILES="src/authm_mad/remotes/server_x509/server_x509_auth.conf \
 EXAMPLE_SHARE_FILES="share/examples/vm.template \
                      share/examples/private.net \
                      share/examples/public.net"
-
-#-------------------------------------------------------------------------------
-# File required to interact with a tgtd server
-#-------------------------------------------------------------------------------
-
-TGT_SHARE_FILES="share/scripts/tgt/tgt-setup-lun-one"
 
 #-------------------------------------------------------------------------------
 # Files required to interact with the websockify server

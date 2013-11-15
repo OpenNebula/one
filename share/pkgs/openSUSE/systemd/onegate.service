@@ -1,0 +1,20 @@
+[Unit]
+Description=OpenNebula Gate Service for Service monitoring
+After=syslog.target
+After=network.target
+After=one.service
+After=one_scheduler.service
+BindTo=one.service
+!ConditionFileExists=/var/lock/one/.onegate.lock
+
+[Service]
+ExecStart=/bin/bash -c "/usr/bin/onegate-server start"
+ExecStartPost=/usr/bin/touch /var/lock/one/.onegate.lock
+ExecStop=/bin/kill -INT $MAINPID
+PIDFile=/var/run/one/onegate.pid
+Type=simple
+Group=cloud
+User=oneadmin
+
+[Install]
+WantedBy=multi-user.target
