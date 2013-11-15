@@ -217,3 +217,24 @@ string one_util::random_password()
 
     return sha1_digest(sstr.str());
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+vector<string> one_util::split(const string& st, char delim, bool clean_empty)
+{
+    vector<string>  parts;
+    string          part;
+
+    stringstream    ss(st);
+
+    while (getline(ss, part, delim))
+    {
+        if (!(clean_empty && part.empty()))
+        {
+            parts.push_back(part);
+        }
+    }
+
+    return parts;
+}

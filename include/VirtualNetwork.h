@@ -201,9 +201,14 @@ public:
      *  * BRIDGE: for this virtual network
      *  @param nic attribute for the VM template
      *  @param vid of the VM getting the lease
+     *  @param inherit_attrs Attributes to be inherited from the vnet template
+     *      into the nic
      *  @return 0 on success
      */
-    int nic_attribute(VectorAttribute * nic, int vid);
+    int nic_attribute(
+            VectorAttribute *       nic,
+            int                     vid,
+            const vector<string>&   inherit_attrs);
 
 private:
 

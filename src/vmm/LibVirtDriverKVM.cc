@@ -59,6 +59,8 @@ int LibVirtDriver::deployment_description_kvm(
     string  disk_io    = "";
     string  source     = "";
     string  clone      = "";
+    string  ceph_host  = "";
+    string  ceph_secret= "";
 
     int     disk_id;
     string  default_driver          = "";
@@ -311,14 +313,16 @@ int LibVirtDriver::deployment_description_kvm(
             continue;
         }
 
-        type   = disk->vector_value("TYPE");
-        target = disk->vector_value("TARGET");
-        ro     = disk->vector_value("READONLY");
-        driver = disk->vector_value("DRIVER");
-        cache  = disk->vector_value("CACHE");
-        disk_io= disk->vector_value("IO");
-        source = disk->vector_value("SOURCE");
-        clone  = disk->vector_value("CLONE");
+        type        = disk->vector_value("TYPE");
+        target      = disk->vector_value("TARGET");
+        ro          = disk->vector_value("READONLY");
+        driver      = disk->vector_value("DRIVER");
+        cache       = disk->vector_value("CACHE");
+        disk_io     = disk->vector_value("IO");
+        source      = disk->vector_value("SOURCE");
+        clone       = disk->vector_value("CLONE");
+        ceph_host   = disk->vector_value("CEPH_HOST");
+        ceph_secret = disk->vector_value("CEPH_SECRET");
 
         disk->vector_value_str("DISK_ID", disk_id);
 
@@ -360,7 +364,46 @@ int LibVirtDriver::deployment_description_kvm(
                 file << "-" << vm->get_oid() << "-" << disk_id;
             }
 
-            file << "'/>" << endl;
+            if ( ceph_host.empty() )
+            {
+                file << "'/>" << endl;
+            }
+            else
+            {
+                vector<string>::const_iterator it;
+                vector<string> hosts = one_util::split(ceph_host, ' ');
+
+                file << "'>" << endl;
+
+                for (it = hosts.begin(); it != hosts.end(); it++)
+                {
+                    vector<string> parts = one_util::split(*it, ':');
+
+                    if (parts.empty())
+                    {
+                        continue;
+                    }
+
+                    file << "\t\t\t\t<host name='" << parts[0];
+
+                    if (parts.size() > 1)
+                    {
+                        file << "' port='" << parts[1];
+                    }
+
+                    file << "'/>" << endl;
+                }
+
+                file << "\t\t\t</source>" << endl;
+            }
+
+            if ( !ceph_secret.empty() )
+            {
+                file << "\t\t\t<auth username='libvirt'>" << endl
+                     << "\t\t\t\t<secret type='ceph' uuid='"
+                     << ceph_secret <<"'/>" << endl
+                     << "\t\t\t</auth>" << endl;
+            }
         }
         else if ( type == "RBD_CDROM" )
         {
