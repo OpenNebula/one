@@ -32,17 +32,20 @@ unsigned int VirtualNetworkPool::_default_size;
 /* -------------------------------------------------------------------------- */
 
 VirtualNetworkPool::VirtualNetworkPool(
-    SqlDB *                   db,
-    const string&             prefix,
-    int                       __default_size,
-    vector<const Attribute *> hook_mads,
-    const string&             remotes_location):
+    SqlDB *                             db,
+    const string&                       prefix,
+    int                                 __default_size,
+    vector<const Attribute *>           hook_mads,
+    const string&                       remotes_location,
+    const vector<const Attribute *>&    _inherit_attrs):
     PoolSQL(db, VirtualNetwork::table, true)
 {
     istringstream iss;
     size_t        pos   = 0;
     int           count = 0;
     unsigned int  tmp;
+
+    vector<const Attribute *>::const_iterator it;
 
     string mac = prefix;
 
@@ -71,6 +74,13 @@ VirtualNetworkPool::VirtualNetworkPool(
     _mac_prefix += tmp;
 
    register_hooks(hook_mads, remotes_location);
+
+   for (it = _inherit_attrs.begin(); it != _inherit_attrs.end(); it++)
+   {
+       const SingleAttribute* sattr = static_cast<const SingleAttribute *>(*it);
+
+       inherit_attrs.push_back(sattr->value());
+   }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -250,7 +260,7 @@ int VirtualNetworkPool::nic_attribute(VectorAttribute * nic,
         return -1;
     }
 
-    int rc = vnet->nic_attribute(nic,vid);
+    int rc = vnet->nic_attribute(nic, vid, inherit_attrs);
 
     if ( rc == 0 )
     {

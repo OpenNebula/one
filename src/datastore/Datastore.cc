@@ -71,10 +71,15 @@ Datastore::Datastore(
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Datastore::disk_attribute(VectorAttribute * disk)
+int Datastore::disk_attribute(
+        VectorAttribute *       disk,
+        const vector<string>&   inherit_attrs)
 {
     ostringstream oss;
     string st;
+    string inherit_val;
+
+    vector<string>::const_iterator it;
 
     oss << oid;
 
@@ -102,6 +107,16 @@ int Datastore::disk_attribute(VectorAttribute * disk)
     if(!st.empty())
     {
         disk->replace("LN_TARGET", st);
+    }
+
+    for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)
+    {
+        get_template_attribute((*it).c_str(), inherit_val);
+
+        if (!inherit_val.empty())
+        {
+            disk->replace(*it, inherit_val);
+        }
     }
 
     return 0;

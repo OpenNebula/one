@@ -33,11 +33,12 @@ class VirtualNetworkPool : public PoolSQL
 {
 public:
 
-    VirtualNetworkPool(SqlDB *                   db,
-                       const string&             str_mac_prefix,
-                       int                       default_size,
-                       vector<const Attribute *> hook_mads,
-                       const string&             remotes_location);
+    VirtualNetworkPool(SqlDB *                          db,
+                       const string&                    str_mac_prefix,
+                       int                              default_size,
+                       vector<const Attribute *>        hook_mads,
+                       const string&                    remotes_location,
+                       const vector<const Attribute *>& _inherit_attrs);
 
     ~VirtualNetworkPool(){};
 
@@ -173,6 +174,11 @@ private:
      *  Default size for Virtual Networks
      */
     static unsigned int     _default_size;
+
+    /**
+     * VNet attributes to be injected into the VM nic
+     */
+    vector<string> inherit_attrs;
 
     /**
      *  Factory method to produce VN objects
