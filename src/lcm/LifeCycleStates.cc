@@ -531,7 +531,6 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         vmpool->update_history(vm);
 
-        // TODO CARLOS
         vm->log("LCM", Log::INFO, "New VM state is EPILOG");
 
         //----------------------------------------------------
