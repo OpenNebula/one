@@ -46,6 +46,9 @@ class EC2Driver
     POLL_ATTRIBUTE  = VirtualMachineDriver::POLL_ATTRIBUTE
     VM_STATE        = VirtualMachineDriver::VM_STATE
 
+    # Key that will be used to store the monitoring information in the template
+    EC2_MONITOR_KEY = "EC2DRIVER_MONITOR"
+
     # EC2 commands constants
     EC2 = {
         :run => {
@@ -158,6 +161,21 @@ class EC2Driver
             }
         }
     }
+
+    # EC2 attributes that will be retrieved in a polling action
+    EC2_POLL_ATTRS = [
+        :dns_name,
+        :private_dns_name,
+        :key_name,
+        :availability_zone,
+        :platform,
+        :vpc_id,
+        :private_ip_address,
+        :ip_address,
+        :subnet_id,
+        :security_groups,
+        :instance_type
+    ]
 
     # EC2 constructor, loads credentials and endpoint
     def initialize(host)
@@ -356,21 +374,36 @@ private
         info =  "#{POLL_ATTRIBUTE[:usedmemory]}=0 " \
                 "#{POLL_ATTRIBUTE[:usedcpu]}=0 " \
                 "#{POLL_ATTRIBUTE[:nettx]}=0 " \
-                "#{POLL_ATTRIBUTE[:netrx]}=0"
+                "#{POLL_ATTRIBUTE[:netrx]}=0 "
 
+        state = ""
         if !instance.exists?
-            info << " #{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:deleted]}"
+            state = VM_STATE[:deleted]
         else
-            case instance.status
-                when :pending
-                    info << " #{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:active]}"
-                when :running
-                    info<<" #{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:active]}"<<
-                        " IP=#{instance.ip_address}"
-                when :'shutting-down', :terminated
-                    info << " #{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:deleted]}"
+            state = case instance.status
+            when :pending
+                VM_STATE[:active]
+            when :running
+                VM_STATE[:active]
+            when :'shutting-down', :terminated
+                VM_STATE[:deleted]
+            else
+                VM_STATE[:deleted]
             end
         end
+        info << "#{POLL_ATTRIBUTE[:state]}=#{state} "
+
+        EC2_POLL_ATTRS.map { |key|
+            value = instance.send(key)
+            if !value.nil? && !value.empty?
+                if value.is_a?(Array)
+                    value = value.map {|v|
+                        v.security_group_id if v.is_a?(AWS::EC2::SecurityGroup)
+                    }.join(",")
+                end
+                info << "AWS_#{key.to_s.upcase}=#{value} "
+            end
+        }
 
         info
     end
