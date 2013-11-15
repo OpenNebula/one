@@ -18,6 +18,9 @@
 
 require 'socket'
 require 'base64'
+require 'resolv'
+require 'ipaddr'
+
 
 DIRNAME = File.dirname(__FILE__)
 REMOTE_DIR_UPDATE = File.join(DIRNAME, '../../.update')
@@ -28,7 +31,7 @@ class CollectdClient
         # Arguments
         @hypervisor          = hypervisor
         @number              = number.to_i
-        @host                = host
+        @host                = get_ipv4_address(host)
         @port                = port
         @monitor_push_period = monitor_push_period
 
@@ -41,6 +44,24 @@ class CollectdClient
 
         # Socket
         @s = UDPSocket.new
+    end
+
+    def get_ipv4_address(host)
+        addresses=Resolv.getaddresses(host)
+        address=nil
+
+        addresses.each do |addr|
+            begin
+                a=IPAddr.new(addr)
+                if a.ipv4?
+                    address=addr
+                    break
+                end
+            rescue
+            end
+        end
+
+        address
     end
 
     def run_probes
