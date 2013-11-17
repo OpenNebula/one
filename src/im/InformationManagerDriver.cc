@@ -19,6 +19,8 @@
 #include "Nebula.h"
 #include "NebulaUtil.h"
 #include "VirtualMachineManagerDriver.h"
+#include "MonitorThread.h"
+
 #include <sstream>
 
 /* -------------------------------------------------------------------------- */
@@ -27,13 +29,19 @@
 InformationManagerDriver::InformationManagerDriver(
         int                         userid,
         const map<string,string>&   attrs,
-        bool                        sudo,
-        HostPool *                  pool):
-            Mad(userid,attrs,sudo),hpool(pool)
+        bool                        sudo):
+            Mad(userid,attrs,sudo)
 {
-    dspool = Nebula::instance().get_dspool();
+    mtpool = new MonitorThreadPool(100);
 };
 
+InformationManagerDriver::~InformationManagerDriver()
+{
+    if (mtpool != 0)
+    {
+        delete mtpool;
+    }
+};
 
 /* ************************************************************************** */
 /* Driver ASCII Protocol Implementation                                       */
@@ -75,12 +83,7 @@ void InformationManagerDriver::protocol(const string& message) const
 
     ostringstream   ess;
 
-    Host *          host;
-
     set<int>        vm_ids;
-
-    string  hinfo64;
-    string* hinfo;
 
     // Parse the driver message
 
@@ -111,31 +114,13 @@ void InformationManagerDriver::protocol(const string& message) const
         goto error_parse;
     }
 
-    // -----------------------
+    // -------------------------------------------------------------------------
     // Protocol implementation
-    // -----------------------
+    // -------------------------------------------------------------------------
 
     if ( action == "MONITOR" )
     {
-        bool vm_poll;
-
-        set<int>        lost;
-        map<int,string> found;
-        set<int>        non_shared_ds;
-
-        map<int,const VectorAttribute*> datastores;
-
-        Template tmpl;
-
-        Datastore * ds;
-
-        map<int, const VectorAttribute*>::iterator  itm;
-
-        int rc;
-
-        // ---------------------------------------------------------------------
-        // Get information from driver and decode from base64
-        // ---------------------------------------------------------------------
+        string  hinfo64;
 
         getline (is, hinfo64);
 
@@ -144,144 +129,7 @@ void InformationManagerDriver::protocol(const string& message) const
             return;
         }
 
-        host = hpool->get(id,true);
-
-        if ( host == 0 )
-        {
-            goto error_host;
-        }
-
-        hinfo = one_util::base64_decode(hinfo64);
-
-        // ---------------------------------------------------------------------
-        // Monitoring Error
-        // ---------------------------------------------------------------------
-        if (result != "SUCCESS")
-        {
-            set<int> vm_ids;
-
-            host->error_info(*hinfo, vm_ids);
-
-            Nebula           &ne  = Nebula::instance();
-            LifeCycleManager *lcm = ne.get_lcm();
-
-            for (set<int>::iterator it = vm_ids.begin(); it != vm_ids.end(); it++)
-            {
-                lcm->trigger(LifeCycleManager::MONITOR_DONE, *it);
-            }
-
-            delete hinfo;
-
-            hpool->update(host);
-
-            host->unlock();
-
-            return;
-        }
-
-        // ---------------------------------------------------------------------
-        // Get DS Information from Moniroting Information
-        // ---------------------------------------------------------------------
-
-        rc = host->extract_ds_info(*hinfo, tmpl, datastores);
-
-        delete hinfo;
-
-        host->unlock();
-
-        if (rc != 0)
-        {
-            return;
-        }
-
-        for (itm = datastores.begin(); itm != datastores.end(); itm++)
-        {
-            ds = dspool->get(itm->first, true);
-
-            if (ds == 0)
-            {
-                continue;
-            }
-
-            if (ds->get_type() == Datastore::SYSTEM_DS)
-            {
-                if (ds->is_shared())
-                {
-                    float total = 0, free = 0, used = 0;
-                    ostringstream oss;
-
-                    (itm->second)->vector_value("TOTAL_MB", total);
-                    (itm->second)->vector_value("FREE_MB", free);
-                    (itm->second)->vector_value("USED_MB", used);
-
-                    ds->update_monitor(total, free, used);
-
-                    oss << "Datastore " << ds->get_name() <<
-                        " (" << ds->get_oid() << ") successfully monitored.";
-
-                    NebulaLog::log("ImM", Log::DEBUG, oss);
-
-                    dspool->update(ds);
-                }
-                else
-                {
-                    non_shared_ds.insert(itm->first);
-                }
-            }
-
-            ds->unlock();
-        }
-
-        // ---------------------------------------------------------------------
-        // Parse Host information
-        // ---------------------------------------------------------------------
-
-        host = hpool->get(id,true);
-
-        if ( host == 0 )
-        {
-            delete hinfo;
-            goto error_host;
-        }
-
-        rc = host->update_info(tmpl, vm_poll, lost, found, non_shared_ds);
-
-        hpool->update(host);
-
-        if (rc != 0)
-        {
-            host->unlock();
-
-            return;
-        }
-
-        hpool->update_monitoring(host);
-
-        ess << "Host " << host->get_name() << " (" << host->get_oid() << ")"
-            << " successfully monitored.";
-
-        NebulaLog::log("InM", Log::DEBUG, ess);
-
-        host->unlock();
-
-        if (vm_poll)
-        {
-            set<int>::iterator         its;
-            map<int,string>::iterator  itm;
-
-            Nebula           &ne  = Nebula::instance();
-            LifeCycleManager *lcm = ne.get_lcm();
-
-            for (its = lost.begin(); its != lost.end(); its++)
-            {
-                lcm->trigger(LifeCycleManager::MONITOR_DONE, *its);
-            }
-
-            for (itm = found.begin(); itm != found.end(); itm++)
-            {
-                VirtualMachineManagerDriver::process_poll(itm->first, itm->second);
-            }
-        }
+        mtpool->do_message(id, result, hinfo64);
     }
     else if (action == "LOG")
     {
@@ -305,12 +153,6 @@ void InformationManagerDriver::protocol(const string& message) const
             NebulaLog::log("InM", Log::ERROR, oss.str());
         }
     }
-
-    return;
-
-error_host:
-    ess << "Could not get host " << id;
-    NebulaLog::log("InM",Log::ERROR,ess);
 
     return;
 
