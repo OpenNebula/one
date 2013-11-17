@@ -22,11 +22,10 @@
 #include <sstream>
 
 #include "Mad.h"
-#include "HostPool.h"
-#include "DatastorePool.h"
-
 
 using namespace std;
+
+class MonitorThreadPool;
 
 /**
  *  InformationManagerDriver provides a base class to implement IM
@@ -41,10 +40,9 @@ public:
     InformationManagerDriver(
         int                         userid,
         const map<string,string>&   attrs,
-        bool                        sudo,
-        HostPool *                  pool);
+        bool                        sudo);
 
-    virtual ~InformationManagerDriver(){};
+    virtual ~InformationManagerDriver();
 
     /**
      *  Implements the IM driver protocol.
@@ -75,14 +73,9 @@ public:
     void stop_monitor(int oid, const string& host) const;
 
 private:
-    /**
-     *  Pointer to the Virtual Machine Pool, to access VMs
-     */
-    HostPool * hpool;
-
-    DatastorePool * dspool;
-
     friend class InformationManager;
+
+    MonitorThreadPool * mtpool;
 };
 
 /* -------------------------------------------------------------------------- */

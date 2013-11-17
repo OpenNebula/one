@@ -23,7 +23,8 @@ lib_name='nebula_im'
 # Sources to generate the library
 source_files=[
     'InformationManager.cc',
-    'InformationManagerDriver.cc'
+    'InformationManagerDriver.cc',
+    'MonitorThread.cc'
 ]
 
 # Build library
