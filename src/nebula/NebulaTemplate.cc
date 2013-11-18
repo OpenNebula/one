@@ -90,6 +90,7 @@ void OpenNebulaTemplate::set_conf_default()
 # Daemon configuration attributes
 #-------------------------------------------------------------------------------
 #  MONITORING_INTERVAL
+#  MONITORING_THREADS
 #  HOST_PER_INTERVAL
 #  HOST_MONITORING_EXPIRATION_TIME
 #  VM_PER_INTERVAL
@@ -105,6 +106,12 @@ void OpenNebulaTemplate::set_conf_default()
     value = "60";
 
     attribute = new SingleAttribute("MONITORING_INTERVAL",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
+    // MONITORING_THREADS
+    value = "50";
+
+    attribute = new SingleAttribute("MONITORING_THREADS",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 
     // HOST_PER_INTERVAL

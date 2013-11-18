@@ -20,6 +20,7 @@
 #include "MadManager.h"
 #include "ActionManager.h"
 #include "InformationManagerDriver.h"
+#include "MonitorThread.h"
 
 using namespace std;
 
@@ -38,6 +39,7 @@ public:
         time_t                      _timer_period,
         time_t                      _monitor_period,
         int                         _host_limit,
+        int                         _monitor_threads,
         const string&               _remotes_location,
         vector<const Attribute*>&   _mads)
             :MadManager(_mads),
@@ -46,7 +48,8 @@ public:
             timer_period(_timer_period),
             monitor_period(_monitor_period),
             host_limit(_host_limit),
-            remotes_location(_remotes_location)
+            remotes_location(_remotes_location),
+            mtpool(_monitor_threads)
     {
         am.addListener(this);
     };
@@ -140,6 +143,11 @@ private:
      *  Action engine for the Manager
      */
     ActionManager   am;
+
+    /**
+     *  Pool of threads to process each monitor message
+     */
+    MonitorThreadPool mtpool;
 
     /**
      *  Function to execute the Manager action loop method within a new pthread

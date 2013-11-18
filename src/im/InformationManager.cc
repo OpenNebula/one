@@ -71,7 +71,7 @@ int InformationManager::load_mads(int uid)
 
         NebulaLog::log("InM",Log::INFO,oss);
 
-        im_mad = new InformationManagerDriver(0,vattr->value(),false);
+        im_mad = new InformationManagerDriver(0,vattr->value(),false,&mtpool);
 
         rc = add(im_mad);
 
