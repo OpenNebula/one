@@ -1372,5 +1372,7 @@ $(document).ready(function(){
       infoListener(dataTable_images,'Image.showinfo');
 
       $('div#images_tab div.legend_div').hide();
+
+      dataTable_images.fnSort( [ [1,config['user_config']['table_order']] ] );
     }
 });
