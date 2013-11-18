@@ -37,7 +37,10 @@ class OpenvSwitchVLAN < OpenNebulaNetwork
             @nic = nic
 
             # Apply VLAN
-            tag_vlan if @nic[:vlan] == "YES"
+            if @nic[:vlan] == "YES"
+                tag_vlan
+                tag_trunk_vlans
+            end
 
             # Prevent Mac-spoofing
             mac_spoofing
@@ -77,6 +80,19 @@ class OpenvSwitchVLAN < OpenNebulaNetwork
         cmd << "tag=#{vlan}"
 
         run cmd
+    end
+
+    def tag_trunk_vlans
+        range = @nic[:vlan_tagged_id]
+        if range? range
+            ovs_vsctl_cmd = "#{COMMANDS[:ovs_vsctl]} set Port #{@nic[:tap]}"
+
+            cmd = "#{ovs_vsctl_cmd} trunks=#{range}"
+            run cmd
+
+            cmd = "#{ovs_vsctl_cmd} vlan_mode=native-untagged"
+            run cmd
+        end
     end
 
     def mac_spoofing
@@ -165,6 +181,6 @@ class OpenvSwitchVLAN < OpenNebulaNetwork
     end
 
     def range?(range)
-        !range.match(/^\d+(,\d+)*$/).nil?
+        !range.to_s.match(/^\d+(,\d+)*$/).nil?
     end
 end

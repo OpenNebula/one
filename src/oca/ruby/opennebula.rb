@@ -54,5 +54,5 @@ require 'opennebula/system'
 module OpenNebula
 
     # OpenNebula version
-    VERSION = '4.3.80'
+    VERSION = '4.3.85'
 end
