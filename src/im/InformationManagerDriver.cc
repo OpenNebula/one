@@ -27,21 +27,13 @@
 /* -------------------------------------------------------------------------- */
 
 InformationManagerDriver::InformationManagerDriver(
-        int                         userid,
-        const map<string,string>&   attrs,
-        bool                        sudo):
-            Mad(userid,attrs,sudo)
-{
-    mtpool = new MonitorThreadPool(100);
-};
+        int                       userid,
+        const map<string,string>& attrs,
+        bool                      sudo,
+        MonitorThreadPool *       _mtpool):
+            Mad(userid,attrs,sudo), mtpool(_mtpool){};
 
-InformationManagerDriver::~InformationManagerDriver()
-{
-    if (mtpool != 0)
-    {
-        delete mtpool;
-    }
-};
+InformationManagerDriver::~InformationManagerDriver(){};
 
 /* ************************************************************************** */
 /* Driver ASCII Protocol Implementation                                       */

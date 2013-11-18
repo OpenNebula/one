@@ -40,7 +40,8 @@ public:
     InformationManagerDriver(
         int                         userid,
         const map<string,string>&   attrs,
-        bool                        sudo);
+        bool                        sudo,
+        MonitorThreadPool *         mtpool);
 
     virtual ~InformationManagerDriver();
 
@@ -75,6 +76,9 @@ public:
 private:
     friend class InformationManager;
 
+    /**
+     *  Pointer to the Monitor Thread Pool to process monitor messages
+     */
     MonitorThreadPool * mtpool;
 };
 

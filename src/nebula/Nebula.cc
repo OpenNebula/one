@@ -724,9 +724,13 @@ void Nebula::start(bool bootstrap_only)
     try
     {
         vector<const Attribute *>   im_mads;
-        int                         host_limit;
+
+        int host_limit;
+        int monitor_threads;
 
         nebula_configuration->get("HOST_PER_INTERVAL", host_limit);
+
+        nebula_configuration->get("MONITORING_THREADS", monitor_threads);
 
         nebula_configuration->get("IM_MAD", im_mads);
 
@@ -735,6 +739,7 @@ void Nebula::start(bool bootstrap_only)
                                     timer_period,
                                     monitor_period,
                                     host_limit,
+                                    monitor_threads,
                                     remotes_location,
                                     im_mads);
     }
