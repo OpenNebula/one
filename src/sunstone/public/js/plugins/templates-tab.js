@@ -4350,22 +4350,26 @@ function fillTemplatePopUp(request, response){
             var dataTable_template_images = $("#datatable_template_images" + number_of_disks).dataTable();
 
             var disk_image_id = disk.IMAGE_ID
+            var disk_image = disk.IMAGE
+            var disk_image_uname = disk.IMAGE_UNAME
             // TODO updateView should not be required. Currently the dataTable
             //  is filled twice.
             update_datatable_template_images(dataTable_template_images, function(){
                 //dataTable_template_images.unbind('draw');
 
-                if (disk_image_id) {
+                if (disk_image_id || (disk_image && disk_image_uname)) {
                     var clicked = false
                     var data = dataTable_template_images.fnGetData();
                     $.each(data, function(){
-                        if (this[1] == disk_image_id) {
+                        if (this[1] == disk_image_id || (this[2] == disk_image_uname && this[4] == disk_image)) {
                             clicked = true;
                             $(".alert-box", disk_section).hide();
                             $('#image_selected', disk_section).show();
                             $('#select_image', disk_section).hide();
                             $('#IMAGE_NAME', disk_section).text(this[4]);
-                            $('#IMAGE_ID', disk_section).val(this[1]);
+                            if(disk_image_id) $('#IMAGE_ID', disk_section).val(this[1]);
+                            if(disk_image_uname) $('#IMAGE_UNAME', disk_section).val(this[2]);
+                            if(disk_image) $('#IMAGE', disk_section).val(this[4]);
                         }
                     })
 
@@ -4424,21 +4428,25 @@ function fillTemplatePopUp(request, response){
         var dataTable_template_networks = $("#datatable_template_networks" + number_of_nics).dataTable();
 
         var nic_network_id = nic.NETWORK_ID
+        var nic_network = nic.NETWORK
+        var nic_network_uname = nic.NETWORK_UNAME
         // TODO updateView should not be required. Currently the dataTable
         //  is filled twice.
         update_datatable_template_networks(dataTable_template_networks, function(){
 
-            if (nic_network_id) {
+            if (nic_network_id || (nic_network && nic_network_uname)) {
                 var clicked = false
                 var data = dataTable_template_networks.fnGetData();
                 $.each(data, function(){
-                    if (this[1] == nic_network_id) {
+                    if (this[1] == nic_network_id || (this[4] == nic_network && this[2] == nic_network_uname)) {
                         clicked = true;
                         $('.alert-box', nic_section).hide();
                         $('#network_selected', nic_section).show();
                         $('#select_network', nic_section).hide();
                         $('#NETWORK_NAME', nic_section).text(this[4]);
-                        $('#NETWORK_ID', nic_section).val(this[1]);
+                        if (nic_network_id) $('#NETWORK_ID', nic_section).val(this[1]);
+                        if (nic_network) $('#NETWORK', nic_section).val(this[4]);
+                        if (nic_network_uname) $('#NETWORK_UNAME', nic_section).val(this[2]);
                     }
                 })
 
