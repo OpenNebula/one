@@ -128,33 +128,36 @@ public:
       *  Updates the Host's last_monitored time stamp.
       *    @param success if the monitored action was successfully performed
       */
-     void touch(bool success)
-     {
-         last_monitored = time(0);
+    void touch(bool success)
+    {
+        last_monitored = time(0);
 
-         switch (state)
-         {
-             case MONITORING_DISABLED:
-                 state = DISABLED;
-             break;
+        switch (state)
+        {
+            case DISABLED:
+            case MONITORING_DISABLED:
+                state = DISABLED;
+            break;
 
-             case MONITORING_ERROR:
-             case MONITORING_INIT:
-             case MONITORING_MONITORED:
-                 if (success == true)
-                 {
-                     state = MONITORED;
-                 }
-                 else
-                 {
-                     state = ERROR;
-                 }
-             break;
-
-             default:
-             break;
-         }
-     };
+            case INIT:
+            case ERROR:
+            case MONITORED:
+            case MONITORING_ERROR:
+            case MONITORING_INIT:
+            case MONITORING_MONITORED:
+                if (success == true)
+                {
+                    state = MONITORED;
+                }
+                else
+                {
+                    state = ERROR;
+                }
+            break;
+            default:
+            break;
+        }
+    };
 
     /**
      * Update host after a successful monitor. It modifies counters, state
