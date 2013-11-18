@@ -68,7 +68,7 @@ class VirtualMachineOCCI < VirtualMachine
     OCCI_ACTION = {
         "STOPPED"   => { :from => ["ACTIVE"], :action => :stop},
         "SUSPENDED" => { :from => ["ACTIVE"], :action => :suspend},
-        "RESUME"    => { :from => ["STOPPED", "SUSPENDED"], :action => :resume},
+        "RESUME"    => { :from => ["STOPPED", "SUSPENDED", "POWEROFF"], :action => :resume},
         "CANCEL"    => { :from => ["ACTIVE"], :action => :cancel},
         "REBOOT"    => { :from => ["ACTIVE"], :action => :reboot},
         "RESET"     => { :from => ["ACTIVE"], :action => :reset},
