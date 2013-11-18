@@ -553,7 +553,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     disk_attach_desc = <<-EOT.unindent
-        Attaches a disk to a running VM
+        Attaches a disk to a running VM. When using --file add only one
+        DISK instance.
 
         States: RUNNING
     EOT
@@ -609,7 +610,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     nic_attach_desc = <<-EOT.unindent
-        Attaches a NIC to a running VM
+        Attaches a NIC to a running VM. When using --file add only one
+        NIC instance.
 
         States: RUNNING
     EOT
