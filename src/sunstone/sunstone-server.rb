@@ -327,6 +327,7 @@ post '/config' do
     session[:lang] = user['TEMPLATE/LANG']
     session[:vnc_wss] = user['TEMPLATE/VNC_WSS']
     session[:default_view] = user['TEMPLATE/DEFAULT_VIEW']
+    session[:table_order] = user['TEMPLATE/TABLE_ORDER']
 
     [200, ""]
 end
