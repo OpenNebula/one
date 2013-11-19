@@ -796,7 +796,7 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
 VMM_EXEC_XEN3_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/deploy \
                     src/vmm_mad/remotes/xen/xen3/xenrc \
-                    src/vmm_mad/remotes/xen/migrate \
+                    src/vmm_mad/remotes/xen/xen3/migrate \
                     src/vmm_mad/remotes/xen/restore \
                     src/vmm_mad/remotes/xen/reboot \
                     src/vmm_mad/remotes/xen/reset \
@@ -815,7 +815,7 @@ VMM_EXEC_XEN3_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
 VMM_EXEC_XEN4_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/deploy \
                     src/vmm_mad/remotes/xen/xen4/xenrc \
-                    src/vmm_mad/remotes/xen/migrate \
+                    src/vmm_mad/remotes/xen/xen4/migrate \
                     src/vmm_mad/remotes/xen/restore \
                     src/vmm_mad/remotes/xen/reboot \
                     src/vmm_mad/remotes/xen/reset \
