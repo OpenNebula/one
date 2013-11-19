@@ -557,7 +557,7 @@ private
         context_file.each_line do |line|
             next if line.match(/^#/)
 
-            if (m = line.match(/^(.*?)="(.*)"$/))
+            if (m = line.match(/^(.*?)='(.*)'$/))
                 key   = m[1].downcase.to_sym
                 value = m[2]
                 context[key] = value
