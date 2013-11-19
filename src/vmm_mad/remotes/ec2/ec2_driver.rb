@@ -60,9 +60,32 @@ class EC2Driver
                 "AMI" => {
                     :opt => 'image_id'
                 },
-                #"BLOCKDEVICEMAPPING" => {
-                #    :opt => '-b'
-                #},
+                "BLOCKDEVICEMAPPING" => {
+                    :opt => 'block_device_mappings',
+                    :proc => lambda {|str|
+                        str.split(' ').collect { |s|
+                            dev, tmp = s.split('=')
+                            hash = Hash.new
+                            hash[:device_name] = dev
+                            if tmp == "none"
+                                hash[:no_device] = dev
+                            else
+                                hash[:ebs] = Hash.new
+                                tmp_a = tmp.split(':')
+                                hash[:ebs][:snapshot_id] = tmp_a[0] if tmp_a[0] && !tmp_a[0].empty?
+                                hash[:ebs][:volume_size] = tmp_a[1].to_i if tmp_a[1] && !tmp_a[1].empty?
+                                if tmp_a[2] == "false"
+                                    hash[:ebs][:delete_on_termination] = false
+                                elsif tmp_a[2] == "true"
+                                    hash[:ebs][:delete_on_termination] = true
+                                end
+                                hash[:ebs][:volume_type] = tmp_a[3] if tmp_a[3] && !tmp_a[3].empty?
+                                hash[:ebs][:iops] = tmp_a[4].to_i if tmp_a[4] && !tmp_a[4].empty?
+                            end
+                            hash
+                        }
+                    }
+                },
                 "CLIENTTOKEN" => {
                     :opt => 'client_token'
                 },
