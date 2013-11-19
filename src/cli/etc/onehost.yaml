@@ -17,6 +17,10 @@
   :desc: Number of Virtual Machines running
   :size: 3
 
+:ZVM:
+  :desc: Number of Virtual Machine zombies
+  :size: 3
+
 :TCPU: 
   :desc: Total CPU percentage
   :size: 4

@@ -53,6 +53,10 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 d["HOST_SHARE"]["RUNNING_VMS"]
             end
 
+            column :ZVM, "Number of Virtual Machine zombies", :size=>3 do |d|
+                d["TEMPLATE"]["TOTAL_ZOMBIES"] || 0
+            end
+
             column :TCPU, "Total CPU percentage", :size=>4 do |d|
                 d["HOST_SHARE"]["MAX_CPU"]
             end
