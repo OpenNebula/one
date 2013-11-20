@@ -1388,6 +1388,22 @@ public:
      */
     void delete_snapshots();
 
+    // ------------------------------------------------------------------------
+    // Hybrid templates related functions
+    // ------------------------------------------------------------------------
+
+    /**
+     * Checks if the VM is hybrid
+     * @return true if the VM is hybrid
+     */
+    bool is_hybrid() const;
+
+    /**
+     * Gets the list of hybrid hypervisors for which this VM has definitions
+     * @return the list of hybrid hypervisors
+     */
+    vector<string> get_hybrid_hypervisors() const;
+
 private:
 
     // -------------------------------------------------------------------------
