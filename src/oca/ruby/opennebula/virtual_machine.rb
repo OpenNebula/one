@@ -222,7 +222,9 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def deploy(host_id, enforce=false, ds_id=-1)
-            return call(VM_METHODS[:deploy], @pe_id, host_id.to_i, enforce, ds_id)
+            enforce ||= false
+            ds_id ||= -1
+            return call(VM_METHODS[:deploy], @pe_id, host_id.to_i, enforce, ds_id.to_i)
         end
 
         # Shutdowns an already deployed VM

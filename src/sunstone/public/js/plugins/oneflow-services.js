@@ -1025,7 +1025,7 @@ var service_actions = {
         type: "custom",
         call: function() {
             Service.list({
-                timeout: true, 
+                timeout: true,
                 success: function(request, service_list) {
                     $("#oneflow-services #error_message").hide();
                     updateServicesView(request, service_list);
@@ -1871,5 +1871,6 @@ $(document).ready(function(){
         initCheckAllBoxes(dataTable_services);
         tableCheckboxesListener(dataTable_services);
         infoListener(dataTable_services,'Service.showinfo');
+        dataTable_services.fnSort( [ [1,config['user_config']['table_order']] ] );
     }
 });

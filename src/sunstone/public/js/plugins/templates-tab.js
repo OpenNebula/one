@@ -1642,6 +1642,8 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
       dataTable_template_images.fnFilter( $(this).val() );
     })
 
+    dataTable_template_images.fnSort( [ [1,config['user_config']['table_order']] ] );
+
     $('#'+str_datatable_id + '  tbody', disk_section).delegate("tr", "click", function(e){
         dataTable_template_images.unbind("draw");
         var aData = dataTable_template_images.fnGetData(this);
@@ -1657,9 +1659,9 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
         $('input.check_item', this).attr('checked','checked');
 
         $('#IMAGE_NAME', disk_section).text(aData[4]);
-        $('#IMAGE_ID', disk_section).val(aData[1]);
-        $('#IMAGE', disk_section).val("");
-        $('#IMAGE_UNAME', disk_section).val("");
+        $('#IMAGE_ID', disk_section).val();
+        $('#IMAGE', disk_section).val(aData[4]);
+        $('#IMAGE_UNAME', disk_section).val(aData[2]);
         $('#IMAGE_UID', disk_section).val("");
         return true;
     });
@@ -1925,6 +1927,8 @@ function setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id) {
       dataTable_template_networks.fnFilter( $(this).val() );
     })
 
+    dataTable_template_networks.fnSort( [ [1,config['user_config']['table_order']] ] );
+
     $('#'+str_datatable_id + '  tbody', nic_section).delegate("tr", "click", function(e){
         dataTable_template_networks.unbind("draw");
         var aData = dataTable_template_networks.fnGetData(this);
@@ -1940,9 +1944,9 @@ function setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id) {
         $('input.check_item', this).attr('checked','checked');
 
         $('#NETWORK_NAME', nic_section).text(aData[4]);
-        $('#NETWORK_ID', nic_section).val(aData[1]);
-        $('#NETWORK', nic_section).val("");
-        $('#NETWORK_UNAME', nic_section).val("");
+        $('#NETWORK_ID', nic_section).val("");
+        $('#NETWORK', nic_section).val(aData[4]);
+        $('#NETWORK_UNAME', nic_section).val(aData[2]);
         $('#NETWORK_UID', nic_section).val("");
         return true;
     });
@@ -2856,6 +2860,8 @@ function setupCreateTemplateDialog(){
             dataTable_template_kernel.fnFilter( $(this).val() );
         })
 
+        dataTable_template_kernel.fnSort( [ [1,config['user_config']['table_order']] ] );
+
         $('#datatable_kernel tbody', dialog).delegate("tr", "click", function(e){
             var aData = dataTable_template_kernel.fnGetData(this);
 
@@ -2907,6 +2913,8 @@ function setupCreateTemplateDialog(){
         $('#initrd_search', dialog).keyup(function(){
             datTable_template_initrd.fnFilter( $(this).val() );
         })
+
+        datTable_template_initrd.fnSort( [ [1,config['user_config']['table_order']] ] );
 
         $('#datatable_initrd tbody', dialog).delegate("tr", "click", function(e){
             var aData = datTable_template_initrd.fnGetData(this);
@@ -3342,6 +3350,7 @@ function setupCreateTemplateDialog(){
             datTable_template_context.fnFilter( $(this).val() );
         })
 
+        datTable_template_context.fnSort( [ [1,config['user_config']['table_order']] ] );
 
       var selected_files = {};
       var file_row_hash = {};
@@ -3619,6 +3628,8 @@ function setupCreateTemplateDialog(){
             dataTable_template_hosts.fnFilter( $(this).val() );
         })
 
+        dataTable_template_hosts.fnSort( [ [1,config['user_config']['table_order']] ] );
+
         var selected_hosts = {};
         var host_row_hash = {};
 
@@ -3696,6 +3707,8 @@ function setupCreateTemplateDialog(){
         $('#clusters_search', dialog).keyup(function(){
             dataTable_template_clusters.fnFilter( $(this).val() );
         })
+
+        dataTable_template_clusters.fnSort( [ [1,config['user_config']['table_order']] ] );
 
         var selected_clusters = {};
         var cluster_row_hash = {};
@@ -5076,6 +5089,8 @@ function setupInstantiateTemplateDialog(easy_provision){
         dataTable_template_images.fnFilter( $(this).val() );
       })
 
+      dataTable_template_images.fnSort( [ [1,config['user_config']['table_order']] ] );
+
       $('#template_images_table tbody', dialog).delegate("tr", "click", function(e){
           var aData = dataTable_template_images.fnGetData(this);
 
@@ -5124,6 +5139,8 @@ function setupInstantiateTemplateDialog(easy_provision){
       $('#template_templates_table_search', dialog).keyup(function(){
         dataTable_template_templates.fnFilter( $(this).val() );
       })
+
+      dataTable_template_templates.fnSort( [ [1,config['user_config']['table_order']] ] );
 
       $('#template_templates_table tbody', dialog).delegate("tr", "click", function(e){
           var aData = dataTable_template_templates.fnGetData(this);
