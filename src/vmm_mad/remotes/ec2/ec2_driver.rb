@@ -306,6 +306,7 @@ class EC2Driver
         }
 
         host_info =  "HYPERVISOR=ec2\n"
+        host_info << "HYBRID=YES\n"
         host_info << "TOTALMEMORY=#{totalmemory.round}\n"
         host_info << "TOTALCPU=#{totalcpu}\n"
         host_info << "CPUSPEED=1000\n"
