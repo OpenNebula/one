@@ -43,7 +43,10 @@ int XenDriver::deployment_description(
     string root       = "";
     string kernel_cmd = "";
     string bootloader = "";
-    string hvm = "";
+    string hvm        = "";
+    string boot       = "";
+
+    vector<string> boots;
 
     const VectorAttribute * disk;
     const VectorAttribute * context;
@@ -158,6 +161,7 @@ int XenDriver::deployment_description(
             kernel_cmd = os->vector_value("KERNEL_CMD");
             bootloader = os->vector_value("BOOTLOADER");
             hvm        = os->vector_value("HVM");
+            boot       = os->vector_value("BOOT");
         }
     }
 
@@ -217,6 +221,43 @@ int XenDriver::deployment_description(
     else //No kernel & no bootloader use hvm
     {
         file << "builder = \"hvm\"" << endl;
+
+        if ( !boot.empty() )
+        {
+            file << "boot = \"";
+
+            boots = one_util::split(boot, ',');
+
+            for (vector<string>::const_iterator it=boots.begin(); it!=boots.end(); it++)
+            {
+                string boot_option = *it;
+
+                one_util::tolower(boot_option);
+
+                if ( boot_option == "hd" )
+                {
+                    file << "c";
+                }
+                else if ( boot_option == "fd" )
+                {
+                    file << "a";
+                }
+                else if ( boot_option == "cdrom" )
+                {
+                    file << "d";
+                }
+                else if ( boot_option == "network" )
+                {
+                    file << "n";
+                }
+                else
+                {
+                    goto error_boot;
+                }
+            }
+
+            file << "\"" << endl;
+        }
     }
 
     attrs.clear();
@@ -519,6 +560,11 @@ int XenDriver::deployment_description(
 
 error_file:
     vm->log("VMM", Log::ERROR, "Could not open Xen deployment file.");
+    return -1;
+
+error_boot:
+    vm->log("VMM", Log::ERROR, "Boot option not supported.");
+    file.close();
     return -1;
 
 error_memory:
