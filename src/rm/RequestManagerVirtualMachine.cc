@@ -322,6 +322,7 @@ int RequestManagerVirtualMachine::get_host_information(
     string& vnm,
     int&    cluster_id,
     string& ds_location,
+    bool&   is_hybrid,
     PoolObjectAuth&    host_perms,
     RequestAttributes& att)
 
@@ -346,6 +347,8 @@ int RequestManagerVirtualMachine::get_host_information(
     vnm  = host->get_vnm_mad();
 
     cluster_id = host->get_cluster_id();
+
+    is_hybrid = host->isHybrid();
 
     host->get_permissions(host_perms);
 
@@ -623,6 +626,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     string vnm_mad;
     int    cluster_id;
     string ds_location;
+    bool   is_hybrid;
     PoolObjectAuth host_perms;
 
     string tm_mad;
@@ -654,6 +658,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
                              vnm_mad,
                              cluster_id,
                              ds_location,
+                             is_hybrid,
                              host_perms,
                              att) != 0)
     {
@@ -708,33 +713,40 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     // Get information about the system DS to use (tm_mad)
     // ------------------------------------------------------------------------
 
-    if ( ds_id == -1 ) //Use default system DS for cluster
+    if (is_hybrid)
     {
-        if (get_default_ds_information(cluster_id, ds_id, tm_mad, att) != 0)
-        {
-            return;
-        }
+        ds_id = -1;
     }
-    else //Get information from user selected system DS
+    else
     {
-        int ds_cluster_id;
-
-        if (get_ds_information(ds_id, ds_cluster_id, tm_mad, att) != 0)
+        if ( ds_id == -1 ) //Use default system DS for cluster
         {
-            return;
+            if (get_default_ds_information(cluster_id, ds_id, tm_mad, att) != 0)
+            {
+                return;
+            }
         }
-
-        if (ds_cluster_id != cluster_id)
+        else //Get information from user selected system DS
         {
-            ostringstream oss;
+            int ds_cluster_id;
 
-            oss << object_name(PoolObjectSQL::DATASTORE)
-                << " [" << ds_id << "] and " << object_name(PoolObjectSQL::HOST)
-                << " [" << hid <<"] are not in the same cluster.";
+            if (get_ds_information(ds_id, ds_cluster_id, tm_mad, att) != 0)
+            {
+                return;
+            }
 
-            failure_response(ACTION, request_error(oss.str(),""), att);
+            if (ds_cluster_id != cluster_id)
+            {
+                ostringstream oss;
 
-            return;
+                oss << object_name(PoolObjectSQL::DATASTORE)
+                    << " [" << ds_id << "] and " << object_name(PoolObjectSQL::HOST)
+                    << " [" << hid <<"] are not in the same cluster.";
+
+                failure_response(ACTION, request_error(oss.str(),""), att);
+
+                return;
+            }
         }
     }
 
@@ -827,6 +839,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     string vnm_mad;
     int    cluster_id;
     string ds_location;
+    bool   is_hybrid;
     PoolObjectAuth host_perms;
 
     int    c_hid;
@@ -856,11 +869,14 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
                              vnm_mad,
                              cluster_id,
                              ds_location,
+                             is_hybrid,
                              host_perms,
                              att) != 0)
     {
         return;
     }
+
+    // TODO: return error for hybrid hosts?
 
     // ------------------------------------------------------------------------
     // Authorize request
