@@ -1657,9 +1657,9 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
         $('input.check_item', this).attr('checked','checked');
 
         $('#IMAGE_NAME', disk_section).text(aData[4]);
-        $('#IMAGE_ID', disk_section).val(aData[1]);
-        $('#IMAGE', disk_section).val("");
-        $('#IMAGE_UNAME', disk_section).val("");
+        $('#IMAGE_ID', disk_section).val();
+        $('#IMAGE', disk_section).val(aData[4]);
+        $('#IMAGE_UNAME', disk_section).val(aData[2]);
         $('#IMAGE_UID', disk_section).val("");
         return true;
     });
@@ -1940,9 +1940,9 @@ function setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id) {
         $('input.check_item', this).attr('checked','checked');
 
         $('#NETWORK_NAME', nic_section).text(aData[4]);
-        $('#NETWORK_ID', nic_section).val(aData[1]);
-        $('#NETWORK', nic_section).val("");
-        $('#NETWORK_UNAME', nic_section).val("");
+        $('#NETWORK_ID', nic_section).val("");
+        $('#NETWORK', nic_section).val(aData[4]);
+        $('#NETWORK_UNAME', nic_section).val(aData[2]);
         $('#NETWORK_UID', nic_section).val("");
         return true;
     });
