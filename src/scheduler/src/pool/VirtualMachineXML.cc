@@ -82,7 +82,7 @@ void VirtualMachineXML::init_attributes()
         ds_rank = result[0];
     }
 
-    // ------------------- REQUIREMENTS & DS_REQUIREMENTS ----------------------
+    // ------------------- HOST REQUIREMENTS -----------------------------------
 
     result = ((*this)["/VM/TEMPLATE/AUTOMATIC_REQUIREMENTS"]);
 
@@ -112,6 +112,8 @@ void VirtualMachineXML::init_attributes()
     {
         requirements = automatic_requirements;
     }
+
+    // ------------------- DS REQUIREMENTS -------------------------------------
 
     result = ((*this)["/VM/USER_TEMPLATE/SCHED_DS_REQUIREMENTS"]);
 
@@ -206,6 +208,21 @@ void VirtualMachineXML::init_attributes()
     {
         system_ds_usage = 0;
     }
+
+    vector<Attribute*> attrs;
+    user_template->get("HYBRID", attrs);
+
+    hybrid = (attrs.size() > 0);
+
+    if (hybrid == false)
+    {
+        attrs.clear();
+        user_template->get("EC2", attrs);
+
+        hybrid = (attrs.size() > 0);
+    }
+
+    only_hybrid = false;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -469,4 +486,27 @@ void VirtualMachineXML::add_image_datastore_capacity(
 
         ds->add_capacity(ds_usage_it->second);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineXML::set_only_hybrid()
+{
+    only_hybrid = true;
+
+    ostringstream oss;
+
+    oss << "VM " << oid << ": Local Datastores do not have enough capacity. "
+            << "This VM can be only deployed in a Hybrid Host.";
+
+    NebulaLog::log("SCHED",Log::INFO,oss);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool VirtualMachineXML::is_only_hybrid() const
+{
+    return only_hybrid;
 }

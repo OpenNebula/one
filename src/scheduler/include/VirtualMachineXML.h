@@ -115,6 +115,15 @@ public:
 
     map<int,long long> get_storage_usage();
 
+    /**
+     *  Checks if VM is hybrid
+     *    @return true if the VM is enabled
+     */
+    bool isHybrid() const
+    {
+        return hybrid;
+    };
+
     //--------------------------------------------------------------------------
     // Matched Resources Interface
     //--------------------------------------------------------------------------
@@ -187,6 +196,17 @@ public:
     {
         match_datastores.clear();
     }
+
+    /**
+     * Marks the VM to be only deployed on hybrid hosts
+     */
+    void set_only_hybrid();
+
+    /**
+     * Returns true is the VM can only be deployed in hybrid hosts
+     * @return true is the VM can only be deployed in hybrid hosts
+     */
+    bool is_only_hybrid() const;
 
     //--------------------------------------------------------------------------
     // Capacity Interface
@@ -282,6 +302,8 @@ protected:
 
     ResourceMatch match_datastores;
 
+    bool only_hybrid;
+
     /* ----------------------- VIRTUAL MACHINE ATTRIBUTES ------------------- */
     int   oid;
 
@@ -298,6 +320,8 @@ protected:
     long long   system_ds_usage;
 
     map<int,long long> ds_usage;
+
+    bool   hybrid;
 
     string rank;
     string requirements;

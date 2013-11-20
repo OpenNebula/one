@@ -439,7 +439,17 @@ void Scheduler::match_schedule()
         {
             if (vm->test_image_datastore_capacity(img_dspool) == false)
             {
-                continue;
+                if (vm->isHybrid())
+                {
+                    // Image DS do not have capacity, but if the VM ends
+                    // in a hybrid host, image copies will not
+                    // be performed.
+                    vm->set_only_hybrid();
+                }
+                else
+                {
+                    continue;
+                }
             }
         }
 
@@ -497,6 +507,20 @@ void Scheduler::match_schedule()
             }
 
             n_auth++;
+
+            // -----------------------------------------------------------------
+            // Check that VM can be deployed in local hosts
+            // -----------------------------------------------------------------
+            if (vm->is_only_hybrid() && !host->isHybrid())
+            {
+                ostringstream oss;
+
+                oss << "VM " << oid << ": Host " << host->get_hid()
+                    << " filtered out. VM can only be deployed in a Hybrid Host, but this one is local.";
+
+                NebulaLog::log("SCHED",Log::DEBUG,oss);
+                continue;
+            }
 
             // -----------------------------------------------------------------
             // Evaluate VM requirements
@@ -721,34 +745,44 @@ void Scheduler::match_schedule()
         // Log scheduling errors to VM user if any
         // ---------------------------------------------------------------------
 
-        if (n_hosts == 0) //No datastores assigned, let's see why
+        if (n_hosts == 0)
         {
-            if (n_error == 0) //No syntax error
+            // For a hybrid VM, 0 system DS is not a problem
+            if (vm->isHybrid())
             {
-                if (datastores.size() == 0)
-                {
-                    vm->log("No system datastores found to run VMs");
-                }
-                else if (n_matched == 0)
-                {
-                    ostringstream oss;
-
-                    oss << "No system datastore meets SCHED_DS_REQUIREMENTS: "
-                        << ds_reqs;
-
-                    vm->log(oss.str());
-                }
-                else
-                {
-                    vm->log("No system datastore with enough capacity for the VM");
-                }
+                vm->set_only_hybrid();
             }
+            else
+            {
+                //No datastores assigned, let's see why
 
-            vm->clear_match_hosts();
+                if (n_error == 0) //No syntax error
+                {
+                    if (datastores.size() == 0)
+                    {
+                        vm->log("No system datastores found to run VMs");
+                    }
+                    else if (n_matched == 0)
+                    {
+                        ostringstream oss;
 
-            vmpool->update(vm);
+                        oss << "No system datastore meets SCHED_DS_REQUIREMENTS: "
+                            << ds_reqs;
 
-            continue;
+                        vm->log(oss.str());
+                    }
+                    else
+                    {
+                        vm->log("No system datastore with enough capacity for the VM");
+                    }
+                }
+
+                vm->clear_match_hosts();
+
+                vmpool->update(vm);
+
+                continue;
+            }
         }
 
         // ---------------------------------------------------------------------
@@ -826,7 +860,17 @@ void Scheduler::dispatch()
         {
             if (vm->test_image_datastore_capacity(img_dspool) == false)
             {
-                continue;
+                if (vm->isHybrid())
+                {
+                    // Image DS do not have capacity, but if the VM ends
+                    // in a hybrid host, image copies will not
+                    // be performed.
+                    vm->set_only_hybrid();
+                }
+                else
+                {
+                    continue;
+                }
             }
         }
 
@@ -849,9 +893,17 @@ void Scheduler::dispatch()
             cid = host->get_cid();
 
             //------------------------------------------------------------------
-            // Test host capcity
+            // Test host capacity
             //------------------------------------------------------------------
             if (host->test_capacity(cpu,mem) != true)
+            {
+                continue;
+            }
+
+            //------------------------------------------------------------------
+            // Check that VM can be deployed in local hosts
+            //------------------------------------------------------------------
+            if (vm->is_only_hybrid() && !host->isHybrid())
             {
                 continue;
             }
@@ -873,7 +925,17 @@ void Scheduler::dispatch()
 
             dsid = -1;
 
-            for (j = ds_resources.rbegin() ; j != ds_resources.rend() ; j++)
+            // Skip the loop for hybrid hosts, they don't need a system DS
+            if (host->isHybrid())
+            {
+                j = ds_resources.rend();
+            }
+            else
+            {
+                j = ds_resources.rbegin();
+            }
+
+            for ( ; j != ds_resources.rend() ; j++)
             {
                 ds = dspool->get((*j)->oid);
 
@@ -930,7 +992,7 @@ void Scheduler::dispatch()
                 break;
             }
 
-            if (dsid == -1)
+            if (dsid == -1 && !host->isHybrid())
             {
                 ostringstream oss;
 
@@ -952,7 +1014,8 @@ void Scheduler::dispatch()
             }
 
             // DS capacity is only added for new deployments, not for migrations
-            if (!vm->is_resched())
+            // It is also omitted for VMs deployed in hybrid hosts
+            if (!vm->is_resched() && !host->isHybrid())
             {
                 if (ds->is_shared() && ds->is_monitored())
                 {
