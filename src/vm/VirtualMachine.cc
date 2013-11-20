@@ -1129,7 +1129,8 @@ int VirtualMachine::automatic_requirements(string& error_str)
     ostringstream   oss;
     string          requirements;
     string          cluster_id = "";
-    string          hypervisor;
+
+    vector<string> hybrid_hypervisors = get_hybrid_hypervisors();
 
     int incomp_id;
     int rc;
@@ -1208,23 +1209,28 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
     if ( !cluster_id.empty() )
     {
-        oss << "CLUSTER_ID = " << cluster_id;
+        oss << "CLUSTER_ID = " << cluster_id << " & !(HYBRID = YES)";
+    }
+    else
+    {
+        oss << "!(HYBRID = YES)";
     }
 
-    if (static_cast<VirtualMachineTemplate*>(obj_template)->get_hybrid_hypervisor(hypervisor))
+    if (!hybrid_hypervisors.empty())
     {
-        if ( !cluster_id.empty() )
+        oss << " | (HYBRID = YES & (";
+
+        oss << "HYPERVISOR = " << hybrid_hypervisors[0];
+
+        for (size_t i = 1; i < hybrid_hypervisors.size(); i++)
         {
-            oss << " || ";
+            oss << " | HYPERVISOR = " << hybrid_hypervisors[i];
         }
 
-        oss << "HYPERVISOR = " << hypervisor;
+        oss << "))";
     }
 
-    if ( !cluster_id.empty() || !hypervisor.empty() )
-    {
-        obj_template->add("AUTOMATIC_REQUIREMENTS", oss.str());
-    }
+    obj_template->add("AUTOMATIC_REQUIREMENTS", oss.str());
 
     return 0;
 
@@ -3655,4 +3661,56 @@ void VirtualMachine::set_template_monitor_error(const string& message)
 void VirtualMachine::clear_template_monitor_error()
 {
     user_obj_template->erase("ERROR_MONITOR");
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool VirtualMachine::is_hybrid() const
+{
+    vector<string> v = get_hybrid_hypervisors();
+
+    return (v.size() > 0);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+vector<string> VirtualMachine::get_hybrid_hypervisors() const
+{
+    vector<Attribute*>                  attrs;
+    vector<Attribute*>::const_iterator  it;
+
+    VectorAttribute *   vatt;
+    vector<string>      hybrid_hypervisors;
+
+    user_obj_template->get("HYBRID", attrs);
+
+    for (it = attrs.begin(); it != attrs.end(); it++)
+    {
+        vatt = dynamic_cast<VectorAttribute * >(*it);
+
+        if ( vatt == 0 )
+        {
+            continue;
+        }
+
+        string type = vatt->vector_value("TYPE");
+
+        if (!type.empty())
+        {
+            hybrid_hypervisors.push_back(type);
+        }
+    }
+
+    // Compatibility with old templates
+
+    user_obj_template->get("EC2", attrs);
+
+    if (!attrs.empty())
+    {
+        hybrid_hypervisors.push_back("ec2");
+    }
+
+    return hybrid_hypervisors;
 }

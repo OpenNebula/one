@@ -540,20 +540,9 @@ error_common:
 
 bool Host::isHybrid() const
 {
-    string hypervisor;
     bool is_hybrid = false;
 
-    get_template_attribute("HYPERVISOR", hypervisor);
-    one_util::toupper(hypervisor);
-
-    for(int i=0; i < NUM_HYBRID_HYPERVISORS; i++)
-    {
-        if(hypervisor==HYBRID_HYPERVISORS[i])
-        {
-            is_hybrid   = true;
-            break;
-        }
-    }
+    get_template_attribute("HYBRID", is_hybrid);
 
     return is_hybrid;
 }
