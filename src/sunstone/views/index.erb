@@ -28,14 +28,14 @@
       <script src="vendor/explorercanvas/excanvas.compiled.js" type="text/javascript"></script>
     -->
     <% if session[:lang] %>
-      <script src="locale/<%= session[:lang] %>/<%= session[:lang] %>.js" type="text/javascript"></script>
+      <script src="locale/<%= session[:lang] %>/<%= session[:lang] %>.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
     <% end %>
     <script src="vendor/4.0/foundation_datatables/datatables.foundation.js" type="text/javascript"></script>
-    <link href="css/app.css" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
-    <script src="js/opennebula.js" type="text/javascript"></script>
-    <script src="js/layout.js" type="text/javascript"></script>
-    <script src="js/sunstone.js" type="text/javascript"></script>
-    <script src="js/sunstone-util.js" type="text/javascript"></script>
+    <link href="css/app.css?v=<%= OpenNebula::VERSION %>" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
+    <script src="js/opennebula.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <script src="js/layout.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <script src="js/sunstone.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <script src="js/sunstone-util.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
     <% view = $views_config.view(session[:user], session[:user_gname], session[:default_view]) %>
     <script>
 
@@ -61,11 +61,11 @@
 
 
     </script>
-    <script src="js/plugins/config-tab.js" type="text/javascript"></script>
+    <script src="js/plugins/config-tab.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
 
     <!-- enabled tabs: -->
     <%- $views_config.available_tabs.each do |tab_name| -%>
-        <script src="js/plugins/<%= tab_name %>.js" type="text/javascript"></script>
+        <script src="js/plugins/<%= tab_name %>.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
     <%- end -%>
     <!-- end tabs -->
 
