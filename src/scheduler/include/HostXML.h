@@ -122,6 +122,15 @@ public:
         hypervisor_mem = 1.0 - mem;
     };
 
+    /**
+     *  Check if host is hybrid
+     *    @return true if the host is enabled
+     */
+    bool isHybrid() const
+    {
+        return hybrid;
+    }
+
 private:
     int oid;
     int cluster_id;
@@ -139,6 +148,9 @@ private:
 
     long long running_vms; /**< Number of running VMs in this Host   */
 
+    bool hybrid;
+
+    // Configuration attributes
     static float hypervisor_mem; /**< Fraction of memory for the VMs */
 
     static const char *host_paths[]; /**< paths for search function */

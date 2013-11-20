@@ -53,6 +53,9 @@ void HostXML::init_attributes()
     //Reserve memory for the hypervisor
     max_mem = static_cast<int>(hypervisor_mem * static_cast<float>(max_mem));
 
+    vector<string> hybrid_st_vector = (*this)["/HOST/TEMPLATE/HYBRID"];
+    hybrid = ( hybrid_st_vector.size() > 0 && hybrid_st_vector[0] == "YES" );
+
     vector<string> ds_ids     = (*this)["/HOST/HOST_SHARE/DATASTORES/DS/ID"];
     vector<string> ds_free_mb = (*this)["/HOST/HOST_SHARE/DATASTORES/DS/FREE_MB"];
 
