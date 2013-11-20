@@ -22,14 +22,6 @@
 
 vector<string> VirtualMachineTemplate::restricted_attributes;
 
-/* ************************************************************************ */
-/* Hybrid Attributes                                          */
-/* ************************************************************************ */
-
-const char * VirtualMachineTemplate::HYBRID_ATTRIBUTES[] = {"EC2"};
-
-const int VirtualMachineTemplate::NUM_HYBRID_ATTRIBUTES  = 1;
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -142,24 +134,4 @@ void VirtualMachineTemplate::remove_all_except_restricted()
     {
         set(*res_it);
     }
-}
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-bool VirtualMachineTemplate::get_hybrid_hypervisor(string& hypervisor) const
-{
-    vector<const Attribute *> attrs;
-    bool found_it = false;
-
-    for(int i=0; i < NUM_HYBRID_ATTRIBUTES; i++)
-    {
-        if(get(HYBRID_ATTRIBUTES[i],attrs))
-        {
-            hypervisor = Host::get_hybrid_hypervisor_by_id(i);
-            found_it   = true;
-            break;
-        }
-    }
-
-    return found_it;
 }

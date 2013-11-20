@@ -92,15 +92,6 @@ public:
      */
      bool isHybrid() const;
 
-     /**
-      *  Return an element of the hypervisor array. The calling function
-      *  must check that the index is valid.
-      */
-     static const char * get_hybrid_hypervisor_by_id(int i)
-     {
-        return HYBRID_HYPERVISORS[i];
-     }
-
     /**
      *   Disables the current host, it will not be monitored nor used by the
      *   scheduler
@@ -533,17 +524,6 @@ private:
     static const char * monit_db_bootstrap;
 
     static const char * monit_table;
-
-    /**
-     *  Array containing the hybrid hypervisors, and counter. There is a
-     * correspondence between Host::HYBRID_HYPERVISOR and
-     * VirtualMachine::HYBRID_ATTRIBUTES. Attributes in HYBRID_ATTRIBUTES[i] are
-     * meant to be used in hosts reporting a a hypervisor of type
-     * HYBRID_HYPERVISOR[i]
-     */
-    static const char * HYBRID_HYPERVISORS[];
-
-    static const int NUM_HYBRID_HYPERVISORS;
 
     /**
      *  Execute an INSERT or REPLACE Sql query.
