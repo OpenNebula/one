@@ -390,7 +390,7 @@ void Scheduler::match_schedule()
     int oid;
     int uid;
     int gid;
-    int n_hosts;
+    int n_resources;
     int n_matched;
     int n_auth;
     int n_error;
@@ -427,7 +427,7 @@ void Scheduler::match_schedule()
 
         vm->get_requirements(vm_cpu,vm_memory,vm_disk);
 
-        n_hosts   = 0;
+        n_resources   = 0;
         n_matched = 0;
         n_auth    = 0;
         n_error   = 0;
@@ -577,7 +577,7 @@ void Scheduler::match_schedule()
             {
                 vm->add_match_host(host->get_hid());
 
-                n_hosts++;
+                n_resources++;
             }
             else
             {
@@ -594,7 +594,7 @@ void Scheduler::match_schedule()
         // Log scheduling errors to VM user if any
         // ---------------------------------------------------------------------
 
-        if (n_hosts == 0) //No hosts assigned, let's see why
+        if (n_resources == 0) //No hosts assigned, let's see why
         {
             if (n_error == 0) //No syntax error
             {
@@ -654,7 +654,7 @@ void Scheduler::match_schedule()
 
         ds_reqs = vm->get_ds_requirements();
 
-        n_hosts   = 0;
+        n_resources   = 0;
         n_matched = 0;
         n_error   = 0;
 
@@ -719,7 +719,7 @@ void Scheduler::match_schedule()
                 {
                     vm->add_match_datastore(ds->get_oid());
 
-                    n_hosts++;
+                    n_resources++;
                 }
                 else
                 {
@@ -737,7 +737,7 @@ void Scheduler::match_schedule()
                 // capacity will be checked later for each host
 
                 vm->add_match_datastore(ds->get_oid());
-                n_hosts++;
+                n_resources++;
             }
         }
 
@@ -745,7 +745,7 @@ void Scheduler::match_schedule()
         // Log scheduling errors to VM user if any
         // ---------------------------------------------------------------------
 
-        if (n_hosts == 0)
+        if (n_resources == 0)
         {
             // For a hybrid VM, 0 system DS is not a problem
             if (vm->isHybrid())
