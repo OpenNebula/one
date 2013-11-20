@@ -1381,8 +1381,26 @@ function generatePlacementTable(vm){
                      </tr>\
                    </tbody>\
           </table>\
-          </div></div>\
-          <div class="twelve columns">\
+          </div></div>';
+
+    if (vm.USER_TEMPLATE.SCHED_MESSAGE) {
+        html += '<div class="twelve columns">\
+          <table id="vm_ds_placement_table" class="extended_table twelve">\
+                   <thead>\
+                     <tr>\
+                         <th align="center">'+tr("Sched Message")+'</th>\
+                     </tr>\
+                   </thead>\
+                   <tbody>\
+                      <tr>\
+                       <td>'+ vm.USER_TEMPLATE.SCHED_MESSAGE +'</td>\
+                     </tr>\
+                   </tbody>\
+          </table>\
+          </div>';
+    }
+
+    html += '<div class="twelve columns">\
           <table id="vm_history_table" class="extended_table twelve">\
                    <thead>\
                      <tr>\
