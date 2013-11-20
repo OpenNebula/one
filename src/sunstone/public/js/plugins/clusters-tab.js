@@ -206,6 +206,8 @@ function setupCreateClusterDialog(){
       dataTable_cluster_hosts.fnFilter( $(this).val() );
     })
 
+
+
     dataTable_cluster_vnets = $("#datatable_cluster_vnets", dialog).dataTable({
         "sDom" : '<"H">t<"F"p>',
         "oColVis": {
@@ -246,12 +248,13 @@ function setupCreateClusterDialog(){
       dataTable_cluster_datastores.fnFilter( $(this).val() );
     })
 
+
     //  ------- End of create the dialog datatables ------------
 
     // Add listener to row select action
     //   Marks it in another background color
     //   Adds or removes the element from the list
-    $('#datatable_cluster_hosts', dialog).delegate("tr", "click", function(e){
+    $('#datatable_cluster_hosts tbody', dialog).delegate("tr", "click", function(e){
           if ($(e.target).is('input') ||
               $(e.target).is('select') ||
               $(e.target).is('option')) return true;
@@ -288,7 +291,7 @@ function setupCreateClusterDialog(){
     });
 
 
-    $('#datatable_cluster_vnets', dialog).delegate("tr", "click", function(e){
+    $('#datatable_cluster_vnets tbody', dialog).delegate("tr", "click", function(e){
           if ($(e.target).is('input') ||
               $(e.target).is('select') ||
               $(e.target).is('option')) return true;
@@ -325,7 +328,7 @@ function setupCreateClusterDialog(){
       });
 
 
-      $('#datatable_cluster_datastores', dialog).delegate("tr", "click", function(e){
+      $('#datatable_cluster_datastores tbody', dialog).delegate("tr", "click", function(e){
           if ($(e.target).is('input') ||
               $(e.target).is('select') ||
               $(e.target).is('option')) return true;
@@ -483,6 +486,7 @@ function popUpCreateClusterDialog(){
     Sunstone.runAction("ClusterHost.list");
     Sunstone.runAction("ClusterVN.list");
     Sunstone.runAction("ClusterDS.list");
+
     $create_cluster_dialog.reveal();
 
     $("input#name",$create_cluster_dialog).focus();
@@ -718,6 +722,7 @@ var cluster_host_actions = {
         callback: function(request,host_list){
           updateClusterHostsView(request,host_list);
           dataTable_cluster_hosts.fnFilter( filter_expr, 3, true);
+          dataTable_cluster_hosts.fnSort( [ [1,config['user_config']['table_order']] ] );
         },
         error:    onError
     },
@@ -725,7 +730,10 @@ var cluster_host_actions = {
     "ClusterHostInfo.list" : {
         type:     "list",
         call:     OpenNebula.Host.list,
-        callback: updateClusterHostsInfoView,
+        callback: function(request,host_list){
+          updateClusterHostsInfoView(request,host_list);
+          dataTable_cluster_hosts_panel.fnSort( [ [1,config['user_config']['table_order']] ] );
+        },
         error:    onError
     }
 }
@@ -766,6 +774,7 @@ var cluster_vnet_actions = {
         callback: function(request,vnet_list){
           updateClusterVNetworksView(request,vnet_list);
           dataTable_cluster_vnets.fnFilter( filter_expr, 5, true);
+          dataTable_cluster_vnets.fnSort( [ [1,config['user_config']['table_order']] ] );
         },
         error: onError
     },
@@ -773,7 +782,10 @@ var cluster_vnet_actions = {
     "ClusterVNInfo.list" : {
         type: "list",
         call: OpenNebula.Network.list,
-        callback: updateClusterVNetworksInfoView,
+        callback: function(request,vnet_list){
+          updateClusterVNetworksInfoView(request,vnet_list);
+          dataTable_cluster_vnets_panel.fnSort( [ [1,config['user_config']['table_order']] ] );
+        },
         error: onError
     }
 }
@@ -813,6 +825,7 @@ var cluster_datastore_actions = {
         callback: function(request,ds_list){
           updateClusterDatastoresView(request,ds_list);
           dataTable_cluster_datastores.fnFilter( filter_expr, 6, true);
+          dataTable_cluster_datastores.fnSort( [ [1,config['user_config']['table_order']] ] );
           if(filter_expr!="-")
             Sunstone.runAction("Cluster.show_to_update", cluster_id);
         },
@@ -822,7 +835,10 @@ var cluster_datastore_actions = {
     "ClusterDSInfo.list" : {
         type: "list",
         call: OpenNebula.Datastore.list,
-        callback: updateClusterDatastoresInfoView,
+        callback: function(request,ds_list){
+          updateClusterDatastoresInfoView(request,ds_list);
+          dataTable_cluster_datastores_panel.fnSort( [ [1,config['user_config']['table_order']] ] );
+        },
         error: onError
     }
 }

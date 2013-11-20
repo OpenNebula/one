@@ -3013,7 +3013,7 @@ function setup_vm_snapshot_tab(){
 // which is a lot.
 function setupCreateVMDialog(include_select_image){
 
-    dialogs_context.append('<div title=\"'+tr("Create Virtual Machine")+'\" id="create_vm_dialog"></div>');
+    dialogs_context.append('<div id="create_vm_dialog"></div>');
     //Insert HTML in place
     $create_vm_dialog = $('#create_vm_dialog')
     var dialog = $create_vm_dialog;
@@ -3045,6 +3045,8 @@ function setupCreateVMDialog(include_select_image){
     $('#template_templates_table_search', dialog).keyup(function(){
       dataTable_template_templates.fnFilter( $(this).val() );
     })
+
+    dataTable_template_templates.fnSort( [ [1,config['user_config']['table_order']] ] );
 
     $('#template_templates_table tbody', dialog).delegate("tr", "click", function(e){
         var aData = dataTable_template_templates.fnGetData(this);
@@ -3096,6 +3098,8 @@ function setupCreateVMDialog(include_select_image){
       $('#template_images_table_search', dialog).keyup(function(){
         dataTable_template_images.fnFilter( $(this).val() );
       })
+
+      dataTable_template_images.fnSort( [ [1,config['user_config']['table_order']] ] );
 
       $('#template_images_table tbody', dialog).delegate("tr", "click", function(e){
           var aData = dataTable_template_images.fnGetData(this);

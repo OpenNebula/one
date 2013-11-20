@@ -511,7 +511,7 @@ var service_template_actions = {
         type: "custom",
         call: function() {
             ServiceTemplate.list({
-                timeout: true, 
+                timeout: true,
                 success: function(request, service_list) {
                     $("#oneflow-templates #error_message").hide();
                     updateServiceTemplatesView(request, service_list);
@@ -1533,5 +1533,7 @@ $(document).ready(function(){
         infoListener(dataTable_service_templates,'ServiceTemplate.showinfo');
 
         $('div#service_templates_tab div.legend_div').hide();
+
+        dataTable_service_templates.fnSort( [ [1,config['user_config']['table_order']] ] );
     }
 });
