@@ -46,6 +46,9 @@ int LibVirtDriver::deployment_description_vmware(
     string  arch       = "";
     string  guestOS    = "";
     string  pciBridge  = "";
+    string  boot       = "";
+
+    vector<string> boots;
 
     const VectorAttribute * features;
 
@@ -156,6 +159,7 @@ int LibVirtDriver::deployment_description_vmware(
         {
             arch    = os->vector_value("ARCH");
             guestOS = os->vector_value("GUESTOS");
+            boot    = os->vector_value("BOOT");
         }
     }
 
@@ -174,11 +178,26 @@ int LibVirtDriver::deployment_description_vmware(
         metadata << "<guestos>" << guestOS << "</guestos>" << endl;
     }
 
+    if ( boot.empty() )
+    {
+        get_default("OS","BOOT",boot);
+    }
+
     // Start writing to the file with the info we got
 
     file << "\t<os>" << endl;
 
     file << "\t\t<type arch='" << arch << "'>hvm</type>" << endl;
+
+    if (!boot.empty())
+    {
+        boots = one_util::split(boot, ',');
+
+        for (vector<string>::const_iterator it=boots.begin(); it!=boots.end(); it++)
+        {
+            file << "\t\t<boot dev='" << *it << "'/>" << endl;
+        }
+    }
 
     file << "\t</os>" << endl;
 

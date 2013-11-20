@@ -47,6 +47,8 @@ int LibVirtDriver::deployment_description_kvm(
     string  bootloader = "";
     string  arch       = "";
 
+    vector<string> boots;
+
     const VectorAttribute * disk;
     const VectorAttribute * context;
 
@@ -261,8 +263,12 @@ int LibVirtDriver::deployment_description_kvm(
         file << "\t\t<bootloader>" << bootloader << "</bootloader>" << endl;
     }
 
+    boots = one_util::split(boot, ',');
 
-    file << "\t\t<boot dev='" << boot << "'/>" << endl;
+    for (vector<string>::const_iterator it=boots.begin(); it!=boots.end(); it++)
+    {
+        file << "\t\t<boot dev='" << *it << "'/>" << endl;
+    }
 
     file << "\t</os>" << endl;
 
