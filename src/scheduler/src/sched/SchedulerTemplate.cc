@@ -155,6 +155,10 @@ string SchedulerTemplate::get_policy() const
             rank = sched->vector_value("RANK");
         break;
 
+        case 4: //Fixed
+            rank = "PRIORITY";
+        break;
+
         default:
             rank = "";
     }
@@ -199,6 +203,10 @@ string SchedulerTemplate::get_ds_policy() const
 
         case 2: //Custom
             rank = sched->vector_value("RANK");
+        break;
+
+        case 3: //Fixed
+            rank = "PRIORITY";
         break;
 
         default:
