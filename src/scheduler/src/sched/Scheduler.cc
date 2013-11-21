@@ -765,6 +765,8 @@ void Scheduler::match_schedule()
             if (vm->is_public_cloud())
             {
                 vm->set_only_public_cloud();
+
+                continue;
             }
             else
             {

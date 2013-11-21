@@ -1393,16 +1393,11 @@ public:
     // ------------------------------------------------------------------------
 
     /**
-     * Checks if the VM can be deployed in a public cloud provider
-     * @return true if the VM can be deployed in a public cloud provider
-     */
-    bool is_public_cloud() const;
-
-    /**
      * Gets the list of public cloud hypervisors for which this VM has definitions
-     * @return the list of public cloud hypervisors
+     * @param list to store the cloud hypervisors in the template
+     * @return the number of public cloud hypervisors
      */
-    vector<string> get_public_cloud_hypervisors() const;
+    int get_public_cloud_hypervisors(vector<string> &cloud_hypervisors) const;
 
 private:
 
