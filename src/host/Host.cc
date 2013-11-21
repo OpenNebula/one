@@ -256,9 +256,9 @@ int Host::update_info(Template        &tmpl,
     vector<Attribute*>           ds_att;
     vector<Attribute*>           local_ds_att;
 
-    int         rc;
-    int         vmid;
-    long long   val;
+    int   rc;
+    int   vmid;
+    float val;
 
     string error_st;
 

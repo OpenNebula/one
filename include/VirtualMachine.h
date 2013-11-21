@@ -1612,7 +1612,7 @@ private:
      *  Parse the "GRAPHICS" attribute and generates a default PORT if not
      *  defined
      */
-    void parse_graphics();
+    int parse_graphics(string& error_str);
 
     /**
      * Searches the meaningful attributes and moves them from the user template

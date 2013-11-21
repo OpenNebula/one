@@ -392,7 +392,10 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         goto error_requirements;
     }
 
-    parse_graphics();
+    if ( parse_graphics(error_str) != 0 )
+    {
+        goto error_graphics;
+    }
 
     parse_well_known_attributes();
 
@@ -416,6 +419,9 @@ error_context:
     goto error_rollback;
 
 error_requirements:
+    goto error_rollback;
+
+error_graphics:
     goto error_rollback;
 
 error_rollback:
@@ -917,16 +923,14 @@ error_cleanup:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::parse_graphics()
+int VirtualMachine::parse_graphics(string& error_str)
 {
-    int num;
-
     vector<Attribute *> array_graphics;
     VectorAttribute *   graphics;
 
     vector<Attribute *>::iterator it;
 
-    num = user_obj_template->remove("GRAPHICS", array_graphics);
+    int num = user_obj_template->remove("GRAPHICS", array_graphics);
 
     for (it=array_graphics.begin(); it != array_graphics.end(); it++)
     {
@@ -935,17 +939,20 @@ void VirtualMachine::parse_graphics()
 
     if ( num == 0 )
     {
-        return;
+        return 0;
     }
 
     graphics = dynamic_cast<VectorAttribute * >(array_graphics[0]);
 
     if ( graphics == 0 )
     {
-        return;
+        return 0;
     }
 
     string port = graphics->vector_value("PORT");
+    int    port_i;
+
+    int rc = graphics->vector_value("PORT", port_i);
 
     if ( port.empty() )
     {
@@ -966,6 +973,13 @@ void VirtualMachine::parse_graphics()
         oss << ( base_port + ( oid % (limit - base_port) ));
         graphics->replace("PORT", oss.str());
     }
+    else if ( rc == -1 || port_i < 0 )
+    {
+        error_str = "Wrong PORT number in GRAPHICS attribute";
+        return -1;
+    }
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
