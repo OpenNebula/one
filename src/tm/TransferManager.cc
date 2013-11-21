@@ -384,7 +384,7 @@ int TransferManager::prolog_transfer_command(
 
     int    disk_id;
 
-    vm_ds_id = vm->get_ds_id();
+    vm_ds_id = vm->get_ds_id_st();
 
     disk->vector_value("DISK_ID", disk_id);
 
@@ -747,7 +747,7 @@ void TransferManager::prolog_action(int vid)
         xfr << vm->get_hostname() << ":"
             << vm->get_remote_system_dir() << "/disk." << disk_id << " "
             << vm->get_oid() << " "
-            << vm->get_ds_id()
+            << vm->get_ds_id_st()
             << endl;
     }
 
@@ -829,7 +829,7 @@ void TransferManager::prolog_migr_action(int vid)
     }
 
     vm_tm_mad = vm->get_tm_mad();
-    vm_ds_id  = vm->get_ds_id();
+    vm_ds_id  = vm->get_ds_id_st();
     tm_md     = get();
 
     if ( tm_md == 0 || vm_tm_mad.empty() || vm_ds_id.empty())
@@ -969,7 +969,7 @@ void TransferManager::prolog_resume_action(int vid)
     }
 
     vm_tm_mad = vm->get_tm_mad();
-    vm_ds_id  = vm->get_ds_id();
+    vm_ds_id  = vm->get_ds_id_st();
     tm_md     = get();
 
     if ( tm_md == 0 || vm_tm_mad.empty() || vm_ds_id.empty())
@@ -1128,7 +1128,7 @@ void TransferManager::epilog_transfer_command(
         if ( VirtualMachine::isVolatile(disk) == true )
         {
             tm_mad = vm->get_tm_mad();
-            ds_id  = vm->get_ds_id();
+            ds_id  = vm->get_ds_id_st();
         }
         else
         {
@@ -1188,7 +1188,7 @@ void TransferManager::epilog_action(int vid)
     }
 
     vm_tm_mad = vm->get_tm_mad();
-    vm_ds_id  = vm->get_ds_id();
+    vm_ds_id  = vm->get_ds_id_st();
     tm_md     = get();
 
     if ( tm_md == 0 || vm_tm_mad.empty() || vm_ds_id.empty())
@@ -1299,7 +1299,7 @@ void TransferManager::epilog_stop_action(int vid)
     }
 
     vm_tm_mad = vm->get_tm_mad();
-    vm_ds_id  = vm->get_ds_id();
+    vm_ds_id  = vm->get_ds_id_st();
     tm_md     = get();
 
     if ( tm_md == 0 || vm_tm_mad.empty() || vm_ds_id.empty())
@@ -1438,7 +1438,7 @@ int TransferManager::epilog_delete_commands(VirtualMachine *vm,
         system_dir = vm->get_system_dir();
 
         vm_tm_mad = vm->get_tm_mad();
-        vm_ds_id  = vm->get_ds_id();
+        vm_ds_id  = vm->get_ds_id_st();
     }
     else if (previous)
     {
@@ -1459,7 +1459,7 @@ int TransferManager::epilog_delete_commands(VirtualMachine *vm,
         system_dir = vm->get_remote_system_dir();
 
         vm_tm_mad = vm->get_tm_mad();
-        vm_ds_id  = vm->get_ds_id();
+        vm_ds_id  = vm->get_ds_id_st();
     }
 
     if ( vm_tm_mad.empty() || vm_ds_id.empty())
@@ -1956,7 +1956,7 @@ void TransferManager::migrate_transfer_command(
         << vm->get_hostname() << " "
         << vm->get_remote_system_dir() << " "
         << vm->get_oid() << " "
-        << vm->get_ds_id()
+        << vm->get_ds_id_st()
         << endl;
 }
 
