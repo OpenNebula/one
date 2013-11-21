@@ -846,6 +846,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     int    c_cluster_id;
     int    c_ds_id;
     string c_tm_mad;
+    bool   c_is_public_cloud;
 
     bool auth = false;
 
@@ -876,8 +877,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    // TODO: return error for public cloud hosts?
-
     // ------------------------------------------------------------------------
     // Authorize request
     // ------------------------------------------------------------------------
@@ -895,6 +894,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     // - New host is not the current one
     // - Host capacity if required
     // - New host and current one are in the same cluster
+    // - New or old host are not public cloud
     // ------------------------------------------------------------------------
 
     if ((vm = get_vm(id, att)) == 0)
@@ -974,6 +974,8 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     c_cluster_id = host->get_cluster_id();
 
+    c_is_public_cloud = host->is_public_cloud();
+
     host->unlock();
 
     if ( c_cluster_id != cluster_id )
@@ -987,6 +989,15 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
         failure_response(ACTION,
                 request_error(oss.str(),""),
+                att);
+
+        return;
+    }
+
+    if ( is_public_cloud || c_is_public_cloud )
+    {
+        failure_response(ACTION,
+                request_error("Cannot migrate to or from a Public Cloud Host",""),
                 att);
 
         return;
