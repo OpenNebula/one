@@ -307,6 +307,7 @@ class EC2Driver
 
         host_info =  "HYPERVISOR=ec2\n"
         host_info << "PUBLIC_CLOUD=YES\n"
+        host_info << "PRIORITY=-1\n"
         host_info << "TOTALMEMORY=#{totalmemory.round}\n"
         host_info << "TOTALCPU=#{totalcpu}\n"
         host_info << "CPUSPEED=1000\n"
