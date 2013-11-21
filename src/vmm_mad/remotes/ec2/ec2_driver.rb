@@ -204,11 +204,11 @@ class EC2Driver
     def initialize(host)
         @host = host
 
-        hybrid_ec2_conf  = YAML::load(File.read(EC2_DRIVER_CONF))
+        public_cloud_ec2_conf  = YAML::load(File.read(EC2_DRIVER_CONF))
 
-        @instance_types = hybrid_ec2_conf['instance_types']
+        @instance_types = public_cloud_ec2_conf['instance_types']
 
-        regions = hybrid_ec2_conf['regions']
+        regions = public_cloud_ec2_conf['regions']
         @region = regions[host] || regions["default"]
 
         AWS.config(
@@ -306,7 +306,7 @@ class EC2Driver
         }
 
         host_info =  "HYPERVISOR=ec2\n"
-        host_info << "HYBRID=YES\n"
+        host_info << "PUBLIC_CLOUD=YES\n"
         host_info << "TOTALMEMORY=#{totalmemory.round}\n"
         host_info << "TOTALCPU=#{totalcpu}\n"
         host_info << "CPUSPEED=1000\n"

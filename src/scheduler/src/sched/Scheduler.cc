@@ -439,12 +439,12 @@ void Scheduler::match_schedule()
         {
             if (vm->test_image_datastore_capacity(img_dspool) == false)
             {
-                if (vm->isHybrid())
+                if (vm->is_public_cloud())
                 {
                     // Image DS do not have capacity, but if the VM ends
-                    // in a hybrid host, image copies will not
+                    // in a public cloud host, image copies will not
                     // be performed.
-                    vm->set_only_hybrid();
+                    vm->set_only_public_cloud();
                 }
                 else
                 {
@@ -511,12 +511,12 @@ void Scheduler::match_schedule()
             // -----------------------------------------------------------------
             // Check that VM can be deployed in local hosts
             // -----------------------------------------------------------------
-            if (vm->is_only_hybrid() && !host->isHybrid())
+            if (vm->is_only_public_cloud() && !host->is_public_cloud())
             {
                 ostringstream oss;
 
                 oss << "VM " << oid << ": Host " << host->get_hid()
-                    << " filtered out. VM can only be deployed in a Hybrid Host, but this one is local.";
+                    << " filtered out. VM can only be deployed in a Public Cloud Host, but this one is local.";
 
                 NebulaLog::log("SCHED",Log::DEBUG,oss);
                 continue;
@@ -747,10 +747,10 @@ void Scheduler::match_schedule()
 
         if (n_resources == 0)
         {
-            // For a hybrid VM, 0 system DS is not a problem
-            if (vm->isHybrid())
+            // For a public cloud VM, 0 system DS is not a problem
+            if (vm->is_public_cloud())
             {
-                vm->set_only_hybrid();
+                vm->set_only_public_cloud();
             }
             else
             {
@@ -860,12 +860,12 @@ void Scheduler::dispatch()
         {
             if (vm->test_image_datastore_capacity(img_dspool) == false)
             {
-                if (vm->isHybrid())
+                if (vm->is_public_cloud())
                 {
                     // Image DS do not have capacity, but if the VM ends
-                    // in a hybrid host, image copies will not
+                    // in a public cloud host, image copies will not
                     // be performed.
-                    vm->set_only_hybrid();
+                    vm->set_only_public_cloud();
                 }
                 else
                 {
@@ -903,7 +903,7 @@ void Scheduler::dispatch()
             //------------------------------------------------------------------
             // Check that VM can be deployed in local hosts
             //------------------------------------------------------------------
-            if (vm->is_only_hybrid() && !host->isHybrid())
+            if (vm->is_only_public_cloud() && !host->is_public_cloud())
             {
                 continue;
             }
@@ -925,8 +925,8 @@ void Scheduler::dispatch()
 
             dsid = -1;
 
-            // Skip the loop for hybrid hosts, they don't need a system DS
-            if (host->isHybrid())
+            // Skip the loop for public cloud hosts, they don't need a system DS
+            if (host->is_public_cloud())
             {
                 j = ds_resources.rend();
             }
@@ -992,7 +992,7 @@ void Scheduler::dispatch()
                 break;
             }
 
-            if (dsid == -1 && !host->isHybrid())
+            if (dsid == -1 && !host->is_public_cloud())
             {
                 ostringstream oss;
 
@@ -1014,8 +1014,8 @@ void Scheduler::dispatch()
             }
 
             // DS capacity is only added for new deployments, not for migrations
-            // It is also omitted for VMs deployed in hybrid hosts
-            if (!vm->is_resched() && !host->isHybrid())
+            // It is also omitted for VMs deployed in public cloud hosts
+            if (!vm->is_resched() && !host->is_public_cloud())
             {
                 if (ds->is_shared() && ds->is_monitored())
                 {

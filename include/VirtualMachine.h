@@ -1389,20 +1389,20 @@ public:
     void delete_snapshots();
 
     // ------------------------------------------------------------------------
-    // Hybrid templates related functions
+    // Public cloud templates related functions
     // ------------------------------------------------------------------------
 
     /**
-     * Checks if the VM is hybrid
-     * @return true if the VM is hybrid
+     * Checks if the VM can be deployed in a public cloud provider
+     * @return true if the VM can be deployed in a public cloud provider
      */
-    bool is_hybrid() const;
+    bool is_public_cloud() const;
 
     /**
-     * Gets the list of hybrid hypervisors for which this VM has definitions
-     * @return the list of hybrid hypervisors
+     * Gets the list of public cloud hypervisors for which this VM has definitions
+     * @return the list of public cloud hypervisors
      */
-    vector<string> get_hybrid_hypervisors() const;
+    vector<string> get_public_cloud_hypervisors() const;
 
 private:
 

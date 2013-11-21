@@ -86,11 +86,11 @@ public:
                 (state == MONITORING_DISABLED));
      }
 
-    /**
-     *  Check if host is hybrid
-     *    @return true if the host is enabled
-     */
-     bool isHybrid() const;
+     /**
+      *  Checks if the host is a remote public cloud
+      *    @return true if the host is a remote public cloud
+      */
+     bool is_public_cloud() const;
 
     /**
      *   Disables the current host, it will not be monitored nor used by the

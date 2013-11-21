@@ -116,12 +116,12 @@ public:
     map<int,long long> get_storage_usage();
 
     /**
-     *  Checks if VM is hybrid
-     *    @return true if the VM is enabled
+     * Checks if the VM can be deployed in a public cloud provider
+     * @return true if the VM can be deployed in a public cloud provider
      */
-    bool isHybrid() const
+    bool is_public_cloud() const
     {
-        return hybrid;
+        return public_cloud;
     };
 
     //--------------------------------------------------------------------------
@@ -198,15 +198,15 @@ public:
     }
 
     /**
-     * Marks the VM to be only deployed on hybrid hosts
+     * Marks the VM to be only deployed on public cloud hosts
      */
-    void set_only_hybrid();
+    void set_only_public_cloud();
 
     /**
-     * Returns true is the VM can only be deployed in hybrid hosts
-     * @return true is the VM can only be deployed in hybrid hosts
+     * Returns true is the VM can only be deployed in public cloud hosts
+     * @return true is the VM can only be deployed in public cloud hosts
      */
-    bool is_only_hybrid() const;
+    bool is_only_public_cloud() const;
 
     //--------------------------------------------------------------------------
     // Capacity Interface
@@ -302,7 +302,7 @@ protected:
 
     ResourceMatch match_datastores;
 
-    bool only_hybrid;
+    bool only_public_cloud;
 
     /* ----------------------- VIRTUAL MACHINE ATTRIBUTES ------------------- */
     int   oid;
@@ -321,7 +321,7 @@ protected:
 
     map<int,long long> ds_usage;
 
-    bool   hybrid;
+    bool   public_cloud;
 
     string rank;
     string requirements;

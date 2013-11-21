@@ -152,7 +152,7 @@ void TransferManager::do_action(const string &action, void * arg)
     int                 hid;
     VirtualMachine *    vm;
     Host           *    host;
-    bool                host_is_hybrid  = false;
+    bool                host_is_public_cloud  = false;
     bool                host_is_deleted = false;
     Nebula&             nd = Nebula::instance();
 
@@ -202,13 +202,13 @@ void TransferManager::do_action(const string &action, void * arg)
     }
     else
     {
-        host_is_hybrid=host->isHybrid();
+        host_is_public_cloud = host->is_public_cloud();
         host->unlock();
     }
 
     if (action == "PROLOG")
     {
-        if (host_is_hybrid)
+        if (host_is_public_cloud)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_SUCCESS,vid);
         }
@@ -223,7 +223,7 @@ void TransferManager::do_action(const string &action, void * arg)
     }
     else if (action == "PROLOG_MIGR")
     {
-        if (host_is_hybrid)
+        if (host_is_public_cloud)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_SUCCESS,vid);
         }
@@ -238,7 +238,7 @@ void TransferManager::do_action(const string &action, void * arg)
     }
     else if (action == "PROLOG_RESUME")
     {
-        if (host_is_hybrid)
+        if (host_is_public_cloud)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_SUCCESS,vid);
         }
@@ -253,7 +253,7 @@ void TransferManager::do_action(const string &action, void * arg)
     }
     else if (action == "EPILOG")
     {
-        if (host_is_hybrid)
+        if (host_is_public_cloud)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
         }
@@ -268,7 +268,7 @@ void TransferManager::do_action(const string &action, void * arg)
     }
     else if (action == "EPILOG_STOP")
     {
-        if (host_is_hybrid)
+        if (host_is_public_cloud)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
         }
@@ -283,7 +283,7 @@ void TransferManager::do_action(const string &action, void * arg)
     }
     else if (action == "EPILOG_DELETE")
     {
-        if (host_is_hybrid)
+        if (host_is_public_cloud)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
         }
@@ -298,7 +298,7 @@ void TransferManager::do_action(const string &action, void * arg)
     }
     else if (action == "EPILOG_DELETE_STOP")
     {
-        if (host_is_hybrid)
+        if (host_is_public_cloud)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
         }
@@ -313,7 +313,7 @@ void TransferManager::do_action(const string &action, void * arg)
     }
     else if (action == "EPILOG_DELETE_PREVIOUS")
     {
-        if (host_is_hybrid)
+        if (host_is_public_cloud)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
         }
@@ -328,7 +328,7 @@ void TransferManager::do_action(const string &action, void * arg)
     }
     else if (action == "EPILOG_DELETE_BOTH")
     {
-        if (host_is_hybrid)
+        if (host_is_public_cloud)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
         }

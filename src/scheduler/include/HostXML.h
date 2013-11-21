@@ -123,12 +123,12 @@ public:
     };
 
     /**
-     *  Check if host is hybrid
-     *    @return true if the host is enabled
+     *  Checks if the host is a remote public cloud
+     *    @return true if the host is a remote public cloud
      */
-    bool isHybrid() const
+    bool is_public_cloud() const
     {
-        return hybrid;
+        return public_cloud;
     }
 
 private:
@@ -148,7 +148,7 @@ private:
 
     long long running_vms; /**< Number of running VMs in this Host   */
 
-    bool hybrid;
+    bool public_cloud;
 
     // Configuration attributes
     static float hypervisor_mem; /**< Fraction of memory for the VMs */
