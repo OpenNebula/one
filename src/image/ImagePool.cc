@@ -27,6 +27,7 @@
 /* -------------------------------------------------------------------------- */
 string ImagePool::_default_type;
 string ImagePool::_default_dev_prefix;
+string ImagePool::_default_cdrom_dev_prefix;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -45,6 +46,8 @@ ImagePool::ImagePool(
     // Init static defaults
     _default_type       = __default_type;
     _default_dev_prefix = __default_dev_prefix;
+
+    _default_cdrom_dev_prefix = "hd";
 
     // Init inherit attributes
     vector<const Attribute *>::const_iterator it;
