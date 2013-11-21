@@ -210,19 +210,19 @@ void VirtualMachineXML::init_attributes()
     }
 
     vector<Attribute*> attrs;
-    user_template->get("HYBRID", attrs);
+    user_template->get("PUBLIC_CLOUD", attrs);
 
-    hybrid = (attrs.size() > 0);
+    public_cloud = (attrs.size() > 0);
 
-    if (hybrid == false)
+    if (public_cloud == false)
     {
         attrs.clear();
         user_template->get("EC2", attrs);
 
-        hybrid = (attrs.size() > 0);
+        public_cloud = (attrs.size() > 0);
     }
 
-    only_hybrid = false;
+    only_public_cloud = false;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -491,14 +491,14 @@ void VirtualMachineXML::add_image_datastore_capacity(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineXML::set_only_hybrid()
+void VirtualMachineXML::set_only_public_cloud()
 {
-    only_hybrid = true;
+    only_public_cloud = true;
 
     ostringstream oss;
 
     oss << "VM " << oid << ": Local Datastores do not have enough capacity. "
-            << "This VM can be only deployed in a Hybrid Host.";
+            << "This VM can be only deployed in a Public Cloud Host.";
 
     NebulaLog::log("SCHED",Log::INFO,oss);
 }
@@ -506,7 +506,7 @@ void VirtualMachineXML::set_only_hybrid()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachineXML::is_only_hybrid() const
+bool VirtualMachineXML::is_only_public_cloud() const
 {
-    return only_hybrid;
+    return only_public_cloud;
 }

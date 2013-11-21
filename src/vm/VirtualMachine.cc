@@ -1130,7 +1130,7 @@ int VirtualMachine::automatic_requirements(string& error_str)
     string          requirements;
     string          cluster_id = "";
 
-    vector<string> hybrid_hypervisors = get_hybrid_hypervisors();
+    vector<string> public_cloud_hypervisors = get_public_cloud_hypervisors();
 
     int incomp_id;
     int rc;
@@ -1209,22 +1209,22 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
     if ( !cluster_id.empty() )
     {
-        oss << "CLUSTER_ID = " << cluster_id << " & !(HYBRID = YES)";
+        oss << "CLUSTER_ID = " << cluster_id << " & !(PUBLIC_CLOUD = YES)";
     }
     else
     {
-        oss << "!(HYBRID = YES)";
+        oss << "!(PUBLIC_CLOUD = YES)";
     }
 
-    if (!hybrid_hypervisors.empty())
+    if (!public_cloud_hypervisors.empty())
     {
-        oss << " | (HYBRID = YES & (";
+        oss << " | (PUBLIC_CLOUD = YES & (";
 
-        oss << "HYPERVISOR = " << hybrid_hypervisors[0];
+        oss << "HYPERVISOR = " << public_cloud_hypervisors[0];
 
-        for (size_t i = 1; i < hybrid_hypervisors.size(); i++)
+        for (size_t i = 1; i < public_cloud_hypervisors.size(); i++)
         {
-            oss << " | HYPERVISOR = " << hybrid_hypervisors[i];
+            oss << " | HYPERVISOR = " << public_cloud_hypervisors[i];
         }
 
         oss << "))";
@@ -3666,9 +3666,9 @@ void VirtualMachine::clear_template_monitor_error()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachine::is_hybrid() const
+bool VirtualMachine::is_public_cloud() const
 {
-    vector<string> v = get_hybrid_hypervisors();
+    vector<string> v = get_public_cloud_hypervisors();
 
     return (v.size() > 0);
 }
@@ -3676,15 +3676,15 @@ bool VirtualMachine::is_hybrid() const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-vector<string> VirtualMachine::get_hybrid_hypervisors() const
+vector<string> VirtualMachine::get_public_cloud_hypervisors() const
 {
     vector<Attribute*>                  attrs;
     vector<Attribute*>::const_iterator  it;
 
     VectorAttribute *   vatt;
-    vector<string>      hybrid_hypervisors;
+    vector<string>      public_cloud_hypervisors;
 
-    user_obj_template->get("HYBRID", attrs);
+    user_obj_template->get("PUBLIC_CLOUD", attrs);
 
     for (it = attrs.begin(); it != attrs.end(); it++)
     {
@@ -3699,7 +3699,7 @@ vector<string> VirtualMachine::get_hybrid_hypervisors() const
 
         if (!type.empty())
         {
-            hybrid_hypervisors.push_back(type);
+            public_cloud_hypervisors.push_back(type);
         }
     }
 
@@ -3710,8 +3710,8 @@ vector<string> VirtualMachine::get_hybrid_hypervisors() const
 
     if (!attrs.empty())
     {
-        hybrid_hypervisors.push_back("ec2");
+        public_cloud_hypervisors.push_back("ec2");
     }
 
-    return hybrid_hypervisors;
+    return public_cloud_hypervisors;
 }

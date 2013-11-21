@@ -322,7 +322,7 @@ int RequestManagerVirtualMachine::get_host_information(
     string& vnm,
     int&    cluster_id,
     string& ds_location,
-    bool&   is_hybrid,
+    bool&   is_public_cloud,
     PoolObjectAuth&    host_perms,
     RequestAttributes& att)
 
@@ -348,7 +348,7 @@ int RequestManagerVirtualMachine::get_host_information(
 
     cluster_id = host->get_cluster_id();
 
-    is_hybrid = host->isHybrid();
+    is_public_cloud = host->is_public_cloud();
 
     host->get_permissions(host_perms);
 
@@ -626,7 +626,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     string vnm_mad;
     int    cluster_id;
     string ds_location;
-    bool   is_hybrid;
+    bool   is_public_cloud;
     PoolObjectAuth host_perms;
 
     string tm_mad;
@@ -658,7 +658,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
                              vnm_mad,
                              cluster_id,
                              ds_location,
-                             is_hybrid,
+                             is_public_cloud,
                              host_perms,
                              att) != 0)
     {
@@ -669,7 +669,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     // Get information about the system DS to use (tm_mad)
     // ------------------------------------------------------------------------
 
-    if (is_hybrid)
+    if (is_public_cloud)
     {
         ds_id = -1;
     }
@@ -802,7 +802,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     string vnm_mad;
     int    cluster_id;
     string ds_location;
-    bool   is_hybrid;
+    bool   is_public_cloud;
     PoolObjectAuth host_perms;
 
     int    c_hid;
@@ -832,14 +832,14 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
                              vnm_mad,
                              cluster_id,
                              ds_location,
-                             is_hybrid,
+                             is_public_cloud,
                              host_perms,
                              att) != 0)
     {
         return;
     }
 
-    // TODO: return error for hybrid hosts?
+    // TODO: return error for public cloud hosts?
 
     // ------------------------------------------------------------------------
     // Authorize request

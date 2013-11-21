@@ -73,7 +73,7 @@ protected:
         string& vnm,
         int&    cluster_id,
         string& ds_location,
-        bool&   is_hybrid,
+        bool&   is_public_cloud,
         PoolObjectAuth&    host_perms,
         RequestAttributes& att);
 

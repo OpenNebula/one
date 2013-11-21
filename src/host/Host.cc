@@ -531,13 +531,13 @@ error_common:
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-bool Host::isHybrid() const
+bool Host::is_public_cloud() const
 {
-    bool is_hybrid = false;
+    bool is_public_cloud = false;
 
-    get_template_attribute("HYBRID", is_hybrid);
+    get_template_attribute("PUBLIC_CLOUD", is_public_cloud);
 
-    return is_hybrid;
+    return is_public_cloud;
 }
 
 /* ************************************************************************ */
