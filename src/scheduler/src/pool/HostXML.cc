@@ -18,6 +18,7 @@
 #include <sstream>
 
 #include "HostXML.h"
+#include "NebulaUtil.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -53,8 +54,19 @@ void HostXML::init_attributes()
     //Reserve memory for the hypervisor
     max_mem = static_cast<int>(hypervisor_mem * static_cast<float>(max_mem));
 
+
+    public_cloud = false;
+
     vector<string> public_cloud_vector = (*this)["/HOST/TEMPLATE/PUBLIC_CLOUD"];
-    public_cloud = ( public_cloud_vector.size() > 0 && public_cloud_vector[0] == "YES" );
+
+    if (public_cloud_vector.size() > 0)
+    {
+        string pc = public_cloud_vector[0];
+
+        one_util::toupper(pc);
+
+        public_cloud = pc == "YES";
+    }
 
     vector<string> ds_ids     = (*this)["/HOST/HOST_SHARE/DATASTORES/DS/ID"];
     vector<string> ds_free_mb = (*this)["/HOST/HOST_SHARE/DATASTORES/DS/FREE_MB"];
