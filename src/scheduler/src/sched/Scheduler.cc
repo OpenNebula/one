@@ -523,6 +523,20 @@ void Scheduler::match_schedule()
             }
 
             // -----------------------------------------------------------------
+            // Filter current Hosts for resched VMs
+            // -----------------------------------------------------------------
+            if (vm->is_resched() && vm->get_hid() == host->get_hid())
+            {
+                ostringstream oss;
+
+                oss << "VM " << oid << ": Host " << host->get_hid()
+                    << " filtered out. VM cannot be migrated to its current Host.";
+
+                NebulaLog::log("SCHED",Log::DEBUG,oss);
+                continue;
+            }
+
+            // -----------------------------------------------------------------
             // Evaluate VM requirements
             // -----------------------------------------------------------------
 
