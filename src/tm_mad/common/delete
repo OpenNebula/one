@@ -44,14 +44,27 @@ DST_HOST=`arg_host $DST`
 
 log "Deleting $DST_PATH"
 
-delete_file="ssh $DST_HOST \"rm -rf $DST_PATH\""
+delete_file=$(cat <<EOF
+[ -e "$DST_PATH" ] || exit 0
 
-retry 10 "$delete_file"
+times=10
+function="rm -rf $DST_PATH"
 
-EXEC_RC=$?
+count=1
 
-if [ $EXEC_RC -ne 0 ]; then
-    log_error "Command \"$delete_file\" failed: $EXEC_RC"
-    error_message "Error deleting $DST_PATH"
-    exit $EXEC_RC
-fi
+ret=\$(\$function)
+error=\$?
+
+while [ \$count -lt \$times -a "\$error" != "0" ]; do
+    sleep 1
+    count=\$(( \$count + 1 ))
+    ret=\$(\$function)
+    error=\$?
+done
+
+[ "x\$error" = "x0" ]
+EOF
+)
+
+ssh_exec_and_log $DST_HOST "$delete_file" "Error deleting $DST_PATH"
+
