@@ -1130,7 +1130,9 @@ int VirtualMachine::automatic_requirements(string& error_str)
     string          requirements;
     string          cluster_id = "";
 
-    vector<string> public_cloud_hypervisors = get_public_cloud_hypervisors();
+    vector<string> public_cloud_hypervisors;
+
+    int num_public = get_public_cloud_hypervisors(public_cloud_hypervisors);
 
     int incomp_id;
     int rc;
@@ -1216,13 +1218,13 @@ int VirtualMachine::automatic_requirements(string& error_str)
         oss << "!(PUBLIC_CLOUD = YES)";
     }
 
-    if (!public_cloud_hypervisors.empty())
+    if (num_public != 0)
     {
         oss << " | (PUBLIC_CLOUD = YES & (";
 
         oss << "HYPERVISOR = " << public_cloud_hypervisors[0];
 
-        for (size_t i = 1; i < public_cloud_hypervisors.size(); i++)
+        for (int i = 1; i < num_public; i++)
         {
             oss << " | HYPERVISOR = " << public_cloud_hypervisors[i];
         }
@@ -3666,23 +3668,12 @@ void VirtualMachine::clear_template_monitor_error()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachine::is_public_cloud() const
-{
-    vector<string> v = get_public_cloud_hypervisors();
-
-    return (v.size() > 0);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-vector<string> VirtualMachine::get_public_cloud_hypervisors() const
+int VirtualMachine::get_public_cloud_hypervisors(vector<string> &public_cloud_hypervisors) const
 {
     vector<Attribute*>                  attrs;
     vector<Attribute*>::const_iterator  it;
 
     VectorAttribute *   vatt;
-    vector<string>      public_cloud_hypervisors;
 
     user_obj_template->get("PUBLIC_CLOUD", attrs);
 
@@ -3713,5 +3704,5 @@ vector<string> VirtualMachine::get_public_cloud_hypervisors() const
         public_cloud_hypervisors.push_back("ec2");
     }
 
-    return public_cloud_hypervisors;
+    return public_cloud_hypervisors.size();
 }
