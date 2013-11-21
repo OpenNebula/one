@@ -148,8 +148,18 @@ int Image::insert(SqlDB *db, string& error_str)
 
             if( dev_prefix.empty() )
             {
-                SingleAttribute * dev_att = new SingleAttribute("DEV_PREFIX",
-                                              ImagePool::default_dev_prefix());
+                if (type == CDROM)
+                {
+                    dev_prefix = ImagePool::default_cdrom_dev_prefix();
+                }
+                else
+                {
+                    dev_prefix = ImagePool::default_dev_prefix();
+                }
+
+                SingleAttribute * dev_att =
+                        new SingleAttribute("DEV_PREFIX", dev_prefix);
+
                 obj_template->set(dev_att);
             }
         break;
@@ -508,7 +518,14 @@ int Image::disk_attribute(  VectorAttribute *       disk,
 
         if (dev_prefix.empty())//Removed from image template, get it again
         {
-            dev_prefix = ImagePool::default_dev_prefix();
+            if ( type == CDROM )
+            {
+                dev_prefix = ImagePool::default_cdrom_dev_prefix();
+            }
+            else
+            {
+                dev_prefix = ImagePool::default_dev_prefix();
+            }
         }
 
         disk->replace("DEV_PREFIX", dev_prefix);

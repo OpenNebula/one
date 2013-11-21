@@ -185,6 +185,11 @@ public:
         return _default_dev_prefix;
     };
 
+    static const string& default_cdrom_dev_prefix()
+    {
+        return _default_cdrom_dev_prefix;
+    };
+
     /**
      *  Get the effective uid to get an image. Used in VM parsers
      *    @param disk a vector attribute with the image data
@@ -214,6 +219,11 @@ private:
      * Default device prefix
      **/
     static string  _default_dev_prefix;
+
+    /**
+     * Default device prefix for cdrom disks
+     **/
+    static string _default_cdrom_dev_prefix;
 
     /**
      * Image attributes to be inherited into the VM disk

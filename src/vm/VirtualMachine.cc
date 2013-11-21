@@ -1682,7 +1682,14 @@ int VirtualMachine::get_disk_images(string& error_str)
             }
             else
             {
-                cdrom_disks.push(make_pair(ipool->default_dev_prefix(), disk));
+                dev_prefix = disk->vector_value("DEV_PREFIX");
+
+                if ( dev_prefix.empty() )
+                {
+                    dev_prefix = ipool->default_cdrom_dev_prefix();
+                }
+
+                cdrom_disks.push(make_pair(dev_prefix, disk));
             }
 
             // Disk IDs are 0..num-1, context disk is is num
