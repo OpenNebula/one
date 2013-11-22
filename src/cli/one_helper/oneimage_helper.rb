@@ -124,12 +124,9 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         {
             :name => "size",
             :large => "--size size",
-            :description => "Size in MB. Used for DATABLOCK type",
+            :description => "Size in MB. Used for DATABLOCK type or SOURCE based images.",
             :format => String,
             :proc => lambda do |o, options|
-                if !options[:type] || !(options[:type].upcase=='DATABLOCK')
-                    next [-1, "Size is only used for DATABLOCK type images"]
-                end
 
                 m=o.strip.match(/^(\d+(?:\.\d+)?)(m|mb|g|gb)?$/i)
 
