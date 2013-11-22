@@ -63,6 +63,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  clone      = "";
     string  ceph_host  = "";
     string  ceph_secret= "";
+    string  ceph_user  = "";
 
     int     disk_id;
     string  default_driver          = "";
@@ -329,6 +330,7 @@ int LibVirtDriver::deployment_description_kvm(
         clone       = disk->vector_value("CLONE");
         ceph_host   = disk->vector_value("CEPH_HOST");
         ceph_secret = disk->vector_value("CEPH_SECRET");
+        ceph_user   = disk->vector_value("CEPH_USER");
 
         disk->vector_value_str("DISK_ID", disk_id);
 
@@ -403,9 +405,9 @@ int LibVirtDriver::deployment_description_kvm(
                 file << "\t\t\t</source>" << endl;
             }
 
-            if ( !ceph_secret.empty() )
+            if ( !ceph_secret.empty() && !ceph_user.empty())
             {
-                file << "\t\t\t<auth username='libvirt'>" << endl
+                file << "\t\t\t<auth username='"<< ceph_user <<"'>" << endl
                      << "\t\t\t\t<secret type='ceph' uuid='"
                      << ceph_secret <<"'/>" << endl
                      << "\t\t\t</auth>" << endl;
