@@ -380,11 +380,8 @@ int TransferManager::prolog_transfer_command(
     string format;
     string tm_mad;
     string ds_id;
-    string vm_ds_id;
 
-    int    disk_id;
-
-    vm_ds_id = vm->get_ds_id();
+    int disk_id;
 
     disk->vector_value("DISK_ID", disk_id);
 
@@ -406,14 +403,14 @@ int TransferManager::prolog_transfer_command(
             return 0;
         }
 
-        //MKSWAP tm_mad size host:remote_system_dir/disk.i vmid dsid(=0)
+        //MKSWAP tm_mad size host:remote_system_dir/disk.i vmid dsid(system)
         xfr << "MKSWAP "
             << vm_tm_mad << " "
             << size   << " "
             << vm->get_hostname() << ":"
             << vm->get_remote_system_dir() << "/disk." << disk_id << " "
             << vm->get_oid() << " "
-            << vm_ds_id
+            << vm->get_ds_id()
             << endl;
     }
     else if ( type == "FS" )
@@ -436,7 +433,7 @@ int TransferManager::prolog_transfer_command(
             return 0;
         }
 
-        //MKIMAGE tm_mad size format host:remote_system_dir/disk.i vmid dsid(=0)
+        //MKIMAGE tm_mad size format host:remote_system_dir/disk.i vmid dsid(system)
         xfr << "MKIMAGE "
             << vm_tm_mad << " "
             << size   << " "
@@ -444,7 +441,7 @@ int TransferManager::prolog_transfer_command(
             << vm->get_hostname() << ":"
             << vm->get_remote_system_dir() << "/disk." << disk_id << " "
             << vm->get_oid() << " "
-            << vm_ds_id
+            << vm->get_ds_id()
             << endl;
     }
     else
@@ -801,9 +798,9 @@ void TransferManager::prolog_migr_action(int vid)
     const VectorAttribute * disk;
     string tm_mad;
     string vm_tm_mad;
-    string vm_ds_id;
-    string ds_id;
-    int    disk_id;
+
+    int ds_id;
+    int disk_id;
 
     vector<const Attribute *> attrs;
     int                       num;
@@ -829,10 +826,9 @@ void TransferManager::prolog_migr_action(int vid)
     }
 
     vm_tm_mad = vm->get_tm_mad();
-    vm_ds_id  = vm->get_ds_id();
     tm_md     = get();
 
-    if ( tm_md == 0 || vm_tm_mad.empty() || vm_ds_id.empty())
+    if ( tm_md == 0 || vm_tm_mad.empty())
     {
         goto error_drivers;
     }
@@ -865,20 +861,20 @@ void TransferManager::prolog_migr_action(int vid)
         if ( VirtualMachine::isVolatile(disk) == true )
         {
             tm_mad = vm_tm_mad;
-            ds_id  = vm_ds_id;
+            ds_id  = vm->get_ds_id();
         }
         else
         {
-            tm_mad = disk->vector_value("TM_MAD");
-            ds_id  = disk->vector_value("DATASTORE_ID");
+            tm_mad    = disk->vector_value("TM_MAD");
+            int vv_rc = disk->vector_value("DATASTORE_ID", ds_id);
 
-            if ( tm_mad.empty() ||  ds_id.empty() )
+            if (tm_mad.empty() || vv_rc == -1)
             {
                 continue;
             }
         }
 
-        //MV tm_mad prev_host:remote_system_dir/disk.i host:remote_system_dir/disk.i vmid dsid
+        //MV tm_mad prev_host:remote_system_dir/disk.i host:remote_system_dir/disk.i vmid dsid(image)
         xfr << "MV "
             << tm_mad << " "
             << vm->get_previous_hostname() << ":"
@@ -889,7 +885,7 @@ void TransferManager::prolog_migr_action(int vid)
             << ds_id << endl;
     }
 
-    //MV tm_mad prev_host:remote_system_dir host:remote_system_dir VMID 0
+    //MV tm_mad prev_host:remote_system_dir host:remote_system_dir VMID dsid(system)
     xfr << "MV "
         << vm_tm_mad << " "
         << vm->get_previous_hostname() << ":"
@@ -897,7 +893,7 @@ void TransferManager::prolog_migr_action(int vid)
         << vm->get_hostname() << ":"
         << vm->get_remote_system_dir() << " "
         << vm->get_oid() << " "
-        << vm_ds_id << endl;
+        << vm->get_ds_id() << endl;
 
     xfr.close();
 
@@ -941,9 +937,9 @@ void TransferManager::prolog_resume_action(int vid)
     const VectorAttribute * disk;
     string tm_mad;
     string vm_tm_mad;
-    string vm_ds_id;
-    string ds_id;
-    int    disk_id;
+
+    int ds_id;
+    int disk_id;
 
     vector<const Attribute *> attrs;
     int                       num;
@@ -969,10 +965,9 @@ void TransferManager::prolog_resume_action(int vid)
     }
 
     vm_tm_mad = vm->get_tm_mad();
-    vm_ds_id  = vm->get_ds_id();
     tm_md     = get();
 
-    if ( tm_md == 0 || vm_tm_mad.empty() || vm_ds_id.empty())
+    if ( tm_md == 0 || vm_tm_mad.empty())
     {
         goto error_drivers;
     }
@@ -1004,20 +999,20 @@ void TransferManager::prolog_resume_action(int vid)
         if ( VirtualMachine::isVolatile(disk) == true )
         {
             tm_mad = vm_tm_mad;
-            ds_id  = vm_ds_id;
+            ds_id  = vm->get_ds_id();
         }
         else
         {
-            tm_mad = disk->vector_value("TM_MAD");
-            ds_id  = disk->vector_value("DATASTORE_ID");
+            tm_mad    = disk->vector_value("TM_MAD");
+            int vv_rc = disk->vector_value("DATASTORE_ID", ds_id);
 
-            if ( tm_mad.empty() ||  ds_id.empty() )
+            if ( tm_mad.empty() || vv_rc == -1)
             {
                 continue;
             }
         }
 
-        //MV tm_mad fe:system_dir/disk.i host:remote_system_dir/disk.i vmid dsid
+        //MV tm_mad fe:system_dir/disk.i host:remote_system_dir/disk.i vmid dsid(image)
         xfr << "MV "
             << tm_mad << " "
             << nd.get_nebula_hostname() << ":"
@@ -1028,13 +1023,13 @@ void TransferManager::prolog_resume_action(int vid)
             << ds_id << endl;
     }
 
-    //MV tm_mad fe:system_dir host:remote_system_dir vmid 0
+    //MV tm_mad fe:system_dir host:remote_system_dir vmid dsid(system)
     xfr << "MV "
         << vm_tm_mad << " "
         << nd.get_nebula_hostname() << ":"<< vm->get_system_dir() << " "
         << vm->get_hostname() << ":" << vm->get_remote_system_dir()<< " "
         << vm->get_oid() << " "
-        << vm_ds_id << endl;
+        << vm->get_ds_id() << endl;
 
     xfr.close();
 
@@ -1076,7 +1071,6 @@ void TransferManager::epilog_transfer_command(
 {
     string save;
     string tm_mad;
-    string ds_id;
     int    disk_id;
 
     disk->vector_value("DISK_ID", disk_id);
@@ -1089,6 +1083,7 @@ void TransferManager::epilog_transfer_command(
     {
         string source;
         string save_source;
+        string ds_id;
 
         source      = disk->vector_value("SOURCE");
         save_source = disk->vector_value("SAVE_AS_SOURCE");
@@ -1125,18 +1120,21 @@ void TransferManager::epilog_transfer_command(
     }
     else //No saving disk
     {
+        int ds_id_i;
+        int vv_rc = 0;
+
         if ( VirtualMachine::isVolatile(disk) == true )
         {
             tm_mad = vm->get_tm_mad();
-            ds_id  = vm->get_ds_id();
+            ds_id_i= vm->get_ds_id();
         }
         else
         {
             tm_mad = disk->vector_value("TM_MAD");
-            ds_id  = disk->vector_value("DATASTORE_ID");
+            vv_rc  = disk->vector_value("DATASTORE_ID", ds_id_i);
         }
 
-        if ( !tm_mad.empty() && !ds_id.empty() )
+        if ( !tm_mad.empty() && vv_rc == 0)
         {
             //DELETE tm_mad hostname:remote_system_dir/disk.i vmid ds_id
             xfr << "DELETE "
@@ -1144,7 +1142,7 @@ void TransferManager::epilog_transfer_command(
                 << vm->get_hostname() << ":"
                 << vm->get_remote_system_dir() << "/disk." << disk_id << " "
                 << vm->get_oid() << " "
-                << ds_id
+                << ds_id_i
                 << endl;
         }
     }
@@ -1159,7 +1157,6 @@ void TransferManager::epilog_action(int vid)
     ostringstream   os;
     string xfr_name;
     string vm_tm_mad;
-    string vm_ds_id;
     string error_str;
 
     const VectorAttribute * disk;
@@ -1188,10 +1185,9 @@ void TransferManager::epilog_action(int vid)
     }
 
     vm_tm_mad = vm->get_tm_mad();
-    vm_ds_id  = vm->get_ds_id();
     tm_md     = get();
 
-    if ( tm_md == 0 || vm_tm_mad.empty() || vm_ds_id.empty())
+    if ( tm_md == 0 || vm_tm_mad.empty())
     {
         goto error_drivers;
     }
@@ -1226,7 +1222,7 @@ void TransferManager::epilog_action(int vid)
         << vm_tm_mad << " "
         << vm->get_hostname() << ":" << vm->get_remote_system_dir() << " "
         << vm->get_oid() << " "
-        << vm_ds_id << endl;
+        << vm->get_ds_id() << endl;
 
     xfr.close();
 
@@ -1269,9 +1265,8 @@ void TransferManager::epilog_stop_action(int vid)
     string xfr_name;
     string tm_mad;
     string vm_tm_mad;
-    string vm_ds_id;
-    string ds_id;
 
+    int ds_id;
     int disk_id;
 
     VirtualMachine * vm;
@@ -1299,10 +1294,9 @@ void TransferManager::epilog_stop_action(int vid)
     }
 
     vm_tm_mad = vm->get_tm_mad();
-    vm_ds_id  = vm->get_ds_id();
     tm_md     = get();
 
-    if ( tm_md == 0 || vm_tm_mad.empty() || vm_ds_id.empty())
+    if (tm_md == 0 || vm_tm_mad.empty())
     {
         goto error_drivers;
     }
@@ -1334,20 +1328,20 @@ void TransferManager::epilog_stop_action(int vid)
         if ( VirtualMachine::isVolatile(disk) == true )
         {
             tm_mad = vm_tm_mad;
-            ds_id  = vm_ds_id;
+            ds_id  = vm->get_ds_id();
         }
         else
         {
-            tm_mad = disk->vector_value("TM_MAD");
-            ds_id  = disk->vector_value("DATASTORE_ID");
+            tm_mad    = disk->vector_value("TM_MAD");
+            int vv_rc = disk->vector_value("DATASTORE_ID", ds_id);
 
-            if ( tm_mad.empty() ||  ds_id.empty() )
+            if (tm_mad.empty() || vv_rc == -1)
             {
                 continue;
             }
         }
 
-        //MV tm_mad host:remote_system_dir/disk.i fe:system_dir/disk.i vmid dsid
+        //MV tm_mad host:remote_system_dir/disk.i fe:system_dir/disk.i vmid dsid(image)
         xfr << "MV "
             << tm_mad << " "
             << vm->get_hostname() << ":"
@@ -1358,13 +1352,13 @@ void TransferManager::epilog_stop_action(int vid)
             << ds_id << endl;
     }
 
-    //MV vm_tm_mad hostname:remote_system_dir fe:system_dir
+    //MV vm_tm_mad hostname:remote_system_dir fe:system_dir vmid dsid(system)
     xfr << "MV "
         << vm_tm_mad << " "
         << vm->get_hostname() << ":" << vm->get_remote_system_dir() << " "
         << nd.get_nebula_hostname() << ":" << vm->get_system_dir() << " "
         << vm->get_oid() << " "
-        << vm_ds_id << endl;
+        << vm->get_ds_id() << endl;
 
     xfr.close();
 
@@ -1410,12 +1404,11 @@ int TransferManager::epilog_delete_commands(VirtualMachine *vm,
 
     string vm_tm_mad;
     string tm_mad;
-    string vm_ds_id;
-    string ds_id;
-
     string host;
     string system_dir;
 
+    int ds_id;
+    int vm_ds_id;
     int disk_id;
 
     Nebula& nd = Nebula::instance();
@@ -1462,7 +1455,7 @@ int TransferManager::epilog_delete_commands(VirtualMachine *vm,
         vm_ds_id  = vm->get_ds_id();
     }
 
-    if ( vm_tm_mad.empty() || vm_ds_id.empty())
+    if (vm_tm_mad.empty())
     {
         goto error_drivers;
     }
@@ -1490,18 +1483,18 @@ int TransferManager::epilog_delete_commands(VirtualMachine *vm,
         }
         else
         {
-            tm_mad = disk->vector_value("TM_MAD");
-            ds_id  = disk->vector_value("DATASTORE_ID");
+            tm_mad    = disk->vector_value("TM_MAD");
+            int vv_rc = disk->vector_value("DATASTORE_ID", ds_id);
 
-            if ( tm_mad.empty() ||  ds_id.empty() )
+            if (tm_mad.empty() || vv_rc == -1)
             {
                 continue;
             }
         }
 
-        //DELETE tm_mad host:remote_system_dir/disk.i vmid dsid
-        // *local* DELETE tm_mad fe:system_dir/disk.i vmid dsid
-        // *prev*  DELETE tm_mad prev_host:remote_system_dir/disk.i vmid ds_id
+        //DELETE tm_mad host:remote_system_dir/disk.i vmid dsid(image)
+        // *local* DELETE tm_mad fe:system_dir/disk.i vmid dsid(image)
+        // *prev*  DELETE tm_mad prev_host:remote_system_dir/disk.i vmid ds_id(image)
         xfr << "DELETE "
             << tm_mad << " "
             << host << ":"
@@ -1510,9 +1503,9 @@ int TransferManager::epilog_delete_commands(VirtualMachine *vm,
             << ds_id << endl;
     }
 
-    //DELETE vm_tm_mad hostname:remote_system_dir vmid dsid
-    // *local* DELETE vm_tm_mad fe:system_dir vmid dsid
-    // *prev*  DELTE vm_tm_mad prev_host:remote_system_dir vmid ds_id
+    //DELETE vm_tm_mad hostname:remote_system_dir vmid dsid(system)
+    // *local* DELETE vm_tm_mad fe:system_dir vmid dsid(system)
+    // *prev*  DELTE vm_tm_mad prev_host:remote_system_dir vmid ds_id(system)
     xfr << "DELETE "
         << vm_tm_mad << " "
         << host <<":"<< system_dir << " "
