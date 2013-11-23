@@ -645,6 +645,16 @@ public:
     };
 
     /**
+     *  Returns the action that closed the current history record. The hasHisto
+     *  function MUST be called before this one.
+     *    @return the action that closed the current history record
+     */
+    const History::VMAction get_action() const
+    {
+        return history->action;
+    };
+
+    /**
      *  Returns the action that closed the history record in the previous host
      *    @return the action that closed the history record in the previous host
      */

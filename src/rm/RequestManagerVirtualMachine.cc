@@ -666,6 +666,32 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     // ------------------------------------------------------------------------
+    // Authorize request
+    // ------------------------------------------------------------------------
+
+    auth = vm_authorization(id, 0, 0, att, &host_perms, 0, auth_op);
+
+    if (auth == false)
+    {
+        return;
+    }
+
+    if ((vm = get_vm(id, att)) == 0)
+    {
+        return;
+    }
+
+    if (vm->hasHistory() &&
+        (vm->get_action() == History::STOP_ACTION ||
+         vm->get_action() == History::UNDEPLOY_ACTION ||
+         vm->get_action() == History::UNDEPLOY_HARD_ACTION))
+    {
+        ds_id = vm->get_ds_id();
+    }
+
+    vm->unlock();
+
+    // ------------------------------------------------------------------------
     // Get information about the system DS to use (tm_mad)
     // ------------------------------------------------------------------------
 
