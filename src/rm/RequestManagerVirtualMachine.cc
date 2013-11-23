@@ -686,25 +686,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
          vm->get_action() == History::UNDEPLOY_ACTION ||
          vm->get_action() == History::UNDEPLOY_HARD_ACTION))
     {
-        int c_ds_id = vm->get_ds_id();
-
-        if (ds_id == -1)
-        {
-            ds_id = c_ds_id;
-        }
-        else if (ds_id != c_ds_id)
-        {
-            ostringstream oss;
-
-            oss << "VM can only be resumed in System Datastore "
-                << "[" << c_ds_id << "]";
-
-            failure_response(ACTION, request_error(oss.str(),""), att);
-
-            vm->unlock();
-
-            return;
-        }
+        ds_id = vm->get_ds_id();
     }
 
     vm->unlock();
