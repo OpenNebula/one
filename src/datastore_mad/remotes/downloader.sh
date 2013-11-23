@@ -177,6 +177,10 @@ http://*|https://*)
     command="curl $curl_args"
     ;;
 *)
+    if [ ! -r $FROM ]; then
+        echo "Cannot read from $FROM" >&2
+        exit -1
+    fi
     command="cat $FROM"
     ;;
 esac
