@@ -178,12 +178,12 @@ function fs_size {
             SIZE=`du -sb "$1" | cut -f1`
             error=$?
         else
-            TYPE=$(cat "$1" | head -n 1024 | file -b -)
+            TYPE=$(cat "$1" | head -n 1024 | file -b - | tr A-Z a-z)
             case "$TYPE" in
             *gzip*)
                 SIZE=$(gzip_file_size "$1")
                 ;;
-            *QCOW*)
+            *qcow*)
                 SIZE=$($QEMU_IMG info "$1" | sed -n 's/.*(\([0-9]*\) bytes).*/\1/p')
                 ;;
             *)
