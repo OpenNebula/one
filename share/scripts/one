@@ -22,6 +22,8 @@ if [ -z "$ONE_LOCATION" ]; then
     ONE_CONF=/etc/one/oned.conf
     ONE_DB=/var/lib/one/one.db
     ONE_LOG=/var/log/one/oned.log
+    ONE_SCHED_LOG=/var/log/one/sched.log
+    ONE_XMLRPC_LOG=/var/log/one/one_xmlrpc.log
 
     ONED=/usr/bin/oned
     ONE_SCHEDULER=/usr/bin/mm_sched
@@ -33,6 +35,8 @@ else
     ONE_CONF=$ONE_LOCATION/etc/oned.conf
     ONE_DB=$ONE_LOCATION/var/one.db
     ONE_LOG=$ONE_LOCATION/var/oned.log
+    ONE_SCHED_LOG=$ONE_LOCATION/var/sched.log
+    ONE_XMLRPC_LOG=$ONE_LOCATION/var/one_xmlrpc.log
 
     ONED=$ONE_LOCATION/bin/oned
     ONE_SCHEDULER=$ONE_LOCATION/bin/mm_sched
@@ -134,11 +138,6 @@ start()
         fi
     fi
 
-    # Backup oned.log
-    if [ "$BACKUP" = "true" ];then
-        [ -f "$ONE_LOG" ] && cp $ONE_LOG{,.$(date '+%Y%m%d%H%M%S')}
-    fi
-
     # Start the one daemon
     start_oned
 
@@ -172,6 +171,10 @@ start()
 
 start_oned()
 {
+    if [ "$BACKUP" = "true" ];then
+        [ -f "$ONE_LOG" ] && mv $ONE_LOG{,.$(date '+%Y%m%d%H%M%S')}
+        [ -f "$ONE_XMLRPC_LOG" ] && mv $ONE_XMLRPC_LOG{,.$(date '+%Y%m%d%H%M%S')}
+    fi
     $ONED -f 2>&1 &
 
     LASTRC=$?
@@ -187,6 +190,9 @@ start_oned()
 
 start_sched()
 {
+    if [ "$BACKUP" = "true" ];then
+        [ -f "$ONE_SCHED_LOG" ] && mv $ONE_SCHED_LOG{,.$(date '+%Y%m%d%H%M%S')}
+    fi
     $ONE_SCHEDULER&
 
     LASTRC=$?
@@ -229,9 +235,9 @@ case "$1" in
         start_sched
         ;;
     *)
-        echo "Usage: one [-f] {start|stop}" >&2
+        echo "Usage: one [-f] {start|stop|start-sched|stop-sched|restart-sched}" >&2
         echo "Options:" >&2
-        echo "  -f  Do not backup log file." >&2
+        echo "  -f  Do not backup log files." >&2
         exit 3
         ;;
 esac
