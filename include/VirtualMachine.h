@@ -645,7 +645,7 @@ public:
     };
 
     /**
-     *  Returns the action that closed the current history record. The hasHisto
+     *  Returns the action that closed the current history record. The hasHistory()
      *  function MUST be called before this one.
      *    @return the action that closed the current history record
      */
