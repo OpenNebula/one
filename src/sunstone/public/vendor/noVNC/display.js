@@ -1,7 +1,7 @@
 /*
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
- * Licensed under LGPL-3 (see LICENSE.txt)
+ * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
  */
@@ -502,8 +502,8 @@ that.finishTile = function() {
     // else: No-op, if not prefer_js then already done by setSubTile
 };
 
-rgbImageData = function(x, y, width, height, arr, offset) {
-    var img, i, j, data, v = viewport;
+rgbImageData = function(x, y, vx, vy, width, height, arr, offset) {
+    var img, i, j, data;
     /*
     if ((x - v.x >= v.w) || (y - v.y >= v.h) ||
         (x - v.x + width < 0) || (y - v.y + height < 0)) {
@@ -519,11 +519,11 @@ rgbImageData = function(x, y, width, height, arr, offset) {
         data[i + 2] = arr[j + 2];
         data[i + 3] = 255; // Set Alpha
     }
-    c_ctx.putImageData(img, x - v.x, y - v.y);
+    c_ctx.putImageData(img, x - vx, y - vy);
 };
 
-bgrxImageData = function(x, y, width, height, arr, offset) {
-    var img, i, j, data, v = viewport;
+bgrxImageData = function(x, y, vx, vy, width, height, arr, offset) {
+    var img, i, j, data;
     /*
     if ((x - v.x >= v.w) || (y - v.y >= v.h) ||
         (x - v.x + width < 0) || (y - v.y + height < 0)) {
@@ -539,10 +539,10 @@ bgrxImageData = function(x, y, width, height, arr, offset) {
         data[i + 2] = arr[j    ];
         data[i + 3] = 255; // Set Alpha
     }
-    c_ctx.putImageData(img, x - v.x, y - v.y);
+    c_ctx.putImageData(img, x - vx, y - vy);
 };
 
-cmapImageData = function(x, y, width, height, arr, offset) {
+cmapImageData = function(x, y, vx, vy, width, height, arr, offset) {
     var img, i, j, data, bgr, cmap;
     img = c_ctx.createImageData(width, height);
     data = img.data;
@@ -554,23 +554,23 @@ cmapImageData = function(x, y, width, height, arr, offset) {
         data[i + 2] = bgr[0];
         data[i + 3] = 255; // Set Alpha
     }
-    c_ctx.putImageData(img, x - viewport.x, y - viewport.y);
+    c_ctx.putImageData(img, x - vx, y - vy);
 };
 
 that.blitImage = function(x, y, width, height, arr, offset) {
     if (conf.true_color) {
-        bgrxImageData(x, y, width, height, arr, offset);
+        bgrxImageData(x, y, viewport.x, viewport.y, width, height, arr, offset);
     } else {
-        cmapImageData(x, y, width, height, arr, offset);
+        cmapImageData(x, y, viewport.x, viewport.y, width, height, arr, offset);
     }
 };
 
 that.blitRgbImage = function(x, y, width, height, arr, offset) {
     if (conf.true_color) {
-        rgbImageData(x, y, width, height, arr, offset);
+        rgbImageData(x, y, viewport.x, viewport.y, width, height, arr, offset);
     } else {
         // prolly wrong...
-        cmapImageData(x, y, width, height, arr, offset);
+        cmapImageData(x, y, viewport.x, viewport.y, width, height, arr, offset);
     }
 };
 
@@ -657,11 +657,18 @@ return constructor();  // Return the public API interface
 
 
 /* Set CSS cursor property using data URI encoded cursor file */
-function changeCursor(target, pixels, mask, hotx, hoty, w, h, cmap) {
+function changeCursor(target, pixels, mask, hotx, hoty, w0, h0, cmap) {
     "use strict";
     var cur = [], rgb, IHDRsz, RGBsz, ANDsz, XORsz, url, idx, alpha, x, y;
-    //Util.Debug(">> changeCursor, x: " + hotx + ", y: " + hoty + ", w: " + w + ", h: " + h);
-    
+    //Util.Debug(">> changeCursor, x: " + hotx + ", y: " + hoty + ", w0: " + w0 + ", h0: " + h0);
+
+    var w = w0;
+    var h = h0;
+    if (h < w)
+        h = w;                 // increase h to make it square
+    else
+        w = h;                 // increace w to make it square
+
     // Push multi-byte little-endian values
     cur.push16le = function (num) {
         this.push((num     ) & 0xFF,
@@ -715,22 +722,28 @@ function changeCursor(target, pixels, mask, hotx, hoty, w, h, cmap) {
     // 62: color data (RGBQUAD icColors[])
     for (y = h-1; y >= 0; y -= 1) {
         for (x = 0; x < w; x += 1) {
-            idx = y * Math.ceil(w / 8) + Math.floor(x/8);
-            alpha = (mask[idx] << (x % 8)) & 0x80 ? 255 : 0;
-
-            if (cmap) {
-                idx = (w * y) + x;
-                rgb = cmap[pixels[idx]];
-                cur.push(rgb[2]);          // blue
-                cur.push(rgb[1]);          // green
-                cur.push(rgb[0]);          // red
-                cur.push(alpha);           // alpha
+            if (x >= w0 || y >= h0) {
+                cur.push(0);          // blue
+                cur.push(0);          // green
+                cur.push(0);          // red
+                cur.push(0);          // alpha
             } else {
-                idx = ((w * y) + x) * 4;
-                cur.push(pixels[idx + 2]); // blue
-                cur.push(pixels[idx + 1]); // green
-                cur.push(pixels[idx    ]); // red
-                cur.push(alpha);           // alpha
+                idx = y * Math.ceil(w0 / 8) + Math.floor(x/8);
+                alpha = (mask[idx] << (x % 8)) & 0x80 ? 255 : 0;
+                if (cmap) {
+                    idx = (w0 * y) + x;
+                    rgb = cmap[pixels[idx]];
+                    cur.push(rgb[2]);          // blue
+                    cur.push(rgb[1]);          // green
+                    cur.push(rgb[0]);          // red
+                    cur.push(alpha);           // alpha
+                } else {
+                    idx = ((w0 * y) + x) * 4;
+                    cur.push(pixels[idx + 2]); // blue
+                    cur.push(pixels[idx + 1]); // green
+                    cur.push(pixels[idx    ]); // red
+                    cur.push(alpha);           // alpha
+                }
             }
         }
     }

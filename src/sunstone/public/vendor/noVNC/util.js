@@ -1,7 +1,7 @@
 /*
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
- * Licensed under LGPL-3 (see LICENSE.txt)
+ * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
  */
@@ -207,6 +207,65 @@ Util.conf_defaults = function(cfg, api, defaults, arr) {
  * Cross-browser routines
  */
 
+
+// Dynamically load scripts without using document.write()
+// Reference: http://unixpapa.com/js/dyna.html
+//
+// Handles the case where load_scripts is invoked from a script that
+// itself is loaded via load_scripts. Once all scripts are loaded the
+// window.onscriptsloaded handler is called (if set).
+Util.get_include_uri = function() {
+    return (typeof INCLUDE_URI !== "undefined") ? INCLUDE_URI : "include/";
+}
+Util._loading_scripts = [];
+Util._pending_scripts = [];
+Util.load_scripts = function(files) {
+    var head = document.getElementsByTagName('head')[0], script,
+        ls = Util._loading_scripts, ps = Util._pending_scripts;
+    for (var f=0; f<files.length; f++) {
+        script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = Util.get_include_uri() + files[f];
+        //console.log("loading script: " + script.src);
+        script.onload = script.onreadystatechange = function (e) {
+            while (ls.length > 0 && (ls[0].readyState === 'loaded' ||
+                                     ls[0].readyState === 'complete')) {
+                // For IE, append the script to trigger execution
+                var s = ls.shift();
+                //console.log("loaded script: " + s.src);
+                head.appendChild(s);
+            }
+            if (!this.readyState ||
+                (Util.Engine.presto && this.readyState === 'loaded') ||
+                this.readyState === 'complete') {
+                if (ps.indexOf(this) >= 0) {
+                    this.onload = this.onreadystatechange = null;
+                    //console.log("completed script: " + this.src);
+                    ps.splice(ps.indexOf(this), 1);
+
+                    // Call window.onscriptsload after last script loads
+                    if (ps.length === 0 && window.onscriptsload) {
+                        window.onscriptsload();
+                    }
+                }
+            }
+        };
+        // In-order script execution tricks
+        if (Util.Engine.trident) {
+            // For IE wait until readyState is 'loaded' before
+            // appending it which will trigger execution
+            // http://wiki.whatwg.org/wiki/Dynamic_Script_Execution_Order
+            ls.push(script);
+        } else {
+            // For webkit and firefox set async=false and append now
+            // https://developer.mozilla.org/en-US/docs/HTML/Element/script
+            script.async = false;
+            head.appendChild(script);
+        }
+        ps.push(script);
+    }
+}
+
 // Get DOM element position on page
 Util.getPosition = function (obj) {
     var x = 0, y = 0;
@@ -239,7 +298,11 @@ Util.getEventPosition = function (e, obj, scale) {
     if (typeof scale === "undefined") {
         scale = 1;
     }
-    return {'x': (docX - pos.x) / scale, 'y': (docY - pos.y) / scale};
+    var realx = docX - pos.x;
+    var realy = docY - pos.y;
+    var x = Math.max(Math.min(realx, obj.width-1), 0);
+    var y = Math.max(Math.min(realy, obj.height-1), 0);
+    return {'x': x / scale, 'y': y / scale, 'realx': realx / scale, 'realy': realy / scale};
 };
 
 

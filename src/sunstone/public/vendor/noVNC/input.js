@@ -1,7 +1,8 @@
 /*
  * noVNC: HTML5 VNC client
- * Copyright (C) 2011 Joel Martin
- * Licensed under LGPL-2 or any later version (see LICENSE.txt)
+ * Copyright (C) 2012 Joel Martin
+ * Copyright (C) 2013 Samuel Mannehed for Cendio AB
+ * Licensed under MPL 2.0 or any later version (see LICENSE.txt)
  */
 
 /*jslint browser: true, white: false, bitwise: false */
@@ -83,6 +84,10 @@ function getKeysymSpecial(evt) {
             case 122       : keysym = 0xFFC8; break; // F11
             case 123       : keysym = 0xFFC9; break; // F12
 
+            case 225       : keysym = 0xFE03; break; // AltGr
+            case 91       : keysym = 0xFFEC; break; // Super_R (Win Key)
+            case 93       : keysym = 0xFF67; break; // Menu (Win Menu)
+
             default        :                  break;
         }
     }
@@ -104,6 +109,10 @@ function getKeysymSpecial(evt) {
             case 188       : keysym = 44; break; // ,  (Mozilla, IE)
             case 109       :                     // -  (Mozilla, Opera)
                 if (Util.Engine.gecko || Util.Engine.presto) {
+                            keysym = 45; }
+                                        break;
+            case 173       :                     // -  (Mozilla)
+                if (Util.Engine.gecko) {
                             keysym = 45; }
                                         break;
             case 189       : keysym = 45; break; // -  (IE)
@@ -478,7 +487,11 @@ function Mouse(defaults) {
 "use strict";
 
 var that           = {},  // Public API methods
-    conf           = {};  // Configuration attributes
+    conf           = {},  // Configuration attributes
+    mouseCaptured  = false;
+
+var doubleClickTimer = null,
+    lastTouchPos = null;
 
 // Configuration attributes
 Util.conf_defaults(conf, that, defaults, [
@@ -491,10 +504,30 @@ Util.conf_defaults(conf, that, defaults, [
     ['touchButton',    'rw', 'int', 1, 'Button mask (1, 2, 4) for touch devices (0 means ignore clicks)']
     ]);
 
+function captureMouse() {
+    // capturing the mouse ensures we get the mouseup event
+    if (conf.target.setCapture) {
+        conf.target.setCapture();
+    }
 
+    // some browsers give us mouseup events regardless,
+    // so if we never captured the mouse, we can disregard the event
+    mouseCaptured = true;
+}
+
+function releaseMouse() {
+    if (conf.target.releaseCapture) {
+        conf.target.releaseCapture();
+    }
+    mouseCaptured = false;
+}
 // 
 // Private functions
 //
+
+function resetDoubleClickTimer() {
+    doubleClickTimer = null;
+}
 
 function onMouseButton(e, down) {
     var evt, pos, bmask;
@@ -503,8 +536,34 @@ function onMouseButton(e, down) {
     }
     evt = (e ? e : window.event);
     pos = Util.getEventPosition(e, conf.target, conf.scale);
+
     if (e.touches || e.changedTouches) {
         // Touch device
+
+        // When two touches occur within 500 ms of each other and are
+        // closer than 20 pixels together a double click is triggered.
+        if (down == 1) {
+            if (doubleClickTimer == null) {
+                lastTouchPos = pos;
+            } else {
+                clearTimeout(doubleClickTimer); 
+
+                // When the distance between the two touches is small enough
+                // force the position of the latter touch to the position of
+                // the first.
+
+                var xs = lastTouchPos.x - pos.x;
+                var ys = lastTouchPos.y - pos.y;
+                var d = Math.sqrt((xs * xs) + (ys * ys));
+
+                // The goal is to trigger on a certain physical width, the
+                // devicePixelRatio brings us a bit closer but is not optimal.
+                if (d < 20 * window.devicePixelRatio) {
+                    pos = lastTouchPos;
+                }
+            }
+            doubleClickTimer = setTimeout(resetDoubleClickTimer, 500);
+        }
         bmask = conf.touchButton;
         // If bmask is set
     } else if (evt.which) {
@@ -518,7 +577,7 @@ function onMouseButton(e, down) {
     }
     //Util.Debug("mouse " + pos.x + "," + pos.y + " down: " + down +
     //           " bmask: " + bmask + "(evt.button: " + evt.button + ")");
-    if (bmask > 0 && conf.onMouseButton) {
+    if (conf.onMouseButton) {
         Util.Debug("onMouseButton " + (down ? "down" : "up") +
                    ", x: " + pos.x + ", y: " + pos.y + ", bmask: " + bmask);
         conf.onMouseButton(pos.x, pos.y, down, bmask);
@@ -528,11 +587,17 @@ function onMouseButton(e, down) {
 }
 
 function onMouseDown(e) {
+    captureMouse();
     onMouseButton(e, 1);
 }
 
 function onMouseUp(e) {
+    if (!mouseCaptured) {
+        return;
+    }
+
     onMouseButton(e, 0);
+    releaseMouse();
 }
 
 function onMouseWheel(e) {
@@ -580,9 +645,9 @@ function onMouseDisable(e) {
     evt = (e ? e : window.event);
     pos = Util.getEventPosition(e, conf.target, conf.scale);
     /* Stop propagation if inside canvas area */
-    if ((pos.x >= 0) && (pos.y >= 0) &&
-        (pos.x < conf.target.offsetWidth) &&
-        (pos.y < conf.target.offsetHeight)) {
+    if ((pos.realx >= 0) && (pos.realy >= 0) &&
+        (pos.realx < conf.target.offsetWidth) &&
+        (pos.realy < conf.target.offsetHeight)) {
         //Util.Debug("mouse event disabled");
         Util.stopEvent(e);
         return false;
@@ -601,10 +666,12 @@ that.grab = function() {
 
     if ('ontouchstart' in document.documentElement) {
         Util.addEvent(c, 'touchstart', onMouseDown);
+        Util.addEvent(window, 'touchend', onMouseUp);
         Util.addEvent(c, 'touchend', onMouseUp);
         Util.addEvent(c, 'touchmove', onMouseMove);
     } else {
         Util.addEvent(c, 'mousedown', onMouseDown);
+        Util.addEvent(window, 'mouseup', onMouseUp);
         Util.addEvent(c, 'mouseup', onMouseUp);
         Util.addEvent(c, 'mousemove', onMouseMove);
         Util.addEvent(c, (Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
@@ -624,10 +691,12 @@ that.ungrab = function() {
 
     if ('ontouchstart' in document.documentElement) {
         Util.removeEvent(c, 'touchstart', onMouseDown);
+        Util.removeEvent(window, 'touchend', onMouseUp);
         Util.removeEvent(c, 'touchend', onMouseUp);
         Util.removeEvent(c, 'touchmove', onMouseMove);
     } else {
         Util.removeEvent(c, 'mousedown', onMouseDown);
+        Util.removeEvent(window, 'mouseup', onMouseUp);
         Util.removeEvent(c, 'mouseup', onMouseUp);
         Util.removeEvent(c, 'mousemove', onMouseMove);
         Util.removeEvent(c, (Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
