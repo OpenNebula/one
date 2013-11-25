@@ -2654,9 +2654,9 @@ function printCapacity(vm_info){
            </thead>\
            <tbody>\
               <tr>\
-                <td>' + vm_info.TEMPLATE.CPU + '</td>\
-                <td>' + (vm_info.TEMPLATE.VCPU ? vm_info.TEMPLATE.VCPU : '-') + '</td>\
-                <td>' + humanize_size_from_mb(vm_info.TEMPLATE.MEMORY) + '</td>\
+                <td id="cpu_info">' + vm_info.TEMPLATE.CPU + '</td>\
+                <td id="vcpu_info">' + (vm_info.TEMPLATE.VCPU ? vm_info.TEMPLATE.VCPU : '-') + '</td>\
+                <td id="memory_info" one_value="'+vm_info.TEMPLATE.MEMORY+'">' + humanize_size_from_mb(vm_info.TEMPLATE.MEMORY) + '</td>\
             </tr>\
             </tbody>\
           </table>\
@@ -2772,6 +2772,13 @@ function setupResizeCapacityDialog(){
 
 function popUpResizeCapacityDialog(vm_id){
     $('#vm_id',$resize_capacity_dialog).text(vm_id);
+
+    $('#CPU',$resize_capacity_dialog).val($('#cpu_info').text());
+    $('#MEMORY_TMP',$resize_capacity_dialog).val($('#memory_info').attr("one_value"));
+    if ($('#vcpu_info').text() != "-") {
+      $('#VCPU',$resize_capacity_dialog).val($('#vcpu_info').text());
+    }
+
     $resize_capacity_dialog.reveal();
 }
 
