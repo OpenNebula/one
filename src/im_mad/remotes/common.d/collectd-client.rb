@@ -66,13 +66,17 @@ class CollectdClient
 
     def run_probes
         data   = `#{@run_probes_cmd}`
+        code   = $?.exitstatus == 0
+        data   = "Error executing probes" if !code
         data64 = Base64::encode64(data).strip.delete("\n")
 
-        return data64
+        [data64, code]
     end
 
     def send(data)
-        @s.send("MONITOR SUCCESS #{@number} #{data}\n", 0, @host, @port)
+        message, code = data
+        result = code ? "SUCCESS" : "FAILURE"
+        @s.send("MONITOR #{result} #{@number} #{message}\n", 0, @host, @port)
     end
 
     def monitor
