@@ -372,11 +372,11 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
     {
         if (result == "SUCCESS")
         {
-            vm->log("VMM",Log::INFO,"VM successfully reset.");
+            vm->log("VMM",Log::INFO,"VM successfully rebooted-hard.");
         }
         else
         {
-            log_error(vm,os,is,"Error resetting VM, assume it's still running");
+            log_error(vm,os,is,"Error rebooting-hard VM, assume it's still running");
             vmpool->update(vm);
         }
     }
@@ -681,7 +681,7 @@ void VirtualMachineManagerDriver::process_poll(
 
         case 'd': //The VM was not found
             vm->log("VMM", Log::INFO, "VM running but it was not found."
-                    " Restart and delete actions available or try to"
+                    " Boot and delete actions available or try to"
                     " recover it manually");
 
             lcm->trigger(LifeCycleManager::MONITOR_DONE, vm->get_oid());
