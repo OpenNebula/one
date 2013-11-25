@@ -1,7 +1,8 @@
 /*
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
- * Licensed under LGPL-3 (see LICENSE.txt)
+ * Copyright (C) 2013 Samuel Mannehed for Cendio AB
+ * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
  *
@@ -102,7 +103,6 @@ var that           = {},  // Public API methods
     fb_height      = 0,
     fb_name        = "",
 
-    last_req_time  = 0,
     rre_chunk_sz   = 100,
 
     timing         = {
@@ -147,9 +147,6 @@ Util.conf_defaults(conf, that, defaults, [
 
     ['viewportDrag',       'rw', 'bool', false, 'Move the viewport on mouse drags'],
 
-    ['check_rate',         'rw', 'int', 217,  'Timing (ms) of send/receive check'],
-    ['fbu_req_rate',       'rw', 'int', 1413, 'Timing (ms) of frameBufferUpdate requests'],
-
     // Callback functions
     ['onUpdateState',      'rw', 'func', function() { },
         'onUpdateState(rfb, state, oldstate, statusMsg): RFB state update/change '],
@@ -163,6 +160,10 @@ Util.conf_defaults(conf, that, defaults, [
         'onFBUReceive(rfb, fbu): RFB FBU received but not yet processed '],
     ['onFBUComplete',      'rw', 'func', function() { },
         'onFBUComplete(rfb, fbu): RFB FBU received and processed '],
+    ['onFBResize',         'rw', 'func', function() { },
+        'onFBResize(rfb, width, height): frame buffer resized'],
+    ['onDesktopName',      'rw', 'func', function() { },
+        'onDesktopName(rfb, name): desktop name received'],
 
     // These callback names are deprecated
     ['updateState',        'rw', 'func', function() { },
@@ -299,7 +300,8 @@ function connect() {
         uri += rfb_host + ":" + rfb_port + "/" + rfb_path;
     }
     Util.Info("connecting to " + uri);
-    ws.open(uri);
+    // TODO: make protocols a configurable
+    ws.open(uri, ['binary', 'base64']);
 
     Util.Debug("<< RFB.connect");
 }
@@ -397,7 +399,7 @@ updateState = function(state, statusMsg) {
         }
 
         if (msgTimer) {
-            clearInterval(msgTimer);
+            clearTimeout(msgTimer);
             msgTimer = null;
         }
 
@@ -438,13 +440,13 @@ updateState = function(state, statusMsg) {
 
     if (connTimer && (rfb_state !== 'connect')) {
         Util.Debug("Clearing connect timer");
-        clearInterval(connTimer);
+        clearTimeout(connTimer);
         connTimer = null;
     }
 
     if (disconnTimer && (rfb_state !== 'disconnect')) {
         Util.Debug("Clearing disconnect timer");
-        clearInterval(disconnTimer);
+        clearTimeout(disconnTimer);
         disconnTimer = null;
     }
 
@@ -563,44 +565,18 @@ function genDES(password, challenge) {
     return (new DES(passwd)).encrypt(challenge);
 }
 
-function flushClient() {
-    if (mouse_arr.length > 0) {
-        //send(mouse_arr.concat(fbUpdateRequests()));
-        ws.send(mouse_arr);
-        setTimeout(function() {
-                ws.send(fbUpdateRequests());
-            }, 50);
-
-        mouse_arr = [];
-        return true;
-    } else {
-        return false;
-    }
-}
-
 // overridable for testing
 checkEvents = function() {
-    var now;
-    if (rfb_state === 'normal' && !viewportDragging) {
-        if (! flushClient()) {
-            now = new Date().getTime();
-            if (now > last_req_time + conf.fbu_req_rate) {
-                last_req_time = now;
-                ws.send(fbUpdateRequests());
-            }
-        }
+    if (rfb_state === 'normal' && !viewportDragging && mouse_arr.length > 0) {
+        ws.send(mouse_arr);
+        mouse_arr = [];
     }
-    setTimeout(checkEvents, conf.check_rate);
 };
 
 keyPress = function(keysym, down) {
-    var arr;
-
     if (conf.view_only) { return; } // View only, skip keyboard events
 
-    arr = keyEvent(keysym, down);
-    arr = arr.concat(fbUpdateRequests());
-    ws.send(arr);
+    ws.send(keyEvent(keysym, down));
 };
 
 mouseButton = function(x, y, down, bmask) {
@@ -619,7 +595,6 @@ mouseButton = function(x, y, down, bmask) {
             return;
         } else {
             viewportDragging = false;
-            ws.send(fbUpdateRequests()); // Force immediate redraw
         }
     }
 
@@ -627,7 +602,8 @@ mouseButton = function(x, y, down, bmask) {
 
     mouse_arr = mouse_arr.concat(
             pointerEvent(display.absX(x), display.absY(y)) );
-    flushClient();
+    ws.send(mouse_arr);
+    mouse_arr = [];
 };
 
 mouseMove = function(x, y) {
@@ -650,7 +626,9 @@ mouseMove = function(x, y) {
     if (conf.view_only) { return; } // View only, skip mouse events
 
     mouse_arr = mouse_arr.concat(
-            pointerEvent(display.absX(x), display.absY(y)) );
+            pointerEvent(display.absX(x), display.absY(y)));
+    
+    checkEvents();
 };
 
 
@@ -870,6 +848,7 @@ init_msg = function() {
         /* Connection name/title */
         name_length   = ws.rQshift32();
         fb_name = ws.rQshiftStr(name_length);
+        conf.onDesktopName(that, fb_name);
         
         if (conf.true_color && fb_name === "Intel(r) AMT KVM")
         {
@@ -878,6 +857,7 @@ init_msg = function() {
         }
 
         display.set_true_color(conf.true_color);
+        conf.onFBResize(that, fb_width, fb_height);
         display.resize(fb_width, fb_height);
         keyboard.grab();
         mouse.grab();
@@ -892,13 +872,12 @@ init_msg = function() {
 
         response = pixelFormat();
         response = response.concat(clientEncodings());
-        response = response.concat(fbUpdateRequests());
+        response = response.concat(fbUpdateRequests()); // initial fbu-request
         timing.fbu_rt_start = (new Date()).getTime();
         timing.pixels = 0;
         ws.send(response);
         
-        /* Start pushing/polling */
-        setTimeout(checkEvents, conf.check_rate);
+        checkEvents();
 
         if (conf.encrypt) {
             updateState('normal', "Connected (encrypted) to: " + fb_name);
@@ -926,6 +905,10 @@ normal_msg = function() {
     switch (msg_type) {
     case 0:  // FramebufferUpdate
         ret = framebufferUpdate(); // false means need more data
+        if (ret) {
+            // only allow one outstanding fbu-request at a time
+            ws.send(fbUpdateRequests());
+        }
         break;
     case 1:  // SetColourMapEntries
         Util.Debug("SetColourMapEntries");
@@ -1122,6 +1105,7 @@ encHandlers.COPYRECT = function display_copy_rect() {
 
     var old_x, old_y;
 
+    FBU.bytes = 4;
     if (ws.rQwait("COPYRECT", 4)) { return false; }
     display.renderQ_push({
             'type': 'copy',
@@ -1141,6 +1125,7 @@ encHandlers.RRE = function display_rre() {
     var color, x, y, width, height, chunk;
 
     if (FBU.subrects === 0) {
+        FBU.bytes = 4+fb_Bpp;
         if (ws.rQwait("RRE", 4+fb_Bpp)) { return false; }
         FBU.subrects = ws.rQshift32();
         color = ws.rQshiftBytes(fb_Bpp); // Background
@@ -1357,6 +1342,45 @@ function display_tight(isTightPNG) {
         return uncompressed.data;
     }
 
+    var indexedToRGB = function (data, numColors, palette, width, height) {
+        // Convert indexed (palette based) image data to RGB
+        // TODO: reduce number of calculations inside loop
+        var dest = [];
+        var x, y, b, w, w1, dp, sp;
+        if (numColors === 2) {
+            w = Math.floor((width + 7) / 8);
+            w1 = Math.floor(width / 8);
+            for (y = 0; y < height; y++) {
+                for (x = 0; x < w1; x++) {
+                    for (b = 7; b >= 0; b--) {
+                        dp = (y*width + x*8 + 7-b) * 3;
+                        sp = (data[y*w + x] >> b & 1) * 3;
+                        dest[dp  ] = palette[sp  ];
+                        dest[dp+1] = palette[sp+1];
+                        dest[dp+2] = palette[sp+2];
+                    }
+                }
+                for (b = 7; b >= 8 - width % 8; b--) {
+                    dp = (y*width + x*8 + 7-b) * 3;
+                    sp = (data[y*w + x] >> b & 1) * 3;
+                    dest[dp  ] = palette[sp  ];
+                    dest[dp+1] = palette[sp+1];
+                    dest[dp+2] = palette[sp+2];
+                }
+            }
+        } else {
+            for (y = 0; y < height; y++) {
+                for (x = 0; x < width; x++) {
+                    dp = (y*width + x) * 3;
+                    sp = data[y*width + x] * 3;
+                    dest[dp  ] = palette[sp  ];
+                    dest[dp+1] = palette[sp+1];
+                    dest[dp+2] = palette[sp+2];
+                }
+            }
+        }
+        return dest;
+    };
     var handlePalette = function() {
         var numColors = rQ[rQi + 2] + 1;
         var paletteSize = numColors * fb_depth; 
@@ -1388,45 +1412,12 @@ function display_tight(isTightPNG) {
         }
 
         // Convert indexed (palette based) image data to RGB
-        // TODO: reduce number of calculations inside loop
-        var dest = [];
-        var x, y, b, w, w1, dp, sp;
-        if (numColors === 2) {
-            w = Math.floor((FBU.width + 7) / 8);
-            w1 = Math.floor(FBU.width / 8);
-            for (y = 0; y < FBU.height; y++) {
-                for (x = 0; x < w1; x++) {
-                    for (b = 7; b >= 0; b--) {
-                        dp = (y*FBU.width + x*8 + 7-b) * 3;
-                        sp = (data[y*w + x] >> b & 1) * 3;
-                        dest[dp  ] = palette[sp  ];
-                        dest[dp+1] = palette[sp+1];
-                        dest[dp+2] = palette[sp+2];
-                    }
-                }
-                for (b = 7; b >= 8 - FBU.width % 8; b--) {
-                    dp = (y*FBU.width + x*8 + 7-b) * 3;
-                    sp = (data[y*w + x] >> b & 1) * 3;
-                    dest[dp  ] = palette[sp  ];
-                    dest[dp+1] = palette[sp+1];
-                    dest[dp+2] = palette[sp+2];
-                }
-            }
-        } else {
-            for (y = 0; y < FBU.height; y++) {
-                for (x = 0; x < FBU.width; x++) {
-                    dp = (y*FBU.width + x) * 3;
-                    sp = data[y*FBU.width + x] * 3;
-                    dest[dp  ] = palette[sp  ];
-                    dest[dp+1] = palette[sp+1];
-                    dest[dp+2] = palette[sp+2];
-                }
-            }
-        }
+        var rgb = indexedToRGB(data, numColors, palette, FBU.width, FBU.height);
 
+        // Add it to the render queue
         display.renderQ_push({
                 'type': 'blitRgb',
-                'data': dest,
+                'data': rgb,
                 'x': FBU.x,
                 'y': FBU.y,
                 'width': FBU.width,
@@ -1577,10 +1568,9 @@ encHandlers.DesktopSize = function set_desktopsize() {
     Util.Debug(">> set_desktopsize");
     fb_width = FBU.width;
     fb_height = FBU.height;
+    conf.onFBResize(that, fb_width, fb_height);
     display.resize(fb_width, fb_height);
     timing.fbu_rt_start = (new Date()).getTime();
-    // Send a new non-incremental request
-    ws.send(fbUpdateRequests());
 
     FBU.bytes = 0;
     FBU.rects -= 1;
@@ -1663,6 +1653,11 @@ clientEncodings = function() {
         if ((encodings[i][0] === "Cursor") &&
             (! conf.local_cursor)) {
             Util.Debug("Skipping Cursor pseudo-encoding");
+
+        // TODO: remove this when we have tight+non-true-color
+        } else if ((encodings[i][0] === "TIGHT") && 
+                   (! conf.true_color)) {
+            Util.Warn("Skipping tight, only support with true color");
         } else {
             //Util.Debug("Adding encoding: " + encodings[i][0]);
             encList.push(encodings[i][1]);
@@ -1801,7 +1796,6 @@ that.sendCtrlAltDel = function() {
     arr = arr.concat(keyEvent(0xFFFF, 0)); // Delete
     arr = arr.concat(keyEvent(0xFFE9, 0)); // Alt
     arr = arr.concat(keyEvent(0xFFE3, 0)); // Control
-    arr = arr.concat(fbUpdateRequests());
     ws.send(arr);
 };
 
@@ -1818,7 +1812,6 @@ that.sendKey = function(code, down) {
         arr = arr.concat(keyEvent(code, 1));
         arr = arr.concat(keyEvent(code, 0));
     }
-    arr = arr.concat(fbUpdateRequests());
     ws.send(arr);
 };
 
@@ -1830,15 +1823,16 @@ that.clipboardPasteFrom = function(text) {
 };
 
 // Override internal functions for testing
-that.testMode = function(override_send) {
+that.testMode = function(override_send, data_mode) {
     test_mode = true;
-    that.recv_message = ws.testMode(override_send);
+    that.recv_message = ws.testMode(override_send, data_mode);
 
     checkEvents = function () { /* Stub Out */ };
     that.connect = function(host, port, password) {
             rfb_host = host;
             rfb_port = port;
             rfb_password = password;
+            init_vars();
             updateState('ProtocolVersion', "Starting VNC handshake");
         };
 };
