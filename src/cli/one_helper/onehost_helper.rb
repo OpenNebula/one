@@ -18,6 +18,9 @@ require 'one_helper'
 require 'one_helper/onevm_helper'
 
 class OneHostHelper < OpenNebulaHelper::OneHelper
+    TEMPLATE_XPATH  = '//HOST/TEMPLATE'
+    VERSION_XPATH   = "#{TEMPLATE_XPATH}/VERSION"
+
     def self.rname
         "HOST"
     end
@@ -163,6 +166,18 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
     NUM_THREADS = 15
     def sync(host_ids, options)
+        begin
+            current_version = File.read(REMOTES_LOCATION+'/VERSION').strip
+        rescue
+            STDERR.puts("Could not read #{REMOTES_LOCATION}/VERSION")
+            exit(-1)
+        end
+
+        if current_version.empty?
+            STDERR.puts "Remotes version can not be empty"
+            exit(-1)
+        end
+
         cluster_id = options[:cluster]
 
         # Get remote_dir (implies oneadmin group)
@@ -201,8 +216,12 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 next if host['CLUSTER_ID'].to_i != cluster_id
             end
 
+            host_version=host[VERSION_XPATH]
+
+            next if host_version && host_version<=current_version
+
             hs_threads[i % NUM_THREADS] ||= []
-            hs_threads[i % NUM_THREADS] << host['NAME']
+            hs_threads[i % NUM_THREADS] << host
             i+=1
         end
 
@@ -213,13 +232,15 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         ts = hs_threads.map do |t|
             Thread.new {
                 t.each do |host|
-                    sync_cmd = "scp -rp #{REMOTES_LOCATION}/. #{host}:#{remote_dir} 2> /dev/null"
+                    sync_cmd = "scp -rp #{REMOTES_LOCATION}/. #{host['NAME']}:#{remote_dir} 2> /dev/null"
                     `#{sync_cmd} 2>/dev/null`
 
                     if !$?.success?
                         lock.synchronize {
-                            host_errors << host
+                            host_errors << host['NAME']
                         }
+                    else
+                        update_version(host, current_version)
                     end
                 end
             }
@@ -239,6 +260,17 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
     end
 
     private
+
+    def update_version(host, version)
+        if host.has_elements?(VERSION_XPATH)
+            host.delete_element(VERSION_XPATH)
+        end
+
+        host.add_element(TEMPLATE_XPATH, 'VERSION' => version)
+
+        template=host.template_str
+        host.update(template)
+    end
 
     def factory(id=nil)
         if id
