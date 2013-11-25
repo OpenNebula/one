@@ -36,6 +36,12 @@ class OpenvSwitchVLAN < OpenNebulaNetwork
         process do |nic|
             @nic = nic
 
+            if @nic[:tap].nil?
+                STDERR.puts "No tap device found for nic #{@nic[:nic_id]}"
+                unlock
+                exit 1
+            end
+
             # Apply VLAN
             if @nic[:vlan] == "YES"
                 tag_vlan
