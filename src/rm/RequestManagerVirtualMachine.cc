@@ -1092,7 +1092,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
         failure_response(INTERNAL,
                          request_error("VM has to be RUNNING, POWEROFF or"
-                         " SUSPENDED to saveas disks.",""), att);
+                         " SUSPENDED to snapshot disks.",""), att);
         return;
     }
 

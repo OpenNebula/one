@@ -926,13 +926,13 @@ int DispatchManager::resubmit(int vid)
     {
         case VirtualMachine::POWEROFF:
             NebulaLog::log("DiM",Log::ERROR,
-                "Cannot resubmit a powered off VM. Resume it first");
+                "Cannot delete-recreate a powered off VM. Resume it first");
             rc = -2;
         break;
 
         case VirtualMachine::SUSPENDED:
             NebulaLog::log("DiM",Log::ERROR,
-                "Cannot resubmit a suspended VM. Resume it first");
+                "Cannot delete-recreate a suspended VM. Resume it first");
             rc = -2;
         break;
 
@@ -968,7 +968,7 @@ int DispatchManager::resubmit(int vid)
 
         case VirtualMachine::DONE:
             NebulaLog::log("DiM",Log::ERROR,
-                "Cannot resubmit a VM already in DONE state");
+                "Cannot delete-recreate a VM already in DONE state");
             rc = -2;
         break;
     }
