@@ -733,17 +733,6 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     // ------------------------------------------------------------------------
-    // Authorize request
-    // ------------------------------------------------------------------------
-
-    auth = vm_authorization(id, 0, 0, att, &host_perms, 0, auth_op);
-
-    if (auth == false)
-    {
-        return;
-    }
-
-    // ------------------------------------------------------------------------
     // Check request consistency:
     // - VM States are right
     // - Host capacity if required
