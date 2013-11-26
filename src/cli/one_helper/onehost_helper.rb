@@ -218,7 +218,11 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
             host_version=host[VERSION_XPATH]
 
-            next if host_version && host_version<=current_version
+            if !options[:force]
+                next if host_version && host_version >= current_version
+            end
+
+            puts "* Adding #{host['NAME']} to upgrade"
 
             hs_threads[i % NUM_THREADS] ||= []
             hs_threads[i % NUM_THREADS] << host

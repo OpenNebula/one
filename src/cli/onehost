@@ -73,8 +73,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     :format => String
     }
 
+    FORCE = {
+        :name   => "force",
+        :large  => "--force" ,
+        :description => "Force probe upgrade in onehost sync"
+    }
+
     CREAT_OPTIONS = [ IM, VMM, VNET, OneClusterHelper::CLUSTER ]
-    SYNC_OPTIONS  = [ OneClusterHelper::CLUSTER ]
+    SYNC_OPTIONS  = [ OneClusterHelper::CLUSTER, FORCE ]
 
     ########################################################################
     # Formatters for arguments
@@ -173,8 +179,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             onehost sync host01,host02,host03
     EOT
 
-    command :sync, sync_desc, [:range,:hostid_list, nil], :options=>SYNC_OPTIONS do
-        helper.sync(args[0],options)
+    command :sync, sync_desc, [:range, :hostid_list, nil],
+            :options=>SYNC_OPTIONS do
+        helper.sync(args[0], options)
     end
 
     list_desc = <<-EOT.unindent
