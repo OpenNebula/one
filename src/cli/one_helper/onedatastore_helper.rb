@@ -134,10 +134,12 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
 
         shared = datastore['TEMPLATE/SHARED']
         local = shared != nil && shared.upcase == 'NO'
+        limit_mb = datastore['TEMPLATE/LIMIT_MB']
 
         puts str % ["TOTAL:", local ? '-' : OpenNebulaHelper.unit_to_str(datastore['TOTAL_MB'].to_i, {},'M')]
-        puts str % ["USED: ", local ? '-' : OpenNebulaHelper.unit_to_str(datastore['USED_MB'].to_i, {},'M')]
         puts str % ["FREE:",  local ? '-' : OpenNebulaHelper.unit_to_str(datastore['FREE_MB'].to_i, {},'M')]
+        puts str % ["USED: ", local ? '-' : OpenNebulaHelper.unit_to_str(datastore['USED_MB'].to_i, {},'M')]
+        puts str % ["LIMIT:",  local || limit_mb.nil? ? '-' : OpenNebulaHelper.unit_to_str(limit_mb.to_i, {},'M')]
         puts
 
         CLIHelper.print_header(str_h1 % "PERMISSIONS",false)

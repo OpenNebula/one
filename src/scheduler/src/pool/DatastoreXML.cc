@@ -43,6 +43,19 @@ void DatastoreXML::init_attributes()
 
     monitored = (free_mb != 0 || total_mb != 0 || used_mb != 0);
 
+    vector<string> strings = ((*this)["/DATASTORE/TEMPLATE/LIMIT_MB"]);
+
+    if (!strings.empty())
+    {
+        long long limit_mb = atoll(strings[0].c_str());
+        long long free_limited = limit_mb - used_mb;
+
+        if (free_limited < free_mb)
+        {
+            free_mb = free_limited;
+        }
+    }
+
     string shared_st;
     this->xpath(shared_st, "/DATASTORE/TEMPLATE/SHARED", "YES");
 

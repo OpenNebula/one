@@ -280,6 +280,17 @@ var create_datastore_tmpl =
       <div class="one columns">\
       </div>\
     </div>\
+    <div class="twelve columns">\
+      <div class="four columns">\
+        <label class="right inline" for="limit_mb">' + tr("Limit") + ':</label>\
+      </div>\
+      <div class="seven columns">\
+        <input type="text" name="limit_mb" id="limit_mb" />\
+      </div>\
+      <div class="one columns">\
+        <div class="tip">'+tr("Optional limit, in MB. If set, OpenNebula will only use this amount of storage, instead of the whole free disk.")+'</div>\
+      </div>\
+    </div>\
   <div class="reveal-footer">\
     <hr>\
     <div class="form_buttons">\
@@ -780,6 +791,10 @@ function updateDatastoreInfo(request,ds){
                 <td class="key_td">' + tr("Free") + '</td>\
                 <td class="value_td" colspan="2">'+(is_system_ssh ? '-' : humanize_size_from_mb(info.FREE_MB))+'</td>\
               </tr>\
+              <tr>\
+                <td class="key_td">' + tr("Limit") + '</td>\
+                <td class="value_td" colspan="2">'+(is_system_ssh || (typeof info.TEMPLATE.LIMIT_MB == "undefined") ? '-' : humanize_size_from_mb(info.TEMPLATE.LIMIT_MB))+'</td>\
+              </tr>\
             </tbody>\
           </table>'
             + insert_extended_template_table(info.TEMPLATE,
@@ -968,6 +983,7 @@ function setupCreateDatastoreDialog(){
         var tm_use_ssh      = $('#tm_use_ssh',context).is(':checked');
         var base_iqn        = $('#base_iqn',context).val();
         var vg_name         = $('#vg_name',context).val();
+        var limit_mb        = $('#limit_mb',context).val();
 
 
         if (!name){
@@ -1013,6 +1029,9 @@ function setupCreateDatastoreDialog(){
 
         if (vg_name)
             ds_obj.datastore.vg_name = vg_name;
+
+        if (limit_mb)
+            ds_obj.datastore.limit_mb = limit_mb;
 
         Sunstone.runAction("Datastore.create",ds_obj);
 
