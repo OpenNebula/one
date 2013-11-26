@@ -79,8 +79,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Force probe upgrade in onehost sync"
     }
 
+    RSYNC = {
+        :name   => "rsync",
+        :large  => "--rsync" ,
+        :description => "Use rsync to synchronize remotes. In case some " <<
+            "probes are no longer in the fronted are deleted in the hosts." <<
+            " rsync command must be installed in the frontend and nodes."
+    }
+
     CREAT_OPTIONS = [ IM, VMM, VNET, OneClusterHelper::CLUSTER ]
-    SYNC_OPTIONS  = [ OneClusterHelper::CLUSTER, FORCE ]
+    SYNC_OPTIONS  = [ OneClusterHelper::CLUSTER, FORCE, RSYNC ]
 
     ########################################################################
     # Formatters for arguments

@@ -253,7 +253,14 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
                     print_update_info(total-size, total, host['NAME'])
 
-                    sync_cmd = "scp -rp #{REMOTES_LOCATION}/. #{host['NAME']}:#{remote_dir} 2> /dev/null"
+                    if options[:rsync]
+                        sync_cmd = "rsync -Laz --delete #{REMOTES_LOCATION}" <<
+                            " #{host['NAME']}:#{remote_dir}"
+                    else
+                        sync_cmd = "scp -rp #{REMOTES_LOCATION}/. " <<
+                            "#{host['NAME']}:#{remote_dir} 2> /dev/null"
+                    end
+
                     `#{sync_cmd} 2>/dev/null`
 
                     if !$?.success?
