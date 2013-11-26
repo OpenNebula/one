@@ -54,6 +54,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     instantiate_options = [
         OneTemplateHelper::VM_NAME,
         OneTemplateHelper::MULTIPLE,
+        OneTemplateHelper::USERDATA,
         OneVMHelper::HOLD
     ]
 
@@ -196,6 +197,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
                 if args[1]
                     extra_template = File.read(args[1])
+                elsif options[:userdata]
+                    t.info
+                    if t.has_elements?('TEMPLATE/EC2')
+                        t.add_element(
+                            'TEMPLATE/EC2',
+                            'USERDATA' => options[:userdata])
+
+                        extra_template = t.template_like_str(
+                            'TEMPLATE', false, 'EC2')
+                    end
                 else
                     res = OpenNebulaHelper.create_template(options)
 

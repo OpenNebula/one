@@ -36,6 +36,13 @@ EOT
         :description => "Instance multiple VMs"
     }
 
+    USERDATA={
+        :name  => "userdata",
+        :large => "--userdata userdata",
+        :format => String,
+        :description => "Integrate userdata into the EC2 section"
+    }
+
     def self.rname
         "VMTEMPLATE"
     end
