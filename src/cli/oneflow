@@ -251,7 +251,7 @@ def show_service(client, args, options)
                 puts str % ["ROLE STATE", Role.state_str(role['state'])]
                 puts str % ["PARENTS", role['parents'].join(', ')] if role['parents']
                 puts str % ["VM TEMPLATE", role['vm_template']]
-                puts str % ["CARNIDALITY", role['cardinality']]
+                puts str % ["CARDINALITY", role['cardinality']]
                 puts str % ["MIN VMS", role['min_vms']] if role['min_vms']
                 puts str % ["MAX VMS", role['max_vms']] if role['max_vms']
                 puts str % ["COOLDOWN", "#{role['cooldown']}s"] if role['cooldown']
