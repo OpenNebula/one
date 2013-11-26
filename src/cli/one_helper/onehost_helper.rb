@@ -207,7 +207,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
         # Assign hosts to threads
         i = 0
-        hs_threads = Array.new
+        queue = Array.new
 
         pool.each do |host|
             if host_ids
@@ -224,34 +224,53 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
             puts "* Adding #{host['NAME']} to upgrade"
 
-            hs_threads[i % NUM_THREADS] ||= []
-            hs_threads[i % NUM_THREADS] << host
-            i+=1
+            queue << host
         end
 
         # Run the jobs in threads
         host_errors = Array.new
-        lock = Mutex.new
+        queue_lock = Mutex.new
+        error_lock = Mutex.new
+        total = queue.length
 
-        ts = hs_threads.map do |t|
-            Thread.new {
-                t.each do |host|
+        if total==0
+            puts "No hosts are going to be updated."
+            exit(0)
+        end
+
+        ts = (1..NUM_THREADS).map do |t|
+            Thread.new do
+                while true do
+                    host = nil
+                    size = 0
+
+                    queue_lock.synchronize do
+                        host=queue.shift
+                        size=queue.length
+                    end
+
+                    break if !host
+
+                    print_update_info(total-size, total, host['NAME'])
+
                     sync_cmd = "scp -rp #{REMOTES_LOCATION}/. #{host['NAME']}:#{remote_dir} 2> /dev/null"
                     `#{sync_cmd} 2>/dev/null`
 
                     if !$?.success?
-                        lock.synchronize {
+                        error_lock.synchronize {
                             host_errors << host['NAME']
                         }
                     else
                         update_version(host, current_version)
                     end
                 end
-            }
+            end
         end
 
         # Wait for threads to finish
         ts.each{|t| t.join}
+
+        puts
 
         if host_errors.empty?
             puts "All hosts updated successfully."
@@ -264,6 +283,28 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
     end
 
     private
+
+    def print_update_info(current, total, host)
+        bar_length=40
+
+        percentage=current.to_f/total.to_f
+        done=(percentage*bar_length).floor
+
+        bar="["
+        bar+="="*done
+        bar+="-"*(bar_length-done)
+        bar+="]"
+
+        info="#{current}/#{total}"
+
+        str="#{bar} #{info} "
+        name=host[0..(79-str.length)]
+        str=str+name
+        str=str+" "*(79-str.length)
+
+        print "#{str}\r"
+        STDOUT.flush
+    end
 
     def update_version(host, version)
         if host.has_elements?(VERSION_XPATH)
