@@ -712,17 +712,25 @@ int Datastore::replace_template(const string& tmpl_str, string& error_str)
 
 bool Datastore::get_avail_mb(long long &avail)
 {
-    long long   max_used_size;
+    long long   limit_mb;
+    long long   free_limited;
     bool        check;
 
     avail = free_mb;
 
-    if (get_template_attribute("MAX_USED_SIZE", max_used_size))
+    if (get_template_attribute("LIMIT_MB", limit_mb))
     {
-        if (used_mb >= max_used_size)
+        free_limited = limit_mb - used_mb;
+
+        if (free_limited < free_mb)
         {
-            avail = 0;
+            avail = free_limited;
         }
+    }
+
+    if (avail < 0)
+    {
+        avail = 0;
     }
 
     if (!get_template_attribute("DATASTORE_CAPACITY_CHECK", check))
