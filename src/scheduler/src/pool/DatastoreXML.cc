@@ -48,7 +48,7 @@ void DatastoreXML::init_attributes()
     if (!strings.empty())
     {
         long long limit_mb = atoll(strings[0].c_str());
-        long long free_limited = limit_mb - (total_mb - free_mb);
+        long long free_limited = limit_mb - used_mb;
 
         if (free_limited < free_mb)
         {
