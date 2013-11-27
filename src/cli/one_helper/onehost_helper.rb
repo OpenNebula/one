@@ -216,7 +216,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 next if host['CLUSTER_ID'].to_i != cluster_id
             end
 
-            host_version=host[VERSION_XPATH]
+            host_version=host['TEMPLATE/VERSION']
 
             if !options[:force]
                 next if host_version && host_version >= current_version
