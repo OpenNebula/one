@@ -278,7 +278,7 @@ http://opennebula.org/documentation:rel4.4:upgrade
                 :name           => row[:name],
                 :body           => doc.root.to_s,
                 :state          => row[:state],
-                :last_mon_time  => row[:last_mon_],
+                :last_mon_time  => row[:last_mon_time],
                 :uid            => row[:uid],
                 :gid            => row[:gid],
                 :owner_u        => row[:owner_u],
