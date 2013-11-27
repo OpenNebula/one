@@ -453,6 +453,7 @@ INSTALL_FILES=(
     IM_PROBES_XEN4_PROBES_FILES:$VAR_LOCATION/remotes/im/xen4-probes.d
     IM_PROBES_VMWARE_FILES:$VAR_LOCATION/remotes/im/vmware.d
     IM_PROBES_EC2_FILES:$VAR_LOCATION/remotes/im/ec2.d
+    IM_PROBES_VERSION:$VAR_LOCATION/remotes
     AUTH_SSH_FILES:$VAR_LOCATION/remotes/auth/ssh
     AUTH_X509_FILES:$VAR_LOCATION/remotes/auth/x509
     AUTH_LDAP_FILES:$VAR_LOCATION/remotes/auth/ldap
@@ -885,7 +886,8 @@ IM_PROBES_KVM_PROBES_FILES="src/im_mad/remotes/kvm-probes.d/kvm.rb \
                      src/im_mad/remotes/kvm-probes.d/cpu.sh \
                      src/im_mad/remotes/kvm-probes.d/poll.sh \
                      src/im_mad/remotes/kvm-probes.d/name.sh \
-                     src/im_mad/remotes/common.d/monitor_ds.sh"
+                     src/im_mad/remotes/common.d/monitor_ds.sh \
+                     src/im_mad/remotes/common.d/version.sh"
 
 IM_PROBES_XEN3_FILES="src/im_mad/remotes/xen.d/collectd-client_control.sh \
                       src/im_mad/remotes/xen.d/collectd-client.rb"
@@ -895,7 +897,8 @@ IM_PROBES_XEN3_PROBES_FILES="src/im_mad/remotes/xen-probes.d/xen.rb \
                       src/im_mad/remotes/xen-probes.d/cpu.sh \
                       src/im_mad/remotes/xen-probes.d/poll3.sh \
                       src/im_mad/remotes/xen-probes.d/name.sh
-                      src/im_mad/remotes/common.d/monitor_ds.sh"
+                      src/im_mad/remotes/common.d/monitor_ds.sh \
+                      src/im_mad/remotes/common.d/version.sh"
 
 IM_PROBES_XEN4_FILES="src/im_mad/remotes/xen.d/collectd-client_control.sh \
                       src/im_mad/remotes/xen.d/collectd-client.rb"
@@ -905,11 +908,14 @@ IM_PROBES_XEN4_PROBES_FILES="src/im_mad/remotes/xen-probes.d/xen.rb \
                       src/im_mad/remotes/xen-probes.d/cpu.sh \
                       src/im_mad/remotes/xen-probes.d/poll4.sh \
                       src/im_mad/remotes/xen-probes.d/name.sh \
-                      src/im_mad/remotes/common.d/monitor_ds.sh"
+                      src/im_mad/remotes/common.d/monitor_ds.sh \
+                      src/im_mad/remotes/common.d/version.sh"
 
 IM_PROBES_VMWARE_FILES="src/im_mad/remotes/vmware.d/vmware.rb"
 
 IM_PROBES_EC2_FILES="src/im_mad/remotes/ec2.d/poll"
+
+IM_PROBES_VERSION="src/im_mad/remotes/VERSION"
 
 #-------------------------------------------------------------------------------
 # Auth Manager drivers to be installed under $REMOTES_LOCATION/auth

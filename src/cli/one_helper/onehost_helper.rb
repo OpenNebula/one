@@ -18,6 +18,9 @@ require 'one_helper'
 require 'one_helper/onevm_helper'
 
 class OneHostHelper < OpenNebulaHelper::OneHelper
+    TEMPLATE_XPATH  = '//HOST/TEMPLATE'
+    VERSION_XPATH   = "#{TEMPLATE_XPATH}/VERSION"
+
     def self.rname
         "HOST"
     end
@@ -163,6 +166,18 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
     NUM_THREADS = 15
     def sync(host_ids, options)
+        begin
+            current_version = File.read(REMOTES_LOCATION+'/VERSION').strip
+        rescue
+            STDERR.puts("Could not read #{REMOTES_LOCATION}/VERSION")
+            exit(-1)
+        end
+
+        if current_version.empty?
+            STDERR.puts "Remotes version can not be empty"
+            exit(-1)
+        end
+
         cluster_id = options[:cluster]
 
         # Get remote_dir (implies oneadmin group)
@@ -192,7 +207,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
         # Assign hosts to threads
         i = 0
-        hs_threads = Array.new
+        queue = Array.new
 
         pool.each do |host|
             if host_ids
@@ -201,32 +216,68 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 next if host['CLUSTER_ID'].to_i != cluster_id
             end
 
-            hs_threads[i % NUM_THREADS] ||= []
-            hs_threads[i % NUM_THREADS] << host['NAME']
-            i+=1
+            host_version=host['TEMPLATE/VERSION']
+
+            if !options[:force]
+                next if host_version && host_version >= current_version
+            end
+
+            puts "* Adding #{host['NAME']} to upgrade"
+
+            queue << host
         end
 
         # Run the jobs in threads
         host_errors = Array.new
-        lock = Mutex.new
+        queue_lock = Mutex.new
+        error_lock = Mutex.new
+        total = queue.length
 
-        ts = hs_threads.map do |t|
-            Thread.new {
-                t.each do |host|
-                    sync_cmd = "scp -rp #{REMOTES_LOCATION}/. #{host}:#{remote_dir} 2> /dev/null"
+        if total==0
+            puts "No hosts are going to be updated."
+            exit(0)
+        end
+
+        ts = (1..NUM_THREADS).map do |t|
+            Thread.new do
+                while true do
+                    host = nil
+                    size = 0
+
+                    queue_lock.synchronize do
+                        host=queue.shift
+                        size=queue.length
+                    end
+
+                    break if !host
+
+                    print_update_info(total-size, total, host['NAME'])
+
+                    if options[:rsync]
+                        sync_cmd = "rsync -Laz --delete #{REMOTES_LOCATION}" <<
+                            " #{host['NAME']}:#{remote_dir}"
+                    else
+                        sync_cmd = "scp -rp #{REMOTES_LOCATION}/. " <<
+                            "#{host['NAME']}:#{remote_dir} 2> /dev/null"
+                    end
+
                     `#{sync_cmd} 2>/dev/null`
 
                     if !$?.success?
-                        lock.synchronize {
-                            host_errors << host
+                        error_lock.synchronize {
+                            host_errors << host['NAME']
                         }
+                    else
+                        update_version(host, current_version)
                     end
                 end
-            }
+            end
         end
 
         # Wait for threads to finish
         ts.each{|t| t.join}
+
+        puts
 
         if host_errors.empty?
             puts "All hosts updated successfully."
@@ -239,6 +290,39 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
     end
 
     private
+
+    def print_update_info(current, total, host)
+        bar_length=40
+
+        percentage=current.to_f/total.to_f
+        done=(percentage*bar_length).floor
+
+        bar="["
+        bar+="="*done
+        bar+="-"*(bar_length-done)
+        bar+="]"
+
+        info="#{current}/#{total}"
+
+        str="#{bar} #{info} "
+        name=host[0..(79-str.length)]
+        str=str+name
+        str=str+" "*(79-str.length)
+
+        print "#{str}\r"
+        STDOUT.flush
+    end
+
+    def update_version(host, version)
+        if host.has_elements?(VERSION_XPATH)
+            host.delete_element(VERSION_XPATH)
+        end
+
+        host.add_element(TEMPLATE_XPATH, 'VERSION' => version)
+
+        template=host.template_str
+        host.update(template)
+    end
 
     def factory(id=nil)
         if id
