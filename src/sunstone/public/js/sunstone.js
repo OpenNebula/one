@@ -478,7 +478,7 @@ function setLogin(){
     };
 
     var user_login_content =  '<div href="#" class="button tiny secondary dropdown" id="logout">\
-      <i class="icon-user header-icon"></i> '+ decodeURIComponent(username) + '\
+      <i class="icon-user header-icon"></i> '+ config['display_name'] + '\
       <ul>\
         <li><a href="#" class="configuration"><i class="icon-cog"></i> Settings</a></li>\
         <li><a href="#" class="logout"><i class="icon-off"></i> Sign Out</a></li>\
