@@ -12,9 +12,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-07-15 13:00+0200\n"
-"PO-Revision-Date: 2013-07-23 14:40+0000\n"
-"Last-Translator: Hsi En Yu <yun@narlabs.org.tw>\n"
+"POT-Creation-Date: 2013-11-04 16:32+0100\n"
+"PO-Revision-Date: 2013-11-20 10:28+0000\n"
+"Last-Translator: dmolina <dmolina@opennebula.org>\n"
 "Language-Team: Chinese (Taiwan) (http://www.transifex.com/projects/p/one/language/zh_TW/)\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
@@ -27,10 +27,10 @@ msgid "Access Control Lists"
 msgstr "存取控制清單"
 
 #: ../public/js/plugins/acls-tab.js:44
-#: ../public/js/plugins/clusters-tab.js:109
-#: ../public/js/plugins/clusters-tab.js:126
-#: ../public/js/plugins/clusters-tab.js:143
-#: ../public/js/plugins/clusters-tab.js:878
+#: ../public/js/plugins/clusters-tab.js:110
+#: ../public/js/plugins/clusters-tab.js:127
+#: ../public/js/plugins/clusters-tab.js:144
+#: ../public/js/plugins/clusters-tab.js:881
 #: ../public/js/plugins/datastores-tab.js:43
 #: ../public/js/plugins/files-tab.js:43 ../public/js/plugins/groups-tab.js:64
 #: ../public/js/plugins/hosts-tab.js:47 ../public/js/plugins/images-tab.js:45
@@ -40,15 +40,16 @@ msgstr "存取控制清單"
 #: ../public/js/plugins/templates-tab.js:41
 #: ../public/js/plugins/templates-tab.js:204
 #: ../public/js/plugins/templates-tab.js:252
-#: ../public/js/plugins/templates-tab.js:923
-#: ../public/js/plugins/templates-tab.js:1654
-#: ../public/js/plugins/templates-tab.js:2547
-#: ../public/js/plugins/templates-tab.js:2618
-#: ../public/js/plugins/templates-tab.js:3132
-#: ../public/js/plugins/templates-tab.js:3385
-#: ../public/js/plugins/templates-tab.js:3422
-#: ../public/js/plugins/users-tab.js:68 ../public/js/plugins/vms-tab.js:64
-#: ../public/js/plugins/vms-tab.js:187 ../public/js/plugins/vms-tab.js:235
+#: ../public/js/plugins/templates-tab.js:926
+#: ../public/js/plugins/templates-tab.js:1690
+#: ../public/js/plugins/templates-tab.js:2588
+#: ../public/js/plugins/templates-tab.js:2659
+#: ../public/js/plugins/templates-tab.js:3175
+#: ../public/js/plugins/templates-tab.js:3441
+#: ../public/js/plugins/templates-tab.js:3478
+#: ../public/js/plugins/users-tab.js:68 ../public/js/plugins/vms-tab.js:77
+#: ../public/js/plugins/vms-tab.js:151 ../public/js/plugins/vms-tab.js:199
+#: ../public/js/plugins/vms-tab.js:270 ../public/js/plugins/vms-tab.js:339
 #: ../public/js/plugins/vnets-tab.js:43
 msgid "Search"
 msgstr "搜尋"
@@ -57,41 +58,42 @@ msgstr "搜尋"
 #: ../public/js/plugins/clusters-tab.js:24
 #: ../public/js/plugins/clusters-tab.js:44
 #: ../public/js/plugins/clusters-tab.js:60
-#: ../public/js/plugins/clusters-tab.js:888
-#: ../public/js/plugins/config-tab.js:334
+#: ../public/js/plugins/clusters-tab.js:891
+#: ../public/js/plugins/config-tab.js:371
 #: ../public/js/plugins/datastores-tab.js:55
-#: ../public/js/plugins/datastores-tab.js:319
-#: ../public/js/plugins/datastores-tab.js:731
-#: ../public/js/plugins/files-tab.js:58 ../public/js/plugins/files-tab.js:526
+#: ../public/js/plugins/datastores-tab.js:323
+#: ../public/js/plugins/datastores-tab.js:753
+#: ../public/js/plugins/files-tab.js:58 ../public/js/plugins/files-tab.js:521
 #: ../public/js/plugins/groups-tab.js:76 ../public/js/plugins/hosts-tab.js:59
 #: ../public/js/plugins/images-tab.js:60
 #: ../public/js/plugins/images-tab.js:709
 #: ../public/js/plugins/marketplace-tab.js:133
 #: ../public/js/plugins/marketplace-tab.js:189
 #: ../public/js/plugins/oneflow-services.js:970
-#: ../public/js/plugins/oneflow-services.js:1211
-#: ../public/js/plugins/oneflow-services.js:1468
+#: ../public/js/plugins/oneflow-services.js:1228
+#: ../public/js/plugins/oneflow-services.js:1485
 #: ../public/js/plugins/oneflow-templates.js:102
-#: ../public/js/plugins/oneflow-templates.js:683
+#: ../public/js/plugins/oneflow-templates.js:700
 #: ../public/js/plugins/templates-tab.js:53
 #: ../public/js/plugins/templates-tab.js:211
 #: ../public/js/plugins/templates-tab.js:259
-#: ../public/js/plugins/templates-tab.js:930
-#: ../public/js/plugins/templates-tab.js:1661
-#: ../public/js/plugins/templates-tab.js:1926
-#: ../public/js/plugins/templates-tab.js:2554
-#: ../public/js/plugins/templates-tab.js:2625
-#: ../public/js/plugins/templates-tab.js:3139
-#: ../public/js/plugins/templates-tab.js:3392
-#: ../public/js/plugins/templates-tab.js:3429
-#: ../public/js/plugins/users-tab.js:80 ../public/js/plugins/users-tab.js:718
-#: ../public/js/plugins/vms-tab.js:74 ../public/js/plugins/vms-tab.js:194
-#: ../public/js/plugins/vms-tab.js:242 ../public/js/plugins/vms-tab.js:1412
-#: ../public/js/plugins/vms-tab.js:1587 ../public/js/plugins/vms-tab.js:1951
-#: ../public/js/plugins/vms-tab.js:2293 ../public/js/plugins/vms-tab.js:2719
+#: ../public/js/plugins/templates-tab.js:933
+#: ../public/js/plugins/templates-tab.js:1697
+#: ../public/js/plugins/templates-tab.js:1967
+#: ../public/js/plugins/templates-tab.js:2595
+#: ../public/js/plugins/templates-tab.js:2666
+#: ../public/js/plugins/templates-tab.js:3182
+#: ../public/js/plugins/templates-tab.js:3448
+#: ../public/js/plugins/templates-tab.js:3485
+#: ../public/js/plugins/users-tab.js:80 ../public/js/plugins/users-tab.js:764
+#: ../public/js/plugins/vms-tab.js:87 ../public/js/plugins/vms-tab.js:158
+#: ../public/js/plugins/vms-tab.js:206 ../public/js/plugins/vms-tab.js:277
+#: ../public/js/plugins/vms-tab.js:346 ../public/js/plugins/vms-tab.js:1477
+#: ../public/js/plugins/vms-tab.js:1652 ../public/js/plugins/vms-tab.js:2016
+#: ../public/js/plugins/vms-tab.js:2374 ../public/js/plugins/vms-tab.js:2800
 #: ../public/js/plugins/vnets-tab.js:53 ../public/js/plugins/vnets-tab.js:831
-#: ../public/js/sunstone-util.js:1229 ../public/js/sunstone-util.js:1290
-#: ../public/js/sunstone-util.js:1343
+#: ../public/js/sunstone-util.js:1264 ../public/js/sunstone-util.js:1325
+#: ../public/js/sunstone-util.js:1378
 msgid "ID"
 msgstr "ID"
 
@@ -124,50 +126,50 @@ msgid "This rule applies to"
 msgstr "此規則套用於"
 
 #: ../public/js/plugins/acls-tab.js:92 ../public/js/plugins/acls-tab.js:328
-#: ../public/js/plugins/clusters-tab.js:98
-#: ../public/js/plugins/clusters-tab.js:890
-#: ../public/js/plugins/clusters-tab.js:1261
+#: ../public/js/plugins/clusters-tab.js:99
+#: ../public/js/plugins/clusters-tab.js:893
+#: ../public/js/plugins/clusters-tab.js:1280
 #: ../public/js/plugins/dashboard-tab.js:93
-#: ../public/js/plugins/hosts-tab.js:28 ../public/js/plugins/hosts-tab.js:450
-#: ../public/js/plugins/templates-tab.js:3431
+#: ../public/js/plugins/hosts-tab.js:28 ../public/js/plugins/hosts-tab.js:460
+#: ../public/js/plugins/templates-tab.js:3487
 msgid "Hosts"
 msgstr "主機"
 
 #: ../public/js/plugins/acls-tab.js:93 ../public/js/plugins/acls-tab.js:349
-#: ../public/js/plugins/clusters-tab.js:862
-#: ../public/js/plugins/clusters-tab.js:1098
+#: ../public/js/plugins/clusters-tab.js:865
+#: ../public/js/plugins/clusters-tab.js:1113
 msgid "Clusters"
 msgstr "主機叢集"
 
 #: ../public/js/plugins/acls-tab.js:94 ../public/js/plugins/acls-tab.js:352
-#: ../public/js/plugins/clusters-tab.js:100
-#: ../public/js/plugins/clusters-tab.js:892
-#: ../public/js/plugins/clusters-tab.js:1283
+#: ../public/js/plugins/clusters-tab.js:101
+#: ../public/js/plugins/clusters-tab.js:895
+#: ../public/js/plugins/clusters-tab.js:1302
 #: ../public/js/plugins/datastores-tab.js:27
-#: ../public/js/plugins/datastores-tab.js:581
-#: ../public/js/plugins/templates-tab.js:3433
+#: ../public/js/plugins/datastores-tab.js:599
+#: ../public/js/plugins/templates-tab.js:3489
 msgid "Datastores"
 msgstr "資料存放區"
 
 #: ../public/js/plugins/acls-tab.js:95 ../public/js/plugins/acls-tab.js:331
 #: ../public/js/plugins/dashboard-tab.js:131
-#: ../public/js/plugins/oneflow-services.js:1456
-#: ../public/js/plugins/vms-tab.js:44 ../public/js/plugins/vms-tab.js:1034
+#: ../public/js/plugins/oneflow-services.js:1473
+#: ../public/js/plugins/vms-tab.js:57 ../public/js/plugins/vms-tab.js:1099
 msgid "Virtual Machines"
 msgstr "虛擬機器"
 
 #: ../public/js/plugins/acls-tab.js:96 ../public/js/plugins/acls-tab.js:334
-#: ../public/js/plugins/clusters-tab.js:99
-#: ../public/js/plugins/clusters-tab.js:1272
+#: ../public/js/plugins/clusters-tab.js:100
+#: ../public/js/plugins/clusters-tab.js:1291
 #: ../public/js/plugins/vnets-tab.js:26 ../public/js/plugins/vnets-tab.js:736
 msgid "Virtual Networks"
 msgstr "虛擬網路"
 
 #: ../public/js/plugins/acls-tab.js:99 ../public/js/plugins/acls-tab.js:337
-#: ../public/js/plugins/datastores-tab.js:132
-#: ../public/js/plugins/datastores-tab.js:786
+#: ../public/js/plugins/datastores-tab.js:133
+#: ../public/js/plugins/datastores-tab.js:811
 #: ../public/js/plugins/images-tab.js:28
-#: ../public/js/plugins/images-tab.js:606 ../public/js/sunstone-util.js:1230
+#: ../public/js/plugins/images-tab.js:606 ../public/js/sunstone-util.js:1265
 msgid "Images"
 msgstr "磁碟影像檔"
 
@@ -181,13 +183,13 @@ msgstr "範本"
 #: ../public/js/plugins/acls-tab.js:570
 #: ../public/js/plugins/dashboard-tab.js:63
 #: ../public/js/plugins/groups-tab.js:78 ../public/js/plugins/users-tab.js:52
-#: ../public/js/plugins/users-tab.js:588
+#: ../public/js/plugins/users-tab.js:634
 msgid "Users"
 msgstr "用戶"
 
 #: ../public/js/plugins/acls-tab.js:102 ../public/js/plugins/acls-tab.js:346
 #: ../public/js/plugins/acls-tab.js:575 ../public/js/plugins/groups-tab.js:48
-#: ../public/js/plugins/groups-tab.js:416
+#: ../public/js/plugins/groups-tab.js:427
 msgid "Groups"
 msgstr "群組"
 
@@ -201,7 +203,7 @@ msgstr "資源子集合"
 
 #: ../public/js/plugins/acls-tab.js:111 ../public/js/plugins/acls-tab.js:271
 #: ../public/js/plugins/acls-tab.js:289 ../public/js/plugins/acls-tab.js:578
-#: ../public/js/plugins/datastores-tab.js:318
+#: ../public/js/plugins/datastores-tab.js:322
 msgid "All"
 msgstr "全部"
 
@@ -224,50 +226,52 @@ msgstr "資源ID"
 #: ../public/js/plugins/acls-tab.js:122 ../public/js/plugins/acls-tab.js:296
 #: ../public/js/plugins/clusters-tab.js:46
 #: ../public/js/plugins/clusters-tab.js:62
+#: ../public/js/plugins/config-tab.js:383
 #: ../public/js/plugins/datastores-tab.js:57
-#: ../public/js/plugins/datastores-tab.js:321
+#: ../public/js/plugins/datastores-tab.js:325
 #: ../public/js/plugins/files-tab.js:60 ../public/js/plugins/images-tab.js:62
 #: ../public/js/plugins/oneflow-services.js:972
-#: ../public/js/plugins/oneflow-services.js:1470
+#: ../public/js/plugins/oneflow-services.js:1487
 #: ../public/js/plugins/oneflow-templates.js:104
 #: ../public/js/plugins/templates-tab.js:55
 #: ../public/js/plugins/templates-tab.js:213
 #: ../public/js/plugins/templates-tab.js:261
-#: ../public/js/plugins/templates-tab.js:932
-#: ../public/js/plugins/templates-tab.js:1663
-#: ../public/js/plugins/templates-tab.js:2556
-#: ../public/js/plugins/templates-tab.js:2627
-#: ../public/js/plugins/templates-tab.js:3141
-#: ../public/js/plugins/users-tab.js:82 ../public/js/plugins/vms-tab.js:76
-#: ../public/js/plugins/vms-tab.js:196 ../public/js/plugins/vms-tab.js:244
-#: ../public/js/plugins/vnets-tab.js:55 ../public/js/plugins/vnets-tab.js:448
-#: ../public/js/sunstone-util.js:2301 ../public/js/sunstone-util.js:2364
-#: ../public/js/sunstone-util.js:2445
+#: ../public/js/plugins/templates-tab.js:935
+#: ../public/js/plugins/templates-tab.js:1699
+#: ../public/js/plugins/templates-tab.js:2597
+#: ../public/js/plugins/templates-tab.js:2668
+#: ../public/js/plugins/templates-tab.js:3184
+#: ../public/js/plugins/users-tab.js:82 ../public/js/plugins/vms-tab.js:89
+#: ../public/js/plugins/vms-tab.js:160 ../public/js/plugins/vms-tab.js:208
+#: ../public/js/plugins/vms-tab.js:348 ../public/js/plugins/vnets-tab.js:55
+#: ../public/js/plugins/vnets-tab.js:448 ../public/js/sunstone-util.js:2354
+#: ../public/js/sunstone-util.js:2417 ../public/js/sunstone-util.js:2498
 msgid "Group"
 msgstr "群組"
 
 #: ../public/js/plugins/acls-tab.js:126
 #: ../public/js/plugins/clusters-tab.js:26
 #: ../public/js/plugins/clusters-tab.js:48
-#: ../public/js/plugins/clusters-tab.js:64
-#: ../public/js/plugins/clusters-tab.js:1236
+#: ../public/js/plugins/clusters-tab.js:65
+#: ../public/js/plugins/clusters-tab.js:1251
 #: ../public/js/plugins/datastores-tab.js:60
-#: ../public/js/plugins/datastores-tab.js:116
-#: ../public/js/plugins/datastores-tab.js:294
-#: ../public/js/plugins/hosts-tab.js:61 ../public/js/plugins/hosts-tab.js:171
-#: ../public/js/plugins/templates-tab.js:1665
-#: ../public/js/plugins/templates-tab.js:3394
-#: ../public/js/plugins/vnets-tab.js:57 ../public/js/sunstone-util.js:2406
+#: ../public/js/plugins/datastores-tab.js:117
+#: ../public/js/plugins/datastores-tab.js:298
+#: ../public/js/plugins/hosts-tab.js:61 ../public/js/plugins/hosts-tab.js:170
+#: ../public/js/plugins/templates-tab.js:1701
+#: ../public/js/plugins/templates-tab.js:3450
+#: ../public/js/plugins/vms-tab.js:279 ../public/js/plugins/vms-tab.js:351
+#: ../public/js/plugins/vnets-tab.js:57 ../public/js/sunstone-util.js:2459
 msgid "Cluster"
 msgstr "主機叢集"
 
 #: ../public/js/plugins/acls-tab.js:135 ../public/js/plugins/vnets-tab.js:438
-#: ../public/js/sunstone-util.js:2291
+#: ../public/js/sunstone-util.js:2344
 msgid "Use"
 msgstr "使用"
 
 #: ../public/js/plugins/acls-tab.js:136 ../public/js/plugins/vnets-tab.js:439
-#: ../public/js/sunstone-util.js:2292
+#: ../public/js/sunstone-util.js:2345
 msgid "Manage"
 msgstr "調配"
 
@@ -276,20 +280,20 @@ msgid "Administrate"
 msgstr "管理"
 
 #: ../public/js/plugins/acls-tab.js:138 ../public/js/plugins/acls-tab.js:155
-#: ../public/js/plugins/clusters-tab.js:160
-#: ../public/js/plugins/datastores-tab.js:285
-#: ../public/js/plugins/datastores-tab.js:306
+#: ../public/js/plugins/clusters-tab.js:161
+#: ../public/js/plugins/datastores-tab.js:289
+#: ../public/js/plugins/datastores-tab.js:310
 #: ../public/js/plugins/files-tab.js:177 ../public/js/plugins/files-tab.js:196
 #: ../public/js/plugins/groups-tab.js:111
-#: ../public/js/plugins/hosts-tab.js:185
+#: ../public/js/plugins/hosts-tab.js:184
 #: ../public/js/plugins/images-tab.js:309
 #: ../public/js/plugins/images-tab.js:328
-#: ../public/js/plugins/oneflow-templates.js:186
+#: ../public/js/plugins/oneflow-templates.js:189
 #: ../public/js/plugins/templates-tab.js:92
 #: ../public/js/plugins/templates-tab.js:107
-#: ../public/js/plugins/users-tab.js:152 ../public/js/plugins/vms-tab.js:135
-#: ../public/js/plugins/vms-tab.js:282 ../public/js/plugins/vnets-tab.js:399
-#: ../public/js/plugins/vnets-tab.js:415
+#: ../public/js/plugins/users-tab.js:152 ../public/js/plugins/vms-tab.js:246
+#: ../public/js/plugins/vnets-tab.js:399 ../public/js/plugins/vnets-tab.js:415
+#: ../public/js/sunstone.js:748
 msgid "Create"
 msgstr "建立"
 
@@ -298,13 +302,13 @@ msgid "ACL String preview"
 msgstr "ACL 指令預覽"
 
 #: ../public/js/plugins/acls-tab.js:156
-#: ../public/js/plugins/datastores-tab.js:286
-#: ../public/js/plugins/datastores-tab.js:307
+#: ../public/js/plugins/datastores-tab.js:290
+#: ../public/js/plugins/datastores-tab.js:311
 #: ../public/js/plugins/files-tab.js:178 ../public/js/plugins/files-tab.js:197
-#: ../public/js/plugins/hosts-tab.js:186
+#: ../public/js/plugins/hosts-tab.js:185
 #: ../public/js/plugins/images-tab.js:310
 #: ../public/js/plugins/images-tab.js:329
-#: ../public/js/plugins/oneflow-templates.js:188
+#: ../public/js/plugins/oneflow-templates.js:191
 #: ../public/js/plugins/templates-tab.js:94
 #: ../public/js/plugins/templates-tab.js:95
 #: ../public/js/plugins/templates-tab.js:109
@@ -313,51 +317,51 @@ msgid "Reset"
 msgstr "重設"
 
 #: ../public/js/plugins/acls-tab.js:157
-#: ../public/js/plugins/clusters-tab.js:162
-#: ../public/js/plugins/config-tab.js:164
-#: ../public/js/plugins/config-tab.js:192
-#: ../public/js/plugins/datastores-tab.js:287
-#: ../public/js/plugins/datastores-tab.js:308
+#: ../public/js/plugins/clusters-tab.js:163
+#: ../public/js/plugins/config-tab.js:191
+#: ../public/js/plugins/config-tab.js:219
+#: ../public/js/plugins/datastores-tab.js:291
+#: ../public/js/plugins/datastores-tab.js:312
 #: ../public/js/plugins/files-tab.js:179 ../public/js/plugins/files-tab.js:198
 #: ../public/js/plugins/groups-tab.js:112
-#: ../public/js/plugins/groups-tab.js:272
-#: ../public/js/plugins/hosts-tab.js:187
+#: ../public/js/plugins/groups-tab.js:283
+#: ../public/js/plugins/hosts-tab.js:186
 #: ../public/js/plugins/images-tab.js:311
 #: ../public/js/plugins/images-tab.js:330
-#: ../public/js/plugins/images-tab.js:1290
-#: ../public/js/plugins/oneflow-services.js:1785
-#: ../public/js/plugins/oneflow-templates.js:189
+#: ../public/js/plugins/images-tab.js:1291
+#: ../public/js/plugins/oneflow-services.js:1802
+#: ../public/js/plugins/oneflow-templates.js:192
 #: ../public/js/plugins/templates-tab.js:96
 #: ../public/js/plugins/templates-tab.js:110
 #: ../public/js/plugins/templates-tab.js:153
-#: ../public/js/plugins/templates-tab.js:300
-#: ../public/js/plugins/templates-tab.js:4634
+#: ../public/js/plugins/templates-tab.js:299
+#: ../public/js/plugins/templates-tab.js:4972
 #: ../public/js/plugins/users-tab.js:153 ../public/js/plugins/users-tab.js:178
-#: ../public/js/plugins/users-tab.js:198 ../public/js/plugins/users-tab.js:358
-#: ../public/js/plugins/vms-tab.js:136 ../public/js/plugins/vms-tab.js:283
-#: ../public/js/plugins/vms-tab.js:2121 ../public/js/plugins/vms-tab.js:2190
-#: ../public/js/plugins/vms-tab.js:2448 ../public/js/plugins/vms-tab.js:2623
-#: ../public/js/plugins/vms-tab.js:2821 ../public/js/plugins/vnets-tab.js:402
+#: ../public/js/plugins/users-tab.js:198 ../public/js/plugins/users-tab.js:369
+#: ../public/js/plugins/vms-tab.js:247 ../public/js/plugins/vms-tab.js:385
+#: ../public/js/plugins/vms-tab.js:2186 ../public/js/plugins/vms-tab.js:2256
+#: ../public/js/plugins/vms-tab.js:2529 ../public/js/plugins/vms-tab.js:2704
+#: ../public/js/plugins/vms-tab.js:2902 ../public/js/plugins/vnets-tab.js:402
 #: ../public/js/plugins/vnets-tab.js:418
 msgid "Close"
 msgstr "關閉"
 
 #: ../public/js/plugins/acls-tab.js:237
-#: ../public/js/plugins/clusters-tab.js:1093
-#: ../public/js/plugins/datastores-tab.js:567
+#: ../public/js/plugins/clusters-tab.js:1108
+#: ../public/js/plugins/datastores-tab.js:585
 #: ../public/js/plugins/files-tab.js:405
-#: ../public/js/plugins/groups-tab.js:406
+#: ../public/js/plugins/groups-tab.js:417
 #: ../public/js/plugins/images-tab.js:589
 #: ../public/js/plugins/oneflow-services.js:757
 #: ../public/js/plugins/oneflow-services.js:763
 #: ../public/js/plugins/oneflow-services.js:900
 #: ../public/js/plugins/oneflow-services.js:906
-#: ../public/js/plugins/oneflow-services.js:1112
-#: ../public/js/plugins/oneflow-templates.js:596
+#: ../public/js/plugins/oneflow-services.js:1129
+#: ../public/js/plugins/oneflow-templates.js:613
 #: ../public/js/plugins/templates-tab.js:566
-#: ../public/js/plugins/users-tab.js:566 ../public/js/plugins/vms-tab.js:988
-#: ../public/js/plugins/vms-tab.js:994 ../public/js/plugins/vms-tab.js:2761
-#: ../public/js/plugins/vnets-tab.js:714
+#: ../public/js/plugins/users-tab.js:612 ../public/js/plugins/vms-tab.js:1059
+#: ../public/js/plugins/vms-tab.js:1065 ../public/js/plugins/vms-tab.js:2842
+#: ../public/js/plugins/vnets-tab.js:714 ../public/js/sunstone.js:807
 msgid "Delete"
 msgstr "刪除"
 
@@ -365,7 +369,7 @@ msgstr "刪除"
 msgid "ACLs"
 msgstr "ACLs"
 
-#: ../public/js/plugins/acls-tab.js:274 ../public/js/plugins/users-tab.js:714
+#: ../public/js/plugins/acls-tab.js:274 ../public/js/plugins/users-tab.js:760
 msgid "User"
 msgstr "用戶"
 
@@ -396,46 +400,47 @@ msgstr "請提供一個資源ID給受此規則所影響的資源"
 #: ../public/js/plugins/clusters-tab.js:25
 #: ../public/js/plugins/clusters-tab.js:47
 #: ../public/js/plugins/clusters-tab.js:63
-#: ../public/js/plugins/clusters-tab.js:86
-#: ../public/js/plugins/clusters-tab.js:889
-#: ../public/js/plugins/clusters-tab.js:1245
-#: ../public/js/plugins/config-tab.js:338
+#: ../public/js/plugins/clusters-tab.js:87
+#: ../public/js/plugins/clusters-tab.js:892
+#: ../public/js/plugins/clusters-tab.js:1260
+#: ../public/js/plugins/config-tab.js:375
 #: ../public/js/plugins/datastores-tab.js:58
 #: ../public/js/plugins/datastores-tab.js:88
-#: ../public/js/plugins/datastores-tab.js:322
-#: ../public/js/plugins/datastores-tab.js:736
+#: ../public/js/plugins/datastores-tab.js:326
+#: ../public/js/plugins/datastores-tab.js:758
 #: ../public/js/plugins/files-tab.js:61 ../public/js/plugins/files-tab.js:93
-#: ../public/js/plugins/files-tab.js:531 ../public/js/plugins/groups-tab.js:77
+#: ../public/js/plugins/files-tab.js:526 ../public/js/plugins/groups-tab.js:77
 #: ../public/js/plugins/groups-tab.js:99 ../public/js/plugins/hosts-tab.js:60
-#: ../public/js/plugins/hosts-tab.js:735 ../public/js/plugins/images-tab.js:63
+#: ../public/js/plugins/hosts-tab.js:781 ../public/js/plugins/images-tab.js:63
 #: ../public/js/plugins/images-tab.js:95
 #: ../public/js/plugins/images-tab.js:262
 #: ../public/js/plugins/images-tab.js:714
-#: ../public/js/plugins/images-tab.js:1278
+#: ../public/js/plugins/images-tab.js:1279
 #: ../public/js/plugins/marketplace-tab.js:134
 #: ../public/js/plugins/oneflow-services.js:973
-#: ../public/js/plugins/oneflow-services.js:1215
-#: ../public/js/plugins/oneflow-services.js:1279
-#: ../public/js/plugins/oneflow-services.js:1471
+#: ../public/js/plugins/oneflow-services.js:1232
+#: ../public/js/plugins/oneflow-services.js:1296
+#: ../public/js/plugins/oneflow-services.js:1488
 #: ../public/js/plugins/oneflow-templates.js:105
-#: ../public/js/plugins/oneflow-templates.js:128
-#: ../public/js/plugins/oneflow-templates.js:687
-#: ../public/js/plugins/oneflow-templates.js:720
+#: ../public/js/plugins/oneflow-templates.js:131
+#: ../public/js/plugins/oneflow-templates.js:704
+#: ../public/js/plugins/oneflow-templates.js:737
 #: ../public/js/plugins/templates-tab.js:56
 #: ../public/js/plugins/templates-tab.js:214
 #: ../public/js/plugins/templates-tab.js:262
-#: ../public/js/plugins/templates-tab.js:933
-#: ../public/js/plugins/templates-tab.js:1664
-#: ../public/js/plugins/templates-tab.js:1931
-#: ../public/js/plugins/templates-tab.js:2557
-#: ../public/js/plugins/templates-tab.js:2628
-#: ../public/js/plugins/templates-tab.js:3142
-#: ../public/js/plugins/templates-tab.js:3393
-#: ../public/js/plugins/templates-tab.js:3430
-#: ../public/js/plugins/templates-tab.js:4622
-#: ../public/js/plugins/users-tab.js:81 ../public/js/plugins/vms-tab.js:77
-#: ../public/js/plugins/vms-tab.js:197 ../public/js/plugins/vms-tab.js:245
-#: ../public/js/plugins/vms-tab.js:1417 ../public/js/plugins/vms-tab.js:2720
+#: ../public/js/plugins/templates-tab.js:936
+#: ../public/js/plugins/templates-tab.js:1700
+#: ../public/js/plugins/templates-tab.js:1972
+#: ../public/js/plugins/templates-tab.js:2598
+#: ../public/js/plugins/templates-tab.js:2669
+#: ../public/js/plugins/templates-tab.js:3185
+#: ../public/js/plugins/templates-tab.js:3449
+#: ../public/js/plugins/templates-tab.js:3486
+#: ../public/js/plugins/templates-tab.js:4960
+#: ../public/js/plugins/users-tab.js:81 ../public/js/plugins/vms-tab.js:90
+#: ../public/js/plugins/vms-tab.js:161 ../public/js/plugins/vms-tab.js:209
+#: ../public/js/plugins/vms-tab.js:278 ../public/js/plugins/vms-tab.js:349
+#: ../public/js/plugins/vms-tab.js:1482 ../public/js/plugins/vms-tab.js:2801
 #: ../public/js/plugins/vnets-tab.js:56 ../public/js/plugins/vnets-tab.js:84
 #: ../public/js/plugins/vnets-tab.js:352 ../public/js/plugins/vnets-tab.js:836
 msgid "Name"
@@ -443,344 +448,374 @@ msgstr "名稱"
 
 #: ../public/js/plugins/clusters-tab.js:27
 #: ../public/js/plugins/hosts-tab.js:62
-#: ../public/js/plugins/templates-tab.js:3395
+#: ../public/js/plugins/templates-tab.js:3451
+#: ../public/js/plugins/vms-tab.js:280
 msgid "RVMs"
 msgstr "運行VM數量"
 
 #: ../public/js/plugins/clusters-tab.js:28
 #: ../public/js/plugins/hosts-tab.js:63
-#: ../public/js/plugins/templates-tab.js:3396
+#: ../public/js/plugins/templates-tab.js:3452
+#: ../public/js/plugins/vms-tab.js:281
 msgid "Real CPU"
 msgstr "實際CPU"
 
 #: ../public/js/plugins/clusters-tab.js:29
 #: ../public/js/plugins/hosts-tab.js:64
-#: ../public/js/plugins/templates-tab.js:3397
+#: ../public/js/plugins/templates-tab.js:3453
+#: ../public/js/plugins/vms-tab.js:282
 msgid "Allocated CPU"
 msgstr "已配置CPU"
 
 #: ../public/js/plugins/clusters-tab.js:30
 #: ../public/js/plugins/hosts-tab.js:65
-#: ../public/js/plugins/templates-tab.js:3398
+#: ../public/js/plugins/templates-tab.js:3454
+#: ../public/js/plugins/vms-tab.js:283
 msgid "Real MEM"
 msgstr "實際記憶體"
 
 #: ../public/js/plugins/clusters-tab.js:31
 #: ../public/js/plugins/hosts-tab.js:66
-#: ../public/js/plugins/templates-tab.js:3399
+#: ../public/js/plugins/templates-tab.js:3455
+#: ../public/js/plugins/vms-tab.js:284
 msgid "Allocated MEM"
 msgstr "已配置記憶體"
 
 #: ../public/js/plugins/clusters-tab.js:32
-#: ../public/js/plugins/datastores-tab.js:328
+#: ../public/js/plugins/datastores-tab.js:332
 #: ../public/js/plugins/files-tab.js:67 ../public/js/plugins/hosts-tab.js:67
 #: ../public/js/plugins/images-tab.js:69
-#: ../public/js/plugins/oneflow-services.js:1472
+#: ../public/js/plugins/oneflow-services.js:1489
 #: ../public/js/plugins/templates-tab.js:268
-#: ../public/js/plugins/templates-tab.js:939
-#: ../public/js/plugins/templates-tab.js:2563
-#: ../public/js/plugins/templates-tab.js:2634
-#: ../public/js/plugins/templates-tab.js:3148
-#: ../public/js/plugins/templates-tab.js:3400
-#: ../public/js/plugins/vms-tab.js:78 ../public/js/plugins/vms-tab.js:251
+#: ../public/js/plugins/templates-tab.js:942
+#: ../public/js/plugins/templates-tab.js:2604
+#: ../public/js/plugins/templates-tab.js:2675
+#: ../public/js/plugins/templates-tab.js:3191
+#: ../public/js/plugins/templates-tab.js:3456
+#: ../public/js/plugins/vms-tab.js:91 ../public/js/plugins/vms-tab.js:215
+#: ../public/js/plugins/vms-tab.js:285
 msgid "Status"
 msgstr "狀態"
 
 #: ../public/js/plugins/clusters-tab.js:33
-#: ../public/js/plugins/hosts-tab.js:68 ../public/js/plugins/hosts-tab.js:746
-#: ../public/js/plugins/templates-tab.js:3401
+#: ../public/js/plugins/hosts-tab.js:68 ../public/js/plugins/hosts-tab.js:796
+#: ../public/js/plugins/templates-tab.js:3457
+#: ../public/js/plugins/vms-tab.js:286
 msgid "IM MAD"
 msgstr "資源監控中介組件"
 
 #: ../public/js/plugins/clusters-tab.js:34
-#: ../public/js/plugins/hosts-tab.js:69 ../public/js/plugins/hosts-tab.js:750
-#: ../public/js/plugins/templates-tab.js:3402
+#: ../public/js/plugins/hosts-tab.js:69 ../public/js/plugins/hosts-tab.js:800
+#: ../public/js/plugins/templates-tab.js:3458
+#: ../public/js/plugins/vms-tab.js:287
 msgid "VM MAD"
 msgstr "虛擬機器中介組件"
 
 #: ../public/js/plugins/clusters-tab.js:35
 #: ../public/js/plugins/hosts-tab.js:70
-#: ../public/js/plugins/templates-tab.js:3403
+#: ../public/js/plugins/templates-tab.js:3459
+#: ../public/js/plugins/vms-tab.js:288
 msgid "Last monitored on"
 msgstr "最後監測時間"
 
 #: ../public/js/plugins/clusters-tab.js:45
 #: ../public/js/plugins/clusters-tab.js:61
 #: ../public/js/plugins/datastores-tab.js:56
-#: ../public/js/plugins/datastores-tab.js:320
+#: ../public/js/plugins/datastores-tab.js:324
 #: ../public/js/plugins/files-tab.js:59 ../public/js/plugins/images-tab.js:61
 #: ../public/js/plugins/oneflow-services.js:971
-#: ../public/js/plugins/oneflow-services.js:1469
+#: ../public/js/plugins/oneflow-services.js:1486
 #: ../public/js/plugins/oneflow-templates.js:103
 #: ../public/js/plugins/templates-tab.js:54
 #: ../public/js/plugins/templates-tab.js:212
 #: ../public/js/plugins/templates-tab.js:260
-#: ../public/js/plugins/templates-tab.js:931
-#: ../public/js/plugins/templates-tab.js:1662
-#: ../public/js/plugins/templates-tab.js:2555
-#: ../public/js/plugins/templates-tab.js:2626
-#: ../public/js/plugins/templates-tab.js:3140
-#: ../public/js/plugins/vms-tab.js:75 ../public/js/plugins/vms-tab.js:195
-#: ../public/js/plugins/vms-tab.js:243 ../public/js/plugins/vnets-tab.js:54
-#: ../public/js/plugins/vnets-tab.js:442 ../public/js/sunstone-util.js:2295
-#: ../public/js/sunstone-util.js:2327
+#: ../public/js/plugins/templates-tab.js:934
+#: ../public/js/plugins/templates-tab.js:1698
+#: ../public/js/plugins/templates-tab.js:2596
+#: ../public/js/plugins/templates-tab.js:2667
+#: ../public/js/plugins/templates-tab.js:3183
+#: ../public/js/plugins/vms-tab.js:88 ../public/js/plugins/vms-tab.js:159
+#: ../public/js/plugins/vms-tab.js:207 ../public/js/plugins/vms-tab.js:347
+#: ../public/js/plugins/vnets-tab.js:54 ../public/js/plugins/vnets-tab.js:442
+#: ../public/js/sunstone-util.js:2348 ../public/js/sunstone-util.js:2380
 msgid "Owner"
 msgstr "擁有者"
 
 #: ../public/js/plugins/clusters-tab.js:49
+#: ../public/js/plugins/clusters-tab.js:69
 #: ../public/js/plugins/datastores-tab.js:64
-#: ../public/js/plugins/datastores-tab.js:130
-#: ../public/js/plugins/datastores-tab.js:325
+#: ../public/js/plugins/datastores-tab.js:131
+#: ../public/js/plugins/datastores-tab.js:329
 #: ../public/js/plugins/files-tab.js:64 ../public/js/plugins/files-tab.js:115
-#: ../public/js/plugins/files-tab.js:544
-#: ../public/js/plugins/groups-tab.js:259
+#: ../public/js/plugins/files-tab.js:539
+#: ../public/js/plugins/groups-tab.js:270
 #: ../public/js/plugins/images-tab.js:66
 #: ../public/js/plugins/images-tab.js:117
 #: ../public/js/plugins/images-tab.js:727
-#: ../public/js/plugins/oneflow-services.js:1498
-#: ../public/js/plugins/oneflow-services.js:1562
-#: ../public/js/plugins/oneflow-templates.js:320
-#: ../public/js/plugins/oneflow-templates.js:377
-#: ../public/js/plugins/oneflow-templates.js:833
-#: ../public/js/plugins/oneflow-templates.js:897
+#: ../public/js/plugins/oneflow-services.js:1515
+#: ../public/js/plugins/oneflow-services.js:1579
+#: ../public/js/plugins/oneflow-templates.js:323
+#: ../public/js/plugins/oneflow-templates.js:380
+#: ../public/js/plugins/oneflow-templates.js:850
+#: ../public/js/plugins/oneflow-templates.js:914
 #: ../public/js/plugins/templates-tab.js:265
-#: ../public/js/plugins/templates-tab.js:936
-#: ../public/js/plugins/templates-tab.js:1666
-#: ../public/js/plugins/templates-tab.js:2560
-#: ../public/js/plugins/templates-tab.js:2631
-#: ../public/js/plugins/templates-tab.js:3145
-#: ../public/js/plugins/users-tab.js:345 ../public/js/plugins/vms-tab.js:248
-#: ../public/js/plugins/vnets-tab.js:58 ../public/js/plugins/vnets-tab.js:94
+#: ../public/js/plugins/templates-tab.js:939
+#: ../public/js/plugins/templates-tab.js:1702
+#: ../public/js/plugins/templates-tab.js:2601
+#: ../public/js/plugins/templates-tab.js:2672
+#: ../public/js/plugins/templates-tab.js:3188
+#: ../public/js/plugins/users-tab.js:356 ../public/js/plugins/vms-tab.js:212
+#: ../public/js/plugins/vms-tab.js:355 ../public/js/plugins/vnets-tab.js:58
+#: ../public/js/plugins/vnets-tab.js:94
 msgid "Type"
 msgstr "種類"
 
 #: ../public/js/plugins/clusters-tab.js:50
-#: ../public/js/plugins/templates-tab.js:1667
+#: ../public/js/plugins/templates-tab.js:1703
 #: ../public/js/plugins/vnets-tab.js:59 ../public/js/plugins/vnets-tab.js:300
 #: ../public/js/plugins/vnets-tab.js:847
 msgid "Bridge"
 msgstr "橋接器"
 
 #: ../public/js/plugins/clusters-tab.js:51
-#: ../public/js/plugins/templates-tab.js:1668
-#: ../public/js/plugins/vnets-tab.js:60 ../public/js/sunstone-util.js:1344
+#: ../public/js/plugins/templates-tab.js:1704
+#: ../public/js/plugins/vnets-tab.js:60 ../public/js/sunstone-util.js:1379
 msgid "Leases"
 msgstr "已租用"
 
-#: ../public/js/plugins/clusters-tab.js:65
+#: ../public/js/plugins/clusters-tab.js:64
+#: ../public/js/plugins/datastores-tab.js:59
+#: ../public/js/plugins/datastores-tab.js:773
+#: ../public/js/plugins/hosts-tab.js:739 ../public/js/plugins/vms-tab.js:350
+#: ../public/js/plugins/vms-tab.js:1551
+msgid "Capacity"
+msgstr "計算"
+
+#: ../public/js/plugins/clusters-tab.js:66
 #: ../public/js/plugins/datastores-tab.js:61
+#: ../public/js/plugins/vms-tab.js:352
 msgid "Basepath"
 msgstr "基底路徑"
 
-#: ../public/js/plugins/clusters-tab.js:66
+#: ../public/js/plugins/clusters-tab.js:67
 #: ../public/js/plugins/datastores-tab.js:62
+#: ../public/js/plugins/vms-tab.js:353
 msgid "TM MAD"
 msgstr "傳送中介組件"
 
-#: ../public/js/plugins/clusters-tab.js:67
+#: ../public/js/plugins/clusters-tab.js:68
 #: ../public/js/plugins/datastores-tab.js:63
+#: ../public/js/plugins/vms-tab.js:354
 msgid "DS MAD"
 msgstr "資料存放區中介組件"
 
-#: ../public/js/plugins/clusters-tab.js:68
-#: ../public/js/plugins/datastores-tab.js:135
-#: ../public/js/plugins/system-tab.js:18
-msgid "System"
-msgstr "系統"
-
-#: ../public/js/plugins/clusters-tab.js:77
+#: ../public/js/plugins/clusters-tab.js:78
 msgid "Create Cluster"
 msgstr "建立主機叢集"
 
-#: ../public/js/plugins/clusters-tab.js:78
+#: ../public/js/plugins/clusters-tab.js:79
 msgid "Update Cluster"
 msgstr "修改主機叢集"
 
-#: ../public/js/plugins/clusters-tab.js:116
-#: ../public/js/plugins/templates-tab.js:3411
+#: ../public/js/plugins/clusters-tab.js:117
+#: ../public/js/plugins/templates-tab.js:3467
 msgid "Please select one or more hosts from the list"
 msgstr "請選擇一或多台主機"
 
-#: ../public/js/plugins/clusters-tab.js:117
-#: ../public/js/plugins/templates-tab.js:3412
+#: ../public/js/plugins/clusters-tab.js:118
+#: ../public/js/plugins/templates-tab.js:3468
 msgid "You selected the following hosts:"
 msgstr "你已選擇下列主機:"
 
-#: ../public/js/plugins/clusters-tab.js:133
+#: ../public/js/plugins/clusters-tab.js:134
 msgid "Please select one or more vnets from the list"
 msgstr "請選擇一或多個虛擬網路"
 
-#: ../public/js/plugins/clusters-tab.js:134
+#: ../public/js/plugins/clusters-tab.js:135
 msgid "You selected the following vnets:"
 msgstr "你已選擇下列虛擬網路:"
 
-#: ../public/js/plugins/clusters-tab.js:150
+#: ../public/js/plugins/clusters-tab.js:151
 msgid "Please select one or more datastores from the list"
 msgstr "請選擇一或多個資料存放區"
 
-#: ../public/js/plugins/clusters-tab.js:151
+#: ../public/js/plugins/clusters-tab.js:152
 msgid "You selected the following datastores:"
 msgstr "你已選擇下列資料存放區:"
 
-#: ../public/js/plugins/clusters-tab.js:161
-#: ../public/js/plugins/clusters-tab.js:1087
-#: ../public/js/plugins/oneflow-templates.js:187
-#: ../public/js/plugins/oneflow-templates.js:575
+#: ../public/js/plugins/clusters-tab.js:162
+#: ../public/js/plugins/clusters-tab.js:1102
+#: ../public/js/plugins/oneflow-templates.js:190
+#: ../public/js/plugins/oneflow-templates.js:592
 #: ../public/js/plugins/templates-tab.js:93
 #: ../public/js/plugins/templates-tab.js:108
 #: ../public/js/plugins/templates-tab.js:535
-#: ../public/js/plugins/vnets-tab.js:468 ../public/js/sunstone-util.js:941
+#: ../public/js/plugins/vnets-tab.js:468 ../public/js/sunstone-util.js:961
 msgid "Update"
 msgstr "更新"
 
-#: ../public/js/plugins/clusters-tab.js:428
+#: ../public/js/plugins/clusters-tab.js:429
 msgid "Cluster name missing!"
 msgstr "未填寫主機叢集名稱!"
 
-#: ../public/js/plugins/clusters-tab.js:469
-#: ../public/js/plugins/clusters-tab.js:1431
+#: ../public/js/plugins/clusters-tab.js:470
+#: ../public/js/plugins/clusters-tab.js:1469
 msgid "Create cluster"
 msgstr "建立主機叢集"
 
-#: ../public/js/plugins/clusters-tab.js:498
+#: ../public/js/plugins/clusters-tab.js:501
 msgid "Update cluster"
 msgstr "修改主機叢集"
 
-#: ../public/js/plugins/clusters-tab.js:507
+#: ../public/js/plugins/clusters-tab.js:510
 msgid "Please select one (and just one) cluster to update."
 msgstr "您僅能選取一個欲修改的主機叢集"
 
-#: ../public/js/plugins/clusters-tab.js:891
-#: ../public/js/plugins/templates-tab.js:3432
+#: ../public/js/plugins/clusters-tab.js:894
+#: ../public/js/plugins/templates-tab.js:3488
 msgid "VNets"
 msgstr "虛擬網路"
 
-#: ../public/js/plugins/clusters-tab.js:1053
+#: ../public/js/plugins/clusters-tab.js:1056
 msgid "Cluster updated correctly"
 msgstr "主機叢集已成功修改"
 
-#: ../public/js/plugins/clusters-tab.js:1108
+#: ../public/js/plugins/clusters-tab.js:1080
+msgid "Cluster renamed correctly"
+msgstr ""
+
+#: ../public/js/plugins/clusters-tab.js:1123
 msgid "Cluster information"
 msgstr "主機叢集資訊"
 
-#: ../public/js/plugins/clusters-tab.js:1113
+#: ../public/js/plugins/clusters-tab.js:1128
 msgid "Cluster Hosts"
 msgstr "主機叢集-主機"
 
-#: ../public/js/plugins/clusters-tab.js:1117
+#: ../public/js/plugins/clusters-tab.js:1132
 msgid "Cluster Virtual Networks"
 msgstr "主機叢集-虛擬網路"
 
-#: ../public/js/plugins/clusters-tab.js:1121
+#: ../public/js/plugins/clusters-tab.js:1136
 msgid "Cluster Datastores"
 msgstr "主機叢集-資料存放區"
 
-#: ../public/js/plugins/clusters-tab.js:1229
-#: ../public/js/plugins/datastores-tab.js:575
-#: ../public/js/plugins/datastores-tab.js:781
-#: ../public/js/plugins/files-tab.js:416 ../public/js/plugins/files-tab.js:517
-#: ../public/js/plugins/hosts-tab.js:123 ../public/js/plugins/hosts-tab.js:438
-#: ../public/js/plugins/hosts-tab.js:721
+#: ../public/js/plugins/clusters-tab.js:1244
+#: ../public/js/plugins/datastores-tab.js:593
+#: ../public/js/plugins/datastores-tab.js:806
+#: ../public/js/plugins/files-tab.js:411 ../public/js/plugins/files-tab.js:512
+#: ../public/js/plugins/hosts-tab.js:123 ../public/js/plugins/hosts-tab.js:448
+#: ../public/js/plugins/hosts-tab.js:767
 #: ../public/js/plugins/images-tab.js:600
 #: ../public/js/plugins/images-tab.js:700
 #: ../public/js/plugins/marketplace-tab.js:177
-#: ../public/js/plugins/oneflow-services.js:1202
-#: ../public/js/plugins/oneflow-services.js:1438
-#: ../public/js/plugins/oneflow-templates.js:674
-#: ../public/js/plugins/oneflow-templates.js:802
-#: ../public/js/plugins/templates-tab.js:1917
-#: ../public/js/plugins/users-tab.js:574 ../public/js/plugins/vms-tab.js:1402
+#: ../public/js/plugins/oneflow-services.js:1219
+#: ../public/js/plugins/oneflow-services.js:1455
+#: ../public/js/plugins/oneflow-templates.js:691
+#: ../public/js/plugins/oneflow-templates.js:819
+#: ../public/js/plugins/templates-tab.js:1958
+#: ../public/js/plugins/users-tab.js:620 ../public/js/plugins/vms-tab.js:1467
 #: ../public/js/plugins/vnets-tab.js:884
 msgid "Information"
 msgstr "資訊"
 
-#: ../public/js/plugins/clusters-tab.js:1241
-#: ../public/js/plugins/hosts-tab.js:731
+#: ../public/js/plugins/clusters-tab.js:1256
+#: ../public/js/plugins/hosts-tab.js:777
 msgid "id"
 msgstr "id"
 
-#: ../public/js/plugins/config-tab.js:88
+#: ../public/js/plugins/config-tab.js:92
 msgid "Configuration"
 msgstr "設定"
 
-#: ../public/js/plugins/config-tab.js:97 ../public/js/plugins/users-tab.js:708
+#: ../public/js/plugins/config-tab.js:101
+#: ../public/js/plugins/users-tab.js:754
 msgid "User information"
 msgstr "用戶資訊"
 
-#: ../public/js/plugins/config-tab.js:107
+#: ../public/js/plugins/config-tab.js:111
 msgid "Language"
 msgstr "語系"
 
-#: ../public/js/plugins/config-tab.js:133
+#: ../public/js/plugins/config-tab.js:138
 msgid "Views"
 msgstr "檢視角度"
 
-#: ../public/js/plugins/config-tab.js:142
+#: ../public/js/plugins/config-tab.js:147
+msgid "Default Table order"
+msgstr ""
+
+#: ../public/js/plugins/config-tab.js:158
 msgid "VNC Secure websockets"
 msgstr "VNC 安全 websockets"
 
-#: ../public/js/plugins/config-tab.js:163
+#: ../public/js/plugins/config-tab.js:174
+msgid "Select group"
+msgstr ""
+
+#: ../public/js/plugins/config-tab.js:190
 msgid "Update config"
 msgstr "修改設定"
 
-#: ../public/js/plugins/config-tab.js:174
+#: ../public/js/plugins/config-tab.js:201
 #: ../public/js/plugins/users-tab.js:160
 msgid "Update Password"
 msgstr "修改密碼"
 
-#: ../public/js/plugins/config-tab.js:180
+#: ../public/js/plugins/config-tab.js:207
 #: ../public/js/plugins/users-tab.js:166
 msgid "New password"
 msgstr "新密碼"
 
-#: ../public/js/plugins/config-tab.js:191
-#: ../public/js/plugins/oneflow-templates.js:999
-#: ../public/js/plugins/oneflow-templates.js:1033
+#: ../public/js/plugins/config-tab.js:218
+#: ../public/js/plugins/oneflow-templates.js:1016
+#: ../public/js/plugins/oneflow-templates.js:1050
 #: ../public/js/plugins/users-tab.js:177 ../public/js/plugins/users-tab.js:197
 msgid "Change"
 msgstr "修改"
 
-#: ../public/js/plugins/config-tab.js:203
-#: ../public/js/plugins/hosts-tab.js:350
+#: ../public/js/plugins/config-tab.js:230
+#: ../public/js/plugins/hosts-tab.js:349
 #: ../public/js/plugins/templates-tab.js:395
-#: ../public/js/plugins/users-tab.js:472
+#: ../public/js/plugins/users-tab.js:502
 msgid "Template updated correctly"
 msgstr "範本已成功修改"
 
-#: ../public/js/plugins/config-tab.js:217
-#: ../public/js/plugins/users-tab.js:415
+#: ../public/js/plugins/config-tab.js:239
+#: ../public/js/plugins/users-tab.js:426
 msgid "Change password successful"
 msgstr "修改密碼成功"
 
-#: ../public/js/plugins/config-tab.js:224
-#: ../public/js/plugins/users-tab.js:543 ../public/js/plugins/users-tab.js:819
+#: ../public/js/plugins/config-tab.js:246
+#: ../public/js/plugins/users-tab.js:573 ../public/js/plugins/users-tab.js:864
 msgid "Change password"
 msgstr "修改密碼"
 
-#: ../public/js/plugins/config-tab.js:239
-#: ../public/js/plugins/users-tab.js:830
+#: ../public/js/plugins/config-tab.js:261
+#: ../public/js/plugins/users-tab.js:875
 msgid "Fill in a new password"
 msgstr "填寫一個新的密碼"
 
-#: ../public/js/plugins/config-tab.js:342 ../public/js/plugins/users-tab.js:87
+#: ../public/js/plugins/config-tab.js:379 ../public/js/plugins/users-tab.js:87
 msgid "Group ID"
 msgstr "群組ID"
 
-#: ../public/js/plugins/config-tab.js:346
-msgid "Group Name"
-msgstr "群組名稱"
+#: ../public/js/plugins/config-tab.js:392
+#: ../public/js/plugins/users-tab.js:772
+msgid "Secondary groups"
+msgstr ""
 
-#: ../public/js/plugins/config-tab.js:350
-#: ../public/js/plugins/templates-tab.js:2943
+#: ../public/js/plugins/config-tab.js:396
+#: ../public/js/plugins/templates-tab.js:2986
 #: ../public/js/plugins/users-tab.js:132
 msgid "Password"
 msgstr "密碼"
 
-#: ../public/js/plugins/config-tab.js:351
+#: ../public/js/plugins/config-tab.js:397
 msgid "Update password"
 msgstr "修改密碼"
 
-#: ../public/js/plugins/config-tab.js:358
+#: ../public/js/plugins/config-tab.js:404
 msgid "Custom Attributes"
 msgstr "自訂屬性"
 
@@ -790,8 +825,8 @@ msgid "Dashboard"
 msgstr "主控台"
 
 #: ../public/js/plugins/dashboard-tab.js:48
-#: ../public/js/plugins/templates-tab.js:2218
-#: ../public/js/plugins/vms-tab.js:1476
+#: ../public/js/plugins/templates-tab.js:2259
+#: ../public/js/plugins/vms-tab.js:1541
 msgid "Storage"
 msgstr "儲存"
 
@@ -814,12 +849,12 @@ msgstr "群組"
 
 #: ../public/js/plugins/dashboard-tab.js:78
 #: ../public/js/plugins/groups-tab.js:131
-#: ../public/js/plugins/groups-tab.js:231
-#: ../public/js/plugins/templates-tab.js:2286
-#: ../public/js/plugins/templates-tab.js:3096
-#: ../public/js/plugins/users-tab.js:217 ../public/js/plugins/users-tab.js:317
-#: ../public/js/plugins/vms-tab.js:1481 ../public/js/plugins/vms-tab.js:2294
-#: ../public/js/sunstone-util.js:1339
+#: ../public/js/plugins/groups-tab.js:242
+#: ../public/js/plugins/templates-tab.js:2327
+#: ../public/js/plugins/templates-tab.js:3139
+#: ../public/js/plugins/users-tab.js:217 ../public/js/plugins/users-tab.js:328
+#: ../public/js/plugins/vms-tab.js:1546 ../public/js/plugins/vms-tab.js:2375
+#: ../public/js/sunstone-util.js:1374
 msgid "Network"
 msgstr "網路"
 
@@ -836,100 +871,94 @@ msgstr "已租用IP"
 #: ../public/js/plugins/dashboard-tab.js:137
 #: ../public/js/plugins/files-tab.js:29 ../public/js/plugins/groups-tab.js:51
 #: ../public/js/plugins/hosts-tab.js:31 ../public/js/plugins/images-tab.js:31
-#: ../public/js/plugins/users-tab.js:55 ../public/js/plugins/vms-tab.js:49
+#: ../public/js/plugins/users-tab.js:55 ../public/js/plugins/vms-tab.js:62
 #: ../public/js/plugins/vnets-tab.js:29
 msgid "TOTAL"
 msgstr "總計"
 
 #: ../public/js/plugins/dashboard-tab.js:101
-#: ../public/js/plugins/hosts-tab.js:32 ../public/js/plugins/hosts-tab.js:527
+#: ../public/js/plugins/hosts-tab.js:32 ../public/js/plugins/hosts-tab.js:537
 msgid "ON"
 msgstr "上線"
 
 #: ../public/js/plugins/dashboard-tab.js:103
-#: ../public/js/plugins/hosts-tab.js:33 ../public/js/plugins/hosts-tab.js:534
-#: ../public/js/plugins/hosts-tab.js:564 ../public/js/plugins/vms-tab.js:51
+#: ../public/js/plugins/hosts-tab.js:33 ../public/js/plugins/hosts-tab.js:544
+#: ../public/js/plugins/hosts-tab.js:574 ../public/js/plugins/vms-tab.js:64
 msgid "OFF"
 msgstr "停用"
 
 #: ../public/js/plugins/dashboard-tab.js:105
-#: ../public/js/plugins/hosts-tab.js:34 ../public/js/plugins/hosts-tab.js:530
-#: ../public/js/plugins/hosts-tab.js:564
+#: ../public/js/plugins/hosts-tab.js:34 ../public/js/plugins/hosts-tab.js:540
+#: ../public/js/plugins/hosts-tab.js:574
 msgid "ERROR"
 msgstr "異常"
 
 #: ../public/js/plugins/dashboard-tab.js:110
 #: ../public/js/plugins/groups-tab.js:23 ../public/js/plugins/groups-tab.js:81
-#: ../public/js/plugins/hosts-tab.js:804
+#: ../public/js/plugins/hosts-tab.js:857
 #: ../public/js/plugins/templates-tab.js:680
 #: ../public/js/plugins/users-tab.js:26 ../public/js/plugins/users-tab.js:86
-#: ../public/js/plugins/vms-tab.js:2536 ../public/js/sunstone-util.js:1199
+#: ../public/js/plugins/vms-tab.js:2617 ../public/js/sunstone-util.js:1219
 msgid "CPU"
 msgstr "CPU"
 
 #: ../public/js/plugins/dashboard-tab.js:117
-#: ../public/js/plugins/hosts-tab.js:817
+#: ../public/js/plugins/hosts-tab.js:870
 #: ../public/js/plugins/templates-tab.js:696
-#: ../public/js/plugins/vms-tab.js:2538
+#: ../public/js/plugins/vms-tab.js:2619
 msgid "MEMORY"
 msgstr "記憶體"
 
 #: ../public/js/plugins/dashboard-tab.js:124
-#: ../public/js/plugins/hosts-tab.js:288 ../public/js/plugins/hosts-tab.js:295
-#: ../public/js/plugins/hosts-tab.js:319 ../public/js/plugins/hosts-tab.js:326
-#: ../public/js/plugins/hosts-tab.js:682 ../public/js/plugins/hosts-tab.js:689
+#: ../public/js/plugins/hosts-tab.js:287 ../public/js/plugins/hosts-tab.js:294
+#: ../public/js/plugins/hosts-tab.js:318 ../public/js/plugins/hosts-tab.js:325
+#: ../public/js/plugins/hosts-tab.js:692 ../public/js/plugins/hosts-tab.js:699
 msgid "Allocated"
 msgstr "已配置"
 
 #: ../public/js/plugins/dashboard-tab.js:125
-#: ../public/js/plugins/hosts-tab.js:288 ../public/js/plugins/hosts-tab.js:295
-#: ../public/js/plugins/hosts-tab.js:319 ../public/js/plugins/hosts-tab.js:326
-#: ../public/js/plugins/hosts-tab.js:682 ../public/js/plugins/hosts-tab.js:689
+#: ../public/js/plugins/hosts-tab.js:287 ../public/js/plugins/hosts-tab.js:294
+#: ../public/js/plugins/hosts-tab.js:318 ../public/js/plugins/hosts-tab.js:325
+#: ../public/js/plugins/hosts-tab.js:692 ../public/js/plugins/hosts-tab.js:699
 msgid "Real"
 msgstr "實際"
 
 #: ../public/js/plugins/dashboard-tab.js:126
-#: ../public/js/plugins/datastores-tab.js:750
-#: ../public/js/plugins/hosts-tab.js:288 ../public/js/plugins/hosts-tab.js:295
-#: ../public/js/plugins/hosts-tab.js:319 ../public/js/plugins/hosts-tab.js:326
-#: ../public/js/plugins/hosts-tab.js:682 ../public/js/plugins/hosts-tab.js:689
+#: ../public/js/plugins/datastores-tab.js:775
+#: ../public/js/plugins/hosts-tab.js:287 ../public/js/plugins/hosts-tab.js:294
+#: ../public/js/plugins/hosts-tab.js:318 ../public/js/plugins/hosts-tab.js:325
+#: ../public/js/plugins/hosts-tab.js:692 ../public/js/plugins/hosts-tab.js:699
 msgid "Total"
 msgstr "總計"
 
 #: ../public/js/plugins/dashboard-tab.js:139
-#: ../public/js/plugins/vms-tab.js:50 ../public/js/plugins/vms-tab.js:1082
-#: ../public/js/plugins/vms-tab.js:1100 ../public/js/plugins/vms-tab.js:1112
-#: ../public/js/plugins/vms-tab.js:1382
+#: ../public/js/plugins/vms-tab.js:63 ../public/js/plugins/vms-tab.js:1147
+#: ../public/js/plugins/vms-tab.js:1165 ../public/js/plugins/vms-tab.js:1177
+#: ../public/js/plugins/vms-tab.js:1447
 msgid "ACTIVE"
 msgstr "線上"
 
 #: ../public/js/plugins/dashboard-tab.js:141
 #: ../public/js/plugins/oneflow-services.js:70
 #: ../public/js/plugins/oneflow-services.js:92
-#: ../public/js/plugins/vms-tab.js:52 ../public/js/plugins/vms-tab.js:1093
+#: ../public/js/plugins/vms-tab.js:65 ../public/js/plugins/vms-tab.js:1158
 msgid "PENDING"
 msgstr "擱置"
 
 #: ../public/js/plugins/dashboard-tab.js:143
-#: ../public/js/plugins/vms-tab.js:53 ../public/js/plugins/vms-tab.js:1097
+#: ../public/js/plugins/vms-tab.js:66 ../public/js/plugins/vms-tab.js:1162
 msgid "FAILED"
 msgstr "失敗"
 
 #: ../public/js/plugins/dashboard-tab.js:148
-#: ../public/js/plugins/vms-tab.js:2390
+#: ../public/js/plugins/vms-tab.js:2471
 msgid "NET DOWNLOAD SPEED"
 msgstr "網路下載速率"
 
 #: ../public/js/plugins/dashboard-tab.js:157
-#: ../public/js/plugins/vms-tab.js:2403
+#: ../public/js/plugins/vms-tab.js:2484
 msgid "NET UPLOAD SPEED"
 msgstr "網路上傳速率"
-
-#: ../public/js/plugins/datastores-tab.js:59
-#: ../public/js/plugins/datastores-tab.js:748
-#: ../public/js/plugins/vms-tab.js:1486
-msgid "Capacity"
-msgstr "計算"
 
 #: ../public/js/plugins/datastores-tab.js:75
 msgid "Create Datastore"
@@ -954,7 +983,7 @@ msgid "Presets"
 msgstr "預設配置"
 
 #: ../public/js/plugins/datastores-tab.js:103
-#: ../public/js/plugins/datastores-tab.js:168
+#: ../public/js/plugins/datastores-tab.js:169
 msgid "Filesystem"
 msgstr "檔案系統"
 
@@ -963,310 +992,338 @@ msgid "VMware VMFS"
 msgstr "VMware VMFS"
 
 #: ../public/js/plugins/datastores-tab.js:105
-#: ../public/js/plugins/datastores-tab.js:170
-#: ../public/js/plugins/datastores-tab.js:193
+#: ../public/js/plugins/datastores-tab.js:171
+#: ../public/js/plugins/datastores-tab.js:194
 msgid "iSCSI"
 msgstr "iSCSI"
 
 #: ../public/js/plugins/datastores-tab.js:106
-#: ../public/js/plugins/datastores-tab.js:171
-#: ../public/js/plugins/datastores-tab.js:195
-msgid "LVM"
-msgstr "LVM"
+msgid "Block LVM"
+msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:107
-#: ../public/js/plugins/datastores-tab.js:173
-#: ../public/js/plugins/datastores-tab.js:197
-msgid "Ceph"
-msgstr "Ceph"
+msgid "FS LVM"
+msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:108
 #: ../public/js/plugins/datastores-tab.js:174
-#: ../public/js/plugins/datastores-tab.js:198
-#: ../public/js/plugins/hosts-tab.js:111 ../public/js/plugins/hosts-tab.js:133
-#: ../public/js/plugins/hosts-tab.js:156 ../public/js/plugins/users-tab.js:106
+#: ../public/js/plugins/datastores-tab.js:199
+msgid "Ceph"
+msgstr "Ceph"
+
+#: ../public/js/plugins/datastores-tab.js:109
+#: ../public/js/plugins/datastores-tab.js:175
+#: ../public/js/plugins/datastores-tab.js:200
+#: ../public/js/plugins/hosts-tab.js:111 ../public/js/plugins/hosts-tab.js:132
+#: ../public/js/plugins/hosts-tab.js:155 ../public/js/plugins/users-tab.js:106
 msgid "Custom"
 msgstr "自訂"
 
-#: ../public/js/plugins/datastores-tab.js:138
-#: ../public/js/plugins/templates-tab.js:3062
+#: ../public/js/plugins/datastores-tab.js:136
+#: ../public/js/plugins/system-tab.js:18
+msgid "System"
+msgstr "系統"
+
+#: ../public/js/plugins/datastores-tab.js:139
+#: ../public/js/plugins/templates-tab.js:3105
 msgid "Files"
 msgstr "檔案"
 
-#: ../public/js/plugins/datastores-tab.js:145
-#: ../public/js/plugins/templates-tab.js:1161
+#: ../public/js/plugins/datastores-tab.js:146
+#: ../public/js/plugins/templates-tab.js:1168
 msgid "Disk type"
 msgstr "磁碟種類"
 
-#: ../public/js/plugins/datastores-tab.js:149
-#: ../public/js/plugins/files-tab.js:523
+#: ../public/js/plugins/datastores-tab.js:150
+#: ../public/js/plugins/files-tab.js:518
 msgid "File"
 msgstr "檔案"
 
-#: ../public/js/plugins/datastores-tab.js:150
+#: ../public/js/plugins/datastores-tab.js:151
 msgid "Block"
 msgstr "Block"
 
-#: ../public/js/plugins/datastores-tab.js:151
+#: ../public/js/plugins/datastores-tab.js:152
 msgid "RBD"
 msgstr "RBD"
 
-#: ../public/js/plugins/datastores-tab.js:161
+#: ../public/js/plugins/datastores-tab.js:162
 msgid "Managers"
 msgstr "組件管理"
 
-#: ../public/js/plugins/datastores-tab.js:164
-#: ../public/js/plugins/datastores-tab.js:323
-#: ../public/js/plugins/datastores-tab.js:727
+#: ../public/js/plugins/datastores-tab.js:165
+#: ../public/js/plugins/datastores-tab.js:327
+#: ../public/js/plugins/datastores-tab.js:749
 #: ../public/js/plugins/files-tab.js:62 ../public/js/plugins/files-tab.js:130
-#: ../public/js/plugins/files-tab.js:186 ../public/js/plugins/files-tab.js:539
+#: ../public/js/plugins/files-tab.js:186 ../public/js/plugins/files-tab.js:534
 #: ../public/js/plugins/groups-tab.js:129
-#: ../public/js/plugins/groups-tab.js:172
+#: ../public/js/plugins/groups-tab.js:183
 #: ../public/js/plugins/images-tab.js:64
 #: ../public/js/plugins/images-tab.js:132
 #: ../public/js/plugins/images-tab.js:318
 #: ../public/js/plugins/images-tab.js:722
 #: ../public/js/plugins/templates-tab.js:263
-#: ../public/js/plugins/templates-tab.js:934
-#: ../public/js/plugins/templates-tab.js:2558
-#: ../public/js/plugins/templates-tab.js:2629
-#: ../public/js/plugins/templates-tab.js:3143
-#: ../public/js/plugins/users-tab.js:215 ../public/js/plugins/users-tab.js:258
-#: ../public/js/plugins/vms-tab.js:246 ../public/js/sunstone-util.js:1225
+#: ../public/js/plugins/templates-tab.js:937
+#: ../public/js/plugins/templates-tab.js:2599
+#: ../public/js/plugins/templates-tab.js:2670
+#: ../public/js/plugins/templates-tab.js:3186
+#: ../public/js/plugins/users-tab.js:215 ../public/js/plugins/users-tab.js:269
+#: ../public/js/plugins/vms-tab.js:210 ../public/js/sunstone-util.js:1260
 msgid "Datastore"
 msgstr "資料存放區"
 
-#: ../public/js/plugins/datastores-tab.js:169
+#: ../public/js/plugins/datastores-tab.js:170
 #: ../public/js/plugins/hosts-tab.js:108 ../public/js/plugins/hosts-tab.js:129
-#: ../public/js/plugins/hosts-tab.js:155 ../public/js/plugins/vnets-tab.js:290
+#: ../public/js/plugins/hosts-tab.js:154 ../public/js/plugins/vnets-tab.js:290
 msgid "VMware"
 msgstr "VMware"
 
 #: ../public/js/plugins/datastores-tab.js:172
 #: ../public/js/plugins/datastores-tab.js:196
+msgid "LVM"
+msgstr "LVM"
+
+#: ../public/js/plugins/datastores-tab.js:173
+#: ../public/js/plugins/datastores-tab.js:198
 msgid "VMFS"
 msgstr "VMFS"
 
-#: ../public/js/plugins/datastores-tab.js:177
+#: ../public/js/plugins/datastores-tab.js:178
 msgid "Custom DS_MAD"
 msgstr "自訂資料存放區中介組件"
 
-#: ../public/js/plugins/datastores-tab.js:186
+#: ../public/js/plugins/datastores-tab.js:187
 msgid "Transfer"
 msgstr "資料傳送協定"
 
-#: ../public/js/plugins/datastores-tab.js:190
+#: ../public/js/plugins/datastores-tab.js:191
 msgid "Shared"
 msgstr "Shared"
 
-#: ../public/js/plugins/datastores-tab.js:191
-#: ../public/js/plugins/templates-tab.js:3070
+#: ../public/js/plugins/datastores-tab.js:192
+#: ../public/js/plugins/templates-tab.js:3113
 #: ../public/js/plugins/users-tab.js:102
 msgid "SSH"
 msgstr "SSH"
 
-#: ../public/js/plugins/datastores-tab.js:192
+#: ../public/js/plugins/datastores-tab.js:193
 msgid "qcow2"
 msgstr "qcow2"
 
-#: ../public/js/plugins/datastores-tab.js:194
-#: ../public/js/plugins/hosts-tab.js:110 ../public/js/plugins/hosts-tab.js:132
+#: ../public/js/plugins/datastores-tab.js:195
+#: ../public/js/plugins/hosts-tab.js:110 ../public/js/plugins/hosts-tab.js:131
 msgid "Dummy"
 msgstr "Dummy"
 
-#: ../public/js/plugins/datastores-tab.js:201
+#: ../public/js/plugins/datastores-tab.js:197
+msgid "Shared LVM"
+msgstr ""
+
+#: ../public/js/plugins/datastores-tab.js:203
 msgid "Custom TM_MAD"
 msgstr "自訂傳送中介組件"
 
-#: ../public/js/plugins/datastores-tab.js:214
+#: ../public/js/plugins/datastores-tab.js:216
 msgid "Safe Directories"
 msgstr "安全來源目錄"
 
-#: ../public/js/plugins/datastores-tab.js:220
+#: ../public/js/plugins/datastores-tab.js:222
 msgid "If you need to un-block a directory under one of the RESTRICTED_DIRS"
 msgstr "若你需要由受限來源目錄中開放特定目錄作為磁碟影像檔註冊來源，請填寫於此欄位"
 
-#: ../public/js/plugins/datastores-tab.js:225
+#: ../public/js/plugins/datastores-tab.js:227
 msgid "Restricted Directories"
 msgstr "受限來源目錄"
 
-#: ../public/js/plugins/datastores-tab.js:231
+#: ../public/js/plugins/datastores-tab.js:233
 msgid "Paths that can not be used to register images. A space separated list of paths. This will prevent users registering important files as VM images and accessing them thourgh their VMs. OpenNebula will automatically add its configuration directories: /var/lib/one, /etc/one and oneadmin's home ($HOME)."
 msgstr "禁止特定目錄作為磁碟影像檔註冊來源。請使用空白作為多個路徑的分隔。這是為了防止使用者將重要的檔案註冊為磁碟影像檔，並透過虛擬機器來存取這些檔案。OpenNebula將會自動禁止下列目錄: /var/lib/one, /etc/one及oneadmin的家目錄($HOME)"
 
-#: ../public/js/plugins/datastores-tab.js:236
-msgid "Host Bridge List"
-msgstr "ESX橋接主機清單"
+#: ../public/js/plugins/datastores-tab.js:238
+msgid "Base Path"
+msgstr ""
 
-#: ../public/js/plugins/datastores-tab.js:246
+#: ../public/js/plugins/datastores-tab.js:244
+msgid "When needed, the front-end will access the datastores using BASE_PATH (defaults to /var/lib/one/datastores)."
+msgstr ""
+
+#: ../public/js/plugins/datastores-tab.js:249
 msgid "Use SSH for Datastore Manager"
 msgstr "使用SSH作為資料存放區處理元件通訊協定"
 
-#: ../public/js/plugins/datastores-tab.js:249
+#: ../public/js/plugins/datastores-tab.js:252
 msgid "Use SSH for Transfer Manager"
 msgstr "使用SSH作為傳送處理元件通訊協定"
 
-#: ../public/js/plugins/datastores-tab.js:254
-msgid "Storage Server"
-msgstr "儲存主機伺服器位址"
+#: ../public/js/plugins/datastores-tab.js:257
+msgid "Host Bridge List"
+msgstr "ESX橋接主機清單"
 
-#: ../public/js/plugins/datastores-tab.js:264
+#: ../public/js/plugins/datastores-tab.js:263
+msgid "Space separated list of Server names or IPs where OpenNebula will be staging the new images into. This server will act as the entry point for new inmages in the datastore."
+msgstr ""
+
+#: ../public/js/plugins/datastores-tab.js:268
 msgid "Base IQN"
 msgstr "IQN名稱"
 
-#: ../public/js/plugins/datastores-tab.js:274
+#: ../public/js/plugins/datastores-tab.js:278
 msgid "Volume Group Name"
 msgstr "Volume Group 名稱"
 
-#: ../public/js/plugins/datastores-tab.js:324
-#: ../public/js/plugins/files-tab.js:63 ../public/js/plugins/files-tab.js:562
+#: ../public/js/plugins/datastores-tab.js:328
+#: ../public/js/plugins/files-tab.js:63 ../public/js/plugins/files-tab.js:557
 #: ../public/js/plugins/images-tab.js:65
 #: ../public/js/plugins/images-tab.js:186
 #: ../public/js/plugins/images-tab.js:753
 #: ../public/js/plugins/marketplace-tab.js:213
 #: ../public/js/plugins/templates-tab.js:264
-#: ../public/js/plugins/templates-tab.js:935
-#: ../public/js/plugins/templates-tab.js:2559
-#: ../public/js/plugins/templates-tab.js:2630
-#: ../public/js/plugins/templates-tab.js:3144
-#: ../public/js/plugins/vms-tab.js:247 ../public/js/sunstone-util.js:1231
+#: ../public/js/plugins/templates-tab.js:938
+#: ../public/js/plugins/templates-tab.js:2600
+#: ../public/js/plugins/templates-tab.js:2671
+#: ../public/js/plugins/templates-tab.js:3187
+#: ../public/js/plugins/vms-tab.js:211 ../public/js/sunstone-util.js:1266
 msgid "Size"
 msgstr "大小"
 
-#: ../public/js/plugins/datastores-tab.js:326
+#: ../public/js/plugins/datastores-tab.js:330
 #: ../public/js/plugins/files-tab.js:65 ../public/js/plugins/images-tab.js:67
 #: ../public/js/plugins/templates-tab.js:57
 #: ../public/js/plugins/templates-tab.js:215
 #: ../public/js/plugins/templates-tab.js:266
-#: ../public/js/plugins/templates-tab.js:937
-#: ../public/js/plugins/templates-tab.js:2561
-#: ../public/js/plugins/templates-tab.js:2632
-#: ../public/js/plugins/templates-tab.js:3146
-#: ../public/js/plugins/vms-tab.js:198 ../public/js/plugins/vms-tab.js:249
+#: ../public/js/plugins/templates-tab.js:940
+#: ../public/js/plugins/templates-tab.js:2602
+#: ../public/js/plugins/templates-tab.js:2673
+#: ../public/js/plugins/templates-tab.js:3189
+#: ../public/js/plugins/vms-tab.js:162 ../public/js/plugins/vms-tab.js:213
 msgid "Registration time"
 msgstr "建立時間"
 
-#: ../public/js/plugins/datastores-tab.js:327
+#: ../public/js/plugins/datastores-tab.js:331
 #: ../public/js/plugins/files-tab.js:66 ../public/js/plugins/images-tab.js:68
 #: ../public/js/plugins/images-tab.js:144
 #: ../public/js/plugins/images-tab.js:740
 #: ../public/js/plugins/templates-tab.js:267
-#: ../public/js/plugins/templates-tab.js:938
-#: ../public/js/plugins/templates-tab.js:2562
-#: ../public/js/plugins/templates-tab.js:2633
-#: ../public/js/plugins/templates-tab.js:3147
-#: ../public/js/plugins/vms-tab.js:250 ../public/js/plugins/vms-tab.js:1954
+#: ../public/js/plugins/templates-tab.js:941
+#: ../public/js/plugins/templates-tab.js:2603
+#: ../public/js/plugins/templates-tab.js:2674
+#: ../public/js/plugins/templates-tab.js:3190
+#: ../public/js/plugins/vms-tab.js:214 ../public/js/plugins/vms-tab.js:2019
 msgid "Persistent"
 msgstr "存續性"
 
-#: ../public/js/plugins/datastores-tab.js:329
+#: ../public/js/plugins/datastores-tab.js:333
 #: ../public/js/plugins/files-tab.js:68 ../public/js/plugins/images-tab.js:70
 #: ../public/js/plugins/templates-tab.js:269
-#: ../public/js/plugins/templates-tab.js:940
-#: ../public/js/plugins/templates-tab.js:2564
-#: ../public/js/plugins/templates-tab.js:2635
-#: ../public/js/plugins/templates-tab.js:3149
-#: ../public/js/plugins/vms-tab.js:252
+#: ../public/js/plugins/templates-tab.js:943
+#: ../public/js/plugins/templates-tab.js:2605
+#: ../public/js/plugins/templates-tab.js:2676
+#: ../public/js/plugins/templates-tab.js:3192
+#: ../public/js/plugins/vms-tab.js:216
 msgid "#VMS"
 msgstr "VM數量"
 
-#: ../public/js/plugins/datastores-tab.js:330
+#: ../public/js/plugins/datastores-tab.js:334
 #: ../public/js/plugins/files-tab.js:69 ../public/js/plugins/images-tab.js:71
 #: ../public/js/plugins/images-tab.js:244
 #: ../public/js/plugins/templates-tab.js:270
-#: ../public/js/plugins/templates-tab.js:941
-#: ../public/js/plugins/templates-tab.js:2565
-#: ../public/js/plugins/templates-tab.js:2636
-#: ../public/js/plugins/templates-tab.js:3150
-#: ../public/js/plugins/vms-tab.js:253 ../public/js/plugins/vms-tab.js:1952
+#: ../public/js/plugins/templates-tab.js:944
+#: ../public/js/plugins/templates-tab.js:2606
+#: ../public/js/plugins/templates-tab.js:2677
+#: ../public/js/plugins/templates-tab.js:3193
+#: ../public/js/plugins/vms-tab.js:217 ../public/js/plugins/vms-tab.js:2017
 msgid "Target"
 msgstr "目的裝置名稱"
 
-#: ../public/js/plugins/datastores-tab.js:442
+#: ../public/js/plugins/datastores-tab.js:446
 msgid "Datastore updated correctly"
 msgstr "資料存放區已成功修改"
 
-#: ../public/js/plugins/datastores-tab.js:543
-#: ../public/js/plugins/hosts-tab.js:405 ../public/js/plugins/vnets-tab.js:687
+#: ../public/js/plugins/datastores-tab.js:539
+msgid "Datastore renamed correctly"
+msgstr ""
+
+#: ../public/js/plugins/datastores-tab.js:561
+#: ../public/js/plugins/hosts-tab.js:415 ../public/js/plugins/vnets-tab.js:687
 msgid "Select cluster"
 msgstr "選擇主機叢集"
 
-#: ../public/js/plugins/datastores-tab.js:546
-#: ../public/js/plugins/hosts-tab.js:407 ../public/js/plugins/vnets-tab.js:690
+#: ../public/js/plugins/datastores-tab.js:564
+#: ../public/js/plugins/hosts-tab.js:417 ../public/js/plugins/vnets-tab.js:690
 msgid "Select the destination cluster:"
 msgstr "選擇目標主機叢集"
 
-#: ../public/js/plugins/datastores-tab.js:551
+#: ../public/js/plugins/datastores-tab.js:569
 #: ../public/js/plugins/files-tab.js:378
 #: ../public/js/plugins/images-tab.js:547
 #: ../public/js/plugins/oneflow-services.js:773
-#: ../public/js/plugins/oneflow-services.js:1088
-#: ../public/js/plugins/oneflow-templates.js:579
+#: ../public/js/plugins/oneflow-services.js:1105
+#: ../public/js/plugins/oneflow-templates.js:596
 #: ../public/js/plugins/templates-tab.js:544
-#: ../public/js/plugins/vms-tab.js:861 ../public/js/plugins/vnets-tab.js:695
+#: ../public/js/plugins/vms-tab.js:933 ../public/js/plugins/vnets-tab.js:695
 msgid "Change owner"
 msgstr "變更擁有者"
 
-#: ../public/js/plugins/datastores-tab.js:554
+#: ../public/js/plugins/datastores-tab.js:572
 #: ../public/js/plugins/files-tab.js:381
 #: ../public/js/plugins/images-tab.js:550
 #: ../public/js/plugins/oneflow-services.js:776
-#: ../public/js/plugins/oneflow-services.js:1090
-#: ../public/js/plugins/oneflow-templates.js:582
+#: ../public/js/plugins/oneflow-services.js:1107
+#: ../public/js/plugins/oneflow-templates.js:599
 #: ../public/js/plugins/templates-tab.js:547
-#: ../public/js/plugins/vms-tab.js:864 ../public/js/plugins/vnets-tab.js:698
+#: ../public/js/plugins/vms-tab.js:936 ../public/js/plugins/vnets-tab.js:698
 msgid "Select the new owner"
 msgstr "選擇新的擁有者"
 
-#: ../public/js/plugins/datastores-tab.js:559
+#: ../public/js/plugins/datastores-tab.js:577
 #: ../public/js/plugins/files-tab.js:386
 #: ../public/js/plugins/images-tab.js:555
 #: ../public/js/plugins/oneflow-services.js:782
-#: ../public/js/plugins/oneflow-services.js:1095
-#: ../public/js/plugins/oneflow-templates.js:587
+#: ../public/js/plugins/oneflow-services.js:1112
+#: ../public/js/plugins/oneflow-templates.js:604
 #: ../public/js/plugins/templates-tab.js:552
-#: ../public/js/plugins/users-tab.js:558 ../public/js/plugins/vms-tab.js:870
+#: ../public/js/plugins/users-tab.js:588 ../public/js/plugins/vms-tab.js:942
 #: ../public/js/plugins/vnets-tab.js:704
 msgid "Change group"
 msgstr "變更群組"
 
-#: ../public/js/plugins/datastores-tab.js:562
+#: ../public/js/plugins/datastores-tab.js:580
 #: ../public/js/plugins/files-tab.js:389
 #: ../public/js/plugins/images-tab.js:558
 #: ../public/js/plugins/oneflow-services.js:785
-#: ../public/js/plugins/oneflow-services.js:1097
-#: ../public/js/plugins/oneflow-templates.js:590
+#: ../public/js/plugins/oneflow-services.js:1114
+#: ../public/js/plugins/oneflow-templates.js:607
 #: ../public/js/plugins/templates-tab.js:555
-#: ../public/js/plugins/vms-tab.js:873 ../public/js/plugins/vnets-tab.js:707
+#: ../public/js/plugins/vms-tab.js:945 ../public/js/plugins/vnets-tab.js:707
 msgid "Select the new group"
 msgstr "選擇新的群組"
 
-#: ../public/js/plugins/datastores-tab.js:744
+#: ../public/js/plugins/datastores-tab.js:769
 msgid "Base path"
 msgstr "基底路徑"
 
-#: ../public/js/plugins/datastores-tab.js:754
+#: ../public/js/plugins/datastores-tab.js:779
 msgid "Used"
 msgstr "已使用"
 
-#: ../public/js/plugins/datastores-tab.js:758
+#: ../public/js/plugins/datastores-tab.js:783
 msgid "Free"
 msgstr "可用"
 
-#: ../public/js/plugins/datastores-tab.js:984
+#: ../public/js/plugins/datastores-tab.js:1034
 msgid "Please select a cluster for this datastore"
 msgstr "請選擇一個主機叢集用來配置資料存放區"
 
-#: ../public/js/plugins/files-tab.js:26 ../public/js/plugins/files-tab.js:422
+#: ../public/js/plugins/files-tab.js:26 ../public/js/plugins/files-tab.js:417
 msgid "Files & Kernels"
 msgstr "檔案 & Kernels"
 
 #: ../public/js/plugins/files-tab.js:30
-#: ../public/js/plugins/templates-tab.js:1184
+#: ../public/js/plugins/templates-tab.js:1191
 msgid "SIZE"
 msgstr "大小"
 
-#: ../public/js/plugins/files-tab.js:79 ../public/js/plugins/files-tab.js:659
+#: ../public/js/plugins/files-tab.js:79 ../public/js/plugins/files-tab.js:654
 msgid "Create File"
 msgstr "建立檔案"
 
@@ -1284,17 +1341,17 @@ msgstr "描述"
 msgid "Human readable description of the file for other users."
 msgstr "供其他使用者參閱的檔案描述"
 
-#: ../public/js/plugins/files-tab.js:119 ../public/js/plugins/files-tab.js:623
-#: ../public/js/plugins/templates-tab.js:2350
+#: ../public/js/plugins/files-tab.js:119 ../public/js/plugins/files-tab.js:618
+#: ../public/js/plugins/templates-tab.js:2391
 msgid "Kernel"
 msgstr "Kernel"
 
-#: ../public/js/plugins/files-tab.js:120 ../public/js/plugins/files-tab.js:624
-#: ../public/js/plugins/templates-tab.js:2351
+#: ../public/js/plugins/files-tab.js:120 ../public/js/plugins/files-tab.js:619
+#: ../public/js/plugins/templates-tab.js:2392
 msgid "Ramdisk"
 msgstr "Ramdisk"
 
-#: ../public/js/plugins/files-tab.js:121 ../public/js/plugins/files-tab.js:625
+#: ../public/js/plugins/files-tab.js:121 ../public/js/plugins/files-tab.js:620
 msgid "Context"
 msgstr "虛擬化環境變數"
 
@@ -1329,65 +1386,69 @@ msgstr "路徑"
 msgid "Path to the original file that will be copied to the file repository. If not specified for a DATABLOCK type file, an empty file will be created."
 msgstr "將被複製到檔案庫的原始檔案路徑。若DATABLOCK檔案未填寫此欄位，將建立一個空白檔案。"
 
-#: ../public/js/plugins/files-tab.js:395 ../public/js/plugins/hosts-tab.js:413
+#: ../public/js/plugins/files-tab.js:356
+msgid "File renamed correctly"
+msgstr ""
+
+#: ../public/js/plugins/files-tab.js:395 ../public/js/plugins/hosts-tab.js:423
 #: ../public/js/plugins/images-tab.js:564
 msgid "Enable"
 msgstr "啟用"
 
-#: ../public/js/plugins/files-tab.js:400 ../public/js/plugins/hosts-tab.js:419
+#: ../public/js/plugins/files-tab.js:400 ../public/js/plugins/hosts-tab.js:429
 #: ../public/js/plugins/images-tab.js:569
 msgid "Disable"
 msgstr "停用"
 
-#: ../public/js/plugins/files-tab.js:552
+#: ../public/js/plugins/files-tab.js:547
 #: ../public/js/plugins/images-tab.js:735
-#: ../public/js/plugins/templates-tab.js:1939
+#: ../public/js/plugins/templates-tab.js:1980
 msgid "Register time"
 msgstr "建立時間"
 
-#: ../public/js/plugins/files-tab.js:557
+#: ../public/js/plugins/files-tab.js:552
 #: ../public/js/plugins/images-tab.js:748
 msgid "Filesystem type"
 msgstr "檔案系統種類"
 
-#: ../public/js/plugins/files-tab.js:567 ../public/js/plugins/hosts-tab.js:742
+#: ../public/js/plugins/files-tab.js:562 ../public/js/plugins/hosts-tab.js:792
 #: ../public/js/plugins/images-tab.js:758
 #: ../public/js/plugins/oneflow-services.js:974
-#: ../public/js/plugins/oneflow-services.js:1227
-#: ../public/js/plugins/oneflow-services.js:1280
-#: ../public/js/plugins/vms-tab.js:1425
+#: ../public/js/plugins/oneflow-services.js:1244
+#: ../public/js/plugins/oneflow-services.js:1297
+#: ../public/js/plugins/vms-tab.js:1490
 msgid "State"
 msgstr "狀態"
 
-#: ../public/js/plugins/files-tab.js:572
+#: ../public/js/plugins/files-tab.js:567
 #: ../public/js/plugins/images-tab.js:763
 msgid "Running VMS"
 msgstr "運行VM數量"
 
-#: ../public/js/plugins/files-tab.js:729
+#: ../public/js/plugins/files-tab.js:711
 #: ../public/js/plugins/images-tab.js:948
 msgid "Custom attribute name and value must be filled in"
 msgstr "必須填寫自訂屬性名稱與值"
 
-#: ../public/js/plugins/files-tab.js:782 ../public/js/plugins/files-tab.js:797
+#: ../public/js/plugins/files-tab.js:764 ../public/js/plugins/files-tab.js:779
 #: ../public/js/plugins/images-tab.js:1001
 #: ../public/js/plugins/images-tab.js:1014
 #: ../public/js/plugins/images-tab.js:1021
 msgid "Uploading..."
 msgstr "上傳中"
 
-#: ../public/js/plugins/files-tab.js:852
+#: ../public/js/plugins/files-tab.js:833
 #: ../public/js/plugins/images-tab.js:1097
 msgid "There are mandatory parameters missing"
 msgstr "部分參數尚未填寫"
 
-#: ../public/js/plugins/files-tab.js:861 ../public/js/plugins/files-tab.js:917
+#: ../public/js/plugins/files-tab.js:842 ../public/js/plugins/files-tab.js:898
 msgid "Please select a datastore for this file"
 msgstr "請選擇一個資料存放區用來存放檔案"
 
 #: ../public/js/plugins/groups-tab.js:27 ../public/js/plugins/groups-tab.js:80
 #: ../public/js/plugins/users-tab.js:30 ../public/js/plugins/users-tab.js:85
-#: ../public/js/sunstone-util.js:1214
+#: ../public/js/sunstone-util.js:1234
 msgid "Memory"
 msgstr "記憶體"
 
@@ -1400,7 +1461,7 @@ msgid "Net RX"
 msgstr "網路接收資料量"
 
 #: ../public/js/plugins/groups-tab.js:79 ../public/js/plugins/users-tab.js:84
-#: ../public/js/sunstone-util.js:1184
+#: ../public/js/sunstone-util.js:1204
 msgid "VMs"
 msgstr "VM數量"
 
@@ -1419,23 +1480,23 @@ msgid "Quota type"
 msgstr "配額種類"
 
 #: ../public/js/plugins/groups-tab.js:128
-#: ../public/js/plugins/users-tab.js:214 ../public/js/plugins/vms-tab.js:1408
+#: ../public/js/plugins/users-tab.js:214 ../public/js/plugins/vms-tab.js:1473
 msgid "Virtual Machine"
 msgstr "虛擬機器"
 
 #: ../public/js/plugins/groups-tab.js:130
-#: ../public/js/plugins/groups-tab.js:207
+#: ../public/js/plugins/groups-tab.js:218
 #: ../public/js/plugins/images-tab.js:706
-#: ../public/js/plugins/templates-tab.js:910
-#: ../public/js/plugins/users-tab.js:216 ../public/js/plugins/users-tab.js:293
-#: ../public/js/sunstone-util.js:1286
+#: ../public/js/plugins/templates-tab.js:913
+#: ../public/js/plugins/users-tab.js:216 ../public/js/plugins/users-tab.js:304
+#: ../public/js/sunstone-util.js:1321
 msgid "Image"
 msgstr "磁碟影像檔"
 
 #: ../public/js/plugins/groups-tab.js:137
-#: ../public/js/plugins/oneflow-services.js:1448
-#: ../public/js/plugins/oneflow-templates.js:285
-#: ../public/js/plugins/oneflow-templates.js:813
+#: ../public/js/plugins/oneflow-services.js:1465
+#: ../public/js/plugins/oneflow-templates.js:288
+#: ../public/js/plugins/oneflow-templates.js:830
 #: ../public/js/plugins/users-tab.js:223
 msgid "Max VMs"
 msgstr "最大VM數量"
@@ -1450,70 +1511,75 @@ msgstr "最大記憶體使用量(MB)"
 msgid "Max CPU"
 msgstr "總CPU數量"
 
-#: ../public/js/plugins/groups-tab.js:183
-#: ../public/js/plugins/users-tab.js:269
-msgid "Max size (MB)"
-msgstr "最大磁碟使用量(MB)"
+#: ../public/js/plugins/groups-tab.js:170
+#: ../public/js/plugins/users-tab.js:256
+msgid "Max Volatile Storage (MB)"
+msgstr ""
 
 #: ../public/js/plugins/groups-tab.js:194
 #: ../public/js/plugins/users-tab.js:280
+msgid "Max size (MB)"
+msgstr "最大磁碟使用量(MB)"
+
+#: ../public/js/plugins/groups-tab.js:205
+#: ../public/js/plugins/users-tab.js:291
 msgid "Max images"
 msgstr "最多磁碟影像檔數目"
 
-#: ../public/js/plugins/groups-tab.js:218
-#: ../public/js/plugins/users-tab.js:304
+#: ../public/js/plugins/groups-tab.js:229
+#: ../public/js/plugins/users-tab.js:315
 msgid "Max RVMs"
 msgstr "最多運行VM數量"
 
-#: ../public/js/plugins/groups-tab.js:242
-#: ../public/js/plugins/users-tab.js:328
+#: ../public/js/plugins/groups-tab.js:253
+#: ../public/js/plugins/users-tab.js:339
 msgid "Max leases"
 msgstr "最大租用數"
 
-#: ../public/js/plugins/groups-tab.js:253
-#: ../public/js/plugins/users-tab.js:339
+#: ../public/js/plugins/groups-tab.js:264
+#: ../public/js/plugins/users-tab.js:350
 msgid "Add/edit quota"
 msgstr "新增/修改配額"
 
-#: ../public/js/plugins/groups-tab.js:260
-#: ../public/js/plugins/users-tab.js:346
+#: ../public/js/plugins/groups-tab.js:271
+#: ../public/js/plugins/users-tab.js:357
 msgid "Quota"
 msgstr "配額"
 
-#: ../public/js/plugins/groups-tab.js:261
-#: ../public/js/plugins/users-tab.js:347
+#: ../public/js/plugins/groups-tab.js:272
+#: ../public/js/plugins/users-tab.js:358
 msgid "Edit"
 msgstr "編輯"
 
-#: ../public/js/plugins/groups-tab.js:271
-#: ../public/js/plugins/users-tab.js:357
+#: ../public/js/plugins/groups-tab.js:282
+#: ../public/js/plugins/users-tab.js:368
 msgid "Apply changes"
 msgstr "套用所有變更"
 
-#: ../public/js/plugins/groups-tab.js:363
-#: ../public/js/plugins/users-tab.js:504
+#: ../public/js/plugins/groups-tab.js:374
+#: ../public/js/plugins/users-tab.js:534
 msgid "Quotas updated correctly"
 msgstr "配額已成功修改"
 
-#: ../public/js/plugins/groups-tab.js:400
-#: ../public/js/plugins/users-tab.js:553
+#: ../public/js/plugins/groups-tab.js:411
+#: ../public/js/plugins/users-tab.js:583
 msgid "Update quotas"
 msgstr "修改配額"
 
-#: ../public/js/plugins/groups-tab.js:425
+#: ../public/js/plugins/groups-tab.js:436
 msgid "Group info"
 msgstr "群組資訊"
 
-#: ../public/js/plugins/groups-tab.js:541
-#: ../public/js/plugins/users-tab.js:578 ../public/js/plugins/users-tab.js:752
+#: ../public/js/plugins/groups-tab.js:553
+#: ../public/js/plugins/users-tab.js:624 ../public/js/plugins/users-tab.js:804
 msgid "Quotas"
 msgstr "配額"
 
-#: ../public/js/plugins/groups-tab.js:563
+#: ../public/js/plugins/groups-tab.js:575
 msgid "Create group"
 msgstr "建立群組"
 
-#: ../public/js/plugins/groups-tab.js:586
+#: ../public/js/plugins/groups-tab.js:599
 msgid "Group quotas"
 msgstr "群組配額"
 
@@ -1538,7 +1604,7 @@ msgid "KVM"
 msgstr "KVM"
 
 #: ../public/js/plugins/hosts-tab.js:107 ../public/js/plugins/hosts-tab.js:128
-#: ../public/js/plugins/templates-tab.js:2981
+#: ../public/js/plugins/templates-tab.js:3024
 msgid "XEN"
 msgstr "XEN"
 
@@ -1550,106 +1616,110 @@ msgstr "EC2"
 msgid "Custom VMM_MAD"
 msgstr "自訂虛擬機器中介組件"
 
-#: ../public/js/plugins/hosts-tab.js:131
-msgid "Ganglia"
-msgstr "Ganglia"
-
-#: ../public/js/plugins/hosts-tab.js:136
+#: ../public/js/plugins/hosts-tab.js:135
 msgid "Custom IM_MAD"
 msgstr "自訂資源監控中介組件"
 
-#: ../public/js/plugins/hosts-tab.js:146 ../public/js/plugins/vnets-tab.js:827
+#: ../public/js/plugins/hosts-tab.js:145 ../public/js/plugins/vnets-tab.js:827
 msgid "Virtual Network"
 msgstr "虛擬網路"
 
-#: ../public/js/plugins/hosts-tab.js:150
+#: ../public/js/plugins/hosts-tab.js:149
 msgid "Default (dummy)"
 msgstr "預設值(dummy)"
 
-#: ../public/js/plugins/hosts-tab.js:151
+#: ../public/js/plugins/hosts-tab.js:150
 msgid "Firewall"
 msgstr "防火牆"
 
-#: ../public/js/plugins/hosts-tab.js:152 ../public/js/plugins/vnets-tab.js:287
+#: ../public/js/plugins/hosts-tab.js:151 ../public/js/plugins/vnets-tab.js:287
 msgid "802.1Q"
 msgstr "802.1Q"
 
-#: ../public/js/plugins/hosts-tab.js:153 ../public/js/plugins/vnets-tab.js:288
+#: ../public/js/plugins/hosts-tab.js:152 ../public/js/plugins/vnets-tab.js:288
 msgid "ebtables"
 msgstr "ebtables"
 
-#: ../public/js/plugins/hosts-tab.js:154 ../public/js/plugins/vnets-tab.js:289
+#: ../public/js/plugins/hosts-tab.js:153 ../public/js/plugins/vnets-tab.js:289
 msgid "Open vSwitch"
 msgstr "Open vSwitch"
 
-#: ../public/js/plugins/hosts-tab.js:159
+#: ../public/js/plugins/hosts-tab.js:158
 msgid "Custom VNM_MAD"
 msgstr "自訂虛擬網路中介組件"
 
-#: ../public/js/plugins/hosts-tab.js:425
+#: ../public/js/plugins/hosts-tab.js:392
+msgid "Host renamed correctly"
+msgstr ""
+
+#: ../public/js/plugins/hosts-tab.js:435
 msgid "Delete host"
 msgstr "移除主機"
 
-#: ../public/js/plugins/hosts-tab.js:443 ../public/js/plugins/hosts-tab.js:799
+#: ../public/js/plugins/hosts-tab.js:453 ../public/js/plugins/hosts-tab.js:852
 msgid "Graphs"
 msgstr "統計圖"
 
-#: ../public/js/plugins/hosts-tab.js:525 ../public/js/plugins/vms-tab.js:1092
+#: ../public/js/plugins/hosts-tab.js:535 ../public/js/plugins/vms-tab.js:1157
 msgid "INIT"
 msgstr "初始化"
 
-#: ../public/js/plugins/hosts-tab.js:526
+#: ../public/js/plugins/hosts-tab.js:536
 msgid "UPDATE"
 msgstr "更新"
 
-#: ../public/js/plugins/hosts-tab.js:531 ../public/js/plugins/hosts-tab.js:564
+#: ../public/js/plugins/hosts-tab.js:541 ../public/js/plugins/hosts-tab.js:574
 msgid "RETRY"
 msgstr "重試"
 
-#: ../public/js/plugins/hosts-tab.js:727
-#: ../public/js/plugins/oneflow-services.js:1475
-#: ../public/js/plugins/vms-tab.js:81 ../public/js/plugins/vms-tab.js:1314
-#: ../public/js/plugins/vms-tab.js:1435
+#: ../public/js/plugins/hosts-tab.js:738
+msgid "Datastore ID"
+msgstr ""
+
+#: ../public/js/plugins/hosts-tab.js:773
+#: ../public/js/plugins/oneflow-services.js:1492
+#: ../public/js/plugins/vms-tab.js:94 ../public/js/plugins/vms-tab.js:1379
+#: ../public/js/plugins/vms-tab.js:1500
 msgid "Host"
 msgstr "主機"
 
-#: ../public/js/plugins/hosts-tab.js:754
+#: ../public/js/plugins/hosts-tab.js:804
 msgid "VN MAD"
 msgstr "虛擬網路中介組件"
 
-#: ../public/js/plugins/hosts-tab.js:758
+#: ../public/js/plugins/hosts-tab.js:808
 msgid "Total Mem"
 msgstr "總記憶體"
 
-#: ../public/js/plugins/hosts-tab.js:762
+#: ../public/js/plugins/hosts-tab.js:812
 msgid "Used Mem (real)"
 msgstr "記憶體使用量 (實際)"
 
-#: ../public/js/plugins/hosts-tab.js:766
+#: ../public/js/plugins/hosts-tab.js:816
 msgid "Used Mem (allocated)"
 msgstr "記憶體使用量 (配置)"
 
-#: ../public/js/plugins/hosts-tab.js:770
+#: ../public/js/plugins/hosts-tab.js:820
 msgid "Total CPU"
 msgstr "總 CPU"
 
-#: ../public/js/plugins/hosts-tab.js:774
+#: ../public/js/plugins/hosts-tab.js:824
 msgid "Used CPU (real)"
 msgstr "CPU使用量 (實際)"
 
-#: ../public/js/plugins/hosts-tab.js:778
+#: ../public/js/plugins/hosts-tab.js:828
 msgid "Used CPU (allocated)"
 msgstr "CPU使用量 (配置)"
 
-#: ../public/js/plugins/hosts-tab.js:782 ../public/js/sunstone-util.js:1291
+#: ../public/js/plugins/hosts-tab.js:832 ../public/js/sunstone-util.js:1326
 msgid "Running VMs"
 msgstr "運行VM數量"
 
-#: ../public/js/plugins/hosts-tab.js:852
+#: ../public/js/plugins/hosts-tab.js:924
 msgid "Create host"
 msgstr "建立主機"
 
-#: ../public/js/plugins/hosts-tab.js:897
+#: ../public/js/plugins/hosts-tab.js:962
 msgid "Host name missing!"
 msgstr "未填寫主機名稱!"
 
@@ -1673,7 +1743,7 @@ msgstr "OS"
 
 #: ../public/js/plugins/images-tab.js:122
 #: ../public/js/plugins/images-tab.js:815
-#: ../public/js/plugins/templates-tab.js:2381
+#: ../public/js/plugins/templates-tab.js:2422
 msgid "CDROM"
 msgstr "CDROM"
 
@@ -1719,9 +1789,10 @@ msgstr "資料區塊內的檔案系統種類。可填寫任何mkfs unix指令所
 
 #: ../public/js/plugins/images-tab.js:213
 #: ../public/js/plugins/templates-tab.js:714
-#: ../public/js/plugins/templates-tab.js:956
-#: ../public/js/plugins/templates-tab.js:1202
-#: ../public/js/plugins/templates-tab.js:1683
+#: ../public/js/plugins/templates-tab.js:963
+#: ../public/js/plugins/templates-tab.js:1209
+#: ../public/js/plugins/templates-tab.js:1723
+#: ../public/js/plugins/vms-tab.js:317
 msgid "Advanced options"
 msgstr "進階選項"
 
@@ -1731,7 +1802,7 @@ msgstr "裝置名稱字首"
 
 #: ../public/js/plugins/images-tab.js:226
 msgid "Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”. If omitted, the default value is the one defined in oned.conf (installation default is “hd”)."
-msgstr "此磁碟影像檔將被掛載的裝置名稱字首。例如 \"hd\" 或 \"sd\"。若未填寫，將使用oned.conf內的設定作為預設值(預設為hd)"
+msgstr "此磁碟影像檔將被掛載的裝置名稱字首。例如“hd”或“sd”。若未填寫，將使用oned.conf內的設定作為預設值(預設為hd)"
 
 #: ../public/js/plugins/images-tab.js:231
 msgid "Driver"
@@ -1756,13 +1827,14 @@ msgid "Value"
 msgstr "值"
 
 #: ../public/js/plugins/images-tab.js:283
-#: ../public/js/plugins/oneflow-templates.js:314
-#: ../public/js/plugins/oneflow-templates.js:371
-#: ../public/js/plugins/templates-tab.js:2985
-#: ../public/js/plugins/templates-tab.js:3182
-#: ../public/js/plugins/vms-tab.js:1632 ../public/js/plugins/vms-tab.js:1662
+#: ../public/js/plugins/oneflow-templates.js:317
+#: ../public/js/plugins/oneflow-templates.js:374
+#: ../public/js/plugins/templates-tab.js:3028
+#: ../public/js/plugins/templates-tab.js:3236
+#: ../public/js/plugins/templates-tab.js:3855
+#: ../public/js/plugins/vms-tab.js:1697 ../public/js/plugins/vms-tab.js:1727
 #: ../public/js/plugins/vnets-tab.js:204 ../public/js/plugins/vnets-tab.js:373
-#: ../public/js/sunstone-util.js:1800 ../public/js/sunstone-util.js:2042
+#: ../public/js/sunstone-util.js:1843 ../public/js/sunstone-util.js:2095
 msgid "Add"
 msgstr "新增"
 
@@ -1770,6 +1842,10 @@ msgstr "新增"
 #: ../public/js/plugins/vnets-tab.js:209 ../public/js/plugins/vnets-tab.js:378
 msgid "Remove selected"
 msgstr "移除被選擇的項目"
+
+#: ../public/js/plugins/images-tab.js:525
+msgid "Image renamed correctly"
+msgstr ""
 
 #: ../public/js/plugins/images-tab.js:574
 msgid "Make persistent"
@@ -1780,25 +1856,25 @@ msgid "Make non persistent"
 msgstr "非存續"
 
 #: ../public/js/plugins/images-tab.js:584
-#: ../public/js/plugins/images-tab.js:1288
+#: ../public/js/plugins/images-tab.js:1289
 #: ../public/js/plugins/templates-tab.js:561
-#: ../public/js/plugins/templates-tab.js:4632
+#: ../public/js/plugins/templates-tab.js:4970
 msgid "Clone"
 msgstr "製作複本"
 
 #: ../public/js/plugins/images-tab.js:741
 #: ../public/js/plugins/images-tab.js:832
-#: ../public/js/plugins/templates-tab.js:1082
-#: ../public/js/plugins/templates-tab.js:1267
-#: ../public/js/plugins/vms-tab.js:1451
+#: ../public/js/plugins/templates-tab.js:1089
+#: ../public/js/plugins/templates-tab.js:1274
+#: ../public/js/plugins/vms-tab.js:1516
 msgid "yes"
 msgstr "是"
 
 #: ../public/js/plugins/images-tab.js:741
 #: ../public/js/plugins/images-tab.js:833
-#: ../public/js/plugins/templates-tab.js:1083
-#: ../public/js/plugins/templates-tab.js:1268
-#: ../public/js/plugins/vms-tab.js:1451
+#: ../public/js/plugins/templates-tab.js:1090
+#: ../public/js/plugins/templates-tab.js:1275
+#: ../public/js/plugins/vms-tab.js:1516
 msgid "no"
 msgstr "否"
 
@@ -1811,16 +1887,16 @@ msgstr "Datablock"
 msgid "Please select a datastore for this image"
 msgstr "請選擇一個資料存放區用來存放磁碟影像檔"
 
-#: ../public/js/plugins/images-tab.js:1267
+#: ../public/js/plugins/images-tab.js:1268
 msgid "Clone Image"
 msgstr "複製磁碟影像檔"
 
-#: ../public/js/plugins/images-tab.js:1273
+#: ../public/js/plugins/images-tab.js:1274
 msgid "Several image are selected, please choose prefix to name the new copies"
 msgstr "已選擇多個磁碟影像檔，請選擇新複本名稱的字首"
 
-#: ../public/js/plugins/images-tab.js:1279
-#: ../public/js/plugins/templates-tab.js:4623
+#: ../public/js/plugins/images-tab.js:1280
+#: ../public/js/plugins/templates-tab.js:4961
 msgid "Prefix"
 msgstr "字首"
 
@@ -1848,7 +1924,7 @@ msgstr "Hypervisor"
 
 #: ../public/js/plugins/marketplace-tab.js:137
 #: ../public/js/plugins/marketplace-tab.js:209
-#: ../public/js/plugins/templates-tab.js:2359
+#: ../public/js/plugins/templates-tab.js:2400
 msgid "Arch"
 msgstr "處理器架構"
 
@@ -1891,6 +1967,7 @@ msgstr "部署中"
 
 #: ../public/js/plugins/oneflow-services.js:72
 #: ../public/js/plugins/oneflow-services.js:94
+#: ../public/js/plugins/vms-tab.js:28
 msgid "RUNNING"
 msgstr "運行中"
 
@@ -1906,7 +1983,7 @@ msgstr "警告"
 
 #: ../public/js/plugins/oneflow-services.js:75
 #: ../public/js/plugins/oneflow-services.js:97
-#: ../public/js/plugins/vms-tab.js:1590
+#: ../public/js/plugins/vms-tab.js:1655
 msgid "DONE"
 msgstr "完成時間"
 
@@ -1936,77 +2013,77 @@ msgid "COOLDOWN"
 msgstr "冷卻中"
 
 #: ../public/js/plugins/oneflow-services.js:667
-#: ../public/js/plugins/oneflow-services.js:1756
-#: ../public/js/plugins/oneflow-services.js:1784
+#: ../public/js/plugins/oneflow-services.js:1773
+#: ../public/js/plugins/oneflow-services.js:1801
 msgid "Scale"
 msgstr "規模"
 
 #: ../public/js/plugins/oneflow-services.js:668
 #: ../public/js/plugins/oneflow-services.js:674
 #: ../public/js/plugins/oneflow-services.js:816
-#: ../public/js/plugins/vms-tab.js:904
+#: ../public/js/plugins/vms-tab.js:975
 msgid "This will hold selected pending VMs from being deployed"
 msgstr "選取的擱置VM將會被停止排程，不會被部署至主機上運行"
 
 #: ../public/js/plugins/oneflow-services.js:673
 #: ../public/js/plugins/oneflow-services.js:815
-#: ../public/js/plugins/vms-tab.js:903
+#: ../public/js/plugins/vms-tab.js:974
 msgid "Hold"
 msgstr "保留"
 
 #: ../public/js/plugins/oneflow-services.js:679
 #: ../public/js/plugins/oneflow-services.js:821
-#: ../public/js/plugins/vms-tab.js:909
+#: ../public/js/plugins/vms-tab.js:980
 msgid "Release"
 msgstr "釋放"
 
 #: ../public/js/plugins/oneflow-services.js:681
 #: ../public/js/plugins/oneflow-services.js:823
-#: ../public/js/plugins/vms-tab.js:911
+#: ../public/js/plugins/vms-tab.js:982
 msgid "This will release held machines"
 msgstr "選取的保留VM將會被釋放回排程系統"
 
 #: ../public/js/plugins/oneflow-services.js:685
 #: ../public/js/plugins/oneflow-services.js:827
-#: ../public/js/plugins/vms-tab.js:915
+#: ../public/js/plugins/vms-tab.js:986
 msgid "Suspend"
 msgstr "暫停"
 
 #: ../public/js/plugins/oneflow-services.js:687
 #: ../public/js/plugins/oneflow-services.js:829
-#: ../public/js/plugins/vms-tab.js:917
+#: ../public/js/plugins/vms-tab.js:988
 msgid "This will suspend selected machines"
 msgstr "選取的VM將會暫停"
 
 #: ../public/js/plugins/oneflow-services.js:693
 #: ../public/js/plugins/oneflow-services.js:835
-#: ../public/js/plugins/vms-tab.js:923
+#: ../public/js/plugins/vms-tab.js:994
 msgid "This will resume selected VMs"
 msgstr "選取的VM將會繼續運行"
 
 #: ../public/js/plugins/oneflow-services.js:697
 #: ../public/js/plugins/oneflow-services.js:839
-#: ../public/js/plugins/vms-tab.js:927
+#: ../public/js/plugins/vms-tab.js:998
 msgid "Stop"
 msgstr "停止"
 
 #: ../public/js/plugins/oneflow-services.js:699
 #: ../public/js/plugins/oneflow-services.js:841
-#: ../public/js/plugins/vms-tab.js:929
+#: ../public/js/plugins/vms-tab.js:1000
 msgid "This will stop selected VMs"
 msgstr "選取的VM將會停機，並將影像檔封存於系統資料存放區"
 
 #: ../public/js/plugins/oneflow-services.js:703
 #: ../public/js/plugins/oneflow-services.js:845
-#: ../public/js/plugins/templates-tab.js:2349
-#: ../public/js/plugins/templates-tab.js:2374
-#: ../public/js/plugins/vms-tab.js:933
+#: ../public/js/plugins/templates-tab.js:2390
+#: ../public/js/plugins/templates-tab.js:2415
+#: ../public/js/plugins/vms-tab.js:1004
 msgid "Boot"
 msgstr "開機"
 
 #: ../public/js/plugins/oneflow-services.js:705
 #: ../public/js/plugins/oneflow-services.js:847
-#: ../public/js/plugins/vms-tab.js:935
+#: ../public/js/plugins/vms-tab.js:1006
 msgid "This will force the hypervisor boot action of VMs stuck in UNKNOWN or BOOT state"
 msgstr "此操作將會對UNKNOWN或BOOT狀態的VM強迫送出開機訊號"
 
@@ -2014,19 +2091,19 @@ msgstr "此操作將會對UNKNOWN或BOOT狀態的VM強迫送出開機訊號"
 #: ../public/js/plugins/oneflow-services.js:715
 #: ../public/js/plugins/oneflow-services.js:851
 #: ../public/js/plugins/oneflow-services.js:857
-#: ../public/js/plugins/vms-tab.js:939 ../public/js/plugins/vms-tab.js:945
+#: ../public/js/plugins/vms-tab.js:1010 ../public/js/plugins/vms-tab.js:1016
 msgid "Reboot"
 msgstr "重開機"
 
 #: ../public/js/plugins/oneflow-services.js:711
 #: ../public/js/plugins/oneflow-services.js:853
-#: ../public/js/plugins/vms-tab.js:941
+#: ../public/js/plugins/vms-tab.js:1012
 msgid "This will send a reboot action to running VMs"
 msgstr "選取的運行中VM將會收到ACPI重新開機指令"
 
 #: ../public/js/plugins/oneflow-services.js:717
 #: ../public/js/plugins/oneflow-services.js:859
-#: ../public/js/plugins/vms-tab.js:947
+#: ../public/js/plugins/vms-tab.js:1018
 msgid "This will perform a hard reboot on selected VMs"
 msgstr "選取的VM將會強迫重開機(類似按下reset鍵之效果)"
 
@@ -2034,19 +2111,19 @@ msgstr "選取的VM將會強迫重開機(類似按下reset鍵之效果)"
 #: ../public/js/plugins/oneflow-services.js:727
 #: ../public/js/plugins/oneflow-services.js:863
 #: ../public/js/plugins/oneflow-services.js:869
-#: ../public/js/plugins/vms-tab.js:951 ../public/js/plugins/vms-tab.js:957
+#: ../public/js/plugins/vms-tab.js:1022 ../public/js/plugins/vms-tab.js:1028
 msgid "Power Off"
 msgstr "關機"
 
 #: ../public/js/plugins/oneflow-services.js:723
 #: ../public/js/plugins/oneflow-services.js:865
-#: ../public/js/plugins/vms-tab.js:953
+#: ../public/js/plugins/vms-tab.js:1024
 msgid "This will send a power off signal to running VMs. They can be resumed later."
 msgstr "此操作將會送出ACPI關機訊號至運行中的VM。之後可以重新開啟此VM"
 
 #: ../public/js/plugins/oneflow-services.js:729
 #: ../public/js/plugins/oneflow-services.js:871
-#: ../public/js/plugins/vms-tab.js:959
+#: ../public/js/plugins/vms-tab.js:1030
 msgid "This will send a forced power off signal to running VMs. They can be resumed later."
 msgstr "此操作將會強迫關閉運行中的VM(類似直接切斷主機電源之效果)，當VM不支援ACPI時才使用此操作。之後可以重新開啟此VM"
 
@@ -2054,7 +2131,7 @@ msgstr "此操作將會強迫關閉運行中的VM(類似直接切斷主機電源
 #: ../public/js/plugins/oneflow-services.js:739
 #: ../public/js/plugins/oneflow-services.js:875
 #: ../public/js/plugins/oneflow-services.js:881
-#: ../public/js/plugins/vms-tab.js:963 ../public/js/plugins/vms-tab.js:969
+#: ../public/js/plugins/vms-tab.js:1034 ../public/js/plugins/vms-tab.js:1040
 msgid "Undeploy"
 msgstr "關機封存"
 
@@ -2062,7 +2139,7 @@ msgstr "關機封存"
 #: ../public/js/plugins/oneflow-services.js:741
 #: ../public/js/plugins/oneflow-services.js:877
 #: ../public/js/plugins/oneflow-services.js:883
-#: ../public/js/plugins/vms-tab.js:965 ../public/js/plugins/vms-tab.js:971
+#: ../public/js/plugins/vms-tab.js:1036 ../public/js/plugins/vms-tab.js:1042
 msgid "Shuts down the given VM. The VM is saved in the system Datastore."
 msgstr "此VM將會被關機。關機後，VM的磁碟影像檔將會被封存回系統資料存放區"
 
@@ -2070,421 +2147,430 @@ msgstr "此VM將會被關機。關機後，VM的磁碟影像檔將會被封存�
 #: ../public/js/plugins/oneflow-services.js:751
 #: ../public/js/plugins/oneflow-services.js:887
 #: ../public/js/plugins/oneflow-services.js:893
-#: ../public/js/plugins/oneflow-services.js:1103
-#: ../public/js/plugins/oneflow-templates.js:166
-#: ../public/js/plugins/oneflow-templates.js:242
-#: ../public/js/plugins/vms-tab.js:975 ../public/js/plugins/vms-tab.js:981
+#: ../public/js/plugins/oneflow-services.js:1120
+#: ../public/js/plugins/oneflow-templates.js:169
+#: ../public/js/plugins/oneflow-templates.js:245
+#: ../public/js/plugins/vms-tab.js:1046 ../public/js/plugins/vms-tab.js:1052
 msgid "Shutdown"
 msgstr "結束"
 
 #: ../public/js/plugins/oneflow-services.js:747
 #: ../public/js/plugins/oneflow-services.js:889
-#: ../public/js/plugins/vms-tab.js:977
+#: ../public/js/plugins/vms-tab.js:1048
 msgid "This will initiate the shutdown process in the selected VMs"
 msgstr "選取的VM將會在收到ACPI關機訊號後正常結束，並進行資料保存流程"
 
 #: ../public/js/plugins/oneflow-services.js:753
 #: ../public/js/plugins/oneflow-services.js:895
-#: ../public/js/plugins/vms-tab.js:983
+#: ../public/js/plugins/vms-tab.js:1054
 msgid "This will initiate the shutdown-hard (forced) process in the selected VMs"
 msgstr "選取的VM將會立刻被強迫結束，再進行資料保存流程"
 
 #: ../public/js/plugins/oneflow-services.js:759
 #: ../public/js/plugins/oneflow-services.js:902
-#: ../public/js/plugins/vms-tab.js:990
+#: ../public/js/plugins/vms-tab.js:1061
 msgid "This will delete the selected VMs from the database"
 msgstr "選取的VM將會立刻刪除，且不保留任何資料。非必要請勿使用此指令"
 
 #: ../public/js/plugins/oneflow-services.js:765
 #: ../public/js/plugins/oneflow-services.js:908
-#: ../public/js/plugins/vms-tab.js:996
+#: ../public/js/plugins/vms-tab.js:1067
 msgid "This will delete and recreate VMs to PENDING state"
 msgstr "選取的VM將會刪除並立刻重新開啟新的VM實體。使用此指令前，建議先嘗試關機封存指令"
 
 #: ../public/js/plugins/oneflow-services.js:790
-#: ../public/js/plugins/vms-tab.js:878
+#: ../public/js/plugins/vms-tab.js:384 ../public/js/plugins/vms-tab.js:950
 msgid "Deploy"
 msgstr "指定部署"
 
 #: ../public/js/plugins/oneflow-services.js:791
-#: ../public/js/plugins/vms-tab.js:879
+#: ../public/js/plugins/vms-tab.js:951
 msgid "This will deploy the selected VMs on the chosen host"
 msgstr "選取的VM將會部署到指定的主機"
 
 #: ../public/js/plugins/oneflow-services.js:798
 #: ../public/js/plugins/oneflow-services.js:807
-#: ../public/js/plugins/vms-tab.js:886 ../public/js/plugins/vms-tab.js:895
+#: ../public/js/plugins/vms-tab.js:957 ../public/js/plugins/vms-tab.js:966
 msgid "Migrate"
 msgstr "遷移"
 
 #: ../public/js/plugins/oneflow-services.js:799
-#: ../public/js/plugins/vms-tab.js:887
+#: ../public/js/plugins/vms-tab.js:958
 msgid "This will migrate the selected VMs to the chosen host"
 msgstr "選取的VM將會遷移到指定的主機"
 
 #: ../public/js/plugins/oneflow-services.js:808
-#: ../public/js/plugins/vms-tab.js:896
+#: ../public/js/plugins/vms-tab.js:967
 msgid "This will live-migrate the selected VMs to the chosen host"
 msgstr "選取的VM將會即時遷移到指定的主機"
 
 #: ../public/js/plugins/oneflow-services.js:912
-#: ../public/js/plugins/vms-tab.js:1000 ../public/js/plugins/vms-tab.js:1450
+#: ../public/js/plugins/vms-tab.js:1071 ../public/js/plugins/vms-tab.js:1515
 msgid "Reschedule"
 msgstr "重新排程"
 
 #: ../public/js/plugins/oneflow-services.js:914
-#: ../public/js/plugins/vms-tab.js:1002
+#: ../public/js/plugins/vms-tab.js:1073
 msgid "This will reschedule selected VMs"
 msgstr "選取的VM將會重新進入排程系統"
 
 #: ../public/js/plugins/oneflow-services.js:918
-#: ../public/js/plugins/vms-tab.js:1006
+#: ../public/js/plugins/vms-tab.js:1077
 msgid "Un-Reschedule"
 msgstr "取消排程"
 
 #: ../public/js/plugins/oneflow-services.js:920
-#: ../public/js/plugins/vms-tab.js:1008
+#: ../public/js/plugins/vms-tab.js:1079
 msgid "This will cancel the rescheduling for the selected VMs"
 msgstr "選取的VM若處於重新排程狀態，將會取消排程"
 
 #: ../public/js/plugins/oneflow-services.js:924
-#: ../public/js/plugins/oneflow-services.js:1108
-#: ../public/js/plugins/vms-tab.js:1012
+#: ../public/js/plugins/oneflow-services.js:1125
+#: ../public/js/plugins/vms-tab.js:1083
 msgid "Recover"
 msgstr "復原"
 
 #: ../public/js/plugins/oneflow-services.js:926
-#: ../public/js/plugins/vms-tab.js:1014
+#: ../public/js/plugins/vms-tab.js:1085
 msgid "success"
 msgstr "成功"
 
 #: ../public/js/plugins/oneflow-services.js:927
-#: ../public/js/plugins/vms-tab.js:1015
+#: ../public/js/plugins/vms-tab.js:1086
 msgid "failure"
 msgstr "失敗"
 
 #: ../public/js/plugins/oneflow-services.js:928
 msgid "Recovers a stuck VM that is waiting for a driver operation. //                The recovery may be done by failing or succeeding the pending operation. //                YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation //                was successful or not."
-msgstr ""
+msgstr "復原一個因為驅動問題而卡住的VM。復原的操作可能成功或失敗，你必須自行登入VM所運行的實體主機(HOST)中去確認VM的狀態，來決定這個操作是成功或失敗"
 
 #: ../public/js/plugins/oneflow-services.js:942
 msgid "OneFlow - Services"
 msgstr "OneFlow - 服務"
 
-#: ../public/js/plugins/oneflow-services.js:1114
+#: ../public/js/plugins/oneflow-services.js:983
+#: ../public/js/plugins/oneflow-templates.js:114
+msgid "Cannot connect to OneFlow server"
+msgstr "無法連線至OneFlow伺服器"
+
+#: ../public/js/plugins/oneflow-services.js:1131
 msgid "This will delete the selected services"
 msgstr "選取的服務將會立刻刪除"
 
-#: ../public/js/plugins/oneflow-services.js:1120
-#: ../public/js/plugins/oneflow-templates.js:604
+#: ../public/js/plugins/oneflow-services.js:1137
+#: ../public/js/plugins/oneflow-templates.js:621
 msgid "Service information"
 msgstr "服務資訊"
 
-#: ../public/js/plugins/oneflow-services.js:1208
+#: ../public/js/plugins/oneflow-services.js:1225
 msgid "Service"
 msgstr "服務"
 
-#: ../public/js/plugins/oneflow-services.js:1219
-#: ../public/js/plugins/oneflow-templates.js:145
-#: ../public/js/plugins/oneflow-templates.js:691
+#: ../public/js/plugins/oneflow-services.js:1236
+#: ../public/js/plugins/oneflow-templates.js:148
+#: ../public/js/plugins/oneflow-templates.js:708
 msgid "Strategy"
 msgstr "策略"
 
-#: ../public/js/plugins/oneflow-services.js:1223
-#: ../public/js/plugins/oneflow-services.js:1442
-#: ../public/js/plugins/oneflow-templates.js:161
-#: ../public/js/plugins/oneflow-templates.js:237
-#: ../public/js/plugins/oneflow-templates.js:695
-#: ../public/js/plugins/oneflow-templates.js:807
+#: ../public/js/plugins/oneflow-services.js:1240
+#: ../public/js/plugins/oneflow-services.js:1459
+#: ../public/js/plugins/oneflow-templates.js:164
+#: ../public/js/plugins/oneflow-templates.js:240
+#: ../public/js/plugins/oneflow-templates.js:712
+#: ../public/js/plugins/oneflow-templates.js:824
 msgid "Shutdown action"
 msgstr "VM結束操作程序"
 
-#: ../public/js/plugins/oneflow-services.js:1254
-#: ../public/js/plugins/oneflow-services.js:1525
-#: ../public/js/plugins/oneflow-templates.js:347
-#: ../public/js/plugins/oneflow-templates.js:860
+#: ../public/js/plugins/oneflow-services.js:1271
+#: ../public/js/plugins/oneflow-services.js:1542
+#: ../public/js/plugins/oneflow-templates.js:350
+#: ../public/js/plugins/oneflow-templates.js:877
 msgid "Period"
 msgstr "週期時間"
 
-#: ../public/js/plugins/oneflow-services.js:1260
+#: ../public/js/plugins/oneflow-services.js:1277
 msgid "Seconds between each group of actions"
 msgstr "每個操作集合的間隔時間"
 
-#: ../public/js/plugins/oneflow-services.js:1263
+#: ../public/js/plugins/oneflow-services.js:1280
 msgid "Number"
 msgstr "數量"
 
-#: ../public/js/plugins/oneflow-services.js:1269
+#: ../public/js/plugins/oneflow-services.js:1286
 msgid "Number of VMs to apply the action to each period"
 msgstr "每個週期可套用此操作的VM數量"
 
-#: ../public/js/plugins/oneflow-services.js:1281
-#: ../public/js/plugins/oneflow-services.js:1762
-#: ../public/js/plugins/oneflow-templates.js:212
-#: ../public/js/plugins/oneflow-templates.js:721
-#: ../public/js/plugins/oneflow-templates.js:1000
-#: ../public/js/plugins/oneflow-templates.js:1034
+#: ../public/js/plugins/oneflow-services.js:1298
+#: ../public/js/plugins/oneflow-services.js:1779
+#: ../public/js/plugins/oneflow-templates.js:215
+#: ../public/js/plugins/oneflow-templates.js:738
+#: ../public/js/plugins/oneflow-templates.js:1017
+#: ../public/js/plugins/oneflow-templates.js:1051
 msgid "Cardinality"
 msgstr "基數"
 
-#: ../public/js/plugins/oneflow-services.js:1282
-#: ../public/js/plugins/oneflow-templates.js:722
+#: ../public/js/plugins/oneflow-services.js:1299
+#: ../public/js/plugins/oneflow-templates.js:739
 msgid "VM Template"
 msgstr "VM範本"
 
-#: ../public/js/plugins/oneflow-services.js:1283
-#: ../public/js/plugins/oneflow-templates.js:723
+#: ../public/js/plugins/oneflow-services.js:1300
+#: ../public/js/plugins/oneflow-templates.js:740
 msgid "Parents"
 msgstr "父VM"
 
-#: ../public/js/plugins/oneflow-services.js:1291
-#: ../public/js/plugins/oneflow-templates.js:731
+#: ../public/js/plugins/oneflow-services.js:1308
+#: ../public/js/plugins/oneflow-templates.js:748
 msgid "Select a role in the table for more information"
-msgstr ""
+msgstr "選擇一個角色以取得更多資訊"
 
-#: ../public/js/plugins/oneflow-services.js:1434
-#: ../public/js/plugins/oneflow-templates.js:797
+#: ../public/js/plugins/oneflow-services.js:1451
+#: ../public/js/plugins/oneflow-templates.js:814
 msgid "Role"
 msgstr "角色"
 
-#: ../public/js/plugins/oneflow-services.js:1444
-#: ../public/js/plugins/oneflow-services.js:1529
-#: ../public/js/plugins/oneflow-templates.js:296
-#: ../public/js/plugins/oneflow-templates.js:351
-#: ../public/js/plugins/oneflow-templates.js:809
-#: ../public/js/plugins/oneflow-templates.js:864
+#: ../public/js/plugins/oneflow-services.js:1461
+#: ../public/js/plugins/oneflow-services.js:1546
+#: ../public/js/plugins/oneflow-templates.js:299
+#: ../public/js/plugins/oneflow-templates.js:354
+#: ../public/js/plugins/oneflow-templates.js:826
+#: ../public/js/plugins/oneflow-templates.js:881
 msgid "Cooldown"
 msgstr "冷卻"
 
-#: ../public/js/plugins/oneflow-services.js:1446
-#: ../public/js/plugins/oneflow-templates.js:274
-#: ../public/js/plugins/oneflow-templates.js:811
+#: ../public/js/plugins/oneflow-services.js:1463
+#: ../public/js/plugins/oneflow-templates.js:277
+#: ../public/js/plugins/oneflow-templates.js:828
 msgid "Min VMs"
 msgstr "最小VM數量"
 
-#: ../public/js/plugins/oneflow-services.js:1473
-#: ../public/js/plugins/vms-tab.js:79
+#: ../public/js/plugins/oneflow-services.js:1490
+#: ../public/js/plugins/vms-tab.js:92
 msgid "Used CPU"
 msgstr "CPU使用量"
 
-#: ../public/js/plugins/oneflow-services.js:1474
-#: ../public/js/plugins/vms-tab.js:80
+#: ../public/js/plugins/oneflow-services.js:1491
+#: ../public/js/plugins/vms-tab.js:93
 msgid "Used Memory"
 msgstr "記憶體使用量"
 
-#: ../public/js/plugins/oneflow-services.js:1476
-#: ../public/js/plugins/vms-tab.js:82
+#: ../public/js/plugins/oneflow-services.js:1493
+#: ../public/js/plugins/vms-tab.js:95
 msgid "IPs"
 msgstr "IPs"
 
-#: ../public/js/plugins/oneflow-services.js:1477
-#: ../public/js/plugins/vms-tab.js:83
+#: ../public/js/plugins/oneflow-services.js:1494
+#: ../public/js/plugins/vms-tab.js:96
 msgid "Start Time"
 msgstr "起始時間"
 
-#: ../public/js/plugins/oneflow-services.js:1478
-#: ../public/js/plugins/vms-tab.js:84 ../public/js/plugins/vms-tab.js:3136
+#: ../public/js/plugins/oneflow-services.js:1495
+#: ../public/js/plugins/vms-tab.js:97 ../public/js/plugins/vms-tab.js:3378
 msgid "VNC"
 msgstr "VNC"
 
-#: ../public/js/plugins/oneflow-services.js:1493
-#: ../public/js/plugins/oneflow-templates.js:828
+#: ../public/js/plugins/oneflow-services.js:1510
+#: ../public/js/plugins/oneflow-templates.js:845
 msgid "Elasticity policies"
 msgstr "動態性原則"
 
-#: ../public/js/plugins/oneflow-services.js:1499
-#: ../public/js/plugins/oneflow-services.js:1563
-#: ../public/js/plugins/oneflow-templates.js:321
-#: ../public/js/plugins/oneflow-templates.js:378
-#: ../public/js/plugins/oneflow-templates.js:834
-#: ../public/js/plugins/oneflow-templates.js:898
+#: ../public/js/plugins/oneflow-services.js:1516
+#: ../public/js/plugins/oneflow-services.js:1580
+#: ../public/js/plugins/oneflow-templates.js:324
+#: ../public/js/plugins/oneflow-templates.js:381
+#: ../public/js/plugins/oneflow-templates.js:851
+#: ../public/js/plugins/oneflow-templates.js:915
 msgid "Type of adjustment."
 msgstr "變化量的種類"
 
-#: ../public/js/plugins/oneflow-services.js:1500
-#: ../public/js/plugins/oneflow-services.js:1564
-#: ../public/js/plugins/oneflow-templates.js:322
-#: ../public/js/plugins/oneflow-templates.js:379
-#: ../public/js/plugins/oneflow-templates.js:835
-#: ../public/js/plugins/oneflow-templates.js:899
+#: ../public/js/plugins/oneflow-services.js:1517
+#: ../public/js/plugins/oneflow-services.js:1581
+#: ../public/js/plugins/oneflow-templates.js:325
+#: ../public/js/plugins/oneflow-templates.js:382
+#: ../public/js/plugins/oneflow-templates.js:852
+#: ../public/js/plugins/oneflow-templates.js:916
 msgid "CHANGE: Add/substract the given number of VMs."
-msgstr ""
+msgstr "修改：變化量代表欲增加/減少的VM數量"
 
-#: ../public/js/plugins/oneflow-services.js:1501
-#: ../public/js/plugins/oneflow-services.js:1565
-#: ../public/js/plugins/oneflow-templates.js:323
-#: ../public/js/plugins/oneflow-templates.js:380
-#: ../public/js/plugins/oneflow-templates.js:836
-#: ../public/js/plugins/oneflow-templates.js:900
+#: ../public/js/plugins/oneflow-services.js:1518
+#: ../public/js/plugins/oneflow-services.js:1582
+#: ../public/js/plugins/oneflow-templates.js:326
+#: ../public/js/plugins/oneflow-templates.js:383
+#: ../public/js/plugins/oneflow-templates.js:853
+#: ../public/js/plugins/oneflow-templates.js:917
 msgid "CARDINALITY: Set the cardinality to the given number."
-msgstr ""
+msgstr "基數：變化量代表欲指定的基數"
 
-#: ../public/js/plugins/oneflow-services.js:1502
-#: ../public/js/plugins/oneflow-services.js:1566
-#: ../public/js/plugins/oneflow-templates.js:324
-#: ../public/js/plugins/oneflow-templates.js:381
-#: ../public/js/plugins/oneflow-templates.js:837
-#: ../public/js/plugins/oneflow-templates.js:901
-msgid "PERCENTAGE_CHANGE: Add/substract the given percentage to the current cardinality."
-msgstr ""
-
-#: ../public/js/plugins/oneflow-services.js:1505
-#: ../public/js/plugins/oneflow-services.js:1569
+#: ../public/js/plugins/oneflow-services.js:1519
+#: ../public/js/plugins/oneflow-services.js:1583
 #: ../public/js/plugins/oneflow-templates.js:327
 #: ../public/js/plugins/oneflow-templates.js:384
-#: ../public/js/plugins/oneflow-templates.js:840
-#: ../public/js/plugins/oneflow-templates.js:904
+#: ../public/js/plugins/oneflow-templates.js:854
+#: ../public/js/plugins/oneflow-templates.js:918
+msgid "PERCENTAGE_CHANGE: Add/substract the given percentage to the current cardinality."
+msgstr "比率：變化量代表欲增加/減少的基數比率"
+
+#: ../public/js/plugins/oneflow-services.js:1522
+#: ../public/js/plugins/oneflow-services.js:1586
+#: ../public/js/plugins/oneflow-templates.js:330
+#: ../public/js/plugins/oneflow-templates.js:387
+#: ../public/js/plugins/oneflow-templates.js:857
+#: ../public/js/plugins/oneflow-templates.js:921
 msgid "Adjust"
 msgstr "變化量"
 
-#: ../public/js/plugins/oneflow-services.js:1506
-#: ../public/js/plugins/oneflow-services.js:1570
-#: ../public/js/plugins/oneflow-templates.js:328
-#: ../public/js/plugins/oneflow-templates.js:385
-#: ../public/js/plugins/oneflow-templates.js:841
-#: ../public/js/plugins/oneflow-templates.js:905
-msgid "Positive or negative adjustment. Its meaning depends on 'type'"
-msgstr ""
-
-#: ../public/js/plugins/oneflow-services.js:1507
-#: ../public/js/plugins/oneflow-services.js:1571
-#: ../public/js/plugins/oneflow-templates.js:329
-#: ../public/js/plugins/oneflow-templates.js:386
-#: ../public/js/plugins/oneflow-templates.js:842
-#: ../public/js/plugins/oneflow-templates.js:906
-msgid "CHANGE: -2, will substract 2 VMs from the role"
-msgstr ""
-
-#: ../public/js/plugins/oneflow-services.js:1508
-#: ../public/js/plugins/oneflow-services.js:1572
-#: ../public/js/plugins/oneflow-templates.js:330
-#: ../public/js/plugins/oneflow-templates.js:387
-#: ../public/js/plugins/oneflow-templates.js:843
-#: ../public/js/plugins/oneflow-templates.js:907
-msgid "CARDINALITY: 8, will set carditanilty to 8"
-msgstr ""
-
-#: ../public/js/plugins/oneflow-services.js:1509
-#: ../public/js/plugins/oneflow-services.js:1573
+#: ../public/js/plugins/oneflow-services.js:1523
+#: ../public/js/plugins/oneflow-services.js:1587
 #: ../public/js/plugins/oneflow-templates.js:331
 #: ../public/js/plugins/oneflow-templates.js:388
-#: ../public/js/plugins/oneflow-templates.js:844
-#: ../public/js/plugins/oneflow-templates.js:908
-msgid "PERCENTAGE_CHANGE: 20, will increment cardinality by 20%"
-msgstr ""
+#: ../public/js/plugins/oneflow-templates.js:858
+#: ../public/js/plugins/oneflow-templates.js:922
+msgid "Positive or negative adjustment. Its meaning depends on 'type'"
+msgstr "填入正或負的變化量值。變化量的種類決定了變化量所代表的意義"
 
-#: ../public/js/plugins/oneflow-services.js:1512
-#: ../public/js/plugins/oneflow-services.js:1576
+#: ../public/js/plugins/oneflow-services.js:1524
+#: ../public/js/plugins/oneflow-services.js:1588
+#: ../public/js/plugins/oneflow-templates.js:332
+#: ../public/js/plugins/oneflow-templates.js:389
+#: ../public/js/plugins/oneflow-templates.js:859
+#: ../public/js/plugins/oneflow-templates.js:923
+msgid "CHANGE: -2, will substract 2 VMs from the role"
+msgstr "修改： -2, 代表於此角色減少2個VM"
+
+#: ../public/js/plugins/oneflow-services.js:1525
+#: ../public/js/plugins/oneflow-services.js:1589
+#: ../public/js/plugins/oneflow-templates.js:333
+#: ../public/js/plugins/oneflow-templates.js:390
+#: ../public/js/plugins/oneflow-templates.js:860
+#: ../public/js/plugins/oneflow-templates.js:924
+msgid "CARDINALITY: 8, will set carditanilty to 8"
+msgstr "基數：8, 指定基數為8"
+
+#: ../public/js/plugins/oneflow-services.js:1526
+#: ../public/js/plugins/oneflow-services.js:1590
 #: ../public/js/plugins/oneflow-templates.js:334
 #: ../public/js/plugins/oneflow-templates.js:391
-#: ../public/js/plugins/oneflow-templates.js:847
-#: ../public/js/plugins/oneflow-templates.js:911
+#: ../public/js/plugins/oneflow-templates.js:861
+#: ../public/js/plugins/oneflow-templates.js:925
+msgid "PERCENTAGE_CHANGE: 20, will increment cardinality by 20%"
+msgstr "比率：20, 代表增加20%的基數值"
+
+#: ../public/js/plugins/oneflow-services.js:1529
+#: ../public/js/plugins/oneflow-services.js:1593
+#: ../public/js/plugins/oneflow-templates.js:337
+#: ../public/js/plugins/oneflow-templates.js:394
+#: ../public/js/plugins/oneflow-templates.js:864
+#: ../public/js/plugins/oneflow-templates.js:928
 msgid "Min"
 msgstr "下限"
 
-#: ../public/js/plugins/oneflow-services.js:1513
-#: ../public/js/plugins/oneflow-services.js:1577
-#: ../public/js/plugins/oneflow-templates.js:335
-#: ../public/js/plugins/oneflow-templates.js:392
-#: ../public/js/plugins/oneflow-templates.js:848
-#: ../public/js/plugins/oneflow-templates.js:912
-msgid "Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute."
-msgstr ""
-
-#: ../public/js/plugins/oneflow-services.js:1516
+#: ../public/js/plugins/oneflow-services.js:1530
+#: ../public/js/plugins/oneflow-services.js:1594
 #: ../public/js/plugins/oneflow-templates.js:338
-#: ../public/js/plugins/oneflow-templates.js:851
+#: ../public/js/plugins/oneflow-templates.js:395
+#: ../public/js/plugins/oneflow-templates.js:865
+#: ../public/js/plugins/oneflow-templates.js:929
+msgid "Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute."
+msgstr "當變化量種類為「比率」時，可選擇性填寫此參數。若設定此參數，將以此值作為最小值，當基數動態調整時，不會低於此參數"
+
+#: ../public/js/plugins/oneflow-services.js:1533
+#: ../public/js/plugins/oneflow-templates.js:341
+#: ../public/js/plugins/oneflow-templates.js:868
+#: ../public/js/plugins/templates-tab.js:3505
+#: ../public/js/plugins/templates-tab.js:3520
+#: ../public/js/plugins/templates-tab.js:3551
+#: ../public/js/plugins/templates-tab.js:3577
 msgid "Expression"
 msgstr "表示式"
 
-#: ../public/js/plugins/oneflow-services.js:1517
-#: ../public/js/plugins/oneflow-templates.js:339
-#: ../public/js/plugins/oneflow-templates.js:852
+#: ../public/js/plugins/oneflow-services.js:1534
+#: ../public/js/plugins/oneflow-templates.js:342
+#: ../public/js/plugins/oneflow-templates.js:869
 msgid "Expression to trigger the elasticity"
 msgstr "用來觸發動態調整的表示式"
 
-#: ../public/js/plugins/oneflow-services.js:1518
-#: ../public/js/plugins/oneflow-templates.js:340
-#: ../public/js/plugins/oneflow-templates.js:853
+#: ../public/js/plugins/oneflow-services.js:1535
+#: ../public/js/plugins/oneflow-templates.js:343
+#: ../public/js/plugins/oneflow-templates.js:870
 msgid "Example: ATT < 20"
 msgstr "例： ATT < 20"
 
-#: ../public/js/plugins/oneflow-services.js:1521
-#: ../public/js/plugins/oneflow-templates.js:343
-#: ../public/js/plugins/oneflow-templates.js:856
+#: ../public/js/plugins/oneflow-services.js:1538
+#: ../public/js/plugins/oneflow-templates.js:346
+#: ../public/js/plugins/oneflow-templates.js:873
 msgid "# Periods"
 msgstr "#週期數量"
 
-#: ../public/js/plugins/oneflow-services.js:1522
-#: ../public/js/plugins/oneflow-templates.js:344
-#: ../public/js/plugins/oneflow-templates.js:857
+#: ../public/js/plugins/oneflow-services.js:1539
+#: ../public/js/plugins/oneflow-templates.js:347
+#: ../public/js/plugins/oneflow-templates.js:874
 msgid "Number of periods that the expression must be true before the elasticity is triggered"
-msgstr ""
+msgstr "當表示式成立時所觸發的動態調整週期數量"
 
-#: ../public/js/plugins/oneflow-services.js:1526
-#: ../public/js/plugins/oneflow-templates.js:348
-#: ../public/js/plugins/oneflow-templates.js:861
+#: ../public/js/plugins/oneflow-services.js:1543
+#: ../public/js/plugins/oneflow-templates.js:351
+#: ../public/js/plugins/oneflow-templates.js:878
 msgid "Duration, in seconds, of each period in '# Periods'"
-msgstr ""
+msgstr "每個週期中間隔的秒數"
 
-#: ../public/js/plugins/oneflow-services.js:1530
-#: ../public/js/plugins/oneflow-templates.js:352
-#: ../public/js/plugins/oneflow-templates.js:865
+#: ../public/js/plugins/oneflow-services.js:1547
+#: ../public/js/plugins/oneflow-templates.js:355
+#: ../public/js/plugins/oneflow-templates.js:882
 msgid "Cooldown period duration after a scale operation, in seconds"
-msgstr ""
+msgstr "規模調整後的冷卻週期時間秒數"
 
-#: ../public/js/plugins/oneflow-services.js:1557
-#: ../public/js/plugins/oneflow-templates.js:370
-#: ../public/js/plugins/oneflow-templates.js:892
+#: ../public/js/plugins/oneflow-services.js:1574
+#: ../public/js/plugins/oneflow-templates.js:373
+#: ../public/js/plugins/oneflow-templates.js:909
 msgid "Scheduled policies"
 msgstr "排程原則"
 
-#: ../public/js/plugins/oneflow-services.js:1580
-#: ../public/js/plugins/oneflow-templates.js:395
-#: ../public/js/plugins/oneflow-templates.js:915
+#: ../public/js/plugins/oneflow-services.js:1597
+#: ../public/js/plugins/oneflow-templates.js:398
+#: ../public/js/plugins/oneflow-templates.js:932
 msgid "Time format"
 msgstr "時間格式"
 
-#: ../public/js/plugins/oneflow-services.js:1581
-#: ../public/js/plugins/oneflow-services.js:1587
-#: ../public/js/plugins/oneflow-templates.js:396
-#: ../public/js/plugins/oneflow-templates.js:402
-#: ../public/js/plugins/oneflow-templates.js:916
-#: ../public/js/plugins/oneflow-templates.js:922
+#: ../public/js/plugins/oneflow-services.js:1598
+#: ../public/js/plugins/oneflow-services.js:1604
+#: ../public/js/plugins/oneflow-templates.js:399
+#: ../public/js/plugins/oneflow-templates.js:405
+#: ../public/js/plugins/oneflow-templates.js:933
+#: ../public/js/plugins/oneflow-templates.js:939
 msgid "Recurrence: Time for recurring adjustements. Time is specified with the Unix cron syntax"
-msgstr ""
+msgstr "循環時間:循環週期執行的時間。使用Unix cron語法來指定此循環時間"
 
-#: ../public/js/plugins/oneflow-services.js:1582
-#: ../public/js/plugins/oneflow-services.js:1588
-#: ../public/js/plugins/oneflow-templates.js:397
-#: ../public/js/plugins/oneflow-templates.js:403
-#: ../public/js/plugins/oneflow-templates.js:917
-#: ../public/js/plugins/oneflow-templates.js:923
-msgid "Start time: Exact time for the adjustement"
-msgstr ""
-
-#: ../public/js/plugins/oneflow-services.js:1585
+#: ../public/js/plugins/oneflow-services.js:1599
+#: ../public/js/plugins/oneflow-services.js:1605
 #: ../public/js/plugins/oneflow-templates.js:400
-#: ../public/js/plugins/oneflow-templates.js:920
+#: ../public/js/plugins/oneflow-templates.js:406
+#: ../public/js/plugins/oneflow-templates.js:934
+#: ../public/js/plugins/oneflow-templates.js:940
+msgid "Start time: Exact time for the adjustement"
+msgstr "起始時間:排程異動的起始時間"
+
+#: ../public/js/plugins/oneflow-services.js:1602
+#: ../public/js/plugins/oneflow-templates.js:403
+#: ../public/js/plugins/oneflow-templates.js:937
 msgid "Time expression"
 msgstr "時間表示式"
 
-#: ../public/js/plugins/oneflow-services.js:1586
-#: ../public/js/plugins/oneflow-templates.js:401
-#: ../public/js/plugins/oneflow-templates.js:921
+#: ../public/js/plugins/oneflow-services.js:1603
+#: ../public/js/plugins/oneflow-templates.js:404
+#: ../public/js/plugins/oneflow-templates.js:938
 msgid "Time expression depends on the the time formar selected"
-msgstr ""
+msgstr "根據所選擇的時間格式來填寫適當的時間表示式"
 
-#: ../public/js/plugins/oneflow-services.js:1768
-#: ../public/js/plugins/oneflow-templates.js:218
+#: ../public/js/plugins/oneflow-services.js:1785
+#: ../public/js/plugins/oneflow-templates.js:221
 msgid "Number of VMs to instantiate with this role"
-msgstr ""
+msgstr "以此角色所執行的VM數量"
 
-#: ../public/js/plugins/oneflow-services.js:1773
+#: ../public/js/plugins/oneflow-services.js:1790
 msgid "Force"
 msgstr "忽略承載檢驗"
 
-#: ../public/js/plugins/oneflow-services.js:1779
+#: ../public/js/plugins/oneflow-services.js:1796
 msgid "Force the new cardinality even if it is outside the limits"
 msgstr "直接套用新基數並忽略承載數量限制"
 
@@ -2492,127 +2578,127 @@ msgstr "直接套用新基數並忽略承載數量限制"
 msgid "OneFlow - Templates"
 msgstr "OneFlow - 服務範本"
 
-#: ../public/js/plugins/oneflow-templates.js:118
+#: ../public/js/plugins/oneflow-templates.js:121
 msgid "Create Service Template"
 msgstr "建立服務範本"
 
-#: ../public/js/plugins/oneflow-templates.js:119
+#: ../public/js/plugins/oneflow-templates.js:122
 msgid "Update Service Template"
 msgstr "修改服務範本"
 
-#: ../public/js/plugins/oneflow-templates.js:134
+#: ../public/js/plugins/oneflow-templates.js:137
 msgid "Name for this template"
 msgstr "此服務範本的名稱"
 
-#: ../public/js/plugins/oneflow-templates.js:149
+#: ../public/js/plugins/oneflow-templates.js:152
 msgid "Straight"
-msgstr ""
+msgstr "依序性"
 
-#: ../public/js/plugins/oneflow-templates.js:150
+#: ../public/js/plugins/oneflow-templates.js:153
 msgid "None"
 msgstr "無"
 
-#: ../public/js/plugins/oneflow-templates.js:154
+#: ../public/js/plugins/oneflow-templates.js:157
 msgid "Straight strategy will instantiate each role in order: parents role will be deployed before their children. None strategy will instantiate the roles regardless of their relationships."
-msgstr ""
+msgstr "使用依序性策略，每個角色將會依照順序被建立執行: 父角色將會先部署完成，再繼續部署子角色。若無策略，則忽略所有角色之間的順序關係，同時建立執行"
 
-#: ../public/js/plugins/oneflow-templates.js:167
-#: ../public/js/plugins/oneflow-templates.js:243
+#: ../public/js/plugins/oneflow-templates.js:170
+#: ../public/js/plugins/oneflow-templates.js:246
 msgid "Shutdown hard"
 msgstr "強迫結束(Shutdown hard)"
 
-#: ../public/js/plugins/oneflow-templates.js:171
+#: ../public/js/plugins/oneflow-templates.js:174
 msgid "VM shutdown action: 'shutdown' or 'shutdown-hard'."
 msgstr "VM結束操作: '結束(shutdown)' 或 '強迫結束(shutdown-hard)'"
 
-#: ../public/js/plugins/oneflow-templates.js:178
+#: ../public/js/plugins/oneflow-templates.js:181
 msgid "Add another role"
 msgstr "新增角色"
 
-#: ../public/js/plugins/oneflow-templates.js:201
+#: ../public/js/plugins/oneflow-templates.js:204
 msgid "Role Name"
 msgstr "角色名稱"
 
-#: ../public/js/plugins/oneflow-templates.js:207
+#: ../public/js/plugins/oneflow-templates.js:210
 msgid "Name of the role"
 msgstr "此角色的名稱"
 
-#: ../public/js/plugins/oneflow-templates.js:225
+#: ../public/js/plugins/oneflow-templates.js:228
 msgid "VM template"
 msgstr "VM範本"
 
-#: ../public/js/plugins/oneflow-templates.js:232
+#: ../public/js/plugins/oneflow-templates.js:235
 msgid "Template associated to this role"
-msgstr ""
+msgstr "此角色所使用的VM範本"
 
-#: ../public/js/plugins/oneflow-templates.js:247
+#: ../public/js/plugins/oneflow-templates.js:250
 msgid "VM shutdown action: 'shutdown' or 'shutdown-hard'. If it is not set, the one set for the Service will be used"
 msgstr "VM結束操作: '結束(shutdown)' 或 '強迫結束(shutdown-hard)'。若未設定此值，則將以服務範本設定值為預設值"
 
-#: ../public/js/plugins/oneflow-templates.js:258
+#: ../public/js/plugins/oneflow-templates.js:261
 msgid "Parent roles"
 msgstr "父角色"
 
-#: ../public/js/plugins/oneflow-templates.js:270
+#: ../public/js/plugins/oneflow-templates.js:273
 msgid "Elasticity"
 msgstr "動態性"
 
-#: ../public/js/plugins/oneflow-templates.js:280
+#: ../public/js/plugins/oneflow-templates.js:283
 msgid "Minimum number of VMs for elasticity adjustments"
-msgstr ""
+msgstr "動態性調整過程中的VM數量下限"
 
-#: ../public/js/plugins/oneflow-templates.js:291
+#: ../public/js/plugins/oneflow-templates.js:294
 msgid "Maximum number of VMs for elasticity adjustments"
-msgstr ""
+msgstr "動態性調整過程中的VM數量上限"
 
-#: ../public/js/plugins/oneflow-templates.js:302
+#: ../public/js/plugins/oneflow-templates.js:305
 msgid "Cooldown time after an elasticity operation (secs)"
-msgstr ""
+msgstr "動態性調整後的冷卻週期時間秒數"
 
-#: ../public/js/plugins/oneflow-templates.js:313
+#: ../public/js/plugins/oneflow-templates.js:316
 msgid "Elasticty policies"
 msgstr "動態性原則"
 
-#: ../public/js/plugins/oneflow-templates.js:459
+#: ../public/js/plugins/oneflow-templates.js:462
 msgid "ServiceTemplate updated correctly"
 msgstr "服務範本已成功修改"
 
-#: ../public/js/plugins/oneflow-templates.js:570
+#: ../public/js/plugins/oneflow-templates.js:587
 #: ../public/js/plugins/templates-tab.js:152
-#: ../public/js/plugins/templates-tab.js:299
+#: ../public/js/plugins/templates-tab.js:298
 #: ../public/js/plugins/templates-tab.js:540
 msgid "Instantiate"
 msgstr "實例化"
 
-#: ../public/js/plugins/oneflow-templates.js:598
+#: ../public/js/plugins/oneflow-templates.js:615
 msgid "This will delete the selected templates"
 msgstr "選取的服務範本將會立刻刪除"
 
-#: ../public/js/plugins/oneflow-templates.js:680
+#: ../public/js/plugins/oneflow-templates.js:697
 msgid "Service Template"
 msgstr "服務範本"
 
-#: ../public/js/plugins/oneflow-templates.js:1001
-#: ../public/js/plugins/oneflow-templates.js:1035
+#: ../public/js/plugins/oneflow-templates.js:1018
+#: ../public/js/plugins/oneflow-templates.js:1052
 msgid "Percentage"
-msgstr ""
+msgstr "比率"
 
-#: ../public/js/plugins/oneflow-templates.js:1045
-#: ../public/js/plugins/vms-tab.js:1440
+#: ../public/js/plugins/oneflow-templates.js:1062
+#: ../public/js/plugins/vms-tab.js:1505
 msgid "Start time"
 msgstr "起始時間"
 
-#: ../public/js/plugins/oneflow-templates.js:1046
+#: ../public/js/plugins/oneflow-templates.js:1063
 msgid "Recurrence"
-msgstr ""
+msgstr "循環時間"
 
-#: ../public/js/plugins/oneflow-templates.js:1105
+#: ../public/js/plugins/oneflow-templates.js:1122
 msgid "Role "
 msgstr "角色 "
 
-#: ../public/js/plugins/oneflow-templates.js:1267
+#: ../public/js/plugins/oneflow-templates.js:1284
 msgid "Please specify name, cardinality and template for this role"
-msgstr ""
+msgstr "請為此角色給予名稱, 基數及VM範本"
 
 #: ../public/js/plugins/templates-tab.js:70
 msgid "Create VM Template"
@@ -2628,80 +2714,88 @@ msgstr "在此輸入虛擬機器的樣版指令集"
 
 #: ../public/js/plugins/templates-tab.js:122
 #: ../public/js/plugins/templates-tab.js:161
-#: ../public/js/plugins/templates-tab.js:4699
+#: ../public/js/plugins/templates-tab.js:5038
 msgid "Instantiate VM Template"
 msgstr "VM範本實例化"
 
 #: ../public/js/plugins/templates-tab.js:129
 #: ../public/js/plugins/templates-tab.js:171
-#: ../public/js/plugins/vms-tab.js:101 ../public/js/plugins/vms-tab.js:154
+#: ../public/js/plugins/vms-tab.js:118
 msgid "VM Name"
 msgstr "VM名稱"
 
 #: ../public/js/plugins/templates-tab.js:135
 #: ../public/js/plugins/templates-tab.js:177
-#: ../public/js/plugins/vms-tab.js:160
+#: ../public/js/plugins/vms-tab.js:124
 msgid "Defaults to template name when emtpy. You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them"
 msgstr "若未填寫此欄位，預設值為範本名稱。你可以使用萬用字元 &#37;i 。當一次建立多個VM時，&#37;i 會被替換成由0開始的依序數字"
 
 #: ../public/js/plugins/templates-tab.js:140
 #: ../public/js/plugins/templates-tab.js:182
-#: ../public/js/plugins/vms-tab.js:165
+#: ../public/js/plugins/vms-tab.js:129
 msgid "# VMs"
 msgstr "# VM數量"
 
 #: ../public/js/plugins/templates-tab.js:146
 #: ../public/js/plugins/templates-tab.js:188
-#: ../public/js/plugins/vms-tab.js:171
+#: ../public/js/plugins/vms-tab.js:135
 msgid "Number of Virtual Machines that will be created using this template"
 msgstr "將套用此範本所建立的虛擬機器數量"
 
 #: ../public/js/plugins/templates-tab.js:168
-#: ../public/js/plugins/vms-tab.js:151
+#: ../public/js/plugins/vms-tab.js:115
 msgid "Step 1: Specify a name and the number of instances"
 msgstr "第1步：設定虛擬機器名稱及數量"
 
 #: ../public/js/plugins/templates-tab.js:198
-#, fuzzy
-msgid "Step 3: Select an instance type"
-msgstr "第3步：選擇一個範本"
+#: ../public/js/plugins/vms-tab.js:145
+msgid "Step 2: Select a template"
+msgstr "第2步：選擇一個範本"
 
 #: ../public/js/plugins/templates-tab.js:223
-#: ../public/js/plugins/vms-tab.js:206
+#: ../public/js/plugins/vms-tab.js:170
 msgid "TEMPLATE_ID"
 msgstr "範本ID"
 
 #: ../public/js/plugins/templates-tab.js:235
-#: ../public/js/plugins/vms-tab.js:218
+#: ../public/js/plugins/vms-tab.js:182
 msgid "Please select a template from the list"
 msgstr "請選擇一個範本"
 
 #: ../public/js/plugins/templates-tab.js:236
-#: ../public/js/plugins/vms-tab.js:219
+#: ../public/js/plugins/vms-tab.js:183
 msgid "You selected the following template:"
 msgstr "你已選擇下列範本:"
 
 #: ../public/js/plugins/templates-tab.js:246
-#: ../public/js/plugins/vms-tab.js:229
+#: ../public/js/plugins/vms-tab.js:193
 msgid "Step 3: Select an operating system"
 msgstr "第3步：選擇一個作業系統"
 
 #: ../public/js/plugins/templates-tab.js:278
-#: ../public/js/plugins/templates-tab.js:963
-#: ../public/js/plugins/vms-tab.js:261
+#: ../public/js/plugins/templates-tab.js:970
+#: ../public/js/plugins/vms-tab.js:225
 msgid "IMAGE_ID"
 msgstr "磁碟影像檔ID"
 
-#: ../public/js/plugins/templates-tab.js:290
-#: ../public/js/plugins/templates-tab.js:949
-#: ../public/js/plugins/vms-tab.js:273
+#: ../public/js/plugins/templates-tab.js:284
+msgid "Identifier of the image to be used as the main disk for this Virtual Machine. This choice will select the Operating System the VM will run under."
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:289
+#: ../public/js/plugins/templates-tab.js:952
+#: ../public/js/plugins/vms-tab.js:237
 msgid "Please select an image from the list"
 msgstr "請選擇一個磁碟影像檔"
 
-#: ../public/js/plugins/templates-tab.js:291
-#: ../public/js/plugins/vms-tab.js:274
+#: ../public/js/plugins/templates-tab.js:290
+#: ../public/js/plugins/vms-tab.js:238
 msgid "You selected the following image:"
 msgstr "你已選擇下列磁碟影像檔:"
+
+#: ../public/js/plugins/templates-tab.js:383
+msgid "Template renamed correctly"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:470
 msgid "Please select only one template in the table"
@@ -2724,12 +2818,12 @@ msgid "Percentage of CPU divided by 100 required for the Virtual Machine. Half a
 msgstr "以百分之一為單位表示VM所需之CPU資源。例如需要半顆處理器資源，可填寫0.5"
 
 #: ../public/js/plugins/templates-tab.js:705
-#: ../public/js/plugins/templates-tab.js:1194
+#: ../public/js/plugins/templates-tab.js:1201
 msgid "MB"
 msgstr "MB"
 
 #: ../public/js/plugins/templates-tab.js:706
-#: ../public/js/plugins/templates-tab.js:1193
+#: ../public/js/plugins/templates-tab.js:1200
 msgid "GB"
 msgstr "GB"
 
@@ -2738,7 +2832,7 @@ msgid "Amount of RAM required for the VM, in Megabytes."
 msgstr "VM所需要的記憶體大小，單位為MB"
 
 #: ../public/js/plugins/templates-tab.js:719
-#: ../public/js/plugins/vms-tab.js:2537
+#: ../public/js/plugins/vms-tab.js:2618
 msgid "VCPU"
 msgstr "VCPU"
 
@@ -2746,684 +2840,789 @@ msgstr "VCPU"
 msgid "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU."
 msgstr "虛擬CPU數目。未填寫時將使用Hypervisor的預設值，通常為1個VCPU"
 
-#: ../public/js/plugins/templates-tab.js:913
+#: ../public/js/plugins/templates-tab.js:916
 msgid "Volatile Disk"
 msgstr "揮發性磁碟"
 
-#: ../public/js/plugins/templates-tab.js:950
+#: ../public/js/plugins/templates-tab.js:953
 msgid "You selected the following image: "
 msgstr "你已選擇下列磁碟影像檔: "
 
-#: ../public/js/plugins/templates-tab.js:977
+#: ../public/js/plugins/templates-tab.js:957
+#: ../public/js/plugins/templates-tab.js:4522
+#: ../public/js/plugins/templates-tab.js:4566
+msgid "The image you specified cannot be selected in the table"
+msgstr "無法選取你所指定的磁碟影像檔"
+
+#: ../public/js/plugins/templates-tab.js:976
+msgid "Image ID to be used in the Virtual Image disk."
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:984
 msgid "IMAGE"
+msgstr "磁碟影像檔名稱"
+
+#: ../public/js/plugins/templates-tab.js:990
+msgid "Name of the image to be used in the Virtual Image disk."
 msgstr ""
 
-#: ../public/js/plugins/templates-tab.js:993
+#: ../public/js/plugins/templates-tab.js:1000
 msgid "IMAGE_UID"
+msgstr "磁碟影像檔擁有者ID"
+
+#: ../public/js/plugins/templates-tab.js:1006
+msgid "Identifier of the user owner of the image to reduce ambiguity."
 msgstr ""
 
-#: ../public/js/plugins/templates-tab.js:1007
+#: ../public/js/plugins/templates-tab.js:1014
 msgid "IMAGE_UNAME"
+msgstr "磁碟影像檔擁有者名稱"
+
+#: ../public/js/plugins/templates-tab.js:1020
+msgid "Name of the user owner of the image to reduce ambiguity."
 msgstr ""
 
-#: ../public/js/plugins/templates-tab.js:1024
-#: ../public/js/plugins/templates-tab.js:1209
+#: ../public/js/plugins/templates-tab.js:1031
+#: ../public/js/plugins/templates-tab.js:1216
 msgid "TARGET"
 msgstr "目的裝置名稱"
 
-#: ../public/js/plugins/templates-tab.js:1030
-#: ../public/js/plugins/templates-tab.js:1215
+#: ../public/js/plugins/templates-tab.js:1037
+#: ../public/js/plugins/templates-tab.js:1222
 msgid "Device to map image disk. If set, it will overwrite the default device mapping"
 msgstr "指定磁碟影像檔的在虛擬機器中的裝置名稱。設定此欄位，將會覆蓋預設的裝置名稱"
 
-#: ../public/js/plugins/templates-tab.js:1031
-#: ../public/js/plugins/templates-tab.js:1067
-#: ../public/js/plugins/templates-tab.js:1088
-#: ../public/js/plugins/templates-tab.js:1216
-#: ../public/js/plugins/templates-tab.js:1252
-#: ../public/js/plugins/templates-tab.js:1273
+#: ../public/js/plugins/templates-tab.js:1038
+#: ../public/js/plugins/templates-tab.js:1074
+#: ../public/js/plugins/templates-tab.js:1095
+#: ../public/js/plugins/templates-tab.js:1223
+#: ../public/js/plugins/templates-tab.js:1259
+#: ../public/js/plugins/templates-tab.js:1280
 msgid "Xen: Optional"
-msgstr ""
+msgstr "Xen: 選擇性填寫"
 
-#: ../public/js/plugins/templates-tab.js:1032
-#: ../public/js/plugins/templates-tab.js:1068
-#: ../public/js/plugins/templates-tab.js:1089
-#: ../public/js/plugins/templates-tab.js:1116
-#: ../public/js/plugins/templates-tab.js:1137
-#: ../public/js/plugins/templates-tab.js:1217
-#: ../public/js/plugins/templates-tab.js:1253
-#: ../public/js/plugins/templates-tab.js:1274
-#: ../public/js/plugins/templates-tab.js:1301
-#: ../public/js/plugins/templates-tab.js:1322
+#: ../public/js/plugins/templates-tab.js:1039
+#: ../public/js/plugins/templates-tab.js:1075
+#: ../public/js/plugins/templates-tab.js:1096
+#: ../public/js/plugins/templates-tab.js:1123
+#: ../public/js/plugins/templates-tab.js:1144
+#: ../public/js/plugins/templates-tab.js:1224
+#: ../public/js/plugins/templates-tab.js:1260
+#: ../public/js/plugins/templates-tab.js:1281
+#: ../public/js/plugins/templates-tab.js:1308
+#: ../public/js/plugins/templates-tab.js:1329
 msgid "KVM: Optional"
-msgstr ""
+msgstr "KVM: 選擇性填寫"
 
-#: ../public/js/plugins/templates-tab.js:1033
-#: ../public/js/plugins/templates-tab.js:1069
-#: ../public/js/plugins/templates-tab.js:1090
-#: ../public/js/plugins/templates-tab.js:1218
-#: ../public/js/plugins/templates-tab.js:1254
-#: ../public/js/plugins/templates-tab.js:1275
+#: ../public/js/plugins/templates-tab.js:1040
+#: ../public/js/plugins/templates-tab.js:1076
+#: ../public/js/plugins/templates-tab.js:1097
+#: ../public/js/plugins/templates-tab.js:1225
+#: ../public/js/plugins/templates-tab.js:1261
+#: ../public/js/plugins/templates-tab.js:1282
 msgid "VMWare: Optional"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:1041
-#: ../public/js/plugins/templates-tab.js:1226
-msgid "DRIVER"
-msgstr "影像檔驅動模式"
-
-#: ../public/js/plugins/templates-tab.js:1047
-#: ../public/js/plugins/templates-tab.js:1232
-msgid "Specific image mapping driver"
-msgstr ""
+msgstr "VMWare: 選擇性填寫"
 
 #: ../public/js/plugins/templates-tab.js:1048
 #: ../public/js/plugins/templates-tab.js:1233
+msgid "DRIVER"
+msgstr "影像檔驅動模式"
+
+#: ../public/js/plugins/templates-tab.js:1054
+#: ../public/js/plugins/templates-tab.js:1239
+msgid "Specific image mapping driver"
+msgstr "指定影像檔的驅動方式"
+
+#: ../public/js/plugins/templates-tab.js:1055
+#: ../public/js/plugins/templates-tab.js:1240
 msgid "Xen: Optional (tap:aio:, file:)"
-msgstr ""
+msgstr "Xen: 選擇性填寫 (tap:aio, file:)"
 
-#: ../public/js/plugins/templates-tab.js:1049
-#: ../public/js/plugins/templates-tab.js:1234
+#: ../public/js/plugins/templates-tab.js:1056
+#: ../public/js/plugins/templates-tab.js:1241
 msgid "KVM: Optional (raw, qcow2)"
-msgstr ""
+msgstr "KVM: 選擇性填寫 (raw, qcow2)"
 
-#: ../public/js/plugins/templates-tab.js:1050
-#: ../public/js/plugins/templates-tab.js:1117
-#: ../public/js/plugins/templates-tab.js:1138
-#: ../public/js/plugins/templates-tab.js:1235
-#: ../public/js/plugins/templates-tab.js:1302
-#: ../public/js/plugins/templates-tab.js:1323
+#: ../public/js/plugins/templates-tab.js:1057
+#: ../public/js/plugins/templates-tab.js:1124
+#: ../public/js/plugins/templates-tab.js:1145
+#: ../public/js/plugins/templates-tab.js:1242
+#: ../public/js/plugins/templates-tab.js:1309
+#: ../public/js/plugins/templates-tab.js:1330
 msgid "VMWare: Not supported"
 msgstr "VMWare: 不支援"
 
-#: ../public/js/plugins/templates-tab.js:1060
-#: ../public/js/plugins/templates-tab.js:1245
+#: ../public/js/plugins/templates-tab.js:1067
+#: ../public/js/plugins/templates-tab.js:1252
 msgid "DEV_PREFIX"
 msgstr "裝置名稱字首"
 
-#: ../public/js/plugins/templates-tab.js:1066
-#: ../public/js/plugins/templates-tab.js:1251
+#: ../public/js/plugins/templates-tab.js:1073
+#: ../public/js/plugins/templates-tab.js:1258
 msgid "Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”, or “vd” for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used"
-msgstr ""
+msgstr "此磁碟影像檔將被掛載的裝置名稱字首。例如 “hd” 或 “sd”，“vd”則代表使用KVM virtio。若未填寫，將使用磁碟影像檔內的「裝置名稱字首」屬性作為預設值"
 
-#: ../public/js/plugins/templates-tab.js:1077
-#: ../public/js/plugins/templates-tab.js:1262
+#: ../public/js/plugins/templates-tab.js:1084
+#: ../public/js/plugins/templates-tab.js:1269
 msgid "READONLY"
 msgstr "唯讀"
 
-#: ../public/js/plugins/templates-tab.js:1087
-#: ../public/js/plugins/templates-tab.js:1272
+#: ../public/js/plugins/templates-tab.js:1094
+#: ../public/js/plugins/templates-tab.js:1279
 msgid "Set how the image is exposed by the hypervisor"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:1100
-#: ../public/js/plugins/templates-tab.js:1285
-msgid "CACHE"
-msgstr "快取"
-
-#: ../public/js/plugins/templates-tab.js:1105
-#: ../public/js/plugins/templates-tab.js:1290
-msgid "default"
-msgstr "default"
-
-#: ../public/js/plugins/templates-tab.js:1106
-#: ../public/js/plugins/templates-tab.js:1291
-msgid "none"
-msgstr "none"
+msgstr "設定此影像檔被hypervisor所存取的模式"
 
 #: ../public/js/plugins/templates-tab.js:1107
 #: ../public/js/plugins/templates-tab.js:1292
-msgid "writethrough"
-msgstr "writethrough"
+msgid "CACHE"
+msgstr "快取"
 
-#: ../public/js/plugins/templates-tab.js:1108
-#: ../public/js/plugins/templates-tab.js:1293
-msgid "writeback"
-msgstr "writeback"
+#: ../public/js/plugins/templates-tab.js:1112
+#: ../public/js/plugins/templates-tab.js:1297
+msgid "default"
+msgstr "default"
 
-#: ../public/js/plugins/templates-tab.js:1109
-#: ../public/js/plugins/templates-tab.js:1294
-msgid "directsync"
-msgstr "directsync"
-
-#: ../public/js/plugins/templates-tab.js:1110
-#: ../public/js/plugins/templates-tab.js:1295
-msgid "unsafe"
-msgstr "unsafe"
+#: ../public/js/plugins/templates-tab.js:1113
+#: ../public/js/plugins/templates-tab.js:1298
+msgid "none"
+msgstr "none"
 
 #: ../public/js/plugins/templates-tab.js:1114
 #: ../public/js/plugins/templates-tab.js:1299
-msgid "Selects the cache mechanism for the disk."
-msgstr ""
+msgid "writethrough"
+msgstr "writethrough"
 
 #: ../public/js/plugins/templates-tab.js:1115
-#: ../public/js/plugins/templates-tab.js:1136
 #: ../public/js/plugins/templates-tab.js:1300
-#: ../public/js/plugins/templates-tab.js:1321
+msgid "writeback"
+msgstr "writeback"
+
+#: ../public/js/plugins/templates-tab.js:1116
+#: ../public/js/plugins/templates-tab.js:1301
+msgid "directsync"
+msgstr "directsync"
+
+#: ../public/js/plugins/templates-tab.js:1117
+#: ../public/js/plugins/templates-tab.js:1302
+msgid "unsafe"
+msgstr "unsafe"
+
+#: ../public/js/plugins/templates-tab.js:1121
+#: ../public/js/plugins/templates-tab.js:1306
+msgid "Selects the cache mechanism for the disk."
+msgstr "選擇磁碟快取機制"
+
+#: ../public/js/plugins/templates-tab.js:1122
+#: ../public/js/plugins/templates-tab.js:1143
+#: ../public/js/plugins/templates-tab.js:1307
+#: ../public/js/plugins/templates-tab.js:1328
 msgid "Xen: Not supported"
 msgstr "Xen: 不支援"
 
-#: ../public/js/plugins/templates-tab.js:1125
-#: ../public/js/plugins/templates-tab.js:1310
+#: ../public/js/plugins/templates-tab.js:1132
+#: ../public/js/plugins/templates-tab.js:1317
 msgid "IO"
 msgstr "IO"
 
-#: ../public/js/plugins/templates-tab.js:1130
-#: ../public/js/plugins/templates-tab.js:1315
+#: ../public/js/plugins/templates-tab.js:1137
+#: ../public/js/plugins/templates-tab.js:1322
 msgid "threads"
 msgstr "threads"
 
-#: ../public/js/plugins/templates-tab.js:1131
-#: ../public/js/plugins/templates-tab.js:1316
+#: ../public/js/plugins/templates-tab.js:1138
+#: ../public/js/plugins/templates-tab.js:1323
 msgid "native"
 msgstr "native"
 
-#: ../public/js/plugins/templates-tab.js:1135
-#: ../public/js/plugins/templates-tab.js:1320
+#: ../public/js/plugins/templates-tab.js:1142
+#: ../public/js/plugins/templates-tab.js:1327
 msgid "Set IO policy."
 msgstr "設定IO原則"
 
-#: ../public/js/plugins/templates-tab.js:1152
-#: ../public/js/plugins/templates-tab.js:2993
+#: ../public/js/plugins/templates-tab.js:1159
+#: ../public/js/plugins/templates-tab.js:3036
+#: ../public/js/plugins/templates-tab.js:3808
 msgid "TYPE"
 msgstr "種類"
 
-#: ../public/js/plugins/templates-tab.js:1156
+#: ../public/js/plugins/templates-tab.js:1163
 msgid "FS"
 msgstr "FS"
 
-#: ../public/js/plugins/templates-tab.js:1157
+#: ../public/js/plugins/templates-tab.js:1164
 msgid "Swap"
 msgstr "Swap"
 
-#: ../public/js/plugins/templates-tab.js:1168
+#: ../public/js/plugins/templates-tab.js:1175
 msgid "FORMAT"
 msgstr "檔案系統種類"
 
-#: ../public/js/plugins/templates-tab.js:1174
+#: ../public/js/plugins/templates-tab.js:1181
 msgid "Filesystem type for the fs images"
 msgstr "此fs磁碟影像檔的檔案系統種類"
 
-#: ../public/js/plugins/templates-tab.js:1198
+#: ../public/js/plugins/templates-tab.js:1205
 msgid "Size of the new disk"
 msgstr "揮發性磁碟大小"
 
-#: ../public/js/plugins/templates-tab.js:1676
+#: ../public/js/plugins/templates-tab.js:1712
 msgid "Please select a network from the list"
 msgstr "請選擇一個虛擬網路"
 
-#: ../public/js/plugins/templates-tab.js:1677
+#: ../public/js/plugins/templates-tab.js:1713
 msgid "You selected the following network:"
 msgstr "你已選擇下列虛擬網路:"
 
-#: ../public/js/plugins/templates-tab.js:1690
+#: ../public/js/plugins/templates-tab.js:1717
+msgid "The network you specified cannot be selected in the table"
+msgstr "無法選取你所指定的虛擬網路"
+
+#: ../public/js/plugins/templates-tab.js:1730
 msgid "NETWORK_ID"
+msgstr "虛擬網路ID"
+
+#: ../public/js/plugins/templates-tab.js:1736
+msgid "Identifier of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface."
 msgstr ""
 
-#: ../public/js/plugins/templates-tab.js:1704
-#: ../public/js/plugins/templates-tab.js:2382
+#: ../public/js/plugins/templates-tab.js:1744
+#: ../public/js/plugins/templates-tab.js:2423
 msgid "NETWORK"
 msgstr "網路卡"
 
-#: ../public/js/plugins/templates-tab.js:1720
+#: ../public/js/plugins/templates-tab.js:1750
+msgid "Name of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface."
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:1760
 msgid "NETWORK_UID"
+msgstr "虛擬網路擁有者ID"
+
+#: ../public/js/plugins/templates-tab.js:1766
+msgid "Identifier of the user owner of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface."
 msgstr ""
 
-#: ../public/js/plugins/templates-tab.js:1734
+#: ../public/js/plugins/templates-tab.js:1774
 msgid "NETWORK_UNAME"
+msgstr "虛擬網路擁有者名稱"
+
+#: ../public/js/plugins/templates-tab.js:1780
+msgid "Name of the user owner of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface."
 msgstr ""
 
-#: ../public/js/plugins/templates-tab.js:1751
-#: ../public/js/plugins/vms-tab.js:2295 ../public/js/plugins/vnets-tab.js:183
-#: ../public/js/plugins/vnets-tab.js:997
+#: ../public/js/plugins/templates-tab.js:1791
+#: ../public/js/plugins/vms-tab.js:2376 ../public/js/plugins/vnets-tab.js:183
+#: ../public/js/plugins/vnets-tab.js:999
 msgid "IP"
 msgstr "IP"
 
-#: ../public/js/plugins/templates-tab.js:1757
+#: ../public/js/plugins/templates-tab.js:1797
 msgid "Request an specific IP from the Network"
 msgstr "由虛擬網路中要求使用特定IP"
 
-#: ../public/js/plugins/templates-tab.js:1764
+#: ../public/js/plugins/templates-tab.js:1804
 msgid "MODEL"
 msgstr "網路介面模擬方式"
 
-#: ../public/js/plugins/templates-tab.js:1770
+#: ../public/js/plugins/templates-tab.js:1810
 msgid "Hardware that will emulate this network interface. With Xen this is the type attribute of the vif."
 msgstr "網路介面模擬方式。使用Xen時，此欄位為vif類別屬性"
 
-#: ../public/js/plugins/templates-tab.js:1778
+#: ../public/js/plugins/templates-tab.js:1818
 msgid "TCP Firewall"
 msgstr "TCP防火牆"
 
-#: ../public/js/plugins/templates-tab.js:1790
-#: ../public/js/plugins/templates-tab.js:1815
+#: ../public/js/plugins/templates-tab.js:1830
+#: ../public/js/plugins/templates-tab.js:1855
 msgid "PORTS"
 msgstr "通訊埠"
 
-#: ../public/js/plugins/templates-tab.js:1796
-#: ../public/js/plugins/templates-tab.js:1821
+#: ../public/js/plugins/templates-tab.js:1836
+#: ../public/js/plugins/templates-tab.js:1861
 msgid "A list of ports separated by commas or a ranges separated by semicolons, e.g.: 22,80,5900:6000"
 msgstr "使用逗點分隔列出通訊埠清單，或使用冒號來表示指定區段。例：22,80,5900:6000"
 
-#: ../public/js/plugins/templates-tab.js:1803
+#: ../public/js/plugins/templates-tab.js:1843
 msgid "UDP Firewall"
 msgstr "UDP防火牆"
 
-#: ../public/js/plugins/templates-tab.js:1806
+#: ../public/js/plugins/templates-tab.js:1846
 msgid "Whitelist"
 msgstr "允許清單"
 
-#: ../public/js/plugins/templates-tab.js:1809
+#: ../public/js/plugins/templates-tab.js:1849
 msgid "Blacklist"
 msgstr "封鎖清單"
 
-#: ../public/js/plugins/templates-tab.js:1830
+#: ../public/js/plugins/templates-tab.js:1870
 msgid "ICMP"
 msgstr "ICMP"
 
-#: ../public/js/plugins/templates-tab.js:1836
+#: ../public/js/plugins/templates-tab.js:1876
 msgid "Drop"
 msgstr "丟棄ICMP封包"
 
-#: ../public/js/plugins/templates-tab.js:1923
-#: ../public/js/plugins/templates-tab.js:1956
-#: ../public/js/plugins/vms-tab.js:1496 ../public/js/plugins/vnets-tab.js:461
+#: ../public/js/plugins/templates-tab.js:1964
+#: ../public/js/plugins/templates-tab.js:1997
+#: ../public/js/plugins/vms-tab.js:1561 ../public/js/plugins/vnets-tab.js:461
 msgid "Template"
 msgstr "範本"
 
-#: ../public/js/plugins/templates-tab.js:2054
+#: ../public/js/plugins/templates-tab.js:2095
 msgid "There are mandatory parameters missing in this section"
 msgstr "在此區段中有未填寫的參數"
 
-#: ../public/js/plugins/templates-tab.js:2212
+#: ../public/js/plugins/templates-tab.js:2253
 msgid "Add another disk"
 msgstr "新增磁碟"
 
-#: ../public/js/plugins/templates-tab.js:2257
+#: ../public/js/plugins/templates-tab.js:2298
 msgid "DISK"
 msgstr "磁碟"
 
-#: ../public/js/plugins/templates-tab.js:2280
+#: ../public/js/plugins/templates-tab.js:2321
 msgid "Add another nic"
 msgstr "新增網路介面"
 
-#: ../public/js/plugins/templates-tab.js:2322
+#: ../public/js/plugins/templates-tab.js:2363
 msgid "NIC"
 msgstr "網路介面"
 
-#: ../public/js/plugins/templates-tab.js:2352
+#: ../public/js/plugins/templates-tab.js:2393
 msgid "Features"
 msgstr "特別功能"
 
-#: ../public/js/plugins/templates-tab.js:2369
+#: ../public/js/plugins/templates-tab.js:2410
 msgid "CPU architecture to virtualization"
 msgstr "虛擬化CPU架構"
 
-#: ../public/js/plugins/templates-tab.js:2379
+#: ../public/js/plugins/templates-tab.js:2420
 msgid "HD"
 msgstr "硬碟"
 
-#: ../public/js/plugins/templates-tab.js:2380
+#: ../public/js/plugins/templates-tab.js:2421
 msgid "FD"
 msgstr "軟碟"
 
-#: ../public/js/plugins/templates-tab.js:2386
+#: ../public/js/plugins/templates-tab.js:2427
 msgid "Boot device type"
 msgstr "開機啟動裝置種類"
 
-#: ../public/js/plugins/templates-tab.js:2391
+#: ../public/js/plugins/templates-tab.js:2432
 msgid "Root"
 msgstr "根目錄"
 
-#: ../public/js/plugins/templates-tab.js:2397
+#: ../public/js/plugins/templates-tab.js:2438
 msgid "Device to be mounted as root"
 msgstr "掛載為根目錄的裝置名稱"
 
-#: ../public/js/plugins/templates-tab.js:2404
+#: ../public/js/plugins/templates-tab.js:2445
 msgid "Kernel cmd"
 msgstr "Kernel參數"
 
-#: ../public/js/plugins/templates-tab.js:2410
+#: ../public/js/plugins/templates-tab.js:2451
 msgid "Arguments for the booting kernel"
 msgstr "啟動Kernel時的額外參數"
 
-#: ../public/js/plugins/templates-tab.js:2415
+#: ../public/js/plugins/templates-tab.js:2456
 msgid "Bootloader"
 msgstr "Bootloader"
 
-#: ../public/js/plugins/templates-tab.js:2421
+#: ../public/js/plugins/templates-tab.js:2462
 msgid "Path to the bootloader executable"
 msgstr "bootloader可執行檔路徑"
 
-#: ../public/js/plugins/templates-tab.js:2426
+#: ../public/js/plugins/templates-tab.js:2467
 msgid "Guest OS"
 msgstr "Guest OS"
 
-#: ../public/js/plugins/templates-tab.js:2526
+#: ../public/js/plugins/templates-tab.js:2567
 msgid "Set the OS of the VM, only for VMware"
 msgstr "設定VM的OS種類，僅適用於VMWare"
 
-#: ../public/js/plugins/templates-tab.js:2534
+#: ../public/js/plugins/templates-tab.js:2575
 msgid "Registered Image"
 msgstr "已註冊檔案"
 
-#: ../public/js/plugins/templates-tab.js:2537
-#: ../public/js/plugins/templates-tab.js:2608
+#: ../public/js/plugins/templates-tab.js:2578
+#: ../public/js/plugins/templates-tab.js:2649
 msgid "Remote PATH"
 msgstr "遠端路徑來源"
 
-#: ../public/js/plugins/templates-tab.js:2572
+#: ../public/js/plugins/templates-tab.js:2613
 msgid "Please select a Kernel from the list"
 msgstr "請選擇一個Kernel"
 
-#: ../public/js/plugins/templates-tab.js:2573
+#: ../public/js/plugins/templates-tab.js:2614
 msgid "You selected the following Kernel: "
 msgstr "你已選擇下列Kernel: "
 
-#: ../public/js/plugins/templates-tab.js:2580
+#: ../public/js/plugins/templates-tab.js:2621
 msgid "KERNEL_DS"
-msgstr ""
+msgstr "資料存放區KERNEL"
 
-#: ../public/js/plugins/templates-tab.js:2592
-#: ../public/js/plugins/templates-tab.js:2663
+#: ../public/js/plugins/templates-tab.js:2633
+#: ../public/js/plugins/templates-tab.js:2704
 msgid "PATH"
 msgstr "路徑"
 
-#: ../public/js/plugins/templates-tab.js:2598
+#: ../public/js/plugins/templates-tab.js:2639
 msgid "Path to the OS kernel to boot the image"
 msgstr "作業系統開機載入核心檔路徑"
 
-#: ../public/js/plugins/templates-tab.js:2605
+#: ../public/js/plugins/templates-tab.js:2646
 msgid "Registered Image "
 msgstr "已註冊檔案"
 
-#: ../public/js/plugins/templates-tab.js:2643
+#: ../public/js/plugins/templates-tab.js:2684
 msgid "Please select a Ramdisk from the list"
 msgstr "請選擇一個Ramdisk"
 
-#: ../public/js/plugins/templates-tab.js:2644
+#: ../public/js/plugins/templates-tab.js:2685
 msgid "You selected the following Ramdisk: "
 msgstr "你已選擇下列Ramdisk: "
 
-#: ../public/js/plugins/templates-tab.js:2651
+#: ../public/js/plugins/templates-tab.js:2692
 msgid "INITRD_DS"
-msgstr ""
+msgstr "資料存放區INITRD"
 
-#: ../public/js/plugins/templates-tab.js:2669
+#: ../public/js/plugins/templates-tab.js:2710
 msgid "Path to the initrd image"
 msgstr "initrd影像檔路徑"
 
-#: ../public/js/plugins/templates-tab.js:2677
+#: ../public/js/plugins/templates-tab.js:2718
 msgid "ACPI"
 msgstr "ACPI"
 
-#: ../public/js/plugins/templates-tab.js:2682
-#: ../public/js/plugins/templates-tab.js:2697
+#: ../public/js/plugins/templates-tab.js:2723
+#: ../public/js/plugins/templates-tab.js:2738
 #: ../public/js/plugins/vnets-tab.js:326
 msgid "Yes"
 msgstr "是"
 
-#: ../public/js/plugins/templates-tab.js:2683
-#: ../public/js/plugins/templates-tab.js:2698
+#: ../public/js/plugins/templates-tab.js:2724
+#: ../public/js/plugins/templates-tab.js:2739
 #: ../public/js/plugins/vnets-tab.js:327
 msgid "No"
 msgstr "否"
 
-#: ../public/js/plugins/templates-tab.js:2687
+#: ../public/js/plugins/templates-tab.js:2728
 msgid "Add support in the VM for Advanced Configuration and Power Interface (ACPI)"
 msgstr "在此VM啟用進階組態與電源介面(ACPI)"
 
-#: ../public/js/plugins/templates-tab.js:2692
+#: ../public/js/plugins/templates-tab.js:2733
 msgid "PAE"
 msgstr "PAE"
 
-#: ../public/js/plugins/templates-tab.js:2702
+#: ../public/js/plugins/templates-tab.js:2743
 msgid "Add support in the VM for Physical Address Extension (PAE)"
 msgstr "在此VM啟用實體位址延伸(PAE)"
 
-#: ../public/js/plugins/templates-tab.js:2709
+#: ../public/js/plugins/templates-tab.js:2750
 msgid "PCI BRIDGE"
-msgstr ""
+msgstr "PCI橋接器"
 
-#: ../public/js/plugins/templates-tab.js:2728
+#: ../public/js/plugins/templates-tab.js:2769
 msgid " Adds a PCI Controller that provides bridge-to-bridge capability, only for VMware."
-msgstr ""
+msgstr " 在VM中加入PCI控制器，提供橋接能力，此功能僅於VMware可使用"
 
-#: ../public/js/plugins/templates-tab.js:2901
+#: ../public/js/plugins/templates-tab.js:2944
 msgid "Graphics"
 msgstr "圖形顯示介面"
 
-#: ../public/js/plugins/templates-tab.js:2921
+#: ../public/js/plugins/templates-tab.js:2964
 msgid "Listen IP"
 msgstr "接聽IP"
 
-#: ../public/js/plugins/templates-tab.js:2927
+#: ../public/js/plugins/templates-tab.js:2970
 msgid "IP to listen on"
 msgstr "接聽VNC/SPICE連線需求的IP"
 
-#: ../public/js/plugins/templates-tab.js:2932
+#: ../public/js/plugins/templates-tab.js:2975
 msgid "Port"
 msgstr "通訊埠"
 
-#: ../public/js/plugins/templates-tab.js:2938
+#: ../public/js/plugins/templates-tab.js:2981
 msgid "Port for the VNC/SPICE server"
 msgstr "VNC/SPICE 伺服器的通訊埠"
 
-#: ../public/js/plugins/templates-tab.js:2949
+#: ../public/js/plugins/templates-tab.js:2992
 msgid "Password for the VNC/SPICE server"
 msgstr "VNC/SPICE 伺服器的密碼"
 
-#: ../public/js/plugins/templates-tab.js:2954
+#: ../public/js/plugins/templates-tab.js:2997
 msgid "Keymap"
 msgstr "鍵盤對應"
 
-#: ../public/js/plugins/templates-tab.js:2960
+#: ../public/js/plugins/templates-tab.js:3003
 msgid "Keyboard configuration locale to use in the VNC/SPICE display"
 msgstr "VNC/SPICE 操作介面所使用的鍵盤語系對應設定"
 
-#: ../public/js/plugins/templates-tab.js:2967
+#: ../public/js/plugins/templates-tab.js:3010
 msgid "Inputs"
 msgstr "輸入介面"
 
-#: ../public/js/plugins/templates-tab.js:2972
+#: ../public/js/plugins/templates-tab.js:3015
 msgid "Mouse"
 msgstr "Mouse"
 
-#: ../public/js/plugins/templates-tab.js:2973
+#: ../public/js/plugins/templates-tab.js:3016
 msgid "Tablet"
 msgstr "Tablet"
 
-#: ../public/js/plugins/templates-tab.js:2979
+#: ../public/js/plugins/templates-tab.js:3022
 msgid "USB"
 msgstr "USB"
 
-#: ../public/js/plugins/templates-tab.js:2980
+#: ../public/js/plugins/templates-tab.js:3023
 msgid "PS2"
 msgstr "PS2"
 
-#: ../public/js/plugins/templates-tab.js:2994
+#: ../public/js/plugins/templates-tab.js:3037
 msgid "BUS"
 msgstr "介接規格(BUS)"
 
-#: ../public/js/plugins/templates-tab.js:3061
+#: ../public/js/plugins/templates-tab.js:3104
 msgid "Network & SSH"
 msgstr "網路 & SSH"
 
-#: ../public/js/plugins/templates-tab.js:3063
+#: ../public/js/plugins/templates-tab.js:3106
 msgid "Custom variables"
 msgstr "自定義變數"
 
-#: ../public/js/plugins/templates-tab.js:3076
+#: ../public/js/plugins/templates-tab.js:3119
 msgid "  Add SSH contextualization"
 msgstr "  建立SSH自動化環境配置"
 
-#: ../public/js/plugins/templates-tab.js:3079
+#: ../public/js/plugins/templates-tab.js:3122
 msgid "Add an ssh public key to the context. If the Public Key textarea is empty then the user variable SSH_PUBLIC_KEY will be used."
 msgstr "在範本的CONTEXT區段內建立一個SSH公鑰。若公鑰欄位未填寫任何文字，系統將使用SSH_PUBLIC_KEY變數作為公鑰"
 
-#: ../public/js/plugins/templates-tab.js:3084
+#: ../public/js/plugins/templates-tab.js:3127
 msgid "Public Key"
 msgstr "公鑰 (Public Key)"
 
-#: ../public/js/plugins/templates-tab.js:3102
+#: ../public/js/plugins/templates-tab.js:3145
 msgid "  Add Network contextualization"
 msgstr "  建立網路自動化環境配置"
 
-#: ../public/js/plugins/templates-tab.js:3105
+#: ../public/js/plugins/templates-tab.js:3148
 msgid "Add network contextualization parameters. For each NIC defined in the NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in the CONTEXT section and will be available in the Virtual Machine"
 msgstr "建立網路自動化環境配置參數。在每個網路介面中所定義的「網路」區段，其中的ETH$i_IP、ETH$i_NETWORK等參數，將會被寫入範本中的CONTEXT區段，供虛擬機器進行網路自動化環境配置。"
 
-#: ../public/js/plugins/templates-tab.js:3110
+#: ../public/js/plugins/templates-tab.js:3153
 msgid "OneGate token"
-msgstr ""
+msgstr "OneGate金鑰"
 
-#: ../public/js/plugins/templates-tab.js:3116
+#: ../public/js/plugins/templates-tab.js:3159
 msgid "  Add OneGate token"
-msgstr "新增OneGate"
+msgstr "新增OneGate金鑰"
 
-#: ../public/js/plugins/templates-tab.js:3119
+#: ../public/js/plugins/templates-tab.js:3162
 msgid "Add a file (token.txt) to the context contaning the token to push custom metrics to the VirtualMachine through OneGate"
-msgstr ""
+msgstr "透過OneGate伺服器，建立一個包含金鑰的檔案(token.txt)至虛擬機器之中"
 
-#: ../public/js/plugins/templates-tab.js:3157
+#: ../public/js/plugins/templates-tab.js:3200
 msgid "Please select files from the list"
 msgstr "請選擇一或多個檔案"
 
-#: ../public/js/plugins/templates-tab.js:3158
+#: ../public/js/plugins/templates-tab.js:3201
 msgid "You selected the following files:"
 msgstr "你已選擇下列檔案:"
 
-#: ../public/js/plugins/templates-tab.js:3163
+#: ../public/js/plugins/templates-tab.js:3206
 msgid "FILES_DS"
+msgstr "資料存放區檔案"
+
+#: ../public/js/plugins/templates-tab.js:3212
+msgid "Raw String for the FILE_DS attribute of the VM template, representing files that will be included in the contextualization image. Each file must be stored in a FILE_DS Datastore and must be of type CONTEXT"
 msgstr ""
 
-#: ../public/js/plugins/templates-tab.js:3190
+#: ../public/js/plugins/templates-tab.js:3217
+msgid "Init scripts"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:3223
+msgid "If the VM uses the OpenNebula contextualization package the init.sh file is executed by default. When the init script added is not called init.sh or more than one init script is added, this list contains the scripts to run and the order. Ex. “init.sh users.sh mysql.sh”"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:3243
+#: ../public/js/plugins/templates-tab.js:3862
 msgid "KEY"
 msgstr "鍵(KEY)"
 
-#: ../public/js/plugins/templates-tab.js:3191
+#: ../public/js/plugins/templates-tab.js:3244
+#: ../public/js/plugins/templates-tab.js:3863
 msgid "VALUE"
 msgstr "值(VALUE)"
 
-#: ../public/js/plugins/templates-tab.js:3365
-#: ../public/js/plugins/vms-tab.js:1294 ../public/js/plugins/vms-tab.js:1517
+#: ../public/js/plugins/templates-tab.js:3419
+#: ../public/js/plugins/vms-tab.js:1359 ../public/js/plugins/vms-tab.js:1582
 msgid "Placement"
 msgstr "資源配置"
 
-#: ../public/js/plugins/templates-tab.js:3366
+#: ../public/js/plugins/templates-tab.js:3420
 msgid "Policy"
 msgstr "配置原則"
 
-#: ../public/js/plugins/templates-tab.js:3372
+#: ../public/js/plugins/templates-tab.js:3425
+msgid "Host Requirements"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:3428
 msgid "Select Hosts "
 msgstr "指定主機 "
 
-#: ../public/js/plugins/templates-tab.js:3375
+#: ../public/js/plugins/templates-tab.js:3431
 msgid "Select Clusters "
 msgstr "指定主機叢集 "
 
-#: ../public/js/plugins/templates-tab.js:3441
+#: ../public/js/plugins/templates-tab.js:3497
 msgid "Please select one or more clusters from the list"
 msgstr "請選擇一或多個主機叢集"
 
-#: ../public/js/plugins/templates-tab.js:3442
+#: ../public/js/plugins/templates-tab.js:3498
 msgid "You selected the following clusters:"
 msgstr "你已選擇下列主機叢集:"
 
-#: ../public/js/plugins/templates-tab.js:3449
-msgid "Requirements"
-msgstr "需求描述"
-
-#: ../public/js/plugins/templates-tab.js:3455
+#: ../public/js/plugins/templates-tab.js:3511
 msgid "Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM"
 msgstr "使用布林表示式來描述VM需求，使得排程系統能夠根據條件選擇最適合的主機來部署VM"
 
-#: ../public/js/plugins/templates-tab.js:3462
+#: ../public/js/plugins/templates-tab.js:3517
+msgid "Datastore Requirements"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:3526
+msgid "Boolean expression that rules out entries from the pool of datastores suitable to run this VM."
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:3533
+msgid "Host Rank"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:3536
+#: ../public/js/plugins/templates-tab.js:3566
 msgid "Packing"
 msgstr "集中式原則"
 
-#: ../public/js/plugins/templates-tab.js:3465
+#: ../public/js/plugins/templates-tab.js:3537
 msgid "Pack the VMs in the cluster nodes to reduce VM fragmentation"
 msgstr "將VM集中配置，以減少VM分佈破碎情況。並可減少啟用主機數目，達到節能目的。"
 
-#: ../public/js/plugins/templates-tab.js:3468
+#: ../public/js/plugins/templates-tab.js:3540
+#: ../public/js/plugins/templates-tab.js:3570
 msgid "Stripping"
 msgstr "分散式原則"
 
-#: ../public/js/plugins/templates-tab.js:3471
+#: ../public/js/plugins/templates-tab.js:3541
 msgid "Spread the VMs in the cluster nodes"
 msgstr "將VM分散部署在各主機中，讓VM能使用更多主機資源。"
 
-#: ../public/js/plugins/templates-tab.js:3474
+#: ../public/js/plugins/templates-tab.js:3544
 msgid "Load-aware"
 msgstr "最低負載原則"
 
-#: ../public/js/plugins/templates-tab.js:3477
+#: ../public/js/plugins/templates-tab.js:3545
 msgid "Maximize the resources available to VMs in a node"
 msgstr "選擇最低負載主機，讓VM能使用更多主機資源。"
 
-#: ../public/js/plugins/templates-tab.js:3483
-msgid "Rank"
-msgstr "順序"
-
-#: ../public/js/plugins/templates-tab.js:3489
+#: ../public/js/plugins/templates-tab.js:3557
 msgid "This field sets which attribute will be used to sort the suitable hosts for this VM"
 msgstr "此欄位可設定在部署VM時的主機選取原則"
 
-#: ../public/js/plugins/templates-tab.js:3793
-msgid "There are mandatory fields missing in the capacity section"
-msgstr "在效能區段內有未填寫的欄位"
+#: ../public/js/plugins/templates-tab.js:3563
+msgid "Datastore Rank"
+msgstr ""
 
-#: ../public/js/plugins/templates-tab.js:3927
+#: ../public/js/plugins/templates-tab.js:3567
+msgid "Tries to optimize storage usage by selecting the DS with less free space"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:3571
+msgid "Striping. Tries to optimize I/O by distributing the VMs across datastores."
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:3583
+msgid "This field sets which attribute will be used to sort the suitable datastores for this VM"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:3805
+msgid "RAW data"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:3813
+msgid "kvm"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:3814
+msgid "xen"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:3815
+msgid "vmware"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:3823
+msgid "DATA"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:3829
+msgid "Raw data to be passed directly to the hypervisor"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:3834
+msgid "DATA_VMX"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:3840
+msgid "Raw data to be added directly to the .vmx file."
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:3846
+msgid "Custom Tags"
+msgstr ""
+
+#: ../public/js/plugins/templates-tab.js:3881
+#: ../public/js/plugins/vnets-tab.js:454 ../public/js/sunstone-util.js:2360
+msgid "Other"
+msgstr "其他"
+
+#: ../public/js/plugins/templates-tab.js:4183
 msgid "Virtual Machine name missing!"
 msgstr "未填寫虛擬機器名稱!"
 
-#: ../public/js/plugins/templates-tab.js:4119
-msgid " does not exists any more."
-msgstr " 已不存在."
-
-#: ../public/js/plugins/templates-tab.js:4127
-#: ../public/js/plugins/templates-tab.js:4275
-#: ../public/js/plugins/templates-tab.js:4319
-msgid "The image you specified cannot be selected in the table"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:4195
-#: ../public/js/plugins/templates-tab.js:4267
-#: ../public/js/plugins/templates-tab.js:4311
+#: ../public/js/plugins/templates-tab.js:4514
+#: ../public/js/plugins/templates-tab.js:4558
 msgid " does not exists any more"
 msgstr " 已不存在"
 
-#: ../public/js/plugins/templates-tab.js:4203
-msgid "The network you specified cannot be selected in the table"
-msgstr ""
-
-#: ../public/js/plugins/templates-tab.js:4454
+#: ../public/js/plugins/templates-tab.js:4714
 msgid "The following FILES: "
 msgstr "下列檔案: "
 
-#: ../public/js/plugins/templates-tab.js:4454
-#: ../public/js/plugins/templates-tab.js:4533
+#: ../public/js/plugins/templates-tab.js:4714
+#: ../public/js/plugins/templates-tab.js:4795
 msgid " do not exist any more"
 msgstr " 已不存在"
 
-#: ../public/js/plugins/templates-tab.js:4533
+#: ../public/js/plugins/templates-tab.js:4795
 msgid "The following HOSTs: ["
 msgstr "下列主機: ["
 
-#: ../public/js/plugins/templates-tab.js:4566
+#: ../public/js/plugins/templates-tab.js:4828
 msgid "do not exist any more"
 msgstr "已不存在"
 
-#: ../public/js/plugins/templates-tab.js:4604
+#: ../public/js/plugins/templates-tab.js:4942
 msgid "Clone a template"
 msgstr "複製範本"
 
-#: ../public/js/plugins/templates-tab.js:4611
+#: ../public/js/plugins/templates-tab.js:4949
 msgid "Clone Template"
 msgstr "複製範本"
 
-#: ../public/js/plugins/templates-tab.js:4617
+#: ../public/js/plugins/templates-tab.js:4955
 msgid "Several templates are selected, please choose prefix to name the new copies"
 msgstr "已選擇多個範本，請選擇新複本名稱的字首"
 
@@ -3459,8 +3658,8 @@ msgstr "用戶名稱"
 msgid "Authentication"
 msgstr "認證方式"
 
-#: ../public/js/plugins/users-tab.js:185 ../public/js/plugins/users-tab.js:548
-#: ../public/js/plugins/users-tab.js:841
+#: ../public/js/plugins/users-tab.js:185 ../public/js/plugins/users-tab.js:578
+#: ../public/js/plugins/users-tab.js:886
 msgid "Change authentication"
 msgstr "修改認證方式"
 
@@ -3468,449 +3667,536 @@ msgstr "修改認證方式"
 msgid "Please choose the new type of authentication for the selected users"
 msgstr "請選擇一個新的認證方式，此認證方式將套用於所有被選取的用戶"
 
-#: ../public/js/plugins/users-tab.js:561
+#: ../public/js/plugins/users-tab.js:591
 msgid "This will change the main group of the selected users. Select the new group"
 msgstr "選取的用戶將會變更群組。請選擇新的群組"
 
-#: ../public/js/plugins/users-tab.js:582
+#: ../public/js/plugins/users-tab.js:596
+msgid "Add to group"
+msgstr ""
+
+#: ../public/js/plugins/users-tab.js:599
+msgid "This will add the user to a secondary group. Select the new group"
+msgstr ""
+
+#: ../public/js/plugins/users-tab.js:604
+msgid "Remove from group"
+msgstr ""
+
+#: ../public/js/plugins/users-tab.js:607
+msgid "This will remove the user from a secondary group. Select the group"
+msgstr ""
+
+#: ../public/js/plugins/users-tab.js:628
 msgid "Historical usages"
 msgstr "舊式用法"
 
-#: ../public/js/plugins/users-tab.js:597
+#: ../public/js/plugins/users-tab.js:643
 msgid "User info"
 msgstr "用戶資訊"
 
-#: ../public/js/plugins/users-tab.js:726
+#: ../public/js/plugins/users-tab.js:777
 msgid "Authentication driver"
 msgstr "認證方式"
 
-#: ../public/js/plugins/users-tab.js:737
+#: ../public/js/plugins/users-tab.js:788
 msgid "Configuration Attributes"
 msgstr "用戶設定值"
 
-#: ../public/js/plugins/users-tab.js:769
+#: ../public/js/plugins/users-tab.js:821
 msgid "Create user"
 msgstr "建立用戶"
 
-#: ../public/js/plugins/users-tab.js:802
+#: ../public/js/plugins/users-tab.js:847
 msgid "User name and password must be filled in"
 msgstr "必須填寫用戶名稱及密碼"
 
-#: ../public/js/plugins/users-tab.js:862
+#: ../public/js/plugins/users-tab.js:907
 msgid "Fill in a new auth driver"
 msgstr "填寫一個新的認證方式"
 
-#: ../public/js/plugins/users-tab.js:874
+#: ../public/js/plugins/users-tab.js:919
 msgid "User quotas"
 msgstr "用戶配額"
 
-#: ../public/js/plugins/vms-tab.js:95 ../public/js/plugins/vms-tab.js:144
-#: ../public/js/plugins/vms-tab.js:2901
+#: ../public/js/plugins/vms-tab.js:29
+msgid "SHUTDOWN"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:30
+msgid "SHUTDOWN_POWEROFF"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:31
+msgid "UNKNOWN"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:32
+msgid "HOTPLUG"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:33
+msgid "CANCEL"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:34
+msgid "MIGRATE"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:35
+msgid "HOTPLUG_SNAPSHOT"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:36
+msgid "HOTPLUG_NIC"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:37
+msgid "HOTPLUG_SAVEAS"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:38
+msgid "HOTPLUG_SAVEAS_POWEROFF"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:39
+msgid "HOTPLUG_SAVEAS_SUSPENDED"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:40
+msgid "SHUTDOWN_UNDEPLOY"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:108 ../public/js/plugins/vms-tab.js:2983
 msgid "Create Virtual Machine"
 msgstr "建立虛擬機器"
 
-#: ../public/js/plugins/vms-tab.js:107
-msgid "Defaults to template name when emtpy"
-msgstr "若未填寫此欄位，預設值為範本名稱"
-
-#: ../public/js/plugins/vms-tab.js:112
-msgid "Select template"
-msgstr "選擇一個範本"
-
-#: ../public/js/plugins/vms-tab.js:124
-msgid "Deploy # VMs"
-msgstr "部署VM數量"
-
-#: ../public/js/plugins/vms-tab.js:130
-msgid "You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them"
-msgstr "你可以使用萬用字元 &#37;i 。當一次建立多個VM時，&#37;i 會被替換成由0開始的依序數字。"
-
-#: ../public/js/plugins/vms-tab.js:181
-#, fuzzy
-msgid "Step 2: Select an instance type"
-msgstr "第2步：選擇一個範本"
-
-#: ../public/js/plugins/vms-tab.js:821 ../public/js/plugins/vms-tab.js:832
-msgid "VirtualMachine updated correctly"
-msgstr "虛擬機器已成功修改"
-
-#: ../public/js/plugins/vms-tab.js:856
-msgid "Launch"
-msgstr "啟動"
-
-#: ../public/js/plugins/vms-tab.js:1016
-msgid "Recovers a stuck VM that is waiting for a driver operation.                 The recovery may be done by failing or succeeding the pending operation.                 YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation                 was successful or not."
+#: ../public/js/plugins/vms-tab.js:257
+msgid "Deploy Virtual Machine"
 msgstr ""
 
-#: ../public/js/plugins/vms-tab.js:1082 ../public/js/plugins/vms-tab.js:1104
-#: ../public/js/plugins/vms-tab.js:1382
-msgid "SUSPENDED"
-msgstr "SUSPENDED"
-
-#: ../public/js/plugins/vms-tab.js:1094
-msgid "HOLD"
-msgstr "HOLD"
-
-#: ../public/js/plugins/vms-tab.js:1103
-msgid "STOPPED"
-msgstr "STOPPED"
-
-#: ../public/js/plugins/vms-tab.js:1105
-msgid "POWEROFF"
-msgstr "POWEROFF"
-
-#: ../public/js/plugins/vms-tab.js:1313
-msgid "#"
-msgstr "#"
-
-#: ../public/js/plugins/vms-tab.js:1315
-msgid "Action"
-msgstr "操作"
-
-#: ../public/js/plugins/vms-tab.js:1316
-msgid "Reason"
-msgstr "指派原因"
-
-#: ../public/js/plugins/vms-tab.js:1317
-msgid "Chg time"
-msgstr "異動時間"
-
-#: ../public/js/plugins/vms-tab.js:1318
-msgid "Total time"
-msgstr "總運行時間"
-
-#: ../public/js/plugins/vms-tab.js:1319
-msgid "Prolog time"
-msgstr "資料部署時間"
-
-#: ../public/js/plugins/vms-tab.js:1430
-msgid "LCM State"
-msgstr "LCM階段"
-
-#: ../public/js/plugins/vms-tab.js:1445
-msgid "Deploy ID"
-msgstr "部署ID"
-
-#: ../public/js/plugins/vms-tab.js:1491
-msgid "Snapshots"
-msgstr "快照"
-
-#: ../public/js/plugins/vms-tab.js:1506
-msgid "Log"
-msgstr "記錄"
-
-#: ../public/js/plugins/vms-tab.js:1511 ../public/js/plugins/vms-tab.js:1592
-#: ../public/js/plugins/vms-tab.js:1956 ../public/js/plugins/vms-tab.js:2299
-#: ../public/js/plugins/vms-tab.js:2722
-msgid "Actions"
-msgstr "操作"
-
-#: ../public/js/plugins/vms-tab.js:1581
-msgid "Schedule action"
-msgstr "操作排程"
-
-#: ../public/js/plugins/vms-tab.js:1588
-msgid "ACTION"
-msgstr "操作"
-
-#: ../public/js/plugins/vms-tab.js:1589
-msgid "TIME"
-msgstr "啟動時間"
-
-#: ../public/js/plugins/vms-tab.js:1591
-msgid "MESSAGE"
-msgstr "訊息"
-
-#: ../public/js/plugins/vms-tab.js:1615 ../public/js/plugins/vms-tab.js:1638
-#: ../public/js/plugins/vms-tab.js:1749
-msgid "shutdown"
-msgstr "結束(shutdown)"
-
-#: ../public/js/plugins/vms-tab.js:1616 ../public/js/plugins/vms-tab.js:1640
-#: ../public/js/plugins/vms-tab.js:1750
-msgid "hold"
-msgstr "保留(hold)"
-
-#: ../public/js/plugins/vms-tab.js:1617 ../public/js/plugins/vms-tab.js:1641
-#: ../public/js/plugins/vms-tab.js:1751
-msgid "release"
-msgstr "釋放(release)"
-
-#: ../public/js/plugins/vms-tab.js:1618 ../public/js/plugins/vms-tab.js:1642
-#: ../public/js/plugins/vms-tab.js:1752
-msgid "stop"
-msgstr "停機封存(stop)"
-
-#: ../public/js/plugins/vms-tab.js:1619 ../public/js/plugins/vms-tab.js:1753
-msgid "cancel"
-msgstr "取消(cancel)"
-
-#: ../public/js/plugins/vms-tab.js:1620 ../public/js/plugins/vms-tab.js:1643
-#: ../public/js/plugins/vms-tab.js:1754
-msgid "suspend"
-msgstr "暫停(suspend)"
-
-#: ../public/js/plugins/vms-tab.js:1621 ../public/js/plugins/vms-tab.js:1644
-#: ../public/js/plugins/vms-tab.js:1755
-msgid "resume"
-msgstr "繼續(resume)"
-
-#: ../public/js/plugins/vms-tab.js:1622 ../public/js/plugins/vms-tab.js:1756
-msgid "restart"
-msgstr "重新啟動(restart)"
-
-#: ../public/js/plugins/vms-tab.js:1623 ../public/js/plugins/vms-tab.js:1757
-msgid "resubmit"
-msgstr "重新派送(resubmit)"
-
-#: ../public/js/plugins/vms-tab.js:1624 ../public/js/plugins/vms-tab.js:1648
-#: ../public/js/plugins/vms-tab.js:1758
-msgid "reboot"
-msgstr "重開機(reboot)"
-
-#: ../public/js/plugins/vms-tab.js:1625 ../public/js/plugins/vms-tab.js:1759
-msgid "reset"
-msgstr "強迫重開機(reset)"
-
-#: ../public/js/plugins/vms-tab.js:1626 ../public/js/plugins/vms-tab.js:1650
-#: ../public/js/plugins/vms-tab.js:1760
-msgid "poweroff"
-msgstr "關機(poweroff)"
-
-#: ../public/js/plugins/vms-tab.js:1627 ../public/js/plugins/vms-tab.js:1654
-#: ../public/js/plugins/vms-tab.js:1761
-msgid "snapshot-create"
-msgstr "拍攝快照(snapshot-create)"
-
-#: ../public/js/plugins/vms-tab.js:1639
-msgid "shutdown-hard"
-msgstr "強迫結束(shutdown-hard)"
-
-#: ../public/js/plugins/vms-tab.js:1645
-msgid "boot"
-msgstr "復原開機(boot)"
-
-#: ../public/js/plugins/vms-tab.js:1646
-msgid "delete"
-msgstr "刪除(delete)"
-
-#: ../public/js/plugins/vms-tab.js:1647
-msgid "delete-recreate"
-msgstr "刪除重建(delete-recreate)"
-
-#: ../public/js/plugins/vms-tab.js:1649
-msgid "reboot-hard"
-msgstr "強迫重開機(reboot-hard)"
-
-#: ../public/js/plugins/vms-tab.js:1651
-msgid "poweroff-hard"
-msgstr "強迫關機(poweroff-hard)"
-
-#: ../public/js/plugins/vms-tab.js:1652
-msgid "undeploy"
-msgstr "關機封存(undeploy)"
-
-#: ../public/js/plugins/vms-tab.js:1653
-msgid "undeploy-hard"
-msgstr "強迫關機封存(undeploy-hard)"
-
-#: ../public/js/plugins/vms-tab.js:1884
-msgid "Date Time Picker"
-msgstr "日期時間選擇器"
-
-#: ../public/js/plugins/vms-tab.js:1895
-msgid "Done"
-msgstr "完成"
-
-#: ../public/js/plugins/vms-tab.js:1934 ../public/js/plugins/vms-tab.js:1937
-#: ../public/js/plugins/vms-tab.js:2169
-msgid "Attach new disk"
-msgstr "附加新的磁碟"
-
-#: ../public/js/plugins/vms-tab.js:1953
-msgid "Image / Format-Size"
-msgstr "影像檔名稱 / 格式及大小"
-
-#: ../public/js/plugins/vms-tab.js:1955
-msgid "Save as"
-msgstr "另存磁碟"
-
-#: ../public/js/plugins/vms-tab.js:1971
-msgid "No disks to show"
-msgstr "目前沒有任何磁碟"
-
-#: ../public/js/plugins/vms-tab.js:1989
-msgid "in progress"
-msgstr "處理中"
-
-#: ../public/js/plugins/vms-tab.js:1990
-msgid "deferred snapshot in progress"
-msgstr "延遲快照中"
-
-#: ../public/js/plugins/vms-tab.js:2002
-msgid "hot snapshot in progress"
-msgstr "即時快照中"
-
-#: ../public/js/plugins/vms-tab.js:2014
-msgid "attach/detach in progress"
-msgstr "附加中/卸載中"
-
-#: ../public/js/plugins/vms-tab.js:2025 ../public/js/plugins/vms-tab.js:2065
-#: ../public/js/plugins/vms-tab.js:2792
-msgid "Snapshot"
-msgstr "快照"
-
-#: ../public/js/plugins/vms-tab.js:2032 ../public/js/plugins/vms-tab.js:2339
-msgid "Detach"
-msgstr "卸載"
-
-#: ../public/js/plugins/vms-tab.js:2042
-msgid "YES"
-msgstr "是"
-
-#: ../public/js/plugins/vms-tab.js:2042
-msgid "NO"
-msgstr "否"
-
-#: ../public/js/plugins/vms-tab.js:2071 ../public/js/plugins/vms-tab.js:2176
-#: ../public/js/plugins/vms-tab.js:2434 ../public/js/plugins/vms-tab.js:2596
-#: ../public/js/plugins/vms-tab.js:2798
-msgid "Virtual Machine ID"
-msgstr "虛擬機器ID"
-
-#: ../public/js/plugins/vms-tab.js:2082
-msgid "Disk ID"
-msgstr "磁碟ID"
-
-#: ../public/js/plugins/vms-tab.js:2093
-msgid "Image name"
-msgstr "磁碟影像檔名稱"
-
-#: ../public/js/plugins/vms-tab.js:2104
-msgid "Snapshot type"
-msgstr "快照種類"
-
-#: ../public/js/plugins/vms-tab.js:2108
-msgid "Deferred"
-msgstr "延遲"
-
-#: ../public/js/plugins/vms-tab.js:2109
-msgid "Hot"
-msgstr "即時"
-
-#: ../public/js/plugins/vms-tab.js:2113
-msgid "Sets the specified VM disk to be saved in a new Image."
-msgstr "將指定的VM磁碟另存為新的磁碟影像檔"
-
-#: ../public/js/plugins/vms-tab.js:2114
-msgid "Deferred: The Image is created immediately, but the contents are saved only if the VM is shut down gracefully (i.e., using Shutdown; not Delete)"
-msgstr "延遲: 磁碟影像檔會立刻建立，但直到VM被正常關機後，才會儲存影像檔內容(需正常關機(shutdown)，不可直接刪除VM)"
-
-#: ../public/js/plugins/vms-tab.js:2115
-msgid "Hot: The Image will be saved immediately."
-msgstr "即時: 磁碟影像檔將會立刻進行快照"
-
-#: ../public/js/plugins/vms-tab.js:2120 ../public/js/plugins/vms-tab.js:2703
-#: ../public/js/plugins/vms-tab.js:2706 ../public/js/plugins/vms-tab.js:2820
-msgid "Take snapshot"
-msgstr "拍攝快照"
-
-#: ../public/js/plugins/vms-tab.js:2135
-msgid "Please provide a name for the new image"
-msgstr "請提供一個新的磁碟影像檔名稱"
-
-#: ../public/js/plugins/vms-tab.js:2189 ../public/js/plugins/vms-tab.js:2447
-msgid "Attach"
-msgstr "附加"
-
-#: ../public/js/plugins/vms-tab.js:2277 ../public/js/plugins/vms-tab.js:2280
-#: ../public/js/plugins/vms-tab.js:2427
-msgid "Attach new nic"
-msgstr "附加新的網路介面"
-
-#: ../public/js/plugins/vms-tab.js:2296 ../public/js/plugins/vnets-tab.js:193
-#: ../public/js/plugins/vnets-tab.js:998
-msgid "MAC"
-msgstr "MAC"
-
-#: ../public/js/plugins/vms-tab.js:2297 ../public/js/plugins/vnets-tab.js:999
-msgid "IPv6 Site"
-msgstr "IPv6 Site"
-
-#: ../public/js/plugins/vms-tab.js:2298 ../public/js/plugins/vnets-tab.js:1000
-msgid "IPv6 Global"
-msgstr "IPv6 Global"
-
-#: ../public/js/plugins/vms-tab.js:2314
-msgid "No nics to show"
-msgstr "目前沒有任何網路介面"
-
-#: ../public/js/plugins/vms-tab.js:2364
-msgid "NET RX"
-msgstr "網路接收資料量"
-
-#: ../public/js/plugins/vms-tab.js:2377
-msgid "NET TX"
-msgstr "網路傳送資料量"
-
-#: ../public/js/plugins/vms-tab.js:2520 ../public/js/plugins/vms-tab.js:2523
-#: ../public/js/plugins/vms-tab.js:2588
-msgid "Resize VM capacity"
-msgstr "調整VM效能"
-
-#: ../public/js/plugins/vms-tab.js:2552
-msgid "REAL CPU"
-msgstr "實際CPU"
-
-#: ../public/js/plugins/vms-tab.js:2565
-msgid "REAL MEMORY"
-msgstr "實際記憶體"
-
-#: ../public/js/plugins/vms-tab.js:2606
+#: ../public/js/plugins/vms-tab.js:264
+msgid "Select a Host"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:296
+msgid "HOST_ID"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:308
+msgid "Please select a Host from the list"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:309
+msgid "You selected the following Host:"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:322 ../public/js/plugins/vms-tab.js:2687
 msgid "Enforce"
 msgstr "安全承載檢驗"
 
-#: ../public/js/plugins/vms-tab.js:2613
+#: ../public/js/plugins/vms-tab.js:328 ../public/js/plugins/vms-tab.js:2694
 msgid "If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced"
 msgstr "若勾選此項目，將會檢查實體主機能否承載此計算資源調整。此選項僅提供給管理者，一般用戶則必定檢查主機承載量。"
 
-#: ../public/js/plugins/vms-tab.js:2622
+#: ../public/js/plugins/vms-tab.js:333
+msgid "Select a datastore"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:363
+msgid "DATASTORE_ID"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:375
+msgid "Please select a datastore from the list"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:376
+msgid "You selected the following datastore:"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:881
+msgid "VirtualMachine renamed correctly"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:893 ../public/js/plugins/vms-tab.js:904
+msgid "VirtualMachine updated correctly"
+msgstr "虛擬機器已成功修改"
+
+#: ../public/js/plugins/vms-tab.js:928
+msgid "Launch"
+msgstr "啟動"
+
+#: ../public/js/plugins/vms-tab.js:1087
+msgid "Recovers a stuck VM that is waiting for a driver operation.                 The recovery may be done by failing or succeeding the pending operation.                 YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation                 was successful or not."
+msgstr "復原一個因為驅動問題而卡住的VM。復原的操作可能成功或失敗，你必須自行登入VM所運行的實體主機(HOST)中去確認VM的狀態，來決定這個操作是成功或失敗"
+
+#: ../public/js/plugins/vms-tab.js:1147 ../public/js/plugins/vms-tab.js:1169
+#: ../public/js/plugins/vms-tab.js:1447
+msgid "SUSPENDED"
+msgstr "SUSPENDED"
+
+#: ../public/js/plugins/vms-tab.js:1147 ../public/js/plugins/vms-tab.js:1170
+#: ../public/js/plugins/vms-tab.js:1447
+msgid "POWEROFF"
+msgstr "POWEROFF"
+
+#: ../public/js/plugins/vms-tab.js:1159
+msgid "HOLD"
+msgstr "HOLD"
+
+#: ../public/js/plugins/vms-tab.js:1168
+msgid "STOPPED"
+msgstr "STOPPED"
+
+#: ../public/js/plugins/vms-tab.js:1378
+msgid "#"
+msgstr "#"
+
+#: ../public/js/plugins/vms-tab.js:1380
+msgid "Action"
+msgstr "操作"
+
+#: ../public/js/plugins/vms-tab.js:1381
+msgid "Reason"
+msgstr "指派原因"
+
+#: ../public/js/plugins/vms-tab.js:1382
+msgid "Chg time"
+msgstr "異動時間"
+
+#: ../public/js/plugins/vms-tab.js:1383
+msgid "Total time"
+msgstr "總運行時間"
+
+#: ../public/js/plugins/vms-tab.js:1384
+msgid "Prolog time"
+msgstr "資料部署時間"
+
+#: ../public/js/plugins/vms-tab.js:1495
+msgid "LCM State"
+msgstr "LCM階段"
+
+#: ../public/js/plugins/vms-tab.js:1510
+msgid "Deploy ID"
+msgstr "部署ID"
+
+#: ../public/js/plugins/vms-tab.js:1556
+msgid "Snapshots"
+msgstr "快照"
+
+#: ../public/js/plugins/vms-tab.js:1571
+msgid "Log"
+msgstr "記錄"
+
+#: ../public/js/plugins/vms-tab.js:1576 ../public/js/plugins/vms-tab.js:1657
+#: ../public/js/plugins/vms-tab.js:2021 ../public/js/plugins/vms-tab.js:2380
+#: ../public/js/plugins/vms-tab.js:2803
+msgid "Actions"
+msgstr "操作"
+
+#: ../public/js/plugins/vms-tab.js:1646
+msgid "Schedule action"
+msgstr "操作排程"
+
+#: ../public/js/plugins/vms-tab.js:1653
+msgid "ACTION"
+msgstr "操作"
+
+#: ../public/js/plugins/vms-tab.js:1654
+msgid "TIME"
+msgstr "啟動時間"
+
+#: ../public/js/plugins/vms-tab.js:1656
+msgid "MESSAGE"
+msgstr "訊息"
+
+#: ../public/js/plugins/vms-tab.js:1680 ../public/js/plugins/vms-tab.js:1703
+#: ../public/js/plugins/vms-tab.js:1814
+msgid "shutdown"
+msgstr "結束(shutdown)"
+
+#: ../public/js/plugins/vms-tab.js:1681 ../public/js/plugins/vms-tab.js:1705
+#: ../public/js/plugins/vms-tab.js:1815
+msgid "hold"
+msgstr "保留(hold)"
+
+#: ../public/js/plugins/vms-tab.js:1682 ../public/js/plugins/vms-tab.js:1706
+#: ../public/js/plugins/vms-tab.js:1816
+msgid "release"
+msgstr "釋放(release)"
+
+#: ../public/js/plugins/vms-tab.js:1683 ../public/js/plugins/vms-tab.js:1707
+#: ../public/js/plugins/vms-tab.js:1817
+msgid "stop"
+msgstr "停機封存(stop)"
+
+#: ../public/js/plugins/vms-tab.js:1684 ../public/js/plugins/vms-tab.js:1818
+msgid "cancel"
+msgstr "取消(cancel)"
+
+#: ../public/js/plugins/vms-tab.js:1685 ../public/js/plugins/vms-tab.js:1708
+#: ../public/js/plugins/vms-tab.js:1819
+msgid "suspend"
+msgstr "暫停(suspend)"
+
+#: ../public/js/plugins/vms-tab.js:1686 ../public/js/plugins/vms-tab.js:1709
+#: ../public/js/plugins/vms-tab.js:1820
+msgid "resume"
+msgstr "繼續(resume)"
+
+#: ../public/js/plugins/vms-tab.js:1687 ../public/js/plugins/vms-tab.js:1821
+msgid "restart"
+msgstr "重新啟動(restart)"
+
+#: ../public/js/plugins/vms-tab.js:1688 ../public/js/plugins/vms-tab.js:1822
+msgid "resubmit"
+msgstr "重新派送(resubmit)"
+
+#: ../public/js/plugins/vms-tab.js:1689 ../public/js/plugins/vms-tab.js:1713
+#: ../public/js/plugins/vms-tab.js:1823
+msgid "reboot"
+msgstr "重開機(reboot)"
+
+#: ../public/js/plugins/vms-tab.js:1690 ../public/js/plugins/vms-tab.js:1824
+msgid "reset"
+msgstr "強迫重開機(reset)"
+
+#: ../public/js/plugins/vms-tab.js:1691 ../public/js/plugins/vms-tab.js:1715
+#: ../public/js/plugins/vms-tab.js:1825
+msgid "poweroff"
+msgstr "關機(poweroff)"
+
+#: ../public/js/plugins/vms-tab.js:1692 ../public/js/plugins/vms-tab.js:1719
+#: ../public/js/plugins/vms-tab.js:1826
+msgid "snapshot-create"
+msgstr "拍攝快照(snapshot-create)"
+
+#: ../public/js/plugins/vms-tab.js:1704
+msgid "shutdown-hard"
+msgstr "強迫結束(shutdown-hard)"
+
+#: ../public/js/plugins/vms-tab.js:1710
+msgid "boot"
+msgstr "復原開機(boot)"
+
+#: ../public/js/plugins/vms-tab.js:1711
+msgid "delete"
+msgstr "刪除(delete)"
+
+#: ../public/js/plugins/vms-tab.js:1712
+msgid "delete-recreate"
+msgstr "刪除重建(delete-recreate)"
+
+#: ../public/js/plugins/vms-tab.js:1714
+msgid "reboot-hard"
+msgstr "強迫重開機(reboot-hard)"
+
+#: ../public/js/plugins/vms-tab.js:1716
+msgid "poweroff-hard"
+msgstr "強迫關機(poweroff-hard)"
+
+#: ../public/js/plugins/vms-tab.js:1717
+msgid "undeploy"
+msgstr "關機封存(undeploy)"
+
+#: ../public/js/plugins/vms-tab.js:1718
+msgid "undeploy-hard"
+msgstr "強迫關機封存(undeploy-hard)"
+
+#: ../public/js/plugins/vms-tab.js:1949
+msgid "Date Time Picker"
+msgstr "日期時間選擇器"
+
+#: ../public/js/plugins/vms-tab.js:1960
+msgid "Done"
+msgstr "完成"
+
+#: ../public/js/plugins/vms-tab.js:1999 ../public/js/plugins/vms-tab.js:2002
+#: ../public/js/plugins/vms-tab.js:2235
+msgid "Attach new disk"
+msgstr "附加新的磁碟"
+
+#: ../public/js/plugins/vms-tab.js:2018
+msgid "Image / Format-Size"
+msgstr "影像檔名稱 / 格式及大小"
+
+#: ../public/js/plugins/vms-tab.js:2020
+msgid "Save as"
+msgstr "另存磁碟"
+
+#: ../public/js/plugins/vms-tab.js:2036
+msgid "No disks to show"
+msgstr "目前沒有任何磁碟"
+
+#: ../public/js/plugins/vms-tab.js:2054
+msgid "in progress"
+msgstr "處理中"
+
+#: ../public/js/plugins/vms-tab.js:2055
+msgid "deferred snapshot in progress"
+msgstr "延遲快照中"
+
+#: ../public/js/plugins/vms-tab.js:2067
+msgid "hot snapshot in progress"
+msgstr "即時快照中"
+
+#: ../public/js/plugins/vms-tab.js:2079
+msgid "attach/detach in progress"
+msgstr "附加中/卸載中"
+
+#: ../public/js/plugins/vms-tab.js:2090 ../public/js/plugins/vms-tab.js:2130
+#: ../public/js/plugins/vms-tab.js:2873
+msgid "Snapshot"
+msgstr "快照"
+
+#: ../public/js/plugins/vms-tab.js:2097 ../public/js/plugins/vms-tab.js:2420
+msgid "Detach"
+msgstr "卸載"
+
+#: ../public/js/plugins/vms-tab.js:2107
+msgid "YES"
+msgstr "是"
+
+#: ../public/js/plugins/vms-tab.js:2107
+msgid "NO"
+msgstr "否"
+
+#: ../public/js/plugins/vms-tab.js:2136 ../public/js/plugins/vms-tab.js:2242
+#: ../public/js/plugins/vms-tab.js:2515 ../public/js/plugins/vms-tab.js:2677
+#: ../public/js/plugins/vms-tab.js:2879
+msgid "Virtual Machine ID"
+msgstr "虛擬機器ID"
+
+#: ../public/js/plugins/vms-tab.js:2147
+msgid "Disk ID"
+msgstr "磁碟ID"
+
+#: ../public/js/plugins/vms-tab.js:2158
+msgid "Image name"
+msgstr "磁碟影像檔名稱"
+
+#: ../public/js/plugins/vms-tab.js:2169
+msgid "Snapshot type"
+msgstr "快照種類"
+
+#: ../public/js/plugins/vms-tab.js:2173
+msgid "Deferred"
+msgstr "延遲"
+
+#: ../public/js/plugins/vms-tab.js:2174
+msgid "Hot"
+msgstr "即時"
+
+#: ../public/js/plugins/vms-tab.js:2178
+msgid "Sets the specified VM disk to be saved in a new Image."
+msgstr "將指定的VM磁碟另存為新的磁碟影像檔"
+
+#: ../public/js/plugins/vms-tab.js:2179
+msgid "Deferred: The Image is created immediately, but the contents are saved only if the VM is shut down gracefully (i.e., using Shutdown; not Delete)"
+msgstr "延遲: 磁碟影像檔會立刻建立，但直到VM被正常關機後，才會儲存影像檔內容(需正常關機(shutdown)，不可直接刪除VM)"
+
+#: ../public/js/plugins/vms-tab.js:2180
+msgid "Hot: The Image will be saved immediately."
+msgstr "即時: 磁碟影像檔將會立刻進行快照"
+
+#: ../public/js/plugins/vms-tab.js:2185 ../public/js/plugins/vms-tab.js:2784
+#: ../public/js/plugins/vms-tab.js:2787 ../public/js/plugins/vms-tab.js:2901
+msgid "Take snapshot"
+msgstr "拍攝快照"
+
+#: ../public/js/plugins/vms-tab.js:2200
+msgid "Please provide a name for the new image"
+msgstr "請提供一個新的磁碟影像檔名稱"
+
+#: ../public/js/plugins/vms-tab.js:2255 ../public/js/plugins/vms-tab.js:2528
+msgid "Attach"
+msgstr "附加"
+
+#: ../public/js/plugins/vms-tab.js:2358 ../public/js/plugins/vms-tab.js:2361
+#: ../public/js/plugins/vms-tab.js:2508
+msgid "Attach new nic"
+msgstr "附加新的網路介面"
+
+#: ../public/js/plugins/vms-tab.js:2377 ../public/js/plugins/vnets-tab.js:193
+#: ../public/js/plugins/vnets-tab.js:1000
+msgid "MAC"
+msgstr "MAC"
+
+#: ../public/js/plugins/vms-tab.js:2378 ../public/js/plugins/vnets-tab.js:1001
+msgid "IPv6 Site"
+msgstr "IPv6 Site"
+
+#: ../public/js/plugins/vms-tab.js:2379 ../public/js/plugins/vnets-tab.js:1002
+msgid "IPv6 Global"
+msgstr "IPv6 Global"
+
+#: ../public/js/plugins/vms-tab.js:2395
+msgid "No nics to show"
+msgstr "目前沒有任何網路介面"
+
+#: ../public/js/plugins/vms-tab.js:2445
+msgid "NET RX"
+msgstr "網路接收資料量"
+
+#: ../public/js/plugins/vms-tab.js:2458
+msgid "NET TX"
+msgstr "網路傳送資料量"
+
+#: ../public/js/plugins/vms-tab.js:2601 ../public/js/plugins/vms-tab.js:2604
+#: ../public/js/plugins/vms-tab.js:2669
+msgid "Resize VM capacity"
+msgstr "調整VM效能"
+
+#: ../public/js/plugins/vms-tab.js:2633
+msgid "REAL CPU"
+msgstr "實際CPU"
+
+#: ../public/js/plugins/vms-tab.js:2646
+msgid "REAL MEMORY"
+msgstr "實際記憶體"
+
+#: ../public/js/plugins/vms-tab.js:2703
 msgid "Resize"
 msgstr "調整"
 
-#: ../public/js/plugins/vms-tab.js:2721
+#: ../public/js/plugins/vms-tab.js:2802
 msgid "Timestamp"
 msgstr "快照建立時間"
 
-#: ../public/js/plugins/vms-tab.js:2737
+#: ../public/js/plugins/vms-tab.js:2818
 msgid "No snapshots to show"
 msgstr "目前沒有任何快照"
 
-#: ../public/js/plugins/vms-tab.js:2757
+#: ../public/js/plugins/vms-tab.js:2838
 msgid "Revert"
 msgstr "還原"
 
-#: ../public/js/plugins/vms-tab.js:2809
+#: ../public/js/plugins/vms-tab.js:2890
 msgid "Snapshot name"
 msgstr "快照名稱"
 
-#: ../public/js/plugins/vms-tab.js:3020
+#: ../public/js/plugins/vms-tab.js:3102
 msgid "You have not selected a template"
 msgstr "未選取任何範本"
 
-#: ../public/js/plugins/vms-tab.js:3129
+#: ../public/js/plugins/vms-tab.js:3295
+msgid "You have not selected a host"
+msgstr ""
+
+#: ../public/js/plugins/vms-tab.js:3371
 msgid "VNC connection"
 msgstr "VNC連線階段"
 
-#: ../public/js/plugins/vms-tab.js:3137
+#: ../public/js/plugins/vms-tab.js:3379
 msgid "Loading"
 msgstr "載入中"
 
-#: ../public/js/plugins/vms-tab.js:3140
+#: ../public/js/plugins/vms-tab.js:3382
 msgid "Open in a new window"
 msgstr "在新視窗開啟"
 
-#: ../public/js/plugins/vms-tab.js:3149
+#: ../public/js/plugins/vms-tab.js:3391
 msgid "Canvas not supported."
 msgstr "不支援Canvas"
 
@@ -4010,17 +4296,17 @@ msgstr "請選擇您想修改的虛擬網路"
 msgid "Select a network"
 msgstr "選擇一個虛擬網路"
 
-#: ../public/js/plugins/vnets-tab.js:437 ../public/js/sunstone-util.js:2290
+#: ../public/js/plugins/vnets-tab.js:437 ../public/js/sunstone-util.js:2343
 msgid "Permissions"
 msgstr "權限"
 
-#: ../public/js/plugins/vnets-tab.js:440 ../public/js/sunstone-util.js:2293
+#: ../public/js/plugins/vnets-tab.js:440 ../public/js/sunstone-util.js:2346
 msgid "Admin"
 msgstr "管理"
 
-#: ../public/js/plugins/vnets-tab.js:454 ../public/js/sunstone-util.js:2307
-msgid "Other"
-msgstr "其他"
+#: ../public/js/plugins/vnets-tab.js:620
+msgid "VirtualNetwork renamed correctly"
+msgstr ""
 
 #: ../public/js/plugins/vnets-tab.js:726
 msgid "Virtual network information"
@@ -4058,27 +4344,27 @@ msgstr "保留IP"
 msgid "Add IP"
 msgstr "新增IP"
 
-#: ../public/js/plugins/vnets-tab.js:1010
+#: ../public/js/plugins/vnets-tab.js:1012
 msgid "No leases to show"
 msgstr "目前沒有任何租約"
 
-#: ../public/js/plugins/vnets-tab.js:1061
+#: ../public/js/plugins/vnets-tab.js:1063
 msgid "VM:"
 msgstr "VM:"
 
-#: ../public/js/plugins/vnets-tab.js:1224
+#: ../public/js/plugins/vnets-tab.js:1226
 msgid "Please provide a lease IP or MAC"
 msgstr "請填寫欲出租的IP位址或MAC位址"
 
-#: ../public/js/plugins/vnets-tab.js:1284
+#: ../public/js/plugins/vnets-tab.js:1286
 msgid "Virtual Network name missing!"
 msgstr "未填寫虛擬網路名稱!"
 
-#: ../public/js/plugins/vnets-tab.js:1408
+#: ../public/js/plugins/vnets-tab.js:1410
 msgid "There are missing network parameters"
 msgstr "未填寫網路參數"
 
-#: ../public/js/plugins/vnets-tab.js:1423
+#: ../public/js/plugins/vnets-tab.js:1425
 msgid "MAC Start must be specified"
 msgstr "必須指定MAC起始位址"
 
@@ -4086,53 +4372,61 @@ msgstr "必須指定MAC起始位址"
 msgid "Virtual Resources"
 msgstr "虛擬化資源"
 
-#: ../public/js/sunstone-util.js:297
+#: ../public/js/sunstone-util.js:312
 msgid "Submitted"
 msgstr "已執行"
 
-#: ../public/js/sunstone-util.js:314
+#: ../public/js/sunstone-util.js:329
 msgid "Error"
 msgstr "錯誤"
 
-#: ../public/js/sunstone-util.js:320
+#: ../public/js/sunstone-util.js:335
 msgid "Info"
 msgstr "訊息"
 
-#: ../public/js/sunstone-util.js:448
+#: ../public/js/sunstone-util.js:463
 msgid "Cannot contact server: is it running and reachable?"
 msgstr "無法連線至伺服器:請確認伺服器運行狀態或網路連線狀況?"
 
-#: ../public/js/sunstone-util.js:456
+#: ../public/js/sunstone-util.js:476
 msgid "Network is unreachable: is OpenNebula running?"
 msgstr "網路連線失敗: 請確認OpenNebula是否仍運行中?"
 
-#: ../public/js/sunstone-util.js:477
+#: ../public/js/sunstone-util.js:497
 msgid "Unauthorized"
 msgstr "未經授權"
 
-#: ../public/js/sunstone-util.js:688 ../public/js/sunstone-util.js:1003
+#: ../public/js/sunstone-util.js:708 ../public/js/sunstone-util.js:1023
 msgid "Please select"
 msgstr "請選擇"
 
-#: ../public/js/sunstone-util.js:925
+#: ../public/js/sunstone-util.js:945
 msgid "Update template"
 msgstr "修改範本"
 
-#: ../public/js/sunstone-util.js:931
+#: ../public/js/sunstone-util.js:951
 msgid "Please, choose and modify the template you want to update"
 msgstr "請選擇您想修改的範本"
 
-#: ../public/js/sunstone-util.js:933 ../public/js/sunstone-util.js:936
+#: ../public/js/sunstone-util.js:953 ../public/js/sunstone-util.js:956
 msgid "Select a template"
 msgstr "選擇一個範本"
 
-#: ../public/js/sunstone-util.js:1490
+#: ../public/js/sunstone-util.js:1249
+msgid "Volatile disks"
+msgstr ""
+
+#: ../public/js/sunstone-util.js:1526
 msgid "Please select an element"
 msgstr "請選擇一個元素"
 
-#: ../public/js/sunstone-util.js:2323
+#: ../public/js/sunstone-util.js:2376
 msgid "Ownership"
 msgstr "所有權"
+
+#: ../public/js/sunstone.js:683
+msgid "More"
+msgstr "更多"
 
 #: ../public/js/sunstone.js:874
 msgid "Previous action"
@@ -4170,9 +4464,3 @@ msgstr "未選取任何項目"
 #: ../public/js/sunstone.js:1082
 msgid "You have to confirm this action"
 msgstr "請確認這個操作"
-
-#~ msgid "Cannot connect to OneFlow server"
-#~ msgstr "無法連線至OneFlow伺服器"
-
-#~ msgid "More"
-#~ msgstr "更多"
