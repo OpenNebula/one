@@ -52,6 +52,15 @@ BACKUP="true"
 #------------------------------------------------------------------------------
 setup()
 {
+    ONE_PID_DIR=`dirname $ONE_PID`
+
+    mkdir -p $ONE_PID_DIR
+
+    if [ ! -w $ONE_PID_DIR ]; then
+        echo "$ONE_PID_DIR is not writable, cannot start oned or scheduler."
+        exit 1
+    fi
+
     if [ -f $LOCK_FILE ]; then
         if [ -f  $ONE_PID ]; then
             ONEPID=`cat $ONE_PID`
