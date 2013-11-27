@@ -18,6 +18,11 @@
  \-n, \-\-net vnet_mad        Set the network driver for the host
  \-c, \-\-cluster id|name     Selects the cluster
  \-a, \-\-append              Append new attributes to the current template
+ \-\-force                   Force probe upgrade in onehost sync
+ \-\-rsync                   Use rsync to synchronize remotes\. In case some
+                           probes are no longer in the fronted are deleted
+                           in the hosts\. rsync command must be installed in
+                           the frontend and nodes\.
  \-l, \-\-list x,y,z          Selects columns to display with list command
  \-d, \-\-delay x             Sets the delay in seconds for top command
  \-f, \-\-filter x,y,z        Filter data\. An array is specified with
@@ -52,7 +57,7 @@ disable \fIrange|hostid_list\fR Disables the given Host
 update \fIhostid\fR [\fIfile\fR] Update the template contents\. If a path is not provided the editor will be launched to modify the current content\. valid options: append
 .
 .IP "\(bu" 4
-sync [\fIrange|hostid_list\fR] Synchronizes probes in /var/lib/one/remotes ($ONE_LOCATION/var/remotes in self\-contained installations) with Hosts\. Examples: onehost sync onehost sync \-c myCluster onehost sync host01,host02,host03 valid options: cluster
+sync [\fIrange|hostid_list\fR] Synchronizes probes in /var/lib/one/remotes ($ONE_LOCATION/var/remotes in self\-contained installations) with Hosts\. Examples: onehost sync onehost sync \-c myCluster onehost sync host01,host02,host03 valid options: cluster, force, rsync
 .
 .IP "\(bu" 4
 list Lists Hosts in the pool valid options: list, delay, filter, xml, numeric, kilobytes, describe
@@ -91,7 +96,7 @@ hostid_list Comma\-separated list of OpenNebula HOST names or ids
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 4\.3\.90 Copyright 2002\-2013, OpenNebula Project (OpenNebula\.org), C12G Labs
+OpenNebula 4\.4\.0 Copyright 2002\-2013, OpenNebula Project (OpenNebula\.org), C12G Labs
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0
