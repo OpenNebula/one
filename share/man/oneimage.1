@@ -27,7 +27,8 @@
  \-\-disk_type disk_type     Type of the image (BLOCK, CDROM, RBD or FILE)
  \-\-source source           Source to be used\. Useful for not file\-based
                            images
- \-\-size size               Size in MB\. Used for DATABLOCK type
+ \-\-size size               Size in MB\. Used for DATABLOCK type or SOURCE
+                           based images\.
  \-\-fstype fstype           Type of file system to be built\. This can be any
                            value understood by mkfs unix command\.
  \-\-dry                     Just print the template
@@ -161,7 +162,7 @@ type Image type: OS, CDROM, DATABLOCK, KERNEL, RAMDISK, CONTEXT
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 4\.3\.90 Copyright 2002\-2013, OpenNebula Project (OpenNebula\.org), C12G Labs
+OpenNebula 4\.4\.0 Copyright 2002\-2013, OpenNebula Project (OpenNebula\.org), C12G Labs
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0
