@@ -24,6 +24,7 @@ module Migrator
     end
 
     def up
+        @db.run "UPDATE host_pool SET last_mon_time=0 WHERE last_mon_time IS NULL;"
         return true
     end
 end
