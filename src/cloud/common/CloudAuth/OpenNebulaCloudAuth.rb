@@ -14,6 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'uri'
+
 module OpenNebulaCloudAuth
 
     #
@@ -32,6 +34,17 @@ module OpenNebulaCloudAuth
 
         if auth.provided? && auth.basic?
             username, password = auth.credentials
+
+            if @conf[:encode_user_password]
+                if defined?(URI::Parser)
+                    parser=URI::Parser.new
+                else
+                    parser=URI
+                end
+
+                username=parser.escape(username)
+                password=parser.escape(password)
+            end
 
             client = OpenNebula::Client.new("#{username}:#{password}", @conf[:one_xmlrpc])
             user   = OpenNebula::User.new_with_id(OpenNebula::User::SELF, client)
