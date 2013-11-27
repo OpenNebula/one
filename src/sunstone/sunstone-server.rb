@@ -48,6 +48,8 @@ $: << SUNSTONE_ROOT_DIR+'/models'
 
 SESSION_EXPIRE_TIME = 60*60
 
+DISPLAY_NAME_XPATH = 'TEMPLATE/SUNSTONE_DISPLAY_NAME'
+
 ##############################################################################
 # Required libraries
 ##############################################################################
@@ -159,12 +161,13 @@ helpers do
                 return [500, ""]
             end
 
-            session[:user]       = user['NAME']
-            session[:user_id]    = user['ID']
-            session[:user_gid]   = user['GID']
-            session[:user_gname] = user['GNAME']
-            session[:ip]         = request.ip
-            session[:remember]   = params[:remember]
+            session[:user]         = user['NAME']
+            session[:user_id]      = user['ID']
+            session[:user_gid]     = user['GID']
+            session[:user_gname]   = user['GNAME']
+            session[:ip]           = request.ip
+            session[:remember]     = params[:remember]
+            session[:display_name] = user[DISPLAY_NAME_XPATH] || user['NAME']
 
             #User IU options initialization
             #Load options either from user settings or default config.
@@ -324,10 +327,11 @@ post '/config' do
         error 500, ""
     end
 
-    session[:lang] = user['TEMPLATE/LANG']
-    session[:vnc_wss] = user['TEMPLATE/VNC_WSS']
+    session[:lang]         = user['TEMPLATE/LANG']
+    session[:vnc_wss]      = user['TEMPLATE/VNC_WSS']
     session[:default_view] = user['TEMPLATE/DEFAULT_VIEW']
-    session[:table_order] = user['TEMPLATE/TABLE_ORDER']
+    session[:table_order]  = user['TEMPLATE/TABLE_ORDER']
+    session[:display_name] = user[DISPLAY_NAME_XPATH] || user['NAME']
 
     [200, ""]
 end
