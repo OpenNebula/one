@@ -265,7 +265,7 @@ function updateView(item_list,dataTable){
             {
                 current_id = $($('td',this)[0]).html();
             }
-            
+
             if (current_id)
             {
                 if(jQuery.inArray(current_id, checked_row_ids)!=-1)
@@ -736,7 +736,11 @@ function makeSelectOptions(dataTable,
 
 //Escape doublequote in a string and return it
 function escapeDoubleQuotes(string){
-    return string.replace(/\\/g,'\\').replace(/"/g,'\\"');
+    if (string != undefined) {
+        return string.replace(/\\/g,'\\').replace(/"/g,'\\"');
+    } else {
+        return string;
+    }
 }
 
 function derivative(data) {
