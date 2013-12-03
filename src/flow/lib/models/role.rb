@@ -250,7 +250,7 @@ module OpenNebula
                 template = OpenNebula::Template.new_with_id(template_id, @service.client)
 
                 extra_template = "SERVICE_ID = #{@service.id()}\n"\
-                    "ROLE_NAME = #{@body['name']}"
+                    "ROLE_NAME = \"#{@body['name']}\""
 
                 vm_id = template.instantiate(vm_name, false, extra_template)
 
