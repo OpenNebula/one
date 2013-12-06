@@ -16,6 +16,10 @@ USED_MB=$(du -sLm $DATASTORE_LOCATION 2>/dev/null | cut -f1)
 TOTAL_MB=$(df -B1M -P $DATASTORE_LOCATION 2>/dev/null | tail -n 1 | awk '{print $2}')
 FREE_MB=$(df -B1M -P $DATASTORE_LOCATION 2>/dev/null | tail -n 1 | awk '{print $4}')
 
+USED_MB=${USED_MB:-"0"}
+TOTAL_MB=${TOTAL_MB:-"0"}
+FREE_MB=${FREE_MB:-"0"}
+
 echo "DS_LOCATION_USED_MB=$USED_MB"
 echo "DS_LOCATION_TOTAL_MB=$TOTAL_MB"
 echo "DS_LOCATION_FREE_MB=$FREE_MB"
@@ -31,6 +35,10 @@ for ds in $dirs; do
     TOTAL_MB=$(df -B1M -P $dir 2>/dev/null | tail -n 1 | awk '{print $2}')
     FREE_MB=$(df -B1M -P $dir 2>/dev/null | tail -n 1 | awk '{print $4}')
 
+    USED_MB=${USED_MB:-"0"}
+    TOTAL_MB=${TOTAL_MB:-"0"}
+    FREE_MB=${FREE_MB:-"0"}
+
     if [ -n "$LVM_SIZE_CMD" ]; then
         LVM_SIZE=$($LVM_SIZE_CMD ${LVM_VG_PREFIX}${ds} 2>/dev/null)
         LVM_STATUS=$?
@@ -45,6 +53,10 @@ for ds in $dirs; do
         LVM_TOTAL=$(echo $LVM_SIZE | cut -d: -f1 | sed 's/\..*//')
         LVM_FREE=$(echo $LVM_SIZE | cut -d: -f2 | sed 's/\..*//')
         LVM_USED=$(( $LVM_TOTAL - $LVM_FREE ))
+
+        LVM_TOTAL=${LVM_TOTAL:-"0"}
+        LVM_FREE=${LVM_FREE:-"0"}
+        LVM_USED=${LVM_USED:-"0"}
 
         echo "  USED_MB = $LVM_USED,"
         echo "  TOTAL_MB = $LVM_TOTAL,"
