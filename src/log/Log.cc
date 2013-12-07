@@ -48,18 +48,14 @@ const char Log::error_names[] ={ 'E', 'W', 'I', 'D' };
 FileLog::FileLog(const string&   file_name,
                  const MessageType   level,
                  ios_base::openmode  mode)
-        :Log(level), log_file(0)
+        :Log(level), log_file_name(file_name)
 {
-    ofstream    file;
+    ofstream file;
 
-    log_file = strdup(file_name.c_str());
-
-    file.open(log_file, mode);
+    file.open(log_file_name.c_str(), mode);
 
     if (file.fail() == true)
     {
-        free(log_file);
-
         throw runtime_error("Could not open log file");
     }
 
@@ -72,13 +68,7 @@ FileLog::FileLog(const string&   file_name,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-FileLog::~FileLog()
-{
-    if ( log_file != 0 )
-    {
-        free(log_file);
-    }
-}
+FileLog::~FileLog() { }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -94,7 +84,7 @@ void FileLog::log(
 
     if( type <= log_level)
     {
-        file.open(log_file, ios_base::app);
+        file.open(log_file_name.c_str(), ios_base::app);
 
         if (file.fail() == true)
         {
