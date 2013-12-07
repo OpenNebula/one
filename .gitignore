@@ -1,0 +1,3 @@
+.sconsign.dblite
+*.pyc
+src/scheduler/src/sched/.xmlrpc_test/
