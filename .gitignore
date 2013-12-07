@@ -1,0 +1,13 @@
+*.a
+*.o
+*.pyc
+.xmlrpc_test/
+.sconsign.dblite
+share/man/*.gz
+src/im_mad/collectd/collectd
+src/scheduler/src/sched/.xmlrpc_test/
+src/scheduler/src/sched/mm_sched
+src/sunstone/locale/languages/*.js
+src/mad/utils/tty_expect
+src/nebula/.xmlrpc_test/
+src/nebula/oned
