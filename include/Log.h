@@ -93,7 +93,7 @@ public:
         const char *            message);
 
 private:
-    char * log_file;
+    string log_file_name;
 };
 
 /**
