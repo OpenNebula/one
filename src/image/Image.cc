@@ -72,10 +72,7 @@ Image::Image(int             _uid,
 
 Image::~Image()
 {
-    if (obj_template != 0)
-    {
-        delete obj_template;
-    }
+    delete obj_template;
 }
 
 /* ************************************************************************ */
