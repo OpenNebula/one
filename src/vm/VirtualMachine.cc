@@ -83,23 +83,12 @@ VirtualMachine::~VirtualMachine()
 {
     for (unsigned int i=0 ; i < history_records.size() ; i++)
     {
-            delete history_records[i];
+        delete history_records[i];
     }
 
-    if (_log != 0)
-    {
-        delete _log;
-    }
-
-    if (obj_template != 0)
-    {
-        delete obj_template;
-    }
-
-    if (user_obj_template != 0)
-    {
-        delete user_obj_template;
-    }
+    delete _log;
+    delete obj_template;
+    delete user_obj_template;
 }
 
 /* ************************************************************************** */
@@ -788,10 +777,7 @@ int VirtualMachine::parse_context(string& error_str)
 
     for (int i = 0; i < num ; i++)
     {
-        if (array_context[i] != 0)
-        {
-            delete array_context[i];
-        }
+        delete array_context[i];
     }
 
     // -------------------------------------------------------------------------
@@ -911,10 +897,7 @@ int VirtualMachine::parse_context(string& error_str)
 error_cleanup:
     for (int i = 0; i < num ; i++)
     {
-        if (array_context[i] != 0)
-        {
-            delete array_context[i];
-        }
+        delete array_context[i];
     }
 
     return -1;
@@ -1042,10 +1025,7 @@ int VirtualMachine::parse_requirements(string& error_str)
 error_cleanup:
     for (int i = 0; i < num ; i++)
     {
-        if (array_reqs[i] != 0)
-        {
-            delete array_reqs[i];
-        }
+        delete array_reqs[i];
     }
 
     return -1;
