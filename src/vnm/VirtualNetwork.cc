@@ -68,15 +68,8 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
 
 VirtualNetwork::~VirtualNetwork()
 {
-    if (leases != 0)
-    {
-        delete leases;
-    }
-
-    if (obj_template != 0)
-    {
-        delete obj_template;
-    }
+    delete leases;
+    delete obj_template;
 }
 
 /* ************************************************************************** */

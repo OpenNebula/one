@@ -49,10 +49,7 @@ Host::Host(
 
 Host::~Host()
 {
-    if ( obj_template != 0 )
-    {
-        delete obj_template;
-    }
+    delete obj_template;
 }
 
 /* ************************************************************************ */
