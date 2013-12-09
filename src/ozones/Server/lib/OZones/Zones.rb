@@ -189,15 +189,15 @@ module OZones
                    when "host"  then
                        OpenNebulaJSON::HostPoolJSON.new(@client)
                    when "image" then
-                       OpenNebulaJSON::ImagePoolJSON.new(@client)
+                       OpenNebulaJSON::ImagePoolJSON.new(@client,OpenNebula::Pool::INFO_ALL)
                    when "user"  then
                        OpenNebulaJSON::UserPoolJSON.new(@client)
                    when "vm"    then
-                       OpenNebulaJSON::VirtualMachinePoolJSON.new(@client)
+                       OpenNebulaJSON::VirtualMachinePoolJSON.new(@client,OpenNebula::Pool::INFO_ALL)
                    when "vn","vnet" then
-                       OpenNebulaJSON::VirtualNetworkPoolJSON.new(@client)
+                       OpenNebulaJSON::VirtualNetworkPoolJSON.new(@client,OpenNebula::Pool::INFO_ALL)
                    when "template","vmtemplate" then
-                       OpenNebulaJSON::TemplatePoolJSON.new(@client)
+                       OpenNebulaJSON::TemplatePoolJSON.new(@client,OpenNebula::Pool::INFO_ALL)
                    when "cluster" then
                        OpenNebulaJSON::ClusterPoolJSON.new(@client)
                    when "datastore" then
