@@ -4922,8 +4922,8 @@ function fillTemplatePopUp(request, response){
 
         $('#raw_type', raw_section).val(raw['TYPE']);
         $('#raw_type', raw_section).change();
-        $('#raw_data', raw_section).val(raw['DATA']);
-        $('#raw_data_vmx', raw_section).val(raw['DATA_VMX']);
+        $('#raw_data', raw_section).val(htmlDecode(raw['DATA']));
+        $('#raw_data_vmx', raw_section).val(htmlDecode(raw['DATA_VMX']));
 
         delete template.RAW
     }
