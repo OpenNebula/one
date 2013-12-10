@@ -602,120 +602,29 @@ private:
 
     ~Nebula()
     {
-        if ( vmpool != 0)
-        {
-            delete vmpool;
-        }
-
-        if ( vnpool != 0)
-        {
-            delete vnpool;
-        }
-
-        if ( hpool != 0)
-        {
-            delete hpool;
-        }
-
-        if ( upool != 0)
-        {
-            delete upool;
-        }
-
-        if ( ipool != 0)
-        {
-            delete ipool;
-        }
-
-        if ( gpool != 0)
-        {
-            delete gpool;
-        }
-
-        if ( tpool != 0)
-        {
-            delete tpool;
-        }
-
-        if ( dspool != 0)
-        {
-            delete dspool;
-        }
-
-        if ( clpool != 0)
-        {
-            delete clpool;
-        }
-
-        if ( docpool != 0)
-        {
-            delete docpool;
-        }
-
-        if ( vmm != 0)
-        {
-            delete vmm;
-        }
-
-        if ( lcm != 0)
-        {
-            delete lcm;
-        }
-
-        if ( im != 0)
-        {
-            delete im;
-        }
-
-        if ( tm != 0)
-        {
-            delete tm;
-        }
-
-        if ( dm != 0)
-        {
-            delete dm;
-        }
-
-        if ( rm != 0)
-        {
-            delete rm;
-        }
-
-        if ( hm != 0)
-        {
-            delete hm;
-        }
-
-        if ( authm != 0)
-        {
-            delete authm;
-        }
-
-        if ( aclm != 0)
-        {
-            delete aclm;
-        }
-
-        if ( imagem != 0)
-        {
-            delete imagem;
-        }
-
-        if ( nebula_configuration != 0)
-        {
-            delete nebula_configuration;
-        }
-
-        if ( db != 0 )
-        {
-            delete db;
-        }
-
-        if ( system_db != 0 )
-        {
-            delete system_db;
-        }
+        delete vmpool;
+        delete vnpool;
+        delete hpool;
+        delete upool;
+        delete ipool;
+        delete gpool;
+        delete tpool;
+        delete dspool;
+        delete clpool;
+        delete docpool;
+        delete vmm;
+        delete lcm;
+        delete im;
+        delete tm;
+        delete dm;
+        delete rm;
+        delete hm;
+        delete authm;
+        delete aclm;
+        delete imagem;
+        delete nebula_configuration;
+        delete db;
+        delete system_db;
     };
 
     Nebula& operator=(Nebula const&){return *this;};

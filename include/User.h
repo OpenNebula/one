@@ -368,10 +368,7 @@ protected:
 
     virtual ~User()
     {
-        if (obj_template != 0)
-        {
-            delete obj_template;
-        }
+        delete obj_template;
     };
 
     // *************************************************************************
