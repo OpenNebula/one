@@ -21,6 +21,7 @@
 #include "UserTemplate.h"
 #include "ObjectCollection.h"
 #include "QuotasSQL.h"
+#include "NebulaUtil.h"
 
 class UserQuotas;
 
@@ -112,22 +113,7 @@ public:
      *    @param error_str Returns the error reason, if any
      *    @returns -1 if the password is not valid
      */
-    int set_password(const string& passwd, string& error_str)
-    {
-        int rc = 0;
-
-        if (pass_is_valid(passwd, error_str))
-        {
-            password = passwd;
-            invalidate_session();
-        }
-        else
-        {
-            rc = -1;
-        }
-
-        return rc;
-    };
+    int set_password(const string& passwd, string& error_str);
 
     /**
      *  Returns user password
