@@ -19,27 +19,11 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>
+#include <ostream>
 
 #include "Nebula.h"
 
 using namespace std;
-
-/* ------------------------------------------------------------------------- */
-/* GLOBAL VARIABLES                                                          */
-/* ------------------------------------------------------------------------- */
-
-static const char * usage =
-"\n  oned [-h] [-v] [-f]\n\n"
-"SYNOPSIS\n"
-"  Starts the OpenNebula daemon\n\n"
-"OPTIONS\n"
-"\t-v\tprints OpenNebula version and license\n"
-"\t-h\tprints this help.\n"
-"\t-f\tforeground, do not fork the oned daemon\n"
-"\t-i\tinitialize the dabase and exit.\n";
-
-static const char * susage =
-"usage: oned [-h] [-v] [-f]\n";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -55,6 +39,25 @@ static void print_version()
          << Nebula::version() << " is distributed and licensed for use under "
          << "the terms of the\nApache License, Version 2.0 "
          << "(http://www.apache.org/licenses/LICENSE-2.0).\n";
+}
+
+static void print_usage(ostream& str)
+{
+    str << "Usage: oned [-h] [-v] [-f] [-i]\n";
+}
+
+static void print_help()
+{
+    print_usage(cout);
+
+    cout << "\n"
+         << "SYNOPSIS\n"
+         << "  Starts the OpenNebula daemon\n\n"
+         << "OPTIONS\n"
+         << "  -v\toutput version information and exit\n"
+         << "  -h\tdisplay this help and exit\n"
+         << "  -f\tforeground, do not fork the oned daemon\n"
+         << "  -i\tinitialize the dabase and exit\n";
 }
 
 /* ------------------------------------------------------------------------- */
@@ -114,7 +117,7 @@ int main(int argc, char **argv)
                 exit(0);
                 break;
             case 'h':
-                cout << usage;
+                print_help();
                 exit(0);
                 break;
             case 'i':
@@ -125,7 +128,7 @@ int main(int argc, char **argv)
                 foreground = true;
                 break;
             default:
-                cerr << susage;
+                print_usage(cerr);
                 exit(-1);
                 break;
         }
