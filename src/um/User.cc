@@ -25,6 +25,7 @@
 #include "User.h"
 #include "Nebula.h"
 #include "Group.h"
+#include "NebulaUtil.h"
 
 
 const string User::INVALID_NAME_CHARS = " :\t\n\v\f\r";
@@ -272,6 +273,32 @@ int User::split_secret(const string secret, string& user, string& pass)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int User::set_password(const string& passwd, string& error_str)
+{
+    int rc = 0;
+
+    if (pass_is_valid(passwd, error_str))
+    {
+        if (auth_driver == UserPool::CORE_AUTH)
+        {
+            password = one_util::sha1_digest(passwd);
+        }
+        else
+        {
+            password = passwd;
+        }
+
+        invalidate_session();
+    }
+    else
+    {
+        rc = -1;
+    }
+
+    return rc;
+};
+
 
 bool User::pass_is_valid(const string& pass, string& error_str)
 {
