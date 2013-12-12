@@ -18,6 +18,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <time.h>
 
 #include "Nebula.h"
 
@@ -43,12 +44,17 @@ static const char * susage =
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static void print_license()
+static void print_version()
 {
-    cout<< "Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs\n\n"
-        << Nebula::version() << " is distributed and licensed for use under the"
-        << " terms of the\nApache License, Version 2.0 "
-        << "(http://www.apache.org/licenses/LICENSE-2.0).\n";
+    time_t now = time(NULL);
+    struct tm* ltime = localtime(&now);
+
+    cout << Nebula::version() << "\n"
+         << "Copyright (C) 2002-" << ltime->tm_year + 1900
+         << ", OpenNebula Project (OpenNebula.org), C12G Labs\n"
+         << Nebula::version() << " is distributed and licensed for use under "
+         << "the terms of the\nApache License, Version 2.0 "
+         << "(http://www.apache.org/licenses/LICENSE-2.0).\n";
 }
 
 /* ------------------------------------------------------------------------- */
@@ -104,7 +110,7 @@ int main(int argc, char **argv)
         switch(opt)
         {
             case 'v':
-                print_license();
+                print_version();
                 exit(0);
                 break;
             case 'h':
