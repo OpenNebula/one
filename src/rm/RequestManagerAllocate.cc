@@ -713,3 +713,21 @@ int DocumentAllocate::pool_allocate(
     return docpool->allocate(att.uid, att.gid, att.uname, att.gname, umask,
             type, tmpl, &id, error_str);
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ZoneAllocate::pool_allocate(
+        xmlrpc_c::paramList const&  paramList,
+        Template *                  tmpl,
+        int&                        id,
+        string&                     error_str,
+        RequestAttributes&          att,
+        int                         umask)
+{
+    string name = xmlrpc_c::value_string(paramList.getString(1));
+
+    ZonePool * zonepool = static_cast<ZonePool *>(pool);
+
+    return zonepool->allocate(tmpl, &id, error_str);
+}

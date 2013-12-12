@@ -310,6 +310,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr datastore_allocate(new DatastoreAllocate());
     xmlrpc_c::methodPtr cluster_allocate(new ClusterAllocate());
     xmlrpc_c::methodPtr doc_allocate(new DocumentAllocate());
+    xmlrpc_c::methodPtr zone_allocate(new ZoneAllocate());
 
     // Clone Methods
     xmlrpc_c::methodPtr template_clone(new VMTemplateClone());
@@ -325,6 +326,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr datastore_delete(new DatastoreDelete());
     xmlrpc_c::methodPtr cluster_delete(new ClusterDelete());
     xmlrpc_c::methodPtr doc_delete(new DocumentDelete());
+    xmlrpc_c::methodPtr zone_delete(new ZoneDelete());
 
     // Info Methods
     xmlrpc_c::methodPtr vm_info(new VirtualMachineInfo());
@@ -337,6 +339,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr datastore_info(new DatastoreInfo());
     xmlrpc_c::methodPtr cluster_info(new ClusterInfo());
     xmlrpc_c::methodPtr doc_info(new DocumentInfo());
+    xmlrpc_c::methodPtr zone_info(new ZoneInfo());
 
     // PoolInfo Methods
     xmlrpc_c::methodPtr hostpool_info(new HostPoolInfo());
@@ -349,6 +352,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr imagepool_info(new ImagePoolInfo());
     xmlrpc_c::methodPtr clusterpool_info(new ClusterPoolInfo());
     xmlrpc_c::methodPtr docpool_info(new DocumentPoolInfo());
+    xmlrpc_c::methodPtr zonepool_info(new ZonePoolInfo());
 
     // Host Methods
     xmlrpc_c::methodPtr host_enable(new HostEnable());
@@ -563,6 +567,13 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.document.rename",   doc_rename);
 
     RequestManagerRegistry.addMethod("one.documentpool.info",docpool_info);
+
+    /* Zone related methods */
+    RequestManagerRegistry.addMethod("one.zone.allocate",zone_allocate);
+    RequestManagerRegistry.addMethod("one.zone.delete",  zone_delete);
+    RequestManagerRegistry.addMethod("one.zone.info",    zone_info);
+
+    RequestManagerRegistry.addMethod("one.zonepool.info",zonepool_info);
 
     /* System related methods */
     RequestManagerRegistry.addMethod("one.system.version", system_version);

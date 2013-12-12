@@ -553,6 +553,8 @@ string Request::object_name(PoolObjectSQL::ObjectType ob)
             return "cluster";
         case PoolObjectSQL::DOCUMENT:
             return "document";
+        case PoolObjectSQL::ZONE:
+            return "zone";
         default:
             return "-";
       }

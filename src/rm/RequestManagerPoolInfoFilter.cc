@@ -261,6 +261,16 @@ void DocumentPoolInfo::request_execute(
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+void ZonePoolInfo::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    dump(att, ALL, -1, -1, "", "");
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 void RequestManagerPoolInfoFilter::where_filter(
         RequestAttributes& att,
         int                filter_flag,

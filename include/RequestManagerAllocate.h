@@ -37,8 +37,8 @@ protected:
     RequestManagerAllocate(const string& method_name,
                            const string& help,
                            const string& xml_args,
-                           bool  dt)
-        :Request(method_name,xml_args,help), do_template(dt)
+                           bool          _do_template)
+        :Request(method_name,xml_args,help), do_template(_do_template)
     {
         auth_op = AuthRequest::CREATE;
 
@@ -471,6 +471,40 @@ public:
     };
 
     ~DocumentAllocate(){};
+
+    /* --------------------------------------------------------------------- */
+
+    Template * get_object_template()
+    {
+        return new Template;
+    };
+
+    int pool_allocate(xmlrpc_c::paramList const& _paramList,
+                      Template * tmpl,
+                      int& id,
+                      string& error_str,
+                      RequestAttributes& att,
+                      int umask);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ZoneAllocate: public RequestManagerAllocate
+{
+public:
+    ZoneAllocate():
+        RequestManagerAllocate("ZoneAllocate",
+                               "Allocates a new zone",
+                               "A:ss",
+                               true)
+    {
+        Nebula& nd = Nebula::instance();
+        pool       = nd.get_zonepool();
+        auth_object = PoolObjectSQL::ZONE;
+    };
+
+    ~ZoneAllocate(){};
 
     /* --------------------------------------------------------------------- */
 

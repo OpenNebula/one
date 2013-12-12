@@ -496,6 +496,7 @@ void Nebula::start(bool bootstrap_only)
             rc += DatastorePool::bootstrap(db);
             rc += ClusterPool::bootstrap(db);
             rc += DocumentPool::bootstrap(db);
+            rc += ZonePool::bootstrap(db);
 
             // Create the system tables only if bootstrap went well
             if ( rc == 0 )
@@ -561,6 +562,7 @@ void Nebula::start(bool bootstrap_only)
 
         clpool  = new ClusterPool(db);
         docpool = new DocumentPool(db);
+        zonepool= new ZonePool(db);
 
         nebula_configuration->get("VM_HOOK", vm_hooks);
         nebula_configuration->get("HOST_HOOK",  host_hooks);
