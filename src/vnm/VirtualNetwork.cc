@@ -22,6 +22,7 @@
 #include "NebulaLog.h"
 #include "RangedLeases.h"
 #include "FixedLeases.h"
+#include "ExternalLeases.h"
 
 #include "AuthManager.h"
 #include "ClusterPool.h"
@@ -142,6 +143,15 @@ int VirtualNetwork::select_leases(SqlDB * db)
                                   ip_start,
                                   ip_end);
     }
+    else if(type == EXTERNAL)
+    {
+        leases = new  ExternalLeases(db,
+                                     oid,
+                                     mac_prefix,
+                                     global_bin,
+                                     site_bin,
+                                     external_command);
+    }
     else if(type == FIXED)
     {
         leases = new  FixedLeases(db,
@@ -202,6 +212,10 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     if (s_type == "RANGED")
     {
         type = VirtualNetwork::RANGED;
+    }
+    else if ( s_type == "EXTERNAL")
+    {
+        type = VirtualNetwork::EXTERNAL;
     }
     else if ( s_type == "FIXED")
     {
@@ -301,6 +315,22 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
                                   ip_start,
                                   ip_end);
     }
+    else if (type == VirtualNetwork::EXTERNAL)
+    {
+        erase_template_attribute("EXTERNAL_COMMAND", external_command);
+
+        if (external_command.empty())
+        {
+            goto error_external_command;
+        }
+
+        leases = new ExternalLeases(db,
+                                    oid,
+                                    mac_prefix,
+                                    global_bin,
+                                    site_bin,
+                                    external_command);
+    }
     else // VirtualNetwork::FIXED
     {
         vector<const Attribute *>   vector_leases;
@@ -356,6 +386,10 @@ error_update:
 
 error_ranged:
     ose << ranged_error_str;
+    goto error_common;
+
+error_external_command:
+    ose << "Missing required template variable: EXTERNAL_COMMAND for network of type EXTERNAL";
     goto error_common;
 
 error_global:
@@ -596,6 +630,13 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
                 "<IP_END>"   << st_ip_end   << "</IP_END>"   <<
             "</RANGE>";
     }
+    else if ( type == EXTERNAL )
+    {
+        os <<
+            "<EXTERNAL>" <<
+                "<COMMAND>" << external_command << "</COMMAND>" <<
+            "</EXTERNAL>";
+    }
 
     os  <<  "<TOTAL_LEASES>"<< total_leases << "</TOTAL_LEASES>"<<
             obj_template->to_xml(template_xml);
@@ -686,6 +727,10 @@ int VirtualNetwork::from_xml(const string &xml_str)
 
         Leases::Lease::ip_to_number(st_ip_start, ip_start);
         Leases::Lease::ip_to_number(st_ip_end,   ip_end);
+    }
+    else if ( type == EXTERNAL )
+    {
+        rc += xpath(external_command, "/VNET/EXTERNAL/COMMAND", "");
     }
 
     if (rc != 0)
