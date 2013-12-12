@@ -19,6 +19,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>
+#include <getopt.h>
 #include <ostream>
 
 #include "Nebula.h"
@@ -54,10 +55,10 @@ static void print_help()
          << "SYNOPSIS\n"
          << "  Starts the OpenNebula daemon\n\n"
          << "OPTIONS\n"
-         << "  -v\toutput version information and exit\n"
-         << "  -h\tdisplay this help and exit\n"
-         << "  -f\tforeground, do not fork the oned daemon\n"
-         << "  -i\tinitialize the dabase and exit\n";
+         << "  -v, --verbose\toutput version information and exit\n"
+         << "  -h, --help\tdisplay this help and exit\n"
+         << "  -f, --foreground\tforeground, do not fork the oned daemon\n"
+         << "  -i, --init-db\tinitialize the dabase and exit\n";
 }
 
 /* ------------------------------------------------------------------------- */
@@ -109,7 +110,19 @@ int main(int argc, char **argv)
     string          wd;
     int             rc;
 
-    while((opt = getopt(argc,argv,"vhif")) != -1)
+    static struct option long_options[] = {
+        {"version",    no_argument, 0, 'v'},
+        {"help",       no_argument, 0, 'h'},
+        {"foreground", no_argument, 0, 'f'},
+        {"init-db",    no_argument, 0, 'i'},
+        {0,            0,           0, 0}
+    };
+
+    int long_index = 0;
+
+    while ((opt = getopt_long(argc, argv, "vhif",
+                    long_options, &long_index)) != -1)
+    {
         switch(opt)
         {
             case 'v':
@@ -132,6 +145,7 @@ int main(int argc, char **argv)
                 exit(-1);
                 break;
         }
+    }
 
     // ---------------------------------
     //   Check if other oned is running
