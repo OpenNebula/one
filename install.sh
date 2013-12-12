@@ -686,6 +686,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/oneacl \
            src/cli/onedatastore \
            src/cli/onecluster \
+           src/cli/onezone \
            src/cli/oneflow \
            src/cli/oneflow-template \
            src/onedb/onedb \
@@ -1263,6 +1264,8 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/template.rb \
                             src/oca/ruby/opennebula/user_pool.rb \
                             src/oca/ruby/opennebula/user.rb \
+                            src/oca/ruby/opennebula/zone_pool.rb \
+                            src/oca/ruby/opennebula/zone.rb \
                             src/oca/ruby/opennebula/virtual_machine_pool.rb \
                             src/oca/ruby/opennebula/virtual_machine.rb \
                             src/oca/ruby/opennebula/virtual_network_pool.rb \
@@ -1458,6 +1461,7 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/oneacl_helper.rb \
                    src/cli/one_helper/onedatastore_helper.rb \
                    src/cli/one_helper/onecluster_helper.rb \
+                   src/cli/one_helper/onezone_helper.rb \
                    src/cli/one_helper/oneacct_helper.rb"
 
 CLI_BIN_FILES="src/cli/onevm \
@@ -1470,6 +1474,7 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/oneacl \
                src/cli/onedatastore \
                src/cli/onecluster \
+               src/cli/onezone \
                src/cli/oneflow \
                src/cli/oneflow-template \
                src/cli/oneacct"
@@ -1484,6 +1489,7 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/oneacl.yaml \
                 src/cli/etc/onedatastore.yaml \
                 src/cli/etc/onecluster.yaml \
+                src/cli/etc/onezone.yaml \
                 src/cli/etc/oneacct.yaml"
 
 ETC_CLIENT_FILES="src/cli/etc/group.default"
@@ -1966,8 +1972,9 @@ OZONES_LIB_CLIENT_CLI_HELPER_FILES="\
                 src/ozones/Client/lib/cli/ozones_helper/vdc_helper.rb \
                 src/ozones/Client/lib/cli/ozones_helper/zones_helper.rb"
 
-OZONES_BIN_CLIENT_FILES="src/ozones/Client/bin/onevdc \
-                         src/ozones/Client/bin/onezone"
+# TODO
+#OZONES_BIN_CLIENT_FILES="src/ozones/Client/bin/onevdc \
+#                         src/ozones/Client/bin/onezone"
 
 OZONES_RUBY_LIB_FILES="src/oca/ruby/OpenNebula.rb"
 
@@ -2017,6 +2024,7 @@ MAN_FILES="share/man/oneauth.1.gz \
         share/man/onedb.1.gz \
         share/man/onedatastore.1.gz \
         share/man/onecluster.1.gz \
+        share/man/onezone.1.gz \
         share/man/oneflow.1.gz \
         share/man/oneflow-template.1.gz \
         share/man/econe-allocate-address.1.gz \
@@ -2043,9 +2051,7 @@ MAN_FILES="share/man/oneauth.1.gz \
         share/man/econe-upload.1.gz \
         share/man/occi-compute.1.gz \
         share/man/occi-network.1.gz \
-        share/man/occi-storage.1.gz \
-        share/man/onezone.1.gz \
-        share/man/onevdc.1.gz"
+        share/man/occi-storage.1.gz"
 
 #-----------------------------------------------------------------------------
 # Ruby VENDOR files
