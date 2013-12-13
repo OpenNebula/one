@@ -610,6 +610,7 @@ EOT
         when "IMAGE"     then OpenNebula::ImagePool.new(client)
         when "VMTEMPLATE" then OpenNebula::TemplatePool.new(client)
         when "VM"        then OpenNebula::VirtualMachinePool.new(client)
+        when "ZONE"      then OpenNebula::ZonePool.new(client)
         end
 
         rc = pool.info
