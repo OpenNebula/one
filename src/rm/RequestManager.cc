@@ -259,6 +259,8 @@ void RequestManager::register_xml_methods()
 
     // Group Methods
     xmlrpc_c::methodPtr group_set_quota(new GroupSetQuota());
+    xmlrpc_c::methodPtr group_add_provider(new GroupAddProvider());
+    xmlrpc_c::methodPtr group_del_provider(new GroupDelProvider());
 
     // VMTemplate Methods
     xmlrpc_c::methodPtr template_instantiate(new VMTemplateInstantiate());
@@ -471,6 +473,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.group.delete",    group_delete);
     RequestManagerRegistry.addMethod("one.group.info",      group_info);
     RequestManagerRegistry.addMethod("one.group.quota",     group_set_quota);
+    RequestManagerRegistry.addMethod("one.group.addprovider",group_add_provider);
+    RequestManagerRegistry.addMethod("one.group.delprovider",group_del_provider);
 
     RequestManagerRegistry.addMethod("one.grouppool.info",  grouppool_info);
 

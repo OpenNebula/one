@@ -66,6 +66,80 @@ public:
                          RequestAttributes& att);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class GroupEditProvider : public Request
+{
+public:
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+
+protected:
+    GroupEditProvider(  const string& method_name,
+                        const string& help,
+                        const string& params)
+        :Request(method_name,params,help)
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_gpool();
+        clpool      = nd.get_clpool();
+        aclm        = nd.get_aclm();
+
+        auth_object = PoolObjectSQL::GROUP;
+        auth_op     = AuthRequest::ADMIN;
+    };
+
+    ClusterPool* clpool;
+    AclManager*  aclm;
+
+    virtual int edit_resource_provider(
+            Group* group, int zone_id, int cluster_id, string& error_msg) = 0;
+
+    virtual int edit_acl_rules(
+            int group_id, int zone_id, int cluster_id, string& error_msg) = 0;
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class GroupAddProvider : public GroupEditProvider
+{
+public:
+    GroupAddProvider():
+        GroupEditProvider("GroupAddProvider",
+                          "Adds a resource provider to the group",
+                          "A:siii"){};
+
+    ~GroupAddProvider(){};
+
+    int edit_resource_provider(
+            Group* group, int zone_id, int cluster_id, string& error_msg);
+
+    int edit_acl_rules(
+            int group_id, int zone_id, int cluster_id, string& error_msg);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class GroupDelProvider : public GroupEditProvider
+{
+public:
+    GroupDelProvider():
+        GroupEditProvider("GroupDelProvider",
+                          "Deletes a resource provider from the group",
+                          "A:siii"){};
+
+    ~GroupDelProvider(){};
+
+    int edit_resource_provider(
+            Group* group, int zone_id, int cluster_id, string& error_msg);
+
+    int edit_acl_rules(
+            int group_id, int zone_id, int cluster_id, string& error_msg);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

@@ -75,6 +75,26 @@ public:
     }
 
     /**
+     * Adds a resource provider
+     * @param zone_id ID of the zone
+     * @param cluster_id ID of the cluster
+     * @param error_msg Returns the error reason, if any
+     *
+     * @return 0 on success
+     */
+    int add_resource_provider(int zone_id, int cluster_id, string& error_msg);
+
+    /**
+     * Deletes a resource provider
+     * @param zone_id ID of the zone
+     * @param cluster_id ID of the cluster
+     * @param error_msg Returns the error reason, if any
+     *
+     * @return 0 on success
+     */
+    int del_resource_provider(int zone_id, int cluster_id, string& error_msg);
+
+    /**
      *  Object quotas, provides set and check interface
      */
     Quotas quota;
@@ -104,6 +124,12 @@ private:
     };
 
     virtual ~Group(){};
+
+    // *************************************************************************
+    // Attributes (Private)
+    // *************************************************************************
+
+    set<pair<int,int> > providers;
 
     // *************************************************************************
     // DataBase implementation (Private)

@@ -24,10 +24,12 @@ module OpenNebula
         #######################################################################
 
         GROUP_METHODS = {
-            :info     => "group.info",
-            :allocate => "group.allocate",
-            :delete   => "group.delete",
-            :quota    => "group.quota"
+            :info           => "group.info",
+            :allocate       => "group.allocate",
+            :delete         => "group.delete",
+            :quota          => "group.quota",
+            :add_provider   => "group.addprovider",
+            :del_provider   => "group.delprovider"
         }
 
         # Flag for requesting connected user's group info
@@ -134,6 +136,26 @@ module OpenNebula
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc
+        end
+
+        # Adds a resource provider to this group
+        # @param zone_id [Integer] Zone ID
+        # @param cluster_id [Integer] Cluster ID
+        # 
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def add_provider(zone_id, cluster_id)
+            return call(GROUP_METHODS[:add_provider], @pe_id, zone_id.to_i, cluster_id.to_i)
+        end
+
+        # Deletes a resource provider from this group
+        # @param zone_id [Integer] Zone ID
+        # @param cluster_id [Integer] Cluster ID
+        # 
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def del_provider(zone_id, cluster_id)
+            return call(GROUP_METHODS[:del_provider], @pe_id, zone_id.to_i, cluster_id.to_i)
         end
 
         # ---------------------------------------------------------------------
