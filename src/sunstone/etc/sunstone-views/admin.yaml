@@ -19,6 +19,7 @@ enabled_tabs:
     oneflow-dashboard: false
     oneflow-services: false
     oneflow-templates: false
+    zones-tab: true
 tabs:
     dashboard-tab:
         panel_tabs:
@@ -429,3 +430,14 @@ tabs:
             ServiceTemplate.chgrp: true
             ServiceTemplate.chmod: true
             ServiceTemplate.delete: true
+    zones-tab:
+        panel_tabs:
+            zone_info_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Name
+        actions:
+            Zone.refresh: true
+            Zone.create_dialog: true
+            Zone.delete: true

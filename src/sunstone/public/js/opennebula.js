@@ -1214,6 +1214,40 @@ var OpenNebula = {
         }
     },
 
+    "Zone" : {
+        "resource" : "ZONE",
+
+        "create" : function(params){
+            OpenNebula.Action.create(params,OpenNebula.Zone.resource);
+        },
+        "del" : function(params){
+            OpenNebula.Action.del(params,OpenNebula.Zone.resource);
+        },
+        "list" : function(params){
+            OpenNebula.Action.list(params,OpenNebula.Zone.resource);
+        },
+        "show" : function(params){
+            OpenNebula.Action.show(params,OpenNebula.Zone.resource);
+        },
+        "update" : function(params){
+            var action_obj = {"template_raw" : params.data.extra_param };
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.Zone.resource,
+                                            "update",
+                                            action_obj);
+        },
+        "fetch_template" : function(params){
+            OpenNebula.Action.show(params,OpenNebula.Zone.resource,"template");
+        },
+        "rename" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.Zone.resource,
+                                            "rename",
+                                            action_obj);
+        }
+    },
+
     "Marketplace" : {
         "resource" : "MARKETPLACE",
 
