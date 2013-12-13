@@ -95,6 +95,21 @@ public:
     virtual int del_rule(int oid, string& error_str);
 
     /**
+     *  Deletes a new rule from the ACL rule set
+     *
+     *    @param user 64 bit ID and flags
+     *    @param resource 64 bit ID and flags
+     *    @param rights 64 bit flags
+     *
+     *    @param error_str Returns the error reason, if any
+     *    @return 0 on success
+     */
+    virtual int del_rule(long long user,
+                         long long resource,
+                         long long rights,
+                         string&   error_str);
+
+    /**
      * Deletes rules that apply to this user id
      *
      * @param uid The user id

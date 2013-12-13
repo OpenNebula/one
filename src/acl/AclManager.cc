@@ -600,6 +600,51 @@ int AclManager::del_rule(int oid, string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int AclManager::del_rule(
+        long long user,
+        long long resource,
+        long long rights,
+        string&   error_str)
+{
+    lock();
+
+    AclRule * rule = new AclRule(-1, user, resource, rights);
+
+    int oid = -1;
+    bool found = false;
+
+    multimap<long long, AclRule *>::iterator        it;
+    pair<multimap<long long, AclRule *>::iterator,
+         multimap<long long, AclRule *>::iterator>  index;
+
+    index = acl_rules.equal_range( user );
+
+    for ( it = index.first; (it != index.second && !found); it++)
+    {
+        found = *(it->second) == *rule;
+
+        if (found)
+        {
+            oid = it->second->get_oid();
+        }
+    }
+
+    unlock();
+
+    if (oid != -1)
+    {
+        return del_rule(oid, error_str);
+    }
+    else
+    {
+        error_str = "Rule does not exist";
+        return -1;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void AclManager::del_uid_rules(int uid)
 {
     long long user_req = AclRule::INDIVIDUAL_ID | uid;
