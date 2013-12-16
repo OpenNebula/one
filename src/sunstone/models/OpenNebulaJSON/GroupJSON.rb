@@ -47,6 +47,8 @@ module OpenNebulaJSON
             rc = case action_hash['perform']
                  when "chown"       then self.chown(action_hash['params'])
                  when "set_quota"   then self.set_quota(action_hash['params'])
+                 when "add_provider"    then self.add_provider(action_hash['params'])
+                 when "del_provider"    then self.del_provider(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -62,6 +64,14 @@ module OpenNebulaJSON
             quota_json = params['quotas']
             quota_template = template_to_str(quota_json)
             super(quota_template)
+        end
+
+        def add_provider(params=Hash.new)
+            super(params['zone_id'].to_i, params['cluster_id'].to_i)
+        end
+
+        def del_provider(params=Hash.new)
+            super(params['zone_id'].to_i, params['cluster_id'].to_i)
         end
     end
 end

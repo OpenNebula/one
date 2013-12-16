@@ -392,6 +392,62 @@ var group_actions = {
             hideDialog();
             $('div#groups_tab div.legend_div').slideToggle();
         }
+    },
+
+    "Group.add_provider_action" : {
+        type: "single",
+        call: OpenNebula.Group.add_provider,
+        callback: function(request) {},
+        error: onError,
+        notify: true
+    },
+
+    "Group.del_provider_action" : {
+        type: "single",
+        call: OpenNebula.Group.del_provider,
+        callback: function(request) {},
+        error: onError,
+        notify: true
+    },
+
+    "Group.add_provider" : {
+        type: "multiple",
+        call: function(params){
+            var cluster = params.data.extra_param;
+            var group   = params.data.id;
+
+            extra_param = {
+                "zone_id" : 0,
+                "cluster_id" : cluster
+            }
+
+            Sunstone.runAction("Group.add_provider_action", group, extra_param);
+        },
+        callback: function(request) {
+            Sunstone.runAction('Group.showinfo',request.request.data[0]);
+        },
+        elements: groupElements,
+        notify:true
+    },
+
+    "Group.del_provider" : {
+        type: "multiple",
+        call: function(params){
+            var cluster = params.data.extra_param;
+            var group   = params.data.id;
+
+            extra_param = {
+                "zone_id" : 0,
+                "cluster_id" : cluster
+            }
+
+            Sunstone.runAction("Group.del_provider_action", group, extra_param);
+        },
+        callback: function(request) {
+            Sunstone.runAction('Group.showinfo',request.request.data[0]);
+        },
+        elements: groupElements,
+        notify:true
     }
 }
 
@@ -417,6 +473,20 @@ var group_buttons = {
         text: tr("Delete"),
         layout: "del",
         condition: mustBeAdmin
+    },
+    "Group.add_provider" : {
+        type: "confirm_with_select",
+        text: tr("Assign cluster resources"),
+        select: clusters_sel,
+        tip: tr("Select the cluster:"),
+        layout: "more_select"
+    },
+    "Group.del_provider" : {
+        type: "confirm_with_select",
+        text: tr("Remove cluster resources"),
+        select: clusters_sel,
+        tip: tr("Select the cluster:"),
+        layout: "more_select"
     }
 };
 
@@ -535,6 +605,27 @@ function updateGroupsView(request, group_list){
     $("#total_groups", form).text(group_list.length);
 }
 
+function fromJSONtoProvidersTable(providers_array){
+    var str = ""
+    if (!providers_array){ return "";}
+    if (!$.isArray(providers_array))
+    {
+        var tmp_array   = new Array();
+        tmp_array[0]    = providers_array;
+        providers_array = tmp_array;
+    }
+
+    $.each(providers_array, function(index, provider){
+       str +=
+        '<tr>\
+            <td>' + provider.ZONE_ID + '</td>\
+            <td>' + provider.CLUSTER_ID + '</td>\
+        </tr>';
+    });
+
+    return str;
+}
+
 function updateGroupInfo(request,group){
     var info = group.GROUP;
 
@@ -554,7 +645,30 @@ function updateGroupInfo(request,group){
         content : quotas_tab_html
     };
 
+
+    var providers_tab = {
+        title : tr("Resource Providers"),
+        content :
+        '<div class="">\
+            <div class="six columns">\
+                <table id="info_user_table" class="twelve datatable extended_table">\
+                    <thead>\
+                        <tr>\
+                            <th>' + tr("Zone ID") + '</th>\
+                            <th>' + tr("Cluster ID") + '</th>\
+                        </tr>\
+                    </thead>\
+                    <tbody>' +
+                        fromJSONtoProvidersTable(info.RESOURCE_PROVIDER) +
+                    '</tbody>\
+                </table>\
+            </div>\
+        </div>'
+    };
+
+
     Sunstone.updateInfoPanelTab("group_info_panel","group_quotas_tab",quotas_tab);
+    Sunstone.updateInfoPanelTab("group_info_panel","group_providers_tab",providers_tab);
     Sunstone.popUpInfoPanel("group_info_panel", 'groups-tab');
 
 
