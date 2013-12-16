@@ -175,7 +175,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                 column :"CLUSTER", "", :right, :size=>7 do |d|
                     d['CLUSTER_ID']
                 end
-            end.show(providers, {})
+            end.show([providers].flatten, {})
         end
 
         default_quotas = nil
