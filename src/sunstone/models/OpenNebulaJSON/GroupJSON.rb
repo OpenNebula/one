@@ -28,11 +28,83 @@ module OpenNebulaJSON
 
             rc_alloc = self.allocate(group_hash['name'])
 
-            #create default ACL rules
             if !OpenNebula.is_error?(rc_alloc)
-                rc_acl, msg = self.create_acls
+                return rc_alloc
+            end
 
-                puts msg if rc_acl == -1
+            if group_hash['cluster_ids']
+                for cid in group_hash['cluster_ids']
+                    # TODO 0 is zone_id
+                    self.add_provider(0, cid)
+                end
+            else # No Resource provider
+                 # This rule allows users in the group to deploy VMs 
+                 # in any host in the cloud
+                rule  = "@#{self.id} HOST/* MANAGE"
+                parse = OpenNebula::Acl.parse_rule(rule)
+
+                if OpenNebula.is_error?(parse)
+                    self.delete
+                    return -1, "Error parsing rule #{rule}: #{parse.message}"
+                end
+
+                xml = OpenNebula::Acl.build_xml
+                acl = OpenNebula::Acl.new(xml, @client)
+
+                rc = acl.allocate(*parse)
+
+                if OpenNebula.is_error?(rc)
+                    self.delete
+                    return -1, "Error creating rule #{rule}: #{rc.message}"
+                end
+            end
+
+            rc_acl, msg = self.create_acls
+            if rc_acl == -1
+                self.delete
+                return rc_acl
+            else
+
+            if group_hash['admin_group']
+                admin_group = OpenNebula::Group.new(OpenNebula::Group.build_xml, 
+                                                    @client)
+                rc_alloc = admin_group.allocate(group_hash['admin_group'])
+                if !OpenNebula.is_error?(rc_alloc)
+                    # Rollback
+                    self.delete
+                end
+
+                if group_hash['admin_username'] and group_hash['admin_userpass']
+                    user = OpenNebula::User.new(OpenNebula::User.build_xml,
+                                                @client)
+                    rc_alloc = user.allocate(group_hash['admin_username'],
+                                             group_hash['admin_userpass'],
+                                             group_hash['admin_userdriver'])
+
+                    if !OpenNebula.is_error?(rc_alloc)
+                        # Rollback
+                        admin_group.delete
+                        self.delete
+                    end
+
+                    rc_alloc = user.chgrp(self.id)
+
+                    if !OpenNebula.is_error?(rc_alloc)
+                        # Rollback
+                        user.delete
+                        admin_group.delete
+                        self.delete
+                    end
+
+                    rc_alloc = user.addgroup(admin_group.id)
+
+                    if !OpenNebula.is_error?(rc_alloc)
+                        # Rollback
+                        user.delete
+                        admin_group.delete
+                        self.delete
+                    end
+                end
             end
 
             return rc_alloc
