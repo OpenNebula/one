@@ -93,24 +93,80 @@ var create_group_tmpl =
   </h3>\
 </div>\
 <form id="create_group_form" action="">\
-      <div class="row centered">\
-        <div class="columns eight centered">\
-          <div class="two columns">\
-              <label class="inline right" for="name">'+tr("Name")+':</label>\
-          </div>\
-          <div class="nine columns">\
-              <input type="text" name="name" id="name" /><br />\
-          </div>\
-          <div class="one columns">\
-              <div class=""></div>\
-          </div>\
+  <div class="row centered">\
+    <div class="columns eight centered">\
+      <div class="two columns">\
+        <label class="inline right" for="name">'+tr("Name")+':</label>\
+      </div>\
+      <div class="nine columns">\
+        <input type="text" name="name" id="name" /><br />\
+      </div>\
+      <div class="one columns">\
+        <div class=""></div>\
+      </div>\
+    </div>\
+  </div>\
+  <div class="row">\
+    <fieldset>\
+      <legend>'+tr("Resources")+':</legend>\
+      <div class="four columns">\
+        <label class="inline right" for="resources">' +  tr("Assign physical resources") + ':</label>\
+      </div>\
+      <div class="seven columns" style="text-align:center">\
+        <input type="radio" name="resources" id="resources_all" value="all">'+ tr("All")+'&emsp;</input> \
+        <input type="radio" name="resources" id="resources_cluster" value="cluster"> '+tr("Select clusters")+'</input> &emsp;\
+        <input type="radio" name="resources" id="resources_none" value="none"> '+tr("None")+'</input> &emsp;\
+      </div>\
+      <div class="one columns">\
+        <div class="tip">'+tr("TODO")+'</div>\
+      </div>\
+    </fieldset>\
+  </div>\
+  <br/>\
+  <div class="row">\
+    <fieldset>\
+      <legend>'+tr("Administrators")+':</legend>\
+      <div class="row">\
+        <div class="one columns">\
+         <input type="checkbox" id="admin_group" name="admin_group" value="YES" />\
+        </div>\
+        <div class="ten columns">\
+          <label class="inline left" for="admin_group">'+tr("Create an administrative group")+'.</label>\
+        </div>\
+        <div class="one columns">\
+          <div class="tip">'+tr("TODO")+'</div>\
         </div>\
       </div>\
-      <hr>\
-      <div class="form_buttons">\
-        <button class="button radius right success" id="create_group_submit" value="Group.create">'+tr("Create")+'</button>\
-        <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+      <div class="row centered">\
+        <div class="four columns">\
+          <label class="inline right" for="admin_group_name">'+tr("Group name")+':</label>\
+        </div>\
+        <div class="seven columns">\
+          <input type="text" name="admin_group_name" id="admin_group_name" />\
+        </div>\
+        <div class="one columns">\
+          <div class=""></div>\
+        </div>\
       </div>\
+      <div class="row">\
+        <div class="one columns">\
+         <input type="checkbox" id="admin_user" name="admin_user" value="YES" />\
+        </div>\
+        <div class="ten columns">\
+          <label class="inline left" for="admin_user">'+tr("Create an administrator user")+'.</label>\
+        </div>\
+        <div class="one columns">\
+          <div class="tip">'+tr("TODO")+'</div>\
+        </div>\
+      </div>' +
+      user_creation_div +
+    '</fieldset>\
+  </div>\
+  <hr>\
+  <div class="form_buttons">\
+    <button class="button radius right success" id="create_group_submit" value="Group.create">'+tr("Create")+'</button>\
+    <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+  </div>\
   <a class="close-reveal-modal">&#215;</a>\
 </form>';
 
@@ -682,7 +738,19 @@ function updateGroupInfo(request,group){
 
 }
 
+function disableAdminUser(dialog){
+    $('#username',dialog).attr('disabled','disabled');
+    $('#pass',dialog).attr('disabled','disabled');
+    $('#driver',dialog).attr('disabled','disabled');
+    $('#custom_auth',dialog).attr('disabled','disabled');
+};
 
+function enableAdminUser(dialog){
+    $('#username',dialog).removeAttr("disabled");
+    $('#pass',dialog).removeAttr("disabled");
+    $('#driver',dialog).removeAttr("disabled");
+    $('#custom_auth',dialog).removeAttr("disabled");
+};
 
 //Prepares the dialog to create
 function setupCreateGroupDialog(){
@@ -691,7 +759,66 @@ function setupCreateGroupDialog(){
     var dialog = $create_group_dialog;
 
     dialog.html(create_group_tmpl);
-    dialog.addClass("reveal-modal");
+    dialog.addClass("reveal-modal large");
+
+    setupTips($create_image_dialog);
+
+    setupCustomAuthDialog(dialog);
+
+    $('#resources_all',dialog).click();
+
+    $('input#name', dialog).change(function(){
+        var val = $(this).val();
+        var dialog = $create_group_dialog;
+
+        $('#admin_group_name',dialog).val(val + "-admin");
+        $('#username',dialog).val(val + "-admin");
+    });
+
+    $('input#admin_group', dialog).change(function(){
+        var dialog = $create_group_dialog;
+        if ($(this).prop('checked')) {
+            $('#admin_group_name',dialog).removeAttr("disabled");
+
+            $('#admin_user',dialog).removeAttr("disabled");
+            $('#admin_user',dialog).prop("checked", "true");
+
+            enableAdminUser(dialog);
+        } else {
+            $('#admin_group_name',dialog).attr('disabled','disabled');
+            $('#admin_user',dialog).attr('disabled','disabled');
+            disableAdminUser(dialog);
+        }
+    });
+
+    $('input#admin_user', dialog).change(function(){
+        var dialog = $create_group_dialog;
+        if ($(this).prop('checked')) {
+            enableAdminUser(dialog);
+        } else {
+            disableAdminUser(dialog);
+        }
+    });
+
+    $('#admin_group_name',dialog).attr('disabled','disabled');
+    $('#admin_user',dialog).attr('disabled','disabled');
+    disableAdminUser(dialog);
+
+    $('select#img_type',dialog).change(function(){
+        var value = $(this).val();
+        var context = $create_image_dialog;
+        switch (value){
+        case "DATABLOCK":
+            $('#datablock_img',context).removeAttr("disabled");
+            //$('#empty_datablock', context).show();
+            break;
+        default:
+            $('#datablock_img',context).attr('disabled','disabled');
+            //$('#empty_datablock', context).hide();
+            $('#path_img',context).click();
+
+        }
+    });
 
     $('#create_group_form',dialog).submit(function(){
         var name=$('#name',this).val();

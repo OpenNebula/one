@@ -106,7 +106,41 @@ var auth_drivers_div =
      <option value="custom">'+tr("Custom")+'</option>\
 </select>\
 <div>\
-  <input type="text" name="custom_auth" />\
+  <input type="text" id="custom_auth" name="custom_auth" />\
+</div>';
+
+// Used also from groups-tabs.js
+var user_creation_div =
+'<div class="row centered">\
+  <div class="four columns">\
+    <label class="inline right" for="username">'+tr("Username")+':</label>\
+  </div>\
+  <div class="seven columns">\
+    <input type="text" name="username" id="username" />\
+  </div>\
+  <div class="one columns">\
+    <div class=""></div>\
+  </div>\
+</div>\
+<div class="row centered">\
+  <div class="four columns">\
+    <label class="inline right" for="pass">'+tr("Password")+':</label>\
+  </div>\
+  <div class="seven columns">\
+    <input type="password" name="pass" id="pass" />\
+  </div>\
+  <div class="one columns">\
+    <div class=""></div>\
+  </div>\
+</div>\
+<div class="row centered">\
+  <div class="four columns">\
+    <label class="inline right" for="driver">'+tr("Authentication")+':</label>\
+  </div>\
+  <div class="seven columns">'+auth_drivers_div+'</div>\
+  <div class="one columns">\
+    <div class=""></div>\
+  </div>\
 </div>';
 
 var create_user_tmpl =
@@ -115,39 +149,9 @@ var create_user_tmpl =
     <small id="create_vnet_header">'+tr("Create User")+'</small>\
   </h3>\
 </div>\
-<form id="create_user_form" action="">\
-      <div class="row centered">\
-          <div class="four columns">\
-              <label class="inline right" for="username">'+tr("Username")+':</label>\
-          </div>\
-          <div class="seven columns">\
-              <input type="text" name="username" id="username" />\
-          </div>\
-          <div class="one columns">\
-              <div class=""></div>\
-          </div>\
-      </div>\
-      <div class="row centered">\
-          <div class="four columns">\
-              <label class="inline right" for="pass">'+tr("Password")+':</label>\
-          </div>\
-          <div class="seven columns">\
-              <input type="password" name="pass" id="pass" />\
-          </div>\
-          <div class="one columns">\
-              <div class=""></div>\
-          </div>\
-      </div>\
-      <div class="row centered">\
-          <div class="four columns">\
-              <label class="inline right" for="driver">'+tr("Authentication")+':</label>\
-          </div>\
-          <div class="seven columns">'+auth_drivers_div+'</div>\
-          <div class="one columns">\
-              <div class=""></div>\
-          </div>\
-      </div>\
-      <hr>\
+<form id="create_user_form" action="">'+
+      user_creation_div
+      '<hr>\
       <div class="form_buttons">\
           <button class="button radius right success" id="create_user_submit" value="user/create">'+tr("Create")+'</button>\
           <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
@@ -816,6 +820,17 @@ function updateUserInfo(request,user){
     })
 };
 
+// Used also from groups-tabs.js
+function setupCustomAuthDialog(dialog){
+    $('input[name="custom_auth"]',dialog).parent().hide();
+    $('select#driver',dialog).change(function(){
+        if ($(this).val() == "custom")
+            $('input[name="custom_auth"]',dialog).parent().show();
+        else
+            $('input[name="custom_auth"]',dialog).parent().hide();
+    });
+};
+
 // Prepare the user creation dialog
 function setupCreateUserDialog(){
     dialogs_context.append('<div title=\"'+tr("Create user")+'\" id="create_user_dialog"></div>');
@@ -827,14 +842,7 @@ function setupCreateUserDialog(){
 
     //$('button',dialog).button();
 
-    $('input[name="custom_auth"]',dialog).parent().hide();
-    $('select#driver').change(function(){
-        if ($(this).val() == "custom")
-            $('input[name="custom_auth"]',dialog).parent().show();
-        else
-            $('input[name="custom_auth"]',dialog).parent().hide();
-    });
-
+    setupCustomAuthDialog(dialog);
 
     $('#create_user_form',dialog).submit(function(){
         var user_name=$('#username',this).val();
