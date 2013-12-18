@@ -63,7 +63,7 @@ module OpenNebulaJSON
             if rc_acl == -1
                 self.delete
                 return rc_acl
-            else
+            end
 
             if group_hash['admin_group']
                 admin_group = OpenNebula::Group.new(OpenNebula::Group.build_xml, 
