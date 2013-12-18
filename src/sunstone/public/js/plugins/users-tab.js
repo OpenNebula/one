@@ -150,7 +150,7 @@ var create_user_tmpl =
   </h3>\
 </div>\
 <form id="create_user_form" action="">'+
-      user_creation_div
+      user_creation_div +
       '<hr>\
       <div class="form_buttons">\
           <button class="button radius right success" id="create_user_submit" value="user/create">'+tr("Create")+'</button>\
