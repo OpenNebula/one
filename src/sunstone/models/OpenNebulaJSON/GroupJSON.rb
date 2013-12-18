@@ -32,6 +32,7 @@ module OpenNebulaJSON
                 return rc_alloc
             end
 
+            # If we have resource providers, add them
             if group_hash['cluster_ids']
                 for cid in group_hash['cluster_ids']
                     # TODO 0 is zone_id
@@ -40,18 +41,10 @@ module OpenNebulaJSON
             else # No Resource provider
                  # This rule allows users in the group to deploy VMs 
                  # in any host in the cloud
-                rule  = "@#{self.id} HOST/* MANAGE"
-                parse = OpenNebula::Acl.parse_rule(rule)
+                acls = Array.new
+                acls << "@#{self.id} HOST/* MANAGE"
 
-                if OpenNebula.is_error?(parse)
-                    self.delete
-                    return -1, "Error parsing rule #{rule}: #{parse.message}"
-                end
-
-                xml = OpenNebula::Acl.build_xml
-                acl = OpenNebula::Acl.new(xml, @client)
-
-                rc = acl.allocate(*parse)
+                rc, tmp = create_acls
 
                 if OpenNebula.is_error?(rc)
                     self.delete
@@ -59,12 +52,14 @@ module OpenNebulaJSON
                 end
             end
 
+            # Set default ACLs for group
             rc_acl, msg = self.create_acls
             if rc_acl == -1
                 self.delete
                 return rc_acl
             end
 
+            # Create admin group
             if group_hash['admin_group']
                 admin_group = OpenNebula::Group.new(OpenNebula::Group.build_xml, 
                                                     @client)
@@ -72,19 +67,23 @@ module OpenNebulaJSON
                 if !OpenNebula.is_error?(rc_alloc)
                     # Rollback
                     self.delete
+                    return rc_alloc
                 end
 
-                if group_hash['admin_username'] and group_hash['admin_userpass']
+                # Create group admin user
+                if group_hash['user'] and group_hash['user']['name'] and
+                   group_hash['user']['password']
                     user = OpenNebula::User.new(OpenNebula::User.build_xml,
                                                 @client)
-                    rc_alloc = user.allocate(group_hash['admin_username'],
-                                             group_hash['admin_userpass'],
-                                             group_hash['admin_userdriver'])
+                    rc_alloc = user.allocate(group_hash['user']['name'],
+                                             group_hash['user']['password'],
+                                             group_hash['user']['auth_driver'])
 
                     if !OpenNebula.is_error?(rc_alloc)
                         # Rollback
                         admin_group.delete
                         self.delete
+                        return rc_alloc
                     end
 
                     rc_alloc = user.chgrp(self.id)
@@ -94,6 +93,7 @@ module OpenNebulaJSON
                         user.delete
                         admin_group.delete
                         self.delete
+                        return rc_alloc
                     end
 
                     rc_alloc = user.addgroup(admin_group.id)
@@ -103,6 +103,23 @@ module OpenNebulaJSON
                         user.delete
                         admin_group.delete
                         self.delete
+                        return rc_alloc
+                    end
+
+                    # Set ACLs for group admin
+                    acls = Array.new
+
+                    acls << "@#{group_admin.id} USER/* CREATE"
+                    acls << "@#{group_admin.id} USER/@#{self.id} " \
+                            "USE+MANAGE+ADMIN"
+                    acls << "@#{group_admin.id} " \ 
+                            "VM+IMAGE+TEMPLATE/@#{self.id}} USE+MANAGE"
+
+                    rc, tmp = create_acls(acls)
+
+                    if OpenNebula.is_error?(rc)
+                        self.delete
+                        return -1, "Error creating acl rules"
                     end
                 end
             end
@@ -144,6 +161,24 @@ module OpenNebulaJSON
 
         def del_provider(params=Hash.new)
             super(params['zone_id'].to_i, params['cluster_id'].to_i)
+        end
+
+        # Creates an acl array of acl strings. Returns true or error and
+        # a comma-separated list with the new acl ids
+        def create_acls(acls)
+            acls_ids = Array.new
+            rc       = true
+
+            acls.each{|rule|
+                acl = OpenNebula::Acl.new(OpenNebula::Acl.build_xml,@client)
+                rc  = acl.allocate(*OpenNebula::Acl.parse_rule(rule))
+
+                break if OpenNebula.is_error?(rc)
+
+                acls_ids << acl.id
+            }
+
+            return rc, acls_ids
         end
     end
 end
