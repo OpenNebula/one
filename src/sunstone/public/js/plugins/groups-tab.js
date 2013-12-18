@@ -159,7 +159,7 @@ var create_group_tmpl =
           <div class="tip">'+tr("TODO")+'</div>\
         </div>\
       </div>' +
-      user_creation_div +
+      user_creation_div +   // from users-tab.js
     '</fieldset>\
   </div>\
   <hr>\
@@ -821,8 +821,41 @@ function setupCreateGroupDialog(){
     });
 
     $('#create_group_form',dialog).submit(function(){
-        var name=$('#name',this).val();
-        var group_json = { "group" : { "name" : name }};
+        var name = $('#name',this).val();
+
+        // TODO
+        var cluster_ids = null;
+
+        var admin_group_name = null;
+        var user_json = null;
+
+        if ( $('#admin_group', this).prop('checked') ){
+            admin_group_name = $('#admin_group_name', this).val();
+
+            if ( $('#admin_user', this).prop('checked') ){
+                user_json = buildUserJSON(this);    // from users-tab.js
+
+                if (!user_json) {
+                    notifyError(tr("User name and password must be filled in"));
+                    return false;
+                }
+            }
+        }
+
+        var group_json = {
+            "group" : {
+                "name" : name
+            }
+        };
+
+        if (admin_group_name){
+            group_json['group']['admin_group'] = admin_group_name;
+        }
+
+        if (user_json){
+            group_json["group"]["user"] = user_json["user"];
+        }
+
         Sunstone.runAction("Group.create",group_json);
         $create_group_dialog.trigger("reveal:close");
         return false;

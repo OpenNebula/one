@@ -831,6 +831,29 @@ function setupCustomAuthDialog(dialog){
     });
 };
 
+function buildUserJSON(dialog){
+    var user_name = $('#username',dialog).val();
+    var user_password = $('#pass',dialog).val();
+    var driver = $('#driver', dialog).val();
+
+    if (driver == 'custom'){
+        driver = $('input[name="custom_auth"]', dialog).val();
+    }
+
+    if (!user_name.length || !user_password.length){
+        return false;
+    }
+
+    var user_json = { "user" :
+                      { "name" : user_name,
+                        "password" : user_password,
+                        "auth_driver" : driver
+                      }
+                    };
+
+    return user_json;
+};
+
 // Prepare the user creation dialog
 function setupCreateUserDialog(){
     dialogs_context.append('<div title=\"'+tr("Create user")+'\" id="create_user_dialog"></div>');
@@ -845,23 +868,13 @@ function setupCreateUserDialog(){
     setupCustomAuthDialog(dialog);
 
     $('#create_user_form',dialog).submit(function(){
-        var user_name=$('#username',this).val();
-        var user_password=$('#pass',this).val();
-        var driver = $('#driver', this).val();
-        if (driver == 'custom')
-            driver = $('input[name="custom_auth"]').val();
+        var user_json = buildUserJSON(this);
 
-        if (!user_name.length || !user_password.length){
+        if (!user_json) {
             notifyError(tr("User name and password must be filled in"));
             return false;
-        };
+        }
 
-        var user_json = { "user" :
-                          { "name" : user_name,
-                            "password" : user_password,
-                            "auth_driver" : driver
-                          }
-                        };
         Sunstone.runAction("User.create",user_json);
         $create_user_dialog.trigger("reveal:close")
         return false;
@@ -899,7 +912,7 @@ function setupChangeAuthenticationDialog(){
     dialog.addClass("reveal-modal");
 
     $('input[name="custom_auth"]',dialog).parent().hide();
-    $('select#driver').change(function(){
+    $('select#driver', dialog).change(function(){
         if ($(this).val() == "custom")
             $('input[name="custom_auth"]',dialog).parent().show();
         else
