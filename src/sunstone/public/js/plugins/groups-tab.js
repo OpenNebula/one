@@ -86,6 +86,39 @@ var groups_tab_content = '\
 </table>\
 </form>';
 
+var cluster_datatable_div =
+'<div id="req_type" class="group_cluster_select hidden">'+
+    '<div class="row collapse ">'+
+      '<div class="seven columns">' +
+         '<button id="refresh_group_clusters" type="button" class="refresh button small radius secondary"><i class="icon-refresh" /></button>' +
+      '</div>' +
+      '<div class="five columns">'+
+        '<input id="group_clusters_search" type="text" placeholder="'+tr("Search")+'"/>'+
+      '</div>'+
+    '</div>'+
+    '<table id="datatable_group_clusters" class="datatable twelve">'+
+        '<thead>'+
+        '<tr>'+
+            '<th></th>'+
+            '<th>' + tr("ID") + '</th>'+
+            '<th>' + tr("Name") + '</th>'+
+            '<th>' + tr("Hosts") + '</th>'+
+            '<th>' + tr("VNets") + '</th>'+
+            '<th>' + tr("Datastores") + '</th>'+
+        '</tr>'+
+        '</thead>'+
+        '<tbody id="tbodyclusters">'+
+        '</tbody>'+
+    '</table>'+
+    '<br>'+
+    '<div id="selected_group_clusters">'+
+      '<span id="select_group_clusters" class="radius secondary label">'+tr("Please select one or more clusters from the list")+'</span> '+
+      '<span id="you_selected_group_clusters" class="radius secondary label hidden">'+tr("You selected the following clusters:")+'</span> '+
+    '</div>'+
+    '<br>'+
+'</div>';
+
+
 var create_group_tmpl =
 '<div class="panel">\
   <h3>\
@@ -109,16 +142,21 @@ var create_group_tmpl =
   <div class="row">\
     <fieldset>\
       <legend>'+tr("Resources")+':</legend>\
-      <div class="four columns">\
-        <label class="inline right" for="resources">' +  tr("Assign physical resources") + ':</label>\
+      <div class="row">\
+        <div class="four columns">\
+          <label class="inline right" for="resources">' +  tr("Assign physical resources") + ':</label>\
+        </div>\
+        <div class="seven columns" style="text-align:center">\
+          <input type="radio" name="resources" id="resources_all" value="all">'+ tr("All")+'&emsp;</input> \
+          <input type="radio" name="resources" id="resources_cluster" value="cluster"> '+tr("Select clusters")+'</input> &emsp;\
+          <input type="radio" name="resources" id="resources_none" value="none"> '+tr("None")+'</input> &emsp;\
+        </div>\
+        <div class="one columns">\
+          <div class="tip">'+tr("TODO")+'</div>\
+        </div>\
       </div>\
-      <div class="seven columns" style="text-align:center">\
-        <input type="radio" name="resources" id="resources_all" value="all">'+ tr("All")+'&emsp;</input> \
-        <input type="radio" name="resources" id="resources_cluster" value="cluster"> '+tr("Select clusters")+'</input> &emsp;\
-        <input type="radio" name="resources" id="resources_none" value="none"> '+tr("None")+'</input> &emsp;\
-      </div>\
-      <div class="one columns">\
-        <div class="tip">'+tr("TODO")+'</div>\
+      <div class="row">\
+        <div class="ten columns centered">' + cluster_datatable_div + '</div>\
       </div>\
     </fieldset>\
   </div>\
@@ -738,6 +776,125 @@ function updateGroupInfo(request,group){
 
 }
 
+// TODO: Refactor? same function in templates-tab.js
+function update_datatable_group_clusters(datatable, fnDrawCallback) {
+    if (fnDrawCallback) {
+        datatable.unbind('draw');
+        datatable.on('draw', fnDrawCallback);
+    }
+
+    OpenNebula.Cluster.list({
+    timeout: true,
+    success: function (request, obj_list){
+        var obj_list_array = [];
+
+        $.each(obj_list,function(){
+            //Grab table data from the obj_list
+            obj_list_array.push(clusterElementArray(this));
+        });
+
+        updateView(obj_list_array, datatable);
+    },
+    error: onError
+  });
+};
+
+var selected_group_clusters = {};
+var group_clusters_row_hash = {};
+
+// TODO: Refactor? similar code in templates-tab.js
+function setupClusterDatatable(dialog){
+    // Clusters TABLE
+    var dataTable_group_clusters = $("#datatable_group_clusters", dialog).dataTable({
+        "iDisplayLength": 4,
+        "sDom" : '<"H">t<"F"p>',
+        "bAutoWidth":false,
+        "aoColumnDefs": [
+            { "sWidth": "35px", "aTargets": [0,1] },
+            { "bVisible": false, "aTargets": []}
+        ]
+    });
+
+    $("#refresh_group_clusters", dialog).die();
+    $("#refresh_group_clusters", dialog).live('click', function(){
+        update_datatable_group_clusters(dataTable_group_clusters);
+    });
+
+    update_datatable_group_clusters(dataTable_group_clusters);
+
+    $('#group_clusters_search', dialog).keyup(function(){
+        dataTable_group_clusters.fnFilter( $(this).val() );
+    })
+
+    dataTable_group_clusters.fnSort( [ [1,config['user_config']['table_order']] ] );
+
+    $('#datatable_group_clusters', dialog).delegate("tr", "click", function(e){
+        var aData   = dataTable_group_clusters.fnGetData(this);
+
+        if (!aData){
+            return true;
+        }
+
+        var cluster_id = aData[1];
+
+        if ($.isEmptyObject(selected_group_clusters)) {
+            $('#you_selected_group_clusters',  dialog).show();
+            $('#select_group_clusters', dialog).hide();
+        }
+
+        if(!$("td:first", this).hasClass('markrowchecked'))
+        {
+            $('input.check_item', this).attr('checked','checked');
+            selected_group_clusters[cluster_id]=1;
+            group_clusters_row_hash[cluster_id]=this;
+            $(this).children().each(function(){$(this).addClass('markrowchecked');});
+            if ($('#tag_cluster_'+aData[1], $('div#selected_group_clusters', dialog)).length == 0 ) {
+                $('div#selected_group_clusters', dialog).append('<span id="tag_cluster_'+aData[1]+'" class="radius label">'+aData[2]+' <span class="icon-remove blue"></span></span> ');
+            }
+        }
+        else
+        {
+            $('input.check_item', this).removeAttr('checked');
+            delete selected_group_clusters[cluster_id];
+            $(this).children().each(function(){$(this).removeClass('markrowchecked');});
+            $('div#selected_group_clusters span#tag_cluster_'+cluster_id, dialog).remove();
+        }
+
+        if ($.isEmptyObject(selected_group_clusters)) {
+            $('#you_selected_group_clusters',  dialog).hide();
+            $('#select_group_clusters', dialog).show();
+        }
+
+        $('.alert-box', $('.group_cluster_select')).hide();
+
+        return true;
+    });
+
+    $( "#selected_group_clusters span.icon-remove", dialog ).live( "click", function() {
+        $(this).parent().remove();
+        var id = $(this).parent().attr("ID");
+
+        var cluster_id=id.substring(12,id.length);
+        delete selected_group_clusters[cluster_id];
+        $('td', group_clusters_row_hash[cluster_id]).removeClass('markrowchecked');
+        $('input.check_item', group_clusters_row_hash[cluster_id]).removeAttr('checked');
+
+        if ($.isEmptyObject(selected_group_clusters)) {
+            $('#you_selected_group_clusters',  dialog).hide();
+            $('#select_group_clusters', dialog).show();
+        }
+    });
+
+    $("input[name='resources']", dialog).change(function(){
+        if ($("input[name='resources']:checked").val() == "cluster") {
+            $("div.group_cluster_select", dialog).show();
+        }
+        else {
+            $("div.group_cluster_select", dialog).hide();
+        }
+    });
+}
+
 function disableAdminUser(dialog){
     $('#username',dialog).attr('disabled','disabled');
     $('#pass',dialog).attr('disabled','disabled');
@@ -820,11 +977,10 @@ function setupCreateGroupDialog(){
         }
     });
 
+    setupClusterDatatable(dialog);
+
     $('#create_group_form',dialog).submit(function(){
         var name = $('#name',this).val();
-
-        // TODO
-        var cluster_ids = null;
 
         var admin_group_name = null;
         var user_json = null;
@@ -854,6 +1010,27 @@ function setupCreateGroupDialog(){
 
         if (user_json){
             group_json["group"]["user"] = user_json["user"];
+        }
+
+        var clusters = new Array();
+
+        var resource_selection = $("input[name='resources']:checked").val();
+        switch (resource_selection){
+        case "all":
+            // TODO
+            break;
+        case "cluster":
+            $.each(selected_group_clusters, function(key, value) {
+                clusters.push(key);
+            });
+
+            break;
+        default: // "none"
+            // TODO
+        }
+
+        if (clusters.length > 0){
+            group_json['group']['cluster_ids'] = clusters;
         }
 
         Sunstone.runAction("Group.create",group_json);
