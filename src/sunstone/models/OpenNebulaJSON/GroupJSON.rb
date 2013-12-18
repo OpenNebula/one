@@ -112,7 +112,7 @@ module OpenNebulaJSON
                     acls << "@#{group_admin.id} USER/* CREATE"
                     acls << "@#{group_admin.id} USER/@#{self.id} " \
                             "USE+MANAGE+ADMIN"
-                    acls << "@#{group_admin.id} " \ 
+                    acls << "@#{group_admin.id} " \
                             "VM+IMAGE+TEMPLATE/@#{self.id}} USE+MANAGE"
 
                     rc, tmp = create_acls(acls)
