@@ -28,7 +28,7 @@ module OpenNebulaJSON
 
             rc_alloc = self.allocate(group_hash['name'])
 
-            if !OpenNebula.is_error?(rc_alloc)
+            if OpenNebula.is_error?(rc_alloc)
                 return rc_alloc
             end
 
@@ -36,16 +36,14 @@ module OpenNebulaJSON
             if group_hash['cluster_ids']
                 for cid in group_hash['cluster_ids']
                     # TODO 0 is zone_id
-                    self.add_provider(0, cid)
+                    self.add_provider({"zone_id"=>0, "cluster_id"=>cid.to_i})
                 end
             else # No Resource provider
                  # This rule allows users in the group to deploy VMs 
                  # in any host in the cloud
                 acls = Array.new
                 acls << "@#{self.id} HOST/* MANAGE"
-
-                rc, tmp = create_acls
-
+                rc, tmp = create_group_acls(acls)
                 if OpenNebula.is_error?(rc)
                     self.delete
                     return -1, "Error creating rule #{rule}: #{rc.message}"
@@ -64,7 +62,7 @@ module OpenNebulaJSON
                 admin_group = OpenNebula::Group.new(OpenNebula::Group.build_xml, 
                                                     @client)
                 rc_alloc = admin_group.allocate(group_hash['admin_group'])
-                if !OpenNebula.is_error?(rc_alloc)
+                if OpenNebula.is_error?(rc_alloc)
                     # Rollback
                     self.delete
                     return rc_alloc
@@ -79,7 +77,7 @@ module OpenNebulaJSON
                                              group_hash['user']['password'],
                                              group_hash['user']['auth_driver'])
 
-                    if !OpenNebula.is_error?(rc_alloc)
+                    if OpenNebula.is_error?(rc_alloc)
                         # Rollback
                         admin_group.delete
                         self.delete
@@ -88,7 +86,7 @@ module OpenNebulaJSON
 
                     rc_alloc = user.chgrp(self.id)
 
-                    if !OpenNebula.is_error?(rc_alloc)
+                    if OpenNebula.is_error?(rc_alloc)
                         # Rollback
                         user.delete
                         admin_group.delete
@@ -98,7 +96,7 @@ module OpenNebulaJSON
 
                     rc_alloc = user.addgroup(admin_group.id)
 
-                    if !OpenNebula.is_error?(rc_alloc)
+                    if OpenNebula.is_error?(rc_alloc)
                         # Rollback
                         user.delete
                         admin_group.delete
@@ -109,13 +107,13 @@ module OpenNebulaJSON
                     # Set ACLs for group admin
                     acls = Array.new
 
-                    acls << "@#{group_admin.id} USER/* CREATE"
-                    acls << "@#{group_admin.id} USER/@#{self.id} " \
+                    acls << "@#{admin_group.id} USER/* CREATE"
+                    acls << "@#{admin_group.id} USER/@#{self.id} " \
                             "USE+MANAGE+ADMIN"
-                    acls << "@#{group_admin.id} " \
-                            "VM+IMAGE+TEMPLATE/@#{self.id}} USE+MANAGE"
+                    acls << "@#{admin_group.id} " \
+                            "VM+IMAGE+TEMPLATE/@#{self.id} USE+MANAGE"
 
-                    rc, tmp = create_acls(acls)
+                    rc, tmp = create_group_acls(acls)
 
                     if OpenNebula.is_error?(rc)
                         self.delete
@@ -165,7 +163,8 @@ module OpenNebulaJSON
 
         # Creates an acl array of acl strings. Returns true or error and
         # a comma-separated list with the new acl ids
-        def create_acls(acls)
+        def create_group_acls(acls)
+            `echo "ACLS #{acls}" >> /tmp/uu`
             acls_ids = Array.new
             rc       = true
 
