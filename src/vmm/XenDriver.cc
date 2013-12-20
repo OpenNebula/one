@@ -337,9 +337,14 @@ int XenDriver::deployment_description(
         }
 
         file << vm->get_remote_system_dir() << "/disk." << disk_id << ","
-             << target << ","
-             << mode
-             << "'," << endl;
+             << target;
+
+        if ( type == "CDROM" )
+        {
+            file << ":cdrom";
+        }
+
+        file << "," << mode << "'," << endl;
     }
 
     attrs.clear();
