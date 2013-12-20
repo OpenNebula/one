@@ -161,6 +161,7 @@ var create_group_tmpl =
       <hr>\
       <div class="form_buttons">\
         <button class="button radius right success" id="create_group_submit" value="Group.create">'+tr("Create")+'</button>\
+        <button class="button secondary radius" id="create_group_reset_button" type="reset" value="reset">'+tr("Reset")+'</button>\
         <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
       </div>\
     </div>\
@@ -346,7 +347,13 @@ var group_actions = {
     "Group.create" : {
         type: "create",
         call : OpenNebula.Group.create,
-        callback : addGroupElement,
+        callback : function (request,group_json){
+            // Reset the create wizard
+            $create_group_dialog.empty();
+            setupCreateGroupDialog();
+
+            addGroupElement();
+        },
         error : onError,
         notify: true
     },
@@ -960,6 +967,14 @@ function setupCreateGroupDialog(){
     dialog.addClass("reveal-modal large max-height");
 
     setupTips($create_group_dialog);
+
+    $('#create_group_reset_button').click(function(){
+        $create_group_dialog.trigger('reveal:close');
+        $create_group_dialog.remove();
+        setupCreateGroupDialog();
+
+        popUpCreateGroupDialog();
+    });
 
     setupCustomAuthDialog(dialog);
 
