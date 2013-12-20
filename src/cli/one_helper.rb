@@ -110,6 +110,58 @@ EOT
         }
     ]
 
+    GROUP_OPTIONS=[
+        {
+            :name   => 'name',
+            :large  => '--name name',
+            :short => "-n",
+            :description =>
+                'Name for the new group',
+            :format => String
+        },
+        {
+            :name   => 'admin_group',
+            :large  => '--admin_group name',
+            :short => "-a",
+            :description =>
+                'Creates an admin group with name',
+            :format => String
+        },
+        {
+            :name   => 'admin_user',
+            :large  => '--admin_user name',
+            :short => "-u",
+            :description =>
+                'Creates an admin user for the group with name',
+            :format => String
+        },
+        {
+            :name   => 'admin_passwd',
+            :large  => '--admin_passwd password',
+            :short => "-p",
+            :description =>
+                'Password for the admin user of the group',
+            :format => String
+        },
+        {
+            :name   => 'admin_driver',
+            :large  => '--admin_driver auth_driver',
+            :short => "-d",
+            :description =>
+                'Auth driver for the admin user of the group',
+            :format => String
+        },
+        {
+            :name   => 'resources',
+            :large  => '--resources resources_str',
+            :short => "-r",
+            :description =>
+                'Which resources can be created by group users "\
+                "(VM+NET+IMAGE+TEMPLATE by default)',
+            :format => String
+        }        
+    ]
+
     #NOTE: Other options defined using this array, add new options at the end
     TEMPLATE_OPTIONS=[
         {

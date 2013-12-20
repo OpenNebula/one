@@ -85,11 +85,16 @@ module OpenNebula
                 return rc_alloc
             end
 
-            # If we have resource providers, add them
-            if group_hash[:cluster_ids]
-                for cid in group_hash[:cluster_ids]
-                    # TODO 0 is zone_id
-                    self.add_provider({"zone_id"=>0, "cluster_id"=>cid.to_i})
+            # Handle resource providers
+            if group_hash[:resource_providers]
+                for rp in group_hash[:resource_providers]
+                    # If we have resource providers, add them
+                    if rp[:cluster_ids] and rp[:cluster_ids]
+                        for cid in rp[:cluster_ids]
+                            self.add_provider({"zone_id"=>rp[:zone_id],
+                                               "cluster_id"=>cid.to_i})
+                        end
+                    end
                 end
             end
 

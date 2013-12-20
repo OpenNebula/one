@@ -148,12 +148,13 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
         variable_reg =/\s*(#{name_reg})\s*=\s*/
         single_variable_reg =/^#{variable_reg}([^\[]+?)(#.*)?$/
 
-        tmpl         = Hash.new
-        tmpl['user'] = Hash.new
+        tmpl                      = Hash.new
+        tmpl['user']              = Hash.new
 
         tmpl_str.scan(single_variable_reg) do | m |
             key = m[0].strip.downcase
             value = m[1].strip
+            puts key
             case key
                 when "admin_user_name"
                     tmpl['user']['name']=value
