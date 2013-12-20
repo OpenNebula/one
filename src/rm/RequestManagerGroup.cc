@@ -115,15 +115,18 @@ void GroupEditProvider::request_execute(
         return;
     }
 
-    rc = get_info(clpool, cluster_id, PoolObjectSQL::CLUSTER,
-                    att, cluster_perms, cluster_name);
-
-    // TODO: If cluster does not exist, it may be that the cluster was deleted
-    // and we should allow to delete the resource provider.
-
-    if ( rc == -1 )
+    if (cluster_id != ClusterPool::ALL_RESOURCES)
     {
-        return;
+        rc = get_info(clpool, cluster_id, PoolObjectSQL::CLUSTER,
+                        att, cluster_perms, cluster_name);
+
+        // TODO: If cluster does not exist, it may be that the cluster was deleted
+        // and we should allow to delete the resource provider.
+
+        if ( rc == -1 )
+        {
+            return;
+        }
     }
 
     if ( att.uid != 0 )
@@ -194,13 +197,23 @@ int GroupAddProvider::edit_acl_rules(
 {
     int rc = 0;
 
+    long long mask_prefix;
+
+    if (cluster_id == ClusterPool::ALL_RESOURCES)
+    {
+        mask_prefix = AclRule::ALL_ID;
+    }
+    else
+    {
+        mask_prefix = AclRule::CLUSTER_ID | cluster_id;
+    }
+
     // @<gid> HOST/%<cid> MANAGE
     rc += aclm->add_rule(
             AclRule::GROUP_ID |
             group_id,
 
-            AclRule::CLUSTER_ID |
-            cluster_id |
+            mask_prefix |
             PoolObjectSQL::HOST,
 
             AuthRequest::MANAGE,
@@ -212,8 +225,7 @@ int GroupAddProvider::edit_acl_rules(
             AclRule::GROUP_ID |
             group_id,
 
-            AclRule::CLUSTER_ID |
-            cluster_id |
+            mask_prefix |
             PoolObjectSQL::DATASTORE |
             PoolObjectSQL::NET,
 
@@ -246,13 +258,23 @@ int GroupDelProvider::edit_acl_rules(
 {
     int rc = 0;
 
+    long long mask_prefix;
+
+    if (cluster_id == ClusterPool::ALL_RESOURCES)
+    {
+        mask_prefix = AclRule::ALL_ID;
+    }
+    else
+    {
+        mask_prefix = AclRule::CLUSTER_ID | cluster_id;
+    }
+
     // @<gid> HOST/%<cid> MANAGE
     rc += aclm->del_rule(
             AclRule::GROUP_ID |
             group_id,
 
-            AclRule::CLUSTER_ID |
-            cluster_id |
+            mask_prefix |
             PoolObjectSQL::HOST,
 
             AuthRequest::MANAGE,
@@ -264,8 +286,7 @@ int GroupDelProvider::edit_acl_rules(
             AclRule::GROUP_ID |
             group_id,
 
-            AclRule::CLUSTER_ID |
-            cluster_id |
+            mask_prefix |
             PoolObjectSQL::DATASTORE |
             PoolObjectSQL::NET,
 
