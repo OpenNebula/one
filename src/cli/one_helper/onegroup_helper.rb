@@ -30,6 +30,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
         group = factory
 
         rc = block.call(group)
+
         if OpenNebula.is_error?(rc)
             return -1, rc.message
         else
@@ -40,9 +41,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
 
         exit_code , msg = group.create_default_acls
 
-        puts msg if msg
-
-        exit_code
+        exit_code.to_i
     end
 
     def create_complete_resource(group_hash)

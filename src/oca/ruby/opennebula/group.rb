@@ -35,8 +35,8 @@ module OpenNebula
         # Flag for requesting connected user's group info
         SELF = -1
 
-        #Default resource ACL's for group for group ACL's
-        GROUP_DEFAULT_ACLS = "VM+NET+IMAGE+TEMPLATE"
+        # Default resource ACL's for group users (create)
+        GROUP_DEFAULT_ACLS = "VM+IMAGE+NET+TEMPLATE"
 
         # Creates a Group description with just its identifier
         # this method should be used to create plain Group objects.
@@ -106,7 +106,7 @@ module OpenNebula
 
             # Create admin group
             if group_hash[:admin_group]
-                admin_group = OpenNebula::Group.new(OpenNebula::Group.build_xml, 
+                admin_group = OpenNebula::Group.new(OpenNebula::Group.build_xml,
                                                     @client)
                 rc_alloc = admin_group.allocate(group_hash[:admin_group])
                 if OpenNebula.is_error?(rc_alloc)
@@ -158,12 +158,16 @@ module OpenNebula
 
                     # Set ACLs for group admin
                     acls = Array.new
+                    if !group_hash[:resources]
+                        group_hash[:resources] = GROUP_DEFAULT_ACLS
+                    end
 
                     acls << "@#{admin_group.id} USER/* CREATE"
                     acls << "@#{admin_group.id} USER/@#{self.id} " \
                             "USE+MANAGE+ADMIN"
                     acls << "@#{admin_group.id} " \
-                            "VM+IMAGE+NET+TEMPLATE/@#{self.id} USE+MANAGE"
+                            "#{group_hash[:resources]}/@#{self.id} " \
+                            "USE+MANAGE"
 
                     rc, tmp = create_group_acls(acls)
 
