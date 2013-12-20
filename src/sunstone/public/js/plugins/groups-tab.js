@@ -677,10 +677,11 @@ function fromJSONtoProvidersTable(providers_array){
     }
 
     $.each(providers_array, function(index, provider){
+       var cluster_id = (provider.CLUSTER_ID == "10") ? tr("All") : provider.CLUSTER_ID;
        str +=
         '<tr>\
             <td>' + provider.ZONE_ID + '</td>\
-            <td>' + provider.CLUSTER_ID + '</td>\
+            <td>' + cluster_id + '</td>\
         </tr>';
     });
 
@@ -1073,7 +1074,11 @@ function setupCreateGroupDialog(){
             var resource_selection = $("input[name='"+str_zone_tab_id+"']:checked").val();
             switch (resource_selection){
             case "all":
-                // TODO
+                // 10 is the special ID for ALL, see ClusterPool.h
+                group_json['group']['resource_providers'].push(
+                    {"zone_id" : zone_id, "cluster_id" : 10}
+                );
+
                 break;
             case "cluster":
                 $.each(selected_group_clusters[zone_id], function(key, value) {
@@ -1084,7 +1089,7 @@ function setupCreateGroupDialog(){
 
                 break;
             default: // "none"
-                // TODO
+
             }
         });
 

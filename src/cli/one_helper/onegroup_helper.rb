@@ -217,7 +217,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                 end
 
                 column :"CLUSTER", "", :right, :size=>7 do |d|
-                    d['CLUSTER_ID']
+                    d['CLUSTER_ID'] == '10' ? 'ALL' : d['CLUSTER_ID']
                 end
             end.show([providers].flatten, {})
         end
