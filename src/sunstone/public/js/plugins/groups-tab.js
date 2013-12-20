@@ -92,93 +92,97 @@ var create_group_tmpl =
     <small id="create_vnet_header">'+tr("Create Group")+'</small>\
   </h3>\
 </div>\
-<form id="create_group_form" action="">\
-  <div class="row centered">\
-    <div class="columns eight centered">\
-      <div class="two columns">\
-        <label class="inline right" for="name">'+tr("Name")+':</label>\
-      </div>\
-      <div class="nine columns">\
-        <input type="text" name="name" id="name" /><br />\
-      </div>\
-      <div class="one columns">\
-        <div class=""></div>\
-      </div>\
-    </div>\
-  </div>\
-  <div class="row">\
-    <fieldset>\
-      <legend>'+tr("Resources")+':</legend>\
-      <dl class="tabs" id="group_zones_tabs">\
-        <dt>' + tr("Zones") +':</dt>\
-      </dl>\
-      <ul class="tabs-content" id="group_zones_tabs_content">\
-      </ul>\
-    </fieldset>\
-  </div>\
-  <br/>\
-  <div class="row">\
-    <fieldset>\
-      <legend>'+tr("Administrators")+':</legend>\
-      <div class="row">\
-        <div class="one columns">\
-         <input type="checkbox" id="admin_group" name="admin_group" value="YES" />\
+<div class="reveal-body">\
+  <form id="create_group_form" action="">\
+    <div class="row centered">\
+      <div class="columns eight centered">\
+        <div class="two columns">\
+          <label class="inline right" for="name">'+tr("Name")+':</label>\
         </div>\
-        <div class="ten columns">\
-          <label class="inline left" for="admin_group">'+tr("Create an administrative group")+'.</label>\
-        </div>\
-        <div class="one columns">\
-          <div class="tip">'+tr("TODO")+'</div>\
-        </div>\
-      </div>\
-      <div class="row centered">\
-        <div class="four columns">\
-          <label class="inline right" for="admin_group_name">'+tr("Group name")+':</label>\
-        </div>\
-        <div class="seven columns">\
-          <input type="text" name="admin_group_name" id="admin_group_name" />\
+        <div class="nine columns">\
+          <input type="text" name="name" id="name" /><br />\
         </div>\
         <div class="one columns">\
           <div class=""></div>\
         </div>\
       </div>\
-      <div class="row">\
-        <div class="one columns">\
-         <input type="checkbox" id="admin_user" name="admin_user" value="YES" />\
+    </div>\
+    <div class="row">\
+      <fieldset>\
+        <legend>'+tr("Resources")+':</legend>\
+        <dl class="tabs" id="group_zones_tabs">\
+          <dt>' + tr("Zones") +':</dt>\
+        </dl>\
+        <ul class="tabs-content" id="group_zones_tabs_content">\
+        </ul>\
+      </fieldset>\
+    </div>\
+    <br/>\
+    <div class="row">\
+      <fieldset>\
+        <legend>'+tr("Administrators")+':</legend>\
+        <div class="row">\
+          <div class="one columns">\
+           <input type="checkbox" id="admin_group" name="admin_group" value="YES" />\
+          </div>\
+          <div class="ten columns">\
+            <label class="inline left" for="admin_group">'+tr("Create an administrative group")+'.</label>\
+          </div>\
+          <div class="one columns">\
+            <div class="tip">'+tr("TODO")+'</div>\
+          </div>\
         </div>\
-        <div class="ten columns">\
-          <label class="inline left" for="admin_user">'+tr("Create an administrator user")+'.</label>\
+        <div class="row centered">\
+          <div class="four columns">\
+            <label class="inline right" for="admin_group_name">'+tr("Group name")+':</label>\
+          </div>\
+          <div class="seven columns">\
+            <input type="text" name="admin_group_name" id="admin_group_name" />\
+          </div>\
+          <div class="one columns">\
+            <div class=""></div>\
+          </div>\
         </div>\
-        <div class="one columns">\
-          <div class="tip">'+tr("TODO")+'</div>\
-        </div>\
-      </div>' +
-      user_creation_div +   // from users-tab.js
-    '</fieldset>\
-  </div>\
-  <hr>\
-  <div class="form_buttons">\
-    <button class="button radius right success" id="create_group_submit" value="Group.create">'+tr("Create")+'</button>\
-    <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
-  </div>\
-  <a class="close-reveal-modal">&#215;</a>\
-</form>';
+        <div class="row">\
+          <div class="one columns">\
+           <input type="checkbox" id="admin_user" name="admin_user" value="YES" />\
+          </div>\
+          <div class="ten columns">\
+            <label class="inline left" for="admin_user">'+tr("Create an administrator user")+'.</label>\
+          </div>\
+          <div class="one columns">\
+            <div class="tip">'+tr("TODO")+'</div>\
+          </div>\
+        </div>' +
+        user_creation_div +   // from users-tab.js
+      '</fieldset>\
+    </div>\
+    <div class="reveal-footer">\
+      <hr>\
+      <div class="form_buttons">\
+        <button class="button radius right success" id="create_group_submit" value="Group.create">'+tr("Create")+'</button>\
+        <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+      </div>\
+    </div>\
+    <a class="close-reveal-modal">&#215;</a>\
+  </form>\
+</div>';
 
 var group_quotas_tmpl = '<div class="panel">\
   <h3>\
     <small id="create_vnet_header">'+tr("Update Quota")+'</small>\
   </h3>\
 </div>\
-        <div class="reveal-body">\
+<div class="reveal-body">\
 <form id="group_quotas_form" action="">\
   <div class="row">\
     <div class="six columns">\
-     <div id="quota_types">\
-           <label>'+tr("Quota type")+':</label>\
-           <input type="radio" name="quota_type" value="vm">'+tr("Virtual Machine")+'</input>\
-           <input type="radio" name="quota_type" value="datastore">'+tr("Datastore")+'</input>\
-           <input type="radio" name="quota_type" value="image">'+tr("Image")+'</input>\
-           <input type="radio" name="quota_type" value="network">'+tr("Network")+'</input>\
+      <div id="quota_types">\
+        <label>'+tr("Quota type")+':</label>\
+        <input type="radio" name="quota_type" value="vm">'+tr("Virtual Machine")+'</input>\
+        <input type="radio" name="quota_type" value="datastore">'+tr("Datastore")+'</input>\
+        <input type="radio" name="quota_type" value="image">'+tr("Image")+'</input>\
+        <input type="radio" name="quota_type" value="network">'+tr("Network")+'</input>\
       </div>\
       <hr>\
       <div id="vm_quota">\
@@ -326,16 +330,16 @@ var group_quotas_tmpl = '<div class="panel">\
       </div>\
     </div>\
   </div>\
-      <div class="reveal-footer">\
-      <hr>\
-      <div class="form_buttons">\
-          <button class="button radius right success" id="create_user_submit" type="submit" value="Group.set_quota">'+tr("Apply changes")+'</button>\
-          <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
-      </div>\
-      </div>\
+  <div class="reveal-footer">\
+    <hr>\
+    <div class="form_buttons">\
+        <button class="button radius right success" id="create_user_submit" type="submit" value="Group.set_quota">'+tr("Apply changes")+'</button>\
+        <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+    </div>\
+  </div>\
   <a class="close-reveal-modal">&#215;</a>\
 </form>\
-  </div>';
+</div>';
 
 
 var group_actions = {
@@ -953,7 +957,7 @@ function setupCreateGroupDialog(){
     var dialog = $create_group_dialog;
 
     dialog.html(create_group_tmpl);
-    dialog.addClass("reveal-modal large");
+    dialog.addClass("reveal-modal large max-height");
 
     setupTips($create_group_dialog);
 
