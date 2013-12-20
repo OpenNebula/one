@@ -36,13 +36,27 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
             puts "ID: #{group.id.to_s}"
         end
 
-        puts "Creating default ACL rules from #{GROUP_DEFAULT}" if options[:verbose]
+        puts "Creating default ACL rules: #{GROUP_DEFAULT_ACLS}" if options[:verbose]
 
-        exit_code , msg = group.create_acls
+        exit_code , msg = group.create_default_acls
 
-        puts msg 
+        puts msg if msg
 
         exit_code
+    end
+
+    def create_complete_resource(group_hash)
+        group = factory
+        exit_code , msg = group.create(group_hash)
+
+        puts msg if msg
+
+        if OpenNebula.is_error?(exit_code)
+            puts exit_code.message if exit_code.message
+            return -1
+        else
+            return 0
+        end
     end
 
     def format_pool(options)
@@ -124,6 +138,35 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
         end
 
         table
+    end
+
+    # Parses a OpenNebula template string and turns it into a Hash
+    # @param [String] tmpl_str template
+    # @return [Hash, Zona::Error] Hash or Error
+    def parse_template(tmpl_str)
+        name_reg     =/[\w\d_-]+/
+        variable_reg =/\s*(#{name_reg})\s*=\s*/
+        single_variable_reg =/^#{variable_reg}([^\[]+?)(#.*)?$/
+
+        tmpl         = Hash.new
+        tmpl['user'] = Hash.new
+
+        tmpl_str.scan(single_variable_reg) do | m |
+            key = m[0].strip.downcase
+            value = m[1].strip
+            case key
+                when "admin_user_name"
+                    tmpl['user']['name']=value
+                when "admin_user_password"
+                    tmpl['user']['password']=value
+                when "admin_user_auth_driver"
+                    tmpl['user']['auth_driver']=value
+                else
+                    tmpl[key] = value
+            end
+        end
+
+        return tmpl
     end
 
     private

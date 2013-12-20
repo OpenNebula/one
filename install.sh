@@ -524,7 +524,6 @@ INSTALL_CLIENT_FILES=(
     CLI_BIN_FILES:$BIN_LOCATION
     CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
     ONE_CLI_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
-    ETC_CLIENT_FILES:$ETC_LOCATION
     OZONES_BIN_CLIENT_FILES:$BIN_LOCATION
     OZONES_LIB_CLIENT_CLI_FILES:$LIB_LOCATION/ruby/cli
     OZONES_LIB_CLIENT_CLI_HELPER_FILES:$LIB_LOCATION/ruby/cli/ozones_helper
@@ -1172,8 +1171,7 @@ ONEDB_MIGRATOR_FILES="src/onedb/2.0_to_2.9.80.rb \
 
 ETC_FILES="share/etc/oned.conf \
            share/etc/defaultrc \
-           src/scheduler/etc/sched.conf \
-           src/cli/etc/group.default"
+           src/scheduler/etc/sched.conf"
 
 VMWARE_ETC_FILES="src/vmm_mad/remotes/vmware/vmwarerc"
 
@@ -1491,8 +1489,6 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onecluster.yaml \
                 src/cli/etc/onezone.yaml \
                 src/cli/etc/oneacct.yaml"
-
-ETC_CLIENT_FILES="src/cli/etc/group.default"
 
 #-----------------------------------------------------------------------------
 # Sunstone files

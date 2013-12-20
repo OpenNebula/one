@@ -35,12 +35,8 @@ module OpenNebula
         # Flag for requesting connected user's group info
         SELF = -1
 
-        #Default location for group ACL's
-        if ENV['ONE_LOCATION']
-            GROUP_DEFAULT = ENV['ONE_LOCATION'] + "/etc/group.default"
-        else
-            GROUP_DEFAULT = "/etc/one/group.default"
-        end
+        #Default resource ACL's for group for group ACL's
+        GROUP_DEFAULT_ACLS = "VM+NET+IMAGE+TEMPLATE"
 
         # Creates a Group description with just its identifier
         # this method should be used to create plain Group objects.
@@ -64,42 +60,6 @@ module OpenNebula
             super(xml,client)
         end
 
-        #######################################################################
-        # Group utils
-        #######################################################################
-
-        # Creates ACLs for the group. The ACL rules are described in a file
-        def create_acls(filename = GROUP_DEFAULT)
-            if !File.readable?(filename)
-                return -1, "Cannot read deafult ACL file for group"
-            end
-
-            msg = String.new
-
-            File.open(filename).each_line{ |l|
-                next if l.match(/^#/)
-
-                rule  = "@#{@pe_id} #{l}"
-                parse = OpenNebula::Acl.parse_rule(rule)
-
-                if OpenNebula.is_error?(parse)
-                    return -1, "Error parsing rule #{rule}: #{parse.message}"
-                end
-
-                xml = OpenNebula::Acl.build_xml
-                acl = OpenNebula::Acl.new(xml, @client)
-
-                rc = acl.allocate(*parse)
-
-                if OpenNebula.is_error?(rc)
-                    return -1, "Error creating rule #{rule}: #{rc.message}"
-                else
-                    msg << "ACL_ID: #{acl.id}\n"
-                end
-            }
-
-            return 0, msg
-        end
 
         #######################################################################
         # XML-RPC Methods for the Group Object
@@ -111,6 +71,107 @@ module OpenNebula
         end
 
         alias_method :info!, :info
+
+        def create(group_hash)
+            group_hash=Hash[group_hash.map{|(k,v)| [k.to_sym,v]}]
+            if group_hash[:user]
+                group_hash[:user]=Hash[group_hash[:user].map{|(k,v)| 
+                                       [k.to_sym,v]}]
+            end
+
+            rc_alloc = self.allocate(group_hash[:name])
+
+            if OpenNebula.is_error?(rc_alloc)
+                return rc_alloc
+            end
+
+            # If we have resource providers, add them
+            if group_hash[:cluster_ids]
+                for cid in group_hash[:cluster_ids]
+                    # TODO 0 is zone_id
+                    self.add_provider({"zone_id"=>0, "cluster_id"=>cid.to_i})
+                end
+            end
+
+            rc, msg = create_default_acls(group_hash[:resources])
+            if OpenNebula.is_error?(rc)
+                self.delete
+                return -1, "Error creating ACL's #{acls}: #{rc.message}"
+            end
+
+            # Create admin group
+            if group_hash[:admin_group]
+                admin_group = OpenNebula::Group.new(OpenNebula::Group.build_xml, 
+                                                    @client)
+                rc_alloc = admin_group.allocate(group_hash[:admin_group])
+                if OpenNebula.is_error?(rc_alloc)
+                    # Rollback
+                    self.delete
+                    return rc_alloc
+                end
+
+                # Create group admin user
+                if group_hash[:user] and group_hash[:user][:name] and
+                   group_hash[:user][:password]
+                    user = OpenNebula::User.new(OpenNebula::User.build_xml,
+                                                @client)
+                    if !group_hash[:user][:auth_driver]
+                    rc_alloc = user.allocate(group_hash[:user][:name],
+                                             group_hash[:user][:password])
+                    else
+                    rc_alloc = user.allocate(group_hash[:user][:name],
+                                             group_hash[:user][:password],
+                                             group_hash[:user][:auth_driver])
+                    end
+
+                    if OpenNebula.is_error?(rc_alloc)
+                        # Rollback
+                        admin_group.delete
+                        self.delete
+                        return rc_alloc
+                    end
+
+                    rc_alloc = user.chgrp(self.id)
+
+                    if OpenNebula.is_error?(rc_alloc)
+                        # Rollback
+                        user.delete
+                        admin_group.delete
+                        self.delete
+                        return rc_alloc
+                    end
+
+                    rc_alloc = user.addgroup(admin_group.id)
+
+                    if OpenNebula.is_error?(rc_alloc)
+                        # Rollback
+                        user.delete
+                        admin_group.delete
+                        self.delete
+                        return rc_alloc
+                    end
+
+                    # Set ACLs for group admin
+                    acls = Array.new
+
+                    acls << "@#{admin_group.id} USER/* CREATE"
+                    acls << "@#{admin_group.id} USER/@#{self.id} " \
+                            "USE+MANAGE+ADMIN"
+                    acls << "@#{admin_group.id} " \
+                            "VM+IMAGE+NET+TEMPLATE/@#{self.id} USE+MANAGE"
+
+                    rc, tmp = create_group_acls(acls)
+
+                    if OpenNebula.is_error?(rc)
+                        user.delete
+                        admin_group.delete                        
+                        self.delete
+                        return -1, "Error creating acl rules"
+                    end
+                end
+            end
+            return rc_alloc
+        end
 
         # Allocates a new Group in OpenNebula
         #
@@ -156,6 +217,33 @@ module OpenNebula
         #   otherwise
         def del_provider(zone_id, cluster_id)
             return call(GROUP_METHODS[:del_provider], @pe_id, zone_id.to_i, cluster_id.to_i)
+        end
+
+        #######################################################################
+        # Group utils
+        #######################################################################
+        # Creates an acl array of acl strings. Returns true or error and
+        # a comma-separated list with the new acl ids
+        def create_group_acls(acls)
+            acls_ids = Array.new
+            rc       = true
+
+            acls.each{|rule|
+                acl = OpenNebula::Acl.new(OpenNebula::Acl.build_xml,@client)
+                rc  = acl.allocate(*OpenNebula::Acl.parse_rule(rule))
+                break if OpenNebula.is_error?(rc)
+
+                acls_ids << acl.id
+            }
+
+            return rc, acls_ids
+        end
+
+        def create_default_acls(resources=nil)
+            resources = GROUP_DEFAULT_ACLS if !resources
+            acls = Array.new
+            acls << "@#{self.id} #{resources}/* CREATE"
+            create_group_acls(acls)
         end
 
         # ---------------------------------------------------------------------
