@@ -195,7 +195,18 @@ void Scheduler::start()
 
     try
     {
-        client = new Client("",url);
+        long long message_size;
+
+        conf.get("MESSAGE_SIZE", message_size);
+
+        client = new Client("", url, message_size);
+
+        oss.str("");
+
+        oss << "XML-RPC client using " << client->get_message_size()
+            << " bytes for response buffer.\n";
+
+        NebulaLog::log("SCHED", Log::INFO, oss);
     }
     catch(runtime_error &)
     {

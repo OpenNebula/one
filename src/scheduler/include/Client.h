@@ -55,15 +55,15 @@ public:
      * @param endpoint Where the rpc server is listening, must be something
      * like "http://localhost:2633/RPC2". If not set, the endpoint will be set
      * to $ONE_XMLRPC.
+     * @param message_size for XML elements in the client library (in bytes)
      * @throws Exception if the authorization options are invalid
      */
-    Client( string secret   = "",
-            string endpoint = "")
+    Client(const string& secret, const string& endpoint, size_t message_size)
     {
         set_one_auth(secret);
         set_one_endpoint(endpoint);
 
-        xmlrpc_limit_set(XMLRPC_XML_SIZE_LIMIT_ID, 1024*MESSAGE_SIZE);
+        xmlrpc_limit_set(XMLRPC_XML_SIZE_LIMIT_ID, message_size);
     }
 
     const string& get_oneauth()
@@ -76,17 +76,16 @@ public:
         return one_endpoint;
     }
 
+    size_t get_message_size()
+    {
+        return xmlrpc_limit_get(XMLRPC_XML_SIZE_LIMIT_ID);
+    }
+
     //--------------------------------------------------------------------------
     //  PRIVATE ATTRIBUTES AND METHODS
     //--------------------------------------------------------------------------
 
 private:
-
-    /**
-     *  Default message size for XML data off the network
-     */
-    static const int MESSAGE_SIZE;
-
     string  one_auth;
     string  one_endpoint;
 
