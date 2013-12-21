@@ -35,6 +35,7 @@ void SchedulerTemplate::set_conf_default()
 #*******************************************************************************
 # Daemon configuration attributes
 #-------------------------------------------------------------------------------
+#  XML_RPC_MESSAGE_SIZE
 #  ONED_PORT
 #  SCHED_INTERVAL
 #  MAX_VM
@@ -47,6 +48,12 @@ void SchedulerTemplate::set_conf_default()
 #  LOG
 #-------------------------------------------------------------------------------
 */
+    // XML_RPC_MESSAGE_SIZE
+    value = "1073741824";
+
+    attribute = new SingleAttribute("MESSAGE_SIZE",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
     // ONED_PORT
     value = "2633";
 
