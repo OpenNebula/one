@@ -866,26 +866,20 @@ function enable_all_datastores()
 }
 
 // Prepare the image creation dialog
-function setupCreateImageDialog(){
+function setupCreateImageDialog(dialog){
     dialogs_context.append('<div id="create_image_dialog"></div>');
     $create_image_dialog =  $('#create_image_dialog',dialogs_context);
 
     var dialog = $create_image_dialog;
     dialog.html(create_image_tmpl);
 
-    setupTips($create_image_dialog);
-
-    var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
-
-    //Prepare jquery dialog
-    //dialog.dialog({
-    //    autoOpen: false,
-    //    modal:true,
-    //    width: 520,
-    //    height: height
-    //});
     dialog.addClass("reveal-modal large max-height");
 
+    initialize_create_image_dialog(dialog);
+}
+
+function initialize_create_image_dialog(dialog) {
+    setupTips(dialog);
     $('.advanced',dialog).hide();
 
     $('#advanced_image_create',dialog).click(function(){
@@ -893,32 +887,24 @@ function setupCreateImageDialog(){
         return false;
     });
 
-    //$('#img_tabs',dialog).tabs();
-    //$('button',dialog).button();
-    //$('#datablock_img',dialog).attr('disabled','disabled');
-
-
     $('select#img_type',dialog).change(function(){
         var value = $(this).val();
-        var context = $create_image_dialog;
+        var context = dialog;
         switch (value){
         case "DATABLOCK":
             $('#datablock_img',context).removeAttr("disabled");
-            //$('#empty_datablock', context).show();
             break;
         default:
             $('#datablock_img',context).attr('disabled','disabled');
-            //$('#empty_datablock', context).hide();
             $('#path_img',context).click();
 
         }
     });
 
-
     $('#img_path,#img_fstype,#img_size,#file-uploader',dialog).closest('.row').hide();
 
     $("input[name='src_path']", dialog).change(function(){
-        var context = $create_image_dialog;
+        var context = dialog;
         var value = $(this).val();
         switch (value){
         case "path":
@@ -942,8 +928,8 @@ function setupCreateImageDialog(){
 
     $('#add_custom_var_image_button', dialog).click(
         function(){
-            var name = $('#custom_var_image_name',$create_image_dialog).val();
-            var value = $('#custom_var_image_value',$create_image_dialog).val();
+            var name = $('#custom_var_image_name',dialog).val();
+            var value = $('#custom_var_image_value',dialog).val();
             if (!name.length || !value.length) {
                 notifyError(tr("Custom attribute name and value must be filled in"));
                 return false;
@@ -951,14 +937,14 @@ function setupCreateImageDialog(){
             option= '<option value=\''+value+'\' name=\''+name+'\'>'+
                 name+'='+value+
                 '</option>';
-            $('select#custom_var_image_box',$create_image_dialog).append(option);
+            $('select#custom_var_image_box',dialog).append(option);
             return false;
         }
     );
 
     $('#remove_custom_var_image_button', dialog).click(
         function(){
-            $('select#custom_var_image_box :selected',$create_image_dialog).remove();
+            $('select#custom_var_image_box :selected',dialog).remove();
             return false;
         }
     );
@@ -966,9 +952,7 @@ function setupCreateImageDialog(){
     $('#upload-progress',dialog).css({
         border: "1px solid #AAAAAA",
         position: "relative",
-//        bottom: "29px",
         width: "258px",
-//        left: "133px",
         height: "15px",
         display: "inline-block"
     });
@@ -978,7 +962,7 @@ function setupCreateImageDialog(){
 
     // Upload is handled by FileUploader vendor plugin
     var uploader = new qq.FileUploaderBasic({
-        button: $('#file-uploader',$create_image_dialog)[0],
+        button: $('#file-uploader',dialog)[0],
         action: 'upload',
         multiple: false,
         params: {},
@@ -987,35 +971,11 @@ function setupCreateImageDialog(){
             //notifyMessage(message);
         },
         onSubmit: function(id, fileName){
-            //set url params
-            //since the body is the upload, we need the pass
-            //the image info here
             uploader.setParams({
                 img : JSON.stringify(img_obj),
                 file: fileName
             });
-            //we pop up an upload progress dialog
-            //var pos_top = $(window).height() - 120;
-            //var pos_left = 220;
-            //var pb_dialog = $('<div id="pb_dialog" title="'+
-            //                  tr("Uploading...")+'">'+
-            //                  '<div id="upload-progress"></div>'+
-            //                  '</div>').dialog({
-            //                      draggable:true,
-            //                      modal:false,
-            //                      resizable:false,
-            //                      buttons:{},
-            //                      width: 460,
-            //                      minHeight: 50,
-            //                      position: [pos_left, pos_top]
-            //                  });
 
-            //var pb_dialog = $('<div id="pb_dialog" title="'+
-            //                  tr("Uploading...")+'">'+
-            //                  '<div id="upload-progress"></div>'+
-            //                  '</div>').addClass("reveal-modal");
-
-            //$('#upload-progress',pb_dialog).progressbar({value:0});
             $('#upload_progress_bars').append('<div id="'+id+'progressBar" class="row" style="margin-bottom:10px">\
               <div class="two columns dataTables_info">\
                 '+tr("Uploading...")+'\
@@ -1029,8 +989,6 @@ function setupCreateImageDialog(){
             </div>');
         },
         onProgress: function(id, fileName, loaded, total){
-            //update upload dialog with current progress
-            //$('div#pb_dialog #upload-progress').progressbar("option","value",Math.floor(loaded*100/total));
             $('span.meter', $('#'+id+'progressBar')).css('width', Math.floor(loaded*100/total)+'%')
         },
         onComplete: function(id, fileName, responseJSON){
@@ -1152,7 +1110,7 @@ function setupCreateImageDialog(){
         }
 
         //Time to add custom attributes
-        $('#custom_var_image_box option',$create_image_dialog).each(function(){
+        $('#custom_var_image_box option',dialog).each(function(){
             var attr_name = $(this).attr('name');
             var attr_value = $(this).val();
             img_json[attr_name] = attr_value;
@@ -1170,7 +1128,7 @@ function setupCreateImageDialog(){
             Sunstone.runAction("Image.create", img_obj);
         };
 
-        $create_image_dialog.trigger("reveal:close")
+        dialog.trigger("reveal:close")
 
         return false;
     });
@@ -1192,21 +1150,21 @@ function setupCreateImageDialog(){
             "ds_id" : ds_id
         };
         Sunstone.runAction("Image.create",img_obj);
-        $create_image_dialog.trigger("reveal:close")
+        dialog.trigger("reveal:close")
         return false;
     });
 
     $('#wizard_image_reset_button').click(function(){
-        $create_image_dialog.trigger('reveal:close');
-        $create_image_dialog.remove();
+        dialog.trigger('reveal:close');
+        dialog.remove();
         setupCreateImageDialog();
 
         popUpCreateImageDialog();
     });
 
     $('#advanced_image_reset_button').click(function(){
-        $create_image_dialog.trigger('reveal:close');
-        $create_image_dialog.remove();
+        dialog.trigger('reveal:close');
+        dialog.remove();
         setupCreateImageDialog();
 
         popUpCreateImageDialog();
@@ -1214,10 +1172,7 @@ function setupCreateImageDialog(){
     });
 }
 
-function popUpCreateImageDialog(){
-    $('#file-uploader input',$create_image_dialog).removeAttr("style");
-    $('#file-uploader input',$create_image_dialog).attr('style','margin:0;width:256px!important');
-
+function initialize_datastore_info_create_image_dialog(dialog) {
     datastores_str = makeSelectOptions(dataTable_datastores,
                                           1,
                                           4,
@@ -1226,18 +1181,23 @@ function popUpCreateImageDialog(){
                                           true
                                          );
 
-    $('#img_datastore',$create_image_dialog).html(datastores_str);
-    $('#img_datastore_raw',$create_image_dialog).html(datastores_str);
+    $('#img_datastore',dialog).html(datastores_str);
+    $('#img_datastore_raw',dialog).html(datastores_str);
 
-    $create_image_dialog.reveal();
-    $("input#img_name",$create_image_dialog).focus();
-
-    $('select#img_datastore').children('option').each(function() {
-      if ($(this).val() == "2")
-      {
+    $('select#img_datastore', dialog).children('option').each(function() {
+      if ($(this).val() == "2") {
           $(this).attr('disabled', 'disabled');
       }
     });
+
+    $('#file-uploader input',dialog).removeAttr("style");
+    $('#file-uploader input',dialog).attr('style','margin:0;width:256px!important');
+}
+
+function popUpCreateImageDialog(){
+    initialize_datastore_info_create_image_dialog($create_image_dialog);
+    $create_image_dialog.reveal();
+    $("input#img_name",$create_image_dialog).focus();
 }
 
 // Set the autorefresh interval for the datatable
