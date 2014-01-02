@@ -190,6 +190,7 @@ void OpenNebulaTemplate::set_conf_default()
 #  KEEPALIVE_TIMEOUT
 #  KEEPALIVE_MAX_CONN
 #  TIMEOUT
+#  RPC_LOG
 #*******************************************************************************
 */
     // MAX_CONN
@@ -222,6 +223,11 @@ void OpenNebulaTemplate::set_conf_default()
     attribute = new SingleAttribute("TIMEOUT",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 
+    // RPC_LOG
+    value = "NO";
+
+    attribute = new SingleAttribute("RPC_LOG",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
 /*
 #*******************************************************************************
 # Physical Networks configuration

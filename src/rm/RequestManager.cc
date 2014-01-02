@@ -94,25 +94,25 @@ extern "C" void * rm_xml_server_loop(void *arg)
 
     //Start the server
 
-#ifdef OLD_XMLRPC
-    rm->AbyssServer = new xmlrpc_c::serverAbyss(xmlrpc_c::serverAbyss::constrOpt()
-        .registryP(&rm->RequestManagerRegistry)
-        .logFileName(rm->xml_log_file)
-        .keepaliveTimeout(rm->keepalive_timeout)
-        .keepaliveMaxConn(rm->keepalive_max_conn)
-        .timeout(rm->timeout)
-        .socketFd(rm->socket_fd));
-#else
-    rm->AbyssServer = new xmlrpc_c::serverAbyss(xmlrpc_c::serverAbyss::constrOpt()
-        .registryP(&rm->RequestManagerRegistry)
-        .logFileName(rm->xml_log_file)
-        .maxConn(rm->max_conn)
-        .maxConnBacklog(rm->max_conn_backlog)
-        .keepaliveTimeout(rm->keepalive_timeout)
-        .keepaliveMaxConn(rm->keepalive_max_conn)
-        .timeout(rm->timeout)
-        .socketFd(rm->socket_fd));
-#endif /* OLD_XMLRPC */
+    xmlrpc_c::serverAbyss::constrOpt opt = xmlrpc_c::serverAbyss::constrOpt();
+
+    opt.registryP(&rm->RequestManagerRegistry);
+    opt.keepaliveTimeout(rm->keepalive_timeout);
+    opt.keepaliveMaxConn(rm->keepalive_max_conn);
+    opt.timeout(rm->timeout);
+    opt.socketFd(rm->socket_fd);
+
+    if (!rm->xml_log_file.empty())
+    {
+        opt.logFileName(rm->xml_log_file);
+    }
+
+#ifndef OLD_XMLRPC
+    opt.maxConn(rm->max_conn);
+    opt.maxConnBacklog(rm->max_conn_backlog);
+#endif
+
+    rm->AbyssServer = new xmlrpc_c::serverAbyss(opt);
 
     rm->AbyssServer->run();
 
