@@ -495,7 +495,7 @@ int Host::update_monitoring(SqlDB * db)
         goto error_xml;
     }
 
-    oss << "INSERT INTO " << monit_table << " ("<< monit_db_names <<") VALUES ("
+    oss << "REPLACE INTO " << monit_table << " ("<< monit_db_names <<") VALUES ("
         <<          oid             << ","
         <<          last_monitored       << ","
         << "'" <<   sql_xml         << "')";
