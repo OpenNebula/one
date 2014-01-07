@@ -109,7 +109,7 @@ var create_group_tmpl =
     </div>\
     <div class="row">\
       <fieldset>\
-        <legend>'+tr("Resources")+':</legend>\
+        <legend>'+tr("Resource Providers")+':</legend>\
         <dl class="tabs" id="group_zones_tabs">\
           <dt>' + tr("Zones") +':</dt>\
         </dl>\
@@ -787,7 +787,7 @@ function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id
 
         if ($.isEmptyObject(selected_group_clusters[zone_id])) {
             $('#you_selected_group_clusters'+str_zone_tab_id,  zone_section).show();
-            $("select_group_clusters"+str_zone_tab_id, zone_section).hide();
+            $("#select_group_clusters"+str_zone_tab_id, zone_section).hide();
         }
 
         if(!$("td:first", this).hasClass('markrowchecked'))
@@ -878,8 +878,8 @@ function generate_group_resource_tab_content(str_zone_tab_id, str_datatable_id){
           </table>\
           <br>\
           <div id="selected_group_clusters">\
-            <span id="select_group_clusters"'+str_zone_tab_id+'" class="radius secondary label">'+tr("Please select one or more clusters from the list")+'</span> \
-            <span id="you_selected_group_clusters"'+str_zone_tab_id+'" class="radius secondary label hidden">'+tr("You selected the following clusters:")+'</span> \
+            <span id="select_group_clusters'+str_zone_tab_id+'" class="radius secondary label">'+tr("Please select one or more clusters from the list")+'</span> \
+            <span id="you_selected_group_clusters'+str_zone_tab_id+'" class="radius secondary label hidden">'+tr("You selected the following clusters:")+'</span> \
           </div>\
           <br>\
       </div\
