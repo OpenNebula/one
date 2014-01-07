@@ -158,16 +158,27 @@ module OpenNebula
 
                     # Set ACLs for group admin
                     acls = Array.new
-                    if !group_hash[:resources]
-                        group_hash[:resources] = GROUP_DEFAULT_ACLS
+
+                    if group_hash[:admin_group_resources]
+                        group_acls_str = group_hash[:admin_group_resources]
+                    elsif group_hash[:resources]
+                        group_acls_str = group_hash[:resources]
+                    else
+                        group_acls_str = GROUP_DEFAULT_ACLS
                     end
 
-                    acls << "@#{admin_group.id} USER/* CREATE"
-                    acls << "@#{admin_group.id} USER/@#{self.id} " \
-                            "USE+MANAGE+ADMIN"
+                    if !group_hash[:admin_manage_users]
+                        group_hash[:admin_manage_users] = "YES"
+                    end
+
+                    if group_hash[:admin_manage_users].upcase == "YES"
+                        acls << "@#{admin_group.id} USER/* CREATE"
+                        acls << "@#{admin_group.id} USER/@#{self.id} " \
+                                "USE+MANAGE+ADMIN"
+                    end
+                    
                     acls << "@#{admin_group.id} " \
-                            "#{group_hash[:resources]}/@#{self.id} " \
-                            "USE+MANAGE"
+                            "#{group_acls_str}/@#{self.id} CREATE+USE+MANAGE"
 
                     rc, tmp = create_group_acls(acls)
 
