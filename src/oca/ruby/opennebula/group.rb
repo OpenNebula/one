@@ -37,6 +37,7 @@ module OpenNebula
 
         # Default resource ACL's for group users (create)
         GROUP_DEFAULT_ACLS = "VM+IMAGE+NET+TEMPLATE"
+        ALL_CLUSTERS_IN_ZONE = 10
 
         # Creates a Group description with just its identifier
         # this method should be used to create plain Group objects.
@@ -226,6 +227,9 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def add_provider(zone_id, cluster_id)
+            if cluster_id and cluster_id.class!=Fixnum and cluster_id.upcase=="ALL"
+                cluster_id = ALL_CLUSTERS_IN_ZONE
+            end
             return call(GROUP_METHODS[:add_provider], @pe_id, zone_id.to_i, cluster_id.to_i)
         end
 
