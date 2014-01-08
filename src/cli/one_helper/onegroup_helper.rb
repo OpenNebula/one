@@ -151,9 +151,8 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
         tmpl['user']              = Hash.new
 
         tmpl_str.scan(single_variable_reg) do | m |
-            key = m[0].strip.downcase
+            key   = m[0].strip.downcase
             value = m[1].strip
-            puts key
             case key
                 when "admin_user_name"
                     tmpl['user']['name']=value

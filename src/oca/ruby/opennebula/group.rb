@@ -157,39 +157,39 @@ module OpenNebula
                         self.delete
                         return rc_alloc
                     end
+                end
 
-                    # Set ACLs for group admin
-                    acls = Array.new
+                # Set ACLs for group admin
+                acls = Array.new
 
-                    if group_hash[:admin_group_resources]
-                        group_acls_str = group_hash[:admin_group_resources]
-                    elsif group_hash[:resources]
-                        group_acls_str = group_hash[:resources]
-                    else
-                        group_acls_str = GROUP_DEFAULT_ACLS
-                    end
+                if group_hash[:admin_group_resources]
+                    group_acls_str = group_hash[:admin_group_resources]
+                elsif group_hash[:resources]
+                    group_acls_str = group_hash[:resources]
+                else
+                    group_acls_str = GROUP_DEFAULT_ACLS
+                end
 
-                    if !group_hash[:admin_manage_users]
-                        group_hash[:admin_manage_users] = "YES"
-                    end
+                if !group_hash[:admin_manage_users]
+                    group_hash[:admin_manage_users] = "YES"
+                end
 
-                    if group_hash[:admin_manage_users].upcase == "YES"
-                        acls << "@#{admin_group.id} USER/* CREATE"
-                        acls << "@#{admin_group.id} USER/@#{self.id} " \
-                                "USE+MANAGE+ADMIN"
-                    end
-                    
-                    acls << "@#{admin_group.id} " \
-                            "#{group_acls_str}/@#{self.id} CREATE+USE+MANAGE"
+                if group_hash[:admin_manage_users].upcase == "YES"
+                    acls << "@#{admin_group.id} USER/* CREATE"
+                    acls << "@#{admin_group.id} USER/@#{self.id} " \
+                            "USE+MANAGE+ADMIN"
+                end
+                
+                acls << "@#{admin_group.id} " \
+                        "#{group_acls_str}/@#{self.id} CREATE+USE+MANAGE"
 
-                    rc, tmp = create_group_acls(acls)
+                rc, tmp = create_group_acls(acls)
 
-                    if OpenNebula.is_error?(rc)
-                        user.delete
-                        admin_group.delete                        
-                        self.delete
-                        return -1, "Error creating acl rules"
-                    end
+                if OpenNebula.is_error?(rc)
+                    user.delete
+                    admin_group.delete                        
+                    self.delete
+                    return -1, "Error creating acl rules"
                 end
             end
             return rc_alloc
