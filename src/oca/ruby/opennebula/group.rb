@@ -90,10 +90,11 @@ module OpenNebula
             if group_hash[:resource_providers]
                 for rp in group_hash[:resource_providers]
                     # If we have resource providers, add them
-                    if rp[:cluster_ids] and rp[:cluster_ids]
-                        for cid in rp[:cluster_ids]
-                            self.add_provider({"zone_id"=>rp[:zone_id],
-                                               "cluster_id"=>cid.to_i})
+                    if rp["zone_id"] and rp["cluster_id"] 
+                        if rp["cluster_id"].class!=Fixnum and rp["cluster_id"].upcase=="ALL"
+                            add_provider({"zone_id"=>rp["zone_id"],"cluster_id"=>ALL_CLUSTERS_IN_ZONE})
+                        else
+                            add_provider(rp)
                         end
                     end
                 end
@@ -227,9 +228,6 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def add_provider(zone_id, cluster_id)
-            if cluster_id and cluster_id.class!=Fixnum and cluster_id.upcase=="ALL"
-                cluster_id = ALL_CLUSTERS_IN_ZONE
-            end
             return call(GROUP_METHODS[:add_provider], @pe_id, zone_id.to_i, cluster_id.to_i)
         end
 
