@@ -1005,7 +1005,7 @@ function enableAdminUser(dialog){
 
 //Prepares the dialog to create
 function setupCreateGroupDialog(){
-    dialogs_context.append('<div title=\"'+tr("Create group")+'\" id="create_group_dialog"></div>');
+    dialogs_context.append('<div id="create_group_dialog"></div>');
     $create_group_dialog = $('#create_group_dialog',dialogs_context);
     var dialog = $create_group_dialog;
 
