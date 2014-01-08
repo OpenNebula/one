@@ -126,7 +126,7 @@ var create_group_tmpl =
             +tr("Allow users in this group to create the following resources")+
           '</div>\
           <div class="one columns">\
-            <div class="tip">'+tr("TODO")+'</div>\
+            <div class="tip">'+tr("This will create new ACL Rules to define which virtual resources this group's users will be able to create. You can set different resources for the administrator group, and decide if the administrators will be allowed to create new users.")+'</div>\
           </div>\
         </div>\
         <table class="datatable twelve extended_table" style="table-layout:fixed">\
@@ -171,10 +171,10 @@ var create_group_tmpl =
            <input type="checkbox" id="admin_group" name="admin_group" value="YES" />\
           </div>\
           <div class="ten columns">\
-            <label class="inline left" for="admin_group">'+tr("Create an administrative group")+'.</label>\
+            <label class="inline left" for="admin_group">'+tr("Create an administrator group")+'.</label>\
           </div>\
           <div class="one columns">\
-            <div class="tip">'+tr("TODO")+'</div>\
+            <div class="tip">'+tr("This admin group will contain users with administrative privileges for the new regular group, not for all the resources in the OpenNebula cloud as the 'oneadmin' group users have.")+'</div>\
           </div>\
         </div>\
         <div class="row centered">\
@@ -196,7 +196,7 @@ var create_group_tmpl =
             <label class="inline left" for="admin_user">'+tr("Create an administrator user")+'.</label>\
           </div>\
           <div class="one columns">\
-            <div class="tip">'+tr("TODO")+'</div>\
+            <div class="tip">'+tr("You can create now an administrator user that will be assigned to the new regular group, with the administrator group as a secondary one.")+'</div>\
           </div>\
         </div>' +
         user_creation_div +   // from users-tab.js
@@ -893,7 +893,7 @@ function generate_group_resource_tab_content(str_zone_tab_id, str_datatable_id){
         <input type="radio" name="'+str_zone_tab_id+'" id="'+str_zone_tab_id+'resources_none" value="none"> '+tr("None")+'</input> &emsp;\
       </div>\
       <div class="one columns">\
-        <div class="tip">'+tr("TODO")+'</div>\
+        <div class="tip">'+tr("For each OpenNebula Zone, you can assign cluster resources (set of physical hosts, datastores and virtual networks) to this group.")+'</div>\
       </div>\
     </div>\
     <div class="row">\
