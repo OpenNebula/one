@@ -397,7 +397,7 @@ var group_actions = {
             $create_group_dialog.empty();
             setupCreateGroupDialog();
 
-            addGroupElement();
+            Sunstone.runAction("Group.list");
         },
         error : onError,
         notify: true
