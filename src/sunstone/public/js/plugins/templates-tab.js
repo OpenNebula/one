@@ -4691,7 +4691,7 @@ function fillTemplatePopUp(request, response){
                 $("#ssh_context", context_section).attr('checked','checked');
 
                 if (!publickey_regexp.test(value)) {
-                    $("input#ssh_public_key").val(value);
+                    $("#ssh_public_key", context_section).val(value);
                 }
             }
             else if (token_regexp.test(key)) {
