@@ -120,6 +120,51 @@ var create_group_tmpl =
     <br/>\
     <div class="row">\
       <fieldset>\
+        <legend>'+tr("Resource creation")+':</legend>\
+        <div class="row">\
+          <div class="eleven columns">'
+            +tr("Allow users in this group to create the following resources")+
+          '</div>\
+          <div class="one columns">\
+            <div class="tip">'+tr("TODO")+'</div>\
+          </div>\
+        </div>\
+        <table class="datatable twelve extended_table" style="table-layout:fixed">\
+          <thead><tr>\
+            <th/>\
+            <th>'+tr("Virtual Machines")+'</th>\
+            <th>'+tr("Virtual Networks")+'</th>\
+            <th>'+tr("Images")+'</th>\
+            <th>'+tr("Templates")+'</th>\
+            <th>'+tr("Documents")+'</th>\
+            <th>'+tr("Users")+'</th>\
+          </tr></thead>\
+          <tbody>\
+            <tr>\
+              <th>'+tr("Group Users")+'</th>\
+              <td><input type="checkbox" id="group_res_vm" name="group_res_vm" class="resource_cb" value="VM"></input></td>\
+              <td><input type="checkbox" id="group_res_net" name="group_res_net" class="resource_cb" value="NET"></input></td>\
+              <td><input type="checkbox" id="group_res_image" name="group_res_image" class="resource_cb" value="IMAGE"></input></td>\
+              <td><input type="checkbox" id="group_res_template" name="group_res_template" class="resource_cb" value="TEMPLATE"></input></td>\
+              <td><input type="checkbox" id="group_res_document" name="group_res_document" class="resource_cb" value="DOCUMENT"></input></td>\
+              <td/>\
+            </tr>\
+            <tr>\
+              <th>'+tr("Admin Group Users")+'</th>\
+              <td><input type="checkbox" id="group_admin_res_vm" name="group_admin_res_vm" class="resource_cb" value="VM"></input></td>\
+              <td><input type="checkbox" id="group_admin_res_net" name="group_admin_res_net" class="resource_cb" value="NET"></input></td>\
+              <td><input type="checkbox" id="group_admin_res_image" name="group_admin_res_image" class="resource_cb" value="IMAGE"></input></td>\
+              <td><input type="checkbox" id="group_admin_res_template" name="group_admin_res_template" class="resource_cb" value="TEMPLATE"></input></td>\
+              <td><input type="checkbox" id="group_admin_res_document" name="group_admin_res_document" class="resource_cb" value="DOCUMENT"></input></td>\
+              <td><input type="checkbox" id="group_admin_res_user" name="group_admin_res_user" class="resource_cb" value="USER"></input></td>\
+            </tr>\
+          </tbody>\
+        </table>\
+      </fieldset>\
+    </div>\
+    <br/>\
+    <div class="row">\
+      <fieldset>\
         <legend>'+tr("Administrators")+':</legend>\
         <div class="row">\
           <div class="one columns">\
@@ -996,10 +1041,18 @@ function setupCreateGroupDialog(){
             $('#admin_user',dialog).prop("checked", "true");
 
             enableAdminUser(dialog);
+
+            $.each($('[id^="group_admin_res"]', dialog), function(){
+                $(this).removeAttr("disabled");
+            });
         } else {
             $('#admin_group_name',dialog).attr('disabled','disabled');
             $('#admin_user',dialog).attr('disabled','disabled');
             disableAdminUser(dialog);
+
+            $.each($('[id^="group_admin_res"]', dialog), function(){
+                $(this).attr('disabled', 'disabled');
+            });
         }
     });
 
@@ -1015,6 +1068,15 @@ function setupCreateGroupDialog(){
     $('#admin_group_name',dialog).attr('disabled','disabled');
     $('#admin_user',dialog).attr('disabled','disabled');
     disableAdminUser(dialog);
+
+    $.each($('[id^="group_res"]', dialog), function(){
+        $(this).prop("checked", "true");
+    });
+
+    $.each($('[id^="group_admin_res"]', dialog), function(){
+        $(this).attr('disabled', 'disabled');
+        $(this).prop("checked", "true");
+    });
 
     OpenNebula.Zone.list({
         timeout: true,
@@ -1092,6 +1154,35 @@ function setupCreateGroupDialog(){
 
             }
         });
+
+        var resources = "";
+        var separator = "";
+
+        $.each($('[id^="group_res"]:checked', dialog), function(){
+            resources += (separator + $(this).val());
+            separator = "+";
+        });
+
+        group_json['group']['resources'] = resources;
+
+        if (admin_group_name){
+            resources = "";
+            separator = "";
+
+            $.each($('[id^="group_admin_res"]:checked', dialog), function(){
+                resources += (separator + $(this).val());
+                separator = "+";
+            });
+
+            group_json['group']['admin_group_resources'] = resources;
+
+            if ( $('#group_admin_res_user', dialog).prop("checked") ){
+                group_json['group']['admin_manage_users'] = "YES";
+            } else {
+                group_json['group']['admin_manage_users'] = "NO";
+            }
+        }
+
 
         Sunstone.runAction("Group.create",group_json);
         $create_group_dialog.trigger("reveal:close");
