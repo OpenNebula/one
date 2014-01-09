@@ -399,7 +399,7 @@ class VIHost
         # Datastores
         @free_ds_info.each{|k,v|
             used_space = v[:capacity].to_i - v[:free_space].to_i
-            str_info << "DS=[ID=#{k},USED_MB=#{used_space},"
+            str_info << "DS=[ID=\"#{k}\",USED_MB=#{used_space},"
             str_info << "TOTAL_MB=#{v[:capacity]},"
             str_info << "FREE_MB=#{v[:free_space]}]\n"
         }
