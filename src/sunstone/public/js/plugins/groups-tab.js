@@ -503,7 +503,9 @@ var group_actions = {
     "Group.add_provider_action" : {
         type: "single",
         call: OpenNebula.Group.add_provider,
-        callback: function(request) {},
+        callback: function(request) {
+           Sunstone.runAction('Group.showinfo',request.request.data[0][0]);
+        },
         error: onError,
         notify: true
     },
@@ -511,7 +513,9 @@ var group_actions = {
     "Group.del_provider_action" : {
         type: "single",
         call: OpenNebula.Group.del_provider,
-        callback: function(request) {},
+        callback: function(request) {
+          Sunstone.runAction('Group.showinfo',request.request.data[0][0]);
+        },
         error: onError,
         notify: true
     },
@@ -711,7 +715,8 @@ function updateGroupsView(request, group_list){
     $("#total_groups", form).text(group_list.length);
 }
 
-function fromJSONtoProvidersTable(providers_array){
+function fromJSONtoProvidersTable(group_info){
+    providers_array=group_info.RESOURCE_PROVIDER
     var str = ""
     if (!providers_array){ return "";}
     if (!$.isArray(providers_array))
@@ -727,7 +732,44 @@ function fromJSONtoProvidersTable(providers_array){
         '<tr>\
             <td>' + provider.ZONE_ID + '</td>\
             <td>' + cluster_id + '</td>\
+            <td>\
+             <div id="div_minus_rp">\
+               <a id="div_minus_rp_a_'+provider.ZONE_ID+'" class="cluster_id_'+cluster_id+' group_id_'+group_info.ID+'" href="#"><i class="icon-trash"/></a>\
+             </div>\
+            </td>\
         </tr>';
+    });
+
+    $("#div_minus_rp").die();
+
+        // Listener for key,value pair remove action
+    $("#div_minus_rp").live("click", function() {
+        // Remove div_minus from the id
+        zone_id = this.firstElementChild.id.substring(15,this.firstElementChild.id.length);
+
+        var list_of_classes = this.firstElementChild.className.split(" ");
+
+        $.each(list_of_classes, function(index, value) {
+            if (value.match(/^cluster_id_/))
+            {
+              cluster_id=value.substring(11,value.length);
+            }
+            else
+            {
+              if (value.match(/^group_id_/))
+              {
+                group_id=value.substring(9,value.length);
+              }
+            }
+              
+        });
+
+        extra_param = {
+            "zone_id" : zone_id,
+            "cluster_id" : cluster_id
+        }
+
+        Sunstone.runAction("Group.del_provider_action", group_id, extra_param);
     });
 
     return str;
@@ -763,10 +805,11 @@ function updateGroupInfo(request,group){
                         <tr>\
                             <th>' + tr("Zone ID") + '</th>\
                             <th>' + tr("Cluster ID") + '</th>\
+                            <th></th>\
                         </tr>\
                     </thead>\
                     <tbody>' +
-                        fromJSONtoProvidersTable(info.RESOURCE_PROVIDER) +
+                        fromJSONtoProvidersTable(info) +
                     '</tbody>\
                 </table>\
             </div>\
