@@ -88,7 +88,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
             onegroup create -name groupA -admin_group admin_groupA 
                             --admin_user admin_userA --admin_password somestr
-                            --resource TEMPLATE+VM
+                            --resource TEMPLATE+VM 
+                            --admin_resources TEMPLATE+VM+IMAGE+NET
 
     EOT
 
