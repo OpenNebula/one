@@ -80,6 +80,11 @@ module OpenNebula
                                        [k.to_sym,v]}]
             end
 
+            if !group_hash[:name]
+                return -1, 
+                       "Group Name not defined, aborting group create operation"
+            end
+
             rc_alloc = self.allocate(group_hash[:name])
 
             if OpenNebula.is_error?(rc_alloc)
@@ -91,8 +96,10 @@ module OpenNebula
                 for rp in group_hash[:resource_providers]
                     # If we have resource providers, add them
                     if rp["zone_id"] and rp["cluster_id"] 
-                        if rp["cluster_id"].class!=Fixnum and rp["cluster_id"].upcase=="ALL"
-                            add_provider({"zone_id"=>rp["zone_id"],"cluster_id"=>ALL_CLUSTERS_IN_ZONE})
+                        if rp["cluster_id"].class!=Fixnum and 
+                           rp["cluster_id"].upcase=="ALL"
+                            add_provider({"zone_id"=>rp["zone_id"],
+                                          "cluster_id"=>ALL_CLUSTERS_IN_ZONE})
                         else
                             add_provider(rp)
                         end
