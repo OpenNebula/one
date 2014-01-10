@@ -103,7 +103,7 @@ module OpenNebula
             rc, msg = create_default_acls(group_hash[:resources])
             if OpenNebula.is_error?(rc)
                 self.delete
-                return -1, "Error creating ACL's #{acls}: #{rc.message}"
+                return -1, "Error creating ACL's: #{rc.message}"
             end
 
             # Create admin group
@@ -252,8 +252,10 @@ module OpenNebula
 
             acls.each{|rule|
                 acl = OpenNebula::Acl.new(OpenNebula::Acl.build_xml,@client)
+                parsed_acl = *OpenNebula::Acl.parse_rule(rule)
+                return parsed_acl[0], "" if OpenNebula.is_error?(parsed_acl[0])
                 rc  = acl.allocate(*OpenNebula::Acl.parse_rule(rule))
-                break if OpenNebula.is_error?(rc)
+                return rc, "" if OpenNebula.is_error?(rc)
 
                 acls_ids << acl.id
             }
