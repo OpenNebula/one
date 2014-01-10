@@ -54,6 +54,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
             puts exit_code.message if exit_code.message
             return -1
         else
+            puts "ID: #{group.id.to_s}"
             return 0
         end
     end
