@@ -50,8 +50,8 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
 
         puts msg if msg
 
-        if OpenNebula.is_error?(exit_code)
-            puts exit_code.message if exit_code.message
+        if (exit_code.class==Fixnum and exit_code < 0) or OpenNebula.is_error?(exit_code)
+            puts exit_code.message if OpenNebula.is_error?(exit_code) && exit_code.message
             return -1
         else
             puts "ID: #{group.id.to_s}"
