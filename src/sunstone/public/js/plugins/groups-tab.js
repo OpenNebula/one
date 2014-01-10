@@ -583,20 +583,6 @@ var group_buttons = {
         text: tr("Delete"),
         layout: "del",
         condition: mustBeAdmin
-    },
-    "Group.add_provider" : {
-        type: "confirm_with_select",
-        text: tr("Assign cluster resources"),
-        select: clusters_sel,
-        tip: tr("Select the cluster:"),
-        layout: "more_select"
-    },
-    "Group.del_provider" : {
-        type: "confirm_with_select",
-        text: tr("Remove cluster resources"),
-        select: clusters_sel,
-        tip: tr("Select the cluster:"),
-        layout: "more_select"
     }
 };
 
@@ -766,7 +752,7 @@ function fromJSONtoProvidersTable(group_info){
 
         extra_param = {
             "zone_id" : zone_id,
-            "cluster_id" : cluster_id
+            "cluster_id" :  (cluster_id == "All") ? 10 : cluster_id
         }
 
         Sunstone.runAction("Group.del_provider_action", group_id, extra_param);
@@ -800,6 +786,8 @@ function updateGroupInfo(request,group){
         content :
         '<div class="">\
             <div class="six columns">\
+              <button id="add_rp_button" class="button small secondary radius" >' + tr("Add Resource Provider") +'</button>\
+               <br><br>\
                 <table id="info_user_table" class="twelve datatable extended_table">\
                     <thead>\
                         <tr>\
@@ -827,15 +815,112 @@ function updateGroupInfo(request,group){
       Sunstone.runAction('Group.showinfo', info.ID);
     })
 
-    //preload acct
-    //loadAccounting('Group', info.ID, group_acct_graphs);
 
+    $("#add_rp_button", $("#group_info_panel")).click(function(){
+      setup_add_rp_dialog(info.ID);
+      $('#add_rp_dialog',dialogs_context).addClass("reveal-modal large max-height");
+      $('#add_rp_dialog',dialogs_context).reveal();
+
+      return false;
+    })
+}
+
+
+function setup_add_rp_dialog(group_id){
+    dialogs_context.append('<div id="add_rp_dialog"></div>');
+
+    var dialog = $('#add_rp_dialog',dialogs_context);
+
+    dialog.html(
+        '<div class="panel">\
+            <h3>\
+              <small id="create_vnet_header">'
+              +tr("Select Resource Providers")+
+              '</small>\
+            </h3>\
+        </div>\
+        <div class="reveal-body">\
+            <div class="row">\
+              <fieldset>\
+                <legend>'+tr("Resource Providers")+':</legend>\
+                <dl class="tabs" id="group_zones_tabs">\
+                  <dt>' + tr("Zones") +':</dt>\
+                </dl>\
+                <ul class="tabs-content" id="group_zones_tabs_content">\
+                </ul>\
+              </fieldset>\
+            </div>\
+            <div class="reveal-footer">\
+              <hr>\
+              <div class="form_buttons">\
+                <button class="button radius right success" id="add_rp_submit">'+tr("Add")+'</button>\
+                <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+              </div>\
+            </div>\
+        </div>');
+
+     $('#add_rp_submit',dialog).die();
+     $('#add_rp_submit',dialog).live( "click", function() {
+
+       $.each(selected_group_clusters, function(zone_id, zone_clusters) {
+           var str_zone_tab_id = 'zone' + zone_id;
+
+           var resource_selection = $("input[name='"+str_zone_tab_id+"']:checked", dialog).val();
+           switch (resource_selection){
+           case "all":
+               // 10 is the special ID for ALL, see ClusterPool.h
+               extra_param = {
+                   "zone_id" : zone_id,
+                   "cluster_id" : 10
+               }
+
+              Sunstone.runAction("Group.add_provider_action", 
+                                 group_id, 
+                                 extra_param);
+
+               break;
+           case "cluster":
+               $.each(selected_group_clusters[zone_id], function(key, value) {
+                 extra_param = {
+                     "zone_id" : zone_id,
+                     "cluster_id" : key
+                 }
+
+                 Sunstone.runAction("Group.add_provider_action", 
+                                     group_id, 
+                                     extra_param);
+               });
+
+               break;
+           default: // "none"
+
+           }
+       });
+
+        dialog.trigger('reveal:close');
+        dialog.empty();
+
+    });
+
+    OpenNebula.Zone.list({
+      timeout: true,
+      success: function (request, obj_list){
+          $.each(obj_list,function(){
+              add_resource_tab(this.ZONE.ID, this.ZONE.NAME, dialog);
+          });
+
+          if (obj_list.length == 0){
+              add_resource_tab(0, "Local Zone", dialog);
+          }
+      },
+      error: onError
+    });
 }
 
 function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id, str_datatable_id) {
     // Show the clusters dataTable when the radio button is selected
     $("input[name='"+str_zone_tab_id+"']", zone_section).change(function(){
-        if ($("input[name='"+str_zone_tab_id+"']:checked").val() == "cluster") {
+        if ($("input[name='"+str_zone_tab_id+"']:checked", zone_section).val() == "cluster") {
             $("div.group_cluster_select", zone_section).show();
         }
         else {
@@ -1017,14 +1102,14 @@ var add_resource_tab = function(zone_id, zone_name, dialog) {
     group_clusters_row_hash[zone_id] = {};
 
     // Append the new div containing the tab and add the tab to the list
-    var html_tab_content = '<li id="'+str_zone_tab_id+'Tab">'+
+    var html_tab_content = '<li id="'+str_zone_tab_id+'Tab" style="display: block;">'+
         generate_group_resource_tab_content(str_zone_tab_id, str_datatable_id) +
         '</li>'
-    $(html_tab_content).appendTo($("ul#group_zones_tabs_content"));
+    $(html_tab_content).appendTo($("ul#group_zones_tabs_content", dialog));
 
     var a = $("<dd>\
         <a id='zone_tab"+str_zone_tab_id+"' href='#"+str_zone_tab_id+"'>"+zone_name+"</a>\
-        </dd>").appendTo($("dl#group_zones_tabs"));
+        </dd>").appendTo($("dl#group_zones_tabs", dialog));
 
     $(document).foundationTabs("set_tab", a);
 
