@@ -92,12 +92,17 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     EOT
 
-    command :create, create_desc, [:file, :group_name], :options =>
+    command :create, create_desc, [:file, :group_name, nil], :options =>
             OpenNebulaHelper::GROUP_OPTIONS do
 
         if args[0] && !options.empty?
             STDERR.puts "You can not use both template file and template"<<
                 " creation options."
+            next -1
+        end
+
+        if !args[0] && options.empty?
+            STDERR.puts "Please use either a template, just a group name or command arguments"
             next -1
         end
 
@@ -116,7 +121,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             options[:user] = admin_user
         end
 
-        if File.exists?(args[0])
+        if args[0] && File.exists?(args[0])
             hashed_template = helper.parse_template(File.open(args[0]).read)
             helper.create_complete_resource(hashed_template)
         elsif !options.empty?
