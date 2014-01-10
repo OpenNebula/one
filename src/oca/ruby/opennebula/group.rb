@@ -85,6 +85,19 @@ module OpenNebula
                        "Group Name not defined, aborting group create operation"
             end
 
+            if group_hash[:user][:name] and !group_hash[:admin_group]
+                 return -1, 
+                 "Admin user defined but not admin group, " +
+                 "aborting group create operation"
+            end
+
+            if group_hash[:user] and group_hash[:user][:name] and
+               !group_hash[:user][:password]
+                return -1, 
+                "Admin user password not defined, " +
+                "aborting group create operation"
+            end
+
             rc_alloc = self.allocate(group_hash[:name])
 
             if OpenNebula.is_error?(rc_alloc)
