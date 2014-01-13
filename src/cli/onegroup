@@ -241,7 +241,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :add_provider, add_provider_desc, [:range, :groupid_list], :zoneid, :clusterid do
-        if args[2] and args[2].upcase == "ALL"
+        if args[2] and args[2].class != Fixnum and args[2].upcase == "ALL"
             args[2]=10
         end
 
