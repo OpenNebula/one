@@ -84,9 +84,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             onegroup create group_description.tmpl
 
           - create a group with admin group, admin user and allow group users
-            to only create new templates and VMs
+            to only create new templates and VMs, and group admins to manage
+            templates, vms, images and virtual networks
 
-            onegroup create -name groupA -admin_group admin_groupA 
+            onegroup create --name groupA --admin_group admin_groupA 
                             --admin_user admin_userA --admin_password somestr
                             --resource TEMPLATE+VM 
                             --admin_resources TEMPLATE+VM+IMAGE+NET

@@ -159,7 +159,16 @@ EOT
                 'Which resources can be created by group users "\
                 "(VM+NET+IMAGE+TEMPLATE by default)',
             :format => String
-        }        
+        },
+        {
+            :name   => 'admin_resources',
+            :large  => '--admin_resources resources_str',
+            :short => "-o",
+            :description =>
+                'Which resources can be created by group users "\
+                "(VM+NET+IMAGE+TEMPLATE by default)',
+            :format => String
+        }
     ]
 
     #NOTE: Other options defined using this array, add new options at the end
