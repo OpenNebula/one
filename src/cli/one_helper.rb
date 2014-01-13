@@ -556,6 +556,10 @@ EOT
         end
 
         def self.name_to_id(name, pool, ename)
+            if ename=="CLUSTER" and name=="ALL"
+                return 0, "ALL"
+            end
+
             objects=pool.select {|object| object.name==name }
 
             if objects.length>0
