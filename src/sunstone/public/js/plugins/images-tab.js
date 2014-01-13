@@ -344,7 +344,10 @@ var image_actions = {
     "Image.create" : {
         type: "create",
         call: OpenNebula.Image.create,
-        callback: addImageElement,
+        callback: function(request, response){
+          addImageElement(request, response);
+          $create_image_dialog.trigger("reveal:close")
+        },
         error: onError,
         notify:true
     },
@@ -1128,8 +1131,6 @@ function initialize_create_image_dialog(dialog) {
             Sunstone.runAction("Image.create", img_obj);
         };
 
-        dialog.trigger("reveal:close")
-
         return false;
     });
 
@@ -1150,7 +1151,7 @@ function initialize_create_image_dialog(dialog) {
             "ds_id" : ds_id
         };
         Sunstone.runAction("Image.create",img_obj);
-        dialog.trigger("reveal:close")
+
         return false;
     });
 

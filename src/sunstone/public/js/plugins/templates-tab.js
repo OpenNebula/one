@@ -311,9 +311,10 @@ var template_actions = {
     "Template.create" : {
         type: "create",
         call: OpenNebula.Template.create,
-        callback: function(){
+        callback: function(request, response){
+          $create_template_dialog.trigger("reveal:close")
           $create_template_dialog.empty();
-          addTemplateElement();
+          addTemplateElement(request, response);
         },
         error: onError,
         notify:true
@@ -371,10 +372,9 @@ var template_actions = {
         type: "single",
         call: OpenNebula.Template.show,
         callback: function(request, response) {
-          $create_template_dialog.remove();
-          setupCreateTemplateDialog();
+          template_to_update_id = response.VMTEMPLATE.ID;
+
           fillTemplatePopUp(
-            response.VMTEMPLATE.ID,
             response.VMTEMPLATE.TEMPLATE,
             $create_template_dialog);
           popUpUpdateTemplateDialog();
@@ -402,7 +402,8 @@ var template_actions = {
     "Template.update" : {
         type: "single",
         call: OpenNebula.Template.update,
-        callback: function() {
+        callback: function(request, response){
+            $create_template_dialog.trigger("reveal:close")
             notifyMessage(tr("Template updated correctly"));
         },
         error: onError
@@ -4098,9 +4099,6 @@ function initialize_create_template_dialog(dialog) {
 
         //validate form
         Sunstone.runAction("Template.create",vm_json);
-
-        dialog.trigger("reveal:close")
-
         return false;
     });
 
@@ -4110,9 +4108,6 @@ function initialize_create_template_dialog(dialog) {
         vm_json =JSON.stringify(vm_json);
 
         Sunstone.runAction("Template.update",template_to_update_id,vm_json);
-
-        dialog.trigger("reveal:close")
-
         return false;
     });
 
@@ -4124,9 +4119,6 @@ function initialize_create_template_dialog(dialog) {
         var vm_json = JSON.stringify(template);
 
         Sunstone.runAction("Template.update",template_to_update_id,vm_json);
-
-        dialog.trigger("reveal:close")
-
         return false;
     });
 
@@ -4138,13 +4130,12 @@ function initialize_create_template_dialog(dialog) {
         template = {"vmtemplate": {"template_raw": template}};
 
         Sunstone.runAction("Template.create",template);
-        dialog.trigger("reveal:close")
         return false;
     });
 }
 
 function popUpUpdateTemplateDialog(){
-    $appmarket_import_dialog.remove();
+    $create_template_dialog.remove();
     // TODO do not recreate if it exists
     setupCreateTemplateDialog();
 
@@ -4165,7 +4156,7 @@ function popUpUpdateTemplateDialog(){
 };
 
 function popUpCreateTemplateDialog(){
-    $appmarket_import_dialog.remove();
+    $create_template_dialog.remove();
     // TODO do not recreate if it exists
     setupCreateTemplateDialog();
 
@@ -4208,7 +4199,7 @@ function popUpTemplateTemplateUpdateDialog(){
     Sunstone.runAction("Template.show_to_update", template_id);
 };
 
-function fillTemplatePopUp(template_to_update_id, template, dialog){
+function fillTemplatePopUp(template, dialog){
     var use_advanced_template = false;
 
     function autoFillInputs(template_json, context){
