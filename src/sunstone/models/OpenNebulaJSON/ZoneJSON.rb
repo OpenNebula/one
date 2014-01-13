@@ -35,11 +35,17 @@ module OpenNebulaJSON
                 return action_hash
             end
 
-            error_msg = "#{action_hash['perform']} action not " <<
-                " available for this resource"
+            rc = case action_hash['perform']
+                 when "update"  then self.update(action_hash['params'])
+                 else
+                     error_msg = "#{action_hash['perform']} action not " <<
+                         " available for this resource"
+                     OpenNebula::Error.new(error_msg)
+                 end 
+        end
 
-            rc = OpenNebula::Error.new(error_msg)
-                
+        def update(params=Hash.new)
+            super(params['template_raw'])
         end
     end
 end

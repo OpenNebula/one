@@ -182,7 +182,8 @@ var zone_actions = {
         call: OpenNebula.Zone.update,
         callback: function(request,response){
            notifyMessage(tr("Zone updated correctly"));
-           Sunstone.runAction('Zone.show',response.ZONE.ID);
+           Sunstone.runAction('Zone.show',request.request.data[0][0]);
+           Sunstone.runAction('Zone.showinfo',request.request.data[0][0]);
         },
         error: onError
     },

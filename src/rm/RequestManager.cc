@@ -300,6 +300,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr datastore_update(new DatastoreUpdateTemplate());
     xmlrpc_c::methodPtr doc_update(new DocumentUpdateTemplate());
     xmlrpc_c::methodPtr cluster_update(new ClusterUpdateTemplate());
+    xmlrpc_c::methodPtr zone_update(new ZoneUpdateTemplate());
 
     // Allocate Methods
     xmlrpc_c::methodPtr vm_allocate(new VirtualMachineAllocate());
@@ -574,6 +575,7 @@ void RequestManager::register_xml_methods()
 
     /* Zone related methods */
     RequestManagerRegistry.addMethod("one.zone.allocate",zone_allocate);
+    RequestManagerRegistry.addMethod("one.zone.update",  zone_update);
     RequestManagerRegistry.addMethod("one.zone.delete",  zone_delete);
     RequestManagerRegistry.addMethod("one.zone.info",    zone_info);
 

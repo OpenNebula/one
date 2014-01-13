@@ -18,6 +18,7 @@
 #define ZONE_H_
 
 #include "PoolObjectSQL.h"
+#include "NebulaLog.h"
 
 using namespace std;
 
@@ -58,6 +59,16 @@ private:
     Zone(int id, Template* zone_template);
 
     ~Zone();
+
+    // -------------------------------------------------------------------------
+    // Zone Description
+    // -------------------------------------------------------------------------
+
+    /**
+     *  Endpoint of the zone
+     */
+    string    endpoint;
+
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -106,6 +117,14 @@ private:
         string error_str;
         return insert_replace(db, true, error_str);
     }
+
+    /**
+     *  Factory method for Zone templates
+     */
+    Template * get_new_template() const
+    {
+        return new Template;
+    }    
 };
 
 #endif /*ZONE_H_*/

@@ -26,6 +26,7 @@ module OpenNebula
         ZONE_METHODS = {
             :info           => "zone.info",
             :allocate       => "zone.allocate",
+            :update         => "zone.update",
             :delete         => "zone.delete"
         }
 
@@ -72,6 +73,18 @@ module OpenNebula
         def allocate(description)
             super(ZONE_METHODS[:allocate], description)
         end
+
+        # Replaces the template contents
+        #
+        # @param new_template [String] New template contents
+        # @param append [true, false] True to append new attributes instead of
+        #   replace the whole template
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def update(new_template=nil, append=false)
+            super(ZONE_METHODS[:update], new_template, append ? 1 : 0)
+        end       
 
         # Deletes the Zone
         # @return [nil, OpenNebula::Error] nil in case of success, Error

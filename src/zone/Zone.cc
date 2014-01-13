@@ -73,6 +73,13 @@ int Zone::insert(SqlDB *db, string& error_str)
         name = oss.str();
     }
 
+    get_template_attribute("ENDPOINT", endpoint);
+
+    if ( endpoint.empty() )
+    {
+        goto error_endpoint;
+    }    
+
     // ------------------------------------------------------------------------
     // Insert the Zone
     // ------------------------------------------------------------------------
@@ -80,6 +87,14 @@ int Zone::insert(SqlDB *db, string& error_str)
     rc = insert_replace(db, false, error_str);
 
     return rc;
+
+error_endpoint:
+    error_str = "ENDPOINT not present in template.";
+    goto error_common;
+
+error_common:
+    NebulaLog::log("ZONE", Log::ERROR, error_str);
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
