@@ -45,6 +45,7 @@ int XenDriver::deployment_description(
     string bootloader = "";
     string hvm        = "";
     string boot       = "";
+    int    is_hvm     = 0;
 
     vector<string> boots;
 
@@ -220,6 +221,7 @@ int XenDriver::deployment_description(
     }
     else //No kernel & no bootloader use hvm
     {
+        is_hvm = 1;
         file << "builder = \"hvm\"" << endl;
 
         if ( !boot.empty() )
@@ -481,11 +483,26 @@ int XenDriver::deployment_description(
 
             if ( type == "vnc" || type == "VNC" )
             {
-                file << "vfb = ['type=vnc";
+                if ( !is_hvm )
+                {
+                    file << "vfb = ['type=vnc";
+                } else {
+                    file << "vnc=1" << endl;
+                }
 
                 if ( !listen.empty() )
                 {
-                    file << ",vnclisten=" << listen;
+                    if ( !is_hvm )
+                    {
+                        file << ",";
+                    }
+
+                    file << "vnclisten=" << listen;
+
+                    if ( is_hvm )
+                    {
+                        file << endl;
+                    }
                 }
 
                 if ( !port.empty() )
@@ -500,21 +517,55 @@ int XenDriver::deployment_description(
                         goto error_vncdisplay;
                     }
 
-                    file << ",vncunused=0";
-                    file << ",vncdisplay=" << display - 5900;
+                    if ( is_hvm )
+                    {
+                        file << "vncunused=0" << endl;
+                    } else {
+                        file << ",vncunused=0,";
+                    }
+
+                    file << "vncdisplay=" << display - 5900;
+
+                    if ( is_hvm )
+                    {
+                        file << endl;
+                    }
                 }
 
                 if ( !passwd.empty() )
                 {
-                    file << ",vncpasswd=" << passwd;
+                    if ( !is_hvm )
+                    {
+                        file << ",";
+                    }
+
+                    file <<"vncpasswd=" << passwd;
+
+                    if ( is_hvm )
+                    {
+                        file << endl;
+                    }
                 }
 
                 if ( !keymap.empty() )
                 {
-                    file << ",keymap=" << keymap ;
+                    if ( !is_hvm )
+                    {
+                        file << ",";
+                    }
+
+                    file << "keymap=" << keymap ;
+
+                    if ( is_hvm )
+                    {
+                        file << endl;
+                    }
                 }
 
-                file <<"']" << endl;
+                if ( !is_hvm )
+                {
+                    file <<"']" << endl;
+                }
             }
             else
             {
