@@ -20,7 +20,7 @@
 //Prepares the dialog to create
 function setupCreateZoneDialog(){
     // TODO
-/*
+
     dialogs_context.append('<div title=\"'+tr("Create zone")+'\" id="create_zone_dialog"></div>');
     $create_zone_dialog = $('#create_zone_dialog',dialogs_context);
     var dialog = $create_zone_dialog;
@@ -29,30 +29,64 @@ function setupCreateZoneDialog(){
     dialog.addClass("reveal-modal");
 
     $('#create_zone_form',dialog).submit(function(){
-        var name=$('#name',this).val();
-        var zone_json = { "zone" : { "name" : name }};
+        var name=$('#zonename',this).val();
+        var endpoint=$("#endpoint",this).val();
+        var zone_json = { "zone" : { "name" : name, "endpoint" : endpoint}};
         Sunstone.runAction("Zone.create",zone_json);
         $create_zone_dialog.trigger("reveal:close");
         return false;
     });
-*/
+
 }
 
 function popUpCreateZoneDialog(){
-    // TODO
-    return false;
-/*
     $create_zone_dialog.reveal();
     $("input#name",$create_zone_dialog).focus();
     return false;
-*/
 }
 
 
 // Open update dialog
-function popUpUpdateZoneDialog(){
+//function popUpUpdateZoneDialog(){
     // TODO
-}
+//}
+
+var create_zone_tmpl =
+'<div class="panel">\
+  <h3>\
+    <small id="create_zone_header">'+tr("Create Zone")+'</small>\
+  </h3>\
+</div>\
+<form id="create_zone_form" action="">\
+    <div class="row centered">\
+      <div class="four columns">\
+        <label class="inline right" for="zonename">'+tr("Zone Name")+':</label>\
+      </div>\
+      <div class="seven columns">\
+        <input type="text" name="zonename" id="zonename" />\
+      </div>\
+      <div class="one columns">\
+        <div class=""></div>\
+      </div>\
+    </div>\
+    <div class="row centered">\
+      <div class="four columns">\
+        <label class="inline right" for="endpoint">'+tr("Endpoint")+':</label>\
+      </div>\
+      <div class="seven columns">\
+        <input type="text" name="endpoint" id="endpoint" />\
+      </div>\
+      <div class="one columns">\
+        <div class=""></div>\
+      </div>\
+    </div>\
+    <hr>\
+      <div class="form_buttons">\
+          <button class="button radius right success" id="create_zone_submit" value="zone/create">'+tr("Create")+'</button>\
+          <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+      </div>\
+      <a class="close-reveal-modal">&#215;</a>\
+</form>';
 
 
 var zones_tab_content = '\
@@ -90,6 +124,7 @@ var zones_tab_content = '\
       <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
       <th>' + tr("ID") + '</th>\
       <th>' + tr("Name") + '</th>\
+      <th>' + tr("Endpoint") + '</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyzones">\
@@ -101,7 +136,7 @@ var zones_select="";
 var dataTable_zones;
 var $create_zone_dialog;
 
-// TODO: Some methods are not yet implemented in oned (rename, update)
+// TODO: Some methods are not yet implemented in oned (eg, rename)
 
 //Setup actions
 var zone_actions = {
@@ -111,9 +146,6 @@ var zone_actions = {
         call: OpenNebula.Zone.create,
         callback: function(request, response){
             Sunstone.runAction('Zone.list');
-
-            //Sunstone.runAction('Zone.list');
-           // Sunstone.runAction('Zone.show',response.ZONE.ID);
         },
         error: onError,
         notify: true
@@ -197,10 +229,10 @@ var zone_actions = {
         error: onError
     },
 
-    "Zone.update_dialog" : {
-        type: "single",
-        call: popUpUpdateZoneDialog
-    },
+ //   "Zone.update_dialog" : {
+ //       type: "single",
+ //       call: popUpUpdateZoneDialog
+ //   },
 
     "Zone.rename" : {
         type: "single",
@@ -225,12 +257,12 @@ var zone_buttons = {
         type: "create_dialog",
         layout: "create"
     },
-    "Zone.update_dialog" : {
-        type : "action",
-        layout: "main",
-        text : tr("Update"),
-        alwaysActive: true
-    },
+ //   "Zone.update_dialog" : {
+ //       type : "action",
+ //       layout: "main",
+ //       text : tr("Update"),
+ //       alwaysActive: true
+ //   },
     "Zone.delete" : {
         type: "confirm",
         layout: "del",
@@ -270,7 +302,8 @@ function zoneElementArray(element_json){
     return [
         '<input class="check_item" type="checkbox" id="zone_'+element.ID+'" name="selected_items" value="'+element.ID+'"/>',
         element.ID,
-        element.NAME
+        element.NAME,
+        element.TEMPLATE.ENDPOINT
     ];
 }
 
@@ -281,6 +314,7 @@ function updateZoneSelect(){
     zones_select += makeSelectOptions(dataTable_zones,
                                          1,//id_col
                                          2,//name_col
+                                         3,//endpoint_col
                                          [],//status_cols
                                          [],//bad_st
                                          true
@@ -418,7 +452,7 @@ $(document).ready(function(){
     var tab_name = "zones-tab"
 
     if (Config.isTabEnabled(tab_name)) {
-      //prepare zone datatabl
+      //prepare zone datatable
       dataTable_zones = $("#datatable_zones",main_tabs_context).dataTable({
           "aoColumnDefs": [
               { "bSortable": false, "aTargets": ["check"] },

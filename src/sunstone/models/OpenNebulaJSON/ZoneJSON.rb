@@ -22,11 +22,14 @@ module OpenNebulaJSON
 
         def create(template_json)
             zone_hash = parse_json(template_json, 'zone')
+
             if OpenNebula.is_error?(zone_hash)
                 return zone_hash
             end
 
-            self.allocate(zone_hash['name'])
+            template = template_to_str(zone_hash)
+
+            self.allocate(template)
         end
 
         def perform_action(template_json)

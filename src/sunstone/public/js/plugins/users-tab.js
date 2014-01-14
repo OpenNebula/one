@@ -146,7 +146,7 @@ var user_creation_div =
 var create_user_tmpl =
 '<div class="panel">\
   <h3>\
-    <small id="create_vnet_header">'+tr("Create User")+'</small>\
+    <small id="create_user_header">'+tr("Create User")+'</small>\
   </h3>\
 </div>\
 <form id="create_user_form" action="">'+
