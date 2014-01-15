@@ -863,7 +863,7 @@ function setup_add_rp_dialog(group_id){
      $('#add_rp_submit',dialog).live( "click", function() {
 
        $.each(selected_group_clusters, function(zone_id, zone_clusters) {
-           var str_zone_tab_id = 'zone' + zone_id;
+           var str_zone_tab_id = 'zone' + zone_id + "_add_rp";
 
            var resource_selection = $("input[name='"+str_zone_tab_id+"']:checked", dialog).val();
            switch (resource_selection){
