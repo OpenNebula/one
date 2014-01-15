@@ -19,7 +19,7 @@
 
 #include "PoolSQL.h"
 #include "UserTemplate.h"
-#include "Quotas.h"
+#include "UserQuotas.h"
 #include "ObjectCollection.h"
 
 using namespace std;
@@ -171,7 +171,7 @@ public:
     /**
      *  Object quotas, provides set and check interface
      */
-    Quotas quota;
+    UserQuotas quota;
 
     /**
      * Returns the UMASK template attribute (read as an octal number), or the
@@ -316,10 +316,40 @@ private:
      */
     static int bootstrap(SqlDB * db)
     {
-        ostringstream oss_user(User::db_bootstrap);
+        int rc;
 
-        return db->exec(oss_user);
+        ostringstream oss_user(User::db_bootstrap);
+        ostringstream oss_quota(UserQuotas::db_bootstrap);
+
+        rc =  db->exec(oss_user);
+        rc += db->exec(oss_quota);
+
+        return rc;
     };
+
+    /**
+     *  Reads the User (identified with its OID) from the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int select(SqlDB * db);
+
+    /**
+     *  Reads the User (identified with its OID) from the database.
+     *    @param db pointer to the db
+     *    @param name of the user
+     *    @param uid of the owner
+     *
+     *    @return 0 on success
+     */
+    int select(SqlDB * db, const string& name, int uid);
+
+    /**
+     *  Drops the user from the database
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int drop(SqlDB *db);
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -353,10 +383,7 @@ protected:
          bool          _enabled):
         PoolObjectSQL(id,USER,_uname,-1,_gid,"",_gname,table),
         ObjectCollection("GROUPS"),
-        quota("/USER/DATASTORE_QUOTA",
-            "/USER/NETWORK_QUOTA",
-            "/USER/IMAGE_QUOTA",
-            "/USER/VM_QUOTA"),
+        quota(),
         password(_password),
         auth_driver(_auth_driver),
         enabled(_enabled),
@@ -382,25 +409,25 @@ protected:
     static const char * table;
 
     /**
+     *  Reads the User quotas from the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int select_quotas(SqlDB * db);
+
+    /**
      *  Writes the User in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str)
-    {
-        return insert_replace(db, false, error_str);
-    };
+    int insert(SqlDB *db, string& error_str);
 
     /**
      *  Writes/updates the User data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
-    {
-        string error_str;
-        return insert_replace(db, true, error_str);
-    }
+    int update(SqlDB *db);
 };
 
 #endif /*USER_H_*/

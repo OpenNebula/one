@@ -47,6 +47,103 @@ const char * User::db_bootstrap = "CREATE TABLE IF NOT EXISTS user_pool ("
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int User::select(SqlDB * db)
+{
+    int rc;
+
+    rc = PoolObjectSQL::select(db);
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    return select_quotas(db);
+}
+
+/* -------------------------------------------------------------------------- */
+
+int User::select(SqlDB * db, const string& name, int uid)
+{
+    int rc;
+
+    rc = PoolObjectSQL::select(db,name,uid);
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    return select_quotas(db);
+}
+
+/* -------------------------------------------------------------------------- */
+
+int User::select_quotas(SqlDB * db)
+{
+    quota.oid = oid;
+    return quota.select(db);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int User::drop(SqlDB * db)
+{
+    int rc;
+
+    rc = PoolObjectSQL::drop(db);
+
+    if ( rc == 0 )
+    {
+        rc += quota.drop(db);
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int User::insert(SqlDB *db, string& error_str)
+{
+    int rc;
+
+    rc = insert_replace(db, false, error_str);
+
+    quota.oid = oid;
+
+    if (rc == 0)
+    {
+        rc = quota.insert(db, error_str);
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int User::update(SqlDB *db)
+{
+    int rc;
+    string error_str;
+
+    rc = insert_replace(db, true, error_str);
+
+    quota.oid = oid;
+
+    if (rc == 0)
+    {
+        rc = quota.update(db);
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int User::insert_replace(SqlDB *db, bool replace, string& error_str)
 {
     ostringstream   oss;
@@ -155,7 +252,6 @@ string& User::to_xml_extended(string& xml, bool extended) const
     ostringstream oss;
 
     string template_xml;
-    string quota_xml;
     string collection_xml;
 
     ObjectCollection::to_xml(collection_xml);
@@ -172,13 +268,15 @@ string& User::to_xml_extended(string& xml, bool extended) const
          "<PASSWORD>"    << password    <<"</PASSWORD>"   <<
          "<AUTH_DRIVER>" << auth_driver <<"</AUTH_DRIVER>"<<
          "<ENABLED>"     << enabled_int <<"</ENABLED>"    <<
-        obj_template->to_xml(template_xml)                <<
-        quota.to_xml(quota_xml);
+        obj_template->to_xml(template_xml);
 
     if (extended)
     {
+        string quota_xml;
         string def_quota_xml;
-        oss << Nebula::instance().get_default_user_quota().to_xml(def_quota_xml);
+
+        oss << quota.to_xml(quota_xml)
+            << Nebula::instance().get_default_user_quota().to_xml(def_quota_xml);
     }
 
     oss << "</USER>";
@@ -238,9 +336,6 @@ int User::from_xml(const string& xml)
 
     ObjectXML::free_nodes(content);
     content.clear();
-
-    // Quotas
-    rc += quota.from_xml(this);
 
     if (rc != 0)
     {
