@@ -854,7 +854,7 @@ function setup_add_rp_dialog(group_id){
               <hr>\
               <div class="form_buttons">\
                 <button class="button radius right success" id="add_rp_submit">'+tr("Add")+'</button>\
-                <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+                <button class="close-reveal-modal button secondary radius" type="button" id="add_rp_close" value="close">' + tr("Close") + '</button>\
               </div>\
             </div>\
         </div>');
@@ -897,20 +897,26 @@ function setup_add_rp_dialog(group_id){
            }
        });
 
-        dialog.trigger('reveal:close');
-        dialog.empty();
+     dialog.trigger('reveal:close');
+     dialog.remove();
 
+    });
+
+    $('#add_rp_close',dialog).die();
+    $('#add_rp_close',dialog).live( "click", function() {
+       dialog.trigger('reveal:close');
+       dialog.remove();
     });
 
     OpenNebula.Zone.list({
       timeout: true,
       success: function (request, obj_list){
           $.each(obj_list,function(){
-              add_resource_tab(this.ZONE.ID, this.ZONE.NAME, dialog);
+              add_resource_tab(this.ZONE.ID, this.ZONE.NAME, dialog, "add_rp");
           });
 
           if (obj_list.length == 0){
-              add_resource_tab(0, "Local Zone", dialog);
+              add_resource_tab(0, "Local Zone", dialog, "add_rp");
           }
       },
       error: onError
@@ -1094,9 +1100,15 @@ function update_datatable_group_clusters(datatable, fnDrawCallback) {
 var selected_group_clusters = {};
 var group_clusters_row_hash = {};
 
-var add_resource_tab = function(zone_id, zone_name, dialog) {
+var add_resource_tab = function(zone_id, zone_name, dialog, id_suffix) {
     var str_zone_tab_id  = 'zone' + zone_id;
     var str_datatable_id = 'datatable_group_clusters_zone' + zone_id;
+
+    if (id_suffix)
+    {
+      str_zone_tab_id += "_" + id_suffix;
+      str_datatable_id += "_" + id_suffix;
+    }
 
     selected_group_clusters[zone_id] = {};
     group_clusters_row_hash[zone_id] = {};
