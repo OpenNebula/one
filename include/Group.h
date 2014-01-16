@@ -20,7 +20,7 @@
 #include "PoolSQL.h"
 #include "ObjectCollection.h"
 #include "User.h"
-#include "Quotas.h"
+#include "GroupQuotas.h"
 
 using namespace std;
 
@@ -97,7 +97,7 @@ public:
     /**
      *  Object quotas, provides set and check interface
      */
-    Quotas quota;
+    GroupQuotas quota;
 
 private:
 
@@ -114,10 +114,7 @@ private:
     Group(int id, const string& name):
         PoolObjectSQL(id,GROUP,name,-1,-1,"","",table),
         ObjectCollection("USERS"),
-        quota("/GROUP/DATASTORE_QUOTA",
-            "/GROUP/NETWORK_QUOTA",
-            "/GROUP/IMAGE_QUOTA",
-            "/GROUP/VM_QUOTA")
+        quota()
     {
         // Allow users in this group to see it
         group_u = 1;
@@ -156,31 +153,61 @@ private:
      */
     static int bootstrap(SqlDB * db)
     {
-        ostringstream oss(Group::db_bootstrap);
+        int rc;
 
-        return db->exec(oss);
+        ostringstream oss_group(Group::db_bootstrap);
+        ostringstream oss_quota(GroupQuotas::db_bootstrap);
+
+        rc =  db->exec(oss_group);
+        rc += db->exec(oss_quota);
+
+        return rc;
     };
+
+    /**
+     *  Reads the Group (identified with its OID) from the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int select(SqlDB * db);
+
+    /**
+     *  Reads the Group (identified with its OID) from the database.
+     *    @param db pointer to the db
+     *    @param name of the group
+     *    @param uid of the owner
+     *
+     *    @return 0 on success
+     */
+    int select(SqlDB * db, const string& name, int uid);
+
+    /**
+     *  Reads the Group quotas from the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int select_quotas(SqlDB * db);
+
+    /**
+     *  Drops the group from the database
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int drop(SqlDB *db);
 
     /**
      *  Writes the Group in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str)
-    {
-        return insert_replace(db, false, error_str);
-    }
+    int insert(SqlDB *db, string& error_str);
 
     /**
      *  Writes/updates the Group's data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
-    {
-        string error_str;
-        return insert_replace(db, true, error_str);
-    }
+    int update(SqlDB *db);
 
     /**
      * Function to print the Group object into a string in
