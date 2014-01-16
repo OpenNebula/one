@@ -15,9 +15,34 @@
 #--------------------------------------------------------------------------- #
 
 require 'xmlrpc/client'
+require 'bigdecimal'
+require 'stringio'
+
 
 module OpenNebula
-    if OpenNebula::NOKOGIRI
+    attr_accessor   :pool_page_size
+
+    if OpenNebula::OX
+        class OxStreamParser < XMLRPC::XMLParser::AbstractStreamParser
+            def initialize
+                @parser_class = OxParser
+            end
+
+            class OxParser < Ox::Sax
+                include XMLRPC::XMLParser::StreamParserMixin
+
+                alias :text :character
+                alias :end_element :endElement
+                alias :start_element :startElement
+
+                def parse(str)
+                    Ox.sax_parse(self, StringIO.new(str),
+                        :symbolize => false,
+                        :convert_special => true)
+                end
+            end
+        end
+    elsif OpenNebula::NOKOGIRI
         class NokogiriStreamParser < XMLRPC::XMLParser::AbstractStreamParser
             def initialize
                 @parser_class = NokogiriParser
@@ -38,6 +63,19 @@ module OpenNebula
             end
         end
     end
+
+    DEFAULT_POOL_PAGE_SIZE = 2000
+
+    if size=ENV['ONE_POOL_PAGE_SIZE']
+        if size.strip.match(/^\d+$/) && size.to_i >= 2
+            @pool_page_size = size.to_i
+        else
+            @pool_page_size = nil
+        end
+    else
+        @pool_page_size = DEFAULT_POOL_PAGE_SIZE
+    end
+
 
     # The client class, represents the connection with the core and handles the
     # xml-rpc calls.
@@ -91,7 +129,9 @@ module OpenNebula
 
             @server = XMLRPC::Client.new2(@one_endpoint, nil, timeout)
 
-            if OpenNebula::NOKOGIRI
+            if defined?(OxStreamParser)
+                @server.set_parser(OxStreamParser.new)
+            elsif OpenNebula::NOKOGIRI
                 @server.set_parser(NokogiriStreamParser.new)
             elsif XMLPARSER
                 @server.set_parser(XMLRPC::XMLParser::XMLStreamParser.new)

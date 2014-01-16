@@ -24,6 +24,9 @@ module OpenNebula
         include Enumerable
         alias_method :each_with_xpath, :each
 
+        PAGINATED_POOLS=%w{VM_POOL IMAGE_POOL TEMPLATE_POOL VN_POOL
+                           DOCUMENT_POOL}
+
     protected
         #pool:: _String_ XML name of the root element
         #element:: _String_ XML name of the Pool elements
@@ -155,6 +158,56 @@ module OpenNebula
             REXML::Formatters::Pretty.new(1).write(@xml,str)
 
             return str
+        end
+
+        # Gets a hash from a pool
+        #
+        # size:: nil => default page size
+        #        < 2 => not paginated
+        #        >=2 => page size
+        #
+        # The default page size can be changed with the environment variable
+        # ONE_POOL_PAGE_SIZE. Any value > 2 will set a page size, a non
+        # numeric value disables pagination.
+        def get_hash(size=nil)
+            allow_paginated = PAGINATED_POOLS.include?(@pool_name)
+
+            if OpenNebula.pool_page_size && allow_paginated &&
+                    ( ( size && size >= 2 ) || !size )
+                size = OpenNebula.pool_page_size if !size
+                { @pool_name => { @element_name => info_paginated(size) } }
+            else
+                rc=info
+                return rc if OpenNebula.is_error?(rc)
+                to_hash
+            end
+        end
+
+        # Gets a pool in hash form using pagination
+        #
+        # size:: _Integer_ size of each page
+        def info_paginated(size)
+            array=Array.new
+            current=0
+
+            parser=ParsePoolSax.new(@pool_name, @element_name)
+
+            while true
+                a=@client.call("#{@pool_name.delete('_').downcase}.info",
+                    -2, current, -size, -1)
+                return a if OpenNebula.is_error?(a)
+
+                a_array=parser.parse(a)
+
+                array += a_array
+                current += size
+                break if !a || a_array.length<size
+            end
+
+            array.compact!
+            array=nil if array.length == 0
+
+            array
         end
     end
 end

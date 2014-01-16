@@ -17,6 +17,7 @@
 require 'opennebula/xml_element'
 
 module OpenNebula
+
     # The XMLUtilsPool module provides an abstraction of the underlying
     # XML parser engine. It provides XML-related methods for the Pools
     class XMLPool < XMLElement
