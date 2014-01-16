@@ -150,20 +150,7 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where)
-    {
-        return PoolSQL::dump(oss, "GROUP_POOL", Group::table, where);
-    };
-
-protected:
-
-    /**
-     * Adds the default quotas xml element, right after all the
-     * pool objects
-     *
-     * @param oss The output stream to dump the xml contents
-     */
-    virtual void add_extra_xml(ostringstream&  oss);
+    int dump(ostringstream& oss, const string& where);
 
 private:
 
@@ -175,6 +162,15 @@ private:
     {
         return new Group(-1,"");
     };
+
+    /**
+     *  Callback function to get output in XML format
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
+     *    @return 0 on success
+     */
+    int dump_cb(void * _oss, int num, char **values, char **names);
 };
 
 #endif /*GROUP_POOL_H_*/

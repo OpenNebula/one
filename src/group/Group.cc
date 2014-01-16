@@ -37,6 +37,103 @@ const char * Group::db_bootstrap = "CREATE TABLE IF NOT EXISTS group_pool ("
 /* Group :: Database Access Functions                                       */
 /* ************************************************************************ */
 
+int Group::select(SqlDB * db)
+{
+    int rc;
+
+    rc = PoolObjectSQL::select(db);
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    return select_quotas(db);
+}
+
+/* -------------------------------------------------------------------------- */
+
+int Group::select(SqlDB * db, const string& name, int uid)
+{
+    int rc;
+
+    rc = PoolObjectSQL::select(db,name,uid);
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    return select_quotas(db);
+}
+
+/* -------------------------------------------------------------------------- */
+
+int Group::select_quotas(SqlDB * db)
+{
+    quota.oid = oid;
+    return quota.select(db);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Group::drop(SqlDB * db)
+{
+    int rc;
+
+    rc = PoolObjectSQL::drop(db);
+
+    if ( rc == 0 )
+    {
+        rc += quota.drop(db);
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Group::insert(SqlDB *db, string& error_str)
+{
+    int rc;
+
+    rc = insert_replace(db, false, error_str);
+
+    quota.oid = oid;
+
+    if (rc == 0)
+    {
+        rc = quota.insert(db, error_str);
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Group::update(SqlDB *db)
+{
+    int rc;
+    string error_str;
+
+    rc = insert_replace(db, true, error_str);
+
+    quota.oid = oid;
+
+    if (rc == 0)
+    {
+        rc = quota.update(db);
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int Group::insert_replace(SqlDB *db, bool replace, string& error_str)
 {
     ostringstream   oss;
@@ -147,20 +244,16 @@ string& Group::to_xml_extended(string& xml, bool extended) const
 {
     ostringstream   oss;
     string          collection_xml;
-    string          quota_xml;
 
     set<pair<int,int> >::const_iterator it;
 
     ObjectCollection::to_xml(collection_xml);
 
-    quota.to_xml(quota_xml);
-
     oss <<
     "<GROUP>"    <<
         "<ID>"   << oid  << "</ID>"   <<
         "<NAME>" << name << "</NAME>" <<
-        collection_xml <<
-        quota_xml;
+        collection_xml;
 
     for (it = providers.begin(); it != providers.end(); it++)
     {
@@ -173,8 +266,11 @@ string& Group::to_xml_extended(string& xml, bool extended) const
 
     if (extended)
     {
+        string quota_xml;
         string def_quota_xml;
-        oss << Nebula::instance().get_default_group_quota().to_xml(def_quota_xml);
+
+        oss << quota.to_xml(quota_xml)
+            << Nebula::instance().get_default_group_quota().to_xml(def_quota_xml);
     }
 
     oss << "</GROUP>";
@@ -218,9 +314,6 @@ int Group::from_xml(const string& xml)
 
     ObjectXML::free_nodes(content);
     content.clear();
-
-    // Quotas
-    rc += quota.from_xml(this); 
 
     // Set of resource providers
     ObjectXML::get_nodes("/GROUP/RESOURCE_PROVIDER", content);

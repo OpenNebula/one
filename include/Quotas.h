@@ -21,10 +21,11 @@
 #include "QuotaNetwork.h"
 #include "QuotaVirtualMachine.h"
 #include "QuotaImage.h"
+#include "ObjectSQL.h"
 
 class ObjectXML;
 
-class Quotas
+class Quotas : public ObjectSQL
 {
 public:
     Quotas(const char * _ds_xpath,
@@ -177,11 +178,22 @@ public:
     string& to_xml(string& xml) const;
 
     /**
+     *  Generates a string representation of the quotas in XML format, enclosed
+     *  in the QUOTAS tag
+     *    @param xml the string to store the XML
+     *    @return the same xml string to use it in << compounds
+     */
+    string& to_xml_db(string& xml) const;
+
+    /**
      *  Builds quota object from an ObjectXML
      *    @param object_xml pointer to the ObjectXML
      *    @return 0 if success
      */
     int from_xml(ObjectXML * object_xml);
+
+    // TODO: remove previous method, leave this one only
+    int from_xml(const string& xml);
 
     /**
      *  Delete VM related usage (network, image and compute) from quota counters.
@@ -217,6 +229,51 @@ public:
      */
     static void quota_del(QuotaType type, int uid, int gid, Template * tmpl);
 
+
+    //--------------------------------------------------------------------------
+    // Database
+    //--------------------------------------------------------------------------
+
+    /**
+     *  Reads the ObjectSQL (identified with its OID) from the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int select(SqlDB * db);
+
+    /**
+     *  Writes the Quotas in the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int insert(SqlDB *db, string& error_str)
+    {
+        return insert_replace(db, false, error_str);
+    };
+
+    /**
+     *  Writes/updates the Quotas fields in the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int update(SqlDB *db)
+    {
+        string error_str;
+        return insert_replace(db, true, error_str);
+    }
+
+    /**
+     *  Removes the Quotas from the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int drop(SqlDB * db);
+
+    /**
+     * User/Group oid. Must be set before a DB write operation
+     */
+    int oid;
+
 protected:
     /**
      *  This is an specialized constructor only for derived Quotas classes.
@@ -227,6 +284,7 @@ protected:
            const char * _img_xpath,
            const char * _vm_xpath,
            bool         is_deafult):
+                oid(-1),
                 datastore_quota(is_deafult),
                 network_quota(is_deafult),
                 image_quota(is_deafult),
@@ -236,6 +294,21 @@ protected:
                 img_xpath(_img_xpath),
                 vm_xpath(_vm_xpath)
     {};
+
+    virtual const char * table() const
+    {
+        return 0;
+    };
+
+    virtual const char * table_names() const
+    {
+        return 0;
+    };
+
+    virtual const char * table_oid_column() const
+    {
+        return 0;
+    };
 
 private:
     //--------------------------------------------------------------------------
@@ -286,6 +359,27 @@ private:
      */
     const char * vm_xpath;
 
+    //--------------------------------------------------------------------------
+    // Database
+    //--------------------------------------------------------------------------
+
+    /**
+     *  Callback function to read a Quotas object (Quotas::select)
+     *    @param num the number of columns read from the DB
+     *    @para names the column names
+     *    @para vaues the column values
+     *    @return 0 on success
+     */
+    int select_cb(void *nil, int num, char **values, char **names);
+
+    /**
+     *  Execute an INSERT or REPLACE Sql query.
+     *    @param db The SQL DB
+     *    @param replace Execute an INSERT or a REPLACE
+     *    @param error_str Returns the error reason, if any
+     *    @return 0 one success
+     */
+    int insert_replace(SqlDB *db, bool replace, string& error_str);
 };
 
 #endif /*QUOTABLE_H_*/

@@ -227,7 +227,9 @@ var OpenNebula = {
 
             if (response[pool_name]) {
                 pool = response[pool_name][type];
-            } else { pull = null };
+            } else {
+                pool = null;
+            }
 
             if (pool == null)
             {
@@ -246,6 +248,49 @@ var OpenNebula = {
             {
                 p_pool[0] = {};
                 p_pool[0][type] = pool;
+                return(p_pool);
+            }
+        },
+
+        "pool_hash_processing": function(pool_name, resource_name, response)
+        {
+            var pool;
+
+            if (typeof(pool_name) == "undefined")
+            {
+                return Error('Incorrect Pool');
+            }
+
+            var p_pool = {};
+
+            if (response[pool_name]) {
+                pool = response[pool_name][resource_name];
+            } else {
+                pool = null;
+            }
+
+            if (pool == null)
+            {
+                return p_pool;
+            }
+            else if (pool.length)
+            {
+                for (i=0;i<pool.length;i++)
+                {
+                    var res = {};
+                    res[resource_name] = pool[i];
+
+                    p_pool[res[resource_name]['ID']] = res;
+                }
+                return(p_pool);
+            }
+            else
+            {
+                var res = {};
+                res[resource_name] = pool;
+
+                p_pool[res[resource_name]['ID']] = res;
+
                 return(p_pool);
             }
         }
@@ -849,8 +894,11 @@ var OpenNebula = {
                     default_group_quotas = Quotas.default_quotas(response.GROUP_POOL.DEFAULT_GROUP_QUOTAS);
 
                     var list = OpenNebula.Helper.pool(resource,response)
+                    var quotas_hash = OpenNebula.Helper.pool_hash_processing(
+                        'GROUP_POOL','QUOTAS',response);
+
                     return callback ?
-                        callback(request, list) : null;
+                        callback(request, list, quotas_hash) : null;
                 },
                 error: function(response)
                 {
@@ -907,8 +955,11 @@ var OpenNebula = {
                     default_user_quotas = Quotas.default_quotas(response.USER_POOL.DEFAULT_USER_QUOTAS);
 
                     var list = OpenNebula.Helper.pool(resource,response)
+                    var quotas_hash = OpenNebula.Helper.pool_hash_processing(
+                        'USER_POOL','QUOTAS',response);
+
                     return callback ?
-                        callback(request, list) : null;
+                        callback(request, list, quotas_hash) : null;
                 },
                 error: function(response)
                 {

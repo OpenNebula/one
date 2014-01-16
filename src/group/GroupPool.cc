@@ -169,10 +169,57 @@ int GroupPool::drop(PoolObjectSQL * objsql, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void GroupPool::add_extra_xml(ostringstream&  oss)
+int GroupPool::dump(ostringstream& oss, const string& where)
 {
-    string def_quota_xml;
+    int     rc;
+    string  def_quota_xml;
+
+    ostringstream cmd;
+
+    cmd << "SELECT " << Group::table << ".body, "
+        << GroupQuotas::db_table << ".body"
+        << " FROM " << Group::table << " LEFT JOIN " << GroupQuotas::db_table
+        << " ON " << Group::table << ".oid=" << GroupQuotas::db_table << ".group_oid";
+
+    if ( !where.empty() )
+    {
+        cmd << " WHERE " << where;
+    }
+
+    cmd << " ORDER BY oid";
+
+    oss << "<GROUP_POOL>";
+
+    set_callback(static_cast<Callbackable::Callback>(&GroupPool::dump_cb),
+                 static_cast<void *>(&oss));
+
+    rc = db->exec(cmd, this);
+
+    unset_callback();
+
     oss << Nebula::instance().get_default_group_quota().to_xml(def_quota_xml);
+
+    oss << "</GROUP_POOL>";
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int GroupPool::dump_cb(void * _oss, int num, char **values, char **names)
+{
+    ostringstream * oss;
+
+    oss = static_cast<ostringstream *>(_oss);
+
+    if ( (!values[0]) || (num != 2) )
+    {
+        return -1;
+    }
+
+    *oss << values[0] << values[1];
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */

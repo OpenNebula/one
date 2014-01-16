@@ -683,11 +683,16 @@ function addGroupElement(request,group_json){
 }
 
 //updates the list
-function updateGroupsView(request, group_list){
+function updateGroupsView(request, group_list, quotas_hash){
     group_list_json = group_list;
     var group_list_array = [];
 
     $.each(group_list,function(){
+        // Inject the VM group quota. This info is returned separately in the
+        // pool info call, but the groupElementArray expects it inside the GROUP,
+        // as it is returned by the individual info call
+        this.GROUP.VM_QUOTA = quotas_hash[this.GROUP.ID].QUOTAS.VM_QUOTA;
+
         group_list_array.push(groupElementArray(this));
     });
     updateView(group_list_array,dataTable_groups);
