@@ -438,7 +438,33 @@ $(document).ready(function(){
         return false;
     });
 
+    // Populate Zones dropdown
+    OpenNebula.Zone.list({
+      timeout: true,
+      success: function (request, obj_list){
+          $.each(obj_list,function(){
+              $('#zone-ul').append('<li><a id="'+this.ZONE.TEMPLATE.ENDPOINT+'" class="zone-choice '+this.ZONE.NAME+'"><i class="icon-home"></i> '+this.ZONE.NAME+'</a></li>');
+          });
+      },
+      error: onError
+    });
 
+    $('a.zone-choice').live("click", function(){
+      $.ajax({
+        url: 'config',
+        type: "POST",
+        headers: {
+            "ZONE_ENDPOINT": this.id,
+            "ZONE_NAME" : this.className.split(" ")[1]
+        },
+        dataType: "json",
+        success: function(){
+            window.location.href = ".";
+        },
+        error: function(response){
+        }
+      });
+    });
 
     //Start with the dashboard (supposing we have one).
     showTab('dashboard-tab');
@@ -483,6 +509,10 @@ function setLogin(){
         <li><a href="#" class="configuration"><i class="icon-cog"></i> Settings</a></li>\
         <li><a href="#" class="logout"><i class="icon-off"></i> Sign Out</a></li>\
       </ul>\
+    </div>\
+    <div href="#" class="button tiny secondary dropdown" id="zonelector">\
+      <i class="icon-home header-icon"></i> '+ config['zone_name'] + '\
+      <ul id="zone-ul"></ul>\
     </div>';
 
 
