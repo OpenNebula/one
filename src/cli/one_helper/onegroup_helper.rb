@@ -69,6 +69,8 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
         quotas_hash = Hash.new
 
         if (!quotas.nil?)
+            quotas = [quotas].flatten
+
             quotas.each do |q|
                 quotas_hash[q['ID']] = q
             end
