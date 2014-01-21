@@ -347,9 +347,9 @@ var image_actions = {
         callback: function(request, response){
           addImageElement(request, response);
           $create_image_dialog.trigger("reveal:close")
+          notifyCustom(tr("Image created "), "ID: " + response.IMAGE.ID, false)
         },
-        error: onError,
-        notify:true
+        error: onError
     },
 
     "Image.create_dialog" : {

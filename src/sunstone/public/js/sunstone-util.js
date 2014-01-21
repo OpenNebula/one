@@ -336,6 +336,11 @@ function notifyMessage(msg){
     $.jGrowl(msg, {theme: "jGrowl-notify-submit", position: "bottom-right"});
 }
 
+function notifyCustom(title, msg, sticky) {
+    msg = "<h1>" + title + "</h1>" + msg;
+    $.jGrowl(msg, {theme: "jGrowl-notify-submit", position: "bottom-right", sticky: sticky });
+}
+
 // Returns an HTML string with the json keys and values
 // Attempts to css format output, giving different values to
 // margins etc. according to depth level etc.
