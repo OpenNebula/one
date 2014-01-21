@@ -20,7 +20,7 @@
 #include "PoolSQL.h"
 #include "ObjectCollection.h"
 #include "User.h"
-#include "GroupQuotas.h"
+#include "QuotasSQL.h"
 
 using namespace std;
 
@@ -55,7 +55,7 @@ public:
     int from_xml(const string &xml_str);
 
     /**
-     *  Adds this user's ID to the set. 
+     *  Adds this user's ID to the set.
      *    @param id of the user to be added to the group
      *    @return 0 on success
      */

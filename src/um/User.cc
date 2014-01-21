@@ -58,7 +58,7 @@ int User::select(SqlDB * db)
         return rc;
     }
 
-    return select_quotas(db);
+    return quota.select(oid, db);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -74,15 +74,7 @@ int User::select(SqlDB * db, const string& name, int uid)
         return rc;
     }
 
-    return select_quotas(db);
-}
-
-/* -------------------------------------------------------------------------- */
-
-int User::select_quotas(SqlDB * db)
-{
-    quota.oid = oid;
-    return quota.select(db);
+    return quota.select(oid, db);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -111,11 +103,9 @@ int User::insert(SqlDB *db, string& error_str)
 
     rc = insert_replace(db, false, error_str);
 
-    quota.oid = oid;
-
     if (rc == 0)
     {
-        rc = quota.insert(db, error_str);
+        rc = quota.insert(oid, db, error_str);
     }
 
     return rc;
@@ -131,11 +121,9 @@ int User::update(SqlDB *db)
 
     rc = insert_replace(db, true, error_str);
 
-    quota.oid = oid;
-
     if (rc == 0)
     {
-        rc = quota.update(db);
+        rc = quota.update(oid, db);
     }
 
     return rc;
