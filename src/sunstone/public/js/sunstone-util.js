@@ -583,6 +583,13 @@ function getTemplateName(id){
     return id;
 };
 
+function getZoneName(id){
+    if (typeof(dataTable_zones) != "undefined"){
+        return getName(id,dataTable_zones,2);
+    }
+    return id;
+};
+
 // Returns the value of the column with the resource of specified
 // id in the dataTable.
 function getName(id,dataTable,name_col){
@@ -1114,6 +1121,10 @@ function clusters_sel() {
 
 function datastores_sel() {
     return datastores_select;
+}
+
+function zones_sel(){
+    return zones_select;
 }
 
 /* Below functions to easier permission management */

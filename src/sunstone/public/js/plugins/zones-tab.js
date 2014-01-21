@@ -310,8 +310,7 @@ function zoneElementArray(element_json){
 
 //updates the zone select by refreshing the options in it
 function updateZoneSelect(){
-    zones_select = '<option value="-1">Default (none)</option>';
-    zones_select += makeSelectOptions(dataTable_zones,
+    zones_select = makeSelectOptions(dataTable_zones,
                                          1,//id_col
                                          2,//name_col
                                          3,//endpoint_col

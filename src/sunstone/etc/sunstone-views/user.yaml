@@ -83,8 +83,9 @@ tabs:
             - 2         # Applies to
             - 3         # Affected resources
             - 4         # Resource ID / Owned by
-            - 5         # Allowed operations
-            #- 6         # ACL String
+            - 5         # Zone
+            - 6         # Allowed operations
+            #- 7         # ACL String
         actions:
             Acl.refresh: true
             Acl.create_dialog: true

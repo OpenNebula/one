@@ -57,6 +57,7 @@ var acls_tab_content = '\
       <th>'+tr("Applies to")+'</th>\
       <th>'+tr("Affected resources")+'</th>\
       <th>'+tr("Resource ID / Owned by")+'</th>\
+      <th>'+tr("Zone")+'</th>\
       <th>'+tr("Allowed operations")+'</th>\
       <th>'+tr("ACL String")+'</th>\
     </tr>\
@@ -136,6 +137,12 @@ var create_acl_tmpl =
                 <input type="checkbox" name="right_use" class="right_cb" value="MANAGE">'+tr("Manage")+'</input>\
                 <input type="checkbox" name="right_manage" class="right_cb" value="ADMIN">'+tr("Administrate")+'</input>\
                 <input type="checkbox" name="right_create" class="right_cb" value="CREATE">'+tr("Create")+'</input>\
+            </fieldset>\
+        </div>\
+        <div class="row">\
+            <fieldset>\
+            <legend>'+tr("Zones where the rule applies")+'</legend>\
+                <select name="zones_applies" id="zones_applies"></select>\
             </fieldset>\
         </div>\
         <div class="row">\
@@ -304,6 +311,23 @@ function parseResourceAcl(user){
     return user_str;
 }
 
+//Receives a segment of an ACL and translates:
+// * -> All
+// #1 -> Zone 1 (tries to translate "1" into zone name)
+//Translation of zone names depends on
+//zone plugins tables.
+function parseZoneAcl(zone){
+    var zone_str = "";
+
+    if (zone[0] == '*'){
+        zone_str = tr("All");
+    } else if (zone[0] == '#'){
+        zone_str = getZoneName(zone.substring(1));
+    }
+
+    return zone_str;
+}
+
 //Parses a full ACL string, and translates it into
 //a legible array
 //to be put in the datatable fields.
@@ -312,6 +336,7 @@ function parseAclString(string) {
     var user = space_split[0];
     var resources = space_split[1];
     var rights = space_split[2];
+    var zone = space_split[3];
 
     //User
     var user_str=parseUserAcl(user);
@@ -367,7 +392,10 @@ function parseAclString(string) {
     }
     ops_str= ops_str.substring(0,ops_str.length-2);
 
-    return [user_str,resources_str,belonging_to,ops_str];
+    //Zone
+    var zone_str = parseZoneAcl(zone);
+
+    return [user_str, resources_str, belonging_to, zone_str, ops_str];
 }
 
 //forms the array of data to be inserted from
@@ -384,7 +412,8 @@ function aclElementArray(acl_json){
         acl_array[0],
         acl_array[1],
         acl_array[2],
-        tr(acl_array[3].charAt(0).toUpperCase()+acl_array[3].substring(1)), //capitalize 1st letter for translation
+        acl_array[3],
+        tr(acl_array[4].charAt(0).toUpperCase()+acl_array[4].substring(1)), //capitalize 1st letter for translation
         acl.STRING
     ]
 }
@@ -502,7 +531,14 @@ function setupCreateAclDialog(){
         });
         if (rights.length) { rights = rights.substring(0,rights.length-1) };
 
-        var acl_string = user + ' ' + resources + '/' + belonging + ' ' + rights;
+        var zone = $('#zones_applies',context).val();
+
+        if ($('#zones_applies :selected',context).hasClass("zone")){
+            zone = '#'+zone;
+        }
+
+        var acl_string = user + ' ' + resources + '/' + belonging + ' '
+                        + rights + ' ' + zone;
         $('#acl_preview',context).val(acl_string);
 
     });
@@ -575,12 +611,24 @@ function popUpCreateAclDialog(){
     groups.prepend('<option value="">---'+tr("Groups")+'---</option>');
 
     var dialog =  $create_acl_dialog;
+
     $('#applies',dialog).html('<option value="*">'+tr("All")+'</option>'+
                                           users.html()+groups.html());
     $('#belonging_to',dialog).html(groups_select);
     $('#in_cluster',dialog).html(clusters_select);
 
     $('#applies',dialog).trigger("change");
+
+    var zones = $('<select>'+zones_sel()+'</select>');
+    $('.empty_value',zones).remove();
+    $('option',zones).addClass("zone");
+
+    $('#zones_applies',dialog).html('<option value="*">'+tr("All")+'</option>'+
+                                          zones.html());
+
+    $('#zones_applies',dialog).trigger("change");
+
+
     dialog.reveal();
 }
 
@@ -603,7 +651,7 @@ $(document).ready(function(){
         //if we are not oneadmin, our tab will not even be in the DOM.
         dataTable_acls = $("#datatable_acls",main_tabs_context).dataTable({
             "aoColumnDefs": [
-                { "bSortable": false, "aTargets": ["check",2,3,4,5,6] },
+                { "bSortable": false, "aTargets": ["check",2,3,4,5,6,7] },
                 { "sWidth": "35px", "aTargets": [0] },
                 { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
                 { "bVisible": false, "aTargets": ['_all']}
