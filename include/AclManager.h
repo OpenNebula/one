@@ -74,6 +74,7 @@ public:
      *    @param user 64 bit ID and flags
      *    @param resource 64 bit ID and flags
      *    @param rights 64 bit flags
+     *    @param zone 64 bit flags
      *    @param error_str Returns the error reason, if any
      *
      *    @return the oid assigned to the rule on success,
@@ -84,6 +85,7 @@ public:
     virtual int add_rule(long long user, 
                          long long resource, 
                          long long rights,
+                         long long zone,
                          string&   error_str);
     /**
      *  Deletes a rule from the ACL rule set
@@ -100,6 +102,7 @@ public:
      *    @param user 64 bit ID and flags
      *    @param resource 64 bit ID and flags
      *    @param rights 64 bit flags
+     *    @param zone 64 bit flags
      *
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
@@ -107,6 +110,7 @@ public:
     virtual int del_rule(long long user,
                          long long resource,
                          long long rights,
+                         long long zone,
                          string&   error_str);
 
     /**
@@ -270,6 +274,13 @@ private:
     void del_resource_matching_rules(
             long long resource_req,
             long long resource_mask);
+
+
+    // TODO
+    int get_zone_id() const
+    {
+        return 10;
+    };
 
     // ----------------------------------------
     // Mutex synchronization

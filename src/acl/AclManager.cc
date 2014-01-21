@@ -25,10 +25,11 @@
 
 const char * AclManager::table = "acl";
 
-const char * AclManager::db_names = "oid, user, resource, rights";
+const char * AclManager::db_names = "oid, user, resource, rights, zone";
 
 const char * AclManager::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
-    "acl (oid INT PRIMARY KEY, user BIGINT, resource BIGINT, rights BIGINT)";
+    "acl (oid INT PRIMARY KEY, user BIGINT, resource BIGINT, "
+    "rights BIGINT, zone BIGINT)";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -77,6 +78,7 @@ AclManager::AclManager(SqlDB * _db) : db(_db), lastOID(-1)
                     PoolObjectSQL::IMAGE |
                     PoolObjectSQL::TEMPLATE,
                  AuthRequest::CREATE,
+                 AclRule::ALL_ID,
                  error_str);
 
         // Users in USERS can deploy VMs in any HOST
@@ -86,12 +88,14 @@ AclManager::AclManager(SqlDB * _db) : db(_db), lastOID(-1)
                  AclRule::ALL_ID |
                     PoolObjectSQL::HOST,
                  AuthRequest::MANAGE,
+                 AclRule::ALL_ID,
                  error_str);
 
         add_rule(AclRule::ALL_ID,
                  AclRule::ALL_ID |
                     PoolObjectSQL::DOCUMENT,
                  AuthRequest::CREATE,
+                 AclRule::ALL_ID,
                  error_str);
 
     }
@@ -219,7 +223,8 @@ const bool AclManager::authorize(
     AclRule log_rule(-1,
                      AclRule::INDIVIDUAL_ID | uid,
                      log_resource,
-                     rights_req);
+                     rights_req,
+                     AclRule::INDIVIDUAL_ID | get_zone_id());
 
     oss << "Request " << log_rule.to_str();
     NebulaLog::log("ACL",Log::DDEBUG,oss);
@@ -389,6 +394,10 @@ bool AclManager::match_rules(
     pair<multimap<long long, AclRule *>::iterator,
          multimap<long long, AclRule *>::iterator>  index;
 
+    long long zone_oid_mask = AclRule::INDIVIDUAL_ID | 0x00000000FFFFFFFFLL;
+    long long zone_req      = AclRule::INDIVIDUAL_ID | get_zone_id();
+    long long zone_all_req  = AclRule::ALL_ID;
+
     index = rules.equal_range( user_req );
 
     for ( it = index.first; it != index.second; it++)
@@ -398,6 +407,14 @@ bool AclManager::match_rules(
         NebulaLog::log("ACL",Log::DDEBUG,oss);
 
         auth =
+          (
+            // Rule applies in any Zone
+            ( ( it->second->zone & zone_all_req ) == zone_all_req )
+            ||
+            // Rule applies in this Zone
+            ( ( it->second->zone & zone_oid_mask ) == zone_req )
+          )
+          &&
           // Rule grants the requested rights
           ( ( it->second->rights & rights_req ) == rights_req )
           &&
@@ -431,7 +448,7 @@ bool AclManager::match_rules(
 /* -------------------------------------------------------------------------- */
 
 int AclManager::add_rule(long long user, long long resource, long long rights,
-                        string& error_str)
+                        long long zone, string& error_str)
 {
     lock();
 
@@ -440,7 +457,7 @@ int AclManager::add_rule(long long user, long long resource, long long rights,
         lastOID = -1;
     }
 
-    AclRule * rule = new AclRule(++lastOID, user, resource, rights);
+    AclRule * rule = new AclRule(++lastOID, user, resource, rights, zone);
 
     ostringstream   oss;
     int             rc;
@@ -604,11 +621,12 @@ int AclManager::del_rule(
         long long user,
         long long resource,
         long long rights,
+        long long zone,
         string&   error_str)
 {
     lock();
 
-    AclRule * rule = new AclRule(-1, user, resource, rights);
+    AclRule * rule = new AclRule(-1, user, resource, rights, zone);
 
     int oid = -1;
     bool found = false;
@@ -796,6 +814,10 @@ void AclManager::reverse_search(int                       uid,
     long long resource_cid_mask  =
             ( obj_type | AclRule::CLUSTER_ID );
 
+    long long zone_oid_req =
+            AclRule::INDIVIDUAL_ID | get_zone_id();
+
+    long long zone_all_req = AclRule::ALL_ID;
 
     // Create a temporal rule, to log the request
     long long log_resource;
@@ -805,7 +827,8 @@ void AclManager::reverse_search(int                       uid,
     AclRule log_rule(-1,
                      AclRule::INDIVIDUAL_ID | uid,
                      log_resource,
-                     rights_req);
+                     rights_req,
+                     zone_oid_req);
 
     oss << "Reverse search request " << log_rule.to_str();
     NebulaLog::log("ACL",Log::DDEBUG,oss);
@@ -841,8 +864,15 @@ void AclManager::reverse_search(int                       uid,
 
         for ( it = index.first; it != index.second; it++)
         {
-            // Rule grants the requested rights
-            if ( ( it->second->rights & rights_req ) == rights_req )
+                // Rule grants the requested rights
+            if ( ( ( it->second->rights & rights_req ) == rights_req )
+                 &&
+                 // Rule applies in this zone or in all zones
+                 ( ( it->second->zone == zone_oid_req )
+                   ||
+                   ( it->second->zone == zone_all_req )
+                 )
+               )
             {
                 oss.str("");
                 oss << "> Rule  " << it->second->to_str();
@@ -919,11 +949,12 @@ void AclManager::update_lastOID()
 
 int AclManager::select_cb(void *nil, int num, char **values, char **names)
 {
-    if ( (num != 4)   ||
+    if ( (num != 5)   ||
          (!values[0]) ||
          (!values[1]) ||
          (!values[2]) ||
-         (!values[3]) )
+         (!values[3]) ||
+         (!values[4]) )
     {
         return -1;
     }
@@ -935,7 +966,7 @@ int AclManager::select_cb(void *nil, int num, char **values, char **names)
 
     long long rule_values[3];
 
-    for ( int i = 0; i < 3; i++ )
+    for ( int i = 0; i < 4; i++ )
     {
         iss.str( values[i+1] );
 
@@ -952,7 +983,8 @@ int AclManager::select_cb(void *nil, int num, char **values, char **names)
     AclRule * rule = new AclRule(oid,
                                  rule_values[0],
                                  rule_values[1],
-                                 rule_values[2]);
+                                 rule_values[2],
+                                 rule_values[3]);
 
     oss << "Loading ACL Rule " << rule->to_str();
     NebulaLog::log("ACL",Log::DDEBUG,oss);
@@ -996,7 +1028,8 @@ int AclManager::insert(AclRule * rule, SqlDB * db)
         <<  rule->oid       << ","
         <<  rule->user      << ","
         <<  rule->resource  << ","
-        <<  rule->rights    << ")";
+        <<  rule->rights    << ","
+        <<  rule->zone      << ")";
 
     rc = db->exec(oss);
 

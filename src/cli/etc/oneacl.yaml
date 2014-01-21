@@ -18,6 +18,11 @@
   :size: 5
   :right: true
 
+:ZONE: 
+  :desc: Zone ID
+  :size: 5
+  :right: true
+
 :OPE_UMAC:
   :desc: Operation to which the rule applies
   :size: 8
@@ -28,4 +33,5 @@
 - :USER 
 - :RES_VHNIUTGDCO
 - :RID 
+- :ZONE 
 - :OPE_UMAC

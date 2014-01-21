@@ -240,6 +240,59 @@ bool AclRule::malformed(string& error_str) const
         oss << "wrong [rights], it cannot be bigger than 0xF";
     }
 
+    // Check zone
+
+    if ( (zone & GROUP_ID) != 0 )
+    {
+        error = true;
+        oss << "[zone] GROUP (@) bit is not supported";
+    }
+
+    if ( (zone & INDIVIDUAL_ID) != 0 && (zone & ALL_ID) != 0 )
+    {
+        if ( error )
+        {
+            oss << "; ";
+        }
+
+        error = true;
+        oss << "[zone] INDIVIDUAL (#) and ALL (*) bits are exclusive";
+    }
+
+    if ( (zone & 0x700000000LL) == 0 )
+    {
+        if ( error )
+        {
+            oss << "; ";
+        }
+
+        error = true;
+        oss << "[zone] is missing one of the INDIVIDUAL or ALL bits";
+    }
+
+    if ( zone_id() < 0 )
+    {
+        if ( error )
+        {
+            oss << "; ";
+        }
+
+        error = true;
+        oss << "[zone] ID cannot be negative";
+    }
+
+    if ( (zone & ALL_ID) != 0 && zone_id() != 0 )
+    {
+        if ( error )
+        {
+            oss << "; ";
+        }
+
+        error = true;
+        oss << "when using the ALL bit, [zone] ID must be 0";
+    }
+
+
     if ( error )
     {
         error_str = oss.str();
@@ -331,6 +384,21 @@ void AclRule::build_str()
         }
     }
 
+    oss << " ";
+
+    if ( (zone & INDIVIDUAL_ID) != 0 )
+    {
+        oss << "#" << zone_id();
+    }
+    else if ( (zone & ALL_ID) != 0 )
+    {
+        oss << "*";
+    }
+    else
+    {
+        oss << "??";
+    }
+
     str = oss.str();
 }
 
@@ -347,6 +415,7 @@ string& AclRule::to_xml(string& xml) const
         "<USER>"     << hex << user      << "</USER>"        <<
         "<RESOURCE>" << hex << resource  << "</RESOURCE>"    <<
         "<RIGHTS>"   << hex << rights    << "</RIGHTS>"      <<
+        "<ZONE>"     << hex << zone      << "</ZONE>"        <<
         "<STRING>"   << str              << "</STRING>"      <<
     "</ACL>";
 
@@ -396,6 +465,10 @@ int AclRule::from_xml(xmlNodePtr node)
         else if (name == "RIGHTS")
         {
             iss >> hex >> rights;
+        }
+        else if (name == "ZONE")
+        {
+            iss >> hex >> zone;
         }
         else if (name == "STRING")
         {

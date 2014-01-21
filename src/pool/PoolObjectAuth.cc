@@ -22,12 +22,16 @@ void PoolObjectAuth::get_acl_rules(AclRule& owner_rule,
                                    AclRule& group_rule,
                                    AclRule& other_rule) const
 {
-    long long perm_user, perm_resource, perm_rights;
+    long long perm_user, perm_resource, perm_rights, perm_zone;
 
     perm_resource = obj_type | AclRule::INDIVIDUAL_ID | oid;
 
+    // TODO
+    //perm_zone = AclRule::INDIVIDUAL_ID | Nebula::instance().get_zone_id();
+    perm_zone = AclRule::INDIVIDUAL_ID | 10;
+
     // -------------------------------------------------------------------------
-    // Rule     "#uid  ob_type/#oid  user_rights"
+    // Rule     "#uid  ob_type/#oid  user_rights #zone"
     // -------------------------------------------------------------------------
 
     perm_user   = AclRule::INDIVIDUAL_ID | uid;
@@ -48,7 +52,7 @@ void PoolObjectAuth::get_acl_rules(AclRule& owner_rule,
         perm_rights = perm_rights | AuthRequest::ADMIN;
     }
 
-    owner_rule.set(0, perm_user, perm_resource, perm_rights);
+    owner_rule.set(0, perm_user, perm_resource, perm_rights, perm_zone);
 
     // -------------------------------------------------------------------------
     // Rule "@gid  ob_type/#oid  group_rights"
@@ -72,7 +76,7 @@ void PoolObjectAuth::get_acl_rules(AclRule& owner_rule,
         perm_rights = perm_rights | AuthRequest::ADMIN;
     }
 
-    group_rule.set(0, perm_user, perm_resource, perm_rights);
+    group_rule.set(0, perm_user, perm_resource, perm_rights, perm_zone);
 
     // -------------------------------------------------------------------------
     // Rule  "*     ob_type/#oid  others_rights"
@@ -96,6 +100,6 @@ void PoolObjectAuth::get_acl_rules(AclRule& owner_rule,
         perm_rights = perm_rights | AuthRequest::ADMIN;
     }
 
-    other_rule.set(0, perm_user, perm_resource, perm_rights);
+    other_rule.set(0, perm_user, perm_resource, perm_rights, perm_zone);
 };
 

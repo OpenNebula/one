@@ -116,12 +116,16 @@ private
                 d['STRING'].split(" ")[1].split("/")[1]
             end
 
+            column :ZONE, "Zone ID", :right, :size=>5 do |d|
+                d['STRING'].split(" ")[3]
+            end
+
             column :OPE_UMAC,
                     "Operation to which the rule applies", :size =>8 do |d|
                 OneAclHelper::right_mask d['STRING'].split(" ")[2]
             end
 
-            default :ID, :USER, :RES_VHNIUTGDCO, :RID, :OPE_UMAC
+            default :ID, :USER, :RES_VHNIUTGDCO, :RID, :ZONE, :OPE_UMAC
         end
 
         table

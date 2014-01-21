@@ -47,7 +47,7 @@ public:
     /**
      *  Creates an empty ACL rule
      */
-    AclRule():oid(0), user(0), resource(0), rights(0), str("") {};
+    AclRule():oid(0), user(0), resource(0), rights(0), zone(0), str("") {};
 
     /**
      *  Main ACL rule constructor
@@ -55,8 +55,10 @@ public:
     AclRule(int       _oid,
             long long _user,
             long long _resource,
-            long long _rights):
-        oid(_oid), user(_user), resource(_resource), rights(_rights)
+            long long _rights,
+            long long _zone):
+        oid(_oid), user(_user), resource(_resource),
+        rights(_rights), zone(_zone)
     {
         build_str();
     };
@@ -64,16 +66,17 @@ public:
     /**
      *  Set the fields of the ACL, and updates its representation
      */
-
      void set(int       _oid,
               long long _user,
               long long _resource,
-              long long _rights)
+              long long _rights,
+              long long _zone)
     {
         oid      = _oid;
         user     = _user;
         resource = _resource;
         rights   = _rights;
+        zone     = _zone;
 
         build_str();
     };
@@ -85,7 +88,8 @@ public:
     {
         return (user     == other.user &&
                 resource == other.resource &&
-                rights   == other.rights);
+                rights   == other.rights &&
+                zone     == other.zone);
     };
 
     /**
@@ -164,6 +168,16 @@ public:
         return resource & 0xFFFFFFFF00000000LL;
     };
 
+    /**
+     *  Returns the 32 less significant bits of the zone long long attribute
+     *
+     *    @return the zone ID
+     */
+    int zone_id() const
+    {
+        return zone;
+    };
+
     // ------------------------------------------------------------------------
     // Functions needed by the Scheduler ACL engine
     // ------------------------------------------------------------------------
@@ -219,6 +233,16 @@ private:
      *  +-----------------------------------------------+
      */
     long long rights;
+
+    /**
+     *  64 bit integer holding a zone compound:
+     *
+     *           32 bits                 32 bits
+     *  +-----------------------+-----------------------+
+     *  | Type (individual,all) | zone ID               |
+     *  +-----------------------+-----------------------+
+     */
+    long long zone;
 
     /**
      *  Human readable representation of the rule

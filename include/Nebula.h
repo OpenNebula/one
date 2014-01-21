@@ -357,6 +357,12 @@ public:
         return hostname;
     };
 
+    // TODO
+    int get_zone_id()
+    {
+        return 10;
+    };
+
     /**
      *  Returns the version of oned
      *    @return the version

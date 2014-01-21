@@ -218,6 +218,9 @@ int GroupAddProvider::edit_acl_rules(
 
             AuthRequest::MANAGE,
 
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
             error_msg);
 
     // @<gid> DATASTORE+NET/%<cid> USE
@@ -230,6 +233,9 @@ int GroupAddProvider::edit_acl_rules(
             PoolObjectSQL::NET,
 
             AuthRequest::USE,
+
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
 
             error_msg);
 
@@ -269,7 +275,7 @@ int GroupDelProvider::edit_acl_rules(
         mask_prefix = AclRule::CLUSTER_ID | cluster_id;
     }
 
-    // @<gid> HOST/%<cid> MANAGE
+    // @<gid> HOST/%<cid> MANAGE #<zid>
     rc += aclm->del_rule(
             AclRule::GROUP_ID |
             group_id,
@@ -279,9 +285,12 @@ int GroupDelProvider::edit_acl_rules(
 
             AuthRequest::MANAGE,
 
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
             error_msg);
 
-    // @<gid> DATASTORE+NET/%<cid> USE
+    // @<gid> DATASTORE+NET/%<cid> USE #<zid>
     rc += aclm->del_rule(
             AclRule::GROUP_ID |
             group_id,
@@ -291,6 +300,9 @@ int GroupDelProvider::edit_acl_rules(
             PoolObjectSQL::NET,
 
             AuthRequest::USE,
+
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
 
             error_msg);
 
