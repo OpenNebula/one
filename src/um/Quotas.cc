@@ -91,33 +91,6 @@ string& Quotas::to_xml(string& xml) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string& Quotas::to_xml_db(string& xml) const
-{
-    ostringstream oss;
-
-    oss << "<QUOTAS>"
-            << "<ID>" << oid << "</ID>"
-            << to_xml(xml)
-        << "</QUOTAS>";
-
-    xml = oss.str();
-
-    return xml;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int Quotas::from_xml(const string& xml)
-{
-    ObjectXML obj_xml(xml);
-
-    return from_xml(&obj_xml);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int Quotas::from_xml(ObjectXML * object_xml)
 {
     vector<xmlNodePtr> content;
@@ -161,8 +134,6 @@ int Quotas::from_xml(ObjectXML * object_xml)
     }
 
     object_xml->free_nodes(content);
-
-    object_xml->xpath(oid, "/QUOTAS/ID", -1);
 
     return rc;
 }
@@ -309,124 +280,4 @@ void Quotas::quota_del(QuotaType type, int uid, int gid, Template * tmpl)
             group->unlock();
         }
     }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int Quotas::select(SqlDB * db)
-{
-    ostringstream   oss;
-    int             rc;
-
-    set_callback(static_cast<Callbackable::Callback>(&Quotas::select_cb));
-
-    oss << "SELECT body FROM " << table()
-        << " WHERE " << table_oid_column() << " = " << oid;
-
-    rc = db->exec(oss,this);
-
-    unset_callback();
-
-    if (rc != 0)
-    {
-        goto error_id;
-    }
-
-    return 0;
-
-error_id:
-    oss.str("");
-    oss << "Error getting quotas for user/group " << oid;
-
-    NebulaLog::log("ONE", Log::ERROR, oss);
-    return -1;
-}
-
-/* -------------------------------------------------------------------------- */
-
-int Quotas::select_cb(void *nil, int num, char **values, char **names)
-{
-    if ( (!values[0]) || (num != 1) )
-    {
-        return -1;
-    }
-
-    return from_xml(values[0]);
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int Quotas::insert_replace(SqlDB *db, bool replace, string& error_str)
-{
-    ostringstream   oss;
-
-    int    rc;
-    string xml_quota;
-    char * sql_quota_xml;
-
-    // Quota fields
-
-    sql_quota_xml = db->escape_str(to_xml_db(xml_quota).c_str());
-
-    if ( sql_quota_xml == 0 )
-    {
-        goto error_quota_body;
-    }
-
-    if ( ObjectXML::validate_xml(sql_quota_xml) != 0 )
-    {
-        goto error_quota_xml;
-    }
-
-    // Construct the SQL statement to Insert or Replace
-    if(replace)
-    {
-        oss << "REPLACE";
-    }
-    else
-    {
-        oss << "INSERT";
-    }
-
-    oss << " INTO " << table() << " ("<< table_names() <<") VALUES ("
-        <<          oid             << ","
-        << "'" <<   sql_quota_xml   << "')";
-
-    rc = db->exec(oss);
-
-    db->free_str(sql_quota_xml);
-
-    return rc;
-
-error_quota_xml:
-    db->free_str(sql_quota_xml);
-
-    goto error_common;
-
-error_quota_body:
-    error_str = "Error transforming the Quotas to XML.";
-
-    goto error_common;
-
-error_common:
-    error_str = "Error transforming the Quotas to XML.";
-    return -1;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int Quotas::drop(SqlDB *db)
-{
-    ostringstream oss;
-    int rc;
-
-    oss << "DELETE FROM " << table()
-        << " WHERE " << table_oid_column() << " = " << oid;
-
-    rc = db->exec(oss);
-
-    return rc;
 }

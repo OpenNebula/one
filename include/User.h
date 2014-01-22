@@ -19,8 +19,10 @@
 
 #include "PoolSQL.h"
 #include "UserTemplate.h"
-#include "UserQuotas.h"
 #include "ObjectCollection.h"
+#include "QuotasSQL.h"
+
+class UserQuotas;
 
 using namespace std;
 
@@ -407,13 +409,6 @@ protected:
     static const char * db_bootstrap;
 
     static const char * table;
-
-    /**
-     *  Reads the User quotas from the database.
-     *    @param db pointer to the db
-     *    @return 0 on success
-     */
-    int select_quotas(SqlDB * db);
 
     /**
      *  Writes the User in the database.

@@ -23,8 +23,7 @@ lib_name='nebula_group'
 # Sources to generate the library
 source_files=[
     'GroupPool.cc',
-    'Group.cc',
-    'GroupQuotas.cc'
+    'Group.cc'
 ]
 
 # Build library
