@@ -112,14 +112,19 @@ public:
         return name;
     };
 
-    /** Update a particular Group
+    /**
+     * Update a particular Group. This method does not update the group's quotas
      *    @param user pointer to Group
      *    @return 0 on success
      */
-    int update(Group * group)
-    {
-        return group->update(db);
-    };
+    int update(Group * group);
+
+    /**
+     * Update a particular Group's Quotas
+     *    @param group pointer to Group
+     *    @return 0 on success
+     */
+    int update_quotas(Group * group);
 
     /**
      *  Drops the Group from the data base. The object mutex SHOULD be

@@ -503,7 +503,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::method * user_del_group_pt;
     xmlrpc_c::method * user_change_auth_pt;
 
-    if (nebula.is_federation_enabled() && !nebula.is_federation_master())
+    if (nebula.is_federation_slave())
     {
         user_allocate_pt        = new RequestManagerProxy("one.user.allocate");
         user_update_pt          = new RequestManagerProxy("one.user.update");

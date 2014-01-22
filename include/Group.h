@@ -99,6 +99,16 @@ public:
      */
     GroupQuotas quota;
 
+    /**
+     *  Writes/updates the Group quotas fields in the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int update_quotas(SqlDB *db)
+    {
+        return quota.update(oid, db);
+    };
+
 private:
 
     // -------------------------------------------------------------------------
@@ -203,11 +213,16 @@ private:
     int insert(SqlDB *db, string& error_str);
 
     /**
-     *  Writes/updates the Group's data fields in the database.
+     *  Writes/updates the Group's data fields in the database. This method does
+     *  not update the Group's Quotas
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db);
+    int update(SqlDB *db)
+    {
+        string error_str;
+        return insert_replace(db, true, error_str);
+    };
 
     /**
      * Function to print the Group object into a string in

@@ -285,7 +285,7 @@ bool Request::user_quota_authorization (Template * tmpl,
 
     if (rc == true)
     {
-        upool->update(user);
+        upool->update_quotas(user);
     }
     else
     {
@@ -329,7 +329,7 @@ bool Request::group_quota_authorization (Template * tmpl,
 
     if (rc == true)
     {
-        gpool->update(group);
+        gpool->update_quotas(group);
     }
     else
     {
@@ -366,7 +366,7 @@ void Request::user_quota_rollback(Template *         tmpl,
 
     user->quota.quota_del(qtype, tmpl);
 
-    upool->update(user);
+    upool->update_quotas(user);
 
     user->unlock();
 }
@@ -391,7 +391,7 @@ void Request::group_quota_rollback(Template *         tmpl,
 
     group->quota.quota_del(qtype, tmpl);
 
-    gpool->update(group);
+    gpool->update_quotas(group);
 
     group->unlock();
 }

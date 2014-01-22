@@ -127,6 +127,31 @@ error_name:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int GroupPool::update(Group * group)
+{
+    if (Nebula::instance().is_federation_slave())
+    {
+        NebulaLog::log("ONE",Log::ERROR,
+                "GroupPool::update called, but this "
+                "OpenNebula is a federation slave");
+
+        return -1;
+    }
+
+    return group->update(db);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int GroupPool::update_quotas(Group * group)
+{
+    return group->update_quotas(db);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int GroupPool::drop(PoolObjectSQL * objsql, string& error_msg)
 {
     Group * group = static_cast<Group*>(objsql);

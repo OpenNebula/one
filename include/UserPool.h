@@ -99,14 +99,19 @@ public:
         return name;
     };
 
-    /** Update a particular User
+    /**
+     * Update a particular User. This method does not update the user's quotas
      *    @param user pointer to User
      *    @return 0 on success
      */
-    int update(User * user)
-    {
-        return user->update(db);
-    };
+    int update(User * user);
+
+    /**
+     * Update a particular User's Quotas
+     *    @param user pointer to User
+     *    @return 0 on success
+     */
+    int update_quotas(User * user);
 
     /**
      *  Bootstraps the database table(s) associated to the User pool

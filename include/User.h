@@ -224,6 +224,20 @@ public:
         return del_collection_id(group_id);
     }
 
+    // *************************************************************************
+    // Quotas
+    // *************************************************************************
+
+    /**
+     *  Writes/updates the User quotas fields in the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int update_quotas(SqlDB *db)
+    {
+        return quota.update(oid, db);
+    };
+
 private:
     // -------------------------------------------------------------------------
     // Friends
@@ -418,11 +432,17 @@ protected:
     int insert(SqlDB *db, string& error_str);
 
     /**
-     *  Writes/updates the User data fields in the database.
+     *  Writes/updates the User data fields in the database. This method does
+     *  not update the user's quotas
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db);
+    int update(SqlDB *db)
+    {
+        string error_str;
+        return insert_replace(db, true, error_str);
+    };
+
 };
 
 #endif /*USER_H_*/

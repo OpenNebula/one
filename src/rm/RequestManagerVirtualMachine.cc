@@ -164,7 +164,7 @@ bool RequestManagerVirtualMachine::quota_resize_authorization(
                 return false;
             }
 
-            upool->update(user);
+            upool->update_quotas(user);
 
             user->unlock();
         }
@@ -198,7 +198,7 @@ bool RequestManagerVirtualMachine::quota_resize_authorization(
                 return false;
             }
 
-            gpool->update(group);
+            gpool->update_quotas(group);
 
             group->unlock();
         }

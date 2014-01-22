@@ -396,6 +396,11 @@ public:
 
     };
 
+    bool is_federation_slave()
+    {
+        return federation_enabled && !federation_master;
+    };
+
     int get_zone_id()
     {
         return zone_id;

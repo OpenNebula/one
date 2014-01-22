@@ -346,6 +346,31 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int UserPool::update(User * user)
+{
+    if (Nebula::instance().is_federation_slave())
+    {
+        NebulaLog::log("ONE",Log::ERROR,
+                "UserPool::update called, but this "
+                "OpenNebula is a federation slave");
+
+        return -1;
+    }
+
+    return user->update(db);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int UserPool::update_quotas(User * user)
+{
+    return user->update_quotas(db);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 bool UserPool::authenticate_internal(User *        user,
                                      const string& token,
                                      int&          user_id,

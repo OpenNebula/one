@@ -104,24 +104,6 @@ int Group::insert(SqlDB *db, string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Group::update(SqlDB *db)
-{
-    int rc;
-    string error_str;
-
-    rc = insert_replace(db, true, error_str);
-
-    if (rc == 0)
-    {
-        rc = quota.update(oid, db);
-    }
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int Group::insert_replace(SqlDB *db, bool replace, string& error_str)
 {
     ostringstream   oss;
