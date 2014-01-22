@@ -70,7 +70,6 @@ class SunstoneServer < CloudServer
         if OpenNebula.is_error?(rc)
             return [500, rc.to_json]
         else
-            STDERR.puts rc.inspect
             return [200, rc.to_json]
         end
     end
