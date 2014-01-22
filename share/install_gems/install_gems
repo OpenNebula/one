@@ -3,7 +3,7 @@
 require 'pp'
 
 
-DEFAULT=%w{sunstone quota cloud ozones_server auth_ldap vmware oneflow ec2_hybrid}
+DEFAULT=%w{sunstone quota cloud ozones_server auth_ldap vmware oneflow ec2_hybrid oca}
 
 if defined?(RUBY_VERSION) && RUBY_VERSION>="1.8.7"
     SQLITE='sqlite3'
@@ -30,7 +30,8 @@ GROUPS={
     :auth_ldap => 'net-ldap',
     :vmware => %w{builder trollop},
     :oneflow => %w{sinatra json treetop parse-cron},
-    :ec2_hybrid => 'aws-sdk'
+    :ec2_hybrid => 'aws-sdk',
+    :oca => 'ox'
 }
 
 PACKAGES=GROUPS.keys

@@ -65,12 +65,12 @@ class SunstoneServer < CloudServer
                 return [404, error.to_json]
         end
 
-        rc = pool.info
+        rc = pool.get_hash
 
         if OpenNebula.is_error?(rc)
             return [500, rc.to_json]
         else
-            return [200, pool.to_json]
+            return [200, rc.to_json]
         end
     end
 

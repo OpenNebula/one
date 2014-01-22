@@ -357,21 +357,26 @@ EOT
 
             pool = factory_pool(filter_flag)
 
-            rc = pool.info
-            return -1, rc.message if OpenNebula.is_error?(rc)
-
             if options[:xml]
+                # TODO: use paginated functions
+                rc=pool.info
+                return -1, rc.message if OpenNebula.is_error?(rc)
                 return 0, pool.to_xml(true)
             else
                 table = format_pool(options)
 
                 if top
                     table.top(options) {
-                        pool.info
-                        pool_to_array(pool)
+                        array=pool_to_array(pool.get_hash)
+                        if OpenNebula.is_error?(array)
+                            STDERR.puts array.mesage
+                            exit(-1)
+                        end
+                        array
                     }
                 else
-                    array=pool_to_array(pool)
+                    array=pool_to_array(pool.get_hash)
+                    return -1, array.message if OpenNebula.is_error?(array)
 
                     if options[:ids]
                         array=array.select do |element|

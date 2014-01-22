@@ -343,7 +343,7 @@ void RequestManagerPoolInfoFilter::dump(
         const string&      or_clause)
 {
     ostringstream oss;
-    string        where_string;
+    string        where_string, limit_clause;
     int           rc;
 
     if ( filter_flag < MINE )
@@ -362,7 +362,14 @@ void RequestManagerPoolInfoFilter::dump(
                  or_clause,
                  where_string);
 
-    rc = pool->dump(oss, where_string);
+    if ( end_id < -1 )
+    {
+        oss << start_id << "," << -end_id;
+        limit_clause = oss.str();
+        oss.str("");
+    }
+
+    rc = pool->dump(oss, where_string, limit_clause);
 
     if ( rc != 0 )
     {

@@ -488,7 +488,8 @@ int PoolSQL::dump_cb(void * _oss, int num, char **values, char **names)
 int PoolSQL::dump(ostringstream& oss,
                   const string& elem_name,
                   const char * table,
-                  const string& where)
+                  const string& where,
+                  const string& limit)
 {
     ostringstream   cmd;
 
@@ -500,6 +501,11 @@ int PoolSQL::dump(ostringstream& oss,
     }
 
     cmd << " ORDER BY oid";
+
+    if ( !limit.empty() )
+    {
+        cmd << " LIMIT " << limit;
+    }
 
     return dump(oss, elem_name, cmd);
 }
@@ -698,7 +704,7 @@ void PoolSQL::oid_filter(int     start_id,
 {
     ostringstream idfilter;
 
-    if ( start_id != -1 )
+    if ( end_id >= -1 && start_id != -1 )
     {
         idfilter << "oid >= " << start_id;
 
