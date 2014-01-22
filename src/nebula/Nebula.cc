@@ -384,6 +384,67 @@ void Nebula::start(bool bootstrap_only)
     xmlInitParser();
 
     // -----------------------------------------------------------
+    // Init federation configuration
+    // -----------------------------------------------------------
+
+    vector<const Attribute *> atts;
+
+    federation_enabled  = false;
+    federation_master   = false;
+    zone_id             = 0;
+    master_oned         = "";
+
+    rc = nebula_configuration->get("FEDERATION", atts);
+
+    if (rc != 0)
+    {
+        const VectorAttribute * vatt = static_cast<const VectorAttribute *>
+                                          (atts[0]);
+
+        string mode;
+        mode = vatt->vector_value("MODE");
+        one_util::toupper(mode);
+
+        if (mode == "STANDALONE")
+        {
+            federation_enabled = false;
+            federation_master = false;
+            zone_id = 0;
+        }
+        else if (mode == "MASTER")
+        {
+            federation_enabled = true;
+            federation_master = true;
+        }
+        else if (mode == "SLAVE")
+        {
+            federation_enabled = true;
+            federation_master = false;
+        }
+        else
+        {
+            // TODO: error
+        }
+
+        if (federation_enabled)
+        {
+            rc = vatt->vector_value("ZONE_ID", zone_id);
+
+            if (rc != 0)
+            {
+                // TODO: error
+            }
+
+            master_oned = vatt->vector_value("MASTER_ONED");
+
+            if (master_oned.empty())
+            {
+                // TODO: error
+            }
+        }
+    }
+
+    // -----------------------------------------------------------
     // Database
     // -----------------------------------------------------------
     try

@@ -357,12 +357,6 @@ public:
         return hostname;
     };
 
-    // TODO
-    int get_zone_id()
-    {
-        return 10;
-    };
-
     /**
      *  Returns the version of oned
      *    @return the version
@@ -386,6 +380,31 @@ public:
      *  Initialize the database
      */
     void bootstrap_db();
+
+    // --------------------------------------------------------------
+    // Federation
+    // --------------------------------------------------------------
+
+    bool is_federation_enabled()
+    {
+        return federation_enabled;
+    };
+
+    bool is_federation_master()
+    {
+        return federation_master;
+
+    };
+
+    int get_zone_id()
+    {
+        return zone_id;
+    };
+
+    const string& get_master_oned()
+    {
+        return master_oned;
+    };
 
     // -----------------------------------------------------------------------
     // Configuration attributes (read from oned.conf)
@@ -664,6 +683,15 @@ private:
     // ---------------------------------------------------------------
 
     OpenNebulaTemplate * nebula_configuration;
+
+    // ---------------------------------------------------------------
+    // Federation
+    // ---------------------------------------------------------------
+
+    bool    federation_enabled;
+    bool    federation_master;
+    int     zone_id;
+    string  master_oned;
 
     // ---------------------------------------------------------------
     // Default quotas
