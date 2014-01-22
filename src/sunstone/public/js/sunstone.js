@@ -443,7 +443,7 @@ $(document).ready(function(){
       timeout: true,
       success: function (request, obj_list){
           $.each(obj_list,function(){
-              $('#zone-ul').append('<li><a id="'+this.ZONE.TEMPLATE.ENDPOINT+'" class="zone-choice '+this.ZONE.NAME+'"><i class="icon-home"></i> '+this.ZONE.NAME+'</a></li>');
+              $('.zone-ul').append('<li><a id="'+this.ZONE.TEMPLATE.ENDPOINT+'" class="zone-choice '+this.ZONE.NAME+'"><i class="icon-home"></i> '+this.ZONE.NAME+'</a></li>');
           });
       },
       error: onError
@@ -512,7 +512,7 @@ function setLogin(){
     </div>\
     <div href="#" class="button tiny secondary dropdown" id="zonelector">\
       <i class="icon-home header-icon"></i> '+ config['zone_name'] + '\
-      <ul id="zone-ul"></ul>\
+      <ul class="zone-ul"></ul>\
     </div>';
 
 
