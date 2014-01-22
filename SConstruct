@@ -81,6 +81,7 @@ main_env.Append(LIBPATH=[
     cwd+'/src/xml',
     cwd+'/src/document',
     cwd+'/src/zone',
+    cwd+'/src/client',
 ])
 
 # Compile flags
@@ -215,6 +216,7 @@ main_env.ParseConfig('xml2-config --libs --cflags')
 
 # SCONS scripts to build
 build_scripts=[
+    'src/client/SConstruct',
     'src/sql/SConstruct',
     'src/log/SConstruct',
     'src/common/SConstruct',

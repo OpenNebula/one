@@ -28,7 +28,6 @@ env.Append(CPPPATH=[
 # Library dirs
 
 env.Append(LIBPATH=[
-    cwd+'/src/client',
     cwd+'/src/pool',
     cwd+'/src/sched'
 ])
@@ -38,7 +37,6 @@ env.Append(LIBPATH=[
 ################################################################################
 
 build_scripts=[
-    'src/client/SConstruct',
     'src/pool/SConstruct',
     'src/sched/SConstruct'
 ]
