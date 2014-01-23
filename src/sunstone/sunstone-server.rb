@@ -224,26 +224,25 @@ before do
     unless request.path=='/login' || request.path=='/' || request.path=='/vnc'
         halt 401 unless authorized?
 
+        # Extra check: Retrieve list 
+
         if env['HTTP_ZONE_ENDPOINT']
             session[:active_zone_endpoint] = env['HTTP_ZONE_ENDPOINT']
         end
 
-        if env['HTTP_ZONE_ENDPOINT'] and env['HTTP_ZONE_ENDPOINT'].to_i == -1
+        if env['HTTP_ZONE_ENDPOINT'] && env['HTTP_ZONE_ENDPOINT'].to_i == -1
             session.delete(:active_zone_endpoint)
         end
 
         if env['HTTP_ZONE_NAME']
             session[:zone_name] = env['HTTP_ZONE_NAME']
         end
-
-        client=$cloud_auth.client(session[:user],
-                                  session[:active_zone_endpoint])
     end
 
-    @SunstoneServer = SunstoneServer.new(
-                  client,
-                  $conf,
-                  logger)
+    client=$cloud_auth.client(session[:user],
+                              session[:active_zone_endpoint])
+
+    @SunstoneServer = SunstoneServer.new(client,$conf,logger)
 end
 
 after do

@@ -452,7 +452,7 @@ $(document).ready(function(){
     $('a.zone-choice').live("click", function(){
       $.ajax({
         url: 'config',
-        type: "POST",
+        type: "HEAD",
         headers: {
             "ZONE_ENDPOINT": this.id,
             "ZONE_NAME" : this.className.split(" ")[1]
