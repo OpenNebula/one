@@ -191,7 +191,7 @@ void GroupEditProvider::request_execute(
     if (rc != 0)
     {
         failure_response(INTERNAL,
-                request_error("Cannot add resources to group", error_str),
+                request_error("Cannot edit resources", error_str),
                 att);
 
         return;
