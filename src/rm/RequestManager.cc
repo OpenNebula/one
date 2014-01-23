@@ -253,14 +253,6 @@ void RequestManager::register_xml_methods()
 {
     Nebula& nebula = Nebula::instance();
 
-    // User Methods
-    xmlrpc_c::methodPtr user_set_quota(new UserSetQuota());
-
-    // Group Methods
-    xmlrpc_c::methodPtr group_set_quota(new GroupSetQuota());
-    xmlrpc_c::methodPtr group_add_provider(new GroupAddProvider());
-    xmlrpc_c::methodPtr group_del_provider(new GroupDelProvider());
-
     // VMTemplate Methods
     xmlrpc_c::methodPtr template_instantiate(new VMTemplateInstantiate());
 
@@ -298,19 +290,16 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr datastore_update(new DatastoreUpdateTemplate());
     xmlrpc_c::methodPtr doc_update(new DocumentUpdateTemplate());
     xmlrpc_c::methodPtr cluster_update(new ClusterUpdateTemplate());
-    xmlrpc_c::methodPtr zone_update(new ZoneUpdateTemplate());
 
     // Allocate Methods
     xmlrpc_c::methodPtr vm_allocate(new VirtualMachineAllocate());
     xmlrpc_c::methodPtr image_allocate(new ImageAllocate());
     xmlrpc_c::methodPtr vn_allocate(new VirtualNetworkAllocate());
-    xmlrpc_c::methodPtr group_allocate(new GroupAllocate());
     xmlrpc_c::methodPtr template_allocate(new TemplateAllocate());
     xmlrpc_c::methodPtr host_allocate(new HostAllocate());
     xmlrpc_c::methodPtr datastore_allocate(new DatastoreAllocate());
     xmlrpc_c::methodPtr cluster_allocate(new ClusterAllocate());
     xmlrpc_c::methodPtr doc_allocate(new DocumentAllocate());
-    xmlrpc_c::methodPtr zone_allocate(new ZoneAllocate());
 
     // Clone Methods
     xmlrpc_c::methodPtr template_clone(new VMTemplateClone());
@@ -319,31 +308,24 @@ void RequestManager::register_xml_methods()
     // Delete Methods
     xmlrpc_c::methodPtr host_delete(new HostDelete());
     xmlrpc_c::methodPtr template_delete(new TemplateDelete());
-    xmlrpc_c::methodPtr group_delete(new GroupDelete());
     xmlrpc_c::methodPtr vn_delete(new VirtualNetworkDelete());
     xmlrpc_c::methodPtr image_delete(new ImageDelete());
     xmlrpc_c::methodPtr datastore_delete(new DatastoreDelete());
     xmlrpc_c::methodPtr cluster_delete(new ClusterDelete());
     xmlrpc_c::methodPtr doc_delete(new DocumentDelete());
-    xmlrpc_c::methodPtr zone_delete(new ZoneDelete());
 
     // Info Methods
     xmlrpc_c::methodPtr vm_info(new VirtualMachineInfo());
     xmlrpc_c::methodPtr host_info(new HostInfo());
     xmlrpc_c::methodPtr template_info(new TemplateInfo());
-    xmlrpc_c::methodPtr group_info(new GroupInfo());
     xmlrpc_c::methodPtr vn_info(new VirtualNetworkInfo());
-    xmlrpc_c::methodPtr user_info(new UserInfo());
     xmlrpc_c::methodPtr image_info(new ImageInfo());
     xmlrpc_c::methodPtr datastore_info(new DatastoreInfo());
     xmlrpc_c::methodPtr cluster_info(new ClusterInfo());
     xmlrpc_c::methodPtr doc_info(new DocumentInfo());
-    xmlrpc_c::methodPtr zone_info(new ZoneInfo());
 
     // PoolInfo Methods
     xmlrpc_c::methodPtr hostpool_info(new HostPoolInfo());
-    xmlrpc_c::methodPtr grouppool_info(new GroupPoolInfo());
-    xmlrpc_c::methodPtr userpool_info(new UserPoolInfo());
     xmlrpc_c::methodPtr datastorepool_info(new DatastorePoolInfo());
     xmlrpc_c::methodPtr vm_pool_info(new VirtualMachinePoolInfo());
     xmlrpc_c::methodPtr template_pool_info(new TemplatePoolInfo());
@@ -351,7 +333,6 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr imagepool_info(new ImagePoolInfo());
     xmlrpc_c::methodPtr clusterpool_info(new ClusterPoolInfo());
     xmlrpc_c::methodPtr docpool_info(new DocumentPoolInfo());
-    xmlrpc_c::methodPtr zonepool_info(new ZonePoolInfo());
 
     // Host Methods
     xmlrpc_c::methodPtr host_enable(new HostEnable());
@@ -380,11 +361,6 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr datastore_chmod(new DatastoreChmod());
     xmlrpc_c::methodPtr doc_chmod(new DocumentChmod());
 
-    // ACL Methods
-    xmlrpc_c::methodPtr acl_addrule(new AclAddRule());
-    xmlrpc_c::methodPtr acl_delrule(new AclDelRule());
-    xmlrpc_c::methodPtr acl_info(new AclInfo());
-
     // Cluster Methods
     xmlrpc_c::methodPtr cluster_addhost(new ClusterAddHost());
     xmlrpc_c::methodPtr cluster_delhost(new ClusterDelHost());
@@ -396,12 +372,6 @@ void RequestManager::register_xml_methods()
     // System Methods
     xmlrpc_c::methodPtr system_version(new SystemVersion());
     xmlrpc_c::methodPtr system_config(new SystemConfig());
-
-    xmlrpc_c::methodPtr user_get_default_quota(new UserQuotaInfo());
-    xmlrpc_c::methodPtr user_set_default_quota(new UserQuotaUpdate());
-
-    xmlrpc_c::methodPtr group_get_default_quota(new GroupQuotaInfo());
-    xmlrpc_c::methodPtr group_set_default_quota(new GroupQuotaUpdate());
 
     // Rename Methods
     xmlrpc_c::methodPtr vm_rename(new VirtualMachineRename());
@@ -465,6 +435,38 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.hostpool.monitoring", host_pool_monitoring);
 
     /* Group related methods */
+
+    xmlrpc_c::method * group_allocate_pt;
+    xmlrpc_c::method * group_delete_pt;
+    xmlrpc_c::method * group_add_provider_pt;
+    xmlrpc_c::method * group_del_provider_pt;
+
+    if (nebula.is_federation_slave())
+    {
+        group_allocate_pt       = new RequestManagerProxy("one.group.allocate");
+        group_delete_pt         = new RequestManagerProxy("one.group.delete");
+        group_add_provider_pt   = new RequestManagerProxy("one.group.addprovider");
+        group_del_provider_pt   = new RequestManagerProxy("one.group.delprovider");
+    }
+    else
+    {
+        group_allocate_pt       = new GroupAllocate();
+        group_delete_pt         = new GroupDelete();
+        group_add_provider_pt   = new GroupAddProvider();
+        group_del_provider_pt   = new GroupDelProvider();
+    }
+
+    xmlrpc_c::methodPtr group_allocate(group_allocate_pt);
+    xmlrpc_c::methodPtr group_delete(group_delete_pt);
+    xmlrpc_c::methodPtr group_add_provider(group_add_provider_pt);
+    xmlrpc_c::methodPtr group_del_provider(group_del_provider_pt);
+
+    xmlrpc_c::methodPtr group_info(new GroupInfo());
+    xmlrpc_c::methodPtr group_set_quota(new GroupSetQuota());
+    xmlrpc_c::methodPtr grouppool_info(new GroupPoolInfo());
+    xmlrpc_c::methodPtr group_get_default_quota(new GroupQuotaInfo());
+    xmlrpc_c::methodPtr group_set_default_quota(new GroupQuotaUpdate());
+
     RequestManagerRegistry.addMethod("one.group.allocate",  group_allocate);
     RequestManagerRegistry.addMethod("one.group.delete",    group_delete);
     RequestManagerRegistry.addMethod("one.group.info",      group_info);
@@ -535,6 +537,12 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr user_del_group(user_del_group_pt);
     xmlrpc_c::methodPtr user_change_auth(user_change_auth_pt);
 
+    xmlrpc_c::methodPtr user_info(new UserInfo());
+    xmlrpc_c::methodPtr user_set_quota(new UserSetQuota());
+    xmlrpc_c::methodPtr userpool_info(new UserPoolInfo());
+    xmlrpc_c::methodPtr user_get_default_quota(new UserQuotaInfo());
+    xmlrpc_c::methodPtr user_set_default_quota(new UserQuotaUpdate());
+
     RequestManagerRegistry.addMethod("one.user.allocate", user_allocate);
     RequestManagerRegistry.addMethod("one.user.update", user_update);
     RequestManagerRegistry.addMethod("one.user.delete", user_delete);
@@ -567,6 +575,26 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.imagepool.info", imagepool_info);
 
     /* ACL related methods */
+
+    xmlrpc_c::method * acl_addrule_pt;
+    xmlrpc_c::method * acl_delrule_pt;
+
+    if (nebula.is_federation_slave())
+    {
+        acl_addrule_pt = new RequestManagerProxy("one.acl.addrule");
+        acl_delrule_pt = new RequestManagerProxy("one.acl.delrule");
+    }
+    else
+    {
+        acl_addrule_pt = new AclAddRule();
+        acl_delrule_pt = new AclDelRule();
+    }
+
+    xmlrpc_c::methodPtr acl_addrule(acl_addrule_pt);
+    xmlrpc_c::methodPtr acl_delrule(acl_delrule_pt);
+
+    xmlrpc_c::methodPtr acl_info(new AclInfo());
+
     RequestManagerRegistry.addMethod("one.acl.addrule", acl_addrule);
     RequestManagerRegistry.addMethod("one.acl.delrule", acl_delrule);
     RequestManagerRegistry.addMethod("one.acl.info",    acl_info);
@@ -611,6 +639,31 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.documentpool.info",docpool_info);
 
     /* Zone related methods */
+
+    xmlrpc_c::method * zone_allocate_pt;
+    xmlrpc_c::method * zone_update_pt;
+    xmlrpc_c::method * zone_delete_pt;
+
+    if (nebula.is_federation_slave())
+    {
+        zone_allocate_pt    = new RequestManagerProxy("one.zone.allocate");
+        zone_update_pt      = new RequestManagerProxy("one.zone.update");
+        zone_delete_pt      = new RequestManagerProxy("one.zone.delete");
+    }
+    else
+    {
+        zone_allocate_pt    = new ZoneAllocate();
+        zone_update_pt      = new ZoneUpdateTemplate();
+        zone_delete_pt      = new ZoneDelete();
+    }
+
+    xmlrpc_c::methodPtr zone_allocate(zone_allocate_pt);
+    xmlrpc_c::methodPtr zone_update(zone_update_pt);
+    xmlrpc_c::methodPtr zone_delete(zone_delete_pt);
+
+    xmlrpc_c::methodPtr zone_info(new ZoneInfo());
+    xmlrpc_c::methodPtr zonepool_info(new ZonePoolInfo());
+
     RequestManagerRegistry.addMethod("one.zone.allocate",zone_allocate);
     RequestManagerRegistry.addMethod("one.zone.update",  zone_update);
     RequestManagerRegistry.addMethod("one.zone.delete",  zone_delete);
