@@ -16,11 +16,11 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-Import('env')
+Import('sched_env')
 
-lib_name='nebula_client'
+lib_name='scheduler_client'
 
 source_files=['Client.cc']
 
 # Build library
-env.StaticLibrary(lib_name, source_files)
+sched_env.StaticLibrary(lib_name, source_files)
