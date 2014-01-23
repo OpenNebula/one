@@ -294,8 +294,8 @@ int Group::from_xml(const string& xml)
 
         int zone_id, cluster_id;
 
-        rc += tmp_xml.xpath(zone_id, "RESOURCE_PROVIDER/ZONE_ID", -1);
-        rc += tmp_xml.xpath(cluster_id, "RESOURCE_PROVIDER/CLUSTER_ID", -1);
+        rc += tmp_xml.xpath(zone_id, "/RESOURCE_PROVIDER/ZONE_ID", -1);
+        rc += tmp_xml.xpath(cluster_id, "/RESOURCE_PROVIDER/CLUSTER_ID", -1);
 
         providers.insert(pair<int,int>(zone_id, cluster_id));
     }
