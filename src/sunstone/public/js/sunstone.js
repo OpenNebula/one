@@ -443,7 +443,7 @@ $(document).ready(function(){
       timeout: true,
       success: function (request, obj_list){
           $.each(obj_list,function(){
-              $('.zone-ul').append('<li><a id="'+this.ZONE.TEMPLATE.ENDPOINT+'" class="zone-choice '+this.ZONE.NAME+'"><i class="icon-home"></i> '+this.ZONE.NAME+'</a></li>');
+              $('.zone-ul').append('<li><a id="'+this.ZONE.NAME+'" class="zone-choice"><i class="icon-home"></i> '+this.ZONE.NAME+'</a></li>');
           });
       },
       error: onError
@@ -454,8 +454,7 @@ $(document).ready(function(){
         url: 'config',
         type: "HEAD",
         headers: {
-            "ZONE_ENDPOINT": this.id,
-            "ZONE_NAME" : this.className.split(" ")[1]
+            "ZONE_NAME" : this.id
         },
         dataType: "json",
         success: function(){
