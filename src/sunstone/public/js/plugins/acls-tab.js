@@ -102,6 +102,7 @@ var create_acl_tmpl =
                 <input type="checkbox" name="res_user" class="resource_cb" value="USER">'+tr("Users")+'</input><br />\
                 <input type="checkbox" name="res_group" class="resource_cb" value="GROUP">'+tr("Groups")+'</input><br />\
                 <input type="checkbox" name="res_document" class="resource_cb" value="DOCUMENT">'+tr("Documents")+'</input><br />\
+                <input type="checkbox" name="res_zone" class="resource_cb" value="ZONE">'+tr("Zones")+'</input><br />\
             </div>\
             </fieldset>\
         </div>\
@@ -378,6 +379,9 @@ function parseAclString(string) {
             break;
         case "DOCUMENT":
             resources_str+=tr("Documents")+", ";
+            break;
+        case "ZONE":
+            resources_str+=tr("Zones")+", ";
             break;
         };
     };

@@ -56,7 +56,8 @@ module OpenNebula
             "GROUP"         => 0x40000000000,
             "DATASTORE"     => 0x100000000000,
             "CLUSTER"       => 0x200000000000,
-            "DOCUMENT"      => 0x400000000000
+            "DOCUMENT"      => 0x400000000000,
+            "ZONE"          => 0x800000000000
         }
 
         RIGHTS =

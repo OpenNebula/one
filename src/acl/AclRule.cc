@@ -28,7 +28,7 @@ const long long AclRule::CLUSTER_ID     = 0x0000000800000000LL;
 
 const long long AclRule::NONE_ID        = 0x1000000000000000LL;
 
-const int AclRule::num_pool_objects = 10;
+const int AclRule::num_pool_objects = 11;
 const PoolObjectSQL::ObjectType AclRule::pool_objects[] = {
             PoolObjectSQL::VM,
             PoolObjectSQL::HOST,
@@ -39,7 +39,8 @@ const PoolObjectSQL::ObjectType AclRule::pool_objects[] = {
             PoolObjectSQL::GROUP,
             PoolObjectSQL::DATASTORE,
             PoolObjectSQL::CLUSTER,
-            PoolObjectSQL::DOCUMENT
+            PoolObjectSQL::DOCUMENT,
+            PoolObjectSQL::ZONE
 };
 
 const int AclRule::num_auth_operations = 4;
@@ -53,7 +54,7 @@ const AuthRequest::Operation AclRule::auth_operations[] = {
 const long long AclRule::INVALID_CLUSTER_OBJECTS =
         PoolObjectSQL::VM | PoolObjectSQL::IMAGE | PoolObjectSQL::USER |
         PoolObjectSQL::TEMPLATE | PoolObjectSQL::GROUP | PoolObjectSQL::ACL |
-        PoolObjectSQL::CLUSTER | PoolObjectSQL::DOCUMENT;
+        PoolObjectSQL::CLUSTER | PoolObjectSQL::DOCUMENT | PoolObjectSQL::ZONE;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
