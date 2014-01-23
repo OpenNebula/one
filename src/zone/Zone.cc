@@ -58,8 +58,10 @@ Zone::~Zone()
 
 int Zone::insert(SqlDB *db, string& error_str)
 {
-    int             rc;
-    ostringstream   oss;
+    int    rc;
+    string endpoint;
+
+    ostringstream oss;
 
     // ---------------------------------------------------------------------
     // Check default attributes
@@ -78,7 +80,7 @@ int Zone::insert(SqlDB *db, string& error_str)
     if ( endpoint.empty() )
     {
         goto error_endpoint;
-    }    
+    }
 
     // ------------------------------------------------------------------------
     // Insert the Zone
