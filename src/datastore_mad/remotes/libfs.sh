@@ -188,6 +188,8 @@ function fs_size {
         ;;
     esac
 
+    SIZE=$(echo $SIZE | tr -d "\r")
+
     if [ $error -ne 0 ]; then
         SIZE=0
     else
