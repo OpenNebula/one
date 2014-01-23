@@ -90,18 +90,20 @@ void GroupEditProvider::request_execute(
     int zone_id     = xmlrpc_c::value_int(paramList.getInt(2));
     int cluster_id  = xmlrpc_c::value_int(paramList.getInt(3));
 
-    // TODO: zone is now ignored
-
     PoolObjectAuth group_perms;
+    PoolObjectAuth zone_perms;
     PoolObjectAuth cluster_perms;
 
     string group_name;
+    string zone_name;
     string cluster_name;
     string error_str;
 
     Group* group;
 
     int rc;
+    bool zone_exists = false;
+    bool cluster_exists = false;
 
     // -------------------------------------------------------------------------
     // Authorize the action
@@ -115,15 +117,26 @@ void GroupEditProvider::request_execute(
         return;
     }
 
-    if (cluster_id != ClusterPool::ALL_RESOURCES)
+    rc = get_info(zonepool, zone_id, PoolObjectSQL::ZONE,
+                    att, zone_perms, zone_name);
+
+    zone_exists = (rc == 0);
+
+    if ( rc == -1 && check_obj_exist )
+    {
+        return;
+    }
+
+    // TODO: cluster must exist in target zone, this code only checks locally
+
+    if (cluster_id != ClusterPool::ALL_RESOURCES && zone_id == local_zone_id)
     {
         rc = get_info(clpool, cluster_id, PoolObjectSQL::CLUSTER,
                         att, cluster_perms, cluster_name);
 
-        // TODO: If cluster does not exist, it may be that the cluster was deleted
-        // and we should allow to delete the resource provider.
+        cluster_exists = (rc == 0);
 
-        if ( rc == -1 )
+        if ( rc == -1 && check_obj_exist )
         {
             return;
         }
@@ -133,8 +146,17 @@ void GroupEditProvider::request_execute(
     {
         AuthRequest ar(att.uid, att.group_ids);
 
-        ar.add_auth(AuthRequest::ADMIN, group_perms);   // ADMIN GROUP
-        ar.add_auth(AuthRequest::ADMIN, cluster_perms); // ADMIN CLUSTER
+        ar.add_auth(AuthRequest::ADMIN, group_perms);       // ADMIN GROUP
+
+        if (zone_exists)
+        {
+            ar.add_auth(AuthRequest::ADMIN, zone_perms);    // ADMIN ZONE
+        }
+
+        if (cluster_exists)
+        {
+            ar.add_auth(AuthRequest::ADMIN, cluster_perms); // ADMIN CLUSTER
+        }
 
         if (UserPool::authorize(ar) == -1)
         {
