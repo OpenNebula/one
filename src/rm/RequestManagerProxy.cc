@@ -17,18 +17,22 @@
 #include "RequestManagerProxy.h"
 #include "Nebula.h"
 
-const size_t RequestManagerProxy::MESSAGE_SIZE = 1073741824;
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 RequestManagerProxy::RequestManagerProxy(string _method)
-    :Request("RequestManagerProxy",
-            "?",
+    :Request("RequestManagerProxy", "?",
             "Forwards the request to another OpenNebula")
 {
+    Nebula& nd = Nebula::instance();
+
+    long long msg_size;
+    const string& master_endpoint = nd.get_master_oned();
+
+    nd.get_configuration_attribute("MESSAGE_SIZE", msg_size);
+
     method = _method;
-    client = new Client("none", Nebula::instance().get_master_oned(), MESSAGE_SIZE);
+    client = new Client("none", master_endpoint, msg_size);
 }
 
 /* -------------------------------------------------------------------------- */

@@ -430,6 +430,20 @@ public:
     };
 
     /**
+     *  Gets a configuration attribute for oned
+     *    @param name of the attribute
+     *    @param value of the attribute
+     */
+    void get_configuration_attribute(
+        const char * name,
+        long long& value) const
+    {
+        string _name(name);
+
+        nebula_configuration->Template::get(_name, value);
+    };
+
+    /**
      *  Gets a configuration attribute for oned, bool version
      */
     void get_configuration_attribute(
