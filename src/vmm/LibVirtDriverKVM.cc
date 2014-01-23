@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -361,11 +361,18 @@ int LibVirtDriver::deployment_description_kvm(
                  << "\t\t\t<source dev='" << vm->get_remote_system_dir()
                  << "/disk." << disk_id << "'/>" << endl;
         }
-        else if ( type == "RBD" )
+        else if ( type == "RBD" || type == "RBD_CDROM" )
         {
-            file << "\t\t<disk type='network' device='disk'>" << endl
-                 << "\t\t\t<source protocol='rbd' name='"
-                 << source;
+            if (type == "RBD")
+            {
+                file << "\t\t<disk type='network' device='disk'>" << endl;
+            }
+            else
+            {
+                file << "\t\t<disk type='network' device='cdrom'>" << endl;
+            }
+
+            file << "\t\t\t<source protocol='rbd' name='" << source;
 
             if ( clone == "YES" )
             {
@@ -412,19 +419,6 @@ int LibVirtDriver::deployment_description_kvm(
                      << ceph_secret <<"'/>" << endl
                      << "\t\t\t</auth>" << endl;
             }
-        }
-        else if ( type == "RBD_CDROM" )
-        {
-            file << "\t\t<disk type='network' device='cdrom'>" << endl
-                 << "\t\t\t<source protocol='rbd' name='"
-                 << source;
-
-            if ( clone == "YES" )
-            {
-                file << "-" << vm->get_oid() << "-" << disk_id;
-            }
-
-            file << "'/>" << endl;
         }
         else if ( type == "CDROM" )
         {

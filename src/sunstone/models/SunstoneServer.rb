@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -66,12 +66,12 @@ class SunstoneServer < CloudServer
                 return [404, error.to_json]
         end
 
-        rc = pool.info
+        rc = pool.get_hash
 
         if OpenNebula.is_error?(rc)
             return [500, rc.to_json]
         else
-            return [200, pool.to_json]
+            return [200, rc.to_json]
         end
     end
 

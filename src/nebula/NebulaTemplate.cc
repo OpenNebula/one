@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -208,6 +208,7 @@ void OpenNebulaTemplate::set_conf_default()
 #  KEEPALIVE_TIMEOUT
 #  KEEPALIVE_MAX_CONN
 #  TIMEOUT
+#  RPC_LOG
 #*******************************************************************************
 */
     // MAX_CONN
@@ -240,6 +241,11 @@ void OpenNebulaTemplate::set_conf_default()
     attribute = new SingleAttribute("TIMEOUT",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 
+    // RPC_LOG
+    value = "NO";
+
+    attribute = new SingleAttribute("RPC_LOG",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
 /*
 #*******************************************************************************
 # Physical Networks configuration

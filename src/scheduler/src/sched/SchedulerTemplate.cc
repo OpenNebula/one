@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -35,6 +35,7 @@ void SchedulerTemplate::set_conf_default()
 #*******************************************************************************
 # Daemon configuration attributes
 #-------------------------------------------------------------------------------
+#  XML_RPC_MESSAGE_SIZE
 #  ONED_PORT
 #  SCHED_INTERVAL
 #  MAX_VM
@@ -47,6 +48,12 @@ void SchedulerTemplate::set_conf_default()
 #  LOG
 #-------------------------------------------------------------------------------
 */
+    // XML_RPC_MESSAGE_SIZE
+    value = "1073741824";
+
+    attribute = new SingleAttribute("MESSAGE_SIZE",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
     // ONED_PORT
     value = "2633";
 

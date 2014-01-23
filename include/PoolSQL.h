@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -171,7 +171,23 @@ public:
      *
      *  @return 0 on success
      */
-    virtual int dump(ostringstream& oss, const string& where) = 0;
+    int dump(ostringstream& oss, const string& where)
+    {
+        dump(oss, where, "");
+    }
+
+    /**
+     *  Dumps the pool in XML format. A filter and limit can be also added
+     *  to the query
+     *  @param oss the output stream to dump the pool contents
+     *  @param where filter for the objects, defaults to all
+     *  @param limit parameters used for pagination
+     *
+     *  @return 0 on success
+     */
+
+    virtual int dump(ostringstream& oss, const string& where,
+                     const string& limit) = 0;
 
     // -------------------------------------------------------------------------
     // Function to generate dump filters
@@ -245,6 +261,23 @@ protected:
     SqlDB * db;
 
     /**
+     *  Dumps the pool in XML format. A filter and limit can be also added
+     *  to the query
+     *  @param oss the output stream to dump the pool contents
+     *  @param elem_name Name of the root xml pool name
+     *  @param table Pool table name
+     *  @param where filter for the objects, defaults to all
+     *  @param limit parameters used for pagination
+     *
+     *  @return 0 on success
+     */
+    int dump(ostringstream& oss,
+             const string&  elem_name,
+             const char *   table,
+             const string&  where,
+             const string&  limit);
+
+    /**
      *  Dumps the pool in XML format. A filter can be also added to the
      *  query
      *  @param oss the output stream to dump the pool contents
@@ -257,7 +290,10 @@ protected:
     int dump(ostringstream& oss,
              const string&  elem_name,
              const char *   table,
-             const string&  where);
+             const string&  where)
+    {
+        dump(oss, elem_name, table, where, "");
+    }
 
     /**
      *  Dumps the output of the custom sql query into an xml

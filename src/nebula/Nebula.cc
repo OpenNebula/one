@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -994,12 +994,15 @@ void Nebula::start(bool bootstrap_only)
     // ---- Request Manager ----
     try
     {
-        int rm_port = 0;
-        int max_conn;
-        int max_conn_backlog;
-        int keepalive_timeout;
-        int keepalive_max_conn;
-        int timeout;
+        int  rm_port = 0;
+        int  max_conn;
+        int  max_conn_backlog;
+        int  keepalive_timeout;
+        int  keepalive_max_conn;
+        int  timeout;
+        bool rpc_log;
+
+        string rpc_filename = "";
 
         nebula_configuration->get("PORT", rm_port);
         nebula_configuration->get("MAX_CONN", max_conn);
@@ -1007,10 +1010,15 @@ void Nebula::start(bool bootstrap_only)
         nebula_configuration->get("KEEPALIVE_TIMEOUT", keepalive_timeout);
         nebula_configuration->get("KEEPALIVE_MAX_CONN", keepalive_max_conn);
         nebula_configuration->get("TIMEOUT", timeout);
+        nebula_configuration->get("RPC_LOG", rpc_log);
+
+        if (rpc_log)
+        {
+            rpc_filename = log_location + "one_xmlrpc.log";
+        }
 
         rm = new RequestManager(rm_port, max_conn, max_conn_backlog,
-            keepalive_timeout, keepalive_max_conn, timeout,
-            log_location + "one_xmlrpc.log");
+            keepalive_timeout, keepalive_max_conn, timeout, rpc_filename);
     }
     catch (bad_alloc&)
     {

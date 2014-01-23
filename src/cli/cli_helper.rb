@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -176,10 +176,10 @@ module CLIHelper
 
             begin
                 while true
+                    data = block.call
+
                     CLIHelper.scr_cls
                     CLIHelper.scr_move(0,0)
-
-                    data = block.call
 
                     show(data, options)
                     sleep delay
@@ -216,8 +216,8 @@ module CLIHelper
             end
 
             begin
-                print res_data.collect{|l|
-                    (0..ncolumns-1).collect{ |i|
+                res_data.each{|l|
+                    puts (0..ncolumns-1).collect{ |i|
                         dat=l[i]
                         col=@default_columns[i]
 
@@ -225,8 +225,8 @@ module CLIHelper
                         str=CLIHelper.color_state(str) if i==stat_column
 
                         str
-                    }.join(' ')
-                }.join("\n").gsub(/ *$/, '')
+                    }.join(' ').rstrip
+                }
             rescue Errno::EPIPE
             end
 

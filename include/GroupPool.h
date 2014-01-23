@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -152,10 +152,24 @@ public:
      *  query
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
+     *  @param limit parameters used for pagination
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where);
+    int dump(ostringstream& oss, const string& where, const string& limit)
+    {
+        return PoolSQL::dump(oss, "GROUP_POOL", Group::table, where, limit);
+    };
+
+protected:
+
+    /**
+     * Adds the default quotas xml element, right after all the
+     * pool objects
+     *
+     * @param oss The output stream to dump the xml contents
+     */
+    virtual void add_extra_xml(ostringstream&  oss);
 
 private:
 

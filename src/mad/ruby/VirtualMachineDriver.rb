@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -218,7 +218,7 @@ private
     def delete_running_action(action_id)
         action=@action_running[action_id]
         if action
-            @hosts.delete(action[:args][HOST_ARG])
+            @hosts.delete(action[:host])
             @action_running.delete(action_id)
         end
     end
@@ -226,14 +226,28 @@ private
     def get_first_runable
         action_index=nil
         @action_queue.each_with_index do |action, index|
-            if action[:args][HOST_ARG]
-                if !@hosts.include?(action[:args][HOST_ARG])
+            if !action.keys.include?(:host)
+                if action[:args].length == 2
+                    begin
+                        xml=decode(action[:args].last)
+                        host=xml.elements['HOST']
+                        action[:host]=host.text if host
+                    rescue
+                        action[:host]=nil
+                    end
+                else
+                    action[:host]=nil
+                end
+            end
+
+            if action.keys.include?(:host) && action[:host]
+                if !@hosts.include?(action[:host])
                     action_index=index
                     break
                 end
            else
-               action_index=index
-               break
+                action_index=index
+                break
            end
         end
 
@@ -250,7 +264,7 @@ private
         end
 
         if action
-            @hosts << action[:args][HOST_ARG] if action[:args][HOST_ARG]
+            @hosts << action[:host] if action[:host]
             @action_queue.delete_at(action_index)
         end
 

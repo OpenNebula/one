@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,7 +20,7 @@
 #include "Template.h"
 #include <map>
 
-/** 
+/**
  * This class provides the basic abstraction for OpenNebula configuration files
  */
 class NebulaTemplate : public Template
@@ -33,7 +33,7 @@ public:
     {
         conf_file = etc_location + _conf_name;
     }
-    
+
     virtual ~NebulaTemplate(){};
 
     // -----------------------------------------------------------------------
@@ -42,22 +42,22 @@ public:
     int get(const char * name, vector<const Attribute*>& values) const
     {
         string _name(name);
-        
-        return Template::get(_name,values);   
+
+        return Template::get(_name,values);
     };
-    
+
     void get(const char * name, string& values) const
     {
         string _name(name);
-        
-        Template::get(_name,values);   
+
+        Template::get(_name,values);
     };
-        
+
     void get(const char * name, int& values) const
     {
         string _name(name);
-        
-        Template::get(_name,values);   
+
+        Template::get(_name,values);
     };
 
     void get(const char *name, unsigned int& values) const
@@ -68,32 +68,32 @@ public:
 
         values = static_cast<unsigned int>(ival);
     };
-    
+
     void get(const char * name, time_t& values) const
     {
         const SingleAttribute *   sattr;
         vector<const Attribute *> attr;
-        
+
         string _name(name);
-                
+
         if ( Template::get(_name,attr) == 0 )
         {
             values = 0;
             return;
         }
-                       
+
         sattr = dynamic_cast<const SingleAttribute *>(attr[0]);
-        
+
         if ( sattr != 0 )
         {
             istringstream   is;
-            
+
             is.str(sattr->value());
             is >> values;
         }
         else
-            values = 0;        
-    };    
+            values = 0;
+    };
 
     void get(const char *name, float& value) const
     {
@@ -109,6 +109,13 @@ public:
         Template::get(_name,value);
     };
 
+    void get(const char *name, long long& value) const
+    {
+        string _name(name);
+
+        Template::get(_name,value);
+    }
+
     // -----------------------------------------------------------------------
     // -----------------------------------------------------------------------
 
@@ -119,10 +126,10 @@ public:
 
 protected:
     /**
-     *  Full path to the configuration file 
+     *  Full path to the configuration file
      */
     string                  conf_file;
-    
+
     /**
      *  Defaults for the configuration file
      */
@@ -138,13 +145,13 @@ protected:
 // -----------------------------------------------------------------------------
 
 class OpenNebulaTemplate : public NebulaTemplate
-{    
+{
 public:
 
     OpenNebulaTemplate(const string& etc_location, const string& _var_location):
         NebulaTemplate(etc_location, conf_name), var_location(_var_location)
         {};
-    
+
     ~OpenNebulaTemplate(){};
 
 private:
@@ -157,7 +164,7 @@ private:
      *  Path for the var directory, for defaults
      */
     string var_location;
-    
+
     /**
      *  Sets the defaults value for the template
      */

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -195,7 +195,18 @@ void Scheduler::start()
 
     try
     {
-        client = new Client("",url);
+        long long message_size;
+
+        conf.get("MESSAGE_SIZE", message_size);
+
+        client = new Client("", url, message_size);
+
+        oss.str("");
+
+        oss << "XML-RPC client using " << client->get_message_size()
+            << " bytes for response buffer.\n";
+
+        NebulaLog::log("SCHED", Log::INFO, oss);
     }
     catch(runtime_error &)
     {

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -26,9 +26,108 @@ module OpenNebula
     end
 
     begin
+        require 'ox'
+        OX=true
+    rescue LoadError
+        OX=false
+    end
+
+    begin
         require 'rexml/formatters/pretty'
         REXML_FORMATTERS=true
     rescue LoadError
         REXML_FORMATTERS=false
+    end
+
+    # Utilities to parse pools with sax (Nokogiri and Ox)
+
+    # vmpool, imagepool, templatepool, vnpool, documentpool
+
+    module ParsePoolBase
+        attr_accessor :pool
+
+        def initialize (pool_name, elem_name)
+            @current = 0
+            @levels  = [{}]
+            @pool    = Array.new
+
+            @pool_name = pool_name
+            @elem_name = elem_name
+        end
+
+        def start_element(name, attrs = [])
+            return if name == @pool_name
+
+            @current = @current + 1
+
+            @levels[@current] = Hash.new if @levels[@current].nil?
+        end
+
+        def characters(s)
+            @value = s
+        end
+
+        def end_element(name)
+            if @levels[@current].empty?
+                @levels[@current-1][name] = @value
+            else
+                @levels[@current-1][name] = @levels[@current]
+                @levels[@current] = Hash.new
+            end
+
+            if name == @elem_name
+                @pool << @levels[0][@elem_name]
+
+                @current   = 0
+                @levels[0] = Hash.new
+            else
+                @current = @current -1
+            end
+        end
+    end
+
+    class ParsePoolSaxBase
+        def initialize(pool_name, elem_name)
+            @pool_sax=ParsePoolSax::PoolSax.new(pool_name, elem_name)
+        end
+
+        def parse(str)
+            @pool_sax.pool.clear
+            sax_parse(str)
+            @pool_sax.pool
+        end
+    end
+
+    if OX
+        class ParsePoolSax < ParsePoolSaxBase
+            def sax_parse(str)
+                Ox.sax_parse(@pool_sax, StringIO.new(str),
+                    :symbolize => false,
+                    :convert_special => true)
+            end
+
+            class PoolSax < Ox::Sax
+                include ParsePoolBase
+
+                alias :text :characters
+            end
+        end
+    elsif NOKOGIRI
+        class ParsePoolSax < ParsePoolSaxBase
+            def initialize(pool_name, elem_name)
+                super(pool_name, elem_name)
+                @parser = Nokogiri::XML::SAX::Parser.new(@pool_sax)
+            end
+
+            def sax_parse(str)
+                @parser.parse(str)
+            end
+
+            class PoolSax < Nokogiri::XML::SAX::Document
+                include ParsePoolBase
+
+                alias :cdata_block :characters
+            end
+        end
     end
 end
