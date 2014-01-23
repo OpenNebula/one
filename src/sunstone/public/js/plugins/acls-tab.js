@@ -57,8 +57,8 @@ var acls_tab_content = '\
       <th>'+tr("Applies to")+'</th>\
       <th>'+tr("Affected resources")+'</th>\
       <th>'+tr("Resource ID / Owned by")+'</th>\
-      <th>'+tr("Zone")+'</th>\
       <th>'+tr("Allowed operations")+'</th>\
+      <th>'+tr("Zone")+'</th>\
       <th>'+tr("ACL String")+'</th>\
     </tr>\
   </thead>\
@@ -399,7 +399,7 @@ function parseAclString(string) {
     //Zone
     var zone_str = parseZoneAcl(zone);
 
-    return [user_str, resources_str, belonging_to, zone_str, ops_str];
+    return [user_str, resources_str, belonging_to, ops_str, zone_str];
 }
 
 //forms the array of data to be inserted from
