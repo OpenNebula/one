@@ -60,6 +60,7 @@ env.Prepend(LIBS=[
     'nebula_common',
     'nebula_sql',
     'nebula_log',
+    'nebula_client',
     'nebula_xml',
     'crypto',
     'xml2'

@@ -194,7 +194,7 @@ int GroupPool::drop(PoolObjectSQL * objsql, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int GroupPool::dump(ostringstream& oss, const string& where)
+int GroupPool::dump(ostringstream& oss, const string& where, const string& limit)
 {
     int     rc;
     string  def_quota_xml;
@@ -202,9 +202,9 @@ int GroupPool::dump(ostringstream& oss, const string& where)
     ostringstream cmd;
 
     cmd << "SELECT " << Group::table << ".body, "
-        << GroupQuotas::db_table << ".body"
-        << " FROM " << Group::table << " LEFT JOIN " << GroupQuotas::db_table
-        << " ON " << Group::table << ".oid=" << GroupQuotas::db_table << ".group_oid";
+        << GroupQuotas::db_table << ".body" << " FROM " << Group::table
+        << " LEFT JOIN " << GroupQuotas::db_table << " ON "
+        << Group::table << ".oid=" << GroupQuotas::db_table << ".group_oid";
 
     if ( !where.empty() )
     {
@@ -212,6 +212,11 @@ int GroupPool::dump(ostringstream& oss, const string& where)
     }
 
     cmd << " ORDER BY oid";
+
+    if ( !limit.empty() )
+    {
+        cmd << " LIMIT " << limit;
+    }
 
     oss << "<GROUP_POOL>";
 

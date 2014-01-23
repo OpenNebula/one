@@ -120,12 +120,13 @@ public:
      *  query
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
+     *  @param limit parameters used for pagination
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where)
+    int dump(ostringstream& oss, const string& where, const string& limit)
     {
-        return PoolSQL::dump(oss, "ZONE_POOL", Zone::table, where);
+        return PoolSQL::dump(oss, "ZONE_POOL", Zone::table, where, limit);
     };
 
 private:

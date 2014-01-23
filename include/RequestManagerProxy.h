@@ -36,8 +36,11 @@ public:
                          RequestAttributes& att);
 
 private:
-    Client* client;
-    string method;
+    const static size_t MESSAGE_SIZE;
+
+    Client *  client;
+
+    string    method;
 };
 
 #endif

@@ -818,7 +818,7 @@ int UserPool::authorize(AuthRequest& ar)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int UserPool::dump(ostringstream& oss, const string& where)
+int UserPool::dump(ostringstream& oss, const string& where, const string& limit)
 {
     int     rc;
     string  def_quota_xml;
@@ -826,9 +826,9 @@ int UserPool::dump(ostringstream& oss, const string& where)
     ostringstream cmd;
 
     cmd << "SELECT " << User::table << ".body, "
-        << UserQuotas::db_table << ".body"
-        << " FROM " << User::table << " LEFT JOIN " << UserQuotas::db_table
-        << " ON " << User::table << ".oid=" << UserQuotas::db_table << ".user_oid";
+        << UserQuotas::db_table << ".body"<< " FROM " << User::table
+        << " LEFT JOIN " << UserQuotas::db_table << " ON "
+        << User::table << ".oid=" << UserQuotas::db_table << ".user_oid";
 
     if ( !where.empty() )
     {
@@ -836,6 +836,11 @@ int UserPool::dump(ostringstream& oss, const string& where)
     }
 
     cmd << " ORDER BY oid";
+
+    if ( !limit.empty() )
+    {
+        cmd << " LIMIT " << limit;
+    }
 
     oss << "<USER_POOL>";
 

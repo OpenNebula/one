@@ -173,7 +173,7 @@ public:
      */
     int dump(ostringstream& oss, const string& where)
     {
-        dump(oss, where, "");
+        return dump(oss, where, "");
     }
 
     /**
@@ -292,7 +292,7 @@ protected:
              const char *   table,
              const string&  where)
     {
-        dump(oss, elem_name, table, where, "");
+        return dump(oss, elem_name, table, where, "");
     }
 
     /**

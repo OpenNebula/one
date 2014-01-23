@@ -156,10 +156,7 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit)
-    {
-        return PoolSQL::dump(oss, "USER_POOL", User::table, where, limit);
-    };
+    int dump(ostringstream& oss, const string& where, const string& limit);
 
     /**
      *  Name for the OpenNebula core authentication process

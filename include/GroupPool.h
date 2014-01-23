@@ -156,20 +156,7 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit)
-    {
-        return PoolSQL::dump(oss, "GROUP_POOL", Group::table, where, limit);
-    };
-
-protected:
-
-    /**
-     * Adds the default quotas xml element, right after all the
-     * pool objects
-     *
-     * @param oss The output stream to dump the xml contents
-     */
-    virtual void add_extra_xml(ostringstream&  oss);
+    int dump(ostringstream& oss, const string& where, const string& limit);
 
 private:
 
