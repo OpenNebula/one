@@ -224,10 +224,7 @@ before do
     unless request.path=='/login' || request.path=='/' || request.path=='/vnc'
         halt 401 unless authorized?
 
-        # Extra check: Retrieve list
         if env['HTTP_ZONE_NAME']
-            session[:zone_name] = env['HTTP_ZONE_NAME']
-
             client=$cloud_auth.client(session[:user])
             zpool = ZonePoolJSON.new(client)
 
@@ -236,8 +233,9 @@ before do
             return [500, rc.to_json] if OpenNebula.is_error?(rc)
 
             zpool.each{|z|
-                if z['TEMPLATE/ENDPOINT'] == env['HTTP_ZONE_NAME']
+                if z.name == env['HTTP_ZONE_NAME']
                   session[:active_zone_endpoint] = z['TEMPLATE/ENDPOINT']
+                  session[:zone_name] = env['HTTP_ZONE_NAME']
                 end 
              }
         end
