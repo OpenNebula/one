@@ -1,3 +1,5 @@
+require 'rubygems'
+require 'pry'
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
@@ -151,7 +153,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         prefix = '/USER_POOL/DEFAULT_USER_QUOTAS/'
         user_pool = @user_pool
 
-        quotas = user_pool.to_hash()['USER_POOL']['QUOTAS']
+        quotas = user_pool.get_hash()['USER_POOL']['QUOTAS']
         quotas_hash = Hash.new
 
         if (!quotas.nil?)

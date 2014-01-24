@@ -65,7 +65,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
         prefix = '/GROUP_POOL/DEFAULT_GROUP_QUOTAS/'
         group_pool = @group_pool
 
-        quotas = group_pool.to_hash()['GROUP_POOL']['QUOTAS']
+        quotas = group_pool.get_hash()['GROUP_POOL']['QUOTAS']
         quotas_hash = Hash.new
 
         if (!quotas.nil?)
