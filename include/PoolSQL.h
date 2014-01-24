@@ -45,9 +45,10 @@ public:
      *   @param _db a pointer to the database
      *   @param _table the name of the table supporting the pool (to set the oid
      *   counter). If null the OID counter is not updated.
+     *   @param cache True to enable the cache
      *   @param cache_by_name True if the objects can be retrieved by name
      */
-    PoolSQL(SqlDB * _db, const char * _table, bool cache_by_name);
+    PoolSQL(SqlDB * _db, const char * _table, bool cache, bool cache_by_name);
 
     virtual ~PoolSQL();
 
@@ -369,6 +370,11 @@ private:
     map<int,PoolObjectSQL *> pool;
 
     /**
+     * Whether or not this pool uses the cache
+     */
+    bool cache;
+
+    /**
      * Whether or not this pool uses the name_pool index
      */
     bool uses_name_pool;
@@ -414,6 +420,23 @@ private:
      *  back of the queue.
      */
     void replace();
+
+    /**
+     * Cleans all the objects in the cache, except the ones locked.
+     * The object with the given oid will not be ignored if locked, the
+     * method will wait for it to be unlocked and ensure it is erased from
+     * the cache
+     *
+     * @param oid
+     */
+    void flush_cache(int oid);
+
+    /**
+     * Same as flush_cache(int), but with the object name-uid key
+     *
+     * @param name_key
+     */
+    void flush_cache(const string& name_key);
 
     /**
      *  Generate an index key for the object

@@ -42,7 +42,8 @@ public:
     UserPool(SqlDB * db,
              time_t  __session_expiration_time,
              vector<const Attribute *> hook_mads,
-             const string&             remotes_location);
+             const string&             remotes_location,
+             bool                      cache);
 
     ~UserPool(){};
 

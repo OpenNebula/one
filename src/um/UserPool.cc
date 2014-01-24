@@ -55,8 +55,9 @@ string UserPool::oneadmin_name;
 UserPool::UserPool(SqlDB * db,
                    time_t  __session_expiration_time,
                    vector<const Attribute *> hook_mads,
-                   const string&             remotes_location):
-                       PoolSQL(db, User::table, true)
+                   const string&             remotes_location,
+                   bool                      cache):
+                       PoolSQL(db, User::table, cache, true)
 {
     int           one_uid    = -1;
     int           server_uid = -1;

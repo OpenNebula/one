@@ -607,6 +607,8 @@ void Nebula::start(bool bootstrap_only)
 
         bool    vm_submit_on_hold;
 
+        bool    cache = !is_federation_slave();
+
         vector<const Attribute *> vm_hooks;
         vector<const Attribute *> host_hooks;
         vector<const Attribute *> vnet_hooks;
@@ -623,7 +625,7 @@ void Nebula::start(bool bootstrap_only)
 
         clpool  = new ClusterPool(db);
         docpool = new DocumentPool(db);
-        zonepool= new ZonePool(db);
+        zonepool= new ZonePool(db, cache);
 
         nebula_configuration->get("VM_HOOK", vm_hooks);
         nebula_configuration->get("HOST_HOOK",  host_hooks);
@@ -667,10 +669,10 @@ void Nebula::start(bool bootstrap_only)
                                         remotes_location,
                                         inherit_vnet_attrs);
 
-        gpool  = new GroupPool(db, group_hooks, remotes_location);
+        gpool  = new GroupPool(db, group_hooks, remotes_location, cache);
 
         nebula_configuration->get("SESSION_EXPIRATION_TIME", expiration_time);
-        upool = new UserPool(db, expiration_time, user_hooks, remotes_location);
+        upool = new UserPool(db, expiration_time, user_hooks, remotes_location, cache);
 
         nebula_configuration->get("DEFAULT_IMAGE_TYPE", default_image_type);
         nebula_configuration->get("DEFAULT_DEVICE_PREFIX",

@@ -41,7 +41,7 @@ HostPool::HostPool(SqlDB*                    db,
                    const string&             hook_location,
                    const string&             remotes_location,
                    time_t                    expire_time)
-                        : PoolSQL(db, Host::table, true)
+                        : PoolSQL(db, Host::table, true, true)
 {
 
     _monitor_expiration = expire_time;
