@@ -1488,8 +1488,7 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onedatastore.yaml \
                 src/cli/etc/onecluster.yaml \
                 src/cli/etc/onezone.yaml \
-                src/cli/etc/oneacct.yaml \
-                src/cli/etc/group.default"
+                src/cli/etc/oneacct.yaml"
 
 #-----------------------------------------------------------------------------
 # Sunstone files
