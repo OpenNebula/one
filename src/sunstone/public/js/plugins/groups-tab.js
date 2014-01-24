@@ -874,7 +874,7 @@ function setup_add_rp_dialog(group_id){
            switch (resource_selection){
            case "all":
                // 10 is the special ID for ALL, see ClusterPool.h
-               extra_param = {
+              extra_param = {
                    "zone_id" : zone_id,
                    "cluster_id" : 10
                }
@@ -883,7 +883,7 @@ function setup_add_rp_dialog(group_id){
                                  group_id, 
                                  extra_param);
 
-               break;
+              break;
            case "cluster":
                $.each(selected_group_clusters[zone_id], function(key, value) {
                  extra_param = {
@@ -928,7 +928,7 @@ function setup_add_rp_dialog(group_id){
     });
 }
 
-function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id, str_datatable_id) {
+function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id, str_datatable_id, id_suffix) {
     // Show the clusters dataTable when the radio button is selected
     $("input[name='"+str_zone_tab_id+"']", zone_section).change(function(){
         if ($("input[name='"+str_zone_tab_id+"']:checked", zone_section).val() == "cluster") {
@@ -939,7 +939,14 @@ function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id
         }
     });
 
-    $('#'+str_zone_tab_id+'resources_all', zone_section).click();
+    if (zone_id == 0 && !id_suffix)
+    {
+      $('#'+str_zone_tab_id+'resources_all', zone_section).click();
+    }
+    else
+    {
+      $('#'+str_zone_tab_id+'resources_none', zone_section).click();
+    }
 
     var dataTable_group_clusters = $('#'+str_datatable_id, zone_section).dataTable({
         "iDisplayLength": 4,
@@ -1131,7 +1138,7 @@ var add_resource_tab = function(zone_id, zone_name, dialog, id_suffix) {
     $(document).foundationTabs("set_tab", a);
 
     var zone_section = $('li#' +str_zone_tab_id+'Tab', dialog);
-    setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id, str_datatable_id);
+    setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id, str_datatable_id, id_suffix);
 };
 
 function disableAdminUser(dialog){
