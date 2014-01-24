@@ -228,7 +228,11 @@ void Scheduler::start()
     dspool     = new SystemDatastorePoolXML(client);
     img_dspool = new ImageDatastorePoolXML(client);
 
-    acls = new AclXML(client);
+    // TODO: In stand alone mode, Nebula.cc inits zone_id to 0. But we need
+    // to know the local zone id in the sched. Either from sched.conf, or
+    // from one.system.config
+    int zone_id = 0;
+    acls = new AclXML(client, zone_id);
 
     // -----------------------------------------------------------
     // Load scheduler policies

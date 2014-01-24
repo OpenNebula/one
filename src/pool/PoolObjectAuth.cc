@@ -26,9 +26,9 @@ void PoolObjectAuth::get_acl_rules(AclRule& owner_rule,
 
     perm_resource = obj_type | AclRule::INDIVIDUAL_ID | oid;
 
-    // TODO
+    // TODO: zone id is 0 in stand alone mode
     //perm_zone = AclRule::INDIVIDUAL_ID | Nebula::instance().get_zone_id();
-    perm_zone = AclRule::INDIVIDUAL_ID | 10;
+    perm_zone = AclRule::INDIVIDUAL_ID | 0;
 
     // -------------------------------------------------------------------------
     // Rule     "#uid  ob_type/#oid  user_rights #zone"

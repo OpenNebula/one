@@ -48,7 +48,8 @@ int AclManager::init_cb(void *nil, int num, char **values, char **names)
 
 /* -------------------------------------------------------------------------- */
 
-AclManager::AclManager(SqlDB * _db) : db(_db), lastOID(-1)
+AclManager::AclManager(SqlDB * _db, int _zone_id)
+    : zone_id(_zone_id), db(_db), lastOID(-1)
 {
     ostringstream oss;
 

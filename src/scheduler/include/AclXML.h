@@ -28,7 +28,8 @@ using namespace std;
 class AclXML : public AclManager
 {
 public:
-    AclXML(Client * _client):AclManager(), client(_client){};
+    AclXML(Client * _client, int zone_id):AclManager(zone_id), client(_client)
+    {};
 
     virtual ~AclXML(){};
 

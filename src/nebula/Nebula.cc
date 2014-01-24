@@ -911,7 +911,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- ACL Manager ----
     try
     {
-        aclm = new AclManager(db);
+        aclm = new AclManager(db, zone_id);
     }
     catch (bad_alloc&)
     {

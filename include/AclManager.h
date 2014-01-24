@@ -34,9 +34,9 @@ class PoolObjectAuth;
 class AclManager : public Callbackable
 {
 public:
-    AclManager(SqlDB * _db);
+    AclManager(SqlDB * _db, int zone_id);
 
-    AclManager():db(0),lastOID(0)
+    AclManager(int _zone_id):zone_id(_zone_id),db(0),lastOID(0)
     {
        pthread_mutex_init(&mutex, 0);
     };
@@ -275,11 +275,15 @@ private:
             long long resource_req,
             long long resource_mask);
 
+    // ----------------------------------------
+    // Local zone
+    // ----------------------------------------
 
-    // TODO
+    int zone_id;
+
     int get_zone_id() const
     {
-        return 10;
+        return zone_id;
     };
 
     // ----------------------------------------
