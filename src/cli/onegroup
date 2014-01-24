@@ -252,6 +252,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     del_provider_desc = <<-EOT.unindent
         Deletes a resource provider (cluster of a zone) from the given group
+        clusterid can be set to ALL
     EOT
 
     command :del_provider, del_provider_desc, [:range, :groupid_list], :zoneid, :clusterid do
