@@ -239,7 +239,7 @@ const bool AclManager::authorize(
     AclRule other_rule;
     multimap<long long, AclRule *> tmp_rules;
 
-    obj_perms.get_acl_rules(owner_rule, group_rule, other_rule);
+    obj_perms.get_acl_rules(owner_rule, group_rule, other_rule, zone_id);
 
     tmp_rules.insert( make_pair(owner_rule.user, &owner_rule) );
     tmp_rules.insert( make_pair(group_rule.user, &group_rule) );

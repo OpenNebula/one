@@ -20,15 +20,14 @@
 
 void PoolObjectAuth::get_acl_rules(AclRule& owner_rule,
                                    AclRule& group_rule,
-                                   AclRule& other_rule) const
+                                   AclRule& other_rule,
+                                   int zone_id) const
 {
     long long perm_user, perm_resource, perm_rights, perm_zone;
 
     perm_resource = obj_type | AclRule::INDIVIDUAL_ID | oid;
 
-    // TODO: zone id is 0 in stand alone mode
-    //perm_zone = AclRule::INDIVIDUAL_ID | Nebula::instance().get_zone_id();
-    perm_zone = AclRule::INDIVIDUAL_ID | 0;
+    perm_zone = AclRule::INDIVIDUAL_ID | zone_id;
 
     // -------------------------------------------------------------------------
     // Rule     "#uid  ob_type/#oid  user_rights #zone"
@@ -81,7 +80,7 @@ void PoolObjectAuth::get_acl_rules(AclRule& owner_rule,
     // -------------------------------------------------------------------------
     // Rule  "*     ob_type/#oid  others_rights"
     // -------------------------------------------------------------------------
-    
+
     perm_user       = AclRule::ALL_ID;
     perm_rights     = 0;
 
