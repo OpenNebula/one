@@ -52,6 +52,8 @@ protected:
         clpool(0),
         vmpool(0),
         vmapool(0),
+        dspool(0),
+        img_dspool(0),
         acls(0),
         timer(0),
         url(""),
@@ -66,45 +68,18 @@ protected:
 
     virtual ~Scheduler()
     {
-        if ( hpool != 0)
-        {
-            delete hpool;
-        }
+        delete hpool;
+        delete clpool;
 
-        if ( clpool != 0)
-        {
-            delete clpool;
-        }
+        delete vmpool;
+        delete vmapool;
 
-        if ( vmpool != 0)
-        {
-            delete vmpool;
-        }
+        delete dspool;
+        delete img_dspool;
 
-        if ( vmapool != 0)
-        {
-            delete vmapool;
-        }
+        delete acls;
 
-        if ( dspool != 0)
-        {
-            delete dspool;
-        }
-
-        if ( img_dspool != 0)
-        {
-            delete img_dspool;
-        }
-
-        if ( acls != 0)
-        {
-            delete acls;
-        }
-
-        if ( client != 0)
-        {
-            delete client;
-        }
+        delete client;
     };
 
     // ---------------------------------------------------------------
@@ -202,9 +177,19 @@ private:
     float hypervisor_mem;
 
     /**
+     *  OpenNebula zone id.
+     */
+    int zone_id;
+
+    /**
      *  XML_RPC client
      */
     Client * client;
+
+    /**
+     * oned runtime configuration values
+     */
+     Template oned_conf;
 
     // ---------------------------------------------------------------
     // Timer to periodically schedule and dispatch VMs
