@@ -64,6 +64,8 @@ int LibVirtDriver::deployment_description_kvm(
     string  ceph_host  = "";
     string  ceph_secret= "";
     string  ceph_user  = "";
+    string  gluster_host   = "";
+    string  gluster_volume = "";
 
     int     disk_id;
     string  default_driver          = "";
@@ -331,6 +333,8 @@ int LibVirtDriver::deployment_description_kvm(
         ceph_host   = disk->vector_value("CEPH_HOST");
         ceph_secret = disk->vector_value("CEPH_SECRET");
         ceph_user   = disk->vector_value("CEPH_USER");
+        gluster_host    = disk->vector_value("GLUSTER_HOST");
+        gluster_volume  = disk->vector_value("GLUSTER_VOLUME");
 
         disk->vector_value_str("DISK_ID", disk_id);
 
@@ -361,9 +365,21 @@ int LibVirtDriver::deployment_description_kvm(
                  << "\t\t\t<source dev='" << vm->get_remote_system_dir()
                  << "/disk." << disk_id << "'/>" << endl;
         }
-        else if ( type == "RBD" || type == "RBD_CDROM" )
+        else if ( type == "RBD" || type == "RBD_CDROM" ||
+                  type == "GLUSTER" || type == "GLUSTER_CDROM" )
         {
-            if (type == "RBD")
+            string protocol = "";
+
+            if ( type == "RBD" || type == "RBD_CDROM" )
+            {
+                protocol = "rbd";
+            }
+            else
+            {
+                protocol = "gluster";
+            }
+
+            if ( type == "RBD" || type == "GLUSTER" )
             {
                 file << "\t\t<disk type='network' device='disk'>" << endl;
             }
@@ -372,21 +388,55 @@ int LibVirtDriver::deployment_description_kvm(
                 file << "\t\t<disk type='network' device='cdrom'>" << endl;
             }
 
-            file << "\t\t\t<source protocol='rbd' name='" << source;
+            file << "\t\t\t<source protocol='" << protocol << "' name='";
 
-            if ( clone == "YES" )
+            if ( protocol == "gluster" )
+            {
+                file << gluster_volume << "/";
+            }
+
+            if ( protocol == "rbd" )
+            {
+                file << source;
+                if ( clone == "YES" )
+                {
+                    file << "-" << vm->get_oid() << "-" << disk_id;
+                }
+            }
+            else
+            {
+                if ( clone == "YES" )
+                {
+                    file << vm->get_oid() << "/disk." << disk_id;
+                }
+                else
+                {
+                    file << one_util::split(source, '/').back();
+                }
+            }
+
+            if ( protocol == "rbd" && clone == "YES" )
             {
                 file << "-" << vm->get_oid() << "-" << disk_id;
             }
 
-            if ( ceph_host.empty() )
+            if ( ceph_host.empty() && gluster_host.empty() )
             {
                 file << "'/>" << endl;
             }
             else
             {
                 vector<string>::const_iterator it;
-                vector<string> hosts = one_util::split(ceph_host, ' ');
+                vector<string> hosts;
+
+                if ( protocol == "rbd" )
+                {
+                    hosts = one_util::split(ceph_host, ' ');
+                }
+                else
+                {
+                    hosts = one_util::split(gluster_host, ' ');
+                }
 
                 file << "'>" << endl;
 
@@ -406,18 +456,26 @@ int LibVirtDriver::deployment_description_kvm(
                         file << "' port='" << parts[1];
                     }
 
+                    if ( protocol == "gluster" )
+                    {
+                        file << "' transport='tcp";
+                    }
+
                     file << "'/>" << endl;
                 }
 
                 file << "\t\t\t</source>" << endl;
             }
 
-            if ( !ceph_secret.empty() && !ceph_user.empty())
+            if ( protocol == "rbd" )
             {
-                file << "\t\t\t<auth username='"<< ceph_user <<"'>" << endl
-                     << "\t\t\t\t<secret type='ceph' uuid='"
-                     << ceph_secret <<"'/>" << endl
-                     << "\t\t\t</auth>" << endl;
+                if ( !ceph_secret.empty() && !ceph_user.empty())
+                {
+                    file << "\t\t\t<auth username='"<< ceph_user <<"'>" << endl
+                         << "\t\t\t\t<secret type='ceph' uuid='"
+                         << ceph_secret <<"'/>" << endl
+                         << "\t\t\t</auth>" << endl;
+                }
             }
         }
         else if ( type == "CDROM" )
