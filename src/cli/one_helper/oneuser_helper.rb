@@ -1,5 +1,3 @@
-require 'rubygems'
-require 'pry'
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
