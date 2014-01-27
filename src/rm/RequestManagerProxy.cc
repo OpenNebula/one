@@ -33,6 +33,8 @@ RequestManagerProxy::RequestManagerProxy(string _method)
 
     method = _method;
     client = new Client("none", master_endpoint, msg_size);
+
+    method_name = ("Proxy - " + method);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -51,7 +53,14 @@ void RequestManagerProxy::request_execute(xmlrpc_c::paramList const& _paramList,
 {
     xmlrpc_c::value return_value;
 
-    client->call(client->get_endpoint(), method, _paramList, &return_value);
+    try
+    {
+        client->call(client->get_endpoint(), method, _paramList, &return_value);
 
-    *(att.retval) = return_value;
+        *(att.retval) = return_value;
+    }
+    catch(exception const& e)
+    {
+        failure_response(INTERNAL, request_error("Could not connect to the federation master oned", ""), att);
+    }
 }
