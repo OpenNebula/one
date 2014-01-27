@@ -911,9 +911,11 @@ void Nebula::start(bool bootstrap_only)
     }
 
     // ---- ACL Manager ----
+    bool refresh_acl_cache = is_federation_slave();
+
     try
     {
-        aclm = new AclManager(db);
+        aclm = new AclManager(db, refresh_acl_cache, timer_period);
     }
     catch (bad_alloc&)
     {
@@ -1060,6 +1062,7 @@ void Nebula::start(bool bootstrap_only)
     rm->finalize();
     hm->finalize();
     imagem->finalize();
+    aclm->finalize();
 
     //sleep to wait drivers???
 
@@ -1072,6 +1075,11 @@ void Nebula::start(bool bootstrap_only)
     pthread_join(rm->get_thread_id(),0);
     pthread_join(hm->get_thread_id(),0);
     pthread_join(imagem->get_thread_id(),0);
+
+    if(refresh_acl_cache)
+    {
+        pthread_join(aclm->get_thread_id(),0);
+    }
 
     //XML Library
     xmlCleanupParser();
