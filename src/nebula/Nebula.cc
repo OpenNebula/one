@@ -423,7 +423,8 @@ void Nebula::start(bool bootstrap_only)
         }
         else
         {
-            // TODO: error
+            throw runtime_error(
+                "FEDERATION MODE must be one of STANDALONE, MASTER, SLAVE.");
         }
 
         if (federation_enabled)
@@ -432,14 +433,16 @@ void Nebula::start(bool bootstrap_only)
 
             if (rc != 0)
             {
-                // TODO: error
+                throw runtime_error("FEDERATION ZONE_ID must be set for "
+                    "federated instances.");
             }
 
             master_oned = vatt->vector_value("MASTER_ONED");
 
             if (master_oned.empty())
             {
-                // TODO: error
+                throw runtime_error(
+                    "FEDERATION MASTER_ONED endpoint is missing.");
             }
         }
     }
