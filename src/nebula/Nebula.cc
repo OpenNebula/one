@@ -607,6 +607,8 @@ void Nebula::start(bool bootstrap_only)
 
         bool    vm_submit_on_hold;
 
+        bool    cache = !is_federation_slave();
+
         vector<const Attribute *> vm_hooks;
         vector<const Attribute *> host_hooks;
         vector<const Attribute *> vnet_hooks;
@@ -623,7 +625,7 @@ void Nebula::start(bool bootstrap_only)
 
         clpool  = new ClusterPool(db);
         docpool = new DocumentPool(db);
-        zonepool= new ZonePool(db);
+        zonepool= new ZonePool(db, cache);
 
         nebula_configuration->get("VM_HOOK", vm_hooks);
         nebula_configuration->get("HOST_HOOK",  host_hooks);
@@ -667,10 +669,10 @@ void Nebula::start(bool bootstrap_only)
                                         remotes_location,
                                         inherit_vnet_attrs);
 
-        gpool  = new GroupPool(db, group_hooks, remotes_location);
+        gpool  = new GroupPool(db, group_hooks, remotes_location, cache);
 
         nebula_configuration->get("SESSION_EXPIRATION_TIME", expiration_time);
-        upool = new UserPool(db, expiration_time, user_hooks, remotes_location);
+        upool = new UserPool(db, expiration_time, user_hooks, remotes_location, cache);
 
         nebula_configuration->get("DEFAULT_IMAGE_TYPE", default_image_type);
         nebula_configuration->get("DEFAULT_DEVICE_PREFIX",
@@ -909,9 +911,11 @@ void Nebula::start(bool bootstrap_only)
     }
 
     // ---- ACL Manager ----
+    bool refresh_acl_cache = is_federation_slave();
+
     try
     {
-        aclm = new AclManager(db, zone_id);
+        aclm = new AclManager(db, zone_id, refresh_acl_cache, timer_period);
     }
     catch (bad_alloc&)
     {
@@ -1058,6 +1062,7 @@ void Nebula::start(bool bootstrap_only)
     rm->finalize();
     hm->finalize();
     imagem->finalize();
+    aclm->finalize();
 
     //sleep to wait drivers???
 
@@ -1070,6 +1075,11 @@ void Nebula::start(bool bootstrap_only)
     pthread_join(rm->get_thread_id(),0);
     pthread_join(hm->get_thread_id(),0);
     pthread_join(imagem->get_thread_id(),0);
+
+    if(refresh_acl_cache)
+    {
+        pthread_join(aclm->get_thread_id(),0);
+    }
 
     //XML Library
     xmlCleanupParser();

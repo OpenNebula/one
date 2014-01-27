@@ -20,8 +20,8 @@
 
 /* -------------------------------------------------------------------------- */
 
-ZonePool::ZonePool(SqlDB * db)
-    :PoolSQL(db, Zone::table, true)
+ZonePool::ZonePool(SqlDB * db, bool cache)
+    :PoolSQL(db, Zone::table, cache, true)
 {
     if (get_lastOID() == -1) //lastOID is set in PoolSQL::init_cb
     {

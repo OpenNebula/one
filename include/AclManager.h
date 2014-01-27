@@ -28,15 +28,19 @@ using namespace std;
 
 class PoolObjectAuth;
 
+extern "C" void * acl_action_loop(void *arg);
+
 /**
  *  This class manages the ACL rules and the authorization engine
  */
-class AclManager : public Callbackable
+class AclManager : public Callbackable, public ActionListener
 {
 public:
-    AclManager(SqlDB * _db, int zone_id);
 
-    AclManager(int _zone_id):zone_id(_zone_id),db(0),lastOID(0)
+    AclManager(SqlDB * _db, int zone_id, bool _refresh_cache, time_t timer_period);
+
+    AclManager(int _zone_id)
+        :zone_id(_zone_id), db(0),lastOID(0), refresh_cache(false)
     {
        pthread_mutex_init(&mutex, 0);
     };
@@ -44,10 +48,13 @@ public:
     virtual ~AclManager();
 
     /**
-     *  Loads the ACL rule set from the DB
+     *  Loads the ACL rule set from the DB, and starts the refresh loop is
+     *  refresh_cache is set
      *    @return 0 on success.
      */
     int start();
+
+    void finalize();
 
     /* ---------------------------------------------------------------------- */
     /* Rule management                                                        */
@@ -180,6 +187,20 @@ public:
      *    @return 0 on success
      */
     virtual int dump(ostringstream& oss);
+
+    // ----------------------------------------
+    // Refresh loop thread
+    // ----------------------------------------
+
+    /**
+     *  Gets the AclManager thread identification. The thread is only
+     *  initialized if the refresh_cache flag is true.
+     *    @return pthread_t for the manager thread (that in the action loop).
+     */
+    pthread_t get_thread_id() const
+    {
+        return acl_thread;
+    };
 
 protected:
 
@@ -383,6 +404,45 @@ private:
      *  Callback to set the lastOID
      */
     int  init_cb(void *nil, int num, char **values, char **names);
+
+    // ----------------------------------------
+    // Refresh loop thread
+    // ----------------------------------------
+
+    /**
+     * Flag to refresh the cache periodically
+     */
+    bool refresh_cache;
+
+    /**
+     *  Timer period for the cache refresh loop.
+     */
+    time_t          timer_period;
+
+    /**
+     *  Thread id for the ACL Manager
+     */
+    pthread_t       acl_thread;
+
+    /**
+     *  Action engine for the Manager
+     */
+    ActionManager   am;
+
+    /**
+     *  Function to execute the Manager action loop method within a new pthread
+     *  (requires C linkage)
+     */
+    friend void * acl_action_loop(void *arg);
+
+    /**
+     *  The action function executed when an action is triggered.
+     *    @param action the name of the action
+     *    @param arg arguments for the action function
+     */
+    void do_action(
+        const string &  action,
+        void *          arg);
 };
 
 #endif /*ACL_MANAGER_H*/

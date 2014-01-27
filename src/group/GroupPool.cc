@@ -39,8 +39,9 @@ const int    GroupPool::USERS_ID      = 1;
 
 GroupPool::GroupPool(SqlDB * db,
                      vector<const Attribute *> hook_mads,
-                     const string&             remotes_location)
-    :PoolSQL(db, Group::table, true)
+                     const string&             remotes_location,
+                     bool                      cache)
+    :PoolSQL(db, Group::table, cache, true)
 {
     ostringstream oss;
     string        error_str;

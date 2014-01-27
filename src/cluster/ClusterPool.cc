@@ -33,7 +33,7 @@ const int    ClusterPool::ALL_RESOURCES = 10;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-ClusterPool::ClusterPool(SqlDB * db):PoolSQL(db, Cluster::table, true)
+ClusterPool::ClusterPool(SqlDB * db):PoolSQL(db, Cluster::table, true, true)
 {
     ostringstream oss;
     string        error_str;

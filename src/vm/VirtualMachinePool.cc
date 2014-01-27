@@ -38,7 +38,7 @@ VirtualMachinePool::VirtualMachinePool(
         vector<const Attribute *>&  restricted_attrs,
         time_t                      expire_time,
         bool                        on_hold)
-    : PoolSQL(db, VirtualMachine::table, false)
+    : PoolSQL(db, VirtualMachine::table, true, false)
 {
     const VectorAttribute * vattr;
 

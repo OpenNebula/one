@@ -26,7 +26,8 @@ using namespace std;
 class ZonePool : public PoolSQL
 {
 public:
-    ZonePool(SqlDB * db);
+    ZonePool(SqlDB * db,
+             bool    cache);
 
     ~ZonePool(){};
 

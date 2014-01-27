@@ -28,7 +28,8 @@ class GroupPool : public PoolSQL
 public:
     GroupPool(SqlDB * db,
               vector<const Attribute *> hook_mads,
-              const string&             remotes_location);
+              const string&             remotes_location,
+              bool                      cache);
 
     ~GroupPool(){};
 

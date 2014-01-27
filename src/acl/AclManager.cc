@@ -48,8 +48,13 @@ int AclManager::init_cb(void *nil, int num, char **values, char **names)
 
 /* -------------------------------------------------------------------------- */
 
-AclManager::AclManager(SqlDB * _db, int _zone_id)
-    : zone_id(_zone_id), db(_db), lastOID(-1)
+AclManager::AclManager(
+    SqlDB * _db,
+    int     _zone_id,
+    bool    _refresh_cache,
+    time_t  _timer_period)
+        :zone_id(_zone_id), db(_db), lastOID(-1), refresh_cache(_refresh_cache),
+        timer_period(_timer_period)
 {
     ostringstream oss;
 
@@ -100,6 +105,31 @@ AclManager::AclManager(SqlDB * _db, int _zone_id)
                  error_str);
 
     }
+
+    am.addListener(this);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+extern "C" void * acl_action_loop(void *arg)
+{
+    AclManager * aclm;
+
+    if ( arg == 0 )
+    {
+        return 0;
+    }
+
+    NebulaLog::log("ACL",Log::INFO,"ACL Manager started.");
+
+    aclm = static_cast<AclManager *>(arg);
+
+    aclm->am.loop(aclm->timer_period,0);
+
+    NebulaLog::log("ACL",Log::INFO,"ACL Manager stopped.");
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -107,10 +137,42 @@ AclManager::AclManager(SqlDB * _db, int _zone_id)
 
 int AclManager::start()
 {
-    acl_rules.clear();
-    acl_rules_oids.clear();
+    int rc;
 
-    return select();
+    NebulaLog::log("ACL",Log::INFO,"Starting ACL Manager...");
+
+    rc = select();
+
+    if (refresh_cache)
+    {
+        pthread_attr_t    pattr;
+
+        pthread_attr_init (&pattr);
+        pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
+
+        rc += pthread_create(&acl_thread,&pattr,acl_action_loop,(void *) this);
+    }
+    else
+    {
+        NebulaLog::log("ACL",Log::INFO,"ACL Manager started.");
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AclManager::finalize()
+{
+    if (refresh_cache)
+    {
+        am.trigger(ACTION_FINALIZE,0);
+    }
+    else
+    {
+        NebulaLog::log("ACL",Log::INFO,"ACL Manager stopped.");
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1008,7 +1070,14 @@ int AclManager::select()
 
     set_callback(static_cast<Callbackable::Callback>(&AclManager::select_cb));
 
+    lock();
+
+    acl_rules.clear();
+    acl_rules_oids.clear();
+
     rc = db->exec(oss,this);
+
+    unlock();
 
     unset_callback();
 
@@ -1076,6 +1145,28 @@ int AclManager::dump(ostringstream& oss)
     unlock();
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AclManager::do_action(const string &action, void * arg)
+{
+    if (action == ACTION_TIMER)
+    {
+        select();
+    }
+    else if (action == ACTION_FINALIZE)
+    {
+        NebulaLog::log("ACL",Log::INFO,"Stopping ACL Manager...");
+    }
+    else
+    {
+        ostringstream oss;
+        oss << "Unknown action name: " << action;
+
+        NebulaLog::log("ACL", Log::ERROR, oss);
+    }
 }
 
 /* -------------------------------------------------------------------------- */
