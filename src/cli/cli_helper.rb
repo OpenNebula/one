@@ -217,7 +217,7 @@ module CLIHelper
 
             begin
                 res_data.each{|l|
-                    puts (0..ncolumns-1).collect{ |i|
+                    print (0..ncolumns-1).collect{ |i|
                         dat=l[i]
                         col=@default_columns[i]
 
