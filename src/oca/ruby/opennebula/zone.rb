@@ -27,6 +27,7 @@ module OpenNebula
             :info           => "zone.info",
             :allocate       => "zone.allocate",
             :update         => "zone.update",
+            :rename         => "zone.rename",
             :delete         => "zone.delete"
         }
 
@@ -91,6 +92,16 @@ module OpenNebula
         #   otherwise
         def delete()
             super(ZONE_METHODS[:delete])
+        end
+
+        # Renames this Zone
+        #
+        # @param name [String] New name for the Zone.
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def rename(name)
+            return call(ZONE_METHODS[:rename], @pe_id, name)
         end
     end
 end

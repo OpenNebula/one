@@ -662,12 +662,14 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr zone_delete(zone_delete_pt);
 
     xmlrpc_c::methodPtr zone_info(new ZoneInfo());
+    xmlrpc_c::methodPtr zone_rename(new ZoneRename());
     xmlrpc_c::methodPtr zonepool_info(new ZonePoolInfo());
 
     RequestManagerRegistry.addMethod("one.zone.allocate",zone_allocate);
     RequestManagerRegistry.addMethod("one.zone.update",  zone_update);
     RequestManagerRegistry.addMethod("one.zone.delete",  zone_delete);
     RequestManagerRegistry.addMethod("one.zone.info",    zone_info);
+    RequestManagerRegistry.addMethod("one.zone.rename",  zone_rename);
 
     RequestManagerRegistry.addMethod("one.zonepool.info",zonepool_info);
 

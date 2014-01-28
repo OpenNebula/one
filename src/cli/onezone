@@ -81,6 +81,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    rename_desc = <<-EOT.unindent
+        Renames the Zone
+    EOT
+
+    command :rename, rename_desc, :zoneid, :name do
+        helper.perform_action(args[0],options,"renamed") do |o|
+            o.rename(args[1])
+        end
+    end
+
     update_desc = <<-EOT.unindent
         Update the template contents. If a path is not provided the editor will
         be launched to modify the current content.
