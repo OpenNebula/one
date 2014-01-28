@@ -217,7 +217,7 @@ module CLIHelper
 
             begin
                 res_data.each{|l|
-                    print (0..ncolumns-1).collect{ |i|
+                    puts (0..ncolumns-1).collect{ |i|
                         dat=l[i]
                         col=@default_columns[i]
 
@@ -229,8 +229,6 @@ module CLIHelper
                 }
             rescue Errno::EPIPE
             end
-
-            puts
         end
 
         def data_array(data, options)
