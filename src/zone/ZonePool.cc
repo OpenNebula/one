@@ -17,14 +17,41 @@
 #include "ZonePool.h"
 #include "NebulaLog.h"
 
+/* -------------------------------------------------------------------------- */
+
+const int ZonePool::STANDALONE_ZONE_ID = 0;
 
 /* -------------------------------------------------------------------------- */
 
 ZonePool::ZonePool(SqlDB * db, bool cache)
     :PoolSQL(db, Zone::table, cache, true)
 {
+    string error_str;
+
     if (get_lastOID() == -1) //lastOID is set in PoolSQL::init_cb
     {
+        int         rc;
+        Template *  tmpl;
+
+        // Build the local zone
+        tmpl = new Template;
+        rc = tmpl->parse_str_or_xml(
+                "NAME     = OpenNebula\n"
+                "ENDPOINT = -",
+                error_str);
+
+        if( rc < 0 )
+        {
+            goto error_bootstrap;
+        }
+
+        allocate(tmpl, &rc, error_str);
+
+        if( rc < 0 )
+        {
+            goto error_bootstrap;
+        }
+
         // The first 100 Zone IDs are reserved for system Zones.
         // Regular ones start from ID 100
 
@@ -32,6 +59,13 @@ ZonePool::ZonePool(SqlDB * db, bool cache)
     }
 
     return;
+
+error_bootstrap:
+    ostringstream oss;
+    oss << "Error trying to create local zone: " << error_str;
+    NebulaLog::log("ZONE",Log::ERROR,oss);
+
+    throw runtime_error(oss.str());
 }
 
 /* -------------------------------------------------------------------------- */

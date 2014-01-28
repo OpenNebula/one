@@ -130,6 +130,10 @@ public:
         return PoolSQL::dump(oss, "ZONE_POOL", Zone::table, where, limit);
     };
 
+    /**
+     * ID for the special local zone in stand-alone mode
+     */
+    static const int STANDALONE_ZONE_ID;
 private:
 
     /**
