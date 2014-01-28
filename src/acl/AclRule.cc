@@ -56,6 +56,14 @@ const long long AclRule::INVALID_CLUSTER_OBJECTS =
         PoolObjectSQL::TEMPLATE | PoolObjectSQL::GROUP | PoolObjectSQL::ACL |
         PoolObjectSQL::CLUSTER | PoolObjectSQL::DOCUMENT | PoolObjectSQL::ZONE;
 
+const long long AclRule::INVALID_GROUP_OBJECTS =
+        PoolObjectSQL::HOST | PoolObjectSQL::GROUP | PoolObjectSQL::CLUSTER |
+        PoolObjectSQL::ZONE;
+
+const long long AclRule::FEDERATED_OBJECTS =
+        PoolObjectSQL::USER | PoolObjectSQL::GROUP | PoolObjectSQL::ZONE |
+        PoolObjectSQL::ACL;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -160,6 +168,21 @@ bool AclRule::malformed(string& error_str) const
             << PoolObjectSQL::type_to_str(PoolObjectSQL::DATASTORE) << ", "
             << PoolObjectSQL::type_to_str(PoolObjectSQL::HOST) << " and "
             << PoolObjectSQL::type_to_str(PoolObjectSQL::NET) << " types";
+    }
+
+    if ((resource & GROUP_ID) && (resource_type & INVALID_GROUP_OBJECTS))
+    {
+        if ( error )
+        {
+            oss << "; ";
+        }
+
+        error = true;
+        oss << "[resource] GROUP(@) selector cannot be applied to "
+            << PoolObjectSQL::type_to_str(PoolObjectSQL::HOST) << ", "
+            << PoolObjectSQL::type_to_str(PoolObjectSQL::GROUP) << ", "
+            << PoolObjectSQL::type_to_str(PoolObjectSQL::CLUSTER) << " or "
+            << PoolObjectSQL::type_to_str(PoolObjectSQL::ZONE) << " types";
     }
 
     if ( (resource & 0xF00000000LL) == 0 )
@@ -293,6 +316,22 @@ bool AclRule::malformed(string& error_str) const
         oss << "when using the ALL bit, [zone] ID must be 0";
     }
 
+    if ((zone & ALL_ID) &&
+        (resource & INDIVIDUAL_ID) &&
+        ( (resource_type & FEDERATED_OBJECTS) != resource_type ) )
+    {
+        if ( error )
+        {
+            oss << "; ";
+        }
+
+        error = true;
+        oss << "[resource] INDIVIDUAL(#) selector cannot be applied "
+            << "to ALL zones, except for "
+            << PoolObjectSQL::type_to_str(PoolObjectSQL::USER) << ", "
+            << PoolObjectSQL::type_to_str(PoolObjectSQL::GROUP) << " and "
+            << PoolObjectSQL::type_to_str(PoolObjectSQL::ZONE) << " types";
+    }
 
     if ( error )
     {

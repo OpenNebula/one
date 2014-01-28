@@ -272,6 +272,13 @@ private:
      *  Objects that cannot be used with the CLUSTER(%) selector
      */
     static const long long INVALID_CLUSTER_OBJECTS;
+
+    /**
+     *  Objects that cannot be used with the GROUP(@) selector
+     */
+    static const long long INVALID_GROUP_OBJECTS;
+
+    static const long long FEDERATED_OBJECTS;
 };
 
 #endif /*ACL_RULE_H*/
