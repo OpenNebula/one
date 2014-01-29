@@ -85,18 +85,21 @@ public:
      *
      *        OBJECT:<-1|OBJECT_TMPL_XML64>:CREATE:UID:AUTH
      *
+     *    @param uid of the object owner
+     *    @param gid of the object group
      *    @param type of the object to be created
      *    @param txml template of the new object
      */
-     void add_create_auth(PoolObjectSQL::ObjectType type, const string& txml)
-     {
-         PoolObjectAuth perms; //oid & gid set to -1
+    void add_create_auth(int uid, int gid, PoolObjectSQL::ObjectType type, const string& txml)
+    {
+        PoolObjectAuth perms; //oid & gid set to -1
 
-         perms.uid      = uid;
-         perms.obj_type = type;
+        perms.uid      = uid;
+        perms.gid      = gid;
+        perms.obj_type = type;
 
-         add_auth(AuthRequest::CREATE, perms, txml);
-     }
+        add_auth(AuthRequest::CREATE, perms, txml);
+    }
 
     /**
      *  Adds a new authorization item to this request

@@ -41,7 +41,7 @@ bool RequestManagerAllocate::allocate_authorization(
         tmpl->to_xml(tmpl_str);
     }
 
-    ar.add_create_auth(auth_object, tmpl_str);
+    ar.add_create_auth(att.uid, att.gid, auth_object, tmpl_str);
 
     if ( cluster_perms->oid != ClusterPool::NONE_CLUSTER_ID )
     {
@@ -99,7 +99,7 @@ bool VirtualMachineAllocate::allocate_authorization(
 
     // ------------------ Authorize VM create operation ------------------------
 
-    ar.add_create_auth(auth_object, tmpl->to_xml(t64));
+    ar.add_create_auth(att.uid, att.gid, auth_object, tmpl->to_xml(t64));
 
     VirtualMachine::set_auth_request(att.uid, ar, ttmpl);
 
@@ -485,7 +485,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
         // ------------------ Check permissions and ACLs  ----------------------
         tmpl->to_xml(tmpl_str);
 
-        ar.add_create_auth(auth_object, tmpl_str); // CREATE IMAGE
+        ar.add_create_auth(att.uid, att.gid, auth_object, tmpl_str); // CREATE IMAGE
 
         ar.add_auth(AuthRequest::USE, ds_perms); // USE DATASTORE
 
