@@ -16,6 +16,7 @@
 
 #include "ZonePool.h"
 #include "NebulaLog.h"
+#include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -83,6 +84,15 @@ int ZonePool::allocate(
 
     ostringstream oss;
 
+    if (Nebula::instance().is_federation_slave())
+    {
+        NebulaLog::log("ONE",Log::ERROR,
+                "ZonePool::allocate called, but this "
+                "OpenNebula is a federation slave");
+
+        return -1;
+    }
+
     zone = new Zone(-1, zone_template);
 
     // -------------------------------------------------------------------------
@@ -121,8 +131,34 @@ error_name:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int ZonePool::update(Zone * zone)
+{
+    if (Nebula::instance().is_federation_slave())
+    {
+        NebulaLog::log("ONE",Log::ERROR,
+                "ZonePool::update called, but this "
+                "OpenNebula is a federation slave");
+
+        return -1;
+    }
+
+    return zone->update(db);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int ZonePool::drop(PoolObjectSQL * objsql, string& error_msg)
 {
+    if (Nebula::instance().is_federation_slave())
+    {
+        NebulaLog::log("ONE",Log::ERROR,
+                "ZonePool::drop called, but this "
+                "OpenNebula is a federation slave");
+
+        return -1;
+    }
+
     Zone * zone = static_cast<Zone*>(objsql);
 
     // Return error if the zone is a default one.

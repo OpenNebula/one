@@ -40,7 +40,7 @@ public:
     AclManager(SqlDB * _db, int zone_id, bool _refresh_cache, time_t timer_period);
 
     AclManager(int _zone_id)
-        :zone_id(_zone_id), db(0),lastOID(0), refresh_cache(false)
+        :zone_id(_zone_id), db(0),lastOID(0), is_federation_slave(false)
     {
        pthread_mutex_init(&mutex, 0);
     };
@@ -412,7 +412,7 @@ private:
     /**
      * Flag to refresh the cache periodically
      */
-    bool refresh_cache;
+    bool is_federation_slave;
 
     /**
      *  Timer period for the cache refresh loop.

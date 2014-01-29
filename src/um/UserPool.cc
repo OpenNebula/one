@@ -261,6 +261,15 @@ int UserPool::allocate (
 
     ostringstream   oss;
 
+    if (nd.is_federation_slave())
+    {
+        NebulaLog::log("ONE",Log::ERROR,
+                "UserPool::allocate called, but this "
+                "OpenNebula is a federation slave");
+
+        return -1;
+    }
+
     // Check username and password
     if ( !User::pass_is_valid(password, error_str) )
     {
@@ -342,6 +351,23 @@ error_common:
     error_str = oss.str();
 
     return *oid;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int UserPool::drop(PoolObjectSQL * objsql, string& error_msg)
+{
+    if (Nebula::instance().is_federation_slave())
+    {
+        NebulaLog::log("ONE",Log::ERROR,
+                "UserPool::drop called, but this "
+                "OpenNebula is a federation slave");
+
+        return -1;
+    }
+
+    return PoolSQL::drop(objsql, error_msg);
 }
 
 /* -------------------------------------------------------------------------- */

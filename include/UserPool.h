@@ -63,6 +63,15 @@ public:
         string& error_str);
 
     /**
+     *  Drops the object's data in the data base. The object mutex SHOULD be
+     *  locked.
+     *    @param objsql a pointer to the object
+     *    @param error_msg Error reason, if any
+     *    @return 0 on success, -1 DB error
+     */
+    int drop(PoolObjectSQL * objsql, string& error_msg);
+
+    /**
      *  Function to get a User from the pool, if the object is not in memory
      *  it is loaded from the DB
      *    @param oid User unique id

@@ -914,11 +914,9 @@ void Nebula::start(bool bootstrap_only)
     }
 
     // ---- ACL Manager ----
-    bool refresh_acl_cache = is_federation_slave();
-
     try
     {
-        aclm = new AclManager(db, zone_id, refresh_acl_cache, timer_period);
+        aclm = new AclManager(db, zone_id, is_federation_slave(), timer_period);
     }
     catch (bad_alloc&)
     {
@@ -1079,7 +1077,7 @@ void Nebula::start(bool bootstrap_only)
     pthread_join(hm->get_thread_id(),0);
     pthread_join(imagem->get_thread_id(),0);
 
-    if(refresh_acl_cache)
+    if(is_federation_slave())
     {
         pthread_join(aclm->get_thread_id(),0);
     }

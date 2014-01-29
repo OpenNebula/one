@@ -93,6 +93,15 @@ int GroupPool::allocate(string name, int * oid, string& error_str)
 
     ostringstream   oss;
 
+    if (Nebula::instance().is_federation_slave())
+    {
+        NebulaLog::log("ONE",Log::ERROR,
+                "GroupPool::allocate called, but this "
+                "OpenNebula is a federation slave");
+
+        return -1;
+    }
+
     // Check name
     if ( !PoolObjectSQL::name_is_valid(name, error_str) )
     {
@@ -158,6 +167,15 @@ int GroupPool::drop(PoolObjectSQL * objsql, string& error_msg)
     Group * group = static_cast<Group*>(objsql);
 
     int rc;
+
+    if (Nebula::instance().is_federation_slave())
+    {
+        NebulaLog::log("ONE",Log::ERROR,
+                "GroupPool::drop called, but this "
+                "OpenNebula is a federation slave");
+
+        return -1;
+    }
 
     // Return error if the group is a default one.
     if( group->get_oid() < 100 )

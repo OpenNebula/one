@@ -51,9 +51,9 @@ int AclManager::init_cb(void *nil, int num, char **values, char **names)
 AclManager::AclManager(
     SqlDB * _db,
     int     _zone_id,
-    bool    _refresh_cache,
+    bool    _is_federation_slave,
     time_t  _timer_period)
-        :zone_id(_zone_id), db(_db), lastOID(-1), refresh_cache(_refresh_cache),
+        :zone_id(_zone_id), db(_db), lastOID(-1), is_federation_slave(_is_federation_slave),
         timer_period(_timer_period)
 {
     ostringstream oss;
@@ -143,7 +143,7 @@ int AclManager::start()
 
     rc = select();
 
-    if (refresh_cache)
+    if (is_federation_slave)
     {
         pthread_attr_t    pattr;
 
@@ -165,7 +165,7 @@ int AclManager::start()
 
 void AclManager::finalize()
 {
-    if (refresh_cache)
+    if (is_federation_slave)
     {
         am.trigger(ACTION_FINALIZE,0);
     }
@@ -513,6 +513,15 @@ bool AclManager::match_rules(
 int AclManager::add_rule(long long user, long long resource, long long rights,
                         long long zone, string& error_str)
 {
+    if (is_federation_slave)
+    {
+        NebulaLog::log("ONE",Log::ERROR,
+                "AclManager::add_rule called, but this "
+                "OpenNebula is a federation slave");
+
+        return -1;
+    }
+
     lock();
 
     if (lastOID == INT_MAX)
@@ -608,6 +617,15 @@ int AclManager::del_rule(int oid, string& error_str)
     AclRule *   rule;
     int         rc;
     bool        found = false;
+
+    if (is_federation_slave)
+    {
+        NebulaLog::log("ONE",Log::ERROR,
+                "AclManager::del_rule called, but this "
+                "OpenNebula is a federation slave");
+
+        return -1;
+    }
 
     lock();
 

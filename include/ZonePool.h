@@ -91,10 +91,7 @@ public:
      *    @param zone pointer to Zone
      *    @return 0 on success
      */
-    int update(Zone * zone)
-    {
-        return zone->update(db);
-    };
+    int update(Zone * zone);
 
     /**
      *  Drops the Zone from the data base. The object mutex SHOULD be
