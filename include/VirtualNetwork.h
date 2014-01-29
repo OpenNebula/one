@@ -52,7 +52,8 @@ public:
     {
         UNINITIALIZED   = -1,
         RANGED          =  0,
-        FIXED           =  1
+        FIXED           =  1,
+        EXTERNAL        =  2
     };
 
     // *************************************************************************
@@ -281,6 +282,11 @@ private:
 
     unsigned int ip_start;
     unsigned int ip_end;
+
+    /**
+     *  Path to the external command used for allocating EXTERNAL leases.
+     */
+    string  external_command;
 
     // *************************************************************************
     // DataBase implementation (Private)
