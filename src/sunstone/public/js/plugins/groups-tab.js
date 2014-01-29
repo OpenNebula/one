@@ -1236,13 +1236,6 @@ function setupCreateGroupDialog(){
             $.each(obj_list,function(){
                 add_resource_tab(this.ZONE.ID, this.ZONE.NAME, dialog);
             });
-
-            // =================================================================
-            // TODO: Development, one zone added if zone pool is empty
-            if (obj_list.length == 0){
-                add_resource_tab(0, "Local Zone", dialog);
-            }
-            // =================================================================
         },
         error: onError
     });
