@@ -136,8 +136,6 @@ var zones_select="";
 var dataTable_zones;
 var $create_zone_dialog;
 
-// TODO: Some methods are not yet implemented in oned (eg, rename)
-
 //Setup actions
 var zone_actions = {
 

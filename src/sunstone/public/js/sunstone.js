@@ -493,9 +493,6 @@ function setLogin(){
         uid = cookie["one-user_id"];
         gid = cookie["one-user_gid"];
         break;
-    case "ozones":
-        username = cookie["ozones-user"];
-        break;
     case "selfservice":
         username = cookie["occi-user"];
         uid = cookie["occi-user-id"];
@@ -524,9 +521,6 @@ function setLogin(){
         case "sunstone":
             OpenNebula.Auth.logout({success:redirect});
             break;
-        case "ozones":
-            oZones.Auth.logout({success:redirect});
-            break;
         case "selfservice":
             OCCI.Auth.logout({success:function(){window.location.href = "ui";}});
             break;
@@ -535,13 +529,11 @@ function setLogin(){
     });
 }
 
-//returns whether we are Sunstone, or oZones
+//returns whether we are Sunstone, or other
 //not the most elegant way, but better in its own function
 function whichUI(){
     if (typeof(OpenNebula)!="undefined")
         return "sunstone";
-    if (typeof(oZones)!="undefined")
-        return "ozones";
     if (typeof(OCCI)!="undefined")
         return "selfservice";
 };
