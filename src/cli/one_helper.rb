@@ -428,16 +428,16 @@ EOT
 
                 if top
                     table.top(options) {
-                        array=pool_to_array(pool.get_hash)
-                        if OpenNebula.is_error?(array)
-                            STDERR.puts array.mesage
-                            exit(-1)
-                        end
-                        array
+                        array=pool.get_hash
+                        return -1, array.message if OpenNebula.is_error?(array)
+
+                        pool_to_array(array)
                     }
                 else
-                    array=pool_to_array(pool.get_hash)
+                    array=pool.get_hash
                     return -1, array.message if OpenNebula.is_error?(array)
+
+                    array=pool_to_array(array)
 
                     if options[:ids]
                         array=array.select do |element|

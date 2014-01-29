@@ -175,7 +175,10 @@ module OpenNebula
             if OpenNebula.pool_page_size && allow_paginated &&
                     ( ( size && size >= 2 ) || !size )
                 size = OpenNebula.pool_page_size if !size
-                { @pool_name => { @element_name => info_paginated(size) } }
+                hash=info_paginated(size)
+
+                return hash if OpenNebula.is_error?(hash)
+                { @pool_name => { @element_name => hash } }
             else
                 rc=info
                 return rc if OpenNebula.is_error?(rc)

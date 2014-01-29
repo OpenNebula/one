@@ -229,8 +229,6 @@ module CLIHelper
                 }
             rescue Errno::EPIPE
             end
-
-            puts
         end
 
         def data_array(data, options)
