@@ -251,3 +251,39 @@ int Zone::from_xml(const string& xml)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
+int Zone::replace_template(const string& tmpl_str, string& error_str)
+{
+    Template * new_tmpl  = get_new_template();
+
+    if ( new_tmpl == 0 )
+    {
+        error_str = "Cannot allocate a new template";
+        return -1;
+    }
+
+    if ( new_tmpl->parse_str_or_xml(tmpl_str, error_str) != 0 )
+    {
+        delete new_tmpl;
+        return -1;
+    }
+
+    string new_endpoint;
+    new_tmpl->get("ENDPOINT", new_endpoint);
+
+    if (new_endpoint.empty())
+    {
+        new_tmpl->replace("ENDPOINT", "-");
+    }
+
+    if ( obj_template != 0 )
+    {
+        delete obj_template;
+    }
+
+    obj_template = new_tmpl;
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
