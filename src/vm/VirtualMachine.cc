@@ -2692,7 +2692,7 @@ int VirtualMachine::generate_context(string &files, int &disk_id, string& token_
         files += files_ds;
     }
 
-    for (int i=0;i<files.length();i++)
+    for (size_t i=0;i<files.length();i++)
     {
         if (files[i] == '\n')
         {
