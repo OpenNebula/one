@@ -67,15 +67,17 @@ module KVM
         if names.length!=0
             names.each do |vm|
                 dominfo=dom_info(vm)
-                psinfo=process_info(dominfo['UUID'])
+                if dominfo
+                    psinfo=process_info(dominfo['UUID'])
 
-                info={}
-                info[:dominfo]=dominfo
-                info[:psinfo]=psinfo
-                info[:name]=vm
-                info[:pid]=psinfo[1]
+                    info={}
+                    info[:dominfo]=dominfo
+                    info[:psinfo]=psinfo
+                    info[:name]=vm
+                    info[:pid]=psinfo[1]
 
-                vms[vm]=info
+                    vms[vm]=info
+                end
             end
 
             cpu=get_cpu_info(vms)
