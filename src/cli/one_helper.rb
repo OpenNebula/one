@@ -431,13 +431,11 @@ EOT
                         array=pool.get_hash
                         return -1, array.message if OpenNebula.is_error?(array)
 
-                        pool_to_array(array)
+                        array
                     }
                 else
                     array=pool.get_hash
                     return -1, array.message if OpenNebula.is_error?(array)
-
-                    array=pool_to_array(array)
 
                     if options[:ids]
                         array=array.select do |element|
