@@ -34,7 +34,7 @@ RequestManagerProxy::RequestManagerProxy(string _method)
     method = _method;
     client = new Client("none", master_endpoint, msg_size);
 
-    method_name = ("one.proxy." + method);
+    method_name = ("RequestManagerProxy." + method);
 }
 
 /* -------------------------------------------------------------------------- */
