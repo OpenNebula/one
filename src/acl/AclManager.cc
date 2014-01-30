@@ -53,8 +53,8 @@ AclManager::AclManager(
     int     _zone_id,
     bool    _is_federation_slave,
     time_t  _timer_period)
-        :zone_id(_zone_id), db(_db), lastOID(-1), is_federation_slave(_is_federation_slave),
-        timer_period(_timer_period)
+        :zone_id(_zone_id), db(_db), lastOID(-1),
+        is_federation_slave(_is_federation_slave), timer_period(_timer_period)
 {
     ostringstream oss;
 
@@ -287,7 +287,7 @@ const bool AclManager::authorize(
                      AclRule::INDIVIDUAL_ID | uid,
                      log_resource,
                      rights_req,
-                     AclRule::INDIVIDUAL_ID | get_zone_id());
+                     AclRule::INDIVIDUAL_ID | zone_id);
 
     oss << "Request " << log_rule.to_str();
     NebulaLog::log("ACL",Log::DDEBUG,oss);
@@ -458,7 +458,7 @@ bool AclManager::match_rules(
          multimap<long long, AclRule *>::iterator>  index;
 
     long long zone_oid_mask = AclRule::INDIVIDUAL_ID | 0x00000000FFFFFFFFLL;
-    long long zone_req      = AclRule::INDIVIDUAL_ID | get_zone_id();
+    long long zone_req      = AclRule::INDIVIDUAL_ID | zone_id;
     long long zone_all_req  = AclRule::ALL_ID;
 
     index = rules.equal_range( user_req );
@@ -896,7 +896,7 @@ void AclManager::reverse_search(int                       uid,
             ( obj_type | AclRule::CLUSTER_ID );
 
     long long zone_oid_req =
-            AclRule::INDIVIDUAL_ID | get_zone_id();
+            AclRule::INDIVIDUAL_ID | zone_id;
 
     long long zone_all_req = AclRule::ALL_ID;
 

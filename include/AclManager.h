@@ -37,13 +37,13 @@ class AclManager : public Callbackable, public ActionListener
 {
 public:
 
-    AclManager(SqlDB * _db, int zone_id, bool _refresh_cache, time_t timer_period);
-
-    AclManager(int _zone_id)
-        :zone_id(_zone_id), db(0),lastOID(0), is_federation_slave(false)
-    {
-       pthread_mutex_init(&mutex, 0);
-    };
+    /**
+     *  @param _db pointer to the DB
+     *  @param zone_id of the Zone
+     *  @param refresh_cache will reload periodically rules from the DB
+     *  @param timer_period period to reload the rules
+     */
+    AclManager(SqlDB * _db, int zone_id, bool _refresh_cache, time_t timer);
 
     virtual ~AclManager();
 
@@ -89,8 +89,8 @@ public:
      *    -2 if the rule is malformed,
      *    -3 if the DB insert failed
      */
-    virtual int add_rule(long long user, 
-                         long long resource, 
+    virtual int add_rule(long long user,
+                         long long resource,
                          long long rights,
                          long long zone,
                          string&   error_str);
@@ -204,6 +204,17 @@ public:
 
 protected:
 
+    /**
+     *  Constructor for derived ACL managers. Classes derived from this one
+     *  will operate in a stand-alone fashion (i.e. no refresh of ACL rules
+     *  from DB)
+     */
+    AclManager(int _zone_id)
+        :zone_id(_zone_id), db(0),lastOID(0), is_federation_slave(false)
+    {
+       pthread_mutex_init(&mutex, 0);
+    };
+
     // ----------------------------------------
     // ACL rules management
     // ----------------------------------------
@@ -301,11 +312,6 @@ private:
     // ----------------------------------------
 
     int zone_id;
-
-    int get_zone_id() const
-    {
-        return zone_id;
-    };
 
     // ----------------------------------------
     // Mutex synchronization
@@ -412,7 +418,7 @@ private:
     /**
      * Flag to refresh the cache periodically
      */
-    bool is_federation_slave;
+    bool            is_federation_slave;
 
     /**
      *  Timer period for the cache refresh loop.
