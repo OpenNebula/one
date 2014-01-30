@@ -438,16 +438,13 @@ $(document).ready(function(){
         return false;
     });
 
-    // Populate Zones dropdown
-    OpenNebula.Zone.list({
-      timeout: true,
-      success: function (request, obj_list){
-          $.each(obj_list,function(){
-              $('.zone-ul').append('<li><a id="'+this.ZONE.NAME+'" class="zone-choice"><i class="icon-home"></i> '+this.ZONE.NAME+'</a></li>');
-          });
-      },
-      error: onError
-    });
+    zone_refresh();
+
+
+   $('#zonelector').die();
+   $('#zonelector').live("click", function(){
+       zone_refresh();
+   });
 
     $('a.zone-choice').live("click", function(){
       $.ajax({
@@ -470,6 +467,21 @@ $(document).ready(function(){
 
 });
 
+
+//reads the cookie and places its info in the 'cookie' var
+function zone_refresh(){
+    // Populate Zones dropdown
+    OpenNebula.Zone.list({
+      timeout: true,
+      success: function (request, obj_list){
+          $('.zone-ul').empty();
+          $.each(obj_list,function(){
+              $('.zone-ul').append('<li><a id="'+this.ZONE.NAME+'" class="zone-choice"><i class="icon-home"></i> '+this.ZONE.NAME+'</a></li>');
+          });
+      },
+      error: onError
+    });
+}
 
 
 
