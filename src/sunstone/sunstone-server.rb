@@ -208,7 +208,11 @@ helpers do
                 env['rack.session.options'][:expire_after] = 30*60*60*24-1
             end
 
-            zone = OpenNebula::Zone.new_with_id(0, client)
+            rc = OpenNebula::System.new(client).get_configuration
+            return [500, rc.message] if OpenNebula.is_error?(rc)
+            return [500, "Couldn't find out zone identifier"] if !rc['FEDERATION/ZONE_ID']
+
+            zone = OpenNebula::Zone.new_with_id(rc['FEDERATION/ZONE_ID'].to_i, client)
             zone.info
             session[:zone_name] = zone.name
 
