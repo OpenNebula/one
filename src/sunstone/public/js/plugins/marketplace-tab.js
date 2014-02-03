@@ -16,6 +16,7 @@
 
 /* Marketpplace tab plugin */
 var dataTable_marketplace;
+var $marketplace_import_dialog;
 
 var market_actions = {
     "Marketplace.list" : {
@@ -42,36 +43,115 @@ var market_actions = {
         elements: marketplaceElements,
         call: OpenNebula.Marketplace.show,
         callback: function(request,response){
-            $('#img_name', $create_image_dialog).val(response['name']);
-            $('#img_path', $create_image_dialog).val(response['links']['download']['href']);
-            $('#src_path_select input[value="path"]', $create_image_dialog).trigger('click');
-            $('select#img_type', $create_image_dialog).val('OS');
-            $('select#img_type', $create_image_dialog).trigger('change');
-
-            if (response['files'][0]['hypervisor'] == "KVM") {
-              $('#img_driver', $create_image_dialog).val(response['files'][0]['format'])
+            if (response['status'] && response['status'] != 'ready') {
+                notifyError(tr("The appliance is not ready"));
+                return;
             }
 
-            //remove any options from the custom vars dialog box
-            $("#custom_var_image_box",$create_image_dialog).empty();
-
-            var md5 = response['files'][0]['md5']
-            if ( md5 ) {
-                option = '<option value=\'' +
-                    md5 + '\' name="MD5">MD5=' +
-                    md5 + '</option>';
-                $("#custom_var_image_box",$create_image_dialog).append(option);
+            if ($marketplace_import_dialog != undefined) {
+              $marketplace_import_dialog.remove();
             }
 
-            var sha1 = response['files'][0]['sha1']
-            if ( sha1 ) {
-                option = '<option value=\'' +
-                    sha1 + '\' name="SHA1">SHA1=' +
-                    sha1 + '</option>';
-                $("#custom_var_image_box",$create_image_dialog).append(option);
+            dialogs_context.append(marketplace_import_dialog);
+            $marketplace_import_dialog = $('#marketplace_import_dialog',dialogs_context);
+            $marketplace_import_dialog.addClass("reveal-modal xlarge max-height");
+            $marketplace_import_dialog.reveal();
+
+            var tab_id = 1;
+
+            $.each(response['files'], function(index, value){
+                // Append the new div containing the tab and add the tab to the list
+                var image_dialog = $('<li id="'+tab_id+'Tab" class="disk wizard_internal_tab">'+
+                  create_image_tmpl +
+                '</li>').appendTo($("ul#marketplace_import_dialog_tabs_content"));
+
+                var a_image_dialog = $("<dd>\
+                  <a id='disk_tab"+tab_id+"' href='#"+tab_id+"'>"+tr("Image")+"</a>\
+                </dd>").appendTo($("dl#marketplace_import_dialog_tabs"));
+
+                initialize_create_image_dialog(image_dialog);
+                initialize_datastore_info_create_image_dialog(image_dialog);
+
+                $('#img_name', image_dialog).val(value['name']||response['name']);
+                $('#img_path', image_dialog).val(response['links']['download']['href']+'/'+index);
+                $('#src_path_select input[value="path"]', image_dialog).trigger('click');
+                $('select#img_type', image_dialog).val(value['type']);
+                $('select#img_type', image_dialog).trigger('change');
+
+                //remove any options from the custom vars dialog box
+                $("#custom_var_image_box",image_dialog).empty();
+
+                var md5 = value['md5']
+                if ( md5 ) {
+                    option = '<option value=\'' +
+                        md5 + '\' name="MD5">MD5=' +
+                        md5 + '</option>';
+                    $("#custom_var_image_box",image_dialog).append(option);
+                }
+
+                var sha1 = value['sha1']
+                if ( sha1 ) {
+                    option = '<option value=\'' +
+                        sha1 + '\' name="SHA1">SHA1=' +
+                        sha1 + '</option>';
+                    $("#custom_var_image_box",image_dialog).append(option);
+                }
+
+                a_image_dialog.on('click', function(){
+                    $create_image_dialog = image_dialog;
+                })
+
+                image_dialog.on("reveal:close", function(){
+                  a_image_dialog.remove();
+                  image_dialog.remove();
+                  if ($('a', $("dl#marketplace_import_dialog_tabs")).size > 0) {
+                    $('a', $("dl#marketplace_import_dialog_tabs")).first().click();
+                  } else {
+                    $marketplace_import_dialog.trigger("reveal:close");
+                  }
+                  return false;
+                });
+
+                $("a[href='#img_manual']", image_dialog).closest('dl').remove();
+                tab_id++;
+            })
+
+            if (response['opennebula_template'] && response['opennebula_template'] !== "CPU=1") {
+              $create_template_dialog.remove();
+              // Template
+              // Append the new div containing the tab and add the tab to the list
+              var template_dialog = $('<li id="'+tab_id+'Tab" class="disk wizard_internal_tab">'+
+                create_template_tmpl +
+              '</li>').appendTo($("ul#marketplace_import_dialog_tabs_content"));
+
+              var a_template_dialog = $("<dd>\
+                <a id='disk_tab"+tab_id+"' href='#"+tab_id+"'>"+tr("Template")+"</a>\
+              </dd>").appendTo($("dl#marketplace_import_dialog_tabs"));
+
+              initialize_create_template_dialog(template_dialog);
+              fillTemplatePopUp(
+                JSON.parse(response['opennebula_template']),
+                template_dialog);
+
+              a_template_dialog.on('click', function(){
+                  $create_template_dialog = template_dialog;
+              })
+
+              template_dialog.on("reveal:close", function(){
+                a_template_dialog.remove();
+                template_dialog.remove();
+                if ($('a', $("dl#marketplace_import_dialog_tabs")).size > 0) {
+                  $('a', $("dl#marketplace_import_dialog_tabs")).first().click();
+                } else {
+                  $marketplace_import_dialog.trigger("reveal:close");
+                }
+                return false;
+              });
+
+              $("a[href='#manual']", template_dialog).closest('dl').remove();
             }
 
-            popUpCreateImageDialog();
+            $('a', $("dl#marketplace_import_dialog_tabs")).first().click();
         },
         error: onError
     },
@@ -96,6 +176,20 @@ var market_buttons = {
         text: tr('Import')
     }
 };
+
+var marketplace_import_dialog =
+'<div id="marketplace_import_dialog">'+
+  '<div class="panel">'+
+    '<h3><small>'+tr("Import Appliance")+'</small></h4>'+
+  '</div>'+
+  '<div class="reveal-body">'+
+    '<dl class="tabs" id="marketplace_import_dialog_tabs">'+
+    '</dl>'+
+    '<ul class="tabs-content" id="marketplace_import_dialog_tabs_content">'+
+    '</ul>'+
+  '</div>'+
+  '<a class="close-reveal-modal">&#215;</a>'+
+'</div>';
 
 var marketplace_tab_content = '\
 <form class="custom" id="marketplace_form" action="">\

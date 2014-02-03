@@ -154,23 +154,16 @@ function gzip_file_size {
 function fs_size {
 
     case $1 in
-    http://*/download|https://*/download)
-        BASE_URL=${1%%/download}
-        HEADERS=`wget -S --spider --no-check-certificate $BASE_URL 2>&1`
+    http://*)
+        HEADERS=`curl -LIk $1 2>&1`
 
-        echo $HEADERS | grep "market" > /dev/null 2>&1
-
-        if [ $? -eq 0 ]; then
-            #URL is from market place
-            SIZE=`wget -O - -S --no-check-certificate $BASE_URL 2>&1|grep -E "^ *\"size\": \"?[0-9]+\"?.$"|tr -dc 0-9`
+        if echo "$HEADERS" | grep -q "OpenNebula-AppMarket-Size"; then
+            # An AppMarket/Marketplace URL
+            SIZE=$(echo "$HEADERS" | grep "^OpenNebula-AppMarket-Size:" | tail -n1 | cut -d: -f2)
         else
-            #Not a marketplace URL
-            SIZE=`wget -S --spider --no-check-certificate $1 2>&1 | grep Content-Length  | cut -d':' -f2`
+            # Not an AppMarket/Marketplace URL
+            SIZE=$(echo "$HEADERS" | grep "^Content-Length:" | tail -n1 | cut -d: -f2)
         fi
-        error=$?
-        ;;
-    http://*|https://*)
-        SIZE=`wget -S --spider --no-check-certificate $1 2>&1 | grep Content-Length  | cut -d':' -f2`
         error=$?
         ;;
     *)
@@ -194,6 +187,8 @@ function fs_size {
         fi
         ;;
     esac
+
+    SIZE=$(echo $SIZE | tr -d "\r")
 
     if [ $error -ne 0 ]; then
         SIZE=0
