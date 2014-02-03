@@ -18,27 +18,13 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <time.h>
+#include <getopt.h>
+#include <ostream>
 
 #include "Nebula.h"
 
 using namespace std;
-
-/* ------------------------------------------------------------------------- */
-/* GLOBAL VARIABLES                                                          */
-/* ------------------------------------------------------------------------- */
-
-static const char * usage =
-"\n  oned [-h] [-v] [-f]\n\n"
-"SYNOPSIS\n"
-"  Starts the OpenNebula daemon\n\n"
-"OPTIONS\n"
-"\t-v\tprints OpenNebula version and license\n"
-"\t-h\tprints this help.\n"
-"\t-f\tforeground, do not fork the oned daemon\n"
-"\t-i\tinitialize the dabase and exit.\n";
-
-static const char * susage =
-"usage: oned [-h] [-v] [-f]\n";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -49,6 +35,25 @@ static void print_license()
         << Nebula::version() << " is distributed and licensed for use under the"
         << " terms of the\nApache License, Version 2.0 "
         << "(http://www.apache.org/licenses/LICENSE-2.0).\n";
+}
+
+static void print_usage(ostream& str)
+{
+    str << "Usage: oned [-h] [-v] [-f] [-i]\n";
+}
+
+static void print_help()
+{
+    print_usage(cout);
+
+    cout << "\n"
+         << "SYNOPSIS\n"
+         << "  Starts the OpenNebula daemon\n\n"
+         << "OPTIONS\n"
+         << "  -v, --verbose\toutput version information and exit\n"
+         << "  -h, --help\tdisplay this help and exit\n"
+         << "  -f, --foreground\tforeground, do not fork the oned daemon\n"
+         << "  -i, --init-db\tinitialize the dabase and exit\n";
 }
 
 /* ------------------------------------------------------------------------- */
@@ -100,7 +105,19 @@ int main(int argc, char **argv)
     string          wd;
     int             rc;
 
-    while((opt = getopt(argc,argv,"vhif")) != -1)
+    static struct option long_options[] = {
+        {"version",    no_argument, 0, 'v'},
+        {"help",       no_argument, 0, 'h'},
+        {"foreground", no_argument, 0, 'f'},
+        {"init-db",    no_argument, 0, 'i'},
+        {0,            0,           0, 0}
+    };
+
+    int long_index = 0;
+
+    while ((opt = getopt_long(argc, argv, "vhif",
+                    long_options, &long_index)) != -1)
+    {
         switch(opt)
         {
             case 'v':
@@ -108,7 +125,7 @@ int main(int argc, char **argv)
                 exit(0);
                 break;
             case 'h':
-                cout << usage;
+                print_help();
                 exit(0);
                 break;
             case 'i':
@@ -119,10 +136,11 @@ int main(int argc, char **argv)
                 foreground = true;
                 break;
             default:
-                cerr << susage;
+                print_usage(cerr);
                 exit(-1);
                 break;
         }
+    }
 
     // ---------------------------------
     //   Check if other oned is running
