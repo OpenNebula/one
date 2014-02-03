@@ -208,9 +208,9 @@ helpers do
                 env['rack.session.options'][:expire_after] = 30*60*60*24-1
             end
 
-            zpool = ZonePoolJSON.new(client)
-            zpool.info
-            zpool.each{|z| session[:zone_name] = z.name if z.id == 0}
+            zone = OpenNebula::Zone.new_with_id(0, client)
+            zone.info
+            session[:zone_name] = zone.name
 
             return [204, ""]
         end
