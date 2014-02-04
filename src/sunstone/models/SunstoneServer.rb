@@ -78,6 +78,42 @@ class SunstoneServer < CloudServer
     ############################################################################
     #
     ############################################################################
+    def get_pool_in_zone(kind,gid,client)
+        if gid == "0"
+            user_flag = Pool::INFO_ALL
+        else
+            user_flag = POOL_FILTER
+        end
+
+        pool = case kind
+            when "group"      then GroupPoolJSON.new(client)
+            when "cluster"    then ClusterPoolJSON.new(client)
+            when "host"       then HostPoolJSON.new(client)
+            when "image"      then ImagePoolJSON.new(client, user_flag)
+            when "vmtemplate" then TemplatePoolJSON.new(client, user_flag)
+            when "vm"         then VirtualMachinePoolJSON.new(client, user_flag)
+            when "vnet"       then VirtualNetworkPoolJSON.new(client, user_flag)
+            when "user"       then UserPoolJSON.new(client)
+            when "acl"        then AclPoolJSON.new(client)
+            when "datastore"  then DatastorePoolJSON.new(client)
+            when "zone"       then ZonePoolJSON.new(client)
+            else
+                error = Error.new("Error: #{kind} resource not supported")
+                return [404, error.to_json]
+        end
+
+        rc = pool.get_hash
+
+        if OpenNebula.is_error?(rc)
+            return [500, rc.to_json]
+        else
+            return [200, rc.to_json]
+        end
+    end    
+
+    ############################################################################
+    #
+    ############################################################################
     def get_resource(kind, id)
         resource = retrieve_resource(kind, id)
         if OpenNebula.is_error?(resource)

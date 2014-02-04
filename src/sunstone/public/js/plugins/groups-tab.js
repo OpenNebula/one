@@ -206,7 +206,7 @@ var create_group_tmpl =
       <hr>\
       <div class="form_buttons">\
         <button class="button radius right success" id="create_group_submit" value="Group.create">'+tr("Create")+'</button>\
-        <button class="button secondary radius" id="create_group_reset_button" type="reset" value="reset">'+tr("Reset")+'</button>\
+        <button class="button secondary radius" id="create_group_reset_button" type="reset" value="reset">'+tr("Refresh")+'</button>\
         <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
       </div>\
     </div>\
@@ -919,10 +919,6 @@ function setup_add_rp_dialog(group_id){
           $.each(obj_list,function(){
               add_resource_tab(this.ZONE.ID, this.ZONE.NAME, dialog, "add_rp");
           });
-
-          if (obj_list.length == 0){
-              add_resource_tab(0, "Local Zone", dialog, "add_rp");
-          }
       },
       error: onError
     });
@@ -959,7 +955,7 @@ function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id
     });
 
     // Retrieve the clusters to fill the datatable
-    update_datatable_group_clusters(dataTable_group_clusters);
+    update_datatable_group_clusters(dataTable_group_clusters, zone_id);
 
     $('#'+str_zone_tab_id+'_search', zone_section).keyup(function(){
         dataTable_group_clusters.fnFilter( $(this).val() );
@@ -1027,7 +1023,7 @@ function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id
     setupTips(zone_section);
 }
 
-function generate_group_resource_tab_content(str_zone_tab_id, str_datatable_id){
+function generate_group_resource_tab_content(str_zone_tab_id, str_datatable_id, zone_id){
     var html =
     '<div class="row">\
       <div class="four columns">\
@@ -1079,20 +1075,17 @@ function generate_group_resource_tab_content(str_zone_tab_id, str_datatable_id){
 
     $("#refresh_group_clusters_table_button_class"+str_zone_tab_id).die();
     $("#refresh_group_clusters_table_button_class"+str_zone_tab_id).live('click', function(){
-        update_datatable_group_clusters($('table[id='+str_datatable_id+']').dataTable());
+        update_datatable_group_clusters($('table[id='+str_datatable_id+']').dataTable(), zone_id);
     });
 
     return html;
 }
 
 // TODO: Refactor? same function in templates-tab.js
-function update_datatable_group_clusters(datatable, fnDrawCallback) {
-    if (fnDrawCallback) {
-        datatable.unbind('draw');
-        datatable.on('draw', fnDrawCallback);
-    }
+function update_datatable_group_clusters(datatable, zone_id) {
 
-    OpenNebula.Cluster.list({
+   OpenNebula.Cluster.list_in_zone({
+    data:{zone_id:zone_id},
     timeout: true,
     success: function (request, obj_list){
         var obj_list_array = [];
@@ -1103,8 +1096,7 @@ function update_datatable_group_clusters(datatable, fnDrawCallback) {
         });
 
         updateView(obj_list_array, datatable);
-    },
-    error: onError
+    }
   });
 };
 
@@ -1127,7 +1119,7 @@ var add_resource_tab = function(zone_id, zone_name, dialog, id_suffix) {
 
     // Append the new div containing the tab and add the tab to the list
     var html_tab_content = '<li id="'+str_zone_tab_id+'Tab" style="display: block;">'+
-        generate_group_resource_tab_content(str_zone_tab_id, str_datatable_id) +
+        generate_group_resource_tab_content(str_zone_tab_id, str_datatable_id, zone_id) +
         '</li>'
     $(html_tab_content).appendTo($("ul#group_zones_tabs_content", dialog));
 

@@ -367,6 +367,31 @@ var OpenNebula = {
             });
         },
 
+        "list_in_zone": function(params, resource, path){
+            var callback = params.success;
+            var callback_error = params.error;
+            var timeout = params.timeout || false;
+            var request = OpenNebula.Helper.request(resource,"list");
+            var req_path = path ? path : resource.toLowerCase();
+
+            $.ajax({
+                url: req_path,
+                type: "GET",
+                data: {timeout: timeout, zone_id: params.data.zone_id},
+                dataType: "json",
+                success: function(response){
+                    var list = OpenNebula.Helper.pool(resource,response)
+                    return callback ?
+                        callback(request, list) : null;
+                },
+                error: function(response)
+                {
+                    return callback_error ?
+                        callback_error(request, OpenNebula.Error(response)) : null;
+                }
+            });
+        },        
+
         //Subresource examples: "fetch_template", "log"...
         "show": function(params, resource, subresource, path){
             var callback = params.success;
@@ -1175,6 +1200,9 @@ var OpenNebula = {
         "list" : function(params){
             OpenNebula.Action.list(params,OpenNebula.Cluster.resource);
         },
+        "list_in_zone" : function(params){
+            OpenNebula.Action.list_in_zone(params,OpenNebula.Cluster.resource);
+        },        
         "show" : function(params){
             OpenNebula.Action.show(params,OpenNebula.Cluster.resource);
         },
