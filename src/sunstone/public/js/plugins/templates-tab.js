@@ -4078,7 +4078,7 @@ function initialize_create_template_dialog(dialog) {
 
         $('#custom_tags tr', $('li#rawTab')).each(function(){
           if ($('#KEY', $(this)).val()) {
-            vm_json[$('#KEY', $(this)).val()] = $('#VALUE', $(this)).val()
+            vm_json[$('#KEY', $(this)).val()] = escapeDoubleQuotes($('#VALUE', $(this)).val());
           }
         });
 
@@ -4214,7 +4214,7 @@ function fillTemplatePopUp(template, dialog){
         fields.each(function(){
             var field = $(this);
                 if (template_json[field.attr('id')]){ //if has a length
-                    field.val(template_json[field.attr('id')]);
+                    field.val(escapeDoubleQuotes($('<div/>').html(template_json[field.attr('id')]).text()));
                     field.change();
 
                     delete template_json[field.attr('id')]
