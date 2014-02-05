@@ -25,7 +25,9 @@ class OpenNebulaHM < OpenNebulaNetwork
         super(vm,XPATH_FILTER,deploy_id,hypervisor)
         @locking = false
 
+        lock
         @bridges = get_interfaces
+        unlock
     end
 
     def activate
