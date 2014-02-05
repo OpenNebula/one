@@ -3972,8 +3972,11 @@ function initialize_create_template_dialog(dialog) {
         $('.disk div#disk_type.vm_param ',dialog).each(function(){
           var hash  = {};
           addSectionJSON(hash, this);
-          vm_json["DISK"].push(hash);
+          if (!$.isEmptyObject(hash)) {
+            vm_json["DISK"].push(hash);
+          };
         });
+
 
         //
         // NIC
