@@ -340,7 +340,11 @@ module Instance
     end
 
     def include_terminated_instances?
-        @config[:describe_with_terminated_instances] || DESCRIBE_WITH_TERMINATED_INSTANCES
+        if @config[:describe_with_terminated_instances].nil?
+            DESCRIBE_WITH_TERMINATED_INSTANCES
+        else
+            @config[:describe_with_terminated_instances]
+        end
     end
 
     def include_terminated_instance?(vm)
