@@ -69,7 +69,7 @@ AclManager::AclManager(
 
     unset_callback();
 
-    if (lastOID == -1)
+    if (!is_federation_slave && lastOID == -1)
     {
         // Add a default rules for the ACL engine
         string error_str;

@@ -742,7 +742,11 @@ function updateUsersView(request,users_list,quotas_list){
         // Inject the VM user quota. This info is returned separately in the
         // pool info call, but the userElementArray expects it inside the USER,
         // as it is returned by the individual info call
-        this.USER.VM_QUOTA = quotas_list[this.USER.ID].QUOTAS.VM_QUOTA
+        var q = quotas_list[this.USER.ID];
+
+        if (q != undefined) {
+            this.USER.VM_QUOTA = q.QUOTAS.VM_QUOTA;
+        }
 
         user_list_array.push(userElementArray(this));
     });

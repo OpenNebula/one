@@ -691,7 +691,11 @@ function updateGroupsView(request, group_list, quotas_hash){
         // Inject the VM group quota. This info is returned separately in the
         // pool info call, but the groupElementArray expects it inside the GROUP,
         // as it is returned by the individual info call
-        this.GROUP.VM_QUOTA = quotas_hash[this.GROUP.ID].QUOTAS.VM_QUOTA;
+        var q = quotas_hash[this.GROUP.ID];
+
+        if (q != undefined) {
+            this.GROUP.VM_QUOTA = q.QUOTAS.VM_QUOTA;
+        }
 
         group_list_array.push(groupElementArray(this));
     });

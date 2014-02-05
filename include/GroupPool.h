@@ -29,7 +29,7 @@ public:
     GroupPool(SqlDB * db,
               vector<const Attribute *> hook_mads,
               const string&             remotes_location,
-              bool                      cache);
+              bool                      is_federation_slave);
 
     ~GroupPool(){};
 

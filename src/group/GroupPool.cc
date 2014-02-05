@@ -40,13 +40,14 @@ const int    GroupPool::USERS_ID      = 1;
 GroupPool::GroupPool(SqlDB * db,
                      vector<const Attribute *> hook_mads,
                      const string&             remotes_location,
-                     bool                      cache)
-    :PoolSQL(db, Group::table, cache, true)
+                     bool                      is_federation_slave)
+    :PoolSQL(db, Group::table, !is_federation_slave, true)
 {
     ostringstream oss;
     string        error_str;
 
-    if (get_lastOID() == -1) //lastOID is set in PoolSQL::init_cb
+    //lastOID is set in PoolSQL::init_cb
+    if (!is_federation_slave && get_lastOID() == -1)
     {
         int         rc;
         Group *     group;
@@ -267,7 +268,13 @@ int GroupPool::dump_cb(void * _oss, int num, char **values, char **names)
         return -1;
     }
 
-    *oss << values[0] << values[1];
+    *oss << values[0];
+
+    if (values[1] != NULL)
+    {
+        *oss << values[1];
+    }
+
     return 0;
 }
 

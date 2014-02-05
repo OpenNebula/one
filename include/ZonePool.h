@@ -27,7 +27,7 @@ class ZonePool : public PoolSQL
 {
 public:
     ZonePool(SqlDB * db,
-             bool    cache);
+             bool    is_federation_slave);
 
     ~ZonePool(){};
 

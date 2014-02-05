@@ -24,12 +24,13 @@ const int ZonePool::STANDALONE_ZONE_ID = 0;
 
 /* -------------------------------------------------------------------------- */
 
-ZonePool::ZonePool(SqlDB * db, bool cache)
-    :PoolSQL(db, Zone::table, cache, true)
+ZonePool::ZonePool(SqlDB * db, bool is_federation_slave)
+    :PoolSQL(db, Zone::table, !is_federation_slave, true)
 {
     string error_str;
 
-    if (get_lastOID() == -1) //lastOID is set in PoolSQL::init_cb
+    //lastOID is set in PoolSQL::init_cb
+    if (!is_federation_slave && get_lastOID() == -1)
     {
         int         rc;
         Template *  tmpl;

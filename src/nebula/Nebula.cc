@@ -304,18 +304,27 @@ void Nebula::start(bool bootstrap_only)
 
         system_db = new SystemDB(db);
 
-        rc = system_db->check_db_version();
+        rc = system_db->check_db_version(is_federation_slave());
 
         if( rc == -1 )
         {
             throw runtime_error("Database version mismatch.");
         }
 
-        if( rc == -2 )
+        if( is_federation_slave() && rc == -2 )
+        {
+            throw runtime_error(
+                    "Either the database was not bootstrapped by the "
+                    "federation master, or the replication was "
+                    "not configured.");
+        }
+
+        if( rc == -2 || rc == -3 )
         {
             rc = 0;
 
-            NebulaLog::log("ONE",Log::INFO,"Bootstrapping OpenNebula database.");
+            NebulaLog::log("ONE",Log::INFO,
+                    "Bootstrapping OpenNebula database.");
 
             rc += VirtualMachinePool::bootstrap(db);
             rc += HostPool::bootstrap(db);
@@ -333,7 +342,14 @@ void Nebula::start(bool bootstrap_only)
             // Create the system tables only if bootstrap went well
             if ( rc == 0 )
             {
-                rc += system_db->bootstrap();
+                if (is_federation_slave())
+                {
+                    rc += system_db->slave_bootstrap();
+                }
+                else
+                {
+                    rc += system_db->bootstrap();
+                }
             }
 
             // Insert default system attributes
@@ -378,8 +394,6 @@ void Nebula::start(bool bootstrap_only)
 
         bool    vm_submit_on_hold;
 
-        bool    cache = !is_federation_slave();
-
         vector<const Attribute *> vm_hooks;
         vector<const Attribute *> host_hooks;
         vector<const Attribute *> vnet_hooks;
@@ -396,7 +410,7 @@ void Nebula::start(bool bootstrap_only)
 
         clpool  = new ClusterPool(db);
         docpool = new DocumentPool(db);
-        zonepool= new ZonePool(db, cache);
+        zonepool= new ZonePool(db, is_federation_slave());
 
         nebula_configuration->get("VM_HOOK", vm_hooks);
         nebula_configuration->get("HOST_HOOK",  host_hooks);
@@ -440,10 +454,13 @@ void Nebula::start(bool bootstrap_only)
                                         remotes_location,
                                         inherit_vnet_attrs);
 
-        gpool  = new GroupPool(db, group_hooks, remotes_location, cache);
+        gpool  = new GroupPool(db, group_hooks,
+                            remotes_location, is_federation_slave());
 
         nebula_configuration->get("SESSION_EXPIRATION_TIME", expiration_time);
-        upool = new UserPool(db, expiration_time, user_hooks, remotes_location, cache);
+
+        upool = new UserPool(db, expiration_time, user_hooks,
+                            remotes_location, is_federation_slave());
 
         nebula_configuration->get("DEFAULT_IMAGE_TYPE", default_image_type);
         nebula_configuration->get("DEFAULT_DEVICE_PREFIX",
