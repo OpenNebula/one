@@ -96,9 +96,11 @@ int LibVirtDriver::deployment_description_kvm(
 
     bool pae  = false;
     bool acpi = false;
+    bool apic = false;
 
     int pae_found  = -1;
     int acpi_found = -1;
+    int apic_found = -1;
 
     const VectorAttribute * raw;
     string default_raw;
@@ -720,6 +722,7 @@ int LibVirtDriver::deployment_description_kvm(
         {
             pae_found  = features->vector_value("PAE", pae);
             acpi_found = features->vector_value("ACPI", acpi);
+            apic_found = features->vector_value("APIC", apic);
         }
     }
 
@@ -733,7 +736,12 @@ int LibVirtDriver::deployment_description_kvm(
         get_default("FEATURES", "ACPI", acpi);
     }
 
-    if( acpi || pae )
+    if ( apic_found != 0 )
+    {
+        get_default("FEATURES", "APIC", apic);
+    }
+
+    if( acpi || pae || apic )
     {
         file << "\t<features>" << endl;
 
@@ -745,6 +753,11 @@ int LibVirtDriver::deployment_description_kvm(
         if ( acpi )
         {
             file << "\t\t<acpi/>" << endl;
+        }
+
+        if ( apic )
+        {
+            file << "\t\t<apic/>" << endl;
         }
 
         file << "\t</features>" << endl;
