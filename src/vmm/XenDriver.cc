@@ -82,6 +82,10 @@ int XenDriver::deployment_description(
     string passwd     = "";
     string keymap     = "";
 
+    const VectorAttribute * input;
+
+    string  bus        = "";
+
     const VectorAttribute * features;
 
     bool pae  = false;
@@ -587,6 +591,34 @@ int XenDriver::deployment_description(
             {
                 vm->log("VMM", Log::WARNING,
                         "Not supported graphics type, ignored.");
+            }
+        }
+    }
+
+    attrs.clear();
+
+    // ------------------------------------------------------------------------
+    // Input (only usb tablet)
+    // ------------------------------------------------------------------------
+
+    if ( vm->get_template_attribute("INPUT",attrs) > 0 )
+    {
+        input = dynamic_cast<const VectorAttribute *>(attrs[0]);
+
+        if ( input != 0 )
+        {
+            type = input->vector_value("TYPE");
+            bus  = input->vector_value("BUS");
+
+            if ( type == "tablet" && bus == "usb" )
+            {
+                file << "usb = 1" << endl;
+                file << "usbdevice = 'tablet'" << endl;
+            }
+            else
+            {
+                vm->log("VMM", Log::WARNING,
+                    "Not supported input, only usb tablet, ignored.");
             }
         }
     }
