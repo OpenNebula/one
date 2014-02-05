@@ -41,6 +41,8 @@ class OpenNebulaFirewall < OpenNebulaNetwork
             chain   = "one-#{vm_id}-#{nic[:network_id]}"
             tap     = nic[:tap]
 
+            next if chain_exists?(chain)
+
             if tap
                 #TCP
                 if range = nic[:white_ports_tcp]
@@ -147,6 +149,12 @@ class OpenNebulaFirewall < OpenNebulaNetwork
 
     def new_chain(chain)
         rule "-N #{chain}"
+    end
+
+    def chain_exists?(chain)
+        iptables_nl =`#{COMMANDS[:iptables]} -nL`
+        chains = iptables_nl.scan(/(one-.*?) .*references/).flatten
+        chains.include? chain
     end
 
     def rule(rule)
