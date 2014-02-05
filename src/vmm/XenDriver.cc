@@ -21,6 +21,12 @@
 #include <fstream>
 #include <math.h>
 
+
+string on_off_string(bool value)
+{
+    return value? "1" : "0";
+}
+
 int XenDriver::deployment_description(
     const VirtualMachine *  vm,
     const string&           file_name) const
@@ -75,6 +81,16 @@ int XenDriver::deployment_description(
     string port       = "";
     string passwd     = "";
     string keymap     = "";
+
+    const VectorAttribute * features;
+
+    bool pae  = false;
+    bool acpi = false;
+    bool apic = false;
+
+    int pae_found  = -1;
+    int acpi_found = -1;
+    int apic_found = -1;
 
     const VectorAttribute * raw;
     string data;
@@ -576,6 +592,59 @@ int XenDriver::deployment_description(
     }
 
     attrs.clear();
+
+    // ------------------------------------------------------------------------
+    // Features (only for HVM)
+    // ------------------------------------------------------------------------
+
+    if ( is_hvm )
+    {
+        num = vm->get_template_attribute("FEATURES",attrs);
+
+        if ( num > 0 )
+        {
+            features = dynamic_cast<const VectorAttribute *>(attrs[0]);
+
+            if ( features != 0 )
+            {
+                pae_found  = features->vector_value("PAE", pae);
+                acpi_found = features->vector_value("ACPI", acpi);
+                apic_found = features->vector_value("APIC", apic);
+            }
+        }
+
+        if ( pae_found != 0 && get_default("FEATURES", "PAE", pae) )
+        {
+            pae_found = 0;
+        }
+
+        if ( acpi_found != 0 && get_default("FEATURES", "ACPI", acpi) )
+        {
+            acpi_found = 0;
+        }
+
+        if ( apic_found != 0 && get_default("FEATURES", "APIC", apic) )
+        {
+            apic_found = 0;
+        }
+
+        if ( pae_found == 0)
+        {
+            file << "pae = " << on_off_string(pae) << endl;
+        }
+
+        if ( acpi_found == 0)
+        {
+            file << "acpi = " << on_off_string(acpi) << endl;
+        }
+
+        if ( apic_found == 0)
+        {
+            file << "apic = " << on_off_string(apic) << endl;
+        }
+
+        attrs.clear();
+    }
 
     // ------------------------------------------------------------------------
     // Raw XEN attributes
