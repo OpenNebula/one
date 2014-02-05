@@ -374,10 +374,10 @@ var template_actions = {
         callback: function(request, response) {
           template_to_update_id = response.VMTEMPLATE.ID;
 
+          popUpUpdateTemplateDialog();
           fillTemplatePopUp(
             response.VMTEMPLATE.TEMPLATE,
             $create_template_dialog);
-          popUpUpdateTemplateDialog();
         },
         error: onError
     },
