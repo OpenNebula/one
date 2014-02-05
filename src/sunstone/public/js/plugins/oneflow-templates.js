@@ -460,7 +460,6 @@ var service_template_actions = {
         call: ServiceTemplate.update,
         callback: function(request,response){
            notifyMessage(tr("ServiceTemplate updated correctly"));
-           Sunstone.runAction('ServiceTemplate.show',response.DOCUMENT.ID);
         },
         error: onError
     },
