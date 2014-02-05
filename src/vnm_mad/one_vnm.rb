@@ -32,7 +32,7 @@ class VirtualNetworkDriver
         @ssh_stream = options[:ssh_stream]
         @message    = options[:message]
 
-        @vm_encoded = Base64.encode64(@message.elements['VM'].to_s).delete("\n")
+        @vm_encoded = Base64.encode64(@message).delete("\n")
 
         initialize_helper("vnm/#{directory}", options)
     end

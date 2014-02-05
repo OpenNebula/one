@@ -38,10 +38,14 @@ require 'one_vnm'
 require 'one_tm'
 require 'getoptlong'
 require 'ssh_stream'
+require 'rexml/document'
 
 require 'pp'
 
 class VmmAction
+    # List of xpaths required by the VNM driver actions
+    XPATH_LIST = %w(ID DEPLOY_ID TEMPLATE/NIC)
+
     attr_reader :data
 
     # Initialize a VmmAction object
@@ -76,20 +80,31 @@ class VmmAction
         get_data(:tm_command)
 
         # VM template
-        @data[:vm] = Base64.encode64(@xml_data.elements['VM'].to_s).delete("\n")
+        vm_template = @xml_data.elements['VM'].to_s
+        @data[:vm]  = Base64.encode64(vm_template).delete("\n")
+
+        # VM data for VNM
+        vm_template_xml = REXML::Document.new(vm_template).root
+        vm_vnm_xml = REXML::Document.new('<VM></VM>').root
+
+        XPATH_LIST.each do |xpath|
+            elements = vm_template_xml.elements.each(xpath) do |element|
+                add_element_to_path(vm_vnm_xml, element, xpath)
+            end
+        end
 
         # Initialize streams and vnm
         @ssh_src = @vmm.get_ssh_stream(action, @data[:host], @id)
         @vnm_src = VirtualNetworkDriver.new(@data[:net_drv],
                             :local_actions  => @vmm.options[:local_actions],
-                            :message        => @xml_data,
+                            :message        => vm_vnm_xml.to_s,
                             :ssh_stream     => @ssh_src)
 
         if @data[:dest_host] and !@data[:dest_host].empty?
             @ssh_dst = @vmm.get_ssh_stream(action, @data[:dest_host], @id)
             @vnm_dst = VirtualNetworkDriver.new(@data[:dest_driver],
                             :local_actions  => @vmm.options[:local_actions],
-                            :message        => @xml_data,
+                            :message        => vm_vnm_xml.to_s,
                             :ssh_stream     => @ssh_dst)
         end
 
@@ -230,6 +245,21 @@ class VmmAction
         if (elem = @xml_data.elements[path])
             @data[name]=elem.text
         end
+    end
+
+    # Adds a REXML node to a specific xpath
+    #
+    # @param [REXML::Element] xml document to add to
+    # @param [REXML::Element] element to add
+    # @param [String] path where the element is inserted in the xml document
+    # @return [REXML::Element]
+    def add_element_to_path(xml, element, path)
+        root = xml
+        path.split('/')[0..-2].each do |path_element|
+            xml = xml.add_element(path_element) if path_element
+        end
+        xml.add_element(element)
+        root
     end
 end
 
