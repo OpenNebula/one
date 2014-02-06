@@ -1184,8 +1184,17 @@ function initialize_datastore_info_create_image_dialog(dialog) {
                                           true
                                          );
 
+    var selected_datastore = $('#img_datastore',dialog).val();
+    var selected_datastore_raw = $('#img_datastore_raw',dialog).val();
+
     $('#img_datastore',dialog).html(datastores_str);
     $('#img_datastore_raw',dialog).html(datastores_str);
+
+    if (selected_datastore)
+      $('#img_datastore',dialog).val(selected_datastore)
+
+    if (selected_datastore_raw)
+      $('#img_datastore_raw',dialog).val(selected_datastore_raw)
 
     $('select#img_datastore', dialog).children('option').each(function() {
       if ($(this).val() == "2") {
