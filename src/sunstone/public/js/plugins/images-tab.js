@@ -1128,6 +1128,7 @@ function initialize_create_image_dialog(dialog) {
         //we this is an image upload we trigger FileUploader
         //to start the upload
         if (upload){
+            $create_image_dialog.trigger("reveal:close")
             uploader._onInputChange(file_input);
         } else {
             Sunstone.runAction("Image.create", img_obj);
