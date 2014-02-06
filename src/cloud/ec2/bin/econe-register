@@ -50,7 +50,7 @@ EOT"
         EC2QueryClient::URL
     ]
 
-    main :public_ip, :instance_id do
+    main :instance_id do
         begin
             ec2_client = EC2QueryClient::Client.new(
                 options[:access_key],
