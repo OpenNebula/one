@@ -131,6 +131,8 @@ configure do
     set :erb, :trim => '-'
 end
 
+DEFAULT_TABLE_ORDER = "desc"
+
 ##############################################################################
 # Helpers
 ##############################################################################
@@ -193,7 +195,7 @@ helpers do
             if user['TEMPLATE/TABLE_ORDER']
                 session[:table_order] = user['TEMPLATE/TABLE_ORDER']
             else
-                session[:table_order] = $conf[:table_order]
+                session[:table_order] = $conf[:table_order] || DEFAULT_TABLE_ORDER
             end
 
             if user['TEMPLATE/DEFAULT_VIEW']
