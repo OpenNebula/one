@@ -91,10 +91,12 @@ int XenDriver::deployment_description(
     bool pae  = false;
     bool acpi = false;
     bool apic = false;
+    string device_model = "";
 
     int pae_found  = -1;
     int acpi_found = -1;
     int apic_found = -1;
+    int device_model_found = -1;
 
     const VectorAttribute * raw;
     string data;
@@ -642,6 +644,12 @@ int XenDriver::deployment_description(
                 pae_found  = features->vector_value("PAE", pae);
                 acpi_found = features->vector_value("ACPI", acpi);
                 apic_found = features->vector_value("APIC", apic);
+
+                device_model = features->vector_value("DEVICE_MODEL");
+                if ( device_model != "" )
+                {
+                    device_model_found = 0;
+                }
             }
         }
 
@@ -660,6 +668,15 @@ int XenDriver::deployment_description(
             apic_found = 0;
         }
 
+        if ( device_model_found != 0 )
+        {
+            get_default("FEATURES", "DEVICE_MODEL", device_model);
+            if ( device_model != "" )
+            {
+                device_model_found = 0;
+            }
+        }
+
         if ( pae_found == 0)
         {
             file << "pae = " << on_off_string(pae) << endl;
@@ -673,6 +690,11 @@ int XenDriver::deployment_description(
         if ( apic_found == 0)
         {
             file << "apic = " << on_off_string(apic) << endl;
+        }
+
+        if ( device_model_found == 0)
+        {
+            file << "device_model = '" << device_model << "'" << endl;
         }
 
         attrs.clear();
