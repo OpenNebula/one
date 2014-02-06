@@ -762,7 +762,7 @@ function setup_capacity_tab_content(capacity_section) {
     var cpu_slider = $( "#cpu_slider", capacity_section).noUiSlider({
         handles: 1,
         connect: "lower",
-        range: [0,800],
+        range: [0,1600],
 //            start: 100,
         step: 50,
         start: 1,
@@ -896,7 +896,7 @@ function setup_capacity_tab_content(capacity_section) {
     var vcpu_slider = $( "#vcpu_slider", capacity_section).noUiSlider({
         handles: 1,
         connect: "lower",
-        range: [0,8],
+        range: [1,16],
         start: 0,
         step: 1,
         slide: function(type) {
