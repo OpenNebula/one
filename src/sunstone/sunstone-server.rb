@@ -423,10 +423,15 @@ post '/upload'do
         tmpfile.flush
     else
         logger.error { "Unexpected rackinput class #{rackinput.class}" }
-        return [500, ""]
+        [500, ""]
     end
 
-    @SunstoneServer.upload(params[:img], tmpfile.path)
+    if tmpfile.size == 0
+        [500, OpenNebula::Error.new("There was a problem uploading the file, " \
+                "please check the permissions on the file").to_json]
+    else
+        @SunstoneServer.upload(params[:img], tmpfile.path)
+    end
 end
 
 ##############################################################################
