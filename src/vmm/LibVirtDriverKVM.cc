@@ -46,6 +46,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  kernel_cmd = "";
     string  bootloader = "";
     string  arch       = "";
+    string  machine    = "";
 
     vector<string> boots;
 
@@ -190,6 +191,7 @@ int LibVirtDriver::deployment_description_kvm(
             kernel_cmd = os->vector_value("KERNEL_CMD");
             bootloader = os->vector_value("BOOTLOADER");
             arch       = os->vector_value("ARCH");
+            machine    = os->vector_value("MACHINE");
         }
     }
 
@@ -203,7 +205,19 @@ int LibVirtDriver::deployment_description_kvm(
         }
     }
 
-    file << "\t\t<type arch='" << arch << "'>hvm</type>" << endl;
+    if ( machine.empty() )
+    {
+        get_default("OS", "MACHINE", machine);
+    }
+
+    file << "\t\t<type arch='" << arch << "'";
+
+    if ( !machine.empty() )
+    {
+        file << " machine='" << machine << "'";
+    }
+
+    file << ">hvm</type>" << endl;
 
     if ( kernel.empty() )
     {
