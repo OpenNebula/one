@@ -101,6 +101,8 @@ else
     exit(-1)
 end
 
+use Rack::Deflater
+
 # Enable logger
 
 include CloudLogger
