@@ -24,6 +24,56 @@
 
 const float LibVirtDriver::CGROUP_BASE_CPU_SHARES = 1024;
 
+/**
+ *  This function generates the <host> element for network disks
+ */
+static void do_network_hosts(ofstream& file,
+                             const string& cg_host,
+                             const string& transport)
+{
+    if (cg_host.empty())
+    {
+        file << "'/>" << endl;
+        return;
+    }
+
+    vector<string>::const_iterator it;
+    vector<string> hosts;
+
+    hosts = one_util::split(cg_host, ' ');
+
+    file << "'>" << endl;
+
+    for (it = hosts.begin(); it != hosts.end(); it++)
+    {
+        vector<string> parts = one_util::split(*it, ':');
+
+        if (parts.empty())
+        {
+            continue;
+        }
+
+        file << "\t\t\t\t<host name='" << parts[0];
+
+        if (parts.size() > 1)
+        {
+            file << "' port='" << parts[1];
+        }
+
+        if (!transport.empty())
+        {
+            file << "' transport='" << transport;
+        }
+
+        file << "'/>" << endl;
+    }
+
+    file << "\t\t\t</source>" << endl;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int LibVirtDriver::deployment_description_kvm(
         const VirtualMachine *  vm,
         const string&           file_name) const
@@ -365,21 +415,9 @@ int LibVirtDriver::deployment_description_kvm(
                  << "\t\t\t<source dev='" << vm->get_remote_system_dir()
                  << "/disk." << disk_id << "'/>" << endl;
         }
-        else if ( type == "RBD" || type == "RBD_CDROM" ||
-                  type == "GLUSTER" || type == "GLUSTER_CDROM" )
+        else if ( type == "RBD" || type == "RBD_CDROM" )
         {
-            string protocol = "";
-
-            if ( type == "RBD" || type == "RBD_CDROM" )
-            {
-                protocol = "rbd";
-            }
-            else
-            {
-                protocol = "gluster";
-            }
-
-            if ( type == "RBD" || type == "GLUSTER" )
+            if (type == "RBD")
             {
                 file << "\t\t<disk type='network' device='disk'>" << endl;
             }
@@ -388,95 +426,47 @@ int LibVirtDriver::deployment_description_kvm(
                 file << "\t\t<disk type='network' device='cdrom'>" << endl;
             }
 
-            file << "\t\t\t<source protocol='" << protocol << "' name='";
+            file << "\t\t\t<source protocol='rbd' name='" << source;
 
-            if ( protocol == "gluster" )
-            {
-                file << gluster_volume << "/";
-            }
-
-            if ( protocol == "rbd" )
-            {
-                file << source;
-                if ( clone == "YES" )
-                {
-                    file << "-" << vm->get_oid() << "-" << disk_id;
-                }
-            }
-            else
-            {
-                if ( clone == "YES" )
-                {
-                    file << vm->get_oid() << "/disk." << disk_id;
-                }
-                else
-                {
-                    file << one_util::split(source, '/').back();
-                }
-            }
-
-            if ( protocol == "rbd" && clone == "YES" )
+            if ( clone == "YES" )
             {
                 file << "-" << vm->get_oid() << "-" << disk_id;
             }
 
-            if ( ceph_host.empty() && gluster_host.empty() )
+            do_network_hosts(file, ceph_host, "");
+
+            if ( !ceph_secret.empty() && !ceph_user.empty())
             {
-                file << "'/>" << endl;
+                file << "\t\t\t<auth username='"<< ceph_user <<"'>" << endl
+                     << "\t\t\t\t<secret type='ceph' uuid='"
+                     << ceph_secret <<"'/>" << endl
+                     << "\t\t\t</auth>" << endl;
+            }
+        }
+        else if ( type == "GLUSTER" || type == "GLUSTER_CDROM" )
+        {
+            if ( type == "GLUSTER" )
+            {
+                file << "\t\t<disk type='network' device='disk'>" << endl;
             }
             else
             {
-                vector<string>::const_iterator it;
-                vector<string> hosts;
-
-                if ( protocol == "rbd" )
-                {
-                    hosts = one_util::split(ceph_host, ' ');
-                }
-                else
-                {
-                    hosts = one_util::split(gluster_host, ' ');
-                }
-
-                file << "'>" << endl;
-
-                for (it = hosts.begin(); it != hosts.end(); it++)
-                {
-                    vector<string> parts = one_util::split(*it, ':');
-
-                    if (parts.empty())
-                    {
-                        continue;
-                    }
-
-                    file << "\t\t\t\t<host name='" << parts[0];
-
-                    if (parts.size() > 1)
-                    {
-                        file << "' port='" << parts[1];
-                    }
-
-                    if ( protocol == "gluster" )
-                    {
-                        file << "' transport='tcp";
-                    }
-
-                    file << "'/>" << endl;
-                }
-
-                file << "\t\t\t</source>" << endl;
+                file << "\t\t<disk type='network' device='cdrom'>" << endl;
             }
 
-            if ( protocol == "rbd" )
+            file << "\t\t\t<source protocol='gluster' name='" << gluster_volume
+                 << "/";
+
+            if ( clone == "YES" )
             {
-                if ( !ceph_secret.empty() && !ceph_user.empty())
-                {
-                    file << "\t\t\t<auth username='"<< ceph_user <<"'>" << endl
-                         << "\t\t\t\t<secret type='ceph' uuid='"
-                         << ceph_secret <<"'/>" << endl
-                         << "\t\t\t</auth>" << endl;
-                }
+                file << vm->get_oid() << "/disk." << disk_id;
             }
+            else
+            {
+                file << one_util::split(source, '/').back();
+            }
+
+            do_network_hosts(file, gluster_host, "tcp");
         }
         else if ( type == "CDROM" )
         {
