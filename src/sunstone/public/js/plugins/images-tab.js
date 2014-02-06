@@ -202,7 +202,9 @@ var create_image_tmpl =
                          <input type="text" name="img_fstype" id="img_fstype" />\
                         </div>\
                         <div class="one columns">\
-                          <div class="tip">'+tr("Type of file system to be built. This can be any value understood by mkfs unix command.")+'</div>\
+                          <div class="tip">'+tr("Type of file system to be built.")+'<br><br>'
+                            + tr(" Plain. When the disk image is used directly by the hypervisor we can format the image, and so it is ready to be used by the guest OS. Values: ext2, ext3, ext4, ntfs, reiserfs, jfs, swap. Any other fs supported by mkfs will work if no special option is needed. .")+'<br><br>'
+                            + tr(" Formatted. The disk image is stored in a hypervisor specific format VMDK or Qcow2. Then we cannot really make a filesystem on the image, just create the device and let the guest OS format the disk. Use raw to not to format the new image. Values: raw, qcow2, vmdk_*.")+'</div>\
                         </div>\
                     </div>\
                     </div>\
