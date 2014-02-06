@@ -4205,6 +4205,10 @@ function popUpTemplateTemplateUpdateDialog(){
 function fillTemplatePopUp(template, dialog){
     var use_advanced_template = false;
 
+    function htmlDecode(value){
+      return $('<div/>').html(value).text();
+    }
+
     function autoFillInputs(template_json, context){
         var params = $('.vm_param',context);
         var inputs = $('input',params);
@@ -4214,7 +4218,7 @@ function fillTemplatePopUp(template, dialog){
         fields.each(function(){
             var field = $(this);
                 if (template_json[field.attr('id')]){ //if has a length
-                    field.val(escapeDoubleQuotes($('<div/>').html(template_json[field.attr('id')]).text()));
+                    field.val(escapeDoubleQuotes(htmlDecode(template_json[field.attr('id')])));
                     field.change();
 
                     delete template_json[field.attr('id')]
@@ -4804,11 +4808,8 @@ function fillTemplatePopUp(template, dialog){
     var raw = template.RAW;
     var raw_section = $('li#rawTab', dialog);
 
-    if (raw) {
-        function htmlDecode(value){
-          return $('<div/>').html(value).text();
-        }
 
+    if (raw) {
         $('#raw_type', raw_section).val(raw['TYPE']);
         $('#raw_type', raw_section).change();
         $('#raw_data', raw_section).val(htmlDecode(raw['DATA']));
@@ -4826,14 +4827,14 @@ function fillTemplatePopUp(template, dialog){
         var element1 = document.createElement("input");
         element1.id = "KEY";
         element1.type = "text";
-        element1.value = key
+        element1.value = htmlDecode(key);
         cell1.appendChild(element1);
 
         var cell2 = row.insertCell(1);
         var element2 = document.createElement("input");
         element2.id = "VALUE";
         element2.type = "text";
-        element2.value = value
+        element2.value = htmlDecode(value);
         cell2.appendChild(element2);
 
 
