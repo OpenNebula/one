@@ -134,4 +134,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :show, show_desc,:zoneid, :options=>OpenNebulaHelper::XML do
         helper.show_resource(args[0],options)
     end
+
+    setzone_desc = <<-EOT.unindent
+        Set shell session access point for the CLI to the given Zone
+    EOT
+
+    command :setzone, setzone_desc,:zoneid do
+        helper.set_zone(args[0])
+    end
 end

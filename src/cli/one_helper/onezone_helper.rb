@@ -30,6 +30,11 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
         config_file = self.class.table_conf
 
         table = CLIHelper::ShowTable.new(config_file, self) do
+            column :CURRENT, "Active Zone", :size=>1 do |d|
+                "*" if helper.client.one_endpoint.strip == 
+                       d["TEMPLATE"]['ENDPOINT'].strip
+            end
+
             column :ID, "ONE identifier for the Zone", :size=>5 do |d|
                 d["ID"]
             end
@@ -46,6 +51,27 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
         end
 
         table
+    end
+
+    def set_zone(zone_id)
+      zone = factory(zone_id)
+      rc = zone.info
+
+      if OpenNebula.is_error?(rc)
+        return -1, rc.message
+      end
+
+      if !zone['TEMPLATE/ENDPOINT']
+        return -1, "No Endpoint defined for Zone #{zone_id}" 
+      end
+
+      File.open(ENV['HOME']+"/.one/one_endpoint", 'w'){|f| 
+         f.puts zone['TEMPLATE/ENDPOINT']
+      }
+
+      puts "Endpoint changed to \"#{zone['TEMPLATE/ENDPOINT']}\" in " << 
+           "#{ENV['HOME']}/.one/one_endpoint"
+      return 0
     end
 
     private
