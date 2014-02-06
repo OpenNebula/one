@@ -3677,15 +3677,11 @@ function add_schedulingTab(dialog) {
     $("input[name='req_select']").change(function(){
         if ($("input[name='req_select']:checked").val() == "host_select") {
             $("div.host_select",  $('li#schedulingTab', dialog)).toggle();
-            $("div.host_select",  $('li#schedulingTab', dialog)).addClass('vm_param');
             $("div.cluster_select",  $('li#schedulingTab', dialog)).hide();
-            $("div.cluster_select",  $('li#schedulingTab', dialog)).removeClass('vm_param');
         }
         else {
             $("div.host_select",  $('li#schedulingTab', dialog)).hide();
-            $("div.host_select",  $('li#schedulingTab', dialog)).removeClass('vm_param');
             $("div.cluster_select",  $('li#schedulingTab', dialog)).toggle();
-            $("div.cluster_select",  $('li#schedulingTab', dialog)).addClass('vm_param');
         }
     });
 
