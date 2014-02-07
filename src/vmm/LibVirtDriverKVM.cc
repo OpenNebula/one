@@ -95,15 +95,17 @@ int LibVirtDriver::deployment_description_kvm(
 
     const VectorAttribute * features;
 
-    bool pae    = false;
-    bool acpi   = false;
-    bool apic   = false;
-    bool hyperv = false;
+    bool pae        = false;
+    bool acpi       = false;
+    bool apic       = false;
+    bool hyperv     = false;
+    bool localtime  = false;
 
     int pae_found       = -1;
     int acpi_found      = -1;
     int apic_found      = -1;
     int hyperv_found    = -1;
+    int localtime_found = -1;
 
     string hyperv_options = "";
 
@@ -738,10 +740,11 @@ int LibVirtDriver::deployment_description_kvm(
 
         if ( features != 0 )
         {
-            pae_found   = features->vector_value("PAE", pae);
-            acpi_found  = features->vector_value("ACPI", acpi);
-            apic_found  = features->vector_value("APIC", apic);
-            hyperv_found= features->vector_value("HYPERV", hyperv);
+            pae_found       = features->vector_value("PAE", pae);
+            acpi_found      = features->vector_value("ACPI", acpi);
+            apic_found      = features->vector_value("APIC", apic);
+            hyperv_found    = features->vector_value("HYPERV", hyperv);
+            localtime_found = features->vector_value("LOCALTIME", localtime);
         }
     }
 
@@ -765,7 +768,12 @@ int LibVirtDriver::deployment_description_kvm(
         get_default("FEATURES", "HYPERV", hyperv);
     }
 
-    if( acpi || pae || apic || hyperv )
+    if ( localtime_found != 0 )
+    {
+        get_default("FEATURES", "LOCALTIME", localtime);
+    }
+
+    if ( acpi || pae || apic || hyperv )
     {
         file << "\t<features>" << endl;
 
@@ -794,6 +802,11 @@ int LibVirtDriver::deployment_description_kvm(
         }
 
         file << "\t</features>" << endl;
+    }
+
+    if ( localtime )
+    {
+        file << "\t<clock offset='localtime'/>" << endl;
     }
 
     attrs.clear();
