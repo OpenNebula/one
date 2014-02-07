@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2010-2014, C12G Labs S.L.                                        */ 
+/* Copyright 2010-2014, C12G Labs S.L.                                        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -59,10 +59,10 @@ int expect_char(int pty, char * expected, int seconds)
 
         if ( rc > 0 )
         {
-           if(expected == 0)
-	   {
+            if(expected == 0)
+            {
                 write(1,&c,sizeof(char));
-	   }
+            }
 
             if (expected != 0 && c == *expected)
             {
@@ -163,11 +163,22 @@ int main (int argc, char **argv)
 
     while ( times > 0 )
     {
-        expect_char(pty,&expect,1);
+        if (expect_char(pty,&expect,1) == -1)
+        {
+            return -1;
+        }
+
         sleep(1);
+
         write_answer(pty,username);
-        expect_char(pty,&expect,1);
+
+        if (expect_char(pty,&expect,1) == -1)
+        {
+            return -1;
+        }
+
         sleep(1);
+
         write_answer(pty,password);
 
         times = times - 1;
