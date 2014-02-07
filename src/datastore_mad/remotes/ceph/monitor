@@ -41,27 +41,20 @@ ID=$2
 
 XPATH="${DRIVER_PATH}/../xpath.rb -b $DRV_ACTION"
 
-unset i j XPATH_ELEMENTS
+unset i XPATH_ELEMENTS
 
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
-done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
+done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/HOST \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/POOL_NAME)
 
-BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
-POOL_NAME="${XPATH_ELEMENTS[j++]:-$POOL_NAME}"
-
-HOST=`get_destination_host`
-
-if [ -z "$HOST" ]; then
-    error_message "Datastore template missing 'BRIDGE_LIST' attribute."
-    exit -1
-fi
+HOST="${XPATH_ELEMENTS[0]:-$HOST}"
+POOL_NAME="${XPATH_ELEMENTS[1]:-$POOL_NAME}"
 
 # ------------ Compute datastore usage -------------
 
 MONITOR_SCRIPT=$(cat <<EOF
-$RADOS df | $AWK '{
+$SUDO $RADOS df | $AWK '{
     if (\$1 == "total") {
 
         space = int(\$3/1024)

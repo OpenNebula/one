@@ -40,22 +40,17 @@ ID=$2
 
 XPATH="${DRIVER_PATH}/../xpath.rb -b $DRV_ACTION"
 
-unset i j XPATH_ELEMENTS
+unset i XPATH_ELEMENTS
 
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST)
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/HOST)
 
-SRC="${XPATH_ELEMENTS[j++]}"
-BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
+unset i
 
-DST_HOST=`get_destination_host $ID`
-
-if [ -z "$DST_HOST" ]; then
-    error_message "Datastore template missing 'BRIDGE_LIST' attribute."
-    exit -1
-fi
+SRC="${XPATH_ELEMENTS[i++]}"
+DST_HOST="${XPATH_ELEMENTS[i++]:-$HOST}"
 
 log "Removing $SRC from the rbd image repository in $DST_HOST"
 

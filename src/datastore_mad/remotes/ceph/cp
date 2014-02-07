@@ -51,7 +51,7 @@ while IFS= read -r -d '' element; do
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/RESTRICTED_DIRS \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SAFE_DIRS \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/HOST \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/POOL_NAME \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/STAGING_DIR \
                     /DS_DRIVER_ACTION_DATA/IMAGE/PATH \
@@ -66,7 +66,7 @@ unset i
 BASE_PATH="${XPATH_ELEMENTS[i++]}"
 RESTRICTED_DIRS="${XPATH_ELEMENTS[i++]}"
 SAFE_DIRS="${XPATH_ELEMENTS[i++]}"
-BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
+DST_HOST="${XPATH_ELEMENTS[i++]:-$HOST}"
 POOL_NAME="${XPATH_ELEMENTS[i++]:-$POOL_NAME}"
 STAGING_DIR="${XPATH_ELEMENTS[i++]:-$STAGING_DIR}"
 SRC="${XPATH_ELEMENTS[i++]}"
@@ -75,13 +75,6 @@ MD5="${XPATH_ELEMENTS[i++]}"
 SHA1="${XPATH_ELEMENTS[i++]}"
 NO_DECOMPRESS="${XPATH_ELEMENTS[i++]}"
 LIMIT_TRANSFER_BW="${XPATH_ELEMENTS[i++]}"
-
-DST_HOST=`get_destination_host $ID`
-
-if [ -z "$DST_HOST" ]; then
-    error_message "Datastore template missing 'BRIDGE_LIST' attribute."
-    exit -1
-fi
 
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS"
 
@@ -118,18 +111,37 @@ esac
 exec_and_log "eval $DUMP | $SSH $DST_HOST $DD of=$TMP_DST bs=64k" \
     "Error dumping $SRC to $DST_HOST:$TMP_DST"
 
-REGISTER_CMD=$(cat <<EOF
-    set -e
+# Determine if source file is a TAR archive and process accordingly
+TARFILE=$(ssh $DST_HOST file -b --mime-type $TMP_DST)
 
-    # create rbd
-    $QEMU_IMG convert $TMP_DST rbd:$RBD_SOURCE
+if [ $TARFILE == "application/x-tar" ]; then
+			log "Image is a tar archive, unarchiving..."
+			SRCIMAGEFILE="$STAGING_DIR/$(ssh $DST_HOST tar -tf $TMP_DST)"
+			ssh_exec_and_log "$DST_HOST" "tar -xf $TMP_DST -C $STAGING_DIR/" \
+				"Error un-archiving $SRCIMAGEFILE from $TMP_DST on $DST_HOST"
+			ssh_exec_and_log "$DST_HOST" "rm -f $TMP_DST" \
+				"Error removing tar archive $TMP_DST on $DST_HOST"
+		else
+			log "Image is not a tar archive..."
+			SRCIMAGEFILE="$STAGING_DIR/$IMAGE_HASH"
+fi
 
-    # remove original
-    $RM -f $TMP_DST
-EOF
-)
+FORMAT=$(ssh $DST_HOST qemu-img info $SRCIMAGEFILE | grep "file format:" | awk '{print $3}')
 
-ssh_exec_and_log    "$DST_HOST" "$REGISTER_CMD" \
-                    "Error registering $RBD_SOURCE in $DST_HOST"
+if [ "$FORMAT" != "raw" ]; then
+        ssh_exec_and_log "$DST_HOST" "$QEMU_IMG convert -O raw $SRCIMAGEFILE $STAGING_DIR/newimage-$ID.raw" \
+                "Error converting source image to RAW format"
+        ssh_exec_and_log "$DST_HOST" "rbd import --format 2 $STAGING_DIR/newimage-$ID.raw $RBD_SOURCE" \
+                "Error importing RAW image $STAGING_DIR/newimage-$ID.raw to cluster image $RBD_SOURCE"
+        ssh_exec_and_log "$DST_HOST" "$RM -f $STAGING_DIR/newimage-$ID.raw" \
+                "Error removing temporary RAW image $STAGING_DIR/newimage-$ID.raw on $DST_HOST.  Manual removal is required."
+else
+        ssh_exec_and_log "$DST_HOST" "rbd import --format 2 $SRCIMAGEFILE $RBD_SOURCE" \
+                "Error importing RAW image $SRCIMAGEFILE to cluster image $RBD_SOURCE"
+fi
+
+ssh_exec_and_log "$DST_HOST" "$RM -f $SRCIMAGEFILE" \
+        "Error removing temporary RAW image $SRCIMAGEFILE on $DST_HOST.  Manual removal is required."
+
 
 echo "$RBD_SOURCE"
