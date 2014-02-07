@@ -80,9 +80,12 @@ log "Dumping $RBD_DST to $DST"
 DUMP_CMD=$(cat <<EOF
     set -e
 
-    $RBD flatten $RBD_DST
-    $RBD snap unprotect $RBD_SRC@$RBD_SNAP
-    $RBD snap rm $RBD_SRC@$RBD_SNAP
+    if [ "$RBD_FORMAT" = "2" ]; then
+        $RBD flatten $RBD_DST
+        $RBD snap unprotect $RBD_SRC@$RBD_SNAP
+        $RBD snap rm $RBD_SRC@$RBD_SNAP
+    fi
+
     $RBD rename $RBD_DST $DST
 EOF
 )

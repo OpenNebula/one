@@ -92,8 +92,11 @@ DELETE_CMD=$(cat <<EOF
     set -e
 
     $RBD rm $RBD_SRC
-    $RBD snap unprotect $SRC@$RBD_SNAP
-    $RBD snap rm $SRC@$RBD_SNAP
+
+    if [ "$RBD_FORMAT" = "2" ]; then
+        $RBD snap unprotect $SRC@$RBD_SNAP
+        $RBD snap rm $SRC@$RBD_SNAP
+    fi
 EOF
 )
 

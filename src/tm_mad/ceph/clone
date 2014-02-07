@@ -56,9 +56,13 @@ RBD_SNAP="${VM_ID}-${DISK_ID}"
 CLONE_CMD=$(cat <<EOF
     set -e
 
-    $RBD snap create "$SRC_PATH@$RBD_SNAP"
-    $RBD snap protect "$SRC_PATH@$RBD_SNAP"
-    $RBD clone "$SRC_PATH@$RBD_SNAP" $RBD_DST
+    if [ "$RBD_FORMAT" = "2" ]; then
+        $RBD snap create "$SRC_PATH@$RBD_SNAP"
+        $RBD snap protect "$SRC_PATH@$RBD_SNAP"
+        $RBD clone "$SRC_PATH@$RBD_SNAP" $RBD_DST
+    else
+        $RBD copy $SRC_PATH $RBD_DST
+    fi
 EOF
 )
 
