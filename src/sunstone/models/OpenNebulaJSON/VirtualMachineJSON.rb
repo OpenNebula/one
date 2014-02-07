@@ -99,9 +99,8 @@ module OpenNebulaJSON
             super(params['hard'])
         end
 
-        def migrate(params=Hash.new, live=false, enforce=false)
-            # TODO add enforce parameter
-            super(params['host_id'], live)
+        def migrate(params=Hash.new, live=false)
+            super(params['host_id'], live, params['enforce'])
         end
 
         def save_as(params=Hash.new)

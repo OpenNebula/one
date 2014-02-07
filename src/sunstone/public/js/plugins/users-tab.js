@@ -172,6 +172,17 @@ var update_pw_tmpl = '<div class="panel">\
               <div class=""></div>\
           </div>\
       </div>\
+      <div class="row centered">\
+          <div class="four columns">\
+              <label class="inline right" for="confirm_password">'+tr("Confirm Password")+':</label>\
+          </div>\
+          <div class="seven columns">\
+              <input type="password" name="confirm_password" id="confirm_password" />\
+          </div>\
+          <div class="one columns">\
+              <div class=""></div>\
+          </div>\
+      </div>\
       <hr>\
       <div class="form_buttons">\
           <button class="button radius right success" id="update_pw_submit" type="submit" value="User.update">'+tr("Change")+'</button>\
@@ -870,9 +881,15 @@ function setupUpdatePasswordDialog(){
 
     $('#update_user_pw_form',dialog).submit(function(){
         var pw=$('#new_password',this).val();
+        var confirm_password=$('#confirm_password',this).val();
 
         if (!pw.length){
             notifyError(tr("Fill in a new password"));
+            return false;
+        }
+
+        if (pw !== confirm_password){
+            notifyError(tr("Password does not match"));
             return false;
         }
 

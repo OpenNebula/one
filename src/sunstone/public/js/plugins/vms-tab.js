@@ -389,10 +389,103 @@ var deploy_vm_tmpl ='\
   </form>\
 </div>';
 
+var migrate_vm_tmpl ='\
+<div class="panel">\
+  <h3>\
+    <small id="migrate_vm_header">'+tr("Migrate Virtual Machine")+'</small>\
+  </h3>\
+</div>\
+<div class="reveal-body">\
+  <form id="migrate_vm_form" action="">\
+    <div id="current_hosts_of_vms" class="row">\
+    </div>\
+    <br><br>\
+    <div class="row">\
+      <fieldset>\
+        <legend>'+tr("Select a Host")+'</legend>\
+        <div class="row collapse">\
+          <div class="seven columns">\
+             <button id="refresh_migrate_hosts_table_button_class" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>\
+          </div>\
+          <div class="five columns">\
+            <input id="migrate_hosts_table_search" type="text" placeholder="'+tr("Search")+'"/>\
+          </div>\
+        </div>\
+        <table id="migrate_datatable_hosts" class="datatable twelve">\
+          <thead>\
+            <tr>\
+              <th></th>\
+              <th>' + tr("ID") + '</th>\
+              <th>' + tr("Name") + '</th>\
+              <th>' + tr("Cluster") + '</th>\
+              <th>' + tr("RVMs") + '</th>\
+              <th>' + tr("Real CPU") + '</th>\
+              <th>' + tr("Allocated CPU") + '</th>\
+              <th>' + tr("Real MEM") + '</th>\
+              <th>' + tr("Allocated MEM") + '</th>\
+              <th>' + tr("Status") + '</th>\
+              <th>' + tr("IM MAD") + '</th>\
+              <th>' + tr("VM MAD") + '</th>\
+              <th>' + tr("Last monitored on") + '</th>\
+            </tr>\
+          </thead>\
+          <tbody id="tbodyhosts">\
+          </tbody>\
+        </table>\
+        <div class="row hidden">\
+          <div class="four columns">\
+            <label class="right inline" for="HOST_ID">'+tr("HOST_ID")+':</label>\
+          </div>\
+          <div class="six columns">\
+            <input type="text" id="HOST_ID" name="HOST_ID"/>\
+          </div>\
+          <div class="two columns">\
+            <div class="tip">\
+            </div>\
+          </div>\
+        </div>\
+        <br>\
+        <div id="selected_host" class="vm_param kvm_opt xen_opt vmware_opt">\
+          <span id="select_host" class="radius secondary label">'+tr("Please select a Host from the list")+'</span>\
+          <span id="host_selected" class="radius secondary label hidden">'+tr("You selected the following Host:")+'</span>\
+          <span class="radius label" type="text" id="HOST_NAME" name="host"></span>\
+        </div>\
+      </fieldset>\
+    </div>\
+    <br>\
+    <br>\
+    <div class="show_hide" id="advanced_toggle">\
+         <h4><small><i class=" icon-caret-down"/> '+tr("Advanced options")+'<a id="" class="icon_left" href="#"></a></small></h4>\
+    </div>\
+    <div id="advanced_migrate" class="row advanced">\
+      <div class="row">\
+          <div class="three columns">\
+              <label class="inline right" for="vm_id">'+tr("Enforce")+':</label>\
+          </div>\
+          <div class="two columns">\
+              <input type="checkbox" name="enforce" id="enforce"/>\
+          </div>\
+          <div class="one columns pull-seven tip">'
+                + tr("If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced") +
+          '</div>\
+      </div>\
+    </div>\
+    <div class="form_buttons reveal-footer">\
+      <hr>\
+      <div class="form_buttons">\
+         <button class="button radius right success" id="migrate_vm_proceed" value="VM.migrate">'+tr("Migrate")+'</button>\
+         <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+      </div>\
+    </div>\
+    <a class="close-reveal-modal">&#215;</a>\
+  </form>\
+</div>';
+
 var vmachine_list_json = {};
 var dataTable_vMachines;
 var $create_vm_dialog;
 var $deploy_vm_dialog;
+var $migrate_vm_dialog;
 var $vnc_dialog;
 var rfb;
 
@@ -472,19 +565,31 @@ var vm_actions = {
     },
 
     "VM.migrate" : {
-        type: "multiple",
+        type: "custom",
+        call: function(){
+          popUpMigrateVMDialog(false);
+        }
+    },
+
+    "VM.migrate_action" : {
+        type: "single",
         call: OpenNebula.VM.migrate,
         callback: vmShow,
-        elements: function() { return getSelectedNodes(dataTable_vMachines); },
         error: onError,
         notify: true
     },
 
     "VM.migrate_live" : {
-        type: "multiple",
+        type: "custom",
+        call: function(){
+          popUpMigrateVMDialog(true);
+        }
+    },
+
+    "VM.migrate_live_action" : {
+        type: "single",
         call: OpenNebula.VM.livemigrate,
         callback: vmShow,
-        elements: vmElements,
         error: onError,
         notify: true
     },
@@ -953,20 +1058,18 @@ var vm_buttons = {
         condition: mustBeAdmin
     },
     "VM.migrate" : {
-        type: "confirm_with_select",
+        type: "action",
         text: tr("Migrate"),
         tip: tr("This will migrate the selected VMs to the chosen host"),
         layout: "vmsplanification_buttons",
-        select: hosts_sel,
         condition: mustBeAdmin
 
     },
     "VM.migrate_live" : {
-        type: "confirm_with_select",
+        type: "action",
         text: tr("Migrate") + ' <span class="label secondary radius">live</span>',
         tip: tr("This will live-migrate the selected VMs to the chosen host"),
         layout: "vmsplanification_buttons",
-        select: hosts_sel,
         condition: mustBeAdmin
     },
     "VM.hold" : {
@@ -3354,6 +3457,107 @@ function setupDeployVMDialog(){
     });
 }
 
+function setupMigrateVMDialog(live){
+    dialogs_context.append('<div id="migrate_vm_dialog"></div>');
+    //Insert HTML in place
+    $migrate_vm_dialog = $('#migrate_vm_dialog')
+    var dialog = $migrate_vm_dialog;
+    dialog.html(migrate_vm_tmpl);
+    dialog.addClass("reveal-modal large max-height");
+
+    var dataTable_migrate_hosts = $('#migrate_datatable_hosts', dialog).dataTable({
+        "iDisplayLength": 4,
+        "bAutoWidth":false,
+        "sDom" : '<"H">t<"F"p>',
+        "aoColumnDefs": [
+              { "bSortable": false, "aTargets": ["check",5,6,7,8] },
+              { "sWidth": "35px", "aTargets": [0] }, //check, ID, RVMS, Status,
+              { "bVisible": false, "aTargets": [3,5,7,10,11,12]}
+        ],
+          "fnDrawCallback": function(oSettings) {
+            var nodes = this.fnGetNodes();
+            $.each(nodes, function(){
+                if ($(this).find("td:eq(0)").html() == $('#HOST_ID', dialog).val()) {
+                    $("td", this).addClass('markrow');
+                    $('input.check_item', this).attr('checked','checked');
+                }
+            })
+          }
+    });
+
+    $('tbody input.check_item:checked',dataTable_vMachines).each(function(){
+        var data = dataTable_vMachines.fnGetData( $(this).closest('tr')[0] );
+        $("#current_hosts_of_vms").append('<span class="radius secondary label">'+tr("VM")+' ['+$(this).val() + '] ' + tr("is currently running on Host") + ' [' + data[8] + ']</span><br>')
+    });
+
+    // Retrieve the images to fill the datatable
+    update_datatable_template_hosts(dataTable_migrate_hosts);
+
+    $('#migrate_hosts_table_search', dialog).keyup(function(){
+      dataTable_migrate_hosts.fnFilter( $(this).val() );
+    })
+
+    $('#migrate_datatable_hosts tbody', dialog).delegate("tr", "click", function(e){
+        var aData = dataTable_migrate_hosts.fnGetData(this);
+
+        $("td.markrow", dataTable_migrate_hosts).removeClass('markrow');
+        $('tbody input.check_item', dataTable_migrate_hosts).removeAttr('checked');
+
+        $('#host_selected', dialog).show();
+        $('#select_host', dialog).hide();
+        $('.alert-box', dialog).hide();
+
+        $("td", this).addClass('markrow');
+        $('input.check_item', this).attr('checked','checked');
+
+        $('#HOST_NAME', dialog).text(aData[2]);
+        $('#HOST_ID', dialog).val(aData[1]);
+        return true;
+    });
+
+    $("#refresh_migrate_hosts_table_button_class").die();
+    $("#refresh_migrate_hosts_table_button_class").live('click', function(){
+        update_datatable_template_hosts($('#migrate_datatable_hosts').dataTable());
+    });
+
+    $('#advanced_migrate', dialog).hide();
+    $('#advanced_toggle',dialog).click(function(){
+        $('#advanced_migrate',dialog).toggle();
+        return false;
+    });
+
+    setupTips(dialog);
+
+    $('#migrate_vm_form',dialog).submit(function(){
+        var extra_info = {};
+
+        if ($('#HOST_ID', dialog).val()) {
+            extra_info['host_id'] = $('#HOST_ID', dialog).val();
+        } else {
+            notifyError(tr("You have not selected a host"));
+            return false;
+        }
+
+        extra_info['enforce'] = $("#enforce", this).is(":checked") ? true : false
+
+        //notifySubmit("Template.instantiate",template_id, extra_msg);
+
+        $.each(getSelectedNodes(dataTable_vMachines), function(index, elem) {
+          console.log(elem)
+          if (live) {
+            console.log("live")
+            Sunstone.runAction("VM.migrate_live_action", elem, extra_info);
+          } else {
+            console.log("migrate")
+            Sunstone.runAction("VM.migrate_action", elem, extra_info);
+          }
+        });
+
+        $migrate_vm_dialog.trigger("reveal:close")
+        return false;
+    });
+}
+
 // Open creation dialog
 function popUpDeployVMDialog(){
     setupDeployVMDialog();
@@ -3361,6 +3565,11 @@ function popUpDeployVMDialog(){
 }
 
 
+// Open creation dialog
+function popUpMigrateVMDialog(live){
+    setupMigrateVMDialog(live);
+    $migrate_vm_dialog.reveal();
+}
 
 
 //Prepares autorefresh
