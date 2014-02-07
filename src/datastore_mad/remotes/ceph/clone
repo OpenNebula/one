@@ -45,7 +45,7 @@ unset i XPATH_ELEMENTS
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/HOST \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/POOL_NAME \
                     /DS_DRIVER_ACTION_DATA/IMAGE/PATH \
                     /DS_DRIVER_ACTION_DATA/IMAGE/SIZE)
@@ -53,10 +53,17 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
 unset i
 
 BASE_PATH="${XPATH_ELEMENTS[i++]}"
-DST_HOST="${XPATH_ELEMENTS[i++]:-$HOST}"
+BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
 POOL_NAME="${XPATH_ELEMENTS[i++]:-$POOL_NAME}"
 SRC="${XPATH_ELEMENTS[i++]}"
 SIZE="${XPATH_ELEMENTS[i++]}"
+
+DST_HOST=`get_destination_host $ID`
+
+if [ -z "$DST_HOST" ]; then
+    error_message "Datastore template missing 'BRIDGE_LIST' attribute."
+    exit -1
+fi
 
 SAFE_DIRS=""
 

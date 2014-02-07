@@ -77,14 +77,17 @@ RBD_SNAP="${VM_ID}-${DISK_ID}"
 
 log "Dumping $RBD_DST to $DST"
 
-ssh_exec_and_log	"$SRC_HOST" "$RBD flatten $RBD_DST" \
-					"Error copying data from master image $RBD_SRC to $RBD_DST"
-ssh_exec_and_log	"$SRC_HOST" "$RBD snap unprotect $RBD_SRC@$RBD_SNAP" \
-					"Error unprotecting snapshot $RBD_SNAP of image $RBD_SRC"
-ssh_exec_and_log	"$SRC_HOST" "$RBD snap rm $RBD_SRC@$RBD_SNAP" \
-					"Error removing snapshot $RBD_SNAP of image $RBD_SRC"
-ssh_exec_and_log    "$SRC_HOST" "$RBD rename $RBD_DST $DST" \
-                    "Error saving $RBD_DST as $DST in $SRC_HOST"
+DUMP_CMD=$(cat <<EOF
+    set -e
 
+    $RBD flatten $RBD_DST
+    $RBD snap unprotect $RBD_SRC@$RBD_SNAP
+    $RBD snap rm $RBD_SRC@$RBD_SNAP
+    $RBD rename $RBD_DST $DST
+EOF
+)
+
+ssh_exec_and_log    "$SRC_HOST" "$DUMP_CMD" \
+                    "Error saving $RBD_DST as $DST in $SRC_HOST"
 
 exit 0
