@@ -867,70 +867,6 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
 //another containing a list of actions that can be folded/unfolded.
 function initListButtons(){
 
-   // //for each multi_action select
-   // $('.multi_action_slct',main_tabs_context).each(function(){
-   //     //prepare replacement buttons
-   //     var buttonset = $('<div style="display:inline-block;" class="top_button"></div');
-   //     var button1 = $('<button class="last_action_button action_button confirm_button confirm_with_select_button" value="">'+tr("Previous action")+'</button>')//.button();
-   //     button1.attr('disabled','disabled');
-   //     var button2 = $('<button class="list_button" value="">See more</button>')
-   //     //.button({
-   //     //    text:false,
-   //     //    icons: { primary: "ui-icon-triangle-1-s" }
-   //     //});
-   //    // buttonset.append(button1);
-   //    // buttonset.append(button2);
-   //    // buttonset.buttonset();
-////
-   //     //prepare list
-   //     var options = $('option', $(this));
-   //     var list = $('<ul class="action_list"></ul>');
-   //     $.each(options,function(){
-   //         var classes = $(this).attr('class');
-   //         var item = $('<li></li>');
-   //         var a = $('<a href="#" class="'+classes+'" value="'+$(this).val()+'">'+$(this).text()+'</a>');
-   //         a.val($(this).val());
-   //         item.html(a);
-   //         list.append(item);
-   //     });
-   //     list.css({
-   //         "display":"none"
-   //     });
-//
-   //     $(this).before(buttonset);
-   //     $(this).parents('.action_blocks').append(list);
-   //     $(this).remove();
-//
-   // });
-//
-   // //below the listeners for events on these buttons and list
-//
-   // //enable run the last action button
-   // //$('.action_list li a',main_tabs_context).click(function(){
-   // //    //enable run last action button
-   // //    var prev_action_button = $('.last_action_button',$(this).parents('.action_blocks'));
-   // //    prev_action_button.val($(this).val());
-   // //    prev_action_button.removeClass("confirm_with_select_button");
-   // //    prev_action_button.removeClass("confirm_button");
-   // //    prev_action_button.removeClass("action_button");
-   // //    prev_action_button.addClass($(this).attr('class'));
-   // //    prev_action_button.button("option","label",$(this).text());
-   // //    prev_action_button.button("enable");
-   // //    $(this).parents('ul').hide("blind",100);
-   // //    //return false;
-   // //});
-//
-   // //Show the list of actions in place
-   // $('.list_button',main_tabs_context).click(function(){
-   //     $('.action_list',$(this).parents('.action_blocks')).css({
-   //         "left": $(this).prev().position().left,
-   //         "top": $(this).prev().position().top+13,
-   //         "width": $(this).parent().outerWidth()-11
-   //     });
-   //     //100ms animation time
-   //     $('.action_list',$(this).parents('.action_blocks')).toggle("blind",100);
-   //     return false;
-   // });
 }
 
 //Prepares the standard confirm dialogs
@@ -948,6 +884,11 @@ function setupConfirmDialogs(){
         <form action="">\
            <div id="confirm_tip">'+tr("You have to confirm this action.")+'</div>\
            <br />\
+            <div class="row">\
+                <span id="confirm_action" class="radius secondary label"></span><br>\
+                <span id="confirm_ids" class="radius secondary label"></span><br><br>\
+            </div>\
+           <br />\
            <div id="question">'+tr("Do you want to proceed?")+'</div>\
            <br />\
            <hr>\
@@ -958,27 +899,14 @@ function setupConfirmDialogs(){
             <a class="close-reveal-modal">&#215;</a>\
         </form>');
 
-    //prepare the jquery dialog
-    //dialog.dialog({
-    //    resizable:false,
-    //    modal:true,
-    //    width:300,
-    //    heigth:200,
-    //    autoOpen:false
-    //});
     dialog.addClass("reveal-modal");
-
-    //enhace the button look
-    //$('button',dialog).button();
-
-
     dialogs_context.append('<div id="confirm_with_select_dialog" title=\"'+tr("Confirmation of action")+'\"></div>');
     dialog = $('div#confirm_with_select_dialog',dialogs_context);
 
     dialog.html(
         '<div class="panel">\
             <h3>\
-              <small>'+tr("Confirm")+'</small>\
+              <small>'+tr("Confirm")+'</small><br><br>\
             </h3>\
           </div>\
           <form action="">\
@@ -989,6 +917,9 @@ function setupConfirmDialogs(){
                 <select style="margin: 10px 0;" id="confirm_select">\
                 </select>\
             </div>\
+            <div class="row">\
+                <span id="confirm_action" class="radius secondary label"></span><br>\
+                <span id="confirm_ids" class="radius secondary label"></span>\
             </div>\
             <hr>\
            <div class="form_buttons">\
@@ -998,17 +929,7 @@ function setupConfirmDialogs(){
             <a class="close-reveal-modal">&#215;</a>\
          </form>');
 
-    //prepare the jquery dialog
-    //dialog.dialog({
-    //    resizable:false,
-    //    modal:true,
-    //    width:300,
-    //    heigth:300,
-    //    autoOpen:false
-    //});
     dialog.addClass("reveal-modal")
-
-    //$('button',dialog).button();
 
     //when we proceed with a "confirm with select" we need to
     //find out if we are running an action with a parametre on a datatable
@@ -1063,6 +984,11 @@ function popUpConfirmDialog(target_elem){
 
     $('button#confirm_proceed',dialog).val(value);
 
+    var action = SunstoneCfg["actions"][value];
+    if (action.elements()) {
+        $("#confirm_action").html(tr("Action: ") + value)
+        $("#confirm_ids").html(tr("Selected resources: ") + action.elements().join(', '))
+    }
 
     $('div#confirm_tip',dialog).text(tip);
     dialog.reveal();
@@ -1086,6 +1012,12 @@ function popUpConfirmWithSelectDialog(target_elem){
     var select_var = button.select();
     $('select#confirm_select',dialog).html(select_var);
     $('div#confirm_with_select_tip',dialog).text(tip);
+
+    var action = SunstoneCfg["actions"][value];
+    if (action.elements()) {
+        $("#confirm_action").html(tr("Action: ") + value)
+        $("#confirm_ids").html(tr("Selected resources: ") + action.elements().join(', '))
+    }
 
     $('button#confirm_with_select_proceed',dialog).val(value);
     dialog.reveal();
