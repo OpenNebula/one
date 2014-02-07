@@ -98,10 +98,12 @@ int LibVirtDriver::deployment_description_kvm(
     bool pae  = false;
     bool acpi = false;
     bool apic = false;
+    bool hyperv = false;
 
     int pae_found  = -1;
     int acpi_found = -1;
     int apic_found = -1;
+    int hyperv_found = -1;
 
     const VectorAttribute * raw;
     string default_raw;
@@ -737,6 +739,7 @@ int LibVirtDriver::deployment_description_kvm(
             pae_found  = features->vector_value("PAE", pae);
             acpi_found = features->vector_value("ACPI", acpi);
             apic_found = features->vector_value("APIC", apic);
+            hyperv_found = features->vector_value("HYPERV", hyperv);
         }
     }
 
@@ -755,7 +758,12 @@ int LibVirtDriver::deployment_description_kvm(
         get_default("FEATURES", "APIC", apic);
     }
 
-    if( acpi || pae || apic )
+    if ( hyperv_found != 0 )
+    {
+        get_default("FEATURES", "HYPERV", hyperv);
+    }
+
+    if( acpi || pae || apic || hyperv )
     {
         file << "\t<features>" << endl;
 
@@ -772,6 +780,11 @@ int LibVirtDriver::deployment_description_kvm(
         if ( apic )
         {
             file << "\t\t<apic/>" << endl;
+        }
+
+        if ( hyperv )
+        {
+            file << "\t\t<hyperv>\n\t\t\t<relaxed state='on'/>\n\t\t\t<vapic state='on'/>\n\t\t\t<spinlocks state='on' retries='4096'/>\n\t\t</hyperv>" << endl;
         }
 
         file << "\t</features>" << endl;
