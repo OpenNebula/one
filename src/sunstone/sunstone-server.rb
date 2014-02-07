@@ -405,21 +405,20 @@ end
 # GET Pool information
 ##############################################################################
 get '/:pool' do
+    zone_client = nil
 
-if params[:zone_id]
-    zone = OpenNebula::Zone.new_with_id(params[:zone_id].to_i,
-                                        $cloud_auth.client(session[:user]))
-    rc   = zone.info
-    return [500, rc.message] if OpenNebula.is_error?(rc)
-    zone_client = $cloud_auth.client(session[:user],
-                                     zone['TEMPLATE/ENDPOINT'])
-    @SunstoneServer.get_pool_in_zone(params[:pool], 
-                                     session[:user_gid], 
-                                     zone_client)
-else
-    @SunstoneServer.get_pool(params[:pool], session[:user_gid])
-end
+    if params[:zone_id]
+        zone = OpenNebula::Zone.new_with_id(params[:zone_id].to_i,
+                                            $cloud_auth.client(session[:user]))
+        rc   = zone.info
+        return [500, rc.message] if OpenNebula.is_error?(rc)
+        zone_client = $cloud_auth.client(session[:user],
+                                         zone['TEMPLATE/ENDPOINT'])
+    end
 
+    @SunstoneServer.get_pool(params[:pool], 
+                             session[:user_gid], 
+                             zone_client)
 end
 
 ##############################################################################
