@@ -50,6 +50,21 @@ RBD_DST="${SRC_PATH}-${VM_ID}-${DISK_ID}"
 RBD_SNAP="${VM_ID}-${DISK_ID}"
 
 #-------------------------------------------------------------------------------
+# Get Image information
+#-------------------------------------------------------------------------------
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+unset i j XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VM_ID| $XPATH  \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/RBD_FORMAT)
+
+RBD_FORMAT="${XPATH_ELEMENTS[j++]}"
+
+#-------------------------------------------------------------------------------
 # Clone the image
 #-------------------------------------------------------------------------------
 
