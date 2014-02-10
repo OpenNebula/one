@@ -36,7 +36,7 @@ tabs:
         actions:
     users-tab:
         panel_tabs:
-            user_info_panel: true
+            user_info_tab: true
             user_quotas_tab: true
         table_columns:
             - 0         # Checkbox
@@ -187,7 +187,8 @@ tabs:
             other: true
     images-tab:
         panel_tabs:
-            image_info_panel: true
+            image_info_tab: true
+            image_vms_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID
@@ -216,7 +217,7 @@ tabs:
             Image.delete: true
     files-tab:
         panel_tabs:
-            file_info_panel: true
+            file_info_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID
@@ -413,7 +414,7 @@ tabs:
             Service.delete: true
     oneflow-templates:
         panel_tabs:
-            service_template_info_panel: true
+            service_template_info_tab: true
             service_template_roles_tab: true
         table_columns:
             - 0         # Checkbox
