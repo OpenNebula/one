@@ -275,7 +275,7 @@ function setupUpdatePassword() {
         }
 
         if (pw !== confirm_password){
-            notifyError(tr("Password does not match"));
+            notifyError(tr("Passwords do not match"));
             return false;
         }
 
