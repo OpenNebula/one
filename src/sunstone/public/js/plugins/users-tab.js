@@ -389,9 +389,11 @@ var user_actions = {
     "User.create" : {
         type: "create",
         call: OpenNebula.User.create,
-        callback: addUserElement,
-        error: onError,
-        notify: true
+        callback: function(request, response) {
+          addUserElement(request, response);
+          notifyCustom(tr("User created"), " ID: " + response.USER.ID, false);
+        },
+        error: onError
     },
 
     "User.create_dialog" : {

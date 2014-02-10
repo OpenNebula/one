@@ -386,9 +386,11 @@ var datastore_actions = {
     "Datastore.create" : {
         type: "create",
         call : OpenNebula.Datastore.create,
-        callback : addDatastoreElement,
-        error : onError,
-        notify: true
+        callback : function(request, response) {
+          addDatastoreElement(request, response);
+          notifyCustom(tr("Datastore created"), " ID: " + response.DATASTORE.ID, false);
+        },
+        error : onError
     },
 
     "Datastore.create_dialog" : {

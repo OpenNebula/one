@@ -292,9 +292,11 @@ var group_actions = {
     "Group.create" : {
         type: "create",
         call : OpenNebula.Group.create,
-        callback : addGroupElement,
-        error : onError,
-        notify: true
+        callback : function(request, response) {
+          addGroupElement(request, response);
+          notifyCustom(tr("Group created"), " ID: " + response.GROUP.ID, false);
+        },
+        error : onError
     },
 
     "Group.create_dialog" : {

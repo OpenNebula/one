@@ -199,9 +199,11 @@ var host_actions = {
     "Host.create" : {
         type: "create",
         call : OpenNebula.Host.create,
-        callback : addHostElement,
-        error : onError,
-        notify: true
+        callback : function(request, response) {
+          addHostElement(request, response);
+          notifyCustom(tr("Host created"), " ID: " + response.HOST.ID, false);
+        },
+        error : onError
     },
 
     "Host.create_dialog" : {

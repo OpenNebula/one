@@ -212,9 +212,11 @@ var file_actions = {
     "File.create" : {
         type: "create",
         call: OpenNebula.Image.create,
-        callback: addFileElement,
-        error: onError,
-        notify:true
+        callback: function(request, response) {
+          addFileElement(request, response);
+          notifyCustom(tr("File created"), " ID: " + response.IMAGE.ID, false);
+        },
+        error: onError
     },
 
     "File.create_dialog" : {

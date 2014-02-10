@@ -481,9 +481,11 @@ var vnet_actions = {
     "Network.create" : {
         type: "create",
         call: OpenNebula.Network.create,
-        callback: addVNetworkElement,
-        error: onError,
-        notify: true
+        callback: function(request, response) {
+          addVNetworkElement(request, response);
+          notifyCustom(tr("Virtual Network created"), " ID: " + response.VNET.ID, false);
+        },
+        error: onError
     },
 
     "Network.create_dialog" : {

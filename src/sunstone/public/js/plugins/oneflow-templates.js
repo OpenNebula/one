@@ -432,9 +432,9 @@ var service_template_actions = {
             $('table#current_roles tbody', dialog).empty();
             $('select[name="parents"]', dialog).empty();
             addServiceTemplateElement(req, res);
+            notifyCustom(tr("Service Template created"), " ID: " + req.DOCUMENT.ID, false);
         },
-        error: onError,
-        notify:true
+        error: onError
     },
 
     "ServiceTemplate.create_dialog" : {

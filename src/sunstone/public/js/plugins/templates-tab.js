@@ -315,7 +315,7 @@ var template_actions = {
           $create_template_dialog.trigger("reveal:close")
           $create_template_dialog.empty();
           addTemplateElement(request, response);
-          notifyCustom(tr("Template created "), "ID: " + response.VMTEMPLATE.ID, false)
+          notifyCustom(tr("Template created"), " ID: " + response.VMTEMPLATE.ID, false)
         },
         error: onError
     },

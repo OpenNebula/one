@@ -942,9 +942,9 @@ var cluster_actions = {
 
             //Sunstone.runAction('Cluster.list');
            // Sunstone.runAction('Cluster.show',response.CLUSTER.ID);
+            notifyCustom(tr("Cluster created"), " ID: " + response.CLUSTER.ID, false);
         },
-        error: onError,
-        notify: true
+        error: onError
     },
 
     "Cluster.create_dialog" : {
