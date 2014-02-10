@@ -86,10 +86,11 @@ int LibVirtDriver::deployment_description_kvm(
 
     const VectorAttribute * graphics;
 
-    string  listen     = "";
-    string  port       = "";
-    string  passwd     = "";
-    string  keymap     = "";
+    string  listen          = "";
+    string  port            = "";
+    string  passwd          = "";
+    string  keymap          = "";
+    string  spice_options   = "";
 
     const VectorAttribute * input;
 
@@ -686,6 +687,16 @@ int LibVirtDriver::deployment_description_kvm(
                 }
 
                 file << "/>" << endl;
+
+                if ( type == "spice" )
+                {
+                    get_default("SPICE_OPTIONS", spice_options);
+
+                    if ( spice_options != "" )
+                    {
+                        file << "\t\t" << spice_options << endl;
+                    }
+                }
             }
             else
             {
