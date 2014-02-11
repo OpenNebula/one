@@ -1648,8 +1648,9 @@ SUNSTONE_PUBLIC_NEW_VENDOR_FOUNDATION="\
   src/sunstone/public/vendor/4.0/foundation/app.js "
 
 SUNSTONE_PUBLIC_NEW_VENDOR_JQUERY="\
-                        src/sunstone/public/vendor/4.0/jquery-1.9.1.min.js \
-                        src/sunstone/public/vendor/4.0/jquery-migrate-1.1.0.js"
+                        src/sunstone/public/vendor/4.0/jquery-1.11.0.min.js \
+                        src/sunstone/public/vendor/4.0/jquery-1.11.0.min.map \
+                        src/sunstone/public/vendor/4.0/jquery-migrate-1.2.1.js"
 
 SUNSTONE_PUBLIC_NEW_VENDOR_JQUERYLAYOUT="\
             src/sunstone/public/vendor/4.0/jquery_layout/layout-default-latest.css \
