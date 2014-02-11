@@ -110,6 +110,10 @@ class OneDBBacKEnd
         puts comment
     end
 
+    def db()
+        return @db
+    end
+
     private
 
     def db_exists?

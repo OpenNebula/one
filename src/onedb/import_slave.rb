@@ -1,0 +1,713 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+require "nokogiri"
+require 'opennebula'
+
+include OpenNebula
+
+module OneDBImportSlave
+    VERSION = "4.5.0"
+
+    def db_version
+        VERSION
+    end
+
+    def one_version
+        "OpenNebula #{VERSION}"
+    end
+
+    def import_slave(slave_backend, merge_users, merge_groups)
+
+        users = Hash.new
+        groups = Hash.new
+
+        @slave_db = slave_backend.db
+
+        ########################################################################
+        # pool_control
+        ########################################################################
+
+        last_user_oid   = last_oid("user_pool")
+        last_group_oid  = last_oid("group_pool")
+        last_zone_oid   = last_oid("zone_pool")
+        last_acl_oid    = last_oid("acl")
+
+        ########################################################################
+        # Calculate new IDs and names for users and groups
+        ########################################################################
+
+        @slave_db.fetch("SELECT oid, name FROM user_pool") do |row|
+            found = false
+            new_oid = -1
+
+            master_oid = nil
+            master_name = nil
+
+            @db.fetch("SELECT oid, name FROM user_pool "<<
+                      "WHERE name = '#{row[:name]}'") do |row_master|
+
+                found = true
+
+                if (merge_users)
+                    master_oid = row_master[:oid]
+                    master_name = row_master[:name]
+                end
+            end
+
+            merged = false
+
+            if found
+                if merge_users
+                    new_oid  = master_oid
+                    new_name = master_name
+                    merged   = true
+                else
+                    new_oid  = last_user_oid += 1
+
+                    i = 1
+
+                    begin
+                        found = false
+
+                        new_name = "#{row[:name]}-#{i}"
+                        i += 1
+
+                        @db.fetch("SELECT oid, name FROM user_pool "<<
+                                "WHERE name = '#{new_name}'") do |row_master|
+                            found = true
+                        end
+
+                    end while found
+                end
+            else
+                new_oid  = last_user_oid += 1
+                new_name = row[:name]
+            end
+
+            # TODO debug, do propper log
+            puts
+            puts "User #{row[:oid]}, #{row[:name]}  =>  #{new_oid}, #{new_name}"
+
+            users[row[:oid]] =
+                {:oid => new_oid,:name => new_name, :merged => merged}
+        end
+
+
+
+        @slave_db.fetch("SELECT oid, name FROM group_pool") do |row|
+            found = false
+            new_oid = -1
+
+            master_oid = nil
+            master_name = nil
+
+            @db.fetch("SELECT oid, name FROM group_pool "<<
+                      "WHERE name = '#{row[:name]}'") do |row_master|
+
+                found = true
+
+                if (merge_groups)
+                    master_oid = row_master[:oid]
+                    master_name = row_master[:name]
+                end
+            end
+
+            merged = false
+
+            if found
+                if merge_groups
+                    new_oid  = master_oid
+                    new_name = master_name
+                    merged   = true
+                else
+                    new_oid  = last_group_oid += 1
+
+                    i = 1
+
+                    begin
+                        found = false
+
+                        new_name = "#{row[:name]}-#{i}"
+                        i += 1
+
+                        @db.fetch("SELECT oid, name FROM group_pool "<<
+                                "WHERE name = '#{new_name}'") do |row_master|
+                            found = true
+                        end
+
+                    end while found
+                end
+            else
+                new_oid  = last_group_oid += 1
+                new_name = row[:name]
+            end
+
+            # TODO debug, do propper log
+            puts
+            puts "Group #{row[:oid]}, #{row[:name]}  =>  #{new_oid}, #{new_name}"
+
+            groups[row[:oid]] =
+                {:oid => new_oid, :name => new_name, :merged => merged}
+        end
+
+        ########################################################################
+        # Change ownership IDs and names for resources
+        ########################################################################
+
+        @slave_db.run "ALTER TABLE document_pool RENAME TO old_document_pool;"
+        @slave_db.run "CREATE TABLE document_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, type INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
+        
+        @slave_db.run "ALTER TABLE image_pool RENAME TO old_image_pool;"
+        @slave_db.run "CREATE TABLE image_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid) );"
+        
+        @slave_db.run "ALTER TABLE network_pool RENAME TO old_network_pool;"
+        @slave_db.run "CREATE TABLE network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name,uid));"
+        
+        @slave_db.run "ALTER TABLE template_pool RENAME TO old_template_pool;"
+        @slave_db.run "CREATE TABLE template_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
+        
+        @slave_db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
+        @slave_db.run "CREATE TABLE vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
+
+        @slave_db.run "ALTER TABLE group_quotas RENAME TO old_group_quotas;"
+        @slave_db.run "CREATE TABLE group_quotas (group_oid INTEGER PRIMARY KEY, body MEDIUMTEXT);"
+        
+        @slave_db.run "ALTER TABLE user_quotas RENAME TO old_user_quotas;"
+        @slave_db.run "CREATE TABLE user_quotas (user_oid INTEGER PRIMARY KEY, body MEDIUMTEXT);"
+
+
+        @slave_db.transaction do
+            process_new_ownership(@slave_db, users, groups)
+        end
+
+        ########################################################################
+        # Move Users from slave to master DB, merge if neccessary
+        ########################################################################
+
+        @db.transaction do
+            @slave_db.fetch("SELECT * FROM user_pool") do |row|
+                new_user = users[row[:oid]]
+                new_group = groups[row[:gid]]
+
+                slave_doc = Nokogiri::XML(row[:body])
+
+                if new_user[:merged]
+                    # Merge user objects, giving priority to the contents
+                    # in master.
+                    # primary group     => use master's
+                    # secondary groups  => merge
+                    # password          => use master's
+                    # auth driver       => use master's
+
+                    master_doc = nil
+
+                    @db.fetch("SELECT body from user_pool "<<
+                              "WHERE oid=#{new_user[:oid]}") do |master_row|
+                        master_doc = Nokogiri::XML(master_row[:body])
+                    end
+
+                    # Merge secondary groups
+                    slave_groups_elem  = slave_doc.root.at_xpath("GROUPS")
+                    master_groups_elem = master_doc.root.at_xpath("GROUPS")
+
+                    slave_groups_elem.xpath("ID").each do |id|
+                        group = groups[id.text.to_i][:oid]
+
+                        if master_groups_elem.at_xpath("ID [.=#{group}]").nil?
+                            master_groups_elem.add_child(
+                                master_doc.create_element("ID")).content = group
+                        end
+                    end
+
+                    slave_template  = slave_doc.root.at_xpath("TEMPLATE")
+                    master_template = master_doc.root.at_xpath("TEMPLATE")
+
+                    # Avoid duplicated template attributes, removing
+                    # them from the slave template
+                    master_template.children.each do |e|
+                        if slave_template.at_xpath(e.name)
+                            slave_template.at_xpath(e.name).remove
+                        end
+                    end
+
+                    # Add slave template attributes to master template
+                    master_template << slave_template.children
+
+                    @db[:user_pool].where(:oid => new_user[:oid]).update(
+                        :body => master_doc.root.to_s)
+                else
+                    # New ID and Name
+                    slave_doc.root.at_xpath("ID").content    = new_user[:oid]
+                    slave_doc.root.at_xpath("NAME").content  = new_user[:name]
+
+                    # New Group IDs
+                    slave_doc.root.at_xpath("GID").content    = new_group[:oid]
+                    slave_doc.root.at_xpath("GNAME").content  = new_group[:name]
+
+                    groups_elem = slave_doc.root.at_xpath("GROUPS")
+                    groups_elem.remove
+
+                    new_elem = slave_doc.create_element("GROUPS")
+
+                    groups_elem.xpath("ID").each do |id|
+                        new_elem.add_child(slave_doc.create_element("ID"))
+                            .content = groups[id.text.to_i][:oid]
+                    end
+
+                    slave_doc.root.add_child(new_elem)
+
+                    @db[:user_pool].insert(
+                        :oid        => new_user[:oid],
+                        :name       => new_user[:name],
+                        :body       => slave_doc.root.to_s,
+                        :uid        => new_user[:oid],
+                        :gid        => new_group[:oid],
+                        :owner_u    => row[:owner_u],
+                        :group_u    => row[:group_u],
+                        :other_u    => row[:other_u])
+                end
+            end
+        end
+
+        ########################################################################
+        # Move Groups from slave to master DB, merge if neccessary
+        ########################################################################
+
+        @db.transaction do
+            @slave_db.fetch("SELECT * FROM group_pool") do |row|
+                new_group = groups[row[:gid]]
+
+                slave_doc = Nokogiri::XML(row[:body])
+
+                if new_group[:merged]
+                    master_doc = nil
+
+                    @db.fetch("SELECT body from group_pool "<<
+                              "WHERE oid=#{new_group[:oid]}") do |master_row|
+                        master_doc = Nokogiri::XML(master_row[:body])
+                    end
+
+                    slave_users_elem  = slave_doc.root.at_xpath("USERS")
+                    master_users_elem = master_doc.root.at_xpath("USERS")
+
+                    slave_users_elem.xpath("ID").each do |id|
+                        user = users[id.text.to_i][:oid]
+
+                        if master_users_elem.at_xpath("ID [.=#{user}]").nil?
+                            master_users_elem.add_child(
+                                master_doc.create_element("ID")).content = user
+                        end
+                    end
+
+                    @db[:group_pool].where(:oid => new_group[:oid]).update(
+                        :body => master_doc.root.to_s)
+                else
+                    slave_doc.root.at_xpath("ID").content    = new_group[:oid]
+                    slave_doc.root.at_xpath("NAME").content  = new_group[:name]
+
+                    users_elem = slave_doc.root.at_xpath("USERS")
+                    users_elem.remove
+
+                    new_elem = slave_doc.create_element("USERS")
+
+                    users_elem.xpath("ID").each do |id|
+                        new_elem.add_child(slave_doc.create_element("ID"))
+                            .content = users[id.text.to_i][:oid]
+                    end
+
+                    slave_doc.root.add_child(new_elem)
+
+                    @db[:group_pool].insert(
+                        :oid        => new_group[:oid],
+                        :name       => new_group[:name],
+                        :body       => slave_doc.root.to_s,
+                        :uid        => row[:uid],
+                        :gid        => new_group[:oid],
+                        :owner_u    => row[:owner_u],
+                        :group_u    => row[:group_u],
+                        :other_u    => row[:other_u])
+                end
+            end
+        end
+
+        ########################################################################
+        # Change User ID in quotas
+        ########################################################################
+
+        @slave_db.transaction do
+            @slave_db.fetch("SELECT * FROM old_user_quotas") do |row|
+                new_user_id = users[row[:user_oid]][:oid]
+
+                doc = Nokogiri::XML(row[:body])
+
+                doc.root.at_xpath("ID").content = new_user_id
+
+                @slave_db[:user_quotas].insert(
+                    :user_oid   => new_user_id,
+                    :body       => doc.root.to_s)
+            end
+        end
+
+        ########################################################################
+        # Change Group ID in quotas
+        ########################################################################
+
+        @slave_db.transaction do
+            @slave_db.fetch("SELECT * FROM old_group_quotas") do |row|
+                new_group_id = groups[row[:group_oid]][:oid]
+
+                doc = Nokogiri::XML(row[:body])
+
+                doc.root.at_xpath("ID").content = new_group_id
+
+                @slave_db[:group_quotas].insert(
+                    :group_oid  => new_group_id,
+                    :body       => doc.root.to_s)
+            end
+        end
+
+        ########################################################################
+        # Move ACL Rules from slave to master DB
+        ########################################################################
+
+        @db.transaction do
+            @slave_db.fetch("SELECT * FROM acl") do |row|
+                new_user     = row[:user]
+                new_resource = row[:resource]
+
+                if ( (row[:user] & Acl::USERS["UID"]) == Acl::USERS["UID"] )
+
+                    uid = (row[:user] & 0xFFFFFFFF)
+                    new_user = (Acl::USERS["UID"] | users[uid][:oid])
+
+                elsif ( (row[:user] & Acl::USERS["GID"]) == Acl::USERS["GID"] )
+
+                    gid = (row[:user] & 0xFFFFFFFF)
+                    new_user = (Acl::USERS["GID"] | groups[gid][:oid])
+
+                end
+
+                if ( (row[:resource] & Acl::USERS["GID"]) == Acl::USERS["GID"] )
+
+                    gid = (row[:resource] & 0xFFFFFFFF)
+                    new_resource =
+                        ((row[:resource] & 0xFFFFFFFF00000000) | groups[gid][:oid])
+
+                elsif ( (row[:resource] & Acl::RESOURCES["USER"]) == Acl::RESOURCES["USER"] &&
+                        (row[:resource] & Acl::USERS["UID"]) == Acl::USERS["UID"] )
+
+                    uid = (row[:resource] & 0xFFFFFFFF)
+                    new_resource =
+                        ((row[:resource] & 0xFFFFFFFF00000000) | users[uid][:oid])
+
+                end
+
+                # TODO: translate zone id?
+
+                # TODO: detect duplicates and do not insert
+
+                last_acl_oid += 1
+
+                @db[:acl].insert(
+                    :oid        => last_acl_oid,
+                    :user       => new_user,
+                    :resource   => new_resource,
+                    :rights     => row[:rights],
+                    :zone       => row[:zone])
+            end
+        end
+
+        ########################################################################
+        # Init slave_db_versioning table
+        ########################################################################
+
+        @slave_db.run "CREATE TABLE slave_db_versioning (oid INTEGER PRIMARY KEY, version VARCHAR(256), timestamp INTEGER, comment VARCHAR(256));"
+        @slave_db.run "INSERT INTO slave_db_versioning (oid, version, timestamp, comment) VALUES (0, '#{VERSION}', #{Time.now.to_i}, 'onedb import tool');"
+
+        @slave_db.run "DROP TABLE old_document_pool;"
+        @slave_db.run "DROP TABLE old_image_pool;"
+        @slave_db.run "DROP TABLE old_network_pool;"
+        @slave_db.run "DROP TABLE old_template_pool;"
+        @slave_db.run "DROP TABLE old_vm_pool;"
+
+        @slave_db.run "DROP TABLE old_group_quotas;"
+        @slave_db.run "DROP TABLE old_user_quotas;"
+
+        # TODO: import zone pool?
+
+        @slave_db.run "DROP TABLE user_pool;"
+        @slave_db.run "DROP TABLE group_pool;"
+        @slave_db.run "DROP TABLE zone_pool;"
+        @slave_db.run "DROP TABLE db_versioning;"
+        @slave_db.run "DROP TABLE acl;"
+
+        @db.run "UPDATE pool_control SET last_oid = #{last_user_oid} WHERE tablename = 'user_pool';"
+        @db.run "UPDATE pool_control SET last_oid = #{last_group_oid} WHERE tablename = 'group_pool';"
+        @db.run "UPDATE pool_control SET last_oid = #{last_acl_oid} WHERE tablename = 'acl';"
+#        @db.run "UPDATE pool_control SET last_oid = #{last_zone_oid} WHERE tablename = 'zone_pool';"
+
+        return true
+    end
+
+
+    ############################################################################
+    ############################################################################
+
+    def log_error(message)
+        @errors += 1
+        puts message
+    end
+
+    def log_total_errors()
+        puts
+        puts "Total errors found: #{@errors}"
+    end
+
+    def last_oid(table)
+        last_oid = -1
+
+        @db.fetch("SELECT last_oid FROM pool_control WHERE tablename='#{table}'") do |row|
+            last_oid = row[:last_oid].to_i
+        end
+
+        return last_oid
+    end
+
+
+    def process_new_ownership(db, users, groups)
+
+        db.fetch("SELECT * FROM old_template_pool") do |row|
+            new_user = users[row[:uid]]
+            new_group = groups[row[:gid]]
+
+            doc = Nokogiri::XML(row[:body])
+
+            doc.root.at_xpath("UID").content    = new_user[:oid]
+            doc.root.at_xpath("UNAME").content  = new_user[:name]
+
+            doc.root.at_xpath("GID").content    = new_group[:oid]
+            doc.root.at_xpath("GNAME").content  = new_group[:name]
+
+            # TODO: VMTEMPLATE DISK/IMAGE_UID _UNAME; NIC/NETWORK_UID _UNAME
+
+            db[:template_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => new_user[:oid],
+                :gid        => new_group[:oid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        db.fetch("SELECT * FROM old_image_pool") do |row|
+            new_user = users[row[:uid]]
+            new_group = groups[row[:gid]]
+
+            doc = Nokogiri::XML(row[:body])
+
+            doc.root.at_xpath("UID").content    = new_user[:oid]
+            doc.root.at_xpath("UNAME").content  = new_user[:name]
+
+            doc.root.at_xpath("GID").content    = new_group[:oid]
+            doc.root.at_xpath("GNAME").content  = new_group[:name]
+
+            db[:image_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => new_user[:oid],
+                :gid        => new_group[:oid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        db.fetch("SELECT * FROM old_document_pool") do |row|
+            new_user = users[row[:uid]]
+            new_group = groups[row[:gid]]
+
+            doc = Nokogiri::XML(row[:body])
+
+            doc.root.at_xpath("UID").content    = new_user[:oid]
+            doc.root.at_xpath("UNAME").content  = new_user[:name]
+
+            doc.root.at_xpath("GID").content    = new_group[:oid]
+            doc.root.at_xpath("GNAME").content  = new_group[:name]
+
+            db[:document_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :type       => row[:type],
+                :uid        => new_user[:oid],
+                :gid        => new_group[:oid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        db.fetch("SELECT * FROM old_network_pool") do |row|
+            new_user = users[row[:uid]]
+            new_group = groups[row[:gid]]
+
+            doc = Nokogiri::XML(row[:body])
+
+            doc.root.at_xpath("UID").content    = new_user[:oid]
+            doc.root.at_xpath("UNAME").content  = new_user[:name]
+
+            doc.root.at_xpath("GID").content    = new_group[:oid]
+            doc.root.at_xpath("GNAME").content  = new_group[:name]
+
+            db[:network_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => new_user[:oid],
+                :gid        => new_group[:oid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u],
+                :cid        => row[:cid])
+        end
+
+        db.fetch("SELECT * FROM old_vm_pool") do |row|
+            new_user = users[row[:uid]]
+            new_group = groups[row[:gid]]
+
+            doc = Nokogiri::XML(row[:body])
+
+            doc.root.at_xpath("UID").content    = new_user[:oid]
+            doc.root.at_xpath("UNAME").content  = new_user[:name]
+
+            doc.root.at_xpath("GID").content    = new_group[:oid]
+            doc.root.at_xpath("GNAME").content  = new_group[:name]
+
+            db[:vm_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => new_user[:oid],
+                :gid        => new_group[:oid],
+                :last_poll  => row[:last_poll],
+                :state      => row[:state],
+                :lcm_state  => row[:lcm_state],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+    end
+
+
+################################################################################
+################################################################################
+################################################################################
+
+=begin
+    def rename_user_resources(db, oid, name, new_oid, new_name)
+
+        db.fetch("SELECT * FROM old_template_pool WHERE uid = #{oid}") do |row|
+            doc = Nokogiri::XML(row[:body])
+            doc.root.at_xpath("UID").content = new_oid.to_s
+            doc.root.at_xpath("UNAME").content = new_name
+
+            db[:template_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => new_oid,
+                :gid        => row[:gid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        db.fetch("SELECT * FROM old_image_pool WHERE uid = #{oid}") do |row|
+            doc = Nokogiri::XML(row[:body])
+            doc.root.at_xpath("UID").content = new_oid.to_s
+            doc.root.at_xpath("UNAME").content = new_name
+
+            db[:image_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => new_oid,
+                :gid        => row[:gid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        db.fetch("SELECT * FROM old_document_pool WHERE uid = #{oid}") do |row|
+            doc = Nokogiri::XML(row[:body])
+            doc.root.at_xpath("UID").content = new_oid.to_s
+            doc.root.at_xpath("UNAME").content = new_name
+
+            db[:document_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :type       => row[:type],
+                :uid        => new_oid,
+                :gid        => row[:gid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        db.fetch("SELECT * FROM old_network_pool WHERE uid = #{oid}") do |row|
+            doc = Nokogiri::XML(row[:body])
+            doc.root.at_xpath("UID").content = new_oid.to_s
+            doc.root.at_xpath("UNAME").content = new_name
+
+            db[:network_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => new_oid,
+                :gid        => row[:gid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u],
+                :cid        => row[:cid])
+        end
+
+        db.fetch("SELECT * FROM old_vm_pool WHERE uid = #{oid}") do |row|
+            doc = Nokogiri::XML(row[:body])
+            doc.root.at_xpath("UID").content = new_oid.to_s
+            doc.root.at_xpath("UNAME").content = new_name
+
+            db[:vm_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => new_oid,
+                :gid        => row[:gid],
+                :last_poll  => row[:last_poll],
+                :state      => row[:state],
+                :lcm_state  => row[:lcm_state],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        # TODO: VMTEMPLATE DISK/IMAGE_UID _UNAME; NIC/NETWORK_UID _UNAME
+
+    end
+=end
+end

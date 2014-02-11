@@ -232,6 +232,107 @@ class OneDB
         end
     end
 
+    def import_slave(ops)
+
+        # TODO: Check backend is not sqlite
+
+        # TODO: refactor, same code in initialize()
+        begin
+            require 'mysql'
+        rescue LoadError
+            STDERR.puts "Ruby gem mysql is needed for this operation:"
+            STDERR.puts "  $ sudo gem install mysql"
+            exit -1
+        end
+
+        passwd = ops[:slave_passwd]
+        if !passwd
+            # Hide input characters
+            `stty -echo`
+            print "Slave MySQL Password: "
+            passwd = STDIN.gets.strip
+            `stty echo`
+            puts ""
+        end
+
+        slave_backend = BackEndMySQL.new(
+            :server  => ops[:slave_server],
+            :port    => ops[:slave_port],
+            :user    => ops[:slave_user],
+            :passwd  => passwd,
+            :db_name => ops[:slave_db_name]
+        )
+
+        version, timestamp, comment = @backend.read_db_version
+
+        slave_version, slave_timestamp, slave_comment =
+            slave_backend.read_db_version
+
+        if ops[:verbose]
+            puts "Master version read:"
+            puts "#{version} : #{comment}"
+            puts ""
+            puts "Slave version read:"
+            puts "#{slave_version} : #{slave_comment}"
+            puts ""
+        end
+
+        file = "#{RUBY_LIB_LOCATION}/onedb/import_slave.rb"
+
+        if File.exists? file
+
+            one_not_running()
+
+            load(file)
+            @backend.extend OneDBImportSlave
+
+            if ( version != @backend.db_version )
+                raise "Version mismatch: import slave file is for version "<<
+                    "#{@backend.db_version}, current master database version is #{version}"
+            end
+
+            if ( slave_version != @backend.db_version )
+                raise "Version mismatch: import slave file is for version "<<
+                    "#{@backend.db_version}, current slave database version is #{version}"
+            end
+
+            # Import will be executed, make DB backup
+            backup(ops[:backup], ops)
+
+            # TODO: slave backup
+
+            begin
+                puts "  > Running slave import" if ops[:verbose]
+
+                # TODO: ask about merge
+                result = @backend.import_slave(slave_backend, true, true)
+
+                if !result
+                    raise "Error running slave import version #{version}"
+                end
+
+                puts "  > Done" if ops[:verbose]
+                puts "" if ops[:verbose]
+
+                return 0
+            rescue Exception => e
+                puts e.message
+
+                puts "Error running slave import version #{version}"
+                puts "The database will be restored"
+
+                ops[:force] = true
+
+                restore(ops[:backup], ops)
+
+                return -1
+            end
+        else
+            raise "No slave import file found in #{RUBY_LIB_LOCATION}/onedb/import_slave.rb"
+        end
+    end
+
+
     private
 
     def one_not_running()
