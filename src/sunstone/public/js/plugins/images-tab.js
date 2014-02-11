@@ -25,7 +25,7 @@ var images_tab_content = '\
   <div class="twelve columns">\
     <h4 class="subheader header">\
       <span class="header-resource">\
-        <i class="icon-upload"></i> '+tr("Images")+'\
+        <i class="fa fa-upload"></i> '+tr("Images")+'\
       </span>\
       <span class="header-info">\
         <span id="total_images"/> <small>'+tr("TOTAL")+'</small>&emsp;\
@@ -212,7 +212,7 @@ var create_image_tmpl =
                  </fieldset>\
                  </div>\
                 <div class="show_hide" id="advanced_image_create">\
-                     <h4><small><i class=" icon-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>\
+                     <h4><small><i class=" fa fa-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>\
                 </div>\
                 <div class="advanced">\
                   <div class="row">\
@@ -719,7 +719,7 @@ function updateImageInfo(request,img){
             <td class="key_td">'+tr("Name")+'</td>\
             <td class="value_td_rename">'+img_info.NAME+'</td>\
             <td><div id="div_edit_rename">\
-                   <a id="div_edit_rename_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                   <a id="div_edit_rename_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
                 </div>\
             </td>\
           </tr>\
@@ -732,7 +732,7 @@ function updateImageInfo(request,img){
              <td class="key_td">'+tr("Type")+'</td>\
              <td class="value_td_type">'+OpenNebula.Helper.image_type(img_info.TYPE)+'</td>\
              <td><div id="div_edit_chg_type">\
-                   <a id="div_edit_chg_type_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                   <a id="div_edit_chg_type_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
                  </div>\
              </td>\
            </tr>\
@@ -745,7 +745,7 @@ function updateImageInfo(request,img){
              <td class="key_td">'+tr("Persistent")+'</td>\
              <td class="value_td_persistency">'+(parseInt(img_info.PERSISTENT) ? tr("yes") : tr("no"))+'</td>\
              <td><div id="div_edit_persistency">\
-                   <a id="div_edit_persistency_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                   <a id="div_edit_persistency_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
                  </div>\
              </td>\
            </tr>\

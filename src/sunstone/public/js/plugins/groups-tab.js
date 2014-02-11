@@ -45,7 +45,7 @@ var groups_tab_content = '\
   <div class="twelve columns">\
     <h4 class="subheader header">\
       <span class="header-resource">\
-        <i class="icon-group"></i> '+tr("Groups")+'\
+        <i class="fa fa-users"></i> '+tr("Groups")+'\
       </span>\
       <span class="header-info">\
         <span id="total_groups"/> <small>'+tr("TOTAL")+'</small>\

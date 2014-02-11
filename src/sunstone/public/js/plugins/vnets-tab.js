@@ -23,7 +23,7 @@ var vnets_tab_content = '\
   <div class="twelve columns">\
     <h4 class="subheader header">\
       <span class="header-resource">\
-        <i class="icon-sitemap"></i> '+tr("Virtual Networks")+'\
+        <i class="fa fa-sitemap"></i> '+tr("Virtual Networks")+'\
       </span>\
       <span class="header-info">\
         <span id="total_vnets"/> <small>'+tr("TOTAL")+'</small>&emsp;\
@@ -838,7 +838,7 @@ function updateVNetworkInfo(request,vn){
               <td class="key_td">'+tr("Name")+'</td>\
               <td class="value_td_rename">'+vn_info.NAME+'</td>\
               <td><div id="div_edit_rename">\
-                     <a id="div_edit_rename_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                     <a id="div_edit_rename_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
                   </div>\
               </td>\
             </tr>\
@@ -1053,12 +1053,12 @@ function printLeases(vn_info){
         case 0:
             html += '<td>';
             if (Config.isTabActionEnabled("vnets-tab", "Network.hold_lease")) {
-              html += '<a class="hold_lease" href="#"><i class="icon-pause"/></a>';
+              html += '<a class="hold_lease" href="#"><i class="fa fa-pause"/></a>';
             }
             html += '</td>'
             html += '<td>'
             if (Config.isTabActionEnabled("vnets-tab", "Network.remove_lease")) {
-              html += '<a class="delete_lease" href="#"><i class="icon-trash"/></a>';
+              html += '<a class="delete_lease" href="#"><i class="fa fa-trash-o"/></a>';
             }
             break;
         case 1:
@@ -1067,7 +1067,7 @@ function printLeases(vn_info){
         case 2:
             html += '<td>';
             if (Config.isTabActionEnabled("vnets-tab", "Network.release_lease")) {
-              html += '<a class="release_lease" href="#"><i class="icon-play"/></a>';
+              html += '<a class="release_lease" href="#"><i class="fa fa-play"/></a>';
             }
             html += '</td>'
             html += '<td>'

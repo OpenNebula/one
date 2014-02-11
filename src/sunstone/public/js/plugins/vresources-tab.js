@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 var vres_tab = {
-    title: '<i class="icon-cloud"></i>'+tr("Virtual Resources")
+    title: '<i class="fa fa-cloud"></i>'+tr("Virtual Resources")
 }
 
 Sunstone.addMainTab('vresources-tab',vres_tab);

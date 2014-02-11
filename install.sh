@@ -347,7 +347,7 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/public/vendor/4.0/jquery_layout \
                $SUNSTONE_LOCATION/public/vendor/4.0/fontawesome \
                $SUNSTONE_LOCATION/public/vendor/4.0/fontawesome/css \
-               $SUNSTONE_LOCATION/public/vendor/4.0/fontawesome/font \
+               $SUNSTONE_LOCATION/public/vendor/4.0/fontawesome/fonts \
                $SUNSTONE_LOCATION/public/vendor/4.0/jgrowl \
                $SUNSTONE_LOCATION/public/vendor/4.0/foundation \
                $SUNSTONE_LOCATION/public/vendor/4.0/nouislider \
@@ -563,7 +563,7 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_NEW_VENDOR_FOUNDATION:$SUNSTONE_LOCATION/public/vendor/4.0/foundation
     SUNSTONE_PUBLIC_NEW_VENDOR_JQUERYLAYOUT:$SUNSTONE_LOCATION/public/vendor/4.0/jquery_layout
     SUNSTONE_PUBLIC_NEW_VENDOR_FONTAWESOME:$SUNSTONE_LOCATION/public/vendor/4.0/fontawesome
-    SUNSTONE_PUBLIC_NEW_VENDOR_FONTAWESOME_FONT:$SUNSTONE_LOCATION/public/vendor/4.0/fontawesome/font
+    SUNSTONE_PUBLIC_NEW_VENDOR_FONTAWESOME_FONT:$SUNSTONE_LOCATION/public/vendor/4.0/fontawesome/fonts
     SUNSTONE_PUBLIC_NEW_VENDOR_FONTAWESOME_CSS:$SUNSTONE_LOCATION/public/vendor/4.0/fontawesome/css
     SUNSTONE_PUBLIC_NEW_VENDOR_NOUISLIDER:$SUNSTONE_LOCATION/public/vendor/4.0/nouislider
     SUNSTONE_PUBLIC_NEW_VENDOR_JDPICKER:$SUNSTONE_LOCATION/public/vendor/4.0/jdpicker_1.1
@@ -1661,10 +1661,11 @@ SUNSTONE_PUBLIC_NEW_VENDOR_FONTAWESOME_CSS="\
   src/sunstone/public/vendor/4.0/fontawesome/css/font-awesome.min.css"
 
 SUNSTONE_PUBLIC_NEW_VENDOR_FONTAWESOME_FONT="\
-src/sunstone/public/vendor/4.0/fontawesome/font/fontawesome-webfont.eot \
-src/sunstone/public/vendor/4.0/fontawesome/font/fontawesome-webfont.woff \
-src/sunstone/public/vendor/4.0/fontawesome/font/fontawesome-webfont.ttf \
-src/sunstone/public/vendor/4.0/fontawesome/font/fontawesome-webfont.svg \
+src/sunstone/public/vendor/4.0/fontawesome/fonts/fontawesome-webfont.eot \
+src/sunstone/public/vendor/4.0/fontawesome/fonts/fontawesome-webfont.woff \
+src/sunstone/public/vendor/4.0/fontawesome/fonts/fontawesome-webfont.ttf \
+src/sunstone/public/vendor/4.0/fontawesome/fonts/fontawesome-webfont.svg \
+src/sunstone/public/vendor/4.0/fontawesome/fonts/FontAwesome.otf \
 "
 
 SUNSTONE_PUBLIC_NEW_VENDOR_NOUISLIDER="\

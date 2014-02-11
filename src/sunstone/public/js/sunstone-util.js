@@ -631,37 +631,6 @@ function setupTips(context, position){
     $('ui-dialog').css('z-index', '1000')
     //For each tip in this context
     $('.tip',context).each(function(){
-       // //store the text
-       // var obj = $(this);
-       // var tip = obj.html();
-       // //replace the text with an icon and spans
-       // obj.html('<span class="ui-icon ui-icon-info info_icon"></span>');
-       // obj.append('<span class="tipspan"></span>');
-//
-       // obj.append('<span class="ui-icon ui-icon-alert man_icon" />');
-//
-       // //add the text to .tipspan
-       // $('span.tipspan',obj).html(tip);
-       // //make sure it is not floating in the wrong place
-       // obj.parent().append('<div class="clear"></div>');
-       // //hide the text
-       // $('span.tipspan',obj).hide();
-//
-       // //When the mouse is hovering on the icon we fadein/out
-       // //the tip text
-       // $('span.info_icon',obj).hover(function(e){
-       //     var icon = $(this);
-       //     var top, left;
-       //     top = e.pageY - 15;// - $(this).parents('#create_vm_dialog').offset().top - 15;
-       //     left = e.pageX + 15;// - $(this).parents('#create_vm_dialog').offset().left;
-       //     icon.next().css(
-       //         {"top":top+"px",
-       //          "left":left+"px"});
-       //     icon.next().fadeIn();
-       // },function(){
-       //     $(this).next().fadeOut();
-       // });
-        //store the text
         var obj = $(this);
         obj.removeClass('tip');
         var tip = obj.html();
@@ -671,14 +640,7 @@ function setupTips(context, position){
             tip_classes.push(position)
         }
         //replace the text with an icon and spans
-        obj.html('<span class="'+tip_classes.join(' ')+'" data-width="210" title="'+tip+'"><i class="icon-info-sign"></i></span>');
-
-        //obj.append('<span class="ui-icon ui-icon-alert man_icon" />');
-
-        //add the text to .tipspan
-        //$('span.has-tip',obj).html(tip);
-
-
+        obj.html('<span class="'+tip_classes.join(' ')+'" data-width="210" title="'+tip+'"><i class="fa fa-info-sign"></i></span>');
     });
 }
 
@@ -972,17 +934,7 @@ function setupTemplateUpdateDialog(){
                   </fieldset>\
         </form>');
 
-    //Convert into jQuery
-    //dialog.dialog({
-    //    autoOpen:false,
-    //    width:700,
-    //    modal:true,
-    //    height:430,
-    //    resizable:false
-    //});
-
     dialog.addClass("reveal-modal")
-    //$('button',dialog).button();
 
     $('#template_update_select',dialog).change(function(){
         var id = $(this).val();
@@ -1717,7 +1669,7 @@ function quotaListItem(quota_json){
                'Leases: ' + quota_json.LEASES +  (quota_json.LEASES_USED ? ' (' + quota_json.LEASES_USED + '). ': ". ");
         break;
     }
-    str += '</td><td><button class="quota_edit_icon"><i class="icon-pencil"></i></button></td></tr>';
+    str += '</td><td><button class="quota_edit_icon"><i class="fa fa-pencil"></i></button></td></tr>';
     return str;
 }
 
@@ -2211,12 +2163,12 @@ function fromJSONtoHTMLRow(field,value,resource_type,resource_id, vectorial_key,
                            <td class="value_vectorial_td"></td>\
                            <td>\
                            <div id="div_add_vectorial">\
-                             <a id="div_add_vectorial_'+field+'" class="add_vectorial_a ocurrence_'+it+' vectorial_key_'+field+'" href="#"><i class="icon-plus-sign"/></a>\
+                             <a id="div_add_vectorial_'+field+'" class="add_vectorial_a ocurrence_'+it+' vectorial_key_'+field+'" href="#"><i class="fa fa-plus-sign"/></a>\
                            </div>\
                          </td>\
                            <td>\
                            <div id="div_minus">\
-                             <a id="div_minus_'+field+'" class="remove_vectorial_x ocurrence_'+it+'" href="#"><i class="icon-edit"/><i class="icon-trash"/></a>\
+                             <a id="div_minus_'+field+'" class="remove_vectorial_x ocurrence_'+it+'" href="#"><i class="fa fa-pencil-square-o"/><i class="fa fa-trash-o"/></a>\
                            </div>\
                          </td>'
 
@@ -2253,12 +2205,12 @@ function fromJSONtoHTMLRow(field,value,resource_type,resource_id, vectorial_key,
                      <td class="value_td value_vectorial_td value_td_input_'+field+ocurrence_str+' vectorial_key_'+vectorial_key+'" id="value_td_input_'+field+'">'+value+'</td>\
                      <td>\
                        <div id="div_edit_vectorial">\
-                         <a id="div_edit_'+field+'" class="edit_e'+ocurrence_str+' vectorial_key_'+vectorial_key+'" href="#"><i class="icon-edit"/></a>\
+                         <a id="div_edit_'+field+'" class="edit_e'+ocurrence_str+' vectorial_key_'+vectorial_key+'" href="#"><i class="fa fa-pencil-square-o"/></a>\
                        </div>\
                      </td>\
                      <td>\
                        <div id="div_minus_vectorial">\
-                         <a id="div_minus_'+field+'" class="remove_x'+ocurrence_str+' vectorial_key_'+vectorial_key+'" href="#"><i class="icon-trash"/></a>\
+                         <a id="div_minus_'+field+'" class="remove_x'+ocurrence_str+' vectorial_key_'+vectorial_key+'" href="#"><i class="fa fa-trash-o"/></a>\
                        </div>\
                      </td>\
                    </tr>';
@@ -2273,12 +2225,12 @@ function fromJSONtoHTMLRow(field,value,resource_type,resource_id, vectorial_key,
                            <td class="value_vectorial_td"></td>\
                            <td>\
                            <div id="div_add_vectorial">\
-                             <a id="div_add_vectorial_'+field+'" class="add_vectorial_a'+ocurrence_str+' vectorial_key_'+field+'" href="#"><i class="icon-plus-sign"/></a>\
+                             <a id="div_add_vectorial_'+field+'" class="add_vectorial_a'+ocurrence_str+' vectorial_key_'+field+'" href="#"><i class="fa fa-plus-sign"/></a>\
                            </div>\
                          </td>\
                            <td>\
                            <div id="div_minus">\
-                             <a id="div_minus_'+field+'" class="remove_vectorial_x'+ocurrence_str+'" href="#"><i class="icon-trash"/></a>\
+                             <a id="div_minus_'+field+'" class="remove_vectorial_x'+ocurrence_str+'" href="#"><i class="fa fa-trash-o"/></a>\
                            </div>\
                          </td>'
                str += fromJSONtoHTMLTable(value,
@@ -2294,12 +2246,12 @@ function fromJSONtoHTMLRow(field,value,resource_type,resource_id, vectorial_key,
                          <td class="value_td" id="value_td_input_'+field+'">'+value+'</td>\
                          <td>\
                            <div id="div_edit">\
-                             <a id="div_edit_'+field+'" class="edit_e'+ocurrence_str+'" href="#"><i class="icon-edit"/></a>\
+                             <a id="div_edit_'+field+'" class="edit_e'+ocurrence_str+'" href="#"><i class="fa fa-pencil-square-o"/></a>\
                            </div>\
                          </td>\
                          <td>\
                            <div id="div_minus">\
-                             <a id="div_minus_'+field+'" class="remove_x'+ocurrence_str+'" href="#"><i class="icon-trash"/></a>\
+                             <a id="div_minus_'+field+'" class="remove_x'+ocurrence_str+'" href="#"><i class="fa fa-trash-o"/></a>\
                            </div>\
                          </td>\
                        </tr>';
@@ -2389,7 +2341,7 @@ function insert_permissions_table(tab_name, resource_type, resource_id, owner, g
                 <td>'+tr("Owner")+'</td>\
                 <td colspan="2" id="value_td_owner">'+owner+'</td>\
                  <td><div id="div_edit_chg_owner">\
-                        <a id="div_edit_chg_owner_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                        <a id="div_edit_chg_owner_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
                      </div>\
                  </td>\
             </tr>'
@@ -2426,7 +2378,7 @@ function insert_permissions_table(tab_name, resource_type, resource_id, owner, g
                 <td>'+tr("Group")+'</td>\
                 <td colspan="2" id="value_td_group">'+group+'</td>\
                  <td><div id="div_edit_chg_group">\
-                        <a id="div_edit_chg_group_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                        <a id="div_edit_chg_group_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
                      </div>\
                  </td>\
             </tr>'
@@ -2469,7 +2421,7 @@ function insert_cluster_dropdown(resource_type, resource_id, cluster_value, clus
                 <td class="value_td_cluster">'+(cluster_value.length ? cluster_value : "-")+'</td>\
                 <td>\
                   <div id="div_edit_chg_cluster">\
-                     <a id="div_edit_chg_cluster_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                     <a id="div_edit_chg_cluster_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
                   </div>\
                 </td>';
 
@@ -2508,7 +2460,7 @@ function insert_group_dropdown(resource_type, resource_id, group_value, group_id
                 <td class="value_td_group">'+ group_value +'</td>\
                 <td>\
                   <div id="div_edit_chg_group">\
-                     <a id="div_edit_chg_group_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                     <a id="div_edit_chg_group_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
                   </div>\
                 </td>';
 

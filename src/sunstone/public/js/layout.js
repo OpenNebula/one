@@ -107,10 +107,10 @@ function setupTabs(){
             //are hidden
             subtabs.fadeToggle('fast');
             $(this).removeClass('active');
-            $('span',subtabs).removeClass(' icon-caret-down');
-            $('span',subtabs).addClass(' icon-caret-left');
+            $('span',subtabs).removeClass(' fa fa-caret-down');
+            $('span',subtabs).addClass(' fa fa-caret-left');
             //toggle icon on this tab
-            $('span',this).toggleClass(' icon-caret-left  icon-caret-down');
+            $('span',this).toggleClass(' fa fa-caret-left  fa fa-caret-down');
             return false;
         }
         else {
@@ -156,8 +156,8 @@ $(document).ready(function () {
     //,	south__spacing_open:	0
     ,   west__spacing_open:      10
     ,   west__spacing_closed:    10
-    ,   west__togglerContent_open:   '<i class="icon-angle-left">'
-    ,   west__togglerContent_closed: '<i class="icon-angle-right">'
+    ,   west__togglerContent_open:   '<i class="fa fa-angle-left">'
+    ,   west__togglerContent_closed: '<i class="fa fa-angle-right">'
     ,	north__maxSize:			200
     ,	south__maxSize:			200
     ,   south__closable:        false
@@ -176,8 +176,8 @@ $(document).ready(function () {
     ,   center__paneSelector:   ".inner-center"
     ,   south__paneSelector:    ".inner-south"
     ,   south__size:            dialog_height
-    ,   south__togglerContent_open:   '<i class="icon-angle-down">'
-    ,   south__togglerContent_closed: '<i class="icon-angle-up">'
+    ,   south__togglerContent_open:   '<i class="fa fa-angle-down">'
+    ,   south__togglerContent_closed: '<i class="fa fa-angle-up">'
     ,   south__resizable:       true
     ,   south__spacing_open:      10
     ,   south__spacing_closed:    0

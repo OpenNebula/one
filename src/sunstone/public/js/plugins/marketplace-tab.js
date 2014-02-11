@@ -167,7 +167,7 @@ var market_buttons = {
     "Marketplace.refresh" : {
         type: "action",
         layout: "refresh",
-        text: '<i class="icon-refresh icon-large">',
+        text: '<i class="fa fa-refresh fa fa-lg">',
         alwaysActive: true
     },
     "Marketplace.import" : {
@@ -198,7 +198,7 @@ var marketplace_tab_content = '\
   <div class="twelve columns">\
     <h4 class="subheader header">\
       <span class="header-resource">\
-        <i class="icon-shopping-cart"></i> '+tr("OpenNebula Marketplace")+'\
+        <i class="fa fa-shopping-cart"></i> '+tr("OpenNebula Marketplace")+'\
       </span>\
       <span class="header-info">\
         <span/> <small></small>&emsp;\
@@ -240,7 +240,7 @@ var marketplace_tab_content = '\
 
 
 var marketplace_tab = {
-    title: '<i class="icon-shopping-cart"></i>' + tr("Marketplace"),
+    title: '<i class="fa fa-shopping-cart"></i>' + tr("Marketplace"),
     content: marketplace_tab_content,
     buttons: market_buttons
 };

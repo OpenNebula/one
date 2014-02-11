@@ -21,7 +21,7 @@ var dashboard_tab_content = '\
   <div class="twelve columns">\
     <h4 class="subheader header">\
       <span class="header-resource">\
-        <i class="icon-dashboard"></i> '+tr("Dashboard")+'\
+        <i class="fa fa-tachometer"></i> '+tr("Dashboard")+'\
       </span>\
       <span class="header-info">\
         <span/> <small></small>&emsp;\
@@ -45,7 +45,7 @@ var dashboard_tab_content = '\
 var widgets = {
   "storage" : '<div class="panel">\
         <div class="row">\
-          <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="icon-upload"></i> '+tr("Storage")+'</span></h5>\
+          <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="fa fa-upload"></i> '+tr("Storage")+'</span></h5>\
         </div>\
         <div class="row">\
           <div class="twelve columns centered">\
@@ -60,7 +60,7 @@ var widgets = {
       </div>',
   "users" : '<div class="panel">\
         <div class="row">\
-          <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="icon-user"></i> '+tr("Users")+'</span></h5>\
+          <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="fa fa-user"></i> '+tr("Users")+'</span></h5>\
         </div>\
         <div class="row">\
           <div class="twelve columns centered">\
@@ -75,7 +75,7 @@ var widgets = {
       </div>',
   "network" : '<div class="panel">\
         <div class="row">\
-          <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="icon-sitemap"></i> '+tr("Network")+'</span></h5>\
+          <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="fa fa-sitemap"></i> '+tr("Network")+'</span></h5>\
         </div>\
         <div class="row">\
           <div class="twelve columns centered">\
@@ -90,7 +90,7 @@ var widgets = {
       </div>',
   "hosts" : '<div class="panel dashboard-panel">\
         <div class="row">\
-          <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="icon-hdd"></i> '+tr("Hosts")+'</span></h5>\
+          <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="fa fa-hdd-o"></i> '+tr("Hosts")+'</span></h5>\
         </div>\
         <div class="row">\
           <div class="twelve columns centered">\
@@ -128,7 +128,7 @@ var widgets = {
       </div>',
   "vms" : '<div class="panel dashboard-panel">\
         <div class="row">\
-          <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="icon-cloud"></i> '+tr("Virtual Machines")+'</span></h5>\
+          <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="fa fa-cloud"></i> '+tr("Virtual Machines")+'</span></h5>\
         </div>\
         <div class="row">\
           <div class="twelve columns centered">\
@@ -166,7 +166,7 @@ var widgets = {
 }
 
 var dashboard_tab = {
-    title: '<i class="icon-dashboard"></i>'+tr("Dashboard"),
+    title: '<i class="fa fa-tachometer"></i>'+tr("Dashboard"),
     content: dashboard_tab_content,
     showOnTopMenu: false
 }

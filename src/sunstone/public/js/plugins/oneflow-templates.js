@@ -71,7 +71,7 @@ var service_template_tab_content = '\
   <div class="twelve columns">\
     <h4 class="subheader header">\
       <span class="header-resource">\
-       <i class="icon-file-alt"></i> '+tr("OneFlow - Templates")+'\
+       <i class="fa fa-file-o"></i> '+tr("OneFlow - Templates")+'\
       </span>\
       <span class="header-info">\
         <span/> <small></small>&emsp;\
@@ -178,7 +178,7 @@ var create_service_template_tmpl = '\
     </div>\
     <div class="row" id="new_role">\
            <dl class="tabs" id="roles_tabs">\
-            <dt><div type="button" class="button tiny radius" id="tf_btn_roles"><span class="icon-plus"></span> '+tr("Add another role")+'</div></dt>\
+            <dt><div type="button" class="button tiny radius" id="tf_btn_roles"><span class="fa fa-plus"></span> '+tr("Add another role")+'</div></dt>\
            </dl>\
            <ul class="tabs-content" id="roles_tabs_content">\
            </ul>\
@@ -314,7 +314,7 @@ var role_tab_content = '\
                               <tr>\
                                 <th colspan="8">\
                                     '+tr("Elasticty policies")+'\
-                                    <div type="button" class="button tiny radius right secondary" id="tf_btn_elas_policies"><span class="icon-plus"></span> '+tr("Add")+'</div>\
+                                    <div type="button" class="button tiny radius right secondary" id="tf_btn_elas_policies"><span class="fa fa-plus"></span> '+tr("Add")+'</div>\
                                 </th>\
                               </tr>\
                             </thead>\
@@ -371,7 +371,7 @@ var role_tab_content = '\
                               <tr>\
                                 <th colspan="6">\
                                     '+tr("Scheduled policies")+'\
-                                    <div type="button" class="button tiny radius right secondary" id="tf_btn_sche_policies"><span class="icon-plus"></span> '+tr("Add")+'</div>\
+                                    <div type="button" class="button tiny radius right secondary" id="tf_btn_sche_policies"><span class="fa fa-plus"></span> '+tr("Add")+'</div>\
                                 </th>\
                               </tr>\
                             </thead>\
@@ -1035,7 +1035,7 @@ function setup_role_tab_content(role_section, html_role_id) {
                     <input type="text" id="cooldown" name="cooldown"/>\
                 </td>\
                 <td>\
-                    <a href="#"><i class="icon-remove-sign remove-tab"></i></a>\
+                    <a href="#"><i class="fa fa-times-sign remove-tab"></i></a>\
                 </td>\
             </tr>');
         new_tr.appendTo($("#elasticity_policies_tbody", role_section));
@@ -1066,7 +1066,7 @@ function setup_role_tab_content(role_section, html_role_id) {
                     <input type="text" id="time" name="time"/>\
                 </td>\
                 <td>\
-                    <a href="#"><i class="icon-remove-sign remove-tab"></i></a>\
+                    <a href="#"><i class="fa fa-times-sign remove-tab"></i></a>\
                 </td>\
             </tr>')
         new_tr.appendTo($("#scheduled_policies_tbody", role_section))
@@ -1119,7 +1119,7 @@ function setupCreateServiceTemplateDialog(){
 
         var a = $("<dd>\
             <a id='"+html_role_id+"' href='#"+html_role_id+"'><span id='role_name_text'>"+tr("Role ")+role_id+" </span>\
-                <i class='icon-remove-sign remove-tab'></i>\
+                <i class='fa fa-times-sign remove-tab'></i>\
             </a>\
         </dd>").appendTo($("dl#roles_tabs"));
 

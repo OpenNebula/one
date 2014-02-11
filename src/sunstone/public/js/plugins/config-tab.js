@@ -401,7 +401,7 @@ function updateUserConfigInfo(request,user_json) {
         <td class="value_td_group">'+ info.GNAME +'</td>\
         <td>\
             <div id="div_edit_chg_group">\
-                <a id="div_edit_chg_group_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                <a id="div_edit_chg_group_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
             </div>\
         </td>\
     </tr>\

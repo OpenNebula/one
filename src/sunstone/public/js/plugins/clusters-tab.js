@@ -104,7 +104,7 @@ var create_cluster_tmpl ='<div class="panel">\
     <li id="tab-hostsTab" class="active">\
       <div class="row collapse">\
         <div class="seven columns">\
-            <button id="refresh_host_table_button_class" class="button small radius secondary action_button" value="ClusterHost.list"><i class="icon-refresh" /></button>\
+            <button id="refresh_host_table_button_class" class="button small radius secondary action_button" value="ClusterHost.list"><i class="fa fa-refresh" /></button>\
         </div>\
         <div class="five columns">\
           <input id="cluster_hosts_search" type="text" placeholder="'+tr("Search")+'"/>\
@@ -121,7 +121,7 @@ var create_cluster_tmpl ='<div class="panel">\
     <li id="tab-vnetsTab">\
       <div class="row collapse">\
         <div class="seven columns">\
-            <button id="refresh_vnet_table_button_class" class="button small radius secondary action_button" value="ClusterVN.list"><i class="icon-refresh" /></button>\
+            <button id="refresh_vnet_table_button_class" class="button small radius secondary action_button" value="ClusterVN.list"><i class="fa fa-refresh" /></button>\
         </div>\
         <div class="five columns">\
           <input id="cluster_vnets_search" type="text" placeholder="'+tr("Search")+'"/>\
@@ -138,7 +138,7 @@ var create_cluster_tmpl ='<div class="panel">\
     <li id="tab-datastoresTab">\
       <div class="row collapse">\
         <div class="seven columns">\
-            <button id="refresh_datastore_table_button_class" class="button small radius secondary action_button" value="ClusterDS.list"><i class="icon-refresh" /></button>\
+            <button id="refresh_datastore_table_button_class" class="button small radius secondary action_button" value="ClusterDS.list"><i class="fa fa-refresh" /></button>\
         </div>\
         <div class="five columns">\
           <input id="cluster_datastores_search" type="text" placeholder="'+tr("Search")+'"/>\
@@ -273,7 +273,7 @@ function setupCreateClusterDialog(){
             selected_hosts_list[host_id]=1;
             host_row_hash[host_id]=this;
             $(this).children().each(function(){$(this).addClass('markrowchecked');});
-            $('div#selected_hosts_div', dialog).append('<span id="tag_hosts_'+host_id+'" class="radius label">'+name+' <span class="icon-remove blue"></span></span> ');
+            $('div#selected_hosts_div', dialog).append('<span id="tag_hosts_'+host_id+'" class="radius label">'+name+' <span class="fa fa-times blue"></span></span> ');
           }
           else
           {
@@ -310,7 +310,7 @@ function setupCreateClusterDialog(){
             selected_vnets_list[vnet_id]=1;
             vnet_row_hash[vnet_id]=this;
             $(this).children().each(function(){$(this).addClass('markrowchecked');});
-            $('div#selected_vnets_div', dialog).append('<span id="tag_vnets_'+vnet_id+'" class="radius label">'+name+' <span class="icon-remove blue"></span></span> ');
+            $('div#selected_vnets_div', dialog).append('<span id="tag_vnets_'+vnet_id+'" class="radius label">'+name+' <span class="fa fa-times blue"></span></span> ');
           }
           else
           {
@@ -347,7 +347,7 @@ function setupCreateClusterDialog(){
             selected_datastore_list[ds_id]=1;
             datastore_row_hash[ds_id]=this;
             $(this).children().each(function(){$(this).addClass('markrowchecked');});
-            $('div#selected_datastores_div', dialog).append('<span id="tag_datastores_'+ds_id+'" class="radius label">'+name+' <span class="icon-remove blue"></span></span> ');
+            $('div#selected_datastores_div', dialog).append('<span id="tag_datastores_'+ds_id+'" class="radius label">'+name+' <span class="fa fa-times blue"></span></span> ');
           }
           else
           {
@@ -365,8 +365,8 @@ function setupCreateClusterDialog(){
       });
 
     // Add tag listeners
-     $( "#cluster_create_tabs span.icon-remove",$create_cluster_dialog).die();
-     $( "#cluster_create_tabs span.icon-remove" ).live( "click", function() {
+     $( "#cluster_create_tabs span.fa fa-times",$create_cluster_dialog).die();
+     $( "#cluster_create_tabs span.fa fa-times" ).live( "click", function() {
        // Remove the tag
        $(this).parent().remove();
 
@@ -878,7 +878,7 @@ var clusters_tab_content = '\
   <div class="twelve columns">\
     <h4 class="subheader header">\
       <span class="header-resource">\
-        <i class="icon-copy"></i> '+tr("Clusters")+'\
+        <i class="fa fa-files-o"></i> '+tr("Clusters")+'\
       </span>\
       <span class="header-info">\
         <span/> <small></small>&emsp;\
@@ -1276,7 +1276,7 @@ function updateClusterInfo(request,cluster){
                 <td class="key_td">'+tr("Name")+'</td>\
                 <td class="value_td_rename">'+cluster_info.NAME+'</td>\
                 <td><div id="div_edit_rename">\
-                   <a id="div_edit_rename_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                   <a id="div_edit_rename_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
                 </div>\
                 </td>\
             </tr>\

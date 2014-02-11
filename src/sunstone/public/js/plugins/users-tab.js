@@ -49,7 +49,7 @@ var users_tab_content = '\
   <div class="twelve columns">\
     <h4 class="subheader header">\
       <span class="header-resource">\
-        <i class="icon-user"></i> '+tr("Users")+'\
+        <i class="fa fa-user"></i> '+tr("Users")+'\
       </span>\
       <span class="header-info">\
         <span id="total_users"/> <small>'+tr("TOTAL")+'</small>\

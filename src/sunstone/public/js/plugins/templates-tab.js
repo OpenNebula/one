@@ -22,7 +22,7 @@ var templates_tab_content = '\
       <div class="twelve columns">\
         <h4 class="subheader header">\
           <span class="header-resource">\
-            <i class="icon-file-alt"></i> '+tr("Templates")+'\
+            <i class="fa fa-file-o"></i> '+tr("Templates")+'\
           </span>\
           <span class="header-info">\
             <span/> <small></small>&emsp;\
@@ -198,7 +198,7 @@ var easy_provision_vm_template_tmpl ='\
         <legend>'+tr("Step 2: Select a template")+'</legend>\
         <div class="row collapse">\
           <div class="seven columns">\
-             <button id="refresh_template_templates_table_button_class" type="button" class="refresh button small radius secondary"><i class="icon-refresh" /></button>\
+             <button id="refresh_template_templates_table_button_class" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>\
           </div>\
           <div class="five columns">\
             <input id="template_templates_table_search" type="text" placeholder="'+tr("Search")+'"/>\
@@ -246,7 +246,7 @@ var easy_provision_vm_template_tmpl ='\
         <legend>'+tr("Step 3: Select an operating system")+'</legend>\
         <div class="row collapse">\
           <div class="seven columns">\
-             <button id="refresh_template_images_table_button_class" type="button" class="refresh button small radius secondary"><i class="icon-refresh" /></button>\
+             <button id="refresh_template_images_table_button_class" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>\
           </div>\
           <div class="five columns">\
             <input id="template_images_table_search" type="text" placeholder="'+tr("Search")+'"/>\
@@ -723,7 +723,7 @@ function generate_capacity_tab_content() {
         '</div>'+
     '</div>'+
     '<div class="show_hide" id="advanced_capacity">'+
-         '<h4><small><i class=" icon-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
+         '<h4><small><i class=" fa fa-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
     '</div>'+
     '<div class="advanced">'+
       '<div class="row">'+
@@ -932,7 +932,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
         '<div id="disk_type" class="vm_param image">'+
           '<div class="row collapse">'+
             '<div class="seven columns">' +
-               '<button id="refresh_template_images_table_button_class'+str_disk_tab_id+'" type="button" class="refresh button small radius secondary"><i class="icon-refresh" /></button>' +
+               '<button id="refresh_template_images_table_button_class'+str_disk_tab_id+'" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>' +
             '</div>' +
             '<div class="five columns">'+
               '<input id="'+str_disk_tab_id+'_search" type="text" placeholder="'+tr("Search")+'"/>'+
@@ -972,7 +972,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
           '</div>'+
           '<hr>'+
         '<div class="show_hide" id="advanced_image">'+
-          '<h4><small><i class=" icon-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
+          '<h4><small><i class=" fa fa-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
         '</div>'+
         '<div class="advanced">'+
           '<div class="row advanced vm_param">'+
@@ -1218,7 +1218,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
                 '</div>'+
             '</div>'+
         '<div class="show_hide" id="advanced_volatile">'+
-          '<h4><small><i class=" icon-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
+          '<h4><small><i class=" fa fa-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
         '</div>'+
         '<div class="advanced">'+
           '<div class="row advanced vm_param">'+
@@ -1701,7 +1701,7 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
 function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
   var html = '<div class="row">'+
     '<div class="seven columns">' +
-       '<button id="refresh_template_nic_table_button_class'+str_nic_tab_id+'" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>' +
+       '<button id="refresh_template_nic_table_button_class'+str_nic_tab_id+'" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>' +
     '</div>' +
     '<div class="five columns">'+
       '<input id="'+str_nic_tab_id+'_search" type="text" placeholder="'+tr("Search")+'"/>'+
@@ -1737,7 +1737,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
     '</div>'+
   '<hr>'+
     '<div class="show_hide" id="advanced">'+
-          '<h4><small><i class=" icon-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
+          '<h4><small><i class=" fa fa-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
     '</div>'+
     '<div class="advanced">'+
           '<div class="row advanced vm_param">'+
@@ -1994,7 +1994,7 @@ function updateTemplateInfo(request,template){
                <td class="key_td">'+tr("Name")+'</td>\
                <td class="value_td_rename">'+template_info.NAME+'</td>\
                <td><div id="div_edit_rename">\
-                      <a id="div_edit_rename_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                      <a id="div_edit_rename_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
                    </div>\
                </td>\
              </tr>\
@@ -2158,7 +2158,7 @@ function add_disks_tab(dialog) {
 
     var html_tab_content = '<li id="storageTab" class="wizard_tab">'+
       '<dl class="tabs" id="template_create_storage_tabs">'+
-        '<dt><button type="button" class="button tiny radius" id="tf_btn_disks"><span class="icon-plus"></span>'+tr("Add another disk")+'</button></dt>'+
+        '<dt><button type="button" class="button tiny radius" id="tf_btn_disks"><span class="fa fa-plus"></span>'+tr("Add another disk")+'</button></dt>'+
       '</dl>'+
       '<ul class="tabs-content" id="template_create_storage_tabs_content">'+
       '</ul>'+
@@ -2208,7 +2208,7 @@ function add_disk_tab(disk_id, dialog) {
     $(html_tab_content).appendTo($("ul#template_create_storage_tabs_content", dialog));
 
     var a = $("<dd>\
-      <a id='disk_tab"+str_disk_tab_id+"' href='#"+str_disk_tab_id+"'>"+tr("DISK")+" <i class='icon-remove-sign remove-tab'></i></a>\
+      <a id='disk_tab"+str_disk_tab_id+"' href='#"+str_disk_tab_id+"'>"+tr("DISK")+" <i class='fa fa-times-sign remove-tab'></i></a>\
     </dd>").appendTo($("dl#template_create_storage_tabs", dialog));
 
     $(document).foundationTabs("set_tab", a);
@@ -2229,7 +2229,7 @@ function add_nics_tab(dialog) {
 
     var html_tab_content = '<li id="networkTab" class="wizard_tab">'+
       '<dl class="tabs" id="template_create_network_tabs">'+
-        '<dt><button type="button" class="button tiny radius" id="tf_btn_nics"><span class="icon-plus"></span> '+tr("Add another nic")+'</button></dt>'+
+        '<dt><button type="button" class="button tiny radius" id="tf_btn_nics"><span class="fa fa-plus"></span> '+tr("Add another nic")+'</button></dt>'+
       '</dl>'+
       '<ul class="tabs-content" id="template_create_network_tabs_content">'+
       '</ul>'+
@@ -2275,7 +2275,7 @@ function add_nic_tab(nic_id, dialog) {
     '</li>'
 
   // Append the new div containing the tab and add the tab to the list
-  var a = $("<dd><a id='nic_tab"+str_nic_tab_id+"' href='#"+str_nic_tab_id+"'>"+tr("NIC")+" <i class='icon-remove-sign remove-tab'></i></a></dd>").appendTo($("dl#template_create_network_tabs", dialog));
+  var a = $("<dd><a id='nic_tab"+str_nic_tab_id+"' href='#"+str_nic_tab_id+"'>"+tr("NIC")+" <i class='fa fa-times-sign remove-tab'></i></a></dd>").appendTo($("dl#template_create_network_tabs", dialog));
 
   $(html_tab_content).appendTo($("ul#template_create_network_tabs_content", dialog));
 
@@ -2494,7 +2494,7 @@ function add_osTab(dialog) {
                 '<div class="row kernel_ds">'+
                   '<div class="row collapse ">'+
                       '<div class="seven columns">' +
-                         '<button id="refresh_kernel_table" type="button" class="refresh button small radius secondary"><i class="icon-refresh" /></button>' +
+                         '<button id="refresh_kernel_table" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>' +
                       '</div>' +
                     '<div class="five columns">'+
                       '<input id="kernel_search" type="text" placeholder="'+tr("Search")+'"/>'+
@@ -2565,7 +2565,7 @@ function add_osTab(dialog) {
                 '<div class="row initrd_ds">'+
                   '<div class="row collapse ">'+
                       '<div class="seven columns">' +
-                         '<button id="refresh_ramdisk_table" type="button" class="refresh button small radius secondary"><i class="icon-refresh" /></button>' +
+                         '<button id="refresh_ramdisk_table" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>' +
                       '</div>' +
                     '<div class="five columns">'+
                       '<input id="initrd_search" type="text" placeholder="'+tr("Search")+'"/>'+
@@ -3000,7 +3000,7 @@ function add_ioTab(dialog) {
 
 
       var cell3 = row.insertCell(2);
-      cell3.innerHTML = "<i class='icon-remove-sign icon-large remove-tab'></i>";
+      cell3.innerHTML = "<i class='fa fa-times-sign fa fa-lg remove-tab'></i>";
   });
 
   $( "#ioTab i.remove-tab", dialog).live( "click", function() {
@@ -3085,7 +3085,7 @@ function add_contextTab(dialog) {
             '<li class="wizard_internal_tab" id="filesTab">'+
                     '<div class="row collapse ">'+
                       '<div class="seven columns">' +
-                         '<button id="refresh_context_table" type="button" class="refresh button small radius secondary"><i class="icon-refresh" /></button>' +
+                         '<button id="refresh_context_table" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>' +
                       '</div>' +
                       '<div class="five columns">'+
                         '<input id="files_search" type="text" placeholder="'+tr("Search")+'"/>'+
@@ -3202,7 +3202,7 @@ function add_contextTab(dialog) {
 
 
       var cell3 = row.insertCell(2);
-      cell3.innerHTML = "<i class='icon-remove-sign icon-large remove-tab'></i>";
+      cell3.innerHTML = "<i class='fa fa-times-sign fa fa-lg remove-tab'></i>";
   });
 
   $( "#contextTab i.remove-tab" ).live( "click", function() {
@@ -3272,7 +3272,7 @@ function add_contextTab(dialog) {
         file_row_hash[file_id]=this;
         $(this).children().each(function(){$(this).addClass('markrowchecked');});
         if ($('#tag_file_'+aData[1], $('div#selected_files_spans', dialog)).length == 0 ) {
-            $('#selected_files_spans', dialog).append('<span image_id="'+aData[1]+'" id="tag_file_'+aData[1]+'" class="image radius label">'+aData[4]+' <span class="icon-remove blue"></span></span> ');
+            $('#selected_files_spans', dialog).append('<span image_id="'+aData[1]+'" id="tag_file_'+aData[1]+'" class="image radius label">'+aData[4]+' <span class="fa fa-times blue"></span></span> ');
         }
       } else {
         $('input.check_item', this).removeAttr('checked');
@@ -3293,8 +3293,8 @@ function add_contextTab(dialog) {
       return true;
   });
 
-  $( "span.icon-remove", $("#selected_files_spans") ).die()
-  $( "span.icon-remove", $("#selected_files_spans") ).live( "click", function() {
+  $( "span.fa fa-times", $("#selected_files_spans") ).die()
+  $( "span.fa fa-times", $("#selected_files_spans") ).live( "click", function() {
      $(this).parent().remove();
      var file_id = $(this).parent().attr("image_id");
 
@@ -3352,7 +3352,7 @@ function add_schedulingTab(dialog) {
                 '<div id="req_type" class="host_select ">'+
                     '<div class="row collapse ">'+
                       '<div class="seven columns">' +
-                         '<button id="refresh_hosts_placement" type="button" class="refresh button small radius secondary"><i class="icon-refresh" /></button>' +
+                         '<button id="refresh_hosts_placement" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>' +
                       '</div>' +
                       '<div class="five columns">'+
                         '<input id="hosts_search" type="text" placeholder="'+tr("Search")+'"/>'+
@@ -3389,7 +3389,7 @@ function add_schedulingTab(dialog) {
                 '<div id="req_type" class="cluster_select hidden">'+
                     '<div class="row collapse ">'+
                       '<div class="seven columns">' +
-                         '<button id="refresh_clusters_placement" type="button" class="refresh button small radius secondary"><i class="icon-refresh" /></button>' +
+                         '<button id="refresh_clusters_placement" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>' +
                       '</div>' +
                       '<div class="five columns">'+
                         '<input id="clusters_search" type="text" placeholder="'+tr("Search")+'"/>'+
@@ -3550,7 +3550,7 @@ function add_schedulingTab(dialog) {
             host_row_hash[host_id]=this;
             $(this).children().each(function(){$(this).addClass('markrowchecked');});
             if ($('#tag_host_'+aData[1], $('div#selected_hosts_template', dialog)).length == 0 ) {
-                $('div#selected_hosts_template', dialog).append('<span id="tag_host_'+aData[1]+'" class="radius label">'+aData[2]+' <span class="icon-remove blue"></span></span> ');
+                $('div#selected_hosts_template', dialog).append('<span id="tag_host_'+aData[1]+'" class="radius label">'+aData[2]+' <span class="fa fa-times blue"></span></span> ');
             }
         } else {
             $('input.check_item', this).removeAttr('checked');
@@ -3571,7 +3571,7 @@ function add_schedulingTab(dialog) {
         return true;
     });
 
-    $("span.icon-remove", $('div#selected_hosts_template', dialog)).live( "click", function() {
+    $("span.fa fa-times", $('div#selected_hosts_template', dialog)).live( "click", function() {
         $(this).parent().remove();
         var id = $(this).parent().attr("ID");
 
@@ -3631,7 +3631,7 @@ function add_schedulingTab(dialog) {
             cluster_row_hash[cluster_id]=this;
             $(this).children().each(function(){$(this).addClass('markrowchecked');});
             if ($('#tag_cluster_'+aData[1], $('div#selected_clusters_template', dialog)).length == 0 ) {
-                $('div#selected_clusters_template', dialog).append('<span id="tag_cluster_'+aData[1]+'" class="radius label">'+aData[2]+' <span class="icon-remove blue"></span></span> ');
+                $('div#selected_clusters_template', dialog).append('<span id="tag_cluster_'+aData[1]+'" class="radius label">'+aData[2]+' <span class="fa fa-times blue"></span></span> ');
             }
         }
         else
@@ -3655,7 +3655,7 @@ function add_schedulingTab(dialog) {
         return true;
     });
 
-    $( "#selected_clusters_template span.icon-remove" , dialog).live( "click", function() {
+    $( "#selected_clusters_template span.fa fa-times" , dialog).live( "click", function() {
         $(this).parent().remove();
         var id = $(this).parent().attr("ID");
 
@@ -3819,7 +3819,7 @@ function add_otherTab(dialog) {
 
 
       var cell3 = row.insertCell(2);
-      cell3.innerHTML = "<i class='icon-remove-sign icon-large remove-tab'></i>";
+      cell3.innerHTML = "<i class='fa fa-times-sign fa fa-lg remove-tab'></i>";
   });
 
   $( "#rawTab i.remove-tab" ).live( "click", function() {
@@ -4547,7 +4547,7 @@ function fillTemplatePopUp(template, dialog){
 
 
             var cell3 = row.insertCell(2);
-            cell3.innerHTML = "<i class='icon-remove-sign icon-large remove-tab'></i>";
+            cell3.innerHTML = "<i class='fa fa-times-sign fa fa-lg remove-tab'></i>";
         });
 
 
@@ -4613,7 +4613,7 @@ function fillTemplatePopUp(template, dialog){
 //                            $('#files_selected',  context_section).show();
 //                            $('#select_files', context_section).hide();
 //                            files.splice(in_array, 1);
-//                            $('#selected_files_spans', context_section).append('<span image_id="'+this[1]+'" id="tag_file_'+this[1]+'" class="image radius label">'+this[4]+' <span class="icon-remove blue"></span></span> ');
+//                            $('#selected_files_spans', context_section).append('<span image_id="'+this[1]+'" id="tag_file_'+this[1]+'" class="image radius label">'+this[4]+' <span class="fa fa-times blue"></span></span> ');
 //                        }
 //                    })
 //
@@ -4648,7 +4648,7 @@ function fillTemplatePopUp(template, dialog){
 
 
               var cell3 = row.insertCell(2);
-              cell3.innerHTML = "<i class='icon-remove-sign icon-large remove-tab'></i>";
+              cell3.innerHTML = "<i class='fa fa-times-sign fa fa-lg remove-tab'></i>";
             }
         });
 
@@ -4835,7 +4835,7 @@ function fillTemplatePopUp(template, dialog){
 
 
         var cell3 = row.insertCell(2);
-        cell3.innerHTML = "<i class='icon-remove-sign icon-large remove-tab'></i>";
+        cell3.innerHTML = "<i class='fa fa-times-sign fa fa-lg remove-tab'></i>";
     });
 }
 

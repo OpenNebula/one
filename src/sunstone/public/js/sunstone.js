@@ -132,11 +132,11 @@ var Sunstone = {
             <div class="twelve columns">\
                 <dl class="tabs">\
                     <div id="refresh_div">\
-                        <button type="button" style="float:left; margin-right:5px" class="button secondary tiny radius" id="'+panel_name+'_refresh"><span class="icon-refresh"></span></button>\
+                        <button type="button" style="float:left; margin-right:5px" class="button secondary tiny radius" id="'+panel_name+'_refresh"><span class="fa fa-refresh"></span></button>\
                     </div>\
                     <div id="aa" class="right">\
-                        <a href="#" id="'+panel_name+'_resize_50" '+ (!panel_extended ? "hidden" : "") +'><span class="icon-resize-small"></span>&emsp;</a>\
-                        <a href="#" id="'+panel_name+'_resize_75" '+ (panel_extended ? "hidden" : "") +'><span class="icon-resize-full"></span>&emsp;</a>\
+                        <a href="#" id="'+panel_name+'_resize_50" '+ (!panel_extended ? "hidden" : "") +'><span class="fa fa-resize-small"></span>&emsp;</a>\
+                        <a href="#" id="'+panel_name+'_resize_75" '+ (panel_extended ? "hidden" : "") +'><span class="fa fa-resize-full"></span>&emsp;</a>\
                     </div>\
                 </dl>\
             </div>\
@@ -478,10 +478,10 @@ function setLogin(){
     };
 
     var user_login_content =  '<div href="#" class="button tiny secondary dropdown" id="logout">\
-      <i class="icon-user header-icon"></i> '+ config['display_name'] + '\
+      <i class="fa fa-user header-icon"></i> '+ config['display_name'] + '\
       <ul>\
-        <li><a href="#" class="configuration"><i class="icon-cog"></i> Settings</a></li>\
-        <li><a href="#" class="logout"><i class="icon-off"></i> Sign Out</a></li>\
+        <li><a href="#" class="configuration"><i class="fa fa-cog"></i> Settings</a></li>\
+        <li><a href="#" class="logout"><i class="fa fa-power-off"></i> Sign Out</a></li>\
       </ul>\
     </div>';
 
@@ -548,7 +548,7 @@ function insertTab(tab_name){
         tabClass += " tab_with_no_content"
     }
 
-    var li_item = '<li id="li_'+tab_name+'" class="'+tabClass+' '+parent+'"><a href="#">'+tab_info.title+'<span class="icon-caret-left icon-large plusIcon right"></span></a></li>';
+    var li_item = '<li id="li_'+tab_name+'" class="'+tabClass+' '+parent+'"><a href="#">'+tab_info.title+'<span class="fa fa-caret-left fa fa-lg plusIcon right"></span></a></li>';
 
     $('div#menu ul#navigation').append(li_item);
 
@@ -624,7 +624,7 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                     '<li id="vmsplanification_buttons">'+
                         "<div>"+
                             "<div href='#' class='top_button small button secondary dropdown radius'>"+
-                                "<i class='icon-th-list'/>"+
+                                "<i class='fa fa-th-list'/>"+
                                 "<ul>"+
                                 "</ul>"+
                             "</div>"+
@@ -635,7 +635,7 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                     '<li id="vmsrepeat_buttons">'+
                         "<div>"+
                             "<div href='#' class='top_button small button secondary dropdown radius'>"+
-                                "<i class='icon-repeat'/>"+
+                                "<i class='fa fa-repeat'/>"+
                                 "<ul>"+
                                 "</ul>"+
                             "</div>"+
@@ -644,7 +644,7 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                     '<li id="vmsdelete_buttons">'+
                         "<div>"+
                             "<div href='#' class='top_button small button secondary dropdown radius'>"+
-                                "<i class='icon-trash'/>"+
+                                "<i class='fa fa-trash-o'/>"+
                                 "<ul>"+
                                 "</ul>"+
                             "</div>"+
@@ -661,7 +661,7 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                     '<li id="vmspause_buttons">'+
                         "<div>"+
                             "<div href='#' class='top_button small button secondary dropdown radius'>"+
-                                "<i class='icon-pause'/>"+
+                                "<i class='fa fa-pause'/>"+
                                 "<ul>"+
                                 "</ul>"+
                             "</div>"+
@@ -670,7 +670,7 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                     '<li id="vmsstop_buttons">'+
                         "<div>"+
                             "<div href='#' class='top_button small button secondary dropdown radius'>"+
-                                "<i class='icon-stop'/>"+
+                                "<i class='fa fa-stop'/>"+
                                 "<ul>"+
                                 "</ul>"+
                             "</div>"+
@@ -695,7 +695,7 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                     '<li>'+
                         "<div id='user_buttons'>"+
                             "<div href='#' class='top_button small secondary button dropdown radius'>"+
-                                "<i class='icon-user'/>"+
+                                "<i class='fa fa-user'/>"+
                                 "<ul>"+
                                 "</ul>"+
                             "</div>"+
@@ -745,13 +745,13 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
             switch (button.layout) {
             case "create":
                 context = $("#create_buttons", buttons_row);
-                text = button.text ? '<i class="icon-plus-sign"/>  ' + button.text : '<i class="icon-plus-sign"/>  ' + tr("Create");
+                text = button.text ? '<i class="fa fa-plus-sign"/>  ' + button.text : '<i class="fa fa-plus-sign"/>  ' + tr("Create");
                 str_class.push("success", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
             case "refresh":
                 context = $("#refresh_buttons", buttons_row);
-                text = '<i class="icon-refresh"/>';
+                text = '<i class="fa fa-refresh"/>';
                 str_class.push("secondary", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
@@ -804,7 +804,7 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                 break;
             case "del":
                 context = $("#delete_buttons", buttons_row);
-                text = '<i class=" icon-trash"/>  ' + tr("Delete");
+                text = '<i class=" fa fa-trash-o"/>  ' + tr("Delete");
                 str_class.push("alert", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;

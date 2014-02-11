@@ -23,7 +23,7 @@ var files_tab_content = '\
   <div class="twelve columns">\
     <h4 class="subheader header">\
       <span class="header-resource">\
-        <i class="icon-folder-open"></i> '+tr("Files & Kernels")+'\
+        <i class="fa fa-folder-open"></i> '+tr("Files & Kernels")+'\
       </span>\
       <span class="header-info">\
         <span id="total_files"/> <small>'+tr("TOTAL")+'</small>&emsp;\
@@ -528,7 +528,7 @@ function updateFileInfo(request,img){
             <td class="key_td">'+tr("Name")+'</td>\
             <td class="value_td_rename">'+img_info.NAME+'</td>\
             <td><div id="div_edit_rename">\
-                   <a id="div_edit_rename_link_files" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                   <a id="div_edit_rename_link_files" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
                 </div>\
             </td>\
           </tr>\
@@ -541,7 +541,7 @@ function updateFileInfo(request,img){
              <td class="key_td">'+tr("Type")+'</td>\
              <td class="value_td_type">'+OpenNebula.Helper.image_type(img_info.TYPE)+'</td>\
              <td><div id="div_edit_chg_type_files">\
-                   <a id="div_edit_chg_type_files_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                   <a id="div_edit_chg_type_files_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
                  </div>\
              </td>\
            </tr>\

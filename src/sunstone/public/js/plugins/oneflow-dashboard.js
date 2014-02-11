@@ -15,7 +15,7 @@
 //------------------------------------------------------------------------- //
 
 var oneflow_dashboard_tab = {
-    title: '<i class="icon-code-fork icon-rotate-90"></i> OneFlow'
+    title: '<i class="fa fa-code-fork fa fa-rotate-90"></i> OneFlow'
 }
 
 

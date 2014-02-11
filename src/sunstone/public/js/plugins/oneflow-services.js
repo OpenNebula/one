@@ -688,7 +688,7 @@ var role_buttons = {
     },
     "Role.resume" : {
         type: "action",
-        text: '<i class="icon-play"/>',
+        text: '<i class="fa fa-play"/>',
         layout: "vmsplay_buttons",
         tip: tr("This will resume selected VMs")
     },
@@ -830,7 +830,7 @@ var role_vm_buttons = {
     },
     "RoleVM.resume" : {
         type: "action",
-        text: '<i class="icon-play"/>',
+        text: '<i class="fa fa-play"/>',
         layout: "vmsplay_buttons",
         tip: tr("This will resume selected VMs")
     },
@@ -939,7 +939,7 @@ var service_tab_content = '\
   <div class="twelve columns">\
     <h4 class="subheader header">\
       <span class="header-resource">\
-       <i class="icon-code-fork icon-rotate-90"></i> '+tr("OneFlow - Services")+'\
+       <i class="fa fa-code-fork fa fa-rotate-90"></i> '+tr("OneFlow - Services")+'\
       </span>\
       <span class="header-info">\
         <span/> <small></small>&emsp;\
@@ -1650,9 +1650,9 @@ function updateServiceInfo(request,elem){
 
                     var info = [];
                     if (this.scale_up) {
-                        info.push("<i class='icon-arrow-up'/>");
+                        info.push("<i class='fa fa-arrow-up'/>");
                     } else if (this.disposed) {
-                        info.push("<i class='icon-arrow-down'/>");
+                        info.push("<i class='fa fa-arrow-down'/>");
                     } else {
                         info.push("");
                     }
@@ -1749,8 +1749,8 @@ function updateServiceInfo(request,elem){
     //    //open the Vresources submenu in case it was closed
     //    var vres_menu = $('div#menu li#li_vres_tab')
     //    $('li.vres_tab', vres_menu.parent()).fadeIn('fast');
-    //    $('span', vres_menu).removeClass('ui-icon-circle-plus');
-    //    $('span', vres_menu).addClass('ui-icon-circle-minus');
+    //    $('span', vres_menu).removeClass('ui-fa fa-circle-plus');
+    //    $('span', vres_menu).addClass('ui-fa fa-circle-minus');
 //
     //    showTab('vms_tab');
 //

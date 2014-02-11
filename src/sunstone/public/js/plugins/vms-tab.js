@@ -54,7 +54,7 @@ var vms_tab_content = '\
   <div class="twelve columns">\
     <h4 class="subheader header">\
       <span class="header-resource">\
-        <i class="icon-cloud"></i> '+tr("Virtual Machines")+'\
+        <i class="fa fa-cloud"></i> '+tr("Virtual Machines")+'\
       </span>\
       <span class="user-login right">\
       </span>\
@@ -145,7 +145,7 @@ var create_vm_tmpl ='\
         <legend>'+tr("Step 2: Select a template")+'</legend>\
         <div class="row collapse">\
           <div class="seven columns">\
-             <button id="refresh_template_templates_table_button_class" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>\
+             <button id="refresh_template_templates_table_button_class" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
           </div>\
           <div class="five columns">\
             <input id="template_templates_table_search" type="text" placeholder="'+tr("Search")+'"/>\
@@ -193,7 +193,7 @@ var create_vm_tmpl ='\
         <legend>'+tr("Step 3: Select an operating system")+'</legend>\
         <div class="row collapse">\
           <div class="seven columns">\
-             <button id="refresh_template_images_table_button_class" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>\
+             <button id="refresh_template_images_table_button_class" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
           </div>\
           <div class="five columns">\
             <input id="template_images_table_search" type="text" placeholder="'+tr("Search")+'"/>\
@@ -264,7 +264,7 @@ var deploy_vm_tmpl ='\
         <legend>'+tr("Select a Host")+'</legend>\
         <div class="row collapse">\
           <div class="seven columns">\
-             <button id="refresh_deploy_hosts_table_button_class" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>\
+             <button id="refresh_deploy_hosts_table_button_class" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
           </div>\
           <div class="five columns">\
             <input id="deploy_hosts_table_search" type="text" placeholder="'+tr("Search")+'"/>\
@@ -314,7 +314,7 @@ var deploy_vm_tmpl ='\
     <br>\
     <br>\
     <div class="show_hide" id="advanced_toggle">\
-         <h4><small><i class=" icon-caret-down"/> '+tr("Advanced options")+'<a id="" class="icon_left" href="#"></a></small></h4>\
+         <h4><small><i class=" fa fa-caret-down"/> '+tr("Advanced options")+'<a id="" class="icon_left" href="#"></a></small></h4>\
     </div>\
     <div id="advanced_deploy" class="row advanced">\
       <div class="row">\
@@ -333,7 +333,7 @@ var deploy_vm_tmpl ='\
         <legend>'+tr("Select a datastore")+'</legend>\
         <div class="row collapse">\
           <div class="seven columns">\
-             <button id="refresh_deploy_datastores_table_button_class" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>\
+             <button id="refresh_deploy_datastores_table_button_class" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
           </div>\
           <div class="five columns">\
             <input id="deploy_datastores_table_search" type="text" placeholder="'+tr("Search")+'"/>\
@@ -405,7 +405,7 @@ var migrate_vm_tmpl ='\
         <legend>'+tr("Select a Host")+'</legend>\
         <div class="row collapse">\
           <div class="seven columns">\
-             <button id="refresh_migrate_hosts_table_button_class" type="button" class="button small radius secondary"><i class="icon-refresh" /></button>\
+             <button id="refresh_migrate_hosts_table_button_class" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
           </div>\
           <div class="five columns">\
             <input id="migrate_hosts_table_search" type="text" placeholder="'+tr("Search")+'"/>\
@@ -455,7 +455,7 @@ var migrate_vm_tmpl ='\
     <br>\
     <br>\
     <div class="show_hide" id="advanced_toggle">\
-         <h4><small><i class=" icon-caret-down"/> '+tr("Advanced options")+'<a id="" class="icon_left" href="#"></a></small></h4>\
+         <h4><small><i class=" fa fa-caret-down"/> '+tr("Advanced options")+'<a id="" class="icon_left" href="#"></a></small></h4>\
     </div>\
     <div id="advanced_migrate" class="row advanced">\
       <div class="row">\
@@ -1092,7 +1092,7 @@ var vm_buttons = {
     },
     "VM.resume" : {
         type: "action",
-        text: '<i class="icon-play"/>',
+        text: '<i class="fa fa-play"/>',
         layout: "vmsplay_buttons",
         tip: tr("This will resume selected VMs")
     },
@@ -1618,7 +1618,7 @@ function updateVMInfo(request,vm){
               <td class="key_td">'+tr("Name")+'</td>\
               <td class="value_td_rename">'+vm_info.NAME+'</td>\
               <td><div id="div_edit_rename">\
-                     <a id="div_edit_rename_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                     <a id="div_edit_rename_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
                   </div>\
               </td>\
             </tr>\
@@ -2067,7 +2067,7 @@ function fromJSONtoActionRow(scheduling_action){
              <td class="message_row">'+message_str+'</td>\
              <td>\
                <div>\
-                 <a id="minus_'+scheduling_action.ID+'" class="remove_action_x" href="#"><i class="icon-trash"/></a>\
+                 <a id="minus_'+scheduling_action.ID+'" class="remove_action_x" href="#"><i class="fa fa-trash-o"/></a>\
                </div>\
              </td>\
            </tr>';
@@ -2223,14 +2223,14 @@ function printDisks(vm_info){
                 // Check if its volatie
                 if (disk.IMAGE_ID) {
                   if ((vm_info.STATE == "3" && vm_info.LCM_STATE == "3") || vm_info.STATE == "5" || vm_info.STATE == "8") {
-                    actions += '<a href="VM.saveas" class="saveas" ><i class="icon-save"/>'+tr("Snapshot")+'</a> &emsp;'
+                    actions += '<a href="VM.saveas" class="saveas" ><i class="fa fa-save"/>'+tr("Snapshot")+'</a> &emsp;'
                   }
                 }
               }
 
               if (Config.isTabActionEnabled("vms-tab", "VM.detachdisk")) {
                 if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3") {
-                  actions += '<a href="VM.detachdisk" class="detachdisk" ><i class="icon-remove"/>'+tr("Detach")+'</a>'
+                  actions += '<a href="VM.detachdisk" class="detachdisk" ><i class="fa fa-times"/>'+tr("Detach")+'</a>'
                 }
               }
             }
@@ -2553,7 +2553,7 @@ function printNics(vm_info){
 
               if (Config.isTabActionEnabled("vms-tab", "VM.detachnic")) {
                 if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3") {
-                  actions += '<a href="VM.detachnic" class="detachnic" ><i class="icon-remove"/>'+tr("Detach")+'</a>'
+                  actions += '<a href="VM.detachnic" class="detachnic" ><i class="fa fa-times"/>'+tr("Detach")+'</a>'
                 }
               }
             }
@@ -2978,11 +2978,11 @@ function printSnapshots(vm_info){
 
               if ((vm_info.STATE == "3" && vm_info.LCM_STATE == "3")) {
                 if (Config.isTabActionEnabled("vms-tab", "VM.snapshot_revert")) {
-                  actions += '<a href="VM.snapshot_revert" class="snapshot_revert" ><i class="icon-reply"/>'+tr("Revert")+'</a> &emsp;'
+                  actions += '<a href="VM.snapshot_revert" class="snapshot_revert" ><i class="fa fa-reply"/>'+tr("Revert")+'</a> &emsp;'
                 }
 
                 if (Config.isTabActionEnabled("vms-tab", "VM.snapshot_delete")) {
-                  actions += '<a href="VM.snapshot_delete" class="snapshot_delete" ><i class="icon-remove"/>'+tr("Delete")+'</a>'
+                  actions += '<a href="VM.snapshot_delete" class="snapshot_delete" ><i class="fa fa-times"/>'+tr("Delete")+'</a>'
                 }
               }
             }
@@ -3633,7 +3633,7 @@ function setupVNC(){
         <span id="VNC_buttons">\
           <input type=button value="Send CtrlAltDel" id="sendCtrlAltDelButton">\
           <a id="open_in_a_new_window" href="" target="_blank" title="'+tr("Open in a new window")+'">\
-            <i class="icon-external-link detach-vnc-icon"/>\
+            <i class="fa fa-external-link detach-vnc-icon"/>\
           </a>\
         </span>\
       </small>\
@@ -3703,7 +3703,7 @@ function vncIcon(vm){
 
     if (graphics && graphics.TYPE && graphics.TYPE.toLowerCase() == "vnc" && $.inArray(state, VNCstates)!=-1){
         gr_icon = '<a class="vnc" href="#" vm_id="'+vm.ID+'">';
-        gr_icon += '<i class="icon-desktop" style="color: rgb(111, 111, 111)"/>';
+        gr_icon += '<i class="fa fa-desktop" style="color: rgb(111, 111, 111)"/>';
     }
     else {
         gr_icon = '';

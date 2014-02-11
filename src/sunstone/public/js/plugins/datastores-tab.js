@@ -24,7 +24,7 @@ var datastores_tab_content = '\
   <div class="twelve columns">\
     <h4 class="subheader header">\
       <span class="header-resource">\
-        <i class="icon-folder-open"></i> '+tr("Datastores")+'\
+        <i class="fa fa-folder-open"></i> '+tr("Datastores")+'\
       </span>\
       <span class="header-info">\
         <span/> <small></small>&emsp;\
@@ -768,7 +768,7 @@ function updateDatastoreInfo(request,ds){
                 <td class="key_td">'+tr("Name")+'</td>\
                 <td class="value_td_rename">'+info.NAME+'</td>\
                 <td><div id="div_edit_rename">\
-                   <a id="div_edit_rename_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                   <a id="div_edit_rename_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
                 </div>\
                 </td>\
               </tr>\

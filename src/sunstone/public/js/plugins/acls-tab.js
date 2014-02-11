@@ -25,7 +25,7 @@ var acls_tab_content = '\
   <div class="twelve columns">\
     <h4 class="subheader header">\
       <span class="header-resource">\
-        <i class="icon-key"></i> '+tr("Access Control Lists")+'\
+        <i class="fa fa-key"></i> '+tr("Access Control Lists")+'\
       </span>\
       <span class="header-info">\
         <span/> <small></small>&emsp;\
@@ -631,7 +631,7 @@ $(document).ready(function(){
         infoListener(dataTable_acls);
 
         $('div#acls_tab div.legend_div').hide();
-        
+
         dataTable_acls.fnSort( [ [1,config['user_config']['table_order']] ] );
     }
 })
