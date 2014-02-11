@@ -218,9 +218,8 @@ void Scheduler::start()
     // -------------------------------------------------------------------------
     // Get oned configuration, and init zone_id
     // -------------------------------------------------------------------------
-    int tries = 0;
 
-    while (tries < 3)
+    while (1)
     {
         try
         {
@@ -240,29 +239,28 @@ void Scheduler::start()
 
             if (!success ||(oned_conf.from_xml(message) != 0))
             {
-                ostringstream  oss;
-                oss << "Wrong oned response: " << message;
+                ostringstream oss;
 
-                NebulaLog::log("SCHED", Log::WARNING, message);
+                oss << "Cannot contact oned, will retry... Error: " << message;
 
-                tries++;
+                NebulaLog::log("SCHED", Log::ERROR, oss);
             }
 
             break;
         }
         catch (exception const& e)
         {
-            tries++;
-            NebulaLog::log("SCHED", Log::WARNING, e.what());
+            ostringstream oss;
+
+            oss << "Cannot contact oned, will retry... Error: " << e.what();
+
+            NebulaLog::log("SCHED", Log::ERROR, oss);
         }
 
         sleep(2);
     }
 
-    if (tries >= 3)
-    {
-        throw runtime_error("Error contacting oned, check sched.log");
-    }
+    NebulaLog::log("SCHED", Log::INFO, "oned successfully contacted.");
 
     vector<const Attribute*> fed;
 
