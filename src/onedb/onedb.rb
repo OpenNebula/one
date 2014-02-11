@@ -39,12 +39,7 @@ class OneDB
 
             passwd = ops[:passwd]
             if !passwd
-                # Hide input characters
-                `stty -echo`
-                print "MySQL Password: "
-                passwd = STDIN.gets.strip
-                `stty echo`
-                puts ""
+                passwd = get_password
             end
 
             @backend = BackEndMySQL.new(
@@ -59,20 +54,31 @@ class OneDB
         end
     end
 
-    def backup(bck_file, ops)
-        bck_file = @backend.bck_file if bck_file.nil?
+    def get_password(question="MySQL Password: ")
+        # Hide input characters
+        `stty -echo`
+        print question
+        passwd = STDIN.gets.strip
+        `stty echo`
+        puts ""
+
+        return passwd
+    end
+
+    def backup(bck_file, ops, backend=@backend)
+        bck_file = backend.bck_file if bck_file.nil?
 
         if !ops[:force] && File.exists?(bck_file)
             raise "File #{bck_file} exists, backup aborted. Use -f " <<
                   "to overwrite."
         end
 
-        @backend.backup(bck_file)
+        backend.backup(bck_file)
         return 0
     end
 
-    def restore(bck_file, ops)
-        bck_file = @backend.bck_file if bck_file.nil?
+    def restore(bck_file, ops, backend=@backend)
+        bck_file = backend.bck_file if bck_file.nil?
 
         if !File.exists?(bck_file)
             raise "File #{bck_file} doesn't exist, backup restoration aborted."
@@ -80,7 +86,7 @@ class OneDB
 
         one_not_running
 
-        @backend.restore(bck_file, ops[:force])
+        backend.restore(bck_file, ops[:force])
         return 0
     end
 
@@ -233,26 +239,13 @@ class OneDB
     end
 
     def import_slave(ops)
-
-        # TODO: Check backend is not sqlite
-
-        # TODO: refactor, same code in initialize()
-        begin
-            require 'mysql'
-        rescue LoadError
-            STDERR.puts "Ruby gem mysql is needed for this operation:"
-            STDERR.puts "  $ sudo gem install mysql"
-            exit -1
+        if ops[:backend] == :sqlite
+            raise "Master DB must be MySQL"
         end
 
         passwd = ops[:slave_passwd]
         if !passwd
-            # Hide input characters
-            `stty -echo`
-            print "Slave MySQL Password: "
-            passwd = STDIN.gets.strip
-            `stty echo`
-            puts ""
+            passwd = get_password("Slave MySQL Password: ")
         end
 
         slave_backend = BackEndMySQL.new(
@@ -298,14 +291,47 @@ class OneDB
 
             # Import will be executed, make DB backup
             backup(ops[:backup], ops)
+            backup(ops[:"slave-backup"], ops, slave_backend)
 
-            # TODO: slave backup
+            puts <<-EOT
+The import process will move the users from the slave OpeNenbula to the master
+OpenNebula. In case of conflict, it can merge users with the same name.
+For example:
++----------+-------------++------------+---------------+
+| Master   | Slave       || With merge | Without merge |
++----------+-------------++------------+---------------+
+| 5, alice | 2, alice    || 5, alice   | 5, alice      |
+| 6, bob   | 5, bob      || 6, bob     | 6, bob        |
+|          |             ||            | 7, alice-1    |
+|          |             ||            | 8, bob-1      |
++----------+-------------++------------+---------------+
+
+In any case, the ownership of existing resources and group membership
+is preserved.
+
+            EOT
+
+            input = ""
+            while !( ["Y", "N"].include?(input) ) do
+                print "Do you want to merge USERS (Y/N): "
+                input = gets.chomp.upcase
+            end
+
+            merge_users = input == "Y"
+            puts
+
+            input = ""
+            while !( ["Y", "N"].include?(input) ) do
+                print "Do you want to merge GROUPS (Y/N): "
+                input = gets.chomp.upcase
+            end
+
+            merge_groups = input == "Y"
 
             begin
                 puts "  > Running slave import" if ops[:verbose]
 
-                # TODO: ask about merge
-                result = @backend.import_slave(slave_backend, true, true)
+                result = @backend.import_slave(slave_backend, merge_users, merge_groups)
 
                 if !result
                     raise "Error running slave import version #{version}"
@@ -319,11 +345,12 @@ class OneDB
                 puts e.message
 
                 puts "Error running slave import version #{version}"
-                puts "The database will be restored"
+                puts "The databases will be restored"
 
                 ops[:force] = true
 
                 restore(ops[:backup], ops)
+                restore(ops[:"slave-backup"], ops, slave_backend)
 
                 return -1
             end

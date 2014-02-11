@@ -189,6 +189,13 @@ SLAVE_DBNAME={
     }
 }
 
+SLAVE_BACKUP={
+    :name => "slave-backup",
+    :large => "--slave-backup file",
+    :description => "Use this file to store SQL dump",
+    :format => String
+}
+
 cmd=CommandParser::CmdParser.new(ARGV) do
     description <<-EOT.unindent
         This command enables the user to manage the OpenNebula database. It
@@ -311,7 +318,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :"import-slave", import_slave_desc, :options=>[FORCE,BACKUP,
-        SLAVE_SERVER,SLAVE_PORT,SLAVE_USERNAME,SLAVE_PASSWORD,SLAVE_DBNAME] do
+        SLAVE_SERVER,SLAVE_PORT,SLAVE_USERNAME,SLAVE_PASSWORD,
+        SLAVE_DBNAME,SLAVE_BACKUP] do
 
         begin
             helper = OneDB.new(options)
