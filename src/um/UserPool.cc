@@ -80,6 +80,12 @@ UserPool::UserPool(SqlDB * db,
 
     _session_expiration_time = __session_expiration_time;
 
+    //Federation slaves do not need to init the pool
+    if (is_federation_slave)
+    {
+        return;
+    }
+
     User * oneadmin_user = get(0, true);
 
     if (oneadmin_user != 0)
@@ -90,11 +96,6 @@ UserPool::UserPool(SqlDB * db,
         register_hooks(hook_mads, remotes_location);
 
         return;
-    }
-
-    if (is_federation_slave)
-    {
-        goto error_federation;
     }
 
     // User oneadmin needs to be added in the bootstrap
@@ -205,10 +206,6 @@ UserPool::UserPool(SqlDB * db,
     register_hooks(hook_mads, remotes_location);
 
     return;
-
-error_federation:
-    oss << "Error reading the oneadmin user from the replicated table: " << error_str;
-    goto error_common;
 
 error_no_file:
     oss << "Could not get one_auth file location";

@@ -29,8 +29,14 @@ ZonePool::ZonePool(SqlDB * db, bool is_federation_slave)
 {
     string error_str;
 
+    //Federation slaves do not need to init the pool
+    if (is_federation_slave)
+    {
+        return;
+    }
+
     //lastOID is set in PoolSQL::init_cb
-    if (!is_federation_slave && get_lastOID() == -1)
+    if (get_lastOID() == -1)
     {
         int         rc;
         Template *  tmpl;

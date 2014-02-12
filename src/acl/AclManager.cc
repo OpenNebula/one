@@ -69,7 +69,15 @@ AclManager::AclManager(
 
     unset_callback();
 
-    if (!is_federation_slave && lastOID == -1)
+    am.addListener(this);
+
+    //Federation slaves do not need to init the pool
+    if (is_federation_slave)
+    {
+        return;
+    }
+
+    if (lastOID == -1)
     {
         // Add a default rules for the ACL engine
         string error_str;
@@ -103,10 +111,7 @@ AclManager::AclManager(
                  AuthRequest::CREATE,
                  AclRule::ALL_ID,
                  error_str);
-
     }
-
-    am.addListener(this);
 }
 
 /* -------------------------------------------------------------------------- */
