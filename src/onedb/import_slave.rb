@@ -14,6 +14,16 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+ONE_LOCATION = ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    LOG_LOCATION = "/var/log/one"
+else
+    LOG_LOCATION = ONE_LOCATION + "/var"
+end
+
+LOG              = LOG_LOCATION + "/onedb-import.log"
+
 require "nokogiri"
 require 'opennebula'
 
@@ -51,6 +61,13 @@ module OneDBImportSlave
         # Calculate new IDs and names for users and groups
         ########################################################################
 
+        log(<<-EOT
+Users will be moved from the slave DB to the master DB. They will need
+a new ID and name.
+Old Slave ID name  =>  New Master ID name
+
+EOT
+            )
         @slave_db.fetch("SELECT oid, name FROM user_pool") do |row|
             found = false
             new_oid = -1
@@ -99,9 +116,7 @@ module OneDBImportSlave
                 new_name = row[:name]
             end
 
-            # TODO debug, do propper log
-            puts
-            puts "User #{row[:oid]}, #{row[:name]}  =>  #{new_oid}, #{new_name}"
+            log("%4s %-16s  =>  %4s %-16s" % [row[:oid], row[:name], new_oid, new_name])
 
             users[row[:oid]] =
                 {:oid => new_oid,:name => new_name, :merged => merged}
@@ -110,7 +125,14 @@ module OneDBImportSlave
                 {:oid => new_oid,:name => new_name, :merged => merged}
         end
 
+        log("")
+        log(<<-EOT
+Groups will be moved from the slave DB to the master DB. They will need
+a new ID and name.
+Old Slave ID name  =>  New Master ID name
 
+EOT
+            )
 
         @slave_db.fetch("SELECT oid, name FROM group_pool") do |row|
             found = false
@@ -160,13 +182,13 @@ module OneDBImportSlave
                 new_name = row[:name]
             end
 
-            # TODO debug, do propper log
-            puts
-            puts "Group #{row[:oid]}, #{row[:name]}  =>  #{new_oid}, #{new_name}"
+            log("%4s %-16s  =>  %4s %-16s" % [row[:oid], row[:name], new_oid, new_name])
 
             groups[row[:oid]] =
                 {:oid => new_oid, :name => new_name, :merged => merged}
         end
+
+        log("")
 
         ########################################################################
         # Change ownership IDs and names for resources
@@ -449,9 +471,8 @@ module OneDBImportSlave
                 # TODO: translate zone id?
 
                 if (!insert)
-                    # TODO, debug
-                    puts "Slave DB ACL Rule ##{row[:oid]} will not be "<<
-                        "imported to the master DB, " << error_str
+                    log("Slave DB ACL Rule ##{row[:oid]} will not be "<<
+                        "imported to the master DB, " << error_str)
                 else
                     # Avoid duplicated ACL rules
                     @db.fetch("SELECT oid FROM acl WHERE "<<
@@ -505,6 +526,8 @@ module OneDBImportSlave
         @db.run "UPDATE pool_control SET last_oid = #{last_acl_oid} WHERE tablename = 'acl';"
 #        @db.run "UPDATE pool_control SET last_oid = #{last_zone_oid} WHERE tablename = 'zone_pool';"
 
+        log_finish()
+
         return true
     end
 
@@ -512,14 +535,18 @@ module OneDBImportSlave
     ############################################################################
     ############################################################################
 
-    def log_error(message)
-        @errors += 1
+    def log(message)
+        @log_file ||= File.open(LOG, "w")
+
         puts message
+
+        @log_file.puts(message)
+        @log_file.flush
     end
 
-    def log_total_errors()
+    def log_finish()
         puts
-        puts "Total errors found: #{@errors}"
+        puts "A copy of this output was stored in #{LOG}"
     end
 
     def last_oid(table)
