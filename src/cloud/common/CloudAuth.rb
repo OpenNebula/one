@@ -104,7 +104,7 @@ class CloudAuth
 
         token = @server_auth.login_token(expiration_time,username)
 
-        if endpoint
+        if endpoint and endpoint != "-"
             return OpenNebula::Client.new(token,endpoint)
         else
             return OpenNebula::Client.new(token,@conf[:one_xmlrpc])
