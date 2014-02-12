@@ -127,7 +127,7 @@ private
                 OneAclHelper::right_mask d['STRING'].split(" ")[2]
             end
 
-            default :ID, :USER, :RES_VHNIUTGDCO, :RID, :OPE_UMAC, :ZONE
+            default :ID, :USER, :RES_VHNIUTGDCOZ, :RID, :OPE_UMAC, :ZONE
         end
 
         table
