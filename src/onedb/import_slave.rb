@@ -32,8 +32,9 @@ module OneDBImportSlave
 
     def import_slave(slave_backend, merge_users, merge_groups)
 
-        users = Hash.new
-        groups = Hash.new
+        users       = Hash.new
+        user_names  = Hash.new
+        groups      = Hash.new
 
         @slave_db = slave_backend.db
 
@@ -103,6 +104,9 @@ module OneDBImportSlave
             puts "User #{row[:oid]}, #{row[:name]}  =>  #{new_oid}, #{new_name}"
 
             users[row[:oid]] =
+                {:oid => new_oid,:name => new_name, :merged => merged}
+
+            user_names[row[:name]] =
                 {:oid => new_oid,:name => new_name, :merged => merged}
         end
 
@@ -191,7 +195,7 @@ module OneDBImportSlave
 
 
         @slave_db.transaction do
-            process_new_ownership(@slave_db, users, groups)
+            process_new_ownership(@slave_db, users, user_names, groups)
         end
 
         ########################################################################
@@ -529,7 +533,7 @@ module OneDBImportSlave
     end
 
 
-    def process_new_ownership(db, users, groups)
+    def process_new_ownership(db, users, user_names, groups)
 
         db.fetch("SELECT * FROM old_template_pool") do |row|
             new_user = users[row[:uid]]
@@ -543,7 +547,37 @@ module OneDBImportSlave
             doc.root.at_xpath("GID").content    = new_group[:oid]
             doc.root.at_xpath("GNAME").content  = new_group[:name]
 
-            # TODO: VMTEMPLATE DISK/IMAGE_UID _UNAME; NIC/NETWORK_UID _UNAME
+            doc.root.xpath("TEMPLATE/DISK/IMAGE_UID").each do |img|
+                uid = img.text.to_i
+
+                if (!users[uid].nil?)
+                    img.content = users[uid][:oid]
+                end
+            end
+
+            doc.root.xpath("TEMPLATE/DISK/IMAGE_UNAME").each do |img|
+                uname = img.text
+
+                if (!user_names[uname].nil?)
+                    img.content = user_names[uname][:name]
+                end
+            end
+
+            doc.root.xpath("TEMPLATE/NIC/NETWORK_UID").each do |net|
+                uid = net.text.to_i
+
+                if (!users[uid].nil?)
+                    net.content = users[uid][:oid]
+                end
+            end
+
+            doc.root.xpath("TEMPLATE/NIC/NETWORK_UNAME").each do |net|
+                uname = net.text
+
+                if (!user_names[uname].nil?)
+                    net.content = user_names[uname][:name]
+                end
+            end
 
             db[:template_pool].insert(
                 :oid        => row[:oid],
