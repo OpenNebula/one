@@ -717,6 +717,23 @@ int DocumentAllocate::pool_allocate(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void ZoneAllocate::request_execute(xmlrpc_c::paramList const& params,
+                                             RequestAttributes& att)
+{
+    if(!Nebula::instance().is_federation_master())
+    {
+        failure_response(INTERNAL, allocate_error(
+                "New Zones can only be created if OpenNebula "
+                "is configured as a Federation Master."), att);
+        return;
+    }
+
+    RequestManagerAllocate::request_execute(params, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int ZoneAllocate::pool_allocate(
         xmlrpc_c::paramList const&  paramList,
         Template *                  tmpl,
