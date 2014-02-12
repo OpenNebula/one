@@ -389,45 +389,86 @@ module OneDBImportSlave
                 new_user     = row[:user]
                 new_resource = row[:resource]
 
+                insert = true
+
                 if ( (row[:user] & Acl::USERS["UID"]) == Acl::USERS["UID"] )
 
                     uid = (row[:user] & 0xFFFFFFFF)
-                    new_user = (Acl::USERS["UID"] | users[uid][:oid])
+
+                    if (users[uid].nil?)
+                        insert = false
+                        error_str = "User ##{uid} does not exist"
+                    else
+                        new_user = (Acl::USERS["UID"] | users[uid][:oid])
+                    end
 
                 elsif ( (row[:user] & Acl::USERS["GID"]) == Acl::USERS["GID"] )
 
                     gid = (row[:user] & 0xFFFFFFFF)
-                    new_user = (Acl::USERS["GID"] | groups[gid][:oid])
+
+                    if (groups[gid].nil?)
+                        insert = false
+                        error_str = "Group ##{gid} does not exist"
+                    else
+                        new_user = (Acl::USERS["GID"] | groups[gid][:oid])
+                    end
 
                 end
 
                 if ( (row[:resource] & Acl::USERS["GID"]) == Acl::USERS["GID"] )
 
                     gid = (row[:resource] & 0xFFFFFFFF)
-                    new_resource =
+
+                    if (groups[gid].nil?)
+                        insert = false
+                        error_str = "Group ##{gid} does not exist"
+                    else
+                        new_resource =
                         ((row[:resource] & 0xFFFFFFFF00000000) | groups[gid][:oid])
+                    end
 
                 elsif ( (row[:resource] & Acl::RESOURCES["USER"]) == Acl::RESOURCES["USER"] &&
                         (row[:resource] & Acl::USERS["UID"]) == Acl::USERS["UID"] )
 
                     uid = (row[:resource] & 0xFFFFFFFF)
-                    new_resource =
+
+                    if (users[uid].nil?)
+                        insert = false
+                        error_str = "User ##{uid} does not exist"
+                    else
+                        new_resource =
                         ((row[:resource] & 0xFFFFFFFF00000000) | users[uid][:oid])
+                    end
 
                 end
 
                 # TODO: translate zone id?
 
-                # TODO: detect duplicates and do not insert
+                if (!insert)
+                    # TODO, debug
+                    puts "Slave DB ACL Rule ##{row[:oid]} will not be "<<
+                        "imported to the master DB, " << error_str
+                else
+                    # Avoid duplicated ACL rules
+                    @db.fetch("SELECT oid FROM acl WHERE "<<
+                        "user = #{new_user} AND resource = #{new_resource} "<<
+                        "AND rights = #{row[:rights]} AND "<<
+                        "zone = #{row[:zone]}") do |acl_row|
 
-                last_acl_oid += 1
+                        insert = false
+                    end
 
-                @db[:acl].insert(
-                    :oid        => last_acl_oid,
-                    :user       => new_user,
-                    :resource   => new_resource,
-                    :rights     => row[:rights],
-                    :zone       => row[:zone])
+                    if (insert)
+                        last_acl_oid += 1
+
+                        @db[:acl].insert(
+                            :oid        => last_acl_oid,
+                            :user       => new_user,
+                            :resource   => new_resource,
+                            :rights     => row[:rights],
+                            :zone       => row[:zone])
+                    end
+                end
             end
         end
 
