@@ -29,7 +29,7 @@ const char * AclManager::db_names = "oid, user, resource, rights, zone";
 
 const char * AclManager::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
     "acl (oid INT PRIMARY KEY, user BIGINT, resource BIGINT, "
-    "rights BIGINT, zone BIGINT)";
+    "rights BIGINT, zone BIGINT, UNIQUE(user, resource, rights, zone))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
