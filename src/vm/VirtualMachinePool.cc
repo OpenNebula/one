@@ -346,7 +346,7 @@ int VirtualMachinePool::dump_acct(ostringstream& oss,
         }
     }
 
-    cmd << " GROUP BY vid,seq";
+    cmd << " ORDER BY vid,seq";
 
     return PoolSQL::dump(oss, "HISTORY_RECORDS", cmd);
 };
