@@ -11,3 +11,8 @@ src/sunstone/locale/languages/*.js
 src/mad/utils/tty_expect
 src/nebula/.xmlrpc_test/
 src/nebula/oned
+share/doc/one/html
+
+*.class
+src/oca/java/jar
+src/oca/java/share/doc
