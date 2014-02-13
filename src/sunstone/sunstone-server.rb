@@ -212,7 +212,8 @@ helpers do
                 env['rack.session.options'][:expire_after] = 30*60*60*24-1
             end
 
-            rc = OpenNebula::System.new(client).get_configuration
+            serveradmin_client = $cloud_auth.client()
+            rc = OpenNebula::System.new(serveradmin_client).get_configuration
             return [500, rc.message] if OpenNebula.is_error?(rc)
             return [500, "Couldn't find out zone identifier"] if !rc['FEDERATION/ZONE_ID']
 

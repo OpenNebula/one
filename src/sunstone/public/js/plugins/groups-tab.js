@@ -920,12 +920,15 @@ function setup_add_rp_dialog(group){
 
                 add_it = true;
 
-                $.each(providers_array, function(index, provider){
-                  if (provider.ZONE_ID==zone_id && provider.CLUSTER_ID == key)
-                  {
-                    add_it = false;
-                  }
-                });
+                if(providers_array)
+                {
+                  $.each(providers_array, function(index, provider){
+                    if (provider.ZONE_ID==zone_id && provider.CLUSTER_ID == key)
+                    {
+                      add_it = false;
+                    }
+                  });
+                }
 
                 if (add_it)
                 {
