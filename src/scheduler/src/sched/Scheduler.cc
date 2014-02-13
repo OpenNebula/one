@@ -490,6 +490,7 @@ void Scheduler::match_schedule()
                 PoolObjectAuth host_perms;
 
                 host_perms.oid      = host->get_hid();
+                host_perms.cid      = host->get_cid();
                 host_perms.obj_type = PoolObjectSQL::HOST;
 
                 // Even if the owner is in several groups, this request only
