@@ -236,22 +236,22 @@ before do
     content_type 'application/json', :charset => 'utf-8'
     unless request.path=='/login' || request.path=='/' || request.path=='/vnc'
         halt 401 unless authorized?
+    end
 
-        if env['HTTP_ZONE_NAME']
-            client=$cloud_auth.client(session[:user])
-            zpool = ZonePoolJSON.new(client)
+    if env['HTTP_ZONE_NAME']
+        client=$cloud_auth.client(session[:user])
+        zpool = ZonePoolJSON.new(client)
 
-            rc = zpool.info
+        rc = zpool.info
 
-            return [500, rc.to_json] if OpenNebula.is_error?(rc)
+        return [500, rc.to_json] if OpenNebula.is_error?(rc)
 
-            zpool.each{|z|
-                if z.name == env['HTTP_ZONE_NAME']
-                  session[:active_zone_endpoint] = z['TEMPLATE/ENDPOINT']
-                  session[:zone_name] = env['HTTP_ZONE_NAME']
-                end 
-             }
-        end
+        zpool.each{|z|
+            if z.name == env['HTTP_ZONE_NAME']
+              session[:active_zone_endpoint] = z['TEMPLATE/ENDPOINT']
+              session[:zone_name] = env['HTTP_ZONE_NAME']
+            end 
+         }
     end
 
     client=$cloud_auth.client(session[:user],
