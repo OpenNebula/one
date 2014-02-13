@@ -39,12 +39,7 @@ class OneDB
 
             passwd = ops[:passwd]
             if !passwd
-                # Hide input characters
-                `stty -echo`
-                print "MySQL Password: "
-                passwd = STDIN.gets.strip
-                `stty echo`
-                puts ""
+                passwd = get_password
             end
 
             @backend = BackEndMySQL.new(
@@ -59,20 +54,31 @@ class OneDB
         end
     end
 
-    def backup(bck_file, ops)
-        bck_file = @backend.bck_file if bck_file.nil?
+    def get_password(question="MySQL Password: ")
+        # Hide input characters
+        `stty -echo`
+        print question
+        passwd = STDIN.gets.strip
+        `stty echo`
+        puts ""
+
+        return passwd
+    end
+
+    def backup(bck_file, ops, backend=@backend)
+        bck_file = backend.bck_file if bck_file.nil?
 
         if !ops[:force] && File.exists?(bck_file)
             raise "File #{bck_file} exists, backup aborted. Use -f " <<
                   "to overwrite."
         end
 
-        @backend.backup(bck_file)
+        backend.backup(bck_file)
         return 0
     end
 
-    def restore(bck_file, ops)
-        bck_file = @backend.bck_file if bck_file.nil?
+    def restore(bck_file, ops, backend=@backend)
+        bck_file = backend.bck_file if bck_file.nil?
 
         if !File.exists?(bck_file)
             raise "File #{bck_file} doesn't exist, backup restoration aborted."
@@ -80,7 +86,7 @@ class OneDB
 
         one_not_running
 
-        @backend.restore(bck_file, ops[:force])
+        backend.restore(bck_file, ops[:force])
         return 0
     end
 
@@ -231,6 +237,128 @@ class OneDB
             raise "No fsck file found in #{RUBY_LIB_LOCATION}/onedb/fsck.rb"
         end
     end
+
+    def import_slave(ops)
+        if ops[:backend] == :sqlite
+            raise "Master DB must be MySQL"
+        end
+
+        passwd = ops[:slave_passwd]
+        if !passwd
+            passwd = get_password("Slave MySQL Password: ")
+        end
+
+        slave_backend = BackEndMySQL.new(
+            :server  => ops[:slave_server],
+            :port    => ops[:slave_port],
+            :user    => ops[:slave_user],
+            :passwd  => passwd,
+            :db_name => ops[:slave_db_name]
+        )
+
+        version, timestamp, comment = @backend.read_db_version
+
+        slave_version, slave_timestamp, slave_comment =
+            slave_backend.read_db_version
+
+        if ops[:verbose]
+            puts "Master version read:"
+            puts "#{version} : #{comment}"
+            puts ""
+            puts "Slave version read:"
+            puts "#{slave_version} : #{slave_comment}"
+            puts ""
+        end
+
+        file = "#{RUBY_LIB_LOCATION}/onedb/import_slave.rb"
+
+        if File.exists? file
+
+            one_not_running()
+
+            load(file)
+            @backend.extend OneDBImportSlave
+
+            if ( version != @backend.db_version )
+                raise "Version mismatch: import slave file is for version "<<
+                    "#{@backend.db_version}, current master database version is #{version}"
+            end
+
+            if ( slave_version != @backend.db_version )
+                raise "Version mismatch: import slave file is for version "<<
+                    "#{@backend.db_version}, current slave database version is #{version}"
+            end
+
+            # Import will be executed, make DB backup
+            backup(ops[:backup], ops)
+            backup(ops[:"slave-backup"], ops, slave_backend)
+
+            puts <<-EOT
+The import process will move the users from the slave OpeNenbula to the master
+OpenNebula. In case of conflict, it can merge users with the same name.
+For example:
++----------+-------------++------------+---------------+
+| Master   | Slave       || With merge | Without merge |
++----------+-------------++------------+---------------+
+| 5, alice | 2, alice    || 5, alice   | 5, alice      |
+| 6, bob   | 5, bob      || 6, bob     | 6, bob        |
+|          |             ||            | 7, alice-1    |
+|          |             ||            | 8, bob-1      |
++----------+-------------++------------+---------------+
+
+In any case, the ownership of existing resources and group membership
+is preserved.
+
+            EOT
+
+            input = ""
+            while !( ["Y", "N"].include?(input) ) do
+                print "Do you want to merge USERS (Y/N): "
+                input = gets.chomp.upcase
+            end
+
+            merge_users = input == "Y"
+            puts
+
+            input = ""
+            while !( ["Y", "N"].include?(input) ) do
+                print "Do you want to merge GROUPS (Y/N): "
+                input = gets.chomp.upcase
+            end
+
+            merge_groups = input == "Y"
+
+            begin
+                puts "  > Running slave import" if ops[:verbose]
+
+                result = @backend.import_slave(slave_backend, merge_users, merge_groups)
+
+                if !result
+                    raise "Error running slave import version #{version}"
+                end
+
+                puts "  > Done" if ops[:verbose]
+                puts "" if ops[:verbose]
+
+                return 0
+            rescue Exception => e
+                puts e.message
+
+                puts "Error running slave import version #{version}"
+                puts "The databases will be restored"
+
+                ops[:force] = true
+
+                restore(ops[:backup], ops)
+                restore(ops[:"slave-backup"], ops, slave_backend)
+
+                return -1
+            end
+        else
+            raise "No slave import file found in #{RUBY_LIB_LOCATION}/onedb/import_slave.rb"
+        end
+    end
+
 
     private
 

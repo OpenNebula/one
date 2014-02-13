@@ -61,17 +61,77 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.list_to_id(arg)
     end
 
+    set :format, :clusterid, OpenNebulaHelper.rname_to_id_desc("CLUSTER") do |arg|
+        OpenNebulaHelper.rname_to_id(arg, "CLUSTER")
+    end
+
+    set :format, :zoneid, OpenNebulaHelper.rname_to_id_desc("ZONE") do |arg|
+        OpenNebulaHelper.rname_to_id(arg, "ZONE")
+    end
+
     ########################################################################
     # Commands
     ########################################################################
 
     create_desc = <<-EOT.unindent
-        Creates a new Group
+        Creates a new Group. A group name can be passed as the only argument,
+        or a file containing a group template or via command line arguments
+
+        Examples:
+
+          - using a template description file:
+
+            onegroup create group_description.tmpl
+
+          - create a group with admin group, admin user and allow group users
+            to only create new templates and VMs, and group admins to manage
+            templates, vms, images and virtual networks
+
+            onegroup create --name groupA --admin_group admin_groupA 
+                            --admin_user admin_userA --admin_password somestr
+                            --resource TEMPLATE+VM 
+                            --admin_resources TEMPLATE+VM+IMAGE+NET
+
     EOT
 
-    command :create, create_desc, :name do
-        helper.create_resource(options) do |group|
-            group.allocate(args[0])
+    command :create, create_desc, [:file, :group_name, nil], :options =>
+            OpenNebulaHelper::GROUP_OPTIONS do
+
+        if args[0] && !options.empty?
+            STDERR.puts "You can not use both template file and template"<<
+                " creation options."
+            next -1
+        end
+
+        if !args[0] && options.empty?
+            STDERR.puts "Please use either a template, just a group name or command arguments"
+            next -1
+        end
+
+        if options && options[:admin_user]
+            if !options[:admin_passwd]
+                STDERR.puts "Admin user needs password"
+                next -1
+            end
+
+            admin_user=Hash.new
+            admin_user[:name]      = options[:admin_user]
+            admin_user[:password]  = options[:admin_passwd]
+            if options[:admin_driver]
+                admin_user[:auth_driver] = options[:admin_driver]
+            end
+            options[:user] = admin_user
+        end
+
+        if args[0] && File.exists?(args[0])
+            hashed_template = helper.parse_template(File.open(args[0]).read)
+            helper.create_complete_resource(hashed_template)
+        elsif !options.empty?
+            helper.create_complete_resource(options)
+        elsif args[0]
+            helper.create_resource(options) do |group|
+                group.allocate(args[0])
+            end
         end
     end
 
@@ -173,5 +233,34 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
 
         exit 0
+    end
+
+    add_provider_desc = <<-EOT.unindent
+        Adds a resource provider (cluster of a zone) to the given group.
+        clusterid can be set to ALL
+    EOT
+
+    command :add_provider, add_provider_desc, [:range, :groupid_list], :zoneid, :clusterid do
+        if args[2] and args[2].class != Fixnum and args[2].upcase == "ALL"
+            args[2]=10
+        end
+
+        helper.perform_actions(args[0],options,"resource provider added") do |obj|
+            obj.add_provider(args[1].to_i, args[2].to_i)
+        end
+    end
+
+    del_provider_desc = <<-EOT.unindent
+        Deletes a resource provider (cluster of a zone) from the given group
+        clusterid can be set to ALL
+    EOT
+
+    command :del_provider, del_provider_desc, [:range, :groupid_list], :zoneid, :clusterid do
+        if args[2] and args[2].class != Fixnum and args[2].upcase == "ALL"
+            args[2]=10
+        end
+        helper.perform_actions(args[0],options,"resource provider deleted") do |obj|
+            obj.del_provider(args[1].to_i, args[2].to_i)
+        end
     end
 end

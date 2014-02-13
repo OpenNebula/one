@@ -37,6 +37,73 @@ const char * Group::db_bootstrap = "CREATE TABLE IF NOT EXISTS group_pool ("
 /* Group :: Database Access Functions                                       */
 /* ************************************************************************ */
 
+int Group::select(SqlDB * db)
+{
+    int rc;
+
+    rc = PoolObjectSQL::select(db);
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    return quota.select(oid, db);
+}
+
+/* -------------------------------------------------------------------------- */
+
+int Group::select(SqlDB * db, const string& name, int uid)
+{
+    int rc;
+
+    rc = PoolObjectSQL::select(db,name,uid);
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    return quota.select(oid, db);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Group::drop(SqlDB * db)
+{
+    int rc;
+
+    rc = PoolObjectSQL::drop(db);
+
+    if ( rc == 0 )
+    {
+        rc += quota.drop(db);
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Group::insert(SqlDB *db, string& error_str)
+{
+    int rc;
+
+    rc = insert_replace(db, false, error_str);
+
+    if (rc == 0)
+    {
+        rc = quota.insert(oid, db, error_str);
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int Group::insert_replace(SqlDB *db, bool replace, string& error_str)
 {
     ostringstream   oss;
@@ -147,23 +214,33 @@ string& Group::to_xml_extended(string& xml, bool extended) const
 {
     ostringstream   oss;
     string          collection_xml;
-    string          quota_xml;
+
+    set<pair<int,int> >::const_iterator it;
 
     ObjectCollection::to_xml(collection_xml);
-
-    quota.to_xml(quota_xml);
 
     oss <<
     "<GROUP>"    <<
         "<ID>"   << oid  << "</ID>"   <<
         "<NAME>" << name << "</NAME>" <<
-        collection_xml <<
-        quota_xml;
+        collection_xml;
+
+    for (it = providers.begin(); it != providers.end(); it++)
+    {
+        oss <<
+        "<RESOURCE_PROVIDER>" <<
+            "<ZONE_ID>"     << it->first    << "</ZONE_ID>"     <<
+            "<CLUSTER_ID>"  << it->second   << "</CLUSTER_ID>"  <<
+        "</RESOURCE_PROVIDER>";
+    }
 
     if (extended)
     {
+        string quota_xml;
         string def_quota_xml;
-        oss << Nebula::instance().get_default_group_quota().to_xml(def_quota_xml);
+
+        oss << quota.to_xml(quota_xml)
+            << Nebula::instance().get_default_group_quota().to_xml(def_quota_xml);
     }
 
     oss << "</GROUP>";
@@ -180,6 +257,7 @@ int Group::from_xml(const string& xml)
 {
     int rc = 0;
     vector<xmlNodePtr> content;
+    vector<xmlNodePtr>::iterator it;
 
     // Initialize the internal XML object
     update_from_str(xml);
@@ -194,7 +272,7 @@ int Group::from_xml(const string& xml)
     // Set the Group ID as the group it belongs to
     set_group(oid, name);
 
-    // Get associated classes
+    // Set of IDs
     ObjectXML::get_nodes("/GROUP/USERS", content);
 
     if (content.empty())
@@ -202,12 +280,29 @@ int Group::from_xml(const string& xml)
         return -1;
     }
 
-    // Set of IDs
     rc += ObjectCollection::from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
+    content.clear();
 
-    rc += quota.from_xml(this); 
+    // Set of resource providers
+    ObjectXML::get_nodes("/GROUP/RESOURCE_PROVIDER", content);
+
+    for (it = content.begin(); it != content.end(); it++)
+    {
+        ObjectXML tmp_xml(*it);
+
+        int zone_id, cluster_id;
+
+        rc += tmp_xml.xpath(zone_id, "/RESOURCE_PROVIDER/ZONE_ID", -1);
+        rc += tmp_xml.xpath(cluster_id, "/RESOURCE_PROVIDER/CLUSTER_ID", -1);
+
+        providers.insert(pair<int,int>(zone_id, cluster_id));
+    }
+
+    ObjectXML::free_nodes(content);
+    content.clear();
+
 
     if (rc != 0)
     {
@@ -220,3 +315,31 @@ int Group::from_xml(const string& xml)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
+int Group::add_resource_provider(int zone_id, int cluster_id, string& error_msg)
+{
+    pair<set<pair<int, int> >::iterator,bool> ret;
+
+    ret = providers.insert(pair<int,int>(zone_id, cluster_id));
+
+    if( !ret.second )
+    {
+        error_msg = "Resource provider is already assigned to this group";
+        return -1;
+    }
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Group::del_resource_provider(int zone_id, int cluster_id, string& error_msg)
+{
+    if( providers.erase(pair<int,int>(zone_id, cluster_id)) != 1 )
+    {
+        error_msg = "Resource provider is not assigned to this group";
+        return -1;
+    }
+
+    return 0;
+}

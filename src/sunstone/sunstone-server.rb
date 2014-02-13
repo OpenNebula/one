@@ -212,6 +212,14 @@ helpers do
                 env['rack.session.options'][:expire_after] = 30*60*60*24-1
             end
 
+            rc = OpenNebula::System.new(client).get_configuration
+            return [500, rc.message] if OpenNebula.is_error?(rc)
+            return [500, "Couldn't find out zone identifier"] if !rc['FEDERATION/ZONE_ID']
+
+            zone = OpenNebula::Zone.new_with_id(rc['FEDERATION/ZONE_ID'].to_i, client)
+            zone.info
+            session[:zone_name] = zone.name
+
             return [204, ""]
         end
     end
@@ -228,11 +236,27 @@ before do
     unless request.path=='/login' || request.path=='/' || request.path=='/vnc'
         halt 401 unless authorized?
 
-        @SunstoneServer = SunstoneServer.new(
-                              $cloud_auth.client(session[:user]),
-                              $conf,
-                              logger)
+        if env['HTTP_ZONE_NAME']
+            client=$cloud_auth.client(session[:user])
+            zpool = ZonePoolJSON.new(client)
+
+            rc = zpool.info
+
+            return [500, rc.to_json] if OpenNebula.is_error?(rc)
+
+            zpool.each{|z|
+                if z.name == env['HTTP_ZONE_NAME']
+                  session[:active_zone_endpoint] = z['TEMPLATE/ENDPOINT']
+                  session[:zone_name] = env['HTTP_ZONE_NAME']
+                end 
+             }
+        end
     end
+
+    client=$cloud_auth.client(session[:user],
+                              session[:active_zone_endpoint])
+
+    @SunstoneServer = SunstoneServer.new(client,$conf,logger)
 end
 
 after do
@@ -385,7 +409,20 @@ end
 # GET Pool information
 ##############################################################################
 get '/:pool' do
-    @SunstoneServer.get_pool(params[:pool], session[:user_gid])
+    zone_client = nil
+
+    if params[:zone_id]
+        zone = OpenNebula::Zone.new_with_id(params[:zone_id].to_i,
+                                            $cloud_auth.client(session[:user]))
+        rc   = zone.info
+        return [500, rc.message] if OpenNebula.is_error?(rc)
+        zone_client = $cloud_auth.client(session[:user],
+                                         zone['TEMPLATE/ENDPOINT'])
+    end
+
+    @SunstoneServer.get_pool(params[:pool], 
+                             session[:user_gid], 
+                             zone_client)
 end
 
 ##############################################################################

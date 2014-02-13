@@ -110,6 +110,10 @@ class OneDBBacKEnd
         puts comment
     end
 
+    def db()
+        return @db
+    end
+
     private
 
     def db_exists?
@@ -173,6 +177,7 @@ class BackEndMySQL < OneDBBacKEnd
         puts "MySQL dump stored in #{bck_file}"
         puts "Use 'onedb restore' or restore the DB using the mysql command:"
         puts "mysql -u user -h server -P port db_name < backup_file"
+        puts
     end
 
     def restore(bck_file, force=nil)
@@ -234,6 +239,7 @@ class BackEndSQLite < OneDBBacKEnd
         FileUtils.cp(@sqlite_file, "#{bck_file}")
         puts "Sqlite database backup stored in #{bck_file}"
         puts "Use 'onedb restore' or copy the file back to restore the DB."
+        puts
     end
 
     def restore(bck_file, force=nil)

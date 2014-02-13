@@ -261,7 +261,7 @@ void Quotas::quota_del(QuotaType type, int uid, int gid, Template * tmpl)
         {
             user->quota.quota_del(type, tmpl);
 
-            upool->update(user);
+            upool->update_quotas(user);
 
             user->unlock();
         }
@@ -275,7 +275,7 @@ void Quotas::quota_del(QuotaType type, int uid, int gid, Template * tmpl)
         {
             group->quota.quota_del(type, tmpl);
 
-            gpool->update(group);
+            gpool->update_quotas(group);
 
             group->unlock();
         }

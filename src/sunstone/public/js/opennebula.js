@@ -227,7 +227,9 @@ var OpenNebula = {
 
             if (response[pool_name]) {
                 pool = response[pool_name][type];
-            } else { pull = null };
+            } else {
+                pool = null;
+            }
 
             if (pool == null)
             {
@@ -246,6 +248,49 @@ var OpenNebula = {
             {
                 p_pool[0] = {};
                 p_pool[0][type] = pool;
+                return(p_pool);
+            }
+        },
+
+        "pool_hash_processing": function(pool_name, resource_name, response)
+        {
+            var pool;
+
+            if (typeof(pool_name) == "undefined")
+            {
+                return Error('Incorrect Pool');
+            }
+
+            var p_pool = {};
+
+            if (response[pool_name]) {
+                pool = response[pool_name][resource_name];
+            } else {
+                pool = null;
+            }
+
+            if (pool == null)
+            {
+                return p_pool;
+            }
+            else if (pool.length)
+            {
+                for (i=0;i<pool.length;i++)
+                {
+                    var res = {};
+                    res[resource_name] = pool[i];
+
+                    p_pool[res[resource_name]['ID']] = res;
+                }
+                return(p_pool);
+            }
+            else
+            {
+                var res = {};
+                res[resource_name] = pool;
+
+                p_pool[res[resource_name]['ID']] = res;
+
                 return(p_pool);
             }
         }
@@ -321,6 +366,31 @@ var OpenNebula = {
                 }
             });
         },
+
+        "list_in_zone": function(params, resource, path){
+            var callback = params.success;
+            var callback_error = params.error;
+            var timeout = params.timeout || false;
+            var request = OpenNebula.Helper.request(resource,"list");
+            var req_path = path ? path : resource.toLowerCase();
+
+            $.ajax({
+                url: req_path,
+                type: "GET",
+                data: {timeout: timeout, zone_id: params.data.zone_id},
+                dataType: "json",
+                success: function(response){
+                    var list = OpenNebula.Helper.pool(resource,response)
+                    return callback ?
+                        callback(request, list) : null;
+                },
+                error: function(response)
+                {
+                    return callback_error ?
+                        callback_error(request, OpenNebula.Error(response)) : null;
+                }
+            });
+        },        
 
         //Subresource examples: "fetch_template", "log"...
         "show": function(params, resource, subresource, path){
@@ -849,8 +919,11 @@ var OpenNebula = {
                     default_group_quotas = Quotas.default_quotas(response.GROUP_POOL.DEFAULT_GROUP_QUOTAS);
 
                     var list = OpenNebula.Helper.pool(resource,response)
+                    var quotas_hash = OpenNebula.Helper.pool_hash_processing(
+                        'GROUP_POOL','QUOTAS',response);
+
                     return callback ?
-                        callback(request, list) : null;
+                        callback(request, list, quotas_hash) : null;
                 },
                 error: function(response)
                 {
@@ -868,6 +941,14 @@ var OpenNebula = {
         },
         "accounting" : function(params){
             OpenNebula.Action.monitor(params,OpenNebula.Group.resource,false);
+        },
+        "add_provider" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.Group.resource,"add_provider",action_obj);
+        },
+        "del_provider" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.Group.resource,"del_provider",action_obj);
         }
     },
 
@@ -899,8 +980,11 @@ var OpenNebula = {
                     default_user_quotas = Quotas.default_quotas(response.USER_POOL.DEFAULT_USER_QUOTAS);
 
                     var list = OpenNebula.Helper.pool(resource,response)
+                    var quotas_hash = OpenNebula.Helper.pool_hash_processing(
+                        'USER_POOL','QUOTAS',response);
+
                     return callback ?
-                        callback(request, list) : null;
+                        callback(request, list, quotas_hash) : null;
                 },
                 error: function(response)
                 {
@@ -1116,6 +1200,9 @@ var OpenNebula = {
         "list" : function(params){
             OpenNebula.Action.list(params,OpenNebula.Cluster.resource);
         },
+        "list_in_zone" : function(params){
+            OpenNebula.Action.list_in_zone(params,OpenNebula.Cluster.resource);
+        },        
         "show" : function(params){
             OpenNebula.Action.show(params,OpenNebula.Cluster.resource);
         },
@@ -1209,6 +1296,40 @@ var OpenNebula = {
             var action_obj = params.data.extra_param;
             OpenNebula.Action.simple_action(params,
                                             OpenNebula.Datastore.resource,
+                                            "rename",
+                                            action_obj);
+        }
+    },
+
+    "Zone" : {
+        "resource" : "ZONE",
+
+        "create" : function(params){
+            OpenNebula.Action.create(params,OpenNebula.Zone.resource);
+        },
+        "del" : function(params){
+            OpenNebula.Action.del(params,OpenNebula.Zone.resource);
+        },
+        "list" : function(params){
+            OpenNebula.Action.list(params,OpenNebula.Zone.resource);
+        },
+        "show" : function(params){
+            OpenNebula.Action.show(params,OpenNebula.Zone.resource);
+        },
+        "update" : function(params){
+            var action_obj = {"template_raw" : params.data.extra_param };
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.Zone.resource,
+                                            "update",
+                                            action_obj);
+        },
+        "fetch_template" : function(params){
+            OpenNebula.Action.show(params,OpenNebula.Zone.resource,"template");
+        },
+        "rename" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.Zone.resource,
                                             "rename",
                                             action_obj);
         }

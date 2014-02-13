@@ -106,48 +106,52 @@ var auth_drivers_div =
      <option value="custom">'+tr("Custom")+'</option>\
 </select>\
 <div>\
-  <input type="text" name="custom_auth" />\
+  <input type="text" id="custom_auth" name="custom_auth" />\
+</div>';
+
+// Used also from groups-tabs.js
+var user_creation_div =
+'<div class="row centered">\
+  <div class="four columns">\
+    <label class="inline right" for="username">'+tr("Username")+':</label>\
+  </div>\
+  <div class="seven columns">\
+    <input type="text" name="username" id="username" />\
+  </div>\
+  <div class="one columns">\
+    <div class=""></div>\
+  </div>\
+</div>\
+<div class="row centered">\
+  <div class="four columns">\
+    <label class="inline right" for="pass">'+tr("Password")+':</label>\
+  </div>\
+  <div class="seven columns">\
+    <input type="password" name="pass" id="pass" />\
+  </div>\
+  <div class="one columns">\
+    <div class=""></div>\
+  </div>\
+</div>\
+<div class="row centered">\
+  <div class="four columns">\
+    <label class="inline right" for="driver">'+tr("Authentication")+':</label>\
+  </div>\
+  <div class="seven columns">'+auth_drivers_div+'</div>\
+  <div class="one columns">\
+    <div class=""></div>\
+  </div>\
 </div>';
 
 var create_user_tmpl =
 '<div class="panel">\
   <h3>\
-    <small id="create_vnet_header">'+tr("Create User")+'</small>\
+    <small id="create_user_header">'+tr("Create User")+'</small>\
   </h3>\
 </div>\
-<form id="create_user_form" action="">\
-      <div class="row centered">\
-          <div class="four columns">\
-              <label class="inline right" for="username">'+tr("Username")+':</label>\
-          </div>\
-          <div class="seven columns">\
-              <input type="text" name="username" id="username" />\
-          </div>\
-          <div class="one columns">\
-              <div class=""></div>\
-          </div>\
-      </div>\
-      <div class="row centered">\
-          <div class="four columns">\
-              <label class="inline right" for="pass">'+tr("Password")+':</label>\
-          </div>\
-          <div class="seven columns">\
-              <input type="password" name="pass" id="pass" />\
-          </div>\
-          <div class="one columns">\
-              <div class=""></div>\
-          </div>\
-      </div>\
-      <div class="row centered">\
-          <div class="four columns">\
-              <label class="inline right" for="driver">'+tr("Authentication")+':</label>\
-          </div>\
-          <div class="seven columns">'+auth_drivers_div+'</div>\
-          <div class="one columns">\
-              <div class=""></div>\
-          </div>\
-      </div>\
-      <hr>\
+<form id="create_user_form" action="">'+
+      user_creation_div +
+      '<hr>\
       <div class="form_buttons">\
           <button class="button radius right success" id="create_user_submit" value="user/create">'+tr("Create")+'</button>\
           <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
@@ -741,12 +745,22 @@ function addUserElement(request,user_json){
 }
 
 // Callback to update the list of users
-function updateUsersView(request,users_list){
+function updateUsersView(request,users_list,quotas_list){
     var user_list_array = [];
 
     $.each(users_list,function(){
         //if (this.USER.ID == uid)
         //    dashboardQuotasHTML(this.USER);
+
+        // Inject the VM user quota. This info is returned separately in the
+        // pool info call, but the userElementArray expects it inside the USER,
+        // as it is returned by the individual info call
+        var q = quotas_list[this.USER.ID];
+
+        if (q != undefined) {
+            this.USER.VM_QUOTA = q.QUOTAS.VM_QUOTA;
+        }
+
         user_list_array.push(userElementArray(this));
     });
     updateView(user_list_array,dataTable_users);
@@ -829,6 +843,40 @@ function updateUserInfo(request,user){
     })
 };
 
+// Used also from groups-tabs.js
+function setupCustomAuthDialog(dialog){
+    $('input[name="custom_auth"]',dialog).parent().hide();
+    $('select#driver',dialog).change(function(){
+        if ($(this).val() == "custom")
+            $('input[name="custom_auth"]',dialog).parent().show();
+        else
+            $('input[name="custom_auth"]',dialog).parent().hide();
+    });
+};
+
+function buildUserJSON(dialog){
+    var user_name = $('#username',dialog).val();
+    var user_password = $('#pass',dialog).val();
+    var driver = $('#driver', dialog).val();
+
+    if (driver == 'custom'){
+        driver = $('input[name="custom_auth"]', dialog).val();
+    }
+
+    if (!user_name.length || !user_password.length){
+        return false;
+    }
+
+    var user_json = { "user" :
+                      { "name" : user_name,
+                        "password" : user_password,
+                        "auth_driver" : driver
+                      }
+                    };
+
+    return user_json;
+};
+
 // Prepare the user creation dialog
 function setupCreateUserDialog(){
     dialogs_context.append('<div title=\"'+tr("Create user")+'\" id="create_user_dialog"></div>');
@@ -840,33 +888,16 @@ function setupCreateUserDialog(){
 
     //$('button',dialog).button();
 
-    $('input[name="custom_auth"]',dialog).parent().hide();
-    $('select#driver').change(function(){
-        if ($(this).val() == "custom")
-            $('input[name="custom_auth"]',dialog).parent().show();
-        else
-            $('input[name="custom_auth"]',dialog).parent().hide();
-    });
-
+    setupCustomAuthDialog(dialog);
 
     $('#create_user_form',dialog).submit(function(){
-        var user_name=$('#username',this).val();
-        var user_password=$('#pass',this).val();
-        var driver = $('#driver', this).val();
-        if (driver == 'custom')
-            driver = $('input[name="custom_auth"]').val();
+        var user_json = buildUserJSON(this);
 
-        if (!user_name.length || !user_password.length){
+        if (!user_json) {
             notifyError(tr("User name and password must be filled in"));
             return false;
-        };
+        }
 
-        var user_json = { "user" :
-                          { "name" : user_name,
-                            "password" : user_password,
-                            "auth_driver" : driver
-                          }
-                        };
         Sunstone.runAction("User.create",user_json);
         $create_user_dialog.trigger("reveal:close")
         return false;
@@ -910,7 +941,7 @@ function setupChangeAuthenticationDialog(){
     dialog.addClass("reveal-modal");
 
     $('input[name="custom_auth"]',dialog).parent().hide();
-    $('select#driver').change(function(){
+    $('select#driver', dialog).change(function(){
         if ($(this).val() == "custom")
             $('input[name="custom_auth"]',dialog).parent().show();
         else

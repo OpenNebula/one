@@ -68,7 +68,7 @@ bool RequestManagerVirtualMachine::vm_authorization(
     {
         string t_xml;
 
-        ar.add_create_auth(PoolObjectSQL::IMAGE, tmpl->to_xml(t_xml));
+        ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::IMAGE, tmpl->to_xml(t_xml));
     }
 
     if ( vtmpl != 0 )
@@ -136,8 +136,8 @@ bool RequestManagerVirtualMachine::quota_resize_authorization(
     UserPool*  upool = nd.get_upool();
     GroupPool* gpool = nd.get_gpool();
 
-    Quotas     user_dquotas  = nd.get_default_user_quota();
-    Quotas     group_dquotas = nd.get_default_group_quota();
+    DefaultQuotas user_dquotas  = nd.get_default_user_quota();
+    DefaultQuotas group_dquotas = nd.get_default_group_quota();
 
     if (vm_perms.uid != UserPool::ONEADMIN_ID)
     {
@@ -164,7 +164,7 @@ bool RequestManagerVirtualMachine::quota_resize_authorization(
                 return false;
             }
 
-            upool->update(user);
+            upool->update_quotas(user);
 
             user->unlock();
         }
@@ -198,7 +198,7 @@ bool RequestManagerVirtualMachine::quota_resize_authorization(
                 return false;
             }
 
-            gpool->update(group);
+            gpool->update_quotas(group);
 
             group->unlock();
         }

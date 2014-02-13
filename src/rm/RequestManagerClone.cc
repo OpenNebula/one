@@ -85,7 +85,7 @@ void RequestManagerClone::request_execute(
 
         tmpl->to_xml(tmpl_str);
 
-        ar.add_create_auth(auth_object, tmpl_str);
+        ar.add_create_auth(att.uid, att.gid, auth_object, tmpl_str);
 
         if (UserPool::authorize(ar) == -1)
         {

@@ -26,7 +26,7 @@ module OpenNebulaJSON
             if OpenNebula.is_error?(acl_rule)
                 return acl_rule
             end
-            self.allocate(acl_rule[0],acl_rule[1],acl_rule[2])
+            self.allocate(acl_rule[0],acl_rule[1],acl_rule[2],acl_rule[3])
         end
 
         def perform_action(template_json)

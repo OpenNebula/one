@@ -42,7 +42,6 @@ usage() {
  echo "-c: install client utilities: OpenNebula cli, occi and ec2 client files"
  echo "-s: install OpenNebula Sunstone"
  echo "-G: install OpenNebula Gate"
- echo "-o: install OpenNebula Zones (OZones)"
  echo "-f: install OpenNebula Flow"
  echo "-r: remove Opennebula, only useful if -d was not specified, otherwise"
  echo "    rm -rf \$ONE_LOCATION would do the job"
@@ -72,7 +71,6 @@ LINK="no"
 CLIENT="no"
 ONEGATE="no"
 SUNSTONE="no"
-OZONES="no"
 ONEFLOW="no"
 ONEADMIN_USER=`id -u`
 ONEADMIN_GROUP=`id -g`
@@ -87,7 +85,6 @@ while true ; do
         -c) CLIENT="yes"; INSTALL_ETC="no" ; shift ;;
         -G) ONEGATE="yes"; shift ;;
         -s) SUNSTONE="yes"; shift ;;
-        -o) OZONES="yes"; shift ;;
         -f) ONEFLOW="yes"; shift ;;
         -u) ONEADMIN_USER="$2" ; shift 2;;
         -g) ONEADMIN_GROUP="$2"; shift 2;;
@@ -111,7 +108,6 @@ if [ -z "$ROOT" ] ; then
     VAR_LOCATION="/var/lib/one"
     ONEGATE_LOCATION="$LIB_LOCATION/onegate"
     SUNSTONE_LOCATION="$LIB_LOCATION/sunstone"
-    OZONES_LOCATION="$LIB_LOCATION/ozones"
     ONEFLOW_LOCATION="$LIB_LOCATION/oneflow"
     SYSTEM_DS_LOCATION="$VAR_LOCATION/datastores/0"
     DEFAULT_DS_LOCATION="$VAR_LOCATION/datastores/1"
@@ -138,13 +134,6 @@ if [ -z "$ROOT" ] ; then
     elif [ "$ONEGATE" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION \
                    $ONEGATE_LOCATION $ETC_LOCATION"
-
-        DELETE_DIRS="$MAKE_DIRS"
-
-        CHOWN_DIRS=""
-    elif [ "$OZONES" = "yes" ]; then
-        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION $OZONES_LOCATION \
-                    $ETC_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
 
@@ -176,7 +165,6 @@ else
     VAR_LOCATION="$ROOT/var"
     ONEGATE_LOCATION="$LIB_LOCATION/onegate"
     SUNSTONE_LOCATION="$LIB_LOCATION/sunstone"
-    OZONES_LOCATION="$LIB_LOCATION/ozones"
     ONEFLOW_LOCATION="$LIB_LOCATION/oneflow"
     SYSTEM_DS_LOCATION="$VAR_LOCATION/datastores/0"
     DEFAULT_DS_LOCATION="$VAR_LOCATION/datastores/1"
@@ -199,11 +187,6 @@ else
                    $SUNSTONE_LOCATION $ETC_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
-    elif [ "$OZONES" = "yes" ]; then
-        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION $OZONES_LOCATION \
-                   $ETC_LOCATION"
-
-        DELETE_DIRS="$MAKE_DIRS"
     elif [ "$ONEFLOW" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION $ONEFLOW_LOCATION \
                    $ETC_LOCATION"
@@ -212,7 +195,7 @@ else
     else
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION $SYSTEM_DS_LOCATION \
-                   $DEFAULT_DS_LOCATION $MAN_LOCATION $OZONES_LOCATION \
+                   $DEFAULT_DS_LOCATION $MAN_LOCATION \
                    $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
@@ -237,7 +220,6 @@ ETC_DIRS="$ETC_LOCATION/vmm_exec \
 
 LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/opennebula \
-          $LIB_LOCATION/ruby/zona \
           $LIB_LOCATION/ruby/cloud/ \
           $LIB_LOCATION/ruby/cloud/econe \
           $LIB_LOCATION/ruby/cloud/econe/views \
@@ -356,33 +338,6 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/public/images \
                $SUNSTONE_LOCATION/views"
 
-OZONES_DIRS="$OZONES_LOCATION/lib \
-             $OZONES_LOCATION/lib/OZones \
-             $OZONES_LOCATION/models \
-             $OZONES_LOCATION/templates \
-             $OZONES_LOCATION/public \
-             $OZONES_LOCATION/public/vendor \
-             $OZONES_LOCATION/public/vendor/crypto-js \
-             $OZONES_LOCATION/public/vendor/jQuery \
-             $OZONES_LOCATION/public/vendor/jQueryLayout \
-             $OZONES_LOCATION/public/vendor/dataTables \
-             $OZONES_LOCATION/public/vendor/jQueryUI \
-             $OZONES_LOCATION/public/vendor/jQueryUI/images \
-             $OZONES_LOCATION/public/vendor/jGrowl \
-             $OZONES_LOCATION/public/vendor/FontAwesome \
-             $OZONES_LOCATION/public/vendor/FontAwesome/css \
-             $OZONES_LOCATION/public/vendor/FontAwesome/font \
-             $OZONES_LOCATION/public/js \
-             $OZONES_LOCATION/public/js/plugins \
-             $OZONES_LOCATION/public/images \
-             $OZONES_LOCATION/public/css"
-
-OZONES_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/opennebula \
-                 $LIB_LOCATION/ruby/cli \
-                 $LIB_LOCATION/ruby/cli/ozones_helper \
-                 $LIB_LOCATION/ruby/zona"
-
 ONEFLOW_DIRS="$ONEFLOW_LOCATION/lib \
               $ONEFLOW_LOCATION/lib/strategy \
               $ONEFLOW_LOCATION/lib/models"
@@ -411,18 +366,16 @@ CONF_CLI_DIRS="$ETC_LOCATION/cli"
 if [ "$CLIENT" = "yes" ]; then
     MAKE_DIRS="$MAKE_DIRS $LIB_ECO_CLIENT_DIRS $LIB_OCCI_CLIENT_DIRS $LIB_MARKET_CLIENT_DIRS \
                $LIB_OCA_CLIENT_DIRS $LIB_CLI_CLIENT_DIRS $CONF_CLI_DIRS \
-               $ETC_LOCATION $OZONES_CLIENT_DIRS"
+               $ETC_LOCATION"
 elif [ "$ONEGATE" = "yes" ]; then
     MAKE_DIRS="$MAKE_DIRS $LIB_OCA_CLIENT_DIRS"
 elif [ "$SUNSTONE" = "yes" ]; then
     MAKE_DIRS="$MAKE_DIRS $SUNSTONE_DIRS $LIB_OCA_CLIENT_DIRS"
-elif [ "$OZONES" = "yes" ]; then
-    MAKE_DIRS="$MAKE_DIRS $OZONES_DIRS $OZONES_CLIENT_DIRS $LIB_OCA_CLIENT_DIRS"
 elif [ "$ONEFLOW" = "yes" ]; then
     MAKE_DIRS="$MAKE_DIRS $ONEFLOW_DIRS $LIB_OCA_CLIENT_DIRS"
 else
     MAKE_DIRS="$MAKE_DIRS $SHARE_DIRS $ETC_DIRS $LIB_DIRS $VAR_DIRS \
-                $OZONES_DIRS $OZONES_CLIENT_DIRS $SUNSTONE_DIRS $ONEFLOW_DIRS"
+                $SUNSTONE_DIRS $ONEFLOW_DIRS"
 fi
 
 #-------------------------------------------------------------------------------
@@ -523,12 +476,6 @@ INSTALL_CLIENT_FILES=(
     CLI_BIN_FILES:$BIN_LOCATION
     CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
     ONE_CLI_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
-    ETC_CLIENT_FILES:$ETC_LOCATION
-    OZONES_BIN_CLIENT_FILES:$BIN_LOCATION
-    OZONES_LIB_CLIENT_CLI_FILES:$LIB_LOCATION/ruby/cli
-    OZONES_LIB_CLIENT_CLI_HELPER_FILES:$LIB_LOCATION/ruby/cli/ozones_helper
-    OZONES_LIB_API_FILES:$LIB_LOCATION/ruby
-    OZONES_LIB_API_ZONA_FILES:$LIB_LOCATION/ruby/zona
     CLI_CONF_FILES:$ETC_LOCATION/cli
     OCA_LIB_FILES:$LIB_LOCATION/ruby
     RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/opennebula
@@ -604,43 +551,6 @@ INSTALL_ONEGATE_ETC_FILES=(
     ONEGATE_ETC_FILES:$ETC_LOCATION
 )
 
-INSTALL_OZONES_RUBY_FILES=(
-    OZONES_RUBY_LIB_FILES:$LIB_LOCATION/ruby
-    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/opennebula
-)
-
-INSTALL_OZONES_FILES=(
-    OZONES_FILES:$OZONES_LOCATION
-    OZONES_BIN_FILES:$BIN_LOCATION
-    OZONES_MODELS_FILES:$OZONES_LOCATION/models
-    OZONES_TEMPLATE_FILES:$OZONES_LOCATION/templates
-    OZONES_LIB_FILES:$OZONES_LOCATION/lib
-    OZONES_LIB_ZONE_FILES:$OZONES_LOCATION/lib/OZones
-    OZONES_PUBLIC_VENDOR_JQUERY:$OZONES_LOCATION/public/vendor/jQuery
-    OZONES_PUBLIC_VENDOR_DATATABLES:$OZONES_LOCATION/public/vendor/dataTables
-    OZONES_PUBLIC_VENDOR_CRYPTOJS:$OZONES_LOCATION/public/vendor/crypto-js
-    OZONES_PUBLIC_VENDOR_JGROWL:$OZONES_LOCATION/public/vendor/jGrowl
-    OZONES_PUBLIC_VENDOR_JQUERYUI:$OZONES_LOCATION/public/vendor/jQueryUI
-    OZONES_PUBLIC_VENDOR_JQUERYUIIMAGES:$OZONES_LOCATION/public/vendor/jQueryUI/images
-    OZONES_PUBLIC_VENDOR_JQUERYLAYOUT:$OZONES_LOCATION/public/vendor/jQueryLayout
-    OZONES_PUBLIC_VENDOR_FONTAWESOME:$OZONES_LOCATION/public/vendor/FontAwesome
-    OZONES_PUBLIC_VENDOR_FONTAWESOME_FONT:$OZONES_LOCATION/public/vendor/FontAwesome/font
-    OZONES_PUBLIC_VENDOR_FONTAWESOME_CSS:$OZONES_LOCATION/public/vendor/FontAwesome/css
-    OZONES_PUBLIC_JS_FILES:$OZONES_LOCATION/public/js
-    OZONES_PUBLIC_IMAGES_FILES:$OZONES_LOCATION/public/images
-    OZONES_PUBLIC_CSS_FILES:$OZONES_LOCATION/public/css
-    OZONES_PUBLIC_JS_PLUGINS_FILES:$OZONES_LOCATION/public/js/plugins
-    OZONES_BIN_CLIENT_FILES:$BIN_LOCATION
-    OZONES_LIB_CLIENT_CLI_FILES:$LIB_LOCATION/ruby/cli
-    OZONES_LIB_CLIENT_CLI_HELPER_FILES:$LIB_LOCATION/ruby/cli/ozones_helper
-    OZONES_LIB_API_FILES:$LIB_LOCATION/ruby
-    OZONES_LIB_API_ZONA_FILES:$LIB_LOCATION/ruby/zona
-)
-
-INSTALL_OZONES_ETC_FILES=(
-    OZONES_ETC_FILES:$ETC_LOCATION
-)
-
 INSTALL_ONEFLOW_FILES=(
     ONEFLOW_FILES:$ONEFLOW_LOCATION
     ONEFLOW_BIN_FILES:$BIN_LOCATION
@@ -684,10 +594,10 @@ BIN_FILES="src/nebula/oned \
            src/cli/oneacl \
            src/cli/onedatastore \
            src/cli/onecluster \
+           src/cli/onezone \
            src/cli/oneflow \
            src/cli/oneflow-template \
            src/onedb/onedb \
-           src/onedb/onezonedb/onezonedb \
            src/mad/utils/tty_expect \
            share/scripts/one"
 
@@ -1160,6 +1070,7 @@ ONEDB_MIGRATOR_FILES="src/onedb/2.0_to_2.9.80.rb \
                       src/onedb/4.3.85_to_4.3.90.rb \
                       src/onedb/4.3.90_to_4.4.0.rb \
                       src/onedb/fsck.rb \
+                      src/onedb/import_slave.rb \
                       src/onedb/onedb.rb \
                       src/onedb/onedb_backend.rb"
 
@@ -1169,8 +1080,7 @@ ONEDB_MIGRATOR_FILES="src/onedb/2.0_to_2.9.80.rb \
 
 ETC_FILES="share/etc/oned.conf \
            share/etc/defaultrc \
-           src/scheduler/etc/sched.conf \
-           src/cli/etc/group.default"
+           src/scheduler/etc/sched.conf"
 
 VMWARE_ETC_FILES="src/vmm_mad/remotes/vmware/vmwarerc"
 
@@ -1261,6 +1171,8 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/template.rb \
                             src/oca/ruby/opennebula/user_pool.rb \
                             src/oca/ruby/opennebula/user.rb \
+                            src/oca/ruby/opennebula/zone_pool.rb \
+                            src/oca/ruby/opennebula/zone.rb \
                             src/oca/ruby/opennebula/virtual_machine_pool.rb \
                             src/oca/ruby/opennebula/virtual_machine.rb \
                             src/oca/ruby/opennebula/virtual_network_pool.rb \
@@ -1456,6 +1368,7 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/oneacl_helper.rb \
                    src/cli/one_helper/onedatastore_helper.rb \
                    src/cli/one_helper/onecluster_helper.rb \
+                   src/cli/one_helper/onezone_helper.rb \
                    src/cli/one_helper/oneacct_helper.rb"
 
 CLI_BIN_FILES="src/cli/onevm \
@@ -1468,6 +1381,7 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/oneacl \
                src/cli/onedatastore \
                src/cli/onecluster \
+               src/cli/onezone \
                src/cli/oneflow \
                src/cli/oneflow-template \
                src/cli/oneacct"
@@ -1482,9 +1396,8 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/oneacl.yaml \
                 src/cli/etc/onedatastore.yaml \
                 src/cli/etc/onecluster.yaml \
+                src/cli/etc/onezone.yaml \
                 src/cli/etc/oneacct.yaml"
-
-ETC_CLIENT_FILES="src/cli/etc/group.default"
 
 #-----------------------------------------------------------------------------
 # Sunstone files
@@ -1520,7 +1433,8 @@ SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/AclJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/ClusterJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/DatastoreJSON.rb \
-                    src/sunstone/models/OpenNebulaJSON/VirtualNetworkJSON.rb"
+                    src/sunstone/models/OpenNebulaJSON/VirtualNetworkJSON.rb \
+                    src/sunstone/models/OpenNebulaJSON/ZoneJSON.rb"
 
 SUNSTONE_VIEWS_FILES="src/sunstone/views/index.erb \
                       src/sunstone/views/login.erb \
@@ -1555,7 +1469,8 @@ SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
                         src/sunstone/public/js/plugins/config-tab.js \
                         src/sunstone/public/js/plugins/oneflow-dashboard.js \
                         src/sunstone/public/js/plugins/oneflow-services.js \
-                        src/sunstone/public/js/plugins/oneflow-templates.js"
+                        src/sunstone/public/js/plugins/oneflow-templates.js \
+                        src/sunstone/public/js/plugins/zones-tab.js"
 
 SUNSTONE_ROUTES_FILES="src/sunstone/routes/oneflow.rb"
 
@@ -1794,174 +1709,6 @@ ONEGATE_BIN_FILES="src/onegate/bin/onegate-server"
 ONEGATE_ETC_FILES="src/onegate/etc/onegate-server.conf"
 
 #-----------------------------------------------------------------------------
-# Ozones files
-#-----------------------------------------------------------------------------
-
-OZONES_FILES="src/ozones/Server/ozones-server.rb"
-
-OZONES_BIN_FILES="src/ozones/Server/bin/ozones-server"
-
-OZONES_ETC_FILES="src/ozones/Server/etc/ozones-server.conf"
-
-OZONES_MODELS_FILES="src/ozones/Server/models/OzonesServer.rb \
-                     src/ozones/Server/models/Auth.rb \
-                     src/sunstone/models/OpenNebulaJSON/JSONUtils.rb"
-
-OZONES_TEMPLATE_FILES="src/ozones/Server/templates/index.html \
-                       src/ozones/Server/templates/login.html"
-
-OZONES_LIB_FILES="src/ozones/Server/lib/OZones.rb"
-
-OZONES_LIB_ZONE_FILES="src/ozones/Server/lib/OZones/Zones.rb \
-                src/ozones/Server/lib/OZones/VDC.rb \
-                src/ozones/Server/lib/OZones/ProxyRules.rb \
-                src/ozones/Server/lib/OZones/ApacheWritter.rb \
-                src/ozones/Server/lib/OZones/AggregatedHosts.rb \
-                src/ozones/Server/lib/OZones/AggregatedUsers.rb \
-                src/ozones/Server/lib/OZones/AggregatedVirtualMachines.rb \
-                src/ozones/Server/lib/OZones/AggregatedVirtualNetworks.rb \
-                src/ozones/Server/lib/OZones/AggregatedPool.rb \
-                src/ozones/Server/lib/OZones/AggregatedImages.rb \
-                src/ozones/Server/lib/OZones/AggregatedDatastores.rb \
-                src/ozones/Server/lib/OZones/AggregatedClusters.rb \
-                src/ozones/Server/lib/OZones/AggregatedTemplates.rb"
-
-OZONES_LIB_API_FILES="src/ozones/Client/lib/zona.rb"
-
-OZONES_LIB_API_ZONA_FILES="src/ozones/Client/lib/zona/ZoneElement.rb \
-                src/ozones/Client/lib/zona/OZonesPool.rb \
-                src/ozones/Client/lib/zona/OZonesJSON.rb \
-                src/ozones/Client/lib/zona/VDCPool.rb \
-                src/ozones/Client/lib/zona/VDCElement.rb \
-                src/ozones/Client/lib/zona/OZonesElement.rb \
-                src/ozones/Client/lib/zona/ZonePool.rb"
-
-OZONES_PUBLIC_VENDOR_JQUERY="\
-                        src/ozones/Server/public/vendor/jQuery/jquery-1.7.2.min.js \
-                        src/ozones/Server/public/vendor/jQuery/MIT-LICENSE.txt \
-                        src/ozones/Server/public/vendor/jQuery/NOTICE"
-
-OZONES_PUBLIC_VENDOR_CRYPTOJS=$SUNSTONE_PUBLIC_VENDOR_CRYPTOJS
-
-OZONES_PUBLIC_VENDOR_DATATABLES="\
-                src/ozones/Server/public/vendor/dataTables/jquery.dataTables.min.js \
-                src/ozones/Server/public/vendor/dataTables/ColVis.min.js \
-                src/ozones/Server/public/vendor/dataTables/ColReorderWithResize.js \
-                src/ozones/Server/public/vendor/dataTables/demo_table_jui.css \
-                src/ozones/Server/public/vendor/dataTables/ColVis.css \
-                src/ozones/Server/public/vendor/dataTables/BSD-LICENSE.txt \
-                src/ozones/Server/public/vendor/dataTables/NOTICE"
-
-OZONES_PUBLIC_VENDOR_JGROWL="\
-                src/ozones/Server/public/vendor/jGrowl/jquery.jgrowl_minimized.js \
-                src/ozones/Server/public/vendor/jGrowl/jquery.jgrowl.css \
-                src/ozones/Server/public/vendor/jGrowl/NOTICE"
-
-OZONES_PUBLIC_VENDOR_JQUERYUI="\
-src/ozones/Server/public/vendor/jQueryUI/jquery-ui-1.8.16.custom.css \
-src/ozones/Server/public/vendor/jQueryUI/jquery-ui-1.9.2.custom.min.css \
-src/ozones/Server/public/vendor/jQueryUI/MIT-LICENSE.txt \
-src/ozones/Server/public/vendor/jQueryUI/jquery-ui-1.8.16.custom.min.js \
-src/ozones/Server/public/vendor/jQueryUI/NOTICE \
-"
-
-OZONES_PUBLIC_VENDOR_JQUERYUIIMAGES="\
-src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_flat_0_353735_40x100.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_flat_0_aaaaaa_40x100.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_flat_0_eeeeee_40x100.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_flat_0_f2f2f2_40x100.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_flat_0_ffffff_40x100.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_flat_100_f6f6f6_40x100.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_flat_25_f6f6f6_40x100.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_flat_55_ffffff_40x100.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_flat_65_353735_40x100.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_flat_75_ffffff_40x100.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_glass_55_fbf9ee_1x400.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_glass_65_ffffff_1x400.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_glass_75_dadada_1x400.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_glass_75_e6e6e6_1x400.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_glass_95_fef1ec_1x400.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_highlight-soft_100_f6f6f6_1x100.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_highlight-soft_25_0073ea_1x100.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_highlight-soft_25_0098c3_1x100.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_highlight-soft_25_353735_1x100.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_highlight-soft_25_f6f6f6_1x100.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_highlight-soft_50_dddddd_1x100.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_highlight-soft_50_ffffff_1x100.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-bg_highlight-soft_75_cccccc_1x100.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-icons_0073ea_256x240.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-icons_0098c3_256x240.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-icons_222222_256x240.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-icons_2e83ff_256x240.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-icons_353735_256x240.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-icons_454545_256x240.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-icons_666666_256x240.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-icons_888888_256x240.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-icons_cd0a0a_256x240.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-icons_d10300_256x240.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-icons_ff0084_256x240.png \
-src/ozones/Server/public/vendor/jQueryUI/images/ui-icons_ffffff_256x240.png \
-"
-
-OZONES_PUBLIC_VENDOR_JQUERYLAYOUT="\
-          src/ozones/Server/public/vendor/jQueryLayout/layout-default-latest.css \
-          src/ozones/Server/public/vendor/jQueryLayout/jquery.layout-latest.min.js \
-          src/ozones/Server/public/vendor/jQueryLayout/NOTICE"
-
-OZONES_PUBLIC_VENDOR_FONTAWESOME="\
-src/ozones/Server/public/vendor/FontAwesome/NOTICE \
-"
-
-OZONES_PUBLIC_VENDOR_FONTAWESOME_FONT="\
-src/ozones/Server/public/vendor/FontAwesome/font/fontawesome-webfont.eot \
-src/ozones/Server/public/vendor/FontAwesome/font/fontawesome-webfont.woff \
-src/ozones/Server/public/vendor/FontAwesome/font/fontawesome-webfont.ttf \
-src/ozones/Server/public/vendor/FontAwesome/font/fontawesome-webfont.svg \
-"
-
-OZONES_PUBLIC_VENDOR_FONTAWESOME_CSS="\
-src/ozones/Server/public/vendor/FontAwesome/css/font-awesome.css \
-"
-
-OZONES_PUBLIC_JS_FILES="src/ozones/Server/public/js/ozones.js \
-                  src/ozones/Server/public/js/login.js \
-                  src/ozones/Server/public/js/ozones-util.js \
-                  src/ozones/Server/public/js/legacysunstone/layout.js \
-                  src/ozones/Server/public/js/legacysunstone/sunstone.js \
-                  src/ozones/Server/public/js/legacysunstone/sunstone-util.js \
-                  src/ozones/Server/public/js/legacysunstone/locale.js"
-
-OZONES_PUBLIC_CSS_FILES="src/ozones/Server/public/css/application.css \
-                         src/ozones/Server/public/css/layout.css \
-                         src/ozones/Server/public/css/login.css"
-
-OZONES_PUBLIC_IMAGES_FILES="src/ozones/Server/public/images/favicon.ico \
-                        src/ozones/Server/public/images/panel.png \
-                        src/ozones/Server/public/images/login.png \
-                        src/ozones/Server/public/images/login_over.png \
-                        src/ozones/Server/public/images/Refresh-icon.png \
-                        src/ozones/Server/public/images/ajax-loader.gif \
-                        src/ozones/Server/public/images/opennebula-zones-small.png \
-                        src/ozones/Server/public/images/opennebula-zones-big.png \
-                        src/ozones/Server/public/images/pbar.gif"
-
-OZONES_PUBLIC_JS_PLUGINS_FILES="src/ozones/Server/public/js/plugins/zones-tab.js \
-                               src/ozones/Server/public/js/plugins/vdcs-tab.js \
-                               src/ozones/Server/public/js/plugins/aggregated-tab.js \
-                               src/ozones/Server/public/js/plugins/dashboard-tab.js"
-
-OZONES_LIB_CLIENT_CLI_FILES="src/ozones/Client/lib/cli/ozones_helper.rb"
-
-OZONES_LIB_CLIENT_CLI_HELPER_FILES="\
-                src/ozones/Client/lib/cli/ozones_helper/vdc_helper.rb \
-                src/ozones/Client/lib/cli/ozones_helper/zones_helper.rb"
-
-OZONES_BIN_CLIENT_FILES="src/ozones/Client/bin/onevdc \
-                         src/ozones/Client/bin/onezone"
-
-OZONES_RUBY_LIB_FILES="src/oca/ruby/OpenNebula.rb"
-
-#-----------------------------------------------------------------------------
 # OneFlow files
 #-----------------------------------------------------------------------------
 
@@ -2007,6 +1754,7 @@ MAN_FILES="share/man/oneauth.1.gz \
         share/man/onedb.1.gz \
         share/man/onedatastore.1.gz \
         share/man/onecluster.1.gz \
+        share/man/onezone.1.gz \
         share/man/oneflow.1.gz \
         share/man/oneflow-template.1.gz \
         share/man/econe-allocate-address.1.gz \
@@ -2033,9 +1781,7 @@ MAN_FILES="share/man/oneauth.1.gz \
         share/man/econe-upload.1.gz \
         share/man/occi-compute.1.gz \
         share/man/occi-network.1.gz \
-        share/man/occi-storage.1.gz \
-        share/man/onezone.1.gz \
-        share/man/onevdc.1.gz"
+        share/man/occi-storage.1.gz"
 
 #-----------------------------------------------------------------------------
 # Ruby VENDOR files
@@ -2120,12 +1866,10 @@ elif [ "$ONEGATE" = "yes" ]; then
     INSTALL_SET="${INSTALL_ONEGATE_FILES[@]}"
 elif [ "$SUNSTONE" = "yes" ]; then
     INSTALL_SET="${INSTALL_SUNSTONE_RUBY_FILES[@]} ${INSTALL_SUNSTONE_FILES[@]}"
-elif [ "$OZONES" = "yes" ]; then
-    INSTALL_SET="${INSTALL_OZONES_RUBY_FILES[@]} ${INSTALL_OZONES_FILES[@]}"
 elif [ "$ONEFLOW" = "yes" ]; then
     INSTALL_SET="${INSTALL_ONEFLOW_FILES[@]}"
 else
-    INSTALL_SET="${INSTALL_FILES[@]} ${INSTALL_OZONES_FILES[@]} \
+    INSTALL_SET="${INSTALL_FILES[@]} \
                  ${INSTALL_SUNSTONE_FILES[@]} ${INSTALL_ONEGATE_FILES[@]} \
                  ${INSTALL_ONEFLOW_FILES[@]}"
 fi
@@ -2146,14 +1890,11 @@ if [ "$INSTALL_ETC" = "yes" ] ; then
         INSTALL_ETC_SET="${INSTALL_SUNSTONE_ETC_FILES[@]}"
     elif [ "$ONEGATE" = "yes" ]; then
         INSTALL_ETC_SET="${INSTALL_ONEGATE_ETC_FILES[@]}"
-    elif [ "$OZONES" = "yes" ]; then
-        INSTALL_ETC_SET="${INSTALL_OZONES_ETC_FILES[@]}"
     elif [ "$ONEFLOW" = "yes" ]; then
         INSTALL_ETC_SET="${INSTALL_ONEFLOW_ETC_FILES[@]}"
     else
         INSTALL_ETC_SET="${INSTALL_ETC_FILES[@]} \
                          ${INSTALL_SUNSTONE_ETC_FILES[@]} \
-                         ${INSTALL_OZONES_ETC_FILES[@]} \
                          ${INSTALL_ONEGATE_ETC_FILES[@]} \
                          ${INSTALL_ONEFLOW_ETC_FILES[@]}"
     fi

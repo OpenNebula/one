@@ -183,6 +183,24 @@ void OpenNebulaTemplate::set_conf_default()
     conf_default.insert(make_pair(vattribute->name(),vattribute));
 /*
 #*******************************************************************************
+# Federation configuration attributes
+#-------------------------------------------------------------------------------
+#  FEDERATION
+#   MODE
+#   ZONE_ID
+#   MASTER_ONED
+#*******************************************************************************
+*/
+    // FEDERATION
+    vvalue.clear();
+    vvalue.insert(make_pair("MODE","STANDALONE"));
+    vvalue.insert(make_pair("ZONE_ID","0"));
+    vvalue.insert(make_pair("MASTER_ONED",""));
+
+    vattribute = new VectorAttribute("FEDERATION",vvalue);
+    conf_default.insert(make_pair(vattribute->name(),vattribute));
+/*
+#*******************************************************************************
 # XML-RPC server configuration
 #-------------------------------------------------------------------------------
 #  MAX_CONN
@@ -191,6 +209,7 @@ void OpenNebulaTemplate::set_conf_default()
 #  KEEPALIVE_MAX_CONN
 #  TIMEOUT
 #  RPC_LOG
+#  MESSAGE_SIZE
 #*******************************************************************************
 */
     // MAX_CONN
@@ -227,6 +246,12 @@ void OpenNebulaTemplate::set_conf_default()
     value = "NO";
 
     attribute = new SingleAttribute("RPC_LOG",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
+    //MESSAGE_SIZE
+    value = "1073741824";
+
+    attribute = new SingleAttribute("MESSAGE_SIZE",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 /*
 #*******************************************************************************

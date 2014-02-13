@@ -38,6 +38,14 @@ const char * SystemDB::ver_bootstrap = "CREATE TABLE db_versioning "
     "(oid INTEGER PRIMARY KEY, version VARCHAR(256), timestamp INTEGER, "
     "comment VARCHAR(256))";
 
+// DB slave versioning table
+const char * SystemDB::slave_ver_table = "slave_db_versioning";
+const char * SystemDB::slave_ver_names = "oid, version, timestamp, comment";
+
+const char * SystemDB::slave_ver_bootstrap = "CREATE TABLE slave_db_versioning "
+    "(oid INTEGER PRIMARY KEY, version VARCHAR(256), timestamp INTEGER, "
+    "comment VARCHAR(256))";
+
 // System attributes table
 const char * SystemDB::sys_table = "system_attributes";
 const char * SystemDB::sys_names = "name, body";
@@ -60,7 +68,7 @@ int SystemDB::bootstrap()
     rc = db->exec(oss);
 
     // ------------------------------------------------------------------------
-    // db versioning, version of OpenNebula. Insert this version number
+    // db versioning, version of OpenNebula.
     // ------------------------------------------------------------------------
     oss.str(ver_bootstrap);
     rc += db->exec(oss);
@@ -73,7 +81,43 @@ int SystemDB::bootstrap()
     rc += db->exec(oss);
 
     // ------------------------------------------------------------------------
-    // system , version of OpenNebula. Insert this version number
+    // system
+    // ------------------------------------------------------------------------
+    oss.str(sys_bootstrap);
+    rc += db->exec(oss);
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int SystemDB::slave_bootstrap()
+{
+    int             rc;
+    ostringstream   oss;
+
+    // ------------------------------------------------------------------------
+    // pool control, tracks the last ID's assigned to objects
+    // ------------------------------------------------------------------------
+    oss.str(pc_bootstrap);
+    rc = db->exec(oss);
+
+    // ------------------------------------------------------------------------
+    // db versioning, version of OpenNebula.
+    // ------------------------------------------------------------------------
+    oss.str(slave_ver_bootstrap);
+    rc += db->exec(oss);
+
+    oss.str("");
+    oss << "INSERT INTO " << slave_ver_table << " (" << slave_ver_names << ") "
+        << "VALUES (0, '" << Nebula::db_version() << "', " << time(0)
+        << ", '" << Nebula::version() << " daemon bootstrap')";
+
+    rc += db->exec(oss);
+
+    // ------------------------------------------------------------------------
+    // system
     // ------------------------------------------------------------------------
     oss.str(sys_bootstrap);
     rc += db->exec(oss);
@@ -102,7 +146,7 @@ int SystemDB::select_cb(void *_loaded_db_version, int num, char **values,
 
 /* -------------------------------------------------------------------------- */
 
-int SystemDB::check_db_version()
+int SystemDB::check_db_version(bool is_federation_slave)
 {
     int             rc;
     ostringstream   oss;
@@ -116,7 +160,7 @@ int SystemDB::check_db_version()
     oss << "SELECT version FROM " << ver_table
         << " WHERE oid=(SELECT MAX(oid) FROM " << ver_table << ")";
 
-    db->exec(oss, this);
+    db->exec(oss, this, true);
 
     oss.str("");
     unset_callback();
@@ -126,7 +170,7 @@ int SystemDB::check_db_version()
         // Table user_pool is present for all OpenNebula versions, and it
         // always contains at least the oneadmin user.
         oss << "SELECT MAX(oid) FROM user_pool";
-        rc = db->exec(oss);
+        rc = db->exec(oss, 0, true);
 
         oss.str("");
 
@@ -138,13 +182,58 @@ int SystemDB::check_db_version()
 
     if( Nebula::db_version() != loaded_db_version )
     {
-        oss << "Database version mismatch. "
-            << "Installed " << Nebula::version() << " uses DB version '"
-            << Nebula::db_version() << "', and existing DB version is '"
-            << loaded_db_version << "'.";
+        if (!is_federation_slave)
+        {
+            oss << "Database version mismatch. "
+                << "Installed " << Nebula::version() << " uses DB version '"
+                << Nebula::db_version() << "', and existing DB version is '"
+                << loaded_db_version << "'.";
+        }
+        else
+        {
+            oss << "Database version mismatch. "
+                << "Installed slave " << Nebula::version() << " uses DB version '"
+                << Nebula::db_version() << "', and existing master DB version is '"
+                << loaded_db_version << "'.";
+        }
 
         NebulaLog::log("ONE",Log::ERROR,oss);
         return -1;
+    }
+
+    if (is_federation_slave)
+    {
+        string loaded_db_version = "";
+
+        // Try to read latest version from the slave db version table
+        set_callback( static_cast<Callbackable::Callback>(&SystemDB::select_cb),
+                      static_cast<void *>(&loaded_db_version) );
+
+        oss << "SELECT version FROM " << slave_ver_table
+            << " WHERE oid=(SELECT MAX(oid) FROM " << slave_ver_table << ")";
+
+        db->exec(oss, this, true);
+
+        oss.str("");
+        unset_callback();
+
+        if( loaded_db_version == "" )
+        {
+            return -3;
+        }
+
+        if( Nebula::db_version() != loaded_db_version )
+        {
+            oss << "Database version mismatch. "
+                << "Installed slave " << Nebula::version() << " uses DB version '"
+                << Nebula::db_version() << "', and existing slave DB version is '"
+                << loaded_db_version << "'.";
+
+            NebulaLog::log("ONE",Log::ERROR,oss);
+            return -1;
+        }
+
+        return 0;
     }
 
     return 0;
@@ -187,8 +276,10 @@ int SystemDB::insert_replace(
 
     // Construct the SQL statement to Insert or Replace
 
-    oss <<" INTO "<< sys_table << " ("<< sys_names <<") VALUES ("
-        << "'" << attr_name << "'," << "'" << sql_xml   << "')";
+    oss <<" INTO "<< sys_table <<
+    " ("<< sys_names <<") VALUES ("
+        << "'" << attr_name << "',"
+        << "'" << sql_xml   << "')";
 
     rc = db->exec(oss);
 

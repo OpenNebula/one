@@ -41,7 +41,7 @@ ImagePool::ImagePool(
         const string&                       remotes_location,
         const vector<const Attribute *>&    _inherit_image_attrs,
         const vector<const Attribute *>&    _inherit_datastore_attrs)
-    :PoolSQL(db, Image::table, true)
+    :PoolSQL(db, Image::table, true, true)
 {
     // Init static defaults
     _default_type       = __default_type;

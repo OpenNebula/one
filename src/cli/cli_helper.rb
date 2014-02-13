@@ -126,6 +126,31 @@ module CLIHelper
         puts
     end
 
+    module HashWithSearch
+        def dsearch(path)
+            stems=path.split('/')
+            hash=self
+
+            stems.delete_if {|s| s.nil? || s.empty? }
+
+            stems.each do |stem|
+                if Hash===hash
+                    if hash[stem]
+                        hash=hash[stem]
+                    else
+                        hash=nil
+                        break
+                    end
+                else
+                    hash=nil
+                    break
+                end
+            end
+
+            hash
+        end
+    end
+
     class ShowTable
         require 'yaml'
 
@@ -168,7 +193,23 @@ module CLIHelper
 
         def show(data, options={})
             update_columns(options)
-            print_table(data, options)
+
+            if Hash===data
+                @data=data
+                @data.extend(HashWithSearch)
+
+                pool=@data.keys.first
+                return print_table(nil, options) if !pool
+
+                element=pool.split('_').first
+
+                pool_data=@data.dsearch("#{pool}/#{element}")
+                pool_data=[pool_data].flatten if pool_data
+
+                print_table(pool_data, options)
+            else
+                print_table(data, options)
+            end
         end
 
         def top(options={}, &block)

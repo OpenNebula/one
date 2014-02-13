@@ -294,6 +294,24 @@ public:
     ~DocumentDelete(){};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ZoneDelete: public RequestManagerDelete
+{
+public:
+    ZoneDelete():
+        RequestManagerDelete("ZoneDelete", "Deletes a zone")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_zonepool();
+        auth_object = PoolObjectSQL::ZONE;
+        auth_op     = AuthRequest::ADMIN;
+    };
+
+    ~ZoneDelete(){};
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

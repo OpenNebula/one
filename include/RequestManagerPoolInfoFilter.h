@@ -380,6 +380,30 @@ public:
             xmlrpc_c::paramList const& paramList, RequestAttributes& att);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ZonePoolInfo : public RequestManagerPoolInfoFilter
+{
+public:
+    ZonePoolInfo():
+        RequestManagerPoolInfoFilter("ZonePoolInfo",
+                                     "Returns the zone pool",
+                                     "A:s")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_zonepool();
+        auth_object = PoolObjectSQL::ZONE;
+    };
+
+    ~ZonePoolInfo(){};
+
+    /* -------------------------------------------------------------------- */
+
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

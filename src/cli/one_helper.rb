@@ -110,6 +110,67 @@ EOT
         }
     ]
 
+    GROUP_OPTIONS=[
+        {
+            :name   => 'name',
+            :large  => '--name name',
+            :short => "-n",
+            :description =>
+                'Name for the new group',
+            :format => String
+        },
+        {
+            :name   => 'admin_group',
+            :large  => '--admin_group name',
+            :short => "-a",
+            :description =>
+                'Creates an admin group with name',
+            :format => String
+        },
+        {
+            :name   => 'admin_user',
+            :large  => '--admin_user name',
+            :short => "-u",
+            :description =>
+                'Creates an admin user for the group with name',
+            :format => String
+        },
+        {
+            :name   => 'admin_passwd',
+            :large  => '--admin_passwd password',
+            :short => "-p",
+            :description =>
+                'Password for the admin user of the group',
+            :format => String
+        },
+        {
+            :name   => 'admin_driver',
+            :large  => '--admin_driver auth_driver',
+            :short => "-d",
+            :description =>
+                'Auth driver for the admin user of the group',
+            :format => String
+        },
+        {
+            :name   => 'resources',
+            :large  => '--resources resources_str',
+            :short => "-r",
+            :description =>
+                'Which resources can be created by group users "\
+                "(VM+NET+IMAGE+TEMPLATE by default)',
+            :format => String
+        },
+        {
+            :name   => 'admin_resources',
+            :large  => '--admin_resources resources_str',
+            :short => "-o",
+            :description =>
+                'Which resources can be created by group users "\
+                "(VM+NET+IMAGE+TEMPLATE by default)',
+            :format => String
+        }
+    ]
+
     #NOTE: Other options defined using this array, add new options at the end
     TEMPLATE_OPTIONS=[
         {
@@ -370,13 +431,11 @@ EOT
                         array=pool.get_hash
                         return -1, array.message if OpenNebula.is_error?(array)
 
-                        pool_to_array(array)
+                        array
                     }
                 else
                     array=pool.get_hash
                     return -1, array.message if OpenNebula.is_error?(array)
-
-                    array=pool_to_array(array)
 
                     if options[:ids]
                         array=array.select do |element|
@@ -500,6 +559,10 @@ EOT
         end
 
         def self.name_to_id(name, pool, ename)
+            if ename=="CLUSTER" and name=="ALL"
+                return 0, "ALL"
+            end
+
             objects=pool.select {|object| object.name==name }
 
             if objects.length>0
@@ -615,6 +678,7 @@ EOT
         when "IMAGE"     then OpenNebula::ImagePool.new(client)
         when "VMTEMPLATE" then OpenNebula::TemplatePool.new(client)
         when "VM"        then OpenNebula::VirtualMachinePool.new(client)
+        when "ZONE"      then OpenNebula::ZonePool.new(client)
         end
 
         rc = pool.info

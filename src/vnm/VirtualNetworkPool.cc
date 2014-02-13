@@ -38,7 +38,7 @@ VirtualNetworkPool::VirtualNetworkPool(
     vector<const Attribute *>           hook_mads,
     const string&                       remotes_location,
     const vector<const Attribute *>&    _inherit_attrs):
-    PoolSQL(db, VirtualNetwork::table, true)
+    PoolSQL(db, VirtualNetwork::table, true, true)
 {
     istringstream iss;
     size_t        pos   = 0;

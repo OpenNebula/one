@@ -187,7 +187,8 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
             tmpl->to_xml(tmpl_str);
 
-            ar.add_create_auth(auth_object, tmpl_str); // CREATE TEMPLATE
+            // CREATE TEMPLATE
+            ar.add_create_auth(att.uid, att.gid, auth_object, tmpl_str);
         }
 
         VirtualMachine::set_auth_request(att.uid, ar, tmpl);

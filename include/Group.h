@@ -20,7 +20,7 @@
 #include "PoolSQL.h"
 #include "ObjectCollection.h"
 #include "User.h"
-#include "Quotas.h"
+#include "QuotasSQL.h"
 
 using namespace std;
 
@@ -55,7 +55,7 @@ public:
     int from_xml(const string &xml_str);
 
     /**
-     *  Adds this user's ID to the set. 
+     *  Adds this user's ID to the set.
      *    @param id of the user to be added to the group
      *    @return 0 on success
      */
@@ -75,9 +75,39 @@ public:
     }
 
     /**
+     * Adds a resource provider
+     * @param zone_id ID of the zone
+     * @param cluster_id ID of the cluster
+     * @param error_msg Returns the error reason, if any
+     *
+     * @return 0 on success
+     */
+    int add_resource_provider(int zone_id, int cluster_id, string& error_msg);
+
+    /**
+     * Deletes a resource provider
+     * @param zone_id ID of the zone
+     * @param cluster_id ID of the cluster
+     * @param error_msg Returns the error reason, if any
+     *
+     * @return 0 on success
+     */
+    int del_resource_provider(int zone_id, int cluster_id, string& error_msg);
+
+    /**
      *  Object quotas, provides set and check interface
      */
-    Quotas quota;
+    GroupQuotas quota;
+
+    /**
+     *  Writes/updates the Group quotas fields in the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int update_quotas(SqlDB *db)
+    {
+        return quota.update(oid, db);
+    };
 
 private:
 
@@ -94,16 +124,19 @@ private:
     Group(int id, const string& name):
         PoolObjectSQL(id,GROUP,name,-1,-1,"","",table),
         ObjectCollection("USERS"),
-        quota("/GROUP/DATASTORE_QUOTA",
-            "/GROUP/NETWORK_QUOTA",
-            "/GROUP/IMAGE_QUOTA",
-            "/GROUP/VM_QUOTA")
+        quota()
     {
         // Allow users in this group to see it
         group_u = 1;
     };
 
     virtual ~Group(){};
+
+    // *************************************************************************
+    // Attributes (Private)
+    // *************************************************************************
+
+    set<pair<int,int> > providers;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -130,23 +163,58 @@ private:
      */
     static int bootstrap(SqlDB * db)
     {
-        ostringstream oss(Group::db_bootstrap);
+        int rc;
 
-        return db->exec(oss);
+        ostringstream oss_group(Group::db_bootstrap);
+        ostringstream oss_quota(GroupQuotas::db_bootstrap);
+
+        rc =  db->exec(oss_group);
+        rc += db->exec(oss_quota);
+
+        return rc;
     };
+
+    /**
+     *  Reads the Group (identified with its OID) from the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int select(SqlDB * db);
+
+    /**
+     *  Reads the Group (identified with its OID) from the database.
+     *    @param db pointer to the db
+     *    @param name of the group
+     *    @param uid of the owner
+     *
+     *    @return 0 on success
+     */
+    int select(SqlDB * db, const string& name, int uid);
+
+    /**
+     *  Reads the Group quotas from the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int select_quotas(SqlDB * db);
+
+    /**
+     *  Drops the group from the database
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int drop(SqlDB *db);
 
     /**
      *  Writes the Group in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str)
-    {
-        return insert_replace(db, false, error_str);
-    }
+    int insert(SqlDB *db, string& error_str);
 
     /**
-     *  Writes/updates the Group's data fields in the database.
+     *  Writes/updates the Group's data fields in the database. This method does
+     *  not update the Group's Quotas
      *    @param db pointer to the db
      *    @return 0 on success
      */
@@ -154,7 +222,7 @@ private:
     {
         string error_str;
         return insert_replace(db, true, error_str);
-    }
+    };
 
     /**
      * Function to print the Group object into a string in

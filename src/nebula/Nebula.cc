@@ -33,238 +33,6 @@
 
 using namespace std;
 
-
-// Pool control table
-const char * SystemDB::pc_table = "pool_control";
-const char * SystemDB::pc_names = "tablename, last_oid";
-
-const char * SystemDB::pc_bootstrap = "CREATE TABLE pool_control "
-    "(tablename VARCHAR(32) PRIMARY KEY, last_oid BIGINT UNSIGNED)";
-
-
-// DB versioning table
-const char * SystemDB::ver_table = "db_versioning";
-const char * SystemDB::ver_names = "oid, version, timestamp, comment";
-
-const char * SystemDB::ver_bootstrap = "CREATE TABLE db_versioning "
-    "(oid INTEGER PRIMARY KEY, version VARCHAR(256), timestamp INTEGER, "
-    "comment VARCHAR(256))";
-
-// System attributes table
-const char * SystemDB::sys_table = "system_attributes";
-const char * SystemDB::sys_names = "name, body";
-
-const char * SystemDB::sys_bootstrap =  "CREATE TABLE IF NOT EXISTS"
-        " system_attributes (name VARCHAR(128) PRIMARY KEY, body MEDIUMTEXT)";
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int SystemDB::bootstrap()
-{
-    int             rc;
-    ostringstream   oss;
-
-    // ------------------------------------------------------------------------
-    // pool control, tracks the last ID's assigned to objects
-    // ------------------------------------------------------------------------
-    oss.str(pc_bootstrap);
-    rc = db->exec(oss);
-
-    // ------------------------------------------------------------------------
-    // db versioning, version of OpenNebula. Insert this version number
-    // ------------------------------------------------------------------------
-    oss.str(ver_bootstrap);
-    rc += db->exec(oss);
-
-    oss.str("");
-    oss << "INSERT INTO " << ver_table << " (" << ver_names << ") "
-        << "VALUES (0, '" << Nebula::db_version() << "', " << time(0)
-        << ", '" << Nebula::version() << " daemon bootstrap')";
-
-    rc += db->exec(oss);
-
-    // ------------------------------------------------------------------------
-    // system , version of OpenNebula. Insert this version number
-    // ------------------------------------------------------------------------
-    oss.str(sys_bootstrap);
-    rc += db->exec(oss);
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int SystemDB::select_cb(void *_loaded_db_version, int num, char **values,
-                      char **names)
-{
-    istringstream   iss;
-    string *        loaded_db_version;
-
-    loaded_db_version = static_cast<string *>(_loaded_db_version);
-
-    if ( (values[0]) && (num == 1) )
-    {
-        *loaded_db_version = values[0];
-    }
-
-    return 0;
-};
-
-/* -------------------------------------------------------------------------- */
-
-int SystemDB::check_db_version()
-{
-    int             rc;
-    ostringstream   oss;
-
-    string loaded_db_version = "";
-
-    // Try to read latest version
-    set_callback( static_cast<Callbackable::Callback>(&SystemDB::select_cb),
-                  static_cast<void *>(&loaded_db_version) );
-
-    oss << "SELECT version FROM " << ver_table
-        << " WHERE oid=(SELECT MAX(oid) FROM " << ver_table << ")";
-
-    db->exec(oss, this, true);
-
-    oss.str("");
-    unset_callback();
-
-    if( loaded_db_version == "" )
-    {
-        // Table user_pool is present for all OpenNebula versions, and it
-        // always contains at least the oneadmin user.
-        oss << "SELECT MAX(oid) FROM user_pool";
-        rc = db->exec(oss, 0, true);
-
-        oss.str("");
-
-        if( rc != 0 )   // Database needs bootstrap
-        {
-            return -2;
-        }
-    }
-
-    if( Nebula::db_version() != loaded_db_version )
-    {
-        oss << "Database version mismatch. "
-            << "Installed " << Nebula::version() << " uses DB version '"
-            << Nebula::db_version() << "', and existing DB version is '"
-            << loaded_db_version << "'.";
-
-        NebulaLog::log("ONE",Log::ERROR,oss);
-        return -1;
-    }
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int SystemDB::insert_replace(
-        const string& attr_name,
-        const string& xml_attr,
-        bool          replace,
-        string&       err)
-{
-    ostringstream   oss;
-
-    int    rc;
-    char * sql_xml;
-
-    sql_xml = db->escape_str(xml_attr.c_str());
-
-    if ( sql_xml == 0 )
-    {
-        goto error_body;
-    }
-
-    if ( ObjectXML::validate_xml(sql_xml) != 0 )
-    {
-        goto error_xml;
-    }
-
-    if ( replace )
-    {
-        oss << "REPLACE";
-    }
-    else
-    {
-        oss << "INSERT";
-    }
-
-    // Construct the SQL statement to Insert or Replace
-
-    oss <<" INTO "<< sys_table <<
-    " ("<< sys_names <<") VALUES ("
-        << "'" << attr_name << "',"
-        << "'" << sql_xml   << "')";
-
-    rc = db->exec(oss);
-
-    db->free_str(sql_xml);
-
-    return rc;
-
-error_xml:
-    db->free_str(sql_xml);
-
-error_body:
-    err = "Error inserting system attribute in DB.";
-    return -1;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int SystemDB::select_attr_cb(void *  _xml_attr,
-                             int     num,
-                             char ** values,
-                             char ** names)
-{
-    istringstream   iss;
-    string *        xml_attr;
-
-    xml_attr = static_cast<string *>(_xml_attr);
-
-    if ( (values[0]) && (num == 1) )
-    {
-        *xml_attr = values[0];
-    }
-
-    return 0;
-};
-
-/* -------------------------------------------------------------------------- */
-
-int SystemDB::select_sys_attribute(const string& attr_name, string& attr_xml)
-{
-    ostringstream oss;
-
-    int rc;
-
-    set_callback(static_cast<Callbackable::Callback>(&SystemDB::select_attr_cb),
-                 static_cast<void *>(&attr_xml) );
-
-    oss << "SELECT body FROM " << sys_table << " WHERE name = '"
-        << attr_name << "'";
-
-    rc = db->exec(oss, this);
-
-    unset_callback();
-
-    if (rc != 0)
-    {
-        return -1;
-    }
-
-    return 0;
-}
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -384,6 +152,70 @@ void Nebula::start(bool bootstrap_only)
     xmlInitParser();
 
     // -----------------------------------------------------------
+    // Init federation configuration
+    // -----------------------------------------------------------
+
+    vector<const Attribute *> atts;
+
+    federation_enabled  = false;
+    federation_master   = false;
+    zone_id             = 0;
+    master_oned         = "";
+
+    rc = nebula_configuration->get("FEDERATION", atts);
+
+    if (rc != 0)
+    {
+        const VectorAttribute * vatt = static_cast<const VectorAttribute *>
+                                          (atts[0]);
+
+        string mode;
+        mode = vatt->vector_value("MODE");
+        one_util::toupper(mode);
+
+        if (mode == "STANDALONE")
+        {
+            federation_enabled = false;
+            federation_master = false;
+            zone_id = 0;
+        }
+        else if (mode == "MASTER")
+        {
+            federation_enabled = true;
+            federation_master = true;
+        }
+        else if (mode == "SLAVE")
+        {
+            federation_enabled = true;
+            federation_master = false;
+        }
+        else
+        {
+            throw runtime_error(
+                "FEDERATION MODE must be one of STANDALONE, MASTER, SLAVE.");
+        }
+
+        if (federation_enabled)
+        {
+            rc = vatt->vector_value("ZONE_ID", zone_id);
+
+            if (rc != 0)
+            {
+                throw runtime_error("FEDERATION ZONE_ID must be set for "
+                    "federated instances.");
+            }
+
+            master_oned = vatt->vector_value("MASTER_ONED");
+
+            if (master_oned.empty())
+            {
+                throw runtime_error(
+                    "FEDERATION MASTER_ONED endpoint is missing.");
+            }
+        }
+    }
+
+    // -----------------------------------------------------------
     // Database
     // -----------------------------------------------------------
     try
@@ -472,18 +304,27 @@ void Nebula::start(bool bootstrap_only)
 
         system_db = new SystemDB(db);
 
-        rc = system_db->check_db_version();
+        rc = system_db->check_db_version(is_federation_slave());
 
         if( rc == -1 )
         {
             throw runtime_error("Database version mismatch.");
         }
 
-        if( rc == -2 )
+        if( is_federation_slave() && rc == -2 )
+        {
+            throw runtime_error(
+                    "Either the database was not bootstrapped by the "
+                    "federation master, or the replication was "
+                    "not configured.");
+        }
+
+        if( rc == -2 || rc == -3 )
         {
             rc = 0;
 
-            NebulaLog::log("ONE",Log::INFO,"Bootstrapping OpenNebula database.");
+            NebulaLog::log("ONE",Log::INFO,
+                    "Bootstrapping OpenNebula database.");
 
             rc += VirtualMachinePool::bootstrap(db);
             rc += HostPool::bootstrap(db);
@@ -496,11 +337,19 @@ void Nebula::start(bool bootstrap_only)
             rc += DatastorePool::bootstrap(db);
             rc += ClusterPool::bootstrap(db);
             rc += DocumentPool::bootstrap(db);
+            rc += ZonePool::bootstrap(db);
 
             // Create the system tables only if bootstrap went well
             if ( rc == 0 )
             {
-                rc += system_db->bootstrap();
+                if (is_federation_slave())
+                {
+                    rc += system_db->slave_bootstrap();
+                }
+                else
+                {
+                    rc += system_db->bootstrap();
+                }
             }
 
             // Insert default system attributes
@@ -561,6 +410,7 @@ void Nebula::start(bool bootstrap_only)
 
         clpool  = new ClusterPool(db);
         docpool = new DocumentPool(db);
+        zonepool= new ZonePool(db, is_federation_slave());
 
         nebula_configuration->get("VM_HOOK", vm_hooks);
         nebula_configuration->get("HOST_HOOK",  host_hooks);
@@ -604,10 +454,13 @@ void Nebula::start(bool bootstrap_only)
                                         remotes_location,
                                         inherit_vnet_attrs);
 
-        gpool  = new GroupPool(db, group_hooks, remotes_location);
+        gpool  = new GroupPool(db, group_hooks,
+                            remotes_location, is_federation_slave());
 
         nebula_configuration->get("SESSION_EXPIRATION_TIME", expiration_time);
-        upool = new UserPool(db, expiration_time, user_hooks, remotes_location);
+
+        upool = new UserPool(db, expiration_time, user_hooks,
+                            remotes_location, is_federation_slave());
 
         nebula_configuration->get("DEFAULT_IMAGE_TYPE", default_image_type);
         nebula_configuration->get("DEFAULT_DEVICE_PREFIX",
@@ -848,7 +701,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- ACL Manager ----
     try
     {
-        aclm = new AclManager(db);
+        aclm = new AclManager(db, zone_id, is_federation_slave(), timer_period);
     }
     catch (bad_alloc&)
     {
@@ -995,6 +848,7 @@ void Nebula::start(bool bootstrap_only)
     rm->finalize();
     hm->finalize();
     imagem->finalize();
+    aclm->finalize();
 
     //sleep to wait drivers???
 
@@ -1007,6 +861,11 @@ void Nebula::start(bool bootstrap_only)
     pthread_join(rm->get_thread_id(),0);
     pthread_join(hm->get_thread_id(),0);
     pthread_join(imagem->get_thread_id(),0);
+
+    if(is_federation_slave())
+    {
+        pthread_join(aclm->get_thread_id(),0);
+    }
 
     //XML Library
     xmlCleanupParser();

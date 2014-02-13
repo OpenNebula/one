@@ -31,6 +31,7 @@
 #include "DatastorePool.h"
 #include "ClusterPool.h"
 #include "DocumentPool.h"
+#include "ZonePool.h"
 
 #include "VirtualMachineManager.h"
 #include "LifeCycleManager.h"
@@ -116,6 +117,11 @@ public:
     DocumentPool * get_docpool()
     {
         return docpool;
+    };
+
+    ZonePool * get_zonepool()
+    {
+        return zonepool;
     };
 
     // --------------------------------------------------------------
@@ -375,6 +381,36 @@ public:
      */
     void bootstrap_db();
 
+    // --------------------------------------------------------------
+    // Federation
+    // --------------------------------------------------------------
+
+    bool is_federation_enabled()
+    {
+        return federation_enabled;
+    };
+
+    bool is_federation_master()
+    {
+        return federation_master;
+
+    };
+
+    bool is_federation_slave()
+    {
+        return federation_enabled && !federation_master;
+    };
+
+    int get_zone_id()
+    {
+        return zone_id;
+    };
+
+    const string& get_master_oned()
+    {
+        return master_oned;
+    };
+
     // -----------------------------------------------------------------------
     // Configuration attributes (read from oned.conf)
     // -----------------------------------------------------------------------
@@ -387,6 +423,20 @@ public:
     void get_configuration_attribute(
         const char * name,
         string& value) const
+    {
+        string _name(name);
+
+        nebula_configuration->Template::get(_name, value);
+    };
+
+    /**
+     *  Gets a configuration attribute for oned
+     *    @param name of the attribute
+     *    @param value of the attribute
+     */
+    void get_configuration_attribute(
+        const char * name,
+        long long& value) const
     {
         string _name(name);
 
@@ -564,9 +614,10 @@ private:
                             "/DEFAULT_GROUP_QUOTAS/NETWORK_QUOTA",
                             "/DEFAULT_GROUP_QUOTAS/IMAGE_QUOTA",
                             "/DEFAULT_GROUP_QUOTAS/VM_QUOTA"),
-        system_db(0), db(0), vmpool(0), hpool(0), vnpool(0),
-        upool(0), ipool(0), gpool(0), tpool(0), dspool(0), clpool(0),
-        docpool(0), lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0), authm(0),
+        system_db(0), db(0),
+        vmpool(0), hpool(0), vnpool(0), upool(0), ipool(0), gpool(0), tpool(0),
+        dspool(0), clpool(0), docpool(0), zonepool(0),
+        lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0), authm(0),
         aclm(0), imagem(0)
     {
         const char * nl = getenv("ONE_LOCATION");
@@ -612,6 +663,7 @@ private:
         delete dspool;
         delete clpool;
         delete docpool;
+        delete zonepool;
         delete vmm;
         delete lcm;
         delete im;
@@ -652,6 +704,15 @@ private:
     OpenNebulaTemplate * nebula_configuration;
 
     // ---------------------------------------------------------------
+    // Federation
+    // ---------------------------------------------------------------
+
+    bool    federation_enabled;
+    bool    federation_master;
+    int     zone_id;
+    string  master_oned;
+
+    // ---------------------------------------------------------------
     // Default quotas
     // ---------------------------------------------------------------
 
@@ -679,6 +740,7 @@ private:
     DatastorePool      * dspool;
     ClusterPool        * clpool;
     DocumentPool       * docpool;
+    ZonePool           * zonepool;
 
     // ---------------------------------------------------------------
     // Nebula Managers

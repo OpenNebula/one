@@ -42,7 +42,8 @@ public:
     UserPool(SqlDB * db,
              time_t  __session_expiration_time,
              vector<const Attribute *> hook_mads,
-             const string&             remotes_location);
+             const string&             remotes_location,
+             bool                      is_federation_slave);
 
     ~UserPool(){};
 
@@ -60,6 +61,15 @@ public:
         const string& auth,
         bool    enabled,
         string& error_str);
+
+    /**
+     *  Drops the object's data in the data base. The object mutex SHOULD be
+     *  locked.
+     *    @param objsql a pointer to the object
+     *    @param error_msg Error reason, if any
+     *    @return 0 on success, -1 DB error
+     */
+    int drop(PoolObjectSQL * objsql, string& error_msg);
 
     /**
      *  Function to get a User from the pool, if the object is not in memory
@@ -99,14 +109,19 @@ public:
         return name;
     };
 
-    /** Update a particular User
+    /**
+     * Update a particular User. This method does not update the user's quotas
      *    @param user pointer to User
      *    @return 0 on success
      */
-    int update(User * user)
-    {
-        return user->update(db);
-    };
+    int update(User * user);
+
+    /**
+     * Update a particular User's Quotas
+     *    @param user pointer to User
+     *    @return 0 on success
+     */
+    int update_quotas(User * user);
 
     /**
      *  Bootstraps the database table(s) associated to the User pool
@@ -151,10 +166,7 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit)
-    {
-        return PoolSQL::dump(oss, "USER_POOL", User::table, where, limit);
-    };
+    int dump(ostringstream& oss, const string& where, const string& limit);
 
     /**
      *  Name for the OpenNebula core authentication process
@@ -191,16 +203,6 @@ public:
      *  Identifier for the oneadmin user
      */
     static const int ONEADMIN_ID;
-
-protected:
-
-    /**
-     * Adds the default quotas xml element, right after all the
-     * pool objects
-     *
-     * @param oss The output stream to dump the xml contents
-     */
-    virtual void add_extra_xml(ostringstream&  oss);
 
 private:
     //--------------------------------------------------------------------------
@@ -254,6 +256,17 @@ private:
         return new User(-1,-1,"","","",UserPool::CORE_AUTH,true);
     };
 
+    //--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+
+    /**
+     *  Callback function to get output in XML format
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
+     *    @return 0 on success
+     */
+    int dump_cb(void * _oss, int num, char **values, char **names);
 };
 
 #endif /*USER_POOL_H_*/

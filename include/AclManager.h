@@ -28,26 +28,33 @@ using namespace std;
 
 class PoolObjectAuth;
 
+extern "C" void * acl_action_loop(void *arg);
+
 /**
  *  This class manages the ACL rules and the authorization engine
  */
-class AclManager : public Callbackable
+class AclManager : public Callbackable, public ActionListener
 {
 public:
-    AclManager(SqlDB * _db);
 
-    AclManager():db(0),lastOID(0)
-    {
-       pthread_mutex_init(&mutex, 0);
-    };
+    /**
+     *  @param _db pointer to the DB
+     *  @param zone_id of the Zone
+     *  @param refresh_cache will reload periodically rules from the DB
+     *  @param timer_period period to reload the rules
+     */
+    AclManager(SqlDB * _db, int zone_id, bool _refresh_cache, time_t timer);
 
     virtual ~AclManager();
 
     /**
-     *  Loads the ACL rule set from the DB
+     *  Loads the ACL rule set from the DB, and starts the refresh loop is
+     *  refresh_cache is set
      *    @return 0 on success.
      */
     int start();
+
+    void finalize();
 
     /* ---------------------------------------------------------------------- */
     /* Rule management                                                        */
@@ -74,6 +81,7 @@ public:
      *    @param user 64 bit ID and flags
      *    @param resource 64 bit ID and flags
      *    @param rights 64 bit flags
+     *    @param zone 64 bit flags
      *    @param error_str Returns the error reason, if any
      *
      *    @return the oid assigned to the rule on success,
@@ -81,9 +89,10 @@ public:
      *    -2 if the rule is malformed,
      *    -3 if the DB insert failed
      */
-    virtual int add_rule(long long user, 
-                         long long resource, 
+    virtual int add_rule(long long user,
+                         long long resource,
                          long long rights,
+                         long long zone,
                          string&   error_str);
     /**
      *  Deletes a rule from the ACL rule set
@@ -93,6 +102,23 @@ public:
      *    @return 0 on success
      */
     virtual int del_rule(int oid, string& error_str);
+
+    /**
+     *  Deletes a new rule from the ACL rule set
+     *
+     *    @param user 64 bit ID and flags
+     *    @param resource 64 bit ID and flags
+     *    @param rights 64 bit flags
+     *    @param zone 64 bit flags
+     *
+     *    @param error_str Returns the error reason, if any
+     *    @return 0 on success
+     */
+    virtual int del_rule(long long user,
+                         long long resource,
+                         long long rights,
+                         long long zone,
+                         string&   error_str);
 
     /**
      * Deletes rules that apply to this user id
@@ -162,7 +188,32 @@ public:
      */
     virtual int dump(ostringstream& oss);
 
+    // ----------------------------------------
+    // Refresh loop thread
+    // ----------------------------------------
+
+    /**
+     *  Gets the AclManager thread identification. The thread is only
+     *  initialized if the refresh_cache flag is true.
+     *    @return pthread_t for the manager thread (that in the action loop).
+     */
+    pthread_t get_thread_id() const
+    {
+        return acl_thread;
+    };
+
 protected:
+
+    /**
+     *  Constructor for derived ACL managers. Classes derived from this one
+     *  will operate in a stand-alone fashion (i.e. no refresh of ACL rules
+     *  from DB)
+     */
+    AclManager(int _zone_id)
+        :zone_id(_zone_id), db(0),lastOID(0), is_federation_slave(false)
+    {
+       pthread_mutex_init(&mutex, 0);
+    };
 
     // ----------------------------------------
     // ACL rules management
@@ -255,6 +306,12 @@ private:
     void del_resource_matching_rules(
             long long resource_req,
             long long resource_mask);
+
+    // ----------------------------------------
+    // Local zone
+    // ----------------------------------------
+
+    int zone_id;
 
     // ----------------------------------------
     // Mutex synchronization
@@ -353,6 +410,45 @@ private:
      *  Callback to set the lastOID
      */
     int  init_cb(void *nil, int num, char **values, char **names);
+
+    // ----------------------------------------
+    // Refresh loop thread
+    // ----------------------------------------
+
+    /**
+     * Flag to refresh the cache periodically
+     */
+    bool            is_federation_slave;
+
+    /**
+     *  Timer period for the cache refresh loop.
+     */
+    time_t          timer_period;
+
+    /**
+     *  Thread id for the ACL Manager
+     */
+    pthread_t       acl_thread;
+
+    /**
+     *  Action engine for the Manager
+     */
+    ActionManager   am;
+
+    /**
+     *  Function to execute the Manager action loop method within a new pthread
+     *  (requires C linkage)
+     */
+    friend void * acl_action_loop(void *arg);
+
+    /**
+     *  The action function executed when an action is triggered.
+     *    @param action the name of the action
+     *    @param arg arguments for the action function
+     */
+    void do_action(
+        const string &  action,
+        void *          arg);
 };
 
 #endif /*ACL_MANAGER_H*/

@@ -21,37 +21,33 @@
 
 int ObjectCollection::from_xml_node(const xmlNodePtr node)
 {
-   xmlNodePtr    cur_node = 0;
    istringstream iss;
    int           id;
    int           rc = 0;
+   ostringstream oss;
 
-   for (cur_node = node->children; cur_node != 0; cur_node = cur_node->next)
+   vector<string>::iterator it;
+
+   ObjectXML oxml(node);
+
+   oss << "/" << collection_name << "/ID";
+   vector<string> ids = oxml[oss.str().c_str()];
+
+   for (it = ids.begin(); it != ids.end(); it++)
    {
-        if ((cur_node->type == XML_ELEMENT_NODE) && 
-            (cur_node->children != 0) && 
-            ((cur_node->children->type == XML_TEXT_NODE ) || 
-             (cur_node->children->type == XML_CDATA_SECTION_NODE)))
-        {
-            iss.clear();
-            iss.str(reinterpret_cast<const char *>(cur_node->children->content)); 
-            iss >> dec >> id;
+       iss.clear();
+       iss.str(*it);
+       iss >> dec >> id;
 
-            if ( iss.fail() )
-            {
-                rc = -1;
-                break;
-            }
-            else
-            {
-                collection_set.insert(id);
-            }
-        }
-        else
-        {
-            rc = -1;
-            break;
-        }
+       if ( iss.fail() )
+       {
+           rc = -1;
+           break;
+       }
+       else
+       {
+           collection_set.insert(id);
+       }
    }
 
     return rc;

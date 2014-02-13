@@ -86,6 +86,13 @@ private:
 
     static const char * ver_table;
 
+    // DB slave versioning table
+    static const char * slave_ver_names;
+
+    static const char * slave_ver_bootstrap;
+
+    static const char * slave_ver_table;
+
     // System attributes table
     static const char * sys_names;
 
@@ -115,6 +122,13 @@ private:
     int bootstrap();
 
     /**
+     *  Bootstraps the database control tables for a slave DB
+     *
+     *    @return 0 on success
+     */
+    int slave_bootstrap();
+
+    /**
      *  Callback function for the check_db_version method. Stores the read
      *  version in loaded_db_version
      *    @param _loaded_db_version returned columns
@@ -136,12 +150,14 @@ private:
                        char **names);
     /**
      * Reads the current DB version.
+     * @param is_federation_slave
      *
      * @return  0 on success,
      *          -1 if there is a version mismatch,
-     *          -2 if the DB needs a bootstrap
+     *          -2 if the DB needs a bootstrap from the master
+     *          -3 if the DB needs a bootstrap from the slave
      */
-    int check_db_version();
+    int check_db_version(bool is_federation_slave);
 };
 
 #endif //SYSTEM_DB_H

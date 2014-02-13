@@ -28,7 +28,7 @@ const long long AclRule::CLUSTER_ID     = 0x0000000800000000LL;
 
 const long long AclRule::NONE_ID        = 0x1000000000000000LL;
 
-const int AclRule::num_pool_objects = 10;
+const int AclRule::num_pool_objects = 11;
 const PoolObjectSQL::ObjectType AclRule::pool_objects[] = {
             PoolObjectSQL::VM,
             PoolObjectSQL::HOST,
@@ -39,7 +39,8 @@ const PoolObjectSQL::ObjectType AclRule::pool_objects[] = {
             PoolObjectSQL::GROUP,
             PoolObjectSQL::DATASTORE,
             PoolObjectSQL::CLUSTER,
-            PoolObjectSQL::DOCUMENT
+            PoolObjectSQL::DOCUMENT,
+            PoolObjectSQL::ZONE
 };
 
 const int AclRule::num_auth_operations = 4;
@@ -53,7 +54,15 @@ const AuthRequest::Operation AclRule::auth_operations[] = {
 const long long AclRule::INVALID_CLUSTER_OBJECTS =
         PoolObjectSQL::VM | PoolObjectSQL::IMAGE | PoolObjectSQL::USER |
         PoolObjectSQL::TEMPLATE | PoolObjectSQL::GROUP | PoolObjectSQL::ACL |
-        PoolObjectSQL::CLUSTER | PoolObjectSQL::DOCUMENT;
+        PoolObjectSQL::CLUSTER | PoolObjectSQL::DOCUMENT | PoolObjectSQL::ZONE;
+
+const long long AclRule::INVALID_GROUP_OBJECTS =
+        PoolObjectSQL::HOST | PoolObjectSQL::GROUP | PoolObjectSQL::CLUSTER |
+        PoolObjectSQL::ZONE;
+
+const long long AclRule::FEDERATED_OBJECTS =
+        PoolObjectSQL::USER | PoolObjectSQL::GROUP | PoolObjectSQL::ZONE |
+        PoolObjectSQL::ACL;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -161,6 +170,21 @@ bool AclRule::malformed(string& error_str) const
             << PoolObjectSQL::type_to_str(PoolObjectSQL::NET) << " types";
     }
 
+    if ((resource & GROUP_ID) && (resource_type & INVALID_GROUP_OBJECTS))
+    {
+        if ( error )
+        {
+            oss << "; ";
+        }
+
+        error = true;
+        oss << "[resource] GROUP(@) selector cannot be applied to "
+            << PoolObjectSQL::type_to_str(PoolObjectSQL::HOST) << ", "
+            << PoolObjectSQL::type_to_str(PoolObjectSQL::GROUP) << ", "
+            << PoolObjectSQL::type_to_str(PoolObjectSQL::CLUSTER) << " or "
+            << PoolObjectSQL::type_to_str(PoolObjectSQL::ZONE) << " types";
+    }
+
     if ( (resource & 0xF00000000LL) == 0 )
     {
         if ( error )
@@ -238,6 +262,75 @@ bool AclRule::malformed(string& error_str) const
 
         error = true;
         oss << "wrong [rights], it cannot be bigger than 0xF";
+    }
+
+    // Check zone
+
+    if ( (zone & GROUP_ID) != 0 )
+    {
+        error = true;
+        oss << "[zone] GROUP (@) bit is not supported";
+    }
+
+    if ( (zone & INDIVIDUAL_ID) != 0 && (zone & ALL_ID) != 0 )
+    {
+        if ( error )
+        {
+            oss << "; ";
+        }
+
+        error = true;
+        oss << "[zone] INDIVIDUAL (#) and ALL (*) bits are exclusive";
+    }
+
+    if ( (zone & 0x700000000LL) == 0 )
+    {
+        if ( error )
+        {
+            oss << "; ";
+        }
+
+        error = true;
+        oss << "[zone] is missing one of the INDIVIDUAL or ALL bits";
+    }
+
+    if ( zone_id() < 0 )
+    {
+        if ( error )
+        {
+            oss << "; ";
+        }
+
+        error = true;
+        oss << "[zone] ID cannot be negative";
+    }
+
+    if ( (zone & ALL_ID) != 0 && zone_id() != 0 )
+    {
+        if ( error )
+        {
+            oss << "; ";
+        }
+
+        error = true;
+        oss << "when using the ALL bit, [zone] ID must be 0";
+    }
+
+    if ((zone & ALL_ID) &&
+        (resource & INDIVIDUAL_ID) &&
+        ( (resource_type & FEDERATED_OBJECTS) != resource_type ) )
+    {
+        if ( error )
+        {
+            oss << "; ";
+        }
+
+        error = true;
+        oss << "[resource] INDIVIDUAL(#) selector cannot be applied "
+            << "to ALL zones, except for "
+            << PoolObjectSQL::type_to_str(PoolObjectSQL::USER) << ", "
+            << PoolObjectSQL::type_to_str(PoolObjectSQL::GROUP) << " and "
+            << PoolObjectSQL::type_to_str(PoolObjectSQL::ZONE) << " types";
     }
 
     if ( error )
@@ -331,6 +424,21 @@ void AclRule::build_str()
         }
     }
 
+    oss << " ";
+
+    if ( (zone & INDIVIDUAL_ID) != 0 )
+    {
+        oss << "#" << zone_id();
+    }
+    else if ( (zone & ALL_ID) != 0 )
+    {
+        oss << "*";
+    }
+    else
+    {
+        oss << "??";
+    }
+
     str = oss.str();
 }
 
@@ -347,6 +455,7 @@ string& AclRule::to_xml(string& xml) const
         "<USER>"     << hex << user      << "</USER>"        <<
         "<RESOURCE>" << hex << resource  << "</RESOURCE>"    <<
         "<RIGHTS>"   << hex << rights    << "</RIGHTS>"      <<
+        "<ZONE>"     << hex << zone      << "</ZONE>"        <<
         "<STRING>"   << str              << "</STRING>"      <<
     "</ACL>";
 
@@ -396,6 +505,10 @@ int AclRule::from_xml(xmlNodePtr node)
         else if (name == "RIGHTS")
         {
             iss >> hex >> rights;
+        }
+        else if (name == "ZONE")
+        {
+            iss >> hex >> zone;
         }
         else if (name == "STRING")
         {

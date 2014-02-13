@@ -69,10 +69,10 @@ cmd = CommandParser::CmdParser.new(ARGV) do
             if OpenNebula.is_error?(new_args)
                 next -1, new_args.message
             end
-        when 3
+        when 3, 4
             new_args=args
         else
-            next -1, "Wrong number of arguments, must be 1 or 3"
+            next -1, "Wrong number of arguments, must be 1 or 4"
         end
 
         helper.create_resource(options) do |rule|

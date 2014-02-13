@@ -39,7 +39,7 @@ const int    DatastorePool::FILE_DS_ID   = 2;
 /* -------------------------------------------------------------------------- */
 
 DatastorePool::DatastorePool(SqlDB * db):
-                        PoolSQL(db, Datastore::table, true)
+                        PoolSQL(db, Datastore::table, true, true)
 {
     ostringstream oss;
     string        error_str;

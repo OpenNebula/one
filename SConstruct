@@ -80,6 +80,8 @@ main_env.Append(LIBPATH=[
     cwd+'/src/acl',
     cwd+'/src/xml',
     cwd+'/src/document',
+    cwd+'/src/zone',
+    cwd+'/src/client',
 ])
 
 # Compile flags
@@ -243,11 +245,13 @@ build_scripts=[
     'src/acl/SConstruct',
     'src/xml/SConstruct',
     'src/document/SConstruct',
+    'src/zone/SConstruct',
     'share/man/SConstruct',
     'src/sunstone/locale/languages/SConstruct',
     'share/scripts/context-packages/SConstruct',
     'share/rubygems/SConstruct',
-    'src/im_mad/collectd/SConstruct'
+    'src/im_mad/collectd/SConstruct',
+    'src/client/SConstruct'
 ]
 
 for script in build_scripts:

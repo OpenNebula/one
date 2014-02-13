@@ -221,6 +221,24 @@ public:
     ~ClusterUpdateTemplate(){};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ZoneUpdateTemplate : public RequestManagerUpdateTemplate
+{
+public:
+    ZoneUpdateTemplate():
+        RequestManagerUpdateTemplate("ZoneUpdateTemplate",
+                                     "Updates a zone template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_zonepool();
+        auth_object = PoolObjectSQL::ZONE;
+    };
+
+    ~ZoneUpdateTemplate(){};
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

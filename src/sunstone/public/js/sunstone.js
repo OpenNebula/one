@@ -438,13 +438,50 @@ $(document).ready(function(){
         return false;
     });
 
+    zone_refresh();
 
+
+   $('#zonelector').die();
+   $('#zonelector').live("click", function(){
+       zone_refresh();
+   });
+
+    $('a.zone-choice').live("click", function(){
+      $.ajax({
+        url: 'config',
+        type: "HEAD",
+        headers: {
+            "ZONE_NAME" : this.id
+        },
+        dataType: "json",
+        success: function(){
+            window.location.href = ".";
+        },
+        error: function(response){
+        }
+      });
+    });
 
     //Start with the dashboard (supposing we have one).
     showTab('dashboard-tab');
 
 });
 
+
+//reads the cookie and places its info in the 'cookie' var
+function zone_refresh(){
+    // Populate Zones dropdown
+    OpenNebula.Zone.list({
+      timeout: true,
+      success: function (request, obj_list){
+          $('.zone-ul').empty();
+          $.each(obj_list,function(){
+              $('.zone-ul').append('<li><a id="'+this.ZONE.NAME+'" class="zone-choice"><i class="icon-home"></i> '+this.ZONE.NAME+'</a></li>');
+          });
+      },
+      error: onError
+    });
+}
 
 
 
@@ -468,9 +505,6 @@ function setLogin(){
         uid = cookie["one-user_id"];
         gid = cookie["one-user_gid"];
         break;
-    case "ozones":
-        username = cookie["ozones-user"];
-        break;
     case "selfservice":
         username = cookie["occi-user"];
         uid = cookie["occi-user-id"];
@@ -483,6 +517,10 @@ function setLogin(){
         <li><a href="#" class="configuration"><i class="fa fa-cog"></i> Settings</a></li>\
         <li><a href="#" class="logout"><i class="fa fa-power-off"></i> Sign Out</a></li>\
       </ul>\
+    </div>\
+    <div href="#" class="button tiny secondary dropdown" id="zonelector">\
+      <i class="icon-home header-icon"></i> '+ config['zone_name'] + '\
+      <ul class="zone-ul"></ul>\
     </div>';
 
 
@@ -495,9 +533,6 @@ function setLogin(){
         case "sunstone":
             OpenNebula.Auth.logout({success:redirect});
             break;
-        case "ozones":
-            oZones.Auth.logout({success:redirect});
-            break;
         case "selfservice":
             OCCI.Auth.logout({success:function(){window.location.href = "ui";}});
             break;
@@ -506,13 +541,11 @@ function setLogin(){
     });
 }
 
-//returns whether we are Sunstone, or oZones
+//returns whether we are Sunstone, or other
 //not the most elegant way, but better in its own function
 function whichUI(){
     if (typeof(OpenNebula)!="undefined")
         return "sunstone";
-    if (typeof(oZones)!="undefined")
-        return "ozones";
     if (typeof(OCCI)!="undefined")
         return "selfservice";
 };

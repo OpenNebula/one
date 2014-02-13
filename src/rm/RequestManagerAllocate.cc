@@ -41,7 +41,7 @@ bool RequestManagerAllocate::allocate_authorization(
         tmpl->to_xml(tmpl_str);
     }
 
-    ar.add_create_auth(auth_object, tmpl_str);
+    ar.add_create_auth(att.uid, att.gid, auth_object, tmpl_str);
 
     if ( cluster_perms->oid != ClusterPool::NONE_CLUSTER_ID )
     {
@@ -99,7 +99,7 @@ bool VirtualMachineAllocate::allocate_authorization(
 
     // ------------------ Authorize VM create operation ------------------------
 
-    ar.add_create_auth(auth_object, tmpl->to_xml(t64));
+    ar.add_create_auth(att.uid, att.gid, auth_object, tmpl->to_xml(t64));
 
     VirtualMachine::set_auth_request(att.uid, ar, ttmpl);
 
@@ -485,7 +485,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
         // ------------------ Check permissions and ACLs  ----------------------
         tmpl->to_xml(tmpl_str);
 
-        ar.add_create_auth(auth_object, tmpl_str); // CREATE IMAGE
+        ar.add_create_auth(att.uid, att.gid, auth_object, tmpl_str); // CREATE IMAGE
 
         ar.add_auth(AuthRequest::USE, ds_perms); // USE DATASTORE
 
@@ -712,4 +712,39 @@ int DocumentAllocate::pool_allocate(
 
     return docpool->allocate(att.uid, att.gid, att.uname, att.gname, umask,
             type, tmpl, &id, error_str);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void ZoneAllocate::request_execute(xmlrpc_c::paramList const& params,
+                                             RequestAttributes& att)
+{
+    if(!Nebula::instance().is_federation_master())
+    {
+        failure_response(INTERNAL, allocate_error(
+                "New Zones can only be created if OpenNebula "
+                "is configured as a Federation Master."), att);
+        return;
+    }
+
+    RequestManagerAllocate::request_execute(params, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ZoneAllocate::pool_allocate(
+        xmlrpc_c::paramList const&  paramList,
+        Template *                  tmpl,
+        int&                        id,
+        string&                     error_str,
+        RequestAttributes&          att,
+        int                         umask)
+{
+    string name = xmlrpc_c::value_string(paramList.getString(1));
+
+    ZonePool * zonepool = static_cast<ZonePool *>(pool);
+
+    return zonepool->allocate(tmpl, &id, error_str);
 }

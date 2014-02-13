@@ -23,12 +23,6 @@ setInterval(function(){
         if ((cookie["one-user"] == null) || (cookie["one-user"] !== user_cookie)) {
             window.location.href='/';
         }
-    } else if (whichUI() == "ozones") {
-        var user_cookie = cookie["ozones-user"];
-        readCookie();
-        if ((cookie["ozones-user"] == null) || (cookie["ozones-user"] !== user_cookie)) {
-            window.location.href='/';
-        }
     }
 },5000);
 

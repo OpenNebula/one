@@ -81,3 +81,287 @@ void GroupSetQuota::
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void GroupEditProvider::request_execute(
+        xmlrpc_c::paramList const&  paramList,
+        RequestAttributes&          att)
+{
+    int group_id    = xmlrpc_c::value_int(paramList.getInt(1));
+    int zone_id     = xmlrpc_c::value_int(paramList.getInt(2));
+    int cluster_id  = xmlrpc_c::value_int(paramList.getInt(3));
+
+    PoolObjectAuth group_perms;
+    PoolObjectAuth zone_perms;
+    PoolObjectAuth cluster_perms;
+
+    string group_name;
+    string zone_name;
+    string cluster_name;
+    string error_str;
+
+    Group* group;
+
+    int rc;
+    bool zone_exists = false;
+    bool cluster_exists = false;
+
+    // -------------------------------------------------------------------------
+    // Authorize the action
+    // -------------------------------------------------------------------------
+
+    rc = get_info(pool, group_id, PoolObjectSQL::GROUP,
+                    att, group_perms, group_name);
+
+    if ( rc == -1 )
+    {
+        return;
+    }
+
+    rc = get_info(zonepool, zone_id, PoolObjectSQL::ZONE,
+                    att, zone_perms, zone_name);
+
+    zone_exists = (rc == 0);
+
+    if ( rc == -1 && check_obj_exist )
+    {
+        return;
+    }
+
+    // TODO: cluster must exist in target zone, this code only checks locally
+
+    if (cluster_id != ClusterPool::ALL_RESOURCES && zone_id == local_zone_id)
+    {
+        rc = get_info(clpool, cluster_id, PoolObjectSQL::CLUSTER,
+                        att, cluster_perms, cluster_name);
+
+        cluster_exists = (rc == 0);
+
+        if ( rc == -1 && check_obj_exist )
+        {
+            return;
+        }
+    }
+
+    if ( att.uid != 0 )
+    {
+        AuthRequest ar(att.uid, att.group_ids);
+
+        ar.add_auth(AuthRequest::ADMIN, group_perms);       // ADMIN GROUP
+
+        if (zone_exists)
+        {
+            ar.add_auth(AuthRequest::ADMIN, zone_perms);    // ADMIN ZONE
+        }
+
+        if (cluster_exists)
+        {
+            ar.add_auth(AuthRequest::ADMIN, cluster_perms); // ADMIN CLUSTER
+        }
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            failure_response(AUTHORIZATION,
+                             authorization_error(ar.message, att),
+                             att);
+
+            return;
+        }
+    }
+
+    group = static_cast<GroupPool*>(pool)->get(group_id, true);
+
+    if ( group  == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(auth_object),group_id),
+                att);
+
+        return;
+    }
+
+    rc = edit_resource_provider(group, zone_id, cluster_id, error_str);
+
+    if (rc == 0)
+    {
+        pool->update(group);
+    }
+
+    group->unlock();
+
+    if (rc != 0)
+    {
+        failure_response(INTERNAL,
+                request_error("Cannot edit resources", error_str),
+                att);
+
+        return;
+    }
+
+    edit_acl_rules(group_id, zone_id, cluster_id, error_str);
+
+    success_response(cluster_id, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int GroupAddProvider::edit_resource_provider(
+        Group* group, int zone_id, int cluster_id, string& error_msg)
+{
+    return group->add_resource_provider(zone_id, cluster_id, error_msg);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int GroupAddProvider::edit_acl_rules(
+        int group_id, int zone_id, int cluster_id, string& error_msg)
+{
+    int rc = 0;
+
+    long long mask_prefix;
+
+    if (cluster_id == ClusterPool::ALL_RESOURCES)
+    {
+        mask_prefix = AclRule::ALL_ID;
+    }
+    else
+    {
+        mask_prefix = AclRule::CLUSTER_ID | cluster_id;
+    }
+
+    // @<gid> HOST/%<cid> MANAGE #<zone>
+    rc += aclm->add_rule(
+            AclRule::GROUP_ID |
+            group_id,
+
+            mask_prefix |
+            PoolObjectSQL::HOST,
+
+            AuthRequest::MANAGE,
+
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
+            error_msg);
+
+    // @<gid> DATASTORE+NET/%<cid> USE #<zone>
+    rc += aclm->add_rule(
+            AclRule::GROUP_ID |
+            group_id,
+
+            mask_prefix |
+            PoolObjectSQL::DATASTORE |
+            PoolObjectSQL::NET,
+
+            AuthRequest::USE,
+
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
+            error_msg);
+
+    // @<gid> ZONE/#<zone> USE *
+    rc += aclm->add_rule(
+            AclRule::GROUP_ID |
+            group_id,
+
+            PoolObjectSQL::ZONE |
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
+            AuthRequest::USE,
+
+            AclRule::ALL_ID,
+
+            error_msg);
+
+    if (rc != 0)
+    {
+        return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int GroupDelProvider::edit_resource_provider(
+        Group* group, int zone_id, int cluster_id, string& error_msg)
+{
+    return group->del_resource_provider(zone_id, cluster_id, error_msg);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int GroupDelProvider::edit_acl_rules(
+        int group_id, int zone_id, int cluster_id, string& error_msg)
+{
+    int rc = 0;
+
+    long long mask_prefix;
+
+    if (cluster_id == ClusterPool::ALL_RESOURCES)
+    {
+        mask_prefix = AclRule::ALL_ID;
+    }
+    else
+    {
+        mask_prefix = AclRule::CLUSTER_ID | cluster_id;
+    }
+
+    // @<gid> HOST/%<cid> MANAGE #<zid>
+    rc += aclm->del_rule(
+            AclRule::GROUP_ID |
+            group_id,
+
+            mask_prefix |
+            PoolObjectSQL::HOST,
+
+            AuthRequest::MANAGE,
+
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
+            error_msg);
+
+    // @<gid> DATASTORE+NET/%<cid> USE #<zid>
+    rc += aclm->del_rule(
+            AclRule::GROUP_ID |
+            group_id,
+
+            mask_prefix |
+            PoolObjectSQL::DATASTORE |
+            PoolObjectSQL::NET,
+
+            AuthRequest::USE,
+
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
+            error_msg);
+
+    // @<gid> ZONE/#<zone> USE *
+    rc += aclm->del_rule(
+            AclRule::GROUP_ID |
+            group_id,
+
+            PoolObjectSQL::ZONE |
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
+            AuthRequest::USE,
+
+            AclRule::ALL_ID,
+
+            error_msg);
+
+    if (rc != 0)
+    {
+        return -1;
+    }
+
+    return 0;
+}

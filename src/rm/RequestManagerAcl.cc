@@ -35,6 +35,7 @@ void AclAddRule::request_execute(xmlrpc_c::paramList const& paramList,
     long long user;
     long long resource;
     long long rights;
+    long long zone;
 
     istringstream iss;
 
@@ -49,6 +50,17 @@ void AclAddRule::request_execute(xmlrpc_c::paramList const& paramList,
     iss.str( xmlrpc_c::value_string(paramList.getString(3)) );
     iss >> hex >> rights;
 
+    if ( paramList.size() > 4 )
+    {
+        iss.clear();
+        iss.str( xmlrpc_c::value_string(paramList.getString(4)) );
+        iss >> hex >> zone;
+    }
+    else
+    {
+        zone = AclRule::INDIVIDUAL_ID | Nebula::instance().get_zone_id();
+    }
+
     string error_msg;
 
     if ( basic_authorization(-1, att) == false )
@@ -56,7 +68,7 @@ void AclAddRule::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    int rc = aclm->add_rule(user, resource, rights, error_msg);
+    int rc = aclm->add_rule(user, resource, rights, zone, error_msg);
 
     if ( rc < 0 )
     {

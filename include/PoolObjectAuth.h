@@ -47,11 +47,12 @@ public:
 
     void get_acl_rules(AclRule& owner_rule,
                        AclRule& group_rule,
-                       AclRule& other_rule) const;
+                       AclRule& other_rule,
+                       int zone_id) const;
 
     string type_to_str() const
     {
-        return PoolObjectSQL::type_to_str(obj_type);    
+        return PoolObjectSQL::type_to_str(obj_type);
     };
 
     /* --------------------------- Attributes ------------------------------- */

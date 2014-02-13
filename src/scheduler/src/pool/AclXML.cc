@@ -81,7 +81,7 @@ int AclXML::load_rules(const string& xml_str)
 
     for (it = rules.begin(); it != rules.end() ; it++)
     {
-        AclRule * rule = new AclRule(0,0,0,0);
+        AclRule * rule = new AclRule(0,0,0,0,0);
         int       rc   = rule->from_xml(*it);
 
         if ( rc == 0 )

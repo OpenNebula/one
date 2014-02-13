@@ -1462,7 +1462,7 @@ $(document).ready(function(){
     var tab_name = "clusters-tab"
 
     if (Config.isTabEnabled(tab_name)) {
-      //prepare host datatabl
+      //prepare clusters datatable
       dataTable_clusters = $("#datatable_clusters",main_tabs_context).dataTable({
           "aoColumnDefs": [
               { "bSortable": false, "aTargets": ["check"] },

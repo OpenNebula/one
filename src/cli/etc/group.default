@@ -1,4 +1,0 @@
-# This rule allows users in the new group to create common resources
-VM+NET+IMAGE+TEMPLATE/* CREATE
-# This rule allows users in the group to deploy VMs in any host in the cloud
-HOST/* MANAGE

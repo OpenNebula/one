@@ -1,0 +1,22 @@
+--- 
+:CURRENT:
+  :desc: Active Zone
+  :size: 1
+:ID: 
+  :desc: ONE identifier for the Zone
+  :size: 5
+
+:NAME: 
+  :desc: Name of the Zone
+  :size: 25
+  :left: true
+
+:ENDPOINT:
+  :desc: Endpoint of the Zone
+  :size: 45
+
+:default:
+- :CURRENT
+- :ID
+- :NAME
+- :ENDPOINT

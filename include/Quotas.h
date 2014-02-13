@@ -27,22 +27,6 @@ class ObjectXML;
 class Quotas
 {
 public:
-    Quotas(const char * _ds_xpath,
-           const char * _net_xpath,
-           const char * _img_xpath,
-           const char * _vm_xpath):
-                datastore_quota(false),
-                network_quota(false),
-                image_quota(false),
-                vm_quota(false),
-                ds_xpath(_ds_xpath),
-                net_xpath(_net_xpath),
-                img_xpath(_img_xpath),
-                vm_xpath(_vm_xpath)
-    {};
-
-    virtual ~Quotas(){};
-
     /**
      *  Different quota types
      */
@@ -234,8 +218,9 @@ protected:
                 ds_xpath(_ds_xpath),
                 net_xpath(_net_xpath),
                 img_xpath(_img_xpath),
-                vm_xpath(_vm_xpath)
-    {};
+                vm_xpath(_vm_xpath){};
+
+    virtual ~Quotas(){};
 
 private:
     //--------------------------------------------------------------------------
@@ -285,7 +270,6 @@ private:
      * Path for the vm quota object
      */
     const char * vm_xpath;
-
 };
 
 #endif /*QUOTABLE_H_*/

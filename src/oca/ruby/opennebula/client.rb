@@ -81,6 +81,7 @@ module OpenNebula
     # xml-rpc calls.
     class Client
         attr_accessor :one_auth
+        attr_reader   :one_endpoint
 
         begin
             require 'xmlparser'
@@ -120,6 +121,8 @@ module OpenNebula
                 @one_endpoint = endpoint
             elsif ENV["ONE_XMLRPC"]
                 @one_endpoint = ENV["ONE_XMLRPC"]
+            elsif File.exists?(ENV['HOME']+"/.one/one_endpoint")
+                @one_endpoint = File.read(ENV['HOME']+"/.one/one_endpoint")
             else
                 @one_endpoint = "http://localhost:2633/RPC2"
             end

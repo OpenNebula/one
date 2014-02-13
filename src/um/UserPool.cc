@@ -55,8 +55,9 @@ string UserPool::oneadmin_name;
 UserPool::UserPool(SqlDB * db,
                    time_t  __session_expiration_time,
                    vector<const Attribute *> hook_mads,
-                   const string&             remotes_location):
-                       PoolSQL(db, User::table, true)
+                   const string&             remotes_location,
+                   bool                      is_federation_slave):
+                       PoolSQL(db, User::table, !is_federation_slave, true)
 {
     int           one_uid    = -1;
     int           server_uid = -1;
@@ -78,6 +79,12 @@ UserPool::UserPool(SqlDB * db,
     Nebula& nd   = Nebula::instance();
 
     _session_expiration_time = __session_expiration_time;
+
+    //Federation slaves do not need to init the pool
+    if (is_federation_slave)
+    {
+        return;
+    }
 
     User * oneadmin_user = get(0, true);
 
@@ -260,6 +267,15 @@ int UserPool::allocate (
 
     ostringstream   oss;
 
+    if (nd.is_federation_slave())
+    {
+        NebulaLog::log("ONE",Log::ERROR,
+                "UserPool::allocate called, but this "
+                "OpenNebula is a federation slave");
+
+        return -1;
+    }
+
     // Check username and password
     if ( !User::pass_is_valid(password, error_str) )
     {
@@ -341,6 +357,48 @@ error_common:
     error_str = oss.str();
 
     return *oid;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int UserPool::drop(PoolObjectSQL * objsql, string& error_msg)
+{
+    if (Nebula::instance().is_federation_slave())
+    {
+        NebulaLog::log("ONE",Log::ERROR,
+                "UserPool::drop called, but this "
+                "OpenNebula is a federation slave");
+
+        return -1;
+    }
+
+    return PoolSQL::drop(objsql, error_msg);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int UserPool::update(User * user)
+{
+    if (Nebula::instance().is_federation_slave())
+    {
+        NebulaLog::log("ONE",Log::ERROR,
+                "UserPool::update called, but this "
+                "OpenNebula is a federation slave");
+
+        return -1;
+    }
+
+    return user->update(db);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int UserPool::update_quotas(User * user)
+{
+    return user->update_quotas(db);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -793,10 +851,68 @@ int UserPool::authorize(AuthRequest& ar)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void UserPool::add_extra_xml(ostringstream&  oss)
+int UserPool::dump(ostringstream& oss, const string& where, const string& limit)
 {
-    string def_quota_xml;
+    int     rc;
+    string  def_quota_xml;
+
+    ostringstream cmd;
+
+    cmd << "SELECT " << User::table << ".body, "
+        << UserQuotas::db_table << ".body"<< " FROM " << User::table
+        << " LEFT JOIN " << UserQuotas::db_table << " ON "
+        << User::table << ".oid=" << UserQuotas::db_table << ".user_oid";
+
+    if ( !where.empty() )
+    {
+        cmd << " WHERE " << where;
+    }
+
+    cmd << " ORDER BY oid";
+
+    if ( !limit.empty() )
+    {
+        cmd << " LIMIT " << limit;
+    }
+
+    oss << "<USER_POOL>";
+
+    set_callback(static_cast<Callbackable::Callback>(&UserPool::dump_cb),
+                 static_cast<void *>(&oss));
+
+    rc = db->exec(cmd, this);
+
+    unset_callback();
+
     oss << Nebula::instance().get_default_user_quota().to_xml(def_quota_xml);
+
+    oss << "</USER_POOL>";
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int UserPool::dump_cb(void * _oss, int num, char **values, char **names)
+{
+    ostringstream * oss;
+
+    oss = static_cast<ostringstream *>(_oss);
+
+    if ( (!values[0]) || (num != 2) )
+    {
+        return -1;
+    }
+
+    *oss << values[0];
+
+    if (values[1] != NULL)
+    {
+        *oss << values[1];
+    }
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */

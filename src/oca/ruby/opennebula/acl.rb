@@ -56,7 +56,8 @@ module OpenNebula
             "GROUP"         => 0x40000000000,
             "DATASTORE"     => 0x100000000000,
             "CLUSTER"       => 0x200000000000,
-            "DOCUMENT"      => 0x400000000000
+            "DOCUMENT"      => 0x400000000000,
+            "ZONE"          => 0x800000000000
         }
 
         RIGHTS =
@@ -99,14 +100,24 @@ module OpenNebula
         #   A string containing a hex number, e.g. 0x2100000001
         # @param rights [String]
         #   A string containing a hex number, e.g. 0x10
+        # @param zone [String]
+        #   A string containing a hex number, e.g. 0x100000001
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def allocate(user, resource, rights)
-            return super( AclPool::ACL_POOL_METHODS[:addrule],
-                          user,
-                          resource,
-                          rights )
+        def allocate(user, resource, rights, zone=nil)
+            if !zone.nil?
+                return super( AclPool::ACL_POOL_METHODS[:addrule],
+                            user,
+                            resource,
+                            rights,
+                            zone )
+            else
+                return super( AclPool::ACL_POOL_METHODS[:addrule],
+                            user,
+                            resource,
+                            rights)
+            end
         end
 
         # Deletes the Acl rule
@@ -138,7 +149,7 @@ module OpenNebula
 
             rule_str = rule_str.split(" ")
 
-            if rule_str.length != 3
+            if rule_str.length != 3 && rule_str.length != 4
                 return OpenNebula::Error.new(
                     "String needs three components: User, Resource, Rights")
             end
@@ -146,6 +157,10 @@ module OpenNebula
             ret << parse_users(rule_str[0])
             ret << parse_resources(rule_str[1])
             ret << parse_rights(rule_str[2])
+
+            if rule_str.length > 3
+                ret << parse_zone(rule_str[3])
+            end
 
             errors=ret.map do |arg|
                 if OpenNebula.is_error?(arg)
@@ -228,6 +243,19 @@ private
             rescue Exception  => e
                 return OpenNebula::Error.new(e.message)
             end
+        end
+
+        # Converts a string in the form [#<id>, *] to a hex. number
+        #
+        # @param zone [String] Zone component string
+        #
+        # @return [String] A string containing a hex number
+        def self.parse_zone(zone)
+           begin
+               return calculate_ids(zone).to_i.to_s(16)
+           rescue Exception  => e
+               return OpenNebula::Error.new(e.message)
+           end
         end
 
         # Calculates the numeric value for a String containing an individual

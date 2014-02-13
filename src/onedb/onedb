@@ -131,6 +131,71 @@ DBNAME={
     }
 }
 
+###############################################################################
+# Slave MySQL options
+###############################################################################
+SLAVE_SERVER={
+    :name => "slave-server",
+    :large => "--slave-server host",
+    :format => String,
+    :description => "Slave MySQL server hostname or IP. Defaults to localhost",
+    :proc => lambda { |o, options|
+        options[:slave_backend] = :mysql
+        options[:slave_server]  = o
+    }
+}
+
+SLAVE_PORT={
+    :name => "slave-port",
+    :large => "--slave-port port",
+    :format => String,
+    :description => "Slave MySQL server port. Defaults to 3306",
+    :proc => lambda { |o, options|
+        options[:slave_backend] = :mysql
+        options[:slave_port]  = o
+    }
+}
+
+SLAVE_USERNAME={
+    :name => "slave-username",
+    :large => "--slave-username user",
+    :format => String,
+    :description => "Slave MySQL username",
+    :proc => lambda { |o, options|
+        options[:slave_backend] = :mysql
+        options[:slave_user]    = o
+    }
+}
+
+SLAVE_PASSWORD={
+    :name => "slave-password",
+    :large => "--slave-password pass",
+    :format => String,
+    :description => "Slave MySQL password. Leave unset to be prompted for it",
+    :proc => lambda { |o, options|
+        options[:slave_backend] = :mysql
+        options[:slave_passwd]  = o
+    }
+}
+
+SLAVE_DBNAME={
+    :name => "slave-dbname",
+    :large => "--slave-dbname dbname",
+    :format => String,
+    :description => "Slave MySQL DB name for OpenNebula",
+    :proc => lambda { |o, options|
+        options[:slave_backend] = :mysql
+        options[:slave_db_name] = o
+    }
+}
+
+SLAVE_BACKUP={
+    :name => "slave-backup",
+    :large => "--slave-backup file",
+    :description => "Use this file to store SQL dump",
+    :format => String
+}
+
 cmd=CommandParser::CmdParser.new(ARGV) do
     description <<-EOT.unindent
         This command enables the user to manage the OpenNebula database. It
@@ -239,6 +304,26 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         begin
             helper = OneDB.new(options)
             helper.fsck(options)
+        rescue Exception => e
+            [-1, e.message]
+        end
+    end
+
+
+    ###########################################################################
+    # Import slave
+    ###########################################################################
+    import_slave_desc = <<-EOT.unindent
+        Imports an existing federation slave into the federation master database
+    EOT
+
+    command :"import-slave", import_slave_desc, :options=>[FORCE,BACKUP,
+        SLAVE_SERVER,SLAVE_PORT,SLAVE_USERNAME,SLAVE_PASSWORD,
+        SLAVE_DBNAME,SLAVE_BACKUP] do
+
+        begin
+            helper = OneDB.new(options)
+            helper.import_slave(options)
         rescue Exception => e
             [-1, e.message]
         end

@@ -215,9 +215,75 @@ void Scheduler::start()
 
     xmlInitParser();
 
-    // -----------------------------------------------------------
+    // -------------------------------------------------------------------------
+    // Get oned configuration, and init zone_id
+    // -------------------------------------------------------------------------
+
+    while (1)
+    {
+        try
+        {
+            xmlrpc_c::value result;
+
+            client->call(client->get_endpoint(),        // serverUrl
+                         "one.system.config",           // methodName
+                         "s",                           // arguments format
+                         &result,                       // resultP
+                         client->get_oneauth().c_str());// auth string
+
+            vector<xmlrpc_c::value> values =
+                            xmlrpc_c::value_array(result).vectorValueValue();
+
+            bool   success = xmlrpc_c::value_boolean(values[0]);
+            string message = xmlrpc_c::value_string(values[1]);
+
+            if (!success ||(oned_conf.from_xml(message) != 0))
+            {
+                ostringstream oss;
+
+                oss << "Cannot contact oned, will retry... Error: " << message;
+
+                NebulaLog::log("SCHED", Log::ERROR, oss);
+            }
+
+            break;
+        }
+        catch (exception const& e)
+        {
+            ostringstream oss;
+
+            oss << "Cannot contact oned, will retry... Error: " << e.what();
+
+            NebulaLog::log("SCHED", Log::ERROR, oss);
+        }
+
+        sleep(2);
+    }
+
+    NebulaLog::log("SCHED", Log::INFO, "oned successfully contacted.");
+
+    vector<const Attribute*> fed;
+
+    zone_id = 0;
+
+    if (oned_conf.get("FEDERATION", fed) > 0)
+    {
+        const VectorAttribute * va=static_cast<const VectorAttribute *>(fed[0]);
+
+        if (va->vector_value("ZONE_ID", zone_id) != 0)
+        {
+            zone_id = 0;
+        }
+    }
+
+    oss.str("");
+    oss << "Configuring scheduler for Zone ID: " << zone_id;
+
+    NebulaLog::log("SCHED", Log::INFO, oss);
+
+    // -------------------------------------------------------------------------
     // Pools
-    // -----------------------------------------------------------
+    // -------------------------------------------------------------------------
 
     hpool  = new HostPoolXML(client, hypervisor_mem);
     clpool = new ClusterPoolXML(client);
@@ -228,7 +294,7 @@ void Scheduler::start()
     dspool     = new SystemDatastorePoolXML(client);
     img_dspool = new ImageDatastorePoolXML(client);
 
-    acls = new AclXML(client);
+    acls = new AclXML(client, zone_id);
 
     // -----------------------------------------------------------
     // Load scheduler policies

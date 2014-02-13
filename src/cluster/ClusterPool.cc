@@ -28,11 +28,12 @@
 
 const string ClusterPool::NONE_CLUSTER_NAME = "";
 const int    ClusterPool::NONE_CLUSTER_ID   = -1;
+const int    ClusterPool::ALL_RESOURCES = 10;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-ClusterPool::ClusterPool(SqlDB * db):PoolSQL(db, Cluster::table, true)
+ClusterPool::ClusterPool(SqlDB * db):PoolSQL(db, Cluster::table, true, true)
 {
     ostringstream oss;
     string        error_str;

@@ -30,19 +30,33 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
         group = factory
 
         rc = block.call(group)
+
         if OpenNebula.is_error?(rc)
             return -1, rc.message
         else
             puts "ID: #{group.id.to_s}"
         end
 
-        puts "Creating default ACL rules from #{GROUP_DEFAULT}" if options[:verbose]
+        puts "Creating default ACL rules: #{GROUP_DEFAULT_ACLS}" if options[:verbose]
 
-        exit_code , msg = group.create_acls
+        exit_code , msg = group.create_default_acls
 
-        puts msg 
+        exit_code.to_i
+    end
 
-        exit_code
+    def create_complete_resource(group_hash)
+        group = factory
+        exit_code , msg = group.create(group_hash)
+
+        puts msg if msg
+
+        if (exit_code.class==Fixnum and exit_code < 0) or OpenNebula.is_error?(exit_code)
+            puts exit_code.message if OpenNebula.is_error?(exit_code) && exit_code.message
+            return -1
+        else
+            puts "ID: #{group.id.to_s}"
+            return 0
+        end
     end
 
     def format_pool(options)
@@ -50,6 +64,17 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
 
         prefix = '/GROUP_POOL/DEFAULT_GROUP_QUOTAS/'
         group_pool = @group_pool
+
+        quotas = group_pool.get_hash()['GROUP_POOL']['QUOTAS']
+        quotas_hash = Hash.new
+
+        if (!quotas.nil?)
+            quotas = [quotas].flatten
+
+            quotas.each do |q|
+                quotas_hash[q['ID']] = q
+            end
+        end
 
         table = CLIHelper::ShowTable.new(config_file, self) do
             column :ID, "ONE identifier for the Group", :size=>4 do |d|
@@ -74,48 +99,53 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
             end
 
             column :VMS , "Number of VMS", :size=>9 do |d|             
-                if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
-                    limit = d['VM_QUOTA']['VM']["VMS"]
+                begin
+                    q = quotas_hash[d['ID']]
+                    limit = q['VM_QUOTA']['VM']["VMS"]
 
                     if limit == "-1"
                         limit = group_pool["#{prefix}VM_QUOTA/VM/VMS"]
                         limit = "0" if limit.nil? || limit == ""
                     end
 
-                    "%3d / %3d" % [d['VM_QUOTA']['VM']["VMS_USED"], limit]
-                else
+                    "%3d / %3d" % [q['VM_QUOTA']['VM']["VMS_USED"], limit]
+
+                rescue NoMethodError
                     "-"
                 end
             end
 
             column :MEMORY, "Total memory allocated to user VMs", :size=>17 do |d|
-                if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
-                    limit = d['VM_QUOTA']['VM']["MEMORY"]
+                begin
+                    q = quotas_hash[d['ID']]
+                    limit = q['VM_QUOTA']['VM']["MEMORY"]
 
                     if limit == "-1"
                         limit = group_pool["#{prefix}VM_QUOTA/VM/MEMORY"]
                         limit = "0" if limit.nil? || limit == ""
                     end
 
-                    d['VM_QUOTA']['VM']['MEMORY_USED']
-                    "%7s / %7s" % [OpenNebulaHelper.unit_to_str(d['VM_QUOTA']['VM']["MEMORY_USED"].to_i,{},"M"),
+                    "%7s / %7s" % [OpenNebulaHelper.unit_to_str(q['VM_QUOTA']['VM']["MEMORY_USED"].to_i,{},"M"),
                     OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")]
-                else
+
+                rescue NoMethodError
                     "-"
                 end
             end
 
             column :CPU, "Total CPU allocated to user VMs", :size=>11 do |d|
-                if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
-                    limit = d['VM_QUOTA']['VM']["CPU"]
+                begin
+                    q = quotas_hash[d['ID']]
+                    limit = q['VM_QUOTA']['VM']["CPU"]
 
                     if limit == "-1"
                         limit = group_pool["#{prefix}VM_QUOTA/VM/CPU"]
                         limit = "0" if limit.nil? || limit == ""
                     end
 
-                    "%3.1f / %3.1f" % [d['VM_QUOTA']['VM']["CPU_USED"], limit]
-                else
+                    "%3.1f / %3.1f" % [q['VM_QUOTA']['VM']["CPU_USED"], limit]
+
+                rescue NoMethodError
                     "-"
                 end
             end
@@ -124,6 +154,35 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
         end
 
         table
+    end
+
+    # Parses a OpenNebula template string and turns it into a Hash
+    # @param [String] tmpl_str template
+    # @return [Hash, Zona::Error] Hash or Error
+    def parse_template(tmpl_str)
+        name_reg     =/[\w\d_-]+/
+        variable_reg =/\s*(#{name_reg})\s*=\s*/
+        single_variable_reg =/^#{variable_reg}([^\[]+?)(#.*)?$/
+
+        tmpl                      = Hash.new
+        tmpl['user']              = Hash.new
+
+        tmpl_str.scan(single_variable_reg) do | m |
+            key   = m[0].strip.downcase
+            value = m[1].strip.gsub("\"","")
+            case key
+                when "admin_user_name"
+                    tmpl['user']['name']=value
+                when "admin_user_password"
+                    tmpl['user']['password']=value
+                when "admin_user_auth_driver"
+                    tmpl['user']['auth_driver']=value
+                else
+                    tmpl[key] = value
+            end
+        end
+
+        return tmpl
     end
 
     private
@@ -161,6 +220,22 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
         end
 
         group_hash = group.to_hash
+
+        providers = group_hash['GROUP']['RESOURCE_PROVIDER']
+        if(providers != nil)
+            puts
+            CLIHelper.print_header(str_h1 % "RESOURCE PROVIDERS", false)
+
+            CLIHelper::ShowTable.new(nil, self) do
+                column :"ZONE", "", :right, :size=>7 do |d|
+                    d['ZONE_ID']
+                end
+
+                column :"CLUSTER", "", :right, :size=>7 do |d|
+                    d['CLUSTER_ID'] == '10' ? 'ALL' : d['CLUSTER_ID']
+                end
+            end.show([providers].flatten, {})
+        end
 
         default_quotas = nil
 
