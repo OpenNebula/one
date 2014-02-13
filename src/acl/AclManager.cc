@@ -51,9 +51,11 @@ int AclManager::init_cb(void *nil, int num, char **values, char **names)
 AclManager::AclManager(
     SqlDB * _db,
     int     _zone_id,
+    bool    _is_federation_enabled,
     bool    _is_federation_slave,
     time_t  _timer_period)
         :zone_id(_zone_id), db(_db), lastOID(-1),
+        is_federation_enabled(_is_federation_enabled),
         is_federation_slave(_is_federation_slave), timer_period(_timer_period)
 {
     ostringstream oss;
@@ -525,6 +527,11 @@ int AclManager::add_rule(long long user, long long resource, long long rights,
                 "OpenNebula is a federation slave");
 
         return -1;
+    }
+
+    if (!is_federation_enabled)
+    {
+        zone = AclRule::INDIVIDUAL_ID | zone_id;
     }
 
     lock();

@@ -701,7 +701,8 @@ void Nebula::start(bool bootstrap_only)
     // ---- ACL Manager ----
     try
     {
-        aclm = new AclManager(db, zone_id, is_federation_slave(), timer_period);
+        aclm = new AclManager(db, zone_id, is_federation_enabled(),
+                is_federation_slave(), timer_period);
     }
     catch (bad_alloc&)
     {
