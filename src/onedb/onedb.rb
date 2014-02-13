@@ -294,6 +294,21 @@ class OneDB
             backup(ops[:"slave-backup"], ops, slave_backend)
 
             puts <<-EOT
+Before running this tool, it is required to create a new Zone in the
+Master OpenNebula.
+Please enter the Zone ID that you created to represent the new Slave OpenNebula:
+EOT
+
+            input = ""
+            while ( input.to_i.to_s != input ) do
+                print "Zone ID: "
+                input = gets.chomp.strip
+            end
+
+            zone_id = input.to_i
+            puts
+
+            puts <<-EOT
 The import process will move the users from the slave OpeNenbula to the master
 OpenNebula. In case of conflict, it can merge users with the same name.
 For example:
@@ -331,7 +346,8 @@ is preserved.
             begin
                 puts "  > Running slave import" if ops[:verbose]
 
-                result = @backend.import_slave(slave_backend, merge_users, merge_groups)
+                result = @backend.import_slave(slave_backend, merge_users,
+                    merge_groups, zone_id)
 
                 if !result
                     raise "Error running slave import version #{version}"

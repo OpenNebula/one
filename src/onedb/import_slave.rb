@@ -40,7 +40,7 @@ module OneDBImportSlave
         "OpenNebula #{VERSION}"
     end
 
-    def import_slave(slave_backend, merge_users, merge_groups)
+    def import_slave(slave_backend, merge_users, merge_groups, zone_id)
 
         users       = Hash.new
         user_names  = Hash.new
@@ -49,12 +49,37 @@ module OneDBImportSlave
         @slave_db = slave_backend.db
 
         ########################################################################
+        # Zone for the slave
+        ########################################################################
+
+        if zone_id == 0
+            log("Zone ID 0 can only be used by a Master OpenNebula.")
+            log_finish()
+
+            return false
+        end
+
+        found = false
+
+        @db.fetch("SELECT oid, name FROM zone_pool WHERE oid = #{zone_id}") do |row|
+            found = true
+
+            log("The Slave OpenNebula will be imported to the Master OpenNebula as Zone ##{row[:oid]}, #{row[:name]}.")
+        end
+
+        if !found
+            log("Zone with ID #{zone_id} could not be found in the Master OpenNebula database.")
+            log_finish()
+
+            return false
+        end
+
+        ########################################################################
         # pool_control
         ########################################################################
 
         last_user_oid   = last_oid("user_pool")
         last_group_oid  = last_oid("group_pool")
-        last_zone_oid   = last_oid("zone_pool")
         last_acl_oid    = last_oid("acl")
 
         ########################################################################
@@ -414,6 +439,7 @@ EOT
             @slave_db.fetch("SELECT * FROM acl") do |row|
                 new_user     = row[:user]
                 new_resource = row[:resource]
+                new_zone     = row[:zone]
 
                 insert = true
 
@@ -468,7 +494,15 @@ EOT
 
                 end
 
-                # TODO: translate zone id?
+                if ( (row[:zone] & Acl::USERS["UID"]) == Acl::USERS["UID"] )
+                    zid = (row[:zone] & 0xFFFFFFFF)
+
+                    if (zid != 0)
+                        insert = false
+                    else
+                        new_zone = (Acl::USERS["UID"] | zone_id)
+                    end
+                end
 
                 if (!insert)
                     log("Slave DB ACL Rule ##{row[:oid]} will not be "<<
@@ -486,12 +520,14 @@ EOT
                     if (insert)
                         last_acl_oid += 1
 
+                        log("New ACL Rule imported with ID ##{last_acl_oid}")
+
                         @db[:acl].insert(
                             :oid        => last_acl_oid,
                             :user       => new_user,
                             :resource   => new_resource,
                             :rights     => row[:rights],
-                            :zone       => row[:zone])
+                            :zone       => new_zone)
                     end
                 end
             end
@@ -513,8 +549,6 @@ EOT
         @slave_db.run "DROP TABLE old_group_quotas;"
         @slave_db.run "DROP TABLE old_user_quotas;"
 
-        # TODO: import zone pool?
-
         @slave_db.run "DROP TABLE user_pool;"
         @slave_db.run "DROP TABLE group_pool;"
         @slave_db.run "DROP TABLE zone_pool;"
@@ -524,7 +558,6 @@ EOT
         @db.run "UPDATE pool_control SET last_oid = #{last_user_oid} WHERE tablename = 'user_pool';"
         @db.run "UPDATE pool_control SET last_oid = #{last_group_oid} WHERE tablename = 'group_pool';"
         @db.run "UPDATE pool_control SET last_oid = #{last_acl_oid} WHERE tablename = 'acl';"
-#        @db.run "UPDATE pool_control SET last_oid = #{last_zone_oid} WHERE tablename = 'zone_pool';"
 
         log_finish()
 
