@@ -353,15 +353,15 @@ def install_gems(packages)
 
     install_warning(packages)
 
-    simple_gems=gems_list.select {|g| !(g.match(/\s/)) }
-    if simple_gems and !simple_gems.empty?
-        cmd=command_string+" " << simple_gems.join(' ')
-        run_command(cmd)
-    end
-
     special_gems=gems_list.select {|g| g.match(/\s/) }
     special_gems.each do |gem|
         cmd=command_string+" "<<gem
+        run_command(cmd)
+    end
+
+    simple_gems=gems_list.select {|g| !(g.match(/\s/)) }
+    if simple_gems and !simple_gems.empty?
+        cmd=command_string+" " << simple_gems.join(' ')
         run_command(cmd)
     end
 end
