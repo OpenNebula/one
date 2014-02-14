@@ -227,17 +227,13 @@ var zone_actions = {
         error: onError
     },
 
- //   "Zone.update_dialog" : {
- //       type: "single",
- //       call: popUpUpdateZoneDialog
- //   },
 
     "Zone.rename" : {
         type: "single",
         call: OpenNebula.Zone.rename,
         callback: function(request) {
             notifyMessage(tr("Zone renamed correctly"));
-            Sunstone.runAction('Zone.showinfo',request.request.data[0]);
+            Sunstone.runAction('Zone.showinfo',request.request.data[0][0]);
             Sunstone.runAction('Zone.list');
         },
         error: onError,
@@ -381,7 +377,7 @@ function updateZoneInfo(request,zone){
                 <td class="key_td">'+tr("Name")+'</td>\
                 <td class="value_td_rename">'+zone_info.NAME+'</td>\
                 <td><div id="div_edit_rename">\
-                   <a id="div_edit_rename_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
+                   <a id="div_edit_rename_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
                 </div>\
                 </td>\
             </tr>\
