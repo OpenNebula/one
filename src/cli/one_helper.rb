@@ -16,7 +16,13 @@
 
 require 'cli_helper'
 
-require 'opennebula'
+begin
+    require 'opennebula'
+rescue Exception => e
+    puts "Error: "+e.message.to_s
+    exit(-1)
+end
+
 include OpenNebula
 
 module OpenNebulaHelper

@@ -129,5 +129,7 @@ module OpenNebula
                 alias :cdata_block :characters
             end
         end
+    else
+        raise "nokogiri gem not installed."
     end
 end
