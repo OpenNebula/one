@@ -2656,6 +2656,21 @@ function add_osTab(dialog) {
                   '</div>'+
                 '</div>'+
                 '<div class="row">'+
+                  '<div class="four columns">'+
+                    '<label class="right inline" for="APIC">'+tr("APIC")+':</label>'+
+                  '</div>'+
+                  '<div class="six columns">'+
+                    '<select id="APIC" name="apic">'+
+                      '<option id="no_apic" name="no_apic" value=""></option>'+
+                        '<option value="yes">'+tr("Yes")+'</option>'+
+                        '<option value="no">'+tr("No")+'</option>'+
+                    '</select>'+
+                  '</div>'+
+                  '<div class="two columns">'+
+                    '<div class="tip">'+tr("Enables the advanced programmable IRQ management.")+'</div>'+
+                  '</div>'+
+                '</div>'+
+                '<div class="row">'+
                   '<div class="four columns vm_param">'+
                     '<label class="right inline" for="HYPERV">'+tr("HYPERV")+':</label>'+
                   '</div>'+
