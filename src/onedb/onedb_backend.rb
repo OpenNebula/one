@@ -129,6 +129,20 @@ class OneDBBacKEnd
 
         return found
     end
+
+    def init_log_time()
+        @block_n = 0
+        @time0 = Time.now
+    end
+
+    def log_time()
+        if LOG_TIME
+            @time1 = Time.now
+            puts "    > #{db_version} Time for block #{@block_n}: #{@time1 - @time0}s"
+            @time0 = Time.now
+            @block_n += 1
+        end
+    end
 end
 
 class BackEndMySQL < OneDBBacKEnd

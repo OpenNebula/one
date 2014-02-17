@@ -16,6 +16,8 @@
 
 require 'onedb_backend'
 
+LOG_TIME = false
+
 class OneDB
     def initialize(ops)
         if ops[:backend] == :sqlite
@@ -133,6 +135,8 @@ class OneDB
             result = nil
             i = 0
 
+            timea = Time.now
+
             while ( matches.size > 0 )
                 if ( matches.size > 1 )
                     raise "There are more than one file that match \
@@ -143,9 +147,17 @@ class OneDB
 
                 puts "  > Running migrator #{file}" if ops[:verbose]
 
+                time0 = Time.now
+
                 load(file)
                 @backend.extend Migrator
                 result = @backend.up
+
+                time1 = Time.now
+
+                if LOG_TIME
+                    puts "  > Time for #{file}: #{time1 - time0}s"
+                end
 
                 if !result
                     raise "Error while upgrading from #{version} to " <<
@@ -164,6 +176,12 @@ class OneDB
                 @backend.update_db_version(version)
             else
                 puts "Database already uses version #{version}"
+            end
+
+            timeb = Time.now
+
+            if LOG_TIME
+                puts "  > Total time: #{timeb - timea}s" if ops[:verbose]
             end
 
             return 0
