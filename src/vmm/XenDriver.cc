@@ -88,15 +88,17 @@ int XenDriver::deployment_description(
 
     const VectorAttribute * features;
 
-    bool pae  = false;
-    bool acpi = false;
-    bool apic = false;
+    bool pae            = false;
+    bool acpi           = false;
+    bool apic           = false;
     string device_model = "";
+    bool localtime      = false;
 
-    int pae_found  = -1;
-    int acpi_found = -1;
-    int apic_found = -1;
-    int device_model_found = -1;
+    int pae_found           = -1;
+    int acpi_found          = -1;
+    int apic_found          = -1;
+    int device_model_found  = -1;
+    int localtime_found     = -1;
 
     const VectorAttribute * raw;
     string data;
@@ -644,6 +646,8 @@ int XenDriver::deployment_description(
                 pae_found  = features->vector_value("PAE", pae);
                 acpi_found = features->vector_value("ACPI", acpi);
                 apic_found = features->vector_value("APIC", apic);
+                localtime_found =
+                    features->vector_value("LOCALTIME", localtime);
 
                 device_model = features->vector_value("DEVICE_MODEL");
                 if ( device_model != "" )
@@ -677,6 +681,11 @@ int XenDriver::deployment_description(
             }
         }
 
+        if ( localtime_found != 0 )
+        {
+            get_default("FEATURES", "LOCALTIME", localtime);
+        }
+
         if ( pae_found == 0)
         {
             file << "pae = " << on_off_string(pae) << endl;
@@ -695,6 +704,11 @@ int XenDriver::deployment_description(
         if ( device_model_found == 0)
         {
             file << "device_model = '" << device_model << "'" << endl;
+        }
+
+        if ( localtime )
+        {
+            file << "localtime = 'yes'" << endl;
         }
 
         attrs.clear();
