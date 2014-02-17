@@ -18,6 +18,8 @@ require 'set'
 require "rexml/document"
 include REXML
 
+require 'nokogiri'
+
 class String
     def red
         colorize(31)
@@ -40,6 +42,8 @@ module Migrator
     end
 
     def up
+
+        init_log_time()
 
         ########################################################################
         # Add Cloning Image ID collection to Images
@@ -71,6 +75,8 @@ module Migrator
             end
         end
 
+        log_time()
+
         ########################################################################
         # Image
         #
@@ -80,37 +86,41 @@ module Migrator
 
         @db.run "CREATE TABLE image_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid) );"
 
-        @db[:image_pool].each do |row|
-            doc = Document.new(row[:body])
+        @db.transaction do
+            @db[:image_pool].each do |row|
+                doc = Document.new(row[:body])
 
-            oid = row[:oid]
+                oid = row[:oid]
 
-            n_cloning_ops = counters[:image][oid][:clones].size
+                n_cloning_ops = counters[:image][oid][:clones].size
 
-            # Rewrite number of clones
-            doc.root.each_element("CLONING_OPS") { |e|
-                if e.text != n_cloning_ops.to_s
-                    warn("Image #{oid} CLONING_OPS has #{e.text} \tis\t#{n_cloning_ops}")
-                    e.text = n_cloning_ops
+                # Rewrite number of clones
+                doc.root.each_element("CLONING_OPS") { |e|
+                    if e.text != n_cloning_ops.to_s
+                        warn("Image #{oid} CLONING_OPS has #{e.text} \tis\t#{n_cloning_ops}")
+                        e.text = n_cloning_ops
+                    end
+                }
+
+                # re-do list of Images cloning this one
+                clones_new_elem = doc.root.add_element("CLONES")
+
+                counters[:image][oid][:clones].each do |id|
+                    clones_new_elem.add_element("ID").text = id.to_s
                 end
-            }
 
-            # re-do list of Images cloning this one
-            clones_new_elem = doc.root.add_element("CLONES")
+                row[:body] = doc.to_s
 
-            counters[:image][oid][:clones].each do |id|
-                clones_new_elem.add_element("ID").text = id.to_s
+                # commit
+                @db[:image_pool_new].insert(row)
             end
-
-            row[:body] = doc.to_s
-
-            # commit
-            @db[:image_pool_new].insert(row)
         end
 
         # Rename table
         @db.run("DROP TABLE image_pool")
         @db.run("ALTER TABLE image_pool_new RENAME TO image_pool")
+
+        log_time()
 
         ########################################################################
         # Feature #1565: New cid column in host, ds and vnet tables
@@ -119,26 +129,30 @@ module Migrator
         @db.run "ALTER TABLE host_pool RENAME TO old_host_pool;"
         @db.run "CREATE TABLE host_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, state INTEGER, last_mon_time INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name));"
 
-        @db.fetch("SELECT * FROM old_host_pool") do |row|
-            doc = Document.new(row[:body])
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_host_pool") do |row|
+                doc = Document.new(row[:body])
 
-            cluster_id = doc.root.get_text('CLUSTER_ID').to_s
+                cluster_id = doc.root.get_text('CLUSTER_ID').to_s
 
-            @db[:host_pool].insert(
-                :oid            => row[:oid],
-                :name           => row[:name],
-                :body           => row[:body],
-                :state          => row[:state],
-                :last_mon_time  => row[:last_mon_time],
-                :uid            => row[:uid],
-                :gid            => row[:gid],
-                :owner_u        => row[:owner_u],
-                :group_u        => row[:group_u],
-                :other_u        => row[:other_u],
-                :cid            => cluster_id)
+                @db[:host_pool].insert(
+                    :oid            => row[:oid],
+                    :name           => row[:name],
+                    :body           => row[:body],
+                    :state          => row[:state],
+                    :last_mon_time  => row[:last_mon_time],
+                    :uid            => row[:uid],
+                    :gid            => row[:gid],
+                    :owner_u        => row[:owner_u],
+                    :group_u        => row[:group_u],
+                    :other_u        => row[:other_u],
+                    :cid            => cluster_id)
+            end
         end
 
         @db.run "DROP TABLE old_host_pool;"
+
+        log_time()
 
         ########################################################################
         # Feature #1565: New cid column
@@ -148,27 +162,31 @@ module Migrator
         @db.run "ALTER TABLE network_pool RENAME TO old_network_pool;"
         @db.run "CREATE TABLE network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name,uid));"
 
-        @db.fetch("SELECT * FROM old_network_pool") do |row|
-            doc = Document.new(row[:body])
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_network_pool") do |row|
+                doc = Document.new(row[:body])
 
-            cluster_id = doc.root.get_text('CLUSTER_ID').to_s
+                cluster_id = doc.root.get_text('CLUSTER_ID').to_s
 
-            doc.root.add_element("GLOBAL_PREFIX")
-            doc.root.add_element("SITE_PREFIX")
+                doc.root.add_element("GLOBAL_PREFIX")
+                doc.root.add_element("SITE_PREFIX")
 
-            @db[:network_pool].insert(
-                :oid            => row[:oid],
-                :name           => row[:name],
-                :body           => doc.root.to_s,
-                :uid            => row[:uid],
-                :gid            => row[:gid],
-                :owner_u        => row[:owner_u],
-                :group_u        => row[:group_u],
-                :other_u        => row[:other_u],
-                :cid            => cluster_id)
+                @db[:network_pool].insert(
+                    :oid            => row[:oid],
+                    :name           => row[:name],
+                    :body           => doc.root.to_s,
+                    :uid            => row[:uid],
+                    :gid            => row[:gid],
+                    :owner_u        => row[:owner_u],
+                    :group_u        => row[:group_u],
+                    :other_u        => row[:other_u],
+                    :cid            => cluster_id)
+            end
         end
 
         @db.run "DROP TABLE old_network_pool;"
+
+        log_time()
 
         ########################################################################
         # Feature #1617
@@ -181,40 +199,43 @@ module Migrator
         @db.run "ALTER TABLE datastore_pool RENAME TO old_datastore_pool;"
         @db.run "CREATE TABLE datastore_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name));"
 
-        @db.fetch("SELECT * FROM old_datastore_pool") do |row|
-            doc = Document.new(row[:body])
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_datastore_pool") do |row|
+                doc = Document.new(row[:body])
 
-            type = "0"  # IMAGE_DS
+                type = "0"  # IMAGE_DS
 
-            system_elem = doc.root.delete_element("SYSTEM")
+                system_elem = doc.root.delete_element("SYSTEM")
 
-            if ( !system_elem.nil? && system_elem.text == "1" )
-                type = "1"  # SYSTEM_DS
+                if ( !system_elem.nil? && system_elem.text == "1" )
+                    type = "1"  # SYSTEM_DS
+                end
+
+                doc.root.add_element("TYPE").text = type
+
+                doc.root.each_element("TEMPLATE") do |e|
+                    e.delete_element("SYSTEM")
+                    e.add_element("TYPE").text = type == "0" ? "IMAGE_DS" : "SYSTEM_DS"
+                end
+
+                cluster_id = doc.root.get_text('CLUSTER_ID').to_s
+
+                @db[:datastore_pool].insert(
+                    :oid        => row[:oid],
+                    :name       => row[:name],
+                    :body       => doc.root.to_s,
+                    :uid        => row[:uid],
+                    :gid        => row[:gid],
+                    :owner_u    => row[:owner_u],
+                    :group_u    => row[:group_u],
+                    :other_u    => row[:other_u],
+                    :cid        => cluster_id)
             end
-
-            doc.root.add_element("TYPE").text = type
-
-            doc.root.each_element("TEMPLATE") do |e|
-                e.delete_element("SYSTEM")
-                e.add_element("TYPE").text = type == "0" ? "IMAGE_DS" : "SYSTEM_DS"
-            end
-
-            cluster_id = doc.root.get_text('CLUSTER_ID').to_s
-
-            @db[:datastore_pool].insert(
-                :oid        => row[:oid],
-                :name       => row[:name],
-                :body       => doc.root.to_s,
-                :uid        => row[:uid],
-                :gid        => row[:gid],
-                :owner_u    => row[:owner_u],
-                :group_u    => row[:group_u],
-                :other_u    => row[:other_u],
-                :cid        => cluster_id)
         end
 
         @db.run "DROP TABLE old_datastore_pool;"
 
+        log_time()
 
         user_0_name = "oneadmin"
 
@@ -241,6 +262,7 @@ module Migrator
 
         @db.run "INSERT INTO datastore_pool VALUES(2,'files','<DATASTORE><ID>2</ID><UID>0</UID><GID>0</GID><UNAME>#{user_0_name}</UNAME><GNAME>#{group_0_name}</GNAME><NAME>files</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>1</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>1</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><DS_MAD>fs</DS_MAD><TM_MAD>ssh</TM_MAD><BASE_PATH>#{base_path}</BASE_PATH><TYPE>2</TYPE><DISK_TYPE>0</DISK_TYPE><CLUSTER_ID>-1</CLUSTER_ID><CLUSTER></CLUSTER><IMAGES></IMAGES><TEMPLATE><DS_MAD><![CDATA[fs]]></DS_MAD><TM_MAD><![CDATA[ssh]]></TM_MAD><TYPE><![CDATA[FILE_DS]]></TYPE></TEMPLATE></DATASTORE>',0,0,1,1,1,-1);"
 
+        log_time()
 
         ########################################################################
         # Feature #1611: Default quotas
@@ -254,72 +276,78 @@ module Migrator
         @db.run "ALTER TABLE user_pool RENAME TO old_user_pool;"
         @db.run "CREATE TABLE user_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
 
-        # oneadmin does not have quotas
-        @db.fetch("SELECT * FROM old_user_pool WHERE oid=0") do |row|
-            @db[:user_pool].insert(
-                :oid        => row[:oid],
-                :name       => row[:name],
-                :body       => row[:body],
-                :uid        => row[:oid],
-                :gid        => row[:gid],
-                :owner_u    => row[:owner_u],
-                :group_u    => row[:group_u],
-                :other_u    => row[:other_u])
-        end
+        @db.transaction do
+            # oneadmin does not have quotas
+            @db.fetch("SELECT * FROM old_user_pool WHERE oid=0") do |row|
+                @db[:user_pool].insert(
+                    :oid        => row[:oid],
+                    :name       => row[:name],
+                    :body       => row[:body],
+                    :uid        => row[:oid],
+                    :gid        => row[:gid],
+                    :owner_u    => row[:owner_u],
+                    :group_u    => row[:group_u],
+                    :other_u    => row[:other_u])
+            end
 
-        @db.fetch("SELECT * FROM old_user_pool WHERE oid>0") do |row|
-            doc = Document.new(row[:body])
+            @db.fetch("SELECT * FROM old_user_pool WHERE oid>0") do |row|
+                doc = Nokogiri::XML(row[:body])
 
-            set_default_quotas(doc)
+                set_default_quotas(doc)
 
-            @db[:user_pool].insert(
-                :oid        => row[:oid],
-                :name       => row[:name],
-                :body       => doc.root.to_s,
-                :uid        => row[:oid],
-                :gid        => row[:gid],
-                :owner_u    => row[:owner_u],
-                :group_u    => row[:group_u],
-                :other_u    => row[:other_u])
+                @db[:user_pool].insert(
+                    :oid        => row[:oid],
+                    :name       => row[:name],
+                    :body       => doc.root.to_s,
+                    :uid        => row[:oid],
+                    :gid        => row[:gid],
+                    :owner_u    => row[:owner_u],
+                    :group_u    => row[:group_u],
+                    :other_u    => row[:other_u])
+            end
         end
 
         @db.run "DROP TABLE old_user_pool;"
 
+        log_time()
 
         @db.run "ALTER TABLE group_pool RENAME TO old_group_pool;"
         @db.run "CREATE TABLE group_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
 
+        @db.transaction do
+            # oneadmin group does not have quotas
+            @db.fetch("SELECT * FROM old_group_pool WHERE oid=0") do |row|
+                @db[:group_pool].insert(
+                    :oid        => row[:oid],
+                    :name       => row[:name],
+                    :body       => row[:body],
+                    :uid        => row[:oid],
+                    :gid        => row[:gid],
+                    :owner_u    => row[:owner_u],
+                    :group_u    => row[:group_u],
+                    :other_u    => row[:other_u])
+            end
 
-        # oneadmin group does not have quotas
-        @db.fetch("SELECT * FROM old_group_pool WHERE oid=0") do |row|
-            @db[:group_pool].insert(
-                :oid        => row[:oid],
-                :name       => row[:name],
-                :body       => row[:body],
-                :uid        => row[:oid],
-                :gid        => row[:gid],
-                :owner_u    => row[:owner_u],
-                :group_u    => row[:group_u],
-                :other_u    => row[:other_u])
-        end
+            @db.fetch("SELECT * FROM old_group_pool WHERE oid>0") do |row|
+                doc = Nokogiri::XML(row[:body])
 
-        @db.fetch("SELECT * FROM old_group_pool WHERE oid>0") do |row|
-            doc = Document.new(row[:body])
+                set_default_quotas(doc)
 
-            set_default_quotas(doc)
-
-            @db[:group_pool].insert(
-                :oid        => row[:oid],
-                :name       => row[:name],
-                :body       => doc.root.to_s,
-                :uid        => row[:oid],
-                :gid        => row[:gid],
-                :owner_u    => row[:owner_u],
-                :group_u    => row[:group_u],
-                :other_u    => row[:other_u])
+                @db[:group_pool].insert(
+                    :oid        => row[:oid],
+                    :name       => row[:name],
+                    :body       => doc.root.to_s,
+                    :uid        => row[:oid],
+                    :gid        => row[:gid],
+                    :owner_u    => row[:owner_u],
+                    :group_u    => row[:group_u],
+                    :other_u    => row[:other_u])
+            end
         end
 
         @db.run "DROP TABLE old_group_pool;"
+
+        log_time()
 
         ########################################################################
         # Bug #1694: SYSTEM_DS is now set with the method adddatastore
@@ -328,84 +356,87 @@ module Migrator
         @db.run "ALTER TABLE cluster_pool RENAME TO old_cluster_pool;"
         @db.run "CREATE TABLE cluster_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
 
-        @db.fetch("SELECT * FROM old_cluster_pool") do |row|
-            doc = Document.new(row[:body])
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_cluster_pool") do |row|
+                doc = Document.new(row[:body])
 
-            system_ds = 0
+                system_ds = 0
 
-            doc.root.each_element("TEMPLATE") do |e|
-                elem = e.delete_element("SYSTEM_DS")
+                doc.root.each_element("TEMPLATE") do |e|
+                    elem = e.delete_element("SYSTEM_DS")
 
-                if !elem.nil?
-                    system_ds = elem.text.to_i
-                end
-            end
-
-            if system_ds != 0
-                updated_body = nil
-
-                @db.fetch("SELECT body FROM datastore_pool WHERE oid=#{system_ds}") do |ds_row|
-                    ds_doc = Document.new(ds_row[:body])
-
-                    type = "0"  # IMAGE_DS
-
-                    ds_doc.root.each_element("TYPE") do |e|
-                        type = e.text
+                    if !elem.nil?
+                        system_ds = elem.text.to_i
                     end
+                end
 
-                    if type != "1"
-                        puts "    > Cluster #{row[:oid]} has the "<<
-                        "System Datastore set to Datastore #{system_ds}, "<<
-                        "but its type is not SYSTEM_DS. The System Datastore "<<
-                        "for this Cluster will be set to 0"
+                if system_ds != 0
+                    updated_body = nil
 
-                        system_ds = 0
-                    else
-                        cluster_id = "-1"
+                    @db.fetch("SELECT body FROM datastore_pool WHERE oid=#{system_ds}") do |ds_row|
+                        ds_doc = Document.new(ds_row[:body])
 
-                        ds_doc.root.each_element("CLUSTER_ID") do |e|
-                            cluster_id = e.text
+                        type = "0"  # IMAGE_DS
+
+                        ds_doc.root.each_element("TYPE") do |e|
+                            type = e.text
                         end
 
-                        if row[:oid] != cluster_id.to_i
+                        if type != "1"
                             puts "    > Cluster #{row[:oid]} has the "<<
                             "System Datastore set to Datastore #{system_ds}, "<<
-                            "but it is not part of the Cluster. It will be added now."
+                            "but its type is not SYSTEM_DS. The System Datastore "<<
+                            "for this Cluster will be set to 0"
+
+                            system_ds = 0
+                        else
+                            cluster_id = "-1"
 
                             ds_doc.root.each_element("CLUSTER_ID") do |e|
-                                e.text = row[:oid]
+                                cluster_id = e.text
                             end
 
-                            ds_doc.root.each_element("CLUSTER") do |e|
-                                e.text = row[:name]
-                            end
+                            if row[:oid] != cluster_id.to_i
+                                puts "    > Cluster #{row[:oid]} has the "<<
+                                "System Datastore set to Datastore #{system_ds}, "<<
+                                "but it is not part of the Cluster. It will be added now."
 
-                            updated_body = ds_doc.root.to_s
+                                ds_doc.root.each_element("CLUSTER_ID") do |e|
+                                    e.text = row[:oid]
+                                end
+
+                                ds_doc.root.each_element("CLUSTER") do |e|
+                                    e.text = row[:name]
+                                end
+
+                                updated_body = ds_doc.root.to_s
+                            end
                         end
+                    end
+
+                    if !updated_body.nil?
+                        @db[:datastore_pool].where(:oid => system_ds).update(
+                            :body => updated_body)
                     end
                 end
 
-                if !updated_body.nil?
-                    @db[:datastore_pool].where(:oid => system_ds).update(
-                        :body => updated_body)
-                end
+                doc.root.add_element("SYSTEM_DS").text = system_ds.to_s
+
+                @db[:cluster_pool].insert(
+                    :oid        => row[:oid],
+                    :name       => row[:name],
+                    :body       => doc.root.to_s,
+                    :uid        => row[:uid],
+                    :gid        => row[:gid],
+                    :owner_u    => row[:owner_u],
+                    :group_u    => row[:group_u],
+                    :other_u    => row[:other_u])
             end
-
-            doc.root.add_element("SYSTEM_DS").text = system_ds.to_s
-
-            @db[:cluster_pool].insert(
-                :oid        => row[:oid],
-                :name       => row[:name],
-                :body       => doc.root.to_s,
-                :uid        => row[:uid],
-                :gid        => row[:gid],
-                :owner_u    => row[:owner_u],
-                :group_u    => row[:group_u],
-                :other_u    => row[:other_u])
         end
 
         @db.run "DROP TABLE old_cluster_pool;"
 
+        log_time()
 
         ########################################################################
         # Feature #1556: New elem USER_TEMPLATE
@@ -418,41 +449,53 @@ module Migrator
         @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
         @db.run "CREATE TABLE vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
 
-        @db.fetch("SELECT * FROM old_vm_pool") do |row|
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_vm_pool") do |row|
 
-            doc = Document.new(row[:body])
-            user_template = doc.root.add_element("USER_TEMPLATE")
+                doc = Nokogiri::XML(row[:body])
+                user_template = doc.create_element("USER_TEMPLATE")
 
-            doc.root.each_element("TEMPLATE") do |e|
-                elem = e.delete_element("REQUIREMENTS")
-
-                if !elem.nil?
-                    user_template.add_element("SCHED_REQUIREMENTS").text = elem.text
-                end
-
-                elem = e.delete_element("RANK")
+                e = doc.root.at_xpath("TEMPLATE")
+                elem = e.at_xpath("REQUIREMENTS")
 
                 if !elem.nil?
-                    user_template.add_element("SCHED_RANK").text = elem.text
+                    new_elem = doc.create_element("SCHED_REQUIREMENTS")
+                    new_elem.content = elem.text
+                    elem.remove
+
+                    user_template.add_child(new_elem)
                 end
+
+                elem = e.at_xpath("RANK")
+
+                if !elem.nil?
+                    new_elem = doc.create_element("SCHED_RANK")
+                    new_elem.content = elem.text
+                    elem.remove
+
+                    user_template.add_child(new_elem)
+                end
+
+                doc.root << user_template
+
+                @db[:vm_pool].insert(
+                    :oid        => row[:oid],
+                    :name       => row[:name],
+                    :body       => doc.root.to_s,
+                    :uid        => row[:uid],
+                    :gid        => row[:gid],
+                    :last_poll  => row[:last_poll],
+                    :state      => row[:state],
+                    :lcm_state  => row[:lcm_state],
+                    :owner_u    => row[:owner_u],
+                    :group_u    => row[:group_u],
+                    :other_u    => row[:other_u])
             end
-
-            @db[:vm_pool].insert(
-                :oid        => row[:oid],
-                :name       => row[:name],
-                :body       => doc.root.to_s,
-                :uid        => row[:uid],
-                :gid        => row[:gid],
-                :last_poll  => row[:last_poll],
-                :state      => row[:state],
-                :lcm_state  => row[:lcm_state],
-                :owner_u    => row[:owner_u],
-                :group_u    => row[:group_u],
-                :other_u    => row[:other_u])
         end
 
         @db.run "DROP TABLE old_vm_pool;"
 
+        log_time()
 
         ########################################################################
         # Feature #1483: Move scheduling attributes
@@ -463,42 +506,48 @@ module Migrator
         @db.run "ALTER TABLE template_pool RENAME TO old_template_pool;"
         @db.run "CREATE TABLE template_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
 
-        @db.fetch("SELECT * FROM old_template_pool") do |row|
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_template_pool") do |row|
 
-            doc = Document.new(row[:body])
+                doc = Nokogiri::XML(row[:body])
 
-            template = nil
+                template = doc.root.at_xpath("TEMPLATE")
 
-            doc.root.each_element("TEMPLATE") do |e|
-                template = e
-            end
-
-            doc.root.each_element("TEMPLATE") do |e|
-                elem = e.delete_element("REQUIREMENTS")
+                elem = template.at_xpath("REQUIREMENTS")
 
                 if !elem.nil?
-                    template.add_element("SCHED_REQUIREMENTS").text = elem.text
+                    new_elem = doc.create_element("SCHED_REQUIREMENTS")
+                    new_elem.content = elem.text
+                    elem.remove
+
+                    template.add_child(new_elem)
                 end
 
-                elem = e.delete_element("RANK")
+                elem = template.at_xpath("RANK")
 
                 if !elem.nil?
-                    template.add_element("SCHED_RANK").text = elem.text
-                end
-            end
+                    new_elem = doc.create_element("SCHED_RANK")
+                    new_elem.content = elem.text
+                    elem.remove
 
-            @db[:template_pool].insert(
-                :oid        => row[:oid],
-                :name       => row[:name],
-                :body       => doc.root.to_s,
-                :uid        => row[:uid],
-                :gid        => row[:gid],
-                :owner_u    => row[:owner_u],
-                :group_u    => row[:group_u],
-                :other_u    => row[:other_u])
+                    template.add_child(new_elem)
+                end
+
+                @db[:template_pool].insert(
+                    :oid        => row[:oid],
+                    :name       => row[:name],
+                    :body       => doc.root.to_s,
+                    :uid        => row[:uid],
+                    :gid        => row[:gid],
+                    :owner_u    => row[:owner_u],
+                    :group_u    => row[:group_u],
+                    :other_u    => row[:other_u])
+            end
         end
 
         @db.run "DROP TABLE old_template_pool;"
+
+        log_time()
 
         ########################################################################
         # Feature #1691 Add new attribute NIC/NIC_ID
@@ -507,37 +556,42 @@ module Migrator
         @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
         @db.run "CREATE TABLE vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
 
-        @db.fetch("SELECT * FROM old_vm_pool") do |row|
-            if ( row[:state] != 6 )     # DONE
-                doc = Document.new(row[:body])
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_vm_pool") do |row|
+                if ( row[:state] != 6 )     # DONE
+                    doc = Nokogiri::XML(row[:body])
 
-                nic_id = 0
+                    nic_id = 0
 
-                doc.root.each_element("TEMPLATE/NIC") { |e|
-                    e.delete_element("NIC_ID")
-                    e.add_element("NIC_ID").text = (nic_id).to_s
+                    doc.root.xpath("TEMPLATE/NIC").each { |e|
+                        e.xpath("NIC_ID").each {|n| n.remove}
+                        e.add_child(doc.create_element("NIC_ID")).content =
+                            (nic_id).to_s
 
-                    nic_id += 1
-                }
+                        nic_id += 1
+                    }
 
-                row[:body] = doc.root.to_s
+                    row[:body] = doc.root.to_s
+                end
+
+                @db[:vm_pool].insert(
+                    :oid        => row[:oid],
+                    :name       => row[:name],
+                    :body       => row[:body],
+                    :uid        => row[:uid],
+                    :gid        => row[:gid],
+                    :last_poll  => row[:last_poll],
+                    :state      => row[:state],
+                    :lcm_state  => row[:lcm_state],
+                    :owner_u    => row[:owner_u],
+                    :group_u    => row[:group_u],
+                    :other_u    => row[:other_u])
             end
-
-            @db[:vm_pool].insert(
-                :oid        => row[:oid],
-                :name       => row[:name],
-                :body       => row[:body],
-                :uid        => row[:uid],
-                :gid        => row[:gid],
-                :last_poll  => row[:last_poll],
-                :state      => row[:state],
-                :lcm_state  => row[:lcm_state],
-                :owner_u    => row[:owner_u],
-                :group_u    => row[:group_u],
-                :other_u    => row[:other_u])
         end
 
         @db.run "DROP TABLE old_vm_pool;"
+
+        log_time()
 
         ########################################################################
         #
@@ -563,38 +617,38 @@ module Migrator
 
         # VM quotas
 
-        doc.root.each_element("VM_QUOTA/VM/CPU") do |e|
-            e.text = "-1" if e.text.to_f == 0
+        doc.root.xpath("VM_QUOTA/VM/CPU").each do |e|
+            e.content = "-1" if e.text.to_f == 0
         end
 
-        doc.root.each_element("VM_QUOTA/VM/MEMORY") do |e|
-            e.text = "-1" if e.text.to_i == 0
+        doc.root.xpath("VM_QUOTA/VM/MEMORY").each do |e|
+            e.content = "-1" if e.text.to_i == 0
         end
 
-        doc.root.each_element("VM_QUOTA/VM/VMS") do |e|
-            e.text = "-1" if e.text.to_i == 0
+        doc.root.xpath("VM_QUOTA/VM/VMS").each do |e|
+            e.content = "-1" if e.text.to_i == 0
         end
 
         # VNet quotas
 
-        doc.root.each_element("NETWORK_QUOTA/NETWORK/LEASES") do |e|
-            e.text = "-1" if e.text.to_i == 0
+        doc.root.xpath("NETWORK_QUOTA/NETWORK/LEASES").each do |e|
+            e.content = "-1" if e.text.to_i == 0
         end
 
         # Image quotas
 
-        doc.root.each_element("IMAGE_QUOTA/IMAGE/RVMS") do |e|
-            e.text = "-1" if e.text.to_i == 0
+        doc.root.xpath("IMAGE_QUOTA/IMAGE/RVMS").each do |e|
+            e.content = "-1" if e.text.to_i == 0
         end
 
         # Datastore quotas
 
-        doc.root.each_element("DATASTORE_QUOTA/DATASTORE/IMAGES") do |e|
-            e.text = "-1" if e.text.to_i == 0
+        doc.root.xpath("DATASTORE_QUOTA/DATASTORE/IMAGES").each do |e|
+            e.content = "-1" if e.text.to_i == 0
         end
 
-        doc.root.each_element("DATASTORE_QUOTA/DATASTORE/SIZE") do |e|
-            e.text = "-1" if e.text.to_i == 0
+        doc.root.xpath("DATASTORE_QUOTA/DATASTORE/SIZE").each do |e|
+            e.content = "-1" if e.text.to_i == 0
         end
     end
 end
