@@ -229,6 +229,8 @@ class OneDB
             begin
                 puts "  > Running fsck" if ops[:verbose]
 
+                time0 = Time.now
+
                 result = @backend.fsck
 
                 if !result
@@ -237,6 +239,12 @@ class OneDB
 
                 puts "  > Done" if ops[:verbose]
                 puts "" if ops[:verbose]
+
+                time1 = Time.now
+
+                if LOG_TIME
+                    puts "  > Total time: #{time1 - time0}s" if ops[:verbose]
+                end
 
                 return 0
             rescue Exception => e
