@@ -2700,6 +2700,17 @@ function add_osTab(dialog) {
                     '<div class="tip">'+tr("The guest clock will be synchronized to the host's configured timezone when booted.")+'</div>'+
                   '</div>'+
                 '</div>'+
+                '<div class="row">'+
+                  '<div class="four columns">'+
+                    '<label class="right inline" for="DEVICE_MODEL">'+tr("Device model")+':</label>'+
+                  '</div>'+
+                  '<div class="six columns">'+
+                    '<input type="text" id="DEVICE_MODEL" name="device_model"/>'+
+                  '</div>'+
+                  '<div class="two columns">'+
+                    '<div class="tip">'+tr("Used to change the IO emulator in Xen HVM. Only XEN.")+'</div>'+
+                  '</div>'+
+                '</div>'+
             '</div>'+
             '<div class="six columns vm_param">'+
                 '<div class="row">'+
