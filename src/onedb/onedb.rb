@@ -16,6 +16,7 @@
 
 require 'onedb_backend'
 
+# If set to true, extra verbose time log will be printed for each migrator
 LOG_TIME = false
 
 class OneDB
@@ -155,16 +156,12 @@ class OneDB
 
                 time1 = Time.now
 
-                if LOG_TIME
-                    puts "  > Time for #{file}: #{time1 - time0}s"
-                end
-
                 if !result
                     raise "Error while upgrading from #{version} to " <<
                           " #{@backend.db_version}"
                 end
 
-                puts "  > Done" if ops[:verbose]
+                puts "  > Done in #{"%0.02f" % (time1 - time0).to_s}s" if ops[:verbose]
                 puts "" if ops[:verbose]
 
                 matches = Dir.glob(
@@ -180,9 +177,7 @@ class OneDB
 
             timeb = Time.now
 
-            if LOG_TIME
-                puts "  > Total time: #{timeb - timea}s" if ops[:verbose]
-            end
+            puts "Total time: #{"%0.02f" % (timeb - timea).to_s}s" if ops[:verbose]
 
             return 0
 
