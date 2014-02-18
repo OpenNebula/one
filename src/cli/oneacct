@@ -44,7 +44,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     end
 
     option AcctHelper::ACCT_OPTIONS + CommandParser::OPTIONS +
-        [OpenNebulaHelper::DESCRIBE, CLIHelper::LIST] +
+        [OpenNebulaHelper::DESCRIBE, CLIHelper::LIST, CLIHelper::CSV] +
         OpenNebulaHelper::CLIENT_OPTIONS
 
     main do
@@ -87,7 +87,10 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         else
             order_by = Hash.new
             order_by[:order_by_1] = 'VM/UID'
-            order_by[:order_by_2] = 'VM/ID' if options[:split]
+
+            if options[:split] && !options[:csv]
+                order_by[:order_by_2] = 'VM/ID'
+            end
 
             acct_hash = pool.accounting(filter_flag,
                                         common_opts.merge(order_by))
@@ -96,6 +99,21 @@ cmd = CommandParser::CmdParser.new(ARGV) do
                 exit -1
             end
 
+            if options[:csv]
+                a=Array.new
+                acct_hash.each do |user_id, value|
+                    value['HISTORY_RECORDS']['HISTORY'].each do |l|
+                        l['UID']=user_id
+                        a << l
+                    end
+                end
+
+                cols=AcctHelper::ACCT_TABLE.default_columns
+                AcctHelper::ACCT_TABLE.default(:UID, *cols)
+
+                AcctHelper::ACCT_TABLE.show(a, options)
+                exit(0)
+            end
 
             if ( start_time != -1 or end_time != -1 )
                 AcctHelper.print_start_end_time_header(start_time, end_time)
