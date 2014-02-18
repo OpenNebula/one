@@ -134,7 +134,7 @@ class OneDBBacKEnd
     def log_time()
         if LOG_TIME
             @time1 = Time.now
-            puts "    > #{db_version} Time for block #{@block_n}: #{@time1 - @time0}s"
+            puts "    > #{db_version} Time for block #{@block_n}: #{"%0.02f" % (@time1 - @time0).to_s}s"
             @time0 = Time.now
             @block_n += 1
         end
