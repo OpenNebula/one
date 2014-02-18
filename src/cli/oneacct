@@ -44,9 +44,15 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     end
 
     option AcctHelper::ACCT_OPTIONS + CommandParser::OPTIONS +
+        [OpenNebulaHelper::DESCRIBE, CLIHelper::LIST] +
         OpenNebulaHelper::CLIENT_OPTIONS
 
     main do
+        if options[:describe]
+            AcctHelper::ACCT_TABLE.describe_columns
+            exit(0)
+        end
+
         filter_flag = (options[:userfilter] || VirtualMachinePool::INFO_ALL)
         start_time  = options[:start_time] ? options[:start_time].to_i : -1
         end_time    = options[:end_time] ? options[:end_time].to_i : -1
@@ -102,13 +108,13 @@ cmd = CommandParser::CmdParser.new(ARGV) do
                     # Use one table for each VM
                     value.each { |vm_id, history_array|
                         array = history_array['HISTORY_RECORDS']['HISTORY']
-                        AcctHelper::ACCT_TABLE.show(array)
+                        AcctHelper::ACCT_TABLE.show(array, options)
                         puts
                     }
                 else
                     # Use the same table for all the VMs
                     array = value['HISTORY_RECORDS']['HISTORY']
-                    AcctHelper::ACCT_TABLE.show(array)
+                    AcctHelper::ACCT_TABLE.show(array, options)
                     puts
                 end
             }
