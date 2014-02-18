@@ -38,16 +38,12 @@ class AclManager : public Callbackable, public ActionListener
 public:
 
     /**
-     *
      *  @param _db pointer to the DB
      *  @param zone_id of the Zone
-     * @param is_federation_enabled true is this oned is part of a federation
-     * @param is_federation_slave true is this oned is a federation slave. It
-     * it is true, it will reload periodically rules from the DB
+     *  @param refresh_cache will reload periodically rules from the DB
      *  @param timer_period period to reload the rules
      */
-    AclManager(SqlDB * _db, int zone_id, bool is_federation_enabled,
-            bool is_federation_slave, time_t timer);
+    AclManager(SqlDB * _db, int zone_id, bool _refresh_cache, time_t timer);
 
     virtual ~AclManager();
 
@@ -214,8 +210,7 @@ protected:
      *  from DB)
      */
     AclManager(int _zone_id)
-        :zone_id(_zone_id), db(0),lastOID(0), is_federation_enabled(false),
-         is_federation_slave(false)
+        :zone_id(_zone_id), db(0),lastOID(0), is_federation_slave(false)
     {
        pthread_mutex_init(&mutex, 0);
     };
@@ -419,11 +414,6 @@ private:
     // ----------------------------------------
     // Refresh loop thread
     // ----------------------------------------
-
-    /**
-     * Flag to know if this oned is part of a federation
-     */
-    bool            is_federation_enabled;
 
     /**
      * Flag to refresh the cache periodically
