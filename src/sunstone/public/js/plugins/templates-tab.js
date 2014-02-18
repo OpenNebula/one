@@ -2685,6 +2685,21 @@ function add_osTab(dialog) {
                     '<div class="tip">'+tr("Add support in the VM for hyper-v features (HYPERV)")+'</div>'+
                   '</div>'+
                 '</div>'+
+                '<div class="row">'+
+                  '<div class="four columns">'+
+                    '<label class="right inline" for="LOCALTIME">'+tr("LOCALTIME")+':</label>'+
+                  '</div>'+
+                  '<div class="six columns">'+
+                    '<select id="LOCALTIME" name="localtime">'+
+                      '<option id="no_localtime" name="no_localtime" value=""></option>'+
+                        '<option value="yes">'+tr("Yes")+'</option>'+
+                        '<option value="no">'+tr("No")+'</option>'+
+                    '</select>'+
+                  '</div>'+
+                  '<div class="two columns">'+
+                    '<div class="tip">'+tr("The guest clock will be synchronized to the host's configured timezone when booted.")+'</div>'+
+                  '</div>'+
+                '</div>'+
             '</div>'+
             '<div class="six columns vm_param">'+
                 '<div class="row">'+
