@@ -101,6 +101,8 @@ module OpenNebula
         # @param [Hash] options
         # @option params [Integer] :timeout connection timeout in seconds,
         #   defaults to 30
+        # @option params [String] :http_proxy HTTP proxy string used for
+        #  connecting to the endpoint; defaults to no proxy
         #
         # @return [OpenNebula::Client]
         def initialize(secret=nil, endpoint=nil, options={})
@@ -130,7 +132,10 @@ module OpenNebula
             timeout=nil
             timeout=options[:timeout] if options[:timeout]
 
-            @server = XMLRPC::Client.new2(@one_endpoint, nil, timeout)
+            http_proxy=nil
+            http_proxy=options[:http_proxy] if options[:http_proxy]
+
+            @server = XMLRPC::Client.new2(@one_endpoint, http_proxy, timeout)
 
             if defined?(OxStreamParser)
                 @server.set_parser(OxStreamParser.new)
