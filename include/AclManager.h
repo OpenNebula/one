@@ -40,10 +40,11 @@ public:
     /**
      *  @param _db pointer to the DB
      *  @param zone_id of the Zone
-     *  @param refresh_cache will reload periodically rules from the DB
+     *  @param is_federation_slave true is this oned is a federation slave. If
+     *  it is true, it will reload periodically rules from the DB
      *  @param timer_period period to reload the rules
      */
-    AclManager(SqlDB * _db, int zone_id, bool _refresh_cache, time_t timer);
+    AclManager(SqlDB * _db, int zone_id, bool is_federation_slave, time_t timer);
 
     virtual ~AclManager();
 

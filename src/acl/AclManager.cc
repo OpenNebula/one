@@ -83,7 +83,7 @@ AclManager::AclManager(
         string error_str;
 
         // Users in group USERS can create standard resources
-        // @1 VM+NET+IMAGE+TEMPLATE/* CREATE
+        // @1 VM+NET+IMAGE+TEMPLATE/* CREATE #<local-zone>
         add_rule(AclRule::GROUP_ID |
                     1,
                  AclRule::ALL_ID |
@@ -92,24 +92,27 @@ AclManager::AclManager(
                     PoolObjectSQL::IMAGE |
                     PoolObjectSQL::TEMPLATE,
                  AuthRequest::CREATE,
-                 AclRule::ALL_ID,
+                 AclRule::INDIVIDUAL_ID |
+                     zone_id,
                  error_str);
 
         // Users in USERS can deploy VMs in any HOST
-        // @1 HOST/* MANAGE
+        // @1 HOST/* MANAGE #<local-zone>
         add_rule(AclRule::GROUP_ID |
                     1,
                  AclRule::ALL_ID |
                     PoolObjectSQL::HOST,
                  AuthRequest::MANAGE,
-                 AclRule::ALL_ID,
+                 AclRule::INDIVIDUAL_ID |
+                     zone_id,
                  error_str);
 
         add_rule(AclRule::ALL_ID,
                  AclRule::ALL_ID |
                     PoolObjectSQL::DOCUMENT,
                  AuthRequest::CREATE,
-                 AclRule::ALL_ID,
+                 AclRule::INDIVIDUAL_ID |
+                     zone_id,
                  error_str);
     }
 }

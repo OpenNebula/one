@@ -499,6 +499,7 @@ EOT
 
                     if (zid != 0)
                         insert = false
+                        error_str = "Zone ##{zid} is unknown for the slave"
                     else
                         new_zone = (Acl::USERS["UID"] | zone_id)
                     end
