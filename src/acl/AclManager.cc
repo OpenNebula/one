@@ -114,6 +114,14 @@ AclManager::AclManager(
                  AclRule::INDIVIDUAL_ID |
                      zone_id,
                  error_str);
+
+        // @<gid> ZONE/#<zone> USE *
+        add_rule(AclRule::ALL_ID,
+                 AclRule::ALL_ID |
+                    PoolObjectSQL::ZONE,
+                 AuthRequest::USE,
+                 AclRule::ALL_ID,
+                 error_str);
     }
 }
 

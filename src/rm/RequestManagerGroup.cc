@@ -261,21 +261,6 @@ int GroupAddProvider::edit_acl_rules(
 
             error_msg);
 
-    // @<gid> ZONE/#<zone> USE *
-    rc += aclm->add_rule(
-            AclRule::GROUP_ID |
-            group_id,
-
-            PoolObjectSQL::ZONE |
-            AclRule::INDIVIDUAL_ID |
-            zone_id,
-
-            AuthRequest::USE,
-
-            AclRule::ALL_ID,
-
-            error_msg);
-
     if (rc != 0)
     {
         return -1;
@@ -340,21 +325,6 @@ int GroupDelProvider::edit_acl_rules(
 
             AclRule::INDIVIDUAL_ID |
             zone_id,
-
-            error_msg);
-
-    // @<gid> ZONE/#<zone> USE *
-    rc += aclm->del_rule(
-            AclRule::GROUP_ID |
-            group_id,
-
-            PoolObjectSQL::ZONE |
-            AclRule::INDIVIDUAL_ID |
-            zone_id,
-
-            AuthRequest::USE,
-
-            AclRule::ALL_ID,
 
             error_msg);
 
