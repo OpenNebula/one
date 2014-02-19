@@ -83,22 +83,14 @@ AclManager::AclManager(
         string error_str;
 
         // Users in group USERS can create standard resources
-        // @1 VM+NET+IMAGE+TEMPLATE/* CREATE #<local-zone>
+        // @1 VM+NET+IMAGE+TEMPLATE+DOCUMENT/* CREATE #<local-zone>
         add_rule(AclRule::GROUP_ID |
                     1,
                  AclRule::ALL_ID |
                     PoolObjectSQL::VM |
                     PoolObjectSQL::NET |
                     PoolObjectSQL::IMAGE |
-                    PoolObjectSQL::TEMPLATE,
-                 AuthRequest::CREATE,
-                 AclRule::INDIVIDUAL_ID |
-                     zone_id,
-                 error_str);
-
-        // * DOCUMENT/* CREATE #<local-zone>
-        add_rule(AclRule::ALL_ID,
-                 AclRule::ALL_ID |
+                    PoolObjectSQL::TEMPLATE |
                     PoolObjectSQL::DOCUMENT,
                  AuthRequest::CREATE,
                  AclRule::INDIVIDUAL_ID |
