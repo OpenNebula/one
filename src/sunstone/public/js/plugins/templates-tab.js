@@ -2655,6 +2655,62 @@ function add_osTab(dialog) {
                     '<div class="tip">'+tr("Add support in the VM for Physical Address Extension (PAE)")+'</div>'+
                   '</div>'+
                 '</div>'+
+                '<div class="row">'+
+                  '<div class="four columns">'+
+                    '<label class="right inline" for="APIC">'+tr("APIC")+':</label>'+
+                  '</div>'+
+                  '<div class="six columns">'+
+                    '<select id="APIC" name="apic">'+
+                      '<option id="no_apic" name="no_apic" value=""></option>'+
+                        '<option value="yes">'+tr("Yes")+'</option>'+
+                        '<option value="no">'+tr("No")+'</option>'+
+                    '</select>'+
+                  '</div>'+
+                  '<div class="two columns">'+
+                    '<div class="tip">'+tr("Enables the advanced programmable IRQ management.")+'</div>'+
+                  '</div>'+
+                '</div>'+
+                '<div class="row">'+
+                  '<div class="four columns vm_param">'+
+                    '<label class="right inline" for="HYPERV">'+tr("HYPERV")+':</label>'+
+                  '</div>'+
+                  '<div class="six columns">'+
+                    '<select id="HYPERV" name="hyperv">'+
+                      '<option id="no_hyperv" name="no_hyperv" value=""></option>'+
+                        '<option value="yes">'+tr("Yes")+'</option>'+
+                        '<option value="no">'+tr("No")+'</option>'+
+                    '</select>'+
+                  '</div>'+
+                  '<div class="two columns">'+
+                    '<div class="tip">'+tr("Add support in the VM for hyper-v features (HYPERV)")+'</div>'+
+                  '</div>'+
+                '</div>'+
+                '<div class="row">'+
+                  '<div class="four columns">'+
+                    '<label class="right inline" for="LOCALTIME">'+tr("LOCALTIME")+':</label>'+
+                  '</div>'+
+                  '<div class="six columns">'+
+                    '<select id="LOCALTIME" name="localtime">'+
+                      '<option id="no_localtime" name="no_localtime" value=""></option>'+
+                        '<option value="yes">'+tr("Yes")+'</option>'+
+                        '<option value="no">'+tr("No")+'</option>'+
+                    '</select>'+
+                  '</div>'+
+                  '<div class="two columns">'+
+                    '<div class="tip">'+tr("The guest clock will be synchronized to the host's configured timezone when booted.")+'</div>'+
+                  '</div>'+
+                '</div>'+
+                '<div class="row">'+
+                  '<div class="four columns">'+
+                    '<label class="right inline" for="DEVICE_MODEL">'+tr("Device model")+':</label>'+
+                  '</div>'+
+                  '<div class="six columns">'+
+                    '<input type="text" id="DEVICE_MODEL" name="device_model"/>'+
+                  '</div>'+
+                  '<div class="two columns">'+
+                    '<div class="tip">'+tr("Used to change the IO emulator in Xen HVM. Only XEN.")+'</div>'+
+                  '</div>'+
+                '</div>'+
             '</div>'+
             '<div class="six columns vm_param">'+
                 '<div class="row">'+

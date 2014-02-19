@@ -96,6 +96,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  kernel_cmd = "";
     string  bootloader = "";
     string  arch       = "";
+    string  machine    = "";
 
     vector<string> boots;
 
@@ -137,20 +138,29 @@ int LibVirtDriver::deployment_description_kvm(
 
     const VectorAttribute * graphics;
 
-    string  listen     = "";
-    string  port       = "";
-    string  passwd     = "";
-    string  keymap     = "";
+    string  listen          = "";
+    string  port            = "";
+    string  passwd          = "";
+    string  keymap          = "";
+    string  spice_options   = "";
 
     const VectorAttribute * input;
 
     const VectorAttribute * features;
 
-    bool pae  = false;
-    bool acpi = false;
+    bool pae        = false;
+    bool acpi       = false;
+    bool apic       = false;
+    bool hyperv     = false;
+    bool localtime  = false;
 
-    int pae_found  = -1;
-    int acpi_found = -1;
+    int pae_found       = -1;
+    int acpi_found      = -1;
+    int apic_found      = -1;
+    int hyperv_found    = -1;
+    int localtime_found = -1;
+
+    string hyperv_options = "";
 
     const VectorAttribute * raw;
     string default_raw;
@@ -240,6 +250,7 @@ int LibVirtDriver::deployment_description_kvm(
             kernel_cmd = os->vector_value("KERNEL_CMD");
             bootloader = os->vector_value("BOOTLOADER");
             arch       = os->vector_value("ARCH");
+            machine    = os->vector_value("MACHINE");
         }
     }
 
@@ -253,7 +264,19 @@ int LibVirtDriver::deployment_description_kvm(
         }
     }
 
-    file << "\t\t<type arch='" << arch << "'>hvm</type>" << endl;
+    if ( machine.empty() )
+    {
+        get_default("OS", "MACHINE", machine);
+    }
+
+    file << "\t\t<type arch='" << arch << "'";
+
+    if ( !machine.empty() )
+    {
+        file << " machine='" << machine << "'";
+    }
+
+    file << ">hvm</type>" << endl;
 
     if ( kernel.empty() )
     {
@@ -712,6 +735,16 @@ int LibVirtDriver::deployment_description_kvm(
                 }
 
                 file << "/>" << endl;
+
+                if ( type == "spice" )
+                {
+                    get_default("SPICE_OPTIONS", spice_options);
+
+                    if ( spice_options != "" )
+                    {
+                        file << "\t\t" << spice_options << endl;
+                    }
+                }
             }
             else
             {
@@ -766,8 +799,11 @@ int LibVirtDriver::deployment_description_kvm(
 
         if ( features != 0 )
         {
-            pae_found  = features->vector_value("PAE", pae);
-            acpi_found = features->vector_value("ACPI", acpi);
+            pae_found       = features->vector_value("PAE", pae);
+            acpi_found      = features->vector_value("ACPI", acpi);
+            apic_found      = features->vector_value("APIC", apic);
+            hyperv_found    = features->vector_value("HYPERV", hyperv);
+            localtime_found = features->vector_value("LOCALTIME", localtime);
         }
     }
 
@@ -781,7 +817,22 @@ int LibVirtDriver::deployment_description_kvm(
         get_default("FEATURES", "ACPI", acpi);
     }
 
-    if( acpi || pae )
+    if ( apic_found != 0 )
+    {
+        get_default("FEATURES", "APIC", apic);
+    }
+
+    if ( hyperv_found != 0 )
+    {
+        get_default("FEATURES", "HYPERV", hyperv);
+    }
+
+    if ( localtime_found != 0 )
+    {
+        get_default("FEATURES", "LOCALTIME", localtime);
+    }
+
+    if ( acpi || pae || apic || hyperv )
     {
         file << "\t<features>" << endl;
 
@@ -795,7 +846,26 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t<acpi/>" << endl;
         }
 
+        if ( apic )
+        {
+            file << "\t\t<apic/>" << endl;
+        }
+
+        if ( hyperv )
+        {
+            get_default("HYPERV_OPTIONS", hyperv_options);
+
+            file << "\t\t<hyperv>" << endl;
+            file << hyperv_options << endl;
+            file << "\t\t</hyperv>" << endl;
+        }
+
         file << "\t</features>" << endl;
+    }
+
+    if ( localtime )
+    {
+        file << "\t<clock offset='localtime'/>" << endl;
     }
 
     attrs.clear();
