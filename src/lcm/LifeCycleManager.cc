@@ -356,7 +356,7 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     }
     else if (action == "ATTACH_FAILURE")
     {
-        attach_failure_action(vid);
+        attach_failure_action(vid, false);
     }
     else if (action == "DETACH_SUCCESS")
     {
