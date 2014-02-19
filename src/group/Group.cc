@@ -317,6 +317,11 @@ int Group::from_xml(const string& xml)
 
 int Group::add_resource_provider(int zone_id, int cluster_id, string& error_msg)
 {
+    AclManager* aclm = Nebula::instance().get_aclm();
+
+    int rc = 0;
+    long long mask_prefix;
+
     pair<set<pair<int, int> >::iterator,bool> ret;
 
     ret = providers.insert(pair<int,int>(zone_id, cluster_id));
@@ -324,6 +329,51 @@ int Group::add_resource_provider(int zone_id, int cluster_id, string& error_msg)
     if( !ret.second )
     {
         error_msg = "Resource provider is already assigned to this group";
+        return -1;
+    }
+
+    if (cluster_id == ClusterPool::ALL_RESOURCES)
+    {
+        mask_prefix = AclRule::ALL_ID;
+    }
+    else
+    {
+        mask_prefix = AclRule::CLUSTER_ID | cluster_id;
+    }
+
+    // @<gid> HOST/%<cid> MANAGE #<zone>
+    rc += aclm->add_rule(
+            AclRule::GROUP_ID |
+            oid,
+
+            mask_prefix |
+            PoolObjectSQL::HOST,
+
+            AuthRequest::MANAGE,
+
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
+            error_msg);
+
+    // @<gid> DATASTORE+NET/%<cid> USE #<zone>
+    rc += aclm->add_rule(
+            AclRule::GROUP_ID |
+            oid,
+
+            mask_prefix |
+            PoolObjectSQL::DATASTORE |
+            PoolObjectSQL::NET,
+
+            AuthRequest::USE,
+
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
+            error_msg);
+
+    if (rc != 0)
+    {
         return -1;
     }
 
@@ -335,11 +385,63 @@ int Group::add_resource_provider(int zone_id, int cluster_id, string& error_msg)
 
 int Group::del_resource_provider(int zone_id, int cluster_id, string& error_msg)
 {
+    AclManager* aclm = Nebula::instance().get_aclm();
+
+    int rc = 0;
+
+    long long mask_prefix;
+
     if( providers.erase(pair<int,int>(zone_id, cluster_id)) != 1 )
     {
         error_msg = "Resource provider is not assigned to this group";
         return -1;
     }
 
+    if (cluster_id == ClusterPool::ALL_RESOURCES)
+    {
+        mask_prefix = AclRule::ALL_ID;
+    }
+    else
+    {
+        mask_prefix = AclRule::CLUSTER_ID | cluster_id;
+    }
+
+    // @<gid> HOST/%<cid> MANAGE #<zid>
+    rc += aclm->del_rule(
+            AclRule::GROUP_ID |
+            oid,
+
+            mask_prefix |
+            PoolObjectSQL::HOST,
+
+            AuthRequest::MANAGE,
+
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
+            error_msg);
+
+    // @<gid> DATASTORE+NET/%<cid> USE #<zid>
+    rc += aclm->del_rule(
+            AclRule::GROUP_ID |
+            oid,
+
+            mask_prefix |
+            PoolObjectSQL::DATASTORE |
+            PoolObjectSQL::NET,
+
+            AuthRequest::USE,
+
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
+            error_msg);
+
+    if (rc != 0)
+    {
+        return -1;
+    }
+
     return 0;
 }
+

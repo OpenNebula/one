@@ -197,8 +197,6 @@ void GroupEditProvider::request_execute(
         return;
     }
 
-    edit_acl_rules(group_id, zone_id, cluster_id, error_str);
-
     success_response(cluster_id, att);
 }
 
@@ -214,124 +212,8 @@ int GroupAddProvider::edit_resource_provider(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int GroupAddProvider::edit_acl_rules(
-        int group_id, int zone_id, int cluster_id, string& error_msg)
-{
-    int rc = 0;
-
-    long long mask_prefix;
-
-    if (cluster_id == ClusterPool::ALL_RESOURCES)
-    {
-        mask_prefix = AclRule::ALL_ID;
-    }
-    else
-    {
-        mask_prefix = AclRule::CLUSTER_ID | cluster_id;
-    }
-
-    // @<gid> HOST/%<cid> MANAGE #<zone>
-    rc += aclm->add_rule(
-            AclRule::GROUP_ID |
-            group_id,
-
-            mask_prefix |
-            PoolObjectSQL::HOST,
-
-            AuthRequest::MANAGE,
-
-            AclRule::INDIVIDUAL_ID |
-            zone_id,
-
-            error_msg);
-
-    // @<gid> DATASTORE+NET/%<cid> USE #<zone>
-    rc += aclm->add_rule(
-            AclRule::GROUP_ID |
-            group_id,
-
-            mask_prefix |
-            PoolObjectSQL::DATASTORE |
-            PoolObjectSQL::NET,
-
-            AuthRequest::USE,
-
-            AclRule::INDIVIDUAL_ID |
-            zone_id,
-
-            error_msg);
-
-    if (rc != 0)
-    {
-        return -1;
-    }
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int GroupDelProvider::edit_resource_provider(
         Group* group, int zone_id, int cluster_id, string& error_msg)
 {
     return group->del_resource_provider(zone_id, cluster_id, error_msg);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int GroupDelProvider::edit_acl_rules(
-        int group_id, int zone_id, int cluster_id, string& error_msg)
-{
-    int rc = 0;
-
-    long long mask_prefix;
-
-    if (cluster_id == ClusterPool::ALL_RESOURCES)
-    {
-        mask_prefix = AclRule::ALL_ID;
-    }
-    else
-    {
-        mask_prefix = AclRule::CLUSTER_ID | cluster_id;
-    }
-
-    // @<gid> HOST/%<cid> MANAGE #<zid>
-    rc += aclm->del_rule(
-            AclRule::GROUP_ID |
-            group_id,
-
-            mask_prefix |
-            PoolObjectSQL::HOST,
-
-            AuthRequest::MANAGE,
-
-            AclRule::INDIVIDUAL_ID |
-            zone_id,
-
-            error_msg);
-
-    // @<gid> DATASTORE+NET/%<cid> USE #<zid>
-    rc += aclm->del_rule(
-            AclRule::GROUP_ID |
-            group_id,
-
-            mask_prefix |
-            PoolObjectSQL::DATASTORE |
-            PoolObjectSQL::NET,
-
-            AuthRequest::USE,
-
-            AclRule::INDIVIDUAL_ID |
-            zone_id,
-
-            error_msg);
-
-    if (rc != 0)
-    {
-        return -1;
-    }
-
-    return 0;
 }

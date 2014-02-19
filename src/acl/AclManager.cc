@@ -96,17 +96,7 @@ AclManager::AclManager(
                      zone_id,
                  error_str);
 
-        // Users in USERS can deploy VMs in any HOST
-        // @1 HOST/* MANAGE #<local-zone>
-        add_rule(AclRule::GROUP_ID |
-                    1,
-                 AclRule::ALL_ID |
-                    PoolObjectSQL::HOST,
-                 AuthRequest::MANAGE,
-                 AclRule::INDIVIDUAL_ID |
-                     zone_id,
-                 error_str);
-
+        // * DOCUMENT/* CREATE #<local-zone>
         add_rule(AclRule::ALL_ID,
                  AclRule::ALL_ID |
                     PoolObjectSQL::DOCUMENT,
@@ -115,7 +105,7 @@ AclManager::AclManager(
                      zone_id,
                  error_str);
 
-        // @<gid> ZONE/#<zone> USE *
+        // * ZONE/* USE *
         add_rule(AclRule::ALL_ID,
                  AclRule::ALL_ID |
                     PoolObjectSQL::ZONE,

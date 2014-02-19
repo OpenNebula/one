@@ -378,6 +378,59 @@ void Nebula::start(bool bootstrap_only)
     }
 
     // -----------------------------------------------------------
+    // Close stds, we no longer need them
+    // -----------------------------------------------------------
+
+    fd = open("/dev/null", O_RDWR);
+
+    dup2(fd,0);
+    dup2(fd,1);
+    dup2(fd,2);
+
+    close(fd);
+
+    fcntl(0,F_SETFD,0); // Keep them open across exec funcs
+    fcntl(1,F_SETFD,0);
+    fcntl(2,F_SETFD,0);
+
+    // -----------------------------------------------------------
+    // Block all signals before creating any Nebula thread
+    // -----------------------------------------------------------
+
+    sigfillset(&mask);
+
+    pthread_sigmask(SIG_BLOCK, &mask, NULL);
+
+    // -----------------------------------------------------------
+    //Managers
+    // -----------------------------------------------------------
+
+    MadManager::mad_manager_system_init();
+
+    time_t timer_period;
+    time_t monitor_period;
+
+    nebula_configuration->get("MANAGER_TIMER", timer_period);
+    nebula_configuration->get("MONITORING_INTERVAL", monitor_period);
+
+    // ---- ACL Manager ----
+    try
+    {
+        aclm = new AclManager(db, zone_id, is_federation_slave(), timer_period);
+    }
+    catch (bad_alloc&)
+    {
+        throw;
+    }
+
+    rc = aclm->start();
+
+    if ( rc != 0 )
+    {
+       throw runtime_error("Could not start the ACL Manager");
+    }
+
+    // -----------------------------------------------------------
     // Pools
     // -----------------------------------------------------------
     try
@@ -487,41 +540,6 @@ void Nebula::start(bool bootstrap_only)
         throw;
     }
 
-    // -----------------------------------------------------------
-    // Close stds, we no longer need them
-    // -----------------------------------------------------------
-
-    fd = open("/dev/null", O_RDWR);
-
-    dup2(fd,0);
-    dup2(fd,1);
-    dup2(fd,2);
-
-    close(fd);
-
-    fcntl(0,F_SETFD,0); // Keep them open across exec funcs
-    fcntl(1,F_SETFD,0);
-    fcntl(2,F_SETFD,0);
-
-    // -----------------------------------------------------------
-    // Block all signals before creating any Nebula thread
-    // -----------------------------------------------------------
-
-    sigfillset(&mask);
-
-    pthread_sigmask(SIG_BLOCK, &mask, NULL);
-
-    // -----------------------------------------------------------
-    //Managers
-    // -----------------------------------------------------------
-
-    MadManager::mad_manager_system_init();
-
-    time_t timer_period;
-    time_t monitor_period;
-
-    nebula_configuration->get("MANAGER_TIMER", timer_period);
-    nebula_configuration->get("MONITORING_INTERVAL", monitor_period);
 
     // ---- Virtual Machine Manager ----
     try
@@ -696,23 +714,6 @@ void Nebula::start(bool bootstrap_only)
         {
           throw runtime_error("Could not start the Auth Manager");
         }
-    }
-
-    // ---- ACL Manager ----
-    try
-    {
-        aclm = new AclManager(db, zone_id, is_federation_slave(), timer_period);
-    }
-    catch (bad_alloc&)
-    {
-        throw;
-    }
-
-    rc = aclm->start();
-
-    if ( rc != 0 )
-    {
-       throw runtime_error("Could not start the ACL Manager");
     }
 
     // ---- Image Manager ----
