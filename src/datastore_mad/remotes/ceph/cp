@@ -54,6 +54,7 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/POOL_NAME \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/STAGING_DIR \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/RBD_FORMAT \
                     /DS_DRIVER_ACTION_DATA/IMAGE/PATH \
                     /DS_DRIVER_ACTION_DATA/IMAGE/SIZE \
                     /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5 \
@@ -69,6 +70,7 @@ SAFE_DIRS="${XPATH_ELEMENTS[i++]}"
 BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
 POOL_NAME="${XPATH_ELEMENTS[i++]:-$POOL_NAME}"
 STAGING_DIR="${XPATH_ELEMENTS[i++]:-$STAGING_DIR}"
+RBD_FORMAT="${XPATH_ELEMENTS[i++]:-$RBD_FORMAT}"
 SRC="${XPATH_ELEMENTS[i++]}"
 SIZE="${XPATH_ELEMENTS[i++]}"
 MD5="${XPATH_ELEMENTS[i++]}"
@@ -121,8 +123,18 @@ exec_and_log "eval $DUMP | $SSH $DST_HOST $DD of=$TMP_DST bs=64k" \
 REGISTER_CMD=$(cat <<EOF
     set -e
 
-    # create rbd
-    $QEMU_IMG convert $TMP_DST rbd:$RBD_SOURCE
+    if [ "$RBD_FORMAT" = "2" ]; then
+        FORMAT=\$($QEMU_IMG info $TMP_DST | grep "^file format:" | awk '{print $3}')
+
+        if [ "\$FORMAT" != "raw" ]; then
+            $QEMU_IMG convert -O raw $TMP_DST $TMP_DST.raw
+            mv $TMP_DST.raw $TMP_DST
+        fi
+
+        $RBD import --format 2 $TMP_DST $RBD_SOURCE
+    else
+        $QEMU_IMG convert $QEMU_IMG_CONVERT_ARGS $TMP_DST rbd:$RBD_SOURCE
+    fi
 
     # remove original
     $RM -f $TMP_DST
