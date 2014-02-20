@@ -1348,7 +1348,7 @@ module OneDBFsck
         oid = doc.root.at_xpath("ID").text.to_i
 
         # VM quotas
-        cpu_used = 0.0
+        cpu_used = 0
         mem_used = 0
         vms_used = 0
         vol_used = 0
@@ -1365,9 +1365,8 @@ module OneDBFsck
             # VM quotas
             vmdoc.root.xpath("TEMPLATE/CPU").each { |e|
                 # truncate to 2 decimals
-                cpu = (e.text.to_f * 100).to_i / 100.0
+                cpu = (e.text.to_f * 100).to_i
                 cpu_used += cpu
-                cpu_used = (cpu_used * 100).to_i / 100.0
             }
 
             vmdoc.root.xpath("TEMPLATE/MEMORY").each { |e|
@@ -1436,6 +1435,8 @@ module OneDBFsck
 
             # Check if the float value or the string representation mismatch,
             # but ignoring the precision
+
+            cpu_used = (cpu_used / 100.0)
 
             different = ( e.text.to_f != cpu_used ||
                 ![sprintf('%.2f', cpu_used), sprintf('%.1f', cpu_used), sprintf('%.0f', cpu_used)].include?(e.text)  )
