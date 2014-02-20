@@ -440,6 +440,7 @@ void Nebula::start(bool bootstrap_only)
         string  mac_prefix;
         string  default_image_type;
         string  default_device_prefix;
+        string  default_cdrom_device_prefix;
 
         time_t  expiration_time;
         time_t  vm_expiration;
@@ -518,10 +519,12 @@ void Nebula::start(bool bootstrap_only)
         nebula_configuration->get("DEFAULT_IMAGE_TYPE", default_image_type);
         nebula_configuration->get("DEFAULT_DEVICE_PREFIX",
                                   default_device_prefix);
-
+        nebula_configuration->get("DEFAULT_CDROM_DEVICE_PREFIX",
+                                  default_cdrom_device_prefix);
         ipool  = new ImagePool(db,
                                default_image_type,
                                default_device_prefix,
+                               default_cdrom_device_prefix,
                                img_restricted_attrs,
                                image_hooks,
                                remotes_location,

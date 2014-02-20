@@ -36,6 +36,7 @@ ImagePool::ImagePool(
         SqlDB *                             db,
         const string&                       __default_type,
         const string&                       __default_dev_prefix,
+        const string&                       __default_cdrom_dev_prefix,
         vector<const Attribute *>&          restricted_attrs,
         vector<const Attribute *>           hook_mads,
         const string&                       remotes_location,
@@ -47,7 +48,7 @@ ImagePool::ImagePool(
     _default_type       = __default_type;
     _default_dev_prefix = __default_dev_prefix;
 
-    _default_cdrom_dev_prefix = "hd";
+    _default_cdrom_dev_prefix = __default_cdrom_dev_prefix;
 
     // Init inherit attributes
     vector<const Attribute *>::const_iterator it;

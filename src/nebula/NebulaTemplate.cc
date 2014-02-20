@@ -282,6 +282,7 @@ void OpenNebulaTemplate::set_conf_default()
 #  DATASTORE_CAPACITY_CHECK
 #  DEFAULT_IMAGE_TYPE
 #  DEFAULT_DEVICE_PREFIX
+#  DEFAULT_CDROM_DEVICE_PREFIX
 #*******************************************************************************
 */
     //DATASTORE_LOCATION
@@ -310,6 +311,10 @@ void OpenNebulaTemplate::set_conf_default()
     value = "hd";
 
     attribute = new SingleAttribute("DEFAULT_DEVICE_PREFIX",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
+    //DEFAULT_CDROM_DEVICE_PREFIX
+    attribute = new SingleAttribute("DEFAULT_CDROM_DEVICE_PREFIX",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 /*
 #*******************************************************************************
