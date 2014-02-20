@@ -307,7 +307,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         str="#{bar} #{info} "
         name=host[0..(79-str.length)]
         str=str+name
-        str=str+" "*(79-str.length)
+        str=str+" "*(80-str.length)
 
         print "#{str}\r"
         STDOUT.flush
