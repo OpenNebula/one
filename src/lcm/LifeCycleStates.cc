@@ -1340,7 +1340,7 @@ void LifeCycleManager::attach_success_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void LifeCycleManager::attach_failure_action(int vid)
+void LifeCycleManager::attach_failure_action(int vid, bool release_save_as)
 {
     VirtualMachine *  vm;
     VectorAttribute * disk;
@@ -1385,6 +1385,17 @@ void LifeCycleManager::attach_failure_action(int vid)
                 Quotas::quota_del(Quotas::IMAGE, uid, gid, &tmpl);
 
                 imagem->release_image(oid, image_id, false);
+
+                // Release non-persistent images in the detach event
+                if (release_save_as)
+                {
+                    int save_as_id;
+
+                    if ( disk->vector_value("SAVE_AS", save_as_id) == 0 )
+                    {
+                        imagem->release_image(oid, save_as_id, false);
+                    }
+                }
             }
             else // Volatile disk
             {
@@ -1408,7 +1419,7 @@ void LifeCycleManager::attach_failure_action(int vid)
 
 void LifeCycleManager::detach_success_action(int vid)
 {
-    attach_failure_action(vid);
+    attach_failure_action(vid, true);
 }
 
 /* -------------------------------------------------------------------------- */
