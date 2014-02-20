@@ -117,9 +117,9 @@ module Migrator
 
         # Default ZONE
         @db.run "CREATE TABLE zone_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
-        @db.run "INSERT INTO \"zone_pool\" VALUES(0,'OpenNebula','<ZONE><ID>0</ID><NAME>OpenNebula</NAME><TEMPLATE><ENDPOINT><![CDATA[-]]></ENDPOINT></TEMPLATE></ZONE>',0,0,1,0,0);"
+        @db.run "INSERT INTO zone_pool VALUES(0,'OpenNebula','<ZONE><ID>0</ID><NAME>OpenNebula</NAME><TEMPLATE><ENDPOINT><![CDATA[-]]></ENDPOINT></TEMPLATE></ZONE>',0,0,1,0,0);"
 
-        @db.run "INSERT INTO \"pool_control\" VALUES('zone_pool',99);"
+        @db.run "INSERT INTO pool_control VALUES('zone_pool',99);"
 
         return true
     end
