@@ -94,19 +94,31 @@ EOT
             :name   => 'user',
             :large  => '--user name',
             :description => 'User name used to connect to OpenNebula',
-            :format => String
+            :format => String,
+            :proc => lambda do |o, options|
+                OneHelper.set_user(o)
+                [0, o]
+            end
         },
         {
             :name   => 'password',
             :large  => '--password password',
             :description => 'Password to authenticate with OpenNebula',
-            :format => String
+            :format => String,
+            :proc => lambda do |o, options|
+                OneHelper.set_password(o)
+                [0, o]
+            end
         },
         {
             :name   => 'endpoint',
             :large  => '--endpoint endpoint',
             :description => 'URL of OpenNebula xmlrpc frontend',
-            :format => String
+            :format => String,
+            :proc => lambda do |o, options|
+                OneHelper.set_endpoint(o)
+                [0, o]
+            end
         }
     ]
 
@@ -273,18 +285,31 @@ EOT
     class OneHelper
         attr_accessor :client
 
-        def self.get_client(options)
-            if defined?(@@client)
+        def self.get_client(options={}, force=false)
+            if !force && defined?(@@client)
                 @@client
             else
+
                 secret=nil
-                user=options[:user]
+                password=nil
+
+                if defined?(@@user)
+                    user=@@user
+                    password=@@password if defined?(@@password)
+                else
+                    user=options[:user]
+                end
+
                 if user
-                    password=options[:password]||self.get_password
+                    password=password||options[:password]||self.get_password
                     secret="#{user}:#{password}"
                 end
 
-                endpoint=options[:endpoint]
+                if defined?(@@endpoint)
+                    endpoint=@@endpoint
+                else
+                    endpoint=options[:endpoint]
+                end
 
                 @@client=OpenNebula::Client.new(secret, endpoint)
             end
@@ -294,8 +319,20 @@ EOT
             if defined?(@@client)
                 @@client
             else
-                self.get_client({})
+                self.get_client
             end
+        end
+
+        def self.set_user(user)
+            @@user=user
+        end
+
+        def self.set_password(password)
+            @@password=password
+        end
+
+        def self.set_endpoint(endpoint)
+            @@endpoint=endpoint
         end
 
         if RUBY_VERSION>="1.9.3"
@@ -307,6 +344,7 @@ EOT
                 puts
 
                 pass.chop! if pass
+                @@password=pass
                 pass
             end
         else
@@ -314,8 +352,9 @@ EOT
             def self.get_password
                 print "Password: "
                 system("stty", "-echo")
+                @@password=gets.chop
                 begin
-                    return gets.chop
+                    return @@password
                 ensure
                     system("stty", "echo")
                     print "\n"
@@ -330,7 +369,7 @@ EOT
         end
 
         def set_client(options)
-            @client=OpenNebulaHelper::OneHelper.get_client(options)
+            @client=OpenNebulaHelper::OneHelper.get_client(options, true)
         end
 
         def create_resource(options, &block)
