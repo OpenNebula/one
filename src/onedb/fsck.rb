@@ -116,7 +116,7 @@ module OneDBFsck
 
         tables = ["group_pool", "user_pool", "acl", "image_pool", "host_pool",
             "network_pool", "template_pool", "vm_pool", "cluster_pool",
-            "datastore_pool", "document_pool"]
+            "datastore_pool", "document_pool", "zone_pool"]
 
         tables.each do |table|
             max_oid = -1
@@ -1260,33 +1260,43 @@ module OneDBFsck
         # USER QUOTAS
         ########################################################################
 
-        @db.run "ALTER TABLE user_pool RENAME TO old_user_pool;"
-        @db.run "CREATE TABLE user_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
-
         @db.transaction do
-            # oneadmin does not have quotas
-            @db.fetch("SELECT * FROM old_user_pool WHERE oid=0") do |row|
-                @db[:user_pool].insert(row)
-            end
+            @db.fetch("SELECT oid FROM user_pool") do |row|
+                found = false
 
-            @db.fetch("SELECT * FROM old_user_pool WHERE oid>0") do |row|
-                doc = Nokogiri::XML(row[:body])
+                @db.fetch("SELECT user_oid FROM user_quotas WHERE user_oid=#{row[:oid]}") do |q_row|
+                    found = true
+                end
 
-                calculate_quotas(doc, "uid=#{row[:oid]}", "User")
+                if !found
+                    log_error("User #{row[:oid]} does not have a quotas entry")
 
-                @db[:user_pool].insert(
-                    :oid        => row[:oid],
-                    :name       => row[:name],
-                    :body       => doc.root.to_s,
-                    :uid        => row[:oid],
-                    :gid        => row[:gid],
-                    :owner_u    => row[:owner_u],
-                    :group_u    => row[:group_u],
-                    :other_u    => row[:other_u])
+                    @db.run "INSERT INTO user_quotas VALUES(#{row[:oid]},'<QUOTAS><ID>#{row[:oid]}</ID><DATASTORE_QUOTA></DATASTORE_QUOTA><NETWORK_QUOTA></NETWORK_QUOTA><VM_QUOTA></VM_QUOTA><IMAGE_QUOTA></IMAGE_QUOTA></QUOTAS>');"
+                end
             end
         end
 
-        @db.run "DROP TABLE old_user_pool;"
+        @db.run "ALTER TABLE user_quotas RENAME TO old_user_quotas;"
+        @db.run "CREATE TABLE user_quotas (user_oid INTEGER PRIMARY KEY, body MEDIUMTEXT);"
+
+        @db.transaction do
+            # oneadmin does not have quotas
+            @db.fetch("SELECT * FROM old_user_quotas WHERE user_oid=0") do |row|
+                @db[:user_quotas].insert(row)
+            end
+
+            @db.fetch("SELECT * FROM old_user_quotas WHERE user_oid>0") do |row|
+                doc = Nokogiri::XML(row[:body])
+
+                calculate_quotas(doc, "uid=#{row[:user_oid]}", "User")
+
+                @db[:user_quotas].insert(
+                    :user_oid   => row[:user_oid],
+                    :body       => doc.root.to_s)
+            end
+        end
+
+        @db.run "DROP TABLE old_user_quotas;"
 
         log_time()
 
@@ -1296,33 +1306,43 @@ module OneDBFsck
         # GROUP QUOTAS
         ########################################################################
 
-        @db.run "ALTER TABLE group_pool RENAME TO old_group_pool;"
-        @db.run "CREATE TABLE group_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
-
         @db.transaction do
-            # oneadmin group does not have quotas
-            @db.fetch("SELECT * FROM old_group_pool WHERE oid=0") do |row|
-                @db[:group_pool].insert(row)
-            end
+            @db.fetch("SELECT oid FROM group_pool") do |row|
+                found = false
 
-            @db.fetch("SELECT * FROM old_group_pool WHERE oid>0") do |row|
-                doc = Nokogiri::XML(row[:body])
+                @db.fetch("SELECT group_oid FROM group_quotas WHERE group_oid=#{row[:oid]}") do |q_row|
+                    found = true
+                end
 
-                calculate_quotas(doc, "gid=#{row[:oid]}", "Group")
+                if !found
+                    log_error("Group #{row[:oid]} does not have a quotas entry")
 
-                @db[:group_pool].insert(
-                    :oid        => row[:oid],
-                    :name       => row[:name],
-                    :body       => doc.root.to_s,
-                    :uid        => row[:oid],
-                    :gid        => row[:gid],
-                    :owner_u    => row[:owner_u],
-                    :group_u    => row[:group_u],
-                    :other_u    => row[:other_u])
+                    @db.run "INSERT INTO group_quotas VALUES(#{row[:oid]},'<QUOTAS><ID>#{row[:oid]}</ID><DATASTORE_QUOTA></DATASTORE_QUOTA><NETWORK_QUOTA></NETWORK_QUOTA><VM_QUOTA></VM_QUOTA><IMAGE_QUOTA></IMAGE_QUOTA></QUOTAS>');"
+                end
             end
         end
 
-        @db.run "DROP TABLE old_group_pool;"
+        @db.run "ALTER TABLE group_quotas RENAME TO old_group_quotas;"
+        @db.run "CREATE TABLE group_quotas (group_oid INTEGER PRIMARY KEY, body MEDIUMTEXT);"
+
+        @db.transaction do
+            # oneadmin does not have quotas
+            @db.fetch("SELECT * FROM old_group_quotas WHERE group_oid=0") do |row|
+                @db[:group_quotas].insert(row)
+            end
+
+            @db.fetch("SELECT * FROM old_group_quotas WHERE group_oid>0") do |row|
+                doc = Nokogiri::XML(row[:body])
+
+                calculate_quotas(doc, "gid=#{row[:group_oid]}", "Group")
+
+                @db[:group_quotas].insert(
+                    :group_oid   => row[:group_oid],
+                    :body       => doc.root.to_s)
+            end
+        end
+
+        @db.run "DROP TABLE old_group_quotas;"
 
         log_time()
 
