@@ -302,3 +302,18 @@ int UserDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 
     return rc;
 }
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+int ZoneDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
+{
+    int rc = RequestManagerDelete::drop(oid, object, error_msg);
+
+    if ( rc == 0 )
+    {
+        aclm->del_zid_rules(oid);
+    }
+
+    return rc;
+}

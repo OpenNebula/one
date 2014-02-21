@@ -785,6 +785,18 @@ void AclManager::del_cid_rules(int cid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void AclManager::del_zid_rules(int zid)
+{
+    long long request = AclRule::INDIVIDUAL_ID | zid;
+
+    // Delete rules that match
+    // __  __/__  __ #zid
+    del_zone_matching_rules(request);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void AclManager::del_resource_rules(int oid, PoolObjectSQL::ObjectType obj_type)
 {
     long long request = obj_type |
@@ -846,6 +858,35 @@ void AclManager::del_resource_matching_rules(long long resource_req,
     for ( it = acl_rules.begin(); it != acl_rules.end(); it++ )
     {
         if ( ( it->second->resource & resource_mask ) == resource_req )
+        {
+            oids.push_back(it->second->oid);
+        }
+    }
+
+    unlock();
+
+    for ( oid_it = oids.begin() ; oid_it < oids.end(); oid_it++ )
+    {
+        del_rule(*oid_it, error_str);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AclManager::del_zone_matching_rules(long long zone_req)
+{
+    multimap<long long, AclRule *>::iterator        it;
+
+    vector<int>             oids;
+    vector<int>::iterator   oid_it;
+    string                  error_str;
+
+    lock();
+
+    for ( it = acl_rules.begin(); it != acl_rules.end(); it++ )
+    {
+        if ( it->second->zone == zone_req )
         {
             oids.push_back(it->second->oid);
         }

@@ -143,6 +143,13 @@ public:
     void del_cid_rules(int cid);
 
     /**
+     * Deletes rules that apply to this cluster id
+     *
+     * @param zid The zone id
+     */
+    void del_zid_rules(int zid);
+
+    /**
      * Deletes all rules that apply to this resource
      *
      * @param oid Id of the deleted object
@@ -307,6 +314,13 @@ private:
     void del_resource_matching_rules(
             long long resource_req,
             long long resource_mask);
+
+    /**
+     * Deletes all rules that match the zone mask
+     *
+     * @param zone_req Mask to match
+     */
+    void del_zone_matching_rules(long long zone_req);
 
     // ----------------------------------------
     // Local zone
