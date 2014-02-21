@@ -366,7 +366,29 @@ public:
         return "OpenNebula 4.5.0";
     };
 
+    /**
+     *  Returns the version of oned
+     * @return
+     */
+    static string code_version()
+    {
+        return "4.5.0";
+    }
+
+    /**
+     * Version needed for the DB, replicated tables
+     * @return
+     */
     static string db_version()
+    {
+        return "4.5.0";
+    }
+
+    /**
+     * Version needed for the DB, local tables
+     * @return
+     */
+    static string slave_db_version()
     {
         return "4.5.0";
     }

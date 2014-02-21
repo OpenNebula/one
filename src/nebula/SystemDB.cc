@@ -40,11 +40,11 @@ const char * SystemDB::ver_bootstrap = "CREATE TABLE db_versioning "
 
 // DB slave versioning table
 const char * SystemDB::slave_ver_table = "slave_db_versioning";
-const char * SystemDB::slave_ver_names = "oid, version, timestamp, comment";
+const char * SystemDB::slave_ver_names = "oid, version, timestamp, comment, is_slave";
 
 const char * SystemDB::slave_ver_bootstrap = "CREATE TABLE slave_db_versioning "
     "(oid INTEGER PRIMARY KEY, version VARCHAR(256), timestamp INTEGER, "
-    "comment VARCHAR(256))";
+    "comment VARCHAR(256), is_slave BOOLEAN)";
 
 // System attributes table
 const char * SystemDB::sys_table = "system_attributes";
@@ -56,7 +56,7 @@ const char * SystemDB::sys_bootstrap =  "CREATE TABLE IF NOT EXISTS"
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int SystemDB::bootstrap()
+int SystemDB::bootstrap(bool do_master)
 {
     int             rc;
     ostringstream   oss;
@@ -67,52 +67,34 @@ int SystemDB::bootstrap()
     oss.str(pc_bootstrap);
     rc = db->exec(oss);
 
-    // ------------------------------------------------------------------------
-    // db versioning, version of OpenNebula.
-    // ------------------------------------------------------------------------
-    oss.str(ver_bootstrap);
-    rc += db->exec(oss);
+    if (do_master)
+    {
+        // ---------------------------------------------------------------------
+        // db versioning, version of OpenNebula.
+        // ---------------------------------------------------------------------
+        oss.str(ver_bootstrap);
+        rc += db->exec(oss);
 
-    oss.str("");
-    oss << "INSERT INTO " << ver_table << " (" << ver_names << ") "
-        << "VALUES (0, '" << Nebula::db_version() << "', " << time(0)
-        << ", '" << Nebula::version() << " daemon bootstrap')";
+        oss.str("");
+        oss << "INSERT INTO " << ver_table << " (" << ver_names << ") "
+            << "VALUES (0, '" << Nebula::db_version() << "', " << time(0)
+            << ", '" << Nebula::version() << " daemon bootstrap')";
 
-    rc += db->exec(oss);
-
-    // ------------------------------------------------------------------------
-    // system
-    // ------------------------------------------------------------------------
-    oss.str(sys_bootstrap);
-    rc += db->exec(oss);
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int SystemDB::slave_bootstrap()
-{
-    int             rc;
-    ostringstream   oss;
+        rc += db->exec(oss);
+    }
 
     // ------------------------------------------------------------------------
-    // pool control, tracks the last ID's assigned to objects
-    // ------------------------------------------------------------------------
-    oss.str(pc_bootstrap);
-    rc = db->exec(oss);
-
-    // ------------------------------------------------------------------------
-    // db versioning, version of OpenNebula.
+    // slave db versioning, version of tables that are not replicated in a
+    // slave OpenNebula.
     // ------------------------------------------------------------------------
     oss.str(slave_ver_bootstrap);
     rc += db->exec(oss);
 
     oss.str("");
     oss << "INSERT INTO " << slave_ver_table << " (" << slave_ver_names << ") "
-        << "VALUES (0, '" << Nebula::db_version() << "', " << time(0)
-        << ", '" << Nebula::version() << " daemon bootstrap')";
+        << "VALUES (0, '" << Nebula::slave_db_version() << "', " << time(0)
+        << ", '" << Nebula::version() << " daemon bootstrap', "
+        << Nebula::instance().is_federation_slave() << ")";
 
     rc += db->exec(oss);
 
@@ -201,39 +183,45 @@ int SystemDB::check_db_version(bool is_federation_slave)
         return -1;
     }
 
-    if (is_federation_slave)
+    loaded_db_version = "";
+
+    // Try to read latest version from the slave db version table
+    set_callback( static_cast<Callbackable::Callback>(&SystemDB::select_cb),
+                  static_cast<void *>(&loaded_db_version) );
+
+    oss << "SELECT version FROM " << slave_ver_table
+        << " WHERE oid=(SELECT MAX(oid) FROM " << slave_ver_table << ")";
+
+    db->exec(oss, this, true);
+
+    oss.str("");
+    unset_callback();
+
+    if( loaded_db_version == "" )
     {
-        string loaded_db_version = "";
+        // Database needs bootstrap only for the slave tables
+        return -3;
+    }
 
-        // Try to read latest version from the slave db version table
-        set_callback( static_cast<Callbackable::Callback>(&SystemDB::select_cb),
-                      static_cast<void *>(&loaded_db_version) );
-
-        oss << "SELECT version FROM " << slave_ver_table
-            << " WHERE oid=(SELECT MAX(oid) FROM " << slave_ver_table << ")";
-
-        db->exec(oss, this, true);
-
-        oss.str("");
-        unset_callback();
-
-        if( loaded_db_version == "" )
+    if( Nebula::slave_db_version() != loaded_db_version )
+    {
+        if (!is_federation_slave)
         {
-            return -3;
+            oss << "Database version mismatch. "
+                << "Installed " << Nebula::version() << " uses DB version '"
+                << Nebula::slave_db_version() << "', and existing DB version is '"
+                << loaded_db_version << "'.";
         }
-
-        if( Nebula::db_version() != loaded_db_version )
+        else
         {
             oss << "Database version mismatch. "
                 << "Installed slave " << Nebula::version() << " uses DB version '"
-                << Nebula::db_version() << "', and existing slave DB version is '"
+                << Nebula::slave_db_version() << "', and existing slave DB version is '"
                 << loaded_db_version << "'.";
-
-            NebulaLog::log("ONE",Log::ERROR,oss);
-            return -1;
         }
 
-        return 0;
+        NebulaLog::log("ONE",Log::ERROR,oss);
+        return -1;
     }
 
     return 0;

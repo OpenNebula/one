@@ -313,10 +313,14 @@ void Nebula::start(bool bootstrap_only)
 
         if( is_federation_slave() && rc == -2 )
         {
-            throw runtime_error(
+            string error_str =
                     "Either the database was not bootstrapped by the "
                     "federation master, or the replication was "
-                    "not configured.");
+                    "not configured.";
+
+            NebulaLog::log("ONE",Log::ERROR,error_str);
+
+            throw runtime_error(error_str);
         }
 
         if( rc == -2 || rc == -3 )

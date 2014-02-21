@@ -119,14 +119,22 @@ private:
      *
      *    @return 0 on success
      */
-    int bootstrap();
+    int bootstrap()
+    {
+        return bootstrap(true);
+    }
 
     /**
      *  Bootstraps the database control tables for a slave DB
      *
      *    @return 0 on success
      */
-    int slave_bootstrap();
+    int slave_bootstrap()
+    {
+        return bootstrap(false);
+    }
+
+    int bootstrap(bool do_master);
 
     /**
      *  Callback function for the check_db_version method. Stores the read
