@@ -14,6 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'csv'
+
 module CLIHelper
     LIST = {
         :name  => "list",
@@ -21,6 +23,12 @@ module CLIHelper
         :large => "--list x,y,z",
         :format => Array,
         :description => "Selects columns to display with list command"
+    }
+
+    CSV = {
+        :name  => "csv",
+        :large => "--csv",
+        :description => "Write table in csv format"
     }
 
     #ORDER = {
@@ -56,7 +64,7 @@ module CLIHelper
     }
 
     #OPTIONS = [LIST, ORDER, FILTER, HEADER, DELAY]
-    OPTIONS = [LIST, DELAY, FILTER]
+    OPTIONS = [LIST, DELAY, FILTER, CSV]
 
     # Sets bold font
     def CLIHelper.scr_bold
@@ -154,6 +162,8 @@ module CLIHelper
     class ShowTable
         require 'yaml'
 
+        attr_reader :default_columns
+
         def initialize(conf=nil, ext=nil, &block)
             @columns = Hash.new
             @default_columns = Array.new
@@ -241,7 +251,7 @@ module CLIHelper
         private
 
         def print_table(data, options)
-            CLIHelper.print_header(header_str)
+            CLIHelper.print_header(header_str) if !options[:csv]
             data ? print_data(data, options) : puts
         end
 
@@ -257,17 +267,24 @@ module CLIHelper
             end
 
             begin
-                res_data.each{|l|
-                    puts (0..ncolumns-1).collect{ |i|
-                        dat=l[i]
-                        col=@default_columns[i]
+                if options[:csv]
+                    CSV($stdout, :write_headers => true,
+                                 :headers => @default_columns) do |csv|
+                        res_data.each {|l| csv << l }
+                    end
+                else
+                    res_data.each{|l|
+                        puts (0..ncolumns-1).collect{ |i|
+                            dat=l[i]
+                            col=@default_columns[i]
 
-                        str=format_str(col, dat)
-                        str=CLIHelper.color_state(str) if i==stat_column
+                            str=format_str(col, dat)
+                            str=CLIHelper.color_state(str) if i==stat_column
 
-                        str
-                    }.join(' ').rstrip
-                }
+                            str
+                        }.join(' ').rstrip
+                    }
+                end
             rescue Errno::EPIPE
             end
         end
