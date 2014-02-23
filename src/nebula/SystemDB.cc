@@ -30,19 +30,19 @@ const char * SystemDB::pc_bootstrap = "CREATE TABLE pool_control "
     "(tablename VARCHAR(32) PRIMARY KEY, last_oid BIGINT UNSIGNED)";
 
 
-// DB versioning table
-const char * SystemDB::ver_table = "db_versioning";
-const char * SystemDB::ver_names = "oid, version, timestamp, comment";
+// DB versioning table, shared (federation) tables
+const char * SystemDB::shared_ver_table = "db_versioning";
+const char * SystemDB::shared_ver_names = "oid, version, timestamp, comment";
 
-const char * SystemDB::ver_bootstrap = "CREATE TABLE db_versioning "
+const char * SystemDB::shared_ver_bootstrap = "CREATE TABLE db_versioning "
     "(oid INTEGER PRIMARY KEY, version VARCHAR(256), timestamp INTEGER, "
     "comment VARCHAR(256))";
 
-// DB slave versioning table
-const char * SystemDB::slave_ver_table = "slave_db_versioning";
-const char * SystemDB::slave_ver_names = "oid, version, timestamp, comment, is_slave";
+// DB versioning table, local tables
+const char * SystemDB::local_ver_table = "local_db_versioning";
+const char * SystemDB::local_ver_names = "oid, version, timestamp, comment, is_slave";
 
-const char * SystemDB::slave_ver_bootstrap = "CREATE TABLE slave_db_versioning "
+const char * SystemDB::local_ver_bootstrap = "CREATE TABLE local_db_versioning "
     "(oid INTEGER PRIMARY KEY, version VARCHAR(256), timestamp INTEGER, "
     "comment VARCHAR(256), is_slave BOOLEAN)";
 
@@ -56,10 +56,34 @@ const char * SystemDB::sys_bootstrap =  "CREATE TABLE IF NOT EXISTS"
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int SystemDB::bootstrap(bool do_master)
+int SystemDB::shared_bootstrap()
 {
-    int             rc;
-    ostringstream   oss;
+    int           rc;
+    ostringstream oss;
+
+    // ---------------------------------------------------------------------
+    // db versioning, version of OpenNebula.
+    // ---------------------------------------------------------------------
+    oss.str(shared_ver_bootstrap);
+    rc = db->exec(oss);
+
+    oss.str("");
+    oss << "INSERT INTO " << shared_ver_table << " (" << shared_ver_names << ") "
+        << "VALUES (0, '" << Nebula::shared_db_version() << "', " << time(0)
+        << ", '" << Nebula::version() << " daemon bootstrap')";
+
+    rc += db->exec(oss);
+
+    return rc;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int SystemDB::local_bootstrap()
+{
+    int           rc;
+    ostringstream oss;
 
     // ------------------------------------------------------------------------
     // pool control, tracks the last ID's assigned to objects
@@ -67,32 +91,16 @@ int SystemDB::bootstrap(bool do_master)
     oss.str(pc_bootstrap);
     rc = db->exec(oss);
 
-    if (do_master)
-    {
-        // ---------------------------------------------------------------------
-        // db versioning, version of OpenNebula.
-        // ---------------------------------------------------------------------
-        oss.str(ver_bootstrap);
-        rc += db->exec(oss);
-
-        oss.str("");
-        oss << "INSERT INTO " << ver_table << " (" << ver_names << ") "
-            << "VALUES (0, '" << Nebula::db_version() << "', " << time(0)
-            << ", '" << Nebula::version() << " daemon bootstrap')";
-
-        rc += db->exec(oss);
-    }
-
     // ------------------------------------------------------------------------
-    // slave db versioning, version of tables that are not replicated in a
+    // local db versioning, version of tables that are not replicated in a
     // slave OpenNebula.
     // ------------------------------------------------------------------------
-    oss.str(slave_ver_bootstrap);
+    oss.str(local_ver_bootstrap);
     rc += db->exec(oss);
 
     oss.str("");
-    oss << "INSERT INTO " << slave_ver_table << " (" << slave_ver_names << ") "
-        << "VALUES (0, '" << Nebula::slave_db_version() << "', " << time(0)
+    oss << "INSERT INTO " << local_ver_table << " (" << local_ver_names << ") "
+        << "VALUES (0, '" << Nebula::local_db_version() << "', " << time(0)
         << ", '" << Nebula::version() << " daemon bootstrap', "
         << Nebula::instance().is_federation_slave() << ")";
 
@@ -105,7 +113,7 @@ int SystemDB::bootstrap(bool do_master)
     rc += db->exec(oss);
 
     return rc;
-}
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -128,104 +136,128 @@ int SystemDB::select_cb(void *_loaded_db_version, int num, char **values,
 
 /* -------------------------------------------------------------------------- */
 
-int SystemDB::check_db_version(bool is_federation_slave)
+int SystemDB::check_db_version(const string& table,
+                               const string& version,
+                               string& error)
 {
-    int             rc;
-    ostringstream   oss;
+    ostringstream oss;
+    string        db_version;
 
-    string loaded_db_version = "";
+    error.clear();
 
-    // Try to read latest version
-    set_callback( static_cast<Callbackable::Callback>(&SystemDB::select_cb),
-                  static_cast<void *>(&loaded_db_version) );
+    set_callback(static_cast<Callbackable::Callback>(&SystemDB::select_cb),
+                 static_cast<void *>(&db_version));
 
-    oss << "SELECT version FROM " << ver_table
-        << " WHERE oid=(SELECT MAX(oid) FROM " << ver_table << ")";
+    oss << "SELECT version FROM " << table <<" WHERE oid=(SELECT MAX(oid) FROM "
+        << table << ")";
 
-    db->exec(oss, this, true);
+    int rc = db->exec(oss, this, true);
 
-    oss.str("");
     unset_callback();
 
-    if( loaded_db_version == "" )
+    if( rc != 0 || db_version.empty() )//DB needs bootstrap or replica config.
     {
-        // Table user_pool is present for all OpenNebula versions, and it
-        // always contains at least the oneadmin user.
-        oss << "SELECT MAX(oid) FROM user_pool";
-        rc = db->exec(oss, 0, true);
-
-        oss.str("");
-
-        if( rc != 0 )   // Database needs bootstrap
-        {
-            return -2;
-        }
+        return -2;
     }
 
-    if( Nebula::db_version() != loaded_db_version )
-    {
-        if (!is_federation_slave)
-        {
-            oss << "Database version mismatch. "
-                << "Installed " << Nebula::version() << " uses DB version '"
-                << Nebula::db_version() << "', and existing DB version is '"
-                << loaded_db_version << "'.";
-        }
-        else
-        {
-            oss << "Database version mismatch. "
-                << "Installed slave " << Nebula::version() << " uses DB version '"
-                << Nebula::db_version() << "', and existing master DB version is '"
-                << loaded_db_version << "'.";
-        }
+    oss.str("");
 
-        NebulaLog::log("ONE",Log::ERROR,oss);
+    if(version != db_version)//DB needs upgrade
+    {
+        oss << "Database version mismatch ( " << table << "). "
+            << "Installed " << Nebula::version() << " needs DB version '"
+            << version << "', and existing DB version is '"<< db_version << "'.";
+
+        error = oss.str();
+
         return -1;
     }
 
-    loaded_db_version = "";
+    oss << "oned is using version " << version << " for " << table;
 
-    // Try to read latest version from the slave db version table
-    set_callback( static_cast<Callbackable::Callback>(&SystemDB::select_cb),
-                  static_cast<void *>(&loaded_db_version) );
+    NebulaLog::log("ONE", Log::INFO, oss);
 
-    oss << "SELECT version FROM " << slave_ver_table
-        << " WHERE oid=(SELECT MAX(oid) FROM " << slave_ver_table << ")";
+    return 0;
+};
 
-    db->exec(oss, this, true);
+/* -------------------------------------------------------------------------- */
 
-    oss.str("");
-    unset_callback();
+int SystemDB::check_db_version(bool is_slave, bool &local_bs, bool &shared_bs)
+{
+    int    rc;
+    string error;
 
-    if( loaded_db_version == "" )
+    local_bs  = false;
+    shared_bs = false;
+
+    /* ---------------------------------------------------------------------- */
+    /* Check DB version for local tables                                      */
+    /* ---------------------------------------------------------------------- */
+
+    rc = check_db_version(local_ver_table, Nebula::local_db_version(), error);
+
+    switch(rc)
     {
-        // Database needs bootstrap only for the slave tables
-        return -3;
+        case 0:// All ok continue
+            break;
+
+        case -1:// Version missmatch (same for master/slave/standalone)
+            NebulaLog::log("ONE", Log::ERROR, error);
+            NebulaLog::log("ONE", Log::ERROR, "Use onedb to upgrade DB.");
+            return -1;
+
+        case -2: //Cannot access DB table or empty, bootstrap
+            local_bs = true;
+            break;
+
+        default:
+            break;
     }
 
-    if( Nebula::slave_db_version() != loaded_db_version )
-    {
-        if (!is_federation_slave)
-        {
-            oss << "Database version mismatch. "
-                << "Installed " << Nebula::version() << " uses DB version '"
-                << Nebula::slave_db_version() << "', and existing DB version is '"
-                << loaded_db_version << "'.";
-        }
-        else
-        {
-            oss << "Database version mismatch. "
-                << "Installed slave " << Nebula::version() << " uses DB version '"
-                << Nebula::slave_db_version() << "', and existing slave DB version is '"
-                << loaded_db_version << "'.";
-        }
+    /* ---------------------------------------------------------------------- */
+    /* Check DB version for shared (federation) tables                        */
+    /* ---------------------------------------------------------------------- */
 
-        NebulaLog::log("ONE",Log::ERROR,oss);
-        return -1;
+    rc = check_db_version(shared_ver_table, Nebula::shared_db_version(), error);
+
+    switch(rc)
+    {
+        case 0:// All ok continue
+            break;
+
+        case -1:// Version missmatch
+            NebulaLog::log("ONE", Log::ERROR, error);
+
+            if (is_slave)
+            {
+                NebulaLog::log("ONE", Log::ERROR,
+                    "Cannot join federation, oned master needs upgrade.");
+            }
+            else
+            {
+                NebulaLog::log("ONE", Log::ERROR, "Use onedb to upgrade DB.");
+            }
+
+            return -1;
+
+        case -2: //Cannot access DB table or empty, bootstrap (only master/standalone)
+            if (is_slave)
+            {
+                NebulaLog::log("ONE", Log::ERROR, "Cannot access shared DB"
+                    " tables. Check DB replica configuration.");
+
+                return -1;
+            }
+
+            shared_bs = true;
+            break;
+
+        default:
+            break;
     }
 
     return 0;
-}
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

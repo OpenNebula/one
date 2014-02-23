@@ -300,70 +300,68 @@ void Nebula::start(bool bootstrap_only)
         // Prepare the SystemDB and check versions
         // ---------------------------------------------------------------------
 
+        bool local_bootstrap;
+        bool shared_bootstrap;
+
         NebulaLog::log("ONE",Log::INFO,"Checking database version.");
 
         system_db = new SystemDB(db);
 
-        rc = system_db->check_db_version(is_federation_slave());
-
+        rc = system_db->check_db_version(is_federation_slave(),
+                                         local_bootstrap,
+                                         shared_bootstrap);
         if( rc == -1 )
         {
-            throw runtime_error("Database version mismatch.");
+            throw runtime_error("Database version mismatch. Check oned.log.");
         }
 
-        if( is_federation_slave() && rc == -2 )
+        rc = 0;
+
+        if (local_bootstrap)
         {
-            string error_str =
-                    "Either the database was not bootstrapped by the "
-                    "federation master, or the replication was "
-                    "not configured.";
-
-            NebulaLog::log("ONE",Log::ERROR,error_str);
-
-            throw runtime_error(error_str);
-        }
-
-        if( rc == -2 || rc == -3 )
-        {
-            rc = 0;
-
             NebulaLog::log("ONE",Log::INFO,
-                    "Bootstrapping OpenNebula database.");
+                    "Bootstrapping OpenNebula database, stage 1.");
 
             rc += VirtualMachinePool::bootstrap(db);
             rc += HostPool::bootstrap(db);
             rc += VirtualNetworkPool::bootstrap(db);
-            rc += GroupPool::bootstrap(db);
-            rc += UserPool::bootstrap(db);
             rc += ImagePool::bootstrap(db);
             rc += VMTemplatePool::bootstrap(db);
-            rc += AclManager::bootstrap(db);
             rc += DatastorePool::bootstrap(db);
             rc += ClusterPool::bootstrap(db);
             rc += DocumentPool::bootstrap(db);
+
+            // Create the system tables only if bootstrap went well
+            if (rc == 0)
+            {
+                rc += system_db->local_bootstrap();
+            }
+        }
+
+        if (shared_bootstrap)
+        {
+            NebulaLog::log("ONE",Log::INFO,
+                    "Bootstrapping OpenNebula database, stage 2.");
+
+            rc += GroupPool::bootstrap(db);
+            rc += UserPool::bootstrap(db);
+            rc += AclManager::bootstrap(db);
             rc += ZonePool::bootstrap(db);
 
             // Create the system tables only if bootstrap went well
             if ( rc == 0 )
             {
-                if (is_federation_slave())
-                {
-                    rc += system_db->slave_bootstrap();
-                }
-                else
-                {
-                    rc += system_db->bootstrap();
-                }
+                rc += system_db->shared_bootstrap();
             }
 
             // Insert default system attributes
             rc += default_user_quota.insert();
             rc += default_group_quota.insert();
+        }
 
-            if ( rc != 0 )
-            {
-                throw runtime_error("Error bootstrapping database.");
-            }
+        if ( rc != 0 )
+        {
+            throw runtime_error("Error bootstrapping database.");
         }
     }
     catch (exception&)

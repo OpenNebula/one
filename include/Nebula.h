@@ -376,10 +376,10 @@ public:
     }
 
     /**
-     * Version needed for the DB, replicated tables
+     * Version needed for the DB, shared tables
      * @return
      */
-    static string db_version()
+    static string shared_db_version()
     {
         return "4.5.0";
     }
@@ -388,7 +388,7 @@ public:
      * Version needed for the DB, local tables
      * @return
      */
-    static string slave_db_version()
+    static string local_db_version()
     {
         return "4.5.0";
     }
