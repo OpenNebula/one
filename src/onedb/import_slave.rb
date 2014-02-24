@@ -31,9 +31,32 @@ include OpenNebula
 
 module OneDBImportSlave
     VERSION = "4.5.0"
+    LOCAL_VERSION = "4.5.0"
 
-    def db_version
-        VERSION
+    def check_db_version(master_db_version, slave_db_version)
+        if ( master_db_version[:version] != VERSION ||
+             master_db_version[:local_version] != LOCAL_VERSION )
+
+            raise <<-EOT
+Version mismatch: import slave file is for version
+Shared: #{VERSION}, Local: #{LOCAL_VERSION}
+
+Current master database is version
+Shared: #{master_db_version[:version]}, Local: #{master_db_version[:local_version]}
+EOT
+        elsif ( slave_db_version[:version] != VERSION ||
+                slave_db_version[:local_version] != LOCAL_VERSION )
+
+            raise <<-EOT
+Version mismatch: import slave file is for version
+Shared: #{VERSION}, Local: #{LOCAL_VERSION}
+
+Current slave database is version
+Shared: #{master_db_version[:version]}, Local: #{master_db_version[:local_version]}
+EOT
+        elsif master_db_version[:is_slave]
+            raise "Master database is an OpenNebula federation slave"
+        end
     end
 
     def one_version
@@ -538,8 +561,8 @@ EOT
         # Init slave_db_versioning table
         ########################################################################
 
-        @slave_db.run "CREATE TABLE slave_db_versioning (oid INTEGER PRIMARY KEY, version VARCHAR(256), timestamp INTEGER, comment VARCHAR(256));"
-        @slave_db.run "INSERT INTO slave_db_versioning (oid, version, timestamp, comment) VALUES (0, '#{VERSION}', #{Time.now.to_i}, 'onedb import tool');"
+        @slave_db.run "CREATE TABLE local_db_versioning (oid INTEGER PRIMARY KEY, version VARCHAR(256), timestamp INTEGER, comment VARCHAR(256), is_slave BOOLEAN);"
+        @slave_db.run "INSERT INTO local_db_versioning VALUES(0,'#{LOCAL_VERSION}',#{Time.now.to_i},'onedb import tool',1);"
 
         @slave_db.run "DROP TABLE old_document_pool;"
         @slave_db.run "DROP TABLE old_image_pool;"

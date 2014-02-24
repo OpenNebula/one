@@ -94,16 +94,32 @@ class OneDB
     end
 
     def version(ops)
-        version, timestamp, comment = @backend.read_db_version
+        ret = @backend.read_db_version
 
         if(ops[:verbose])
-            puts "Version:   #{version}"
+            puts "Shared tables version:   #{ret[:version]}"
 
-            time = version == "2.0" ? Time.now : Time.at(timestamp)
+            time = ret[:version] == "2.0" ? Time.now : Time.at(ret[:timestamp])
             puts "Timestamp: #{time.strftime("%m/%d %H:%M:%S")}"
-            puts "Comment:   #{comment}"
+            puts "Comment:   #{ret[:comment]}"
+
+            if ret[:local_version]
+                puts
+                puts "Local tables version:    #{ret[:local_version]}"
+
+                time = Time.at(ret[:local_timestamp])
+                puts "Timestamp: #{time.strftime("%m/%d %H:%M:%S")}"
+                puts "Comment:   #{ret[:local_comment]}"
+
+                if ret[:is_slave]
+                    puts
+                    puts "This database is a federation slave"
+                end
+            end
+
         else
-            puts version
+            puts "Shared: #{ret[:version]}"
+            puts "Local:  #{ret[:version]}"
         end
 
         return 0
@@ -117,15 +133,17 @@ class OneDB
     # max_version is ignored for now, as this is the first onedb release.
     # May be used in next releases
     def upgrade(max_version, ops)
-        version, timestamp, comment = @backend.read_db_version
+        ret = @backend.read_db_version
 
         if ops[:verbose]
-            puts "Version read:"
-            puts "#{version} : #{comment}"
+            pretty_print_db_version(ret)
+
             puts ""
         end
 
-        matches = Dir.glob("#{RUBY_LIB_LOCATION}/onedb/#{version}_to_*.rb")
+        # TODO: different upgrade path for slave/master database tables
+
+        matches = Dir.glob("#{RUBY_LIB_LOCATION}/onedb/#{ret[:version]}_to_*.rb")
 
         if ( matches.size > 0 )
             # At least one upgrade will be executed, make DB backup
@@ -141,7 +159,7 @@ class OneDB
             while ( matches.size > 0 )
                 if ( matches.size > 1 )
                     raise "There are more than one file that match \
-                            \"#{RUBY_LIB_LOCATION}/onedb/#{version}_to_*.rb\""
+                            \"#{RUBY_LIB_LOCATION}/onedb/#{ret[:version]}_to_*.rb\""
                 end
 
                 file = matches[0]
@@ -157,7 +175,7 @@ class OneDB
                 time1 = Time.now
 
                 if !result
-                    raise "Error while upgrading from #{version} to " <<
+                    raise "Error while upgrading from #{ret[:version]} to " <<
                           " #{@backend.db_version}"
                 end
 
@@ -170,9 +188,9 @@ class OneDB
 
             # Modify db_versioning table
             if result != nil
-                @backend.update_db_version(version)
+                @backend.update_db_version(ret[:version])
             else
-                puts "Database already uses version #{version}"
+                puts "Database already uses version #{ret[:version]}"
             end
 
             timeb = Time.now
@@ -196,11 +214,10 @@ class OneDB
     end
 
     def fsck(ops)
-        version, timestamp, comment = @backend.read_db_version
+        ret = @backend.read_db_version
 
         if ops[:verbose]
-            puts "Version read:"
-            puts "#{version} : #{comment}"
+            pretty_print_db_version(ret)
             puts ""
         end
 
@@ -213,10 +230,7 @@ class OneDB
             load(file)
             @backend.extend OneDBFsck
 
-            if ( version != @backend.db_version )
-                raise "Version mismatch: fsck file is for version "<<
-                    "#{@backend.db_version}, current database version is #{version}"
-            end
+            @backend.check_db_version()
 
             # FSCK will be executed, make DB backup
             backup(ops[:backup], ops)
@@ -229,7 +243,7 @@ class OneDB
                 result = @backend.fsck
 
                 if !result
-                    raise "Error running fsck version #{version}"
+                    raise "Error running fsck version #{ret[:version]}"
                 end
 
                 puts "  > Done" if ops[:verbose]
@@ -245,7 +259,7 @@ class OneDB
             rescue Exception => e
                 puts e.message
 
-                puts "Error running fsck version #{version}"
+                puts "Error running fsck version #{ret[:version]}"
                 puts "The database will be restored"
 
                 ops[:force] = true
@@ -277,17 +291,17 @@ class OneDB
             :db_name => ops[:slave_db_name]
         )
 
-        version, timestamp, comment = @backend.read_db_version
+        db_version = @backend.read_db_version
 
-        slave_version, slave_timestamp, slave_comment =
-            slave_backend.read_db_version
+        slave_db_version = slave_backend.read_db_version
 
         if ops[:verbose]
-            puts "Master version read:"
-            puts "#{version} : #{comment}"
+            puts "Master database information:"
+            pretty_print_db_version(db_version)
             puts ""
-            puts "Slave version read:"
-            puts "#{slave_version} : #{slave_comment}"
+            puts ""
+            puts "Slave database information:"
+            pretty_print_db_version(slave_db_version)
             puts ""
         end
 
@@ -300,19 +314,7 @@ class OneDB
             load(file)
             @backend.extend OneDBImportSlave
 
-            if ( version != @backend.db_version )
-                raise "Version mismatch: import slave file is for version "<<
-                    "#{@backend.db_version}, current master database version is #{version}"
-            end
-
-            if ( slave_version != @backend.db_version )
-                raise "Version mismatch: import slave file is for version "<<
-                    "#{@backend.db_version}, current slave database version is #{version}"
-            end
-
-            # Import will be executed, make DB backup
-            backup(ops[:backup], ops)
-            backup(ops[:"slave-backup"], ops, slave_backend)
+            @backend.check_db_version(db_version, slave_db_version)
 
             puts <<-EOT
 Before running this tool, it is required to create a new Zone in the
@@ -364,6 +366,10 @@ is preserved.
 
             merge_groups = input == "Y"
 
+            # Import will be executed, make DB backup
+            backup(ops[:backup], ops)
+            backup(ops[:"slave-backup"], ops, slave_backend)
+
             begin
                 puts "  > Running slave import" if ops[:verbose]
 
@@ -371,7 +377,7 @@ is preserved.
                     merge_groups, zone_id)
 
                 if !result
-                    raise "Error running slave import version #{version}"
+                    raise "Error running slave import"
                 end
 
                 puts "  > Done" if ops[:verbose]
@@ -381,7 +387,7 @@ is preserved.
             rescue Exception => e
                 puts e.message
 
-                puts "Error running slave import version #{version}"
+                puts "Error running slave import"
                 puts "The databases will be restored"
 
                 ops[:force] = true
@@ -402,6 +408,20 @@ is preserved.
     def one_not_running()
         if File.exists?(LOCK_FILE)
             raise "First stop OpenNebula. Lock file found: #{LOCK_FILE}"
+        end
+    end
+
+    def pretty_print_db_version(db_version)
+        puts "Version read:"
+        puts "Shared tables #{db_version[:version]} : #{db_version[:comment]}"
+
+        if db_version[:local_version]
+            puts "Local tables  #{db_version[:local_version]} : #{db_version[:local_comment]}"
+        end
+
+        if db_version[:is_slave]
+            puts
+            puts "This database is a federation slave"
         end
     end
 end

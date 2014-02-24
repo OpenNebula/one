@@ -22,10 +22,23 @@ require 'set'
 require 'nokogiri'
 
 module OneDBFsck
-    VERSION = "4.5.80"
+    VERSION = "4.5.0"
+    LOCAL_VERSION = "4.5.0"
 
-    def db_version
-        VERSION
+    def check_db_version()
+        db_version = read_db_version()
+
+        if ( db_version[:version] != VERSION ||
+             db_version[:local_version] != LOCAL_VERSION )
+
+            raise <<-EOT
+Version mismatch: fsck file is for version
+Shared: #{VERSION}, Local: #{LOCAL_VERSION}
+
+Current database is version
+Shared: #{db_version[:version]}, Local: #{db_version[:local_version]}
+EOT
+        end
     end
 
     def one_version
@@ -35,6 +48,8 @@ module OneDBFsck
     IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR CLONE DELETE USED_PERS}
 
     def fsck
+
+        # TODO: different behaviour for slave/master database
 
         ########################################################################
         # Acl

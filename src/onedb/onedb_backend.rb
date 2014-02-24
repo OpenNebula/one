@@ -28,19 +28,36 @@ class OneDBBacKEnd
     def read_db_version
         connect_db
 
+        ret = {}
+
         begin
-            version   = "2.0"
-            timestamp = 0
-            comment   = ""
+            ret[:version]   = "2.0"
+            ret[:timestamp] = 0
+            ret[:comment]   = ""
 
             @db.fetch("SELECT version, timestamp, comment FROM db_versioning " +
                       "WHERE oid=(SELECT MAX(oid) FROM db_versioning)") do |row|
-                version   = row[:version]
-                timestamp = row[:timestamp]
-                comment   = row[:comment]
+                ret[:version]   = row[:version]
+                ret[:timestamp] = row[:timestamp]
+                ret[:comment]   = row[:comment]
             end
 
-            return [version, timestamp, comment]
+            begin
+               @db.fetch("SELECT version, timestamp, comment, is_slave FROM "+
+                        "local_db_versioning WHERE oid=(SELECT MAX(oid) "+
+                        "FROM local_db_versioning)") do |row|
+                   ret[:local_version]   = row[:version]
+                   ret[:local_timestamp] = row[:timestamp]
+                   ret[:local_comment]   = row[:comment]
+                   ret[:is_slave]        = row[:is_slave]
+               end 
+            rescue Exception => e
+                if e.class == Sequel::DatabaseConnectionError
+                    raise e
+                end
+            end
+
+            return ret
 
         rescue Exception => e
             if e.class == Sequel::DatabaseConnectionError
@@ -62,7 +79,7 @@ class OneDBBacKEnd
             comment = "Could not read any previous db_versioning data, " <<
                       "assuming it is an OpenNebula 2.0 or 2.2 DB."
 
-            return [version, timestamp, comment]
+            return ret
         end
     end
 

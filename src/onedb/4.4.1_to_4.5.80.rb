@@ -121,6 +121,10 @@ module Migrator
 
         @db.run "INSERT INTO pool_control VALUES('zone_pool',99);"
 
+        # New versioning table
+        @db.run "CREATE TABLE local_db_versioning (oid INTEGER PRIMARY KEY, version VARCHAR(256), timestamp INTEGER, comment VARCHAR(256), is_slave BOOLEAN);"
+        @db.run "INSERT INTO local_db_versioning VALUES(0,'#{db_version()}',#{Time.now.to_i},'Database migrated from 4.4.1 to 4.5.80 (OpenNebula 4.5.80) by onedb command.',0);"
+
         return true
     end
 
