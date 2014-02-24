@@ -20,7 +20,7 @@ ONE_LOCATION=ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION="/usr/lib/one/ruby"
-    REMOTES_LOCATION="/var/lib/one/remotes"
+    REMOTES_LOCATION="/var/lib/one/remotes/"
 else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
     REMOTES_LOCATION=ONE_LOCATION+"/var/remotes/"
