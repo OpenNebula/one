@@ -593,11 +593,6 @@ var image_buttons = {
         layout: "del",
         text: tr("Delete")
     },
-    //"Image.help" : {
-    //    type: "action",
-    //    text: '?',
-    //    alwaysActive: true
-    //}
 }
 
 var image_info_panel = {

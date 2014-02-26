@@ -932,6 +932,13 @@ var OpenNebula = {
                 }
             });
         },
+        "update": function(params){
+            var action_obj = {"template_raw" : params.data.extra_param };
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.Group.resource,
+                                            "update",
+                                            action_obj);
+        },        
         "set_quota" : function(params){
             var action_obj = { quotas :  params.data.extra_param };
             OpenNebula.Action.simple_action(params,OpenNebula.Group.resource,"set_quota",action_obj);

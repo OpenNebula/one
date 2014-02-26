@@ -37,6 +37,7 @@ module OpenNebulaJSON
 
             rc = case action_hash['perform']
                  when "chown"       then self.chown(action_hash['params'])
+                 when "update"       then self.update(action_hash['params'])
                  when "set_quota"   then self.set_quota(action_hash['params'])
                  when "add_provider"    then self.add_provider(action_hash['params'])
                  when "del_provider"    then self.del_provider(action_hash['params'])
@@ -49,6 +50,10 @@ module OpenNebulaJSON
 
         def chown(params=Hash.new)
             super(params['owner_id'].to_i)
+        end
+
+        def update(params=Hash.new)
+            super(params['template_raw'])
         end
 
         def set_quota(params=Hash.new)

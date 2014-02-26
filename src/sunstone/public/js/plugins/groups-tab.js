@@ -445,6 +445,16 @@ var group_actions = {
         error: onError
     },
 
+    "Group.update_template" : {
+        type: "single",
+        call: OpenNebula.Group.update,
+        callback: function(request) {
+            notifyMessage("Template updated correctly");
+            Sunstone.runAction('Group.showinfo',request.request.data[0][0]);
+        },
+        error: onError
+    },    
+
     "Group.delete" : {
         type: "multiple",
         call : OpenNebula.Group.del,
@@ -587,6 +597,7 @@ var group_buttons = {
 };
 
 var group_info_panel = {
+
 };
 
 var groups_tab = {
@@ -773,6 +784,36 @@ function fromJSONtoProvidersTable(group_info){
 function updateGroupInfo(request,group){
     var info = group.GROUP;
 
+    var info_tab = {
+          title: tr("Information"),
+          content:
+          '<form class="custom"><div class="">\
+          <div class="six columns">\
+          <table id="info_img_table" class="twelve datatable extended_table">\
+             <thead>\
+              <tr><th colspan="3">'+tr("Group")+' - '+info.NAME+'</th></tr>\
+             </thead>\
+             <tr>\
+                <td class="key_td">'+tr("ID")+'</td>\
+                <td class="value_td">'+info.ID+'</td>\
+                <td></td>\
+             </tr>\
+             <tr>\
+              <td class="key_td">'+tr("Name")+'</td>\
+              <td class="value_td_rename">'+info.NAME+'</td>\
+              <td></td>\
+            </tr>\
+          </table>\
+          </div>\
+          <div class="six columns">'
+              + insert_extended_template_table(info.TEMPLATE,
+                                                 "Group",
+                                                 info.ID,
+                                                 "Configuration & Tags") +
+          '</div>\
+        </div></form>'
+      }
+
     var  default_group_quotas = Quotas.default_quotas(info.DEFAULT_GROUP_QUOTAS);
     var quotas_tab_html = '<div class="three columns">' + Quotas.vms(info, default_group_quotas) + '</div>';
     quotas_tab_html += '<div class="three columns">' + Quotas.cpu(info, default_group_quotas) + '</div>';
@@ -813,7 +854,7 @@ function updateGroupInfo(request,group){
         </div>'
     };
 
-
+    Sunstone.updateInfoPanelTab("group_info_panel","group_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("group_info_panel","group_quotas_tab",quotas_tab);
     Sunstone.updateInfoPanelTab("group_info_panel","group_providers_tab",providers_tab);
     Sunstone.popUpInfoPanel("group_info_panel", 'groups-tab');
