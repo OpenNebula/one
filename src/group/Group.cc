@@ -214,6 +214,7 @@ string& Group::to_xml_extended(string& xml, bool extended) const
 {
     ostringstream   oss;
     string          collection_xml;
+    string          template_xml;
 
     set<pair<int,int> >::const_iterator it;
 
@@ -221,8 +222,9 @@ string& Group::to_xml_extended(string& xml, bool extended) const
 
     oss <<
     "<GROUP>"    <<
-        "<ID>"   << oid  << "</ID>"   <<
-        "<NAME>" << name << "</NAME>" <<
+        "<ID>"   << oid  << "</ID>"        <<
+        "<NAME>" << name << "</NAME>"      <<
+        obj_template->to_xml(template_xml) <<
         collection_xml;
 
     for (it = providers.begin(); it != providers.end(); it++)
@@ -281,6 +283,19 @@ int Group::from_xml(const string& xml)
     }
 
     rc += ObjectCollection::from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
+    content.clear();
+
+    // Get associated metadata for the group
+    ObjectXML::get_nodes("/GROUP/TEMPLATE", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
     content.clear();

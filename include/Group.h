@@ -21,6 +21,7 @@
 #include "ObjectCollection.h"
 #include "User.h"
 #include "QuotasSQL.h"
+#include "Template.h"
 
 using namespace std;
 
@@ -109,6 +110,14 @@ public:
         return quota.update(oid, db);
     };
 
+    /**
+     *  Factory method for Group templates
+     */
+    Template * get_new_template() const
+    {
+        return new Template;
+    }
+
 private:
 
     // -------------------------------------------------------------------------
@@ -128,9 +137,14 @@ private:
     {
         // Allow users in this group to see it
         group_u = 1;
+
+        obj_template = new Template;
     };
 
-    virtual ~Group(){};
+    virtual ~Group()
+    {
+        delete obj_template;
+    };
 
     // *************************************************************************
     // Attributes (Private)

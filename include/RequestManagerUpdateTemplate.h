@@ -239,6 +239,24 @@ public:
     ~ZoneUpdateTemplate(){};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class GroupUpdateTemplate : public RequestManagerUpdateTemplate
+{
+public:
+    GroupUpdateTemplate():
+        RequestManagerUpdateTemplate("GroupUpdateTemplate",
+                                     "Updates a Group template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_gpool();
+        auth_object = PoolObjectSQL::GROUP;
+    };
+
+    ~GroupUpdateTemplate(){};
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

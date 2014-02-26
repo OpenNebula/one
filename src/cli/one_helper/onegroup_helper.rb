@@ -213,6 +213,10 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
         puts str % ["NAME", group.name]
         puts
 
+        CLIHelper.print_header(str_h1 % "GROUP TEMPLATE",false)
+        puts group.template_str
+        puts
+
         CLIHelper.print_header(str_h1 % "USERS", false)
         CLIHelper.print_header("%-15s" % ["ID"])
         group.user_ids.each do |uid|
