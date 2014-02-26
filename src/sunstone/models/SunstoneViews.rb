@@ -49,9 +49,19 @@ class SunstoneViews
 	end
 
     def available_views(user_name, group_name)
-        available_views = @views_config['users'][user_name] if @views_config['users']
-        available_views ||= @views_config['groups'][group_name] if @views_config['groups']
-        available_views ||= @views_config['default']
+        user = OpenNebula::User.new_with_id(
+                                OpenNebula::User::SELF,
+                                $cloud_auth.client(user_name))
+        user.info
+
+        group = OpenNebula::Group.new_with_id(user.gid, $cloud_auth.client(user_name))
+        group.info
+
+        if group["TEMPLATE/SUNSTONE_VIEWS"]
+            available_views = group["TEMPLATE/SUNSTONE_VIEWS"].split(",")
+        else
+            available_views = ['cloud']
+        end
 
         return available_views
     end
