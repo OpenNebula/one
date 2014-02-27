@@ -259,7 +259,7 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
             if (!vlan_id.empty())
             {
-                oss << vlan_id;
+                oss << "." << vlan_id;
             }
             else
             {
