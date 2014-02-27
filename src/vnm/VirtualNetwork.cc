@@ -255,7 +255,16 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
         {
             ostringstream oss;
 
-            oss << "onebr" << oid;
+            oss << "onebr";
+
+            if (!vlan_id.empty())
+            {
+                oss << vlan_id;
+            }
+            else
+            {
+                oss << oid;
+            }
 
             bridge = oss.str();
         }
