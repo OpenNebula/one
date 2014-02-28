@@ -41,6 +41,10 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
 
         exit_code , msg = group.create_default_acls
 
+        if OpenNebula.is_error?(exit_code)
+            return -1, exit_code.message
+        end
+
         exit_code.to_i
     end
 
