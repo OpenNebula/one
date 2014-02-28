@@ -110,6 +110,7 @@ module OpenNebula
                 include ParsePoolBase
 
                 alias :text :characters
+                alias :cdata :characters
             end
         end
     elsif NOKOGIRI
