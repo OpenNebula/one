@@ -1810,7 +1810,7 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
                   </thead>\
                   <tr>\
                     <td class="key_td"><input type="text" name="new_key" id="new_key" /></td>\
-                    <td class="value_td"><input type="text" name="new_value" id="new_value" /></td>\
+                    <td class="value_td"><textarea rows="1" type="text" name="new_value" id="new_value"></textarea></td>\
                     <td colspan="2" class=""><button type="button" id="button_add_value" class="button small secondary">'+tr("Add")+'</button>\</td>\
                   </tr>' + fromJSONtoHTMLTable(template_json,
                                                resource_type,
@@ -1854,19 +1854,6 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
         }
     });
 
-    // Capture the enter key
-    $('#new_value').live("keypress", function(e) {
-          var ev = e || window.event;
-          var key = ev.keyCode;
-
-          if (key == 13)
-          {
-             //Get the button the user wants to have clicked
-             $('#button_add_value', $(this).parent().parent()).click();
-             ev.preventDefault();
-          }
-    })
-
     // Listener for single values
 
     // Listener for key,value pair remove action
@@ -1901,7 +1888,7 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
         var key_str=this.firstElementChild.id.substring(9,this.firstElementChild.id.length);
 
         var value_str = $("#value_td_input_"+key_str).text();
-        input = $("#value_td_input_"+key_str).html('<input class="input_edit_value" id="input_edit_'+key_str+'" type="text"/>');
+        input = $("#value_td_input_"+key_str).html('<textarea class="input_edit_value" id="input_edit_'+key_str+'" type="text"></textarea>');
         $('#input_edit_'+key_str).val(value_str);
 
     });
