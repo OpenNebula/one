@@ -57,11 +57,18 @@ class SunstoneViews
         group = OpenNebula::Group.new_with_id(user.gid, $cloud_auth.client(user_name))
         group.info
 
+        available_views = Array.new
         if group["TEMPLATE/SUNSTONE_VIEWS"]
             available_views = group["TEMPLATE/SUNSTONE_VIEWS"].split(",")
-        else
-            available_views = ['cloud']
         end
+
+        static_views = @views_config['users'][user_name] if @views_config['users']
+        static_views ||= @views_config['groups'][group_name] if @views_config['groups']
+        static_views ||= @views_config['default']
+
+        available_views.concat(static_views)
+        available_views.select!{|view_name| @views[view_name]}
+        available_views.uniq!
 
         return available_views
     end
