@@ -133,64 +133,52 @@ class OneDB
     # max_version is ignored for now, as this is the first onedb release.
     # May be used in next releases
     def upgrade(max_version, ops)
-        ret = @backend.read_db_version
+        db_version = @backend.read_db_version
 
         if ops[:verbose]
-            pretty_print_db_version(ret)
+            pretty_print_db_version(db_version)
 
             puts ""
         end
 
-        # TODO: different upgrade path for slave/master database tables
-
-        matches = Dir.glob("#{RUBY_LIB_LOCATION}/onedb/#{ret[:version]}_to_*.rb")
-
-        if ( matches.size > 0 )
-            # At least one upgrade will be executed, make DB backup
-            backup(ops[:backup], ops)
-        end
+        backup(ops[:backup], ops)
 
         begin
-            result = nil
-            i = 0
-
             timea = Time.now
 
-            while ( matches.size > 0 )
-                if ( matches.size > 1 )
-                    raise "There are more than one file that match \
-                            \"#{RUBY_LIB_LOCATION}/onedb/#{ret[:version]}_to_*.rb\""
+            # Upgrade shared (federation) tables, only for standalone and master
+            if !db_version[:is_slave]
+                puts
+                puts ">>> Running migrators for shared tables"
+
+                dir_prefix = "#{RUBY_LIB_LOCATION}/onedb/shared"
+
+                result = apply_migrators(dir_prefix, db_version[:version], ops)
+
+                # Modify db_versioning table
+                if result != nil
+                    @backend.update_db_version(db_version[:version])
+                else
+                    puts "Database already uses version #{db_version[:version]}"
                 end
-
-                file = matches[0]
-
-                puts "  > Running migrator #{file}" if ops[:verbose]
-
-                time0 = Time.now
-
-                load(file)
-                @backend.extend Migrator
-                result = @backend.up
-
-                time1 = Time.now
-
-                if !result
-                    raise "Error while upgrading from #{ret[:version]} to " <<
-                          " #{@backend.db_version}"
-                end
-
-                puts "  > Done in #{"%0.02f" % (time1 - time0).to_s}s" if ops[:verbose]
-                puts "" if ops[:verbose]
-
-                matches = Dir.glob(
-                    "#{RUBY_LIB_LOCATION}/onedb/#{@backend.db_version}_to_*.rb")
             end
+
+            db_version = @backend.read_db_version
+
+            # Upgrade local tables, for standalone, master, and slave
+
+            puts
+            puts ">>> Running migrators for local tables"
+
+            dir_prefix = "#{RUBY_LIB_LOCATION}/onedb/local"
+
+            result = apply_migrators(dir_prefix, db_version[:local_version], ops)
 
             # Modify db_versioning table
             if result != nil
-                @backend.update_db_version(ret[:version])
+                @backend.update_local_db_version(db_version[:local_version])
             else
-                puts "Database already uses version #{ret[:version]}"
+                puts "Database already uses version #{db_version[:local_version]}"
             end
 
             timeb = Time.now
@@ -211,6 +199,45 @@ class OneDB
 
             return -1
         end
+    end
+
+    def apply_migrators(prefix, db_version, ops)
+        result = nil
+        i = 0
+
+        matches = Dir.glob("#{prefix}/#{db_version}_to_*.rb")
+
+        while ( matches.size > 0 )
+            if ( matches.size > 1 )
+                raise "There are more than one file that match \
+                        \"#{prefix}/#{db_version}_to_*.rb\""
+            end
+
+            file = matches[0]
+
+            puts "  > Running migrator #{file}" if ops[:verbose]
+
+            time0 = Time.now
+
+            load(file)
+            @backend.extend Migrator
+            result = @backend.up
+
+            time1 = Time.now
+
+            if !result
+                raise "Error while upgrading from #{db_version} to " <<
+                      " #{@backend.db_version}"
+            end
+
+            puts "  > Done in #{"%0.02f" % (time1 - time0).to_s}s" if ops[:verbose]
+            puts "" if ops[:verbose]
+
+            matches = Dir.glob(
+                "#{prefix}/#{@backend.db_version}_to_*.rb")
+        end
+
+        return result
     end
 
     def fsck(ops)

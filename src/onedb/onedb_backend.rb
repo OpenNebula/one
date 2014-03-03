@@ -42,14 +42,19 @@ class OneDBBacKEnd
                 ret[:comment]   = row[:comment]
             end
 
+            ret[:local_version]   = ret[:version]
+            ret[:local_timestamp] = ret[:timestamp]
+            ret[:local_comment]   = ret[:comment]
+            ret[:is_slave]        = false
+
             begin
                @db.fetch("SELECT version, timestamp, comment, is_slave FROM "+
                         "local_db_versioning WHERE oid=(SELECT MAX(oid) "+
                         "FROM local_db_versioning)") do |row|
-                   ret[:local_version]   = row[:version]
-                   ret[:local_timestamp] = row[:timestamp]
-                   ret[:local_comment]   = row[:comment]
-                   ret[:is_slave]        = row[:is_slave]
+                    ret[:local_version]   = row[:version]
+                    ret[:local_timestamp] = row[:timestamp]
+                    ret[:local_comment]   = row[:comment]
+                    ret[:is_slave]        = row[:is_slave]
                end 
             rescue Exception => e
                 if e.class == Sequel::DatabaseConnectionError
@@ -122,6 +127,37 @@ class OneDBBacKEnd
                 "'#{db_version}', "                                        <<
                 "#{Time.new.to_i}, "                                       <<
                 "'#{comment}')"
+        )
+
+        puts comment
+    end
+
+    def update_local_db_version(version)
+        comment = "Database migrated from #{version} to #{db_version}"+
+                  " (#{one_version}) by onedb command."
+
+        max_oid = nil
+        @db.fetch("SELECT MAX(oid) FROM local_db_versioning") do |row|
+            max_oid = row[:"MAX(oid)"].to_i
+        end
+
+        max_oid = 0 if max_oid.nil?
+
+        is_slave = 0
+
+        @db.fetch("SELECT is_slave FROM local_db_versioning "<<
+                  "WHERE oid=#{max_oid}") do |row|
+            is_slave = row[:is_slave]
+        end
+
+        @db.run(
+            "INSERT INTO local_db_versioning (oid, version, timestamp, comment, is_slave) "<<
+            "VALUES ("                                                     <<
+                "#{max_oid+1}, "                                           <<
+                "'#{db_version}', "                                        <<
+                "#{Time.new.to_i}, "                                       <<
+                "'#{comment}',"                                            <<
+                "#{is_slave})"
         )
 
         puts comment
