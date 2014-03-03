@@ -54,19 +54,19 @@ var market_actions = {
 
             dialogs_context.append(marketplace_import_dialog);
             $marketplace_import_dialog = $('#marketplace_import_dialog',dialogs_context);
-            $marketplace_import_dialog.addClass("reveal-modal xlarge max-height");
-            $marketplace_import_dialog.reveal();
+            $marketplace_import_dialog.addClass("reveal-modal xlarge max-height").attr("data-reveal", "");
+            $marketplace_import_dialog.foundation().foundation('reveal', 'open');
 
             var tab_id = 1;
 
             $.each(response['files'], function(index, value){
                 // Append the new div containing the tab and add the tab to the list
-                var image_dialog = $('<li id="'+tab_id+'Tab" class="disk wizard_internal_tab">'+
+                var image_dialog = $('<div id="'+tab_id+'Tab" class="contentdisk wizard_internal_tab">'+
                   create_image_tmpl +
-                '</li>').appendTo($("ul#marketplace_import_dialog_tabs_content"));
+                '</div>').appendTo($("#marketplace_import_dialog_tabs_content"));
 
                 var a_image_dialog = $("<dd>\
-                  <a id='disk_tab"+tab_id+"' href='#"+tab_id+"'>"+tr("Image")+"</a>\
+                  <a id='disk_tab"+tab_id+"' href='#"+tab_id+"Tab'>"+tr("Image")+"</a>\
                 </dd>").appendTo($("dl#marketplace_import_dialog_tabs"));
 
                 initialize_create_image_dialog(image_dialog);
@@ -107,7 +107,7 @@ var market_actions = {
                   if ($('a', $("dl#marketplace_import_dialog_tabs")).size > 0) {
                     $('a', $("dl#marketplace_import_dialog_tabs")).first().click();
                   } else {
-                    $marketplace_import_dialog.trigger("reveal:close");
+                    $marketplace_import_dialog.foundation('reveal', 'close');
                   }
                   return false;
                 });
@@ -120,12 +120,12 @@ var market_actions = {
               $create_template_dialog.remove();
               // Template
               // Append the new div containing the tab and add the tab to the list
-              var template_dialog = $('<li id="'+tab_id+'Tab" class="disk wizard_internal_tab">'+
+              var template_dialog = $('<div id="'+tab_id+'Tab" class="content disk wizard_internal_tab">'+
                 create_template_tmpl +
-              '</li>').appendTo($("ul#marketplace_import_dialog_tabs_content"));
+              '</div>').appendTo($("#marketplace_import_dialog_tabs_content"));
 
               var a_template_dialog = $("<dd>\
-                <a id='disk_tab"+tab_id+"' href='#"+tab_id+"'>"+tr("Template")+"</a>\
+                <a id='disk_tab"+tab_id+"' href='#"+tab_id+"Tab'>"+tr("Template")+"</a>\
               </dd>").appendTo($("dl#marketplace_import_dialog_tabs"));
 
               initialize_create_template_dialog(template_dialog);
@@ -143,7 +143,7 @@ var market_actions = {
                 if ($('a', $("dl#marketplace_import_dialog_tabs")).size > 0) {
                   $('a', $("dl#marketplace_import_dialog_tabs")).first().click();
                 } else {
-                  $marketplace_import_dialog.trigger("reveal:close");
+                  $marketplace_import_dialog.foundation('reveal', 'close');
                 }
                 return false;
               });
@@ -183,66 +183,38 @@ var marketplace_import_dialog =
     '<h3><small>'+tr("Import Appliance")+'</small></h4>'+
   '</div>'+
   '<div class="reveal-body">'+
-    '<dl class="tabs" id="marketplace_import_dialog_tabs">'+
+    '<dl class="tabs" id="marketplace_import_dialog_tabs" data-tab>'+
     '</dl>'+
-    '<ul class="tabs-content" id="marketplace_import_dialog_tabs_content">'+
-    '</ul>'+
+    '<div class="tabs-content" id="marketplace_import_dialog_tabs_content">'+
+    '</div>'+
   '</div>'+
   '<a class="close-reveal-modal">&#215;</a>'+
 '</div>';
 
-var marketplace_tab_content = '\
-<form class="custom" id="marketplace_form" action="">\
-<div class="panel">\
-<div class="row">\
-  <div class="twelve columns">\
-    <h4 class="subheader header">\
-      <span class="header-resource">\
-        <i class="fa fa-shopping-cart"></i> '+tr("OpenNebula Marketplace")+'\
-      </span>\
-      <span class="header-info">\
-        <span/> <small></small>&emsp;\
-      </span>\
-      <span class="user-login">\
-      </span>\
-    </h4>\
-  </div>\
-</div>\
-<div class="row">\
-  <div class="ten columns">\
-    <div class="action_blocks">\
-    </div>\
-  </div>\
-  <div class="two columns">\
-    <input id="marketplace_search" type="text" placeholder="'+tr("Search")+'" />\
-  </div>\
-</div>\
-</div>\
-  <div class="row">\
-    <div class="twelve columns">\
-<table id="datatable_marketplace" class="datatable twelve">\
-  <thead>\
-    <tr>\
-      <th class="check"></th>\
-      <th>'+tr("ID")+'</th>\
-      <th>'+tr("Name")+'</th>\
-      <th>'+tr("Publisher")+'</th>\
-      <th>'+tr("Hypervisor")+'</th>\
-      <th>'+tr("Arch")+'</th>\
-      <th>'+tr("Format")+'</th>\
-      <th>'+tr("Tags")+'</th>\
-    </tr>\
-  </thead>\
-  <tbody id="tbodymarketplace">\
-  </tbody>\
-</table>\
-</div>';
-
 
 var marketplace_tab = {
     title: '<i class="fa fa-shopping-cart"></i>' + tr("Marketplace"),
-    content: marketplace_tab_content,
-    buttons: market_buttons
+    buttons: market_buttons,
+    search_input: '<input id="marketplace_search" type="text" placeholder="'+tr("Search")+'" />',
+    list_header: '<i class="fa fa-shopping-cart"></i> '+tr("OpenNebula Marketplace"),
+    info_header: '<i class="fa fa-shopping-cart"></i> '+tr("Appliance"),
+    subheader: '<span/> <small></small>&emsp;',
+    table: '<table id="datatable_marketplace" class="datatable twelve">\
+      <thead>\
+        <tr>\
+          <th class="check"></th>\
+          <th>'+tr("ID")+'</th>\
+          <th>'+tr("Name")+'</th>\
+          <th>'+tr("Publisher")+'</th>\
+          <th>'+tr("Hypervisor")+'</th>\
+          <th>'+tr("Arch")+'</th>\
+          <th>'+tr("Format")+'</th>\
+          <th>'+tr("Tags")+'</th>\
+        </tr>\
+      </thead>\
+      <tbody id="tbodymarketplace">\
+      </tbody>\
+    </table>'
 };
 
 Sunstone.addMainTab('marketplace-tab', marketplace_tab);
@@ -268,14 +240,15 @@ function marketplaceElements(){
 
 function updateMarketInfo(request,app){
     var info_tab = {
-        title : tr("Information"),
+        title : tr("Info"),
+        icon: "fa-info-circle",
         content :
         '<form class="custom"><div class="">\
-        <div class="six columns">\
-        <table id="info_marketplace_table" class="twelve datatable extended_table">\
+        <div class="large-6 columns">\
+        <table id="info_marketplace_table" class="dataTable extended_table">\
             <thead>\
               <tr>\
-                <th colspan="2">'+tr("Appliance") + ' - ' + app['name'] + '</th>\
+                <th colspan="2">'+tr("Information") + '</th>\
               </tr>\
             </thead>\
             <tbody>\
@@ -314,8 +287,8 @@ function updateMarketInfo(request,app){
             </tbody>\
         </table>\
         </div>\
-        <div class="six columns">\
-        <table id="info_marketplace_table2" class="twelve datatable extended_table">\
+        <div class="large-6 columns">\
+        <table id="info_marketplace_table2" class="dataTable extended_table">\
            <thead>\
              <tr><th>'+tr("Description")+'</th></tr>\
            </thead>\
@@ -345,24 +318,22 @@ function updateMarketInfo(request,app){
         $(e.target).is('select') ||
         $(e.target).is('option')) return true;
 
-    var aData = dataTable.fnGetData(this);
-    var id =aData["_id"]["$oid"];
-    if (!id) return true;
-        popDialogLoading();
-        Sunstone.runAction("Marketplace.showinfo",id);
+      var aData = dataTable.fnGetData(this);
+      var id =aData["_id"]["$oid"];
 
-        // Take care of the coloring business
-        // (and the checking, do not forget the checking)
-        $('tbody input.check_item',$(this).parents('table')).removeAttr('checked');
-        $('.check_item',this).click();
-        $('td',$(this).parents('table')).removeClass('markrowchecked');
+      if (!id) return true;
 
-        if(last_selected_row)
-            last_selected_row.children().each(function(){$(this).removeClass('markrowselected');});
-        last_selected_row = $("td:first", this).parent();
-        $("td:first", this).parent().children().each(function(){$(this).addClass('markrowselected');});
+      if (e.ctrlKey || e.metaKey || $(e.target).is('input')) {
+          $('.check_item',this).trigger('click');
+      } else {
+          var context = $(this).parents(".tab");
+          popDialogLoading();
+          Sunstone.runAction("Marketplace.showinfo",id);
+          $(".resource-id", context).html(id);
+          $('.top_button, .list_button', context).attr('disabled', false);
+      }
 
-        return false;
+      return false;
     });
 }
 

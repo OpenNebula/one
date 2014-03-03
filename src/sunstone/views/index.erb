@@ -1,16 +1,14 @@
 <!DOCTYPE html>
 <html>
   <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpenNebula Sunstone: Cloud Operations Center</title>
-    <meta content='text/html' http-equiv='Content-Type'>
     <link href="images/favicon.ico" rel="shortcut icon"></link>
     <script src="vendor/4.0/jquery-1.11.0.min.js" type="text/javascript"></script>
     <script src="vendor/4.0/jquery-migrate-1.2.1.js" type="text/javascript"></script>
     <script src="vendor/4.0/jgrowl/jquery.jgrowl.js" type="text/javascript"></script>
-    <script src="vendor/4.0/jquery_layout/jquery.layout-latest.min.js" type="text/javascript"></script>
-    <script src="vendor/4.0/foundation/modernizr.foundation.js" type="text/javascript"></script>
     <script src="vendor/4.0/datatables/jquery.dataTables.min.js" type="text/javascript"></script>
-    <script src="vendor/4.0/foundation_datatables/responsive-tables.js" type="text/javascript"></script>
     <script src="vendor/flot/jquery.flot.min.js" type="text/javascript"></script>
     <script src="vendor/flot/jquery.flot.pie.min.js" type="text/javascript"></script>
     <script src="vendor/flot/jquery.flot.resize.min.js" type="text/javascript"></script>
@@ -21,21 +19,22 @@
     <script src="vendor/4.0/jquery.timePicker.min.js" type="text/javascript"></script>
     <link href="vendor/4.0/jgrowl/jquery.jgrowl.css" rel="stylesheet" type="text/css"></link>
     <link rel="stylesheet" href="vendor/4.0/fontawesome/css/font-awesome.min.css"></link>
-    <link href="vendor/4.0/jquery_layout/layout-default-latest.css" rel="stylesheet" type="text/css"></link>
     <link href="vendor/4.0/nouislider/nouislider.css" rel="stylesheet" type="text/css"></link>
     <link href="vendor/4.0/jdpicker_1.1/jdpicker.css" rel="stylesheet" type="text/css"></link>
     <!--[if lte IE 8]
       <script src="vendor/explorercanvas/excanvas.compiled.js" type="text/javascript"></script>
     -->
+
+    <script src="vendor/4.0/foundation/modernizr.js" type="text/javascript"></script>
+    <script src="vendor/4.0/foundation/foundation.min.js" type="text/javascript"></script>
+
     <% if session[:lang] %>
       <script src="locale/<%= session[:lang] %>/<%= session[:lang] %>.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
     <% end %>
     <script src="vendor/4.0/foundation_datatables/datatables.foundation.js" type="text/javascript"></script>
     <link href="css/app.css?v=<%= OpenNebula::VERSION %>" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
     <script src="js/opennebula.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
-    <script src="js/layout.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
     <script src="js/sunstone.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
-    <script src="js/sunstone-util.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
     <% view = $views_config.view(session[:user], session[:user_gname], session[:default_view]) %>
     <script>
 
@@ -70,9 +69,30 @@
         <script src="js/plugins/<%= tab_name %>.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
     <%- end -%>
     <!-- end tabs -->
-
   </head>
-  <body>
+  <body class="antialiased">
+    <div class="row">
+      <div class="large-3 columns left-content">
+        <div class="row left-header">
+          <img src="<%= view['small_logo'] %>"/>
+        </div>
+        <div id="menu" class="row left-body">
+          <ul class="side-nav" id="navigation"></ul>
+        </div>
+        <div class="row left-footer">
+          <a href="http://opennebula.org" target="_blank">OpenNebula 4.5.0</a> by <a href="http://c12g.com" target="_blank">C12G Labs</a>.
+        </div>
+      </div>
+
+      <div class="large-9 columns right-content">
+        <div class="row user-zone-container"><div class="user-zone-info"></div></div>
+        <div class="row right-header">
+        </div>
+      </div>
+    </div>
+    <div id="dialogs"></div>
+ <!--     <div class="user-zone-container"><div class="user-zone-info"></div></div>
+
     <div class="outer-center" id="tabs_content">
       <div class="inner-center"></div>
       <div class="inner-south" id="dialog"></div>
@@ -83,24 +103,15 @@
           <img src="<%= view['small_logo'] %>"/>
         </div>
         <div class="menu-navZ">
-          <ul class="tabs vertical" id="navigation"></ul>
+          <ul class="side-nav" id="navigation"></ul>
         </div>
       </div>
 
         <div id="footer" style="overflow:visible;text-align:center;padding:8px;font-size:12px">
             <a href="http://opennebula.org" target="_blank">OpenNebula 4.5.0</a> by <a href="http://c12g.com" target="_blank">C12G Labs</a>.
         </div>
-    </div>
     <div id="dialogs"></div>
     <div id="plots"></div>
-    <div id="info_panels"></div>
-
-    <script src="vendor/4.0/foundation/jquery.foundation.reveal.js" type="text/javascript"></script>
-    <script src="vendor/4.0/foundation/jquery.foundation.forms.js" type="text/javascript"></script>
-    <script src="vendor/4.0/foundation/jquery.foundation.tooltips.js" type="text/javascript"></script>
-    <script src="vendor/4.0/foundation/jquery.foundation.alerts.js" type="text/javascript"></script>
-    <script src="vendor/4.0/foundation/jquery.foundation.buttons.js" type="text/javascript"></script>
-    <script src="vendor/4.0/foundation/jquery.foundation.tabs.js" type="text/javascript"></script>
-    <script src="vendor/4.0/foundation/app.js" type="text/javascript"></script>
+    <div id="info_panels"></div>-->
   </body>
 </html>

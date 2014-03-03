@@ -15,7 +15,8 @@
 /* -------------------------------------------------------------------------- */
 
 var infra_tab = {
-    title: '<i class="fa fa-sitemap"></i>'+tr("Infrastructure")
+    title: '<i class="fa fa-sitemap"></i>'+tr("Infrastructure"),
+    no_content: true
 }
 
 Sunstone.addMainTab('infra-tab',infra_tab);

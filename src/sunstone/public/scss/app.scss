@@ -1,0 +1,533 @@
+@import "settings";
+@import "foundation";
+
+// Or selectively include components
+// @import
+//   "foundation/components/accordion",
+//   "foundation/components/alert-boxes",
+//   "foundation/components/block-grid",
+//   "foundation/components/breadcrumbs",
+//   "foundation/components/button-groups",
+//   "foundation/components/buttons",
+//   "foundation/components/clearing",
+//   "foundation/components/dropdown",
+//   "foundation/components/dropdown-buttons",
+//   "foundation/components/flex-video",
+//   "foundation/components/forms",
+//   "foundation/components/grid",
+//   "foundation/components/inline-lists",
+//   "foundation/components/joyride",
+//   "foundation/components/keystrokes",
+//   "foundation/components/labels",
+//   "foundation/components/magellan",
+//   "foundation/components/orbit",
+//   "foundation/components/pagination",
+//   "foundation/components/panels",
+//   "foundation/components/pricing-tables",
+//   "foundation/components/progress-bars",
+//   "foundation/components/reveal",
+//   "foundation/components/side-nav",
+//   "foundation/components/split-buttons",
+//   "foundation/components/sub-nav",
+//   "foundation/components/switch",
+//   "foundation/components/tables",
+//   "foundation/components/tabs",
+//   "foundation/components/thumbs",
+//   "foundation/components/tooltips",
+//   "foundation/components/top-bar",
+//   "foundation/components/type",
+//   "foundation/components/offcanvas",
+//   "foundation/components/visibility";
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: condensed;
+  src: local('Open Sans'), local('OpenSans'), url('opensans.woff') format('woff');
+}
+
+.hidden {
+  display: none;
+}
+
+.left-footer {
+  overflow:visible;
+  padding:8px;
+  font-size:12px
+}
+
+.left-content {
+  padding-left: 50px;
+  padding-top: 28px;
+}
+
+.left-header {
+  margin-bottom: 10px !important;
+}
+
+.right-content {
+  padding: 20px 50px 0px 0px;
+}
+
+.right-info {
+  margin-top: 15px;
+}
+
+table {
+    border: 0px;
+    border-collapse:collapse;
+    border-spacing:0;
+
+
+    th {
+        font-weight: bold;
+        background: #fff !important;
+        border-bottom: 1px solid #efefef !important;;
+        color: #333333 !important;
+    }
+}
+
+table.dataTable {
+    td, th {
+        text-align: left;
+        padding: 5px 10px;
+
+        .button {
+          margin: 0px;
+        }
+    }
+    input {
+        margin: 3px 0.5ex !important;
+    }
+}
+
+
+tr.odd:hover td {
+    background-color: #2ba6cb !important;
+    cursor: pointer;
+    color: #FFF !important;
+}
+
+tr.even:hover td {
+    background-color: #2ba6cb !important;
+    cursor: pointer;
+    color: #FFF !important;
+}
+
+input.search {
+  margin: 0px;
+}
+
+.markrow { background-color:#cdebf5 !important; }
+.markrowselected { background-color:#2ba6cb !important; color: #FFF; }
+.markrowchecked { background-color:#cdebf5; }
+
+
+// User settings and zone
+.user-zone-container {
+    position: relative;
+
+    .user-zone-info {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        z-index: 1;
+
+        .button {
+            background: #fff;
+        }
+
+        .button:hover {
+            background: #F5F5F5;
+        }
+    }
+}
+
+// Navigation side bar
+#logo {
+    margin-top: 10px;
+}
+
+.side-nav {
+    margin-left: 15px;
+
+    .topTab {
+        font-weight: bold;
+        margin-top: 15px;
+
+        a {
+            color: #555 !important;
+        }
+    }
+
+    .subTab {
+        margin-left: 18px;
+
+        a {
+            color: #008cba !important;
+        }
+    }
+
+    .navigation-active-li {
+        font-weight: bold;
+    }
+
+    i {
+        margin-right: 3px
+    }
+}
+
+.header-title {
+  margin-bottom: 40px;
+}
+
+// action block
+
+input[type="text"],
+select {
+  font-size: 14px;
+  height: 33px !important;
+}
+
+.subheader {
+  color: #555;
+}
+
+.header-info {
+  margin-top: -5px;
+  margin-bottom: 5px;
+
+  input {
+    margin-top: -10px !important;
+  }
+}
+
+.button.secondary {
+  color: #555;
+  margin: 0px 3px;
+}
+
+// Dropdown
+.f-dropdown {
+  width: auto;
+  text-align: left;
+  li {
+    padding: 0px 10px;
+  }
+}
+
+// Form
+.fa-question-circle {
+  color: #afafaf !important;
+}
+
+.value_td {
+    text-overflow:ellipsis;
+    word-break: break-all;
+}
+
+.key_td {
+  color: #555;
+}
+
+// Totals
+
+.totals-info {
+  span {
+    color: #777;
+  }
+
+  small {
+    color: #ACACAC;
+  }
+}
+
+.noUiSlider {
+  border: none;
+  margin-top: 12px;
+
+  &.horizontal {
+    width: 100% !important;
+  }
+}
+
+// Remove padding and border from jquery_layout
+.inner-south {
+    -webkit-box-shadow: 0 0 5px #999999;
+    -moz-box-shadow: 0 0 5px #999999;
+    box-shadow: 0 0 5px #999999;
+    padding: 20px !important;
+}
+
+.inner-center {
+    padding: 20px !important;
+}
+
+.ui-layout-pane { /* all 'panes' */
+    background: #FFF;
+    padding:    0px;
+    /* DO NOT add scrolling (or padding) to 'panes' that have a content-div,
+       otherwise you may get double-scrollbars - on the pane AND on the content-div
+       - use ui-layout-wrapper class if pane has a content-div
+       - use ui-layout-container if pane has an inner-layout
+    */
+    }
+/* (scrolling) content-div inside pane allows for fixed header(s) and/or footer(s) */
+.ui-layout-content {
+    padding:    10px;
+    position:   relative; /* contain floated or positioned elements */
+}
+
+.outer-west {
+  padding: 10px
+}
+
+// Dashboard
+
+fieldset {
+  margin: 0px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+
+  legend {
+    font-weight: none;
+    color: #555;
+  }
+}
+
+.label.allocated {
+  background-color: rgb(43,166,203);
+  color: #fff;
+}
+.label.real {
+  background-color: rgb(112,125,133);
+  color: #fff;
+}
+.label.total {
+  background-color: rgb(172,90,98);
+  color: #fff;
+}
+
+.success-color {
+  color: $success-color !important;
+}
+
+.alert-color {
+  color: rgb(172,90,98) !important;
+}
+
+
+// Tabs
+.tabs.vertical {
+  dd {
+    border-right: 1px solid #dfdfdf;
+
+  }
+
+  dd.active {
+    border-left: 1px solid #dfdfdf;
+    border-top: 1px solid #dfdfdf;
+    border-bottom: 1px solid #dfdfdf;
+    border-right: 1px solid #FFFFFF;
+
+    a {
+      font-weight: bold !important;
+    }
+  }
+}
+
+.tabs:not(.vertical) {
+  dd {
+    border: 1px solid #efefef;
+  }
+
+  dd.active {
+    border: 1px solid #dfdfdf;
+
+    a {
+      font-weight: bold !important;
+    }
+  }
+
+  &.wizard_tabs dd {
+    border: 1px solid #dfdfdf !important;
+  }
+}
+
+// Right info
+
+.right-info-tabs {
+  dd {
+    width: 90px;
+  }
+
+  i {
+    font-size: 20px;
+    margin-bottom: -10px;
+  }
+
+  a {
+    color: #777 !important;
+    padding: 10px 0px !important;
+    font-size: 12px !important;
+  }
+
+  dd.active {
+    a {
+      color: #555 !important;
+    }
+  }
+}
+
+// Reveal
+
+.reveal-modal h3 {
+    margin-bottom: 25px !important;
+}
+
+.reveal-body {
+    height:80%;
+    overflow-y: overlay;
+    overflow-x: hidden;
+    padding: 5px 20px;
+}
+
+.reveal-footer {
+    position: absolute;
+    bottom: 20px;
+    width: 90%;
+}
+
+.max-height{
+    max-height: 90%;
+    position: absolute;
+    height: 100%;
+}
+
+.form_buttons {
+  padding-top: 20px;
+}
+
+
+// Progress bar
+
+.progress-container {
+    position:relative;
+    width: 100%;
+    text-align: center;
+    background: #FFF;
+    line-height: 18px;
+    margin-top: -8px;
+}
+
+.progress {
+    position:absolute;
+    width: 100%;
+    height: 19px !important;
+    background: #FFF;
+    border: 1px solid #cfcfcf
+}
+
+.progress-text {
+    position:absolute;
+    width: 100%;
+    font-size: 12px;
+    color: #000 !important;
+}
+
+.meter {
+    background: #cdebf5 !important;
+}
+
+
+div.dataTables_length label,
+div.dataTables_filter label,
+div.dataTables_info {
+  color: #999;
+  font-weight: normal;
+}
+
+div.dataTables_length label {
+  float: left;
+  text-align: left;
+  margin-bottom: 0;
+}
+
+div.dataTables_length select {
+  width: 75px;
+  margin-bottom: 0;
+}
+
+div.dataTables_filter label {
+  float: right;
+  margin-bottom: 0;
+}
+div.dataTables_filter input {
+  display: inline-block !important;
+  width: auto !important;
+  margin-bottom: 0;
+}
+
+div.dataTables_info {
+  padding-top: 2px;
+  font-size: 0.875em;
+}
+
+div.dataTables_paginate {
+  float: right;
+  margin: 0;
+}
+
+table.dataTable {
+  clear: both;
+  margin: 0.5em 0 !important;
+  max-width: none !important;
+  width: 100%;
+}
+
+table.dataTable thead .sorting,
+table.dataTable thead .sorting_asc,
+table.dataTable thead .sorting_desc,
+table.dataTable thead .sorting_asc_disabled,
+table.dataTable thead .sorting_desc_disabled {
+  cursor: pointer;
+  *cursor: hand;
+}
+
+table.dataTable thead .sorting { background: url('images/sort_both.png') no-repeat center right; }
+table.dataTable thead .sorting_asc { background: url('images/sort_asc.png') no-repeat center right; }
+table.dataTable thead .sorting_desc { background: url('images/sort_desc.png') no-repeat center right; }
+
+table.dataTable thead .sorting_asc_disabled { background: url('images/sort_asc_disabled.png') no-repeat center right; }
+table.dataTable thead .sorting_desc_disabled { background: url('images/sort_desc_disabled.png') no-repeat center right; }
+
+table.dataTable th:active {
+  outline: none;
+}
+
+/* Scrolling */
+div.dataTables_scrollHead table {
+  margin-bottom: 0 !important;
+}
+
+div.dataTables_scrollBody table {
+  border-top: none;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+div.dataTables_scrollBody tbody tr:first-child th,
+div.dataTables_scrollBody tbody tr:first-child td {
+  border-top: none;
+}
+
+div.dataTables_scrollFoot table {
+  margin-top: 0 !important;
+  border-top: none;
+}
+
+
+
+
+

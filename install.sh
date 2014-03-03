@@ -1442,10 +1442,8 @@ SUNSTONE_VIEWS_FILES="src/sunstone/views/index.erb \
                       src/sunstone/views/_login_standard.erb \
                       src/sunstone/views/_login_x509.erb"
 
-SUNSTONE_PUBLIC_JS_FILES="src/sunstone/public/js/layout.js \
-                        src/sunstone/public/js/login.js \
+SUNSTONE_PUBLIC_JS_FILES="src/sunstone/public/js/login.js \
                         src/sunstone/public/js/sunstone.js \
-                        src/sunstone/public/js/sunstone-util.js \
                         src/sunstone/public/js/opennebula.js \
                         src/sunstone/public/js/locale.js"
 
@@ -1548,19 +1546,8 @@ SUNSTONE_PUBLIC_NEW_VENDOR_JGROWL="\
                 src/sunstone/public/vendor/4.0/jgrowl/LICENSE"
 
 SUNSTONE_PUBLIC_NEW_VENDOR_FOUNDATION="\
-  src/sunstone/public/vendor/4.0/foundation/modernizr.foundation.js \
-  src/sunstone/public/vendor/4.0/foundation/jquery.foundation.reveal.js \
-  src/sunstone/public/vendor/4.0/foundation/jquery.foundation.orbit.js \
-  src/sunstone/public/vendor/4.0/foundation/jquery.foundation.forms.js \
-  src/sunstone/public/vendor/4.0/foundation/jquery.placeholder.js \
-  src/sunstone/public/vendor/4.0/foundation/jquery.foundation.tooltips.js \
-  src/sunstone/public/vendor/4.0/foundation/jquery.foundation.alerts.js \
-  src/sunstone/public/vendor/4.0/foundation/jquery.foundation.buttons.js \
-  src/sunstone/public/vendor/4.0/foundation/jquery.foundation.accordion.js \
-  src/sunstone/public/vendor/4.0/foundation/jquery.foundation.navigation.js \
-  src/sunstone/public/vendor/4.0/foundation/jquery.foundation.mediaQueryToggle.js \
-  src/sunstone/public/vendor/4.0/foundation/jquery.foundation.tabs.js \
-  src/sunstone/public/vendor/4.0/foundation/app.js "
+  src/sunstone/public/bower_components/foundation/js/vendor/modernizr.js \
+  src/sunstone/public/bower_components/foundation/js/foundation.min.js"
 
 SUNSTONE_PUBLIC_NEW_VENDOR_JQUERY="\
                         src/sunstone/public/vendor/4.0/jquery-1.11.0.min.js \

@@ -83,30 +83,30 @@ var create_cluster_tmpl ='<div class="panel">\
   <form id="cluster_create_tabs" class="custom">\
   <div class="row centered">\
     <div class="columns eight centered">\
-      <div class="two columns">\
+      <div class="large-2 columns">\
           <label class="inline right"for="name">' + tr("Name")  + ':</label>\
       </div>\
-      <div class="nine columns">\
+      <div class="large-9 columns">\
           <input type="text" name="name" id="name" />\
       </div>\
-      <div class="one columns">\
+      <div class="large-1 columns">\
           <div class="tip"></div>\
       </div>\
     </div>\
   </div>\
   <br>\
-    <dl class="tabs">\
-        <dd class="active"><a href="#tab-hosts">'+tr("Hosts")+'</a></dd>\
-        <dd><a href="#tab-vnets">'+tr("Virtual Networks")+'</a></dd>\
-        <dd><a href="#tab-datastores">'+tr("Datastores")+'</a></dd>\
+    <dl class="tabs" data-tab>\
+        <dd class="active"><a href="#tab-hostsTab">'+tr("Hosts")+'</a></dd>\
+        <dd><a href="#tab-vnetsTab">'+tr("Virtual Networks")+'</a></dd>\
+        <dd><a href="#tab-datastoresTab">'+tr("Datastores")+'</a></dd>\
     </dl>\
-    <ul class="tabs-content">\
-    <li id="tab-hostsTab" class="active">\
+    <div class="tabs-content">\
+    <div id="tab-hostsTab" class="active content">\
       <div class="row collapse">\
-        <div class="seven columns">\
+        <div class="large-7 columns">\
             <button id="refresh_host_table_button_class" class="button small radius secondary action_button" value="ClusterHost.list"><i class="fa fa-refresh" /></button>\
         </div>\
-        <div class="five columns">\
+        <div class="large-5 columns">\
           <input id="cluster_hosts_search" type="text" placeholder="'+tr("Search")+'"/>\
         </div>\
       </div>\
@@ -117,13 +117,13 @@ var create_cluster_tmpl ='<div class="panel">\
         <span id="select_cluster_hosts" class="radius secondary label">'+tr("Please select one or more hosts from the list")+'</span>\
         <span id="cluster_hosts_selected" class="radius secondary label hidden">'+tr("You selected the following hosts:")+'</span>\
       </div>\
-    </li>\
-    <li id="tab-vnetsTab">\
+    </div>\
+    <div id="tab-vnetsTab" class="content">\
       <div class="row collapse">\
-        <div class="seven columns">\
+        <div class="large-7 columns">\
             <button id="refresh_vnet_table_button_class" class="button small radius secondary action_button" value="ClusterVN.list"><i class="fa fa-refresh" /></button>\
         </div>\
-        <div class="five columns">\
+        <div class="large-5 columns">\
           <input id="cluster_vnets_search" type="text" placeholder="'+tr("Search")+'"/>\
         </div>\
       </div>\
@@ -134,13 +134,13 @@ var create_cluster_tmpl ='<div class="panel">\
         <span id="select_cluster_vnets" class="radius secondary label">'+tr("Please select one or more vnets from the list")+'</span>\
         <span id="cluster_vnets_selected" class="radius secondary label hidden">'+tr("You selected the following vnets:")+'</span>\
       </div>\
-    </li>\
-    <li id="tab-datastoresTab">\
+    </div>\
+    <div id="tab-datastoresTab" class="content">\
       <div class="row collapse">\
-        <div class="seven columns">\
+        <div class="large-7 columns">\
             <button id="refresh_datastore_table_button_class" class="button small radius secondary action_button" value="ClusterDS.list"><i class="fa fa-refresh" /></button>\
         </div>\
-        <div class="five columns">\
+        <div class="large-5 columns">\
           <input id="cluster_datastores_search" type="text" placeholder="'+tr("Search")+'"/>\
         </div>\
       </div>\
@@ -151,8 +151,8 @@ var create_cluster_tmpl ='<div class="panel">\
         <span id="select_cluster_datastores" class="radius secondary label">'+tr("Please select one or more datastores from the list")+'</span>\
         <span id="cluster_datastores_selected" class="radius secondary label hidden">'+tr("You selected the following datastores:")+'</span>\
       </div>\
-    </li>\
-    </ul>\
+    </div>\
+    </div>\
   </form>\
   </div>\
     <div class="reveal-footer">\
@@ -160,7 +160,6 @@ var create_cluster_tmpl ='<div class="panel">\
     <div class="form_buttons row">\
         <button class="button success right radius" type="submit" id="create_cluster_submit" value="OpenNebula.Cluster.create">' + tr("Create") + '</button>\
         <button class="button right radius" type="submit" id="update_cluster_submit">' + tr("Update") + '</button>\
-        <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
     </div>\
     </div>\
         <a class="close-reveal-modal">&#215;</a>';
@@ -184,7 +183,7 @@ function setupCreateClusterDialog(){
     dialog.html(create_cluster_tmpl);
     var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
 
-    dialog.addClass("reveal-modal large max-height");
+    dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
 
     //  ------- Create the dialog datatables ------------
     dataTable_cluster_hosts = $("#datatable_cluster_hosts", dialog).dataTable({
@@ -446,7 +445,7 @@ function setupCreateClusterDialog(){
         // If it is successfull we refresh the list.
         Sunstone.runAction("Cluster.create",cluster_json);
 
-        $create_cluster_dialog.trigger("reveal:close")
+        $create_cluster_dialog.foundation('reveal', 'close')
         return false;
     });
 }
@@ -487,7 +486,7 @@ function popUpCreateClusterDialog(){
     Sunstone.runAction("ClusterVN.list");
     Sunstone.runAction("ClusterDS.list");
 
-    $create_cluster_dialog.reveal();
+    $create_cluster_dialog.foundation().foundation('reveal', 'open');
 
     $("input#name",$create_cluster_dialog).focus();
 
@@ -532,7 +531,7 @@ function popUpUpdateClusterDialog(){
     Sunstone.runAction("ClusterHost.list");
     Sunstone.runAction("ClusterVN.list");
     Sunstone.runAction("ClusterDS.list");
-    $create_cluster_dialog.reveal();
+    $create_cluster_dialog.foundation().foundation('reveal', 'open');
 
     $('#create_cluster_dialog').attr('title','Update Cluster');
 
@@ -702,7 +701,7 @@ function fillPopPup(request,response){
         }
       }
 
-      $create_cluster_dialog.trigger("reveal:close")
+      $create_cluster_dialog.foundation('reveal', 'close')
 
       Sunstone.runAction('Cluster.list');
 
@@ -869,52 +868,6 @@ function updateClusterDatastoresInfoView (request,datastore_list){
 
 
 /* -------- End of datatables section -------- */
-
-
-var clusters_tab_content = '\
-<form class="custom" id="form_cluters" action="">\
-<div class="panel">\
-<div class="row">\
-  <div class="twelve columns">\
-    <h4 class="subheader header">\
-      <span class="header-resource">\
-        <i class="fa fa-files-o"></i> '+tr("Clusters")+'\
-      </span>\
-      <span class="header-info">\
-        <span/> <small></small>&emsp;\
-      </span>\
-      <span class="user-login">\
-      </span>\
-    </h4>\
-  </div>\
-</div>\
-<div class="row">\
-  <div class="ten columns">\
-    <div class="action_blocks">\
-    </div>\
-  </div>\
-  <div class="two columns">\
-    <input id="cluster_search" type="text" placeholder="'+tr("Search")+'" />\
-  </div>\
-</div>\
-</div>\
-  <div class="row">\
-    <div class="twelve columns">\
-<table id="datatable_clusters" class="datatable twelve">\
-  <thead>\
-    <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
-      <th>' + tr("ID") + '</th>\
-      <th>' + tr("Name") + '</th>\
-      <th>' + tr("Hosts") + '</th>\
-      <th>' + tr("VNets") + '</th>\
-      <th>' + tr("Datastores") + '</th>\
-    </tr>\
-  </thead>\
-  <tbody id="tbodyclusters">\
-  </tbody>\
-</table>\
-</form>';
 
 var clusters_select="";
 var dataTable_clusters;
@@ -1127,11 +1080,28 @@ var cluster_buttons = {
 
 var clusters_tab = {
     title: tr("Clusters"),
-    content: clusters_tab_content,
     buttons: cluster_buttons,
     showOnTopMenu: false,
     tabClass: "subTab",
-    parentTab: "infra-tab"
+    parentTab: "infra-tab",
+    search_input: '<input id="cluster_search" type="text" placeholder="'+tr("Search")+'" />',
+    list_header: '<i class="fa fa-th"></i> '+tr("Clusters"),
+    info_header: '<i class="fa fa-th"></i> '+tr("Cluster"),
+    subheader: '<span/> <small></small>&emsp;',
+    table: '<table id="datatable_clusters" class="datatable twelve">\
+      <thead>\
+        <tr>\
+          <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
+          <th>' + tr("ID") + '</th>\
+          <th>' + tr("Name") + '</th>\
+          <th>' + tr("Hosts") + '</th>\
+          <th>' + tr("VNets") + '</th>\
+          <th>' + tr("Datastores") + '</th>\
+        </tr>\
+      </thead>\
+      <tbody id="tbodyclusters">\
+      </tbody>\
+    </table>'
 };
 
 var cluster_info_panel = {
@@ -1257,15 +1227,14 @@ function updateClusterInfo(request,cluster){
 
     //Information tab
     var info_tab = {
-        title : tr("Information"),
+        title : tr("Info"),
+        icon: "fa-info-circle",
         content :
         '<form class="custom"><div class="">\
-        <div class="six columns">\
-        <table id="info_cluster_table" class="twelve datatable extended_table">\
+        <div class="large-6 columns">\
+        <table id="info_cluster_table" class="dataTable extended_table">\
             <thead>\
-               <tr><th colspan="3">' +
-                        tr("Cluster") +
-                        ' - '+cluster_info.NAME+'</th></tr>\
+               <tr><th colspan="3">' +tr("Information") +'</th></tr>\
             </thead>\
             <tbody>\
             <tr>\
@@ -1283,7 +1252,7 @@ function updateClusterInfo(request,cluster){
             </tbody>\
          </table>\
         </div>\
-        <div class="six columns">'
+        <div class="large-6 columns">'
                 + insert_extended_template_table(cluster_template,
                                          "Cluster",
                                          cluster_info.ID,
@@ -1294,6 +1263,7 @@ function updateClusterInfo(request,cluster){
 
     var cluster_host_tab = {
         title: tr("Hosts"),
+        icon: "fa-hdd-o",
         content : '<div class="columns twelve">\
           <div id="datatable_cluster_hosts_info_div">\
             <table id="datatable_cluster_hosts_info_panel" class="table twelve">' +
@@ -1304,7 +1274,8 @@ function updateClusterInfo(request,cluster){
     }
 
     var cluster_vnet_tab = {
-        title: tr("Virtual Networks"),
+        title: tr("VNets"),
+        icon: "fa-globe",
         content : '<div class="columns twelve">\
           <div id="datatable_cluster_vnets_info_div">\
             <table id="datatable_cluster_vnets_info_panel" class="table twelve">' +
@@ -1316,6 +1287,7 @@ function updateClusterInfo(request,cluster){
 
     var cluster_datastore_tab = {
         title: tr("Datastores"),
+        icon: "fa-folder-open",
         content : '<div class="columns twelve">\
           <div id="datatable_cluster_datastores_info_div">\
             <table id="datatable_cluster_datastores_info_panel" class="table twelve">' +
@@ -1360,7 +1332,7 @@ function updateClusterInfo(request,cluster){
     // Hosts datatable
 
     dataTable_cluster_hosts_panel = $("#datatable_cluster_hosts_info_panel").dataTable({
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
+        "sDom" : "<'H'>t<'row'<'large-6 columns'i><'large-6 columns'p>>",
         "oColVis": { //exclude checkbox column
             "aiExclude": [ 0 ]
         },
@@ -1377,8 +1349,8 @@ function updateClusterInfo(request,cluster){
 
     // Virtual networks datatable
 
-    dataTable_cluster_vnets_panel = $("#datatable_cluster_vnets_info_panel", dialog).dataTable({
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
+    dataTable_cluster_vnets_panel = $("#datatable_cluster_vnets_info_panel").dataTable({
+        "sDom" : "<'H'>t<'row'<'large-6 columns'i><'large-6 columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
@@ -1395,8 +1367,8 @@ function updateClusterInfo(request,cluster){
 
     // Datastores datatable
 
-    dataTable_cluster_datastores_panel = $("#datatable_cluster_datastores_info_panel", dialog).dataTable({
-        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
+    dataTable_cluster_datastores_panel = $("#datatable_cluster_datastores_info_panel").dataTable({
+        "sDom" : "<'H'>t<'row'<'large-6 columns'i><'large-6 columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },

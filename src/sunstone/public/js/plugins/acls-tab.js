@@ -18,55 +18,6 @@
 var dataTable_acls;
 var $create_acl_dialog;
 
-var acls_tab_content = '\
-<form class="custom" id="acl_form" action="">\
-<div class="panel">\
-<div class="row">\
-  <div class="twelve columns">\
-    <h4 class="subheader header">\
-      <span class="header-resource">\
-        <i class="fa fa-key"></i> '+tr("Access Control Lists")+'\
-      </span>\
-      <span class="header-info">\
-        <span/> <small></small>&emsp;\
-      </span>\
-      <span class="user-login">\
-      </span>\
-    </h4>\
-  </div>\
-</div>\
-<div class="row">\
-  <div class="ten columns">\
-    <div class="action_blocks">\
-    </div>\
-  </div>\
-  <div class="two columns">\
-    <input id="acl_search" type="text" placeholder="'+tr("Search")+'" />\
-  </div>\
-  <br>\
-  <br>\
-</div>\
-</div>\
-  <div class="row">\
-    <div class="twelve columns">\
-<table id="datatable_acls" class="datatable twelve">\
-  <thead>\
-    <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
-      <th>'+tr("ID")+'</th>\
-      <th>'+tr("Applies to")+'</th>\
-      <th>'+tr("Affected resources")+'</th>\
-      <th>'+tr("Resource ID / Owned by")+'</th>\
-      <th>'+tr("Allowed operations")+'</th>\
-      <th>'+tr("Zone")+'</th>\
-      <th>'+tr("ACL String")+'</th>\
-    </tr>\
-  </thead>\
-  <tbody id="tbodyaclss">\
-  </tbody>\
-</table>\
-</form>';
-
 var create_acl_tmpl =
 '<div class="panel">\
   <h3>\
@@ -76,27 +27,27 @@ var create_acl_tmpl =
 <div class="reveal-body">\
 <form id="create_acl_form" action="">\
         <div class="row">\
-          <div class="four columns">\
+          <div class="large-4 columns">\
               <label class="inline right" for="applies">'+tr("This rule applies to")+':</label>\
           </div>\
-          <div class="seven columns">\
+          <div class="large-7 columns">\
               <select name="applies" id="applies"></select>\
           </div>\
-          <div class="one columns">\
+          <div class="large-1 columns">\
               <div class=""></div>\
           </div>\
          </div>\
         <div class="row">\
             <fieldset>\
             <legend>'+tr("Affected resources")+'</legend>\
-            <div class="six columns">\
+            <div class="large-6 columns">\
                 <input type="checkbox" name="res_host" class="resource_cb" value="HOST">'+tr("Hosts")+'</input><br />\
                 <input type="checkbox" name="res_cluster" class="resource_cb" value="CLUSTER">'+tr("Clusters")+'</input><br />\
                 <input type="checkbox" name="res_datastore" class="resource_cb" value="DATASTORE">'+tr("Datastores")+'</input><br />\
                 <input type="checkbox" name="res_vm" class="resource_cb" value="VM">'+tr("Virtual Machines")+'</input><br />\
                 <input type="checkbox" name="res_net" class="resource_cb" value="NET">'+tr("Virtual Networks")+'</input><br />\
             </div>\
-            <div class="six columns">\
+            <div class="large-6 columns">\
                 <input type="checkbox" name="res_image" class="resource_cb" value="IMAGE">'+tr("Images")+'</input><br />\
                 <input type="checkbox" name="res_template" class="resource_cb" value="TEMPLATE">'+tr("Templates")+'</input><br />\
                 <input type="checkbox" name="res_user" class="resource_cb" value="USER">'+tr("Users")+'</input><br />\
@@ -109,13 +60,13 @@ var create_acl_tmpl =
         <div class="row">\
             <fieldset>\
             <legend>'+tr("Resource subset")+'</legend>\
-            <div class="six columns">\
+            <div class="large-6 columns">\
                 <input type="radio" class="res_subgroup" name="mode_select" value="*" id="res_subgroup_all">'+tr("All")+'</input><br />\
                 <input type="radio" class="res_subgroup" name="mode_select" value="res_id" id="res_subgroup_id">'+tr("Specific ID")+'</input><br />\
                 <input type="radio" class="res_subgroup" name="mode_select" value="belonging_to" id="res_subgroup_group">'+tr("Owned by group")+'</input><br />\
                 <input type="radio" class="res_subgroup" name="mode_select" value="in_cluster" id="res_subgroup_group">'+tr("Assigned to cluster")+'</input><br />\
             </div>\
-            <div class="six columns">\
+            <div class="large-6 columns">\
                 <div class="res_id">\
                     <label for="res_id">'+tr("Resource ID")+':</label>\
                     <input type="text" name="res_id" id="res_id"></input>\
@@ -147,13 +98,13 @@ var create_acl_tmpl =
             </fieldset>\
         </div>\
         <div class="row">\
-          <div class="four columns">\
+          <div class="large-4 columns">\
               <label class="inline right" for="acl_preview">'+tr("ACL String preview")+':</label>\
           </div>\
-          <div class="seven columns">\
+          <div class="large-7 columns">\
               <input type="text" name="acl_preview" id="acl_preview"></input>\
           </div>\
-          <div class="one columns">\
+          <div class="large-1 columns">\
               <div class=""></div>\
           </div>\
         </div>\
@@ -162,7 +113,6 @@ var create_acl_tmpl =
         <div class="form_buttons">\
           <button class="button radius right success" id="create_acl_submit" type="submit" value="Acl.create">'+tr("Create")+'</button>\
           <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
-          <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
         </div>\
         </div>\
     <a class="close-reveal-modal">&#215;</a>\
@@ -253,10 +203,28 @@ var acl_buttons = {
 
 var acls_tab = {
     title: tr("ACLs"),
-    content: acls_tab_content,
     buttons: acl_buttons,
     tabClass: 'subTab',
-    parentTab: 'system-tab'
+    parentTab: 'system-tab',
+    search_input: '<input id="acl_search" type="text" placeholder="'+tr("Search")+'" />',
+    list_header: '<i class="fa fa-key"></i> '+tr("Access Control Lists"),
+    subheader: '<span/><small></small>&emsp;',
+    table: '<table id="datatable_acls" class="dataTable">\
+      <thead>\
+        <tr>\
+          <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
+          <th>'+tr("ID")+'</th>\
+          <th>'+tr("Applies to")+'</th>\
+          <th>'+tr("Affected resources")+'</th>\
+          <th>'+tr("Resource ID / Owned by")+'</th>\
+          <th>'+tr("Allowed operations")+'</th>\
+          <th>'+tr("Zone")+'</th>\
+          <th>'+tr("ACL String")+'</th>\
+        </tr>\
+      </thead>\
+      <tbody id="tbodyaclss">\
+      </tbody>\
+    </table>'
 }
 
 Sunstone.addActions(acl_actions);
@@ -451,7 +419,7 @@ function setupCreateAclDialog(){
     //    width: 650,
     //    height: height
     //});
-    dialog.addClass("reveal-modal large max-height");
+    dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
 
     //Default selected options
     $('#res_subgroup_all',dialog).attr('checked','checked');
@@ -595,7 +563,7 @@ function setupCreateAclDialog(){
 
         var acl_json = { "acl" : acl_string };
         Sunstone.runAction("Acl.create",acl_json);
-        $create_acl_dialog.trigger("reveal:close");
+        $create_acl_dialog.foundation('reveal', 'close');
         return false;
     });
 }
@@ -633,7 +601,7 @@ function popUpCreateAclDialog(){
     $('#zones_applies',dialog).trigger("change");
 
 
-    dialog.reveal();
+    dialog.foundation().foundation('reveal', 'open');
 }
 
 // Prepare the autorefresh of the list
