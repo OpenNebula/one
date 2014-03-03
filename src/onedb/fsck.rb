@@ -49,8 +49,6 @@ EOT
 
     def fsck
 
-        # TODO: different behaviour for slave/master database
-
         ########################################################################
         # Acl
         ########################################################################
@@ -124,6 +122,7 @@ EOT
         @errors = 0
         puts
 
+        db_version = read_db_version()
 
         ########################################################################
         # pool_control
@@ -132,6 +131,8 @@ EOT
         tables = ["group_pool", "user_pool", "acl", "image_pool", "host_pool",
             "network_pool", "template_pool", "vm_pool", "cluster_pool",
             "datastore_pool", "document_pool", "zone_pool"]
+
+        federated_tables = ["group_pool", "user_pool", "acl", "zone_pool"]
 
         tables.each do |table|
             max_oid = -1
@@ -160,7 +161,11 @@ EOT
                 log_error("pool_control for table #{table} has last_oid #{control_oid}, but it is #{max_oid}")
 
                 if control_oid != -1
-                    @db.run("UPDATE pool_control SET last_oid=#{max_oid} WHERE tablename='#{table}'")
+                    if db_version[:is_slave] && federated_tables.include?(table)
+                        log_error("^ Needs to be fixed in the master OpenNebula")
+                    else
+                        @db.run("UPDATE pool_control SET last_oid=#{max_oid} WHERE tablename='#{table}'")
+                    end
                 else
                     @db[:pool_control].insert(
                         :tablename  => table,
@@ -258,18 +263,23 @@ EOT
             end
         end
 
-        @db.transaction do
-            users_fix.each do |id, user|
-                @db[:user_pool].where(:oid => id).update(
-                    :body => user[:body],
-                    :gid => user[:gid])
+        if db_version[:is_slave]
+            log_error("^ User errors need to be fixed in the master OpenNebula")
+        else
+            @db.transaction do
+                users_fix.each do |id, user|
+                    @db[:user_pool].where(:oid => id).update(
+                        :body => user[:body],
+                        :gid => user[:gid])
+                end
             end
         end
 
         log_time()
 
-
-        @db.run "CREATE TABLE group_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+        if !db_version[:is_slave]
+            @db.run "CREATE TABLE group_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+        end
 
         @db.transaction do
             @db.fetch("SELECT * from group_pool") do |row|
@@ -296,14 +306,20 @@ EOT
 
                 row[:body] = doc.to_s
 
-                # commit
-                @db[:group_pool_new].insert(row)
+                if db_version[:is_slave]
+                    log_error("^ Group errors need to be fixed in the master OpenNebula")
+                else
+                    # commit
+                    @db[:group_pool_new].insert(row)
+                end
             end
         end
 
-        # Rename table
-        @db.run("DROP TABLE group_pool")
-        @db.run("ALTER TABLE group_pool_new RENAME TO group_pool")
+        if !db_version[:is_slave]
+            # Rename table
+            @db.run("DROP TABLE group_pool")
+            @db.run("ALTER TABLE group_pool_new RENAME TO group_pool")
+        end
 
         log_time()
 
@@ -1275,6 +1291,8 @@ EOT
         # USER QUOTAS
         ########################################################################
 
+        # This block is not needed for now
+=begin
         @db.transaction do
             @db.fetch("SELECT oid FROM user_pool") do |row|
                 found = false
@@ -1290,7 +1308,7 @@ EOT
                 end
             end
         end
-
+=end
         @db.run "ALTER TABLE user_quotas RENAME TO old_user_quotas;"
         @db.run "CREATE TABLE user_quotas (user_oid INTEGER PRIMARY KEY, body MEDIUMTEXT);"
 
@@ -1321,6 +1339,8 @@ EOT
         # GROUP QUOTAS
         ########################################################################
 
+        # This block is not needed for now
+=begin
         @db.transaction do
             @db.fetch("SELECT oid FROM group_pool") do |row|
                 found = false
@@ -1336,7 +1356,7 @@ EOT
                 end
             end
         end
-
+=end
         @db.run "ALTER TABLE group_quotas RENAME TO old_group_quotas;"
         @db.run "CREATE TABLE group_quotas (group_oid INTEGER PRIMARY KEY, body MEDIUMTEXT);"
 
