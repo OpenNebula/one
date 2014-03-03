@@ -83,6 +83,7 @@ module Migrator
         # GROUP/RESOURCE_PROVIDER is not needed
 
         # Move GROUP/QUOTA to group_quotas table
+        # Add GROUP/TEMPLATE
 
         @db.run "ALTER TABLE group_pool RENAME TO old_group_pool;"
         @db.run "CREATE TABLE group_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
@@ -94,6 +95,8 @@ module Migrator
                 doc = Nokogiri::XML(row[:body])
 
                 quotas_doc = extract_quotas(doc)
+
+                doc.root.add_child(doc.create_element("TEMPLATE"))
 
                 @db[:group_pool].insert(
                     :oid        => row[:oid],
