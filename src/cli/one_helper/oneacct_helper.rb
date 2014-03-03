@@ -87,7 +87,7 @@ class AcctHelper < OpenNebulaHelper::OneHelper
         :name  => "json",
         :short => "-j",
         :large => "--json",
-        :description => "Show the resource in xml format"
+        :description => "Show the resource in json format"
     }
 
     SPLIT={
