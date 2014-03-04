@@ -18,141 +18,112 @@
 
 size_images = 0;
 
-var create_image_tmpl =
-  '<div class="panel">\
-    <h3><small>'+tr("Create Image")+'</small></h4>\
+var create_image_tmpl ='<div class="row">\
+    <div class="large-5 columns">\
+      <h3 class="subheader">'+tr("Create Image")+'</h3>'+
+    '</div>'+
+    '<div class="large-7 columns">'+
+      '<dl class="tabs right" data-tab>\
+        <dd class="active"><a href="#img_easyTab">'+tr("Wizard")+'</a></dd>\
+        <dd><a href="#img_manualTab">'+tr("Advanced mode")+'</a></dd>\
+      </dl>\
+    </div>\
   </div>\
   <div class="reveal-body">\
   <form id="create_image" action="" class="custom creation">\
-        <dl class="tabs" data-tab>\
-        <dd class="active"><a href="#img_easyTab">'+tr("Wizard")+'</a></dd>\
-          <dd><a href="#img_manualTab">'+tr("Advanced mode")+'</a></dd>\
-        </dl>\
-        <div class="tabs-content">\
+      <div class="tabs-content">\
         <div id="img_easyTab" class="content active">\
                   <div class="row vm_param">\
                     <div class="large-6 columns">\
                       <div class="row">\
-                        <div class="large-4 columns">\
-                          <label class="right inline" for="img_name">'+tr("Name")+':</label>\
-                        </div>\
-                        <div class="large-7 columns">\
+                        <div class="large-12 columns">\
+                          <label for="img_name">'+tr("Name")+
+                            '<span class="tip">'+tr("Name that the Image will get. Every image must have a unique name.")+'</span>\
+                          </label>\
                           <input type="text" name="img_name" id="img_name" />\
                         </div>\
-                        <div class="large-1 columns tip">'+tr("Name that the Image will get. Every image must have a unique name.")+'</div>\
                       </div>\
                       <div class="row">\
-                        <div class="large-4 columns">\
-                          <label class="right inline" for="img_desc">'+tr("Description")+':</label>\
-                        </div>\
-                        <div class="large-7 columns">\
+                        <div class="large-12 columns">\
+                          <label for="img_desc">'+tr("Description")+
+                            '<span class="tip">'+tr("Human readable description of the image for other users.")+'</span>\
+                          </label>\
                           <textarea name="img_desc" id="img_desc" rows="4"></textarea>\
-                        </div>\
-                        <div class="large-1 columns">\
-                          <div class="tip">'+tr("Human readable description of the image for other users.")+'</div>\
                         </div>\
                       </div>\
                     </div>\
                     <div class="large-6 columns">\
                       <div class="row">\
-                        <div class="large-4 columns">\
-                          <label class="right inline" for="img_type">'+tr("Type")+':</label>\
-                        </div>\
-                        <div class="large-7 columns">\
-                         <select name="img_type" id="img_type">\
-                              <option value="OS">'+tr("OS")+'</option>\
-                              <option value="CDROM">'+tr("CDROM")+'</option>\
-                              <option value="DATABLOCK">'+tr("DATABLOCK")+'</option>\
-                         </select>\
-                        </div>\
-                        <div class="large-1 columns">\
-                          <div class="tip">'+tr("Type of the image, explained in detail in the following section. If omitted, the default value is the one defined in oned.conf (install default is OS).")+'</div>\
+                        <div class="large-12 columns">\
+                          <label for="img_type">'+tr("Type")+
+                            '<span class="tip">'+tr("Type of the image, explained in detail in the following section. If omitted, the default value is the one defined in oned.conf (install default is OS).")+'</span>'+
+                          '</label>\
+                           <select name="img_type" id="img_type">\
+                                <option value="OS">'+tr("OS")+'</option>\
+                                <option value="CDROM">'+tr("CDROM")+'</option>\
+                                <option value="DATABLOCK">'+tr("DATABLOCK")+'</option>\
+                           </select>\
                         </div>\
                       </div>\
                       <div class="row">\
-                        <div class="large-4 columns">\
-                          <label class="right inline" for="img_datastore">'+tr("Datastore")+':</label>\
-                        </div>\
-                        <div class="large-7 columns">\
-                         <select id="img_datastore" name="img_datastore">\
-                         </select>\
-                        </div>\
-                        <div class="large-1 columns">\
-                          <div class="tip">'+tr("Select the datastore for this image")+'</div>\
+                        <div class="large-12 columns">\
+                          <label for="img_datastore">'+tr("Datastore")+
+                            '<span class="tip">'+tr("Select the datastore for this image")+'</span>'+
+                          '</label>\
+                           <select id="img_datastore" name="img_datastore">\
+                           </select>\
                         </div>\
                       </div>\
                       <div class="row">\
-                        <div class="large-4 columns">\
-                          <label class="right inline" for="img_persistent">'+tr("Persistent")+':</label>\
-                        </div>\
-                        <div class="large-7 columns">\
-                         <input type="checkbox" id="img_persistent" name="img_persistent" value="YES" />\
-                        </div>\
-                        <div class="large-1 columns">\
-                          <div class="tip">'+tr("Persistence of the image")+'</div>\
+                        <div class="large-12 columns">\
+                          <input type="checkbox" id="img_persistent" name="img_persistent" value="YES" />\
+                          <label for="img_persistent">'+tr("Persistent")+
+                            '<span class="tip">'+tr("Persistence of the image")+'</span>'+
+                          '</label>\
                         </div>\
                       </div>\
                     </div>\
                   </div>\
-                 <div class="row">\
                  <fieldset>\
-                 <legend>'+tr("Image location")+':</legend>\
-                 <div class="row centered" id="src_path_select" style="text-align:center">\
-                         <input type="radio" name="src_path" id="path_img" value="path">'+ tr("Provide a path")+'&emsp;</input> \
-                         <input type="radio" name="src_path" id="upload_img" value="upload"> '+tr("Upload")+'</input> &emsp;\
-                         <input type="radio" name="src_path" id="datablock_img" value="datablock" disabled> '+tr("Empty datablock")+'</input> &emsp;\
-                 </div>\
-                 <hr>\
-                 <div class="img_param row">\
-                   <div class="large-8 columns centered">\
-                    <div class="large-2 columns">\
-                      <label class="right inline" for="img_path">'+tr("Path")+':</label>\
+                   <legend>'+tr("Image location")+':</legend>\
+                   <div class="row" id="src_path_select">\
+                      <div class="large-12 columns text-center">\
+                           <input type="radio" name="src_path" id="path_image" value="path"><label for="path_image">'+ tr("Provide a path")+'</label> \
+                           <input type="radio" name="src_path" id="upload_image" value="upload"> <label for="upload_image">'+tr("Upload")+'</label> \
+                           <input type="radio" name="src_path" id="datablock_img" value="datablock" disabled> <label for="datablock_img">'+tr("Empty datablock")+'</label> \
+                      </div>\
+                   </div>\
+                   <br>\
+                   <div class="img_param row">\
+                     <div class="large-12 columns">\
+                        <label for="img_path">'+tr("Path")+
+                          '<span class="tip">'+tr("Path to the original file that will be copied to the image repository. If not specified for a DATABLOCK type image, an empty image will be created.")+'</span>'+
+                        '</label>\
+                        <input type="text" name="img_path" id="img_path" />\
+                      </div>\
+                   </div>\
+                   <div class="row">\
+                      <div id="file-uploader" class="large-12 columns text-center">\
+                      </div>\
+                   </div>\
+                   <div class="img_size row">\
+                     <div class="large-6 columns">\
+                        <label for="img_size">'+tr("Size")+
+                          '<span class="tip">'+tr("Size of the datablock in MB.")+'</span>'+
+                        '</label>\
+                        <input type="text" name="img_size" id="img_size" />\
+                      </div>\
+                     <div class="large-6 columns">\
+                        <label for="img_fstype">'+tr("FS type")+
+                          '<span class="tip">'+tr("Type of file system to be built.")+'<br><br>'
+                              + tr(" Plain. When the disk image is used directly by the hypervisor we can format the image, and so it is ready to be used by the guest OS. Values: ext2, ext3, ext4, ntfs, reiserfs, jfs, swap. Any other fs supported by mkfs will work if no special option is needed. .")+'<br><br>'
+                              + tr(" Formatted. The disk image is stored in a hypervisor specific format VMDK or Qcow2. Then we cannot really make a filesystem on the image, just create the device and let the guest OS format the disk. Use raw to not to format the new image. Values: raw, qcow2, vmdk_*.")+
+                          '</span>'+
+                        '</label>\
+                        <input type="text" name="img_fstype" id="img_fstype" />\
+                      </div>\
                     </div>\
-                    <div class="large-9 columns">\
-                     <input type="text" name="img_path" id="img_path" />\
-                    </div>\
-                    <div class="large-1 columns">\
-                      <div class="tip">'+tr("Path to the original file that will be copied to the image repository. If not specified for a DATABLOCK type image, an empty image will be created.")+'</div>\
-                    </div>\
-                 </div>\
-                 </div>\
-                 <div class="row">\
-                  <div class="columns eight centered">\
-                    <div id="file-uploader"></div>\
-                  </div>\
-                 </div>\
-                 <div class="img_size">\
-                   <div class="large-6 columns">\
-                    <div class="row">\
-                        <div class="large-4 columns">\
-                          <label class="right inline" for="img_size">'+tr("Size")+':</label>\
-                        </div>\
-                        <div class="large-7 columns">\
-                         <input type="text" name="img_size" id="img_size" />\
-                        </div>\
-                        <div class="large-1 columns">\
-                          <div class="tip">'+tr("Size of the datablock in MB.")+'</div>\
-                        </div>\
-                    </div>\
-                  </div>\
-                   <div class="large-6 columns">\
-                    <div class="row">\
-                        <div class="large-4 columns">\
-                          <label class="right inline" for="img_fstype">'+tr("FS type")+':</label>\
-                        </div>\
-                        <div class="large-7 columns">\
-                         <input type="text" name="img_fstype" id="img_fstype" />\
-                        </div>\
-                        <div class="large-1 columns">\
-                          <div class="tip">'+tr("Type of file system to be built.")+'<br><br>'
-                            + tr(" Plain. When the disk image is used directly by the hypervisor we can format the image, and so it is ready to be used by the guest OS. Values: ext2, ext3, ext4, ntfs, reiserfs, jfs, swap. Any other fs supported by mkfs will work if no special option is needed. .")+'<br><br>'
-                            + tr(" Formatted. The disk image is stored in a hypervisor specific format VMDK or Qcow2. Then we cannot really make a filesystem on the image, just create the device and let the guest OS format the disk. Use raw to not to format the new image. Values: raw, qcow2, vmdk_*.")+'</div>\
-                        </div>\
-                    </div>\
-                    </div>\
-                  </div>\
-                 </fieldset>\
-                 </div>\
+                </fieldset>\
                 <div class="show_hide" id="advanced_image_create">\
                      <h4><small><i class=" fa fa-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>\
                 </div>\
@@ -160,38 +131,29 @@ var create_image_tmpl =
                   <div class="row">\
                     <div class="large-6 columns">\
                       <div class="row">\
-                        <div class="large-6 columns">\
-                          <label class="right inline" for="img_dev_prefix">'+tr("Device prefix")+':</label>\
-                        </div>\
-                        <div class="large-5 columns">\
+                        <div class="large-12 columns">\
+                          <label for="img_dev_prefix">'+tr("Device prefix")+
+                            '<span class="tip">'+tr("Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”. If omitted, the default value is the one defined in oned.conf (installation default is “hd”).")+'</span>'+
+                          '</label>\
                           <input type="text" name="img_dev_prefix" id="img_dev_prefix" />\
-                        </div>\
-                        <div class="large-1 columns">\
-                          <div class="tip">'+tr("Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”. If omitted, the default value is the one defined in oned.conf (installation default is “hd”).")+'</div>\
                         </div>\
                       </div>\
                       <div class="row">\
-                        <div class="large-6 columns">\
-                          <label class="right inline" for="img_driver">'+tr("Driver")+':</label>\
-                        </div>\
-                        <div class="large-5 columns">\
+                        <div class="large-12 columns">\
+                          <label for="img_driver">'+tr("Driver")+
+                            '<span class="tip">'+tr("Specific image mapping driver. KVM: raw, qcow2. XEN: tap:aio, file:")+'</span>'+
+                          '</label>\
                           <input type="text" name="img_driver" id="img_driver" />\
-                        </div>\
-                        <div class="large-1 columns">\
-                          <div class="tip">'+tr("Specific image mapping driver. KVM: raw, qcow2. XEN: tap:aio, file:")+'</div>\
                         </div>\
                       </div>\
                     </div>\
                     <div class="large-6 columns">\
                       <div class="row">\
-                        <div class="large-6 columns">\
-                          <label class="right inline" for="img_target">'+tr("Target")+':</label>\
-                        </div>\
-                        <div class="large-5 columns">\
+                        <div class="large-12 columns">\
+                          <label for="img_target">'+tr("Target")+
+                            '<span class="tip">'+tr("Target on which the image will be mounted at. For example: hda, sdb...")+'</span>'+
+                          '</label>\
                           <input type="text" name="img_target" id="img_target" />\
-                        </div>\
-                        <div class="large-1 columns">\
-                          <div class="tip">'+tr("Target on which the image will be mounted at. For example: hda, sdb...")+'</div>\
                         </div>\
                       </div>\
                     </div>\
@@ -202,32 +164,22 @@ var create_image_tmpl =
                        <div class="row">\
                         <div class="large-6 columns">\
                           <div class="row">\
-                            <div class="large-4 columns">\
-                              <label class="right inline" for="custom_var_image_name">'+tr("Name")+':</label>\
-                            </div>\
-                            <div class="large-7 columns">\
+                            <div class="large-12 columns">\
+                              <label for="custom_var_image_name">'+tr("Name")+'</label>\
                               <input type="text" id="custom_var_image_name" name="custom_var_image_name" />\
                             </div>\
-                            <div class="large-1 columns">\
-                            </div>\
                           </div>\
                           <div class="row">\
-                            <div class="large-4 columns">\
-                              <label class="right inline" for="custom_var_image_value">'+tr("Value")+':</label>\
-                            </div>\
-                            <div class="large-7 columns">\
+                            <div class="large-12 columns">\
+                              <label for="custom_var_image_value">'+tr("Value")+'</label>\
                               <input type="text" id="custom_var_image_value" name="custom_var_image_value" />\
                             </div>\
-                            <div class="large-1 columns">\
-                            </div>\
                           </div>\
                           <div class="row">\
-                            <div class="large-6 columns">\
-                              <button class="add_remove_button add_button secondary button right small radius" id="add_custom_var_image_button" value="add_custom_image_var">\
+                            <div class="large-12 columns">\
+                              <button class="add_remove_button add_button secondary button small radius" id="add_custom_var_image_button" value="add_custom_image_var">\
                                '+tr("Add")+'\
                               </button>\
-                            </div>\
-                            <div class="large-6 columns">\
                               <button class="add_remove_button secondary button small radius" id="remove_custom_var_image_button" value="remove_custom_image_var">\
                                '+tr("Remove selected")+'\
                               </button>\
@@ -237,7 +189,7 @@ var create_image_tmpl =
                         <div class="large-6 columns">\
                           <div class="row">\
                             <div class="eight centered columns">\
-                              <select id="custom_var_image_box" name="custom_var_image_box" style="height:10em; width:100%" multiple>\
+                              <select id="custom_var_image_box" name="custom_var_image_box" style="height:180px !important; width:100%" multiple>\
                                 <!-- insert leases -->\
                               </select>\
                             </div>\
@@ -246,9 +198,8 @@ var create_image_tmpl =
                        </div>\
                     </fieldset>\
                   </div>\
-                  </div>\
+              </div>\
           <div class="reveal-footer">\
-            <hr>\
             <div class="form_buttons">\
               <button class="button success radius right" id="create_image_submit" type="button" value="image/create">'+tr("Create")+'</button>\
               <button id="wizard_image_reset_button"  class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
@@ -256,26 +207,28 @@ var create_image_tmpl =
           </div>\
         </div>\
         <div id="img_manualTab" class="content">\
-        <div class="reveal-body">\
-                 <div class="columns three">\
-                   <label class="inline left" for="img_datastores_raw">'+tr("Datastore")+':</label>\
-                 </div>\
-                 <div class="columns nine">\
+          <div class="reveal-body">\
+              <div class="row">\
+                 <div class="columns large-12">\
+                   <label for="img_datastores_raw">'+tr("Datastore")+':</label>\
                    <select id="img_datastore_raw" name="img_datastore_raw"></select>\
                  </div>\
-                 <textarea id="template" rows="15" style="width:100%;"></textarea>\
-                 </div>\
+              </div>\
+              <div class="row">\
+                <div class="columns large-12">\
+                   <textarea id="template" rows="15" style="height:380px !important; width:100%;"></textarea>\
+                </div>\
+              </div>\
+          </div>\
           <div class="reveal-footer">\
-                 <hr>\
                <div class="form_buttons">\
                  <button class="button success radius right" id="create_image_submit_manual" value="image/create">'+tr("Create")+'</button>\
                  <button  id="advanced_image_reset_button" class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
                </div>\
           </div>\
         </div>\
-        </div>\
         <a class="close-reveal-modal">&#215;</a>\
-           </form>\
+  </form>\
 </div>';
 
 var dataTable_images;
@@ -906,7 +859,7 @@ function setupCreateImageDialog(dialog){
     var dialog = $create_image_dialog;
     dialog.html(create_image_tmpl);
 
-    dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
+    dialog.addClass("reveal-modal medium max-height").attr("data-reveal", "");
 
     initialize_create_image_dialog(dialog);
 }
@@ -929,7 +882,7 @@ function initialize_create_image_dialog(dialog) {
             break;
         default:
             $('#datablock_img',context).attr('disabled','disabled');
-            $('#path_img',context).click();
+            $('#path_image',context).click();
 
         }
     });
@@ -956,7 +909,7 @@ function initialize_create_image_dialog(dialog) {
     });
 
 
-    $('#path_img',dialog).click();
+    $('#path_image',dialog).click();
 
 
     $('#add_custom_var_image_button', dialog).click(
@@ -1264,33 +1217,28 @@ function setupImageCloneDialog(){
 
     //Put HTML in place
 
-    var html = '<div class="panel">\
-          <h3>\
-            <small id="create_vnet_header">'+tr("Clone Image")+'</small>\
-          </h3>\
-        </div>\
-        <form>\
-<div class="row">\
-<div class="clone_one"></div>\
-<div class="clone_several">'+tr("Several image are selected, please choose prefix to name the new copies")+':</div>\
-<br>\
+    var html = '<div class="row">\
+  <h3 id="create_vnet_header" class="subheader">'+tr("Clone Image")+'</h3>\
 </div>\
-<div class="row">\
-  <div class="columns two">\
-    <label class="clone_one inline right">'+tr("Name")+':</label>\
-    <label class="clone_several inline right">'+tr("Prefix")+':</label>\
+<form>\
+  <div class="row">\
+    <div class="large-12 columns">\
+      <div class="clone_one"></div>\
+      <div class="clone_several">'+tr("Several image are selected, please choose prefix to name the new copies")+':</div>\
+      <br>\
+    </div>\
   </div>\
-  <div class="columns ten">\
-    <input type="text" name="name"></input>\
+  <div class="row">\
+    <div class="columns large-12">\
+      <label class="clone_one">'+tr("Name")+':</label>\
+      <label class="clone_several">'+tr("Prefix")+':</label>\
+      <input type="text" name="name"></input>\
+    </div>\
   </div>\
-</div>\
-<hr>\
-<div class="form_buttons row">\
-  <button class="button radius right" id="image_clone_button" value="Image.clone">\
-'+tr("Clone")+'\
-  </button>\
-        </div>\
-<a class="close-reveal-modal">&#215;</a>\
+  <div class="form_buttons row">\
+    <button class="button radius right" id="image_clone_button" value="Image.clone">'+tr("Clone")+'</button>\
+  </div>\
+  <a class="close-reveal-modal">&#215;</a>\
 </form>\
 ';
 
