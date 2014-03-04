@@ -22,6 +22,7 @@
 #include <pthread.h>
 
 class HostPool;
+class ClusterPool;
 class DatastorePool;
 class LifeCycleManager;
 
@@ -52,6 +53,8 @@ private:
 
     // Pointers shared by all the MonitorThreads, init by MonitorThreadPool
     static HostPool * hpool;
+
+    static ClusterPool *cpool;
 
     static DatastorePool * dspool;
 

@@ -170,6 +170,19 @@ public:
         return vnets.get_collection_copy();
     }
 
+    /**
+     *  Get the default reserved capacity for hosts in the cluster. It can be
+     *  overridden if defined in the host template.
+     *    @param cpu reserved cpu (in percentage)
+     *    @param mem reserved mem (in KB)
+     */
+    void get_reserved_capacity(long long &cpu, long long& mem)
+    {
+        get_template_attribute("RESERVED_CPU", cpu);
+
+        get_template_attribute("RESERVED_MEM", mem);
+    }
+
     // *************************************************************************
     // DataBase implementation (Public)
     // *************************************************************************

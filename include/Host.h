@@ -157,13 +157,17 @@ public:
      *    @param with_vm_info if monitoring contains VM information
      *    @param lost set of VMs that should be in the host and were not found
      *    @param found VMs running in the host (as expected) and info.
+     *    @param reserved_cpu from cluster defaults
+     *    @param reserved_mem from cluster defaults
      *    @return 0 on success
      **/
     int update_info(Template        &tmpl,
                     bool            &with_vm_info,
                     set<int>        &lost,
                     map<int,string> &found,
-                    const set<int>  &non_shared_ds);
+                    const set<int>  &non_shared_ds,
+                    long long       reserved_cpu,
+                    long long       reserved_mem);
     /**
      * Extracts the DS attributes from the given template
      * @param parse_str string with values to be parsed
@@ -268,11 +272,33 @@ public:
         return last_monitored;
     };
 
-    // ------------------------------------------------------------------------
+    /**
+     *  Get the reserved capacity for this host. Parameters will be only updated
+     *  if values are defined in the host. Reserved capacity will be subtracted
+     *  from the Host total capacity.
+     *    @param cpu reserved cpu (in percentage)
+     *    @param mem reserved mem (in KB)
+     */
+    void get_reserved_capacity(long long &cpu, long long& mem)
+    {
+        long long tcpu;
+        long long tmem;
+
+        if (get_template_attribute("RESERVED_CPU", tcpu))
+        {
+            cpu = tcpu;
+        }
+
+        if (get_template_attribute("RESERVED_MEM", tmem))
+        {
+            mem = tmem;
+        }
+    }
+
+    // -------------------------------------------------------------------------
     // Share functions. Returns the value associated with each host share
     // metric
-    // ------------------------------------------------------------------------
-
+    // -------------------------------------------------------------------------
     long long get_share_running_vms()
     {
         return host_share.running_vms;

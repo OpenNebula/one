@@ -36,6 +36,8 @@ LifeCycleManager * MonitorThread::lcm;
 
 MonitorThreadPool * MonitorThread::mthpool;
 
+ClusterPool * MonitorThread::cpool;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -94,7 +96,7 @@ void MonitorThread::do_message()
     }
 
     // -------------------------------------------------------------------------
-    // Get DS Information from Moniroting Information
+    // Get DS Information from Moniroting Information & Reserved Capacity
     // -------------------------------------------------------------------------
     map<int,const VectorAttribute*>            datastores;
     map<int, const VectorAttribute*>::iterator itm;
@@ -104,7 +106,13 @@ void MonitorThread::do_message()
 
     set<int>    non_shared_ds;
 
-    int rc = host->extract_ds_info(*hinfo, tmpl, datastores);
+    int rc  = host->extract_ds_info(*hinfo, tmpl, datastores);
+
+    int cid = host->get_cluster_id();
+
+    long long reserved_cpu = 0;
+
+    long long reserved_mem = 0;
 
     delete hinfo;
 
@@ -113,6 +121,18 @@ void MonitorThread::do_message()
     if (rc != 0)
     {
         return;
+    }
+
+    if (cid != -1)
+    {
+        Cluster *cluster = cpool->get(cid, true);
+
+        if (cluster != 0)
+        {
+            cluster->get_reserved_capacity(reserved_cpu, reserved_mem);
+
+            cluster->unlock();
+        }
     }
 
     for (itm = datastores.begin(); itm != datastores.end(); itm++)
@@ -170,7 +190,8 @@ void MonitorThread::do_message()
         return;
     }
 
-    rc = host->update_info(tmpl, vm_poll, lost, found, non_shared_ds);
+    rc = host->update_info(tmpl, vm_poll, lost, found, non_shared_ds,
+                reserved_cpu, reserved_mem);
 
     hpool->update(host);
 
@@ -219,6 +240,8 @@ MonitorThreadPool::MonitorThreadPool(int max_thr):concurrent_threads(max_thr),
     MonitorThread::hpool  = Nebula::instance().get_hpool();
 
     MonitorThread::lcm    = Nebula::instance().get_lcm();
+
+    MonitorThread::cpool  = Nebula::instance().get_clpool();
 
     MonitorThread::mthpool= this;
 
