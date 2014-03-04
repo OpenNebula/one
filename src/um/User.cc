@@ -25,7 +25,7 @@
 #include "User.h"
 #include "Nebula.h"
 #include "Group.h"
-
+#include "NebulaUtil.h"
 
 const string User::INVALID_NAME_CHARS = " :\t\n\v\f\r";
 const string User::INVALID_PASS_CHARS = " \t\n\v\f\r";
@@ -314,6 +314,7 @@ int User::from_xml(const string& xml)
 
     return 0;
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -363,6 +364,8 @@ int User::set_password(const string& passwd, string& error_str)
     return rc;
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 bool User::pass_is_valid(const string& pass, string& error_str)
 {

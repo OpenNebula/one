@@ -21,7 +21,6 @@
 #include "UserTemplate.h"
 #include "ObjectCollection.h"
 #include "QuotasSQL.h"
-#include "NebulaUtil.h"
 
 class UserQuotas;
 

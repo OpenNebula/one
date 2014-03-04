@@ -119,11 +119,20 @@ int UserChangeAuth::user_action(int     user_id,
         return -1;
     }
 
+    string old_auth = user->get_auth_driver();
+
     rc = user->set_auth_driver(new_auth, error_str);
 
     if ( rc == 0 && !new_pass.empty() )
     {
         rc = user->set_password(new_pass, error_str);
+
+        if (rc != 0)
+        {
+            string tmp_str;
+
+            user->set_auth_driver(old_auth, tmp_str);
+        }
     }
 
     if ( rc == 0 )
