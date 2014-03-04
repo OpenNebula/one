@@ -28,10 +28,7 @@ class HostPoolXML : public PoolXML
 {
 public:
 
-    HostPoolXML(Client* client, float mem):PoolXML(client)
-    {
-        HostXML::set_hypervisor_mem(mem);
-    };
+    HostPoolXML(Client* client):PoolXML(client) {};
 
     ~HostPoolXML(){};
 

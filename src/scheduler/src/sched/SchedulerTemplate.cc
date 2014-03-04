@@ -44,7 +44,6 @@ void SchedulerTemplate::set_conf_default()
 #  DEFAULT_SCHED
 #  DEFAULT_DS_SCHED
 #  LIVE_RESCHEDS
-#  HYPERVISOR_MEM
 #  LOG
 #-------------------------------------------------------------------------------
 */
@@ -103,12 +102,6 @@ void SchedulerTemplate::set_conf_default()
 
     vattribute = new VectorAttribute("DEFAULT_DS_SCHED",vvalue);
     conf_default.insert(make_pair(vattribute->name(),vattribute));
-
-    //HYPERVISOR_MEM
-    value = "0.1";
-
-    attribute = new SingleAttribute("HYPERVISOR_MEM",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
 
     //LOG CONFIGURATION
     vvalue.clear();
