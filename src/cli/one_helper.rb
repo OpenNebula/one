@@ -604,7 +604,7 @@ EOT
         end
 
         def self.name_to_id(name, pool, ename)
-            if ename=="CLUSTER" and name=="ALL"
+            if ename=="CLUSTER" and name.upcase=="ALL"
                 return 0, "ALL"
             end
 
