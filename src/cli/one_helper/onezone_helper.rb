@@ -43,11 +43,11 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
                 d["NAME"]
             end
 
-            column :ENDPOINT, "Endpoint of the Zone", :left, :size=>50 do |d|
+            column :ENDPOINT, "Endpoint of the Zone", :left, :size=>45 do |d|
                 d["TEMPLATE"]['ENDPOINT']
             end            
 
-            default :ID, :NAME, :ENDPOINT
+            default :CURRENT, :ID, :NAME, :ENDPOINT
         end
 
         table
