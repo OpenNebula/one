@@ -371,6 +371,11 @@ int Group::add_resource_provider(int zone_id, int cluster_id, string& error_msg)
 
             error_msg);
 
+    if (rc < 0)
+    {
+        NebulaLog::log("GROUP",Log::ERROR,error_msg);
+    }
+
     // @<gid> DATASTORE+NET/%<cid> USE #<zone>
     rc += aclm->add_rule(
             AclRule::GROUP_ID |
@@ -387,9 +392,9 @@ int Group::add_resource_provider(int zone_id, int cluster_id, string& error_msg)
 
             error_msg);
 
-    if (rc != 0)
+    if (rc < 0)
     {
-        return -1;
+        NebulaLog::log("GROUP",Log::ERROR,error_msg);
     }
 
     return 0;
@@ -436,6 +441,11 @@ int Group::del_resource_provider(int zone_id, int cluster_id, string& error_msg)
 
             error_msg);
 
+    if (rc < 0)
+    {
+        NebulaLog::log("GROUP",Log::ERROR,error_msg);
+    }
+
     // @<gid> DATASTORE+NET/%<cid> USE #<zid>
     rc += aclm->del_rule(
             AclRule::GROUP_ID |
@@ -452,9 +462,9 @@ int Group::del_resource_provider(int zone_id, int cluster_id, string& error_msg)
 
             error_msg);
 
-    if (rc != 0)
+    if (rc < 0)
     {
-        return -1;
+        NebulaLog::log("GROUP",Log::ERROR,error_msg);
     }
 
     return 0;
