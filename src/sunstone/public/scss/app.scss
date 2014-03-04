@@ -231,6 +231,16 @@ select {
   color: #555;
 }
 
+.reveal-modal {
+  fieldset {
+    margin-bottom: 30px !important;
+  }
+}
+
+.has-tip {
+  margin-left: 10px;
+}
+
 // Totals
 
 .totals-info {
@@ -319,25 +329,25 @@ fieldset {
 
 
 // Tabs
-.tabs.vertical {
-  dd {
-    border-right: 1px solid #dfdfdf;
+//.tabs.vertical {
+//  dd {
+//    border-right: 1px solid #dfdfdf;//
 
-  }
+//  }//
 
-  dd.active {
-    border-left: 1px solid #dfdfdf;
-    border-top: 1px solid #dfdfdf;
-    border-bottom: 1px solid #dfdfdf;
-    border-right: 1px solid #FFFFFF;
+//  dd.active {
+//    border-left: 1px solid #dfdfdf;
+//    border-top: 1px solid #dfdfdf;
+//    border-bottom: 1px solid #dfdfdf;
+//    border-right: 1px solid #FFFFFF;//
 
-    a {
-      font-weight: bold !important;
-    }
-  }
-}
+//    a {
+//      font-weight: bold !important;
+//    }
+//  }
+//}
 
-.tabs:not(.vertical) {
+.tabs {
   dd {
     border: 1px solid #efefef;
   }
