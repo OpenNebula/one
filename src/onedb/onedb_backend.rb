@@ -233,7 +233,7 @@ class BackEndMySQL < OneDBBacKEnd
     end
 
     def backup(bck_file)
-        cmd = "mysqldump -u #{@user} -p#{@passwd} -h #{@server} " +
+        cmd = "mysqldump -u #{@user} -p'#{@passwd}' -h #{@server} " +
               "-P #{@port} #{@db_name} > #{bck_file}"
 
         rc = system(cmd)
@@ -255,7 +255,7 @@ class BackEndMySQL < OneDBBacKEnd
                   " use -f to overwrite."
         end
 
-        mysql_cmd = "mysql -u #{@user} -p#{@passwd} -h #{@server} -P #{@port} "
+        mysql_cmd = "mysql -u #{@user} -p'#{@passwd}' -h #{@server} -P #{@port} "
 
         drop_cmd = mysql_cmd + "-e 'DROP DATABASE IF EXISTS #{@db_name};'"
         rc = system(drop_cmd)
