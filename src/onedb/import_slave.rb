@@ -387,6 +387,20 @@ EOT
                         end
                     end
 
+                    slave_template  = slave_doc.root.at_xpath("TEMPLATE")
+                    master_template = master_doc.root.at_xpath("TEMPLATE")
+
+                    # Avoid duplicated template attributes, removing
+                    # them from the slave template
+                    master_template.children.each do |e|
+                        if slave_template.at_xpath(e.name)
+                            slave_template.at_xpath(e.name).remove
+                        end
+                    end
+
+                    # Add slave template attributes to master template
+                    master_template << slave_template.children
+
                     @db[:group_pool].where(:oid => new_group[:oid]).update(
                         :body => master_doc.root.to_s)
                 else
