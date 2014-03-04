@@ -184,7 +184,7 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     ostringstream   ose;
     int             rc;
 
-    string vlan_attr;
+    bool b_vlan;
     string s_type;
     string ranged_error_str;
 
@@ -227,19 +227,30 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     // ------------ PHYDEV --------------------
 
-    erase_template_attribute("PHYDEV",phydev);
+    erase_template_attribute("PHYDEV", phydev);
+
+    add_template_attribute("PHYDEV", phydev);
 
     // ------------ VLAN_ID -------------------
 
-    erase_template_attribute("VLAN_ID",vlan_id);
+    erase_template_attribute("VLAN_ID", vlan_id);
+
+    add_template_attribute("VLAN_ID", vlan_id);
 
     // ------------ VLAN ----------------------
 
-    erase_template_attribute("VLAN", vlan_attr);
+    erase_template_attribute("VLAN", b_vlan);
 
-    TO_UPPER(vlan_attr);
-
-    vlan = (vlan_attr == "YES") || (vlan_attr.empty() && !phydev.empty());
+    if (b_vlan || !phydev.empty())
+    {
+        vlan = 1;
+        add_template_attribute("VLAN", "YES");
+    }
+    else
+    {
+        vlan = 0;
+        add_template_attribute("VLAN", "NO");
+    }
 
     // ------------ BRIDGE --------------------
 
@@ -269,6 +280,8 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
             bridge = oss.str();
         }
     }
+
+    add_template_attribute("BRIDGE", bridge);
 
     // ------------ IP6 PREFIX ---------------
 
@@ -384,6 +397,76 @@ error_common:
     error_str = ose.str();
     NebulaLog::log("VNM", Log::ERROR, ose);
     return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::replace_template(const string& tmpl_str, string& error_str)
+{
+    string new_bridge;
+    bool   b_vlan;
+
+    /* ---------------------------------------------------------------------- */
+    /* Parse & Update VirtualNetwork Template                                 */
+    /* ---------------------------------------------------------------------- */
+
+    Template * new_tmpl  = new VirtualNetworkTemplate;
+
+    if ( new_tmpl == 0 )
+    {
+        error_str = "Cannot allocate a new template";
+        return -1;
+    }
+
+    if ( new_tmpl->parse_str_or_xml(tmpl_str, error_str) != 0 )
+    {
+        delete new_tmpl;
+        return -1;
+    }
+
+    delete obj_template;
+
+    obj_template = new_tmpl;
+
+    /* ---------------------------------------------------------------------- */
+    /* Update Configuration Attributes (class & template)                     */
+    /*  - PHYDEV                                                              */
+    /*  - VLAN_ID                                                             */
+    /*  - VLAN                                                                */
+    /*  - BRIDGE                                                              */
+    /* ---------------------------------------------------------------------- */
+    erase_template_attribute("PHYDEV", phydev);
+
+    add_template_attribute("PHYDEV", phydev);
+
+    erase_template_attribute("VLAN_ID", vlan_id);
+
+    add_template_attribute("VLAN_ID", vlan_id);
+
+    erase_template_attribute("VLAN", b_vlan);
+
+    if (b_vlan || !phydev.empty())
+    {
+        vlan = 1;
+        add_template_attribute("VLAN", "YES");
+    }
+    else
+    {
+        vlan = 0;
+        add_template_attribute("VLAN", "NO");
+    }
+
+    erase_template_attribute("BRIDGE",new_bridge);
+
+    if (!new_bridge.empty())
+    {
+        bridge = new_bridge;
+    }
+
+    add_template_attribute("BRIDGE", bridge);
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
