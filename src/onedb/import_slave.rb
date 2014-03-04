@@ -558,11 +558,8 @@ EOT
         end
 
         ########################################################################
-        # Init slave_db_versioning table
+        # Cleanup shared tables form slave DB
         ########################################################################
-
-        @slave_db.run "CREATE TABLE local_db_versioning (oid INTEGER PRIMARY KEY, version VARCHAR(256), timestamp INTEGER, comment VARCHAR(256), is_slave BOOLEAN);"
-        @slave_db.run "INSERT INTO local_db_versioning VALUES(0,'#{LOCAL_VERSION}',#{Time.now.to_i},'onedb import tool',1);"
 
         @slave_db.run "DROP TABLE old_document_pool;"
         @slave_db.run "DROP TABLE old_image_pool;"
