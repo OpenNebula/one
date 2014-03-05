@@ -126,7 +126,7 @@ attribute:  VARIABLE EQUAL STRING
             {
                 Attribute * pattr;
                 string      name($1);
-                string      value("");
+                string      value;
 
                 pattr = new SingleAttribute(name,value);
 
