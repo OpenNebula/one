@@ -66,21 +66,27 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
     def format_pool(options)
         config_file = self.class.table_conf
 
-        prefix = '/GROUP_POOL/DEFAULT_GROUP_QUOTAS/'
-        group_pool = @group_pool
-
-        quotas = group_pool.get_hash()['GROUP_POOL']['QUOTAS']
-        quotas_hash = Hash.new
-
-        if (!quotas.nil?)
-            quotas = [quotas].flatten
-
-            quotas.each do |q|
-                quotas_hash[q['ID']] = q
-            end
-        end
-
         table = CLIHelper::ShowTable.new(config_file, self) do
+            def pool_default_quotas(path)
+                @data.dsearch('/GROUP_POOL/DEFAULT_GROUP_QUOTAS/'+path)
+            end
+
+            def quotas
+                if !defined?(@quotas)
+                    quotas = @data.dsearch('GROUP_POOL/QUOTAS')
+                    @quotas = Hash.new
+
+                    if (!quotas.nil?)
+                        quotas = [quotas].flatten
+
+                        quotas.each do |q|
+                            @quotas[q['ID']] = q
+                        end
+                    end
+                end
+                @quotas
+            end
+
             column :ID, "ONE identifier for the Group", :size=>4 do |d|
                 d["ID"]
             end
@@ -104,11 +110,11 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
 
             column :VMS , "Number of VMS", :size=>9 do |d|             
                 begin
-                    q = quotas_hash[d['ID']]
+                    q = quotas[d['ID']]
                     limit = q['VM_QUOTA']['VM']["VMS"]
 
                     if limit == "-1"
-                        limit = group_pool["#{prefix}VM_QUOTA/VM/VMS"]
+                        limit = pool_default_quotas["#{prefix}VM_QUOTA/VM/VMS"]
                         limit = "0" if limit.nil? || limit == ""
                     end
 
@@ -121,11 +127,11 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
 
             column :MEMORY, "Total memory allocated to user VMs", :size=>17 do |d|
                 begin
-                    q = quotas_hash[d['ID']]
+                    q = quotas[d['ID']]
                     limit = q['VM_QUOTA']['VM']["MEMORY"]
 
                     if limit == "-1"
-                        limit = group_pool["#{prefix}VM_QUOTA/VM/MEMORY"]
+                        limit = pool_default_quotas["#{prefix}VM_QUOTA/VM/MEMORY"]
                         limit = "0" if limit.nil? || limit == ""
                     end
 
@@ -139,11 +145,11 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
 
             column :CPU, "Total CPU allocated to user VMs", :size=>11 do |d|
                 begin
-                    q = quotas_hash[d['ID']]
+                    q = quotas[d['ID']]
                     limit = q['VM_QUOTA']['VM']["CPU"]
 
                     if limit == "-1"
-                        limit = group_pool["#{prefix}VM_QUOTA/VM/CPU"]
+                        limit = pool_default_quotas["#{prefix}VM_QUOTA/VM/CPU"]
                         limit = "0" if limit.nil? || limit == ""
                     end
 
