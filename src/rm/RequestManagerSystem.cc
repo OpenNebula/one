@@ -30,7 +30,7 @@ void SystemVersion::request_execute(xmlrpc_c::paramList const& paramList,
     // Should we make the version call accessible even
     // if no user is provided?
 
-    success_response(Nebula::instance().db_version(), att);
+    success_response(Nebula::instance().code_version(), att);
 
     return;
 }

@@ -87,7 +87,7 @@ class AcctHelper < OpenNebulaHelper::OneHelper
         :name  => "json",
         :short => "-j",
         :large => "--json",
-        :description => "Show the resource in xml format"
+        :description => "Show the resource in json format"
     }
 
     SPLIT={
@@ -100,6 +100,10 @@ class AcctHelper < OpenNebulaHelper::OneHelper
 
 
     ACCT_TABLE = CLIHelper::ShowTable.new("oneacct.yaml", nil) do
+        column :UID, "User ID", :size=>4 do |d|
+            d["UID"]
+        end
+
         column :VID, "Virtual Machine ID", :size=>4 do |d|
             d["OID"]
         end

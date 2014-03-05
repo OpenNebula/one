@@ -310,6 +310,8 @@ public:
     };
 
     ~ZoneDelete(){};
+
+    int drop(int oid, PoolObjectSQL * object, string& error_msg);
 };
 
 /* -------------------------------------------------------------------------- */

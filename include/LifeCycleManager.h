@@ -207,7 +207,7 @@ private:
 
     void attach_success_action(int vid);
 
-    void attach_failure_action(int vid);
+    void attach_failure_action(int vid, bool release_save_as);
 
     void detach_success_action(int vid);
 

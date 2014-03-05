@@ -21,6 +21,12 @@
 #include <fstream>
 #include <math.h>
 
+
+string on_off_string(bool value)
+{
+    return value? "1" : "0";
+}
+
 int XenDriver::deployment_description(
     const VirtualMachine *  vm,
     const string&           file_name) const
@@ -75,6 +81,24 @@ int XenDriver::deployment_description(
     string port       = "";
     string passwd     = "";
     string keymap     = "";
+
+    const VectorAttribute * input;
+
+    string  bus        = "";
+
+    const VectorAttribute * features;
+
+    bool pae            = false;
+    bool acpi           = false;
+    bool apic           = false;
+    string device_model = "";
+    bool localtime      = false;
+
+    int pae_found           = -1;
+    int acpi_found          = -1;
+    int apic_found          = -1;
+    int device_model_found  = -1;
+    int localtime_found     = -1;
 
     const VectorAttribute * raw;
     string data;
@@ -576,6 +600,119 @@ int XenDriver::deployment_description(
     }
 
     attrs.clear();
+
+    // ------------------------------------------------------------------------
+    // Input (only usb tablet)
+    // ------------------------------------------------------------------------
+
+    if ( vm->get_template_attribute("INPUT",attrs) > 0 )
+    {
+        input = dynamic_cast<const VectorAttribute *>(attrs[0]);
+
+        if ( input != 0 )
+        {
+            type = input->vector_value("TYPE");
+            bus  = input->vector_value("BUS");
+
+            if ( type == "tablet" && bus == "usb" )
+            {
+                file << "usb = 1" << endl;
+                file << "usbdevice = 'tablet'" << endl;
+            }
+            else
+            {
+                vm->log("VMM", Log::WARNING,
+                    "Not supported input, only usb tablet, ignored.");
+            }
+        }
+    }
+
+    attrs.clear();
+
+    // ------------------------------------------------------------------------
+    // Features (only for HVM)
+    // ------------------------------------------------------------------------
+
+    if ( is_hvm )
+    {
+        num = vm->get_template_attribute("FEATURES",attrs);
+
+        if ( num > 0 )
+        {
+            features = dynamic_cast<const VectorAttribute *>(attrs[0]);
+
+            if ( features != 0 )
+            {
+                pae_found  = features->vector_value("PAE", pae);
+                acpi_found = features->vector_value("ACPI", acpi);
+                apic_found = features->vector_value("APIC", apic);
+                localtime_found =
+                    features->vector_value("LOCALTIME", localtime);
+
+                device_model = features->vector_value("DEVICE_MODEL");
+                if ( device_model != "" )
+                {
+                    device_model_found = 0;
+                }
+            }
+        }
+
+        if ( pae_found != 0 && get_default("FEATURES", "PAE", pae) )
+        {
+            pae_found = 0;
+        }
+
+        if ( acpi_found != 0 && get_default("FEATURES", "ACPI", acpi) )
+        {
+            acpi_found = 0;
+        }
+
+        if ( apic_found != 0 && get_default("FEATURES", "APIC", apic) )
+        {
+            apic_found = 0;
+        }
+
+        if ( device_model_found != 0 )
+        {
+            get_default("FEATURES", "DEVICE_MODEL", device_model);
+            if ( device_model != "" )
+            {
+                device_model_found = 0;
+            }
+        }
+
+        if ( localtime_found != 0 )
+        {
+            get_default("FEATURES", "LOCALTIME", localtime);
+        }
+
+        if ( pae_found == 0)
+        {
+            file << "pae = " << on_off_string(pae) << endl;
+        }
+
+        if ( acpi_found == 0)
+        {
+            file << "acpi = " << on_off_string(acpi) << endl;
+        }
+
+        if ( apic_found == 0)
+        {
+            file << "apic = " << on_off_string(apic) << endl;
+        }
+
+        if ( device_model_found == 0)
+        {
+            file << "device_model = '" << device_model << "'" << endl;
+        }
+
+        if ( localtime )
+        {
+            file << "localtime = 'yes'" << endl;
+        }
+
+        attrs.clear();
+    }
 
     // ------------------------------------------------------------------------
     // Raw XEN attributes

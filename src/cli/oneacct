@@ -44,9 +44,15 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     end
 
     option AcctHelper::ACCT_OPTIONS + CommandParser::OPTIONS +
+        [OpenNebulaHelper::DESCRIBE, CLIHelper::LIST, CLIHelper::CSV] +
         OpenNebulaHelper::CLIENT_OPTIONS
 
     main do
+        if options[:describe]
+            AcctHelper::ACCT_TABLE.describe_columns
+            exit(0)
+        end
+
         filter_flag = (options[:userfilter] || VirtualMachinePool::INFO_ALL)
         start_time  = options[:start_time] ? options[:start_time].to_i : -1
         end_time    = options[:end_time] ? options[:end_time].to_i : -1
@@ -81,7 +87,10 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         else
             order_by = Hash.new
             order_by[:order_by_1] = 'VM/UID'
-            order_by[:order_by_2] = 'VM/ID' if options[:split]
+
+            if options[:split] && !options[:csv]
+                order_by[:order_by_2] = 'VM/ID'
+            end
 
             acct_hash = pool.accounting(filter_flag,
                                         common_opts.merge(order_by))
@@ -90,6 +99,21 @@ cmd = CommandParser::CmdParser.new(ARGV) do
                 exit -1
             end
 
+            if options[:csv]
+                a=Array.new
+                acct_hash.each do |user_id, value|
+                    value['HISTORY_RECORDS']['HISTORY'].each do |l|
+                        l['UID']=user_id
+                        a << l
+                    end
+                end
+
+                cols=AcctHelper::ACCT_TABLE.default_columns
+                AcctHelper::ACCT_TABLE.default(:UID, *cols)
+
+                AcctHelper::ACCT_TABLE.show(a, options)
+                exit(0)
+            end
 
             if ( start_time != -1 or end_time != -1 )
                 AcctHelper.print_start_end_time_header(start_time, end_time)
@@ -102,13 +126,13 @@ cmd = CommandParser::CmdParser.new(ARGV) do
                     # Use one table for each VM
                     value.each { |vm_id, history_array|
                         array = history_array['HISTORY_RECORDS']['HISTORY']
-                        AcctHelper::ACCT_TABLE.show(array)
+                        AcctHelper::ACCT_TABLE.show(array, options)
                         puts
                     }
                 else
                     # Use the same table for all the VMs
                     array = value['HISTORY_RECORDS']['HISTORY']
-                    AcctHelper::ACCT_TABLE.show(array)
+                    AcctHelper::ACCT_TABLE.show(array, options)
                     puts
                 end
             }

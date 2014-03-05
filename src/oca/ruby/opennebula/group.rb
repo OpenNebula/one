@@ -26,6 +26,7 @@ module OpenNebula
         GROUP_METHODS = {
             :info           => "group.info",
             :allocate       => "group.allocate",
+            :update         => "group.update",
             :delete         => "group.delete",
             :quota          => "group.quota",
             :add_provider   => "group.addprovider",
@@ -36,7 +37,7 @@ module OpenNebula
         SELF = -1
 
         # Default resource ACL's for group users (create)
-        GROUP_DEFAULT_ACLS = "VM+IMAGE+NET+TEMPLATE"
+        GROUP_DEFAULT_ACLS = "VM+IMAGE+NET+TEMPLATE+DOCUMENT"
         ALL_CLUSTERS_IN_ZONE = 10
 
         # Creates a Group description with just its identifier
@@ -220,6 +221,18 @@ module OpenNebula
         # +groupname+ A string containing the name of the Group.
         def allocate(groupname)
             super(GROUP_METHODS[:allocate], groupname)
+        end
+
+        # Replaces the template contents
+        #
+        # @param new_template [String] New template contents
+        # @param append [true, false] True to append new attributes instead of
+        #   replace the whole template
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def update(new_template=nil, append=false)
+            super(GROUP_METHODS[:update], new_template, append ? 1 : 0)
         end
 
         # Deletes the Group

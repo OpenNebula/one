@@ -22,9 +22,6 @@
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-float HostXML::hypervisor_mem;
-
 int HostXML::host_num_paths =  4;
 
 const char *HostXML::host_paths[] = {
@@ -50,10 +47,6 @@ void HostXML::init_attributes()
     free_disk   = atoll(((*this)["/HOST/HOST_SHARE/FREE_DISK"])[0].c_str());
 
     running_vms = atoll(((*this)["/HOST/HOST_SHARE/RUNNING_VMS"])[0].c_str());
-
-    //Reserve memory for the hypervisor
-    max_mem = static_cast<int>(hypervisor_mem * static_cast<float>(max_mem));
-
 
     public_cloud = false;
 

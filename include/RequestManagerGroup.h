@@ -104,9 +104,6 @@ protected:
 
     virtual int edit_resource_provider(
             Group* group, int zone_id, int cluster_id, string& error_msg) = 0;
-
-    virtual int edit_acl_rules(
-            int group_id, int zone_id, int cluster_id, string& error_msg) = 0;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -125,9 +122,6 @@ public:
 
     int edit_resource_provider(
             Group* group, int zone_id, int cluster_id, string& error_msg);
-
-    int edit_acl_rules(
-            int group_id, int zone_id, int cluster_id, string& error_msg);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -146,9 +140,6 @@ public:
 
     int edit_resource_provider(
             Group* group, int zone_id, int cluster_id, string& error_msg);
-
-    int edit_acl_rules(
-            int group_id, int zone_id, int cluster_id, string& error_msg);
 };
 
 /* -------------------------------------------------------------------------- */

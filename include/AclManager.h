@@ -38,16 +38,13 @@ class AclManager : public Callbackable, public ActionListener
 public:
 
     /**
-     *
      *  @param _db pointer to the DB
      *  @param zone_id of the Zone
-     * @param is_federation_enabled true is this oned is part of a federation
-     * @param is_federation_slave true is this oned is a federation slave. It
-     * it is true, it will reload periodically rules from the DB
+     *  @param is_federation_slave true is this oned is a federation slave. If
+     *  it is true, it will reload periodically rules from the DB
      *  @param timer_period period to reload the rules
      */
-    AclManager(SqlDB * _db, int zone_id, bool is_federation_enabled,
-            bool is_federation_slave, time_t timer);
+    AclManager(SqlDB * _db, int zone_id, bool is_federation_slave, time_t timer);
 
     virtual ~AclManager();
 
@@ -146,6 +143,13 @@ public:
     void del_cid_rules(int cid);
 
     /**
+     * Deletes rules that apply to this cluster id
+     *
+     * @param zid The zone id
+     */
+    void del_zid_rules(int zid);
+
+    /**
      * Deletes all rules that apply to this resource
      *
      * @param oid Id of the deleted object
@@ -214,8 +218,7 @@ protected:
      *  from DB)
      */
     AclManager(int _zone_id)
-        :zone_id(_zone_id), db(0),lastOID(0), is_federation_enabled(false),
-         is_federation_slave(false)
+        :zone_id(_zone_id), db(0),lastOID(0), is_federation_slave(false)
     {
        pthread_mutex_init(&mutex, 0);
     };
@@ -311,6 +314,13 @@ private:
     void del_resource_matching_rules(
             long long resource_req,
             long long resource_mask);
+
+    /**
+     * Deletes all rules that match the zone mask
+     *
+     * @param zone_req Mask to match
+     */
+    void del_zone_matching_rules(long long zone_req);
 
     // ----------------------------------------
     // Local zone
@@ -419,11 +429,6 @@ private:
     // ----------------------------------------
     // Refresh loop thread
     // ----------------------------------------
-
-    /**
-     * Flag to know if this oned is part of a federation
-     */
-    bool            is_federation_enabled;
 
     /**
      * Flag to refresh the cache periodically

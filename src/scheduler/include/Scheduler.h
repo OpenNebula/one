@@ -60,7 +60,6 @@ protected:
         machines_limit(0),
         dispatch_limit(0),
         host_dispatch_limit(0),
-        hypervisor_mem(0),
         client(0)
     {
         am.addListener(this);
@@ -170,11 +169,6 @@ private:
      *  Limit of virtual machines to be deployed simultaneously to a given host.
      */
     unsigned int host_dispatch_limit;
-
-    /**
-     *  Memory reserved for the hypervisor
-     */
-    float hypervisor_mem;
 
     /**
      *  OpenNebula zone id.

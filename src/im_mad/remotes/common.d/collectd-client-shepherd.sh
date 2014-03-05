@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
@@ -14,47 +16,14 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+(
 
-begin # require 'rubygems'
-    require 'rubygems'
-rescue Exception
-end
+running_pid=$(cat /tmp/one-collectd-client.pid)
+pids=$(ps axuwww | grep /collectd-client.rb | grep -v grep | awk '{ print $2 }' | grep -v "^${running_pid}$")
 
-require 'digest/sha1'
-require 'rexml/document'
-require 'pp'
+if [ -n "$pids" ]; then
+    kill -6 $pids
+fi
 
-require 'opennebula/xml_utils'
-require 'opennebula/client'
-require 'opennebula/error'
-require 'opennebula/virtual_machine'
-require 'opennebula/virtual_machine_pool'
-require 'opennebula/virtual_network'
-require 'opennebula/virtual_network_pool'
-require 'opennebula/image'
-require 'opennebula/image_pool'
-require 'opennebula/user'
-require 'opennebula/user_pool'
-require 'opennebula/host'
-require 'opennebula/host_pool'
-require 'opennebula/template'
-require 'opennebula/template_pool'
-require 'opennebula/group'
-require 'opennebula/group_pool'
-require 'opennebula/acl'
-require 'opennebula/acl_pool'
-require 'opennebula/datastore'
-require 'opennebula/datastore_pool'
-require 'opennebula/cluster'
-require 'opennebula/cluster_pool'
-require 'opennebula/document'
-require 'opennebula/document_pool'
-require 'opennebula/zone'
-require 'opennebula/zone_pool'
-require 'opennebula/system'
+) > /dev/null
 
-module OpenNebula
-
-    # OpenNebula version
-    VERSION = '4.5.80'
-end

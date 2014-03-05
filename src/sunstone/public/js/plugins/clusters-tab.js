@@ -848,7 +848,6 @@ function updateClusterDatastoresView(request, list){
     var list_array = [];
 
     $.each(list,function(){
-        if(this.DATASTORE.ID!=0)
           list_array.push( datastoreElementArray(this));
     });
 

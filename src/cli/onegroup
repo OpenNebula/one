@@ -135,6 +135,24 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    update_desc = <<-EOT.unindent
+        Update the template contents. If a path is not provided the editor will
+        be launched to modify the current content.
+    EOT
+
+    command :update, update_desc, :groupid, [:file, nil],
+    :options=>OpenNebulaHelper::APPEND do
+        helper.perform_action(args[0],options,"modified") do |obj|
+            if options[:append]
+                str = OpenNebulaHelper.append_template(args[0], obj, args[1])
+            else
+                str = OpenNebulaHelper.update_template(args[0], obj, args[1])
+            end
+
+            obj.update(str, options[:append])
+        end
+    end    
+
     delete_desc = <<-EOT.unindent
         Deletes the given Group
     EOT

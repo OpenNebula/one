@@ -363,10 +363,32 @@ public:
      */
     static string version()
     {
-        return "OpenNebula 4.5.0";
+        return "OpenNebula " + code_version();
     };
 
-    static string db_version()
+    /**
+     *  Returns the version of oned
+     * @return
+     */
+    static string code_version()
+    {
+        return "4.5.80"; // bump version
+    }
+
+    /**
+     * Version needed for the DB, shared tables
+     * @return
+     */
+    static string shared_db_version()
+    {
+        return "4.5.0";
+    }
+
+    /**
+     * Version needed for the DB, local tables
+     * @return
+     */
+    static string local_db_version()
     {
         return "4.5.0";
     }

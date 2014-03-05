@@ -118,18 +118,7 @@ string& Cluster::get_ds_location(string &ds_location)
 
 int Cluster::add_datastore(int id, Datastore::DatastoreType ds_type, string& error_msg)
 {
-    if ( id == DatastorePool::SYSTEM_DS_ID )
-    {
-        ostringstream oss;
-        oss << "Datastore "<< DatastorePool::SYSTEM_DS_ID
-            << " cannot be added to any cluster.";
-
-        error_msg = oss.str();
-
-        return -1;
-    }
-
-    int rc = datastores.add_collection_id(id);
+   int rc = datastores.add_collection_id(id);
 
     if ( rc < 0 )
     {

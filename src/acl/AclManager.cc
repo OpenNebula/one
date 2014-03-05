@@ -51,11 +51,9 @@ int AclManager::init_cb(void *nil, int num, char **values, char **names)
 AclManager::AclManager(
     SqlDB * _db,
     int     _zone_id,
-    bool    _is_federation_enabled,
     bool    _is_federation_slave,
     time_t  _timer_period)
         :zone_id(_zone_id), db(_db), lastOID(-1),
-        is_federation_enabled(_is_federation_enabled),
         is_federation_slave(_is_federation_slave), timer_period(_timer_period)
 {
     ostringstream oss;
@@ -85,32 +83,25 @@ AclManager::AclManager(
         string error_str;
 
         // Users in group USERS can create standard resources
-        // @1 VM+NET+IMAGE+TEMPLATE/* CREATE
+        // @1 VM+NET+IMAGE+TEMPLATE+DOCUMENT/* CREATE #<local-zone>
         add_rule(AclRule::GROUP_ID |
                     1,
                  AclRule::ALL_ID |
                     PoolObjectSQL::VM |
                     PoolObjectSQL::NET |
                     PoolObjectSQL::IMAGE |
-                    PoolObjectSQL::TEMPLATE,
-                 AuthRequest::CREATE,
-                 AclRule::ALL_ID,
-                 error_str);
-
-        // Users in USERS can deploy VMs in any HOST
-        // @1 HOST/* MANAGE
-        add_rule(AclRule::GROUP_ID |
-                    1,
-                 AclRule::ALL_ID |
-                    PoolObjectSQL::HOST,
-                 AuthRequest::MANAGE,
-                 AclRule::ALL_ID,
-                 error_str);
-
-        add_rule(AclRule::ALL_ID,
-                 AclRule::ALL_ID |
+                    PoolObjectSQL::TEMPLATE |
                     PoolObjectSQL::DOCUMENT,
                  AuthRequest::CREATE,
+                 AclRule::INDIVIDUAL_ID |
+                     zone_id,
+                 error_str);
+
+        // * ZONE/* USE *
+        add_rule(AclRule::ALL_ID,
+                 AclRule::ALL_ID |
+                    PoolObjectSQL::ZONE,
+                 AuthRequest::USE,
                  AclRule::ALL_ID,
                  error_str);
     }
@@ -529,11 +520,6 @@ int AclManager::add_rule(long long user, long long resource, long long rights,
         return -1;
     }
 
-    if (!is_federation_enabled)
-    {
-        zone = AclRule::INDIVIDUAL_ID | zone_id;
-    }
-
     lock();
 
     if (lastOID == INT_MAX)
@@ -799,6 +785,18 @@ void AclManager::del_cid_rules(int cid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void AclManager::del_zid_rules(int zid)
+{
+    long long request = AclRule::INDIVIDUAL_ID | zid;
+
+    // Delete rules that match
+    // __  __/__  __ #zid
+    del_zone_matching_rules(request);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void AclManager::del_resource_rules(int oid, PoolObjectSQL::ObjectType obj_type)
 {
     long long request = obj_type |
@@ -860,6 +858,35 @@ void AclManager::del_resource_matching_rules(long long resource_req,
     for ( it = acl_rules.begin(); it != acl_rules.end(); it++ )
     {
         if ( ( it->second->resource & resource_mask ) == resource_req )
+        {
+            oids.push_back(it->second->oid);
+        }
+    }
+
+    unlock();
+
+    for ( oid_it = oids.begin() ; oid_it < oids.end(); oid_it++ )
+    {
+        del_rule(*oid_it, error_str);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AclManager::del_zone_matching_rules(long long zone_req)
+{
+    multimap<long long, AclRule *>::iterator        it;
+
+    vector<int>             oids;
+    vector<int>::iterator   oid_it;
+    string                  error_str;
+
+    lock();
+
+    for ( it = acl_rules.begin(); it != acl_rules.end(); it++ )
+    {
+        if ( it->second->zone == zone_req )
         {
             oids.push_back(it->second->oid);
         }

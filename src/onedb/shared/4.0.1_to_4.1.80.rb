@@ -15,9 +15,9 @@
 #--------------------------------------------------------------------------- #
 
 require 'fileutils'
-require 'rexml/document'
 require 'openssl'
 
+require "nokogiri"
 
 module Migrator
     def db_version
@@ -42,29 +42,34 @@ module Migrator
             puts "Please copy the files manually."
         end
 
+        init_log_time()
+
         @db.run "ALTER TABLE user_pool RENAME TO old_user_pool;"
         @db.run "CREATE TABLE user_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
 
-        @db.fetch("SELECT * FROM old_user_pool") do |row|
-            doc = REXML::Document.new(row[:body])
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_user_pool") do |row|
+                doc = Nokogiri::XML(row[:body])
 
-            doc.root.each_element("TEMPLATE") do |e|
-                e.add_element("TOKEN_PASSWORD").text =
-                    OpenSSL::Digest::SHA1.hexdigest( rand().to_s )
+                doc.root.at_xpath("TEMPLATE")
+                    .add_child(doc.create_element("TOKEN_PASSWORD"))
+                    .content = OpenSSL::Digest::SHA1.hexdigest( rand().to_s )
+
+                @db[:user_pool].insert(
+                    :oid        => row[:oid],
+                    :name       => row[:name],
+                    :body       => doc.root.to_s,
+                    :uid        => row[:oid],
+                    :gid        => row[:gid],
+                    :owner_u    => row[:owner_u],
+                    :group_u    => row[:group_u],
+                    :other_u    => row[:other_u])
             end
-
-            @db[:user_pool].insert(
-                :oid        => row[:oid],
-                :name       => row[:name],
-                :body       => doc.root.to_s,
-                :uid        => row[:oid],
-                :gid        => row[:gid],
-                :owner_u    => row[:owner_u],
-                :group_u    => row[:group_u],
-                :other_u    => row[:other_u])
         end
 
         @db.run "DROP TABLE old_user_pool;"
+
+        log_time()
 
         ########################################################################
         # Feature #1613
@@ -73,26 +78,30 @@ module Migrator
         @db.run "ALTER TABLE datastore_pool RENAME TO old_datastore_pool;"
         @db.run "CREATE TABLE datastore_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name));"
 
-        @db.fetch("SELECT * FROM old_datastore_pool") do |row|
-            doc = REXML::Document.new(row[:body])
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_datastore_pool") do |row|
+                doc = Nokogiri::XML(row[:body])
 
-            doc.root.add_element("TOTAL_MB").text = "0"
-            doc.root.add_element("FREE_MB").text = "0"
-            doc.root.add_element("USED_MB").text = "0"
+                doc.root.add_child(doc.create_element("TOTAL_MB")).content = "0"
+                doc.root.add_child(doc.create_element("FREE_MB")).content  = "0"
+                doc.root.add_child(doc.create_element("USED_MB")).content  = "0"
 
-            @db[:datastore_pool].insert(
-                :oid        => row[:oid],
-                :name       => row[:name],
-                :body       => doc.root.to_s,
-                :uid        => row[:uid],
-                :gid        => row[:gid],
-                :owner_u    => row[:owner_u],
-                :group_u    => row[:group_u],
-                :other_u    => row[:other_u],
-                :cid        => row[:cid])
+                @db[:datastore_pool].insert(
+                    :oid        => row[:oid],
+                    :name       => row[:name],
+                    :body       => doc.root.to_s,
+                    :uid        => row[:uid],
+                    :gid        => row[:gid],
+                    :owner_u    => row[:owner_u],
+                    :group_u    => row[:group_u],
+                    :other_u    => row[:other_u],
+                    :cid        => row[:cid])
+            end
         end
 
         @db.run "DROP TABLE old_datastore_pool;"
+
+        log_time()
 
         return true
     end

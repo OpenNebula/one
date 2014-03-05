@@ -96,15 +96,19 @@ REGISTER_CMD=$(cat <<EOF
     set -e
     export PATH=/usr/sbin:/sbin:\$PATH
 
-    # create and format
-    $DD if=/dev/zero of=$TMP_DST bs=1 count=1 seek=${SIZE}M
-    $MKFS_CMD
+    if [ "$FSTYPE" = "raw" ]; then
+        $QEMU_IMG create rbd:$RBD_SOURCE ${SIZE}M
+    else
+        # create and format
+        $DD if=/dev/zero of=$TMP_DST bs=1 count=1 seek=${SIZE}M
+        $MKFS_CMD
 
-    # create rbd
-    $QEMU_IMG convert $TMP_DST rbd:$RBD_SOURCE
+        # create rbd
+        $QEMU_IMG convert $QEMU_IMG_CONVERT_ARGS $TMP_DST rbd:$RBD_SOURCE
 
-    # remove original
-    $RM -f $TMP_DST
+        # remove original
+        $RM -f $TMP_DST
+    fi
 EOF
 )
 

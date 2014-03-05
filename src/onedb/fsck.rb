@@ -19,11 +19,26 @@ include REXML
 require 'ipaddr'
 require 'set'
 
+require 'nokogiri'
+
 module OneDBFsck
     VERSION = "4.5.0"
+    LOCAL_VERSION = "4.5.0"
 
-    def db_version
-        VERSION
+    def check_db_version()
+        db_version = read_db_version()
+
+        if ( db_version[:version] != VERSION ||
+             db_version[:local_version] != LOCAL_VERSION )
+
+            raise <<-EOT
+Version mismatch: fsck file is for version
+Shared: #{VERSION}, Local: #{LOCAL_VERSION}
+
+Current database is version
+Shared: #{db_version[:version]}, Local: #{db_version[:local_version]}
+EOT
+        end
     end
 
     def one_version
@@ -102,10 +117,12 @@ module OneDBFsck
         # VNET/GNAME
         ########################################################################
 
+        init_log_time()
 
         @errors = 0
         puts
 
+        db_version = read_db_version()
 
         ########################################################################
         # pool_control
@@ -113,7 +130,9 @@ module OneDBFsck
 
         tables = ["group_pool", "user_pool", "acl", "image_pool", "host_pool",
             "network_pool", "template_pool", "vm_pool", "cluster_pool",
-            "datastore_pool", "document_pool"]
+            "datastore_pool", "document_pool", "zone_pool"]
+
+        federated_tables = ["group_pool", "user_pool", "acl", "zone_pool"]
 
         tables.each do |table|
             max_oid = -1
@@ -142,7 +161,11 @@ module OneDBFsck
                 log_error("pool_control for table #{table} has last_oid #{control_oid}, but it is #{max_oid}")
 
                 if control_oid != -1
-                    @db.run("UPDATE pool_control SET last_oid=#{max_oid} WHERE tablename='#{table}'")
+                    if db_version[:is_slave] && federated_tables.include?(table)
+                        log_error("^ Needs to be fixed in the master OpenNebula")
+                    else
+                        @db.run("UPDATE pool_control SET last_oid=#{max_oid} WHERE tablename='#{table}'")
+                    end
                 else
                     @db[:pool_control].insert(
                         :tablename  => table,
@@ -151,6 +174,7 @@ module OneDBFsck
             end
         end
 
+        log_time()
 
         ########################################################################
         # Groups
@@ -239,48 +263,65 @@ module OneDBFsck
             end
         end
 
-        users_fix.each do |id, user|
-            @db[:user_pool].where(:oid => id).update(
-                :body => user[:body],
-                :gid => user[:gid])
+        if db_version[:is_slave]
+            log_error("^ User errors need to be fixed in the master OpenNebula")
+        else
+            @db.transaction do
+                users_fix.each do |id, user|
+                    @db[:user_pool].where(:oid => id).update(
+                        :body => user[:body],
+                        :gid => user[:gid])
+                end
+            end
         end
 
+        log_time()
 
+        if !db_version[:is_slave]
+            @db.run "CREATE TABLE group_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+        end
 
-        @db.run "CREATE TABLE group_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+        @db.transaction do
+            @db.fetch("SELECT * from group_pool") do |row|
+                gid = row[:oid]
+                doc = Document.new(row[:body])
 
-        @db.fetch("SELECT * from group_pool") do |row|
-            gid = row[:oid]
-            doc = Document.new(row[:body])
+                users_elem = doc.root.elements.delete("USERS")
 
-            users_elem = doc.root.elements.delete("USERS")
+                users_new_elem = doc.root.add_element("USERS")
 
-            users_new_elem = doc.root.add_element("USERS")
+                group[gid].each do |id|
+                    id_elem = users_elem.elements.delete("ID[.=#{id}]")
 
-            group[gid].each do |id|
-                id_elem = users_elem.elements.delete("ID[.=#{id}]")
+                    if id_elem.nil?
+                        log_error("User #{id} is missing from Group #{gid} users id list")
+                    end
 
-                if id_elem.nil?
-                    log_error("User #{id} is missing from Group #{gid} users id list")
+                    users_new_elem.add_element("ID").text = id.to_s
                 end
 
-                users_new_elem.add_element("ID").text = id.to_s
+                users_elem.each_element("ID") do |id_elem|
+                    log_error("User #{id_elem.text} is in Group #{gid} users id list, but it should not")
+                end
+
+                row[:body] = doc.to_s
+
+                if db_version[:is_slave]
+                    log_error("^ Group errors need to be fixed in the master OpenNebula")
+                else
+                    # commit
+                    @db[:group_pool_new].insert(row)
+                end
             end
-
-            users_elem.each_element("ID") do |id_elem|
-                log_error("User #{id_elem.text} is in Group #{gid} users id list, but it should not")
-            end
-
-            row[:body] = doc.to_s
-
-            # commit
-            @db[:group_pool_new].insert(row)
         end
 
-        # Rename table
-        @db.run("DROP TABLE group_pool")
-        @db.run("ALTER TABLE group_pool_new RENAME TO group_pool")
+        if !db_version[:is_slave]
+            # Rename table
+            @db.run("DROP TABLE group_pool")
+            @db.run("ALTER TABLE group_pool_new RENAME TO group_pool")
+        end
 
+        log_time()
 
         ########################################################################
         # Clusters
@@ -324,249 +365,258 @@ module OneDBFsck
         datastores_fix  = {}
         vnets_fix       = {}
 
-        @db.fetch("SELECT oid,body,cid FROM host_pool") do |row|
-            doc = Document.new(row[:body])
+        @db.transaction do
+            @db.fetch("SELECT oid,body,cid FROM host_pool") do |row|
+                doc = Document.new(row[:body])
 
-            cluster_id = doc.root.get_text('CLUSTER_ID').to_s.to_i
-            cluster_name = doc.root.get_text('CLUSTER')
+                cluster_id = doc.root.get_text('CLUSTER_ID').to_s.to_i
+                cluster_name = doc.root.get_text('CLUSTER')
 
-            if cluster_id != row[:cid]
-                log_error("Host #{row[:oid]} is in cluster #{cluster_id}, but cid column has cluster #{row[:cid]}")
-                hosts_fix[row[:oid]] = {:body => row[:body], :cid => cluster_id}
-            end
+                if cluster_id != row[:cid]
+                    log_error("Host #{row[:oid]} is in cluster #{cluster_id}, but cid column has cluster #{row[:cid]}")
+                    hosts_fix[row[:oid]] = {:body => row[:body], :cid => cluster_id}
+                end
 
-            if cluster_id != -1
-                cluster_entry = cluster[cluster_id]
+                if cluster_id != -1
+                    cluster_entry = cluster[cluster_id]
 
-                if cluster_entry.nil?
-                    log_error("Host #{row[:oid]} is in cluster #{cluster_id}, but it does not exist")
+                    if cluster_entry.nil?
+                        log_error("Host #{row[:oid]} is in cluster #{cluster_id}, but it does not exist")
 
-                    doc.root.each_element('CLUSTER_ID') do |e|
-                        e.text = "-1"
-                    end
-
-                    doc.root.each_element('CLUSTER') do |e|
-                        e.text = ""
-                    end
-
-                    hosts_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
-                else
-                    if cluster_name != cluster_entry[:name]
-                        log_error("Host #{row[:oid]} has a wrong name for cluster #{cluster_id}, #{cluster_name}. It will be changed to #{cluster_entry[:name]}")
-
-                        doc.root.each_element('CLUSTER') do |e|
-                            e.text = cluster_entry[:name]
+                        doc.root.each_element('CLUSTER_ID') do |e|
+                            e.text = "-1"
                         end
 
-                        hosts_fix[row[:oid]] = {:body => doc.to_s, :cid => cluster_id}
-                    end
+                        doc.root.each_element('CLUSTER') do |e|
+                            e.text = ""
+                        end
 
-                    cluster_entry[:hosts] << row[:oid]
-                end
-            end
-        end
-
-        hosts_fix.each do |id, entry|
-            @db[:host_pool].where(:oid => id).update(:body => entry[:body], :cid => entry[:cid])
-        end
-
-
-        @db.fetch("SELECT oid,body,cid FROM datastore_pool") do |row|
-            doc = Document.new(row[:body])
-
-            cluster_id = doc.root.get_text('CLUSTER_ID').to_s.to_i
-            cluster_name = doc.root.get_text('CLUSTER')
-
-            if cluster_id != row[:cid]
-                log_error("Datastore #{row[:oid]} is in cluster #{cluster_id}, but cid column has cluster #{row[:cid]}")
-                hosts_fix[row[:oid]] = {:body => row[:body], :cid => cluster_id}
-            end
-
-            if cluster_id != -1
-                cluster_entry = cluster[cluster_id]
-
-                if cluster_entry.nil?
-                    log_error("Datastore #{row[:oid]} is in cluster #{cluster_id}, but it does not exist")
-
-                    doc.root.each_element('CLUSTER_ID') do |e|
-                        e.text = "-1"
-                    end
-
-                    doc.root.each_element('CLUSTER') do |e|
-                        e.text = ""
-                    end
-
-                    datastores_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
-                else
-                    if doc.root.get_text('TYPE').to_s != "1"
-                        cluster_entry[:datastores] << row[:oid]
+                        hosts_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
                     else
-                        if cluster_entry[:system_ds] == 0
-                            cluster_entry[:datastores] << row[:oid]
-                            cluster_entry[:system_ds] = row[:oid]
-                        else
-                            log_error("System Datastore #{row[:oid]} is in Cluster #{cluster_id}, but it already contains System Datastore #{cluster_entry[:system_ds]}")
-
-                            doc.root.each_element('CLUSTER_ID') do |e|
-                                e.text = "-1"
-                            end
+                        if cluster_name != cluster_entry[:name]
+                            log_error("Host #{row[:oid]} has a wrong name for cluster #{cluster_id}, #{cluster_name}. It will be changed to #{cluster_entry[:name]}")
 
                             doc.root.each_element('CLUSTER') do |e|
-                                e.text = ""
+                                e.text = cluster_entry[:name]
                             end
 
-                            datastores_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
-
-                            next
-                        end
-                    end
-
-                    if cluster_name != cluster_entry[:name]
-                        log_error("Datastore #{row[:oid]} has a wrong name for cluster #{cluster_id}, #{cluster_name}. It will be changed to #{cluster_entry[:name]}")
-
-                        doc.root.each_element('CLUSTER') do |e|
-                            e.text = cluster_entry[:name]
+                            hosts_fix[row[:oid]] = {:body => doc.to_s, :cid => cluster_id}
                         end
 
-                        datastores_fix[row[:oid]] = {:body => doc.to_s, :cid => cluster_id}
+                        cluster_entry[:hosts] << row[:oid]
                     end
                 end
             end
-        end
 
-        datastores_fix.each do |id, entry|
-            @db[:datastore_pool].where(:oid => id).update(:body => entry[:body], :cid => entry[:cid])
-        end
-
-
-        @db.fetch("SELECT oid,body,cid FROM network_pool") do |row|
-            doc = Document.new(row[:body])
-
-            cluster_id = doc.root.get_text('CLUSTER_ID').to_s.to_i
-            cluster_name = doc.root.get_text('CLUSTER')
-
-            if cluster_id != row[:cid]
-                log_error("VNet #{row[:oid]} is in cluster #{cluster_id}, but cid column has cluster #{row[:cid]}")
-                hosts_fix[row[:oid]] = {:body => row[:body], :cid => cluster_id}
+            hosts_fix.each do |id, entry|
+                @db[:host_pool].where(:oid => id).update(:body => entry[:body], :cid => entry[:cid])
             end
 
-            if cluster_id != -1
-                cluster_entry = cluster[cluster_id]
+            log_time()
 
-                if cluster_entry.nil?
-                    log_error("VNet #{row[:oid]} is in cluster #{cluster_id}, but it does not exist")
+            @db.fetch("SELECT oid,body,cid FROM datastore_pool") do |row|
+                doc = Document.new(row[:body])
 
-                    doc.root.each_element('CLUSTER_ID') do |e|
-                        e.text = "-1"
-                    end
+                cluster_id = doc.root.get_text('CLUSTER_ID').to_s.to_i
+                cluster_name = doc.root.get_text('CLUSTER')
 
-                    doc.root.each_element('CLUSTER') do |e|
-                        e.text = ""
-                    end
+                if cluster_id != row[:cid]
+                    log_error("Datastore #{row[:oid]} is in cluster #{cluster_id}, but cid column has cluster #{row[:cid]}")
+                    hosts_fix[row[:oid]] = {:body => row[:body], :cid => cluster_id}
+                end
 
-                    vnets_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
-                else
-                    if cluster_name != cluster_entry[:name]
-                        log_error("VNet #{row[:oid]} has a wrong name for cluster #{cluster_id}, #{cluster_name}. It will be changed to #{cluster_entry[:name]}")
+                if cluster_id != -1
+                    cluster_entry = cluster[cluster_id]
+
+                    if cluster_entry.nil?
+                        log_error("Datastore #{row[:oid]} is in cluster #{cluster_id}, but it does not exist")
+
+                        doc.root.each_element('CLUSTER_ID') do |e|
+                            e.text = "-1"
+                        end
 
                         doc.root.each_element('CLUSTER') do |e|
-                            e.text = cluster_entry[:name]
+                            e.text = ""
+                        end
+
+                        datastores_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
+                    else
+                        if doc.root.get_text('TYPE').to_s != "1"
+                            cluster_entry[:datastores] << row[:oid]
+                        else
+                            if cluster_entry[:system_ds] == 0
+                                cluster_entry[:datastores] << row[:oid]
+                                cluster_entry[:system_ds] = row[:oid]
+                            else
+                                log_error("System Datastore #{row[:oid]} is in Cluster #{cluster_id}, but it already contains System Datastore #{cluster_entry[:system_ds]}")
+
+                                doc.root.each_element('CLUSTER_ID') do |e|
+                                    e.text = "-1"
+                                end
+
+                                doc.root.each_element('CLUSTER') do |e|
+                                    e.text = ""
+                                end
+
+                                datastores_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
+
+                                next
+                            end
+                        end
+
+                        if cluster_name != cluster_entry[:name]
+                            log_error("Datastore #{row[:oid]} has a wrong name for cluster #{cluster_id}, #{cluster_name}. It will be changed to #{cluster_entry[:name]}")
+
+                            doc.root.each_element('CLUSTER') do |e|
+                                e.text = cluster_entry[:name]
+                            end
+
+                            datastores_fix[row[:oid]] = {:body => doc.to_s, :cid => cluster_id}
+                        end
+                    end
+                end
+            end
+
+            datastores_fix.each do |id, entry|
+                @db[:datastore_pool].where(:oid => id).update(:body => entry[:body], :cid => entry[:cid])
+            end
+
+            log_time()
+
+            @db.fetch("SELECT oid,body,cid FROM network_pool") do |row|
+                doc = Document.new(row[:body])
+
+                cluster_id = doc.root.get_text('CLUSTER_ID').to_s.to_i
+                cluster_name = doc.root.get_text('CLUSTER')
+
+                if cluster_id != row[:cid]
+                    log_error("VNet #{row[:oid]} is in cluster #{cluster_id}, but cid column has cluster #{row[:cid]}")
+                    hosts_fix[row[:oid]] = {:body => row[:body], :cid => cluster_id}
+                end
+
+                if cluster_id != -1
+                    cluster_entry = cluster[cluster_id]
+
+                    if cluster_entry.nil?
+                        log_error("VNet #{row[:oid]} is in cluster #{cluster_id}, but it does not exist")
+
+                        doc.root.each_element('CLUSTER_ID') do |e|
+                            e.text = "-1"
+                        end
+
+                        doc.root.each_element('CLUSTER') do |e|
+                            e.text = ""
                         end
 
                         vnets_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
-                    end
+                    else
+                        if cluster_name != cluster_entry[:name]
+                            log_error("VNet #{row[:oid]} has a wrong name for cluster #{cluster_id}, #{cluster_name}. It will be changed to #{cluster_entry[:name]}")
 
-                    cluster_entry[:vnets] << row[:oid]
+                            doc.root.each_element('CLUSTER') do |e|
+                                e.text = cluster_entry[:name]
+                            end
+
+                            vnets_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
+                        end
+
+                        cluster_entry[:vnets] << row[:oid]
+                    end
                 end
+            end
+
+            vnets_fix.each do |id, entry|
+                @db[:network_pool].where(:oid => id).update(:body => entry[:body], :cid => entry[:cid])
             end
         end
 
-        vnets_fix.each do |id, entry|
-            @db[:network_pool].where(:oid => id).update(:body => entry[:body], :cid => entry[:cid])
-        end
-
+        log_time()
 
         @db.run "CREATE TABLE cluster_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
 
-        @db.fetch("SELECT * from cluster_pool") do |row|
-            cluster_id = row[:oid]
-            doc = Document.new(row[:body])
+        @db.transaction do
+            @db.fetch("SELECT * from cluster_pool") do |row|
+                cluster_id = row[:oid]
+                doc = Document.new(row[:body])
 
-            # Hosts
-            hosts_elem = doc.root.elements.delete("HOSTS")
+                # Hosts
+                hosts_elem = doc.root.elements.delete("HOSTS")
 
-            hosts_new_elem = doc.root.add_element("HOSTS")
+                hosts_new_elem = doc.root.add_element("HOSTS")
 
-            cluster[cluster_id][:hosts].each do |id|
-                id_elem = hosts_elem.elements.delete("ID[.=#{id}]")
+                cluster[cluster_id][:hosts].each do |id|
+                    id_elem = hosts_elem.elements.delete("ID[.=#{id}]")
 
-                if id_elem.nil?
-                    log_error("Host #{id} is missing from Cluster #{cluster_id} host id list")
+                    if id_elem.nil?
+                        log_error("Host #{id} is missing from Cluster #{cluster_id} host id list")
+                    end
+
+                    hosts_new_elem.add_element("ID").text = id.to_s
                 end
 
-                hosts_new_elem.add_element("ID").text = id.to_s
-            end
-
-            hosts_elem.each_element("ID") do |id_elem|
-                log_error("Host #{id_elem.text} is in Cluster #{cluster_id} host id list, but it should not")
-            end
-
-
-            # Datastores
-            ds_elem = doc.root.elements.delete("DATASTORES")
-
-            ds_new_elem = doc.root.add_element("DATASTORES")
-
-            doc.root.each_element("SYSTEM_DS") do |e|
-                system_ds = e.text.to_i
-
-                if system_ds != cluster[cluster_id][:system_ds]
-                    log_error("Cluster #{cluster_id} has System Datastore set to #{system_ds}, but it should be #{cluster[cluster_id][:system_ds]}")
-
-                    e.text = cluster[cluster_id][:system_ds].to_s
-                end
-            end
-
-            cluster[cluster_id][:datastores].each do |id|
-                id_elem = ds_elem.elements.delete("ID[.=#{id}]")
-
-                if id_elem.nil?
-                    log_error("Datastore #{id} is missing from Cluster #{cluster_id} datastore id list")
+                hosts_elem.each_element("ID") do |id_elem|
+                    log_error("Host #{id_elem.text} is in Cluster #{cluster_id} host id list, but it should not")
                 end
 
-                ds_new_elem.add_element("ID").text = id.to_s
-            end
 
-            ds_elem.each_element("ID") do |id_elem|
-                log_error("Datastore #{id_elem.text} is in Cluster #{cluster_id} datastore id list, but it should not")
-            end
+                # Datastores
+                ds_elem = doc.root.elements.delete("DATASTORES")
 
+                ds_new_elem = doc.root.add_element("DATASTORES")
 
-            # VNets
-            vnets_elem = doc.root.elements.delete("VNETS")
+                doc.root.each_element("SYSTEM_DS") do |e|
+                    system_ds = e.text.to_i
 
-            vnets_new_elem = doc.root.add_element("VNETS")
+                    if system_ds != cluster[cluster_id][:system_ds]
+                        log_error("Cluster #{cluster_id} has System Datastore set to #{system_ds}, but it should be #{cluster[cluster_id][:system_ds]}")
 
-            cluster[cluster_id][:vnets].each do |id|
-                id_elem = vnets_elem.elements.delete("ID[.=#{id}]")
-
-                if id_elem.nil?
-                    log_error("VNet #{id} is missing from Cluster #{cluster_id} vnet id list")
+                        e.text = cluster[cluster_id][:system_ds].to_s
+                    end
                 end
 
-                vnets_new_elem.add_element("ID").text = id.to_s
+                cluster[cluster_id][:datastores].each do |id|
+                    id_elem = ds_elem.elements.delete("ID[.=#{id}]")
+
+                    if id_elem.nil?
+                        log_error("Datastore #{id} is missing from Cluster #{cluster_id} datastore id list")
+                    end
+
+                    ds_new_elem.add_element("ID").text = id.to_s
+                end
+
+                ds_elem.each_element("ID") do |id_elem|
+                    log_error("Datastore #{id_elem.text} is in Cluster #{cluster_id} datastore id list, but it should not")
+                end
+
+
+                # VNets
+                vnets_elem = doc.root.elements.delete("VNETS")
+
+                vnets_new_elem = doc.root.add_element("VNETS")
+
+                cluster[cluster_id][:vnets].each do |id|
+                    id_elem = vnets_elem.elements.delete("ID[.=#{id}]")
+
+                    if id_elem.nil?
+                        log_error("VNet #{id} is missing from Cluster #{cluster_id} vnet id list")
+                    end
+
+                    vnets_new_elem.add_element("ID").text = id.to_s
+                end
+
+                vnets_elem.each_element("ID") do |id_elem|
+                    log_error("VNet #{id_elem.text} is in Cluster #{cluster_id} vnet id list, but it should not")
+                end
+
+
+                row[:body] = doc.to_s
+
+                # commit
+                @db[:cluster_pool_new].insert(row)
             end
-
-            vnets_elem.each_element("ID") do |id_elem|
-                log_error("VNet #{id_elem.text} is in Cluster #{cluster_id} vnet id list, but it should not")
-            end
-
-
-            row[:body] = doc.to_s
-
-            # commit
-            @db[:cluster_pool_new].insert(row)
         end
+
+        log_time()
 
         # Rename table
         @db.run("DROP TABLE cluster_pool")
@@ -633,45 +683,56 @@ module OneDBFsck
             end
         end
 
-        images_fix.each do |id, body|
-            @db[:image_pool].where(:oid => id).update(:body => body)
+        @db.transaction do
+            images_fix.each do |id, body|
+                @db[:image_pool].where(:oid => id).update(:body => body)
+            end
         end
 
+        log_time()
 
         @db.run "CREATE TABLE datastore_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name));"
 
-        @db.fetch("SELECT * from datastore_pool") do |row|
-            ds_id = row[:oid]
-            doc = Document.new(row[:body])
+        @db.transaction do
+            @db.fetch("SELECT * from datastore_pool") do |row|
+                ds_id = row[:oid]
+                doc = Document.new(row[:body])
 
-            images_elem = doc.root.elements.delete("IMAGES")
+                images_elem = doc.root.elements.delete("IMAGES")
 
-            images_new_elem = doc.root.add_element("IMAGES")
+                images_new_elem = doc.root.add_element("IMAGES")
 
-            datastore[ds_id][:images].each do |id|
-                id_elem = images_elem.elements.delete("ID[.=#{id}]")
+                datastore[ds_id][:images].each do |id|
+                    id_elem = images_elem.elements.delete("ID[.=#{id}]")
 
-                if id_elem.nil?
-                    log_error("Image #{id} is missing from Datastore #{ds_id} image id list")
+                    if id_elem.nil?
+                        log_error(
+                            "Image #{id} is missing from Datastore #{ds_id} "<<
+                            "image id list")
+                    end
+
+                    images_new_elem.add_element("ID").text = id.to_s
                 end
 
-                images_new_elem.add_element("ID").text = id.to_s
+                images_elem.each_element("ID") do |id_elem|
+                    log_error(
+                        "Image #{id_elem.text} is in Cluster #{ds_id} "<<
+                        "image id list, but it should not")
+                end
+
+
+                row[:body] = doc.to_s
+
+                # commit
+                @db[:datastore_pool_new].insert(row)
             end
-
-            images_elem.each_element("ID") do |id_elem|
-                log_error("Image #{id_elem.text} is in Cluster #{ds_id} image id list, but it should not")
-            end
-
-
-            row[:body] = doc.to_s
-
-            # commit
-            @db[:datastore_pool_new].insert(row)
         end
 
         # Rename table
         @db.run("DROP TABLE datastore_pool")
         @db.run("ALTER TABLE datastore_pool_new RENAME TO datastore_pool")
+
+        log_time()
 
         ########################################################################
         # VM Counters for host, image and vnet usage
@@ -691,6 +752,8 @@ module OneDBFsck
                 :rvms   => Set.new
             }
         end
+
+        log_time()
 
         # Init image counters
         @db.fetch("SELECT oid,body FROM image_pool") do |row|
@@ -717,6 +780,8 @@ module OneDBFsck
             end
         end
 
+        log_time()
+
         # Init vnet counters
         @db.fetch("SELECT oid,body FROM network_pool") do |row|
             doc = Document.new(row[:body])
@@ -728,43 +793,46 @@ module OneDBFsck
             }
         end
 
+        log_time()
+
         vms_fix = {}
 
         # Aggregate information of the RUNNING vms
         @db.fetch("SELECT oid,body FROM vm_pool WHERE state<>6") do |row|
-            vm_doc = Document.new(row[:body])
+            vm_doc = Nokogiri::XML(row[:body])
 
-            state     = vm_doc.root.get_text('STATE').to_s.to_i
-            lcm_state = vm_doc.root.get_text('LCM_STATE').to_s.to_i
-
+            state     = vm_doc.root.at_xpath('STATE').text.to_i
+            lcm_state = vm_doc.root.at_xpath('LCM_STATE').text.to_i            
 
             # Images used by this VM
-            vm_doc.root.each_element("TEMPLATE/DISK/IMAGE_ID") do |e|
+            vm_doc.root.xpath("TEMPLATE/DISK/IMAGE_ID").each do |e|
                 img_id = e.text.to_i
 
                 if counters[:image][img_id].nil?
-                    log_error("VM #{row[:oid]} is using Image #{img_id}, but it does not exist")
+                    log_error("VM #{row[:oid]} is using Image #{img_id}, but "<<
+                        "it does not exist")
                 else
                     counters[:image][img_id][:vms].add(row[:oid])
                 end
             end
 
             # VNets used by this VM
-            vm_doc.root.each_element("TEMPLATE/NIC") do |e|
+            vm_doc.root.xpath("TEMPLATE/NIC").each do |e|
                 net_id = nil
-                e.each_element("NETWORK_ID") do |nid|
+                e.xpath("NETWORK_ID").each do |nid|
                     net_id = nid.text.to_i
                 end
 
                 if !net_id.nil?
                     if counters[:vnet][net_id].nil?
-                        log_error("VM #{row[:oid]} is using VNet #{net_id}, but it does not exist")
+                        log_error("VM #{row[:oid]} is using VNet #{net_id}, "<<
+                            "but it does not exist")
                     else
-                        counters[:vnet][net_id][:leases][e.get_text('IP').to_s] =
+                        counters[:vnet][net_id][:leases][e.at_xpath('IP').text] =
                             [
-                                e.get_text('MAC').to_s,                 # MAC
+                                e.at_xpath('MAC').text,                 # MAC
                                 "1",                                    # USED
-                                vm_doc.root.get_text('ID').to_s.to_i    # VID
+                                vm_doc.root.at_xpath('ID').text.to_i    # VID
                             ]
                     end
                 end
@@ -777,41 +845,39 @@ module OneDBFsck
             next if !([3,5,8].include? state)
 
             # Get memory (integer)
-            memory = 0
-            vm_doc.root.each_element("TEMPLATE/MEMORY") { |e|
-                memory = e.text.to_i
-            }
+            memory = vm_doc.root.at_xpath("TEMPLATE/MEMORY").text.to_i
 
             # Get CPU (float)
-            cpu = 0
-            vm_doc.root.each_element("TEMPLATE/CPU") { |e|
-                cpu = e.text.to_f
-            }
+            cpu = vm_doc.root.at_xpath("TEMPLATE/CPU").text.to_f
 
             # Get hostid, hostname
             hid = -1
-            vm_doc.root.each_element("HISTORY_RECORDS/HISTORY[last()]/HID") { |e|
+            vm_doc.root.xpath("HISTORY_RECORDS/HISTORY[last()]/HID").each { |e|
                 hid = e.text.to_i
             }
 
             hostname = ""
-            vm_doc.root.each_element("HISTORY_RECORDS/HISTORY[last()]/HOSTNAME") { |e|
+            vm_doc.root.xpath("HISTORY_RECORDS/HISTORY[last()]/HOSTNAME").each { |e|
                 hostname = e.text
             }
 
             counters_host = counters[:host][hid]
 
             if counters_host.nil?
-                log_error("VM #{row[:oid]} is using Host #{hid}, but it does not exist")
+                log_error("VM #{row[:oid]} is using Host #{hid}, "<<
+                    "but it does not exist")
             else
                 if counters_host[:name] != hostname
-                    log_error("VM #{row[:oid]} has a wrong hostname for Host #{hid}, #{hostname}. It will be changed to #{counters_host[:name]}")
+                    log_error("VM #{row[:oid]} has a wrong hostname for "<<
+                        "Host #{hid}, #{hostname}. It will be changed to "<<
+                        "#{counters_host[:name]}")
 
-                    vm_doc.root.each_element("HISTORY_RECORDS/HISTORY[last()]/HOSTNAME") { |e|
-                        e.text = counters_host[:name]
+                    vm_doc.root.xpath(
+                        "HISTORY_RECORDS/HISTORY[last()]/HOSTNAME").each { |e|
+                        e.content = counters_host[:name]
                     }
 
-                    vms_fix[row[:oid]] = vm_doc.to_s
+                    vms_fix[row[:oid]] = vm_doc.root.to_s
                 end
 
                 counters_host[:memory] += memory
@@ -820,10 +886,13 @@ module OneDBFsck
             end
         end
 
-        vms_fix.each do |id, body|
-            @db[:vm_pool].where(:oid => id).update(:body => body)
+        @db.transaction do
+            vms_fix.each do |id, body|
+                @db[:vm_pool].where(:oid => id).update(:body => body)
+            end
         end
 
+        log_time()
 
         ########################################################################
         # Hosts
@@ -842,72 +911,82 @@ module OneDBFsck
                 "cid INTEGER, UNIQUE(name));"
 
         # Calculate the host's xml and write them to host_pool_new
-        @db[:host_pool].each do |row|
-            host_doc = Document.new(row[:body])
+        @db.transaction do
+            @db[:host_pool].each do |row|
+                host_doc = Document.new(row[:body])
 
-            hid = row[:oid]
+                hid = row[:oid]
 
-            counters_host = counters[:host][hid]
+                counters_host = counters[:host][hid]
 
-            rvms        = counters_host[:rvms].size
-            cpu_usage   = (counters_host[:cpu]*100).to_i
-            mem_usage   = counters_host[:memory]*1024
+                rvms        = counters_host[:rvms].size
+                cpu_usage   = (counters_host[:cpu]*100).to_i
+                mem_usage   = counters_host[:memory]*1024
 
-            # rewrite running_vms
-            host_doc.root.each_element("HOST_SHARE/RUNNING_VMS") {|e|
-                if e.text != rvms.to_s
-                    log_error("Host #{hid} RUNNING_VMS has #{e.text} \tis\t#{rvms}")
-                    e.text = rvms
+                # rewrite running_vms
+                host_doc.root.each_element("HOST_SHARE/RUNNING_VMS") {|e|
+                    if e.text != rvms.to_s
+                        log_error(
+                            "Host #{hid} RUNNING_VMS has #{e.text} \tis\t#{rvms}")
+                        e.text = rvms
+                    end
+                }
+
+
+                # re-do list of VM IDs 
+                vms_elem = host_doc.root.elements.delete("VMS")
+
+                vms_new_elem = host_doc.root.add_element("VMS")
+
+                counters_host[:rvms].each do |id|
+                    id_elem = vms_elem.elements.delete("ID[.=#{id}]")
+
+                    if id_elem.nil?
+                        log_error(
+                            "VM #{id} is missing from Host #{hid} VM id list")
+                    end
+
+                    vms_new_elem.add_element("ID").text = id.to_s
                 end
-            }
 
-
-            # re-do list of VM IDs 
-            vms_elem = host_doc.root.elements.delete("VMS")
-
-            vms_new_elem = host_doc.root.add_element("VMS")
-
-            counters_host[:rvms].each do |id|
-                id_elem = vms_elem.elements.delete("ID[.=#{id}]")
-
-                if id_elem.nil?
-                    log_error("VM #{id} is missing from Host #{hid} VM id list")
+                vms_elem.each_element("ID") do |id_elem|
+                    log_error(
+                        "VM #{id_elem.text} is in Host #{hid} VM id list, "<<
+                        "but it should not")
                 end
 
-                vms_new_elem.add_element("ID").text = id.to_s
+
+                # rewrite cpu
+                host_doc.root.each_element("HOST_SHARE/CPU_USAGE") {|e|
+                    if e.text != cpu_usage.to_s
+                        log_error(
+                            "Host #{hid} CPU_USAGE has #{e.text} "<<
+                            "\tis\t#{cpu_usage}")
+                        e.text = cpu_usage
+                    end
+                }
+
+                # rewrite memory
+                host_doc.root.each_element("HOST_SHARE/MEM_USAGE") {|e|
+                    if e.text != mem_usage.to_s
+                        log_error("Host #{hid} MEM_USAGE has #{e.text} "<<
+                            "\tis\t#{mem_usage}")
+                        e.text = mem_usage
+                    end
+                }
+
+                row[:body] = host_doc.to_s
+
+                # commit
+                @db[:host_pool_new].insert(row)
             end
-
-            vms_elem.each_element("ID") do |id_elem|
-                log_error("VM #{id_elem.text} is in Host #{hid} VM id list, but it should not")
-            end
-
-
-            # rewrite cpu
-            host_doc.root.each_element("HOST_SHARE/CPU_USAGE") {|e|
-                if e.text != cpu_usage.to_s
-                    log_error("Host #{hid} CPU_USAGE has #{e.text} \tis\t#{cpu_usage}")
-                    e.text = cpu_usage
-                end
-            }
-
-            # rewrite memory
-            host_doc.root.each_element("HOST_SHARE/MEM_USAGE") {|e|
-                if e.text != mem_usage.to_s
-                    log_error("Host #{hid} MEM_USAGE has #{e.text} \tis\t#{mem_usage}")
-                    e.text = mem_usage
-                end
-            }
-
-            row[:body] = host_doc.to_s
-
-            # commit
-            @db[:host_pool_new].insert(row)
         end
 
         # Rename table
         @db.run("DROP TABLE host_pool")
         @db.run("ALTER TABLE host_pool_new RENAME TO host_pool")
 
+        log_time()
 
         ########################################################################
         # Image
@@ -926,122 +1005,124 @@ module OneDBFsck
         # Create a new empty table where we will store the new calculated values
         @db.run "CREATE TABLE image_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid) );"
 
-        # Calculate the host's xml and write them to host_pool_new
-        @db[:image_pool].each do |row|
-            doc = Document.new(row[:body])
+        @db.transaction do
+            @db[:image_pool].each do |row|
+                doc = Document.new(row[:body])
 
-            oid = row[:oid]
+                oid = row[:oid]
 
-            persistent = ( doc.root.get_text('PERSISTENT').to_s == "1" )
-            current_state = doc.root.get_text('STATE').to_s.to_i
+                persistent = ( doc.root.get_text('PERSISTENT').to_s == "1" )
+                current_state = doc.root.get_text('STATE').to_s.to_i
 
-            rvms            = counters[:image][oid][:vms].size
-            n_cloning_ops   = counters[:image][oid][:clones].size
+                rvms            = counters[:image][oid][:vms].size
+                n_cloning_ops   = counters[:image][oid][:clones].size
 
-            # rewrite running_vms
-            doc.root.each_element("RUNNING_VMS") {|e|
-                if e.text != rvms.to_s
-                    log_error("Image #{oid} RUNNING_VMS has #{e.text} \tis\t#{rvms}")
-                    e.text = rvms
+                # rewrite running_vms
+                doc.root.each_element("RUNNING_VMS") {|e|
+                    if e.text != rvms.to_s
+                        log_error("Image #{oid} RUNNING_VMS has #{e.text} \tis\t#{rvms}")
+                        e.text = rvms
+                    end
+                }
+
+                # re-do list of VM IDs 
+                vms_elem = doc.root.elements.delete("VMS")
+
+                vms_new_elem = doc.root.add_element("VMS")
+
+                counters[:image][oid][:vms].each do |id|
+                    id_elem = vms_elem.elements.delete("ID[.=#{id}]")
+
+                    if id_elem.nil?
+                        log_error("VM #{id} is missing from Image #{oid} VM id list")
+                    end
+
+                    vms_new_elem.add_element("ID").text = id.to_s
                 end
-            }
 
-            # re-do list of VM IDs 
-            vms_elem = doc.root.elements.delete("VMS")
-
-            vms_new_elem = doc.root.add_element("VMS")
-
-            counters[:image][oid][:vms].each do |id|
-                id_elem = vms_elem.elements.delete("ID[.=#{id}]")
-
-                if id_elem.nil?
-                    log_error("VM #{id} is missing from Image #{oid} VM id list")
+                vms_elem.each_element("ID") do |id_elem|
+                    log_error("VM #{id_elem.text} is in Image #{oid} VM id list, but it should not")
                 end
 
-                vms_new_elem.add_element("ID").text = id.to_s
+
+                if ( persistent && rvms > 0 )
+                    n_cloning_ops = 0
+                    counters[:image][oid][:clones] = Set.new
+                end
+
+                # Check number of clones
+                doc.root.each_element("CLONING_OPS") { |e|
+                    if e.text != n_cloning_ops.to_s
+                        log_error("Image #{oid} CLONING_OPS has #{e.text} \tis\t#{n_cloning_ops}")
+                        e.text = n_cloning_ops
+                    end
+                }
+
+                # re-do list of Images cloning this one
+                clones_elem = doc.root.elements.delete("CLONES")
+
+                clones_new_elem = doc.root.add_element("CLONES")
+
+                counters[:image][oid][:clones].each do |id|
+                    id_elem = clones_elem.elements.delete("ID[.=#{id}]")
+
+                    if id_elem.nil?
+                        log_error("Image #{id} is missing from Image #{oid} CLONES id list")
+                    end
+
+                    clones_new_elem.add_element("ID").text = id.to_s
+                end
+
+                clones_elem.each_element("ID") do |id_elem|
+                    log_error("Image #{id_elem.text} is in Image #{oid} CLONES id list, but it should not")
+                end
+
+
+                # Check state
+
+                state = current_state
+
+                if persistent
+                    if ( rvms > 0 )
+                        state = 8   # USED_PERS
+                    elsif ( n_cloning_ops > 0 )
+                        state = 6   # CLONE
+                    elsif ( current_state == 8 || current_state == 6 )
+                        # rvms == 0 && n_cloning_ops == 0, but image is in state
+                        # USED_PERS or CLONE
+
+                        state = 1   # READY
+                    end
+                else
+                    if ( rvms > 0 || n_cloning_ops > 0 )
+                        state = 2   # USED
+                    elsif ( current_state == 2 )
+                        # rvms == 0 && n_cloning_ops == 0, but image is in state
+                        # USED
+
+                        state = 1   # READY
+                    end
+                end
+
+                doc.root.each_element("STATE") { |e|
+                    if e.text != state.to_s
+                        log_error("Image #{oid} has STATE #{IMAGE_STATES[e.text.to_i]} \tis\t#{IMAGE_STATES[state]}")
+                        e.text = state
+                    end
+                }
+
+                row[:body] = doc.to_s
+
+                # commit
+                @db[:image_pool_new].insert(row)
             end
-
-            vms_elem.each_element("ID") do |id_elem|
-                log_error("VM #{id_elem.text} is in Image #{oid} VM id list, but it should not")
-            end
-
-
-            if ( persistent && rvms > 0 )
-                n_cloning_ops = 0
-                counters[:image][oid][:clones] = Set.new
-            end
-
-            # Check number of clones
-            doc.root.each_element("CLONING_OPS") { |e|
-                if e.text != n_cloning_ops.to_s
-                    log_error("Image #{oid} CLONING_OPS has #{e.text} \tis\t#{n_cloning_ops}")
-                    e.text = n_cloning_ops
-                end
-            }
-
-            # re-do list of Images cloning this one
-            clones_elem = doc.root.elements.delete("CLONES")
-
-            clones_new_elem = doc.root.add_element("CLONES")
-
-            counters[:image][oid][:clones].each do |id|
-                id_elem = clones_elem.elements.delete("ID[.=#{id}]")
-
-                if id_elem.nil?
-                    log_error("Image #{id} is missing from Image #{oid} CLONES id list")
-                end
-
-                clones_new_elem.add_element("ID").text = id.to_s
-            end
-
-            clones_elem.each_element("ID") do |id_elem|
-                log_error("Image #{id_elem.text} is in Image #{oid} CLONES id list, but it should not")
-            end
-
-
-            # Check state
-
-            state = current_state
-
-            if persistent
-                if ( rvms > 0 )
-                    state = 8   # USED_PERS
-                elsif ( n_cloning_ops > 0 )
-                    state = 6   # CLONE
-                elsif ( current_state == 8 || current_state == 6 )
-                    # rvms == 0 && n_cloning_ops == 0, but image is in state
-                    # USED_PERS or CLONE
-
-                    state = 1   # READY
-                end
-            else
-                if ( rvms > 0 || n_cloning_ops > 0 )
-                    state = 2   # USED
-                elsif ( current_state == 2 )
-                    # rvms == 0 && n_cloning_ops == 0, but image is in state
-                    # USED
-
-                    state = 1   # READY
-                end
-            end
-
-            doc.root.each_element("STATE") { |e|
-                if e.text != state.to_s
-                    log_error("Image #{oid} has STATE #{IMAGE_STATES[e.text.to_i]} \tis\t#{IMAGE_STATES[state]}")
-                    e.text = state
-                end
-            }
-
-            row[:body] = doc.to_s
-
-            # commit
-            @db[:image_pool_new].insert(row)
         end
 
         # Rename table
         @db.run("DROP TABLE image_pool")
         @db.run("ALTER TABLE image_pool_new RENAME TO image_pool")
 
+        log_time()
 
         ########################################################################
         # VNet
@@ -1051,107 +1132,111 @@ module OneDBFsck
 
         @db.run "CREATE TABLE leases_new (oid INTEGER, ip BIGINT, body MEDIUMTEXT, PRIMARY KEY(oid,ip));"
 
-        @db[:leases].each do |row|
-            doc = Document.new(row[:body])
+        @db.transaction do
+            @db[:leases].each do |row|
+                doc = Nokogiri::XML(row[:body])
 
-            used = (doc.root.get_text('USED') == "1")
-            vid  = doc.root.get_text('VID').to_s.to_i
+                used = (doc.root.at_xpath('USED').text == "1")
+                vid  = doc.root.at_xpath('VID').text.to_i
 
-            ip_str = IPAddr.new(row[:ip], Socket::AF_INET).to_s
+                ip_str = IPAddr.new(row[:ip], Socket::AF_INET).to_s
 
-            vnet_structure = counters[:vnet][row[:oid]]
+                vnet_structure = counters[:vnet][row[:oid]]
 
-            if vnet_structure.nil?
-                log_error("Table leases contains the lease #{ip_str} for VNet #{row[:oid]}, but it does not exit")
+                if vnet_structure.nil?
+                    log_error("Table leases contains the lease #{ip_str} "<<
+                        "for VNet #{row[:oid]}, but it does not exit")
 
-                next
-            end
-
-            ranged = vnet_structure[:type] == 0
-
-            counter_mac, counter_used, counter_vid =
-                vnet_structure[:leases][ip_str]
-
-            vnet_structure[:leases].delete(ip_str)
-
-            insert = true
-
-            if used && (vid != -1) # Lease used by a VM
-                if counter_mac.nil?
-                    log_error("VNet #{row[:oid]} has used lease #{ip_str} (VM #{vid}) \tbut it is free")
-
-                    if ranged
-                        insert = false
-                    end
-
-                    doc.root.each_element("USED") { |e|
-                        e.text = "0"
-                    }
-
-                    doc.root.each_element("VID") {|e|
-                        e.text = "-1"
-                    }
-
-                    row[:body] = doc.to_s
-
-                elsif vid != counter_vid
-                    log_error("VNet #{row[:oid]} has used lease #{ip_str} (VM #{vid}) \tbut it used by VM #{counter_vid}")
-
-                    doc.root.each_element("VID") {|e|
-                        e.text = counter_vid.to_s
-                    }
-
-                    row[:body] = doc.to_s
+                    next
                 end
-            else # Lease is free or on hold (used=1, vid=-1)
-                if !counter_mac.nil?
-                    if used
-                        log_error("VNet #{row[:oid]} has lease on hold #{ip_str} \tbut it is used by VM #{counter_vid}")
-                    else
-                        log_error("VNet #{row[:oid]} has free lease #{ip_str} \tbut it is used by VM #{counter_vid}")
+
+                ranged = vnet_structure[:type] == 0
+
+                counter_mac, counter_used, counter_vid =
+                    vnet_structure[:leases][ip_str]
+
+                vnet_structure[:leases].delete(ip_str)
+
+                insert = true
+
+                if used && (vid != -1) # Lease used by a VM
+                    if counter_mac.nil?
+                        log_error(
+                            "VNet #{row[:oid]} has used lease #{ip_str} "<<
+                            "(VM #{vid}) \tbut it is free")
+
+                        if ranged
+                            insert = false
+                        end
+
+                        doc.root.at_xpath("USED").content = "0"
+
+                        doc.root.at_xpath("VID").content = "-1"
+
+                        row[:body] = doc.root.to_s
+
+                    elsif vid != counter_vid
+                        log_error(
+                            "VNet #{row[:oid]} has used lease #{ip_str} "<<
+                            "(VM #{vid}) \tbut it used by VM #{counter_vid}")
+
+                        doc.root.at_xpath("VID").content = counter_vid.to_s
+
+                        row[:body] = doc.root.to_s
                     end
+                else # Lease is free or on hold (used=1, vid=-1)
+                    if !counter_mac.nil?
+                        if used
+                            log_error(
+                                "VNet #{row[:oid]} has lease on hold #{ip_str} "<<
+                                "\tbut it is used by VM #{counter_vid}")
+                        else
+                            log_error(
+                                "VNet #{row[:oid]} has free lease #{ip_str} "<<
+                                "\tbut it is used by VM #{counter_vid}")
+                        end
 
-                    doc.root.each_element("USED") { |e|
-                        e.text = "1"
-                    }
+                        doc.root.at_xpath("USED").content = "1"
 
-                    doc.root.each_element("VID") {|e|
-                        e.text = counter_vid.to_s
-                    }
+                        doc.root.at_xpath("VID").content = counter_vid.to_s
 
-                    row[:body] = doc.to_s
+                        row[:body] = doc.root.to_s
+                    end
                 end
-            end
 
-            if (doc.root.get_text('USED') == "1")
-                vnet_structure[:total_leases] += 1
-            end
+                if (doc.root.at_xpath('USED').text == "1")
+                    vnet_structure[:total_leases] += 1
+                end
 
-            # commit
-            @db[:leases_new].insert(row) if insert
+                # commit
+                @db[:leases_new].insert(row) if insert
+            end
         end
+
+        log_time()
 
         # Now insert all the leases left in the hash, i.e. used by a VM in
         # vm_pool, but not in the leases table. This will only happen in
         # ranged networks
+        @db.transaction do
+            counters[:vnet].each do |net_id,vnet_structure|
+                vnet_structure[:leases].each do |ip,array|
+                    mac,used,vid = array
 
-        counters[:vnet].each do |net_id,vnet_structure|
-            vnet_structure[:leases].each do |ip,array|
-                mac,used,vid = array
+                    ip_i = IPAddr.new(ip, Socket::AF_INET).to_i
 
-                ip_i = IPAddr.new(ip, Socket::AF_INET).to_i
+                    # TODO: MAC_PREFIX is now hardcoded to "02:00"
+                    body = "<LEASE><IP>#{ip_i}</IP><MAC_PREFIX>512</MAC_PREFIX><MAC_SUFFIX>#{ip_i}</MAC_SUFFIX><USED>#{used}</USED><VID>#{vid}</VID></LEASE>"
 
-                # TODO: MAC_PREFIX is now hardcoded to "02:00"
-                body = "<LEASE><IP>#{ip_i}</IP><MAC_PREFIX>512</MAC_PREFIX><MAC_SUFFIX>#{ip_i}</MAC_SUFFIX><USED>#{used}</USED><VID>#{vid}</VID></LEASE>"
+                    log_error("VNet #{net_id} has free lease #{ip} \tbut it is used by VM #{vid}")
 
-                log_error("VNet #{net_id} has free lease #{ip} \tbut it is used by VM #{vid}")
+                    vnet_structure[:total_leases] += 1
 
-                vnet_structure[:total_leases] += 1
-
-                @db[:leases_new].insert(
-                    :oid        => net_id,
-                    :ip         => ip_i,
-                    :body       => body)
+                    @db[:leases_new].insert(
+                        :oid        => net_id,
+                        :ip         => ip_i,
+                        :body       => body)
+                end
             end
         end
 
@@ -1160,6 +1245,7 @@ module OneDBFsck
         @db.run("DROP TABLE leases")
         @db.run("ALTER TABLE leases_new RENAME TO leases")
 
+        log_time()
 
         ########################################################################
         # VNet
@@ -1170,31 +1256,34 @@ module OneDBFsck
         # Create a new empty table where we will store the new calculated values
         @db.run "CREATE TABLE network_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name,uid));"
 
-        @db[:network_pool].each do |row|
-            doc = Document.new(row[:body])
+        @db.transaction do
+            @db[:network_pool].each do |row|
+                doc = Document.new(row[:body])
 
-            oid = row[:oid]
+                oid = row[:oid]
 
-            total_leases = counters[:vnet][oid][:total_leases]
+                total_leases = counters[:vnet][oid][:total_leases]
 
-            # rewrite running_vms
-            doc.root.each_element("TOTAL_LEASES") {|e|
-                if e.text != total_leases.to_s
-                    log_error("VNet #{oid} TOTAL_LEASES has #{e.text} \tis\t#{total_leases}")
-                    e.text = total_leases
-                end
-            }
+                # rewrite running_vms
+                doc.root.each_element("TOTAL_LEASES") {|e|
+                    if e.text != total_leases.to_s
+                        log_error("VNet #{oid} TOTAL_LEASES has #{e.text} \tis\t#{total_leases}")
+                        e.text = total_leases
+                    end
+                }
 
-            row[:body] = doc.to_s
+                row[:body] = doc.to_s
 
-            # commit
-            @db[:network_pool_new].insert(row)
+                # commit
+                @db[:network_pool_new].insert(row)
+            end
         end
 
         # Rename table
         @db.run("DROP TABLE network_pool")
         @db.run("ALTER TABLE network_pool_new RENAME TO network_pool")
 
+        log_time()
 
         ########################################################################
         # Users
@@ -1202,32 +1291,47 @@ module OneDBFsck
         # USER QUOTAS
         ########################################################################
 
-        @db.run "ALTER TABLE user_pool RENAME TO old_user_pool;"
-        @db.run "CREATE TABLE user_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+        # This block is not needed for now
+=begin
+        @db.transaction do
+            @db.fetch("SELECT oid FROM user_pool") do |row|
+                found = false
 
-        # oneadmin does not have quotas
-        @db.fetch("SELECT * FROM old_user_pool WHERE oid=0") do |row|
-            @db[:user_pool].insert(row)
+                @db.fetch("SELECT user_oid FROM user_quotas WHERE user_oid=#{row[:oid]}") do |q_row|
+                    found = true
+                end
+
+                if !found
+                    log_error("User #{row[:oid]} does not have a quotas entry")
+
+                    @db.run "INSERT INTO user_quotas VALUES(#{row[:oid]},'<QUOTAS><ID>#{row[:oid]}</ID><DATASTORE_QUOTA></DATASTORE_QUOTA><NETWORK_QUOTA></NETWORK_QUOTA><VM_QUOTA></VM_QUOTA><IMAGE_QUOTA></IMAGE_QUOTA></QUOTAS>');"
+                end
+            end
+        end
+=end
+        @db.run "ALTER TABLE user_quotas RENAME TO old_user_quotas;"
+        @db.run "CREATE TABLE user_quotas (user_oid INTEGER PRIMARY KEY, body MEDIUMTEXT);"
+
+        @db.transaction do
+            # oneadmin does not have quotas
+            @db.fetch("SELECT * FROM old_user_quotas WHERE user_oid=0") do |row|
+                @db[:user_quotas].insert(row)
+            end
+
+            @db.fetch("SELECT * FROM old_user_quotas WHERE user_oid>0") do |row|
+                doc = Nokogiri::XML(row[:body])
+
+                calculate_quotas(doc, "uid=#{row[:user_oid]}", "User")
+
+                @db[:user_quotas].insert(
+                    :user_oid   => row[:user_oid],
+                    :body       => doc.root.to_s)
+            end
         end
 
-        @db.fetch("SELECT * FROM old_user_pool WHERE oid>0") do |row|
-            doc = Document.new(row[:body])
+        @db.run "DROP TABLE old_user_quotas;"
 
-            calculate_quotas(doc, "uid=#{row[:oid]}", "User")
-
-            @db[:user_pool].insert(
-                :oid        => row[:oid],
-                :name       => row[:name],
-                :body       => doc.root.to_s,
-                :uid        => row[:oid],
-                :gid        => row[:gid],
-                :owner_u    => row[:owner_u],
-                :group_u    => row[:group_u],
-                :other_u    => row[:other_u])
-        end
-
-        @db.run "DROP TABLE old_user_pool;"
-
+        log_time()
 
         ########################################################################
         # Groups
@@ -1235,31 +1339,47 @@ module OneDBFsck
         # GROUP QUOTAS
         ########################################################################
 
-        @db.run "ALTER TABLE group_pool RENAME TO old_group_pool;"
-        @db.run "CREATE TABLE group_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+        # This block is not needed for now
+=begin
+        @db.transaction do
+            @db.fetch("SELECT oid FROM group_pool") do |row|
+                found = false
 
-        # oneadmin group does not have quotas
-        @db.fetch("SELECT * FROM old_group_pool WHERE oid=0") do |row|
-            @db[:group_pool].insert(row)
+                @db.fetch("SELECT group_oid FROM group_quotas WHERE group_oid=#{row[:oid]}") do |q_row|
+                    found = true
+                end
+
+                if !found
+                    log_error("Group #{row[:oid]} does not have a quotas entry")
+
+                    @db.run "INSERT INTO group_quotas VALUES(#{row[:oid]},'<QUOTAS><ID>#{row[:oid]}</ID><DATASTORE_QUOTA></DATASTORE_QUOTA><NETWORK_QUOTA></NETWORK_QUOTA><VM_QUOTA></VM_QUOTA><IMAGE_QUOTA></IMAGE_QUOTA></QUOTAS>');"
+                end
+            end
+        end
+=end
+        @db.run "ALTER TABLE group_quotas RENAME TO old_group_quotas;"
+        @db.run "CREATE TABLE group_quotas (group_oid INTEGER PRIMARY KEY, body MEDIUMTEXT);"
+
+        @db.transaction do
+            # oneadmin does not have quotas
+            @db.fetch("SELECT * FROM old_group_quotas WHERE group_oid=0") do |row|
+                @db[:group_quotas].insert(row)
+            end
+
+            @db.fetch("SELECT * FROM old_group_quotas WHERE group_oid>0") do |row|
+                doc = Nokogiri::XML(row[:body])
+
+                calculate_quotas(doc, "gid=#{row[:group_oid]}", "Group")
+
+                @db[:group_quotas].insert(
+                    :group_oid   => row[:group_oid],
+                    :body       => doc.root.to_s)
+            end
         end
 
-        @db.fetch("SELECT * FROM old_group_pool WHERE oid>0") do |row|
-            doc = Document.new(row[:body])
+        @db.run "DROP TABLE old_group_quotas;"
 
-            calculate_quotas(doc, "gid=#{row[:oid]}", "Group")
-
-            @db[:group_pool].insert(
-                :oid        => row[:oid],
-                :name       => row[:name],
-                :body       => doc.root.to_s,
-                :uid        => row[:oid],
-                :gid        => row[:gid],
-                :owner_u    => row[:owner_u],
-                :group_u    => row[:group_u],
-                :other_u    => row[:other_u])
-        end
-
-        @db.run "DROP TABLE old_group_pool;"
+        log_time()
 
         log_total_errors()
 
@@ -1280,10 +1400,10 @@ module OneDBFsck
 
     def calculate_quotas(doc, where_filter, resource)
 
-        oid = doc.root.get_text("ID").to_s.to_i
+        oid = doc.root.at_xpath("ID").text.to_i
 
         # VM quotas
-        cpu_used = 0.0
+        cpu_used = 0
         mem_used = 0
         vms_used = 0
         vol_used = 0
@@ -1295,29 +1415,28 @@ module OneDBFsck
         img_usage = {}
 
         @db.fetch("SELECT body FROM vm_pool WHERE #{where_filter} AND state<>6") do |vm_row|
-            vmdoc = Document.new(vm_row[:body])
+            vmdoc = Nokogiri::XML(vm_row[:body])
 
             # VM quotas
-            vmdoc.root.each_element("TEMPLATE/CPU") { |e|
+            vmdoc.root.xpath("TEMPLATE/CPU").each { |e|
                 # truncate to 2 decimals
-                cpu = (e.text.to_f * 100).to_i / 100.0
+                cpu = (e.text.to_f * 100).to_i
                 cpu_used += cpu
-                cpu_used = (cpu_used * 100).to_i / 100.0
             }
 
-            vmdoc.root.each_element("TEMPLATE/MEMORY") { |e|
+            vmdoc.root.xpath("TEMPLATE/MEMORY").each { |e|
                 mem_used += e.text.to_i
             }
 
-            vmdoc.root.each_element("TEMPLATE/DISK") { |e|
+            vmdoc.root.xpath("TEMPLATE/DISK").each { |e|
                 type = ""
 
-                e.each_element("TYPE") { |t_elem|
+                e.xpath("TYPE").each { |t_elem|
                     type = t_elem.text.upcase
                 }
 
                 if ( type == "SWAP" || type == "FS")
-                    e.each_element("SIZE") { |size_elem|
+                    e.xpath("SIZE").each { |size_elem|
                         vol_used += size_elem.text.to_i
                     }
                 end
@@ -1326,13 +1445,13 @@ module OneDBFsck
             vms_used += 1
 
             # VNet quotas
-            vmdoc.root.each_element("TEMPLATE/NIC/NETWORK_ID") { |e|
+            vmdoc.root.xpath("TEMPLATE/NIC/NETWORK_ID").each { |e|
                 vnet_usage[e.text] = 0 if vnet_usage[e.text].nil?
                 vnet_usage[e.text] += 1
             }
 
             # Image quotas
-            vmdoc.root.each_element("TEMPLATE/DISK/IMAGE_ID") { |e|
+            vmdoc.root.xpath("TEMPLATE/DISK/IMAGE_ID").each { |e|
                 img_usage[e.text] = 0 if img_usage[e.text].nil?
                 img_usage[e.text] += 1
             }
@@ -1342,35 +1461,37 @@ module OneDBFsck
         # VM quotas
 
         vm_elem = nil
-        doc.root.each_element("VM_QUOTA/VM") { |e| vm_elem = e }
+        doc.root.xpath("VM_QUOTA/VM").each { |e| vm_elem = e }
 
         if vm_elem.nil?
-            doc.root.delete_element("VM_QUOTA")
+            doc.root.xpath("VM_QUOTA").each { |e| e.remove }
 
-            vm_quota  = doc.root.add_element("VM_QUOTA")
-            vm_elem   = vm_quota.add_element("VM")
+            vm_quota  = doc.root.add_child(doc.create_element("VM_QUOTA"))
+            vm_elem   = vm_quota.add_child(doc.create_element("VM"))
 
-            vm_elem.add_element("CPU").text         = "-1"
-            vm_elem.add_element("CPU_USED").text    = "0"
+            vm_elem.add_child(doc.create_element("CPU")).content         = "-1"
+            vm_elem.add_child(doc.create_element("CPU_USED")).content    = "0"
 
-            vm_elem.add_element("MEMORY").text      = "-1"
-            vm_elem.add_element("MEMORY_USED").text = "0"
+            vm_elem.add_child(doc.create_element("MEMORY")).content      = "-1"
+            vm_elem.add_child(doc.create_element("MEMORY_USED")).content = "0"
 
-            vm_elem.add_element("VMS").text         = "-1"
-            vm_elem.add_element("VMS_USED").text    = "0"
+            vm_elem.add_child(doc.create_element("VMS")).content         = "-1"
+            vm_elem.add_child(doc.create_element("VMS_USED")).content    = "0"
 
-            vm_elem.add_element("VOLATILE_SIZE").text       = "-1"
-            vm_elem.add_element("VOLATILE_SIZE_USED").text  = "0"
+            vm_elem.add_child(doc.create_element("VOLATILE_SIZE")).content       = "-1"
+            vm_elem.add_child(doc.create_element("VOLATILE_SIZE_USED")).content  = "0"
         end
 
 
-        vm_elem.each_element("CPU_USED") { |e|
+        vm_elem.xpath("CPU_USED").each { |e|
 
             # Because of bug http://dev.opennebula.org/issues/1567 the element
             # may contain a float number in scientific notation.
 
             # Check if the float value or the string representation mismatch,
             # but ignoring the precision
+
+            cpu_used = (cpu_used / 100.0)
 
             different = ( e.text.to_f != cpu_used ||
                 ![sprintf('%.2f', cpu_used), sprintf('%.1f', cpu_used), sprintf('%.0f', cpu_used)].include?(e.text)  )
@@ -1379,51 +1500,51 @@ module OneDBFsck
 
             if different
                 log_error("#{resource} #{oid} quotas: CPU_USED has #{e.text} \tis\t#{cpu_used_str}")
-                e.text = cpu_used_str
+                e.content = cpu_used_str
             end
         }
 
-        vm_elem.each_element("MEMORY_USED") { |e|
+        vm_elem.xpath("MEMORY_USED").each { |e|
             if e.text != mem_used.to_s
                 log_error("#{resource} #{oid} quotas: MEMORY_USED has #{e.text} \tis\t#{mem_used}")
-                e.text = mem_used.to_s
+                e.content = mem_used.to_s
             end
         }
 
-        vm_elem.each_element("VMS_USED") { |e|
+        vm_elem.xpath("VMS_USED").each { |e|
             if e.text != vms_used.to_s
                 log_error("#{resource} #{oid} quotas: VMS_USED has #{e.text} \tis\t#{vms_used}")
-                e.text = vms_used.to_s
+                e.content = vms_used.to_s
             end
         }
 
-        vm_elem.each_element("VOLATILE_SIZE_USED") { |e|
+        vm_elem.xpath("VOLATILE_SIZE_USED").each { |e|
             if e.text != vol_used.to_s
                 log_error("#{resource} #{oid} quotas: VOLATILE_SIZE_USED has #{e.text} \tis\t#{vol_used}")
-                e.text = vol_used.to_s
+                e.content = vol_used.to_s
             end
         }
 
         # VNet quotas
 
         net_quota = nil
-        doc.root.each_element("NETWORK_QUOTA") { |e| net_quota = e }
+        doc.root.xpath("NETWORK_QUOTA").each { |e| net_quota = e }
 
         if net_quota.nil?
-            net_quota = doc.root.add_element("NETWORK_QUOTA")
+            net_quota = doc.root.add_child(doc.create_element("NETWORK_QUOTA"))
         end
 
-        net_quota.each_element("NETWORK") { |net_elem|
-            vnet_id = net_elem.get_text("ID").to_s
+        net_quota.xpath("NETWORK").each { |net_elem|
+            vnet_id = net_elem.at_xpath("ID").text
 
             leases_used = vnet_usage.delete(vnet_id)
 
             leases_used = 0 if leases_used.nil?
 
-            net_elem.each_element("LEASES_USED") { |e|
+            net_elem.xpath("LEASES_USED").each { |e|
                 if e.text != leases_used.to_s
                     log_error("#{resource} #{oid} quotas: VNet #{vnet_id}\tLEASES_USED has #{e.text} \tis\t#{leases_used}")
-                    e.text = leases_used.to_s
+                    e.content = leases_used.to_s
                 end
             }
         }
@@ -1431,34 +1552,34 @@ module OneDBFsck
         vnet_usage.each { |vnet_id, leases_used|
             log_error("#{resource} #{oid} quotas: VNet #{vnet_id}\tLEASES_USED has 0 \tis\t#{leases_used}")
 
-            new_elem = net_quota.add_element("NETWORK")
+            new_elem = net_quota.add_child(doc.create_element("NETWORK"))
 
-            new_elem.add_element("ID").text = vnet_id
-            new_elem.add_element("LEASES").text = "-1"
-            new_elem.add_element("LEASES_USED").text = leases_used.to_s
+            new_elem.add_child(doc.create_element("ID")).content = vnet_id
+            new_elem.add_child(doc.create_element("LEASES")).content = "-1"
+            new_elem.add_child(doc.create_element("LEASES_USED")).content = leases_used.to_s
         }
 
 
         # Image quotas
 
         img_quota = nil
-        doc.root.each_element("IMAGE_QUOTA") { |e| img_quota = e }
+        doc.root.xpath("IMAGE_QUOTA").each { |e| img_quota = e }
 
         if img_quota.nil?
-            img_quota = doc.root.add_element("IMAGE_QUOTA")
+            img_quota = doc.root.add_child(doc.create_element("IMAGE_QUOTA"))
         end
 
-        img_quota.each_element("IMAGE") { |img_elem|
-            img_id = img_elem.get_text("ID").to_s
+        img_quota.xpath("IMAGE").each { |img_elem|
+            img_id = img_elem.at_xpath("ID").text
 
             rvms = img_usage.delete(img_id)
 
             rvms = 0 if rvms.nil?
 
-            img_elem.each_element("RVMS_USED") { |e|
+            img_elem.xpath("RVMS_USED").each { |e|
                 if e.text != rvms.to_s
                     log_error("#{resource} #{oid} quotas: Image #{img_id}\tRVMS has #{e.text} \tis\t#{rvms}")
-                    e.text = rvms.to_s
+                    e.content = rvms.to_s
                 end
             }
         }
@@ -1466,11 +1587,11 @@ module OneDBFsck
         img_usage.each { |img_id, rvms|
             log_error("#{resource} #{oid} quotas: Image #{img_id}\tRVMS has 0 \tis\t#{rvms}")
 
-            new_elem = img_quota.add_element("IMAGE")
+            new_elem = img_quota.add_child(doc.create_element("IMAGE"))
 
-            new_elem.add_element("ID").text = img_id
-            new_elem.add_element("RVMS").text = "-1"
-            new_elem.add_element("RVMS_USED").text = rvms.to_s
+            new_elem.add_child(doc.create_element("ID")).content = img_id
+            new_elem.add_child(doc.create_element("RVMS")).content = "-1"
+            new_elem.add_child(doc.create_element("RVMS_USED")).content = rvms.to_s
         }
 
 
@@ -1479,44 +1600,44 @@ module OneDBFsck
         ds_usage = {}
 
         @db.fetch("SELECT body FROM image_pool WHERE #{where_filter}") do |img_row|
-            img_doc = Document.new(img_row[:body])
+            img_doc = Nokogiri::XML(img_row[:body])
 
-            img_doc.root.each_element("DATASTORE_ID") { |e|
+            img_doc.root.xpath("DATASTORE_ID").each { |e|
                 ds_usage[e.text] = [0,0] if ds_usage[e.text].nil?
                 ds_usage[e.text][0] += 1
 
-                img_doc.root.each_element("SIZE") { |size|
+                img_doc.root.xpath("SIZE").each { |size|
                     ds_usage[e.text][1] += size.text.to_i
                 }
             }
         end
 
         ds_quota = nil
-        doc.root.each_element("DATASTORE_QUOTA") { |e| ds_quota = e }
+        doc.root.xpath("DATASTORE_QUOTA").each { |e| ds_quota = e }
 
         if ds_quota.nil?
-            ds_quota = doc.root.add_element("DATASTORE_QUOTA")
+            ds_quota = doc.root.add_child(doc.create_element("DATASTORE_QUOTA"))
         end
 
-        ds_quota.each_element("DATASTORE") { |ds_elem|
-            ds_id = ds_elem.get_text("ID").to_s
+        ds_quota.xpath("DATASTORE").each { |ds_elem|
+            ds_id = ds_elem.at_xpath("ID").text
 
             images_used,size_used = ds_usage.delete(ds_id)
 
             images_used = 0 if images_used.nil?
             size_used   = 0 if size_used.nil?
 
-            ds_elem.each_element("IMAGES_USED") { |e|
+            ds_elem.xpath("IMAGES_USED").each { |e|
                 if e.text != images_used.to_s
                     log_error("#{resource} #{oid} quotas: Datastore #{ds_id}\tIMAGES_USED has #{e.text} \tis\t#{images_used}")
-                    e.text = images_used.to_s
+                    e.content = images_used.to_s
                 end
             }
 
-            ds_elem.each_element("SIZE_USED") { |e|
+            ds_elem.xpath("SIZE_USED").each { |e|
                 if e.text != size_used.to_s
                     log_error("#{resource} #{oid} quotas: Datastore #{ds_id}\tSIZE_USED has #{e.text} \tis\t#{size_used}")
-                    e.text = size_used.to_s
+                    e.content = size_used.to_s
                 end
             }
         }
@@ -1527,15 +1648,15 @@ module OneDBFsck
             log_error("#{resource} #{oid} quotas: Datastore #{ds_id}\tIMAGES_USED has 0 \tis\t#{images_used}")
             log_error("#{resource} #{oid} quotas: Datastore #{ds_id}\tSIZE_USED has 0 \tis\t#{size_used}")
 
-            new_elem = ds_quota.add_element("DATASTORE")
+            new_elem = ds_quota.add_child(doc.create_element("DATASTORE"))
 
-            new_elem.add_element("ID").text = ds_id
+            new_elem.add_child(doc.create_element("ID")).content = ds_id
 
-            new_elem.add_element("IMAGES").text = "-1"
-            new_elem.add_element("IMAGES_USED").text = images_used.to_s
+            new_elem.add_child(doc.create_element("IMAGES")).content = "-1"
+            new_elem.add_child(doc.create_element("IMAGES_USED")).content = images_used.to_s
 
-            new_elem.add_element("SIZE").text = "-1"
-            new_elem.add_element("SIZE_USED").text = size_used.to_s
+            new_elem.add_child(doc.create_element("SIZE")).content = "-1"
+            new_elem.add_child(doc.create_element("SIZE_USED")).content = size_used.to_s
         }
     end
 end

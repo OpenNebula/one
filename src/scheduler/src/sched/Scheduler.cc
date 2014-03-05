@@ -122,8 +122,6 @@ void Scheduler::start()
 
     conf.get("LIVE_RESCHEDS", live_rescheds);
 
-    conf.get("HYPERVISOR_MEM", hypervisor_mem);
-
     // -----------------------------------------------------------
     // Log system & Configuration File
     // -----------------------------------------------------------
@@ -285,7 +283,7 @@ void Scheduler::start()
     // Pools
     // -------------------------------------------------------------------------
 
-    hpool  = new HostPoolXML(client, hypervisor_mem);
+    hpool  = new HostPoolXML(client);
     clpool = new ClusterPoolXML(client);
     vmpool = new VirtualMachinePoolXML(client,machines_limit,(live_rescheds==1));
 

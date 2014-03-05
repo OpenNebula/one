@@ -103,7 +103,7 @@ DatastorePool::DatastorePool(SqlDB * db):
                 GroupPool::ONEADMIN_ID,
                 UserPool::oneadmin_name,
                 GroupPool::ONEADMIN_NAME,
-                0133,
+                0137,
                 ds_tmpl,
                 &rc,
                 ClusterPool::NONE_CLUSTER_ID,
@@ -137,7 +137,7 @@ DatastorePool::DatastorePool(SqlDB * db):
                 GroupPool::ONEADMIN_ID,
                 UserPool::oneadmin_name,
                 GroupPool::ONEADMIN_NAME,
-                0133,
+                0137,
                 ds_tmpl,
                 &rc,
                 ClusterPool::NONE_CLUSTER_ID,
@@ -240,14 +240,6 @@ int DatastorePool::drop(PoolObjectSQL * objsql, string& error_msg)
     Datastore * datastore = static_cast<Datastore*>(objsql);
 
     int rc;
-
-    // Return error if the datastore is a default one.
-    if( datastore->get_oid() < 100 )
-    {
-        error_msg = "System Datastores (ID < 100) cannot be deleted.";
-        NebulaLog::log("DATASTORE", Log::ERROR, error_msg);
-        return -2;
-    }
 
     if( datastore->get_collection_size() > 0 )
     {

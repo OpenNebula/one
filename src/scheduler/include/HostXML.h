@@ -114,15 +114,6 @@ public:
     int search(const char *name, int& value);
 
     /**
-     *  Sets the memory fraction reserved for the hypervisor. This function
-     *  should be called before using the host pool.
-     */
-    static void set_hypervisor_mem(float mem)
-    {
-        hypervisor_mem = 1.0 - mem;
-    };
-
-    /**
      *  Checks if the host is a remote public cloud
      *    @return true if the host is a remote public cloud
      */
@@ -151,8 +142,6 @@ private:
     bool public_cloud;
 
     // Configuration attributes
-    static float hypervisor_mem; /**< Fraction of memory for the VMs */
-
     static const char *host_paths[]; /**< paths for search function */
 
     static int host_num_paths; /**< number of paths*/

@@ -14,47 +14,16 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+module Migrator
+    def db_version
+        "4.4.1"
+    end
 
-begin # require 'rubygems'
-    require 'rubygems'
-rescue Exception
-end
+    def one_version
+        "OpenNebula 4.4.1"
+    end
 
-require 'digest/sha1'
-require 'rexml/document'
-require 'pp'
-
-require 'opennebula/xml_utils'
-require 'opennebula/client'
-require 'opennebula/error'
-require 'opennebula/virtual_machine'
-require 'opennebula/virtual_machine_pool'
-require 'opennebula/virtual_network'
-require 'opennebula/virtual_network_pool'
-require 'opennebula/image'
-require 'opennebula/image_pool'
-require 'opennebula/user'
-require 'opennebula/user_pool'
-require 'opennebula/host'
-require 'opennebula/host_pool'
-require 'opennebula/template'
-require 'opennebula/template_pool'
-require 'opennebula/group'
-require 'opennebula/group_pool'
-require 'opennebula/acl'
-require 'opennebula/acl_pool'
-require 'opennebula/datastore'
-require 'opennebula/datastore_pool'
-require 'opennebula/cluster'
-require 'opennebula/cluster_pool'
-require 'opennebula/document'
-require 'opennebula/document_pool'
-require 'opennebula/zone'
-require 'opennebula/zone_pool'
-require 'opennebula/system'
-
-module OpenNebula
-
-    # OpenNebula version
-    VERSION = '4.5.80'
+    def up
+        return true
+    end
 end

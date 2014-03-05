@@ -15,7 +15,6 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManagerUser.h"
-#include "NebulaUtil.h"
 
 using namespace std;
 
@@ -70,11 +69,6 @@ int UserChangePassword::user_action(int     user_id,
         return -1;
     }
 
-    if (user->get_auth_driver() == UserPool::CORE_AUTH)
-    {
-        new_pass = one_util::sha1_digest(new_pass);
-    }
-
     int rc = user->set_password(new_pass, error_str);
 
     if ( rc == 0 )
@@ -125,20 +119,20 @@ int UserChangeAuth::user_action(int     user_id,
         return -1;
     }
 
-    if ( !new_pass.empty() )
-    {
-        if ( new_auth == UserPool::CORE_AUTH)
-        {
-            new_pass = one_util::sha1_digest(new_pass);
-        }
+    string old_auth = user->get_auth_driver();
 
-        // The password may be invalid, try to change it first
+    rc = user->set_auth_driver(new_auth, error_str);
+
+    if ( rc == 0 && !new_pass.empty() )
+    {
         rc = user->set_password(new_pass, error_str);
-    }
 
-    if ( rc == 0 )
-    {
-        rc = user->set_auth_driver(new_auth, error_str);
+        if (rc != 0)
+        {
+            string tmp_str;
+
+            user->set_auth_driver(old_auth, tmp_str);
+        }
     }
 
     if ( rc == 0 )

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -43,11 +43,11 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
                 d["NAME"]
             end
 
-            column :ENDPOINT, "Endpoint of the Zone", :left, :size=>50 do |d|
+            column :ENDPOINT, "Endpoint of the Zone", :left, :size=>45 do |d|
                 d["TEMPLATE"]['ENDPOINT']
             end            
 
-            default :ID, :NAME, :ENDPOINT
+            default :CURRENT, :ID, :NAME, :ENDPOINT
         end
 
         table

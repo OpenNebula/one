@@ -214,6 +214,7 @@ string& Group::to_xml_extended(string& xml, bool extended) const
 {
     ostringstream   oss;
     string          collection_xml;
+    string          template_xml;
 
     set<pair<int,int> >::const_iterator it;
 
@@ -221,8 +222,9 @@ string& Group::to_xml_extended(string& xml, bool extended) const
 
     oss <<
     "<GROUP>"    <<
-        "<ID>"   << oid  << "</ID>"   <<
-        "<NAME>" << name << "</NAME>" <<
+        "<ID>"   << oid  << "</ID>"        <<
+        "<NAME>" << name << "</NAME>"      <<
+        obj_template->to_xml(template_xml) <<
         collection_xml;
 
     for (it = providers.begin(); it != providers.end(); it++)
@@ -285,6 +287,19 @@ int Group::from_xml(const string& xml)
     ObjectXML::free_nodes(content);
     content.clear();
 
+    // Get associated metadata for the group
+    ObjectXML::get_nodes("/GROUP/TEMPLATE", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    rc += obj_template->from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
+    content.clear();
+
     // Set of resource providers
     ObjectXML::get_nodes("/GROUP/RESOURCE_PROVIDER", content);
 
@@ -317,6 +332,11 @@ int Group::from_xml(const string& xml)
 
 int Group::add_resource_provider(int zone_id, int cluster_id, string& error_msg)
 {
+    AclManager* aclm = Nebula::instance().get_aclm();
+
+    int rc = 0;
+    long long mask_prefix;
+
     pair<set<pair<int, int> >::iterator,bool> ret;
 
     ret = providers.insert(pair<int,int>(zone_id, cluster_id));
@@ -327,6 +347,56 @@ int Group::add_resource_provider(int zone_id, int cluster_id, string& error_msg)
         return -1;
     }
 
+    if (cluster_id == ClusterPool::ALL_RESOURCES)
+    {
+        mask_prefix = AclRule::ALL_ID;
+    }
+    else
+    {
+        mask_prefix = AclRule::CLUSTER_ID | cluster_id;
+    }
+
+    // @<gid> HOST/%<cid> MANAGE #<zone>
+    rc += aclm->add_rule(
+            AclRule::GROUP_ID |
+            oid,
+
+            mask_prefix |
+            PoolObjectSQL::HOST,
+
+            AuthRequest::MANAGE,
+
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
+            error_msg);
+
+    if (rc < 0)
+    {
+        NebulaLog::log("GROUP",Log::ERROR,error_msg);
+    }
+
+    // @<gid> DATASTORE+NET/%<cid> USE #<zone>
+    rc += aclm->add_rule(
+            AclRule::GROUP_ID |
+            oid,
+
+            mask_prefix |
+            PoolObjectSQL::DATASTORE |
+            PoolObjectSQL::NET,
+
+            AuthRequest::USE,
+
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
+            error_msg);
+
+    if (rc < 0)
+    {
+        NebulaLog::log("GROUP",Log::ERROR,error_msg);
+    }
+
     return 0;
 }
 
@@ -335,11 +405,68 @@ int Group::add_resource_provider(int zone_id, int cluster_id, string& error_msg)
 
 int Group::del_resource_provider(int zone_id, int cluster_id, string& error_msg)
 {
+    AclManager* aclm = Nebula::instance().get_aclm();
+
+    int rc = 0;
+
+    long long mask_prefix;
+
     if( providers.erase(pair<int,int>(zone_id, cluster_id)) != 1 )
     {
         error_msg = "Resource provider is not assigned to this group";
         return -1;
     }
 
+    if (cluster_id == ClusterPool::ALL_RESOURCES)
+    {
+        mask_prefix = AclRule::ALL_ID;
+    }
+    else
+    {
+        mask_prefix = AclRule::CLUSTER_ID | cluster_id;
+    }
+
+    // @<gid> HOST/%<cid> MANAGE #<zid>
+    rc += aclm->del_rule(
+            AclRule::GROUP_ID |
+            oid,
+
+            mask_prefix |
+            PoolObjectSQL::HOST,
+
+            AuthRequest::MANAGE,
+
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
+            error_msg);
+
+    if (rc < 0)
+    {
+        NebulaLog::log("GROUP",Log::ERROR,error_msg);
+    }
+
+    // @<gid> DATASTORE+NET/%<cid> USE #<zid>
+    rc += aclm->del_rule(
+            AclRule::GROUP_ID |
+            oid,
+
+            mask_prefix |
+            PoolObjectSQL::DATASTORE |
+            PoolObjectSQL::NET,
+
+            AuthRequest::USE,
+
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
+            error_msg);
+
+    if (rc < 0)
+    {
+        NebulaLog::log("GROUP",Log::ERROR,error_msg);
+    }
+
     return 0;
 }
+

@@ -300,66 +300,68 @@ void Nebula::start(bool bootstrap_only)
         // Prepare the SystemDB and check versions
         // ---------------------------------------------------------------------
 
+        bool local_bootstrap;
+        bool shared_bootstrap;
+
         NebulaLog::log("ONE",Log::INFO,"Checking database version.");
 
         system_db = new SystemDB(db);
 
-        rc = system_db->check_db_version(is_federation_slave());
-
+        rc = system_db->check_db_version(is_federation_slave(),
+                                         local_bootstrap,
+                                         shared_bootstrap);
         if( rc == -1 )
         {
-            throw runtime_error("Database version mismatch.");
+            throw runtime_error("Database version mismatch. Check oned.log.");
         }
 
-        if( is_federation_slave() && rc == -2 )
-        {
-            throw runtime_error(
-                    "Either the database was not bootstrapped by the "
-                    "federation master, or the replication was "
-                    "not configured.");
-        }
+        rc = 0;
 
-        if( rc == -2 || rc == -3 )
+        if (local_bootstrap)
         {
-            rc = 0;
-
             NebulaLog::log("ONE",Log::INFO,
-                    "Bootstrapping OpenNebula database.");
+                    "Bootstrapping OpenNebula database, stage 1.");
 
             rc += VirtualMachinePool::bootstrap(db);
             rc += HostPool::bootstrap(db);
             rc += VirtualNetworkPool::bootstrap(db);
-            rc += GroupPool::bootstrap(db);
-            rc += UserPool::bootstrap(db);
             rc += ImagePool::bootstrap(db);
             rc += VMTemplatePool::bootstrap(db);
-            rc += AclManager::bootstrap(db);
             rc += DatastorePool::bootstrap(db);
             rc += ClusterPool::bootstrap(db);
             rc += DocumentPool::bootstrap(db);
+
+            // Create the system tables only if bootstrap went well
+            if (rc == 0)
+            {
+                rc += system_db->local_bootstrap();
+            }
+        }
+
+        if (shared_bootstrap)
+        {
+            NebulaLog::log("ONE",Log::INFO,
+                    "Bootstrapping OpenNebula database, stage 2.");
+
+            rc += GroupPool::bootstrap(db);
+            rc += UserPool::bootstrap(db);
+            rc += AclManager::bootstrap(db);
             rc += ZonePool::bootstrap(db);
 
             // Create the system tables only if bootstrap went well
             if ( rc == 0 )
             {
-                if (is_federation_slave())
-                {
-                    rc += system_db->slave_bootstrap();
-                }
-                else
-                {
-                    rc += system_db->bootstrap();
-                }
+                rc += system_db->shared_bootstrap();
             }
 
             // Insert default system attributes
             rc += default_user_quota.insert();
             rc += default_group_quota.insert();
+        }
 
-            if ( rc != 0 )
-            {
-                throw runtime_error("Error bootstrapping database.");
-            }
+        if ( rc != 0 )
+        {
+            throw runtime_error("Error bootstrapping database.");
         }
     }
     catch (exception&)
@@ -378,6 +380,59 @@ void Nebula::start(bool bootstrap_only)
     }
 
     // -----------------------------------------------------------
+    // Close stds, we no longer need them
+    // -----------------------------------------------------------
+
+    fd = open("/dev/null", O_RDWR);
+
+    dup2(fd,0);
+    dup2(fd,1);
+    dup2(fd,2);
+
+    close(fd);
+
+    fcntl(0,F_SETFD,0); // Keep them open across exec funcs
+    fcntl(1,F_SETFD,0);
+    fcntl(2,F_SETFD,0);
+
+    // -----------------------------------------------------------
+    // Block all signals before creating any Nebula thread
+    // -----------------------------------------------------------
+
+    sigfillset(&mask);
+
+    pthread_sigmask(SIG_BLOCK, &mask, NULL);
+
+    // -----------------------------------------------------------
+    //Managers
+    // -----------------------------------------------------------
+
+    MadManager::mad_manager_system_init();
+
+    time_t timer_period;
+    time_t monitor_period;
+
+    nebula_configuration->get("MANAGER_TIMER", timer_period);
+    nebula_configuration->get("MONITORING_INTERVAL", monitor_period);
+
+    // ---- ACL Manager ----
+    try
+    {
+        aclm = new AclManager(db, zone_id, is_federation_slave(), timer_period);
+    }
+    catch (bad_alloc&)
+    {
+        throw;
+    }
+
+    rc = aclm->start();
+
+    if ( rc != 0 )
+    {
+       throw runtime_error("Could not start the ACL Manager");
+    }
+
+    // -----------------------------------------------------------
     // Pools
     // -----------------------------------------------------------
     try
@@ -387,6 +442,7 @@ void Nebula::start(bool bootstrap_only)
         string  mac_prefix;
         string  default_image_type;
         string  default_device_prefix;
+        string  default_cdrom_device_prefix;
 
         time_t  expiration_time;
         time_t  vm_expiration;
@@ -465,10 +521,12 @@ void Nebula::start(bool bootstrap_only)
         nebula_configuration->get("DEFAULT_IMAGE_TYPE", default_image_type);
         nebula_configuration->get("DEFAULT_DEVICE_PREFIX",
                                   default_device_prefix);
-
+        nebula_configuration->get("DEFAULT_CDROM_DEVICE_PREFIX",
+                                  default_cdrom_device_prefix);
         ipool  = new ImagePool(db,
                                default_image_type,
                                default_device_prefix,
+                               default_cdrom_device_prefix,
                                img_restricted_attrs,
                                image_hooks,
                                remotes_location,
@@ -487,41 +545,6 @@ void Nebula::start(bool bootstrap_only)
         throw;
     }
 
-    // -----------------------------------------------------------
-    // Close stds, we no longer need them
-    // -----------------------------------------------------------
-
-    fd = open("/dev/null", O_RDWR);
-
-    dup2(fd,0);
-    dup2(fd,1);
-    dup2(fd,2);
-
-    close(fd);
-
-    fcntl(0,F_SETFD,0); // Keep them open across exec funcs
-    fcntl(1,F_SETFD,0);
-    fcntl(2,F_SETFD,0);
-
-    // -----------------------------------------------------------
-    // Block all signals before creating any Nebula thread
-    // -----------------------------------------------------------
-
-    sigfillset(&mask);
-
-    pthread_sigmask(SIG_BLOCK, &mask, NULL);
-
-    // -----------------------------------------------------------
-    //Managers
-    // -----------------------------------------------------------
-
-    MadManager::mad_manager_system_init();
-
-    time_t timer_period;
-    time_t monitor_period;
-
-    nebula_configuration->get("MANAGER_TIMER", timer_period);
-    nebula_configuration->get("MONITORING_INTERVAL", monitor_period);
 
     // ---- Virtual Machine Manager ----
     try
@@ -696,24 +719,6 @@ void Nebula::start(bool bootstrap_only)
         {
           throw runtime_error("Could not start the Auth Manager");
         }
-    }
-
-    // ---- ACL Manager ----
-    try
-    {
-        aclm = new AclManager(db, zone_id, is_federation_enabled(),
-                is_federation_slave(), timer_period);
-    }
-    catch (bad_alloc&)
-    {
-        throw;
-    }
-
-    rc = aclm->start();
-
-    if ( rc != 0 )
-    {
-       throw runtime_error("Could not start the ACL Manager");
     }
 
     // ---- Image Manager ----

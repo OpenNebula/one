@@ -2355,6 +2355,45 @@ function add_osTab(dialog) {
             '</div>'+
             '<div class="row">'+
               '<div class="large-6 columns">'+
+                '<label class="right inline" for="APIC">'+tr("APIC")+
+                  '<span class="tip">'+tr("Enables the advanced programmable IRQ management.")+'</span>'+
+                '</label>'+
+                '<select id="APIC" name="apic">'+
+                  '<option id="no_apic" name="no_apic" value=""></option>'+
+                    '<option value="yes">'+tr("Yes")+'</option>'+
+                    '<option value="no">'+tr("No")+'</option>'+
+                '</select>'+
+              '</div>'+
+              '<div class="large-6 columns">'+
+                '<label class="right inline" for="HYPERV">'+tr("HYPERV")+
+                  '<span class="tip">'+tr("Add support in the VM for hyper-v features (HYPERV)")+'</span>'+
+                '</label>'+
+                '<select id="HYPERV" name="hyperv">'+
+                  '<option id="no_hyperv" name="no_hyperv" value=""></option>'+
+                    '<option value="yes">'+tr("Yes")+'</option>'+
+                    '<option value="no">'+tr("No")+'</option>'+
+                '</select>'+
+              '</div>'+
+            '</div>'+
+            '<div class="row">'+
+              '<div class="large-6 columns">'+
+                '<label class="right inline" for="LOCALTIME">'+tr("Localtime")+
+                  '<span class="tip">'+tr("The guest clock will be synchronized to the host's configured timezone when booted.")+'</span>'+
+                '</label>'+
+                '<select id="LOCALTIME" name="localtime">'+
+                  '<option id="no_localtime" name="no_localtime" value=""></option>'+
+                    '<option value="yes">'+tr("Yes")+'</option>'+
+                    '<option value="no">'+tr("No")+'</option>'+
+                '</select>'+
+              '</div>'+
+              '<div class="large-6 columns">'+
+                '<label class="right inline" for="DEVICE_MODEL">'+tr("Device model")+
+                  '<span class="tip">'+tr("Used to change the IO emulator in Xen HVM. Only XEN.")+'</span>'+
+                '</label>'+
+              '</div>'+
+            '</div>'+
+            '<div class="row">'+
+              '<div class="large-6 columns">'+
                 '<label for="PCIBRIDGE">'+tr("PCI BRIDGE")+
                   '<span class="tip">'+tr(" Adds a PCI Controller that provides bridge-to-bridge capability, only for VMware.")+'</span>'+
                 '</label>'+

@@ -14,8 +14,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV["ONE_LOCATION"]
-
 if !ONE_LOCATION
     LOG_LOCATION = "/var/log/one"
 else
@@ -31,9 +29,32 @@ include OpenNebula
 
 module OneDBImportSlave
     VERSION = "4.5.0"
+    LOCAL_VERSION = "4.5.0"
 
-    def db_version
-        VERSION
+    def check_db_version(master_db_version, slave_db_version)
+        if ( master_db_version[:version] != VERSION ||
+             master_db_version[:local_version] != LOCAL_VERSION )
+
+            raise <<-EOT
+Version mismatch: import slave file is for version
+Shared: #{VERSION}, Local: #{LOCAL_VERSION}
+
+Current master database is version
+Shared: #{master_db_version[:version]}, Local: #{master_db_version[:local_version]}
+EOT
+        elsif ( slave_db_version[:version] != VERSION ||
+                slave_db_version[:local_version] != LOCAL_VERSION )
+
+            raise <<-EOT
+Version mismatch: import slave file is for version
+Shared: #{VERSION}, Local: #{LOCAL_VERSION}
+
+Current slave database is version
+Shared: #{master_db_version[:version]}, Local: #{master_db_version[:local_version]}
+EOT
+        elsif master_db_version[:is_slave]
+            raise "Master database is an OpenNebula federation slave"
+        end
     end
 
     def one_version
@@ -364,6 +385,28 @@ EOT
                         end
                     end
 
+                    slave_template  = slave_doc.root.at_xpath("TEMPLATE")
+                    master_template = master_doc.root.at_xpath("TEMPLATE")
+
+                    # Avoid duplicated template attributes, removing
+                    # them from the slave template
+                    master_template.children.each do |e|
+                        if slave_template.at_xpath(e.name)
+                            slave_template.at_xpath(e.name).remove
+                        end
+                    end
+
+                    # Add slave template attributes to master template
+                    master_template << slave_template.children
+
+                    # Merge resource providers
+                    slave_doc.root.xpath("RESOURCE_PROVIDER").each do |elem|
+                        # Zone ID must be 0, will be changed to the target ID
+                        elem.at_xpath("ZONE_ID").content = zone_id
+
+                        master_doc.root << elem
+                    end
+
                     @db[:group_pool].where(:oid => new_group[:oid]).update(
                         :body => master_doc.root.to_s)
                 else
@@ -381,6 +424,12 @@ EOT
                     end
 
                     slave_doc.root.add_child(new_elem)
+
+                    # Update resource providers
+                    slave_doc.root.xpath("RESOURCE_PROVIDER").each do |elem|
+                        # Zone ID must be 0, will be changed to the target ID
+                        elem.at_xpath("ZONE_ID").content = zone_id
+                    end
 
                     @db[:group_pool].insert(
                         :oid        => new_group[:oid],
@@ -479,6 +528,19 @@ EOT
                         ((row[:resource] & 0xFFFFFFFF00000000) | groups[gid][:oid])
                     end
 
+                elsif ( (row[:resource] & Acl::RESOURCES["GROUP"]) == Acl::RESOURCES["GROUP"] &&
+                        (row[:resource] & Acl::USERS["UID"]) == Acl::USERS["UID"] )
+
+                    gid = (row[:resource] & 0xFFFFFFFF)
+
+                    if (groups[gid].nil?)
+                        insert = false
+                        error_str = "Group ##{gid} does not exist"
+                    else
+                        new_resource =
+                        ((row[:resource] & 0xFFFFFFFF00000000) | groups[gid][:oid])
+                    end
+
                 elsif ( (row[:resource] & Acl::RESOURCES["USER"]) == Acl::RESOURCES["USER"] &&
                         (row[:resource] & Acl::USERS["UID"]) == Acl::USERS["UID"] )
 
@@ -494,51 +556,62 @@ EOT
 
                 end
 
+                if ( (row[:resource] & Acl::RESOURCES["ZONE"]) == Acl::RESOURCES["ZONE"] &&
+                     (row[:resource] & Acl::USERS["UID"]) == Acl::USERS["UID"] )
+
+                    zid = (row[:resource] & 0xFFFFFFFF)
+
+                    if (zid != 0)
+                        insert = false
+                        error_str = "Zone ##{zid} is unknown for the slave"
+                    else
+                        new_resource = (Acl::USERS["UID"] | zone_id)
+                    end
+                end
+
                 if ( (row[:zone] & Acl::USERS["UID"]) == Acl::USERS["UID"] )
                     zid = (row[:zone] & 0xFFFFFFFF)
 
                     if (zid != 0)
                         insert = false
+                        error_str = "Zone ##{zid} is unknown for the slave"
                     else
                         new_zone = (Acl::USERS["UID"] | zone_id)
                     end
                 end
 
-                if (!insert)
+                # Avoid duplicated ACL rules
+                @db.fetch("SELECT oid FROM acl WHERE "<<
+                    "user = #{new_user} AND resource = #{new_resource} "<<
+                    "AND rights = #{row[:rights]} AND "<<
+                    "zone = #{new_zone}") do |acl_row|
+
+                    insert = false
+                    error_str = "the same Rule exists with ID ##{acl_row[:oid]}"
+                end
+
+
+                if (insert)
+                    last_acl_oid += 1
+
+                    log("Slave DB ACL Rule ##{row[:oid]} imported with ID ##{last_acl_oid}")
+
+                    @db[:acl].insert(
+                        :oid        => last_acl_oid,
+                        :user       => new_user,
+                        :resource   => new_resource,
+                        :rights     => row[:rights],
+                        :zone       => new_zone)
+                else
                     log("Slave DB ACL Rule ##{row[:oid]} will not be "<<
                         "imported to the master DB, " << error_str)
-                else
-                    # Avoid duplicated ACL rules
-                    @db.fetch("SELECT oid FROM acl WHERE "<<
-                        "user = #{new_user} AND resource = #{new_resource} "<<
-                        "AND rights = #{row[:rights]} AND "<<
-                        "zone = #{row[:zone]}") do |acl_row|
-
-                        insert = false
-                    end
-
-                    if (insert)
-                        last_acl_oid += 1
-
-                        log("New ACL Rule imported with ID ##{last_acl_oid}")
-
-                        @db[:acl].insert(
-                            :oid        => last_acl_oid,
-                            :user       => new_user,
-                            :resource   => new_resource,
-                            :rights     => row[:rights],
-                            :zone       => new_zone)
-                    end
                 end
             end
         end
 
         ########################################################################
-        # Init slave_db_versioning table
+        # Cleanup shared tables form slave DB
         ########################################################################
-
-        @slave_db.run "CREATE TABLE slave_db_versioning (oid INTEGER PRIMARY KEY, version VARCHAR(256), timestamp INTEGER, comment VARCHAR(256));"
-        @slave_db.run "INSERT INTO slave_db_versioning (oid, version, timestamp, comment) VALUES (0, '#{VERSION}', #{Time.now.to_i}, 'onedb import tool');"
 
         @slave_db.run "DROP TABLE old_document_pool;"
         @slave_db.run "DROP TABLE old_image_pool;"

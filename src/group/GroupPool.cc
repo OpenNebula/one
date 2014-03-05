@@ -77,6 +77,12 @@ GroupPool::GroupPool(SqlDB * db,
             goto error_groups;
         }
 
+        group = get(rc, true);
+
+        group->add_resource_provider(Nebula::instance().get_zone_id(), ClusterPool::ALL_RESOURCES, error_str);
+
+        group->unlock();
+
         set_update_lastOID(99);
     }
 

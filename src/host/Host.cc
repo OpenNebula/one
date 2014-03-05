@@ -238,7 +238,9 @@ int Host::update_info(Template        &tmpl,
                       bool            &with_vm_info,
                       set<int>        &lost,
                       map<int,string> &found,
-                      const set<int>  &non_shared_ds)
+                      const set<int>  &non_shared_ds,
+                      long long       reserved_cpu,
+                      long long       reserved_mem)
 {
     VectorAttribute*             vatt;
     vector<Attribute*>::iterator it;
@@ -289,10 +291,12 @@ int Host::update_info(Template        &tmpl,
 
     if (isEnabled())
     {
+        get_reserved_capacity(reserved_cpu, reserved_mem);
+
         erase_template_attribute("TOTALCPU", val);
-        host_share.max_cpu = val;
+        host_share.max_cpu = val - reserved_cpu;
         erase_template_attribute("TOTALMEMORY", val);
-        host_share.max_mem = val;
+        host_share.max_mem = val - reserved_mem;
         erase_template_attribute("DS_LOCATION_TOTAL_MB", val);
         host_share.max_disk = val;
 

@@ -437,6 +437,7 @@ void RequestManager::register_xml_methods()
     /* Group related methods */
 
     xmlrpc_c::method * group_allocate_pt;
+    xmlrpc_c::method * group_update_pt;
     xmlrpc_c::method * group_delete_pt;
     xmlrpc_c::method * group_add_provider_pt;
     xmlrpc_c::method * group_del_provider_pt;
@@ -447,6 +448,7 @@ void RequestManager::register_xml_methods()
         group_delete_pt         = new RequestManagerProxy("one.group.delete");
         group_add_provider_pt   = new RequestManagerProxy("one.group.addprovider");
         group_del_provider_pt   = new RequestManagerProxy("one.group.delprovider");
+        group_update_pt         = new RequestManagerProxy("one.group.update");
     }
     else
     {
@@ -454,12 +456,14 @@ void RequestManager::register_xml_methods()
         group_delete_pt         = new GroupDelete();
         group_add_provider_pt   = new GroupAddProvider();
         group_del_provider_pt   = new GroupDelProvider();
+        group_update_pt         = new GroupUpdateTemplate();
     }
 
     xmlrpc_c::methodPtr group_allocate(group_allocate_pt);
     xmlrpc_c::methodPtr group_delete(group_delete_pt);
     xmlrpc_c::methodPtr group_add_provider(group_add_provider_pt);
     xmlrpc_c::methodPtr group_del_provider(group_del_provider_pt);
+    xmlrpc_c::methodPtr group_update(group_update_pt);
 
     xmlrpc_c::methodPtr group_info(new GroupInfo());
     xmlrpc_c::methodPtr group_set_quota(new GroupSetQuota());
@@ -467,12 +471,13 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr group_get_default_quota(new GroupQuotaInfo());
     xmlrpc_c::methodPtr group_set_default_quota(new GroupQuotaUpdate());
 
-    RequestManagerRegistry.addMethod("one.group.allocate",  group_allocate);
-    RequestManagerRegistry.addMethod("one.group.delete",    group_delete);
-    RequestManagerRegistry.addMethod("one.group.info",      group_info);
-    RequestManagerRegistry.addMethod("one.group.quota",     group_set_quota);
+    RequestManagerRegistry.addMethod("one.group.allocate",   group_allocate);
+    RequestManagerRegistry.addMethod("one.group.delete",     group_delete);
+    RequestManagerRegistry.addMethod("one.group.info",       group_info);
+    RequestManagerRegistry.addMethod("one.group.quota",      group_set_quota);
     RequestManagerRegistry.addMethod("one.group.addprovider",group_add_provider);
     RequestManagerRegistry.addMethod("one.group.delprovider",group_del_provider);
+    RequestManagerRegistry.addMethod("one.group.update",     group_update);
 
     RequestManagerRegistry.addMethod("one.grouppool.info",  grouppool_info);
 
