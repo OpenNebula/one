@@ -197,7 +197,7 @@ void GroupEditProvider::request_execute(
         return;
     }
 
-    success_response(cluster_id, att);
+    success_response(group_id, att);
 }
 
 /* -------------------------------------------------------------------------- */
