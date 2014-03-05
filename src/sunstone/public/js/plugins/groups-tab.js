@@ -247,7 +247,7 @@ var group_actions = {
             Sunstone.runAction('Group.showinfo',request.request.data[0][0]);
         },
         error: onError
-    },    
+    },
 
     "Group.delete" : {
         type: "multiple",
@@ -585,13 +585,14 @@ function updateGroupInfo(request,group){
     var info = group.GROUP;
 
     var info_tab = {
-          title: tr("Information"),
+          title: tr("Info"),
+          icon: "fa-info-circle",
           content:
-          '<form class="custom"><div class="">\
-          <div class="six columns">\
-          <table id="info_img_table" class="twelve datatable extended_table">\
+          '<div class="">\
+          <div class="large-6 columns">\
+          <table id="info_img_table" class="dataTable extended_table">\
              <thead>\
-              <tr><th colspan="3">'+tr("Group")+' - '+info.NAME+'</th></tr>\
+              <tr><th colspan="3">'+tr("Information")+'</th></tr>\
              </thead>\
              <tr>\
                 <td class="key_td">'+tr("ID")+'</td>\
@@ -605,13 +606,13 @@ function updateGroupInfo(request,group){
             </tr>\
           </table>\
           </div>\
-          <div class="six columns">'
+          <div class="large-6 columns">'
               + insert_extended_template_table(info.TEMPLATE,
                                                  "Group",
                                                  info.ID,
                                                  "Configuration & Tags") +
           '</div>\
-        </div></form>'
+        </div>'
       }
 
     var  default_group_quotas = Quotas.default_quotas(info.DEFAULT_GROUP_QUOTAS);
