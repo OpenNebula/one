@@ -200,6 +200,13 @@ extern FILE *template_in, *template_out;
                     if ( template_text[yyl] == '\n' )\
                         --template_lineno;\
             }while(0)
+    #define YY_LINENO_REWIND_TO(dst) \
+            do {\
+                const char *p;\
+                for ( p = yy_cp-1; p >= (dst); --p)\
+                    if ( *p == '\n' )\
+                        --template_lineno;\
+            }while(0)
     
 /* Return all but the first "n" matched characters back to the input stream. */
 #define yyless(n) \
@@ -407,7 +414,7 @@ static yyconst flex_int16_t yy_accept[44] =
         0,    0,    0,    0,   12,   11,    2,    2,   11,    6,
         3,    4,    7,   10,   11,   10,    8,    2,    2,    0,
         6,    4,    7,    0,    1,    6,    3,    4,    5,    7,
-       10,    0,    8,   10,    0,   10,    8,    9,    9,    0,
+       10,    0,    8,   10,    0,    9,   10,    8,    9,    0,
         9,    9,    0
     } ;
 
@@ -454,7 +461,7 @@ static yyconst flex_int16_t yy_base[50] =
         0,    0,   11,    0,   46,  100,   21,   31,   38,    0,
        33,   41,    0,    0,   43,   52,    0,    0,    0,   36,
         0,    0,    0,   35,  100,    0,   29,    0,  100,    0,
-        0,    0,    0,   62,   69,   31,    0,    0,  100,   76,
+        0,    0,    0,   62,   69,    0,   31,    0,  100,   76,
         0,   83,  100,   93,   29,   28,   27,   96,   23
     } ;
 
@@ -463,7 +470,7 @@ static yyconst flex_int16_t yy_def[50] =
        43,    1,   43,    3,   43,   43,   43,   43,   44,   45,
        43,   43,   46,   47,   43,   48,   49,    7,    8,   44,
        45,   12,   46,   44,   43,   45,   43,   12,   43,   46,
-       47,   15,   49,   48,   48,   34,   49,   47,   43,   48,
+       47,   15,   49,   48,   48,   47,   34,   49,   43,   48,
        34,   48,    0,   43,   43,   43,   43,   43,   43
     } ;
 
@@ -471,12 +478,12 @@ static yyconst flex_int16_t yy_nxt[112] =
     {   0,
         6,    7,    8,    6,    9,   10,   11,   12,    6,    6,
        13,   14,   15,    6,   16,    6,    6,   14,    6,   17,
-       14,    6,   18,   19,   37,   20,   21,   31,   22,   30,
+       14,    6,   18,   19,   38,   20,   21,   31,   22,   30,
        26,   23,   19,   19,   41,   27,   21,   25,   25,   27,
        25,   23,   28,   29,   32,   43,   43,   43,   43,   43,
-       43,   33,   34,   43,   43,   31,   43,   43,   34,   43,
-       43,   36,   34,   43,   43,   38,   43,   43,   34,   43,
-       43,   36,   39,   43,   43,   43,   43,   43,   40,   42,
+       43,   33,   34,   43,   43,   36,   43,   43,   34,   43,
+       43,   37,   34,   43,   43,   36,   43,   43,   34,   43,
+       43,   37,   39,   43,   43,   43,   43,   43,   40,   42,
        43,   43,   43,   43,   43,   40,   39,   43,   43,   43,
        43,   43,   40,   24,   24,   24,   35,   35,   35,    5,
 
@@ -489,7 +496,7 @@ static yyconst flex_int16_t yy_chk[112] =
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    3,    3,    3,    3,    3,    3,    3,    3,    3,
         3,    3,    7,    7,   49,    7,    7,   47,    7,   46,
-       45,    7,    8,    8,   36,   27,    8,   24,   20,   11,
+       45,    7,    8,    8,   37,   27,    8,   24,   20,   11,
         9,    8,   12,   12,   15,    5,    0,    0,    0,    0,
         0,   15,   16,    0,    0,   16,    0,    0,   16,    0,
         0,   16,   34,    0,    0,   34,    0,    0,   34,    0,
@@ -554,7 +561,7 @@ char *template_text;
                         llocp->first_column = llocp->last_column;   \
                         llocp->last_column += template_leng;
 
-#line 558 "template_parser.c"
+#line 565 "template_parser.c"
 
 #define INITIAL 0
 #define VALUE 1
@@ -735,14 +742,6 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 44 "template_parser.l"
-
-
- /* ------------------------------------------------------------------------- */
- /* Comments (lines with an starting #), and empty lines                      */
- /* ------------------------------------------------------------------------- */
-#line 745 "template_parser.c"
-
 	if ( !(yy_init) )
 		{
 		(yy_init) = 1;
@@ -769,6 +768,15 @@ YY_DECL
 		template__load_buffer_state( );
 		}
 
+	{
+#line 44 "template_parser.l"
+
+
+ /* ------------------------------------------------------------------------- */
+ /* Comments (lines with an starting #), and empty lines                      */
+ /* ------------------------------------------------------------------------- */
+#line 779 "template_parser.c"
+
 	while ( 1 )		/* loops until end-of-file is reached */
 		{
 		yy_cp = (yy_c_buf_p);
@@ -785,7 +793,7 @@ YY_DECL
 yy_match:
 		do
 			{
-			register YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)];
+			register YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)] ;
 			if ( yy_accept[yy_current_state] )
 				{
 				(yy_last_accepting_state) = yy_current_state;
@@ -815,7 +823,7 @@ yy_find_action:
 
 		if ( yy_act != YY_END_OF_BUFFER && yy_rule_can_match_eol[yy_act] )
 			{
-			int yyl;
+			yy_size_t yyl;
 			for ( yyl = 0; yyl < template_leng; ++yyl )
 				if ( template_text[yyl] == '\n' )
 					   
@@ -918,7 +926,7 @@ YY_RULE_SETUP
 #line 89 "template_parser.l"
 ECHO;
 	YY_BREAK
-#line 922 "template_parser.c"
+#line 930 "template_parser.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(VALUE):
 	yyterminate();
@@ -1050,6 +1058,7 @@ case YY_STATE_EOF(VALUE):
 			"fatal flex scanner internal error--no action found" );
 	} /* end of action switch */
 		} /* end of scanning one token */
+	} /* end of user's declarations */
 } /* end of template_lex */
 
 /* yy_get_next_buffer - try to read in a new buffer
@@ -1651,7 +1660,7 @@ YY_BUFFER_STATE template__scan_bytes  (yyconst char * yybytes, yy_size_t  _yybyt
 	YY_BUFFER_STATE b;
 	char *buf;
 	yy_size_t n;
-	int i;
+	yy_size_t i;
     
 	/* Get memory for full buffer, including space for trailing EOB's. */
 	n = _yybytes_len + 2;
