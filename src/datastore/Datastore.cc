@@ -308,6 +308,8 @@ int Datastore::insert(SqlDB *db, string& error_str)
         base_path += "/";
     }
 
+    add_template_attribute("BASE_PATH", base_path);
+
     oss << base_path << oid;
 
     base_path = oss.str();
@@ -571,6 +573,7 @@ int Datastore::replace_template(const string& tmpl_str, string& error_str)
     string new_tm_mad;
     string s_ds_type;
     string new_disk_type_st;
+    string new_base_path;
 
     Image::DiskType new_disk_type;
 
@@ -702,6 +705,28 @@ int Datastore::replace_template(const string& tmpl_str, string& error_str)
     else
     {
         replace_template_attribute("TM_MAD", tm_mad);
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Set the BASE_PATH of the Datastore (class & template)                  */
+    /* ---------------------------------------------------------------------- */
+
+    erase_template_attribute("BASE_PATH", new_base_path);
+
+    if ( !new_base_path.empty())
+    {
+        ostringstream oss;
+
+        if ( new_base_path.at(new_base_path.size()-1) != '/' )
+        {
+            new_base_path += "/";
+        }
+
+        add_template_attribute("BASE_PATH", new_base_path);
+
+        oss << new_base_path << oid;
+
+        base_path = oss.str();
     }
 
     return 0;
