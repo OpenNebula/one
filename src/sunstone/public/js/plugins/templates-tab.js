@@ -3132,7 +3132,7 @@ function add_schedulingTab(dialog) {
                       '<input type="radio"  id="stripingRadio" name="rank_select" value="-RUNNING_VMS"><label for="stripingRadio">'+tr("Stripping")+
                         '<span class="tip">'+tr("Spread the VMs in the cluster nodes")+'</span>'+
                       "</label>"+
-                      '<input type="radio"  id="loadawareRadio" name="rank_select" value="FREECPU"><label for="loadawareRadio">'+tr("Load-aware")+
+                      '<input type="radio"  id="loadawareRadio" name="rank_select" value="FREE_CPU"><label for="loadawareRadio">'+tr("Load-aware")+
                         '<span class="tip">'+tr("Maximize the resources available to VMs in a node")+'</span>'+
                       "</label>"+
                   '</div>'+
@@ -4415,7 +4415,7 @@ function fillTemplatePopUp(template, dialog){
     if (rank) {
         var striping_regexp = /^-RUNNING_VMS$/;
         var packing_regexp = /^RUNNING_VMS$/;
-        var loadaware_regexp = /^FREECPU$/;
+        var loadaware_regexp = /^FREE_CPU$/;
 
         if (striping_regexp.test(rank)) {
             $('input[name="rank_select"]#stripingRadio', req_section).click()
