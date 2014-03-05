@@ -55,6 +55,12 @@ Cluster::Cluster(
     {
         obj_template = new ClusterTemplate;
     }
+
+    string default_cpu; //TODO - Get these two from oned.conf
+    string default_mem;
+
+    add_template_attribute("RESERVED_CPU", default_cpu);
+    add_template_attribute("RESERVED_MEM", default_cpu);
 }
 
 /* -------------------------------------------------------------------------- */

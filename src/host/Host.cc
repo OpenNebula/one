@@ -44,7 +44,13 @@ Host::Host(
         last_monitored(0),
         vm_collection("VMS")
 {
+    string default_cpu; //TODO - Get these two from oned.conf
+    string default_mem;
+
     obj_template = new HostTemplate;
+
+    add_template_attribute("RESERVED_CPU", default_cpu);
+    add_template_attribute("RESERVED_MEM", default_cpu);
 }
 
 Host::~Host()
