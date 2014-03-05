@@ -73,96 +73,100 @@ var datastore_datatable_table_tmpl='<thead>\
     </tbody>'
 
 
-var create_cluster_tmpl ='<div class="panel">\
-    <h3 >\
-      <small id="create_cluster_header">'+tr("Create Cluster")+'</small>\
-      <small id="update_cluster_header">'+tr("Update Cluster")+'</small>\
-    </h3>\
+var create_cluster_tmpl ='<div class="row">\
+    <h3 id="create_cluster_header" class="subheader">'+tr("Create Cluster")+'</h3>\
+    <h3 id="update_cluster_header" class="subheader">'+tr("Update Cluster")+'</h3>\
   </div>\
   <div class="reveal-body">\
   <form id="cluster_create_tabs" class="custom">\
-  <div class="row centered">\
-    <div class="columns eight centered">\
-      <div class="large-2 columns">\
-          <label class="inline right"for="name">' + tr("Name")  + ':</label>\
-      </div>\
-      <div class="large-9 columns">\
-          <input type="text" name="name" id="name" />\
-      </div>\
-      <div class="large-1 columns">\
-          <div class="tip"></div>\
-      </div>\
+  <div class="row">\
+    <div class="large-6 columns">\
+      <label for="name">' + tr("Name")  + '</label>\
+      <input type="text" name="name" id="name" />\
+    </div>\
+    <div class="large-6 columns">\
+      <dl class="tabs right-info-tabs text-center right" data-tab>\
+          <dd class="active"><a href="#tab-hostsTab"><i class="fa fa-hdd-o"></i><br>'+tr("Hosts")+'</a></dd>\
+          <dd><a href="#tab-vnetsTab"><i class="fa fa-upload"></i><br>'+tr("VNets")+'</a></dd>\
+          <dd><a href="#tab-datastoresTab"><i class="fa fa-folder-open"></i><br>'+tr("Datastores")+'</a></dd>\
+      </dl>\
     </div>\
   </div>\
-  <br>\
-    <dl class="tabs" data-tab>\
-        <dd class="active"><a href="#tab-hostsTab">'+tr("Hosts")+'</a></dd>\
-        <dd><a href="#tab-vnetsTab">'+tr("Virtual Networks")+'</a></dd>\
-        <dd><a href="#tab-datastoresTab">'+tr("Datastores")+'</a></dd>\
-    </dl>\
-    <div class="tabs-content">\
+  <div class="tabs-content">\
     <div id="tab-hostsTab" class="active content">\
-      <div class="row collapse">\
-        <div class="large-7 columns">\
+      <div class="row">\
+        <div class="large-8 columns">\
             <button id="refresh_host_table_button_class" class="button small radius secondary action_button" value="ClusterHost.list"><i class="fa fa-refresh" /></button>\
         </div>\
-        <div class="large-5 columns">\
-          <input id="cluster_hosts_search" type="text" placeholder="'+tr("Search")+'"/>\
+        <div class="large-4 columns">\
+          <input id="cluster_hosts_search" type="text" class="search" placeholder="'+tr("Search")+'"/>\
         </div>\
       </div>\
-      <div id="datatable_cluster_hosts_div">\
-            <table id="datatable_cluster_hosts" class="datatable twelve">' + host_datatable_table_tmpl + '</table></div>\
-      <br>\
-      <div id="selected_hosts_div">\
-        <span id="select_cluster_hosts" class="radius secondary label">'+tr("Please select one or more hosts from the list")+'</span>\
-        <span id="cluster_hosts_selected" class="radius secondary label hidden">'+tr("You selected the following hosts:")+'</span>\
+      <div id="datatable_cluster_hosts_div" class="row">\
+        <div class="large-12 columns">\
+            <table id="datatable_cluster_hosts" class="datatable twelve">' + host_datatable_table_tmpl + '</table>\
+        </div>\
+      </div>\
+      <div class="row">\
+        <div id="selected_hosts_div" class="large-12 columns">\
+          <span id="select_cluster_hosts" class="radius secondary label">'+tr("Please select one or more hosts from the list")+'</span>\
+          <span id="cluster_hosts_selected" class="radius secondary label hidden">'+tr("You selected the following hosts:")+'</span>\
+        </div>\
       </div>\
     </div>\
     <div id="tab-vnetsTab" class="content">\
-      <div class="row collapse">\
-        <div class="large-7 columns">\
+      <div class="row">\
+        <div class="large-8 columns">\
             <button id="refresh_vnet_table_button_class" class="button small radius secondary action_button" value="ClusterVN.list"><i class="fa fa-refresh" /></button>\
         </div>\
-        <div class="large-5 columns">\
-          <input id="cluster_vnets_search" type="text" placeholder="'+tr("Search")+'"/>\
+        <div class="large-4 columns">\
+          <input id="cluster_vnets_search" type="text" class="search" placeholder="'+tr("Search")+'"/>\
         </div>\
       </div>\
       <div id="datatable_cluster_vnets_div">\
-            <table id="datatable_cluster_vnets" class="table twelve">' + vnet_datatable_table_tmpl + '</table></div>\
+        <div class="large-12 columns">\
+            <table id="datatable_cluster_vnets" class="table twelve">' + vnet_datatable_table_tmpl + '</table>\
+        </div>\
+      </div>\
       <br>\
-      <div id="selected_vnets_div">\
-        <span id="select_cluster_vnets" class="radius secondary label">'+tr("Please select one or more vnets from the list")+'</span>\
-        <span id="cluster_vnets_selected" class="radius secondary label hidden">'+tr("You selected the following vnets:")+'</span>\
+      <div class="row">\
+        <div id="selected_vnets_div" class="large-12 columns">\
+          <span id="select_cluster_vnets" class="radius secondary label">'+tr("Please select one or more vnets from the list")+'</span>\
+          <span id="cluster_vnets_selected" class="radius secondary label hidden">'+tr("You selected the following vnets:")+'</span>\
+        </div>\
       </div>\
     </div>\
     <div id="tab-datastoresTab" class="content">\
-      <div class="row collapse">\
-        <div class="large-7 columns">\
+      <div class="row">\
+        <div class="large-8 columns">\
             <button id="refresh_datastore_table_button_class" class="button small radius secondary action_button" value="ClusterDS.list"><i class="fa fa-refresh" /></button>\
         </div>\
-        <div class="large-5 columns">\
-          <input id="cluster_datastores_search" type="text" placeholder="'+tr("Search")+'"/>\
+        <div class="large-4 columns">\
+          <input id="cluster_datastores_search" type="text" class="search" placeholder="'+tr("Search")+'"/>\
         </div>\
       </div>\
       <div id="datatable_cluster_datastores_div">\
-            <table id="datatable_cluster_datastores" class="table twelve">' + datastore_datatable_table_tmpl + '</table></div>\
-      <br>\
-      <div id="selected_datastores_div">\
-        <span id="select_cluster_datastores" class="radius secondary label">'+tr("Please select one or more datastores from the list")+'</span>\
-        <span id="cluster_datastores_selected" class="radius secondary label hidden">'+tr("You selected the following datastores:")+'</span>\
+        <div class="large-12 columns">\
+            <table id="datatable_cluster_datastores" class="table twelve">' + datastore_datatable_table_tmpl + '</table>\
+        </div>\
+      </div>\
+      <div class="row">\
+        <div id="selected_datastores_div" class="large-12 columns">\
+          <span id="select_cluster_datastores" class="radius secondary label">'+tr("Please select one or more datastores from the list")+'</span>\
+          <span id="cluster_datastores_selected" class="radius secondary label hidden">'+tr("You selected the following datastores:")+'</span>\
+        </div>\
       </div>\
     </div>\
-    </div>\
-  </form>\
   </div>\
-    <div class="reveal-footer">\
-    <hr>\
-    <div class="form_buttons row">\
-        <button class="button success right radius" type="submit" id="create_cluster_submit" value="OpenNebula.Cluster.create">' + tr("Create") + '</button>\
-        <button class="button right radius" type="submit" id="update_cluster_submit">' + tr("Update") + '</button>\
-    </div>\
-    </div>\
-        <a class="close-reveal-modal">&#215;</a>';
+</form>\
+</div>\
+<div class="reveal-footer">\
+  <div class="form_buttons row">\
+      <button class="button success right radius" type="submit" id="create_cluster_submit" value="OpenNebula.Cluster.create">' + tr("Create") + '</button>\
+      <button class="button right radius" type="submit" id="update_cluster_submit">' + tr("Update") + '</button>\
+  </div>\
+</div>\
+<a class="close-reveal-modal">&#215;</a>';
 
 // Common utils for datatatables
   // Holds the selected items
@@ -501,7 +505,7 @@ function popUpUpdateClusterDialog(){
     if (dialog)
     {
       dialog.remove();
-      dialogs_context.append('<div title=\"'+tr("Update cluster")+'\" id="create_cluster_dialog"></div>');
+      dialogs_context.append('<div id="create_cluster_dialog"></div>');
     }
 
     reset_counters;
@@ -528,15 +532,18 @@ function popUpUpdateClusterDialog(){
 
     setupCreateClusterDialog();
 
+    // Activate update button
+    $('#create_cluster_submit',$create_cluster_dialog).hide();
+    $('#update_cluster_submit',$create_cluster_dialog).show();
+    $('#create_cluster_header',$create_cluster_dialog).hide();
+    $('#update_cluster_header',$create_cluster_dialog).show();
+
     Sunstone.runAction("ClusterHost.list");
     Sunstone.runAction("ClusterVN.list");
     Sunstone.runAction("ClusterDS.list");
     $create_cluster_dialog.foundation().foundation('reveal', 'open');
 
-    $('#create_cluster_dialog').attr('title','Update Cluster');
-
     return false;
-
 }
 
 // Fill update dialog with loaded properties
@@ -563,12 +570,6 @@ function fillPopPup(request,response){
   {
     ds_ids = [ds_ids];
   }
-
-  // Activate update button
-  $('#create_cluster_submit',dialog).hide();
-  $('#update_cluster_submit',dialog).show();
-  $('#create_cluster_header',dialog).hide();
-  $('#update_cluster_header',dialog).show();
 
   // Fill in the name
   $('#name',dialog).val(name);
