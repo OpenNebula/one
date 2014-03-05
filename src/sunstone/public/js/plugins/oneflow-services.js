@@ -911,8 +911,13 @@ var service_actions = {
     "Service.refresh" : {
         type: "custom",
         call: function () {
+          var tab = dataTable_services.parents(".tab");
+          if (Sunstone.rightInfoVisible(tab)) {
+            Sunstone.runAction("Service.showinfo", Sunstone.rightInfoResourceId(tab))
+          } else {
             waitingNodes(dataTable_services);
             Sunstone.runAction("Service.list");
+          }
         }
     },
 

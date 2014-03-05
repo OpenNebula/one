@@ -177,8 +177,13 @@ var host_actions = {
     "Host.refresh" : {
         type: "custom",
         call: function(){
+          var tab = dataTable_hosts.parents(".tab");
+          if (Sunstone.rightInfoVisible(tab)) {
+            Sunstone.runAction("Host.showinfo", Sunstone.rightInfoResourceId(tab))
+          } else {
             waitingNodes(dataTable_hosts);
             Sunstone.runAction("Host.list");
+          }
         },
         error: onError
     },
@@ -251,41 +256,6 @@ var host_actions = {
         },
         error: hostMonitorError
     },
-/*
-    "Host.pool_monitor" : {
-        type: "monitor_global",
-        call : OpenNebula.Host.pool_monitor,
-        callback: function(req,response) {
-            var host_dashboard_graphs = [
-            {
-                monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU",
-                labels : tr("Allocated")+","+tr("Real")+","+tr("Total"),
-                humanize_figures : false,
-                div_graph : $("#dash_host_cpu_graph", $dashboard)
-                //div_legend : $("#dash_host_cpu_legend", $dashboard)
-            },
-            {
-                monitor_resources : "HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM",
-                labels : tr("Allocated")+","+tr("Real")+","+tr("Total"),
-                humanize_figures : true,
-                div_graph : $("#dash_host_mem_graph", $dashboard)
-            }
-            ];
-
-            for(var i=0; i<host_dashboard_graphs.length; i++) {
-                plot_totals(
-                    response,
-                    host_dashboard_graphs[i]
-                );
-            }
-
-            // TODO: refresh individual info panel graphs with this new data?
-        },
-
-        // TODO: ignore error, or set message similar to hostMonitorError?
-        error: onError
-    },
-*/
     "Host.update_template" : {
         type: "single",
         call: OpenNebula.Host.update,

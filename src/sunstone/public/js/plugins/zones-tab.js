@@ -140,8 +140,13 @@ var zone_actions = {
     "Zone.refresh" : {
         type: "custom",
         call: function(){
+          var tab = dataTable_zones.parents(".tab");
+          if (Sunstone.rightInfoVisible(tab)) {
+            Sunstone.runAction("Zone.showinfo", Sunstone.rightInfoResourceId(tab))
+          } else {
             waitingNodes(dataTable_zones);
             Sunstone.runAction("Zone.list");
+          }
         },
         error: onError
     },

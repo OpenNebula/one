@@ -365,8 +365,13 @@ var datastore_actions = {
     "Datastore.refresh" : {
         type: "custom",
         call: function(){
+          var tab = dataTable_datastores.parents(".tab");
+          if (Sunstone.rightInfoVisible(tab)) {
+            Sunstone.runAction("Datastore.showinfo", Sunstone.rightInfoResourceId(tab))
+          } else {
             waitingNodes(dataTable_datastores);
             Sunstone.runAction("Datastore.list");
+          }
         },
         error: onError
     },

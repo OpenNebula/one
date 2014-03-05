@@ -467,8 +467,13 @@ var vnet_actions = {
     "Network.refresh" : {
         type: "custom",
         call: function(){
+          var tab = dataTable_vNetworks.parents(".tab");
+          if (Sunstone.rightInfoVisible(tab)) {
+            Sunstone.runAction("Network.showinfo", Sunstone.rightInfoResourceId(tab))
+          } else {
             waitingNodes(dataTable_vNetworks);
             Sunstone.runAction("Network.list");
+          }
         }
     },
 

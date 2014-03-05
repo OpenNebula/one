@@ -442,8 +442,13 @@ var vm_actions = {
     "VM.refresh" : {
         type: "custom",
         call : function (){
+          var tab = dataTable_vMachines.parents(".tab");
+          if (Sunstone.rightInfoVisible(tab)) {
+            Sunstone.runAction("VM.showinfo", Sunstone.rightInfoResourceId(tab))
+          } else {
             waitingNodes(dataTable_vMachines);
             Sunstone.runAction("VM.list");
+          }
         }
     },
 
@@ -1145,9 +1150,6 @@ Sunstone.addInfoPanel('vm_info_panel',vm_info_panel);
 
 
 function vmElements() {
-  if (Sunstone.rightInfoVisible($('#vms-tab'))) {
-    return [Sunstone.rightInfoResourceId($('#vms-tab'))];
-  }
     return getSelectedNodes(dataTable_vMachines);
 };
 
@@ -3477,12 +3479,9 @@ function setupMigrateVMDialog(live){
         //notifySubmit("Template.instantiate",template_id, extra_msg);
 
         $.each(getSelectedNodes(dataTable_vMachines), function(index, elem) {
-          console.log(elem)
           if (live) {
-            console.log("live")
             Sunstone.runAction("VM.migrate_live_action", elem, extra_info);
           } else {
-            console.log("migrate")
             Sunstone.runAction("VM.migrate_action", elem, extra_info);
           }
         });

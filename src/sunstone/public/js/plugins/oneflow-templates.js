@@ -449,8 +449,13 @@ var service_template_actions = {
     "ServiceTemplate.refresh" : {
         type: "custom",
         call: function () {
+          var tab = dataTable_service_templates.parents(".tab");
+          if (Sunstone.rightInfoVisible(tab)) {
+            Sunstone.runAction("ServiceTemplate.showinfo", Sunstone.rightInfoResourceId(tab))
+          } else {
             waitingNodes(dataTable_service_templates);
             Sunstone.runAction("ServiceTemplate.list");
+          }
         }
     },
 

@@ -1088,7 +1088,17 @@ function deleteElement(dataTable,tag){
 //when elements in a datatable are modified.
 function recountCheckboxes(dataTable, custom_context){
     var table = $('tbody',dataTable);
-    var context = custom_context||table.parents('.tab');
+
+    var context;
+    if (custom_context){
+        context = custom_context;
+    } else {
+        context = table.parents('.tab');
+        if ($(".right-info", context).is(':visible')) {
+            return;
+        }
+    }
+
     var nodes = $('tr',table); //visible nodes
     var total_length = nodes.length;
     var checked_length = $('input.check_item:checked',nodes).length;
@@ -1595,11 +1605,16 @@ function setupTips(context, position){
 function getSelectedNodes(dataTable){
     var selected_nodes = [];
     if (dataTable){
+        var tab = dataTable.parents(".tab")
+        if (Sunstone.rightInfoVisible(tab)) {
+            selected_nodes.push(Sunstone.rightInfoResourceId(tab));
+        } else {
         //Which rows of the datatable are checked?
         var nodes = $('tbody input.check_item:checked',dataTable);
-        $.each(nodes,function(){
-            selected_nodes.push($(this).val());
-        });
+            $.each(nodes,function(){
+                selected_nodes.push($(this).val());
+            });
+        }
     };
     return selected_nodes;
 }

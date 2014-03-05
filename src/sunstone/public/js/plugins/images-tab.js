@@ -276,8 +276,13 @@ var image_actions = {
     "Image.refresh" : {
         type: "custom",
         call: function () {
+          var tab = dataTable_images.parents(".tab");
+          if (Sunstone.rightInfoVisible(tab)) {
+            Sunstone.runAction("Image.showinfo", Sunstone.rightInfoResourceId(tab))
+          } else {
             waitingNodes(dataTable_images);
             Sunstone.runAction("Image.list");
+          }
         }
     },
 

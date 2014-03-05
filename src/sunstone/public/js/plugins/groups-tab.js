@@ -228,8 +228,13 @@ var group_actions = {
     "Group.refresh" : {
         type: "custom",
         call: function() {
+          var tab = dataTable_groups.parents(".tab");
+          if (Sunstone.rightInfoVisible(tab)) {
+            Sunstone.runAction("Group.showinfo", Sunstone.rightInfoResourceId(tab))
+          } else {
             waitingNodes(dataTable_groups);
             Sunstone.runAction("Group.list");
+          }
         },
         error: onError
     },

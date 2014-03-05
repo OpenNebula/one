@@ -270,8 +270,13 @@ var template_actions = {
     "Template.refresh" : {
         type: "custom",
         call: function () {
+          var tab = dataTable_templates.parents(".tab");
+          if (Sunstone.rightInfoVisible(tab)) {
+            Sunstone.runAction("Template.showinfo", Sunstone.rightInfoResourceId(tab))
+          } else {
             waitingNodes(dataTable_templates);
             Sunstone.runAction("Template.list");
+          }
         }
     },
 
@@ -537,9 +542,6 @@ Sunstone.addInfoPanel('template_info_panel',template_info_panel);
 
 //Returns selected elements in the template table
 function templateElements(){
-  if (Sunstone.rightInfoVisible($('#templates-tab'))) {
-    return [Sunstone.rightInfoResourceId($('#templates-tab'))];
-  }
     return getSelectedNodes(dataTable_templates);
 }
 

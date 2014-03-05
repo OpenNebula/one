@@ -285,8 +285,13 @@ var user_actions = {
     "User.refresh" : {
         type: "custom",
         call: function () {
+          var tab = dataTable_users.parents(".tab");
+          if (Sunstone.rightInfoVisible(tab)) {
+            Sunstone.runAction("User.showinfo", Sunstone.rightInfoResourceId(tab))
+          } else {
             waitingNodes(dataTable_users);
             Sunstone.runAction("User.list");
+          }
         }
     },
 
@@ -553,9 +558,6 @@ Sunstone.addMainTab('users-tab',users_tab);
 Sunstone.addInfoPanel("user_info_panel",user_info_panel);
 
 function userElements(){
-  if (Sunstone.rightInfoVisible($('#users-tab'))) {
-    return [Sunstone.rightInfoResourceId($('#users-tab'))];
-  }
     return getSelectedNodes(dataTable_users);
 }
 

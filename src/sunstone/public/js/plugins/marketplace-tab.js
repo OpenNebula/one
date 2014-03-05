@@ -32,8 +32,13 @@ var market_actions = {
     "Marketplace.refresh" : {
         type: "custom",
         call: function () {
+          var tab = dataTable_marketplace.parents(".tab");
+          if (Sunstone.rightInfoVisible(tab)) {
+            Sunstone.runAction("Marketplace.showinfo", Sunstone.rightInfoResourceId(tab))
+          } else {
             waitingNodes(dataTable_marketplace);
-            Sunstone.runAction('Marketplace.list');
+            Sunstone.runAction("Marketplace.list");
+          }
         }
     },
     "Marketplace.import" : {

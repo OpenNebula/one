@@ -170,8 +170,13 @@ var file_actions = {
     "File.refresh" : {
         type: "custom",
         call: function () {
+          var tab = dataTable_files.parents(".tab");
+          if (Sunstone.rightInfoVisible(tab)) {
+            Sunstone.runAction("File.showinfo", Sunstone.rightInfoResourceId(tab))
+          } else {
             waitingNodes(dataTable_files);
             Sunstone.runAction("File.list");
+          }
         }
     },
 

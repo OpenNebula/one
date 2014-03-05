@@ -937,8 +937,13 @@ var cluster_actions = {
     "Cluster.refresh" : {
         type: "custom",
         call: function(){
+          var tab = dataTable_clusters.parents(".tab");
+          if (Sunstone.rightInfoVisible(tab)) {
+            Sunstone.runAction("Cluster.showinfo", Sunstone.rightInfoResourceId(tab))
+          } else {
             waitingNodes(dataTable_clusters);
             Sunstone.runAction("Cluster.list");
+          }
         },
         error: onError
     },
@@ -1069,8 +1074,7 @@ var cluster_buttons = {
     "Cluster.update_dialog" : {
         type : "action",
         layout: "main",
-        text : tr("Update"),
-        alwaysActive: true
+        text : tr("Update")
     },
     "Cluster.delete" : {
         type: "confirm",
