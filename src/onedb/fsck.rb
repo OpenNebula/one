@@ -22,8 +22,8 @@ require 'set'
 require 'nokogiri'
 
 module OneDBFsck
-    VERSION = "4.5.0"
-    LOCAL_VERSION = "4.5.0"
+    VERSION = "4.5.80"
+    LOCAL_VERSION = "4.5.80"
 
     def check_db_version()
         db_version = read_db_version()
