@@ -198,7 +198,7 @@ int FixedLeases::remove(const string& ip, string& error_msg)
         goto error_notfound;
     }
 
-    if (it->second->used) //it is in use
+    if (it->second->used && it->second->vid != -1) //it is in use by VM
     {
         goto error_used;
     }
