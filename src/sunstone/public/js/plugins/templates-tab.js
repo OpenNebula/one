@@ -2355,7 +2355,7 @@ function add_osTab(dialog) {
             '</div>'+
             '<div class="row">'+
               '<div class="large-6 columns">'+
-                '<label class="right inline" for="APIC">'+tr("APIC")+
+                '<label for="APIC">'+tr("APIC")+
                   '<span class="tip">'+tr("Enables the advanced programmable IRQ management.")+'</span>'+
                 '</label>'+
                 '<select id="APIC" name="apic">'+
@@ -2365,7 +2365,7 @@ function add_osTab(dialog) {
                 '</select>'+
               '</div>'+
               '<div class="large-6 columns">'+
-                '<label class="right inline" for="HYPERV">'+tr("HYPERV")+
+                '<label for="HYPERV">'+tr("HYPERV")+
                   '<span class="tip">'+tr("Add support in the VM for hyper-v features (HYPERV)")+'</span>'+
                 '</label>'+
                 '<select id="HYPERV" name="hyperv">'+
@@ -2377,7 +2377,7 @@ function add_osTab(dialog) {
             '</div>'+
             '<div class="row">'+
               '<div class="large-6 columns">'+
-                '<label class="right inline" for="LOCALTIME">'+tr("Localtime")+
+                '<label for="LOCALTIME">'+tr("Localtime")+
                   '<span class="tip">'+tr("The guest clock will be synchronized to the host's configured timezone when booted.")+'</span>'+
                 '</label>'+
                 '<select id="LOCALTIME" name="localtime">'+
@@ -2387,9 +2387,10 @@ function add_osTab(dialog) {
                 '</select>'+
               '</div>'+
               '<div class="large-6 columns">'+
-                '<label class="right inline" for="DEVICE_MODEL">'+tr("Device model")+
+                '<label for="DEVICE_MODEL">'+tr("Device model")+
                   '<span class="tip">'+tr("Used to change the IO emulator in Xen HVM. Only XEN.")+'</span>'+
                 '</label>'+
+                '<input type="text" id="DEVICE_MODEL" name="device_model"/>'+
               '</div>'+
             '</div>'+
             '<div class="row">'+
