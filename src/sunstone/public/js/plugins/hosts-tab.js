@@ -19,32 +19,22 @@
 var HOST_HISTORY_LENGTH = 40;
 
 var create_host_tmpl =
-'<div class="panel">\
-    <h3 >\
-      <small id="create_cluster_header">'+tr("Create Host")+'</small>\
-    </h3>\
+'<div class="row">\
+    <h3 id="create_cluster_header" class="subheader">'+tr("Create Host")+'</h3>\
   </div>\
-  <form id="create_host_form" action="" class="">\
   <div class="reveal-body">\
+  <form id="create_host_form" action="" class="">\
   <div class="row">\
-      <div class="large-4 columns">\
-          <label class="inline right" for="name">' + tr("Hostname")  + ':</label>\
-      </div>\
-      <div class="large-7 columns">\
+      <div class="large-12 columns">\
+          <label for="name">' + tr("Hostname")  + '</label>\
           <input type="text" name="name" id="name" />\
       </div>\
-      <div class="large-1 columns">\
-          <div class="tip"></div>\
-      </div>\
   </div>\
-  <div class="row">\
   <fieldset>\
     <legend>'+tr("Drivers")+'</legend>\
     <div class="manager clear row" id="vmm_mads">\
-      <div class="large-4 columns">\
-          <label class="inline right" for="vmm">' +  tr("Virtualization") + ':</label>\
-      </div>\
-      <div class="large-7 columns">\
+      <div class="large-12 columns">\
+          <label for="vmm">' +  tr("Virtualization") + '</label>\
           <select id="vmm_mad" name="vmm">\
                 <option value="kvm">' + tr("KVM") + '</option>\
                 <option value="xen">' + tr("XEN") + '</option>\
@@ -53,19 +43,15 @@ var create_host_tmpl =
                 <option value="dummy">' + tr("Dummy") + '</option>\
                 <option value="custom">' + tr("Custom") + '</option>\
           </select>\
-          <div>\
-          <label>' + tr("Custom VMM_MAD") + ':</label>\
-          <input type="text" name="custom_vmm_mad" /></div>\
       </div>\
-      <div class="large-1 columns">\
-          <div class="tip"></div>\
+      <div class="large-12 columns">\
+          <label>' + tr("Custom VMM_MAD") + '</label>\
+          <input type="text" name="custom_vmm_mad" />\
       </div>\
     </div>\
     <div class="manager clear row" id="im_mads">\
-      <div class="large-4 columns">\
-          <label class="inline right" for="im">' +  tr("Information") + ':</label>\
-      </div>\
-      <div class="large-7 columns">\
+      <div class="large-12 columns">\
+          <label for="im">' +  tr("Information") + '</label>\
           <select id="im_mad" name="im">\
                <option value="kvm">' + tr("KVM") + '</option>\
                <option value="xen">' + tr("XEN") + '</option>\
@@ -74,20 +60,15 @@ var create_host_tmpl =
                <option value="dummy">' + tr("Dummy") + '</option>\
                <option value="custom">' + tr("Custom") + '</option>\
           </select>\
-          <div>\
-            <label>' + tr("Custom IM_MAD") + ':</label>\
-            <input type="text" name="custom_im_mad" />\
-          </div>\
       </div>\
-      <div class="large-1 columns">\
-          <div class="tip"></div>\
+      <div class="large-12 columns">\
+          <label>' + tr("Custom IM_MAD") + ':</label>\
+          <input type="text" name="custom_im_mad" />\
       </div>\
     </div>\
     <div class="manager clear row" id="vnm_mads">\
-      <div class="large-4 columns">\
-          <label class="inline right" for="vn">' +  tr("Virtual Network") + ':</label>\
-      </div>\
-      <div class="large-7 columns">\
+      <div class="large-12 columns">\
+          <label for="vn">' +  tr("Networking") + '</label>\
           <select id="vnm_mad" name="vn">\
              <option value="dummy">' + tr("Default (dummy)") +'</option>\
              <option value="fw">'+tr("Firewall")+'</option>\
@@ -97,39 +78,29 @@ var create_host_tmpl =
              <option value="vmware">'+tr("VMware")+'</option>\
              <option value="custom">' + tr("Custom") + '</option>\
            </select>\
-           <div>\
-              <label>' + tr("Custom VNM_MAD") + ':</label>\
-              <input type="text" name="custom_vnm_mad" />\
-           </div>\
       </div>\
-      <div class="large-1 columns">\
-          <div class="tip"></div>\
+      <div class="large-12 columns">\
+          <label>' + tr("Custom VNM_MAD") + '</label>\
+          <input type="text" name="custom_vnm_mad" />\
       </div>\
     </div>\
-    </fieldset>\
+  </fieldset>\
+  <div class="manager clear row" id="cluster_select">\
+    <div class="large-12 columns">\
+        <label for="host_cluster_id">' + tr("Cluster") + '</label>\
+        <select id="host_cluster_id" name="host_cluster_id">\
+        </select>\
+    </div>\
   </div>\
-    <div class="manager clear row" id="cluster_select">\
-      <div class="large-4 columns">\
-          <label class="inline right" for="host_cluster_id">' + tr("Cluster") + ':</label>\
-      </div>\
-      <div class="large-7 columns">\
-          <select id="host_cluster_id" name="host_cluster_id">\
-           </select>\
-      </div>\
-      <div class="large-1 columns">\
-          <div class="tip"></div>\
-      </div>\
-    </div>\
-    </div>\
-    <div class="reveal-footer">\
-      <hr>\
-      <div class="form_buttons row">\
-          <button class="button success right radius" type="submit" id="create_host_submit" value="OpenNebula.Host.create">' + tr("Create") + '</button>\
-          <button id="wizard_host_reset_button" class="button secondary radius" type="reset" value="reset">' + tr("Reset") + '</button>\
-      </div>\
-    </div>\
-    <a class="close-reveal-modal">&#215;</a>\
-</form>';
+</div>\
+<div class="reveal-footer">\
+  <div class="form_buttons row">\
+      <button class="button success right radius" type="submit" id="create_host_submit" value="OpenNebula.Host.create">' + tr("Create") + '</button>\
+      <button id="wizard_host_reset_button" class="button secondary radius" type="reset" value="reset">' + tr("Reset") + '</button>\
+  </div>\
+</form>\
+</div>\
+<a class="close-reveal-modal">&#215;</a>';
 
 var hosts_select="";
 var dataTable_hosts;
@@ -856,7 +827,7 @@ function updateHostInfo(request,host){
 
 //Prepares the host creation dialog
 function setupCreateHostDialog(){
-    dialogs_context.append('<div title=\"'+tr("Create host")+'\" id="create_host_dialog"></div>');
+    dialogs_context.append('<div id="create_host_dialog"></div>');
     $create_host_dialog = $('div#create_host_dialog');
     var dialog = $create_host_dialog;
 
