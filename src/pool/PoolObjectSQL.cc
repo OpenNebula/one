@@ -183,10 +183,7 @@ int PoolObjectSQL::replace_template(const string& tmpl_str, string& error)
         return -1;
     }
 
-    if ( obj_template != 0 )
-    {
-        delete obj_template;
-    }
+    delete obj_template;
 
     obj_template = new_tmpl;
 

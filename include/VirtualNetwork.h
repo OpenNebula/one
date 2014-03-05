@@ -210,6 +210,13 @@ public:
             int                     vid,
             const vector<string>&   inherit_attrs);
 
+    /**
+     *  Replace the template of the virtual network it also updates the BRIDGE,
+     *  PHY_DEV, VLAN_ID and VLAN attributes.
+     *    @param tmpl string representation of the template
+     */
+    int replace_template(const string& tmpl_str, string& error);
+
 private:
 
     // -------------------------------------------------------------------------

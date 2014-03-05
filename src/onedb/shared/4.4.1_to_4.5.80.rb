@@ -118,6 +118,44 @@ module Migrator
 
         log_time()
 
+        # Copy VNet config variables to the template
+
+        @db.run "ALTER TABLE network_pool RENAME TO old_network_pool;"
+        @db.run "CREATE TABLE network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name,uid));"
+
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_network_pool") do |row|
+                doc = Nokogiri::XML(row[:body])
+
+                template = doc.root.at_xpath("TEMPLATE")
+
+                ["PHYDEV", "VLAN_ID", "BRIDGE"].each do |elem|
+                    template.add_child(doc.create_element(elem)).
+                        add_child(doc.create_cdata(doc.root.at_xpath(elem).text))
+                end
+
+                vlan_text = doc.root.at_xpath("VLAN").text == "0" ? "NO" : "YES"
+
+                template.add_child(doc.create_element("VLAN")).
+                    add_child(doc.create_cdata(vlan_text))
+
+                @db[:network_pool].insert(
+                    :oid        => row[:oid],
+                    :name       => row[:name],
+                    :body       => doc.root.to_s,
+                    :uid        => row[:oid],
+                    :gid        => row[:gid],
+                    :owner_u    => row[:owner_u],
+                    :group_u    => row[:group_u],
+                    :other_u    => row[:other_u],
+                    :cid        => row[:cid])
+            end
+        end
+
+        @db.run "DROP TABLE old_network_pool;"
+
+        log_time()
+
         # Default ZONE
         @db.run "CREATE TABLE zone_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
         @db.run "INSERT INTO zone_pool VALUES(0,'OpenNebula','<ZONE><ID>0</ID><NAME>OpenNebula</NAME><TEMPLATE><ENDPOINT><![CDATA[-]]></ENDPOINT></TEMPLATE></ZONE>',0,0,1,0,0);"

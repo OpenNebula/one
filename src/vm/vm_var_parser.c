@@ -200,6 +200,13 @@ extern FILE *vm_var_in, *vm_var_out;
                     if ( vm_var_text[yyl] == '\n' )\
                         --vm_var_lineno;\
             }while(0)
+    #define YY_LINENO_REWIND_TO(dst) \
+            do {\
+                const char *p;\
+                for ( p = yy_cp-1; p >= (dst); --p)\
+                    if ( *p == '\n' )\
+                        --vm_var_lineno;\
+            }while(0)
     
 /* Return all but the first "n" matched characters back to the input stream. */
 #define yyless(n) \
@@ -538,7 +545,7 @@ char *vm_var_text;
                         llocp->last_column += vm_var_leng;
 
 
-#line 542 "vm_var_parser.c"
+#line 549 "vm_var_parser.c"
 
 #define INITIAL 0
 #define VAR 1
@@ -720,19 +727,6 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 43 "vm_var_parser.l"
-
-
- /* ------------------------------------------------------------------------- */
- /* Parse variables in the form:                                              */
- /*   $VARIABLE                                                               */
- /*   $VARIABLE[ATTR]                                                         */
- /*   $VARIABLE[ATTR,ATTR=VALUE]                                              */
- /*   $NUM.CONTEXT_VARIABLE                                                   */
- /* ------------------------------------------------------------------------- */
-
-#line 735 "vm_var_parser.c"
-
 	if ( !(yy_init) )
 		{
 		(yy_init) = 1;
@@ -759,6 +753,20 @@ YY_DECL
 		vm_var__load_buffer_state( );
 		}
 
+	{
+#line 43 "vm_var_parser.l"
+
+
+ /* ------------------------------------------------------------------------- */
+ /* Parse variables in the form:                                              */
+ /*   $VARIABLE                                                               */
+ /*   $VARIABLE[ATTR]                                                         */
+ /*   $VARIABLE[ATTR,ATTR=VALUE]                                              */
+ /*   $NUM.CONTEXT_VARIABLE                                                   */
+ /* ------------------------------------------------------------------------- */
+
+#line 769 "vm_var_parser.c"
+
 	while ( 1 )		/* loops until end-of-file is reached */
 		{
 		yy_cp = (yy_c_buf_p);
@@ -775,7 +783,7 @@ YY_DECL
 yy_match:
 		do
 			{
-			register YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)];
+			register YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)] ;
 			if ( yy_accept[yy_current_state] )
 				{
 				(yy_last_accepting_state) = yy_current_state;
@@ -805,7 +813,7 @@ yy_find_action:
 
 		if ( yy_act != YY_END_OF_BUFFER && yy_rule_can_match_eol[yy_act] )
 			{
-			int yyl;
+			yy_size_t yyl;
 			for ( yyl = 0; yyl < vm_var_leng; ++yyl )
 				if ( vm_var_text[yyl] == '\n' )
 					   
@@ -907,7 +915,7 @@ YY_RULE_SETUP
 #line 92 "vm_var_parser.l"
 ECHO;
 	YY_BREAK
-#line 911 "vm_var_parser.c"
+#line 919 "vm_var_parser.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(VALUE):
 	yyterminate();
@@ -1039,6 +1047,7 @@ case YY_STATE_EOF(VALUE):
 			"fatal flex scanner internal error--no action found" );
 	} /* end of action switch */
 		} /* end of scanning one token */
+	} /* end of user's declarations */
 } /* end of vm_var_lex */
 
 /* yy_get_next_buffer - try to read in a new buffer
@@ -1640,7 +1649,7 @@ YY_BUFFER_STATE vm_var__scan_bytes  (yyconst char * yybytes, yy_size_t  _yybytes
 	YY_BUFFER_STATE b;
 	char *buf;
 	yy_size_t n;
-	int i;
+	yy_size_t i;
     
 	/* Get memory for full buffer, including space for trailing EOB's. */
 	n = _yybytes_len + 2;

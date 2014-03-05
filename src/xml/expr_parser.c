@@ -200,6 +200,13 @@ extern FILE *expr_in, *expr_out;
                     if ( expr_text[yyl] == '\n' )\
                         --expr_lineno;\
             }while(0)
+    #define YY_LINENO_REWIND_TO(dst) \
+            do {\
+                const char *p;\
+                for ( p = yy_cp-1; p >= (dst); --p)\
+                    if ( *p == '\n' )\
+                        --expr_lineno;\
+            }while(0)
     
 /* Return all but the first "n" matched characters back to the input stream. */
 #define yyless(n) \
@@ -525,7 +532,7 @@ char *expr_text;
 #define YY_USER_ACTION  llocp->first_line = expr_lineno; 				\
                         llocp->first_column = llocp->last_column;	\
                         llocp->last_column += expr_leng;
-#line 529 "expr_parser.c"
+#line 536 "expr_parser.c"
 
 #define INITIAL 0
 
@@ -705,12 +712,6 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 39 "expr_parser.l"
-
-   /* --- Tokens --- */
-
-#line 713 "expr_parser.c"
-
 	if ( !(yy_init) )
 		{
 		(yy_init) = 1;
@@ -737,6 +738,13 @@ YY_DECL
 		expr__load_buffer_state( );
 		}
 
+	{
+#line 39 "expr_parser.l"
+
+   /* --- Tokens --- */
+
+#line 747 "expr_parser.c"
+
 	while ( 1 )		/* loops until end-of-file is reached */
 		{
 		yy_cp = (yy_c_buf_p);
@@ -753,7 +761,7 @@ YY_DECL
 yy_match:
 		do
 			{
-			register YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)];
+			register YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)] ;
 			if ( yy_accept[yy_current_state] )
 				{
 				(yy_last_accepting_state) = yy_current_state;
@@ -783,7 +791,7 @@ yy_find_action:
 
 		if ( yy_act != YY_END_OF_BUFFER && yy_rule_can_match_eol[yy_act] )
 			{
-			int yyl;
+			yy_size_t yyl;
 			for ( yyl = 0; yyl < expr_leng; ++yyl )
 				if ( expr_text[yyl] == '\n' )
 					   
@@ -852,7 +860,7 @@ YY_RULE_SETUP
 #line 68 "expr_parser.l"
 ECHO;
 	YY_BREAK
-#line 856 "expr_parser.c"
+#line 864 "expr_parser.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -983,6 +991,7 @@ case YY_STATE_EOF(INITIAL):
 			"fatal flex scanner internal error--no action found" );
 	} /* end of action switch */
 		} /* end of scanning one token */
+	} /* end of user's declarations */
 } /* end of expr_lex */
 
 /* yy_get_next_buffer - try to read in a new buffer
@@ -1584,7 +1593,7 @@ YY_BUFFER_STATE expr__scan_bytes  (yyconst char * yybytes, yy_size_t  _yybytes_l
 	YY_BUFFER_STATE b;
 	char *buf;
 	yy_size_t n;
-	int i;
+	yy_size_t i;
     
 	/* Get memory for full buffer, including space for trailing EOB's. */
 	n = _yybytes_len + 2;

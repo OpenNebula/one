@@ -1,4 +1,4 @@
-/* A Bison parser, made by GNU Bison 3.0.  */
+/* A Bison parser, made by GNU Bison 3.0.2.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
@@ -44,7 +44,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.0"
+#define YYBISON_VERSION "3.0.2"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -123,11 +123,11 @@ extern "C"
 
 #line 125 "expr_bool.cc" /* yacc.c:339  */
 
-# ifndef YY_NULL
+# ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
-#   define YY_NULL nullptr
+#   define YY_NULLPTR nullptr
 #  else
-#   define YY_NULL 0
+#   define YY_NULLPTR 0
 #  endif
 # endif
 
@@ -258,11 +258,30 @@ typedef short int yytype_int16;
 # endif
 #endif
 
-#ifndef __attribute__
-/* This feature is available in gcc versions 2.5 and later.  */
-# if (! defined __GNUC__ || __GNUC__ < 2 \
-      || (__GNUC__ == 2 && __GNUC_MINOR__ < 5))
-#  define __attribute__(Spec) /* empty */
+#ifndef YY_ATTRIBUTE
+# if (defined __GNUC__                                               \
+      && (2 < __GNUC__ || (__GNUC__ == 2 && 96 <= __GNUC_MINOR__)))  \
+     || defined __SUNPRO_C && 0x5110 <= __SUNPRO_C
+#  define YY_ATTRIBUTE(Spec) __attribute__(Spec)
+# else
+#  define YY_ATTRIBUTE(Spec) /* empty */
+# endif
+#endif
+
+#ifndef YY_ATTRIBUTE_PURE
+# define YY_ATTRIBUTE_PURE   YY_ATTRIBUTE ((__pure__))
+#endif
+
+#ifndef YY_ATTRIBUTE_UNUSED
+# define YY_ATTRIBUTE_UNUSED YY_ATTRIBUTE ((__unused__))
+#endif
+
+#if !defined _Noreturn \
+     && (!defined __STDC_VERSION__ || __STDC_VERSION__ < 201112)
+# if defined _MSC_VER && 1200 <= _MSC_VER
+#  define _Noreturn __declspec (noreturn)
+# else
+#  define _Noreturn YY_ATTRIBUTE ((__noreturn__))
 # endif
 #endif
 
@@ -493,7 +512,7 @@ static const yytype_uint8 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "'!'", "'&'", "'|'", "INTEGER", "STRING",
-  "FLOAT", "'='", "'>'", "'<'", "'('", "')'", "$accept", "stmt", "expr", YY_NULL
+  "FLOAT", "'='", "'>'", "'<'", "'('", "')'", "$accept", "stmt", "expr", YY_NULLPTR
 };
 #endif
 
@@ -674,7 +693,7 @@ do {                                            \
 
 /* Print *YYLOCP on YYO.  Private, do not rely on its existence. */
 
-__attribute__((__unused__))
+YY_ATTRIBUTE_UNUSED
 static unsigned
 yy_location_print_ (FILE *yyo, YYLTYPE const * const yylocp)
 {
@@ -941,11 +960,11 @@ static int
 yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
                 yytype_int16 *yyssp, int yytoken)
 {
-  YYSIZE_T yysize0 = yytnamerr (YY_NULL, yytname[yytoken]);
+  YYSIZE_T yysize0 = yytnamerr (YY_NULLPTR, yytname[yytoken]);
   YYSIZE_T yysize = yysize0;
   enum { YYERROR_VERBOSE_ARGS_MAXIMUM = 5 };
   /* Internationalized format string. */
-  const char *yyformat = YY_NULL;
+  const char *yyformat = YY_NULLPTR;
   /* Arguments of yyformat. */
   char const *yyarg[YYERROR_VERBOSE_ARGS_MAXIMUM];
   /* Number of reported tokens (one for the "unexpected", one per
@@ -1002,7 +1021,7 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
                   }
                 yyarg[yycount++] = yytname[yyx];
                 {
-                  YYSIZE_T yysize1 = yysize + yytnamerr (YY_NULL, yytname[yyx]);
+                  YYSIZE_T yysize1 = yysize + yytnamerr (YY_NULLPTR, yytname[yyx]);
                   if (! (yysize <= yysize1
                          && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
                     return 2;
@@ -1371,13 +1390,13 @@ yyreduce:
         case 2:
 #line 97 "expr_bool.y" /* yacc.c:1646  */
     { result=(yyvsp[0].val_int);   }
-#line 1375 "expr_bool.cc" /* yacc.c:1646  */
+#line 1394 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 3:
 #line 98 "expr_bool.y" /* yacc.c:1646  */
     { result=true; }
-#line 1381 "expr_bool.cc" /* yacc.c:1646  */
+#line 1400 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 4:
@@ -1390,7 +1409,7 @@ yyreduce:
 
             (yyval.val_int) = (rc == 0 && val == (yyvsp[0].val_int));
         }
-#line 1394 "expr_bool.cc" /* yacc.c:1646  */
+#line 1413 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 5:
@@ -1403,7 +1422,7 @@ yyreduce:
 
             (yyval.val_int) = (rc == 0 && val != (yyvsp[0].val_int));
         }
-#line 1407 "expr_bool.cc" /* yacc.c:1646  */
+#line 1426 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 6:
@@ -1414,7 +1433,7 @@ yyreduce:
             rc = oxml->search((yyvsp[-2].val_str),val);
             (yyval.val_int) = (rc == 0 && val > (yyvsp[0].val_int));
         }
-#line 1418 "expr_bool.cc" /* yacc.c:1646  */
+#line 1437 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 7:
@@ -1425,7 +1444,7 @@ yyreduce:
             rc = oxml->search((yyvsp[-2].val_str),val);
             (yyval.val_int) = (rc == 0 && val < (yyvsp[0].val_int));
         }
-#line 1429 "expr_bool.cc" /* yacc.c:1646  */
+#line 1448 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 8:
@@ -1436,7 +1455,7 @@ yyreduce:
             rc = oxml->search((yyvsp[-2].val_str),val);
             (yyval.val_int) = (rc == 0 && val == (yyvsp[0].val_float));
         }
-#line 1440 "expr_bool.cc" /* yacc.c:1646  */
+#line 1459 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 9:
@@ -1447,7 +1466,7 @@ yyreduce:
             rc = oxml->search((yyvsp[-3].val_str),val);
             (yyval.val_int) = (rc == 0 && val != (yyvsp[0].val_float));
         }
-#line 1451 "expr_bool.cc" /* yacc.c:1646  */
+#line 1470 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 10:
@@ -1458,7 +1477,7 @@ yyreduce:
             rc = oxml->search((yyvsp[-2].val_str),val);
             (yyval.val_int) = (rc == 0 && val > (yyvsp[0].val_float));
         }
-#line 1462 "expr_bool.cc" /* yacc.c:1646  */
+#line 1481 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 11:
@@ -1468,7 +1487,7 @@ yyreduce:
 
             rc = oxml->search((yyvsp[-2].val_str),val);
             (yyval.val_int) = (rc == 0 && val < (yyvsp[0].val_float));}
-#line 1472 "expr_bool.cc" /* yacc.c:1646  */
+#line 1491 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 12:
@@ -1480,7 +1499,7 @@ yyreduce:
             rc = oxml->search((yyvsp[-2].val_str),val);
             (yyval.val_int) = (rc != 0 || (yyvsp[0].val_str)==0) ? false : fnmatch((yyvsp[0].val_str),val.c_str(),0)==0;
         }
-#line 1484 "expr_bool.cc" /* yacc.c:1646  */
+#line 1503 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 13:
@@ -1492,35 +1511,35 @@ yyreduce:
             rc = oxml->search((yyvsp[-3].val_str),val);
             (yyval.val_int) = (rc != 0 || (yyvsp[0].val_str)==0) ? false : fnmatch((yyvsp[0].val_str),val.c_str(),0)!=0;
         }
-#line 1496 "expr_bool.cc" /* yacc.c:1646  */
+#line 1515 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 14:
 #line 176 "expr_bool.y" /* yacc.c:1646  */
     { (yyval.val_int) = (yyvsp[-2].val_int) && (yyvsp[0].val_int); }
-#line 1502 "expr_bool.cc" /* yacc.c:1646  */
+#line 1521 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 15:
 #line 177 "expr_bool.y" /* yacc.c:1646  */
     { (yyval.val_int) = (yyvsp[-2].val_int) || (yyvsp[0].val_int); }
-#line 1508 "expr_bool.cc" /* yacc.c:1646  */
+#line 1527 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 16:
 #line 178 "expr_bool.y" /* yacc.c:1646  */
     { (yyval.val_int) = ! (yyvsp[0].val_int); }
-#line 1514 "expr_bool.cc" /* yacc.c:1646  */
+#line 1533 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 17:
 #line 179 "expr_bool.y" /* yacc.c:1646  */
     { (yyval.val_int) =   (yyvsp[-1].val_int); }
-#line 1520 "expr_bool.cc" /* yacc.c:1646  */
+#line 1539 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
 
-#line 1524 "expr_bool.cc" /* yacc.c:1646  */
+#line 1543 "expr_bool.cc" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
