@@ -21,7 +21,7 @@ module OpenNebulaJSON
         include JSONUtils
 
         def create(template_json)
-            group_hash = parse_json(template_json,'group')
+            group_hash = parse_json_sym(template_json,:group)
             if OpenNebula.is_error?(group_hash)
                 return group_hash
             end
@@ -39,8 +39,10 @@ module OpenNebulaJSON
                  when "chown"       then self.chown(action_hash['params'])
                  when "update"       then self.update(action_hash['params'])
                  when "set_quota"   then self.set_quota(action_hash['params'])
-                 when "add_provider"    then self.add_provider(action_hash['params'])
-                 when "del_provider"    then self.del_provider(action_hash['params'])
+                 when "add_provider" then 
+                                   self.add_provider_json(action_hash['params'])
+                 when "del_provider" then 
+                                   self.del_provider_json(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -62,11 +64,11 @@ module OpenNebulaJSON
             super(quota_template)
         end
 
-        def add_provider(params=Hash.new)
+        def add_provider_json(params=Hash.new)
             super(params['zone_id'].to_i, params['cluster_id'].to_i)
         end
 
-        def del_provider(params=Hash.new)
+        def del_provider_json(params=Hash.new)
             super(params['zone_id'].to_i, params['cluster_id'].to_i)
         end
     end
