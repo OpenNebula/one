@@ -288,10 +288,18 @@ public:
         {
             cpu = tcpu;
         }
+        else
+        {
+            replace_template_attribute("RESERVED_CPU", "");
+        }
 
         if (get_template_attribute("RESERVED_MEM", tmem))
         {
             mem = tmem;
+        }
+        else
+        {
+            replace_template_attribute("RESERVED_MEM", "");
         }
     }
 
