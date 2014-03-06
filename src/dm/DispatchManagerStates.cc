@@ -77,6 +77,14 @@ void  DispatchManager::stop_success_action(int vid)
 
         vm->set_state(VirtualMachine::LCM_INIT);
 
+        //Set history action field to perform the right TM command on resume
+        if (vm->get_action() == History::NONE_ACTION)
+        {
+            vm->set_action(History::STOP_ACTION);
+
+            vmpool->update_history(vm);
+        }
+
         vmpool->update(vm);
 
         vm->log("DiM", Log::INFO, "New VM state is STOPPED");
@@ -116,6 +124,14 @@ void  DispatchManager::undeploy_success_action(int vid)
         vm->set_state(VirtualMachine::UNDEPLOYED);
 
         vm->set_state(VirtualMachine::LCM_INIT);
+
+        //Set history action field to perform the right TM command on resume
+        if (vm->get_action() == History::NONE_ACTION)
+        {
+            vm->set_action(History::UNDEPLOY_ACTION);
+
+            vmpool->update_history(vm);
+        }
 
         vmpool->update(vm);
 
