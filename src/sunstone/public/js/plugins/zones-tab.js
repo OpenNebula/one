@@ -52,39 +52,26 @@ function popUpCreateZoneDialog(){
 //}
 
 var create_zone_tmpl =
-'<div class="panel">\
-  <h3>\
-    <small id="create_zone_header">'+tr("Create Zone")+'</small>\
-  </h3>\
+'<div class="row">\
+  <h3 id="create_zone_header" class="subheader">'+tr("Create Zone")+'</h3>\
 </div>\
 <form id="create_zone_form" action="">\
-    <div class="row centered">\
-      <div class="large-4 columns">\
-        <label class="inline right" for="zonename">'+tr("Zone Name")+':</label>\
-      </div>\
-      <div class="large-7 columns">\
-        <input type="text" name="zonename" id="zonename" />\
-      </div>\
-      <div class="large-1 columns">\
-        <div class=""></div>\
-      </div>\
+  <div class="row">\
+    <div class="large-12 columns">\
+      <label for="zonename">'+tr("Zone Name")+':</label>\
+      <input type="text" name="zonename" id="zonename" />\
     </div>\
-    <div class="row centered">\
-      <div class="large-4 columns">\
-        <label class="inline right" for="endpoint">'+tr("Endpoint")+':</label>\
-      </div>\
-      <div class="large-7 columns">\
-        <input type="text" name="endpoint" id="endpoint" />\
-      </div>\
-      <div class="large-1 columns">\
-        <div class=""></div>\
-      </div>\
+  </div>\
+  <div class="row centered">\
+    <div class="large-12 columns">\
+      <label for="endpoint">'+tr("Endpoint")+':</label>\
+      <input type="text" name="endpoint" id="endpoint" />\
     </div>\
-    <hr>\
-      <div class="form_buttons">\
-          <button class="button radius right success" id="create_zone_submit" value="zone/create">'+tr("Create")+'</button>\
-      </div>\
-      <a class="close-reveal-modal">&#215;</a>\
+  </div>\
+  <div class="form_buttons">\
+      <button class="button radius right success" id="create_zone_submit" value="zone/create">'+tr("Create")+'</button>\
+  </div>\
+  <a class="close-reveal-modal">&#215;</a>\
 </form>';
 
 var zones_select="";

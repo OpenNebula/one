@@ -568,10 +568,12 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
     var sel_obj=null;
     var condition=null;
 
-    var context;
+    var context, custom_id;
     if (custom_context) {
+        custom_id = custom_context.attr("id");
         context = custom_context;
     } else {
+        custom_id = tab_name;
         context = $('div#'+tab_name, main_tabs_context);
     }
 
@@ -581,68 +583,68 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
 
         var buttons_row = $('<div class="text-center">'+
                   '<span class="left">'+
-                    '<span id="'+tab_name+'back_button" class="only-right-info">'+
+                    (custom_context ? '' : '<span id="'+custom_id+'back_button" class="only-right-info">'+
                         '<a class="button small radius" href="back"><i class="fa fa-arrow-left"></i>&emsp;&emsp;<i class="fa fa-list"></i></a>'+
+                    '</span>')+
+
+                    '<span id="'+custom_id+'refresh_buttons">'+
                     '</span>'+
 
-                    '<span id="'+tab_name+'refresh_buttons">'+
-                    '</span>'+
-
-                    '<span id="'+tab_name+'create_buttons" class="only-right-list">'+
+                    '<span id="'+custom_id+'create_buttons" class="only-right-list">'+
                     '</span>'+
                   '</span>'+
 
                   '<span>'+
-                    '<span id="'+tab_name+'vmsplay_buttons">'+
+                    '<span id="'+custom_id+'vmsplay_buttons">'+
                     '</span>'+
 
-                    "<a href='#' data-dropdown='"+tab_name+"vmspause_buttons' class='top_button small  button secondary dropdown radius'>"+
+                    "<a href='#' data-dropdown='"+custom_id+"vmspause_buttons' class='top_button small  button secondary dropdown radius'>"+
                         "<i class='fa fa-pause'/>"+
                     "</a>"+
-                    "<ul id='"+tab_name+"vmspause_buttons' class='f-dropdown' data-dropdown-content>"+
+                    "<ul id='"+custom_id+"vmspause_buttons' class='f-dropdown' data-dropdown-content>"+
                     "</ul>"+
 
-                    "<a href='#' data-dropdown='"+tab_name+"vmsstop_buttons' class='top_button small  button secondary dropdown radius'>"+
+                    "<a href='#' data-dropdown='"+custom_id+"vmsstop_buttons' class='top_button small  button secondary dropdown radius'>"+
                         "<i class='fa fa-stop'/>"+
                     "</a>"+
-                    "<ul id='"+tab_name+"vmsstop_buttons' class='f-dropdown' data-dropdown-content>"+
+                    "<ul id='"+custom_id+"vmsstop_buttons' class='f-dropdown' data-dropdown-content>"+
                     "</ul>"+
 
-                    "<a href='#' data-dropdown='"+tab_name+"vmsrepeat_buttons' class='top_button small  button secondary dropdown radius'>"+
+                    "<a href='#' data-dropdown='"+custom_id+"vmsrepeat_buttons' class='top_button small  button secondary dropdown radius'>"+
                         "<i class='fa fa-repeat'/>"+
                     "</a>"+
-                    "<ul id='"+tab_name+"vmsrepeat_buttons' class='f-dropdown' data-dropdown-content>"+
+                    "<ul id='"+custom_id+"vmsrepeat_buttons' class='f-dropdown' data-dropdown-content>"+
                     "</ul>"+
 
-                    "<a href='#' data-dropdown='"+tab_name+"vmsplanification_buttons' class='top_button small  button secondary dropdown radius'>"+
+                    "<a href='#' data-dropdown='"+custom_id+"vmsplanification_buttons' class='top_button small  button secondary dropdown radius'>"+
                         "<i class='fa fa-th-list'/>"+
                     "</a>"+
-                    "<ul id='"+tab_name+"vmsplanification_buttons' class='f-dropdown' data-dropdown-content>"+
+                    "<ul id='"+custom_id+"vmsplanification_buttons' class='f-dropdown' data-dropdown-content>"+
                     "</ul>"+
                   '</span>'+
 
                   '<span class="right">'+
-                    '<span id="'+tab_name+'main_buttons">'+
+                    '<span id="'+custom_id+'main_buttons">'+
                     "</span>"+
 
-                    "<a href='#' data-dropdown='"+tab_name+"more_buttons' class='top_button small  button secondary dropdown radius'> " + tr("More")+
+                    "<a href='#' data-dropdown='"+custom_id+"more_buttons' class='top_button small  button secondary dropdown radius'> " + tr("More")+
                     "</a>"+
-                    "<ul id='"+tab_name+"more_buttons' class='f-dropdown' data-dropdown-content>"+
+                    "<ul id='"+custom_id+"more_buttons' class='f-dropdown' data-dropdown-content>"+
                     "</ul>"+
 
-                    "<a href='#' data-dropdown='"+tab_name+"user_buttons' class='top_button small  secondary button dropdown radius'>"+
+                    "<a href='#' data-dropdown='"+custom_id+"user_buttons' class='top_button small  secondary button dropdown radius'>"+
                         "<i class='fa fa-user'/>"+
                     "</a>"+
-                    "<ul id='"+tab_name+"user_buttons' class='f-dropdown' data-dropdown-content>"+
+                    "<ul id='"+custom_id+"user_buttons' class='f-dropdown' data-dropdown-content>"+
                     "</ul>"+
 
-                    "<a href='#' data-dropdown='"+tab_name+"vmsdelete_buttons' class='top_button small  button alert dropdown radius'>"+
+                    "<a href='#' data-dropdown='"+custom_id+"vmsdelete_buttons' class='top_button small  button alert dropdown radius'>"+
                         "<i class='fa fa-trash-o'/>"+
                     "</a>"+
-                    "<ul id='"+tab_name+"vmsdelete_buttons' class='f-dropdown' data-dropdown-content>"+
+                    "<ul id='"+custom_id+"vmsdelete_buttons' class='f-dropdown' data-dropdown-content>"+
                     "</ul>"+
 
-                    "<span id='"+tab_name+"delete_buttons'>"+
+                    "<span id='"+custom_id+"delete_buttons'>"+
                     "</span>"+
                   "</span>"+
         "</div>");
@@ -681,72 +683,72 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
             var text;
             switch (button.layout) {
             case "create":
-                context = $("#"+tab_name+"create_buttons", buttons_row);
+                context = $("#"+custom_id+"create_buttons", buttons_row);
                 text = button.text ? '<i class="fa fa-plus-sign"/>  ' + button.text : '<i class="fa fa-plus-sign"/>  ' + tr("Create");
                 str_class.push("success", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
             case "refresh":
-                context = $("#"+tab_name+"refresh_buttons", buttons_row);
+                context = $("#"+custom_id+"refresh_buttons", buttons_row);
                 text = '<i class="fa fa-refresh"/>';
                 str_class.push("secondary", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
             case "main":
-                context = $("#"+tab_name+"main_buttons", buttons_row);
+                context = $("#"+custom_id+"main_buttons", buttons_row);
                 text = button.text;
                 str_class.push("secondary", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
             case "vmsplay_buttons":
-                context = $("#"+tab_name+"vmsplay_buttons", buttons_row);
+                context = $("#"+custom_id+"vmsplay_buttons", buttons_row);
                 text = button.text;
                 str_class.push("secondary", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
             case "vmspause_buttons":
-                context = $("#"+tab_name+"vmspause_buttons", buttons_row);
+                context = $("#"+custom_id+"vmspause_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "vmsstop_buttons":
-                context = $("#"+tab_name+"vmsstop_buttons", buttons_row);
+                context = $("#"+custom_id+"vmsstop_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "vmsrepeat_buttons":
-                context = $("#"+tab_name+"vmsrepeat_buttons", buttons_row);
+                context = $("#"+custom_id+"vmsrepeat_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "vmsdelete_buttons":
-                context = $("#"+tab_name+"vmsdelete_buttons", buttons_row);
+                context = $("#"+custom_id+"vmsdelete_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "vmsplanification_buttons":
-                context = $("#"+tab_name+"vmsplanification_buttons", buttons_row);
+                context = $("#"+custom_id+"vmsplanification_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "more_select":
-                context = $("#"+tab_name+"more_buttons", buttons_row);
+                context = $("#"+custom_id+"more_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "user_select":
-                context = $("#"+tab_name+"user_buttons", buttons_row);
+                context = $("#"+custom_id+"user_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "del":
-                context = $("#"+tab_name+"delete_buttons", buttons_row);
+                context = $("#"+custom_id+"delete_buttons", buttons_row);
                 text = '<i class=" fa fa-trash-o"/>  ' + tr("Delete");
                 str_class.push("alert", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
             default:
-                context = $("#"+tab_name+"main_buttons", buttons_row);
+                context = $("#"+custom_id+"main_buttons", buttons_row);
                 text = button.text;
                 str_class.push("secondary", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
@@ -759,36 +761,36 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
 
         action_block.append(buttons_row);
 
-        if  ($("#"+tab_name+"more_buttons li", action_block).length == 0 ) {
-            $("a[data-dropdown="+tab_name+"more_buttons]", action_block).remove()
+        if  ($("#"+custom_id+"more_buttons li", action_block).length == 0 ) {
+            $("a[data-dropdown="+custom_id+"more_buttons]", action_block).remove()
         }
 
-        if  ($("#"+tab_name+"user_buttons li", action_block).length == 0 ) {
-            $("a[data-dropdown="+tab_name+"user_buttons]", action_block).remove()
+        if  ($("#"+custom_id+"user_buttons li", action_block).length == 0 ) {
+            $("a[data-dropdown="+custom_id+"user_buttons]", action_block).remove()
         }
 
-        if  ($("#"+tab_name+"vmsplanification_buttons li", action_block).length == 0 ) {
-            $("a[data-dropdown="+tab_name+"vmsplanification_buttons]", action_block).remove()
+        if  ($("#"+custom_id+"vmsplanification_buttons li", action_block).length == 0 ) {
+            $("a[data-dropdown="+custom_id+"vmsplanification_buttons]", action_block).remove()
         }
 
-        if  ($("#"+tab_name+"vmsdelete_buttons li", action_block).length == 0 ) {
-            $("a[data-dropdown="+tab_name+"vmsdelete_buttons]", action_block).remove()
+        if  ($("#"+custom_id+"vmsdelete_buttons li", action_block).length == 0 ) {
+            $("a[data-dropdown="+custom_id+"vmsdelete_buttons]", action_block).remove()
         }
 
-        if  ($("#"+tab_name+"vmsstop_buttons li", action_block).length == 0 ) {
-            $("a[data-dropdown="+tab_name+"vmsstop_buttons]", action_block).remove()
+        if  ($("#"+custom_id+"vmsstop_buttons li", action_block).length == 0 ) {
+            $("a[data-dropdown="+custom_id+"vmsstop_buttons]", action_block).remove()
         }
 
-        if  ($("#"+tab_name+"vmspause_buttons li", action_block).length == 0 ) {
-            $("a[data-dropdown="+tab_name+"vmspause_buttons]", action_block).remove()
+        if  ($("#"+custom_id+"vmspause_buttons li", action_block).length == 0 ) {
+            $("a[data-dropdown="+custom_id+"vmspause_buttons]", action_block).remove()
         }
 
-        if  ($("#"+tab_name+"vmsrepeat_buttons li", action_block).length == 0 ) {
-            $("a[data-dropdown="+tab_name+"vmsrepeat_buttons]", action_block).remove()
+        if  ($("#"+custom_id+"vmsrepeat_buttons li", action_block).length == 0 ) {
+            $("a[data-dropdown="+custom_id+"vmsrepeat_buttons]", action_block).remove()
         }
 
-        if  ($("#"+tab_name+"user_buttons li", action_block).length == 0 ) {
-            $("a[data-dropdown="+tab_name+"user_buttons]", action_block).remove()
+        if  ($("#"+custom_id+"user_buttons li", action_block).length == 0 ) {
+            $("a[data-dropdown="+custom_id+"user_buttons]", action_block).remove()
         }
         //action_block.foundationButtons();
         $('.top_button, .list_button',action_block).attr('disabled', false);
@@ -1602,11 +1604,11 @@ function setupTips(context, position){
 }
 
 //returns an array of ids of selected elements in a dataTable
-function getSelectedNodes(dataTable){
+function getSelectedNodes(dataTable, force_datatable){
     var selected_nodes = [];
     if (dataTable){
         var tab = dataTable.parents(".tab")
-        if (Sunstone.rightInfoVisible(tab)) {
+        if (Sunstone.rightInfoVisible(tab) && !force_datatable) {
             selected_nodes.push(Sunstone.rightInfoResourceId(tab));
         } else {
         //Which rows of the datatable are checked?
