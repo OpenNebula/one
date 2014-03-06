@@ -795,7 +795,7 @@ module OpenNebula
 
             shutdown_nodes(nodes_dispose, true)
 
-            set_cardinality( get_nodes.size() - n_dispose.size() )
+            set_cardinality( get_nodes.size() - nodes_dispose.size() )
         end
 
         # Deletes VMs in DONE or FAILED, and sends a boot action to VMs in UNKNOWN
