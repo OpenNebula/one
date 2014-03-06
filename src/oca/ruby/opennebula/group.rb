@@ -75,14 +75,8 @@ module OpenNebula
         alias_method :info!, :info
 
         def create(group_hash)
-            group_hash=Hash[group_hash.map{|(k,v)| [k.to_sym,v]}]
-            if group_hash[:user]
-                group_hash[:user]=Hash[group_hash[:user].map{|(k,v)| 
-                                       [k.to_sym,v]}]
-            end
-
             if !group_hash[:name]
-                return -1, 
+                return -1,
                        "Group Name not defined, aborting group create operation"
             end
 
@@ -109,13 +103,12 @@ module OpenNebula
             if group_hash[:resource_providers]
                 for rp in group_hash[:resource_providers]
                     # If we have resource providers, add them
-                    if rp["zone_id"] and rp["cluster_id"] 
-                        if rp["cluster_id"].class!=Fixnum and 
-                           rp["cluster_id"].upcase=="ALL"
-                            add_provider({"zone_id"=>rp["zone_id"],
-                                          "cluster_id"=>ALL_CLUSTERS_IN_ZONE})
+                    if rp[:zone_id] and rp[:cluster_id] 
+                        if rp[:cluster_id].class!=Fixnum and 
+                           rp[:cluster_id].upcase=="ALL"
+                            add_provider(rp[:zone_id],ALL_CLUSTERS_IN_ZONE)
                         else
-                            add_provider(rp)
+                            add_provider(rp[:zone_id],rp[:cluster_id])
                         end
                     end
                 end

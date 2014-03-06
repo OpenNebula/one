@@ -154,8 +154,8 @@ EOT
             :format => String
         },
         {
-            :name   => 'admin_passwd',
-            :large  => '--admin_passwd password',
+            :name   => 'admin_password',
+            :large  => '--admin_password password',
             :short => "-p",
             :description =>
                 'Password for the admin user of the group',
