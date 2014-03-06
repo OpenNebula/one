@@ -156,6 +156,47 @@ module Migrator
 
         log_time()
 
+        # Replace deprecated host attributes inside requirements/rank expressions
+
+        @db.run "ALTER TABLE template_pool RENAME TO old_template_pool;"
+        @db.run "CREATE TABLE template_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
+
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_template_pool") do |row|
+                doc = Nokogiri::XML(row[:body])
+
+                atts = ["SCHED_REQUIREMENTS", "SCHED_RANK", "REQUIREMENTS", "RANK"]
+
+                atts.each do |att|
+                    elem = doc.root.at_xpath("TEMPLATE/#{att}")
+
+                    if !elem.nil?
+                        elem.content = elem.text
+                            .gsub("TOTALCPU",   "MAX_CPU")
+                            .gsub("TOTALMEMORY","MAX_MEM")
+                            .gsub("FREECPU",    "FREE_CPU")
+                            .gsub("FREEMEMORY", "FREE_MEM")
+                            .gsub("USEDCPU",    "USED_CPU")
+                            .gsub("USEDMEMORY", "USED_MEM")
+                    end
+                end
+
+                @db[:template_pool].insert(
+                    :oid        => row[:oid],
+                    :name       => row[:name],
+                    :body       => doc.root.to_s,
+                    :uid        => row[:oid],
+                    :gid        => row[:gid],
+                    :owner_u    => row[:owner_u],
+                    :group_u    => row[:group_u],
+                    :other_u    => row[:other_u])
+            end
+        end
+
+        @db.run "DROP TABLE old_template_pool;"
+
+        log_time()
+
         # Default ZONE
         @db.run "CREATE TABLE zone_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
         @db.run "INSERT INTO zone_pool VALUES(0,'OpenNebula','<ZONE><ID>0</ID><NAME>OpenNebula</NAME><TEMPLATE><ENDPOINT><![CDATA[-]]></ENDPOINT></TEMPLATE></ZONE>',0,0,1,0,0);"
