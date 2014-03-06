@@ -59,19 +59,19 @@ var market_actions = {
 
             dialogs_context.append(marketplace_import_dialog);
             $marketplace_import_dialog = $('#marketplace_import_dialog',dialogs_context);
-            $marketplace_import_dialog.addClass("reveal-modal xlarge max-height").attr("data-reveal", "");
+            $marketplace_import_dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
             $marketplace_import_dialog.foundation().foundation('reveal', 'open');
 
             var tab_id = 1;
 
             $.each(response['files'], function(index, value){
                 // Append the new div containing the tab and add the tab to the list
-                var image_dialog = $('<div id="'+tab_id+'Tab" class="contentdisk wizard_internal_tab">'+
+                var image_dialog = $('<div id="Tab'+tab_id+'" class="content disk wizard_internal_tab">'+
                   create_image_tmpl +
                 '</div>').appendTo($("#marketplace_import_dialog_tabs_content"));
 
                 var a_image_dialog = $("<dd>\
-                  <a id='disk_tab"+tab_id+"' href='#"+tab_id+"Tab'>"+tr("Image")+"</a>\
+                  <a id='disk_tab"+tab_id+"' href='#Tab"+tab_id+"'>"+tr("Image")+"</a>\
                 </dd>").appendTo($("dl#marketplace_import_dialog_tabs"));
 
                 initialize_create_image_dialog(image_dialog);
@@ -106,7 +106,7 @@ var market_actions = {
                     $create_image_dialog = image_dialog;
                 })
 
-                image_dialog.on("reveal:close", function(){
+                image_dialog.on("close", function(){
                   a_image_dialog.remove();
                   image_dialog.remove();
                   if ($('a', $("dl#marketplace_import_dialog_tabs")).size > 0) {
@@ -142,7 +142,7 @@ var market_actions = {
                   $create_template_dialog = template_dialog;
               })
 
-              template_dialog.on("reveal:close", function(){
+              template_dialog.on("close", function(){
                 a_template_dialog.remove();
                 template_dialog.remove();
                 if ($('a', $("dl#marketplace_import_dialog_tabs")).size > 0) {
@@ -177,15 +177,15 @@ var market_buttons = {
     },
     "Marketplace.import" : {
         type: "action",
-        layout: "create",
+        layout: "main",
         text: tr('Import')
     }
 };
 
 var marketplace_import_dialog =
 '<div id="marketplace_import_dialog">'+
-  '<div class="panel">'+
-    '<h3><small>'+tr("Import Appliance")+'</small></h4>'+
+  '<div class="row">'+
+    '<h3 class="subheader">'+tr("Import Appliance")+'</h3>'+
   '</div>'+
   '<div class="reveal-body">'+
     '<dl class="tabs" id="marketplace_import_dialog_tabs" data-tab>'+

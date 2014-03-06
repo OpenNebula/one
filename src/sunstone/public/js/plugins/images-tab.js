@@ -1109,7 +1109,7 @@ function initialize_create_image_dialog(dialog) {
         //we this is an image upload we trigger FileUploader
         //to start the upload
         if (upload){
-            $create_image_dialog.foundation('reveal', 'close')
+            dialog.foundation('reveal', 'close')
             uploader._onInputChange(file_input);
         } else {
             Sunstone.runAction("Image.create", img_obj);
@@ -1189,6 +1189,7 @@ function initialize_datastore_info_create_image_dialog(dialog) {
 }
 
 function popUpCreateImageDialog(){
+    $create_image_dialog =  $('#create_image_dialog',dialogs_context);
     initialize_datastore_info_create_image_dialog($create_image_dialog);
     $create_image_dialog.foundation().foundation('reveal', 'open');
     $("input#img_name",$create_image_dialog).focus();
