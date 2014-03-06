@@ -81,10 +81,15 @@ table {
 
 
     th {
-        font-weight: bold;
+        font-weight: normal !important;
+        font-size: 16px !important;
         background: #fff !important;
         border-bottom: 1px solid #efefef !important;;
-        color: #333333 !important;
+        color: #999 !important;
+    }
+
+    td {
+        color: #555 !important;
     }
 }
 
@@ -97,7 +102,7 @@ table.dataTable {
           margin: 0px;
         }
     }
-    input {
+    input[type="checkbox"] {
         margin: 3px 0.5ex !important;
     }
 }
@@ -188,6 +193,8 @@ input[type="text"],
 select {
   font-size: 14px;
   height: 33px !important;
+  padding: 0px 10px;
+  color: rgba(0, 0, 0, 0.75) !important;
 }
 
 .subheader {
@@ -228,7 +235,7 @@ select {
 }
 
 .key_td {
-  color: #555;
+  color: #777;
 }
 
 .reveal-modal {
@@ -262,36 +269,6 @@ select {
   }
 }
 
-// Remove padding and border from jquery_layout
-.inner-south {
-    -webkit-box-shadow: 0 0 5px #999999;
-    -moz-box-shadow: 0 0 5px #999999;
-    box-shadow: 0 0 5px #999999;
-    padding: 20px !important;
-}
-
-.inner-center {
-    padding: 20px !important;
-}
-
-.ui-layout-pane { /* all 'panes' */
-    background: #FFF;
-    padding:    0px;
-    /* DO NOT add scrolling (or padding) to 'panes' that have a content-div,
-       otherwise you may get double-scrollbars - on the pane AND on the content-div
-       - use ui-layout-wrapper class if pane has a content-div
-       - use ui-layout-container if pane has an inner-layout
-    */
-    }
-/* (scrolling) content-div inside pane allows for fixed header(s) and/or footer(s) */
-.ui-layout-content {
-    padding:    10px;
-    position:   relative; /* contain floated or positioned elements */
-}
-
-.outer-west {
-  padding: 10px
-}
 
 // Dashboard
 

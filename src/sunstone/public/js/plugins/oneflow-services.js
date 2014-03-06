@@ -650,11 +650,11 @@ var role_actions = {
 Sunstone.addActions(role_actions);
 
 function roleElements() {
-    return getSelectedNodes(servicerolesDataTable);
+    return getSelectedNodes(servicerolesDataTable, true);
 };
 
 function roleVMElements() {
-    return getSelectedNodes(serviceroleVMsDataTable);
+    return getSelectedNodes(serviceroleVMsDataTable, true);
 };
 
 function roleCallback() {
@@ -1048,6 +1048,9 @@ var services_tab = {
     list_header: '<i class="fa fa-code-fork fa fa-rotate-90"></i> '+tr("OneFlow - Services"),
     info_header: '<i class="fa fa-code-fork fa fa-rotate-90"></i> '+tr("OneFlow - Service"),
     subheader: '<span/> <small></small>&emsp;',
+    content:   '<div class="row" id="error_message" hidden>\
+        <div class="alert-box alert radius">'+tr("Cannot connect to OneFlow server")+'</div>\
+    </div>',
     table: '<table id="datatable_services" class="datatable twelve">\
         <thead>\
           <tr>\
@@ -1646,35 +1649,25 @@ function setupScaleDialog(){
     $scale_dialog = $('#scale_dialog', dialogs_context);
     var dialog = $scale_dialog;
 
-    dialog.html('<div class="panel">\
-      <h3>\
-        <small id="">'+tr("Scale")+'</small>\
-      </h3>\
+    dialog.html('<div class="row">\
+      <h3 class="subheader">'+tr("Scale")+'</h3>\
     </div>\
     <form id="scale_form" action="">\
           <div class="row">\
-              <div class="large-4 columns">\
-                  <label class="inline right" for="cardinality">'+tr("Cardinality")+':</label>\
-              </div>\
-              <div class="large-7 columns">\
+              <div class="large-12 columns">\
+                  <label for="cardinality">'+tr("Cardinality")+
+                    '<span class="tip">'+ tr("Number of VMs to instantiate with this role") +'</span>'+
+                  '</label>\
                   <input type="text" name="cardinality" id="cardinality"/>\
-              </div>\
-              <div class="large-1 columns">\
-                  <div class="tip">'+ tr("Number of VMs to instantiate with this role") +'</div>\
               </div>\
           </div>\
           <div class="row">\
-              <div class="large-4 columns">\
-                  <label class="inline right" for="force">'+tr("Force")+':</label>\
-              </div>\
-              <div class="large-2 columns">\
-                  <input type="checkbox" name="force" id="force"/>\
-              </div>\
-              <div class="large-1 columns pull-five">\
-                  <div class="tip">'+ tr("Force the new cardinality even if it is outside the limits") +'</div>\
+              <div class="large-12 columns">\
+                  <input type="checkbox" name="force" id="force"/><label class="inline" for="force">'+tr("Force")+
+                    '<span class="tip">'+ tr("Force the new cardinality even if it is outside the limits") +'</span>'+
+                  '</label>\
               </div>\
           </div>\
-          <hr>\
           <div class="form_buttons">\
               <button class="button radius right success" id="" type="submit" value="">'+tr("Scale")+'</button>\
           </div>\

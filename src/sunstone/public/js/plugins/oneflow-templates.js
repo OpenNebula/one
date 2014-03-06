@@ -65,75 +65,53 @@ var ServiceTemplate = {
 }
 
 var create_service_template_tmpl = '\
-<div class="panel">\
-  <h3>\
-    <small id="create_service_template_header">'+tr("Create Service Template")+'</small>\
-    <small id="update_service_template_header" hidden>'+tr("Update Service Template")+'</small>\
-  </h3>\
+<div class="row">\
+    <h3 id="create_service_template_header" class="subheader">'+tr("Create Service Template")+'</h3>\
+    <h3 id="update_service_template_header" class="subheader" hidden>'+tr("Update Service Template")+'</h3>\
 </div>\
 <div class="reveal-body create_form">\
   <form id="create_service_template_form" action="">\
     <div class="row">\
         <div class="service_template_param st_man large-6 columns">\
-            <div class="row">\
-                <div class="large-5 columns">\
-                    <label class="inline right" for="service_name">' + tr("Name") + ':</label>\
-                </div>\
-                <div class="large-6 columns">\
-                    <input type="text" id="service_name" name="service_name" />\
-                </div>\
-                <div class="large-1 columns">\
-                    <div class="tip">'+ tr("Name for this template") +'</div>\
-                </div>\
-            </div>\
+            <label for="service_name">' + tr("Name") +
+                '<span class="tip">'+ tr("Name for this template") +'</span>'+
+            '</label>'+
+            '<input type="text" id="service_name" name="service_name" />\
         </div>\
         <div class="service_template_param st_man large-6 columns">\
-        </div>\
-    </div>\
-    <div class="row">\
-        <div class="service_template_param st_man large-6 columns">\
             <div class="row">\
-                <div class="large-5 columns">\
-                    <label class="inline right" for="deployment">' + tr("Strategy") + ':</label>\
-                </div>\
-                <div class="large-6 columns">\
+                <div class="service_template_param st_man large-6 columns">\
+                    <label for="deployment">' + tr("Strategy") +
+                        '<span class="tip">'+ tr("Straight strategy will instantiate each role in order: parents role will be deployed before their children. None strategy will instantiate the roles regardless of their relationships.") +'</span>'+
+                    '</label>\
                     <select name="deployment">\
                         <option value="straight">'+ tr("Straight") + '</option>\
                         <option value="none">'+ tr("None") + '</option>\
                     </select>\
                 </div>\
-                <div class="large-1 columns">\
-                    <div class="tip">'+ tr("Straight strategy will instantiate each role in order: parents role will be deployed before their children. None strategy will instantiate the roles regardless of their relationships.") +'</div>\
-                </div>\
-            </div>\
-        </div>\
-        <div class="service_template_param st_man large-6 columns">\
-            <div class="row">\
-                <div class="large-5 columns">\
-                    <label class="inline right" for="vm_template">' + tr("Shutdown action") + ':</label>\
-                </div>\
-                <div class="large-6 columns">\
+                <div class="service_template_param st_man large-6 columns">\
+                    <label for="vm_template">' + tr("Shutdown action") +
+                        '<span class="tip">'+ tr("VM shutdown action: 'shutdown' or 'shutdown-hard'.") +'</span>'+
+                    '</label>\
                     <select name="shutdown_action_service">\
                         <option value=""></option>\
                         <option value="shutdown">'+tr("Shutdown")+'</option>\
                         <option value="shutdown-hard">'+tr("Shutdown hard")+'</option>\
                     </select>\
                 </div>\
-                <div class="large-1 columns">\
-                    <div class="tip">'+ tr("VM shutdown action: 'shutdown' or 'shutdown-hard'.") +'</div>\
-                </div>\
             </div>\
         </div>\
     </div>\
-    <div class="row" id="new_role">\
-           <dl class="tabs" id="roles_tabs" data-tab>\
-            <dd class="right"><div type="button" class="button tiny radius" id="tf_btn_roles"><span class="fa fa-plus"></span> '+tr("Add another role")+'</div></dd>\
+    <br>\
+    <br>\
+    <div id="new_role">\
+           <dl class="tabs vertical" id="roles_tabs" data-tab>\
+            <dt class="text-center"><div type="button" class="button tiny radius" id="tf_btn_roles"><span class="fa fa-plus"></span> '+tr("Add another role")+'</div></dt>\
            </dl>\
-           <div class="tabs-content" id="roles_tabs_content">\
+           <div class="tabs-content vertical" id="roles_tabs_content">\
            </div>\
     </div>\
     <div class="reveal-footer">\
-      <hr>\
       <div class="form_buttons">\
           <button id="create_service_template_submit" class="button radius right success"" type="action" value="ServiceTemplate.create">' + tr("Create") + '</button>\
           <button id="update_service_template_submit" class="button radius right success"" type="action" value="ServiceTemplate.update" hidden>' + tr("Update") + '</button>\
@@ -145,66 +123,40 @@ var create_service_template_tmpl = '\
 </div>';
 
 var role_tab_content = '\
-<div class="">\
+<div class="row">\
     <div class="service_template_param service_role st_man large-6 columns">\
-        <div class="row">\
-            <div class="large-5 columns">\
-              <label class="inline right" for="name">' + tr("Role Name") + ':</label>\
-            </div>\
-            <div class="large-6 columns">\
+              <label for="name">' + tr("Role Name") +
+                '<span class="tip">'+ tr("Name of the role") +'</span>'+
+              '</label>\
               <input type="text" id="role_name" name="name"/>\
-            </div>\
-            <div class="large-1 columns">\
-              <div class="tip">'+ tr("Name of the role") +'</div>\
-            </div>\
-        </div>\
-          <div class="row">\
-            <div class="large-5 columns">\
-                <label class="inline right" for="cardinality">' + tr("Cardinality") + ':</label>\
-            </div>\
-            <div class="large-2 columns">\
-                <input type="text" id="cardinality" name="cardinality" value="1" />\
-            </div>\
-            <div class="large-1 columns">\
-                <div class="tip">'+ tr("Number of VMs to instantiate with this role") +'</div>\
-            </div>\
-          </div>\
     </div>\
     <div class="service_template_param service_role large-6 columns">\
-        <div class="row">\
-            <div class="large-5 columns">\
-                <label class="inline right" for="vm_template">' + tr("VM template") + ':</label>\
-            </div>\
-            <div class="large-6 columns">\
+                <label for="vm_template">' + tr("VM template") +
+                    '<span class="tip">'+ tr("Template associated to this role") +'</span>'+
+                '</label>\
                 <select name="vm_template">\
                 </select>\
-            </div>\
-            <div class="large-1 columns">\
-                <div class="tip">'+ tr("Template associated to this role") +'</div>\
-            </div>\
-        </div>\
-        <div class="row">\
-            <div class="large-5 columns">\
-                <label class="inline right" for="vm_template">' + tr("Shutdown action") + ':</label>\
-            </div>\
-            <div class="large-6 columns">\
-                <select name="shutdown_action_role">\
-                    <option value=""></option>\
-                    <option value="shutdown">'+tr("Shutdown")+'</option>\
-                    <option value="shutdown-hard">'+tr("Shutdown hard")+'</option>\
-                </select>\
-            </div>\
-            <div class="large-1 columns">\
-                <div class="tip">'+ tr("VM shutdown action: 'shutdown' or 'shutdown-hard'. If it is not set, the one set for the Service will be used") +'</div>\
-            </div>\
-        </div>\
     </div>\
 </div>\
 <div class="row">\
-    <div class="large-3 columns">\
+    <div class="service_template_param service_role large-3 columns">\
+        <label for="cardinality">' + tr("Cardinality") +
+            '<span class="tip">'+ tr("Number of VMs to instantiate with this role") +'</span>'+
+        '</label>\
+        <input type="text" id="cardinality" name="cardinality" value="1" />\
     </div>\
-    <div class="large-6 columns">\
-        <table id="parent_roles" class="extended_table twelve">\
+    <div class="service_template_param service_role large-3 columns">\
+        <label for="vm_template">' + tr("Shutdown action") +
+            '<span class="tip">'+ tr("VM shutdown action: 'shutdown' or 'shutdown-hard'. If it is not set, the one set for the Service will be used") +'</span>'+
+        '</label>\
+        <select name="shutdown_action_role">\
+            <option value=""></option>\
+            <option value="shutdown">'+tr("Shutdown")+'</option>\
+            <option value="shutdown-hard">'+tr("Shutdown hard")+'</option>\
+        </select>\
+    </div>\
+    <div class="service_template_param service_role large-6 columns">\
+        <table id="parent_roles" class="extended_table dataTable">\
             <thead>\
                 <tr><th colspan="2">'+tr("Parent roles")+'</th></tr>\
             </thead>\
@@ -212,157 +164,139 @@ var role_tab_content = '\
             </tbody>\
         </table>\
     </div>\
+</div>\
+<br>\
+<div class="row">\
+    <div class="large-12 columns">\
+        <h5>'+tr("Elasticity")+'</h5>\
+    </div>\
+</div>\
+<div class="row">\
+    <div class="large-3 columns">\
+            <label for="min_vms">' + tr("Min VMs") +
+                '<span class="tip">'+ tr("Minimum number of VMs for elasticity adjustments") +'</span>'+
+            '</label>\
+            <input type="text" id="min_vms" name="min_vms" value="" />\
+    </div>\
+    <div class="large-3 columns">\
+            <label for="max_vms">' + tr("Max VMs") +
+                '<span class="tip">'+ tr("Maximum number of VMs for elasticity adjustments") +'</span>'+
+            '</label>\
+            <input type="text" id="max_vms" name="max_vms" value="" />\
+    </div>\
+    <div class="large-3 columns">\
+            <label for="cooldown">' + tr("Cooldown") +
+                '<span class="tip">'+ tr("Cooldown time after an elasticity operation (secs)") +'</span>'+
+            '</label>\
+            <input type="text" id="cooldown" name="cooldown" value="" />\
+    </div>\
     <div class="large-3 columns">\
     </div>\
 </div>\
 <div class="row">\
-    <div class="large-11 columns centered">\
-        <fieldset>\
-            <legend>'+tr("Elasticity")+' - <span id="role_name_text"></span></legend>\
-            <div class="">\
-                <div class="large-4 columns">\
-                    <div class="large-5 columns">\
-                        <label class="inline right" for="min_vms">' + tr("Min VMs") + ':</label>\
-                    </div>\
-                    <div class="large-6 columns">\
-                        <input type="text" id="min_vms" name="min_vms" value="" />\
-                    </div>\
-                    <div class="large-1 columns">\
-                        <div class="tip">'+ tr("Minimum number of VMs for elasticity adjustments") +'</div>\
-                    </div>\
-                </div>\
-                <div class="large-4 columns">\
-                    <div class="large-5 columns">\
-                        <label class="inline right" for="max_vms">' + tr("Max VMs") + ':</label>\
-                    </div>\
-                    <div class="large-6 columns">\
-                        <input type="text" id="max_vms" name="max_vms" value="" />\
-                    </div>\
-                    <div class="large-1 columns">\
-                        <div class="tip">'+ tr("Maximum number of VMs for elasticity adjustments") +'</div>\
-                    </div>\
-                </div>\
-                <div class="large-4 columns">\
-                    <div class="large-5 columns">\
-                        <label class="inline right" for="cooldown">' + tr("Cooldown") + ':</label>\
-                    </div>\
-                    <div class="large-6 columns">\
-                        <input type="text" id="cooldown" name="cooldown" value="" />\
-                    </div>\
-                    <div class="large-1 columns">\
-                        <div class="tip">'+ tr("Cooldown time after an elasticity operation (secs)") +'</div>\
-                    </div>\
-                </div>\
-            </div>\
-            <div class="">\
-                <div class="large-12 columns">\
-                      <br>\
-                      <table id="elasticity_policies_table" class="policies_table dataTable">\
-                            <thead style="background:#dfdfdf">\
-                              <tr>\
-                                <th colspan="8">\
-                                    '+tr("Elasticty policies")+'\
-                                    <div type="button" class="button tiny radius right secondary" id="tf_btn_elas_policies"><span class="fa fa-plus"></span> '+tr("Add")+'</div>\
-                                </th>\
-                              </tr>\
-                            </thead>\
-                            <thead>\
-                              <tr>\
-                                <th style="width:14%">'+tr("Type")+'\
-                                    <span class="tip">'+tr("Type of adjustment.")+'<br><br>\
-                                        '+tr("CHANGE: Add/substract the given number of VMs.")+'<br>\
-                                        '+tr("CARDINALITY: Set the cardinality to the given number.")+'<br>\
-                                        '+tr("PERCENTAGE_CHANGE: Add/substract the given percentage to the current cardinality.")+'\
-                                    </span>\
-                                </th>\
-                                <th style="width:12%">'+tr("Adjust")+'\
-                                    <span class="tip">'+tr("Positive or negative adjustment. Its meaning depends on 'type'")+'<br><br>\
-                                        '+tr("CHANGE: -2, will substract 2 VMs from the role")+'<br>\
-                                        '+tr("CARDINALITY: 8, will set carditanilty to 8")+'<br>\
-                                        '+tr("PERCENTAGE_CHANGE: 20, will increment cardinality by 20%")+'\
-                                    </span>\
-                                </th>\
-                                <th style="width:9%">'+tr("Min")+'\
-                                    <span class="tip">'+tr("Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute.")+'\
-                                    </span>\
-                                </th>\
-                                <th style="width:20%">'+tr("Expression")+'\
-                                    <span class="tip">'+tr("Expression to trigger the elasticity")+'<br><br>\
-                                        '+tr("Example: ATT < 20")+'<br>\
-                                    </span>\
-                                </th>\
-                                <th style="width:15%">'+tr("# Periods")+'\
-                                    <span class="tip">'+tr("Number of periods that the expression must be true before the elasticity is triggered")+'\
-                                    </span>\
-                                </th>\
-                                <th style="width:12%">'+tr("Period")+'\
-                                    <span class="tip">'+tr("Duration, in seconds, of each period in '# Periods'")+'\
-                                    </span>\
-                                </th>\
-                                <th style="width:15%">'+tr("Cooldown")+'\
-                                    <span class="tip">'+tr("Cooldown period duration after a scale operation, in seconds")+'\
-                                    </span>\
-                                </th>\
-                                <th style="width:3%"></th>\
-                              </tr>\
-                            </thead>\
-                            <tbody id="elasticity_policies_tbody">\
-                            </tbody>\
-                      </table>\
-                </div>\
-            </div>\
-            <div class="">\
-                <div class="large-12 columns">\
-                      <br>\
-                      <table id="scheduled_policies_table" class="policies_table dataTable">\
-                            <thead style="background:#dfdfdf">\
-                              <tr>\
-                                <th colspan="6">\
-                                    '+tr("Scheduled policies")+'\
-                                    <div type="button" class="button tiny radius right secondary" id="tf_btn_sche_policies"><span class="fa fa-plus"></span> '+tr("Add")+'</div>\
-                                </th>\
-                              </tr>\
-                            </thead>\
-                            <thead>\
-                              <tr>\
-                                <th style="width:14%">'+tr("Type")+'\
-                                    <span class="tip">'+tr("Type of adjustment.")+'<br><br>\
-                                        '+tr("CHANGE: Add/substract the given number of VMs.")+'<br>\
-                                        '+tr("CARDINALITY: Set the cardinality to the given number.")+'<br>\
-                                        '+tr("PERCENTAGE_CHANGE: Add/substract the given percentage to the current cardinality.")+'\
-                                    </span>\
-                                </th>\
-                                <th style="width:12%">'+tr("Adjust")+'\
-                                    <span class="tip">'+tr("Positive or negative adjustment. Its meaning depends on 'type'")+'<br><br>\
-                                        '+tr("CHANGE: -2, will substract 2 VMs from the role")+'<br>\
-                                        '+tr("CARDINALITY: 8, will set carditanilty to 8")+'<br>\
-                                        '+tr("PERCENTAGE_CHANGE: 20, will increment cardinality by 20%")+'\
-                                    </span>\
-                                </th>\
-                                <th style="width:9%">'+tr("Min")+'\
-                                    <span class="tip">'+tr("Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute.")+'\
-                                    </span>\
-                                </th>\
-                                <th style="width:28%">'+tr("Time format")+'\
-                                    <span class="tip">'+tr("Recurrence: Time for recurring adjustements. Time is specified with the Unix cron syntax")+'<br><br>\
-                                        '+tr("Start time: Exact time for the adjustement")+'\
-                                    </span>\
-                                </th>\
-                                <th style="width:33%">'+tr("Time expression")+'\
-                                    <span class="tip">'+tr("Time expression depends on the the time formar selected")+'<br><br>\
-                                        '+tr("Recurrence: Time for recurring adjustements. Time is specified with the Unix cron syntax")+'<br>\
-                                        '+tr("Start time: Exact time for the adjustement")+'<br>\
-                                    </span>\
-                                </th>\
-                                <th style="width:3%"></th>\
-                              </tr>\
-                            </thead>\
-                            <tbody id="scheduled_policies_tbody">\
-                            </tbody>\
-                      </table>\
-                </div>\
-            </div>\
-        </fieldset>\
+    <div class="large-12 columns">\
+          <table id="elasticity_policies_table" class="policies_table dataTable">\
+                <thead style="background:#dfdfdf">\
+                  <tr>\
+                    <th colspan="8">\
+                        '+tr("Elasticty policies")+'\
+                        <div type="button" class="button tiny radius right secondary" id="tf_btn_elas_policies"><span class="fa fa-plus"></span> '+tr("Add")+'</div>\
+                    </th>\
+                  </tr>\
+                </thead>\
+                <thead>\
+                  <tr>\
+                    <th style="width:14%">'+tr("Type")+'\
+                        <br><span class="tip">'+tr("Type of adjustment.")+'<br><br>\
+                            '+tr("CHANGE: Add/substract the given number of VMs.")+'<br>\
+                            '+tr("CARDINALITY: Set the cardinality to the given number.")+'<br>\
+                            '+tr("PERCENTAGE_CHANGE: Add/substract the given percentage to the current cardinality.")+'\
+                        </span>\
+                    </th>\
+                    <th style="width:12%">'+tr("Adjust")+'\
+                        <br><span class="tip">'+tr("Positive or negative adjustment. Its meaning depends on 'type'")+'<br><br>\
+                            '+tr("CHANGE: -2, will substract 2 VMs from the role")+'<br>\
+                            '+tr("CARDINALITY: 8, will set carditanilty to 8")+'<br>\
+                            '+tr("PERCENTAGE_CHANGE: 20, will increment cardinality by 20%")+'\
+                        </span>\
+                    </th>\
+                    <th style="width:9%">'+tr("Min")+'\
+                        <br><span class="tip">'+tr("Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute.")+'\
+                        </span>\
+                    </th>\
+                    <th style="width:30%">'+tr("Expression")+'\
+                        <br><span class="tip">'+tr("Expression to trigger the elasticity")+'<br><br>\
+                            '+tr("Example: ATT < 20")+'<br>\
+                        </span>\
+                    </th>\
+                    <th style="width:8%">#\
+                        <br><span class="tip">'+tr("Number of periods that the expression must be true before the elasticity is triggered")+'\
+                        </span>\
+                    </th>\
+                    <th style="width:9%">'+tr("Period")+'\
+                        <br><span class="tip">'+tr("Duration, in seconds, of each period in '# Periods'")+'\
+                        </span>\
+                    </th>\
+                    <th style="width:15%">'+tr("Cooldown")+'\
+                        <br><span class="tip">'+tr("Cooldown period duration after a scale operation, in seconds")+'\
+                        </span>\
+                    </th>\
+                    <th style="width:3%"></th>\
+                  </tr>\
+                </thead>\
+                <tbody id="elasticity_policies_tbody">\
+                </tbody>\
+          </table>\
+    </div>\
+</div>\
+<div class="row">\
+    <div class="large-12 columns">\
+          <table id="scheduled_policies_table" class="policies_table dataTable">\
+                <thead style="background:#dfdfdf">\
+                  <tr>\
+                    <th colspan="6">\
+                        '+tr("Scheduled policies")+'\
+                        <div type="button" class="button tiny radius right secondary" id="tf_btn_sche_policies"><span class="fa fa-plus"></span> '+tr("Add")+'</div>\
+                    </th>\
+                  </tr>\
+                </thead>\
+                <thead>\
+                  <tr>\
+                    <th style="width:14%">'+tr("Type")+'\
+                        <br><span class="tip">'+tr("Type of adjustment.")+'<br><br>\
+                            '+tr("CHANGE: Add/substract the given number of VMs.")+'<br>\
+                            '+tr("CARDINALITY: Set the cardinality to the given number.")+'<br>\
+                            '+tr("PERCENTAGE_CHANGE: Add/substract the given percentage to the current cardinality.")+'\
+                        </span>\
+                    </th>\
+                    <th style="width:12%">'+tr("Adjust")+'\
+                        <br><span class="tip">'+tr("Positive or negative adjustment. Its meaning depends on 'type'")+'<br><br>\
+                            '+tr("CHANGE: -2, will substract 2 VMs from the role")+'<br>\
+                            '+tr("CARDINALITY: 8, will set carditanilty to 8")+'<br>\
+                            '+tr("PERCENTAGE_CHANGE: 20, will increment cardinality by 20%")+'\
+                        </span>\
+                    </th>\
+                    <th style="width:9%">'+tr("Min")+'\
+                        <br><span class="tip">'+tr("Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute.")+'\
+                        </span>\
+                    </th>\
+                    <th style="width:28%">'+tr("Time format")+'\
+                        <br><span class="tip">'+tr("Recurrence: Time for recurring adjustements. Time is specified with the Unix cron syntax")+'<br><br>\
+                            '+tr("Start time: Exact time for the adjustement")+'\
+                        </span>\
+                    </th>\
+                    <th style="width:33%">'+tr("Time expression")+'\
+                        <br><span class="tip">'+tr("Time expression depends on the the time formar selected")+'<br><br>\
+                            '+tr("Recurrence: Time for recurring adjustements. Time is specified with the Unix cron syntax")+'<br>\
+                            '+tr("Start time: Exact time for the adjustement")+'<br>\
+                        </span>\
+                    </th>\
+                    <th style="width:3%"></th>\
+                  </tr>\
+                </thead>\
+                <tbody id="scheduled_policies_tbody">\
+                </tbody>\
+          </table>\
     </div>\
 </div>';
 
@@ -584,6 +518,9 @@ var service_templates_tab = {
     list_header: '<i class="fa fa-file-o"></i> '+tr("OneFlow - Templates"),
     info_header: '<i class="fa fa-file-o"></i> '+tr("OneFlow - Template"),
     subheader: '<span/> <small></small>&emsp;',
+    content:   '<div class="row" id="error_message" hidden>\
+        <div class="alert-box alert radius">'+tr("Cannot connect to OneFlow server")+'</div>\
+    </div>',
     table: '<table id="datatable_service_templates" class="datatable twelve">\
         <thead>\
           <tr>\
