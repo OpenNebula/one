@@ -36,6 +36,7 @@ var create_vn_tmpl =
               <div class="large-6 columns">\
                 <label for="name" >' + tr("Name") + ':</label>\
                 <input type="text" name="name" id="name"/>\
+              </div>\
             </div>\
             <div class="row">\
               <div class="large-12 columns">\
@@ -232,7 +233,6 @@ var create_vn_tmpl =
                 </fieldset>\
               </div>\
             </div>\
-            </div>\
         <div class="reveal-footer">\
         <div class="form_buttons">\
           <button class="button success radius right" id="create_vn_submit_easy" value="vn/create">\
@@ -245,21 +245,27 @@ var create_vn_tmpl =
       </div>\
       <div id="vnet_advanced" class="content">\
         <form id="create_vn_form_manual" action="">\
-            <h4><small>'+tr("Write the Virtual Network template here")+'</small></h4>\
-            <textarea id="template" rows="15" style="width:100%;"></textarea>\
-            <div class="reveal-footer">\
-              <div class="form_buttons">\
-                <button class="button success right radius" id="create_vn_submit_manual" value="vn/create">\
-                   '+tr("Create")+'\
-                </button>\
-                <button id="advanced_vnet_reset_button" class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
-                    </div>\
+          <div class="row">\
+            <div class="columns large-12">\
+              <h4><small>'+tr("Write the Virtual Network template here")+'</small></h4>\
             </div>\
+          </div>\
+          <div class="row">\
+            <div class="columns large-12">\
+              <textarea id="template" rows="15" style="width:100%;"></textarea>\
+            </div>\
+          </div>\
+          <div class="reveal-footer">\
+            <div class="form_buttons">\
+              <button class="button success right radius" id="create_vn_submit_manual" value="vn/create">'+tr("Create")+'</button>\
+              <button id="advanced_vnet_reset_button" class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
+            </div>\
+          </div>\
         </form>\
       </div>\
     </div>\
-    </div>\
-    <a class="close-reveal-modal">&#215;</a>';
+  </div>\
+  <a class="close-reveal-modal">&#215;</a>';
 
 var update_vnet_tmpl =
    '<form action="javascript:alert(\'js error!\');">\
@@ -909,6 +915,9 @@ function printLeases(vn_info){
             }
             html += '</td>'
             html += '<td>'
+            if (Config.isTabActionEnabled("vnets-tab", "Network.remove_lease")) {
+              html += '<a class="delete_lease" href="#"><i class="fa fa-trash-o"/></a>';
+            }
             break;
         };
         html += '</td>'
