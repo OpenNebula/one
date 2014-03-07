@@ -1554,7 +1554,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
           '<h4><small><i class=" fa fa-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
       '</div>'+
     '</div>'+
-    '<div class="advanced">'+
+    '<div class="advanced vm_param">'+
       '<fieldset>'+
         '<legend>'+tr("Network")+'</legend>'+
         '<div class="row advanced vm_param">'+
