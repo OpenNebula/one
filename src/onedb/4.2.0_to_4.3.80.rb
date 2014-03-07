@@ -295,8 +295,8 @@ http://opennebula.org/documentation:rel4.4:upgrade
             @db.fetch("SELECT * FROM old_host_pool") do |row|
                 doc = Nokogiri::XML(row[:body])
 
-                doc.root.at_xpath("HOST_SHARE")
-                    .add_child(doc.create_element("DATASTORES"))
+                doc.root.at_xpath("HOST_SHARE").
+                    add_child(doc.create_element("DATASTORES"))
 
                 @db[:host_pool].insert(
                     :oid            => row[:oid],
