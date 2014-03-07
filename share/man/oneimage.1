@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEIMAGE" "1" "November 2013" "" "oneimage(1) -- manages OpenNebula images"
+.TH "ONEIMAGE" "1" "March 2014" "" "oneimage(1) -- manages OpenNebula images"
 .
 .SH "NAME"
 \fBoneimage\fR
@@ -37,6 +37,7 @@
  \-d, \-\-delay x             Sets the delay in seconds for top command
  \-f, \-\-filter x,y,z        Filter data\. An array is specified with
                            column=value pairs\.
+ \-\-csv                     Write table in csv format
  \-x, \-\-xml                 Show the resource in xml format
  \-n, \-\-numeric             Do not translate user and group IDs
  \-\-describe                Describe list columns
@@ -120,13 +121,13 @@ chmod \fIrange|imageid_list\fR \fIoctet\fR Changes the Image permissions
 rename \fIimageid\fR \fIname\fR Renames the Image
 .
 .IP "\(bu" 4
-list [\fIfilterflag\fR] Lists Images in the pool valid options: list, delay, filter, xml, numeric, describe
+list [\fIfilterflag\fR] Lists Images in the pool valid options: list, delay, filter, csv, xml, numeric, describe
 .
 .IP "\(bu" 4
 show \fIimageid\fR Shows information for the given Image valid options: xml
 .
 .IP "\(bu" 4
-top [\fIfilterflag\fR] Lists Images continuously valid options: list, delay, filter, xml, numeric, describe
+top [\fIfilterflag\fR] Lists Images continuously valid options: list, delay, filter, csv, xml, numeric, describe
 .
 .IP "" 0
 .
@@ -162,7 +163,7 @@ type Image type: OS, CDROM, DATABLOCK, KERNEL, RAMDISK, CONTEXT
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 4\.4\.0 Copyright 2002\-2013, OpenNebula Project (OpenNebula\.org), C12G Labs
+OpenNebula 4\.5\.80 Copyright 2002\-2014, OpenNebula Project (OpenNebula\.org), C12G Labs
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0
