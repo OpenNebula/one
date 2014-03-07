@@ -239,11 +239,11 @@ module OpenNebula
             @body['last_vmname'] ||= 0
 
             n_nodes.times { |i|
-                vm_name = @@vm_name_template
-                    .gsub("$SERVICE_ID",    @service.id().to_s)
-                    .gsub("$SERVICE_NAME",  @service.name().to_s)
-                    .gsub("$ROLE_NAME",     name().to_s)
-                    .gsub("$VM_NUMBER",     @body['last_vmname'].to_s)
+                vm_name = @@vm_name_template.
+                    gsub("$SERVICE_ID",    @service.id().to_s).
+                    gsub("$SERVICE_NAME",  @service.name().to_s).
+                    gsub("$ROLE_NAME",     name().to_s).
+                    gsub("$VM_NUMBER",     @body['last_vmname'].to_s)
 
                 @body['last_vmname'] += 1
 
