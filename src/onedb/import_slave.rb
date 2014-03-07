@@ -336,8 +336,8 @@ EOT
                     new_elem = slave_doc.create_element("GROUPS")
 
                     groups_elem.xpath("ID").each do |id|
-                        new_elem.add_child(slave_doc.create_element("ID"))
-                            .content = groups[id.text.to_i][:oid]
+                        new_elem.add_child(slave_doc.create_element("ID")).
+                            content = groups[id.text.to_i][:oid]
                     end
 
                     slave_doc.root.add_child(new_elem)
@@ -419,8 +419,8 @@ EOT
                     new_elem = slave_doc.create_element("USERS")
 
                     users_elem.xpath("ID").each do |id|
-                        new_elem.add_child(slave_doc.create_element("ID"))
-                            .content = users[id.text.to_i][:oid]
+                        new_elem.add_child(slave_doc.create_element("ID")).
+                            content = users[id.text.to_i][:oid]
                     end
 
                     slave_doc.root.add_child(new_elem)

@@ -171,13 +171,13 @@ module Migrator
                     elem = doc.root.at_xpath("TEMPLATE/#{att}")
 
                     if !elem.nil?
-                        elem.content = elem.text
-                            .gsub("TOTALCPU",   "MAX_CPU")
-                            .gsub("TOTALMEMORY","MAX_MEM")
-                            .gsub("FREECPU",    "FREE_CPU")
-                            .gsub("FREEMEMORY", "FREE_MEM")
-                            .gsub("USEDCPU",    "USED_CPU")
-                            .gsub("USEDMEMORY", "USED_MEM")
+                        elem.content = elem.text.
+                            gsub("TOTALCPU",   "MAX_CPU").
+                            gsub("TOTALMEMORY","MAX_MEM").
+                            gsub("FREECPU",    "FREE_CPU").
+                            gsub("FREEMEMORY", "FREE_MEM").
+                            gsub("USEDCPU",    "USED_CPU").
+                            gsub("USEDMEMORY", "USED_MEM")
                     end
                 end
 
@@ -218,8 +218,8 @@ module Migrator
 
         quotas_doc = Nokogiri::XML("<QUOTAS></QUOTAS>")
 
-        quotas_doc.root.add_child(quotas_doc.create_element("ID"))
-            .content = doc.root.at_xpath("ID").text
+        quotas_doc.root.add_child(quotas_doc.create_element("ID")).
+            content = doc.root.at_xpath("ID").text
 
         quotas_doc.root.add_child(ds_quota)
         quotas_doc.root.add_child(net_quota)

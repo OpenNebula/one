@@ -51,9 +51,9 @@ module Migrator
             @db.fetch("SELECT * FROM old_user_pool") do |row|
                 doc = Nokogiri::XML(row[:body])
 
-                doc.root.at_xpath("TEMPLATE")
-                    .add_child(doc.create_element("TOKEN_PASSWORD"))
-                    .content = OpenSSL::Digest::SHA1.hexdigest( rand().to_s )
+                doc.root.at_xpath("TEMPLATE").
+                    add_child(doc.create_element("TOKEN_PASSWORD")).
+                    content = OpenSSL::Digest::SHA1.hexdigest( rand().to_s )
 
                 @db[:user_pool].insert(
                     :oid        => row[:oid],
