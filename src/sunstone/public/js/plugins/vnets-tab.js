@@ -1309,7 +1309,6 @@ function setupCreateVNetDialog() {
     });
 
     $('#wizard_vnet_reset_button').click(function(){
-        $create_vn_dialog.foundation('reveal', 'close');
         $create_vn_dialog.html("");
         setupCreateVNetDialog();
 
@@ -1317,7 +1316,6 @@ function setupCreateVNetDialog() {
     });
 
     $('#advanced_vnet_reset_button').click(function(){
-        $create_vn_dialog.foundation('reveal', 'close');
         $create_vn_dialog.html("");
         setupCreateVNetDialog();
 

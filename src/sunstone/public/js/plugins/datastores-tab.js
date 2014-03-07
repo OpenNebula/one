@@ -964,7 +964,6 @@ function setupCreateDatastoreDialog(){
     });
 
     $('#wizard_ds_reset_button').click(function(){
-        $create_datastore_dialog.foundation('reveal', 'close');
         $create_datastore_dialog.html("");
         setupCreateDatastoreDialog();
 
@@ -974,7 +973,6 @@ function setupCreateDatastoreDialog(){
     });
 
     $('#advanced_ds_reset_button').click(function(){
-        $create_datastore_dialog.foundation('reveal', 'close');
         $create_datastore_dialog.html("");
         setupCreateDatastoreDialog();
 

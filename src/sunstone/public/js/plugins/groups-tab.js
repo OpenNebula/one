@@ -1078,7 +1078,6 @@ function setupCreateGroupDialog(){
     setupTips($create_group_dialog);
 
     $('#create_group_reset_button').click(function(){
-        $create_group_dialog.foundation('reveal', 'close');
         $create_group_dialog.html("");
         setupCreateGroupDialog();
 

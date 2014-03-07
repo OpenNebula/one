@@ -3515,14 +3515,12 @@ function initialize_create_template_dialog(dialog) {
     var tabs = $( "#template_create_tabs", dialog)//.tabs().addClass("ui-tabs-vertical");
 
     $('#template_template_reset_button', dialog).click(function(){
-        dialog.foundation('reveal', 'close');
         dialog.html("");
         setupCreateTemplateDialog();
         popUpCreateTemplateDialog();
     });
 
     $('#template_template_reset_button_update', dialog).click(function(){
-        dialog.foundation('reveal', 'close');
         dialog.html("");
         setupCreateTemplateDialog();
 

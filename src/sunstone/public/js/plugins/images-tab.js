@@ -1140,15 +1140,13 @@ function initialize_create_image_dialog(dialog) {
     });
 
     $('#wizard_image_reset_button').click(function(){
-        dialog.foundation('reveal', 'close');
-        //dialog.html("");
+        dialog.html("");
         setupCreateImageDialog();
 
         popUpCreateImageDialog();
     });
 
     $('#advanced_image_reset_button').click(function(){
-        dialog.foundation('reveal', 'close');
         dialog.html("");
         setupCreateImageDialog();
 

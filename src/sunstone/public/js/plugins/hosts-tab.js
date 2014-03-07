@@ -897,7 +897,6 @@ function setupCreateHostDialog(){
     });
 
     $('#wizard_host_reset_button').click(function(){
-        $create_host_dialog.foundation('reveal', 'close');
         $create_host_dialog.html("");
         setupCreateHostDialog();
 

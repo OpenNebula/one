@@ -1114,8 +1114,7 @@ function setupCreateServiceTemplateDialog(){
     });
 
     $('#create_service_template_reset', dialog).click(function(){
-        $create_service_template_dialog.foundation('reveal', 'close');
-        $create_service_template_dialog.html("");
+        dialog.html("");
         setupCreateServiceTemplateDialog();
 
         popUpCreateServiceTemplateDialog();
@@ -1396,7 +1395,7 @@ function fillUpUpdateServiceTemplateDialog(request, response){
 
     service_template_to_update_id = service_template.ID;
 
-    dialog.foundation().foundation('reveal', 'open');
+    dialog.foundation('reveal', 'open');
 }
 
 // Set the autorefresh interval for the datatable
