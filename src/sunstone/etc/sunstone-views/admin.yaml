@@ -29,9 +29,9 @@ tabs:
             - users
             - network
         widgets_two_per_row:
-            - hosts
-            - vms
         widgets_one_per_row:
+            - vms
+            - hosts
     system-tab:
         panel_tabs:
         actions:
