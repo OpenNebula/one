@@ -48,6 +48,9 @@ class SunstoneViews
 		end
 	end
 
+    # Return the name of the views avialable to a user. Those defined in the
+    # group template and configured in this sunstone.
+    #
     def available_views(user_name, group_name)
         user = OpenNebula::User.new_with_id(
                                 OpenNebula::User::SELF,
@@ -58,17 +61,22 @@ class SunstoneViews
         group.info
 
         available_views = Array.new
+
         if group["TEMPLATE/SUNSTONE_VIEWS"]
             available_views = group["TEMPLATE/SUNSTONE_VIEWS"].split(",")
         end
 
-        static_views = @views_config['users'][user_name] if @views_config['users']
-        static_views ||= @views_config['groups'][group_name] if @views_config['groups']
-        static_views ||= @views_config['default']
+        available_views.reject!{|v| !@views.has_key?(v)} #sanitize array views
 
-        available_views.concat(static_views)
-        available_views.select!{|view_name| @views[view_name]}
-        available_views.uniq!
+        return available_views if !available_views.empty?
+
+        available_views << @views_config['users'][user_name] if @views_config['users']
+        available_views << @views_config['groups'][group_name] if @views_config['groups']
+        available_views << @views_config['default']
+
+        available_views.flatten!
+
+        available_views.reject!{|v| !@views.has_key?(v)} #sanitize array views
 
         return available_views
     end
