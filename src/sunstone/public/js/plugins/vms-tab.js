@@ -232,6 +232,7 @@ var deploy_vm_tmpl ='\
     </div>\
     <dl class="accordion" id="advanced_toggle" data-accordion>\
          <dd><a href="#advanced_deploy"> '+tr("Advanced options")+'</a></dd>\
+    </dl>\
          <div id="advanced_deploy" class="row content">\
             <div class="row">\
                 <div class="large-6 columns">\
@@ -291,7 +292,6 @@ var deploy_vm_tmpl ='\
               </div>\
             </fieldset>\
           </div>\
-    </dl>\
     <div class="form_buttons reveal-footer">\
       <div class="form_buttons">\
          <button class="button radius right success" id="deploy_vm_proceed" value="VM.deploy">'+tr("Deploy")+'</button>\
