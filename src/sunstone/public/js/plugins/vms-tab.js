@@ -47,204 +47,125 @@ var netUsage = {
     down : 0
 }
 
-var vms_tab_content = '\
-<form class="custom" id="virtualMachine_list" action="">\
-<div class="panel">\
-<div class="row">\
-  <div class="twelve columns">\
-    <h4 class="subheader header">\
-      <span class="header-resource">\
-        <i class="fa fa-cloud"></i> '+tr("Virtual Machines")+'\
-      </span>\
-      <span class="user-login right">\
-      </span>\
-      <span class="header-info">\
-        <span id="total_vms"/> <small>'+tr("TOTAL")+'</small>&emsp;\
-        <span id="active_vms"/> <small>'+tr("ACTIVE")+'</small>&emsp;\
-        <span id="off_vms"/> <small>'+tr("OFF")+'</small>&emsp;\
-        <span id="pending_vms"/> <small>'+tr("PENDING")+'</small>&emsp;\
-        <span id="failed_vms"/> <small>'+tr("FAILED")+'</small>\
-      </span>\
-    </h4>\
-  </div>\
-</div>\
-<div class="row">\
-  <div class="ten columns">\
-    <div class="action_blocks">\
-    </div>\
-  </div>\
-  <div class="two columns">\
-    <input id="vms_search" type="text" placeholder="'+tr("Search")+'" />\
-  </div>\
-</div>\
-</div>\
-  <div class="row">\
-    <div class="twelve columns">\
-<table id="datatable_vmachines" class="datatable twelve">\
-  <thead>\
-    <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
-      <th>'+tr("ID")+'</th>\
-      <th>'+tr("Owner")+'</th>\
-      <th>'+tr("Group")+'</th>\
-      <th>'+tr("Name")+'</th>\
-      <th>'+tr("Status")+'</th>\
-      <th>'+tr("Used CPU")+'</th>\
-      <th>'+tr("Used Memory")+'</th>\
-      <th>'+tr("Host")+'</th>\
-      <th>'+tr("IPs")+'</th>\
-      <th>'+tr("Start Time")+'</th>\
-      <th>'+tr("VNC")+'</th>\
-    </tr>\
-  </thead>\
-  <tbody id="tbodyvmachines">\
-  </tbody>\
-</table>\
-</form>';
-
 var create_vm_tmpl ='\
-<div class="panel">\
-  <h3>\
-    <small id="create_vnet_header">'+tr("Create Virtual Machine")+'</small>\
-  </h3>\
+<div class="row">\
+  <h3 id="create_vnet_header" class="subheader">'+tr("Create Virtual Machine")+'</h3>\
 </div>\
 <div class="reveal-body">\
   <form id="create_vm_form" action="">\
-    <div class="row">\
-      <fieldset>\
-        <legend>'+tr("Step 1: Specify a name and the number of instances")+'</legend>\
-        <div class="seven columns">\
-          <div class="four columns">\
-              <label class="inline right" for="vm_name">'+tr("VM Name")+':</label>\
-          </div>\
-          <div class="seven columns">\
-              <input type="text" name="vm_name" id="vm_name" />\
-          </div>\
-          <div class="one columns">\
-              <div class="tip">'+tr("Defaults to template name when emtpy. You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them")+'.</div>\
-          </div>\
+    <fieldset>\
+      <legend>'+tr("Step 1: Specify a name and the number of instances")+'</legend>\
+      <div class="row">\
+        <div class="large-6 columns">\
+            <label for="vm_name">'+tr("VM Name")+'\
+              <span class="tip">'+tr("Defaults to template name when emtpy. You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them")+'.</span>\
+            </label>\
+            <input type="text" name="vm_name" id="vm_name" />\
         </div>\
-        <div class="five columns">\
-          <div class="six columns">\
-              <label class="inline right" for="vm_n_times">'+tr("# VMs")+':</label>\
-          </div>\
-          <div class="five columns">\
-              <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
-          </div>\
-          <div class="one columns">\
-              <div class="tip">'+tr("Number of Virtual Machines that will be created using this template")+'.</div>\
-          </div>\
+        <div class="large-6 columns">\
+            <label for="vm_n_times">'+tr("Number of instances")+':\
+              <span class="tip">'+tr("Number of Virtual Machines that will be created using this template")+'.</span>\
+            </label>\
+            <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
         </div>\
-      </fieldset>\
-    </div>\
-    <br>\
-    <br>\
-    <br>\
-    <div class="row">\
-      <fieldset>\
-        <legend>'+tr("Step 2: Select a template")+'</legend>\
-        <div class="row collapse">\
-          <div class="seven columns">\
-             <button id="refresh_template_templates_table_button_class" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
-          </div>\
-          <div class="five columns">\
-            <input id="template_templates_table_search" type="text" placeholder="'+tr("Search")+'"/>\
-          </div>\
+      </div>\
+    </fieldset>\
+    <fieldset>\
+      <legend>'+tr("Step 2: Select a template")+'</legend>\
+      <div class="row">\
+        <div class="large-8 columns">\
+           <button id="refresh_template_templates_table_button_class" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
         </div>\
-        <table id="template_templates_table" class="datatable twelve">\
-          <thead>\
-            <tr>\
-              <th></th>\
-              <th>'+tr("ID")+'</th>\
-              <th>'+tr("Owner")+'</th>\
-              <th>'+tr("Group")+'</th>\
-              <th>'+tr("Name")+'</th>\
-              <th>'+tr("Registration time")+'</th>\
-            </tr>\
-          </thead>\
-          <tbody id="tbodytemplates">\
-          </tbody>\
-        </table>\
-        <div class="row hidden">\
-          <div class="four columns">\
-            <label class="right inline" for="TEMPLATE_ID">'+tr("TEMPLATE_ID")+':</label>\
-          </div>\
-          <div class="six columns">\
-            <input type="text" id="TEMPLATE_ID" name="TEMPLATE_ID"/>\
-          </div>\
-          <div class="two columns">\
-            <div class="tip">\
-            </div>\
-          </div>\
+        <div class="large-4 columns">\
+          <input id="template_templates_table_search" class="search" type="text" placeholder="'+tr("Search")+'"/>\
         </div>\
-        <br>\
-        <div id="selected_template" class="vm_param kvm_opt xen_opt vmware_opt">\
+      </div>\
+      <div class="row">\
+        <div class="large-12 columns">\
+          <table id="template_templates_table" class="datatable twelve">\
+            <thead>\
+              <tr>\
+                <th></th>\
+                <th>'+tr("ID")+'</th>\
+                <th>'+tr("Owner")+'</th>\
+                <th>'+tr("Group")+'</th>\
+                <th>'+tr("Name")+'</th>\
+                <th>'+tr("Registration time")+'</th>\
+              </tr>\
+            </thead>\
+            <tbody id="tbodytemplates">\
+            </tbody>\
+          </table>\
+        </div>\
+      </div>\
+      <div class="row hidden">\
+        <div class="large-12 columns">\
+          <label class="right inline" for="TEMPLATE_ID">'+tr("TEMPLATE_ID")+':</label>\
+          <input type="text" id="TEMPLATE_ID" name="TEMPLATE_ID"/>\
+        </div>\
+      </div>\
+      <div id="selected_template" class="vm_param row">\
+        <div class="large-12 columns">\
           <span id="select_template" class="radius secondary label">'+tr("Please select a template from the list")+'</span>\
           <span id="template_selected" class="radius secondary label hidden">'+tr("You selected the following template:")+'</span>\
           <span class="radius label" type="text" id="TEMPLATE_NAME" name="template"></span>\
         </div>\
-      </fieldset>\
-    </div>\
-    <br>\
-    <br>\
-    <br>\
-    <div id="select_image_step" class="row">\
+      </div>\
+    </fieldset>\
+    <div id="select_image_step">\
       <fieldset>\
         <legend>'+tr("Step 3: Select an operating system")+'</legend>\
         <div class="row collapse">\
-          <div class="seven columns">\
+          <div class="large-8 columns">\
              <button id="refresh_template_images_table_button_class" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
           </div>\
-          <div class="five columns">\
-            <input id="template_images_table_search" type="text" placeholder="'+tr("Search")+'"/>\
+          <div class="large-4 columns">\
+            <input id="template_images_table_search" class="search" type="text" placeholder="'+tr("Search")+'"/>\
           </div>\
         </div>\
-        <table id="template_images_table" class="datatable twelve">\
-          <thead>\
-            <tr>\
-              <th></th>\
-              <th>'+tr("ID")+'</th>\
-              <th>'+tr("Owner")+'</th>\
-              <th>'+tr("Group")+'</th>\
-              <th>'+tr("Name")+'</th>\
-              <th>'+tr("Datastore")+'</th>\
-              <th>'+tr("Size")+'</th>\
-              <th>'+tr("Type")+'</th>\
-              <th>'+tr("Registration time")+'</th>\
-              <th>'+tr("Persistent")+'</th>\
-              <th>'+tr("Status")+'</th>\
-              <th>'+tr("#VMS")+'</th>\
-              <th>'+tr("Target")+'</th>\
-            </tr>\
-          </thead>\
-          <tbody id="tbodyimages">\
-          </tbody>\
-        </table>\
-        <div class="row hidden">\
-          <div class="four columns">\
-            <label class="right inline" for="IMAGE_ID">'+tr("IMAGE_ID")+':</label>\
+        <div class="row">\
+          <div class="large-12 columns">\
+            <table id="template_images_table" class="datatable twelve">\
+              <thead>\
+                <tr>\
+                  <th></th>\
+                  <th>'+tr("ID")+'</th>\
+                  <th>'+tr("Owner")+'</th>\
+                  <th>'+tr("Group")+'</th>\
+                  <th>'+tr("Name")+'</th>\
+                  <th>'+tr("Datastore")+'</th>\
+                  <th>'+tr("Size")+'</th>\
+                  <th>'+tr("Type")+'</th>\
+                  <th>'+tr("Registration time")+'</th>\
+                  <th>'+tr("Persistent")+'</th>\
+                  <th>'+tr("Status")+'</th>\
+                  <th>'+tr("#VMS")+'</th>\
+                  <th>'+tr("Target")+'</th>\
+                </tr>\
+              </thead>\
+              <tbody id="tbodyimages">\
+              </tbody>\
+            </table>\
           </div>\
-          <div class="six columns">\
+        </div>\
+        <div class="row hidden">\
+          <div class="large-12 columns">\
+            <label class="right inline" for="IMAGE_ID">'+tr("IMAGE_ID")+':</label>\
             <input type="text" id="IMAGE_ID" name="IMAGE_ID"/>\
           </div>\
-          <div class="two columns">\
-            <div class="tip">\
-            </div>\
+        </div>\
+        <div id="selected_image" class="vm_param row">\
+          <div class="large-12 columns">\
+            <span id="select_image" class="radius secondary label">'+tr("Please select an image from the list")+'</span>\
+            <span id="image_selected" class="radius secondary label hidden">'+tr("You selected the following image:")+'</span>\
+            <span class="radius label" type="text" id="IMAGE_NAME" name="image"></span>\
           </div>\
         </div>\
-        <br>\
-        <div id="selected_image" class="vm_param kvm_opt xen_opt vmware_opt">\
-          <span id="select_image" class="radius secondary label">'+tr("Please select an image from the list")+'</span>\
-          <span id="image_selected" class="radius secondary label hidden">'+tr("You selected the following image:")+'</span>\
-          <span class="radius label" type="text" id="IMAGE_NAME" name="image"></span>\
-        </div>\
-      </fieldset>\
-    </div>\
+      </div>\
+    </fieldset>\
     <div class="form_buttons reveal-footer">\
-      <hr>\
       <div class="form_buttons">\
          <button class="button radius right success" id="instantiate_vm_tenplate_proceed" value="Template.instantiate_vms">'+tr("Create")+'</button>\
-         <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
       </div>\
     </div>\
     <a class="close-reveal-modal">&#215;</a>\
@@ -252,10 +173,8 @@ var create_vm_tmpl ='\
 </div>';
 
 var deploy_vm_tmpl ='\
-<div class="panel">\
-  <h3>\
-    <small id="deploy_vm_header">'+tr("Deploy Virtual Machine")+'</small>\
-  </h3>\
+<div class="row">\
+  <h3 id="deploy_vm_header" class="subheader">'+tr("Deploy Virtual Machine")+'</h3>\
 </div>\
 <div class="reveal-body">\
   <form id="deploy_vm_form" action="">\
@@ -263,126 +182,119 @@ var deploy_vm_tmpl ='\
       <fieldset>\
         <legend>'+tr("Select a Host")+'</legend>\
         <div class="row collapse">\
-          <div class="seven columns">\
+          <div class="large-8 columns">\
              <button id="refresh_deploy_hosts_table_button_class" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
           </div>\
-          <div class="five columns">\
-            <input id="deploy_hosts_table_search" type="text" placeholder="'+tr("Search")+'"/>\
+          <div class="large-4 columns">\
+            <input id="deploy_hosts_table_search" type="text" class="search" placeholder="'+tr("Search")+'"/>\
           </div>\
         </div>\
-        <table id="deploy_datatable_hosts" class="datatable twelve">\
-          <thead>\
-            <tr>\
-              <th></th>\
-              <th>' + tr("ID") + '</th>\
-              <th>' + tr("Name") + '</th>\
-              <th>' + tr("Cluster") + '</th>\
-              <th>' + tr("RVMs") + '</th>\
-              <th>' + tr("Real CPU") + '</th>\
-              <th>' + tr("Allocated CPU") + '</th>\
-              <th>' + tr("Real MEM") + '</th>\
-              <th>' + tr("Allocated MEM") + '</th>\
-              <th>' + tr("Status") + '</th>\
-              <th>' + tr("IM MAD") + '</th>\
-              <th>' + tr("VM MAD") + '</th>\
-              <th>' + tr("Last monitored on") + '</th>\
-            </tr>\
-          </thead>\
-          <tbody id="tbodyhosts">\
-          </tbody>\
-        </table>\
-        <div class="row hidden">\
-          <div class="four columns">\
-            <label class="right inline" for="HOST_ID">'+tr("HOST_ID")+':</label>\
+        <div class="row collapse">\
+          <div class="large-12 columns">\
+            <table id="deploy_datatable_hosts" class="datatable twelve">\
+              <thead>\
+                <tr>\
+                  <th></th>\
+                  <th>' + tr("ID") + '</th>\
+                  <th>' + tr("Name") + '</th>\
+                  <th>' + tr("Cluster") + '</th>\
+                  <th>' + tr("RVMs") + '</th>\
+                  <th>' + tr("Real CPU") + '</th>\
+                  <th>' + tr("Allocated CPU") + '</th>\
+                  <th>' + tr("Real MEM") + '</th>\
+                  <th>' + tr("Allocated MEM") + '</th>\
+                  <th>' + tr("Status") + '</th>\
+                  <th>' + tr("IM MAD") + '</th>\
+                  <th>' + tr("VM MAD") + '</th>\
+                  <th>' + tr("Last monitored on") + '</th>\
+                </tr>\
+              </thead>\
+              <tbody id="tbodyhosts">\
+              </tbody>\
+            </table>\
           </div>\
-          <div class="six columns">\
+        </div>\
+        <div class="row hidden">\
+          <div class="large-12 columns">\
+            <label class="right inline" for="HOST_ID">'+tr("HOST_ID")+':</label>\
             <input type="text" id="HOST_ID" name="HOST_ID"/>\
           </div>\
-          <div class="two columns">\
-            <div class="tip">\
-            </div>\
-          </div>\
         </div>\
         <br>\
-        <div id="selected_host" class="vm_param kvm_opt xen_opt vmware_opt">\
-          <span id="select_host" class="radius secondary label">'+tr("Please select a Host from the list")+'</span>\
-          <span id="host_selected" class="radius secondary label hidden">'+tr("You selected the following Host:")+'</span>\
-          <span class="radius label" type="text" id="HOST_NAME" name="host"></span>\
+        <div id="selected_host" class="vm_param row">\
+          <div class="large-12 columns">\
+            <span id="select_host" class="radius secondary label">'+tr("Please select a Host from the list")+'</span>\
+            <span id="host_selected" class="radius secondary label hidden">'+tr("You selected the following Host:")+'</span>\
+            <span class="radius label" type="text" id="HOST_NAME" name="host"></span>\
+          </div>\
         </div>\
       </fieldset>\
     </div>\
-    <br>\
-    <br>\
-    <div class="show_hide" id="advanced_toggle">\
-         <h4><small><i class=" fa fa-caret-down"/> '+tr("Advanced options")+'<a id="" class="icon_left" href="#"></a></small></h4>\
-    </div>\
-    <div id="advanced_deploy" class="row advanced">\
-      <div class="row">\
-          <div class="three columns">\
-              <label class="inline right" for="vm_id">'+tr("Enforce")+':</label>\
-          </div>\
-          <div class="two columns">\
-              <input type="checkbox" name="enforce" id="enforce"/>\
-          </div>\
-          <div class="one columns pull-seven tip">'
-                + tr("If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced") +
-          '</div>\
-      </div>\
-      <br>\
-      <fieldset>\
-        <legend>'+tr("Select a datastore")+'</legend>\
-        <div class="row collapse">\
-          <div class="seven columns">\
-             <button id="refresh_deploy_datastores_table_button_class" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
-          </div>\
-          <div class="five columns">\
-            <input id="deploy_datastores_table_search" type="text" placeholder="'+tr("Search")+'"/>\
-          </div>\
-        </div>\
-        <table id="deploy_datatable_datastores" class="datatable twelve">\
-          <thead>\
-            <tr>\
-              <th></th>\
-              <th>'+tr("ID")+'</th>\
-              <th>'+tr("Owner")+'</th>\
-              <th>'+tr("Group")+'</th>\
-              <th>'+tr("Name")+'</th>\
-              <th>'+tr("Capacity")+'</th>\
-              <th>'+tr("Cluster")+'</th>\
-              <th>'+tr("Basepath")+'</th>\
-              <th>'+tr("TM MAD")+'</th>\
-              <th>'+tr("DS MAD")+'</th>\
-              <th>'+tr("Type")+'</th>\
-            </tr>\
-          </thead>\
-          <tbody id="tbodydatastores">\
-          </tbody>\
-        </table>\
-        <div class="row hidden">\
-          <div class="four columns">\
-            <label class="right inline" for="DATASTORE_ID">'+tr("DATASTORE_ID")+':</label>\
-          </div>\
-          <div class="six columns">\
-            <input type="text" id="DATASTORE_ID" name="DATASTORE_ID"/>\
-          </div>\
-          <div class="two columns">\
-            <div class="tip">\
+    <dl class="accordion" id="advanced_toggle" data-accordion>\
+         <dd><a href="#advanced_deploy"> '+tr("Advanced options")+'</a></dd>\
+         <div id="advanced_deploy" class="row content">\
+            <div class="row">\
+                <div class="large-6 columns">\
+                    <input type="checkbox" name="enforce" id="enforce"/>\
+                    <label for="vm_id">'+tr("Enforce")+'\
+                      <span class="tip">' + tr("If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced") +'</span>\
+                    </label>\
+                </div>\
             </div>\
+            <br>\
+            <fieldset>\
+              <legend>'+tr("Select a datastore")+'</legend>\
+              <div class="row collapse">\
+                <div class="large-9 columns">\
+                   <button id="refresh_deploy_datastores_table_button_class" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
+                </div>\
+                <div class="large-3 columns">\
+                  <input id="deploy_datastores_table_search" type="text" class="search" placeholder="'+tr("Search")+'"/>\
+                </div>\
+              </div>\
+              <table id="deploy_datatable_datastores" class="datatable twelve">\
+                <thead>\
+                  <tr>\
+                    <th></th>\
+                    <th>'+tr("ID")+'</th>\
+                    <th>'+tr("Owner")+'</th>\
+                    <th>'+tr("Group")+'</th>\
+                    <th>'+tr("Name")+'</th>\
+                    <th>'+tr("Capacity")+'</th>\
+                    <th>'+tr("Cluster")+'</th>\
+                    <th>'+tr("Basepath")+'</th>\
+                    <th>'+tr("TM MAD")+'</th>\
+                    <th>'+tr("DS MAD")+'</th>\
+                    <th>'+tr("Type")+'</th>\
+                  </tr>\
+                </thead>\
+                <tbody id="tbodydatastores">\
+                </tbody>\
+              </table>\
+              <div class="row hidden">\
+                <div class="large-4 columns">\
+                  <label class="right inline" for="DATASTORE_ID">'+tr("DATASTORE_ID")+':</label>\
+                </div>\
+                <div class="large-6 columns">\
+                  <input type="text" id="DATASTORE_ID" name="DATASTORE_ID"/>\
+                </div>\
+                <div class="large-2 columns">\
+                  <div class="tip">\
+                  </div>\
+                </div>\
+              </div>\
+              <br>\
+              <div id="selected_datastore" class="vm_param kvm_opt xen_opt vmware_opt">\
+                <span id="select_datastore" class="radius secondary label">'+tr("Please select a datastore from the list")+'</span>\
+                <span id="datastore_selected" class="radius secondary label hidden">'+tr("You selected the following datastore:")+'</span>\
+                <span class="radius label" type="text" id="DATASTORE_NAME" name="datastore"></span>\
+              </div>\
+            </fieldset>\
           </div>\
-        </div>\
-        <br>\
-        <div id="selected_datastore" class="vm_param kvm_opt xen_opt vmware_opt">\
-          <span id="select_datastore" class="radius secondary label">'+tr("Please select a datastore from the list")+'</span>\
-          <span id="datastore_selected" class="radius secondary label hidden">'+tr("You selected the following datastore:")+'</span>\
-          <span class="radius label" type="text" id="DATASTORE_NAME" name="datastore"></span>\
-        </div>\
-      </fieldset>\
-    </div>\
+    </dl>\
     <div class="form_buttons reveal-footer">\
-      <hr>\
       <div class="form_buttons">\
          <button class="button radius right success" id="deploy_vm_proceed" value="VM.deploy">'+tr("Deploy")+'</button>\
-         <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
       </div>\
     </div>\
     <a class="close-reveal-modal">&#215;</a>\
@@ -390,10 +302,8 @@ var deploy_vm_tmpl ='\
 </div>';
 
 var migrate_vm_tmpl ='\
-<div class="panel">\
-  <h3>\
-    <small id="migrate_vm_header">'+tr("Migrate Virtual Machine")+'</small>\
-  </h3>\
+<div class="row">\
+  <h3 id="migrate_vm_header" class="subheader">'+tr("Migrate Virtual Machine")+'</h3>\
 </div>\
 <div class="reveal-body">\
   <form id="migrate_vm_form" action="">\
@@ -404,11 +314,11 @@ var migrate_vm_tmpl ='\
       <fieldset>\
         <legend>'+tr("Select a Host")+'</legend>\
         <div class="row collapse">\
-          <div class="seven columns">\
+          <div class="large-9 columns">\
              <button id="refresh_migrate_hosts_table_button_class" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
           </div>\
-          <div class="five columns">\
-            <input id="migrate_hosts_table_search" type="text" placeholder="'+tr("Search")+'"/>\
+          <div class="large-3 columns">\
+            <input id="migrate_hosts_table_search" class="search" type="text" placeholder="'+tr("Search")+'"/>\
           </div>\
         </div>\
         <table id="migrate_datatable_hosts" class="datatable twelve">\
@@ -433,13 +343,13 @@ var migrate_vm_tmpl ='\
           </tbody>\
         </table>\
         <div class="row hidden">\
-          <div class="four columns">\
+          <div class="large-4 columns">\
             <label class="right inline" for="HOST_ID">'+tr("HOST_ID")+':</label>\
           </div>\
-          <div class="six columns">\
+          <div class="large-6 columns">\
             <input type="text" id="HOST_ID" name="HOST_ID"/>\
           </div>\
-          <div class="two columns">\
+          <div class="large-2 columns">\
             <div class="tip">\
             </div>\
           </div>\
@@ -454,27 +364,22 @@ var migrate_vm_tmpl ='\
     </div>\
     <br>\
     <br>\
-    <div class="show_hide" id="advanced_toggle">\
-         <h4><small><i class=" fa fa-caret-down"/> '+tr("Advanced options")+'<a id="" class="icon_left" href="#"></a></small></h4>\
-    </div>\
-    <div id="advanced_migrate" class="row advanced">\
-      <div class="row">\
-          <div class="three columns">\
-              <label class="inline right" for="vm_id">'+tr("Enforce")+':</label>\
-          </div>\
-          <div class="two columns">\
-              <input type="checkbox" name="enforce" id="enforce"/>\
-          </div>\
-          <div class="one columns pull-seven tip">'
-                + tr("If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced") +
-          '</div>\
-      </div>\
-    </div>\
+    <dl class="accordion" id="advanced_toggle" data-accordion>\
+         <dd><a href="#advanced_migrate"> '+tr("Advanced options")+'</a></dd>\
+        <div id="advanced_migrate" class="content">\
+            <div class="row">\
+                <div class="large-6 columns">\
+                    <input type="checkbox" name="enforce" id="enforce"/>\
+                    <label for="vm_id">'+tr("Enforce")+'\
+                      <span class="tip">' + tr("If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced") +'</span>\
+                    </label>\
+                </div>\
+            </div>\
+        </div>\
+    </dl>\
     <div class="form_buttons reveal-footer">\
-      <hr>\
       <div class="form_buttons">\
          <button class="button radius right success" id="migrate_vm_proceed" value="VM.migrate">'+tr("Migrate")+'</button>\
-         <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
       </div>\
     </div>\
     <a class="close-reveal-modal">&#215;</a>\
@@ -537,8 +442,13 @@ var vm_actions = {
     "VM.refresh" : {
         type: "custom",
         call : function (){
+          var tab = dataTable_vMachines.parents(".tab");
+          if (Sunstone.rightInfoVisible(tab)) {
+            Sunstone.runAction("VM.showinfo", Sunstone.rightInfoResourceId(tab))
+          } else {
             waitingNodes(dataTable_vMachines);
             Sunstone.runAction("VM.list");
+          }
         }
     },
 
@@ -820,7 +730,7 @@ var vm_actions = {
                 colored_log += line + "<br>";
             }
 
-            $('#vm_log_tabTab').html('<div class="twelve columns"><div class="log-tab">'+colored_log+'</div></div>')
+            $('#vm_log_tabTab').html('<div class="large-12 columns"><div class="log-tab">'+colored_log+'</div></div>')
         },
         error: function(request,error_json){
             $("#vm_log pre").html('');
@@ -1200,10 +1110,38 @@ var vm_info_panel = {
 
 var vms_tab = {
     title: tr("Virtual Machines"),
-    content: vms_tab_content,
     buttons: vm_buttons,
     tabClass: 'subTab',
-    parentTab: 'vresources-tab'
+    parentTab: 'vresources-tab',
+    search_input: '<input id="vms_search" type="text" placeholder="'+tr("Search")+'" />',
+    list_header: '<i class="fa fa-cloud"></i> '+tr("Virtual Machines"),
+    info_header: '<i class="fa fa-cloud"></i> '+tr("Virtual Machine"),
+    subheader: '<span class="total_vms"/> <small>'+tr("TOTAL")+'</small>&emsp;\
+        <span class="active_vms"/> <small>'+tr("ACTIVE")+'</small>&emsp;\
+        <span class="off_vms"/> <small>'+tr("OFF")+'</small>&emsp;\
+        <span class="pending_vms"/> <small>'+tr("PENDING")+'</small>&emsp;\
+        <span class="failed_vms"/> <small>'+tr("FAILED")+'</small>',
+    table: '<table id="datatable_vmachines" class="dataTable" cellpadding="0" cellspacing="0" border="0" >\
+        <thead>\
+          <tr>\
+            <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
+            <th>'+tr("ID")+'</th>\
+            <th>'+tr("Owner")+'</th>\
+            <th>'+tr("Group")+'</th>\
+            <th>'+tr("Name")+'</th>\
+            <th>'+tr("Status")+'</th>\
+            <th>'+tr("Used CPU")+'</th>\
+            <th>'+tr("Used Memory")+'</th>\
+            <th>'+tr("Host")+'</th>\
+            <th>'+tr("IPs")+'</th>\
+            <th>'+tr("Start Time")+'</th>\
+            <th>'+tr("VNC")+'</th>\
+          </tr>\
+        </thead>\
+        <tbody id="tbodyvmachines">\
+        </tbody>\
+      </table>'
+
 };
 
 Sunstone.addActions(vm_actions);
@@ -1381,19 +1319,12 @@ function updateVMachinesView(request, vmachine_list){
 
     updateView(vmachine_list_array,dataTable_vMachines);
 
-    $("#total_vms", $dashboard).text(vmachine_list.length);
-    $("#active_vms", $dashboard).text(active_vms);
-    $("#pending_vms", $dashboard).text(pending_vms);
-    $("#failed_vms", $dashboard).text(failed_vms);
-    $("#off_vms", $dashboard).text(off_vms);
 
-    var form = $("#virtualMachine_list");
-
-    $("#total_vms", form).text(vmachine_list.length);
-    $("#active_vms", form).text(active_vms);
-    $("#pending_vms", form).text(pending_vms);
-    $("#failed_vms", form).text(failed_vms);
-    $("#off_vms", form).text(off_vms);
+    $(".total_vms").text(vmachine_list.length);
+    $(".active_vms").text(active_vms);
+    $(".pending_vms").text(pending_vms);
+    $(".failed_vms").text(failed_vms);
+    $(".off_vms").text(off_vms);
 
 
     if (do_vm_monitoring_graphs){
@@ -1448,7 +1379,7 @@ function generatePlacementTable(vm){
    var ds_rank_str = vm.USER_TEMPLATE.SCHED_DS_RANK ? vm.USER_TEMPLATE.SCHED_DS_RANK : "-";
 
 
-    var html = '<div class=""><div class="six columns">\
+    var html = '<div class=""><div class="large-6 columns">\
           <table id="vm_placement_table" class="extended_table twelve">\
                    <thead>\
                      <tr>\
@@ -1466,7 +1397,7 @@ function generatePlacementTable(vm){
                      </tr>\
                    </tbody>\
           </table>\
-          </div><div class="six columns">\
+          </div><div class="large-6 columns">\
           <table id="vm_ds_placement_table" class="extended_table twelve">\
                    <thead>\
                      <tr>\
@@ -1487,7 +1418,7 @@ function generatePlacementTable(vm){
           </div></div>';
 
     if (vm.USER_TEMPLATE.SCHED_MESSAGE) {
-        html += '<div class="twelve columns">\
+        html += '<div class="large-12 columns">\
           <table id="vm_ds_placement_table" class="extended_table twelve">\
                    <thead>\
                      <tr>\
@@ -1503,7 +1434,7 @@ function generatePlacementTable(vm){
           </div>';
     }
 
-    html += '<div class="twelve columns">\
+    html += '<div class="large-12 columns">\
           <table id="vm_history_table" class="extended_table twelve">\
                    <thead>\
                      <tr>\
@@ -1600,13 +1531,14 @@ function updateVMInfo(request,vm){
 
 
     var info_tab = {
-        title : tr("Information"),
+        title : tr("Info"),
+        icon: "fa-info-circle",
         content:
         '<div class="">\
-        <div class="six columns">\
-        <table id="info_vm_table" class="twelve datatable extended_table">\
+        <div class="large-6 columns">\
+        <table id="info_vm_table" class="dataTable extended_table">\
             <thead>\
-              <tr><th colspan="3">'+tr("Virtual Machine")+' - '+vm_info.NAME+'</th></tr>\
+              <tr><th colspan="3">'+tr("Information")+'</th></tr>\
             </thead>\
             <tbody>\
               <tr>\
@@ -1655,7 +1587,7 @@ function updateVMInfo(request,vm){
               </tbody>\
                </table>\
             </div>\
-            <div class="six columns">' +
+            <div class="large-6 columns">' +
                insert_permissions_table('vms-tab',
                                         "VM",
                                         vm_info.ID,
@@ -1675,28 +1607,33 @@ function updateVMInfo(request,vm){
 
     var hotplugging_tab = {
         title: tr("Storage"),
+        icon: "fa-tasks",
         content: printDisks(vm_info)
     };
 
     var network_tab = {
         title: tr("Network"),
+        icon: "fa-globe",
         content: printNics(vm_info)
     };
 
     var capacity_tab = {
         title: tr("Capacity"),
+        icon: "fa-laptop",
         content: printCapacity(vm_info)
     };
 
     var snapshot_tab = {
         title: tr("Snapshots"),
+        icon: "fa-camera",
         content: printSnapshots(vm_info)
     };
 
     var template_tab = {
         title: tr("Template"),
+        icon: "fa-file-o",
         content:
-        '<div class="twelve columns">\
+        '<div class="large-12 columns">\
             <table id="vm_template_table" class="info_table transparent_table" style="width:80%">'+
                 prettyPrintJSON(vm_info.TEMPLATE)+
             '</table>\
@@ -1705,17 +1642,20 @@ function updateVMInfo(request,vm){
 
     var log_tab = {
         title: tr("Log"),
+        icon: "fa-file-text",
         content: '<div>'+spinner+'</div>'
     };
 
     var actions_tab = {
         title: tr("Actions"),
+        icon: "fa-calendar",
         content: printActionsTable(vm_info)
     };
 
 
     var placement_tab = {
         title: tr("Placement"),
+        icon: "fa-sitemap",
         content: generatePlacementTable(vm_info)
     };
 
@@ -1778,11 +1718,11 @@ function updateVMDisksInfo(request,vm){
 function printActionsTable(vm_info)
 {
 
-    var str = '<div class="twelve columns">\
+    var str = '<div class="large-12 columns">\
                   <button id="add_scheduling_action" class="button small secondary radius" >' + tr("Schedule action") +'</button>\
                 <br><br></div>\
-                <div class="twelve columns">\
-                <table id="scheduling_actions_table" class="info_table twelve datatable extended_table">\
+                <div class="large-12 columns">\
+                <table id="scheduling_actions_table" class="info_table dataTable extended_table">\
                  <thead>\
                    <tr>\
                       <th>'+tr("ID")+'</th>\
@@ -2098,8 +2038,8 @@ function setupDateTimePicker(input_to_fill, time_str){
                     <a class="close-reveal-modal">&#215;</a>\
                   </form>');
 
-    dialog.addClass("reveal-modal large");
-    dialog.reveal();
+    dialog.addClass("reveal-modal large").attr("data-reveal", "");
+    dialog.foundation().foundation('reveal', 'open');
 
     $("*[name=date]").val(time_str)
     $('#date_time_form',dialog).die();
@@ -2109,7 +2049,7 @@ function setupDateTimePicker(input_to_fill, time_str){
         $(input_to_fill).val(date_str);
         $(input_to_fill).trigger("change");
 
-        $date_time_picker_dialog.trigger("reveal:close")
+        $date_time_picker_dialog.trigger('close')
         return false;
     });
 };
@@ -2126,7 +2066,7 @@ function printDisks(vm_info){
      <div class="">\
         <div id="datatable_cluster_vnets_info_div columns twelve">\
            <form id="hotplugging_form" vmid="'+vm_info.ID+'" >\
-              <div class="twelve columns">'
+              <div class="large-12 columns">'
 
     if (Config.isTabActionEnabled("vms-tab", "VM.attachdisk")) {
       // If VM is not RUNNING, then we forget about the attach disk form.
@@ -2145,7 +2085,7 @@ function printDisks(vm_info){
       </div>'
 
     html += '\
-      <div class="twelve columns">\
+      <div class="large-12 columns">\
          <table class="info_table twelve extended_table">\
            <thead>\
              <tr>\
@@ -2268,49 +2208,49 @@ function setupSaveAsDialog(){
 </div>\
 <form id="save_as_form" action="">\
       <div class="row centered">\
-          <div class="four columns">\
+          <div class="large-4 columns">\
               <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
           </div>\
-          <div class="seven columns">\
+          <div class="large-7 columns">\
               <label style="border-style: inset; background-color: lightgrey" type="text" name="vm_id" id="vm_id" disabled/>\
           </div>\
-          <div class="one columns">\
+          <div class="large-1 columns">\
               <div class=""></div>\
           </div>\
       </div>\
       <div class="row centered">\
-          <div class="four columns">\
+          <div class="large-4 columns">\
               <label class="inline right" for="disk_id">'+tr("Disk ID")+':</label>\
           </div>\
-          <div class="seven columns">\
+          <div class="large-7 columns">\
               <label style="border-style: inset; background-color: lightgrey" type="text" name="disk_id" id="disk_id" disabled/>\
           </div>\
-          <div class="one columns">\
+          <div class="large-1 columns">\
               <div class=""></div>\
           </div>\
       </div>\
       <div class="row centered">\
-          <div class="four columns">\
+          <div class="large-4 columns">\
               <label class="inline right" for="image_name">'+tr("Image name")+':</label>\
           </div>\
-          <div class="seven columns">\
+          <div class="large-7 columns">\
               <input type="text" name="image_name" id="image_name" />\
           </div>\
-          <div class="one columns">\
+          <div class="large-1 columns">\
               <div class=""></div>\
           </div>\
       </div>\
       <div class="row centered">\
-          <div class="four columns">\
+          <div class="large-4 columns">\
               <label class="inline right" for="snapshot_type">'+tr("Snapshot type")+':</label>\
           </div>\
-          <div class="seven columns">\
+          <div class="large-7 columns">\
             <select name="snapshot_type" id="snapshot_type">\
                  <option value="false" selected="selected">'+tr("Deferred")+'</option>\
                  <option value="true">'+tr("Hot")+'</option>\
             </select>\
           </div>\
-          <div class="one columns">\
+          <div class="large-1 columns">\
               <div class="tip">'+tr("Sets the specified VM disk to be saved in a new Image.")+'<br><br>\
         '+tr("Deferred: The Image is created immediately, but the contents are saved only if the VM is shut down gracefully (i.e., using Shutdown; not Delete)")+'<br><br>\
         '+tr("Hot: The Image will be saved immediately.")+'</div>\
@@ -2319,12 +2259,11 @@ function setupSaveAsDialog(){
       <hr>\
       <div class="form_buttons">\
           <button class="button radius right success" id="snapshot_live_button" type="submit" value="VM.saveas">'+tr("Take snapshot")+'</button>\
-          <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
       </div>\
   <a class="close-reveal-modal">&#215;</a>\
 </form>')
 
-    dialog.addClass("reveal-modal");
+    dialog.addClass("reveal-modal").attr("data-reveal", "");
     setupTips(dialog);
 
     $('#save_as_form',dialog).submit(function(){
@@ -2346,7 +2285,7 @@ function setupSaveAsDialog(){
 
         Sunstone.runAction('VM.saveas', vm_id, obj);
 
-        $save_as_dialog.trigger("reveal:close")
+        $save_as_dialog.trigger('close')
         return false;
     });
 };
@@ -2354,7 +2293,7 @@ function setupSaveAsDialog(){
 function popUpSaveAsDialog(vm_id, disk_id){
     $('#vm_id',$save_as_dialog).text(vm_id);
     $('#disk_id',$save_as_dialog).text(disk_id);
-    $save_as_dialog.reveal();
+    $save_as_dialog.foundation().foundation('reveal', 'open');
     $("input#image_name",$save_as_dialog).focus();
 }
 
@@ -2374,13 +2313,13 @@ function setupAttachDiskDialog(){
         <div class="reveal-body">\
     <form id="attach_disk_form" action="">\
           <div class="row centered">\
-              <div class="four columns">\
+              <div class="large-4 columns">\
                   <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
               </div>\
-              <div class="seven columns">\
+              <div class="large-7 columns">\
                   <label style="border-style: inset; background-color: lightgrey" type="text" name="vm_id" id="vm_id" disabled/>\
               </div>\
-              <div class="one columns">\
+              <div class="large-1 columns">\
                   <div class=""></div>\
               </div>\
           </div>' +
@@ -2389,13 +2328,12 @@ function setupAttachDiskDialog(){
           <hr>\
           <div class="form_buttons">\
               <button class="button radius right success" id="attach_disk_button" type="submit" value="VM.attachdisk">'+tr("Attach")+'</button>\
-              <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
           </div>\
           </div>\
       <a class="close-reveal-modal">&#215;</a>\
     </form></div>')
 
-    dialog.addClass("reveal-modal large max-height");
+    dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
     setupTips(dialog);
 
     setup_disk_tab_content(dialog, "attach_disk", "attach_disk")
@@ -2424,14 +2362,14 @@ function setupAttachDiskDialog(){
         var obj = {DISK: data}
         Sunstone.runAction('VM.attachdisk', vm_id, obj);
 
-        $attach_disk_dialog.trigger("reveal:close")
+        $attach_disk_dialog.trigger('close')
         return false;
     });
 };
 
 function popUpAttachDiskDialog(vm_id){
     $('#vm_id',$attach_disk_dialog).text(vm_id);
-    $attach_disk_dialog.reveal();
+    $attach_disk_dialog.foundation().foundation('reveal', 'open');
 }
 
 
@@ -2485,7 +2423,7 @@ function printNics(vm_info){
      <div class="">\
         <div>\
            <form id="tab_network_form" vmid="'+vm_info.ID+'" >\
-              <div class="twelve columns">'
+              <div class="large-12 columns">'
 
     if (Config.isTabActionEnabled("vms-tab", "VM.attachnic")) {
       // If VM is not RUNNING, then we forget about the attach nic form.
@@ -2503,7 +2441,7 @@ function printNics(vm_info){
       </div>'
 
     html += '\
-      <div class="twelve columns">\
+      <div class="large-12 columns">\
          <table class="info_table twelve extended_table">\
            <thead>\
              <tr>\
@@ -2576,55 +2514,55 @@ function printNics(vm_info){
           </table>\
         </div>\
         <div class="">\
-            <div class="six columns">\
+            <div class="large-6 columns">\
               <div class="row graph_legend">\
                 <h3 class="subheader"><small>'+tr("NET RX")+'</small></h3>\
               </div>\
               <div class="row">\
-                <div class="ten columns centered graph" id="vm_net_rx_graph" style="height: 100px;">\
+                <div class="large-10 columns centered graph" id="vm_net_rx_graph" style="height: 100px;">\
                 </div>\
               </div>\
               <div class="row graph_legend">\
-                <div class="ten columns centered" id="vm_net_rx_legend">\
+                <div class="large-10 columns centered" id="vm_net_rx_legend">\
                 </div>\
               </div>\
             </div>\
-            <div class="six columns">\
+            <div class="large-6 columns">\
               <div class="row graph_legend">\
                 <h3 class="subheader"><small>'+tr("NET TX")+'</small></h3>\
               </div>\
               <div class="row">\
-                <div class="ten columns centered graph" id="vm_net_tx_graph" style="height: 100px;">\
+                <div class="large-10 columns centered graph" id="vm_net_tx_graph" style="height: 100px;">\
                 </div>\
               </div>\
               <div class="row graph_legend">\
-                <div class="ten columns centered" id="vm_net_tx_legend">\
+                <div class="large-10 columns centered" id="vm_net_tx_legend">\
                 </div>\
               </div>\
             </div>\
-            <div class="six columns">\
+            <div class="large-6 columns">\
               <div class="row graph_legend">\
                 <h3 class="subheader"><small>'+tr("NET DOWNLOAD SPEED")+'</small></h3>\
               </div>\
               <div class="row">\
-                <div class="ten columns centered graph" id="vm_net_rx_speed_graph" style="height: 100px;">\
+                <div class="large-10 columns centered graph" id="vm_net_rx_speed_graph" style="height: 100px;">\
                 </div>\
               </div>\
               <div class="row graph_legend">\
-                <div class="ten columns centered" id="vm_net_rx_speed_legend">\
+                <div class="large-10 columns centered" id="vm_net_rx_speed_legend">\
                 </div>\
               </div>\
             </div>\
-            <div class="six columns">\
+            <div class="large-6 columns">\
               <div class="row graph_legend">\
                 <h3 class="subheader"><small>'+tr("NET UPLOAD SPEED")+'</small></h3>\
               </div>\
               <div class="row">\
-                <div class="ten columns centered graph" id="vm_net_tx_speed_graph" style="height: 100px;">\
+                <div class="large-10 columns centered graph" id="vm_net_tx_speed_graph" style="height: 100px;">\
                 </div>\
               </div>\
               <div class="row graph_legend">\
-                <div class="ten columns centered" id="vm_net_tx_speed_legend">\
+                <div class="large-10 columns centered" id="vm_net_tx_speed_legend">\
                 </div>\
               </div>\
             </div>\
@@ -2647,13 +2585,13 @@ function setupAttachNicDialog(){
         <div class="reveal-body">\
     <form id="attach_nic_form" action="">\
           <div class="row centered">\
-              <div class="four columns">\
+              <div class="large-4 columns">\
                   <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
               </div>\
-              <div class="seven columns">\
+              <div class="large-7 columns">\
                   <label style="border-style: inset; background-color: lightgrey" type="text" name="vm_id" id="vm_id" disabled/>\
               </div>\
-              <div class="one columns">\
+              <div class="large-1 columns">\
                   <div class=""></div>\
               </div>\
           </div>' +
@@ -2662,13 +2600,12 @@ function setupAttachNicDialog(){
           <hr>\
           <div class="form_buttons">\
               <button class="button radius right success" id="attach_nic_button" type="submit" value="VM.attachnic">'+tr("Attach")+'</button>\
-              <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
           </div>\
           </div>\
       <a class="close-reveal-modal">&#215;</a>\
     </form></div>')
 
-    dialog.addClass("reveal-modal large max-height");
+    dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
     setupTips(dialog);
 
     setup_nic_tab_content(dialog, "attach_nic", "attach_nic")
@@ -2682,14 +2619,14 @@ function setupAttachNicDialog(){
         var obj = {NIC: data}
         Sunstone.runAction('VM.attachnic', vm_id, obj);
 
-        $attach_nic_dialog.trigger("reveal:close")
+        $attach_nic_dialog.trigger('close')
         return false;
     });
 };
 
 function popUpAttachNicDialog(vm_id){
     $('#vm_id',$attach_nic_dialog).text(vm_id);
-    $attach_nic_dialog.reveal();
+    $attach_nic_dialog.foundation().foundation('reveal', 'open');
 }
 
 
@@ -2728,7 +2665,7 @@ function printCapacity(vm_info){
      <div class="">\
         <div>\
            <form id="tab_capacity_form" vmid="'+vm_info.ID+'" >\
-              <div class="twelve columns">'
+              <div class="large-12 columns">'
 
     if (Config.isTabActionEnabled("vms-tab", "VM.resize")) {
       // If VM is not INIT, PENDING, HOLD, FAILED, POWEROFF, UNDEPLOYED, then we forget about the resize form.
@@ -2746,7 +2683,7 @@ function printCapacity(vm_info){
       </div>'
 
     html += '\
-      <div class="twelve columns">\
+      <div class="large-12 columns">\
          <table class="info_table twelve extended_table">\
            <thead>\
              <tr>\
@@ -2764,29 +2701,29 @@ function printCapacity(vm_info){
             </tbody>\
           </table>\
         </div>\
-            <div class="six columns">\
+            <div class="large-6 columns">\
               <div class="row graph_legend">\
                 <h3 class="subheader"><small>'+tr("REAL CPU")+'</small></h3>\
               </div>\
               <div class="row">\
-                <div class="ten columns centered graph" id="vm_cpu_graph" style="height: 100px;">\
+                <div class="large-10 columns centered graph" id="vm_cpu_graph" style="height: 100px;">\
                 </div>\
               </div>\
               <div class="row graph_legend">\
-                <div class="ten columns centered" id="vm_cpu_legend">\
+                <div class="large-10 columns centered" id="vm_cpu_legend">\
                 </div>\
               </div>\
             </div>\
-            <div class="six columns">\
+            <div class="large-6 columns">\
               <div class="row graph_legend">\
                 <h3 class="subheader"><small>'+tr("REAL MEMORY")+'</small></h3>\
               </div>\
               <div class="row">\
-                <div class="ten columns centered graph" id="vm_memory_graph" style="height: 100px;">\
+                <div class="large-10 columns centered graph" id="vm_memory_graph" style="height: 100px;">\
                 </div>\
               </div>\
               <div class="row graph_legend">\
-                <div class="ten columns centered" id="vm_memory_legend">\
+                <div class="large-10 columns centered" id="vm_memory_legend">\
                 </div>\
               </div>\
             </div>\
@@ -2808,24 +2745,24 @@ function setupResizeCapacityDialog(){
     <div class="reveal-body">\
     <form id="resize_capacity_form" action="">\
           <div class="row centered">\
-          <div class="eight columns">\
-              <div class="four columns">\
+          <div class="large-8 columns">\
+              <div class="large-4 columns">\
                   <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
               </div>\
-              <div class="seven columns">\
+              <div class="large-7 columns">\
                   <label style="border-style: inset; background-color: lightgrey" type="text" name="vm_id" id="vm_id" disabled/>\
               </div>\
-              <div class="one columns">\
+              <div class="large-1 columns">\
               </div>\
           </div>\
-          <div class="four columns">\
-              <div class="four columns">\
+          <div class="large-4 columns">\
+              <div class="large-4 columns">\
                   <label class="inline right" for="vm_id">'+tr("Enforce")+':</label>\
               </div>\
-              <div class="two columns">\
+              <div class="large-2 columns">\
                   <input type="checkbox" name="enforce" id="enforce"/>\
               </div>\
-              <div class="one columns pull-five">\
+              <div class="large-1 columns pull-five">\
                   <div class="tip">'
                     + tr("If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced") +
                   '</div>\
@@ -2837,13 +2774,12 @@ function setupResizeCapacityDialog(){
           <hr>\
           <div class="form_buttons">\
               <button class="button radius right success" id="resize_capacity_button" type="submit" value="VM.resize">'+tr("Resize")+'</button>\
-              <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
           </div>\
           </div>\
       <a class="close-reveal-modal">&#215;</a>\
     </form></div>')
 
-    dialog.addClass("reveal-modal large max-height");
+    dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
     setupTips(dialog);
 
     $("#template_name_form", dialog).hide();
@@ -2868,7 +2804,7 @@ function setupResizeCapacityDialog(){
 
         Sunstone.runAction('VM.resize', vm_id, obj);
 
-        $resize_capacity_dialog.trigger("reveal:close")
+        $resize_capacity_dialog.trigger('close')
         return false;
     });
 };
@@ -2882,7 +2818,7 @@ function popUpResizeCapacityDialog(vm_id){
       $('#VCPU',$resize_capacity_dialog).val($('#vcpu_info').text());
     }
 
-    $resize_capacity_dialog.reveal();
+    $resize_capacity_dialog.foundation().foundation('reveal', 'open');
 }
 
 
@@ -2918,7 +2854,7 @@ function printSnapshots(vm_info){
      <div class="">\
         <div id="columns twelve">\
            <form id="snapshot_form" vmid="'+vm_info.ID+'" >\
-              <div class="twelve columns">'
+              <div class="large-12 columns">'
 
     if (Config.isTabActionEnabled("vms-tab", "VM.snapshot_create")) {
       // If VM is not RUNNING, then we forget about the attach disk form.
@@ -2936,7 +2872,7 @@ function printSnapshots(vm_info){
       </div>'
 
     html += '\
-      <div class="twelve columns">\
+      <div class="large-12 columns">\
          <table class="info_table twelve extended_table">\
            <thead>\
              <tr>\
@@ -3018,36 +2954,35 @@ function setupSnapshotDialog(){
 </div>\
 <form id="snapshot_form" action="">\
       <div class="row centered">\
-          <div class="four columns">\
+          <div class="large-4 columns">\
               <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
           </div>\
-          <div class="seven columns">\
+          <div class="large-7 columns">\
               <label style="border-style: inset; background-color: lightgrey" type="text" name="vm_id" id="vm_id" disabled/>\
           </div>\
-          <div class="one columns">\
+          <div class="large-1 columns">\
               <div class=""></div>\
           </div>\
       </div>\
       <div class="row centered">\
-          <div class="four columns">\
+          <div class="large-4 columns">\
               <label class="inline right" for="snapshot_name">'+tr("Snapshot name")+':</label>\
           </div>\
-          <div class="seven columns">\
+          <div class="large-7 columns">\
               <input type="text" name="snapshot_name" id="snapshot_name" />\
           </div>\
-          <div class="one columns">\
+          <div class="large-1 columns">\
               <div class=""></div>\
           </div>\
       </div>\
       <hr>\
       <div class="form_buttons">\
           <button class="button radius right success" id="snapshot_live_button" type="submit" value="VM.saveas">'+tr("Take snapshot")+'</button>\
-          <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
       </div>\
   <a class="close-reveal-modal">&#215;</a>\
 </form>')
 
-    dialog.addClass("reveal-modal");
+    dialog.addClass("reveal-modal").attr("data-reveal", "");
     setupTips(dialog);
 
     $('#snapshot_form',dialog).submit(function(){
@@ -3060,14 +2995,14 @@ function setupSnapshotDialog(){
 
         Sunstone.runAction('VM.snapshot_create', vm_id, obj);
 
-        $snapshot_dialog.trigger("reveal:close")
+        $snapshot_dialog.trigger('close')
         return false;
     });
 };
 
 function popUpSnapshotDialog(vm_id){
     $('#vm_id',$snapshot_dialog).text(vm_id);
-    $snapshot_dialog.reveal();
+    $snapshot_dialog.foundation().foundation('reveal', 'open');
     $("input#snapshot_name",$snapshot_dialog).focus();
 }
 
@@ -3123,12 +3058,13 @@ function setup_vm_snapshot_tab(){
 // which is a lot.
 function setupCreateVMDialog(include_select_image){
 
-    dialogs_context.append('<div id="create_vm_dialog"></div>');
+    dialogs_context.append('<div id="create_vm_dialog"  class="reveal-modal large max-height"" data-reveal></div>');
     //Insert HTML in place
     $create_vm_dialog = $('#create_vm_dialog')
     var dialog = $create_vm_dialog;
     dialog.html(create_vm_tmpl);
-    dialog.addClass("reveal-modal large max-height");
+    $(document).foundation();
+    //dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
 
     var dataTable_template_templates = $('#template_templates_table', dialog).dataTable({
         "iDisplayLength": 4,
@@ -3295,7 +3231,7 @@ function setupCreateVMDialog(include_select_image){
         setTimeout(function(){
             Sunstone.runAction("VM.list");
         },1500);
-        $create_vm_dialog.trigger("reveal:close")
+        $create_vm_dialog.trigger('close')
         return false;
     });
 }
@@ -3303,7 +3239,7 @@ function setupCreateVMDialog(include_select_image){
 // Open creation dialog
 function popUpCreateVMDialog(include_select_image){
     setupCreateVMDialog(include_select_image);
-    $create_vm_dialog.reveal();
+    $create_vm_dialog.foundation().foundation('reveal', 'open');
     $("input#vm_name",$create_vm_dialog).focus();
 }
 
@@ -3320,7 +3256,7 @@ function setupDeployVMDialog(){
     $deploy_vm_dialog = $('#deploy_vm_dialog')
     var dialog = $deploy_vm_dialog;
     dialog.html(deploy_vm_tmpl);
-    dialog.addClass("reveal-modal large max-height");
+    dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
 
     var dataTable_deploy_hosts = $('#deploy_datatable_hosts', dialog).dataTable({
         "iDisplayLength": 4,
@@ -3452,7 +3388,7 @@ function setupDeployVMDialog(){
             Sunstone.runAction("VM.deploy_action", elem, extra_info);
         });
 
-        $deploy_vm_dialog.trigger("reveal:close")
+        $deploy_vm_dialog.trigger('close')
         return false;
     });
 }
@@ -3463,7 +3399,7 @@ function setupMigrateVMDialog(live){
     $migrate_vm_dialog = $('#migrate_vm_dialog')
     var dialog = $migrate_vm_dialog;
     dialog.html(migrate_vm_tmpl);
-    dialog.addClass("reveal-modal large max-height");
+    dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
 
     var dataTable_migrate_hosts = $('#migrate_datatable_hosts', dialog).dataTable({
         "iDisplayLength": 4,
@@ -3543,17 +3479,14 @@ function setupMigrateVMDialog(live){
         //notifySubmit("Template.instantiate",template_id, extra_msg);
 
         $.each(getSelectedNodes(dataTable_vMachines), function(index, elem) {
-          console.log(elem)
           if (live) {
-            console.log("live")
             Sunstone.runAction("VM.migrate_live_action", elem, extra_info);
           } else {
-            console.log("migrate")
             Sunstone.runAction("VM.migrate_action", elem, extra_info);
           }
         });
 
-        $migrate_vm_dialog.trigger("reveal:close")
+        $migrate_vm_dialog.trigger('close')
         return false;
     });
 }
@@ -3561,14 +3494,14 @@ function setupMigrateVMDialog(live){
 // Open creation dialog
 function popUpDeployVMDialog(){
     setupDeployVMDialog();
-    $deploy_vm_dialog.reveal();
+    $deploy_vm_dialog.foundation().foundation('reveal', 'open');
 }
 
 
 // Open creation dialog
 function popUpMigrateVMDialog(live){
     setupMigrateVMDialog(live);
-    $migrate_vm_dialog.reveal();
+    $migrate_vm_dialog.foundation().foundation('reveal', 'open');
 }
 
 
@@ -3649,7 +3582,7 @@ function setupVNC(){
   <a class="close-reveal-modal">&#215;</a>\
 ');
 
-    dialog.addClass("reveal-modal large max-height");
+    dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
 
     $('#sendCtrlAltDelButton',dialog).click(function(){
         rfb.sendCtrlAltDel();

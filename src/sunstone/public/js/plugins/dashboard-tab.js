@@ -14,161 +14,166 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-var dashboard_tab_content = '\
-<div class="dashboard">\
-<div class="panel">\
-<div class="row">\
-  <div class="twelve columns">\
-    <h4 class="subheader header">\
-      <span class="header-resource">\
-        <i class="fa fa-tachometer"></i> '+tr("Dashboard")+'\
-      </span>\
-      <span class="header-info">\
-        <span/> <small></small>&emsp;\
-      </span>\
-      <span class="user-login">\
-      </span>\
-    </h4>\
+var dashboard_tab_content = '<div>\
+  <div id="one_per_row">\
   </div>\
-</div>\
-</div>\
-<br>\
   <div id="three_per_row" class="row">\
   </div>\
   <div id="two_per_row" class="row">\
-  </div>\
-  <div id="one_per_row" class="row">\
   </div>\
 </div>\
 ';
 
 var widgets = {
-  "storage" : '<div class="panel">\
-        <div class="row">\
-          <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="fa fa-upload"></i> '+tr("Storage")+'</span></h5>\
-        </div>\
-        <div class="row">\
-          <div class="twelve columns centered">\
-            <h3 class="subheader">\
-              <span id="total_images" class="subheader"/>\
-              <small>'+tr("IMAGES")+'</small>&emsp;\
-              <span id="size_images" class="subheader"/>\
+  "storage" : '<fieldset>\
+        <legend class="span-dashboard"><i class="fa fa-upload"></i> '+tr("Storage")+'</legend>\
+        <div class="row totals-info">\
+            <div class="large-6 columns text-right">\
+              <h4 class="subheader">\
+              <span class="total_images subheader"/><br>\
+              <span class="size_images subheader"/>\
+              </h4>\
+            </div>\
+            <div class="large-6 columns text-left">\
+              <h4 class="subheader">\
+              <small>'+tr("IMAGES")+'</small><br>\
               <small>'+tr("USED")+'</small>\
-            </h3>\
-          </div>\
+              </h4>\
+            </div>\
         </div>\
-      </div>',
-  "users" : '<div class="panel">\
-        <div class="row">\
-          <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="fa fa-user"></i> '+tr("Users")+'</span></h5>\
-        </div>\
-        <div class="row">\
-          <div class="twelve columns centered">\
-            <h3 class="subheader">\
-              <span id="total_users" class="subheader"/>\
-              <small>'+tr("USERS")+'</small>&emsp;\
-              <span id="total_groups" class="subheader"/>\
+      </fieldset>',
+  "users" : '<fieldset>\
+        <legend class="span-dashboard"><i class="fa fa-user"></i> '+tr("Users")+'</legend>\
+        <div class="row totals-info">\
+            <div class="large-6 columns text-right">\
+              <h4 class="subheader">\
+              <span class="subheader total_users"/><br>\
+              <span class="subheader total_groups"/>\
+              </h4>\
+            </div>\
+            <div class="large-6 columns text-left">\
+              <h4 class="subheader">\
+              <small>'+tr("USERS")+'</small><br>\
               <small>'+tr("GROUPS")+'</small>\
-            </h3>\
-          </div>\
+              </h4>\
+            </div>\
         </div>\
-      </div>',
-  "network" : '<div class="panel">\
-        <div class="row">\
-          <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="fa fa-sitemap"></i> '+tr("Network")+'</span></h5>\
-        </div>\
-        <div class="row">\
-          <div class="twelve columns centered">\
-            <h3 class="subheader">\
-              <span id="total_vnets" class="subheader"/>\
-              <small>'+tr("VNETS")+'</small>&emsp;\
-              <span id="addresses_vnets" class="subheader"/>\
+      </fieldset>',
+  "network" : '<fieldset>\
+        <legend class="span-dashboard"><i class="fa fa-sitemap"></i> '+tr("Network")+'</legend>\
+        <div class="row totals-info">\
+            <div class="large-6 columns text-right">\
+              <h4 class="subheader">\
+              <span class="total_vnets subheader"/><br>\
+              <span class="addresses_vnets subheader"/>\
+              </h4>\
+            </div>\
+            <div class="large-6 columns text-left">\
+              <h4 class="subheader">\
+              <small>'+tr("VNETS")+'</small><br>\
               <small>'+tr("USED IPs")+'</small>\
-            </h3>\
+              </h4>\
+            </div>\
+        </div>\
+      </fieldset>',
+  "hosts" : '<fieldset class="dashboard-panel">\
+        <legend class="span-dashboard"><i class="fa fa-hdd-o"></i> '+tr("Hosts")+'</legend>\
+        <div class="row  totals-info">\
+          <div class="large-3 columns centered">\
+            <div class="large-6 columns text-right">\
+              <h4 class="subheader">\
+                <span class="total_hosts subheader"/><br>\
+                <span class="on_hosts subheader success-color"/><br>\
+                <span class="off_hosts subheader"/><br>\
+                <span class="error_hosts subheader alert-color"/><br>\
+              </h4>\
+            </div>\
+            <div class="large-6 columns text-left">\
+              <h4 class="subheader">\
+                <small>'+tr("TOTAL")+'</small><br>\
+                <small class="success-color">'+tr("ON")+'</small><br>\
+                <small>'+tr("OFF")+'</small><br>\
+                <small class="alert-color">'+tr("ERROR")+'</small><br>\
+              </h4>\
+            </div>\
+          </div>\
+          <div class="large-9 columns">\
+            <div class="row graph_legend text-left">\
+              <div class="large-4 columns">\
+                  <h4 class="subheader text-center"><small>'+tr("CPU")+'</small></h4>\
+              </div>\
+              <div class="large-4 columns">\
+                <span class="label allocated radius">'+tr("Allocated")+'</span>&emsp;\
+                <span class="label real radius">'+tr("Real")+'</span>&emsp;\
+                <span class="label total radius">'+tr("Total")+'</span>\
+              </div>\
+              <div class="large-4 columns">\
+                  <h4 class="subheader"><small>'+tr("MEMORY")+'</small></h4>\
+              </div>\
+            </div>\
+            <div class="row">\
+              <div class="large-6 columns">\
+                  <div class="large-12 columns centered graph" id="dash_host_cpu_graph" style="height: 100px;">\
+                  </div>\
+              </div>\
+              <div class="large-6 columns">\
+                  <div class="large-12 columns centered graph" id="dash_host_mem_graph" style="height: 100px;">\
+                  </div>\
+              </div>\
+            </div>\
           </div>\
         </div>\
-      </div>',
-  "hosts" : '<div class="panel dashboard-panel">\
-        <div class="row">\
-          <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="fa fa-hdd-o"></i> '+tr("Hosts")+'</span></h5>\
-        </div>\
-        <div class="row">\
-          <div class="twelve columns centered">\
-            <h3 class="subheader">\
-              <span id="total_hosts" class="subheader"/>\
-              <small>'+tr("TOTAL")+'</small>&emsp;\
-              <span id="on_hosts" class="subheader"/>\
-              <small>'+tr("ON")+'</small>&emsp;\
-              <span id="off_hosts" class="subheader"/>\
-              <small>'+tr("OFF")+'</small>&emsp;\
-              <span id="error_hosts" class="subheader"/>\
-              <small>'+tr("ERROR")+'</small>\
-            </h3>\
+      </fieldset>',
+  "vms" : '<fieldset class="dashboard-panel">\
+        <legend class="span-dashboard"><i class="fa fa-cloud"></i> '+tr("Virtual Machines")+'</legend>\
+        <div class="row totals-info">\
+          <div class="large-3 columns">\
+            <div class="large-6 columns text-right">\
+              <h4 class="subheader">\
+              <span class="subheader total_vms"/><br>\
+              <span class="subheader active_vms success-color"/><br>\
+              <span class="subheader pending_vms"/><br>\
+              <span class="subheader failed_vms alert-color"/>\
+              </h4>\
+            </div>\
+            <div class="large-6 columns text-left">\
+              <h4 class="subheader">\
+              <small>'+tr("TOTAL")+'</small><br>\
+              <small class="success-color">'+tr("ACTIVE")+'</small><br>\
+              <small>'+tr("PENDING")+'</small><br>\
+              <small class="alert-color">'+tr("FAILED")+'</small>\
+              </h4>\
+            </div>\
+          </div>\
+          <div class="large-9 columns">\
+            <div class="row graph_legend text-center">\
+              <div class="large-6 columns">\
+              <h4 class="subheader"><small>'+tr("NET DOWNLOAD SPEED")+'</small></h4>\
+              </div>\
+              <div class="large-6 columns">\
+              <h4 class="subheader"><small>'+tr("NET UPLOAD SPEED")+'</small></h4>\
+              </div>\
+            </div>\
+            <div class="row">\
+              <div class="large-6 columns">\
+              <div class="large-12 columns centered graph" id="dash_vm_net_rx_graph"  style="height: 100px;">\
+              </div>\
+              </div>\
+              <div class="large-6 columns">\
+              <div class="large-12 columns centered graph" id="dash_vm_net_tx_graph" style="height: 100px;">\
+              </div>\
+              </div>\
+            </div>\
           </div>\
         </div>\
-        <div class="row graph_legend">\
-          <h3 class="subheader"><small>'+tr("CPU")+'</small></h3>\
-        </div>\
-        <div class="row">\
-          <div class="ten columns centered graph" id="dash_host_cpu_graph" style="height: 100px;">\
-          </div>\
-        </div>\
-        <div class="row graph_legend">\
-          <h3 class="subheader"><small>'+tr("MEMORY")+'</small></h3>\
-        </div>\
-        <div class="row">\
-          <div class="ten columns centered graph" id="dash_host_mem_graph" style="height: 100px;">\
-          </div>\
-        </div>\
-        <div class="row graph_legend" style="text-align:centered">\
-            <span class="label allocated radius">'+tr("Allocated")+'</span>&emsp;\
-            <span class="label real radius">'+tr("Real")+'</span>&emsp;\
-            <span class="label total radius">'+tr("Total")+'</span>\
-        </div>\
-      </div>',
-  "vms" : '<div class="panel dashboard-panel">\
-        <div class="row">\
-          <h5 class="subheader header-dashboard"><span class="span-dashboard"><i class="fa fa-cloud"></i> '+tr("Virtual Machines")+'</span></h5>\
-        </div>\
-        <div class="row">\
-          <div class="twelve columns centered">\
-            <h3 class="subheader">\
-              <span id="total_vms" class="subheader"/>\
-              <small>'+tr("TOTAL")+'</small>&emsp;\
-              <span id="active_vms" class="subheader"/>\
-              <small>'+tr("ACTIVE")+'</small>&emsp;\
-              <span id="pending_vms" class="subheader"/>\
-              <small>'+tr("PENDING")+'</small>&emsp;\
-              <span id="failed_vms" class="subheader"/>\
-              <small>'+tr("FAILED")+'</small>\
-            </h3>\
-          </div>\
-        </div>\
-        <div class="row  graph_legend">\
-          <h3 class="subheader"><small>'+tr("NET DOWNLOAD SPEED")+'</small></h3>\
-          <div class="ten columns " id="dash_vm_net_rx_legend">\
-          </div>\
-        </div>\
-        <div class="row">\
-          <div class="ten columns centered graph" id="dash_vm_net_rx_graph"  style="height: 100px;">\
-          </div>\
-        </div>\
-        <div class="row graph_legend">\
-          <h3 class="subheader"><small>'+tr("NET UPLOAD SPEED")+'</small></h3>\
-          <div class="ten columns" id="dash_vm_net_tx_legend">\
-          </div>\
-        </div>\
-        <div class="row">\
-          <div class="ten columns centered graph" id="dash_vm_net_tx_graph" style="height: 100px;">\
-          </div>\
-        </div>\
-      </div>'
+      </fieldset>'
 }
 
 var dashboard_tab = {
     title: '<i class="fa fa-tachometer"></i>'+tr("Dashboard"),
     content: dashboard_tab_content,
-    showOnTopMenu: false
+    showOnTopMenu: false,
+    list_header: '<i class="fa fa-tachometer"></i> '+tr("Dashboard")
 }
 
 Sunstone.addMainTab('dashboard-tab',dashboard_tab);
@@ -183,17 +188,17 @@ $(document).ready(function(){
     $dashboard = $('#dashboard-tab', main_tabs_context);
 
     $.each(Config.dashboardWidgets('widgets_three_per_row'), function(id, widget){
-      var html = '<div class="four columns">'+widgets[widget]+'</div>';
+      var html = '<div class="large-4 columns">'+widgets[widget]+'</div>';
       $('#three_per_row', $dashboard).append(html);
     })
 
     $.each(Config.dashboardWidgets('widgets_two_per_row'), function(id, widget){
-      var html = '<div class="six columns">'+widgets[widget]+'</div>';
+      var html = '<div class="large-6 columns">'+widgets[widget]+'</div>';
       $('#two_per_row', $dashboard).append(html);
     })
 
     $.each(Config.dashboardWidgets('widgets_one_per_row'), function(id, widget){
-      var html = '<div class="twelve columns">'+widgets[widget]+'</div>';
+      var html = '<div class="row"><div class="large-12 columns">'+widgets[widget]+'</div></div><br>';
       $('#one_per_row', $dashboard).append(html);
     })
 });

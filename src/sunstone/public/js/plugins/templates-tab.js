@@ -14,290 +14,204 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-/*Templates tab plugin*/
-var templates_tab_content = '\
-<form class="custom" id="template_form" action="">\
-  <div class="panel">\
-    <div class="row">\
-      <div class="twelve columns">\
-        <h4 class="subheader header">\
-          <span class="header-resource">\
-            <i class="fa fa-file-o"></i> '+tr("Templates")+'\
-          </span>\
-          <span class="header-info">\
-            <span/> <small></small>&emsp;\
-          </span>\
-          <span class="user-login">\
-          </span>\
-        </h4>\
-      </div>\
-    </div>\
-    <div class="row">\
-      <div class="ten columns">\
-        <div class="action_blocks">\
-        </div>\
-      </div>\
-      <div class="two columns">\
-        <input id="template_search" type="text" placeholder="'+tr("Search")+'" />\
-      </div>\
-      <br>\
-      <br>\
-    </div>\
-  </div>\
-  <div class="row">\
-    <div class="twelve columns">\
-      <table id="datatable_templates" class="datatable twelve">\
-        <thead>\
-          <tr>\
-            <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
-            <th>'+tr("ID")+'</th>\
-            <th>'+tr("Owner")+'</th>\
-            <th>'+tr("Group")+'</th>\
-            <th>'+tr("Name")+'</th>\
-            <th>'+tr("Registration time")+'</th>\
-          </tr>\
-        </thead>\
-        <tbody id="tbodytemplates">\
-        </tbody>\
-      </table>\
-    </div>\
-  </div>\
-</form>';
-
-
 var create_template_tmpl = '\
-<div class="panel">'+
-  '<h3><small id="create_template_header">'+tr("Create VM Template")+'</small><small id="update_template_header" class="hidden">'+tr("Update VM Template")+'</small></h3>'+
+<div class="row">'+
+  '<div class="large-5 columns">'+
+    '<h3 class="subheader" id="create_template_header">'+tr("Create VM Template")+'</h3><h3 class="subheader" id="update_template_header" class="hidden">'+tr("Update VM Template")+'</h3>'+
+  '</div>'+
+  '<div class="large-7 columns">'+
+    '<dl class="tabs right wizard_tabs" data-tab>' +
+      '<dd id="wizard_mode" class="active"><a href="#easy">'+tr("Wizard")+'</a></dd>' +
+      '<dd id="advanced_mode"><a id="advanced_mode_a" href="#manual">'+tr("Advanced mode")+'</a></dd>' +
+    '</dl>' +
+  '</div>'+
 '</div>'+
 '<div class="reveal-body">'+
-  '<dl class="tabs">' +
-    '<dd id="wizard_mode" class="active"><a href="#easy">'+tr("Wizard")+'</a></dd>' +
-    '<dd id="advanced_mode"><a id="advanced_mode_a" href="#manual">'+tr("Advanced mode")+'</a></dd>' +
-  '</dl>' +
-  '<ul class="tabs-content">' +
-    '<li class="active" id="easyTab">' +
+  '<div class="tabs-content">' +
+    '<div class="content active" id="easy">' +
       '<form class="custom creation">'+
         '<div class="">'+
-          '<div class="columns three">'+
-              '<dl id="template_create_tabs" class="tabs vertical">'+
-              '</dl>'+
-          '</div>'+
-          '<div class="columns nine">'+
-                  '<ul id="template_create_tabs_content" class="tabs-content">'+
-                  '</ul>'+
+          '<dl id="template_create_tabs" class="tabs right-info-tabs text-center" data-tab>'+
+          '</dl>'+
+          '<div id="template_create_tabs_content" class="tabs-content">'+
           '</div>'+
         '</div>'+
         '<div class="reveal-footer">'+
-            '<hr>'+
             '<button class="success button radius" id="create_template_form_easy" value="OpenNebula.Template.create" style="float: right">'+tr("Create")+'</button>'+
             '<button class="button hidden radius" id="template_template_update_button" value="Template.update_template" style="float: right">'+tr("Update")+'</button>'+
             '<button class="button secondary radius" id="template_template_reset_button" value="reset" type="reset">'+tr("Reset")+'</button>'+
             '<button class="button secondary hidden radius" id="template_template_reset_button_update" value="reset" type="reset">'+tr("Reset")+'</button>'+
-            '<button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>'+
         '</div>'+
       '</form>'+
-    '</li>' +
-    '<li id="manualTab">' +
+    '</div>' +
+    '<div class="content" id="manual">' +
      '<form id="create_template_form_manual" action="">' +
-        '<h4><small>'+tr("Write the Virtual Machine template here")+'</small></h4>' +
-        '<textarea id="template" rows="15" style="width:100%;"></textarea>' +
+        '<div class="row">' +
+          '<div class="large-12 columns">' +
+            '<p>'+tr("Write the Virtual Machine template here")+'</p>' +
+          '</div>' +
+        '</div>' +
+        '<div class="row">' +
+          '<div class="large-12 columns">' +
+            '<textarea id="template" rows="15"></textarea>' +
+          '</div>' +
+        '</div>' +
         '<div class="reveal-footer">' +
-          '<hr>' +
           '<div class="form_buttons">' +
             '<button class="button success right radius" id="create_template_submit_manual" value="template/create">'+tr("Create")+'</button>' +
             '<button class="button hidden radius" id="manual_template_update_button" value="Template.update_template" style="float: right">'+tr("Update")+'</button>'+
             '<button class="button secondary radius" id="manual_template_reset_button_update" value="reset" type="reset">'+tr("Reset")+'</button>'+
-            '<button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>' +
           '</div>' +
         '</div>' +
       '</form>' +
-    '</li>' +
-  '</ul>' +
+    '</div>' +
+  '</div>' +
 '</div>'+
 '<a class="close-reveal-modal">&#215;</a>';
 
 var instantiate_vm_template_tmpl ='\
-<div class="panel">\
-  <h3>\
-    <small id="create_vnet_header">'+tr("Instantiate VM Template")+'</small>\
-  </h3>\
+<div class="row">\
+  <h3 id="create_vnet_header" class="subheader">'+tr("Instantiate VM Template")+'</h3>\
 </div>\
 <form id="instantiate_vm_template_form" action="">\
   <div class="row">\
-    <div class="seven columns">\
-      <div class="four columns">\
-          <label class="inline right" for="vm_name">'+tr("VM Name")+':</label>\
-      </div>\
-      <div class="seven columns">\
-          <input type="text" name="vm_name" id="vm_name" />\
-      </div>\
-      <div class="one columns">\
-          <div class="tip">'+tr("Defaults to template name when emtpy. You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them")+'.</div>\
-      </div>\
-    </div>\
-    <div class="five columns">\
-      <div class="six columns">\
-          <label class="inline right" for="vm_n_times">'+tr("# VMs")+':</label>\
-      </div>\
-      <div class="five columns">\
-          <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
-      </div>\
-      <div class="one columns">\
-          <div class="tip">'+tr("Number of Virtual Machines that will be created using this template")+'.</div>\
-      </div>\
+    <div class="large-12 columns">\
+        <label for="vm_name">'+tr("VM Name")+
+          '<span class="tip">'+tr("Defaults to template name when emtpy. You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them")+'.</span>'+
+        '</label>\
+        <input type="text" name="vm_name" id="vm_name" />\
     </div>\
   </div>\
-  <hr>\
+  <div class="row">\
+    <div class="large-12 columns">\
+        <label for="vm_n_times">'+tr("Number of instances")+
+          '<span class="tip">'+tr("Number of Virtual Machines that will be created using this template")+'.</span>'+
+        '</label>\
+        <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
+    </div>\
+  </div>\
   <div class="form_buttons">\
      <button class="button radius right success" id="instantiate_vm_tenplate_proceed" value="Template.instantiate_vms">'+tr("Instantiate")+'</button>\
-     <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
   </div>\
   <a class="close-reveal-modal">&#215;</a>\
 </form>';
 
 var easy_provision_vm_template_tmpl ='\
-<div class="panel">\
-  <h3>\
-    <small id="create_vnet_header">'+tr("Instantiate VM Template")+'</small>\
-  </h3>\
+<div class="row">\
+  <h3 id="create_vnet_header" class="subheader">'+tr("Instantiate VM Template")+'</h3>\
 </div>\
 <div class="reveal-body">\
   <form id="instantiate_vm_template_form" action="">\
-    <div class="row">\
       <fieldset>\
         <legend>'+tr("Step 1: Specify a name and the number of instances")+'</legend>\
-        <div class="seven columns">\
-          <div class="four columns">\
-              <label class="inline right" for="vm_name">'+tr("VM Name")+':</label>\
-          </div>\
-          <div class="seven columns">\
+        <div class="row">\
+          <div class="large-6 columns">\
+              <label for="vm_name">'+tr("VM Name")+
+                '<span class="tip">'+tr("Defaults to template name when emtpy. You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them")+'.</span>'+
+              '</label>\
               <input type="text" name="vm_name" id="vm_name" />\
           </div>\
-          <div class="one columns">\
-              <div class="tip">'+tr("Defaults to template name when emtpy. You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them")+'.</div>\
-          </div>\
-        </div>\
-        <div class="five columns">\
-          <div class="six columns">\
-              <label class="inline right" for="vm_n_times">'+tr("# VMs")+':</label>\
-          </div>\
-          <div class="five columns">\
+          <div class="large-6 columns">\
+              <label for="vm_n_times">'+tr("Number of instances")+
+                '<span class="tip">'+tr("Number of Virtual Machines that will be created using this template")+'.</span>'+
+              '</label>\
               <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
           </div>\
-          <div class="one columns">\
-              <div class="tip">'+tr("Number of Virtual Machines that will be created using this template")+'.</div>\
-          </div>\
         </div>\
       </fieldset>\
-    </div>\
-    <br>\
-    <br>\
-    <br>\
-    <div class="row">\
       <fieldset>\
         <legend>'+tr("Step 2: Select a template")+'</legend>\
-        <div class="row collapse">\
-          <div class="seven columns">\
+        <div class="row">\
+          <div class="large-8 columns">\
              <button id="refresh_template_templates_table_button_class" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>\
           </div>\
-          <div class="five columns">\
-            <input id="template_templates_table_search" type="text" placeholder="'+tr("Search")+'"/>\
+          <div class="large-4 columns">\
+            <input id="template_templates_table_search" class="search" type="text" placeholder="'+tr("Search")+'"/>\
           </div>\
         </div>\
-        <table id="template_templates_table" class="datatable twelve">\
-          <thead>\
-            <tr>\
-              <th></th>\
-              <th>'+tr("ID")+'</th>\
-              <th>'+tr("Owner")+'</th>\
-              <th>'+tr("Group")+'</th>\
-              <th>'+tr("Name")+'</th>\
-              <th>'+tr("Registration time")+'</th>\
-            </tr>\
-          </thead>\
-          <tbody id="tbodytemplates">\
-          </tbody>\
-        </table>\
-        <div class="row hidden">\
-          <div class="four columns">\
-            <label class="right inline" for="TEMPLATE_ID">'+tr("TEMPLATE_ID")+':</label>\
+        <div class="row">\
+          <div class="large-12 columns">\
+            <table id="template_templates_table" class="datatable twelve">\
+              <thead>\
+                <tr>\
+                  <th></th>\
+                  <th>'+tr("ID")+'</th>\
+                  <th>'+tr("Owner")+'</th>\
+                  <th>'+tr("Group")+'</th>\
+                  <th>'+tr("Name")+'</th>\
+                  <th>'+tr("Registration time")+'</th>\
+                </tr>\
+              </thead>\
+              <tbody id="tbodytemplates">\
+              </tbody>\
+            </table>\
           </div>\
-          <div class="six columns">\
+        </div>\
+        <div class="row hidden">\
+          <div class="large-12 columns">\
+            <label class="right inline" for="TEMPLATE_ID">'+tr("TEMPLATE_ID")+':</label>\
             <input type="text" id="TEMPLATE_ID" name="TEMPLATE_ID"/>\
           </div>\
-          <div class="two columns">\
-            <div class="tip">\
-            </div>\
+        </div>\
+        <div id="selected_template" class="vm_param row">\
+          <div class="large-12 columns">\
+            <span id="select_template" class="radius secondary label">'+tr("Please select a template from the list")+'</span>\
+            <span id="template_selected" class="radius secondary label" style="display: none;">'+tr("You selected the following template:")+'</span>\
+            <span class="radius label" type="text" id="TEMPLATE_NAME" name="template"></span>\
           </div>\
         </div>\
-        <br>\
-        <div id="selected_template" class="vm_param kvm_opt xen_opt vmware_opt">\
-          <span id="select_template" class="radius secondary label">'+tr("Please select a template from the list")+'</span>\
-          <span id="template_selected" class="radius secondary label hidden">'+tr("You selected the following template:")+'</span>\
-          <span class="radius label" type="text" id="TEMPLATE_NAME" name="template"></span>\
-        </div>\
       </fieldset>\
-    </div>\
-    <br>\
-    <br>\
-    <br>\
-    <div class="row">\
       <fieldset>\
         <legend>'+tr("Step 3: Select an operating system")+'</legend>\
-        <div class="row collapse">\
-          <div class="seven columns">\
+        <div class="row">\
+          <div class="large-8 columns">\
              <button id="refresh_template_images_table_button_class" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>\
           </div>\
-          <div class="five columns">\
-            <input id="template_images_table_search" type="text" placeholder="'+tr("Search")+'"/>\
+          <div class="large-4 columns">\
+            <input id="template_images_table_search" type="text" class="search" placeholder="'+tr("Search")+'"/>\
           </div>\
         </div>\
-        <table id="template_images_table" class="datatable twelve">\
-          <thead>\
-            <tr>\
-              <th></th>\
-              <th>'+tr("ID")+'</th>\
-              <th>'+tr("Owner")+'</th>\
-              <th>'+tr("Group")+'</th>\
-              <th>'+tr("Name")+'</th>\
-              <th>'+tr("Datastore")+'</th>\
-              <th>'+tr("Size")+'</th>\
-              <th>'+tr("Type")+'</th>\
-              <th>'+tr("Registration time")+'</th>\
-              <th>'+tr("Persistent")+'</th>\
-              <th>'+tr("Status")+'</th>\
-              <th>'+tr("#VMS")+'</th>\
-              <th>'+tr("Target")+'</th>\
-            </tr>\
-          </thead>\
-          <tbody id="tbodyimages">\
-          </tbody>\
-        </table>\
-        <div class="row hidden">\
-          <div class="four columns">\
-            <label class="right inline" for="IMAGE_ID">'+tr("IMAGE_ID")+':</label>\
+        <div class="row">\
+          <div class="large-8 columns">\
+            <table id="template_images_table" class="datatable twelve">\
+              <thead>\
+                <tr>\
+                  <th></th>\
+                  <th>'+tr("ID")+'</th>\
+                  <th>'+tr("Owner")+'</th>\
+                  <th>'+tr("Group")+'</th>\
+                  <th>'+tr("Name")+'</th>\
+                  <th>'+tr("Datastore")+'</th>\
+                  <th>'+tr("Size")+'</th>\
+                  <th>'+tr("Type")+'</th>\
+                  <th>'+tr("Registration time")+'</th>\
+                  <th>'+tr("Persistent")+'</th>\
+                  <th>'+tr("Status")+'</th>\
+                  <th>'+tr("#VMS")+'</th>\
+                  <th>'+tr("Target")+'</th>\
+                </tr>\
+              </thead>\
+              <tbody id="tbodyimages">\
+              </tbody>\
+            </table>\
           </div>\
-          <div class="six columns">\
+        </div>\
+        <div class="row hidden">\
+          <div class="large-12 columns">\
+            <label class="right inline" for="IMAGE_ID">'+tr("IMAGE_ID")+':</label>\
             <input type="text" id="IMAGE_ID" name="IMAGE_ID"/>\
           </div>\
-          <div class="two columns">\
-            <div class="tip">'+tr("Identifier of the image to be used as the main disk for this Virtual Machine. This choice will select the Operating System the VM will run under.")+'</div>\
+        </div>\
+        <div id="selected_image" class="vm_param row">\
+          <div class="large-12 columns">\
+            <span id="select_image" class="radius secondary label">'+tr("Please select an image from the list")+'</span>\
+            <span id="image_selected" class="radius secondary label" style="display: none;">'+tr("You selected the following image:")+'</span>\
+            <span class="radius label" type="text" id="IMAGE_NAME" name="image"></span>\
           </div>\
         </div>\
-        <br>\
-        <div id="selected_image" class="vm_param kvm_opt xen_opt vmware_opt">\
-          <span id="select_image" class="radius secondary label">'+tr("Please select an image from the list")+'</span>\
-          <span id="image_selected" class="radius secondary label hidden">'+tr("You selected the following image:")+'</span>\
-          <span class="radius label" type="text" id="IMAGE_NAME" name="image"></span>\
-        </div>\
       </fieldset>\
-    </div>\
     <div class="form_buttons reveal-footer">\
-      <hr>\
-      <div class="form_buttons">\
          <button class="button radius right success" id="instantiate_vm_tenplate_proceed" value="Template.instantiate_vms">'+tr("Instantiate")+'</button>\
-         <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
-      </div>\
     </div>\
     <a class="close-reveal-modal">&#215;</a>\
   </form>\
@@ -312,7 +226,7 @@ var template_actions = {
         type: "create",
         call: OpenNebula.Template.create,
         callback: function(request, response){
-          $create_template_dialog.trigger("reveal:close")
+          $create_template_dialog.trigger('close')
           $create_template_dialog.empty();
           addTemplateElement(request, response);
           notifyCustom(tr("Template created"), " ID: " + response.VMTEMPLATE.ID, false)
@@ -356,8 +270,13 @@ var template_actions = {
     "Template.refresh" : {
         type: "custom",
         call: function () {
+          var tab = dataTable_templates.parents(".tab");
+          if (Sunstone.rightInfoVisible(tab)) {
+            Sunstone.runAction("Template.showinfo", Sunstone.rightInfoResourceId(tab))
+          } else {
             waitingNodes(dataTable_templates);
             Sunstone.runAction("Template.list");
+          }
         }
     },
 
@@ -403,7 +322,7 @@ var template_actions = {
         type: "single",
         call: OpenNebula.Template.update,
         callback: function(request, response){
-            $create_template_dialog.trigger("reveal:close")
+            $create_template_dialog.trigger('close')
             notifyMessage(tr("Template updated correctly"));
         },
         error: onError
@@ -594,10 +513,27 @@ var template_info_panel = {
 
 var templates_tab = {
     title: tr("Templates"),
-    content: templates_tab_content,
     buttons: template_buttons,
     tabClass: 'subTab',
-    parentTab: 'vresources-tab'
+    parentTab: 'vresources-tab',
+    search_input: '<input id="template_search" type="text" placeholder="'+tr("Search")+'" />',
+    list_header: '<i class="fa fa-file-o"></i> '+tr("Templates"),
+    info_header: '<i class="fa fa-file-o"></i> '+tr("Template"),
+    subheader: '<span/> <small></small>&emsp;</span>',
+    table: '<table id="datatable_templates" class="datatable twelve">\
+        <thead>\
+          <tr>\
+            <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
+            <th>'+tr("ID")+'</th>\
+            <th>'+tr("Owner")+'</th>\
+            <th>'+tr("Group")+'</th>\
+            <th>'+tr("Name")+'</th>\
+            <th>'+tr("Registration time")+'</th>\
+          </tr>\
+        </thead>\
+        <tbody id="tbodytemplates">\
+        </tbody>\
+      </table>'
 }
 
 Sunstone.addActions(template_actions);
@@ -677,67 +613,71 @@ function updateTemplatesView(request, templates_list){
 
 function generate_capacity_tab_content() {
     var html = '<div id="template_name_form" class="row vm_param">'+
-        '<div class="two columns">'+
-          '<label class="inline right" for="NAME">'+tr("NAME")+':</label>'+
-        '</div>'+
-        '<div class="six columns">'+
+        '<div class="large-6 columns">'+
+          '<label  for="NAME">'+tr("Name")+'\
+            <span class="tip">'+tr("Name that the VM will get for description purposes.")+'</span>\
+          </label>'+
           '<input type="text" id="NAME" name="name"/>'+
-        '</div>'+
-        '<div class="one columns">'+
-          '<div class="tip">'+tr("Name that the VM will get for description purposes.")+'</div>'+
-        '</div>'+
-    '</div>'+
-    '<div class="row">'+
-        '<div class="two columns">'+
-          '<label class="inline right" for="CPU">'+tr("CPU")+':</label>'+
-        '</div>'+
-        '<div id="cpu_slider" class="seven columns">'+
-        '</div>'+
-        '<div class="one columns vm_param">'+
-          '<input type="text" id="CPU" name="cpu" size="2"/>'+
-        '</div>'+
-        '<div class="one right columns">'+
-          '<div class="tip">'+tr("Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5.")+'</div>'+
         '</div>'+
     '</div>'+
     '<div class="vm_param">'+
         '<input type="hidden" id="MEMORY" name="memory" />'+
     '</div>'+
     '<div class="row">'+
-        '<div class="two columns">'+
-          '<label class="inline right" for="MEMORY">'+tr("MEMORY")+':</label>'+
+        '<div class="large-2 columns">'+
+          '<label class="inline" for="MEMORY">'+tr("Memory")+'\
+            <span class="tip right">'+tr("Amount of RAM required for the VM, in Megabytes.")+'</span>\
+          </label>'+
         '</div>'+
-        '<div id="memory_slider" class="five columns">'+
+        '<div class="large-6 columns">'+
+          '<div id="memory_slider" class="large-7 columns">'+
+          '</div>'+
         '</div>'+
-        '<div class="two columns">'+
+        '<div class="large-2 columns">'+
           '<input type="text" id="MEMORY_TMP" name="memory_tmp" size="4" />'+
         '</div>'+
-        '<div class="one columns">'+
+        '<div class="large-2 columns">'+
           '<select id="memory_unit" name="MEMORY_UNIT">'+
               '<option value="MB">'+tr("MB")+'</option>'+
               '<option value="GB">'+tr("GB")+'</option>'+
           '</select>'+
         '</div>'+
-        '<div class="one right columns">'+
-          '<div class="tip">'+tr("Amount of RAM required for the VM, in Megabytes.")+'</div>'+
+    '</div>'+
+    '<div class="row">'+
+        '<div class="large-2 columns">'+
+          '<label class="inline" for="CPU">'+tr("CPU")+'\
+            <span class="tip right">'+tr("Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5.")+'</span>\
+          </label>'+
+        '</div>'+
+        '<div class="large-8 columns">'+
+          '<div id="cpu_slider">'+
+          '</div>'+
+        '</div>'+
+        '<div class="large-2 columns">'+
+          '<input type="text" id="CPU" name="cpu"/>'+
         '</div>'+
     '</div>'+
-    '<div class="show_hide" id="advanced_capacity">'+
-         '<h4><small><i class=" fa fa-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
+    '<div class="row">'+
+      '<div class="large-12 columns">'+
+        '<dl class="tabs wizard_tabs" data-tab>' +
+          '<dd><a href="#advanced_capacity">'+tr("Advanced options")+'</a></dd>' +
+        '</dl>' +
+      '</div>'+
     '</div>'+
-    '<div class="advanced">'+
-      '<div class="row">'+
-          '<div class="two columns">'+
-            '<label class="inline right" for="VCPU">'+tr("VCPU")+':</label>'+
+    '<div class="tabs-content">' +
+      '<div class="content row" id="advanced_capacity">' +
+        '<div class="large-2 columns">'+
+          '<label class="inline" for="VCPU">'+tr("VCPU")+'\
+            <span class="tip right">'+tr("Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU.")+'</span>\
+          </label>'+
+        '</div>'+
+        '<div class="large-8 columns">'+
+          '<div id="vcpu_slider">'+
           '</div>'+
-          '<div id="vcpu_slider" class="seven columns">'+
-          '</div>'+
-          '<div class="one  columns vm_param">'+
-            '<input type="text" id="VCPU" name="vcpu" size="3" />'+
-          '</div>'+
-          '<div class="one right columns">'+
-            '<div class="tip">'+tr("Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU.")+'</div>'+
-          '</div>'+
+        '</div>'+
+        '<div class="large-2 columns">'+
+          '<input type="text" id="VCPU" name="vcpu"/>'+
+        '</div>'+
       '</div>'+
     '</div>'
 
@@ -897,7 +837,7 @@ function setup_capacity_tab_content(capacity_section) {
         handles: 1,
         connect: "lower",
         range: [1,16],
-        start: 0,
+        start: 1,
         step: 1,
         slide: function(type) {
             if ( type != "move")
@@ -921,21 +861,19 @@ function setup_capacity_tab_content(capacity_section) {
 
 function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
   var html = '<div class="row">'+
-        '<div class="three columns push-three">'+
-          '<input id="'+str_disk_tab_id+'radioImage" type="radio" name="'+str_disk_tab_id+'" value="image" checked> '+tr("Image")+
-        '</div>'+
-        '<div class="three columns pull-three">'+
-          '<input id="'+str_disk_tab_id+'radioVolatile" type="radio" name="'+str_disk_tab_id+'" value="volatile"> '+tr("Volatile Disk")+
+        '<div class="large-12 columns text-center">'+
+          '<input id="'+str_disk_tab_id+'radioImage" type="radio" name="'+str_disk_tab_id+'" value="image" checked> <label for="'+str_disk_tab_id+'radioImage">'+tr("Image")+'</label>'+
+          '<input id="'+str_disk_tab_id+'radioVolatile" type="radio" name="'+str_disk_tab_id+'" value="volatile"> <label for="'+str_disk_tab_id+'radioVolatile">'+tr("Volatile Disk")+'</label>'+
         '</div>'+
       '</div>'+
-      '<hr>'+
+      '<br>'+
         '<div id="disk_type" class="vm_param image">'+
           '<div class="row collapse">'+
-            '<div class="seven columns">' +
+            '<div class="large-8 columns">' +
                '<button id="refresh_template_images_table_button_class'+str_disk_tab_id+'" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>' +
             '</div>' +
-            '<div class="five columns">'+
-              '<input id="'+str_disk_tab_id+'_search" type="text" placeholder="'+tr("Search")+'"/>'+
+            '<div class="large-4 columns">'+
+              '<input id="'+str_disk_tab_id+'_search" type="text" class="search" placeholder="'+tr("Search")+'"/>'+
             '</div>'+
           '</div>'+
           '<table id="'+str_datatable_id+'" class="datatable twelve">'+
@@ -962,7 +900,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
           '<br>'+
           '<div id="selected_image" class="vm_param kvm_opt xen_opt vmware_opt">'+
             '<span id="select_image" class="radius secondary label">'+tr("Please select an image from the list")+'</span>'+
-            '<span id="image_selected" class="radius secondary label hidden">'+tr("You selected the following image: ")+
+            '<span id="image_selected" class="radius secondary label " style="display: none;">'+tr("You selected the following image: ")+
             '</span>'+
             '<span class="radius label" type="text" id="IMAGE_NAME" name="image"></span>'+
             '<div class="alert-box alert" style="display: none;">'+
@@ -970,379 +908,251 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
             '  <a href="" class="close">&times;</a>'+
             '</div>'+
           '</div>'+
-          '<hr>'+
         '<div class="show_hide" id="advanced_image">'+
           '<h4><small><i class=" fa fa-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
         '</div>'+
         '<div class="advanced">'+
+          '<fieldset>'+
+          '<legend>'+tr("Image")+'</legend>'+
           '<div class="row advanced vm_param">'+
-            '<div class="six columns">'+
-              '<div class="row">'+
-                '<div class="four columns">'+
-                  '<label class="right inline" for="IMAGE_ID">'+tr("IMAGE_ID")+':</label>'+
-                '</div>'+
-                '<div class="six columns">'+
-                  '<input type="text" id="IMAGE_ID" name="IMAGE_ID"/>'+
-                '</div>'+
-                '<div class="two columns">'+
-                  '<div class="tip">'+tr("Image ID to be used in the Virtual Image disk.")+
-                  '</div>'+
-                '</div>'+
-              '</div>'+
+            '<div class="large-6 columns">'+
+              '<label for="IMAGE_ID">'+tr("ID")+
+                '<span class="tip">'+tr("Image ID to be used in the Virtual Image disk.")+'</span>'+
+              '</label>'+
+              '<input type="text" id="IMAGE_ID" name="IMAGE_ID"/>'+
             '</div>'+
-            '<div class="six columns">'+
-              '<div class="row">'+
-                '<div class="four columns">'+
-                    '<label class="right inline" for="IMAGE">'+tr("IMAGE")+':</label>'+
-                '</div>'+
-                '<div class="six columns">'+
-                    '<input type="text" id="IMAGE" name="IMAGE" />'+
-                '</div>'+
-                '<div class="two columns">'+
-                    '<div class="tip">'+tr("Name of the image to be used in the Virtual Image disk.")+
-                    '</div>'+
-                '</div>'+
-              '</div>'+
+            '<div class="large-6 columns">'+
+              '<label for="IMAGE">'+tr("Name")+
+                '<span class="tip">'+tr("Name of the image to be used in the Virtual Image disk.")+'</span>'+
+              '</label>'+
+              '<input type="text" id="IMAGE" name="IMAGE"/>'+
             '</div>'+
           '</div>'+
           '<div class="row advanced vm_param">'+
-            '<div class="six columns">'+
-              '<div class="row">'+
-                '<div class="four columns">'+
-                  '<label class="right inline" for="IMAGE_UID">'+tr("IMAGE_UID")+':</label>'+
-                '</div>'+
-                '<div class="six columns">'+
-                  '<input type="text" id="IMAGE_UID" name="IMAGE_UID"/>'+
-                '</div>'+
-                '<div class="two columns">'+
-                  '<div class="tip">'+tr("Identifier of the user owner of the image to reduce ambiguity.")+
-                  '</div>'+
-                '</div>'+
-              '</div>'+
+            '<div class="large-6 columns">'+
+              '<label for="IMAGE_UID">'+tr("User ID")+
+                '<span class="tip">'+tr("Identifier of the user owner of the image to reduce ambiguity.")+'</span>'+
+              '</label>'+
+              '<input type="text" id="IMAGE_UID" name="IMAGE_UID"/>'+
             '</div>'+
-            '<div class="six columns">'+
-              '<div class="row">'+
-                '<div class="four columns">'+
-                  '<label class="right inline" for="IMAGE_UNAME">'+tr("IMAGE_UNAME")+':</label>'+
-                '</div>'+
-                '<div class="six columns">'+
-                  '<input type="text" id="IMAGE_UNAME" name="IMAGE_UNAME"/>'+
-                '</div>'+
-                '<div class="two columns">'+
-                  '<div class="tip">'+tr("Name of the user owner of the image to reduce ambiguity.")+
-                  '</div>'+
-                '</div>'+
-              '</div>'+
+            '<div class="large-6 columns">'+
+              '<label for="IMAGE_UNAME">'+tr("User Name")+
+                '<span class="tip">'+tr("Name of the user owner of the image to reduce ambiguity.")+'</span>'+
+              '</label>'+
+              '<input type="text" id="IMAGE_UNAME" name="IMAGE_UNAME"/>'+
             '</div>'+
           '</div>'+
+          '</fieldset>'+
           '<div class="row advanced vm_param">'+
-        '<br>'+
-            '<div class="six columns">'+
-              '<div class="row">'+
-                '<div class="four columns">'+
-                  '<label class="right inline" for="TARGET">'+tr("TARGET")+':</label>'+
-                '</div>'+
-                '<div class="six columns">'+
-                  '<input type="text" id="TARGET" name="target"/>'+
-                '</div>'+
-                '<div class="two columns">'+
-                  '<div class="tip">'+tr("Device to map image disk. If set, it will overwrite the default device mapping")+'<br><br>\
+            '<div class="large-6 columns">'+
+              '<label for="TARGET">'+tr("Target")+
+                  '<span class="tip">'+tr("Device to map image disk. If set, it will overwrite the default device mapping")+'<br><br>\
                       '+tr("Xen: Optional")+'<br>\
                       '+tr("KVM: Optional")+'<br>\
                       '+tr("VMWare: Optional")+
-                  '</div>'+
-                '</div>'+
-              '</div>'+
+                  '</span>'+
+              '</label>'+
+              '<input type="text"  id="TARGET" name="target"/>'+
             '</div>'+
-            '<div class="six columns">'+
-              '<div class="row">'+
-                '<div class="four columns">'+
-                    '<label class="right inline" for="DRIVER">'+tr("DRIVER")+':</label>'+
-                '</div>'+
-                '<div class="six columns">'+
-                    '<input type="text" id="DRIVER" name="driver" />'+
-                '</div>'+
-                '<div class="two columns">'+
-                    '<div class="tip">'+tr("Specific image mapping driver")+'<br><br>\
-                      '+tr("Xen: Optional (tap:aio:, file:)")+'<br>\
-                      '+tr("KVM: Optional (raw, qcow2)")+'<br>\
-                      '+tr("VMWare: Not supported")+
-                    '</div>'+
-                '</div>'+
-              '</div>'+
+            '<div class="large-6 columns">'+
+              '<label for="DRIVER">'+tr("Driver")+
+                  '<span class="tip">'+tr("Specific image mapping driver")+'<br><br>\
+                    '+tr("Xen: Optional (tap:aio:, file:)")+'<br>\
+                    '+tr("KVM: Optional (raw, qcow2)")+'<br>\
+                    '+tr("VMWare: Not supported")+
+                  '</span>'+
+              '</label>'+
+              '<input type="text" id="DRIVER" name="driver" />'+
             '</div>'+
           '</div>'+
           '<div class="row advanced vm_param">'+
-            '<div class="six columns">'+
-              '<div class="row">'+
-                '<div class="four columns">'+
-                  '<label class="right inline" for="DEV_PREFIX">'+tr("DEV_PREFIX")+':</label>'+
-                '</div>'+
-                '<div class="six columns">'+
-                  '<input type="text" id="DEV_PREFIX" name="DEV_PREFIX"/>'+
-                '</div>'+
-                '<div class="two columns">'+
-                  '<div class="tip">'+tr("Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”, or “vd” for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used")+'<br><br>\
+            '<div class="large-6 columns">'+
+              '<label for="DEV_PREFIX">'+tr("Device Prefix")+
+                  '<span class="tip">'+tr("Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”, or “vd” for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used")+'<br><br>\
                       '+tr("Xen: Optional")+'<br>\
                       '+tr("KVM: Optional")+'<br>\
                       '+tr("VMWare: Optional")+
-                  '</div>'+
-                '</div>'+
-              '</div>'+
+                  '</span>'+
+              '</label>'+
+              '<input type="text" id="DEV_PREFIX" name="DEV_PREFIX"/>'+
             '</div>'+
-            '<div class="six columns">'+
-              '<div class="row">'+
-                '<div class="four columns">'+
-                    '<label class="right inline" for="READONLY">'+tr("READONLY")+':</label>'+
-                '</div>'+
-                '<div class="six columns">'+
-                    '<select id="READONLY" name="READONLY">'+
-                      '<option value=""></option>'+
-                      '<option value="yes">'+tr("yes")+'</option>'+
-                      '<option value="no">'+tr("no")+'</option>'+
-                    '</select>'+
-                '</div>'+
-                '<div class="two columns">'+
-                    '<div class="tip">'+tr("Set how the image is exposed by the hypervisor")+'<br><br>\
-                      '+tr("Xen: Optional")+'<br>\
-                      '+tr("KVM: Optional")+'<br>\
-                      '+tr("VMWare: Optional")+
-                    '</div>'+
-                '</div>'+
-              '</div>'+
+            '<div class="large-6 columns">'+
+              '<label for="READONLY">'+tr("Read Only")+
+                  '<span class="tip">'+tr("Set how the image is exposed by the hypervisor")+'<br><br>\
+                    '+tr("Xen: Optional")+'<br>\
+                    '+tr("KVM: Optional")+'<br>\
+                    '+tr("VMWare: Optional")+
+                  '</span>'+
+              '</label>'+
+              '<select id="READONLY" name="READONLY">'+
+                '<option value=""></option>'+
+                '<option value="yes">'+tr("yes")+'</option>'+
+                '<option value="no">'+tr("no")+'</option>'+
+              '</select>'+
             '</div>'+
           '</div>'+
           '<div class="row advanced vm_param">'+
-            '<div class="six columns">'+
-              '<div class="row">'+
-                '<div class="four columns">'+
-                  '<label class="right inline" for="CACHE">'+tr("CACHE")+':</label>'+
-                '</div>'+
-                '<div class="six columns">'+
-                    '<select id="CACHE" name="CACHE">'+
-                      '<option value=""></option>'+
-                      '<option value="default">'+tr("default")+'</option>'+
-                      '<option value="none">'+tr("none")+'</option>'+
-                      '<option value="writethrough">'+tr("writethrough")+'</option>'+
-                      '<option value="writeback">'+tr("writeback")+'</option>'+
-                      '<option value="directsync">'+tr("directsync")+'</option>'+
-                      '<option value="unsafe">'+tr("unsafe")+'</option>'+
-                    '</select>'+
-                '</div>'+
-                '<div class="two columns">'+
-                  '<div class="tip">'+tr("Selects the cache mechanism for the disk.")+'<br><br>\
+            '<div class="large-6 columns">'+
+              '<label for="CACHE">'+tr("Cache")+
+                  '<span class="tip">'+tr("Selects the cache mechanism for the disk.")+'<br><br>\
                       '+tr("Xen: Not supported")+'<br>\
                       '+tr("KVM: Optional")+'<br>\
                       '+tr("VMWare: Not supported")+
-                  '</div>'+
-                '</div>'+
-              '</div>'+
+                  '</span>'+
+              '</label>'+
+              '<select id="CACHE" name="CACHE">'+
+                '<option value=""></option>'+
+                '<option value="default">'+tr("default")+'</option>'+
+                '<option value="none">'+tr("none")+'</option>'+
+                '<option value="writethrough">'+tr("writethrough")+'</option>'+
+                '<option value="writeback">'+tr("writeback")+'</option>'+
+                '<option value="directsync">'+tr("directsync")+'</option>'+
+                '<option value="unsafe">'+tr("unsafe")+'</option>'+
+              '</select>'+
             '</div>'+
-            '<div class="six columns">'+
-              '<div class="row">'+
-                '<div class="four columns">'+
-                    '<label class="right inline" for="IO">'+tr("IO")+':</label>'+
-                '</div>'+
-                '<div class="six columns">'+
-                    '<select id="IO" name="IO">'+
-                      '<option value=""></option>'+
-                      '<option value="threads">'+tr("threads")+'</option>'+
-                      '<option value="native">'+tr("native")+'</option>'+
-                    '</select>'+
-                '</div>'+
-                '<div class="two columns">'+
-                    '<div class="tip">'+tr("Set IO policy.")+'<br><br>\
-                      '+tr("Xen: Not supported")+'<br>\
-                      '+tr("KVM: Optional")+'<br>\
-                      '+tr("VMWare: Not supported")+
-                    '</div>'+
-                '</div>'+
-              '</div>'+
+            '<div class="large-6 columns">'+
+              '<label for="IO">'+tr("IO")+
+                '<span class="tip">'+tr("Set IO policy.")+'<br><br>\
+                  '+tr("Xen: Not supported")+'<br>\
+                  '+tr("KVM: Optional")+'<br>\
+                  '+tr("VMWare: Not supported")+
+                '</span>'+
+              '</label>'+
+              '<select id="IO" name="IO">'+
+                '<option value=""></option>'+
+                '<option value="threads">'+tr("threads")+'</option>'+
+                '<option value="native">'+tr("native")+'</option>'+
+              '</select>'+
             '</div>'+
           '</div>'+
         '</div>'+
       '</div>'+
-      '<div id="disk_type" class="volatile hidden">'+
+      '<div id="disk_type" class="volatile" style="display: none;">'+
         '<br>'+
-            '<div class="row vm_param">'+
-              '<div class="six columns">'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="TYPE">'+tr("TYPE")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<select id="TYPE" name="type">'+
-                      '<option value="fs">'+tr("FS")+'</option>'+
-                      '<option value="swap">'+tr("Swap")+'</option>'+
-                    '</select>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Disk type")+'</div>'+
-                  '</div>'+
-                '</div>'+
-              '</div>'+
-              '<div class="six columns">'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="FORMAT">'+tr("FORMAT")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<input type="text" id="FORMAT" name="format" />'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Filesystem type for the fs images")+'</div>'+
-                  '</div>'+
-                '</div>'+
-              '</div>'+
+        '<div class="vm_param">'+
+            '<input type="hidden" id="SIZE" name="size" />'+
+        '</div>'+
+        '<div class="row">'+
+          '<div class="large-2 columns">'+
+            '<label class="inline" for="SIZE_TMP">'+tr("Size")+'\
+              <span class="tip">'+tr("Size of the new disk")+'</span>\
+            </label>'+
+          '</div>'+
+          '<div class="large-6 columns">'+
+            '<div id="size_slider" class="large-7 columns">'+
             '</div>'+
-            '<div class="vm_param">'+
-                '<input type="hidden" id="SIZE" name="size" />'+
-            '</div>'+
-            '<div class="row">'+
-                '<div class="two columns">'+
-                  '<label class="inline right" for="SIZE_TMP">'+tr("SIZE")+':</label>'+
-                '</div>'+
-                '<div id="size_slider" class="five columns">'+
-                '</div>'+
-                '<div class="two columns">'+
-                  '<input type="text" id="SIZE_TMP" name="size_tmp"/>'+
-                '</div>'+
-                '<div class="two columns">'+
-                  '<select id="size_unit" name="SIZE_UNIT">'+
-                      '<option value="GB">'+tr("GB")+'</option>'+
-                      '<option value="MB">'+tr("MB")+'</option>'+
-                  '</select>'+
-                '</div>'+
-                '<div class="one columns">'+
-                  '<div class="tip">'+tr("Size of the new disk")+'</div>'+
-                '</div>'+
-            '</div>'+
+          '</div>'+
+          '<div class="large-2 columns">'+
+            '<input type="text" id="SIZE_TMP" name="size_tmp" size="4" />'+
+          '</div>'+
+          '<div class="large-2 columns">'+
+              '<select id="size_unit" name="SIZE_UNIT">'+
+                  '<option value="GB">'+tr("GB")+'</option>'+
+                  '<option value="MB">'+tr("MB")+'</option>'+
+              '</select>'+
+          '</div>'+
+        '</div>'+
+        '<div class="row vm_param">'+
+          '<div class="large-6 columns">'+
+              '<label for="TYPE">'+tr("Type")+
+                '<span class="tip">'+tr("Disk type")+'</span>'+
+              '</label>'+
+              '<select id="TYPE" name="type">'+
+                '<option value="fs">'+tr("FS")+'</option>'+
+                '<option value="swap">'+tr("Swap")+'</option>'+
+              '</select>'+
+          '</div>'+
+          '<div class="large-6 columns">'+
+              '<label for="FORMAT">'+tr("Format")+
+                '<span class="tip">'+tr("Filesystem type for the fs images")+'</span>'+
+              '</label>'+
+              '<input type="text" id="FORMAT" name="format" />'+
+          '</div>'+
+        '</div>'+
         '<div class="show_hide" id="advanced_volatile">'+
           '<h4><small><i class=" fa fa-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
         '</div>'+
         '<div class="advanced">'+
           '<div class="row advanced vm_param">'+
-            '<div class="six columns">'+
-              '<div class="row">'+
-                '<div class="four columns">'+
-                  '<label class="right inline" for="TARGET">'+tr("TARGET")+':</label>'+
-                '</div>'+
-                '<div class="six columns">'+
-                  '<input type="text" id="TARGET" name="target"/>'+
-                '</div>'+
-                '<div class="two columns">'+
-                  '<div class="tip">'+tr("Device to map image disk. If set, it will overwrite the default device mapping")+'<br><br>\
+            '<div class="large-6 columns">'+
+              '<label for="TARGET">'+tr("Target")+
+                  '<span class="tip">'+tr("Device to map image disk. If set, it will overwrite the default device mapping")+'<br><br>\
                       '+tr("Xen: Optional")+'<br>\
                       '+tr("KVM: Optional")+'<br>\
                       '+tr("VMWare: Optional")+
-                  '</div>'+
-                '</div>'+
-              '</div>'+
+                  '</span>'+
+              '</label>'+
+              '<input type="text"  id="TARGET" name="target"/>'+
             '</div>'+
-            '<div class="six columns">'+
-              '<div class="row">'+
-                '<div class="four columns">'+
-                    '<label class="right inline" for="DRIVER">'+tr("DRIVER")+':</label>'+
-                '</div>'+
-                '<div class="six columns">'+
-                    '<input type="text" id="DRIVER" name="driver" />'+
-                '</div>'+
-                '<div class="two columns">'+
-                    '<div class="tip">'+tr("Specific image mapping driver")+'<br><br>\
-                      '+tr("Xen: Optional (tap:aio:, file:)")+'<br>\
-                      '+tr("KVM: Optional (raw, qcow2)")+'<br>\
-                      '+tr("VMWare: Not supported")+
-                    '</div>'+
-                '</div>'+
-              '</div>'+
+            '<div class="large-6 columns">'+
+              '<label for="DRIVER">'+tr("Driver")+
+                  '<span class="tip">'+tr("Specific image mapping driver")+'<br><br>\
+                    '+tr("Xen: Optional (tap:aio:, file:)")+'<br>\
+                    '+tr("KVM: Optional (raw, qcow2)")+'<br>\
+                    '+tr("VMWare: Not supported")+
+                  '</span>'+
+              '</label>'+
+              '<input type="text" id="DRIVER" name="driver" />'+
             '</div>'+
           '</div>'+
           '<div class="row advanced vm_param">'+
-            '<div class="six columns">'+
-              '<div class="row">'+
-                '<div class="four columns">'+
-                  '<label class="right inline" for="DEV_PREFIX">'+tr("DEV_PREFIX")+':</label>'+
-                '</div>'+
-                '<div class="six columns">'+
-                  '<input type="text" id="DEV_PREFIX" name="DEV_PREFIX"/>'+
-                '</div>'+
-                '<div class="two columns">'+
-                  '<div class="tip">'+tr("Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”, or “vd” for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used")+'<br><br>\
+            '<div class="large-6 columns">'+
+              '<label for="DEV_PREFIX">'+tr("Device Prefix")+
+                  '<span class="tip">'+tr("Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”, or “vd” for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used")+'<br><br>\
                       '+tr("Xen: Optional")+'<br>\
                       '+tr("KVM: Optional")+'<br>\
                       '+tr("VMWare: Optional")+
-                  '</div>'+
-                '</div>'+
-              '</div>'+
+                  '</span>'+
+              '</label>'+
+              '<input type="text" id="DEV_PREFIX" name="DEV_PREFIX"/>'+
             '</div>'+
-            '<div class="six columns">'+
-              '<div class="row">'+
-                '<div class="four columns">'+
-                    '<label class="right inline" for="READONLY">'+tr("READONLY")+':</label>'+
-                '</div>'+
-                '<div class="six columns">'+
-                    '<select id="READONLY" name="READONLY">'+
-                      '<option value=""></option>'+
-                      '<option value="yes">'+tr("yes")+'</option>'+
-                      '<option value="no">'+tr("no")+'</option>'+
-                    '</select>'+
-                '</div>'+
-                '<div class="two columns">'+
-                    '<div class="tip">'+tr("Set how the image is exposed by the hypervisor")+'<br><br>\
-                      '+tr("Xen: Optional")+'<br>\
-                      '+tr("KVM: Optional")+'<br>\
-                      '+tr("VMWare: Optional")+
-                    '</div>'+
-                '</div>'+
-              '</div>'+
+            '<div class="large-6 columns">'+
+              '<label for="READONLY">'+tr("Read Only")+
+                  '<span class="tip">'+tr("Set how the image is exposed by the hypervisor")+'<br><br>\
+                    '+tr("Xen: Optional")+'<br>\
+                    '+tr("KVM: Optional")+'<br>\
+                    '+tr("VMWare: Optional")+
+                  '</span>'+
+              '</label>'+
+              '<select id="READONLY" name="READONLY">'+
+                '<option value=""></option>'+
+                '<option value="yes">'+tr("yes")+'</option>'+
+                '<option value="no">'+tr("no")+'</option>'+
+              '</select>'+
             '</div>'+
           '</div>'+
           '<div class="row advanced vm_param">'+
-            '<div class="six columns">'+
-              '<div class="row">'+
-                '<div class="four columns">'+
-                  '<label class="right inline" for="CACHE">'+tr("CACHE")+':</label>'+
-                '</div>'+
-                '<div class="six columns">'+
-                    '<select id="CACHE" name="CACHE">'+
-                      '<option value=""></option>'+
-                      '<option value="default">'+tr("default")+'</option>'+
-                      '<option value="none">'+tr("none")+'</option>'+
-                      '<option value="writethrough">'+tr("writethrough")+'</option>'+
-                      '<option value="writeback">'+tr("writeback")+'</option>'+
-                      '<option value="directsync">'+tr("directsync")+'</option>'+
-                      '<option value="unsafe">'+tr("unsafe")+'</option>'+
-                    '</select>'+
-                '</div>'+
-                '<div class="two columns">'+
-                  '<div class="tip">'+tr("Selects the cache mechanism for the disk.")+'<br><br>\
+            '<div class="large-6 columns">'+
+              '<label for="CACHE">'+tr("Cache")+
+                  '<span class="tip">'+tr("Selects the cache mechanism for the disk.")+'<br><br>\
                       '+tr("Xen: Not supported")+'<br>\
                       '+tr("KVM: Optional")+'<br>\
                       '+tr("VMWare: Not supported")+
-                  '</div>'+
-                '</div>'+
-              '</div>'+
+                  '</span>'+
+              '</label>'+
+              '<select id="CACHE" name="CACHE">'+
+                '<option value=""></option>'+
+                '<option value="default">'+tr("default")+'</option>'+
+                '<option value="none">'+tr("none")+'</option>'+
+                '<option value="writethrough">'+tr("writethrough")+'</option>'+
+                '<option value="writeback">'+tr("writeback")+'</option>'+
+                '<option value="directsync">'+tr("directsync")+'</option>'+
+                '<option value="unsafe">'+tr("unsafe")+'</option>'+
+              '</select>'+
             '</div>'+
-            '<div class="six columns">'+
-              '<div class="row">'+
-                '<div class="four columns">'+
-                    '<label class="right inline" for="IO">'+tr("IO")+':</label>'+
-                '</div>'+
-                '<div class="six columns">'+
-                    '<select id="IO" name="IO">'+
-                      '<option value=""></option>'+
-                      '<option value="threads">'+tr("threads")+'</option>'+
-                      '<option value="native">'+tr("native")+'</option>'+
-                    '</select>'+
-                '</div>'+
-                '<div class="two columns">'+
-                    '<div class="tip">'+tr("Set IO policy.")+'<br><br>\
-                      '+tr("Xen: Not supported")+'<br>\
-                      '+tr("KVM: Optional")+'<br>\
-                      '+tr("VMWare: Not supported")+
-                    '</div>'+
-                '</div>'+
-              '</div>'+
+            '<div class="large-6 columns">'+
+              '<label for="IO">'+tr("IO")+
+                '<span class="tip">'+tr("Set IO policy.")+'<br><br>\
+                  '+tr("Xen: Not supported")+'<br>\
+                  '+tr("KVM: Optional")+'<br>\
+                  '+tr("VMWare: Not supported")+
+                '</span>'+
+              '</label>'+
+              '<select id="IO" name="IO">'+
+                '<option value=""></option>'+
+                '<option value="threads">'+tr("threads")+'</option>'+
+                '<option value="native">'+tr("native")+'</option>'+
+              '</select>'+
             '</div>'+
           '</div>'+
         '</div>'+
@@ -1700,204 +1510,140 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
 
 function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
   var html = '<div class="row">'+
-    '<div class="seven columns">' +
+    '<div class="large-8 columns">' +
        '<button id="refresh_template_nic_table_button_class'+str_nic_tab_id+'" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>' +
     '</div>' +
-    '<div class="five columns">'+
-      '<input id="'+str_nic_tab_id+'_search" type="text" placeholder="'+tr("Search")+'"/>'+
+    '<div class="large-4 columns">'+
+      '<input id="'+str_nic_tab_id+'_search" class="search" type="text" placeholder="'+tr("Search")+'"/>'+
     '</div>'+
   '</div>'+
-    '<table id="'+str_datatable_id+'" class="datatable twelve">'+
-      '<thead>'+
-        '<tr>'+
-          '<th></th>'+
-          '<th>'+tr("ID")+'</th>'+
-          '<th>'+tr("Owner")+'</th>'+
-          '<th>'+tr("Group")+'</th>'+
-          '<th>'+tr("Name")+'</th>'+
-          '<th>'+tr("Cluster")+'</th>'+
-          '<th>'+tr("Type")+'</th>'+
-          '<th>'+tr("Bridge")+'</th>'+
-          '<th>'+tr("Leases")+'</th>'+
-        '</tr>'+
-      '</thead>'+
-      '<tbody id="tbodynetworks">'+
-      '</tbody>'+
-    '</table>'+
-    '<br>'+
-    '<div id="selected_network" class="vm_param kvm_opt xen_opt vmware_opt">'+
-      '<span id="select_network" class="radius secondary label">'+tr("Please select a network from the list")+'</span>'+
-      '<span id="network_selected" class="radius secondary label hidden">'+tr("You selected the following network:")+
-      '</span>'+
-      '<span class="radius label" type="text" id="NETWORK_NAME" name="network"></span>'+
-      '<div class="alert-box alert"  style="display: none;">'+
-      tr("The network you specified cannot be selected in the table") +
-      '  <a href="" class="close">&times;</a>'+
+  '<div class="row">'+
+    '<div class="large-12 columns">'+
+      '<table id="'+str_datatable_id+'" class="datatable twelve">'+
+        '<thead>'+
+          '<tr>'+
+            '<th></th>'+
+            '<th>'+tr("ID")+'</th>'+
+            '<th>'+tr("Owner")+'</th>'+
+            '<th>'+tr("Group")+'</th>'+
+            '<th>'+tr("Name")+'</th>'+
+            '<th>'+tr("Cluster")+'</th>'+
+            '<th>'+tr("Type")+'</th>'+
+            '<th>'+tr("Bridge")+'</th>'+
+            '<th>'+tr("Leases")+'</th>'+
+          '</tr>'+
+        '</thead>'+
+        '<tbody id="tbodynetworks">'+
+        '</tbody>'+
+      '</table>'+
       '</div>'+
     '</div>'+
-  '<hr>'+
-    '<div class="show_hide" id="advanced">'+
+    '<div id="selected_network" class="vm_param kvm_opt xen_opt vmware_opt row">'+
+      '<div class="large-12 columns">'+
+        '<span id="select_network" class="radius secondary label">'+tr("Please select a network from the list")+'</span>'+
+        '<span id="network_selected" class="radius secondary label" style="display: none;">'+tr("You selected the following network:")+'</span>'+
+        '<span class="radius label" type="text" id="NETWORK_NAME" name="network"></span>'+
+        '<div class="alert-box alert"  style="display: none;">'+
+          tr("The network you specified cannot be selected in the table") +
+          '  <a href="" class="close">&times;</a>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="show_hide row" id="advanced">'+
+      '<div class="large-12 columns">'+
           '<h4><small><i class=" fa fa-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
+      '</div>'+
     '</div>'+
     '<div class="advanced">'+
-          '<div class="row advanced vm_param">'+
-            '<div class="six columns">'+
-              '<div class="row">'+
-                '<div class="five columns">'+
-                  '<label class="right inline" for="IMAGE_ID">'+tr("NETWORK_ID")+':</label>'+
-                '</div>'+
-                '<div class="five columns">'+
-                  '<input type="text" id="NETWORK_ID" name="NETWORK_ID"/>'+
-                '</div>'+
-                '<div class="two columns">'+
-                  '<div class="tip">'+tr("Identifier of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")+
-                  '</div>'+
-                '</div>'+
-              '</div>'+
-            '</div>'+
-            '<div class="six columns">'+
-              '<div class="row">'+
-                '<div class="five columns">'+
-                    '<label class="right inline" for="NETWORK">'+tr("NETWORK")+':</label>'+
-                '</div>'+
-                '<div class="five columns">'+
-                    '<input type="text" id="NETWORK" name="NETWORK" />'+
-                '</div>'+
-                '<div class="two columns">'+
-                    '<div class="tip">'+tr("Name of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")+
-                    '</div>'+
-                '</div>'+
-              '</div>'+
-            '</div>'+
+      '<fieldset>'+
+        '<legend>'+tr("Network")+'</legend>'+
+        '<div class="row advanced vm_param">'+
+          '<div class="large-6 columns">'+
+            '<label for="NETWORK_ID">'+tr("ID")+
+              '<span class="tip">'+tr("Identifier of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")+'</span>'+
+            '</label>'+
+            '<input type="text" id="NETWORK_ID" name="NETWORK_ID"/>'+
           '</div>'+
-          '<div class="row advanced vm_param">'+
-            '<div class="six columns">'+
-              '<div class="row">'+
-                '<div class="five columns">'+
-                  '<label class="right inline" for="NETWORK_UID">'+tr("NETWORK_UID")+':</label>'+
-                '</div>'+
-                '<div class="five columns">'+
-                  '<input type="text" id="NETWORK_UID" name="NETWORK_UID"/>'+
-                '</div>'+
-                '<div class="two columns">'+
-                  '<div class="tip">'+tr("Identifier of the user owner of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")+
-                  '</div>'+
-                '</div>'+
-              '</div>'+
-            '</div>'+
-            '<div class="six columns">'+
-              '<div class="row">'+
-                '<div class="five columns">'+
-                  '<label class="right inline" for="NETWORK_UNAME">'+tr("NETWORK_UNAME")+':</label>'+
-                '</div>'+
-                '<div class="five columns">'+
-                  '<input type="text" id="NETWORK_UNAME" name="NETWORK_UNAME"/>'+
-                '</div>'+
-                '<div class="two columns">'+
-                  '<div class="tip">'+tr("Name of the user owner of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")+
-                  '</div>'+
-                '</div>'+
-              '</div>'+
-            '</div>'+
-          '</div>'+
-      '<div class="row">'+
-        '<br>'+
-        '<div class="six columns">'+
-          '<div class="row">'+
-            '<div class="five columns">'+
-              '<label class="right inline" for="IP">'+tr("IP")+':</label>'+
-            '</div>'+
-            '<div class="five columns vm_param">'+
-              '<input type="text" id="IP" name="IP" size="3" />'+
-            '</div>'+
-            '<div class="two columns">'+
-              '<div class="tip">'+tr("Request an specific IP from the Network")+'</div>'+
-            '</div>'+
+          '<div class="large-6 columns">'+
+            '<label for="NETWORK">'+tr("Name")+
+              '<span class="tip">'+tr("Name of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")+'</span>'+
+            '</label>'+
+            '<input type="text" id="NETWORK" name="NETWORK" />'+
           '</div>'+
         '</div>'+
-        '<div class="six columns">'+
-          '<div class="row">'+
-            '<div class="five columns">'+
-                '<label class="right inline" for="MODEL">'+tr("MODEL")+':</label>'+
-            '</div>'+
-            '<div class="five columns vm_param">'+
-              '<input type="text" id="MODEL" name="MODEL" />'+
-            '</div>'+
-            '<div class="two columns">'+
-              '<div class="tip">'+tr("Hardware that will emulate this network interface. With Xen this is the type attribute of the vif.")+'</div>'+
-            '</div>'+
+        '<div class="row advanced vm_param">'+
+          '<div class="large-6 columns">'+
+            '<label for="NETWORK_UID">'+tr("User ID")+
+              '<span class="tip">'+tr("Identifier of the user owner of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")+'</span>'+
+            '</label>'+
+            '<input type="text" id="NETWORK_UID" name="NETWORK_UID"/>'+
           '</div>'+
+          '<div class="large-6 columns">'+
+            '<label for="NETWORK_UNAME">'+tr("User Name")+
+              '<span class="tip">'+tr("Name of the user owner of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")+'</span>'+
+            '</label>'+
+            '<input type="text" id="NETWORK_UNAME" name="NETWORK_UNAME"/>'+
+          '</div>'+
+        '</div>'+
+      '</fieldset>'+
+      '<div class="row">'+
+        '<div class="large-6 columns">'+
+          '<label for="IP">'+tr("IP")+
+            '<span class="tip">'+tr("Request an specific IP from the Network")+'</span>'+
+          '</label>'+
+          '<input type="text" id="IP" name="IP" size="3" />'+
+        '</div>'+
+        '<div class="large-6 columns">'+
+          '<label for="MODEL">'+tr("Model")+
+            '<span class="tip">'+tr("Hardware that will emulate this network interface. With Xen this is the type attribute of the vif.")+'</span>'+
+          '</label>'+
+          '<input type="text" id="MODEL" name="MODEL" />'+
         '</div>'+
       '</div>'+
-    '<div class="row">'+
-    '<div class="six columns">'+
+      '<br>'+
       '<fieldset>'+
         '<legend>'+tr("TCP Firewall")+'</legend>'+
         '<div class="row">'+
-          '<div class="four columns push-two">'+
-            '<input type="radio" name="tcp_type" id="tcp_type" value="WHITE_PORTS_TCP"> Whitelist '+
-          '</div>'+
-          '<div class="four columns pull-two">'+
-            '<input type="radio" name="tcp_type" id="tcp_type" value="BLACK_PORTS_TCP"> Blacklist'+
+          '<div class="large-12 columns text-center">'+
+            '<input type="radio" class="tcp_type" name="tcp_type" id="'+str_nic_tab_id+'white_tcp_type" value="WHITE_PORTS_TCP"><label for="'+str_nic_tab_id+'white_tcp_type">' + tr("Whitelist") +'</label>'+
+            '<input type="radio" class="tcp_type" name="tcp_type" id="'+str_nic_tab_id+'black_tcp_type" value="BLACK_PORTS_TCP"><label for="'+str_nic_tab_id+'black_tcp_type">' + tr("Blacklist") +'</label>'+
           '</div>'+
         '</div>'+
-        '<br>'+
         '<div class="row">'+
-          '<div class="four columns">'+
-            '<label class="right inline" for="TCP_PORTS">'+tr("PORTS")+':</label>'+
-          '</div>'+
-          '<div class="six columns">'+
-              '<input type="text" id="TCP_PORTS" name="ports" />'+
-          '</div>'+
-          '<div class="two columns">'+
-              '<div class="tip">'+tr("A list of ports separated by commas or a ranges separated by semicolons, e.g.: 22,80,5900:6000")+'</div>'+
+          '<div class="large-12 columns">'+
+            '<label for="TCP_PORTS">'+tr("PORTS")+
+              '<span class="tip">'+tr("A list of ports separated by commas or a ranges separated by semicolons, e.g.: 22,80,5900:6000")+'</span>'+
+            '</label>'+
+            '<input type="text" id="TCP_PORTS" name="ports" />'+
           '</div>'+
         '</div>'+
       '</fieldset>'+
-    '</div>'+
-    '<div class="six columns">'+
       '<fieldset>'+
         '<legend>'+tr("UDP Firewall")+'</legend>'+
         '<div class="row">'+
-          '<div class="four columns push-two">'+
-            '<input type="radio" name="udp_type" id="udp_type" value="WHITE_PORTS_UDP"> '+tr("Whitelist")+
-          '</div>'+
-          '<div class="four columns pull-two">'+
-            '<input type="radio" name="udp_type" id="udp_type" value="BLACK_PORTS_UDP"> '+tr("Blacklist")+
+          '<div class="large-12 columns text-center">'+
+            '<input type="radio" class="udp_type" name="udp_type" id="'+str_nic_tab_id+'white_udp_type" value="WHITE_PORTS_UDP"><label for="'+str_nic_tab_id+'white_udp_type">' + tr("Whitelist") +'</label>'+
+            '<input type="radio" class="udp_type" name="udp_type" id="'+str_nic_tab_id+'black_udp_type" value="BLACK_PORTS_UDP"><label for="'+str_nic_tab_id+'black_udp_type">' + tr("Blacklist") +'</label>'+
           '</div>'+
         '</div>'+
-        '<br>'+
         '<div class="row">'+
-          '<div class="four columns">'+
-            '<label class="right inline" for="UDP_PORTS">'+tr("PORTS")+':</label>'+
-          '</div>'+
-          '<div class="six columns">'+
-              '<input type="text" id="UDP_PORTS" name="ports" />'+
-          '</div>'+
-          '<div class="two columns">'+
-              '<div class="tip">'+tr("A list of ports separated by commas or a ranges separated by semicolons, e.g.: 22,80,5900:6000")+'</div>'+
+          '<div class="large-12 columns">'+
+            '<label for="UDP_PORTS">'+tr("PORTS")+
+              '<span class="tip">'+tr("A list of ports separated by commas or a ranges separated by semicolons, e.g.: 22,80,5900:6000")+'</span>'+
+            '</label>'+
+            '<input type="text" id="UDP_PORTS" name="ports" />'+
           '</div>'+
         '</div>'+
       '</fieldset>'+
-    '</div>'+
-    '</div>'+
-      '<div class="row">'+
-        '<div class="six columns">'+
       '<fieldset>'+
         '<legend>'+tr("ICMP")+'</legend>'+
-          '<div class="row">'+
-            '<div class="one columns">'+
-              '<input type="checkbox" name="icmp_type" value="ICMP" id="icmp_type">'+
-            '</div>'+
-            '<div class="nine columns">'+
-              '<label for="icmp_type">'+ tr("Drop")+'</label>'+
-            '</div>'+
-            '<div class="two columns">'+
-            '</div>'+
+        '<div class="row">'+
+          '<div class="large-12 columns">'+
+            '<input type="checkbox" name="icmp_type" value="ICMP" id="'+str_nic_tab_id+'icmp_type">'+
+            '<label for="'+str_nic_tab_id+'icmp_type">'+ tr("Drop")+'</label>'+
           '</div>'+
-      '</fieldset>'+
         '</div>'+
-      '</div>'+
+      '</fieldset>'+
     '</div>';
 
     $("#refresh_template_nic_table_button_class"+str_nic_tab_id).die();
@@ -1914,6 +1660,7 @@ function setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id) {
       "bAutoWidth":false,
       "iDisplayLength": 4,
       "sDom" : '<"H">t<"F"p>',
+      "bRetrieve": true,
       "aoColumnDefs": [
           { "sWidth": "35px", "aTargets": [0,1] },
           { "bVisible": false, "aTargets": [0,7]}
@@ -1977,13 +1724,14 @@ function setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id) {
 function updateTemplateInfo(request,template){
     var template_info = template.VMTEMPLATE;
     var info_tab = {
-        title: tr("Information"),
+        title : tr("Info"),
+        icon: "fa-info-circle",
         content:
         '<div class="">\
-         <div class="six columns">\
-         <table id="info_template_table" class="twelve datatable extended_table">\
+         <div class="large-6 columns">\
+         <table id="info_template_table" class="dataTable extended_table">\
              <thead>\
-               <tr><th colspan="2">'+tr("Template")+" - "+template_info.NAME+'</th><th></th></tr>\
+               <tr><th colspan="2">'+tr("Information")+'</th><th></th></tr>\
              </thead>\
              <tr>\
                <td class="key_td">'+tr("ID")+'</td>\
@@ -2005,7 +1753,7 @@ function updateTemplateInfo(request,template){
              </tr>\
             </table>\
         </div>\
-        <div class="six columns">' + insert_permissions_table('templates-tab',
+        <div class="large-6 columns">' + insert_permissions_table('templates-tab',
                                                               "Template",
                                                               template_info.ID,
                                                               template_info.UNAME,
@@ -2017,7 +1765,8 @@ function updateTemplateInfo(request,template){
     };
     var template_tab = {
         title: tr("Template"),
-        content: '<div class="twelve columns">\
+        icon: "fa-file-o",
+        content: '<div class="large-12 columns">\
             <table id="template_template_table" class="info_table transparent_table" style="width:80%">'+
             prettyPrintJSON(template_info.TEMPLATE)+'\
             </table>\
@@ -2133,15 +1882,15 @@ function removeEmptyObjects(obj){
 
 // Set ups the capacity section
 function add_capacityTab(dialog){
-    var html_tab_content = '<li id="capacityTab" class="active wizard_tab">'+
+    var html_tab_content = '<div id="capacityTab" class="active wizard_tab content">'+
       generate_capacity_tab_content() +
-    '</li>'
+    '</div>'
 
 
-    $("<dd class='active'><a href='#capacity'>General</a></dd>").appendTo($("dl#template_create_tabs", dialog));
-    $(html_tab_content).appendTo($("ul#template_create_tabs_content", dialog));
+    $("<dd class='active'><a href='#capacityTab'><i class='fa fa-laptop'></i><br>"+tr("General")+"</a></dd>").appendTo($("dl#template_create_tabs", dialog));
+    $(html_tab_content).appendTo($("#template_create_tabs_content", dialog));
 
-    var capacity_section = $('li#capacityTab', dialog);
+    var capacity_section = $('#capacityTab', dialog);
     setup_capacity_tab_content(capacity_section);
 }
 
@@ -2156,38 +1905,35 @@ function add_disks_tab(dialog) {
     var number_of_disks = 0;
     var disks_index     = 0;
 
-    var html_tab_content = '<li id="storageTab" class="wizard_tab">'+
-      '<dl class="tabs" id="template_create_storage_tabs">'+
-        '<dt><button type="button" class="button tiny radius" id="tf_btn_disks"><span class="fa fa-plus"></span>'+tr("Add another disk")+'</button></dt>'+
+    var html_tab_content = '<div id="storageTab" class="wizard_tab content">'+
+      '<dl class="tabs vertical" id="template_create_storage_tabs" data-tab>'+
+        '<dt class="text-center"><button type="button" class="button tiny radius" id="tf_btn_disks"><span class="fa fa-plus"></span>'+tr("Add another disk")+'</button></dt>'+
       '</dl>'+
-      '<ul class="tabs-content" id="template_create_storage_tabs_content">'+
-      '</ul>'+
-    '</li>';
+      '<div class="tabs-content vertical" id="template_create_storage_tabs_content">'+
+      '</div>'+
+    '</div>';
 
-    $("<dd><a href='#storage'>"+tr("Storage")+"</a></dd>").appendTo($("dl#template_create_tabs", dialog));
-    $(html_tab_content).appendTo($("ul#template_create_tabs_content", dialog));
+    $("<dd><a href='#storageTab'><i class='fa fa-tasks'></i><br>"+tr("Storage")+"</a></dd>").appendTo($("dl#template_create_tabs", dialog));
+    $(html_tab_content).appendTo($("#template_create_tabs_content", dialog));
 
 
     // close icon: removing the tab on click
-    $( "#storageTab i.remove-tab", dialog ).live( "click", function() {
+    $( "#storageTab i.remove-tab" ).live( "click", function() {
         var target = $(this).parent().attr("href");
         var dd = $(this).closest('dd');
-        var dl = $(this).closest('dl');
+        var dl = $(this).closest('.tabs-content');
         var content = $(target + 'Tab');
 
         dd.remove();
         content.remove();
 
         if (dd.attr("class") == 'active') {
-            dl.foundationTabs("set_tab", dl.children('dd').last());
+            //TODOO dl.foundationTabs("set_tab", dl.children('dd').last());
         }
 
         disks_index--;
     });
 
-    add_disk_tab(number_of_disks, dialog);
-    number_of_disks++;
-    disks_index++;
 
     $("#tf_btn_disks", dialog).bind("click", function(){
       add_disk_tab(number_of_disks, dialog);
@@ -2202,18 +1948,18 @@ function add_disk_tab(disk_id, dialog) {
     var str_datatable_id = 'datatable_template_images' + disk_id;
 
     // Append the new div containing the tab and add the tab to the list
-    var html_tab_content = '<li id="'+str_disk_tab_id+'Tab" class="disk wizard_internal_tab">'+
+    var html_tab_content = '<div id="'+str_disk_tab_id+'Tab" class="disk wizard_internal_tab content">'+
       generate_disk_tab_content(str_disk_tab_id, str_datatable_id) +
-    '</li>'
-    $(html_tab_content).appendTo($("ul#template_create_storage_tabs_content", dialog));
+    '</div>'
+    $(html_tab_content).appendTo($("#template_create_storage_tabs_content", dialog));
 
     var a = $("<dd>\
-      <a id='disk_tab"+str_disk_tab_id+"' href='#"+str_disk_tab_id+"'>"+tr("DISK")+" <i class='fa fa-times-sign remove-tab'></i></a>\
+      <a id='disk_tab"+str_disk_tab_id+"' href='#"+str_disk_tab_id+"Tab'>"+tr("DISK")+" <i class='fa fa-times-circle remove-tab'></i></a>\
     </dd>").appendTo($("dl#template_create_storage_tabs", dialog));
 
-    $(document).foundationTabs("set_tab", a);
+    $("a", a).trigger("click");
 
-    var disk_section = $('li#' +str_disk_tab_id+'Tab', dialog);
+    var disk_section = $('#' +str_disk_tab_id+'Tab', dialog);
     setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
 }
 
@@ -2227,37 +1973,33 @@ function add_nics_tab(dialog) {
     var number_of_nics = 0;
     var nics_index     = 0;
 
-    var html_tab_content = '<li id="networkTab" class="wizard_tab">'+
-      '<dl class="tabs" id="template_create_network_tabs">'+
-        '<dt><button type="button" class="button tiny radius" id="tf_btn_nics"><span class="fa fa-plus"></span> '+tr("Add another nic")+'</button></dt>'+
+    var html_tab_content = '<div id="networkTab" class="content wizard_tab">'+
+      '<dl class="tabs vertical" id="template_create_network_tabs" data-tab>'+
+        '<dt class="text-center"><button type="button" class="button tiny radius" id="tf_btn_nics"><span class="fa fa-plus"></span> '+tr("Add another nic")+'</button></dt>'+
       '</dl>'+
-      '<ul class="tabs-content" id="template_create_network_tabs_content">'+
-      '</ul>'+
-    '</li>';
+      '<div class="tabs-content vertical" id="template_create_network_tabs_content">'+
+      '</div>'+
+    '</div>';
 
-    $("<dd><a href='#network'>"+tr("Network")+"</a></dd>").appendTo($("dl#template_create_tabs", dialog));
-    $(html_tab_content).appendTo($("ul#template_create_tabs_content", dialog));
+    $("<dd><a href='#networkTab'><i class='fa fa-globe'></i><br>"+tr("Network")+"</a></dd>").appendTo($("dl#template_create_tabs", dialog));
+    $(html_tab_content).appendTo($("#template_create_tabs_content", dialog));
 
     // close icon: removing the tab on click
     $( "#networkTab i.remove-tab" ).live( "click", function() {
         var target = $(this).parent().attr("href");
         var dd = $(this).closest('dd');
-        var dl = $(this).closest('dl');
+        var dl = $(this).closest('.tabs-content');
         var content = $(target + 'Tab');
 
         dd.remove();
         content.remove();
 
         if (dd.attr("class") == 'active') {
-            dl.foundationTabs("set_tab", dl.children('dd').last());
+            //TODOO dl.foundationTabs("set_tab", dl.children('dd').last());
         }
 
         nics_index--;
     });
-
-    add_nic_tab(number_of_nics, dialog);
-    number_of_nics++;
-    nics_index++;
 
     $("#tf_btn_nics").bind("click", function(){
         add_nic_tab(number_of_nics, dialog);
@@ -2270,22 +2012,18 @@ function add_nic_tab(nic_id, dialog) {
   var str_nic_tab_id  = 'nic' + nic_id;
   var str_datatable_id = 'datatable_template_networks' + nic_id;
 
-  var html_tab_content = '<li id="'+str_nic_tab_id+'Tab" class="nic wizard_internal_tab">'+
+  var html_tab_content = '<div id="'+str_nic_tab_id+'Tab" class="nic wizard_internal_tab content">'+
       generate_nic_tab_content(str_nic_tab_id, str_datatable_id) +
-    '</li>'
+    '</div>'
 
   // Append the new div containing the tab and add the tab to the list
-  var a = $("<dd><a id='nic_tab"+str_nic_tab_id+"' href='#"+str_nic_tab_id+"'>"+tr("NIC")+" <i class='fa fa-times-sign remove-tab'></i></a></dd>").appendTo($("dl#template_create_network_tabs", dialog));
+  var a = $("<dd><a id='nic_tab"+str_nic_tab_id+"' href='#"+str_nic_tab_id+"Tab'>"+tr("NIC")+" <i class='fa fa-times-circle remove-tab'></i></a></dd>").appendTo($("dl#template_create_network_tabs", dialog));
 
-  $(html_tab_content).appendTo($("ul#template_create_network_tabs_content", dialog));
+  $(html_tab_content).appendTo($("#template_create_network_tabs_content", dialog));
 
-  $(document).foundationTabs("set_tab", a);
+  $("a", a).trigger("click");
 
-  $('#nic_tab'+str_nic_tab_id, dialog).live('click', function(){
-       $("#refresh_template_nic_table_button_class"+str_nic_tab_id).click();
-  });
-
-  var nic_section = $('li#' + str_nic_tab_id + 'Tab', dialog);
+  var nic_section = $('#' + str_nic_tab_id + 'Tab', dialog);
   setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id)
 }
 
@@ -2295,461 +2033,397 @@ function add_nic_tab(nic_id, dialog) {
 **************************************************************************/
 
 function add_osTab(dialog) {
-    var html_tab_content = '<li id="osTab" class="wizard_tab">'+
+    var html_tab_content = '<div id="osTab" class="wizard_tab content">'+
       '<form>'+
         '<div id="tabs-bootos">'+
-          '<dl class="tabs">'+
-            '<dd class="active"><a href="#boot">'+tr("Boot")+'</a></dd>'+
-            '<dd><a href="#kernel">'+tr("Kernel")+'</a></dd>'+
-            '<dd><a href="#ramdisk">'+tr("Ramdisk")+'</a></dd>'+
-            '<dd><a href="#features">'+tr("Features")+'</a></dd>'+
+          '<dl class="tabs vertical" data-tab>'+
+            '<dd class="active"><a href="#bootTab">'+tr("Boot")+'</a></dd>'+
+            '<dd><a href="#kernelTab">'+tr("Kernel")+'</a></dd>'+
+            '<dd><a href="#ramdiskTab">'+tr("Ramdisk")+'</a></dd>'+
+            '<dd><a href="#featuresTab">'+tr("Features")+'</a></dd>'+
           '</dl>'+
-          '<ul class="tabs-content">'+
-          '<li class="wizard_internal_tab active" id="bootTab">'+
-            '<div class="six columns vm_param">'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="ARCH">'+tr("Arch")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<select id="ARCH" name="arch">'+
-                        '<option id="no_arch" name="no_arch" value=""></option>'+
-                        '<option value="i686">i686</option>'+
-                        '<option value="x86_64">x86_64</option>'+
-                    '</select>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("CPU architecture to virtualization")+'</div>'+
-                  '</div>'+
-                '</div>'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="BOOT">'+tr("Boot")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<select id="BOOT" name="boot">'+
-                      '<option id="no_boot" name="no_boot" value=""></option>'+
-                      '<option value="hd">'+tr("HD")+'</option>'+
-                      '<option value="fd">'+tr("FD")+'</option>'+
-                      '<option value="cdrom">'+tr("CDROM")+'</option>'+
-                      '<option value="network">'+tr("NETWORK")+'</option>'+
-                    '</select>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Boot device type")+'</div>'+
-                  '</div>'+
-                '</div>'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="ROOT">'+tr("Root")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<input type="text" id="ROOT" name="root"/>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Device to be mounted as root")+'</div>'+
-                  '</div>'+
-                '</div>'+
+          '<div class="tabs-content vertical">'+
+          '<div class="wizard_internal_tab active content" id="bootTab">'+
+            '<div class="row">'+
+              '<div class="large-6 columns">'+
+                '<label for="ARCH">'+tr("Arch")+
+                  '<span class="tip">'+tr("CPU architecture to virtualization")+'</span>'+
+                '</label>'+
+                '<select id="ARCH" name="arch">'+
+                    '<option id="no_arch" name="no_arch" value=""></option>'+
+                    '<option value="i686">i686</option>'+
+                    '<option value="x86_64">x86_64</option>'+
+                '</select>'+
+              '</div>'+
+              '<div class="large-6 columns">'+
+                '<label for="GUESTOS">'+tr("Guest OS")+
+                  '<span class="tip">'+tr("Set the OS of the VM, only for VMware")+'</span>'+
+                '</label>'+
+                '<select id="GUESTOS" name="GUESTOS">'+
+                  '<option id="no_guestos" name="no_guestos" value=""></option>'+
+                  '<option value="asianux3_64Guest">asianux3_64Guest</option>'+
+                  '<option value="asianux3Guest">asianux3Guest</option>'+
+                  '<option value="asianux4_64Guest">asianux4_64Guest</option>'+
+                  '<option value="asianux4Guest">asianux4Guest</option>'+
+                  '<option value="centos64Guest">centos64Guest</option>'+
+                  '<option value="centosGuest">centosGuest</option>'+
+                  '<option value="darwin64Guest">darwin64Guest</option>'+
+                  '<option value="darwinGuest">darwinGuest</option>'+
+                  '<option value="debian4_64Guest">debian4_64Guest</option>'+
+                  '<option value="debian4Guest">debian4Guest</option>'+
+                  '<option value="debian5_64Guest">debian5_64Guest</option>'+
+                  '<option value="debian5Guest">debian5Guest</option>'+
+                  '<option value="dosGuest">dosGuest</option>'+
+                  '<option value="eComStationGuest">eComStationGuest</option>'+
+                  '<option value="freebsd64Guest">freebsd64Guest</option>'+
+                  '<option value="freebsdGuest">freebsdGuest</option>'+
+                  '<option value="mandriva64Guest">mandriva64Guest</option>'+
+                  '<option value="mandrivaGuest">mandrivaGuest</option>'+
+                  '<option value="netware4Guest">netware4Guest</option>'+
+                  '<option value="netware5Guest">netware5Guest</option>'+
+                  '<option value="netware6Guest">netware6Guest</option>'+
+                  '<option value="nld9Guest">nld9Guest</option>'+
+                  '<option value="oesGuest">oesGuest</option>'+
+                  '<option value="openServer5Guest">openServer5Guest</option>'+
+                  '<option value="openServer6Guest">openServer6Guest</option>'+
+                  '<option value="oracleLinux64Guest">oracleLinux64Guest</option>'+
+                  '<option value="oracleLinuxGuest">oracleLinuxGuest</option>'+
+                  '<option value="os2Guest">os2Guest</option>'+
+                  '<option value="other24xLinux64Guest">other24xLinux64Guest</option>'+
+                  '<option value="other24xLinuxGuest">other24xLinuxGuest</option>'+
+                  '<option value="other26xLinux64Guest">other26xLinux64Guest</option>'+
+                  '<option value="other26xLinuxGuest">other26xLinuxGuest</option>'+
+                  '<option value="otherGuest">otherGuest</option>'+
+                  '<option value="otherGuest64">otherGuest64</option>'+
+                  '<option value="otherLinux64Guest">otherLinux64Guest</option>'+
+                  '<option value="otherLinuxGuest">otherLinuxGuest</option>'+
+                  '<option value="redhatGuest">redhatGuest</option>'+
+                  '<option value="rhel2Guest">rhel2Guest</option>'+
+                  '<option value="rhel3_64Guest">rhel3_64Guest</option>'+
+                  '<option value="rhel3Guest">rhel3Guest</option>'+
+                  '<option value="rhel4_64Guest">rhel4_64Guest</option>'+
+                  '<option value="rhel4Guest">rhel4Guest</option>'+
+                  '<option value="rhel5_64Guest">rhel5_64Guest</option>'+
+                  '<option value="rhel5Guest">rhel5Guest</option>'+
+                  '<option value="rhel6_64Guest">rhel6_64Guest</option>'+
+                  '<option value="rhel6Guest">rhel6Guest</option>'+
+                  '<option value="sjdsGuest">sjdsGuest</option>'+
+                  '<option value="sles10_64Guest">sles10_64Guest</option>'+
+                  '<option value="sles10Guest">sles10Guest</option>'+
+                  '<option value="sles11_64Guest">sles11_64Guest</option>'+
+                  '<option value="sles11Guest">sles11Guest</option>'+
+                  '<option value="sles64Guest">sles64Guest</option>'+
+                  '<option value="slesGuest">slesGuest</option>'+
+                  '<option value="solaris10_64Guest">solaris10_64Guest</option>'+
+                  '<option value="solaris10Guest">solaris10Guest</option>'+
+                  '<option value="solaris6Guest">solaris6Guest</option>'+
+                  '<option value="solaris7Guest">solaris7Guest</option>'+
+                  '<option value="solaris8Guest">solaris8Guest</option>'+
+                  '<option value="solaris9Guest">solaris9Guest</option>'+
+                  '<option value="suse64Guest">suse64Guest</option>'+
+                  '<option value="suseGuest">suseGuest</option>'+
+                  '<option value="turboLinux64Guest">turboLinux64Guest</option>'+
+                  '<option value="turboLinuxGuest">turboLinuxGuest</option>'+
+                  '<option value="ubuntu64Guest">ubuntu64Guest</option>'+
+                  '<option value="ubuntuGuest">ubuntuGuest</option>'+
+                  '<option value="unixWare7Guest">unixWare7Guest</option>'+
+                  '<option value="win2000AdvServGuest">win2000AdvServGuest</option>'+
+                  '<option value="win2000ProGuest">win2000ProGuest</option>'+
+                  '<option value="win2000ServGuest">win2000ServGuest</option>'+
+                  '<option value="win31Guest">win31Guest</option>'+
+                  '<option value="win95Guest">win95Guest</option>'+
+                  '<option value="win98Guest">win98Guest</option>'+
+                  '<option value="windows7_64Guest">windows7_64Guest</option>'+
+                  '<option value="windows7Guest">windows7Guest</option>'+
+                  '<option value="windows7Server64Guest">windows7Server64Guest</option>'+
+                  '<option value="winLonghorn64Guest">winLonghorn64Guest</option>'+
+                  '<option value="winLonghornGuest">winLonghornGuest</option>'+
+                  '<option value="winMeGuest">winMeGuest</option>'+
+                  '<option value="winNetBusinessGuest">winNetBusinessGuest</option>'+
+                  '<option value="winNetDatacenter64Guest">winNetDatacenter64Guest</option>'+
+                  '<option value="winNetDatacenterGuest">winNetDatacenterGuest</option>'+
+                  '<option value="winNetEnterprise64Guest">winNetEnterprise64Guest</option>'+
+                  '<option value="winNetEnterpriseGuest">winNetEnterpriseGuest</option>'+
+                  '<option value="winNetStandard64Guest">winNetStandard64Guest</option>'+
+                  '<option value="winNetStandardGuest">winNetStandardGuest</option>'+
+                  '<option value="winNetWebGuest">winNetWebGuest</option>'+
+                  '<option value="winNTGuest">winNTGuest</option>'+
+                  '<option value="winVista64Guest">winVista64Guest</option>'+
+                  '<option value="winVistaGuest">winVistaGuest</option>'+
+                  '<option value="winXPHomeGuest">winXPHomeGuest</option>'+
+                  '<option value="winXPPro64Guest">winXPPro64Guest</option>'+
+                  '<option value="winXPProGuest">winXPProGuest</option>'+
+                '</select>'+
+              '</div>'+
             '</div>'+
-            '<div class="six columns vm_param">'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="KERNEL_CMD">'+tr("Kernel cmd")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<input type="text" id="KERNEL_CMD" name="kernel_cmd" />'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Arguments for the booting kernel")+'</div>'+
-                  '</div>'+
-                '</div>'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="BOOTLOADER">'+tr("Bootloader")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<input type="text" id="BOOTLOADER" name="bootloader" />'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Path to the bootloader executable")+'</div>'+
-                  '</div>'+
-                '</div>'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="GUESTOS">'+tr("Guest OS")+':</label>'+
-                  '</div>'+
-                  '<div class="seven columns">'+
-                    '<select id="GUESTOS" name="GUESTOS">'+
-                      '<option id="no_guestos" name="no_guestos" value=""></option>'+
-                      '<option value="asianux3_64Guest">asianux3_64Guest</option>'+
-                      '<option value="asianux3Guest">asianux3Guest</option>'+
-                      '<option value="asianux4_64Guest">asianux4_64Guest</option>'+
-                      '<option value="asianux4Guest">asianux4Guest</option>'+
-                      '<option value="centos64Guest">centos64Guest</option>'+
-                      '<option value="centosGuest">centosGuest</option>'+
-                      '<option value="darwin64Guest">darwin64Guest</option>'+
-                      '<option value="darwinGuest">darwinGuest</option>'+
-                      '<option value="debian4_64Guest">debian4_64Guest</option>'+
-                      '<option value="debian4Guest">debian4Guest</option>'+
-                      '<option value="debian5_64Guest">debian5_64Guest</option>'+
-                      '<option value="debian5Guest">debian5Guest</option>'+
-                      '<option value="dosGuest">dosGuest</option>'+
-                      '<option value="eComStationGuest">eComStationGuest</option>'+
-                      '<option value="freebsd64Guest">freebsd64Guest</option>'+
-                      '<option value="freebsdGuest">freebsdGuest</option>'+
-                      '<option value="mandriva64Guest">mandriva64Guest</option>'+
-                      '<option value="mandrivaGuest">mandrivaGuest</option>'+
-                      '<option value="netware4Guest">netware4Guest</option>'+
-                      '<option value="netware5Guest">netware5Guest</option>'+
-                      '<option value="netware6Guest">netware6Guest</option>'+
-                      '<option value="nld9Guest">nld9Guest</option>'+
-                      '<option value="oesGuest">oesGuest</option>'+
-                      '<option value="openServer5Guest">openServer5Guest</option>'+
-                      '<option value="openServer6Guest">openServer6Guest</option>'+
-                      '<option value="oracleLinux64Guest">oracleLinux64Guest</option>'+
-                      '<option value="oracleLinuxGuest">oracleLinuxGuest</option>'+
-                      '<option value="os2Guest">os2Guest</option>'+
-                      '<option value="other24xLinux64Guest">other24xLinux64Guest</option>'+
-                      '<option value="other24xLinuxGuest">other24xLinuxGuest</option>'+
-                      '<option value="other26xLinux64Guest">other26xLinux64Guest</option>'+
-                      '<option value="other26xLinuxGuest">other26xLinuxGuest</option>'+
-                      '<option value="otherGuest">otherGuest</option>'+
-                      '<option value="otherGuest64">otherGuest64</option>'+
-                      '<option value="otherLinux64Guest">otherLinux64Guest</option>'+
-                      '<option value="otherLinuxGuest">otherLinuxGuest</option>'+
-                      '<option value="redhatGuest">redhatGuest</option>'+
-                      '<option value="rhel2Guest">rhel2Guest</option>'+
-                      '<option value="rhel3_64Guest">rhel3_64Guest</option>'+
-                      '<option value="rhel3Guest">rhel3Guest</option>'+
-                      '<option value="rhel4_64Guest">rhel4_64Guest</option>'+
-                      '<option value="rhel4Guest">rhel4Guest</option>'+
-                      '<option value="rhel5_64Guest">rhel5_64Guest</option>'+
-                      '<option value="rhel5Guest">rhel5Guest</option>'+
-                      '<option value="rhel6_64Guest">rhel6_64Guest</option>'+
-                      '<option value="rhel6Guest">rhel6Guest</option>'+
-                      '<option value="sjdsGuest">sjdsGuest</option>'+
-                      '<option value="sles10_64Guest">sles10_64Guest</option>'+
-                      '<option value="sles10Guest">sles10Guest</option>'+
-                      '<option value="sles11_64Guest">sles11_64Guest</option>'+
-                      '<option value="sles11Guest">sles11Guest</option>'+
-                      '<option value="sles64Guest">sles64Guest</option>'+
-                      '<option value="slesGuest">slesGuest</option>'+
-                      '<option value="solaris10_64Guest">solaris10_64Guest</option>'+
-                      '<option value="solaris10Guest">solaris10Guest</option>'+
-                      '<option value="solaris6Guest">solaris6Guest</option>'+
-                      '<option value="solaris7Guest">solaris7Guest</option>'+
-                      '<option value="solaris8Guest">solaris8Guest</option>'+
-                      '<option value="solaris9Guest">solaris9Guest</option>'+
-                      '<option value="suse64Guest">suse64Guest</option>'+
-                      '<option value="suseGuest">suseGuest</option>'+
-                      '<option value="turboLinux64Guest">turboLinux64Guest</option>'+
-                      '<option value="turboLinuxGuest">turboLinuxGuest</option>'+
-                      '<option value="ubuntu64Guest">ubuntu64Guest</option>'+
-                      '<option value="ubuntuGuest">ubuntuGuest</option>'+
-                      '<option value="unixWare7Guest">unixWare7Guest</option>'+
-                      '<option value="win2000AdvServGuest">win2000AdvServGuest</option>'+
-                      '<option value="win2000ProGuest">win2000ProGuest</option>'+
-                      '<option value="win2000ServGuest">win2000ServGuest</option>'+
-                      '<option value="win31Guest">win31Guest</option>'+
-                      '<option value="win95Guest">win95Guest</option>'+
-                      '<option value="win98Guest">win98Guest</option>'+
-                      '<option value="windows7_64Guest">windows7_64Guest</option>'+
-                      '<option value="windows7Guest">windows7Guest</option>'+
-                      '<option value="windows7Server64Guest">windows7Server64Guest</option>'+
-                      '<option value="winLonghorn64Guest">winLonghorn64Guest</option>'+
-                      '<option value="winLonghornGuest">winLonghornGuest</option>'+
-                      '<option value="winMeGuest">winMeGuest</option>'+
-                      '<option value="winNetBusinessGuest">winNetBusinessGuest</option>'+
-                      '<option value="winNetDatacenter64Guest">winNetDatacenter64Guest</option>'+
-                      '<option value="winNetDatacenterGuest">winNetDatacenterGuest</option>'+
-                      '<option value="winNetEnterprise64Guest">winNetEnterprise64Guest</option>'+
-                      '<option value="winNetEnterpriseGuest">winNetEnterpriseGuest</option>'+
-                      '<option value="winNetStandard64Guest">winNetStandard64Guest</option>'+
-                      '<option value="winNetStandardGuest">winNetStandardGuest</option>'+
-                      '<option value="winNetWebGuest">winNetWebGuest</option>'+
-                      '<option value="winNTGuest">winNTGuest</option>'+
-                      '<option value="winVista64Guest">winVista64Guest</option>'+
-                      '<option value="winVistaGuest">winVistaGuest</option>'+
-                      '<option value="winXPHomeGuest">winXPHomeGuest</option>'+
-                      '<option value="winXPPro64Guest">winXPPro64Guest</option>'+
-                      '<option value="winXPProGuest">winXPProGuest</option>'+
-                    '</select>'+
-                  '</div>'+
-                  '<div class="one columns">'+
-                    '<div class="tip">'+tr("Set the OS of the VM, only for VMware")+'</div>'+
-                  '</div>'+
-                '</div>'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-6 columns">'+
+                '<label for="ROOT">'+tr("Root")+
+                  '<span class="tip">'+tr("Device to be mounted as root")+'</span>'+
+                '</label>'+
+                '<input type="text" id="ROOT" name="root"/>'+
+              '</div>'+
+              '<div class="large-6 columns">'+
+                '<label for="BOOT">'+tr("Boot")+
+                  '<span class="tip">'+tr("Boot device type")+'</span>'+
+                '</label>'+
+                '<select id="BOOT" name="boot">'+
+                  '<option id="no_boot" name="no_boot" value=""></option>'+
+                  '<option value="hd">'+tr("HD")+'</option>'+
+                  '<option value="fd">'+tr("FD")+'</option>'+
+                  '<option value="cdrom">'+tr("CDROM")+'</option>'+
+                  '<option value="network">'+tr("NETWORK")+'</option>'+
+                '</select>'+
+              '</div>'+
             '</div>'+
-          '</li>'+
-          '<li id="kernelTab" class="wizard_internal_tab">'+
+            '<div class="row">'+
+              '<div class="large-12 columns">'+
+                '<label for="KERNEL_CMD">'+tr("Kernel cmd")+
+                  '<span class="tip">'+tr("Arguments for the booting kernel")+'</span>'+
+                '</label>'+
+                '<input type="text" id="KERNEL_CMD" name="kernel_cmd" />'+
+              '</div>'+
+            '</div>'+
+            '<div class="row">'+
+              '<div class="large-12 columns">'+
+                '<label for="BOOTLOADER">'+tr("Bootloader")+
+                  '<span class="tip">'+tr("Path to the bootloader executable")+'</span>'+
+                '</label>'+
+                '<input type="text" id="BOOTLOADER" name="bootloader" />'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<div id="kernelTab" class="wizard_internal_tab content">'+
                 '<div class="row">'+
-                  '<div class="three columns push-three">'+
-                    '<input id="radioKernelDs" type="radio" name="kernel_type" value="kernel_ds" checked/> '+tr("Registered Image")+
-                  '</div>'+
-                  '<div class="three columns pull-three">'+
-                    '<input id="radioKernelPath" type="radio" name="kernel_type" value="kernel_path"/> '+tr("Remote PATH")+
+                  '<div class="large-12 columns text-center">'+
+                    '<input id="radioKernelDs" type="radio" name="kernel_type" value="kernel_ds" checked/><label for="radioKernelDs">'+tr("Registered Image")+'</label>'+
+                    '<input id="radioKernelPath" type="radio" name="kernel_type" value="kernel_path"/><label for="radioKernelPath">'+tr("Remote PATH")+'</label>'+
                   '</div>'+
                 '</div>'+
-                '<hr>'+
-                '<div class="row kernel_ds">'+
-                  '<div class="row collapse ">'+
-                      '<div class="seven columns">' +
-                         '<button id="refresh_kernel_table" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>' +
-                      '</div>' +
-                    '<div class="five columns">'+
-                      '<input id="kernel_search" type="text" placeholder="'+tr("Search")+'"/>'+
+                '<br>'+
+                '<div class="kernel_ds">'+
+                  '<div class="row">'+
+                    '<div class="large-8 columns">' +
+                       '<button id="refresh_kernel_table" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>' +
+                    '</div>' +
+                    '<div class="large-4 columns">'+
+                      '<input id="kernel_search" type="text" class="search" placeholder="'+tr("Search")+'"/>'+
                     '</div>'+
                   '</div>'+
-                  '<table id="datatable_kernel" class="datatable twelve">'+
-                    '<thead>'+
-                      '<tr>'+
-                        '<th></th>'+
-                        '<th>'+tr("ID")+'</th>'+
-                        '<th>'+tr("Owner")+'</th>'+
-                        '<th>'+tr("Group")+'</th>'+
-                        '<th>'+tr("Name")+'</th>'+
-                        '<th>'+tr("Datastore")+'</th>'+
-                        '<th>'+tr("Size")+'</th>'+
-                        '<th>'+tr("Type")+'</th>'+
-                        '<th>'+tr("Registration time")+'</th>'+
-                        '<th>'+tr("Persistent")+'</th>'+
-                        '<th>'+tr("Status")+'</th>'+
-                        '<th>'+tr("#VMS")+'</th>'+
-                        '<th>'+tr("Target")+'</th>'+
-                      '</tr>'+
-                    '</thead>'+
-                    '<tbody id="tbodyimages">'+
-                    '</tbody>'+
-                  '</table>'+
-                  '<div id="kernel_ds_inputs"  class="kvm_opt xen_opt vmware_opt">'+
-                    '<span id="select_image" class="radius secondary label">'+tr("Please select a Kernel from the list")+'</span>'+
-                    '<span id="image_selected" class="radius secondary label hidden">'+tr("You selected the following Kernel: ")+
-                    '</span>'+
-                    '<span class="radius label" type="text"  id="KERNEL" name="kernel""></span>'+
+                  '<div class="row">'+
+                    '<div class="large-12 columns">' +
+                      '<table id="datatable_kernel" class="datatable twelve">'+
+                        '<thead>'+
+                          '<tr>'+
+                            '<th></th>'+
+                            '<th>'+tr("ID")+'</th>'+
+                            '<th>'+tr("Owner")+'</th>'+
+                            '<th>'+tr("Group")+'</th>'+
+                            '<th>'+tr("Name")+'</th>'+
+                            '<th>'+tr("Datastore")+'</th>'+
+                            '<th>'+tr("Size")+'</th>'+
+                            '<th>'+tr("Type")+'</th>'+
+                            '<th>'+tr("Registration time")+'</th>'+
+                            '<th>'+tr("Persistent")+'</th>'+
+                            '<th>'+tr("Status")+'</th>'+
+                            '<th>'+tr("#VMS")+'</th>'+
+                            '<th>'+tr("Target")+'</th>'+
+                          '</tr>'+
+                        '</thead>'+
+                        '<tbody id="tbodyimages">'+
+                        '</tbody>'+
+                      '</table>'+
+                    '</div>'+
                   '</div>'+
+                  '<div id="kernel_ds_inputs"  class="row">'+
+                    '<div class="large-12 columns">' +
+                      '<span id="select_image" class="radius secondary label">'+tr("Please select a Kernel from the list")+'</span>'+
+                      '<span id="image_selected" class="radius secondary label" style="display: none;">'+tr("You selected the following Kernel: ")+'</span>'+
+                      '<span class="radius label" type="text"  id="KERNEL" name="kernel""></span>'+
+                    '</div>'+
+                  '</div>'+
+                '<br>'+
                 '<div class="vm_param row">'+
-                  '<br>'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="KERNEL_DS">'+tr("KERNEL_DS")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
+                  '<div class="large-12 columns">'+
+                    '<label for="KERNEL_DS">'+tr("KERNEL_DS")+
+                    '</label>'+
                     '<input type="text" id="KERNEL_DS" name="KERNEL_DS"/>'+
                   '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip"></div>'+
-                  '</div>'+
                 '</div>'+
-                '</div>'+
+              '</div>'+
               '<div id="kernel_path_inputs" class="kernel_path hidden row">'+
-                  '<div class="two columns">'+
-                    '<label class="right inline" for="KERNEL">'+tr("PATH")+':</label>'+
-                  '</div>'+
-                  '<div class="eight columns">'+
+                  '<div class="large-12 columns">'+
+                    '<label for="KERNEL">'+tr("PATH")+
+                      '<span class="tip">'+tr("Path to the OS kernel to boot the image")+'</span>'+
+                    '</label>'+
                     '<input type="text" id="KERNEL" name="kernel" />'+
                   '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Path to the OS kernel to boot the image")+'</div>'+
-                  '</div>'+
-                '</div>'+
-            '</li>'+
-            '<li id="ramdiskTab" class="wizard_internal_tab">'+
+              '</div>'+
+            '</div>'+
+            '<div id="ramdiskTab" class="wizard_internal_tab content">'+
                 '<div class="row">'+
-                  '<div class="three columns push-three">'+
-                    '<input id="radioInintrdDs" type="radio" name="initrd_type" value="initrd_ds" checked> '+tr("Registered Image ") +
-                  '</div>'+
-                  '<div class="three columns pull-three">'+
-                    '<input id="radioInitrdPath" type="radio" name="initrd_type" value="initrd_path"> '+tr("Remote PATH")+
+                  '<div class="large-12 columns text-center">'+
+                    '<input id="radioInintrdDs" type="radio" name="initrd_type" value="initrd_ds" checked><label for="radioInintrdDs">'+tr("Registered Image ") +"</label>"+
+                    '<input id="radioInitrdPath" type="radio" name="initrd_type" value="initrd_path"><label for="radioInitrdPath">'+tr("Remote PATH")+"</label>"+
                   '</div>'+
                 '</div>'+
-                '<hr>'+
-                '<div class="row initrd_ds">'+
-                  '<div class="row collapse ">'+
-                      '<div class="seven columns">' +
-                         '<button id="refresh_ramdisk_table" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>' +
-                      '</div>' +
-                    '<div class="five columns">'+
-                      '<input id="initrd_search" type="text" placeholder="'+tr("Search")+'"/>'+
+                '<br>'+
+                '<div class="initrd_ds">'+
+                  '<div class="row">'+
+                    '<div class="large-8 columns">' +
+                       '<button id="refresh_ramdisk_table" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>' +
+                    '</div>' +
+                    '<div class="large-4 columns">'+
+                      '<input id="initrd_search" type="text" class="search" placeholder="'+tr("Search")+'"/>'+
                     '</div>'+
                   '</div>'+
-                  '<table id="datatable_initrd" class="datatable twelve">'+
-                    '<thead>'+
-                      '<tr>'+
-                        '<th></th>'+
-                        '<th>'+tr("ID")+'</th>'+
-                        '<th>'+tr("Owner")+'</th>'+
-                        '<th>'+tr("Group")+'</th>'+
-                        '<th>'+tr("Name")+'</th>'+
-                        '<th>'+tr("Datastore")+'</th>'+
-                        '<th>'+tr("Size")+'</th>'+
-                        '<th>'+tr("Type")+'</th>'+
-                        '<th>'+tr("Registration time")+'</th>'+
-                        '<th>'+tr("Persistent")+'</th>'+
-                        '<th>'+tr("Status")+'</th>'+
-                        '<th>'+tr("#VMS")+'</th>'+
-                        '<th>'+tr("Target")+'</th>'+
-                      '</tr>'+
-                    '</thead>'+
-                    '<tbody id="tbodyimages">'+
-                    '</tbody>'+
-                  '</table>'+
-                  '<div id="selected_image" class=" kvm_opt xen_opt vmware_opt">'+
-                    '<span id="select_image" class="radius secondary label">'+tr("Please select a Ramdisk from the list")+'</span>'+
-                    '<span id="image_selected" class="radius secondary label hidden">'+tr("You selected the following Ramdisk: ")+
-                    '</span>'+
-                    '<span class="radius label" type="text" id="INITRD" name="initrd"></span>'+
+                  '<div class="row">'+
+                    '<div class="large-12 columns">' +
+                      '<table id="datatable_initrd" class="datatable twelve">'+
+                        '<thead>'+
+                          '<tr>'+
+                            '<th></th>'+
+                            '<th>'+tr("ID")+'</th>'+
+                            '<th>'+tr("Owner")+'</th>'+
+                            '<th>'+tr("Group")+'</th>'+
+                            '<th>'+tr("Name")+'</th>'+
+                            '<th>'+tr("Datastore")+'</th>'+
+                            '<th>'+tr("Size")+'</th>'+
+                            '<th>'+tr("Type")+'</th>'+
+                            '<th>'+tr("Registration time")+'</th>'+
+                            '<th>'+tr("Persistent")+'</th>'+
+                            '<th>'+tr("Status")+'</th>'+
+                            '<th>'+tr("#VMS")+'</th>'+
+                            '<th>'+tr("Target")+'</th>'+
+                          '</tr>'+
+                        '</thead>'+
+                        '<tbody id="tbodyimages">'+
+                        '</tbody>'+
+                      '</table>'+
+                    '</div>'+
                   '</div>'+
-                '<div class="row vm_param">'+
+                  '<div id="selected_image" class="row">'+
+                    '<div class="large-12 columns">' +
+                      '<span id="select_image" class="radius secondary label">'+tr("Please select a Ramdisk from the list")+'</span>'+
+                      '<span id="image_selected" class="radius secondary label" style="display: none;">'+tr("You selected the following Ramdisk: ")+'</span>'+
+                      '<span class="radius label" type="text" id="INITRD" name="initrd"></span>'+
+                    '</div>'+
+                  '</div>'+
                   '<br>'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="INITRD_DS">'+tr("INITRD_DS")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<input type="text" id="INITRD_DS" name="initrd_id"/>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip"></div>'+
+                  '<div class="row vm_param">'+
+                    '<div class="large-12 columns">'+
+                      '<label for="INITRD_DS">'+tr("INITRD_DS")+
+                      '</label>'+
+                      '<input type="text" id="INITRD_DS" name="initrd_id"/>'+
+                    '</div>'+
                   '</div>'+
                 '</div>'+
-                '</div>'+
-              '<div id="initrd_path_inputs" class="initrd_path hidden row">'+
-                  '<div class="two columns">'+
-                    '<label class="right inline" for="INITRD">'+tr("PATH")+':</label>'+
-                  '</div>'+
-                  '<div class="eight columns">'+
-                    '<input type="text" id="INITRD" name="initrd"/>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Path to the initrd image")+'</div>'+
-                  '</div>'+
-                '</div>'+
-            '</li>'+
-          '<li class="wizard_internal_tab" id="featuresTab">'+
-            '<div class="six columns vm_param">'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="ACPI">'+tr("ACPI")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<select id="ACPI" name="acpi">'+
-                        '<option id="no_apci" name="no_apci" value=""></option>'+
-                        '<option value="yes">'+tr("Yes")+'</option>'+
-                        '<option value="no">'+tr("No")+'</option>'+
-                    '</select>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Add support in the VM for Advanced Configuration and Power Interface (ACPI)")+'</div>'+
-                  '</div>'+
-                '</div>'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="PAE">'+tr("PAE")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<select id="PAE" name="pae">'+
-                      '<option id="no_pae" name="no_pae" value=""></option>'+
-                        '<option value="yes">'+tr("Yes")+'</option>'+
-                        '<option value="no">'+tr("No")+'</option>'+
-                    '</select>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Add support in the VM for Physical Address Extension (PAE)")+'</div>'+
-                  '</div>'+
-                '</div>'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="APIC">'+tr("APIC")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<select id="APIC" name="apic">'+
-                      '<option id="no_apic" name="no_apic" value=""></option>'+
-                        '<option value="yes">'+tr("Yes")+'</option>'+
-                        '<option value="no">'+tr("No")+'</option>'+
-                    '</select>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Enables the advanced programmable IRQ management.")+'</div>'+
-                  '</div>'+
-                '</div>'+
-                '<div class="row">'+
-                  '<div class="four columns vm_param">'+
-                    '<label class="right inline" for="HYPERV">'+tr("HYPERV")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<select id="HYPERV" name="hyperv">'+
-                      '<option id="no_hyperv" name="no_hyperv" value=""></option>'+
-                        '<option value="yes">'+tr("Yes")+'</option>'+
-                        '<option value="no">'+tr("No")+'</option>'+
-                    '</select>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Add support in the VM for hyper-v features (HYPERV)")+'</div>'+
-                  '</div>'+
-                '</div>'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="LOCALTIME">'+tr("LOCALTIME")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<select id="LOCALTIME" name="localtime">'+
-                      '<option id="no_localtime" name="no_localtime" value=""></option>'+
-                        '<option value="yes">'+tr("Yes")+'</option>'+
-                        '<option value="no">'+tr("No")+'</option>'+
-                    '</select>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("The guest clock will be synchronized to the host's configured timezone when booted.")+'</div>'+
-                  '</div>'+
-                '</div>'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="DEVICE_MODEL">'+tr("Device model")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<input type="text" id="DEVICE_MODEL" name="device_model"/>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Used to change the IO emulator in Xen HVM. Only XEN.")+'</div>'+
-                  '</div>'+
-                '</div>'+
+                '<div id="initrd_path_inputs" class="initrd_path hidden">'+
+                  '<div class="row">'+
+                    '<div class="large-12 columns">'+
+                      '<label class="right inline" for="INITRD">'+tr("PATH")+
+                        '<span class="tip">'+tr("Path to the initrd image")+'</span>'+
+                      '</label>'+
+                      '<input type="text" id="INITRD" name="initrd"/>'+
+                    '</div>'+
+                ' </div>'+
+              '</div>'+
+          '</div>'+
+          '<div class="wizard_internal_tab content" id="featuresTab">'+
+            '<div class="row">'+
+              '<div class="large-6 columns">'+
+                '<label for="ACPI">'+tr("ACPI")+
+                  '<span class="tip">'+tr("Add support in the VM for Advanced Configuration and Power Interface (ACPI)")+'</span>'+
+                '</label>'+
+                '<select id="ACPI" name="acpi">'+
+                    '<option id="no_apci" name="no_apci" value=""></option>'+
+                    '<option value="yes">'+tr("Yes")+'</option>'+
+                    '<option value="no">'+tr("No")+'</option>'+
+                '</select>'+
+              '</div>'+
+              '<div class="large-6 columns">'+
+                '<label for="PAE">'+tr("PAE")+
+                  '<span class="tip">'+tr("Add support in the VM for Physical Address Extension (PAE)")+'</span>'+
+                '</label>'+
+                '<select id="PAE" name="pae">'+
+                  '<option id="no_pae" name="no_pae" value=""></option>'+
+                    '<option value="yes">'+tr("Yes")+'</option>'+
+                    '<option value="no">'+tr("No")+'</option>'+
+                '</select>'+
+              '</div>'+
             '</div>'+
-            '<div class="six columns vm_param">'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                    '<label class="right inline" for="PCIBRIDGE">'+tr("PCI BRIDGE")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<select id="PCIBRIDGE" name="PCIBRIDGE">'+
-                        '<option id="no_pcibridge" name="no_pcibridge" value=""></option>'+
-                        '<option value="0">0</option>'+
-                        '<option value="1">1</option>'+
-                        '<option value="2">2</option>'+
-                        '<option value="3">3</option>'+
-                        '<option value="4">4</option>'+
-                        '<option value="5">5</option>'+
-                        '<option value="6">6</option>'+
-                        '<option value="7">7</option>'+
-                        '<option value="8">8</option>'+
-                        '<option value="9">9</option>'+
-                        '<option value="10">10</option>'+
-                    '</select>'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr(" Adds a PCI Controller that provides bridge-to-bridge capability, only for VMware.")+'</div>'+
-                  '</div>'+
-                '</div>'+
+            '<div class="row">'+
+              '<div class="large-6 columns">'+
+                '<label for="APIC">'+tr("APIC")+
+                  '<span class="tip">'+tr("Enables the advanced programmable IRQ management.")+'</span>'+
+                '</label>'+
+                '<select id="APIC" name="apic">'+
+                  '<option id="no_apic" name="no_apic" value=""></option>'+
+                    '<option value="yes">'+tr("Yes")+'</option>'+
+                    '<option value="no">'+tr("No")+'</option>'+
+                '</select>'+
+              '</div>'+
+              '<div class="large-6 columns">'+
+                '<label for="HYPERV">'+tr("HYPERV")+
+                  '<span class="tip">'+tr("Add support in the VM for hyper-v features (HYPERV)")+'</span>'+
+                '</label>'+
+                '<select id="HYPERV" name="hyperv">'+
+                  '<option id="no_hyperv" name="no_hyperv" value=""></option>'+
+                    '<option value="yes">'+tr("Yes")+'</option>'+
+                    '<option value="no">'+tr("No")+'</option>'+
+                '</select>'+
+              '</div>'+
             '</div>'+
-          '</li>'+
-            '</ul>'+
+            '<div class="row">'+
+              '<div class="large-6 columns">'+
+                '<label for="LOCALTIME">'+tr("Localtime")+
+                  '<span class="tip">'+tr("The guest clock will be synchronized to the host's configured timezone when booted.")+'</span>'+
+                '</label>'+
+                '<select id="LOCALTIME" name="localtime">'+
+                  '<option id="no_localtime" name="no_localtime" value=""></option>'+
+                    '<option value="yes">'+tr("Yes")+'</option>'+
+                    '<option value="no">'+tr("No")+'</option>'+
+                '</select>'+
+              '</div>'+
+              '<div class="large-6 columns">'+
+                '<label for="DEVICE_MODEL">'+tr("Device model")+
+                  '<span class="tip">'+tr("Used to change the IO emulator in Xen HVM. Only XEN.")+'</span>'+
+                '</label>'+
+                '<input type="text" id="DEVICE_MODEL" name="device_model"/>'+
+              '</div>'+
             '</div>'+
+            '<div class="row">'+
+              '<div class="large-6 columns">'+
+                '<label for="PCIBRIDGE">'+tr("PCI BRIDGE")+
+                  '<span class="tip">'+tr(" Adds a PCI Controller that provides bridge-to-bridge capability, only for VMware.")+'</span>'+
+                '</label>'+
+                '<select id="PCIBRIDGE" name="PCIBRIDGE">'+
+                    '<option id="no_pcibridge" name="no_pcibridge" value=""></option>'+
+                    '<option value="0">0</option>'+
+                    '<option value="1">1</option>'+
+                    '<option value="2">2</option>'+
+                    '<option value="3">3</option>'+
+                    '<option value="4">4</option>'+
+                    '<option value="5">5</option>'+
+                    '<option value="6">6</option>'+
+                    '<option value="7">7</option>'+
+                    '<option value="8">8</option>'+
+                    '<option value="9">9</option>'+
+                    '<option value="10">10</option>'+
+                '</select>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
       '</form>'+
-    '</li>'
+    '</div>'
 
-    $("<dd><a href='#os'>OS Booting</a></dd>").appendTo($("dl#template_create_tabs", dialog));
-    $(html_tab_content).appendTo($("ul#template_create_tabs_content", dialog));
+    $("<dd><a href='#osTab'><i class='fa fa-power-off'></i><br>OS Booting</a></dd>").appendTo($("dl#template_create_tabs", dialog));
+    $(html_tab_content).appendTo($("#template_create_tabs_content", dialog));
 
-    var os_section = $('li#osTab', dialog);
-    var kernel_section = $('li#kernelTab', os_section);
-    var initrd_section = $('li#ramdiskTab', os_section);
+    var os_section = $('#osTab', dialog);
+    var kernel_section = $('#kernelTab', os_section);
+    var initrd_section = $('#ramdiskTab', os_section);
 
 
     // Select Image or Volatile disk. The div is hidden depending on the selection, and the
@@ -2908,87 +2582,64 @@ function add_osTab(dialog) {
 **************************************************************************/
 
 function add_ioTab(dialog) {
-  var html_tab_content = '<li id="ioTab" class="wizard_tab">'+
-    '<form>'+
+  var html_tab_content = '<div id="ioTab" class="wizard_tab content">'+
       '<div class="row">'+
-      '<div class="six columns graphics">'+
+      '<div class="large-6 columns graphics">'+
         '<fieldset>'+
           '<legend>'+tr("Graphics")+'</legend>'+
           '<div class="row">'+
-          '<div class="eleven columns centered">'+
-          '<div class="row">'+
-            '<div class="four columns">'+
-                '<input type="radio" name="graphics_type" ID="radioVncType" value="VNC"> VNC '+
-            '</div>'+
-            '<div class="four columns">'+
-                '<input type="radio" name="graphics_type" ID="radioSdlType" value="SDL"> SDL'+
-            '</div>'+
-            '<div class="four columns">'+
-                '<input type="radio" name="graphics_type" ID="radioSpiceType" value="SPICE"> SPICE'+
-            '</div>'+
-            '</div>'+
+            '<div class="large-12 columns text-center">'+
+                '<input type="radio" name="graphics_type" ID="radioVncType" value="VNC"><label for="radioVncType"> VNC  </label>'+
+                '<input type="radio" name="graphics_type" ID="radioSdlType" value="SDL"><label for="radioSdlType"> SDL </label>'+
+                '<input type="radio" name="graphics_type" ID="radioSpiceType" value="SPICE"><label for="radioSpiceType"> SPICE </label>'+
             '</div>'+
           '</div>'+
-          '<hr>'+
+          '<br>'+
           '<div class="row vm_param">'+
             '<input type="hidden" name="graphics_type" ID="TYPE">'+
-            '<div class="four columns">'+
-              '<label class="right inline" for="LISTEN">'+tr("Listen IP")+':</label>'+
-            '</div>'+
-            '<div class="six columns">'+
+            '<div class="large-12 columns">'+
+              '<label for="LISTEN">'+tr("Listen IP")+
+                '<span class="tip">'+tr("IP to listen on")+'</span>'+
+              '</label>'+
               '<input type="text" id="LISTEN" name="graphics_ip" />'+
             '</div>'+
-            '<div class="two columns">'+
-              '<div class="tip">'+tr("IP to listen on")+'</div>'+
-            '</div>'+
           '</div>'+
           '<div class="row vm_param">'+
-            '<div class="four columns">'+
-              '<label class="right inline" for="PORT">'+tr("Port")+':</label>'+
-            '</div>'+
-            '<div class="six columns">'+
+            '<div class="large-6 columns">'+
+              '<label for="PORT">'+tr("Port")+
+                '<span class="tip">'+tr("Port for the VNC/SPICE server")+'</span>'+
+              '</label>'+
               '<input type="text" id="PORT" name="port" />'+
             '</div>'+
-            '<div class="two columns">'+
-              '<div class="tip">'+tr("Port for the VNC/SPICE server")+'</div>'+
-            '</div>'+
-          '</div>'+
-          '<div class="row vm_param">'+
-            '<div class="four columns">'+
-              '<label class="right inline" for="PASSWD">'+tr("Password")+':</label>'+
-            '</div>'+
-            '<div class="six columns">'+
-              '<input type="text" id="PASSWD" name="graphics_pw" />'+
-            '</div>'+
-            '<div class="two columns">'+
-              '<div class="tip">'+tr("Password for the VNC/SPICE server")+'</div>'+
-            '</div>'+
-          '</div>'+
-          '<div class="row vm_param">'+
-            '<div class="four columns">'+
-              '<label class="right inline" for="KEYMAP">'+tr("Keymap")+'</label>'+
-            '</div>'+
-            '<div class="six columns">'+
+            '<div class="large-6 columns">'+
+              '<label for="KEYMAP">'+tr("Keymap")+
+                '<span class="tip">'+tr("Keyboard configuration locale to use in the VNC/SPICE display")+'</span>'+
+              '</label>'+
               '<input type="text" id="KEYMAP" name="keymap" />'+
             '</div>'+
-            '<div class="two columns">'+
-              '<div class="tip">'+tr("Keyboard configuration locale to use in the VNC/SPICE display")+'</div>'+
+          '</div>'+
+          '<div class="row vm_param">'+
+            '<div class="large-12 columns">'+
+              '<label for="PASSWD">'+tr("Password")+
+                '<span class="tip">'+tr("Password for the VNC/SPICE server")+'</span>'+
+              '</label>'+
+              '<input type="text" id="PASSWD" name="graphics_pw" />'+
             '</div>'+
           '</div>'+
         '</fieldset>'+
       '</div>'+
-      '<div class="six columns inputs">'+
+      '<div class="large-6 columns inputs">'+
         '<fieldset>'+
           '<legend>'+tr("Inputs")+'</legend>'+
           '<div class="row">'+
-            '<div class="five columns">'+
+            '<div class="large-5 columns">'+
               '<select id="TYPE" name="input_type">'+
                   '<option id="no_type" name="no_type" value=""></option>'+
                     '<option value="mouse">'+tr("Mouse")+'</option>'+
                     '<option value="tablet">'+tr("Tablet")+'</option>'+
               '</select>'+
             '</div>'+
-            '<div class="four columns">'+
+            '<div class="large-4 columns">'+
               '<select id="BUS" name="input_bus">'+
                   '<option id="no_input" name="no_input" value=""></option>'+
                   '<option value="usb">'+tr("USB")+'</option>'+
@@ -2996,46 +2647,45 @@ function add_ioTab(dialog) {
                   '<option value="xen">'+tr("XEN")+'</option>'+
               '</select>'+
             '</div>'+
-            '<div class="three columns">'+
-                '<button type="button" class="button tiny radius" id="add_input">'+tr("Add")+'</button>'+
+            '<div class="large-3 columns">'+
+                '<button type="button" class="button small radius secondary" id="add_input">'+tr("Add")+'</button>'+
             '</div>'+
           '</div>'+
-          '<hr>'+
-          '<div class="">'+
-          '<table id="input_table" class="twelve policies_table">'+
-             '<thead>'+
-               '<tr>'+
-                 '<th>'+tr("TYPE")+'</th>'+
-                 '<th>'+tr("BUS")+'</th>'+
-                 '<th></th>'+
-               '</tr>'+
-             '</thead>'+
-             '<tbody id="tbodyinput">'+
-               '<tr>'+
-               '</tr>'+
-               '<tr>'+
-               '</tr>'+
-             '</tbody>'+
-          '</table>'+
-          '<br>'+
+          '<div class="row">'+
+            '<div class="large-12 columns">'+
+              '<table id="input_table" class="dataTable policies_table">'+
+                 '<thead>'+
+                   '<tr>'+
+                     '<th>'+tr("TYPE")+'</th>'+
+                     '<th>'+tr("BUS")+'</th>'+
+                     '<th></th>'+
+                   '</tr>'+
+                 '</thead>'+
+                 '<tbody id="tbodyinput">'+
+                   '<tr>'+
+                   '</tr>'+
+                   '<tr>'+
+                   '</tr>'+
+                 '</tbody>'+
+              '</table>'+
+            '</div>'+
           '</div>'+
         '</fieldset>'+
       '</div>'+
       '</div>'+
-    '</form>'+
-  '</li>'
+  '</div>'
 
 
-    $("<dd><a href='#io'>Input/Output</a></dd>").appendTo($("dl#template_create_tabs", dialog));
-    $(html_tab_content).appendTo($("ul#template_create_tabs_content", dialog));
+    $("<dd><a href='#ioTab'><i class='fa fa-exchange'></i><br>Input/Output</a></dd>").appendTo($("dl#template_create_tabs", dialog));
+    $(html_tab_content).appendTo($("#template_create_tabs_content", dialog));
 
   $("input[name='graphics_type']", dialog).change(function(){
-    $("#TYPE", $('li#ioTab .graphics')).val($(this).attr("value"))
-    $("#LISTEN", $('li#ioTab')).val("0.0.0.0")
+    $("#TYPE", $('#ioTab .graphics')).val($(this).attr("value"))
+    $("#LISTEN", $('#ioTab')).val("0.0.0.0")
   });
 
-  $('#add_input', $('li#ioTab')).click(function() {
-      var table = $('#input_table', $('li#ioTab'))[0];
+  $('#add_input', $('#ioTab')).click(function() {
+      var table = $('#input_table', $('#ioTab'))[0];
       var rowCount = table.rows.length;
       var row = table.insertRow(-1);
       $(row).addClass("vm_param");
@@ -3044,19 +2694,19 @@ function add_ioTab(dialog) {
       var element1 = document.createElement("input");
       element1.id = "TYPE"
       element1.type = "text";
-      element1.value = $('select#TYPE', $('li#ioTab')).val()
+      element1.value = $('select#TYPE', $('#ioTab')).val()
       cell1.appendChild(element1);
 
       var cell2 = row.insertCell(1);
       var element2 = document.createElement("input");
       element2.id = "BUS"
       element2.type = "text";
-      element2.value = $('select#BUS', $('li#ioTab')).val()
+      element2.value = $('select#BUS', $('#ioTab')).val()
       cell2.appendChild(element2);
 
 
       var cell3 = row.insertCell(2);
-      cell3.innerHTML = "<i class='fa fa-times-sign fa fa-lg remove-tab'></i>";
+      cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
   });
 
   $( "#ioTab i.remove-tab", dialog).live( "click", function() {
@@ -3070,146 +2720,119 @@ function add_ioTab(dialog) {
 **************************************************************************/
 
 function add_contextTab(dialog) {
-  var html_tab_content = '<li id="contextTab" class="wizard_tab">'+
-    '<form>'+
-        '<dl class="tabs">'+
-          '<dd class="active"><a href="#netssh">'+tr("Network & SSH")+'</a></dd>'+
-          '<dd><a href="#files">'+tr("Files")+'</a></dd>'+
-          '<dd><a href="#zcustom">'+tr("Custom variables")+'</a></dd>'+
+  var html_tab_content = '<div id="contextTab" class="wizard_tab content">'+
+        '<dl id="context_tabs" class="tabs vertical" data-tab>'+
+          '<dd class="active"><a href="#netsshTab">'+tr("Network & SSH")+'</a></dd>'+
+          '<dd><a href="#filesTab">'+tr("Files")+'</a></dd>'+
+          '<dd><a href="#zcustomTab">'+tr("Custom vars")+'</a></dd>'+
         '</dl>'+
-        '<ul class="tabs-content">'+
-            '<li class="wizard_internal_tab active" id="netsshTab">'+
+        '<div class="tabs-content vertical">'+
+            '<div class="wizard_internal_tab active content" id="netsshTab">'+
               '<div class="row">'+
-                '<div class="six columns">'+
-                    '<fieldset>'+
-                      '<legend>'+tr("SSH")+'</legend>'+
-                      '<div class="">'+
-                        '<div class="columns one">'+
-                            '<input type="checkbox" name="ssh_context" id="ssh_context" checked>'+
-                        '</div>'+
-                        '<div class="columns ten">'+
-                            '<label class="inline" for="ssh_context">'+ tr("  Add SSH contextualization")+'</label>'+
-                        '</div>'+
-                        '<div class="columns one">'+
-                            '<div class="tip">'+tr("Add an ssh public key to the context. If the Public Key textarea is empty then the user variable SSH_PUBLIC_KEY will be used.")+'</div>'+
-                        '</div>'+
-                      '</div>'+
-                      '<div class="">'+
-                        '<div class="twelve columns">'+
-                            '<label for="ssh_public_key"> '+tr("Public Key")+':</label>'+
-                        '</div>'+
-                      '</div>'+
-                      '<div class="">'+
-                        '<div class="twelve columns">'+
-                        '<textarea rows="4" type="text" id="ssh_public_key" name="ssh_public_key" />'+
-                        '</div>'+
-                      '</div>'+
-                    '</fieldset>'+
-                '</div>'+
-                '<div class="six columns">'+
-                    '<fieldset>'+
-                        '<legend>'+tr("Network")+'</legend>'+
-                        '<div class="">'+
-                          '<div class="columns one">'+
-                              '<input type="checkbox" name="network_context" id="network_context" checked>'+
-                          '</div>'+
-                          '<div class="columns ten">'+
-                              '<label class="inline" for="network_context">'+ tr("  Add Network contextualization")+'</label>'+
-                          '</div>'+
-                          '<div class="columns one">'+
-                              '<div class="tip">'+tr("Add network contextualization parameters. For each NIC defined in the NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in the CONTEXT section and will be available in the Virtual Machine")+'</div>'+
-                          '</div>'+
-                        '</div>'+
-                    '</fieldset>'+
-                    '<fieldset>'+
-                        '<legend>'+tr("OneGate token")+'</legend>'+
-                        '<div class="">'+
-                          '<div class="columns one">'+
-                              '<input type="checkbox" name="token_context" id="token_context">'+
-                          '</div>'+
-                          '<div class="columns ten">'+
-                              '<label class="inline" for="token_context">'+ tr("  Add OneGate token")+'</label>'+
-                          '</div>'+
-                          '<div class="columns one">'+
-                              '<div class="tip">'+tr("Add a file (token.txt) to the context contaning the token to push custom metrics to the VirtualMachine through OneGate")+'</div>'+
-                          '</div>'+
-                        '</div>'+
-                    '</fieldset>'+
+                '<div class="columns large-12">'+
+                    '<input type="checkbox" name="ssh_context" id="ssh_context" checked>'+
+                    '<label for="ssh_context">'+ tr("  Add SSH contextualization")+
+                      '<span class="tip">'+tr("Add an ssh public key to the context. If the Public Key textarea is empty then the user variable SSH_PUBLIC_KEY will be used.")+'</span>'+
+                    '</label>'+
                 '</div>'+
               '</div>'+
-                '</li>'+
-            '<li class="wizard_internal_tab" id="filesTab">'+
-                    '<div class="row collapse ">'+
-                      '<div class="seven columns">' +
-                         '<button id="refresh_context_table" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>' +
-                      '</div>' +
-                      '<div class="five columns">'+
-                        '<input id="files_search" type="text" placeholder="'+tr("Search")+'"/>'+
-                      '</div>'+
-                    '</div>'+
-                      '<table id="datatable_context" class="datatable twelve">'+
-                        '<thead>'+
-                          '<tr>'+
-                            '<th></th>'+
-                            '<th>'+tr("ID")+'</th>'+
-                            '<th>'+tr("Owner")+'</th>'+
-                            '<th>'+tr("Group")+'</th>'+
-                            '<th>'+tr("Name")+'</th>'+
-                            '<th>'+tr("Datastore")+'</th>'+
-                            '<th>'+tr("Size")+'</th>'+
-                            '<th>'+tr("Type")+'</th>'+
-                            '<th>'+tr("Registration time")+'</th>'+
-                            '<th>'+tr("Persistent")+'</th>'+
-                            '<th>'+tr("Status")+'</th>'+
-                            '<th>'+tr("#VMS")+'</th>'+
-                            '<th>'+tr("Target")+'</th>'+
-                          '</tr>'+
-                        '</thead>'+
-                        '<tbody id="tbodyimages">'+
-                        '</tbody>'+
-                      '</table>'+
-                  '<div class="vm_param kvm_opt xen_opt vmware_opt row" id="selected_files_spans">'+
-                    '<span id="select_files" class="radius secondary label">'+tr("Please select files from the list")+'</span> '+
-                    '<span id="files_selected" class="radius secondary label hidden">'+tr("You selected the following files:")+'</span> '+
-                  '</div>'+
-                  '<div class="row vm_param">'+
-                  '<br>'+
-                    '<div class="two columns">'+
-                      '<label class="right inline" for="FILES_DS">'+tr("FILES_DS")+':</label>'+
-                    '</div>'+
-                    '<div class="nine columns">'+
-                      '<input type="text" id="FILES_DS" name="FILES_DS" />'+
-                    '</div>'+
-                    '<div class="one columns">'+
-                      '<div class="tip">'+tr("Raw String for the FILE_DS attribute of the VM template, representing files that will be included in the contextualization image. Each file must be stored in a FILE_DS Datastore and must be of type CONTEXT")+'</div>'+
-                    '</div>'+
-                  '</div>'+
-                  '<div class="row vm_param">'+
-                    '<div class="two columns">'+
-                      '<label class="right inline" for="INIT_SCRIPTS">'+tr("Init scripts")+':</label>'+
-                    '</div>'+
-                    '<div class="nine columns">'+
-                      '<input type="text" id="INIT_SCRIPTS" name="INIT_SCRIPTS" />'+
-                    '</div>'+
-                    '<div class="one columns">'+
-                      '<div class="tip">'+tr("If the VM uses the OpenNebula contextualization package the init.sh file is executed by default. When the init script added is not called init.sh or more than one init script is added, this list contains the scripts to run and the order. Ex. “init.sh users.sh mysql.sh”")+'</div>'+
-                    '</div>'+
-                  '</div>'+
-                '</li>'+
-            '<li class="wizard_internal_tab" id="zcustomTab">'+
               '<div class="row">'+
-                '<div class="three columns">'+
+                '<div class="large-12 columns">'+
+                    '<label for="ssh_public_key"> '+tr("Public Key")+':</label>'+
+                    '<textarea rows="4" type="text" id="ssh_public_key" name="ssh_public_key" />'+
+                '</div>'+
+              '</div>'+
+              '<br>'+
+              '<div class="row">'+
+                '<div class="columns large-12">'+
+                    '<input type="checkbox" name="network_context" id="network_context" checked>'+
+                    '<label class="inline" for="network_context">'+ tr("  Add Network contextualization")+
+                      '<span class="tip">'+tr("Add network contextualization parameters. For each NIC defined in the NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in the CONTEXT section and will be available in the Virtual Machine")+'</span>'+
+                    '</label>'+
+                '</div>'+
+              '</div>'+
+              '<div class="row">'+
+                '<div class="columns large-12">'+
+                    '<input type="checkbox" name="token_context" id="token_context">'+
+                    '<label class="inline" for="token_context">'+ tr("  Add OneGate token")+
+                      '<span class="tip">'+tr("Add a file (token.txt) to the context contaning the token to push custom metrics to the VirtualMachine through OneGate")+'</span>'+
+                    '</label>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+            '<div class="wizard_internal_tab content" id="filesTab">'+
+              '<div class="row">'+
+                '<div class="large-8 columns">' +
+                   '<button id="refresh_context_table" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>' +
+                '</div>' +
+                '<div class="large-4 columns">'+
+                  '<input id="files_search" type="text" class="search" placeholder="'+tr("Search")+'"/>'+
+                '</div>'+
+              '</div>'+
+              '<div class="row">'+
+                '<div class="large-12 columns">' +
+                  '<table id="datatable_context" class="datatable twelve">'+
+                    '<thead>'+
+                      '<tr>'+
+                        '<th></th>'+
+                        '<th>'+tr("ID")+'</th>'+
+                        '<th>'+tr("Owner")+'</th>'+
+                        '<th>'+tr("Group")+'</th>'+
+                        '<th>'+tr("Name")+'</th>'+
+                        '<th>'+tr("Datastore")+'</th>'+
+                        '<th>'+tr("Size")+'</th>'+
+                        '<th>'+tr("Type")+'</th>'+
+                        '<th>'+tr("Registration time")+'</th>'+
+                        '<th>'+tr("Persistent")+'</th>'+
+                        '<th>'+tr("Status")+'</th>'+
+                        '<th>'+tr("#VMS")+'</th>'+
+                        '<th>'+tr("Target")+'</th>'+
+                      '</tr>'+
+                    '</thead>'+
+                    '<tbody id="tbodyimages">'+
+                    '</tbody>'+
+                  '</table>'+
+                '</div>'+
+              '</div>'+
+              '<div class="vm_param row" id="selected_files_spans">'+
+                  '<div class="large-12 columns">' +
+                    '<span id="select_files" class="radius secondary label">'+tr("Please select files from the list")+'</span> '+
+                    '<span id="files_selected" class="radius secondary label"  style="display: none;">'+tr("You selected the following files:")+'</span> '+
+                  '</div>'+
+              '</div>'+
+              '<br>'+
+              '<div class="row vm_param">'+
+                '<div class="large-12 columns">'+
+                  '<label for="FILES_DS">'+tr("FILES_DS")+
+                    '<span class="tip">'+tr("Raw String for the FILE_DS attribute of the VM template, representing files that will be included in the contextualization image. Each file must be stored in a FILE_DS Datastore and must be of type CONTEXT")+'</span>'+
+                  '</label>'+
+                  '<input type="text" id="FILES_DS" name="FILES_DS" />'+
+                '</div>'+
+              '</div>'+
+              '<div class="row vm_param">'+
+                '<div class="large-12 columns">'+
+                  '<label for="INIT_SCRIPTS">'+tr("Init scripts")+
+                    '<span class="tip">'+tr("If the VM uses the OpenNebula contextualization package the init.sh file is executed by default. When the init script added is not called init.sh or more than one init script is added, this list contains the scripts to run and the order. Ex. “init.sh users.sh mysql.sh”")+'</span>'+
+                  '</label>'+
+                  '<input type="text" id="INIT_SCRIPTS" name="INIT_SCRIPTS" />'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+            '<div class="wizard_internal_tab content" id="zcustomTab">'+
+              '<div class="row">'+
+                '<div class="large-4 columns">'+
                   '<input type="text" id="KEY" name="key" />'+
                 '</div>'+
-                '<div class="seven columns">'+
+                '<div class="large-6 columns">'+
                   '<input type="text" id="VALUE" name="value" />'+
                 '</div>'+
-                '<div class="two columns">'+
-                    '<button type="button" class="button tiny radius" id="add_context">'+tr("Add")+'</button>'+
+                '<div class="large-2 columns">'+
+                    '<button type="button" class="button secondary radius small" id="add_context">'+tr("Add")+'</button>'+
                 '</div>'+
               '</div>'+
               '<div class="row">'+
-                  '<table id="context_table" class="twelve policies_table">'+
+                '<div class="large-12 columns">'+
+                  '<table id="context_table" class="dataTable policies_table">'+
                      '<thead>'+
                        '<tr>'+
                          '<th>'+tr("KEY")+'</th>'+
@@ -3224,21 +2847,20 @@ function add_contextTab(dialog) {
                        '</tr>'+
                      '</tbody>'+
                   '</table>'+
-                  '<br>'+
+                '</div>'+
               '</div>'+
-            '</li>'+
-      '</ul>'+
-    '</form>'+
-  '</li>'
+            '</div>'+
+          '</div>'+
+        '</div>';
 
 
-    $("<dd><a href='#context'>Context</a></dd>").appendTo($("dl#template_create_tabs", dialog));
-    $(html_tab_content).appendTo($("ul#template_create_tabs_content", dialog));
+    $("<dd><a href='#contextTab'><i class='fa fa-folder'></i><br>Context</a></dd>").appendTo($("dl#template_create_tabs", dialog));
+    $(html_tab_content).appendTo($("#template_create_tabs_content", dialog));
 
   //$('#tabs-context', dialog).tabs();
 
-  $('#add_context', $('li#contextTab')).click(function() {
-      var table = $('#context_table', $('li#contextTab'))[0];
+  $('#add_context', $('#contextTab')).click(function() {
+      var table = $('#context_table', $('#contextTab'))[0];
       var rowCount = table.rows.length;
       var row = table.insertRow(rowCount);
 
@@ -3246,19 +2868,19 @@ function add_contextTab(dialog) {
       var element1 = document.createElement("input");
       element1.id = "KEY";
       element1.type = "text";
-      element1.value = $('input#KEY', $('li#contextTab')).val()
+      element1.value = $('input#KEY', $('#contextTab')).val()
       cell1.appendChild(element1);
 
       var cell2 = row.insertCell(1);
       var element2 = document.createElement("input");
       element2.id = "VALUE";
       element2.type = "text";
-      element2.value = $('input#VALUE', $('li#contextTab')).val()
+      element2.value = $('input#VALUE', $('#contextTab')).val()
       cell2.appendChild(element2);
 
 
       var cell3 = row.insertCell(2);
-      cell3.innerHTML = "<i class='fa fa-times-sign fa fa-lg remove-tab'></i>";
+      cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
   });
 
   $( "#contextTab i.remove-tab" ).live( "click", function() {
@@ -3342,7 +2964,7 @@ function add_contextTab(dialog) {
         $('#select_files', dialog).show();
       }
 
-      $('.alert-box', $('li#contextTab')).hide();
+      $('.alert-box', $('#contextTab')).hide();
 
       generate_context_files();
 
@@ -3386,184 +3008,173 @@ function add_contextTab(dialog) {
 **************************************************************************/
 
 function add_schedulingTab(dialog) {
-    var html_tab_content = '<li id="schedulingTab" class="wizard_tab">'+
-      '<form>'+
-        '<dl class="tabs">'+
-          '<dd class="active"><a href="#placement">'+tr("Placement")+'</a></dd>'+
-          '<dd><a href="#policy">'+tr("Policy")+'</a></dd>'+
+    var html_tab_content = '<div id="schedulingTab" class="wizard_tab content">'+
+        '<dl class="tabs vertical" data-tab>'+
+          '<dd class="active"><a href="#placementTab">'+tr("Placement")+'</a></dd>'+
+          '<dd><a href="#policyTab">'+tr("Policy")+'</a></dd>'+
         '</dl>'+
-        '<ul class="tabs-content row">'+
-            '<li class="requirements wizard_internal_tab active" id="placementTab">'+
+        '<div class="tabs-content vertical">'+
+            '<div class="requirements wizard_internal_tab active content" id="placementTab">'+
               '<fieldset>'+
                 '<legend>'+tr("Host Requirements")+'</legend>'+
                 '<div class="row">'+
-                  '<div class="three columns push-three">'+
-                      '<input type="radio" id="hosts_req" name="req_select" value="host_select" checked> '+tr("Select Hosts ")+
-                  '</div>'+
-                  '<div class="three columns pull-three">'+
-                      '<input type="radio" id="clusters_req"  name="req_select" value="cluster_select"> '+tr("Select Clusters ")+
+                  '<div class="large-12 columns text-center">'+
+                      '<input type="radio" id="hosts_req" name="req_select" value="host_select"><label for="hosts_req">'+tr("Select Hosts ")+"</label>"+
+                      '<input type="radio" id="clusters_req"  name="req_select" value="cluster_select"><label for="clusters_req">'+tr("Select Clusters ")+"</label>"+
                   '</div>'+
                 '</div>'+
-                '<hr>'+
-                '<div id="req_type" class="host_select ">'+
-                    '<div class="row collapse ">'+
-                      '<div class="seven columns">' +
+                '<br>'+
+                '<div id="req_type" class="host_select" hidden>'+
+                    '<div class="row">'+
+                      '<div class="large-8 columns">' +
                          '<button id="refresh_hosts_placement" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>' +
                       '</div>' +
-                      '<div class="five columns">'+
-                        '<input id="hosts_search" type="text" placeholder="'+tr("Search")+'"/>'+
+                      '<div class="large-4 columns">'+
+                        '<input id="hosts_search" type="text" class="search" placeholder="'+tr("Search")+'"/>'+
                       '</div>'+
                     '</div>'+
-                    '<table id="datatable_template_hosts" class="datatable twelve">'+
-                        '<thead>'+
-                        '<tr>'+
-                            '<th></th>'+
-                            '<th>' + tr("ID") + '</th>'+
-                            '<th>' + tr("Name") + '</th>'+
-                            '<th>' + tr("Cluster") + '</th>'+
-                            '<th>' + tr("RVMs") + '</th>'+
-                            '<th>' + tr("Real CPU") + '</th>'+
-                            '<th>' + tr("Allocated CPU") + '</th>'+
-                            '<th>' + tr("Real MEM") + '</th>'+
-                            '<th>' + tr("Allocated MEM") + '</th>'+
-                            '<th>' + tr("Status") + '</th>'+
-                            '<th>' + tr("IM MAD") + '</th>'+
-                            '<th>' + tr("VM MAD") + '</th>'+
-                            '<th>' + tr("Last monitored on") + '</th>'+
-                        '</tr>'+
-                        '</thead>'+
-                        '<tbody id="tbodyhosts">'+
-                        '</tbody>'+
-                    '</table>'+
-                    '<br>'+
-                    '<div class="kvm_opt xen_opt vmware_opt" id="selected_hosts_template">'+
-                      '<span id="select_hosts" class="radius secondary label">'+tr("Please select one or more hosts from the list")+'</span> '+
-                      '<span id="hosts_selected" class="radius secondary label hidden">'+tr("You selected the following hosts:")+'</span> '+
+                    '<div class="row">'+
+                      '<div class="large-12 columns">' +
+                        '<table id="datatable_template_hosts" class="datatable twelve">'+
+                            '<thead>'+
+                            '<tr>'+
+                                '<th></th>'+
+                                '<th>' + tr("ID") + '</th>'+
+                                '<th>' + tr("Name") + '</th>'+
+                                '<th>' + tr("Cluster") + '</th>'+
+                                '<th>' + tr("RVMs") + '</th>'+
+                                '<th>' + tr("Real CPU") + '</th>'+
+                                '<th>' + tr("Allocated CPU") + '</th>'+
+                                '<th>' + tr("Real MEM") + '</th>'+
+                                '<th>' + tr("Allocated MEM") + '</th>'+
+                                '<th>' + tr("Status") + '</th>'+
+                                '<th>' + tr("IM MAD") + '</th>'+
+                                '<th>' + tr("VM MAD") + '</th>'+
+                                '<th>' + tr("Last monitored on") + '</th>'+
+                            '</tr>'+
+                            '</thead>'+
+                            '<tbody id="tbodyhosts">'+
+                            '</tbody>'+
+                        '</table>'+
+                      '</div>'+
                     '</div>'+
-                    '<br>'+
+                    '<div class="row">'+
+                      '<div class="large-12 columns" id="selected_hosts_template">' +
+                        '<span id="select_hosts" class="radius secondary label">'+tr("Please select one or more hosts from the list")+'</span> '+
+                        '<span id="hosts_selected" class="radius secondary label" style="display: none;">'+tr("You selected the following hosts:")+'</span> '+
+                      '</div>'+
+                    '</div>'+
                 '</div>'+
                 '<div id="req_type" class="cluster_select hidden">'+
-                    '<div class="row collapse ">'+
-                      '<div class="seven columns">' +
+                    '<div class="row">'+
+                      '<div class="large-8 columns">' +
                          '<button id="refresh_clusters_placement" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>' +
                       '</div>' +
-                      '<div class="five columns">'+
-                        '<input id="clusters_search" type="text" placeholder="'+tr("Search")+'"/>'+
+                      '<div class="large-4 columns">'+
+                        '<input id="clusters_search" type="text" class="search" placeholder="'+tr("Search")+'"/>'+
                       '</div>'+
                     '</div>'+
-                    '<table id="datatable_template_clusters" class="datatable twelve">'+
-                        '<thead>'+
-                        '<tr>'+
-                            '<th></th>'+
-                            '<th>' + tr("ID") + '</th>'+
-                            '<th>' + tr("Name") + '</th>'+
-                            '<th>' + tr("Hosts") + '</th>'+
-                            '<th>' + tr("VNets") + '</th>'+
-                            '<th>' + tr("Datastores") + '</th>'+
-                        '</tr>'+
-                        '</thead>'+
-                        '<tbody id="tbodyclusters">'+
-                        '</tbody>'+
-                    '</table>'+
-                    '<br>'+
-                    '<div class="kvm_opt xen_opt vmware_opt" id="selected_clusters_template">'+
-                      '<span id="select_clusters" class="radius secondary label">'+tr("Please select one or more clusters from the list")+'</span> '+
-                      '<span id="clusters_selected" class="radius secondary label hidden">'+tr("You selected the following clusters:")+'</span> '+
+                    '<div class="row">'+
+                      '<div class="large-12 columns">' +
+                        '<table id="datatable_template_clusters" class="datatable twelve">'+
+                            '<thead>'+
+                            '<tr>'+
+                                '<th></th>'+
+                                '<th>' + tr("ID") + '</th>'+
+                                '<th>' + tr("Name") + '</th>'+
+                                '<th>' + tr("Hosts") + '</th>'+
+                                '<th>' + tr("VNets") + '</th>'+
+                                '<th>' + tr("Datastores") + '</th>'+
+                            '</tr>'+
+                            '</thead>'+
+                            '<tbody id="tbodyclusters">'+
+                            '</tbody>'+
+                        '</table>'+
+                      '</div>'+
                     '</div>'+
-                    '<br>'+
+                    '<div class="row">'+
+                      '<div class="large-12 columns" id="selected_clusters_template">' +
+                        '<span id="select_clusters" class="radius secondary label">'+tr("Please select one or more clusters from the list")+'</span> '+
+                        '<span id="clusters_selected" class="radius secondary label" style="display: none;">'+tr("You selected the following clusters:")+'</span> '+
+                      '</div>'+
+                    '</div>'+
                 '</div>'+
                 '<br>'+
                 '<div class="row vm_param">'+
-                    '<div class="two columns">'+
-                        '<label class="inline right" for="SCHED_REQUIREMENTS">'+tr("Expression")+':</label>'+
-                    '</div>'+
-                    '<div class="nine columns">'+
+                    '<div class="large-12 columns">'+
+                        '<label for="SCHED_REQUIREMENTS">'+tr("Expression")+
+                          '<span class="tip">'+tr("Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM")+'.</span>'+
+                        '</label>'+
                         '<input type="text" id="SCHED_REQUIREMENTS" name="requirements" />'+
-                    '</div>'+
-                    '<div class="one columns">'+
-                        '<div class="tip">'+tr("Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM")+'.</div>'+
                     '</div>'+
                 '</div>'+
               '</fieldset>'+
-              '<br>'+
               '<fieldset>'+
                 '<legend>'+tr("Datastore Requirements")+'</legend>'+
                 '<div class="row vm_param">'+
-                    '<div class="two columns">'+
-                        '<label class="inline right" for="SCHED_DS_REQUIREMENTS">'+tr("Expression")+':</label>'+
-                    '</div>'+
-                    '<div class="nine columns">'+
+                    '<div class="large-12 columns">'+
+                        '<label for="SCHED_DS_REQUIREMENTS">'+tr("Expression")+
+                          '<span class="tip">'+tr("Boolean expression that rules out entries from the pool of datastores suitable to run this VM.")+'.</span>'+
+                        '</label>'+
                         '<input type="text" id="SCHED_DS_REQUIREMENTS" name="requirements" />'+
                     '</div>'+
-                    '<div class="one columns">'+
-                        '<div class="tip">'+tr("Boolean expression that rules out entries from the pool of datastores suitable to run this VM.")+'.</div>'+
-                    '</div>'+
                 '</div>'+
               '</fieldset>'+
-            '</li>'+
-            '<li id="policyTab" class="wizard_internal_tab">'+
+            '</div>'+
+            '<div id="policyTab" class="wizard_internal_tab content">'+
               '<fieldset class="host_rank">'+
                 '<legend>'+tr("Host Rank")+'</legend>'+
-                  '<div class="row">'+
-                    '<div class="four columns" style="text-align:center">'+
-                        '<input type="radio" id="packingRadio" name="rank_select" value="RUNNING_VMS"> '+tr("Packing")+
-                        '&nbsp;&nbsp;<span class="tip">'+tr("Pack the VMs in the cluster nodes to reduce VM fragmentation")+'</span>'+
-                    '</div>'+
-                    '<div class="four columns" style="text-align:center">'+
-                        '<input type="radio"  id="stripingRadio" name="rank_select" value="-RUNNING_VMS"> '+tr("Stripping")+
-                        '&nbsp;&nbsp;<span class="tip">'+tr("Spread the VMs in the cluster nodes")+'</span>'+
-                    '</div>'+
-                    '<div class="four columns" style="text-align:center">'+
-                        '<input type="radio"  id="loadawareRadio" name="rank_select" value="FREECPU"> '+tr("Load-aware")+
-                        '&nbsp;&nbsp;<span class="tip">'+tr("Maximize the resources available to VMs in a node")+'</span>'+
-                    '</div>'+
+                '<div class="row">'+
+                  '<div class="large-12 columns text-center">'+
+                      '<input type="radio" id="packingRadio" name="rank_select" value="RUNNING_VMS"><label for="packingRadio">'+tr("Packing")+
+                        '<span class="tip">'+tr("Pack the VMs in the cluster nodes to reduce VM fragmentation")+'</span>'+
+                      "</label>"+
+                      '<input type="radio"  id="stripingRadio" name="rank_select" value="-RUNNING_VMS"><label for="stripingRadio">'+tr("Stripping")+
+                        '<span class="tip">'+tr("Spread the VMs in the cluster nodes")+'</span>'+
+                      "</label>"+
+                      '<input type="radio"  id="loadawareRadio" name="rank_select" value="FREE_CPU"><label for="loadawareRadio">'+tr("Load-aware")+
+                        '<span class="tip">'+tr("Maximize the resources available to VMs in a node")+'</span>'+
+                      "</label>"+
                   '</div>'+
-                  '<hr>'+
+                '</div>'+
+                '<br>'+
                 '<div class="row vm_param">'+
-                  '<div class="two columns">'+
-                    '<label class="inline right" for="SCHED_RANK">'+tr("Expression")+':</label>'+
-                  '</div>'+
-                  '<div class="nine columns">'+
+                  '<div class="large-12 columns">'+
+                    '<label for="SCHED_RANK">'+tr("Expression")+
+                      '<span class="tip">'+tr("This field sets which attribute will be used to sort the suitable hosts for this VM")+'.</span>'+
+                    '</label>'+
                     '<input type="text" id="SCHED_RANK" name="RANK" />'+
                   '</div>'+
-                  '<div class="one columns">'+
-                    '<div class="tip">'+tr("This field sets which attribute will be used to sort the suitable hosts for this VM")+'.</div>'+
-                  '</div>'+
                 '</div>'+
               '</fieldset>'+
-              '<br>'+
               '<fieldset class="ds_rank">'+
                 '<legend>'+tr("Datastore Rank")+'</legend>'+
-                  '<div class="row">'+
-                    '<div class="six columns" style="text-align:center">'+
-                      '<input type="radio" id="packingRadio" name="ds_rank_select" value="-FREE_MB"> '+tr("Packing")+
-                      '&nbsp;&nbsp;<span class="tip">'+tr("Tries to optimize storage usage by selecting the DS with less free space")+'</span>'+
-                    '</div>'+
-                    '<div class="six columns" style="text-align:center">'+
-                      '<input type="radio"  id="stripingRadio" name="ds_rank_select" value="FREE_MB"> '+tr("Stripping")+
-                      '&nbsp;&nbsp;<span class="tip">'+tr("Striping. Tries to optimize I/O by distributing the VMs across datastores.")+'</span>'+
-                    '</div>'+
+                '<div class="row">'+
+                  '<div class="large-12 columns text-center">'+
+                    '<input type="radio" id="packingDSRadio" name="ds_rank_select" value="-FREE_MB"><label for="packingDSRadio">'+tr("Packing")+
+                      '<span class="tip">'+tr("Tries to optimize storage usage by selecting the DS with less free space")+'</span>'+
+                    '</label>'+
+                    '<input type="radio"  id="stripingDSRadio" name="ds_rank_select" value="FREE_MB"><label for="stripingDSRadio">'+tr("Stripping")+
+                      '<span class="tip">'+tr("Striping. Tries to optimize I/O by distributing the VMs across datastores.")+'</span>'+
+                    '</label>'+
                   '</div>'+
-                  '<hr>'+
+                '</div>'+
+                '<br>'+
                 '<div class="row vm_param">'+
-                  '<div class="two columns">'+
-                    '<label class="inline right" for="SCHED_DS_RANK">'+tr("Expression")+':</label>'+
-                  '</div>'+
-                  '<div class="nine columns">'+
+                  '<div class="large-12 columns">'+
+                    '<label for="SCHED_DS_RANK">'+tr("Expression")+
+                      '<span class="tip">'+tr("This field sets which attribute will be used to sort the suitable datastores for this VM")+'.</span>'+
+                    '</label>'+
                     '<input type="text" id="SCHED_DS_RANK" name="RANK" />'+
-                  '</div>'+
-                  '<div class="one columns">'+
-                    '<div class="tip">'+tr("This field sets which attribute will be used to sort the suitable datastores for this VM")+'.</div>'+
                   '</div>'+
                 '</div>'+
               '</fieldset>'+
-            '</li>'+
-          '</ul>'+
-      '</form>'+
-    '</li>'
+            '</div>'+
+          '</div>'+
+    '</div>'
 
-    $("<dd><a href='#scheduling'>Scheduling</a></dd>").appendTo($("dl#template_create_tabs", dialog));
-    $(html_tab_content).appendTo($("ul#template_create_tabs_content", dialog));
+    $("<dd><a href='#schedulingTab'><i class='fa fa-sitemap'></i><br>Scheduling</a></dd>").appendTo($("dl#template_create_tabs", dialog));
+    $(html_tab_content).appendTo($("#template_create_tabs_content", dialog));
 
     var dataTable_template_hosts = $("#datatable_template_hosts",dialog).dataTable({
         "iDisplayLength": 4,
@@ -3620,7 +3231,7 @@ function add_schedulingTab(dialog) {
             $('#select_hosts', dialog).show();
         }
 
-        $('.alert-box', $('li#schedulingTab .host_select', dialog)).hide();
+        $('.alert-box', $('#schedulingTab .host_select', dialog)).hide();
 
         generate_requirements();
 
@@ -3704,7 +3315,7 @@ function add_schedulingTab(dialog) {
             $('#select_clusters', dialog).show();
         }
 
-        $('.alert-box', $('li#schedulingTab .cluster_select', dialog)).hide();
+        $('.alert-box', $('#schedulingTab .cluster_select', dialog)).hide();
 
         generate_requirements();
 
@@ -3732,12 +3343,12 @@ function add_schedulingTab(dialog) {
     // vm_param class is included to be computed when the template is generated.
     $("input[name='req_select']").change(function(){
         if ($("input[name='req_select']:checked").val() == "host_select") {
-            $("div.host_select",  $('li#schedulingTab', dialog)).toggle();
-            $("div.cluster_select",  $('li#schedulingTab', dialog)).hide();
+            $("div.host_select",  $('#schedulingTab', dialog)).toggle();
+            $("div.cluster_select",  $('#schedulingTab', dialog)).hide();
         }
         else {
-            $("div.host_select",  $('li#schedulingTab', dialog)).hide();
-            $("div.cluster_select",  $('li#schedulingTab', dialog)).toggle();
+            $("div.host_select",  $('#schedulingTab', dialog)).hide();
+            $("div.cluster_select",  $('#schedulingTab', dialog)).toggle();
         }
     });
 
@@ -3771,65 +3382,55 @@ function add_schedulingTab(dialog) {
     **************************************************************************/
 
 function add_otherTab(dialog) {
-  var html_tab_content = '<li id="rawTab" class="wizard_tab">'+
-    '<form>'+
+  var html_tab_content = '<div id="rawTab" class="wizard_tab content">'+
       '<div class="row">'+
         '<fieldset>'+
           '<legend>'+tr("RAW data")+'</legend>'+
-          '<div class="six columns">'+
-              '<div class="four columns">'+
-                  '<label class="inline" for="raw_type">'+tr("TYPE")+':</label>'+
-              '</div>'+
-              '<div class="six columns">'+
-                  '<select id="raw_type" name="raw_type">'+
-                    '<option value=""></option>'+
-                    '<option value="kvm">'+tr("kvm")+'</option>'+
-                    '<option value="xen">'+tr("xen")+'</option>'+
-                    '<option value="vmware">'+tr("vmware")+'</option>'+
-                  '</select>'+
-              '</div>'+
-              '<div class="two columns">'+
-              '</div>'+
-          '</div>'+
-            '<div class="twelve columns">'+
-              '<div class="twelve columns">'+
-                  '<label class="" for="raw_data">'+tr("DATA")+':</label>'+
-              '</div>'+
-              '<div class="eleven columns">'+
+          '<div class="row">'+
+            '<div class="large-4 columns">'+
+              '<label for="raw_type">'+tr("TYPE")+
+              '</label>'+
+              '<select id="raw_type" name="raw_type">'+
+                '<option value=""></option>'+
+                '<option value="kvm">'+tr("kvm")+'</option>'+
+                '<option value="xen">'+tr("xen")+'</option>'+
+                '<option value="vmware">'+tr("vmware")+'</option>'+
+              '</select>'+
+            '</div>'+
+            '<div class="large-8 columns">'+
+                '<label class="" for="raw_data">'+tr("DATA")+
+                  '<span class="tip">'+tr("Raw data to be passed directly to the hypervisor")+'.</span>'+
+                '</label>'+
                 '<textarea rows="2" type="text" id="raw_data" name="raw_data" />'+
-              '</div>'+
-              '<div class="one columns">'+
-                '<div class="tip">'+tr("Raw data to be passed directly to the hypervisor")+'.</div>'+
-              '</div>'+
             '</div>'+
-            '<div id="data_vmx_div" class="twelve columns hidden">'+
-              '<div class="twelve columns">'+
-                  '<label class="" for="raw_data_vmx">'+tr("DATA_VMX")+':</label>'+
-              '</div>'+
-              '<div class="eleven columns">'+
+          '</div>'+
+          '<div id="data_vmx_div" class="row hidden">'+
+            '<div class="large-4 columns">'+
+            '</div>'+
+            '<div class="large-8 columns">'+
+                '<label class="" for="raw_data_vmx">'+tr("DATA_VMX")+
+                  '<span class="tip">'+tr("Raw data to be added directly to the .vmx file.")+'.</span>'+
+                '</label>'+
                 '<textarea rows="2" type="text" id="raw_data_vmx" name="raw_data_vmx" />'+
-              '</div>'+
-              '<div class="one columns">'+
-                '<div class="tip">'+tr("Raw data to be added directly to the .vmx file.")+'.</div>'+
-              '</div>'+
             '</div>'+
+          '</div>'+
         '</fieldset>'+
-        '<br>'+
         '<fieldset>'+
           '<legend>'+tr("Custom Tags")+'</legend>'+
-          '<div class="">'+
-            '<div class="three columns">'+
+          '<div class="row">'+
+            '<div class="large-4 columns">'+
               '<input type="text" id="KEY" name="key" />'+
             '</div>'+
-            '<div class="seven columns">'+
+            '<div class="large-6 columns">'+
               '<input type="text" id="VALUE" name="value" />'+
             '</div>'+
-            '<div class="two columns">'+
-                '<button type="button" class="button tiny radius" id="add_context">'+tr("Add")+'</button>'+
+            '<div class="large-2 columns">'+
+                '<button type="button" class="button secondary small radius" id="add_context">'+tr("Add")+'</button>'+
             '</div>'+
           '</div>'+
-          '<div class="">'+
-              '<table id="custom_tags" class="twelve policies_table">'+
+          '<div class="row">'+
+            '<div class="large-12 columns">'+
+              '<table id="custom_tags" class="dataTable policies_table">'+
                  '<thead>'+
                    '<tr>'+
                      '<th>'+tr("KEY")+'</th>'+
@@ -3844,18 +3445,17 @@ function add_otherTab(dialog) {
                    '</tr>'+
                  '</tbody>'+
               '</table>'+
-              '<br>'+
+            '</div>'+
           '</div>'+
         '</fieldset>'+
       '</div>'+
-    '</form>'+
-  '</li>'
+  '</div>'
 
-  $("<dd><a href='#raw'>"+tr("Other")+"</a></dd>").appendTo($("dl#template_create_tabs", dialog));
+  $("<dd><a href='#rawTab'><i class='fa fa-ellipsis-h'></i><br>"+tr("Other")+"</a></dd>").appendTo($("dl#template_create_tabs", dialog));
+  $(html_tab_content).appendTo($("#template_create_tabs_content", dialog));
 
-  $(html_tab_content).appendTo($("ul#template_create_tabs_content", dialog));
-  $('#add_context', $('li#rawTab', dialog)).click(function() {
-      var table = $('#custom_tags', $('li#rawTab', dialog))[0];
+  $('#add_context', $('#rawTab', dialog)).click(function() {
+      var table = $('#custom_tags', $('#rawTab', dialog))[0];
       var rowCount = table.rows.length;
       var row = table.insertRow(rowCount);
 
@@ -3863,19 +3463,19 @@ function add_otherTab(dialog) {
       var element1 = document.createElement("input");
       element1.id = "KEY";
       element1.type = "text";
-      element1.value = $('input#KEY', $('li#rawTab', dialog)).val()
+      element1.value = $('input#KEY', $('#rawTab', dialog)).val()
       cell1.appendChild(element1);
 
       var cell2 = row.insertCell(1);
       var element2 = document.createElement("input");
       element2.id = "VALUE";
       element2.type = "text";
-      element2.value = $('input#VALUE', $('li#rawTab', dialog)).val()
+      element2.value = $('input#VALUE', $('#rawTab', dialog)).val()
       cell2.appendChild(element2);
 
 
       var cell3 = row.insertCell(2);
-      cell3.innerHTML = "<i class='fa fa-times-sign fa fa-lg remove-tab'></i>";
+      cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
   });
 
   $( "#rawTab i.remove-tab" ).live( "click", function() {
@@ -3901,29 +3501,29 @@ function setupCreateTemplateDialog(){
 
     //***CREATE VM DIALOG MAIN BODY***
 
-    dialogs_context.append('<div id="create_template_dialog"></div>');
-    $create_template_dialog = $('#create_template_dialog',dialogs_context)
+    dialogs_context.append('<div id="create_template_dialog" class="reveal-modal large max-height" data-reveal></div>');
+    $create_template_dialog = $('#create_template_dialog',dialogs_context);
+    var dialog = $create_template_dialog;
 
     //Insert HTML in place
-    $create_template_dialog.html(create_template_tmpl);
-    $create_template_dialog.addClass("reveal-modal xlarge max-height")
-    initialize_create_template_dialog($create_template_dialog);
+    dialog.html(create_template_tmpl);
+    //$(document).foundation();
+    initialize_create_template_dialog(dialog);
 }
 
 function initialize_create_template_dialog(dialog) {
     var tabs = $( "#template_create_tabs", dialog)//.tabs().addClass("ui-tabs-vertical");
 
-    $('#template_template_reset_button').click(function(){
-        dialog.trigger('reveal:close');
-        dialog.remove();
+    $('#template_template_reset_button', dialog).click(function(){
+        dialog.trigger('close');
+        dialog.html("");
         setupCreateTemplateDialog();
-
         popUpCreateTemplateDialog();
     });
 
-    $('#template_template_reset_button_update').click(function(){
-        dialog.trigger('reveal:close');
-        dialog.remove();
+    $('#template_template_reset_button_update', dialog).click(function(){
+        dialog.trigger('close');
+        dialog.html("");
         setupCreateTemplateDialog();
 
         popUpUpdateTemplateDialog();
@@ -3932,7 +3532,6 @@ function initialize_create_template_dialog(dialog) {
     if (Config.isTemplateCreationTabEnabled('general')){
       add_capacityTab(dialog);
     }
-
     if (Config.isTemplateCreationTabEnabled('storage')){
       add_disks_tab(dialog);
     }
@@ -3961,23 +3560,16 @@ function initialize_create_template_dialog(dialog) {
       add_otherTab(dialog);
     }
 
-    //tabs.tabs("option", "active", 0);
-    $(".ui-tabs-vertical .ui-tabs-nav", dialog).first().removeClass("ui-tabs-nav").addClass("ui-tabs-nav-vert")
     // Re-Setup tips
     setupTips(dialog);
 
 
-    //Sections, used to stay within their scope
-    var section_capacity = $('li#capacityTab',dialog);
-    var section_os_boot = $('div#os_boot_opts',dialog);
-    var section_disks = $('div#disk1',dialog);
-    var section_networks = $('div#networks',dialog);
-    var section_inputs = $('div#inputs',dialog);
-    var section_graphics = $('div#graphics',dialog);
-    var section_context = $('div#context',dialog);
-    var section_placement = $('div#placement',dialog);
-    var section_raw = $('div#raw',dialog);
-    var section_custom_var = $('div#custom_var',dialog);
+  $(document).foundation();
+
+  // Add first disk and network
+  $("#tf_btn_disks", dialog).trigger("click");
+  $("#tf_btn_nics", dialog).trigger("click");
+
 
     //Different selector for items of kvm and xen (mandatory and optional)
     var items = '.vm_param input,.vm_param select';
@@ -3992,28 +3584,28 @@ function initialize_create_template_dialog(dialog) {
         // CAPACITY
         //
 
-        if (!$('input#MEMORY',$('li#capacityTab',dialog)).val())
+        if (!$('input#MEMORY',$('#capacityTab',dialog)).val())
         {
           // Put default memory value
-          $('input#MEMORY',$('li#capacityTab',dialog)).val("512")
+          $('input#MEMORY',$('#capacityTab',dialog)).val("512")
         }
 
-        addSectionJSON(vm_json,$('li#capacityTab',dialog));
+        addSectionJSON(vm_json,$('#capacityTab',dialog));
         //
         // OS
         //
 
         vm_json["OS"] = {};
-        addSectionJSON(vm_json["OS"],$('li#osTab li#bootTab',dialog));
-        addSectionJSON(vm_json["OS"],$('li#osTab li#kernelTab',dialog));
-        addSectionJSON(vm_json["OS"],$('li#osTab li#ramdiskTab',dialog));
+        addSectionJSON(vm_json["OS"],$('#osTab #bootTab',dialog));
+        addSectionJSON(vm_json["OS"],$('#osTab #kernelTab',dialog));
+        addSectionJSON(vm_json["OS"],$('#osTab #ramdiskTab',dialog));
 
         //
         // FEATURES
         //
 
         vm_json['FEATURES'] = {};
-        addSectionJSON(vm_json["FEATURES"],$('li#osTab li#featuresTab',dialog));
+        addSectionJSON(vm_json["FEATURES"],$('#osTab #featuresTab',dialog));
 
         //
         // DISK
@@ -4040,12 +3632,12 @@ function initialize_create_template_dialog(dialog) {
           var hash  = {};
           addSectionJSON(hash, this);
 
-          var tcp = $("input[name='tcp_type']:checked").val();
+          var tcp = $("input.tcp_type:checked").val();
           if (tcp) {
             hash[tcp] = $("#TCP_PORTS", this).val();
           }
 
-          var udp = $("input[name='udp_type']:checked").val();
+          var udp = $("input.udp_type:checked").val();
           if (udp) {
             hash[udp] = $("#UDP_PORTS", this).val();
           }
@@ -4064,14 +3656,14 @@ function initialize_create_template_dialog(dialog) {
         //
 
         vm_json["GRAPHICS"] = {};
-        addSectionJSON(vm_json["GRAPHICS"],$('li#ioTab .graphics',dialog));
+        addSectionJSON(vm_json["GRAPHICS"],$('#ioTab .graphics',dialog));
 
         //
         // INPUT
         //
 
         vm_json["INPUT"] = [];
-        $('#input_table tr', $('li#ioTab')).each(function(){
+        $('#input_table tr', $('#ioTab')).each(function(){
           var hash  = {};
           if ($('#TYPE', $(this)).val()) {
             hash['TYPE'] = $('#TYPE', $(this)).val()
@@ -4085,14 +3677,14 @@ function initialize_create_template_dialog(dialog) {
         //
 
         vm_json["CONTEXT"] = {};
-        $('#context_table tr', $('li#contextTab')).each(function(){
+        $('#context_table tr', $('#contextTab')).each(function(){
           if ($('#KEY', $(this)).val()) {
             vm_json["CONTEXT"][$('#KEY', $(this)).val()] = $('#VALUE', $(this)).val()
           }
         });
 
-        if ($("#ssh_context", $('li#contextTab')).is(":checked")) {
-          var public_key = $("#ssh_public_key", $('li#contextTab')).val();
+        if ($("#ssh_context", $('#contextTab')).is(":checked")) {
+          var public_key = $("#ssh_public_key", $('#contextTab')).val();
           if (public_key){
             vm_json["CONTEXT"]["SSH_PUBLIC_KEY"] = public_key;
           }
@@ -4101,21 +3693,21 @@ function initialize_create_template_dialog(dialog) {
           }
         };
 
-        if ($("#network_context", $('li#contextTab')).is(":checked")) {
+        if ($("#network_context", $('#contextTab')).is(":checked")) {
           vm_json["CONTEXT"]["NETWORK"] = "YES";
         };
 
-        if ($("#token_context", $('li#contextTab')).is(":checked")) {
+        if ($("#token_context", $('#contextTab')).is(":checked")) {
           vm_json["CONTEXT"]["TOKEN"] = "YES";
         };
 
-        addSectionJSON(vm_json["CONTEXT"],$('li#contextTab',dialog));
+        addSectionJSON(vm_json["CONTEXT"],$('#contextTab',dialog));
 
         //
         // PLACEMENT
         //
 
-        addSectionJSON(vm_json,$('li#schedulingTab',dialog));
+        addSectionJSON(vm_json,$('#schedulingTab',dialog));
 
         //
         // RAW
@@ -4128,7 +3720,7 @@ function initialize_create_template_dialog(dialog) {
         t = escapeDoubleQuotes($('#raw_data_vmx', dialog).val());
         if (t) { vm_json["RAW"]['DATA_VMX'] = t; }
 
-        $('#custom_tags tr', $('li#rawTab')).each(function(){
+        $('#custom_tags tr', $('#rawTab')).each(function(){
           if ($('#KEY', $(this)).val()) {
             vm_json[$('#KEY', $(this)).val()] = escapeDoubleQuotes($('#VALUE', $(this)).val());
           }
@@ -4190,7 +3782,10 @@ function initialize_create_template_dialog(dialog) {
 }
 
 function popUpUpdateTemplateDialog(){
-    $create_template_dialog.remove();
+    if ($create_template_dialog) {
+      $create_template_dialog.html("");
+    }
+
     // TODO do not recreate if it exists
     setupCreateTemplateDialog();
 
@@ -4207,11 +3802,13 @@ function popUpUpdateTemplateDialog(){
     $('#template_name_form', $create_template_dialog).hide();
     $('#NAME').attr("disabled", "disabled");;
 
-    $create_template_dialog.reveal();
+    $create_template_dialog.foundation().foundation('reveal', 'open');
 };
 
 function popUpCreateTemplateDialog(){
-    $create_template_dialog.remove();
+    if ($create_template_dialog) {
+      $create_template_dialog.html("");
+    }
     // TODO do not recreate if it exists
     setupCreateTemplateDialog();
 
@@ -4230,7 +3827,7 @@ function popUpCreateTemplateDialog(){
 
     $('#wizard_mode', $create_template_dialog).show();
 
-    $create_template_dialog.reveal();
+    $create_template_dialog.foundation().foundation('reveal', 'open');
 
     $("input#NAME",$create_template_dialog).focus();
 
@@ -4288,7 +3885,7 @@ function fillTemplatePopUp(template, dialog){
     // GENERAL
     //
 
-    var capacity_section = $('li#capacityTab', dialog);
+    var capacity_section = $('#capacityTab', dialog);
     autoFillInputs(template, capacity_section);
 
 
@@ -4300,7 +3897,7 @@ function fillTemplatePopUp(template, dialog){
 
     function fillDiskTab(disk) {
         var str_disk_tab_id = 'disk' + number_of_disks;
-        var disk_section  = $('li#' + str_disk_tab_id + 'Tab', dialog);
+        var disk_section  = $('#' + str_disk_tab_id + 'Tab', dialog);
 
         if (disk.IMAGE_ID || disk.IMAGE) {
             $('input#'+str_disk_tab_id+'radioImage', disk_section).click();
@@ -4381,7 +3978,7 @@ function fillTemplatePopUp(template, dialog){
 
     function fillNicTab(nic) {
         var str_nic_tab_id = 'nic' + number_of_nics;
-        var nic_section  = $('li#' + str_nic_tab_id + 'Tab', dialog);
+        var nic_section  = $('#' + str_nic_tab_id + 'Tab', dialog);
 
         var dataTable_template_networks = $("#datatable_template_networks" + number_of_nics).dataTable();
 
@@ -4445,9 +4042,9 @@ function fillTemplatePopUp(template, dialog){
     //
 
     var os = template.OS;
-    var os_section = $('li#osTab', dialog);
-    var kernel_section = $('li#kernelTab', dialog);
-    var initrd_section = $('li#ramdiskTab', dialog);
+    var os_section = $('#osTab', dialog);
+    var kernel_section = $('#kernelTab', dialog);
+    var initrd_section = $('#ramdiskTab', dialog);
 
     if (os) {
         if (os.KERNEL_DS) {
@@ -4549,7 +4146,7 @@ function fillTemplatePopUp(template, dialog){
     //
 
     var features = template.FEATURES;
-    var features_section = $('li#featuresTab', dialog);
+    var features_section = $('#featuresTab', dialog);
 
     if (features) {
         autoFillInputs(features, features_section);
@@ -4561,7 +4158,7 @@ function fillTemplatePopUp(template, dialog){
     //
 
     var graphics = template.GRAPHICS;
-    var graphics_section = $('li#ioTab .graphics', dialog);
+    var graphics_section = $('#ioTab .graphics', dialog);
 
     if (graphics) {
         var type = graphics.TYPE;
@@ -4575,7 +4172,7 @@ function fillTemplatePopUp(template, dialog){
     }
 
     var inputs = template.INPUT;
-    var inputs_section = $('li#ioTab .inputs', dialog);
+    var inputs_section = $('#ioTab .inputs', dialog);
 
     if (inputs) {
         if (!(inputs instanceof Array)) {
@@ -4603,7 +4200,7 @@ function fillTemplatePopUp(template, dialog){
 
 
             var cell3 = row.insertCell(2);
-            cell3.innerHTML = "<i class='fa fa-times-sign fa fa-lg remove-tab'></i>";
+            cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
         });
 
 
@@ -4616,7 +4213,7 @@ function fillTemplatePopUp(template, dialog){
     //
 
     var context = template.CONTEXT;
-    var context_section = $('li#contextTab', dialog);
+    var context_section = $('#contextTab', dialog);
 
     $("#ssh_context", context_section).removeAttr('checked');
     $("#network_context", context_section).removeAttr('checked');
@@ -4704,7 +4301,7 @@ function fillTemplatePopUp(template, dialog){
 
 
               var cell3 = row.insertCell(2);
-              cell3.innerHTML = "<i class='fa fa-times-sign fa fa-lg remove-tab'></i>";
+              cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
             }
         });
 
@@ -4716,7 +4313,7 @@ function fillTemplatePopUp(template, dialog){
     //
 
     var req = template.SCHED_REQUIREMENTS;
-    var req_section = $('li#schedulingTab', dialog);
+    var req_section = $('#schedulingTab', dialog);
 
     if (req) {
         req = escapeDoubleQuotes(req);
@@ -4804,7 +4401,7 @@ function fillTemplatePopUp(template, dialog){
     }
 
     var ds_req = template.SCHED_DS_REQUIREMENTS;
-    var ds_req_section = $('li#schedulingTab', dialog);
+    var ds_req_section = $('#schedulingTab', dialog);
 
     if (ds_req) {
         ds_req = escapeDoubleQuotes(ds_req);
@@ -4818,7 +4415,7 @@ function fillTemplatePopUp(template, dialog){
     if (rank) {
         var striping_regexp = /^-RUNNING_VMS$/;
         var packing_regexp = /^RUNNING_VMS$/;
-        var loadaware_regexp = /^FREECPU$/;
+        var loadaware_regexp = /^FREE_CPU$/;
 
         if (striping_regexp.test(rank)) {
             $('input[name="rank_select"]#stripingRadio', req_section).click()
@@ -4858,7 +4455,7 @@ function fillTemplatePopUp(template, dialog){
     //
 
     var raw = template.RAW;
-    var raw_section = $('li#rawTab', dialog);
+    var raw_section = $('#rawTab', dialog);
 
 
     if (raw) {
@@ -4891,44 +4488,39 @@ function fillTemplatePopUp(template, dialog){
 
 
         var cell3 = row.insertCell(2);
-        cell3.innerHTML = "<i class='fa fa-times-sign fa fa-lg remove-tab'></i>";
+        cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
     });
 }
 
 // Template clone dialog
 function setupTemplateCloneDialog(){
     //Append to DOM
-    dialogs_context.append('<div id="template_clone_dialog" title="'+tr("Clone a template")+'"></div>');
+    dialogs_context.append('<div id="template_clone_dialog""></div>');
     var dialog = $('#template_clone_dialog',dialogs_context);
 
     //Put HTML in place
 
-    var html = '<div class="panel">\
-          <h3>\
-            <small id="create_vnet_header">'+tr("Clone Template")+'</small>\
-          </h3>\
-        </div>\
-        <form>\
+    var html = '<div class="row">\
+  <h3 id="create_vnet_header" class="subheader">'+tr("Clone Template")+'</h3>\
+</div>\
+<form>\
 <div class="row">\
-<div class="clone_one"></div>\
-<div class="clone_several">'+tr("Several templates are selected, please choose prefix to name the new copies")+':</div>\
-<br>\
+  <div class="large-12 columns">\
+    <div class="clone_one"></div>\
+    <div class="clone_several">'+tr("Several templates are selected, please choose prefix to name the new copies")+'<br></div>\
+  </div>\
 </div>\
 <div class="row">\
-  <div class="columns two">\
-    <label class="clone_one inline right">'+tr("Name")+':</label>\
-    <label class="clone_several inline right">'+tr("Prefix")+':</label>\
-  </div>\
-  <div class="columns ten">\
+  <div class="large-12 columns">\
+    <label class="clone_one">'+tr("Name")+'</label>\
+    <label class="clone_several">'+tr("Prefix")+'</label>\
     <input type="text" name="name"></input>\
   </div>\
 </div>\
-<hr>\
 <div class="form_buttons row">\
   <button class="button radius right" id="template_clone_button" value="Template.clone">\
 '+tr("Clone")+'\
   </button>\
-           <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
         </div>\
 <a class="close-reveal-modal">&#215;</a>\
 </form>\
@@ -4936,7 +4528,7 @@ function setupTemplateCloneDialog(){
 
 
     dialog.html(html);
-    dialog.addClass("reveal-modal");
+    dialog.addClass("reveal-modal").attr("data-reveal", "");
 
     $('form',dialog).submit(function(){
         var name = $('input', this).val();
@@ -4952,7 +4544,7 @@ function setupTemplateCloneDialog(){
         } else {
             Sunstone.runAction('Template.clone',sel_elems[0],name)
         };
-        $(this).parents('#template_clone_dialog').trigger("reveal:close")
+        $(this).parents('#template_clone_dialog').trigger('close')
         setTimeout(function(){
             Sunstone.runAction('Template.refresh');
         }, 1500);
@@ -4975,7 +4567,7 @@ function popUpTemplateCloneDialog(){
         $('input',dialog).val('Copy of '+getTemplateName(sel_elems[0]));
     };
 
-    $(dialog).reveal();
+    $(dialog).foundation().foundation('reveal', 'open');
     $("input[name='name']",dialog).focus();
 }
 
@@ -5001,7 +4593,7 @@ function setupInstantiateTemplateDialog(easy_provision){
 
     if (easy_provision) {
       dialog.html(easy_provision_vm_template_tmpl);
-      dialog.addClass("reveal-modal large max-height");
+      dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
 
       var dataTable_template_images = $('#template_images_table', dialog).dataTable({
           "iDisplayLength": 4,
@@ -5106,7 +4698,7 @@ function setupInstantiateTemplateDialog(easy_provision){
       });
     } else {
       dialog.html(instantiate_vm_template_tmpl);
-      dialog.addClass("reveal-modal large");
+      dialog.addClass("reveal-modal").attr("data-reveal", "");
       dialog.removeClass("max-height")
     }
 
@@ -5169,7 +4761,7 @@ function setupInstantiateTemplateDialog(easy_provision){
           };
         }
 
-        $instantiate_vm_template_dialog.trigger("reveal:close")
+        $instantiate_vm_template_dialog.trigger('close')
         return false;
     });
 }
@@ -5177,7 +4769,7 @@ function setupInstantiateTemplateDialog(easy_provision){
 // Open creation dialog
 function popUpInstantiateVMTemplateDialog(easy_provision){
     setupInstantiateTemplateDialog(easy_provision);
-    $instantiate_vm_template_dialog.reveal();
+    $instantiate_vm_template_dialog.foundation().foundation('reveal', 'open');
     $("input#vm_name",$instantiate_vm_template_dialog).focus();
 }
 
@@ -5205,7 +4797,6 @@ $(document).ready(function(){
       })
 
       Sunstone.runAction("Template.list");
-      setupCreateTemplateDialog();
       setupTemplateCloneDialog();
       setTemplateAutorefresh();
 

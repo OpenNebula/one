@@ -38,349 +38,138 @@ var group_acct_graphs = [
     }
 ];
 
-var groups_tab_content = '\
-<form class="custom" id="group_form" action="">\
-<div class="panel">\
-<div class="row">\
-  <div class="twelve columns">\
-    <h4 class="subheader header">\
-      <span class="header-resource">\
-        <i class="fa fa-users"></i> '+tr("Groups")+'\
-      </span>\
-      <span class="header-info">\
-        <span id="total_groups"/> <small>'+tr("TOTAL")+'</small>\
-      </span>\
-      <span class="user-login">\
-      </span>\
-    </h4>\
-  </div>\
-</div>\
-<div class="row">\
-  <div class="ten columns">\
-    <div class="action_blocks">\
-    </div>\
-  </div>\
-  <div class="two columns">\
-    <input id="group_search" type="text" placeholder="'+tr("Search")+'" />\
-  </div>\
-  <br>\
-  <br>\
-</div>\
-</div>\
-  <div class="row">\
-    <div class="twelve columns">\
-<table id="datatable_groups" class="datatable twelve">\
-  <thead>\
-    <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
-      <th>'+tr("ID")+'</th>\
-      <th>'+tr("Name")+'</th>\
-      <th>'+tr("Users")+'</th>\
-      <th style="width:18%">'+tr("VMs")+'</th>\
-      <th style="width:18%">'+tr("Memory")+'</th>\
-      <th style="width:18%">'+tr("CPU")+'</th>\
-    </tr>\
-  </thead>\
-  <tbody id="tbodygroups">\
-  </tbody>\
-</table>\
-</form>';
-
 var create_group_tmpl =
-'<div class="panel">\
-  <h3>\
-    <small id="create_vnet_header">'+tr("Create Group")+'</small>\
-  </h3>\
+'<div class="row">\
+  <h3 id="create_vnet_header">'+tr("Create Group")+'</h3>\
 </div>\
 <div class="reveal-body">\
   <form id="create_group_form" action="">\
-    <div class="row centered">\
-      <div class="columns eight centered">\
-        <div class="two columns">\
-          <label class="inline right" for="name">'+tr("Name")+':</label>\
-        </div>\
-        <div class="nine columns">\
-          <input type="text" name="name" id="name" /><br />\
-        </div>\
-        <div class="one columns">\
-          <div class=""></div>\
-        </div>\
-      </div>\
-    </div>\
     <div class="row">\
-      <fieldset>\
-        <legend>'+tr("Resource Providers")+':</legend>\
-        <dl class="tabs" id="group_zones_tabs">\
-          <dt>' + tr("Zones") +':</dt>\
-        </dl>\
-        <ul class="tabs-content" id="group_zones_tabs_content">\
-        </ul>\
-      </fieldset>\
-    </div>\
-    <br/>\
-    <div class="row">\
-      <fieldset>\
-        <legend>'+tr("Resource creation")+':</legend>\
-        <div class="row">\
-          <div class="eleven columns">'
-            +tr("Allow users in this group to create the following resources")+
-          '</div>\
-          <div class="one columns">\
-            <div class="tip">'+tr("This will create new ACL Rules to define which virtual resources this group's users will be able to create. You can set different resources for the administrator group, and decide if the administrators will be allowed to create new users.")+'</div>\
-          </div>\
-        </div>\
-        <table class="datatable twelve extended_table" style="table-layout:fixed">\
-          <thead><tr>\
-            <th/>\
-            <th>'+tr("Virtual Machines")+'</th>\
-            <th>'+tr("Virtual Networks")+'</th>\
-            <th>'+tr("Images")+'</th>\
-            <th>'+tr("Templates")+'</th>\
-            <th>'+tr("Documents")+'</th>\
-            <th>'+tr("Users")+'</th>\
-          </tr></thead>\
-          <tbody>\
-            <tr>\
-              <th>'+tr("Group Users")+'</th>\
-              <td><input type="checkbox" id="group_res_vm" name="group_res_vm" class="resource_cb" value="VM"></input></td>\
-              <td><input type="checkbox" id="group_res_net" name="group_res_net" class="resource_cb" value="NET"></input></td>\
-              <td><input type="checkbox" id="group_res_image" name="group_res_image" class="resource_cb" value="IMAGE"></input></td>\
-              <td><input type="checkbox" id="group_res_template" name="group_res_template" class="resource_cb" value="TEMPLATE"></input></td>\
-              <td><input type="checkbox" id="group_res_document" name="group_res_document" class="resource_cb" value="DOCUMENT"></input></td>\
-              <td/>\
-            </tr>\
-            <tr>\
-              <th>'+tr("Admin Group Users")+'</th>\
-              <td><input type="checkbox" id="group_admin_res_vm" name="group_admin_res_vm" class="resource_cb" value="VM"></input></td>\
-              <td><input type="checkbox" id="group_admin_res_net" name="group_admin_res_net" class="resource_cb" value="NET"></input></td>\
-              <td><input type="checkbox" id="group_admin_res_image" name="group_admin_res_image" class="resource_cb" value="IMAGE"></input></td>\
-              <td><input type="checkbox" id="group_admin_res_template" name="group_admin_res_template" class="resource_cb" value="TEMPLATE"></input></td>\
-              <td><input type="checkbox" id="group_admin_res_document" name="group_admin_res_document" class="resource_cb" value="DOCUMENT"></input></td>\
-              <td><input type="checkbox" id="group_admin_res_user" name="group_admin_res_user" class="resource_cb" value="USER"></input></td>\
-            </tr>\
-          </tbody>\
-        </table>\
-      </fieldset>\
-    </div>\
-    <br/>\
-    <div class="row">\
-      <fieldset>\
-        <legend>'+tr("Administrators")+':</legend>\
-        <div class="row">\
-          <div class="one columns">\
-           <input type="checkbox" id="admin_group" name="admin_group" value="YES" />\
-          </div>\
-          <div class="ten columns">\
-            <label class="inline left" for="admin_group">'+tr("Create an administrator group")+'.</label>\
-          </div>\
-          <div class="one columns">\
-            <div class="tip">'+tr("This admin group will contain users with administrative privileges for the new regular group, not for all the resources in the OpenNebula cloud as the 'oneadmin' group users have.")+'</div>\
-          </div>\
-        </div>\
-        <div class="row centered">\
-          <div class="four columns">\
-            <label class="inline right" for="admin_group_name">'+tr("Group name")+':</label>\
-          </div>\
-          <div class="seven columns">\
-            <input type="text" name="admin_group_name" id="admin_group_name" />\
-          </div>\
-          <div class="one columns">\
-            <div class=""></div>\
-          </div>\
-        </div>\
-        <div class="row">\
-          <div class="one columns">\
-           <input type="checkbox" id="admin_user" name="admin_user" value="YES" />\
-          </div>\
-          <div class="ten columns">\
-            <label class="inline left" for="admin_user">'+tr("Create an administrator user")+'.</label>\
-          </div>\
-          <div class="one columns">\
-            <div class="tip">'+tr("You can create now an administrator user that will be assigned to the new regular group, with the administrator group as a secondary one.")+'</div>\
-          </div>\
-        </div>' +
-        user_creation_div +   // from users-tab.js
-      '</fieldset>\
-    </div>\
-    <div class="reveal-footer">\
-      <hr>\
-      <div class="form_buttons">\
-        <button class="button radius right success" id="create_group_submit" value="Group.create">'+tr("Create")+'</button>\
-        <button class="button secondary radius" id="create_group_reset_button" type="reset" value="reset">'+tr("Refresh")+'</button>\
-        <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
+      <div class="columns large-6">\
+          <label for="name">'+tr("Name")+':\
+            <input type="text" name="name" id="name" />\
+          </label>\
+      </div>\
+      <div class="columns large-6">\
+          <dl class="tabs right-info-tabs text-center" data-tab>\
+               <dd class="active"><a href="#resource_providers"><i class="fa fa-cloud"></i><br>'+tr("Resources")+'</a></dd>\
+               <dd><a href="#administrators"><i class="fa fa-upload"></i><br>'+tr("Admin")+'</a></dd>\
+               <dd><a href="#resource_creation"><i class="fa fa-folder-open"></i><br>'+tr("Permissions")+'</a></dd>\
+          </dl>\
       </div>\
     </div>\
-    <a class="close-reveal-modal">&#215;</a>\
-  </form>\
-</div>';
-
-var group_quotas_tmpl = '<div class="panel">\
-  <h3>\
-    <small id="create_vnet_header">'+tr("Update Quota")+'</small>\
-  </h3>\
-</div>\
-<div class="reveal-body">\
-<form id="group_quotas_form" action="">\
-  <div class="row">\
-    <div class="six columns">\
-      <div id="quota_types">\
-        <label>'+tr("Quota type")+':</label>\
-        <input type="radio" name="quota_type" value="vm">'+tr("Virtual Machine")+'</input>\
-        <input type="radio" name="quota_type" value="datastore">'+tr("Datastore")+'</input>\
-        <input type="radio" name="quota_type" value="image">'+tr("Image")+'</input>\
-        <input type="radio" name="quota_type" value="network">'+tr("Network")+'</input>\
-      </div>\
-      <hr>\
-      <div id="vm_quota">\
+    <div class="tabs-content">\
+    <div id="resource_providers" class="row content active">\
+      <div class="large-12 columns">\
         <div class="row">\
-          <div class="six columns">\
-              <label class="inline right" >'+tr("Max VMs")+':</label>\
-          </div>\
-          <div class="five columns">\
-            <input type="text" name="VMS"></input>\
-          </div>\
-          <div class="one columns">\
-              <div class=""></div>\
+          <div class="large-12 columns">\
+            <h5>' + tr("Zones") +'</h5>\
           </div>\
         </div>\
         <div class="row">\
-          <div class="six columns">\
-              <label class="inline right" >'+tr("Max Memory (MB)")+':</label>\
-          </div>\
-          <div class="five columns">\
-            <input type="text" name="MEMORY"></input>\
-          </div>\
-          <div class="one columns">\
-              <div class=""></div>\
+          <div class="large-12 columns">\
+            <dl class="tabs" id="group_zones_tabs" data-tab>\
+            </dl>\
           </div>\
         </div>\
-        <div class="row">\
-          <div class="six columns">\
-              <label class="inline right" >'+tr("Max CPU")+':</label>\
-          </div>\
-          <div class="five columns">\
-            <input type="text" name="CPU"></input>\
-          </div>\
-          <div class="one columns">\
-              <div class=""></div>\
-          </div>\
-        </div>\
-        <div class="row">\
-          <div class="six columns">\
-              <label class="inline right" >'+tr("Max Volatile Storage (MB)")+':</label>\
-          </div>\
-          <div class="five columns">\
-            <input type="text" name="VOLATILE_SIZE"></input>\
-          </div>\
-          <div class="one columns">\
-              <div class=""></div>\
-          </div>\
+        <div class="tabs-content group_zones_tabs_content">\
         </div>\
       </div>\
-      <div id="datastore_quota">\
-        <div class="row">\
-          <div class="four columns">\
-              <label class="inline right" >'+tr("Datastore")+'</label>\
-          </div>\
-          <div class="seven columns">\
-            <select name="ID"></select>\
-          </div>\
-          <div class="one columns">\
-              <div class=""></div>\
-          </div>\
-        </div>\
-        <div class="row">\
-          <div class="four columns">\
-              <label class="inline right" >'+tr("Max size (MB)")+':</label>\
-          </div>\
-          <div class="seven columns">\
-            <input type="text" name="SIZE"></input>\
-          </div>\
-          <div class="one columns">\
-              <div class=""></div>\
-          </div>\
-        </div>\
-        <div class="row">\
-          <div class="four columns">\
-              <label class="inline right" >'+tr("Max images")+':</label>\
-          </div>\
-          <div class="seven columns">\
-            <input type="text" name="IMAGES"></input>\
-          </div>\
-          <div class="one columns">\
-              <div class=""></div>\
-          </div>\
-        </div>\
-      </div>\
-      <div id="image_quota">\
-        <div class="row">\
-          <div class="four columns">\
-              <label class="inline right" >'+tr("Image")+'</label>\
-          </div>\
-          <div class="seven columns">\
-            <select name="ID"></select>\
-          </div>\
-          <div class="one columns">\
-              <div class=""></div>\
-          </div>\
-        </div>\
-        <div class="row">\
-          <div class="four columns">\
-              <label class="inline right" >'+tr("Max RVMs")+'</label>\
-          </div>\
-          <div class="seven columns">\
-            <input type="text" name="RVMS"></input>\
-          </div>\
-          <div class="one columns">\
-              <div class=""></div>\
-          </div>\
-        </div>\
-      </div>\
-      <div id="network_quota">\
-        <div class="row">\
-          <div class="four columns">\
-              <label class="inline right" >'+tr("Network")+'</label>\
-          </div>\
-          <div class="seven columns">\
-            <select name="ID"></select>\
-          </div>\
-          <div class="one columns">\
-              <div class=""></div>\
-          </div>\
-        </div>\
-        <div class="row">\
-          <div class="four columns">\
-              <label class="inline right" >'+tr("Max leases")+'</label>\
-          </div>\
-          <div class="seven columns">\
-            <input type="text" name="LEASES"></input>\
-          </div>\
-          <div class="one columns">\
-              <div class=""></div>\
-          </div>\
-        </div>\
-      </div>\
-      <br>\
-      <button class="button right small radius" id="add_quota_button" value="add_quota">'+tr("Add/edit quota")+'</button>\
     </div>\
-    <div class="six columns">\
-      <div class="current_quotas">\
-         <table class="datatable twelve extended_table">\
-            <thead><tr>\
-                 <th>'+tr("Type")+'</th>\
-                 <th>'+tr("Quota")+'</th>\
-                 <th>'+tr("Edit")+'</th></tr></thead>\
-            <tbody>\
-            </tbody>\
-         </table>\
+    <div id="administrators" class="row content">\
+        <div class="large-6 columns">\
+          <div class="row">\
+            <div class="large-12 columns">\
+              <input type="checkbox" id="admin_group" name="admin_group" value="YES" />\
+              <label for="admin_group">'+tr("Create an administrator group")+'\
+                <span class="tip">'+tr("This admin group will contain users with administrative privileges for the new regular group, not for all the resources in the OpenNebula cloud as the 'oneadmin' group users have.")+'</span>\
+              </label>\
+            </div>\
+          </div>\
+          <div class="row">\
+            <div class="large-12 columns">\
+              <label for="admin_group_name">'+tr("Group name")+'</label>\
+              <input type="text" name="admin_group_name" id="admin_group_name" />\
+            </div>\
+          </div>\
+        </div>\
+        <div class="large-6 columns">\
+          <div class="row">\
+            <div class="large-12 columns">\
+              <input type="checkbox" id="admin_user" name="admin_user" value="YES" />\
+              <label for="admin_user">'+tr("Create an administrator user")+'\
+                <span class="tip">'+tr("You can create now an administrator user that will be assigned to the new regular group, with the administrator group as a secondary one.")+'</span>\
+              </label>\
+            </div>\
+          </div>' +
+          user_creation_div +   // from users-tab.js
+        '</div>\
+    </div>\
+    <div id="resource_creation" class="content">\
+        <div class="row">\
+          <div class="large-12 columns">\
+            <p class="subheader">'
+              +tr("Allow users in this group to create the following resources")+
+              '&emsp;<span class="tip">'+tr("This will create new ACL Rules to define which virtual resources this group's users will be able to create. You can set different resources for the administrator group, and decide if the administrators will be allowed to create new users.")+'</span>\
+            </p>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="large-12 columns">\
+            <table class="dataTable" style="table-layout:fixed">\
+              <thead><tr>\
+                <th/>\
+                <th>'+tr("VMs")+'</th>\
+                <th>'+tr("VNets")+'</th>\
+                <th>'+tr("Images")+'</th>\
+                <th>'+tr("Templates")+'</th>\
+                <th>'+tr("Documents")+'</th>\
+                <th>'+tr("Users")+'</th>\
+              </tr></thead>\
+              <tbody>\
+                <tr>\
+                  <th>'+tr("Users")+'</th>\
+                  <td><input type="checkbox" id="group_res_vm" name="group_res_vm" class="resource_cb" value="VM"></input></td>\
+                  <td><input type="checkbox" id="group_res_net" name="group_res_net" class="resource_cb" value="NET"></input></td>\
+                  <td><input type="checkbox" id="group_res_image" name="group_res_image" class="resource_cb" value="IMAGE"></input></td>\
+                  <td><input type="checkbox" id="group_res_template" name="group_res_template" class="resource_cb" value="TEMPLATE"></input></td>\
+                  <td><input type="checkbox" id="group_res_document" name="group_res_document" class="resource_cb" value="DOCUMENT"></input></td>\
+                  <td/>\
+                </tr>\
+                <tr>\
+                  <th>'+tr("Admins")+'</th>\
+                  <td><input type="checkbox" id="group_admin_res_vm" name="group_admin_res_vm" class="resource_cb" value="VM"></input></td>\
+                  <td><input type="checkbox" id="group_admin_res_net" name="group_admin_res_net" class="resource_cb" value="NET"></input></td>\
+                  <td><input type="checkbox" id="group_admin_res_image" name="group_admin_res_image" class="resource_cb" value="IMAGE"></input></td>\
+                  <td><input type="checkbox" id="group_admin_res_template" name="group_admin_res_template" class="resource_cb" value="TEMPLATE"></input></td>\
+                  <td><input type="checkbox" id="group_admin_res_document" name="group_admin_res_document" class="resource_cb" value="DOCUMENT"></input></td>\
+                  <td><input type="checkbox" id="group_admin_res_user" name="group_admin_res_user" class="resource_cb" value="USER"></input></td>\
+                </tr>\
+              </tbody>\
+            </table>\
+        </div>\
       </div>\
     </div>\
   </div>\
   <div class="reveal-footer">\
-    <hr>\
+    <div class="form_buttons">\
+      <button class="button radius right success" id="create_group_submit" value="Group.create">'+tr("Create")+'</button>\
+      <button class="button secondary radius" id="create_group_reset_button" type="reset" value="reset">'+tr("Refresh")+'</button>\
+    </div>\
+  </div>\
+  <a class="close-reveal-modal">&#215;</a>\
+  </form>\
+</div>';
+
+var group_quotas_tmpl = '<div class="row" class="subheader">\
+  <h3 id="create_vnet_header">'+tr("Update Quota")+'</h3>\
+</div>\
+<div class="reveal-body">\
+<form id="group_quotas_form" action="">'+
+  quotas_tmpl +
+  '<div class="reveal-footer">\
     <div class="form_buttons">\
         <button class="button radius right success" id="create_user_submit" type="submit" value="Group.set_quota">'+tr("Apply changes")+'</button>\
-        <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
     </div>\
   </div>\
   <a class="close-reveal-modal">&#215;</a>\
@@ -439,8 +228,13 @@ var group_actions = {
     "Group.refresh" : {
         type: "custom",
         call: function() {
+          var tab = dataTable_groups.parents(".tab");
+          if (Sunstone.rightInfoVisible(tab)) {
+            Sunstone.runAction("Group.showinfo", Sunstone.rightInfoResourceId(tab))
+          } else {
             waitingNodes(dataTable_groups);
             Sunstone.runAction("Group.list");
+          }
         },
         error: onError
     },
@@ -453,7 +247,7 @@ var group_actions = {
             Sunstone.runAction('Group.showinfo',request.request.data[0][0]);
         },
         error: onError
-    },    
+    },
 
     "Group.delete" : {
         type: "multiple",
@@ -584,8 +378,8 @@ var group_buttons = {
     },
     "Group.quotas_dialog" : {
         type : "action",
-        text : tr("Update quotas"),
-        layout: "more_select",
+        text : tr("Quotas"),
+        layout: "main",
         condition: mustBeAdmin
     },
     "Group.delete" : {
@@ -602,25 +396,35 @@ var group_info_panel = {
 
 var groups_tab = {
     title: tr("Groups"),
-    content: groups_tab_content,
     buttons: group_buttons,
     tabClass: 'subTab',
     parentTab: 'system-tab',
-    condition: mustBeAdmin
+    search_input: '<input id="group_search" type="text" placeholder="'+tr("Search")+'" />',
+    list_header: '<i class="fa fa-users"></i> '+tr("Groups"),
+    info_header: '<i class="fa fa-users"></i> '+tr("Group"),
+    subheader: '<span>\
+        <span class="total_groups"/> <small>'+tr("TOTAL")+'</small>\
+      </span>',
+    table: '<table id="datatable_groups" class="datatable twelve">\
+      <thead>\
+        <tr>\
+          <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
+          <th>'+tr("ID")+'</th>\
+          <th>'+tr("Name")+'</th>\
+          <th>'+tr("Users")+'</th>\
+          <th style="width:18%">'+tr("VMs")+'</th>\
+          <th style="width:18%">'+tr("Memory")+'</th>\
+          <th style="width:18%">'+tr("CPU")+'</th>\
+        </tr>\
+      </thead>\
+      <tbody id="tbodygroups">\
+      </tbody>\
+    </table>'
 };
 
-var groups_tab_non_admin = {
-    title: tr("Group info"),
-    content: groups_tab_content,
-    buttons: group_buttons,
-    tabClass: 'subTab',
-    parentTab: 'dashboard_tab',
-    condition: mustNotBeAdmin
-}
 
 Sunstone.addActions(group_actions);
 Sunstone.addMainTab('groups-tab',groups_tab);
-Sunstone.addMainTab('groups_tab_non_admin',groups_tab_non_admin);
 Sunstone.addInfoPanel("group_info_panel",group_info_panel);
 
 function groupElements(){
@@ -714,11 +518,7 @@ function updateGroupsView(request, group_list, quotas_hash){
     updateGroupSelect(group_list);
 
     // Dashboard info
-    $("#total_groups", $dashboard).text(group_list.length);
-
-    var form = $("#group_form");
-
-    $("#total_groups", form).text(group_list.length);
+    $(".total_groups").text(group_list.length);
 }
 
 function fromJSONtoProvidersTable(group_info){
@@ -740,7 +540,7 @@ function fromJSONtoProvidersTable(group_info){
             <td>' + cluster_id + '</td>\
             <td>\
              <div id="div_minus_rp">\
-               <a id="div_minus_rp_a_'+provider.ZONE_ID+'" class="cluster_id_'+cluster_id+' group_id_'+group_info.ID+'" href="#"><i class="icon-trash"/></a>\
+               <a id="div_minus_rp_a_'+provider.ZONE_ID+'" class="cluster_id_'+cluster_id+' group_id_'+group_info.ID+'" href="#"><i class="fa fa-trash-o"/></a>\
              </div>\
             </td>\
         </tr>';
@@ -785,13 +585,14 @@ function updateGroupInfo(request,group){
     var info = group.GROUP;
 
     var info_tab = {
-          title: tr("Information"),
+          title: tr("Info"),
+          icon: "fa-info-circle",
           content:
-          '<form class="custom"><div class="">\
-          <div class="six columns">\
-          <table id="info_img_table" class="twelve datatable extended_table">\
+          '<div class="">\
+          <div class="large-6 columns">\
+          <table id="info_img_table" class="dataTable extended_table">\
              <thead>\
-              <tr><th colspan="3">'+tr("Group")+' - '+info.NAME+'</th></tr>\
+              <tr><th colspan="3">'+tr("Information")+'</th></tr>\
              </thead>\
              <tr>\
                 <td class="key_td">'+tr("ID")+'</td>\
@@ -805,45 +606,49 @@ function updateGroupInfo(request,group){
             </tr>\
           </table>\
           </div>\
-          <div class="six columns">'
+          <div class="large-6 columns">'
               + insert_extended_template_table(info.TEMPLATE,
                                                  "Group",
                                                  info.ID,
                                                  "Configuration & Tags") +
           '</div>\
-        </div></form>'
+        </div>'
       }
 
     var  default_group_quotas = Quotas.default_quotas(info.DEFAULT_GROUP_QUOTAS);
-    var quotas_tab_html = '<div class="three columns">' + Quotas.vms(info, default_group_quotas) + '</div>';
-    quotas_tab_html += '<div class="three columns">' + Quotas.cpu(info, default_group_quotas) + '</div>';
-    quotas_tab_html += '<div class="three columns">' + Quotas.memory(info, default_group_quotas) + '</div>';
-    quotas_tab_html += '<div class="three columns">' + Quotas.volatile_size(info, default_group_quotas) + '</div>';
+    var quotas_tab_html = '<div class="large-3 columns">' + Quotas.vms(info, default_group_quotas) + '</div>';
+    quotas_tab_html += '<div class="large-3 columns">' + Quotas.cpu(info, default_group_quotas) + '</div>';
+    quotas_tab_html += '<div class="large-3 columns">' + Quotas.memory(info, default_group_quotas) + '</div>';
+    quotas_tab_html += '<div class="large-3 columns">' + Quotas.volatile_size(info, default_group_quotas) + '</div>';
     quotas_tab_html += '<br><br>';
-    quotas_tab_html += '<div class="six columns">' + Quotas.image(info, default_group_quotas) + '</div>';
-    quotas_tab_html += '<div class="six columns">' + Quotas.network(info, default_group_quotas) + '</div>';
+    quotas_tab_html += '<div class="large-6 columns">' + Quotas.image(info, default_group_quotas) + '</div>';
+    quotas_tab_html += '<div class="large-6 columns">' + Quotas.network(info, default_group_quotas) + '</div>';
     quotas_tab_html += '<br><br>';
-    quotas_tab_html += '<div class="twelve columns">' + Quotas.datastore(info, default_group_quotas) + '</div>';
+    quotas_tab_html += '<div class="large-12 columns">' + Quotas.datastore(info, default_group_quotas) + '</div>';
 
     var quotas_tab = {
         title : tr("Quotas"),
+        icon: "fa-align-left",
         content : quotas_tab_html
     };
 
 
     var providers_tab = {
-        title : tr("Resource Providers"),
+        title : tr("Providers"),
+        icon: "fa-th",
         content :
         '<div class="">\
-            <div class="six columns">\
-              <button id="add_rp_button" class="button small secondary radius" >' + tr("Add Resource Provider") +'</button>\
-               <br><br>\
-                <table id="info_user_table" class="twelve datatable extended_table">\
+            <div class="large-6 columns">\
+                <table id="info_user_table" class="dataTable extended_table">\
                     <thead>\
                         <tr>\
                             <th>' + tr("Zone ID") + '</th>\
                             <th>' + tr("Cluster ID") + '</th>\
-                            <th></th>\
+                            <th class="text-right">\
+                              <button id="add_rp_button" class="button tiny success radius" >\
+                                <i class="fa fa-plus-circle"></i>\
+                              </button>\
+                            </th>\
                         </tr>\
                     </thead>\
                     <tbody>' +
@@ -868,8 +673,8 @@ function updateGroupInfo(request,group){
 
     $("#add_rp_button", $("#group_info_panel")).click(function(){
       setup_add_rp_dialog(info);
-      $('#add_rp_dialog',dialogs_context).addClass("reveal-modal large max-height");
-      $('#add_rp_dialog',dialogs_context).reveal();
+      $('#add_rp_dialog',dialogs_context).addClass("reveal-modal large max-height").attr("data-reveal", "");
+      $('#add_rp_dialog',dialogs_context).foundation().foundation('reveal', 'open');
 
       return false;
     })
@@ -882,30 +687,21 @@ function setup_add_rp_dialog(group){
     var dialog = $('#add_rp_dialog',dialogs_context);
 
     dialog.html(
-        '<div class="panel">\
-            <h3>\
-              <small id="create_vnet_header">'
-              +tr("Select Resource Providers")+
-              '</small>\
-            </h3>\
+        '<div class="row">\
+            <h3 id="create_vnet_header" class="subheader">'+tr("Select Resource Providers")+'</h3>\
         </div>\
         <div class="reveal-body">\
             <div class="row">\
-              <fieldset>\
-                <legend>'+tr("Resource Providers")+':</legend>\
-                <dl class="tabs" id="group_zones_tabs">\
-                  <dt>' + tr("Zones") +':</dt>\
+                <h5>' + tr("Zones") +'</h5>\
+                <dl class="tabs" id="group_zones_tabs" data-tab>\
                 </dl>\
-                <ul class="tabs-content" id="group_zones_tabs_content">\
-                </ul>\
-              </fieldset>\
+                <div class="tabs-content group_zones_tabs_content">\
+                </div>\
             </div>\
             <div class="reveal-footer">\
-              <hr>\
               <div class="form_buttons">\
                 <button class="button radius right success" id="add_rp_submit">'+tr("Add")+'</button>\
                 <button class="button secondary radius" id="add_rp_reset_button" type="reset" value="reset">'+tr("Refresh")+'</button>\
-                <button class="close-reveal-modal button secondary radius" type="button" id="add_rp_close" value="close">' + tr("Close") + '</button>\
               </div>\
             </div>\
         </div>');
@@ -985,8 +781,8 @@ function setup_add_rp_dialog(group){
            }
        });
 
-     dialog.trigger('reveal:close');
-     dialog.remove();
+     dialog.trigger('close');
+     dialog.html("");
 
     });
 
@@ -994,14 +790,14 @@ function setup_add_rp_dialog(group){
     $("#add_rp_reset_button", dialog).live("click", function(){
       $('#add_rp_dialog',dialog).remove();
       setup_add_rp_dialog(group);
-      $('#add_rp_dialog').addClass("reveal-modal large max-height");
-      $('#add_rp_dialog').reveal();
+      $('#add_rp_dialog').addClass("reveal-modal large max-height").attr("data-reveal", "");
+      $('#add_rp_dialog').foundation().foundation('reveal', 'open');
     });
 
     $('#add_rp_close',dialog).die();
     $('#add_rp_close',dialog).live( "click", function() {
-      dialog.trigger('reveal:close');
-      dialog.remove();
+      dialog.trigger('close');
+      dialog.html("");
     });
 
     OpenNebula.Zone.list({
@@ -1074,8 +870,8 @@ function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id
             selected_group_clusters[zone_id][cluster_id] = 1;
             group_clusters_row_hash[zone_id][cluster_id] = this;
             $(this).children().each(function(){$(this).addClass('markrowchecked');});
-            if ($('#tag_cluster_'+aData[1], $('div#selected_group_clusters', zone_section)).length == 0 ) {
-                $('div#selected_group_clusters', zone_section).append('<span id="tag_cluster_'+aData[1]+'" class="radius label">'+aData[2]+' <span class="icon-remove blue"></span></span> ');
+            if ($('#tag_cluster_'+aData[1], $('.selected_group_clusters', zone_section)).length == 0 ) {
+                $('.selected_group_clusters', zone_section).append('<span id="tag_cluster_'+aData[1]+'" class="radius label">'+aData[2]+' <span class="fa fa-times blue"></span></span> ');
             }
         }
         else
@@ -1083,7 +879,7 @@ function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id
             $('input.check_item', this).removeAttr('checked');
             delete selected_group_clusters[zone_id][cluster_id];
             $(this).children().each(function(){$(this).removeClass('markrowchecked');});
-            $('div#selected_group_clusters span#tag_cluster_'+cluster_id, zone_section).remove();
+            $('.selected_group_clusters span#tag_cluster_'+cluster_id, zone_section).remove();
         }
 
         if ($.isEmptyObject(selected_group_clusters[zone_id])) {
@@ -1096,7 +892,8 @@ function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id
         return true;
     });
 
-    $( "#selected_group_clusters span.icon-remove", zone_section ).live( "click", function() {
+    // TODOO clicking "x" does not remove the cluster
+    $( ".fa-times", zone_section ).live( "click", function() {
         $(this).parent().remove();
         var id = $(this).parent().attr("ID");
 
@@ -1117,50 +914,51 @@ function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id
 function generate_group_resource_tab_content(str_zone_tab_id, str_datatable_id, zone_id, group){
     var html =
     '<div class="row">\
-      <div class="four columns">\
-        <label class="inline right" for="resources">' +  tr("Assign physical resources") + ':</label>\
-      </div>\
-      <div class="seven columns" style="text-align:center">\
-        <input type="radio" name="'+str_zone_tab_id+'" id="'+str_zone_tab_id+'resources_all" value="all">'+ tr("All")+'&emsp;</input> \
-        <input type="radio" name="'+str_zone_tab_id+'" id="'+str_zone_tab_id+'resources_cluster" value="cluster"> '+tr("Select clusters")+'</input> &emsp;\
-        <input type="radio" name="'+str_zone_tab_id+'" id="'+str_zone_tab_id+'resources_none" value="none"> '+tr("None")+'</input> &emsp;\
-      </div>\
-      <div class="one columns">\
-        <div class="tip">'+tr("For each OpenNebula Zone, you can assign cluster resources (set of physical hosts, datastores and virtual networks) to this group.")+'</div>\
+      <div class="large-12 columns">\
+          <p class="subheader">' +  tr("Assign physical resources") + '\
+            &emsp;<span class="tip">'+tr("For each OpenNebula Zone, you can assign cluster resources (set of physical hosts, datastores and virtual networks) to this group.")+'</span>\
+          </p>\
       </div>\
     </div>\
     <div class="row">\
-      <div class="ten columns centered">\
-      <div id="req_type" class="group_cluster_select hidden">\
-          <div class="row collapse ">\
-            <div class="seven columns">\
-             <button id="refresh_group_clusters_table_button_class'+str_zone_tab_id+'" type="button" class="refresh button small radius secondary"><i class="icon-refresh" /></button>\
+      <div class="large-12 columns">\
+          <input type="radio" name="'+str_zone_tab_id+'" id="'+str_zone_tab_id+'resources_all" value="all"><label for="'+str_zone_tab_id+'resources_all">'+tr("All")+'</label>\
+          <input type="radio" name="'+str_zone_tab_id+'" id="'+str_zone_tab_id+'resources_cluster" value="cluster"><label for="'+str_zone_tab_id+'resources_cluster">'+tr("Select clusters")+'</label>\
+          <input type="radio" name="'+str_zone_tab_id+'" id="'+str_zone_tab_id+'resources_none" value="none"><label for="'+str_zone_tab_id+'resources_none">'+tr("None")+'</label>\
+      </div>\
+    </div>\
+    <div class="row">\
+      <div class="large-12 columns">\
+        <div id="req_type" class="group_cluster_select hidden">\
+            <div class="row collapse ">\
+              <div class="large-9 columns">\
+               <button id="refresh_group_clusters_table_button_class'+str_zone_tab_id+'" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>\
+              </div>\
+              <div class="large-3 columns">\
+                <input id="'+str_zone_tab_id+'_search" class="search" type="text" placeholder="'+tr("Search")+'"/>\
+              </div>\
             </div>\
-            <div class="five columns">\
-              <input id="'+str_zone_tab_id+'_search" type="text" placeholder="'+tr("Search")+'"/>\
+            <table id="'+str_datatable_id+'" class="datatable twelve">\
+              <thead>\
+              <tr>\
+                <th></th>\
+                <th>' + tr("ID") + '</th>\
+                <th>' + tr("Name") + '</th>\
+                <th>' + tr("Hosts") + '</th>\
+                <th>' + tr("VNets") + '</th>\
+                <th>' + tr("Datastores") + '</th>\
+              </tr>\
+              </thead>\
+              <tbody id="tbodyclusters">\
+              </tbody>\
+            </table>\
+            <br>\
+            <div class="selected_group_clusters">\
+              <span id="select_group_clusters'+str_zone_tab_id+'" class="radius secondary label">'+tr("Please select one or more clusters from the list")+'</span> \
+              <span id="you_selected_group_clusters'+str_zone_tab_id+'" class="radius secondary label hidden">'+tr("You selected the following clusters:")+'</span> \
             </div>\
-          </div>\
-          <table id="'+str_datatable_id+'" class="datatable twelve">\
-            <thead>\
-            <tr>\
-              <th></th>\
-              <th>' + tr("ID") + '</th>\
-              <th>' + tr("Name") + '</th>\
-              <th>' + tr("Hosts") + '</th>\
-              <th>' + tr("VNets") + '</th>\
-              <th>' + tr("Datastores") + '</th>\
-            </tr>\
-            </thead>\
-            <tbody id="tbodyclusters">\
-            </tbody>\
-          </table>\
-          <br>\
-          <div id="selected_group_clusters">\
-            <span id="select_group_clusters'+str_zone_tab_id+'" class="radius secondary label">'+tr("Please select one or more clusters from the list")+'</span> \
-            <span id="you_selected_group_clusters'+str_zone_tab_id+'" class="radius secondary label hidden">'+tr("You selected the following clusters:")+'</span> \
-          </div>\
-          <br>\
-      </div\
+            <br>\
+        </div\
       </div>\
     </div>';
 
@@ -1236,18 +1034,20 @@ var add_resource_tab = function(zone_id, zone_name, dialog, id_suffix, group) {
     group_clusters_row_hash[zone_id] = {};
 
     // Append the new div containing the tab and add the tab to the list
-    var html_tab_content = '<li id="'+str_zone_tab_id+'Tab" style="display: block;">'+
+    var html_tab_content = '<div id="'+str_zone_tab_id+'Tab" class="content" style="display: block;">'+
         generate_group_resource_tab_content(str_zone_tab_id, str_datatable_id, zone_id, group) +
-        '</li>'
-    $(html_tab_content).appendTo($("ul#group_zones_tabs_content", dialog));
+        '</div>'
+    $(html_tab_content).appendTo($(".group_zones_tabs_content", dialog));
 
     var a = $("<dd>\
-        <a id='zone_tab"+str_zone_tab_id+"' href='#"+str_zone_tab_id+"'>"+zone_name+"</a>\
+        <a id='zone_tab"+str_zone_tab_id+"' href='#"+str_zone_tab_id+"Tab'>"+zone_name+"</a>\
         </dd>").appendTo($("dl#group_zones_tabs", dialog));
 
-    $(document).foundationTabs("set_tab", a);
+    // TODOO
+    //$(document).foundationTabs("set_tab", a);
+    $('a', a).click();
 
-    var zone_section = $('li#' +str_zone_tab_id+'Tab', dialog);
+    var zone_section = $('#' +str_zone_tab_id+'Tab', dialog);
     setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id, str_datatable_id, id_suffix, group);
 };
 
@@ -1272,13 +1072,14 @@ function setupCreateGroupDialog(){
     var dialog = $create_group_dialog;
 
     dialog.html(create_group_tmpl);
-    dialog.addClass("reveal-modal large max-height");
+    dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
+    $(document).foundation();
 
     setupTips($create_group_dialog);
 
     $('#create_group_reset_button').click(function(){
-        $create_group_dialog.trigger('reveal:close');
-        $create_group_dialog.remove();
+        $create_group_dialog.trigger('close');
+        $create_group_dialog.html("");
         setupCreateGroupDialog();
 
         popUpCreateGroupDialog();
@@ -1440,13 +1241,13 @@ function setupCreateGroupDialog(){
 
 
         Sunstone.runAction("Group.create",group_json);
-        $create_group_dialog.trigger("reveal:close");
+        $create_group_dialog.trigger('close');
         return false;
     });
 }
 
 function popUpCreateGroupDialog(){
-    $create_group_dialog.reveal();
+    $create_group_dialog.foundation().foundation('reveal', 'open');
     $("input#name",$create_group_dialog).focus();
     return false;
 }

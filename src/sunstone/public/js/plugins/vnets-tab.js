@@ -14,207 +14,103 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-/*Virtual networks tab plugin*/
-
-var vnets_tab_content = '\
-<form class="custom" id="virtualNetworks_form" action="">\
-<div class="panel">\
-<div class="row">\
-  <div class="twelve columns">\
-    <h4 class="subheader header">\
-      <span class="header-resource">\
-        <i class="fa fa-sitemap"></i> '+tr("Virtual Networks")+'\
-      </span>\
-      <span class="header-info">\
-        <span id="total_vnets"/> <small>'+tr("TOTAL")+'</small>&emsp;\
-        <span id="addresses_vnets"/> <small>'+tr("USED IPs")+'</small>\
-      </span>\
-      <span class="user-login">\
-      </span>\
-    </h4>\
-  </div>\
-</div>\
-<div class="row">\
-  <div class="ten columns">\
-    <div class="action_blocks">\
-    </div>\
-  </div>\
-  <div class="two columns">\
-    <input id="vnet_search" type="text" placeholder="'+tr("Search")+'" />\
-  </div>\
-</div>\
-</div>\
-  <div class="row">\
-    <div class="twelve columns">\
-<table id="datatable_vnetworks" class="datatable twelve">\
-  <thead>\
-    <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
-      <th>'+tr("ID")+'</th>\
-      <th>'+tr("Owner")+'</th>\
-      <th>'+tr("Group")+'</th>\
-      <th>'+tr("Name")+'</th>\
-      <th>'+tr("Cluster")+'</th>\
-      <th>'+tr("Type")+'</th>\
-      <th>'+tr("Bridge")+'</th>\
-      <th>'+tr("Leases")+'</th>\
-    </tr>\
-  </thead>\
-  <tbody id="tbodyvnetworks">\
-  </tbody>\
-</table>\
-</form>';
+var addresses_vnets = 0;
 
 var create_vn_tmpl =
-'<div class="panel">\
-  <h3>\
-    <small id="create_vnet_header">'+tr("Create Virtual Network")+'</small>\
-  </h3>\
-</div>\
-<div class="reveal-body">\
-      <dl class="tabs">\
+'<div class="row">'+
+  '<div class="large-6 columns">'+
+    '<h3 id="create_vnet_header" class="subheader">'+tr("Create Virtual Network")+'</h3>'+
+  '</div>'+
+  '<div class="large-6 columns">'+
+     '<dl class="tabs right wizard_tabs" data-tab>\
         <dd class="active"><a href="#vnet_wizard">'+tr("Wizard")+'</a></dd>\
         <dd><a href="#vnet_advanced">'+tr("Advanced mode")+'</a></dd>\
       </dl>\
-      <ul class="tabs-content">\
-        <li class="active" id="vnet_wizardTab">\
+  </div>\
+</div>\
+<div class="reveal-body">\
+      <div class="tabs-content">\
+        <div class="content active" id="vnet_wizard">\
            <form id="create_vn_form_easy" action="" class="creation">\
             <div class="row">\
-              <div class="three columns">\
-                <label class="right inline" for="name" >' + tr("Name") + ':</label>\
-              </div>\
-              <div class="eight columns">\
+              <div class="large-6 columns">\
+                <label for="name" >' + tr("Name") + ':</label>\
                 <input type="text" name="name" id="name"/>\
-              </div>\
-              <div class="one columns ">\
               </div>\
             </div>\
             <div class="row">\
+              <div class="large-12 columns">\
               <fieldset>\
                 <legend>' + tr("Type") + '</legend>\
                   <div class="row">\
-                    <div class="six columns">\
-                      <label for="ipv4_check" class="right"><input type="radio" name="ip_version" id="ipv4_check" value="ipv4" checked="checked"/>'+tr("IPv4")+'</label>\
-                    </div>\
-                    <div class="six columns">\
-                      <label for="ipv6_check"><input type="radio" name="ip_version" id="ipv6_check" value="ipv6"/>'+tr("IPv6")+'</label>\
+                    <div class="large-12 columns">\
+                      <input type="radio" name="ip_version" id="ipv4_check" value="ipv4" checked="checked"/><label for="ipv4_check">'+tr("IPv4")+'</label>\
+                      <input type="radio" name="ip_version" id="ipv6_check" value="ipv6"/><label for="ipv6_check">'+tr("IPv6")+'</label>\
                     </div>\
                   </div>\
                   <div class="row">\
-                    <div class="six columns">\
-                        <div class="four columns">\
-                          <label class="right inline" for="net_address">'+tr("N. Address")+':</label>\
-                        </div>\
-                        <div class="seven columns">\
-                          <input type="text" name="net_address" id="net_address" />\
-                        </div>\
-                        <div class="one columns">\
-                        </div>\
+                    <div class="large-6 columns">\
+                        <label for="net_address">'+tr("N. Address")+'</label>\
+                        <input type="text" name="net_address" id="net_address" />\
                     </div>\
-                    <div class="six columns">\
-                        <div class="four columns">\
-                          <label class="right inline" for="net_mask">'+tr("N. Mask")+':</label>\
-                        </div>\
-                        <div class="seven columns">\
-                          <input type="text" name="net_mask" id="net_mask" />\
-                        </div>\
-                        <div class="one columns">\
-                        </div>\
+                    <div class="large-6 columns">\
+                        <label for="net_mask">'+tr("N. Mask")+':</label>\
+                        <input type="text" name="net_mask" id="net_mask" />\
                     </div>\
                   </div>\
                   <div class="row">\
-                    <div class="six columns">\
-                        <div class="four columns">\
-                          <label class="right inline" for="site_prefix">'+tr("Site prefix")+':</label>\
-                        </div>\
-                        <div class="seven columns">\
-                          <input type="text" name="site_prefix" id="site_prefix" />\
-                        </div>\
-                        <div class="one columns">\
-                        </div>\
+                    <div class="large-6 columns">\
+                        <label for="site_prefix">'+tr("Site prefix")+':</label>\
+                        <input type="text" name="site_prefix" id="site_prefix" />\
                     </div>\
-                    <div class="six columns">\
-                        <div class="four columns">\
-                          <label class="right inline" for="global_prefix">'+tr("Global prefix")+':</label>\
-                        </div>\
-                        <div class="seven columns">\
-                          <input type="text" name="global_prefix" id="global_prefix" />\
-                        </div>\
-                        <div class="one columns">\
-                        </div>\
+                    <div class="large-6 columns">\
+                        <label for="global_prefix">'+tr("Global prefix")+':</label>\
+                        <input type="text" name="global_prefix" id="global_prefix" />\
                     </div>\
                   </div>\
                   <div class="row">\
-                    <div class="six columns">\
-                        <div class="four columns">\
-                          <label class="right inline" for="net_dns">'+tr("DNS")+':</label>\
-                        </div>\
-                        <div class="seven columns">\
-                          <input type="text" name="net_dns" id="net_dns" />\
-                        </div>\
-                        <div class="one columns">\
-                        </div>\
+                    <div class="large-6 columns">\
+                        <label for="net_dns">'+tr("DNS")+':</label>\
+                        <input type="text" name="net_dns" id="net_dns" />\
                     </div>\
-                    <div class="six columns">\
-                        <div class="four columns">\
-                          <label class="right inline" for="net_gateway">'+tr("Gateway")+':</label>\
-                        </div>\
-                        <div class="seven columns">\
-                          <input type="text" name="net_gateway" id="net_gateway" />\
-                        </div>\
-                        <div class="one columns">\
-                        </div>\
+                    <div class="large-6 columns">\
+                        <label for="net_gateway">'+tr("Gateway")+':</label>\
+                        <input type="text" name="net_gateway" id="net_gateway" />\
                     </div>\
                   </div>\
                   <hr>\
                   <div class="row">\
-                    <div class="six columns">\
-                      <label for="fixed_check" class="right"><input type="radio" name="fixed_ranged" id="fixed_check" value="fixed" checked="checked"/>'+tr("Fixed network")+'</label>\
-                    </div>\
-                    <div class="six columns">\
-                      <label for="ranged_check"><input type="radio" name="fixed_ranged" id="ranged_check" value="ranged"/>'+tr("Ranged network")+'</label>\
+                    <div class="large-12 columns">\
+                      <input type="radio" name="fixed_ranged" id="fixed_check" value="fixed" checked="checked"/><label for="fixed_check">'+tr("Fixed network")+'</label>\
+                      <input type="radio" name="fixed_ranged" id="ranged_check" value="ranged"/><label for="ranged_check">'+tr("Ranged network")+'</label>\
                     </div>\
                   </div>\
                   <div id="fixed">\
                      <div class="row">\
-                      <div class="six columns">\
+                      <div class="large-6 columns">\
                         <div class="row">\
-                          <div class="four columns">\
-                            <label class="right inline" for="leaseip">'+tr("IP")+':</label>\
-                          </div>\
-                          <div class="seven columns">\
+                          <div class="large-12 columns">\
+                            <label for="leaseip">'+tr("IP")+':</label>\
                             <input type="text" name="leaseip" id="leaseip" />\
                           </div>\
-                          <div class="one columns">\
-                          </div>\
                         </div>\
                         <div class="row">\
-                          <div class="four columns">\
-                            <label class="right inline" for="leasemac">'+tr("MAC")+':</label>\
-                          </div>\
-                          <div class="seven columns">\
+                          <div class="large-12 columns">\
+                            <label for="leasemac">'+tr("MAC")+':</label>\
                             <input type="text" name="leasemac" id="leasemac" />\
                           </div>\
-                          <div class="one columns">\
-                          </div>\
                         </div>\
                         <div class="row">\
-                          <div class="six columns">\
-                            <button class="add_remove_button add_button secondary button right small radius" id="add_lease" value="add/lease">\
-                             '+tr("Add")+'\
-                            </button>\
-                          </div>\
-                          <div class="six columns">\
-                            <button class="add_remove_button secondary button small radius" id="remove_lease" value="remove/lease">\
-                             '+tr("Remove selected")+'\
-                            </button>\
+                          <div class="large-12 columns">\
+                            <button class="add_remove_button add_button secondary button small radius" id="add_lease" value="add/lease">'+tr("Add")+'</button>\
+                            <button class="add_remove_button secondary button small radius" id="remove_lease" value="remove/lease">'+tr("Remove selected")+'</button>\
                           </div>\
                         </div>\
                       </div>\
-                      <div class="six columns">\
+                      <div class="large-6 columns">\
                         <div class="row">\
-                          <div class="eight centered columns">\
-                            <select id="leases" name="leases" style="height:10em; width:100%" multiple>\
+                          <div class="large-12 columns">\
+                            <select id="leases" name="leases" style="height:10em !important; width:100%" multiple>\
                               <!-- insert leases -->\
                             </select>\
                           </div>\
@@ -224,205 +120,152 @@ var create_vn_tmpl =
                   </div>\
                   <div id="ranged">\
                     <div class="row">\
-                      <div class="four columns centered">\
-                        <label for="custom_pool" class="inline"><input type="checkbox" id="custom_pool"/>'+tr("Define a subnet by IP range")+'</label>\
+                      <div class="large-6 columns">\
+                        <input type="checkbox" id="custom_pool"/><label for="custom_pool" class="inline">'+tr("Define a subnet by IP range")+'</label>\
                       </div>\
                     </div>\
                     <div class="row">\
-                      <div class="six columns">\
-                          <div class="four columns">\
-                            <label class="right inline" for="ip_start">'+tr("IP Start")+':</label>\
-                          </div>\
-                          <div class="seven columns">\
+                      <div class="large-6 columns">\
+                            <label for="ip_start">'+tr("IP Start")+':</label>\
                             <input type="text" name="ip_start" id="ip_start" disabled="disabled" />\
-                          </div>\
-                          <div class="one columns">\
-                          </div>\
                       </div>\
-                      <div class="six columns">\
-                          <div class="four columns">\
-                            <label class="right inline" for="ip_end">'+tr("IP End")+':</label>\
-                          </div>\
-                          <div class="seven columns">\
+                      <div class="large-6 columns">\
+                            <label for="ip_end">'+tr("IP End")+':</label>\
                             <input type="text" name="ip_end" id="ip_end" disabled="disabled" />\
-                          </div>\
-                          <div class="one columns">\
-                          </div>\
                       </div>\
                     </div>\
                   </div>\
                   <div id="ranged_ipv6">\
                     <div class="row">\
-                      <div class="six columns">\
-                          <div class="four columns">\
-                            <label class="right inline" for="mac_start">'+tr("MAC Start")+':</label>\
-                          </div>\
-                          <div class="seven columns">\
+                      <div class="large-6 columns">\
+                            <label for="mac_start">'+tr("MAC Start")+':</label>\
                             <input type="text" name="net_address" id="mac_start" />\
-                          </div>\
-                          <div class="one columns">\
-                          </div>\
                       </div>\
-                      <div class="six columns">\
-                          <div class="four columns">\
-                            <label class="right inline" for="net_size">'+tr("N. Size")+':</label>\
-                          </div>\
-                          <div class="seven columns">\
+                      <div class="large-6 columns">\
+                            <label for="net_size">'+tr("N. Size")+':</label>\
                             <input type="text" name="net_size" id="net_size" />\
-                          </div>\
-                          <div class="one columns">\
-                          </div>\
                       </div>\
                     </div>\
                   </div>\
               </fieldset>\
-            </div>\
-            <div class="row centered">\
-              <div class="six columns">\
-                <label class="right inline" for="network_mode">'+tr("Network model")+':</label>\
               </div>\
-              <div class="five columns">\
+            </div>\
+            <div class="row">\
+              <div class="large-6 columns">\
+                <label for="network_mode">'+tr("Network model")+':</label>\
                 <select name="network_mode" id="network_mode">\
                   <option value="default">'+tr("Default")+'</option>\
                   <option value="802.1Q">'+tr("802.1Q")+'</option>\
                   <option value="ebtables">'+tr("ebtables")+'</option>\
                   <option value="openvswitch">'+tr("Open vSwitch")+'</option>\
                   <option value="vmware">'+tr("VMware")+'</option>\
-               </select>\
-              </div>\
-              <div class="one columns">\
+                </select>\
               </div>\
             </div>\
             <div class="row">\
-              <div class="six columns">\
+              <div class="large-6 columns">\
                 <div class="row">\
-                  <div class="four columns">\
-                    <label class="right inline" for="bridge">'+tr("Bridge")+':</label>\
-                  </div>\
-                  <div class="seven columns">\
+                  <div class="large-12 columns">\
+                    <label for="bridge">'+tr("Bridge")+':</label>\
                     <input type="text" name="bridge" id="bridge" />\
-                  </div>\
-                  <div class="one columns">\
                   </div>\
                 </div>\
                 <div class="row">\
-                  <div class="four columns">\
-                    <label class="right inline" for="phydev">'+tr("Physical device")+':</label>\
-                  </div>\
-                  <div class="seven columns">\
+                  <div class="large-12 columns">\
+                    <label for="phydev">'+tr("Physical device")+':</label>\
                     <input type="text" name="phydev" id="phydev" />\
-                  </div>\
-                  <div class="one columns">\
                   </div>\
                 </div>\
               </div>\
-              <div class="six columns">\
+              <div class="large-6 columns">\
                 <div class="row">\
-                  <div class="four columns">\
-                    <label class="right inline" for="vlan">'+tr("VLAN")+':</label>\
-                  </div>\
-                  <div class="seven columns">\
+                  <div class="large-12 columns">\
+                    <label for="vlan">'+tr("VLAN")+':</label>\
                     <select name="vlan" id="vlan">\
                         <option value="YES" selected="selected">'+tr("Yes")+'</option>\
                         <option value="NO">'+tr("No")+'</option>\
                      </select>\
                   </div>\
-                  <div class="one columns ">\
-                  </div>\
                 </div>\
                 <div class="row">\
-                  <div class="four columns">\
-                    <label class="right inline" for="vlan_id">'+tr("VLAN ID")+':</label>\
-                  </div>\
-                  <div class="seven columns">\
+                  <div class="large-12 columns">\
+                    <label for="vlan_id">'+tr("VLAN ID")+':</label>\
                     <input type="text" name="vlan_id" id="vlan_id" />\
-                  </div>\
-                  <div class="one columns ">\
                   </div>\
                 </div>\
               </div>\
             </div>\
             <div class="row">\
-              <fieldset>\
-                <legend>' + tr("Custom attributes") + '</legend>\
-                 <div class="row">\
-                  <div class="six columns">\
-                    <div class="row">\
-                      <div class="four columns">\
-                        <label class="right inline" for="custom_var_vnet_name">'+tr("Name")+':</label>\
+              <div class="large-12 columns">\
+                <fieldset>\
+                  <legend>' + tr("Custom attributes") + '</legend>\
+                   <div class="row">\
+                    <div class="large-6 columns">\
+                      <div class="row">\
+                        <div class="large-12 columns">\
+                          <label for="custom_var_vnet_name">'+tr("Name")+':</label>\
+                          <input type="text" id="custom_var_vnet_name" name="custom_var_vnet_name" />\
+                        </div>\
                       </div>\
-                      <div class="seven columns">\
-                        <input type="text" id="custom_var_vnet_name" name="custom_var_vnet_name" />\
+                      <div class="row">\
+                        <div class="large-12 columns">\
+                          <label for="custom_var_vnet_value">'+tr("Value")+':</label>\
+                          <input type="text" id="custom_var_vnet_value" name="custom_var_vnet_value" />\
+                        </div>\
                       </div>\
-                      <div class="one columns">\
-                      </div>\
-                    </div>\
-                    <div class="row">\
-                      <div class="four columns">\
-                        <label class="right inline" for="custom_var_vnet_value">'+tr("Value")+':</label>\
-                      </div>\
-                      <div class="seven columns">\
-                        <input type="text" id="custom_var_vnet_value" name="custom_var_vnet_value" />\
-                      </div>\
-                      <div class="one columns">\
-                      </div>\
-                    </div>\
-                    <div class="row">\
-                      <div class="six columns">\
-                        <button class="add_remove_button add_button secondary button right small radius" id="add_custom_var_vnet_button" value="add_custom_vnet_var">\
-                         '+tr("Add")+'\
-                        </button>\
-                      </div>\
-                      <div class="six columns">\
-                        <button class="add_remove_button secondary button small radius" id="remove_custom_var_vnet_button" value="remove_custom_vnet_var">\
-                         '+tr("Remove selected")+'\
-                        </button>\
+                      <div class="row">\
+                        <div class="large-12 columns">\
+                          <button class="add_remove_button add_button secondary button small radius" id="add_custom_var_vnet_button" value="add_custom_vnet_var">'+tr("Add")+'\</button>\
+                          <button class="add_remove_button secondary button small radius" id="remove_custom_var_vnet_button" value="remove_custom_vnet_var">'+tr("Remove selected")+'</button>\
+                        </div>\
                       </div>\
                     </div>\
-                  </div>\
-                  <div class="six columns">\
-                    <div class="row">\
-                      <div class="eight centered columns">\
-                        <select id="custom_var_vnet_box" name="custom_var_vnet_box" style="height:10em; width:100%" multiple>\
-                          <!-- insert leases -->\
-                        </select>\
+                    <div class="large-6 columns">\
+                      <div class="row">\
+                        <div class="large-12 columns">\
+                          <select id="custom_var_vnet_box" name="custom_var_vnet_box" style="height:10em !important; width:100%" multiple>\
+                            <!-- insert leases -->\
+                          </select>\
+                        </div>\
                       </div>\
                     </div>\
-                  </div>\
-                 </div>\
-              </fieldset>\
+                   </div>\
+                </fieldset>\
+              </div>\
             </div>\
         <div class="reveal-footer">\
-        <hr>\
         <div class="form_buttons">\
           <button class="button success radius right" id="create_vn_submit_easy" value="vn/create">\
              '+tr("Create")+'\
           </button>\
           <button id="wizard_vnet_reset_button" class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
-          <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
         </div>\
          </div>\
         </form>\
-      </li>\
-      <li id="vnet_advancedTab">\
+      </div>\
+      <div id="vnet_advanced" class="content">\
         <form id="create_vn_form_manual" action="">\
-            <h4><small>'+tr("Write the Virtual Network template here")+'</small></h4>\
-            <textarea id="template" rows="15" style="width:100%;"></textarea>\
-            <div class="reveal-footer">\
-              <hr>\
-              <div class="form_buttons">\
-                <button class="button success right radius" id="create_vn_submit_manual" value="vn/create">\
-                   '+tr("Create")+'\
-                </button>\
-                <button id="advanced_vnet_reset_button" class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
-                <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
-              </div>\
+          <div class="row">\
+            <div class="columns large-12">\
+              <h4><small>'+tr("Write the Virtual Network template here")+'</small></h4>\
             </div>\
+          </div>\
+          <div class="row">\
+            <div class="columns large-12">\
+              <textarea id="template" rows="15" style="width:100%;"></textarea>\
+            </div>\
+          </div>\
+          <div class="reveal-footer">\
+            <div class="form_buttons">\
+              <button class="button success right radius" id="create_vn_submit_manual" value="vn/create">'+tr("Create")+'</button>\
+              <button id="advanced_vnet_reset_button" class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
+            </div>\
+          </div>\
         </form>\
-      </li>\
-    </ul>\
+      </div>\
     </div>\
-    <a class="close-reveal-modal">&#215;</a>';
+  </div>\
+  <a class="close-reveal-modal">&#215;</a>';
 
 var update_vnet_tmpl =
    '<form action="javascript:alert(\'js error!\');">\
@@ -518,8 +361,13 @@ var vnet_actions = {
     "Network.refresh" : {
         type: "custom",
         call: function(){
+          var tab = dataTable_vNetworks.parents(".tab");
+          if (Sunstone.rightInfoVisible(tab)) {
+            Sunstone.runAction("Network.showinfo", Sunstone.rightInfoResourceId(tab))
+          } else {
             waitingNodes(dataTable_vNetworks);
             Sunstone.runAction("Network.list");
+          }
         }
     },
 
@@ -736,11 +584,31 @@ var vnet_info_panel = {
 
 var vnets_tab = {
     title: tr("Virtual Networks"),
-    content: vnets_tab_content,
     buttons: vnet_buttons,
     tabClass: "subTab",
     parentTab: "infra-tab",
-    showOnTopMenu: false
+    search_input: '<input id="vnet_search" type="text" placeholder="'+tr("Search")+'" />',
+    list_header: '<i class="fa fa-globe"></i> '+tr("Virtual Networks"),
+    info_header: '<i class="fa fa-globe"></i> '+tr("Virtual Network"),
+    subheader: '<span class="total_vnets"/> <small>'+tr("TOTAL")+'</small>&emsp;\
+        <span class="addresses_vnets"/> <small>'+tr("USED IPs")+'</small>',
+    table: '<table id="datatable_vnetworks" class="datatable twelve">\
+      <thead>\
+        <tr>\
+          <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
+          <th>'+tr("ID")+'</th>\
+          <th>'+tr("Owner")+'</th>\
+          <th>'+tr("Group")+'</th>\
+          <th>'+tr("Name")+'</th>\
+          <th>'+tr("Cluster")+'</th>\
+          <th>'+tr("Type")+'</th>\
+          <th>'+tr("Bridge")+'</th>\
+          <th>'+tr("Leases")+'</th>\
+        </tr>\
+      </thead>\
+      <tbody id="tbodyvnetworks">\
+      </tbody>\
+    </table>'
 }
 
 Sunstone.addActions(vnet_actions);
@@ -809,13 +677,8 @@ function updateVNetworksView(request, network_list){
 
     updateView(network_list_array,dataTable_vNetworks);
 
-    $("#total_vnets", $dashboard).text(network_list.length);
-    $("#addresses_vnets", $dashboard).text(addresses_vnets);
-
-    var form = $("#virtualNetworks_form");
-
-    $("#total_vnets", form).text(network_list.length);
-    $("#addresses_vnets", form).text(addresses_vnets);
+    $(".total_vnets").text(network_list.length);
+    $(".addresses_vnets").text(addresses_vnets);
 }
 
 //updates the information panel tabs and pops the panel up
@@ -823,11 +686,10 @@ function updateVNetworkInfo(request,vn){
     var vn_info = vn.VNET;
     var info_tab_content =
         '<div class="">\
-        <div class="six columns">\
-        <table id="info_vn_table" class="twelve datatable extended_table">\
+        <div class="large-6 columns">\
+        <table id="info_vn_table" class="dataTable extended_table">\
             <thead>\
-               <tr><th colspan="3">'+tr("Virtual Network")+' - '+vn_info.NAME+' '+
-                   '</th></tr>\
+               <tr><th colspan="3">'+tr("Information")+'</th></tr>\
             </thead>\
             <tr>\
               <td class="key_td">'+tr("ID")+'</td>\
@@ -845,29 +707,9 @@ function updateVNetworkInfo(request,vn){
             <tr>' +
         insert_cluster_dropdown("Network",vn_info.ID,vn_info.CLUSTER,vn_info.CLUSTER_ID) +
             '</tr>\
-            <tr>\
-              <td class="key_td">'+tr("Bridge")+'</td>\
-              <td class="value_td">'+ (typeof(vn_info.BRIDGE) == "object" ? "--": vn_info.BRIDGE) +'</td>\
-              <td></td>\
-            </tr>\
-            <tr>\
-              <td class="key_td">'+tr("VLAN")+'</td>\
-              <td class="value_td">'+ (vn_info.VLAN == "0" ? "no" : "yes") +'</td>\
-              <td></td>\
-            </tr>\
-            <tr>\
-              <td class="key_td">'+tr("Physical device")+'</td>\
-              <td class="value_td">'+ (typeof(vn_info.PHYDEV) == "object" ? "--": vn_info.PHYDEV) +'</td>\
-              <td></td>\
-            </tr>\
-            <tr>\
-              <td class="key_td">'+tr("VLAN ID")+'</td>\
-              <td class="value_td">'+ (typeof(vn_info.VLAN_ID) == "object" ? "--": vn_info.VLAN_ID) +'</td>\
-              <td></td>\
-            </tr>\
         </table>\
         </div>\
-        <div class="six columns">'
+        <div class="large-6 columns">'
             + insert_permissions_table('vnets-tab',
                                        "Network",
                                        vn_info.ID,
@@ -883,12 +725,14 @@ function updateVNetworkInfo(request,vn){
       </div>';
 
     var info_tab = {
-        title: tr("Information"),
+        title : tr("Info"),
+        icon: "fa-info-circle",
         content: info_tab_content
     };
 
     var leases_tab = {
-        title: tr("Lease management"),
+        title: tr("Leases"),
+        icon: "fa-list-ul",
         content: printLeases(vn_info)
     };
 
@@ -929,10 +773,10 @@ function updateVNetworkInfo(request,vn){
 // It adds the "add lease", "hold lease" fields, and each lease comes with
 // hold, release buttons etc. Listeners in setupLeasesOps()
 function printLeases(vn_info){
-    var html ='<form id="leases_form" vnid="'+vn_info.ID+'"><div class="twelve columns">';
+    var html ='<form id="leases_form" vnid="'+vn_info.ID+'"><div class="">';
     html +='';
 
-    html += '<table id="vn_leases_info_table" class="six datatable extended_table">\
+    html += '<div class="large-6 columns"><table id="vn_leases_info_table" class="dataTable extended_table">\
              <thead>\
                 <tr><th colspan="5">'+tr("Network information")+'</th></tr>\
              </thead>\
@@ -955,9 +799,9 @@ function printLeases(vn_info){
                 <td></td>\
                 <td></td>\
               </tr>\
-            </tbody></table>';
+            </tbody></table></div>';
 
-    html += '<table id="vn_leases_table" class="six datatable extended_table">\
+    html += '<div class="large-6 columns"><table id="vn_leases_table" class="dataTable extended_table">\
       <thead>\
         <tr><th colspan="7">'+tr("Leases information")+'</th></tr>\
       </thead>\
@@ -991,8 +835,8 @@ function printLeases(vn_info){
     };
 
     html +='</tbody>\
-      </table>\
-      <table class="twelve datatable extended_table">\
+      </table></div></div>\
+      <div class="large-12 columns"><table class="dataTable extended_table">\
       <thead>\
         <tr>\
         <th></th>\
@@ -1004,7 +848,7 @@ function printLeases(vn_info){
         <th>'+tr("IPv6 Global")+'</th>\
         </tr>\
       </thead>\
-      <tbody>';
+      <tbody></div>';
 
     var leases = vn_info.LEASES.LEASE;
 
@@ -1071,6 +915,9 @@ function printLeases(vn_info){
             }
             html += '</td>'
             html += '<td>'
+            if (Config.isTabActionEnabled("vnets-tab", "Network.remove_lease")) {
+              html += '<a class="delete_lease" href="#"><i class="fa fa-trash-o"/></a>';
+            }
             break;
         };
         html += '</td>'
@@ -1086,7 +933,7 @@ function printLeases(vn_info){
         html += '</tr>';
     };
 
-    html += '</tbody></table></div></form>';
+    html += '</tbody></table></form>';
 
     return html;
 }
@@ -1107,7 +954,7 @@ function setupCreateVNetDialog() {
     //    width: 475,
     //    height: height
     //});
-    dialog.addClass("reveal-modal xlarge max-height");
+    dialog.addClass("reveal-modal medium max-height").attr("data-reveal", "");
 
     //Make the tabs look nice for the creation mode
     //$('#vn_tabs',dialog).tabs();
@@ -1449,7 +1296,7 @@ function setupCreateVNetDialog() {
         };
 
         Sunstone.runAction("Network.create",network_json);
-        $create_vn_dialog.trigger("reveal:close")
+        $create_vn_dialog.trigger('close')
         return false;
     });
 
@@ -1457,21 +1304,21 @@ function setupCreateVNetDialog() {
         var template=$('#template',dialog).val();
         var vnet_json = {vnet: {vnet_raw: template}};
         Sunstone.runAction("Network.create",vnet_json);
-        $create_vn_dialog.trigger("reveal:close")
+        $create_vn_dialog.trigger('close')
         return false;
     });
 
     $('#wizard_vnet_reset_button').click(function(){
-        $create_vn_dialog.trigger('reveal:close');
-        $create_vn_dialog.remove();
+        $create_vn_dialog.trigger('close');
+        $create_vn_dialog.html("");
         setupCreateVNetDialog();
 
         popUpCreateVnetDialog();
     });
 
     $('#advanced_vnet_reset_button').click(function(){
-        $create_vn_dialog.trigger('reveal:close');
-        $create_vn_dialog.remove();
+        $create_vn_dialog.trigger('close');
+        $create_vn_dialog.html("");
         setupCreateVNetDialog();
 
         popUpCreateVnetDialog();
@@ -1480,7 +1327,7 @@ function setupCreateVNetDialog() {
 }
 
 function popUpCreateVnetDialog() {
-    $create_vn_dialog.reveal();
+    $create_vn_dialog.foundation().foundation('reveal', 'open');
     $("input#name",$create_vn_dialog).focus();
 }
 
@@ -1490,7 +1337,7 @@ function popUpCreateVnetDialog() {
 function setupLeasesOps(){
   if (Config.isTabActionEnabled("vnets-tab", "Network.addleases")) {
     $('button#panel_add_lease_button').live("click",function(){
-        var lease = $('input#panel_add_lease', dialog).val();
+        var lease = $('input#panel_add_lease').val();
         //var mac = $(this).previous().val();
         var id = $(this).parents('form').attr('vnid');
         if (lease.length){
@@ -1504,7 +1351,7 @@ function setupLeasesOps(){
   if (Config.isTabActionEnabled("vnets-tab", "Network.hold_lease")) {
     //ranged networks hold lease
     $('button#panel_hold_lease_button').live("click",function(){
-        var lease = $('input#panel_hold_lease', dialog).val();
+        var lease = $('input#panel_hold_lease').val();
         //var mac = $(this).previous().val();
         var id = $(this).parents('form').attr('vnid');
         if (lease.length){

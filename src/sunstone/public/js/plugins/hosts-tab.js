@@ -18,90 +18,23 @@
 /* HOST_HISTORY_LENGTH is ignored by server */
 var HOST_HISTORY_LENGTH = 40;
 
-var hosts_tab_content = '\
-<form class="custom" id="form_hosts" action="">\
-<div class="panel">\
-<div class="row">\
-  <div class="twelve columns">\
-    <h4 class="subheader header">\
-      <span class="header-resource">\
-        <i class="fa fa-hdd-o "></i> '+tr("Hosts")+'\
-      </span>\
-      <span class="header-info">\
-        <span id="total_hosts"/> <small>'+tr("TOTAL")+'</small>&emsp;\
-        <span id="on_hosts"/> <small>'+tr("ON")+'</small>&emsp;\
-        <span id="off_hosts"/> <small>'+tr("OFF")+'</small>&emsp;\
-        <span id="error_hosts"/> <small>'+tr("ERROR")+'</small>\
-      </span>\
-      <span class="user-login">\
-      </span>\
-    </h4>\
-  </div>\
-</div>\
-<div class="row">\
-  <div class="ten columns">\
-    <div class="action_blocks">\
-    </div>\
-  </div>\
-  <div class="two columns">\
-    <input id="hosts_search" type="text" placeholder="'+tr("Search")+'" />\
-  </div>\
-  <br>\
-  <br>\
-</div>\
-</div>\
-  <div class="row">\
-    <div class="twelve columns">\
-<table id="datatable_hosts" class="datatable twelve">\
-  <thead>\
-    <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
-      <th>' + tr("ID") + '</th>\
-      <th>' + tr("Name") + '</th>\
-      <th>' + tr("Cluster") + '</th>\
-      <th>' + tr("RVMs") + '</th>\
-      <th>' + tr("Real CPU") + '</th>\
-      <th>' + tr("Allocated CPU") + '</th>\
-      <th>' + tr("Real MEM") + '</th>\
-      <th>' + tr("Allocated MEM") + '</th>\
-      <th>' + tr("Status") + '</th>\
-      <th>' + tr("IM MAD") + '</th>\
-      <th>' + tr("VM MAD") + '</th>\
-      <th>' + tr("Last monitored on") + '</th>\
-    </tr>\
-  </thead>\
-  <tbody id="tbodyhosts">\
-  </tbody>\
-</table>\
-</form>';
-
 var create_host_tmpl =
-'<div class="panel">\
-    <h3 >\
-      <small id="create_cluster_header">'+tr("Create Host")+'</small>\
-    </h3>\
+'<div class="row">\
+    <h3 id="create_cluster_header" class="subheader">'+tr("Create Host")+'</h3>\
   </div>\
-  <form id="create_host_form" action="" class="">\
   <div class="reveal-body">\
+  <form id="create_host_form" action="" class="">\
   <div class="row">\
-      <div class="four columns">\
-          <label class="inline right" for="name">' + tr("Hostname")  + ':</label>\
-      </div>\
-      <div class="seven columns">\
+      <div class="large-12 columns">\
+          <label for="name">' + tr("Hostname")  + '</label>\
           <input type="text" name="name" id="name" />\
       </div>\
-      <div class="one columns">\
-          <div class="tip"></div>\
-      </div>\
   </div>\
-  <div class="row">\
   <fieldset>\
     <legend>'+tr("Drivers")+'</legend>\
     <div class="manager clear row" id="vmm_mads">\
-      <div class="four columns">\
-          <label class="inline right" for="vmm">' +  tr("Virtualization") + ':</label>\
-      </div>\
-      <div class="seven columns">\
+      <div class="large-12 columns">\
+          <label for="vmm">' +  tr("Virtualization") + '</label>\
           <select id="vmm_mad" name="vmm">\
                 <option value="kvm">' + tr("KVM") + '</option>\
                 <option value="xen">' + tr("XEN") + '</option>\
@@ -110,19 +43,15 @@ var create_host_tmpl =
                 <option value="dummy">' + tr("Dummy") + '</option>\
                 <option value="custom">' + tr("Custom") + '</option>\
           </select>\
-          <div>\
-          <label>' + tr("Custom VMM_MAD") + ':</label>\
-          <input type="text" name="custom_vmm_mad" /></div>\
       </div>\
-      <div class="one columns">\
-          <div class="tip"></div>\
+      <div class="large-12 columns">\
+          <label>' + tr("Custom VMM_MAD") + '</label>\
+          <input type="text" name="custom_vmm_mad" />\
       </div>\
     </div>\
     <div class="manager clear row" id="im_mads">\
-      <div class="four columns">\
-          <label class="inline right" for="im">' +  tr("Information") + ':</label>\
-      </div>\
-      <div class="seven columns">\
+      <div class="large-12 columns">\
+          <label for="im">' +  tr("Information") + '</label>\
           <select id="im_mad" name="im">\
                <option value="kvm">' + tr("KVM") + '</option>\
                <option value="xen">' + tr("XEN") + '</option>\
@@ -131,20 +60,15 @@ var create_host_tmpl =
                <option value="dummy">' + tr("Dummy") + '</option>\
                <option value="custom">' + tr("Custom") + '</option>\
           </select>\
-          <div>\
-            <label>' + tr("Custom IM_MAD") + ':</label>\
-            <input type="text" name="custom_im_mad" />\
-          </div>\
       </div>\
-      <div class="one columns">\
-          <div class="tip"></div>\
+      <div class="large-12 columns">\
+          <label>' + tr("Custom IM_MAD") + ':</label>\
+          <input type="text" name="custom_im_mad" />\
       </div>\
     </div>\
     <div class="manager clear row" id="vnm_mads">\
-      <div class="four columns">\
-          <label class="inline right" for="vn">' +  tr("Virtual Network") + ':</label>\
-      </div>\
-      <div class="seven columns">\
+      <div class="large-12 columns">\
+          <label for="vn">' +  tr("Networking") + '</label>\
           <select id="vnm_mad" name="vn">\
              <option value="dummy">' + tr("Default (dummy)") +'</option>\
              <option value="fw">'+tr("Firewall")+'</option>\
@@ -154,40 +78,29 @@ var create_host_tmpl =
              <option value="vmware">'+tr("VMware")+'</option>\
              <option value="custom">' + tr("Custom") + '</option>\
            </select>\
-           <div>\
-              <label>' + tr("Custom VNM_MAD") + ':</label>\
-              <input type="text" name="custom_vnm_mad" />\
-           </div>\
       </div>\
-      <div class="one columns">\
-          <div class="tip"></div>\
+      <div class="large-12 columns">\
+          <label>' + tr("Custom VNM_MAD") + '</label>\
+          <input type="text" name="custom_vnm_mad" />\
       </div>\
     </div>\
-    </fieldset>\
+  </fieldset>\
+  <div class="manager clear row" id="cluster_select">\
+    <div class="large-12 columns">\
+        <label for="host_cluster_id">' + tr("Cluster") + '</label>\
+        <select id="host_cluster_id" name="host_cluster_id">\
+        </select>\
+    </div>\
   </div>\
-    <div class="manager clear row" id="cluster_select">\
-      <div class="four columns">\
-          <label class="inline right" for="host_cluster_id">' + tr("Cluster") + ':</label>\
-      </div>\
-      <div class="seven columns">\
-          <select id="host_cluster_id" name="host_cluster_id">\
-           </select>\
-      </div>\
-      <div class="one columns">\
-          <div class="tip"></div>\
-      </div>\
-    </div>\
-    </div>\
-    <div class="reveal-footer">\
-      <hr>\
-      <div class="form_buttons row">\
-          <button class="button success right radius" type="submit" id="create_host_submit" value="OpenNebula.Host.create">' + tr("Create") + '</button>\
-          <button id="wizard_host_reset_button" class="button secondary radius" type="reset" value="reset">' + tr("Reset") + '</button>\
-          <button class="close-reveal-modal button secondary radius" action="" type="button" value="close">' + tr("Close") + '</button>\
-      </div>\
-    </div>\
-    <a class="close-reveal-modal">&#215;</a>\
-</form>';
+</div>\
+<div class="reveal-footer">\
+  <div class="form_buttons row">\
+      <button class="button success right radius" type="submit" id="create_host_submit" value="OpenNebula.Host.create">' + tr("Create") + '</button>\
+      <button id="wizard_host_reset_button" class="button secondary radius" type="reset" value="reset">' + tr("Reset") + '</button>\
+  </div>\
+</form>\
+</div>\
+<a class="close-reveal-modal">&#215;</a>';
 
 var hosts_select="";
 var dataTable_hosts;
@@ -235,8 +148,13 @@ var host_actions = {
     "Host.refresh" : {
         type: "custom",
         call: function(){
+          var tab = dataTable_hosts.parents(".tab");
+          if (Sunstone.rightInfoVisible(tab)) {
+            Sunstone.runAction("Host.showinfo", Sunstone.rightInfoResourceId(tab))
+          } else {
             waitingNodes(dataTable_hosts);
             Sunstone.runAction("Host.list");
+          }
         },
         error: onError
     },
@@ -309,41 +227,6 @@ var host_actions = {
         },
         error: hostMonitorError
     },
-/*
-    "Host.pool_monitor" : {
-        type: "monitor_global",
-        call : OpenNebula.Host.pool_monitor,
-        callback: function(req,response) {
-            var host_dashboard_graphs = [
-            {
-                monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU",
-                labels : tr("Allocated")+","+tr("Real")+","+tr("Total"),
-                humanize_figures : false,
-                div_graph : $("#dash_host_cpu_graph", $dashboard)
-                //div_legend : $("#dash_host_cpu_legend", $dashboard)
-            },
-            {
-                monitor_resources : "HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM",
-                labels : tr("Allocated")+","+tr("Real")+","+tr("Total"),
-                humanize_figures : true,
-                div_graph : $("#dash_host_mem_graph", $dashboard)
-            }
-            ];
-
-            for(var i=0; i<host_dashboard_graphs.length; i++) {
-                plot_totals(
-                    response,
-                    host_dashboard_graphs[i]
-                );
-            }
-
-            // TODO: refresh individual info panel graphs with this new data?
-        },
-
-        // TODO: ignore error, or set message similar to hostMonitorError?
-        error: onError
-    },
-*/
     "Host.update_template" : {
         type: "single",
         call: OpenNebula.Host.update,
@@ -460,11 +343,37 @@ var host_info_panel = {
 
 var hosts_tab = {
     title: tr("Hosts"),
-    content: hosts_tab_content,
     buttons: host_buttons,
     tabClass: "subTab",
     parentTab: "infra-tab",
-    showOnTopMenu: false
+    search_input: '<input id="hosts_search" type="text" placeholder="'+tr("Search")+'" />',
+    list_header: '<i class="fa fa-hdd-o "></i> '+tr("Hosts"),
+    info_header: '<i class="fa fa-hdd-o "></i> '+tr("Host"),
+    subheader: '<span class="total_hosts"/> <small>'+tr("TOTAL")+'</small>&emsp;\
+        <span class="on_hosts"/> <small>'+tr("ON")+'</small>&emsp;\
+        <span class="off_hosts"/> <small>'+tr("OFF")+'</small>&emsp;\
+        <span class="error_hosts"/> <small>'+tr("ERROR")+'</small>',
+    table: '<table id="datatable_hosts" class="datatable twelve">\
+      <thead>\
+        <tr>\
+          <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
+          <th>' + tr("ID") + '</th>\
+          <th>' + tr("Name") + '</th>\
+          <th>' + tr("Cluster") + '</th>\
+          <th>' + tr("RVMs") + '</th>\
+          <th>' + tr("Real CPU") + '</th>\
+          <th>' + tr("Allocated CPU") + '</th>\
+          <th>' + tr("Real MEM") + '</th>\
+          <th>' + tr("Allocated MEM") + '</th>\
+          <th>' + tr("Status") + '</th>\
+          <th>' + tr("IM MAD") + '</th>\
+          <th>' + tr("VM MAD") + '</th>\
+          <th>' + tr("Last monitored on") + '</th>\
+        </tr>\
+      </thead>\
+      <tbody id="tbodyhosts">\
+      </tbody>\
+    </table>'
 };
 
 Sunstone.addActions(host_actions);
@@ -675,17 +584,10 @@ function updateHostsView (request,host_list){
     updateView(host_list_array,dataTable_hosts);
     updateHostSelect();
 
-    $("#total_hosts", $dashboard).text(host_list.length);
-    $("#on_hosts", $dashboard).text(on_hosts);
-    $("#off_hosts", $dashboard).text(off_hosts);
-    $("#error_hosts", $dashboard).text(error_hosts);
-
-    var form_hosts = $("#form_hosts");
-
-    $("#total_hosts", form_hosts).text(host_list.length);
-    $("#on_hosts", form_hosts).text(on_hosts);
-    $("#off_hosts", form_hosts).text(off_hosts);
-    $("#error_hosts", form_hosts).text(error_hosts);
+    $(".total_hosts").text(host_list.length);
+    $(".on_hosts").text(on_hosts);
+    $(".off_hosts").text(off_hosts);
+    $(".error_hosts").text(error_hosts);
 
     if (do_host_monitoring_graphs){
         var host_dashboard_graphs = [
@@ -734,7 +636,7 @@ function insert_datastores_capacity_table(host_share) {
   var str = "";
 
   if (datastores.length) {
-    str += '<table id="info_host_datastore_table" class="twelve datatable extended_table">\
+    str += '<table id="info_host_datastore_table" class="dataTable extended_table">\
       <thead>\
         <tr>\
           <th>' + tr("Datastore ID") + '</th>\
@@ -766,13 +668,14 @@ function updateHostInfo(request,host){
 
     //Information tab
     var info_tab = {
-        title : tr("Information"),
+        title : tr("Info"),
+        icon: "fa-info-circle",
         content :
         '<div class="">\
-        <div class="six columns">\
-        <table id="info_host_table" class="twelve datatable extended_table">\
+        <div class="large-6 columns">\
+        <table id="info_host_table" class="dataTable extended_table">\
             <thead>\
-               <tr><th colspan="3">' + tr("Host") + ' - '+host_info.NAME+'</th></tr>\
+               <tr><th colspan="3">' + tr("Information") + '</th></tr>\
             </thead>\
             <tbody>\
             <tr>\
@@ -837,10 +740,10 @@ function updateHostInfo(request,host){
             </tbody>\
          </table>\
         </div>\
-        <div class="six columns">'
+        <div class="large-6 columns">'
         + insert_datastores_capacity_table(host_info.HOST_SHARE) +
         '</div>\
-        <div class="six columns">'
+        <div class="large-6 columns">'
         + insert_extended_template_table(host_info.TEMPLATE,
                                          "Host",
                                          host_info.ID,
@@ -852,31 +755,32 @@ function updateHostInfo(request,host){
 
     var monitor_tab = {
         title: tr("Graphs"),
+        icon: "fa-bar-chart-o",
         content:
         '<div class="">\
-            <div class="six columns">\
+            <div class="large-6 columns">\
               <div class="row graph_legend">\
                 <h3 class="subheader"><small>'+tr("CPU")+'</small></h3>\
               </div>\
               <div class="row">\
-                <div class="ten columns centered graph" id="host_cpu_graph" style="height: 100px;">\
+                <div class="large-10 columns centered graph" id="host_cpu_graph" style="height: 100px;">\
                 </div>\
               </div>\
               <div class="row graph_legend">\
-                <div class="ten columns centered" id="host_cpu_legend">\
+                <div class="large-10 columns centered" id="host_cpu_legend">\
                 </div>\
               </div>\
             </div>\
-            <div class="six columns">\
+            <div class="large-6 columns">\
               <div class="row graph_legend">\
                 <h3 class="subheader"><small>'+tr("MEMORY")+'</small></h3>\
               </div>\
               <div class="row">\
-                <div class="ten columns centered graph" id="host_mem_graph" style="height: 100px;">\
+                <div class="large-10 columns centered graph" id="host_mem_graph" style="height: 100px;">\
                 </div>\
               </div>\
               <div class="row graph_legend">\
-                <div class="ten columns centered" id="host_mem_legend">\
+                <div class="large-10 columns centered" id="host_mem_legend">\
                 </div>\
               </div>\
             </div>\
@@ -923,13 +827,13 @@ function updateHostInfo(request,host){
 
 //Prepares the host creation dialog
 function setupCreateHostDialog(){
-    dialogs_context.append('<div title=\"'+tr("Create host")+'\" id="create_host_dialog"></div>');
+    dialogs_context.append('<div id="create_host_dialog"></div>');
     $create_host_dialog = $('div#create_host_dialog');
     var dialog = $create_host_dialog;
 
     dialog.html(create_host_tmpl);
 
-    dialog.addClass("reveal-modal max-height");
+    dialog.addClass("reveal-modal max-height").attr("data-reveal", "");
 
     // Show custom driver input only when custom is selected in selects
     $('input[name="custom_vmm_mad"],'+
@@ -988,13 +892,13 @@ function setupCreateHostDialog(){
         //Create the OpenNebula.Host.
         //If it is successfull we refresh the list.
         Sunstone.runAction("Host.create",host_json);
-        $create_host_dialog.trigger("reveal:close")
+        $create_host_dialog.trigger('close')
         return false;
     });
 
     $('#wizard_host_reset_button').click(function(){
-        $create_host_dialog.trigger('reveal:close');
-        $create_host_dialog.remove();
+        $create_host_dialog.trigger('close');
+        $create_host_dialog.html("");
         setupCreateHostDialog();
 
         popUpCreateHostDialog();
@@ -1004,7 +908,7 @@ function setupCreateHostDialog(){
 //Open creation dialogs
 function popUpCreateHostDialog(){
     $('#host_cluster_id',$create_host_dialog).html(clusters_sel());
-    $create_host_dialog.reveal();
+    $create_host_dialog.foundation().foundation('reveal', 'open');
     $("input#name",$create_host_dialog).focus();
     return false;
 }

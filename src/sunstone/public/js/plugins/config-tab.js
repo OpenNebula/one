@@ -14,7 +14,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-var user_cookie = $.cookie("one-user");
+var user_cookie = cookie["one-user"];
 
 setInterval(function(){
     if (whichUI() == "sunstone") {
@@ -81,16 +81,14 @@ Config = {
 
 var config_response = {};
 var config_tab_content =
-'<div class="panel">\
-    <h3>\
-      <small id="configuration_dialog">'+tr("Configuration")+'</small>\
-    </h3>\
+'<div class="row">\
+    <h3 id="configuration_dialog" class="subheader">'+tr("Configuration")+'</h3>\
   </div>\
   <div class="reveal-body">\
   <form id="config_form">\
     <div class="row">\
-        <div class="six columns">\
-            <table id="user_information" class="twelve datatable extended_table">\
+        <div class="large-7 columns">\
+            <table id="user_information" class="dataTable extended_table">\
                 <thead>\
                    <tr><th colspan="3">' + tr("User information") +'</th></tr>\
                 </thead>\
@@ -99,13 +97,10 @@ var config_tab_content =
             </table>\
             <div id="setting_user_template"></div>\
         </div>\
-        <div class="six columns">\
+        <div class="large-5 columns">\
         <div class="row">\
-          <div class="six columns">\
-            <label class="right inline" for="lang_sel" >' + tr("Language") + ':</label>\
-          </div>\
-          <div class="six columns">\
-             <select id="lang_sel">\
+            <label for="lang_sel" >' + tr("Language") + ':\
+              <select id="lang_sel">\
                  <option value="en_US">English (en_US)</option>\
                  <option value="ca">Catalan (ca)</option>\
                  <option value="cs_CZ">Czech (cs_CZ)</option>\
@@ -124,65 +119,51 @@ var config_tab_content =
                  <option value="sk_SK">Slovak (sk_SK)</option>\
                  <option value="es_ES">Spanish (es_ES)</option>\
                  <option value="zh_TW">Traditional Chinese (zh_TW)</option>\
-             </select>\
-          </div>\
+              </select>\
+            </label>\
         </div>\
         <div class="row">\
-            <div class="six columns">\
-              <label class="right inline" for="view_sel" >' + tr("Views") + ':</label>\
-            </div>\
-            <div class="six columns">\
-               <select id="view_sel">\
-               </select>\
-            </div>\
+              <label for="view_sel" >' + tr("Views") + ':\
+                 <select id="view_sel">\
+                 </select>\
+              </label>\
         </div>\
         <div class="row">\
-            <div class="six columns">\
-              <label class="right inline" for="table_order" >' + tr("Default Table order") + ':</label>\
-            </div>\
-            <div class="six columns">\
-               <select id="table_order">\
-                 <option value="asc">ascending</option>\
-                 <option value="desc">descending</option>\
-               </select>\
-            </div>\
+              <label for="table_order" >' + tr("Default Table order") + ':\
+                 <select id="table_order">\
+                   <option value="asc">ascending</option>\
+                   <option value="desc">descending</option>\
+                 </select>\
+              </label>\
         </div>\
         <div class="row">\
-            <div class="six columns">\
-              <label class="right inline" for="wss_checkbox" >' + tr("VNC Secure websockets") + ':</label>\
-            </div>\
-            <div class="six columns">\
-              <input id="wss_checkbox" type="checkbox" value="yes" />\
-            </div>\
+              <label for="wss_checkbox" >' + tr("VNC Secure websockets") + ':\
+                <input id="wss_checkbox" type="checkbox" value="yes" />\
+              </label>\
         </div>\
         <div class="">\
-            <dl class="tabs">\
+            <dl class="tabs" data-tab>\
               <dd class="active"><a href="#user_quotas">User Quotas</a></dd>\
               <dd><a href="#group_quotas">Group Quotas</a></dd>\
             </dl>\
-            <ul class="tabs-content">\
-              <li class="active" id="user_quotasTab"></li>\
-              <li id="group_quotasTab">\
+            <div class="tabs-content">\
+              <div class="content active" id="user_quotas"><span>'+tr("No quotas defined")+'</span></div>\
+              <div id="group_quotas" class="content">\
                 <div class="row">\
-                  <div class="six columns">\
-                    <label class="right inline">' + tr("Select group") + ':</label>\
-                  </div>\
-                  <div class="six columns">\
-                    <select id="quota_group_sel">\
-                    </select>\
-                  </div>\
+                    <label>' + tr("Select group") + ':\
+                      <select id="quota_group_sel">\
+                      </select>\
+                    </label>\
                 </div>\
-                <div id="group_quotasTabBody"></div>\
-              </li>\
-            </ul>\
+                <div id="group_quotasTabBody"><span>'+tr("No quotas defined")+'</span></div>\
+              </div>\
+            </div>\
         </div>\
       </div>\
     </div>\
     <div class="reveal-footer">\
-        <hr>\
         <div class="form_buttons">\
           <button class="button radius right success" id="config_submit" type="button" value="">'+tr("Update config")+'</button>\
-          <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
         </div>\
     </div>\
   </form>\
@@ -197,31 +178,30 @@ var settings_update_password = '<div class="panel">\
 </div>\
 <form id="settings_update_password_form" action="">\
       <div class="row centered">\
-          <div class="four columns">\
+          <div class="large-4 columns">\
               <label class="inline right" for="new_password">'+tr("New password")+':</label>\
           </div>\
-          <div class="seven columns">\
+          <div class="large-7 columns">\
               <input type="password" name="new_password" id="new_password" />\
           </div>\
-          <div class="one columns">\
+          <div class="large-1 columns">\
               <div class=""></div>\
           </div>\
       </div>\
       <div class="row centered">\
-          <div class="four columns">\
+          <div class="large-4 columns">\
               <label class="inline right" for="confirm_password">'+tr("Confirm Password")+':</label>\
           </div>\
-          <div class="seven columns">\
+          <div class="large-7 columns">\
               <input type="password" name="confirm_password" id="confirm_password" />\
           </div>\
-          <div class="one columns">\
+          <div class="large-1 columns">\
               <div class=""></div>\
           </div>\
       </div>\
       <hr>\
       <div class="form_buttons">\
           <button class="button radius right success" id="update_pw_submit" type="submit" value="User.update">'+tr("Change")+'</button>\
-          <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
       </div>\
   <a class="close-reveal-modal">&#215;</a>\
 </form>';
@@ -252,10 +232,10 @@ function setupUpdatePassword() {
     var dialog = $('#settings_update_password',dialogs_context);
     dialog.html(settings_update_password);
 
-    dialog.addClass("reveal-modal");
+    dialog.addClass("reveal-modal").attr("data-reveal", "");
 
     $('#update_password').live('click', function(){
-        $('#settings_update_password',dialogs_context).reveal();
+        $('#settings_update_password',dialogs_context).foundation().foundation('reveal', 'open');
         return false;
     });
 
@@ -274,7 +254,7 @@ function setupUpdatePassword() {
         }
 
         Sunstone.runAction("UserSettings.passwd",[-1],pw);
-        $('#settings_update_password',dialogs_context).trigger("reveal:close")
+        $('#settings_update_password',dialogs_context).trigger('close')
         return false;
     });
 }
@@ -286,7 +266,7 @@ function setupConfigDialog() {
     var dialog = $config_dialog;
     dialog.html(config_tab_content);
 
-    dialog.addClass("reveal-modal xlarge max-height");
+    dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
 
     setupTips(dialog);
 
@@ -376,7 +356,7 @@ function updateUserConfigInfo(request,user_json) {
     quotas_tab_html += Quotas.network(info, default_user_quotas);
     quotas_tab_html += Quotas.datastore(info, default_user_quotas);
 
-    $("#user_quotasTab").html(quotas_tab_html);
+    $("#user_quotas").html(quotas_tab_html);
 
     $("#user_information tbody").html('<tr>\
         <td class="key_td">' + tr("ID") + '</td>\
@@ -405,7 +385,7 @@ function updateUserConfigInfo(request,user_json) {
     </tr>\
     <tr>\
         <td class="key_td">' + tr("Password") + '</td>\
-        <td class="value_td" colspan="2"><button id="update_password" type="button" class="button tiny secondary radius" >' + tr("Update password") + '</button></td>\
+        <td class="value_td" colspan="2"><button id="update_password" type="button" class="button tiny radius" >' + tr("Update password") + '</button></td>\
     </tr>')
 
     $("#setting_user_template").html(
@@ -493,7 +473,7 @@ $(document).ready(function(){
     setupConfigDialog();
     setupUpdatePassword();
 
-    $("span.user-login a.configuration").click(function(){
+    $(".user-zone-info a.configuration").click(function(){
         fillUserInfo();
 
         OpenNebula.Group.list(
@@ -513,6 +493,6 @@ $(document).ready(function(){
             }
         });
 
-        $config_dialog.reveal();
+        $config_dialog.foundation().foundation('reveal', 'open');
     });
 });

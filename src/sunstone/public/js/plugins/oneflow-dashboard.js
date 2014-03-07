@@ -15,7 +15,8 @@
 //------------------------------------------------------------------------- //
 
 var oneflow_dashboard_tab = {
-    title: '<i class="fa fa-code-fork fa fa-rotate-90"></i> OneFlow'
+    title: '<i class="fa fa-code-fork fa fa-rotate-90"></i> OneFlow',
+    no_content: true
 }
 
 

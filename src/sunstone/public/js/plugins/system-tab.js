@@ -15,7 +15,8 @@
 /* -------------------------------------------------------------------------- */
 
 var system_tab = {
-    title: '<i class="fa fa-cogs"></i>'+tr("System")
+    title: '<i class="fa fa-cogs"></i>'+tr("System"),
+    no_content: true
 }
 
 Sunstone.addMainTab('system-tab',system_tab);

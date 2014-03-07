@@ -26,21 +26,21 @@ function setupCreateZoneDialog(){
     var dialog = $create_zone_dialog;
 
     dialog.html(create_zone_tmpl);
-    dialog.addClass("reveal-modal");
+    dialog.addClass("reveal-modal").attr("data-reveal", "");
 
     $('#create_zone_form',dialog).submit(function(){
         var name=$('#zonename',this).val();
         var endpoint=$("#endpoint",this).val();
         var zone_json = { "zone" : { "name" : name, "endpoint" : endpoint}};
         Sunstone.runAction("Zone.create",zone_json);
-        $create_zone_dialog.trigger("reveal:close");
+        $create_zone_dialog.trigger('close');
         return false;
     });
 
 }
 
 function popUpCreateZoneDialog(){
-    $create_zone_dialog.reveal();
+    $create_zone_dialog.foundation().foundation('reveal', 'open');
     $("input#name",$create_zone_dialog).focus();
     return false;
 }
@@ -52,84 +52,26 @@ function popUpCreateZoneDialog(){
 //}
 
 var create_zone_tmpl =
-'<div class="panel">\
-  <h3>\
-    <small id="create_zone_header">'+tr("Create Zone")+'</small>\
-  </h3>\
+'<div class="row">\
+  <h3 id="create_zone_header" class="subheader">'+tr("Create Zone")+'</h3>\
 </div>\
 <form id="create_zone_form" action="">\
-    <div class="row centered">\
-      <div class="four columns">\
-        <label class="inline right" for="zonename">'+tr("Zone Name")+':</label>\
-      </div>\
-      <div class="seven columns">\
-        <input type="text" name="zonename" id="zonename" />\
-      </div>\
-      <div class="one columns">\
-        <div class=""></div>\
-      </div>\
-    </div>\
-    <div class="row centered">\
-      <div class="four columns">\
-        <label class="inline right" for="endpoint">'+tr("Endpoint")+':</label>\
-      </div>\
-      <div class="seven columns">\
-        <input type="text" name="endpoint" id="endpoint" />\
-      </div>\
-      <div class="one columns">\
-        <div class=""></div>\
-      </div>\
-    </div>\
-    <hr>\
-      <div class="form_buttons">\
-          <button class="button radius right success" id="create_zone_submit" value="zone/create">'+tr("Create")+'</button>\
-          <button class="close-reveal-modal button secondary radius" type="button" value="close">' + tr("Close") + '</button>\
-      </div>\
-      <a class="close-reveal-modal">&#215;</a>\
-</form>';
-
-
-var zones_tab_content = '\
-<form class="custom" id="form_cluters" action="">\
-<div class="panel">\
-<div class="row">\
-  <div class="twelve columns">\
-    <h4 class="subheader header">\
-      <span class="header-resource">\
-        <i class="icon-copy"></i> '+tr("Zones")+'\
-      </span>\
-      <span class="header-info">\
-        <span/> <small></small>&emsp;\
-      </span>\
-      <span class="user-login">\
-      </span>\
-    </h4>\
-  </div>\
-</div>\
-<div class="row">\
-  <div class="ten columns">\
-    <div class="action_blocks">\
-    </div>\
-  </div>\
-  <div class="two columns">\
-    <input id="zone_search" type="text" placeholder="'+tr("Search")+'" />\
-  </div>\
-</div>\
-</div>\
   <div class="row">\
-    <div class="twelve columns">\
-<table id="datatable_zones" class="datatable twelve">\
-  <thead>\
-    <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
-      <th>' + tr("ID") + '</th>\
-      <th>' + tr("Name") + '</th>\
-      <th>' + tr("Endpoint") + '</th>\
-    </tr>\
-  </thead>\
-  <tbody id="tbodyzones">\
-  </tbody>\
-</table>\
+    <div class="large-12 columns">\
+      <label for="zonename">'+tr("Zone Name")+':</label>\
+      <input type="text" name="zonename" id="zonename" />\
+    </div>\
+  </div>\
+  <div class="row centered">\
+    <div class="large-12 columns">\
+      <label for="endpoint">'+tr("Endpoint")+':</label>\
+      <input type="text" name="endpoint" id="endpoint" />\
+    </div>\
+  </div>\
+  <div class="form_buttons">\
+      <button class="button radius right success" id="create_zone_submit" value="zone/create">'+tr("Create")+'</button>\
+  </div>\
+  <a class="close-reveal-modal">&#215;</a>\
 </form>';
 
 var zones_select="";
@@ -185,8 +127,13 @@ var zone_actions = {
     "Zone.refresh" : {
         type: "custom",
         call: function(){
+          var tab = dataTable_zones.parents(".tab");
+          if (Sunstone.rightInfoVisible(tab)) {
+            Sunstone.runAction("Zone.showinfo", Sunstone.rightInfoResourceId(tab))
+          } else {
             waitingNodes(dataTable_zones);
             Sunstone.runAction("Zone.list");
+          }
         },
         error: onError
     },
@@ -266,11 +213,25 @@ var zone_buttons = {
 
 var zones_tab = {
     title: tr("Zones"),
-    content: zones_tab_content,
     buttons: zone_buttons,
-    showOnTopMenu: false,
     tabClass: "subTab",
-    parentTab: "infra-tab"
+    parentTab: "infra-tab",
+    search_input: '<input id="zone_search" type="text" placeholder="'+tr("Search")+'" />',
+    list_header: '<i class="fa fa-files-o"></i> '+tr("Zones"),
+    info_header: '<i class="fa fa-files-o"></i> '+tr("Zone"),
+    subheader: '<span/> <small></small>&emsp;',
+    table: '<table id="datatable_zones" class="datatable twelve">\
+      <thead>\
+        <tr>\
+          <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
+          <th>' + tr("ID") + '</th>\
+          <th>' + tr("Name") + '</th>\
+          <th>' + tr("Endpoint") + '</th>\
+        </tr>\
+      </thead>\
+      <tbody id="tbodyzones">\
+      </tbody>\
+    </table>'
 };
 
 var zone_info_panel = {
@@ -358,19 +319,18 @@ function updateZoneInfo(request,zone){
 
     //Information tab
     var info_tab = {
-        title : tr("Information"),
+        title : tr("Info"),
+        icon: "fa-info-circle",
         content :
         '<form class="custom"><div class="">\
-        <div class="six columns">\
-        <table id="info_zone_table" class="twelve datatable extended_table">\
+        <div class="large-6 columns">\
+        <table id="info_zone_table" class="dataTable extended_table">\
             <thead>\
-               <tr><th colspan="3">' +
-                        tr("Zone") +
-                        ' - '+zone_info.NAME+'</th></tr>\
+               <tr><th colspan="3">' + tr("Information") +'</th></tr>\
             </thead>\
             <tbody>\
             <tr>\
-                <td class="key_td">' + tr("id") + '</td>\
+                <td class="key_td">' + tr("ID") + '</td>\
                 <td class="value_td" colspan="2">'+zone_info.ID+'</td>\
             </tr>\
             <tr>\
@@ -384,7 +344,7 @@ function updateZoneInfo(request,zone){
             </tbody>\
          </table>\
         </div>\
-        <div class="six columns">'
+        <div class="large-6 columns">'
                 + insert_extended_template_table(zone_template,
                                          "Zone",
                                          zone_info.ID,
