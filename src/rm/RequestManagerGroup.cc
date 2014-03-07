@@ -33,8 +33,8 @@ void GroupSetQuota::
 
     if ( id == GroupPool::ONEADMIN_ID )
     {
-        failure_response(ACTION, 
-                       request_error("Cannot set quotas for oneadmin group",""), 
+        failure_response(ACTION,
+                       request_error("Cannot set quotas for oneadmin group",""),
                        att);
         return;
     }
@@ -82,33 +82,6 @@ void GroupSetQuota::
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int GroupEditProvider::get_info_without_error(
-        PoolSQL *                 pool,
-        int                       id,
-        PoolObjectSQL::ObjectType type,
-        RequestAttributes&        att,
-        PoolObjectAuth&           perms,
-        string&                   name)
-{
-    PoolObjectSQL * ob;
-
-    if ((ob = pool->get(id,true)) == 0 )
-    {
-        return -1;
-    }
-
-    ob->get_permissions(perms);
-
-    name = ob->get_name();
-
-    ob->unlock();
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void GroupEditProvider::request_execute(
         xmlrpc_c::paramList const&  paramList,
         RequestAttributes&          att)
@@ -137,15 +110,15 @@ void GroupEditProvider::request_execute(
     // -------------------------------------------------------------------------
 
     rc = get_info(pool, group_id, PoolObjectSQL::GROUP,
-                    att, group_perms, group_name);
+                    att, group_perms, group_name, true);
 
     if ( rc == -1 )
     {
         return;
     }
 
-    rc = get_info_without_error(zonepool, zone_id, PoolObjectSQL::ZONE,
-                    att, zone_perms, zone_name);
+    rc = get_info(zonepool, zone_id, PoolObjectSQL::ZONE, att, zone_perms,
+                    zone_name, false);
 
     zone_exists = (rc == 0);
 
@@ -161,8 +134,8 @@ void GroupEditProvider::request_execute(
 
     if (cluster_id != ClusterPool::ALL_RESOURCES && zone_id == local_zone_id)
     {
-        rc = get_info_without_error(clpool, cluster_id, PoolObjectSQL::CLUSTER,
-                        att, cluster_perms, cluster_name);
+        rc = get_info(clpool, cluster_id, PoolObjectSQL::CLUSTER, att,
+                        cluster_perms, cluster_name, false);
 
         cluster_exists = (rc == 0);
 

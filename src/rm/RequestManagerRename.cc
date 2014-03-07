@@ -44,7 +44,7 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    rc = get_info(pool, oid, auth_object, att, operms, old_name);
+    rc = get_info(pool, oid, auth_object, att, operms, old_name, true);
 
     if ( rc == -1 )
     {

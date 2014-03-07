@@ -178,7 +178,7 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
     if ( cluster_id != ClusterPool::NONE_CLUSTER_ID )
     {
         rc = get_info(clpool, cluster_id, PoolObjectSQL::CLUSTER, att,
-                cluster_perms, cluster_name);
+                cluster_perms, cluster_name, true);
 
         if ( rc != 0 )
         {

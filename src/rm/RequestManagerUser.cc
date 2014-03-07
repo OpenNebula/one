@@ -225,14 +225,14 @@ void UserEditGroup::
     PoolObjectAuth uperms;
     PoolObjectAuth gperms;
 
-    rc = get_info(upool, user_id, PoolObjectSQL::USER, att, uperms, uname);
+    rc = get_info(upool, user_id, PoolObjectSQL::USER, att, uperms, uname,true);
 
     if ( rc == -1 )
     {
         return;
     }
 
-    rc = get_info(gpool, group_id, PoolObjectSQL::GROUP, att, gperms, gname);
+    rc = get_info(gpool,group_id,PoolObjectSQL::GROUP,att,gperms,gname,true);
 
     if ( rc == -1 )
     {

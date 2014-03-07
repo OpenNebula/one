@@ -678,13 +678,18 @@ int Request::get_info(
         PoolObjectSQL::ObjectType type,
         RequestAttributes&        att,
         PoolObjectAuth&           perms,
-        string&                   name)
+        string&                   name,
+        bool                      throw_error)
 {
     PoolObjectSQL * ob;
 
     if ((ob = pool->get(id,true)) == 0 )
     {
-        failure_response(NO_EXISTS, get_error(object_name(type), id), att);
+        if (throw_error)
+        {
+            failure_response(NO_EXISTS, get_error(object_name(type), id), att);
+        }
+
         return -1;
     }
 

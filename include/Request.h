@@ -117,8 +117,8 @@ protected:
 
     /* -------------------- Constructors ---------------------------------- */
 
-    Request(const string& mn, 
-            const string& signature, 
+    Request(const string& mn,
+            const string& signature,
             const string& help): pool(0),method_name(mn)
     {
         _signature = signature;
@@ -132,8 +132,8 @@ protected:
 
     /**
      *  Performs a basic authorization for this request using the uid/gid
-     *  from the request. The function gets the object from the pool to get 
-     *  the public attribute and its owner. The authorization is based on 
+     *  from the request. The function gets the object from the pool to get
+     *  the public attribute and its owner. The authorization is based on
      *  object and type of operation for the request.
      *    @param oid of the object, can be -1 for objects to be created, or
      *    pools.
@@ -305,6 +305,7 @@ protected:
      *
      * @param perms returns the object's permissions
      * @param name returns the object's name
+     * @param throw_error send error response to client if object not found
      *
      * @return 0 on success, -1 otherwise
      */
@@ -313,7 +314,8 @@ protected:
                   PoolObjectSQL::ObjectType type,
                   RequestAttributes&        att,
                   PoolObjectAuth&           perms,
-                  string&                   name);
+                  string&                   name,
+                  bool                      throw_error);
 
     /**
      * Logs the method invocation, including the arguments

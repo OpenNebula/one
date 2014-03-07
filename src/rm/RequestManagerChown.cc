@@ -41,11 +41,11 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
 
     object = pool->get(oid,true);
 
-    if ( object == 0 ) 
+    if ( object == 0 )
     {
         failure_response(NO_EXISTS,
                          get_error(object_name(auth_object), oid),
-                         att);         
+                         att);
         return 0;
     }
 
@@ -54,7 +54,7 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
         tmpl  = (static_cast<VirtualMachine*>(object))->clone_template();
         qtype = Quotas::VIRTUALMACHINE;
     }
-    else 
+    else
     {
         Image * img = static_cast<Image *>(object);
         tmpl        = new Template;
@@ -71,7 +71,7 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
     }
     else
     {
-        old_uid = object->get_uid();    
+        old_uid = object->get_uid();
     }
 
     if ( new_gid == -1 )
@@ -84,7 +84,7 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
     }
 
     object->unlock();
-    
+
     RequestAttributes att_new(new_uid, new_gid, att);
     RequestAttributes att_old(old_uid, old_gid, att);
 
@@ -104,16 +104,16 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
 
     if ( object == 0 )
     {
-        quota_rollback(tmpl, qtype, att_new);    
+        quota_rollback(tmpl, qtype, att_new);
 
         quota_authorization(tmpl, qtype, att_old, error_str);
 
         failure_response(NO_EXISTS,
                          get_error(object_name(auth_object), oid),
-                         att);   
+                         att);
     }
 
-    delete tmpl; 
+    delete tmpl;
 
     return object;
 }
@@ -173,7 +173,7 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
     int ngid = xmlrpc_c::value_int(paramList.getInt(3));
 
     int rc;
-   
+
     string oname;
     string nuname;
     string ngname;
@@ -191,18 +191,18 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( noid > -1  )
     {
-        rc = get_info(upool, noid, PoolObjectSQL::USER, att, nuperms, nuname);
+        rc = get_info(upool,noid,PoolObjectSQL::USER,att,nuperms,nuname,true);
 
         if ( rc == -1 )
         {
             return;
         }
     }
-    
+
     if ( ngid > -1  )
     {
-        rc = get_info(gpool, ngid, PoolObjectSQL::GROUP, att, ngperms, ngname);
-        
+        rc = get_info(gpool,ngid,PoolObjectSQL::GROUP,att,ngperms,ngname,true);
+
         if ( rc == -1 )
         {
             return;
@@ -215,7 +215,7 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
     {
         AuthRequest ar(att.uid, att.group_ids);
 
-        rc = get_info(pool, oid, auth_object, att, operms, oname);
+        rc = get_info(pool, oid, auth_object, att, operms, oname, true);
 
         if ( rc == -1 )
         {
@@ -256,7 +256,7 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     // --------------- Update the object and check quotas ----------------------
 
-    if ( auth_object == PoolObjectSQL::VM || 
+    if ( auth_object == PoolObjectSQL::VM ||
          auth_object == PoolObjectSQL::IMAGE )
     {
         object = get_and_quota(oid, noid, ngid, att);
@@ -278,7 +278,7 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ( noid != -1 )    
+    if ( noid != -1 )
     {
         obj_name = object->get_name();
         old_uid  = object->get_uid();
@@ -295,7 +295,7 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     object->unlock();
 
-    if ( noid != -1 )    
+    if ( noid != -1 )
     {
         pool->update_cache_index(obj_name, old_uid, obj_name, noid);
     }
@@ -334,14 +334,14 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    rc = get_info(upool, oid, PoolObjectSQL::USER, att, uperms, uname);
+    rc = get_info(upool, oid, PoolObjectSQL::USER, att, uperms, uname, true);
 
     if ( rc == -1 )
     {
         return;
     }
 
-    rc = get_info(gpool, ngid, PoolObjectSQL::GROUP, att, ngperms, ngname);
+    rc = get_info(gpool, ngid, PoolObjectSQL::GROUP, att, ngperms, ngname,true);
 
     if ( rc == -1 )
     {
@@ -384,13 +384,13 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     user = upool->get(oid,true);
 
-    if ( user == 0 )                             
-    {                                            
+    if ( user == 0 )
+    {
         failure_response(NO_EXISTS,
                 get_error(object_name(PoolObjectSQL::USER),oid),
                 att);
         return;
-    }    
+    }
 
     if ((old_gid = user->get_gid()) == ngid)
     {
@@ -414,7 +414,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     upool->update(user);
-    
+
     user->unlock();
 
     // ------------- Updates new group with this new user ---------------------
@@ -423,7 +423,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     if( group == 0 )
     {
-        failure_response(NO_EXISTS, 
+        failure_response(NO_EXISTS,
                 get_error(object_name(PoolObjectSQL::GROUP),ngid),
                 att);//TODO Rollback
         return;

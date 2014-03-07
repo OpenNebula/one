@@ -49,7 +49,8 @@ void RequestManagerCluster::add_generic(
 
     if ( cluster_id != ClusterPool::NONE_CLUSTER_ID )
     {
-        rc = get_info(clpool, cluster_id, PoolObjectSQL::CLUSTER, att, c_perms, cluster_name);
+        rc = get_info(clpool, cluster_id, PoolObjectSQL::CLUSTER, att, c_perms,
+                cluster_name, true);
 
         if ( rc == -1 )
         {
@@ -61,7 +62,7 @@ void RequestManagerCluster::add_generic(
         cluster_name = ClusterPool::NONE_CLUSTER_NAME;
     }
 
-    rc = get_info(pool, object_id, type, att, obj_perms, obj_name);
+    rc = get_info(pool, object_id, type, att, obj_perms, obj_name, true);
 
     if ( rc == -1 )
     {
