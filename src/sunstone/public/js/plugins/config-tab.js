@@ -254,7 +254,7 @@ function setupUpdatePassword() {
         }
 
         Sunstone.runAction("UserSettings.passwd",[-1],pw);
-        $('#settings_update_password',dialogs_context).foundation('reveal', 'close')
+        $('#settings_update_password',dialogs_context).trigger('close')
         return false;
     });
 }

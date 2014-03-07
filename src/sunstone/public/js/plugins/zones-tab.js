@@ -33,7 +33,7 @@ function setupCreateZoneDialog(){
         var endpoint=$("#endpoint",this).val();
         var zone_json = { "zone" : { "name" : name, "endpoint" : endpoint}};
         Sunstone.runAction("Zone.create",zone_json);
-        $create_zone_dialog.foundation('reveal', 'close');
+        $create_zone_dialog.trigger('close');
         return false;
     });
 

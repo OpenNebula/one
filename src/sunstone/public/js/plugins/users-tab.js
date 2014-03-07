@@ -790,7 +790,7 @@ function setupCreateUserDialog(){
         }
 
         Sunstone.runAction("User.create",user_json);
-        $create_user_dialog.foundation('reveal', 'close');
+        $create_user_dialog.trigger('close');
         return false;
     });
 }
@@ -818,7 +818,7 @@ function setupUpdatePasswordDialog(){
         }
 
         Sunstone.runAction("User.passwd",getSelectedNodes(dataTable_users),pw);
-        $update_pw_dialog.foundation('reveal', 'close');
+        $update_pw_dialog.trigger('close');
         return false;
     });
 };
@@ -850,7 +850,7 @@ function setupChangeAuthenticationDialog(){
         }
 
         Sunstone.runAction("User.chauth",getSelectedNodes(dataTable_users), driver);
-        $change_auth_dialog.foundation('reveal', 'close');
+        $change_auth_dialog.trigger('close');
         return false;
     });
 };

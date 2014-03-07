@@ -588,7 +588,7 @@ function setupCreateAclDialog(){
 
         var acl_json = { "acl" : acl_string };
         Sunstone.runAction("Acl.create",acl_json);
-        $create_acl_dialog.foundation('reveal', 'close');
+        $create_acl_dialog.trigger('close');
         return false;
     });
 }

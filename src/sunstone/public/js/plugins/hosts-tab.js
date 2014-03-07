@@ -892,13 +892,13 @@ function setupCreateHostDialog(){
         //Create the OpenNebula.Host.
         //If it is successfull we refresh the list.
         Sunstone.runAction("Host.create",host_json);
-        $create_host_dialog.foundation('reveal', 'close')
+        $create_host_dialog.trigger('close')
         return false;
     });
 
     $('#wizard_host_reset_button').click(function(){
-        $create_host_dialog.foundation('reveal', 'close');
-        $create_host_dialog.remove();
+        $create_host_dialog.trigger('close');
+        $create_host_dialog.html("");
         setupCreateHostDialog();
 
         popUpCreateHostDialog();

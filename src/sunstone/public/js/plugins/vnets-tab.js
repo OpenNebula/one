@@ -1296,7 +1296,7 @@ function setupCreateVNetDialog() {
         };
 
         Sunstone.runAction("Network.create",network_json);
-        $create_vn_dialog.foundation('reveal', 'close')
+        $create_vn_dialog.trigger('close')
         return false;
     });
 
@@ -1304,21 +1304,21 @@ function setupCreateVNetDialog() {
         var template=$('#template',dialog).val();
         var vnet_json = {vnet: {vnet_raw: template}};
         Sunstone.runAction("Network.create",vnet_json);
-        $create_vn_dialog.foundation('reveal', 'close')
+        $create_vn_dialog.trigger('close')
         return false;
     });
 
     $('#wizard_vnet_reset_button').click(function(){
-        $create_vn_dialog.foundation('reveal', 'close');
-        $create_vn_dialog.remove();
+        $create_vn_dialog.trigger('close');
+        $create_vn_dialog.html("");
         setupCreateVNetDialog();
 
         popUpCreateVnetDialog();
     });
 
     $('#advanced_vnet_reset_button').click(function(){
-        $create_vn_dialog.foundation('reveal', 'close');
-        $create_vn_dialog.remove();
+        $create_vn_dialog.trigger('close');
+        $create_vn_dialog.html("");
         setupCreateVNetDialog();
 
         popUpCreateVnetDialog();

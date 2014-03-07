@@ -1690,7 +1690,7 @@ function setupScaleDialog(){
 
         Sunstone.runAction('Role.update', roleElements(), obj);
 
-        $scale_dialog.foundation('reveal', 'close')
+        $scale_dialog.trigger('close')
         return false;
     });
 };

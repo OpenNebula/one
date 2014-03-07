@@ -2049,7 +2049,7 @@ function setupDateTimePicker(input_to_fill, time_str){
         $(input_to_fill).val(date_str);
         $(input_to_fill).trigger("change");
 
-        $date_time_picker_dialog.foundation('reveal', 'close')
+        $date_time_picker_dialog.trigger('close')
         return false;
     });
 };
@@ -2285,7 +2285,7 @@ function setupSaveAsDialog(){
 
         Sunstone.runAction('VM.saveas', vm_id, obj);
 
-        $save_as_dialog.foundation('reveal', 'close')
+        $save_as_dialog.trigger('close')
         return false;
     });
 };
@@ -2362,7 +2362,7 @@ function setupAttachDiskDialog(){
         var obj = {DISK: data}
         Sunstone.runAction('VM.attachdisk', vm_id, obj);
 
-        $attach_disk_dialog.foundation('reveal', 'close')
+        $attach_disk_dialog.trigger('close')
         return false;
     });
 };
@@ -2619,7 +2619,7 @@ function setupAttachNicDialog(){
         var obj = {NIC: data}
         Sunstone.runAction('VM.attachnic', vm_id, obj);
 
-        $attach_nic_dialog.foundation('reveal', 'close')
+        $attach_nic_dialog.trigger('close')
         return false;
     });
 };
@@ -2804,7 +2804,7 @@ function setupResizeCapacityDialog(){
 
         Sunstone.runAction('VM.resize', vm_id, obj);
 
-        $resize_capacity_dialog.foundation('reveal', 'close')
+        $resize_capacity_dialog.trigger('close')
         return false;
     });
 };
@@ -2995,7 +2995,7 @@ function setupSnapshotDialog(){
 
         Sunstone.runAction('VM.snapshot_create', vm_id, obj);
 
-        $snapshot_dialog.foundation('reveal', 'close')
+        $snapshot_dialog.trigger('close')
         return false;
     });
 };
@@ -3231,7 +3231,7 @@ function setupCreateVMDialog(include_select_image){
         setTimeout(function(){
             Sunstone.runAction("VM.list");
         },1500);
-        $create_vm_dialog.foundation('reveal', 'close')
+        $create_vm_dialog.trigger('close')
         return false;
     });
 }
@@ -3388,7 +3388,7 @@ function setupDeployVMDialog(){
             Sunstone.runAction("VM.deploy_action", elem, extra_info);
         });
 
-        $deploy_vm_dialog.foundation('reveal', 'close')
+        $deploy_vm_dialog.trigger('close')
         return false;
     });
 }
@@ -3486,7 +3486,7 @@ function setupMigrateVMDialog(live){
           }
         });
 
-        $migrate_vm_dialog.foundation('reveal', 'close')
+        $migrate_vm_dialog.trigger('close')
         return false;
     });
 }

@@ -449,7 +449,7 @@ function setupCreateClusterDialog(){
         // If it is successfull we refresh the list.
         Sunstone.runAction("Cluster.create",cluster_json);
 
-        $create_cluster_dialog.foundation('reveal', 'close')
+        $create_cluster_dialog.trigger('close')
         return false;
     });
 }
@@ -472,7 +472,7 @@ function popUpCreateClusterDialog(){
 
     if ($create_cluster_dialog)
     {
-      $create_cluster_dialog.remove();
+      $create_cluster_dialog.html("");
       dialogs_context.append('<div title=\"'+tr("Create cluster")+'\" id="create_cluster_dialog"></div>');
     }
 
@@ -504,7 +504,7 @@ function popUpUpdateClusterDialog(){
 
     if (dialog)
     {
-      dialog.remove();
+      dialog.html("");
       dialogs_context.append('<div id="create_cluster_dialog"></div>');
     }
 
@@ -702,7 +702,7 @@ function fillPopPup(request,response){
         }
       }
 
-      $create_cluster_dialog.foundation('reveal', 'close')
+      $create_cluster_dialog.trigger('close')
 
       Sunstone.runAction('Cluster.list');
 

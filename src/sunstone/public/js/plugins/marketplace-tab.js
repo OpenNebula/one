@@ -54,7 +54,7 @@ var market_actions = {
             }
 
             if ($marketplace_import_dialog != undefined) {
-              $marketplace_import_dialog.remove();
+              $marketplace_import_dialog.html("");
             }
 
             dialogs_context.append(marketplace_import_dialog);
@@ -107,12 +107,12 @@ var market_actions = {
                 })
 
                 image_dialog.on("close", function(){
-                  a_image_dialog.remove();
-                  image_dialog.remove();
+                  a_image_dialog.html("");
+                  image_dialog.html("");
                   if ($('a', $("dl#marketplace_import_dialog_tabs")).size > 0) {
                     $('a', $("dl#marketplace_import_dialog_tabs")).first().click();
                   } else {
-                    $marketplace_import_dialog.foundation('reveal', 'close');
+                    $marketplace_import_dialog.trigger('close');
                   }
                   return false;
                 });
@@ -122,7 +122,7 @@ var market_actions = {
             })
 
             if (response['opennebula_template'] && response['opennebula_template'] !== "CPU=1") {
-              $create_template_dialog.remove();
+              $create_template_dialog.html("");
               // Template
               // Append the new div containing the tab and add the tab to the list
               var template_dialog = $('<div id="'+tab_id+'Tab" class="content disk wizard_internal_tab">'+
@@ -143,12 +143,12 @@ var market_actions = {
               })
 
               template_dialog.on("close", function(){
-                a_template_dialog.remove();
-                template_dialog.remove();
+                a_template_dialog.html("");
+                template_dialog.html("");
                 if ($('a', $("dl#marketplace_import_dialog_tabs")).size > 0) {
                   $('a', $("dl#marketplace_import_dialog_tabs")).first().click();
                 } else {
-                  $marketplace_import_dialog.foundation('reveal', 'close');
+                  $marketplace_import_dialog.trigger('close');
                 }
                 return false;
               });

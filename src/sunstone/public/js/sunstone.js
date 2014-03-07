@@ -895,7 +895,7 @@ function setupConfirmDialogs(){
         }
 
         if (!error){
-            context.foundation('reveal', 'close')
+            context.trigger('close')
             $('.button.dropdown').find('ul').removeClass('show-dropdown');
         }
 
@@ -2368,7 +2368,7 @@ function setupQuotasDialog(dialog){
         var action = $('div.form_buttons button',this).val();
         var sel_elems = SunstoneCfg["actions"][action].elements();
         Sunstone.runAction(action,sel_elems,obj);
-        dialog.foundation('reveal', 'close');
+        dialog.trigger('close');
         return false;
     });
 }
@@ -2588,53 +2588,47 @@ function convert_template_to_string(template_json,unshown_values)
     $.each(template_json, function(key, value)
     {
         // value can be an array
-        if (!value) 
+        if (!value) return true;
+        if (value.constructor == Array)
         {
-            template_str=template_str+key+"=\n";
+            var it=null;
+            $.each(value, function(index, element)
+            {
+                if (!element) return true;
+               // current value can be an object
+               if (typeof element == 'object')
+               {
+                    template_str+=key+"=[";
+                    for(var current_key in element)
+                    {
+                        template_str+=current_key+"=\""+element[current_key].toString().replace(/"/g,"\\\"")+"\",";
+                    }
+                    template_str=template_str.substring(0,template_str.length-1);
+                    template_str+="]\n";
+               }
+               else // or a string
+               {
+                 template_str=template_str+key+"=\""+ element.toString().replace(/"/g,"\\\"") +"\"\n";
+               }
+            })
         }
-        else
+        else // or a single value
         {
-            if (value.constructor == Array)
-            {
-                var it=null;
-                $.each(value, function(index, element)
-                {
-                   if (!element) return true;
-                   // current value can be an object
-                   if (typeof element == 'object')
-                   {
-                        template_str+=key+"=[";
-                        for(var current_key in element)
-                        {
-                            template_str+=current_key+"=\""+element[current_key].toString().replace(/"/g,"\\\"")+"\",";
-                        }
-                        template_str=template_str.substring(0,template_str.length-1);
-                        template_str+="]\n";
-                   }
-                   else // or a string
-                   {
-                     template_str=template_str+key+"=\""+ element.toString().replace(/"/g,"\\\"") +"\"\n";
-                   }
-                })
-            }
-            else // or a single value
-            {
-                // which in turn can be an object
-                   if (typeof value == 'object')
-                   {
-                        template_str+=key+"=[";
-                        for(var current_key in value)
-                        {
-                            template_str+=current_key+"=\""+value[current_key].toString().replace(/"/g,"\\\"")+"\",";
-                        }
-                        template_str=template_str.substring(0,template_str.length-1);
-                        template_str+="]\n";
-                   }
-                   else // or a string
-                   {
-                      template_str=template_str+key+"=\""+ value.toString().replace(/"/g,"\\\"")+"\"\n";
-                   }
-            }
+            // which in turn can be an object
+               if (typeof value == 'object')
+               {
+                    template_str+=key+"=[";
+                    for(var current_key in value)
+                    {
+                        template_str+=current_key+"=\""+value[current_key].toString().replace(/"/g,"\\\"")+"\",";
+                    }
+                    template_str=template_str.substring(0,template_str.length-1);
+                    template_str+="]\n";
+               }
+               else // or a string
+               {
+                  template_str=template_str+key+"=\""+ value.toString().replace(/"/g,"\\\"")+"\"\n";
+               }
         }
     })
 
@@ -2680,7 +2674,7 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
         new_value = $('#new_value',$(this).parent().parent()).val();
         new_key   = $('#new_key',$(this).parent().parent()).val();
 
-        if ( new_key != "" )
+        if ( new_value != "" && new_key != "" )
         {
             var template_json_bk = $.extend({}, template_json);
             if(template_json[$.trim(new_key)] && (template_json[$.trim(new_key)] instanceof Array))
@@ -3148,19 +3142,19 @@ function insert_permissions_table(tab_name, resource_type, resource_id, owner, g
              <th style="width:40px;text-align:center;">'+tr("Manage")+'</th>\
              <th style="width:40px;text-align:center;">'+tr("Admin")+'</th></tr></thead>\
          <tr>\
-             <td>'+tr("Owner")+'</td>\
+             <td class="key_td">'+tr("Owner")+'</td>\
              <td style="text-align:center"><input type="checkbox" class="permission_check owner_u" /></td>\
              <td style="text-align:center"><input type="checkbox" class="permission_check owner_m" /></td>\
              <td style="text-align:center"><input type="checkbox" class="permission_check owner_a" /></td>\
          </tr>\
          <tr>\
-             <td>'+tr("Group")+'</td>\
+             <td class="key_td">'+tr("Group")+'</td>\
              <td style="text-align:center"><input type="checkbox" class="permission_check group_u" /></td>\
              <td style="text-align:center"><input type="checkbox" class="permission_check group_m" /></td>\
              <td style="text-align:center"><input type="checkbox" class="permission_check group_a" /></td>\
          </tr>\
          <tr>\
-             <td>'+tr("Other")+'</td>\
+             <td class="key_td">'+tr("Other")+'</td>\
              <td style="text-align:center"><input type="checkbox" class="permission_check other_u" /></td>\
              <td style="text-align:center"><input type="checkbox" class="permission_check other_m" /></td>\
              <td style="text-align:center"><input type="checkbox" class="permission_check other_a" /></td>\
@@ -3180,7 +3174,7 @@ function insert_permissions_table(tab_name, resource_type, resource_id, owner, g
 
         if (Config.isTabActionEnabled(tab_name, resource_type+'.chown')) {
             str += '<tr>\
-                <td>'+tr("Owner")+'</td>\
+                <td class="key_td">'+tr("Owner")+'</td>\
                 <td colspan="2" id="value_td_owner">'+owner+'</td>\
                  <td><div id="div_edit_chg_owner">\
                         <a id="div_edit_chg_owner_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
@@ -3217,7 +3211,7 @@ function insert_permissions_table(tab_name, resource_type, resource_id, owner, g
 
         if (Config.isTabActionEnabled(tab_name, resource_type+'.chgrp')) {
            str += '<tr>\
-                <td>'+tr("Group")+'</td>\
+                <td class="key_td">'+tr("Group")+'</td>\
                 <td colspan="2" id="value_td_group">'+group+'</td>\
                  <td><div id="div_edit_chg_group">\
                         <a id="div_edit_chg_group_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
@@ -3589,7 +3583,7 @@ $(document).ready(function(){
         if (!error){
             //proceed to close confirm dialog in
             //case it was open
-            $('div#confirm_dialog').foundation('reveal', 'close');
+            $('div#confirm_dialog').trigger('close');
         };
 
         return false;
@@ -3615,7 +3609,7 @@ $(document).ready(function(){
 
     //Close overlay dialogs when clicking outside of them.
     $(".ui-widget-overlay").live("click", function (){
-        $("div:ui-dialog:visible").foundation('reveal', 'close');
+        $("div:ui-dialog:visible").trigger('close');
     });
 
     //Close select lists when clicking somewhere else.

@@ -226,7 +226,7 @@ var template_actions = {
         type: "create",
         call: OpenNebula.Template.create,
         callback: function(request, response){
-          $create_template_dialog.foundation('reveal', 'close')
+          $create_template_dialog.trigger('close')
           $create_template_dialog.empty();
           addTemplateElement(request, response);
           notifyCustom(tr("Template created"), " ID: " + response.VMTEMPLATE.ID, false)
@@ -322,7 +322,7 @@ var template_actions = {
         type: "single",
         call: OpenNebula.Template.update,
         callback: function(request, response){
-            $create_template_dialog.foundation('reveal', 'close')
+            $create_template_dialog.trigger('close')
             notifyMessage(tr("Template updated correctly"));
         },
         error: onError
@@ -3503,26 +3503,27 @@ function setupCreateTemplateDialog(){
 
     dialogs_context.append('<div id="create_template_dialog" class="reveal-modal large max-height" data-reveal></div>');
     $create_template_dialog = $('#create_template_dialog',dialogs_context);
+    var dialog = $create_template_dialog;
 
     //Insert HTML in place
-    $create_template_dialog.html(create_template_tmpl);
-    $(document).foundation();
-    initialize_create_template_dialog($create_template_dialog);
+    dialog.html(create_template_tmpl);
+    //$(document).foundation();
+    initialize_create_template_dialog(dialog);
 }
 
 function initialize_create_template_dialog(dialog) {
     var tabs = $( "#template_create_tabs", dialog)//.tabs().addClass("ui-tabs-vertical");
 
-    $('#template_template_reset_button').click(function(){
-        $create_template_dialog.foundation('reveal', 'close');
-        $create_template_dialog.remove();
+    $('#template_template_reset_button', dialog).click(function(){
+        dialog.trigger('close');
+        dialog.html("");
         setupCreateTemplateDialog();
         popUpCreateTemplateDialog();
     });
 
-    $('#template_template_reset_button_update').click(function(){
-        dialog.foundation('reveal', 'close');
-        dialog.remove();
+    $('#template_template_reset_button_update', dialog).click(function(){
+        dialog.trigger('close');
+        dialog.html("");
         setupCreateTemplateDialog();
 
         popUpUpdateTemplateDialog();
@@ -3782,7 +3783,7 @@ function initialize_create_template_dialog(dialog) {
 
 function popUpUpdateTemplateDialog(){
     if ($create_template_dialog) {
-      $create_template_dialog.remove();
+      $create_template_dialog.html("");
     }
 
     // TODO do not recreate if it exists
@@ -3806,7 +3807,7 @@ function popUpUpdateTemplateDialog(){
 
 function popUpCreateTemplateDialog(){
     if ($create_template_dialog) {
-      $create_template_dialog.remove();
+      $create_template_dialog.html("");
     }
     // TODO do not recreate if it exists
     setupCreateTemplateDialog();
@@ -4543,7 +4544,7 @@ function setupTemplateCloneDialog(){
         } else {
             Sunstone.runAction('Template.clone',sel_elems[0],name)
         };
-        $(this).parents('#template_clone_dialog').foundation('reveal', 'close')
+        $(this).parents('#template_clone_dialog').trigger('close')
         setTimeout(function(){
             Sunstone.runAction('Template.refresh');
         }, 1500);
@@ -4760,7 +4761,7 @@ function setupInstantiateTemplateDialog(easy_provision){
           };
         }
 
-        $instantiate_vm_template_dialog.foundation('reveal', 'close')
+        $instantiate_vm_template_dialog.trigger('close')
         return false;
     });
 }

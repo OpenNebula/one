@@ -85,7 +85,7 @@ table {
         font-size: 16px !important;
         background: #fff !important;
         border-bottom: 1px solid #efefef !important;;
-        color: #999 !important;
+        color: #333 !important;
     }
 
     td {
@@ -235,7 +235,7 @@ select {
 }
 
 .key_td {
-  color: #777;
+  color: #777 !important;
 }
 
 .reveal-modal {
@@ -278,7 +278,8 @@ fieldset {
   border-radius: 3px;
 
   legend {
-    font-weight: none;
+    font-weight: normal !important;
+    font-size: 16px !important;
     color: #555;
   }
 }
@@ -355,14 +356,14 @@ fieldset {
   }
 
   a {
-    color: #777 !important;
+    color: #555 !important;
     padding: 10px 0px !important;
     font-size: 12px !important;
   }
 
   dd.active {
     a {
-      color: #555 !important;
+      color: #333 !important;
     }
   }
 }
@@ -471,6 +472,10 @@ table.dataTable {
   margin: 0.5em 0 !important;
   max-width: none !important;
   width: 100%;
+
+  tr {
+    background: none !important;
+  }
 }
 
 table.dataTable thead .sorting,
