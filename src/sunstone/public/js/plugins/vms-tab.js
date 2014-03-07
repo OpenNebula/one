@@ -1380,7 +1380,7 @@ function generatePlacementTable(vm){
 
 
     var html = '<div class=""><div class="large-6 columns">\
-          <table id="vm_placement_table" class="extended_table twelve">\
+          <table id="vm_placement_table" class="extended_table dataTable">\
                    <thead>\
                      <tr>\
                          <th colspan="2" align="center">'+tr("Placement - Host")+'</th>\
@@ -1398,7 +1398,7 @@ function generatePlacementTable(vm){
                    </tbody>\
           </table>\
           </div><div class="large-6 columns">\
-          <table id="vm_ds_placement_table" class="extended_table twelve">\
+          <table id="vm_ds_placement_table" class="extended_table dataTable">\
                    <thead>\
                      <tr>\
                          <th colspan="2" align="center">'+tr("Placement - Datastore")+'</th>\
@@ -1419,7 +1419,7 @@ function generatePlacementTable(vm){
 
     if (vm.USER_TEMPLATE.SCHED_MESSAGE) {
         html += '<div class="large-12 columns">\
-          <table id="vm_ds_placement_table" class="extended_table twelve">\
+          <table id="vm_ds_placement_table" class="extended_table dataTable">\
                    <thead>\
                      <tr>\
                          <th align="center">'+tr("Sched Message")+'</th>\
@@ -1435,7 +1435,7 @@ function generatePlacementTable(vm){
     }
 
     html += '<div class="large-12 columns">\
-          <table id="vm_history_table" class="extended_table twelve">\
+          <table id="vm_history_table" class="extended_table dataTable">\
                    <thead>\
                      <tr>\
                          <th>'+tr("#")+'</th>\
@@ -1719,9 +1719,6 @@ function printActionsTable(vm_info)
 {
 
     var str = '<div class="large-12 columns">\
-                  <button id="add_scheduling_action" class="button small secondary radius" >' + tr("Schedule action") +'</button>\
-                <br><br></div>\
-                <div class="large-12 columns">\
                 <table id="scheduling_actions_table" class="info_table dataTable extended_table">\
                  <thead>\
                    <tr>\
@@ -1731,6 +1728,7 @@ function printActionsTable(vm_info)
                       <th>'+tr("DONE")+'</th>\
                       <th>'+tr("MESSAGE")+'</th>\
                       <th colspan="">'+tr("Actions")+'</th>\
+                      <th><button id="add_scheduling_action" class="button tiny success right radius" ><i class="fa fa-plus"/></button></th>\
                    </tr>\
                   </thead>' +
                     fromJSONtoActionsTable(
@@ -1986,10 +1984,10 @@ function printDisks(vm_info){
       // If VM is not RUNNING, then we forget about the attach disk form.
       if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
         html += '\
-           <button id="attach_disk" class="button tiny success radius" >' + tr("Attach new disk") +'</button>'
+           <button id="attach_disk" class="button tiny success right radius" ><i class="fa fa-plus"/></button>'
       } else {
         html += '\
-           <button id="attach_disk" class="button tiny success radius" disabled="disabled">' + tr("Attach new disk") +'</button>'
+           <button id="attach_disk" class="button tiny success right radius" disabled="disabled"><i class="fa fa-plus"/></button>'
       }
     }
 
@@ -2291,30 +2289,9 @@ function hotpluggingOps(){
 }
 
 function printNics(vm_info){
-   var html ='\
-     <div class="">\
-        <div>\
-           <form id="tab_network_form" vmid="'+vm_info.ID+'" >\
-              <div class="large-12 columns">'
-
-    if (Config.isTabActionEnabled("vms-tab", "VM.attachnic")) {
-      // If VM is not RUNNING, then we forget about the attach nic form.
-      if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
-        html += '\
-           <button id="attach_nic" class="button small secondary radius" >' + tr("Attach new nic") +'</button>'
-      } else {
-        html += '\
-           <button id="attach_nic" class="button small secondary radius" disabled="disabled">' + tr("Attach new nic") +'</button>'
-      }
-    }
-
-    html += '<br>\
-      <br>\
-      </div>'
-
-    html += '\
+   var html ='<form id="tab_network_form" vmid="'+vm_info.ID+'" >\
       <div class="large-12 columns">\
-         <table class="info_table twelve extended_table">\
+         <table class="info_table dataTable extended_table">\
            <thead>\
              <tr>\
                 <th>'+tr("ID")+'</th>\
@@ -2324,6 +2301,20 @@ function printNics(vm_info){
                 <th>'+tr("IPv6 Site")+'</th>\
                 <th>'+tr("IPv6 Global")+'</th>\
                 <th colspan="">'+tr("Actions")+'</th>\
+                <th>';
+
+    if (Config.isTabActionEnabled("vms-tab", "VM.attachnic")) {
+      // If VM is not RUNNING, then we forget about the attach nic form.
+      if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
+        html += '\
+           <button id="attach_nic" class="button tiny success right radius" ><i class="fa fa-plus"/></button>'
+      } else {
+        html += '\
+           <button id="attach_nic" class="button tiny success right radius" disabled="disabled"><i class="fa fa-plus"/></button>'
+      }
+    }
+
+    html += '</th>\
               </tr>\
            </thead>\
            <tbody>';
@@ -2551,10 +2542,10 @@ function printCapacity(vm_info){
       // If VM is not INIT, PENDING, HOLD, FAILED, POWEROFF, UNDEPLOYED, then we forget about the resize form.
       if (vm_info.STATE == "0" || vm_info.STATE == "1" || vm_info.STATE == "2" || vm_info.STATE == "7" || vm_info.STATE == "8" || vm_info.STATE == "9"){
         html += '\
-          <button id="resize_capacity" class="button tiny success radius" >' + tr("Resize VM capacity") +'</button>'
+          <button id="resize_capacity" class="button tiny success right radius" >' + tr("Resize") +'</button>'
       } else {
         html += '\
-          <button id="resize_capacity" class="button tiny success radius" disabled="disabled">' + tr("Resize VM capacity") +'</button>'
+          <button id="resize_capacity" class="button tiny success right radius" disabled="disabled">' + tr("Resize") +'</button>'
       }
     }
 
@@ -2706,35 +2697,29 @@ function updateVMSnapshotsInfo(request,vm){
 // And a form to attach a new disk to the VM, if it is running.
 function printSnapshots(vm_info){
    var html ='\
-     <div class="">\
-        <div id="columns twelve">\
            <form id="snapshot_form" vmid="'+vm_info.ID+'" >\
-              <div class="large-12 columns">'
-
-    if (Config.isTabActionEnabled("vms-tab", "VM.snapshot_create")) {
-      // If VM is not RUNNING, then we forget about the attach disk form.
-      if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
-        html += '\
-           <button id="take_snapshot" class="button small secondary radius" >' + tr("Take snapshot") +'</button>'
-      } else {
-        html += '\
-           <button id="take_snapshot" class="button small secondary radius" disabled="disabled">' + tr("Take snapshot") +'</button>'
-      }
-    }
-
-    html += '<br>\
-      <br>\
-      </div>'
-
-    html += '\
       <div class="large-12 columns">\
-         <table class="info_table twelve extended_table">\
+         <table class="info_table dataTable extended_table">\
            <thead>\
              <tr>\
                 <th>'+tr("ID")+'</th>\
                 <th>'+tr("Name")+'</th>\
                 <th>'+tr("Timestamp")+'</th>\
                 <th>'+tr("Actions")+'</th>\
+                <th>'
+
+    if (Config.isTabActionEnabled("vms-tab", "VM.snapshot_create")) {
+      // If VM is not RUNNING, then we forget about the attach disk form.
+      if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
+        html += '\
+           <button id="take_snapshot" class="button tiny success right radius" ><i class="fa fa-plus"/></button>'
+      } else {
+        html += '\
+           <button id="take_snapshot" class="button tiny success right radius" disabled="disabled"><i class="fa fa-plus"/></button>'
+      }
+    }
+
+    html +=  '</th>\
               </tr>\
            </thead>\
            <tbody>';
