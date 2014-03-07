@@ -939,7 +939,7 @@ function setupCreateDatastoreDialog(){
 
         Sunstone.runAction("Datastore.create",ds_obj);
 
-        $create_datastore_dialog.trigger('close')
+        $create_datastore_dialog.foundation('reveal', 'close')
         return false;
     });
 
@@ -959,12 +959,12 @@ function setupCreateDatastoreDialog(){
             "cluster_id" : cluster_id
         };
         Sunstone.runAction("Datastore.create",ds_obj);
-        $create_datastore_dialog.trigger('close')
+        $create_datastore_dialog.foundation('reveal', 'close')
         return false;
     });
 
     $('#wizard_ds_reset_button').click(function(){
-        $create_datastore_dialog.trigger('close');
+        $create_datastore_dialog.foundation('reveal', 'close');
         $create_datastore_dialog.html("");
         setupCreateDatastoreDialog();
 
@@ -974,7 +974,7 @@ function setupCreateDatastoreDialog(){
     });
 
     $('#advanced_ds_reset_button').click(function(){
-        $create_datastore_dialog.trigger('close');
+        $create_datastore_dialog.foundation('reveal', 'close');
         $create_datastore_dialog.html("");
         setupCreateDatastoreDialog();
 

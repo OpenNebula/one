@@ -449,7 +449,7 @@ function setupCreateClusterDialog(){
         // If it is successfull we refresh the list.
         Sunstone.runAction("Cluster.create",cluster_json);
 
-        $create_cluster_dialog.trigger('close')
+        $create_cluster_dialog.foundation('reveal', 'close')
         return false;
     });
 }
@@ -702,7 +702,7 @@ function fillPopPup(request,response){
         }
       }
 
-      $create_cluster_dialog.trigger('close')
+      $create_cluster_dialog.foundation('reveal', 'close')
 
       Sunstone.runAction('Cluster.list');
 

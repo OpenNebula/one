@@ -134,6 +134,7 @@ var Sunstone = {
                     <dl class="tabs right-info-tabs text-center" data-tab>\
                     </dl>\
                 </div>\
+            </div>\
             <div class="tabs-content" style="height: 80%; overflow: overlay;"></div>\
             </div>\
         </div>');
@@ -895,7 +896,7 @@ function setupConfirmDialogs(){
         }
 
         if (!error){
-            context.trigger('close')
+            context.foundation('reveal', 'close')
             $('.button.dropdown').find('ul').removeClass('show-dropdown');
         }
 
@@ -2368,7 +2369,7 @@ function setupQuotasDialog(dialog){
         var action = $('div.form_buttons button',this).val();
         var sel_elems = SunstoneCfg["actions"][action].elements();
         Sunstone.runAction(action,sel_elems,obj);
-        dialog.trigger('close');
+        dialog.foundation('reveal', 'close');
         return false;
     });
 }
@@ -3583,7 +3584,7 @@ $(document).ready(function(){
         if (!error){
             //proceed to close confirm dialog in
             //case it was open
-            $('div#confirm_dialog').trigger('close');
+            $('div#confirm_dialog').foundation('reveal', 'close');
         };
 
         return false;
@@ -3609,7 +3610,7 @@ $(document).ready(function(){
 
     //Close overlay dialogs when clicking outside of them.
     $(".ui-widget-overlay").live("click", function (){
-        $("div:ui-dialog:visible").trigger('close');
+        $("div:ui-dialog:visible").foundation('reveal', 'close');
     });
 
     //Close select lists when clicking somewhere else.

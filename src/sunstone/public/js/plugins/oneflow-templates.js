@@ -1102,19 +1102,19 @@ function setupCreateServiceTemplateDialog(){
     $('#create_service_template_submit',dialog).click(function(){
         var json_template = generate_json_service_template_from_form();
         Sunstone.runAction("ServiceTemplate.create", json_template );
-        dialog.trigger('close');
+        dialog.foundation('reveal', 'close');
         return false;
     });
 
     $('#update_service_template_submit',dialog).click(function(){
         var json_template = generate_json_service_template_from_form();
         Sunstone.runAction("ServiceTemplate.update",service_template_to_update_id, JSON.stringify(json_template));
-        dialog.trigger('close');
+        dialog.foundation('reveal', 'close');
         return false;
     });
 
     $('#create_service_template_reset', dialog).click(function(){
-        $create_service_template_dialog.trigger('close');
+        $create_service_template_dialog.foundation('reveal', 'close');
         $create_service_template_dialog.html("");
         setupCreateServiceTemplateDialog();
 

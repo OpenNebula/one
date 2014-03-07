@@ -241,7 +241,7 @@ var image_actions = {
         call: OpenNebula.Image.create,
         callback: function(request, response){
           addImageElement(request, response);
-          $create_image_dialog.trigger('close')
+          $create_image_dialog.foundation('reveal', 'close')
           notifyCustom(tr("Image created"), " ID: " + response.IMAGE.ID, false)
         },
         error: onError
@@ -1109,7 +1109,7 @@ function initialize_create_image_dialog(dialog) {
         //we this is an image upload we trigger FileUploader
         //to start the upload
         if (upload){
-            dialog.trigger('close')
+            dialog.foundation('reveal', 'close')
             uploader._onInputChange(file_input);
         } else {
             Sunstone.runAction("Image.create", img_obj);
@@ -1140,7 +1140,7 @@ function initialize_create_image_dialog(dialog) {
     });
 
     $('#wizard_image_reset_button').click(function(){
-        dialog.trigger('close');
+        dialog.foundation('reveal', 'close');
         //dialog.html("");
         setupCreateImageDialog();
 
@@ -1148,7 +1148,7 @@ function initialize_create_image_dialog(dialog) {
     });
 
     $('#advanced_image_reset_button').click(function(){
-        dialog.trigger('close');
+        dialog.foundation('reveal', 'close');
         dialog.html("");
         setupCreateImageDialog();
 
@@ -1261,7 +1261,7 @@ function setupImageCloneDialog(){
         } else {
             Sunstone.runAction('Image.clone',sel_elems[0],name)
         };
-        dialog.trigger('close')
+        dialog.foundation('reveal', 'close')
         setTimeout(function(){
             Sunstone.runAction('Image.refresh');
         }, 1500);

@@ -2049,7 +2049,7 @@ function setupDateTimePicker(input_to_fill, time_str){
         $(input_to_fill).val(date_str);
         $(input_to_fill).trigger("change");
 
-        $date_time_picker_dialog.trigger('close')
+        $date_time_picker_dialog.foundation('reveal', 'close')
         return false;
     });
 };
@@ -2285,7 +2285,7 @@ function setupSaveAsDialog(){
 
         Sunstone.runAction('VM.saveas', vm_id, obj);
 
-        $save_as_dialog.trigger('close')
+        $save_as_dialog.foundation('reveal', 'close')
         return false;
     });
 };
@@ -2362,7 +2362,7 @@ function setupAttachDiskDialog(){
         var obj = {DISK: data}
         Sunstone.runAction('VM.attachdisk', vm_id, obj);
 
-        $attach_disk_dialog.trigger('close')
+        $attach_disk_dialog.foundation('reveal', 'close')
         return false;
     });
 };
@@ -2619,7 +2619,7 @@ function setupAttachNicDialog(){
         var obj = {NIC: data}
         Sunstone.runAction('VM.attachnic', vm_id, obj);
 
-        $attach_nic_dialog.trigger('close')
+        $attach_nic_dialog.foundation('reveal', 'close')
         return false;
     });
 };
@@ -2683,30 +2683,37 @@ function printCapacity(vm_info){
       </div>'
 
     html += '\
-      <div class="large-12 columns">\
-         <table class="info_table twelve extended_table">\
-           <thead>\
-             <tr>\
-                <th>'+tr("CPU")+'</th>\
-                <th>'+tr("VCPU")+'</th>\
-                <th>'+tr("MEMORY")+'</th>\
+      <div class="row">\
+        <div class="large-12 columns">\
+           <table class="info_table dataTable extended_table">\
+             <thead>\
+               <tr>\
+                  <th>'+tr("CPU")+'</th>\
+                  <th>'+tr("VCPU")+'</th>\
+                  <th>'+tr("MEMORY")+'</th>\
+                </tr>\
+             </thead>\
+             <tbody>\
+                <tr>\
+                  <td id="cpu_info">' + vm_info.TEMPLATE.CPU + '</td>\
+                  <td id="vcpu_info">' + (vm_info.TEMPLATE.VCPU ? vm_info.TEMPLATE.VCPU : '-') + '</td>\
+                  <td id="memory_info" one_value="'+vm_info.TEMPLATE.MEMORY+'">' + humanize_size_from_mb(vm_info.TEMPLATE.MEMORY) + '</td>\
               </tr>\
-           </thead>\
-           <tbody>\
-              <tr>\
-                <td id="cpu_info">' + vm_info.TEMPLATE.CPU + '</td>\
-                <td id="vcpu_info">' + (vm_info.TEMPLATE.VCPU ? vm_info.TEMPLATE.VCPU : '-') + '</td>\
-                <td id="memory_info" one_value="'+vm_info.TEMPLATE.MEMORY+'">' + humanize_size_from_mb(vm_info.TEMPLATE.MEMORY) + '</td>\
-            </tr>\
-            </tbody>\
-          </table>\
+              </tbody>\
+            </table>\
+          </div>\
         </div>\
+        <div class="row">\
             <div class="large-6 columns">\
               <div class="row graph_legend">\
-                <h3 class="subheader"><small>'+tr("REAL CPU")+'</small></h3>\
+                <div class="large-12 columns">\
+                  <h3 class="subheader"><small>'+tr("REAL CPU")+'</small></h3>\
+                </div>\
               </div>\
               <div class="row">\
-                <div class="large-10 columns centered graph" id="vm_cpu_graph" style="height: 100px;">\
+                <div class="large-12 columns">\
+                  <div class="large-10 columns centered graph" id="vm_cpu_graph" style="height: 100px;">\
+                  </div>\
                 </div>\
               </div>\
               <div class="row graph_legend">\
@@ -2727,6 +2734,7 @@ function printCapacity(vm_info){
                 </div>\
               </div>\
             </div>\
+        </div>\
       </form>';
 
     return html;
@@ -2804,7 +2812,7 @@ function setupResizeCapacityDialog(){
 
         Sunstone.runAction('VM.resize', vm_id, obj);
 
-        $resize_capacity_dialog.trigger('close')
+        $resize_capacity_dialog.foundation('reveal', 'close')
         return false;
     });
 };
@@ -2995,7 +3003,7 @@ function setupSnapshotDialog(){
 
         Sunstone.runAction('VM.snapshot_create', vm_id, obj);
 
-        $snapshot_dialog.trigger('close')
+        $snapshot_dialog.foundation('reveal', 'close')
         return false;
     });
 };
@@ -3231,7 +3239,7 @@ function setupCreateVMDialog(include_select_image){
         setTimeout(function(){
             Sunstone.runAction("VM.list");
         },1500);
-        $create_vm_dialog.trigger('close')
+        $create_vm_dialog.foundation('reveal', 'close')
         return false;
     });
 }
@@ -3388,7 +3396,7 @@ function setupDeployVMDialog(){
             Sunstone.runAction("VM.deploy_action", elem, extra_info);
         });
 
-        $deploy_vm_dialog.trigger('close')
+        $deploy_vm_dialog.foundation('reveal', 'close')
         return false;
     });
 }
@@ -3486,7 +3494,7 @@ function setupMigrateVMDialog(live){
           }
         });
 
-        $migrate_vm_dialog.trigger('close')
+        $migrate_vm_dialog.foundation('reveal', 'close')
         return false;
     });
 }

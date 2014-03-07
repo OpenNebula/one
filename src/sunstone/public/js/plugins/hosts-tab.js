@@ -92,11 +92,11 @@ var create_host_tmpl =
         </select>\
     </div>\
   </div>\
-</div>\
-<div class="reveal-footer">\
-  <div class="form_buttons row">\
-      <button class="button success right radius" type="submit" id="create_host_submit" value="OpenNebula.Host.create">' + tr("Create") + '</button>\
-      <button id="wizard_host_reset_button" class="button secondary radius" type="reset" value="reset">' + tr("Reset") + '</button>\
+  <div class="reveal-footer">\
+    <div class="form_buttons row">\
+        <button id="wizard_host_reset_button" class="button secondary radius" type="reset" value="reset">' + tr("Reset") + '</button>\
+        <button class="button success radius" type="submit" id="create_host_submit" value="OpenNebula.Host.create">' + tr("Create") + '</button>\
+    </div>\
   </div>\
 </form>\
 </div>\
@@ -892,12 +892,12 @@ function setupCreateHostDialog(){
         //Create the OpenNebula.Host.
         //If it is successfull we refresh the list.
         Sunstone.runAction("Host.create",host_json);
-        $create_host_dialog.trigger('close')
+        $create_host_dialog.foundation('reveal', 'close')
         return false;
     });
 
     $('#wizard_host_reset_button').click(function(){
-        $create_host_dialog.trigger('close');
+        $create_host_dialog.foundation('reveal', 'close');
         $create_host_dialog.html("");
         setupCreateHostDialog();
 

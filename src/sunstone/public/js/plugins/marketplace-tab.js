@@ -112,7 +112,7 @@ var market_actions = {
                   if ($('a', $("dl#marketplace_import_dialog_tabs")).size > 0) {
                     $('a', $("dl#marketplace_import_dialog_tabs")).first().click();
                   } else {
-                    $marketplace_import_dialog.trigger('close');
+                    $marketplace_import_dialog.foundation('reveal', 'close');
                   }
                   return false;
                 });
@@ -148,7 +148,7 @@ var market_actions = {
                 if ($('a', $("dl#marketplace_import_dialog_tabs")).size > 0) {
                   $('a', $("dl#marketplace_import_dialog_tabs")).first().click();
                 } else {
-                  $marketplace_import_dialog.trigger('close');
+                  $marketplace_import_dialog.foundation('reveal', 'close');
                 }
                 return false;
               });

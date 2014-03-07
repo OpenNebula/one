@@ -781,7 +781,7 @@ function setup_add_rp_dialog(group){
            }
        });
 
-     dialog.trigger('close');
+     dialog.foundation('reveal', 'close');
      dialog.html("");
 
     });
@@ -796,7 +796,7 @@ function setup_add_rp_dialog(group){
 
     $('#add_rp_close',dialog).die();
     $('#add_rp_close',dialog).live( "click", function() {
-      dialog.trigger('close');
+      dialog.foundation('reveal', 'close');
       dialog.html("");
     });
 
@@ -1078,7 +1078,7 @@ function setupCreateGroupDialog(){
     setupTips($create_group_dialog);
 
     $('#create_group_reset_button').click(function(){
-        $create_group_dialog.trigger('close');
+        $create_group_dialog.foundation('reveal', 'close');
         $create_group_dialog.html("");
         setupCreateGroupDialog();
 
@@ -1241,7 +1241,7 @@ function setupCreateGroupDialog(){
 
 
         Sunstone.runAction("Group.create",group_json);
-        $create_group_dialog.trigger('close');
+        $create_group_dialog.foundation('reveal', 'close');
         return false;
     });
 }

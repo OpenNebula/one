@@ -702,7 +702,7 @@ function setupCreateFileDialog(){
 
             //Inform complete upload, destroy upload dialog, refresh file list
 
-            $('div#pb_dialog').trigger('close')
+            $('div#pb_dialog').foundation('reveal', 'close')
             return false;
         },
         onCancel: function(id, fileName){
@@ -758,7 +758,7 @@ function setupCreateFileDialog(){
             Sunstone.runAction("File.create", file_obj);
         };
 
-        $create_file_dialog.trigger('close')
+        $create_file_dialog.foundation('reveal', 'close')
         return false;
     });
 
@@ -778,7 +778,7 @@ function setupCreateFileDialog(){
             "ds_id" : ds_id
         };
         Sunstone.runAction("File.create",file_obj);
-        $create_file_dialog.trigger('close')
+        $create_file_dialog.foundation('reveal', 'close')
         return false;
     });
 

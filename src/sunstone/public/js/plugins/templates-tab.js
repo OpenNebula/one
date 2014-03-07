@@ -226,7 +226,7 @@ var template_actions = {
         type: "create",
         call: OpenNebula.Template.create,
         callback: function(request, response){
-          $create_template_dialog.trigger('close')
+          $create_template_dialog.foundation('reveal', 'close')
           $create_template_dialog.empty();
           addTemplateElement(request, response);
           notifyCustom(tr("Template created"), " ID: " + response.VMTEMPLATE.ID, false)
@@ -322,7 +322,7 @@ var template_actions = {
         type: "single",
         call: OpenNebula.Template.update,
         callback: function(request, response){
-            $create_template_dialog.trigger('close')
+            $create_template_dialog.foundation('reveal', 'close')
             notifyMessage(tr("Template updated correctly"));
         },
         error: onError
@@ -3515,14 +3515,14 @@ function initialize_create_template_dialog(dialog) {
     var tabs = $( "#template_create_tabs", dialog)//.tabs().addClass("ui-tabs-vertical");
 
     $('#template_template_reset_button', dialog).click(function(){
-        dialog.trigger('close');
+        dialog.foundation('reveal', 'close');
         dialog.html("");
         setupCreateTemplateDialog();
         popUpCreateTemplateDialog();
     });
 
     $('#template_template_reset_button_update', dialog).click(function(){
-        dialog.trigger('close');
+        dialog.foundation('reveal', 'close');
         dialog.html("");
         setupCreateTemplateDialog();
 
@@ -4544,7 +4544,7 @@ function setupTemplateCloneDialog(){
         } else {
             Sunstone.runAction('Template.clone',sel_elems[0],name)
         };
-        $(this).parents('#template_clone_dialog').trigger('close')
+        $(this).parents('#template_clone_dialog').foundation('reveal', 'close')
         setTimeout(function(){
             Sunstone.runAction('Template.refresh');
         }, 1500);
@@ -4761,7 +4761,7 @@ function setupInstantiateTemplateDialog(easy_provision){
           };
         }
 
-        $instantiate_vm_template_dialog.trigger('close')
+        $instantiate_vm_template_dialog.foundation('reveal', 'close')
         return false;
     });
 }
