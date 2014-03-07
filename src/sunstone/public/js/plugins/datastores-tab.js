@@ -323,7 +323,7 @@ var datastore_actions = {
         call: OpenNebula.Datastore.update,
         callback: function(request) {
             notifyMessage("Template updated correctly");
-            Sunstone.runAction('Datastore.showinfo',request.request.data[0]);
+            Sunstone.runAction('Datastore.showinfo',request.request.data[0][0]);
         },
         error: onError
     },
