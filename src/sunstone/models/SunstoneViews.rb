@@ -68,7 +68,7 @@ class SunstoneViews
 
         available_views.reject!{|v| !@views.has_key?(v)} #sanitize array views
 
-        return available_views if !available_views.empty?
+        return available_views.uniq! if !available_views.empty?
 
         available_views << @views_config['users'][user_name] if @views_config['users']
         available_views << @views_config['groups'][group_name] if @views_config['groups']
@@ -78,7 +78,7 @@ class SunstoneViews
 
         available_views.reject!{|v| !@views.has_key?(v)} #sanitize array views
 
-        return available_views
+        return available_views.uniq!
     end
 
     def available_tabs
