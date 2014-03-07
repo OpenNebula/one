@@ -49,6 +49,8 @@ require 'CloudServer'
 require 'models'
 require 'log'
 
+DEFAULT_VM_NAME_TEMPLATE = '$ROLE_NAME_$VM_NUMBER_(service_$SERVICE_ID)'
+
 ##############################################################################
 # Configuration
 ##############################################################################
@@ -122,6 +124,9 @@ end
 
 Role.init_default_cooldown(conf[:default_cooldown])
 Role.init_default_shutdown(conf[:shutdown_action])
+
+conf[:vm_name_template] ||= DEFAULT_VM_NAME_TEMPLATE
+Role.init_default_vm_name_template(conf[:vm_name_template])
 
 ##############################################################################
 # LCM thread

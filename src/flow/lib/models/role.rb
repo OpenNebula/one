@@ -239,7 +239,12 @@ module OpenNebula
             @body['last_vmname'] ||= 0
 
             n_nodes.times { |i|
-                vm_name = "#{@body['name']}_#{@body['last_vmname']}_(service_#{@service.id()})"
+                vm_name = @@vm_name_template
+                    .gsub("$SERVICE_ID",    @service.id().to_s)
+                    .gsub("$SERVICE_NAME",  @service.name().to_s)
+                    .gsub("$ROLE_NAME",     name().to_s)
+                    .gsub("$VM_NUMBER",     @body['last_vmname'].to_s)
+
                 @body['last_vmname'] += 1
 
                 template_id = @body['vm_template']
@@ -541,6 +546,10 @@ module OpenNebula
 
         def self.init_default_shutdown(shutdown_action)
             @@default_shutdown = shutdown_action
+        end
+
+        def self.init_default_vm_name_template(vm_name_template)
+            @@vm_name_template = vm_name_template
         end
 
         # Updates the role
