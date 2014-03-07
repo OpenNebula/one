@@ -207,7 +207,7 @@ void Nebula::start(bool bootstrap_only)
 
             master_oned = vatt->vector_value("MASTER_ONED");
 
-            if (master_oned.empty())
+            if (master_oned.empty() && !federation_master)
             {
                 throw runtime_error(
                     "FEDERATION MASTER_ONED endpoint is missing.");
