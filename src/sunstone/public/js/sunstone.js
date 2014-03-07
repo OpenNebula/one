@@ -128,14 +128,14 @@ var Sunstone = {
             var active_tab_href = active_tab.attr('href');
         }
 
-        var dl_tabs = $('<div id="'+panel_name+'" style="height:100%">\
-            <div class="row" style="height:100%">\
+        var dl_tabs = $('<div id="'+panel_name+'">\
+            <div class="row">\
                 <div class="large-12 columns">\
                     <dl class="tabs right-info-tabs text-center" data-tab>\
                     </dl>\
                 </div>\
             </div>\
-            <div class="tabs-content" style="height: 80%; overflow: overlay;"></div>\
+            <div class="tabs-content"></div>\
             </div>\
         </div>');
 
