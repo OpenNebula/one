@@ -17,6 +17,9 @@
 #include "ZonePool.h"
 #include "NebulaLog.h"
 #include "Nebula.h"
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 /* -------------------------------------------------------------------------- */
 
@@ -35,6 +38,14 @@ ZonePool::ZonePool(SqlDB * db, bool is_federation_slave)
         return;
     }
 
+    string one_port;
+    Nebula& nd = Nebula::instance();
+    nd.get_configuration_attribute("PORT", one_port);
+
+    ostringstream zone_tmpl;
+    zone_tmpl << "NAME=OpenNebula\n"
+              << "ENDPOINT=http://localhost:" << one_port << "/RPC2";
+
     //lastOID is set in PoolSQL::init_cb
     if (get_lastOID() == -1)
     {
@@ -44,8 +55,7 @@ ZonePool::ZonePool(SqlDB * db, bool is_federation_slave)
         // Build the local zone
         tmpl = new Template;
         rc = tmpl->parse_str_or_xml(
-                "NAME     = OpenNebula\n"
-                "ENDPOINT = -",
+                zone_tmpl.str(),
                 error_str);
 
         if( rc < 0 )
