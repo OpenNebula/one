@@ -2101,62 +2101,42 @@ function setupSaveAsDialog(){
     $save_as_dialog = $('#save_as_dialog',dialogs_context);
     var dialog = $save_as_dialog;
 
-    dialog.html('<div class="panel">\
-  <h3>\
-    <small id="">'+tr("Snapshot")+'</small>\
-  </h3>\
+    dialog.html('<div class="row">\
+  <h3 class="subheader" id="">'+tr("Snapshot")+'</h3>\
 </div>\
 <form id="save_as_form" action="">\
-      <div class="row centered">\
-          <div class="large-4 columns">\
-              <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
-          </div>\
-          <div class="large-7 columns">\
+      <div class="row">\
+          <div class="large-12 columns">\
+              <label for="vm_id">'+tr("Virtual Machine ID")+':</label>\
               <label style="border-style: inset; background-color: lightgrey" type="text" name="vm_id" id="vm_id" disabled/>\
           </div>\
-          <div class="large-1 columns">\
-              <div class=""></div>\
-          </div>\
       </div>\
-      <div class="row centered">\
-          <div class="large-4 columns">\
-              <label class="inline right" for="disk_id">'+tr("Disk ID")+':</label>\
-          </div>\
-          <div class="large-7 columns">\
+      <div class="row">\
+          <div class="large-12 columns">\
+              <label for="disk_id">'+tr("Disk ID")+':</label>\
               <label style="border-style: inset; background-color: lightgrey" type="text" name="disk_id" id="disk_id" disabled/>\
-          </div>\
-          <div class="large-1 columns">\
               <div class=""></div>\
           </div>\
       </div>\
-      <div class="row centered">\
-          <div class="large-4 columns">\
-              <label class="inline right" for="image_name">'+tr("Image name")+':</label>\
-          </div>\
-          <div class="large-7 columns">\
+      <div class="row">\
+          <div class="large-12 columns">\
+              <label for="image_name">'+tr("Image name")+':</label>\
               <input type="text" name="image_name" id="image_name" />\
           </div>\
-          <div class="large-1 columns">\
-              <div class=""></div>\
-          </div>\
       </div>\
       <div class="row centered">\
-          <div class="large-4 columns">\
-              <label class="inline right" for="snapshot_type">'+tr("Snapshot type")+':</label>\
-          </div>\
-          <div class="large-7 columns">\
-            <select name="snapshot_type" id="snapshot_type">\
-                 <option value="false" selected="selected">'+tr("Deferred")+'</option>\
-                 <option value="true">'+tr("Hot")+'</option>\
-            </select>\
-          </div>\
-          <div class="large-1 columns">\
-              <div class="tip">'+tr("Sets the specified VM disk to be saved in a new Image.")+'<br><br>\
-        '+tr("Deferred: The Image is created immediately, but the contents are saved only if the VM is shut down gracefully (i.e., using Shutdown; not Delete)")+'<br><br>\
-        '+tr("Hot: The Image will be saved immediately.")+'</div>\
+          <div class="large-12 columns">\
+              <label for="snapshot_type">'+tr("Snapshot type")+
+                  '<span class="tip">'+tr("Sets the specified VM disk to be saved in a new Image.")+'<br><br>\
+                    '+tr("Deferred: The Image is created immediately, but the contents are saved only if the VM is shut down gracefully (i.e., using Shutdown; not Delete)")+'<br><br>\
+                    '+tr("Hot: The Image will be saved immediately.")+'</span>'+
+              '</label>\
+              <select name="snapshot_type" id="snapshot_type">\
+                   <option value="false" selected="selected">'+tr("Deferred")+'</option>\
+                   <option value="true">'+tr("Hot")+'</option>\
+              </select>\
           </div>\
       </div>\
-      <hr>\
       <div class="form_buttons">\
           <button class="button radius right success" id="snapshot_live_button" type="submit" value="VM.saveas">'+tr("Take snapshot")+'</button>\
       </div>\
@@ -2205,27 +2185,19 @@ function setupAttachDiskDialog(){
     $attach_disk_dialog = $('#attach_disk_dialog',dialogs_context);
     var dialog = $attach_disk_dialog;
 
-    dialog.html('<div class="panel">\
-      <h3>\
-        <small id="">'+tr("Attach new disk")+'</small>\
-      </h3>\
+    dialog.html('<div class="row">\
+      <h3 class="subheader" id="">'+tr("Attach new disk")+'</h3>\
     </div>\
         <div class="reveal-body">\
     <form id="attach_disk_form" action="">\
-          <div class="row centered">\
-              <div class="large-4 columns">\
-                  <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
-              </div>\
-              <div class="large-7 columns">\
+          <div class="row">\
+              <div class="large-6 columns">\
+                  <label for="vm_id">'+tr("Virtual Machine ID")+':</label>\
                   <label style="border-style: inset; background-color: lightgrey" type="text" name="vm_id" id="vm_id" disabled/>\
-              </div>\
-              <div class="large-1 columns">\
-                  <div class=""></div>\
               </div>\
           </div>' +
           generate_disk_tab_content("attach_disk", "attach_disk") +
           '<div class="reveal-footer">\
-          <hr>\
           <div class="form_buttons">\
               <button class="button radius right success" id="attach_disk_button" type="submit" value="VM.attachdisk">'+tr("Attach")+'</button>\
           </div>\
@@ -2477,27 +2449,19 @@ function setupAttachNicDialog(){
     $attach_nic_dialog = $('#attach_nic_dialog',dialogs_context);
     var dialog = $attach_nic_dialog;
 
-    dialog.html('<div class="panel">\
-      <h3>\
-        <small id="">'+tr("Attach new nic")+'</small>\
-      </h3>\
+    dialog.html('<div class="row">\
+      <h3 class="subheader" id="">'+tr("Attach new nic")+'</h3>\
     </div>\
         <div class="reveal-body">\
     <form id="attach_nic_form" action="">\
-          <div class="row centered">\
-              <div class="large-4 columns">\
-                  <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
-              </div>\
-              <div class="large-7 columns">\
+          <div class="row ">\
+              <div class="large-6 columns">\
+                  <label for="vm_id">'+tr("Virtual Machine ID")+':</label>\
                   <label style="border-style: inset; background-color: lightgrey" type="text" name="vm_id" id="vm_id" disabled/>\
-              </div>\
-              <div class="large-1 columns">\
-                  <div class=""></div>\
               </div>\
           </div>' +
           generate_nic_tab_content("attach_nic", "attach_nic") +
           '<div class="reveal-footer">\
-          <hr>\
           <div class="form_buttons">\
               <button class="button radius right success" id="attach_nic_button" type="submit" value="VM.attachnic">'+tr("Attach")+'</button>\
           </div>\
@@ -2642,41 +2606,27 @@ function setupResizeCapacityDialog(){
     $resize_capacity_dialog = $('#resize_capacity_dialog',dialogs_context);
     var dialog = $resize_capacity_dialog;
 
-    dialog.html('<div class="panel">\
-      <h3>\
-        <small id="">'+tr("Resize VM capacity")+'</small>\
-      </h3>\
+    dialog.html('<div class="row">\
+      <h3 class="subheader" id="">'+tr("Resize VM capacity")+'</h3>\
     </div>\
     <div class="reveal-body">\
     <form id="resize_capacity_form" action="">\
-          <div class="row centered">\
-          <div class="large-8 columns">\
-              <div class="large-4 columns">\
-                  <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
-              </div>\
-              <div class="large-7 columns">\
+        <div class="row centered">\
+          <div class="large-6 columns">\
+                  <label for="vm_id">'+tr("Virtual Machine ID")+':</label>\
                   <label style="border-style: inset; background-color: lightgrey" type="text" name="vm_id" id="vm_id" disabled/>\
-              </div>\
-              <div class="large-1 columns">\
-              </div>\
           </div>\
-          <div class="large-4 columns">\
-              <div class="large-4 columns">\
-                  <label class="inline right" for="vm_id">'+tr("Enforce")+':</label>\
-              </div>\
-              <div class="large-2 columns">\
+          <div class="large-6 columns">\
                   <input type="checkbox" name="enforce" id="enforce"/>\
-              </div>\
-              <div class="large-1 columns pull-five">\
-                  <div class="tip">'
-                    + tr("If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced") +
-                  '</div>\
-              </div>\
+                  <label class="inline" for="vm_id">'+tr("Enforce")+
+                    '<span class="tip">'
+                      + tr("If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced") +
+                    '</span>'+
+                  '</label>\
           </div>\
           </div>' +
           generate_capacity_tab_content() +
           '<div class="reveal-footer">\
-          <hr>\
           <div class="form_buttons">\
               <button class="button radius right success" id="resize_capacity_button" type="submit" value="VM.resize">'+tr("Resize")+'</button>\
           </div>\
@@ -2852,35 +2802,22 @@ function setupSnapshotDialog(){
     $snapshot_dialog = $('#snapshot_dialog',dialogs_context);
     var dialog = $snapshot_dialog;
 
-    dialog.html('<div class="panel">\
-  <h3>\
-    <small id="">'+tr("Snapshot")+'</small>\
-  </h3>\
+    dialog.html('<div class="row">\
+  <h3 class="subheader" id="">'+tr("Snapshot")+'</h3>\
 </div>\
 <form id="snapshot_form" action="">\
-      <div class="row centered">\
-          <div class="large-4 columns">\
-              <label class="inline right" for="vm_id">'+tr("Virtual Machine ID")+':</label>\
-          </div>\
-          <div class="large-7 columns">\
+      <div class="row">\
+          <div class="large-12 columns">\
+              <label for="vm_id">'+tr("Virtual Machine ID")+':</label>\
               <label style="border-style: inset; background-color: lightgrey" type="text" name="vm_id" id="vm_id" disabled/>\
           </div>\
-          <div class="large-1 columns">\
-              <div class=""></div>\
-          </div>\
       </div>\
-      <div class="row centered">\
-          <div class="large-4 columns">\
-              <label class="inline right" for="snapshot_name">'+tr("Snapshot name")+':</label>\
-          </div>\
-          <div class="large-7 columns">\
+      <div class="row">\
+          <div class="large-12 columns">\
+              <label for="snapshot_name">'+tr("Snapshot name")+':</label>\
               <input type="text" name="snapshot_name" id="snapshot_name" />\
           </div>\
-          <div class="large-1 columns">\
-              <div class=""></div>\
-          </div>\
       </div>\
-      <hr>\
       <div class="form_buttons">\
           <button class="button radius right success" id="snapshot_live_button" type="submit" value="VM.saveas">'+tr("Take snapshot")+'</button>\
       </div>\
