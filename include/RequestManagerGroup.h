@@ -104,6 +104,14 @@ protected:
 
     virtual int edit_resource_provider(
             Group* group, int zone_id, int cluster_id, string& error_msg) = 0;
+
+    int get_info_without_error(
+            PoolSQL *                 pool,
+            int                       id,
+            PoolObjectSQL::ObjectType type,
+            RequestAttributes&        att,
+            PoolObjectAuth&           perms,
+            string&                   name);
 };
 
 /* ------------------------------------------------------------------------- */

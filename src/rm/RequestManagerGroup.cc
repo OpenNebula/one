@@ -82,6 +82,33 @@ void GroupSetQuota::
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int GroupEditProvider::get_info_without_error(
+        PoolSQL *                 pool,
+        int                       id,
+        PoolObjectSQL::ObjectType type,
+        RequestAttributes&        att,
+        PoolObjectAuth&           perms,
+        string&                   name)
+{
+    PoolObjectSQL * ob;
+
+    if ((ob = pool->get(id,true)) == 0 )
+    {
+        return -1;
+    }
+
+    ob->get_permissions(perms);
+
+    name = ob->get_name();
+
+    ob->unlock();
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void GroupEditProvider::request_execute(
         xmlrpc_c::paramList const&  paramList,
         RequestAttributes&          att)
@@ -117,13 +144,16 @@ void GroupEditProvider::request_execute(
         return;
     }
 
-    rc = get_info(zonepool, zone_id, PoolObjectSQL::ZONE,
+    rc = get_info_without_error(zonepool, zone_id, PoolObjectSQL::ZONE,
                     att, zone_perms, zone_name);
 
     zone_exists = (rc == 0);
 
     if ( rc == -1 && check_obj_exist )
     {
+        failure_response(NO_EXISTS, get_error(object_name(PoolObjectSQL::ZONE),
+                zone_id), att);
+
         return;
     }
 
@@ -131,13 +161,16 @@ void GroupEditProvider::request_execute(
 
     if (cluster_id != ClusterPool::ALL_RESOURCES && zone_id == local_zone_id)
     {
-        rc = get_info(clpool, cluster_id, PoolObjectSQL::CLUSTER,
+        rc = get_info_without_error(clpool, cluster_id, PoolObjectSQL::CLUSTER,
                         att, cluster_perms, cluster_name);
 
         cluster_exists = (rc == 0);
 
         if ( rc == -1 && check_obj_exist )
         {
+            failure_response(NO_EXISTS, get_error(object_name(PoolObjectSQL::CLUSTER),
+                    cluster_id), att);
+
             return;
         }
     }
