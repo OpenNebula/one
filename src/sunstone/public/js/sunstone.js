@@ -1381,7 +1381,7 @@ function initCheckAllBoxes(datatable, custom_context){
             $('td',table).removeClass('markrowchecked');
         };
 
-        var context = custom_context||table.parents('form');
+        var context = custom_context||table.parents('.tab');
         recountCheckboxes(table, context);
     });
 }
