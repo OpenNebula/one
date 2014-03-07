@@ -518,9 +518,7 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_NEW_VENDOR_FONTAWESOME_CSS:$SUNSTONE_LOCATION/public/vendor/4.0/fontawesome/css
     SUNSTONE_PUBLIC_NEW_VENDOR_NOUISLIDER:$SUNSTONE_LOCATION/public/vendor/4.0/nouislider
     SUNSTONE_PUBLIC_NEW_VENDOR_JDPICKER:$SUNSTONE_LOCATION/public/vendor/4.0/jdpicker_1.1
-    SUNSTONE_PUBLIC_NEW_VENDOR_JDPICKER_IMAGES:$SUNSTONE_LOCATION/public/vendor/4.0/jdpicker_1.1/images
-    SUNSTONE_PUBLIC_NEW_VENDOR_TIMEPICKER:$SUNSTONE_LOCATION/public/vendor/4.0/
-    SUNSTONE_PUBLIC_IMAGES_FILES:$SUNSTONE_LOCATION/public/images
+    SUNSTONE_PUBLIC_NEW_VENDOR_JDPICKER_IMAGES:$SUNSTONE_LOCATION/public/vendor/4.0/jdpicker_1.1/imagesTISUNSTONE_PUBLIC_IMAGES_FILES:$SUNSTONE_LOCATION/public/images
     SUNSTONE_PUBLIC_LOCALE_CA:$SUNSTONE_LOCATION/public/locale/ca
     SUNSTONE_PUBLIC_LOCALE_CS_CZ:$SUNSTONE_LOCATION/public/locale/cs_CZ
     SUNSTONE_PUBLIC_LOCALE_DE:$SUNSTONE_LOCATION/public/locale/de
@@ -1596,8 +1594,6 @@ SUNSTONE_PUBLIC_NEW_VENDOR_JDPICKER_IMAGES="\
                 src/sunstone/public/vendor/4.0/jdpicker_1.1/images/bg_hover.png \
                 src/sunstone/public/vendor/4.0/jdpicker_1.1/images/bg_selectable.png \
                 src/sunstone/public/vendor/4.0/jdpicker_1.1/images/bg_selected.png"
-
-SUNSTONE_PUBLIC_NEW_VENDOR_TIMEPICKER="src/sunstone/public/vendor/4.0/jquery.timePicker.min.js"
 
 SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/favicon.ico \
