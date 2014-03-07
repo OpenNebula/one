@@ -2589,47 +2589,53 @@ function convert_template_to_string(template_json,unshown_values)
     $.each(template_json, function(key, value)
     {
         // value can be an array
-        if (!value) return true;
-        if (value.constructor == Array)
+        if (!value) 
         {
-            var it=null;
-            $.each(value, function(index, element)
-            {
-                if (!element) return true;
-               // current value can be an object
-               if (typeof element == 'object')
-               {
-                    template_str+=key+"=[";
-                    for(var current_key in element)
-                    {
-                        template_str+=current_key+"=\""+element[current_key].toString().replace(/"/g,"\\\"")+"\",";
-                    }
-                    template_str=template_str.substring(0,template_str.length-1);
-                    template_str+="]\n";
-               }
-               else // or a string
-               {
-                 template_str=template_str+key+"=\""+ element.toString().replace(/"/g,"\\\"") +"\"\n";
-               }
-            })
+            template_str=template_str+key+"=\n";
         }
-        else // or a single value
+        else
         {
-            // which in turn can be an object
-               if (typeof value == 'object')
-               {
-                    template_str+=key+"=[";
-                    for(var current_key in value)
-                    {
-                        template_str+=current_key+"=\""+value[current_key].toString().replace(/"/g,"\\\"")+"\",";
-                    }
-                    template_str=template_str.substring(0,template_str.length-1);
-                    template_str+="]\n";
-               }
-               else // or a string
-               {
-                  template_str=template_str+key+"=\""+ value.toString().replace(/"/g,"\\\"")+"\"\n";
-               }
+            if (value.constructor == Array)
+            {
+                var it=null;
+                $.each(value, function(index, element)
+                {
+                   if (!element) return true;
+                   // current value can be an object
+                   if (typeof element == 'object')
+                   {
+                        template_str+=key+"=[";
+                        for(var current_key in element)
+                        {
+                            template_str+=current_key+"=\""+element[current_key].toString().replace(/"/g,"\\\"")+"\",";
+                        }
+                        template_str=template_str.substring(0,template_str.length-1);
+                        template_str+="]\n";
+                   }
+                   else // or a string
+                   {
+                     template_str=template_str+key+"=\""+ element.toString().replace(/"/g,"\\\"") +"\"\n";
+                   }
+                })
+            }
+            else // or a single value
+            {
+                // which in turn can be an object
+                   if (typeof value == 'object')
+                   {
+                        template_str+=key+"=[";
+                        for(var current_key in value)
+                        {
+                            template_str+=current_key+"=\""+value[current_key].toString().replace(/"/g,"\\\"")+"\",";
+                        }
+                        template_str=template_str.substring(0,template_str.length-1);
+                        template_str+="]\n";
+                   }
+                   else // or a string
+                   {
+                      template_str=template_str+key+"=\""+ value.toString().replace(/"/g,"\\\"")+"\"\n";
+                   }
+            }
         }
     })
 
@@ -2675,7 +2681,7 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
         new_value = $('#new_value',$(this).parent().parent()).val();
         new_key   = $('#new_key',$(this).parent().parent()).val();
 
-        if ( new_value != "" && new_key != "" )
+        if ( new_key != "" )
         {
             var template_json_bk = $.extend({}, template_json);
             if(template_json[$.trim(new_key)] && (template_json[$.trim(new_key)] instanceof Array))
