@@ -653,7 +653,7 @@ function generate_capacity_tab_content() {
           '<div id="cpu_slider">'+
           '</div>'+
         '</div>'+
-        '<div class="large-2 columns">'+
+        '<div class="large-2 columns vm_param">'+
           '<input type="text" id="CPU" name="cpu"/>'+
         '</div>'+
     '</div>'+
@@ -675,7 +675,7 @@ function generate_capacity_tab_content() {
           '<div id="vcpu_slider">'+
           '</div>'+
         '</div>'+
-        '<div class="large-2 columns">'+
+        '<div class="large-2 columns vm_param">'+
           '<input type="text" id="VCPU" name="vcpu"/>'+
         '</div>'+
       '</div>'+
