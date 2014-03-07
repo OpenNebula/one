@@ -54,6 +54,7 @@ var create_group_tmpl =
           <dl class="tabs right-info-tabs text-center" data-tab>\
                <dd class="active"><a href="#resource_providers"><i class="fa fa-cloud"></i><br>'+tr("Resources")+'</a></dd>\
                <dd><a href="#administrators"><i class="fa fa-upload"></i><br>'+tr("Admin")+'</a></dd>\
+               <dd><a href="#resource_views"><i class="fa fa-eye"></i><br>'+tr("Views")+'</a></dd>\
                <dd><a href="#resource_creation"><i class="fa fa-folder-open"></i><br>'+tr("Permissions")+'</a></dd>\
           </dl>\
       </div>\
@@ -104,6 +105,21 @@ var create_group_tmpl =
           </div>' +
           user_creation_div +   // from users-tab.js
         '</div>\
+    </div>\
+    <div id="resource_views" class="row content">\
+      <div class="row">\
+        <div class="large-6 columns">\
+          <p class="subheader">'
+            +tr("Allow users in this group to use the following views")+
+            '&emsp;<span class="tip">'+tr("This will add to the group template the selected views so users beloing to the group are able to use them")+'</span>\
+          </p>\
+        </div>\
+      </div>\
+      <div class="row">\
+        <div class="large-6 columns">'+
+            insert_views()
+        +'</div>\
+      </div>\
     </div>\
     <div id="resource_creation" class="content">\
         <div class="row">\
@@ -426,6 +442,17 @@ var groups_tab = {
 Sunstone.addActions(group_actions);
 Sunstone.addMainTab('groups-tab',groups_tab);
 Sunstone.addInfoPanel("group_info_panel",group_info_panel);
+
+function insert_views(){
+  views_checks_str = ""
+  var views_array = config['available_views'];
+  for (var i = 0; i < views_array.length; i++) 
+  {
+    views_checks_str = views_checks_str + 
+             '<input type="checkbox" id="group_view_'+views_array[i]+'" value="'+views_array[i]+'">  '+views_array[i]+'<br>'
+  }
+  return views_checks_str;
+}
 
 function groupElements(){
     return getSelectedNodes(dataTable_groups);
@@ -1154,7 +1181,7 @@ function setupCreateGroupDialog(){
         var name = $('#name',this).val();
 
         var admin_group_name = null;
-        var user_json = null;
+        var user_json        = null;
 
         if ( $('#admin_group', this).prop('checked') ){
             admin_group_name = $('#admin_group_name', this).val();
@@ -1237,6 +1264,12 @@ function setupCreateGroupDialog(){
                 group_json['group']['admin_manage_users'] = "NO";
             }
         }
+
+        group_json['group']['views'] = [];
+
+        $.each($('[id^="group_view"]:checked', dialog), function(){
+            group_json['group']['views'].push($(this).val());
+        });
 
 
         Sunstone.runAction("Group.create",group_json);

@@ -201,11 +201,17 @@ module OpenNebula
 
                 if OpenNebula.is_error?(rc)
                     user.delete
-                    admin_group.delete                        
+                    admin_group.delete
                     self.delete
                     return -1, "Error creating acl rules"
                 end
             end
+
+            # Create admin group
+            if group_hash[:views]
+                self.update("SUNSTONE_VIEWS=\""+group_hash[:views].join(",")+"\"\n")
+            end
+
             return rc_alloc
         end
 
