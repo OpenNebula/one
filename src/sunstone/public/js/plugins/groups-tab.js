@@ -139,7 +139,7 @@ var create_group_tmpl =
                 <th>'+tr("VNets")+'</th>\
                 <th>'+tr("Images")+'</th>\
                 <th>'+tr("Templates")+'</th>\
-                <th>'+tr("Documents")+'</th>\
+                <th>'+tr("Documents")+'<span class="tip">'+tr("Documents are a special tool for general purposes, mainly by OneFlow. If you want to enable users of this group to use service composition via OneFlow, let it checked.")+'</span></th>\
                 <th>'+tr("Users")+'</th>\
               </tr></thead>\
               <tbody>\
