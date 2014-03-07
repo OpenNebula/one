@@ -1633,8 +1633,8 @@ function updateVMInfo(request,vm){
         title: tr("Template"),
         icon: "fa-file-o",
         content:
-        '<div class="large-12 columns">\
-            <table id="vm_template_table" class="info_table transparent_table" style="width:80%">'+
+        '<div class="large-9 columns">\
+            <table id="vm_template_table" class="info_table dataTable">'+
                 prettyPrintJSON(vm_info.TEMPLATE)+
             '</table>\
         </div>'
@@ -1749,29 +1749,6 @@ function printActionsTable(vm_info)
 
         $("#add_scheduling_action").attr("disabled", "disabled");
 
-        //$("#scheduling_actions_table").append('<tr><td></td>\
-        //     <td class="action_row"><select id="select_new_action" class="select_new_action" name="select_action">\
-        //                        <option value="shutdown">' + tr("shutdown") + '</option>\
-        //                        <option value="hold">' + tr("hold") + '</option>\
-        //                        <option value="release">' + tr("release") + '</option>\
-        //                        <option value="stop">' + tr("stop") + '</option>\
-        //                        <option value="cancel">' + tr("cancel") + '</option>\
-        //                        <option value="suspend">' + tr("suspend") + '</option>\
-        //                        <option value="resume">' + tr("resume") + '</option>\
-        //                        <option value="restart">' + tr("restart") + '</option>\
-        //                        <option value="resubmit">' + tr("resubmit") + '</option>\
-        //                        <option value="reboot">' + tr("reboot") + '</option>\
-        //                        <option value="reset">' + tr("reset") + '</option>\
-        //                        <option value="poweroff">' + tr("poweroff") + '</option>\
-        //                        <option value="snapshot-create">' + tr("snapshot-create") + '</option>\
-        //                      </select>\
-        //      </td>\
-        //     <td class="time_row"><input id="date_time_input"><a class="date_time_picker_add_link">t</a></td>\
-        //     <td>\
-        //        <button id="submit_scheduling_action" class="button small secondary radius" >' + tr("Add") +'</button>\
-        //     </td>\
-        //   </tr>');
-
         $("#scheduling_actions_table").append('<tr><td></td>\
              <td class="columns"><select id="select_new_action" class="select_new_action" name="select_action">\
                                 <option value="shutdown">' + tr("shutdown") + '</option>\
@@ -1795,7 +1772,7 @@ function printActionsTable(vm_info)
               </td>\
              <td>\
                 <input id="date_input" class="jdpicker" type="text" placeholder="2013/12/30"/>\
-                <input id="time_input" class="timepicker" type="text" placeholder="12:30"/>\
+                <input id="time_input" type="text" placeholder="12:30"/>\
              </td>\
              <td>\
                 <button id="submit_scheduling_action" class="button small secondary radius" >' + tr("Add") +'</button>\
@@ -1804,8 +1781,6 @@ function printActionsTable(vm_info)
            </tr>');
 
         $("#date_input").jdPicker();
-        $("#time_input").timePicker();
-
         return false;
     });
 
@@ -2520,7 +2495,7 @@ function printCapacity(vm_info){
            <form id="tab_capacity_form" vmid="'+vm_info.ID+'" >'
 
     html += '\
-      <div class="row">\
+      <div class="">\
         <div class="large-12 columns">\
            <table class="info_table dataTable extended_table">\
              <thead>\

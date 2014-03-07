@@ -112,6 +112,16 @@ table.dataTable {
     input[type="checkbox"] {
         margin: 3px 0.5ex !important;
     }
+    textarea {
+      min-height: 33px !important;
+      height: 33px;
+      padding: 5px 10px;
+      margin: 0px !important;
+    }
+    input[type="text"] {
+        margin: 0px !important;
+        padding: 5px 10px;
+    }
 }
 
 

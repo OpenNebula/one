@@ -1303,7 +1303,7 @@ function prettyPrintJSON(template_json,padding,weight, border_bottom,padding_top
     if (!template_json){ return "Not defined";}
     if (!padding) {padding=10};
     if (!weight) {weight="bold";}
-    if (!border_bottom) {border_bottom = "1px solid #CCCCCC";}
+    if (!border_bottom) {border_bottom = "1px solid #efefef";}
     if (!padding_top_bottom) {padding_top_bottom=6;}
     var field = null;
 
@@ -2589,7 +2589,7 @@ function convert_template_to_string(template_json,unshown_values)
     $.each(template_json, function(key, value)
     {
         // value can be an array
-        if (!value) 
+        if (!value)
         {
             template_str=template_str+key+"=\n";
         }
