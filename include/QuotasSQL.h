@@ -159,14 +159,16 @@ public:
 
     virtual ~GroupQuotas(){};
 
-    // *************************************************************************
-    // DataBase implementation
-    // *************************************************************************
+    /**
+     *  Bootstraps the database table for group quotas
+     *    @return 0 on success
+     */
+    static int bootstrap(SqlDB * db)
+    {
+        ostringstream oss_quota(GroupQuotas::db_bootstrap);
 
-    static const char * db_names;
-    static const char * db_bootstrap;
-    static const char * db_table;
-    static const char * db_oid_column;
+        return db->exec(oss_quota);
+    };
 
 protected:
 
@@ -184,6 +186,18 @@ protected:
     {
         return db_oid_column;
     };
+
+private:
+
+    friend class GroupPool;
+
+    // *************************************************************************
+    // DataBase implementation
+    // *************************************************************************
+    static const char * db_names;
+    static const char * db_bootstrap;
+    static const char * db_table;
+    static const char * db_oid_column;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -198,14 +212,16 @@ public:
             "/QUOTAS/IMAGE_QUOTA",
             "/QUOTAS/VM_QUOTA"){};
 
-    // *************************************************************************
-    // DataBase implementation
-    // *************************************************************************
+    /**
+     *  Bootstraps the database table for user quotas
+     *    @return 0 on success
+     */
+    static int bootstrap(SqlDB * db)
+    {
+        ostringstream oss_quota(UserQuotas::db_bootstrap);
 
-    static const char * db_names;
-    static const char * db_bootstrap;
-    static const char * db_table;
-    static const char * db_oid_column;
+        return db->exec(oss_quota);
+    };
 
 protected:
 
@@ -223,6 +239,18 @@ protected:
     {
         return db_oid_column;
     };
+
+private:
+
+    friend class UserPool;
+
+    // *************************************************************************
+    // DataBase implementation
+    // *************************************************************************
+    static const char * db_names;
+    static const char * db_bootstrap;
+    static const char * db_table;
+    static const char * db_oid_column;
 };
 
 #endif /*QUOTAS_SQL_H_*/

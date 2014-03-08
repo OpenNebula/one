@@ -177,15 +177,9 @@ private:
      */
     static int bootstrap(SqlDB * db)
     {
-        int rc;
-
         ostringstream oss_group(Group::db_bootstrap);
-        ostringstream oss_quota(GroupQuotas::db_bootstrap);
 
-        rc =  db->exec(oss_group);
-        rc += db->exec(oss_quota);
-
-        return rc;
+        return db->exec(oss_group);
     };
 
     /**

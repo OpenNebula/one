@@ -317,15 +317,9 @@ private:
      */
     static int bootstrap(SqlDB * db)
     {
-        int rc;
-
         ostringstream oss_user(User::db_bootstrap);
-        ostringstream oss_quota(UserQuotas::db_bootstrap);
 
-        rc =  db->exec(oss_user);
-        rc += db->exec(oss_quota);
-
-        return rc;
+        return db->exec(oss_user);
     };
 
     /**

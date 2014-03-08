@@ -330,12 +330,18 @@ void Nebula::start(bool bootstrap_only)
             rc += DatastorePool::bootstrap(db);
             rc += ClusterPool::bootstrap(db);
             rc += DocumentPool::bootstrap(db);
+            rc += UserQuotas::bootstrap(db);
+            rc += GroupQuotas::bootstrap(db);
 
             // Create the system tables only if bootstrap went well
             if (rc == 0)
             {
                 rc += system_db->local_bootstrap();
             }
+
+            // Insert default system attributes
+            rc += default_user_quota.insert();
+            rc += default_group_quota.insert();
         }
 
         if (shared_bootstrap)
@@ -353,10 +359,6 @@ void Nebula::start(bool bootstrap_only)
             {
                 rc += system_db->shared_bootstrap();
             }
-
-            // Insert default system attributes
-            rc += default_user_quota.insert();
-            rc += default_group_quota.insert();
         }
 
         if ( rc != 0 )
