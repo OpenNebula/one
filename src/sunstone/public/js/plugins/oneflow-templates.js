@@ -1042,8 +1042,8 @@ function setupCreateServiceTemplateDialog(){
     $( "#roles_tabs i.remove-tab" ).live( "click", function() {
         var target = $(this).parent().attr("href");
         var dd = $(this).closest('dd');
-        var dl = $(this).closest('.tabs-content');
-        var content = $(target + 'Tab');
+        var dl = $(this).closest('dl');
+        var content = $(target);
 
         dd.remove();
         content.remove();
