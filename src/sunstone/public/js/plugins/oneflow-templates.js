@@ -1114,7 +1114,7 @@ function setupCreateServiceTemplateDialog(){
     });
 
     $('#create_service_template_reset', dialog).click(function(){
-        dialog.html("");
+        dialog.remove();
         setupCreateServiceTemplateDialog();
 
         popUpCreateServiceTemplateDialog();
@@ -1286,21 +1286,21 @@ function popUpUpdateServiceTemplateDialog() {
       return false;
     }
 
+    if (!$create_service_template_dialog) {
+        setupCreateServiceTemplateDialog();
+    } else {
+        $create_service_template_dialog.remove();
+        setupCreateServiceTemplateDialog();
+    }
+
     // Get proper cluster_id
     var template_id   = ""+selected_nodes[0];
-
     Sunstone.runAction("ServiceTemplate.show_to_update", template_id);
 }
 
 
 function fillUpUpdateServiceTemplateDialog(request, response){
-    if (!$create_service_template_dialog) {
-        setupCreateServiceTemplateDialog();
-    } else {
-        $("#create_service_template_reset", $create_service_template_dialog).click();
-    }
-
-    var dialog = $create_service_template_dialog;
+    var dialog = $('#create_service_template_dialog',dialogs_context);
 
     $("#create_service_template_header", dialog).hide();
     $("#update_service_template_header", dialog).show();
