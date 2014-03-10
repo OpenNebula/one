@@ -3167,14 +3167,16 @@ function insert_permissions_table(tab_name, resource_type, resource_id, owner, g
              <td style="text-align:center"><input type="checkbox" class="permission_check other_a" /></td>\
          </tr>'
 
-        $(".permission_check").die();
-        $(".permission_check").live('change',function(){
+        $(document).off('change', ".permission_check");
+        $(document).on('change', ".permission_check", function(){
             var permissions_table  = $("."+resource_type.toLowerCase()+"_permissions_table");
             var permissions_octect = { octet : buildOctet(permissions_table) };
 
             Sunstone.runAction(resource_type+".chmod",resource_id,permissions_octect);
         });
     }
+
+    var context = '.'+resource_type.toLowerCase()+'_permissions_table';
 
     if (Config.isTabActionEnabled(tab_name, resource_type+'.chgrp') || Config.isTabActionEnabled(tab_name, resource_type+'.chown')) {
         str += '<thead><tr><th colspan="4" style="width:130px">'+tr("Ownership")+'</th>\</tr></thead>'
@@ -3190,26 +3192,32 @@ function insert_permissions_table(tab_name, resource_type, resource_id, owner, g
             </tr>'
 
             // Handlers for chown
-            $("#div_edit_chg_owner_link").die();
-            $("#user_confirm_select").die();
+            $(document).off("click", context + " #div_edit_chg_owner_link");
+            $(document).off("change", context + " #user_confirm_select");
 
             // Listener for key,value pair edit action
-            $("#div_edit_chg_owner_link").live("click", function() {
-                var value_str = $("#value_td_owner").text();
+            $(document).on("click", context + " #div_edit_chg_owner_link", function() {
+                var tr_context = $(this).parents("tr");
+
+                var value_str = $("#value_td_owner", tr_context).text();
                 var select_str='<select id="user_confirm_select">';
                 select_str += makeSelectOptions(dataTable_users,1,2,[],[],true);
                 select_str+="</select>";
-                $("#value_td_owner").html(select_str);
-                $("select#user_confirm_select").val(vm_uid);
+                $("#value_td_owner", tr_context).html(select_str);
+                $("select#user_confirm_select", tr_context).val(vm_uid);
             });
 
-            $("#user_confirm_select").live("change", function() {
-                var value_str = $('select#user_confirm_select').val();
+            $(document).on("change", context + " #user_confirm_select", function() {
+                var tr_context = $(this).parents("tr");
+
+                var value_str = $('select#user_confirm_select', tr_context).val();
                 if(value_str!="")
                 {
                     // Let OpenNebula know
                     var resource_struct = new Array();
                     resource_struct[0]  = resource_id;
+
+                    // TODO: race condition. Show can return before chown does
                     Sunstone.runAction(resource_type+".chown",resource_struct,value_str);
                     Sunstone.runAction(resource_type+".showinfo",resource_id);
                 }
@@ -3227,21 +3235,25 @@ function insert_permissions_table(tab_name, resource_type, resource_id, owner, g
             </tr>'
 
             // Handlers for chgrp
-            $("#div_edit_chg_group_link").die();
-            $("#group_confirm_select").die();
+            $(document).off("click", context + " #div_edit_chg_group_link");
+            $(document).off("change", context + " #group_confirm_select");
 
             // Listener for key,value pair edit action
-            $("#div_edit_chg_group_link").live("click", function() {
-                var value_str = $("#value_td_group").text();
+            $(document).on("click", context + " #div_edit_chg_group_link", function() {
+                var tr_context = $(this).parents("tr");
+
+                var value_str = $("#value_td_group", tr_context).text();
                 var select_str='<select id="group_confirm_select">';
                 select_str += makeSelectOptions(dataTable_groups,1,2,[],[],true);
                 select_str+="</select>";
-                $("#value_td_group").html(select_str);
-                $("select#group_confirm_select").val(vm_gid);
+                $("#value_td_group", tr_context).html(select_str);
+                $("select#group_confirm_select", tr_context).val(vm_gid);
             });
 
-            $("#group_confirm_select").live("change", function() {
-                var value_str = $('select#group_confirm_select').val();
+            $(document).on("change", context + " #group_confirm_select", function() {
+                var tr_context = $(this).parents("tr");
+
+                var value_str = $('select#group_confirm_select', tr_context).val();
                 if(value_str!="")
                 {
                     // Let OpenNebula know
