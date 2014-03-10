@@ -1085,6 +1085,11 @@ function deleteElement(dataTable,tag){
     var tr = $(tag,dataTable).parents('tr')[0];
     dataTable.fnDeleteRow(tr);
     recountCheckboxes(dataTable);
+
+    var tab = dataTable.parents(".tab");
+    if (Sunstone.rightInfoVisible(tab)) {
+        $("a[href='back']", tab).click();
+    }
 }
 
 //Handle the activation of action buttons and the check_all box
