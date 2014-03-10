@@ -357,7 +357,7 @@ var datastore_actions = {
         type: "multiple",
         call: OpenNebula.Datastore.chown,
         callback:  function (req) {
-            Sunstone.runAction("Datastore.show",req.request.data[0][0]);
+            Sunstone.runAction("Datastore.show",req.request.data[0][0][0]);
         },
         elements: datastoreElements,
         error: onError,
@@ -368,7 +368,8 @@ var datastore_actions = {
         type: "multiple",
         call: OpenNebula.Datastore.chgrp,
         callback: function (req) {
-            Sunstone.runAction("Datastore.show",req.request.data[0][0]);
+         //   Sunstone.runAction("Datastore.show",req.request.data[0][0][0]);
+            setInterval(Sunstone.runAction("Datastore.show",req.request.data[0][0][0]),1000);
         },
         elements: datastoreElements,
         error: onError,
@@ -426,7 +427,7 @@ var datastore_actions = {
         call: OpenNebula.Datastore.rename,
         callback: function(request) {
             notifyMessage(tr("Datastore renamed correctly"));
-            Sunstone.runAction('Datastore.showinfo',request.request.data[0]);
+            Sunstone.runAction('Datastore.showinfo',request.request.data[0][0]);
             Sunstone.runAction('Datastore.list');
         },
         error: onError,
@@ -1049,7 +1050,7 @@ function select_fs_lvm(){
 }
 
 function select_custom(){
-    hide_all(dialog);
+    hide_all($create_datastore_dialog);
     $('select#ds_mad').val('fs');
     $('select#tm_mad').val('shared');
 }

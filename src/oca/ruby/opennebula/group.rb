@@ -176,8 +176,8 @@ module OpenNebula
                 # Set ACLs for group admin
                 acls = Array.new
 
-                if group_hash[:admin_group_resources]
-                    group_acls_str = group_hash[:admin_group_resources]
+                if group_hash[:admin_resources]
+                    group_acls_str = group_hash[:admin_resources]
                 elsif group_hash[:resources]
                     group_acls_str = group_hash[:resources]
                 else
