@@ -58,8 +58,7 @@
 }
 
 .left-content {
-  padding-left: 50px;
-  padding-top: 28px;
+  padding-top: 30px;
 }
 
 .left-header {
@@ -67,7 +66,8 @@
 }
 
 .right-content {
-  padding: 20px 50px 0px 0px;
+  padding-top: 20px;
+  padding-left: 40px;
 }
 
 .right-info {
@@ -118,9 +118,8 @@ table.dataTable {
       padding: 5px 10px;
       margin: 0px !important;
     }
-    input[type="text"] {
+    select,input[type="text"] {
         margin: 0px !important;
-        padding: 5px 10px;
     }
 }
 
@@ -208,9 +207,8 @@ input.search {
 
 input[type="text"],
 select {
-  font-size: 14px;
-  height: 33px !important;
-  padding: 0px 10px;
+  height: rem-calc(33px) !important;
+  padding: rem-calc(5px) !important;
   color: rgba(0, 0, 0, 0.75) !important;
 }
 
