@@ -1000,8 +1000,6 @@ function setup_role_tab_content(role_section, html_role_id) {
         add_sche_policy_tab();
     });
 
-    policies_index = 0;
-
     return false;
 }
 
@@ -1052,8 +1050,6 @@ function setupCreateServiceTemplateDialog(){
             $('a', dl.children('dd').last()).click();
             //TODOO dl.foundationTabs("set_tab", dl.children('dd').last());
         }
-
-        roles_index--;
     });
 
     // Fill parents table

@@ -1903,7 +1903,6 @@ function add_capacityTab(dialog){
 
 function add_disks_tab(dialog) {
     var number_of_disks = 0;
-    var disks_index     = 0;
 
     var html_tab_content = '<div id="storageTab" class="wizard_tab content">'+
       '<dl class="tabs vertical" id="template_create_storage_tabs" data-tab>'+
@@ -1930,15 +1929,12 @@ function add_disks_tab(dialog) {
         if (dd.attr("class") == 'active') {
             //TODOO dl.foundationTabs("set_tab", dl.children('dd').last());
         }
-
-        disks_index--;
     });
 
 
     $("#tf_btn_disks", dialog).bind("click", function(){
       add_disk_tab(number_of_disks, dialog);
       number_of_disks++;
-      disks_index++;
     });
 }
 
@@ -1971,7 +1967,6 @@ function add_disk_tab(disk_id, dialog) {
 
 function add_nics_tab(dialog) {
     var number_of_nics = 0;
-    var nics_index     = 0;
 
     var html_tab_content = '<div id="networkTab" class="content wizard_tab">'+
       '<dl class="tabs vertical" id="template_create_network_tabs" data-tab>'+
@@ -1997,14 +1992,11 @@ function add_nics_tab(dialog) {
         if (dd.attr("class") == 'active') {
             //TODOO dl.foundationTabs("set_tab", dl.children('dd').last());
         }
-
-        nics_index--;
     });
 
     $("#tf_btn_nics").bind("click", function(){
         add_nic_tab(number_of_nics, dialog);
         number_of_nics++;
-        nics_index++;
     });
 }
 
