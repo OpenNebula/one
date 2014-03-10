@@ -114,7 +114,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                     limit = q['VM_QUOTA']['VM']["VMS"]
 
                     if limit == "-1"
-                        limit = pool_default_quotas["#{prefix}VM_QUOTA/VM/VMS"]
+                        limit = pool_default_quotas("VM_QUOTA/VM/VMS")
                         limit = "0" if limit.nil? || limit == ""
                     end
 
@@ -131,7 +131,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                     limit = q['VM_QUOTA']['VM']["MEMORY"]
 
                     if limit == "-1"
-                        limit = pool_default_quotas["#{prefix}VM_QUOTA/VM/MEMORY"]
+                        limit = pool_default_quotas("VM_QUOTA/VM/MEMORY")
                         limit = "0" if limit.nil? || limit == ""
                     end
 
@@ -149,7 +149,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                     limit = q['VM_QUOTA']['VM']["CPU"]
 
                     if limit == "-1"
-                        limit = pool_default_quotas["#{prefix}VM_QUOTA/VM/CPU"]
+                        limit = pool_default_quotas("VM_QUOTA/VM/CPU")
                         limit = "0" if limit.nil? || limit == ""
                     end
 
