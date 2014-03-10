@@ -483,8 +483,9 @@ EOT
                     return -1, array.message if OpenNebula.is_error?(array)
 
                     if options[:ids]
-                        array=array.select do |element|
-                            options[:ids].include? element['ID'].to_i
+                        rname=self.class.rname
+                        array["#{rname}_POOL"][rname].reject! do |element|
+                            !options[:ids].include?(element['ID'].to_i)
                         end
                     end
 
