@@ -938,6 +938,10 @@ function setupCreateDatastoreDialog(){
         if (limit_mb)
             ds_obj.datastore.limit_mb = limit_mb;
 
+        // Sanitize dialog
+        $('#ds_use_ssh').prop('checked', false);
+        $('#tm_use_ssh').prop('checked', false);
+
         Sunstone.runAction("Datastore.create",ds_obj);
 
         $create_datastore_dialog.foundation('reveal', 'close')
