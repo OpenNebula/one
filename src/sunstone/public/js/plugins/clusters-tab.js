@@ -414,16 +414,19 @@ function setupCreateClusterDialog(){
 
     $("#refresh_host_table_button_class", dialog).click( function(){
        Sunstone.runAction("ClusterHost.list");
+       return false;
       }
     );
 
     $("#refresh_vnet_table_button_class", dialog).click( function(){
        Sunstone.runAction("ClusterVN.list");
+       return false;
       }
     );
 
     $("#refresh_datastore_table_button_class", dialog).click( function(){
        Sunstone.runAction("ClusterDS.list");
+       return false;
       }
     );
 
