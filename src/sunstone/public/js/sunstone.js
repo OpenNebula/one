@@ -478,7 +478,7 @@ function insertTab(tab_name){
                 <div class="action_blocks">\
                 </div>\
               </div>\
-              <div class="large-3 columns">'
+              <div class="large-3 columns only-right-list">'
 
             if (tab_info.search_input) {
                 tab_content_str += tab_info.search_input;
@@ -584,12 +584,13 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
 
         var buttons_row = $('<div class="text-center">'+
                   '<span class="left">'+
-                    (custom_context ? '' : '<span id="'+custom_id+'back_button" class="only-right-info">'+
-                        '<a class="button small radius" href="back"><i class="fa fa-arrow-left"></i>&emsp;&emsp;<i class="fa fa-list"></i></a>'+
-                    '</span>')+
 
                     '<span id="'+custom_id+'refresh_buttons">'+
                     '</span>'+
+
+                    (custom_context ? '' : '<span id="'+custom_id+'back_button" class="only-right-info">'+
+                        '<a class="button small radius" href="back"><i class="fa fa-arrow-left"></i>&emsp;&emsp;<i class="fa fa-list"></i></a>'+
+                    '</span>')+
 
                     '<span id="'+custom_id+'create_buttons" class="only-right-list">'+
                     '</span>'+

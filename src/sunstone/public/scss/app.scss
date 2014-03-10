@@ -52,9 +52,13 @@
 }
 
 .left-footer {
-  overflow:visible;
-  padding:8px;
-  font-size:12px
+  clear: both;
+  position: relative;
+  z-index: 10;
+  height: 3em;
+  margin-top: -3em;
+  font-size:12px;
+  margin-left: 200px;
 }
 
 .left-content {
@@ -174,11 +178,10 @@ input.search {
     margin-left: 15px;
 
     .topTab {
-        font-weight: bold;
         margin-top: 15px;
 
         a {
-            color: #555 !important;
+            color: #333 !important;
         }
     }
 
