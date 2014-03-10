@@ -658,7 +658,7 @@ function roleVMElements() {
 };
 
 function roleCallback() {
-    return $("#service_info_panel_refresh", $("#service_info_panel")).click();
+    return Sunstone.runAction('Service.refresh');
 }
 
 var role_buttons = {
@@ -911,13 +911,25 @@ var service_actions = {
     "Service.refresh" : {
         type: "custom",
         call: function () {
-          var tab = dataTable_services.parents(".tab");
-          if (Sunstone.rightInfoVisible(tab)) {
-            Sunstone.runAction("Service.showinfo", Sunstone.rightInfoResourceId(tab))
-          } else {
-            waitingNodes(dataTable_services);
-            Sunstone.runAction("Service.list");
-          }
+            var tab = dataTable_services.parents(".tab");
+            if (Sunstone.rightInfoVisible(tab)) {
+                selected_row_role_id = $($('td.markrowselected',servicerolesDataTable.fnGetNodes())[1]).html();
+                checked_row_rolevm_ids = new Array();
+
+                if (typeof(serviceroleVMsDataTable) !== 'undefined') {
+                    $.each($(serviceroleVMsDataTable.fnGetNodes()), function(){
+                       if($('td.markrowchecked',this).length!=0)
+                       {
+                            checked_row_rolevm_ids.push($($('td',$(this))[1]).html());
+                       }
+                    });
+                }
+
+                Sunstone.runAction("Service.showinfo", Sunstone.rightInfoResourceId(tab))
+            } else {
+                waitingNodes(dataTable_services);
+                Sunstone.runAction("Service.list");
+            }
         }
     },
 
@@ -1261,22 +1273,6 @@ function updateServiceInfo(request,elem){
     // Popup panel
     Sunstone.popUpInfoPanel("service_info_panel", "oneflow-services");
     setPermissionsTable(elem_info,'');
-
-    $("#service_info_panel_refresh", $("#service_info_panel")).click(function(){
-        $(this).html(spinner);
-        selected_row_role_id = $($('td.markrowselected',servicerolesDataTable.fnGetNodes())[1]).html();
-        checked_row_rolevm_ids = new Array();
-
-        if (typeof(serviceroleVMsDataTable) !== 'undefined') {
-            $.each($(serviceroleVMsDataTable.fnGetNodes()), function(){
-               if($('td.markrowchecked',this).length!=0)
-               {
-                 checked_row_rolevm_ids.push($($('td',$(this))[1]).html());
-               }
-            });
-        }
-        Sunstone.runAction('Service.showinfo', elem_info.ID);
-    })
 
     var roles = elem_info.TEMPLATE.BODY.roles
     if (roles && roles.length) {
