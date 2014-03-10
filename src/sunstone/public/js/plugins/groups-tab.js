@@ -449,7 +449,9 @@ function insert_views(){
   for (var i = 0; i < views_array.length; i++) 
   {
     views_checks_str = views_checks_str + 
-             '<input type="checkbox" id="group_view_'+views_array[i]+'" value="'+views_array[i]+'">  '+views_array[i]+'<br>'
+             '<input type="checkbox" id="group_view_'+views_array[i]+'" value="'+views_array[i]+'"/>' +
+             '<label for="group_view_'+views_array[i]+'">'+views_array[i]+
+             '</label><br>'
   }
   return views_checks_str;
 }
