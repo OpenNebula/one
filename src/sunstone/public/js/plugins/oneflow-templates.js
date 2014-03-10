@@ -1320,7 +1320,7 @@ function fillUpUpdateServiceTemplateDialog(request, response){
     $.each(service_template.TEMPLATE.BODY.roles, function(index, value){
         more_than_one ? $("#tf_btn_roles", dialog).click() : (more_than_one = true);
 
-        var context = $('#roles_tabs_content li', $create_service_template_dialog).last();
+        var context = $('#roles_tabs_content .content', $create_service_template_dialog).last();
 
         $("#role_name", context).val(value.name);
         $("#role_name", context).change();
@@ -1384,7 +1384,7 @@ function fillUpUpdateServiceTemplateDialog(request, response){
 
         $(tab_id+" #parent_roles_body").html(str);
 
-        var context = $('#roles_tabs_content li#role'+index+'Tab', $create_service_template_dialog);
+        var context = $('#roles_tabs_content .content#role'+index+'Tab', $create_service_template_dialog);
 
         if (value.parents) {
             $.each(value.parents, function(index, value){
