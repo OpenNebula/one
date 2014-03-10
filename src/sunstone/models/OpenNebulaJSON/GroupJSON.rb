@@ -55,7 +55,7 @@ module OpenNebulaJSON
         end
 
         def update_json(params=Hash.new)
-            super(params['template_raw'])
+            update(params['template_raw'])
         end
 
         def set_quota(params=Hash.new)
@@ -65,11 +65,11 @@ module OpenNebulaJSON
         end
 
         def add_provider_json(params=Hash.new)
-            super(params['zone_id'].to_i, params['cluster_id'].to_i)
+            add_provider(params['zone_id'].to_i, params['cluster_id'].to_i)
         end
 
         def del_provider_json(params=Hash.new)
-            super(params['zone_id'].to_i, params['cluster_id'].to_i)
+            del_provider(params['zone_id'].to_i, params['cluster_id'].to_i)
         end
     end
 end

@@ -40,7 +40,7 @@ var group_acct_graphs = [
 
 var create_group_tmpl =
 '<div class="row">\
-  <h3 id="create_vnet_header">'+tr("Create Group")+'</h3>\
+  <h3 id="create_group_header">'+tr("Create Group")+'</h3>\
 </div>\
 <div class="reveal-body">\
   <form id="create_group_form" action="">\
@@ -178,7 +178,7 @@ var create_group_tmpl =
 </div>';
 
 var group_quotas_tmpl = '<div class="row" class="subheader">\
-  <h3 id="create_vnet_header">'+tr("Update Quota")+'</h3>\
+  <h3 id="create_group_quotas_header">'+tr("Update Quota")+'</h3>\
 </div>\
 <div class="reveal-body">\
 <form id="group_quotas_form" action="">'+
@@ -715,7 +715,7 @@ function setup_add_rp_dialog(group){
 
     dialog.html(
         '<div class="row">\
-            <h3 id="create_vnet_header" class="subheader">'+tr("Select Resource Providers")+'</h3>\
+            <h3 id="create_rp_header" class="subheader">'+tr("Select Resource Providers")+'</h3>\
         </div>\
         <div class="reveal-body">\
             <div class="row">\
@@ -1027,16 +1027,20 @@ function update_datatable_group_clusters(datatable, zone_id, group) {
 
           $.each(providers_array, function(index, provider){
             if (provider.ZONE_ID==zone_id)
+            {
               for(var j=0;j<rows.length;j++)
               {
                 var current_row    = $(rows[j]);
                 var row_cluster_id = $(rows[j]).find("td:eq(1)").html();
 
-                if (provider.CLUSTER_ID == row_cluster_id)
+                if (provider.CLUSTER_ID == row_cluster_id || provider.CLUSTER_ID == "10")
                 {
                   current_row.click();
                 }
               }
+              if (provider.CLUSTER_ID == "10")
+                $('#zone'+zone_id+'_add_rpresources_all').click();
+            }
           });
         }
     }

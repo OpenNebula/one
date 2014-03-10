@@ -135,11 +135,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.show_resource(args[0],options)
     end
 
-    setzone_desc = <<-EOT.unindent
+    set_desc = <<-EOT.unindent
         Set shell session access point for the CLI to the given Zone
     EOT
 
-    command :setzone, setzone_desc,:zoneid do
+    command :set, set_desc,:zoneid do
         helper.set_zone(args[0])
     end
 end
