@@ -473,9 +473,9 @@ function popUpCreateClusterDialog(){
 
     filter_expr = "-" ;
 
-    if ($create_cluster_dialog)
+    if ($("#create_cluster_dialog"))
     {
-      $create_cluster_dialog.html("");
+      $("#create_cluster_dialog").remove();
       dialogs_context.append('<div title=\"'+tr("Create cluster")+'\" id="create_cluster_dialog"></div>');
     }
 
@@ -505,9 +505,8 @@ function popUpUpdateClusterDialog(){
 
     var dialog = $create_cluster_dialog;
 
-    if (dialog)
-    {
-      dialog.html("");
+    if ($("#create_cluster_dialog")) {
+      $("#create_cluster_dialog").remove();
       dialogs_context.append('<div id="create_cluster_dialog"></div>');
     }
 
