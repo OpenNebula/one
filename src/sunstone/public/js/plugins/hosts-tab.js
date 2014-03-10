@@ -25,13 +25,20 @@ var create_host_tmpl =
   <div class="reveal-body">\
   <form id="create_host_form" action="" class="">\
   <div class="row">\
-      <div class="large-12 columns">\
+      <div class="large-6 columns">\
           <label for="name">' + tr("Hostname")  + '</label>\
           <input type="text" name="name" id="name" />\
+      </div>\
+      <div class="large-6 columns" id="cluster_select">\
+          <label for="host_cluster_id">' + tr("Cluster") + '</label>\
+          <select id="host_cluster_id" name="host_cluster_id">\
+          </select>\
       </div>\
   </div>\
   <fieldset>\
     <legend>'+tr("Drivers")+'</legend>\
+  <div class="row">\
+      <div class="large-6 columns">\
     <div class="manager clear row" id="vmm_mads">\
       <div class="large-12 columns">\
           <label for="vmm">' +  tr("Virtualization") + '</label>\
@@ -66,6 +73,8 @@ var create_host_tmpl =
           <input type="text" name="custom_im_mad" />\
       </div>\
     </div>\
+      </div>\
+      <div class="large-6 columns">\
     <div class="manager clear row" id="vnm_mads">\
       <div class="large-12 columns">\
           <label for="vn">' +  tr("Networking") + '</label>\
@@ -84,18 +93,14 @@ var create_host_tmpl =
           <input type="text" name="custom_vnm_mad" />\
       </div>\
     </div>\
-  </fieldset>\
-  <div class="manager clear row" id="cluster_select">\
-    <div class="large-12 columns">\
-        <label for="host_cluster_id">' + tr("Cluster") + '</label>\
-        <select id="host_cluster_id" name="host_cluster_id">\
-        </select>\
+      </div>\
     </div>\
-  </div>\
+  </fieldset>\
+  <br>\
   <div class="reveal-footer">\
     <div class="form_buttons row">\
         <button id="wizard_host_reset_button" class="button secondary radius" type="reset" value="reset">' + tr("Reset") + '</button>\
-        <button class="button success radius" type="submit" id="create_host_submit" value="OpenNebula.Host.create">' + tr("Create") + '</button>\
+        <button class="button success right radius" type="submit" id="create_host_submit" value="OpenNebula.Host.create">' + tr("Create") + '</button>\
     </div>\
   </div>\
 </form>\
@@ -833,7 +838,7 @@ function setupCreateHostDialog(){
 
     dialog.html(create_host_tmpl);
 
-    dialog.addClass("reveal-modal max-height").attr("data-reveal", "");
+    dialog.addClass("reveal-modal medium").attr("data-reveal", "");
 
     // Show custom driver input only when custom is selected in selects
     $('input[name="custom_vmm_mad"],'+
