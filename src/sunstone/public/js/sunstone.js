@@ -3320,9 +3320,6 @@ function insert_rename_tr(tab_name, resource_type, resource_id, resource_name){
 
     var context = '.'+resource_type.toLowerCase()+'_rename';
 
-    $(document).off("click", context + " #div_edit_chg_group_link");
-    $(document).off("change", context + " #group_confirm_select");
-
     $(document).off("click", context+" #div_edit_rename_link");
     $(document).off("change", context+" .input_edit_value_rename");
 

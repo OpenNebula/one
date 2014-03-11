@@ -490,7 +490,7 @@ function updateFileInfo(request,file){
            </tr>\
            <tr>\
              <td class="key_td">'+tr("Type")+'</td>\
-             <td class="value_td_type">'+OpenNebula.Helper.image_type(file_info.TYPE)+'</td>\
+             <td class="value_td_type_files">'+OpenNebula.Helper.image_type(file_info.TYPE)+'</td>\
              <td><div id="div_edit_chg_type_files">\
                    <a id="div_edit_chg_type_files_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
                  </div>\
@@ -552,7 +552,7 @@ function updateFileInfo(request,file){
 
     // Listener for edit link for type change
     $("#div_edit_chg_type_files_link").live("click", function() {
-        $(".value_td_type").html(
+        $(".value_td_type_files").html(
                   '<select id="chg_type_select_files">\
                       <option value="KERNEL">KERNEL</option>\
                       <option value="RAMDISK">RAMDISK</option>\
