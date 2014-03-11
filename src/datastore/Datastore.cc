@@ -324,9 +324,15 @@ int Datastore::insert(SqlDB *db, string& error_str)
         {
             disk_type = Image::str_to_disk_type(s_disk_type);
 
-            if (disk_type == Image::NONE)
+            switch(disk_type)
             {
-                goto error_disk_type;
+                case Image::NONE:
+                    goto error_disk_type;
+                    break;
+                case Image::RBD_CDROM:
+                case Image::GUSTER_CDROM:
+                    goto error_invalid_disk_type;
+                    break;
             }
         }
 
@@ -359,6 +365,10 @@ error_empty_tm:
 
 error_disk_type:
     error_str = "Unknown DISK_TYPE in template.";
+    goto error_common;
+
+error_invalid_disk_type:
+    error_str = "Invalid DISK_TYPE in template.";
     goto error_common;
 
 error_common:

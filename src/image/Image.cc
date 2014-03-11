@@ -610,6 +610,10 @@ int Image::disk_attribute(  VectorAttribute *       disk,
                     new_disk_type = RBD_CDROM;
                     break;
 
+                case GLUSTER:
+                    new_disk_type = GLUSTER_CDROM;
+                    break;
+
                 default:
                     new_disk_type = CD_ROM;
             }
