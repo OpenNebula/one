@@ -3311,16 +3311,19 @@ function insert_rename_tr(tab_name, resource_type, resource_id, resource_name){
 
     var context = '.'+resource_type.toLowerCase()+'_rename';
 
-    $("#div_edit_rename_link", context).die();
-    $(".input_edit_value_rename", context).die();
+    $(document).off("click", context + " #div_edit_chg_group_link");
+    $(document).off("change", context + " #group_confirm_select");
+
+    $(document).off("click", context+" #div_edit_rename_link");
+    $(document).off("change", context+" .input_edit_value_rename");
 
     // Listener for edit link for rename
-    $("#div_edit_rename_link", context).live("click", function() {
+    $(document).on("click", context + " #div_edit_rename_link", function() {
         var value_str = $(".value_td_rename", context).text();
         $(".value_td_rename", context).html('<input class="input_edit_value_rename" id="input_edit_rename" type="text" value="'+value_str+'"/>');
     });
 
-    $(".input_edit_value_rename", context).live("change", function() {
+    $(document).on("change", context + " .input_edit_value_rename", function() {
         var value_str = $(".input_edit_value_rename", context).val();
         if(value_str!="")
         {
