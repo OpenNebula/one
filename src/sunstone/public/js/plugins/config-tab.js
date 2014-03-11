@@ -82,11 +82,21 @@ Config = {
 var config_response = {};
 var config_tab_content =
 '<div class="row">\
-    <h3 id="configuration_dialog" class="subheader">'+tr("Configuration")+'</h3>\
+    <div class="large-6 columns">\
+      <h3 id="configuration_dialog" class="subheader">'+tr("Configuration")+'</h3>\
+    </div>\
+    <div class="large-6 columns">\
+      <dl class="tabs right-info-tabs text-center right" data-tab>\
+           <dd class="active"><a href="#info_configuration"><i class="fa fa-info-circle"></i><br>'+tr("Info")+'</a></dd>\
+           <dd><a href="#conf_configuration"><i class="fa fa-cog"></i><br>'+tr("Conf")+'</a></dd>\
+           <dd><a href="#quotas_configuration"><i class="fa fa-align-left"></i><br>'+tr("Quotas")+'</a></dd>\
+      </dl>\
+    </div>\
   </div>\
   <div class="reveal-body">\
-  <form id="config_form">\
-    <div class="row">\
+  <form id="config_form" class="tabs-content">\
+    <div id="info_configuration" class="content active">\
+      <div class="row">\
         <div class="large-7 columns">\
             <table id="user_information" class="dataTable extended_table">\
                 <thead>\
@@ -95,70 +105,88 @@ var config_tab_content =
                 <tbody>\
                 </tbody>\
             </table>\
-            <div id="setting_user_template"></div>\
         </div>\
+      </div>\
+      <div class="row">\
+        <div id="setting_user_template" class="large-12 columns">\
+        </div>\
+      </div>\
+    </div>\
+    <div id="conf_configuration" class="row content">\
         <div class="large-5 columns">\
-        <div class="row">\
-            <label for="lang_sel" >' + tr("Language") + ':\
-              <select id="lang_sel">\
-                 <option value="en_US">English (en_US)</option>\
-                 <option value="ca">Catalan (ca)</option>\
-                 <option value="cs_CZ">Czech (cs_CZ)</option>\
-                 <option value="nl_NL">Dutch (nl_NL)</option>\
-                 <option value="da">Danish (da)</option>\
-                 <option value="fr_FR">French (fr_FR)</option>\
-                 <option value="de">German (de)</option>\
-                 <option value="el_GR">Greek (el_GR)</option>\
-                 <option value="it_IT">Italian (el_GR)</option>\
-                 <option value="fa_IR">Persian (fa_IR)</option>\
-                 <option value="pl">Polish (pl)</option>\
-                 <option value="pt_BR">Portuguese (pt_BR)</option>\
-                 <option value="pt_PT">Portuguese (pt_PT)</option>\
-                 <option value="ru_RU">Russian (ru_RU)</option>\
-                 <option value="zh_CN">Simplified Chinese (zh_CN)</option>\
-                 <option value="sk_SK">Slovak (sk_SK)</option>\
-                 <option value="es_ES">Spanish (es_ES)</option>\
-                 <option value="zh_TW">Traditional Chinese (zh_TW)</option>\
-              </select>\
-            </label>\
-        </div>\
-        <div class="row">\
-              <label for="view_sel" >' + tr("Views") + ':\
-                 <select id="view_sel">\
-                 </select>\
+          <div class="row">\
+              <label for="lang_sel" >' + tr("Language") + ':\
+                <select id="lang_sel">\
+                   <option value="en_US">English (en_US)</option>\
+                   <option value="ca">Catalan (ca)</option>\
+                   <option value="cs_CZ">Czech (cs_CZ)</option>\
+                   <option value="nl_NL">Dutch (nl_NL)</option>\
+                   <option value="da">Danish (da)</option>\
+                   <option value="fr_FR">French (fr_FR)</option>\
+                   <option value="de">German (de)</option>\
+                   <option value="el_GR">Greek (el_GR)</option>\
+                   <option value="it_IT">Italian (el_GR)</option>\
+                   <option value="fa_IR">Persian (fa_IR)</option>\
+                   <option value="pl">Polish (pl)</option>\
+                   <option value="pt_BR">Portuguese (pt_BR)</option>\
+                   <option value="pt_PT">Portuguese (pt_PT)</option>\
+                   <option value="ru_RU">Russian (ru_RU)</option>\
+                   <option value="zh_CN">Simplified Chinese (zh_CN)</option>\
+                   <option value="sk_SK">Slovak (sk_SK)</option>\
+                   <option value="es_ES">Spanish (es_ES)</option>\
+                   <option value="zh_TW">Traditional Chinese (zh_TW)</option>\
+                </select>\
               </label>\
-        </div>\
-        <div class="row">\
-              <label for="table_order" >' + tr("Default Table order") + ':\
-                 <select id="table_order">\
-                   <option value="asc">ascending</option>\
-                   <option value="desc">descending</option>\
-                 </select>\
-              </label>\
-        </div>\
-        <div class="row">\
-              <label for="wss_checkbox" >' + tr("VNC Secure websockets") + ':\
-                <input id="wss_checkbox" type="checkbox" value="yes" />\
-              </label>\
-        </div>\
-        <div class="">\
-            <dl class="tabs" data-tab>\
-              <dd class="active"><a href="#user_quotas">User Quotas</a></dd>\
-              <dd><a href="#group_quotas">Group Quotas</a></dd>\
-            </dl>\
-            <div class="tabs-content">\
-              <div class="content active" id="user_quotas"><span>'+tr("No quotas defined")+'</span></div>\
-              <div id="group_quotas" class="content">\
-                <div class="row">\
-                    <label>' + tr("Select group") + ':\
-                      <select id="quota_group_sel">\
-                      </select>\
-                    </label>\
-                </div>\
-                <div id="group_quotasTabBody"><span>'+tr("No quotas defined")+'</span></div>\
+          </div>\
+          <div class="row">\
+                <label for="view_sel" >' + tr("Views") + ':\
+                   <select id="view_sel">\
+                   </select>\
+                </label>\
+          </div>\
+          <div class="row">\
+                <label for="table_order" >' + tr("Default Table order") + ':\
+                   <select id="table_order">\
+                     <option value="asc">ascending</option>\
+                     <option value="desc">descending</option>\
+                   </select>\
+                </label>\
+          </div>\
+          <div class="row">\
+                <label for="wss_checkbox" >' + tr("VNC Secure websockets") + ':\
+                  <input id="wss_checkbox" type="checkbox" value="yes" />\
+                </label>\
+          </div>\
+      </div>\
+    </div>\
+    <div id="quotas_configuration" class="row content">\
+      <div class="large-12 columns">\
+          <dl class="tabs" data-tab>\
+            <dd class="active"><a href="#user_quotas">User Quotas</a></dd>\
+            <dd><a href="#group_quotas">Group Quotas</a></dd>\
+          </dl>\
+          <div class="tabs-content">\
+            <div class="content active" id="user_quotas">\
+              <div class="large-12 columns">\
+                <p class="subheader">'+tr("No quotas defined")+'</p>\
               </div>\
             </div>\
-        </div>\
+            <div id="group_quotas" class="content">\
+              <div class="row">\
+                <div class="large-6 columns">\
+                  <label>' + tr("Select group") + ':\
+                    <select id="quota_group_sel">\
+                    </select>\
+                  </label>\
+              </div>\
+              </div>\
+              <div id="group_quotasTabBody" class="row">\
+                <div class="large-12 columns">\
+                <p class="subheader">'+tr("No quotas defined")+'</p>\
+              </div>\
+              </div>\
+            </div>\
+          </div>\
       </div>\
     </div>\
     <div class="reveal-footer">\
@@ -356,7 +384,9 @@ function updateUserConfigInfo(request,user_json) {
     quotas_tab_html += Quotas.network(info, default_user_quotas);
     quotas_tab_html += Quotas.datastore(info, default_user_quotas);
 
-    $("#user_quotas").html(quotas_tab_html);
+    if (quotas_tab_html !== "") {
+      $("#user_quotas").html(quotas_tab_html);
+    }
 
     $("#user_information tbody").html('<tr>\
         <td class="key_td">' + tr("ID") + '</td>\
@@ -453,7 +483,9 @@ function fillGroupQuotas(group_id){
             quotas_tab_html += Quotas.network(info, default_group_quotas);
             quotas_tab_html += Quotas.datastore(info, default_group_quotas);
 
-            $("#group_quotasTabBody").html(quotas_tab_html);
+            if (quotas_tab_html !== "") {
+              $("#group_quotasTabBody").html(quotas_tab_html);
+            }
 
             $("select#quota_group_sel").val(info.ID);
         }

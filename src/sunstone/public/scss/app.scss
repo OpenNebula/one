@@ -355,8 +355,6 @@ fieldset {
   }
 
   dd.active {
-    border: 1px solid #dfdfdf;
-
     a {
       font-weight: bold !important;
     }
@@ -364,6 +362,18 @@ fieldset {
 
   &.wizard_tabs dd {
     border: 1px solid #dfdfdf !important;
+  }
+}
+
+.tabs:not(.vertical) {
+  dd.active {
+    border-bottom: 0px;
+  }
+}
+
+.tabs.vertical) {
+  dd.active {
+    border-right: 0px;
   }
 }
 
