@@ -477,16 +477,13 @@ function updateFileInfo(request,file){
               <td class="key_td">'+tr("ID")+'</td>\
               <td class="value_td">'+file_info.ID+'</td>\
               <td></td>\
-           </tr>\
-           <tr>\
-            <td class="key_td">'+tr("Name")+'</td>\
-            <td class="value_td_rename">'+file_info.NAME+'</td>\
-            <td><div id="div_edit_rename">\
-                   <a id="div_edit_rename_link_files" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
-                </div>\
-            </td>\
-          </tr>\
-           <tr>\
+           </tr>'+
+            insert_rename_tr(
+                'files-tab',
+                "File",
+                file_info.ID,
+                file_info.NAME)+
+           '<tr>\
               <td class="key_td">'+tr("Datastore")+'</td>\
               <td class="value_td">'+file_info.DATASTORE+'</td>\
               <td></td>\
@@ -547,29 +544,11 @@ function updateFileInfo(request,file){
      </form>'
     }
 
-    $("#div_edit_rename_link_files").die();
-    $(".input_edit_value_rename_files").die();
     $("#div_edit_chg_type_files_link").die();
     $("#chg_type_select_files").die();
     $("#div_edit_persistency_files").die();
     $("#persistency_select_files").die();
 
-
-    // Listener for edit link for rename
-    $("#div_edit_rename_link_files").live("click", function() {
-        var value_str = $(".value_td_rename").text();
-        $(".value_td_rename").html('<input class="input_edit_value_rename_files" id="input_edit_rename" type="text" value="'+value_str+'"/>');
-    });
-
-    $(".input_edit_value_rename_files").live("change", function() {
-        var value_str = $(".input_edit_value_rename_files").val();
-        if(value_str!="")
-        {
-            // Let OpenNebula know
-            var name_template = {"name": value_str};
-            Sunstone.runAction("File.rename",file_info.ID,name_template);
-        }
-    });
 
     // Listener for edit link for type change
     $("#div_edit_chg_type_files_link").live("click", function() {

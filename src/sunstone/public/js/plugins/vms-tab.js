@@ -1549,16 +1549,13 @@ function updateVMInfo(request,vm){
                  <td class="key_td">'+tr("ID")+'</td>\
                  <td class="value_td">'+vm_info.ID+'</td>\
                  <td></td>\
-              </tr>\
-            <tr>\
-              <td class="key_td">'+tr("Name")+'</td>\
-              <td class="value_td_rename">'+vm_info.NAME+'</td>\
-              <td><div id="div_edit_rename">\
-                     <a id="div_edit_rename_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
-                  </div>\
-              </td>\
-            </tr>\
-              <tr>\
+              </tr>'+
+              insert_rename_tr(
+                'vms-tab',
+                "VM",
+                vm_info.ID,
+                vm_info.NAME)+
+              '<tr>\
                  <td class="key_td">'+tr("State")+'</td>\
                  <td class="value_td">'+tr(vm_state)+'</td>\
                  <td></td>\
@@ -1668,25 +1665,6 @@ function updateVMInfo(request,vm){
         icon: "fa-sitemap",
         content: generatePlacementTable(vm_info)
     };
-
-    $("#div_edit_rename_link").die();
-    $(".input_edit_value_rename").die();
-
-    // Listener for key,value pair edit action
-    $("#div_edit_rename_link").live("click", function() {
-        var value_str = $(".value_td_rename").text();
-        $(".value_td_rename").html('<input class="input_edit_value_rename" type="text" value="'+value_str+'"/>');
-    });
-
-    $(".input_edit_value_rename").live("change", function() {
-        var value_str = $(".input_edit_value_rename").val();
-        if(value_str!="")
-        {
-            // Let OpenNebula know
-            var name_template = {"name": value_str};
-            Sunstone.runAction("VM.rename",vm_info.ID,name_template);
-        }
-    });
 
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_capacity_tab",capacity_tab);

@@ -695,16 +695,13 @@ function updateVNetworkInfo(request,vn){
               <td class="key_td">'+tr("ID")+'</td>\
               <td class="value_td">'+vn_info.ID+'</td>\
               <td></td>\
-            </tr>\
-            <tr>\
-              <td class="key_td">'+tr("Name")+'</td>\
-              <td class="value_td_rename">'+vn_info.NAME+'</td>\
-              <td><div id="div_edit_rename">\
-                     <a id="div_edit_rename_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
-                  </div>\
-              </td>\
-            </tr>\
-            <tr>' +
+            </tr>'+
+            insert_rename_tr(
+                'vnets-tab',
+                "Network",
+                vn_info.ID,
+                vn_info.NAME)+
+            '<tr>' +
         insert_cluster_dropdown("Network",vn_info.ID,vn_info.CLUSTER,vn_info.CLUSTER_ID) +
             '</tr>\
         </table>\
@@ -739,25 +736,6 @@ function updateVNetworkInfo(request,vn){
         icon: "fa-list-ul",
         content: printLeases(vn_info)
     };
-
-    $("#div_edit_rename_link").die();
-    $(".input_edit_value_rename").die();
-
-    // Listener for key,value pair edit action
-    $("#div_edit_rename_link").live("click", function() {
-        var value_str = $(".value_td_rename").text();
-        $(".value_td_rename").html('<input class="input_edit_value_rename" id="input_edit_rename" type="text" value="'+value_str+'"/>');
-    });
-
-    $(".input_edit_value_rename").live("change", function() {
-        var value_str = $(".input_edit_value_rename").val();
-        if(value_str!="")
-        {
-            // Let OpenNebula know
-            var name_template = {"name": value_str};
-            Sunstone.runAction("Network.rename",vn_info.ID,name_template);
-        }
-    });
 
 
     Sunstone.updateInfoPanelTab("vnet_info_panel","vnet_info_tab",info_tab);

@@ -1737,16 +1737,13 @@ function updateTemplateInfo(request,template){
                <td class="key_td">'+tr("ID")+'</td>\
                <td class="value_td">'+template_info.ID+'</td>\
                <td>\
-             </tr>\
-             <tr>\
-               <td class="key_td">'+tr("Name")+'</td>\
-               <td class="value_td_rename">'+template_info.NAME+'</td>\
-               <td><div id="div_edit_rename">\
-                      <a id="div_edit_rename_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
-                   </div>\
-               </td>\
-             </tr>\
-             <tr>\
+             </tr>'+
+            insert_rename_tr(
+                'templates-tab',
+                "Template",
+                template_info.ID,
+                template_info.NAME)+
+            '<tr>\
                <td class="key_td">'+tr("Register time")+'</td>\
                <td class="value_td">'+pretty_time(template_info.REGTIME)+'</td>\
                <td></td>\
@@ -1774,26 +1771,6 @@ function updateTemplateInfo(request,template){
           </div>\
         </div>'
     };
-
-    $("#div_edit_rename_link").die();
-    $(".input_edit_value_rename").die();
-
-    // Listener for key,value pair edit action
-    $("#div_edit_rename_link").live("click", function() {
-        var value_str = $(".value_td_rename").text();
-        $(".value_td_rename").html('<input class="input_edit_value_rename" type="text" value="'+value_str+'"/>');
-    });
-
-    $(".input_edit_value_rename").live("change", function() {
-        var value_str = $(".input_edit_value_rename").val();
-        if(value_str!="")
-        {
-            // Let OpenNebula know
-            var name_template = {"name": value_str};
-            Sunstone.runAction("Template.rename",template_info.ID,name_template);
-        }
-    });
-
 
     Sunstone.updateInfoPanelTab("template_info_panel","template_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("template_info_panel","template_template_tab",template_tab);
