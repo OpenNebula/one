@@ -392,7 +392,7 @@ var user_actions = {
         call: OpenNebula.User.update,
         callback: function(request) {
             notifyMessage(tr("Template updated correctly"));
-            Sunstone.runAction('User.showinfo',request.request.data[0]);
+            Sunstone.runAction('User.showinfo',request.request.data[0][0]);
         },
         error: onError
     },

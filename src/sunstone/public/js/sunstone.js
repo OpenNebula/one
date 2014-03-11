@@ -2705,6 +2705,19 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
         }
     });
 
+    // Capture the enter key
+    $('#new_value').live("keypress", function(e) {
+          var ev = e || window.event;
+          var key = ev.keyCode;
+
+          if (key == 13 && !ev.altKey)
+          {
+             //Get the button the user wants to have clicked
+             $('#button_add_value', $(this).parent().parent()).click();
+             ev.preventDefault();
+          }
+    })
+
     // Listener for single values
 
     // Listener for key,value pair remove action
