@@ -39,12 +39,22 @@ ZonePool::ZonePool(SqlDB * db, bool is_federation_slave)
     }
 
     string one_port;
+    string master_oned;
     Nebula& nd = Nebula::instance();
     nd.get_configuration_attribute("PORT", one_port);
+    master_oned = nd.get_master_oned();
 
     ostringstream zone_tmpl;
-    zone_tmpl << "NAME=OpenNebula\n"
-              << "ENDPOINT=http://localhost:" << one_port << "/RPC2";
+    zone_tmpl << "NAME=OpenNebula\nENDPOINT="; 
+
+    if (master_oned.empty())
+    {
+        zone_tmpl << "http://localhost:" << one_port << "/RPC2";
+    }
+    else
+    {
+        zone_tmpl << master_oned;
+    }
 
     //lastOID is set in PoolSQL::init_cb
     if (get_lastOID() == -1)
