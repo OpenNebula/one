@@ -195,7 +195,7 @@ var file_actions = {
         call: OpenNebula.Image.update,
         callback: function(request) {
             notifyMessage("Template updated correctly");
-            Sunstone.runAction('Image.showinfo',request.request.data[0]);
+            Sunstone.runAction('File.showinfo',request.request.data[0]);
         },
         error: onError
     },
@@ -236,7 +236,7 @@ var file_actions = {
         call: OpenNebula.Image.chown,
         callback:  function (req) {
             Sunstone.runAction("File.show",req.request.data[0][0]);
-            Sunstone.runAction('Image.showinfo',req.request.data[0]);
+            Sunstone.runAction('File.showinfo',req.request.data[0]);
         },
         elements: fileElements,
         error: onError,
@@ -248,7 +248,7 @@ var file_actions = {
         call: OpenNebula.Image.chgrp,
         callback: function (req) {
             Sunstone.runAction("File.show",req.request.data[0][0]);
-            Sunstone.runAction('Image.showinfo',req.request.data[0]);
+            Sunstone.runAction('File.showinfo',req.request.data[0]);
         },
         elements: fileElements,
         error: onError,
@@ -286,8 +286,8 @@ var file_actions = {
         call: OpenNebula.Image.rename,
         callback: function(request) {
             notifyMessage(tr("File renamed correctly"));
-            Sunstone.runAction('Image.showinfo',request.request.data[0]);
-            Sunstone.runAction('Image.list');
+            Sunstone.runAction('File.showinfo',request.request.data[0]);
+            Sunstone.runAction('File.list');
         },
         error: onError,
         notify: true
