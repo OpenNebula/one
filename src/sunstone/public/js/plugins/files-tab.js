@@ -52,7 +52,10 @@ var create_file_tmpl ='<div class="row">\
                   <div class="row">\
                     <div class="large-12 columns">\
                       <label for="file_type">'+tr("Type")+
-                        '<span class="tip">'+tr("Type of the file, explained in detail in the following section. If omitted, the default value is the one defined in oned.conf (install default is OS).")+'</span>'+
+                        '<span class="tip">'+tr("Type of the file.")+'<br/><br/>'
+                          + tr(" KERNEL & RAMDISK files can be used in the OS Booting section of the Template wizard.")+'<br/><br/>'
+                          + tr(" CONTEXT files can be included in the context CD-ROM, from the Context/Files section of the Template wizard.")+
+                        '</span>'+
                       '</label>\
                        <select name="file_type" id="file_type">\
                             <option value="KERNEL">'+tr("Kernel")+'</option>\

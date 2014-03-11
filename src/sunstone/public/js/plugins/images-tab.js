@@ -56,7 +56,11 @@ var create_image_tmpl ='<div class="row">\
                   <div class="row">\
                     <div class="large-12 columns">\
                       <label for="img_type">'+tr("Type")+
-                        '<span class="tip">'+tr("Type of the image, explained in detail in the following section. If omitted, the default value is the one defined in oned.conf (install default is OS).")+'</span>'+
+                        '<span class="tip">'+tr("Type of the image.")+'<br/><br/>'
+                          + tr(" OS images contain a working operative system.")+'<br/><br/>'
+                          + tr(" CDROM images are readonly data.")+'<br/><br/>'
+                          + tr(" DATABLOCK images are a storage for data. They can be created from previous existing data, or as an empty drive.")+
+                        '</span>'+
                       '</label>\
                        <select name="img_type" id="img_type">\
                             <option value="OS">'+tr("OS")+'</option>\
