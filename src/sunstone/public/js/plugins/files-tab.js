@@ -573,18 +573,18 @@ function updateFileInfo(request,file){
 
     // Listener for edit link for type change
     $("#div_edit_chg_type_files_link").live("click", function() {
-        var value_str = $(".value_td_type").text();
         $(".value_td_type").html(
                   '<select id="chg_type_select_files">\
-                      <option value="KERNEL">'+tr("Kernel")+'</option>\
-                      <option value="RAMDISK">'+tr("Ramdisk")+'</option>\
-                      <option value="CONTEXT">'+tr("Context")+'</option>\
+                      <option value="KERNEL">KERNEL</option>\
+                      <option value="RAMDISK">RAMDISK</option>\
+                      <option value="CONTEXT">CONTEXT</option>\
                   </select>');
-       $('option[value="'+value_str+'"]').replaceWith('<option value="'+value_str+'" selected="selected">'+tr(value_str)+'</option>');
+
+        $('#chg_type_select_files').val(OpenNebula.Helper.image_type(file_info.TYPE));
     });
 
     $("#chg_type_select_files").live("change", function() {
-        var new_value=$("option:selected", this).text();
+        var new_value = $(this).val();
         Sunstone.runAction("File.chtype", file_info.ID, new_value);
         Sunstone.runAction("File.showinfo", file_info.ID);
     });

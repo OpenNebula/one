@@ -740,35 +740,35 @@ function updateImageInfo(request,img){
 
     // Listener for edit link for type change
     $("#div_edit_chg_type_link").live("click", function() {
-        var value_str = $(".value_td_type").text();
         $(".value_td_type").html(
                   '<select id="chg_type_select">\
-                      <option value="OS">'+tr("OS")+'</option>\
-                      <option value="CDROM">'+tr("CDROM")+'</option>\
-                      <option value="DATABLOCK">'+tr("Datablock")+'</option>\
+                      <option value="OS">OS</option>\
+                      <option value="CDROM">CDROM</option>\
+                      <option value="DATABLOCK">DATABLOCK</option>\
                   </select>');
-       $('option[value="'+value_str+'"]').replaceWith('<option value="'+value_str+'" selected="selected">'+tr(value_str)+'</option>');
+
+        $('#chg_type_select').val(OpenNebula.Helper.image_type(img_info.TYPE));
     });
 
     $("#chg_type_select").live("change", function() {
-        var new_value=$("option:selected", this).text();
+        var new_value = $(this).val();
+
         Sunstone.runAction("Image.chtype", img_info.ID, new_value);
-        Sunstone.runAction("Image.show", img_info.ID);
     });
 
     // Listener for edit link for persistency change
     $("#div_edit_persistency").live("click", function() {
-        var value_str = $(".value_td_persistency").text();
         $(".value_td_persistency").html(
                   '<select id="persistency_select">\
                       <option value="yes">'+tr("yes")+'</option>\
                       <option value="no">'+tr("no")+'</option>\
                   </select>');
-       $('option[value="'+value_str+'"]').replaceWith('<option value="'+value_str+'" selected="selected">'+tr(value_str)+'</option>');
+
+        $('#persistency_select').val(parseInt(img_info.PERSISTENT) ? "yes" : "no");
     });
 
     $("#persistency_select").live("change", function() {
-        var new_value=$("option:selected", this).text();
+        var new_value = $(this).val();
 
         if (new_value=="yes")
             Sunstone.runAction("Image.persistent",[img_info.ID]);
