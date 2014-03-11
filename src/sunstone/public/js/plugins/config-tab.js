@@ -92,9 +92,10 @@ var config_tab_content =
            <dd><a href="#quotas_configuration"><i class="fa fa-align-left"></i><br>'+tr("Quotas")+'</a></dd>\
       </dl>\
     </div>\
-  </div>\
-  <div class="reveal-body">\
+</div>\
+<div class="reveal-body">\
   <form id="config_form" class="tabs-content">\
+  <div class="tabs-content">\
     <div id="info_configuration" class="content active">\
       <div class="row">\
         <div class="large-7 columns">\
@@ -178,16 +179,17 @@ var config_tab_content =
                     <select id="quota_group_sel">\
                     </select>\
                   </label>\
-              </div>\
+                </div>\
               </div>\
               <div id="group_quotasTabBody" class="row">\
                 <div class="large-12 columns">\
-                <p class="subheader">'+tr("No quotas defined")+'</p>\
-              </div>\
+                  <p class="subheader">'+tr("No quotas defined")+'</p>\
+                </div>\
               </div>\
             </div>\
           </div>\
       </div>\
+    </div>\
     </div>\
     <div class="reveal-footer">\
         <div class="form_buttons">\

@@ -371,7 +371,7 @@ fieldset {
   }
 }
 
-.tabs.vertical) {
+.tabs.vertical {
   dd.active {
     border-right: 0px;
   }
@@ -557,3 +557,25 @@ div.dataTables_scrollFoot table {
 
 
 
+/* Growl */
+.jGrowl-notification h1 {
+    display: none !important;
+}
+
+.jGrowl-notification, .jGrowl-notify-submit {
+    background-color: #dfdfdf!important;
+    color: #333;
+}
+
+.jGrowl-notify-error {
+    background-color: #F39999!important;
+    color: #660000;
+}
+
+.jGrowl-closer {
+    background-color: #555!important;
+}
+
+.jGrowl-close {
+  font-size: 1.5em !important;
+}
