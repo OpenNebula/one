@@ -232,6 +232,12 @@ case "$1" in
         stop
         echo "oned and scheduler stopped"
         ;;
+    restart)
+        stop
+        setup
+        start        
+        echo "oned and scheduler restarted"
+        ;;        
     start-sched)
         start_sched
         ;;
@@ -244,7 +250,7 @@ case "$1" in
         start_sched
         ;;
     *)
-        echo "Usage: one [-f] {start|stop|start-sched|stop-sched|restart-sched}" >&2
+        echo "Usage: one [-f] {start|stop|restart|start-sched|stop-sched|restart-sched}" >&2
         echo "Options:" >&2
         echo "  -f  Do not backup log files." >&2
         exit 3
