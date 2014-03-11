@@ -2756,7 +2756,21 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
         input = $("#value_td_input_"+key_str).html('<textarea class="input_edit_value" id="input_edit_'+key_str+'" type="text"></textarea>');
         $('#input_edit_'+key_str).val(value_str);
 
+        // Capture the enter key
+        $('#input_edit_'+key_str).die();
+        $('#input_edit_'+key_str).live("keypress", function(e) {
+              var ev = e || window.event;
+              var key = ev.keyCode;
+
+              if (key == 13 && !ev.altKey)
+              {
+                 $('#input_edit_'+key_str).blur();
+              }
+        })
+
     });
+
+
 
      $(".input_edit_value").live("change", function() {
         var key_str          = $.trim(this.id.substring(11,this.id.length));
