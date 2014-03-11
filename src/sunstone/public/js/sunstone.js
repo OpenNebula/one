@@ -828,15 +828,10 @@ function setupConfirmDialogs(){
     //add the HTML with the standard question and buttons.
         dialog.html(
         '<div class="row">\
-            <h3 class="subheader">'+tr("Confirm")+'</h3>\
+            <h3 class="subheader">'+tr("Confirm")+'<br>&emsp;<small class="confirm_action"></small></h3>\
           </div>\
         <form action="">\
            <div id="confirm_tip">'+tr("You have to confirm this action.")+'</div>\
-           <br />\
-            <div class="row">\
-                <span class="confirm_action radius secondary label"></span><br>\
-                <span class="confirm_ids radius secondary label"></span><br><br>\
-            </div>\
            <br />\
            <div id="question">'+tr("Do you want to proceed?")+'</div>\
            <br />\
@@ -852,7 +847,7 @@ function setupConfirmDialogs(){
 
     dialog.html(
         '<div class="row">\
-            <h3 class="subheader">'+tr("Confirm")+'</h3>\
+            <h3 class="subheader">'+tr("Confirm")+'<br>&emsp;<small class="confirm_action"></small></h3>\
           </div>\
           <form action="">\
             <div class="row">\
@@ -865,12 +860,7 @@ function setupConfirmDialogs(){
                     </select>\
                 </div>\
             </div>\
-            <br />\
-            <div class="row">\
-                <span class="confirm_action radius secondary label"></span><br>\
-                <span class="confirm_ids radius secondary label"></span>\
-            </div>\
-            <br />\
+            <br />\            <br />\
            <div class="form_buttons">\
               <button id="confirm_with_select_proceed" class="action_button radius button right" value="">'+tr("OK")+'</button>\
            </div>\
@@ -934,8 +924,8 @@ function popUpConfirmDialog(target_elem){
 
     var action = SunstoneCfg["actions"][value];
     if (action.elements()) {
-        $(".confirm_action", dialog).html(tr("Action: ") + value)
-        $(".confirm_ids", dialog).html(tr("Selected resource IDs: ") + action.elements().join(', '))
+        var str = value.split('.');
+        $(".confirm_action", dialog).html(str[1] + ' ' + str[0] + ': ' + action.elements().join(', '))
     }
 
     $('div#confirm_tip',dialog).text(tip);
@@ -963,8 +953,8 @@ function popUpConfirmWithSelectDialog(target_elem){
 
     var action = SunstoneCfg["actions"][value];
     if (action.elements()) {
-        $(".confirm_action", dialog).html(tr("Action: ") + value)
-        $(".confirm_ids", dialog).html(tr("Selected resource IDs: ") + action.elements().join(', '))
+        var str = value.split('.');
+        $(".confirm_action", dialog).html(str[1] + ' ' + str[0] + ': ' + action.elements().join(', '))
     }
 
     $('button#confirm_with_select_proceed',dialog).val(value);
