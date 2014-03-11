@@ -266,10 +266,17 @@ var image_actions = {
     "Image.show" : {
         type : "single",
         call: OpenNebula.Image.show,
-        callback: updateImageElement,
+        callback: function(request, response){
+            // datatable row
+            updateImageElement(request, response);
+
+            // individual view
+            updateImageInfo(request, response);
+        },
         error: onError
     },
 
+    // TODO: only needed by insert_permissions_table in sunstone.js
     "Image.showinfo" : {
         type: "single",
         call: OpenNebula.Image.show,
@@ -282,7 +289,7 @@ var image_actions = {
         call: function () {
           var tab = dataTable_images.parents(".tab");
           if (Sunstone.rightInfoVisible(tab)) {
-            Sunstone.runAction("Image.showinfo", Sunstone.rightInfoResourceId(tab))
+            Sunstone.runAction("Image.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_images);
             Sunstone.runAction("Image.list");
@@ -302,7 +309,7 @@ var image_actions = {
         call: OpenNebula.Image.update,
         callback: function(request) {
             notifyMessage("Template updated correctly");
-            Sunstone.runAction('Image.showinfo',request.request.data[0]);
+            Sunstone.runAction('Image.show',request.request.data[0][0]);
         },
         error: onError
     },
@@ -334,11 +341,10 @@ var image_actions = {
         call: OpenNebula.Image.persistent,
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0]);
-            Sunstone.runAction("Image.list");
         },
         elements: imageElements,
         error: function (req,error_json) {
-            Sunstone.runAction("Image.showinfo",req.request.data[0]);
+            Sunstone.runAction("Image.show",req.request.data[0]);
             onError(req,error_json);
         },
         notify: true
@@ -349,7 +355,6 @@ var image_actions = {
         call: OpenNebula.Image.nonpersistent,
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0]);
-            Sunstone.runAction("Image.list");
         },
         elements: imageElements,
         error: onError,
@@ -369,8 +374,7 @@ var image_actions = {
         type: "multiple",
         call: OpenNebula.Image.chown,
         callback:  function (req) {
-            Sunstone.runAction("Image.show",req.request.data[0][0]);
-            Sunstone.runAction('Image.showinfo',req.request.data[0]);
+            Sunstone.runAction("Image.show",req.request.data[0]);
         },
         elements: imageElements,
         error: onError,
@@ -381,8 +385,7 @@ var image_actions = {
         type: "multiple",
         call: OpenNebula.Image.chgrp,
         callback: function (req) {
-            Sunstone.runAction("Image.show",req.request.data[0][0]);
-            Sunstone.runAction('Image.showinfo',req.request.data[0]);
+            Sunstone.runAction("Image.show",req.request.data[0]);
         },
         elements: imageElements,
         error: onError,
@@ -402,7 +405,6 @@ var image_actions = {
         call: OpenNebula.Image.chtype,
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0][0]);
-            Sunstone.runAction("Image.list");
         },
         elements: imageElements,
         error: onError,
@@ -430,8 +432,7 @@ var image_actions = {
         call: OpenNebula.Image.rename,
         callback: function(request) {
             notifyMessage(tr("Image renamed correctly"));
-            Sunstone.runAction('Image.showinfo',request.request.data[0]);
-            Sunstone.runAction('Image.list');
+            Sunstone.runAction('Image.show',request.request.data[0][0]);
         },
         error: onError,
         notify: true
@@ -747,7 +748,7 @@ function updateImageInfo(request,img){
     $("#chg_type_select").live("change", function() {
         var new_value=$("option:selected", this).text();
         Sunstone.runAction("Image.chtype", img_info.ID, new_value);
-        Sunstone.runAction("Image.showinfo", img_info.ID);
+        Sunstone.runAction("Image.show", img_info.ID);
     });
 
     // Listener for edit link for persistency change
@@ -842,7 +843,7 @@ function updateImageInfo(request,img){
 
     $("#image_info_panel_refresh", $("#image_info_panel")).click(function(){
       $(this).html(spinner);
-      Sunstone.runAction('Image.showinfo', img_info.ID);
+      Sunstone.runAction('Image.show', img_info.ID);
     })
 
 }
@@ -1320,7 +1321,7 @@ $(document).ready(function(){
 
       initCheckAllBoxes(dataTable_images);
       tableCheckboxesListener(dataTable_images);
-      infoListener(dataTable_images,'Image.showinfo');
+      infoListener(dataTable_images,'Image.show');
 
       $('div#images_tab div.legend_div').hide();
 
