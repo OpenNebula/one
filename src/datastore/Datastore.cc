@@ -333,6 +333,8 @@ int Datastore::insert(SqlDB *db, string& error_str)
                 case Image::GLUSTER_CDROM:
                     goto error_invalid_disk_type;
                     break;
+                default:
+                    break;
             }
         }
 
