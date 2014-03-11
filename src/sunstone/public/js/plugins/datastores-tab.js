@@ -45,6 +45,7 @@ var create_datastore_tmpl =
               <option value="block_lvm">' + tr("Block LVM") + '</option>\
               <option value="fs_lvm">' + tr("FS LVM") + '</option>\
               <option value="ceph">' + tr("Ceph") + '</option>\
+              <option value="gluster">' + tr("Gluster") + '</option>\
               <option value="custom">' + tr("Custom") + '</option>\
             </select>\
           </div>\
@@ -91,7 +92,6 @@ var create_datastore_tmpl =
                   <option value="shared">' + tr("Shared") + '</option>\
                   <option value="ssh">' + tr("SSH") + '</option>\
                   <option value="qcow2">' + tr("qcow2") + '</option>\
-                  <option value="dummy">' + tr("Dummy") + '</option>\
                   <option value="lvm">' + tr("LVM") + '</option>\
                   <option value="fs_lvm">' + tr("FS LVM") + '</option>\
                   <option value="vmfs">' + tr("VMFS") + '</option>\
@@ -113,6 +113,7 @@ var create_datastore_tmpl =
               <option value="file">' + tr("File") + '</option>\
               <option value="block">' + tr("Block") + '</option>\
               <option value="RBD">' + tr("RBD") + '</option>\
+              <option value="gluster">' + tr("Gluster") + '</option>\
             </select>\
           </div>\
         </div>\
@@ -167,6 +168,36 @@ var create_datastore_tmpl =
             '</label>\
             <input type="text" name="limit_mb" id="limit_mb" />\
           </div>\
+        </div>\
+        <div class="large-6 columns">\
+            <label for="gluster_host">' + tr("Gluster Host") +
+              '<span class="tip">'+tr("Host and port of one (and only one) Gluster server (host:port)")+'</span>'+
+            '</label>\
+            <input type="text" name="gluster_host" id="gluster_host" />\
+        </div>\
+        <div class="large-6 columns">\
+            <label for="gluster_volume">' + tr("Gluster Volume") +
+              '<span class="tip">'+tr("Gluster volume to use for the datastore")+'</span>'+
+            '</label>\
+            <input type="text" name="gluster_volume" id="gluster_volume" />\
+        </div>\
+        <div class="large-6 columns">\
+            <label for="pool_name">' + tr("Pool Name") +
+              '<span class="tip">'+tr("The OpenNebula Ceph pool name. Defaults to \"one\" (this pool must exist before using the drivers).")+'</span>'+
+            '</label>\
+            <input type="text" name="pool_name" id="pool_name" />\
+        </div>\
+        <div class="large-6 columns">\
+            <label for="ceph_host">' + tr("Ceph Host") +
+              '<span class="tip">'+tr("Space-separated list of Ceph monitors. Example: host1 host2:port2 host3 host4:port4 (if no port is specified, the default one is chosen) (Required for Libvirt 1.x when cephx is enabled).")+'</span>'+
+            '</label>\
+            <input type="text" name="ceph_host" id="ceph_host" />\
+        </div>\
+        <div class="large-6 columns">\
+            <label for="ceph_secret">' + tr("Ceph Secret") +
+              '<span class="tip">'+tr("A generated UUID for a LibVirt secret (to hold the CephX authentication key in Libvirt on each hypervisor). This should be generated when creating the Ceph datastore in OpenNebula. (Required for Libvirt 1.x when cephx is enabled).")+'</span>'+
+            '</label>\
+            <input type="text" name="ceph_secret" id="ceph_secret" />\
         </div>\
         <div class="reveal-footer">\
           <div class="form_buttons">\
@@ -808,6 +839,11 @@ function hide_all(context)
     $('label[for="bridge_list"],input#bridge_list',context).parent().parent().hide();
     $('label[for="base_iqn"],input#base_iqn',context).hide();
     $('label[for="vg_name"],input#vg_name',context).hide();
+    $('label[for="gluster_host"],input#gluster_host',context).parent().hide();
+    $('label[for="gluster_volume"],input#gluster_volume',context).parent().hide();
+    $('label[for="pool_name"],input#pool_name',context).parent().hide();
+    $('label[for="ceph_host"],input#ceph_host',context).parent().hide();
+    $('label[for="ceph_secret"],input#ceph_secret',context).parent().hide();
     $('select#ds_mad').removeAttr('disabled');
     $('select#tm_mad').removeAttr('disabled');
     $('select#tm_mad').children('option').each(function() {
@@ -873,6 +909,9 @@ function setupCreateDatastoreDialog(){
           case 'ceph':
             select_ceph();
             break;
+          case 'gluster':
+            select_gluster();
+            break;
           case 'custom':
             select_custom();
             break;
@@ -899,6 +938,11 @@ function setupCreateDatastoreDialog(){
         var base_iqn        = $('#base_iqn',context).val();
         var vg_name         = $('#vg_name',context).val();
         var limit_mb        = $('#limit_mb',context).val();
+        var gluster_host    = $('#gluster_host',context).val();
+        var gluster_volume  = $('#gluster_volume',context).val();
+        var pool_name       = $('#pool_name',context).val();
+        var ceph_host       = $('#ceph_host',context).val();
+        var ceph_secret     = $('#ceph_secret',context).val();
 
 
         if (!name){
@@ -948,6 +992,21 @@ function setupCreateDatastoreDialog(){
         if (limit_mb)
             ds_obj.datastore.limit_mb = limit_mb;
 
+        if (gluster_host)
+            ds_obj.datastore.gluster_host = gluster_host;
+
+        if (gluster_volume)
+            ds_obj.datastore.gluster_host = gluster_volume;
+
+        if (pool_name)
+            ds_obj.datastore.pool_name = pool_name;
+
+        if (ceph_host)
+            ds_obj.datastore.ceph_host = ceph_host;
+
+        if (ceph_secret)
+            ds_obj.datastore.ceph_secret = ceph_secret;
+
         // Sanitize dialog
         $('#ds_use_ssh').prop('checked', false);
         $('#tm_use_ssh').prop('checked', false);
@@ -996,6 +1055,10 @@ function setupCreateDatastoreDialog(){
         popUpCreateDatastoreDialog();
         $("a[href='#datastore_manual']").click();
     });
+
+    // Hide disk_type
+    $('select#disk_type').parent().hide();
+
 }
 
 function select_filesystem(){
@@ -1007,8 +1070,7 @@ function select_filesystem(){
       $(this).attr('disabled', 'disabled');
       if (value_str == "qcow2"  ||
           value_str == "shared" ||
-          value_str == "ssh"    ||
-          value_str == "dummy")
+          value_str == "ssh")
       {
            $(this).removeAttr('disabled');
       }
@@ -1030,11 +1092,16 @@ function select_vmware_vmfs(){
 }
 
 function select_ceph(){
+    $('input#image_ds_type').attr('checked', 'true');
+    $('input[name=ds_type]').attr('disabled', 'disabled');
     $('select#ds_mad').val('ceph');
     $('select#ds_mad').attr('disabled', 'disabled');
     $('select#tm_mad').val('ceph');
     $('select#tm_mad').attr('disabled', 'disabled');
     $('label[for="bridge_list"],input#bridge_list').parent().parent().fadeIn();
+    $('label[for="pool_name"],input#pool_name').parent().fadeIn();
+    $('label[for="ceph_host"],input#ceph_host').parent().fadeIn();
+    $('label[for="ceph_secret"],input#ceph_secret').parent().fadeIn();
     $('select#disk_type').val('RBD');
     $('select#disk_type').attr('disabled', 'disabled');
 }
@@ -1061,6 +1128,27 @@ function select_fs_lvm(){
     $('input[name=ds_type]').attr('disabled', 'disabled');
     $('select#disk_type').val('block');
     $('select#disk_type').attr('disabled', 'disabled');
+}
+
+function select_gluster(){
+    $('select#ds_mad').val('fs');
+    $('select#ds_mad').attr('disabled', 'disabled');
+    $('select#tm_mad').val('shared');
+    $('select#tm_mad').children('option').each(function() {
+      var value_str = $(this).val();
+      $(this).attr('disabled', 'disabled');
+      if (value_str == "shared"  ||
+          value_str == "ssh")
+      {
+           $(this).removeAttr('disabled');
+      }
+    });
+    $('input#image_ds_type').attr('checked', 'true');
+    $('input[name=ds_type]').attr('disabled', 'disabled');
+    $('select#disk_type').val('gluster');
+    $('select#disk_type').attr('disabled', 'disabled');
+    $('label[for="gluster_host"],input#gluster_host').parent().fadeIn();
+    $('label[for="gluster_volume"],input#gluster_volume').parent().fadeIn();
 }
 
 function select_custom(){
