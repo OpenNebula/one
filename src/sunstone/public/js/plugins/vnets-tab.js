@@ -685,7 +685,7 @@ function updateVNetworksView(request, network_list){
 function updateVNetworkInfo(request,vn){
     var vn_info = vn.VNET;
     var info_tab_content =
-        '<div class="">\
+        '<div class="row">\
         <div class="large-6 columns">\
         <table id="info_vn_table" class="dataTable extended_table">\
             <thead>\
@@ -709,18 +709,22 @@ function updateVNetworkInfo(request,vn){
             '</tr>\
         </table>\
         </div>\
-        <div class="large-6 columns">'
-            + insert_permissions_table('vnets-tab',
+        <div class="large-6 columns">' +
+            insert_permissions_table('vnets-tab',
                                        "Network",
                                        vn_info.ID,
                                        vn_info.UNAME,
                                        vn_info.GNAME,
                                        vn_info.UID,
-                                       vn_info.GID)
-            + insert_extended_template_table(vn_info.TEMPLATE,
+                                       vn_info.GID) +
+        '</div>\
+      </div>\
+      <div class="row">\
+        <div class="large-9 columns">' +
+            insert_extended_template_table(vn_info.TEMPLATE,
                                                        "Network",
                                                        vn_info.ID,
-                                                       "Configuration Attributes") +
+                                                       "Attributes") +
         '</div>\
       </div>';
 
@@ -773,7 +777,7 @@ function updateVNetworkInfo(request,vn){
 // It adds the "add lease", "hold lease" fields, and each lease comes with
 // hold, release buttons etc. Listeners in setupLeasesOps()
 function printLeases(vn_info){
-    var html ='<form id="leases_form" vnid="'+vn_info.ID+'"><div class="">';
+    var html ='<form id="leases_form" vnid="'+vn_info.ID+'"><div class="row">';
     html +='';
 
     html += '<div class="large-6 columns"><table id="vn_leases_info_table" class="dataTable extended_table">\

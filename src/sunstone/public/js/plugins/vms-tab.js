@@ -730,7 +730,7 @@ var vm_actions = {
                 colored_log += line + "<br>";
             }
 
-            $('#vm_log_tab').html('<div class="large-12 columns"><div class="log-tab">'+colored_log+'</div></div>')
+            $('#vm_log_tab').html('<div class=""><div class="large-12 columns log-tab">'+colored_log+'</div></div>')
         },
         error: function(request,error_json){
             $("#vm_log pre").html('');
@@ -1379,62 +1379,7 @@ function generatePlacementTable(vm){
    var ds_rank_str = vm.USER_TEMPLATE.SCHED_DS_RANK ? vm.USER_TEMPLATE.SCHED_DS_RANK : "-";
 
 
-    var html = '<div class=""><div class="large-6 columns">\
-          <table id="vm_placement_table" class="extended_table dataTable">\
-                   <thead>\
-                     <tr>\
-                         <th colspan="2" align="center">'+tr("Placement - Host")+'</th>\
-                     </tr>\
-                   </thead>\
-                   <tbody>\
-                      <tr>\
-                       <td>'+ tr("Requirements")+'</td>\
-                       <td>'+requirements_str+'</td>\
-                     </tr>\
-                      <tr>\
-                       <td>'+ tr("Rank")+'</td>\
-                       <td>'+rank_str+'</td>\
-                     </tr>\
-                   </tbody>\
-          </table>\
-          </div><div class="large-6 columns">\
-          <table id="vm_ds_placement_table" class="extended_table dataTable">\
-                   <thead>\
-                     <tr>\
-                         <th colspan="2" align="center">'+tr("Placement - Datastore")+'</th>\
-                     </tr>\
-                   </thead>\
-                   <tbody>\
-                      <tr>\
-                       <td>'+ tr("DS Requirements")+'</td>\
-                       <td>'+ds_requirements_str+'</td>\
-                     </tr>\
-                      <tr>\
-                       <td>'+ tr("DS Rank")+'</td>\
-                       <td>'+ds_rank_str+'</td>\
-                     </tr>\
-                   </tbody>\
-          </table>\
-          </div></div>';
-
-    if (vm.USER_TEMPLATE.SCHED_MESSAGE) {
-        html += '<div class="large-12 columns">\
-          <table id="vm_ds_placement_table" class="extended_table dataTable">\
-                   <thead>\
-                     <tr>\
-                         <th align="center">'+tr("Sched Message")+'</th>\
-                     </tr>\
-                   </thead>\
-                   <tbody>\
-                      <tr>\
-                       <td>'+ vm.USER_TEMPLATE.SCHED_MESSAGE +'</td>\
-                     </tr>\
-                   </tbody>\
-          </table>\
-          </div>';
-    }
-
-    html += '<div class="large-12 columns">\
+    var html = '<div class="row"><div class="large-12 columns">\
           <table id="vm_history_table" class="extended_table dataTable">\
                    <thead>\
                      <tr>\
@@ -1501,6 +1446,65 @@ function generatePlacementTable(vm){
                 </table>\
           </div>\
         </div>';
+
+    if (vm.USER_TEMPLATE.SCHED_MESSAGE) {
+        html += '<div class="row">\
+        <div class="large-12 columns">\
+          <table id="vm_ds_placement_table" class="extended_table dataTable">\
+                   <thead>\
+                     <tr>\
+                         <th align="center">'+tr("Sched Message")+'</th>\
+                     </tr>\
+                   </thead>\
+                   <tbody>\
+                      <tr>\
+                       <td>'+ vm.USER_TEMPLATE.SCHED_MESSAGE +'</td>\
+                     </tr>\
+                   </tbody>\
+          </table>\
+          </div>\
+        </div>';
+    }
+
+    html += '<div class="row">\
+      <div class="large-9 columns">\
+          <table id="vm_placement_table" class="extended_table dataTable">\
+                   <thead>\
+                     <tr>\
+                         <th colspan="2" align="center">'+tr("Placement - Host")+'</th>\
+                     </tr>\
+                   </thead>\
+                   <tbody>\
+                      <tr>\
+                       <td>'+ tr("Requirements")+'</td>\
+                       <td>'+requirements_str+'</td>\
+                     </tr>\
+                      <tr>\
+                       <td>'+ tr("Rank")+'</td>\
+                       <td>'+rank_str+'</td>\
+                     </tr>\
+                   </tbody>\
+          </table>\
+          <table id="vm_ds_placement_table" class="extended_table dataTable">\
+                   <thead>\
+                     <tr>\
+                         <th colspan="2" align="center">'+tr("Placement - Datastore")+'</th>\
+                     </tr>\
+                   </thead>\
+                   <tbody>\
+                      <tr>\
+                       <td>'+ tr("DS Requirements")+'</td>\
+                       <td>'+ds_requirements_str+'</td>\
+                     </tr>\
+                      <tr>\
+                       <td>'+ tr("DS Rank")+'</td>\
+                       <td>'+ds_rank_str+'</td>\
+                     </tr>\
+                   </tbody>\
+          </table>\
+          </div>\
+        </div>';
+
     return html;
 
 };
@@ -1534,7 +1538,7 @@ function updateVMInfo(request,vm){
         title : tr("Info"),
         icon: "fa-info-circle",
         content:
-        '<div class="">\
+        '<div class="row">\
         <div class="large-6 columns">\
         <table id="info_vm_table" class="dataTable extended_table">\
             <thead>\
@@ -1595,14 +1599,18 @@ function updateVMInfo(request,vm){
                                         vm_info.GNAME,
                                         vm_info.UID,
                                         vm_info.GID) +
-               insert_extended_template_table(stripped_vm_template,
-                                              "VM",
-                                              vm_info.ID,
-                                              "Tags",
-                                              unshown_values) +
 
             '</div>\
-        </div>'
+            </div>\
+            <div class="row">\
+              <div class="large-9 columns">'+
+                 insert_extended_template_table(stripped_vm_template,
+                                                "VM",
+                                                vm_info.ID,
+                                                "Attributes",
+                                                unshown_values) +
+              '</div>\
+            </div>'
     };
 
     var hotplugging_tab = {
@@ -1633,10 +1641,12 @@ function updateVMInfo(request,vm){
         title: tr("Template"),
         icon: "fa-file-o",
         content:
-        '<div class="large-9 columns">\
+        '<div class="row">\
+          <div class="large-9 columns">\
             <table id="vm_template_table" class="info_table dataTable">'+
                 prettyPrintJSON(vm_info.TEMPLATE)+
             '</table>\
+          </div>\
         </div>'
     };
 
@@ -1718,22 +1728,24 @@ function updateVMDisksInfo(request,vm){
 function printActionsTable(vm_info)
 {
 
-    var str = '<div class="large-12 columns">\
-                <table id="scheduling_actions_table" class="info_table dataTable extended_table">\
-                 <thead>\
-                   <tr>\
-                      <th>'+tr("ID")+'</th>\
-                      <th>'+tr("ACTION")+'</th>\
-                      <th>'+tr("TIME")+'</th>\
-                      <th>'+tr("DONE")+'</th>\
-                      <th>'+tr("MESSAGE")+'</th>\
-                      <th colspan="">'+tr("Actions")+'</th>\
-                      <th><button id="add_scheduling_action" class="button tiny success right radius" ><i class="fa fa-plus"/></button></th>\
-                   </tr>\
-                  </thead>' +
-                    fromJSONtoActionsTable(
-                                      vm_info.USER_TEMPLATE.SCHED_ACTION) +
-                 '</table>\
+    var str = '<div class="row">\
+                <div class="large-12 columns">\
+                  <table id="scheduling_actions_table" class="info_table dataTable extended_table">\
+                   <thead>\
+                     <tr>\
+                        <th>'+tr("ID")+'</th>\
+                        <th>'+tr("ACTION")+'</th>\
+                        <th>'+tr("TIME")+'</th>\
+                        <th>'+tr("DONE")+'</th>\
+                        <th>'+tr("MESSAGE")+'</th>\
+                        <th colspan="">'+tr("Actions")+'</th>\
+                        <th><button id="add_scheduling_action" class="button tiny success right radius" >'+tr("Add action")+'</button></th>\
+                     </tr>\
+                    </thead>' +
+                      fromJSONtoActionsTable(
+                                        vm_info.USER_TEMPLATE.SCHED_ACTION) +
+                   '</table>\
+                  </div>\
                 </div>'
 
     // Remove previous listeners
@@ -1943,6 +1955,7 @@ function updateActionsInfo(request,vm){
 // And a form to attach a new disk to the VM, if it is running.
 function printDisks(vm_info){
    var html ='<form id="hotplugging_form" vmid="'+vm_info.ID+'" >\
+      <div class="row">\
       <div class="large-12 columns">\
          <table class="info_table dataTable extended_table">\
            <thead>\
@@ -1959,10 +1972,10 @@ function printDisks(vm_info){
       // If VM is not RUNNING, then we forget about the attach disk form.
       if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
         html += '\
-           <button id="attach_disk" class="button tiny success right radius" ><i class="fa fa-plus"/></button>'
+           <button id="attach_disk" class="button tiny success right radius" >'+tr("Attach disk")+'</button>'
       } else {
         html += '\
-           <button id="attach_disk" class="button tiny success right radius" disabled="disabled"><i class="fa fa-plus"/></button>'
+           <button id="attach_disk" class="button tiny success right radius" disabled="disabled">'+tr("Attach disk")+'</button>'
       }
     }
 
@@ -2265,6 +2278,7 @@ function hotpluggingOps(){
 
 function printNics(vm_info){
    var html ='<form id="tab_network_form" vmid="'+vm_info.ID+'" >\
+      <div class="row">\
       <div class="large-12 columns">\
          <table class="info_table dataTable extended_table">\
            <thead>\
@@ -2282,10 +2296,10 @@ function printNics(vm_info){
       // If VM is not RUNNING, then we forget about the attach nic form.
       if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
         html += '\
-           <button id="attach_nic" class="button tiny success right radius" ><i class="fa fa-plus"/></button>'
+           <button id="attach_nic" class="button tiny success right radius" >'+tr("Attach nic")+'</button>'
       } else {
         html += '\
-           <button id="attach_nic" class="button tiny success right radius" disabled="disabled"><i class="fa fa-plus"/></button>'
+           <button id="attach_nic" class="button tiny success right radius" disabled="disabled">'+tr("Attach nic")+'</button>'
       }
     }
 
@@ -2351,9 +2365,10 @@ function printNics(vm_info){
             </tbody>\
           </table>\
         </div>\
-        <div class="">\
+        </div>\
+        <div class="row">\
             <div class="large-6 columns">\
-              <div class="row graph_legend">\
+              <div class="row text-center">\
                 <h3 class="subheader"><small>'+tr("NET RX")+'</small></h3>\
               </div>\
               <div class="row">\
@@ -2366,7 +2381,7 @@ function printNics(vm_info){
               </div>\
             </div>\
             <div class="large-6 columns">\
-              <div class="row graph_legend">\
+              <div class="row text-center">\
                 <h3 class="subheader"><small>'+tr("NET TX")+'</small></h3>\
               </div>\
               <div class="row">\
@@ -2379,7 +2394,7 @@ function printNics(vm_info){
               </div>\
             </div>\
             <div class="large-6 columns">\
-              <div class="row graph_legend">\
+              <div class="row text-center">\
                 <h3 class="subheader"><small>'+tr("NET DOWNLOAD SPEED")+'</small></h3>\
               </div>\
               <div class="row">\
@@ -2392,7 +2407,7 @@ function printNics(vm_info){
               </div>\
             </div>\
             <div class="large-6 columns">\
-              <div class="row graph_legend">\
+              <div class="row text-center">\
                 <h3 class="subheader"><small>'+tr("NET UPLOAD SPEED")+'</small></h3>\
               </div>\
               <div class="row">\
@@ -2495,8 +2510,8 @@ function printCapacity(vm_info){
            <form id="tab_capacity_form" vmid="'+vm_info.ID+'" >'
 
     html += '\
-      <div class="">\
-        <div class="large-12 columns">\
+      <div class="row">\
+        <div class="large-6 columns">\
            <table class="info_table dataTable extended_table">\
              <thead>\
                <tr>\
@@ -2673,6 +2688,7 @@ function updateVMSnapshotsInfo(request,vm){
 function printSnapshots(vm_info){
    var html ='\
            <form id="snapshot_form" vmid="'+vm_info.ID+'" >\
+      <div class="row">\
       <div class="large-12 columns">\
          <table class="info_table dataTable extended_table">\
            <thead>\
@@ -2687,10 +2703,10 @@ function printSnapshots(vm_info){
       // If VM is not RUNNING, then we forget about the attach disk form.
       if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
         html += '\
-           <button id="take_snapshot" class="button tiny success right radius" ><i class="fa fa-plus"/></button>'
+           <button id="take_snapshot" class="button tiny success right radius" >'+tr("Take snapshot")+'</button>'
       } else {
         html += '\
-           <button id="take_snapshot" class="button tiny success right radius" disabled="disabled"><i class="fa fa-plus"/></button>'
+           <button id="take_snapshot" class="button tiny success right radius" disabled="disabled">'+tr("Take snapshot")+'</button>'
       }
     }
 
@@ -2751,6 +2767,7 @@ function printSnapshots(vm_info){
     html += '\
             </tbody>\
           </table>\
+        </div>\
         </div>\
       </form>';
 

@@ -676,7 +676,7 @@ function updateHostInfo(request,host){
         title : tr("Info"),
         icon: "fa-info-circle",
         content :
-        '<div class="">\
+        '<div class="row">\
         <div class="large-6 columns">\
         <table id="info_host_table" class="dataTable extended_table">\
             <thead>\
@@ -714,6 +714,15 @@ function updateHostInfo(request,host){
                 <td class="key_td">'+ tr("VN MAD") +'</td>\
                 <td class="value_td" colspan="2">'+host_info.VN_MAD+'</td>\
             </tr>\
+            </tbody>\
+         </table>\
+        </div>\
+        <div class="large-6 columns">\
+        <table id="info_host_table" class="dataTable extended_table">\
+            <thead>\
+               <tr><th colspan="3">' + tr("Capacity") + '</th></tr>\
+            </thead>\
+            <tbody>\
             <tr>\
               <td class="key_td">' + tr("Total Mem") + '</td>\
               <td class="value_td" colspan="2">'+humanize_size(host_info.HOST_SHARE.MAX_MEM)+'</td>\
@@ -743,17 +752,18 @@ function updateHostInfo(request,host){
               <td class="value_td" colspan="2">'+host_info.HOST_SHARE.RUNNING_VMS+'</td>\
             </tr>\
             </tbody>\
-         </table>\
+         </table>' +
+          insert_datastores_capacity_table(host_info.HOST_SHARE) +
+        '</div>\
         </div>\
-        <div class="large-6 columns">'
-        + insert_datastores_capacity_table(host_info.HOST_SHARE) +
-        '</div>\
-        <div class="large-6 columns">'
-        + insert_extended_template_table(host_info.TEMPLATE,
-                                         "Host",
-                                         host_info.ID,
-                                         "Monitoring Attributes") +
-        '</div>\
+        <div class="row">\
+          <div class="large-9 columns">'
+          + insert_extended_template_table(host_info.TEMPLATE,
+                                           "Host",
+                                           host_info.ID,
+                                           "Attributes") +
+          '</div>\
+        </div>\
       </div>'
     }
 

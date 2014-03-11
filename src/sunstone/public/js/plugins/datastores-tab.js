@@ -653,7 +653,7 @@ function updateDatastoreInfo(request,ds){
 
     var is_system_ssh = (info.TEMPLATE.SHARED == "NO")
 
-    var info_tab_content = '<div class="">\
+    var info_tab_content = '<div class="row">\
         <div class="large-6 columns">\
         <table id="info_datastore_table" class="dataTable extended_table">\
             <thead>\
@@ -699,12 +699,8 @@ function updateDatastoreInfo(request,ds){
                 <td class="value_td" colspan="2">'+(is_system_ssh || (typeof info.TEMPLATE.LIMIT_MB == "undefined") ? '-' : humanize_size_from_mb(info.TEMPLATE.LIMIT_MB))+'</td>\
               </tr>\
             </tbody>\
-          </table>'
-            + insert_extended_template_table(info.TEMPLATE,
-                                         "Datastore",
-                                         info.ID,
-                                         "Configuration Attributes") +
-        '</div>\
+          </table>\
+        </div>\
         <div class="large-6 columns">'
             + insert_permissions_table('datastores-tab',
                                      "Datastore",
@@ -712,9 +708,17 @@ function updateDatastoreInfo(request,ds){
                                      info.UNAME,
                                      info.GNAME,
                                      info.UID,
-                                     info.GID)
+                                     info.GID)+
         '</div>\
-      </div>'
+      </div>\
+      <div class="row">\
+        <div class="large-9 columns">' +
+            insert_extended_template_table(info.TEMPLATE,
+                                         "Datastore",
+                                         info.ID,
+                                         "Attributes") +
+        '</div>\
+      </div>';
 
 
     var info_tab = {
@@ -726,7 +730,13 @@ function updateDatastoreInfo(request,ds){
     var datastore_info_tab = {
         title: tr("Images"),
         icon: "fa-upload",
-        content : '<div id="datatable_datastore_images_info_div" class="large-12 columns"><table id="datatable_datastore_images_info_panel" class="table twelve">' + datastore_image_table_tmpl + '</table></div>'
+        content : '<div id="datatable_datastore_images_info_div" class="row">\
+          <div class="large-12 columns">\
+            <table id="datatable_datastore_images_info_panel" class="table twelve">' +
+              datastore_image_table_tmpl +
+            '</table>\
+            </div>\
+          </div>'
     }
 
     $("#div_edit_rename_link").die();

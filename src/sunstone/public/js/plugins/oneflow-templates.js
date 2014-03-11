@@ -596,7 +596,7 @@ function updateServiceTemplateInfo(request,elem){
         title : tr("Info"),
         icon: "fa-info-circle",
         content:
-        '<div class="">\
+        '<div class="row">\
           <div class="large-6 columns">\
           <table id="info_template_table" class="dataTable extended_table">\
            <thead>\
@@ -637,22 +637,24 @@ function updateServiceTemplateInfo(request,elem){
         title : "Roles",
         icon: "fa-wrench",
         content : '<form class="custom" id="roles_form" action="">\
-          <div id="roles_info" class="columns twelve">\
-            <table id="datatable_service_template_roles" class="table twelve">\
-              <thead>\
-                <tr>\
-                  <th>'+tr("Name")+'</th>\
-                  <th>'+tr("Cardinality")+'</th>\
-                  <th>'+tr("VM Template")+'</th>\
-                  <th>'+tr("Parents")+'</th>\
-                </tr>\
-              </thead>\
-              <tbody>\
-              </tbody>\
-            </table>\
-          </div>\
-          <div id="roles_extended_info" class="columns twelve">\
-            <span class="radius secondary label">'+tr("Select a role in the table for more information")+'</span>\
+          <div id="roles_info" class="row>\
+            <div class="large-12 columns>\
+                <table id="datatable_service_template_roles" class="table twelve">\
+                  <thead>\
+                    <tr>\
+                      <th>'+tr("Name")+'</th>\
+                      <th>'+tr("Cardinality")+'</th>\
+                      <th>'+tr("VM Template")+'</th>\
+                      <th>'+tr("Parents")+'</th>\
+                    </tr>\
+                  </thead>\
+                  <tbody>\
+                  </tbody>\
+                </table>\
+              <div id="roles_extended_info" class="columns twelve">\
+                <span class="radius secondary label">'+tr("Select a role in the table for more information")+'</span>\
+              </div>\
+            </div>\
           </div>\
         </form>'
     };

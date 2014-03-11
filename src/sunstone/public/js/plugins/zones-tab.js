@@ -322,7 +322,7 @@ function updateZoneInfo(request,zone){
         title : tr("Info"),
         icon: "fa-info-circle",
         content :
-        '<form class="custom"><div class="">\
+        '<form class="custom"><div class="row">\
         <div class="large-6 columns">\
         <table id="info_zone_table" class="dataTable extended_table">\
             <thead>\
@@ -344,13 +344,18 @@ function updateZoneInfo(request,zone){
             </tbody>\
          </table>\
         </div>\
-        <div class="large-6 columns">'
-                + insert_extended_template_table(zone_template,
-                                         "Zone",
-                                         zone_info.ID,
-                                         "Tags") +
+        <div class="large-6 columns">\
+        </div>\
+        </div>\
+        <div class="row">\
+          <div class="large-9 columns">'
+                  + insert_extended_template_table(zone_template,
+                                           "Zone",
+                                           zone_info.ID,
+                                           "Attributes") +
          '</div>\
-        </div></form>'
+        </div>\
+        </form>'
     }
 
     $("#div_edit_rename_link").die();

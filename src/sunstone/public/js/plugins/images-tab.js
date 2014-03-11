@@ -626,7 +626,7 @@ function updateImageInfo(request,img){
         title : tr("Info"),
         icon: "fa-info-circle",
         content:
-        '<form class="custom"><div class="">\
+        '<form class="custom"><div class="row">\
         <div class="large-6 columns">\
         <table id="info_img_table" class="dataTable extended_table">\
            <thead>\
@@ -692,21 +692,26 @@ function updateImageInfo(request,img){
               <td></td>\
            </tr>\
         </table>\
-        </div>\
-        <div class="large-6 columns">'
-           + insert_permissions_table('images-tab',
-                                   "Image",
-                                   img_info.ID,
-                                   img_info.UNAME,
-                                   img_info.GNAME,
-                                   img_info.UID,
-                                   img_info.GID) +
-            insert_extended_template_table(img_info.TEMPLATE,
+       </div>\
+       <div class="large-6 columns">' +
+         insert_permissions_table('images-tab',
+                                     "Image",
+                                     img_info.ID,
+                                     img_info.UNAME,
+                                     img_info.GNAME,
+                                     img_info.UID,
+                                     img_info.GID) +
+       '</div>\
+     </div>\
+     <div class="row">\
+          <div class="large-9 columns">'+
+               insert_extended_template_table(img_info.TEMPLATE,
                                                "Image",
                                                img_info.ID,
-                                               "Configuration & Tags") +
-        '</div>\
-      </div></form>'
+                                               "Attributes") +
+       '</div>\
+     </div>\
+     </form>'
     }
 
     $("#div_edit_rename_link").die();
@@ -776,7 +781,8 @@ function updateImageInfo(request,img){
     var vms_info_tab = {
         title: tr("VMs"),
         icon: "fa-cloud",
-        content : '<div id="datatable_image_vms_info_div" class="large-12 columns">\
+        content : '<div id="datatable_image_vms_info_div" class="row">\
+          <div class="large-12 columns">\
             <table id="datatable_image_vms" class="datatable twelve">\
               <thead>\
                 <tr>\
@@ -797,6 +803,7 @@ function updateImageInfo(request,img){
               <tbody id="tbodyvmachines">\
               </tbody>\
             </table>\
+          </div>\
           </div>'
       }
 

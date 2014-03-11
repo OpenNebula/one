@@ -664,7 +664,7 @@ function updateUserInfo(request,user){
         title : tr("Info"),
         icon: "fa-info-circle",
         content :
-        '<div class="">\
+        '<div class="row">\
           <div class="large-6 columns">\
           <table id="info_user_table" class="dataTable extended_table" cellpadding="0" cellspacing="0" border="0">\
             <thead>\
@@ -698,10 +698,14 @@ function updateUserInfo(request,user){
          </table>\
        </div>\
        <div class="large-6 columns">' +
+       '</div>\
+     </div>\
+     <div class="row">\
+          <div class="large-9 columns">'+
                insert_extended_template_table(info.TEMPLATE,
                                               "User",
                                               info.ID,
-                                              tr("Configuration Attributes")) +
+                                              tr("Attributes")) +
        '</div>\
      </div>'
     };

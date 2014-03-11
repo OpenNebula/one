@@ -467,7 +467,7 @@ function updateFileInfo(request,file){
         title : tr("Info"),
         icon: "fa-info-circle",
         content:
-        '<form class="custom"><div class="">\
+        '<form class="custom"><div class="row">\
         <div class="large-6 columns">\
         <table id="info_file_table" class="dataTable extended_table">\
            <thead>\
@@ -525,21 +525,26 @@ function updateFileInfo(request,file){
               <td></td>\
            </tr>\
         </table>\
-        </div>\
-        <div class="large-6 columns">'
-           + insert_permissions_table('files-tab',
+       </div>\
+       <div class="large-6 columns">' +
+         insert_permissions_table('files-tab',
                                    "File",
                                    file_info.ID,
                                    file_info.UNAME,
                                    file_info.GNAME,
                                    file_info.UID,
                                    file_info.GID) +
-            insert_extended_template_table(file_info.TEMPLATE,
+       '</div>\
+     </div>\
+     <div class="row">\
+          <div class="large-9 columns">'+
+               insert_extended_template_table(file_info.TEMPLATE,
                                                "File",
                                                file_info.ID,
-                                               "Configuration & Tags") +
-        '</div>\
-      </div></form>'
+                                               "Attributes") +
+       '</div>\
+     </div>\
+     </form>'
     }
 
     $("#div_edit_rename_link_files").die();

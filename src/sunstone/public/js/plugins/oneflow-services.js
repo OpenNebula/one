@@ -1151,7 +1151,7 @@ function updateServiceInfo(request,elem){
         title : tr("Info"),
         icon: "fa-info-circle",
         content:
-        '<div class="">\
+        '<div class="row">\
           <div class="large-6 columns">\
           <table id="info_template_table" class="dataTable extended_table">\
            <thead>\
@@ -1196,6 +1196,7 @@ function updateServiceInfo(request,elem){
         title : "Roles",
         icon: "fa-wrench",
         content : '<form class="custom" id="roles_form" action="">\
+          <div class="row">\
           <div id="role_actions">\
             <div class="columns large-8">\
                 <h4>'+tr("Roles")+'</h4>\
@@ -1238,6 +1239,7 @@ function updateServiceInfo(request,elem){
           <div id="roles_extended_info" class="columns twelve">\
             <span class="radius secondary label">'+tr("Select a role in the table for more information")+'</span>\
           </div>\
+          </div>\
         </form>'
     };
 
@@ -1246,7 +1248,7 @@ function updateServiceInfo(request,elem){
     var logs = elem_info.TEMPLATE.BODY.log
     var log_info = ''
     if (logs) {
-        log_info += '<div class="large-12 columns"><div class="log-tab">'
+        log_info += '<div class="row"><div class="large-12 columns log-tab">'
 
         for (var i = 0; i < logs.length; i++) {
           var line =  pretty_time(logs[i].timestamp)+' ['+logs[i].severity + '] ' + logs[i].message+ '<br>';
@@ -1368,6 +1370,7 @@ function updateServiceInfo(request,elem){
                            </tr>\
                         </tbody>\
                     </table>\
+                    <br>\
                  </div>";
 
             info_str += '<fieldset>\

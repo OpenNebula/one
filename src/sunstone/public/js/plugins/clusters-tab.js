@@ -1236,7 +1236,7 @@ function updateClusterInfo(request,cluster){
         title : tr("Info"),
         icon: "fa-info-circle",
         content :
-        '<form class="custom"><div class="">\
+        '<form class="custom"><div class="row">\
         <div class="large-6 columns">\
         <table id="info_cluster_table" class="dataTable extended_table">\
             <thead>\
@@ -1257,21 +1257,26 @@ function updateClusterInfo(request,cluster){
             </tr>\
             </tbody>\
          </table>\
-        </div>\
-        <div class="large-6 columns">'
-                + insert_extended_template_table(cluster_template,
+       </div>\
+       <div class="large-6 columns">' +
+       '</div>\
+     </div>\
+     <div class="row">\
+          <div class="large-9 columns">'+
+               insert_extended_template_table(cluster_template,
                                          "Cluster",
                                          cluster_info.ID,
-                                         "Tags") +
-         '</div>\
-        </div></form>'
+                                         tr("Attributes")) +
+       '</div>\
+     </div>\
+     </form>'
     }
 
     var cluster_host_tab = {
         title: tr("Hosts"),
         icon: "fa-hdd-o",
-        content : '<div class="columns twelve">\
-          <div id="datatable_cluster_hosts_info_div">\
+        content : '<div class="row">\
+          <div id="datatable_cluster_hosts_info_div" class="large-12 columns">\
             <table id="datatable_cluster_hosts_info_panel" class="table twelve">' +
               host_datatable_table_tmpl +
             '</table>\
@@ -1282,8 +1287,8 @@ function updateClusterInfo(request,cluster){
     var cluster_vnet_tab = {
         title: tr("VNets"),
         icon: "fa-globe",
-        content : '<div class="columns twelve">\
-          <div id="datatable_cluster_vnets_info_div">\
+        content : '<div class="row">\
+          <div id="datatable_cluster_vnets_info_div" class="large-12 columns">\
             <table id="datatable_cluster_vnets_info_panel" class="table twelve">' +
               vnet_datatable_table_tmpl +
             '</table>\
@@ -1294,8 +1299,8 @@ function updateClusterInfo(request,cluster){
     var cluster_datastore_tab = {
         title: tr("Datastores"),
         icon: "fa-folder-open",
-        content : '<div class="columns twelve">\
-          <div id="datatable_cluster_datastores_info_div">\
+        content : '<div class="row">\
+          <div id="datatable_cluster_datastores_info_div" class="large-12 columns">\
             <table id="datatable_cluster_datastores_info_panel" class="table twelve">' +
               datastore_datatable_table_tmpl +
             '</table>\

@@ -2651,21 +2651,22 @@ function convert_template_to_string(template_json,unshown_values)
 // Create the extended template table (with listeners)
 function insert_extended_template_table(template_json,resource_type,resource_id,table_name,unshown_values)
 {
-    var str = '<table id="'+resource_type.toLowerCase()+'_template_table" class="dataTable extended_table"  cellpadding="0" cellspacing="0" border="0">\
+    var str = '<table id="'+resource_type.toLowerCase()+'_template_table" class="dataTable configuration_attrs"  cellpadding="0" cellspacing="0" border="0">\
                  <thead>\
                    <tr>\
-                     <th colspan="4">' +
+                     <th colspan="3">' +
                       table_name +
                      '</th>\
                    </tr>\
-                  </thead>\
-                  <tr>\
-                    <td class="key_td"><input type="text" name="new_key" id="new_key" /></td>\
-                    <td class="value_td"><textarea rows="1" type="text" name="new_value" id="new_value"></textarea></td>\
-                    <td colspan="2" class=""><button type="button" id="button_add_value" class="button small secondary">'+tr("Add")+'</button>\</td>\
-                  </tr>' + fromJSONtoHTMLTable(template_json,
+                  </thead>'+
+                  fromJSONtoHTMLTable(template_json,
                                                resource_type,
                                                resource_id) +
+                  '<tr>\
+                    <td class="key_td"><input type="text" name="new_key" id="new_key" /></td>\
+                    <td class="value_td"><textarea rows="1" type="text" name="new_value" id="new_value"></textarea></td>\
+                    <td class="text-right"><button type="button" id="button_add_value" class="button small secondary">'+tr("Add")+'</button>\</td>\
+                  </tr>' +
                  '</table>'
 
     // Remove previous listeners
@@ -3023,16 +3024,14 @@ function fromJSONtoHTMLRow(field,value,resource_type,resource_id, vectorial_key,
                str += '<tr id="'+resource_type.toLowerCase()+'_template_table_'+field+'">\
                            <td class="key_td key_vectorial_td">'+tr(field)+'</td>\
                            <td class="value_vectorial_td"></td>\
-                           <td>\
-                           <div id="div_add_vectorial">\
-                             <a id="div_add_vectorial_'+field+'" class="add_vectorial_a ocurrence_'+it+' vectorial_key_'+field+'" href="#"><i class="fa fa-plus-sign"/></a>\
-                           </div>\
-                         </td>\
-                           <td>\
-                           <div id="div_minus">\
-                             <a id="div_minus_'+field+'" class="remove_vectorial_x ocurrence_'+it+'" href="#"><i class="fa fa-pencil-square-o"/><i class="fa fa-trash-o"/></a>\
-                           </div>\
-                         </td>'
+                           <td class="text-right">\
+                             <span id="div_add_vectorial">\
+                               <a id="div_add_vectorial_'+field+'" class="add_vectorial_a ocurrence_'+it+' vectorial_key_'+field+'" href="#"><i class="fa fa-plus-sign"/></a>\
+                             </span>&emsp;\
+                             <span id="div_minus">\
+                               <a id="div_minus_'+field+'" class="remove_vectorial_x ocurrence_'+it+'" href="#"><i class="fa fa-pencil-square-o"/><i class="fa fa-trash-o"/></a>\
+                             </span>\
+                           </td>'
 
 
                str += fromJSONtoHTMLTable(current_value,
@@ -3065,15 +3064,13 @@ function fromJSONtoHTMLRow(field,value,resource_type,resource_id, vectorial_key,
             str += '<tr>\
                      <td class="key_td key_vectorial_td" style="text-align:center">'+tr(field)+'</td>\
                      <td class="value_td value_vectorial_td value_td_input_'+field+ocurrence_str+' vectorial_key_'+vectorial_key+'" id="value_td_input_'+field+'">'+value+'</td>\
-                     <td>\
-                       <div id="div_edit_vectorial">\
+                     <td class="text-right">\
+                       <span id="div_edit_vectorial">\
                          <a id="div_edit_'+field+'" class="edit_e'+ocurrence_str+' vectorial_key_'+vectorial_key+'" href="#"><i class="fa fa-pencil-square-o"/></a>\
-                       </div>\
-                     </td>\
-                     <td>\
-                       <div id="div_minus_vectorial">\
+                       </span>&emsp;\
+                       <span id="div_minus_vectorial">\
                          <a id="div_minus_'+field+'" class="remove_x'+ocurrence_str+' vectorial_key_'+vectorial_key+'" href="#"><i class="fa fa-trash-o"/></a>\
-                       </div>\
+                       </span>\
                      </td>\
                    </tr>';
         }
@@ -3085,16 +3082,14 @@ function fromJSONtoHTMLRow(field,value,resource_type,resource_id, vectorial_key,
                str += '<tr id="'+resource_type.toLowerCase()+'_template_table_'+field+'">\
                            <td class="key_td key_vectorial_td">'+tr(field)+'</td>\
                            <td class="value_vectorial_td"></td>\
-                           <td>\
-                           <div id="div_add_vectorial">\
-                             <a id="div_add_vectorial_'+field+'" class="add_vectorial_a'+ocurrence_str+' vectorial_key_'+field+'" href="#"><i class="fa fa-plus-sign"/></a>\
-                           </div>\
-                         </td>\
-                           <td>\
-                           <div id="div_minus">\
-                             <a id="div_minus_'+field+'" class="remove_vectorial_x'+ocurrence_str+'" href="#"><i class="fa fa-trash-o"/></a>\
-                           </div>\
-                         </td>'
+                           <td class="text-right">\
+                             <span id="div_add_vectorial">\
+                               <a id="div_add_vectorial_'+field+'" class="add_vectorial_a'+ocurrence_str+' vectorial_key_'+field+'" href="#"><i class="fa fa-plus-sign"/></a>\
+                             </span>&emsp;\
+                             <span id="div_minus">\
+                               <a id="div_minus_'+field+'" class="remove_vectorial_x'+ocurrence_str+'" href="#"><i class="fa fa-trash-o"/></a>\
+                             </span>\
+                           </td>'
                str += fromJSONtoHTMLTable(value,
                           resource_type,
                           resource_id,
@@ -3106,15 +3101,13 @@ function fromJSONtoHTMLRow(field,value,resource_type,resource_id, vectorial_key,
                 str += '<tr>\
                          <td class="key_td">'+tr(field)+'</td>\
                          <td class="value_td" id="value_td_input_'+field+'">'+value+'</td>\
-                         <td>\
-                           <div id="div_edit">\
+                         <td class="text-right">\
+                           <span id="div_edit">\
                              <a id="div_edit_'+field+'" class="edit_e'+ocurrence_str+'" href="#"><i class="fa fa-pencil-square-o"/></a>\
-                           </div>\
-                         </td>\
-                         <td>\
-                           <div id="div_minus">\
+                           </span>&emsp;\
+                           <span id="div_minus">\
                              <a id="div_minus_'+field+'" class="remove_x'+ocurrence_str+'" href="#"><i class="fa fa-trash-o"/></a>\
-                           </div>\
+                           </span>\
                          </td>\
                        </tr>';
             }

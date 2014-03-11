@@ -1727,7 +1727,7 @@ function updateTemplateInfo(request,template){
         title : tr("Info"),
         icon: "fa-info-circle",
         content:
-        '<div class="">\
+        '<div class="row">\
          <div class="large-6 columns">\
          <table id="info_template_table" class="dataTable extended_table">\
              <thead>\
@@ -1766,10 +1766,12 @@ function updateTemplateInfo(request,template){
     var template_tab = {
         title: tr("Template"),
         icon: "fa-file-o",
-        content: '<div class="large-12 columns">\
-            <table id="template_template_table" class="info_table transparent_table" style="width:80%">'+
+        content: '<div class="row">\
+          <div class="large-12 columns">\
+            <table id="template_template_table" class="info_table dataTable" style="width:80%">'+
             prettyPrintJSON(template_info.TEMPLATE)+'\
             </table>\
+          </div>\
         </div>'
     };
 

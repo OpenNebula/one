@@ -446,9 +446,9 @@ Sunstone.addInfoPanel("group_info_panel",group_info_panel);
 function insert_views(){
   views_checks_str = ""
   var views_array = config['available_views'];
-  for (var i = 0; i < views_array.length; i++) 
+  for (var i = 0; i < views_array.length; i++)
   {
-    views_checks_str = views_checks_str + 
+    views_checks_str = views_checks_str +
              '<input type="checkbox" id="group_view_'+views_array[i]+'" value="'+views_array[i]+'"/>' +
              '<label for="group_view_'+views_array[i]+'">'+views_array[i]+
              '</label><br>'
@@ -617,29 +617,33 @@ function updateGroupInfo(request,group){
           title: tr("Info"),
           icon: "fa-info-circle",
           content:
-          '<div class="">\
-          <div class="large-6 columns">\
-          <table id="info_img_table" class="dataTable extended_table">\
-             <thead>\
-              <tr><th colspan="3">'+tr("Information")+'</th></tr>\
-             </thead>\
-             <tr>\
-                <td class="key_td">'+tr("ID")+'</td>\
-                <td class="value_td">'+info.ID+'</td>\
-                <td></td>\
-             </tr>\
-             <tr>\
-              <td class="key_td">'+tr("Name")+'</td>\
-              <td class="value_td_rename">'+info.NAME+'</td>\
-              <td></td>\
-            </tr>\
-          </table>\
-          </div>\
-          <div class="large-6 columns">'
-              + insert_extended_template_table(info.TEMPLATE,
+          '<div class="row">\
+            <div class="large-6 columns">\
+              <table id="info_img_table" class="dataTable extended_table">\
+                 <thead>\
+                  <tr><th colspan="3">'+tr("Information")+'</th></tr>\
+                 </thead>\
+                 <tr>\
+                    <td class="key_td">'+tr("ID")+'</td>\
+                    <td class="value_td">'+info.ID+'</td>\
+                    <td></td>\
+                 </tr>\
+                 <tr>\
+                  <td class="key_td">'+tr("Name")+'</td>\
+                  <td class="value_td_rename">'+info.NAME+'</td>\
+                  <td></td>\
+                </tr>\
+              </table>\
+           </div>\
+           <div class="large-6 columns">' +
+           '</div>\
+         </div>\
+         <div class="row">\
+          <div class="large-9 columns">'+
+              insert_extended_template_table(info.TEMPLATE,
                                                  "Group",
                                                  info.ID,
-                                                 "Configuration & Tags") +
+                                                 "Attributes") +
           '</div>\
         </div>'
       }

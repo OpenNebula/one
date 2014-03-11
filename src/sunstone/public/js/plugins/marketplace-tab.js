@@ -248,7 +248,7 @@ function updateMarketInfo(request,app){
         title : tr("Info"),
         icon: "fa-info-circle",
         content :
-        '<form class="custom"><div class="">\
+        '<form class="custom"><div class="row">\
         <div class="large-6 columns">\
         <table id="info_marketplace_table" class="dataTable extended_table">\
             <thead>\
@@ -303,6 +303,7 @@ function updateMarketInfo(request,app){
               </tr>\
             </tbody>\
         </table>\
+      </div>\
       </div>\
     </form>'
     };
