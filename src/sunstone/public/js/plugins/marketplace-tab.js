@@ -53,8 +53,8 @@ var market_actions = {
                 return;
             }
 
-            if ($marketplace_import_dialog != undefined) {
-              $marketplace_import_dialog.html("");
+            if ($('#marketplace_import_dialog',dialogs_context) != undefined) {
+              $('#marketplace_import_dialog',dialogs_context).remove();
             }
 
             dialogs_context.append(marketplace_import_dialog);
