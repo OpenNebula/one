@@ -286,7 +286,7 @@ module OpenNebula
                 acl = OpenNebula::Acl.new(OpenNebula::Acl.build_xml,@client)
                 rule_ast = rule + " *"
                 parsed_acl = *OpenNebula::Acl.parse_rule(rule_ast)
-                return parsed_acl[0], "" if OpenNebula.is_error?(parsed_acl[0])
+                return parsed_acl, "" if OpenNebula.is_error?(parsed_acl)
                 rc  = acl.allocate(*OpenNebula::Acl.parse_rule(rule_ast))
                 return rc, "" if OpenNebula.is_error?(rc)
 
