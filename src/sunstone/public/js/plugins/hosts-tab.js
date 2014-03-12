@@ -139,7 +139,12 @@ var host_actions = {
     "Host.show" : {
         type: "single",
         call: OpenNebula.Host.show,
-        callback: updateHostElement,
+        callback:  function(request, response) {
+            updateHostElement(request, response);
+            if (Sunstone.rightInfoVisible($("#hosts-tab"))) {
+                updateHostInfo(request, response);
+            }
+        },
         error: onError
     },
 
@@ -155,7 +160,7 @@ var host_actions = {
         call: function(){
           var tab = dataTable_hosts.parents(".tab");
           if (Sunstone.rightInfoVisible(tab)) {
-            Sunstone.runAction("Host.showinfo", Sunstone.rightInfoResourceId(tab))
+            Sunstone.runAction("Host.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_hosts);
             Sunstone.runAction("Host.list");
@@ -178,8 +183,7 @@ var host_actions = {
             Sunstone.runAction("Host.show",req.request.data[0]);
         },
         elements: hostElements,
-        error : onError,
-        notify: true
+        error : onError
     },
 
     "Host.disable" : {
@@ -189,8 +193,7 @@ var host_actions = {
             Sunstone.runAction("Host.show",req.request.data[0]);
         },
         elements: hostElements,
-        error : onError,
-        notify:true
+        error : onError
     },
 
     "Host.delete" : {
@@ -198,8 +201,7 @@ var host_actions = {
         call : OpenNebula.Host.del,
         callback : deleteHostElement,
         elements: hostElements,
-        error : onError,
-        notify:true
+        error : onError
     },
 
     "Host.monitor" : {
@@ -236,8 +238,7 @@ var host_actions = {
         type: "single",
         call: OpenNebula.Host.update,
         callback: function(request) {
-            notifyMessage(tr("Template updated correctly"));
-            Sunstone.runAction('Host.showinfo',request.request.data[0][0]);
+            Sunstone.runAction('Host.show',request.request.data[0][0]);
         },
         error: onError
     },
@@ -261,10 +262,9 @@ var host_actions = {
                 Sunstone.runAction("Cluster.addhost",cluster,host);
         },
         callback: function(request) {
-            Sunstone.runAction('Host.showinfo',request.request.data[0]);
+            Sunstone.runAction('Host.show',request.request.data[0]);
         },
-        elements: hostElements,
-        notify:true
+        elements: hostElements
     },
 
     "Host.help" : {
@@ -279,12 +279,9 @@ var host_actions = {
         type: "single",
         call: OpenNebula.Host.rename,
         callback: function(request) {
-            notifyMessage(tr("Host renamed correctly"));
-            Sunstone.runAction('Host.showinfo',request.request.data[0]);
-            Sunstone.runAction('Host.list');
+            Sunstone.runAction('Host.show',request.request.data[0]);
         },
-        error: onError,
-        notify: true
+        error: onError
     }
 };
 
@@ -325,12 +322,7 @@ var host_buttons = {
         text: tr("Delete host"),
         layout: "del",
         condition: mustBeAdmin
-    },
-    //"Host.help" : {
-    //    type: "action",
-    //    text: '?',
-    //    alwaysActive: true
-    //}
+    }
 };
 
 var host_info_panel = {
@@ -390,11 +382,7 @@ function hostElements(){
     return getSelectedNodes(dataTable_hosts);
 }
 
-//Creates an array to be added to the dataTable from the JSON of a host.
-function hostElementArray(host_json){
-    var host = host_json.HOST;
-
-    // Generate CPU progress bars
+function generateCPUProgressBar(host) {
     var max_cpu = parseInt(host.HOST_SHARE.MAX_CPU);
 
     var info_str;
@@ -421,6 +409,13 @@ function hostElementArray(host_json){
 
     var pb_real_cpu = quotaBarHtml(real_cpu, max_cpu, info_str);
 
+    return {
+      real: pb_real_cpu,
+      allocated: pb_allocated_cpu
+    }
+}
+
+function generateMEMProgressBar(host){
     // Generate MEM progress bars
     var max_mem = parseInt(host.HOST_SHARE.MAX_MEM);
 
@@ -446,6 +441,19 @@ function hostElementArray(host_json){
 
     var pb_real_mem = quotaBarHtml(real_mem, max_mem, info_str);
 
+    return {
+      real: pb_real_mem,
+      allocated: pb_allocated_mem
+    }
+}
+
+//Creates an array to be added to the dataTable from the JSON of a host.
+function hostElementArray(host_json){
+    var host = host_json.HOST;
+
+    var cpu_bars = generateCPUProgressBar(host);
+    var mem_bars = generateMEMProgressBar(host);
+
     var state_simple = OpenNebula.Helper.resource_state("host_simple",host.STATE);
     switch (state_simple) {
       case tr("INIT"):
@@ -470,10 +478,10 @@ function hostElementArray(host_json){
         host.NAME,
         host.CLUSTER.length ? host.CLUSTER : "-",
         host.HOST_SHARE.RUNNING_VMS, //rvm
-        pb_real_cpu,
-        pb_allocated_cpu,
-        pb_real_mem,
-        pb_allocated_mem,
+        cpu_bars.real,
+        cpu_bars.allocated,
+        mem_bars.real,
+        mem_bars.allocated,
         state_simple,
         host.IM_MAD,
         host.VM_MAD,
@@ -671,6 +679,9 @@ function insert_datastores_capacity_table(host_share) {
 function updateHostInfo(request,host){
     var host_info = host.HOST;
 
+    var cpu_bars = generateCPUProgressBar(host_info);
+    var mem_bars = generateMEMProgressBar(host_info);
+
     //Information tab
     var info_tab = {
         title : tr("Info"),
@@ -721,28 +732,20 @@ function updateHostInfo(request,host){
             </thead>\
             <tbody>\
             <tr>\
-              <td class="key_td">' + tr("Total Mem") + '</td>\
-              <td class="value_td" colspan="2">'+humanize_size(host_info.HOST_SHARE.MAX_MEM)+'</td>\
+              <td class="key_td">' + tr("Allocated Memory") + '</td>\
+              <td class="value_td" colspan="2" style="width:50%;">'+mem_bars.allocated+'</td>\
             </tr>\
             <tr>\
-              <td class="key_td">' + tr("Used Mem (real)") + '</td>\
-              <td class="value_td" colspan="2">'+humanize_size(host_info.HOST_SHARE.USED_MEM)+'</td>\
+              <td class="key_td">' + tr("Allocated CPU") + '</td>\
+              <td class="value_td" colspan="2" style="width:50%;">'+cpu_bars.allocated+'</td>\
             </tr>\
             <tr>\
-              <td class="key_td">' + tr("Used Mem (allocated)") + '</td>\
-              <td class="value_td" colspan="2">'+humanize_size(host_info.HOST_SHARE.MEM_USAGE)+'</td>\
+              <td class="key_td">' + tr("Real Memory") + '</td>\
+              <td class="value_td" colspan="2" style="width:50%;">'+mem_bars.real+'</td>\
             </tr>\
             <tr>\
-              <td class="key_td">' + tr("Total CPU") + '</td>\
-              <td class="value_td" colspan="2">'+host_info.HOST_SHARE.MAX_CPU+'</td>\
-            </tr>\
-            <tr>\
-              <td class="key_td">' + tr("Used CPU (real)") + '</td>\
-              <td class="value_td" colspan="2">'+host_info.HOST_SHARE.USED_CPU+'</td>\
-            </tr>\
-            <tr>\
-              <td class="key_td">' + tr("Used CPU (allocated)") + '</td>\
-              <td class="value_td" colspan="2">'+host_info.HOST_SHARE.CPU_USAGE+'</td>\
+              <td class="key_td">' + tr("Real CPU") + '</td>\
+              <td class="value_td" colspan="2" style="width:50%;">'+cpu_bars.real+'</td>\
             </tr>\
             <tr>\
               <td class="key_td">' + tr("Running VMs") + '</td>\
