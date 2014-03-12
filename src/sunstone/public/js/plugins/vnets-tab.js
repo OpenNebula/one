@@ -927,15 +927,6 @@ function setupCreateVNetDialog() {
     var dialog = $create_vn_dialog;
     dialog.html(create_vn_tmpl);
 
-    var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
-
-    //Prepare the jquery-ui dialog. Set style options here.
-    //dialog.dialog({
-    //    autoOpen: false,
-    //    modal: true,
-    //    width: 475,
-    //    height: height
-    //});
     dialog.addClass("reveal-modal medium max-height").attr("data-reveal", "");
 
     //Make the tabs look nice for the creation mode

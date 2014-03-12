@@ -839,9 +839,12 @@ function enable_all_datastores()
 }
 
 // Prepare the image creation dialog
-function setupCreateImageDialog(dialog){
-    dialogs_context.append('<div id="create_image_dialog"></div>');
-    $create_image_dialog =  $('#create_image_dialog',dialogs_context);
+function setupCreateImageDialog(dialog) {
+    if ($('#create_image_dialog').length == 0) {
+      dialogs_context.append('<div id="create_image_dialog"></div>');
+    }
+
+    $create_image_dialog =  $('#create_image_dialog');
 
     var dialog = $create_image_dialog;
     dialog.html(create_image_tmpl);
@@ -1126,15 +1129,15 @@ function initialize_create_image_dialog(dialog) {
         return false;
     });
 
-    $('#wizard_image_reset_button').click(function(){
-        dialog.html("");
+    $('#wizard_image_reset_button', dialog).click(function(){
+        $('#create_image_dialog').html("");
         setupCreateImageDialog();
 
         popUpCreateImageDialog();
     });
 
-    $('#advanced_image_reset_button').click(function(){
-        dialog.html("");
+    $('#advanced_image_reset_button', dialog).click(function(){
+        $('#create_image_dialog').html("");
         setupCreateImageDialog();
 
         popUpCreateImageDialog();
@@ -1174,7 +1177,7 @@ function initialize_datastore_info_create_image_dialog(dialog) {
 }
 
 function popUpCreateImageDialog(){
-    $create_image_dialog =  $('#create_image_dialog',dialogs_context);
+    $create_image_dialog =  $('#create_image_dialog');
     initialize_datastore_info_create_image_dialog($create_image_dialog);
     $create_image_dialog.foundation().foundation('reveal', 'open');
     $("input#img_name",$create_image_dialog).focus();

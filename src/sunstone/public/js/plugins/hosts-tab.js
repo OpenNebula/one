@@ -821,12 +821,11 @@ function updateHostInfo(request,host){
 //Prepares the host creation dialog
 function setupCreateHostDialog(){
     dialogs_context.append('<div id="create_host_dialog"></div>');
-    $create_host_dialog = $('div#create_host_dialog');
-    var dialog = $create_host_dialog;
-
-    dialog.html(create_host_tmpl);
+    $('div#create_host_dialog').html(create_host_tmpl);
+    var dialog = $('div#create_host_dialog');
 
     dialog.addClass("reveal-modal medium").attr("data-reveal", "");
+    dialog.foundation()
 
     // Show custom driver input only when custom is selected in selects
     $('input[name="custom_vmm_mad"],'+
@@ -885,23 +884,16 @@ function setupCreateHostDialog(){
         //Create the OpenNebula.Host.
         //If it is successfull we refresh the list.
         Sunstone.runAction("Host.create",host_json);
-        $create_host_dialog.foundation('reveal', 'close')
+        $('div#create_host_dialog').foundation('reveal', 'close')
         return false;
-    });
-
-    $('#wizard_host_reset_button').click(function(){
-        $create_host_dialog.html("");
-        setupCreateHostDialog();
-
-        popUpCreateHostDialog();
     });
 }
 
 //Open creation dialogs
 function popUpCreateHostDialog(){
-    $('#host_cluster_id',$create_host_dialog).html(clusters_sel());
-    $create_host_dialog.foundation().foundation('reveal', 'open');
-    $("input#name",$create_host_dialog).focus();
+    $('#host_cluster_id',$('div#create_host_dialog')).html(clusters_sel());
+    $('div#create_host_dialog').foundation('reveal', 'open');
+    $("input#name",$('div#create_host_dialog')).focus();
     return false;
 }
 
