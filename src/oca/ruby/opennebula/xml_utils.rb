@@ -57,6 +57,7 @@ module OpenNebula
 
         def start_element(name, attrs = [])
             return if name == @pool_name
+            @value = nil
 
             @current = @current + 1
 
