@@ -2020,7 +2020,7 @@ function add_osTab(dialog) {
           '</dl>'+
           '<div class="tabs-content vertical">'+
           '<div class="wizard_internal_tab active content" id="bootTab">'+
-            '<div class="row">'+
+            '<div class="row vm_param">'+
               '<div class="large-6 columns">'+
                 '<label for="ARCH">'+tr("Arch")+
                   '<span class="tip">'+tr("CPU architecture to virtualization")+'</span>'+
@@ -2133,7 +2133,7 @@ function add_osTab(dialog) {
               '</div>'+
             '</div>'+
             '<br>'+
-            '<div class="row">'+
+            '<div class="row vm_param">'+
               '<div class="large-6 columns">'+
                 '<label for="ROOT">'+tr("Root")+
                   '<span class="tip">'+tr("Device to be mounted as root")+'</span>'+
@@ -2153,7 +2153,7 @@ function add_osTab(dialog) {
                 '</select>'+
               '</div>'+
             '</div>'+
-            '<div class="row">'+
+            '<div class="row vm_param">'+
               '<div class="large-12 columns">'+
                 '<label for="KERNEL_CMD">'+tr("Kernel cmd")+
                   '<span class="tip">'+tr("Arguments for the booting kernel")+'</span>'+
@@ -2161,7 +2161,7 @@ function add_osTab(dialog) {
                 '<input type="text" id="KERNEL_CMD" name="kernel_cmd" />'+
               '</div>'+
             '</div>'+
-            '<div class="row">'+
+            '<div class="row vm_param">'+
               '<div class="large-12 columns">'+
                 '<label for="BOOTLOADER">'+tr("Bootloader")+
                   '<span class="tip">'+tr("Path to the bootloader executable")+'</span>'+
@@ -2212,7 +2212,7 @@ function add_osTab(dialog) {
                       '</table>'+
                     '</div>'+
                   '</div>'+
-                  '<div id="kernel_ds_inputs"  class="row">'+
+                  '<div class="row">'+
                     '<div class="large-12 columns">' +
                       '<span id="select_image" class="radius secondary label">'+tr("Please select a Kernel from the list")+'</span>'+
                       '<span id="image_selected" class="radius secondary label" style="display: none;">'+tr("You selected the following Kernel: ")+'</span>'+
@@ -2220,7 +2220,7 @@ function add_osTab(dialog) {
                     '</div>'+
                   '</div>'+
                 '<br>'+
-                '<div class="vm_param row">'+
+                '<div id="kernel_ds_inputs" class="vm_param row">'+
                   '<div class="large-12 columns">'+
                     '<label for="KERNEL_DS">'+tr("KERNEL_DS")+
                     '</label>'+
@@ -2307,7 +2307,7 @@ function add_osTab(dialog) {
               '</div>'+
           '</div>'+
           '<div class="wizard_internal_tab content" id="featuresTab">'+
-            '<div class="row">'+
+            '<div class="row vm_param">'+
               '<div class="large-6 columns">'+
                 '<label for="ACPI">'+tr("ACPI")+
                   '<span class="tip">'+tr("Add support in the VM for Advanced Configuration and Power Interface (ACPI)")+'</span>'+
@@ -2329,7 +2329,7 @@ function add_osTab(dialog) {
                 '</select>'+
               '</div>'+
             '</div>'+
-            '<div class="row">'+
+            '<div class="row vm_param">'+
               '<div class="large-6 columns">'+
                 '<label for="APIC">'+tr("APIC")+
                   '<span class="tip">'+tr("Enables the advanced programmable IRQ management.")+'</span>'+
@@ -2351,7 +2351,7 @@ function add_osTab(dialog) {
                 '</select>'+
               '</div>'+
             '</div>'+
-            '<div class="row">'+
+            '<div class="row vm_param">'+
               '<div class="large-6 columns">'+
                 '<label for="LOCALTIME">'+tr("Localtime")+
                   '<span class="tip">'+tr("The guest clock will be synchronized to the host's configured timezone when booted.")+'</span>'+
@@ -2369,7 +2369,7 @@ function add_osTab(dialog) {
                 '<input type="text" id="DEVICE_MODEL" name="device_model"/>'+
               '</div>'+
             '</div>'+
-            '<div class="row">'+
+            '<div class="row vm_param">'+
               '<div class="large-6 columns">'+
                 '<label for="PCIBRIDGE">'+tr("PCI BRIDGE")+
                   '<span class="tip">'+tr(" Adds a PCI Controller that provides bridge-to-bridge capability, only for VMware.")+'</span>'+
@@ -2402,7 +2402,7 @@ function add_osTab(dialog) {
     var initrd_section = $('#ramdiskTab', os_section);
 
 
-    // Select Image or Volatile disk. The div is hidden depending on the selection, and the
+    // Select Kernel Image or Path. The div is hidden depending on the selection, and the
     // vm_param class is included to be computed when the template is generated.
     $("input[name='kernel_type']", os_section).change(function(){
       if ($("input[name='kernel_type']:checked").val() == "kernel_ds") {
