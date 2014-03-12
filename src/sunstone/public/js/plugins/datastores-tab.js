@@ -313,7 +313,12 @@ var datastore_actions = {
     "Datastore.show" : {
         type: "single",
         call: OpenNebula.Datastore.show,
-        callback: updateDatastoreElement,
+        callback: function(request, response) {
+            updateDatastoreElement(request, response);
+            if (Sunstone.rightInfoVisible($("#datastores-tab"))) {
+                updateDatastoreInfo(request, response);
+            }
+        },
         error: onError
     },
 
@@ -353,8 +358,7 @@ var datastore_actions = {
         type: "single",
         call: OpenNebula.Datastore.update,
         callback: function(request) {
-            notifyMessage("Template updated correctly");
-            Sunstone.runAction('Datastore.showinfo',request.request.data[0][0]);
+            Sunstone.runAction('Datastore.show',request.request.data[0][0]);
         },
         error: onError
     },
@@ -363,7 +367,7 @@ var datastore_actions = {
         type: "single",
         call: OpenNebula.Datastore.update,
         callback: function() {
-            notifyMessage(tr("Datastore updated correctly"));
+            Sunstone.runAction('Datastore.show',request.request.data[0][0]);
         },
         error: onError
     },
@@ -388,30 +392,29 @@ var datastore_actions = {
         type: "multiple",
         call: OpenNebula.Datastore.chown,
         callback:  function (req) {
-            Sunstone.runAction("Datastore.show",req.request.data[0][0][0]);
+            Sunstone.runAction("Datastore.show",req.request.data[0][0]);
         },
         elements: datastoreElements,
-        error: onError,
-        notify: true
+        error: onError
     },
 
     "Datastore.chgrp" : {
         type: "multiple",
         call: OpenNebula.Datastore.chgrp,
         callback: function (req) {
-         //   Sunstone.runAction("Datastore.show",req.request.data[0][0][0]);
-            setInterval(Sunstone.runAction("Datastore.show",req.request.data[0][0][0]),1000);
+            Sunstone.runAction("Datastore.show",req.request.data[0][0]);
         },
         elements: datastoreElements,
-        error: onError,
-        notify: true
+        error: onError
     },
 
     "Datastore.chmod" : {
         type: "single",
         call: OpenNebula.Datastore.chmod,
-        error: onError,
-        notify: true
+        callback: function (req) {
+            Sunstone.runAction("Datastore.show",req.request.data[0]);
+        },
+        error: onError
     },
 
     "Datastore.addtocluster" : {
@@ -438,28 +441,18 @@ var datastore_actions = {
             {
                 Sunstone.runAction("Cluster.adddatastore",cluster,ds);
             }
-            Sunstone.runAction("Datastore.show",ds);
-            Sunstone.runAction("Datastore.showinfo",ds);
         },
-        elements: datastoreElements,
-        notify:true
-    },
-
-    "Datastore.help" : {
-        type: "custom",
-        call: function() {
-            hideDialog();
-            $('div#datastores_tab div.legend_div').slideToggle();
-        }
+        callback: function (req) {
+            Sunstone.runAction("Datastore.show",req.request.data[0][0]);
+        },
+        elements: datastoreElements
     },
 
     "Datastore.rename" : {
         type: "single",
         call: OpenNebula.Datastore.rename,
         callback: function(request) {
-            notifyMessage(tr("Datastore renamed correctly"));
-            Sunstone.runAction('Datastore.showinfo',request.request.data[0][0]);
-            Sunstone.runAction('Datastore.list');
+            Sunstone.runAction('Datastore.show',request.request.data[0][0]);
         },
         error: onError,
         notify: true
@@ -533,7 +526,7 @@ var datastores_tab = {
           <th>'+tr("Owner")+'</th>\
           <th>'+tr("Group")+'</th>\
           <th>'+tr("Name")+'</th>\
-          <th>'+tr("Capacity")+'</th>\
+          <th style="width:25%;">'+tr("Capacity")+'</th>\
           <th>'+tr("Cluster")+'</th>\
           <th>'+tr("Basepath")+'</th>\
           <th>'+tr("TM MAD")+'</th>\
@@ -709,18 +702,9 @@ function updateDatastoreInfo(request,ds){
                  <td class="value_td">'+info.BASE_PATH+'</td>\
                  <td></td>\
               </tr>\
-              <thead><tr><th colspan="3" style="width:130px">'+tr("Capacity")+'</th>\</tr></thead>\
               <tr>\
-                <td class="key_td">' + tr("Total") + '</td>\
-                <td class="value_td" colspan="2">'+(is_system_ssh ? '-' : humanize_size_from_mb(info.TOTAL_MB))+'</td>\
-              </tr>\
-              <tr>\
-                <td class="key_td">' + tr("Used") + '</td>\
-                <td class="value_td" colspan="2">'+(is_system_ssh ? '-' : humanize_size_from_mb(info.USED_MB))+'</td>\
-              </tr>\
-              <tr>\
-                <td class="key_td">' + tr("Free") + '</td>\
-                <td class="value_td" colspan="2">'+(is_system_ssh ? '-' : humanize_size_from_mb(info.FREE_MB))+'</td>\
+                <td class="key_td">'+tr("Capacity")+'</td>\
+                <td class="value_td" colspan="2">' + generate_datastore_capacity_bar(info, info.TYPE) + '</td>\
               </tr>\
               <tr>\
                 <td class="key_td">' + tr("Limit") + '</td>\
