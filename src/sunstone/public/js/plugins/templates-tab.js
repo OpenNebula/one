@@ -1899,8 +1899,8 @@ function add_disks_tab(dialog) {
     $( "#storageTab i.remove-tab" ).live( "click", function() {
         var target = $(this).parent().attr("href");
         var dd = $(this).closest('dd');
-        var dl = $(this).closest('.tabs-content');
-        var content = $(target + 'Tab');
+        var dl = $(this).closest('dl');
+        var content = $(target);
 
         dd.remove();
         content.remove();
@@ -1962,8 +1962,8 @@ function add_nics_tab(dialog) {
     $( "#networkTab i.remove-tab" ).live( "click", function() {
         var target = $(this).parent().attr("href");
         var dd = $(this).closest('dd');
-        var dl = $(this).closest('.tabs-content');
-        var content = $(target + 'Tab');
+        var dl = $(this).closest('dl');
+        var content = $(target);
 
         dd.remove();
         content.remove();
@@ -2680,7 +2680,8 @@ function add_ioTab(dialog) {
       cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
   });
 
-  $( "#ioTab i.remove-tab", dialog).live( "click", function() {
+  $(document).off('click', "#ioTab i.remove-tab");
+  $(document).on('click', "#ioTab i.remove-tab", function(){
       $(this).closest("tr").remove()
   });
 }
