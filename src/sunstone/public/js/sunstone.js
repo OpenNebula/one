@@ -1240,9 +1240,10 @@ function updateView(item_list,dataTable){
 function updateSingleElement(element,dataTable,tag){
     var nodes = dataTable.fnGetNodes();
     var tr = $(tag,nodes).parents('tr')[0];
+    var checked_val = $('input.check_item',tr).attr('checked');
     var position = dataTable.fnGetPosition(tr);
     dataTable.fnUpdate(element,position,undefined,false);
-    $('input.check_item',tr).attr('checked','checked');
+    $('input.check_item',tr).attr('checked',checked_val);
     recountCheckboxes(dataTable);
 }
 
