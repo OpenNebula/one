@@ -2298,7 +2298,7 @@ function add_osTab(dialog) {
                 '<div id="initrd_path_inputs" class="initrd_path hidden">'+
                   '<div class="row">'+
                     '<div class="large-12 columns">'+
-                      '<label class="right inline" for="INITRD">'+tr("PATH")+
+                      '<label class="inline" for="INITRD">'+tr("PATH")+
                         '<span class="tip">'+tr("Path to the initrd image")+'</span>'+
                       '</label>'+
                       '<input type="text" id="INITRD" name="initrd"/>'+
@@ -2456,8 +2456,8 @@ function add_osTab(dialog) {
       }
     });
 
-    $("#refresh_kernel_table", dialog).die();
-    $("#refresh_kernel_table", dialog).live('click', function(){
+    $("#refresh_kernel_table", $("#osTab")).die();
+    $("#refresh_kernel_table", $("#osTab")).live('click', function(){
         update_datatable_template_files(dataTable_template_kernel)
     });
 
@@ -2511,8 +2511,8 @@ function add_osTab(dialog) {
 
 
 
-    $("#refresh_ramdisk_table", dialog).die();
-    $("#refresh_ramdisk_table", dialog).live('click', function(){
+    $("#refresh_ramdisk_table", $("#osTab")).die();
+    $("#refresh_ramdisk_table", $("#osTab")).live('click', function(){
         update_datatable_template_files(datTable_template_initrd)
     });
 
@@ -2771,8 +2771,8 @@ function add_contextTab(dialog) {
                   '</table>'+
                 '</div>'+
               '</div>'+
-              '<div class="vm_param row" id="selected_files_spans">'+
-                  '<div class="large-12 columns">' +
+              '<div class="vm_param row">'+
+                  '<div class="large-12 columns" id="selected_files_spans">' +
                     '<span id="select_files" class="radius secondary label">'+tr("Please select files from the list")+'</span> '+
                     '<span id="files_selected" class="radius secondary label"  style="display: none;">'+tr("You selected the following files:")+'</span> '+
                   '</div>'+
@@ -2895,8 +2895,8 @@ function add_contextTab(dialog) {
 
 
 
-    $("#refresh_context_table", dialog).die();
-    $("#refresh_context_table", dialog).live('click', function(){
+    $("#refresh_context_table", $('#contextTab')).die();
+    $("#refresh_context_table", $('#contextTab')).live('click', function(){
         update_datatable_template_files(datTable_template_context)
     });
 
@@ -2948,8 +2948,8 @@ function add_contextTab(dialog) {
       return true;
   });
 
-  $( "span.fa fa-times", $("#selected_files_spans") ).die()
-  $( "span.fa fa-times", $("#selected_files_spans") ).live( "click", function() {
+  $( "span.fa.fa-times", $("#selected_files_spans") ).die()
+  $( "span.fa.fa-times", $("#selected_files_spans") ).live( "click", function() {
      $(this).parent().remove();
      var file_id = $(this).parent().attr("image_id");
 
@@ -3163,8 +3163,8 @@ function add_schedulingTab(dialog) {
         ]
     });
 
-    $("#refresh_hosts_placement", dialog).die();
-    $("#refresh_hosts_placement", dialog).live('click', function(){
+    $("#refresh_hosts_placement", $("#placementTab")).die();
+    $("#refresh_hosts_placement", $("#placementTab")).live('click', function(){
         update_datatable_template_hosts(dataTable_template_hosts)
     });
 
@@ -3215,7 +3215,7 @@ function add_schedulingTab(dialog) {
         return true;
     });
 
-    $("span.fa fa-times", $('div#selected_hosts_template', dialog)).live( "click", function() {
+    $("span.fa.fa-times", $('div#selected_hosts_template', dialog)).live( "click", function() {
         $(this).parent().remove();
         var id = $(this).parent().attr("ID");
 
@@ -3243,8 +3243,8 @@ function add_schedulingTab(dialog) {
         ]
     });
 
-    $("#refresh_clusters_placement", dialog).die();
-    $("#refresh_clusters_placement", dialog).live('click', function(){
+    $("#refresh_clusters_placement", $("#placementTab")).die();
+    $("#refresh_clusters_placement", $("#placementTab")).live('click', function(){
         update_datatable_template_clusters(dataTable_template_clusters);
     });
 
@@ -3299,7 +3299,7 @@ function add_schedulingTab(dialog) {
         return true;
     });
 
-    $( "#selected_clusters_template span.fa fa-times" , dialog).live( "click", function() {
+    $( "#selected_clusters_template span.fa.fa-times" , dialog).live( "click", function() {
         $(this).parent().remove();
         var id = $(this).parent().attr("ID");
 
