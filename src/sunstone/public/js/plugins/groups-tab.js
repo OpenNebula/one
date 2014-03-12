@@ -69,11 +69,9 @@ var create_group_tmpl =
         </div>\
         <div class="row">\
           <div class="large-12 columns">\
-            <dl class="tabs" id="group_zones_tabs" data-tab>\
-            </dl>\
+            <dl class="tabs" id="group_zones_tabs" data-tab></dl>\
+            <div class="tabs-content group_zones_tabs_content"></div>\
           </div>\
-        </div>\
-        <div class="tabs-content group_zones_tabs_content">\
         </div>\
       </div>\
     </div>\
@@ -730,7 +728,7 @@ function setup_add_rp_dialog(group){
                 </dl>\
                 <div class="tabs-content group_zones_tabs_content">\
                 </div>\
-            </div>\
+             </div>\
             <div class="reveal-footer">\
               <div class="form_buttons">\
                 <button class="button radius right success" id="add_rp_submit">'+tr("Add")+'</button>\
@@ -925,7 +923,6 @@ function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id
         return true;
     });
 
-    // TODOO clicking "x" does not remove the cluster
     $( ".fa-times", zone_section ).live( "click", function() {
         $(this).parent().remove();
         var id = $(this).parent().attr("ID");
@@ -1046,6 +1043,8 @@ function update_datatable_group_clusters(datatable, zone_id, group) {
               }
               if (provider.CLUSTER_ID == "10")
                 $('#zone'+zone_id+'_add_rpresources_all').click();
+              else
+                $('#zone'+zone_id+'_add_rpresources_cluster').click();
             }
           });
         }
@@ -1071,7 +1070,7 @@ var add_resource_tab = function(zone_id, zone_name, dialog, id_suffix, group) {
     group_clusters_row_hash[zone_id] = {};
 
     // Append the new div containing the tab and add the tab to the list
-    var html_tab_content = '<div id="'+str_zone_tab_id+'Tab" class="content" style="display: block;">'+
+    var html_tab_content = '<div id="'+str_zone_tab_id+'Tab" class="content">'+
         generate_group_resource_tab_content(str_zone_tab_id, str_datatable_id, zone_id, group) +
         '</div>'
     $(html_tab_content).appendTo($(".group_zones_tabs_content", dialog));

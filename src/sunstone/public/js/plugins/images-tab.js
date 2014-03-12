@@ -630,7 +630,7 @@ function updateImageInfo(request,img){
         title : tr("Info"),
         icon: "fa-info-circle",
         content:
-        '<form class="custom"><div class="row">\
+        '<div class="row">\
         <div class="large-6 columns">\
         <table id="info_img_table" class="dataTable extended_table">\
            <thead>\
@@ -711,8 +711,7 @@ function updateImageInfo(request,img){
                                                img_info.ID,
                                                "Attributes") +
        '</div>\
-     </div>\
-     </form>'
+     </div>'
     }
 
     $("#div_edit_chg_type_link").die();

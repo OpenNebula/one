@@ -195,7 +195,7 @@ var file_actions = {
         call: OpenNebula.Image.update,
         callback: function(request) {
             notifyMessage("Template updated correctly");
-            Sunstone.runAction('File.showinfo',request.request.data[0]);
+            Sunstone.runAction('File.showinfo',request.request.data[0][0]);
         },
         error: onError
     },
@@ -467,7 +467,7 @@ function updateFileInfo(request,file){
         title : tr("Info"),
         icon: "fa-info-circle",
         content:
-        '<form class="custom"><div class="row">\
+        '<div class="row">\
         <div class="large-6 columns">\
         <table id="info_file_table" class="dataTable extended_table">\
            <thead>\
@@ -540,8 +540,7 @@ function updateFileInfo(request,file){
                                                file_info.ID,
                                                "Attributes") +
        '</div>\
-     </div>\
-     </form>'
+     </div>'
     }
 
     $("#div_edit_chg_type_files_link").die();

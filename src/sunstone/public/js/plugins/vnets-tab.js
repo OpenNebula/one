@@ -480,7 +480,7 @@ var vnet_actions = {
         call: OpenNebula.Network.update,
         callback: function(request) {
             notifyMessage("Template updated correctly");
-            Sunstone.runAction('Network.showinfo',request.request.data[0]);
+            Sunstone.runAction('Network.showinfo',request.request.data[0][0]);
         },
         error: onError
     },

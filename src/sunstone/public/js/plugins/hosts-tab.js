@@ -237,7 +237,7 @@ var host_actions = {
         call: OpenNebula.Host.update,
         callback: function(request) {
             notifyMessage(tr("Template updated correctly"));
-            Sunstone.runAction('Host.showinfo',request.request.data[0]);
+            Sunstone.runAction('Host.showinfo',request.request.data[0][0]);
         },
         error: onError
     },

@@ -1030,7 +1030,7 @@ var cluster_actions = {
         call: OpenNebula.Cluster.update,
         callback: function(request,response){
            notifyMessage(tr("Cluster updated correctly"));
-           Sunstone.runAction('Cluster.show',response.CLUSTER.ID);
+           Sunstone.runAction('Cluster.showinfo',request.request.data[0][0]);
         },
         error: onError
     },
@@ -1054,7 +1054,7 @@ var cluster_actions = {
         call: OpenNebula.Cluster.rename,
         callback: function(request) {
             notifyMessage(tr("Cluster renamed correctly"));
-            Sunstone.runAction('Cluster.showinfo',request.request.data[0]);
+            Sunstone.runAction('Cluster.showinfo',request.request.data[0][0]);
             Sunstone.runAction('Cluster.list');
         },
         error: onError,
@@ -1236,7 +1236,7 @@ function updateClusterInfo(request,cluster){
         title : tr("Info"),
         icon: "fa-info-circle",
         content :
-        '<form class="custom"><div class="row">\
+        '<div class="row">\
         <div class="large-6 columns">\
         <table id="info_cluster_table" class="dataTable extended_table">\
             <thead>\
@@ -1265,8 +1265,7 @@ function updateClusterInfo(request,cluster){
                                          cluster_info.ID,
                                          tr("Attributes")) +
        '</div>\
-     </div>\
-     </form>'
+     </div>'
     }
 
     var cluster_host_tab = {

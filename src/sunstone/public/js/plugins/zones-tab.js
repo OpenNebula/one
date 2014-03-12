@@ -322,7 +322,7 @@ function updateZoneInfo(request,zone){
         title : tr("Info"),
         icon: "fa-info-circle",
         content :
-        '<form class="custom"><div class="row">\
+        '<div class="row">\
         <div class="large-6 columns">\
         <table id="info_zone_table" class="dataTable extended_table">\
             <thead>\
@@ -351,8 +351,7 @@ function updateZoneInfo(request,zone){
                                            zone_info.ID,
                                            "Attributes") +
          '</div>\
-        </div>\
-        </form>'
+        </div>'
     }
 
     //Sunstone.updateInfoPanelTab(info_panel_name,tab_name, new tab object);

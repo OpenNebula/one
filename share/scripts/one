@@ -235,9 +235,9 @@ case "$1" in
     restart)
         stop
         setup
-        start        
+        start
         echo "oned and scheduler restarted"
-        ;;        
+        ;;
     start-sched)
         start_sched
         ;;
