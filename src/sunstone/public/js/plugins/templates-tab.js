@@ -256,10 +256,21 @@ var template_actions = {
     "Template.show" : {
         type : "single",
         call: OpenNebula.Template.show,
-        callback: updateTemplateElement,
+        callback: function(request, response){
+            var tab = dataTable_templates.parents(".tab");
+
+            if (Sunstone.rightInfoVisible(tab)) {
+                // individual view
+                updateTemplateInfo(request, response);
+            }
+
+            // datatable row
+            updateTemplateElement(request, response);
+        },
         error: onError
     },
 
+    // TODO: only needed by insert_permissions_table in sunstone.js
     "Template.showinfo" : {
         type: "single",
         call: OpenNebula.Template.show,
@@ -272,7 +283,7 @@ var template_actions = {
         call: function () {
           var tab = dataTable_templates.parents(".tab");
           if (Sunstone.rightInfoVisible(tab)) {
-            Sunstone.runAction("Template.showinfo", Sunstone.rightInfoResourceId(tab))
+            Sunstone.runAction("Template.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_templates);
             Sunstone.runAction("Template.list");
@@ -311,7 +322,6 @@ var template_actions = {
         call: OpenNebula.Template.rename,
         callback: function(request) {
             notifyMessage(tr("Template renamed correctly"));
-            Sunstone.runAction('Template.showinfo',request.request.data[0]);
             Sunstone.runAction("Template.show",request.request.data[0]);
         },
         error: onError,
@@ -1779,11 +1789,6 @@ function updateTemplateInfo(request,template){
 
     // Populate permissions grid
     setPermissionsTable(template_info,'');
-
-    $("#template_info_panel_refresh", $("#template_info_panel")).click(function(){
-      $(this).html(spinner);
-      Sunstone.runAction('Template.showinfo', template_info.ID);
-    })
 }
 
 //Given the JSON of a VM template (or of a section of it), it crawls
@@ -4772,7 +4777,7 @@ $(document).ready(function(){
 
       initCheckAllBoxes(dataTable_templates);
       tableCheckboxesListener(dataTable_templates);
-      infoListener(dataTable_templates,'Template.showinfo');
+      infoListener(dataTable_templates,'Template.show');
 
       $('div#templates_tab div.legend_div').hide();
 
