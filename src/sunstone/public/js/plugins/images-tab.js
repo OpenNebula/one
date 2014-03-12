@@ -267,11 +267,15 @@ var image_actions = {
         type : "single",
         call: OpenNebula.Image.show,
         callback: function(request, response){
+            var tab = dataTable_images.parents(".tab");
+
+            if (Sunstone.rightInfoVisible(tab)) {
+                // individual view
+                updateImageInfo(request, response);
+            }
+
             // datatable row
             updateImageElement(request, response);
-
-            // individual view
-            updateImageInfo(request, response);
         },
         error: onError
     },
