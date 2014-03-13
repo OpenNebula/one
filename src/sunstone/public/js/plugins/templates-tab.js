@@ -332,7 +332,8 @@ var template_actions = {
         type: "single",
         call: OpenNebula.Template.update,
         callback: function(request, response){
-            $create_template_dialog.foundation('reveal', 'close')
+            $create_template_dialog.foundation('reveal', 'close');
+            templateShow(request);
             notifyMessage(tr("Template updated correctly"));
         },
         error: onError
@@ -1649,8 +1650,10 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
         '<legend>'+tr("ICMP")+'</legend>'+
         '<div class="row">'+
           '<div class="large-12 columns">'+
-            '<input type="checkbox" name="icmp_type" value="ICMP" id="'+str_nic_tab_id+'icmp_type">'+
-            '<label for="'+str_nic_tab_id+'icmp_type">'+ tr("Drop")+'</label>'+
+            '<label>'+
+                '<input type="checkbox" name="icmp_type" value="ICMP" id="icmp_type"> '+
+                tr("Drop")+
+            '</label>'+
           '</div>'+
         '</div>'+
       '</fieldset>'+
@@ -1663,6 +1666,27 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
     });
 
     return html;
+}
+
+function retrieve_nic_tab_data(context){
+    var data  = {};
+    addSectionJSON(data, context);
+
+    var tcp = $("input.tcp_type:checked", context).val();
+    if (tcp) {
+        data[tcp] = $("#TCP_PORTS", context).val();
+    }
+
+    var udp = $("input.udp_type:checked", context).val();
+    if (udp) {
+        data[udp] = $("#UDP_PORTS", context).val();
+    }
+
+    if ($("#icmp_type", context).is(":checked")) {
+        data["ICMP"] = "drop"
+    }
+
+    return data
 }
 
 function setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id) {
@@ -3606,22 +3630,7 @@ function initialize_create_template_dialog(dialog) {
         vm_json["NIC"] = [];
 
         $('.nic',dialog).each(function(){
-          var hash  = {};
-          addSectionJSON(hash, this);
-
-          var tcp = $("input.tcp_type:checked").val();
-          if (tcp) {
-            hash[tcp] = $("#TCP_PORTS", this).val();
-          }
-
-          var udp = $("input.udp_type:checked").val();
-          if (udp) {
-            hash[udp] = $("#UDP_PORTS", this).val();
-          }
-
-          if ($("#icmp_type", this).is(":checked")) {
-            hash["ICMP"] = "drop"
-          }
+          hash = retrieve_nic_tab_data(this);
 
           if (!$.isEmptyObject(hash)) {
               vm_json["NIC"].push(hash);

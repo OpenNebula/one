@@ -241,7 +241,7 @@ var deploy_vm_tmpl ='\
             <div class="row">\
                 <div class="large-6 columns">\
                     <input type="checkbox" name="enforce" id="enforce"/>\
-                    <label for="vm_id">'+tr("Enforce")+'\
+                    <label for="enforce">'+tr("Enforce")+'\
                       <span class="tip">' + tr("If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced") +'</span>\
                     </label>\
                 </div>\
@@ -2447,9 +2447,7 @@ function setupAttachNicDialog(){
 
     $('#attach_nic_form',dialog).submit(function(){
         var vm_id = $('#vm_id', this).text();
-
-        var data  = {};
-        addSectionJSON(data, this);
+        var data = retrieve_nic_tab_data(this);
 
         var obj = {NIC: data}
         Sunstone.runAction('VM.attachnic', vm_id, obj);
