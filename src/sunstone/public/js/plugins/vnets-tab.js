@@ -346,7 +346,12 @@ var vnet_actions = {
     "Network.show" : {
         type: "single",
         call: OpenNebula.Network.show,
-        callback: updateVNetworkElement,
+        callback: function(request, response) {
+            updateVNetworkElement(request, response);
+            if (Sunstone.rightInfoVisible($("#vnets-tab"))) {
+                updateVNetworkInfo(request, response);
+            }
+        },
         error: onError
     },
 
@@ -363,7 +368,7 @@ var vnet_actions = {
         call: function(){
           var tab = dataTable_vNetworks.parents(".tab");
           if (Sunstone.rightInfoVisible(tab)) {
-            Sunstone.runAction("Network.showinfo", Sunstone.rightInfoResourceId(tab))
+            Sunstone.runAction("Network.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_vNetworks);
             Sunstone.runAction("Network.list");
@@ -381,19 +386,21 @@ var vnet_actions = {
     "Network.publish" : {
         type: "multiple",
         call: OpenNebula.Network.publish,
-        callback: vnShow,
+        callback: function(req) {
+          Sunstone.runAction("Network.show",req.request.data[0][0]);
+        },
         elements: vnElements,
-        error: onError,
-        notify: true
+        error: onError
     },
 
     "Network.unpublish" : {
         type: "multiple",
         call: OpenNebula.Network.unpublish,
-        callback: vnShow,
+        callback: function(req) {
+          Sunstone.runAction("Network.show",req.request.data[0][0]);
+        },
         elements: vnElements,
-        error: onError,
-        notify: true
+        error: onError
     },
 
     "Network.delete" : {
@@ -401,86 +408,88 @@ var vnet_actions = {
         call: OpenNebula.Network.del,
         callback: deleteVNetworkElement,
         elements: vnElements,
-        error: onError,
-        notify: true
+        error: onError
     },
 
     "Network.addleases" : {
         type: "single",
         call: OpenNebula.Network.addleases,
-        callback: vnShow,
-        error: onError,
-        notify: false
+        callback: function(req) {
+          Sunstone.runAction("Network.show",req.request.data[0][0]);
+        },
+        error: onError
     },
 
     "Network.rmleases" : {
         type: "single",
         call: OpenNebula.Network.rmleases,
-        callback: vnShow,
-        error: onError,
-        notify: false
+        callback: function(req) {
+          Sunstone.runAction("Network.show",req.request.data[0][0]);
+        },
+        error: onError
     },
 
     "Network.hold" : {
         type: "single",
         call: OpenNebula.Network.hold,
-        callback: vnShow,
-        error: onError,
-        notify: false
+        callback: function(req) {
+          Sunstone.runAction("Network.show",req.request.data[0][0]);
+        },
+        error: onError
     },
 
     "Network.release" : {
         type: "single",
         call: OpenNebula.Network.release,
-        callback: vnShow,
-        error: onError,
-        notify: false
+        callback: function(req) {
+          Sunstone.runAction("Network.show",req.request.data[0][0]);
+        },
+        error: onError
     },
 
     "Network.chown" : {
         type: "multiple",
         call: OpenNebula.Network.chown,
-        callback: vnShow,
+        callback: function(req) {
+          Sunstone.runAction("Network.show",req.request.data[0]);
+        },
         elements: vnElements,
-        error:onError,
-        notify: true
+        error:onError
     },
 
     "Network.chgrp" : {
         type: "multiple",
         call: OpenNebula.Network.chgrp,
-        callback: vnShow,
+        callback: function(req) {
+          Sunstone.runAction("Network.show",req.request.data[0]);
+        },
         elements: vnElements,
-        error:onError,
-        notify: true
+        error:onError
     },
 
     "Network.chmod" : {
         type: "single",
         call: OpenNebula.Network.chmod,
-//        callback
-        error: onError,
-        notify: true
+        callback: function(req) {
+          Sunstone.runAction("Network.show",req.request.data[0][0]);
+        },
+        error: onError
     },
 
     "Network.rename" : {
         type: "single",
         call: OpenNebula.Network.rename,
         callback: function(request) {
-            notifyMessage(tr("VirtualNetwork renamed correctly"));
-            Sunstone.runAction('Network.showinfo',request.request.data[0]);
-            Sunstone.runAction("Network.list");
+            Sunstone.runAction('Network.show',request.request.data[0][0]);
         },
-        error: onError,
-        notify: true
+        error: onError
     },
 
     "Network.update_template" : {
         type: "single",
         call: OpenNebula.Network.update,
         callback: function(request) {
-            notifyMessage("Template updated correctly");
-            Sunstone.runAction('Network.showinfo',request.request.data[0][0]);
+            Sunstone.runAction('Network.show',request.request.data[0][0]);
         },
         error: onError
     },
@@ -504,18 +513,9 @@ var vnet_actions = {
                 Sunstone.runAction("Cluster.addvnet",cluster,vnet);
         },
         callback: function(request) {
-            Sunstone.runAction('Network.showinfo',request.request.data[0]);
+            Sunstone.runAction('Network.show',request.request.data[0]);
         },
-        elements: vnElements,
-        notify: true
-    },
-
-    "Network.help" : {
-        type: "custom",
-        call: function() {
-            hideDialog();
-            $('div#vnets_tab div.legend_div').slideToggle();
-        }
+        elements: vnElements
     }
 };
 
@@ -562,13 +562,7 @@ var vnet_buttons = {
         type: "confirm",
         layout: "del",
         text: tr("Delete")
-    },
-
-    //"Network.help" : {
-    //    type: "action",
-    //    text: '?',
-    //    alwaysActive: true
-    //}
+    }
 }
 
 var vnet_info_panel = {
@@ -618,10 +612,6 @@ Sunstone.addInfoPanel('vnet_info_panel',vnet_info_panel);
 // return list of selected elements in list
 function vnElements(){
     return getSelectedNodes(dataTable_vNetworks);
-}
-
-function vnShow(req){
-    Sunstone.runAction("Network.show",req.request.data[0][0]);
 }
 
 //returns an array with the VNET information fetched from the JSON object
