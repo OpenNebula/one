@@ -370,19 +370,19 @@ var migrate_vm_tmpl ='\
     </div>\
     <br>\
     <br>\
-    <dl class="accordion" id="advanced_toggle" data-accordion>\
+    <dl class="accordion" id="advanced_migrate_toggle" data-accordion>\
          <dd><a href="#advanced_migrate"> '+tr("Advanced options")+'</a></dd>\
-        <div id="advanced_migrate" class="content">\
-            <div class="row">\
-                <div class="large-6 columns">\
-                    <input type="checkbox" name="enforce" id="enforce"/>\
-                    <label for="vm_id">'+tr("Enforce")+'\
-                      <span class="tip">' + tr("If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced") +'</span>\
-                    </label>\
-                </div>\
+    </dl>\
+    <div id="advanced_migrate" class="content">\
+        <div class="row">\
+            <div class="large-6 columns">\
+                <input type="checkbox" name="enforce" id="enforce"/>\
+                <label for="vm_id">'+tr("Enforce")+'\
+                  <span class="tip">' + tr("If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced") +'</span>\
+                </label>\
             </div>\
         </div>\
-    </dl>\
+    </div>\
     <div class="form_buttons reveal-footer">\
       <div class="form_buttons">\
          <button class="button radius right success" id="migrate_vm_proceed" value="VM.migrate">'+tr("Migrate")+'</button>\
@@ -3281,7 +3281,7 @@ function setupMigrateVMDialog(live){
     });
 
     $('#advanced_migrate', dialog).hide();
-    $('#advanced_toggle',dialog).click(function(){
+    $('#advanced_migrate_toggle',dialog).click(function(){
         $('#advanced_migrate',dialog).toggle();
         return false;
     });
