@@ -62,11 +62,16 @@
 }
 
 .left-content {
-  padding-top: 30px;
+  padding-top: 31px;
 }
 
 .left-header {
   margin-bottom: 10px !important;
+
+  img  {
+    height: 30px;
+    width: 140px;
+  }
 }
 
 .right-content {
@@ -230,7 +235,7 @@ select {
 
 .button.secondary {
   color: #555;
-  margin: 0px 3px;
+  margin-right: 3px;
 }
 
 // Dropdown
