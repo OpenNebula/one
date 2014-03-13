@@ -52,33 +52,40 @@ class SunstoneViews
     # group template and configured in this sunstone.
     #
     def available_views(user_name, group_name)
-        user = OpenNebula::User.new_with_id(
-                                OpenNebula::User::SELF,
-                                $cloud_auth.client(user_name))
+        onec = $cloud_auth.client(user_name)
+        user = OpenNebula::User.new_with_id(OpenNebula::User::SELF, onec)
+
         user.info
 
-        group = OpenNebula::Group.new_with_id(user.gid, $cloud_auth.client(user_name))
-        group.info
+        available = Array.new
 
-        available_views = Array.new
+        user.groups.each { |gid|
+            group = OpenNebula::Group.new_with_id(gid, onec)
 
-        if group["TEMPLATE/SUNSTONE_VIEWS"]
-            available_views = group["TEMPLATE/SUNSTONE_VIEWS"].split(",")
-        end
+            group.info
 
-        available_views.reject!{|v| !@views.has_key?(v)} #sanitize array views
+            if group["TEMPLATE/SUNSTONE_VIEWS"]
+                available << group["TEMPLATE/SUNSTONE_VIEWS"].split(",")
+            end
+        }
 
-        return available_views.uniq if !available_views.empty?
+        available.flatten!
 
-        available_views << @views_config['users'][user_name] if @views_config['users']
-        available_views << @views_config['groups'][group_name] if @views_config['groups']
-        available_views << @views_config['default']
+        available.reject!{|v| !@views.has_key?(v)} #sanitize array views
 
-        available_views.flatten!
+        return available.uniq if !available.empty?
 
-        available_views.reject!{|v| !@views.has_key?(v)} #sanitize array views
+        # Fallback to default views if none is defined in templates
 
-        return available_views.uniq
+        available << @views_config['users'][user_name] if @views_config['users']
+        available << @views_config['groups'][group_name] if @views_config['groups']
+        available << @views_config['default']
+
+        available.flatten!
+
+        available.reject!{|v| !@views.has_key?(v)} #sanitize array views
+
+        return available.uniq
     end
 
     def available_tabs
