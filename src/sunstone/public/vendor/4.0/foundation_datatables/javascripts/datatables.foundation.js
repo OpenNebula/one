@@ -2,7 +2,7 @@
 $.extend( true, $.fn.dataTable.defaults, {
     "sDom":
         "t"+
-        "<'row'<'small-6 columns'i><'small-6 columns'p>>",
+        "<'row'<'small-6 columns'i><'small-6 columns'lp>>",
     "oLanguage": {
         "sLengthMenu": "_MENU_"
     }

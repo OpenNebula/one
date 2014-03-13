@@ -365,6 +365,12 @@ fieldset {
   }
 }
 
+
+.remove-tab:hover {
+  color: $alert-color;
+  cursor: pointer;
+}
+
 /*.tabs:not(.vertical) {
   dd.active {
     border-bottom: 0px;
@@ -463,6 +469,30 @@ fieldset {
 }
 
 
+ul.pagination li a {
+  background: #f5f5f5;
+  border: 1px solid #efefef;
+  color: #555;
+}
+
+ul.pagination li.unavailable a {
+  background: #fff;
+  border: 0px;
+  color: #999;
+}
+
+ul.pagination li.current a {
+  background: #fff;
+  border: 1px solid #efefef;
+  color: #333;
+
+  &:hover {
+    background: #fff;
+    border: 1px solid #efefef;
+    color: #333;
+  }
+}
+
 div.dataTables_length label,
 div.dataTables_filter label,
 div.dataTables_info {
@@ -476,9 +506,16 @@ div.dataTables_length label {
   margin-bottom: 0;
 }
 
+div.dataTables_length {
+  float: right !important;
+}
+
 div.dataTables_length select {
   width: 75px;
   margin-bottom: 0;
+  font-size: 10px !important;
+  height: 26px !important;
+  margin-left: 15px;
 }
 
 div.dataTables_filter label {
@@ -565,6 +602,7 @@ div.dataTables_scrollFoot table {
 .jGrowl-notification, .jGrowl-notify-submit {
     background-color: #dfdfdf!important;
     color: #333;
+    width: 335px !important;
 }
 
 .jGrowl-notify-error {
@@ -574,6 +612,7 @@ div.dataTables_scrollFoot table {
 
 .jGrowl-closer {
     background-color: #555!important;
+    width: 335px !important;
 }
 
 .jGrowl-close {
