@@ -58,7 +58,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
             puts exit_code.message if OpenNebula.is_error?(exit_code) && exit_code.message
             return -1
         else
-            puts "ID: #{group.id.to_s}"
+            puts "ID: #{group.id}"
             return 0
         end
     end
@@ -108,7 +108,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                 end
             end
 
-            column :VMS , "Number of VMS", :size=>9 do |d|             
+            column :VMS , "Number of VMS", :size=>9 do |d|
                 begin
                     q = quotas[d['ID']]
                     limit = q['VM_QUOTA']['VM']["VMS"]
