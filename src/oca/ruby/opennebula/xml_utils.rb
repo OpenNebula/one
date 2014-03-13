@@ -70,7 +70,7 @@ module OpenNebula
 
         def end_element(name)
             if @levels[@current].empty?
-                @levels[@current-1][name] = @value
+                @levels[@current-1][name] = @value || {}
             else
                 @levels[@current-1][name] = @levels[@current]
                 @levels[@current] = Hash.new
