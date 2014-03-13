@@ -172,8 +172,8 @@ module OpenNebula
         end
 
         # Sets the user quota limits
-        # @param quota [String] a template (XML or txt) with the new quota limits 
-        # 
+        # @param quota [String] a template (XML or txt) with the new quota limits
+        #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def set_quota(quota)
@@ -193,6 +193,13 @@ module OpenNebula
         # [return] _Integer_ the element's group ID
         def gid
             self['GID'].to_i
+        end
+
+        # Returns a list with all the group IDs for the user including primary
+        # [return] _Array_ with the group ID's (as integers)
+        def groups
+            all_groups = self.retrieve_elements("GROUPS/ID")
+            all_groups.collect! {|x| x.to_i}
         end
     end
 end
