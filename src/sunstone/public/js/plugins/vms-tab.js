@@ -1853,12 +1853,24 @@ function printActionsTable(vm_info)
 // Returns an HTML string with the json keys and values
 function fromJSONtoActionsTable(actions_array){
     var str = ""
-    if (!actions_array){ return "";}
+    var empty = '\
+    <tr id="no_actions_tr">\
+        <td colspan="6">' + tr("No actions to show") + '</td>\
+    </tr>';
+
+    if (!actions_array){
+        return empty;
+    }
+
     if (!$.isArray(actions_array))
     {
       var tmp_array = new Array();
       tmp_array[0]  = actions_array;
       actions_array = tmp_array;
+    }
+
+    if (!actions_array.length){
+        return empty;
     }
 
     $.each(actions_array, function(index, scheduling_action){
