@@ -47,22 +47,37 @@ var create_group_tmpl =
 <div class="reveal-body">\
   <form id="create_group_form" action="">\
     <div class="row">\
-      <div class="columns large-6">\
+      <div class="columns large-5">\
           <label for="name">'+tr("Name")+':\
             <input type="text" name="name" id="name" />\
           </label>\
       </div>\
-      <div class="columns large-6">\
-          <dl class="tabs right-info-tabs text-center" data-tab>\
-               <dd class="active"><a href="#resource_providers"><i class="fa fa-cloud"></i><br>'+tr("Resources")+'</a></dd>\
+      <div class="columns large-7">\
+          <dl class="tabs right-info-tabs text-center right" data-tab>\
+               <dd class="active"><a href="#resource_views"><i class="fa fa-eye"></i><br>'+tr("Views")+'</a></dd>\
+               <dd><a href="#resource_providers"><i class="fa fa-cloud"></i><br>'+tr("Resources")+'</a></dd>\
                <dd><a href="#administrators"><i class="fa fa-upload"></i><br>'+tr("Admin")+'</a></dd>\
-               <dd><a href="#resource_views"><i class="fa fa-eye"></i><br>'+tr("Views")+'</a></dd>\
                <dd><a href="#resource_creation"><i class="fa fa-folder-open"></i><br>'+tr("Permissions")+'</a></dd>\
           </dl>\
       </div>\
     </div>\
     <div class="tabs-content">\
-    <div id="resource_providers" class="row content active">\
+    <div id="resource_views" class="content active">\
+      <div class="row">\
+        <div class="large-12 columns">\
+          <p class="subheader">'
+            +tr("Allow users in this group to use the following Sunstone views")+
+            '&emsp;<span class="tip">'+tr("This will add to the group template the selected views so users beloing to the group are able to use them")+'</span>\
+          </p>\
+        </div>\
+      </div>\
+      <div class="row">\
+        <div class="large-12 columns">'+
+            insert_views()
+        +'</div>\
+      </div>\
+    </div>\
+    <div id="resource_providers" class="row content">\
       <div class="large-12 columns">\
         <div class="row">\
           <div class="large-12 columns">\
@@ -105,21 +120,6 @@ var create_group_tmpl =
           </div>' +
           user_creation_div +   // from users-tab.js
         '</div>\
-    </div>\
-    <div id="resource_views" class="row content">\
-      <div class="row">\
-        <div class="large-6 columns">\
-          <p class="subheader">'
-            +tr("Allow users in this group to use the following views")+
-            '&emsp;<span class="tip">'+tr("This will add to the group template the selected views so users beloing to the group are able to use them")+'</span>\
-          </p>\
-        </div>\
-      </div>\
-      <div class="row">\
-        <div class="large-6 columns">'+
-            insert_views()
-        +'</div>\
-      </div>\
     </div>\
     <div id="resource_creation" class="content">\
         <div class="row">\
@@ -451,7 +451,7 @@ function insert_views(){
     views_checks_str = views_checks_str +
              '<input type="checkbox" id="group_view_'+views_array[i]+'" value="'+views_array[i]+'"/>' +
              '<label for="group_view_'+views_array[i]+'">'+views_array[i]+
-             '</label><br>'
+             '</label>'
   }
   return views_checks_str;
 }
