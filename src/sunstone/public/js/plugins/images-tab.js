@@ -18,7 +18,7 @@
 
 size_images = 0;
 
-var create_image_tmpl ='<div class="row">\
+var create_image_tmpl ='<div class="row create_image_header">\
     <div class="large-5 columns">\
       <h3 class="subheader">'+tr("Create Image")+'</h3>'+
     '</div>'+

@@ -74,6 +74,9 @@ var market_actions = {
                   <a id='disk_tab"+tab_id+"' href='#Tab"+tab_id+"'>"+tr("Image")+"</a>\
                 </dd>").appendTo($("dl#marketplace_import_dialog_tabs"));
 
+                $(".create_image_header", image_dialog).hide();
+                $("#wizard_image_reset_button", image_dialog).hide();
+
                 initialize_create_image_dialog(image_dialog);
                 initialize_datastore_info_create_image_dialog(image_dialog);
 
@@ -185,7 +188,9 @@ var market_buttons = {
 var marketplace_import_dialog =
 '<div id="marketplace_import_dialog">'+
   '<div class="row">'+
-    '<h3 class="subheader">'+tr("Import Appliance")+'</h3>'+
+    '<div class="large-12 columns">'+
+      '<h3 class="subheader">'+tr("Import Appliance")+'</h3>'+
+    '</div>'+
   '</div>'+
   '<div class="reveal-body">'+
     '<dl class="tabs" id="marketplace_import_dialog_tabs" data-tab>'+
