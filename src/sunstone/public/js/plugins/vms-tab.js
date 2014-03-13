@@ -435,7 +435,17 @@ var vm_actions = {
     "VM.show" : {
         type: "single",
         call: OpenNebula.VM.show,
-        callback: updateVMachineElement,
+        callback: function(request, response){
+            var tab = dataTable_vMachines.parents(".tab");
+
+            if (Sunstone.rightInfoVisible(tab)) {
+                // individual view
+                updateVMInfo(request, response);
+            }
+
+            // datatable row
+            updateVMachineElement(request, response);
+        },
         error: onError
     },
 
@@ -450,7 +460,7 @@ var vm_actions = {
         call : function (){
           var tab = dataTable_vMachines.parents(".tab");
           if (Sunstone.rightInfoVisible(tab)) {
-            Sunstone.runAction("VM.showinfo", Sunstone.rightInfoResourceId(tab))
+            Sunstone.runAction("VM.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_vMachines);
             Sunstone.runAction("VM.list");
@@ -631,7 +641,7 @@ var vm_actions = {
         type: "single",
         call: OpenNebula.VM.saveas,
         callback: function(request) {
-            Sunstone.runAction("VM.showinfo", request.request.data[0]);
+            Sunstone.runAction("VM.show", request.request.data[0]);
         },
         error:onError,
         notify: true
@@ -641,7 +651,7 @@ var vm_actions = {
         type: "single",
         call: OpenNebula.VM.snapshot_create,
         callback: function(request) {
-            Sunstone.runAction("VM.showinfo", request.request.data[0]);
+            Sunstone.runAction("VM.show", request.request.data[0]);
         },
         error:onError,
         notify: true
@@ -650,7 +660,7 @@ var vm_actions = {
         type: "single",
         call: OpenNebula.VM.snapshot_revert,
         callback: function(request) {
-            Sunstone.runAction("VM.showinfo", request.request.data[0]);
+            Sunstone.runAction("VM.show", request.request.data[0]);
         },
         error:onError,
         notify: true
@@ -659,7 +669,7 @@ var vm_actions = {
         type: "single",
         call: OpenNebula.VM.snapshot_delete,
         callback: function(request) {
-            Sunstone.runAction("VM.showinfo", request.request.data[0]);
+            Sunstone.runAction("VM.show", request.request.data[0]);
         },
         error:onError,
         notify: true
@@ -817,8 +827,7 @@ var vm_actions = {
         type: "multiple",
         call: OpenNebula.VM.chown,
         callback: function(request) {
-            Sunstone.runAction('VM.showinfo',request.request.data[0]);
-            Sunstone.runAction("VM.show",request.request.data[0]);
+            Sunstone.runAction('VM.show',request.request.data[0]);
         },
         elements: vmElements,
         error: onError,
@@ -828,7 +837,6 @@ var vm_actions = {
         type: "multiple",
         call: OpenNebula.VM.chgrp,
         callback: function(request) {
-            Sunstone.runAction('VM.showinfo',request.request.data[0]);
             Sunstone.runAction("VM.show",request.request.data[0]);
         },
         elements: vmElements,
@@ -846,7 +854,7 @@ var vm_actions = {
         type: "single",
         call: OpenNebula.VM.attachdisk,
         callback: function(request) {
-            Sunstone.runAction("VM.showinfo", request.request.data[0][0]);
+            Sunstone.runAction("VM.show", request.request.data[0][0]);
         },
         error: onError,
         notify: true
@@ -855,7 +863,7 @@ var vm_actions = {
         type: "single",
         call: OpenNebula.VM.detachdisk,
         callback: function(request) {
-            Sunstone.runAction("VM.showinfo", request.request.data[0][0]);
+            Sunstone.runAction("VM.show", request.request.data[0][0]);
         },
         error: onError,
         notify: true
@@ -864,7 +872,7 @@ var vm_actions = {
         type: "single",
         call: OpenNebula.VM.attachnic,
         callback: function(request) {
-            Sunstone.runAction("VM.showinfo", request.request.data[0]);
+            Sunstone.runAction("VM.show", request.request.data[0]);
         },
         error: onError,
         notify: true
@@ -873,7 +881,7 @@ var vm_actions = {
         type: "single",
         call: OpenNebula.VM.resize,
         callback: function(request) {
-            Sunstone.runAction("VM.showinfo", request.request.data[0]);
+            Sunstone.runAction("VM.show", request.request.data[0]);
         },
         error: onError,
         notify: true
@@ -882,7 +890,7 @@ var vm_actions = {
         type: "single",
         call: OpenNebula.VM.detachnic,
         callback: function(request) {
-            Sunstone.runAction("VM.showinfo", request.request.data[0]);
+            Sunstone.runAction("VM.show", request.request.data[0]);
         },
         error: onError,
         notify: true
@@ -900,8 +908,7 @@ var vm_actions = {
         call: OpenNebula.VM.rename,
         callback: function(request) {
             notifyMessage(tr("VirtualMachine renamed correctly"));
-            Sunstone.runAction('VM.showinfo',request.request.data[0]);
-            Sunstone.runAction("VM.list");
+            Sunstone.runAction('VM.show',request.request.data[0]);
         },
         error: onError,
         notify: true
@@ -912,8 +919,7 @@ var vm_actions = {
         call: OpenNebula.VM.update,
         callback: function(request,response){
            notifyMessage(tr("VirtualMachine updated correctly"));
-           Sunstone.runAction('VM.showinfo',request.request.data[0]);
-           Sunstone.runAction("VM.list");
+           Sunstone.runAction('VM.show',request.request.data[0]);
         },
         error: onError
     },
@@ -923,7 +929,7 @@ var vm_actions = {
         call: OpenNebula.VM.update,
         callback: function(request,response){
            notifyMessage(tr("VirtualMachine updated correctly"));
-           Sunstone.runAction("VM.showinfo", request.request.data[0]);
+           Sunstone.runAction("VM.show", request.request.data[0]);
         },
         error: onError
     },
@@ -1697,11 +1703,6 @@ function updateVMInfo(request,vm){
 
     // Populate permissions grid
     setPermissionsTable(vm_info,'');
-
-    $("#vm_info_panel_refresh", $("#vm_info_panel")).click(function(){
-      $(this).html(spinner);
-      Sunstone.runAction('VM.showinfo', vm_info.ID);
-    })
 }
 
 function updateVMDisksInfo(request,vm){
@@ -3515,7 +3516,7 @@ $(document).ready(function(){
 
       initCheckAllBoxes(dataTable_vMachines);
       tableCheckboxesListener(dataTable_vMachines);
-      infoListener(dataTable_vMachines,'VM.showinfo');
+      infoListener(dataTable_vMachines,'VM.show');
 
       $('div#vms_tab div.legend_div').hide();
 
