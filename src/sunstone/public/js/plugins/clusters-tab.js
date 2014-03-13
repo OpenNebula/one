@@ -74,8 +74,10 @@ var datastore_datatable_table_tmpl='<thead>\
 
 
 var create_cluster_tmpl ='<div class="row">\
-    <h3 id="create_cluster_header" class="subheader">'+tr("Create Cluster")+'</h3>\
-    <h3 id="update_cluster_header" class="subheader">'+tr("Update Cluster")+'</h3>\
+    <div class="large-12 columns">\
+      <h3 id="create_cluster_header" class="subheader">'+tr("Create Cluster")+'</h3>\
+      <h3 id="update_cluster_header" class="subheader">'+tr("Update Cluster")+'</h3>\
+    </div>\
   </div>\
   <div class="reveal-body">\
   <form id="cluster_create_tabs" class="custom">\

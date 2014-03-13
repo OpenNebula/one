@@ -66,8 +66,10 @@ var ServiceTemplate = {
 
 var create_service_template_tmpl = '\
 <div class="row">\
+    <div class="large-12 columns">\
     <h3 id="create_service_template_header" class="subheader">'+tr("Create Service Template")+'</h3>\
     <h3 id="update_service_template_header" class="subheader" hidden>'+tr("Update Service Template")+'</h3>\
+    </div>\
 </div>\
 <div class="reveal-body create_form">\
   <form id="create_service_template_form" action="">\

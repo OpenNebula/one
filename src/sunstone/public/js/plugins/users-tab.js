@@ -78,7 +78,9 @@ var user_creation_div =
 
 var create_user_tmpl =
 '<div class="row">\
-  <h3 class="subheader" id="create_user_header">'+tr("Create User")+'</h3>\
+  <div class="large-12 columns">\
+    <h3 class="subheader" id="create_user_header">'+tr("Create User")+'</h3>\
+  </div>\
 </div>\
 <form id="create_user_form" action="">'+
   user_creation_div +
@@ -89,7 +91,9 @@ var create_user_tmpl =
 </form>';
 
 var update_pw_tmpl = '<div class="row">\
-  <h3 id="create_vnet_header" class="subheader">'+tr("Update Password")+'</h3>\
+  <div class="large-12 columns">\
+    <h3 id="create_vnet_header" class="subheader">'+tr("Update Password")+'</h3>\
+  </div>\
 </div>\
 <form id="update_user_pw_form" action="">\
       <div class="row">\
@@ -113,7 +117,9 @@ var update_pw_tmpl = '<div class="row">\
 </form>';
 
 var change_password_tmpl = '<div class="row">\
-  <h3 id="change_password_header" class="subheader">'+tr("Change authentication")+'</h3>\
+  <div class="large-12 columns">\
+    <h3 id="change_password_header" class="subheader">'+tr("Change authentication")+'</h3>\
+  </div>\
 </div>\
 <form id="change_password_form" action="">\
   <div class="row">\
@@ -244,7 +250,9 @@ var quotas_tmpl = '<div class="row">\
     </div>\
   </div>'
 var user_quotas_tmpl = '<div class="row">\
-  <h3 id="create_vnet_header" class="subheader">'+tr("Update Quota")+'</h3>\
+  <div class="large-12 columns">\
+    <h3 id="create_vnet_header" class="subheader">'+tr("Update Quota")+'</h3>\
+  </div>\
 </div>\
 <div class="reveal-body">\
 <form id="user_quotas_form" action="">'+

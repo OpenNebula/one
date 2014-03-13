@@ -20,7 +20,9 @@ var HOST_HISTORY_LENGTH = 40;
 
 var create_host_tmpl =
 '<div class="row">\
-    <h3 id="create_cluster_header" class="subheader">'+tr("Create Host")+'</h3>\
+    <div class="large-12 columns">\
+      <h3 id="create_cluster_header" class="subheader">'+tr("Create Host")+'</h3>\
+    </div>\
   </div>\
   <div class="reveal-body">\
   <form id="create_host_form" action="" class="">\

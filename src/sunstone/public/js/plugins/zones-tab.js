@@ -53,7 +53,9 @@ function popUpCreateZoneDialog(){
 
 var create_zone_tmpl =
 '<div class="row">\
-  <h3 id="create_zone_header" class="subheader">'+tr("Create Zone")+'</h3>\
+  <div class="large-12 columns">\
+    <h3 id="create_zone_header" class="subheader">'+tr("Create Zone")+'</h3>\
+  </div>\
 </div>\
 <form id="create_zone_form" action="">\
   <div class="row">\

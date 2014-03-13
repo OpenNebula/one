@@ -40,7 +40,9 @@ var group_acct_graphs = [
 
 var create_group_tmpl =
 '<div class="row">\
-  <h3 id="create_group_header">'+tr("Create Group")+'</h3>\
+  <div class="large-12 columns">\
+    <h3 id="create_group_header">'+tr("Create Group")+'</h3>\
+  </div>\
 </div>\
 <div class="reveal-body">\
   <form id="create_group_form" action="">\

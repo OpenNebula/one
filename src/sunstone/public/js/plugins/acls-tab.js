@@ -20,7 +20,9 @@ var $create_acl_dialog;
 
 var create_acl_tmpl =
 '<div class="row">\
-  <h3 id="create_vnet_header" class="subheader">'+tr("Create ACL")+'</h3>\
+    <div class="large-12 columns">\
+        <h3 id="create_vnet_header" class="subheader">'+tr("Create ACL")+'</h3>\
+    </div>\
 </div>\
 <div class="reveal-body">\
 <form id="create_acl_form" action="">\

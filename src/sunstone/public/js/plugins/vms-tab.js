@@ -49,7 +49,9 @@ var netUsage = {
 
 var create_vm_tmpl ='\
 <div class="row">\
-  <h3 id="create_vnet_header" class="subheader">'+tr("Create Virtual Machine")+'</h3>\
+  <div class="large-12 columns">\
+    <h3 id="create_vnet_header" class="subheader">'+tr("Create Virtual Machine")+'</h3>\
+  </div>\
 </div>\
 <div class="reveal-body">\
   <form id="create_vm_form" action="">\
@@ -174,7 +176,9 @@ var create_vm_tmpl ='\
 
 var deploy_vm_tmpl ='\
 <div class="row">\
-  <h3 id="deploy_vm_header" class="subheader">'+tr("Deploy Virtual Machine")+'</h3>\
+  <div class="large-12 columns">\
+    <h3 id="deploy_vm_header" class="subheader">'+tr("Deploy Virtual Machine")+'</h3>\
+  </div>\
 </div>\
 <div class="reveal-body">\
   <form id="deploy_vm_form" action="">\
@@ -303,7 +307,9 @@ var deploy_vm_tmpl ='\
 
 var migrate_vm_tmpl ='\
 <div class="row">\
-  <h3 id="migrate_vm_header" class="subheader">'+tr("Migrate Virtual Machine")+'</h3>\
+  <div class="large-12 columns">\
+    <h3 id="migrate_vm_header" class="subheader">'+tr("Migrate Virtual Machine")+'</h3>\
+  </div>\
 </div>\
 <div class="reveal-body">\
   <form id="migrate_vm_form" action="">\
@@ -2066,7 +2072,9 @@ function setupSaveAsDialog(){
     var dialog = $save_as_dialog;
 
     dialog.html('<div class="row">\
-  <h3 class="subheader" id="">'+tr("Snapshot")+'</h3>\
+  <div class="large-12 columns">\
+    <h3 class="subheader" id="">'+tr("Snapshot")+'</h3>\
+  </div>\
 </div>\
 <form id="save_as_form" action="">\
       <div class="row">\
@@ -2150,7 +2158,9 @@ function setupAttachDiskDialog(){
     var dialog = $attach_disk_dialog;
 
     dialog.html('<div class="row">\
-      <h3 class="subheader" id="">'+tr("Attach new disk")+'</h3>\
+      <div class="large-12 columns">\
+        <h3 class="subheader" id="">'+tr("Attach new disk")+'</h3>\
+      </div>\
     </div>\
         <div class="reveal-body">\
     <form id="attach_disk_form" action="">\
@@ -2409,7 +2419,9 @@ function setupAttachNicDialog(){
     var dialog = $attach_nic_dialog;
 
     dialog.html('<div class="row">\
-      <h3 class="subheader" id="">'+tr("Attach new nic")+'</h3>\
+      <div class="large-12 columns">\
+        <h3 class="subheader" id="">'+tr("Attach new nic")+'</h3>\
+      </div>\
     </div>\
         <div class="reveal-body">\
     <form id="attach_nic_form" action="">\
@@ -2566,7 +2578,9 @@ function setupResizeCapacityDialog(){
     var dialog = $resize_capacity_dialog;
 
     dialog.html('<div class="row">\
-      <h3 class="subheader" id="">'+tr("Resize VM capacity")+'</h3>\
+      <div class="large-12 columns">\
+        <h3 class="subheader" id="">'+tr("Resize VM capacity")+'</h3>\
+      </div>\
     </div>\
     <div class="reveal-body">\
     <form id="resize_capacity_form" action="">\
@@ -2758,7 +2772,9 @@ function setupSnapshotDialog(){
     var dialog = $snapshot_dialog;
 
     dialog.html('<div class="row">\
-  <h3 class="subheader" id="">'+tr("Snapshot")+'</h3>\
+      <div class="large-12 columns">\
+    <h3 class="subheader" id="">'+tr("Snapshot")+'</h3>\
+  </div>\
 </div>\
 <form id="snapshot_form" action="">\
       <div class="row">\
@@ -3357,15 +3373,17 @@ function setupVNC(){
 
     dialog.html('\
   <div class="row">\
-    <h3 class="subheader" id="vnc_dialog">'+tr("VNC")+' \
-        <span id="VNC_status">'+tr("Loading")+'</span>\
-        <span id="VNC_buttons">\
-          <input type=button value="Send CtrlAltDel" id="sendCtrlAltDelButton">\
-          <a id="open_in_a_new_window" href="" target="_blank" title="'+tr("Open in a new window")+'">\
-            <i class="fa fa-external-link detach-vnc-icon"/>\
-          </a>\
-        </span>\
-    </h3>\
+    <div class="large-12 columns">\
+      <h3 class="subheader" id="vnc_dialog">'+tr("VNC")+' \
+          <span id="VNC_status">'+tr("Loading")+'</span>\
+          <span id="VNC_buttons">\
+            <input type=button value="Send CtrlAltDel" id="sendCtrlAltDelButton">\
+            <a id="open_in_a_new_window" href="" target="_blank" title="'+tr("Open in a new window")+'">\
+              <i class="fa fa-external-link detach-vnc-icon"/>\
+            </a>\
+          </span>\
+      </h3>\
+    </div>\
   </div>\
   <div class="reveal-body" style="width:100%; overflow-x:overlay">\
     <canvas id="VNC_canvas" width="640px">\
