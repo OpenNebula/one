@@ -1911,7 +1911,7 @@ function add_disks_tab(dialog) {
         content.remove();
 
         if (dd.attr("class") == 'active') {
-            //TODOO dl.foundationTabs("set_tab", dl.children('dd').last());
+            $('a', dl.children('dd').last()).click();
         }
     });
 
@@ -1974,7 +1974,7 @@ function add_nics_tab(dialog) {
         content.remove();
 
         if (dd.attr("class") == 'active') {
-            //TODOO dl.foundationTabs("set_tab", dl.children('dd').last());
+            $('a', dl.children('dd').last()).click();
         }
     });
 
