@@ -3215,7 +3215,8 @@ function add_schedulingTab(dialog) {
         return true;
     });
 
-    $("span.fa.fa-times", $('div#selected_hosts_template', dialog)).live( "click", function() {
+    $(document).off("click", 'div#selected_hosts_template span.fa.fa-times');
+    $(document).on("click",  'div#selected_hosts_template span.fa.fa-times', function() {
         $(this).parent().remove();
         var id = $(this).parent().attr("ID");
 
@@ -3299,7 +3300,8 @@ function add_schedulingTab(dialog) {
         return true;
     });
 
-    $( "#selected_clusters_template span.fa.fa-times" , dialog).live( "click", function() {
+    $(document).off("click", 'div#selected_clusters_template span.fa.fa-times');
+    $(document).on("click",  'div#selected_clusters_template span.fa.fa-times', function() {
         $(this).parent().remove();
         var id = $(this).parent().attr("ID");
 
