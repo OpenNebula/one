@@ -1268,7 +1268,7 @@ function stringJSON(json){
 function notifySubmit(action, args, extra_param){
     var action_text = action.replace(/OpenNebula\./,'').replace(/\./,' ');
 
-    var msg = '<h1>'+tr("Submitted")+'</h1>';
+    var msg;
     if (!args || (typeof args == 'object' && args.constructor != Array)){
 
         msg += action_text;
@@ -1285,18 +1285,16 @@ function notifySubmit(action, args, extra_param){
 
 //Notification on error
 function notifyError(msg){
-    msg = "<h1>"+tr("Error")+"</h1>" + msg;
     $.jGrowl(msg, {theme: "jGrowl-notify-error", position: "bottom-right", sticky: true });
 }
 
 //Standard notification
 function notifyMessage(msg){
-    msg = "<h1>"+tr("Info")+"</h1>" + msg;
     $.jGrowl(msg, {theme: "jGrowl-notify-submit", position: "bottom-right"});
 }
 
 function notifyCustom(title, msg, sticky) {
-    msg = "<h1>" + title + "</h1>" + msg;
+    msg = title + msg;
     $.jGrowl(msg, {theme: "jGrowl-notify-submit", position: "bottom-right", sticky: sticky });
 }
 
@@ -2038,7 +2036,7 @@ var Quotas = {
                 default_quotas.VM_QUOTA.VM.VMS);
 
             var quotas_tab_html =
-            '<fieldset><legend>' + tr("VMs") + '</legend><div>'+vms_bar+'</div><br></fieldset>'
+            '<fieldset><legend>' + tr("VMs") + '</legend><div><br>'+vms_bar+'</div><br></fieldset>'
 
             return quotas_tab_html;
         } else {
@@ -2053,7 +2051,7 @@ var Quotas = {
                 default_quotas.VM_QUOTA.VM.CPU);
 
             var quotas_tab_html =
-            '<fieldset><legend>' + tr("CPU") + '</legend><div>'+cpu_bar+'</div><br></fieldset>'
+            '<fieldset><legend>' + tr("CPU") + '</legend><div><br>'+cpu_bar+'</div><br></fieldset>'
 
             return quotas_tab_html;
         } else {
@@ -2068,7 +2066,7 @@ var Quotas = {
                 default_quotas.VM_QUOTA.VM.MEMORY);
 
             var quotas_tab_html =
-            '<fieldset><legend>' + tr("Memory") + '</legend><div>'+memory_bar+'</div><br></fieldset>'
+            '<fieldset><legend>' + tr("Memory") + '</legend><div><br>'+memory_bar+'</div><br></fieldset>'
 
             return quotas_tab_html;
         } else {
@@ -2083,7 +2081,7 @@ var Quotas = {
                 default_quotas.VM_QUOTA.VM.VOLATILE_SIZE);
 
             var quotas_tab_html =
-            '<fieldset><legend>' + tr("Volatile disks") + '</legend><div>'+volatile_bar+'</div><br></fieldset>'
+            '<fieldset><legend>' + tr("Volatile disks") + '</legend><div><br>'+volatile_bar+'</div><br></fieldset>'
 
             return quotas_tab_html;
         } else {
@@ -3731,5 +3729,11 @@ $(document).ready(function(){
     //Start with the dashboard (supposing we have one).
     showTab('dashboard-tab');
 
+    $(document).foundation({
+      reveal : {
+        animation: 'fade',
+        animation_speed: 250
+      }
+    })
 });
 
