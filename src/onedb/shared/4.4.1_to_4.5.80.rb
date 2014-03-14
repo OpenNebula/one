@@ -129,9 +129,12 @@ module Migrator
 
                 template = doc.root.at_xpath("TEMPLATE")
 
-                ["PHYDEV", "VLAN_ID", "BRIDGE"].each do |elem|
-                    template.add_child(doc.create_element(elem)).
-                        add_child(doc.create_cdata(doc.root.at_xpath(elem).text))
+                ["PHYDEV", "VLAN_ID", "BRIDGE"].each do |elem_name|
+                    elem = doc.root.at_xpath(elem_name)
+                    txt  = elem.nil? ? "" : elem.text
+
+                    template.add_child(doc.create_element(elem_name)).
+                        add_child(doc.create_cdata(txt))
                 end
 
                 vlan_text = doc.root.at_xpath("VLAN").text == "0" ? "NO" : "YES"
