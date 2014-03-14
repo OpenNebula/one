@@ -159,7 +159,17 @@ var file_actions = {
     "File.show" : {
         type : "single",
         call: OpenNebula.Image.show,
-        callback: updateFileElement,
+        callback: function(request, response){
+            var tab = dataTable_files.parents(".tab");
+
+            if (Sunstone.rightInfoVisible(tab)) {
+                // individual view
+                updateFileInfo(request, response);
+            }
+
+            // datatable row
+            updateFileElement(request, response);
+        },
         error: onError
     },
 
@@ -175,7 +185,7 @@ var file_actions = {
         call: function () {
           var tab = dataTable_files.parents(".tab");
           if (Sunstone.rightInfoVisible(tab)) {
-            Sunstone.runAction("File.showinfo", Sunstone.rightInfoResourceId(tab))
+            Sunstone.runAction("File.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_files);
             Sunstone.runAction("File.list");
@@ -195,7 +205,7 @@ var file_actions = {
         call: OpenNebula.Image.update,
         callback: function(request) {
             notifyMessage("Template updated correctly");
-            Sunstone.runAction('File.showinfo',request.request.data[0][0]);
+            Sunstone.runAction('File.show',request.request.data[0][0]);
         },
         error: onError
     },
@@ -236,7 +246,6 @@ var file_actions = {
         call: OpenNebula.Image.chown,
         callback:  function (req) {
             Sunstone.runAction("File.show",req.request.data[0][0]);
-            Sunstone.runAction('File.showinfo',req.request.data[0]);
         },
         elements: fileElements,
         error: onError,
@@ -248,7 +257,6 @@ var file_actions = {
         call: OpenNebula.Image.chgrp,
         callback: function (req) {
             Sunstone.runAction("File.show",req.request.data[0][0]);
-            Sunstone.runAction('File.showinfo',req.request.data[0]);
         },
         elements: fileElements,
         error: onError,
@@ -268,7 +276,6 @@ var file_actions = {
         call: OpenNebula.Image.chtype,
         callback: function (req) {
             Sunstone.runAction("File.show",req.request.data[0][0]);
-            Sunstone.runAction("File.list");
         },
         elements: fileElements,
         error: onError,
@@ -286,8 +293,7 @@ var file_actions = {
         call: OpenNebula.Image.rename,
         callback: function(request) {
             notifyMessage(tr("File renamed correctly"));
-            Sunstone.runAction('File.showinfo',request.request.data[0]);
-            Sunstone.runAction('File.list');
+            Sunstone.runAction('File.show',request.request.data[0]);
         },
         error: onError,
         notify: true
@@ -564,20 +570,13 @@ function updateFileInfo(request,file){
     $("#chg_type_select_files").live("change", function() {
         var new_value = $(this).val();
         Sunstone.runAction("File.chtype", file_info.ID, new_value);
-        Sunstone.runAction("File.showinfo", file_info.ID);
     });
 
 
     Sunstone.updateInfoPanelTab("file_info_panel","file_info_tab",info_tab);
     Sunstone.popUpInfoPanel("file_info_panel", "files-tab");
 
-    $("#file_info_panel_refresh", $("#file_info_panel")).click(function(){
-      $(this).html(spinner);
-      Sunstone.runAction('File.showinfo', file_info.ID);
-    })
-
     setPermissionsTable(file_info,'');
-
 }
 
 function enable_all_datastores()
@@ -850,7 +849,7 @@ $(document).ready(function(){
 
       initCheckAllBoxes(dataTable_files);
       tableCheckboxesListener(dataTable_files);
-      infoListener(dataTable_files,'File.showinfo');
+      infoListener(dataTable_files,'File.show');
 
       $('div#files_tab div.legend_div').hide();
       dataTable_files.fnSort( [ [1,config['user_config']['table_order']] ] );
