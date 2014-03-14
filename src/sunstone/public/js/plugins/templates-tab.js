@@ -3959,7 +3959,7 @@ function fillTemplatePopUp(template, dialog){
         else {
             $('input#'+str_disk_tab_id+'radioVolatile', disk_section).click();
             if (disk.SIZE) {
-              $('#SIZE_TMP', disk_section).val(Math.round( disk.SIZE / 1024 ))
+              $('#SIZE_TMP', disk_section).val(disk.SIZE / 1024)
             }
 
         }
@@ -4459,10 +4459,10 @@ function fillTemplatePopUp(template, dialog){
         var packing_regexp = /^-FREE_MB$/;
 
         if (striping_regexp.test(ds_rank)) {
-            $('input[name="ds_rank_select"]#stripingRadio', req_section).click()
+            $('input[name="ds_rank_select"]#stripingDSRadio', req_section).click()
         }
         else if (packing_regexp.test(ds_rank)) {
-            $('input[name="ds_rank_select"]#packingRadio', req_section).click()
+            $('input[name="ds_rank_select"]#packingDSRadio', req_section).click()
         }
 
         $('input#SCHED_DS_RANK', req_section).val(ds_rank);
