@@ -1689,6 +1689,38 @@ function retrieve_nic_tab_data(context){
     return data
 }
 
+function fill_nic_tab_data(template_json, context){
+
+    if (template_json["WHITE_PORTS_TCP"]){
+        var field = $("input.tcp_type[value='WHITE_PORTS_TCP']", context);
+        field.click();
+
+        $("#TCP_PORTS", context).val(template_json["WHITE_PORTS_TCP"]);
+    } else if (template_json["BLACK_PORTS_TCP"]){
+        var field = $("input.tcp_type[value='BLACK_PORTS_TCP']", context);
+        field.click();
+
+        $("#TCP_PORTS", context).val(template_json["BLACK_PORTS_TCP"]);
+    }
+
+    if (template_json["WHITE_PORTS_UDP"]){
+        var field = $("input.udp_type[value='WHITE_PORTS_UDP']", context);
+        field.click();
+
+        $("#UDP_PORTS", context).val(template_json["WHITE_PORTS_UDP"]);
+    } else if (template_json["BLACK_PORTS_UDP"]){
+        var field = $("input.udp_type[value='BLACK_PORTS_UDP']", context);
+        field.click();
+
+        $("#UDP_PORTS", context).val(template_json["BLACK_PORTS_UDP"]);
+    }
+
+    if (template_json["ICMP"]){
+        var field = $("#icmp_type", context);
+        $("#icmp_type", context).attr('checked','checked');
+    }
+}
+
 function setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id) {
     var dataTable_template_networks = $('#'+str_datatable_id, nic_section).dataTable({
       "bAutoWidth":false,
@@ -4000,6 +4032,8 @@ function fillTemplatePopUp(template, dialog){
         })
 
         autoFillInputs(nic, nic_section);
+
+        fill_nic_tab_data(nic, nic_section);
     }
 
     if (template.NIC) {
