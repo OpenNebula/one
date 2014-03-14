@@ -718,20 +718,38 @@ function updateUserInfo(request,user){
      </div>'
     };
 
-    var default_user_quotas = Quotas.default_quotas(info.DEFAULT_USER_QUOTAS)
-    var quotas_tab_html = '<div class="large-3 columns">' + Quotas.vms(info, default_user_quotas) + '</div>';
-    quotas_tab_html += '<div class="large-3 columns">' + Quotas.cpu(info, default_user_quotas) + '</div>';
-    quotas_tab_html += '<div class="large-3 columns">' + Quotas.memory(info, default_user_quotas) + '</div>';
-    quotas_tab_html += '<div class="large-3 columns">' + Quotas.volatile_size(info, default_user_quotas) + '</div>';
-    quotas_tab_html += '<br><br>';
-    quotas_tab_html += '<div class="large-6 columns">' + Quotas.image(info, default_user_quotas) + '</div>';
-    quotas_tab_html += '<div class="large-6 columns">' + Quotas.network(info, default_user_quotas) + '</div>';
-    quotas_tab_html += '<br><br>';
-    quotas_tab_html += '<div class="large-12 columns">' + Quotas.datastore(info, default_user_quotas) + '</div>';
+    var default_user_quotas = Quotas.default_quotas(info.DEFAULT_USER_QUOTAS);
+    var vms_quota = Quotas.vms(info, default_user_quotas);
+    var cpu_quota = Quotas.cpu(info, default_user_quotas);
+    var memory_quota = Quotas.memory(info, default_user_quotas);
+    var volatile_size_quota = Quotas.volatile_size(info, default_user_quotas);
+    var image_quota = Quotas.image(info, default_user_quotas);
+    var network_quota = Quotas.network(info, default_user_quotas);
+    var datastore_quota = Quotas.datastore(info, default_user_quotas);
+
+    var quotas_html;
+    if (vms_quota || cpu_quota || memory_quota || volatile_size_quota || image_quota || network_quota || datastore_quota) {
+      quotas_html = '<div class="large-6 columns">' + vms_quota + '</div>';
+      quotas_html += '<div class="large-6 columns">' + cpu_quota + '</div>';
+      quotas_html += '<div class="large-6 columns">' + memory_quota + '</div>';
+      quotas_html += '<div class="large-6 columns">' + volatile_size_quota+ '</div>';
+      quotas_html += '<br><br>';
+      quotas_html += '<div class="large-6 columns">' + image_quota + '</div>';
+      quotas_html += '<div class="large-6 columns">' + network_quota + '</div>';
+      quotas_html += '<br><br>';
+      quotas_html += '<div class="large-12 columns">' + datastore_quota + '</div>';
+    } else {
+      quotas_html = '<div class="row">\
+              <div class="large-12 columns">\
+                <p class="subheader">'+tr("No quotas defined")+'</p>\
+              </div>\
+            </div>'
+    }
+
     var quotas_tab = {
         title : tr("Quotas"),
         icon: "fa-align-left",
-        content : quotas_tab_html
+        content : quotas_html
     };
 
     Sunstone.updateInfoPanelTab("user_info_panel","user_info_tab",info_tab);
