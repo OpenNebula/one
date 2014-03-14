@@ -1859,7 +1859,7 @@ function addSectionJSON(template_json,context){
     fields.each(function(){
         var field=$(this);
         if (!(field.parents(".vm_param").attr('disabled'))){ //if ! disabled
-            if (field.val().length){ //if has a length
+            if (field.val() != null && field.val().length){ //if has a length
                 template_json[field.attr('id')]=field.val();
             };
         };
