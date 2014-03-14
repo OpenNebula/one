@@ -295,7 +295,7 @@ var user_actions = {
         call: function () {
           var tab = dataTable_users.parents(".tab");
           if (Sunstone.rightInfoVisible(tab)) {
-            Sunstone.runAction("User.showinfo", Sunstone.rightInfoResourceId(tab))
+            Sunstone.runAction("User.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_users);
             Sunstone.runAction("User.list");
@@ -322,9 +322,6 @@ var user_actions = {
     "User.passwd" : {
         type: "multiple",
         call: OpenNebula.User.passwd,
-        callback: function(req,res){
-            notifyMessage(tr("Change password successful"));
-        },
         elements: userElements,
         error: onError
     },
@@ -335,8 +332,7 @@ var user_actions = {
             Sunstone.runAction("User.show",req.request.data[0][0]);
         },
         elements : userElements,
-        error: onError,
-        notify: true
+        error: onError
     },
     "User.addgroup" : {
         type: "multiple",
@@ -345,8 +341,7 @@ var user_actions = {
             Sunstone.runAction("User.show",req.request.data[0][0]);
         },
         elements : userElements,
-        error: onError,
-        notify: true
+        error: onError
     },
     "User.delgroup" : {
         type: "multiple",
@@ -355,8 +350,7 @@ var user_actions = {
             Sunstone.runAction("User.show",req.request.data[0][0]);
         },
         elements : userElements,
-        error: onError,
-        notify: true
+        error: onError
     },
     "User.change_authentication" : {
         type: "custom",
@@ -369,13 +363,17 @@ var user_actions = {
             Sunstone.runAction("User.show",req.request.data[0][0]);
         },
         elements: userElements,
-        error: onError,
-        notify: true
+        error: onError
     },
     "User.show" : {
         type: "single",
         call: OpenNebula.User.show,
-        callback: updateUserElement,
+        callback:   function(request, response) {
+            updateUserElement(request, response);
+            if (Sunstone.rightInfoVisible($("#users-tab"))) {
+                updateUserInfo(request, response);
+            }
+        },
         error: onError
     },
 
@@ -391,16 +389,14 @@ var user_actions = {
         call: OpenNebula.User.del,
         callback: deleteUserElement,
         elements: userElements,
-        error: onError,
-        notify: true
+        error: onError
     },
 
     "User.update_template" : {
         type: "single",
         call: OpenNebula.User.update,
         callback: function(request) {
-            notifyMessage(tr("Template updated correctly"));
-            Sunstone.runAction('User.showinfo',request.request.data[0][0]);
+            Sunstone.runAction('User.show',request.request.data[0][0]);
         },
         error: onError
     },
@@ -431,8 +427,7 @@ var user_actions = {
         call: OpenNebula.User.set_quota,
         elements: userElements,
         callback: function(request) {
-            notifyMessage(tr("Quotas updated correctly"));
-            Sunstone.runAction('User.showinfo',request.request.data[0]);
+            Sunstone.runAction('User.show',request.request.data[0]);
         },
         error: onError
     },
@@ -445,14 +440,6 @@ var user_actions = {
             plot_graph(response,'#user_acct_tab','user_acct_', info);
         },
         error: onError
-    },
-
-    "User.help" : {
-        type: "custom",
-        call: function() {
-            hideDialog();
-            $('div#users_tab div.legend_div').slideToggle();
-        }
     }
 }
 
@@ -759,7 +746,7 @@ function updateUserInfo(request,user){
 
     $("#user_info_panel_refresh", $("#user_info_panel")).click(function(){
       $(this).html(spinner);
-      Sunstone.runAction('User.showinfo', info.ID);
+      Sunstone.runAction('User.show', info.ID);
     })
 };
 
@@ -965,7 +952,7 @@ $(document).ready(function(){
 
       initCheckAllBoxes(dataTable_users);
       tableCheckboxesListener(dataTable_users);
-      infoListener(dataTable_users,'User.showinfo');
+      infoListener(dataTable_users,'User.show');
 
       $('div#users_tab div.legend_div').hide();
       $('div#users_tab_non_admin div.legend_div').hide();
