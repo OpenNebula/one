@@ -495,6 +495,7 @@ $(document).ready(function(){
     setupUpdatePassword();
 
     $(".user-zone-info a.configuration").click(function(){
+        $(document).foundation('dropdown', 'closeall');
         fillUserInfo();
 
         OpenNebula.Group.list(

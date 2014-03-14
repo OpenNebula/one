@@ -3644,6 +3644,8 @@ $(document).ready(function(){
             value = $(this).attr('href');
         }
 
+        $(document).foundation('dropdown', 'closeall');
+
         var action = SunstoneCfg["actions"][value];
         if (!action) {
             notifyError("Action "+value+" not defined.");
@@ -3672,6 +3674,7 @@ $(document).ready(function(){
     //Listen .confirm_buttons. These buttons show a confirmation dialog
     //before running the action.
     $('.confirm_button',main_tabs_context).live("click",function(){
+        $(document).foundation('dropdown', 'closeall');
         popUpConfirmDialog(this);
         return false;
     });
@@ -3679,6 +3682,7 @@ $(document).ready(function(){
     //Listen .confirm_buttons. These buttons show a confirmation dialog
     //with a select box before running the action.
     $('.confirm_with_select_button',main_tabs_context).live("click",function(){
+        $(document).foundation('dropdown', 'closeall');
         popUpConfirmWithSelectDialog(this);
         return false;
     });
@@ -3732,7 +3736,7 @@ $(document).ready(function(){
     $(document).foundation({
       reveal : {
         animation: 'fade',
-        animation_speed: 250
+        animation_speed: 150
       }
     })
 });
