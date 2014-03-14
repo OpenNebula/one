@@ -363,7 +363,17 @@ var service_template_actions = {
     "ServiceTemplate.show" : {
         type : "single",
         call: ServiceTemplate.show,
-        callback: updateServiceTemplateElement,
+        callback: function(request, response){
+            var tab = dataTable_service_templates.parents(".tab");
+
+            if (Sunstone.rightInfoVisible(tab)) {
+                // individual view
+                updateServiceTemplateInfo(request, response);
+            }
+
+            // datatable row
+            updateServiceTemplateElement(request, response);
+        },
         error: onError
     },
 
@@ -387,7 +397,7 @@ var service_template_actions = {
         call: function () {
           var tab = dataTable_service_templates.parents(".tab");
           if (Sunstone.rightInfoVisible(tab)) {
-            Sunstone.runAction("ServiceTemplate.showinfo", Sunstone.rightInfoResourceId(tab))
+            Sunstone.runAction("ServiceTemplate.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_service_templates);
             Sunstone.runAction("ServiceTemplate.list");
@@ -666,12 +676,6 @@ function updateServiceTemplateInfo(request,elem){
     Sunstone.popUpInfoPanel("service_template_info_panel", "oneflow-templates");
 
     setPermissionsTable(elem_info,'');
-
-    $("#service_template_info_panel_refresh", $("#service_template_info_panel")).click(function(){
-        $(this).html(spinner);
-        selected_row_template_role_id = $($('td.markrowselected',serviceTemplaterolesDataTable.fnGetNodes())[1]).html();
-        Sunstone.runAction('ServiceTemplate.showinfo', elem_info.ID);
-    })
 
     var roles = elem_info.TEMPLATE.BODY.roles
     if (roles && roles.length) {
@@ -1114,7 +1118,7 @@ function setupCreateServiceTemplateDialog(){
     });
 
     $('#create_service_template_reset', dialog).click(function(){
-        dialog.remove();
+        dialog.html("");
         setupCreateServiceTemplateDialog();
 
         popUpCreateServiceTemplateDialog();
@@ -1438,7 +1442,7 @@ $(document).ready(function(){
 
         initCheckAllBoxes(dataTable_service_templates);
         tableCheckboxesListener(dataTable_service_templates);
-        infoListener(dataTable_service_templates,'ServiceTemplate.showinfo');
+        infoListener(dataTable_service_templates,'ServiceTemplate.show');
 
         $('div#service_templates_tab div.legend_div').hide();
 

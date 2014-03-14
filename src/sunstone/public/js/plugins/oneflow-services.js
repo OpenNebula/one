@@ -897,7 +897,17 @@ var service_actions = {
     "Service.show" : {
         type : "single",
         call: Service.show,
-        callback: updateServiceElement,
+        callback: function(request, response){
+            var tab = dataTable_services.parents(".tab");
+
+            if (Sunstone.rightInfoVisible(tab)) {
+                // individual view
+                updateServiceInfo(request, response);
+            }
+
+            // datatable row
+            updateServiceElement(request, response);
+        },
         error: onError
     },
 
@@ -925,7 +935,7 @@ var service_actions = {
                     });
                 }
 
-                Sunstone.runAction("Service.showinfo", Sunstone.rightInfoResourceId(tab))
+                Sunstone.runAction("Service.show", Sunstone.rightInfoResourceId(tab))
             } else {
                 waitingNodes(dataTable_services);
                 Sunstone.runAction("Service.list");
@@ -1739,7 +1749,7 @@ $(document).ready(function(){
 
         initCheckAllBoxes(dataTable_services);
         tableCheckboxesListener(dataTable_services);
-        infoListener(dataTable_services,'Service.showinfo');
+        infoListener(dataTable_services,'Service.show');
         dataTable_services.fnSort( [ [1,config['user_config']['table_order']] ] );
     }
 });
