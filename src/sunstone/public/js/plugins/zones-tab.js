@@ -108,7 +108,17 @@ var zone_actions = {
     "Zone.show" : {
         type: "single",
         call: OpenNebula.Zone.show,
-        callback: updateZoneElement,
+        callback: function(request, response){
+            var tab = dataTable_zones.parents(".tab");
+
+            if (Sunstone.rightInfoVisible(tab)) {
+                // individual view
+                updateZoneInfo(request, response);
+            }
+
+            // datatable row
+            updateZoneElement(request, response);
+        },
         error: onError
     },
 
@@ -131,7 +141,7 @@ var zone_actions = {
         call: function(){
           var tab = dataTable_zones.parents(".tab");
           if (Sunstone.rightInfoVisible(tab)) {
-            Sunstone.runAction("Zone.showinfo", Sunstone.rightInfoResourceId(tab))
+            Sunstone.runAction("Zone.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_zones);
             Sunstone.runAction("Zone.list");
@@ -162,7 +172,6 @@ var zone_actions = {
         callback: function(request,response){
            notifyMessage(tr("Zone updated correctly"));
            Sunstone.runAction('Zone.show',request.request.data[0][0]);
-           Sunstone.runAction('Zone.showinfo',request.request.data[0][0]);
         },
         error: onError
     },
@@ -183,7 +192,6 @@ var zone_actions = {
         callback: function(request) {
             notifyMessage(tr("Zone renamed correctly"));
             Sunstone.runAction('Zone.showinfo',request.request.data[0][0]);
-            Sunstone.runAction('Zone.list');
         },
         error: onError,
         notify: true
@@ -360,11 +368,6 @@ function updateZoneInfo(request,zone){
     Sunstone.updateInfoPanelTab("zone_info_panel","zone_info_tab",info_tab);
 
     Sunstone.popUpInfoPanel("zone_info_panel", "zones-tab");
-
-    $("#zone_info_panel_refresh", $("#zone_info_panel")).click(function(){
-      $(this).html(spinner);
-      Sunstone.runAction('Zone.showinfo', zone_info.ID);
-    })
 }
 
 //Prepares the autorefresh for zones
@@ -416,7 +419,7 @@ $(document).ready(function(){
 
       initCheckAllBoxes(dataTable_zones);
       tableCheckboxesListener(dataTable_zones);
-      infoListener(dataTable_zones, "Zone.showinfo");
+      infoListener(dataTable_zones, "Zone.show");
       dataTable_zones.fnSort( [ [1,config['user_config']['table_order']] ] );
     }
 });
