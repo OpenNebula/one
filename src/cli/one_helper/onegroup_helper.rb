@@ -52,7 +52,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
         group = factory
         exit_code , msg = group.create(group_hash)
 
-        puts msg if msg
+        puts msg if msg && !msg.empty?
 
         if (exit_code.class==Fixnum and exit_code < 0) or OpenNebula.is_error?(exit_code)
             puts exit_code.message if OpenNebula.is_error?(exit_code) && exit_code.message
