@@ -121,9 +121,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         if !options.empty?
             helper.create_complete_resource(options)
         elsif args[0]
-            helper.create_resource(options) do |group|
-                group.allocate(args[0])
-            end
+            options[:name] = args[0]
+            helper.create_complete_resource(options)
         end
     end
 
