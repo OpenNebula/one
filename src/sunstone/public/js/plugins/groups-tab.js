@@ -204,7 +204,7 @@ var group_actions = {
           $create_group_dialog.empty();
           setupCreateGroupDialog();
 
-          addGroupElement(request, response);
+          Sunstone.runAction("Group.list");
           notifyCustom(tr("Group created"), " ID: " + response.GROUP.ID, false);
         },
         error : onError
