@@ -690,6 +690,10 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                 str_class.push("alwaysActive");
             }
 
+            if (button.custom_classes) {
+                str_class.push(button.custom_classes);
+            }
+
             var context;
             var text;
             switch (button.layout) {

@@ -1113,6 +1113,12 @@ var vm_buttons = {
                 The recovery may be done by failing or succeeding the pending operation. \
                 YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation \
                 was successful or not.")
+    },
+    "VM.startvnc" : {
+        type: "action",
+        text: '<i class="fa fa-desktop" style="color: rgb(111, 111, 111)"/> '+tr("VNC"),
+        custom_classes: "only-right-info vnc-right-info",
+        tip: tr("")
     }
 }
 
@@ -1703,6 +1709,9 @@ function updateVMInfo(request,vm){
 
     // Populate permissions grid
     setPermissionsTable(vm_info,'');
+
+    // Enable / disable vnc button
+    $(".vnc-right-info").prop("disabled", !enableVnc(vm_info));
 }
 
 function updateVMDisksInfo(request,vm){
@@ -3454,12 +3463,21 @@ function vncCallback(request,response){
     });
 }
 
-function vncIcon(vm){
+// returns true if the vnc button should be enabled
+function enableVnc(vm){
     var graphics = vm.TEMPLATE.GRAPHICS;
     var state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
+
+    return (graphics &&
+        graphics.TYPE &&
+        graphics.TYPE.toLowerCase() == "vnc" &&
+        $.inArray(state, VNCstates)!=-1);
+}
+
+function vncIcon(vm){
     var gr_icon;
 
-    if (graphics && graphics.TYPE && graphics.TYPE.toLowerCase() == "vnc" && $.inArray(state, VNCstates)!=-1){
+    if (enableVnc(vm)){
         gr_icon = '<a class="vnc" href="#" vm_id="'+vm.ID+'">';
         gr_icon += '<i class="fa fa-desktop" style="color: rgb(111, 111, 111)"/>';
     }
