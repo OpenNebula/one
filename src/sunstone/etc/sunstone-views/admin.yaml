@@ -16,9 +16,9 @@ enabled_tabs:
     datastores-tab: true
     vnets-tab: true
     marketplace-tab: true
-    oneflow-dashboard: false
-    oneflow-services: false
-    oneflow-templates: false
+    oneflow-dashboard: true
+    oneflow-services: true
+    oneflow-templates: true
     zones-tab: true
 tabs:
     dashboard-tab:
