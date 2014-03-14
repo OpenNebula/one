@@ -201,35 +201,24 @@ var config_tab_content =
   <a class="close-reveal-modal">&#215;</a>';
 
 
-var settings_update_password = '<div class="panel">\
-  <h3>\
-    <small id="create_vnet_header">'+tr("Update Password")+'</small>\
-  </h3>\
+var settings_update_password = '<div class="row">\
+  <div class="large-12 columns">\
+    <h3 id="create_vnet_header" class="subheader">'+tr("Update Password")+'</h3>\
+  </div>\
 </div>\
 <form id="settings_update_password_form" action="">\
-      <div class="row centered">\
-          <div class="large-4 columns">\
-              <label class="inline right" for="new_password">'+tr("New password")+':</label>\
-          </div>\
-          <div class="large-7 columns">\
+      <div class="row ">\
+          <div class="large-12 columns">\
+              <label for="new_password">'+tr("New password")+'</label>\
               <input type="password" name="new_password" id="new_password" />\
           </div>\
-          <div class="large-1 columns">\
-              <div class=""></div>\
-          </div>\
       </div>\
       <div class="row centered">\
-          <div class="large-4 columns">\
-              <label class="inline right" for="confirm_password">'+tr("Confirm Password")+':</label>\
-          </div>\
-          <div class="large-7 columns">\
+          <div class="large-12 columns">\
+              <label for="confirm_password">'+tr("Confirm Password")+'</label>\
               <input type="password" name="confirm_password" id="confirm_password" />\
           </div>\
-          <div class="large-1 columns">\
-              <div class=""></div>\
-          </div>\
       </div>\
-      <hr>\
       <div class="form_buttons">\
           <button class="button radius right success" id="update_pw_submit" type="submit" value="User.update">'+tr("Change")+'</button>\
       </div>\
@@ -242,7 +231,6 @@ Sunstone.addActions({
         type: "single",
         call: OpenNebula.User.update,
         callback: function(request) {
-            notifyMessage(tr("Template updated correctly"));
             fillUserInfo();
         },
         error: onError
@@ -251,7 +239,6 @@ Sunstone.addActions({
         type: "multiple",
         call: OpenNebula.User.passwd,
         callback: function(req,res){
-            notifyMessage(tr("Change password successful"));
         },
         error: onError
     }
@@ -284,7 +271,7 @@ function setupUpdatePassword() {
         }
 
         Sunstone.runAction("UserSettings.passwd",[-1],pw);
-        $('#settings_update_password',dialogs_context).foundation('reveal', 'close')
+        dialog.foundation('reveal', 'close');
         return false;
     });
 }
