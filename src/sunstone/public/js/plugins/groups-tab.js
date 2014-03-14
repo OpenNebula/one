@@ -77,8 +77,7 @@ var create_group_tmpl =
         +'</div>\
       </div>\
     </div>\
-    <div id="resource_providers" class="row content">\
-      <div class="large-12 columns">\
+    <div id="resource_providers" class="content">\
         <div class="row">\
           <div class="large-12 columns">\
             <h5>' + tr("Zones") +'</h5>\
@@ -90,9 +89,9 @@ var create_group_tmpl =
             <div class="tabs-content group_zones_tabs_content"></div>\
           </div>\
         </div>\
-      </div>\
     </div>\
-    <div id="administrators" class="row content">\
+    <div id="administrators" class=" content">\
+        <div class="row">\
         <div class="large-6 columns">\
           <div class="row">\
             <div class="large-12 columns">\
@@ -120,6 +119,7 @@ var create_group_tmpl =
           </div>' +
           user_creation_div +   // from users-tab.js
         '</div>\
+        </div>\
     </div>\
     <div id="resource_creation" class="content">\
         <div class="row">\
@@ -178,7 +178,9 @@ var create_group_tmpl =
 </div>';
 
 var group_quotas_tmpl = '<div class="row" class="subheader">\
-  <h3 id="create_group_quotas_header">'+tr("Update Quota")+'</h3>\
+  <div class="large-12 columns">\
+    <h3 id="create_group_quotas_header">'+tr("Update Quota")+'</h3>\
+  </div>\
 </div>\
 <div class="reveal-body">\
 <form id="group_quotas_form" action="">'+
@@ -223,7 +225,12 @@ var group_actions = {
     "Group.show" : {
         type: "single",
         call: OpenNebula.Group.show,
-        callback: updateGroupElement,
+        callback:   function(request, response) {
+            updateGroupElement(request, response);
+            if (Sunstone.rightInfoVisible($("#groups-tab"))) {
+                updateGroupInfo(request, response);
+            }
+        },
         error: onError
     },
 
@@ -246,7 +253,7 @@ var group_actions = {
         call: function() {
           var tab = dataTable_groups.parents(".tab");
           if (Sunstone.rightInfoVisible(tab)) {
-            Sunstone.runAction("Group.showinfo", Sunstone.rightInfoResourceId(tab))
+            Sunstone.runAction("Group.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_groups);
             Sunstone.runAction("Group.list");
@@ -259,8 +266,7 @@ var group_actions = {
         type: "single",
         call: OpenNebula.Group.update,
         callback: function(request) {
-            notifyMessage("Template updated correctly");
-            Sunstone.runAction('Group.showinfo',request.request.data[0][0]);
+            Sunstone.runAction('Group.show',request.request.data[0][0]);
         },
         error: onError
     },
@@ -270,8 +276,7 @@ var group_actions = {
         call : OpenNebula.Group.del,
         callback : deleteGroupElement,
         error : onError,
-        elements: groupElements,
-        notify:true
+        elements: groupElements
     },
 
     "Group.fetch_quotas" : {
@@ -296,8 +301,8 @@ var group_actions = {
         type: "multiple",
         call: OpenNebula.Group.set_quota,
         elements: groupElements,
-        callback: function() {
-            notifyMessage(tr("Quotas updated correctly"));
+        callback: function(request,response) {
+            Sunstone.runAction('Group.show',request.request.data[0]);
         },
         error: onError
     },
@@ -312,32 +317,23 @@ var group_actions = {
         error: onError
     },
 
-    "Group.help" : {
-        type: "custom",
-        call: function() {
-            hideDialog();
-            $('div#groups_tab div.legend_div').slideToggle();
-        }
-    },
 
     "Group.add_provider_action" : {
         type: "single",
         call: OpenNebula.Group.add_provider,
         callback: function(request) {
-           Sunstone.runAction('Group.showinfo',request.request.data[0][0]);
+           Sunstone.runAction('Group.show',request.request.data[0][0]);
         },
-        error: onError,
-        notify: true
+        error: onError
     },
 
     "Group.del_provider_action" : {
         type: "single",
         call: OpenNebula.Group.del_provider,
         callback: function(request) {
-          Sunstone.runAction('Group.showinfo',request.request.data[0][0]);
+          Sunstone.runAction('Group.show',request.request.data[0][0]);
         },
-        error: onError,
-        notify: true
+        error: onError
     },
 
     "Group.add_provider" : {
@@ -354,10 +350,9 @@ var group_actions = {
             Sunstone.runAction("Group.add_provider_action", group, extra_param);
         },
         callback: function(request) {
-            Sunstone.runAction('Group.showinfo',request.request.data[0]);
+            Sunstone.runAction('Group.show',request.request.data[0]);
         },
-        elements: groupElements,
-        notify:true
+        elements: groupElements
     },
 
     "Group.del_provider" : {
@@ -374,10 +369,9 @@ var group_actions = {
             Sunstone.runAction("Group.del_provider_action", group, extra_param);
         },
         callback: function(request) {
-            Sunstone.runAction('Group.showinfo',request.request.data[0]);
+            Sunstone.runAction('Group.show',request.request.data[0]);
         },
-        elements: groupElements,
-        notify:true
+        elements: groupElements
     }
 }
 
@@ -568,7 +562,7 @@ function fromJSONtoProvidersTable(group_info){
             <td>' + provider.ZONE_ID + '</td>\
             <td>' + cluster_id + '</td>\
             <td>\
-             <div id="div_minus_rp">\
+             <div id="div_minus_rp" class="text-right">\
                <a id="div_minus_rp_a_'+provider.ZONE_ID+'" class="cluster_id_'+cluster_id+' group_id_'+group_info.ID+'" href="#"><i class="fa fa-trash-o"/></a>\
              </div>\
             </td>\
@@ -715,12 +709,6 @@ function updateGroupInfo(request,group){
     Sunstone.popUpInfoPanel("group_info_panel", 'groups-tab');
 
 
-    $("#group_info_panel_refresh", $("#group_info_panel")).click(function(){
-      $(this).html(spinner);
-      Sunstone.runAction('Group.showinfo', info.ID);
-    })
-
-
     $("#add_rp_button", $("#group_info_panel")).click(function(){
       setup_add_rp_dialog(info);
       $('#add_rp_dialog',dialogs_context).addClass("reveal-modal large max-height").attr("data-reveal", "");
@@ -738,15 +726,19 @@ function setup_add_rp_dialog(group){
 
     dialog.html(
         '<div class="row">\
+          <div class="large-12 columns">\
             <h3 id="create_rp_header" class="subheader">'+tr("Select Resource Providers")+'</h3>\
+          </div>\
         </div>\
         <div class="reveal-body">\
             <div class="row">\
+              <div class="large-12 columns">\
                 <h5>' + tr("Zones") +'</h5>\
                 <dl class="tabs" id="group_zones_tabs" data-tab>\
                 </dl>\
                 <div class="tabs-content group_zones_tabs_content">\
                 </div>\
+              </div>\
              </div>\
             <div class="reveal-footer">\
               <div class="form_buttons">\
@@ -754,18 +746,18 @@ function setup_add_rp_dialog(group){
                 <button class="button secondary radius" id="add_rp_reset_button" type="reset" value="reset">'+tr("Refresh")+'</button>\
               </div>\
             </div>\
-        </div>');
+        </div>\
+        <a class="close-reveal-modal">&#215;</a>');
 
-     $('#add_rp_submit',dialog).die();
-     $('#add_rp_submit',dialog).live( "click", function() {
+     $('#add_rp_submit').die();
+     $('#add_rp_submit').live( "click", function() {
 
        $.each(selected_group_clusters, function(zone_id, zone_clusters) {
            var str_zone_tab_id = 'zone' + zone_id + "_add_rp";
 
            providers_array=group.RESOURCE_PROVIDER
 
-          if (!$.isArray(providers_array))
-          {
+          if (providers_array && !$.isArray(providers_array)) {
             var tmp_array   = new Array();
             tmp_array[0]    = providers_array;
             providers_array = tmp_array;
@@ -842,12 +834,6 @@ function setup_add_rp_dialog(group){
       setup_add_rp_dialog(group);
       $('#add_rp_dialog').addClass("reveal-modal large max-height").attr("data-reveal", "");
       $('#add_rp_dialog').foundation().foundation('reveal', 'open');
-    });
-
-    $('#add_rp_close',dialog).die();
-    $('#add_rp_close',dialog).live( "click", function() {
-      dialog.foundation('reveal', 'close');
-      dialog.html("");
     });
 
     OpenNebula.Zone.list({
@@ -942,7 +928,7 @@ function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id
         return true;
     });
 
-    $( ".fa-times", zone_section ).live( "click", function() {
+    $( ".fa-times" ).live( "click", function() {
         $(this).parent().remove();
         var id = $(this).parent().attr("ID");
 
@@ -1365,7 +1351,7 @@ $(document).ready(function(){
 
       initCheckAllBoxes(dataTable_groups);
       tableCheckboxesListener(dataTable_groups);
-      infoListener(dataTable_groups, 'Group.showinfo');
+      infoListener(dataTable_groups, 'Group.show');
 
       $('div#groups_tab div.legend_div').hide();
       $('div#groups_tab_non_admin div.legend_div').hide();
