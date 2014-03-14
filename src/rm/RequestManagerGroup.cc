@@ -65,7 +65,7 @@ void GroupSetQuota::
 
     group->quota.set(&quota_tmpl, error_str);
 
-    pool->update(group);
+    static_cast<GroupPool *>(pool)->update_quotas(group);
 
     group->unlock();
 

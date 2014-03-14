@@ -198,7 +198,7 @@ int UserSetQuota::user_action(int     user_id,
 
     rc = user->quota.set(&quota_tmpl, error_str);
 
-    pool->update(user);
+    static_cast<UserPool *>(pool)->update_quotas(user);
 
     user->unlock();
 
