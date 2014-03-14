@@ -768,6 +768,22 @@ function setupCreateFileDialog(){
         return false;
     });
 
+    setupTips(dialog);
+
+    $('#wizard_file_reset_button', dialog).click(function(){
+        $('#create_file_dialog').html("");
+        setupCreateFileDialog();
+
+        popUpCreateFileDialog();
+    });
+
+    $('#advanced_file_reset_button', dialog).click(function(){
+        $('#create_file_dialog').html("");
+        setupCreateFileDialog();
+
+        popUpCreateFileDialog();
+        $("a[href='#file_manual']").click();
+    });
 }
 
 function popUpCreateFileDialog(){
@@ -830,7 +846,6 @@ $(document).ready(function(){
       Sunstone.runAction("File.list");
 
       setupCreateFileDialog();
-      setupTips($create_file_dialog);
       setFileAutorefresh();
 
       initCheckAllBoxes(dataTable_files);
