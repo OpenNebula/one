@@ -755,13 +755,15 @@ function setup_add_rp_dialog(group){
        $.each(selected_group_clusters, function(zone_id, zone_clusters) {
            var str_zone_tab_id = 'zone' + zone_id + "_add_rp";
 
-           providers_array=group.RESOURCE_PROVIDER
+           var providers_array=group.RESOURCE_PROVIDER
 
-          if (providers_array && !$.isArray(providers_array)) {
-            var tmp_array   = new Array();
-            tmp_array[0]    = providers_array;
-            providers_array = tmp_array;
-          }
+           if (!providers_array) {
+              providers_array = new Array();
+           } else if (!$.isArray(providers_array)) {
+              var tmp_array   = new Array();
+              tmp_array[0]    = providers_array;
+              providers_array = tmp_array;
+           }
 
            var resource_selection = $("input[name='"+str_zone_tab_id+"']:checked", dialog).val();
            switch (resource_selection){
@@ -775,7 +777,7 @@ function setup_add_rp_dialog(group){
                 add_it = true;
 
                 $.each(providers_array, function(index, provider){
-                  if (provider.ZONE_ID==zone_id && provider.CLUSTER_ID == key)
+                  if (provider.ZONE_ID==zone_id && provider.CLUSTER_ID == 10)
                   {
                     add_it = false;
                   }
