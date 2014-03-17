@@ -322,19 +322,12 @@ var datastore_actions = {
         error: onError
     },
 
-    "Datastore.showinfo" : {
-        type: "single",
-        call: OpenNebula.Datastore.show,
-        callback: updateDatastoreInfo,
-        error: onError
-    },
-
     "Datastore.refresh" : {
         type: "custom",
         call: function(){
           var tab = dataTable_datastores.parents(".tab");
           if (Sunstone.rightInfoVisible(tab)) {
-            Sunstone.runAction("Datastore.showinfo", Sunstone.rightInfoResourceId(tab))
+            Sunstone.runAction("Datastore.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_datastores);
             Sunstone.runAction("Datastore.list");
@@ -756,13 +749,6 @@ function updateDatastoreInfo(request,ds){
     Sunstone.updateInfoPanelTab("datastore_info_panel","datastore_image_tab",datastore_info_tab);
     Sunstone.popUpInfoPanel("datastore_info_panel", "datastores-tab");
 
-
-
-    $("#datastore_info_panel_refresh", $("#datastore_info_panel")).click(function(){
-      $(this).html(spinner);
-      Sunstone.runAction('Datastore.showinfo', info.ID);
-    })
-
     // Define datatables
     // Images datatable
 
@@ -1172,7 +1158,7 @@ $(document).ready(function(){
 
       initCheckAllBoxes(dataTable_datastores);
       tableCheckboxesListener(dataTable_datastores);
-      infoListener(dataTable_datastores,'Datastore.showinfo');
+      infoListener(dataTable_datastores,'Datastore.show');
 
       // Reset filter in case the view was filtered because it was accessed
       // from a single cluster.

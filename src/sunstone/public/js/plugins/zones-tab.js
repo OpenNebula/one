@@ -122,13 +122,6 @@ var zone_actions = {
         error: onError
     },
 
-    "Zone.showinfo" : {
-        type: "single",
-        call: OpenNebula.Zone.show,
-        callback: updateZoneInfo,
-        error: onError
-    },
-
     "Zone.show_to_update" : {
         type: "single",
         call: OpenNebula.Zone.show,
@@ -191,7 +184,7 @@ var zone_actions = {
         call: OpenNebula.Zone.rename,
         callback: function(request) {
             notifyMessage(tr("Zone renamed correctly"));
-            Sunstone.runAction('Zone.showinfo',request.request.data[0][0]);
+            Sunstone.runAction('Zone.show',request.request.data[0][0]);
         },
         error: onError,
         notify: true

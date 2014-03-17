@@ -377,13 +377,6 @@ var service_template_actions = {
         error: onError
     },
 
-    "ServiceTemplate.showinfo" : {
-        type: "single",
-        call: ServiceTemplate.show,
-        callback: updateServiceTemplateInfo,
-        error: onError
-    },
-
     "ServiceTemplate.instantiate" : {
         type: "multiple",
         call: ServiceTemplate.instantiate,

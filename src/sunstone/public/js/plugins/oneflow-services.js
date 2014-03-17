@@ -911,13 +911,6 @@ var service_actions = {
         error: onError
     },
 
-    "Service.showinfo" : {
-        type: "single",
-        call: Service.show,
-        callback: updateServiceInfo,
-        error: onError
-    },
-
     "Service.refresh" : {
         type: "custom",
         call: function () {

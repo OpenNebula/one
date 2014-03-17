@@ -449,12 +449,6 @@ var vm_actions = {
         error: onError
     },
 
-    "VM.showinfo" : {
-        type: "single",
-        call: OpenNebula.VM.show,
-        callback: updateVMInfo,
-        error: onError
-    },
     "VM.refresh" : {
         type: "custom",
         call : function (){

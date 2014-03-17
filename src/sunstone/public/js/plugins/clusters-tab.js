@@ -929,13 +929,6 @@ var cluster_actions = {
         error: onError
     },
 
-    "Cluster.showinfo" : {
-        type: "single",
-        call: OpenNebula.Cluster.show,
-        callback: updateClusterInfo,
-        error: onError
-    },
-
     "Cluster.show_to_update" : {
         type: "single",
         call: OpenNebula.Cluster.show,
@@ -1447,7 +1440,7 @@ $(document).ready(function(){
 
       initCheckAllBoxes(dataTable_clusters);
       tableCheckboxesListener(dataTable_clusters);
-      infoListener(dataTable_clusters, "Cluster.showinfo");
+      infoListener(dataTable_clusters, "Cluster.show");
       dataTable_clusters.fnSort( [ [1,config['user_config']['table_order']] ] );
     }
 });

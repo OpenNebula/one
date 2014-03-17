@@ -270,14 +270,6 @@ var template_actions = {
         error: onError
     },
 
-    // TODO: only needed by insert_permissions_table in sunstone.js
-    "Template.showinfo" : {
-        type: "single",
-        call: OpenNebula.Template.show,
-        callback: updateTemplateInfo,
-        error: onError
-    },
-
     "Template.refresh" : {
         type: "custom",
         call: function () {

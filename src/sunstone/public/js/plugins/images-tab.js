@@ -280,14 +280,6 @@ var image_actions = {
         error: onError
     },
 
-    // TODO: only needed by insert_permissions_table in sunstone.js
-    "Image.showinfo" : {
-        type: "single",
-        call: OpenNebula.Image.show,
-        callback: updateImageInfo,
-        error: onError
-    },
-
     "Image.refresh" : {
         type: "custom",
         call: function () {

@@ -34,7 +34,7 @@ var market_actions = {
         call: function () {
           var tab = dataTable_marketplace.parents(".tab");
           if (Sunstone.rightInfoVisible(tab)) {
-            Sunstone.runAction("Marketplace.showinfo", Sunstone.rightInfoResourceId(tab))
+            Sunstone.runAction("Marketplace.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_marketplace);
             Sunstone.runAction("Marketplace.list");
@@ -163,10 +163,16 @@ var market_actions = {
         },
         error: onError
     },
-    "Marketplace.showinfo" : {
+
+    "Marketplace.show" : {
         type: "single",
         call: OpenNebula.Marketplace.show,
-        callback: updateMarketInfo,
+        callback: function(request, response) {
+//            updateMarketElement(request, response);
+            if (Sunstone.rightInfoVisible($("#marketplace-tab"))) {
+                updateMarketInfo(request, response);
+            }
+        },
         error: onError
     }
 }
@@ -315,11 +321,6 @@ function updateMarketInfo(request,app){
 
     Sunstone.updateInfoPanelTab("marketplace_info_panel", "marketplace_info_tab", info_tab);
     Sunstone.popUpInfoPanel("marketplace_info_panel", "marketplace-tab");
-
-    $("#marketplace_info_panel_refresh", $("#marketplace_info_panel")).click(function(){
-      $(this).html(spinner);
-      Sunstone.runAction('Marketplace.showinfo', app['_id']["$oid"]);
-    })
 };
 
  function infoListenerMarket(dataTable){
@@ -339,7 +340,7 @@ function updateMarketInfo(request,app){
       } else {
           var context = $(this).parents(".tab");
           popDialogLoading();
-          Sunstone.runAction("Marketplace.showinfo",id);
+          Sunstone.runAction("Marketplace.show",id);
           $(".resource-id", context).html(id);
           $('.top_button, .list_button', context).attr('disabled', false);
       }

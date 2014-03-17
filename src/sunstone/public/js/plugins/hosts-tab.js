@@ -150,13 +150,6 @@ var host_actions = {
         error: onError
     },
 
-    "Host.showinfo" : {
-        type: "single",
-        call: OpenNebula.Host.show,
-        callback: updateHostInfo,
-        error: onError
-    },
-
     "Host.refresh" : {
         type: "custom",
         call: function(){
@@ -810,11 +803,6 @@ function updateHostInfo(request,host){
 
     Sunstone.popUpInfoPanel("host_info_panel", "hosts-tab");
 
-
-    $("#host_info_panel_refresh", $("#host_info_panel")).click(function(){
-      $(this).html(spinner);
-      Sunstone.runAction('Host.showinfo', host_info.ID);
-    })
     // TODO: re-use Host.pool_monitor data?
 
     //pop up panel while we retrieve the graphs
@@ -956,7 +944,7 @@ $(document).ready(function(){
 
       initCheckAllBoxes(dataTable_hosts);
       tableCheckboxesListener(dataTable_hosts);
-      infoListener(dataTable_hosts, "Host.showinfo");
+      infoListener(dataTable_hosts, "Host.show");
 
       // This listener removes any filter on hosts table when its menu item is
       // selected. The cluster plugins will filter hosts when the hosts

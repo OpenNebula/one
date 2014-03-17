@@ -173,13 +173,6 @@ var file_actions = {
         error: onError
     },
 
-    "File.showinfo" : {
-        type: "single",
-        call: OpenNebula.Image.show,
-        callback: updateFileInfo,
-        error: onError
-    },
-
     "File.refresh" : {
         type: "custom",
         call: function () {

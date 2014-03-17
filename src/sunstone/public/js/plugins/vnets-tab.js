@@ -355,14 +355,6 @@ var vnet_actions = {
         error: onError
     },
 
-    "Network.showinfo" : {
-        type: "single",
-        call: OpenNebula.Network.show,
-        callback: updateVNetworkInfo,
-        error: onError
-
-    },
-
     "Network.refresh" : {
         type: "custom",
         call: function(){
@@ -734,11 +726,6 @@ function updateVNetworkInfo(request,vn){
     Sunstone.popUpInfoPanel("vnet_info_panel", "vnets-tab");
 
     setPermissionsTable(vn_info,'');
-
-    $("#vnet_info_panel_refresh", $("#vnet_info_panel")).click(function(){
-      $(this).html(spinner);
-      Sunstone.runAction('Network.showinfo', vn_info.ID);
-    })
 }
 
 // Prints the lis of leases depending on the Vnet TYPE
@@ -1402,7 +1389,7 @@ $(document).ready(function(){
 
       initCheckAllBoxes(dataTable_vNetworks);
       tableCheckboxesListener(dataTable_vNetworks);
-      infoListener(dataTable_vNetworks,'Network.showinfo');
+      infoListener(dataTable_vNetworks,'Network.show');
 
       // Reset list filter in case it was set because we were lookin
       // at a single cluster view

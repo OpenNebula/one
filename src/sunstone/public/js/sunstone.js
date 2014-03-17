@@ -3245,9 +3245,7 @@ function insert_permissions_table(tab_name, resource_type, resource_id, owner, g
                     var resource_struct = new Array();
                     resource_struct[0]  = resource_id;
 
-                    // TODO: race condition. Show can return before chown does
                     Sunstone.runAction(resource_type+".chown",resource_struct,value_str);
-                    Sunstone.runAction(resource_type+".showinfo",resource_id);
                 }
             });
         }
@@ -3288,7 +3286,6 @@ function insert_permissions_table(tab_name, resource_type, resource_id, owner, g
                     var resource_struct = new Array();
                     resource_struct[0]  = resource_id;
                     Sunstone.runAction(resource_type+".chgrp",resource_struct,value_str);
-                    Sunstone.runAction(resource_type+".showinfo",resource_id);
                 }
             });
         }
@@ -3367,7 +3364,6 @@ function insert_cluster_dropdown(resource_type, resource_id, cluster_value, clus
             var resource_struct = new Array();
             resource_struct[0]  = resource_id;
             Sunstone.runAction(resource_type+".addtocluster",resource_struct,value_str);
-            Sunstone.runAction(resource_type+".showinfo",resource_id);
         }
     });
 
@@ -3405,7 +3401,6 @@ function insert_group_dropdown(resource_type, resource_id, group_value, group_id
             var resource_struct = new Array();
             resource_struct[0]  = resource_id;
             Sunstone.runAction(resource_type+".chgrp",resource_struct,value_str);
-            Sunstone.runAction(resource_type+".showinfo",resource_id);
         }
     });
 

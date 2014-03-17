@@ -377,13 +377,6 @@ var user_actions = {
         error: onError
     },
 
-    "User.showinfo" : {
-        type: "single",
-        call: OpenNebula.User.show,
-        callback: updateUserInfo,
-        error: onError
-    },
-
     "User.delete" : {
         type: "multiple",
         call: OpenNebula.User.del,
@@ -743,11 +736,6 @@ function updateUserInfo(request,user){
     Sunstone.updateInfoPanelTab("user_info_panel","user_quotas_tab",quotas_tab);
     //Sunstone.updateInfoPanelTab("user_info_panel","user_acct_tab",acct_tab);
     Sunstone.popUpInfoPanel("user_info_panel", 'users-tab');
-
-    $("#user_info_panel_refresh", $("#user_info_panel")).click(function(){
-      $(this).html(spinner);
-      Sunstone.runAction('User.show', info.ID);
-    })
 };
 
 // Used also from groups-tabs.js

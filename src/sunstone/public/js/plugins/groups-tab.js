@@ -234,13 +234,6 @@ var group_actions = {
         error: onError
     },
 
-    "Group.showinfo" : {
-        type: "single",
-        call: OpenNebula.Group.show,
-        callback: updateGroupInfo,
-        error: onError
-    },
-
     "Group.autorefresh" : {
         type: "custom",
         call: function () {
