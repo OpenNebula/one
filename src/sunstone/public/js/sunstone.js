@@ -1191,8 +1191,8 @@ function updateView(item_list,dataTable){
         var dTable_settings = dataTable.fnSettings();
         var prev_start = dTable_settings._iDisplayStart;
 
-        dataTable.fnClearTable(0);
-        dataTable.fnAddData(item_list);
+        dataTable.fnClearTable(false);
+        dataTable.fnAddData(item_list, false);
 
         var new_start = prev_start;
 
@@ -1205,7 +1205,7 @@ function updateView(item_list,dataTable){
 
         dTable_settings._iDisplayStart = new_start;
 
-        dataTable.fnDraw(false);
+        dataTable.fnDraw(true);
     };
 
     if(selected_row_id)
