@@ -746,7 +746,7 @@ var vm_actions = {
                 colored_log += line + "<br>";
             }
 
-            $('#vm_log_tab').html('<div class=""><div class="large-12 columns log-tab">'+colored_log+'</div></div>')
+            $('#vm_log_tab').html('<div class="row"><div class="large-11 small-centered columns log-tab">'+colored_log+'</div></div>')
         },
         error: function(request,error_json){
             $("#vm_log pre").html('');
