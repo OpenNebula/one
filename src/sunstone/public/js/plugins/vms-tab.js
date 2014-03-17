@@ -1112,7 +1112,7 @@ var vm_buttons = {
         type: "action",
         text: '<i class="fa fa-desktop" style="color: rgb(111, 111, 111)"/> '+tr("VNC"),
         custom_classes: "only-right-info vnc-right-info",
-        tip: tr("")
+        tip: tr("VNC")
     }
 }
 
