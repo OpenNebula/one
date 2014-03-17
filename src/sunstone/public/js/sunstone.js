@@ -1272,7 +1272,7 @@ function stringJSON(json){
 function notifySubmit(action, args, extra_param){
     var action_text = action.replace(/OpenNebula\./,'').replace(/\./,' ');
 
-    var msg;
+    var msg = "";
     if (!args || (typeof args == 'object' && args.constructor != Array)){
 
         msg += action_text;
@@ -1298,7 +1298,7 @@ function notifyMessage(msg){
 }
 
 function notifyCustom(title, msg, sticky) {
-    msg = title + msg;
+    msg = (title ? title : "") + msg;
     $.jGrowl(msg, {theme: "jGrowl-notify-submit", position: "bottom-right", sticky: sticky });
 }
 
