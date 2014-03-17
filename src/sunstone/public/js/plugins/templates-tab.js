@@ -1491,7 +1491,7 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
         $('input.check_item', this).attr('checked','checked');
 
         $('#IMAGE_NAME', disk_section).text(aData[4]);
-        $('#IMAGE_ID', disk_section).val();
+        $('#IMAGE_ID', disk_section).val("");
         $('#IMAGE', disk_section).val(aData[4]);
         $('#IMAGE_UNAME', disk_section).val(aData[2]);
         $('#IMAGE_UID', disk_section).val("");
