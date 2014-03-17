@@ -483,11 +483,11 @@ function insertTab(tab_name){
 */
         if (tab_info.buttons) {
             tab_content_str += '<div class="row">\
-              <div class="large-9 columns">\
+              <div class="small-9 large-9 columns">\
                 <div class="action_blocks">\
                 </div>\
               </div>\
-              <div class="large-3 columns only-right-list">'
+              <div class="small-3 large-3 columns only-right-list">'
 
             if (tab_info.search_input) {
                 tab_content_str += tab_info.search_input;

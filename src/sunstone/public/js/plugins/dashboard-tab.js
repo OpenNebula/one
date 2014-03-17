@@ -28,13 +28,13 @@ var widgets = {
   "storage" : '<fieldset>\
         <legend class="span-dashboard"><i class="fa fa-upload"></i> '+tr("Storage")+'</legend>\
         <div class="row totals-info">\
-            <div class="large-6 columns text-right">\
+            <div class="small-6 large-6 columns text-right">\
               <h4 class="subheader">\
               <span class="total_images subheader"/><br>\
               <span class="size_images subheader"/>\
               </h4>\
             </div>\
-            <div class="large-6 columns text-left">\
+            <div class="small-6 large-6 columns text-left">\
               <h4 class="subheader">\
               <small>'+tr("IMAGES")+'</small><br>\
               <small>'+tr("USED")+'</small>\
@@ -45,13 +45,13 @@ var widgets = {
   "users" : '<fieldset>\
         <legend class="span-dashboard"><i class="fa fa-user"></i> '+tr("Users")+'</legend>\
         <div class="row totals-info">\
-            <div class="large-6 columns text-right">\
+            <div class="small-6 large-6 columns text-right">\
               <h4 class="subheader">\
               <span class="subheader total_users"/><br>\
               <span class="subheader total_groups"/>\
               </h4>\
             </div>\
-            <div class="large-6 columns text-left">\
+            <div class="small-6 large-6 columns text-left">\
               <h4 class="subheader">\
               <small>'+tr("USERS")+'</small><br>\
               <small>'+tr("GROUPS")+'</small>\
@@ -62,13 +62,13 @@ var widgets = {
   "network" : '<fieldset>\
         <legend class="span-dashboard"><i class="fa fa-sitemap"></i> '+tr("Network")+'</legend>\
         <div class="row totals-info">\
-            <div class="large-6 columns text-right">\
+            <div class="small-6 large-6 columns text-right">\
               <h4 class="subheader">\
               <span class="total_vnets subheader"/><br>\
               <span class="addresses_vnets subheader"/>\
               </h4>\
             </div>\
-            <div class="large-6 columns text-left">\
+            <div class="small-6 large-6 columns text-left">\
               <h4 class="subheader">\
               <small>'+tr("VNETS")+'</small><br>\
               <small>'+tr("USED IPs")+'</small>\
@@ -79,8 +79,8 @@ var widgets = {
   "hosts" : '<fieldset class="dashboard-panel">\
         <legend class="span-dashboard"><i class="fa fa-hdd-o"></i> '+tr("Hosts")+'</legend>\
         <div class="row  totals-info">\
-          <div class="large-3 columns centered">\
-            <div class="large-6 columns text-right">\
+          <div class="small-3 large-3 columns centered">\
+            <div class="small-6 large-6 columns text-right">\
               <h4 class="subheader">\
                 <span class="total_hosts subheader"/><br>\
                 <span class="on_hosts subheader success-color"/><br>\
@@ -88,7 +88,7 @@ var widgets = {
                 <span class="error_hosts subheader alert-color"/><br>\
               </h4>\
             </div>\
-            <div class="large-6 columns text-left">\
+            <div class="small-6 large-6 columns text-left">\
               <h4 class="subheader">\
                 <small>'+tr("TOTAL")+'</small><br>\
                 <small class="success-color">'+tr("ON")+'</small><br>\
@@ -97,26 +97,26 @@ var widgets = {
               </h4>\
             </div>\
           </div>\
-          <div class="large-9 columns">\
+          <div class="small-9 large-9 columns">\
             <div class="row graph_legend text-left">\
-              <div class="large-4 columns">\
+              <div class="small-4 large-4 columns">\
                   <h4 class="subheader text-center"><small>'+tr("CPU")+'</small></h4>\
               </div>\
-              <div class="large-4 columns">\
+              <div class="small-4 large-4 columns">\
                 <span class="label allocated radius">'+tr("Allocated")+'</span>&emsp;\
                 <span class="label real radius">'+tr("Real")+'</span>&emsp;\
                 <span class="label total radius">'+tr("Total")+'</span>\
               </div>\
-              <div class="large-4 columns">\
+              <div class="small-4 large-4 columns">\
                   <h4 class="subheader"><small>'+tr("MEMORY")+'</small></h4>\
               </div>\
             </div>\
             <div class="row">\
-              <div class="large-6 columns">\
+              <div class="small-6 large-6 columns">\
                   <div class="large-12 columns centered graph" id="dash_host_cpu_graph" style="height: 100px;">\
                   </div>\
               </div>\
-              <div class="large-6 columns">\
+              <div class="small-6 large-6 columns">\
                   <div class="large-12 columns centered graph" id="dash_host_mem_graph" style="height: 100px;">\
                   </div>\
               </div>\
@@ -127,8 +127,8 @@ var widgets = {
   "vms" : '<fieldset class="dashboard-panel">\
         <legend class="span-dashboard"><i class="fa fa-cloud"></i> '+tr("Virtual Machines")+'</legend>\
         <div class="row totals-info">\
-          <div class="large-3 columns">\
-            <div class="large-6 columns text-right">\
+          <div class="small-3 large-3 columns">\
+            <div class="small-6 large-6 columns text-right">\
               <h4 class="subheader">\
               <span class="subheader total_vms"/><br>\
               <span class="subheader active_vms success-color"/><br>\
@@ -136,7 +136,7 @@ var widgets = {
               <span class="subheader failed_vms alert-color"/>\
               </h4>\
             </div>\
-            <div class="large-6 columns text-left">\
+            <div class="small-6 large-6 columns text-left">\
               <h4 class="subheader">\
               <small>'+tr("TOTAL")+'</small><br>\
               <small class="success-color">'+tr("ACTIVE")+'</small><br>\
@@ -145,21 +145,21 @@ var widgets = {
               </h4>\
             </div>\
           </div>\
-          <div class="large-9 columns">\
+          <div class="small-9 large-9 columns">\
             <div class="row graph_legend text-center">\
-              <div class="large-6 columns">\
+              <div class="small-6 large-6 columns">\
               <h4 class="subheader"><small>'+tr("NET DOWNLOAD SPEED")+'</small></h4>\
               </div>\
-              <div class="large-6 columns">\
+              <div class="small-6 large-6 columns">\
               <h4 class="subheader"><small>'+tr("NET UPLOAD SPEED")+'</small></h4>\
               </div>\
             </div>\
             <div class="row">\
-              <div class="large-6 columns">\
+              <div class="small-6 large-6 columns">\
               <div class="large-12 columns centered graph" id="dash_vm_net_rx_graph"  style="height: 100px;">\
               </div>\
               </div>\
-              <div class="large-6 columns">\
+              <div class="small-6 large-6 columns">\
               <div class="large-12 columns centered graph" id="dash_vm_net_tx_graph" style="height: 100px;">\
               </div>\
               </div>\
@@ -188,12 +188,12 @@ $(document).ready(function(){
     $dashboard = $('#dashboard-tab', main_tabs_context);
 
     $.each(Config.dashboardWidgets('widgets_three_per_row'), function(id, widget){
-      var html = '<div class="large-4 columns">'+widgets[widget]+'</div>';
+      var html = '<div class="small-4 large-4 columns">'+widgets[widget]+'</div>';
       $('#three_per_row', $dashboard).append(html);
     })
 
     $.each(Config.dashboardWidgets('widgets_two_per_row'), function(id, widget){
-      var html = '<div class="large-6 columns">'+widgets[widget]+'</div>';
+      var html = '<div class="small-6 large-6 columns">'+widgets[widget]+'</div>';
       $('#two_per_row', $dashboard).append(html);
     })
 
