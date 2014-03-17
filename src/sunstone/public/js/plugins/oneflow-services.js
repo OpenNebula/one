@@ -1064,7 +1064,9 @@ var services_tab = {
     info_header: '<i class="fa fa-code-fork fa fa-rotate-90"></i> '+tr("OneFlow - Service"),
     subheader: '<span/> <small></small>&emsp;',
     content:   '<div class="row" id="error_message" hidden>\
-        <div class="alert-box alert radius">'+tr("Cannot connect to OneFlow server")+'</div>\
+        <div class="small-6 columns small-centered text-center">\
+            <div class="alert-box alert radius">'+tr("Cannot connect to OneFlow server")+'</div>\
+        </div>\
     </div>',
     table: '<table id="datatable_services" class="datatable twelve">\
         <thead>\

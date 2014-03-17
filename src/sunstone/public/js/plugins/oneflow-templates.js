@@ -524,7 +524,9 @@ var service_templates_tab = {
     info_header: '<i class="fa fa-file-o"></i> '+tr("OneFlow - Template"),
     subheader: '<span/> <small></small>&emsp;',
     content:   '<div class="row" id="error_message" hidden>\
-        <div class="alert-box alert radius">'+tr("Cannot connect to OneFlow server")+'</div>\
+        <div class="small-6 columns small-centered text-center">\
+            <div class="alert-box alert radius">'+tr("Cannot connect to OneFlow server")+'</div>\
+        </div>\
     </div>',
     table: '<table id="datatable_service_templates" class="datatable twelve">\
         <thead>\
