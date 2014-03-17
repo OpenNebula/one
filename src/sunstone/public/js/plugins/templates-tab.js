@@ -3419,6 +3419,7 @@ function add_schedulingTab(dialog) {
 function add_otherTab(dialog) {
   var html_tab_content = '<div id="rawTab" class="wizard_tab content">'+
       '<div class="row">'+
+        '<div class="large-12 columns">'+
         '<fieldset>'+
           '<legend>'+tr("RAW data")+'</legend>'+
           '<div class="row">'+
@@ -3483,6 +3484,7 @@ function add_otherTab(dialog) {
             '</div>'+
           '</div>'+
         '</fieldset>'+
+        '</div>'+
       '</div>'+
   '</div>'
 
