@@ -44,7 +44,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     end
 
     option AcctHelper::ACCT_OPTIONS + CommandParser::OPTIONS +
-        [OpenNebulaHelper::DESCRIBE, CLIHelper::LIST, CLIHelper::CSV] +
+        [OpenNebulaHelper::DESCRIBE, CLIHelper::LIST, CLIHelper::CSV_OPT] +
         OpenNebulaHelper::CLIENT_OPTIONS
 
     main do
