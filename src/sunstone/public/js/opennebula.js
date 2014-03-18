@@ -22,6 +22,12 @@ $.ajaxSetup({
   }
 });
 
+var list_cache = {};
+var list_waiting = {};
+var list_callbacks = {};
+var cache_expire = 5000; //ms
+
+
 var OpenNebula = {
 
     "Error": function(resp)
@@ -349,6 +355,37 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"list");
             var req_path = path ? path : resource.toLowerCase();
 
+            if( list_cache[resource] &&
+                list_cache[resource]["timestamp"] + cache_expire > new Date().getTime()){
+
+                //console.log(resource+" list. Cache used");
+
+                return callback ?
+                    callback(request, list_cache[resource]["data"]) : null;
+            }
+
+            // TODO: Because callbacks are queued, we may need to force a
+            // timeout. Otherwise a blocked call cannot be retried.
+
+            if (!list_callbacks[resource]){
+                list_callbacks[resource] = [];
+            }
+
+            list_callbacks[resource].push({
+                success : callback,
+                error : callback_error
+            });
+
+            //console.log(resource+" list. Callback queued");
+
+            if (list_waiting[resource]){
+                return;
+            }
+
+            list_waiting[resource] = true;
+
+            //console.log(resource+" list. NO cache, calling ajax");
+
             $.ajax({
                 url: req_path,
                 type: "GET",
@@ -356,13 +393,45 @@ var OpenNebula = {
                 dataType: "json",
                 success: function(response){
                     var list = OpenNebula.Helper.pool(resource,response)
-                    return callback ?
-                        callback(request, list) : null;
+
+                    list_cache[resource] = {
+                        timestamp   : new Date().getTime(),
+                        data        : list
+                    };
+
+                    list_waiting[resource] = false;
+
+                    for (var i=0; i<list_callbacks[resource].length; i++)
+                    {
+                        var callback = list_callbacks[resource][i].success;
+
+                        if (callback){
+                            //console.log(resource+" list. Callback called");
+                            callback(request, list);
+                        }
+                    }
+
+                    list_callbacks[resource] = [];
+
+                    return;
                 },
                 error: function(response)
                 {
-                    return callback_error ?
-                        callback_error(request, OpenNebula.Error(response)) : null;
+                    list_waiting[resource] = false;
+
+                    for (var i=0; i<list_callbacks[resource].length; i++)
+                    {
+                        var callback = list_callbacks[resource][i].error;
+
+                        if (callback){
+                            //console.log(resource+" list. ERROR Callback called");
+                            callback(request, OpenNebula.Error(response));
+                        }
+                    }
+
+                    list_callbacks[resource] = [];
+
+                    return;
                 }
             });
         },
