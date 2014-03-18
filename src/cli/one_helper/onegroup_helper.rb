@@ -50,17 +50,14 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
 
     def create_complete_resource(group_hash)
         group = factory
-        exit_code , msg = group.create(group_hash)
+        rc = group.create(group_hash)
 
-        puts msg if msg && !msg.empty?
-
-        if (exit_code.class==Fixnum and exit_code < 0) or OpenNebula.is_error?(exit_code)
-            puts exit_code.message if OpenNebula.is_error?(exit_code) && exit_code.message
-            return -1
-        else
-            puts "ID: #{group.id}"
-            return 0
+        if OpenNebula.is_error?(rc)
+            return -1, rc.message
         end
+
+        puts "ID: #{group.id}"
+        return 0
     end
 
     def format_pool(options)

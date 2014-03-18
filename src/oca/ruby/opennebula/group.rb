@@ -89,24 +89,25 @@ module OpenNebula
         #
         def create(group_hash)
             # Check arguments
-            return -1, "Group name not defined" if !group_hash[:name]
+            if !group_hash[:name]
+                return OpenNebula::Error.new("Group name not defined")
+            end
 
             if group_hash[:user]
                 if group_hash[:user][:name] and !group_hash[:admin_group]
-                    return -1, "Admin user defined but not admin group"
+                    error_msg = "Admin user defined but not admin group"
+                    return OpenNebula::Error.new(error_msg)
                 end
 
                 if group_hash[:user][:name] and !group_hash[:user][:password]
-                    return -1, "Admin user password not defined"
+                    error_msg = "Admin user password not defined"
+                    return OpenNebula::Error.new(error_msg)
                 end
             end
 
             # Allocate group
             rc = self.allocate(group_hash[:name])
-
-            if OpenNebula.is_error?(rc)
-                return -1, "Error allocating group: #{rc.message}"
-            end
+            return rc if OpenNebula.is_error?(rc)
 
             # Handle resource providers
             group_hash[:resource_providers].each { |rp|
@@ -123,8 +124,8 @@ module OpenNebula
             rc, msg = create_default_acls(group_hash[:resources])
 
             if OpenNebula.is_error?(rc)
-                self.delete
-                return -1, "Error creating group ACL's: #{rc.message}"
+                error_msg =  "Error creating group ACL's: #{rc.message}"
+                return OpenNebula::Error.new(error_msg)
             end
 
             # Create associated admin group if needed
@@ -132,15 +133,17 @@ module OpenNebula
 
             if OpenNebula.is_error?(rc)
                 self.delete
-                return -1, "Error creating admin group: #{rc.message}"
+                error_msg =  "Error creating admin group: #{rc.message}"
+                return OpenNebula::Error.new(error_msg)
             end
 
             # Add default Sunstone views for the group
             if group_hash[:views]
-                self.update("SUNSTONE_VIEWS=\"#{group_hash[:views].join(",")}\"\n")
+                str = "SUNSTONE_VIEWS=\"#{group_hash[:views].join(",")}\"\n"
+                self.update(str)
             end
 
-            return 0, ""
+            return 0
         end
 
         # Allocates a new Group in OpenNebula

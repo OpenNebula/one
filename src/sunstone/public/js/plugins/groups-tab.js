@@ -42,6 +42,7 @@ var create_group_tmpl =
 '<div class="row">\
   <div class="large-12 columns">\
     <h3 id="create_group_header">'+tr("Create Group")+'</h3>\
+    <h3 id="update_group_header">'+tr("Update Group")+'</h3>\
   </div>\
 </div>\
 <div class="reveal-body">\
@@ -170,6 +171,7 @@ var create_group_tmpl =
   <div class="reveal-footer">\
     <div class="form_buttons">\
       <button class="button radius right success" id="create_group_submit" value="Group.create">'+tr("Create")+'</button>\
+       <button class="button right radius" type="submit" id="update_group_submit">' + tr("Update") + '</button>\
       <button class="button secondary radius" id="create_group_reset_button" type="reset" value="reset">'+tr("Refresh")+'</button>\
     </div>\
   </div>\
@@ -208,7 +210,7 @@ var group_actions = {
           notifyCustom(tr("Group created"), " ID: " + response.GROUP.ID, false);
         },
         error : onError
-    },
+    },    
 
     "Group.create_dialog" : {
         type: "custom",
@@ -263,6 +265,11 @@ var group_actions = {
         },
         error: onError
     },
+
+    "Group.update_dialog" : {
+        type: "single",
+        call: popUpUpdateGroupDialog
+    },    
 
     "Group.delete" : {
         type: "multiple",
@@ -379,6 +386,11 @@ var group_buttons = {
         layout: "create",
         condition: mustBeAdmin
     },
+    "Group.update_dialog" : {
+        type : "action",
+        layout: "main",
+        text : tr("Update")
+    },    
     "Group.quotas_dialog" : {
         type : "action",
         text : tr("Quotas"),
@@ -390,7 +402,7 @@ var group_buttons = {
         text: tr("Delete"),
         layout: "del",
         condition: mustBeAdmin
-    }
+    },
 };
 
 var group_info_panel = {
@@ -1290,6 +1302,27 @@ function setupCreateGroupDialog(){
 function popUpCreateGroupDialog(){
     $create_group_dialog.foundation().foundation('reveal', 'open');
     $("input#name",$create_group_dialog).focus();
+
+    // Activate create button
+    $('#create_group_submit',$create_group_dialog).show();
+    $('#update_group_submit',$create_group_dialog).hide();
+    $('#create_group_header',$create_group_dialog).show();
+    $('#update_group_header',$create_group_dialog).hide();
+
+    return false;
+}
+
+function popUpUpdateGroupDialog(){
+    $create_group_dialog.foundation().foundation('reveal', 'open');
+
+    // Activate update button
+    $('#create_group_submit',$create_group_dialog).hide();
+    $('#update_group_submit',$create_group_dialog).show();
+    $('#create_group_header',$create_group_dialog).hide();
+    $('#update_group_header',$create_group_dialog).show();
+    
+    // Remove unwanted tabs (only leave )
+
     return false;
 }
 
