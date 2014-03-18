@@ -3875,8 +3875,8 @@ function popUpCreateTemplateDialog(){
 
     $("input#NAME",$create_template_dialog).focus();
 
-    $('button.refresh').each(function(){
-      this.click();
+    $('button.refresh', $(create_template_dialog)).each(function(){
+        this.click();
     })
 };
 
