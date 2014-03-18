@@ -923,7 +923,7 @@ function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id
         return true;
     });
 
-    $( ".fa-times" ).live( "click", function() {
+    $( '#' +str_zone_tab_id+'Tab .fa-times' ).live( "click", function() {
         $(this).parent().remove();
         var id = $(this).parent().attr("ID");
 
