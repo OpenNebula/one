@@ -1414,7 +1414,7 @@ function generatePlacementTable(vm){
             history = [vm.HISTORY_RECORDS.HISTORY];
     } else {
       html += '     <tr>\
-               <td colspan="8" style="width:5%">'+tr("No data avialable in table")+'</td>\
+               <td colspan="8" style="width:5%">'+tr("No data available in table")+'</td>\
               </tr>'
     }
 
