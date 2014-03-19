@@ -354,37 +354,38 @@ var OpenNebula = {
             var timeout = params.timeout || false;
             var request = OpenNebula.Helper.request(resource,"list");
             var req_path = path ? path : resource.toLowerCase();
+            var cache_name = params.cache_name ? params.cache_name : resource;
 
-            if( list_cache[resource] &&
-                list_cache[resource]["timestamp"] + cache_expire > new Date().getTime()){
+            if( list_cache[cache_name] &&
+                list_cache[cache_name]["timestamp"] + cache_expire > new Date().getTime()){
 
-                //console.log(resource+" list. Cache used");
+                console.log(cache_name+" list. Cache used");
 
                 return callback ?
-                    callback(request, list_cache[resource]["data"]) : null;
+                    callback(request, list_cache[cache_name]["data"]) : null;
             }
 
             // TODO: Because callbacks are queued, we may need to force a
             // timeout. Otherwise a blocked call cannot be retried.
 
-            if (!list_callbacks[resource]){
-                list_callbacks[resource] = [];
+            if (!list_callbacks[cache_name]){
+                list_callbacks[cache_name] = [];
             }
 
-            list_callbacks[resource].push({
+            list_callbacks[cache_name].push({
                 success : callback,
                 error : callback_error
             });
 
-            //console.log(resource+" list. Callback queued");
+            console.log(cache_name+" list. Callback queued");
 
-            if (list_waiting[resource]){
+            if (list_waiting[cache_name]){
                 return;
             }
 
-            list_waiting[resource] = true;
+            list_waiting[cache_name] = true;
 
-            //console.log(resource+" list. NO cache, calling ajax");
+            console.log(cache_name+" list. NO cache, calling ajax");
 
             $.ajax({
                 url: req_path,
@@ -394,42 +395,42 @@ var OpenNebula = {
                 success: function(response){
                     var list = OpenNebula.Helper.pool(resource,response)
 
-                    list_cache[resource] = {
+                    list_cache[cache_name] = {
                         timestamp   : new Date().getTime(),
                         data        : list
                     };
 
-                    list_waiting[resource] = false;
+                    list_waiting[cache_name] = false;
 
-                    for (var i=0; i<list_callbacks[resource].length; i++)
+                    for (var i=0; i<list_callbacks[cache_name].length; i++)
                     {
-                        var callback = list_callbacks[resource][i].success;
+                        var callback = list_callbacks[cache_name][i].success;
 
                         if (callback){
-                            //console.log(resource+" list. Callback called");
+                            console.log(cache_name+" list. Callback called");
                             callback(request, list);
                         }
                     }
 
-                    list_callbacks[resource] = [];
+                    list_callbacks[cache_name] = [];
 
                     return;
                 },
                 error: function(response)
                 {
-                    list_waiting[resource] = false;
+                    list_waiting[cache_name] = false;
 
-                    for (var i=0; i<list_callbacks[resource].length; i++)
+                    for (var i=0; i<list_callbacks[cache_name].length; i++)
                     {
-                        var callback = list_callbacks[resource][i].error;
+                        var callback = list_callbacks[cache_name][i].error;
 
                         if (callback){
-                            //console.log(resource+" list. ERROR Callback called");
+                            console.log(cache_name+" list. ERROR Callback called");
                             callback(request, OpenNebula.Error(response));
                         }
                     }
 
-                    list_callbacks[resource] = [];
+                    list_callbacks[cache_name] = [];
 
                     return;
                 }

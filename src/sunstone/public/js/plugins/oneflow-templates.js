@@ -43,6 +43,7 @@ var ServiceTemplate = {
         OpenNebula.Action.del(params,ServiceTemplate.resource, ServiceTemplate.path);
     },
     "list" : function(params){
+        params.cache_name = "SERVICE_TEMPLATE";
         OpenNebula.Action.list(params, ServiceTemplate.resource, ServiceTemplate.path)
     },
     "show" : function(params){
