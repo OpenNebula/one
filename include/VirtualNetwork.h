@@ -170,6 +170,15 @@ public:
     };
 
     /**
+     *    Gets used leases
+     *    @return number of network leases in used
+     */
+    unsigned int get_used()
+    {
+        return leases->n_used;
+    };
+
+    /**
      * Function to print the VirtualNetwork object into a string in
      * XML format
      *  @param xml the resulting XML string

@@ -317,3 +317,22 @@ int ZoneDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 
     return rc;
 }
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+int VirtualNetworkDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
+{
+    VirtualNetwork * vnet = static_cast<VirtualNetwork *>(object);
+
+    if ( vnet->get_used() > 0 )
+    {
+        error_msg = "Can not remove a virtual network with leases in use";
+
+        vnet->unlock();
+
+        return -1;
+    }
+
+    return RequestManagerDelete::drop(oid, object, error_msg);
+}

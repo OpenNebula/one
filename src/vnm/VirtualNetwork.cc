@@ -615,14 +615,6 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
     string leases_xml;
     string perm_str;
 
-    // Total leases is the number of used leases.
-    int total_leases = 0;
-
-    if (leases != 0)
-    {
-        total_leases = leases->n_used;
-    }
-
     os <<
         "<VNET>" <<
             "<ID>"          << oid          << "</ID>"          <<
@@ -689,21 +681,12 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
             "</RANGE>";
     }
 
-    os  <<  "<TOTAL_LEASES>"<< total_leases << "</TOTAL_LEASES>"<<
+    os  <<  "<TOTAL_LEASES>"<< leases->n_used << "</TOTAL_LEASES>"<<
             obj_template->to_xml(template_xml);
 
     if (extended)
     {
-        if (leases != 0)
-        {
-            os <<   "<LEASES>"                  <<
-                    leases->to_xml(leases_xml)     <<
-                    "</LEASES>";
-        }
-        else
-        {
-            os << "<LEASES/>";
-        }
+        os << "<LEASES>" << leases->to_xml(leases_xml) << "</LEASES>";
     }
 
     os << "</VNET>";
