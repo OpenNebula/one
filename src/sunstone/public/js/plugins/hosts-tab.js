@@ -802,11 +802,75 @@ function updateHostInfo(request,host){
         </div>'
     }
 
+    var vms_info_tab = {
+        title: tr("VMs"),
+        icon: "fa-cloud",
+        content : '<div id="datatable_host_vms_info_div" class="row">\
+          <div class="large-12 columns">\
+            <table id="datatable_host_vms" class="datatable twelve">\
+              <thead>\
+                <tr>\
+                  <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
+                  <th>'+tr("ID")+'</th>\
+                  <th>'+tr("Owner")+'</th>\
+                  <th>'+tr("Group")+'</th>\
+                  <th>'+tr("Name")+'</th>\
+                  <th>'+tr("Status")+'</th>\
+                  <th>'+tr("Used CPU")+'</th>\
+                  <th>'+tr("Used Memory")+'</th>\
+                  <th>'+tr("Host")+'</th>\
+                  <th>'+tr("IPs")+'</th>\
+                  <th>'+tr("Start Time")+'</th>\
+                  <th>'+tr("VNC")+'</th>\
+                </tr>\
+              </thead>\
+              <tbody id="tbodyvmachines">\
+              </tbody>\
+            </table>\
+          </div>\
+          </div>'
+    }
+
     //Sunstone.updateInfoPanelTab(info_panel_name,tab_name, new tab object);
     Sunstone.updateInfoPanelTab("host_info_panel","host_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("host_info_panel","host_monitoring_tab",monitor_tab);
+    Sunstone.updateInfoPanelTab("host_info_panel","host_vms_tab",vms_info_tab);
 
     Sunstone.popUpInfoPanel("host_info_panel", "hosts-tab");
+
+    var dataTable_vMachines = $("#datatable_host_vms", $("#host_info_panel")).dataTable({
+        "aoColumnDefs": [
+            { "bSortable": false, "aTargets": ["check",6,7,11] },
+            { "sWidth": "35px", "aTargets": [0] },
+            { "bVisible": false, "aTargets": [0]},
+            { "bVisible": true, "aTargets": Config.tabTableColumns("vms-tab")},
+            { "bVisible": false, "aTargets": ['_all']},
+        ]
+    });
+
+    if (host_info.VMS) {
+        OpenNebula.VM.list({
+            timeout: true,
+            success: function (request, vm_list){
+                var vm_list_array = [];
+
+                $.each(vm_list,function(){
+                    //Grab table data from the vm_list
+                    vm_list_array.push(vMachineElementArray(this));
+                });
+
+                updateView(vm_list_array, dataTable_vMachines);
+            },
+            error: onError
+        });
+
+        var vm_ids = host_info.VMS.ID;
+        if (vm_ids instanceof Array) {
+            dataTable_vMachines.fnFilter(vm_ids.join('|'), 1, true)
+        } else {
+            dataTable_vMachines.fnFilter(vm_ids, 1)
+        }
+    }
 
     // TODO: re-use Host.pool_monitor data?
 
