@@ -292,8 +292,13 @@ var datastore_actions = {
         type: "create",
         call : OpenNebula.Datastore.create,
         callback : function(request, response) {
-          addDatastoreElement(request, response);
-          notifyCustom(tr("Datastore created"), " ID: " + response.DATASTORE.ID, false);
+            // Reset the create wizard
+            $create_datastore_dialog.foundation('reveal', 'close');
+            $create_datastore_dialog.empty();
+            setupCreateDatastoreDialog();
+
+            addDatastoreElement(request, response);
+            notifyCustom(tr("Datastore created"), " ID: " + response.DATASTORE.ID, false);
         },
         error : onError
     },
@@ -960,8 +965,6 @@ function setupCreateDatastoreDialog(){
         $('#tm_use_ssh').prop('checked', false);
 
         Sunstone.runAction("Datastore.create",ds_obj);
-
-        $create_datastore_dialog.foundation('reveal', 'close')
         return false;
     });
 
@@ -981,15 +984,12 @@ function setupCreateDatastoreDialog(){
             "cluster_id" : cluster_id
         };
         Sunstone.runAction("Datastore.create",ds_obj);
-        $create_datastore_dialog.foundation('reveal', 'close')
         return false;
     });
 
     $('#wizard_ds_reset_button').click(function(){
         $create_datastore_dialog.html("");
         setupCreateDatastoreDialog();
-
-        window.ds_wizard_is_not_first="false";
 
         popUpCreateDatastoreDialog();
     });
@@ -998,8 +998,6 @@ function setupCreateDatastoreDialog(){
         $create_datastore_dialog.html("");
         setupCreateDatastoreDialog();
 
-        window.ds_wizard_is_not_first="false";
-
         popUpCreateDatastoreDialog();
         $("a[href='#datastore_manual']").click();
     });
@@ -1007,6 +1005,8 @@ function setupCreateDatastoreDialog(){
     // Hide disk_type
     $('select#disk_type').parent().hide();
 
+    hide_all($create_datastore_dialog);
+    select_filesystem();
 }
 
 function select_filesystem(){
@@ -1110,12 +1110,6 @@ function popUpCreateDatastoreDialog(){
     $('select#datastore_cluster_raw',$create_datastore_dialog).html(clusters_sel());
     $create_datastore_dialog.foundation().foundation('reveal', 'open');
     $("input#name",$create_datastore_dialog).focus();
-    if(window.ds_wizard_is_not_first != "true")
-    {
-      hide_all($create_datastore_dialog);
-      select_filesystem();
-      window.ds_wizard_is_not_first="true";
-    }
 }
 
 //Prepares autorefresh

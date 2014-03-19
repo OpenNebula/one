@@ -312,9 +312,15 @@ var service_template_actions = {
         call: ServiceTemplate.create,
         callback: function(request, response) {
             //empty creation dialog roles after successful creation
+/*
             var dialog = $create_service_template_dialog;
             $('table#current_roles tbody', dialog).empty();
             $('select[name="parents"]', dialog).empty();
+            dialog.foundation('reveal', 'close');
+*/
+            $create_service_template_dialog.foundation('reveal', 'close')
+            $create_service_template_dialog.empty();
+
             addServiceTemplateElement(request, response);
             notifyCustom(tr("Service Template created"), " ID: " + response.DOCUMENT.ID, false);
         },
@@ -343,7 +349,10 @@ var service_template_actions = {
         type: "single",
         call: ServiceTemplate.update,
         callback: function(request,response){
-           notifyMessage(tr("ServiceTemplate updated correctly"));
+            $create_service_template_dialog.foundation('reveal', 'close');
+            Sunstone.runAction("ServiceTemplate.show",request.request.data[0][0]);
+
+            notifyMessage(tr("ServiceTemplate updated correctly"));
         },
         error: onError
     },
@@ -1101,14 +1110,12 @@ function setupCreateServiceTemplateDialog(){
     $('#create_service_template_submit',dialog).click(function(){
         var json_template = generate_json_service_template_from_form();
         Sunstone.runAction("ServiceTemplate.create", json_template );
-        dialog.foundation('reveal', 'close');
         return false;
     });
 
     $('#update_service_template_submit',dialog).click(function(){
         var json_template = generate_json_service_template_from_form();
         Sunstone.runAction("ServiceTemplate.update",service_template_to_update_id, JSON.stringify(json_template));
-        dialog.foundation('reveal', 'close');
         return false;
     });
 
@@ -1260,16 +1267,19 @@ function generate_json_service_template_from_form() {
 }
 
 function popUpCreateServiceTemplateDialog(){
-    if (!$create_service_template_dialog) {
+    if (!$create_service_template_dialog || $create_service_template_dialog.html() == "") {
         setupCreateServiceTemplateDialog();
     }
 
     var dialog = $create_service_template_dialog;
 
+    dialog.die();
+
     $("#create_service_template_header", dialog).show();
     $("#update_service_template_header", dialog).hide();
     $("#create_service_template_submit", dialog).show();
     $("#update_service_template_submit", dialog).hide();
+    $("#create_service_template_reset", dialog).show();
 
     $("#service_name", dialog).removeAttr("disabled");
 
@@ -1292,7 +1302,6 @@ function popUpUpdateServiceTemplateDialog() {
         setupCreateServiceTemplateDialog();
     }
 
-    // Get proper cluster_id
     var template_id   = ""+selected_nodes[0];
     Sunstone.runAction("ServiceTemplate.show_to_update", template_id);
 }
@@ -1305,6 +1314,7 @@ function fillUpUpdateServiceTemplateDialog(request, response){
     $("#update_service_template_header", dialog).show();
     $("#create_service_template_submit", dialog).hide();
     $("#update_service_template_submit", dialog).show();
+    $("#create_service_template_reset", dialog).hide();
 
     var service_template = response[ServiceTemplate.resource]
     $("#service_name", dialog).attr("disabled", "disabled");
@@ -1393,6 +1403,11 @@ function fillUpUpdateServiceTemplateDialog(request, response){
     });
 
     service_template_to_update_id = service_template.ID;
+
+    dialog.die();
+    dialog.live('closed', function () {
+        $create_service_template_dialog.html("");
+    });
 
     dialog.foundation('reveal', 'open');
 }

@@ -244,9 +244,13 @@ var image_actions = {
         type: "create",
         call: OpenNebula.Image.create,
         callback: function(request, response){
-          addImageElement(request, response);
-          $create_image_dialog.foundation('reveal', 'close')
-          notifyCustom(tr("Image created"), " ID: " + response.IMAGE.ID, false)
+            // Reset the create wizard
+            $create_image_dialog.foundation('reveal', 'close');
+            $create_image_dialog.empty();
+            setupCreateImageDialog();
+
+            addImageElement(request, response);
+            notifyCustom(tr("Image created"), " ID: " + response.IMAGE.ID, false);
         },
         error: onError
     },

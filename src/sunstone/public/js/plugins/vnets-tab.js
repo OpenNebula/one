@@ -325,8 +325,13 @@ var vnet_actions = {
         type: "create",
         call: OpenNebula.Network.create,
         callback: function(request, response) {
-          addVNetworkElement(request, response);
-          notifyCustom(tr("Virtual Network created"), " ID: " + response.VNET.ID, false);
+            // Reset the create wizard
+            $create_vn_dialog.foundation('reveal', 'close');
+            $create_vn_dialog.empty();
+            setupCreateVNetDialog();
+
+            addVNetworkElement(request, response);
+            notifyCustom(tr("Virtual Network created"), " ID: " + response.VNET.ID, false);
         },
         error: onError
     },
@@ -1246,7 +1251,6 @@ function setupCreateVNetDialog() {
         };
 
         Sunstone.runAction("Network.create",network_json);
-        $create_vn_dialog.foundation('reveal', 'close')
         return false;
     });
 
@@ -1254,7 +1258,6 @@ function setupCreateVNetDialog() {
         var template=$('#template',dialog).val();
         var vnet_json = {vnet: {vnet_raw: template}};
         Sunstone.runAction("Network.create",vnet_json);
-        $create_vn_dialog.foundation('reveal', 'close')
         return false;
     });
 

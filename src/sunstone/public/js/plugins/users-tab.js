@@ -272,8 +272,12 @@ var user_actions = {
         type: "create",
         call: OpenNebula.User.create,
         callback: function(request, response) {
-          addUserElement(request, response);
-          notifyCustom(tr("User created"), " ID: " + response.USER.ID, false);
+            $create_user_dialog.foundation('reveal', 'close');
+            $create_user_dialog.empty();
+            setupCreateUserDialog();
+
+            addUserElement(request, response);
+            notifyCustom(tr("User created"), " ID: " + response.USER.ID, false);
         },
         error: onError
     },
@@ -795,7 +799,6 @@ function setupCreateUserDialog(){
         }
 
         Sunstone.runAction("User.create",user_json);
-        $create_user_dialog.foundation('reveal', 'close');
         return false;
     });
 }

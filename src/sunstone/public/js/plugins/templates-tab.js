@@ -3830,7 +3830,6 @@ function popUpUpdateTemplateDialog(){
       $create_template_dialog.html("");
     }
 
-    // TODO do not recreate if it exists
     setupCreateTemplateDialog();
 
     $('button#create_template_form_easy', $create_template_dialog).hide();
@@ -3846,15 +3845,20 @@ function popUpUpdateTemplateDialog(){
     $('#template_name_form', $create_template_dialog).hide();
     $('#NAME').attr("disabled", "disabled");;
 
+    $create_template_dialog.die();
+    $create_template_dialog.live('closed', function () {
+        $create_template_dialog.html("");
+    });
+
     $create_template_dialog.foundation().foundation('reveal', 'open');
 };
 
 function popUpCreateTemplateDialog(){
-    if ($create_template_dialog) {
-      $create_template_dialog.html("");
+    if (!$create_template_dialog || $create_template_dialog.html() == "") {
+        setupCreateTemplateDialog();
     }
-    // TODO do not recreate if it exists
-    setupCreateTemplateDialog();
+
+    $create_template_dialog.die();
 
     $('button#create_template_form_easy', $create_template_dialog).show();
     $('button#template_template_update_button', $create_template_dialog).hide();

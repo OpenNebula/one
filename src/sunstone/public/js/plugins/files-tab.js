@@ -138,8 +138,13 @@ var file_actions = {
         type: "create",
         call: OpenNebula.Image.create,
         callback: function(request, response) {
-          addFileElement(request, response);
-          notifyCustom(tr("File created"), " ID: " + response.IMAGE.ID, false);
+            // Reset the create wizard
+            $create_file_dialog.foundation('reveal', 'close');
+            $create_file_dialog.empty();
+            setupCreateFileDialog();
+
+            addFileElement(request, response);
+            notifyCustom(tr("File created"), " ID: " + response.IMAGE.ID, false);
         },
         error: onError
     },
@@ -736,7 +741,6 @@ function setupCreateFileDialog(){
             Sunstone.runAction("File.create", file_obj);
         };
 
-        $create_file_dialog.foundation('reveal', 'close')
         return false;
     });
 
@@ -756,7 +760,6 @@ function setupCreateFileDialog(){
             "ds_id" : ds_id
         };
         Sunstone.runAction("File.create",file_obj);
-        $create_file_dialog.foundation('reveal', 'close')
         return false;
     });
 

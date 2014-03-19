@@ -152,6 +152,10 @@ var acl_actions = {
         type: "create",
         call: OpenNebula.Acl.create,
         callback: function(){
+            $create_acl_dialog.foundation('reveal', 'close');
+            $create_acl_dialog.empty();
+            setupCreateAclDialog();
+
             Sunstone.runAction("Acl.list");
         },
         error: onError,
@@ -590,7 +594,6 @@ function setupCreateAclDialog(){
 
         var acl_json = { "acl" : acl_string };
         Sunstone.runAction("Acl.create",acl_json);
-        $create_acl_dialog.foundation('reveal', 'close');
         return false;
     });
 }

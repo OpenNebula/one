@@ -183,6 +183,11 @@ datastore_row_hash      = {};
 // Prepares the cluster creation dialog
 function setupCreateClusterDialog(){
 
+    reset_counters();
+
+    $("#create_cluster_dialog").remove();
+    dialogs_context.append('<div id="create_cluster_dialog"></div>');
+
     $create_cluster_dialog = $('div#create_cluster_dialog');
     var dialog = $create_cluster_dialog;
 
@@ -451,10 +456,7 @@ function setupCreateClusterDialog(){
         };
 
         // Create the OpenNebula.Cluster.
-        // If it is successfull we refresh the list.
         Sunstone.runAction("Cluster.create",cluster_json);
-
-        $create_cluster_dialog.foundation('reveal', 'close')
         return false;
     });
 }
@@ -475,18 +477,11 @@ function reset_counters(){
 
 // Open creation dialogs
 function popUpCreateClusterDialog(){
-
-    filter_expr = "-" ;
-
-    if ($("#create_cluster_dialog"))
-    {
-      $("#create_cluster_dialog").remove();
-      dialogs_context.append('<div id="create_cluster_dialog"></div>');
+    if (!$create_cluster_dialog || $create_cluster_dialog.html() == "") {
+        setupCreateClusterDialog();
     }
 
-    reset_counters();
-
-    setupCreateClusterDialog();
+    $create_cluster_dialog.die();
 
     // Activate create button
     $('#create_cluster_submit',$create_cluster_dialog).show();
@@ -508,21 +503,18 @@ function popUpCreateClusterDialog(){
 // Open update dialog
 function popUpUpdateClusterDialog(){
 
-    var dialog = $create_cluster_dialog;
-
-    if ($("#create_cluster_dialog")) {
-      $("#create_cluster_dialog").remove();
-      dialogs_context.append('<div id="create_cluster_dialog"></div>');
-    }
-
-    reset_counters();
-
     var selected_nodes = getSelectedNodes(dataTable_clusters);
 
     if ( selected_nodes.length != 1 )
     {
       notifyError(tr("Please select one (and just one) cluster to update."));
       return false;
+    }
+
+    var dialog = $create_cluster_dialog;
+
+    if ($("#create_cluster_dialog")) {
+        dialog.html("");
     }
 
     setupCreateClusterDialog();
@@ -534,6 +526,12 @@ function popUpUpdateClusterDialog(){
     $('#update_cluster_header',$create_cluster_dialog).show();
 
     Sunstone.runAction("Cluster.show_to_update", selected_nodes[0]);
+
+    $create_cluster_dialog.die();
+    $create_cluster_dialog.live('closed', function () {
+        $("#create_cluster_dialog").html("");
+        setupCreateClusterDialog();
+    });
 
     $create_cluster_dialog.foundation().foundation('reveal', 'open');
 
@@ -886,7 +884,13 @@ var cluster_actions = {
         type: "create",
         call: OpenNebula.Cluster.create,
         callback: function(request, response){
-            Sunstone.runAction('Cluster.list');
+            // Reset the create wizard
+            $create_cluster_dialog.foundation('reveal', 'close');
+            $create_cluster_dialog.empty();
+            setupCreateClusterDialog();
+
+            addImageElement(request, response);
+//            Sunstone.runAction('Cluster.list');
 
             for (var host in request.request.data[0].cluster.hosts)
                 if (request.request.data[0].cluster.hosts[host])
@@ -1433,7 +1437,7 @@ $(document).ready(function(){
 
       Sunstone.runAction("Cluster.list");
 
-      dialogs_context.append('<div id="create_cluster_dialog"></div>');
+      setupCreateClusterDialog();
 
       setClusterAutorefresh();
       clusterResourceViewListeners();

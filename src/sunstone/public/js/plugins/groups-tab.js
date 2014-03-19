@@ -202,12 +202,13 @@ var group_actions = {
         type: "create",
         call : OpenNebula.Group.create,
         callback : function(request, response) {
-          // Reset the create wizard
-          $create_group_dialog.empty();
-          setupCreateGroupDialog();
+            // Reset the create wizard
+            $create_group_dialog.foundation('reveal', 'close');
+            $create_group_dialog.empty();
+            setupCreateGroupDialog();
 
-          Sunstone.runAction("Group.list");
-          notifyCustom(tr("Group created"), " ID: " + response.GROUP.ID, false);
+            Sunstone.runAction("Group.list");
+            notifyCustom(tr("Group created"), " ID: " + response.GROUP.ID, false);
         },
         error : onError
     },    
@@ -1294,7 +1295,6 @@ function setupCreateGroupDialog(){
 
 
         Sunstone.runAction("Group.create",group_json);
-        $create_group_dialog.foundation('reveal', 'close');
         return false;
     });
 }

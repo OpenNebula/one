@@ -19,9 +19,10 @@
 
 //Prepares the dialog to create
 function setupCreateZoneDialog(){
-    // TODO
+    if ($('#create_zone_dialog').length == 0) {
+        dialogs_context.append('<div title=\"'+tr("Create zone")+'\" id="create_zone_dialog"></div>');
+    }
 
-    dialogs_context.append('<div title=\"'+tr("Create zone")+'\" id="create_zone_dialog"></div>');
     $create_zone_dialog = $('#create_zone_dialog',dialogs_context);
     var dialog = $create_zone_dialog;
 
@@ -33,7 +34,6 @@ function setupCreateZoneDialog(){
         var endpoint=$("#endpoint",this).val();
         var zone_json = { "zone" : { "name" : name, "endpoint" : endpoint}};
         Sunstone.runAction("Zone.create",zone_json);
-        $create_zone_dialog.foundation('reveal', 'close');
         return false;
     });
 
@@ -87,6 +87,9 @@ var zone_actions = {
         type: "create",
         call: OpenNebula.Zone.create,
         callback: function(request, response){
+            $create_zone_dialog.foundation('reveal', 'close');
+            $("form", $create_zone_dialog)[0].reset();
+
             Sunstone.runAction('Zone.list');
         },
         error: onError,
