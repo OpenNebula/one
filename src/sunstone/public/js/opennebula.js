@@ -359,7 +359,7 @@ var OpenNebula = {
             if( list_cache[cache_name] &&
                 list_cache[cache_name]["timestamp"] + cache_expire > new Date().getTime()){
 
-                console.log(cache_name+" list. Cache used");
+                //console.log(cache_name+" list. Cache used");
 
                 return callback ?
                     callback(request, list_cache[cache_name]["data"]) : null;
@@ -377,7 +377,7 @@ var OpenNebula = {
                 error : callback_error
             });
 
-            console.log(cache_name+" list. Callback queued");
+            //console.log(cache_name+" list. Callback queued");
 
             if (list_waiting[cache_name]){
                 return;
@@ -385,7 +385,7 @@ var OpenNebula = {
 
             list_waiting[cache_name] = true;
 
-            console.log(cache_name+" list. NO cache, calling ajax");
+            //console.log(cache_name+" list. NO cache, calling ajax");
 
             $.ajax({
                 url: req_path,
@@ -407,7 +407,7 @@ var OpenNebula = {
                         var callback = list_callbacks[cache_name][i].success;
 
                         if (callback){
-                            console.log(cache_name+" list. Callback called");
+                            //console.log(cache_name+" list. Callback called");
                             callback(request, list);
                         }
                     }
@@ -425,7 +425,7 @@ var OpenNebula = {
                         var callback = list_callbacks[cache_name][i].error;
 
                         if (callback){
-                            console.log(cache_name+" list. ERROR Callback called");
+                            //console.log(cache_name+" list. ERROR Callback called");
                             callback(request, OpenNebula.Error(response));
                         }
                     }
