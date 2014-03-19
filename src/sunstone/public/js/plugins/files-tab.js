@@ -736,6 +736,10 @@ function setupCreateFileDialog(){
         //we this is an file upload we trigger FileUploader
         //to start the upload
         if (upload){
+            $create_file_dialog.foundation('reveal', 'close');
+            $create_file_dialog.empty();
+            setupCreateFileDialog();
+
             uploader._onInputChange(file_input);
         } else {
             Sunstone.runAction("File.create", file_obj);
