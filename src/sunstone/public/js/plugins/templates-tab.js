@@ -913,7 +913,6 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
             '<span class="radius label" type="text" id="IMAGE_NAME" name="image"></span>'+
             '<div class="alert-box alert" style="display: none;">'+
             tr("The image you specified cannot be selected in the table") +
-            '  <a href="" class="close">&times;</a>'+
             '</div>'+
           '</div>'+
         '<div class="show_hide" id="advanced_image">'+
@@ -1553,7 +1552,6 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
         '<span class="radius label" type="text" id="NETWORK_NAME" name="network"></span>'+
         '<div class="alert-box alert"  style="display: none;">'+
           tr("The network you specified cannot be selected in the table") +
-          '  <a href="" class="close">&times;</a>'+
         '</div>'+
       '</div>'+
     '</div>'+
@@ -4120,7 +4118,6 @@ function fillTemplatePopUp(template, dialog){
 //                } else {
 //                    var alert = '<div class="alert-box alert">'+
 //    tr("The image you specified cannot be selected in the table") +
-//    '  <a href="" class="close">&times;</a>'+
 //    '</div>';
 //                    $("#kernel_ds_inputs", kernel_section).append(alert);
 //                }
@@ -4164,7 +4161,6 @@ function fillTemplatePopUp(template, dialog){
  //               } else {
  //                   var alert = '<div class="alert-box alert">'+
  //   tr("The image you specified cannot be selected in the table") +
- //   '  <a href="" class="close">&times;</a>'+
  //   '</div>';
  //                   $("#selected_image", initrd_section).append(alert);
  //               }
