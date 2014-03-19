@@ -42,7 +42,6 @@ var create_template_tmpl = '\
             '<button class="success button radius" id="create_template_form_easy" value="OpenNebula.Template.create" style="float: right">'+tr("Create")+'</button>'+
             '<button class="button hidden radius" id="template_template_update_button" value="Template.update_template" style="float: right">'+tr("Update")+'</button>'+
             '<button class="button secondary radius" id="template_template_reset_button" value="reset" type="reset">'+tr("Reset")+'</button>'+
-            '<button class="button secondary hidden radius" id="template_template_reset_button_update" value="reset" type="reset">'+tr("Reset")+'</button>'+
         '</div>'+
       '</form>'+
     '</div>' +
@@ -62,7 +61,6 @@ var create_template_tmpl = '\
           '<div class="form_buttons">' +
             '<button class="button success right radius" id="create_template_submit_manual" value="template/create">'+tr("Create")+'</button>' +
             '<button class="button hidden radius" id="manual_template_update_button" value="Template.update_template" style="float: right">'+tr("Update")+'</button>'+
-            '<button class="button secondary radius" id="manual_template_reset_button_update" value="reset" type="reset">'+tr("Reset")+'</button>'+
           '</div>' +
         '</div>' +
       '</form>' +
@@ -3572,13 +3570,6 @@ function initialize_create_template_dialog(dialog) {
         popUpCreateTemplateDialog();
     });
 
-    $('#template_template_reset_button_update', dialog).click(function(){
-        dialog.html("");
-        setupCreateTemplateDialog();
-
-        popUpUpdateTemplateDialog();
-    });
-
     if (Config.isTemplateCreationTabEnabled('general')){
         var tab = $('#capacityTab', dialog);
         setup_capacity_tab_content(tab);
@@ -3835,7 +3826,6 @@ function popUpUpdateTemplateDialog(){
     $('button#create_template_form_easy', $create_template_dialog).hide();
     $('button#template_template_update_button', $create_template_dialog).show();
     $('button#template_template_reset_button', $create_template_dialog).hide();
-    $('button#template_template_reset_button_update', $create_template_dialog).show();
     $('button#manual_template_update_button', $create_template_dialog).show();
     $('button#create_template_submit_manual', $create_template_dialog).hide();
 
@@ -3863,7 +3853,6 @@ function popUpCreateTemplateDialog(){
     $('button#create_template_form_easy', $create_template_dialog).show();
     $('button#template_template_update_button', $create_template_dialog).hide();
     $('button#template_template_reset_button', $create_template_dialog).show();
-    $('button#template_template_reset_button_update', $create_template_dialog).hide();
     $('button#manual_template_update_button', $create_template_dialog).hide();
     $('button#create_template_submit_manual', $create_template_dialog).show();
 

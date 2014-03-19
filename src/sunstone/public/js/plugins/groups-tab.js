@@ -172,7 +172,7 @@ var create_group_tmpl =
     <div class="form_buttons">\
       <button class="button radius right success" id="create_group_submit" value="Group.create">'+tr("Create")+'</button>\
        <button class="button right radius" type="submit" id="update_group_submit">' + tr("Update") + '</button>\
-      <button class="button secondary radius" id="create_group_reset_button" type="reset" value="reset">'+tr("Refresh")+'</button>\
+      <button class="button secondary radius" id="create_group_reset_button" type="reset" value="reset">'+tr("Reset")+'</button>\
     </div>\
   </div>\
   <a class="close-reveal-modal">&#215;</a>\
@@ -749,7 +749,7 @@ function setup_add_rp_dialog(group){
             <div class="reveal-footer">\
               <div class="form_buttons">\
                 <button class="button radius right success" id="add_rp_submit">'+tr("Add")+'</button>\
-                <button class="button secondary radius" id="add_rp_reset_button" type="reset" value="reset">'+tr("Refresh")+'</button>\
+                <button class="button secondary radius" id="add_rp_reset_button" type="reset" value="reset">'+tr("Reset")+'</button>\
               </div>\
             </div>\
         </div>\
