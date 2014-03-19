@@ -1992,7 +1992,7 @@ function wizard_tab_content(){
     '<div class="tabs-content vertical">'+
       '<div class="wizard_internal_tab active content" id="bootTab">'+
         '<div class="row vm_param">'+
-          '<div class="large-6 columns">'+
+          '<div class="large-3 columns">'+
             '<label for="ARCH">'+tr("Arch")+
               '<span class="tip">'+tr("CPU architecture to virtualization")+'</span>'+
             '</label>'+
@@ -2002,7 +2002,13 @@ function wizard_tab_content(){
               '<option value="x86_64">x86_64</option>'+
             '</select>'+
           '</div>'+
-          '<div class="large-6 columns">'+
+          '<div class="large-4 columns">'+
+            '<label for="MACHINE">'+tr("Machine type")+
+              '<span class="tip">'+tr("libvirt machine type, only for KVM")+'</span>'+
+            '</label>'+
+            '<input type="text" id="MACHINE" name="machine" />'+
+          '</div>'+
+          '<div class="large-5 columns">'+
             '<label for="GUESTOS">'+tr("Guest OS")+
               '<span class="tip">'+tr("Set the OS of the VM, only for VMware")+'</span>'+
             '</label>'+
