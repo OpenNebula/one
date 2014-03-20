@@ -307,17 +307,6 @@ var user_actions = {
         }
     },
 
-    "User.autorefresh" : {
-        type: "custom",
-        call: function(){
-            OpenNebula.User.list({
-                timeout: true,
-                success: updateUsersView,
-                error: onError
-            });
-        }
-    },
-
     "User.update_password" : {
         type: "custom",
         call: popUpUpdatePasswordDialog
@@ -444,6 +433,11 @@ var user_buttons = {
     "User.refresh" : {
         type: "action",
         layout: "refresh",
+        alwaysActive: true
+    },
+    "Sunstone.toggle_top" : {
+        type: "custom",
+        layout: "top",
         alwaysActive: true
     },
     "User.create_dialog" : {
@@ -896,17 +890,6 @@ function popUpChangeAuthenticationDialog(){
     $change_auth_dialog.foundation().foundation('reveal', 'open');;
 }
 
-// Prepare the autorefresh of the list
-function setUserAutorefresh(){
-    setInterval(function(){
-        var checked = $('input.check_item:checked',dataTable_users);
-        var filter = $("#user_search").attr('value');
-        if ((checked.length==0) && !filter){
-            Sunstone.runAction("User.autorefresh");
-        }
-    },INTERVAL+someTime());
-}
-
 $(document).ready(function(){
     var tab_name = 'users-tab';
 
@@ -936,7 +919,6 @@ $(document).ready(function(){
       setupUpdatePasswordDialog();
       setupChangeAuthenticationDialog();
       setupUserQuotasDialog();
-      setUserAutorefresh();
       //Setup quota icons
       //Also for group tab
       setupQuotaIcons();

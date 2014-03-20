@@ -954,13 +954,6 @@ var cluster_actions = {
         error: onError
     },
 
-    "Cluster.autorefresh" : {
-        type: "custom",
-        call : function() {
-            OpenNebula.Cluster.list({timeout: true, success: updateClustersView,error: onError});
-        }
-    },
-
     "Cluster.addhost" : {
         type: "single",
         call : OpenNebula.Cluster.addhost,
@@ -1066,6 +1059,11 @@ var cluster_buttons = {
     "Cluster.refresh" : {
         type: "action",
         layout: "refresh",
+        alwaysActive: true
+    },
+    "Sunstone.toggle_top" : {
+        type: "custom",
+        layout: "top",
         alwaysActive: true
     },
     "Cluster.create_dialog" : {
@@ -1395,17 +1393,6 @@ function clusterResourceViewListeners(){
     });
 };
 
-//Prepares the autorefresh for hosts
-function setClusterAutorefresh() {
-    setInterval(function(){
-        var checked = $('input.check_item:checked',dataTable_clusters);
-        var  filter = $("#cluster_search").attr('value');
-        if ((checked.length==0) && !filter){
-            Sunstone.runAction("Cluster.autorefresh");
-        }
-    },INTERVAL+someTime());
-}
-
 function clusters_sel() {
     return clusters_select;
 }
@@ -1439,7 +1426,6 @@ $(document).ready(function(){
 
       setupCreateClusterDialog();
 
-      setClusterAutorefresh();
       clusterResourceViewListeners();
 
       initCheckAllBoxes(dataTable_clusters);

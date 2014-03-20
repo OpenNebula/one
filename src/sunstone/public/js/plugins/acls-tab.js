@@ -182,17 +182,6 @@ var acl_actions = {
         }
     },
 
-    "Acl.autorefresh" : {
-        type: "custom",
-        call: function(){
-            OpenNebula.Acl.list({
-                timeout: true,
-                success: updateAclsView,
-                error: onError
-            });
-        }
-    },
-
     "Acl.delete" : {
         type: "multiple",
         call: OpenNebula.Acl.del,
@@ -215,6 +204,11 @@ var acl_buttons = {
     "Acl.refresh" : {
         type: "action",
         layout: "refresh",
+        alwaysActive: true
+    },
+    "Sunstone.toggle_top" : {
+        type: "custom",
+        layout: "top",
         alwaysActive: true
     },
     "Acl.create_dialog" : {
@@ -634,18 +628,6 @@ function popUpCreateAclDialog(){
     dialog.foundation().foundation('reveal', 'open');
 }
 
-// Prepare the autorefresh of the list
-function setAclAutorefresh(){
-    setInterval(function(){
-        var checked = $('input.check_item:checked',dataTable_acls);
-        var filter = $('#acl_search').attr('value');
-        if ((checked.length==0) && !filter){
-            Sunstone.runAction("Acl.autorefresh");
-        }
-    },INTERVAL+someTime());
-
-}
-
 $(document).ready(function(){
     var tab_name = 'acls-tab';
 
@@ -672,7 +654,6 @@ $(document).ready(function(){
         Sunstone.runAction("Acl.list");
 
         setupCreateAclDialog();
-        setAclAutorefresh();
 
         initCheckAllBoxes(dataTable_acls);
         tableCheckboxesListener(dataTable_acls);

@@ -146,13 +146,6 @@ var zone_actions = {
         error: onError
     },
 
-    "Zone.autorefresh" : {
-        type: "custom",
-        call : function() {
-            OpenNebula.Zone.list({timeout: true, success: updateZonesView,error: onError});
-        }
-    },
-
     "Zone.delete" : {
         type: "multiple",
         call : OpenNebula.Zone.del,
@@ -198,6 +191,11 @@ var zone_buttons = {
     "Zone.refresh" : {
         type: "action",
         layout: "refresh",
+        alwaysActive: true
+    },
+    "Sunstone.toggle_top" : {
+        type: "custom",
+        layout: "top",
         alwaysActive: true
     },
     "Zone.create_dialog" : {
@@ -366,17 +364,6 @@ function updateZoneInfo(request,zone){
     Sunstone.popUpInfoPanel("zone_info_panel", "zones-tab");
 }
 
-//Prepares the autorefresh for zones
-function setZoneAutorefresh() {
-    setInterval(function(){
-        var checked = $('input.check_item:checked',dataTable_zones);
-        var  filter = $("#zone_search").attr('value');
-        if ((checked.length==0) && !filter){
-            Sunstone.runAction("Zone.autorefresh");
-        }
-    },INTERVAL+someTime());
-}
-
 function zones_sel() {
     return zones_select;
 }
@@ -410,8 +397,6 @@ $(document).ready(function(){
       setupCreateZoneDialog();
 
       dialogs_context.append('<div title=\"'+tr("Create zone")+'\" id="create_zone_dialog"></div>');
-
-      setZoneAutorefresh();
 
       initCheckAllBoxes(dataTable_zones);
       tableCheckboxesListener(dataTable_zones);

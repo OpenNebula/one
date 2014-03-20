@@ -370,13 +370,6 @@ var datastore_actions = {
         error: onError
     },
 
-    "Datastore.autorefresh" : {
-        type: "custom",
-        call : function() {
-            OpenNebula.Datastore.list({timeout: true, success: updateDatastoresView,error: onError});
-        }
-    },
-
     "Datastore.delete" : {
         type: "multiple",
         call : OpenNebula.Datastore.del,
@@ -461,6 +454,11 @@ var datastore_buttons = {
     "Datastore.refresh" : {
         type: "action",
         layout: "refresh",
+        alwaysActive: true
+    },
+    "Sunstone.toggle_top" : {
+        type: "custom",
+        layout: "top",
         alwaysActive: true
     },
     "Datastore.create_dialog" : {
@@ -1112,16 +1110,6 @@ function popUpCreateDatastoreDialog(){
     $("input#name",$create_datastore_dialog).focus();
 }
 
-//Prepares autorefresh
-function setDatastoreAutorefresh(){
-     setInterval(function(){
-         var checked = $('input.check_item:checked',dataTable_datastores);
-         var filter = $("#datastore_search").attr('value');
-         if ((checked.length==0) && !filter){
-             Sunstone.runAction("Datastore.autorefresh");
-         };
-     },INTERVAL+someTime());
-}
 
 $(document).ready(function(){
     var tab_name = 'datastores-tab';
@@ -1148,7 +1136,6 @@ $(document).ready(function(){
       Sunstone.runAction("Datastore.list");
 
       setupCreateDatastoreDialog();
-      setDatastoreAutorefresh();
 
       initCheckAllBoxes(dataTable_datastores);
       tableCheckboxesListener(dataTable_datastores);

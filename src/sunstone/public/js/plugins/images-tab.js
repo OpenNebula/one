@@ -297,13 +297,6 @@ var image_actions = {
         }
     },
 
-    "Image.autorefresh" : {
-        type: "custom",
-        call: function() {
-            OpenNebula.Image.list({timeout: true, success: updateImagesView, error: onError});
-        }
-    },
-
     "Image.update_template" : {
         type: "single",
         call: OpenNebula.Image.update,
@@ -444,6 +437,11 @@ var image_buttons = {
     "Image.refresh" : {
         type: "action",
         layout: "refresh",
+        alwaysActive: true
+    },
+    "Sunstone.toggle_top" : {
+        type: "custom",
+        layout: "top",
         alwaysActive: true
     },
     "Image.create_dialog" : {
@@ -1182,17 +1180,6 @@ function popUpCreateImageDialog(){
     $("input#img_name",$create_image_dialog).focus();
 }
 
-// Set the autorefresh interval for the datatable
-function setImageAutorefresh() {
-    setInterval(function(){
-        var checked = $('input.check_item:checked',dataTable_images);
-        var filter = $("#image_search").attr('value');
-        if ((checked.length==0) && !filter){
-            Sunstone.runAction("Image.autorefresh");
-        }
-    },INTERVAL+someTime());
-};
-
 function is_persistent_image(id){
     var data = getElementData(id,"#image",dataTable_images)[8];
     return $(data).is(':checked');
@@ -1301,7 +1288,6 @@ $(document).ready(function(){
 
       setupCreateImageDialog();
       setupImageCloneDialog();
-      setImageAutorefresh();
 
       initCheckAllBoxes(dataTable_images);
       tableCheckboxesListener(dataTable_images);

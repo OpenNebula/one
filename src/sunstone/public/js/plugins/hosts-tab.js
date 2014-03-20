@@ -169,13 +169,6 @@ var host_actions = {
         error: onError
     },
 
-    "Host.autorefresh" : {
-        type: "custom",
-        call : function() {
-            OpenNebula.Host.list({timeout: true, success: updateHostsView,error: onError});
-        }
-    },
-
     "Host.enable" : {
         type: "multiple",
         call : OpenNebula.Host.enable,
@@ -289,6 +282,11 @@ var host_buttons = {
     "Host.refresh" : {
         type: "action",
         layout: "refresh",
+        alwaysActive: true
+    },
+    "Sunstone.toggle_top" : {
+        type: "custom",
+        layout: "top",
         alwaysActive: true
     },
     "Host.create_dialog" : {
@@ -966,17 +964,6 @@ function popUpCreateHostDialog(){
     return false;
 }
 
-//Prepares the autorefresh for hosts
-function setHostAutorefresh() {
-    setInterval(function(){
-        var checked = $('input.check_item:checked',dataTable_hosts);
-        var  filter = $("#hosts_search").attr('value');
-        if ((checked.length==0) && !filter){
-            Sunstone.runAction("Host.autorefresh");
-        }
-    },INTERVAL+someTime());
-}
-
 // Call back when individual host history monitoring fails
 function hostMonitorError(req,error_json){
     var message = error_json.error.message;
@@ -1015,8 +1002,6 @@ $(document).ready(function(){
       Sunstone.runAction("Host.list");
 
       setupCreateHostDialog();
-
-      setHostAutorefresh();
 
       initCheckAllBoxes(dataTable_hosts);
       tableCheckboxesListener(dataTable_hosts);

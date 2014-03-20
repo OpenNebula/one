@@ -462,13 +462,6 @@ var vm_actions = {
         }
     },
 
-    "VM.autorefresh" : {
-        type: "custom",
-        call : function() {
-            OpenNebula.VM.list({timeout: true, success: updateVMachinesView,error: onError});
-        }
-    },
-
     "VM.deploy" : {
         type: "custom",
         call: function(){
@@ -937,7 +930,11 @@ var vm_buttons = {
         layout: "refresh",
         alwaysActive: true
     },
-
+    "Sunstone.toggle_top" : {
+        type: "custom",
+        layout: "top",
+        alwaysActive: true
+    },
     "VM.create_dialog" : {
         type: "action",
         layout: "create",
@@ -3331,18 +3328,6 @@ function popUpMigrateVMDialog(live){
     $migrate_vm_dialog.foundation().foundation('reveal', 'open');
 }
 
-
-//Prepares autorefresh
-function setVMAutorefresh(){
-     setInterval(function(){
-         var checked = $('input.check_item:checked',dataTable_vMachines);
-         var filter = $("#vms_search").attr('value');
-         if ((checked.length==0) && !filter){
-             Sunstone.runAction("VM.autorefresh");
-         };
-     },INTERVAL+someTime());
-}
-
 //This is taken from noVNC examples
 function updateVNCState(rfb, state, oldstate, msg) {
     var s, sb, cad, klass;
@@ -3519,7 +3504,6 @@ $(document).ready(function(){
 
       Sunstone.runAction("VM.list");
 
-      setVMAutorefresh();
       setupVNC();
       hotpluggingOps();
       setup_vm_network_tab();

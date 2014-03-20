@@ -937,22 +937,6 @@ var service_actions = {
         }
     },
 
-    "Service.autorefresh" : {
-        type: "custom",
-        call: function() {
-            Service.list({
-                timeout: true,
-                success: function(request, service_list) {
-                    $("#oneflow-services #error_message").hide();
-                    updateServicesView(request, service_list);
-                },
-                error: function(request, error_json) {
-                    onError(request, error_json, $("#oneflow-services #error_message"));
-                }
-            });
-        }
-    },
-
     "Service.delete" : {
         type: "multiple",
         call: Service.del,
@@ -1015,7 +999,11 @@ var service_buttons = {
         layout: "refresh",
         alwaysActive: true
     },
-
+    "Sunstone.toggle_top" : {
+        type: "custom",
+        layout: "top",
+        alwaysActive: true
+    },
     "Service.chown" : {
         type: "confirm_with_select",
         text: tr("Change owner"),
@@ -1706,17 +1694,6 @@ function popUpScaleDialog(){
     return false;
 }
 
-// Set the autorefresh interval for the datatable
-function setServiceAutorefresh() {
-    setInterval(function(){
-        var checked = $('input.check_item:checked',dataTable_services);
-        var filter = $("#services_search").attr('value');
-        if ((checked.length==0) && !filter){
-            Sunstone.runAction("Service.autorefresh");
-        }
-    },INTERVAL+someTime());
-};
-
 //The DOM is ready at this point
 $(document).ready(function(){
     var tab_name = "oneflow-services";
@@ -1740,8 +1717,6 @@ $(document).ready(function(){
         })
 
         Sunstone.runAction("Service.list");
-
-        setServiceAutorefresh();
 
         initCheckAllBoxes(dataTable_services);
         tableCheckboxesListener(dataTable_services);

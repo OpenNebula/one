@@ -237,13 +237,6 @@ var group_actions = {
         error: onError
     },
 
-    "Group.autorefresh" : {
-        type: "custom",
-        call: function () {
-            OpenNebula.Group.list({timeout: true, success: updateGroupsView,error: onError});
-        }
-    },
-
     "Group.refresh" : {
         type: "custom",
         call: function() {
@@ -380,6 +373,11 @@ var group_buttons = {
     "Group.refresh" : {
         type: "action",
         layout: "refresh",
+        alwaysActive: true
+    },
+    "Sunstone.toggle_top" : {
+        type: "custom",
+        layout: "top",
         alwaysActive: true
     },
     "Group.create_dialog" : {
@@ -1340,17 +1338,6 @@ function popUpGroupQuotasDialog(){
     popUpQuotasDialog($group_quotas_dialog, 'Group', groupElements())
 }
 
-//Prepares the autorefresh
-function setGroupAutorefresh(){
-    setInterval(function(){
-        var checked = $('input.check_item:checked',dataTable_groups);
-        var  filter = $("#group_search").attr('value');
-        if ((checked.length==0) && !filter){
-            Sunstone.runAction("Group.autorefresh");
-        }
-    },INTERVAL+someTime());
-}
-
 $(document).ready(function(){
     var tab_name = 'groups-tab';
 
@@ -1375,7 +1362,6 @@ $(document).ready(function(){
       Sunstone.runAction("Group.list");
       setupCreateGroupDialog();
       setupGroupQuotasDialog();
-      setGroupAutorefresh();
 
       initCheckAllBoxes(dataTable_groups);
       tableCheckboxesListener(dataTable_groups);

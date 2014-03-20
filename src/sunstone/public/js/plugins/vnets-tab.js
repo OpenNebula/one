@@ -373,13 +373,6 @@ var vnet_actions = {
         }
     },
 
-    "Network.autorefresh" : {
-        type: "custom",
-        call: function() {
-            OpenNebula.Network.list({timeout: true, success: updateVNetworksView, error: onError});
-        }
-    },
-
     "Network.publish" : {
         type: "multiple",
         call: OpenNebula.Network.publish,
@@ -521,6 +514,12 @@ var vnet_buttons = {
     "Network.refresh" : {
         type: "action",
         layout: "refresh",
+        alwaysActive: true
+    },
+
+    "Sunstone.toggle_top" : {
+        type: "custom",
+        layout: "top",
         alwaysActive: true
     },
 
@@ -1351,16 +1350,6 @@ function setupLeasesOps(){
   }
 }
 
-function setVNetAutorefresh() {
-    setInterval(function(){
-        var checked = $('input.check_item:checked',dataTable_vNetworks);
-        var filter = $("#vnet_search").attr('value');
-        if ((checked.length==0) && !filter){
-            Sunstone.runAction("Network.autorefresh");
-        }
-    },INTERVAL+someTime());
-};
-
 //The DOM is ready and the ready() from sunstone.js
 //has been executed at this point.
 $(document).ready(function(){
@@ -1388,7 +1377,6 @@ $(document).ready(function(){
 
       setupCreateVNetDialog();
       setupLeasesOps();
-      setVNetAutorefresh();
 
       initCheckAllBoxes(dataTable_vNetworks);
       tableCheckboxesListener(dataTable_vNetworks);

@@ -283,13 +283,6 @@ var template_actions = {
         }
     },
 
-    "Template.autorefresh" : {
-        type: "custom",
-        call: function() {
-            OpenNebula.Template.list({timeout: true, success: updateTemplatesView, error: onError});
-        }
-    },
-
     "Template.show_to_update" : {
         type: "single",
         call: OpenNebula.Template.show,
@@ -452,6 +445,11 @@ var template_buttons = {
     "Template.refresh" : {
         type: "action",
         layout: "refresh",
+        alwaysActive: true
+    },
+    "Sunstone.toggle_top" : {
+        type: "custom",
+        layout: "top",
         alwaysActive: true
     },
     "Template.create_dialog" : {
@@ -4612,17 +4610,6 @@ function popUpTemplateCloneDialog(){
     $("input[name='name']",dialog).focus();
 }
 
-// Set the autorefresh interval for the datatable
-function setTemplateAutorefresh() {
-    setInterval(function(){
-        var checked = $('input.check_item:checked',dataTable_templates);
-        var filter = $("#template_search").attr('value');
-        if ((checked.length==0) && !filter){
-            Sunstone.runAction("Template.autorefresh");
-        }
-    },INTERVAL+someTime());
-};
-
 // Instantiate dialog
 // Sets up the instiantiate template dialog and all the processing associated to it
 function setupInstantiateTemplateDialog(easy_provision){
@@ -4839,7 +4826,6 @@ $(document).ready(function(){
 
       Sunstone.runAction("Template.list");
       setupTemplateCloneDialog();
-      setTemplateAutorefresh();
 
       initCheckAllBoxes(dataTable_templates);
       tableCheckboxesListener(dataTable_templates);

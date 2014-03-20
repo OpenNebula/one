@@ -191,13 +191,6 @@ var file_actions = {
         }
     },
 
-    "File.autorefresh" : {
-        type: "custom",
-        call: function() {
-            OpenNebula.Image.list({timeout: true, success: updateFilesView, error: onError});
-        }
-    },
-
     "File.update_template" : {
         type: "single",
         call: OpenNebula.Image.update,
@@ -303,6 +296,11 @@ var file_buttons = {
     "File.refresh" : {
         type: "action",
         layout: "refresh",
+        alwaysActive: true
+    },
+    "Sunstone.toggle_top" : {
+        type: "custom",
+        layout: "top",
         alwaysActive: true
     },
     "File.create_dialog" : {
@@ -804,17 +802,6 @@ function popUpCreateFileDialog(){
     $("input#file_name",$create_file_dialog).focus();
 }
 
-// Set the autorefresh interval for the datatable
-function setFileAutorefresh() {
-    setInterval(function(){
-        var checked = $('input.check_item:checked',dataTable_files);
-        var filter = $("#file_search").attr('value');
-        if ((checked.length==0) && !filter){
-            Sunstone.runAction("File.autorefresh");
-        }
-    },INTERVAL+someTime());
-};
-
 function is_persistent_file(id){
     var data = getElementData(id,"#file",dataTable_files)[8];
     return $(data).is(':checked');
@@ -845,7 +832,6 @@ $(document).ready(function(){
       Sunstone.runAction("File.list");
 
       setupCreateFileDialog();
-      setFileAutorefresh();
 
       initCheckAllBoxes(dataTable_files);
       tableCheckboxesListener(dataTable_files);

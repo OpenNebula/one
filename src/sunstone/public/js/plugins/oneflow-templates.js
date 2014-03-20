@@ -408,22 +408,6 @@ var service_template_actions = {
         }
     },
 
-    "ServiceTemplate.autorefresh" : {
-        type: "custom",
-        call: function() {
-            ServiceTemplate.list({
-                timeout: true,
-                success: function(request, service_list) {
-                    $("#oneflow-templates #error_message").hide();
-                    updateServiceTemplatesView(request, service_list);
-                },
-                error: function(request, error_json) {
-                    onError(request, error_json, $("#oneflow-templates #error_message"));
-                }
-            });
-        }
-    },
-
     "ServiceTemplate.delete" : {
         type: "multiple",
         call: ServiceTemplate.del,
@@ -476,6 +460,11 @@ var service_template_buttons = {
     "ServiceTemplate.refresh" : {
         type: "action",
         layout: "refresh",
+        alwaysActive: true
+    },
+    "Sunstone.toggle_top" : {
+        type: "custom",
+        layout: "top",
         alwaysActive: true
     },
     "ServiceTemplate.create_dialog" : {
@@ -1413,18 +1402,6 @@ function fillUpUpdateServiceTemplateDialog(request, response){
     dialog.foundation('reveal', 'open');
 }
 
-// Set the autorefresh interval for the datatable
-function setServiceTemplateAutorefresh() {
-    setInterval(function(){
-        var checked = $('input.check_item:checked',dataTable_service_templates);
-        var filter = $("#service_template_search").attr('value');
-        if ((checked.length==0) && !filter){
-            Sunstone.runAction("ServiceTemplate.autorefresh");
-        }
-    },INTERVAL+someTime());
-};
-
-
 //The DOM is ready at this point
 $(document).ready(function(){
     var tab_name = "oneflow-templates";
@@ -1448,8 +1425,6 @@ $(document).ready(function(){
         })
 
         Sunstone.runAction("ServiceTemplate.list");
-
-        setServiceTemplateAutorefresh();
 
         initCheckAllBoxes(dataTable_service_templates);
         tableCheckboxesListener(dataTable_service_templates);

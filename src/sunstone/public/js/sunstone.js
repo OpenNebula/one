@@ -39,6 +39,10 @@ var info_panels_context;
 
 panel_extended = false;
 
+// global settings
+var top_interval = 10000; //ms
+var top_interval_ids = {};
+
 //Sunstone configuration is formed by predifined "actions", main tabs
 //and "info_panels". Each tab has "content" and "buttons". Each
 //"info_panel" has "tabs" with "content".
@@ -699,7 +703,7 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
             switch (button.layout) {
             case "create":
                 context = $("#"+custom_id+"create_buttons", buttons_row);
-                text = button.text ? '<i class="fa fa-plus-sign"/>  ' + button.text : '<i class="fa fa-plus-sign"/>  ' + tr("Create");
+                text = button.text ? '<i class="fa fa-plus"/>  ' + button.text : '<i class="fa fa-plus"/>';
                 str_class.push("success", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
@@ -708,6 +712,12 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                 text = '<i class="fa fa-refresh"/>';
                 str_class.push("secondary", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
+                break;
+            case "top":
+                context = $("#"+custom_id+"refresh_buttons", buttons_row);
+                text = '<i class="fa fa-eye"/>';
+                str_class.push("toggle_top_button", "only-right-list","secondary", "button", "small", "radius");
+                button_code = '<button class="'+str_class.join(' ')+'">'+text+'</button>';
                 break;
             case "main":
                 context = $("#"+custom_id+"main_buttons", buttons_row);
@@ -3669,6 +3679,29 @@ $(document).ready(function(){
         return false;
     });
 
+    //Listen .toggle_top_buttons.
+    $(".toggle_top_button").live("click", function(){
+        var tab = $(this).parents(".tab");
+        var custom_id = tab.attr('id');
+
+        if(top_interval_ids[custom_id] == null){
+            $(this).html('<i class="fa fa-eye-slash"/>');
+
+            var refresh_button = $(".fa-refresh", $(this).parents(".action_blocks"));
+            top_interval_ids[custom_id] = setInterval(function(){
+                if(Sunstone.rightListVisible(tab)){
+                    //console.log("top for "+custom_id);
+                    refresh_button.click();
+                }
+                //else {console.log("top not visible for "+custom_id);}
+            }, top_interval);
+        } else {
+            clearInterval(top_interval_ids[custom_id]);
+            top_interval_ids[custom_id] = null;
+
+            $(this).html('<i class="fa fa-eye"/>');
+        }
+    });
 
     //Listen .confirm_buttons. These buttons show a confirmation dialog
     //before running the action.
