@@ -60,7 +60,6 @@ var market_actions = {
             dialogs_context.append(marketplace_import_dialog);
             $marketplace_import_dialog = $('#marketplace_import_dialog',dialogs_context);
             $marketplace_import_dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
-            $marketplace_import_dialog.foundation().foundation('reveal', 'open');
 
             var tab_id = 1;
 
@@ -110,8 +109,8 @@ var market_actions = {
                 })
 
                 image_dialog.on("close", function(){
-                  a_image_dialog.html("");
-                  image_dialog.html("");
+                  a_image_dialog.remove();
+                  image_dialog.remove();
                   if ($('a', $("dl#marketplace_import_dialog_tabs")).size > 0) {
                     $('a', $("dl#marketplace_import_dialog_tabs")).first().click();
                   } else {
@@ -125,7 +124,19 @@ var market_actions = {
             })
 
             if (response['opennebula_template'] && response['opennebula_template'] !== "CPU=1") {
-              $create_template_dialog.html("");
+              var opennebula_template;
+
+              try {
+                opennebula_template = JSON.parse(response['opennebula_template']);
+              } catch (error) {
+                notifyError("Error parsing OpenNebula template: " + error.message);
+                return;
+              }
+
+              if ($create_template_dialog) {
+                $create_template_dialog.html("");
+              }
+
               // Template
               // Append the new div containing the tab and add the tab to the list
               var template_dialog = $('<div id="'+tab_id+'Tab" class="content disk wizard_internal_tab">'+
@@ -137,17 +148,15 @@ var market_actions = {
               </dd>").appendTo($("dl#marketplace_import_dialog_tabs"));
 
               initialize_create_template_dialog(template_dialog);
-              fillTemplatePopUp(
-                JSON.parse(response['opennebula_template']),
-                template_dialog);
+              fillTemplatePopUp(opennebula_template, template_dialog);
 
               a_template_dialog.on('click', function(){
                   $create_template_dialog = template_dialog;
               })
 
               template_dialog.on("close", function(){
-                a_template_dialog.html("");
-                template_dialog.html("");
+                a_template_dialog.remove();
+                template_dialog.remove();
                 if ($('a', $("dl#marketplace_import_dialog_tabs")).size > 0) {
                   $('a', $("dl#marketplace_import_dialog_tabs")).first().click();
                 } else {
@@ -159,7 +168,13 @@ var market_actions = {
               $("a[href='#manual']", template_dialog).closest('dl').remove();
             }
 
+            $marketplace_import_dialog.foundation().foundation('reveal', 'open');
             $('a', $("dl#marketplace_import_dialog_tabs")).first().click();
+
+            $marketplace_import_dialog.on('closed', function(){
+              $marketplace_import_dialog.remove();
+              $marketplace_import_dialog = undefined;
+            })
         },
         error: onError
     },
@@ -325,10 +340,9 @@ function updateMarketInfo(request,app){
 
  function infoListenerMarket(dataTable){
     $('tbody tr',dataTable).live("click",function(e){
-
-    if ($(e.target).is('input') ||
-        $(e.target).is('select') ||
-        $(e.target).is('option')) return true;
+      if ($(e.target).is('input') ||
+          $(e.target).is('select') ||
+          $(e.target).is('option')) return true;
 
       var aData = dataTable.fnGetData(this);
       var id =aData["_id"]["$oid"];

@@ -244,13 +244,15 @@ var image_actions = {
         type: "create",
         call: OpenNebula.Image.create,
         callback: function(request, response){
-            // Reset the create wizard
+          addImageElement(request, response);
+          if ($appmarket_import_dialog || $marketplace_import_dialog) {
+            $create_image_dialog.trigger('close');
+          } else {
             $create_image_dialog.foundation('reveal', 'close');
             $create_image_dialog.empty();
             setupCreateImageDialog();
-
-            addImageElement(request, response);
-            notifyCustom(tr("Image created"), " ID: " + response.IMAGE.ID, false);
+          }
+          notifyCustom(tr("Image created"), " ID: " + response.IMAGE.ID, false)
         },
         error: onError
     },
@@ -1020,6 +1022,8 @@ function initialize_create_image_dialog(dialog) {
     });
 
     $('#create_image_submit',dialog).click(function(){
+        $create_image_dialog = dialog;
+
         var exit = false;
         var upload = false;
         $('.img_man',this).each(function(){

@@ -1242,6 +1242,7 @@ function updateView(item_list,dataTable){
 
 //replaces an element with id 'tag' in a dataTable with a new one
 function updateSingleElement(element,dataTable,tag){
+    // fnGetData should be used instead, otherwise it depends on the visible columns
     var nodes = dataTable.fnGetNodes();
     var tr = $(tag,nodes).parents('tr')[0];
     var checked_val = $('input.check_item',tr).attr('checked');
