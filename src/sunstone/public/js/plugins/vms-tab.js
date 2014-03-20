@@ -3396,6 +3396,8 @@ function setupVNC(){
 
     dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
 
+    $vnc_dialog.foundation();
+
     $('#sendCtrlAltDelButton',dialog).click(function(){
         rfb.sendCtrlAltDel();
         return false;
@@ -3437,6 +3439,8 @@ function vncCallback(request,response){
     $("#open_in_a_new_window").attr('href', url)
     rfb.connect(proxy_host, proxy_port, pw, path);
     $vnc_dialog.foundation("reveal", "open");
+
+    $vnc_dialog.off("closed");
     $vnc_dialog.on("closed", function () {
       rfb.disconnect();
     });
