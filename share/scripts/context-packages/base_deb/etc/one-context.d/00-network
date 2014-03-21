@@ -166,13 +166,25 @@ EOT
 configure_network()
 {
     gen_network_configuration > /etc/network/interfaces
+}
 
-    service networking stop
-    sleep 1
-    service networking start
+activate_network()
+{
+    if [[ `lsb_release -c | awk '{print($2)}'` = precise ]]; then
+        IFACES=`get_interfaces`
+
+        for i in $IFACES; do
+            DEV=`get_dev $i`
+            service network-interface restart INTERFACE=$DEV
+        done
+    else
+        service networking stop
+        sleep 1
+        service networking start
+    fi
 
     sleep 2
 }
 
 configure_network
-
+activate_network

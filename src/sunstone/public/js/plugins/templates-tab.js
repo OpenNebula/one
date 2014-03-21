@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 var create_template_tmpl = '\
-<div class="row">'+
+<div class="row" id="create_template_header_row">'+
   '<div class="large-5 columns">'+
     '<h3 class="subheader" id="create_template_header">'+tr("Create VM Template")+'</h3><h3 class="subheader" id="update_template_header" class="hidden">'+tr("Update VM Template")+'</h3>'+
   '</div>'+
@@ -226,8 +226,11 @@ var template_actions = {
         type: "create",
         call: OpenNebula.Template.create,
         callback: function(request, response){
-          $create_template_dialog.foundation('reveal', 'close')
-          $create_template_dialog.empty();
+          if ($appmarket_import_dialog || $marketplace_import_dialog) {
+            $create_template_dialog.trigger('close');
+          } else {
+            $create_template_dialog.foundation('reveal', 'close');
+          }
           addTemplateElement(request, response);
           notifyCustom(tr("Template created"), " ID: " + response.VMTEMPLATE.ID, false)
         },
@@ -3230,16 +3233,16 @@ function setup_context_tab_content(context_section) {
             $("td", this).removeClass('markrowchecked');
             $('div#selected_files_spans span#tag_file_'+file_id, context_section).remove();
         }
-  
+
         if ($.isEmptyObject(selected_files)) {
           $('#files_selected',  context_section).hide();
           $('#select_files', context_section).show();
         }
-  
+
         $('.alert-box', $('#contextTab')).hide();
-  
+
         generate_context_files();
-  
+
         return true;
     });
 
@@ -3752,6 +3755,7 @@ function initialize_create_template_dialog(dialog) {
 
     //Process form
     $('button#create_template_form_easy',dialog).click(function(){
+        $create_template_dialog = dialog;
          //wrap it in the "vmtemplate" object
         var vm_json = build_template();
         vm_json = {vmtemplate: vm_json};

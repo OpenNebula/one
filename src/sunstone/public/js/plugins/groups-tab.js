@@ -1263,7 +1263,7 @@ function setupCreateGroupDialog(){
                 separator = "+";
             });
 
-            group_json['group']['admin_group_resources'] = resources;
+            group_json['group']['admin_resources'] = resources;
 
             if ( $('#group_admin_res_user', dialog).prop("checked") ){
                 group_json['group']['admin_manage_users'] = "YES";
