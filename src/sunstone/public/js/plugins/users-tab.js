@@ -16,7 +16,6 @@
 
 /*Users tab plugin*/
 var dataTable_users;
-var users_select="";
 var $create_user_dialog;
 var $user_quotas_dialog;
 var $update_pw_dialog;
@@ -465,7 +464,7 @@ var user_buttons = {
         type: "confirm_with_select",
         text: tr("Change group"),
         layout: "user_select",
-        select: groups_sel,
+        select: "Group",
         tip: tr("This will change the main group of the selected users. Select the new group")+":",
         condition: mustBeAdmin
     },
@@ -473,7 +472,7 @@ var user_buttons = {
         type: "confirm_with_select",
         text: tr("Add to group"),
         layout: "user_select",
-        select: groups_sel,
+        select: "Group",
         tip: tr("This will add the user to a secondary group. Select the new group")+":",
         condition: mustBeAdmin
     },
@@ -481,7 +480,7 @@ var user_buttons = {
         type: "confirm_with_select",
         text: tr("Remove from group"),
         layout: "user_select",
-        select: groups_sel,
+        select: "Group",
         tip: tr("This will remove the user from a secondary group. Select the group")+":",
         condition: mustBeAdmin
     },
@@ -588,15 +587,6 @@ function userElementArray(user_json){
     ]
 };
 
-function updateUserSelect(){
-    users_select = makeSelectOptions(dataTable_users,
-                                     1,//id_col
-                                     2,//name_col
-                                     [],//status_cols
-                                     []//bad status values
-                                     );
-}
-
 // Callback to refresh a single element from the dataTable
 function updateUserElement(request, user_json){
     var id = user_json.USER.ID;
@@ -607,14 +597,12 @@ function updateUserElement(request, user_json){
 // Callback to delete a single element from the dataTable
 function deleteUserElement(req){
     deleteElement(dataTable_users,'#user_'+req.request.data);
-    updateUserSelect();
 }
 
 // Callback to add a single user element
 function addUserElement(request,user_json){
     var element = userElementArray(user_json);
     addElement(element,dataTable_users);
-    updateUserSelect();
 }
 
 // Callback to update the list of users
@@ -638,7 +626,6 @@ function updateUsersView(request,users_list,quotas_list){
     });
     updateView(user_list_array,dataTable_users);
 
-    updateUserSelect();
 
     $(".total_users").text(users_list.length);
 };

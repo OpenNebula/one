@@ -28,14 +28,39 @@ var create_acl_tmpl =
 <form id="create_acl_form" action="">\
         <div class="row">\
           <div class="large-6 columns">\
-              <label for="applies">'+tr("This rule applies to")+':</label>\
-              <select name="applies" id="applies"></select>\
-          </div>\
-          <div class="large-6 columns">\
             <label for="zones_applies">'+tr("Zones where the rule applies")+'</label>\
-            <select name="zones_applies" id="zones_applies"></select>\
+            <div name="zones_applies" id="zones_applies">\
+            </div>\
           </div>\
         </div>\
+        <fieldset>\
+            <legend>'+tr("This rule applies to")+'</legend>\
+            <div class="row">\
+                <div class="large-3 columns">\
+                    <input type="radio" class="applies" name="applies_select" value="*" id="applies_all"><label class="applies" for="applies_all">'+tr("All")+'</label>\
+                </div>\
+                <div class="large-3 columns">\
+                    <input type="radio" class="applies" name="applies_select" value="applies_to_user" id="applies_id"><label class="applies" for="applies_id">'+tr("User")+'</label>\
+                </div>\
+                <div class="large-3 columns">\
+                    <input type="radio" class="applies" name="applies_select" value="applies_to_group" id="applies_group"><label class="applies" for="applies_group">'+tr("Group")+'</label>\
+                </div>\
+            </div>\
+            <div class="row">\
+                <div class="large-6 columns">\
+                    <div class="applies_to_user">\
+                        <label for="applies_to_user">'+tr("User")+':</label>\
+                        <div name="applies_to_user" id="applies_to_user">\
+                        </div>\
+                    </div>\
+                    <div class="applies_to_group">\
+                        <label for="applies_to_group">'+tr("Group")+':</label>\
+                        <div name="applies_to_group" id="applies_to_group">\
+                        </div>\
+                    </div>\
+                </div>\
+            </div>\
+        </fieldset>\
         <fieldset>\
             <legend>'+tr("Affected resources")+'</legend>\
         <div class="row">\
@@ -104,7 +129,8 @@ var create_acl_tmpl =
                 </div>\
                 <div class="belonging_to">\
                     <label for="belonging_to">'+tr("Group")+':</label>\
-                    <select name="belonging_to" id="belonging_to"></select>\
+                    <div name="belonging_to" id="belonging_to">\
+                    </div>\
                 </div>\
                 <div class="in_cluster">\
                     <label for="in_cluster">'+tr("Cluster")+':</label>\
@@ -449,12 +475,35 @@ function setupCreateAclDialog(){
     dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
 
     //Default selected options
+    $('#applies_all',dialog).attr('checked','checked');
+    $('.applies_to_user',dialog).hide();
+    $('.applies_to_group',dialog).hide();
+
     $('#res_subgroup_all',dialog).attr('checked','checked');
     $('.res_id',dialog).hide();
     $('.belonging_to',dialog).hide();
     $('.in_cluster',dialog).hide();
 
     //$('button',dialog).button();
+
+    //Applies to subset radio buttons
+    $('.applies',dialog).click(function(){
+        var value = $(this).val();
+        switch (value) {
+        case "*":
+            $('.applies_to_user',dialog).hide();
+            $('.applies_to_group',dialog).hide();
+            break;
+        case "applies_to_user":
+            $('.applies_to_user',dialog).show();
+            $('.applies_to_group',dialog).hide();
+            break;
+        case "applies_to_group":
+            $('.applies_to_user',dialog).hide();
+            $('.applies_to_group',dialog).show();
+            break;
+        };
+    });
 
     //Resource subset radio buttons
     $('.res_subgroup',dialog).click(function(){
@@ -492,13 +541,20 @@ function setupCreateAclDialog(){
     $(dialog).off('change', 'input,select');
     $(dialog).on('change', 'input,select', function(){
         var context = $('#create_acl_form',$create_acl_dialog);
-        var user = $('#applies',context).val();
 
-        if ($('#applies :selected',context).hasClass("user")){
-            user='#'+user;
-        } else if ($('#applies :selected',context).hasClass("group")){
-            user = '@'+user;
-        };
+        var user="";
+        var mode = $('.applies:checked',context).val();
+        switch (mode) {
+        case "*":
+            user="*";
+            break;
+        case "applies_to_user":
+            user="#"+$('div#applies_to_user .resource_list_select',context).val();
+            break;
+        case "applies_to_group":
+            user="@"+$('div#applies_to_group .resource_list_select',context).val();
+            break;
+        }
 
         var resources = "";
         $('.resource_cb:checked',context).each(function(){
@@ -516,7 +572,7 @@ function setupCreateAclDialog(){
             belonging="#"+$('#res_id',context).val();
             break;
         case "belonging_to":
-            belonging="@"+$('#belonging_to',context).val();
+            belonging="@"+$('div#belonging_to .resource_list_select',context).val();
             break;
         case "in_cluster":
             belonging="%"+$('#in_cluster .resource_list_select',context).val();
@@ -530,9 +586,9 @@ function setupCreateAclDialog(){
         });
         if (rights.length) { rights = rights.substring(0,rights.length-1) };
 
-        var zone = $('#zones_applies',context).val();
+        var zone = $('#zones_applies .resource_list_select',context).val();
 
-        if ($('#zones_applies :selected',context).hasClass("zone")){
+        if (zone != "*"){
             zone = '#'+zone;
         }
 
@@ -543,11 +599,23 @@ function setupCreateAclDialog(){
     });
 
     $('#create_acl_form',dialog).submit(function(){
-        var user = $('#applies',this).val();
-        if (!user.length) {
-            notifyError(tr("Please specify to who this ACL applies"));
-            return false;
-        };
+        var mode = $('.applies:checked',this).val();
+        switch (mode) {
+        case "applies_to_user":
+            var l=$('#applies_to_user .resource_list_select',this).val().length;
+            if (!l){
+                notifyError("Please select a user to whom the acl applies");
+                return false;
+            }
+            break;
+        case "applies_to_group":
+            var l=$('#applies_to_group .resource_list_select',this).val().length;
+            if (!l){
+                notifyError("Please select a group to whom the acl applies");
+                return false;
+            }
+            break;
+        }
 
         var resources = $('.resource_cb:checked',this).length;
         if (!resources) {
@@ -565,7 +633,7 @@ function setupCreateAclDialog(){
             }
             break;
         case "belonging_to":
-            var l=$('#belonging_to',this).val().length;
+            var l=$('#belonging_to .resource_list_select',this).val().length;
             if (!l){
                 notifyError("Please select a group to which the selected resources belong to");
                 return false;
@@ -598,34 +666,16 @@ function setupCreateAclDialog(){
 // required: we have to put the right options in the
 // selects.
 function popUpCreateAclDialog(){
-    var users = $('<select>'+users_sel()+'</select>');
-    $('.empty_value',users).remove();
-    $('option',users).addClass("user");
-    users.prepend('<option value="">---'+tr("Users")+'---</option>');
-
-    var groups = $('<select>'+groups_sel()+'</select>');
-    $('.empty_value',groups).remove();
-    $('option',groups).addClass("group");
-    groups.prepend('<option value="">---'+tr("Groups")+'---</option>');
-
     var dialog =  $create_acl_dialog;
 
-    $('#applies',dialog).html('<option value="*">'+tr("All")+'</option>'+
-                                          users.html()+groups.html());
-    $('#belonging_to',dialog).html(groups_select);
-    insertSelectClusters('#in_cluster',dialog, null, true);
+    insertSelectOptions('div#applies_to_user', dialog, "User", null, true);
+    insertSelectOptions('div#applies_to_group', dialog, "Group", null, true);
 
-    $('#applies',dialog).trigger("change");
+    insertSelectOptions('div#belonging_to', dialog, "Group", null, true);
+    insertSelectOptions('#in_cluster',dialog, "Cluster", null, true);
 
-    var zones = $('<select>'+zones_sel()+'</select>');
-    $('.empty_value',zones).remove();
-    $('option',zones).addClass("zone");
-
-    $('#zones_applies',dialog).html('<option value="*">'+tr("All")+'</option>'+
-                                          zones.html());
-
-    $('#zones_applies',dialog).trigger("change");
-
+    insertSelectOptions('div#zones_applies', dialog, "Zone", "*", false,
+                        '<option value="*">'+tr("All")+'</option>');
 
     dialog.foundation().foundation('reveal', 'open');
 }

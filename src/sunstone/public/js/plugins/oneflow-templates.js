@@ -93,7 +93,7 @@ var create_service_template_tmpl = '\
                     </select>\
                 </div>\
                 <div class="service_template_param st_man large-6 columns">\
-                    <label for="vm_template">' + tr("Shutdown action") +
+                    <label for="shutdown_action_service">' + tr("Shutdown action") +
                         '<span class="tip">'+ tr("VM shutdown action: 'shutdown' or 'shutdown-hard'.") +'</span>'+
                     '</label>\
                     <select name="shutdown_action_service">\
@@ -137,8 +137,8 @@ var role_tab_content = '\
                 <label for="vm_template">' + tr("VM template") +
                     '<span class="tip">'+ tr("Template associated to this role") +'</span>'+
                 '</label>\
-                <select name="vm_template">\
-                </select>\
+                <div id="vm_template">\
+                </div>\
     </div>\
 </div>\
 <div class="row">\
@@ -149,7 +149,7 @@ var role_tab_content = '\
         <input type="text" id="cardinality" name="cardinality" value="1" />\
     </div>\
     <div class="service_template_param service_role large-3 columns">\
-        <label for="vm_template">' + tr("Shutdown action") +
+        <label for="shutdown_action_role">' + tr("Shutdown action") +
             '<span class="tip">'+ tr("VM shutdown action: 'shutdown' or 'shutdown-hard'. If it is not set, the one set for the Service will be used") +'</span>'+
         '</label>\
         <select name="shutdown_action_role">\
@@ -484,7 +484,7 @@ var service_template_buttons = {
     "ServiceTemplate.chown" : {
         type: "confirm_with_select",
         text: tr("Change owner"),
-        select: users_sel,
+        select: "User",
         layout: "user_select",
         tip: tr("Select the new owner")+":",
         condition: mustBeAdmin
@@ -492,7 +492,7 @@ var service_template_buttons = {
     "ServiceTemplate.chgrp" : {
         type: "confirm_with_select",
         text: tr("Change group"),
-        select: groups_sel,
+        select: "Group",
         layout: "user_select",
         tip: tr("Select the new group")+":",
         condition: mustBeAdmin
@@ -901,8 +901,7 @@ function setup_policy_tab_content(policy_section, html_policy_id) {
 function setup_role_tab_content(role_section, html_role_id) {
     setupTips(role_section);
 
-    var tpl_select = makeSelectOptions(dataTable_templates, 1, 4, [], [], true);
-    $('select[name="vm_template"]', role_section).html(tpl_select);
+    insertSelectOptions('div#vm_template', role_section, "Template", null, false);
 
     $("#role_name", role_section).change(function(){
         $("#" + html_role_id +" #role_name_text").html($(this).val());
@@ -1180,7 +1179,7 @@ function generate_json_service_template_from_form() {
         var role = {};
         role['name'] = $('input[name="name"]', this).val();
         role['cardinality'] = $('input[name="cardinality"]', this).val();
-        role['vm_template'] = $('select[name="vm_template"]', this).val();
+        role['vm_template'] = $('#vm_template .resource_list_select', this).val();
         role['shutdown_action'] = $('select[name="shutdown_action_role"]', this).val();
         role['parents'] = [];
 
@@ -1326,7 +1325,13 @@ function fillUpUpdateServiceTemplateDialog(request, response){
         roles_names.push(value.name);
 
         $("#cardinality", context).val(value.cardinality);
-        $('select[name="vm_template"]', context).val(value.vm_template);
+
+        // The vm_template select is already initialized, but we need to select
+        // the template retrived from the service_template. Since the initialization
+        // is async, we can't assume the .resource_list_select exists yet.
+        // Calling the initialization again with the correct init_val should
+        // use the cache anyway
+        insertSelectOptions('div#vm_template', context, "Template", value.vm_template, false);
 
         $("select[name='shutdown_action_role']", context).val(value.shutdown_action);
         $("#min_vms", context).val(value.min_vms);

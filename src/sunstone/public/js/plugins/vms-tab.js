@@ -949,7 +949,7 @@ var vm_buttons = {
     "VM.chown" : {
         type: "confirm_with_select",
         text: tr("Change owner"),
-        select: users_sel,
+        select: "User",
         layout: "user_select",
         tip: tr("Select the new owner")+":",
         condition: mustBeAdmin
@@ -958,7 +958,7 @@ var vm_buttons = {
     "VM.chgrp" : {
         type: "confirm_with_select",
         text: tr("Change group"),
-        select: groups_sel,
+        select: "Group",
         layout: "user_select",
         tip: tr("Select the new group")+":",
         condition: mustBeAdmin
@@ -1098,8 +1098,8 @@ var vm_buttons = {
         type: "confirm_with_select",
         text: tr("Recover"),
         layout: "vmsplanification_buttons",
-        select: function(){ return '<option value="success">' + tr("success") + '</option>\
-                 <option value="failure">' + tr("failure") + '</option>'},
+        custom_select: '<select class="resource_list_select"><option value="success">' + tr("success") + '</option>\
+                 <option value="failure">' + tr("failure") + '</option></select>',
         tip: tr("Recovers a stuck VM that is waiting for a driver operation. \
                 The recovery may be done by failing or succeeding the pending operation. \
                 YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation \

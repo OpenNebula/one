@@ -109,7 +109,6 @@ var create_host_tmpl =
 </div>\
 <a class="close-reveal-modal">&#215;</a>';
 
-var hosts_select="";
 var dataTable_hosts;
 var $create_host_dialog;
 
@@ -298,7 +297,7 @@ var host_buttons = {
     "Host.addtocluster" : {
         type: "confirm_with_select",
         text: tr("Select cluster"),
-        select: insertSelectClusters,
+        select: "Cluster",
         tip: tr("Select the destination cluster:"),
         layout: "more_select",
         condition: mustBeAdmin
@@ -487,28 +486,16 @@ function hostElementArray(host_json){
     ];
 }
 
-//updates the host select by refreshing the options in it
-function updateHostSelect(){
-    hosts_select = makeSelectOptions(dataTable_hosts,
-                                     1,//id_col
-                                     2,//name_col
-                                     [7,7],//status_cols
-                                     [tr("ERROR"),tr("OFF"),tr("RETRY")]//bad_st
-                                    );
-}
-
 //callback for an action affecting a host element
 function updateHostElement(request, host_json){
     var id = host_json.HOST.ID;
     var element = hostElementArray(host_json);
     updateSingleElement(element,dataTable_hosts,'#host_'+id);
-    updateHostSelect();
 }
 
 //callback for actions deleting a host element
 function deleteHostElement(req){
     deleteElement(dataTable_hosts,'#host_'+req.request.data);
-    updateHostSelect();
 }
 
 //call back for actions creating a host element
@@ -516,7 +503,6 @@ function addHostElement(request,host_json){
     var id = host_json.HOST.ID;
     var element = hostElementArray(host_json);
     addElement(element,dataTable_hosts);
-    updateHostSelect();
 }
 
 //callback to update the list of hosts.
@@ -593,7 +579,6 @@ function updateHostsView (request,host_list){
     }
 
     updateView(host_list_array,dataTable_hosts);
-    updateHostSelect();
 
     $(".total_hosts").text(host_list.length);
     $(".on_hosts").text(on_hosts);
@@ -956,7 +941,7 @@ function popUpCreateHostDialog(){
     var cluster_id = $('#host_cluster_id .resource_list_select',$('div#create_host_dialog')).val();
     if (!cluster_id) cluster_id = "-1";
 
-    insertSelectClusters('#host_cluster_id',$('div#create_host_dialog'), cluster_id, false);
+    insertSelectOptions('#host_cluster_id',$('div#create_host_dialog'), "Cluster", cluster_id, false);
 
     $('div#create_host_dialog').foundation('reveal', 'open');
     $("input#name",$('div#create_host_dialog')).focus();

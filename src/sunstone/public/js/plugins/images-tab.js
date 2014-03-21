@@ -74,8 +74,8 @@ var create_image_tmpl ='<div class="row create_image_header">\
                       <label for="img_datastore">'+tr("Datastore")+
                         '<span class="tip">'+tr("Select the datastore for this image")+'</span>'+
                       '</label>\
-                       <select id="img_datastore" name="img_datastore">\
-                       </select>\
+                       <div id="img_datastore" name="img_datastore">\
+                       </div>\
                     </div>\
                   </div>\
                   <div class="row">\
@@ -215,7 +215,8 @@ var create_image_tmpl ='<div class="row create_image_header">\
               <div class="row">\
                  <div class="columns large-12">\
                    <label for="img_datastores_raw">'+tr("Datastore")+':</label>\
-                   <select id="img_datastore_raw" name="img_datastore_raw"></select>\
+                   <div id="img_datastore_raw" name="img_datastore_raw">\
+                   </div>\
                  </div>\
               </div>\
               <div class="row">\
@@ -452,7 +453,7 @@ var image_buttons = {
         type: "confirm_with_select",
         text: tr("Change owner"),
         layout: "user_select",
-        select: users_sel,
+        select: "User",
         tip: tr("Select the new owner")+":",
         condition: mustBeAdmin
     },
@@ -460,7 +461,7 @@ var image_buttons = {
         type: "confirm_with_select",
         text: tr("Change group"),
         layout: "user_select",
-        select: groups_sel,
+        select: "Group",
         tip: tr("Select the new group")+":",
         condition: mustBeAdmin
     },
@@ -985,38 +986,6 @@ function initialize_create_image_dialog(dialog) {
         file_input = input;  return false;
     };
 
-    $('#img_type').change(function(){
-        enable_all_datastores();
-        var choice_str = $(this).val();
-        switch(choice_str)
-        {
-          case 'OS':
-          case 'CDROM':
-          case 'DATABLOCK':
-            $('select#img_datastore').children('option').each(function() {
-              $(this).removeAttr('disabled');
-              if ($(this).val() == "2")
-              {
-                $(this).attr('disabled', 'disabled');
-              }
-            });
-            $('select#img_datastore').val("1");
-            break;
-          case 'KERNEL':
-          case 'RAMDISK':
-          case 'CONTEXT':
-            $('select#img_datastore').children('option').each(function() {
-              $(this).attr('disabled', 'disabled');
-              if ($(this).val() == "2")
-              {
-                  $(this).removeAttr('disabled');
-              }
-            });
-            $('select#img_datastore').val("2");
-            break;
-         }
-    });
-
     $('#create_image_submit',dialog).click(function(){
         var exit = false;
         var upload = false;
@@ -1029,7 +998,7 @@ function initialize_create_image_dialog(dialog) {
         });
         if (exit) { return false; }
 
-        var ds_id = $('#img_datastore',dialog).val();
+        var ds_id = $('#img_datastore .resource_list_select',dialog).val();
         if (!ds_id){
             notifyError(tr("Please select a datastore for this image"));
             return false;
@@ -1108,7 +1077,7 @@ function initialize_create_image_dialog(dialog) {
 
     $('#create_image_submit_manual',dialog).click(function(){
         var template=$('#template',dialog).val();
-        var ds_id = $('#img_datastore_raw',dialog).val();
+        var ds_id = $('#img_datastore_raw .resource_list_select',dialog).val();
 
         if (!ds_id){
             notifyError(tr("Please select a datastore for this image"));
@@ -1143,31 +1112,18 @@ function initialize_create_image_dialog(dialog) {
 }
 
 function initialize_datastore_info_create_image_dialog(dialog) {
-    datastores_str = makeSelectOptions(dataTable_datastores,
-                                          1,
-                                          4,
-                                          [10,10],//system ds
-                                          ['file','system'], //filter image & sys datastores
-                                          true
-                                         );
+    var ds_id = $('#img_datastore .resource_list_select',dialog).val();
+    var ds_id_raw = $('#img_datastore_raw .resource_list_select',dialog).val();
 
-    var selected_datastore = $('#img_datastore',dialog).val();
-    var selected_datastore_raw = $('#img_datastore_raw',dialog).val();
+    // Filter out DS with type system (1) or file (2)
+    var filter_att = ["TYPE", "TYPE"];
+    var filter_val = ["1", "2"];
 
-    $('#img_datastore',dialog).html(datastores_str);
-    $('#img_datastore_raw',dialog).html(datastores_str);
+    insertSelectOptions('div#img_datastore', dialog, "Datastore",
+                        ds_id, false, null, filter_att, filter_val);
 
-    if (selected_datastore)
-      $('#img_datastore',dialog).val(selected_datastore)
-
-    if (selected_datastore_raw)
-      $('#img_datastore_raw',dialog).val(selected_datastore_raw)
-
-    $('select#img_datastore', dialog).children('option').each(function() {
-      if ($(this).val() == "2") {
-          $(this).attr('disabled', 'disabled');
-      }
-    });
+    insertSelectOptions('div#img_datastore_raw', dialog, "Datastore",
+                        ds_id_raw, false, null, filter_att, filter_val);
 
     $('#file-uploader input',dialog).removeAttr("style");
     $('#file-uploader input',dialog).attr('style','margin:0;width:256px!important');

@@ -251,7 +251,6 @@ var datastore_image_table_tmpl='<thead>\
   <tbody id="tbodyimages">\
   </tbody>'
 
-var datastores_select="";
 var dataTable_datastores;
 var $create_datastore_dialog;
 
@@ -470,7 +469,7 @@ var datastore_buttons = {
     "Datastore.addtocluster" : {
         type: "confirm_with_select",
         text: tr("Select cluster"),
-        select: insertSelectClusters,
+        select: "Cluster",
         layout: "more_select",
         tip: tr("Select the destination cluster:"),
         condition: mustBeAdmin
@@ -478,7 +477,7 @@ var datastore_buttons = {
     "Datastore.chown" : {
         type: "confirm_with_select",
         text: tr("Change owner"),
-        select: users_sel,
+        select: "User",
         layout: "user_select",
         tip: tr("Select the new owner")+":",
         condition: mustBeAdmin
@@ -486,7 +485,7 @@ var datastore_buttons = {
     "Datastore.chgrp" : {
         type: "confirm_with_select",
         text: tr("Change group"),
-        select: groups_sel,
+        select: "Group",
         layout: "user_select",
         tip: tr("Select the new group")+":",
         condition: mustBeAdmin
@@ -594,33 +593,20 @@ function datastoreElementArray(element_json){
     ];
 }
 
-function updateDatastoreSelect(){
-    datastores_select = makeSelectOptions(dataTable_datastores,
-                                          1,
-                                          4,
-                                          [9],//system ds
-                                          ['system'], //filter out sys datastores
-                                          true
-                                         );
-};
-
 function updateDatastoreElement(request, element_json){
     var id = element_json.DATASTORE.ID;
     var element = datastoreElementArray(element_json);
     updateSingleElement(element,dataTable_datastores,'#datastore_'+id)
-    updateDatastoreSelect();
 }
 
 function deleteDatastoreElement(request){
     deleteElement(dataTable_datastores,'#datastore_'+request.request.data);
-    updateDatastoreSelect();
 }
 
 function addDatastoreElement(request,element_json){
     var id = element_json.DATASTORE.ID;
     var element = datastoreElementArray(element_json);
     addElement(element,dataTable_datastores);
-    updateDatastoreSelect();
 }
 
 
@@ -632,7 +618,6 @@ function updateDatastoresView(request, list){
     });
 
     updateView(list_array,dataTable_datastores);
-    updateDatastoreSelect();
 }
 
 
@@ -1108,8 +1093,8 @@ function popUpCreateDatastoreDialog(){
     if (!cluster_id_raw) cluster_id_raw = "-1";
 
 
-    insertSelectClusters('div#cluster_id', $create_datastore_dialog, cluster_id, false);
-    insertSelectClusters('div#datastore_cluster_raw', $create_datastore_dialog, cluster_id_raw, false);
+    insertSelectOptions('div#cluster_id', $create_datastore_dialog, "Cluster", cluster_id, false);
+    insertSelectOptions('div#datastore_cluster_raw', $create_datastore_dialog, "Cluster", cluster_id_raw, false);
     $create_datastore_dialog.foundation().foundation('reveal', 'open');
     $("input#name",$create_datastore_dialog).focus();
 }

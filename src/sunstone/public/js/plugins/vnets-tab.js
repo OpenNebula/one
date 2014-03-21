@@ -532,7 +532,7 @@ var vnet_buttons = {
         type: "confirm_with_select",
         text: tr("Select cluster"),
         layout: "more_select",
-        select: insertSelectClusters,
+        select: "Cluster",
         tip: tr("Select the destination cluster:"),
         condition: mustBeAdmin
     },
@@ -540,7 +540,7 @@ var vnet_buttons = {
         type: "confirm_with_select",
         text: tr("Change owner"),
         layout: "user_select",
-        select: users_sel,
+        select: "User",
         tip: tr("Select the new owner")+":",
         condition: mustBeAdmin
     },
@@ -549,7 +549,7 @@ var vnet_buttons = {
         type: "confirm_with_select",
         text: tr("Change group"),
         layout: "user_select",
-        select: groups_sel,
+        select: "Group",
         tip: tr("Select the new group")+":",
         condition: mustBeAdmin
     },

@@ -475,7 +475,7 @@ var template_buttons = {
         type: "confirm_with_select",
         text: tr("Change owner"),
         layout: "user_select",
-        select: users_sel,
+        select: "User",
         tip: tr("Select the new owner")+":",
         condition: mustBeAdmin
     },
@@ -483,7 +483,7 @@ var template_buttons = {
         type: "confirm_with_select",
         text: tr("Change group"),
         layout: "user_select",
-        select: groups_sel,
+        select: "Group",
         tip: tr("Select the new group")+":",
         condition: mustBeAdmin
     },
@@ -565,39 +565,22 @@ function templateElementArray(template_json){
     ];
 }
 
-//Updates the select input field with an option for each template
-function updateTemplateSelect(){
-    var templates_select =
-        makeSelectOptions(dataTable_templates,
-                          1,//id_col
-                          4,//name_col
-                          [],//status_cols
-                          []//bad status values
-                         );
-
-    //update static selectors:
-    $('#template_id', $create_vm_dialog).html(templates_select);
-}
-
 // Callback to update an element in the dataTable
 function updateTemplateElement(request, template_json){
     var id = template_json.VMTEMPLATE.ID;
     var element = templateElementArray(template_json);
     updateSingleElement(element,dataTable_templates,'#template_'+id);
-    updateTemplateSelect();
 }
 
 // Callback to remove an element from the dataTable
 function deleteTemplateElement(req){
     deleteElement(dataTable_templates,'#template_'+req.request.data);
-    updateTemplateSelect();
 }
 
 // Callback to add a template element
 function addTemplateElement(request, template_json){
     var element = templateElementArray(template_json);
     addElement(element,dataTable_templates);
-    updateTemplateSelect();
 }
 
 // Callback to refresh the list of templates
@@ -609,7 +592,6 @@ function updateTemplatesView(request, templates_list){
     });
 
     updateView(template_list_array,dataTable_templates);
-    updateTemplateSelect();
 }
 
 function generate_capacity_tab_content() {

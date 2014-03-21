@@ -76,7 +76,6 @@ var create_zone_tmpl =
   <a class="close-reveal-modal">&#215;</a>\
 </form>';
 
-var zones_select="";
 var dataTable_zones;
 var $create_zone_dialog;
 
@@ -266,32 +265,17 @@ function zoneElementArray(element_json){
     ];
 }
 
-
-//updates the zone select by refreshing the options in it
-function updateZoneSelect(){
-    zones_select = makeSelectOptions(dataTable_zones,
-                                         1,//id_col
-                                         2,//name_col
-                                         3,//endpoint_col
-                                         [],//status_cols
-                                         [],//bad_st
-                                         true
-                                        );
-}
-
 //callback for an action affecting a zone element
 function updateZoneElement(request, element_json){
     var id = element_json.ZONE.ID;
     var element = zoneElementArray(element_json);
     updateSingleElement(element,dataTable_zones,'#zone_'+id);
-    updateZoneSelect();
 }
 
 //callback for actions deleting a zone element
 function deleteZoneElement(req){
     deleteElement(dataTable_zones,'#zone_'+req.request.data);
     $('div#zone_tab_'+req.request.data,main_tabs_context).remove();
-    updateZoneSelect();
 }
 
 //call back for actions creating a zone element
@@ -299,7 +283,6 @@ function addZoneElement(request,element_json){
     var id = element_json.ZONE.ID;
     var element = zoneElementArray(element_json);
     addElement(element,dataTable_zones);
-    updateZoneSelect();
 }
 
 //callback to update the list of zones.
@@ -312,7 +295,6 @@ function updateZonesView (request,list){
     });
 
     updateView(list_array,dataTable_zones);
-    updateZoneSelect();
 };
 
 
@@ -362,10 +344,6 @@ function updateZoneInfo(request,zone){
     Sunstone.updateInfoPanelTab("zone_info_panel","zone_info_tab",info_tab);
 
     Sunstone.popUpInfoPanel("zone_info_panel", "zones-tab");
-}
-
-function zones_sel() {
-    return zones_select;
 }
 
 //This is executed after the sunstone.js ready() is run.

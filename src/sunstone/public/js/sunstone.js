@@ -959,7 +959,11 @@ function popUpConfirmWithSelectDialog(target_elem){
     else
         var tip = button.tip
 
-    button.select('div#confirm_select', dialog, null, true);
+    if (button.custom_select){
+        $('div#confirm_select', dialog).html(button.custom_select);
+    } else{
+        insertSelectOptions('div#confirm_select', dialog, button.select, null, true);
+    }
 
     $('div#confirm_with_select_tip',dialog).text(tip);
 
@@ -1638,17 +1642,9 @@ function getSelectedNodes(dataTable, force_datatable){
     return selected_nodes;
 }
 
-function insertSelectClusters(id, context, init_val, empty_value, extra_options){
-    if(!extra_options){
-        extra_options = "";
-    }
-
-    extra_options += '<option value="-1">Default (none)</option>';
-    
-    insertSelectOptions(id, context, "Cluster", init_val, empty_value, extra_options)
-}
-
-function insertSelectOptions(id, context, resource, init_val, empty_value, extra_options){
+// TODO: Too many arguments. Change to use a params object
+function insertSelectOptions(id, context, resource, init_val, empty_value,
+    extra_options, filter_att, filter_val){
 
     $(id, context).html('<i class="fa fa-spinner fa-spin"></i>');
 
@@ -1658,73 +1654,56 @@ function insertSelectOptions(id, context, resource, init_val, empty_value, extra
             var select_str='<select class="resource_list_select">';
 
             if (empty_value){
-                select_str += '<option class="empty_value" value="">'+tr("Please select")+'</option>';
+                select_str += '<option class="empty_value" value="">'+
+                                tr("Please select")+'</option>';
+            }
+
+            if (resource == "Cluster"){
+                if(!extra_options){
+                    extra_options = "";
+                }
+
+                extra_options += '<option value="-1">Default (none)</option>';
             }
 
             if (extra_options){
                 select_str += extra_options;
             }
 
+            if (!filter_att){
+                filter_att = [];
+            }
+
             var res_name = OpenNebula[resource].resource;
             $.each(obj_list,function(){
                 var id = this[res_name].ID;
                 var name = this[res_name].NAME;
-                select_str +='<option elem_id="'+id+'" value="'+id+'">'+id+': '+name+'</option>';
+                var add = true;
+                
+                for (var i=0;i<filter_att.length;i++){
+                    if (this[res_name][filter_att[i]] == filter_val[i]){
+                        add = false;
+                        break;
+                    }
+                }
+
+                if (add){
+                    select_str +='<option elem_id="'+id+'" value="'+id+'">'+
+                                    id+': '+name+'</option>';
+                }
             });
 
             select_str+="</select>";
 
             $(id, context).html(select_str);
 
-            $(id+" .resource_list_select", context).val(init_val);
+            if (init_val){
+                $(id+" .resource_list_select", context).val(init_val);
+            }
         },
         error: onError
     });
 
-}
-
-//returns a HTML string with options for
-//a select input code generated from a dataTable.
-//Allows filtering elements specifing status columns
-//and bad status (if the values of the columns match the bad status)
-//then this elem is skipped.
-//no_empty_obj allows to skip adding a Please Select option
-function makeSelectOptions(dataTable,
-                           option_value_col,
-                           option_name_col,
-                           status_cols,
-                           bad_status_values,
-                           no_empty_opt){
-    var nodes = dataTable.fnGetData();
-    var select = "";
-    if (!no_empty_opt)
-        select = '<option class="empty_value" value="">'+tr("Please select")+'</option>';
-    var array;
-    for (var j=0; j<nodes.length;j++){
-        var elem = nodes[j];
-        var value = elem[option_value_col];
-
-        //ASSUMPTION: elem id in column 1
-        var id = elem[1];
-
-        var name = elem[option_name_col];
-        var status, bad_status;
-        var ok=true;
-        for (var i=0;i<status_cols.length;i++){
-            status = elem[status_cols[i]];
-            bad_status = bad_status_values[i];
-            //if the column has a bad value, we
-            //will skip this item
-            if (status == bad_status){
-                ok=false;
-                break;
-            };
-        };
-        if (ok){
-            select +='<option elem_id="'+id+'" value="'+value+'">'+name+' (id:'+id+')</option>';
-        };
-    };
-    return select;
 }
 
 //Escape doublequote in a string and return it
@@ -1979,26 +1958,6 @@ function mustBeAdmin(){
 
 function mustNotBeAdmin(){
     return !mustBeAdmin();
-}
-
-function users_sel(){
-    return users_select;
-}
-
-function groups_sel(){
-    return groups_select;
-}
-
-function hosts_sel(){
-    return hosts_select;
-}
-
-function datastores_sel() {
-    return datastores_select;
-}
-
-function zones_sel(){
-    return zones_select;
 }
 
 /* Below functions to easier permission management */

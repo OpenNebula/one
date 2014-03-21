@@ -14,7 +14,6 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-var groups_select="";
 var dataTable_groups;
 var $create_group_dialog;
 var $group_quotas_dialog;
@@ -496,15 +495,6 @@ function groupElementArray(group_json){
     ];
 }
 
-function updateGroupSelect(){
-    groups_select = makeSelectOptions(dataTable_groups,
-                                      1,//id_col
-                                      2,//name_col
-                                      [],//status_cols
-                                      []//bad_status_cols
-                                     );
-}
-
 function updateGroupElement(request, group_json){
     var id = group_json.GROUP.ID;
     var element = groupElementArray(group_json);
@@ -514,14 +504,12 @@ function updateGroupElement(request, group_json){
 
 function deleteGroupElement(request){
     deleteElement(dataTable_groups,'#group_'+request.request.data);
-    updateGroupSelect();
 }
 
 function addGroupElement(request,group_json){
     var id = group_json.GROUP.ID;
     var element = groupElementArray(group_json);
     addElement(element,dataTable_groups);
-    updateGroupSelect();
 }
 
 //updates the list
@@ -542,7 +530,6 @@ function updateGroupsView(request, group_list, quotas_hash){
         group_list_array.push(groupElementArray(this));
     });
     updateView(group_list_array,dataTable_groups);
-    updateGroupSelect(group_list);
 
     // Dashboard info
     $(".total_groups").text(group_list.length);

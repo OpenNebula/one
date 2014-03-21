@@ -69,8 +69,8 @@ var create_file_tmpl ='<div class="row">\
                       <label for="file_datastore">'+tr("Datastore")+
                         '<span class="tip">'+tr("Select the datastore for this file")+'</span>'+
                       '</label>\
-                       <select id="file_datastore" name="file_datastore">\
-                       </select>\
+                       <div id="file_datastore" name="file_datastore">\
+                       </div>\
                     </div>\
                   </div>\
                 </div>\
@@ -109,7 +109,8 @@ var create_file_tmpl ='<div class="row">\
               <div class="row">\
                  <div class="columns large-12">\
                    <label for="file_datastores_raw">'+tr("Datastore")+':</label>\
-                   <select id="file_datastore_raw" name="file_datastore_raw"></select>\
+                   <div id="file_datastore_raw" name="file_datastore_raw">\
+                   </div>\
                  </div>\
               </div>\
               <div class="row">\
@@ -311,7 +312,7 @@ var file_buttons = {
         type: "confirm_with_select",
         text: tr("Change owner"),
         layout: "user_select",
-        select: users_sel,
+        select: "User",
         tip: tr("Select the new owner")+":",
         condition: mustBeAdmin
     },
@@ -319,7 +320,7 @@ var file_buttons = {
         type: "confirm_with_select",
         text: tr("Change group"),
         layout: "user_select",
-        select: groups_sel,
+        select: "Group",
         tip: tr("Select the new group")+":",
         condition: mustBeAdmin
     },
@@ -698,7 +699,7 @@ function setupCreateFileDialog(){
     $('#create_file_submit',dialog).click(function(){
         var upload = false;
 
-        var ds_id = $('#file_datastore',dialog).val();
+        var ds_id = $('#file_datastore .resource_list_select',dialog).val();
         if (!ds_id){
             notifyError(tr("Please select a datastore for this file"));
             return false;
@@ -748,7 +749,7 @@ function setupCreateFileDialog(){
 
     $('#create_file_submit_manual',dialog).click(function(){
         var template=$('#template',dialog).val();
-        var ds_id = $('#file_datastore_raw',dialog).val();
+        var ds_id = $('#file_datastore_raw .resource_list_select',dialog).val();
 
         if (!ds_id){
             notifyError(tr("Please select a datastore for this file"));
@@ -787,16 +788,21 @@ function popUpCreateFileDialog(){
     $('#files_file-uploader input',$create_file_dialog).removeAttr("style");
     $('#files_file-uploader input',$create_file_dialog).attr('style','margin:0;width:256px!important');
 
-    datastores_str = makeSelectOptions(dataTable_datastores,
-                                          1,
-                                          4,
-                                          [10,10],//system ds
-                                          ['image','system'], //filter image & sys datastores
-                                          true
-                                         );
+    var ds_id = $("div#file_datastore .resource_list_select",
+                    $create_file_dialog).val();
 
-    $('#file_datastore',$create_file_dialog).html(datastores_str);
-    $('#file_datastore_raw',$create_file_dialog).html(datastores_str);
+    var ds_id_raw = $("div#file_datastore_raw .resource_list_select",
+                        $create_file_dialog).val();
+
+    // Filter out DS with type image (0) or system (1)
+    var filter_att = ["TYPE", "TYPE"];
+    var filter_val = ["0", "1"];
+
+    insertSelectOptions('div#file_datastore', $create_file_dialog, "Datastore",
+                        ds_id, false, null, filter_att, filter_val);
+
+    insertSelectOptions('div#file_datastore_raw', $create_file_dialog, "Datastore",
+                        ds_id_raw, false, null, filter_att, filter_val);
 
     $create_file_dialog.foundation().foundation('reveal', 'open');
     $("input#file_name",$create_file_dialog).focus();

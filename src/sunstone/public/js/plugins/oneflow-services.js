@@ -1007,14 +1007,14 @@ var service_buttons = {
     "Service.chown" : {
         type: "confirm_with_select",
         text: tr("Change owner"),
-        select: users_sel,
+        select: "User",
         tip: tr("Select the new owner")+":",
         layout: "user_select"
     },
     "Service.chgrp" : {
         type: "confirm_with_select",
         text: tr("Change group"),
-        select: groups_sel,
+        select: "Group",
         tip: tr("Select the new group")+":",
         layout: "user_select"
     },
