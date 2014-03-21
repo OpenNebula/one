@@ -51,8 +51,8 @@ var create_datastore_tmpl =
           </div>\
           <div class="large-6 columns">\
             <label for="cluster">' + tr("Cluster") + '</label>\
-            <select id="cluster_id" name="cluster_id">\
-            </select>\
+            <div id="cluster_id" name="cluster_id">\
+            </div>\
           </div>\
         </div>\
         <div class="row">\
@@ -210,7 +210,8 @@ var create_datastore_tmpl =
         <div class="row">\
           <div class="columns large-6">\
              <label for="datastore_cluster_raw">'+tr("Cluster")+'</label>\
-             <select id="datastore_cluster_raw" name="datastore_cluster_raw"></select>\
+             <div id="datastore_cluster_raw" name="datastore_cluster_raw">\
+             </div>\
           </div>\
         </div>\
         <div class="row">\
@@ -469,7 +470,7 @@ var datastore_buttons = {
     "Datastore.addtocluster" : {
         type: "confirm_with_select",
         text: tr("Select cluster"),
-        select: clusters_sel,
+        select: insertSelectClusters,
         layout: "more_select",
         tip: tr("Select the destination cluster:"),
         condition: mustBeAdmin
@@ -869,7 +870,7 @@ function setupCreateDatastoreDialog(){
     $('#create_datastore_submit',dialog).click(function(){
         var context         = $( "#create_datastore_form", dialog);
         var name            = $('#name',context).val();
-        var cluster_id      = $('#cluster_id',context).val();
+        var cluster_id      = $(".resource_list_select", $('#cluster_id',dialog)).val();
         var ds_type         = $('input[name=ds_type]:checked',context).val();
         var ds_mad          = $('#ds_mad',context).val();
         ds_mad              = ds_mad == "custom" ? $('input[name="ds_tab_custom_ds_mad"]').val() : ds_mad;
@@ -964,7 +965,7 @@ function setupCreateDatastoreDialog(){
 
     $('#create_datastore_submit_manual',dialog).click(function(){
         var template   = $('#template',dialog).val();
-        var cluster_id = $('#datastore_cluster_raw',dialog).val();
+        var cluster_id = $(".resource_list_select", $('#datastore_cluster_raw',dialog)).val();
 
         if (!cluster_id){
             notifyError(tr("Please select a cluster for this datastore"));
@@ -1100,8 +1101,15 @@ function select_custom(){
 }
 
 function popUpCreateDatastoreDialog(){
-    $('select#cluster_id',$create_datastore_dialog).html(clusters_sel());
-    $('select#datastore_cluster_raw',$create_datastore_dialog).html(clusters_sel());
+    var cluster_id = $("div#cluster_id .resource_list_select", $create_datastore_dialog).val();
+    if (!cluster_id) cluster_id = "-1";
+
+    var cluster_id_raw = $("div#datastore_cluster_raw .resource_list_select", $create_datastore_dialog).val();
+    if (!cluster_id_raw) cluster_id_raw = "-1";
+
+
+    insertSelectClusters('div#cluster_id', $create_datastore_dialog, cluster_id, false);
+    insertSelectClusters('div#datastore_cluster_raw', $create_datastore_dialog, cluster_id_raw, false);
     $create_datastore_dialog.foundation().foundation('reveal', 'open');
     $("input#name",$create_datastore_dialog).focus();
 }

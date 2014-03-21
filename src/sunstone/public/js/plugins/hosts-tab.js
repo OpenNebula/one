@@ -33,8 +33,8 @@ var create_host_tmpl =
       </div>\
       <div class="large-6 columns" id="cluster_select">\
           <label for="host_cluster_id">' + tr("Cluster") + '</label>\
-          <select id="host_cluster_id" name="host_cluster_id">\
-          </select>\
+          <div id="host_cluster_id" name="host_cluster_id">\
+          </div>\
       </div>\
   </div>\
   <fieldset>\
@@ -298,7 +298,7 @@ var host_buttons = {
     "Host.addtocluster" : {
         type: "confirm_with_select",
         text: tr("Select cluster"),
-        select: clusters_sel,
+        select: insertSelectClusters,
         tip: tr("Select the destination cluster:"),
         layout: "more_select",
         condition: mustBeAdmin
@@ -924,7 +924,7 @@ function setupCreateHostDialog(){
             return false;
         }
 
-        var cluster_id = $('#host_cluster_id',this).val();
+        var cluster_id = $('#host_cluster_id .resource_list_select',this).val();
         if (!cluster_id) cluster_id = "-1";
 
         var vmm_mad = $('select#vmm_mad',this).val();
@@ -953,11 +953,10 @@ function setupCreateHostDialog(){
 
 //Open creation dialogs
 function popUpCreateHostDialog(){
-    var cluster_id = $('#host_cluster_id',$('div#create_host_dialog')).val();
+    var cluster_id = $('#host_cluster_id .resource_list_select',$('div#create_host_dialog')).val();
     if (!cluster_id) cluster_id = "-1";
 
-    $('#host_cluster_id',$('div#create_host_dialog')).html(clusters_sel());
-    $('#host_cluster_id',$('div#create_host_dialog')).val(cluster_id);
+    insertSelectClusters('#host_cluster_id',$('div#create_host_dialog'), cluster_id, false);
 
     $('div#create_host_dialog').foundation('reveal', 'open');
     $("input#name",$('div#create_host_dialog')).focus();

@@ -532,7 +532,7 @@ var vnet_buttons = {
         type: "confirm_with_select",
         text: tr("Select cluster"),
         layout: "more_select",
-        select: clusters_sel,
+        select: insertSelectClusters,
         tip: tr("Select the destination cluster:"),
         condition: mustBeAdmin
     },

@@ -108,7 +108,8 @@ var create_acl_tmpl =
                 </div>\
                 <div class="in_cluster">\
                     <label for="in_cluster">'+tr("Cluster")+':</label>\
-                    <select name="in_cluster" id="in_cluster"></select>\
+                    <div name="in_cluster" id="in_cluster">\
+                    </div>\
                 </div>\
             </div>\
         </div>\
@@ -488,7 +489,8 @@ function setupCreateAclDialog(){
     });
 
     //update the rule preview every time some field changes
-    $('input,select',dialog).change(function(){
+    $(dialog).off('change', 'input,select');
+    $(dialog).on('change', 'input,select', function(){
         var context = $('#create_acl_form',$create_acl_dialog);
         var user = $('#applies',context).val();
 
@@ -517,7 +519,7 @@ function setupCreateAclDialog(){
             belonging="@"+$('#belonging_to',context).val();
             break;
         case "in_cluster":
-            belonging="%"+$('#in_cluster',context).val();
+            belonging="%"+$('#in_cluster .resource_list_select',context).val();
             break;
         }
 
@@ -570,7 +572,7 @@ function setupCreateAclDialog(){
             }
             break;
         case "in_cluster":
-            var l=$('#in_cluster',this).val().length;
+            var l=$('#in_cluster .resource_list_select',this).val().length;
             if (!l){
                 notifyError("Please select a cluster to which the selected resources belong to");
                 return false;
@@ -611,7 +613,7 @@ function popUpCreateAclDialog(){
     $('#applies',dialog).html('<option value="*">'+tr("All")+'</option>'+
                                           users.html()+groups.html());
     $('#belonging_to',dialog).html(groups_select);
-    $('#in_cluster',dialog).html(clusters_select);
+    insertSelectClusters('#in_cluster',dialog, null, true);
 
     $('#applies',dialog).trigger("change");
 

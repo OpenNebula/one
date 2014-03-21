@@ -871,8 +871,6 @@ function updateClusterDatastoresInfoView (request,datastore_list){
 
 
 /* -------- End of datatables section -------- */
-
-var clusters_select="";
 var dataTable_clusters;
 var $create_cluster_dialog;
 
@@ -1174,32 +1172,17 @@ function clusterElementArray(element_json){
     ];
 }
 
-
-//updates the cluster select by refreshing the options in it
-function updateClusterSelect(){
-    clusters_select = '<option value="-1">Default (none)</option>';
-    clusters_select += makeSelectOptions(dataTable_clusters,
-                                         1,//id_col
-                                         2,//name_col
-                                         [],//status_cols
-                                         [],//bad_st
-                                         true
-                                        );
-}
-
 //callback for an action affecting a cluster element
 function updateClusterElement(request, element_json){
     var id = element_json.CLUSTER.ID;
     var element = clusterElementArray(element_json);
     updateSingleElement(element,dataTable_clusters,'#cluster_'+id);
-    updateClusterSelect();
 }
 
 //callback for actions deleting a cluster element
 function deleteClusterElement(req){
     deleteElement(dataTable_clusters,'#cluster_'+req.request.data);
     $('div#cluster_tab_'+req.request.data,main_tabs_context).remove();
-    updateClusterSelect();
 }
 
 //call back for actions creating a cluster element
@@ -1207,7 +1190,6 @@ function addClusterElement(request,element_json){
     var id = element_json.CLUSTER.ID;
     var element = clusterElementArray(element_json);
     addElement(element,dataTable_clusters);
-    updateClusterSelect();
 }
 
 //callback to update the list of clusters.
@@ -1220,7 +1202,6 @@ function updateClustersView (request,list){
     });
 
     updateView(list_array,dataTable_clusters);
-    updateClusterSelect();
 };
 
 
@@ -1392,10 +1373,6 @@ function clusterResourceViewListeners(){
         return false;
     });
 };
-
-function clusters_sel() {
-    return clusters_select;
-}
 
 //This is executed after the sunstone.js ready() is run.
 //Here we can basicly init the host datatable, preload it

@@ -869,9 +869,7 @@ function setupConfirmDialogs(){
             </div>\
             <br />\
             <div class="row">\
-                <div class="large-12 columns">\
-                    <select id="confirm_select">\
-                    </select>\
+                <div class="large-12 columns" id="confirm_select">\
                 </div>\
             </div>\
             <br />\            <br />\
@@ -891,7 +889,7 @@ function setupConfirmDialogs(){
         var error = 0;
         var value = $(this).val();
         var action = SunstoneCfg["actions"][value];
-        var param = $('select#confirm_select',context).val();
+        var param = $('select.resource_list_select',context).val();
 
         if (!param.length){
             notifyError("You must select a value");
@@ -961,8 +959,8 @@ function popUpConfirmWithSelectDialog(target_elem){
     else
         var tip = button.tip
 
-    var select_var = button.select();
-    $('select#confirm_select',dialog).html(select_var);
+    button.select('div#confirm_select', dialog, null, true);
+
     $('div#confirm_with_select_tip',dialog).text(tip);
 
     var action = SunstoneCfg["actions"][value];
@@ -1678,7 +1676,7 @@ function insertSelectOptions(id, context, resource, init_val, empty_value, extra
 
             $(id, context).html(select_str);
 
-            $(".resource_list_select", context).val(init_val);
+            $(id+" .resource_list_select", context).val(init_val);
         },
         error: onError
     });
@@ -1993,10 +1991,6 @@ function groups_sel(){
 
 function hosts_sel(){
     return hosts_select;
-}
-
-function clusters_sel() {
-    return clusters_select;
 }
 
 function datastores_sel() {
