@@ -103,6 +103,7 @@ upcase() {
 
 gen_iface_conf() {
     cat <<EOT
+auto $DEV
 iface $DEV inet static
   address $IP
   network $NETWORK
@@ -111,20 +112,6 @@ EOT
 
     if [ -n "$GATEWAY" ]; then
       echo "  gateway $GATEWAY"
-    fi
-
-    echo ""
-}
-
-gen_iface6_conf() {
-    cat <<EOT
-iface $DEV inet6 static
-  address $IPV6
-  netmask 64
-EOT
-
-    if [ -n "$GATEWAY6" ]; then
-      echo "  gateway $GATEWAY6"
     fi
 
     echo ""
@@ -150,15 +137,7 @@ EOT
         MASK=$(get_mask)
         GATEWAY=$(get_gateway)
 
-        IPV6=$(get_iface_var "IPV6")
-        [[ -z $IPV6 ]] && IPV6=$(get_iface_var "IP6")
-        GATEWAY6=$(get_iface_var "GATEWAY6")
-        CONTEXT_FORCE_IPV4=$(get_iface_var "CONTEXT_FORCE_IPV4")
-
-        echo "auto $DEV"
-
-        [[ -z $IPV6 || -n $CONTEXT_FORCE_IPV4 ]] && gen_iface_conf
-        [[ -n $IPV6 ]] && gen_iface6_conf
+        gen_iface_conf
 
     done
 }
@@ -166,13 +145,34 @@ EOT
 configure_network()
 {
     gen_network_configuration > /etc/network/interfaces
-
-    service networking stop
-    sleep 1
-    service networking start
-
-    sleep 2
+    
 }
 
 configure_network
 
+activate_network()
+{
+
+    if
+            [[ `lsb_release -c | awk '{print($2)}'` = precise ]]
+    then
+
+    IFACES=`get_interfaces`
+
+    for i in $IFACES; do
+
+    DEV=`get_dev $i`
+
+        service network-interface restart INTERFACE=$DEV
+    done
+        else
+        service networking stop
+        sleep 1
+        service networking start
+     fi
+
+    sleep 2
+
+}
+
+activate_network
