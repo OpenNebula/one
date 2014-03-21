@@ -27,40 +27,42 @@ var create_acl_tmpl =
 <div class="reveal-body">\
 <form id="create_acl_form" action="">\
         <div class="row">\
+        <div class="large-6 columns">\
+            <fieldset>\
+                <legend>'+tr("This rule applies to")+'</legend>\
+                <div class="row">\
+                    <div class="large-4 columns">\
+                        <input type="radio" class="applies" name="applies_select" value="*" id="applies_all"><label class="applies" for="applies_all">'+tr("All")+'</label>\
+                    </div>\
+                    <div class="large-4 columns">\
+                        <input type="radio" class="applies" name="applies_select" value="applies_to_user" id="applies_id"><label class="applies" for="applies_id">'+tr("User")+'</label>\
+                    </div>\
+                    <div class="large-4 columns">\
+                        <input type="radio" class="applies" name="applies_select" value="applies_to_group" id="applies_group"><label class="applies" for="applies_group">'+tr("Group")+'</label>\
+                    </div>\
+                </div>\
+                <div class="row">\
+                    <div class="large-12 columns">\
+                        <div class="applies_to_user">\
+                            <label for="applies_to_user">'+tr("User")+':</label>\
+                            <div name="applies_to_user" id="applies_to_user">\
+                            </div>\
+                        </div>\
+                        <div class="applies_to_group">\
+                            <label for="applies_to_group">'+tr("Group")+':</label>\
+                            <div name="applies_to_group" id="applies_to_group">\
+                            </div>\
+                        </div>\
+                    </div>\
+                </div>\
+            </fieldset>\
+        </div>\
           <div class="large-6 columns">\
             <label for="zones_applies">'+tr("Zones where the rule applies")+'</label>\
             <div name="zones_applies" id="zones_applies">\
             </div>\
           </div>\
         </div>\
-        <fieldset>\
-            <legend>'+tr("This rule applies to")+'</legend>\
-            <div class="row">\
-                <div class="large-3 columns">\
-                    <input type="radio" class="applies" name="applies_select" value="*" id="applies_all"><label class="applies" for="applies_all">'+tr("All")+'</label>\
-                </div>\
-                <div class="large-3 columns">\
-                    <input type="radio" class="applies" name="applies_select" value="applies_to_user" id="applies_id"><label class="applies" for="applies_id">'+tr("User")+'</label>\
-                </div>\
-                <div class="large-3 columns">\
-                    <input type="radio" class="applies" name="applies_select" value="applies_to_group" id="applies_group"><label class="applies" for="applies_group">'+tr("Group")+'</label>\
-                </div>\
-            </div>\
-            <div class="row">\
-                <div class="large-6 columns">\
-                    <div class="applies_to_user">\
-                        <label for="applies_to_user">'+tr("User")+':</label>\
-                        <div name="applies_to_user" id="applies_to_user">\
-                        </div>\
-                    </div>\
-                    <div class="applies_to_group">\
-                        <label for="applies_to_group">'+tr("Group")+':</label>\
-                        <div name="applies_to_group" id="applies_to_group">\
-                        </div>\
-                    </div>\
-                </div>\
-            </div>\
-        </fieldset>\
         <fieldset>\
             <legend>'+tr("Affected resources")+'</legend>\
         <div class="row">\
