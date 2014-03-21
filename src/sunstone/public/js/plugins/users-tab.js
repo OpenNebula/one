@@ -668,7 +668,7 @@ function updateUserInfo(request,user){
                 <td></td>\
             </tr>\
             <tr>' +
-                insert_group_dropdown("User",info.ID,info.GNAME,info.GID) +
+                insert_group_dropdown("User",info.ID,info.GNAME,info.GID,"#info_user_table") +
             '</tr>\
             <tr>\
                 <td class="key_td">' + tr("Secondary groups") + '</td>\

@@ -665,11 +665,7 @@ function updateDatastoreInfo(request,ds){
         images_str=getImageName(info.IMAGES.ID);
     };
 
-    var cluster_str = '<td class="key_td">Cluster</td><td colspan="2">-</td>';
-    if (info.ID != "0")
-    {
-        cluster_str = insert_cluster_dropdown("Datastore",info.ID,info.CLUSTER,info.CLUSTER_ID);
-    }
+    var cluster_str = insert_cluster_dropdown("Datastore",info.ID,info.CLUSTER,info.CLUSTER_ID,"#info_datastore_table");
 
     var is_system_ssh = (info.TEMPLATE.SHARED == "NO")
 

@@ -1640,6 +1640,51 @@ function getSelectedNodes(dataTable, force_datatable){
     return selected_nodes;
 }
 
+function insertSelectClusters(id, context, init_val, empty_value, extra_options){
+    if(!extra_options){
+        extra_options = "";
+    }
+
+    extra_options += '<option value="-1">Default (none)</option>';
+    
+    insertSelectOptions(id, context, "Cluster", init_val, empty_value, extra_options)
+}
+
+function insertSelectOptions(id, context, resource, init_val, empty_value, extra_options){
+
+    $(id, context).html('<i class="fa fa-spinner fa-spin"></i>');
+
+    OpenNebula[resource].list({
+        timeout: true,
+        success: function (request, obj_list){
+            var select_str='<select class="resource_list_select">';
+
+            if (empty_value){
+                select_str += '<option class="empty_value" value="">'+tr("Please select")+'</option>';
+            }
+
+            if (extra_options){
+                select_str += extra_options;
+            }
+
+            var res_name = OpenNebula[resource].resource;
+            $.each(obj_list,function(){
+                var id = this[res_name].ID;
+                var name = this[res_name].NAME;
+                select_str +='<option elem_id="'+id+'" value="'+id+'">'+id+': '+name+'</option>';
+            });
+
+            select_str+="</select>";
+
+            $(id, context).html(select_str);
+
+            $(".resource_list_select", context).val(init_val);
+        },
+        error: onError
+    });
+
+}
+
 //returns a HTML string with options for
 //a select input code generated from a dataTable.
 //Allows filtering elements specifing status columns
@@ -2393,11 +2438,9 @@ function setupQuotasDialog(dialog){
 }
 
 function popUpQuotasDialog(dialog, resource, sel_elems){
-    var im_sel = makeSelectOptions(dataTable_images,1,4,[],[]);
-    var vn_sel = makeSelectOptions(dataTable_vNetworks,1,4,[],[]);
-    $('#datastore_quota select',dialog).html(datastores_sel());
-    $('#image_quota select',dialog).html(im_sel);
-    $('#network_quota select',dialog).html(vn_sel);
+    insertSelectOptions("#image_quota select",      dialog, "Image",    null, true);
+    insertSelectOptions("#network_quota select",    dialog, "Network",  null, true);
+    insertSelectOptions("#datastore_quota select",  dialog, "Datastore",null, true);
 
     $('table tbody',dialog).empty();
     //If only one user is selected we fecth the user's quotas, otherwise we do nothing.
@@ -3231,30 +3274,19 @@ function insert_permissions_table(tab_name, resource_type, resource_id, owner, g
 
             // Handlers for chown
             $(document).off("click", context + " #div_edit_chg_owner_link");
-            $(document).off("change", context + " #user_confirm_select");
-
-            // Listener for key,value pair edit action
             $(document).on("click", context + " #div_edit_chg_owner_link", function() {
                 var tr_context = $(this).parents("tr");
-
-                var value_str = $("#value_td_owner", tr_context).text();
-                var select_str='<select id="user_confirm_select">';
-                select_str += makeSelectOptions(dataTable_users,1,2,[],[],true);
-                select_str+="</select>";
-                $("#value_td_owner", tr_context).html(select_str);
-                $("select#user_confirm_select", tr_context).val(vm_uid);
+                insertSelectOptions("#value_td_owner", tr_context, "User", vm_uid, false);
             });
 
-            $(document).on("change", context + " #user_confirm_select", function() {
-                var tr_context = $(this).parents("tr");
-
-                var value_str = $('select#user_confirm_select', tr_context).val();
+            $(document).off("change", context + " #value_td_owner .resource_list_select");
+            $(document).on("change", context + " #value_td_owner .resource_list_select", function() {
+                var value_str = $(this).val();
                 if(value_str!="")
                 {
                     // Let OpenNebula know
                     var resource_struct = new Array();
                     resource_struct[0]  = resource_id;
-
                     Sunstone.runAction(resource_type+".chown",resource_struct,value_str);
                 }
             });
@@ -3272,24 +3304,14 @@ function insert_permissions_table(tab_name, resource_type, resource_id, owner, g
 
             // Handlers for chgrp
             $(document).off("click", context + " #div_edit_chg_group_link");
-            $(document).off("change", context + " #group_confirm_select");
-
-            // Listener for key,value pair edit action
             $(document).on("click", context + " #div_edit_chg_group_link", function() {
                 var tr_context = $(this).parents("tr");
-
-                var value_str = $("#value_td_group", tr_context).text();
-                var select_str='<select id="group_confirm_select">';
-                select_str += makeSelectOptions(dataTable_groups,1,2,[],[],true);
-                select_str+="</select>";
-                $("#value_td_group", tr_context).html(select_str);
-                $("select#group_confirm_select", tr_context).val(vm_gid);
+                insertSelectOptions("#value_td_group", tr_context, "Group", vm_gid, false);
             });
 
-            $(document).on("change", context + " #group_confirm_select", function() {
-                var tr_context = $(this).parents("tr");
-
-                var value_str = $('select#group_confirm_select', tr_context).val();
+            $(document).off("change", context + " #value_td_group .resource_list_select");
+            $(document).on("change", context + " #value_td_group .resource_list_select", function() {
+                var value_str = $(this).val();
                 if(value_str!="")
                 {
                     // Let OpenNebula know
@@ -3342,7 +3364,7 @@ function insert_rename_tr(tab_name, resource_type, resource_id, resource_name){
     return str;
 }
 
-function insert_cluster_dropdown(resource_type, resource_id, cluster_value, cluster_id){
+function insert_cluster_dropdown(resource_type, resource_id, cluster_value, cluster_id, context_str){
     var str =  '<td class="key_td">' + tr("Cluster") + '</td>\
                 <td class="value_td_cluster">'+(cluster_value.length ? cluster_value : "-")+'</td>\
                 <td>\
@@ -3351,23 +3373,15 @@ function insert_cluster_dropdown(resource_type, resource_id, cluster_value, clus
                   </div>\
                 </td>';
 
-    $("#div_edit_chg_cluster_link").die();
-    $("#cluster_confirm_select").die();
-
-
-    // Listener for key,value pair edit action
-    $("#div_edit_chg_cluster_link").live("click", function() {
-        var value_str = $(".value_td_cluster").text();
-        var select_str='<select style="margin: 10px 0;" id="cluster_confirm_select">';
-        select_str+='<option elem_id="-" value="-1">none (id:-)</option>';
-        select_str += makeSelectOptions(dataTable_clusters,1,2,[],[],true);
-        select_str+="</select>";
-        $(".value_td_cluster").html(select_str);
-        $("select#cluster_confirm_select").val(cluster_id);
+    $(document).off("click", context_str + " #div_edit_chg_cluster_link");
+    $(document).on("click", context_str + " #div_edit_chg_cluster_link", function() {
+        var tr_context = $(this).parents("tr");
+        insertSelectClusters(".value_td_cluster", tr_context, cluster_id, false);
     });
 
-    $("#cluster_confirm_select").live("change", function() {
-        var value_str = $('select#cluster_confirm_select').val();
+    $(document).off("change", context_str + " .value_td_cluster .resource_list_select");
+    $(document).on("change", context_str + " .value_td_cluster .resource_list_select", function() {
+        var value_str = $(this).val();
         if(value_str!="")
         {
             // Let OpenNebula know
@@ -3380,7 +3394,8 @@ function insert_cluster_dropdown(resource_type, resource_id, cluster_value, clus
     return str;
 }
 
-function insert_group_dropdown(resource_type, resource_id, group_value, group_id){
+//insert_group_dropdown("User",info.ID,info.GNAME,info.GID) +
+function insert_group_dropdown(resource_type, resource_id, group_value, group_id, context_str){
     var str =  '<td class="key_td">' + tr("Group") + '</td>\
                 <td class="value_td_group">'+ group_value +'</td>\
                 <td>\
@@ -3389,22 +3404,15 @@ function insert_group_dropdown(resource_type, resource_id, group_value, group_id
                   </div>\
                 </td>';
 
-    $("#div_edit_chg_group_link").die();
-    $("#group_confirm_select").die();
-
-
-    // Listener for key,value pair edit action
-    $("#div_edit_chg_group_link").live("click", function() {
-        var value_str = $(".value_td_group").text();
-        var select_str='<select style="margin: 10px 0;" id="group_confirm_select">';
-        select_str += makeSelectOptions(dataTable_groups,1,2,[],[],true);
-        select_str+="</select>";
-        $(".value_td_group").html(select_str);
-        $("select#group_confirm_select").val(group_id);
+    $(document).off("click", context_str + " #div_edit_chg_group_link");
+    $(document).on("click", context_str + " #div_edit_chg_group_link", function() {
+        var tr_context = $(this).parents("tr");
+        insertSelectOptions(".value_td_group", tr_context, "Group", group_id, false);
     });
 
-    $("#group_confirm_select").live("change", function() {
-        var value_str = $('select#group_confirm_select').val();
+    $(document).off("change", context_str + " .value_td_group .resource_list_select");
+    $(document).on("change", context_str + " .value_td_group .resource_list_select", function() {
+        var value_str = $(this).val();
         if(value_str!="")
         {
             // Let OpenNebula know
