@@ -80,13 +80,22 @@ UserPool::UserPool(SqlDB * db,
 
     _session_expiration_time = __session_expiration_time;
 
-    //Federation slaves do not need to init the pool
+    User * oneadmin_user = get(0, true);
+
+    //Slaves do not need to init the pool, just the oneadmin username
     if (is_federation_slave)
     {
+        if (oneadmin_user == 0)
+        {
+            throw("Database has not been bootstrapped with master data.");
+        }
+
+        oneadmin_name = oneadmin_user->get_name();
+
+        oneadmin_user->unlock();
+
         return;
     }
-
-    User * oneadmin_user = get(0, true);
 
     if (oneadmin_user != 0)
     {
