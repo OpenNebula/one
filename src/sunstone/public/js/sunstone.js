@@ -710,7 +710,7 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
             case "refresh":
                 context = $("#"+custom_id+"refresh_buttons", buttons_row);
                 text = '<i class="fa fa-refresh"/>';
-                str_class.push("secondary", "button", "small", "radius");
+                str_class.push("refresh", "secondary", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
             case "top":
@@ -3615,7 +3615,9 @@ $(document).ready(function(){
             value = $(this).attr('href');
         }
 
-        $(document).foundation('dropdown', 'closeall');
+        if(!$(this).hasClass("refresh")){
+            $(document).foundation('dropdown', 'closeall');
+        }
 
         var action = SunstoneCfg["actions"][value];
         if (!action) {
@@ -3632,7 +3634,7 @@ $(document).ready(function(){
             error = Sunstone.runAction(value);
         }
 
-        if (!error){
+        if (!error && !$(this).hasClass("refresh")){
             //proceed to close confirm dialog in
             //case it was open
             $('div#confirm_dialog').foundation('reveal', 'close');
