@@ -1428,6 +1428,7 @@ SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf \
 SUNSTONE_ETC_VIEW_FILES="src/sunstone/etc/sunstone-views/admin.yaml \
                     src/sunstone/etc/sunstone-views/user.yaml \
                     src/sunstone/etc/sunstone-views/cloud.yaml \
+                    src/sunstone/etc/sunstone-views/provision.yaml \
                      src/sunstone/etc/sunstone-views/vdcadmin.yaml"
 
 SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
@@ -1477,6 +1478,7 @@ SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
                         src/sunstone/public/js/plugins/acls-tab.js \
                         src/sunstone/public/js/plugins/vnets-tab.js \
                         src/sunstone/public/js/plugins/marketplace-tab.js \
+                        src/sunstone/public/js/plugins/provision-tab.js \
                         src/sunstone/public/js/plugins/config-tab.js \
                         src/sunstone/public/js/plugins/oneflow-dashboard.js \
                         src/sunstone/public/js/plugins/oneflow-services.js \
@@ -1604,6 +1606,7 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/opennebula-sunstone-small.png \
                         src/sunstone/public/images/opennebula-sunstone-v4.0.png \
                         src/sunstone/public/images/opennebula-sunstone-v4.0-small.png \
+                        src/sunstone/public/images/one_small_logo.png \
                         src/sunstone/public/images/panel.png \
                         src/sunstone/public/images/panel_short.png \
                         src/sunstone/public/images/pbar.gif \

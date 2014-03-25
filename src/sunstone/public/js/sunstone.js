@@ -1029,7 +1029,7 @@ function pretty_time_runtime(time){
     var month = pad(d.getUTCMonth()+1,2); //getMonths returns 0-11
     var year = d.getUTCFullYear();
 
-    return day + "d " + hour + ":" + mins;
+    return day + "d " + hour + "h " + mins + "m ";
 }
 
 //returns a human readable size in Kilo, Mega, Giga or Tera bytes
@@ -3740,4 +3740,3 @@ $(document).ready(function(){
       }
     })
 });
-

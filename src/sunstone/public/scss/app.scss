@@ -63,6 +63,7 @@
 
 .left-content {
   padding-top: 31px;
+  padding-left: 20px;
 }
 
 .left-header {
@@ -76,7 +77,8 @@
 
 .right-content {
   padding-top: 20px;
-  padding-left: 40px;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
 .right-info {
@@ -106,6 +108,10 @@ table {
 
     td {
         color: #555 !important;
+    }
+
+    tfoot {
+        background-color: #fff !important;
     }
 }
 
@@ -624,4 +630,114 @@ div.dataTables_scrollFoot table {
     border: 0px!important;
     background-color: #F39999!important;
     color: #660000;
+}
+
+
+.custom-panel {
+  @include panel();
+
+  border-color: #efefef;
+  margin-bottom: 0px;
+}
+
+.provision-pricing-table  {
+  @include pricing-table-container;
+
+  .provision-title  {
+    @include pricing-table-title;
+
+    font-weight: normal;
+    color: #0099c3;
+  }
+  .provision-price  {
+    @include pricing-table-price;
+  }
+  .provision-description   {
+    @include pricing-table-description;
+  }
+  .provision-bullet-item {
+    @include pricing-table-bullet;
+  }
+  .provision-cta    {
+    @include pricing-table-cta;
+  }
+
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+
+  background: #f6f6f6;
+
+  li {
+    background: none;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  &.hoverable:not(.selected):hover {
+
+    li:not(.provision-title) {
+      background: scale-color(#fff, $lightness: -10%) !important;
+      color: #333;
+    }
+
+    li {
+      color: #333;
+    }
+
+    cursor: pointer;
+  }
+
+  &.selected {
+    //border: 1px solid #0099c3;
+
+    li {
+      color: #fff;
+      background: #0099c3 !important;
+      //color: #333;
+      //font-weight: bold;
+    }
+
+    .provision-title  {
+      font-weight: bold;
+    }
+
+    .provision-description   {
+      //color: #cfcfcf;
+    }
+  }
+
+}
+
+.warning-bg {
+  background-color: scale-color($warning-color, $lightness:50%) !important;
+}
+
+.error-bg {
+  background-color: scale-color($alert-color, $lightness:50%) !important;
+}
+
+.secondary-bg {
+  background-color: scale-color($secondary-color, $lightness:50%) !important;
+}
+
+.success-bg {
+  background-color: scale-color($success-color, $lightness:50%) !important;
+}
+
+
+.warning-color {
+  color: $warning-color;
+}
+
+.error-color {
+  color: $alert-color;
+}
+
+.secondary-color {
+  color: #777;
+}
+
+.success-color {
+  color: $success-color;
 }

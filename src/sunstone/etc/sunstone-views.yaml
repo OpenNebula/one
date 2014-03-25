@@ -21,11 +21,13 @@ available_tabs:
     - oneflow-dashboard
     - oneflow-services
     - oneflow-templates
+    - provision-tab
 groups:
     oneadmin:
         - admin
         - vdcadmin
         - user
         - cloud
+        - provision
 default:
     - user

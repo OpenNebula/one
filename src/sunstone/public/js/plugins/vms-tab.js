@@ -765,13 +765,13 @@ var vm_actions = {
                     monitor_resources : "CPU",
                     labels : "Real CPU",
                     humanize_figures : false,
-                    div_graph : $("#vm_cpu_graph")
+                    div_graph : $(".vm_cpu_graph")
                 },
                 {
                     monitor_resources : "MEMORY",
                     labels : "Real MEM",
                     humanize_figures : true,
-                    div_graph : $("#vm_memory_graph")
+                    div_graph : $(".vm_memory_graph")
                 },
                 { labels : "Network reception",
                   monitor_resources : "NET_RX",
@@ -2558,7 +2558,7 @@ function printCapacity(vm_info){
               </div>\
               <div class="row">\
                 <div class="large-12 columns">\
-                  <div class="large-10 columns centered graph" id="vm_cpu_graph" style="height: 100px;">\
+                  <div class="large-10 columns centered graph vm_cpu_graph" style="height: 100px;">\
                   </div>\
                 </div>\
               </div>\
@@ -2572,7 +2572,7 @@ function printCapacity(vm_info){
                 <h3 class="subheader"><small>'+tr("REAL MEMORY")+'</small></h3>\
               </div>\
               <div class="row">\
-                <div class="large-10 columns centered graph" id="vm_memory_graph" style="height: 100px;">\
+                <div class="large-10 columns centered graph vm_memory_graph" style="height: 100px;">\
                 </div>\
               </div>\
               <div class="row graph_legend">\

@@ -185,20 +185,24 @@ var $dashboard;
 function dashboardQuotasHTML(){}
 
 $(document).ready(function(){
-    $dashboard = $('#dashboard-tab', main_tabs_context);
+    var tab_name = 'dashboard-tab';
 
-    $.each(Config.dashboardWidgets('widgets_three_per_row'), function(id, widget){
-      var html = '<div class="small-4 large-4 columns">'+widgets[widget]+'</div>';
-      $('#three_per_row', $dashboard).append(html);
-    })
+    if (Config.isTabEnabled(tab_name)) {
+      $dashboard = $('#dashboard-tab', main_tabs_context);
 
-    $.each(Config.dashboardWidgets('widgets_two_per_row'), function(id, widget){
-      var html = '<div class="small-6 large-6 columns">'+widgets[widget]+'</div>';
-      $('#two_per_row', $dashboard).append(html);
-    })
+      $.each(Config.dashboardWidgets('widgets_three_per_row'), function(id, widget){
+        var html = '<div class="small-4 large-4 columns">'+widgets[widget]+'</div>';
+        $('#three_per_row', $dashboard).append(html);
+      })
 
-    $.each(Config.dashboardWidgets('widgets_one_per_row'), function(id, widget){
-      var html = '<div class="row"><div class="large-12 columns">'+widgets[widget]+'</div></div><br>';
-      $('#one_per_row', $dashboard).append(html);
-    })
+      $.each(Config.dashboardWidgets('widgets_two_per_row'), function(id, widget){
+        var html = '<div class="small-6 large-6 columns">'+widgets[widget]+'</div>';
+        $('#two_per_row', $dashboard).append(html);
+      })
+
+      $.each(Config.dashboardWidgets('widgets_one_per_row'), function(id, widget){
+        var html = '<div class="row"><div class="large-12 columns">'+widgets[widget]+'</div></div><br>';
+        $('#one_per_row', $dashboard).append(html);
+      })
+    }
 });
