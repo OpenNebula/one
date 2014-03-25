@@ -511,21 +511,16 @@ int XenDriver::deployment_description(
                 {
                     file << "vfb = ['type=vnc";
                 } else {
-                    file << "vnc=1" << endl;
+                    file << "vnc = '1'" << endl;
                 }
 
                 if ( !listen.empty() )
                 {
-                    if ( !is_hvm )
-                    {
-                        file << ",";
-                    }
-
-                    file << "vnclisten=" << listen;
-
                     if ( is_hvm )
                     {
-                        file << endl;
+                        file << "vnclisten = '" << listen << "'" << endl;
+                    } else {
+                        file << ",vnclisten=" << listen << endl;
                     }
                 }
 
@@ -543,46 +538,31 @@ int XenDriver::deployment_description(
 
                     if ( is_hvm )
                     {
-                        file << "vncunused=0" << endl;
+                        file << "vncunused = '0'" << endl;
+                        file << "vncdisplay = '" << display - 5900 << "'" << endl;
                     } else {
-                        file << ",vncunused=0,";
-                    }
-
-                    file << "vncdisplay=" << display - 5900;
-
-                    if ( is_hvm )
-                    {
-                        file << endl;
+                        file << ",vncunused=0";
+                        file << ",vncdisplay=" << display - 5900;
                     }
                 }
 
                 if ( !passwd.empty() )
                 {
-                    if ( !is_hvm )
-                    {
-                        file << ",";
-                    }
-
-                    file <<"vncpasswd=" << passwd;
-
                     if ( is_hvm )
                     {
-                        file << endl;
+                        file << "vncpasswd = '" << passwd << "'" << endl;
+                    } else {
+                        file << ",vncpasswd=" << passwd;
                     }
                 }
 
                 if ( !keymap.empty() )
                 {
-                    if ( !is_hvm )
-                    {
-                        file << ",";
-                    }
-
-                    file << "keymap=" << keymap ;
-
                     if ( is_hvm )
                     {
-                        file << endl;
+                        file << "keymap = '" << keymap << "'" << endl;
+                    } else {
+                        file << ",keymap=" << keymap;
                     }
                 }
 
