@@ -513,113 +513,74 @@ function updateHostsView (request,host_list){
     off_hosts = 0;
     error_hosts = 0;
 
-    // TODO: ms to s, sunstone-util probably does s to ms
-    var now = new Date().getTime() / 1000;
+    var max_cpu = 0;
+    var allocated_cpu = 0;
+    var real_cpu = 0;
 
-    var do_host_monitoring_graphs = true;
+    var max_mem = 0;
+    var allocated_mem = 0;
+    var real_mem = 0;
 
-    if (typeof (last_host_monitoring_time) == 'undefined'){
-        last_host_monitoring_time = 0;
-    }
 
-    // If the refresh is too frecuent, ignore it. In seconds
-    if (now < last_host_monitoring_time + 60){
-        do_host_monitoring_graphs = false;
-    }
+    $.each(host_list,function(){
+        //Grab table data from the host_list
+        host_list_array.push(hostElementArray(this));
 
-    if (!do_host_monitoring_graphs){
+        max_cpu += parseInt(this.HOST.HOST_SHARE.MAX_CPU);
+        allocated_cpu += parseInt(this.HOST.HOST_SHARE.CPU_USAGE);
+        real_cpu += parseInt(this.HOST.HOST_SHARE.USED_CPU);
 
-        $.each(host_list,function(){
-            //Grab table data from the host_list
-            host_list_array.push(hostElementArray(this));
-        });
-
-    } else {
-        var empty = false;
-
-        if (typeof (host_monitoring_data) == 'undefined'){
-            host_monitoring_data = {};
-            empty = true;
-        }
-
-        last_host_monitoring_time = now;
-
-        var metrics = ["CPU_USAGE", "USED_CPU", "MAX_CPU", "MEM_USAGE", "USED_MEM", "MAX_MEM"];
-
-        $.each(host_list,function(){
-            //Grab table data from the host_list
-            host_list_array.push(hostElementArray(this));
-
-            // Grab monitoring data
-            if (host_monitoring_data[this.HOST.ID] === undefined){
-                host_monitoring_data[this.HOST.ID] = {};
-
-                for (var i=0; i<metrics.length; i++) {
-                    host_monitoring_data[this.HOST.ID][metrics[i]] = [];
-                }
-            }
-
-            for (var i=0; i<metrics.length; i++) {
-
-                var mon_data = host_monitoring_data[this.HOST.ID][metrics[i]];
-
-                // The first time the pool is retrieved we add another point
-                // to show something in the dashboard as soon as the user
-                // logs in
-                if (empty){
-                    mon_data.push(
-                        [now - 60, this.HOST.HOST_SHARE[metrics[i]]] );
-                }
-
-                mon_data.push(
-                    [now, this.HOST.HOST_SHARE[metrics[i]]] );
-
-            }
-        });
-    }
+        max_mem += parseInt(this.HOST.HOST_SHARE.MAX_MEM);
+        allocated_mem += parseInt(this.HOST.HOST_SHARE.MEM_USAGE);
+        real_mem += parseInt(this.HOST.HOST_SHARE.USED_MEM);
+    });
 
     updateView(host_list_array,dataTable_hosts);
+
+    if (max_cpu > 0) {
+        var ratio_allocated_cpu = Math.round((allocated_cpu / max_cpu) * 100);
+        info_str = allocated_cpu + ' / ' + max_cpu + ' (' + ratio_allocated_cpu + '%)';
+    } else {
+        info_str = "";
+    }
+
+    $("#dash_host_allocated_cpu").html(usageBarHtml(allocated_cpu, max_cpu, info_str, true));
+
+
+    if (max_cpu > 0) {
+        var ratio_real_cpu = Math.round((real_cpu / max_cpu) * 100);
+        info_str = real_cpu + ' / ' + max_cpu + ' (' + ratio_real_cpu + '%)';
+    } else {
+        info_str = "";
+    }
+
+    $("#dash_host_real_cpu").html(usageBarHtml(real_cpu, max_cpu, info_str, true));
+
+
+    if (max_mem > 0) {
+        var ratio_allocated_mem = Math.round((allocated_mem / max_mem) * 100);
+        info_str = humanize_size(allocated_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_allocated_mem + '%)';
+    } else {
+        info_str = humanize_size(allocated_mem) + ' / -';
+    }
+
+    $("#dash_host_allocated_mem").html(usageBarHtml(allocated_mem, max_mem, info_str, true));
+
+
+    if (max_mem > 0) {
+        var ratio_real_mem = Math.round((real_mem / max_mem) * 100);
+        info_str = humanize_size(real_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_real_mem + '%)';
+    } else {
+        info_str = humanize_size(real_mem) + ' / -';
+    }
+
+    $("#dash_host_real_mem").html(usageBarHtml(real_mem, max_mem, info_str, true));
+
 
     $(".total_hosts").text(host_list.length);
     $(".on_hosts").text(on_hosts);
     $(".off_hosts").text(off_hosts);
     $(".error_hosts").text(error_hosts);
-
-    if (do_host_monitoring_graphs){
-        var host_dashboard_graphs = [
-        {
-            monitor_resources : "CPU_USAGE,USED_CPU,MAX_CPU",
-            labels : tr("Allocated")+","+tr("Real")+","+tr("Total"),
-            humanize_figures : false,
-            div_graph : $("#dash_host_cpu_graph", $dashboard)
-            //div_legend : $("#dash_host_cpu_legend", $dashboard)
-        },
-        {
-            monitor_resources : "MEM_USAGE,USED_MEM,MAX_MEM",
-            labels : tr("Allocated")+","+tr("Real")+","+tr("Total"),
-            humanize_figures : true,
-            div_graph : $("#dash_host_mem_graph", $dashboard),
-            div_legend : $("#dash_host_mem_legend", $dashboard)
-        }
-        ];
-
-        var t0 = new Date().getTime();
-
-        // TODO: plot only when the dashboard is visible
-        for(var i=0; i<host_dashboard_graphs.length; i++) {
-            plot_totals(
-                host_monitoring_data,
-                host_dashboard_graphs[i]
-            );
-        }
-
-        var t1 = new Date().getTime();
-
-        // If plot takes more than 3 seconds, clear the monitoring data
-        if (t1 - t0 > 3000) {
-            host_monitoring_data = {};
-        }
-    }
 }
 
 function insert_datastores_capacity_table(host_share) {

@@ -3424,6 +3424,36 @@ function quotaBarHtml(usage, limit, info_str){
     return html;
 }
 
+function usageBarHtml(usage, limit, info_str, color){
+    percentage = 0;
+
+    if (limit > 0){
+        percentage = (usage / limit) * 100;
+
+        if (percentage > 100){
+            percentage = 100;
+        }
+    }
+
+    info_str = info_str || ( usage+' / '+((limit > 0) ? limit : '-') );
+
+    if (color){
+        var r = Math.min(parseInt(255 * percentage / 50), 255);
+        var g = Math.min(parseInt(255 * (100 - percentage) / 50), 255);
+        var b = 0;
+
+        var style='width: '+percentage+'%; background: rgb('+r+','+g+','+b+') !important';
+    } else {
+        var style='width: '+percentage+'%';
+    }
+
+    html = '<div class="progress-container"><div class="progress secondary radius">\
+    <span class="meter" style="'+style+'"></span></div>\
+    <div class="progress-text">'+info_str+'</div></div>';
+
+    return html;
+}
+
 function quotaIntLimit(limit, default_limit){
     i_limit = parseInt(limit, 10);
     i_default_limit = parseInt(default_limit, 10);

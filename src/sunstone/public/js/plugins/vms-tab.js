@@ -1275,106 +1275,45 @@ function updateVMachinesView(request, vmachine_list){
     failed_vms = 0;
     off_vms = 0;
 
+    var total_real_cpu = 0;
+    var total_allocated_cpu = 0;
 
-    var do_vm_monitoring_graphs = true;
+    var total_real_mem = 0;
+    var total_allocated_mem = 0;
 
-    if (!do_vm_monitoring_graphs){
+    $.each(vmachine_list,function(){
+        vmachine_list_array.push( vMachineElementArray(this));
 
-        $.each(vmachine_list,function(){
-            vmachine_list_array.push( vMachineElementArray(this));
-        });
+        if(this.VM.STATE == 3 && this.VM.STATE == 3){ // ACTIVE, RUNNING
+            total_real_cpu += parseInt(this.VM.CPU);
+            total_allocated_cpu += parseInt(this.VM.TEMPLATE.CPU * 100);
 
-    } else {
-        if (typeof (vm_monitoring_data) == 'undefined'){
-            vm_monitoring_data = {};
+            total_real_mem += parseInt(this.VM.MEMORY);
+            total_allocated_mem += parseInt(this.VM.TEMPLATE.MEMORY);
         }
-
-        var metrics = ["NET_TX", "NET_RX"];
-
-        $.each(vmachine_list,function(){
-            vmachine_list_array.push( vMachineElementArray(this));
-
-            var empty = false;
-            var time = this.VM.LAST_POLL;
-
-            if (time != "0"){
-
-                if (vm_monitoring_data[this.VM.ID] === undefined){
-                    empty = true;
-
-                    vm_monitoring_data[this.VM.ID] = {};
-
-                    for (var i=0; i<metrics.length; i++) {
-                        vm_monitoring_data[this.VM.ID][metrics[i]] = [];
-                    }
-                }
-
-                for (var i=0; i<metrics.length; i++) {
-                    var last_time = "0";
-
-                    var mon_data = vm_monitoring_data[this.VM.ID][metrics[i]];
-
-                    if (!empty){
-                        last_time = mon_data[ mon_data.length-1 ][0];
-                    }
-
-                    if (last_time != time){
-                        mon_data.push( [time, this.VM[metrics[i]]] );
-                    }
-                }
-            }
-        });
-    }
+    });
 
     updateView(vmachine_list_array,dataTable_vMachines);
 
+    var usage = 0;
+    if(total_allocated_cpu != 0){
+        usage = parseInt(100 * total_real_cpu / total_allocated_cpu);
+    }
+    var info_str = usage+'%';
+    $("#dash_vm_real_cpu").html(usageBarHtml(usage, 100, info_str, true));
+
+    usage = 0;
+    if(total_allocated_mem != 0){
+        usage = parseInt(100 * total_real_mem / 1024 / total_allocated_mem);
+    }
+    info_str = usage+'%';
+    $("#dash_vm_real_mem").html(usageBarHtml(usage, 100, info_str, true));
 
     $(".total_vms").text(vmachine_list.length);
     $(".active_vms").text(active_vms);
     $(".pending_vms").text(pending_vms);
     $(".failed_vms").text(failed_vms);
     $(".off_vms").text(off_vms);
-
-
-    if (do_vm_monitoring_graphs){
-        var vm_dashboard_graphs = [
-            { labels : "Network transmission",
-              monitor_resources : "NET_TX",
-              humanize_figures : true,
-              convert_from_bytes : true,
-              y_sufix : "B/s",
-              derivative : true,
-              div_graph : $("#dash_vm_net_tx_graph", $dashboard)
-            },
-            { labels : "Network reception",
-              monitor_resources : "NET_RX",
-              humanize_figures : true,
-              convert_from_bytes : true,
-              y_sufix : "B/s",
-              derivative : true,
-              div_graph : $("#dash_vm_net_rx_graph", $dashboard)
-            }
-        ];
-
-        var t0 = new Date().getTime();
-
-        var vm_monitoring_data_copy = jQuery.extend(true, {}, vm_monitoring_data);
-
-        // TODO: plot only when the dashboard is visible
-        for(var i=0; i<vm_dashboard_graphs.length; i++) {
-            plot_totals(
-                vm_monitoring_data_copy,
-                vm_dashboard_graphs[i]
-            );
-        }
-
-        var t1 = new Date().getTime();
-
-        // If plot takes more than 3 seconds, clear the monitoring data
-        if (t1 - t0 > 3000) {
-            vm_monitoring_data = {};
-        }
-    }
 };
 
 

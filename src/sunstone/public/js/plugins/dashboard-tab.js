@@ -97,28 +97,49 @@ var widgets = {
               </h4>\
             </div>\
           </div>\
-          <div class="small-9 large-9 columns">\
-            <div class="row graph_legend text-left">\
-              <div class="small-4 large-4 columns">\
-                  <h4 class="subheader text-center"><small>'+tr("CPU")+'</small></h4>\
-              </div>\
-              <div class="small-4 large-4 columns">\
-                <span class="label allocated radius">'+tr("Allocated")+'</span>&emsp;\
-                <span class="label real radius">'+tr("Real")+'</span>&emsp;\
-                <span class="label total radius">'+tr("Total")+'</span>\
-              </div>\
-              <div class="small-4 large-4 columns">\
-                  <h4 class="subheader"><small>'+tr("MEMORY")+'</small></h4>\
+          <div class="small-4 large-4 columns">\
+            <div class="row graph_legend text-center">\
+              <div class="small-6 large-6 columns">\
+                <h4 class="subheader"><small>'+tr("CPU")+'</small></h4>\
               </div>\
             </div>\
             <div class="row">\
-              <div class="small-6 large-6 columns">\
-                  <div class="large-12 columns centered graph" id="dash_host_cpu_graph" style="height: 100px;">\
-                  </div>\
+              <h4 class="subheader">\
+                <small class="subheader small-4 large-4 columns">'+tr("Allocated")+
+                '</small>\
+              </h4>\
+              <div class="small-8 large-8 columns" id="dash_host_allocated_cpu" >\
               </div>\
+            </div>\
+            <div class="row">\
+              <h4 class="subheader">\
+                <small class="subheader small-4 large-4 columns">'+tr("Real")+
+                '</small>\
+              </h4>\
+              <div class="small-8 large-8 columns" id="dash_host_real_cpu" >\
+              </div>\
+            </div>\
+          </div>\
+          <div class="small-4 large-4 columns">\
+            <div class="row graph_legend text-center">\
               <div class="small-6 large-6 columns">\
-                  <div class="large-12 columns centered graph" id="dash_host_mem_graph" style="height: 100px;">\
-                  </div>\
+                <h4 class="subheader"><small>'+tr("MEMORY")+'</small></h4>\
+              </div>\
+            </div>\
+            <div class="row">\
+              <h4 class="subheader">\
+                <small class="subheader small-4 large-4 columns">'+tr("Allocated")+
+                '</small>\
+              </h4>\
+              <div class="small-8 large-8 columns" id="dash_host_allocated_mem" >\
+              </div>\
+            </div>\
+            <div class="row">\
+              <h4 class="subheader">\
+                <small class="subheader small-4 large-4 columns">'+tr("Real")+
+                '</small>\
+              </h4>\
+              <div class="small-8 large-8 columns" id="dash_host_real_mem" >\
               </div>\
             </div>\
           </div>\
@@ -148,20 +169,23 @@ var widgets = {
           <div class="small-9 large-9 columns">\
             <div class="row graph_legend text-center">\
               <div class="small-6 large-6 columns">\
-              <h4 class="subheader"><small>'+tr("NET DOWNLOAD SPEED")+'</small></h4>\
-              </div>\
-              <div class="small-6 large-6 columns">\
-              <h4 class="subheader"><small>'+tr("NET UPLOAD SPEED")+'</small></h4>\
+                <h4 class="subheader"><small>'+tr("REAL CAPACITY USAGE")+'</small></h4>\
               </div>\
             </div>\
             <div class="row">\
-              <div class="small-6 large-6 columns">\
-              <div class="large-12 columns centered graph" id="dash_vm_net_rx_graph"  style="height: 100px;">\
+              <h4 class="subheader">\
+                <small class="subheader small-4 large-4 columns">'+tr("CPU")+
+                '</small>\
+              </h4>\
+              <div class="small-8 large-8 columns" id="dash_vm_real_cpu" >\
               </div>\
-              </div>\
-              <div class="small-6 large-6 columns">\
-              <div class="large-12 columns centered graph" id="dash_vm_net_tx_graph" style="height: 100px;">\
-              </div>\
+            </div>\
+            <div class="row">\
+              <h4 class="subheader">\
+                <small class="subheader small-4 large-4 columns">'+tr("Memory")+
+                '</small>\
+              </h4>\
+              <div class="small-8 large-8 columns" id="dash_vm_real_mem" >\
               </div>\
             </div>\
           </div>\
