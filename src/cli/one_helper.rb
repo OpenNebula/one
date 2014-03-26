@@ -482,9 +482,10 @@ EOT
                     array=pool.get_hash
                     return -1, array.message if OpenNebula.is_error?(array)
 
-                    if options[:ids]
-                        rname=self.class.rname
-                        array["#{rname}_POOL"][rname].reject! do |element|
+                    rname=self.class.rname
+                    elements=array["#{rname}_POOL"][rname]
+                    if options[:ids] && elements
+                        elements.reject! do |element|
                             !options[:ids].include?(element['ID'].to_i)
                         end
                     end
