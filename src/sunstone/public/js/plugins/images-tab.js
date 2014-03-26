@@ -246,7 +246,8 @@ var image_actions = {
         call: OpenNebula.Image.create,
         callback: function(request, response){
           addImageElement(request, response);
-          if ($appmarket_import_dialog || $marketplace_import_dialog) {
+          if (typeof($appmarket_import_dialog) !== 'undefined' ||
+              typeof($marketplace_import_dialog) !== 'undefined') {
             $create_image_dialog.trigger('close');
           } else {
             $create_image_dialog.foundation('reveal', 'close');
