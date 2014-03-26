@@ -214,12 +214,22 @@ module Migrator
     end
 
     def extract_quotas(doc)
-        ds_quota  = doc.root.at_xpath("DATASTORE_QUOTA").remove
-        net_quota = doc.root.at_xpath("NETWORK_QUOTA").remove
-        vm_quota  = doc.root.at_xpath("VM_QUOTA").remove
-        img_quota = doc.root.at_xpath("IMAGE_QUOTA").remove
+        ds_quota  = doc.root.at_xpath("DATASTORE_QUOTA")
+        net_quota = doc.root.at_xpath("NETWORK_QUOTA")
+        vm_quota  = doc.root.at_xpath("VM_QUOTA")
+        img_quota = doc.root.at_xpath("IMAGE_QUOTA")
 
         quotas_doc = Nokogiri::XML("<QUOTAS></QUOTAS>")
+
+        ds_quota  = quotas_doc.create_element("DATASTORE_QUOTA") if ds_quota.nil?
+        net_quota = quotas_doc.create_element("NETWORK_QUOTA")   if net_quota.nil?
+        vm_quota  = quotas_doc.create_element("VM_QUOTA")        if vm_quota.nil?
+        img_quota = quotas_doc.create_element("IMAGE_QUOTA")     if img_quota.nil?
+
+        ds_quota.remove
+        net_quota.remove
+        vm_quota.remove
+        img_quota.remove
 
         quotas_doc.root.add_child(quotas_doc.create_element("ID")).
             content = doc.root.at_xpath("ID").text
