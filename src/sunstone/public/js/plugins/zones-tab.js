@@ -139,7 +139,7 @@ var zone_actions = {
             Sunstone.runAction("Zone.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_zones);
-            Sunstone.runAction("Zone.list");
+            Sunstone.runAction("Zone.list", {force: true});
           }
         },
         error: onError
@@ -216,6 +216,7 @@ var zone_buttons = {
 
 var zones_tab = {
     title: tr("Zones"),
+    resource: 'Zone',
     buttons: zone_buttons,
     tabClass: "subTab",
     parentTab: "infra-tab",

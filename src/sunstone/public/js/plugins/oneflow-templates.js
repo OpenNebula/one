@@ -403,7 +403,7 @@ var service_template_actions = {
             Sunstone.runAction("ServiceTemplate.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_service_templates);
-            Sunstone.runAction("ServiceTemplate.list");
+            Sunstone.runAction("ServiceTemplate.list", {force: true});
           }
         }
     },
@@ -515,6 +515,7 @@ var service_template_info_panel = {
 
 var service_templates_tab = {
     title: "Templates",
+    resource: 'ServiceTemplate',
     buttons: service_template_buttons,
     tabClass: 'subTab',
     parentTab: 'oneflow-dashboard',

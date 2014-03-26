@@ -932,7 +932,7 @@ var service_actions = {
                 Sunstone.runAction("Service.show", Sunstone.rightInfoResourceId(tab))
             } else {
                 waitingNodes(dataTable_services);
-                Sunstone.runAction("Service.list");
+                Sunstone.runAction("Service.list", {force: true});
             }
         }
     },
@@ -1045,6 +1045,7 @@ var service_info_panel = {
 
 var services_tab = {
     title: "Services",
+    resource: 'Service',
     buttons: service_buttons,
     tabClass: 'subTab',
     parentTab: 'oneflow-dashboard',

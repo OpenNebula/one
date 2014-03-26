@@ -457,7 +457,7 @@ var vm_actions = {
             Sunstone.runAction("VM.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_vMachines);
-            Sunstone.runAction("VM.list");
+            Sunstone.runAction("VM.list", {force: true});
           }
         }
     },
@@ -1119,6 +1119,7 @@ var vm_info_panel = {
 
 var vms_tab = {
     title: tr("Virtual Machines"),
+    resource: 'VM',
     buttons: vm_buttons,
     tabClass: 'subTab',
     parentTab: 'vresources-tab',

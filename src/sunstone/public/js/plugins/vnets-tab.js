@@ -368,7 +368,7 @@ var vnet_actions = {
             Sunstone.runAction("Network.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_vNetworks);
-            Sunstone.runAction("Network.list");
+            Sunstone.runAction("Network.list", {force: true});
           }
         }
     },
@@ -574,6 +574,7 @@ var vnet_info_panel = {
 
 var vnets_tab = {
     title: tr("Virtual Networks"),
+    resource: 'Network',
     buttons: vnet_buttons,
     tabClass: "subTab",
     parentTab: "infra-tab",

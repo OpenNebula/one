@@ -244,7 +244,7 @@ var group_actions = {
             Sunstone.runAction("Group.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_groups);
-            Sunstone.runAction("Group.list");
+            Sunstone.runAction("Group.list", {force: true});
           }
         },
         error: onError
@@ -409,6 +409,7 @@ var group_info_panel = {
 
 var groups_tab = {
     title: tr("Groups"),
+    resource: 'Group',
     buttons: group_buttons,
     tabClass: 'subTab',
     parentTab: 'system-tab',

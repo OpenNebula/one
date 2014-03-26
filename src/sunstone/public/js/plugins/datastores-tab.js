@@ -335,7 +335,7 @@ var datastore_actions = {
             Sunstone.runAction("Datastore.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_datastores);
-            Sunstone.runAction("Datastore.list");
+            Sunstone.runAction("Datastore.list", {force: true});
           }
         },
         error: onError
@@ -507,6 +507,7 @@ var datastore_info_panel = {
 
 var datastores_tab = {
     title: tr("Datastores"),
+    resource: 'Datastore',
     buttons: datastore_buttons,
     tabClass: "subTab",
     parentTab: "infra-tab",

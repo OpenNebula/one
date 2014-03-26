@@ -162,7 +162,7 @@ var host_actions = {
             Sunstone.runAction("Host.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_hosts);
-            Sunstone.runAction("Host.list");
+            Sunstone.runAction("Host.list", {force: true});
           }
         },
         error: onError
@@ -337,6 +337,7 @@ var host_info_panel = {
 
 var hosts_tab = {
     title: tr("Hosts"),
+    resource: 'Host',
     buttons: host_buttons,
     tabClass: "subTab",
     parentTab: "infra-tab",

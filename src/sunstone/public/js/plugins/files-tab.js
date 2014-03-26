@@ -187,7 +187,7 @@ var file_actions = {
             Sunstone.runAction("File.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_files);
-            Sunstone.runAction("File.list");
+            Sunstone.runAction("File.list", {force: true});
           }
         }
     },
@@ -350,6 +350,7 @@ var file_info_panel = {
 
 var files_tab = {
     title: tr("Files & Kernels"),
+    resource: 'File',
     buttons: file_buttons,
     tabClass: 'subTab',
     parentTab: 'vresources-tab',

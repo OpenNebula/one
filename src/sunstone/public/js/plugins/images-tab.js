@@ -296,7 +296,7 @@ var image_actions = {
             Sunstone.runAction("Image.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_images);
-            Sunstone.runAction("Image.list");
+            Sunstone.runAction("Image.list", {force: true});
           }
         }
     },
@@ -509,6 +509,7 @@ var image_info_panel = {
 
 var images_tab = {
     title: tr("Images"),
+    resource: 'Image',
     buttons: image_buttons,
     tabClass: 'subTab',
     parentTab: 'vresources-tab',

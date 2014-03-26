@@ -952,7 +952,7 @@ var cluster_actions = {
             Sunstone.runAction("Cluster.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_clusters);
-            Sunstone.runAction("Cluster.list");
+            Sunstone.runAction("Cluster.list", {force: true});
           }
         },
         error: onError
@@ -1088,6 +1088,7 @@ var cluster_buttons = {
 
 var clusters_tab = {
     title: tr("Clusters"),
+    resource: 'Cluster',
     buttons: cluster_buttons,
     showOnTopMenu: false,
     tabClass: "subTab",

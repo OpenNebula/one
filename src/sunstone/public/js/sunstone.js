@@ -271,7 +271,7 @@ var Sunstone = {
             };
             break;
         case "list":
-            call({success: callback, error:err});
+            call({success: callback, error:err, options:data_arg});
             break;
         case "monitor_global":
             call({
@@ -3548,7 +3548,13 @@ function showTab(tabname,highlight_tab){
     $(".only-right-info", tab).hide();
 
     recountCheckboxes($(".dataTable", tab).first());
-    //$("#refresh_buttons .button", $('#'+activeTab)).click()
+
+    var res = SunstoneCfg['tabs'][activeTab]['resource']
+    if (res){
+        Sunstone.runAction(res+".list");
+    } else {
+//        $(".fa-refresh", $('#'+activeTab)).click();
+    }
 }
 
 function setupTabs(){

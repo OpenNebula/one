@@ -207,7 +207,7 @@ var acl_actions = {
         type: "custom",
         call: function () {
             waitingNodes(dataTable_acls);
-            Sunstone.runAction("Acl.list");
+            Sunstone.runAction("Acl.list", {force: true});
         }
     },
 
@@ -258,6 +258,7 @@ var acl_buttons = {
 
 var acls_tab = {
     title: tr("ACLs"),
+    resource: 'Acl',
     buttons: acl_buttons,
     tabClass: 'subTab',
     parentTab: 'system-tab',

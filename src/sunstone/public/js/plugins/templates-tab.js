@@ -281,7 +281,7 @@ var template_actions = {
             Sunstone.runAction("Template.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_templates);
-            Sunstone.runAction("Template.list");
+            Sunstone.runAction("Template.list", {force: true});
           }
         }
     },
@@ -517,6 +517,7 @@ var template_info_panel = {
 
 var templates_tab = {
     title: tr("Templates"),
+    resource: 'Template',
     buttons: template_buttons,
     tabClass: 'subTab',
     parentTab: 'vresources-tab',

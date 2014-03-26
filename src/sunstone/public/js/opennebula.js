@@ -25,7 +25,7 @@ $.ajaxSetup({
 var list_cache = {};
 var list_waiting = {};
 var list_callbacks = {};
-var cache_expire = 5000; //ms
+var cache_expire = 60000; //ms
 
 
 var OpenNebula = {
@@ -356,7 +356,14 @@ var OpenNebula = {
             var req_path = path ? path : resource.toLowerCase();
             var cache_name = params.cache_name ? params.cache_name : resource;
 
-            if( list_cache[cache_name] &&
+            var options = params.options;
+            var force = false;
+            if (options){
+                force = options.force;
+            }
+
+            if( !force &&
+                list_cache[cache_name] &&
                 list_cache[cache_name]["timestamp"] + cache_expire > new Date().getTime()){
 
                 //console.log(cache_name+" list. Cache used");

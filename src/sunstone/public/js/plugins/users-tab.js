@@ -301,7 +301,7 @@ var user_actions = {
             Sunstone.runAction("User.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_users);
-            Sunstone.runAction("User.list");
+            Sunstone.runAction("User.list", {force: true});
           }
         }
     },
@@ -509,6 +509,7 @@ var user_info_panel = {
 
 var users_tab = {
     title: tr("Users"),
+    resource: 'User',
     buttons: user_buttons,
     tabClass: 'subTab',
     parentTab: 'system-tab',
