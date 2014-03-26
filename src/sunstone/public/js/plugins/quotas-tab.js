@@ -81,7 +81,7 @@ Sunstone.addMainTab('quotas-tab',quotas_tab);
 var $quotas_tab;
 
 
-function fillUserInfo(){
+function fillUserQuotasInfo(){
     OpenNebula.User.show({
         data : {
             id: '-1'
@@ -145,7 +145,7 @@ function updateGroupQuotasInfo(request,group_json){
 }
 
 function refreshQuotasTab(){
-    fillUserInfo();
+    fillUserQuotasInfo();
 
     gid = $("#quotas_tab_group_sel .resource_list_select", $quotas_tab).val();
 
@@ -170,7 +170,7 @@ $(document).ready(function(){
         }
     });
 
-    fillUserInfo();
+    fillUserQuotasInfo();
 
     OpenNebula.Group.show({
         data : {
