@@ -241,16 +241,16 @@ int XenDriver::deployment_description(
     }
     else if ( !bootloader.empty() ) //Host loader boot method
     {
-        file << "bootloader = \"" << bootloader << "\"" << endl;
+        file << "bootloader = '" << bootloader << "'" << endl;
     }
     else //No kernel & no bootloader use hvm
     {
         is_hvm = 1;
-        file << "builder = \"hvm\"" << endl;
+        file << "builder = 'hvm'" << endl;
 
         if ( !boot.empty() )
         {
-            file << "boot = \"";
+            file << "boot = '";
 
             boots = one_util::split(boot, ',');
 
@@ -282,7 +282,7 @@ int XenDriver::deployment_description(
                 }
             }
 
-            file << "\"" << endl;
+            file << "'" << endl;
         }
     }
 
