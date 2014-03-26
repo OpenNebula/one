@@ -387,7 +387,8 @@ $(document).ready(function(){
 
     if (Config.isTabEnabled(tab_name)) {
       dataTable_marketplace = $("#datatable_marketplace", main_tabs_context).dataTable({
-          "bSortClasses": true,
+            "bSortClasses" : false,
+            "bDeferRender": true,
           "aoColumns": [
               { "bSortable": false,
                 "mData": function ( o, val, data ) {

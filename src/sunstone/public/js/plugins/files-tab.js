@@ -824,7 +824,9 @@ $(document).ready(function(){
               { "sWidth": "35px", "aTargets": [0] },
               { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
               { "bVisible": false, "aTargets": ['_all']}
-          ]
+          ],
+          "bSortClasses" : false,
+          "bDeferRender": true,
       });
 
       $('#file_search').keyup(function(){

@@ -206,6 +206,8 @@ function setupCreateClusterDialog(){
             { "sWidth": "35px", "aTargets": [1] },
             { "bVisible": false, "aTargets": [0,5,7,10,11,12]} // 3 = cluster
         ],
+        "bSortClasses" : false,
+        "bDeferRender": true,
         "oLanguage": (datatable_lang != "") ?
             {
                 sUrl: "locale/"+lang+"/"+datatable_lang
@@ -223,6 +225,8 @@ function setupCreateClusterDialog(){
         "oColVis": {
             "aiExclude": [ 0 ]
         },
+        "bSortClasses" : false,
+        "bDeferRender": true,
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [1] },
             { "bVisible": false, "aTargets": [0,7]}
@@ -243,6 +247,8 @@ function setupCreateClusterDialog(){
         "oColVis": {
             "aiExclude": [ 0 ]
         },
+        "bSortClasses" : false,
+        "bDeferRender": true,
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [1] },
             { "bVisible": false, "aTargets": [0,7,8,9] }
@@ -1298,6 +1304,8 @@ function updateClusterInfo(request,cluster){
         "oColVis": { //exclude checkbox column
             "aiExclude": [ 0 ]
         },
+        "bSortClasses" : false,
+        "bDeferRender": true,
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [1] },
             { "sWidth": "35px", "aTargets": [9] },
@@ -1316,6 +1324,8 @@ function updateClusterInfo(request,cluster){
         "oColVis": {
             "aiExclude": [ 0 ]
         },
+        "bSortClasses" : false,
+        "bDeferRender": true,
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [1] },
             { "bVisible": false, "aTargets": [0,5,6,7]}
@@ -1334,6 +1344,8 @@ function updateClusterInfo(request,cluster){
         "oColVis": {
             "aiExclude": [ 0 ]
         },
+        "bSortClasses" : false,
+        "bDeferRender": true,
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [1] },
             { "bVisible": false, "aTargets": [0,7,8,9] }
@@ -1388,7 +1400,9 @@ $(document).ready(function(){
               { "sWidth": "35px", "aTargets": [0] },
               { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
               { "bVisible": false, "aTargets": ['_all']}
-          ]
+          ],
+          "bSortClasses" : false,
+          "bDeferRender": true
       });
 
       $('#cluster_search').keyup(function(){

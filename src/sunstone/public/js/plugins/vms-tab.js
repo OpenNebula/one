@@ -2830,6 +2830,8 @@ function setupCreateVMDialog(include_select_image){
     //dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
 
     var dataTable_template_templates = $('#template_templates_table', dialog).dataTable({
+        "bSortClasses": false,
+        "bDeferRender": true,
         "iDisplayLength": 4,
         "bAutoWidth":false,
         "sDom" : '<"H">t<"F"p>',
@@ -2883,6 +2885,8 @@ function setupCreateVMDialog(include_select_image){
     if (include_select_image) {
       $("#select_image_step", dialog).show();
       var dataTable_template_images = $('#template_images_table', dialog).dataTable({
+          "bSortClasses": false,
+          "bDeferRender": true,
           "iDisplayLength": 4,
           "bAutoWidth":false,
           "sDom" : '<"H">t<"F"p>',
@@ -3022,6 +3026,8 @@ function setupDeployVMDialog(){
     dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
 
     var dataTable_deploy_hosts = $('#deploy_datatable_hosts', dialog).dataTable({
+        "bSortClasses": false,
+        "bDeferRender": true,
         "iDisplayLength": 4,
         "bAutoWidth":false,
         "sDom" : '<"H">t<"F"p>',
@@ -3073,6 +3079,8 @@ function setupDeployVMDialog(){
 
 
     var dataTable_deploy_datastores = $('#deploy_datatable_datastores', dialog).dataTable({
+      "bSortClasses": false,
+      "bDeferRender": true,
       "iDisplayLength": 4,
       "bAutoWidth":false,
       "sDom" : '<"H">t<"F"p>',
@@ -3165,6 +3173,8 @@ function setupMigrateVMDialog(live){
     dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
 
     var dataTable_migrate_hosts = $('#migrate_datatable_hosts', dialog).dataTable({
+        "bSortClasses": false,
+        "bDeferRender": true,
         "iDisplayLength": 4,
         "bAutoWidth":false,
         "sDom" : '<"H">t<"F"p>',
@@ -3428,7 +3438,9 @@ $(document).ready(function(){
 
     if (Config.isTabEnabled(tab_name)) {
       dataTable_vMachines = $("#datatable_vmachines",main_tabs_context).dataTable({
-          "aoColumnDefs": [
+            "bSortClasses": false,
+            "bDeferRender": true,
+            "aoColumnDefs": [
               { "bSortable": false, "aTargets": ["check",6,7,11] },
               { "sWidth": "35px", "aTargets": [0] },
               { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},

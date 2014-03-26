@@ -675,6 +675,7 @@ function updateServiceTemplateInfo(request,elem){
     if (roles && roles.length) {
         serviceTemplaterolesDataTable = $('#datatable_service_template_roles').dataTable({
             "bSortClasses": false,
+            "bDeferRender": true,
             "bAutoWidth":false,
             "aoColumnDefs": [
               { "bSortable": false, "aTargets": ["check"] }
@@ -1413,6 +1414,8 @@ $(document).ready(function(){
 
     if (Config.isTabEnabled(tab_name)) {
         dataTable_service_templates = $("#datatable_service_templates",main_tabs_context).dataTable({
+            "bSortClasses": false,
+            "bDeferRender": true,
             "aoColumnDefs": [
                 { "bSortable": false, "aTargets": ["check"] },
                 { "sWidth": "35px", "aTargets": [0] },

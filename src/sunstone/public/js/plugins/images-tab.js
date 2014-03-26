@@ -791,6 +791,8 @@ function updateImageInfo(request,img){
 
 
     dataTable_vMachines = $("#datatable_image_vms", $("#image_info_panel")).dataTable({
+        "bSortClasses" : false,
+        "bDeferRender": true,
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check",6,7,11] },
             { "sWidth": "35px", "aTargets": [0] },
@@ -1228,7 +1230,9 @@ $(document).ready(function(){
 
     if (Config.isTabEnabled(tab_name)) {
       dataTable_images = $("#datatable_images",main_tabs_context).dataTable({
-          "aoColumnDefs": [
+            "bSortClasses" : false,
+            "bDeferRender": true,
+            "aoColumnDefs": [
               { "bSortable": false, "aTargets": ["check"] },
               { "sWidth": "35px", "aTargets": [0] },
               { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},

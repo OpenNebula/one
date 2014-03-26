@@ -1357,7 +1357,9 @@ $(document).ready(function(){
 
     if (Config.isTabEnabled(tab_name)) {
       dataTable_vNetworks = $("#datatable_vnetworks",main_tabs_context).dataTable({
-          "aoColumnDefs": [
+            "bSortClasses": false,
+            "bDeferRender": true,
+            "aoColumnDefs": [
               { "bSortable": false, "aTargets": ["check"] },
               { "sWidth": "35px", "aTargets": [0] },
               { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},

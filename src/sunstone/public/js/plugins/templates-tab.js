@@ -1433,6 +1433,8 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
             { "sWidth": "35px", "aTargets": [0,1] },
             { "bVisible": false, "aTargets": [0,2,3,6,9,8,12]}
         ],
+        "bSortClasses" : false,
+        "bDeferRender": true,
           "fnDrawCallback": function(oSettings) {
             var nodes = this.fnGetNodes();
             var datatable = this;
@@ -1705,6 +1707,8 @@ function setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id) {
       "iDisplayLength": 4,
       "sDom" : '<"H">t<"F"p>',
       "bRetrieve": true,
+      "bSortClasses" : false,
+      "bDeferRender": true,
       "aoColumnDefs": [
           { "sWidth": "35px", "aTargets": [0,1] },
           { "bVisible": false, "aTargets": [0,7]}
@@ -2977,6 +2981,8 @@ function setup_os_tab_content(os_section) {
         "bAutoWidth":false,
         "sDom" : '<"H">t<"F"p>',
         "iDisplayLength": 4,
+        "bSortClasses" : false,
+        "bDeferRender": true,
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [0,1] },
             { "bVisible": false, "aTargets": [3,2,5,6,7,9,8,11,12,10]}
@@ -3036,6 +3042,8 @@ function setup_os_tab_content(os_section) {
             { "sWidth": "35px", "aTargets": [0,1] },
             { "bVisible": false, "aTargets": [2,3,5,6,7,9,8,10,11,12]}
         ],
+        "bSortClasses" : false,
+        "bDeferRender": true,
        "fnInitComplete": function(oSettings) {
           this.fnFilter("RAMDISK", 7)
        // var nodes = this.fnGetNodes();
@@ -3168,6 +3176,7 @@ function setup_context_tab_content(context_section) {
     var datTable_template_context = $('#datatable_context', context_section).dataTable({
         "bAutoWidth":false,
         "iDisplayLength": 4,
+        "bSortClasses" : false,
         "bDeferRender": true,
         "sDom" : '<"H">t<"F"p>',
         "aoColumnDefs": [
@@ -3287,6 +3296,8 @@ function setup_scheduling_tab_content(scheduling_section) {
         "iDisplayLength": 4,
         "sDom" : '<"H">t<"F"p>',
         "bAutoWidth":false,
+        "bSortClasses" : false,
+        "bDeferRender": true,
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [0,1] },
             { "bVisible": false, "aTargets": [3,5,7,10,11,12]}
@@ -3368,6 +3379,8 @@ function setup_scheduling_tab_content(scheduling_section) {
         "iDisplayLength": 4,
         "sDom" : '<"H">t<"F"p>',
         "bAutoWidth":false,
+        "bSortClasses" : false,
+        "bDeferRender": true,
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [0,1] },
             { "bVisible": false, "aTargets": []}
@@ -4617,6 +4630,8 @@ function setupInstantiateTemplateDialog(easy_provision){
               { "sWidth": "35px", "aTargets": [0,1] },
               { "bVisible": false, "aTargets": [2,3,7,8,5,9,12]}
           ],
+            "bSortClasses" : false,
+            "bDeferRender": true,
             "fnDrawCallback": function(oSettings) {
               var nodes = this.fnGetNodes();
               $.each(nodes, function(){
@@ -4668,6 +4683,8 @@ function setupInstantiateTemplateDialog(easy_provision){
               { "sWidth": "35px", "aTargets": [0,1] },
               { "bVisible": false, "aTargets": [1,2,3,5]}
           ],
+            "bSortClasses" : false,
+            "bDeferRender": true,
             "fnDrawCallback": function(oSettings) {
               var nodes = this.fnGetNodes();
               $.each(nodes, function(){
@@ -4798,7 +4815,9 @@ $(document).ready(function(){
               { "sWidth": "35px", "aTargets": [0] },
               { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
               { "bVisible": false, "aTargets": ['_all']}
-          ]
+          ],
+          "bSortClasses" : false,
+          "bDeferRender": true
       });
 
 

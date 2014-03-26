@@ -864,6 +864,8 @@ function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id
         "iDisplayLength": 4,
         "sDom" : '<"H">t<"F"p>',
         "bAutoWidth":false,
+        "bSortClasses" : false,
+        "bDeferRender": true,
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [0,1] },
             { "bVisible": false, "aTargets": []}
@@ -1330,7 +1332,9 @@ $(document).ready(function(){
 
     if (Config.isTabEnabled(tab_name)) {
       dataTable_groups = $("#datatable_groups",main_tabs_context).dataTable({
-          "aoColumnDefs": [
+            "bSortClasses" : false,
+            "bDeferRender": true,
+            "aoColumnDefs": [
               { "bSortable": false, "aTargets": ["check",4,5,6] },
               { "sWidth": "35px", "aTargets": [0] },
               { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},

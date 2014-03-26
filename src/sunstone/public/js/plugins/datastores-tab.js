@@ -743,6 +743,8 @@ function updateDatastoreInfo(request,ds){
         "oColVis": {
             "aiExclude": [ 0 ]
         },
+        "bSortClasses" : false,
+        "bDeferRender": true,
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [1] },
             { "bVisible": false, "aTargets": [0,5,6,8,12]}
@@ -1111,7 +1113,9 @@ $(document).ready(function(){
               { "sWidth": "200px", "aTargets": [5] },
               { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
               { "bVisible": false, "aTargets": ['_all']}
-          ]
+          ],
+          "bSortClasses" : false,
+          "bDeferRender": true,
       });
 
       $('#datastore_search').keyup(function(){

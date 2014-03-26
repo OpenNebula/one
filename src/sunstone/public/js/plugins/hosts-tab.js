@@ -783,6 +783,8 @@ function updateHostInfo(request,host){
     Sunstone.popUpInfoPanel("host_info_panel", "hosts-tab");
 
     var dataTable_vMachines = $("#datatable_host_vms", $("#host_info_panel")).dataTable({
+        "bSortClasses" : false,
+        "bDeferRender": true,
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check",6,7,11] },
             { "sWidth": "35px", "aTargets": [0] },
@@ -928,7 +930,9 @@ $(document).ready(function(){
     if (Config.isTabEnabled(tab_name)) {
       //prepare host datatable
       dataTable_hosts = $("#datatable_hosts",main_tabs_context).dataTable({
-          "aoColumnDefs": [
+            "bSortClasses" : false,
+            "bDeferRender": true,
+            "aoColumnDefs": [
               { "bSortable": false, "aTargets": ["check",5,6,7,8] },
               { "sWidth": "35px", "aTargets": [0] }, //check, ID, RVMS, Status,
               { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},

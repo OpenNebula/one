@@ -355,6 +355,8 @@ $(document).ready(function(){
     if (Config.isTabEnabled(tab_name)) {
       //prepare zone datatable
       dataTable_zones = $("#datatable_zones",main_tabs_context).dataTable({
+          "bSortClasses": false,
+          "bDeferRender": true,
           "aoColumnDefs": [
               { "bSortable": false, "aTargets": ["check"] },
               { "sWidth": "35px", "aTargets": [0] },

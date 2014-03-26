@@ -883,7 +883,9 @@ $(document).ready(function(){
     if (Config.isTabEnabled(tab_name)) {
       //if we are not oneadmin, our tab will not even be in the DOM.
       dataTable_users = $("#datatable_users",main_tabs_context).dataTable({
-          "aoColumnDefs": [
+            "bSortClasses": false,
+            "bDeferRender": true,
+            "aoColumnDefs": [
               { "bSortable": false, "aTargets": ["check",5,6,7] },
               { "sWidth": "35px", "aTargets": [0] },
               { "sWidth": "150px", "aTargets": [5,6,7] },

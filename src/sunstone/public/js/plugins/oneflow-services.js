@@ -1274,6 +1274,7 @@ function updateServiceInfo(request,elem){
     if (roles && roles.length) {
         servicerolesDataTable = $('#datatable_service_roles').dataTable({
             "bSortClasses": false,
+            "bDeferRender": true,
             "bAutoWidth":false,
             "aoColumnDefs": [
               { "bSortable": false, "aTargets": ["check"] }
@@ -1534,6 +1535,8 @@ function updateServiceInfo(request,elem){
 
             var vms = [];
             serviceroleVMsDataTable = $('#datatable_service_vms_'+role.name, context).dataTable({
+                "bSortClasses": false,
+                "bDeferRender": true,
                 "aoColumnDefs": [
                     { "bSortable": false, "aTargets": [0,1,7,8,10,12] },
                     { "sWidth": "35px", "aTargets": [0,1] },
@@ -1700,6 +1703,8 @@ $(document).ready(function(){
 
     if (Config.isTabEnabled(tab_name)) {
         dataTable_services = $("#datatable_services",main_tabs_context).dataTable({
+            "bSortClasses": false,
+            "bDeferRender": true,
             "aoColumnDefs": [
                 { "bSortable": false, "aTargets": ["check"] },
                 { "sWidth": "35px", "aTargets": [0] },
