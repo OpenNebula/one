@@ -893,7 +893,7 @@ var cluster_actions = {
             $create_cluster_dialog.empty();
             setupCreateClusterDialog();
 
-            addImageElement(request, response);
+            addClusterElement(request, response);
 //            Sunstone.runAction('Cluster.list');
 
             for (var host in request.request.data[0].cluster.hosts)
