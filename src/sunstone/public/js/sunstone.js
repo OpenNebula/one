@@ -3437,18 +3437,19 @@ function usageBarHtml(usage, limit, info_str, color){
 
     info_str = info_str || ( usage+' / '+((limit > 0) ? limit : '-') );
 
+    var classes = "meter";
     if (color){
-        var r = Math.min(parseInt(255 * percentage / 50), 255);
-        var g = Math.min(parseInt(255 * (100 - percentage) / 50), 255);
-        var b = 0;
-
-        var style='width: '+percentage+'%; background: rgb('+r+','+g+','+b+') !important';
-    } else {
-        var style='width: '+percentage+'%';
+        if (percentage <= 20){
+            classes += " usage-low";
+        } else if (percentage >= 80){
+            classes += " usage-high";
+        } else {
+            classes += " usage-mid";
+        }
     }
 
     html = '<div class="progress-container"><div class="progress secondary radius">\
-    <span class="meter" style="'+style+'"></span></div>\
+    <span class="'+classes+'" style="width: '+percentage+'%"></span></div>\
     <div class="progress-text">'+info_str+'</div></div>';
 
     return html;
