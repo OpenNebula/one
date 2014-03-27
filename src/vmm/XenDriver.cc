@@ -510,7 +510,9 @@ int XenDriver::deployment_description(
                 if ( !is_hvm )
                 {
                     file << "vfb = ['type=vnc";
-                } else {
+                }
+                else
+                {
                     file << "vnc = '1'" << endl;
                 }
 
@@ -519,7 +521,9 @@ int XenDriver::deployment_description(
                     if ( is_hvm )
                     {
                         file << "vnclisten = '" << listen << "'" << endl;
-                    } else {
+                    }
+                    else
+                    {
                         file << ",vnclisten=" << listen << endl;
                     }
                 }
@@ -540,7 +544,9 @@ int XenDriver::deployment_description(
                     {
                         file << "vncunused = '0'" << endl;
                         file << "vncdisplay = '" << display - 5900 << "'" << endl;
-                    } else {
+                    }
+                    else
+                    {
                         file << ",vncunused=0";
                         file << ",vncdisplay=" << display - 5900;
                     }
@@ -551,7 +557,9 @@ int XenDriver::deployment_description(
                     if ( is_hvm )
                     {
                         file << "vncpasswd = '" << passwd << "'" << endl;
-                    } else {
+                    }
+                    else
+                    {
                         file << ",vncpasswd=" << passwd;
                     }
                 }
@@ -561,7 +569,9 @@ int XenDriver::deployment_description(
                     if ( is_hvm )
                     {
                         file << "keymap = '" << keymap << "'" << endl;
-                    } else {
+                    }
+                    else
+                    {
                         file << ",keymap=" << keymap;
                     }
                 }
