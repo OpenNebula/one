@@ -1215,7 +1215,7 @@ function updateView(item_list,dataTable){
                 new_start = 0;
         }
 
-        dTable_settings._iDisplayStart = new_start;
+        dTable_settings.iInitDisplayStart = new_start;
 
         dataTable.fnDraw(true);
     };
