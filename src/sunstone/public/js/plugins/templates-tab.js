@@ -1677,24 +1677,24 @@ function fill_nic_tab_data(template_json, context){
         var field = $("input.tcp_type[value='WHITE_PORTS_TCP']", context);
         field.click();
 
-        $("#TCP_PORTS", context).val(template_json["WHITE_PORTS_TCP"]);
+        $("#TCP_PORTS", context).val(htmlDecode(template_json["WHITE_PORTS_TCP"]));
     } else if (template_json["BLACK_PORTS_TCP"]){
         var field = $("input.tcp_type[value='BLACK_PORTS_TCP']", context);
         field.click();
 
-        $("#TCP_PORTS", context).val(template_json["BLACK_PORTS_TCP"]);
+        $("#TCP_PORTS", context).val(htmlDecode(template_json["BLACK_PORTS_TCP"]));
     }
 
     if (template_json["WHITE_PORTS_UDP"]){
         var field = $("input.udp_type[value='WHITE_PORTS_UDP']", context);
         field.click();
 
-        $("#UDP_PORTS", context).val(template_json["WHITE_PORTS_UDP"]);
+        $("#UDP_PORTS", context).val(htmlDecode(template_json["WHITE_PORTS_UDP"]));
     } else if (template_json["BLACK_PORTS_UDP"]){
         var field = $("input.udp_type[value='BLACK_PORTS_UDP']", context);
         field.click();
 
-        $("#UDP_PORTS", context).val(template_json["BLACK_PORTS_UDP"]);
+        $("#UDP_PORTS", context).val(htmlDecode(template_json["BLACK_PORTS_UDP"]));
     }
 
     if (template_json["ICMP"]){
@@ -3894,10 +3894,6 @@ function popUpTemplateTemplateUpdateDialog(){
 function fillTemplatePopUp(template, dialog){
     var use_advanced_template = false;
 
-    function htmlDecode(value){
-      return $('<div/>').html(value).text();
-    }
-
     function autoFillInputs(template_json, context){
         var params = $('.vm_param',context);
         var inputs = $('input',params);
@@ -4228,14 +4224,14 @@ function fillTemplatePopUp(template, dialog){
             var element1 = document.createElement("input");
             element1.id = "TYPE";
             element1.type = "text";
-            element1.value = this.TYPE;
+            element1.value = htmlDecode(this.TYPE);
             cell1.appendChild(element1);
 
             var cell2 = row.insertCell(1);
             var element2 = document.createElement("input");
             element2.id = "BUS";
             element2.type = "text";
-            element2.value = this.BUS;
+            element2.value = htmlDecode(this.BUS);
             cell2.appendChild(element2);
 
 
@@ -4273,7 +4269,7 @@ function fillTemplatePopUp(template, dialog){
                 $("#ssh_context", context_section).attr('checked','checked');
 
                 if (!publickey_regexp.test(value)) {
-                    $("#ssh_public_key", context_section).val(value);
+                    $("#ssh_public_key", context_section).val(htmlDecode(value));
                 }
             }
             else if (token_regexp.test(key)) {
@@ -4283,10 +4279,10 @@ function fillTemplatePopUp(template, dialog){
                 $("#network_context", context_section).attr('checked','checked');
             }
             else if ("INIT_SCRIPTS" == key){
-                $("input#INIT_SCRIPTS").val(value);
+                $("input#INIT_SCRIPTS").val(htmlDecode(value));
             }
             else if ("FILES_DS" == key){
-                $('#FILES_DS', context_section).val(context["FILES_DS"])
+                $('#FILES_DS', context_section).val(htmlDecode(context["FILES_DS"]))
                 var files = [];
                 while (match = file_ds_regexp.exec(value)) {
                     files.push(match[1])
@@ -4329,14 +4325,14 @@ function fillTemplatePopUp(template, dialog){
               var element1 = document.createElement("input");
               element1.id = "KEY";
               element1.type = "text";
-              element1.value = key
+              element1.value = htmlDecode(key);
               cell1.appendChild(element1);
 
               var cell2 = row.insertCell(1);
               var element2 = document.createElement("input");
               element2.id = "VALUE";
               element2.type = "text";
-              element2.value = value
+              element2.value = htmlDecode(value);
               cell2.appendChild(element2);
 
 
@@ -4435,7 +4431,7 @@ function fillTemplatePopUp(template, dialog){
             });
         }
 
-        $('input#SCHED_REQUIREMENTS', req_section).val(req);
+        $('input#SCHED_REQUIREMENTS', req_section).val(htmlDecode(req));
 
         delete template.SCHED_REQUIREMENTS;
     }
@@ -4445,7 +4441,7 @@ function fillTemplatePopUp(template, dialog){
 
     if (ds_req) {
         ds_req = escapeDoubleQuotes(ds_req);
-        $('input#SCHED_DS_REQUIREMENTS', req_section).val(ds_req);
+        $('input#SCHED_DS_REQUIREMENTS', req_section).val(htmlDecode(ds_req));
 
         delete template.SCHED_DS_REQUIREMENTS;
     }
@@ -4467,7 +4463,7 @@ function fillTemplatePopUp(template, dialog){
             $('input[name="rank_select"]#loadawareRadio', req_section).click()
         }
 
-        $('input#SCHED_RANK', req_section).val(rank);
+        $('input#SCHED_RANK', req_section).val(htmlDecode(rank));
 
         delete template.SCHED_RANK;
     }
@@ -4485,7 +4481,7 @@ function fillTemplatePopUp(template, dialog){
             $('input[name="ds_rank_select"]#packingDSRadio', req_section).click()
         }
 
-        $('input#SCHED_DS_RANK', req_section).val(ds_rank);
+        $('input#SCHED_DS_RANK', req_section).val(htmlDecode(ds_rank));
 
         delete template.SCHED_DS_RANK;
     }

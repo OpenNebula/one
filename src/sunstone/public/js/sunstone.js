@@ -2589,8 +2589,8 @@ function loadAccounting(resource, id, graphs, options){
     };
 }
 
-var unscape = function(convert){
-    return $("<span />", { html: convert }).text();
+function htmlDecode(value){
+  return $('<div/>').html(value).text();
 };
 
 // Convert from hash to string
@@ -2654,7 +2654,7 @@ function convert_template_to_string(template_json,unshown_values)
         }
     })
 
-    return unscape(template_str);
+    return htmlDecode(template_str);
 }
 
 // Create the extended template table (with listeners)

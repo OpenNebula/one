@@ -1309,7 +1309,7 @@ function fillUpUpdateServiceTemplateDialog(request, response){
 
     var service_template = response[ServiceTemplate.resource]
     $("#service_name", dialog).attr("disabled", "disabled");
-    $("#service_name", dialog).val(service_template.NAME);
+    $("#service_name", dialog).val(htmlDecode(service_template.NAME));
 
     // TODO Check if the template still exists
     $('select[name="deployment"]', dialog).val(service_template.TEMPLATE.BODY.deployment);
@@ -1322,11 +1322,11 @@ function fillUpUpdateServiceTemplateDialog(request, response){
 
         var context = $('#roles_tabs_content .content', $create_service_template_dialog).last();
 
-        $("#role_name", context).val(value.name);
+        $("#role_name", context).val(htmlDecode(value.name));
         $("#role_name", context).change();
         roles_names.push(value.name);
 
-        $("#cardinality", context).val(value.cardinality);
+        $("#cardinality", context).val(htmlDecode(value.cardinality));
 
         // The vm_template select is already initialized, but we need to select
         // the template retrived from the service_template. Since the initialization
@@ -1336,22 +1336,22 @@ function fillUpUpdateServiceTemplateDialog(request, response){
         insertSelectOptions('div#vm_template', context, "Template", value.vm_template, false);
 
         $("select[name='shutdown_action_role']", context).val(value.shutdown_action);
-        $("#min_vms", context).val(value.min_vms);
-        $("#max_vms", context).val(value.max_vms);
-        $("#cooldown", context).val(value.cooldown);
+        $("#min_vms", context).val(htmlDecode(value.min_vms));
+        $("#max_vms", context).val(htmlDecode(value.max_vms));
+        $("#cooldown", context).val(htmlDecode(value.cooldown));
 
         if (value['elasticity_policies']) {
             $.each(value['elasticity_policies'], function(){
                 $("#tf_btn_elas_policies", context).click();
                 var td = $("#elasticity_policies_tbody tr", context).last();
-                $("#type" ,td).val(this['type'])
+                $("#type" ,td).val(htmlDecode(this['type']));
                 $("#type" ,td).change();
-                $("#adjust" ,td).val(this['adjust'] )
-                $("#min_adjust_step" ,td).val(this['min_adjust_step'] || "" )
-                $("#expression" ,td).val(unscape(this.expression))
-                $("#period_number" ,td).val(this['period_number'] || "")
-                $("#period" ,td).val(this['period'] || "" )
-                $("#cooldown" ,td).val(this['cooldown'] || "" )
+                $("#adjust" ,td).val(htmlDecode(this['adjust'] ));
+                $("#min_adjust_step" ,td).val(htmlDecode(this['min_adjust_step'] || ""));
+                $("#expression" ,td).val(htmlDecode(this.expression))
+                $("#period_number" ,td).val(htmlDecode(this['period_number'] || ""));
+                $("#period" ,td).val(htmlDecode(this['period'] || "" ));
+                $("#cooldown" ,td).val(htmlDecode(this['cooldown'] || "" ));
             })
         }
 
@@ -1359,17 +1359,17 @@ function fillUpUpdateServiceTemplateDialog(request, response){
             $.each(value['scheduled_policies'], function(){
                 $("#tf_btn_sche_policies", context).click();
                 var td = $("#scheduled_policies_tbody tr", context).last();
-                $("#type", td).val(this['type'])
+                $("#type", td).val(htmlDecode(this['type']));
                 $("#type" ,td).change();
-                $("#adjust", td).val(this['adjust'] )
-                $("#min_adjust_step", td).val(this['min_adjust_step']  || "")
+                $("#adjust", td).val(htmlDecode(this['adjust'] ));
+                $("#min_adjust_step", td).val(htmlDecode(this['min_adjust_step']  || ""));
 
                 if (this['start_time']) {
                     $("#time_format", td).val('start_time');
-                    $("#time", td).val(this['start_time']);
+                    $("#time", td).val(htmlDecode(this['start_time']));
                 } else if (this['recurrence']) {
                     $("#time_format", td).val('recurrence');
-                    $("#time", td).val(this['recurrence']);
+                    $("#time", td).val(htmlDecode(this['recurrence']));
                 }
             })
         }
