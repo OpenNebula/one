@@ -3330,7 +3330,7 @@ function insert_cluster_dropdown(resource_type, resource_id, cluster_value, clus
     $(document).off("click", context_str + " #div_edit_chg_cluster_link");
     $(document).on("click", context_str + " #div_edit_chg_cluster_link", function() {
         var tr_context = $(this).parents("tr");
-        insertSelectClusters(".value_td_cluster", tr_context, cluster_id, false);
+        insertSelectOptions(".value_td_cluster", tr_context, "Cluster", cluster_id, false);
     });
 
     $(document).off("change", context_str + " .value_td_cluster .resource_list_select");
