@@ -226,7 +226,8 @@ var template_actions = {
         type: "create",
         call: OpenNebula.Template.create,
         callback: function(request, response){
-          if ($appmarket_import_dialog || $marketplace_import_dialog) {
+          if (typeof($appmarket_import_dialog) !== 'undefined' ||
+              typeof($marketplace_import_dialog) !== 'undefined') {
             $create_template_dialog.trigger('close');
           } else {
             $create_template_dialog.foundation('reveal', 'close');
