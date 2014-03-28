@@ -1340,29 +1340,6 @@ function updateClusterInfo(request,cluster){
     Sunstone.runAction("ClusterDSInfo.list");
 }
 
-// Basically, we show the hosts/datastore/vnets tab, but before we set
-// a filter on the cluster column, so it only shows the cluster we want.
-function clusterResourceViewListeners(){
-    //hack  the menu selection
-    $('.show_tab_button').live('click',function(){
-        var dest = $(this).attr('href').substring(1);
-        var filter_id = $(this).attr('filter_id');
-        switch (dest) {
-        case 'hosts_tab':
-            dataTable_hosts.fnFilter(getClusterName(filter_id),3,false,true,false,true);
-            break;
-        case 'datastores_tab':
-            dataTable_datastores.fnFilter(getClusterName(filter_id),6,false,true,false,true);
-            break;
-        case 'vnets_tab':
-            dataTable_vNetworks.fnFilter(getClusterName(filter_id),5,false,true,false,true);
-            break;
-        };
-        showTab(dest,'li_cluster_tab'+filter_id);
-        return false;
-    });
-};
-
 //This is executed after the sunstone.js ready() is run.
 //Here we can basicly init the host datatable, preload it
 //and add specific listeners
@@ -1393,8 +1370,6 @@ $(document).ready(function(){
       Sunstone.runAction("Cluster.list");
 
       setupCreateClusterDialog();
-
-      clusterResourceViewListeners();
 
       initCheckAllBoxes(dataTable_clusters);
       tableCheckboxesListener(dataTable_clusters);

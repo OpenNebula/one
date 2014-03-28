@@ -805,27 +805,33 @@ function updateImageInfo(request,img){
     });
 
     if (img_info.VMS) {
-      OpenNebula.VM.list({
-        timeout: true,
-        success: function (request, vm_list){
-            var vm_list_array = [];
+        var vm_ids = img_info.VMS.ID;
+        var vm_ids_map = {};
 
-            $.each(vm_list,function(){
-                //Grab table data from the vm_list
-                vm_list_array.push(vMachineElementArray(this));
-            });
+        if (!(vm_ids instanceof Array)) {
+            vm_ids = [vm_ids];
+        }
 
-            updateView(vm_list_array, dataTable_vMachines);
-        },
-        error: onError
-      });
+        $.each(vm_ids,function(){
+            vm_ids_map[this] = true;
+        });
 
-      var vm_ids = img_info.VMS.ID;
-      if (vm_ids instanceof Array) {
-        dataTable_vMachines.fnFilter(vm_ids.join('|'), 1, true)
-      } else {
-        dataTable_vMachines.fnFilter(vm_ids, 1)
-      }
+        OpenNebula.VM.list({
+            timeout: true,
+            success: function (request, vm_list){
+                var vm_list_array = [];
+
+                $.each(vm_list,function(){
+                    if (vm_ids_map[this.VM.ID]){
+                        //Grab table data from the vm_list
+                        vm_list_array.push(vMachineElementArray(this));
+                    }
+                });
+
+                updateView(vm_list_array, dataTable_vMachines);
+            },
+            error: onError
+        });
     }
 
     setPermissionsTable(img_info,'');
