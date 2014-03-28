@@ -1302,6 +1302,8 @@ function updateClusterInfo(request,cluster){
         ]
     });
 
+    infoListener(dataTable_cluster_hosts_panel,'Host.show','hosts-tab');
+
     // Virtual networks datatable
 
     dataTable_cluster_vnets_panel = $("#datatable_cluster_vnets_info_panel").dataTable({
@@ -1317,6 +1319,7 @@ function updateClusterInfo(request,cluster){
         ]
     });
 
+    infoListener(dataTable_cluster_vnets_panel,'Network.show','vnets-tab');
 
     // Datastores datatable
 
@@ -1333,6 +1336,7 @@ function updateClusterInfo(request,cluster){
         ]
     });
 
+    infoListener(dataTable_cluster_datastores_panel,'Datastore.show','datastores-tab');
 
     // initialize datatables values
     Sunstone.runAction("ClusterHostInfo.list");

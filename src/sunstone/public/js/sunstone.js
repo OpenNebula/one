@@ -1257,11 +1257,13 @@ function updateSingleElement(element,dataTable,tag){
     // fnGetData should be used instead, otherwise it depends on the visible columns
     var nodes = dataTable.fnGetNodes();
     var tr = $(tag,nodes).parents('tr')[0];
-    var checked_val = $('input.check_item',tr).attr('checked');
-    var position = dataTable.fnGetPosition(tr);
-    dataTable.fnUpdate(element,position,undefined,false);
-    $('input.check_item',tr).attr('checked',checked_val);
-    recountCheckboxes(dataTable);
+    if(tr){
+        var checked_val = $('input.check_item',tr).attr('checked');
+        var position = dataTable.fnGetPosition(tr);
+        dataTable.fnUpdate(element,position,undefined,false);
+        $('input.check_item',tr).attr('checked',checked_val);
+        recountCheckboxes(dataTable);
+    }
 }
 
 function getElementData(id, resource_tag, dataTable){
@@ -1915,7 +1917,8 @@ function plot_totals(response, info) {
 
 
 //Shows run a custom action when clicking on rows.
-function infoListener(dataTable, info_action){
+function infoListener(dataTable, info_action, target_tab){
+    $('tbody tr',dataTable).die("click");
     $('tbody tr',dataTable).live("click",function(e){
 
         if ($(e.target).is('input') ||
@@ -1936,12 +1939,11 @@ function infoListener(dataTable, info_action){
             }
             else
             {
-                var context = $(this).parents(".tab");
-                popDialogLoading(context);
-                Sunstone.runAction(info_action,id);
-                $(".resource-id", context).html(id);
-                //enable action buttons
-                $('.top_button, .list_button', context).attr('disabled', false);
+                if(!target_tab){
+                    target_tab = activeTab;
+                }
+
+                showElement(target_tab, info_action, id);
             };
         }
         else
@@ -3516,6 +3518,11 @@ function showTab(tabname,highlight_tab){
 
     //$('tbody input.check_item:checked').click();
     //$('td').removeClass('markrowchecked markrowselected');
+
+    if(!SunstoneCfg['tabs'][tabname]){
+        return false;
+    }
+
     last_selected_row = null;
 
     if (tabname.indexOf('#') == 0)
@@ -3523,7 +3530,14 @@ function showTab(tabname,highlight_tab){
     if (highlight_tab && highlight_tab.indexOf('#') == 0)
         highlight_tab == highlight.substring(1);
 
-    var activeTab = tabname;
+    //check if we are already in the target tab
+    if( activeTab == tabname &&
+        Sunstone.rightListVisible(tab)){
+
+        return false;
+    }
+
+    activeTab = tabname;
 
     if (!highlight_tab) highlight_tab = activeTab;
 
@@ -3556,6 +3570,24 @@ function showTab(tabname,highlight_tab){
     } else {
 //        $(".fa-refresh", $('#'+activeTab)).click();
     }
+}
+
+function showElement(tabname, info_action, element_id){
+    if(!SunstoneCfg['tabs'][tabname]){
+        return false;
+    }
+
+    showTab(tabname);
+
+    var context = $('#'+tabname);
+    popDialogLoading(context);
+
+    var res = SunstoneCfg['tabs'][tabname]['resource'];
+
+    Sunstone.runAction(info_action,element_id);
+    $(".resource-id", context).html(element_id);
+    //enable action buttons
+    $('.top_button, .list_button', context).attr('disabled', false);
 }
 
 function setupTabs(){

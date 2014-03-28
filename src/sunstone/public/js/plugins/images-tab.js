@@ -792,7 +792,7 @@ function updateImageInfo(request,img){
     Sunstone.popUpInfoPanel("image_info_panel", "images-tab");
 
 
-    dataTable_vMachines = $("#datatable_image_vms", $("#image_info_panel")).dataTable({
+    dataTable_image_vMachines = $("#datatable_image_vms", $("#image_info_panel")).dataTable({
         "bSortClasses" : false,
         "bDeferRender": true,
         "aoColumnDefs": [
@@ -803,6 +803,8 @@ function updateImageInfo(request,img){
             { "bVisible": false, "aTargets": ['_all']},
         ]
     });
+
+    infoListener(dataTable_image_vMachines,'VM.show','vms-tab');
 
     if (img_info.VMS) {
         var vm_ids = img_info.VMS.ID;
@@ -828,7 +830,7 @@ function updateImageInfo(request,img){
                     }
                 });
 
-                updateView(vm_list_array, dataTable_vMachines);
+                updateView(vm_list_array, dataTable_image_vMachines);
             },
             error: onError
         });

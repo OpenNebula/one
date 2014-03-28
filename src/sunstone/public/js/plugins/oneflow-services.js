@@ -1593,6 +1593,14 @@ function updateServiceInfo(request,elem){
                 }
                 else
                 {
+                    var aData = serviceroleVMsDataTable.fnGetData(this);
+                    if (!aData) return true;
+
+                    var id = $(aData[1]).val();
+                    if (!id) return true;
+
+                    showElement("vms-tab", "VM.show", id);
+/*
                     $('tbody input.check_item',$(this).parents('table')).removeAttr('checked');
                     $('.check_item',this).click();
                     $('td',$(this).parents('table')).removeClass('markrowchecked');
@@ -1607,6 +1615,7 @@ function updateServiceInfo(request,elem){
                     $(this).children().each(function(){
                         $(this).addClass('markrowchecked');
                     });
+*/
                 }
             });
 

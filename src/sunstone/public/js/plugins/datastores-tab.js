@@ -752,6 +752,8 @@ function updateDatastoreInfo(request,ds){
         ]
     });
 
+    infoListener(dataTable_datastore_images_panel,'Image.show','images-tab');
+
     // initialize datatables values
     Sunstone.runAction("DatastoreImageInfo.list");
     Sunstone.runAction("Datastore.fetch_permissions",info.ID);

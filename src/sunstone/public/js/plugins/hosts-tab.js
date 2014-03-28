@@ -783,7 +783,7 @@ function updateHostInfo(request,host){
 
     Sunstone.popUpInfoPanel("host_info_panel", "hosts-tab");
 
-    var dataTable_vMachines = $("#datatable_host_vms", $("#host_info_panel")).dataTable({
+    var dataTable_host_vMachines = $("#datatable_host_vms", $("#host_info_panel")).dataTable({
         "bSortClasses" : false,
         "bDeferRender": true,
         "aoColumnDefs": [
@@ -794,6 +794,8 @@ function updateHostInfo(request,host){
             { "bVisible": false, "aTargets": ['_all']},
         ]
     });
+
+    infoListener(dataTable_host_vMachines,'VM.show','vms-tab');
 
     if (host_info.VMS) {
 
@@ -820,7 +822,7 @@ function updateHostInfo(request,host){
                     }
                 });
 
-                updateView(vm_list_array, dataTable_vMachines);
+                updateView(vm_list_array, dataTable_host_vMachines);
             },
             error: onError
         });
