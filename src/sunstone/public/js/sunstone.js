@@ -1032,6 +1032,42 @@ function pretty_time_runtime(time){
     return day + "d " + hour + "h " + mins + "m ";
 }
 
+function _format_date(unix_timestamp) {
+  var difference_in_seconds = (Math.round((new Date()).getTime() / 1000)) - unix_timestamp,
+      current_date = new Date(unix_timestamp * 1000), minutes, hours,
+      months = new Array(
+        'January','February','March','April','May',
+        'June','July','August','September','October',
+        'November','December');
+
+  if(difference_in_seconds < 60) {
+    return difference_in_seconds + " second" + _plural(difference_in_seconds) + " ago";
+  } else if (difference_in_seconds < 60*60) {
+    minutes = Math.floor(difference_in_seconds/60);
+    return minutes + " minute" + _plural(minutes) + " ago";
+  } else if (difference_in_seconds < 60*60*24) {
+    hours = Math.floor(difference_in_seconds/60/60);
+    return hours + " hour" + _plural(hours) + " ago";
+  } else if (difference_in_seconds > 60*60*24){
+    if(current_date.getYear() !== new Date().getYear())
+      return current_date.getDay() + " " + months[current_date.getMonth()].substr(0,3) + " " + _fourdigits(current_date.getYear());
+    else {
+        return current_date.getDay() + " " + months[current_date.getMonth()].substr(0,3);
+    }
+  }
+
+  return difference_in_seconds;
+
+  function _fourdigits(number)  {
+        return (number < 1000) ? number + 1900 : number;}
+
+  function _plural(number) {
+    if(parseInt(number) === 1) {
+      return "";
+    }
+    return "s";
+  }
+}
 //returns a human readable size in Kilo, Mega, Giga or Tera bytes
 //if no from_bytes, assumes value comes in Ks
 function humanize_size(value,from_bytes,sufix) {
@@ -1743,14 +1779,27 @@ function plot_graph(response, info) {
         xaxis : {
             tickFormatter: function(val,axis){
                 return pretty_time_axis(val, info.show_date);
-            }
+            },
+            color: "#999",
+            size: 8
         },
         yaxis : { labelWidth: 50,
                   tickFormatter: function(val, axis) {
                       return humanize(val, info.convert_from_bytes, info.y_sufix);
                   },
-                  min: 0
-                }
+                  min: 0,
+                color: "#999",
+                size: 8
+                },
+        series: {
+            lines: {
+                lineWidth: 1
+            }
+        },
+        grid: {
+            borderWidth: 1,
+            borderColor: "#cfcfcf"
+        }
     };
 
     $.plot(info.div_graph, series, options);
