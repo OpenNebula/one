@@ -207,11 +207,7 @@ function setupCreateClusterDialog(){
             { "bVisible": false, "aTargets": [0,5,7,10,11,12]} // 3 = cluster
         ],
         "bSortClasses" : false,
-        "bDeferRender": true,
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        "bDeferRender": true
     });
 
     $('#cluster_hosts_search', dialog).keyup(function(){
@@ -230,11 +226,7 @@ function setupCreateClusterDialog(){
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [1] },
             { "bVisible": false, "aTargets": [0,7]}
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        ]
     });
 
 
@@ -252,11 +244,7 @@ function setupCreateClusterDialog(){
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [1] },
             { "bVisible": false, "aTargets": [0,7,8,9] }
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        ]
     });
 
 
@@ -1311,11 +1299,7 @@ function updateClusterInfo(request,cluster){
             { "sWidth": "35px", "aTargets": [1] },
             { "sWidth": "35px", "aTargets": [9] },
             { "bVisible": false, "aTargets": [0,5,7,10,11,12]}
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        ]
     });
 
     // Virtual networks datatable
@@ -1330,11 +1314,7 @@ function updateClusterInfo(request,cluster){
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [1] },
             { "bVisible": false, "aTargets": [0,5,6,7]}
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        ]
     });
 
 
@@ -1350,11 +1330,7 @@ function updateClusterInfo(request,cluster){
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [1] },
             { "bVisible": false, "aTargets": [0,7,8,9] }
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
+        ]
     });
 
 
