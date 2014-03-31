@@ -644,12 +644,14 @@ div.dataTables_scrollFoot table {
 
 .provision-pricing-table  {
   @include pricing-table-container;
+  border: 1px solid #efefef;
+  box-shadow: 0px 1px #dfdfdf;
 
   .provision-title  {
     @include pricing-table-title;
 
     font-weight: normal;
-    color: #333;
+    color: #555;
   }
   .provision-price  {
     @include pricing-table-price;
@@ -659,6 +661,8 @@ div.dataTables_scrollFoot table {
   }
   .provision-bullet-item {
     @include pricing-table-bullet;
+
+    padding: 5px 10px;
   }
   .provision-cta    {
     @include pricing-table-cta;
@@ -694,16 +698,18 @@ div.dataTables_scrollFoot table {
     border-color: #cfcfcf !important;
 
     .provision-title {
-      color: $primary-color !important;
+      color: #333 !important;
     }
   }
 
   &.selected {
     //border: 1px solid #0099c3;
+    box-shadow: 0px 1px #007d9c;
+    border-color:  #0099c3;
+    background: #0099c3 !important;
 
     li {
-      color: #fff;
-      background: #0099c3 !important;
+      color: #fff !important;
       //color: #333;
       //font-weight: bold;
     }

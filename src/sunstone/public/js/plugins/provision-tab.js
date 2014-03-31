@@ -56,21 +56,42 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
   '</div>'+
   '<div class="row">'+
     '<div class="large-9 large-centered columns">'+
-      '<table id="provision_images_table">'+
-        '<thead class="hidden">'+
-          '<tr>'+
-            '<th>'+tr("ID")+'</th>'+
-            '<th>'+tr("Name")+'</th>'+
-          '</tr>'+
-        '</thead>'+
-        '<tbody class="hidden">'+
-        '</tbody>'+
-      '</table>'+
+      '<dl class="tabs text-center" data-tab style="width: 100%">'+
+        '<dd class="active" style="width: 50%"><a href="#provision_images_selector">'+ tr("Images") +'</a></dd>'+
+        '<dd style="width: 50%"><a href="#provision_snapshots_selector">'+ tr("Snapshots") +'</a></dd>'+
+      '</dl>'+
+      '<br>'+
+      '<div class="tabs-content">'+
+        '<div class="content active" id="provision_images_selector">'+
+          '<table id="provision_create_vm_images_table">'+
+            '<thead class="hidden">'+
+              '<tr>'+
+                '<th>'+tr("ID")+'</th>'+
+                '<th>'+tr("Name")+'</th>'+
+                '<th>'+tr("Owner")+'</th>'+
+              '</tr>'+
+            '</thead>'+
+            '<tbody class="hidden">'+
+            '</tbody>'+
+          '</table>'+
+        '</div>'+
+        '<div class="content" id="provision_snapshots_selector">'+
+          '<table id="provision_create_vm_snapshots_table">'+
+            '<thead class="hidden">'+
+              '<tr>'+
+                '<th>'+tr("ID")+'</th>'+
+                '<th>'+tr("Name")+'</th>'+
+                '<th>'+tr("Owner")+'</th>'+
+              '</tr>'+
+            '</thead>'+
+            '<tbody class="hidden">'+
+            '</tbody>'+
+          '</table>'+
+        '</div>'+
+      '</div>'+
       '<br>'+
     '</div>'+
   '</div>'+
-  '<br>'+
-  '<br>'+
   '<div class="row">'+
     '<div class="large-9 columns large-centered">'+
       '<div data-alert class="alert-box alert-box-error radius text-center hidden">'+
@@ -81,6 +102,41 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
   '<br>'+
   '<br>'+
 '</form>';
+
+
+var provision_list_images = '<div id="provision_list_images" class="hidden section_content">'+
+  '<div class="row">'+
+    '<div class="large-11 large-centered columns">'+
+      '<h2 class="subheader">'+
+        tr("Images")+
+        '<a href"#" id="provision_images_list_refresh_button" data-tooltip title="'+ tr("Refresh the list of Images")+'" class="has-tip tip-top" style="font-size:80%">'+
+          '<i class="fa fa-fw fa-refresh"/>'+
+        '</a>'+
+      '</h2>'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
+  '<div class="row">'+
+    '<div class="large-10 large-centered columns" id="provision_confirm_delete_image_div">'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-10 large-centered columns">'+
+      '<table id="provision_images_table">'+
+        '<thead class="hidden">'+
+          '<tr>'+
+            '<th>'+tr("ID")+'</th>'+
+            '<th>'+tr("Name")+'</th>'+
+            '<th>'+tr("Owner")+'</th>'+
+          '</tr>'+
+        '</thead>'+
+        '<tbody class="hidden">'+
+        '</tbody>'+
+      '</table>'+
+      '<br>'+
+    '</div>'+
+  '</div>'+
+'</div>';
 
 var provision_list_vms = '<div id="provision_list_vms" class="section_content">'+
   '<div class="row">'+
@@ -183,7 +239,7 @@ var provision_info_vm =  '<div id="provision_info_vm" class="section_content hid
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
       '<h2 class="subheader">'+
-        '<span class="right" style="padding: 5px;border: 1px solid #dfdfdf; background: #f7f7f7; border-radius: 5px; color:#777 !important; width: 100%; font-size: 90%">'+
+        '<span class="right" style="padding: 5px;border: 1px solid #efefef; background: #f7f7f7; border-radius: 5px; color:#777 !important; width: 100%; font-size: 90%; box-shadow: 0px 1px #dfdfdf">'+
           '<a href"#" id="provision_delete_confirm_button" data-tooltip title="Delete" class="has-tip tip-top right" style="margin-left:15px; margin-right:15px">'+
             '<i class="fa fa-fw fa-trash-o"/><span style="font-size: 12px; vertical-align: middle">'+tr("Delete")+'</span>'+
           '</a>'+
@@ -226,14 +282,14 @@ var provision_info_vm =  '<div id="provision_info_vm" class="section_content hid
 
 var provision_content = provision_create_vm +
   provision_info_vm +
-  provision_list_vms ;
+  provision_list_vms +
+  provision_list_images ;
 
 var provision_tab = {
-  title: '<img src="images/one_small_logo.png" style="height:40px">',
   list_header: '<img src="images/one_small_logo.png" style="height:40px">'+
-    '<span class="right" style="font-size: 60%; color: #999">'+
+    '<span class="right" style="font-size: 60%; color: #dfdfdf">'+
       '<a href"#" class="medium" id="provision_vms_list_button" style="color: #555; margin-left: 10px;margin-right: 10px;">'+tr("Virtual Machines")+'</a>&emsp;|&emsp;'+
-      '<a href"#" class="medium" style="color: #555; margin-left: 10px;margin-right: 10px;">'+tr("Images")+'</a>&emsp;|&emsp;'+
+      '<a href"#" class="medium" id="provision_images_list_button" style="color: #555; margin-left: 10px;margin-right: 10px;">'+tr("Images")+'</a>&emsp;|&emsp;'+
       '<a href"#" class="medium" style="color: #555; margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-user" style="color: #777"/>'+tr("oneadmin")+'</a>&emsp;|&emsp;'+
       '<a href"#" class="medium" style="color: #555; margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-sign-out" style="color: #777"/></a>'+
     '</span>'+
@@ -242,6 +298,13 @@ var provision_tab = {
 };
 
 var povision_actions = {
+  "Provision.Image.delete" : {
+      type: "single",
+      call: OpenNebula.Image.del,
+      callback: show_provision_image_list,
+      error: onError
+  },
+
   "Provision.show" : {
     type: "single",
     call: OpenNebula.VM.show,
@@ -258,6 +321,7 @@ var povision_actions = {
       $("#vm_name", $("#provision_create_vm")).val('');
       $(".provision-pricing-table", $("#provision_create_vm")).removeClass("selected");
       $(".alert-box-error", context).hide();
+      $('a[href="#provision_images_selector"]', context).click();
     },
     error: onError
   },
@@ -408,7 +472,7 @@ var povision_actions = {
         url += "&encrypt=" + config['user_config']['vnc_wss'];
         url += "&title=" + vm_name;
 
-        window.open(url, '_blank');
+        window.open(url, '', '_blank');
       },
       error: onError
   }
@@ -423,6 +487,15 @@ function show_provision_vm_list() {
 
   $(".section_content").hide();
   $("#provision_list_vms").fadeIn();
+}
+
+function show_provision_image_list() {
+  update_provision_images_datatable(provision_images_datatable);
+
+  $(".section_content").hide();
+  $("#provision_list_images").fadeIn();
+
+  $("#provision_confirm_delete_image_div").empty();
 }
 
 function update_provision_images_datatable(datatable) {
@@ -455,6 +528,14 @@ function update_provision_vms_datatable(datatable) {
   });
 }
 
+// @params
+//    data: and VM object
+//      Example: data.ID
+// @returns and object containing the following properties
+//    color: css class for this state.
+//      color + '-color' font color class
+//      color + '-bg' background class
+//    str: user friendly state string
 function get_provision_vm_state(data) {
   var state = OpenNebula.Helper.resource_state("vm",data.STATE);
   var state_color;
@@ -522,6 +603,56 @@ function get_provision_vm_state(data) {
       state_color = 'off';
       state_str = tr("OFF");
 
+      break;
+    default:
+      state_color = 'powering_off';
+      state_str = tr("UNKNOWN");
+      break;
+  }
+
+  return {
+    color: state_color,
+    str: state_str
+  }
+}
+
+// @params
+//    data: and IMAGE object
+//      Example: data.ID
+// @returns and object containing the following properties
+//    color: css class for this state.
+//      color + '-color' font color class
+//      color + '-bg' background class
+//    str: user friendly state string
+function get_provision_image_state(data) {
+  var state = OpenNebula.Helper.resource_state("image",data.STATE);
+  var state_color;
+  var state_str;
+
+  switch (state) {
+    case tr("READY"):
+    case tr("USED"):
+      state_color = 'running';
+      state_str = tr("READY");
+      break;
+    case tr("DISABLED"):
+    case tr("USED_PERS"):
+      state_color = 'off';
+      state_str = tr("OFF");
+      break;
+    case tr("LOCKED"):
+    case tr("CLONE"):
+    case tr("INIT"):
+      state_color = 'deploying';
+      state_str = tr("DEPLOYING") + " (1/3)";
+      break;
+    case tr("ERROR"):
+      state_color = 'error';
+      state_str = tr("ERROR");
+      break;
+    case tr("DELETE"):
+      state_color = 'error';
+      state_str = tr("DELETING");
       break;
     default:
       state_color = 'powering_off';
@@ -635,7 +766,7 @@ function update_provision_vm_info(data) {
       '<i class="fa fa-fw fa-clock-o"/>'+
       _format_date(data.STIME)+
     '</span>');
-  $("#provision_info_vm_state_hr").html('<div style="height:1px; margin-top:5px; margin-bottom: 5px;" class="'+state.color+'-bg"></div>');
+  $("#provision_info_vm_state_hr").html('<div style="height:1px; margin-top:5px; margin-bottom: 5px; background: #cfcfcf"></div>');
 
   $("#provision_confirm_action").html("");
 
@@ -709,7 +840,7 @@ $(document).ready(function(){
 
     update_provision_templates_datatable(provision_templates_datatable);
 
-    var provision_images_datatable = $('#provision_images_table').dataTable({
+    var provision_create_vm_images_datatable = $('#provision_create_vm_images_table').dataTable({
       "iDisplayLength": 6,
       "sDom" : '<"H">t<"F"p>',
       "aoColumnDefs": [
@@ -717,17 +848,18 @@ $(document).ready(function(){
       ],
       "aoColumns": [
           { "mDataProp": "IMAGE.ID" },
-          { "mDataProp": "IMAGE.NAME" }
+          { "mDataProp": "IMAGE.NAME" },
+          { "mDataProp": "IMAGE.UNAME" }
       ],
       "fnPreDrawCallback": function (oSettings) {
         // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
-        $("#provision_images_table").html('<ul id="provision_images_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+        $("#provision_create_vm_images_table").html('<ul id="provision_create_vm_images_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
 
         return true;
       },
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
         var data = aData.IMAGE;
-        $("#provision_images_ul").append('<li>'+
+        $("#provision_create_vm_images_ul").append('<li>'+
             '<ul class="provision-pricing-table hoverable" opennebula_id="'+data.ID+'">'+
               '<li class="provision-title">'+
                 data.NAME +
@@ -743,10 +875,53 @@ $(document).ready(function(){
       }
     });
 
-    update_provision_images_datatable(provision_images_datatable);
+    update_provision_images_datatable(provision_create_vm_images_datatable);
+
+    var provision_create_vm_snapshots_datatable = $('#provision_create_vm_snapshots_table').dataTable({
+      "iDisplayLength": 6,
+      "sDom" : '<"H">t<"F"p>',
+      "aaSorting"  : [[0, "desc"]],
+      "aoColumnDefs": [
+          { "bVisible": false, "aTargets": ["all"]}
+      ],
+      "aoColumns": [
+          { "mDataProp": "IMAGE.ID" },
+          { "mDataProp": "IMAGE.NAME" },
+          { "mDataProp": "IMAGE.UNAME" }
+      ],
+      "fnPreDrawCallback": function (oSettings) {
+        // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
+
+        $("#provision_create_vm_snapshots_table").html('<ul id="provision_snapshots_ul" class="large-block-grid-3 medium-block-grid-2 small-block-grid-1 text-center"></ul>');
+        return true;
+      },
+      "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+        var data = aData.IMAGE;
+        var state = get_provision_image_state(data);
+
+        $("#provision_snapshots_ul").append('<li>'+
+            '<ul class="provision-pricing-table hoverable" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
+              '<li class="provision-title">'+
+                data.NAME +
+              '</li>'+
+              '<li class="provision-bullet-item">'+'<i class="fa fa-fw fa-camera-retro" style="font-size:40px;"/>'+'</li>'+
+              '<li class="provision-description" style="font-size:12px; color: #999; padding-bottom:10px">'+
+                '<i class="fa fa-fw fa-clock-o"/>'+
+                _format_date(data.REGTIME)+
+                " " + tr("from VM") + ": " + (data.TEMPLATE.SAVED_VM_ID||'-') +
+              '</li>'+
+            '</ul>'+
+          '</li>');
+
+        return nRow;
+      }
+    });
+
+    update_provision_images_datatable(provision_create_vm_snapshots_datatable);
+    provision_create_vm_snapshots_datatable.fnFilter("^" + username + "$", 2, true, false)
 
     tab.on("click", "#provision_create_vm .provision-pricing-table" , function(){
-      $(".provision-pricing-table", $(this).parents(".small-block-grid-3")).removeClass("selected")
+      $(".provision-pricing-table", $(this).parents(".large-block-grid-3,.large-block-grid-2")).removeClass("selected")
       $(this).addClass("selected");
     })
 
@@ -754,7 +929,7 @@ $(document).ready(function(){
       var context = $(this);
 
       var vm_name = $("#vm_name", context).val();
-      var image_id = $("#provision_images_ul .selected", context).attr("opennebula_id");
+      var image_id = $(".tabs-content .content.active .selected", context).attr("opennebula_id");
       var template_id = $("#provision_templates_ul .selected", context).attr("opennebula_id");
 
       if (!template_id) {
@@ -787,6 +962,109 @@ $(document).ready(function(){
 
 
     //
+    // List Images
+    //
+
+    provision_images_datatable = $('#provision_images_table').dataTable({
+      "iDisplayLength": 6,
+      "sDom" : '<"H">t<"F"p>',
+      "aaSorting"  : [[0, "desc"]],
+      "aoColumnDefs": [
+          { "bVisible": false, "aTargets": ["all"]}
+      ],
+      "aoColumns": [
+          { "mDataProp": "IMAGE.ID" },
+          { "mDataProp": "IMAGE.NAME" },
+          { "mDataProp": "IMAGE.UNAME" }
+      ],
+      "fnPreDrawCallback": function (oSettings) {
+        // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
+
+        $("#provision_images_table").html('<ul id="provision_images_ul" class="large-block-grid-2 medium-block-grid-2 small-block-grid-1 text-center"></ul>');
+        return true;
+      },
+      "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+        var data = aData.IMAGE;
+        var state = get_provision_image_state(data);
+
+        $("#provision_images_ul").append('<li>'+
+            '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
+              '<li class="provision-title text-left">'+
+                data.NAME + '<a class="provision_confirm_delete_image_button" style="color:#555" href="#"><i style="color:#0099c3" class="fa fa-fw fa-lg fa-trash-o right"/></a>'+
+              '</li>'+
+              //'<li class="provision-bullet-item text-left" style="margin-left:20px">'+
+              //  '<i class="fa fa-fw fa-laptop"/>&emsp;'+
+              //  'x'+data.TEMPLATE.CPU+' - '+
+              //  ((data.TEMPLATE.MEMORY > 1000) ?
+              //    (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
+              //    (data.TEMPLATE.MEMORY+'MB'))+
+              //'</li>'+
+              //'<li class="provision-bullet-item text-left" style="margin-left:20px">'+
+              //  '<i class="fa fa-fw fa-download"></i>'+
+              //  'Ubuntu 12.04'+
+              //'</li>'+
+              //'<li class="provision-bullet-item text-left" style="margin-left:20px">'+
+              //  '192.168.1.1'+
+              //'</li>'+
+              '<li class="provision-bullet-item text-left" style="font-size:12px; color: #999; padding-bottom:10px">'+
+                '<i class="fa fa-fw fa-clock-o"/>'+
+                _format_date(data.REGTIME)+
+                " " + tr("from VM") + ": " + (data.TEMPLATE.SAVED_VM_ID||'-') +
+                '<span class="'+ state.color +'-color right">'+
+                  state.str+
+                '</span>'+
+              '</li>'+
+              //'<li class="provision-bullet-item" style="padding: 0px">'+
+              //  '<div style="height:1px" class="'+ state.color +'-bg"></div>'+
+              //'</li>'+
+            '</ul>'+
+          '</li>');
+
+        return nRow;
+      }
+    });
+
+    update_provision_images_datatable(provision_images_datatable);
+    provision_images_datatable.fnFilter("^" + username + "$", 2, true, false)
+
+    $("#provision_images_list_button").on("click", function(){
+      show_provision_image_list();
+    });
+
+    $("#provision_list_images").on("click", "#provision_images_list_refresh_button", function(){
+      show_provision_image_list();
+    });
+
+
+    $("#provision_list_images").on("click", ".provision_confirm_delete_image_button", function(){
+      var context = $(this).parents(".provision-pricing-table");
+      var image_id = context.attr("opennebula_id");
+      var image_name = $(".provision-title", context).text();
+
+      $("#provision_confirm_delete_image_div").html(
+        '<div data-alert class="alert-box secondary radius">'+
+          '<div class="row">'+
+          '<div class="large-9 columns">'+
+            '<span style="font-size: 14px; line-height: 20px">'+
+              tr("This action will inmediately destroy the Image")+
+              ' "' + image_name + '" ' +
+              tr("and all the information will be lost.") +
+            '</span>'+
+          '</div>'+
+          '<div class="large-3 columns">'+
+            '<a href"#" id="provision_delete_image_button" class="alert button large-12 radius right" style="margin-right: 15px" value="'+image_id+'">'+tr("Delete")+'</a>'+
+          '</div>'+
+          '</div>'+
+          '<a href="#" class="close">&times;</a>'+
+        '</div>');
+    });
+
+    $("#provision_confirm_delete_image_div").on("click", "#provision_delete_image_button", function(){
+      var image_id = $(this).attr("value");
+      Sunstone.runAction('Provision.Image.delete', image_id);
+    });
+
+    //
     // List VMs
     //
 
@@ -813,34 +1091,34 @@ $(document).ready(function(){
 
         $("#provision_vms_ul").append('<li>'+
             '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
-              '<li class="provision-title text-left">'+
-                '<a class="provision_info_vm_button" style="color:#333" href="#"><i style="color:#0099c3" class="fa fa-fw fa-plus-square-o right"/>'+ data.NAME + '</a>'+
+              '<li class="provision-title text-left" style="padding-bottom: 5px">'+
+                '<a class="provision_info_vm_button" style="color:#555" href="#"><i style="color:#0099c3" class="fa fa-fw fa-lg fa-plus-square-o right"/>'+ data.NAME + '</a>'+
               '</li>'+
-              '<li class="provision-bullet-item text-left" style="margin-left:20px">'+
+              '<li class="provision-bullet-item text-left" style="margin-left:10px">'+
                 '<i class="fa fa-fw fa-laptop"/>&emsp;'+
                 'x'+data.TEMPLATE.CPU+' - '+
                 ((data.TEMPLATE.MEMORY > 1000) ?
                   (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
                   (data.TEMPLATE.MEMORY+'MB'))+
               '</li>'+
-              '<li class="provision-bullet-item text-left" style="margin-left:20px">'+
+              '<li class="provision-bullet-item text-left" style="margin-left:10px">'+
                 '<i class="fa fa-fw fa-download"></i>'+
                 'Ubuntu 12.04'+
               '</li>'+
-              '<li class="provision-bullet-item text-left" style="margin-left:20px">'+
+              '<li class="provision-bullet-item text-left" style="margin-left:10px">'+
                 '<i class="fa fa-fw fa-globe"/>'+
                 '192.168.1.1'+
               '</li>'+
-              '<li class="provision-bullet-item text-left" style="font-size:12px; color: #999; margin-top:10px">'+
+              '<li class="provision-bullet-item text-left" style="font-size:12px; color: #999; margin-top:10px; padding-bottom:10px">'+
                 '<i class="fa fa-fw fa-clock-o"/>'+
                 _format_date(data.STIME)+
                 '<span class="'+ state.color +'-color right">'+
                   state.str+
                 '</span>'+
               '</li>'+
-              '<li class="provision-bullet-item" style="padding: 0px">'+
-                '<div style="height:1px" class="'+ state.color +'-bg"></div>'+
-              '</li>'+
+              //'<li class="provision-bullet-item" style="padding: 0px">'+
+              //  '<div style="height:1px" class="'+ state.color +'-bg"></div>'+
+              //'</li>'+
             '</ul>'+
           '</li>');
 
@@ -863,7 +1141,7 @@ $(document).ready(function(){
     // Info VM
     //
 
-    $(document).on("click", "#provision_vms_ul .provision_info_vm_button", function(){
+    $("#provision_list_vms").on("click", ".provision_info_vm_button", function(){
       $(".section_content").hide();
       $("#provision_info_vm").fadeIn();
       var vm_id = $(this).parents(".provision-pricing-table").attr("opennebula_id");
