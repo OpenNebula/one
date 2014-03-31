@@ -742,6 +742,13 @@ var vm_actions = {
     },
 
     "VM.startvnc" : {
+        type: "custom",
+        call: function(){
+          popUpVnc();
+        }
+    },
+
+    "VM.startvnc_action" : {
         type: "single",
         call: OpenNebula.VM.startvnc,
         callback: vncCallback,
@@ -3358,8 +3365,15 @@ function setupVNC(){
         var id = $(this).attr('vm_id');
 
         //Ask server for connection params
-        Sunstone.runAction("VM.startvnc",id);
+        Sunstone.runAction("VM.startvnc_action",id);
         return false;
+    });
+}
+
+// Open vnc window
+function popUpVnc(){
+    $.each(getSelectedNodes(dataTable_vMachines), function(index, elem) {
+        Sunstone.runAction("VM.startvnc_action", elem);
     });
 }
 
