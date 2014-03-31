@@ -689,7 +689,7 @@ function updateVNetworkInfo(request,vn){
                 vn_info.ID,
                 vn_info.NAME)+
             '<tr>' +
-        insert_cluster_dropdown("Network",vn_info.ID,vn_info.CLUSTER,vn_info.CLUSTER_ID) +
+        insert_cluster_dropdown("Network",vn_info.ID,vn_info.CLUSTER,vn_info.CLUSTER_ID,"#info_vn_table") +
             '</tr>\
         </table>\
         </div>\

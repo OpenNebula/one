@@ -649,7 +649,7 @@ function updateHostInfo(request,host){
                 host_info.ID,
                 host_info.NAME)+
             '<tr>' +
-                insert_cluster_dropdown("Host",host_info.ID,host_info.CLUSTER,host_info.CLUSTER_ID) +
+                insert_cluster_dropdown("Host",host_info.ID,host_info.CLUSTER,host_info.CLUSTER_ID,"#info_host_table") +
             '</tr>\
             <tr>\
                 <td class="key_td">' + tr("State") + '</td>\
