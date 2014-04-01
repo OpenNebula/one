@@ -188,10 +188,7 @@ esac
 file_type=$(get_type "$command")
 decompressor=$(get_decompressor "$file_type")
 
-# Note: the 'cat' at the end of this pipeline forces the pipe to wait until
-# all the 'tee' processes are finished
-$command | tee >( decompress "$decompressor" "$TO" ) \
-    >( hasher $HASH_TYPE ) | cat >/dev/null
+$command | tee >( hasher $HASH_TYPE) | decompress "$decompressor" "$TO"
 
 if [ "$?" != "0" ]; then
     echo "Error copying" >&2
