@@ -1041,13 +1041,13 @@ function _format_date(unix_timestamp) {
         'November','December');
 
   if(difference_in_seconds < 60) {
-    return difference_in_seconds + " second" + _plural(difference_in_seconds) + " ago";
+    return difference_in_seconds + "s" + " ago";
   } else if (difference_in_seconds < 60*60) {
     minutes = Math.floor(difference_in_seconds/60);
-    return minutes + " minute" + _plural(minutes) + " ago";
+    return minutes + "m" + " ago";
   } else if (difference_in_seconds < 60*60*24) {
     hours = Math.floor(difference_in_seconds/60/60);
-    return hours + " hour" + _plural(hours) + " ago";
+    return hours + "h" + " ago";
   } else if (difference_in_seconds > 60*60*24){
     if(current_date.getYear() !== new Date().getYear())
       return current_date.getDay() + " " + months[current_date.getMonth()].substr(0,3) + " " + _fourdigits(current_date.getYear());
@@ -1061,12 +1061,12 @@ function _format_date(unix_timestamp) {
   function _fourdigits(number)  {
         return (number < 1000) ? number + 1900 : number;}
 
-  function _plural(number) {
-    if(parseInt(number) === 1) {
-      return "";
-    }
-    return "s";
-  }
+  //function _plural(number) {
+  //  if(parseInt(number) === 1) {
+  //    return "";
+  //  }
+  //  return "s";
+  //}
 }
 //returns a human readable size in Kilo, Mega, Giga or Tera bytes
 //if no from_bytes, assumes value comes in Ks
@@ -2090,7 +2090,7 @@ var Quotas = {
                 default_quotas.VM_QUOTA.VM.VMS);
 
             var quotas_tab_html =
-            '<fieldset><legend>' + tr("VMs") + '</legend><div><br>'+vms_bar+'</div><br></fieldset>'
+            '<fieldset><legend>' + tr("VMs") + '</legend><div>'+vms_bar+'</div><br></fieldset>'
 
             return quotas_tab_html;
         } else {
@@ -2105,7 +2105,7 @@ var Quotas = {
                 default_quotas.VM_QUOTA.VM.CPU);
 
             var quotas_tab_html =
-            '<fieldset><legend>' + tr("CPU") + '</legend><div><br>'+cpu_bar+'</div><br></fieldset>'
+            '<fieldset><legend>' + tr("CPU") + '</legend><div>'+cpu_bar+'</div><br></fieldset>'
 
             return quotas_tab_html;
         } else {
@@ -2120,7 +2120,7 @@ var Quotas = {
                 default_quotas.VM_QUOTA.VM.MEMORY);
 
             var quotas_tab_html =
-            '<fieldset><legend>' + tr("Memory") + '</legend><div><br>'+memory_bar+'</div><br></fieldset>'
+            '<fieldset><legend>' + tr("Memory") + '</legend><div>'+memory_bar+'</div><br></fieldset>'
 
             return quotas_tab_html;
         } else {
@@ -2135,7 +2135,7 @@ var Quotas = {
                 default_quotas.VM_QUOTA.VM.VOLATILE_SIZE);
 
             var quotas_tab_html =
-            '<fieldset><legend>' + tr("Volatile disks") + '</legend><div><br>'+volatile_bar+'</div><br></fieldset>'
+            '<fieldset><legend>' + tr("Volatile disks") + '</legend><div>'+volatile_bar+'</div><br></fieldset>'
 
             return quotas_tab_html;
         } else {
@@ -3496,7 +3496,7 @@ function quotaBarHtml(usage, limit, info_str){
 
     info_str = info_str || ( usage+' / '+((limit > 0) ? limit : '-') );
 
-    html = '<div class="progress-container"><div class="progress secondary radius"><span class="meter" style="width: '
+    html = '<div class="progress-container"><div class="progress secondary round"><span class="meter" style="width: '
         +percentage+'%"></span></div><div class="progress-text">'+info_str+'</div></div>';
 
     return html;

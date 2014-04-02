@@ -17,19 +17,25 @@
 var provision_create_vm = '<form id="provision_create_vm" class="hidden section_content">'+
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
-      '<h2 class="subheader">'+tr("Create Virtual Machine")+'</h2>'+
+      '<h2 class="subheader">'+
+        '<i class="fa fa-fw fa-square"/>&emsp;'+
+        tr("Create Virtual Machine")+
+      '</h2>'+
       '<br>'+
     '</div>'+
   '</div>'+
   '<div class="row">'+
     '<div class="large-9 large-centered columns">'+
-      '<input type="text" id="vm_name" placeholder="'+tr("Virtual Machine Name")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+      '<input type="text" id="vm_name"  class="provision-input" placeholder="'+tr("Virtual Machine Name")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
       '<br>'+
     '</div>'+
   '</div>'+
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
-      '<h3 class="subheader">'+tr("Select Capacity")+'</h3>'+
+      '<h3 class="subheader">'+
+        '<i class="fa fa-fw fa-square-o"/>&emsp;'+
+        tr("Select Capacity")+
+      '</h3>'+
       '<br>'+
     '</div>'+
   '</div>'+
@@ -50,15 +56,18 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
   '</div>'+
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
-      '<h3 class="subheader">'+tr("Select Image")+'</h3>'+
+      '<h3 class="subheader">'+
+        '<i class="fa fa-fw fa-square-o"/>&emsp;'+
+        tr("Select Image")+
+      '</h3>'+
       '<br>'+
     '</div>'+
   '</div>'+
   '<div class="row">'+
     '<div class="large-9 large-centered columns">'+
       '<dl class="tabs text-center" data-tab style="width: 100%">'+
-        '<dd class="active" style="width: 50%"><a href="#provision_images_selector">'+ tr("Images") +'</a></dd>'+
-        '<dd style="width: 50%"><a href="#provision_snapshots_selector">'+ tr("Snapshots") +'</a></dd>'+
+        '<dd class="active" style="width: 50%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_images_selector">'+ tr("System Images") +'</a></dd>'+
+        '<dd style="width: 50%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_snapshots_selector">'+ tr("Saved Images") +'</a></dd>'+
       '</dl>'+
       '<br>'+
       '<div class="tabs-content">'+
@@ -93,23 +102,166 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
     '</div>'+
   '</div>'+
   '<div class="row">'+
-    '<div class="large-9 columns large-centered">'+
+    '<div class="large-8 columns large-centered">'+
       '<div data-alert class="alert-box alert-box-error radius text-center hidden">'+
       '</div>'+
-      '<button href="#" class="button large large-12 radius  right" type="submit">'+tr("Create")+'</button>'+
+      '<button href="#" class="button large radius large-12 small-12" type="submit">'+tr("Create")+'</button>'+
     '</div>'+
   '</div>'+
   '<br>'+
   '<br>'+
 '</form>';
 
+var provision_user_info = '<div id="provision_user_info" class="hidden section_content">'+
+  '<div class="row">'+
+    '<div class="large-11 large-centered columns">'+
+      '<h2 class="subheader text-right">'+
+        '<span class="left">'+
+          '<i class="fa fa-fw fa-user"/>&emsp;'+
+          config["display_name"]+
+        '</span>'+
+        '<a href"#" id="provision_user_info_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip tip-top">'+
+          '<i class="fa fa-fw fa-refresh"/>'+
+        '</a>'+
+      '</h2>'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
+  '<div class="row">'+
+    '<div class="large-10 large-centered columns">'+
+      '<dl class="tabs text-center" data-tab style="width: 100%">'+
+        '<dd class="active" style="width: 33%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_info_ssh_key"><i class="fa fa-fw fa-lg fa-key"/>&emsp;'+ tr("SSH Key") +'</a></dd>'+
+        '<dd style="width: 33%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_info_password"><i class="fa fa-fw fa-lg fa-lock"/>&emsp;'+ tr("Password") +'</a></dd>'+
+        '<dd style="width: 33%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_info_quotas"><i class="fa fa-fw fa-lg fa-align-left"/>&emsp;'+ tr("Quotas") +'</a></dd>'+
+      '</dl>'+
+      '<br>'+
+    '</div>'+
+  '</div>'+
+  '<div class="tabs-content">'+
+    '<div class="content active" id="provision_info_ssh_key">'+
+      '<form id="provision_add_ssh_key_form">'+
+        '<div class="row">'+
+          '<div class="large-8 large-centered columns">'+
+            '<dl class="accordion" data-accordion>'+
+              '<dd class="active">'+
+                '<a href="#provision_info_ssh_key_accordion" style="display: none">'+
+                  tr("info SSH Key")+
+                '</a>'+
+                '<div id="provision_info_ssh_key_accordion" class="content active">'+
+                  '<div class="row">'+
+                    '<div class="large-12 large-centered columns">'+
+                      '<div class="text-center">'+
+                        '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+                          '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                          '<i class="fa fa-key fa-stack-1x fa-inverse"></i>'+
+                        '</span>'+
+                        '<br>'+
+                        '<p style="font-size: 18px; color: #999">'+
+                          tr("You can add an SSH key to your account which will be used as the preferred method of access for new Virtual Machines")+
+                        '</p>'+
+                      '</div>'+
+                    '</div>'+
+                  '</div>'+
+                '</div>'+
+              '</dd>'+
+              '<dd >'+
+                '<a href="#provision_add_ssh_key_accordion" class="text-center accordion-a">'+
+                  tr("Add SSH Key")+
+                '</a>'+
+                '<div id="provision_add_ssh_key_accordion" class="content">'+
+                  '<div class="row">'+
+                    '<div class="large-12 large-centered columns">'+
+                      '<textarea id="provision_ssh_key" style="height: 100px; font-size: 16px" placeholder="SSH key" class="provision-input"></textarea>'+
+                    '</div>'+
+                  '</div>'+
+                  '<br>'+
+                  '<div class="row">'+
+                    '<div class="large-12 large-centered columns">'+
+                      '<button href"#" id="provision_add_ssh_key_button" type="submit" class="button large radius large-12 small-12">'+tr("Add SSH Key")+'</button>'+
+                      '<button href"#" id="provision_update_ssh_key_button" type="submit" class="button large radius large-12 small-12 hidden">'+tr("Update SSH Key")+'</button>'+
+                    '</div>'+
+                  '</div>'+
+                '</div>'+
+              '</dd>'+
+            '</dl>'+
+          '</div>'+
+        '</div>'+
+      '</form>'+
+    '</div>'+
+    '<div class="content" id="provision_info_password">'+
+      '<form id="provision_change_password_form">'+
+        '<div class="row">'+
+          '<div class="large-8 large-centered columns">'+
+            '<dl class="accordion" data-accordion>'+
+              '<dd class="active">'+
+                '<a href="#provision_info_password_accordion" style="display: none">'+
+                  tr("info SSH Key")+
+                '</a>'+
+                '<div id="provision_info_ssh_key_accordion" class="content active">'+
+                  '<div class="row">'+
+                    '<div class="large-12 large-centered columns">'+
+                      '<div class="text-center">'+
+                        '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+                          '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                          '<i class="fa fa-lock fa-stack-1x fa-inverse"></i>'+
+                        '</span>'+
+                        '<br>'+
+                        '<p style="font-size: 18px; color: #999">'+
+                          tr("This will change the password of your account")+
+                        '</p>'+
+                      '</div>'+
+                    '</div>'+
+                  '</div>'+
+                '</div>'+
+              '</dd>'+
+              '<dd>'+
+                '<a href="#provision_update_password_accordion" class="text-center accordion-a">'+
+                  tr("Update Password")+
+                '</a>'+
+                '<div id="provision_update_password_accordion" class="content">'+
+                  '<div class="row">'+
+                    '<div class="large-12 columns">'+
+                      '<input type="password" id="provision_new_password" class="provision-input" placeholder="'+tr("New Password")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+                    '</div>'+
+                  '</div>'+
+                  '<div class="row">'+
+                    '<div class="large-12 columns">'+
+                      '<input type="password" id="provision_new_confirm_password" class="provision-input" placeholder="'+tr("Confirm Password")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+                      '<br>'+
+                    '</div>'+
+                  '</div>'+
+                  '<div class="row">'+
+                    '<div class="large-12 columns">'+
+                      '<button href"#" type="submit" class="button large radius large-12 small-12">'+tr("Change Password")+'</button>'+
+                    '</div>'+
+                  '</div>'+
+                '</div>'+
+              '</dd>'+
+            '</dl>'+
+          '</div>'+
+        '</div>'+
+      '</form>'+
+    '</div>'+
+    '<div class="content" id="provision_info_quotas">'+
+      '<div class="row">'+
+        '<div id="provision_user_info_quotas_div" class="large-9 large-centered columns">'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
+  '<br>'+
+'</div>';
 
 var provision_list_images = '<div id="provision_list_images" class="hidden section_content">'+
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
-      '<h2 class="subheader">'+
-        tr("Images")+
-        '<a href"#" id="provision_images_list_refresh_button" data-tooltip title="'+ tr("Refresh the list of Images")+'" class="has-tip tip-top" style="font-size:80%">'+
+      '<h2 class="subheader text-right">'+
+        '<span class="left">'+
+          '<i class="fa fa-fw fa-camera"/>&emsp;'+
+          tr("Saved Images")+
+        '</span>'+
+        '<a href"#" id="provision_images_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip tip-top">'+
           '<i class="fa fa-fw fa-refresh"/>'+
         '</a>'+
       '</h2>'+
@@ -136,17 +288,25 @@ var provision_list_images = '<div id="provision_list_images" class="hidden secti
       '<br>'+
     '</div>'+
   '</div>'+
+  '<br>'+
+  '<div class="row">'+
+    '<div class="large-8 large-centered columns">'+
+      '<a href"#" class="provision_create_vm_button button large radius large-12 small-12">'+tr("Create Virtual Machine")+'</a>'+
+    '</div>'+
+  '</div>'+
 '</div>';
 
 var provision_list_vms = '<div id="provision_list_vms" class="section_content">'+
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
-      '<h2 class="subheader">'+
-        tr("Virtual Machines")+
-        '<a href"#" id="provision_vms_list_refresh_button" data-tooltip title="'+ tr("Refresh the list of Virtual Machines")+'" class="has-tip tip-top" style="font-size:80%">'+
+      '<h2 class="subheader text-right">'+
+        '<span class="left">'+
+          '<i class="fa fa-fw fa-th"/>&emsp;'+
+          tr("Virtual Machines")+
+        '</span>'+
+        '<a href"#" id="provision_vms_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip">'+
           '<i class="fa fa-fw fa-refresh"/>'+
         '</a>'+
-        '<a href"#" id="provision_create_vm_button" class="button medium radius right"><i class="fa fa-fw fa-plus"/>'+tr("Create")+'</a>'+
       '</h2>'+
     '</div>'+
   '</div>'+
@@ -166,15 +326,21 @@ var provision_list_vms = '<div id="provision_list_vms" class="section_content">'
       '<br>'+
     '</div>'+
   '</div>'+
+  '<br>'+
+  '<div class="row">'+
+    '<div class="large-8 large-centered columns">'+
+      '<a href"#" class="provision_create_vm_button button large radius large-12 small-12">'+tr("Create Virtual Machine")+'</a>'+
+    '</div>'+
+  '</div>'+
 '</div>';
 
 var provision_info_vm =  '<div id="provision_info_vm" class="section_content hidden">'+
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
-      '<h2 class="subheader">'+
+      '<h2 class="subheader text-right">'+
         '<span id="provision_info_vm_name" class="left">'+
         '</span>'+
-        '<a href"#" id="provision_refresh_info" data-tooltip title="'+ tr("Refresh the Virtual Machine information")+'" class="has-tip tip-top" style="font-size:80%">'+
+        '<a href"#" id="provision_refresh_info" data-tooltip title="'+ tr("Refresh")+'" class="has-tip tip-top">'+
           '<i class="fa fa-fw fa-refresh"/>'+
         '</a>'+
       '</h2>'+
@@ -262,10 +428,10 @@ var provision_info_vm =  '<div id="provision_info_vm" class="section_content hid
             '<i class="fa fa-fw fa-desktop"/><span style="font-size: 12px; vertical-align: middle">'+tr("VNC")+'</span>'+
           '</span>'+
           '<a href"#" id="provision_snapshot_button" data-tooltip title="The main disk of the Virtual Machine will be saved in a new Image" class="has-tip tip-top" style="margin-left:15px; margin-right:15px">'+
-            '<i class="fa fa-fw fa-camera-retro"/><span style="font-size: 12px; vertical-align: middle">'+tr("Snapshot")+'</span>'+
+            '<i class="fa fa-fw fa-camera"/><span style="font-size: 12px; vertical-align: middle">'+tr("Save Image")+'</span>'+
           '</a>'+
           '<span id="provision_snapshot_button_disabled" data-tooltip title="You have to power-off the virtual machine first" class="has-tip tip-top" style="margin-left:15px; margin-right:15px; color: #999">'+
-            '<i class="fa fa-fw fa-camera-retro"/><span style="font-size: 12px; vertical-align: middle">'+tr("Snapshot")+'</span>'+
+            '<i class="fa fa-fw fa-camera"/><span style="font-size: 12px; vertical-align: middle">'+tr("Save Image")+'</span>'+
           '</span>'+
         '</span>'+
       '</h2>'+
@@ -280,7 +446,8 @@ var provision_info_vm =  '<div id="provision_info_vm" class="section_content hid
 '</div>';
 
 
-var provision_content = provision_create_vm +
+var provision_content = provision_user_info +
+  provision_create_vm +
   provision_info_vm +
   provision_list_vms +
   provision_list_images ;
@@ -288,10 +455,10 @@ var provision_content = provision_create_vm +
 var provision_tab = {
   list_header: '<img src="images/one_small_logo.png" style="height:40px">'+
     '<span class="right" style="font-size: 60%; color: #dfdfdf">'+
-      '<a href"#" class="medium" id="provision_vms_list_button" style="color: #555; margin-left: 10px;margin-right: 10px;">'+tr("Virtual Machines")+'</a>&emsp;|&emsp;'+
-      '<a href"#" class="medium" id="provision_images_list_button" style="color: #555; margin-left: 10px;margin-right: 10px;">'+tr("Images")+'</a>&emsp;|&emsp;'+
-      '<a href"#" class="medium" style="color: #555; margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-user" style="color: #777"/>'+tr("oneadmin")+'</a>&emsp;|&emsp;'+
-      '<a href"#" class="medium" style="color: #555; margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-sign-out" style="color: #777"/></a>'+
+      '<a href"#" class="medium off-color" id="provision_vms_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-lg fa-th"/>&emsp;'+tr("Virtual Machines")+'</a>&emsp;|&emsp;'+
+      '<a href"#" class="medium off-color" id="provision_images_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-lg fa-camera"/>&emsp;'+tr("Saved Images")+'</a>&emsp;|&emsp;'+
+      '<a href"#" class="medium off-color" id="provision_user_info_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-lg fa-user"/>&emsp;'+config['display_name']+'</a>&emsp;|&emsp;'+
+      '<a href"#" class="medium off-color" id="provision_logout" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-lg fa-sign-out"/></a>'+
     '</span>'+
     '<br>',
   content: provision_content
@@ -301,7 +468,36 @@ var povision_actions = {
   "Provision.Image.delete" : {
       type: "single",
       call: OpenNebula.Image.del,
-      callback: show_provision_image_list,
+      callback: function(){
+        show_provision_image_list(1000);
+      },
+      error: onError
+  },
+
+  "Provision.User.show" : {
+      type: "single",
+      call: OpenNebula.User.show,
+      callback: show_provision_user_info_callback,
+      error: onError
+  },
+
+  "Provision.User.passwd" : {
+      type: "single",
+      call: OpenNebula.User.passwd,
+      callback: function() {
+        show_provision_user_info();
+        notifyMessage("Password updated successfully");
+      },
+      error: onError
+  },
+
+  "Provision.User.update_template" : {
+      type: "single",
+      call: OpenNebula.User.update,
+      callback: function() {
+        show_provision_user_info();
+        notifyMessage("SSH key updated successfully");
+      },
       error: onError
   },
 
@@ -317,9 +513,10 @@ var povision_actions = {
     type: "single",
     call: OpenNebula.Template.instantiate,
     callback: function(){
-      show_provision_vm_list();
-      $("#vm_name", $("#provision_create_vm")).val('');
-      $(".provision-pricing-table", $("#provision_create_vm")).removeClass("selected");
+      show_provision_vm_list(0);
+      var context = $("#provision_create_vm");
+      $("#vm_name", context).val('');
+      $(".provision-pricing-table", context).removeClass("selected");
       $(".alert-box-error", context).hide();
       $('a[href="#provision_images_selector"]', context).click();
     },
@@ -329,22 +526,8 @@ var povision_actions = {
     type: "single",
     call: OpenNebula.VM.saveas,
     callback: function(request, response){
-      $("#provision_confirm_action").html(
-        '<div data-alert class="alert-box secondary radius" style="background: #fff">'+
-          '<div class="row">'+
-          '<div class="large-11 columns">'+
-            '<span style="font-size: 14px; line-height: 20px">'+
-              'A new snapshot has been included in your list of images:'+
-              '<br>'+
-              equest.request.data[0][1].image_name +
-              '<br>'+
-              '<br>'+
-              'This image can be used in a new virtual machine'+
-            '</span>'+
-          '</div>'+
-          '</div>'+
-          '<a href="#" class="close" style="top: 20px">&times;</a>'+
-        '</div>');
+      provision_show_vm_callback();
+      notifyMessage(tr("Image") + ' ' + request.request.data[0][1].image_name + ' ' + tr("saved successfully"))
     },
     error: onError
   },
@@ -371,14 +554,18 @@ var povision_actions = {
   "Provision.shutdown_hard" : {
       type: "single",
       call: OpenNebula.VM.cancel,
-      callback: show_provision_vm_list,
+      callback: function(){
+        show_provision_vm_list(1000);
+      },
       error: onError
   },
 
   "Provision.delete" : {
       type: "single",
       call: OpenNebula.VM.del,
-      callback: show_provision_vm_list,
+      callback: function(){
+        show_provision_vm_list(1000);
+      },
       error: onError
   },
   "Provision.monitor" : {
@@ -482,50 +669,207 @@ var povision_actions = {
 Sunstone.addMainTab('provision-tab',provision_tab);
 Sunstone.addActions(povision_actions);
 
-function show_provision_vm_list() {
-  update_provision_vms_datatable(provision_vms_datatable);
 
+function show_provision_user_info() {
+  Sunstone.runAction("Provision.User.show", "-1");
   $(".section_content").hide();
-  $("#provision_list_vms").fadeIn();
+  $("#provision_user_info").fadeIn();
+  $("dd:not(.active) a[href='#provision_info_password_accordion']").trigger("click");
+  $("dd:not(.active) a[href='#provision_info_ssh_key_accordion']").trigger("click");
 }
 
-function show_provision_image_list() {
-  update_provision_images_datatable(provision_images_datatable);
 
+function show_provision_user_info_callback(request, response) {
+  var info = response.USER;
+
+  var default_user_quotas = Quotas.default_quotas(info.DEFAULT_USER_QUOTAS);
+  var vms_quota = Quotas.vms(info, default_user_quotas);
+  var cpu_quota = Quotas.cpu(info, default_user_quotas);
+  var memory_quota = Quotas.memory(info, default_user_quotas);
+  var volatile_size_quota = Quotas.volatile_size(info, default_user_quotas);
+  var image_quota = Quotas.image(info, default_user_quotas);
+  var network_quota = Quotas.network(info, default_user_quotas);
+  var datastore_quota = Quotas.datastore(info, default_user_quotas);
+
+  var quotas_html;
+  if (vms_quota || cpu_quota || memory_quota || volatile_size_quota || image_quota || network_quota || datastore_quota) {
+    quotas_html = '<div class="large-12 columns">' + vms_quota + '</div>';
+    quotas_html += '<div class="large-12 columns">' + cpu_quota + '</div>';
+    quotas_html += '<div class="large-12 columns">' + memory_quota + '</div>';
+    quotas_html += '<div class="large-12 columns">' + volatile_size_quota+ '</div>';
+    quotas_html += '<div class="large-12 columns">' + image_quota + '</div>';
+    quotas_html += '<div class="large-12 columns">' + network_quota + '</div>';
+    quotas_html += '<div class="large-12 columns">' + datastore_quota + '</div>';
+  } else {
+    quotas_html = '<div class="row">\
+            <div class="large-12 columns">\
+              <p class="subheader">'+tr("No quotas defined")+'</p>\
+            </div>\
+          </div>'
+  }
+
+  $("#provision_user_info_quotas_div").html(quotas_html);
+
+  var ssh_key = info.TEMPLATE.SSH_PUBLIC_KEY;
+  if (ssh_key.length) {
+    $("#provision_ssh_key").val(ssh_key);
+    $("#provision_add_ssh_key_button").hide();
+    $("#provision_update_ssh_key_button").show();
+  } else {
+    $("#provision_add_ssh_key_button").show();
+    $("#provision_update_ssh_key_button").hide();
+  }
+}
+
+function show_provision_create_vm() {
+  update_provision_templates_datatable(provision_templates_datatable);
+  update_provision_images_datatable(provision_create_vm_images_datatable);
+  update_provision_images_datatable(provision_create_vm_snapshots_datatable);
+
+  $(".section_content").hide();
+  $("#provision_create_vm").fadeIn();
+}
+
+function show_provision_vm_list(timeout) {
+  $(".section_content").hide();
+  $("#provision_list_vms").fadeIn();
+
+  update_provision_vms_datatable(provision_vms_datatable, timeout);
+}
+
+function show_provision_image_list(timeout) {
   $(".section_content").hide();
   $("#provision_list_images").fadeIn();
 
   $("#provision_confirm_delete_image_div").empty();
+
+  update_provision_images_datatable(provision_images_datatable, timeout);
 }
 
-function update_provision_images_datatable(datatable) {
-  OpenNebula.Image.list({
-    timeout: true,
-    success: function (request, item_list){
-      datatable.fnClearTable(false);
-      datatable.fnAddData(item_list);
-    }
-  });
+function update_provision_images_datatable(datatable, timeout) {
+  datatable.html('<div class="text-center">'+
+    '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+      '<i class="fa fa-cloud fa-stack-2x"></i>'+
+      '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+    '</span>'+
+    '<br>'+
+    '<br>'+
+    '<span style="font-size: 18px; color: #999">'+
+      tr("")+
+    '</span>'+
+    '</div>');
+
+  setTimeout( function(){
+    OpenNebula.Image.list({
+      timeout: true,
+      success: function (request, item_list){
+        datatable.fnClearTable(true);
+        if (item_list.length == 0) {
+          datatable.html('<div class="text-center">'+
+            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+            '</span>'+
+            '<br>'+
+            '<br>'+
+            '<span style="font-size: 18px; color: #999">'+
+              tr("There are no images available")+
+            '</span>'+
+            '</div>');
+        } else {
+          datatable.fnAddData(item_list);
+
+          if (datatable.$('tr', {"filter": "applied"} ).length == 0) {
+            datatable.html('<div class="text-center">'+
+              '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+                '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+              '</span>'+
+              '<br>'+
+              '<br>'+
+              '<span style="font-size: 18px; color: #999">'+
+                tr("There are no images available")+
+              '</span>'+
+              '</div>');
+          }
+        }
+      }
+    })
+  }, timeout );
 }
 
 function update_provision_templates_datatable(datatable) {
+  datatable.html('<div class="text-center">'+
+    '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+      '<i class="fa fa-cloud fa-stack-2x"></i>'+
+      '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+    '</span>'+
+    '<br>'+
+    '<br>'+
+    '<span style="font-size: 18px; color: #999">'+
+      tr("")+
+    '</span>'+
+    '</div>');
+
   OpenNebula.Template.list({
     timeout: true,
     success: function (request, item_list){
-      datatable.fnClearTable(false);
-      datatable.fnAddData(item_list);
+      datatable.fnClearTable(true);
+      if (item_list.length == 0) {
+        datatable.html('<div class="text-center">'+
+          '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+            '<i class="fa fa-cloud fa-stack-2x"></i>'+
+            '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+          '</span>'+
+          '<br>'+
+          '<br>'+
+          '<span style="font-size: 18px; color: #999">'+
+            tr("There are no templates available")+
+          '</span>'+
+          '</div>');
+      } else {
+        datatable.fnAddData(item_list);
+      }
     }
   });
 }
 
-function update_provision_vms_datatable(datatable) {
-  OpenNebula.VM.list({
-    timeout: true,
-    success: function (request, item_list){
-      datatable.fnClearTable(false);
-      datatable.fnAddData(item_list);
-    }
-  });
+function update_provision_vms_datatable(datatable, timeout) {
+  datatable.html('<div class="text-center">'+
+    '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+      '<i class="fa fa-cloud fa-stack-2x"></i>'+
+      '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+    '</span>'+
+    '<br>'+
+    '<br>'+
+    '<span style="font-size: 18px; color: #999">'+
+      tr("")+
+    '</span>'+
+    '</div>');
+
+  setTimeout( function(){
+    OpenNebula.VM.list({
+      timeout: true,
+      success: function (request, item_list){
+        datatable.fnClearTable(true);
+        if (item_list.length == 0) {
+          datatable.html('<div class="text-center">'+
+            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+            '</span>'+
+            '<br>'+
+            '<br>'+
+            '<span style="font-size: 18px; color: #999">'+
+              tr("You have not created any Virtual Machine yet")+
+            '</span>'+
+            '</div>');
+        } else {
+          datatable.fnAddData(item_list);
+        }
+      }
+    })
+  }, timeout );
 }
 
 // @params
@@ -613,6 +957,40 @@ function get_provision_vm_state(data) {
   return {
     color: state_color,
     str: state_str
+  }
+}
+
+function get_provision_disk_image(data) {
+  var disks = []
+  if ($.isArray(data.TEMPLATE.DISK))
+      disks = data.TEMPLATE.DISK
+  else if (!$.isEmptyObject(data.TEMPLATE.DISK))
+      disks = [data.TEMPLATE.DISK]
+
+  if (disks.length > 0) {
+    return '<i class="fa fa-fw fa-download"></i>' + disks[0].IMAGE;
+  } else {
+    return '';
+  }
+}
+
+function get_provision_ips(data) {
+  var nics = []
+  if ($.isArray(data.TEMPLATE.NIC))
+      nics = data.TEMPLATE.NIC
+  else if (!$.isEmptyObject(data.TEMPLATE.NIC))
+      nics = [data.TEMPLATE.NIC]
+
+  if (nics.length > 0) {
+    var ips = [];
+    $.each(nics, function(index, nic){
+      if (nic.IP)
+        ips.push(nic.IP);
+    })
+
+    return '<i class="fa fa-fw fa-globe"></i>' + ips.join(', ');
+  } else {
+    return '';
   }
 }
 
@@ -745,21 +1123,24 @@ function update_provision_vm_info(data) {
       '</li>'+
       '<li>'+
         '<span>'+
-          '<i class="fa fa-fw fa-download"></i>'+
-          'Ubuntu 12.04'+
+          get_provision_disk_image(data) +
         '</span>'+
       '</li>'+
       '<li>'+
         '<span>'+
-          '<i class="fa fa-fw fa-globe"/>'+
-          '192.168.1.1'+
+          get_provision_ips(data) +
         '</span>'+
       '</li>'+
       '<li class="right">'+
+        '<span style="color: #afafaf; font-size:14px">'+
+          "ID: " +
+          data.ID+
+        '</span>' +
       '</li>'+
     '</ul>');
 
   $("#provision_info_vm_state").html('<span class="'+ state.color +'-color">'+
+      '<i class="fa fa-fw fa-square"/>&emsp;'+
       state.str+
     '</span>'+
     '<span style="color: #999; font-size:14px" class="right" >'+
@@ -789,12 +1170,64 @@ $(document).ready(function(){
 
     showTab('provision-tab');
 
+    $("#provision_logout").click(function(){
+        OpenNebula.Auth.logout({
+          success: function(){
+            window.location.href = "login";
+          }
+        });
+
+        return false;
+    });
+
+    //
+    // User Info
+    //
+
+    $("#provision_user_info_button").on("click", function(){
+      show_provision_user_info();
+    });
+
+    $("#provision_user_info").on("click", "#provision_user_info_refresh_button", function(){
+      show_provision_user_info();
+    });
+
+    $("#provision_change_password_form").submit(function(){
+      var pw = $('#provision_new_password', this).val();
+      var confirm_password = $('#provision_new_confirm_password', this).val();
+
+      if (!pw.length){
+          notifyError(tr("Fill in a new password"));
+          return false;
+      }
+
+      if (pw !== confirm_password){
+          notifyError(tr("Passwords do not match"));
+          return false;
+      }
+
+      Sunstone.runAction("Provision.User.passwd", "-1", pw);
+      return false;
+    });
+
+    $("#provision_add_ssh_key_form").submit(function(){
+      var keypair = $('#provision_ssh_key', this).val();
+
+      if (!keypair.length){
+          notifyError(tr("You have to provide an SSH key"));
+          return false;
+      }
+
+      var template_str = "SSH_PUBLIC_KEY=" + keypair
+      Sunstone.runAction("Provision.User.update_template", "-1", template_str);
+      return false;
+    });
 
     //
     // Create VM
     //
 
-    var provision_templates_datatable = $('#provision_templates_table').dataTable({
+    provision_templates_datatable = $('#provision_templates_table').dataTable({
       "iDisplayLength": 6,
       "sDom" : '<"H">t<"F"p>',
       "aoColumnDefs": [
@@ -818,15 +1251,15 @@ $(document).ready(function(){
                 data.NAME+
               '</li>'+
               '<li class="provision-bullet-item">'+
+                '<span style="font-size: 40px">'+
                 '<i class="fa fa-fw fa-laptop"/>&emsp;'+
-                'x'+data.TEMPLATE.CPU+' - '+
-                ((data.TEMPLATE.MEMORY > 1000) ?
-                  (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
-                  (data.TEMPLATE.MEMORY+'MB'))+
-              '</li>'+
-              '<li class="provision-bullet-item">'+
-                '<i class="fa fa-fw fa-hdd-o"/>&emsp;'+
-                "500GB DISK"+
+                '<span style="vertical-align: middle; font-size:14px">'+
+                  'x'+data.TEMPLATE.CPU+' - '+
+                  ((data.TEMPLATE.MEMORY > 1000) ?
+                    (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
+                    (data.TEMPLATE.MEMORY+'MB'))+
+                '</span>'+
+                '</span>'+
               '</li>'+
               '<li class="provision-description">'+
                 (data.TEMPLATE.DESCRIPTION || '...')+
@@ -840,7 +1273,7 @@ $(document).ready(function(){
 
     update_provision_templates_datatable(provision_templates_datatable);
 
-    var provision_create_vm_images_datatable = $('#provision_create_vm_images_table').dataTable({
+    provision_create_vm_images_datatable = $('#provision_create_vm_images_table').dataTable({
       "iDisplayLength": 6,
       "sDom" : '<"H">t<"F"p>',
       "aoColumnDefs": [
@@ -876,8 +1309,9 @@ $(document).ready(function(){
     });
 
     update_provision_images_datatable(provision_create_vm_images_datatable);
+    provision_create_vm_images_datatable.fnFilter("^(?!" + username + "$)", 2, true, false)
 
-    var provision_create_vm_snapshots_datatable = $('#provision_create_vm_snapshots_table').dataTable({
+    provision_create_vm_snapshots_datatable = $('#provision_create_vm_snapshots_table').dataTable({
       "iDisplayLength": 6,
       "sDom" : '<"H">t<"F"p>',
       "aaSorting"  : [[0, "desc"]],
@@ -904,7 +1338,7 @@ $(document).ready(function(){
               '<li class="provision-title">'+
                 data.NAME +
               '</li>'+
-              '<li class="provision-bullet-item">'+'<i class="fa fa-fw fa-camera-retro" style="font-size:40px;"/>'+'</li>'+
+              '<li class="provision-bullet-item">'+'<i class="fa fa-fw fa-camera" style="font-size:40px;"/>'+'</li>'+
               '<li class="provision-description" style="font-size:12px; color: #999; padding-bottom:10px">'+
                 '<i class="fa fa-fw fa-clock-o"/>'+
                 _format_date(data.REGTIME)+
@@ -955,9 +1389,8 @@ $(document).ready(function(){
       return false;
     })
 
-    $("#provision_create_vm_button").on("click", function(){
-      $(".section_content").hide();
-      $("#provision_create_vm").fadeIn();
+    $(".provision_create_vm_button").on("click", function(){
+      show_provision_create_vm();
     });
 
 
@@ -966,7 +1399,7 @@ $(document).ready(function(){
     //
 
     provision_images_datatable = $('#provision_images_table').dataTable({
-      "iDisplayLength": 6,
+      "iDisplayLength": 8,
       "sDom" : '<"H">t<"F"p>',
       "aaSorting"  : [[0, "desc"]],
       "aoColumnDefs": [
@@ -990,7 +1423,7 @@ $(document).ready(function(){
         $("#provision_images_ul").append('<li>'+
             '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
               '<li class="provision-title text-left">'+
-                data.NAME + '<a class="provision_confirm_delete_image_button" style="color:#555" href="#"><i style="color:#0099c3" class="fa fa-fw fa-lg fa-trash-o right"/></a>'+
+                data.NAME + '<a class="provision_confirm_delete_image_button" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-trash-o right only-on-hover"/></a>'+
               '</li>'+
               //'<li class="provision-bullet-item text-left" style="margin-left:20px">'+
               //  '<i class="fa fa-fw fa-laptop"/>&emsp;'+
@@ -1006,11 +1439,12 @@ $(document).ready(function(){
               //'<li class="provision-bullet-item text-left" style="margin-left:20px">'+
               //  '192.168.1.1'+
               //'</li>'+
-              '<li class="provision-bullet-item text-left" style="font-size:12px; color: #999; padding-bottom:10px">'+
+              '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; padding-bottom:10px">'+
                 '<i class="fa fa-fw fa-clock-o"/>'+
                 _format_date(data.REGTIME)+
                 " " + tr("from VM") + ": " + (data.TEMPLATE.SAVED_VM_ID||'-') +
-                '<span class="'+ state.color +'-color right">'+
+                '<span class="'+ state.color +'-color left">'+
+                  '<i class="fa fa-fw fa-square"/>&emsp;'+
                   state.str+
                 '</span>'+
               '</li>'+
@@ -1028,11 +1462,11 @@ $(document).ready(function(){
     provision_images_datatable.fnFilter("^" + username + "$", 2, true, false)
 
     $("#provision_images_list_button").on("click", function(){
-      show_provision_image_list();
+      show_provision_image_list(0);
     });
 
     $("#provision_list_images").on("click", "#provision_images_list_refresh_button", function(){
-      show_provision_image_list();
+      show_provision_image_list(0);
     });
 
 
@@ -1092,27 +1526,26 @@ $(document).ready(function(){
         $("#provision_vms_ul").append('<li>'+
             '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
               '<li class="provision-title text-left" style="padding-bottom: 5px">'+
-                '<a class="provision_info_vm_button" style="color:#555" href="#"><i style="color:#0099c3" class="fa fa-fw fa-lg fa-plus-square-o right"/>'+ data.NAME + '</a>'+
+                '<a class="provision_info_vm_button" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-sign-in right only-on-hover"/>'+ data.NAME + '</a>'+
               '</li>'+
-              '<li class="provision-bullet-item text-left" style="margin-left:10px">'+
+              '<li class="provision-bullet-item text-left" style="margin-left:15px">'+
                 '<i class="fa fa-fw fa-laptop"/>&emsp;'+
                 'x'+data.TEMPLATE.CPU+' - '+
                 ((data.TEMPLATE.MEMORY > 1000) ?
                   (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
                   (data.TEMPLATE.MEMORY+'MB'))+
               '</li>'+
-              '<li class="provision-bullet-item text-left" style="margin-left:10px">'+
-                '<i class="fa fa-fw fa-download"></i>'+
-                'Ubuntu 12.04'+
+              '<li class="provision-bullet-item text-left" style="margin-left:15px">'+
+                get_provision_disk_image(data) +
               '</li>'+
-              '<li class="provision-bullet-item text-left" style="margin-left:10px">'+
-                '<i class="fa fa-fw fa-globe"/>'+
-                '192.168.1.1'+
+              '<li class="provision-bullet-item text-left" style="margin-left:15px">'+
+                get_provision_ips(data) +
               '</li>'+
-              '<li class="provision-bullet-item text-left" style="font-size:12px; color: #999; margin-top:10px; padding-bottom:10px">'+
+              '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; margin-top:15px; padding-bottom:10px">'+
                 '<i class="fa fa-fw fa-clock-o"/>'+
                 _format_date(data.STIME)+
-                '<span class="'+ state.color +'-color right">'+
+                '<span class="'+ state.color +'-color left">'+
+                  '<i class="fa fa-fw fa-square"/>&emsp;'+
                   state.str+
                 '</span>'+
               '</li>'+
@@ -1130,11 +1563,11 @@ $(document).ready(function(){
 
 
     $("#provision_vms_list_button").on("click", function(){
-      show_provision_vm_list();
+      show_provision_vm_list(0);
     });
 
     $("#provision_list_vms").on("click", "#provision_vms_list_refresh_button", function(){
-      show_provision_vm_list();
+      show_provision_vm_list(0);
     });
 
     //
@@ -1166,7 +1599,7 @@ $(document).ready(function(){
               '<input type="text" id="provision_snapshot_name" placeholder="'+tr("Image Name")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important; margin: 0px"/>'+
             '</div>'+
             '<div class="large-3 columns">'+
-              '<a href"#" id="provision_snapshot_create_button" class="success button large-12 radius right" style="margin-right: 15px">'+tr("Take Snapshot")+'</a>'+
+              '<a href"#" id="provision_snapshot_create_button" class="success button large-12 radius right" style="margin-right: 15px">'+tr("Save Image")+'</a>'+
             '</div>'+
           '</div>'+
           '<a href="#" class="close" style="top: 20px">&times;</a>'+

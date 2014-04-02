@@ -37,7 +37,7 @@ $row-width: rem-calc(1200);
 
 // We use these to control various global styles
 // $body-bg: #fff;
-$body-font-color: #333;
+$body-font-color: #555;
 $body-font-family: "Open Sans", sans-serif;
 // $body-font-weight: normal;
 // $body-font-style: normal;
@@ -218,10 +218,10 @@ $h3-font-size: rem-calc(24);
 // $include-html-accordion-classes: $include-html-classes;
 
 // $accordion-navigation-padding: rem-calc(16);
-// $accordion-navigation-bg-color: #efefef  ;
+$accordion-navigation-bg-color: #f7f7f7  ;
 // $accordion-navigation-hover-bg-color: scale-color($accordion-navigation-bg-color, $lightness: -5%);
-// $accordion-navigation-active-bg-color: scale-color($accordion-navigation-bg-color, $lightness: -3%);
-// $accordion-navigation-font-color: #222;
+$accordion-navigation-active-bg-color: #fff;
+$accordion-navigation-font-color: #333;
 // $accordion-navigation-font-size: rem-calc(16);
 // $accordion-navigation-font-family: $body-font-family;
 

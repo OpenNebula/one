@@ -668,6 +668,7 @@ div.dataTables_scrollFoot table {
     @include pricing-table-cta;
   }
 
+
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
@@ -681,24 +682,18 @@ div.dataTables_scrollFoot table {
   }
 
   &.hoverable:not(.selected):hover {
-
-    li:not(.provision-title) {
-      color: #333;
-    }
-
-    li {
-      background: scale-color(#fff, $lightness: -10%) !important;
-    }
-
     cursor: pointer;
   }
 
+  .only-on-hover {
+    color: #cfcfcf !important
+  }
 
   &:not(.selected):hover {
     border-color: #cfcfcf !important;
 
-    .provision-title {
-      color: #333 !important;
+    .only-on-hover {
+      color: #0099c3 !important
     }
   }
 
@@ -765,4 +760,37 @@ div.dataTables_scrollFoot table {
 
 .running-color {
   color: #368a54;
+}
+
+#provision_user_info_quotas_div {
+  fieldset {
+    margin: 1.125rem 0;
+  }
+
+  .progress {
+    height: 1.5625rem !important;
+    border: none;
+    background-color: #dfdfdf;
+    padding: 0px;
+  }
+
+  .progress-text {
+    color: #333 !important;
+    margin-top: 5px;
+  }
+}
+
+.provision-input {
+  border-color: #dfdfdf;
+  border-radius: 3px;
+}
+
+.accordion {
+  a.accordion-a {
+   border: 1px solid #efefef;
+   background: #f7f7f7;
+   border-radius: 5px;
+   color: #777 !important;
+   box-shadow: 0px 1px #dfdfdf;
+  }
 }
