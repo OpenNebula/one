@@ -183,6 +183,7 @@ class OneDB
 
             timeb = Time.now
 
+            puts
             puts "Total time: #{"%0.02f" % (timeb - timea).to_s}s" if ops[:verbose]
 
             return 0
