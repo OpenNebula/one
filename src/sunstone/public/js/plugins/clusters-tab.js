@@ -35,7 +35,7 @@ var host_datatable_table_tmpl='<thead>\
           <th>' + tr("Last monitored on") + '</th>\
         </tr>\
       </thead>\
-      <tbody id="tbodyhosts">\
+      <tbody id="tbody_cluster_hosts">\
       </tbody>'
 
 var vnet_datatable_table_tmpl='<thead>\
@@ -51,7 +51,7 @@ var vnet_datatable_table_tmpl='<thead>\
         <th>'+tr("Leases")+'</th>\
       </tr>\
     </thead>\
-    <tbody id="tbodyvnetworks">\
+    <tbody id="tbody_cluster_vnetworks">\
     </tbody>'
 
 var datastore_datatable_table_tmpl='<thead>\
@@ -69,7 +69,7 @@ var datastore_datatable_table_tmpl='<thead>\
         <th>'+tr("Type")+'</th>\
       </tr>\
     </thead>\
-    <tbody id="tbodydatastores">\
+    <tbody id="tbody_cluster_datastores">\
     </tbody>'
 
 

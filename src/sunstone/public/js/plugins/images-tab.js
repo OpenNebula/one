@@ -780,7 +780,7 @@ function updateImageInfo(request,img){
                   <th>'+tr("VNC")+'</th>\
                 </tr>\
               </thead>\
-              <tbody id="tbodyvmachines">\
+              <tbody id="tbody_image_vmachines">\
               </tbody>\
             </table>\
           </div>\

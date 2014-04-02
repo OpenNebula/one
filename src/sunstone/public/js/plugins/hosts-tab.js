@@ -769,7 +769,7 @@ function updateHostInfo(request,host){
                   <th>'+tr("VNC")+'</th>\
                 </tr>\
               </thead>\
-              <tbody id="tbodyvmachines">\
+              <tbody id="tbody_host_vmachines">\
               </tbody>\
             </table>\
           </div>\
