@@ -20,6 +20,7 @@ var ServiceTemplate = {
     "resource" : 'DOCUMENT',
     "path"     : 'service_template',
     "create": function(params){
+        params.cache_name = "SERVICE_TEMPLATE";
         OpenNebula.Action.create(params, ServiceTemplate.resource, ServiceTemplate.path);
     },
 
@@ -40,6 +41,7 @@ var ServiceTemplate = {
                                         ServiceTemplate.path);
     },
     "del": function(params){
+        params.cache_name = "SERVICE_TEMPLATE";
         OpenNebula.Action.del(params,ServiceTemplate.resource, ServiceTemplate.path);
     },
     "list" : function(params){
@@ -390,6 +392,9 @@ var service_template_actions = {
     "ServiceTemplate.instantiate" : {
         type: "multiple",
         call: ServiceTemplate.instantiate,
+        callback: function(req){
+            OpenNebula.Helper.clear_cache("SERVICE");
+        },
         elements: serviceTemplateElements,
         error: onError,
         notify: true

@@ -299,6 +299,11 @@ var OpenNebula = {
 
                 return(p_pool);
             }
+        },
+
+        "clear_cache" : function(cache_name){
+            list_cache[cache_name] = null;
+            //console.log(cache_name+" cache cleaned");
         }
     },
 
@@ -312,6 +317,7 @@ var OpenNebula = {
             var data = params.data;
             var request = OpenNebula.Helper.request(resource,"create", data);
             var req_path = path ? path : resource.toLowerCase();
+            var cache_name = params.cache_name ? params.cache_name : resource;
 
             $.ajax({
                 url: req_path,
@@ -319,6 +325,8 @@ var OpenNebula = {
                 dataType: "json",
                 data: JSON.stringify(data),
                 success: function(response){
+                    OpenNebula.Helper.clear_cache(cache_name);
+
                     return callback ? callback(request, response) : null;
                 },
                 error: function(response){
@@ -334,11 +342,14 @@ var OpenNebula = {
             var id = params.data.id;
             var request = OpenNebula.Helper.request(resource,"delete", id);
             var req_path = path ? path : resource.toLowerCase();
+            var cache_name = params.cache_name ? params.cache_name : resource;
 
             $.ajax({
                 url: req_path + "/" + id,
                 type: "DELETE",
                 success: function(){
+                    OpenNebula.Helper.clear_cache(cache_name);
+
                     return callback ? callback(request) : null;
                 },
                 error: function(response){
@@ -360,6 +371,10 @@ var OpenNebula = {
             var force = false;
             if (options){
                 force = options.force;
+            }
+
+            if (force){
+                OpenNebula.Helper.clear_cache(cache_name);
             }
 
             if( !force &&

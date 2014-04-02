@@ -29,6 +29,7 @@ var Service = {
                                         Service.path);
     },
     "del": function(params){
+        params.cache_name = "SERVICE";
         OpenNebula.Action.del(params,Service.resource, Service.path);
     },
     "list" : function(params){

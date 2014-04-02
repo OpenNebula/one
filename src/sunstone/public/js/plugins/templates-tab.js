@@ -360,6 +360,9 @@ var template_actions = {
     "Template.instantiate" : {
         type: "multiple",
         call: OpenNebula.Template.instantiate,
+        callback: function(req){
+            OpenNebula.Helper.clear_cache("VM");
+        },
         elements: templateElements,
         error: onError,
         notify: true
@@ -368,6 +371,9 @@ var template_actions = {
     "Template.instantiate_quiet" : {
         type: "single",
         call: OpenNebula.Template.instantiate,
+        callback: function(req){
+            OpenNebula.Helper.clear_cache("VM");
+        },
         error: onError,
         notify: false
     },
@@ -384,10 +390,9 @@ var template_actions = {
              {
                 Sunstone.runAction("Template.instantiate", nodes);
              }
-
-             Sunstone.runAction("VM.refresh");
          }
      },
+/*
      "Template.instantiate_and_merge" : {
          type: "custom",
          call: function(){
@@ -400,10 +405,9 @@ var template_actions = {
              {
                 notifyError(tr("Please select only one template in the table"))
              }
-
-             Sunstone.runAction("VM.refresh");
          }
      },
+*/
     "Template.chown" : {
         type: "multiple",
         call: OpenNebula.Template.chown,
