@@ -409,14 +409,13 @@ static int mkfs_action(istringstream& is,
         image->set_state(Image::READY);
     }
 
-    NebulaLog::log("ImM", Log::INFO, "Image created and ready to use");
-
     ipool->update(image);
 
     image->unlock();
 
     if ( !is_saving )
     {
+        NebulaLog::log("ImM", Log::INFO, "Image created and ready to use");
         return ds_id;
     }
 

@@ -41,13 +41,19 @@ done < <($XPATH     $DISK_XPATH/DRIVER \
                     $DISK_XPATH/TYPE \
                     $DISK_XPATH/READONLY \
                     $DISK_XPATH/CACHE \
-                    $DISK_XPATH/SOURCE)
+                    $DISK_XPATH/SOURCE \
+                    $DISK_XPATH/CEPH_HOST \
+                    $DISK_XPATH/CEPH_SECRET \
+                    $DISK_XPATH/CEPH_USER)
 
 DRIVER="${XPATH_ELEMENTS[j++]:-$DEFAULT_TYPE}"
 TYPE="${XPATH_ELEMENTS[j++]}"
 READONLY="${XPATH_ELEMENTS[j++]}"
 CACHE="${XPATH_ELEMENTS[j++]}"
 IMG_SRC="${XPATH_ELEMENTS[j++]}"
+CEPH_HOST="${XPATH_ELEMENTS[j++]}"
+CEPH_SECRET="${XPATH_ELEMENTS[j++]}"
+CEPH_USER="${XPATH_ELEMENTS[j++]}"
 
 TYPE=$(echo "$TYPE"|tr A-Z a-z)
 
@@ -68,6 +74,33 @@ rbd)
     SOURCE="rbd"
     SOURCE_ARGS="name='$IMG_SRC'"
     DEVICE="disk"
+
+    for host in $CEPH_HOST ; do
+        BCK_IFS=$IFS
+        IFS=':'
+
+        unset k HOST_PARTS
+
+        for part in $host ; do
+            HOST_PARTS[k++]="$part"
+        done
+
+        SOURCE_HOST="$SOURCE_HOST<host name='${HOST_PARTS[0]}'"
+
+        if [ -n "${HOST_PARTS[1]}" ]; then
+            SOURCE_HOST="$SOURCE_HOST port='${HOST_PARTS[1]}'"
+        fi
+
+        SOURCE_HOST="$SOURCE_HOST/>"
+
+        IFS=$BCK_IFS
+    done
+
+    if [ -n "$CEPH_USER" -a -n "$CEPH_SECRET" ]; then
+        AUTH="<auth username='$CEPH_USER'>\
+                <secret type='ceph' uuid='$CEPH_SECRET'/>\
+              </auth>"
+    fi
     ;;
 *)
     #NOTE: This includes TYPE=FS and TYPE=SWAP
@@ -92,7 +125,10 @@ ATTACH_FILE="$SOURCE.attach"
 cat <<EOF > $ATTACH_FILE
 <disk type='$TYPE_XML' device='$DEVICE'>
   <driver name='qemu' type='$DRIVER' $CACHE/>
-  <source $TYPE_SOURCE='$SOURCE' $SOURCE_ARGS/>
+  <source $TYPE_SOURCE='$SOURCE' $SOURCE_ARGS>
+  $SOURCE_HOST
+  </source>
+  $AUTH
   <target dev='$TARGET'/>
   $READONLY
 </disk>
