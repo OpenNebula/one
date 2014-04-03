@@ -79,10 +79,9 @@ module OpenNebula
         alias_method :info!, :info
 
         # Creates a group based in a group definition hash
-        #   group_hash[:name]
-        #   group_hash[:admin_group]
-        #   group_hash[:user][:name]
-        #   group_hash[:user][:password]
+        #   group_hash[:name] the group name
+        #   group_hash[:group_admin] the admin user definition hash, see def
+        #   create_admin_user function description for details.
         #   group_hash[:resource_providers]
         #   group_hash[:resource_providers][:zone_id]
         #   group_hash[:resource_providers][:cluster_id]
@@ -94,7 +93,7 @@ module OpenNebula
             end
 
             if group_hash[:group_admin]
-                if group_hash[:group_admin][:name] and !group_hash[:group_admin][:password]
+                if group_hash[:group_admin][:name] && !group_hash[:group_admin][:password]
                     error_msg = "Admin user password not defined"
                     return OpenNebula::Error.new(error_msg)
                 end
@@ -274,12 +273,12 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         def create_admin_user(gdef)
 
-            return nil if !gdef[:group_admin] or !gdef[:group_admin][:name]
+            return nil if gdef[:group_admin].nil? || gdef[:group_admin][:name].nil?
 
             # Create group admin
-            uadmin  = gdef[:group_admin][:name] 
-            upasswd = gdef[:group_admin][:password] 
-            udriver = gdef[:group_admin][:auth_driver] 
+            uadmin  = gdef[:group_admin][:name]
+            upasswd = gdef[:group_admin][:password]
+            udriver = gdef[:group_admin][:auth_driver]
 
             if !uadmin.nil? && !upasswd.nil?
 
