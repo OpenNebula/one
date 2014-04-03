@@ -243,8 +243,19 @@ var group_actions = {
 
     "Group.update_dialog" : {
         type: "single",
-        call: popUpUpdateGroupDialog
+        call: initUpdateGroupDialog
     },    
+
+    "Group.show_to_update" : {
+        type: "single",
+        call: OpenNebula.Group.show,
+        callback: function(request, response) {
+            popUpUpdateGroupDialog(
+                response.GROUP,
+                $create_group_dialog);
+        },
+        error: onError
+    },
 
     "Group.delete" : {
         type: "multiple",
@@ -1048,8 +1059,8 @@ var selected_group_clusters = {};
 var group_clusters_row_hash = {};
 
 var add_resource_tab = function(zone_id, zone_name, dialog, id_suffix, group) {
-    var str_zone_tab_id  = 'zone' + zone_id;
-    var str_datatable_id = 'datatable_group_clusters_zone' + zone_id;
+    var str_zone_tab_id  = dialog.attr('id') + '_zone' + zone_id;
+    var str_datatable_id = dialog.attr('id') + '_datatable_group_clusters_zone_' + zone_id;
 
     if (id_suffix)
     {
@@ -1101,6 +1112,10 @@ function setupCreateGroupDialog(){
     dialog.html(create_group_tmpl);
     dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
     $(document).foundation();
+
+    // Hide update buttons
+    $('#update_group_submit',$create_group_dialog).hide();
+    $('#update_group_header',$create_group_dialog).hide();
 
     setupTips($create_group_dialog);
 
@@ -1246,28 +1261,102 @@ function setupCreateGroupDialog(){
 function popUpCreateGroupDialog(){
     $create_group_dialog.foundation().foundation('reveal', 'open');
     $("input#name",$create_group_dialog).focus();
-
-    // Activate create button
-    $('#create_group_submit',$create_group_dialog).show();
-    $('#update_group_submit',$create_group_dialog).hide();
-    $('#create_group_header',$create_group_dialog).show();
-    $('#update_group_header',$create_group_dialog).hide();
-
-    return false;
 }
 
-function popUpUpdateGroupDialog(){
-    $create_group_dialog.foundation().foundation('reveal', 'open');
+//Prepares the dialog to update
+function setupUpdateGroupDialog(){
+    if (typeof($update_group_dialog) !== "undefined"){
+        $update_group_dialog.html("");
+    }
 
-    // Activate update button
-    $('#create_group_submit',$create_group_dialog).hide();
-    $('#update_group_submit',$create_group_dialog).show();
-    $('#create_group_header',$create_group_dialog).hide();
-    $('#update_group_header',$create_group_dialog).show();
-    
-    // Remove unwanted tabs (only leave )
+    dialogs_context.append('<div id="update_group_dialog"></div>');
+    $update_group_dialog = $('#update_group_dialog',dialogs_context);
+    var dialog = $update_group_dialog;
 
-    return false;
+    dialog.html(create_group_tmpl);
+    dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
+    $(document).foundation();
+
+    setupTips($update_group_dialog);
+
+    // Hide create button
+    $('#create_group_submit',$update_group_dialog).hide();
+    $('#create_group_header',$update_group_dialog).hide();
+    $('#create_group_reset_button',$update_group_dialog).hide();
+
+    $("input#name", dialog).attr("disabled", "disabled");
+
+    OpenNebula.Zone.list({
+        timeout: true,
+        success: function (request, obj_list){
+            $.each(obj_list,function(){
+                add_resource_tab(this.ZONE.ID, this.ZONE.NAME, dialog);
+            });
+        },
+        error: onError
+    });
+}
+
+function initUpdateGroupDialog(){
+    var selected_nodes = getSelectedNodes(dataTable_groups);
+
+    if ( selected_nodes.length != 1 )
+    {
+        notifyMessage("Please select one (and just one) group to update.");
+        return false;
+    }
+
+    // Get proper id
+    var group_id = ""+selected_nodes[0];
+
+    Sunstone.runAction("Group.show_to_update", group_id);
+}
+
+function popUpUpdateGroupDialog(group, dialog)
+{
+    setupUpdateGroupDialog();
+
+    var dialog = $update_group_dialog.foundation()
+
+    dialog.foundation('reveal', 'open');
+
+    $("input#name",$update_group_dialog).val(group.NAME);
+
+    var views_str = "";
+
+    if (group.TEMPLATE.SUNSTONE_VIEWS){
+        views_str = group.TEMPLATE.SUNSTONE_VIEWS;
+
+        var views = views_str.split(",");
+        $.each(views, function(){
+            $('input[id^="group_view"][value="'+this+'"]', dialog).attr('checked','checked');
+        });
+    }
+
+
+    $(dialog).off("click", 'button#update_group_submit');
+    $(dialog).on("click", 'button#update_group_submit', function(){
+        var new_views_str = "";
+        var separator     = "";
+
+        $.each($('[id^="group_view"]:checked', dialog), function(){
+            new_views_str += (separator + $(this).val());
+            separator = ",";
+        });
+
+        if (new_views_str != views_str){
+            var template_json = group.TEMPLATE;
+            delete template_json["SUNSTONE_VIEWS"];
+            template_json["SUNSTONE_VIEWS"] = new_views_str;
+
+            var template_str = convert_template_to_string(template_json);
+
+            Sunstone.runAction("Group.update_template",group.ID,template_str);
+        }
+
+        return false;
+    });
+
 }
 
 // Add groups quotas dialog and calls common setup() in sunstone utils.
