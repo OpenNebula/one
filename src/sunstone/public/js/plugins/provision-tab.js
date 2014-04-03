@@ -131,8 +131,8 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
     '<div class="large-10 large-centered columns">'+
       '<dl class="tabs text-center" data-tab style="width: 100%">'+
         '<dd class="active" style="width: 33%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_info_ssh_key"><i class="fa fa-fw fa-lg fa-key"/>&emsp;'+ tr("SSH Key") +'</a></dd>'+
-        '<dd style="width: 33%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_info_password"><i class="fa fa-fw fa-lg fa-lock"/>&emsp;'+ tr("Password") +'</a></dd>'+
         '<dd style="width: 33%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_info_quotas"><i class="fa fa-fw fa-lg fa-align-left"/>&emsp;'+ tr("Quotas") +'</a></dd>'+
+        '<dd style="width: 33%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_info_settings"><i class="fa fa-fw fa-lg fa-cogs"/>&emsp;'+ tr("Settings") +'</a></dd>'+
       '</dl>'+
       '<br>'+
     '</div>'+
@@ -142,28 +142,21 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
       '<form id="provision_add_ssh_key_form">'+
         '<div class="row">'+
           '<div class="large-8 large-centered columns">'+
+            '<div class="text-center">'+
+              '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+                '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                '<i class="fa fa-key fa-stack-1x fa-inverse"></i>'+
+              '</span>'+
+              '<br>'+
+              '<p style="font-size: 18px; color: #999">'+
+                tr("You can add an SSH key to your account which will be used as the preferred method of access for new Virtual Machines")+
+              '</p>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="row">'+
+          '<div class="large-8 large-centered columns">'+
             '<dl class="accordion" data-accordion>'+
-              '<dd class="active">'+
-                '<a href="#provision_info_ssh_key_accordion" style="display: none">'+
-                  tr("info SSH Key")+
-                '</a>'+
-                '<div id="provision_info_ssh_key_accordion" class="content active">'+
-                  '<div class="row">'+
-                    '<div class="large-12 large-centered columns">'+
-                      '<div class="text-center">'+
-                        '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-                          '<i class="fa fa-cloud fa-stack-2x"></i>'+
-                          '<i class="fa fa-key fa-stack-1x fa-inverse"></i>'+
-                        '</span>'+
-                        '<br>'+
-                        '<p style="font-size: 18px; color: #999">'+
-                          tr("You can add an SSH key to your account which will be used as the preferred method of access for new Virtual Machines")+
-                        '</p>'+
-                      '</div>'+
-                    '</div>'+
-                  '</div>'+
-                '</div>'+
-              '</dd>'+
               '<dd >'+
                 '<a href="#provision_add_ssh_key_accordion" class="text-center accordion-a">'+
                   tr("Add SSH Key")+
@@ -188,65 +181,143 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
         '</div>'+
       '</form>'+
     '</div>'+
-    '<div class="content" id="provision_info_password">'+
-      '<form id="provision_change_password_form">'+
-        '<div class="row">'+
-          '<div class="large-8 large-centered columns">'+
-            '<dl class="accordion" data-accordion>'+
-              '<dd class="active">'+
-                '<a href="#provision_info_password_accordion" style="display: none">'+
-                  tr("info SSH Key")+
-                '</a>'+
-                '<div id="provision_info_ssh_key_accordion" class="content active">'+
-                  '<div class="row">'+
-                    '<div class="large-12 large-centered columns">'+
-                      '<div class="text-center">'+
-                        '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-                          '<i class="fa fa-cloud fa-stack-2x"></i>'+
-                          '<i class="fa fa-lock fa-stack-1x fa-inverse"></i>'+
-                        '</span>'+
-                        '<br>'+
-                        '<p style="font-size: 18px; color: #999">'+
-                          tr("This will change the password of your account")+
-                        '</p>'+
-                      '</div>'+
-                    '</div>'+
-                  '</div>'+
-                '</div>'+
-              '</dd>'+
-              '<dd>'+
-                '<a href="#provision_update_password_accordion" class="text-center accordion-a">'+
-                  tr("Update Password")+
-                '</a>'+
-                '<div id="provision_update_password_accordion" class="content">'+
-                  '<div class="row">'+
-                    '<div class="large-12 columns">'+
-                      '<input type="password" id="provision_new_password" class="provision-input" placeholder="'+tr("New Password")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
-                    '</div>'+
-                  '</div>'+
-                  '<div class="row">'+
-                    '<div class="large-12 columns">'+
-                      '<input type="password" id="provision_new_confirm_password" class="provision-input" placeholder="'+tr("Confirm Password")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
-                      '<br>'+
-                    '</div>'+
-                  '</div>'+
-                  '<div class="row">'+
-                    '<div class="large-12 columns">'+
-                      '<button href"#" type="submit" class="button large radius large-12 small-12">'+tr("Change Password")+'</button>'+
-                    '</div>'+
-                  '</div>'+
-                '</div>'+
-              '</dd>'+
-            '</dl>'+
-          '</div>'+
-        '</div>'+
-      '</form>'+
-    '</div>'+
     '<div class="content" id="provision_info_quotas">'+
       '<div class="row">'+
         '<div id="provision_user_info_quotas_div" class="large-9 large-centered columns">'+
         '</div>'+
       '</div>'+
+    '</div>'+
+    '<div class="content" id="provision_info_settings">'+
+      '<div class="row">'+
+        '<div class="large-8 large-centered columns">'+
+          '<div class="text-center">'+
+            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa fa-comments fa-stack-1x fa-inverse"></i>'+
+            '</span>'+
+            '<br>'+
+            '<p style="font-size: 18px; color: #999">'+
+              tr("This will change the language of your account")+
+            '</p>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+        '<div class="row">'+
+          '<div class="large-8 large-centered columns">'+
+            '<dl class="accordion" data-accordion>'+
+              '<dd>'+
+                '<a href="#provision_update_language_accordion" class="text-center accordion-a">'+
+                  tr("Change Language")+
+                '</a>'+
+                '<div id="provision_update_language_accordion" class="content">'+
+                  '<form id="provision_change_language_form">'+
+                    '<div class="row">'+
+                      '<div class="large-12 columns">'+
+                        '<select type="language" id="provision_new_language" class="provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;">'+
+                        language_options +
+                        '</select>'+
+                      '</div>'+
+                    '</div>'+
+                    '<div class="row">'+
+                      '<div class="large-12 columns">'+
+                        '<button href"#" type="submit" class="button large radius large-12 small-12">'+tr("Update Language")+'</button>'+
+                      '</div>'+
+                    '</div>'+
+                  '</form>'+
+                '</div>'+
+              '</dd>'+
+            '</dl>'+
+          '</div>'+
+        '</div>'+
+        '<br>'+
+        '<br>'+
+        '<div class="row">'+
+          '<div class="large-12 large-centered columns">'+
+            '<div class="text-center">'+
+              '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+                '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                '<i class="fa fa-lock fa-stack-1x fa-inverse"></i>'+
+              '</span>'+
+              '<br>'+
+              '<p style="font-size: 18px; color: #999">'+
+                tr("This will change the password of your account")+
+              '</p>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="row">'+
+          '<div class="large-8 large-centered columns">'+
+            '<dl class="accordion" data-accordion>'+
+              '<dd>'+
+                '<a href="#provision_update_password_accordion" class="text-center accordion-a">'+
+                  tr("Change Password")+
+                '</a>'+
+                '<div id="provision_update_password_accordion" class="content">'+
+                  '<form id="provision_change_password_form">'+
+                    '<div class="row">'+
+                      '<div class="large-12 columns">'+
+                        '<input type="password" id="provision_new_password" class="provision-input" placeholder="'+tr("New Password")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+                      '</div>'+
+                    '</div>'+
+                    '<div class="row">'+
+                      '<div class="large-12 columns">'+
+                        '<input type="password" id="provision_new_confirm_password" class="provision-input" placeholder="'+tr("Confirm Password")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+                        '<br>'+
+                      '</div>'+
+                    '</div>'+
+                    '<div class="row">'+
+                      '<div class="large-12 columns">'+
+                        '<button href"#" type="submit" class="button large radius large-12 small-12">'+tr("Update Password")+'</button>'+
+                      '</div>'+
+                    '</div>'+
+                  '</form>'+
+                '</div>'+
+              '</dd>'+
+            '</dl>'+
+          '</div>'+
+        '</div>'+
+        '<br>'+
+        '<br>'+
+        '<div class="row">'+
+          '<div class="large-8 large-centered columns">'+
+            '<div class="text-center">'+
+              '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+                '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                '<i class="fa fa-picture-o fa-stack-1x fa-inverse"></i>'+
+              '</span>'+
+              '<br>'+
+              '<p style="font-size: 18px; color: #999">'+
+                tr("This will change the view of your account")+
+              '</p>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="row">'+
+          '<div class="large-8 large-centered columns">'+
+            '<dl class="accordion" data-accordion>'+
+              '<dd>'+
+                '<a href="#provision_update_view_accordion" class="text-center accordion-a">'+
+                  tr("Change view")+
+                '</a>'+
+                '<div id="provision_update_view_accordion" class="content">'+
+                  '<form id="provision_change_view_form">'+
+                    '<div class="row">'+
+                      '<div class="large-12 columns">'+
+                        '<select id="provision_user_views_select" class="provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;">'+
+                        '</select>'+
+                      '</div>'+
+                    '</div>'+
+                    '<div class="row">'+
+                      '<div class="large-12 columns">'+
+                        '<button href"#" type="submit" class="button large radius large-12 small-12">'+tr("Update view")+'</button>'+
+                      '</div>'+
+                    '</div>'+
+                  '</form>'+
+                '</div>'+
+              '</dd>'+
+            '</dl>'+
+          '</div>'+
+        '</div>'+
     '</div>'+
   '</div>'+'</div>';
 
@@ -452,6 +523,7 @@ var provision_content = provision_user_info +
 var provision_tab = {
   list_header: '<img src="images/one_small_logo.png" style="height:40px">'+
     '<span class="right" style="font-size: 60%; color: #dfdfdf">'+
+      '<a href"#" class="provision_create_vm_button medium off-color" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-lg fa-plus-square"/>&emsp;'+tr("Create")+'</a>&emsp;|&emsp;'+
       '<a href"#" class="medium off-color" id="provision_vms_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-lg fa-th"/>&emsp;'+tr("Virtual Machines")+'</a>&emsp;|&emsp;'+
       '<a href"#" class="medium off-color" id="provision_images_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-lg fa-camera"/>&emsp;'+tr("Saved Images")+'</a>&emsp;|&emsp;'+
       '<a href"#" class="medium off-color" id="provision_user_info_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-lg fa-user"/>&emsp;'+config['display_name']+'</a>&emsp;|&emsp;'+
@@ -676,8 +748,7 @@ function show_provision_user_info() {
   Sunstone.runAction("Provision.User.show", "-1");
   $(".section_content").hide();
   $("#provision_user_info").fadeIn();
-  $("dd:not(.active) a[href='#provision_info_password_accordion']").trigger("click");
-  $("dd:not(.active) a[href='#provision_info_ssh_key_accordion']").trigger("click");
+  $("dd.active a", $("#provision_user_info")).trigger("click");
 }
 
 
@@ -713,7 +784,7 @@ function show_provision_user_info_callback(request, response) {
   $("#provision_user_info_quotas_div").html(quotas_html);
 
   var ssh_key = info.TEMPLATE.SSH_PUBLIC_KEY;
-  if (ssh_key.length) {
+  if (ssh_key && ssh_key.length) {
     $("#provision_ssh_key").val(ssh_key);
     $("#provision_add_ssh_key_button").hide();
     $("#provision_update_ssh_key_button").show();
@@ -721,6 +792,9 @@ function show_provision_user_info_callback(request, response) {
     $("#provision_add_ssh_key_button").show();
     $("#provision_update_ssh_key_button").hide();
   }
+
+  $('#provision_new_language option[value="'+config['user_config']["lang"]+'"]').attr('selected','selected');
+  $('#provision_user_views_select option[value="'+config['user_config']["default_view"]+'"]').attr('selected','selected');
 }
 
 function show_provision_create_vm() {
@@ -1199,6 +1273,10 @@ $(document).ready(function(){
       show_provision_user_info();
     });
 
+    $.each( config['available_views'], function(id, view) {
+      $('select#provision_user_views_select').append('<option value="'+view+'">'+view+'</option>')
+    });
+
     $("#provision_change_password_form").submit(function(){
       var pw = $('#provision_new_password', this).val();
       var confirm_password = $('#provision_new_confirm_password', this).val();
@@ -1225,8 +1303,93 @@ $(document).ready(function(){
           return false;
       }
 
-      var template_str = "SSH_PUBLIC_KEY=" + keypair
-      Sunstone.runAction("Provision.User.update_template", "-1", template_str);
+      OpenNebula.User.show({
+        data : {
+            id: "-1"
+        },
+        success: function(request,user_json){
+          var template = user_json.USER.TEMPLATE;
+
+          template["SSH_PUBLIC_KEY"] = keypair;
+
+          template_str = "";
+          $.each(template,function(key,value){
+            template_str += (key + '=' + '"' + value + '"\n');
+          });
+
+          Sunstone.runAction("Provision.User.update_template", "-1", template_str);
+        }
+      })
+      return false;
+    });
+
+    $("#provision_change_view_form").submit(function(){
+      var view = $('#provision_user_views_select', this).val();
+
+      OpenNebula.User.show({
+        data : {
+            id: "-1"
+        },
+        success: function(request,user_json){
+          var template = user_json.USER.TEMPLATE;
+
+          template["DEFAULT_VIEW"] = view;
+
+          template_str = "";
+          $.each(template,function(key,value){
+            template_str += (key + '=' + '"' + value + '"\n');
+          });
+
+          var data = OpenNebula.Helper.action('update', {"template_raw" : template_str });
+
+          $.ajax({
+            url: 'config',
+            type: "POST",
+            dataType: "json",
+            data: JSON.stringify(data),
+            success: function(){
+                window.location.href = ".";
+            },
+            error: function(response){
+            }
+          });
+        }
+      })
+      return false;
+    });
+
+    $("#provision_change_language_form").submit(function(){
+      var lang = $('#provision_new_language', this).val();
+
+      OpenNebula.User.show({
+        data : {
+            id: "-1"
+        },
+        success: function(request,user_json){
+          var template = user_json.USER.TEMPLATE;
+
+          template["LANG"] = lang;
+
+          template_str = "";
+          $.each(template,function(key,value){
+            template_str += (key + '=' + '"' + value + '"\n');
+          });
+
+          var data = OpenNebula.Helper.action('update', {"template_raw" : template_str });
+
+          $.ajax({
+            url: 'config',
+            type: "POST",
+            dataType: "json",
+            data: JSON.stringify(data),
+            success: function(){
+                window.location.href = ".";
+            },
+            error: function(response){
+            }
+          });
+        }
+      })
       return false;
     });
 
