@@ -124,7 +124,6 @@ var create_group_tmpl =
                 <th>'+tr("Images")+'</th>\
                 <th>'+tr("Templates")+'</th>\
                 <th>'+tr("Documents")+'<span class="tip">'+tr("Documents are a special tool for general purposes, mainly by OneFlow. If you want to enable users of this group to use service composition via OneFlow, let it checked.")+'</span></th>\
-                <th>'+tr("Users")+'</th>\
               </tr></thead>\
               <tbody>\
                 <tr>\
@@ -143,7 +142,6 @@ var create_group_tmpl =
                   <td><input type="checkbox" id="group_admin_res_image" name="group_admin_res_image" class="resource_cb" value="IMAGE"></input></td>\
                   <td><input type="checkbox" id="group_admin_res_template" name="group_admin_res_template" class="resource_cb" value="TEMPLATE"></input></td>\
                   <td><input type="checkbox" id="group_admin_res_document" name="group_admin_res_document" class="resource_cb" value="DOCUMENT"></input></td>\
-                  <td><input type="checkbox" id="group_admin_res_user" name="group_admin_res_user" class="resource_cb" value="USER"></input></td>\
                 </tr>\
               </tbody>\
             </table>\
@@ -1223,12 +1221,6 @@ function setupCreateGroupDialog(){
             });
 
             group_json["group"]["group_admin"]["resources"] = resources;
-
-            if ( $('#group_admin_res_user', dialog).prop("checked") ){
-                group_json["group"]["group_admin"]["manage_users"] = "YES";
-            } else {
-                group_json["group"]["group_admin"]["manage_users"] = "NO";
-            }
         }
 
         group_json['group']['views'] = [];
