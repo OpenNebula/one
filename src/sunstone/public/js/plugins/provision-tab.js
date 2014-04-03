@@ -1510,8 +1510,8 @@ $(document).ready(function(){
       provision_templates_datatable.fnFilter( $(this).val() );
     })
 
-    $("#provision_create_vm").on("click", "#provision_create_capacity_refresh_button", function(){
-      OpenNebula.Helper.clear_cache("TEMPLATE");
+    $("#provision_create_capacity_refresh_button").click(function(){
+      OpenNebula.Helper.clear_cache("VMTEMPLATE");
       update_provision_templates_datatable(provision_templates_datatable);
     });
 
@@ -1637,7 +1637,7 @@ $(document).ready(function(){
       provision_create_vm_images_datatable.fnFilter( $(this).val() );
     })
 
-    $("#provision_create_vm").on("click", "#provision_images_list_refresh_button", function(){
+    $("#provision_create_image_refresh_button").click(function(){
       OpenNebula.Helper.clear_cache("IMAGE");
       update_provision_images_datatable(provision_create_vm_snapshots_datatable);
       update_provision_images_datatable(provision_create_vm_images_datatable);
