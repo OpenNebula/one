@@ -533,9 +533,7 @@ var provision_tab = {
     '<li>'+
       '<a href"#" class="medium off-color" id="provision_images_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-camera"/><br>Images</a>'+
     '</li>'+
-    '<li><br>'+
-    '</li>'+
-    '<li><br>'+
+    '<li style="border-left: 1px solid #efefef; height: 40px"><br>'+
     '</li>'+
     '<li>'+
       '<a href"#" class="medium off-color" id="provision_user_info_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-user"/><br>'+config['display_name']+'</a>'+
@@ -543,9 +541,7 @@ var provision_tab = {
     '<li>'+
       '<a href"#" class="medium off-color has-tip" data-tooltip title="Log out" id="provision_logout" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-sign-out"/><br>Log out</a>'+
     '</li>'+
-    '<li><br>'+
-    '</li>'+
-    '<li><br>'+
+    '<li style="border-left: 1px solid #efefef; height: 40px"><br>'+
     '</li>'+
     '<li>'+
       '<a href="#" data-dropdown="provision_zone_selector" class="button small radius secondary dropdown off-color" id="zonelector" style="background: #fff; padding:0px; font-size: 12px;">'+
@@ -799,11 +795,20 @@ function show_provision_user_info_callback(request, response) {
     quotas_html += '<div class="large-12 columns">' + network_quota + '</div>';
     quotas_html += '<div class="large-12 columns">' + datastore_quota + '</div>';
   } else {
-    quotas_html = '<div class="row">\
-            <div class="large-12 columns">\
-              <p class="subheader">'+tr("No quotas defined")+'</p>\
-            </div>\
-          </div>'
+    quotas_html = '<div class="row">'+
+      '<div class="large-8 large-centered columns">'+
+        '<div class="text-center">'+
+          '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+            '<i class="fa fa-cloud fa-stack-2x"></i>'+
+            '<i class="fa fa-align-left fa-stack-1x fa-inverse"></i>'+
+          '</span>'+
+          '<br>'+
+          '<p style="font-size: 18px; color: #999">'+
+            tr("There are no quotas defined")+
+          '</p>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
   }
 
   $("#provision_user_info_quotas_div").html(quotas_html);
