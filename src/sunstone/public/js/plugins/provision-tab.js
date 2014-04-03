@@ -913,11 +913,14 @@ function get_provision_vm_state(data) {
           state_str = tr("DEPLOYING") + " (3/3)";
           break;
         case tr("RUNNING"):
-        case tr("HOTPLUG"):
         case tr("SNAPSHOT"):
         case tr("MIGRATE"):
           state_color = 'running';
           state_str = tr("RUNNING");
+          break;
+        case tr("HOTPLUG"):
+          state_color = 'deploying';
+          state_str = tr("SAVING IMAGE");
           break;
         case tr("FAILURE"):
           state_color = 'error';
