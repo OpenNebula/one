@@ -443,7 +443,15 @@ function groupElements(){
 function groupElementArray(group_json){
     var group = group_json.GROUP;
 
-    var users_str = group.USERS.ID ? group.USERS.ID.length : 0;
+    var users_str = "0";
+
+    if (group.USERS.ID){
+        if ($.isArray(group.USERS.ID)){
+            users_str = group.USERS.ID.length;
+        } else {
+            users_str = "1";
+        }
+    }
 
     var vms = "-";
     var memory = "-";
