@@ -521,15 +521,40 @@ var provision_content = provision_user_info +
   provision_list_images ;
 
 var provision_tab = {
-  list_header: '<img src="images/one_small_logo.png" style="height:40px">'+
-    '<span class="right" style="font-size: 60%; color: #dfdfdf">'+
-      '<a href"#" class="provision_create_vm_button medium off-color" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-lg fa-plus-square"/>&emsp;'+tr("Create")+'</a>&emsp;|&emsp;'+
-      '<a href"#" class="medium off-color" id="provision_vms_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-lg fa-th"/>&emsp;'+tr("Virtual Machines")+'</a>&emsp;|&emsp;'+
-      '<a href"#" class="medium off-color" id="provision_images_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-lg fa-camera"/>&emsp;'+tr("Saved Images")+'</a>&emsp;|&emsp;'+
-      '<a href"#" class="medium off-color" id="provision_user_info_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-lg fa-user"/>&emsp;'+config['display_name']+'</a>&emsp;|&emsp;'+
-      '<a href"#" class="medium off-color" id="provision_logout" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-lg fa-sign-out"/></a>'+
-    '</span>'+
-    '<br>',
+  list_header: '<img src="images/one_small_logo.png" style="height:40px; vertical-align:top">'+
+    '<span class="right" style="font-size: 50%; color: #dfdfdf">'+
+   '<ul class="inline-list text-center" style="font-size:12px">'+
+    '<li>'+
+      '<a href"#" class="provision_create_vm_button medium off-color" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-plus-square"/><br>Create</a>'+
+    '</li>'+
+    '<li>'+
+      '<a href"#" class="medium off-color" id="provision_vms_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-th"/><br>VMs</a>'+
+    '</li>'+
+    '<li>'+
+      '<a href"#" class="medium off-color" id="provision_images_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-camera"/><br>Images</a>'+
+    '</li>'+
+    '<li><br>'+
+    '</li>'+
+    '<li><br>'+
+    '</li>'+
+    '<li>'+
+      '<a href"#" class="medium off-color" id="provision_user_info_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-user"/><br>'+config['display_name']+'</a>'+
+    '</li>'+
+    '<li>'+
+      '<a href"#" class="medium off-color has-tip" data-tooltip title="Log out" id="provision_logout" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-sign-out"/><br>Log out</a>'+
+    '</li>'+
+    '<li><br>'+
+    '</li>'+
+    '<li><br>'+
+    '</li>'+
+    '<li>'+
+      '<a href="#" data-dropdown="provision_zone_selector" class="button small radius secondary dropdown off-color" id="zonelector" style="background: #fff; padding:0px; font-size: 12px;">'+
+        '<i class="fa fa-home fa-2x header-icon" style="margin-bottom: 2px"/><br> ' + config['zone_name'] +
+      '</a>'+
+      '<ul id="provision_zone_selector" data-dropdown-content class="zone-ul f-dropdown"></ul>'+
+    '</li>'+
+    '</ul>'+
+    '</span>',
   content: provision_content
 };
 

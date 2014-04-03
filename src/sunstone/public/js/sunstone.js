@@ -375,7 +375,7 @@ function zone_refresh(){
       success: function (request, obj_list){
           $('.zone-ul').empty();
           $.each(obj_list,function(){
-              $('.zone-ul').append('<li><a id="'+this.ZONE.NAME+'" class="zone-choice"><i class="fa fa-home"></i> '+this.ZONE.NAME+'</a></li>');
+              $('.zone-ul').append('<li><a id="'+this.ZONE.NAME+'" class="zone-choice">'+this.ZONE.NAME+'</a></li>');
           });
       },
       error: onError
