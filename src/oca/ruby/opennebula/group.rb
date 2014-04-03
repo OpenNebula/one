@@ -313,8 +313,7 @@ module OpenNebula
             manage_users = gdef[:group_admin][:manage_users] || "YES"
 
             if manage_users.upcase == "YES"
-                acls << "##{group_admin.id} USER/@#{self.id} CREATE"
-                acls << "##{group_admin.id} USER/@#{self.id} USE+MANAGE+ADMIN"
+                acls << "##{group_admin.id} USER/@#{self.id} CREATE+USE+MANAGE+ADMIN"
             end
 
             acls << "##{group_admin.id} #{acls_str}/@#{self.id} " +

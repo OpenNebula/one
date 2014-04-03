@@ -91,23 +91,7 @@ var create_group_tmpl =
         </div>\
     </div>\
     <div id="administrators" class=" content">\
-        <div class="row">\
-        <div class="large-6 columns">\
-          <div class="row">\
-            <div class="large-12 columns">\
-              <input type="checkbox" id="admin_group" name="admin_group" value="YES" />\
-              <label for="admin_group">'+tr("Create an administrator group")+'\
-                <span class="tip">'+tr("This admin group will contain users with administrative privileges for the new regular group, not for all the resources in the OpenNebula cloud as the 'oneadmin' group users have.")+'</span>\
-              </label>\
-            </div>\
-          </div>\
-          <div class="row">\
-            <div class="large-12 columns">\
-              <label for="admin_group_name">'+tr("Group name")+'</label>\
-              <input type="text" name="admin_group_name" id="admin_group_name" />\
-            </div>\
-          </div>\
-        </div>\
+      <div class="row">\
         <div class="large-6 columns">\
           <div class="row">\
             <div class="large-12 columns">\
@@ -119,7 +103,7 @@ var create_group_tmpl =
           </div>' +
           user_creation_div +   // from users-tab.js
         '</div>\
-        </div>\
+      </div>\
     </div>\
     <div id="resource_creation" class="content">\
         <div class="row">\
@@ -1127,26 +1111,18 @@ function setupCreateGroupDialog(){
         var val = $(this).val();
         var dialog = $create_group_dialog;
 
-        $('#admin_group_name',dialog).val(val + "-admin");
         $('#username',dialog).val(val + "-admin");
     });
 
-    $('input#admin_group', dialog).change(function(){
+    $('input#admin_user', dialog).change(function(){
         var dialog = $create_group_dialog;
         if ($(this).prop('checked')) {
-            $('#admin_group_name',dialog).removeAttr("disabled");
-
-            $('#admin_user',dialog).removeAttr("disabled");
-            $('#admin_user',dialog).prop("checked", "true");
-
             enableAdminUser(dialog);
 
             $.each($('[id^="group_admin_res"]', dialog), function(){
                 $(this).removeAttr("disabled");
             });
         } else {
-            $('#admin_group_name',dialog).attr('disabled','disabled');
-            $('#admin_user',dialog).attr('disabled','disabled');
             disableAdminUser(dialog);
 
             $.each($('[id^="group_admin_res"]', dialog), function(){
@@ -1155,17 +1131,6 @@ function setupCreateGroupDialog(){
         }
     });
 
-    $('input#admin_user', dialog).change(function(){
-        var dialog = $create_group_dialog;
-        if ($(this).prop('checked')) {
-            enableAdminUser(dialog);
-        } else {
-            disableAdminUser(dialog);
-        }
-    });
-
-    $('#admin_group_name',dialog).attr('disabled','disabled');
-    $('#admin_user',dialog).attr('disabled','disabled');
     disableAdminUser(dialog);
 
     $.each($('[id^="group_res"]', dialog), function(){
@@ -1190,19 +1155,14 @@ function setupCreateGroupDialog(){
     $('#create_group_form',dialog).submit(function(){
         var name = $('#name',this).val();
 
-        var admin_group_name = null;
-        var user_json        = null;
+        var user_json = null;
 
-        if ( $('#admin_group', this).prop('checked') ){
-            admin_group_name = $('#admin_group_name', this).val();
+        if ( $('#admin_user', this).prop('checked') ){
+            user_json = buildUserJSON(this);    // from users-tab.js
 
-            if ( $('#admin_user', this).prop('checked') ){
-                user_json = buildUserJSON(this);    // from users-tab.js
-
-                if (!user_json) {
-                    notifyError(tr("User name and password must be filled in"));
-                    return false;
-                }
+            if (!user_json) {
+                notifyError(tr("User name and password must be filled in"));
+                return false;
             }
         }
 
@@ -1212,12 +1172,8 @@ function setupCreateGroupDialog(){
             }
         };
 
-        if (admin_group_name){
-            group_json['group']['admin_group'] = admin_group_name;
-        }
-
         if (user_json){
-            group_json["group"]["user"] = user_json["user"];
+            group_json["group"]["group_admin"] = user_json["user"];
         }
 
         group_json['group']['resource_providers'] = [];
@@ -1257,7 +1213,7 @@ function setupCreateGroupDialog(){
 
         group_json['group']['resources'] = resources;
 
-        if (admin_group_name){
+        if (user_json){
             resources = "";
             separator = "";
 
@@ -1266,12 +1222,12 @@ function setupCreateGroupDialog(){
                 separator = "+";
             });
 
-            group_json['group']['admin_resources'] = resources;
+            group_json["group"]["group_admin"]["resources"] = resources;
 
             if ( $('#group_admin_res_user', dialog).prop("checked") ){
-                group_json['group']['admin_manage_users'] = "YES";
+                group_json["group"]["group_admin"]["manage_users"] = "YES";
             } else {
-                group_json['group']['admin_manage_users'] = "NO";
+                group_json["group"]["group_admin"]["manage_users"] = "NO";
             }
         }
 

@@ -138,14 +138,6 @@ EOT
             :format => String
         },
         {
-            :name   => 'admin_group',
-            :large  => '--admin_group name',
-            :short => "-a",
-            :description =>
-                'Creates an admin group with name',
-            :format => String
-        },
-        {
             :name   => 'admin_user',
             :large  => '--admin_user name',
             :short => "-u",
