@@ -1,14 +1,14 @@
 small_logo: images/opennebula-sunstone-v4.0-small.png
 enabled_tabs:
-    dashboard-tab: true
+    dashboard-tab: false
     system-tab: false
     users-tab: false
     groups-tab: false
     acls-tab: false
     vresources-tab: false
-    vms-tab: true
+    vms-tab: false
     templates-tab: false
-    images-tab: true
+    images-tab: false
     files-tab: false
     infra-tab: false
     clusters-tab: false
@@ -19,6 +19,7 @@ enabled_tabs:
     oneflow-dashboard: false
     oneflow-services: false
     oneflow-templates: false
+    provision-tab: true
 tabs:
     dashboard-tab:
         panel_tabs:
@@ -431,3 +432,6 @@ tabs:
             ServiceTemplate.chgrp: false
             ServiceTemplate.chmod: true
             ServiceTemplate.delete: true
+    provision-tab:
+        panel_tabs:
+        actions:

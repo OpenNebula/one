@@ -37,7 +37,7 @@ $row-width: rem-calc(1200);
 
 // We use these to control various global styles
 // $body-bg: #fff;
-// $body-font-color: #222;
+$body-font-color: #555;
 $body-font-family: "Open Sans", sans-serif;
 // $body-font-weight: normal;
 // $body-font-style: normal;
@@ -51,8 +51,9 @@ $body-font-family: "Open Sans", sans-serif;
 // $default-float: left;
 
 // We use these as default colors throughout
+//$primary-color: #2ba6cb;
 $primary-color: #0099c3;
-$secondary-color: #F5F5F5;
+$secondary-color: #f7f7f7;
 // $alert-color: #f04124;
 // $success-color: #43AC6A;
 // $warning-color: #f08a24;
@@ -124,7 +125,7 @@ $secondary-color: #F5F5F5;
 
 // We use these to control header font sizes
 // $h1-font-size: rem-calc(44);
-// $h2-font-size: rem-calc(37);
+$h2-font-size: rem-calc(30);
 $h3-font-size: rem-calc(24);
 // $h4-font-size: rem-calc(23);
 // $h5-font-size: rem-calc(18);
@@ -217,10 +218,10 @@ $h3-font-size: rem-calc(24);
 // $include-html-accordion-classes: $include-html-classes;
 
 // $accordion-navigation-padding: rem-calc(16);
-// $accordion-navigation-bg-color: #efefef  ;
+$accordion-navigation-bg-color: #f7f7f7  ;
 // $accordion-navigation-hover-bg-color: scale-color($accordion-navigation-bg-color, $lightness: -5%);
-// $accordion-navigation-active-bg-color: scale-color($accordion-navigation-bg-color, $lightness: -3%);
-// $accordion-navigation-font-color: #222;
+$accordion-navigation-active-bg-color: #fff;
+$accordion-navigation-font-color: #333;
 // $accordion-navigation-font-size: rem-calc(16);
 // $accordion-navigation-font-family: $body-font-family;
 
@@ -249,7 +250,7 @@ $h3-font-size: rem-calc(24);
 // We use these to control border styles.
 // $alert-border-style: solid;
 // $alert-border-width: 1px;
-// $alert-border-color: scale-color($primary-color, $lightness: $alert-function-factor);
+$alert-border-color: #dfdfdf;
 // $alert-bottom-margin: rem-calc(20);
 
 // We use these to style the close buttons
@@ -762,13 +763,13 @@ $fieldset-padding: rem-calc(20);
 // $include-html-panel-classes: $include-html-classes;
 
 // We use these to control the background and border styles
-// $panel-bg: scale-color(#fff, $lightness: -5%);
+$panel-bg: #f7f7f7;
 // $panel-border-style: solid;
 // $panel-border-size: 1px;
 
 // We use this % to control how much we darken things on hover
 // $panel-function-factor: -11%;
-// $panel-border-color: scale-color($panel-bg, $lightness: $panel-function-factor);
+$panel-border-color: #dfdfdf;
 
 // We use these to set default inner padding and bottom margin
 // $panel-margin-bottom: rem-calc(20);
@@ -786,18 +787,18 @@ $fieldset-padding: rem-calc(20);
 // $include-html-pricing-classes: $include-html-classes;
 
 // We use this to control the border color
-// $price-table-border: solid 1px #ddd;
+$price-table-border: 1px solid #dfdfdf;
 
 // We use this to control the bottom margin of the pricing table
-// $price-table-margin-bottom: rem-calc(20);
+$price-table-margin-bottom: rem-calc(0);
 
 // We use these to control the title styles
-// $price-title-bg: #333;
-// $price-title-padding: rem-calc(15 20);
+$price-title-bg: #f7f7f7;
+$price-title-padding: rem-calc(10);
 // $price-title-align: center;
-// $price-title-color: #eee;
-// $price-title-weight: normal;
-// $price-title-size: rem-calc(16);
+$price-title-color: #555;
+$price-title-weight: bold;
+$price-title-size: rem-calc(16);
 // $price-title-font-family: $body-font-family;
 
 // We use these to control the price styles
@@ -811,22 +812,22 @@ $fieldset-padding: rem-calc(20);
 
 
 // We use these to control the description styles
-// $price-bg: #fff;
-// $price-desc-color: #777;
-// $price-desc-padding: rem-calc(15);
+$price-desc-color: #999;
+$price-desc-padding: rem-calc(10);
 // $price-desc-align: center;
 // $price-desc-font-size: rem-calc(12);
 // $price-desc-weight: normal;
 // $price-desc-line-height: 1.4;
-// $price-desc-bottom-border: dotted 1px #ddd;
+$price-desc-bottom-border: none;
 
 // We use these to control the list item styles
-// $price-item-color: #333;
-// $price-item-padding: rem-calc(15);
+$price-bg: #f7f7f7;
+$price-item-color: #777;
+$price-item-padding: rem-calc(5);
 // $price-item-align: center;
-// $price-item-font-size: rem-calc(14);
+$price-item-font-size: rem-calc(14);
 // $price-item-weight: normal;
-// $price-item-bottom-border: dotted 1px #ddd;
+$price-item-bottom-border: none;
 
 // We use these to control the CTA area styles
 // $price-cta-bg: #fff;

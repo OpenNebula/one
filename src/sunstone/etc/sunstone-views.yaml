@@ -22,6 +22,7 @@ available_tabs:
     - oneflow-dashboard
     - oneflow-services
     - oneflow-templates
+    - provision-tab
 groups:
     oneadmin:
         - admin
@@ -29,4 +30,4 @@ groups:
         - user
         - cloud
 default:
-    - user
+    - cloud
