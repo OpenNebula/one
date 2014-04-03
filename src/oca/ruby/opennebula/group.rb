@@ -320,8 +320,10 @@ module OpenNebula
             end
 
             #Set Sunstone Views for the group
-            self.update("GROUP_ADMINS=#{gdef[:group_admin][:name]}\n")
-            self.update("GROUP_ADMIN_VIEWS=#{GROUP_ADMIN_SUNSTONE_VIEWS}\n")
+            gtmpl =  "GROUP_ADMINS=#{gdef[:group_admin][:name]}\n"
+            gtmpl << "GROUP_ADMIN_VIEWS=#{GROUP_ADMIN_SUNSTONE_VIEWS}\n"
+
+            self.update(gtmpl)
 
             return nil
         end
