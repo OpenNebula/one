@@ -18,7 +18,7 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
       '<h2 class="subheader">'+
-        '<i class="fa fa-fw fa-square"/>&emsp;'+
+        '<i class="fa fa-fw fa-cloud"/>&emsp;'+
         tr("Create Virtual Machine")+
       '</h2>'+
       '<br>'+
@@ -33,7 +33,7 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
       '<h3 class="subheader">'+
-        '<i class="fa fa-fw fa-square-o"/>&emsp;'+
+        '<i class="fa fa-fw fa-laptop"/>&emsp;'+
         tr("Select Capacity")+
       '</h3>'+
       '<br>'+
@@ -57,7 +57,7 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
       '<h3 class="subheader">'+
-        '<i class="fa fa-fw fa-square-o"/>&emsp;'+
+        '<i class="fa fa-fw fa-download"/>&emsp;'+
         tr("Select Image")+
       '</h3>'+
       '<br>'+
@@ -149,7 +149,14 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
               '</span>'+
               '<br>'+
               '<p style="font-size: 18px; color: #999">'+
-                tr("You can add an SSH key to your account which will be used as the preferred method of access for new Virtual Machines")+
+                '<span class="provision_add_ssh_key_button">'+
+                  tr("You can add an SSH key to your account which will be used as the preferred method of access for new Virtual Machines")+
+                '</span>'+
+                '<span class="provision_update_ssh_key_button">'+
+                  tr("This is your SSH key which will be used as the preferred method of access for new Virtual Machines")+
+                  '<br><br>'+
+                  '<span id="provision_ssh_key_text"></span>'+
+                '</span>'+
               '</p>'+
             '</div>'+
           '</div>'+
@@ -159,7 +166,8 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
             '<dl class="accordion" data-accordion>'+
               '<dd >'+
                 '<a href="#provision_add_ssh_key_accordion" class="text-center accordion-a">'+
-                  tr("Add SSH Key")+
+                  '<span class="provision_add_ssh_key_button">'+ tr("Add SSH Key")+ '</span>'+
+                  '<span class="provision_update_ssh_key_button">'+ tr("Update SSH Key")+ '</span>'+
                 '</a>'+
                 '<div id="provision_add_ssh_key_accordion" class="content">'+
                   '<div class="row">'+
@@ -170,8 +178,8 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
                   '<br>'+
                   '<div class="row">'+
                     '<div class="large-12 large-centered columns">'+
-                      '<button href"#" id="provision_add_ssh_key_button" type="submit" class="button large radius large-12 small-12">'+tr("Add SSH Key")+'</button>'+
-                      '<button href"#" id="provision_update_ssh_key_button" type="submit" class="button large radius large-12 small-12 hidden">'+tr("Update SSH Key")+'</button>'+
+                      '<button href="#" type="submit" class="provision_add_ssh_key_button button large radius large-12 small-12">'+tr("Add SSH Key")+'</button>'+
+                      '<button href="#" type="submit" class="provision_update_ssh_key_button button large radius large-12 small-12 hidden">'+tr("Update SSH Key")+'</button>'+
                     '</div>'+
                   '</div>'+
                 '</div>'+
@@ -207,6 +215,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
             '<dl class="accordion" data-accordion>'+
               '<dd>'+
                 '<a href="#provision_update_language_accordion" class="text-center accordion-a">'+
+                  '<i class="fa fa-comments"></i>&emsp;'+
                   tr("Change Language")+
                 '</a>'+
                 '<div id="provision_update_language_accordion" class="content">'+
@@ -250,6 +259,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
             '<dl class="accordion" data-accordion>'+
               '<dd>'+
                 '<a href="#provision_update_password_accordion" class="text-center accordion-a">'+
+                  '<i class="fa fa-lock"></i>&emsp;'+
                   tr("Change Password")+
                 '</a>'+
                 '<div id="provision_update_password_accordion" class="content">'+
@@ -297,6 +307,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
             '<dl class="accordion" data-accordion>'+
               '<dd>'+
                 '<a href="#provision_update_view_accordion" class="text-center accordion-a">'+
+                  '<i class="fa fa-picture-o"></i>&emsp;'+
                   tr("Change view")+
                 '</a>'+
                 '<div id="provision_update_view_accordion" class="content">'+
@@ -816,11 +827,12 @@ function show_provision_user_info_callback(request, response) {
   var ssh_key = info.TEMPLATE.SSH_PUBLIC_KEY;
   if (ssh_key && ssh_key.length) {
     $("#provision_ssh_key").val(ssh_key);
-    $("#provision_add_ssh_key_button").hide();
-    $("#provision_update_ssh_key_button").show();
+    $("#provision_ssh_key_text").text(ssh_key);
+    $(".provision_add_ssh_key_button").hide();
+    $(".provision_update_ssh_key_button").show();
   } else {
-    $("#provision_add_ssh_key_button").show();
-    $("#provision_update_ssh_key_button").hide();
+    $(".provision_add_ssh_key_button").show();
+    $(".provision_update_ssh_key_button").hide();
   }
 
   $('#provision_new_language option[value="'+config['user_config']["lang"]+'"]').attr('selected','selected');
