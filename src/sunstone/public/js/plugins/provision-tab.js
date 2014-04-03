@@ -248,10 +248,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
         '</div>'+
       '</div>'+
     '</div>'+
-  '</div>'+
-  '<br>'+
-  '<br>'+
-'</div>';
+  '</div>'+'</div>';
 
 var provision_list_images = '<div id="provision_list_images" class="hidden section_content">'+
   '<div class="row">'+
@@ -469,6 +466,7 @@ var povision_actions = {
       type: "single",
       call: OpenNebula.Image.del,
       callback: function(){
+        OpenNebula.Helper.clear_cache("IMAGE");
         show_provision_image_list(1000);
       },
       error: onError
@@ -513,6 +511,7 @@ var povision_actions = {
     type: "single",
     call: OpenNebula.Template.instantiate,
     callback: function(){
+      OpenNebula.Helper.clear_cache("VM");
       show_provision_vm_list(0);
       var context = $("#provision_create_vm");
       $("#vm_name", context).val('');
@@ -526,7 +525,8 @@ var povision_actions = {
     type: "single",
     call: OpenNebula.VM.saveas,
     callback: function(request, response){
-      provision_show_vm_callback();
+      OpenNebula.Helper.clear_cache("IMAGE");
+      provision_show_vm_callback(request, response);
       notifyMessage(tr("Image") + ' ' + request.request.data[0][1].image_name + ' ' + tr("saved successfully"))
     },
     error: onError
@@ -555,6 +555,7 @@ var povision_actions = {
       type: "single",
       call: OpenNebula.VM.cancel,
       callback: function(){
+        OpenNebula.Helper.clear_cache("VM");
         show_provision_vm_list(1000);
       },
       error: onError
@@ -564,6 +565,7 @@ var povision_actions = {
       type: "single",
       call: OpenNebula.VM.del,
       callback: function(){
+        OpenNebula.Helper.clear_cache("VM");
         show_provision_vm_list(1000);
       },
       error: onError
@@ -1430,20 +1432,6 @@ $(document).ready(function(){
               '<li class="provision-title text-left">'+
                 data.NAME + '<a class="provision_confirm_delete_image_button" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-trash-o right only-on-hover"/></a>'+
               '</li>'+
-              //'<li class="provision-bullet-item text-left" style="margin-left:20px">'+
-              //  '<i class="fa fa-fw fa-laptop"/>&emsp;'+
-              //  'x'+data.TEMPLATE.CPU+' - '+
-              //  ((data.TEMPLATE.MEMORY > 1000) ?
-              //    (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
-              //    (data.TEMPLATE.MEMORY+'MB'))+
-              //'</li>'+
-              //'<li class="provision-bullet-item text-left" style="margin-left:20px">'+
-              //  '<i class="fa fa-fw fa-download"></i>'+
-              //  'Ubuntu 12.04'+
-              //'</li>'+
-              //'<li class="provision-bullet-item text-left" style="margin-left:20px">'+
-              //  '192.168.1.1'+
-              //'</li>'+
               '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; padding-bottom:10px">'+
                 '<i class="fa fa-fw fa-clock-o"/>'+
                 _format_date(data.REGTIME)+
@@ -1453,9 +1441,6 @@ $(document).ready(function(){
                   state.str+
                 '</span>'+
               '</li>'+
-              //'<li class="provision-bullet-item" style="padding: 0px">'+
-              //  '<div style="height:1px" class="'+ state.color +'-bg"></div>'+
-              //'</li>'+
             '</ul>'+
           '</li>');
 
@@ -1471,6 +1456,7 @@ $(document).ready(function(){
     });
 
     $("#provision_list_images").on("click", "#provision_images_list_refresh_button", function(){
+      OpenNebula.Helper.clear_cache("IMAGE");
       show_provision_image_list(0);
     });
 
@@ -1572,6 +1558,7 @@ $(document).ready(function(){
     });
 
     $("#provision_list_vms").on("click", "#provision_vms_list_refresh_button", function(){
+      OpenNebula.Helper.clear_cache("VM");
       show_provision_vm_list(0);
     });
 
