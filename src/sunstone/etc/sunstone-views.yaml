@@ -28,6 +28,5 @@ groups:
         - vdcadmin
         - user
         - cloud
-        - provision
 default:
-    - user
+    - cloud
