@@ -67,6 +67,12 @@ class SunstoneViews
             if group["TEMPLATE/SUNSTONE_VIEWS"]
                 available << group["TEMPLATE/SUNSTONE_VIEWS"].split(",")
             end
+
+            gadmins = group["TEMPLATE/GROUP_ADMINS"]
+
+            if !gadmins.nil? && gadmins =~ /#{user_name}/ && group["TEMPLATE/GROUP_ADMIN_VIEWS"]
+                available << group["TEMPLATE/GROUP_ADMIN_VIEWS"].split(",")
+            end
         }
 
         available.flatten!

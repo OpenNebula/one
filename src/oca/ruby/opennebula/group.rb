@@ -296,6 +296,14 @@ module OpenNebula
                 end
             end
 
+            # Set admin user groups to self
+            rc = group_admin.chgrp(self.id)
+
+            if OpenNebula.is_error?(rc)
+                group_admin.delete
+                return rc
+            end
+
             #Create admin group acls
             acls = Array.new
 
