@@ -51,14 +51,19 @@
   display: none;
 }
 
-.left-footer {
-  clear: both;
-  position: relative;
-  z-index: 10;
-  height: 3em;
-  margin-top: -3em;
-  font-size:12px;
-  margin-left: 200px;
+#footer {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: #999;
+
+  a {
+    color: #999;
+  }
+
+  a:hover {
+    color: #333;
+  }
 }
 
 .left-content {

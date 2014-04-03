@@ -1165,6 +1165,8 @@ $(document).ready(function(){
   if (Config.isTabEnabled(tab_name)) {
     $(".left-content").remove();
     $(".right-content").addClass("large-centered small-12");
+    $("#footer").removeClass("right");
+    $("#footer").addClass("large-centered small-12");
 
     $(".user-zone-info").remove();
 
