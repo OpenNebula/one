@@ -30,11 +30,19 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
       '<br>'+
     '</div>'+
   '</div>'+
+  '<br>'+
+  '<br>'+
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
-      '<h3 class="subheader">'+
-        '<i class="fa fa-fw fa-laptop"/>&emsp;'+
-        tr("Select Capacity")+
+      '<h3 class="subheader text-right">'+
+        '<span class="left">'+
+          '<i class="fa fa-fw fa-laptop"/>&emsp;'+
+          tr("Select Capacity")+
+        '</span>'+
+        '<a href"#" id="provision_create_capacity_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip right">'+
+          '<i class="fa fa-fw fa-refresh"/>'+
+        '</a>'+
+        '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_create_capacity_search"/>'+
       '</h3>'+
       '<br>'+
     '</div>'+
@@ -54,11 +62,19 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
       '<br>'+
     '</div>'+
   '</div>'+
+  '<br>'+
+  '<br>'+
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
-      '<h3 class="subheader">'+
-        '<i class="fa fa-fw fa-download"/>&emsp;'+
-        tr("Select Image")+
+      '<h3 class="subheader text-right">'+
+        '<span class="left">'+
+          '<i class="fa fa-fw fa-download"/>&emsp;'+
+          tr("Select Image")+
+        '</span>'+
+        '<a href"#" id="provision_create_image_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip right">'+
+          '<i class="fa fa-fw fa-refresh"/>'+
+        '</a>'+
+        '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_create_image_search"/>'+
       '</h3>'+
       '<br>'+
     '</div>'+
@@ -340,13 +356,13 @@ var provision_list_images = '<div id="provision_list_images" class="hidden secti
           '<i class="fa fa-fw fa-camera"/>&emsp;'+
           tr("Saved Images")+
         '</span>'+
-        '<a href"#" id="provision_images_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip tip-top">'+
+        '<a href"#" id="provision_images_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip tip-top right">'+
           '<i class="fa fa-fw fa-refresh"/>'+
         '</a>'+
+        '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_list_images_search"/>'+
       '</h2>'+
     '</div>'+
   '</div>'+
-  '<br>'+
   '<div class="row">'+
     '<div class="large-10 large-centered columns" id="provision_confirm_delete_image_div">'+
     '</div>'+
@@ -383,13 +399,13 @@ var provision_list_vms = '<div id="provision_list_vms" class="section_content">'
           '<i class="fa fa-fw fa-th"/>&emsp;'+
           tr("Virtual Machines")+
         '</span>'+
-        '<a href"#" id="provision_vms_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip">'+
+        '<a href"#" id="provision_vms_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip right">'+
           '<i class="fa fa-fw fa-refresh"/>'+
         '</a>'+
+        '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_list_vms_search"/>'+
       '</h2>'+
     '</div>'+
   '</div>'+
-  '<br>'+
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
       '<table id="provision_vms_table">'+
@@ -896,20 +912,6 @@ function update_provision_images_datatable(datatable, timeout) {
             '</div>');
         } else {
           datatable.fnAddData(item_list);
-
-          if (datatable.$('tr', {"filter": "applied"} ).length == 0) {
-            datatable.html('<div class="text-center">'+
-              '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-                '<i class="fa fa-cloud fa-stack-2x"></i>'+
-                '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
-              '</span>'+
-              '<br>'+
-              '<br>'+
-              '<span style="font-size: 18px; color: #999">'+
-                tr("There are no images available")+
-              '</span>'+
-              '</div>');
-          }
         }
       }
     })
@@ -1441,7 +1443,8 @@ $(document).ready(function(){
 
     provision_templates_datatable = $('#provision_templates_table').dataTable({
       "iDisplayLength": 6,
-      "sDom" : '<"H">t<"F"p>',
+      "sDom" : '<"H">t<"F"lp>',
+      "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
       "aoColumnDefs": [
           { "bVisible": false, "aTargets": ["all"]}
       ],
@@ -1451,7 +1454,21 @@ $(document).ready(function(){
       ],
       "fnPreDrawCallback": function (oSettings) {
         // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
-        $("#provision_templates_table").html('<ul id="provision_templates_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+        if (this.$('tr', {"filter": "applied"} ).length == 0) {
+          this.html('<div class="text-center">'+
+            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+            '</span>'+
+            '<br>'+
+            '<br>'+
+            '<span style="font-size: 18px; color: #999">'+
+              tr("There are no templates available")+
+            '</span>'+
+            '</div>');
+        } else {
+          $("#provision_templates_table").html('<ul id="provision_templates_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+        }
 
         return true;
       },
@@ -1485,9 +1502,23 @@ $(document).ready(function(){
 
     update_provision_templates_datatable(provision_templates_datatable);
 
+    $('#provision_create_capacity_search').on('keyup',function(){
+      provision_templates_datatable.fnFilter( $(this).val() );
+    })
+
+    $('#provision_create_capacity_search').on('change',function(){
+      provision_templates_datatable.fnFilter( $(this).val() );
+    })
+
+    $("#provision_create_vm").on("click", "#provision_create_capacity_refresh_button", function(){
+      OpenNebula.Helper.clear_cache("TEMPLATE");
+      update_provision_templates_datatable(provision_templates_datatable);
+    });
+
     provision_create_vm_images_datatable = $('#provision_create_vm_images_table').dataTable({
       "iDisplayLength": 6,
-      "sDom" : '<"H">t<"F"p>',
+      "sDom" : '<"H">t<"F"lp>',
+      "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
       "aoColumnDefs": [
           { "bVisible": false, "aTargets": ["all"]}
       ],
@@ -1498,7 +1529,21 @@ $(document).ready(function(){
       ],
       "fnPreDrawCallback": function (oSettings) {
         // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
-        $("#provision_create_vm_images_table").html('<ul id="provision_create_vm_images_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+        if (this.$('tr', {"filter": "applied"} ).length == 0) {
+          this.html('<div class="text-center">'+
+            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+            '</span>'+
+            '<br>'+
+            '<br>'+
+            '<span style="font-size: 18px; color: #999">'+
+              tr("There are no images available")+
+            '</span>'+
+            '</div>');
+        } else {
+          $("#provision_create_vm_images_table").html('<ul id="provision_create_vm_images_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+        }
 
         return true;
       },
@@ -1525,7 +1570,8 @@ $(document).ready(function(){
 
     provision_create_vm_snapshots_datatable = $('#provision_create_vm_snapshots_table').dataTable({
       "iDisplayLength": 6,
-      "sDom" : '<"H">t<"F"p>',
+      "sDom" : '<"H">t<"F"lp>',
+      "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
       "aaSorting"  : [[0, "desc"]],
       "aoColumnDefs": [
           { "bVisible": false, "aTargets": ["all"]}
@@ -1538,7 +1584,22 @@ $(document).ready(function(){
       "fnPreDrawCallback": function (oSettings) {
         // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
 
-        $("#provision_create_vm_snapshots_table").html('<ul id="provision_snapshots_ul" class="large-block-grid-3 medium-block-grid-2 small-block-grid-1 text-center"></ul>');
+        if (this.$('tr', {"filter": "applied"} ).length == 0) {
+          this.html('<div class="text-center">'+
+            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+            '</span>'+
+            '<br>'+
+            '<br>'+
+            '<span style="font-size: 18px; color: #999">'+
+              tr("There are no images available")+
+            '</span>'+
+            '</div>');
+        } else {
+          $("#provision_create_vm_snapshots_table").html('<ul id="provision_snapshots_ul" class="large-block-grid-3 medium-block-grid-2 small-block-grid-1 text-center"></ul>');
+        }
+
         return true;
       },
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
@@ -1565,6 +1626,22 @@ $(document).ready(function(){
 
     update_provision_images_datatable(provision_create_vm_snapshots_datatable);
     provision_create_vm_snapshots_datatable.fnFilter("^" + username + "$", 2, true, false)
+
+    $('#provision_create_image_search').change(function(){
+      provision_create_vm_snapshots_datatable.fnFilter( $(this).val() );
+      provision_create_vm_images_datatable.fnFilter( $(this).val() );
+    })
+
+    $('#provision_create_image_search').keyup(function(){
+      provision_create_vm_snapshots_datatable.fnFilter( $(this).val() );
+      provision_create_vm_images_datatable.fnFilter( $(this).val() );
+    })
+
+    $("#provision_create_vm").on("click", "#provision_images_list_refresh_button", function(){
+      OpenNebula.Helper.clear_cache("IMAGE");
+      update_provision_images_datatable(provision_create_vm_snapshots_datatable);
+      update_provision_images_datatable(provision_create_vm_images_datatable);
+    });
 
     tab.on("click", "#provision_create_vm .provision-pricing-table" , function(){
       $(".provision-pricing-table", $(this).parents(".large-block-grid-3,.large-block-grid-2")).removeClass("selected")
@@ -1612,7 +1689,8 @@ $(document).ready(function(){
 
     provision_images_datatable = $('#provision_images_table').dataTable({
       "iDisplayLength": 8,
-      "sDom" : '<"H">t<"F"p>',
+      "sDom" : '<"H">t<"F"lp>',
+      "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
       "aaSorting"  : [[0, "desc"]],
       "aoColumnDefs": [
           { "bVisible": false, "aTargets": ["all"]}
@@ -1624,8 +1702,21 @@ $(document).ready(function(){
       ],
       "fnPreDrawCallback": function (oSettings) {
         // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
-
-        $("#provision_images_table").html('<ul id="provision_images_ul" class="large-block-grid-2 medium-block-grid-2 small-block-grid-1 text-center"></ul>');
+        if (this.$('tr', {"filter": "applied"} ).length == 0) {
+          this.html('<div class="text-center">'+
+            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+            '</span>'+
+            '<br>'+
+            '<br>'+
+            '<span style="font-size: 18px; color: #999">'+
+              tr("There are no images available")+
+            '</span>'+
+            '</div>');
+        } else {
+          $("#provision_images_table").html('<ul id="provision_images_ul" class="large-block-grid-2 medium-block-grid-2 small-block-grid-1 text-center"></ul>');
+        }
         return true;
       },
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
@@ -1655,6 +1746,14 @@ $(document).ready(function(){
 
     update_provision_images_datatable(provision_images_datatable);
     provision_images_datatable.fnFilter("^" + username + "$", 2, true, false)
+
+    $('#provision_list_images_search').keyup(function(){
+      provision_images_datatable.fnFilter( $(this).val() );
+    })
+
+    $('#provision_list_images_search').change(function(){
+      provision_images_datatable.fnFilter( $(this).val() );
+    })
 
     $("#provision_images_list_button").on("click", function(){
       show_provision_image_list(0);
@@ -1700,7 +1799,8 @@ $(document).ready(function(){
 
     provision_vms_datatable = $('#provision_vms_table').dataTable({
       "iDisplayLength": 6,
-      "sDom" : '<"H">t<"F"p>',
+      "sDom" : '<"H">t<"F"lp>',
+      "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
       "aaSorting"  : [[0, "desc"]],
       "aoColumnDefs": [
           { "bVisible": false, "aTargets": ["all"]}
@@ -1711,8 +1811,22 @@ $(document).ready(function(){
       ],
       "fnPreDrawCallback": function (oSettings) {
         // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
+        if (this.$('tr', {"filter": "applied"} ).length == 0) {
+          this.html('<div class="text-center">'+
+            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+            '</span>'+
+            '<br>'+
+            '<br>'+
+            '<span style="font-size: 18px; color: #999">'+
+              tr("There are no Virtual Machines available")+
+            '</span>'+
+            '</div>');
+        } else {
+          $("#provision_vms_table").html('<ul id="provision_vms_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+        }
 
-        $("#provision_vms_table").html('<ul id="provision_vms_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
         return true;
       },
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
@@ -1757,6 +1871,13 @@ $(document).ready(function(){
 
     update_provision_vms_datatable(provision_vms_datatable);
 
+    $('#provision_list_vms_search').keyup(function(){
+      provision_vms_datatable.fnFilter( $(this).val() );
+    })
+
+    $('#provision_list_vms_search').change(function(){
+      provision_vms_datatable.fnFilter( $(this).val() );
+    })
 
     $("#provision_vms_list_button").on("click", function(){
       show_provision_vm_list(0);
