@@ -703,148 +703,14 @@ function updateGroupInfo(request,group){
     Sunstone.updateInfoPanelTab("group_info_panel","group_providers_tab",providers_tab);
     Sunstone.popUpInfoPanel("group_info_panel", 'groups-tab');
 
-
     $("#add_rp_button", $("#group_info_panel")).click(function(){
-      setup_add_rp_dialog(info);
-      $('#add_rp_dialog',dialogs_context).addClass("reveal-modal large max-height").attr("data-reveal", "");
-      $('#add_rp_dialog',dialogs_context).foundation().foundation('reveal', 'open');
+        initUpdateGroupDialog();
 
-      return false;
-    })
-}
-
-
-function setup_add_rp_dialog(group){
-    dialogs_context.append('<div id="add_rp_dialog"></div>');
-
-    var dialog = $('#add_rp_dialog',dialogs_context);
-
-    dialog.html(
-        '<div class="row">\
-          <div class="large-12 columns">\
-            <h3 id="create_rp_header" class="subheader">'+tr("Select Resource Providers")+'</h3>\
-          </div>\
-        </div>\
-        <div class="reveal-body">\
-            <div class="row">\
-              <div class="large-12 columns">\
-                <h5>' + tr("Zones") +'</h5>\
-                <dl class="tabs" id="group_zones_tabs" data-tab>\
-                </dl>\
-                <div class="tabs-content group_zones_tabs_content">\
-                </div>\
-              </div>\
-             </div>\
-            <div class="reveal-footer">\
-              <div class="form_buttons">\
-                <button class="button radius right success" id="add_rp_submit">'+tr("Add")+'</button>\
-                <button class="button secondary radius" id="add_rp_reset_button" type="reset" value="reset">'+tr("Reset")+'</button>\
-              </div>\
-            </div>\
-        </div>\
-        <a class="close-reveal-modal">&#215;</a>');
-
-     $('#add_rp_submit').die();
-     $('#add_rp_submit').live( "click", function() {
-
-       $.each(selected_group_clusters, function(zone_id, zone_clusters) {
-           var str_zone_tab_id = 'zone' + zone_id + "_add_rp";
-
-           var providers_array=group.RESOURCE_PROVIDER
-
-           if (!providers_array) {
-              providers_array = new Array();
-           } else if (!$.isArray(providers_array)) {
-              var tmp_array   = new Array();
-              tmp_array[0]    = providers_array;
-              providers_array = tmp_array;
-           }
-
-           var resource_selection = $("input[name='"+str_zone_tab_id+"']:checked", dialog).val();
-           switch (resource_selection){
-           case "all":
-               // 10 is the special ID for ALL, see ClusterPool.h
-              extra_param = {
-                   "zone_id" : zone_id,
-                   "cluster_id" : 10
-               }
-
-                add_it = true;
-
-                $.each(providers_array, function(index, provider){
-                  if (provider.ZONE_ID==zone_id && provider.CLUSTER_ID == 10)
-                  {
-                    add_it = false;
-                  }
-                });
-
-                if (add_it)
-                {
-                  Sunstone.runAction("Group.add_provider_action",
-                                     group.ID,
-                                     extra_param);
-                }
-
-              break;
-           case "cluster":
-               $.each(selected_group_clusters[zone_id], function(key, value) {
-                 extra_param =
-                 {
-                     "zone_id" : zone_id,
-                     "cluster_id" : key
-                 }
-
-                add_it = true;
-
-                if(providers_array)
-                {
-                  $.each(providers_array, function(index, provider){
-                    if (provider.ZONE_ID==zone_id && provider.CLUSTER_ID == key)
-                    {
-                      add_it = false;
-                    }
-                  });
-                }
-
-                if (add_it)
-                {
-                  Sunstone.runAction("Group.add_provider_action",
-                                     group.ID,
-                                     extra_param);
-                }
-               });
-
-               break;
-           default: // "none"
-
-           }
-       });
-
-     dialog.foundation('reveal', 'close');
-     dialog.html("");
-
-    });
-
-    $("#add_rp_reset_button", dialog).die();
-    $("#add_rp_reset_button", dialog).live("click", function(){
-      $('#add_rp_dialog',dialog).remove();
-      setup_add_rp_dialog(group);
-      $('#add_rp_dialog').addClass("reveal-modal large max-height").attr("data-reveal", "");
-      $('#add_rp_dialog').foundation().foundation('reveal', 'open');
-    });
-
-    OpenNebula.Zone.list({
-      timeout: true,
-      success: function (request, obj_list){
-          $.each(obj_list,function(){
-              add_resource_tab(this.ZONE.ID, this.ZONE.NAME, dialog, "add_rp", group);
-          });
-      },
-      error: onError
+        return false;
     });
 }
 
-function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id, str_datatable_id, id_suffix, group) {
+function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id, str_datatable_id, selected_group_clusters, group) {
     // Show the clusters dataTable when the radio button is selected
     $("input[name='"+str_zone_tab_id+"']", zone_section).change(function(){
         if ($("input[name='"+str_zone_tab_id+"']:checked", zone_section).val() == "cluster") {
@@ -855,7 +721,7 @@ function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id
         }
     });
 
-    if (zone_id == 0 && !id_suffix)
+    if (zone_id == 0 && !group)
     {
       $('#'+str_zone_tab_id+'resources_all', zone_section).click();
     }
@@ -877,7 +743,7 @@ function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id
     });
 
     // Retrieve the clusters to fill the datatable
-    update_datatable_group_clusters(dataTable_group_clusters, zone_id, group);
+    update_datatable_group_clusters(dataTable_group_clusters, zone_id, str_zone_tab_id, group);
 
     $('#'+str_zone_tab_id+'_search', zone_section).keyup(function(){
         dataTable_group_clusters.fnFilter( $(this).val() );
@@ -902,8 +768,7 @@ function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id
         if(!$("td:first", this).hasClass('markrowchecked'))
         {
             $('input.check_item', this).attr('checked','checked');
-            selected_group_clusters[zone_id][cluster_id] = 1;
-            group_clusters_row_hash[zone_id][cluster_id] = this;
+            selected_group_clusters[zone_id][cluster_id] = this;
             $(this).children().each(function(){$(this).addClass('markrowchecked');});
             if ($('#tag_cluster_'+aData[1], $('.selected_group_clusters', zone_section)).length == 0 ) {
                 $('.selected_group_clusters', zone_section).append('<span id="tag_cluster_'+aData[1]+'" class="radius label">'+aData[2]+' <span class="fa fa-times blue"></span></span> ');
@@ -932,9 +797,10 @@ function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id
         var id = $(this).parent().attr("ID");
 
         var cluster_id=id.substring(12,id.length);
+
+        $('td', selected_group_clusters[zone_id][cluster_id]).removeClass('markrowchecked');
+        $('input.check_item', selected_group_clusters[zone_id][cluster_id]).removeAttr('checked');
         delete selected_group_clusters[zone_id][cluster_id];
-        $('td', group_clusters_row_hash[zone_id][cluster_id]).removeClass('markrowchecked');
-        $('input.check_item', group_clusters_row_hash[zone_id][cluster_id]).removeAttr('checked');
 
         if ($.isEmptyObject(selected_group_clusters[zone_id])) {
             $('#you_selected_group_clusters'+str_zone_tab_id, zone_section).hide();
@@ -998,80 +864,71 @@ function generate_group_resource_tab_content(str_zone_tab_id, str_datatable_id, 
 
     $("#refresh_group_clusters_table_button_class"+str_zone_tab_id).die();
     $("#refresh_group_clusters_table_button_class"+str_zone_tab_id).live('click', function(){
-        update_datatable_group_clusters($('table[id='+str_datatable_id+']').dataTable(), zone_id, group);
+        update_datatable_group_clusters(
+            $('table[id='+str_datatable_id+']').dataTable(),
+            zone_id, str_zone_tab_id, group);
     });
 
     return html;
 }
 
 // TODO: Refactor? same function in templates-tab.js
-function update_datatable_group_clusters(datatable, zone_id, group) {
+function update_datatable_group_clusters(datatable, zone_id, str_zone_tab_id, group) {
 
-   OpenNebula.Cluster.list_in_zone({
-    data:{zone_id:zone_id},
-    timeout: true,
-    success: function (request, obj_list){
-        var obj_list_array = [];
+    OpenNebula.Cluster.list_in_zone({
+        data:{zone_id:zone_id},
+        timeout: true,
+        success: function (request, obj_list){
+            var obj_list_array = [];
 
-        $.each(obj_list,function(){
-            //Grab table data from the obj_list
-            obj_list_array.push(clusterElementArray(this));
-        });
+            $.each(obj_list,function(){
+                //Grab table data from the obj_list
+                obj_list_array.push(clusterElementArray(this));
+            });
 
-        updateView(obj_list_array, datatable);
+            updateView(obj_list_array, datatable);
 
-        if (group && group.RESOURCE_PROVIDER)
-        {
-          var rows = datatable.fnGetNodes();
-          providers_array=group.RESOURCE_PROVIDER
-
-          if (!$.isArray(providers_array))
-          {
-            var tmp_array   = new Array();
-            tmp_array[0]    = providers_array;
-            providers_array = tmp_array;
-          }
-
-          $.each(providers_array, function(index, provider){
-            if (provider.ZONE_ID==zone_id)
+            if (group && group.RESOURCE_PROVIDER)
             {
-              for(var j=0;j<rows.length;j++)
-              {
-                var current_row    = $(rows[j]);
-                var row_cluster_id = $(rows[j]).find("td:eq(1)").html();
+                var rows = datatable.fnGetNodes();
+                providers_array = group.RESOURCE_PROVIDER;
 
-                if (provider.CLUSTER_ID == row_cluster_id || provider.CLUSTER_ID == "10")
+                if (!$.isArray(providers_array))
                 {
-                  current_row.click();
+                    providers_array = [providers_array];
                 }
-              }
-              if (provider.CLUSTER_ID == "10")
-                $('#zone'+zone_id+'_add_rpresources_all').click();
-              else
-                $('#zone'+zone_id+'_add_rpresources_cluster').click();
+
+                $('#'+str_zone_tab_id+'resources_none').click();
+
+                $.each(providers_array, function(index, provider){
+                    if (provider.ZONE_ID==zone_id)
+                    {
+                        for(var j=0;j<rows.length;j++)
+                        {
+                            var current_row    = $(rows[j]);
+                            var row_cluster_id = $(rows[j]).find("td:eq(1)").html();
+
+                            if (provider.CLUSTER_ID == row_cluster_id)
+                            {
+                                current_row.click();
+                            }
+                        }
+                        if (provider.CLUSTER_ID == "10")
+                            $('#'+str_zone_tab_id+'resources_all').click();
+                        else
+                            $('#'+str_zone_tab_id+'resources_cluster').click();
+                    }
+                });
             }
-          });
         }
-    }
-  });
+    });
 };
 
-// TODO: one array per zone
-var selected_group_clusters = {};
-var group_clusters_row_hash = {};
-
-var add_resource_tab = function(zone_id, zone_name, dialog, id_suffix, group) {
+var add_resource_tab = function(zone_id, zone_name, dialog, selected_group_clusters, group) {
     var str_zone_tab_id  = dialog.attr('id') + '_zone' + zone_id;
     var str_datatable_id = dialog.attr('id') + '_datatable_group_clusters_zone_' + zone_id;
 
-    if (id_suffix)
-    {
-      str_zone_tab_id += "_" + id_suffix;
-      str_datatable_id += "_" + id_suffix;
-    }
-
     selected_group_clusters[zone_id] = {};
-    group_clusters_row_hash[zone_id] = {};
 
     // Append the new div containing the tab and add the tab to the list
     var html_tab_content = '<div id="'+str_zone_tab_id+'Tab" class="content">'+
@@ -1088,7 +945,7 @@ var add_resource_tab = function(zone_id, zone_name, dialog, id_suffix, group) {
     $('a', a).click();
 
     var zone_section = $('#' +str_zone_tab_id+'Tab', dialog);
-    setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id, str_datatable_id, id_suffix, group);
+    setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id, str_datatable_id, selected_group_clusters, group);
 };
 
 function disableAdminUser(dialog){
@@ -1165,11 +1022,16 @@ function setupCreateGroupDialog(){
         $(this).prop("checked", "true");
     });
 
+    var selected_group_clusters = {};
+
     OpenNebula.Zone.list({
         timeout: true,
         success: function (request, obj_list){
             $.each(obj_list,function(){
-                add_resource_tab(this.ZONE.ID, this.ZONE.NAME, dialog);
+                add_resource_tab(this.ZONE.ID,
+                    this.ZONE.NAME,
+                    dialog,
+                    selected_group_clusters);
             });
         },
         error: onError
@@ -1202,9 +1064,9 @@ function setupCreateGroupDialog(){
         group_json['group']['resource_providers'] = [];
 
         $.each(selected_group_clusters, function(zone_id, zone_clusters) {
-            var str_zone_tab_id = 'zone' + zone_id;
+            var str_zone_tab_id = dialog.attr('id') + '_zone' + zone_id;
 
-            var resource_selection = $("input[name='"+str_zone_tab_id+"']:checked").val();
+            var resource_selection = $("input[name='"+str_zone_tab_id+"']:checked", dialog).val();
             switch (resource_selection){
             case "all":
                 // 10 is the special ID for ALL, see ClusterPool.h
@@ -1291,16 +1153,6 @@ function setupUpdateGroupDialog(){
 
     $("a[href='#administrators']", dialog).parents("dd").hide();
     $("a[href='#resource_creation']", dialog).parents("dd").hide();
-
-    OpenNebula.Zone.list({
-        timeout: true,
-        success: function (request, obj_list){
-            $.each(obj_list,function(){
-                add_resource_tab(this.ZONE.ID, this.ZONE.NAME, dialog);
-            });
-        },
-        error: onError
-    });
 }
 
 function initUpdateGroupDialog(){
@@ -1339,9 +1191,28 @@ function popUpUpdateGroupDialog(group, dialog)
         });
     }
 
+    var selected_group_clusters = {};
+
+    OpenNebula.Zone.list({
+        timeout: true,
+        success: function (request, obj_list){
+            $.each(obj_list,function(){
+                add_resource_tab(this.ZONE.ID,
+                                 this.ZONE.NAME,
+                                 dialog,
+                                 selected_group_clusters,
+                                 group);
+            });
+        },
+        error: onError
+    });
+
 
     $(dialog).off("click", 'button#update_group_submit');
     $(dialog).on("click", 'button#update_group_submit', function(){
+
+        // Update Views
+        //-------------------------------------
         var new_views_str = "";
         var separator     = "";
 
@@ -1359,6 +1230,94 @@ function popUpUpdateGroupDialog(group, dialog)
 
             Sunstone.runAction("Group.update_template",group.ID,template_str);
         }
+
+        // Update Resource Providers
+        //-------------------------------------
+
+        var old_resource_providers = group.RESOURCE_PROVIDER;
+
+        if (!old_resource_providers) {
+            old_resource_providers = new Array();
+        } else if (!$.isArray(old_resource_providers)) {
+            old_resource_providers = [old_resource_providers];
+        }
+
+        var new_resource_providers = [];
+
+        $.each(selected_group_clusters, function(zone_id, zone_clusters) {
+            var str_zone_tab_id = dialog.attr('id') + '_zone' + zone_id;
+
+            var resource_selection = $("input[name='"+str_zone_tab_id+"']:checked", dialog).val();
+            switch (resource_selection){
+            case "all":
+                // 10 is the special ID for ALL, see ClusterPool.h
+                new_resource_providers.push(
+                    {"zone_id" : zone_id, "cluster_id" : 10}
+                );
+
+                break;
+            case "cluster":
+                $.each(selected_group_clusters[zone_id], function(key, value) {
+                    new_resource_providers.push(
+                        {"zone_id" : zone_id, "cluster_id" : key}
+                    );
+                });
+
+                break;
+            default: // "none"
+
+            }
+        });
+
+        $.each(old_resource_providers, function(index, old_res_provider){
+            found = false;
+
+            $.each(new_resource_providers, function(index, new_res_provider){
+                found = (old_res_provider.ZONE_ID == new_res_provider.zone_id &&
+                         old_res_provider.CLUSTER_ID == new_res_provider.cluster_id);
+
+                return !found;
+            });
+
+            if (!found) {
+                var extra_param = {
+                    "zone_id"    : old_res_provider.ZONE_ID,
+                    "cluster_id" : old_res_provider.CLUSTER_ID
+                };
+
+                Sunstone.runAction("Group.del_provider_action",
+                                   group.ID,
+                                   extra_param);
+
+                console.log("delete res provider "+old_res_provider.ZONE_ID+' - '+old_res_provider.CLUSTER_ID);
+            }
+        });
+
+        $.each(new_resource_providers, function(index, new_res_provider){
+            found = false;
+
+            $.each(old_resource_providers, function(index, old_res_provider){
+                found = (old_res_provider.ZONE_ID == new_res_provider.zone_id &&
+                         old_res_provider.CLUSTER_ID == new_res_provider.cluster_id);
+
+                return !found;
+            });
+
+            if (!found) {
+                var extra_param = new_res_provider;
+
+                Sunstone.runAction("Group.add_provider_action",
+                                   group.ID,
+                                   extra_param);
+
+                console.log("add res provider "+new_res_provider.zone_id+' - '+new_res_provider.cluster_id);
+            }
+        });
+
+        // Close the dialog
+        //-------------------------------------
+
+        dialog.foundation('reveal', 'close');
 
         return false;
     });
