@@ -686,7 +686,11 @@ div.dataTables_scrollFoot table {
     overflow: hidden;
   }
 
-  &.hoverable:not(.selected):hover {
+  &.hoverable.only-one:not(.selected):hover {
+    cursor: pointer;
+  }
+
+  &.hoverable.more-than-one:hover {
     cursor: pointer;
   }
 
@@ -776,7 +780,6 @@ div.dataTables_scrollFoot table {
     height: 1.5625rem !important;
     border: none;
     background-color: #dfdfdf;
-    padding: 0px;
   }
 
   .progress-text {

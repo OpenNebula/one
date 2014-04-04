@@ -117,6 +117,38 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
       '<br>'+
     '</div>'+
   '</div>'+
+  '<br>'+
+  '<br>'+
+  '<div class="row">'+
+    '<div class="large-10 large-centered columns">'+
+      '<h3 class="subheader text-right">'+
+        '<span class="left">'+
+          '<i class="fa fa-fw fa-globe"/>&emsp;'+
+          tr("Select Network")+
+        '</span>'+
+        '<a href"#" id="provision_create_networks_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip right">'+
+          '<i class="fa fa-fw fa-refresh"/>'+
+        '</a>'+
+        '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_create_networks_search"/>'+
+      '</h3>'+
+      '<br>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-9 large-centered columns">'+
+      '<table id="provision_networks_table">'+
+        '<thead class="hidden">'+
+          '<tr>'+
+            '<th>'+tr("ID")+'</th>'+
+            '<th>'+tr("Name")+'</th>'+
+          '</tr>'+
+        '</thead>'+
+        '<tbody class="hidden">'+
+        '</tbody>'+
+      '</table>'+
+      '<br>'+
+    '</div>'+
+  '</div>'+
   '<div class="row">'+
     '<div class="large-8 columns large-centered">'+
       '<div data-alert class="alert-box alert-box-error radius text-center hidden">'+
@@ -501,6 +533,10 @@ var provision_info_vm =  '<div id="provision_info_vm" class="section_content hid
     '<div class="large-10 large-centered columns">'+
       '<h2 class="subheader">'+
         '<span class="right" style="padding: 5px;border: 1px solid #efefef; background: #f7f7f7; border-radius: 5px; color:#777 !important; width: 100%; box-shadow: 0px 1px #dfdfdf">'+
+          '<div class="row">'+
+            '<div class="large-11 large-centered columns" id="provision_confirm_action">'+
+            '</div>'+
+          '</div>'+
           '<ul class="inline-list text-center" style="font-size:12px; margin-bottom:0px; padding: 5px 10px">'+
           '<li>'+
           '<a href"#" id="provision_vnc_button" data-tooltip title="Open a VNC console in a new window" class="has-tip tip-top">'+
@@ -548,10 +584,6 @@ var provision_info_vm =  '<div id="provision_info_vm" class="section_content hid
           '</a>'+
           '</li>'+
           '</ul>'+
-          '<div class="row">'+
-            '<div class="large-11 large-centered columns" id="provision_confirm_action">'+
-            '</div>'+
-          '</div>'+
         '</span>'+
       '</h2>'+
     '</div>'+
@@ -964,6 +996,42 @@ function update_provision_templates_datatable(datatable) {
           '<br>'+
           '<span style="font-size: 18px; color: #999">'+
             tr("There are no templates available")+
+          '</span>'+
+          '</div>');
+      } else {
+        datatable.fnAddData(item_list);
+      }
+    }
+  });
+}
+
+function update_provision_networks_datatable(datatable) {
+  datatable.html('<div class="text-center">'+
+    '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+      '<i class="fa fa-cloud fa-stack-2x"></i>'+
+      '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+    '</span>'+
+    '<br>'+
+    '<br>'+
+    '<span style="font-size: 18px; color: #999">'+
+      tr("")+
+    '</span>'+
+    '</div>');
+
+  OpenNebula.Network.list({
+    timeout: true,
+    success: function (request, item_list){
+      datatable.fnClearTable(true);
+      if (item_list.length == 0) {
+        datatable.html('<div class="text-center">'+
+          '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+            '<i class="fa fa-cloud fa-stack-2x"></i>'+
+            '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+          '</span>'+
+          '<br>'+
+          '<br>'+
+          '<span style="font-size: 18px; color: #999">'+
+            tr("There are no networks available")+
           '</span>'+
           '</div>');
       } else {
@@ -1494,7 +1562,7 @@ $(document).ready(function(){
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
         var data = aData.VMTEMPLATE;
         $("#provision_templates_ul").append('<li>'+
-            '<ul class="provision-pricing-table hoverable" opennebula_id="'+data.ID+'">'+
+            '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
               '<li class="provision-title" title="'+data.NAME+'">'+
                 data.NAME+
               '</li>'+
@@ -1569,7 +1637,7 @@ $(document).ready(function(){
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
         var data = aData.IMAGE;
         $("#provision_create_vm_images_ul").append('<li>'+
-            '<ul class="provision-pricing-table hoverable" opennebula_id="'+data.ID+'">'+
+            '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
               '<li class="provision-title">'+
                 data.NAME +
               '</li>'+
@@ -1626,7 +1694,7 @@ $(document).ready(function(){
         var state = get_provision_image_state(data);
 
         $("#provision_snapshots_ul").append('<li>'+
-            '<ul class="provision-pricing-table hoverable" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
+            '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
               '<li class="provision-title">'+
                 data.NAME +
               '</li>'+
@@ -1662,7 +1730,90 @@ $(document).ready(function(){
       update_provision_images_datatable(provision_create_vm_images_datatable);
     });
 
-    tab.on("click", "#provision_create_vm .provision-pricing-table" , function(){
+    provision_networks_datatable = $('#provision_networks_table').dataTable({
+      "iDisplayLength": 6,
+      "sDom" : '<"H">t<"F"lp>',
+      "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
+      "aoColumnDefs": [
+          { "bVisible": false, "aTargets": ["all"]}
+      ],
+      "aoColumns": [
+          { "mDataProp": "VNET.ID" },
+          { "mDataProp": "VNET.NAME" }
+      ],
+      "fnPreDrawCallback": function (oSettings) {
+        // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
+        if (this.$('tr', {"filter": "applied"} ).length == 0) {
+          this.html('<div class="text-center">'+
+            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+            '</span>'+
+            '<br>'+
+            '<br>'+
+            '<span style="font-size: 18px; color: #999">'+
+              tr("There are no networks available")+
+            '</span>'+
+            '</div>');
+        } else {
+          $("#provision_networks_table").html('<ul id="provision_networks_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+        }
+
+        return true;
+      },
+      "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+        var data = aData.VNET;
+        $("#provision_networks_ul").append('<li>'+
+            '<ul class="provision-pricing-table hoverable more-than-one" opennebula_id="'+data.ID+'">'+
+              '<li class="provision-title" title="'+data.NAME+'">'+
+                data.NAME+
+              '</li>'+
+              '<li class="provision-bullet-item">'+'<i class="fa fa-fw fa-globe" style="font-size:40px;"/>'+'</li>'+
+              //'<li class="provision-bullet-item">'+
+              //  '<span style="font-size: 40px">'+
+              //  '<i class="fa fa-fw fa-laptop"/>&emsp;'+
+              //  '<span style="vertical-align: middle; font-size:14px">'+
+              //    'x'+data.TEMPLATE.CPU+' - '+
+              //    ((data.TEMPLATE.MEMORY > 1000) ?
+              //      (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
+              //      (data.TEMPLATE.MEMORY+'MB'))+
+              //  '</span>'+
+              //  '</span>'+
+              //'</li>'+
+              '<li class="provision-description">'+
+                (data.TEMPLATE.DESCRIPTION || '...')+
+              '</li>'+
+            '</ul>'+
+          '</li>');
+
+        return nRow;
+      }
+    });
+
+    update_provision_networks_datatable(provision_networks_datatable);
+
+    $('#provision_create_networks_search').on('keyup',function(){
+      provision_networks_datatable.fnFilter( $(this).val() );
+    })
+
+    $('#provision_create_networks_search').on('change',function(){
+      provision_networks_datatable.fnFilter( $(this).val() );
+    })
+
+    $("#provision_create_networks_refresh_button").click(function(){
+      OpenNebula.Helper.clear_cache("VNET");
+      update_provision_networks_datatable(provision_networks_datatable);
+    });
+
+    tab.on("click", "#provision_create_vm .provision-pricing-table.more-than-one" , function(){
+      if ($(this).hasClass("selected")) {
+        $(this).removeClass("selected");
+      } else {
+        $(this).addClass("selected");
+      }
+    })
+
+    tab.on("click", "#provision_create_vm .provision-pricing-table.only-one" , function(){
       $(".provision-pricing-table", $(this).parents(".large-block-grid-3,.large-block-grid-2")).removeClass("selected")
       $(this).addClass("selected");
     })
@@ -1673,6 +1824,13 @@ $(document).ready(function(){
       var vm_name = $("#vm_name", context).val();
       var image_id = $(".tabs-content .content.active .selected", context).attr("opennebula_id");
       var template_id = $("#provision_templates_ul .selected", context).attr("opennebula_id");
+
+      var nics = [];
+      $("#provision_networks_ul .selected", context).each(function(){
+        nics.push({
+          'network_id': $(this).attr("opennebula_id")
+        });
+      });
 
       if (!template_id) {
         $(".alert-box-error", context).fadeIn().html(tr("You must select at least a capacity configuration"));
@@ -1691,6 +1849,10 @@ $(document).ready(function(){
             'image_id': image_id
           }
         }
+      }
+
+      if (nics.length > 0) {
+        extra_info.template.nic = nics;
       }
 
       Sunstone.runAction("Provision.instantiate", template_id, extra_info);
