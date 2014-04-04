@@ -1286,7 +1286,11 @@ function setupUpdateGroupDialog(){
     $('#create_group_header',$update_group_dialog).hide();
     $('#create_group_reset_button',$update_group_dialog).hide();
 
+    // Disable parts of the wizard
     $("input#name", dialog).attr("disabled", "disabled");
+
+    $("a[href='#administrators']", dialog).parents("dd").hide();
+    $("a[href='#resource_creation']", dialog).parents("dd").hide();
 
     OpenNebula.Zone.list({
         timeout: true,
@@ -1331,7 +1335,7 @@ function popUpUpdateGroupDialog(group, dialog)
 
         var views = views_str.split(",");
         $.each(views, function(){
-            $('input[id^="group_view"][value="'+this+'"]', dialog).attr('checked','checked');
+            $('input[id^="group_view"][value="'+this.trim()+'"]', dialog).attr('checked','checked');
         });
     }
 
