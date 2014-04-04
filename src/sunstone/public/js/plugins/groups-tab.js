@@ -37,8 +37,8 @@ var group_acct_graphs = [
     }
 ];
 
-var create_group_tmpl =
-'<div class="row">\
+function create_group_tmpl(dialog_name){
+    return '<div class="row">\
   <div class="large-12 columns">\
     <h3 id="create_group_header">'+tr("Create Group")+'</h3>\
     <h3 id="update_group_header">'+tr("Update Group")+'</h3>\
@@ -48,7 +48,7 @@ var create_group_tmpl =
   <form id="create_group_form" action="">\
     <div class="row">\
       <div class="columns large-5">\
-          <label for="name">'+tr("Name")+':\
+          <label>'+tr("Name")+':\
             <input type="text" name="name" id="name" />\
           </label>\
       </div>\
@@ -73,7 +73,7 @@ var create_group_tmpl =
       </div>\
       <div class="row">\
         <div class="large-12 columns">'+
-            insert_views()
+            insert_views(dialog_name)
         +'</div>\
       </div>\
     </div>\
@@ -95,8 +95,9 @@ var create_group_tmpl =
         <div class="large-6 columns">\
           <div class="row">\
             <div class="large-12 columns">\
-              <input type="checkbox" id="admin_user" name="admin_user" value="YES" />\
-              <label for="admin_user">'+tr("Create an administrator user")+'\
+              <label>\
+                <input type="checkbox" id="admin_user" name="admin_user" value="YES" />\
+                '+tr("Create an administrator user")+'\
                 <span class="tip">'+tr("You can create now an administrator user that will be assigned to the new regular group, with the administrator group as a secondary one.")+'</span>\
               </label>\
             </div>\
@@ -159,6 +160,7 @@ var create_group_tmpl =
   <a class="close-reveal-modal">&#215;</a>\
   </form>\
 </div>';
+}
 
 var group_quotas_tmpl = '<div class="row" class="subheader">\
   <div class="large-12 columns">\
@@ -434,14 +436,14 @@ Sunstone.addActions(group_actions);
 Sunstone.addMainTab('groups-tab',groups_tab);
 Sunstone.addInfoPanel("group_info_panel",group_info_panel);
 
-function insert_views(){
+function insert_views(dialog_name){
   views_checks_str = ""
   var views_array = config['available_views'];
   for (var i = 0; i < views_array.length; i++)
   {
     views_checks_str = views_checks_str +
-             '<input type="checkbox" id="group_view_'+views_array[i]+'" value="'+views_array[i]+'"/>' +
-             '<label for="group_view_'+views_array[i]+'">'+views_array[i]+
+             '<input type="checkbox" id="group_view_'+dialog_name+'_'+views_array[i]+'" value="'+views_array[i]+'"/>' +
+             '<label for="group_view_'+dialog_name+'_'+views_array[i]+'">'+views_array[i]+
              '</label>'
   }
   return views_checks_str;
@@ -1109,7 +1111,7 @@ function setupCreateGroupDialog(){
     $create_group_dialog = $('#create_group_dialog',dialogs_context);
     var dialog = $create_group_dialog;
 
-    dialog.html(create_group_tmpl);
+    dialog.html(create_group_tmpl('create'));
     dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
     $(document).foundation();
 
@@ -1273,7 +1275,7 @@ function setupUpdateGroupDialog(){
     $update_group_dialog = $('#update_group_dialog',dialogs_context);
     var dialog = $update_group_dialog;
 
-    dialog.html(create_group_tmpl);
+    dialog.html(create_group_tmpl('update'));
     dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
     $(document).foundation();
 
