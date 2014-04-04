@@ -500,44 +500,63 @@ var provision_info_vm =  '<div id="provision_info_vm" class="section_content hid
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
       '<h2 class="subheader">'+
-        '<span class="right" style="padding: 5px;border: 1px solid #efefef; background: #f7f7f7; border-radius: 5px; color:#777 !important; width: 100%; font-size: 90%; box-shadow: 0px 1px #dfdfdf">'+
-          '<a href"#" id="provision_delete_confirm_button" data-tooltip title="Delete" class="has-tip tip-top right" style="margin-left:15px; margin-right:15px">'+
-            '<i class="fa fa-fw fa-trash-o"/><span style="font-size: 12px; vertical-align: middle">'+tr("Delete")+'</span>'+
+        '<span class="right" style="padding: 5px;border: 1px solid #efefef; background: #f7f7f7; border-radius: 5px; color:#777 !important; width: 100%; box-shadow: 0px 1px #dfdfdf">'+
+          '<ul class="inline-list text-center" style="font-size:12px; margin-bottom:0px; padding: 5px 10px">'+
+          '<li>'+
+          '<a href"#" id="provision_vnc_button" data-tooltip title="Open a VNC console in a new window" class="has-tip tip-top">'+
+            '<i class="fa fa-fw fa-2x fa-desktop"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("VNC")+'</span>'+
           '</a>'+
-          '<a href"#" id="provision_shutdownhard_confirm_button" data-tooltip title="Delete" class="has-tip tip-top right" style="margin-left:15px; margin-right:15px">'+
-            '<i class="fa fa-fw fa-trash-o"/><span style="font-size: 12px; vertical-align: middle">'+tr("Delete")+'</span>'+
-          '</a>'+
-          '<a href"#" id="provision_poweroff_confirm_button" data-tooltip title="Power off" class="has-tip tip-top right" style="margin-left:15px; margin-right:15px">'+
-            '<i class="fa fa-fw fa-power-off"/><span style="font-size: 12px; vertical-align: middle">'+tr("Power off")+'</span>'+
-          '</a>'+
-          '<a href"#" id="provision_poweron_button" data-tooltip title="Power on" class="has-tip tip-top right" style="margin-left:15px; margin-right:15px">'+
-            '<i class="fa fa-fw fa-play"/><span style="font-size: 12px; vertical-align: middle">'+tr("Power on")+'</span>'+
-          '</a>'+
-          '<a href"#" id="provision_reboot_confirm_button" data-tooltip title="Reboot" class="has-tip tip-top right" style="margin-left:10px; margin-right:15px">'+
-            '<i class="fa fa-fw fa-repeat"/><span style="font-size: 12px; vertical-align: middle">'+tr("Reboot")+'</span>'+
-          '</a>'+
-          '<a href"#" id="provision_vnc_button" data-tooltip title="Open a VNC console in a new window" class="has-tip tip-top" style="margin-left:15px; margin-right:25px">'+
-            '<i class="fa fa-fw fa-desktop"/><span style="font-size: 12px; vertical-align: middle">'+tr("VNC")+'</span>'+
-          '</a>'+
-          '<span id="provision_vnc_button_disabled" data-tooltip title="You have to boot the Virtual Machine first" class="has-tip tip-top" style="margin-left:15px; margin-right:25px; color: #999">'+
-            '<i class="fa fa-fw fa-desktop"/><span style="font-size: 12px; vertical-align: middle">'+tr("VNC")+'</span>'+
+          '</li>'+
+          '<li>'+
+          '<span id="provision_vnc_button_disabled" data-tooltip title="You have to boot the Virtual Machine first" class="has-tip tip-top" style="olor: #999">'+
+            '<i class="fa fa-fw fa-2x fa-desktop"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("VNC")+'</span>'+
           '</span>'+
-          '<a href"#" id="provision_snapshot_button" data-tooltip title="The main disk of the Virtual Machine will be saved in a new Image" class="has-tip tip-top" style="margin-left:15px; margin-right:15px">'+
-            '<i class="fa fa-fw fa-camera"/><span style="font-size: 12px; vertical-align: middle">'+tr("Save Image")+'</span>'+
+          '</li>'+
+          '<li>'+
+          '<a href"#" id="provision_snapshot_button" data-tooltip title="The main disk of the Virtual Machine will be saved in a new Image" class="has-tip tip-top">'+
+            '<i class="fa fa-fw fa-2x fa-camera"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Save Image")+'</span>'+
           '</a>'+
+          '</li>'+
+          '<li>'+
           '<span id="provision_snapshot_button_disabled" data-tooltip title="You have to power-off the virtual machine first" class="has-tip tip-top" style="margin-left:15px; margin-right:15px; color: #999">'+
-            '<i class="fa fa-fw fa-camera"/><span style="font-size: 12px; vertical-align: middle">'+tr("Save Image")+'</span>'+
+            '<i class="fa fa-fw fa-2x fa-camera"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Save Image")+'</span>'+
           '</span>'+
+          '</li>'+
+          '<li class="right">'+
+          '<a href"#" id="provision_delete_confirm_button" data-tooltip title="Delete" class="has-tip tip-top right">'+
+            '<i class="fa fa-fw fa-2x fa-trash-o"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Delete")+'</span>'+
+          '</a>'+
+          '</li>'+
+          '<li class="right">'+
+          '<a href"#" id="provision_shutdownhard_confirm_button" data-tooltip title="Delete" class="has-tip tip-top right">'+
+            '<i class="fa fa-fw fa-2x fa-trash-o"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Delete")+'</span>'+
+          '</a>'+
+          '</li>'+
+          '<li class="right">'+
+          '<a href"#" id="provision_poweroff_confirm_button" data-tooltip title="Power off" class="has-tip tip-top right">'+
+            '<i class="fa fa-fw fa-2x fa-power-off"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Power off")+'</span>'+
+          '</a>'+
+          '</li>'+
+          '<li class="right">'+
+          '<a href"#" id="provision_poweron_button" data-tooltip title="Power on" class="has-tip tip-top right">'+
+            '<i class="fa fa-fw fa-2x fa-play"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Power on")+'</span>'+
+          '</a>'+
+          '</li>'+
+          '<li class="right">'+
+          '<a href"#" id="provision_reboot_confirm_button" data-tooltip title="Reboot" class="has-tip tip-top right">'+
+            '<i class="fa fa-fw fa-2x fa-repeat"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Reboot")+'</span>'+
+          '</a>'+
+          '</li>'+
+          '</ul>'+
+          '<div class="row">'+
+            '<div class="large-11 large-centered columns" id="provision_confirm_action">'+
+            '</div>'+
+          '</div>'+
         '</span>'+
       '</h2>'+
     '</div>'+
   '</div>'+
   '<br>'+
-  '<br>'+
-  '<div class="row">'+
-    '<div class="large-10 large-centered columns" id="provision_confirm_action">'+
-    '</div>'+
-  '</div>'+
 '</div>';
 
 
