@@ -706,6 +706,8 @@ function updateGroupInfo(request,group){
     $("#add_rp_button", $("#group_info_panel")).click(function(){
         initUpdateGroupDialog();
 
+        $("a[href=#resource_providers]", $update_group_dialog).click();
+
         return false;
     });
 }
@@ -942,7 +944,7 @@ var add_resource_tab = function(zone_id, zone_name, dialog, selected_group_clust
 
     // TODOO
     //$(document).foundationTabs("set_tab", a);
-    $('a', a).click();
+    $("dl#group_zones_tabs", dialog).children("dd").first().children("a").click();
 
     var zone_section = $('#' +str_zone_tab_id+'Tab', dialog);
     setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id, str_datatable_id, selected_group_clusters, group);
@@ -1153,6 +1155,8 @@ function setupUpdateGroupDialog(){
 
     $("a[href='#administrators']", dialog).parents("dd").hide();
     $("a[href='#resource_creation']", dialog).parents("dd").hide();
+
+    $update_group_dialog.foundation();
 }
 
 function initUpdateGroupDialog(){
@@ -1167,14 +1171,14 @@ function initUpdateGroupDialog(){
     // Get proper id
     var group_id = ""+selected_nodes[0];
 
+    setupUpdateGroupDialog();
+
     Sunstone.runAction("Group.show_to_update", group_id);
 }
 
 function popUpUpdateGroupDialog(group, dialog)
 {
-    setupUpdateGroupDialog();
-
-    var dialog = $update_group_dialog.foundation()
+    var dialog = $update_group_dialog;
 
     dialog.foundation('reveal', 'open');
 
@@ -1288,8 +1292,6 @@ function popUpUpdateGroupDialog(group, dialog)
                 Sunstone.runAction("Group.del_provider_action",
                                    group.ID,
                                    extra_param);
-
-                console.log("delete res provider "+old_res_provider.ZONE_ID+' - '+old_res_provider.CLUSTER_ID);
             }
         });
 
@@ -1309,8 +1311,6 @@ function popUpUpdateGroupDialog(group, dialog)
                 Sunstone.runAction("Group.add_provider_action",
                                    group.ID,
                                    extra_param);
-
-                console.log("add res provider "+new_res_provider.zone_id+' - '+new_res_provider.cluster_id);
             }
         });
 
