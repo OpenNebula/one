@@ -104,7 +104,7 @@ tabs:
             vm_capacity_tab: true
             vm_hotplugging_tab: true
             vm_network_tab: true
-            vm_snapshot_tab: true
+            vm_snapshot_tab: false
             vm_placement_tab: false
             vm_actions_tab: true
             vm_template_tab: false
@@ -176,7 +176,7 @@ tabs:
             Template.create_dialog: false
             Template.easy_provision: false
             Template.update_dialog: false
-            Template.instantiate_vms: true
+            Template.instantiate_vms: false
             Template.chown: false
             Template.chgrp: false
             Template.chmod: true
@@ -219,7 +219,7 @@ tabs:
             Image.disable: true
             Image.persistent: false
             Image.nonpersistent: false
-            Image.clone_dialog: true
+            Image.clone_dialog: false
             Image.delete: true
     files-tab:
         panel_tabs:
