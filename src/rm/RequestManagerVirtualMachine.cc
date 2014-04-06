@@ -1030,22 +1030,30 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     ImagePool *     ipool  = nd.get_ipool();
     DatastorePool * dspool = nd.get_dspool();
     UserPool *      upool  = nd.get_upool();
+    VMTemplatePool* tpool  = nd.get_tpool();
 
-    int    id       = xmlrpc_c::value_int(paramList.getInt(1));
-    int    disk_id  = xmlrpc_c::value_int(paramList.getInt(2));
-    string img_name = xmlrpc_c::value_string(paramList.getString(3));
-    string img_type = xmlrpc_c::value_string(paramList.getString(4));
-    bool   is_hot   = false; //Optional XML-RPC argument
+    int    id          = xmlrpc_c::value_int(paramList.getInt(1));
+    int    disk_id     = xmlrpc_c::value_int(paramList.getInt(2));
+    string img_name    = xmlrpc_c::value_string(paramList.getString(3));
+    string img_type    = xmlrpc_c::value_string(paramList.getString(4));
+    bool   is_hot      = false; //Optional XML-RPC argument
+    bool   do_template = false; //Optional XML-RPC argument
 
     if ( paramList.size() > 5 )
     {
         is_hot = xmlrpc_c::value_boolean(paramList.getBoolean(5));
     }
 
+    if ( paramList.size() > 6 )
+    {
+        do_template = xmlrpc_c::value_boolean(paramList.getBoolean(6));
+    }
+
     VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
     VirtualMachine * vm;
     Datastore      * ds;
     int              iid;
+    int              tid;
 
     string error_str;
 
@@ -1103,6 +1111,16 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         return;
     }
 
+    if (do_template && !vm->get_template_attribute("TEMPLATE_ID",tid))
+    {
+        vm->unlock();
+
+        failure_response(ACTION,
+                         request_error("VM has no template to be saved",""),
+                         att);
+        return;
+    }
+
     vmpool->update(vm);
 
     vm->unlock();
@@ -1129,10 +1147,12 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         return;
     }
 
-    int         ds_id   = img->get_ds_id();
-    string      ds_name = img->get_ds_name();
-    long long   size    = img->get_size();
+    int       ds_id   = img->get_ds_id();
+    string    ds_name = img->get_ds_name();
+    long long size    = img->get_size();
 
+    string iname_orig  = img->get_name();
+    string iuname_orig = img->get_name();
     Image::ImageType type = img->get_type();
 
     img->get_template_attribute("DRIVER", driver);
@@ -1327,6 +1347,94 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     }
 
     // Return the new allocated Image ID
+    if (!do_template)
+    {
+        success_response(iid, att);
+        return;
+    }
+
+    // -------------------------------------------------------------------------
+    // Clone original template and replace disk with saved one
+    // -------------------------------------------------------------------------
+    int ntid;
+
+    PoolObjectAuth perms;
+    VMTemplate *   vm_tmpl = tpool->get(tid,true);
+
+    if ( vm_tmpl == 0 ) //Failed to get original template return saved image id
+    {
+        ostringstream error;
+
+        error << get_error(object_name(PoolObjectSQL::TEMPLATE), tid)
+              << "Image successfully saved with id: " << iid;
+
+        failure_response(NO_EXISTS, error.str(), att);
+        return;
+    }
+
+    VirtualMachineTemplate * tmpl = vm_tmpl->clone_template();
+
+    vm_tmpl->get_permissions(perms);
+
+    vm_tmpl->unlock();
+
+    //Setup the new template: name and replace disk
+
+    ostringstream tmpl_name;
+
+    tmpl_name << img_name << "-" << iid;
+
+    tmpl->erase("NAME");
+    tmpl->set(new SingleAttribute("NAME",tmpl_name.str()));
+
+    tmpl->replace_disk_image(iid_orig, iname_orig, iuname_orig, img_name, att.uname);
+
+    //Authorize the template creation operation
+
+    if ( att.uid != 0 )
+    {
+        string tmpl_str = "";
+
+        AuthRequest ar(att.uid, att.group_ids);
+
+        ar.add_auth(AuthRequest::USE, perms);
+
+        tmpl->to_xml(tmpl_str);
+
+        ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::TEMPLATE, tmpl_str);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            delete tmpl;
+
+            ostringstream error;
+
+            error << authorization_error(ar.message, att)
+                  << "Image successfully saved with id: " << iid;
+
+            failure_response(AUTHORIZATION, error.str(), att);
+
+            return;
+        }
+    }
+
+    //Allocate the template
+
+    rc = tpool->allocate(att.uid, att.gid, att.uname, att.gname, umask,
+                tmpl, &ntid, error_str);
+
+    if (rc < 0)
+    {
+        ostringstream error;
+
+        error << allocate_error(PoolObjectSQL::TEMPLATE, error_str)
+              << "Image successfully saved with id: " << iid;
+
+        failure_response(INTERNAL, error.str(), att);
+
+        return;
+    }
+
     success_response(iid, att);
 }
 
