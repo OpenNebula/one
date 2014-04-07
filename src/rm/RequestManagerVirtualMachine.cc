@@ -1386,15 +1386,8 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     tmpl_name << img_name << "-" << iid;
 
-    tmpl->erase("NAME");
-    tmpl->set(new SingleAttribute("NAME",tmpl_name.str()));
-
-    tmpl_name.str("");
-    tmpl_name << tid;
-
-    tmpl->erase("SAVED_TEMPLATE_ID");
-    tmpl->set(new SingleAttribute("SAVED_TEMPLATE_ID",tmpl_name.str()));
-
+    tmpl->replace("NAME", tmpl_name.str());
+    tmpl->replace("SAVED_TEMPLATE_ID", tid);
     tmpl->replace("SAVED_TO_IMAGE_ID", iid);
 
     tmpl->replace_disk_image(iid_orig, iname_orig, iuname_orig, img_name, att.uname);
