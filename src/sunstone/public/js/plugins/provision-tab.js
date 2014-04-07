@@ -1501,14 +1501,14 @@ $(document).ready(function(){
             '</span>'+
             '</div>');
         } else {
-          $("#provision_system_templates_table").html('<ul id="provision_templates_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+          $("#provision_system_templates_table").html('<ul id="provision_system_templates_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
         }
 
         return true;
       },
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
         var data = aData.VMTEMPLATE;
-        $("#provision_templates_ul").append('<li>'+
+        $("#provision_system_templates_ul").append('<li>'+
             '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
               '<li class="provision-title" title="'+data.NAME+'">'+
                 data.NAME+
@@ -1564,14 +1564,14 @@ $(document).ready(function(){
             '</span>'+
             '</div>');
         } else {
-          $("#provision_saved_templates_table").html('<ul id="provision_templates_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+          $("#provision_saved_templates_table").html('<ul id="provision_saved_templates_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
         }
 
         return true;
       },
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
         var data = aData.VMTEMPLATE;
-        $("#provision_templates_ul").append('<li>'+
+        $("#provision_saved_templates_ul").append('<li>'+
             '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
               '<li class="provision-title" title="'+data.NAME+'">'+
                 data.NAME+
@@ -1598,7 +1598,7 @@ $(document).ready(function(){
     });
 
     update_provision_templates_datatable(provision_saved_templates_datatable);
-    provision_saved_templates_datatable.fnFilter("^(?!-$)", 2, true, false);
+    provision_saved_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
 
     $('#provision_create_template_search').on('keyup',function(){
       provision_system_templates_datatable.fnFilter( $(this).val() );
