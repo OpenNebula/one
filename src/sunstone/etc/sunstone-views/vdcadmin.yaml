@@ -1,7 +1,6 @@
 small_logo: images/opennebula-sunstone-v4.0-small.png
 enabled_tabs:
     dashboard-tab: true
-    quotas-tab: true
     system-tab: true
     users-tab: true
     groups-tab: false
@@ -24,6 +23,8 @@ tabs:
     dashboard-tab:
         panel_tabs:
         actions:
+            Dashboard.refresh: false
+            Sunstone.toggle_top: false
         widgets_three_per_row:
             - users
             - network
@@ -35,10 +36,6 @@ tabs:
             - vms
         widgets_one_footer:
             - quotas
-    quotas-tab:
-        panel_tabs:
-        actions:
-            Quotas.refresh: true
     system-tab:
         panel_tabs:
         actions:

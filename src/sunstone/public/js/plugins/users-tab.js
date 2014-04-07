@@ -611,9 +611,6 @@ function updateUsersView(request,users_list,quotas_list){
     var user_list_array = [];
 
     $.each(users_list,function(){
-        //if (this.USER.ID == uid)
-        //    dashboardQuotasHTML(this.USER);
-
         // Inject the VM user quota. This info is returned separately in the
         // pool info call, but the userElementArray expects it inside the USER,
         // as it is returned by the individual info call

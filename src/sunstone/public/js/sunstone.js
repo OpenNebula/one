@@ -3636,7 +3636,11 @@ function showTab(tabname,highlight_tab){
     if (res){
         Sunstone.runAction(res+".list");
     } else {
-//        $(".fa-refresh", $('#'+activeTab)).click();
+        var action = activeTab+".refresh";
+
+        if(SunstoneCfg["actions"][action]){
+            Sunstone.runAction(action);
+        }
     }
 }
 

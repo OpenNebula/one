@@ -228,13 +228,58 @@ var widgets = {
     </fieldset>'
 }
 
+var widget_refresh = {
+    "storage" : function(){
+            Sunstone.runAction("Datastore.list");
+        },
+    "users" : function(){
+            Sunstone.runAction("User.list");
+        },
+    "network" : function(){
+            Sunstone.runAction("Network.list");
+        },
+    "hosts" : function(){
+            Sunstone.runAction("Host.list");
+        },
+    "vms" : function(){
+            Sunstone.runAction("VM.list");
+        },
+    "quotas" : refreshDashboardQuotas
+}
+
+var dashboard_tab_actions = {
+    "Dashboard.refresh" : {
+        type: "custom",
+        call: refreshDashboard
+    },
+    "dashboard-tab.refresh" : {
+        type: "custom",
+        call: refreshDashboard
+    },
+}
+
+var quotas_tab_buttons = {
+    "Dashboard.refresh" : {
+        type: "action",
+        layout: "refresh",
+        alwaysActive: true
+    },
+    "Sunstone.toggle_top" : {
+        type: "custom",
+        layout: "top",
+        alwaysActive: true
+    }
+}
+
 var dashboard_tab = {
     title: '<i class="fa fa-tachometer"></i>'+tr("Dashboard"),
+    buttons: quotas_tab_buttons,
     content: dashboard_tab_content,
     showOnTopMenu: false,
     list_header: '<i class="fa fa-tachometer"></i> '+tr("Dashboard")
 }
 
+Sunstone.addActions(dashboard_tab_actions);
 Sunstone.addMainTab('dashboard-tab',dashboard_tab);
 
 var $dashboard;
@@ -250,8 +295,12 @@ function fillUserQuotasInfo(){
     });
 }
 
+var dashboard_current_gid = "-1";
+
 function updateUserQuotasInfo(request,user_json) {
     var info = user_json.USER;
+
+    dashboard_current_gid = user_json.USER.GID;
 
     var default_user_quotas = Quotas.default_quotas(info.DEFAULT_USER_QUOTAS)
     var quotas_tab_html = Quotas.vms(info, default_user_quotas);
@@ -304,13 +353,13 @@ function updateGroupQuotasInfo(request,group_json){
     $("#quotas_tab_group_TabBody", $dashboard).html(quotas_tab_html);
 }
 
-function refreshQuotasTab(){
+function refreshDashboardQuotas(){
     fillUserQuotasInfo();
 
     gid = $("#quotas_tab_group_sel .resource_list_select", $dashboard).val();
 
-    if (gid == ""){
-        gid = "-1";
+    if (gid == "" || gid == undefined){
+        gid = dashboard_current_gid;
     }
 
     fillGroupQuotasInfo(gid);
@@ -318,16 +367,16 @@ function refreshQuotasTab(){
     insertSelectOptions('div#quotas_tab_group_sel', $dashboard, "Group", gid, false);
 }
 
-$(document).ready(function(){
-    $quotas_tab = $('#quotas-tab', main_tabs_context);
+function refreshDashboard(){
+    widget_types = ['widgets_three_per_row', 'widgets_two_per_row',
+        'widgets_one_per_row', 'widgets_one_footer'];
 
-});
-
-
-
-// All monitoring calls and config are called from the Sunstone plugins.
-
-function dashboardQuotasHTML(){}
+    $.each(widget_types, function(index, widget_type){
+        $.each(Config.dashboardWidgets(widget_type), function(id, widget){
+            widget_refresh[widget]();
+        })
+    });
+}
 
 $(document).ready(function(){
     var tab_name = 'dashboard-tab';
@@ -361,19 +410,6 @@ $(document).ready(function(){
             if(value_str!="")
             {
                 fillGroupQuotasInfo(value_str);
-            }
-        });
-
-        fillUserQuotasInfo();
-
-        OpenNebula.Group.show({
-            data : {
-                id: '-1'
-            },
-            success: function(request, group_json){
-                updateGroupQuotasInfo(request, group_json);
-  
-                insertSelectOptions('div#quotas_tab_group_sel', $dashboard, "Group", group_json.GROUP.ID, false);
             }
         });
 

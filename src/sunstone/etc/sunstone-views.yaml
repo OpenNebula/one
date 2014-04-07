@@ -2,7 +2,6 @@
 logo: images/opennebula-sunstone-v4.0.png
 available_tabs:
     - dashboard-tab
-    - quotas-tab
     - system-tab
     - users-tab
     - groups-tab
