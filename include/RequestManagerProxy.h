@@ -35,10 +35,19 @@ public:
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
 
+    void hide_argument(int arg);
+
 private:
     Client *  client;
 
     string    method;
+
+    int hidden_arg;
+
+    void log_xmlrpc_param(
+            const xmlrpc_c::value&  v,
+            ostringstream&          oss,
+            const int&              index);
 };
 
 #endif

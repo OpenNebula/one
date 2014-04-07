@@ -520,6 +520,10 @@ void RequestManager::register_xml_methods()
         user_add_group_pt       = new RequestManagerProxy("one.user.addgroup");
         user_del_group_pt       = new RequestManagerProxy("one.user.delgroup");
         user_change_auth_pt     = new RequestManagerProxy("one.user.chauth");
+
+        static_cast<RequestManagerProxy*>(user_allocate_pt)->hide_argument(2);
+        static_cast<RequestManagerProxy*>(user_change_password_pt)->hide_argument(2);
+        static_cast<RequestManagerProxy*>(user_change_auth_pt)->hide_argument(3);
     }
     else
     {
