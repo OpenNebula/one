@@ -2092,7 +2092,8 @@ function setupSaveAsDialog(){
             disk_id : $('#disk_id', this).text(),
             image_name : image_name,
             type: "",
-            hot: (snapshot_type == "true" ? true : false)
+            hot: (snapshot_type == "true" ? true : false),
+            clonetemplate: false,
         };
 
         Sunstone.runAction('VM.saveas', vm_id, obj);
