@@ -229,6 +229,10 @@ helpers do
         session.clear
         return [204, ""]
     end
+
+    def cloud_view_instance_types
+        $conf[:instance_types] || {}
+    end
 end
 
 before do
@@ -250,7 +254,7 @@ before do
             if z.name == env['HTTP_ZONE_NAME']
               session[:active_zone_endpoint] = z['TEMPLATE/ENDPOINT']
               session[:zone_name] = env['HTTP_ZONE_NAME']
-            end 
+            end
          }
     end
 
@@ -421,8 +425,8 @@ get '/:pool' do
                                          zone['TEMPLATE/ENDPOINT'])
     end
 
-    @SunstoneServer.get_pool(params[:pool], 
-                             session[:user_gid], 
+    @SunstoneServer.get_pool(params[:pool],
+                             session[:user_gid],
                              zone_client)
 end
 

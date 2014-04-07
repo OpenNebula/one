@@ -56,7 +56,8 @@
         'view' : view,
         'available_views' : available_views,
         'display_name' : '<%= session[:display_name] %>',
-        'zone_name' : '<%= session[:zone_name] %>'
+        'zone_name' : '<%= session[:zone_name] %>',
+        'instance_types' : JSON.parse('<%= cloud_view_instance_types().to_json %>')
       };
 
 

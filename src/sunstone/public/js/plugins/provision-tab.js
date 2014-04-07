@@ -25,18 +25,22 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
     '</div>'+
   '</div>'+
   '<div class="row">'+
-    '<div class="large-9 large-centered columns">'+
+    '<div class="large-8 large-centered columns">'+
       '<input type="text" id="vm_name"  class="provision-input" placeholder="'+tr("Virtual Machine Name")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
       '<br>'+
     '</div>'+
   '</div>'+
-  '<br>'+
-  '<br>'+
+  '<div class="row">'+
+    '<div class="large-5 large-centered columns">'+
+      '<hr>'+
+      '<br>'+
+    '</div>'+
+  '</div>'+
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
       '<h3 class="subheader text-right">'+
         '<span class="left">'+
-          '<i class="fa fa-fw fa-laptop"/>&emsp;'+
+          '<i class="fa fa-fw fa-file-text-o"/>&emsp;'+
           tr("Select Template")+
         '</span>'+
         '<a href"#" id="provision_create_template_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip right">'+
@@ -50,8 +54,8 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
   '<div class="row">'+
     '<div class="large-9 large-centered columns">'+
       '<dl class="tabs text-center" data-tab style="width: 100%">'+
-        '<dd class="active" style="width: 50%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_system_templates_selector">'+ tr("System Templates") +'</a></dd>'+
-        '<dd style="width: 50%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_saved_templates_selector">'+ tr("Saved Templates") +'</a></dd>'+
+        '<dd class="active" style="width: 50%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_system_templates_selector">'+ tr("System") +'</a></dd>'+
+        '<dd style="width: 50%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_saved_templates_selector">'+ tr("Saved") +'</a></dd>'+
       '</dl>'+
       '<br>'+
       '<div class="tabs-content">'+
@@ -84,17 +88,51 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
       '</div>'+
     '</div>'+
   '</div>'+
-  '<br>'+
-  '<br>'+
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
       '<dl class="accordion" data-accordion>'+
         '<dd>'+
           '<a href="#provision_create_extra_accordion" class="text-center accordion-a">'+
             '<i class="fa fa-edit"></i>&emsp;'+
-            tr("Customize Instance")+
+            tr("Customize")+
           '</a>'+
           '<div id="provision_create_extra_accordion" class="content" style="padding: 0.9375rem 0px;">'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 large-centered columns">'+
+                '<h3 class="subheader text-right">'+
+                  '<span class="left">'+
+                    '<i class="fa fa-fw fa-laptop"/>&emsp;'+
+                    tr("Change Capacity")+
+                  '</span>'+
+                  '<a href"#" id="provision_create_instance_types_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip right">'+
+                    '<i class="fa fa-fw fa-refresh"/>'+
+                  '</a>'+
+                  '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_create_instance_types_search"/>'+
+                '</h3>'+
+                '<br>'+
+              '</div>'+
+            '</div>'+
+            '<div class="row">'+
+              '<div class="large-11 large-centered columns">'+
+                '<table id="provision_instance_types_table">'+
+                  '<thead class="hidden">'+
+                    '<tr>'+
+                      '<th>'+tr("Name")+'</th>'+
+                    '</tr>'+
+                  '</thead>'+
+                  '<tbody class="hidden">'+
+                  '</tbody>'+
+                '</table>'+
+                '<br>'+
+              '</div>'+
+            '</div>'+
+            '<div class="row">'+
+              '<div class="large-5 large-centered columns">'+
+                '<hr>'+
+                '<br>'+
+              '</div>'+
+            '</div>'+
             '<div class="row">'+
               '<div class="large-12 large-centered columns">'+
                 '<h3 class="subheader text-right">'+
@@ -131,12 +169,25 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
     '</div>'+
   '</div>'+
   '<br>'+
+  '<div class="row">'+
+    '<div class="large-6 small-6 large-centered columns">'+
+      '<div class="large-5 columns">'+
+        '<hr>'+
+      '</div>'+
+      '<div class="large-2 small-2 text-center columns">'+
+        '<p style="color: #999">'+ tr('or') + '</p>'+
+      '</div>'+
+      '<div class="large-5 small-5 columns">'+
+        '<hr>'+
+      '</div>'+
+    '</div>'+
+  '</div>'+
   '<br>'+
   '<div class="row">'+
-    '<div class="large-10 columns large-centered">'+
+    '<div class="large-7 columns large-centered">'+
       '<div data-alert class="alert-box alert-box-error radius text-center hidden">'+
       '</div>'+
-      '<button href="#" class="button large radius large-12 small-12" type="submit">'+tr("Create")+'</button>'+
+      '<button href="#" class="button large radius large-12 small-12" type="submit" style="height: 59px">'+tr("Create")+'</button>'+
     '</div>'+
   '</div>'+
   '<br>'+
@@ -361,7 +412,8 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
           '</div>'+
         '</div>'+
     '</div>'+
-  '</div>'+'</div>';
+  '</div>'+
+'</div>';
 
 var provision_list_templates = '<div id="provision_list_templates" class="hidden section_content">'+
   '<div class="row">'+
@@ -533,12 +585,12 @@ var provision_info_vm =  '<div id="provision_info_vm" class="section_content hid
           '</li>'+
           '<li>'+
           '<a href"#" id="provision_snapshot_button" data-tooltip title="The main disk of the Virtual Machine will be saved in a new Image" class="has-tip tip-top">'+
-            '<i class="fa fa-fw fa-2x fa-camera"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Save VM")+'</span>'+
+            '<i class="fa fa-fw fa-2x fa-save"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Save VM")+'</span>'+
           '</a>'+
           '</li>'+
           '<li>'+
           '<span id="provision_snapshot_button_disabled" data-tooltip title="You have to power-off the virtual machine first" class="has-tip tip-top" style="margin-left:15px; margin-right:15px; color: #999">'+
-            '<i class="fa fa-fw fa-2x fa-camera"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Save VM")+'</span>'+
+            '<i class="fa fa-fw fa-2x fa-save"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Save VM")+'</span>'+
           '</span>'+
           '</li>'+
           '<li class="right">'+
@@ -947,8 +999,28 @@ function update_provision_templates_datatable(datatable) {
       } else {
         datatable.fnAddData(item_list);
       }
-    }
+    },
+    error: onError
   });
+}
+
+function update_provision_instance_types_datatable(datatable) {
+    datatable.fnClearTable(true);
+    if (!config['instance_types'] || config['instance_types'].length == 0) {
+      datatable.html('<div class="text-center">'+
+        '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+          '<i class="fa fa-cloud fa-stack-2x"></i>'+
+          '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+        '</span>'+
+        '<br>'+
+        '<br>'+
+        '<span style="font-size: 18px; color: #999">'+
+          tr("There are no instance types available")+
+        '</span>'+
+        '</div>');
+    } else {
+      datatable.fnAddData(config['instance_types']);
+    }
 }
 
 function update_provision_networks_datatable(datatable) {
@@ -983,7 +1055,8 @@ function update_provision_networks_datatable(datatable) {
       } else {
         datatable.fnAddData(item_list);
       }
-    }
+    },
+    error: onError
   });
 }
 
@@ -1020,7 +1093,8 @@ function update_provision_vms_datatable(datatable, timeout) {
         } else {
           datatable.fnAddData(item_list);
         }
-      }
+      },
+      error: onError
     })
   }, timeout );
 }
@@ -1515,7 +1589,7 @@ $(document).ready(function(){
               '</li>'+
               '<li class="provision-bullet-item">'+
                 '<span style="font-size: 40px">'+
-                '<i class="fa fa-fw fa-laptop"/>&emsp;'+
+                '<i class="fa fa-fw fa-file-text-o"/>&emsp;'+
                 '<span style="vertical-align: middle; font-size:14px">'+
                   'x'+data.TEMPLATE.CPU+' - '+
                   ((data.TEMPLATE.MEMORY > 1000) ?
@@ -1616,6 +1690,79 @@ $(document).ready(function(){
       update_provision_templates_datatable(provision_saved_templates_datatable);
     });
 
+    provision_instance_types_datatable = $('#provision_instance_types_table').dataTable({
+      "iDisplayLength": 6,
+      "sDom" : '<"H">t<"F"lp>',
+      "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
+      "aoColumnDefs": [
+          { "bVisible": false, "aTargets": ["all"]}
+      ],
+      "aoColumns": [
+          { "mDataProp": "name" }
+      ],
+      "fnPreDrawCallback": function (oSettings) {
+        // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
+        if (this.$('tr', {"filter": "applied"} ).length == 0) {
+          this.html('<div class="text-center">'+
+            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+            '</span>'+
+            '<br>'+
+            '<br>'+
+            '<span style="font-size: 18px; color: #999">'+
+              tr("There are no instance_types available")+
+            '</span>'+
+            '</div>');
+        } else {
+          $("#provision_instance_types_table").html('<ul id="provision_instance_types_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+        }
+
+        return true;
+      },
+      "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+        var data = aData;
+        console.log(data);
+        $("#provision_instance_types_ul").append('<li>'+
+            '<ul class="provision-pricing-table hoverable only-one" data=\''+JSON.stringify(data)+'\'>'+
+              '<li class="provision-title" title="'+data.name+'">'+
+                data.name+
+              '</li>'+
+              '<li class="provision-bullet-item">'+
+                '<span style="font-size: 40px">'+
+                '<i class="fa fa-fw fa-laptop"/>&emsp;'+
+                '<span style="vertical-align: middle; font-size:14px">'+
+                  'x'+data.cpu+' - '+
+                  ((data.memory > 1000) ?
+                    (Math.floor(data.memory/1024)+'GB') :
+                    (data.memory+'MB'))+
+                '</span>'+
+                '</span>'+
+              '</li>'+
+              '<li class="provision-description">'+
+                (data.description || '')+
+              '</li>'+
+            '</ul>'+
+          '</li>');
+
+        return nRow;
+      }
+    });
+
+    update_provision_instance_types_datatable(provision_instance_types_datatable);
+
+    $('#provision_create_instance_types_search').on('keyup',function(){
+      provision_instance_types_datatable.fnFilter( $(this).val() );
+    })
+
+    $('#provision_create_instance_types_search').on('change',function(){
+      provision_instance_types_datatable.fnFilter( $(this).val() );
+    })
+
+    $("#provision_create_instance_types_refresh_button").click(function(){
+      update_provision_instance_types_datatable(provision_instance_types_datatable);
+    });
+
     provision_networks_datatable = $('#provision_networks_table').dataTable({
       "iDisplayLength": 6,
       "sDom" : '<"H">t<"F"lp>',
@@ -1667,7 +1814,7 @@ $(document).ready(function(){
               //  '</span>'+
               //'</li>'+
               '<li class="provision-description">'+
-                (data.TEMPLATE.DESCRIPTION || '...')+
+                (data.TEMPLATE.DESCRIPTION || '')+
               '</li>'+
             '</ul>'+
           '</li>');
@@ -1717,6 +1864,8 @@ $(document).ready(function(){
         });
       });
 
+      var instance_type = $("#provision_instance_types_ul .selected", context);
+
       if (!template_id) {
         $(".alert-box-error", context).fadeIn().html(tr("You must select at least a template configuration"));
         return false;
@@ -1730,6 +1879,13 @@ $(document).ready(function(){
 
       if (nics.length > 0) {
         extra_info.template.nic = nics;
+      }
+
+      if (instance_type.length > 0) {
+        var instance_typa_data = instance_type.attr("data");
+        delete instance_typa_data.name;
+
+        $.extend(extra_info.template, JSON.parse(instance_type.attr("data")))
       }
 
       Sunstone.runAction("Provision.instantiate", template_id, extra_info);
@@ -1783,8 +1939,22 @@ $(document).ready(function(){
 
         $("#provision_templates_ul").append('<li>'+
             '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
-              '<li class="provision-title text-left">'+
+              '<li class="provision-title text-left" title="'+data.NAME+'>'+
                 data.NAME + '<a class="provision_confirm_delete_template_button" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-trash-o right only-on-hover"/></a>'+
+              '</li>'+
+              '<li class="provision-bullet-item">'+
+                '<span style="font-size: 40px">'+
+                '<i class="fa fa-fw fa-laptop"/>&emsp;'+
+                '<span style="vertical-align: middle; font-size:14px">'+
+                  'x'+data.TEMPLATE.CPU+' - '+
+                  ((data.TEMPLATE.MEMORY > 1000) ?
+                    (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
+                    (data.TEMPLATE.MEMORY+'MB'))+
+                '</span>'+
+                '</span>'+
+              '</li>'+
+              '<li class="provision-description">'+
+                (data.TEMPLATE.DESCRIPTION || '...')+
               '</li>'+
               '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; padding-bottom:10px">'+
                 '<i class="fa fa-fw fa-clock-o"/>'+
@@ -1814,11 +1984,12 @@ $(document).ready(function(){
     })
 
     $("#provision_templates_list_button").on("click", function(){
+      OpenNebula.Helper.clear_cache("VMTEMPLATE");
       show_provision_template_list(0);
     });
 
     $("#provision_list_templates").on("click", "#provision_templates_list_refresh_button", function(){
-      OpenNebula.Helper.clear_cache("template");
+      OpenNebula.Helper.clear_cache("VMTEMPLATE");
       show_provision_template_list(0);
     });
 
