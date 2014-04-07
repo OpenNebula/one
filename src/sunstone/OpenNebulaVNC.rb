@@ -209,7 +209,7 @@ class OpenNebulaVNC
         if pid
             @logger.info "Killing VNC proxy"
 
-            signal=(force ? 'KILL' : 'TERM')
+            signal=(force ? '-KILL' : '-TERM')
             Process.kill(signal ,pid)
 
             sleep 1
@@ -217,7 +217,7 @@ class OpenNebulaVNC
             begin
                 Process.getpgid(pid)
 
-                Process.kill('KILL', pid)
+                Process.kill('-KILL', pid)
             rescue
             end
 
