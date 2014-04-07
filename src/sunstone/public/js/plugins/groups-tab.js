@@ -190,6 +190,8 @@ var group_actions = {
             $create_group_dialog.empty();
             setupCreateGroupDialog();
 
+            OpenNebula.Helper.clear_cache("USER");
+
             Sunstone.runAction("Group.list");
             notifyCustom(tr("Group created"), " ID: " + response.GROUP.ID, false);
         },

@@ -551,12 +551,17 @@ var OpenNebula = {
             };
 
             var req_path = path ? path : resource.toLowerCase();
+            var cache_name = params.cache_name ? params.cache_name : resource;
 
             $.ajax({
                 url: req_path + "/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function(){
+                    if(method == "clone"){
+                        OpenNebula.Helper.clear_cache(cache_name);
+                    }
+
                    return callback ? callback(request) : null;
                 },
                 error: function(response){

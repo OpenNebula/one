@@ -629,6 +629,7 @@ var vm_actions = {
         call: OpenNebula.VM.saveas,
         callback: function(request) {
             Sunstone.runAction("VM.show", request.request.data[0]);
+            OpenNebula.Helper.clear_cache("IMAGE");
         },
         error:onError,
         notify: true
