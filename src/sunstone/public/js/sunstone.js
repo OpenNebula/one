@@ -1502,6 +1502,11 @@ function onError(request,error_json, container) {
         return false;
     };
 
+    if (error_json.error.http_status=="404") {
+        notifyError(message);
+        return false;
+    }
+
     if (container) {
         container.show();
         return false;

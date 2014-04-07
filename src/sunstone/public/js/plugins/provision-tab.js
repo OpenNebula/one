@@ -1664,6 +1664,11 @@ $(document).ready(function(){
               '<li class="provision-description">'+
                 (data.TEMPLATE.DESCRIPTION || '...')+
               '</li>'+
+              '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; padding-bottom:10px">'+
+                '<i class="fa fa-fw fa-clock-o"/>'+
+                _format_date(data.REGTIME)+
+                " " + tr("from VM") + ": " + (data.TEMPLATE.SAVED_TEMPLATE_ID||'-') +
+              '</li>'+
             '</ul>'+
           '</li>');
 
@@ -1929,7 +1934,7 @@ $(document).ready(function(){
             '</span>'+
             '</div>');
         } else {
-          $("#provision_templates_table").html('<ul id="provision_templates_ul" class="large-block-grid-2 medium-block-grid-2 small-block-grid-1 text-center"></ul>');
+          $("#provision_templates_table").html('<ul id="provision_templates_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
         }
         return true;
       },
@@ -1938,8 +1943,8 @@ $(document).ready(function(){
         //var state = get_provision_image_state(data);
 
         $("#provision_templates_ul").append('<li>'+
-            '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
-              '<li class="provision-title text-left" title="'+data.NAME+'>'+
+            '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" saved_to_image_id="'+data.TEMPLATE.SAVED_TO_IMAGE_ID+'" datatable_index="'+iDisplayIndexFull+'">'+
+              '<li class="provision-title text-left" title="'+data.NAME+'">'+
                 data.NAME + '<a class="provision_confirm_delete_template_button" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-trash-o right only-on-hover"/></a>'+
               '</li>'+
               '<li class="provision-bullet-item">'+
@@ -1960,10 +1965,6 @@ $(document).ready(function(){
                 '<i class="fa fa-fw fa-clock-o"/>'+
                 _format_date(data.REGTIME)+
                 " " + tr("from VM") + ": " + (data.TEMPLATE.SAVED_TEMPLATE_ID||'-') +
-                //'<span class="'+ state.color +'-color left">'+
-                //  '<i class="fa fa-fw fa-square"/>&emsp;'+
-                //  state.str+
-                //'</span>'+
               '</li>'+
             '</ul>'+
           '</li>');
@@ -1997,6 +1998,7 @@ $(document).ready(function(){
     $("#provision_list_templates").on("click", ".provision_confirm_delete_template_button", function(){
       var context = $(this).parents(".provision-pricing-table");
       var template_id = context.attr("opennebula_id");
+      var image_id = context.attr("saved_to_image_id");
       var template_name = $(".provision-title", context).text();
 
       $("#provision_confirm_delete_template_div").html(
@@ -2006,11 +2008,11 @@ $(document).ready(function(){
             '<span style="font-size: 14px; line-height: 20px">'+
               tr("This action will inmediately destroy the template")+
               ' "' + template_name + '" ' +
-              tr("and all the information will be lost.") +
+              tr("and the image associated.") +
             '</span>'+
           '</div>'+
           '<div class="large-3 columns">'+
-            '<a href"#" id="provision_delete_template_button" class="alert button large-12 radius right" style="margin-right: 15px" value="'+template_id+'">'+tr("Delete")+'</a>'+
+            '<a href"#" id="provision_delete_template_button" class="alert button large-12 radius right" style="margin-right: 15px" image_id="'+image_id+'" template_id="'+template_id+'">'+tr("Delete")+'</a>'+
           '</div>'+
           '</div>'+
           '<a href="#" class="close">&times;</a>'+
@@ -2018,8 +2020,25 @@ $(document).ready(function(){
     });
 
     $("#provision_confirm_delete_template_div").on("click", "#provision_delete_template_button", function(){
-      var template_id = $(this).attr("value");
-      Sunstone.runAction('Provision.Template.delete', template_id);
+      var template_id = $(this).attr("template_id");
+      var image_id = $(this).attr("image_id");
+
+      OpenNebula.Image.del({
+        timeout: true,
+        data : {
+          id : image_id
+        },
+        success: function (){
+          Sunstone.runAction('Provision.Template.delete', template_id);
+        },
+        error: function (request,error_json, container) {
+          if (error_json.error.http_status=="404") {
+            Sunstone.runAction('Provision.Template.delete', template_id);
+          } else {
+            onError(request, error_json, container);
+          }
+        }
+      })
     });
 
     //
