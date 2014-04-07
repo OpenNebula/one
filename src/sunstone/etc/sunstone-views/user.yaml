@@ -33,6 +33,8 @@ tabs:
             #- vms
         widgets_one_per_row:
             - vms
+        widgets_one_footer:
+            - quotas
     quotas-tab:
         panel_tabs:
         actions:

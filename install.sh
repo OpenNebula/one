@@ -1462,7 +1462,6 @@ SUNSTONE_PUBLIC_JS_FILES="src/sunstone/public/js/login.js \
 
 SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
                         src/sunstone/public/js/plugins/dashboard-tab.js \
-                        src/sunstone/public/js/plugins/quotas-tab.js \
                         src/sunstone/public/js/plugins/hosts-tab.js \
                         src/sunstone/public/js/plugins/clusters-tab.js \
                         src/sunstone/public/js/plugins/datastores-tab.js \

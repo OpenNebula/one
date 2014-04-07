@@ -21,6 +21,8 @@ var dashboard_tab_content = '<div>\
   </div>\
   <div id="two_per_row" class="row">\
   </div>\
+  <div id="one_footer">\
+  </div>\
 </div>\
 ';
 
@@ -190,7 +192,40 @@ var widgets = {
             </div>\
           </div>\
         </div>\
-      </fieldset>'
+      </fieldset>',
+  "quotas" : '<fieldset>\
+      <legend class="span-dashboard"><i class="fa fa-align-left"></i> '+tr("Quotas")+'</legend>\
+      <div class="row totals-info">\
+        <div class="large-12 columns">\
+          <dl class="tabs" data-tab>\
+            <dd class="active"><a href="#quotas_tab_user">User Quotas</a></dd>\
+            <dd><a href="#quotas_tab_group">'+tr("Group Quotas")+'</a></dd>\
+          </dl>\
+          <div class="tabs-content">\
+            <div class="content active" id="quotas_tab_user">\
+              <div class="large-12 columns">\
+                <p class="subheader">'+tr("No quotas defined")+'</p>\
+              </div>\
+            </div>\
+            <div id="quotas_tab_group" class="content">\
+              <div class="row">\
+                <div class="large-6 columns">\
+                  <label>' + tr("Select group") + ':\
+                    <div id="quotas_tab_group_sel">\
+                    </div>\
+                  </label>\
+                </div>\
+              </div>\
+              <div id="quotas_tab_group_TabBody" class="row">\
+                <div class="large-12 columns">\
+                  <p class="subheader">'+tr("No quotas defined")+'</p>\
+                </div>\
+              </div>\
+            </div>\
+          </div>\
+        </div>\
+      </div>\
+    </fieldset>'
 }
 
 var dashboard_tab = {
@@ -204,6 +239,92 @@ Sunstone.addMainTab('dashboard-tab',dashboard_tab);
 
 var $dashboard;
 
+// Quotas calls
+
+function fillUserQuotasInfo(){
+    OpenNebula.User.show({
+        data : {
+            id: '-1'
+        },
+        success: updateUserQuotasInfo
+    });
+}
+
+function updateUserQuotasInfo(request,user_json) {
+    var info = user_json.USER;
+
+    var default_user_quotas = Quotas.default_quotas(info.DEFAULT_USER_QUOTAS)
+    var quotas_tab_html = Quotas.vms(info, default_user_quotas);
+    quotas_tab_html += Quotas.cpu(info, default_user_quotas);
+    quotas_tab_html += Quotas.memory(info, default_user_quotas);
+    quotas_tab_html += Quotas.volatile_size(info, default_user_quotas);
+    quotas_tab_html += Quotas.image(info, default_user_quotas);
+    quotas_tab_html += Quotas.network(info, default_user_quotas);
+    quotas_tab_html += Quotas.datastore(info, default_user_quotas);
+
+    if (quotas_tab_html == ""){
+        quotas_tab_html =
+        '<div class="large-12 columns">\
+            <p class="subheader">'+tr("No quotas defined")+'</p>\
+        </div>'
+    }
+
+    $("#quotas_tab_user", $dashboard).html(quotas_tab_html);
+}
+
+function fillGroupQuotasInfo(group_id){
+      OpenNebula.Group.show({
+        data : {
+            id: group_id
+        },
+        success: updateGroupQuotasInfo
+      });
+}
+
+function updateGroupQuotasInfo(request,group_json){
+    var info = group_json.GROUP;
+
+    var default_group_quotas = Quotas.default_quotas(info.DEFAULT_GROUP_QUOTAS);
+
+    var quotas_tab_html = Quotas.vms(info, default_group_quotas);
+    quotas_tab_html += Quotas.cpu(info, default_group_quotas);
+    quotas_tab_html += Quotas.memory(info, default_group_quotas);
+    quotas_tab_html += Quotas.volatile_size(info, default_group_quotas);
+    quotas_tab_html += Quotas.image(info, default_group_quotas);
+    quotas_tab_html += Quotas.network(info, default_group_quotas);
+    quotas_tab_html += Quotas.datastore(info, default_group_quotas);
+
+    if (quotas_tab_html == ""){
+        quotas_tab_html =
+        '<div class="large-12 columns">\
+            <p class="subheader">'+tr("No quotas defined")+'</p>\
+        </div>'
+    }
+
+    $("#quotas_tab_group_TabBody", $dashboard).html(quotas_tab_html);
+}
+
+function refreshQuotasTab(){
+    fillUserQuotasInfo();
+
+    gid = $("#quotas_tab_group_sel .resource_list_select", $dashboard).val();
+
+    if (gid == ""){
+        gid = "-1";
+    }
+
+    fillGroupQuotasInfo(gid);
+
+    insertSelectOptions('div#quotas_tab_group_sel', $dashboard, "Group", gid, false);
+}
+
+$(document).ready(function(){
+    $quotas_tab = $('#quotas-tab', main_tabs_context);
+
+});
+
+
+
 // All monitoring calls and config are called from the Sunstone plugins.
 
 function dashboardQuotasHTML(){}
@@ -212,21 +333,50 @@ $(document).ready(function(){
     var tab_name = 'dashboard-tab';
 
     if (Config.isTabEnabled(tab_name)) {
-      $dashboard = $('#dashboard-tab', main_tabs_context);
+        $dashboard = $('#dashboard-tab', main_tabs_context);
 
-      $.each(Config.dashboardWidgets('widgets_three_per_row'), function(id, widget){
-        var html = '<div class="small-4 large-4 columns">'+widgets[widget]+'</div>';
-        $('#three_per_row', $dashboard).append(html);
-      })
+        $.each(Config.dashboardWidgets('widgets_three_per_row'), function(id, widget){
+            var html = '<div class="small-4 large-4 columns">'+widgets[widget]+'</div>';
+            $('#three_per_row', $dashboard).append(html);
+        })
 
-      $.each(Config.dashboardWidgets('widgets_two_per_row'), function(id, widget){
-        var html = '<div class="small-6 large-6 columns">'+widgets[widget]+'</div>';
-        $('#two_per_row', $dashboard).append(html);
-      })
+        $.each(Config.dashboardWidgets('widgets_two_per_row'), function(id, widget){
+            var html = '<div class="small-6 large-6 columns">'+widgets[widget]+'</div>';
+            $('#two_per_row', $dashboard).append(html);
+        })
+  
+        $.each(Config.dashboardWidgets('widgets_one_per_row'), function(id, widget){
+            var html = '<div class="row"><div class="large-12 columns">'+widgets[widget]+'</div></div><br>';
+            $('#one_per_row', $dashboard).append(html);
+        })
 
-      $.each(Config.dashboardWidgets('widgets_one_per_row'), function(id, widget){
-        var html = '<div class="row"><div class="large-12 columns">'+widgets[widget]+'</div></div><br>';
-        $('#one_per_row', $dashboard).append(html);
-      })
+        $.each(Config.dashboardWidgets('widgets_one_footer'), function(id, widget){
+            var html = '<div class="row"><div class="large-12 columns">'+widgets[widget]+'</div></div><br>';
+            $('#one_footer', $dashboard).append(html);
+        });
+
+        $dashboard.off("change", "#quotas_tab_group_sel .resource_list_select");
+        $dashboard.on("change", "#quotas_tab_group_sel .resource_list_select", function() {
+            var value_str = $(this).val();
+            if(value_str!="")
+            {
+                fillGroupQuotasInfo(value_str);
+            }
+        });
+
+        fillUserQuotasInfo();
+
+        OpenNebula.Group.show({
+            data : {
+                id: '-1'
+            },
+            success: function(request, group_json){
+                updateGroupQuotasInfo(request, group_json);
+  
+                insertSelectOptions('div#quotas_tab_group_sel', $dashboard, "Group", group_json.GROUP.ID, false);
+            }
+        });
+
+        $(document).foundation();
     }
 });

@@ -33,6 +33,8 @@ tabs:
         widgets_one_per_row:
             - vms
             - hosts
+        widgets_one_footer:
+#            - quotas
     quotas-tab:
         panel_tabs:
         actions:
