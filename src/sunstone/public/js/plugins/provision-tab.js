@@ -533,12 +533,12 @@ var provision_info_vm =  '<div id="provision_info_vm" class="section_content hid
           '</li>'+
           '<li>'+
           '<a href"#" id="provision_snapshot_button" data-tooltip title="The main disk of the Virtual Machine will be saved in a new Image" class="has-tip tip-top">'+
-            '<i class="fa fa-fw fa-2x fa-camera"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Save Image")+'</span>'+
+            '<i class="fa fa-fw fa-2x fa-camera"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Save VM")+'</span>'+
           '</a>'+
           '</li>'+
           '<li>'+
           '<span id="provision_snapshot_button_disabled" data-tooltip title="You have to power-off the virtual machine first" class="has-tip tip-top" style="margin-left:15px; margin-right:15px; color: #999">'+
-            '<i class="fa fa-fw fa-2x fa-camera"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Save Image")+'</span>'+
+            '<i class="fa fa-fw fa-2x fa-camera"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Save VM")+'</span>'+
           '</span>'+
           '</li>'+
           '<li class="right">'+
@@ -1708,7 +1708,7 @@ $(document).ready(function(){
       var context = $(this);
 
       var vm_name = $("#vm_name", context).val();
-      var template_id = $("#.tabs-content .content.active .selected", context).attr("opennebula_id");
+      var template_id = $(".tabs-content .content.active .selected", context).attr("opennebula_id");
 
       var nics = [];
       $("#provision_networks_ul .selected", context).each(function(){
@@ -1938,6 +1938,7 @@ $(document).ready(function(){
     })
 
     $("#provision_vms_list_button").on("click", function(){
+      OpenNebula.Helper.clear_cache("VM");
       show_provision_vm_list(0);
     });
 
