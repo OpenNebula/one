@@ -134,7 +134,7 @@ module OpenNebula
             # Add default Sunstone views for the group
             if group_hash[:views]
                 str = "SUNSTONE_VIEWS=\"#{group_hash[:views].join(",")}\"\n"
-                self.update(str)
+                self.update(str, true)
             end
 
             return 0
@@ -330,7 +330,7 @@ module OpenNebula
             gtmpl =  "GROUP_ADMINS=#{gdef[:group_admin][:name]}\n"
             gtmpl << "GROUP_ADMIN_VIEWS=#{GROUP_ADMIN_SUNSTONE_VIEWS}\n"
 
-            self.update(gtmpl)
+            self.update(gtmpl, true)
 
             return nil
         end
