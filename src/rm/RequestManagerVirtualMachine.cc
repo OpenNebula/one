@@ -1395,6 +1395,8 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     tmpl->erase("SAVED_TEMPLATE_ID");
     tmpl->set(new SingleAttribute("SAVED_TEMPLATE_ID",tmpl_name.str()));
 
+    tmpl->replace("SAVED_TO_IMAGE_ID", iid);
+
     tmpl->replace_disk_image(iid_orig, iname_orig, iuname_orig, img_name, att.uname);
 
     //Authorize the template creation operation
