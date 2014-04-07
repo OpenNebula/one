@@ -67,7 +67,7 @@ function create_group_tmpl(dialog_name){
         <div class="large-12 columns">\
           <p class="subheader">'
             +tr("Allow users in this group to use the following Sunstone views")+
-            '&emsp;<span class="tip">'+tr("This will add to the group template the selected views so users beloing to the group are able to use them")+'</span>\
+            '&emsp;<span class="tip">'+tr("Views available to the group users. The default is set in sunstone-views.yaml")+'</span>\
           </p>\
         </div>\
       </div>\
@@ -124,7 +124,7 @@ function create_group_tmpl(dialog_name){
                 <th>'+tr("VNets")+'</th>\
                 <th>'+tr("Images")+'</th>\
                 <th>'+tr("Templates")+'</th>\
-                <th>'+tr("Documents")+'<span class="tip">'+tr("Documents are a special tool for general purposes, mainly by OneFlow. If you want to enable users of this group to use service composition via OneFlow, let it checked.")+'</span></th>\
+                <th>'+tr("Documents")+'<span class="tip">'+tr("Documents are a special tool used for general purposes, mainly by OneFlow. If you want to enable users of this group to use service composition via OneFlow, let it checked.")+'</span></th>\
               </tr></thead>\
               <tbody>\
                 <tr>\
@@ -1018,13 +1018,16 @@ function setupCreateGroupDialog(){
     disableAdminUser(dialog);
 
     $.each($('[id^="group_res"]', dialog), function(){
-        $(this).prop("checked", "true");
+        $(this).prop("checked", true);
     });
 
     $.each($('[id^="group_admin_res"]', dialog), function(){
         $(this).attr('disabled', 'disabled');
-        $(this).prop("checked", "true");
+        $(this).prop("checked", true);
     });
+
+    $("#group_res_net", dialog).prop("checked", false);
+    $("#group_admin_res_net", dialog).prop("checked", false);
 
     var selected_group_clusters = {};
 
