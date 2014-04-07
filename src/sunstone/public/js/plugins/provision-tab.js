@@ -420,7 +420,7 @@ var provision_list_templates = '<div id="provision_list_templates" class="hidden
     '<div class="large-11 large-centered columns">'+
       '<h2 class="subheader text-right">'+
         '<span class="left">'+
-          '<i class="fa fa-fw fa-camera"/>&emsp;'+
+          '<i class="fa fa-fw fa-save"/>&emsp;'+
           tr("Saved Templates")+
         '</span>'+
         '<a href"#" id="provision_templates_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip tip-top right">'+
@@ -644,7 +644,7 @@ var provision_tab = {
       '<a href"#" class="medium off-color" id="provision_vms_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-th"/><br>'+tr("VMs")+'</a>'+
     '</li>'+
     '<li>'+
-      '<a href"#" class="medium off-color" id="provision_templates_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-camera"/><br>'+tr("Templates")+'</a>'+
+      '<a href"#" class="medium off-color" id="provision_templates_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-save"/><br>'+tr("Templates")+'</a>'+
     '</li>'+
     '<li style="border-left: 1px solid #efefef; height: 40px"><br>'+
     '</li>'+
@@ -1652,7 +1652,7 @@ $(document).ready(function(){
               '</li>'+
               '<li class="provision-bullet-item">'+
                 '<span style="font-size: 40px">'+
-                '<i class="fa fa-fw fa-laptop"/>&emsp;'+
+                '<i class="fa fa-fw fa-file-text-o"/>&emsp;'+
                 '<span style="vertical-align: middle; font-size:14px">'+
                   'x'+data.TEMPLATE.CPU+' - '+
                   ((data.TEMPLATE.MEMORY > 1000) ?
@@ -1949,7 +1949,7 @@ $(document).ready(function(){
               '</li>'+
               '<li class="provision-bullet-item">'+
                 '<span style="font-size: 40px">'+
-                '<i class="fa fa-fw fa-laptop"/>&emsp;'+
+                '<i class="fa fa-fw fa-file-text-o"/>&emsp;'+
                 '<span style="vertical-align: middle; font-size:14px">'+
                   'x'+data.TEMPLATE.CPU+' - '+
                   ((data.TEMPLATE.MEMORY > 1000) ?
