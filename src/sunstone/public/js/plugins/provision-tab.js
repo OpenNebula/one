@@ -37,44 +37,12 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
       '<h3 class="subheader text-right">'+
         '<span class="left">'+
           '<i class="fa fa-fw fa-laptop"/>&emsp;'+
-          tr("Select Capacity")+
+          tr("Select Template")+
         '</span>'+
-        '<a href"#" id="provision_create_capacity_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip right">'+
+        '<a href"#" id="provision_create_template_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip right">'+
           '<i class="fa fa-fw fa-refresh"/>'+
         '</a>'+
-        '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_create_capacity_search"/>'+
-      '</h3>'+
-      '<br>'+
-    '</div>'+
-  '</div>'+
-  '<div class="row">'+
-    '<div class="large-9 large-centered columns">'+
-      '<table id="provision_templates_table">'+
-        '<thead class="hidden">'+
-          '<tr>'+
-            '<th>'+tr("ID")+'</th>'+
-            '<th>'+tr("Name")+'</th>'+
-          '</tr>'+
-        '</thead>'+
-        '<tbody class="hidden">'+
-        '</tbody>'+
-      '</table>'+
-      '<br>'+
-    '</div>'+
-  '</div>'+
-  '<br>'+
-  '<br>'+
-  '<div class="row">'+
-    '<div class="large-10 large-centered columns">'+
-      '<h3 class="subheader text-right">'+
-        '<span class="left">'+
-          '<i class="fa fa-fw fa-download"/>&emsp;'+
-          tr("Select Image")+
-        '</span>'+
-        '<a href"#" id="provision_create_image_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip right">'+
-          '<i class="fa fa-fw fa-refresh"/>'+
-        '</a>'+
-        '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_create_image_search"/>'+
+        '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_create_template_search"/>'+
       '</h3>'+
       '<br>'+
     '</div>'+
@@ -82,31 +50,31 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
   '<div class="row">'+
     '<div class="large-9 large-centered columns">'+
       '<dl class="tabs text-center" data-tab style="width: 100%">'+
-        '<dd class="active" style="width: 50%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_images_selector">'+ tr("System Images") +'</a></dd>'+
-        '<dd style="width: 50%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_snapshots_selector">'+ tr("Saved Images") +'</a></dd>'+
+        '<dd class="active" style="width: 50%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_system_templates_selector">'+ tr("System Templates") +'</a></dd>'+
+        '<dd style="width: 50%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_saved_templates_selector">'+ tr("Saved Templates") +'</a></dd>'+
       '</dl>'+
       '<br>'+
       '<div class="tabs-content">'+
-        '<div class="content active" id="provision_images_selector">'+
-          '<table id="provision_create_vm_images_table">'+
+        '<div class="content active" id="provision_system_templates_selector">'+
+          '<table id="provision_system_templates_table">'+
             '<thead class="hidden">'+
               '<tr>'+
                 '<th>'+tr("ID")+'</th>'+
                 '<th>'+tr("Name")+'</th>'+
-                '<th>'+tr("Owner")+'</th>'+
+                '<th>'+tr("Saved")+'</th>'+
               '</tr>'+
             '</thead>'+
             '<tbody class="hidden">'+
             '</tbody>'+
           '</table>'+
         '</div>'+
-        '<div class="content" id="provision_snapshots_selector">'+
-          '<table id="provision_create_vm_snapshots_table">'+
+        '<div class="content" id="provision_saved_templates_selector">'+
+          '<table id="provision_saved_templates_table">'+
             '<thead class="hidden">'+
               '<tr>'+
                 '<th>'+tr("ID")+'</th>'+
                 '<th>'+tr("Name")+'</th>'+
-                '<th>'+tr("Owner")+'</th>'+
+                '<th>'+tr("Saved")+'</th>'+
               '</tr>'+
             '</thead>'+
             '<tbody class="hidden">'+
@@ -114,43 +82,58 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
           '</table>'+
         '</div>'+
       '</div>'+
-      '<br>'+
     '</div>'+
   '</div>'+
   '<br>'+
   '<br>'+
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
-      '<h3 class="subheader text-right">'+
-        '<span class="left">'+
-          '<i class="fa fa-fw fa-globe"/>&emsp;'+
-          tr("Select Network")+
-        '</span>'+
-        '<a href"#" id="provision_create_networks_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip right">'+
-          '<i class="fa fa-fw fa-refresh"/>'+
-        '</a>'+
-        '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_create_networks_search"/>'+
-      '</h3>'+
-      '<br>'+
+      '<dl class="accordion" data-accordion>'+
+        '<dd>'+
+          '<a href="#provision_create_extra_accordion" class="text-center accordion-a">'+
+            '<i class="fa fa-edit"></i>&emsp;'+
+            tr("Customize Instance")+
+          '</a>'+
+          '<div id="provision_create_extra_accordion" class="content" style="padding: 0.9375rem 0px;">'+
+            '<div class="row">'+
+              '<div class="large-12 large-centered columns">'+
+                '<h3 class="subheader text-right">'+
+                  '<span class="left">'+
+                    '<i class="fa fa-fw fa-globe"/>&emsp;'+
+                    tr("Select Network")+
+                  '</span>'+
+                  '<a href"#" id="provision_create_networks_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip right">'+
+                    '<i class="fa fa-fw fa-refresh"/>'+
+                  '</a>'+
+                  '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_create_networks_search"/>'+
+                '</h3>'+
+                '<br>'+
+              '</div>'+
+            '</div>'+
+            '<div class="row">'+
+              '<div class="large-11 large-centered columns">'+
+                '<table id="provision_networks_table">'+
+                  '<thead class="hidden">'+
+                    '<tr>'+
+                      '<th>'+tr("ID")+'</th>'+
+                      '<th>'+tr("Name")+'</th>'+
+                    '</tr>'+
+                  '</thead>'+
+                  '<tbody class="hidden">'+
+                  '</tbody>'+
+                '</table>'+
+                '<br>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+        '</dd>'+
+      '</dl>'+
     '</div>'+
   '</div>'+
+  '<br>'+
+  '<br>'+
   '<div class="row">'+
-    '<div class="large-9 large-centered columns">'+
-      '<table id="provision_networks_table">'+
-        '<thead class="hidden">'+
-          '<tr>'+
-            '<th>'+tr("ID")+'</th>'+
-            '<th>'+tr("Name")+'</th>'+
-          '</tr>'+
-        '</thead>'+
-        '<tbody class="hidden">'+
-        '</tbody>'+
-      '</table>'+
-      '<br>'+
-    '</div>'+
-  '</div>'+
-  '<div class="row">'+
-    '<div class="large-8 columns large-centered">'+
+    '<div class="large-10 columns large-centered">'+
       '<div data-alert class="alert-box alert-box-error radius text-center hidden">'+
       '</div>'+
       '<button href="#" class="button large radius large-12 small-12" type="submit">'+tr("Create")+'</button>'+
@@ -380,33 +363,33 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
     '</div>'+
   '</div>'+'</div>';
 
-var provision_list_images = '<div id="provision_list_images" class="hidden section_content">'+
+var provision_list_templates = '<div id="provision_list_templates" class="hidden section_content">'+
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
       '<h2 class="subheader text-right">'+
         '<span class="left">'+
           '<i class="fa fa-fw fa-camera"/>&emsp;'+
-          tr("Saved Images")+
+          tr("Saved Templates")+
         '</span>'+
-        '<a href"#" id="provision_images_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip tip-top right">'+
+        '<a href"#" id="provision_templates_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip tip-top right">'+
           '<i class="fa fa-fw fa-refresh"/>'+
         '</a>'+
-        '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_list_images_search"/>'+
+        '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_list_templates_search"/>'+
       '</h2>'+
     '</div>'+
   '</div>'+
   '<div class="row">'+
-    '<div class="large-10 large-centered columns" id="provision_confirm_delete_image_div">'+
+    '<div class="large-10 large-centered columns" id="provision_confirm_delete_template_div">'+
     '</div>'+
   '</div>'+
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
-      '<table id="provision_images_table">'+
+      '<table id="provision_templates_table">'+
         '<thead class="hidden">'+
           '<tr>'+
             '<th>'+tr("ID")+'</th>'+
             '<th>'+tr("Name")+'</th>'+
-            '<th>'+tr("Owner")+'</th>'+
+            '<th>'+tr("Saved")+'</th>'+
           '</tr>'+
         '</thead>'+
         '<tbody class="hidden">'+
@@ -544,7 +527,7 @@ var provision_info_vm =  '<div id="provision_info_vm" class="section_content hid
           '</a>'+
           '</li>'+
           '<li>'+
-          '<span id="provision_vnc_button_disabled" data-tooltip title="You have to boot the Virtual Machine first" class="has-tip tip-top" style="olor: #999">'+
+          '<span id="provision_vnc_button_disabled" data-tooltip title="You have to boot the Virtual Machine first" class="has-tip tip-top" style="color: #999">'+
             '<i class="fa fa-fw fa-2x fa-desktop"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("VNC")+'</span>'+
           '</span>'+
           '</li>'+
@@ -596,20 +579,20 @@ var provision_content = provision_user_info +
   provision_create_vm +
   provision_info_vm +
   provision_list_vms +
-  provision_list_images ;
+  provision_list_templates ;
 
 var provision_tab = {
   list_header: '<img src="images/one_small_logo.png" style="height:40px; vertical-align:top">'+
     '<span class="right" style="font-size: 50%; color: #dfdfdf">'+
    '<ul class="inline-list text-center" style="font-size:12px">'+
     '<li>'+
-      '<a href"#" class="provision_create_vm_button medium off-color" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-plus-square"/><br>Create</a>'+
+      '<a href"#" class="provision_create_vm_button medium off-color" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-plus-square"/><br>'+tr("Create")+'</a>'+
     '</li>'+
     '<li>'+
-      '<a href"#" class="medium off-color" id="provision_vms_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-th"/><br>VMs</a>'+
+      '<a href"#" class="medium off-color" id="provision_vms_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-th"/><br>'+tr("VMs")+'</a>'+
     '</li>'+
     '<li>'+
-      '<a href"#" class="medium off-color" id="provision_images_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-camera"/><br>Images</a>'+
+      '<a href"#" class="medium off-color" id="provision_templates_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-camera"/><br>'+tr("Templates")+'</a>'+
     '</li>'+
     '<li style="border-left: 1px solid #efefef; height: 40px"><br>'+
     '</li>'+
@@ -617,7 +600,7 @@ var provision_tab = {
       '<a href"#" class="medium off-color" id="provision_user_info_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-user"/><br>'+config['display_name']+'</a>'+
     '</li>'+
     '<li>'+
-      '<a href"#" class="medium off-color has-tip" data-tooltip title="Log out" id="provision_logout" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-sign-out"/><br>Log out</a>'+
+      '<a href"#" class="medium off-color has-tip" data-tooltip title="Log out" id="provision_logout" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-sign-out"/><br>'+tr("Log out")+'</a>'+
     '</li>'+
     '<li style="border-left: 1px solid #efefef; height: 40px"><br>'+
     '</li>'+
@@ -633,12 +616,12 @@ var provision_tab = {
 };
 
 var povision_actions = {
-  "Provision.Image.delete" : {
+  "Provision.Template.delete" : {
       type: "single",
-      call: OpenNebula.Image.del,
+      call: OpenNebula.Template.del,
       callback: function(){
-        OpenNebula.Helper.clear_cache("IMAGE");
-        show_provision_image_list(1000);
+        OpenNebula.Helper.clear_cache("VMTEMPLATE");
+        show_provision_template_list(1000);
       },
       error: onError
   },
@@ -688,7 +671,7 @@ var povision_actions = {
       $("#vm_name", context).val('');
       $(".provision-pricing-table", context).removeClass("selected");
       $(".alert-box-error", context).hide();
-      $('a[href="#provision_images_selector"]', context).click();
+      $('a[href="#provision_system_templates_selector"]', context).click();
     },
     error: onError
   },
@@ -696,7 +679,8 @@ var povision_actions = {
     type: "single",
     call: OpenNebula.VM.saveas,
     callback: function(request, response){
-      OpenNebula.Helper.clear_cache("IMAGE");
+      // TODO VMTEMPLATE
+      OpenNebula.Helper.clear_cache("VMTEMPLATE");
       provision_show_vm_callback(request, response);
       notifyMessage(tr("Image") + ' ' + request.request.data[0][1].image_name + ' ' + tr("saved successfully"))
     },
@@ -907,9 +891,9 @@ function show_provision_user_info_callback(request, response) {
 }
 
 function show_provision_create_vm() {
-  update_provision_templates_datatable(provision_templates_datatable);
-  update_provision_images_datatable(provision_create_vm_images_datatable);
-  update_provision_images_datatable(provision_create_vm_snapshots_datatable);
+  update_provision_templates_datatable(provision_system_templates_datatable);
+  update_provision_templates_datatable(provision_saved_templates_datatable);
+  update_provision_networks_datatable(provision_networks_datatable);
 
   $(".section_content").hide();
   $("#provision_create_vm").fadeIn();
@@ -922,51 +906,13 @@ function show_provision_vm_list(timeout) {
   update_provision_vms_datatable(provision_vms_datatable, timeout);
 }
 
-function show_provision_image_list(timeout) {
+function show_provision_template_list(timeout) {
   $(".section_content").hide();
-  $("#provision_list_images").fadeIn();
+  $("#provision_list_templates").fadeIn();
 
-  $("#provision_confirm_delete_image_div").empty();
+  $("#provision_confirm_delete_template_div").empty();
 
-  update_provision_images_datatable(provision_images_datatable, timeout);
-}
-
-function update_provision_images_datatable(datatable, timeout) {
-  datatable.html('<div class="text-center">'+
-    '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-      '<i class="fa fa-cloud fa-stack-2x"></i>'+
-      '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
-    '</span>'+
-    '<br>'+
-    '<br>'+
-    '<span style="font-size: 18px; color: #999">'+
-      tr("")+
-    '</span>'+
-    '</div>');
-
-  setTimeout( function(){
-    OpenNebula.Image.list({
-      timeout: true,
-      success: function (request, item_list){
-        datatable.fnClearTable(true);
-        if (item_list.length == 0) {
-          datatable.html('<div class="text-center">'+
-            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-              '<i class="fa fa-cloud fa-stack-2x"></i>'+
-              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
-            '</span>'+
-            '<br>'+
-            '<br>'+
-            '<span style="font-size: 18px; color: #999">'+
-              tr("There are no images available")+
-            '</span>'+
-            '</div>');
-        } else {
-          datatable.fnAddData(item_list);
-        }
-      }
-    })
-  }, timeout );
+  update_provision_templates_datatable(provision_templates_datatable, timeout);
 }
 
 function update_provision_templates_datatable(datatable) {
@@ -1528,7 +1474,7 @@ $(document).ready(function(){
     // Create VM
     //
 
-    provision_templates_datatable = $('#provision_templates_table').dataTable({
+    provision_system_templates_datatable = $('#provision_system_templates_table').dataTable({
       "iDisplayLength": 6,
       "sDom" : '<"H">t<"F"lp>',
       "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
@@ -1537,7 +1483,8 @@ $(document).ready(function(){
       ],
       "aoColumns": [
           { "mDataProp": "VMTEMPLATE.ID" },
-          { "mDataProp": "VMTEMPLATE.NAME" }
+          { "mDataProp": "VMTEMPLATE.NAME" },
+          { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  }
       ],
       "fnPreDrawCallback": function (oSettings) {
         // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
@@ -1554,7 +1501,7 @@ $(document).ready(function(){
             '</span>'+
             '</div>');
         } else {
-          $("#provision_templates_table").html('<ul id="provision_templates_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+          $("#provision_system_templates_table").html('<ul id="provision_templates_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
         }
 
         return true;
@@ -1587,22 +1534,10 @@ $(document).ready(function(){
       }
     });
 
-    update_provision_templates_datatable(provision_templates_datatable);
+    update_provision_templates_datatable(provision_system_templates_datatable);
+    provision_system_templates_datatable.fnFilter("^-$", 2, true, false)
 
-    $('#provision_create_capacity_search').on('keyup',function(){
-      provision_templates_datatable.fnFilter( $(this).val() );
-    })
-
-    $('#provision_create_capacity_search').on('change',function(){
-      provision_templates_datatable.fnFilter( $(this).val() );
-    })
-
-    $("#provision_create_capacity_refresh_button").click(function(){
-      OpenNebula.Helper.clear_cache("VMTEMPLATE");
-      update_provision_templates_datatable(provision_templates_datatable);
-    });
-
-    provision_create_vm_images_datatable = $('#provision_create_vm_images_table').dataTable({
+    provision_saved_templates_datatable = $('#provision_saved_templates_table').dataTable({
       "iDisplayLength": 6,
       "sDom" : '<"H">t<"F"lp>',
       "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
@@ -1610,9 +1545,9 @@ $(document).ready(function(){
           { "bVisible": false, "aTargets": ["all"]}
       ],
       "aoColumns": [
-          { "mDataProp": "IMAGE.ID" },
-          { "mDataProp": "IMAGE.NAME" },
-          { "mDataProp": "IMAGE.UNAME" }
+          { "mDataProp": "VMTEMPLATE.ID" },
+          { "mDataProp": "VMTEMPLATE.NAME" },
+          { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  }
       ],
       "fnPreDrawCallback": function (oSettings) {
         // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
@@ -1625,23 +1560,33 @@ $(document).ready(function(){
             '<br>'+
             '<br>'+
             '<span style="font-size: 18px; color: #999">'+
-              tr("There are no images available")+
+              tr("There are no templates available")+
             '</span>'+
             '</div>');
         } else {
-          $("#provision_create_vm_images_table").html('<ul id="provision_create_vm_images_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+          $("#provision_saved_templates_table").html('<ul id="provision_templates_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
         }
 
         return true;
       },
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-        var data = aData.IMAGE;
-        $("#provision_create_vm_images_ul").append('<li>'+
+        var data = aData.VMTEMPLATE;
+        $("#provision_templates_ul").append('<li>'+
             '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
-              '<li class="provision-title">'+
-                data.NAME +
+              '<li class="provision-title" title="'+data.NAME+'">'+
+                data.NAME+
               '</li>'+
-              '<li class="provision-bullet-item">'+'<i class="fa fa-fw fa-download" style="font-size:40px;"/>'+'</li>'+
+              '<li class="provision-bullet-item">'+
+                '<span style="font-size: 40px">'+
+                '<i class="fa fa-fw fa-laptop"/>&emsp;'+
+                '<span style="vertical-align: middle; font-size:14px">'+
+                  'x'+data.TEMPLATE.CPU+' - '+
+                  ((data.TEMPLATE.MEMORY > 1000) ?
+                    (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
+                    (data.TEMPLATE.MEMORY+'MB'))+
+                '</span>'+
+                '</span>'+
+              '</li>'+
               '<li class="provision-description">'+
                 (data.TEMPLATE.DESCRIPTION || '...')+
               '</li>'+
@@ -1652,82 +1597,23 @@ $(document).ready(function(){
       }
     });
 
-    update_provision_images_datatable(provision_create_vm_images_datatable);
-    provision_create_vm_images_datatable.fnFilter("^(?!" + username + "$)", 2, true, false)
+    update_provision_templates_datatable(provision_saved_templates_datatable);
+    provision_saved_templates_datatable.fnFilter("^(?!-$)", 2, true, false);
 
-    provision_create_vm_snapshots_datatable = $('#provision_create_vm_snapshots_table').dataTable({
-      "iDisplayLength": 6,
-      "sDom" : '<"H">t<"F"lp>',
-      "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
-      "aaSorting"  : [[0, "desc"]],
-      "aoColumnDefs": [
-          { "bVisible": false, "aTargets": ["all"]}
-      ],
-      "aoColumns": [
-          { "mDataProp": "IMAGE.ID" },
-          { "mDataProp": "IMAGE.NAME" },
-          { "mDataProp": "IMAGE.UNAME" }
-      ],
-      "fnPreDrawCallback": function (oSettings) {
-        // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
-
-        if (this.$('tr', {"filter": "applied"} ).length == 0) {
-          this.html('<div class="text-center">'+
-            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-              '<i class="fa fa-cloud fa-stack-2x"></i>'+
-              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
-            '</span>'+
-            '<br>'+
-            '<br>'+
-            '<span style="font-size: 18px; color: #999">'+
-              tr("There are no images available")+
-            '</span>'+
-            '</div>');
-        } else {
-          $("#provision_create_vm_snapshots_table").html('<ul id="provision_snapshots_ul" class="large-block-grid-3 medium-block-grid-2 small-block-grid-1 text-center"></ul>');
-        }
-
-        return true;
-      },
-      "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-        var data = aData.IMAGE;
-        var state = get_provision_image_state(data);
-
-        $("#provision_snapshots_ul").append('<li>'+
-            '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
-              '<li class="provision-title">'+
-                data.NAME +
-              '</li>'+
-              '<li class="provision-bullet-item">'+'<i class="fa fa-fw fa-camera" style="font-size:40px;"/>'+'</li>'+
-              '<li class="provision-description" style="font-size:12px; color: #999; padding-bottom:10px">'+
-                '<i class="fa fa-fw fa-clock-o"/>'+
-                _format_date(data.REGTIME)+
-                " " + tr("from VM") + ": " + (data.TEMPLATE.SAVED_VM_ID||'-') +
-              '</li>'+
-            '</ul>'+
-          '</li>');
-
-        return nRow;
-      }
-    });
-
-    update_provision_images_datatable(provision_create_vm_snapshots_datatable);
-    provision_create_vm_snapshots_datatable.fnFilter("^" + username + "$", 2, true, false)
-
-    $('#provision_create_image_search').change(function(){
-      provision_create_vm_snapshots_datatable.fnFilter( $(this).val() );
-      provision_create_vm_images_datatable.fnFilter( $(this).val() );
+    $('#provision_create_template_search').on('keyup',function(){
+      provision_system_templates_datatable.fnFilter( $(this).val() );
+      provision_saved_templates_datatable.fnFilter( $(this).val() );
     })
 
-    $('#provision_create_image_search').keyup(function(){
-      provision_create_vm_snapshots_datatable.fnFilter( $(this).val() );
-      provision_create_vm_images_datatable.fnFilter( $(this).val() );
+    $('#provision_create_template_search').on('change',function(){
+      provision_system_templates_datatable.fnFilter( $(this).val() );
+      provision_saved_templates_datatable.fnFilter( $(this).val() );
     })
 
-    $("#provision_create_image_refresh_button").click(function(){
-      OpenNebula.Helper.clear_cache("IMAGE");
-      update_provision_images_datatable(provision_create_vm_snapshots_datatable);
-      update_provision_images_datatable(provision_create_vm_images_datatable);
+    $("#provision_create_template_refresh_button").click(function(){
+      OpenNebula.Helper.clear_cache("VMTEMPLATE");
+      update_provision_templates_datatable(provision_system_templates_datatable);
+      update_provision_templates_datatable(provision_saved_templates_datatable);
     });
 
     provision_networks_datatable = $('#provision_networks_table').dataTable({
@@ -1822,8 +1708,7 @@ $(document).ready(function(){
       var context = $(this);
 
       var vm_name = $("#vm_name", context).val();
-      var image_id = $(".tabs-content .content.active .selected", context).attr("opennebula_id");
-      var template_id = $("#provision_templates_ul .selected", context).attr("opennebula_id");
+      var template_id = $("#.tabs-content .content.active .selected", context).attr("opennebula_id");
 
       var nics = [];
       $("#provision_networks_ul .selected", context).each(function(){
@@ -1833,21 +1718,13 @@ $(document).ready(function(){
       });
 
       if (!template_id) {
-        $(".alert-box-error", context).fadeIn().html(tr("You must select at least a capacity configuration"));
-        return false;
-      }
-
-      if (!image_id) {
-        $(".alert-box-error", context).fadeIn().html(tr("You must select at least an image"));
+        $(".alert-box-error", context).fadeIn().html(tr("You must select at least a template configuration"));
         return false;
       }
 
       var extra_info = {
         'vm_name' : vm_name,
         'template': {
-          'disk': {
-            'image_id': image_id
-          }
         }
       }
 
@@ -1865,10 +1742,10 @@ $(document).ready(function(){
 
 
     //
-    // List Images
+    // List Templates
     //
 
-    provision_images_datatable = $('#provision_images_table').dataTable({
+    provision_templates_datatable = $('#provision_templates_table').dataTable({
       "iDisplayLength": 8,
       "sDom" : '<"H">t<"F"lp>',
       "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
@@ -1877,9 +1754,9 @@ $(document).ready(function(){
           { "bVisible": false, "aTargets": ["all"]}
       ],
       "aoColumns": [
-          { "mDataProp": "IMAGE.ID" },
-          { "mDataProp": "IMAGE.NAME" },
-          { "mDataProp": "IMAGE.UNAME" }
+          { "mDataProp": "VMTEMPLATE.ID" },
+          { "mDataProp": "VMTEMPLATE.NAME" },
+          { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  }
       ],
       "fnPreDrawCallback": function (oSettings) {
         // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
@@ -1892,31 +1769,31 @@ $(document).ready(function(){
             '<br>'+
             '<br>'+
             '<span style="font-size: 18px; color: #999">'+
-              tr("There are no images available")+
+              tr("There are no saved templates available")+
             '</span>'+
             '</div>');
         } else {
-          $("#provision_images_table").html('<ul id="provision_images_ul" class="large-block-grid-2 medium-block-grid-2 small-block-grid-1 text-center"></ul>');
+          $("#provision_templates_table").html('<ul id="provision_templates_ul" class="large-block-grid-2 medium-block-grid-2 small-block-grid-1 text-center"></ul>');
         }
         return true;
       },
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-        var data = aData.IMAGE;
-        var state = get_provision_image_state(data);
+        var data = aData.VMTEMPLATE;
+        //var state = get_provision_image_state(data);
 
-        $("#provision_images_ul").append('<li>'+
+        $("#provision_templates_ul").append('<li>'+
             '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
               '<li class="provision-title text-left">'+
-                data.NAME + '<a class="provision_confirm_delete_image_button" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-trash-o right only-on-hover"/></a>'+
+                data.NAME + '<a class="provision_confirm_delete_template_button" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-trash-o right only-on-hover"/></a>'+
               '</li>'+
               '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; padding-bottom:10px">'+
                 '<i class="fa fa-fw fa-clock-o"/>'+
                 _format_date(data.REGTIME)+
-                " " + tr("from VM") + ": " + (data.TEMPLATE.SAVED_VM_ID||'-') +
-                '<span class="'+ state.color +'-color left">'+
-                  '<i class="fa fa-fw fa-square"/>&emsp;'+
-                  state.str+
-                '</span>'+
+                " " + tr("from VM") + ": " + (data.TEMPLATE.SAVED_TEMPLATE_ID||'-') +
+                //'<span class="'+ state.color +'-color left">'+
+                //  '<i class="fa fa-fw fa-square"/>&emsp;'+
+                //  state.str+
+                //'</span>'+
               '</li>'+
             '</ul>'+
           '</li>');
@@ -1925,53 +1802,53 @@ $(document).ready(function(){
       }
     });
 
-    update_provision_images_datatable(provision_images_datatable);
-    provision_images_datatable.fnFilter("^" + username + "$", 2, true, false)
+    update_provision_templates_datatable(provision_templates_datatable);
+    provision_templates_datatable.fnFilter("^(?!-$)", 2, true, false);
 
-    $('#provision_list_images_search').keyup(function(){
-      provision_images_datatable.fnFilter( $(this).val() );
+    $('#provision_list_templates_search').keyup(function(){
+      provision_templates_datatable.fnFilter( $(this).val() );
     })
 
-    $('#provision_list_images_search').change(function(){
-      provision_images_datatable.fnFilter( $(this).val() );
+    $('#provision_list_templates_search').change(function(){
+      provision_templates_datatable.fnFilter( $(this).val() );
     })
 
-    $("#provision_images_list_button").on("click", function(){
-      show_provision_image_list(0);
+    $("#provision_templates_list_button").on("click", function(){
+      show_provision_template_list(0);
     });
 
-    $("#provision_list_images").on("click", "#provision_images_list_refresh_button", function(){
-      OpenNebula.Helper.clear_cache("IMAGE");
-      show_provision_image_list(0);
+    $("#provision_list_templates").on("click", "#provision_templates_list_refresh_button", function(){
+      OpenNebula.Helper.clear_cache("template");
+      show_provision_template_list(0);
     });
 
 
-    $("#provision_list_images").on("click", ".provision_confirm_delete_image_button", function(){
+    $("#provision_list_templates").on("click", ".provision_confirm_delete_template_button", function(){
       var context = $(this).parents(".provision-pricing-table");
-      var image_id = context.attr("opennebula_id");
-      var image_name = $(".provision-title", context).text();
+      var template_id = context.attr("opennebula_id");
+      var template_name = $(".provision-title", context).text();
 
-      $("#provision_confirm_delete_image_div").html(
+      $("#provision_confirm_delete_template_div").html(
         '<div data-alert class="alert-box secondary radius">'+
           '<div class="row">'+
           '<div class="large-9 columns">'+
             '<span style="font-size: 14px; line-height: 20px">'+
-              tr("This action will inmediately destroy the Image")+
-              ' "' + image_name + '" ' +
+              tr("This action will inmediately destroy the template")+
+              ' "' + template_name + '" ' +
               tr("and all the information will be lost.") +
             '</span>'+
           '</div>'+
           '<div class="large-3 columns">'+
-            '<a href"#" id="provision_delete_image_button" class="alert button large-12 radius right" style="margin-right: 15px" value="'+image_id+'">'+tr("Delete")+'</a>'+
+            '<a href"#" id="provision_delete_template_button" class="alert button large-12 radius right" style="margin-right: 15px" value="'+template_id+'">'+tr("Delete")+'</a>'+
           '</div>'+
           '</div>'+
           '<a href="#" class="close">&times;</a>'+
         '</div>');
     });
 
-    $("#provision_confirm_delete_image_div").on("click", "#provision_delete_image_button", function(){
-      var image_id = $(this).attr("value");
-      Sunstone.runAction('Provision.Image.delete', image_id);
+    $("#provision_confirm_delete_template_div").on("click", "#provision_delete_template_button", function(){
+      var template_id = $(this).attr("value");
+      Sunstone.runAction('Provision.Template.delete', template_id);
     });
 
     //
@@ -2088,17 +1965,20 @@ $(document).ready(function(){
           '<div class="row">'+
             '<div class="large-12 columns">'+
               '<span style="font-size: 14px; line-height: 20px">'+
-                'The main disk of the Virtual Machine will be saved in a new Image'+
+                'The main disk of the Virtual Machine will be saved in a new Image and a new Template will be added to your Saved Templates referencing the new Image'+
               '</span>'+
             '</div>'+
           '</div>'+
           '<br>'+
           '<div class="row">'+
-            '<div class="large-9 columns">'+
-              '<input type="text" id="provision_snapshot_name" placeholder="'+tr("Image Name")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important; margin: 0px"/>'+
+            '<div class="large-11 large-centered columns">'+
+              '<input type="text" id="provision_snapshot_name" placeholder="'+tr("Template Name")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important; margin: 0px"/>'+
             '</div>'+
-            '<div class="large-3 columns">'+
-              '<a href"#" id="provision_snapshot_create_button" class="success button large-12 radius right" style="margin-right: 15px">'+tr("Save Image")+'</a>'+
+          '</div>'+
+          '<br>'+
+          '<div class="row">'+
+            '<div class="large-11 large-centered columns">'+
+              '<a href"#" id="provision_snapshot_create_button" class="success button large-12 radius right">'+tr("Save Image & Create Template")+'</a>'+
             '</div>'+
           '</div>'+
           '<a href="#" class="close" style="top: 20px">&times;</a>'+
@@ -2209,6 +2089,7 @@ $(document).ready(function(){
         disk_id : "0",
         image_name : image_name,
         type: "",
+        clonetemplate: true,
         hot: true
       };
 
