@@ -1113,6 +1113,8 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     if (do_template && !vm->get_template_attribute("TEMPLATE_ID",tid))
     {
+        vm->clear_saveas_state(disk_id, is_hot);
+
         vm->unlock();
 
         failure_response(ACTION,
