@@ -147,7 +147,7 @@ EOT
         },
         {
             :name   => 'admin_password',
-            :large  => '--admin_password password',
+            :large  => '--admin_password pass',
             :short => "-p",
             :description =>
                 'Password for the admin user of the group',
@@ -155,7 +155,7 @@ EOT
         },
         {
             :name   => 'admin_driver',
-            :large  => '--admin_driver auth_driver',
+            :large  => '--admin_driver driver',
             :short => "-d",
             :description =>
                 'Auth driver for the admin user of the group',
@@ -163,20 +163,20 @@ EOT
         },
         {
             :name   => 'resources',
-            :large  => '--resources resources_str',
+            :large  => '--resources res_str',
             :short => "-r",
             :description =>
-                'Which resources can be created by group users "\
-                "(VM+NET+IMAGE+TEMPLATE by default)',
+                "Which resources can be created by group users "<<
+                "(VM+NET+IMAGE+TEMPLATE by default)",
             :format => String
         },
         {
             :name   => 'admin_resources',
-            :large  => '--admin_resources resources_str',
+            :large  => '--admin_resources res_str',
             :short => "-o",
             :description =>
-                'Which resources can be created by group users "\
-                "(VM+NET+IMAGE+TEMPLATE by default)',
+                "Which resources can be created by the admin user "<<
+                "(VM+NET+IMAGE+TEMPLATE by default)",
             :format => String
         }
     ]
