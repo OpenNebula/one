@@ -34,6 +34,7 @@ public class Group extends PoolElement{
     private static final String QUOTA           = METHOD_PREFIX + "quota";
     private static final String ADD_PROVIDER    = METHOD_PREFIX + "addprovider";
     private static final String DEL_PROVIDER    = METHOD_PREFIX + "delprovider";
+    private static final String UPDATE          = METHOD_PREFIX + "update";
 
     /**
      * Creates a new Group representation.
@@ -140,6 +141,21 @@ public class Group extends PoolElement{
         return client.call(DEL_PROVIDER, id, zoneId, clusterId);
     }
 
+    /**
+     * Replaces the template contents.
+     *
+     * @param client XML-RPC Client.
+     * @param id The group id of the target group we want to modify.
+     * @param new_template New template contents
+     * @param append True to append new attributes instead of replace the whole template
+     * @return If successful the message contains the group id.
+     */
+    public static OneResponse update(Client client, int id, String new_template,
+        boolean append)
+    {
+        return client.call(UPDATE, id, new_template, append ? 1 : 0);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -200,6 +216,29 @@ public class Group extends PoolElement{
     public OneResponse delProvider(int zoneId, int clusterId)
     {
         return delProvider(client, id, zoneId, clusterId);
+    }
+
+    /**
+     * Replaces the template contents.
+     *
+     * @param new_template New template contents
+     * @return If successful the message contains the group id.
+     */
+    public OneResponse update(String new_template)
+    {
+        return update(new_template, false);
+    }
+
+    /**
+     * Replaces the template contents.
+     *
+     * @param new_template New template contents
+     * @param append True to append new attributes instead of replace the whole template
+     * @return If successful the message contains the group id.
+     */
+    public OneResponse update(String new_template, boolean append)
+    {
+        return update(client, id, new_template, append);
     }
 
     // =================================
