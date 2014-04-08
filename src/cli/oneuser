@@ -265,7 +265,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             exit(-1)
         end
 
-        str = OneQuotaHelper.set_quota(default_quotas, args[0])
+        str = OneQuotaHelper.set_quota(default_quotas, args[0], true)
 
         rc  = system.set_user_quotas(str)
 
