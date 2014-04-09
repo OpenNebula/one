@@ -393,7 +393,6 @@ module OpenNebula
         #   perform the operation when the VM shuts down
         # @param do_template [true|false] True to clone also the VM originating
         # template and replace the disk with the saved image
-        #   perform the operation when the VM shuts down
         #
         # @return [Integer, OpenNebula::Error] the new Image ID in case of
         #   success, error otherwise

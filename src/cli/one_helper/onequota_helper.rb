@@ -46,9 +46,12 @@ class OneQuotaHelper
         #    ID     = <ID of the image>
         #    RVMS   = <Max. number of VMs using the image>
         #  ]
+    EOT
+
+    HELP_QUOTA_FOOTER = <<-EOT.unindent
         #
         #  In any quota:
-        #    -1 means use the default limit ('defaultquota' command)
+        #    -1 means use the default limit (set with the 'defaultquota' command)
         #    0 means unlimited.
         #
         #  The usage counters "*_USED" are shown for information
@@ -56,12 +59,23 @@ class OneQuotaHelper
         #-----------------------------------------------------------------------
     EOT
 
+    HELP_DEFAULT_QUOTA_FOOTER = <<-EOT.unindent
+        #
+        #  In any quota:
+        #    0 means unlimited.
+        #
+        #  The usage counters "*_USED" will always be 0 for the default
+        #  quotas, and can be ignored.
+        #-----------------------------------------------------------------------
+    EOT
+
     #  Edits the quota template of a resource
     #  @param [XMLElement] resource to get the current info from
     #  @param [String] path to the new contents. If nil a editor will be 
     #         used
+    #  @param [True|False] is_default To change the help text
     #  @return [String] contents of the new quotas
-    def self.set_quota(resource, path)
+    def self.set_quota(resource, path, is_default=false)
         str = ""
 
         if path.nil?
@@ -71,6 +85,13 @@ class OneQuotaHelper
             path = tmp.path
 
             tmp << HELP_QUOTA
+
+            if (is_default)
+                tmp << HELP_DEFAULT_QUOTA_FOOTER
+            else
+                tmp << HELP_QUOTA_FOOTER
+            end
+
             tmp << resource.template_like_str("DATASTORE_QUOTA") << "\n"
             tmp << resource.template_like_str("VM_QUOTA") << "\n"
             tmp << resource.template_like_str("NETWORK_QUOTA") << "\n"
