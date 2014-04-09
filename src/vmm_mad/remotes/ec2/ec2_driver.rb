@@ -442,6 +442,7 @@ private
                         v.security_group_id if v.is_a?(AWS::EC2::SecurityGroup)
                     }.join(",")
                 end
+                value.delete!(" ")
                 info << "AWS_#{key.to_s.upcase}=#{value} "
             end
         }
