@@ -237,7 +237,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
                 '<span class="provision_update_ssh_key_button">'+
                   tr("This is your SSH key which will be used as the preferred method of access for new Virtual Machines")+
                   '<br><br>'+
-                  '<span id="provision_ssh_key_text"></span>'+
+                  '<span id="provision_ssh_key_text" style="text-overflow: ellipsis; word-break: break-word;"></span>'+
                 '</span>'+
               '</p>'+
             '</div>'+
