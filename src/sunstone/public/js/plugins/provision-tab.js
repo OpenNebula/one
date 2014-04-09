@@ -237,7 +237,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
                 '<span class="provision_update_ssh_key_button">'+
                   tr("This is your SSH key which will be used as the preferred method of access for new Virtual Machines")+
                   '<br><br>'+
-                  '<span id="provision_ssh_key_text"></span>'+
+                  '<span id="provision_ssh_key_text" style="text-overflow: ellipsis; word-break: break-word;"></span>'+
                 '</span>'+
               '</p>'+
             '</div>'+
@@ -794,34 +794,34 @@ var povision_actions = {
               humanize_figures : true,
               div_graph : $(".vm_memory_graph")
           },
-          { labels : "Network reception",
-            monitor_resources : "NET_RX",
-            humanize_figures : true,
-            convert_from_bytes : true,
-            div_graph : $("#vm_net_rx_graph")
-          },
-          { labels : "Network transmission",
-            monitor_resources : "NET_TX",
-            humanize_figures : true,
-            convert_from_bytes : true,
-            div_graph : $("#vm_net_tx_graph")
-          },
-          { labels : "Network reception speed",
-            monitor_resources : "NET_RX",
-            humanize_figures : true,
-            convert_from_bytes : true,
-            y_sufix : "B/s",
-            derivative : true,
-            div_graph : $("#vm_net_rx_speed_graph")
-          },
-          { labels : "Network transmission speed",
-            monitor_resources : "NET_TX",
-            humanize_figures : true,
-            convert_from_bytes : true,
-            y_sufix : "B/s",
-            derivative : true,
-            div_graph : $("#vm_net_tx_speed_graph")
-          }
+          //{ labels : "Network reception",
+          //  monitor_resources : "NET_RX",
+          //  humanize_figures : true,
+          //  convert_from_bytes : true,
+          //  div_graph : $("#vm_net_rx_graph")
+          //},
+          //{ labels : "Network transmission",
+          //  monitor_resources : "NET_TX",
+          //  humanize_figures : true,
+          //  convert_from_bytes : true,
+          //  div_graph : $("#vm_net_tx_graph")
+          //},
+          //{ labels : "Network reception speed",
+          //  monitor_resources : "NET_RX",
+          //  humanize_figures : true,
+          //  convert_from_bytes : true,
+          //  y_sufix : "B/s",
+          //  derivative : true,
+          //  div_graph : $("#vm_net_rx_speed_graph")
+          //},
+          //{ labels : "Network transmission speed",
+          //  monitor_resources : "NET_TX",
+          //  humanize_figures : true,
+          //  convert_from_bytes : true,
+          //  y_sufix : "B/s",
+          //  derivative : true,
+          //  div_graph : $("#vm_net_tx_speed_graph")
+          //}
       ];
 
       // The network speed graphs require the derivative of the data,
@@ -835,7 +835,7 @@ var povision_actions = {
           );
       }
     },
-    error: vmMonitorError
+    //error: vmMonitorError
   },
   "Provision.reboot" : {
       type: "single",
@@ -1381,7 +1381,7 @@ function update_provision_vm_info(data) {
 
   $("#provision_confirm_action").html("");
 
-  Sunstone.runAction("VM.monitor",data.ID, { monitor_resources : "CPU,MEMORY"});
+  Sunstone.runAction("Provision.monitor",data.ID, { monitor_resources : "CPU,MEMORY"});
 }
 
 function provision_show_vm_callback(request, response) {
@@ -1727,7 +1727,6 @@ $(document).ready(function(){
       },
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
         var data = aData;
-        console.log(data);
         $("#provision_instance_types_ul").append('<li>'+
             '<ul class="provision-pricing-table hoverable only-one" data=\''+JSON.stringify(data)+'\'>'+
               '<li class="provision-title" title="'+data.name+'">'+
