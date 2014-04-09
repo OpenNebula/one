@@ -99,51 +99,57 @@ var widgets = {
               </h4>\
             </div>\
           </div>\
-          <div class="small-4 large-4 columns">\
-            <div class="row graph_legend text-center">\
+          <div class="small-9 large-9 columns">\
+            <div class="row">\
               <div class="small-6 large-6 columns">\
-                <h4 class="subheader"><small>'+tr("CPU")+'</small></h4>\
+                <div class="row graph_legend text-center">\
+                  <div class="small-6 large-6 columns">\
+                    <h4 class="subheader"><small>'+tr("CPU")+'</small></h4>\
+                  </div>\
+                </div>\
+                <div class="row">\
+                  <h4 class="subheader">\
+                    <small class="subheader small-4 large-4 columns right">'+tr("Allocated")+
+                    '</small>\
+                  </h4>\
+                  <div class="small-8 large-8 columns" id="dash_host_allocated_cpu" >\
+                  </div>\
+                </div>\
+                <div class="row">\
+                  <h4 class="subheader">\
+                    <small class="subheader small-4 large-4 columns right">'+tr("Real")+
+                    '</small>\
+                  </h4>\
+                  <div class="small-8 large-8 columns" id="dash_host_real_cpu" >\
+                  </div>\
+                </div>\
               </div>\
-            </div>\
-            <div class="row">\
-              <h4 class="subheader">\
-                <small class="subheader small-4 large-4 columns">'+tr("Allocated")+
-                '</small>\
-              </h4>\
-              <div class="small-8 large-8 columns" id="dash_host_allocated_cpu" >\
-              </div>\
-            </div>\
-            <div class="row">\
-              <h4 class="subheader">\
-                <small class="subheader small-4 large-4 columns">'+tr("Real")+
-                '</small>\
-              </h4>\
-              <div class="small-8 large-8 columns" id="dash_host_real_cpu" >\
+              <div class="small-6 large-6 columns">\
+                <div class="row graph_legend text-center">\
+                  <div class="small-6 large-6 columns">\
+                    <h4 class="subheader"><small>'+tr("MEMORY")+'</small></h4>\
+                  </div>\
+                </div>\
+                <div class="row">\
+                  <h4 class="subheader">\
+                    <small class="subheader small-4 large-4 columns right">'+tr("Allocated")+
+                    '</small>\
+                  </h4>\
+                  <div class="small-8 large-8 columns" id="dash_host_allocated_mem" >\
+                  </div>\
+                </div>\
+                <div class="row">\
+                  <h4 class="subheader">\
+                    <small class="subheader small-4 large-4 columns right">'+tr("Real")+
+                    '</small>\
+                  </h4>\
+                  <div class="small-8 large-8 columns" id="dash_host_real_mem" >\
+                  </div>\
+                </div>\
               </div>\
             </div>\
           </div>\
-          <div class="small-4 large-4 columns">\
-            <div class="row graph_legend text-center">\
-              <div class="small-6 large-6 columns">\
-                <h4 class="subheader"><small>'+tr("MEMORY")+'</small></h4>\
-              </div>\
-            </div>\
-            <div class="row">\
-              <h4 class="subheader">\
-                <small class="subheader small-4 large-4 columns">'+tr("Allocated")+
-                '</small>\
-              </h4>\
-              <div class="small-8 large-8 columns" id="dash_host_allocated_mem" >\
-              </div>\
-            </div>\
-            <div class="row">\
-              <h4 class="subheader">\
-                <small class="subheader small-4 large-4 columns">'+tr("Real")+
-                '</small>\
-              </h4>\
-              <div class="small-8 large-8 columns" id="dash_host_real_mem" >\
-              </div>\
-            </div>\
+          <div class="small-1 large-1 columns">\
           </div>\
         </div>\
       </fieldset>',
@@ -176,18 +182,18 @@ var widgets = {
             </div>\
             <div class="row">\
               <h4 class="subheader">\
-                <small class="subheader small-4 large-4 columns">'+tr("CPU")+
+                <small class="subheader small-2 large-2 columns right">'+tr("CPU")+
                 '</small>\
               </h4>\
-              <div class="small-8 large-8 columns" id="dash_vm_real_cpu" >\
+              <div class="small-10 large-10 columns" id="dash_vm_real_cpu" >\
               </div>\
             </div>\
             <div class="row">\
               <h4 class="subheader">\
-                <small class="subheader small-4 large-4 columns">'+tr("Memory")+
+                <small class="subheader small-2 large-2 columns right">'+tr("Memory")+
                 '</small>\
               </h4>\
-              <div class="small-8 large-8 columns" id="dash_vm_real_mem" >\
+              <div class="small-10 large-10 columns" id="dash_vm_real_mem" >\
               </div>\
             </div>\
           </div>\
@@ -393,7 +399,7 @@ $(document).ready(function(){
             var html = '<div class="small-6 large-6 columns">'+widgets[widget]+'</div>';
             $('#two_per_row', $dashboard).append(html);
         })
-  
+
         $.each(Config.dashboardWidgets('widgets_one_per_row'), function(id, widget){
             var html = '<div class="row"><div class="large-12 columns">'+widgets[widget]+'</div></div><br>';
             $('#one_per_row', $dashboard).append(html);

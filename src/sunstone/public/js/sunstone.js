@@ -3523,7 +3523,7 @@ function usageBarHtml(usage, limit, info_str, color){
         }
     }
 
-    html = '<div class="progress-container"><div class="progress secondary radius">\
+    html = '<div class="progress-container"><div class="progress secondary round">\
     <span class="'+classes+'" style="width: '+percentage+'%"></span></div>\
     <div class="progress-text">'+info_str+'</div></div>';
 
