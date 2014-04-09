@@ -211,6 +211,11 @@ class EC2Driver
         regions = public_cloud_ec2_conf['regions']
         @region = regions[host] || regions["default"]
 
+        #sanitize region data
+        raise "access_key_id not defined for #{host}" if @region['access_key_id'].nil?
+        raise "secret_access_key not defined for #{host}" if @region['secret_access_key'].nil?
+        raise "region_name not defined for #{host}" if @region['region_name'].nil?
+
         AWS.config(
             'access_key_id'     => @region['access_key_id'],
             'secret_access_key' => @region['secret_access_key'],
@@ -301,8 +306,10 @@ class EC2Driver
         totalmemory = 0
         totalcpu = 0
         @region['capacity'].each { |name, size|
-            totalmemory += @instance_types[name]['memory'] * size * 1024 * 1024
-            totalcpu += @instance_types[name]['cpu'] * size * 100
+            cpu, mem = instance_type_capacity(name)
+
+            totalmemory += mem * size.to_i
+            totalcpu    += cpu * size.to_i
         }
 
         host_info =  "HYPERVISOR=ec2\n"
@@ -330,8 +337,9 @@ class EC2Driver
 
                 if one_id
                     name = i.instance_type
-                    usedcpu += @instance_types[name]['cpu'] * 100
-                    usedmemory += @instance_types[name]['memory'] * 1024 * 1024
+                    cpu, mem = instance_type_capacity(name)
+                    usedcpu += cpu
+                    usedmemory += mem
                 end
 
             end
@@ -350,6 +358,14 @@ class EC2Driver
     end
 
 private
+
+    #Get the associated capacity of the instance_type as cpu (in 100 percent
+    #e.g. 800) and memory (in KB)
+    def instance_type_capacity(name)
+        return 0, 0 if @instance_types[name].nil?
+        return @instance_types[name]['cpu'].to_i * 100 ,
+               @instance_types[name]['memory'].to_i * 1024 * 1024
+    end
 
     # Get the EC2 section of the template. If more than one EC2 section
     # the CLOUD element is used and matched with the host
