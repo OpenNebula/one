@@ -221,8 +221,8 @@ var zones_tab = {
     tabClass: "subTab",
     parentTab: "infra-tab",
     search_input: '<input id="zone_search" type="text" placeholder="'+tr("Search")+'" />',
-    list_header: '<i class="fa fa-files-o"></i> '+tr("Zones"),
-    info_header: '<i class="fa fa-files-o"></i> '+tr("Zone"),
+    list_header: '<i class="fa fa-fw fa-files-o"></i>&emsp;'+tr("Zones"),
+    info_header: '<i class="fa fa-fw fa-files-o"></i>&emsp;'+tr("Zone"),
     subheader: '<span/> <small></small>&emsp;',
     table: '<table id="datatable_zones" class="datatable twelve">\
       <thead>\

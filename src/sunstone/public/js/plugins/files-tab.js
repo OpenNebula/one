@@ -358,8 +358,8 @@ var files_tab = {
       <div id="files_upload_progress_bars"></div>\
     </div>',
     search_input: '<input id="file_search" type="text" placeholder="'+tr("Search")+'" />',
-    list_header: '<i class="fa fa-folder-open"></i> '+tr("Files & Kernels"),
-    info_header: '<i class="fa fa-folder-open"></i> '+tr("File"),
+    list_header: '<i class="fa fa-fw fa-folder-open"></i>&emsp;'+tr("Files & Kernels"),
+    info_header: '<i class="fa fa-fw fa-folder-open"></i>&emsp;'+tr("File"),
     subheader: '<span class="total_files"/> <small>'+tr("TOTAL")+'</small>&emsp;\
         <span class="size_files"/> <small>'+tr("SIZE")+'</small>',
     table: '<table id="datatable_files" class="datatable twelve">\

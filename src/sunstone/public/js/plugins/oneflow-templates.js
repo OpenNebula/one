@@ -525,8 +525,8 @@ var service_templates_tab = {
     tabClass: 'subTab',
     parentTab: 'oneflow-dashboard',
     search_input: '<input id="service_templates_search" type="text" placeholder="'+tr("Search")+'" />',
-    list_header: '<i class="fa fa-file-o"></i> '+tr("OneFlow - Templates"),
-    info_header: '<i class="fa fa-file-o"></i> '+tr("OneFlow - Template"),
+    list_header: '<i class="fa fa-fw fa-file-o"></i>&emsp;'+tr("OneFlow - Templates"),
+    info_header: '<i class="fa fa-fw fa-file-o"></i>&emsp;'+tr("OneFlow - Template"),
     subheader: '<span/> <small></small>&emsp;',
     content:   '<div class="row" id="error_message" hidden>\
         <div class="small-6 columns small-centered text-center">\

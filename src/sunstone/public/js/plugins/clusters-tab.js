@@ -1082,8 +1082,8 @@ var clusters_tab = {
     tabClass: "subTab",
     parentTab: "infra-tab",
     search_input: '<input id="cluster_search" type="text" placeholder="'+tr("Search")+'" />',
-    list_header: '<i class="fa fa-th"></i> '+tr("Clusters"),
-    info_header: '<i class="fa fa-th"></i> '+tr("Cluster"),
+    list_header: '<i class="fa fa-fw fa-th"></i>&emsp;'+tr("Clusters"),
+    info_header: '<i class="fa fa-fw fa-th"></i>&emsp;'+tr("Cluster"),
     subheader: '<span/> <small></small>&emsp;',
     table: '<table id="datatable_clusters" class="datatable twelve">\
       <thead>\

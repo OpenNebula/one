@@ -342,8 +342,8 @@ var hosts_tab = {
     tabClass: "subTab",
     parentTab: "infra-tab",
     search_input: '<input id="hosts_search" type="text" placeholder="'+tr("Search")+'" />',
-    list_header: '<i class="fa fa-hdd-o "></i> '+tr("Hosts"),
-    info_header: '<i class="fa fa-hdd-o "></i> '+tr("Host"),
+    list_header: '<i class="fa fa-fw fa-hdd-o "></i>&emsp;'+tr("Hosts"),
+    info_header: '<i class="fa fa-fw fa-hdd-o "></i>&emsp;'+tr("Host"),
     subheader: '<span class="total_hosts"/> <small>'+tr("TOTAL")+'</small>&emsp;\
         <span class="on_hosts"/> <small>'+tr("ON")+'</small>&emsp;\
         <span class="off_hosts"/> <small>'+tr("OFF")+'</small>&emsp;\

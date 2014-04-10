@@ -28,7 +28,7 @@ var dashboard_tab_content = '<div>\
 
 var widgets = {
   "storage" : '<fieldset>\
-        <legend class="span-dashboard"><i class="fa fa-upload"></i> '+tr("Storage")+'</legend>\
+        <legend class="span-dashboard"><i class="fa fa-fw fa-lg fa-upload"></i> '+tr("Storage")+'</legend>\
         <div class="row totals-info">\
             <div class="small-6 large-6 columns text-right">\
               <h4 class="subheader">\
@@ -45,7 +45,7 @@ var widgets = {
         </div>\
       </fieldset>',
   "users" : '<fieldset>\
-        <legend class="span-dashboard"><i class="fa fa-user"></i> '+tr("Users")+'</legend>\
+        <legend class="span-dashboard"><i class="fa fa-fw fa-lg fa-user"></i> '+tr("Users")+'</legend>\
         <div class="row totals-info">\
             <div class="small-6 large-6 columns text-right">\
               <h4 class="subheader">\
@@ -62,7 +62,7 @@ var widgets = {
         </div>\
       </fieldset>',
   "network" : '<fieldset>\
-        <legend class="span-dashboard"><i class="fa fa-sitemap"></i> '+tr("Network")+'</legend>\
+        <legend class="span-dashboard"><i class="fa fa-fw fa-lg fa-sitemap"></i> '+tr("Network")+'</legend>\
         <div class="row totals-info">\
             <div class="small-6 large-6 columns text-right">\
               <h4 class="subheader">\
@@ -79,7 +79,7 @@ var widgets = {
         </div>\
       </fieldset>',
   "hosts" : '<fieldset class="dashboard-panel">\
-        <legend class="span-dashboard"><i class="fa fa-hdd-o"></i> '+tr("Hosts")+'</legend>\
+        <legend class="span-dashboard"><i class="fa fa-fw fa-lg fa-hdd-o"></i> '+tr("Hosts")+'</legend>\
         <div class="row  totals-info">\
           <div class="small-3 large-3 columns centered">\
             <div class="small-6 large-6 columns text-right">\
@@ -154,7 +154,7 @@ var widgets = {
         </div>\
       </fieldset>',
   "vms" : '<fieldset class="dashboard-panel">\
-        <legend class="span-dashboard"><i class="fa fa-cloud"></i> '+tr("Virtual Machines")+'</legend>\
+        <legend class="span-dashboard"><i class="fa fa-fw fa-lg fa-cloud"></i> '+tr("Virtual Machines")+'</legend>\
         <div class="row totals-info">\
           <div class="small-3 large-3 columns">\
             <div class="small-6 large-6 columns text-right">\
@@ -200,7 +200,7 @@ var widgets = {
         </div>\
       </fieldset>',
   "user_quotas" : '<fieldset>\
-      <legend class="span-dashboard"><i class="fa fa-align-left"></i> '+tr("User Quotas")+'</legend>\
+      <legend class="span-dashboard"><i class="fa fa-fw fa-lg fa-align-left"></i> '+tr("User Quotas")+'</legend>\
       <div class="row" id="quotas_tab_user">\
         <div class="large-12 columns">'+
           '<div class="row">'+
@@ -221,7 +221,7 @@ var widgets = {
       </div>\
     </fieldset>',
   "group_quotas" : '<fieldset>\
-      <legend class="span-dashboard"><i class="fa fa-align-left"></i> '+tr("Group Quotas")+'</legend>\
+      <legend class="span-dashboard"><i class="fa fa-fw fa-lg fa-align-left"></i> '+tr("Group Quotas")+'</legend>\
         <div id="quotas_tab_group_TabBody" class="row">\
           <div class="large-12 columns">'+
             '<div class="row">'+
@@ -300,7 +300,7 @@ var dashboard_tab = {
     buttons: quotas_tab_buttons,
     content: dashboard_tab_content,
     showOnTopMenu: false,
-    list_header: '<i class="fa fa-tachometer"></i> '+tr("Dashboard")
+    list_header: '<i class="fa fa-fw fa-tachometer"></i>&emsp;'+tr("Dashboard")
 }
 
 Sunstone.addActions(dashboard_tab_actions);

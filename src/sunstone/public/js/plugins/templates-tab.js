@@ -526,8 +526,8 @@ var templates_tab = {
     tabClass: 'subTab',
     parentTab: 'vresources-tab',
     search_input: '<input id="template_search" type="text" placeholder="'+tr("Search")+'" />',
-    list_header: '<i class="fa fa-file-o"></i> '+tr("Templates"),
-    info_header: '<i class="fa fa-file-o"></i> '+tr("Template"),
+    list_header: '<i class="fa fa-fw fa-file-o"></i>&emsp;'+tr("Templates"),
+    info_header: '<i class="fa fa-fw fa-file-o"></i>&emsp;'+tr("Template"),
     subheader: '<span/> <small></small>&emsp;</span>',
     table: '<table id="datatable_templates" class="datatable twelve">\
         <thead>\

@@ -512,8 +512,8 @@ var datastores_tab = {
     tabClass: "subTab",
     parentTab: "infra-tab",
     search_input: '<input id="datastore_search" type="text" placeholder="'+tr("Search")+'" />',
-    list_header: '<i class="fa fa-folder-open"></i> '+tr("Datastores"),
-    info_header: '<i class="fa fa-folder-open"></i> '+tr("Datastore"),
+    list_header: '<i class="fa fa-fw fa-folder-open"></i>&emsp;'+tr("Datastores"),
+    info_header: '<i class="fa fa-fw fa-folder-open"></i>&emsp;'+tr("Datastore"),
     subheader: '<span/> <small></small>&emsp;',
     table: '<table id="datatable_datastores" class="datatable twelve">\
       <thead>\

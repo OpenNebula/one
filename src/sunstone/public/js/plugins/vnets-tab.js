@@ -583,8 +583,8 @@ var vnets_tab = {
     tabClass: "subTab",
     parentTab: "infra-tab",
     search_input: '<input id="vnet_search" type="text" placeholder="'+tr("Search")+'" />',
-    list_header: '<i class="fa fa-globe"></i> '+tr("Virtual Networks"),
-    info_header: '<i class="fa fa-globe"></i> '+tr("Virtual Network"),
+    list_header: '<i class="fa fa-fw fa-globe"></i>&emsp;'+tr("Virtual Networks"),
+    info_header: '<i class="fa fa-fw fa-globe"></i>&emsp;'+tr("Virtual Network"),
     subheader: '<span class="total_vnets"/> <small>'+tr("TOTAL")+'</small>&emsp;\
         <span class="addresses_vnets"/> <small>'+tr("USED IPs")+'</small>',
     table: '<table id="datatable_vnetworks" class="datatable twelve">\

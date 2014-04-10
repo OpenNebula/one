@@ -1051,8 +1051,8 @@ var services_tab = {
     tabClass: 'subTab',
     parentTab: 'oneflow-dashboard',
     search_input: '<input id="services_search" type="text" placeholder="'+tr("Search")+'" />',
-    list_header: '<i class="fa fa-code-fork fa fa-rotate-90"></i> '+tr("OneFlow - Services"),
-    info_header: '<i class="fa fa-code-fork fa fa-rotate-90"></i> '+tr("OneFlow - Service"),
+    list_header: '<i class="fa fa-fw fa-code-fork fa fa-rotate-90"></i>&emsp;'+tr("OneFlow - Services"),
+    info_header: '<i class="fa fa-fw fa-code-fork fa fa-rotate-90"></i>&emsp;'+tr("OneFlow - Service"),
     subheader: '<span/> <small></small>&emsp;',
     content:   '<div class="row" id="error_message" hidden>\
         <div class="small-6 columns small-centered text-center">\
