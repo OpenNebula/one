@@ -470,7 +470,7 @@ var datastore_buttons = {
         type: "confirm_with_select",
         text: tr("Select cluster"),
         select: "Cluster",
-        layout: "more_select",
+        layout: "main",
         tip: tr("Select the destination cluster:"),
         condition: mustBeAdmin
     },

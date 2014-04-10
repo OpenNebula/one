@@ -109,8 +109,19 @@ var config_tab_content =
         </div>\
       </div>\
       <div class="row">\
-        <div id="setting_user_template" class="large-12 columns">\
-        </div>\
+        <div id="setting_user_template" class="large-12 columns">'+
+          '<div class="text-center">'+
+            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+            '</span>'+
+            '<br>'+
+            '<br>'+
+            '<span style="font-size: 18px; color: #999">'+
+              tr("")+
+            '</span>'+
+          '</div>'+
+        '</div>\
       </div>\
     </div>\
     <div id="conf_configuration" class="row content">\
@@ -151,9 +162,22 @@ var config_tab_content =
           </dl>\
           <div class="tabs-content">\
             <div class="content active" id="user_quotas">\
-              <div class="large-12 columns">\
-                <p class="subheader">'+tr("No quotas defined")+'</p>\
-              </div>\
+              <div class="large-12 columns">'+
+                '<div class="row">'+
+                  '<div class="large-8 large-centered columns">'+
+                    '<div class="text-center">'+
+                      '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+                        '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                        '<i class="fa fa-align-left fa-stack-1x fa-inverse"></i>'+
+                      '</span>'+
+                      '<br>'+
+                      '<p style="font-size: 18px; color: #999">'+
+                        tr("There are no quotas defined")+
+                      '</p>'+
+                    '</div>'+
+                  '</div>'+
+                '</div>'+
+              '</div>\
             </div>\
             <div id="group_quotas" class="content">\
               <div class="row">\
@@ -165,9 +189,22 @@ var config_tab_content =
                 </div>\
               </div>\
               <div id="group_quotasTabBody" class="row">\
-                <div class="large-12 columns">\
-                  <p class="subheader">'+tr("No quotas defined")+'</p>\
-                </div>\
+                <div class="large-12 columns">'+
+                  '<div class="row">'+
+                    '<div class="large-8 large-centered columns">'+
+                      '<div class="text-center">'+
+                        '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+                          '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                          '<i class="fa fa-align-left fa-stack-1x fa-inverse"></i>'+
+                        '</span>'+
+                        '<br>'+
+                        '<p style="font-size: 18px; color: #999">'+
+                          tr("There are no quotas defined")+
+                        '</p>'+
+                      '</div>'+
+                    '</div>'+
+                  '</div>'+
+                '</div>\
               </div>\
             </div>\
           </div>\

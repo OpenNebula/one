@@ -299,19 +299,19 @@ var host_buttons = {
         text: tr("Select cluster"),
         select: "Cluster",
         tip: tr("Select the destination cluster:"),
-        layout: "more_select",
+        layout: "main",
         condition: mustBeAdmin
     },
     "Host.enable" : {
         type: "action",
         text: tr("Enable"),
-        layout: "more_select",
+        layout: "main",
         condition: mustBeAdmin
     },
     "Host.disable" : {
         type: "action",
         text: tr("Disable"),
-        layout: "more_select",
+        layout: "main",
         condition: mustBeAdmin
     },
     "Host.delete" : {

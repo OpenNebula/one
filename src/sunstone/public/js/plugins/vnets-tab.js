@@ -37,6 +37,10 @@ var create_vn_tmpl =
                 <label for="name" >' + tr("Name") + ':</label>\
                 <input type="text" name="name" id="name"/>\
               </div>\
+              <div class="large-6 columns">\
+                <label for="DESCRIPTION" >' + tr("Description") + ':</label>\
+                <textarea type="text" id="DESCRIPTION" name="DESCRIPTION"/>\
+              </div>\
             </div>\
             <div class="row">\
               <div class="large-12 columns">\
@@ -531,7 +535,7 @@ var vnet_buttons = {
     "Network.addtocluster" : {
         type: "confirm_with_select",
         text: tr("Select cluster"),
-        layout: "more_select",
+        layout: "main",
         select: "Cluster",
         tip: tr("Select the destination cluster:"),
         condition: mustBeAdmin
@@ -1091,7 +1095,8 @@ function setupCreateVNetDialog() {
             return false;
         }
 
-        var network_json = {"name" : name};
+        var description = $('#DESCRIPTION',dialog).val();
+        var network_json = {"name" : name, "description" : description};
 
         var network_mode = $('select#network_mode',dialog).val();
         var bridge = $('#bridge',dialog).val();

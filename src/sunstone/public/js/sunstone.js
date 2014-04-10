@@ -411,13 +411,13 @@ function setLogin(){
     };
 
     var user_login_content =  '<a href="#" data-dropdown="drop1" class="button small radius secondary dropdown" id="logout">\
-      <i class="fa fa-user header-icon"></i> '+ config['display_name'] + '</a>\
+      <i class="fa fa-user fa-lg fa-fw header-icon"></i> '+ config['display_name'] + '</a>\
       <ul id="drop1" data-dropdown-content class="f-dropdown">\
         <li><a href="#" class="configuration"><i class="fa fa-cog"></i> Settings</a></li>\
         <li><a href="#" class="logout"><i class="fa fa-power-off"></i> Sign Out</a></li>\
       </ul>\
     <a href="#" data-dropdown="drop2" class="button small radius secondary dropdown" id="zonelector">\
-      <i class="fa fa-home header-icon"></i> '+ config['zone_name'] + '</a>\
+      <i class="fa fa-home fa-lg fa-fw header-icon"></i> '+ config['zone_name'] + '</a>\
       <ul id="drop2" data-dropdown-content class="zone-ul f-dropdown"></ul>';
 
     $(".user-zone-info").html(user_login_content);
@@ -661,7 +661,8 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                     '<span id="'+custom_id+'main_buttons">'+
                     "</span>"+
 
-                    "<a href='#' data-dropdown='"+custom_id+"more_buttons' class='top_button small  button secondary dropdown radius'> " + tr("More")+
+                    "<a href='#' data-dropdown='"+custom_id+"more_buttons' class='top_button small  button secondary dropdown radius'> " +
+                        "<i class='fa fa-ellipsis-v'/>"+
                     "</a>"+
                     "<ul id='"+custom_id+"more_buttons' class='f-dropdown' data-dropdown-content>"+
                     "</ul>"+
@@ -728,15 +729,21 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                 break;
             case "refresh":
                 context = $("#"+custom_id+"refresh_buttons", buttons_row);
-                text = '<i class="fa fa-refresh"/>';
-                str_class.push("refresh", "secondary", "button", "small", "radius");
-                button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
+                text = '<span class="fa-stack">'+
+                    '<i class="fa fa-refresh fa-stack-2x"></i>'+
+                    //'<i class="fa fa-play fa-stack-1x"></i>'+
+                  '</span>';
+                str_class.push("white_button", "refresh", "secondary", "button", "small", "radius");
+                button_code = '<a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a>';
                 break;
             case "top":
                 context = $("#"+custom_id+"refresh_buttons", buttons_row);
-                text = '<i class="fa fa-eye"/>';
-                str_class.push("toggle_top_button", "only-right-list","secondary", "button", "small", "radius");
-                button_code = '<button class="'+str_class.join(' ')+'">'+text+'</button>';
+                text = '<span class="fa-stack">'+
+                    '<i class="fa fa-refresh fa-stack-2x" style="color: #dfdfdf"></i>'+
+                    '<i class="fa fa-play fa-stack-1x"></i>'+
+                  '</span>';
+                str_class.push("white_button", "toggle_top_button", "only-right-list","secondary", "button", "small", "radius");
+                button_code = '<a class="'+str_class.join(' ')+'" style="padding-left:0px; margin-right: 20px">'+text+'</a>';
                 break;
             case "main":
                 context = $("#"+custom_id+"main_buttons", buttons_row);
@@ -787,7 +794,7 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                 break;
             case "del":
                 context = $("#"+custom_id+"delete_buttons", buttons_row);
-                text = '<i class=" fa fa-trash-o"/>  ' + tr("Delete");
+                text = '<i class=" fa fa-trash-o"/> ';
                 str_class.push("alert", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;

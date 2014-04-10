@@ -224,7 +224,7 @@ var marketplace_import_dialog =
 
 
 var marketplace_tab = {
-    title: '<i class="fa fa-shopping-cart"></i>' + tr("Marketplace"),
+    title: '<i class="fa fa-lg fa-fw fa-shopping-cart"></i>&emsp;' + tr("Marketplace"),
     buttons: market_buttons,
     search_input: '<input id="marketplace_search" type="text" placeholder="'+tr("Search")+'" />',
     list_header: '<i class="fa fa-shopping-cart"></i> '+tr("OpenNebula Marketplace"),

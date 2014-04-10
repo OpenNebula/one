@@ -199,38 +199,55 @@ var widgets = {
           </div>\
         </div>\
       </fieldset>',
-  "quotas" : '<fieldset>\
-      <legend class="span-dashboard"><i class="fa fa-align-left"></i> '+tr("Quotas")+'</legend>\
-      <div class="row totals-info">\
-        <div class="large-12 columns">\
-          <dl class="tabs" data-tab>\
-            <dd class="active"><a href="#quotas_tab_user">User Quotas</a></dd>\
-            <dd><a href="#quotas_tab_group">'+tr("Group Quotas")+'</a></dd>\
-          </dl>\
-          <div class="tabs-content">\
-            <div class="content active" id="quotas_tab_user">\
-              <div class="large-12 columns">\
-                <p class="subheader">'+tr("No quotas defined")+'</p>\
+  "user_quotas" : '<fieldset>\
+      <legend class="span-dashboard"><i class="fa fa-align-left"></i> '+tr("User Quotas")+'</legend>\
+      <div class="row" id="quotas_tab_user">\
+        <div class="large-12 columns">'+
+          '<div class="row">'+
+            '<div class="large-8 large-centered columns">'+
+              '<div class="text-center">'+
+                '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+                  '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                  '<i class="fa fa-align-left fa-stack-1x fa-inverse"></i>'+
+                '</span>'+
+                '<br>'+
+                '<p style="font-size: 18px; color: #999">'+
+                  tr("There are no quotas defined")+
+                '</p>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+        '</div>\
+      </div>\
+    </fieldset>',
+  "group_quotas" : '<fieldset>\
+      <legend class="span-dashboard"><i class="fa fa-align-left"></i> '+tr("Group Quotas")+'</legend>\
+        <div id="quotas_tab_group_TabBody" class="row">\
+          <div class="large-12 columns">'+
+            '<div class="row">'+
+              '<div class="large-8 large-centered columns">'+
+                '<div class="text-center">'+
+                  '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+                    '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                    '<i class="fa fa-align-left fa-stack-1x fa-inverse"></i>'+
+                  '</span>'+
+                  '<br>'+
+                  '<p style="font-size: 18px; color: #999">'+
+                    tr("There are no quotas defined")+
+                  '</p>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+          '</div>\
+        </div>\
+        <div class="row">\
+          <div class="large-12 columns">\
+            <label>' + tr("Select group") + ':\
+              <div id="quotas_tab_group_sel">\
               </div>\
-            </div>\
-            <div id="quotas_tab_group" class="content">\
-              <div class="row">\
-                <div class="large-6 columns">\
-                  <label>' + tr("Select group") + ':\
-                    <div id="quotas_tab_group_sel">\
-                    </div>\
-                  </label>\
-                </div>\
-              </div>\
-              <div id="quotas_tab_group_TabBody" class="row">\
-                <div class="large-12 columns">\
-                  <p class="subheader">'+tr("No quotas defined")+'</p>\
-                </div>\
-              </div>\
-            </div>\
+            </label>\
           </div>\
         </div>\
-      </div>\
     </fieldset>'
 }
 
@@ -250,7 +267,8 @@ var widget_refresh = {
     "vms" : function(){
             Sunstone.runAction("VM.list");
         },
-    "quotas" : refreshDashboardQuotas
+    "user_quotas" : refreshDashboardUserQuotas,
+    "group_quotas" : refreshDashboardGroupQuotas
 }
 
 var dashboard_tab_actions = {
@@ -278,7 +296,7 @@ var quotas_tab_buttons = {
 }
 
 var dashboard_tab = {
-    title: '<i class="fa fa-tachometer"></i>'+tr("Dashboard"),
+    title: '<i class="fa fa-lg fa-fw fa-tachometer"></i>&emsp;'+tr("Dashboard"),
     buttons: quotas_tab_buttons,
     content: dashboard_tab_content,
     showOnTopMenu: false,
@@ -318,10 +336,20 @@ function updateUserQuotasInfo(request,user_json) {
     quotas_tab_html += Quotas.datastore(info, default_user_quotas);
 
     if (quotas_tab_html == ""){
-        quotas_tab_html =
-        '<div class="large-12 columns">\
-            <p class="subheader">'+tr("No quotas defined")+'</p>\
-        </div>'
+        quotas_tab_html = '<div class="row">'+
+                    '<div class="large-8 large-centered columns">'+
+                      '<div class="text-center">'+
+                        '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+                          '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                          '<i class="fa fa-align-left fa-stack-1x fa-inverse"></i>'+
+                        '</span>'+
+                        '<br>'+
+                        '<p style="font-size: 18px; color: #999">'+
+                          tr("There are no quotas defined")+
+                        '</p>'+
+                      '</div>'+
+                    '</div>'+
+                  '</div>'
     }
 
     $("#quotas_tab_user", $dashboard).html(quotas_tab_html);
@@ -350,18 +378,30 @@ function updateGroupQuotasInfo(request,group_json){
     quotas_tab_html += Quotas.datastore(info, default_group_quotas);
 
     if (quotas_tab_html == ""){
-        quotas_tab_html =
-        '<div class="large-12 columns">\
-            <p class="subheader">'+tr("No quotas defined")+'</p>\
-        </div>'
+        quotas_tab_html = '<div class="row">'+
+                    '<div class="large-8 large-centered columns">'+
+                      '<div class="text-center">'+
+                        '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+                          '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                          '<i class="fa fa-align-left fa-stack-1x fa-inverse"></i>'+
+                        '</span>'+
+                        '<br>'+
+                        '<p style="font-size: 18px; color: #999">'+
+                          tr("There are no quotas defined")+
+                        '</p>'+
+                      '</div>'+
+                    '</div>'+
+                  '</div>'
     }
 
     $("#quotas_tab_group_TabBody", $dashboard).html(quotas_tab_html);
 }
 
-function refreshDashboardQuotas(){
+function refreshDashboardUserQuotas(){
     fillUserQuotasInfo();
+}
 
+function refreshDashboardGroupQuotas(){
     gid = $("#quotas_tab_group_sel .resource_list_select", $dashboard).val();
 
     if (gid == "" || gid == undefined){
@@ -401,12 +441,12 @@ $(document).ready(function(){
         })
 
         $.each(Config.dashboardWidgets('widgets_one_per_row'), function(id, widget){
-            var html = '<div class="row"><div class="large-12 columns">'+widgets[widget]+'</div></div><br>';
+            var html = '<div class="row"><div class="large-12 columns">'+widgets[widget]+'</div></div>';
             $('#one_per_row', $dashboard).append(html);
         })
 
         $.each(Config.dashboardWidgets('widgets_one_footer'), function(id, widget){
-            var html = '<div class="row"><div class="large-12 columns">'+widgets[widget]+'</div></div><br>';
+            var html = '<div class="row"><div class="large-12 columns">'+widgets[widget]+'</div></div>';
             $('#one_footer', $dashboard).append(html);
         });
 

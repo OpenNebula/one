@@ -471,7 +471,7 @@ var template_buttons = {
     },
     "Template.update_dialog" : {
         type: "action",
-        layout: "more_select",
+        layout: "main",
         text: tr("Update")
     },
     "Template.instantiate_vms" : {
@@ -497,13 +497,12 @@ var template_buttons = {
     },
     "Template.clone_dialog" : {
         type: "action",
-        layout: "more_select",
+        layout: "main",
         text: tr("Clone")
     },
     "Template.delete" : {
         type: "confirm",
-        layout: "del",
-        text: tr("Delete")
+        layout: "del"
     },
 
     //"Template.help" : {
@@ -604,12 +603,18 @@ function updateTemplatesView(request, templates_list){
 }
 
 function generate_capacity_tab_content() {
-    var html = '<div id="template_name_form" class="row vm_param">'+
-        '<div class="large-6 columns">'+
+    var html = '<div class="row vm_param">'+
+        '<div id="template_name_form"  class="large-6 columns">'+
           '<label  for="NAME">'+tr("Name")+'\
             <span class="tip">'+tr("Name that the VM will get for description purposes.")+'</span>\
           </label>'+
           '<input type="text" id="NAME" name="name"/>'+
+        '</div>'+
+        '<div class="large-6 columns">'+
+          '<label  for="DESCRIPTION">'+tr("Description")+'\
+            <span class="tip">'+tr("Description of the template")+'</span>\
+          </label>'+
+          '<textarea type="text" id="DESCRIPTION" name="DESCRIPTION"/>'+
         '</div>'+
     '</div>'+
     '<div class="vm_param">'+
@@ -3927,6 +3932,7 @@ function fillTemplatePopUp(template, dialog){
 
     var capacity_section = $('#capacityTab', dialog);
     autoFillInputs(template, capacity_section);
+    $("#DESCRIPTION", capacity_section).val(template["DESCRIPTION"]);
 
 
     //

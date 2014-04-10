@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 var vres_tab = {
-    title: '<i class="fa fa-cloud"></i>'+tr("Virtual Resources"),
+    title: '<i class="fa fa-lg fa-fw fa-cloud"></i>&emsp;'+tr("Virtual Resources"),
     no_content: true
 }
 

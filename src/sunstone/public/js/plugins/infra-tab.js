@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 var infra_tab = {
-    title: '<i class="fa fa-sitemap"></i>'+tr("Infrastructure"),
+    title: '<i class="fa fa-lg fa-fw fa-sitemap"></i>&emsp;'+tr("Infrastructure"),
     no_content: true
 }
 
