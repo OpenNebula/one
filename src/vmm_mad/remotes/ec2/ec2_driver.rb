@@ -32,6 +32,7 @@ EC2_DRIVER_DEFAULT = "#{ETC_LOCATION}/ec2_driver.default"
 require 'yaml'
 require 'rubygems'
 require 'aws-sdk'
+require 'uri'
 
 $: << RUBY_LIB_LOCATION
 
@@ -442,8 +443,8 @@ private
                         v.security_group_id if v.is_a?(AWS::EC2::SecurityGroup)
                     }.join(",")
                 end
-                value.delete!(" ")
-                info << "AWS_#{key.to_s.upcase}=#{value} "
+
+                info << "AWS_#{key.to_s.upcase}=#{URI::encode(value)} "
             end
         }
 
