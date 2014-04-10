@@ -1154,7 +1154,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     long long size    = img->get_size();
 
     string iname_orig  = img->get_name();
-    string iuname_orig = img->get_name();
+    string iuname_orig = img->get_uname();
     Image::ImageType type = img->get_type();
 
     img->get_template_attribute("DRIVER", driver);
