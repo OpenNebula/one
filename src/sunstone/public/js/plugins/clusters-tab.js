@@ -1053,11 +1053,11 @@ var cluster_buttons = {
         layout: "refresh",
         alwaysActive: true
     },
-    "Sunstone.toggle_top" : {
-        type: "custom",
-        layout: "top",
-        alwaysActive: true
-    },
+//    "Sunstone.toggle_top" : {
+//        type: "custom",
+//        layout: "top",
+//        alwaysActive: true
+//    },
     "Cluster.create_dialog" : {
         type: "create_dialog",
         layout: "create"

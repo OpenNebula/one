@@ -196,7 +196,7 @@ var group_actions = {
             notifyCustom(tr("Group created"), " ID: " + response.GROUP.ID, false);
         },
         error : onError
-    },    
+    },
 
     "Group.create_dialog" : {
         type: "custom",
@@ -248,7 +248,7 @@ var group_actions = {
     "Group.update_dialog" : {
         type: "single",
         call: initUpdateGroupDialog
-    },    
+    },
 
     "Group.show_to_update" : {
         type: "single",
@@ -371,11 +371,11 @@ var group_buttons = {
         layout: "refresh",
         alwaysActive: true
     },
-    "Sunstone.toggle_top" : {
-        type: "custom",
-        layout: "top",
-        alwaysActive: true
-    },
+//    "Sunstone.toggle_top" : {
+//        type: "custom",
+//        layout: "top",
+//        alwaysActive: true
+//    },
     "Group.create_dialog" : {
         type: "create_dialog",
         layout: "create",
@@ -385,7 +385,7 @@ var group_buttons = {
         type : "action",
         layout: "main",
         text : tr("Update")
-    },    
+    },
     "Group.quotas_dialog" : {
         type : "action",
         text : tr("Quotas"),

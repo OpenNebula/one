@@ -521,11 +521,11 @@ var vnet_buttons = {
         alwaysActive: true
     },
 
-    "Sunstone.toggle_top" : {
-        type: "custom",
-        layout: "top",
-        alwaysActive: true
-    },
+//    "Sunstone.toggle_top" : {
+//        type: "custom",
+//        layout: "top",
+//        alwaysActive: true
+//    },
 
     "Network.create_dialog" : {
         type: "create_dialog",

@@ -938,11 +938,11 @@ var vm_buttons = {
         layout: "refresh",
         alwaysActive: true
     },
-    "Sunstone.toggle_top" : {
-        type: "custom",
-        layout: "top",
-        alwaysActive: true
-    },
+//    "Sunstone.toggle_top" : {
+//        type: "custom",
+//        layout: "top",
+//        alwaysActive: true
+//    },
     "VM.create_dialog" : {
         type: "action",
         layout: "create",

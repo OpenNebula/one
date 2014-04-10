@@ -467,11 +467,11 @@ var service_template_buttons = {
         layout: "refresh",
         alwaysActive: true
     },
-    "Sunstone.toggle_top" : {
-        type: "custom",
-        layout: "top",
-        alwaysActive: true
-    },
+//    "Sunstone.toggle_top" : {
+//        type: "custom",
+//        layout: "top",
+//        alwaysActive: true
+//    },
     "ServiceTemplate.create_dialog" : {
         type: "create_dialog",
         layout: "create"

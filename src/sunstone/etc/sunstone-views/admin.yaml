@@ -20,6 +20,7 @@ enabled_tabs:
     oneflow-services: true
     oneflow-templates: true
     zones-tab: true
+autorefresh: true
 tabs:
     dashboard-tab:
         panel_tabs:

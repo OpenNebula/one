@@ -19,6 +19,7 @@ enabled_tabs:
     oneflow-dashboard: true
     oneflow-services: true
     oneflow-templates: true
+autorefresh: true
 tabs:
     dashboard-tab:
         panel_tabs:

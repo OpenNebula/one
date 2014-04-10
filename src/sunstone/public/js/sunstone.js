@@ -451,6 +451,17 @@ function insertTabs(){
     var tab_info;
     for (tab in SunstoneCfg["tabs"]){
         insertTab(tab);
+
+        if (config['view']['autorefresh']) {
+            var tab_context = $("#" + tab);
+            var refresh_button = $(".fa-refresh", $(".action_blocks", tab_context).first());
+            setInterval(function(){
+                if(Sunstone.rightListVisible(tab_context)){
+                    refresh_button.click();
+                }
+                //else {console.log("top not visible for "+custom_id);}
+            }, top_interval);
+        }
     }
 }
 
@@ -730,11 +741,11 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
             case "refresh":
                 context = $("#"+custom_id+"refresh_buttons", buttons_row);
                 text = '<span class="fa-stack">'+
-                    '<i class="fa fa-refresh fa-stack-2x"></i>'+
+                    '<i class="fa fa-refresh fa-stack-lg" style="font-size: 1.5em"></i>'+
                     //'<i class="fa fa-play fa-stack-1x"></i>'+
                   '</span>';
                 str_class.push("white_button", "refresh", "secondary", "button", "small", "radius");
-                button_code = '<a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a>';
+                button_code = '<a class="'+str_class.join(' ')+'" href="'+button_name+'" style="padding-left: 5px">'+text+'</a>';
                 break;
             case "top":
                 context = $("#"+custom_id+"refresh_buttons", buttons_row);
@@ -3797,28 +3808,28 @@ $(document).ready(function(){
     });
 
     //Listen .toggle_top_buttons.
-    $(".toggle_top_button").live("click", function(){
-        var tab = $(this).parents(".tab");
-        var custom_id = tab.attr('id');
-
-        if(top_interval_ids[custom_id] == null){
-            $(this).html('<i class="fa fa-eye-slash"/>');
-
-            var refresh_button = $(".fa-refresh", $(this).parents(".action_blocks"));
-            top_interval_ids[custom_id] = setInterval(function(){
-                if(Sunstone.rightListVisible(tab)){
-                    //console.log("top for "+custom_id);
-                    refresh_button.click();
-                }
-                //else {console.log("top not visible for "+custom_id);}
-            }, top_interval);
-        } else {
-            clearInterval(top_interval_ids[custom_id]);
-            top_interval_ids[custom_id] = null;
-
-            $(this).html('<i class="fa fa-eye"/>');
-        }
-    });
+    //$(".toggle_top_button").live("click", function(){
+    //    var tab = $(this).parents(".tab");
+    //    var custom_id = tab.attr('id');
+//
+    //    if(top_interval_ids[custom_id] == null){
+    //        $(this).html('<i class="fa fa-eye-slash"/>');
+//
+    //        var refresh_button = $(".fa-refresh", $(this).parents(".action_blocks"));
+    //        top_interval_ids[custom_id] = setInterval(function(){
+    //            if(Sunstone.rightListVisible(tab)){
+    //                //console.log("top for "+custom_id);
+    //                refresh_button.click();
+    //            }
+    //            //else {console.log("top not visible for "+custom_id);}
+    //        }, top_interval);
+    //    } else {
+    //        clearInterval(top_interval_ids[custom_id]);
+    //        top_interval_ids[custom_id] = null;
+//
+    //        $(this).html('<i class="fa fa-eye"/>');
+    //    }
+    //});
 
     //Listen .confirm_buttons. These buttons show a confirmation dialog
     //before running the action.

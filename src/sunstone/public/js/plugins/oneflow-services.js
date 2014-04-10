@@ -1000,11 +1000,11 @@ var service_buttons = {
         layout: "refresh",
         alwaysActive: true
     },
-    "Sunstone.toggle_top" : {
-        type: "custom",
-        layout: "top",
-        alwaysActive: true
-    },
+//    "Sunstone.toggle_top" : {
+//        type: "custom",
+//        layout: "top",
+//        alwaysActive: true
+//    },
     "Service.chown" : {
         type: "confirm_with_select",
         text: tr("Change owner"),
