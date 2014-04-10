@@ -4,7 +4,20 @@ $.extend( true, $.fn.dataTable.defaults, {
         "t"+
         "<'row collapse'<'small-6 columns'i><'small-6 columns'lp>>",
     "oLanguage": {
-        "sLengthMenu": "_MENU_"
+        "sLengthMenu": "_MENU_",
+        "sEmptyTable": '<div class="text-center" style="font-size: 18px; color: #999">'+
+                  '<br>'+
+                  '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+                    '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                    '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+                  '</span>'+
+                  '<br>'+
+                  '<br>'+
+                  '<span style=" color: #999">'+
+                    'There is no data available'+
+                  '</span>'+
+                  '</div>'+
+                  '<br>'
     }
 } );
 
