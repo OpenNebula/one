@@ -31,11 +31,12 @@ tabs:
             - users
             - network
         widgets_two_per_row:
+#            - user_quotas
+#            - group_quotas
         widgets_one_per_row:
             - vms
             - hosts
         widgets_one_footer:
-#            - quotas
     system-tab:
         panel_tabs:
         actions:
