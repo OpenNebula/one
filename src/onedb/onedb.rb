@@ -133,6 +133,8 @@ class OneDB
     # max_version is ignored for now, as this is the first onedb release.
     # May be used in next releases
     def upgrade(max_version, ops)
+        one_not_running()
+
         db_version = @backend.read_db_version
 
         if ops[:verbose]
@@ -436,6 +438,12 @@ is preserved.
     def one_not_running()
         if File.exists?(LOCK_FILE)
             raise "First stop OpenNebula. Lock file found: #{LOCK_FILE}"
+        end
+
+        client = OpenNebula::Client.new
+        rc = client.get_version
+        if !OpenNebula.is_error?(rc)
+            raise "OpenNebula found listening on '#{client.one_endpoint}'"
         end
     end
 
