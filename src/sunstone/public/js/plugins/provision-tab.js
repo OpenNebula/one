@@ -575,12 +575,12 @@ var provision_info_vm =  '<div id="provision_info_vm" class="section_content hid
           '<ul class="inline-list text-center" style="font-size:12px; margin-bottom:0px; padding: 5px 10px">'+
           '<li>'+
           '<a href"#" id="provision_vnc_button" data-tooltip title="Open a VNC console in a new window" class="has-tip tip-top">'+
-            '<i class="fa fa-fw fa-2x fa-desktop"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("VNC")+'</span>'+
+            '<i class="fa fa-fw fa-2x fa-desktop"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Console")+'</span>'+
           '</a>'+
           '</li>'+
           '<li>'+
           '<span id="provision_vnc_button_disabled" data-tooltip title="You have to boot the Virtual Machine first" class="has-tip tip-top" style="color: #999">'+
-            '<i class="fa fa-fw fa-2x fa-desktop"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("VNC")+'</span>'+
+            '<i class="fa fa-fw fa-2x fa-desktop"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Console")+'</span>'+
           '</span>'+
           '</li>'+
           '<li>'+
