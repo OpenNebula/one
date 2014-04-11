@@ -3652,6 +3652,8 @@ function initialize_create_template_dialog(dialog) {
         }
 
         addSectionJSON(vm_json,$('#capacityTab',dialog));
+        vm_json["DESCRIPTION"] = $('#DESCRIPTION',$('#capacityTab',dialog)).val();
+
         //
         // OS
         //
