@@ -99,11 +99,9 @@ var create_host_tmpl =
     </div>\
   </fieldset>\
   <br>\
-  <div class="reveal-footer">\
-    <div class="form_buttons row">\
-        <button id="wizard_host_reset_button" class="button secondary radius" type="reset" value="reset">' + tr("Reset") + '</button>\
-        <button class="button success right radius" type="submit" id="create_host_submit" value="OpenNebula.Host.create">' + tr("Create") + '</button>\
-    </div>\
+  <div class="form_buttons row">\
+      <button id="wizard_host_reset_button" class="button secondary radius" type="reset" value="reset">' + tr("Reset") + '</button>\
+      <button class="button success right radius" type="submit" id="create_host_submit" value="OpenNebula.Host.create">' + tr("Create") + '</button>\
   </div>\
 </form>\
 </div>\
