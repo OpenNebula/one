@@ -5,27 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpenNebula Sunstone: Cloud Operations Center</title>
     <link href="images/favicon.ico" rel="shortcut icon"></link>
-    <script src="vendor/4.0/jquery-1.11.0.min.js" type="text/javascript"></script>
-    <script src="vendor/4.0/jquery-migrate-1.2.1.js" type="text/javascript"></script>
-    <script src="vendor/4.0/jgrowl/jquery.jgrowl.js" type="text/javascript"></script>
-    <script src="vendor/4.0/datatables/jquery.dataTables.min.js" type="text/javascript"></script>
-    <script src="vendor/flot/jquery.flot.min.js" type="text/javascript"></script>
-    <script src="vendor/flot/jquery.flot.pie.min.js" type="text/javascript"></script>
-    <script src="vendor/flot/jquery.flot.resize.min.js" type="text/javascript"></script>
-    <script src="vendor/flot/jquery.flot.stack.min.js" type="text/javascript"></script>
-    <script src="vendor/fileuploader/fileuploader.js" type="text/javascript"></script>
-    <script src="vendor/4.0/nouislider/jquery.nouislider.min.js" type="text/javascript"></script>
-    <script src="vendor/4.0/jdpicker_1.1/jquery.jdpicker.js" type="text/javascript"></script>
-    <link href="vendor/4.0/jgrowl/jquery.jgrowl.css" rel="stylesheet" type="text/css"></link>
-    <link rel="stylesheet" href="vendor/4.0/fontawesome/css/font-awesome.min.css"></link>
-    <link href="vendor/4.0/nouislider/nouislider.css" rel="stylesheet" type="text/css"></link>
-    <link href="vendor/4.0/jdpicker_1.1/jdpicker.css" rel="stylesheet" type="text/css"></link>
+    <script src="vendor/4.0/jquery-1.11.0.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/4.0/jquery-migrate-1.2.1.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/4.0/jgrowl/jquery.jgrowl.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/4.0/datatables/jquery.dataTables.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/flot/jquery.flot.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/flot/jquery.flot.pie.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/flot/jquery.flot.resize.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/flot/jquery.flot.stack.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/fileuploader/fileuploader.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/4.0/nouislider/jquery.nouislider.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/4.0/jdpicker_1.1/jquery.jdpicker.js"?v=<%= OpenNebula::VERSION %> type="text/javascript"></script>
+    <link href="vendor/4.0/jgrowl/jquery.jgrowl.css?v=<%= OpenNebula::VERSION %>" rel="stylesheet" type="text/css"></link>
+    <link rel="stylesheet" href="vendor/4.0/fontawesome/css/font-awesome.min.css?v=<%= OpenNebula::VERSION %>"></link>
+    <link href="vendor/4.0/nouislider/nouislider.css?v=<%= OpenNebula::VERSION %>" rel="stylesheet" type="text/css"></link>
+    <link href="vendor/4.0/jdpicker_1.1/jdpicker.css?v=<%= OpenNebula::VERSION %>" rel="stylesheet" type="text/css"></link>
     <!--[if lte IE 8]
       <script src="vendor/explorercanvas/excanvas.compiled.js" type="text/javascript"></script>
     -->
 
-    <script src="vendor/4.0/foundation/modernizr.js" type="text/javascript"></script>
-    <script src="vendor/4.0/foundation/foundation.min.js" type="text/javascript"></script>
+    <script src="vendor/4.0/foundation/modernizr.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/4.0/foundation/foundation.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
 
     <% if session[:lang] %>
       <script src="locale/<%= session[:lang] %>/<%= session[:lang] %>.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
