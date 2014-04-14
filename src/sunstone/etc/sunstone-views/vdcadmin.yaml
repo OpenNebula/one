@@ -126,8 +126,8 @@ tabs:
         actions:
             VM.refresh: true
             VM.create_dialog: false
-            VM.easy_provision: true
-            VM.chown: false
+            VM.easy_provision: false
+            VM.chown: true
             VM.chgrp: false
             VM.chmod: true
             VM.deploy: false
@@ -178,11 +178,11 @@ tabs:
             Template.easy_provision: false
             Template.update_dialog: false
             Template.instantiate_vms: false
-            Template.chown: false
+            Template.chown: true
             Template.chgrp: false
             Template.chmod: true
             Template.clone_dialog: false
-            Template.delete: false
+            Template.delete: true
         template_creation_tabs:
             general: true
             storage: true
@@ -213,7 +213,7 @@ tabs:
         actions:
             Image.refresh: true
             Image.create_dialog: false
-            Image.chown: false
+            Image.chown: true
             Image.chgrp: false
             Image.chmod: true
             Image.enable: true

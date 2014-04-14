@@ -49,8 +49,8 @@ var widgets = {
         <div class="row totals-info">\
             <div class="small-6 large-6 columns text-right">\
               <h4 class="subheader">\
-              <span class="subheader total_users"/><br>\
-              <span class="subheader total_groups"/>\
+              <span class="subheader total_users">-</span><br>\
+              <span class="subheader total_groups">-</span>\
               </h4>\
             </div>\
             <div class="small-6 large-6 columns text-left">\

@@ -443,8 +443,11 @@ function insert_views(dialog_name){
   var views_array = config['available_views'];
   for (var i = 0; i < views_array.length; i++)
   {
+    var checked = views_array[i] == 'cloud' ? "checked" : "";
+
     views_checks_str = views_checks_str +
-             '<input type="checkbox" id="group_view_'+dialog_name+'_'+views_array[i]+'" value="'+views_array[i]+'"/>' +
+             '<input type="checkbox" id="group_view_'+dialog_name+'_'+views_array[i]+
+                '" value="'+views_array[i]+'" '+checked+'/>' +
              '<label for="group_view_'+dialog_name+'_'+views_array[i]+'">'+views_array[i]+
              '</label>'
   }
