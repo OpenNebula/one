@@ -1200,7 +1200,7 @@ function get_provision_disk_image(data) {
   if (disks.length > 0) {
     return '<i class="fa fa-fw fa-download"></i>' + disks[0].IMAGE;
   } else {
-    return '';
+    return '<i class="fa fa-fw fa-download"></i> -';
   }
 }
 
@@ -1220,7 +1220,7 @@ function get_provision_ips(data) {
 
     return '<i class="fa fa-fw fa-globe"></i>' + ips.join(', ');
   } else {
-    return '';
+    return '<i class="fa fa-fw fa-globe"></i> -';
   }
 }
 
@@ -1394,9 +1394,9 @@ $(document).ready(function(){
 
   if (Config.isTabEnabled(tab_name)) {
     $(".left-content").remove();
-    $(".right-content").addClass("large-centered small-12");
+    $(".right-content").addClass("large-centered small-centered");
     $("#footer").removeClass("right");
-    $("#footer").addClass("large-centered small-12");
+    $("#footer").addClass("large-centered small-centered");
 
     $(".user-zone-info").remove();
 
@@ -1591,10 +1591,10 @@ $(document).ready(function(){
                 '<span style="font-size: 40px">'+
                 '<i class="fa fa-fw fa-file-text-o"/>&emsp;'+
                 '<span style="vertical-align: middle; font-size:14px">'+
-                  'x'+data.TEMPLATE.CPU+' - '+
+                  'x'+(data.TEMPLATE.CPU||'-')+' - '+
                   ((data.TEMPLATE.MEMORY > 1000) ?
                     (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
-                    (data.TEMPLATE.MEMORY+'MB'))+
+                    ((data.TEMPLATE.MEMORY||'-')+'MB'))+
                 '</span>'+
                 '</span>'+
               '</li>'+
@@ -1654,10 +1654,10 @@ $(document).ready(function(){
                 '<span style="font-size: 40px">'+
                 '<i class="fa fa-fw fa-file-text-o"/>&emsp;'+
                 '<span style="vertical-align: middle; font-size:14px">'+
-                  'x'+data.TEMPLATE.CPU+' - '+
+                  'x'+(data.TEMPLATE.CPU||'-')+' - '+
                   ((data.TEMPLATE.MEMORY > 1000) ?
                     (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
-                    (data.TEMPLATE.MEMORY+'MB'))+
+                    ((data.TEMPLATE.MEMORY||'-')+'MB'))+
                 '</span>'+
                 '</span>'+
               '</li>'+
@@ -1818,7 +1818,7 @@ $(document).ready(function(){
               //  '</span>'+
               //'</li>'+
               '<li class="provision-description">'+
-                (data.TEMPLATE.DESCRIPTION || '')+
+                (data.TEMPLATE.DESCRIPTION || '...')+
               '</li>'+
             '</ul>'+
           '</li>');
@@ -1950,10 +1950,10 @@ $(document).ready(function(){
                 '<span style="font-size: 40px">'+
                 '<i class="fa fa-fw fa-file-text-o"/>&emsp;'+
                 '<span style="vertical-align: middle; font-size:14px">'+
-                  'x'+data.TEMPLATE.CPU+' - '+
+                  'x'+(data.TEMPLATE.CPU||'-')+' - '+
                   ((data.TEMPLATE.MEMORY > 1000) ?
                     (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
-                    (data.TEMPLATE.MEMORY+'MB'))+
+                    ((data.TEMPLATE.MEMORY||'-')+'MB'))+
                 '</span>'+
                 '</span>'+
               '</li>'+
