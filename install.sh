@@ -1560,7 +1560,7 @@ SUNSTONE_PUBLIC_NEW_VENDOR_JGROWL="\
                 src/sunstone/public/vendor/4.0/jgrowl/LICENSE"
 
 SUNSTONE_PUBLIC_NEW_VENDOR_FOUNDATION="\
-  src/sunstone/public/bower_components/foundation/js/vendor/modernizr.js \
+  src/sunstone/public/bower_components/modernizr/modernizr.js \
   src/sunstone/public/bower_components/foundation/js/foundation.min.js"
 
 SUNSTONE_PUBLIC_NEW_VENDOR_JQUERY="\
