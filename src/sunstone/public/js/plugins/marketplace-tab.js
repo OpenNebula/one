@@ -255,6 +255,9 @@ var market_actions = {
                                 "TYPE": value['type'],
                                 "MD5": value['md5'],
                                 "SHA1": value['sha1'],
+                                "TYPE": value['type'],
+                                "DRIVER": value['driver'],
+                                "DEV_PREFIX": value['dev_prefix'],
                                 "FROM_APP": appliance['_id']["$oid"],
                                 "FROM_APP_NAME": appliance['name'],
                                 "FROM_APP_FILE": index
