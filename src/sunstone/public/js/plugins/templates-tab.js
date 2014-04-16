@@ -226,12 +226,7 @@ var template_actions = {
         type: "create",
         call: OpenNebula.Template.create,
         callback: function(request, response){
-          if (typeof($appmarket_import_dialog) !== 'undefined' ||
-              typeof($marketplace_import_dialog) !== 'undefined') {
-            $create_template_dialog.trigger('close');
-          } else {
-            $create_template_dialog.foundation('reveal', 'close');
-          }
+          $create_template_dialog.foundation('reveal', 'close');
           addTemplateElement(request, response);
           notifyCustom(tr("Template created"), " ID: " + response.VMTEMPLATE.ID, false)
         },
