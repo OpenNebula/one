@@ -232,10 +232,14 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
               '<br>'+
               '<p style="font-size: 18px; color: #999">'+
                 '<span class="provision_add_ssh_key_button">'+
-                  tr("You can add an SSH key to your account which will be used as the preferred method of access for new Virtual Machines")+
+                  tr("Add a public SSH key to your account!")+
+                  '<br>'+
+                  tr("You will be able to access your Virtual Machines withouth password")+
                 '</span>'+
                 '<span class="provision_update_ssh_key_button">'+
-                  tr("This is your SSH key which will be used as the preferred method of access for new Virtual Machines")+
+                  tr("Update your public SSH key!")+
+                  '<br>'+
+                  tr("You will be able to access your Virtual Machines withouth password")+
                   '<br><br>'+
                   '<span id="provision_ssh_key_text" style="text-overflow: ellipsis; word-break: break-word;"></span>'+
                 '</span>'+
@@ -287,7 +291,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
             '</span>'+
             '<br>'+
             '<p style="font-size: 18px; color: #999">'+
-              tr("This will change the language of your account")+
+              tr("Portal not in your native language?")+
             '</p>'+
           '</div>'+
         '</div>'+
@@ -331,7 +335,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
               '</span>'+
               '<br>'+
               '<p style="font-size: 18px; color: #999">'+
-                tr("This will change the password of your account")+
+                tr("Someone might have been eavesdropping?")+
               '</p>'+
             '</div>'+
           '</div>'+
@@ -379,7 +383,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
               '</span>'+
               '<br>'+
               '<p style="font-size: 18px; color: #999">'+
-                tr("This will change the view of your account")+
+                tr("Are you an administrator?")+
               '</p>'+
             '</div>'+
           '</div>'+
@@ -976,7 +980,6 @@ function update_provision_templates_datatable(datatable) {
     '<br>'+
     '<br>'+
     '<span style="font-size: 18px; color: #999">'+
-      tr("")+
     '</span>'+
     '</div>');
 
@@ -1032,7 +1035,6 @@ function update_provision_networks_datatable(datatable) {
     '<br>'+
     '<br>'+
     '<span style="font-size: 18px; color: #999">'+
-      tr("")+
     '</span>'+
     '</div>');
 
@@ -1049,7 +1051,7 @@ function update_provision_networks_datatable(datatable) {
           '<br>'+
           '<br>'+
           '<span style="font-size: 18px; color: #999">'+
-            tr("There are no networks available")+
+            tr("There are no networks available. Please contact your cloud administrator")+
           '</span>'+
           '</div>');
       } else {
@@ -1069,7 +1071,6 @@ function update_provision_vms_datatable(datatable, timeout) {
     '<br>'+
     '<br>'+
     '<span style="font-size: 18px; color: #999">'+
-      tr("")+
     '</span>'+
     '</div>');
 
@@ -1087,7 +1088,7 @@ function update_provision_vms_datatable(datatable, timeout) {
             '<br>'+
             '<br>'+
             '<span style="font-size: 18px; color: #999">'+
-              tr("You have not created any Virtual Machine yet")+
+              tr("Looks like you don't have any Virtual Machine. Click the button below to get started")+
             '</span>'+
             '</div>');
         } else {
@@ -1634,7 +1635,7 @@ $(document).ready(function(){
             '<br>'+
             '<br>'+
             '<span style="font-size: 18px; color: #999">'+
-              tr("There are no templates available")+
+              tr("There are no templates available. Please contact your cloud administrator")+
             '</span>'+
             '</div>');
         } else {
@@ -1716,7 +1717,7 @@ $(document).ready(function(){
             '<br>'+
             '<br>'+
             '<span style="font-size: 18px; color: #999">'+
-              tr("There are no instance_types available")+
+              tr("There are no instance_types available. Please contact your cloud administrator")+
             '</span>'+
             '</div>');
         } else {
@@ -1789,7 +1790,7 @@ $(document).ready(function(){
             '<br>'+
             '<br>'+
             '<span style="font-size: 18px; color: #999">'+
-              tr("There are no networks available")+
+              tr("There are no networks available. Please contact your cloud administrator")+
             '</span>'+
             '</div>');
         } else {
@@ -1930,6 +1931,8 @@ $(document).ready(function(){
             '<br>'+
             '<span style="font-size: 18px; color: #999">'+
               tr("There are no saved templates available")+
+              '<br>'+
+              tr("Create a template by saving a running Virtual Machine")+
             '</span>'+
             '</div>');
         } else {
@@ -2005,7 +2008,7 @@ $(document).ready(function(){
           '<div class="row">'+
           '<div class="large-9 columns">'+
             '<span style="font-size: 14px; line-height: 20px">'+
-              tr("This action will inmediately destroy the template")+
+              tr("Handle with care! This action will inmediately destroy the template")+
               ' "' + template_name + '" ' +
               tr("and the image associated.") +
             '</span>'+
@@ -2067,7 +2070,7 @@ $(document).ready(function(){
             '<br>'+
             '<br>'+
             '<span style="font-size: 18px; color: #999">'+
-              tr("There are no Virtual Machines available")+
+              tr("Looks like you don't have any Virtual Machine. Click the button below to get started")+
             '</span>'+
             '</div>');
         } else {
@@ -2155,7 +2158,9 @@ $(document).ready(function(){
           '<div class="row">'+
             '<div class="large-12 columns">'+
               '<span style="font-size: 14px; line-height: 20px">'+
-                'The main disk of the Virtual Machine will be saved in a new Image and a new Template will be added to your Saved Templates referencing the new Image'+
+                tr("This Virtual Machine will be saved in a new Template. Only the main disk will be preserved!")+
+              '<br>'+
+                tr("You can then create a new Virtual Machine using this Template")+
               '</span>'+
             '</div>'+
           '</div>'+
@@ -2168,7 +2173,7 @@ $(document).ready(function(){
           '<br>'+
           '<div class="row">'+
             '<div class="large-11 large-centered columns">'+
-              '<a href"#" id="provision_snapshot_create_button" class="success button large-12 radius right">'+tr("Save Image & Create Template")+'</a>'+
+              '<a href"#" id="provision_snapshot_create_button" class="success button large-12 radius right">'+tr("Save Virtual Machine to Template")+'</a>'+
             '</div>'+
           '</div>'+
           '<a href="#" class="close" style="top: 20px">&times;</a>'+
@@ -2181,7 +2186,9 @@ $(document).ready(function(){
           '<div class="row">'+
           '<div class="large-9 columns">'+
             '<span style="font-size: 14px; line-height: 20px">'+
-              'This action will inmediately destroy the Virtual Machine and all the information will be lost.'+
+              tr("Be careful, this action will inmediately destroy your Virtual Machine")+
+              '<br>'+
+              tr("All the information will be lost!")+
             '</span>'+
           '</div>'+
           '<div class="large-3 columns">'+
@@ -2198,7 +2205,9 @@ $(document).ready(function(){
           '<div class="row">'+
           '<div class="large-9 columns">'+
             '<span style="font-size: 14px; line-height: 20px">'+
-              'This action will inmediately destroy the Virtual Machine and all the information will be lost.'+
+              tr("Be careful, this action will inmediately destroy your Virtual Machine")+
+              '<br>'+
+              tr("All the information will be lost!")+
             '</span>'+
           '</div>'+
           '<div class="large-3 columns">'+
@@ -2215,9 +2224,10 @@ $(document).ready(function(){
           '<div class="row">'+
           '<div class="large-11 columns">'+
             '<span style="font-size: 14px; line-height: 20px">'+
-              'This action will power off the given Virtual Machine.'+
+              tr("This action will power off this Virtual Machine. The Virtual Machine will remain in the poweroff state, and can be powered on later")+
               '<br>'+
-              'The Virtual Machine will remain in the poweroff state, and can be powered on later'+
+              '<br>'+
+              tr("You can send the power off signal to the Virtual Machine (this is equivalent to execute the command form the console). If that doesn't effect your Virtual Machine, try to Power off the machine (this is equivalent to pressing the power off button a physical computer).")+
             '</span>'+
           '</div>'+
           '</div>'+
@@ -2245,9 +2255,10 @@ $(document).ready(function(){
           '<div class="row">'+
           '<div class="large-11 columns">'+
             '<span style="font-size: 14px; line-height: 20px">'+
-              'This action will reboot the given Virtual Machine.'+
+              tr("This action will reboot this Virtual Machine.")+
               '<br>'+
-              'The Virtual Machine will be ungracefully rebooted, unless the reboot signal is sent. This is equivalent to execute the reboot commnand from the console'+
+              '<br>'+
+              tr("You can send the reboot signal to the Virtual Machine (this is equivalent to execute the reboot command form the console). If that doesn't effect your Virtual Machine, try to Reboot the machine (this is equivalent to pressing the reset button a physical computer).")+
             '</span>'+
           '</div>'+
           '</div>'+

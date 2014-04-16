@@ -118,7 +118,6 @@ var config_tab_content =
             '<br>'+
             '<br>'+
             '<span style="font-size: 18px; color: #999">'+
-              tr("")+
             '</span>'+
           '</div>'+
         '</div>\
