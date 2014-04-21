@@ -170,7 +170,8 @@ configure_network()
 
 activate_network()
 {
-    if [[ `lsb_release -c | awk '{print($2)}'` = precise ]]; then
+    . /etc/os-release
+    if [ ID = "ubuntu" ]; then
         IFACES=`get_interfaces`
 
         for i in $IFACES; do
