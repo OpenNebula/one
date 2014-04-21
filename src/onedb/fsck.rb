@@ -1241,7 +1241,6 @@ module OneDBFsck
 
                 calculate_quotas(doc, "uid=#{row[:oid]}", "User")
 
-                doc.root.xpath('//text()[not(normalize-space())]').remove
                 @db[:user_pool].insert(
                     :oid        => row[:oid],
                     :name       => row[:name],
@@ -1278,7 +1277,6 @@ module OneDBFsck
 
                 calculate_quotas(doc, "gid=#{row[:oid]}", "Group")
 
-                doc.root.xpath('//text()[not(normalize-space())]').remove
                 @db[:group_pool].insert(
                     :oid        => row[:oid],
                     :name       => row[:name],
