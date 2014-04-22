@@ -45,6 +45,10 @@ EOT
         "OpenNebula #{VERSION}"
     end
 
+    def db_version
+        one_version()
+    end
+
     IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR CLONE DELETE USED_PERS}
 
     def fsck
