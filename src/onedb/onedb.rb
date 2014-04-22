@@ -281,7 +281,7 @@ class OneDB
 
                 time1 = Time.now
 
-                puts "  > Total time: #{time1 - time0}s" if ops[:verbose]
+                puts "  > Total time: #{"%0.02f" % (time1 - time0).to_s}s" if ops[:verbose]
 
                 return 0
             rescue Exception => e
