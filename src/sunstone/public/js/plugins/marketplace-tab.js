@@ -99,7 +99,7 @@ var market_actions = {
                                 '<i class="fa fa-fw fa-download"/>&emsp;'+
                                 index+' - '+tr("Image Name")+
                                 '<span class="right">'+
-                                    humanize_size(value['size'])+
+                                    humanize_size(value['size'], true)+
                                 '</span>'+
                             '</label>'+
                             '<input type="text" class="name"    value="' + (value['name']||appliance['name']) +'" />'+
@@ -417,7 +417,7 @@ function updateMarketInfo(request,app){
         $.each(app['files'], function(index, value){
             files_table +=  '<tr>\
                       <td class="value_td">'+value['name']+'</td>\
-                      <td class="value_td">'+humanize_size(value['size'])+'</td>\
+                      <td class="value_td">'+humanize_size(value['size'], true)+'</td>\
                     </tr>'
         });
     } else {
