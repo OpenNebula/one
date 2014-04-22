@@ -140,6 +140,8 @@ int FixedLeases::add(const string& ip, const string& mac, int vid,
         n_used++;
     }
 
+    current = leases.begin();
+
     return rc;
 
 error_no_ip_mac:
@@ -216,6 +218,8 @@ int FixedLeases::remove(const string& ip, string& error_msg)
     delete it->second;
 
     leases.erase(it);
+
+    current = leases.begin();
 
     return rc;
 
