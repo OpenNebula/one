@@ -25,7 +25,6 @@ var create_file_tmpl ='<div class="row">\
       </dl>\
     </div>\
   </div>\
-  <div class="reveal-body">\
   <form id="create_file_form_easy" action="" class="custom creation">\
       <div class="tabs-content">\
         <div id="file_easyTab" class="content active">\
@@ -97,15 +96,12 @@ var create_file_tmpl ='<div class="row">\
                   </div>\
                </div>\
             </fieldset>\
-          <div class="reveal-footer">\
             <div class="form_buttons">\
               <button class="button success radius right" id="create_file_submit" type="button" value="file/create">'+tr("Create")+'</button>\
               <button id="wizard_file_reset_button"  class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
             </div>\
-          </div>\
         </div>\
         <div id="file_manualTab" class="content">\
-          <div class="reveal-body">\
               <div class="row">\
                  <div class="columns large-12">\
                    <label for="file_datastores_raw">'+tr("Datastore")+':</label>\
@@ -118,8 +114,6 @@ var create_file_tmpl ='<div class="row">\
                    <textarea id="template" rows="15" style="height:180px !important; width:100%;"></textarea>\
                 </div>\
               </div>\
-          </div>\
-          <div class="reveal-footer">\
                <div class="form_buttons">\
                  <button class="button success radius right" id="create_file_submit_manual" value="file/create">'+tr("Create")+'</button>\
                  <button  id="advanced_file_reset_button" class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
@@ -593,7 +587,7 @@ function setupCreateFileDialog(){
     var dialog = $create_file_dialog;
     dialog.html(create_file_tmpl);
 
-    dialog.addClass("reveal-modal medium max-height").attr("data-reveal", "");
+    dialog.addClass("reveal-modal medium").attr("data-reveal", "");
 
     $('#files_file-uploader',dialog).closest('.row').hide();
 

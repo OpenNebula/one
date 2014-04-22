@@ -26,7 +26,6 @@ var create_template_tmpl = '\
     '</dl>' +
   '</div>'+
 '</div>'+
-'<div class="reveal-body">'+
   '<div class="tabs-content">' +
     '<div class="content active" id="easy">' +
       '<form class="custom creation">'+
@@ -38,11 +37,9 @@ var create_template_tmpl = '\
           wizard_tab_content()+
           '</div>'+
         '</div>'+
-        '<div class="reveal-footer">'+
             '<button class="success button radius" id="create_template_form_easy" value="OpenNebula.Template.create" style="float: right">'+tr("Create")+'</button>'+
             '<button class="button hidden radius" id="template_template_update_button" value="Template.update_template" style="float: right">'+tr("Update")+'</button>'+
             '<button class="button secondary radius" id="template_template_reset_button" value="reset" type="reset">'+tr("Reset")+'</button>'+
-        '</div>'+
       '</form>'+
     '</div>' +
     '<div class="content" id="manual">' +
@@ -57,15 +54,12 @@ var create_template_tmpl = '\
             '<textarea id="template" rows="15"></textarea>' +
           '</div>' +
         '</div>' +
-        '<div class="reveal-footer">' +
           '<div class="form_buttons">' +
             '<button class="button success right radius" id="create_template_submit_manual" value="template/create">'+tr("Create")+'</button>' +
             '<button class="button hidden radius" id="manual_template_update_button" value="Template.update_template" style="float: right">'+tr("Update")+'</button>'+
           '</div>' +
-        '</div>' +
       '</form>' +
     '</div>' +
-  '</div>' +
 '</div>'+
 '<a class="close-reveal-modal">&#215;</a>';
 
@@ -599,13 +593,15 @@ function updateTemplatesView(request, templates_list){
 
 function generate_capacity_tab_content() {
     var html = '<div class="row vm_param">'+
-        '<div id="template_name_form"  class="large-6 columns">'+
+        '<div id="template_name_form"  class="large-12 columns">'+
           '<label  for="NAME">'+tr("Name")+'\
             <span class="tip">'+tr("Name that the VM will get for description purposes.")+'</span>\
           </label>'+
           '<input type="text" id="NAME" name="name"/>'+
         '</div>'+
-        '<div class="large-6 columns">'+
+    '</div>'+
+    '<div class="row">'+
+        '<div class="large-12 columns">'+
           '<label  for="DESCRIPTION">'+tr("Description")+'\
             <span class="tip">'+tr("Description of the template")+'</span>\
           </label>'+
@@ -3557,7 +3553,7 @@ function setupCreateTemplateDialog(){
 
     //***CREATE VM DIALOG MAIN BODY***
 
-    dialogs_context.append('<div id="create_template_dialog" class="reveal-modal large max-height" data-reveal></div>');
+    dialogs_context.append('<div id="create_template_dialog" class="reveal-modal large" data-reveal></div>');
     $create_template_dialog = $('#create_template_dialog',dialogs_context);
     var dialog = $create_template_dialog;
 

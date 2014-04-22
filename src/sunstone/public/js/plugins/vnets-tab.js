@@ -28,20 +28,22 @@ var create_vn_tmpl =
       </dl>\
   </div>\
 </div>\
-<div class="reveal-body">\
       <div class="tabs-content">\
         <div class="content active" id="vnet_wizard">\
            <form id="create_vn_form_easy" action="" class="creation">\
             <div class="row">\
-              <div class="large-6 columns">\
+              <div class="large-12 columns">\
                 <label for="name" >' + tr("Name") + ':</label>\
                 <input type="text" name="name" id="name"/>\
               </div>\
-              <div class="large-6 columns">\
+            </div>\
+            <div class="row">\
+              <div class="large-12 columns">\
                 <label for="DESCRIPTION" >' + tr("Description") + ':</label>\
                 <textarea type="text" id="DESCRIPTION" name="DESCRIPTION"/>\
               </div>\
             </div>\
+            <br>\
             <div class="row">\
               <div class="large-12 columns">\
               <fieldset>\
@@ -156,6 +158,10 @@ var create_vn_tmpl =
             </div>\
             <div class="row">\
               <div class="large-6 columns">\
+                  <label for="bridge">'+tr("Bridge")+':</label>\
+                  <input type="text" name="bridge" id="bridge" />\
+              </div>\
+              <div class="large-6 columns">\
                 <label for="network_mode">'+tr("Network model")+':</label>\
                 <select name="network_mode" id="network_mode">\
                   <option value="default">'+tr("Default")+'</option>\
@@ -167,20 +173,6 @@ var create_vn_tmpl =
               </div>\
             </div>\
             <div class="row">\
-              <div class="large-6 columns">\
-                <div class="row">\
-                  <div class="large-12 columns">\
-                    <label for="bridge">'+tr("Bridge")+':</label>\
-                    <input type="text" name="bridge" id="bridge" />\
-                  </div>\
-                </div>\
-                <div class="row">\
-                  <div class="large-12 columns">\
-                    <label for="phydev">'+tr("Physical device")+':</label>\
-                    <input type="text" name="phydev" id="phydev" />\
-                  </div>\
-                </div>\
-              </div>\
               <div class="large-6 columns">\
                 <div class="row">\
                   <div class="large-12 columns">\
@@ -198,7 +190,16 @@ var create_vn_tmpl =
                   </div>\
                 </div>\
               </div>\
+              <div class="large-6 columns">\
+                <div class="row">\
+                  <div class="large-12 columns">\
+                    <label for="phydev">'+tr("Physical device")+':</label>\
+                    <input type="text" name="phydev" id="phydev" />\
+                  </div>\
+                </div>\
+              </div>\
             </div>\
+            <br>\
             <div class="row">\
               <div class="large-12 columns">\
                 <fieldset>\
@@ -237,14 +238,12 @@ var create_vn_tmpl =
                 </fieldset>\
               </div>\
             </div>\
-        <div class="reveal-footer">\
         <div class="form_buttons">\
           <button class="button success radius right" id="create_vn_submit_easy" value="vn/create">\
              '+tr("Create")+'\
           </button>\
           <button id="wizard_vnet_reset_button" class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
         </div>\
-         </div>\
         </form>\
       </div>\
       <div id="vnet_advanced" class="content">\
@@ -256,19 +255,16 @@ var create_vn_tmpl =
           </div>\
           <div class="row">\
             <div class="columns large-12">\
-              <textarea id="template" rows="15" style="width:100%;"></textarea>\
+              <textarea id="template" rows="15" style="width:100%; height:300px;"></textarea>\
             </div>\
           </div>\
-          <div class="reveal-footer">\
             <div class="form_buttons">\
               <button class="button success right radius" id="create_vn_submit_manual" value="vn/create">'+tr("Create")+'</button>\
               <button id="advanced_vnet_reset_button" class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
             </div>\
-          </div>\
         </form>\
       </div>\
     </div>\
-  </div>\
   <a class="close-reveal-modal">&#215;</a>';
 
 var update_vnet_tmpl =
@@ -913,7 +909,7 @@ function setupCreateVNetDialog() {
     var dialog = $create_vn_dialog;
     dialog.html(create_vn_tmpl);
 
-    dialog.addClass("reveal-modal medium max-height").attr("data-reveal", "");
+    dialog.addClass("reveal-modal medium").attr("data-reveal", "");
 
     //Make the tabs look nice for the creation mode
     //$('#vn_tabs',dialog).tabs();

@@ -29,65 +29,55 @@ var create_image_tmpl ='<div class="row create_image_header">\
       </dl>\
     </div>\
   </div>\
-  <div class="reveal-body">\
   <form id="create_image" action="" class="custom creation">\
       <div class="tabs-content">\
         <div id="img_easyTab" class="content active">\
               <div class="row vm_param">\
-                <div class="large-6 columns">\
-                  <div class="row">\
-                    <div class="large-12 columns">\
-                      <label for="img_name">'+tr("Name")+
-                        '<span class="tip">'+tr("Name that the Image will get. Every image must have a unique name.")+'</span>\
-                      </label>\
-                      <input type="text" name="img_name" id="img_name" />\
-                    </div>\
-                  </div>\
-                  <div class="row">\
-                    <div class="large-12 columns">\
-                      <label for="img_desc">'+tr("Description")+
-                        '<span class="tip">'+tr("Human readable description of the image for other users.")+'</span>\
-                      </label>\
-                      <textarea name="img_desc" id="img_desc" rows="4"></textarea>\
-                    </div>\
-                  </div>\
-                </div>\
-                <div class="large-6 columns">\
-                  <div class="row">\
-                    <div class="large-12 columns">\
-                      <label for="img_type">'+tr("Type")+
-                        '<span class="tip">'+tr("Type of the image.")+'<br/><br/>'
-                          + tr(" OS images contain a working operative system.")+'<br/><br/>'
-                          + tr(" CDROM images are readonly data.")+'<br/><br/>'
-                          + tr(" DATABLOCK images are a storage for data. They can be created from previous existing data, or as an empty drive.")+
-                        '</span>'+
-                      '</label>\
-                       <select name="img_type" id="img_type">\
-                            <option value="OS">'+tr("OS")+'</option>\
-                            <option value="CDROM">'+tr("CDROM")+'</option>\
-                            <option value="DATABLOCK">'+tr("DATABLOCK")+'</option>\
-                       </select>\
-                    </div>\
-                  </div>\
-                  <div class="row">\
-                    <div class="large-12 columns">\
-                      <label for="img_datastore">'+tr("Datastore")+
-                        '<span class="tip">'+tr("Select the datastore for this image")+'</span>'+
-                      '</label>\
-                       <div id="img_datastore" name="img_datastore">\
-                       </div>\
-                    </div>\
-                  </div>\
-                  <div class="row">\
-                    <div class="large-12 columns">\
-                      <input type="checkbox" id="img_persistent" name="img_persistent" value="YES" />\
-                      <label for="img_persistent">'+tr("Persistent")+
-                        '<span class="tip">'+tr("Persistence of the image")+'</span>'+
-                      '</label>\
-                    </div>\
-                  </div>\
+                <div class="large-12 columns">\
+                  <label for="img_name">'+tr("Name")+
+                    '<span class="tip">'+tr("Name that the Image will get. Every image must have a unique name.")+'</span>\
+                  </label>\
+                  <input type="text" name="img_name" id="img_name" />\
                 </div>\
               </div>\
+              <div class="row">\
+                <div class="large-12 columns">\
+                  <label for="img_desc">'+tr("Description")+
+                    '<span class="tip">'+tr("Human readable description of the image for other users.")+'</span>\
+                  </label>\
+                  <textarea name="img_desc" id="img_desc" rows="4"></textarea>\
+                </div>\
+              </div>\
+              <div class="row">\
+                <div class="large-6 columns">\
+                  <label for="img_type">'+tr("Type")+
+                    '<span class="tip">'+tr("Type of the image.")+'<br/><br/>'
+                      + tr(" OS images contain a working operative system.")+'<br/><br/>'
+                      + tr(" CDROM images are readonly data.")+'<br/><br/>'
+                      + tr(" DATABLOCK images are a storage for data. They can be created from previous existing data, or as an empty drive.")+
+                    '</span>'+
+                  '</label>\
+                   <select name="img_type" id="img_type">\
+                        <option value="OS">'+tr("OS")+'</option>\
+                        <option value="CDROM">'+tr("CDROM")+'</option>\
+                        <option value="DATABLOCK">'+tr("DATABLOCK")+'</option>\
+                   </select>\
+                </div>\
+                <div class="large-6 columns">\
+                  <label for="img_datastore">'+tr("Datastore")+
+                    '<span class="tip">'+tr("Select the datastore for this image")+'</span>'+
+                  '</label>\
+                   <div id="img_datastore" name="img_datastore">\
+                   </div>\
+                </div>\
+                <div class="large-6 columns">\
+                  <input type="checkbox" id="img_persistent" name="img_persistent" value="YES" />\
+                  <label for="img_persistent">'+tr("Persistent")+
+                    '<span class="tip">'+tr("Persistence of the image")+'</span>'+
+                  '</label>\
+                </div>\
+              </div>\
+              <br>\
              <fieldset>\
                <legend>'+tr("Image location")+':</legend>\
                <div class="row" id="src_path_select">\
@@ -162,6 +152,7 @@ var create_image_tmpl ='<div class="row create_image_header">\
                   </div>\
                 </div>\
               </div>\
+              <br>\
               <div class="row">\
                 <fieldset>\
                   <legend>' + tr("Custom attributes") + '</legend>\
@@ -203,15 +194,12 @@ var create_image_tmpl ='<div class="row create_image_header">\
                 </fieldset>\
               </div>\
           </div>\
-          <div class="reveal-footer">\
             <div class="form_buttons">\
               <button class="button success radius right" id="create_image_submit" type="button" value="image/create">'+tr("Create")+'</button>\
               <button id="wizard_image_reset_button"  class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
             </div>\
-          </div>\
         </div>\
         <div id="img_manualTab" class="content">\
-          <div class="reveal-body">\
               <div class="row">\
                  <div class="columns large-12">\
                    <label for="img_datastores_raw">'+tr("Datastore")+':</label>\
@@ -224,8 +212,6 @@ var create_image_tmpl ='<div class="row create_image_header">\
                    <textarea id="template" rows="15" style="height:380px !important; width:100%;"></textarea>\
                 </div>\
               </div>\
-          </div>\
-          <div class="reveal-footer">\
                <div class="form_buttons">\
                  <button class="button success radius right" id="create_image_submit_manual" value="image/create">'+tr("Create")+'</button>\
                  <button  id="advanced_image_reset_button" class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
@@ -853,7 +839,7 @@ function setupCreateImageDialog(dialog) {
     var dialog = $create_image_dialog;
     dialog.html(create_image_tmpl);
 
-    dialog.addClass("reveal-modal medium max-height").attr("data-reveal", "");
+    dialog.addClass("reveal-modal medium").attr("data-reveal", "");
 
     initialize_create_image_dialog(dialog);
 }
