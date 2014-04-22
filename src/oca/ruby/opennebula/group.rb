@@ -118,6 +118,7 @@ module OpenNebula
             rc, msg = create_default_acls(group_hash[:resources])
 
             if OpenNebula.is_error?(rc)
+                self.delete
                 error_msg =  "Error creating group ACL's: #{rc.message}"
                 return OpenNebula::Error.new(error_msg)
             end
