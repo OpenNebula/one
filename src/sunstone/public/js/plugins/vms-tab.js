@@ -3357,6 +3357,10 @@ function setupVNC(){
 
     $vnc_dialog.foundation();
 
+    $("#open_in_a_new_window", dialog).on("click", function(){
+      $vnc_dialog.foundation('reveal', 'close');
+    });
+
     $('#sendCtrlAltDelButton',dialog).click(function(){
         rfb.sendCtrlAltDel();
         return false;
