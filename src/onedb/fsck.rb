@@ -1241,11 +1241,10 @@ module OneDBFsck
 
                 calculate_quotas(doc, "uid=#{row[:oid]}", "User")
 
-                doc.root.xpath('//text()[not(normalize-space())]').remove
                 @db[:user_pool].insert(
                     :oid        => row[:oid],
                     :name       => row[:name],
-                    :body       => doc.root.serialize(:save_with => 0),
+                    :body       => doc.root.to_s,
                     :uid        => row[:oid],
                     :gid        => row[:gid],
                     :owner_u    => row[:owner_u],
@@ -1278,11 +1277,10 @@ module OneDBFsck
 
                 calculate_quotas(doc, "gid=#{row[:oid]}", "Group")
 
-                doc.root.xpath('//text()[not(normalize-space())]').remove
                 @db[:group_pool].insert(
                     :oid        => row[:oid],
                     :name       => row[:name],
-                    :body       => doc.root.serialize(:save_with => 0),
+                    :body       => doc.root.to_s,
                     :uid        => row[:oid],
                     :gid        => row[:gid],
                     :owner_u    => row[:owner_u],
