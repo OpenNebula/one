@@ -766,7 +766,7 @@ EOT
 
         # Aggregate information of the RUNNING vms
         @db.fetch("SELECT oid,body FROM vm_pool WHERE state<>6") do |row|
-            vm_doc = Nokogiri::XML(row[:body])
+            vm_doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
             state     = vm_doc.root.at_xpath('STATE').text.to_i
             lcm_state = vm_doc.root.at_xpath('LCM_STATE').text.to_i            
@@ -1101,7 +1101,7 @@ EOT
 
         @db.transaction do
             @db[:leases].each do |row|
-                doc = Nokogiri::XML(row[:body])
+                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
                 used = (doc.root.at_xpath('USED').text == "1")
                 vid  = doc.root.at_xpath('VID').text.to_i
@@ -1286,7 +1286,7 @@ EOT
             end
 
             @db.fetch("SELECT * FROM old_user_quotas WHERE user_oid>0") do |row|
-                doc = Nokogiri::XML(row[:body])
+                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
                 calculate_quotas(doc, "uid=#{row[:user_oid]}", "User")
 
@@ -1334,7 +1334,7 @@ EOT
             end
 
             @db.fetch("SELECT * FROM old_group_quotas WHERE group_oid>0") do |row|
-                doc = Nokogiri::XML(row[:body])
+                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
                 calculate_quotas(doc, "gid=#{row[:group_oid]}", "Group")
 
@@ -1382,7 +1382,7 @@ EOT
         img_usage = {}
 
         @db.fetch("SELECT body FROM vm_pool WHERE #{where_filter} AND state<>6") do |vm_row|
-            vmdoc = Nokogiri::XML(vm_row[:body])
+            vmdoc = Nokogiri::XML(vm_row[:body]){|c| c.default_xml.noblanks}
 
             # VM quotas
             vmdoc.root.xpath("TEMPLATE/CPU").each { |e|
@@ -1567,7 +1567,7 @@ EOT
         ds_usage = {}
 
         @db.fetch("SELECT body FROM image_pool WHERE #{where_filter}") do |img_row|
-            img_doc = Nokogiri::XML(img_row[:body])
+            img_doc = Nokogiri::XML(img_row[:body]){|c| c.default_xml.noblanks}
 
             img_doc.root.xpath("DATASTORE_ID").each { |e|
                 ds_usage[e.text] = [0,0] if ds_usage[e.text].nil?

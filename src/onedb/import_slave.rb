@@ -275,7 +275,7 @@ EOT
                 new_user = users[row[:oid]]
                 new_group = groups[row[:gid]]
 
-                slave_doc = Nokogiri::XML(row[:body])
+                slave_doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
                 if new_user[:merged]
                     # Merge user objects, giving priority to the contents
@@ -289,7 +289,7 @@ EOT
 
                     @db.fetch("SELECT body from user_pool "<<
                               "WHERE oid=#{new_user[:oid]}") do |master_row|
-                        master_doc = Nokogiri::XML(master_row[:body])
+                        master_doc = Nokogiri::XML(master_row[:body]){|c| c.default_xml.noblanks}
                     end
 
                     # Merge secondary groups
@@ -363,14 +363,14 @@ EOT
             @slave_db.fetch("SELECT * FROM group_pool") do |row|
                 new_group = groups[row[:gid]]
 
-                slave_doc = Nokogiri::XML(row[:body])
+                slave_doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
                 if new_group[:merged]
                     master_doc = nil
 
                     @db.fetch("SELECT body from group_pool "<<
                               "WHERE oid=#{new_group[:oid]}") do |master_row|
-                        master_doc = Nokogiri::XML(master_row[:body])
+                        master_doc = Nokogiri::XML(master_row[:body]){|c| c.default_xml.noblanks}
                     end
 
                     slave_users_elem  = slave_doc.root.at_xpath("USERS")
@@ -452,7 +452,7 @@ EOT
             @slave_db.fetch("SELECT * FROM old_user_quotas") do |row|
                 new_user_id = users[row[:user_oid]][:oid]
 
-                doc = Nokogiri::XML(row[:body])
+                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
                 doc.root.at_xpath("ID").content = new_user_id
 
@@ -470,7 +470,7 @@ EOT
             @slave_db.fetch("SELECT * FROM old_group_quotas") do |row|
                 new_group_id = groups[row[:group_oid]][:oid]
 
-                doc = Nokogiri::XML(row[:body])
+                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
                 doc.root.at_xpath("ID").content = new_group_id
 
@@ -672,7 +672,7 @@ EOT
             new_user = users[row[:uid]]
             new_group = groups[row[:gid]]
 
-            doc = Nokogiri::XML(row[:body])
+            doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
             doc.root.at_xpath("UID").content    = new_user[:oid]
             doc.root.at_xpath("UNAME").content  = new_user[:name]
@@ -727,7 +727,7 @@ EOT
             new_user = users[row[:uid]]
             new_group = groups[row[:gid]]
 
-            doc = Nokogiri::XML(row[:body])
+            doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
             doc.root.at_xpath("UID").content    = new_user[:oid]
             doc.root.at_xpath("UNAME").content  = new_user[:name]
@@ -750,7 +750,7 @@ EOT
             new_user = users[row[:uid]]
             new_group = groups[row[:gid]]
 
-            doc = Nokogiri::XML(row[:body])
+            doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
             doc.root.at_xpath("UID").content    = new_user[:oid]
             doc.root.at_xpath("UNAME").content  = new_user[:name]
@@ -774,7 +774,7 @@ EOT
             new_user = users[row[:uid]]
             new_group = groups[row[:gid]]
 
-            doc = Nokogiri::XML(row[:body])
+            doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
             doc.root.at_xpath("UID").content    = new_user[:oid]
             doc.root.at_xpath("UNAME").content  = new_user[:name]
@@ -798,7 +798,7 @@ EOT
             new_user = users[row[:uid]]
             new_group = groups[row[:gid]]
 
-            doc = Nokogiri::XML(row[:body])
+            doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
             doc.root.at_xpath("UID").content    = new_user[:oid]
             doc.root.at_xpath("UNAME").content  = new_user[:name]
