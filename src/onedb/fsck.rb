@@ -201,9 +201,9 @@ EOT
         users_fix = {}
 
         @db.fetch("SELECT oid,body,gid FROM user_pool") do |row|
-            doc = Document.new(row[:body])
+            doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
-            gid = doc.root.get_text('GID').to_s.to_i
+            gid = doc.root.at_xpath('GID').text.to_i
             user_gid = gid
             user_gids = Set.new
 
@@ -212,31 +212,32 @@ EOT
 
                 user_gid = 1
 
-                doc.root.each_element('GID') do |e|
-                    e.text = "1"
+                doc.root.xpath('GID').each do |e|
+                    e.content = "1"
                 end
 
-                doc.root.each_element('GNAME') do |e|
-                    e.text = "users"
+                doc.root.xpath('GNAME').each do |e|
+                    e.content = "users"
                 end
 
-                doc.root.each_element("GROUPS") { |e|
-                    e.elements.delete("ID[.=#{gid}]")
-                    e.add_element("ID").text = user_gid.to_s
+                doc.root.xpath("GROUPS").each { |e|
+                    e.xpath("ID[.=#{gid}]").each{|x| x.remove}
+
+                    e.add_child(doc.create_element("ID")).content = user_gid.to_s
                 }
 
                 users_fix[row[:oid]] = {:body => doc.to_s, :gid => user_gid}
             end
 
-            doc.root.each_element("GROUPS/ID") { |e|
+            doc.root.xpath("GROUPS/ID").each { |e|
                 user_gids.add e.text.to_i
             }
 
             if !user_gids.include?(user_gid)
                 log_error("User #{row[:oid]} does not have his primary group #{user_gid} in the list of secondary groups")
 
-                doc.root.each_element("GROUPS") { |e|
-                    e.add_element("ID").text = user_gid.to_s
+                doc.root.xpath("GROUPS").each { |e|
+                    e.add_child(doc.create_element("ID")).content = user_gid.to_s
                 }
 
                 user_gids.add user_gid.to_i
@@ -248,8 +249,8 @@ EOT
                 if group[secondary_gid].nil?
                     log_error("User #{row[:oid]} has secondary group #{secondary_gid}, but it does not exist")
 
-                    doc.root.each_element("GROUPS") { |e|
-                        e.elements.delete("ID[.=#{secondary_gid}]")
+                    doc.root.xpath("GROUPS").each { |e|
+                        e.xpath("ID[.=#{secondary_gid}]").each{|x| x.remove}
                     }
 
                     users_fix[row[:oid]] = {:body => doc.to_s, :gid => user_gid}
@@ -288,23 +289,27 @@ EOT
         @db.transaction do
             @db.fetch("SELECT * from group_pool") do |row|
                 gid = row[:oid]
-                doc = Document.new(row[:body])
+                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
-                users_elem = doc.root.elements.delete("USERS")
+                users_elem = doc.root.at_xpath("USERS")
+                users_elem.remove if !users_elem.nil?
 
-                users_new_elem = doc.root.add_element("USERS")
+                users_new_elem = doc.create_element("USERS")
+                doc.root.add_child(users_new_elem)
 
                 group[gid].each do |id|
-                    id_elem = users_elem.elements.delete("ID[.=#{id}]")
+                    id_elem = users_elem.at_xpath("ID[.=#{id}]")
 
                     if id_elem.nil?
                         log_error("User #{id} is missing from Group #{gid} users id list")
+                    else
+                        id_elem.remove
                     end
 
-                    users_new_elem.add_element("ID").text = id.to_s
+                    users_new_elem.add_child(doc.create_element("ID")).content = id.to_s
                 end
 
-                users_elem.each_element("ID") do |id_elem|
+                users_elem.xpath("ID").each do |id_elem|
                     log_error("User #{id_elem.text} is in Group #{gid} users id list, but it should not")
                 end
 
