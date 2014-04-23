@@ -523,7 +523,7 @@ var datastores_tab = {
           <th>'+tr("Owner")+'</th>\
           <th>'+tr("Group")+'</th>\
           <th>'+tr("Name")+'</th>\
-          <th style="width:25%;">'+tr("Capacity")+'</th>\
+          <th>'+tr("Capacity")+'</th>\
           <th>'+tr("Cluster")+'</th>\
           <th>'+tr("Basepath")+'</th>\
           <th>'+tr("TM MAD")+'</th>\
@@ -1106,10 +1106,11 @@ $(document).ready(function(){
 
     if (Config.isTabEnabled(tab_name)) {
       dataTable_datastores = $("#datatable_datastores",main_tabs_context).dataTable({
+            "bAutoWidth": false,
           "aoColumnDefs": [
               { "bSortable": false, "aTargets": ["check"] },
               { "sWidth": "35px", "aTargets": [0] },
-              { "sWidth": "200px", "aTargets": [5] },
+              { "sWidth": "250px", "aTargets": [5] },
               { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
               { "bVisible": false, "aTargets": ['_all']}
           ],
