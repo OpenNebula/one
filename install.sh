@@ -1905,7 +1905,6 @@ if [ "$INSTALL_ETC" = "yes" ] ; then
         eval SRC_FILES=$SRC
 
         OLD_LINK=$LINK
-        LINK="no"
 
         for f in $SRC_FILES; do
             do_file $f $DST
