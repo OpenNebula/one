@@ -1342,6 +1342,7 @@ function generatePlacementTable(vm){
                      <tr>\
                          <th>'+tr("#")+'</th>\
                          <th>'+tr("Host")+'</th>\
+                         <th>'+tr("Datastore")+'</th>\
                          <th>'+tr("Action")+'</th>\
                          <th>'+tr("Reason")+'</th>\
                          <th>'+tr("Chg time")+'</th>\
@@ -1390,7 +1391,8 @@ function generatePlacementTable(vm){
 
         html += '     <tr>\
                        <td style="width:5%">'+history[i].SEQ+'</td>\
-                       <td style="width:20%">'+history[i].HOSTNAME+'</td>\
+                       <td style="width:15%">'+history[i].HOSTNAME+'</td>\
+                       <td style="width:5%">'+history[i].DS_ID+'</td>\
                        <td style="width:16%">'+OpenNebula.Helper.resource_state("VM_MIGRATE_ACTION",parseInt(history[i].ACTION, 10))+'</td>\
                        <td style="width:10%">'+OpenNebula.Helper.resource_state("VM_MIGRATE_REASON",parseInt(history[i].REASON, 10))+'</td>\
                        <td style="width:16%">'+pretty_time(history[i].STIME)+'</td>\
