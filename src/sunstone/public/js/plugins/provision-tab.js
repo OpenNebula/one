@@ -1699,6 +1699,7 @@ $(document).ready(function(){
     provision_instance_types_datatable = $('#provision_instance_types_table').dataTable({
       "iDisplayLength": 6,
       "sDom" : '<"H">t<"F"lp>',
+      "bSort" : false,
       "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
       "aoColumnDefs": [
           { "bVisible": false, "aTargets": ["all"]}
