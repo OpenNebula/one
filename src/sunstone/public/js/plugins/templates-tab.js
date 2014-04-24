@@ -2849,7 +2849,7 @@ function setup_storage_tab_content(storage_section) {
     var number_of_disks = 0;
 
     // close icon: removing the tab on click
-    $( "#storageTab i.remove-tab" ).live( "click", function() {
+    $(storage_section).on("click", "i.remove-tab", function() {
         var target = $(this).parent().attr("href");
         var dd = $(this).closest('dd');
         var dl = $(this).closest('dl');
@@ -2898,7 +2898,7 @@ function setup_network_tab_content(network_section) {
     var number_of_nics = 0;
 
     // close icon: removing the tab on click
-    $( "#networkTab i.remove-tab" ).live( "click", function() {
+    $(network_section).on("click", "i.remove-tab", function() {
         var target = $(this).parent().attr("href");
         var dd = $(this).closest('dd');
         var dl = $(this).closest('dl');
