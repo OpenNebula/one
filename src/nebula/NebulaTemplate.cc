@@ -93,6 +93,7 @@ void OpenNebulaTemplate::set_conf_default()
 #  MONITORING_THREADS
 #  HOST_PER_INTERVAL
 #  HOST_MONITORING_EXPIRATION_TIME
+#  VM_INDIVIDUAL_MONITORING
 #  VM_PER_INTERVAL
 #  VM_MONITORING_EXPIRATION_TIME
 #  PORT
@@ -124,6 +125,12 @@ void OpenNebulaTemplate::set_conf_default()
     value = "43200";
 
     attribute = new SingleAttribute("HOST_MONITORING_EXPIRATION_TIME",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
+    // VM_INDIVIDUAL_MONITORING
+    value = "no";
+
+    attribute = new SingleAttribute("VM_INDIVIDUAL_MONITORING",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 
     // VM_PER_INTERVAL

@@ -69,6 +69,7 @@ extern "C" void * vmm_action_loop(void *arg)
     }
     else
     {
+        NebulaLog::log("VMM",Log::INFO,"VM monitoring is enabled.");
         vmm->am.loop(vmm->timer_period,0);
     }
 
