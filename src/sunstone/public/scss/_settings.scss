@@ -337,7 +337,7 @@ $button-margin-bottom: rem-calc(5);
 // $button-function-factor: 5%;
 
 // We use these to control button border styles.
-$button-border-width: 1px;
+$button-border-width: 0px;
 $button-border-style: solid;
 
 // We use this to set the default radius used throughout the core.
@@ -345,7 +345,7 @@ $button-border-style: solid;
 // $button-round: $global-rounded;
 
 // We use this to set default opacity for disabled buttons.
-$button-disabled-opacity: 0.5;
+//$button-disabled-opacity: 0.5;
 
 // Button Groups
 
@@ -868,13 +868,13 @@ $price-item-bottom-border: none;
 
 // We use these to control the style of the modal itself.
 // $reveal-modal-bg: #fff;
-$reveal-position-top: 20px;
-$reveal-default-width: 30%;
-// $reveal-modal-padding: rem-calc(20);
+$reveal-position-top: 30px;
+//$reveal-default-width: 30%;
+$reveal-modal-padding: rem-calc(25);
 // $reveal-box-shadow: 0 0 10px rgba(#000,.4);
 
 // We use these to style the reveal close button
-// $reveal-close-font-size: rem-calc(22);
+$reveal-close-font-size: rem-calc(24);
 // $reveal-close-top: rem-calc(8);
 // $reveal-close-side: rem-calc(11);
 // $reveal-close-color: #aaa;
@@ -1068,7 +1068,7 @@ $tabs-navigation-font-color: #333;
 $tabs-navigation-font-size: rem-calc(14);
 // $tabs-navigation-font-family: $body-font-family;
 
-// $tabs-content-margin-bottom: rem-calc(24);
+$tabs-content-margin-bottom: rem-calc(0);
 // $tabs-content-padding: $column-gutter/2;
 
 // $tabs-vertical-navigation-margin-bottom: 1.25rem;

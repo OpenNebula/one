@@ -24,7 +24,6 @@ var create_acl_tmpl =
         <h3 id="create_vnet_header" class="subheader">'+tr("Create ACL")+'</h3>\
     </div>\
 </div>\
-<div class="reveal-body">\
 <form id="create_acl_form" action="">\
         <div class="row">\
         <div class="large-6 columns">\
@@ -166,11 +165,9 @@ var create_acl_tmpl =
               <input type="text" name="acl_preview" id="acl_preview"></input>\
           </div>\
         </div>\
-        <div class="reveal-footer">\
         <div class="form_buttons">\
           <button class="button radius right success" id="create_acl_submit" type="submit" value="Acl.create">'+tr("Create")+'</button>\
           <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
-        </div>\
         </div>\
     <a class="close-reveal-modal">&#215;</a>\
 </form>\
@@ -475,7 +472,7 @@ function setupCreateAclDialog(){
     //    width: 650,
     //    height: height
     //});
-    dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
+    dialog.addClass("reveal-modal large").attr("data-reveal", "");
 
     //Default selected options
     $('#applies_all',dialog).attr('checked','checked');

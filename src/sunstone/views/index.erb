@@ -70,26 +70,28 @@
     <%- end -%>
     <!-- end tabs -->
   </head>
-  <body class="row antialiased">
-    <div class="small-2 large-2 columns left-content">
-      <div class="row left-header">
-        <div class="large-12 columns">
-          <img src="<%= view['small_logo'] %>"/>
+  <body class="antialiased">
+    <div class="row">
+      <div class="small-2 large-2 columns left-content">
+        <div class="row left-header">
+          <div class="large-12 columns">
+            <img src="<%= view['small_logo'] %>"/>
+          </div>
+        </div>
+        <div id="menu" class="row left-body">
+          <ul class="side-nav" id="navigation"></ul>
         </div>
       </div>
-      <div id="menu" class="row left-body">
-        <ul class="side-nav" id="navigation"></ul>
-      </div>
-    </div>
 
-    <div class="small-10 large-10 columns right-content">
-      <div class="row user-zone-container"><div class="user-zone-info"></div></div>
-      <div class="row right-header">
+      <div class="small-10 large-10 columns right-content">
+        <div class="row user-zone-container"><div class="user-zone-info"></div></div>
+        <div class="row right-header">
+        </div>
       </div>
+      <div id="footer" class="text-center large-10 columns right">
+        <a href="http://opennebula.org" target="_blank">OpenNebula 4.6.0</a> by <a href="http://c12g.com" target="_blank">C12G Labs</a>.
+      </div>
+      <div class="large-12 columns" id="dialogs"></div>
     </div>
-    <div id="footer" class="text-center large-10 columns right">
-      <a href="http://opennebula.org" target="_blank">OpenNebula 4.6.0</a> by <a href="http://c12g.com" target="_blank">C12G Labs</a>.
-    </div>
-    <div class="large-12 columns" id="dialogs"></div>
   </body>
 </html>

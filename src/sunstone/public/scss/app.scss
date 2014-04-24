@@ -177,6 +177,7 @@ input.search {
 
         .button {
             background: #fff;
+            border: none;
         }
 
         .button:hover {
@@ -188,6 +189,7 @@ input.search {
 
 .white_button {
     background-color: #fff !important;
+    border: none;
 
     &:hover {
       color: $primary-color !important;
@@ -439,30 +441,20 @@ fieldset {
 // Reveal
 
 .reveal-modal h3 {
+    margin-left: -20px;
     margin-bottom: 25px !important;
 }
 
 .reveal-body {
-    height:80%;
-    overflow-y: overlay;
-    overflow-x: hidden;
     padding: 5px 20px;
 }
 
-.reveal-footer {
-    position: absolute;
-    bottom: 20px;
-    width: 90%;
-}
 
 .max-height{
-    max-height: 90%;
-    position: absolute;
-    height: 100%;
 }
 
 .form_buttons {
-  padding-top: 20px;
+  padding-top: 30px;
 }
 
 
@@ -825,4 +817,5 @@ div.dataTables_scrollFoot table {
 hr {
   border-color: #dfdfdf;
 }
+
 
