@@ -65,7 +65,6 @@ extern "C" void * vmm_action_loop(void *arg)
 
     if ( vmm->poll_period == 0 )
     {
-        NebulaLog::log("VMM",Log::INFO,"VM monitoring is disabled.");
         vmm->am.loop(0,0);
     }
     else

@@ -553,9 +553,6 @@ void Nebula::start(bool bootstrap_only)
     {
         vector<const Attribute *> vmm_mads;
         int                       vm_limit;
-        time_t                    poll_period;
-
-        poll_period = monitor_period * 2.5;
 
         nebula_configuration->get("VM_PER_INTERVAL", vm_limit);
 
@@ -565,7 +562,7 @@ void Nebula::start(bool bootstrap_only)
             vmpool,
             hpool,
             timer_period,
-            poll_period,
+            0,
             vm_limit,
             vmm_mads);
     }
