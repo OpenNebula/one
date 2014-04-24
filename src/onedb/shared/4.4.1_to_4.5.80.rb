@@ -133,14 +133,17 @@ module Migrator
                     elem = doc.root.at_xpath(elem_name)
                     txt  = elem.nil? ? "" : elem.text
 
+                    # The cleaner doc.create_cdata(txt) is not supported in
+                    # old versions of nokogiri
+
                     template.add_child(doc.create_element(elem_name)).
-                        add_child(doc.create_cdata(txt))
+                        add_child(Nokogiri::XML::CDATA.new(doc,txt))
                 end
 
                 vlan_text = doc.root.at_xpath("VLAN").text == "0" ? "NO" : "YES"
 
                 template.add_child(doc.create_element("VLAN")).
-                    add_child(doc.create_cdata(vlan_text))
+                    add_child(Nokogiri::XML::CDATA.new(doc,vlan_text))
 
                 @db[:network_pool].insert(
                     :oid        => row[:oid],
