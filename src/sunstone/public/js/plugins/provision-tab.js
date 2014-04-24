@@ -234,12 +234,12 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
                 '<span class="provision_add_ssh_key_button">'+
                   tr("Add a public SSH key to your account!")+
                   '<br>'+
-                  tr("You will be able to access your Virtual Machines withouth password")+
+                  tr("You will be able to access your Virtual Machines without password")+
                 '</span>'+
                 '<span class="provision_update_ssh_key_button">'+
                   tr("Update your public SSH key!")+
                   '<br>'+
-                  tr("You will be able to access your Virtual Machines withouth password")+
+                  tr("You will be able to access your Virtual Machines without password")+
                   '<br><br>'+
                   '<span id="provision_ssh_key_text" style="text-overflow: ellipsis; word-break: break-word;"></span>'+
                 '</span>'+
