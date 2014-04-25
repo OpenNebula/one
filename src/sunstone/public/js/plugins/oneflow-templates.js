@@ -1045,7 +1045,7 @@ function setupCreateServiceTemplateDialog(){
     }
 
     // close icon: removing the tab on click
-    $( "#roles_tabs i.remove-tab" ).live( "click", function() {
+    $("#roles_tabs").on("click", "i.remove-tab", function() {
         var target = $(this).parent().attr("href");
         var dd = $(this).closest('dd');
         var dl = $(this).closest('dl');
@@ -1064,7 +1064,7 @@ function setupCreateServiceTemplateDialog(){
     // Each time a tab is clicked the table is filled with existing tabs (roles)
     // Selected roles are kept
     // TODO If the name of a role is changed and is selected, selection will be lost
-    $("#roles_tabs a").live('click', function(){
+    $("#roles_tabs").on("click", "a", function() {
         var tab_id = "#"+this.id+"Tab";
         var str = "";
 
