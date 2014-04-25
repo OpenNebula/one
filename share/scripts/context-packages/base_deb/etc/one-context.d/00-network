@@ -166,17 +166,33 @@ EOT
 configure_network()
 {
     gen_network_configuration > /etc/network/interfaces
+    echo "source /etc/network/interfaces.d/*.cfg" >> /etc/network/interfaces
+}
+
+deactivate_network()
+{
+    . /etc/os-release
+    if [ $ID = "ubuntu" ]; then
+        IFACES=`/sbin/ifquery -la`
+
+        for i in $IFACES; do
+            DEV=`get_dev $i`
+            /sbin/ifdown $i
+        done
+    else
+        service networking stop
+    fi
 }
 
 activate_network()
 {
     . /etc/os-release
-    if [ ID = "ubuntu" ]; then
-        IFACES=`get_interfaces`
+    if [ $ID = "ubuntu" ]; then
+        IFACES=`/sbin/ifquery -la`
 
         for i in $IFACES; do
             DEV=`get_dev $i`
-            service network-interface restart INTERFACE=$DEV
+            /sbin/ifup $i
         done
     else
         service networking stop
@@ -187,5 +203,6 @@ activate_network()
     sleep 2
 }
 
+deactivate_network
 configure_network
 activate_network
