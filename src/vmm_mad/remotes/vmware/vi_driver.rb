@@ -104,7 +104,8 @@ def self.poll_host_and_vms
       str_info =  @@host.info
       vms_info =  @@host.all_vms_info
 
-      str_info << "\nVM_POLL=YES\n#{vms_info}" if !vms_info.empty?
+      str_info << "\nVM_POLL=YES\n"
+      str_info << "#{vms_info}" if !vms_info.empty?
 
     rescue Exception => e
       STDERR.puts e.message
@@ -253,7 +254,7 @@ class VIVm
 
         host        = VIDriver::host
         cpuMhz      = host.cpuMhz.to_f
-        @used_cpu   = 
+        @used_cpu   =
                 ((@summary.quickStats.overallCpuUsage.to_f / cpuMhz) * 100).to_s
         @used_cpu   = sprintf('%.2f',@used_cpu).to_s
 
@@ -474,11 +475,11 @@ def self.retrieve_free_ds(host)
 
     free_ds_info=Hash.new
 
-    hds.datastore.each{|ds| 
+    hds.datastore.each{|ds|
         free_ds_info[datastore_props[ds]['name']]=Hash.new
-        free_ds_info[datastore_props[ds]['name']][:free_space] = 
+        free_ds_info[datastore_props[ds]['name']][:free_space] =
             datastore_props[ds]['summary'].freeSpace.to_i / 1024 / 1024
-        free_ds_info[datastore_props[ds]['name']][:capacity] = 
+        free_ds_info[datastore_props[ds]['name']][:capacity] =
             datastore_props[ds]['summary'].capacity.to_i / 1024 / 1024
     }
 
