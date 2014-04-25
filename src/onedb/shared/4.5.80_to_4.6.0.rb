@@ -26,16 +26,25 @@ module Migrator
     end
 
     def up
-        last_oid = -1
 
-        @db.fetch("SELECT last_oid FROM pool_control WHERE tablename='acl'") do |row|
-            last_oid = row[:last_oid].to_i
+        found = false
+
+        @db.fetch("SELECT oid FROM acl WHERE user=17179869184 and resource=140754668224512 and rights=1 and zone=17179869184") do |row|
+            found = true
         end
 
-        # * ZONE/* USE *
-        @db.run "INSERT INTO acl VALUES(#{last_oid+1},17179869184,140754668224512,1,17179869184);"
+        if !found
+            last_oid = -1
 
-        @db.run "REPLACE INTO pool_control VALUES('acl', #{last_oid+1});"
+            @db.fetch("SELECT last_oid FROM pool_control WHERE tablename='acl'") do |row|
+                last_oid = row[:last_oid].to_i
+            end
+
+            # * ZONE/* USE *
+            @db.run "INSERT INTO acl VALUES(#{last_oid+1},17179869184,140754668224512,1,17179869184);"
+
+            @db.run "REPLACE INTO pool_control VALUES('acl', #{last_oid+1});"
+        end
 
         return true
     end
