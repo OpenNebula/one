@@ -950,7 +950,7 @@ var cluster_actions = {
         type: "single",
         call : OpenNebula.Cluster.addhost,
         callback : function (req) {
-            Sunstone.runAction("Host.show",req.request.data[0][1].host_id);
+            OpenNebula.Helper.clear_cache("HOST");
             Sunstone.runAction('Cluster.show',req.request.data[0][0]);
         },
         error : onError
@@ -960,7 +960,7 @@ var cluster_actions = {
         type: "single",
         call : OpenNebula.Cluster.delhost,
         callback : function (req) {
-            Sunstone.runAction("Host.show",req.request.data[0][1].host_id);
+            OpenNebula.Helper.clear_cache("HOST");
             Sunstone.runAction('Cluster.show',req.request.data[0][0]);
         },
         error : onError
@@ -970,7 +970,7 @@ var cluster_actions = {
         type: "single",
         call : OpenNebula.Cluster.adddatastore,
         callback : function (req) {
-            Sunstone.runAction("Datastore.show",req.request.data[0][1].ds_id);
+            OpenNebula.Helper.clear_cache("DATASTORE");
             Sunstone.runAction('Cluster.show',req.request.data[0][0]);
         },
         error : onError
@@ -980,7 +980,7 @@ var cluster_actions = {
         type: "single",
         call : OpenNebula.Cluster.deldatastore,
         callback : function (req) {
-            Sunstone.runAction("Datastore.show",req.request.data[0][1].ds_id);
+            OpenNebula.Helper.clear_cache("DATASTORE");
             Sunstone.runAction('Cluster.show',req.request.data[0][0]);
         },
         error : onError
@@ -990,7 +990,7 @@ var cluster_actions = {
         type: "single",
         call : OpenNebula.Cluster.addvnet,
         callback : function (req) {
-            Sunstone.runAction("Network.show",req.request.data[0][1].vnet_id);
+            OpenNebula.Helper.clear_cache("VNET");
             Sunstone.runAction('Cluster.show',req.request.data[0][0]);
         },
         error : onError
@@ -1000,7 +1000,7 @@ var cluster_actions = {
         type: "single",
         call : OpenNebula.Cluster.delvnet,
         callback : function (req) {
-            Sunstone.runAction("Network.show",req.request.data[0][1].vnet_id);
+            OpenNebula.Helper.clear_cache("VNET");
             Sunstone.runAction('Cluster.show',req.request.data[0][0]);
         },
         error : onError
