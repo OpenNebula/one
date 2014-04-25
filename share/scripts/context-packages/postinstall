@@ -31,6 +31,7 @@ if [ -d /etc/network ]; then
 auto lo
 iface lo inet loopback
 EOT
+    rm -rf /etc/network/interfaces.d
 fi
 
 # RedHat based distros
