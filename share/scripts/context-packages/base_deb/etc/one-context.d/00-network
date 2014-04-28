@@ -178,6 +178,7 @@ deactivate_network()
         for i in $IFACES; do
             DEV=`get_dev $i`
             /sbin/ifdown $i
+            /sbin/ip addr flush dev $i
         done
     else
         service networking stop
