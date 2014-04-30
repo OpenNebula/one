@@ -4159,8 +4159,6 @@ Download csv
         xaxis : {
             mode: "time",
             timeformat: "%y/%m/%d",
-            min: times[0],
-            max: end.getTime(),
             color: "#999",
             size: 8
         },
@@ -4273,10 +4271,16 @@ Download csv
 
         if (series.CPU_HOURS[group_by] == undefined){
             series.CPU_HOURS[group_by] = {};
+
+            series.CPU_HOURS[group_by][times[0]] = 0;
+            series.CPU_HOURS[group_by][times[times.length-2]] = 0;
         }
 
         if (series.MEM_HOURS[group_by] == undefined){
             series.MEM_HOURS[group_by] = {};
+
+            series.MEM_HOURS[group_by][times[0]] = 0;
+            series.MEM_HOURS[group_by][times[times.length-2]] = 0;
         }
 
 //      TODO Optimize getting here?
