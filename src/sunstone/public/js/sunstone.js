@@ -3902,3 +3902,478 @@ $(document).ready(function(){
       }
     })
 });
+
+// div is a jQuery selector
+// The following options can be set:
+//   fixed_user     fix an owner user ID
+//   fixed_group    fix an owner group ID
+//   init_group_by  "user", "group", "vm". init the group-by selector
+function accountingGraphs(div, opt){
+    div.append(
+    '<div class="row">\
+      <div class="large-2 columns">\
+        '+tr("Time range")+'\
+      </div>\
+      <div class="large-5 columns">\
+        <input id="acct_start_time" class="jdpicker" type="text" placeholder="2013/12/30"/>\
+      </div>\
+      <div class="large-5 columns">\
+        <input id="acct_end_time" class="jdpicker" type="text" placeholder="'+tr("Today")+'"/>\
+      </div>\
+    </div>\
+    <div class="row">\
+      <div class="large-6 columns">\
+        <input id="acct_owner_all"   type="radio" name="acct_owner" value="acct_owner_all" checked/><label for="acct_owner_all">' + tr("All") + '</label>\
+        <input id="acct_owner_group" type="radio" name="acct_owner" value="acct_owner_group" /><label for="acct_owner_group">' + tr("Group") + '</label>\
+        <input id="acct_owner_user"  type="radio" name="acct_owner" value="acct_owner_user" /><label for="acct_owner_user">' + tr("User") + '</label>\
+      </div>\
+      <div class="large-6 columns">\
+        <div id="acct_owner_select"/>\
+      </div>\
+    </div>\
+    <div class="row">\
+      <div class="large-12 columns">\
+        <label for="acct_group_by">' +  tr("Group by") + '</label>\
+        <select id="acct_group_by" name="acct_group_by">\
+          <option value="user">' + tr("User") + '</option>\
+          <option value="group">' + tr("Group") + '</option>\
+          <option value="vm">' + tr("VM") + '</option>\
+        </select>\
+      </div>\
+    </div>\
+    <div class="row">\
+      <button class="button radius left success" id="acct_submit" type="submit">'+tr("Go")+'</button>\
+    </div>\
+    <div class="row">\
+      <div class="row graph_legend">\
+        <h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>\
+      </div>\
+      <div class="row">\
+        <div class="large-10 columns centered graph" id="acct_cpu_graph" style="height: 200px;">\
+        </div>\
+      </div>\
+      <div class="row graph_legend">\
+        <div class="large-10 columns centered" id="acct_cpu_legend">\
+        </div>\
+      </div>\
+    </div>\
+    <div class="row">\
+      <div class="row graph_legend">\
+        <h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>\
+      </div>\
+      <div class="row">\
+        <div class="large-10 columns centered graph" id="acct_mem_graph" style="height: 200px;">\
+        </div>\
+      </div>\
+      <div class="row graph_legend">\
+        <div class="large-10 columns centered" id="acct_mem_legend">\
+        </div>\
+      </div>\
+    </div>\
+    <div class="row graph_legend">\
+      <div class="large-12 columns centered" id="acct_legend">\
+      </div>\
+    </div>');
+
+    if (opt == undefined){
+        opt = {};
+    }
+
+    //--------------------------------------------------------------------------
+    // Init start time to 1st of last month
+    //--------------------------------------------------------------------------
+    var d = new Date();
+
+    d.setDate(1);
+    d.setMonth(d.getMonth() - 1);
+
+    $("#acct_start_time", div).val(d.getFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate());
+
+    $("#acct_start_time", div).jdPicker();
+    $("#acct_end_time", div).jdPicker();
+
+    //--------------------------------------------------------------------------
+    // VM owner: all, group, user
+    //--------------------------------------------------------------------------
+
+    if (opt.fixed_user != undefined || opt.fixed_group != undefined){
+        $("input[name='acct_owner']", div).attr("disabled", "disabled");
+
+        $("#acct_owner_select", div).show();
+
+        if(opt.fixed_user != undefined){
+            var text = tr("User") +" " + opt.fixed_user;
+            $("input[value='acct_owner_user']", div).attr("checked", "checked");
+        } else {
+            var text = tr("Group") + " " + opt.fixed_group;
+            $("input[value='acct_owner_group']", div).attr("checked", "checked");
+        }
+
+        $("#acct_owner_select", div).text(text);
+    } else {
+        $("input[name='acct_owner']", div).change(function(){
+            var value = $(this).val();
+
+            switch (value){
+            case "acct_owner_all":
+                $("#acct_owner_select", div).hide();
+                break;
+
+            case "acct_owner_group":
+                $("#acct_owner_select", div).show();
+                insertSelectOptions("#acct_owner_select", div, "Group");
+                break;
+
+            case "acct_owner_user":
+                $("#acct_owner_select", div).show();
+                insertSelectOptions("#acct_owner_select", div, "User", -1, false,
+                    '<option value="-1">'+tr("<< me >>")+'</option>');
+                break;
+            }
+        });
+    }
+
+    //--------------------------------------------------------------------------
+    // Init group by select
+    //--------------------------------------------------------------------------
+
+    if(opt.init_group_by != undefined){
+        $("#acct_group_by", div).val(opt.init_group_by);
+    }
+
+    //--------------------------------------------------------------------------
+    // Submit request
+    //--------------------------------------------------------------------------
+
+    // TODO: make start_time mandatory
+
+    $("#acct_submit", div).on("click", function(){
+        var start_time = -1;
+        var end_time = -1;
+
+        var v = $("#acct_start_time", div).val();
+        if (v != ""){
+            start_time = new Date(v).getTime() / 1000;
+        }
+
+        var v = $("#acct_end_time", div).val();
+        if (v != ""){
+            end_time = new Date(v).getTime() / 1000;
+        }
+
+        var options = {
+            "start_time": start_time,
+            "end_time": end_time
+        };
+
+        if (opt.fixed_user != undefined){
+            options.userfilter = opt.fixed_user;
+        } else if (opt.fixed_group != undefined){
+            options.group = opt.fixed_group;
+        } else {
+            var select_val = $("#acct_owner_select .resource_list_select", div).val();
+
+            switch ($("input[name='acct_owner']:checked", div).val()){
+            case "acct_owner_all":
+                break;
+
+            case "acct_owner_group":
+                if(select_val != ""){
+                    options.group = select_val;
+                }
+                break;
+
+            case "acct_owner_user":
+                if(select_val != ""){
+                    options.userfilter = select_val;
+                }
+                break;
+            }
+        }
+
+        OpenNebula.VM.accounting({
+    //        timeout: true,
+            success: function(req, response){
+                fillAccounting(div, req, response);
+            },
+            error: onError,
+            data: options
+        });
+    });
+}
+
+function fillAccounting(div, req, response) {
+/*
+    console.log(req);
+    console.log(response);
+*/
+
+
+/*
+TODO More options:
+
+Granularity: month, day, hour
+Time range
+Group by: user, group, vm, [flow]
+Filter by: user, group, vm, [flow]
+
+Download csv
+*/
+
+    var options = req.request.data[0];
+
+    //--------------------------------------------------------------------------
+    // Time slots
+    //--------------------------------------------------------------------------
+
+    // start_time is mandatory
+    var start = new Date(options.start_time * 1000);
+
+    var end = new Date();
+
+    if(options.end_time != undefined && options.end_time != -1){
+        var end = new Date(options.end_time * 1000)
+    }
+
+    // granularity of 1 day
+    var times = [];
+
+    var tmp_time = start;
+
+    // End time is the start of the last time slot. We use <=, to
+    // add one extra time step
+    while (tmp_time <= end) {
+        times.push(tmp_time.getTime());
+
+        // day += 1
+        tmp_time.setDate( tmp_time.getDate() + 1 );
+    }
+
+    //--------------------------------------------------------------------------
+    // Flot options
+    //--------------------------------------------------------------------------
+
+    var options = {
+//        colors: [ "#2ba6cb", "#707D85", "#AC5A62" ],
+
+        xaxis : {
+            mode: "time",
+            timeformat: "%y/%m/%d",
+            min: times[0],
+            max: end.getTime(),
+            color: "#999",
+            size: 8
+        },
+        yaxis : { labelWidth: 50,
+                  min: 0,
+                color: "#999",
+                size: 8
+                },
+        series: {
+            bars: {
+                show: true,
+                lineWidth: 1,
+                fill: true,
+                barWidth: 24*60*60*1000 * 0.8,
+                align: "center"
+            },
+            stack: true
+        },
+        legend : {
+            show : true,
+            noColumns: 6,
+            container: $("#acct_legend", div)
+        },
+        grid: {
+            borderWidth: 1,
+            borderColor: "#cfcfcf",
+            hoverable: true
+        },
+        tooltip: true,
+        tooltipOpts: {
+            content: "%x | %s | %y"      //"%s | X: %x | Y: %y"
+/*
+            xDateFormat:    string                  //null
+            yDateFormat:    string                  //null
+            monthNames:     string                  // null
+            dayNames:       string                  // null
+            shifts: {
+                x:          int                     //10
+                y:          int                     //20
+            },
+            defaultTheme:   boolean                 //true
+            onHover:        function(flotItem, $tooltipEl)
+*/
+        }
+    };
+
+    //--------------------------------------------------------------------------
+    // Group by
+    //--------------------------------------------------------------------------
+
+    // TODO: Allow to change group by dynamically, instead of calling oned again
+
+    switch ($("#acct_group_by", div).val()){
+    case "user":
+        var group_by_fn = function(history){
+            return history.VM.UID;
+        }
+
+        var group_by_prefix = tr("User")+" ";
+
+        break;
+
+    case "group":
+        var group_by_fn = function(history){
+            return history.VM.GID;
+        }
+
+        var group_by_prefix = tr("Group")+" ";
+
+        break;
+
+    case "vm":
+        var group_by_fn = function(history){
+            return history.OID;
+        }
+
+        var group_by_prefix = tr("VM")+" ";
+
+        break;
+    }
+
+    //--------------------------------------------------------------------------
+    // Filter history entries
+    //--------------------------------------------------------------------------
+
+    // TODO filter
+    // True to proccess, false to discard
+    var filter_by_fn = function(history){
+//        return history.OID == 3605 || history.OID == 2673;
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+    // Process data series for flot
+    //--------------------------------------------------------------------------
+
+    var series = {};
+    series.CPU_HOURS = {};
+    series.MEM_HOURS = {};
+
+    // TODO: response can be an empty object
+
+    $.each(response.HISTORY_RECORDS.HISTORY, function(index, history){
+
+        if(!filter_by_fn(history)){
+            return true; //continue
+        }
+
+        var group_by = group_by_fn(history);
+
+        if (series.CPU_HOURS[group_by] == undefined){
+            series.CPU_HOURS[group_by] = {};
+        }
+
+        if (series.MEM_HOURS[group_by] == undefined){
+            series.MEM_HOURS[group_by] = {};
+        }
+
+//      TODO Optimize getting here?
+//        var serie = series.CPU_HOURS[history.VM.UID];
+
+        for (var i = 0; i<times.length-1; i++){
+
+            var t = times[i];
+            var t_next = times[i+1];
+
+            if( (history.ETIME*1000 > t || history.ETIME == 0) &&
+                (history.STIME != 0 && history.STIME*1000 <= t_next) ) {
+
+                var stime = t;
+                if(history.STIME != 0){
+                    stime = Math.max(t, history.STIME*1000);
+                }
+
+                var etime = t_next;
+                if(history.ETIME != 0){
+                    etime = Math.min(t_next, history.ETIME*1000);
+                }
+                
+                var n_hours = (etime - stime) / 1000 / 60 / 60;
+
+                // --- cpu ---
+
+                // TODO cpu may not exist
+                var val = parseFloat(history.VM.TEMPLATE.CPU) * n_hours;
+
+                var serie = series.CPU_HOURS[group_by];
+
+                if(serie[t] == undefined){
+                    serie[t] = 0;
+                }
+
+                serie[t] += val;
+
+                // --- mem ---
+
+                // TODO memory may not exist. In GB
+                var val = parseInt(history.VM.TEMPLATE.MEMORY)/1024 * n_hours;
+
+                var serie = series.MEM_HOURS[group_by];
+
+                if(serie[t] == undefined){
+                    serie[t] = 0;
+                }
+
+                serie[t] += val;
+            }
+        }
+    });
+
+//    console.log(series);
+
+    //--------------------------------------------------------------------------
+    // Create series, draw plots
+    //--------------------------------------------------------------------------
+
+    // --- cpu ---
+
+    var plot_series = [];
+
+    $.each(series.CPU_HOURS, function(key, val){
+        var data = [];
+
+        $.each(val, function(time,num){
+            data.push([parseInt(time),num]);
+        });
+
+        plot_series.push(
+        {
+            label: group_by_prefix+key,
+            data: data
+        });
+    });
+
+    $.plot($("#acct_cpu_graph", div), plot_series, options);
+
+    // --- mem ---
+
+    var plot_series = [];
+
+    $.each(series.MEM_HOURS, function(key, val){
+        var data = [];
+
+        $.each(val, function(time,num){
+            data.push([parseInt(time),num]);
+        });
+
+        plot_series.push(
+        {
+            label: group_by_prefix+key,
+            data: data
+        });
+    });
+
+    $.plot($("#acct_mem_graph", div), plot_series, options);
+}
