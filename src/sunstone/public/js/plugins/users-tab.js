@@ -715,10 +715,23 @@ function updateUserInfo(request,user){
         content : quotas_html
     };
 
+    var accounting_tab = {
+        title: tr("Accounting"),
+        icon: "fa-bar-chart-o",
+        content: '<div id="user_accounting"></div>'
+    };
+
     Sunstone.updateInfoPanelTab("user_info_panel","user_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("user_info_panel","user_quotas_tab",quotas_tab);
+    Sunstone.updateInfoPanelTab("user_info_panel","user_accouning_tab",accounting_tab);
     //Sunstone.updateInfoPanelTab("user_info_panel","user_acct_tab",acct_tab);
     Sunstone.popUpInfoPanel("user_info_panel", 'users-tab');
+
+    accountingGraphs(
+        $("#user_accounting","#user_info_panel"),
+        {   fixed_user: info.ID,
+            init_group_by: "vm" });
+
 };
 
 // Used also from groups-tabs.js
