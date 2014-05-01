@@ -13,10 +13,10 @@
 
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="Sunstone Web interface"
-NAME=opennebula-sunstone
+NAME=sunstone-server
 DAEMON=/usr/bin/$NAME
 DAEMON_ARGS=""
-SCRIPTNAME=/etc/init.d/$NAME
+SCRIPTNAME=/etc/init.d/opennebula-sunstone
 
 # Exit if the package is not installed
 [ -x "$DAEMON" ] || exit 0
