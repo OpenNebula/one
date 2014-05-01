@@ -1,22 +1,22 @@
 #! /bin/sh
 ### BEGIN INIT INFO
-# Provides:          opennebula-sunstone
+# Provides:          opennebula-novnc
 # Required-Start:    $remote_fs
 # Required-Stop:     $remote_fs
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: Sunstone init script
-# Description:       OpenNebula Sunstone web interface cloud initialisation script
+# Short-Description: novnc init script
+# Description:       OpenNebula novnc server
 ### END INIT INFO
 
-# Author: Jaime Melis <jmelis@opennebula.org>
+# Author: Arnold Bechtoldt <mail@arnoldbechtoldt.com>
 
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
-DESC="Sunstone Web interface"
-NAME=opennebula-sunstone
+DESC="OpenNebula novnc server"
+NAME=opennebula-novnc
 DAEMON=/usr/bin/$NAME
 DAEMON_ARGS=""
-SCRIPTNAME=/etc/init.d/$NAME
+SCRIPTNAME=/etc/init.d/novnc-server
 
 # Exit if the package is not installed
 [ -x "$DAEMON" ] || exit 0
@@ -33,10 +33,17 @@ SCRIPTNAME=/etc/init.d/$NAME
 #
 do_start()
 {
-    service opennebula-novnc start || exit $?
-    mkdir -p /var/run/one /var/lock/one /var/log/one
-    chown oneadmin /var/run/one /var/lock/one /var/log/one
+    mkdir -p /var/lock/one /var/log/one
+    chown oneadmin /var/lock/one /var/log/one
     su oneadmin -s /bin/sh -c "$DAEMON start"
+}
+
+#
+# Function that retrives the status of the daemon/service
+#
+do_status()
+{
+    su oneadmin -s /bin/sh -c "$DAEMON status"
 }
 
 #
@@ -45,7 +52,6 @@ do_start()
 do_stop()
 {
     su oneadmin -s /bin/sh -c "$DAEMON stop"
-    service opennebula-novnc stop || exit $?
 }
 
 case "$1" in
@@ -56,6 +62,9 @@ case "$1" in
         0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
         2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
     esac
+    ;;
+  status)
+    do_status && exit 0 || exit $?
     ;;
   stop)
     [ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$NAME"
@@ -88,7 +97,7 @@ case "$1" in
     esac
     ;;
   *)
-    echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload}" >&2
+    echo "Usage: $SCRIPTNAME {start|stop|status|restart|force-reload}" >&2
     exit 3
     ;;
 esac
