@@ -716,12 +716,6 @@ int VirtualMachine::parse_context(string& error_str)
 
             var.str(""); val.str("");
 
-            var << "ETH" << nic_id << "_GATEWAY";
-            val << "$NETWORK[GATEWAY, NETWORK=\"" << name << "\"]";
-            context->replace(var.str(), val.str());
-
-            var.str(""); val.str("");
-
             var << "ETH" << nic_id << "_DNS";
             val << "$NETWORK[DNS, NETWORK=\"" << name << "\"]";
             context->replace(var.str(), val.str());
