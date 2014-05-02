@@ -27,6 +27,7 @@ source_files=[
     'RangedLeases.cc',
     'VirtualNetwork.cc',
     'VirtualNetworkPool.cc',
+    'AddressRange.cc'
 ]
 
 # Build library
