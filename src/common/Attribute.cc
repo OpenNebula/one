@@ -281,6 +281,36 @@ int VectorAttribute::vector_value(const char *name, int & value) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VectorAttribute::vector_value(const char *name, unsigned int & value) const
+{
+    map<string,string>::const_iterator it;
+
+    it = attribute_value.find(name);
+
+    if ( it == attribute_value.end() )
+    {
+        return -1;
+    }
+
+    if ( it->second.empty() )
+    {
+        return -1;
+    }
+
+    istringstream iss(it->second);
+    iss >> value;
+
+    if (iss.fail() || !iss.eof())
+    {
+        return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VectorAttribute::vector_value(const char *name, long long& value) const
 {
     map<string,string>::const_iterator it;

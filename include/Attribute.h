@@ -266,6 +266,16 @@ public:
     int vector_value(const char *name, int& value) const;
 
     /**
+     * Returns the unsigned integer value
+     *
+     * @param name Name of the attribute
+     * @param value Integer value
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int vector_value(const char *name, unsigned int& value) const;
+
+    /**
      * Returns the long long value
      *
      * @param name Name of the attribute
