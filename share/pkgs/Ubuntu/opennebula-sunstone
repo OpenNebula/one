@@ -16,7 +16,7 @@ DESC="Sunstone Web interface"
 NAME=sunstone-server
 DAEMON=/usr/bin/$NAME
 DAEMON_ARGS=""
-SCRIPTNAME=/etc/init.d/$NAME
+SCRIPTNAME=/etc/init.d/opennebula-sunstone
 
 # Exit if the package is not installed
 [ -x "$DAEMON" ] || exit 0
@@ -33,6 +33,7 @@ SCRIPTNAME=/etc/init.d/$NAME
 #
 do_start()
 {
+    service opennebula-novnc start
     mkdir -p /var/run/one /var/lock/one /var/log/one
     chown oneadmin /var/run/one /var/lock/one /var/log/one
     su oneadmin -s /bin/sh -c "$DAEMON start"
@@ -44,6 +45,7 @@ do_start()
 do_stop()
 {
     su oneadmin -s /bin/sh -c "$DAEMON stop"
+    service opennebula-novnc stop
 }
 
 case "$1" in
