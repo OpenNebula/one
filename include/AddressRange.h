@@ -32,7 +32,7 @@ class AddressRange
 {
 public:
 
-    AddressRange(){};
+    AddressRange(unsigned int _id):id(_id){};
 
     virtual ~AddressRange(){};
 
@@ -89,6 +89,26 @@ public:
      *  @return 0 if success
      */
     int allocate_addr(VectorAttribute * nic, const vector<string> &inherit);
+
+    /**
+     *  Returns the specific address by mac if is not allocated. The NIC attr
+     *  is filled with the configuration parameters from the address range.
+     *
+     *  @param nic the VM NIC attribute
+     *  @return 0 if success
+     */
+    int allocate_by_mac(const string& mac, VectorAttribute * nic,
+        const vector<string> &inherit);
+
+    /**
+     *  Returns the specific address by ip if is not allocated. The NIC attr
+     *  is filled with the configuration parameters from the address range.
+     *
+     *  @param nic the VM NIC attribute
+     *  @return 0 if success
+     */
+    int allocate_by_ip(const string& ip, VectorAttribute * nic,
+        const vector<string> &inherit);
 
     /**
      *  Frees a previous allocated address, referenced by its MAC address

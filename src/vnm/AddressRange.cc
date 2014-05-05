@@ -140,6 +140,17 @@ int AddressRange::init_address_range(VectorAttribute * attr, string& error_msg)
 
     /* -------------------------- Internal  ------------------------------ */
 
+    unsigned int tmp_id;
+
+    if (attr->vector_value("AR_ID", tmp_id) == 0)
+    {
+        id = tmp_id;
+    }
+    else //id initialized in constructor missing from address range vector
+    {
+        attr->replace("AR_ID", id);
+    }
+
     next = 0;
 
     if (attr_to_allocated() == -1)
@@ -378,6 +389,8 @@ void AddressRange::set_ip6(unsigned int addr_index, VectorAttribute * nic)
 
 void AddressRange::set_vnet(VectorAttribute *nic, const vector<string> &inherit)
 {
+    nic->replace("AR_ID", id);
+
     string bridge = attr->vector_value("BRIDGE");
     string vlan   = attr->vector_value("VLAN");
     string vlanid = attr->vector_value("VLAN_ID");
@@ -511,6 +524,8 @@ int AddressRange::allocate_addr(VectorAttribute * nic,
             }
 
             set_vnet(nic, inherit);
+
+            allocate_addr(next);
         }
     }
 
@@ -520,15 +535,104 @@ int AddressRange::allocate_addr(VectorAttribute * nic,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int AddressRange::allocate_by_mac(const string& mac, VectorAttribute * nic,
+    const vector<string> &inherit)
+{
+    unsigned int mac_i[2];
+
+    if (mac_to_i(mac, mac_i) == -1)
+    {
+        return -1;
+    }
+
+    if ((mac_i[1] != mac_start[1]) || (mac_i[0] < mac_start[0]))
+    {
+        return -1;
+    }
+
+    unsigned int index = mac_i[0] - mac_start[0];
+
+    if ((allocated.count(index) != 0) || (index >= size))
+    {
+        return -1;
+    }
+
+    set_mac(index, nic);
+
+    if (type && 0x00000002 )
+    {
+        set_ip(index, nic);
+    }
+
+    if (type && 0x00000004)
+    {
+        set_ip6(index, nic);
+    }
+
+    set_vnet(nic, inherit);
+
+    allocate_addr(next);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRange::allocate_by_ip(const string& ip, VectorAttribute * nic,
+        const vector<string> &inherit)
+{
+    unsigned int ip_i;
+
+    if (ip_to_i(ip, ip_i) == -1)
+    {
+        return -1;
+    }
+
+    if (ip_i < ip_start)
+    {
+        return -1;
+    }
+
+    unsigned int index = ip_i - ip_start;
+
+    if (allocated.count(index) != 0 || index >= size )
+    {
+        return -1;
+    }
+
+    set_mac(index, nic);
+
+    if (type && 0x00000002 )
+    {
+        set_ip(index, nic);
+    }
+
+    if (type && 0x00000004)
+    {
+        set_ip6(index, nic);
+    }
+
+    set_vnet(nic, inherit);
+
+    allocate_addr(next);
+
+    return 0;
+}
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void AddressRange::free_addr(const string& mac)
 {
     unsigned int mac_i[2];
 
     mac_to_i(mac, mac_i);
 
-    if ( mac_i[0] >= mac_start[0] )
+    unsigned int index = mac_i[0] - mac_start[0];
+
+    if ((mac_i[0] >= mac_start[0]) && (index < size))
     {
-        free_addr(mac_i[0] - mac_start[0]);
+        free_addr(index);
     }
 }
 
