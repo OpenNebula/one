@@ -419,6 +419,48 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
   '</div>'+
 '</div>';
 
+var provision_list_users = '<div id="provision_list_users" class="hidden section_content">'+
+  '<div class="row">'+
+    '<div class="large-11 large-centered columns">'+
+      '<h2 class="subheader text-right">'+
+        '<span class="left">'+
+          '<i class="fa fa-fw fa-users"/>&emsp;'+
+          tr("Users")+
+        '</span>'+
+        '<a href"#" id="provision_users_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip tip-top right">'+
+          '<i class="fa fa-fw fa-refresh"/>'+
+        '</a>'+
+        '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_list_users_search"/>'+
+      '</h2>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-10 large-centered columns" id="provision_confirm_delete_user_div">'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-10 large-centered columns">'+
+      '<table id="provision_users_table">'+
+        '<thead class="hidden">'+
+          '<tr>'+
+            '<th>'+tr("ID")+'</th>'+
+            '<th>'+tr("Name")+'</th>'+
+          '</tr>'+
+        '</thead>'+
+        '<tbody class="hidden">'+
+        '</tbody>'+
+      '</table>'+
+      '<br>'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
+  '<div class="row">'+
+    '<div class="large-8 large-centered columns">'+
+      '<a href"#" class="provision_create_user_button button large radius large-12 small-12">'+tr("Add a new User")+'</a>'+
+    '</div>'+
+  '</div>'+
+'</div>';
+
 var provision_list_templates = '<div id="provision_list_templates" class="hidden section_content">'+
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
@@ -635,10 +677,13 @@ var provision_content = provision_user_info +
   provision_create_vm +
   provision_info_vm +
   provision_list_vms +
-  provision_list_templates ;
+  provision_list_templates;
 
-var provision_tab = {
-  list_header: '<img src="images/one_small_logo.png" style="height:40px; vertical-align:top">'+
+if (Config.isTabPanelEnabled("provision-tab", "users")) {
+  provision_content += provision_list_users;
+}
+
+var provision_header = '<img src="images/one_small_logo.png" style="height:40px; vertical-align:top">'+
     '<span class="right" style="font-size: 50%; color: #dfdfdf">'+
    '<ul class="inline-list text-center" style="font-size:12px">'+
     '<li>'+
@@ -649,8 +694,18 @@ var provision_tab = {
     '</li>'+
     '<li>'+
       '<a href"#" class="medium off-color" id="provision_templates_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-save"/><br>'+tr("Templates")+'</a>'+
-    '</li>'+
-    '<li style="border-left: 1px solid #efefef; height: 40px"><br>'+
+    '</li>';
+
+
+if (Config.isTabPanelEnabled("provision-tab", "users")) {
+  provision_header += '<li style="border-left: 1px solid #efefef; height: 40px"><br>'+
+      '</li>'+
+      '<li>'+
+        '<a href"#" class="medium off-color" id="provision_users_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-users"/><br>'+tr('Users')+'</a>'+
+      '</li>'
+}
+
+provision_header += '<li style="border-left: 1px solid #efefef; height: 40px"><br>'+
     '</li>'+
     '<li>'+
       '<a href"#" class="medium off-color" id="provision_user_info_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-user"/><br>'+config['display_name']+'</a>'+
@@ -667,7 +722,10 @@ var provision_tab = {
       '<ul id="provision_zone_selector" data-dropdown-content class="zone-ul f-dropdown"></ul>'+
     '</li>'+
     '</ul>'+
-    '</span>',
+    '</span>'
+
+var provision_tab = {
+  list_header: provision_header,
   content: provision_content
 };
 
@@ -962,6 +1020,13 @@ function show_provision_vm_list(timeout) {
   update_provision_vms_datatable(provision_vms_datatable, timeout);
 }
 
+function show_provision_user_list(timeout) {
+  $(".section_content").hide();
+  $("#provision_list_users").fadeIn();
+
+  update_provision_users_datatable(provision_users_datatable, timeout);
+}
+
 function show_provision_template_list(timeout) {
   $(".section_content").hide();
   $("#provision_list_templates").fadeIn();
@@ -1062,6 +1127,45 @@ function update_provision_networks_datatable(datatable) {
   });
 }
 
+function update_provision_users_datatable(datatable, timeout) {
+  datatable.html('<div class="text-center">'+
+    '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+      '<i class="fa fa-cloud fa-stack-2x"></i>'+
+      '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+    '</span>'+
+    '<br>'+
+    '<br>'+
+    '<span style="font-size: 18px; color: #999">'+
+    '</span>'+
+    '</div>');
+
+  setTimeout( function(){
+    OpenNebula.User.list({
+      timeout: true,
+      success: function (request, item_list, quotas_list){
+        datatable.fnClearTable(true);
+        if (item_list.length == 0) {
+          datatable.html('<div class="text-center">'+
+            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+            '</span>'+
+            '<br>'+
+            '<br>'+
+            '<span style="font-size: 18px; color: #999">'+
+              tr("The list of users is empty")+
+            '</span>'+
+            '</div>');
+        } else {
+          provision_quotas_list = quotas_list;
+          datatable.fnAddData(item_list);
+        }
+      },
+      error: onError
+    })
+  }, timeout );
+}
+
 function update_provision_vms_datatable(datatable, timeout) {
   datatable.html('<div class="text-center">'+
     '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
@@ -1099,7 +1203,6 @@ function update_provision_vms_datatable(datatable, timeout) {
     })
   }, timeout );
 }
-
 // @params
 //    data: and VM object
 //      Example: data.ID
@@ -2138,6 +2241,151 @@ $(document).ready(function(){
     $("#provision_list_vms").on("click", "#provision_vms_list_refresh_button", function(){
       OpenNebula.Helper.clear_cache("VM");
       show_provision_vm_list(0);
+    });
+
+    //
+    // List Users
+    //
+
+    provision_users_datatable = $('#provision_users_table').dataTable({
+      "iDisplayLength": 6,
+      "sDom" : '<"H">t<"F"lp>',
+      "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
+      "aaSorting"  : [[0, "desc"]],
+      "aoColumnDefs": [
+          { "bVisible": false, "aTargets": ["all"]}
+      ],
+      "aoColumns": [
+          { "mDataProp": "USER.ID" },
+          { "mDataProp": "USER.NAME" }
+      ],
+      "fnPreDrawCallback": function (oSettings) {
+        // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
+        if (this.$('tr', {"filter": "applied"} ).length == 0) {
+          this.html('<div class="text-center">'+
+            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+            '</span>'+
+            '<br>'+
+            '<br>'+
+            '<span style="font-size: 18px; color: #999">'+
+              tr("The list of users is empty")+
+            '</span>'+
+            '</div>');
+        } else {
+          $("#provision_users_table").html('<ul id="provision_users_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+        }
+
+        return true;
+      },
+      "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+        var data = aData.USER;
+        //var state = get_provision_vm_state(data);
+        var vms = "";
+        var memory = "";
+        var cpu = "";
+
+        // Inject the VM user quota. This info is returned separately in the
+        // pool info call, but the userElementArray expects it inside the USER,
+        // as it is returned by the individual info call
+        var q = provision_quotas_list[data.ID];
+
+        var quotas_html = '<li class="provision-bullet-item">'+
+            '<span class="fa-stack fa-4x" style="color: #dfdfdf">'+
+              '<i class="fa fa-align-left fa-stack-2x"></i>'+
+            '</span>'+
+            '</li>'+
+            '<li class="provision-description text-center" style="padding-top: 0px">'+tr("No quotas defined")+'</li>';
+
+
+        if (q != undefined){
+            var quota = q.QUOTAS;
+
+            if (!$.isEmptyObject(quota.VM_QUOTA)){
+                quotas_html = "";
+                quotas_html += '<li class="provision-description text-left" style="padding-top: 0px; padding-bottom: 0px;margin-left:15px; margin-top: 5px">'+tr("Running VMs")+'</li>';
+                quotas_html += '<li class="provision-bullet-item text-left" style="padding: 10px 25px 15px 25px; margin-bottom: 5px">';
+                quotas_html += quotaBar(
+                    quota.VM_QUOTA.VM.VMS_USED,
+                    quota.VM_QUOTA.VM.VMS,
+                    default_user_quotas.VM_QUOTA.VM.VMS);
+                quotas_html += '</li>';
+
+                quotas_html += '<li class="provision-description text-left" style="padding-top: 0px; padding-bottom: 0px;margin-left:15px">'+tr("Memory")+'</li>';
+                quotas_html += '<li class="provision-bullet-item text-left" style="padding: 10px 25px 15px 25px; margin-bottom: 5px">';
+                quotas_html += quotaBarMB(
+                    quota.VM_QUOTA.VM.MEMORY_USED,
+                    quota.VM_QUOTA.VM.MEMORY,
+                    default_user_quotas.VM_QUOTA.VM.MEMORY);
+                quotas_html += '</li>';
+
+                quotas_html += '<li class="provision-description text-left" style="padding-top: 0px; padding-bottom: 0px;margin-left:15px">'+tr("CPU")+'</li>';
+                quotas_html += '<li class="provision-bullet-item text-left" style="padding: 10px 25px 15px 25px; margin-bottom: 10px">';
+                quotas_html += quotaBarFloat(
+                    quota.VM_QUOTA.VM.CPU_USED,
+                    quota.VM_QUOTA.VM.CPU,
+                    default_user_quotas.VM_QUOTA.VM.CPU);
+                quotas_html += '</li>';
+            }
+        }
+
+
+        $("#provision_users_ul").append('<li>'+
+            '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
+              '<li class="provision-title text-left" style="padding-bottom: 5px">'+
+                '<a class="provision_info_user_button" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-sign-in right only-on-hover"/>'+ data.NAME + '</a>'+
+              '</li>'+
+              //'<li class="provision-bullet-item text-left" style="margin-left:15px">'+
+              //  '<i class="fa fa-fw fa-laptop"/>&emsp;'+
+              //  'x'+data.TEMPLATE.CPU+' - '+
+              //  ((data.TEMPLATE.MEMORY > 1000) ?
+              //    (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
+              //    (data.TEMPLATE.MEMORY+'MB'))+
+              //'</li>'+
+                quotas_html +
+              //'<li class="provision-bullet-item text-left" style="padding: 15px 10px">'+
+              //  memory +
+              //'</li>'+
+              //'<li class="provision-bullet-item text-left" style="padding: 15px 10px">'+
+              //  cpu +
+              //'</li>'+
+              //'<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; margin-top:15px; padding-bottom:10px">'+
+              //  '<i class="fa fa-fw fa-clock-o"/>'+
+              //  _format_date(data.STIME)+
+              //  '<span class="'+ state.color +'-color left">'+
+              //    '<i class="fa fa-fw fa-square"/>&emsp;'+
+              //    state.str+
+              //  '</span>'+
+              //'</li>'+
+              //'<li class="provision-bullet-item" style="padding: 0px">'+
+              //  '<div style="height:1px" class="'+ state.color +'-bg"></div>'+
+              //'</li>'+
+            '</ul>'+
+          '</li>');
+
+        return nRow;
+      }
+    });
+
+    update_provision_users_datatable(provision_users_datatable);
+
+    $('#provision_list_users_search').keyup(function(){
+      provision_users_datatable.fnFilter( $(this).val() );
+    })
+
+    $('#provision_list_users_search').change(function(){
+      provision_users_datatable.fnFilter( $(this).val() );
+    })
+
+    $("#provision_users_list_button").on("click", function(){
+      OpenNebula.Helper.clear_cache("USER");
+      show_provision_user_list(0);
+    });
+
+    $("#provision_list_users").on("click", "#provision_users_list_refresh_button", function(){
+      OpenNebula.Helper.clear_cache("USER");
+      show_provision_user_list(0);
     });
 
     //
