@@ -241,7 +241,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
                   '<br>'+
                   tr("You will be able to access your Virtual Machines without password")+
                   '<br><br>'+
-                  '<span id="provision_ssh_key_text" style="text-overflow: ellipsis; word-break: break-word;"></span>'+
+                  '<span id="provision_ssh_key_text" style="text-overflow: ellipsis; word-break: break-all; word-wrap: break-word"></span>'+
                 '</span>'+
               '</p>'+
             '</div>'+
