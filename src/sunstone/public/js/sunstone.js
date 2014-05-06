@@ -3986,6 +3986,34 @@ function accountingGraphs(div, opt){
     <div class="row graph_legend">\
       <div class="large-12 columns centered" id="acct_legend">\
       </div>\
+    </div>\
+    <div class="row">\
+      <div class="row graph_legend">\
+        <h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>\
+      </div>\
+      <table id="acct_cpu_datatable" class="datatable twelve">\
+        <thead>\
+          <tr>\
+            <th>'+tr("Date")+'</th>\
+          </tr>\
+        </thead>\
+        <tbody id="tbody_acct_cpu_datatable">\
+        </tbody>\
+      </table>\
+    </div>\
+    <div class="row">\
+      <div class="row graph_legend">\
+        <h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>\
+      </div>\
+      <table id="acct_mem_datatable" class="datatable twelve">\
+        <thead>\
+          <tr>\
+            <th>'+tr("Date")+'</th>\
+          </tr>\
+        </thead>\
+        <tbody id="tbody_acct_mem_datatable">\
+        </tbody>\
+      </table>\
     </div>');
 
     if (opt == undefined){
@@ -4132,6 +4160,8 @@ Filter by: user, group, vm, [flow]
 
 Download csv
 */
+
+    // TODO: Uniform time format (yy/mm/dd?) and define the time zone (utc, local?)
 
     var options = req.request.data[0];
 
@@ -4372,7 +4402,7 @@ Download csv
         });
     });
 
-    $.plot($("#acct_cpu_graph", div), plot_series, options);
+    var cpu_plot = $.plot($("#acct_cpu_graph", div), plot_series, options);
 
     // --- mem ---
 
@@ -4485,4 +4515,99 @@ Download csv
     }
 
     $.plot($("#acct_activity_graph", div), plot_series, options);
+
+    //--------------------------------------------------------------------------
+    // Init dataTables
+    //--------------------------------------------------------------------------
+
+    $("#acct_cpu_datatable",div).dataTable().fnClearTable();
+    $("#acct_cpu_datatable",div).dataTable().fnDestroy();
+
+    $("#acct_cpu_datatable thead",div).remove();
+
+
+    $("#acct_mem_datatable",div).dataTable().fnClearTable();
+    $("#acct_mem_datatable",div).dataTable().fnDestroy();
+
+    $("#acct_mem_datatable thead",div).remove();
+
+
+    cpu_plot_data = cpu_plot.getData();
+    mem_plot_data = mem_plot.getData();
+
+    var thead = '<thead><tr><th>'+tr("Date")+'</th>';
+
+    $.each(series.CPU_HOURS, function(key, val){
+        thead += '<th>'+group_by_prefix+key+'</th>';
+    });
+
+    thead += '</tr></thead>';
+
+    $("#acct_cpu_datatable",div).append(thead);
+
+    thead = '<thead><tr><th>'+tr("Date")+'</th>';
+
+    $.each(series.MEM_HOURS, function(key, val){
+        thead += '<th>'+group_by_prefix+key+'</th>';
+    });
+
+    thead += '</tr></thead>';
+
+    $("#acct_mem_datatable",div).append(thead);
+
+
+    var cpu_dataTable_data = [];
+    var mem_dataTable_data = [];
+
+    for (var i = 0; i<times.length-1; i++){
+        var t = times[i];
+
+        var cpu_row = [];
+        var mem_row = [];
+
+        var d = new Date(t);
+
+        cpu_row.push(d.getFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate());
+        mem_row.push(d.getFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate());
+
+        $.each(series.CPU_HOURS, function(key, val){
+            var v = val[t];
+            if(v != undefined){
+                cpu_row.push(v);
+            } else {
+                cpu_row.push(0);
+            }
+        });
+
+        $.each(series.MEM_HOURS, function(key, val){
+            var v = val[t];
+            if(v != undefined){
+                mem_row.push(v);
+            } else {
+                mem_row.push(0);
+            }
+        });
+
+        cpu_dataTable_data.push(cpu_row);
+        mem_dataTable_data.push(mem_row);
+    }
+
+    var acct_cpu_dataTable = $("#acct_cpu_datatable",div).dataTable({
+        "bSortClasses" : false,
+        "bDeferRender": true,
+        "aoColumnDefs": [
+            { "bSortable": false, "aTargets": ['_all'] },
+        ]
+    });
+
+    var acct_mem_dataTable = $("#acct_mem_datatable",div).dataTable({
+        "bSortClasses" : false,
+        "bDeferRender": true,
+        "aoColumnDefs": [
+            { "bSortable": false, "aTargets": ['_all'] },
+        ]
+    });
+
+    acct_cpu_dataTable.fnAddData(cpu_dataTable_data);
+    acct_mem_dataTable.fnAddData(mem_dataTable_data);
 }
