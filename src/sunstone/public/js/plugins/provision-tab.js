@@ -212,9 +212,10 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
       '<dl class="tabs text-center" data-tab style="width: 100%">'+
-        '<dd class="active" style="width: 33%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_info_ssh_key"><i class="fa fa-fw fa-lg fa-key"/>&emsp;'+ tr("SSH Key") +'</a></dd>'+
-        '<dd style="width: 33%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_info_quotas"><i class="fa fa-fw fa-lg fa-align-left"/>&emsp;'+ tr("Quotas") +'</a></dd>'+
-        '<dd style="width: 33%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_info_settings"><i class="fa fa-fw fa-lg fa-cogs"/>&emsp;'+ tr("Settings") +'</a></dd>'+
+        '<dd class="active" style="width: 25%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_info_ssh_key"><i class="fa fa-fw fa-lg fa-key"/>&emsp;'+ tr("SSH Key") +'</a></dd>'+
+        '<dd style="width: 25%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_info_acct"><i class="fa fa-fw fa-lg fa-bar-chart-o"/>&emsp;'+ tr("Accounting") +'</a></dd>'+
+        '<dd style="width: 25%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_info_quotas"><i class="fa fa-fw fa-lg fa-align-left"/>&emsp;'+ tr("Quotas") +'</a></dd>'+
+        '<dd style="width: 25%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_info_settings"><i class="fa fa-fw fa-lg fa-cogs"/>&emsp;'+ tr("Settings") +'</a></dd>'+
       '</dl>'+
       '<br>'+
     '</div>'+
@@ -274,6 +275,12 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
           '</div>'+
         '</div>'+
       '</form>'+
+    '</div>'+
+    '<div class="content" id="provision_info_acct">'+
+      '<div class="row">'+
+        '<div id="provision_user_info_acct_div" class="large-9 large-centered columns">'+
+        '</div>'+
+      '</div>'+
     '</div>'+
     '<div class="content" id="provision_info_quotas">'+
       '<div class="row">'+
@@ -944,6 +951,11 @@ function show_provision_user_info_callback(request, response) {
 
   $('#provision_new_language option[value="'+config['user_config']["lang"]+'"]').attr('selected','selected');
   $('#provision_user_views_select option[value="'+config['user_config']["default_view"]+'"]').attr('selected','selected');
+
+  accountingGraphs(
+    $("#provision_user_info_acct_div"),
+      { fixed_user: info.ID,
+        init_group_by: "vm" });
 }
 
 function show_provision_create_vm() {
