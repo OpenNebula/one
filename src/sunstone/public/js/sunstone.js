@@ -3980,19 +3980,6 @@ function accountingGraphs(div, opt){
     <div id="acct_content" class="hidden">\
       <div class="row">\
         <div class="row graph_legend">\
-          <h3 class="subheader"><small>'+tr("Activity")+'</small></h3>\
-        </div>\
-        <div class="row">\
-          <div class="large-10 columns centered graph" id="acct_activity_graph" style="height: 200px;">\
-          </div>\
-        </div>\
-        <div class="row graph_legend">\
-          <div class="large-10 columns centered" id="acct_activity_legend">\
-          </div>\
-        </div>\
-      </div>\
-      <div class="row">\
-        <div class="row graph_legend">\
           <h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>\
         </div>\
         <div class="row">\
@@ -4479,98 +4466,6 @@ Download csv
     });
 
     var mem_plot = $.plot($("#acct_mem_graph", div), plot_series, options);
-
-    // --- activity ---
-
-    // TODO: refactor inefficient code
-
-    series.GANTT = {};
-
-    var group_by_index = {};
-    var group_by_rev_index = {};
-
-    var index = 0;
-
-    $.each(response.HISTORY_RECORDS.HISTORY, function(index, history){
-
-        if(!filter_by_fn(history)){
-            return true; //continue
-        }
-
-        if(history.STIME == 0){
-            return true;
-        }
-
-        var group_by = group_by_fn(history);
-
-        if(group_by_index[group_by] == undefined){
-            group_by_index[group_by] = index;
-            group_by_rev_index[index] = group_by;
-            index++;
-        }
-
-        var group_by_i = group_by_index[group_by];
-
-        if (series.GANTT[group_by_i] == undefined){
-            series.GANTT[group_by_i] = [];
-        }
-
-        var gantt_start = parseInt(history.STIME)*1000;
-        if(gantt_start < times[0]){
-            gantt_start = times[0];
-        }
-
-        var gantt_end = parseInt(history.ETIME)*1000;
-        if(gantt_end == 0){
-            gantt_end = times[times.length - 2];
-        }
-
-        var serie = series.GANTT[group_by_i];
-        serie.push([
-            gantt_start,    // Start of Step
-            group_by_i,     // number of resource
-            gantt_end,      // End of step
-            ""              // Name for step (used for tooltip)
-            ]);
-    });
-
-
-    var plot_series = [];
-    var ticks = [];
-
-    $.each(series.GANTT, function(key, val){
-        data = val;
-
-        var name = group_by_prefix+group_by_rev_index[key];
-
-        plot_series.push(
-        {
-            label: name,
-            data: data,
-        });
-
-        ticks.push([parseInt(key), name]);
-    });
-
-    options.series = {
-            gantt : {
-                active : true,
-                show : true,
-                barHeight : 1.0
-            }
-        };
-
-    options.yaxis.ticks = ticks;
-    options.yaxis.min = -0.5;
-    options.yaxis.max = plot_series.length - 0.5;
-
-    var plot_data = mem_plot.getData();
-    if(plot_data.length != 0){
-        options.xaxis.min = plot_data[0].xaxis.min;
-        options.xaxis.max = plot_data[0].xaxis.max;
-    }
-
-    $.plot($("#acct_activity_graph", div), plot_series, options);
 
     //--------------------------------------------------------------------------
     // Init dataTables
