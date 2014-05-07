@@ -37,7 +37,7 @@ do_start()
     service opennebula-novnc start
     mkdir -p /var/run/one /var/lock/one /var/log/one
     chown oneadmin /var/run/one /var/lock/one /var/log/one
-    su oneadmin -s /bin/sh -c "$DAEMON start"
+    su oneadmin -s /bin/sh -c "$DAEMON start-sunstone"
 }
 
 #
@@ -45,7 +45,7 @@ do_start()
 #
 do_stop()
 {
-    su oneadmin -s /bin/sh -c "$DAEMON stop"
+    su oneadmin -s /bin/sh -c "$DAEMON stop-sunstone"
     service opennebula-novnc stop
 }
 

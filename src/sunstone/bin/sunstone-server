@@ -24,6 +24,7 @@ if [ -z "$ONE_LOCATION" ]; then
     SUNSTONE_LOG=/var/log/one/sunstone.log
     SUNSTONE_LOG_ERROR=/var/log/one/sunstone.error
     SUNSTONE_CONF=/etc/one/sunstone-server.conf
+    NOVNC_SERVER=/usr/bin/novnc-server
 else
     SUNSTONE_PID=$ONE_LOCATION/var/sunstone.pid
     SUNSTONE_SERVER=$ONE_LOCATION/lib/sunstone/sunstone-server.rb
@@ -31,6 +32,7 @@ else
     SUNSTONE_LOG=$ONE_LOCATION/var/sunstone.log
     SUNSTONE_LOG_ERROR=$ONE_LOCATION/var/sunstone.error
     SUNSTONE_CONF=$ONE_LOCATION/etc/sunstone-server.conf
+    NOVNC_SERVER=$ONE_LOCATION/bin/novnc-server
 fi
 
 setup()
@@ -60,9 +62,22 @@ setup()
 
 start()
 {
+  if [ "$1" = "-n" ]; then
+    novnc=1
+  fi
+
   if [ ! -f "$SUNSTONE_SERVER" ]; then
     echo "Cannot find $SUNSTONE_SERVER."
     exit 1
+  fi
+
+  if [ "$novnc" = "1" ]; then
+    # Start novnc server
+    $NOVNC_SERVER start
+
+    if [ "$?" != "0" ]; then
+      echo "Could not start novnc server" 1>&2
+    fi
   fi
 
   # Start the sunstone daemon
@@ -73,6 +88,7 @@ start()
   if [ $? -ne 0 ]; then
     echo "Error executing sunstone-server."
     echo "Check $SUNSTONE_LOG_ERROR and $SUNSTONE_LOG for more information"
+    [ "$novnc" = "1" ] && $NOVNC_SERVER stop
     exit 1
   else
     echo $LASTPID > $SUNSTONE_PID
@@ -84,6 +100,7 @@ start()
   if [ $? -ne 0 ]; then
     echo "Error executing sunstone-server."
     echo "Check $SUNSTONE_LOG_ERROR and $SUNSTONE_LOG for more information"
+    [ "$novnc" = "1" ] && $NOVNC_SERVER stop
     exit 1
   fi
 
@@ -95,6 +112,13 @@ start()
 #
 stop()
 {
+  if [ "$1" = "-n" ]; then
+    novnc=1
+  fi
+
+  # Stop novnc server
+  [ "$novnc" = "1" ] && $NOVNC_SERVER stop
+
   if [ ! -f $SUNSTONE_PID ]; then
     echo "Couldn't find sunstone-server process pid."
     exit 1
@@ -113,18 +137,30 @@ stop()
 case "$1" in
   start)
     setup
-    start
+    start -n
     ;;
   stop)
-    stop
+    stop -n
     ;;
   restart)
+    stop -n
+    setup
+    start -n
+    ;;
+  start-sunstone)
+    setup
+    start
+    ;;
+  stop-sunstone)
+    stop
+    ;;
+  restart-sunstone)
     stop
     setup
     start
     ;;
   *)
-    echo "Usage: sunstone-server {start|stop|restart}" >&2
+    echo "Usage: sunstone-server {start|stop|restart|start-sunstone|stop-sunstone|restart-sunstone}" >&2
     exit 3
     ;;
 esac

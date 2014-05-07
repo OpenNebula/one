@@ -42,7 +42,7 @@ start() {
     check
 
     echo -n $"Starting Sunstone Server daemon: "
-    daemon --user oneadmin $SUNSTONE_BIN start
+    daemon --user oneadmin $SUNSTONE_BIN start-sunstone
     RETVAL=$?
 
 	echo
@@ -60,7 +60,7 @@ stop() {
 
     service opennebula-novnc stop
     echo -n $"Stopping Sunstone Server daemon: "
-    daemon --user oneadmin $SUNSTONE_BIN stop
+    daemon --user oneadmin $SUNSTONE_BIN stop-sunstone
     RETVAL=$?
 
 	[ $RETVAL -eq 0 ] && success || failure
