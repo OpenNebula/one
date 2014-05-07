@@ -3954,6 +3954,12 @@ function accountingGraphs(div, opt){
               <i class="fa fa-cloud fa-stack-2x"></i>\
               <i class="fa fa-bar-chart-o fa-stack-1x fa-inverse"></i>\
             </span>\
+            <div id="acct_no_data" class="hidden">\
+              <br>\
+              <p style="font-size: 18px; color: #999">'+
+              tr("There are no accounting records")+
+              '</p>\
+            </div>\
           </div>\
         </div>\
       </div>\
@@ -4336,7 +4342,15 @@ Download csv
     series.CPU_HOURS = {};
     series.MEM_HOURS = {};
 
-    // TODO: response can be an empty object
+    $("#acct_no_data", div).hide();
+
+    if(response.HISTORY_RECORDS == undefined){
+        $("#acct_placeholder", div).show();
+        $("#acct_content", div).hide();
+
+        $("#acct_no_data", div).show();
+        return false;
+    }
 
     $.each(response.HISTORY_RECORDS.HISTORY, function(index, history){
 
@@ -4385,7 +4399,6 @@ Download csv
 
                 // --- cpu ---
 
-                // TODO cpu may not exist
                 var val = parseFloat(history.VM.TEMPLATE.CPU) * n_hours;
 
                 var serie = series.CPU_HOURS[group_by];
@@ -4394,11 +4407,12 @@ Download csv
                     serie[t] = 0;
                 }
 
-                serie[t] += val;
+                if (!isNaN(val)){
+                    serie[t] += val;
+                }
 
                 // --- mem ---
 
-                // TODO memory may not exist. In GB
                 var val = parseInt(history.VM.TEMPLATE.MEMORY)/1024 * n_hours;
 
                 var serie = series.MEM_HOURS[group_by];
@@ -4407,7 +4421,9 @@ Download csv
                     serie[t] = 0;
                 }
 
-                serie[t] += val;
+                if (!isNaN(val)){
+                    serie[t] += val;
+                }
             }
         }
     });
