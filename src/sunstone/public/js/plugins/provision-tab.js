@@ -955,7 +955,7 @@ function show_provision_user_info_callback(request, response) {
   accountingGraphs(
     $("#provision_user_info_acct_div"),
       { fixed_user: info.ID,
-        init_group_by: "vm" });
+        fixed_group_by: "vm" });
 }
 
 function show_provision_create_vm() {

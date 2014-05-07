@@ -3916,6 +3916,7 @@ function time_UTC(time){
 //   fixed_user     fix an owner user ID
 //   fixed_group    fix an owner group ID
 //   init_group_by  "user", "group", "vm". init the group-by selector
+//   fixed_group_by "user", "group", "vm". set a fixed group-by selector
 function accountingGraphs(div, opt){
 
     if(div.html() != ""){
@@ -3933,6 +3934,9 @@ function accountingGraphs(div, opt){
       <div class="large-4 left columns">\
         <input id="acct_end_time" type="text" placeholder="'+tr("Today")+'"/>\
       </div>\
+      <div class="large-1 left columns">\
+        <button class="button radius left success" id="acct_submit" type="submit">'+tr("Go")+'</button>\
+      </div>\
     </div>\
     <div class="row" id="acct_owner">\
       <div class="large-7 text-right columns">\
@@ -3944,7 +3948,7 @@ function accountingGraphs(div, opt){
         <div id="acct_owner_select"/>\
       </div>\
     </div>\
-    <div class="row">\
+    <div class="row" id="acct_group_by_row">\
       <div class="large-3 columns">\
         <label for="acct_group_by">' +  tr("Group by") + '</label>\
       </div>\
@@ -3955,9 +3959,8 @@ function accountingGraphs(div, opt){
           <option value="vm">' + tr("VM") + '</option>\
         </select>\
       </div>\
-      <div class="large-2 left columns">\
-        <button class="button radius left success" id="acct_submit" type="submit">'+tr("Go")+'</button>\
-      </div>\
+    </div>\
+    <div class="row">\
     </div>\
     <div id="acct_placeholder">\
       <div class="row">\
@@ -3983,11 +3986,11 @@ function accountingGraphs(div, opt){
           <h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>\
         </div>\
         <div class="row">\
-          <div class="large-10 columns centered graph" id="acct_cpu_graph" style="height: 200px;">\
+          <div class="large-12 columns centered graph" id="acct_cpu_graph" style="height: 200px;">\
           </div>\
         </div>\
         <div class="row graph_legend">\
-          <div class="large-10 columns centered" id="acct_cpu_legend">\
+          <div class="large-12 columns centered" id="acct_cpu_legend">\
           </div>\
         </div>\
       </div>\
@@ -3996,11 +3999,11 @@ function accountingGraphs(div, opt){
           <h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>\
         </div>\
         <div class="row">\
-          <div class="large-10 columns centered graph" id="acct_mem_graph" style="height: 200px;">\
+          <div class="large-12 columns centered graph" id="acct_mem_graph" style="height: 200px;">\
           </div>\
         </div>\
         <div class="row graph_legend">\
-          <div class="large-10 columns centered" id="acct_mem_legend">\
+          <div class="large-12 columns centered" id="acct_mem_legend">\
           </div>\
         </div>\
       </div>\
@@ -4106,6 +4109,9 @@ function accountingGraphs(div, opt){
 
     if(opt.init_group_by != undefined){
         $("#acct_group_by", div).val(opt.init_group_by);
+    }else if(opt.fixed_group_by != undefined){
+        $("#acct_group_by", div).val(opt.fixed_group_by);
+        $("#acct_group_by_row", div).hide();
     }
 
     //--------------------------------------------------------------------------
