@@ -3911,109 +3911,125 @@ $(document).ready(function(){
 function accountingGraphs(div, opt){
     div.append(
     '<div class="row">\
-      <div class="large-2 columns">\
+      <div class="large-3 columns">\
         '+tr("Time range")+'\
       </div>\
-      <div class="large-5 columns">\
+      <div class="large-4 left columns">\
         <input id="acct_start_time" class="jdpicker" type="text" placeholder="2013/12/30"/>\
       </div>\
-      <div class="large-5 columns">\
+      <div class="large-4 left columns">\
         <input id="acct_end_time" class="jdpicker" type="text" placeholder="'+tr("Today")+'"/>\
       </div>\
     </div>\
-    <div class="row">\
-      <div class="large-6 columns">\
+    <div class="row" id="acct_owner">\
+      <div class="large-7 text-right columns">\
         <input id="acct_owner_all"   type="radio" name="acct_owner" value="acct_owner_all" checked/><label for="acct_owner_all">' + tr("All") + '</label>\
         <input id="acct_owner_group" type="radio" name="acct_owner" value="acct_owner_group" /><label for="acct_owner_group">' + tr("Group") + '</label>\
         <input id="acct_owner_user"  type="radio" name="acct_owner" value="acct_owner_user" /><label for="acct_owner_user">' + tr("User") + '</label>\
       </div>\
-      <div class="large-6 columns">\
+      <div class="large-5 left columns">\
         <div id="acct_owner_select"/>\
       </div>\
     </div>\
     <div class="row">\
-      <div class="large-12 columns">\
+      <div class="large-3 columns">\
         <label for="acct_group_by">' +  tr("Group by") + '</label>\
+      </div>\
+      <div class="large-4 left columns">\
         <select id="acct_group_by" name="acct_group_by">\
           <option value="user">' + tr("User") + '</option>\
           <option value="group">' + tr("Group") + '</option>\
           <option value="vm">' + tr("VM") + '</option>\
         </select>\
       </div>\
+      <div class="large-2 left columns">\
+        <button class="button radius left success" id="acct_submit" type="submit">'+tr("Go")+'</button>\
+      </div>\
     </div>\
-    <div class="row">\
-      <button class="button radius left success" id="acct_submit" type="submit">'+tr("Go")+'</button>\
+    <div id="acct_placeholder">\
+      <div class="row">\
+        <div class="large-8 large-centered columns">\
+          <div class="text-center">\
+            <span class="fa-stack fa-5x" style="color: #dfdfdf">\
+              <i class="fa fa-cloud fa-stack-2x"></i>\
+              <i class="fa fa-bar-chart-o fa-stack-1x fa-inverse"></i>\
+            </span>\
+          </div>\
+        </div>\
+      </div>\
     </div>\
-    <div class="row">\
-      <div class="row graph_legend">\
-        <h3 class="subheader"><small>'+tr("Activity")+'</small></h3>\
+    <div id="acct_content" class="hidden">\
+      <div class="row">\
+        <div class="row graph_legend">\
+          <h3 class="subheader"><small>'+tr("Activity")+'</small></h3>\
+        </div>\
+        <div class="row">\
+          <div class="large-10 columns centered graph" id="acct_activity_graph" style="height: 200px;">\
+          </div>\
+        </div>\
+        <div class="row graph_legend">\
+          <div class="large-10 columns centered" id="acct_activity_legend">\
+          </div>\
+        </div>\
       </div>\
       <div class="row">\
-        <div class="large-10 columns centered graph" id="acct_activity_graph" style="height: 200px;">\
+        <div class="row graph_legend">\
+          <h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>\
         </div>\
-      </div>\
-      <div class="row graph_legend">\
-        <div class="large-10 columns centered" id="acct_activity_legend">\
+        <div class="row">\
+          <div class="large-10 columns centered graph" id="acct_cpu_graph" style="height: 200px;">\
+          </div>\
         </div>\
-      </div>\
-    </div>\
-    <div class="row">\
-      <div class="row graph_legend">\
-        <h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>\
+        <div class="row graph_legend">\
+          <div class="large-10 columns centered" id="acct_cpu_legend">\
+          </div>\
+        </div>\
       </div>\
       <div class="row">\
-        <div class="large-10 columns centered graph" id="acct_cpu_graph" style="height: 200px;">\
+        <div class="row graph_legend">\
+          <h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>\
+        </div>\
+        <div class="row">\
+          <div class="large-10 columns centered graph" id="acct_mem_graph" style="height: 200px;">\
+          </div>\
+        </div>\
+        <div class="row graph_legend">\
+          <div class="large-10 columns centered" id="acct_mem_legend">\
+          </div>\
         </div>\
       </div>\
       <div class="row graph_legend">\
-        <div class="large-10 columns centered" id="acct_cpu_legend">\
+        <div class="large-12 columns centered" id="acct_legend">\
         </div>\
-      </div>\
-    </div>\
-    <div class="row">\
-      <div class="row graph_legend">\
-        <h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>\
       </div>\
       <div class="row">\
-        <div class="large-10 columns centered graph" id="acct_mem_graph" style="height: 200px;">\
+        <div class="row graph_legend">\
+          <h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>\
         </div>\
+        <table id="acct_cpu_datatable" class="datatable twelve">\
+          <thead>\
+            <tr>\
+              <th>'+tr("Date")+'</th>\
+            </tr>\
+          </thead>\
+          <tbody id="tbody_acct_cpu_datatable">\
+          </tbody>\
+        </table>\
       </div>\
-      <div class="row graph_legend">\
-        <div class="large-10 columns centered" id="acct_mem_legend">\
+      <div class="row">\
+        <div class="row graph_legend">\
+          <h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>\
         </div>\
+        <table id="acct_mem_datatable" class="datatable twelve">\
+          <thead>\
+            <tr>\
+              <th>'+tr("Date")+'</th>\
+            </tr>\
+          </thead>\
+          <tbody id="tbody_acct_mem_datatable">\
+          </tbody>\
+        </table>\
       </div>\
-    </div>\
-    <div class="row graph_legend">\
-      <div class="large-12 columns centered" id="acct_legend">\
-      </div>\
-    </div>\
-    <div class="row">\
-      <div class="row graph_legend">\
-        <h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>\
-      </div>\
-      <table id="acct_cpu_datatable" class="datatable twelve">\
-        <thead>\
-          <tr>\
-            <th>'+tr("Date")+'</th>\
-          </tr>\
-        </thead>\
-        <tbody id="tbody_acct_cpu_datatable">\
-        </tbody>\
-      </table>\
-    </div>\
-    <div class="row">\
-      <div class="row graph_legend">\
-        <h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>\
-      </div>\
-      <table id="acct_mem_datatable" class="datatable twelve">\
-        <thead>\
-          <tr>\
-            <th>'+tr("Date")+'</th>\
-          </tr>\
-        </thead>\
-        <tbody id="tbody_acct_mem_datatable">\
-        </tbody>\
-      </table>\
     </div>');
 
     if (opt == undefined){
@@ -4038,6 +4054,8 @@ function accountingGraphs(div, opt){
     //--------------------------------------------------------------------------
 
     if (opt.fixed_user != undefined || opt.fixed_group != undefined){
+      $("#acct_owner", div).hide();
+/*
         $("input[name='acct_owner']", div).attr("disabled", "disabled");
 
         $("#acct_owner_select", div).show();
@@ -4051,6 +4069,7 @@ function accountingGraphs(div, opt){
         }
 
         $("#acct_owner_select", div).text(text);
+*/
     } else {
         $("input[name='acct_owner']", div).change(function(){
             var value = $(this).val();
@@ -4610,4 +4629,7 @@ Download csv
 
     acct_cpu_dataTable.fnAddData(cpu_dataTable_data);
     acct_mem_dataTable.fnAddData(mem_dataTable_data);
+
+    $("#acct_placeholder", div).hide();
+    $("#acct_content", div).show();
 }
