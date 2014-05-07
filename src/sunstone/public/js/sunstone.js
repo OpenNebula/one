@@ -3915,10 +3915,10 @@ function accountingGraphs(div, opt){
         '+tr("Time range")+'\
       </div>\
       <div class="large-4 left columns">\
-        <input id="acct_start_time" class="jdpicker" type="text" placeholder="2013/12/30"/>\
+        <input id="acct_start_time" type="text" placeholder="2013/12/30"/>\
       </div>\
       <div class="large-4 left columns">\
-        <input id="acct_end_time" class="jdpicker" type="text" placeholder="'+tr("Today")+'"/>\
+        <input id="acct_end_time" type="text" placeholder="'+tr("Today")+'"/>\
       </div>\
     </div>\
     <div class="row" id="acct_owner">\
@@ -4046,9 +4046,6 @@ function accountingGraphs(div, opt){
 
     $("#acct_start_time", div).val(d.getFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate());
 
-    $("#acct_start_time", div).jdPicker();
-    $("#acct_end_time", div).jdPicker();
-
     //--------------------------------------------------------------------------
     // VM owner: all, group, user
     //--------------------------------------------------------------------------
@@ -4105,20 +4102,38 @@ function accountingGraphs(div, opt){
     // Submit request
     //--------------------------------------------------------------------------
 
-    // TODO: make start_time mandatory
-
     $("#acct_submit", div).on("click", function(){
         var start_time = -1;
         var end_time = -1;
 
         var v = $("#acct_start_time", div).val();
-        if (v != ""){
-            start_time = new Date(v).getTime() / 1000;
+        if (v == ""){
+            notifyError(tr("Time range start is mandatory"));
+            return false;
+        }else{
+            start_time = Date.parse(v);
+
+            if (isNaN(start_time)){
+                notifyError(tr("Time range start is not a valid date. It must be YYYY/MM/DD"));
+                return false;
+            }
+
+            // ms to s
+            start_time = start_time / 1000;
         }
 
         var v = $("#acct_end_time", div).val();
         if (v != ""){
-            end_time = new Date(v).getTime() / 1000;
+
+            end_time = Date.parse(v);
+
+            if (isNaN(end_time)){
+                notifyError(tr("Time range end is not a valid date. It must be YYYY/MM/DD"));
+                return false;
+            }
+
+            // ms to s
+            end_time = end_time / 1000;
         }
 
         var options = {
