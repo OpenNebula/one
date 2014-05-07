@@ -3903,6 +3903,14 @@ $(document).ready(function(){
     })
 });
 
+// Format time in UTC, YYYY/MM/DD
+// time is in ms
+function time_UTC(time){
+    var d = new Date(time);
+
+    return d.getUTCFullYear() + '/' + (d.getUTCMonth()+1) + '/' + d.getUTCDate();
+}
+
 // div is a jQuery selector
 // The following options can be set:
 //   fixed_user     fix an owner user ID
@@ -4122,7 +4130,7 @@ function accountingGraphs(div, opt){
             notifyError(tr("Time range start is mandatory"));
             return false;
         }else{
-            start_time = Date.parse(v);
+            start_time = Date.parse(v+' UTC');
 
             if (isNaN(start_time)){
                 notifyError(tr("Time range start is not a valid date. It must be YYYY/MM/DD"));
@@ -4136,7 +4144,7 @@ function accountingGraphs(div, opt){
         var v = $("#acct_end_time", div).val();
         if (v != ""){
 
-            end_time = Date.parse(v);
+            end_time = Date.parse(v+' UTC');
 
             if (isNaN(end_time)){
                 notifyError(tr("Time range end is not a valid date. It must be YYYY/MM/DD"));
@@ -4234,7 +4242,7 @@ Download csv
         times.push(tmp_time.getTime());
 
         // day += 1
-        tmp_time.setDate( tmp_time.getDate() + 1 );
+        tmp_time.setUTCDate( tmp_time.getUTCDate() + 1 );
     }
 
     //--------------------------------------------------------------------------
@@ -4248,7 +4256,8 @@ Download csv
             mode: "time",
             timeformat: "%y/%m/%d",
             color: "#999",
-            size: 8
+            size: 8,
+            minTickSize: [1, "day"]
         },
         yaxis : { labelWidth: 50,
                   min: 0,
@@ -4277,19 +4286,7 @@ Download csv
         },
         tooltip: true,
         tooltipOpts: {
-            content: "%x | %s | %y"      //"%s | X: %x | Y: %y"
-/*
-            xDateFormat:    string                  //null
-            yDateFormat:    string                  //null
-            monthNames:     string                  // null
-            dayNames:       string                  // null
-            shifts: {
-                x:          int                     //10
-                y:          int                     //20
-            },
-            defaultTheme:   boolean                 //true
-            onHover:        function(flotItem, $tooltipEl)
-*/
+            content: "%x | %s | %y"
         }
     };
 
@@ -4590,7 +4587,7 @@ Download csv
     cpu_plot_data = cpu_plot.getData();
     mem_plot_data = mem_plot.getData();
 
-    var thead = '<thead><tr><th>'+tr("Date")+'</th>';
+    var thead = '<thead><tr><th>'+tr("Date UTC")+'</th>';
 
     $.each(series.CPU_HOURS, function(key, val){
         thead += '<th>'+group_by_prefix+key+'</th>';
@@ -4600,7 +4597,7 @@ Download csv
 
     $("#acct_cpu_datatable",div).append(thead);
 
-    thead = '<thead><tr><th>'+tr("Date")+'</th>';
+    thead = '<thead><tr><th>'+tr("Date UTC")+'</th>';
 
     $.each(series.MEM_HOURS, function(key, val){
         thead += '<th>'+group_by_prefix+key+'</th>';
@@ -4620,10 +4617,10 @@ Download csv
         var cpu_row = [];
         var mem_row = [];
 
-        var d = new Date(t);
+        var time_st = time_UTC(t);
 
-        cpu_row.push(d.getFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate());
-        mem_row.push(d.getFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate());
+        cpu_row.push(time_st);
+        mem_row.push(time_st);
 
         $.each(series.CPU_HOURS, function(key, val){
             var v = val[t];
