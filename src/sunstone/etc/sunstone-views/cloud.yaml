@@ -437,4 +437,5 @@ tabs:
             ServiceTemplate.delete: true
     provision-tab:
         panel_tabs:
+            users: false
         actions:
