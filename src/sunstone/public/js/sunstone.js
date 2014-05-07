@@ -3909,7 +3909,12 @@ $(document).ready(function(){
 //   fixed_group    fix an owner group ID
 //   init_group_by  "user", "group", "vm". init the group-by selector
 function accountingGraphs(div, opt){
-    div.append(
+
+    if(div.html() != ""){
+        return false;
+    }
+
+    div.html(
     '<div class="row">\
       <div class="large-3 columns">\
         '+tr("Time range")+'\
