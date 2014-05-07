@@ -4625,7 +4625,7 @@ Download csv
         $.each(series.CPU_HOURS, function(key, val){
             var v = val[t];
             if(v != undefined){
-                cpu_row.push(v);
+                cpu_row.push((v * 100).toFixed() / 100);
             } else {
                 cpu_row.push(0);
             }
@@ -4634,7 +4634,7 @@ Download csv
         $.each(series.MEM_HOURS, function(key, val){
             var v = val[t];
             if(v != undefined){
-                mem_row.push(v);
+                mem_row.push((v * 100).toFixed() / 100);
             } else {
                 mem_row.push(0);
             }
