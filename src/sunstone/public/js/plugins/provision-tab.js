@@ -194,6 +194,46 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
   '<br>'+
 '</form>';
 
+var provision_create_user = '<form id="provision_create_user" class="hidden section_content">'+
+  '<div class="row">'+
+    '<div class="large-11 large-centered columns">'+
+      '<h2 class="subheader">'+
+        '<i class="fa fa-fw fa-cloud"/>&emsp;'+
+        tr("Create User")+
+      '</h2>'+
+      '<br>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-8 large-centered columns">'+
+      '<input type="text" id="username"  class="provision-input" placeholder="'+tr("Username")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+      '<br>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-8 large-centered columns">'+
+      '<input type="password" id="password"  class="provision-input" placeholder="'+tr("Password")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+      '<br>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-8 large-centered columns">'+
+      '<input type="password" id="repeat_password"  class="provision-input" placeholder="'+tr("Repeat Password")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+      '<br>'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
+  '<div class="row">'+
+    '<div class="large-7 columns large-centered">'+
+      '<div data-alert class="alert-box alert-box-error radius text-center hidden">'+
+      '</div>'+
+      '<button href="#" class="button large radius large-12 small-12" type="submit" style="height: 59px">'+tr("Add User")+'</button>'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
+  '<br>'+
+'</form>';
+
 var provision_user_info = '<div id="provision_user_info" class="hidden section_content">'+
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
@@ -681,6 +721,7 @@ var provision_content = provision_user_info +
 
 if (Config.isTabPanelEnabled("provision-tab", "users")) {
   provision_content += provision_list_users;
+  provision_content += provision_create_user;
 }
 
 var provision_header = '<img src="images/one_small_logo.png" style="height:40px; vertical-align:top">'+
@@ -763,6 +804,21 @@ var povision_actions = {
       callback: function() {
         show_provision_user_info();
         notifyMessage("SSH key updated successfully");
+      },
+      error: onError
+  },
+
+  "Provision.User.create" : {
+      type: "create",
+      call: OpenNebula.User.create,
+      callback: function() {
+        OpenNebula.Helper.clear_cache("USER");
+        show_provision_user_list(0);
+        var context = $("#provision_create_user");
+        $("#username", context).val('');
+        $("#password", context).val('');
+        $("#repeat_password", context).val('');
+        $(".alert-box-error", context).hide();
       },
       error: onError
   },
@@ -1011,6 +1067,11 @@ function show_provision_create_vm() {
 
   $(".section_content").hide();
   $("#provision_create_vm").fadeIn();
+}
+
+function show_provision_create_user() {
+  $(".section_content").hide();
+  $("#provision_create_user").fadeIn();
 }
 
 function show_provision_vm_list(timeout) {
@@ -2386,6 +2447,48 @@ $(document).ready(function(){
     $("#provision_list_users").on("click", "#provision_users_list_refresh_button", function(){
       OpenNebula.Helper.clear_cache("USER");
       show_provision_user_list(0);
+    });
+
+    $(".provision_create_user_button").on("click", function(){
+      show_provision_create_user();
+    });
+
+    //
+    // Create User
+    //
+
+
+    $("#provision_create_user").submit(function(){
+      var context = $(this);
+
+      var username = $("#username", context).val();
+      var password = $("#password", context).val();
+      var repeat_password = $("#repeat_password", context).val();
+
+      // TODO driver
+      var driver = 'core';
+
+      if (!username.length || !password.length){
+        $(".alert-box-error", context).fadeOut();
+        $(".alert-box-error", context).fadeIn().html(tr("You have to provide a username and password"));
+        return false;
+      }
+
+      if (password !== repeat_password){
+        $(".alert-box-error", context).fadeOut();
+        $(".alert-box-error", context).fadeIn().html(tr("Passwords do not match"));
+        return false;
+      }
+
+      var user_json = { "user" :
+                        { "name" : username,
+                          "password" : password,
+                          "auth_driver" : driver
+                        }
+                      };
+
+      Sunstone.runAction("Provision.User.create",user_json);
+      return false;
     });
 
     //
