@@ -198,7 +198,7 @@ var provision_create_user = '<form id="provision_create_user" class="hidden sect
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
       '<h2 class="subheader">'+
-        '<i class="fa fa-fw fa-cloud"/>&emsp;'+
+        '<i class="fa fa-fw fa-user"/>&emsp;'+
         tr("Create User")+
       '</h2>'+
       '<br>'+
@@ -222,15 +222,105 @@ var provision_create_user = '<form id="provision_create_user" class="hidden sect
       '<br>'+
     '</div>'+
   '</div>'+
+  '<div class="row">'+
+    '<div class="large-10 large-centered columns">'+
+      '<h3 class="subheader text-right">'+
+        '<span class="left">'+
+          '<i class="fa fa-fw fa-align-left"/>&emsp;'+
+          tr("Define Quotas")+
+        '</span>'+
+      '</h3>'+
+      '<br>'+
+    '</div>'+
+  '</div>'+
   '<br>'+
+  '<div class="row">'+
+    '<div class="large-8 large-centered columns">'+
+      '<h5 class="subheader text-right">'+
+        '<span class="left">'+
+          tr("Running VMs")+
+        '</span>'+
+      '</h5>'+
+      '<br>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-8 large-centered columns">'+
+      '<div class="row collapse">'+
+        '<div class="large-9 small-9 columns">'+
+          '<div id="provision_rvms_quota_slider">'+
+          '</div>'+
+        '</div>'+
+        '<div class="large-2 small-2 columns">'+
+          '<input type="text"  class="provision-input" id="provision_rvms_quota_input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-8 large-centered columns">'+
+      '<h5 class="subheader text-right">'+
+        '<span class="left">'+
+          tr("CPU")+
+        '</span>'+
+      '</h5>'+
+      '<br>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-8 large-centered columns">'+
+      '<div class="row collapse">'+
+        '<div class="large-9 small-9 columns">'+
+          '<div id="provision_cpu_quota_slider">'+
+          '</div>'+
+        '</div>'+
+        '<div class="large-2 small-2 columns">'+
+          '<input type="text"  class="provision-input" id="provision_cpu_quota_input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-8 large-centered columns">'+
+      '<h5 class="subheader text-right">'+
+        '<span class="left">'+
+          tr("Memory (GBs)")+
+        '</span>'+
+      '</h5>'+
+      '<br>'+
+    '</div>'+
+  '</div>'+
+  '<div class="vm_param">'+
+      '<input type="hidden" id="provision_memory_quota_input"/>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-8 large-centered columns">'+
+      '<div class="row collapse">'+
+        '<div class="large-9 small-9 columns">'+
+          '<div id="provision_memory_quota_slider">'+
+          '</div>'+
+        '</div>'+
+        '<div class="large-2 small-2 columns">'+
+          '<input type="text"  class="provision-input" id="provision_memory_quota_tmp_input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
+  '<br>'+
+  '<div class="row">'+
+    '<div class="large-5 large-centered columns">'+
+      '<hr>'+
+      '<br>'+
+    '</div>'+
+  '</div>'+
   '<div class="row">'+
     '<div class="large-7 columns large-centered">'+
       '<div data-alert class="alert-box alert-box-error radius text-center hidden">'+
       '</div>'+
-      '<button href="#" class="button large radius large-12 small-12" type="submit" style="height: 59px">'+tr("Add User")+'</button>'+
+      '<button href="#" class="button large radius large-12 small-12" type="submit">'+tr("Add User")+'</button>'+
     '</div>'+
   '</div>'+
-  '<br>'+
   '<br>'+
 '</form>';
 
@@ -2457,6 +2547,79 @@ $(document).ready(function(){
     // Create User
     //
 
+    var provision_rvms_quota_input = $("#provision_rvms_quota_input");
+    var provision_rvms_quota_slider = $( "#provision_rvms_quota_slider").noUiSlider({
+        handles: 1,
+        connect: "lower",
+        range: [0,50],
+        step: 1,
+        start: 5,
+        value: 5,
+        slide: function(type) {
+            if ( type != "move"){
+                provision_rvms_quota_input.val($(this).val());
+            }
+        }
+    });
+
+    provision_rvms_quota_slider.addClass("noUiSlider");
+
+    provision_rvms_quota_input.change(function() {
+        provision_rvms_quota_slider.val(this.value)
+    });
+
+    var provision_cpu_quota_input = $("#provision_cpu_quota_input");
+    var provision_cpu_quota_slider = $( "#provision_cpu_quota_slider").noUiSlider({
+        handles: 1,
+        connect: "lower",
+        range: [0,200],
+        step: 1,
+        start: 40,
+        value: 40,
+        slide: function(type) {
+            if ( type != "move"){
+                provision_cpu_quota_input.val($(this).val());
+            }
+        }
+    });
+
+    provision_cpu_quota_slider.addClass("noUiSlider");
+
+    provision_cpu_quota_input.change(function() {
+        provision_cpu_quota_slider.val(this.value)
+    });
+
+    var provision_memory_quota_input = $("#provision_memory_quota_input");
+    var provision_memory_quota_tmp_input = $("#provision_memory_quota_tmp_input");
+
+    var update_final_memory_input = function() {
+      provision_memory_quota_input.val( Math.floor(provision_memory_quota_tmp_input.val() * 1024) );
+    }
+
+    var provision_memory_quota_slider = $( "#provision_memory_quota_slider").noUiSlider({
+        handles: 1,
+        connect: "lower",
+        range: [0,6400],
+        start: 1600,
+        step: 50,
+        value: 1600,
+        slide: function(type) {
+            if ( type != "move"){
+                provision_memory_quota_tmp_input.val($(this).val()/100);
+            }
+        }
+    });
+
+    provision_memory_quota_tmp_input.change(function() {
+        provision_memory_quota_slider.val(this.value * 100)
+        update_final_memory_input();
+    });
+
+    provision_memory_quota_slider.addClass("noUiSlider");
+
+    provision_memory_quota_input.change(function() {
+        provision_memory_quota_slider.val(this.value)
+    });
 
     $("#provision_create_user").submit(function(){
       var context = $(this);
