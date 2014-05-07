@@ -4025,29 +4025,33 @@ function accountingGraphs(div, opt){
         <div class="row graph_legend">\
           <h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>\
         </div>\
-        <table id="acct_cpu_datatable" class="datatable twelve">\
-          <thead>\
-            <tr>\
-              <th>'+tr("Date")+'</th>\
-            </tr>\
-          </thead>\
-          <tbody id="tbody_acct_cpu_datatable">\
-          </tbody>\
-        </table>\
+        <div style="overflow:auto">\
+          <table id="acct_cpu_datatable" class="datatable twelve">\
+            <thead>\
+              <tr>\
+                <th>'+tr("Date")+'</th>\
+              </tr>\
+            </thead>\
+            <tbody id="tbody_acct_cpu_datatable">\
+            </tbody>\
+          </table>\
+        </div>\
       </div>\
       <div class="row">\
         <div class="row graph_legend">\
           <h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>\
         </div>\
-        <table id="acct_mem_datatable" class="datatable twelve">\
-          <thead>\
-            <tr>\
-              <th>'+tr("Date")+'</th>\
-            </tr>\
-          </thead>\
-          <tbody id="tbody_acct_mem_datatable">\
-          </tbody>\
-        </table>\
+        <div style="overflow:auto">\
+          <table id="acct_mem_datatable" class="datatable twelve">\
+            <thead>\
+              <tr>\
+                <th>'+tr("Date")+'</th>\
+              </tr>\
+            </thead>\
+            <tbody id="tbody_acct_mem_datatable">\
+            </tbody>\
+          </table>\
+        </div>\
       </div>\
     </div>');
 
