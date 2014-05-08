@@ -3925,34 +3925,16 @@ function accountingGraphs(div, opt){
 
     div.html(
     '<div class="row">\
-      <div class="large-3 columns">\
-        '+tr("Time range")+'\
-      </div>\
       <div class="large-4 left columns">\
+        <label for="acct_start_time">'+tr("Start time")+'</label>\
         <input id="acct_start_time" type="text" placeholder="2013/12/30"/>\
       </div>\
       <div class="large-4 left columns">\
+        <label for="acct_end_time">'+tr("End time")+'</label>\
         <input id="acct_end_time" type="text" placeholder="'+tr("Today")+'"/>\
       </div>\
-      <div class="large-1 left columns">\
-        <button class="button radius left success" id="acct_submit" type="submit">'+tr("Go")+'</button>\
-      </div>\
-    </div>\
-    <div class="row" id="acct_owner">\
-      <div class="large-7 text-right columns">\
-        <input id="acct_owner_all"   type="radio" name="acct_owner" value="acct_owner_all" checked/><label for="acct_owner_all">' + tr("All") + '</label>\
-        <input id="acct_owner_group" type="radio" name="acct_owner" value="acct_owner_group" /><label for="acct_owner_group">' + tr("Group") + '</label>\
-        <input id="acct_owner_user"  type="radio" name="acct_owner" value="acct_owner_user" /><label for="acct_owner_user">' + tr("User") + '</label>\
-      </div>\
-      <div class="large-5 left columns">\
-        <div id="acct_owner_select"/>\
-      </div>\
-    </div>\
-    <div class="row" id="acct_group_by_row">\
-      <div class="large-3 columns">\
-        <label for="acct_group_by">' +  tr("Group by") + '</label>\
-      </div>\
       <div class="large-4 left columns">\
+        <label for="acct_group_by">' +  tr("Group by") + '</label>\
         <select id="acct_group_by" name="acct_group_by">\
           <option value="user">' + tr("User") + '</option>\
           <option value="group">' + tr("Group") + '</option>\
@@ -3960,6 +3942,23 @@ function accountingGraphs(div, opt){
         </select>\
       </div>\
     </div>\
+    <div class="row" id="acct_owner">\
+      <div class="large-4 text-center columns large-offset-4">\
+        <input id="acct_owner_all"   type="radio" name="acct_owner" value="acct_owner_all" checked/><label for="acct_owner_all">' + tr("All") + '</label>\
+        <input id="acct_owner_group" type="radio" name="acct_owner" value="acct_owner_group" /><label for="acct_owner_group">' + tr("Group") + '</label>\
+        <input id="acct_owner_user"  type="radio" name="acct_owner" value="acct_owner_user" /><label for="acct_owner_user">' + tr("User") + '</label>\
+      </div>\
+      <div class="large-4 columns">\
+        <div id="acct_owner_select"/>\
+      </div>\
+    </div>\
+    <br>\
+    <div class="row">\
+      <div class="large-6 large-centered columns">\
+        <button class="button radius success large-12" id="acct_submit" type="button">'+tr("Get accounting info")+'</button>\
+      </div>\
+    </div>\
+    <br>\
     <div class="row">\
     </div>\
     <div id="acct_placeholder">\
@@ -3982,28 +3981,28 @@ function accountingGraphs(div, opt){
     </div>\
     <div id="acct_content" class="hidden">\
       <div class="row">\
-        <div class="row graph_legend">\
+        <div class="large-12 columns graph_legend">\
           <h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>\
         </div>\
-        <div class="row">\
+        <div class="large-12 columns">\
           <div class="large-12 columns centered graph" id="acct_cpu_graph" style="height: 200px;">\
           </div>\
         </div>\
       </div>\
       <div class="row">\
-        <div class="row graph_legend">\
+        <div class="large-12 columns graph_legend">\
           <h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>\
         </div>\
-        <div class="row">\
+        <div class="large-12 columns">\
           <div class="large-12 columns centered graph" id="acct_mem_graph" style="height: 200px;">\
           </div>\
         </div>\
       </div>\
       <div class="row">\
-        <div class="row graph_legend">\
+        <div class="large-12 columns graph_legend">\
           <h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>\
         </div>\
-        <div style="overflow:auto">\
+        <div class="large-12 columns" style="overflow:auto">\
           <table id="acct_cpu_datatable" class="datatable twelve">\
             <thead>\
               <tr>\
@@ -4016,10 +4015,10 @@ function accountingGraphs(div, opt){
         </div>\
       </div>\
       <div class="row">\
-        <div class="row graph_legend">\
+        <div class="large-12 columns graph_legend">\
           <h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>\
         </div>\
-        <div style="overflow:auto">\
+        <div class="large-12 columns" style="overflow:auto">\
           <table id="acct_mem_datatable" class="datatable twelve">\
             <thead>\
               <tr>\
@@ -4178,6 +4177,8 @@ function accountingGraphs(div, opt){
             error: onError,
             data: options
         });
+
+        return false;
     });
 }
 
@@ -4223,6 +4224,7 @@ function fillAccounting(div, req, response) {
             timeformat: "%y/%m/%d",
             color: "#999",
             size: 8,
+            ticks: 4,
             minTickSize: [1, "day"]
         },
         yaxis : { labelWidth: 50,
@@ -4357,7 +4359,7 @@ function fillAccounting(div, req, response) {
                 if(history.ETIME != 0){
                     etime = Math.min(t_next, history.ETIME*1000);
                 }
-                
+
                 var n_hours = (etime - stime) / 1000 / 60 / 60;
 
                 if(serie[t] == undefined){
@@ -4425,14 +4427,14 @@ function fillAccounting(div, req, response) {
     $("#acct_cpu_datatable",div).dataTable().fnDestroy();
 
     $("#acct_cpu_datatable thead",div).remove();
-    $("#acct_cpu_datatable",div).width("1px");
+    $("#acct_cpu_datatable",div).width("100%");
 
 
     $("#acct_mem_datatable",div).dataTable().fnClearTable();
     $("#acct_mem_datatable",div).dataTable().fnDestroy();
 
     $("#acct_mem_datatable thead",div).remove();
-    $("#acct_mem_datatable",div).width("1px");
+    $("#acct_mem_datatable",div).width("100%");
 
 
     cpu_plot_data = cpu_plot.getData();
