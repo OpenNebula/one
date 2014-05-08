@@ -595,7 +595,32 @@ var OpenNebula = {
                         callback_error(request, OpenNebula.Error(response)) : null;
                 }
             });
-        }
+        },
+
+        "accounting": function(params, resource, path){
+            var callback = params.success;
+            var callback_error = params.error;
+            var data = params.data;
+
+            var method = "accounting";
+            var request = OpenNebula.Helper.request(resource,method, data);
+
+            var url = path ? path : resource.toLowerCase() + "/accounting";
+
+            $.ajax({
+                url: url,
+                type: "GET",
+                data: data,
+                dataType: "json",
+                success: function(response){
+                    return callback ? callback(request, response) : null;
+                },
+                error: function(response){
+                    return callback_error ?
+                        callback_error(request, OpenNebula.Error(response)) : null;
+                }
+            });
+        },
     },
 
     "Auth": {
@@ -984,7 +1009,10 @@ var OpenNebula = {
         "recover" : function(params){
             var action_obj = {"with": params.data.extra_param};
             OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"recover",action_obj);
-        }
+        },
+        "accounting": function(params){
+            OpenNebula.Action.accounting(params,OpenNebula.VM.resource);
+        },
     },
 
     "Group": {

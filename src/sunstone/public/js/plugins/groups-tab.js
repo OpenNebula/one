@@ -703,9 +703,16 @@ function updateGroupInfo(request,group){
         </div>'
     };
 
+    var accounting_tab = {
+        title: tr("Accounting"),
+        icon: "fa-bar-chart-o",
+        content: '<div id="group_accounting"></div>'
+    };
+
     Sunstone.updateInfoPanelTab("group_info_panel","group_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("group_info_panel","group_quotas_tab",quotas_tab);
     Sunstone.updateInfoPanelTab("group_info_panel","group_providers_tab",providers_tab);
+    Sunstone.updateInfoPanelTab("group_info_panel","group_accouning_tab",accounting_tab);
     Sunstone.popUpInfoPanel("group_info_panel", 'groups-tab');
 
     $("#add_rp_button", $("#group_info_panel")).click(function(){
@@ -715,6 +722,11 @@ function updateGroupInfo(request,group){
 
         return false;
     });
+
+    accountingGraphs(
+        $("#group_accounting","#group_info_panel"),
+        {   fixed_group: info.ID,
+            init_group_by: "user" });
 }
 
 function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id, str_datatable_id, selected_group_clusters, group) {
