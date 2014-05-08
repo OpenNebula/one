@@ -4182,23 +4182,6 @@ function accountingGraphs(div, opt){
 }
 
 function fillAccounting(div, req, response) {
-/*
-    console.log(req);
-    console.log(response);
-*/
-
-
-/*
-TODO More options:
-
-Granularity: month, day, hour
-Time range
-Group by: user, group, vm, [flow]
-Filter by: user, group, vm, [flow]
-
-Download csv
-*/
-
     var options = req.request.data[0];
 
     //--------------------------------------------------------------------------
@@ -4322,8 +4305,6 @@ Download csv
     //--------------------------------------------------------------------------
 
     var series = {};
-    series.CPU_HOURS = {};
-    series.MEM_HOURS = {};
 
     $("#acct_no_data", div).hide();
 
@@ -4337,28 +4318,27 @@ Download csv
 
     $.each(response.HISTORY_RECORDS.HISTORY, function(index, history){
 
+/*
         if(!filter_by_fn(history)){
             return true; //continue
         }
-
+*/
         var group_by = group_by_fn(history);
 
-        if (series.CPU_HOURS[group_by] == undefined){
-            series.CPU_HOURS[group_by] = {};
+        if (series[group_by] == undefined){
+            series[group_by] = {};
 
-            series.CPU_HOURS[group_by][times[0]] = 0;
-            series.CPU_HOURS[group_by][times[times.length-2]] = 0;
+            series[group_by][times[0]] = {};
+            series[group_by][times[times.length-2]] = {};
+
+            series[group_by][times[0]].CPU_HOURS = 0;
+            series[group_by][times[times.length-2]].CPU_HOURS = 0;
+
+            series[group_by][times[0]].MEM_HOURS = 0;
+            series[group_by][times[times.length-2]].MEM_HOURS = 0;
         }
 
-        if (series.MEM_HOURS[group_by] == undefined){
-            series.MEM_HOURS[group_by] = {};
-
-            series.MEM_HOURS[group_by][times[0]] = 0;
-            series.MEM_HOURS[group_by][times[times.length-2]] = 0;
-        }
-
-//      TODO Optimize getting here?
-//        var serie = series.CPU_HOURS[history.VM.UID];
+        var serie = series[group_by];
 
         for (var i = 0; i<times.length-1; i++){
 
@@ -4380,82 +4360,62 @@ Download csv
                 
                 var n_hours = (etime - stime) / 1000 / 60 / 60;
 
+                if(serie[t] == undefined){
+                    serie[t] = {};
+                    serie[t].CPU_HOURS = 0;
+                    serie[t].MEM_HOURS = 0;
+                }
+
                 // --- cpu ---
 
                 var val = parseFloat(history.VM.TEMPLATE.CPU) * n_hours;
 
-                var serie = series.CPU_HOURS[group_by];
-
-                if(serie[t] == undefined){
-                    serie[t] = 0;
-                }
-
                 if (!isNaN(val)){
-                    serie[t] += val;
+                    serie[t].CPU_HOURS += val;
                 }
 
                 // --- mem ---
 
                 var val = parseInt(history.VM.TEMPLATE.MEMORY)/1024 * n_hours;
 
-                var serie = series.MEM_HOURS[group_by];
-
-                if(serie[t] == undefined){
-                    serie[t] = 0;
-                }
-
                 if (!isNaN(val)){
-                    serie[t] += val;
+                    serie[t].MEM_HOURS += val;
                 }
             }
         }
     });
 
-//    console.log(series);
-
     //--------------------------------------------------------------------------
     // Create series, draw plots
     //--------------------------------------------------------------------------
 
-    // --- cpu ---
+    var cpu_plot_series = [];
+    var mem_plot_series = [];
 
-    var plot_series = [];
-
-    $.each(series.CPU_HOURS, function(key, val){
-        var data = [];
+    $.each(series, function(key, val){
+        var cpu_data = [];
+        var mem_data = [];
 
         $.each(val, function(time,num){
-            data.push([parseInt(time),num]);
+            cpu_data.push([parseInt(time),num.CPU_HOURS]);
+            mem_data.push([parseInt(time),num.MEM_HOURS]);
         });
 
-        plot_series.push(
+        cpu_plot_series.push(
         {
             label: group_by_prefix+key,
-            data: data
+            data: cpu_data
+        });
+
+        mem_plot_series.push(
+        {
+            label: group_by_prefix+key,
+            data: mem_data
         });
     });
 
-    var cpu_plot = $.plot($("#acct_cpu_graph", div), plot_series, options);
-
-    // --- mem ---
-
-    var plot_series = [];
-
-    $.each(series.MEM_HOURS, function(key, val){
-        var data = [];
-
-        $.each(val, function(time,num){
-            data.push([parseInt(time),num]);
-        });
-
-        plot_series.push(
-        {
-            label: group_by_prefix+key,
-            data: data
-        });
-    });
-
-    var mem_plot = $.plot($("#acct_mem_graph", div), plot_series, options);
+    var cpu_plot = $.plot($("#acct_cpu_graph", div), cpu_plot_series, options);
+    var mem_plot = $.plot($("#acct_mem_graph", div), mem_plot_series, options);
 
     //--------------------------------------------------------------------------
     // Init dataTables
@@ -4478,7 +4438,11 @@ Download csv
     cpu_plot_data = cpu_plot.getData();
     mem_plot_data = mem_plot.getData();
 
-    var thead = '<thead><tr><th>'+tr("Date UTC")+'</th>';
+    var thead =
+    '<thead>\
+      <tr>\
+        <th>'+tr("Date UTC")+'</th>\
+        <th>'+tr("Total")+'</th>';
 
     $.each(cpu_plot_data, function(i, serie){
         thead += '<th style="border-bottom: '+serie.color+' 4px solid !important;'+
@@ -4490,7 +4454,11 @@ Download csv
 
     $("#acct_cpu_datatable",div).append(thead);
 
-    thead = '<thead><tr><th>'+tr("Date UTC")+'</th>';
+    thead =
+    '<thead>\
+      <tr>\
+        <th>'+tr("Date UTC")+'</th>\
+        <th>'+tr("Total")+'</th>';
 
     $.each(mem_plot_data, function(i, serie){
         thead += '<th style="border-bottom: '+serie.color+' 4px solid !important;'+
@@ -4517,23 +4485,32 @@ Download csv
         cpu_row.push(time_st);
         mem_row.push(time_st);
 
-        $.each(series.CPU_HOURS, function(key, val){
+        cpu_row.push(0);
+        mem_row.push(0);
+
+        var cpu_total = 0;
+        var mem_total = 0;
+
+        $.each(series, function(key, val){
             var v = val[t];
+
             if(v != undefined){
-                cpu_row.push((v * 100).toFixed() / 100);
+                var cpu_v = (v.CPU_HOURS * 100).toFixed() / 100;
+                var mem_v = (v.MEM_HOURS * 100).toFixed() / 100;
+
+                cpu_total += cpu_v;
+                mem_total += mem_v;
+
+                cpu_row.push(cpu_v);
+                mem_row.push(mem_v);
             } else {
                 cpu_row.push(0);
-            }
-        });
-
-        $.each(series.MEM_HOURS, function(key, val){
-            var v = val[t];
-            if(v != undefined){
-                mem_row.push((v * 100).toFixed() / 100);
-            } else {
                 mem_row.push(0);
             }
         });
+
+        cpu_row[1] = cpu_total;
+        mem_row[1] = mem_total;
 
         cpu_dataTable_data.push(cpu_row);
         mem_dataTable_data.push(mem_row);
