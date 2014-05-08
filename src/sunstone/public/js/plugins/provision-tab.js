@@ -550,7 +550,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
   '</div>'+
 '</div>';
 
-var provision_list_users = '<div id="provision_list_users" class="hidden section_content">'+
+var provision_list_users = '<div id="provision_list_users">'+
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
       '<h2 class="subheader text-right">'+
@@ -588,6 +588,29 @@ var provision_list_users = '<div id="provision_list_users" class="hidden section
   '<div class="row">'+
     '<div class="large-8 large-centered columns">'+
       '<a href"#" class="provision_create_user_button button large radius large-12 small-12">'+tr("Add a new User")+'</a>'+
+    '</div>'+
+  '</div>'+
+'</div>';
+
+
+var provision_manage_vdc = '<div id="provision_manage_vdc" class="hidden section_content">'+
+  '<div class="row">'+
+    '<div class="large-11 large-centered columns">'+
+      '<dl class="tabs text-center" data-tab style="width: 100%">'+
+        '<dd class="active" style="width: 33%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_vdc_users"><i class="fa fa-fw fa-lg fa-users"/>&emsp;'+ tr("VDC Users") +'</a></dd>'+
+        '<dd style="width: 33%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_vdc_quotas"><i class="fa fa-fw fa-lg fa-align-left"/>&emsp;'+ tr("VDC Quotas") +'</a></dd>'+
+        '<dd style="width: 33%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_vdc_acct"><i class="fa fa-fw fa-lg fa-bar-chart-o"/>&emsp;'+ tr("VDC Accounting") +'</a></dd>'+
+      '</dl>'+
+      '<br>'+
+    '</div>'+
+  '</div>'+
+  '<div class="tabs-content">'+
+    '<div class="content active" id="provision_vdc_users">'+
+      provision_list_users+
+    '</div>'+
+    '<div class="content" id="provision_vdc_quotas">'+
+    '</div>'+
+    '<div class="content" id="provision_vdc_acct">'+
     '</div>'+
   '</div>'+
 '</div>';
@@ -672,6 +695,72 @@ var provision_list_vms = '<div id="provision_list_vms" class="section_content">'
     '</div>'+
   '</div>'+
 '</div>';
+
+var provision_info_vdc_user =  '<div id="provision_info_vdc_user" class="section_content hidden">'+
+  '<div class="row">'+
+    '<div class="large-11 large-centered columns">'+
+      '<h2 class="subheader text-right">'+
+        '<span id="provision_info_vdc_user_name" class="left">'+
+        '</span>'+
+        '<a href"#" id="provision_refresh_info" data-tooltip title="'+ tr("Refresh")+'" class="has-tip tip-top">'+
+          '<i class="fa fa-fw fa-refresh"/>'+
+        '</a>'+
+      '</h2>'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
+  '<div class="row">'+
+    '<div  id="provision_info_vdc_quotas" class="large-10 large-centered columns">'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
+  '<div class="row">'+
+    '<div class="large-10 large-centered columns">'+
+      '<div class="large-6 columns">'+
+        '<a href"#" class="provision_create_vm_button button large radius large-12 small-12"><i class="fa fa-fw fa-th"/>&emsp;'+tr("Go to User VMs")+'</a>'+
+      '</div>'+
+      '<div class="large-6 columns">'+
+        '<a href"#" class="provision_create_vm_button button large radius large-12 small-12"><i class="fa fa-fw fa-save"/>&emsp;'+tr("Go to User Templates")+'</a>'+
+      '</div>'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
+  '<div class="row">'+
+    '<div class="large-10 large-centered columns">'+
+      '<h2 class="subheader">'+
+        '<span class="right" style="padding: 5px;border: 1px solid #efefef; background: #f7f7f7; border-radius: 5px; color:#777 !important; width: 100%; box-shadow: 0px 1px #dfdfdf">'+
+          '<div class="row">'+
+            '<div class="large-11 large-centered columns" id="provision_confirm_action">'+
+            '</div>'+
+          '</div>'+
+          '<ul class="inline-list text-center" style="font-size:12px; margin-bottom:0px; padding: 5px 10px">'+
+            '<li>'+
+              '<a href"#" id="provision_vdc_user_acct_button" data-tooltip title="Accounting of the User" class="has-tip tip-top">'+
+                '<i class="fa fa-fw fa-2x fa-bar-chart-o"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Accounting")+'</span>'+
+              '</a>'+
+            '</li>'+
+            '<li class="right">'+
+              '<a href"#" id="provision_vdc_user_delete_confirm_button" data-tooltip title="Delete the User" class="has-tip tip-top right">'+
+                '<i class="fa fa-fw fa-2x fa-trash-o"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Delete")+'</span>'+
+              '</a>'+
+            '</li>'+
+            '<li class="right">'+
+              '<a href"#" id="provision_vdc_user_quota_confirm_button" data-tooltip title="Update the User Quotas" class="has-tip tip-top right">'+
+                '<i class="fa fa-fw fa-2x fa-align-left"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Quotas")+'</span>'+
+              '</a>'+
+            '</li>'+
+            '<li class="right">'+
+              '<a href"#" id="provision_vdc_user_password_confirm_button" data-tooltip title="Change the password of the User" class="has-tip tip-top right">'+
+                '<i class="fa fa-fw fa-2x fa-lock"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Password")+'</span>'+
+              '</a>'+
+            '</li>'+
+          '</ul>'+
+        '</span>'+
+      '</h2>'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
+'</div>'
 
 var provision_info_vm =  '<div id="provision_info_vm" class="section_content hidden">'+
   '<div class="row">'+
@@ -811,8 +900,9 @@ var provision_content = provision_user_info +
   provision_list_templates;
 
 if (Config.isTabPanelEnabled("provision-tab", "users")) {
-  provision_content += provision_list_users;
+  provision_content += provision_manage_vdc;
   provision_content += provision_create_user;
+  provision_content += provision_info_vdc_user;
 }
 
 var provision_header = '<img src="images/one_small_logo.png" style="height:40px; vertical-align:top">'+
@@ -822,7 +912,7 @@ var provision_header = '<img src="images/one_small_logo.png" style="height:40px;
 
 if (Config.isTabPanelEnabled("provision-tab", "users")) {
   provision_header += '<li class="left" >'+
-        '<a href"#" class="medium button radius secondary" id="provision_users_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-users"/>&emsp;'+tr('Manage VDC')+'</a>'+
+        '<a href"#" class="medium button radius success" id="provision_users_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-users"/>&emsp;'+tr('Manage VDC')+'</a>'+
       '</li>'
 }
 
@@ -925,6 +1015,15 @@ var povision_actions = {
         $(".alert-box-error", context).html("");
       },
       error: onError
+  },
+
+  "Provision.VDCUser.show" : {
+    type: "single",
+    call: OpenNebula.User.show,
+    callback: function(request, response){
+        update_provision_vdc_user_info(response.USER);
+    },
+    error: onError
   },
 
   "Provision.show" : {
@@ -1187,7 +1286,9 @@ function show_provision_vm_list(timeout) {
 
 function show_provision_user_list(timeout) {
   $(".section_content").hide();
-  $("#provision_list_users").fadeIn();
+  $("#provision_manage_vdc").fadeIn();
+
+  $("a[href='#provision_vdc_users'").click();
 
   update_provision_users_datatable(provision_users_datatable, timeout);
 }
@@ -1638,7 +1739,7 @@ function update_provision_vm_info(data) {
       '</li>'+
     '</ul>');
 
-  $("#provision_info_vm_state").html('<span class="'+ state.color +'-color">'+
+  $("#provision_info_vm_state", context).html('<span class="'+ state.color +'-color">'+
       '<i class="fa fa-fw fa-square"/>&emsp;'+
       state.str+
     '</span>'+
@@ -1646,15 +1747,54 @@ function update_provision_vm_info(data) {
       '<i class="fa fa-fw fa-clock-o"/>'+
       _format_date(data.STIME)+
     '</span>');
-  $("#provision_info_vm_state_hr").html('<div style="height:1px; margin-top:5px; margin-bottom: 5px; background: #cfcfcf"></div>');
+  $("#provision_info_vm_state_hr", context).html('<div style="height:1px; margin-top:5px; margin-bottom: 5px; background: #cfcfcf"></div>');
 
-  $("#provision_confirm_action").html("");
+  $("#provision_confirm_action", context).html("");
 
   Sunstone.runAction("Provision.monitor",data.ID, { monitor_resources : "CPU,MEMORY"});
 }
 
 function provision_show_vm_callback(request, response) {
     Sunstone.runAction("Provision.show",request.request.data[0]);
+}
+
+function update_provision_vdc_user_info(data) {
+
+  var context = $("#provision_info_vdc_user");
+
+  $("#provision_confirm_action",context).html("");
+
+  $("#provision_info_vdc_user",context).attr("user_id", data.ID);
+  $("#provision_info_vdc_user_name", context).text(data.NAME);
+
+  var default_user_quotas = Quotas.default_quotas(data.DEFAULT_USER_QUOTAS);
+  var vms_quota = Quotas.vms(data, default_user_quotas);
+  var cpu_quota = Quotas.cpu(data, default_user_quotas);
+  var memory_quota = Quotas.memory(data, default_user_quotas);
+
+  var quotas_html;
+  if (vms_quota || cpu_quota || memory_quota) {
+    quotas_html = '<div class="large-4 columns">' + vms_quota + '<br><br></div>';
+    quotas_html += '<div class="large-4 columns">' + cpu_quota + '<br><br></div>';
+    quotas_html += '<div class="large-4 columns">' + memory_quota + '<br><br></div>';
+  } else {
+    quotas_html = '<div class="row">'+
+      '<div class="large-8 large-centered columns">'+
+        '<div class="text-center">'+
+          '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+            '<i class="fa fa-cloud fa-stack-2x"></i>'+
+            '<i class="fa fa-align-left fa-stack-1x fa-inverse"></i>'+
+          '</span>'+
+          '<br>'+
+          '<p style="font-size: 18px; color: #999">'+
+            tr("There are no quotas defined")+
+          '</p>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }
+
+  $("#provision_info_vdc_quotas").html(quotas_html);
 }
 
 $(document).ready(function(){
@@ -2863,5 +3003,202 @@ $(document).ready(function(){
       var vm_id = $("#provision_info_vm").attr("vm_id");
       Sunstone.runAction('Provision.show', vm_id);
     });
+
+    //
+    // Info VDC User
+    //
+
+    $("#provision_list_users").on("click", ".provision_info_user_button", function(){
+      $(".section_content").hide();
+      $("#provision_info_vdc_user").fadeIn();
+      var user_id = $(this).parents(".provision-pricing-table").attr("opennebula_id");
+      Sunstone.runAction('Provision.VDCUser.show', user_id);
+
+      return false;
+    })
+
+    //$("#provision_info_vm").on("click", "#provision_snapshot_button", function(){
+    //  $("#provision_confirm_action").html(
+    //    '<div data-alert class="alert-box secondary radius">'+
+    //      '<div class="row">'+
+    //        '<div class="large-12 columns">'+
+    //          '<span style="font-size: 14px; line-height: 20px">'+
+    //            tr("This Virtual Machine will be saved in a new Template. Only the main disk will be preserved!")+
+    //          '<br>'+
+    //            tr("You can then create a new Virtual Machine using this Template")+
+    //          '</span>'+
+    //        '</div>'+
+    //      '</div>'+
+    //      '<br>'+
+    //      '<div class="row">'+
+    //        '<div class="large-11 large-centered columns">'+
+    //          '<input type="text" id="provision_snapshot_name" placeholder="'+tr("Template Name")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important; margin: 0px"/>'+
+    //        '</div>'+
+    //      '</div>'+
+    //      '<br>'+
+    //      '<div class="row">'+
+    //        '<div class="large-11 large-centered columns">'+
+    //          '<a href"#" id="provision_snapshot_create_button" class="success button large-12 radius right">'+tr("Save Virtual Machine to Template")+'</a>'+
+    //        '</div>'+
+    //      '</div>'+
+    //      '<a href="#" class="close" style="top: 20px">&times;</a>'+
+    //    '</div>');
+    //});
+//
+    //$("#provision_info_vm").on("click", "#provision_delete_confirm_button", function(){
+    //  $("#provision_confirm_action").html(
+    //    '<div data-alert class="alert-box secondary radius">'+
+    //      '<div class="row">'+
+    //      '<div class="large-9 columns">'+
+    //        '<span style="font-size: 14px; line-height: 20px">'+
+    //          tr("Be careful, this action will inmediately destroy your Virtual Machine")+
+    //          '<br>'+
+    //          tr("All the information will be lost!")+
+    //        '</span>'+
+    //      '</div>'+
+    //      '<div class="large-3 columns">'+
+    //        '<a href"#" id="provision_delete_button" class="alert button large-12 radius right" style="margin-right: 15px">'+tr("Delete")+'</a>'+
+    //      '</div>'+
+    //      '</div>'+
+    //      '<a href="#" class="close">&times;</a>'+
+    //    '</div>');
+    //});
+//
+    //$("#provision_info_vm").on("click", "#provision_shutdownhard_confirm_button", function(){
+    //  $("#provision_confirm_action").html(
+    //    '<div data-alert class="alert-box secondary radius">'+
+    //      '<div class="row">'+
+    //      '<div class="large-9 columns">'+
+    //        '<span style="font-size: 14px; line-height: 20px">'+
+    //          tr("Be careful, this action will inmediately destroy your Virtual Machine")+
+    //          '<br>'+
+    //          tr("All the information will be lost!")+
+    //        '</span>'+
+    //      '</div>'+
+    //      '<div class="large-3 columns">'+
+    //        '<a href"#" id="provision_shutdownhard_button" class="alert button large-12 radius right" style="margin-right: 15px">'+tr("Delete")+'</a>'+
+    //      '</div>'+
+    //      '</div>'+
+    //      '<a href="#" class="close" style="top: 20px">&times;</a>'+
+    //    '</div>');
+    //});
+//
+    //$("#provision_info_vm").on("click", "#provision_poweroff_confirm_button", function(){
+    //  $("#provision_confirm_action").html(
+    //    '<div data-alert class="alert-box secondary radius">'+
+    //      '<div class="row">'+
+    //      '<div class="large-11 columns">'+
+    //        '<span style="font-size: 14px; line-height: 20px">'+
+    //          tr("This action will power off this Virtual Machine. The Virtual Machine will remain in the poweroff state, and can be powered on later")+
+    //          '<br>'+
+    //          '<br>'+
+    //          tr("You can send the power off signal to the Virtual Machine (this is equivalent to execute the command form the console). If that doesn't effect your Virtual Machine, try to Power off the machine (this is equivalent to pressing the power off button a physical computer).")+
+    //        '</span>'+
+    //      '</div>'+
+    //      '</div>'+
+    //      '<br>'+
+    //      '<div class="row">'+
+    //      '<div class="large-12 columns">'+
+    //        '<a href"#" id="provision_poweroff_button" class="button radius right" style="margin-right: 15px">'+tr("Power off")+'</a>'+
+    //          '<input type="radio" name="provision_poweroff_radio" value="poweroff_hard" id="provision_poweroff_hard_radio">'+
+    //            '<label for="provision_poweroff_hard_radio">'+
+    //              '<i class="fa fa-fw fa-bolt"/>'+tr("Power off the machine")+
+    //            '</label>'+
+    //          '<input type="radio" name="provision_poweroff_radio" value="poweroff" id="provision_poweroff_radio" checked>'+
+    //            '<label for="provision_poweroff_radio">'+
+    //              '<i class="fa fa-fw fa-power-off"/>'+tr("Send the power off signal")+
+    //            '</label>'+
+    //      '</div>'+
+    //      '</div>'+
+    //      '<a href="#" class="close" style="top: 20px">&times;</a>'+
+    //    '</div>');
+    //});
+//
+    //$("#provision_info_vm").on("click", "#provision_reboot_confirm_button", function(){
+    //  $("#provision_confirm_action").html(
+    //    '<div data-alert class="alert-box secondary radius">'+
+    //      '<div class="row">'+
+    //      '<div class="large-11 columns">'+
+    //        '<span style="font-size: 14px; line-height: 20px">'+
+    //          tr("This action will reboot this Virtual Machine.")+
+    //          '<br>'+
+    //          '<br>'+
+    //          tr("You can send the reboot signal to the Virtual Machine (this is equivalent to execute the reboot command form the console). If that doesn't effect your Virtual Machine, try to Reboot the machine (this is equivalent to pressing the reset button a physical computer).")+
+    //        '</span>'+
+    //      '</div>'+
+    //      '</div>'+
+    //      '<br>'+
+    //      '<div class="row">'+
+    //      '<div class="large-12 columns">'+
+    //        '<a href"#" id="provision_reboot_button" class="button radius right" style="margin-right: 15px">'+tr("Reboot")+'</a>'+
+    //          '<input type="radio" name="provision_reboot_radio" value="reboot_hard" id="provision_reboot_hard_radio">'+
+    //          '<label for="provision_reboot_hard_radio">'+
+    //            '<i class="fa fa-fw fa-bolt"/>'+tr("Reboot the machine")+
+    //          '</label>'+
+    //          '<input type="radio" name="provision_reboot_radio" value="reboot" id="provision_reboot_radio" checked>'+
+    //          '<label for="provision_reboot_radio">'+
+    //            '<i class="fa fa-fw fa-power-off"/>'+tr("Send the reboot signal")+
+    //          '</label>'+
+    //      '</div>'+
+    //      '</div>'+
+    //      '<a href="#" class="close" style="top: 20px">&times;</a>'+
+    //    '</div>');
+    //});
+//
+    //$("#provision_info_vm").on("click", "#provision_snapshot_create_button", function(){
+    //  var context = $("#provision_info_vm");
+//
+    //  var vm_id = context.attr("vm_id");
+    //  var image_name = $('#provision_snapshot_name', context).val();
+//
+    //  var obj = {
+    //    disk_id : "0",
+    //    image_name : image_name,
+    //    type: "",
+    //    clonetemplate: true,
+    //    hot: true
+    //  };
+//
+    //  Sunstone.runAction('Provision.saveas', vm_id, obj);
+    //});
+//
+    //$("#provision_info_vm").on("click", "#provision_delete_button", function(){
+    //  var vm_id = $("#provision_info_vm").attr("vm_id");
+    //  Sunstone.runAction('Provision.delete', vm_id);
+    //});
+//
+    //$("#provision_info_vm").on("click", "#provision_shutdownhard_button", function(){
+    //  var vm_id = $("#provision_info_vm").attr("vm_id");
+    //  Sunstone.runAction('Provision.shutdown_hard', vm_id);
+    //});
+//
+    //$("#provision_info_vm").on("click", "#provision_poweroff_button", function(){
+    //  var vm_id = $("#provision_info_vm").attr("vm_id");
+    //  var poweroff_action = $('input[name=provision_poweroff_radio]:checked').val()
+    //  Sunstone.runAction('Provision.' + poweroff_action, vm_id);
+    //});
+//
+    //$("#provision_info_vm").on("click", "#provision_reboot_button", function(){
+    //  var vm_id = $("#provision_info_vm").attr("vm_id");
+    //  var reboot_action = $('input[name=provision_reboot_radio]:checked').val()
+    //  Sunstone.runAction('Provision.' + reboot_action, vm_id);
+    //});
+//
+    //$("#provision_info_vm").on("click", "#provision_poweron_button", function(){
+    //  var vm_id = $("#provision_info_vm").attr("vm_id");
+    //  Sunstone.runAction('Provision.resume', vm_id);
+    //});
+//
+    //$("#provision_info_vm").on("click", "#provision_vnc_button", function(){
+    //  var vm_id = $("#provision_info_vm").attr("vm_id");
+    //  Sunstone.runAction('Provision.startvnc', vm_id);
+    //});
+//
+    //$("#provision_info_vm").on("click", "#provision_refresh_info", function(){
+    //  $(".section_content").hide();
+    //  $("#provision_info_vm").fadeIn();
+    //  var vm_id = $("#provision_info_vm").attr("vm_id");
+    //  Sunstone.runAction('Provision.show', vm_id);
+    //});
   }
 });
