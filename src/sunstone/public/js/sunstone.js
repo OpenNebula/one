@@ -4199,8 +4199,6 @@ Filter by: user, group, vm, [flow]
 Download csv
 */
 
-    // TODO: Uniform time format (yy/mm/dd?) and define the time zone (utc, local?)
-
     var options = req.request.data[0];
 
     //--------------------------------------------------------------------------
@@ -4467,12 +4465,14 @@ Download csv
     $("#acct_cpu_datatable",div).dataTable().fnDestroy();
 
     $("#acct_cpu_datatable thead",div).remove();
+    $("#acct_cpu_datatable",div).width("1px");
 
 
     $("#acct_mem_datatable",div).dataTable().fnClearTable();
     $("#acct_mem_datatable",div).dataTable().fnDestroy();
 
     $("#acct_mem_datatable thead",div).remove();
+    $("#acct_mem_datatable",div).width("1px");
 
 
     cpu_plot_data = cpu_plot.getData();
