@@ -21,6 +21,8 @@
 #include <set>
 #include <vector>
 
+#include "PoolObjectSQL.h"
+
 using namespace std;
 
 class VectorAttribute;
@@ -32,7 +34,7 @@ class AddressRange
 {
 public:
 
-    AddressRange(unsigned int _id):id(_id){};
+    AddressRange(unsigned int _id):id(_id),next(0){};
 
     virtual ~AddressRange(){};
 
@@ -41,8 +43,8 @@ public:
      *  attributes will be parsed (* are optional):
      *    - TYPE = ETHER | IP4 | IP6 | IP4_6
      *    - SIZE
-     *    - MAC_START
-     *    - IP_START
+     *    - MAC
+     *    - IP
      *    - ULA_PREFIX
      *    - GLOBAL_PREFIX
      *
@@ -57,29 +59,44 @@ public:
      *  Any value for context can be included in the AR.
      *
      * Example:
-     *   - AR = [ TYPE = "ETHER", SIZE = 128, MAC_START = "00:02:01:02:03:04"]
+     *   - AR = [ TYPE = "ETHER", SIZE = 128, MAC = "00:02:01:02:03:04"]
      *   - AR = [ TYPE = "ETHER", SIZE = 128]
-     *   - AR = [ TYPE     = IP4,
-     *            SIZE     = 256,
-     *            IP_START = 10.0.0.0,
-     *            DNS      = 10.0.0.2]
+     *   - AR = [ TYPE = IP4,
+     *            SIZE = 256,
+     *            IP   = 10.0.0.0,
+     *            DNS  = 10.0.0.5]
      *   - AR = [ TYPE = "IP6",
      *            SIZE = 1024,
      *            ULA_PREFIX    = "fd00:0:0:1::",
      *            GLOBAL_PREFIX = "2001::"]
      */
-    int init_address_range(VectorAttribute * attr, string& error_msg);
+    int from_vattr(VectorAttribute * attr, string& error_msg);
 
     /**
      *  Type of Addresses defined by this address range
      */
     enum AddressType
     {
+        NONE  = 0x00000000, /** Undefined Address Type */
         ETHER = 0x00000001, /** MAC address type */
         IP4   = 0x00000003, /** IP version 4 address */
         IP6   = 0x00000005, /** IP version 6 address */
         IP4_6 = 0x00000007  /** IP dual stack version 4 & 6 addresses */
     };
+
+    /**
+     *  Return the string representation of an AddressType
+     *    @param ob the type
+     *    @return the string
+     */
+    static string type_to_str(AddressType ob);
+
+    /**
+     *  Return the string representation of an AddressType
+     *    @param ob the type
+     *    @return the string
+     */
+    static AddressType str_to_type(string& str_type);
 
     /**
      *  Returns an unused address, which becomes used and fills a NIC attribute
@@ -88,7 +105,8 @@ public:
      *  @param nic the VM NIC attribute
      *  @return 0 if success
      */
-    int allocate_addr(VectorAttribute * nic, const vector<string> &inherit);
+    int allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
+        VectorAttribute * nic, const vector<string> &inherit);
 
     /**
      *  Returns the specific address by mac if is not allocated. The NIC attr
@@ -97,8 +115,8 @@ public:
      *  @param nic the VM NIC attribute
      *  @return 0 if success
      */
-    int allocate_by_mac(const string& mac, VectorAttribute * nic,
-        const vector<string> &inherit);
+    int allocate_by_mac(const string& mac, PoolObjectSQL::ObjectType ot,
+        int obid, VectorAttribute * nic, const vector<string> &inherit);
 
     /**
      *  Returns the specific address by ip if is not allocated. The NIC attr
@@ -107,8 +125,8 @@ public:
      *  @param nic the VM NIC attribute
      *  @return 0 if success
      */
-    int allocate_by_ip(const string& ip, VectorAttribute * nic,
-        const vector<string> &inherit);
+    int allocate_by_ip(const string& ip, PoolObjectSQL::ObjectType ot,
+        int obid, VectorAttribute * nic, const vector<string> &inherit);
 
     /**
      *  Frees a previous allocated address, referenced by its MAC address
@@ -116,7 +134,6 @@ public:
      *  @param mac the MAC address in string form
      */
     void free_addr(const string& mac);
-
 
 private:
     /* ---------------------------------------------------------------------- */
@@ -148,39 +165,62 @@ private:
     /* NIC setup functions                                                    */
     /* ---------------------------------------------------------------------- */
 
+    /**
+     *  Writes MAC address to the given NIC attribute
+     *    @param addr_index internal index for the lease
+     *    @param nic attribute of a VMTemplate
+     */
     void set_mac(unsigned int addr_index, VectorAttribute * nic);
 
+    /**
+     *  Writes IP address to the given NIC attribute
+     *    @param addr_index internal index for the lease
+     *    @param nic attribute of a VMTemplate
+     */
     void set_ip(unsigned int addr_index, VectorAttribute * nic);
 
+    /**
+     *  Writes IPv6 address to the given NIC attribute
+     *    @param addr_index internal index for the lease
+     *    @param nic attribute of a VMTemplate
+     */
     void set_ip6(unsigned int addr_index, VectorAttribute * nic);
 
+    /**
+     *  Writes VNET configuration attributes to the given NIC attribute. It
+     *  includes: BRIDGE, VLAN, VLAN_ID, PHYDEV and INHERIT_VNET_ATTR in oned.conf
+     *    @param addr_index internal index for the lease
+     *    @param nic attribute of a VMTemplate
+     */
     void set_vnet(VectorAttribute *nic, const vector<string> &inherit);
 
     /* ---------------------------------------------------------------------- */
-    /* Address index set helper functions                                     */
+    /* Address index map helper functions                                     */
     /* ---------------------------------------------------------------------- */
 
     void allocated_to_attr();
 
-    int  attr_to_allocated();
+    int  attr_to_allocated(const string& allocated_s);
 
-    void allocate_addr(unsigned int addr_index);
+    void allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
+        unsigned int addr_index);
 
     void free_addr(unsigned int addr_index);
 
     /* ---------------------------------------------------------------------- */
+    /* Restricted Attributes functions                                        */
+    /* ---------------------------------------------------------------------- */
+    bool check(string& rs_attr);
+
+    static void set_restricted_attributes(vector<const Attribute *>& rattrs);
+
+    /* ---------------------------------------------------------------------- */
     /* Address Range data                                                     */
     /* ---------------------------------------------------------------------- */
-
     /**
      *  The type of addresses defined in the range
      */
     AddressType type;
-
-    /**
-     *  Key-Value representation of the attribute
-     */
-    VectorAttribute * attr;
 
     /**
      *  ID for this range, unique within the Virtual Network
@@ -195,12 +235,12 @@ private:
     /**
      *  First IP4 in the range
      */
-    unsigned int ip_start;
+    unsigned int ip;
 
     /**
      *  First MAC in the range
      */
-    unsigned int mac_start[2];
+    unsigned int mac[2];
 
     /**
      *  Binary representation of the IPv6 address global unicast prefix
@@ -213,14 +253,35 @@ private:
     unsigned int ula6[2];
 
     /**
-     *  Next address to lease
+     *  The Address Range attributes as a Template VectorAttribute. This is
+     *  used to generate XML or a template representation of the AR.
      */
-    unsigned int next;
+    VectorAttribute * attr;
+
+    /* ---------------------------------------------------------------------- */
+    /* Allocated address & control                                            */
+    /* ---------------------------------------------------------------------- */
+    /**
+     *  Map to store the allocated address indexed by the address index relative
+     *  to the mac/ip values. It contains also the type and id of the object
+     *  owning the address ObjectType(32bits) | Object ID (32)
+     */
+    map<unsigned int, long long> allocated;
+
+    unsigned int                 next;
+
+    /* ---------------------------------------------------------------------- */
+    /* Restricted Attributes                                                  */
+    /* ---------------------------------------------------------------------- */
+    /**
+     *  TRUE if restricted attributes have been defined for Address Ranges
+     */
+    static bool restricted_set;
 
     /**
-     *  Set of address leased to a VM or other VNET
+     *  The restricted attributes from oned.conf
      */
-    set<unsigned int> allocated;
+    static set<string> restricted_attributes;
 };
 
 #endif

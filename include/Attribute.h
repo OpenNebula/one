@@ -370,6 +370,18 @@ public:
     /**
      *  Replace the value of the given vector attribute
      */
+    void replace(const string& name, unsigned int value)
+    {
+        ostringstream oss;
+
+        oss << value;
+
+        replace(name, oss.str());
+    }
+
+    /**
+     *  Replace the value of the given vector attribute
+     */
     void replace(const string& name, long long value)
     {
         ostringstream oss;

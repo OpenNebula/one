@@ -17,46 +17,74 @@
 #include "AddressRange.h"
 #include "Attribute.h"
 #include "VirtualNetworkPool.h"
+#include "NebulaUtil.h"
 
 #include <arpa/inet.h>
 
 using namespace std;
 
-int AddressRange::init_address_range(VectorAttribute * attr, string& error_msg)
+/* ************************************************************************** */
+/* ************************************************************************** */
+
+string AddressRange::type_to_str(AddressType ob)
 {
-    string value;
-
-    /* ---------------------- Address Range type ---------------------------- */
-
-    value = attr->vector_value("TYPE");
-
-    if (value == "ETHER")
+    switch (ob)
     {
-        type = ETHER;
+        case ETHER: return "ETHER"; break;
+        case IP4:   return "IP4"  ; break;
+        case IP6:   return "IP6"  ; break;
+        case IP4_6: return "IP4_6"; break;
+        default:    return "";
     }
-    else if (value == "IP4")
+};
+
+/* -------------------------------------------------------------------------- */
+
+AddressRange::AddressType AddressRange::str_to_type(string& str_type)
+{
+    one_util::toupper(str_type);
+
+    if (str_type == "ETHER")
     {
-        type = IP4;
+        return ETHER;
     }
-    else if (value == "IP6")
+    else if (str_type == "IP4")
     {
-        type = IP6;
+        return IP4;
     }
-    else if (value == "IP4_6")
+    else if (str_type == "IP6")
     {
-        type = IP4_6;
+        return IP6;
+    }
+    else if (str_type == "IP4_6")
+    {
+        return IP4_6;
     }
     else
     {
-        error_msg = "Unknown address range TYPE.";
+        return NONE;
+    }
+}
+
+/* ************************************************************************** */
+/* ************************************************************************** */
+
+int AddressRange::from_vattr(VectorAttribute *attr, string& error_msg)
+{
+    string value;
+
+    /* ------------------------- AR Type & Size ---------------------------- */
+
+    value = attr->vector_value("TYPE");
+    type  = str_to_type(value);
+
+    if (type == NONE)
+    {
+        error_msg = "Unknown or missing address range TYPE.";
         return -1;
     }
 
-    /* ---------------------- Size and Attributes --------------------------- */
-
-    this->attr = attr;
-
-    if ( attr->vector_value("SIZE", size) == -1 || size <= 0 )
+    if ( attr->vector_value("SIZE", size) != 0 || size <= 0 )
     {
         error_msg = "Wrong SIZE for address range";
         return -1;
@@ -66,16 +94,16 @@ int AddressRange::init_address_range(VectorAttribute * attr, string& error_msg)
 
     bool do_mac = false;
 
-    value = attr->vector_value("MAC_START");
+    value = attr->vector_value("MAC");
 
     if (value.empty())
     {
-        do_mac       = true;
-        mac_start[1] = VirtualNetworkPool::mac_prefix();
+        do_mac = true;
+        mac[1] = VirtualNetworkPool::mac_prefix();
     }
     else
     {
-        if (mac_to_i(value, mac_start) == -1)
+        if (mac_to_i(value, mac) == -1)
         {
             error_msg = "Wrong format for MAC_START attribute";
             return -1;
@@ -90,16 +118,16 @@ int AddressRange::init_address_range(VectorAttribute * attr, string& error_msg)
             {
                 srand(time(0));
 
-                mac_start[0] = rand() && 0x0000FFFF;
-                mac_start[0]+= (rand()<<16) && 0xFFFF0000;
+                mac[0] = rand() && 0x0000FFFF;
+                mac[0]+= (rand()<<16) && 0xFFFF0000;
             }
             break;
 
         case IP4:
         case IP4_6:
-            value = attr->vector_value("IP_START");
+            value = attr->vector_value("IP");
 
-            if (value.empty() || ip_to_i(value, ip_start) == -1)
+            if (value.empty() || ip_to_i(value, ip) == -1)
             {
                 error_msg = "Wrong or empty IP_START attribute";
                 return -1;
@@ -107,9 +135,12 @@ int AddressRange::init_address_range(VectorAttribute * attr, string& error_msg)
 
             if (do_mac)
             {
-                mac_start[0] = ip_start;
+                mac[0] = ip;
             }
             break;
+
+        default:
+            return -1;
     }
 
     /* -------------------------- IP6 prefixes ------------------------------ */
@@ -138,25 +169,15 @@ int AddressRange::init_address_range(VectorAttribute * attr, string& error_msg)
         return -1;
     }
 
-    /* -------------------------- Internal  ------------------------------ */
+    /* ------------------------ AR Internal Data ---------------------------- */
 
-    unsigned int tmp_id;
+    this->attr = attr;
 
-    if (attr->vector_value("AR_ID", tmp_id) == 0)
+    attr->replace("AR_ID", id);
+
+    if (do_mac) //Need to add MAC_START to the attribute
     {
-        id = tmp_id;
-    }
-    else //id initialized in constructor missing from address range vector
-    {
-        attr->replace("AR_ID", id);
-    }
-
-    next = 0;
-
-    if (attr_to_allocated() == -1)
-    {
-        error_msg = "Wrong format for ALLOCATED array";
-        return -1;
+        set_mac(0, attr);
     }
 
     return 0;
@@ -286,12 +307,12 @@ void AddressRange::set_mac(unsigned int addr_index, VectorAttribute * nic)
     {
         if ( i < 4 )
         {
-            temp_byte = mac_start[0] + addr_index;
+            temp_byte = mac[0] + addr_index;
             temp_byte >>= i*8;
         }
         else
         {
-            temp_byte = mac_start[1];
+            temp_byte = mac[1];
             temp_byte >>= (i%4)*8;
         }
 
@@ -320,7 +341,7 @@ void AddressRange::set_ip(unsigned int addr_index, VectorAttribute * nic)
 
     for (int index=0;index<4;index++)
     {
-        temp_byte =   ip_start + addr_index;
+        temp_byte =   ip + addr_index;
         temp_byte >>= (24-index*8);
         temp_byte &=  255;
 
@@ -341,12 +362,12 @@ void AddressRange::set_ip(unsigned int addr_index, VectorAttribute * nic)
 void AddressRange::set_ip6(unsigned int addr_index, VectorAttribute * nic)
 {
     unsigned int eui64[2];
-    unsigned int mlow = mac_start[0] + addr_index;
+    unsigned int mlow = mac[0] + addr_index;
 
     struct in6_addr ip6;
     char dst[INET6_ADDRSTRLEN];
 
-    eui64[1] = ((mac_start[1]+512)<<16) + ((mlow&0xFF000000)>>16) + 0x000000FF;
+    eui64[1] = ((mac[1]+512)<<16) + ((mlow & 0xFF000000)>>16) + 0x000000FF;
     eui64[0] = 4261412864 + (mlow & 0x00FFFFFF);
 
     ip6.s6_addr32[2] = htonl(eui64[1]);
@@ -361,7 +382,7 @@ void AddressRange::set_ip6(unsigned int addr_index, VectorAttribute * nic)
         nic->replace("IP6_LINK", dst);
     }
 
-    if (ula6[1] != 0 || ula6[0] != 0 ) /* Unique Local Address*/
+    if (ula6[1] != 0 || ula6[0] != 0 ) /* Unique Local Address */
     {
         ip6.s6_addr32[0] = htonl(ula6[1]);
         ip6.s6_addr32[1] = htonl(ula6[0]);
@@ -372,7 +393,7 @@ void AddressRange::set_ip6(unsigned int addr_index, VectorAttribute * nic)
         }
     }
 
-    if (global6[1] != 0 || global6[0] != 0 ) /* Glocal Unicast*/
+    if (global6[1] != 0 || global6[0] != 0 ) /* Glocal Unicast */
     {
         ip6.s6_addr32[0] = htonl(global6[1]);
         ip6.s6_addr32[1] = htonl(global6[0]);
@@ -436,17 +457,16 @@ void AddressRange::allocated_to_attr()
 {
     if (allocated.empty())
     {
-        attr->remove("ALLOCATED");
         return;
     }
 
-    set<unsigned int>::const_iterator it;
+    map<unsigned int, long long>::const_iterator it;
 
     ostringstream oss;
 
     for (it = allocated.begin(); it != allocated.end(); it++)
     {
-        oss << " " << (*it);
+        oss << " " << it->first << " " << it->second;
     }
 
     attr->replace("ALLOCATED", oss.str());
@@ -454,10 +474,8 @@ void AddressRange::allocated_to_attr()
 
 /* -------------------------------------------------------------------------- */
 
-int AddressRange::attr_to_allocated()
+int AddressRange::attr_to_allocated(const string& allocated_s)
 {
-    string allocated_s = attr->vector_value("ALLOCATED");
-
     if (allocated_s.empty())
     {
         allocated.clear();
@@ -466,14 +484,15 @@ int AddressRange::attr_to_allocated()
 
     istringstream iss(allocated_s);
     unsigned int  addr_index;
+    long long     object_pack;
 
     while (!iss.eof())
     {
-        iss >> ws >> addr_index;
+        iss >> ws >> addr_index >> ws >> object_pack;
 
         if (!iss.fail())
         {
-            allocated.insert(addr_index);
+            allocated.insert(make_pair(addr_index,object_pack));
             return -1;
         }
     }
@@ -483,11 +502,11 @@ int AddressRange::attr_to_allocated()
 
 /* -------------------------------------------------------------------------- */
 
-void AddressRange::allocate_addr(unsigned int addr_index)
+void AddressRange::allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
+        unsigned int addr_index)
 {
-    allocated.insert(addr_index);
 
-    allocated_to_attr();
+    allocated.insert(make_pair(addr_index,ot|obid));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -495,15 +514,16 @@ void AddressRange::allocate_addr(unsigned int addr_index)
 void AddressRange::free_addr(unsigned int addr_index)
 {
     allocated.erase(addr_index);
-
-    allocated_to_attr();
 }
 
 /* ************************************************************************** */
 /* ************************************************************************** */
 
-int AddressRange::allocate_addr(VectorAttribute * nic,
-    const vector<string> &inherit)
+int AddressRange::allocate_addr(
+    PoolObjectSQL::ObjectType ot,
+    int                       obid,
+    VectorAttribute*          nic,
+    const vector<string>&     inherit)
 {
     int rc = -1;
 
@@ -525,7 +545,7 @@ int AddressRange::allocate_addr(VectorAttribute * nic,
 
             set_vnet(nic, inherit);
 
-            allocate_addr(next);
+            allocate_addr(ot, obid, next);
         }
     }
 
@@ -535,22 +555,26 @@ int AddressRange::allocate_addr(VectorAttribute * nic,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRange::allocate_by_mac(const string& mac, VectorAttribute * nic,
-    const vector<string> &inherit)
+int AddressRange::allocate_by_mac(
+    const string&             mac_s,
+    PoolObjectSQL::ObjectType ot,
+    int                       obid,
+    VectorAttribute*          nic,
+    const vector<string>&     inherit)
 {
     unsigned int mac_i[2];
 
-    if (mac_to_i(mac, mac_i) == -1)
+    if (mac_to_i(mac_s, mac_i) == -1)
     {
         return -1;
     }
 
-    if ((mac_i[1] != mac_start[1]) || (mac_i[0] < mac_start[0]))
+    if ((mac_i[1] != mac[1]) || (mac_i[0] < mac[0]))
     {
         return -1;
     }
 
-    unsigned int index = mac_i[0] - mac_start[0];
+    unsigned int index = mac_i[0] - mac[0];
 
     if ((allocated.count(index) != 0) || (index >= size))
     {
@@ -571,7 +595,7 @@ int AddressRange::allocate_by_mac(const string& mac, VectorAttribute * nic,
 
     set_vnet(nic, inherit);
 
-    allocate_addr(next);
+    allocate_addr(ot, obid, next);
 
     return 0;
 }
@@ -579,22 +603,26 @@ int AddressRange::allocate_by_mac(const string& mac, VectorAttribute * nic,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRange::allocate_by_ip(const string& ip, VectorAttribute * nic,
-        const vector<string> &inherit)
+int AddressRange::allocate_by_ip(
+    const string&             ip_s,
+    PoolObjectSQL::ObjectType ot,
+    int                       obid,
+    VectorAttribute*          nic,
+    const vector<string>&     inherit)
 {
     unsigned int ip_i;
 
-    if (ip_to_i(ip, ip_i) == -1)
+    if (ip_to_i(ip_s, ip_i) == -1)
     {
         return -1;
     }
 
-    if (ip_i < ip_start)
+    if (ip_i < ip)
     {
         return -1;
     }
 
-    unsigned int index = ip_i - ip_start;
+    unsigned int index = ip_i - ip;
 
     if (allocated.count(index) != 0 || index >= size )
     {
@@ -615,26 +643,71 @@ int AddressRange::allocate_by_ip(const string& ip, VectorAttribute * nic,
 
     set_vnet(nic, inherit);
 
-    allocate_addr(next);
+    allocate_addr(ot, obid, next);
 
     return 0;
 }
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AddressRange::free_addr(const string& mac)
+void AddressRange::free_addr(const string& mac_s)
 {
     unsigned int mac_i[2];
 
-    mac_to_i(mac, mac_i);
+    mac_to_i(mac_s, mac_i);
 
-    unsigned int index = mac_i[0] - mac_start[0];
+    unsigned int index = mac_i[0] - mac[0];
 
-    if ((mac_i[0] >= mac_start[0]) && (index < size))
+    if ((mac_i[0] >= mac[0]) && (index < size))
     {
         free_addr(index);
     }
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+/* ************************************************************************** */
+/* ************************************************************************** */
+
+bool AddressRange::restricted_set = false;
+
+set<string> AddressRange::restricted_attributes;
+
+bool AddressRange::check(string& rs_attr)
+{
+    if (!restricted_set)
+    {
+        return false;
+    }
+
+    const map<string,string>& ar_attrs = attr->value();
+    map<string,string>::const_iterator it;
+
+    for (it=ar_attrs.begin(); it != ar_attrs.end(); it++)
+    {
+        if (restricted_attributes.count(it->first) > 0)
+        {
+            rs_attr = it->first;
+            return true;
+        }
+    }
+
+    return false;
+};
+
+void AddressRange::set_restricted_attributes(
+    vector<const Attribute *>& rattrs)
+{
+    if (restricted_set)
+    {
+        return;
+    }
+
+    restricted_set = true;
+
+    for (unsigned int i = 0 ; i < rattrs.size() ; i++ )
+    {
+        const SingleAttribute * sattr = static_cast<const SingleAttribute *>(rattrs[i]);
+        string attr_s = sattr->value();
+
+        restricted_attributes.insert(one_util::toupper(attr_s));
+    }
+};
