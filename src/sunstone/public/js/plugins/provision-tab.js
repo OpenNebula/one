@@ -717,12 +717,52 @@ var provision_info_vdc_user =  '<div id="provision_info_vdc_user" class="section
   '</div>'+
   '<br>'+
   '<div class="row">'+
-    '<div  id="provision_info_vdc_quotas" class="large-10 large-centered columns">'+
+    '<div class="large-10 large-centered columns">'+
+      '<h3 class="subheader text-right">'+
+        '<span class="left">'+
+          '<i class="fa fa-fw fa-align-left"/>&emsp;'+
+          tr("Quotas")+
+        '</span>'+
+      '</h3>'+
     '</div>'+
   '</div>'+
   '<br>'+
+  '<br>'+
+  '<div class="row">'+
+    '<div  id="provision_info_vdc_quotas" class="large-9 large-centered columns">'+
+    '</div>'+
+  '</div>'+
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
+      '<h3 class="subheader text-right">'+
+        '<span class="left">'+
+          '<i class="fa fa-fw fa-bar-chart-o"/>&emsp;'+
+          tr("Accounting")+
+        '</span>'+
+      '</h3>'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
+  '<br>'+
+  '<div class="row">'+
+    '<div  id="provision_info_vdc_user_acct" class="large-9 large-centered columns">'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-10 large-centered columns">'+
+      '<h3 class="subheader text-right">'+
+        '<span class="left">'+
+          '<i class="fa fa-fw fa-cloud"/>&emsp;'+
+          tr("Resources")+
+        '</span>'+
+      '</h3>'+
+      '<br>'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
+  '<br>'+
+  '<div class="row">'+
+    '<div class="large-9 large-centered columns">'+
       '<div class="large-6 columns">'+
         '<a href"#" class="provision_create_vm_button button large radius large-12 small-12"><i class="fa fa-fw fa-th"/>&emsp;'+tr("Go to User VMs")+'</a>'+
       '</div>'+
@@ -731,6 +771,7 @@ var provision_info_vdc_user =  '<div id="provision_info_vdc_user" class="section
       '</div>'+
     '</div>'+
   '</div>'+
+  '<br>'+
   '<br>'+
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
@@ -741,11 +782,6 @@ var provision_info_vdc_user =  '<div id="provision_info_vdc_user" class="section
             '</div>'+
           '</div>'+
           '<ul class="inline-list text-center" style="font-size:12px; margin-bottom:0px; padding: 5px 10px">'+
-            '<li>'+
-              '<a href"#" id="provision_vdc_user_acct_button" data-tooltip title="Accounting of the User" class="has-tip tip-top">'+
-                '<i class="fa fa-fw fa-2x fa-bar-chart-o"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Accounting")+'</span>'+
-              '</a>'+
-            '</li>'+
             '<li class="right">'+
               '<a href"#" id="provision_vdc_user_delete_confirm_button" data-tooltip title="Delete the User" class="has-tip tip-top right">'+
                 '<i class="fa fa-fw fa-2x fa-trash-o"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Delete")+'</span>'+
@@ -1805,6 +1841,13 @@ function update_provision_vdc_user_info(data) {
       '</div>'+
     '</div>';
   }
+
+  accountingGraphs(
+    $("#provision_info_vdc_user_acct", context),
+    {   fixed_user: data.ID,
+        init_group_by: "vm" });
+
+  $("#acct_placeholder", context).hide();
 
   $("#provision_info_vdc_quotas").html(quotas_html);
 }
