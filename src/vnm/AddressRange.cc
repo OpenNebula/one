@@ -69,13 +69,15 @@ AddressRange::AddressType AddressRange::str_to_type(string& str_type)
 /* ************************************************************************** */
 /* ************************************************************************** */
 
-int AddressRange::from_vattr(VectorAttribute *attr, string& error_msg)
+int AddressRange::from_vattr(VectorAttribute *vattr, string& error_msg)
 {
     string value;
 
+    attr = vattr;
+
     /* ------------------------- AR Type & Size ---------------------------- */
 
-    value = attr->vector_value("TYPE");
+    value = vattr->vector_value("TYPE");
     type  = str_to_type(value);
 
     if (type == NONE)
@@ -84,7 +86,7 @@ int AddressRange::from_vattr(VectorAttribute *attr, string& error_msg)
         return -1;
     }
 
-    if ( attr->vector_value("SIZE", size) != 0 || size <= 0 )
+    if ( vattr->vector_value("SIZE", size) != 0 || size <= 0 )
     {
         error_msg = "Wrong SIZE for address range";
         return -1;
@@ -94,7 +96,7 @@ int AddressRange::from_vattr(VectorAttribute *attr, string& error_msg)
 
     bool do_mac = false;
 
-    value = attr->vector_value("MAC");
+    value = vattr->vector_value("MAC");
 
     if (value.empty())
     {
@@ -125,7 +127,7 @@ int AddressRange::from_vattr(VectorAttribute *attr, string& error_msg)
 
         case IP4:
         case IP4_6:
-            value = attr->vector_value("IP");
+            value = vattr->vector_value("IP");
 
             if (value.empty() || ip_to_i(value, ip) == -1)
             {
@@ -145,25 +147,17 @@ int AddressRange::from_vattr(VectorAttribute *attr, string& error_msg)
 
     /* -------------------------- IP6 prefixes ------------------------------ */
 
-    value = attr->vector_value("GLOBAL_PREFIX");
+    value = vattr->vector_value("GLOBAL_PREFIX");
 
-    if (value.empty())
-    {
-        global6[1]=global6[0]=0;
-    }
-    else if (prefix6_to_i(value, global6) != 0 )
+    if (prefix6_to_i(value, global6) != 0 )
     {
         error_msg = "Wrong format for IP6 global address prefix";
         return -1;
     }
 
-    value = attr->vector_value("ULA_PREFIX");
+    value = vattr->vector_value("ULA_PREFIX");
 
-    if (value.empty())
-    {
-        ula6[1]=ula6[0]=0;
-    }
-    else if (prefix6_to_i(value, ula6) != 0 )
+    if (prefix6_to_i(value, ula6) != 0 )
     {
         error_msg = "Wrong format for IP6 unique local address prefix";
         return -1;
@@ -171,9 +165,7 @@ int AddressRange::from_vattr(VectorAttribute *attr, string& error_msg)
 
     /* ------------------------ AR Internal Data ---------------------------- */
 
-    this->attr = attr;
-
-    attr->replace("AR_ID", id);
+    vattr->replace("AR_ID", id);
 
     if (do_mac) //Need to add MAC_START to the attribute
     {
@@ -181,6 +173,116 @@ int AddressRange::from_vattr(VectorAttribute *attr, string& error_msg)
     }
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRange::from_vattr_db(VectorAttribute *vattr)
+{
+    string value;
+    int    rc = 0;
+
+    this->attr = vattr;
+
+    rc += vattr->vector_value("AR_ID", id);
+
+    value = vattr->vector_value("TYPE");
+    type  = str_to_type(value);
+
+    rc += vattr->vector_value("SIZE", size);
+
+    rc += mac_to_i(vattr->vector_value("MAC"), mac);
+
+    if (type & 0x00000002)
+    {
+        rc += ip_to_i(vattr->vector_value("IP"), ip);
+    }
+
+    rc += prefix6_to_i(vattr->vector_value("GLOBAL_PREFIX"), global6);
+
+    rc += prefix6_to_i(vattr->vector_value("ULA_PREFIX"), ula6);
+
+    rc += attr_to_allocated(vattr->vector_value("ALLOCATED"));
+
+    if (type == NONE)
+    {
+        rc = -1;
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& AddressRange::to_xml(string& str)
+{
+    const map<string,string>&          ar_attrs = attr->value();
+    map<string,string>::const_iterator it;
+
+    ostringstream oss;
+
+    oss << "<AR>";
+
+    for (it=ar_attrs.begin(); it != ar_attrs.end(); it++)
+    {
+        if ( it->first == "ALLOCATED" )
+        {
+            continue;
+        }
+
+        oss << "<" << it->first << "><![CDATA[" << it->second
+                << "]]></"<< it->first << ">";
+    }
+
+    if (allocated.empty())
+    {
+        oss << "<LEASES/>";
+    }
+    else
+    {
+        map<unsigned int, long long>::const_iterator it;
+        VectorAttribute lease("LEASE");
+
+        oss << "<LEASES>";
+
+        for (it = allocated.begin(); it != allocated.end(); it++)
+        {
+            lease.clear();
+
+            set_mac(it->first, &lease);
+
+            if (type & 0x00000002 )
+            {
+                set_ip(it->first, &lease);
+            }
+
+            if (type & 0x00000004)
+            {
+                set_ip6(it->first, &lease);
+            }
+
+            if (it->second & PoolObjectSQL::VM)
+            {
+                lease.replace("VM", it->second && 0x00000000FFFFFFFFLL);
+            }
+            else if (it->second & PoolObjectSQL::NET)
+            {
+                lease.replace("VNET", it->second && 0x00000000FFFFFFFFLL);
+            }
+
+            lease.to_xml(oss);
+        }
+
+        oss << "</LEASES>";
+    }
+
+    oss << "</AR>";
+
+    str = oss.str();
+
+    return str;
 }
 
 /* ************************************************************************** */
@@ -507,6 +609,8 @@ void AddressRange::allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
 {
 
     allocated.insert(make_pair(addr_index,ot|obid));
+
+    allocated_to_attr();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -514,6 +618,8 @@ void AddressRange::allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
 void AddressRange::free_addr(unsigned int addr_index)
 {
     allocated.erase(addr_index);
+
+    allocated_to_attr();
 }
 
 /* ************************************************************************** */
@@ -533,12 +639,12 @@ int AddressRange::allocate_addr(
         {
             set_mac(next, nic);
 
-            if (type && 0x00000002 )
+            if (type & 0x00000002 )
             {
                 set_ip(next, nic);
             }
 
-            if (type && 0x00000004)
+            if (type & 0x00000004)
             {
                 set_ip6(next, nic);
             }
@@ -583,12 +689,12 @@ int AddressRange::allocate_by_mac(
 
     set_mac(index, nic);
 
-    if (type && 0x00000002 )
+    if (type & 0x00000002 )
     {
         set_ip(index, nic);
     }
 
-    if (type && 0x00000004)
+    if (type & 0x00000004)
     {
         set_ip6(index, nic);
     }
@@ -631,12 +737,12 @@ int AddressRange::allocate_by_ip(
 
     set_mac(index, nic);
 
-    if (type && 0x00000002 )
+    if (type & 0x00000002 )
     {
         set_ip(index, nic);
     }
 
-    if (type && 0x00000004)
+    if (type & 0x00000004)
     {
         set_ip6(index, nic);
     }

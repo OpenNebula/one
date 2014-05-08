@@ -340,6 +340,11 @@ public:
     string * to_xml() const;
 
     /**
+     *  Same as above but the attribute is written in an string stream;
+     */
+    void to_xml(ostringstream &oss) const;
+
+    /**
      *  Builds a new attribute from a string of the form:
      *  "VAL_NAME_1=VAL_VALUE_1,...,VAL_NAME_N=VAL_VALUE_N".
      */
@@ -441,6 +446,14 @@ public:
     {
         return new VectorAttribute(*this);
     };
+
+    /**
+     *  Clear the vector attribute values
+     */
+    void clear()
+    {
+        attribute_value.clear();
+    }
 
 private:
 
