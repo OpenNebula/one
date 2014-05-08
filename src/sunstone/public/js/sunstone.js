@@ -3989,10 +3989,6 @@ function accountingGraphs(div, opt){
           <div class="large-12 columns centered graph" id="acct_cpu_graph" style="height: 200px;">\
           </div>\
         </div>\
-        <div class="row graph_legend">\
-          <div class="large-12 columns centered" id="acct_cpu_legend">\
-          </div>\
-        </div>\
       </div>\
       <div class="row">\
         <div class="row graph_legend">\
@@ -4001,14 +3997,6 @@ function accountingGraphs(div, opt){
         <div class="row">\
           <div class="large-12 columns centered graph" id="acct_mem_graph" style="height: 200px;">\
           </div>\
-        </div>\
-        <div class="row graph_legend">\
-          <div class="large-12 columns centered" id="acct_mem_legend">\
-          </div>\
-        </div>\
-      </div>\
-      <div class="row graph_legend">\
-        <div class="large-12 columns centered" id="acct_legend">\
         </div>\
       </div>\
       <div class="row">\
@@ -4247,7 +4235,7 @@ Download csv
     //--------------------------------------------------------------------------
 
     var options = {
-//        colors: [ "#2ba6cb", "#707D85", "#AC5A62" ],
+        colors: ["#0098C3","#0A00C2","#AB00C2","#C20037","#C26B00","#78C200","#00C22A","#00B8C2"],
 
         xaxis : {
             mode: "time",
@@ -4272,9 +4260,7 @@ Download csv
             stack: true
         },
         legend : {
-            show : true,
-            noColumns: 6,
-            container: $("#acct_legend", div)
+            show : false
         },
         grid: {
             borderWidth: 1,
@@ -4494,8 +4480,10 @@ Download csv
 
     var thead = '<thead><tr><th>'+tr("Date UTC")+'</th>';
 
-    $.each(series.CPU_HOURS, function(key, val){
-        thead += '<th>'+group_by_prefix+key+'</th>';
+    $.each(cpu_plot_data, function(i, serie){
+        thead += '<th style="border-bottom: '+serie.color+' 4px solid !important;'+
+            ' border-left: 10px solid white; border-right: 5px solid white">'+
+            serie.label+'</th>';
     });
 
     thead += '</tr></thead>';
@@ -4504,8 +4492,10 @@ Download csv
 
     thead = '<thead><tr><th>'+tr("Date UTC")+'</th>';
 
-    $.each(series.MEM_HOURS, function(key, val){
-        thead += '<th>'+group_by_prefix+key+'</th>';
+    $.each(mem_plot_data, function(i, serie){
+        thead += '<th style="border-bottom: '+serie.color+' 4px solid !important;'+
+            ' border-left: 10px solid white; border-right: 5px solid white">'+
+            serie.label+'</th>';
     });
 
     thead += '</tr></thead>';
