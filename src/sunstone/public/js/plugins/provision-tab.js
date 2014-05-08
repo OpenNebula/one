@@ -334,7 +334,8 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
         '</span>'+
         '<a href"#" id="provision_user_info_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip tip-top">'+
           '<i class="fa fa-fw fa-refresh"/>'+
-        '</a>'+
+        '</a>&emsp;'+
+        '<a href"#" class="off-color has-tip tip-top" data-tooltip title="Log out" id="provision_logout"><i class="fa fa-fw fa-sign-out"/></a>'+
       '</h2>'+
     '</div>'+
   '</div>'+
@@ -816,8 +817,16 @@ if (Config.isTabPanelEnabled("provision-tab", "users")) {
 
 var provision_header = '<img src="images/one_small_logo.png" style="height:40px; vertical-align:top">'+
     '<span class="right" style="font-size: 50%; color: #dfdfdf">'+
-   '<ul class="inline-list text-center" style="font-size:12px">'+
-    '<li>'+
+   '<ul class="inline-list text-center" style="font-size:12px">'
+
+
+if (Config.isTabPanelEnabled("provision-tab", "users")) {
+  provision_header += '<li class="left" >'+
+        '<a href"#" class="medium button radius secondary" id="provision_users_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-users"/>&emsp;'+tr('Manage VDC')+'</a>'+
+      '</li>'
+}
+
+provision_header +=  '<li>'+
       '<a href"#" class="provision_create_vm_button medium off-color" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-plus-square"/><br>'+tr("Create")+'</a>'+
     '</li>'+
     '<li>'+
@@ -825,26 +834,9 @@ var provision_header = '<img src="images/one_small_logo.png" style="height:40px;
     '</li>'+
     '<li>'+
       '<a href"#" class="medium off-color" id="provision_templates_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-save"/><br>'+tr("Templates")+'</a>'+
-    '</li>';
-
-
-if (Config.isTabPanelEnabled("provision-tab", "users")) {
-  provision_header += '<li style="border-left: 1px solid #efefef; height: 40px"><br>'+
-      '</li>'+
-      '<li>'+
-        '<a href"#" class="medium off-color" id="provision_users_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-users"/><br>'+tr('Users')+'</a>'+
-      '</li>'
-}
-
-provision_header += '<li style="border-left: 1px solid #efefef; height: 40px"><br>'+
     '</li>'+
     '<li>'+
       '<a href"#" class="medium off-color" id="provision_user_info_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-user"/><br>'+config['display_name']+'</a>'+
-    '</li>'+
-    '<li>'+
-      '<a href"#" class="medium off-color has-tip" data-tooltip title="Log out" id="provision_logout" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-sign-out"/><br>'+tr("Log out")+'</a>'+
-    '</li>'+
-    '<li style="border-left: 1px solid #efefef; height: 40px"><br>'+
     '</li>'+
     '<li>'+
       '<a href="#" data-dropdown="provision_zone_selector" class="button small radius secondary dropdown off-color" id="zonelector" style="background: #fff; padding:0px; font-size: 12px;">'+
@@ -852,8 +844,8 @@ provision_header += '<li style="border-left: 1px solid #efefef; height: 40px"><b
       '</a>'+
       '<ul id="provision_zone_selector" data-dropdown-content class="zone-ul f-dropdown"></ul>'+
     '</li>'+
-    '</ul>'+
-    '</span>'
+  '</ul>'+
+  '</span>'
 
 var provision_tab = {
   list_header: provision_header,
@@ -901,14 +893,36 @@ var povision_actions = {
   "Provision.User.create" : {
       type: "create",
       call: OpenNebula.User.create,
-      callback: function() {
+      callback: function(request, response) {
+
+        Sunstone.runAction("Provision.User.set_quota", [response.USER.ID], {
+          "VM" : {
+            "VOLATILE_SIZE":"-1",
+            "VMS": $("#provision_rvms_quota_input").val()||0,
+            "MEMORY": $("#provision_memory_quota_input").val()||0,
+            "CPU": $("#provision_cpu_quota_input").val()||0}
+          });
+      },
+      error: onError
+  },
+
+  "Provision.User.set_quota" : {
+      type: "multiple",
+      call: OpenNebula.User.set_quota,
+      callback: function(request) {
         OpenNebula.Helper.clear_cache("USER");
         show_provision_user_list(0);
+
         var context = $("#provision_create_user");
         $("#username", context).val('');
         $("#password", context).val('');
+        $("#provision_rvms_quota_input").val('');
+        $("#provision_memory_quota_input").val('');
+        $("#provision_memory_quota_tmp_input").val('');
+        $("#provision_cpu_quota_input").val('');
         $("#repeat_password", context).val('');
         $(".alert-box-error", context).hide();
+        $(".alert-box-error", context).html("");
       },
       error: onError
   },
@@ -2639,6 +2653,17 @@ $(document).ready(function(){
                       };
 
       Sunstone.runAction("Provision.User.create",user_json);
+      $(".alert-box-error", context).html('<div class="text-center">'+
+        '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+          '<i class="fa fa-cloud fa-stack-2x"></i>'+
+          '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+        '</span>'+
+        '<br>'+
+        '<br>'+
+        '<span style="font-size: 18px; color: #999">'+
+        '</span>'+
+        '</div>');
+
       return false;
     });
 
