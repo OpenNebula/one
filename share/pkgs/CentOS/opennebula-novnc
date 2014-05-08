@@ -1,26 +1,26 @@
 #!/bin/bash
 #
-#    /etc/rc.d/init.d/opennebula-sunstone
+#    /etc/rc.d/init.d/opennebula-novnc
 #
-# Starts the Sunstone Server
+# Starts the Novnc Server
 #
 # chkconfig: 345 66 34
-# description: Starts the OpenNebula daemon
-# processname: opennebula-sunstone
+# description: Starts the Sunstone novnc daemon
+# processname: opennebula-novnc
 
 ### BEGIN INIT INFO
-# Provides: opennebula-sunstone
+# Provides: opennebula-novnc
 # Required-Start: $local_fs $remote_fs oned
 # Required-Stop: $local_fs $remote_fs oned
 # Default-Start:  2 3 4 5
 # Default-Stop: 0 1 6
-# Short-Description: start and stop opennebula-sunstone
-# Description: start and stop opennebula-sunstone
+# Short-Description: start and stop opennebula-novnc
+# Description: start and stop opennebula-novnc
 ### END INIT INFO
 
-prog="opennebula-sunstone"
+prog="novnc-server"
 
-SUNSTONE_BIN=/usr/bin/sunstone-server
+SUNSTONE_BIN=/usr/bin/novnc-server
 LOCKFILE=/var/lock/subsys/${prog}
 PID_FILE=/var/run/${prog}.pid
 
@@ -41,26 +41,24 @@ check() {
 start() {
     check
 
-    echo -n $"Starting Sunstone Server daemon: "
-    daemon --user oneadmin $SUNSTONE_BIN start-sunstone
+    echo -n $"Starting Opennebula Novnc daemon: "
+    daemon --user oneadmin $SUNSTONE_BIN start
     RETVAL=$?
 
 	echo
     [ $RETVAL -eq 0 ] && {
 		touch $LOCKFILE
-		echo $(ps -ef|grep su[n]stone-server | awk '{print $2}') > $PID_FILE
+		echo $(ps -ef|grep novnc-server | awk '{print $2}') > $PID_FILE
 	}
 
     return $RETVAL
-    service opennebula-novnc start
 }
 
 stop() {
     check
 
-    service opennebula-novnc stop
-    echo -n $"Stopping Sunstone Server daemon: "
-    daemon --user oneadmin $SUNSTONE_BIN stop-sunstone
+    echo -n $"Stopping Opennebula Novnc daemon: "
+    daemon --user oneadmin $SUNSTONE_BIN stop
     RETVAL=$?
 
 	[ $RETVAL -eq 0 ] && success || failure
