@@ -2442,13 +2442,7 @@ $(document).ready(function(){
         // as it is returned by the individual info call
         var q = provision_quotas_list[data.ID];
 
-        var quotas_html = '<li class="provision-bullet-item">'+
-            '<span class="fa-stack fa-4x" style="color: #dfdfdf">'+
-              '<i class="fa fa-align-left fa-stack-2x"></i>'+
-            '</span>'+
-            '</li>'+
-            '<li class="provision-description text-center" style="padding-top: 0px">'+tr("No quotas defined")+'</li>';
-
+        var quotas_html;
 
         if (q != undefined){
             var quota = q.QUOTAS;
@@ -2481,37 +2475,31 @@ $(document).ready(function(){
             }
         }
 
+        if (quotas_html == undefined) {
+          quotas_html = "";
+          quotas_html += '<li class="provision-description text-left" style="padding-top: 0px; padding-bottom: 0px;margin-left:15px; margin-top: 5px">'+tr("Running VMs")+'</li>';
+          quotas_html += '<li class="provision-bullet-item text-left" style="padding: 10px 25px 15px 25px; margin-bottom: 5px">';
+          quotas_html += quotaBar(0,0,null);
+          quotas_html += '</li>';
+
+          quotas_html += '<li class="provision-description text-left" style="padding-top: 0px; padding-bottom: 0px;margin-left:15px">'+tr("Memory")+'</li>';
+          quotas_html += '<li class="provision-bullet-item text-left" style="padding: 10px 25px 15px 25px; margin-bottom: 5px">';
+          quotas_html += quotaBarMB(0,0,null);
+          quotas_html += '</li>';
+
+          quotas_html += '<li class="provision-description text-left" style="padding-top: 0px; padding-bottom: 0px;margin-left:15px">'+tr("CPU")+'</li>';
+          quotas_html += '<li class="provision-bullet-item text-left" style="padding: 10px 25px 15px 25px; margin-bottom: 10px">';
+          quotas_html += quotaBarFloat(0,0,null);
+          quotas_html += '</li>';
+        }
+
 
         $("#provision_users_ul").append('<li>'+
             '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
               '<li class="provision-title text-left" style="padding-bottom: 5px">'+
                 '<a class="provision_info_user_button" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-sign-in right only-on-hover"/>'+ data.NAME + '</a>'+
               '</li>'+
-              //'<li class="provision-bullet-item text-left" style="margin-left:15px">'+
-              //  '<i class="fa fa-fw fa-laptop"/>&emsp;'+
-              //  'x'+data.TEMPLATE.CPU+' - '+
-              //  ((data.TEMPLATE.MEMORY > 1000) ?
-              //    (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
-              //    (data.TEMPLATE.MEMORY+'MB'))+
-              //'</li>'+
                 quotas_html +
-              //'<li class="provision-bullet-item text-left" style="padding: 15px 10px">'+
-              //  memory +
-              //'</li>'+
-              //'<li class="provision-bullet-item text-left" style="padding: 15px 10px">'+
-              //  cpu +
-              //'</li>'+
-              //'<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; margin-top:15px; padding-bottom:10px">'+
-              //  '<i class="fa fa-fw fa-clock-o"/>'+
-              //  _format_date(data.STIME)+
-              //  '<span class="'+ state.color +'-color left">'+
-              //    '<i class="fa fa-fw fa-square"/>&emsp;'+
-              //    state.str+
-              //  '</span>'+
-              //'</li>'+
-              //'<li class="provision-bullet-item" style="padding: 0px">'+
-              //  '<div style="height:1px" class="'+ state.color +'-bg"></div>'+
-              //'</li>'+
             '</ul>'+
           '</li>');
 
