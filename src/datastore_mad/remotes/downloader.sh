@@ -35,7 +35,7 @@ function get_decompressor
     type=$1
 
     case "$type" in
-    "application/x-gzip")
+    "application/x-gzip"|"application/gzip")
         echo "gunzip -c -"
         ;;
     "application/x-bzip2")
