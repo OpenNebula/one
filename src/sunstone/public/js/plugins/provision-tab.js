@@ -616,6 +616,10 @@ var provision_manage_vdc = '<div id="provision_manage_vdc" class="hidden section
       provision_list_users+
     '</div>'+
     '<div class="content" id="provision_vdc_quotas">'+
+      '<div class="row">'+
+        '<div class="large-10 columns large-centered" id="provision_vdc_quotas_div">'+
+        '</div>'+
+      '</div>'+
     '</div>'+
     '<div class="content" id="provision_vdc_acct">'+
       '<div class="row">'+
@@ -1335,17 +1339,49 @@ function show_provision_user_info_callback(request, response) {
 function show_provision_group_info_callback(request, response) {
   var info = response.GROUP;
 
-
-    // VDC acct
-
   var context = $("#provision_manage_vdc");
+
+  var default_group_quotas = Quotas.default_quotas(info.DEFAULT_GROUP_QUOTAS);
+  var vms_quota = Quotas.vms(info, default_group_quotas);
+  var cpu_quota = Quotas.cpu(info, default_group_quotas);
+  var memory_quota = Quotas.memory(info, default_group_quotas);
+  var volatile_size_quota = Quotas.volatile_size(info, default_group_quotas);
+  var image_quota = Quotas.image(info, default_group_quotas);
+  var network_quota = Quotas.network(info, default_group_quotas);
+  var datastore_quota = Quotas.datastore(info, default_group_quotas);
+
+  var quotas_html;
+  if (vms_quota || cpu_quota || memory_quota || volatile_size_quota || image_quota || network_quota || datastore_quota) {
+    quotas_html = '<div class="large-6 columns">' + vms_quota + '</div>';
+    quotas_html += '<div class="large-6 columns">' + cpu_quota + '</div>';
+    quotas_html += '<div class="large-6 columns">' + memory_quota + '</div>';
+    quotas_html += '<div class="large-6 columns">' + volatile_size_quota+ '</div>';
+    quotas_html += '<div class="large-6 columns">' + image_quota + '</div>';
+    quotas_html += '<div class="large-6 columns">' + network_quota + '</div>';
+    quotas_html += '<div class="large-12 columns">' + datastore_quota + '</div>';
+  } else {
+    quotas_html = '<div class="row">'+
+      '<div class="large-8 large-centered columns">'+
+        '<div class="text-center">'+
+          '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+            '<i class="fa fa-cloud fa-stack-2x"></i>'+
+            '<i class="fa fa-align-left fa-stack-1x fa-inverse"></i>'+
+          '</span>'+
+          '<br>'+
+          '<p style="font-size: 18px; color: #999">'+
+            tr("There are no quotas defined")+
+          '</p>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }
+
+  $("#provision_vdc_quotas_div").html(quotas_html);
 
   accountingGraphs(
     $("#provision_info_vdc_group_acct", context),
     {   fixed_group: info.ID,
         init_group_by: "user" });
-
-  $("#acct_placeholder", context).hide();
 }
 
 function show_provision_create_vm() {
