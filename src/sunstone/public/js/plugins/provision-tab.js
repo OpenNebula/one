@@ -1285,12 +1285,12 @@ function show_provision_user_info_callback(request, response) {
 
   var quotas_html;
   if (vms_quota || cpu_quota || memory_quota || volatile_size_quota || image_quota || network_quota || datastore_quota) {
-    quotas_html = '<div class="large-12 columns">' + vms_quota + '<br><br></div>';
-    quotas_html += '<div class="large-12 columns">' + cpu_quota + '<br><br></div>';
-    quotas_html += '<div class="large-12 columns">' + memory_quota + '<br><br></div>';
-    quotas_html += '<div class="large-12 columns">' + volatile_size_quota+ '<br><br></div>';
-    quotas_html += '<div class="large-12 columns">' + image_quota + '<br><br></div>';
-    quotas_html += '<div class="large-12 columns">' + network_quota + '<br><br></div>';
+    quotas_html = '<div class="large-6 columns">' + vms_quota + '</div>';
+    quotas_html += '<div class="large-6 columns">' + cpu_quota + '</div>';
+    quotas_html += '<div class="large-6 columns">' + memory_quota + '</div>';
+    quotas_html += '<div class="large-6 columns">' + volatile_size_quota+ '</div>';
+    quotas_html += '<div class="large-6 columns">' + image_quota + '</div>';
+    quotas_html += '<div class="large-6 columns">' + network_quota + '</div>';
     quotas_html += '<div class="large-12 columns">' + datastore_quota + '</div>';
   } else {
     quotas_html = '<div class="row">'+

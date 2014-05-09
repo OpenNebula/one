@@ -2199,9 +2199,9 @@ var Quotas = {
     "datastore" : function(info, default_quotas) {
         if (!$.isEmptyObject(info.DATASTORE_QUOTA)){
             var quotas_tab_html =
-            '<fieldset>\
+            '<fieldset style="padding: 5px 15px">\
                 <legend>'+tr("Datastore")+'</legend>\
-                <table class="dataTable extended_table">\
+                <table class="quota_table extended_table">\
                 <thead>\
                     <tr>\
                         <th style="width:16%">'+tr("ID")+'</th>\
@@ -2260,9 +2260,9 @@ var Quotas = {
     "image" : function(info, default_quotas) {
         if (!$.isEmptyObject(info.IMAGE_QUOTA)){
             var quotas_tab_html =
-            '<fieldset>\
+            '<fieldset style="padding: 5px 15px">\
                 <legend>'+tr("Image")+'</legend>\
-                <table class="dataTable extended_table">\
+                <table class="quota_table extended_table">\
                 <thead>\
                     <tr>\
                         <th style="width:16%">'+tr("ID")+'</th>\
@@ -2313,9 +2313,9 @@ var Quotas = {
     "network" : function(info, default_quotas){
         if (!$.isEmptyObject(info.NETWORK_QUOTA)){
             var quotas_tab_html =
-            '<fieldset>\
+            '<fieldset style="padding: 5px 15px">\
                 <legend>'+tr("Network")+'</legend>\
-                <table class="dataTable extended_table">\
+                <table class="quota_table extended_table">\
                     <thead>\
                         <tr>\
                             <th style="width:16%">'+tr("ID")+'</th>\

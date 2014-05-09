@@ -502,6 +502,13 @@ fieldset {
     box-shadow: 0px 1px #dfdfdf;
 }
 
+.quota_table {
+  margin-top: 0px !important;
+  margin-bottom: 0px !important;
+  clear: both;
+  max-width: none !important;
+  width: 100%;
+}
 
 #provision_user_info_quotas_div, #dashboard-tab {
   .progress {
