@@ -3933,7 +3933,7 @@ function accountingGraphs(div, opt){
         <label for="acct_end_time">'+tr("End time")+'</label>\
         <input id="acct_end_time" type="text" placeholder="'+tr("Today")+'"/>\
       </div>\
-      <div class="large-4 left columns">\
+      <div id="acct_group_by_container" class="large-4 left columns">\
         <label for="acct_group_by">' +  tr("Group by") + '</label>\
         <select id="acct_group_by" name="acct_group_by">\
           <option value="user">' + tr("User") + '</option>\
@@ -4098,7 +4098,7 @@ function accountingGraphs(div, opt){
         $("#acct_group_by", div).val(opt.init_group_by);
     }else if(opt.fixed_group_by != undefined){
         $("#acct_group_by", div).val(opt.fixed_group_by);
-        $("#acct_group_by_row", div).hide();
+        $("#acct_group_by_container", div).hide();
     }
 
     //--------------------------------------------------------------------------
