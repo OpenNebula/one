@@ -100,8 +100,6 @@ int AddressRangePool::from_xml_node(const xmlNodePtr node)
 
         ar_pool.insert(make_pair(ar->ar_id(), ar));
 
-        ar_template.set(va);
-
         if (ar->ar_id() > next_ar)
         {
             next_ar = ar->ar_id() + 1;
@@ -110,4 +108,32 @@ int AddressRangePool::from_xml_node(const xmlNodePtr node)
 
     return 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& AddressRangePool::to_xml(string& sstream, bool extended) const
+{
+    if (extended)
+    {
+        ostringstream oss;
+        map<unsigned int, AddressRange *>::const_iterator it;
+
+        oss << "<AR_POOL>";
+
+        for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+        {
+            it->second->to_xml(oss);
+        }
+
+        oss << "</AR_POOL>";
+
+        sstream = oss.str();
+
+        return sstream;
+    }
+
+    return ar_template.to_xml(sstream);
+}
+
 

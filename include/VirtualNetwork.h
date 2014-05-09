@@ -22,6 +22,7 @@
 #include "Leases.h"
 #include "VirtualNetworkTemplate.h"
 #include "Clusterable.h"
+#include "AddressRangePool.h"
 
 #include <vector>
 #include <string>
@@ -43,17 +44,6 @@ using namespace std;
 class VirtualNetwork : public PoolObjectSQL, public Clusterable
 {
 public:
-
-    /**
-     * Possible types of networks
-     */
-
-    enum NetworkType
-    {
-        UNINITIALIZED   = -1,
-        RANGED          =  0,
-        FIXED           =  1
-    };
 
     // *************************************************************************
     // Virtual Network Public Methods
@@ -117,10 +107,14 @@ public:
      */
     int get_lease(int vid, string& _ip, string& _mac, string& _bridge)
     {
+        return 0;
+        //TODO
+        /*
         unsigned int eui64[2];
 
         _bridge = bridge;
         return leases->get(vid, _ip, _mac, eui64);
+        */
     };
 
     /**
@@ -133,10 +127,15 @@ public:
      */
     int set_lease(int vid, const string& _ip, string& _mac, string& _bridge)
     {
+        //TODO
+        /*
         unsigned int eui64[2];
 
         _bridge = bridge;
         return leases->set(vid, _ip, _mac, eui64);
+        */
+
+        return 0;
     };
 
     /**
@@ -146,7 +145,8 @@ public:
      */
     void release_lease(const string& ip)
     {
-        return leases->release(ip);
+        //TODO
+        //return leases->release(ip);
     };
 
     /**
@@ -157,7 +157,9 @@ public:
      */
     bool is_owner (const string& ip, int vid)
     {
-        return leases->is_owner(ip, vid);
+        return true;
+        //TODO
+        //return leases->is_owner(ip, vid);
     };
 
     /**
@@ -166,7 +168,9 @@ public:
      */
     unsigned int get_size()
     {
-        return leases->size;
+        //TODO
+        return 0;
+        //return leases->size;
     };
 
     /**
@@ -175,7 +179,9 @@ public:
      */
     unsigned int get_used()
     {
-        return leases->n_used;
+        //TODO
+        return 0;
+        //return leases->n_used;
     };
 
     /**
@@ -262,41 +268,9 @@ private:
     int     vlan;
 
     /**
-     *  IPv6 address global unicast prefix
+     *  The Address Range Pool
      */
-     string global;
-
-    /**
-     *  Binary representation of the IPv6 address global unicast prefix
-     */
-     unsigned int global_bin[2];
-
-    /**
-     *  IPv6 address site unicast prefix
-     */
-     string site;
-
-    /**
-     *  Binary representation of the IPv6 address site unicast prefix
-     */
-     unsigned int site_bin[2];
-
-    // -------------------------------------------------------------------------
-    // Virtual Network Description
-    // -------------------------------------------------------------------------
-    /**
-     * Holds the type of this network
-     */
-    NetworkType type;
-
-    /**
-     *  Pointer to leases class, can be fixed or ranged.
-     *  Holds information on given (and, optionally, possible) leases
-     */
-    Leases *    leases;
-
-    unsigned int ip_start;
-    unsigned int ip_end;
+    AddressRangePool ar_pool;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -371,30 +345,6 @@ private:
     static const char * db_bootstrap;
 
     /**
-     *  Reads the Virtual Network (identified with its OID) from the database.
-     *    @param db pointer to the db
-     *    @return 0 on success
-     */
-    int select(SqlDB * db);
-
-    /**
-     *  Reads the Virtual Network (identified with its OID) from the database.
-     *    @param db pointer to the db
-     *    @param name of the network
-     *    @param uid of the owner
-     *
-     *    @return 0 on success
-     */
-    int select(SqlDB * db, const string& name, int uid);
-
-    /**
-     *  Reads the Virtual Network leases from the database.
-     *    @param db pointer to the db
-     *    @return 0 on success
-     */
-    int select_leases(SqlDB * db);
-
-    /**
      *  Writes the Virtual Network and its associated template and leases in the database.
      *    @param db pointer to the db
      *    @return 0 on success
@@ -411,15 +361,6 @@ private:
         string error_str;
         return insert_replace(db, true, error_str);
     }
-
-    /**
-     * Deletes a VNW from the database and all its associated information:
-     *   - VNW template
-     *   - given leases
-     *   @param db pointer to the db
-     *   @return 0 on success
-     */
-    int drop(SqlDB * db);
 };
 
 #endif /*VIRTUAL_NETWORK_H_*/

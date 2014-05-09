@@ -30,6 +30,7 @@ using namespace std;
 
 class AddressRangePool
 {
+public:
     AddressRangePool();
 
     virtual ~AddressRangePool();
@@ -50,6 +51,8 @@ class AddressRangePool
      *    @return 0 on success
      */
     int from_xml_node(const xmlNodePtr node);
+
+    string& to_xml(string& sstream, bool extended) const;
 
 private:
     Template ar_template;

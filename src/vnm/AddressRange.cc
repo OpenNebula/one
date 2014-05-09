@@ -120,8 +120,8 @@ int AddressRange::from_vattr(VectorAttribute *vattr, string& error_msg)
             {
                 srand(time(0));
 
-                mac[0] = rand() && 0x0000FFFF;
-                mac[0]+= (rand()<<16) && 0xFFFF0000;
+                mac[0] = rand() & 0x0000FFFF;
+                mac[0]+= (rand()<<16) & 0xFFFF0000;
             }
             break;
 
@@ -216,12 +216,10 @@ int AddressRange::from_vattr_db(VectorAttribute *vattr)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string& AddressRange::to_xml(string& str)
+void AddressRange::to_xml(ostringstream &oss) const
 {
     const map<string,string>&          ar_attrs = attr->value();
     map<string,string>::const_iterator it;
-
-    ostringstream oss;
 
     oss << "<AR>";
 
@@ -279,16 +277,12 @@ string& AddressRange::to_xml(string& str)
     }
 
     oss << "</AR>";
-
-    str = oss.str();
-
-    return str;
 }
 
 /* ************************************************************************** */
 /* ************************************************************************** */
 
-int AddressRange::mac_to_i(string mac, unsigned int i_mac[])
+int AddressRange::mac_to_i(string mac, unsigned int i_mac[]) const
 {
     istringstream iss;
 
@@ -331,7 +325,7 @@ int AddressRange::mac_to_i(string mac, unsigned int i_mac[])
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRange::ip_to_i(const string& _ip, unsigned int& i_ip)
+int AddressRange::ip_to_i(const string& _ip, unsigned int& i_ip) const
 {
     istringstream iss;
     size_t        pos=0;
@@ -374,7 +368,7 @@ int AddressRange::ip_to_i(const string& _ip, unsigned int& i_ip)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRange::prefix6_to_i(const string& prefix, unsigned int ip[])
+int AddressRange::prefix6_to_i(const string& prefix, unsigned int ip[]) const
 {
     struct in6_addr s6;
 
@@ -400,7 +394,7 @@ int AddressRange::prefix6_to_i(const string& prefix, unsigned int ip[])
 /* ************************************************************************** */
 /* ************************************************************************** */
 
-void AddressRange::set_mac(unsigned int addr_index, VectorAttribute * nic)
+void AddressRange::set_mac(unsigned int addr_index, VectorAttribute * nic) const
 {
     ostringstream oss;
     unsigned int  temp_byte;
@@ -436,7 +430,7 @@ void AddressRange::set_mac(unsigned int addr_index, VectorAttribute * nic)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AddressRange::set_ip(unsigned int addr_index, VectorAttribute * nic)
+void AddressRange::set_ip(unsigned int addr_index, VectorAttribute * nic) const
 {
     ostringstream oss;
     unsigned int  temp_byte;
@@ -461,7 +455,7 @@ void AddressRange::set_ip(unsigned int addr_index, VectorAttribute * nic)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AddressRange::set_ip6(unsigned int addr_index, VectorAttribute * nic)
+void AddressRange::set_ip6(unsigned int addr_index, VectorAttribute * nic) const
 {
     unsigned int eui64[2];
     unsigned int mlow = mac[0] + addr_index;
@@ -510,7 +504,7 @@ void AddressRange::set_ip6(unsigned int addr_index, VectorAttribute * nic)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AddressRange::set_vnet(VectorAttribute *nic, const vector<string> &inherit)
+void AddressRange::set_vnet(VectorAttribute *nic, const vector<string> &inherit) const
 {
     nic->replace("AR_ID", id);
 
@@ -777,7 +771,7 @@ bool AddressRange::restricted_set = false;
 
 set<string> AddressRange::restricted_attributes;
 
-bool AddressRange::check(string& rs_attr)
+bool AddressRange::check(string& rs_attr) const
 {
     if (!restricted_set)
     {

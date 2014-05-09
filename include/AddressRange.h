@@ -81,7 +81,7 @@ public:
     /**
      *  Builds an extended XML representation of the AR to send it back to clients
      */
-     string& to_xml(string& str);
+    void to_xml(ostringstream &oss) const;
 
     /**
      *  Type of Addresses defined by this address range
@@ -164,21 +164,21 @@ private:
      *    @param mac in string form 00:02:01:02:03:04
      *    @return 0 on success
      */
-    int mac_to_i(string mac, unsigned int i_mac[]);
+    int mac_to_i(string mac, unsigned int i_mac[]) const;
 
     /**
      *  IP version 4 to binary (32 bits)
      *    @param ip in string form 192.168.0.2
      *    @return 0 on success
      */
-    int ip_to_i(const string& _ip, unsigned int& i_ip);
+    int ip_to_i(const string& _ip, unsigned int& i_ip) const;
 
     /**
      *  IPv6 64bits prefix conversion
      *    @param prefix in string form 2a00:1bc0:b001:A::
      *    @return 0 on success
      */
-    int prefix6_to_i(const string& prefix, unsigned int ip[]);
+    int prefix6_to_i(const string& prefix, unsigned int ip[]) const;
 
     /* ---------------------------------------------------------------------- */
     /* NIC setup functions                                                    */
@@ -188,21 +188,21 @@ private:
      *    @param addr_index internal index for the lease
      *    @param nic attribute of a VMTemplate
      */
-    void set_mac(unsigned int addr_index, VectorAttribute * nic);
+    void set_mac(unsigned int addr_index, VectorAttribute * nic) const;
 
     /**
      *  Writes IP address to the given NIC attribute
      *    @param addr_index internal index for the lease
      *    @param nic attribute of a VMTemplate
      */
-    void set_ip(unsigned int addr_index, VectorAttribute * nic);
+    void set_ip(unsigned int addr_index, VectorAttribute * nic) const;
 
     /**
      *  Writes IPv6 address to the given NIC attribute
      *    @param addr_index internal index for the lease
      *    @param nic attribute of a VMTemplate
      */
-    void set_ip6(unsigned int addr_index, VectorAttribute * nic);
+    void set_ip6(unsigned int addr_index, VectorAttribute * nic) const;
 
     /**
      *  Writes VNET configuration attributes to the given NIC attribute. It
@@ -210,7 +210,7 @@ private:
      *    @param addr_index internal index for the lease
      *    @param nic attribute of a VMTemplate
      */
-    void set_vnet(VectorAttribute *nic, const vector<string> &inherit);
+    void set_vnet(VectorAttribute *nic, const vector<string> &inherit) const;
 
     /* ---------------------------------------------------------------------- */
     /* Address index map helper functions                                     */
@@ -245,7 +245,7 @@ private:
     /* ---------------------------------------------------------------------- */
     /* Restricted Attributes functions                                        */
     /* ---------------------------------------------------------------------- */
-    bool check(string& rs_attr);
+    bool check(string& rs_attr) const;
 
     static void set_restricted_attributes(vector<const Attribute *>& rattrs);
 

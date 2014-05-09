@@ -44,9 +44,7 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
                                VirtualNetworkTemplate * _vn_template):
             PoolObjectSQL(-1,NET,"",_uid,_gid,_uname,_gname,table),
             Clusterable(_cluster_id, _cluster_name),
-            bridge(""),
-            type(UNINITIALIZED),
-            leases(0)
+            bridge("")
 {
     if (_vn_template != 0)
     {
@@ -58,9 +56,6 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
     }
 
     set_umask(_umask);
-
-    global_bin[0] = global_bin[1] = 0;
-    site_bin[0] = site_bin[1] = 0;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -68,7 +63,6 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
 
 VirtualNetwork::~VirtualNetwork()
 {
-    delete leases;
     delete obj_template;
 }
 
@@ -76,7 +70,7 @@ VirtualNetwork::~VirtualNetwork()
 /* Virtual Network :: Database Access Functions                               */
 /* ************************************************************************** */
 
-const char * VirtualNetwork::table        = "network_pool";
+const char * VirtualNetwork::table    = "network_pool";
 
 const char * VirtualNetwork::db_names =
         "oid, name, body, uid, gid, owner_u, group_u, other_u, cid";
@@ -90,131 +84,16 @@ const char * VirtualNetwork::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::select(SqlDB * db)
-{
-    int             rc;
-
-    rc = PoolObjectSQL::select(db);
-
-    if ( rc != 0 )
-    {
-        return rc;
-    }
-
-    return select_leases(db);
-}
-
-/* -------------------------------------------------------------------------- */
-
-int VirtualNetwork::select(SqlDB * db, const string& name, int uid)
-{
-    int             rc;
-
-    rc = PoolObjectSQL::select(db,name,uid);
-
-    if ( rc != 0 )
-    {
-        return rc;
-    }
-
-    return select_leases(db);
-}
-
-/* -------------------------------------------------------------------------- */
-
-int VirtualNetwork::select_leases(SqlDB * db)
-{
-    ostringstream   oss;
-    ostringstream   ose;
-
-    string          network_address;
-
-    unsigned int mac_prefix = VirtualNetworkPool::mac_prefix();
-
-    //Get the leases
-    if (type == RANGED)
-    {
-        leases = new RangedLeases(db,
-                                  oid,
-                                  mac_prefix,
-                                  global_bin,
-                                  site_bin,
-                                  ip_start,
-                                  ip_end);
-    }
-    else if(type == FIXED)
-    {
-        leases = new  FixedLeases(db,
-                                  oid,
-                                  mac_prefix,
-                                  global_bin,
-                                  site_bin);
-    }
-    else
-    {
-        goto error_type;
-    }
-
-    if (leases == 0)
-    {
-        goto error_leases;
-    }
-
-    return leases->select(db);
-
-
-error_leases:
-    ose << "Error getting Virtual Network leases nid: " << oid;
-    goto error_common;
-
-error_type:
-    ose << "Wrong type of Virtual Network: " << type;
-    goto error_common;
-
-error_common:
-    NebulaLog::log("VNM", Log::ERROR, ose);
-    return -1;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int VirtualNetwork::insert(SqlDB * db, string& error_str)
 {
-    ostringstream   ose;
-    int             rc;
+    vector<Attribute *> ars;
+    ostringstream       ose;
 
     bool b_vlan;
-    string s_type;
-    string ranged_error_str;
-
-    unsigned int mac_prefix = VirtualNetworkPool::mac_prefix();
 
     //--------------------------------------------------------------------------
     // VirtualNetwork Attributes from the template
     //--------------------------------------------------------------------------
-
-    // ------------ TYPE ----------------------
-    erase_template_attribute("TYPE",s_type);
-
-    TO_UPPER(s_type);
-
-    if (s_type == "RANGED")
-    {
-        type = VirtualNetwork::RANGED;
-    }
-    else if ( s_type == "FIXED")
-    {
-        type = VirtualNetwork::FIXED;
-    }
-    else if ( s_type.empty() )
-    {
-        goto error_type_defined;
-    }
-    else
-    {
-        goto error_wrong_type;
-    }
 
     // ------------ NAME ----------------------
 
@@ -283,86 +162,27 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     add_template_attribute("BRIDGE", bridge);
 
-    // ------------ IP6 PREFIX ---------------
-
-    erase_template_attribute("GLOBAL_PREFIX", global);
-
-    if (Leases::Lease::prefix6_to_number(global, global_bin) != 0)
-    {
-        goto error_global;
-    }
-
-    erase_template_attribute("SITE_PREFIX", site);
-
-    if (Leases::Lease::prefix6_to_number(site, site_bin) != 0)
-    {
-        goto error_site;
-    }
-
     //--------------------------------------------------------------------------
-    // Get the leases
+    // Get the Address Ranges
     //--------------------------------------------------------------------------
-    if (type == VirtualNetwork::RANGED)
+
+    remove_template_attribute("AR", ars);
+
+    if (ar_pool.from_vattr(ars, error_str) != 0)
     {
-
-        int rc;
-
-        rc = RangedLeases::process_template(this, ip_start, ip_end,
-                ranged_error_str);
-
-        if ( rc != 0 )
-        {
-            goto error_ranged;
-        }
-
-        leases = new RangedLeases(db,
-                                  oid,
-                                  mac_prefix,
-                                  global_bin,
-                                  site_bin,
-                                  ip_start,
-                                  ip_end);
-    }
-    else // VirtualNetwork::FIXED
-    {
-        vector<const Attribute *>   vector_leases;
-
-        get_template_attribute("LEASES",vector_leases);
-
-        leases = new FixedLeases(db,
-                                 oid,
-                                 mac_prefix,
-                                 global_bin,
-                                 site_bin,
-                                 vector_leases);
-
-        remove_template_attribute("LEASES");
-    }
-
-    if (leases == 0)
-    {
-        goto error_null_leases;
+        goto error_ar;
     }
 
     //--------------------------------------------------------------------------
     // Insert the Virtual Network
     //--------------------------------------------------------------------------
-    rc = insert_replace(db, false, error_str);
 
-    if ( rc != 0 )
+    if ( insert_replace(db, false, error_str) != 0 )
     {
-        goto error_update;
+        goto error_db;
     }
 
     return 0;
-
-error_type_defined:
-    ose << "No TYPE in template for Virtual Network.";
-    goto error_common;
-
-error_wrong_type:
-    ose << "Wrong type \""<< s_type <<"\" in template for Virtual Network.";
-    goto error_common;
 
 error_name:
     ose << "No NAME in template for Virtual Network.";
@@ -372,26 +192,9 @@ error_bridge:
     ose << "No BRIDGE in template for Virtual Network.";
     goto error_common;
 
-error_update:
+error_db:
+error_ar:
     ose << error_str;
-    goto error_common;
-
-error_ranged:
-    ose << ranged_error_str;
-    goto error_common;
-
-error_global:
-    ose << global
-        << " does not contain a character string representing a valid prefix";
-    goto error_common;
-
-error_site:
-    ose << site
-        << " does not contain a character string representing a valid prefix";
-    goto error_common;
-
-error_null_leases:
-    ose << "Error getting Virtual Network leases.";
 
 error_common:
     error_str = ose.str();
@@ -477,7 +280,6 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace, string& error_str)
     ostringstream   oss;
     int             rc;
 
-
     string xml_body;
 
     char * sql_name;
@@ -552,23 +354,6 @@ error_common:
     return -1;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualNetwork::drop(SqlDB * db)
-{
-    int rc;
-
-    rc = PoolObjectSQL::drop(db);
-
-    if ( rc == 0 && leases != 0 )
-    {
-        rc += leases->drop(db);
-    }
-
-    return rc;
-}
-
 /* ************************************************************************** */
 /* Virtual Network :: Misc                                                    */
 /* ************************************************************************** */
@@ -617,18 +402,17 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
 
     os <<
         "<VNET>" <<
-            "<ID>"          << oid          << "</ID>"          <<
-            "<UID>"         << uid          << "</UID>"         <<
-            "<GID>"         << gid          << "</GID>"         <<
-            "<UNAME>"       << uname        << "</UNAME>"       <<
-            "<GNAME>"       << gname        << "</GNAME>"       <<
-            "<NAME>"        << name         << "</NAME>"        <<
-            perms_to_xml(perm_str)          <<
-            "<CLUSTER_ID>"  << cluster_id   << "</CLUSTER_ID>"  <<
-            "<CLUSTER>"     << cluster      << "</CLUSTER>"     <<
-            "<TYPE>"        << type         << "</TYPE>"  <<
-            "<BRIDGE>"      << bridge       << "</BRIDGE>"<<
-            "<VLAN>"        << vlan         << "</VLAN>";
+            "<ID>"        << oid       << "</ID>"        <<
+            "<UID>"       << uid       << "</UID>"       <<
+            "<GID>"       << gid       << "</GID>"       <<
+            "<UNAME>"     << uname     << "</UNAME>"     <<
+            "<GNAME>"     << gname     << "</GNAME>"     <<
+            "<NAME>"      << name      << "</NAME>"      <<
+            perms_to_xml(perm_str)     <<
+            "<CLUSTER_ID>"<< cluster_id<< "</CLUSTER_ID>"<<
+            "<CLUSTER>"   << cluster   << "</CLUSTER>"   <<
+            "<BRIDGE>"    << bridge    << "</BRIDGE>"    <<
+            "<VLAN>"      << vlan      << "</VLAN>";
 
     if (!phydev.empty())
     {
@@ -648,46 +432,9 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
         os << "<VLAN_ID/>";
     }
 
-    if (!global.empty())
-    {
-        os << "<GLOBAL_PREFIX>" << global << "</GLOBAL_PREFIX>";
-    }
-    else
-    {
-        os << "<GLOBAL_PREFIX/>";
-    }
+    os  << obj_template->to_xml(template_xml);
 
-    if (!site.empty())
-    {
-        os << "<SITE_PREFIX>" << site << "</SITE_PREFIX>";
-    }
-    else
-    {
-        os << "<SITE_PREFIX/>";
-    }
-
-    if ( type == RANGED )
-    {
-        string st_ip_start;
-        string st_ip_end;
-
-        Leases::Lease::ip_to_string(ip_start, st_ip_start);
-        Leases::Lease::ip_to_string(ip_end,   st_ip_end);
-
-        os <<
-            "<RANGE>" <<
-                "<IP_START>" << st_ip_start << "</IP_START>" <<
-                "<IP_END>"   << st_ip_end   << "</IP_END>"   <<
-            "</RANGE>";
-    }
-
-    os  <<  "<TOTAL_LEASES>"<< leases->n_used << "</TOTAL_LEASES>"<<
-            obj_template->to_xml(template_xml);
-
-    if (extended)
-    {
-        os << "<LEASES>" << leases->to_xml(leases_xml) << "</LEASES>";
-    }
+    os  << ar_pool.to_xml(leases_xml, extended);
 
     os << "</VNET>";
 
@@ -704,40 +451,29 @@ int VirtualNetwork::from_xml(const string &xml_str)
     vector<xmlNodePtr> content;
 
     int rc = 0;
-    int int_type;
 
     // Initialize the internal XML object
     update_from_str(xml_str);
 
     // Get class base attributes
-    rc += xpath(oid,        "/VNET/ID",     -1);
-    rc += xpath(uid,        "/VNET/UID",    -1);
-    rc += xpath(gid,        "/VNET/GID",    -1);
-    rc += xpath(uname,      "/VNET/UNAME",  "not_found");
-    rc += xpath(gname,      "/VNET/GNAME",  "not_found");
-    rc += xpath(name,       "/VNET/NAME",   "not_found");
-    rc += xpath(int_type,   "/VNET/TYPE",   -1);
-    rc += xpath(bridge,     "/VNET/BRIDGE", "not_found");
-    rc += xpath(vlan,       "/VNET/VLAN",   0);
-
-    rc += xpath(cluster_id, "/VNET/CLUSTER_ID", -1);
-    rc += xpath(cluster,    "/VNET/CLUSTER",    "not_found");
+    rc += xpath(oid,       "/VNET/ID", -1);
+    rc += xpath(uid,       "/VNET/UID", -1);
+    rc += xpath(gid,       "/VNET/GID", -1);
+    rc += xpath(uname,     "/VNET/UNAME", "not_found");
+    rc += xpath(gname,     "/VNET/GNAME", "not_found");
+    rc += xpath(name,      "/VNET/NAME", "not_found");
+    rc += xpath(bridge,    "/VNET/BRIDGE", "not_found");
+    rc += xpath(vlan,      "/VNET/VLAN", 0);
+    rc += xpath(cluster_id,"/VNET/CLUSTER_ID", -1);
+    rc += xpath(cluster,   "/VNET/CLUSTER", "not_found");
 
     // Permissions
     rc += perms_from_xml();
 
-    xpath(phydev,  "/VNET/PHYDEV", "");
-    xpath(vlan_id, "/VNET/VLAN_ID","");
+    xpath(phydev, "/VNET/PHYDEV", "");
+    xpath(vlan_id,"/VNET/VLAN_ID","");
 
-    xpath(global,  "/VNET/GLOBAL_PREFIX", "");
-    xpath(site, "/VNET/SITE_PREFIX","");
-
-    Leases::Lease::prefix6_to_number(site, site_bin);
-    Leases::Lease::prefix6_to_number(global, global_bin);
-
-    type = static_cast<NetworkType>(int_type);
-
-    // Get associated classes
+    // Virtual Network template
     ObjectXML::get_nodes("/VNET/TEMPLATE", content);
 
     if (content.empty())
@@ -745,23 +481,23 @@ int VirtualNetwork::from_xml(const string &xml_str)
         return -1;
     }
 
-    // Virtual Network template
     rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
+    content.clear();
 
-    // Ranged Leases
-    if (type == RANGED)
+    // Address Range Pool
+    ObjectXML::get_nodes("/VNET/AR_POOL", content);
+
+    if (content.empty())
     {
-        string st_ip_start;
-        string st_ip_end;
-
-        rc += xpath(st_ip_start,    "/VNET/RANGE/IP_START", "0");
-        rc += xpath(st_ip_end,      "/VNET/RANGE/IP_END",   "0");
-
-        Leases::Lease::ip_to_number(st_ip_start, ip_start);
-        Leases::Lease::ip_to_number(st_ip_end,   ip_end);
+        return -1;
     }
+
+    // Virtual Network template
+    rc += ar_pool.from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
 
     if (rc != 0)
     {
@@ -779,65 +515,16 @@ int VirtualNetwork::nic_attribute(
         int                     vid,
         const vector<string>&   inherit_attrs)
 {
-    int rc;
-
-    string  ip;
-    string  mac;
-    string  inherit_val;
-
-    unsigned int eui64[2];
-    unsigned int prefix[2] = {0, 0};
-
-    ostringstream oss;
-
+    string inherit_val;
     vector<string>::const_iterator it;
 
-    ip    = nic->vector_value("IP");
-    oss << oid;
-
     //--------------------------------------------------------------------------
-    //                       GET NETWORK LEASE
-    //--------------------------------------------------------------------------
-
-    if (ip.empty())
-    {
-        rc = leases->get(vid, ip, mac, eui64);
-    }
-    else
-    {
-        rc = leases->set(vid,ip,mac, eui64);
-    }
-
-    if ( rc != 0 )
-    {
-        return -1;
-    }
-
-    //--------------------------------------------------------------------------
-    //                       NEW NIC ATTRIBUTES
+    //  Set default values from the Virtual Network
     //--------------------------------------------------------------------------
 
     nic->replace("NETWORK", name);
-    nic->replace("NETWORK_ID",oss.str());
+    nic->replace("NETWORK_ID", oid);
     nic->replace("BRIDGE", bridge);
-    nic->replace("MAC", mac);
-    nic->replace("IP", ip);
-
-    Leases::Lease::ip6_to_string(eui64, prefix, ip);
-    nic->replace("IP6_LINK", ip);
-
-    if (!global.empty())
-    {
-        Leases::Lease::ip6_to_string(eui64, global_bin, ip);
-        nic->replace("IP6_GLOBAL", ip);
-    }
-
-    if (!site.empty())
-    {
-        Leases::Lease::ip6_to_string(eui64, site_bin, ip);
-        nic->replace("IP6_SITE", ip);
-    }
-
 
     if ( vlan == 1 )
     {
@@ -860,10 +547,7 @@ int VirtualNetwork::nic_attribute(
 
     if ( get_cluster_id() != ClusterPool::NONE_CLUSTER_ID )
     {
-        oss.str("");
-        oss << get_cluster_id();
-
-        nic->replace("CLUSTER_ID", oss.str());
+        nic->replace("CLUSTER_ID", get_cluster_id());
     }
 
     for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)
@@ -875,6 +559,10 @@ int VirtualNetwork::nic_attribute(
             nic->replace(*it, inherit_val);
         }
     }
+
+    //GET THE IP/MAC... AND OVERWRITE FROM AR.
+    //string ip  = nic->vector_value("IP");
+    //string mac = nic->vector_value("MAC");
 
     return 0;
 }
@@ -889,7 +577,9 @@ int VirtualNetwork::add_leases(VirtualNetworkTemplate * leases_template,
 
     leases_template->get("LEASES", vector_leases);
 
-    return leases->add_leases(vector_leases, error_msg);
+    //TODO
+    return 0;
+    //return leases->add_leases(vector_leases, error_msg);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -902,7 +592,9 @@ int VirtualNetwork::remove_leases(VirtualNetworkTemplate * leases_template,
 
     leases_template->get("LEASES", vector_leases);
 
-    return leases->remove_leases(vector_leases, error_msg);
+    //TODO
+    return 0;
+    //return leases->remove_leases(vector_leases, error_msg);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -914,8 +606,9 @@ int VirtualNetwork::hold_leases(VirtualNetworkTemplate * leases_template,
     vector<const Attribute *> vector_leases;
 
     leases_template->get("LEASES", vector_leases);
-
-    return leases->hold_leases(vector_leases, error_msg);
+    //TODO
+    return 0;
+    //return leases->hold_leases(vector_leases, error_msg);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -928,7 +621,9 @@ int VirtualNetwork::free_leases(VirtualNetworkTemplate * leases_template,
 
     leases_template->get("LEASES", vector_leases);
 
-    return leases->free_leases(vector_leases, error_msg);
+    //TODO
+    return 0;
+    //return leases->free_leases(vector_leases, error_msg);
 }
 
 /* -------------------------------------------------------------------------- */
