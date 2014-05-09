@@ -775,10 +775,6 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         }
     }
 
-
-
-
-
     // ------------------------------------------------------------------------
     // Add a new history record and deploy the VM
     // ------------------------------------------------------------------------

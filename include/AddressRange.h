@@ -146,6 +146,14 @@ public:
      */
     void free_addr(const string& mac);
 
+    /**
+     *  Return the id for this address range
+     */
+    unsigned int ar_id()
+    {
+        return id;
+    }
+
 private:
     /* ---------------------------------------------------------------------- */
     /* String to binary conversion functions for different address types      */
