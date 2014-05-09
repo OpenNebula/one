@@ -618,6 +618,10 @@ var provision_manage_vdc = '<div id="provision_manage_vdc" class="hidden section
     '<div class="content" id="provision_vdc_quotas">'+
     '</div>'+
     '<div class="content" id="provision_vdc_acct">'+
+      '<div class="row">'+
+        '<div  id="provision_info_vdc_group_acct" class="large-10 large-centered columns">'+
+        '</div>'+
+      '</div>'+
     '</div>'+
   '</div>'+
 '</div>';
@@ -727,7 +731,6 @@ var provision_info_vdc_user =  '<div id="provision_info_vdc_user" class="section
     '</div>'+
   '</div>'+
   '<br>'+
-  '<br>'+
   '<div class="row">'+
     '<div  id="provision_info_vdc_quotas" class="large-9 large-centered columns">'+
     '</div>'+
@@ -742,7 +745,6 @@ var provision_info_vdc_user =  '<div id="provision_info_vdc_user" class="section
       '</h3>'+
     '</div>'+
   '</div>'+
-  '<br>'+
   '<br>'+
   '<div class="row">'+
     '<div  id="provision_info_vdc_user_acct" class="large-9 large-centered columns">'+
@@ -760,14 +762,13 @@ var provision_info_vdc_user =  '<div id="provision_info_vdc_user" class="section
     '</div>'+
   '</div>'+
   '<br>'+
-  '<br>'+
   '<div class="row">'+
     '<div class="large-9 large-centered columns">'+
       '<div class="large-6 columns">'+
-        '<a href"#" class="provision_create_vm_button button large radius large-12 small-12"><i class="fa fa-fw fa-th"/>&emsp;'+tr("Go to User VMs")+'</a>'+
+        '<a href"#" class="provision_create_vm_button button radius large-12 small-12"><i class="fa fa-fw fa-th"/>&emsp;'+tr("Go to User VMs")+'</a>'+
       '</div>'+
       '<div class="large-6 columns">'+
-        '<a href"#" class="provision_create_vm_button button large radius large-12 small-12"><i class="fa fa-fw fa-save"/>&emsp;'+tr("Go to User Templates")+'</a>'+
+        '<a href"#" class="provision_create_vm_button button radius large-12 small-12"><i class="fa fa-fw fa-save"/>&emsp;'+tr("Go to User Templates")+'</a>'+
       '</div>'+
     '</div>'+
   '</div>'+
@@ -775,6 +776,18 @@ var provision_info_vdc_user =  '<div id="provision_info_vdc_user" class="section
   '<br>'+
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
+      '<h3 class="subheader text-right">'+
+        '<span class="left">'+
+          '<i class="fa fa-fw fa-cogs"/>&emsp;'+
+          tr("Actions")+
+        '</span>'+
+      '</h3>'+
+      '<br>'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
+  '<div class="row">'+
+    '<div class="large-9 large-centered columns">'+
       '<h2 class="subheader">'+
         '<span class="right" style="padding: 5px;border: 1px solid #efefef; background: #f7f7f7; border-radius: 5px; color:#777 !important; width: 100%; box-shadow: 0px 1px #dfdfdf">'+
           '<div class="row">'+
@@ -1069,6 +1082,13 @@ var povision_actions = {
     error: onError
   },
 
+  "Provision.Group.show" : {
+      type: "single",
+      call: OpenNebula.Group.show,
+      callback: show_provision_group_info_callback,
+      error: onError
+  },
+
   "Provision.show" : {
     type: "single",
     call: OpenNebula.VM.show,
@@ -1309,6 +1329,23 @@ function show_provision_user_info_callback(request, response) {
     $("#provision_user_info_acct_div"),
       { fixed_user: info.ID,
         fixed_group_by: "vm" });
+}
+
+
+function show_provision_group_info_callback(request, response) {
+  var info = response.GROUP;
+
+
+    // VDC acct
+
+  var context = $("#provision_manage_vdc");
+
+  accountingGraphs(
+    $("#provision_info_vdc_group_acct", context),
+    {   fixed_group: info.ID,
+        init_group_by: "user" });
+
+  $("#acct_placeholder", context).hide();
 }
 
 function show_provision_create_vm() {
@@ -1811,6 +1848,7 @@ function update_provision_vdc_user_info(data) {
   var context = $("#provision_info_vdc_user");
 
   $("#provision_confirm_action",context).html("");
+  $("#provision_info_vdc_user_acct",context).html("");
 
   $("#provision_info_vdc_user",context).attr("user_id", data.ID);
   $("#provision_info_vdc_user_name", context).text(data.NAME);
@@ -2739,6 +2777,8 @@ $(document).ready(function(){
     $(".provision_create_user_button").on("click", function(){
       show_provision_create_user();
     });
+
+    Sunstone.runAction('Provision.Group.show', "-1");
 
     //
     // Create User
