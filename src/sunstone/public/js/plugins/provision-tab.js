@@ -591,12 +591,6 @@ var provision_list_users = '<div id="provision_list_users">'+
       '<br>'+
     '</div>'+
   '</div>'+
-  '<br>'+
-  '<div class="row">'+
-    '<div class="large-8 large-centered columns">'+
-      '<a href"#" class="provision_create_user_button button large radius large-12 small-12">'+tr("Add a new User")+'</a>'+
-    '</div>'+
-  '</div>'+
 '</div>';
 
 
@@ -617,11 +611,33 @@ var provision_manage_vdc = '<div id="provision_manage_vdc" class="hidden section
     '</div>'+
     '<div class="content" id="provision_vdc_quotas">'+
       '<div class="row">'+
+        '<div class="large-11 large-centered columns">'+
+          '<h2 class="subheader text-right">'+
+            '<span class="left">'+
+              '<i class="fa fa-fw fa-align-left"/>&emsp;'+
+              tr("VDC Quotas")+
+            '</span>'+
+          '</h2>'+
+        '</div>'+
+      '</div>'+
+      '<br>'+
+      '<div class="row">'+
         '<div class="large-10 columns large-centered" id="provision_vdc_quotas_div">'+
         '</div>'+
       '</div>'+
     '</div>'+
     '<div class="content" id="provision_vdc_acct">'+
+      '<div class="row">'+
+        '<div class="large-11 large-centered columns">'+
+          '<h2 class="subheader text-right">'+
+            '<span class="left">'+
+              '<i class="fa fa-fw fa-bar-chart-o"/>&emsp;'+
+              tr("VDC Accounting")+
+            '</span>'+
+          '</h2>'+
+        '</div>'+
+      '</div>'+
+      '<br>'+
       '<div class="row">'+
         '<div  id="provision_info_vdc_group_acct" class="large-10 large-centered columns">'+
         '</div>'+
@@ -665,12 +681,6 @@ var provision_list_templates = '<div id="provision_list_templates" class="hidden
       '<br>'+
     '</div>'+
   '</div>'+
-  '<br>'+
-  '<div class="row">'+
-    '<div class="large-8 large-centered columns">'+
-      '<a href"#" class="provision_create_vm_button button large radius large-12 small-12">'+tr("Create Virtual Machine")+'</a>'+
-    '</div>'+
-  '</div>'+
 '</div>';
 
 var provision_list_vms = '<div id="provision_list_vms" class="section_content">'+
@@ -701,12 +711,6 @@ var provision_list_vms = '<div id="provision_list_vms" class="section_content">'
         '</tbody>'+
       '</table>'+
       '<br>'+
-    '</div>'+
-  '</div>'+
-  '<br>'+
-  '<div class="row">'+
-    '<div class="large-8 large-centered columns">'+
-      '<a href"#" class="provision_create_vm_button button large radius large-12 small-12">'+tr("Create Virtual Machine")+'</a>'+
     '</div>'+
   '</div>'+
 '</div>';
@@ -743,21 +747,6 @@ var provision_info_vdc_user =  '<div id="provision_info_vdc_user" class="section
     '<div class="large-10 large-centered columns">'+
       '<h3 class="subheader text-right">'+
         '<span class="left">'+
-          '<i class="fa fa-fw fa-bar-chart-o"/>&emsp;'+
-          tr("Accounting")+
-        '</span>'+
-      '</h3>'+
-    '</div>'+
-  '</div>'+
-  '<br>'+
-  '<div class="row">'+
-    '<div  id="provision_info_vdc_user_acct" class="large-9 large-centered columns">'+
-    '</div>'+
-  '</div>'+
-  '<div class="row">'+
-    '<div class="large-10 large-centered columns">'+
-      '<h3 class="subheader text-right">'+
-        '<span class="left">'+
           '<i class="fa fa-fw fa-cloud"/>&emsp;'+
           tr("Resources")+
         '</span>'+
@@ -769,14 +758,13 @@ var provision_info_vdc_user =  '<div id="provision_info_vdc_user" class="section
   '<div class="row">'+
     '<div class="large-9 large-centered columns">'+
       '<div class="large-6 columns">'+
-        '<a href"#" class="provision_create_vm_button button radius large-12 small-12"><i class="fa fa-fw fa-th"/>&emsp;'+tr("Go to User VMs")+'</a>'+
+        '<a href"#" class="show_vdc_user_vms_button button radius large-12 small-12"><i class="fa fa-fw fa-th"/>&emsp;'+tr("Go to User VMs")+'</a>'+
       '</div>'+
       '<div class="large-6 columns">'+
-        '<a href"#" class="provision_create_vm_button button radius large-12 small-12"><i class="fa fa-fw fa-save"/>&emsp;'+tr("Go to User Templates")+'</a>'+
+        '<a href"#" class="show_vdc_user_templates_button button radius large-12 small-12"><i class="fa fa-fw fa-save"/>&emsp;'+tr("Go to User Templates")+'</a>'+
       '</div>'+
     '</div>'+
   '</div>'+
-  '<br>'+
   '<br>'+
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
@@ -804,19 +792,35 @@ var provision_info_vdc_user =  '<div id="provision_info_vdc_user" class="section
                 '<i class="fa fa-fw fa-2x fa-trash-o"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Delete")+'</span>'+
               '</a>'+
             '</li>'+
-            '<li class="right">'+
-              '<a href"#" id="provision_vdc_user_quota_confirm_button" data-tooltip title="Update the User Quotas" class="has-tip tip-top right">'+
+            '<li class="">'+
+              '<a href"#" id="provision_vdc_user_quota_confirm_button" data-tooltip title="Update the User Quotas" class="has-tip tip-top">'+
                 '<i class="fa fa-fw fa-2x fa-align-left"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Quotas")+'</span>'+
               '</a>'+
             '</li>'+
-            '<li class="right">'+
-              '<a href"#" id="provision_vdc_user_password_confirm_button" data-tooltip title="Change the password of the User" class="has-tip tip-top right">'+
+            '<li class="">'+
+              '<a href"#" id="provision_vdc_user_password_confirm_button" data-tooltip title="Change the password of the User" class="has-tip tip-top">'+
                 '<i class="fa fa-fw fa-2x fa-lock"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Password")+'</span>'+
               '</a>'+
             '</li>'+
           '</ul>'+
         '</span>'+
       '</h2>'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
+  '<div class="row">'+
+    '<div class="large-10 large-centered columns">'+
+      '<h3 class="subheader text-right">'+
+        '<span class="left">'+
+          '<i class="fa fa-fw fa-bar-chart-o"/>&emsp;'+
+          tr("Accounting")+
+        '</span>'+
+      '</h3>'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
+  '<div class="row">'+
+    '<div  id="provision_info_vdc_user_acct" class="large-9 large-centered columns">'+
     '</div>'+
   '</div>'+
   '<br>'+
@@ -972,18 +976,23 @@ var provision_header = '<img src="images/one_small_logo.png" style="height:40px;
 
 if (Config.isTabPanelEnabled("provision-tab", "users")) {
   provision_header += '<li class="left" >'+
-        '<a href"#" class="medium button radius success" id="provision_users_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-users"/>&emsp;'+tr('Manage VDC')+'</a>'+
+        '<a href"#" class="medium button radius provision_create_vm_button" style=" margin-left: 10px;margin-right: 10px;">'+tr('Create VM')+'</a>'+
+        '<a href"#" class="medium button radius provision_create_user_button" style="display:none; margin-left: 10px;margin-right: 10px;">'+tr('Add User')+'</a>'+
       '</li>'
 }
 
 provision_header +=  '<li>'+
-      '<a href"#" class="provision_create_vm_button medium off-color" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-plus-square"/><br>'+tr("Create")+'</a>'+
+      '<a href"#" class="medium off-color" id="provision_users_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-users"/><br>'+tr("Manage VDC")+'</a>'+
+    '</li>'+
+    '<li style="border-left: 1px solid #efefef; height: 40px"><br>'+
     '</li>'+
     '<li>'+
       '<a href"#" class="medium off-color" id="provision_vms_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-th"/><br>'+tr("VMs")+'</a>'+
     '</li>'+
     '<li>'+
       '<a href"#" class="medium off-color" id="provision_templates_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-save"/><br>'+tr("Templates")+'</a>'+
+    '</li>'+
+    '<li style="border-left: 1px solid #efefef; height: 40px"><br>'+
     '</li>'+
     '<li>'+
       '<a href"#" class="medium off-color" id="provision_user_info_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-user"/><br>'+config['display_name']+'</a>'+
@@ -1389,6 +1398,9 @@ function show_provision_create_vm() {
   update_provision_templates_datatable(provision_saved_templates_datatable);
   update_provision_networks_datatable(provision_networks_datatable);
 
+  $(".provision_create_user_button").hide();
+  $(".provision_create_vm_button").hide();
+
   $(".section_content").hide();
   $("#provision_create_vm").fadeIn();
 }
@@ -1396,11 +1408,17 @@ function show_provision_create_vm() {
 function show_provision_create_user() {
   $(".section_content").hide();
   $("#provision_create_user").fadeIn();
+
+  $(".provision_create_user_button").hide();
+  $(".provision_create_vm_button").hide();
 }
 
 function show_provision_vm_list(timeout) {
   $(".section_content").hide();
   $("#provision_list_vms").fadeIn();
+
+  $(".provision_create_user_button").hide();
+  $(".provision_create_vm_button").show();
 
   update_provision_vms_datatable(provision_vms_datatable, timeout);
 }
@@ -1408,6 +1426,9 @@ function show_provision_vm_list(timeout) {
 function show_provision_user_list(timeout) {
   $(".section_content").hide();
   $("#provision_manage_vdc").fadeIn();
+
+  $(".provision_create_user_button").show();
+  $(".provision_create_vm_button").hide();
 
   $("a[href='#provision_vdc_users'").click();
 
@@ -1417,6 +1438,9 @@ function show_provision_user_list(timeout) {
 function show_provision_template_list(timeout) {
   $(".section_content").hide();
   $("#provision_list_templates").fadeIn();
+
+  $(".provision_create_user_button").hide();
+  $(".provision_create_vm_button").show();
 
   $("#provision_confirm_delete_template_div").empty();
 
@@ -1887,7 +1911,7 @@ function update_provision_vdc_user_info(data) {
   $("#provision_info_vdc_user_acct",context).html("");
 
   $("#provision_info_vdc_user",context).attr("user_id", data.ID);
-  $("#provision_info_vdc_user_name", context).text(data.NAME);
+  $("#provision_info_vdc_user_name", context).html('<i class="fa fa-fw fa-user"/>&emsp;'+data.NAME);
 
   var default_user_quotas = Quotas.default_quotas(data.DEFAULT_USER_QUOTAS);
   var vms_quota = Quotas.vms(data, default_user_quotas);
@@ -1896,9 +1920,9 @@ function update_provision_vdc_user_info(data) {
 
   var quotas_html;
   if (vms_quota || cpu_quota || memory_quota) {
-    quotas_html = '<div class="large-4 columns">' + vms_quota + '<br><br></div>';
-    quotas_html += '<div class="large-4 columns">' + cpu_quota + '<br><br></div>';
-    quotas_html += '<div class="large-4 columns">' + memory_quota + '<br><br></div>';
+    quotas_html = '<div class="large-4 columns">' + vms_quota + '</div>';
+    quotas_html += '<div class="large-4 columns">' + cpu_quota + '</div>';
+    quotas_html += '<div class="large-4 columns">' + memory_quota + '</div>';
   } else {
     quotas_html = '<div class="row">'+
       '<div class="large-8 large-centered columns">'+
