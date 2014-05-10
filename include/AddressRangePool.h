@@ -26,6 +26,8 @@
 #include "Template.h"
 #include "AddressRange.h"
 
+class VectorAttribute;
+
 using namespace std;
 
 class AddressRangePool
@@ -52,13 +54,74 @@ public:
      */
     int from_xml_node(const xmlNodePtr node);
 
+    /**
+     *  Generate a XML representation of the Address Range Pool
+     *    @param sstream where the ARPool is written
+     *    @param extended true to include lease information
+     *    @return the string with the XML
+     */
     string& to_xml(string& sstream, bool extended) const;
 
+    /**
+     *  Allocates an address in a suitable address range from the pool
+     *    @param ot the type of the object requesting the address (VM or NET)
+     *    @param obid the id of the object requesting the address
+     *    @param nic the NIC attribute to be filled with lease attributes
+     *    @param inherit attributes to be added to the NIC
+     *    @return 0 if success
+     */
+    int allocate(PoolObjectSQL::ObjectType ot, int obid, VectorAttribute * nic,
+        const vector<string> &inherit);
+
+    /**
+     *  Allocates an address in a suitable address range from the pool by mac
+     *    @param mac the specific MAC address requested
+     *    @param ot the type of the object requesting the address (VM or NET)
+     *    @param obid the id of the object requesting the address
+     *    @param nic the NIC attribute to be filled with lease attributes
+     *    @param inherit attributes to be added to the NIC
+     *    @return 0 if success
+     */
+    int allocate_by_mac(const string &mac, PoolObjectSQL::ObjectType ot, int obid,
+        VectorAttribute * nic, const vector<string> &inherit);
+
+    /**
+     *  Allocates an address in a suitable address range from the pool by mac
+     *    @param ip the specific IP address requested
+     *    @param ot the type of the object requesting the address (VM or NET)
+     *    @param obid the id of the object requesting the address
+     *    @param nic the NIC attribute to be filled with lease attributes
+     *    @param inherit attributes to be added to the NIC
+     *    @return 0 if success
+     */
+    int allocate_by_ip(const string &ip, PoolObjectSQL::ObjectType ot, int obid,
+        VectorAttribute * nic, const vector<string> &inherit);
+
+    /**
+     *  Frees the given address by MAC
+     *    @param arid the ID of the address range
+     *    @param ot the type of the object requesting the address (VM or NET)
+     *    @param obid the id of the object requesting the address
+     *    @param mac the specific MAC address requested
+     */
+    void free_addr(unsigned int arid, PoolObjectSQL::ObjectType ot, int obid,
+        const string& mac);
+
 private:
+    /**
+     *  Stores the Address Ranges in a template form. This template is used
+     *  to store the pool in the DB
+     */
     Template ar_template;
 
+    /**
+     *  ID for the next Address Range
+     */
     unsigned int next_ar;
 
+    /**
+     *  Map to access each range
+     */
     map<unsigned int, AddressRange *> ar_pool;
 };
 

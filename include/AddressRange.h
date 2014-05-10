@@ -79,7 +79,8 @@ public:
     int from_vattr_db(VectorAttribute *vattr);
 
     /**
-     *  Builds an extended XML representation of the AR to send it back to clients
+     *  Builds an extended XML representation of the AR to send it back to
+     *  clients
      */
     void to_xml(ostringstream &oss) const;
 
@@ -141,10 +142,11 @@ public:
 
     /**
      *  Frees a previous allocated address, referenced by its MAC address
-     *
+     *  @param ot the object type of the owner of the address
+     *  @param obid the id of the owner of the address
      *  @param mac the MAC address in string form
      */
-    void free_addr(const string& mac);
+    void free_addr(PoolObjectSQL::ObjectType ot, int obid, const string& mac);
 
     /**
      *  Return the id for this address range
@@ -240,7 +242,8 @@ private:
     /**
      *  Frees an address from the map. Updates the ALLOCATED attribute
      */
-    void free_addr(unsigned int addr_index);
+    void free_addr(PoolObjectSQL::ObjectType ot, int obid,
+        unsigned int addr_index);
 
     /* ---------------------------------------------------------------------- */
     /* Restricted Attributes functions                                        */

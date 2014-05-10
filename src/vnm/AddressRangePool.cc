@@ -136,4 +136,77 @@ string& AddressRangePool::to_xml(string& sstream, bool extended) const
     return ar_template.to_xml(sstream);
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
+int AddressRangePool::allocate(PoolObjectSQL::ObjectType ot, int obid,
+    VectorAttribute * nic, const vector<string> &inherit)
+{
+    map<unsigned int, AddressRange *>::iterator it;
+
+    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    {
+        if (it->second->allocate_addr(ot, obid, nic, inherit) == 0)
+        {
+            return 0;
+        }
+    }
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRangePool::allocate_by_mac(const string &mac,
+    PoolObjectSQL::ObjectType ot, int obid, VectorAttribute * nic,
+    const vector<string> &inherit)
+{
+    map<unsigned int, AddressRange *>::iterator it;
+
+    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    {
+        if (it->second->allocate_by_mac(mac, ot, obid, nic, inherit) == 0)
+        {
+            return 0;
+        }
+    }
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRangePool::allocate_by_ip(const string &ip,
+    PoolObjectSQL::ObjectType ot, int obid, VectorAttribute * nic,
+    const vector<string> &inherit)
+{
+    map<unsigned int, AddressRange *>::iterator it;
+
+    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    {
+        if (it->second->allocate_by_ip(ip, ot, obid, nic, inherit) == 0)
+        {
+            return 0;
+        }
+    }
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AddressRangePool::free_addr(unsigned int arid, PoolObjectSQL::ObjectType ot,
+    int obid, const string& mac)
+{
+    map<unsigned int, AddressRange *>::iterator it;
+
+    it = ar_pool.find(arid);
+
+    if (it!=ar_pool.end())
+    {
+        it->second->free_addr(ot, obid, mac);
+    }
+}

@@ -167,7 +167,7 @@ int AddressRange::from_vattr(VectorAttribute *vattr, string& error_msg)
 
     vattr->replace("AR_ID", id);
 
-    if (do_mac) //Need to add MAC_START to the attribute
+    if (do_mac) //Need to add MAC to the attribute
     {
         set_mac(0, attr);
     }
@@ -599,7 +599,7 @@ int AddressRange::attr_to_allocated(const string& allocated_s)
 /* -------------------------------------------------------------------------- */
 
 void AddressRange::allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
-        unsigned int addr_index)
+    unsigned int addr_index)
 {
 
     allocated.insert(make_pair(addr_index,ot|obid));
@@ -609,11 +609,18 @@ void AddressRange::allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
 
 /* -------------------------------------------------------------------------- */
 
-void AddressRange::free_addr(unsigned int addr_index)
+void AddressRange::free_addr(PoolObjectSQL::ObjectType ot, int obid,
+    unsigned int addr_index)
 {
-    allocated.erase(addr_index);
+    map<unsigned int, long long>::iterator it;
 
-    allocated_to_attr();
+    it = allocated.find(addr_index);
+
+    if (it != allocated.end() && it->second == (ot|obid))
+    {
+        allocated.erase(it);
+        allocated_to_attr();
+    }
 }
 
 /* ************************************************************************** */
@@ -710,6 +717,11 @@ int AddressRange::allocate_by_ip(
     VectorAttribute*          nic,
     const vector<string>&     inherit)
 {
+    if (!(type & 0x00000002))//Not of type IP4 or IP4_6
+    {
+        return -1;
+    }
+
     unsigned int ip_i;
 
     if (ip_to_i(ip_s, ip_i) == -1)
@@ -747,10 +759,12 @@ int AddressRange::allocate_by_ip(
 
     return 0;
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AddressRange::free_addr(const string& mac_s)
+void AddressRange::free_addr(PoolObjectSQL::ObjectType ot, int obid,
+    const string& mac_s)
 {
     unsigned int mac_i[2];
 
@@ -760,7 +774,7 @@ void AddressRange::free_addr(const string& mac_s)
 
     if ((mac_i[0] >= mac[0]) && (index < size))
     {
-        free_addr(index);
+        free_addr(ot, obid, index);
     }
 }
 
