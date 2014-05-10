@@ -107,6 +107,14 @@ public:
     void free_addr(unsigned int arid, PoolObjectSQL::ObjectType ot, int obid,
         const string& mac);
 
+    /**
+     *  Return the number of used addresses
+     */
+    unsigned int get_used_addr() const
+    {
+        return used_addr;
+    }
+
 private:
     /**
      *  Stores the Address Ranges in a template form. This template is used
@@ -123,6 +131,11 @@ private:
      *  Map to access each range
      */
     map<unsigned int, AddressRange *> ar_pool;
+
+    /**
+     *  Used addresses
+     */
+    unsigned int used_addr;
 };
 
 #endif

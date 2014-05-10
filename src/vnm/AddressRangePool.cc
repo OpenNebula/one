@@ -18,8 +18,8 @@
 
 using namespace std;
 
-AddressRangePool::AddressRangePool():ar_template(false,'=',"AR_POOL"),next_ar(0)
-{};
+AddressRangePool::AddressRangePool():ar_template(false,'=',"AR_POOL"),
+    next_ar(0), used_addr(0){};
 
 AddressRangePool::~AddressRangePool()
 {
@@ -104,6 +104,8 @@ int AddressRangePool::from_xml_node(const xmlNodePtr node)
         {
             next_ar = ar->ar_id() + 1;
         }
+
+        used_addr += ar->get_used_addr();
     }
 
     return 0;
@@ -148,6 +150,7 @@ int AddressRangePool::allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
     {
         if (it->second->allocate_addr(ot, obid, nic, inherit) == 0)
         {
+            used_addr++;
             return 0;
         }
     }
@@ -168,6 +171,7 @@ int AddressRangePool::allocate_by_mac(const string &mac,
     {
         if (it->second->allocate_by_mac(mac, ot, obid, nic, inherit) == 0)
         {
+            used_addr++;
             return 0;
         }
     }
@@ -188,6 +192,7 @@ int AddressRangePool::allocate_by_ip(const string &ip,
     {
         if (it->second->allocate_by_ip(ip, ot, obid, nic, inherit) == 0)
         {
+            used_addr++;
             return 0;
         }
     }
@@ -207,6 +212,9 @@ void AddressRangePool::free_addr(unsigned int arid, PoolObjectSQL::ObjectType ot
 
     if (it!=ar_pool.end())
     {
-        it->second->free_addr(ot, obid, mac);
+        if ( it->second->free_addr(ot, obid, mac) == 0 )
+        {
+            used_addr--;
+        }
     }
 }

@@ -431,6 +431,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
     {
         os << "<VLAN_ID/>";
     }
+    os  << "<TOTAL_LEASES>"<< ar_pool.get_used_addr() << "</TOTAL_LEASES>";
 
     os  << obj_template->to_xml(template_xml);
 

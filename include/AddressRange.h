@@ -34,7 +34,7 @@ class AddressRange
 {
 public:
 
-    AddressRange(unsigned int _id):id(_id),next(0){};
+    AddressRange(unsigned int _id):id(_id),next(0),used_addr(0){};
 
     virtual ~AddressRange(){};
 
@@ -145,15 +145,24 @@ public:
      *  @param ot the object type of the owner of the address
      *  @param obid the id of the owner of the address
      *  @param mac the MAC address in string form
+     *  @return 0 if the address was freed
      */
-    void free_addr(PoolObjectSQL::ObjectType ot, int obid, const string& mac);
+    int free_addr(PoolObjectSQL::ObjectType ot, int obid, const string& mac);
 
     /**
      *  Return the id for this address range
      */
-    unsigned int ar_id()
+    unsigned int ar_id() const
     {
         return id;
+    }
+
+    /**
+     *  Return the number of used addresses
+     */
+    unsigned int get_used_addr() const
+    {
+        return used_addr;
     }
 
 private:
@@ -242,7 +251,7 @@ private:
     /**
      *  Frees an address from the map. Updates the ALLOCATED attribute
      */
-    void free_addr(PoolObjectSQL::ObjectType ot, int obid,
+    int free_addr(PoolObjectSQL::ObjectType ot, int obid,
         unsigned int addr_index);
 
     /* ---------------------------------------------------------------------- */
@@ -306,7 +315,9 @@ private:
      */
     map<unsigned int, long long> allocated;
 
-    unsigned int                 next;
+    unsigned int next;
+
+    unsigned int used_addr;
 
     /* ---------------------------------------------------------------------- */
     /* Restricted Attributes                                                  */

@@ -276,6 +276,8 @@ void AddressRange::to_xml(ostringstream &oss) const
         oss << "</LEASES>";
     }
 
+    oss << "<TOTAL_LEASES>" << used_addr << "</TOTAL_LEASES>";
+
     oss << "</AR>";
 }
 
@@ -592,6 +594,8 @@ int AddressRange::attr_to_allocated(const string& allocated_s)
         }
 
         allocated.insert(make_pair(addr_index,object_pack));
+
+        used_addr++;
     }
 
     return 0;
@@ -605,12 +609,14 @@ void AddressRange::allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
 
     allocated.insert(make_pair(addr_index,ot|obid));
 
+    used_addr++;
+
     allocated_to_attr();
 }
 
 /* -------------------------------------------------------------------------- */
 
-void AddressRange::free_addr(PoolObjectSQL::ObjectType ot, int obid,
+int AddressRange::free_addr(PoolObjectSQL::ObjectType ot, int obid,
     unsigned int addr_index)
 {
     map<unsigned int, long long>::iterator it;
@@ -621,7 +627,13 @@ void AddressRange::free_addr(PoolObjectSQL::ObjectType ot, int obid,
     {
         allocated.erase(it);
         allocated_to_attr();
+
+        used_addr--;
+
+        return 0;
     }
+
+    return -1;
 }
 
 /* ************************************************************************** */
@@ -764,7 +776,7 @@ int AddressRange::allocate_by_ip(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AddressRange::free_addr(PoolObjectSQL::ObjectType ot, int obid,
+int AddressRange::free_addr(PoolObjectSQL::ObjectType ot, int obid,
     const string& mac_s)
 {
     unsigned int mac_i[2];
@@ -775,8 +787,10 @@ void AddressRange::free_addr(PoolObjectSQL::ObjectType ot, int obid,
 
     if ((mac_i[0] >= mac[0]) && (index < size))
     {
-        free_addr(ot, obid, index);
+        return free_addr(ot, obid, index);
     }
+
+    return -1;
 }
 
 /* ************************************************************************** */

@@ -151,25 +151,12 @@ public:
     }
 
     /**
-     *    Gets size of the network (used + free)
-     *    @return number of hosts that can be fitted in this network
-     */
-    unsigned int get_size()
-    {
-        //TODO
-        return 0;
-        //return leases->size;
-    };
-
-    /**
      *    Gets used leases
      *    @return number of network leases in used
      */
     unsigned int get_used()
     {
-        //TODO
-        return 0;
-        //return leases->n_used;
+        return ar_pool.get_used_addr();
     };
 
     /**
