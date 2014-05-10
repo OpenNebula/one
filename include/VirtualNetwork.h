@@ -98,69 +98,57 @@ public:
     int free_leases(VirtualNetworkTemplate* leases, string& error_msg);
 
     /**
-     *    Gets a new lease for a specific VM
+     *    Gets a new address lease for a specific VM
      *    @param vid VM identifier
-     *    @param _ip pointer to string for IP to be stored into
-     *    @param _mac pointer to string for MAC to be stored into
-     *    @param _bridge name of the physical bridge this VN binds to
+     *    @param nic the VM NIC attribute to be filled with the lease info.
+     *    @param inherit attributes from the address range to include in the NIC
      *    @return 0 if success
      */
-    int get_lease(int vid, string& _ip, string& _mac, string& _bridge)
+    int allocate_addr(int vid, VectorAttribute * nic,
+        const vector<string>& inherit)
     {
-        return 0;
-        //TODO
-        /*
-        unsigned int eui64[2];
-
-        _bridge = bridge;
-        return leases->get(vid, _ip, _mac, eui64);
-        */
-    };
+        return ar_pool.allocate_addr(PoolObjectSQL::VM, vid, nic, inherit);
+    }
 
     /**
-     *    Asks for an specific lease of the given virtual network
+     *    Gets a new address lease for a specific VM by MAC
      *    @param vid VM identifier
-     *    @param _ip the ip of the requested lease
-     *    @param _mac pointer to string for MAC to be stored into
-     *    @param _bridge name of the physical bridge this VN binds to
+     *    @param mac the MAC address requested
+     *    @param nic the VM NIC attribute to be filled with the lease info.
+     *    @param inherit attributes from the address range to include in the NIC
      *    @return 0 if success
      */
-    int set_lease(int vid, const string& _ip, string& _mac, string& _bridge)
+    int allocate_by_mac(int vid, const string& mac, VectorAttribute * nic,
+        const vector<string>& inherit)
     {
-        //TODO
-        /*
-        unsigned int eui64[2];
-
-        _bridge = bridge;
-        return leases->set(vid, _ip, _mac, eui64);
-        */
-
-        return 0;
-    };
+        return ar_pool.allocate_by_mac(mac, PoolObjectSQL::VM, vid, nic, inherit);
+    }
 
     /**
-     *  Release previously given lease
-     *    @param _ip IP identifying the lease
+     *    Gets a new address lease for a specific VM by IP
+     *    @param vid VM identifier
+     *    @param ip the IP address requested
+     *    @param nic the VM NIC attribute to be filled with the lease info.
+     *    @param inherit attributes from the address range to include in the NIC
      *    @return 0 if success
      */
-    void release_lease(const string& ip)
+    int allocate_by_ip(int vid, const string& ip, VectorAttribute * nic,
+        const vector<string>& inherit)
     {
-        //TODO
-        //return leases->release(ip);
-    };
+        return ar_pool.allocate_by_ip(ip, PoolObjectSQL::VM, vid, nic, inherit);
+    }
 
     /**
-     *  Check if a VM is the owner of the ip
-     *    @param ip of the lease to be checked
+     *  Release previously given address lease
+     *    @param arid of the address range where the address was leased from
      *    @param vid the ID of the VM
-     *    @return true if the ip was already assigned
+     *    @param mac MAC address identifying the lease
+     *    @return 0 if success
      */
-    bool is_owner (const string& ip, int vid)
+    void free_addr(unsigned int arid, int vid, const string& mac)
     {
-        return true;
-        //TODO
-        //return leases->is_owner(ip, vid);
-    };
+        ar_pool.free_addr(arid, PoolObjectSQL::VM, vid, mac);
+    }
 
     /**
      *    Gets size of the network (used + free)

@@ -2595,21 +2595,23 @@ int VirtualMachine::release_network_leases(VectorAttribute const * nic, int vmid
     VirtualNetwork*     vn;
 
     int     vnid;
-    string  ip;
+    int     ar_id;
+    string  mac;
 
     if ( nic == 0 )
     {
         return -1;
     }
 
-    if ( nic->vector_value("NETWORK_ID", vnid) != 0 )
+    if (nic->vector_value("NETWORK_ID", vnid) != 0 ||
+        nic->vector_value("AR_ID", ar_id) != 0)
     {
         return -1;
     }
 
-    ip = nic->vector_value("IP");
+    mac = nic->vector_value("MAC");
 
-    if ( ip.empty() )
+    if (mac.empty())
     {
         return -1;
     }
@@ -2621,11 +2623,9 @@ int VirtualMachine::release_network_leases(VectorAttribute const * nic, int vmid
         return -1;
     }
 
-    if (vn->is_owner(ip,vmid))
-    {
-        vn->release_lease(ip);
-        vnpool->update(vn);
-    }
+    vn->free_addr(ar_id, vmid, mac);
+
+    vnpool->update(vn);
 
     vn->unlock();
 

@@ -263,11 +263,11 @@ void AddressRange::to_xml(ostringstream &oss) const
 
             if (it->second & PoolObjectSQL::VM)
             {
-                lease.replace("VM", it->second && 0x00000000FFFFFFFFLL);
+                lease.replace("VM", it->second & 0x00000000FFFFFFFFLL);
             }
             else if (it->second & PoolObjectSQL::NET)
             {
-                lease.replace("VNET", it->second && 0x00000000FFFFFFFFLL);
+                lease.replace("VNET", it->second & 0x00000000FFFFFFFFLL);
             }
 
             lease.to_xml(oss);
@@ -586,11 +586,12 @@ int AddressRange::attr_to_allocated(const string& allocated_s)
     {
         iss >> ws >> addr_index >> ws >> object_pack;
 
-        if (!iss.fail())
+        if (iss.fail())
         {
-            allocated.insert(make_pair(addr_index,object_pack));
             return -1;
         }
+
+        allocated.insert(make_pair(addr_index,object_pack));
     }
 
     return 0;
@@ -632,8 +633,6 @@ int AddressRange::allocate_addr(
     VectorAttribute*          nic,
     const vector<string>&     inherit)
 {
-    int rc = -1;
-
     for ( unsigned int i=0; i<size; i++, next = (next+1)%size )
     {
         if ( allocated.count(next) == 0 )
@@ -653,10 +652,12 @@ int AddressRange::allocate_addr(
             set_vnet(nic, inherit);
 
             allocate_addr(ot, obid, next);
+
+            return 0;
         }
     }
 
-    return rc;
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -702,7 +703,7 @@ int AddressRange::allocate_by_mac(
 
     set_vnet(nic, inherit);
 
-    allocate_addr(ot, obid, next);
+    allocate_addr(ot, obid, index);
 
     return 0;
 }
@@ -755,7 +756,7 @@ int AddressRange::allocate_by_ip(
 
     set_vnet(nic, inherit);
 
-    allocate_addr(ot, obid, next);
+    allocate_addr(ot, obid, index);
 
     return 0;
 }

@@ -560,11 +560,28 @@ int VirtualNetwork::nic_attribute(
         }
     }
 
-    //GET THE IP/MAC... AND OVERWRITE FROM AR.
-    //string ip  = nic->vector_value("IP");
-    //string mac = nic->vector_value("MAC");
+    //--------------------------------------------------------------------------
+    //  Get the lease from the Virtual Network
+    //--------------------------------------------------------------------------
+    int rc;
 
-    return 0;
+    string ip  = nic->vector_value("IP");
+    string mac = nic->vector_value("MAC");
+
+    if (!ip.empty())
+    {
+        rc = allocate_by_ip(vid, ip, nic, inherit_attrs);
+    }
+    else if (!mac.empty())
+    {
+        rc = allocate_by_mac(vid, mac, nic, inherit_attrs);
+    }
+    else
+    {
+        rc = allocate_addr(vid, nic, inherit_attrs);
+    }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */

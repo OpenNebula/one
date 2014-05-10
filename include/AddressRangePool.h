@@ -70,8 +70,8 @@ public:
      *    @param inherit attributes to be added to the NIC
      *    @return 0 if success
      */
-    int allocate(PoolObjectSQL::ObjectType ot, int obid, VectorAttribute * nic,
-        const vector<string> &inherit);
+    int allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
+        VectorAttribute * nic, const vector<string> &inherit);
 
     /**
      *  Allocates an address in a suitable address range from the pool by mac

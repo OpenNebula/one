@@ -139,7 +139,7 @@ string& AddressRangePool::to_xml(string& sstream, bool extended) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRangePool::allocate(PoolObjectSQL::ObjectType ot, int obid,
+int AddressRangePool::allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
     VectorAttribute * nic, const vector<string> &inherit)
 {
     map<unsigned int, AddressRange *>::iterator it;
