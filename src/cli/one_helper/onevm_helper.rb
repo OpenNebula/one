@@ -248,8 +248,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         puts str % ["HOST",
             vm['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']] if
                 %w{ACTIVE SUSPENDED POWEROFF}.include? vm.state_str
-        puts str % ["CLUSTER ID", 
-            vm['/VM/HISTORY_RECORDS/HISTORY[last()]/CID'] ] if 
+        puts str % ["CLUSTER ID",
+            vm['/VM/HISTORY_RECORDS/HISTORY[last()]/CID'] ] if
                 %w{ACTIVE SUSPENDED POWEROFF}.include? vm.state_str
         puts str % ["START TIME",
             OpenNebulaHelper.time_to_str(vm['/VM/STIME'])]
@@ -380,8 +380,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     array_id += 1
                 end
 
-                if nic.has_key?("IP6_SITE")
-                    ip6_link = {"IP"           => nic.delete("IP6_SITE"),
+                if nic.has_key?("IP6_ULA")
+                    ip6_link = {"IP"           => nic.delete("IP6_ULA"),
                                 "CLI_DONE"     => true,
                                 "DOUBLE_ENTRY" => true}
                     vm_nics.insert(array_id+1,ip6_link)

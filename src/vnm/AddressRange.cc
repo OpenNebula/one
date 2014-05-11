@@ -234,6 +234,8 @@ void AddressRange::to_xml(ostringstream &oss) const
                 << "]]></"<< it->first << ">";
     }
 
+    oss << "<USED_LEASES>" << used_addr << "</USED_LEASES>";
+
     if (allocated.empty())
     {
         oss << "<LEASES/>";
@@ -275,8 +277,6 @@ void AddressRange::to_xml(ostringstream &oss) const
 
         oss << "</LEASES>";
     }
-
-    oss << "<TOTAL_LEASES>" << used_addr << "</TOTAL_LEASES>";
 
     oss << "</AR>";
 }
