@@ -1497,6 +1497,9 @@ src/sunstone/public/vendor/flot/jquery.flot.navigate.min.js \
 src/sunstone/public/vendor/flot/jquery.flot.pie.min.js \
 src/sunstone/public/vendor/flot/jquery.flot.resize.min.js \
 src/sunstone/public/vendor/flot/jquery.flot.stack.min.js \
+src/sunstone/public/vendor/flot/jquery.flot.tooltip.min.js \
+src/sunstone/public/vendor/flot/jquery.flot.JUMlib.min.js \
+src/sunstone/public/vendor/flot/jquery.flot.gantt.min.js \
 src/sunstone/public/vendor/flot/LICENSE.txt \
 src/sunstone/public/vendor/flot/NOTICE"
 
