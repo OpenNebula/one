@@ -1702,9 +1702,9 @@ function setupTips(context, position){
         }
         //replace the text with an icon and spans
         obj.html('<span data-tooltip class="'+tip_classes.join(' ')+'" data-width="210" title="'+tip+'"><i class="fa fa-question-circle"></i></span>');
+        obj.foundation();
     });
 
-    context.foundation();
 }
 
 //returns an array of ids of selected elements in a dataTable
@@ -3591,7 +3591,7 @@ function hideDialog(){
 
 function popDialog(content, context){
     $(".right-info", context).html(content);
-    $(document).foundation();
+    context.foundation();
     //innerLayout.open("south");
 }
 

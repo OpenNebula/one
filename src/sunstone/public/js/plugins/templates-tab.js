@@ -3612,13 +3612,9 @@ function initialize_create_template_dialog(dialog) {
         setup_other_tab_content(tab);
     }
 
-    // Re-Setup tips
-    setupTips(dialog);
-
-
-    $(document).foundation();
-
+    dialog.foundation();
     // Add first disk and network
+    setupTips(dialog);
     $("#tf_btn_disks", dialog).trigger("click");
     $("#tf_btn_nics", dialog).trigger("click");
 
@@ -3869,7 +3865,7 @@ function popUpCreateTemplateDialog(){
 
     $('#wizard_mode', $create_template_dialog).show();
 
-    $create_template_dialog.foundation().foundation('reveal', 'open');
+    $create_template_dialog.foundation('reveal', 'open');
 
     $("input#NAME",$create_template_dialog).focus();
 
