@@ -327,6 +327,7 @@ class BackEndSQLite < OneDBBacKEnd
 
         begin
             @db = Sequel.sqlite(@sqlite_file)
+            @db.integer_booleans = true
         rescue Exception => e
             raise "Error connecting to DB: " + e.message
         end
