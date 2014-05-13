@@ -70,7 +70,7 @@ class SunstoneViews
 
             gadmins = group["TEMPLATE/GROUP_ADMINS"]
 
-            if !gadmins.nil? && gadmins =~ /#{user_name}/ && group["TEMPLATE/GROUP_ADMIN_VIEWS"]
+            if gadmins && gadmins.split(',').include?(user_name) && group["TEMPLATE/GROUP_ADMIN_VIEWS"]
                 available << group["TEMPLATE/GROUP_ADMIN_VIEWS"].split(",")
             end
         }
