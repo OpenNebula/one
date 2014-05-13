@@ -72,7 +72,12 @@ module OpenNebula
             if @levels[@current].empty?
                 @levels[@current-1][name] = @value || {}
             else
-                @levels[@current-1][name] = @levels[@current]
+                if @levels[@current-1][name]
+                    @levels[@current-1][name] = [@levels[@current-1][name], @levels[@current]].flatten
+                else
+                    @levels[@current-1][name] = @levels[@current]
+                end
+
                 @levels[@current] = Hash.new
             end
 
