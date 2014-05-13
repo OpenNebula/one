@@ -783,7 +783,7 @@ var provision_info_vdc_user =  '<div id="provision_info_vdc_user" class="section
       '<h2 class="subheader">'+
         '<span class="right" style="padding: 5px;border: 1px solid #efefef; background: #f7f7f7; border-radius: 5px; color:#777 !important; width: 100%; box-shadow: 0px 1px #dfdfdf">'+
           '<div class="row">'+
-            '<div class="large-11 large-centered columns" id="provision_confirm_action">'+
+            '<div class="large-11 large-centered columns" id="provision_vdc_user_confirm_action">'+
             '</div>'+
           '</div>'+
           '<ul class="inline-list text-center" style="font-size:12px; margin-bottom:0px; padding: 5px 10px">'+
@@ -1054,6 +1054,7 @@ var povision_actions = {
       call: OpenNebula.User.create,
       callback: function(request, response) {
 
+        // TODO if no quota is defined redefine?
         Sunstone.runAction("Provision.User.set_quota", [response.USER.ID], {
           "VM" : {
             "VOLATILE_SIZE":"-1",
@@ -1093,6 +1094,16 @@ var povision_actions = {
         update_provision_vdc_user_info(response.USER);
     },
     error: onError
+  },
+
+  "Provision.VDCUser.delete" : {
+      type: "single",
+      call: OpenNebula.User.del,
+      callback: function(){
+        OpenNebula.Helper.clear_cache("USER");
+        show_provision_user_list(1000);
+      },
+      error: onError
   },
 
   "Provision.Group.show" : {
@@ -1907,10 +1918,11 @@ function update_provision_vdc_user_info(data) {
 
   var context = $("#provision_info_vdc_user");
 
-  $("#provision_confirm_action",context).html("");
+  $("#provision_vdc_user_confirm_action",context).html("");
   $("#provision_info_vdc_user_acct",context).html("");
 
-  $("#provision_info_vdc_user",context).attr("user_id", data.ID);
+  context.attr("user_id", data.ID);
+  context.attr("quotas", JSON.stringify(data.VM_QUOTA));
   $("#provision_info_vdc_user_name", context).html('<i class="fa fa-fw fa-user"/>&emsp;'+data.NAME);
 
   var default_user_quotas = Quotas.default_quotas(data.DEFAULT_USER_QUOTAS);
@@ -2764,20 +2776,20 @@ $(document).ready(function(){
                     default_user_quotas.VM_QUOTA.VM.VMS);
                 quotas_html += '</li>';
 
-                quotas_html += '<li class="provision-description text-left" style="padding-top: 0px; padding-bottom: 0px;margin-left:15px">'+tr("Memory")+'</li>';
-                quotas_html += '<li class="provision-bullet-item text-left" style="padding: 10px 25px 15px 25px; margin-bottom: 5px">';
-                quotas_html += quotaBarMB(
-                    quota.VM_QUOTA.VM.MEMORY_USED,
-                    quota.VM_QUOTA.VM.MEMORY,
-                    default_user_quotas.VM_QUOTA.VM.MEMORY);
-                quotas_html += '</li>';
-
                 quotas_html += '<li class="provision-description text-left" style="padding-top: 0px; padding-bottom: 0px;margin-left:15px">'+tr("CPU")+'</li>';
                 quotas_html += '<li class="provision-bullet-item text-left" style="padding: 10px 25px 15px 25px; margin-bottom: 10px">';
                 quotas_html += quotaBarFloat(
                     quota.VM_QUOTA.VM.CPU_USED,
                     quota.VM_QUOTA.VM.CPU,
                     default_user_quotas.VM_QUOTA.VM.CPU);
+                quotas_html += '</li>';
+
+                quotas_html += '<li class="provision-description text-left" style="padding-top: 0px; padding-bottom: 0px;margin-left:15px">'+tr("Memory")+'</li>';
+                quotas_html += '<li class="provision-bullet-item text-left" style="padding: 10px 25px 15px 25px; margin-bottom: 5px">';
+                quotas_html += quotaBarMB(
+                    quota.VM_QUOTA.VM.MEMORY_USED,
+                    quota.VM_QUOTA.VM.MEMORY,
+                    default_user_quotas.VM_QUOTA.VM.MEMORY);
                 quotas_html += '</li>';
             }
         }
@@ -2789,14 +2801,14 @@ $(document).ready(function(){
           quotas_html += quotaBar(0,0,null);
           quotas_html += '</li>';
 
-          quotas_html += '<li class="provision-description text-left" style="padding-top: 0px; padding-bottom: 0px;margin-left:15px">'+tr("Memory")+'</li>';
-          quotas_html += '<li class="provision-bullet-item text-left" style="padding: 10px 25px 15px 25px; margin-bottom: 5px">';
-          quotas_html += quotaBarMB(0,0,null);
-          quotas_html += '</li>';
-
           quotas_html += '<li class="provision-description text-left" style="padding-top: 0px; padding-bottom: 0px;margin-left:15px">'+tr("CPU")+'</li>';
           quotas_html += '<li class="provision-bullet-item text-left" style="padding: 10px 25px 15px 25px; margin-bottom: 10px">';
           quotas_html += quotaBarFloat(0,0,null);
+          quotas_html += '</li>';
+
+          quotas_html += '<li class="provision-description text-left" style="padding-top: 0px; padding-bottom: 0px;margin-left:15px">'+tr("Memory")+'</li>';
+          quotas_html += '<li class="provision-bullet-item text-left" style="padding: 10px 25px 15px 25px; margin-bottom: 5px">';
+          quotas_html += quotaBarMB(0,0,null);
           quotas_html += '</li>';
         }
 
@@ -2848,13 +2860,13 @@ $(document).ready(function(){
     var provision_rvms_quota_slider = $( "#provision_rvms_quota_slider").noUiSlider({
         handles: 1,
         connect: "lower",
-        range: [0,50],
-        step: 1,
-        start: 5,
-        value: 5,
+        range: [0,5000],
+        step: 100,
+        start: 500,
+        value: 500,
         slide: function(type) {
             if ( type != "move"){
-                provision_rvms_quota_input.val($(this).val());
+                provision_rvms_quota_input.val($(this).val()/100);
             }
         }
     });
@@ -2862,20 +2874,20 @@ $(document).ready(function(){
     provision_rvms_quota_slider.addClass("noUiSlider");
 
     provision_rvms_quota_input.change(function() {
-        provision_rvms_quota_slider.val(this.value)
+        provision_rvms_quota_slider.val(this.value * 100)
     });
 
     var provision_cpu_quota_input = $("#provision_cpu_quota_input");
     var provision_cpu_quota_slider = $( "#provision_cpu_quota_slider").noUiSlider({
         handles: 1,
         connect: "lower",
-        range: [0,200],
-        step: 1,
-        start: 40,
-        value: 40,
+        range: [0,20000],
+        step: 100,
+        start: 4000,
+        value: 4000,
         slide: function(type) {
             if ( type != "move"){
-                provision_cpu_quota_input.val($(this).val());
+                provision_cpu_quota_input.val($(this).val()/100);
             }
         }
     });
@@ -2883,7 +2895,7 @@ $(document).ready(function(){
     provision_cpu_quota_slider.addClass("noUiSlider");
 
     provision_cpu_quota_input.change(function() {
-        provision_cpu_quota_slider.val(this.value)
+        provision_cpu_quota_slider.val(this.value * 100)
     });
 
     var provision_memory_quota_input = $("#provision_memory_quota_input");
@@ -3172,53 +3184,192 @@ $(document).ready(function(){
       return false;
     })
 
-    //$("#provision_info_vm").on("click", "#provision_snapshot_button", function(){
-    //  $("#provision_confirm_action").html(
-    //    '<div data-alert class="alert-box secondary radius">'+
-    //      '<div class="row">'+
-    //        '<div class="large-12 columns">'+
-    //          '<span style="font-size: 14px; line-height: 20px">'+
-    //            tr("This Virtual Machine will be saved in a new Template. Only the main disk will be preserved!")+
-    //          '<br>'+
-    //            tr("You can then create a new Virtual Machine using this Template")+
-    //          '</span>'+
-    //        '</div>'+
-    //      '</div>'+
-    //      '<br>'+
-    //      '<div class="row">'+
-    //        '<div class="large-11 large-centered columns">'+
-    //          '<input type="text" id="provision_snapshot_name" placeholder="'+tr("Template Name")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important; margin: 0px"/>'+
-    //        '</div>'+
-    //      '</div>'+
-    //      '<br>'+
-    //      '<div class="row">'+
-    //        '<div class="large-11 large-centered columns">'+
-    //          '<a href"#" id="provision_snapshot_create_button" class="success button large-12 radius right">'+tr("Save Virtual Machine to Template")+'</a>'+
-    //        '</div>'+
-    //      '</div>'+
-    //      '<a href="#" class="close" style="top: 20px">&times;</a>'+
-    //    '</div>');
-    //});
-//
-    //$("#provision_info_vm").on("click", "#provision_delete_confirm_button", function(){
-    //  $("#provision_confirm_action").html(
-    //    '<div data-alert class="alert-box secondary radius">'+
-    //      '<div class="row">'+
-    //      '<div class="large-9 columns">'+
-    //        '<span style="font-size: 14px; line-height: 20px">'+
-    //          tr("Be careful, this action will inmediately destroy your Virtual Machine")+
-    //          '<br>'+
-    //          tr("All the information will be lost!")+
-    //        '</span>'+
-    //      '</div>'+
-    //      '<div class="large-3 columns">'+
-    //        '<a href"#" id="provision_delete_button" class="alert button large-12 radius right" style="margin-right: 15px">'+tr("Delete")+'</a>'+
-    //      '</div>'+
-    //      '</div>'+
-    //      '<a href="#" class="close">&times;</a>'+
-    //    '</div>');
-    //});
-//
+    $("#provision_info_vdc_user").on("click", "#provision_vdc_user_delete_confirm_button", function(){
+      $("#provision_vdc_user_confirm_action").html(
+        '<div data-alert class="alert-box secondary radius">'+
+          '<div class="row">'+
+          '<div class="large-9 columns">'+
+            '<span style="font-size: 14px; line-height: 20px">'+
+              tr("Be careful, this action will inmediately remove the User from OpenNebula")+
+            '</span>'+
+          '</div>'+
+          '<div class="large-3 columns">'+
+            '<a href"#" id="provision_delete_button" class="alert button large-12 radius right" style="margin-right: 15px">'+tr("Delete User")+'</a>'+
+          '</div>'+
+          '</div>'+
+          '<a href="#" class="close">&times;</a>'+
+        '</div>');
+    });
+
+    $("#provision_info_vdc_user").on("click", "#provision_vdc_user_quota_confirm_button", function(){
+      $("#provision_vdc_user_confirm_action").html(
+        '<div data-alert class="alert-box secondary radius">'+
+          '<div class="row">'+
+            '<div class="large-10 large-centered columns">'+
+              '<h5 class="subheader text-right">'+
+                '<span class="left">'+
+                  tr("Running VMs")+
+                '</span>'+
+              '</h5>'+
+              '<br>'+
+            '</div>'+
+          '</div>'+
+          '<div class="row">'+
+            '<div class="large-10 large-centered columns">'+
+              '<div class="row collapse">'+
+                '<div class="large-9 small-9 columns">'+
+                  '<div id="provision_rvms_quota_vdc_info_slider">'+
+                  '</div>'+
+                '</div>'+
+                '<div class="large-2 small-2 columns">'+
+                  '<input type="text"  class="provision-input" id="provision_rvms_quota_vdc_info_input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<div class="row">'+
+            '<div class="large-10 large-centered columns">'+
+              '<h5 class="subheader text-right">'+
+                '<span class="left">'+
+                  tr("CPU")+
+                '</span>'+
+              '</h5>'+
+              '<br>'+
+            '</div>'+
+          '</div>'+
+          '<div class="row">'+
+            '<div class="large-10 large-centered columns">'+
+              '<div class="row collapse">'+
+                '<div class="large-9 small-9 columns">'+
+                  '<div id="provision_cpu_quota_vdc_info_slider">'+
+                  '</div>'+
+                '</div>'+
+                '<div class="large-2 small-2 columns">'+
+                  '<input type="text"  class="provision-input" id="provision_cpu_quota_vdc_info_input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<div class="row">'+
+            '<div class="large-10 large-centered columns">'+
+              '<h5 class="subheader text-right">'+
+                '<span class="left">'+
+                  tr("Memory (GBs)")+
+                '</span>'+
+              '</h5>'+
+              '<br>'+
+            '</div>'+
+          '</div>'+
+          '<div class="vm_param">'+
+              '<input type="hidden" id="provision_memory_quota_vdc_info_input"/>'+
+          '</div>'+
+          '<div class="row">'+
+            '<div class="large-10 large-centered columns">'+
+              '<div class="row collapse">'+
+                '<div class="large-9 small-9 columns">'+
+                  '<div id="provision_memory_quota_vdc_info_slider">'+
+                  '</div>'+
+                '</div>'+
+                '<div class="large-2 small-2 columns">'+
+                  '<input type="text"  class="provision-input" id="provision_memory_quota_vdc_info_tmp_input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<br>'+
+          '<br>'+
+          '<div class="row">'+
+            '<div class="large-10 large-centered columns">'+
+              '<a href"#" id="provision_update_quota_button" class="success button large-12 radius" style="margin-right: 15px">'+tr("Update User Quota")+'</a>'+
+            '</div>'+
+          '</div>'+
+          '<a href="#" class="close" style="top: 20px">&times;</a>'+
+        '</div>');
+
+        var provision_rvms_quota_vdc_info_input = $("#provision_rvms_quota_vdc_info_input");
+        var provision_rvms_quota_vdc_info_slider = $( "#provision_rvms_quota_vdc_info_slider").noUiSlider({
+            handles: 1,
+            connect: "lower",
+            range: [0,5000],
+            step: 100,
+            start: 500,
+            value: 500,
+            slide: function(type) {
+                if ( type != "move"){
+                    provision_rvms_quota_vdc_info_input.val($(this).val()/100);
+                }
+            }
+        });
+
+        provision_rvms_quota_vdc_info_slider.addClass("noUiSlider");
+
+        provision_rvms_quota_vdc_info_input.change(function() {
+            provision_rvms_quota_vdc_info_slider.val(this.value * 100)
+        });
+
+        var provision_cpu_quota_vdc_info_input = $("#provision_cpu_quota_vdc_info_input");
+        var provision_cpu_quota_vdc_info_slider = $( "#provision_cpu_quota_vdc_info_slider").noUiSlider({
+            handles: 1,
+            connect: "lower",
+            range: [0,5000],
+            step: 100,
+            start: 4000,
+            value: 4000,
+            slide: function(type) {
+                if ( type != "move"){
+                    provision_cpu_quota_vdc_info_input.val($(this).val()/100);
+                }
+            }
+        });
+
+        provision_cpu_quota_vdc_info_slider.addClass("noUiSlider");
+
+        provision_cpu_quota_vdc_info_input.change(function() {
+            provision_cpu_quota_vdc_info_slider.val(this.value * 100)
+        });
+
+        var provision_memory_quota_vdc_info_input = $("#provision_memory_quota_vdc_info_input");
+        var provision_memory_quota_vdc_info_tmp_input = $("#provision_memory_quota_vdc_info_tmp_input");
+
+        var update_final_memory_input = function() {
+          provision_memory_quota_vdc_info_input.val( Math.floor(provision_memory_quota_vdc_info_tmp_input.val() * 1024) );
+        }
+
+        var provision_memory_quota_vdc_info_slider = $( "#provision_memory_quota_vdc_info_slider").noUiSlider({
+            handles: 1,
+            connect: "lower",
+            range: [0,6400],
+            start: 1600,
+            step: 50,
+            value: 1600,
+            slide: function(type) {
+                if ( type != "move"){
+                    provision_memory_quota_vdc_info_tmp_input.val($(this).val()/100);
+                }
+            }
+        });
+
+        provision_memory_quota_vdc_info_tmp_input.change(function() {
+            provision_memory_quota_vdc_info_slider.val(this.value * 100)
+            update_final_memory_input();
+        });
+
+        provision_memory_quota_vdc_info_slider.addClass("noUiSlider");
+
+        provision_memory_quota_vdc_info_input.change(function() {
+            provision_memory_quota_vdc_info_slider.val(this.value)
+        });
+
+        var quotas_str = $("#provision_info_vdc_user").attr("quotas");
+        if (quotas_str) {
+          var quotas = JSON.parse(quotas_str);
+          provision_rvms_quota_vdc_info_input.val(quotas.VM.VMS).change();
+          provision_cpu_quota_vdc_info_input.val(quotas.VM.CPU).change();
+          provision_memory_quota_vdc_info_tmp_input.val(Math.floor(quotas.VM.MEMORY/1024)).change();
+        }
+    });
+
+
     //$("#provision_info_vm").on("click", "#provision_shutdownhard_confirm_button", function(){
     //  $("#provision_confirm_action").html(
     //    '<div data-alert class="alert-box secondary radius">'+
@@ -3317,15 +3468,21 @@ $(document).ready(function(){
     //  Sunstone.runAction('Provision.saveas', vm_id, obj);
     //});
 //
-    //$("#provision_info_vm").on("click", "#provision_delete_button", function(){
-    //  var vm_id = $("#provision_info_vm").attr("vm_id");
-    //  Sunstone.runAction('Provision.delete', vm_id);
-    //});
+    $("#provision_info_vdc_user").on("click", "#provision_delete_button", function(){
+      var user_id = $("#provision_info_vdc_user").attr("user_id");
+      Sunstone.runAction('Provision.VDCUser.delete', user_id);
+    });
 //
-    //$("#provision_info_vm").on("click", "#provision_shutdownhard_button", function(){
-    //  var vm_id = $("#provision_info_vm").attr("vm_id");
-    //  Sunstone.runAction('Provision.shutdown_hard', vm_id);
-    //});
+    $("#provision_info_vdc_user").on("click", "#provision_update_quota_button", function(){
+      var user_id = $("#provision_info_vdc_user").attr("user_id");
+      Sunstone.runAction("Provision.User.set_quota", [user_id], {
+        "VM" : {
+          "VOLATILE_SIZE":"-1",
+          "VMS": $("#provision_rvms_quota_vdc_info_input").val()||0,
+          "MEMORY": $("#provision_memory_quota_vdc_info_input").val()||0,
+          "CPU": $("#provision_cpu_quota_vdc_info_input").val()||0}
+        });
+    });
 //
     //$("#provision_info_vm").on("click", "#provision_poweroff_button", function(){
     //  var vm_id = $("#provision_info_vm").attr("vm_id");
