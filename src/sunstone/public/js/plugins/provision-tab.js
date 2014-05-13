@@ -971,22 +971,28 @@ if (Config.isTabPanelEnabled("provision-tab", "users")) {
 
 var provision_header = '<img src="images/one_small_logo.png" style="height:40px; vertical-align:top">'+
     '<span class="right" style="font-size: 50%; color: #dfdfdf">'+
-   '<ul class="inline-list text-center" style="font-size:12px">'
+   '<ul class="inline-list text-center" style="font-size:12px">'+
+    '<li class="left" >'+
+        '<a href"#" class="medium button radius provision_create_vm_button" style=" margin-left: 10px;margin-right: 10px;">'+tr('Create VM')+'</a>';
 
 
 if (Config.isTabPanelEnabled("provision-tab", "users")) {
-  provision_header += '<li class="left" >'+
-        '<a href"#" class="medium button radius provision_create_vm_button" style=" margin-left: 10px;margin-right: 10px;">'+tr('Create VM')+'</a>'+
-        '<a href"#" class="medium button radius provision_create_user_button" style="display:none; margin-left: 10px;margin-right: 10px;">'+tr('Add User')+'</a>'+
-      '</li>'
+  provision_header +=
+        '<a href"#" class="medium button radius provision_create_user_button" style="display:none; margin-left: 10px;margin-right: 10px;">'+tr('Add User')+'</a>';
 }
 
-provision_header +=  '<li>'+
+provision_header +=  '</li>';
+
+if (Config.isTabPanelEnabled("provision-tab", "users")) {
+  provision_header +=
+    '<li>'+
       '<a href"#" class="medium off-color" id="provision_users_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-users"/><br>'+tr("Manage VDC")+'</a>'+
     '</li>'+
     '<li style="border-left: 1px solid #efefef; height: 40px"><br>'+
-    '</li>'+
-    '<li>'+
+    '</li>';
+}
+
+provision_header +=  '<li>'+
       '<a href"#" class="medium off-color" id="provision_vms_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-th"/><br>'+tr("VMs")+'</a>'+
     '</li>'+
     '<li>'+
@@ -1094,6 +1100,16 @@ var povision_actions = {
         update_provision_vdc_user_info(response.USER);
     },
     error: onError
+  },
+
+  "Provision.VDCUser.passwd" : {
+      type: "single",
+      call: OpenNebula.User.passwd,
+      callback: function() {
+        show_provision_user_list();
+        notifyMessage("Password updated successfully");
+      },
+      error: onError
   },
 
   "Provision.VDCUser.delete" : {
@@ -1292,6 +1308,9 @@ function show_provision_user_info() {
   $(".section_content").hide();
   $("#provision_user_info").fadeIn();
   $("dd.active a", $("#provision_user_info")).trigger("click");
+
+  $(".provision_create_user_button").hide();
+  $(".provision_create_vm_button").show();
 }
 
 
@@ -3201,6 +3220,52 @@ $(document).ready(function(){
         '</div>');
     });
 
+    $("#provision_info_vdc_user").on("click", "#provision_vdc_user_password_confirm_button", function(){
+      $("#provision_vdc_user_confirm_action").html(
+        '<div data-alert class="alert-box secondary radius">'+
+          '<form id="provision_vdc_user_change_password_form">'+
+            '<div class="row">'+
+              '<div class="large-10 large-centered columns">'+
+                '<input type="password" id="provision_vdc_user_new_password" class="provision-input" placeholder="'+tr("New Password")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+              '</div>'+
+            '</div>'+
+            '<div class="row">'+
+              '<div class="large-10 large-centered columns">'+
+                '<input type="password" id="provision_vdc_user_new_confirm_password" class="provision-input" placeholder="'+tr("Confirm Password")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+                '<br>'+
+              '</div>'+
+            '</div>'+
+            '<div class="row">'+
+              '<div class="large-10 large-centered columns">'+
+                '<button href"#" type="submit" class="button large radius large-12 small-12">'+tr("Update Password")+'</button>'+
+              '</div>'+
+            '</div>'+
+          '</form>'+
+          '<a href="#" class="close" style="top: 20px">&times;</a>'+
+        '</div>');
+
+        $("#provision_vdc_user_change_password_form").submit(function(){
+          var user_id = $("#provision_info_vdc_user").attr("user_id");
+          var pw = $('#provision_vdc_user_new_password', this).val();
+          var confirm_password = $('#provision_vdc_user_new_confirm_password', this).val();
+
+          if (!pw.length){
+              notifyError(tr("Fill in a new password"));
+              return false;
+          }
+
+          if (pw !== confirm_password){
+              notifyError(tr("Passwords do not match"));
+              return false;
+          }
+
+          Sunstone.runAction("Provision.VDCUser.passwd", user_id, pw);
+          return false;
+        });
+    });
+
+
+
     $("#provision_info_vdc_user").on("click", "#provision_vdc_user_quota_confirm_button", function(){
       $("#provision_vdc_user_confirm_action").html(
         '<div data-alert class="alert-box secondary radius">'+
@@ -3388,6 +3453,8 @@ $(document).ready(function(){
     //      '<a href="#" class="close" style="top: 20px">&times;</a>'+
     //    '</div>');
     //});
+
+
 //
     //$("#provision_info_vm").on("click", "#provision_poweroff_confirm_button", function(){
     //  $("#provision_confirm_action").html(
