@@ -4268,7 +4268,11 @@ function fillAccounting(div, req, response) {
             return history.VM.UID;
         }
 
-        var group_by_prefix = tr("User")+" ";
+        var group_by_name = function(history){
+            return history.VM.UNAME;
+        }
+
+        var group_by_prefix = tr("User");
 
         break;
 
@@ -4277,7 +4281,11 @@ function fillAccounting(div, req, response) {
             return history.VM.GID;
         }
 
-        var group_by_prefix = tr("Group")+" ";
+        var group_by_name = function(history){
+            return history.VM.GNAME;
+        }
+
+        var group_by_prefix = tr("Group");
 
         break;
 
@@ -4286,7 +4294,11 @@ function fillAccounting(div, req, response) {
             return history.OID;
         }
 
-        var group_by_prefix = tr("VM")+" ";
+        var group_by_name = function(history){
+            return history.VM.NAME;
+        }
+
+        var group_by_prefix = tr("VM");
 
         break;
     }
@@ -4329,18 +4341,23 @@ function fillAccounting(div, req, response) {
 
         if (series[group_by] == undefined){
             series[group_by] = {};
+            series[group_by].data_points = {};
 
-            series[group_by][times[0]] = {};
-            series[group_by][times[times.length-2]] = {};
+            series[group_by].data_points[times[0]] = {};
+            series[group_by].data_points[times[times.length-2]] = {};
 
-            series[group_by][times[0]].CPU_HOURS = 0;
-            series[group_by][times[times.length-2]].CPU_HOURS = 0;
+            series[group_by].data_points[times[0]].CPU_HOURS = 0;
+            series[group_by].data_points[times[times.length-2]].CPU_HOURS = 0;
 
-            series[group_by][times[0]].MEM_HOURS = 0;
-            series[group_by][times[times.length-2]].MEM_HOURS = 0;
+            series[group_by].data_points[times[0]].MEM_HOURS = 0;
+            series[group_by].data_points[times[times.length-2]].MEM_HOURS = 0;
+
+            var name = group_by_name(history);
+            series[group_by].name = name;
+            series[group_by].label = group_by_prefix+" "+group_by+" "+name;
         }
 
-        var serie = series[group_by];
+        var serie = series[group_by].data_points;
 
         for (var i = 0; i<times.length-1; i++){
 
@@ -4398,20 +4415,24 @@ function fillAccounting(div, req, response) {
         var cpu_data = [];
         var mem_data = [];
 
-        $.each(val, function(time,num){
+        $.each(val.data_points, function(time,num){
             cpu_data.push([parseInt(time),num.CPU_HOURS]);
             mem_data.push([parseInt(time),num.MEM_HOURS]);
         });
 
         cpu_plot_series.push(
         {
-            label: group_by_prefix+key,
+            label: val.label,
+            name: val.name,
+            id: key,
             data: cpu_data
         });
 
         mem_plot_series.push(
         {
-            label: group_by_prefix+key,
+            label: val.label,
+            name: val.name,
+            id: key,
             data: mem_data
         });
     });
@@ -4448,8 +4469,9 @@ function fillAccounting(div, req, response) {
 
     $.each(cpu_plot_data, function(i, serie){
         thead += '<th style="border-bottom: '+serie.color+' 4px solid !important;'+
-            ' border-left: 10px solid white; border-right: 5px solid white">'+
-            serie.label+'</th>';
+            ' border-left: 10px solid white; border-right: 5px solid white;'+
+            ' white-space: nowrap">'+
+            group_by_prefix+' '+serie.id+'<br/>'+serie.name+'</th>';
     });
 
     thead += '</tr></thead>';
@@ -4464,8 +4486,9 @@ function fillAccounting(div, req, response) {
 
     $.each(mem_plot_data, function(i, serie){
         thead += '<th style="border-bottom: '+serie.color+' 4px solid !important;'+
-            ' border-left: 10px solid white; border-right: 5px solid white">'+
-            serie.label+'</th>';
+            ' border-left: 10px solid white; border-right: 5px solid white;'+
+            ' white-space: nowrap">'+
+            group_by_prefix+' '+serie.id+'<br/>'+serie.name+'</th>';
     });
 
     thead += '</tr></thead>';
@@ -4494,7 +4517,7 @@ function fillAccounting(div, req, response) {
         var mem_total = 0;
 
         $.each(series, function(key, val){
-            var v = val[t];
+            var v = val.data_points[t];
 
             if(v != undefined){
                 var cpu_v = (v.CPU_HOURS * 100).toFixed() / 100;
