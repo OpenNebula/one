@@ -171,14 +171,7 @@ module OpenNebula
         def allocate(template_json)
             template = JSON.parse(template_json)
 
-            validator = Validator::Validator.new(
-                :default_values => true,
-                :delete_extra_properties => false
-            )
-
-            validator.validate!(template, SCHEMA)
-
-            validate_values(template)
+            validate(template)
 
             super(template.to_json, template['name'])
         end
@@ -193,6 +186,12 @@ module OpenNebula
         def update(template_json)
             template = JSON.parse(template_json)
 
+            validator(template)
+
+            super(template.to_json)
+        end
+
+        def self.validate(template)
             validator = Validator::Validator.new(
                 :default_values => true,
                 :delete_extra_properties => false
@@ -201,13 +200,11 @@ module OpenNebula
             validator.validate!(template, SCHEMA)
 
             validate_values(template)
-
-            super(template.to_json)
         end
 
     private
 
-        def validate_values(template)
+        def self.validate_values(template)
             parser = ElasticityGrammarParser.new
 
             roles = template['roles']
