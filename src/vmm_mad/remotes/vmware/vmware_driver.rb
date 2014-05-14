@@ -58,20 +58,21 @@ class VMwareDriver
     SHUTDOWN_TIMEOUT  = 500
 
     def initialize(host)
-       conf  = YAML::load(File.read(CONF_FILE))
+       conf            = YAML::load(File.read(CONF_FILE))
 
-       @uri  = conf[:libvirt_uri].gsub!('@HOST@', host)
-       @host = host
+       @uri            = conf[:libvirt_uri].gsub!('@HOST@', host)
+       @host           = host
+       @reserve_memory = conf[:reserve_memory_in_disk]
 
-       @user = conf[:username]
+       @user           = conf[:username]
        if conf[:password] and !conf[:password].empty?
           @pass=conf[:password]
        else
           @pass="\"\""
        end
 
-       @datacenter = conf[:datacenter]
-       @vcenter    = conf[:vcenter]
+       @datacenter     = conf[:datacenter]
+       @vcenter        = conf[:vcenter]
     end
 
     # ######################################################################## #
