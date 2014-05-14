@@ -198,9 +198,9 @@ class VMwareDriver
     # ------------------------------------------------------------------------ #
     def restore(checkpoint)
         begin
+            vm_id = File.basename(File.dirname(checkpoint))
             vm_folder=VAR_LOCATION <<
-                      "/vms/" <<
-                      File.basename(File.dirname(checkpoint))
+                      "/vms/" << vm_id
             dfile=`ls -1 #{vm_folder}/deployment*|tail -1`
             dfile.strip!
         rescue => e
@@ -208,9 +208,12 @@ class VMwareDriver
             exit(-1)
         end
 
-        deploy_id = define_domain(dfile)
-
-        exit(-1) if deploy_id.nil?
+        if not domain_defined?(id)
+            deploy_id = define_domain(dfile)
+            exit(-1) if deploy_id.nil?
+        else
+            deploy_id = "one-#{id}"
+        end
 
         # Revert snapshot VM
         # Note: This assumes the checkpoint name is "checkpoint", to change
