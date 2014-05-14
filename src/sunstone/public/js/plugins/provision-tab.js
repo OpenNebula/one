@@ -654,13 +654,23 @@ var provision_list_templates = '<div id="provision_list_templates" class="hidden
           '<i class="fa fa-fw fa-save"/>&emsp;'+
           tr("Saved Templates")+
         '</span>'+
-        '<a href"#" id="provision_templates_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip tip-top right">'+
+        '<a href"#" id="provision_templates_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip right">'+
           '<i class="fa fa-fw fa-refresh"/>'+
         '</a>'+
-        '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_list_templates_search"/>'+
+        '<span id="provision_list_templates_filter" style="display: none"/></span>'+
+        '<a href"#" id="provision_templates_list_filter_button" data-tooltip title="'+ tr("Filter by User")+'" class="has-tip right">'+
+          '<i class="fa fa-fw fa-filter"/>'+
+        '</a>'+
+        '<span>'+
+        '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_list_templates_search" style="display: none"/>'+
+        '</span>'+
+        '<a href"#" id="provision_templates_list_search_button" data-tooltip title="'+ tr("Search")+'" class="has-tip right">'+
+          '<i class="fa fa-fw fa-search"/>'+
+        '</a>'+
       '</h2>'+
     '</div>'+
   '</div>'+
+  '<br>'+
   '<div class="row">'+
     '<div class="large-10 large-centered columns" id="provision_confirm_delete_template_div">'+
     '</div>'+
@@ -673,6 +683,7 @@ var provision_list_templates = '<div id="provision_list_templates" class="hidden
             '<th>'+tr("ID")+'</th>'+
             '<th>'+tr("Name")+'</th>'+
             '<th>'+tr("Saved")+'</th>'+
+            '<th>'+tr("User ID")+'</th>'+
           '</tr>'+
         '</thead>'+
         '<tbody class="hidden">'+
@@ -694,10 +705,20 @@ var provision_list_vms = '<div id="provision_list_vms" class="section_content">'
         '<a href"#" id="provision_vms_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip right">'+
           '<i class="fa fa-fw fa-refresh"/>'+
         '</a>'+
-        '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_list_vms_search"/>'+
+        '<span id="provision_list_vms_filter" style="display: none"/></span>'+
+        '<a href"#" id="provision_vms_list_filter_button" data-tooltip title="'+ tr("Filter by User")+'" class="has-tip right">'+
+          '<i class="fa fa-fw fa-filter"/>'+
+        '</a>'+
+        '<span>'+
+        '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_list_vms_search" style="display: none"/>'+
+        '</span>'+
+        '<a href"#" id="provision_vms_list_search_button" data-tooltip title="'+ tr("Search")+'" class="has-tip right">'+
+          '<i class="fa fa-fw fa-search"/>'+
+        '</a>'+
       '</h2>'+
     '</div>'+
   '</div>'+
+  '<br>'+
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
       '<table id="provision_vms_table">'+
@@ -705,6 +726,7 @@ var provision_list_vms = '<div id="provision_list_vms" class="section_content">'
           '<tr>'+
             '<th>'+tr("ID")+'</th>'+
             '<th>'+tr("Name")+'</th>'+
+            '<th>'+tr("User ID")+'</th>'+
           '</tr>'+
         '</thead>'+
         '<tbody class="hidden">'+
@@ -1743,9 +1765,9 @@ function get_provision_disk_image(data) {
       disks = [data.TEMPLATE.DISK]
 
   if (disks.length > 0) {
-    return '<i class="fa fa-fw fa-download"></i>' + disks[0].IMAGE;
+    return '<i class="fa fa-fw fa-download"></i>&emsp;' + disks[0].IMAGE;
   } else {
-    return '<i class="fa fa-fw fa-download"></i> -';
+    return '<i class="fa fa-fw fa-download"></i>&emsp; -';
   }
 }
 
@@ -1763,9 +1785,9 @@ function get_provision_ips(data) {
         ips.push(nic.IP);
     })
 
-    return '<i class="fa fa-fw fa-globe"></i>' + ips.join(', ');
+    return '<i class="fa fa-fw fa-globe"></i>&emsp;' + ips.join(', ');
   } else {
-    return '<i class="fa fa-fw fa-globe"></i> -';
+    return '<i class="fa fa-fw fa-globe"></i>&emsp; -';
   }
 }
 
@@ -1907,21 +1929,33 @@ function update_provision_vm_info(data) {
         '</span>'+
       '</li>'+
       '<li class="right">'+
-        '<span style="color: #afafaf; font-size:14px">'+
+        '<span style="color: #afafaf;px">'+
           "ID: " +
           data.ID+
         '</span>' +
       '</li>'+
     '</ul>');
 
-  $("#provision_info_vm_state", context).html('<span class="'+ state.color +'-color">'+
-      '<i class="fa fa-fw fa-square"/>&emsp;'+
-      state.str+
-    '</span>'+
-    '<span style="color: #999; font-size:14px" class="right" >'+
-      '<i class="fa fa-fw fa-clock-o"/>'+
-      _format_date(data.STIME)+
-    '</span>');
+  $("#provision_info_vm_state", context).html('<ul class="inline-list" style="color: #555; font-size: 14px; margin-bottom: 0px">'+
+      '<li>'+
+        '<span class="'+ state.color +'-color">'+
+          '<i class="fa fa-fw fa-square"/>&emsp;'+
+          state.str+
+        '</span>'+
+      '</li>'+
+      '<li class="right">'+
+        '<span style="color: #999;px">'+
+          '<i class="fa fa-fw fa-clock-o"/>'+
+          _format_date(data.STIME)+
+        '</span>'+
+      '</li>'+
+      '<li class="right">'+
+        '<span style="color: #999;px">'+
+          '<i class="fa fa-fw fa-user"/>&emsp;'+
+          data.UNAME+
+        '</span>'+
+      '</li>'+
+    '</ul>');
   $("#provision_info_vm_state_hr", context).html('<div style="height:1px; margin-top:5px; margin-bottom: 5px; background: #cfcfcf"></div>');
 
   $("#provision_confirm_action", context).html("");
@@ -2510,7 +2544,8 @@ $(document).ready(function(){
       "aoColumns": [
           { "mDataProp": "VMTEMPLATE.ID" },
           { "mDataProp": "VMTEMPLATE.NAME" },
-          { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  }
+          { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  },
+          { "mDataProp": "VMTEMPLATE.UID" }
       ],
       "fnPreDrawCallback": function (oSettings) {
         // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
@@ -2540,26 +2575,29 @@ $(document).ready(function(){
         $("#provision_templates_ul").append('<li>'+
             '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" saved_to_image_id="'+data.TEMPLATE.SAVED_TO_IMAGE_ID+'" datatable_index="'+iDisplayIndexFull+'">'+
               '<li class="provision-title text-left" title="'+data.NAME+'">'+
-                data.NAME + '<a class="provision_confirm_delete_template_button" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-trash-o right only-on-hover"/></a>'+
+                data.NAME +
               '</li>'+
-              '<li class="provision-bullet-item">'+
-                '<span style="font-size: 40px">'+
+              '<li class="provision-description text-left" style="padding-top:0px; padding-bottom: 0px">'+
+                (data.TEMPLATE.DESCRIPTION || '...')+
+              '</li>'+
+              '<li class="provision-description text-right" style="padding-top:5px; margin-right: 5px">'+
+                '<i class="fa fa-fw fa-clock-o"/>'+
+                _format_date(data.REGTIME)+
+                " " + tr("from VM") + ": " + (data.TEMPLATE.SAVED_TEMPLATE_ID||'-') +
+              '</li>'+
+              '<li class="provision-bullet-item text-left">'+
                 '<i class="fa fa-fw fa-file-text-o"/>&emsp;'+
-                '<span style="vertical-align: middle; font-size:14px">'+
                   'x'+(data.TEMPLATE.CPU||'-')+' - '+
                   ((data.TEMPLATE.MEMORY > 1000) ?
                     (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
                     ((data.TEMPLATE.MEMORY||'-')+'MB'))+
-                '</span>'+
-                '</span>'+
               '</li>'+
-              '<li class="provision-description">'+
-                (data.TEMPLATE.DESCRIPTION || '...')+
+              '<li class="provision-bullet-item text-left">'+
+                '<i class="fa fa-fw fa-user"/>&emsp;'+
+                data.UNAME+
               '</li>'+
-              '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; padding-bottom:10px">'+
-                '<i class="fa fa-fw fa-clock-o"/>'+
-                _format_date(data.REGTIME)+
-                " " + tr("from VM") + ": " + (data.TEMPLATE.SAVED_TEMPLATE_ID||'-') +
+              '<li class="provision-title" style="padding-top:0px">'+
+                '<a class="provision_confirm_delete_template_button" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-trash-o right only-on-hover"/></a>'+
               '</li>'+
             '</ul>'+
           '</li>');
@@ -2589,6 +2627,27 @@ $(document).ready(function(){
       show_provision_template_list(0);
     });
 
+    $("#provision_list_templates").on("click", "#provision_templates_list_search_button", function(){
+      $("#provision_list_templates_search", $("#provision_list_templates")).fadeIn();
+    });
+
+    $("#provision_list_templates").on("click", "#provision_templates_list_filter_button", function(){
+      insertSelectOptions("#provision_list_templates_filter", $("#provision_list_templates"), "User", -2, false,
+          '<option value="-2">'+tr("<< all >>")+'</option>');
+
+      $("#provision_list_templates_filter ").on("change", ".resource_list_select", function(){
+        var filter;
+        if ($(this).val() == "-2"){
+          filter = "";
+        } else {
+          filter = $(this).val();
+        }
+
+        provision_templates_datatable.fnFilter( filter, 3 );
+      })
+
+      $("#provision_list_templates_filter", $("#provision_list_templates")).fadeIn();
+    });
 
     $("#provision_list_templates").on("click", ".provision_confirm_delete_template_button", function(){
       var context = $(this).parents(".provision-pricing-table");
@@ -2650,7 +2709,8 @@ $(document).ready(function(){
       ],
       "aoColumns": [
           { "mDataProp": "VM.ID" },
-          { "mDataProp": "VM.NAME" }
+          { "mDataProp": "VM.NAME" },
+          { "mDataProp": "VM.UID" }
       ],
       "fnPreDrawCallback": function (oSettings) {
         // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
@@ -2679,24 +2739,31 @@ $(document).ready(function(){
         $("#provision_vms_ul").append('<li>'+
             '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
               '<li class="provision-title text-left" style="padding-bottom: 5px">'+
-                '<a class="provision_info_vm_button" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-sign-in right only-on-hover"/>'+ data.NAME + '</a>'+
+                '<a class="provision_info_vm_button" style="color:#555" href="#">'+ data.NAME + '</a>'+
               '</li>'+
-              '<li class="provision-bullet-item text-left" style="margin-left:15px">'+
+              '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; padding-bottom:10px">'+
+                '<i class="fa fa-fw fa-clock-o"/>'+
+                _format_date(data.STIME)+
+              '</li>'+
+              '<li class="provision-bullet-item text-left">'+
                 '<i class="fa fa-fw fa-laptop"/>&emsp;'+
                 'x'+data.TEMPLATE.CPU+' - '+
                 ((data.TEMPLATE.MEMORY > 1000) ?
                   (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
                   (data.TEMPLATE.MEMORY+'MB'))+
               '</li>'+
-              '<li class="provision-bullet-item text-left" style="margin-left:15px">'+
+              '<li class="provision-bullet-item text-left">'+
                 get_provision_disk_image(data) +
               '</li>'+
-              '<li class="provision-bullet-item text-left" style="margin-left:15px">'+
+              '<li class="provision-bullet-item text-left">'+
                 get_provision_ips(data) +
               '</li>'+
-              '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; margin-top:15px; padding-bottom:10px">'+
-                '<i class="fa fa-fw fa-clock-o"/>'+
-                _format_date(data.STIME)+
+              '<li class="provision-bullet-item text-left">'+
+                '<i class="fa fa-fw fa-user"/>&emsp;'+
+                data.UNAME+
+              '</li>'+
+              '<li class="provision-bullet-item text-right" style="font-size:14px; color: #999; margin-top:15px; padding-bottom:10px">'+
+                '<a class="provision_info_vm_button" style="color:#555;" href="#"><i class="fa fa-fw fa-lg fa-sign-in right only-on-hover"/></a>'+
                 '<span class="'+ state.color +'-color left">'+
                   '<i class="fa fa-fw fa-square"/>&emsp;'+
                   state.str+
@@ -2730,6 +2797,28 @@ $(document).ready(function(){
     $("#provision_list_vms").on("click", "#provision_vms_list_refresh_button", function(){
       OpenNebula.Helper.clear_cache("VM");
       show_provision_vm_list(0);
+    });
+
+    $("#provision_list_vms").on("click", "#provision_vms_list_search_button", function(){
+      $("#provision_list_vms_search", $("#provision_list_vms")).fadeIn();
+    });
+
+    $("#provision_list_vms").on("click", "#provision_vms_list_filter_button", function(){
+      insertSelectOptions("#provision_list_vms_filter", $("#provision_list_vms"), "User", -2, false,
+          '<option value="-2">'+tr("<< all >>")+'</option>');
+
+      $("#provision_list_vms_filter ").on("change", ".resource_list_select", function(){
+        var filter;
+        if ($(this).val() == "-2"){
+          filter = "";
+        } else {
+          filter = $(this).val();
+        }
+
+        provision_vms_datatable.fnFilter( filter, 2 );
+      })
+
+      $("#provision_list_vms_filter", $("#provision_list_vms")).fadeIn();
     });
 
     //
@@ -3202,6 +3291,48 @@ $(document).ready(function(){
 
       return false;
     })
+
+    $("#provision_info_vdc_user").on("click", ".show_vdc_user_vms_button", function(){
+      show_provision_vm_list(0);
+      var user_id = $("#provision_info_vdc_user").attr("user_id");
+
+      insertSelectOptions("#provision_list_vms_filter", $("#provision_list_vms"), "User", user_id, false,
+          '<option value="-2">'+tr("<< all >>")+'</option>');
+
+      $("#provision_list_vms_filter ").on("change", ".resource_list_select", function(){
+        var filter;
+        if ($(this).val() == "-2"){
+          filter = "";
+        } else {
+          filter = $(this).val();
+        }
+
+        provision_vms_datatable.fnFilter( filter, 2 );
+      })
+
+      $("#provision_list_vms_filter", $("#provision_list_vms")).fadeIn();
+    });
+
+    $("#provision_info_vdc_user").on("click", ".show_vdc_user_templates_button", function(){
+      show_provision_template_list(0);
+      var user_id = $("#provision_info_vdc_user").attr("user_id");
+
+      insertSelectOptions("#provision_list_templates_filter", $("#provision_list_templates"), "User", user_id, false,
+          '<option value="-2">'+tr("<< all >>")+'</option>');
+
+      $("#provision_list_templates_filter ").on("change", ".resource_list_select", function(){
+        var filter;
+        if ($(this).val() == "-2"){
+          filter = "";
+        } else {
+          filter = $(this).val();
+        }
+
+        provision_templates_datatable.fnFilter( filter, 3 );
+      })
+
+      $("#provision_list_templates_filter", $("#provision_list_templates")).fadeIn();
+    });
 
     $("#provision_info_vdc_user").on("click", "#provision_vdc_user_delete_confirm_button", function(){
       $("#provision_vdc_user_confirm_action").html(

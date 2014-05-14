@@ -1782,6 +1782,7 @@ function insertSelectOptions(id, context, resource, init_val, empty_value,
 
             if (init_val){
                 $(id+" .resource_list_select", context).val(init_val);
+                $(id+" .resource_list_select", context).change();
             }
         },
         error: onError

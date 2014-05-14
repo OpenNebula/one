@@ -812,9 +812,19 @@ div.dataTables_scrollFoot table {
 
 .provision-search-input {
   width: 200px !important;
-  height:40px !important;
+  height:35px !important;
   border-radius: 3px;
   border-color: #efefef;
+  margin: 5px 0 0px 0 !important;
+}
+
+#provision_list_vms_filter select, #provision_list_templates_filter select {
+  width: auto !important;
+  height:35px !important;
+  border-radius: 3px;
+  border-color: #efefef;
+  float: right !important;
+  margin: 5px 10px 0px 0px;
 }
 
 .accordion {
