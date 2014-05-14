@@ -44,7 +44,7 @@ require 'pp'
 
 class VmmAction
     # List of xpaths required by the VNM driver actions
-    XPATH_LIST = %w(ID DEPLOY_ID TEMPLATE/NIC)
+    XPATH_LIST = %w(ID DEPLOY_ID TEMPLATE/NIC HISTORY_RECORDS/HISTORY/HOSTNAME)
 
     attr_reader :data
 
