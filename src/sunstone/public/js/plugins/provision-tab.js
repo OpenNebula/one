@@ -3207,16 +3207,19 @@ $(document).ready(function(){
       $("#provision_vdc_user_confirm_action").html(
         '<div data-alert class="alert-box secondary radius">'+
           '<div class="row">'+
-          '<div class="large-9 columns">'+
-            '<span style="font-size: 14px; line-height: 20px">'+
-              tr("Be careful, this action will inmediately remove the User from OpenNebula")+
-            '</span>'+
+            '<div class="large-10 large-centered columns">'+
+              '<span style="font-size: 14px; line-height: 20px">'+
+                tr("Be careful, this action will inmediately remove the User from OpenNebula")+
+              '</span>'+
+            '</div>'+
           '</div>'+
-          '<div class="large-3 columns">'+
-            '<a href"#" id="provision_delete_button" class="alert button large-12 radius right" style="margin-right: 15px">'+tr("Delete User")+'</a>'+
+          '<br>'+
+          '<div class="row">'+
+            '<div class="large-10 large-centered columns">'+
+              '<a href"#" id="provision_delete_button" class="alert button large-12 large radius">'+tr("Delete User")+'</a>'+
+            '</div>'+
           '</div>'+
-          '</div>'+
-          '<a href="#" class="close">&times;</a>'+
+          '<a href="#" class="close" style="top: 20px">&times;</a>'+
         '</div>');
     });
 
@@ -3237,7 +3240,7 @@ $(document).ready(function(){
             '</div>'+
             '<div class="row">'+
               '<div class="large-10 large-centered columns">'+
-                '<button href"#" type="submit" class="button large radius large-12 small-12">'+tr("Update Password")+'</button>'+
+                '<button href"#" type="submit" class="button success large radius large-12 small-12">'+tr("Update Password")+'</button>'+
               '</div>'+
             '</div>'+
           '</form>'+
@@ -3345,7 +3348,7 @@ $(document).ready(function(){
           '<br>'+
           '<div class="row">'+
             '<div class="large-10 large-centered columns">'+
-              '<a href"#" id="provision_update_quota_button" class="success button large-12 radius" style="margin-right: 15px">'+tr("Update User Quota")+'</a>'+
+              '<a href"#" id="provision_update_quota_button" class="success large button large-12 radius" style="margin-right: 15px">'+tr("Update User Quota")+'</a>'+
             '</div>'+
           '</div>'+
           '<a href="#" class="close" style="top: 20px">&times;</a>'+
