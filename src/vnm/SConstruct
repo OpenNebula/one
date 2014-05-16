@@ -22,9 +22,9 @@ lib_name='nebula_vnm'
 
 # Sources to generate the library
 source_files=[
-    'Leases.cc',
-    'FixedLeases.cc',
-    'RangedLeases.cc',
+#    'Leases.cc',
+#    'FixedLeases.cc',
+#    'RangedLeases.cc',
     'VirtualNetwork.cc',
     'VirtualNetworkPool.cc',
     'AddressRange.cc',

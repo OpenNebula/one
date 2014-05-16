@@ -218,3 +218,21 @@ void AddressRangePool::free_addr(unsigned int arid, PoolObjectSQL::ObjectType ot
         }
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AddressRangePool::get_attribute(const char * name, string& value,
+    int ar_id) const
+{
+    map<unsigned int, AddressRange *>::const_iterator it;
+
+    value.clear();
+
+    it = ar_pool.find(ar_id);
+
+    if (it!=ar_pool.end())
+    {
+        value = it->second->get_attribute(name);
+    }
+}

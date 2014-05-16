@@ -165,6 +165,16 @@ public:
         return used_addr;
     }
 
+    /**
+     *  Returns the string value of an Address Range Attribute
+     *    @param name of the attribute
+     *    @return the value of the attribute if found, empty otherwise
+     */
+    string get_attribute(const char *name) const
+    {
+        return attr->vector_value(name);
+    }
+
 private:
     /* ---------------------------------------------------------------------- */
     /* String to binary conversion functions for different address types      */

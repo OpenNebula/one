@@ -87,5 +87,4 @@ struct YYLTYPE
 # define YYLTYPE_IS_DECLARED 1
 # define YYLTYPE_IS_TRIVIAL 1
 #endif
-
 #endif /* !YY_VM_VAR_VM_VAR_SYNTAX_HH_INCLUDED  */

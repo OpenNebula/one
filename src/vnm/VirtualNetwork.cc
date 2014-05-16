@@ -553,7 +553,7 @@ int VirtualNetwork::nic_attribute(
 
     for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)
     {
-        get_template_attribute((*it).c_str(), inherit_val);
+        PoolObjectSQL::get_template_attribute((*it).c_str(), inherit_val);
 
         if (!inherit_val.empty())
         {
@@ -646,3 +646,13 @@ int VirtualNetwork::free_leases(VirtualNetworkTemplate * leases_template,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void VirtualNetwork::get_template_attribute(const char * name, string& value, int ar_id) const
+{
+    ar_pool.get_attribute(name, value, ar_id);
+
+    if (value.empty())
+    {
+        PoolObjectSQL::get_template_attribute(name, value);
+    }
+}

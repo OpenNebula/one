@@ -109,7 +109,7 @@ int VirtualNetworkPool::allocate (
                             cluster_id, cluster_name, vn_template);
 
     // Check name
-    vn->get_template_attribute("NAME", name);
+    vn->PoolObjectSQL::get_template_attribute("NAME", name);
 
     if ( !PoolObjectSQL::name_is_valid(name, error_str) )
     {

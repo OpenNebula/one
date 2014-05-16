@@ -207,6 +207,17 @@ public:
      */
     int replace_template(const string& tmpl_str, string& error);
 
+    /**
+     *  Gets a string based attribute (single) from an address range. If the
+     *  attribute is not found in the address range, the VNET template will be
+     *  used
+     *    @param name of the attribute
+     *    @param value of the attribute (a string), will be "" if not defined or
+     *    not a single attribute
+     *    @param ar_id of the address attribute.
+     */
+    void get_template_attribute(const char * name, string& value, int ar_id) const;
+
 private:
 
     // -------------------------------------------------------------------------
@@ -266,15 +277,9 @@ private:
      */
     static int bootstrap(SqlDB * db)
     {
-        int rc;
-
         ostringstream oss_vnet(VirtualNetwork::db_bootstrap);
-        ostringstream oss_lease(Leases::db_bootstrap);
 
-        rc =  db->exec(oss_vnet);
-        rc += db->exec(oss_lease);
-
-        return rc;
+        return db->exec(oss_vnet);
     };
 
     /**

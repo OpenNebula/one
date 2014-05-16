@@ -115,6 +115,8 @@ public:
         return used_addr;
     }
 
+    void get_attribute(const char * name, string& value, int ar_id) const;
+
 private:
     /**
      *  Stores the Address Ranges in a template form. This template is used
